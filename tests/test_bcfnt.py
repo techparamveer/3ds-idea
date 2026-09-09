@@ -51,6 +51,34 @@ class FontTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unsupported'):
             bcfnt.convert(data)
 
+    def test_small_blocks_cannot_borrow_neighboring_bytes(self):
+        for at in (24, 56, 88, 107):
+            data = bytearray(fixture())
+            struct.pack_into('<I', data, at, 8)
+            with self.assertRaises(ValueError):
+                bcfnt.convert(data)
+
+    def test_second_sheet_mapping_and_default_widths(self):
+        data = bytearray(fixture())
+        # Two sheets, direct mapping starts at glyph index 4 (second sheet).
+        struct.pack_into('<H', data, 68, 2)
+        struct.pack_into('<H', data, 123, 4)
+        data.extend(bytes([0xff] * 32))
+        struct.pack_into('<I', data, 12, len(data))
+        manifest, sheets = bcfnt.convert(data)
+        self.assertEqual(len(sheets), 2)
+        self.assertEqual(manifest['glyphs']['65']['sheet'], 1)
+        self.assertEqual(manifest['glyphs']['65']['left'], -1)
+        self.assertEqual(manifest['glyphs']['66']['x'], 4)
+
+    def test_fallback_sentinel_and_unsupported_revision(self):
+        data = bytearray(fixture())
+        struct.pack_into('<H', data, 30, 0xffff)
+        self.assertIsNone(bcfnt.convert(data)[0]['fallback'])
+        struct.pack_into('<I', data, 8, 0x04000000)
+        with self.assertRaisesRegex(ValueError, 'version 3'):
+            bcfnt.convert(data)
+
 
 if __name__ == '__main__':
     unittest.main()

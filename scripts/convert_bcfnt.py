@@ -49,10 +49,13 @@ def convert(data):
         raise ValueError('Expected standalone little-endian CFNT, not encrypted content or shared-memory dump')
     if len(data) > 32 * 1024 * 1024 or blocks > 4096:
         raise ValueError('Font exceeds conversion limits')
+    if version != 0x03000000:
+        raise ValueError('Only CFNT version 3 is supported')
 
     def block(at, kind):
         tag, length = read('4sI', at)
-        if tag != kind or length < 8 or at + length > len(data):
+        minimum = {b'FINF': 32, b'TGLP': 32, b'CWDH': 16, b'CMAP': 20}[kind]
+        if tag != kind or length < minimum or at + length > len(data):
             raise ValueError(f'Invalid {kind.decode()} block')
         return at + length
 
@@ -86,7 +89,7 @@ def convert(data):
         if last < first or at + 8 + (last - first + 1) * 3 > end:
             raise ValueError('Invalid width range')
         for index in range(first, last + 1):
-            widths[index] = read('bBB', at + 8 + (index - first) * 3)
+            widths.setdefault(index, read('bBB', at + 8 + (index - first) * 3))
     for at, end in chain(cmap, b'CMAP'):
         first, last, method, _, _ = read('HHHHI', at)
         start = at + 12
@@ -102,6 +105,8 @@ def convert(data):
                 raise ValueError('Truncated table map')
             entries = ((code, read('H', start + (code - first) * 2)[0]) for code in range(first, last + 1))
         elif method == 2:
+            if start + 2 > end:
+                raise ValueError('Truncated scan map count')
             n = read('H', start)[0]
             if start + 2 + n * 4 > end:
                 raise ValueError('Truncated scan map')
@@ -109,8 +114,10 @@ def convert(data):
         else:
             raise ValueError(f'Unknown CMAP method {method}')
         for code, index in entries:
+            if not first <= code <= last:
+                raise ValueError('Scan code outside declared range')
             if index != 0xffff:
-                mappings[code] = index
+                mappings.setdefault(code, index)
 
     def glyph(index):
         if not 0 <= index < cols * rows * count:

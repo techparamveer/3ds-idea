@@ -1,0 +1,19 @@
+{
+  "settings": {
+    "noise_scale_uv": 1600.0,
+    "normal_xy_strength": 0.24,
+    "roughness_strength": 0.16,
+    "seed": 0,
+    "interpretation": "Authored fine paint grain estimated from silver-unit photographs; not measured paint constants."
+  },
+  "maps": {
+    "Image_3": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-paint-grain-normal.png",
+      "sha256": "4d018091900aa3d331499336bedeea5bcb539b90f6b68ac9ec06ac64e99ba2c9"
+    },
+    "Image_1": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-paint-grain-metallic-roughness.png",
+      "sha256": "202d15bf4421fe871f5df0bbcf1a4ca571f4e64bf1dd56e41fcd5f60523ea069"
+    }
+  }
+}

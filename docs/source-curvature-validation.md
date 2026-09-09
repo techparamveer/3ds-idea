@@ -1,5 +1,9 @@
 # Sourced shell curvature — 10 September 2026
 
+The current material pass adds [baked fine paint grain](source-paint-grain-validation.md)
+to this geometry and is saved as `silver-grain.blend` / `.glb`. The measurements
+and geometry verification below remain unchanged.
+
 The active downloaded-model derivative now has shallow broad curvature on its
 outer lid and underside. It preserves the existing rolled edges, paint artwork,
 controls and hinge. The editable file is

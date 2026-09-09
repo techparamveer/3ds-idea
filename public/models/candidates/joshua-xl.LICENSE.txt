@@ -32,9 +32,12 @@ Additional modifications, 10 September 2026:
 - Preserved all seven silver-baseline texture payloads, UV alignment, material
   factors, control geometry and hierarchy. Updated shading frames to follow
   the smooth deformation.
+- Subsequently added estimated fine silver paint grain to the normal and
+  roughness atlases. Every unpainted pixel and the metallic channel remain
+  exact; the other five embedded images and all geometry are unchanged.
 
 This public GLB is the fully textured silver model used by the portfolio
-homepage, derived from model/candidates/joshua-xl/silver-curved.blend. It is not
+homepage, derived from model/candidates/joshua-xl/silver-grain.blend. It is not
 the earlier textureless inspection preview. The original red source, its images
 and the earlier procedural model remain preserved separately.
 

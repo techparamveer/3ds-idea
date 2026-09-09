@@ -1,0 +1,62 @@
+{
+  "paint_pixels": 5044041,
+  "unpainted_pixels": 11733175,
+  "maps": {
+    "normal": {
+      "source_sha256": "c0da55d15b2ca5dd70840a680b0384f4ba05b6794f37159edf95335c8455b5a5",
+      "output_sha256": "4d018091900aa3d331499336bedeea5bcb539b90f6b68ac9ec06ac64e99ba2c9",
+      "unpainted_changed_pixels": 0,
+      "paint_changed_pixels": 4926822,
+      "max_absolute_channel_delta_8bit": [
+        11,
+        12,
+        6
+      ],
+      "paint_channel_delta_percentiles_1_50_99_8bit": [
+        [
+          -6.0,
+          -7.0,
+          -2.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          6.0,
+          7.0,
+          2.0
+        ]
+      ]
+    },
+    "metallic-roughness": {
+      "source_sha256": "4caec9da7efef6d5a340b35fe353b6e4325d714b176553eee2c6947497b00ab6",
+      "output_sha256": "202d15bf4421fe871f5df0bbcf1a4ca571f4e64bf1dd56e41fcd5f60523ea069",
+      "unpainted_changed_pixels": 0,
+      "paint_changed_pixels": 4468133,
+      "max_absolute_channel_delta_8bit": [
+        0,
+        15,
+        0
+      ],
+      "paint_channel_delta_percentiles_1_50_99_8bit": [
+        [
+          0.0,
+          -8.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          8.0,
+          0.0
+        ]
+      ]
+    }
+  }
+}

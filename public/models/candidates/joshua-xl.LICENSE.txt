@@ -1,0 +1,13 @@
+Nintendo 3DS XL — sourced model preview
+
+Original model: Nintendo 3DS XL
+Author: Joshua P. / Pansdaz (@Pansdaz)
+Source: https://sketchfab.com/3d-models/nintendo-3ds-xl-6cf20040dc0e44559c3e69723945afcc
+Licence: Creative Commons Attribution 4.0 International — https://creativecommons.org/licenses/by/4.0/
+
+Modifications: separated 68 rigid components while preserving source geometry, UVs and vertex normals; removed the presentation transform; uniformly scaled width to 156 mm; fitted an X-axis 0–155 degree hinge; added independent control pivots and provisional live-display anchors; flagged baked display artwork for runtime replacement.
+
+Incomplete texture download: the authenticated source GLB transfer stalled at 4,636,960 of 28,850,812 bytes. Complete geometry buffers were retained; incomplete source images were omitted. Inspection materials are substitutes. This asset does not represent the creator’s finished PBR textures.
+
+Display placement: Provisional: Nintendo active display dimensions centred within source glass geometry; actual source texture boundaries are unverified.
+The candidate envelope and visual fidelity remain under evaluation. Nintendo names and marks identify the depicted hardware; no endorsement by Nintendo or the original model author is implied.

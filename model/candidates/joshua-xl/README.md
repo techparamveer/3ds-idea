@@ -20,6 +20,21 @@ preview on frames1–85 at30fps. `rigged-geometry.glb` is its static closed expo
 in metres for runtime integration tests. The main website still uses its existing
 asset; this textureless candidate has not replaced it.
 
+The candidate can now be inspected at `http://localhost:3000/source-preview`.
+Its public mirror is `public/models/candidates/joshua-xl.glb`, with source credit
+and modification details in the adjacent `.LICENSE.txt`. This route uses the same
+opening motion and menu input as the main website. It remains an inspection
+preview with substitute materials, not the finished silver replacement.
+
+`scripts/anchor_sourced_displays.py` adds the live-display anchors after the rigging
+pass. Run its `main()` through Blender MCP with `rigged-geometry.blend` open.
+It preserves geometry and writes the normal native workspace, static closed GLB,
+preview mirror, attribution and layout report. The upper and lower active display
+rectangles use Nintendo's published dimensions, provisionally centred within the
+source glass. Complete source textures are still required to confirm their exact
+alignment. Only the two source baked screen-artwork pieces are hidden at runtime;
+their geometry remains in the file.
+
 Run `scripts/analyze_sourced_rig.py` to reproduce the read-only component/axis audit.
 Run `scripts/rig_sourced_model.py` through Blender MCP after opening
 `geometry-inspection.blend` to reproduce the separate candidate. Do not run the
@@ -33,3 +48,12 @@ not yet an exact156×93×22mm reconstruction. Its screen meshes are larger than 
 published active LCD areas; inspect the actual texture boundaries before aligning
 live displays. Hidden collision clearance and remaining component fidelity still
 need detailed review.
+
+Runtime validation: actual GLB anchors maintain outward-facing normals and image
+orientation through the hinge sweep; both display sizes and the 0.02 mm glass
+offsets are checked. Control hits use the imported mesh centres rather than the
+previous model's coordinates. Browser checks at 1280 × 720 confirmed A/B, HOME,
+D-pad right, touch selection, power off/on and lid close/reopen. The original
+homepage also passed a control regression check with VGPU ready. All 23 tests,
+typecheck and production build passed. These results establish working rig
+integration, not the missing texture quality or photographic fidelity.

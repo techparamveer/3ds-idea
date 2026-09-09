@@ -4,9 +4,10 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createScreens } from '@/os/screens';
 import { initialState, reduceMenu, touchMenu, type Input } from '@/os/state';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
+import { DEFAULT_MODEL_URL, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement } from './model-layout';
 
 const RAD = Math.PI / 180;
-export async function createConsoleScene(host:HTMLDivElement):Promise<()=>void> {
+export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MODEL_URL):Promise<()=>void> {
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));renderer.setClearColor(0xeae8e4,1);
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
@@ -21,11 +22,11 @@ export async function createConsoleScene(host:HTMLDivElement):Promise<()=>void> 
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.ShadowMaterial({color:0x625d55,opacity:.16}));floor.rotation.x=-Math.PI/2;floor.position.y=-.15;floor.receiveShadow=true;scene.add(floor);
   const pivot=new THREE.Group();scene.add(pivot);
   let gltf;
-  try{gltf=await new GLTFLoader().loadAsync('/models/silver-3ds-xl.glb');}catch(e){renderer.dispose();renderer.domElement.remove();env.dispose();throw e;}
+  try{gltf=await new GLTFLoader().loadAsync(modelUrl);}catch(e){renderer.dispose();renderer.domElement.remove();env.dispose();throw e;}
   const model=gltf.scene;model.scale.setScalar(10);pivot.add(model);
-  const hinge=model.getObjectByName('Hinge')!;const base=model.getObjectByName('Base')!;
-  if(!hinge||!base)throw new Error('The model is missing its hinge/base hierarchy.');
-  model.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;}});
+  const layout=resolveModelLayout(model);const {hinge}=layout;
+  host.dataset.model=modelUrl;host.dataset.layout=layout.source;
+  model.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(o.userData.console_replace_with_display===true)o.visible=false;}});
   const screens=createScreens();let state={...initialState};screens.paint(state);
   const topTexture=new THREE.CanvasTexture(screens.top),bottomTexture=new THREE.CanvasTexture(screens.bottom);
   for(const tx of [topTexture,bottomTexture]){tx.colorSpace=THREE.SRGBColorSpace;tx.minFilter=THREE.LinearFilter;tx.magFilter=THREE.LinearFilter;tx.generateMipmaps=false;tx.anisotropy=renderer.capabilities.getMaxAnisotropy();}
@@ -39,28 +40,32 @@ export async function createConsoleScene(host:HTMLDivElement):Promise<()=>void> 
   });
   const topMat=displayMaterial(topTexture,.18);
   const bottomMat=displayMaterial(bottomTexture,.26);
-  const topScreen=new THREE.Mesh(new THREE.PlaneGeometry(106.2,63.72),topMat);
-  topScreen.name='Display_Top';topScreen.rotation.x=Math.PI/2;topScreen.position.set(0,.145,43.5);hinge.add(topScreen);
-  const touchScreen=new THREE.Mesh(new THREE.PlaneGeometry(84.96,63.72),bottomMat);
-  touchScreen.name='Display_Touch';touchScreen.rotation.x=-Math.PI/2;touchScreen.position.set(0,13.83,1);base.add(touchScreen);
+  function addDisplay(name:string,placement:ScreenPlacement,material:THREE.Material){
+    const screen=new THREE.Mesh(new THREE.PlaneGeometry(placement.widthMm,placement.heightMm),material);
+    screen.name=name;screen.position.copy(placement.position);screen.quaternion.copy(placement.quaternion);placement.parent.add(screen);return screen;
+  }
+  const topScreen=addDisplay('Display_Top',layout.screens.top,topMat);
+  const touchScreen=addDisplay('Display_Touch',layout.screens.bottom,bottomMat);
   let surfaceDisposed=false;
-  host.dataset.vgpu='initializing';
-  import('./silver-surface').then(({createSilverSurface})=>createSilverSurface()).then(texture=>{
+  const silverMaterials=new Set<THREE.MeshStandardMaterial>();
+  model.traverse(o=>{if(o instanceof THREE.Mesh)for(const material of Array.isArray(o.material)?o.material:[o.material])if(material instanceof THREE.MeshStandardMaterial&&isSilverPaintMaterial(material))silverMaterials.add(material);});
+  host.dataset.vgpu=silverMaterials.size?'initializing':'not-applicable';
+  if(silverMaterials.size)import('./silver-surface').then(({createSilverSurface})=>createSilverSurface()).then(texture=>{
     if(surfaceDisposed){texture?.dispose();return;}
     if(!texture){host.dataset.vgpu='webgl-fallback';return;}
-    model.traverse(o=>{if(o instanceof THREE.Mesh){for(const m of Array.isArray(o.material)?o.material:[o.material]){if(m instanceof THREE.MeshStandardMaterial&&m.name.includes('Satin silver')){m.roughnessMap=texture;m.roughness=1;m.needsUpdate=true;}}}});host.dataset.vgpu='ready';
+    for(const material of silverMaterials){material.roughnessMap=texture;material.roughness=1;material.needsUpdate=true;}host.dataset.vgpu='ready';
   }).catch(e=>{host.dataset.vgpu='webgl-fallback';console.warn('VGPU surface unavailable; using the baked Blender surface.',e);});
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
   const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');let reduced=motionPreference.matches;
   let frame=0,disposed=false,last=performance.now(),intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1;
   let start=last;
   let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D}|null=null;
-  type PressedCap={parts:{object:THREE.Object3D;y:number}[];depth:number;until:number;held:Set<string>};
+  type PressedCap={parts:{object:THREE.Object3D;y:number}[];travel:number;depth:number;until:number;held:Set<string>};
   const pressed=new Map<THREE.Object3D,PressedCap>();
   const caps=new Map<string,THREE.Object3D>();
   const capParts=new Map<THREE.Object3D,{object:THREE.Object3D;y:number}[]>();
   model.updateMatrixWorld(true);
-  model.traverse(o=>{if(o.name.startsWith('Button_'))caps.set(o.name.slice(7).toUpperCase(),o);});
+  for(const [name,control] of layout.controls)caps.set(name,control.object);
   for(const [name,cap]of caps){
     const parts=[{object:cap,y:cap.position.y}];
     const capBounds=new THREE.Box3().setFromObject(cap).expandByScalar(.005);
@@ -81,12 +86,17 @@ export async function createConsoleScene(host:HTMLDivElement):Promise<()=>void> 
   function press(name:string,source?:string){
     const cap=caps.get(name);if(!cap)return;
     let feedback=pressed.get(cap);
-    if(!feedback){feedback={parts:capParts.get(cap)!,depth:0,until:0,held:new Set()};pressed.set(cap,feedback);}
+    if(!feedback){const control=[...layout.controls.values()].find(value=>value.object===cap);feedback={parts:capParts.get(cap)!,travel:control?.pressTravelMm??.25,depth:0,until:0,held:new Set()};pressed.set(cap,feedback);}
     if(source)feedback.held.add(source);else feedback.until=performance.now()+70;
   }
   function release(source:string){for(const feedback of pressed.values())feedback.held.delete(source);}
   function releaseAll(){for(const feedback of pressed.values()){feedback.held.clear();feedback.until=0;}}
-  function hit(event:PointerEvent){const rect=host.getBoundingClientRect();mouse.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);return ray.intersectObject(model,true)[0];}
+  function hit(event:PointerEvent){
+    const rect=host.getBoundingClientRect();mouse.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);
+    // Raycaster includes invisible meshes. Baked screen artwork and displays
+    // hidden while closed must not intercept the visible controls beneath them.
+    return ray.intersectObject(model,true).find(hit=>{for(let node:THREE.Object3D|null=hit.object;node;node=node.parent)if(!node.visible)return false;return true;});
+  }
   function controlName(o:THREE.Object3D){
     const name=o.name.replace(/[\s_.-]+/g,'').toUpperCase();
     if(name.startsWith('BUTTON'))return name.slice(6);
@@ -108,7 +118,7 @@ export async function createConsoleScene(host:HTMLDivElement):Promise<()=>void> 
   function toggleLid(open=false){
     const interrupted=intro;interruptIntro();
     targetAngle=open?MAX_LID_DEGREES:(interrupted?angle:targetAngle)>70?0:MAX_LID_DEGREES;
-    lastInput='hinge';
+    lastInput='hinge';writeState();
   }
   function pointerDown(e:PointerEvent){
     if(!e.isPrimary||e.button!==0||drag)return;
@@ -132,7 +142,7 @@ export async function createConsoleScene(host:HTMLDivElement):Promise<()=>void> 
     if(name){press(name);
       const mapping:Record<string,Input>={A:'open',B:'back',X:'zoom',Y:'brightness',HOME:'home',START:'open',SELECT:'zoom',POWER:'power',L:'left',R:'right'};
       if(name==='DPAD'||name==='CIRCLE'){
-        const p=base.worldToLocal(h.point.clone());const dx=p.x+61,dz=p.z-(name==='DPAD'?10.6:-15);send(Math.abs(dx)>Math.abs(dz)?(dx<0?'left':'right'):(dz<0?'up':'down'));
+        send(directionFromControlHit(layout,name,h.point));
       }else if(mapping[name])send(mapping[name]);
       return;
     }
@@ -166,7 +176,7 @@ export async function createConsoleScene(host:HTMLDivElement):Promise<()=>void> 
     hinge.rotation.x=-angle*RAD;pivot.rotation.set(pitch,yaw,0);pivot.scale.setScalar(scale);
     topScreen.visible=touchScreen.visible=angle>12;
     for(const [cap,feedback]of pressed){
-      const depth=(feedback.held.size>0||now<feedback.until)? .25:0;
+      const depth=(feedback.held.size>0||now<feedback.until)?feedback.travel:0;
       feedback.depth=reduced?depth:THREE.MathUtils.damp(feedback.depth,depth,45,dt);
       if(depth===0&&feedback.depth<.001){for(const part of feedback.parts)part.object.position.y=part.y;pressed.delete(cap);}
       else for(const part of feedback.parts)part.object.position.y=part.y-feedback.depth;

@@ -43,5 +43,78 @@
       72.18695831298828,
       4.768371127283899e-06
     ]
-  }
+  },
+  "active_display_mm": {
+    "top": {
+      "width": 106.2,
+      "height": 63.72
+    },
+    "bottom": {
+      "width": 84.96,
+      "height": 63.72
+    }
+  },
+  "layout_status": "Provisional: Nintendo active display dimensions centred within source glass geometry; actual source texture boundaries are unverified.",
+  "display_anchors": {
+    "top": {
+      "anchor": "DisplayAnchor_Top",
+      "parent": "Hinge",
+      "local_position_mm": [
+        1.9073486328125e-06,
+        -41.11417770385742,
+        -0.9864814281463623
+      ],
+      "source_glass_bounds_mm": {
+        "min": [
+          -60.653202056884766,
+          -77.20765686035156,
+          -0.9664842486381531
+        ],
+        "max": [
+          60.65320587158203,
+          -5.02069616317749,
+          -0.966478705406189
+        ]
+      },
+      "source_glass_extent_mm": [
+        121.30641174316406,
+        72.18695831298828,
+        5.543231964111328e-06
+      ],
+      "native_rotation_x_radians": 1.5707963267948966,
+      "native_z_offset_mm": -0.02
+    },
+    "bottom": {
+      "anchor": "DisplayAnchor_Bottom",
+      "parent": "Base",
+      "local_position_mm": [
+        -0.21038818359375,
+        -2.466350555419922,
+        13.936359405517578
+      ],
+      "source_glass_bounds_mm": {
+        "min": [
+          -45.6776237487793,
+          -36.67910385131836,
+          13.916358947753906
+        ],
+        "max": [
+          45.2568473815918,
+          31.746402740478516,
+          13.916358947753906
+        ]
+      },
+      "source_glass_extent_mm": [
+        90.9344711303711,
+        68.42550659179688,
+        0.0
+      ],
+      "native_rotation_x_radians": -1.5707963267948966,
+      "native_z_offset_mm": 0.02
+    }
+  },
+  "baked_display_artwork_runtime_hidden": [
+    "Source_1_part_03",
+    "Source_1_part_04"
+  ]
 }

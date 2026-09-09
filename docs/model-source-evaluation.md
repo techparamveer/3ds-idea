@@ -82,3 +82,30 @@ The browser's download-event wait timed out, and no completed FBX/GLB/ZIP was fo
 in Downloads or bounded temporary artifact locations. Browser policy rejected
 opening its downloads manager; no alternate access to that blocked manager was
 attempted. User input was requested about a Save dialog or paused/failed download.
+
+## Runtime integration checkpoint
+
+The separate `/source-preview` route now loads the rigged candidate with live
+upper/lower displays and the existing plain menu. The main route still loads the
+preserved model. Source `console_layout` metadata supplies dedicated display
+anchors, while actual control mesh bounds determine directional input centres.
+The two baked source screen-artwork meshes are hidden during live rendering and
+excluded from pointer hits. Their triangles, UVs and normals remain preserved.
+
+The active LCD rectangles measure 106.2 × 63.72 and 84.96 × 63.72 mm. They are
+provisionally centred within the source glass, offset 0.02 mm outward. This does
+not establish their position against the missing bitmap boundaries. No source
+mesh dimensions were stretched to force the overall target envelope.
+
+Browser checks at 1280 × 720 confirmed the candidate's open/closed rendering,
+A/B, HOME, D-pad right, touch selection, power off/on and reopening. The main
+homepage retained its live screens, button input and VGPU surface. The candidate
+correctly reports VGPU as not applicable because its substitute inspection
+materials have no identified silver-paint role. The full suite now has 23 passing
+tests, including actual candidate display axes, physical size, glass offset,
+control centres and unchanged geometry data. Typecheck and production build pass.
+
+Remaining source work: complete the authenticated texture download, identify and
+repaint the outer silver regions while preserving markings, confirm active pixel
+boundaries, refine source proportions against Nintendo imagery, then repeat
+matched visual comparisons before promoting the candidate to the main route.

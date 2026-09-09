@@ -57,3 +57,10 @@ D-pad right, touch selection, power off/on and lid close/reopen. The original
 homepage also passed a control regression check with VGPU ready. All 23 tests,
 typecheck and production build passed. These results establish working rig
 integration, not the missing texture quality or photographic fidelity.
+
+Additional geometry inspection views are `source-closed-top.png`,
+`source-right-side.png` and `source-underside.png`. These use the preserved
+inspection materials with the rig closed. The underside view has the hinge at
+the bottom; rotate it 180 degrees when comparing with the supplied underside
+photo, which places the hinge at the top. Measurements and remaining uncertainty
+are recorded in `docs/source-geometry-audit.md`.

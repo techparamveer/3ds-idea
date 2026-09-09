@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.DS_Store
+*.blend1
+*.blend2
+.local/
+.env*
+!.env.example

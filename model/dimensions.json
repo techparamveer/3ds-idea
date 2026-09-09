@@ -1,0 +1,39 @@
+{
+  "target_closed_mm": [
+    156,
+    93,
+    22
+  ],
+  "measured_closed_bounds_mm": [
+    [
+      -78.0,
+      78.0
+    ],
+    [
+      -46.5,
+      46.5
+    ],
+    [
+      0.0,
+      22.0
+    ]
+  ],
+  "measured_closed_dimensions_mm": [
+    156.0,
+    93.0,
+    22.0
+  ],
+  "hinge_degrees": [
+    0,
+    155
+  ],
+  "top_panel_mm": [
+    106.2879631279,
+    63.7727778768
+  ],
+  "bottom_panel_mm": [
+    84.9376,
+    63.7032
+  ],
+  "notes": "Photographic reconstruction, not a manufacturer CAD scan. Physical screen ratio uses 400x240 per eye; browser top texture stores 800x240."
+}

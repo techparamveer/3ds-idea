@@ -1,0 +1,13 @@
+{
+  "shader": "src/shaders/silver.wgsl",
+  "deviceRendered": true,
+  "size": [
+    128,
+    128
+  ],
+  "rgbaBytes": 65536,
+  "min": 63,
+  "max": 102,
+  "mean": 72.80157470703125,
+  "passed": true
+}

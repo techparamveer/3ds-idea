@@ -11,7 +11,7 @@ from mathutils import Vector
 FOLDER = Path('/Volumes/DeveloperStorage/GitHub/3ds-idea/model/candidates/joshua-xl')
 
 
-def main():
+def main(prefix='silver'):
     scene = bpy.context.scene
     root, hinge, camera = scene.objects['3DS_XL'], scene.objects['Hinge'], scene.camera
     assert root.get('source_finish') == 'silver-adaptation'
@@ -34,9 +34,9 @@ def main():
         scene.render.resolution_percentage = 100
         camera.data.type = 'ORTHO'
         for name, angle, location, target, scale in [
-            ('silver-open', -155, (40, -280, 235), (0, 8, 36), 210),
-            ('silver-closed', 0, (35, -180, 210), (0, 0, 10), 185),
-            ('silver-underside', 0, (0, -80, -260), (0, 0, 8), 185),
+            (prefix+'-open', -155, (40, -280, 235), (0, 8, 36), 210),
+            (prefix+'-closed', 0, (35, -180, 210), (0, 0, 10), 185),
+            (prefix+'-underside', 0, (0, -80, -260), (0, 0, 8), 185),
         ]:
             hinge.rotation_euler.x = angle * 3.141592653589793 / 180
             camera.location = location

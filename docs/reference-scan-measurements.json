@@ -1,0 +1,169 @@
+{
+  "source": "https://bitbuilt.net/forums/threads/3ds-xl-ll-scan.7046/",
+  "author": "Wesk",
+  "published": "2025-09-05",
+  "download": "https://bitbuilt.net/wesk/3D%20Scans/3DSXL-LL.zip",
+  "archive_sha256": "dd3d1dd0e7c6ddee87774fefe20ca9677b97e7e1f1cbb43eee2b45cc4d1fd7cd",
+  "use": "Reference only. Raw scans remain in ignored local storage.",
+  "units": "Millimetres inferred from physical shell width; STL itself has no unit field.",
+  "method": "Every tenth triangle centroid, with outward-facing normal Z > 0.94 in the appropriate direction. Least-squares fit to c + ax + by + dxx + exy + fyy; x/y centred before fitting. Separate sampling windows bound sensitivity.",
+  "specification": "https://www.nintendo.co.jp/hardware/3dsseries/3dsll/index.html",
+  "parts": [
+    {
+      "file": "Top Shell.stl",
+      "triangles": 2501166,
+      "center_xy": [
+        250,
+        214.027
+      ],
+      "surface_normal_sign": 1,
+      "fits": [
+        {
+          "half_width_mm": 55,
+          "half_depth_mm": 25,
+          "sample_count": 37564,
+          "coefficients_c_x_y_xx_xy_yy": [
+            11.052202840624478,
+            0.0005695266779187724,
+            -0.040367651305229506,
+            -2.2745369747822803e-05,
+            -5.950186878418177e-06,
+            -3.062803988851271e-05
+          ],
+          "rms_mm": 0.01715151482698465,
+          "absolute_error_percentiles_50_90_99_mm": [
+            0.011657398678573294,
+            0.0283710477728981,
+            0.04031970553692834
+          ]
+        },
+        {
+          "half_width_mm": 60,
+          "half_depth_mm": 30,
+          "sample_count": 49336,
+          "coefficients_c_x_y_xx_xy_yy": [
+            11.060371645086864,
+            0.0005310393933282031,
+            -0.0405742955799052,
+            -2.9554050060944267e-05,
+            -1.1326093831209471e-05,
+            -4.6012740680890643e-05
+          ],
+          "rms_mm": 0.020521477927665323,
+          "absolute_error_percentiles_50_90_99_mm": [
+            0.011863012672330697,
+            0.03414913927999308,
+            0.05492932897667293
+          ]
+        },
+        {
+          "half_width_mm": 65,
+          "half_depth_mm": 30,
+          "sample_count": 53398,
+          "coefficients_c_x_y_xx_xy_yy": [
+            11.067495386012016,
+            0.0005324523827659388,
+            -0.04063206596976494,
+            -3.6061891871398585e-05,
+            -1.479836309578531e-05,
+            -5.262750537274073e-05
+          ],
+          "rms_mm": 0.024354769463449746,
+          "absolute_error_percentiles_50_90_99_mm": [
+            0.015125787495676946,
+            0.03921000952539675,
+            0.0711383102526639
+          ]
+        }
+      ],
+      "bounds_min": [
+        172.41952514648438,
+        168.1947021484375,
+        4.22369384765625
+      ],
+      "bounds_max": [
+        327.6032409667969,
+        259.86004638671875,
+        12.67059326171875
+      ]
+    },
+    {
+      "file": "Battery Cover.stl",
+      "triangles": 2494932,
+      "center_xy": [
+        125,
+        102.449
+      ],
+      "surface_normal_sign": -1,
+      "fits": [
+        {
+          "half_width_mm": 55,
+          "half_depth_mm": 25,
+          "sample_count": 48687,
+          "coefficients_c_x_y_xx_xy_yy": [
+            0.07746952802111486,
+            -0.0017776519341117132,
+            -0.002941989310581248,
+            4.961319312568963e-05,
+            4.402781156981413e-06,
+            0.00020778300808775875
+          ],
+          "rms_mm": 0.05171567500627423,
+          "absolute_error_percentiles_50_90_99_mm": [
+            0.031255615486789096,
+            0.08380457484141735,
+            0.16015764894649098
+          ]
+        },
+        {
+          "half_width_mm": 60,
+          "half_depth_mm": 30,
+          "sample_count": 63863,
+          "coefficients_c_x_y_xx_xy_yy": [
+            0.0761227944112958,
+            -0.0012898002758761334,
+            -0.002532321700112935,
+            5.809779551029323e-05,
+            2.660431710149616e-06,
+            0.0001712281445789426
+          ],
+          "rms_mm": 0.05831824557976093,
+          "absolute_error_percentiles_50_90_99_mm": [
+            0.037479687301120376,
+            0.07810172616246307,
+            0.18850612229050667
+          ]
+        },
+        {
+          "half_width_mm": 65,
+          "half_depth_mm": 30,
+          "sample_count": 69476,
+          "coefficients_c_x_y_xx_xy_yy": [
+            0.07252722811671916,
+            -0.0008729689720430607,
+            -0.0024033378683470633,
+            6.600533545053695e-05,
+            4.2950238943420345e-06,
+            0.0001609483492561717
+          ],
+          "rms_mm": 0.07634291999179191,
+          "absolute_error_percentiles_50_90_99_mm": [
+            0.04242518022564943,
+            0.08696079642725449,
+            0.21014273747541906
+          ]
+        }
+      ],
+      "bounds_min": [
+        47.40937805175781,
+        62.179996490478516,
+        0.0
+      ],
+      "bounds_max": [
+        202.5906219482422,
+        142.7183837890625,
+        7.996345520019531
+      ]
+    }
+  ]
+}

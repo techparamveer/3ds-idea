@@ -17,8 +17,8 @@ The user has rejected the current visual fidelity. Existing geometry checks prov
 
 ## Working context
 
-- `model/candidates/joshua-xl/silver-source.blend`: active editable sourced rig. The adjacent README describes the sequential import, UV, material and tangent-restoration passes. Do not run an earlier pipeline pass against this file indiscriminately.
-- `public/models/candidates/joshua-xl.glb`: active browser asset; mirror the verified `silver-source.glb` and its paint mask after Blender changes. Source credit is in the adjacent licence file.
+- `model/candidates/joshua-xl/silver-curved.blend`: active editable sourced rig. See `docs/source-curvature-validation.md` for the physical-scan comparison. The earlier `silver-source.blend` is preserved. The adjacent README describes the sequential pipeline; do not run an earlier pass against the current file indiscriminately. Curved exports use the carried frame attributes, not the original geometry-matching tangent restorer.
+- `public/models/candidates/joshua-xl.glb`: active browser asset; mirror the verified `silver-curved.glb` and its paint mask after Blender changes. Source credit is in the adjacent licence file.
 - `model/silver-3ds-xl.blend` and `public/models/silver-3ds-xl.glb`: preserved earlier procedural model. Its dimension tests do not validate the sourced replacement.
 - `src/scene/`: Three.js scene and VGPU material generation.
 - `src/os/`: current plain HOME Menu approximation; actual firmware assets are still pending.

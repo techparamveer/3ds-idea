@@ -1,5 +1,8 @@
 # Silver source integration — 9 September 2026
 
+Historical texture-integration checkpoint. The active model now also includes
+the measured shell-curvature pass in [source-curvature-validation.md](source-curvature-validation.md).
+
 The homepage and `/source-preview` now load the downloaded Joshua P. original XL
 rig with its complete PBR maps and a silver exterior adaptation. The earlier
 procedural `.blend` and public `.glb` remain preserved. This is a completed source

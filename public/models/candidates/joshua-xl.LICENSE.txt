@@ -24,12 +24,21 @@ Project modifications, 9 September 2026:
 - Added a paint-region mask for restrained VGPU roughness variation at runtime;
   unpainted regions retain the source roughness treatment.
 
+Additional modifications, 10 September 2026:
+- Refined the broad lid and underside faces and added shallow curvature informed
+  by Wesk's physical original 3DS XL/LL scan. The whole model now has 59,986
+  triangles. Scan geometry is reference-only and is not included in this asset.
+  Reference: https://bitbuilt.net/forums/threads/3ds-xl-ll-scan.7046/
+- Preserved all seven silver-baseline texture payloads, UV alignment, material
+  factors, control geometry and hierarchy. Updated shading frames to follow
+  the smooth deformation.
+
 This public GLB is the fully textured silver model used by the portfolio
-homepage, derived from model/candidates/joshua-xl/silver-source.blend. It is not
+homepage, derived from model/candidates/joshua-xl/silver-curved.blend. It is not
 the earlier textureless inspection preview. The original red source, its images
 and the earlier procedural model remain preserved separately.
 
-Known differences: the closed envelope is approximately 156 x 92.397 x 22.233 mm;
+Known differences: the closed envelope is approximately 156 x 92.397 x 22.206 mm;
 original USA underside markings remain pending adaptation to the user's EUR
 unit; live displays use Nintendo's published active sizes but their placement
 within the source glass remains provisional. The silver colour is an authored

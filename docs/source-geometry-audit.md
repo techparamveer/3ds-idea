@@ -1,10 +1,11 @@
 # Sourced XL geometry audit — 9 September 2026
 
-**Current status:** the complete source textures arrived after this geometry-only
-inspection. The silver textured derivative is now used on the homepage. See
-`source-texture-transfer-audit.md` and the candidate README for current materials
-and browser validation. The geometric measurements and remaining uncertainties
-below still apply; references to missing textures describe this earlier pass.
+**Historical audit:** the complete textures and a physical original-XL shell scan
+became available after this geometry-only inspection. The scan supports a shallow
+broad crown; the curved silver derivative is now used on the homepage. See
+`source-curvature-validation.md` for that evidence, the deformation and current
+measurements. The decisions below describe the earlier evidence available at
+this checkpoint, not instructions to preserve planar faces indefinitely.
 
 The Joshua P. candidate has real rolled shell edges and broadly planar central
 faces. The current evidence does **not** establish a missing crown as a hardware

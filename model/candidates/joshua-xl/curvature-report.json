@@ -1,0 +1,531 @@
+{
+  "source_sha256": "f110280318737e206b1eed371acc19781ba7ec93bf989ef2a51b9f0679b5545a",
+  "parameters": {
+    "lid": {
+      "center_xy": [
+        -0.21038844,
+        -0.336445
+      ],
+      "xx": 3.606189186842222e-05,
+      "yy": 5.2627505398761533e-05,
+      "x_taper": [
+        65,
+        77.5
+      ],
+      "y_taper": [
+        30,
+        45
+      ],
+      "z_gate": [
+        17,
+        21.9
+      ],
+      "sign": -1
+    },
+    "base": {
+      "center_xy": [
+        -0.21038844,
+        -5.8
+      ],
+      "xx": 6.600533540204883e-05,
+      "yy": 0.00016094834918654625,
+      "x_taper": [
+        65,
+        77.5
+      ],
+      "y_taper": [
+        30,
+        38
+      ],
+      "z_gate": [
+        2,
+        5
+      ],
+      "sign": 1
+    },
+    "maximum_edge_mm": 2.5,
+    "reference": "docs/reference-scan-measurements.json",
+    "interpretation": "Symmetric quadratic terms from widest fitted broad-face region; placement tilt and asymmetric scan twist excluded. Smooth taper preserves existing perimeter and interior mating faces. One physical scan, not manufacturer CAD."
+  },
+  "objects": [
+    {
+      "name": "Button_A",
+      "triangles_before": 78,
+      "triangles_after": 78,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_B",
+      "triangles_before": 78,
+      "triangles_after": 78,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_Circle",
+      "triangles_before": 192,
+      "triangles_after": 192,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_Dpad",
+      "triangles_before": 98,
+      "triangles_after": 98,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_HOME",
+      "triangles_before": 14,
+      "triangles_after": 14,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_L",
+      "triangles_before": 198,
+      "triangles_after": 198,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_POWER",
+      "triangles_before": 78,
+      "triangles_after": 78,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_R",
+      "triangles_before": 198,
+      "triangles_after": 198,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_SELECT",
+      "triangles_before": 14,
+      "triangles_after": 14,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_START",
+      "triangles_before": 14,
+      "triangles_after": 14,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_X",
+      "triangles_before": 78,
+      "triangles_after": 78,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Button_Y",
+      "triangles_before": 78,
+      "triangles_after": 78,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Screen_Bottom",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_02",
+      "triangles_before": 1066,
+      "triangles_after": 1066,
+      "maximum_displacement_mm": 0.1477470468673161,
+      "vertices_moved": 14
+    },
+    {
+      "name": "Source_0_part_09",
+      "triangles_before": 160,
+      "triangles_after": 160,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_10",
+      "triangles_before": 160,
+      "triangles_after": 160,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_11",
+      "triangles_before": 140,
+      "triangles_after": 140,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_12",
+      "triangles_before": 132,
+      "triangles_after": 132,
+      "maximum_displacement_mm": 0.28686275919780657,
+      "vertices_moved": 71
+    },
+    {
+      "name": "Source_0_part_15",
+      "triangles_before": 126,
+      "triangles_after": 126,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_16",
+      "triangles_before": 126,
+      "triangles_after": 126,
+      "maximum_displacement_mm": 0.0268779966644922,
+      "vertices_moved": 49
+    },
+    {
+      "name": "Source_0_part_17",
+      "triangles_before": 126,
+      "triangles_after": 126,
+      "maximum_displacement_mm": 0.02687799811223568,
+      "vertices_moved": 49
+    },
+    {
+      "name": "Source_0_part_19",
+      "triangles_before": 96,
+      "triangles_after": 96,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_20",
+      "triangles_before": 94,
+      "triangles_after": 94,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_22",
+      "triangles_before": 90,
+      "triangles_after": 90,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_23",
+      "triangles_before": 90,
+      "triangles_after": 90,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_24",
+      "triangles_before": 84,
+      "triangles_after": 84,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_30",
+      "triangles_before": 68,
+      "triangles_after": 68,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_32",
+      "triangles_before": 34,
+      "triangles_after": 34,
+      "maximum_displacement_mm": 0.23805314597244287,
+      "vertices_moved": 24
+    },
+    {
+      "name": "Source_0_part_33",
+      "triangles_before": 32,
+      "triangles_after": 32,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_34",
+      "triangles_before": 32,
+      "triangles_after": 32,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_38",
+      "triangles_before": 24,
+      "triangles_after": 24,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_39",
+      "triangles_before": 24,
+      "triangles_after": 24,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_40",
+      "triangles_before": 16,
+      "triangles_after": 16,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_41",
+      "triangles_before": 16,
+      "triangles_after": 16,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_48",
+      "triangles_before": 8,
+      "triangles_after": 8,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_49",
+      "triangles_before": 8,
+      "triangles_after": 8,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_51",
+      "triangles_before": 6,
+      "triangles_after": 6,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_52",
+      "triangles_before": 6,
+      "triangles_after": 6,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_53",
+      "triangles_before": 6,
+      "triangles_after": 6,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_54",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.1568609468592692,
+      "vertices_moved": 2
+    },
+    {
+      "name": "Source_0_part_55",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_56",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_57",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_1_part_00",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.011828813306768104,
+      "vertices_moved": 2
+    },
+    {
+      "name": "Source_1_part_03",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Sourced graphite chassis",
+      "triangles_before": 2674,
+      "triangles_after": 25271,
+      "maximum_displacement_mm": 0.4259051323072369,
+      "vertices_moved": 10254
+    },
+    {
+      "name": "Screen_Top",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_07",
+      "triangles_before": 160,
+      "triangles_after": 160,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_08",
+      "triangles_before": 160,
+      "triangles_after": 160,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_13",
+      "triangles_before": 128,
+      "triangles_after": 128,
+      "maximum_displacement_mm": 0.024156212089859963,
+      "vertices_moved": 132
+    },
+    {
+      "name": "Source_0_part_14",
+      "triangles_before": 128,
+      "triangles_after": 128,
+      "maximum_displacement_mm": 0.024156212087870443,
+      "vertices_moved": 132
+    },
+    {
+      "name": "Source_0_part_21",
+      "triangles_before": 92,
+      "triangles_after": 92,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_31",
+      "triangles_before": 48,
+      "triangles_after": 48,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_35",
+      "triangles_before": 32,
+      "triangles_after": 32,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_36",
+      "triangles_before": 32,
+      "triangles_after": 32,
+      "maximum_displacement_mm": 0.023986650153016598,
+      "vertices_moved": 34
+    },
+    {
+      "name": "Source_0_part_37",
+      "triangles_before": 32,
+      "triangles_after": 32,
+      "maximum_displacement_mm": 0.02398665030374758,
+      "vertices_moved": 34
+    },
+    {
+      "name": "Source_0_part_42",
+      "triangles_before": 16,
+      "triangles_after": 16,
+      "maximum_displacement_mm": 0.02398665061114258,
+      "vertices_moved": 16
+    },
+    {
+      "name": "Source_0_part_43",
+      "triangles_before": 16,
+      "triangles_after": 16,
+      "maximum_displacement_mm": 0.023986650914583407,
+      "vertices_moved": 16
+    },
+    {
+      "name": "Source_0_part_47",
+      "triangles_before": 10,
+      "triangles_after": 10,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_0_part_50",
+      "triangles_before": 8,
+      "triangles_after": 8,
+      "maximum_displacement_mm": 0.03804821018587745,
+      "vertices_moved": 9
+    },
+    {
+      "name": "Source_1_part_01",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_1_part_02",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_1_part_04",
+      "triangles_before": 2,
+      "triangles_after": 2,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_2_part_00",
+      "triangles_before": 80,
+      "triangles_after": 80,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_2_part_01",
+      "triangles_before": 80,
+      "triangles_after": 80,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Source_2_part_02",
+      "triangles_before": 80,
+      "triangles_after": 80,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Sourced inner lid",
+      "triangles_before": 1149,
+      "triangles_after": 1149,
+      "maximum_displacement_mm": 0.0,
+      "vertices_moved": 0
+    },
+    {
+      "name": "Sourced outer lid",
+      "triangles_before": 518,
+      "triangles_after": 28554,
+      "maximum_displacement_mm": 0.20181719366701145,
+      "vertices_moved": 12913
+    }
+  ],
+  "reference_only_scan_vertices_used_in_model": false,
+  "total_triangles": 59986,
+  "frames_restored_parts": 68
+}

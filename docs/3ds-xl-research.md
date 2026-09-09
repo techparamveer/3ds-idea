@@ -4,6 +4,8 @@ Research date: 2026-09-09. Scope: exterior hardware, materials, typography, disp
 
 The tables below describe the starting audit. Applied repairs and current limits
 are recorded in [the later comparison pass](comparison-pass-2026-09-09.md).
+The active sourced model's latest geometry evidence and changes are in
+[the physical-scan curvature comparison](source-curvature-validation.md).
 
 ## Identity and source hierarchy
 

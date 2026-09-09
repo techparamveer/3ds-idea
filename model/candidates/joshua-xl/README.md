@@ -2,7 +2,7 @@
 
 The homepage now uses the fully textured silver derivative of this sourced
 original Nintendo 3DS XL. `DEFAULT_MODEL_URL` points to
-`/models/candidates/joshua-xl.glb`, the public mirror of `silver-source.glb`.
+`/models/candidates/joshua-xl.glb`, the public mirror of `silver-curved.glb`.
 The `/source-preview` route uses the same sourced model. The directory name
 “candidates” is retained for continuity; this is no longer a textureless preview.
 The earlier procedural model files remain preserved.
@@ -15,8 +15,8 @@ Public attribution: `public/models/candidates/joshua-xl.LICENSE.txt`.
 
 | File or folder | Role |
 | --- | --- |
-| `silver-source.blend` | Current editable silver rig, with its normal native millimetre workspace and opening animation. |
-| `silver-source.glb` | Static closed export in metres, with original source normal/tangent frames restored after Blender export. |
+| `silver-curved.blend` / `.glb` | Current editable rig and static closed export, adding shallow broad shell curvature measured from an original-XL reference scan. |
+| `silver-source.blend` / `.glb` | Preserved silver baseline before curvature, with original source normal/tangent frames restored after export. |
 | `textured-source.blend` / `.glb` | Preserved fully textured red/black source comparison and reproducible starting checkpoint for the silver pass. |
 | `source-textures/` | All seven unmodified embedded PNGs from the complete source download. |
 | `derived-textures/body-silver-basecolor.png` | Derived 4K colour atlas; only classified red paint pixels change. |
@@ -39,7 +39,7 @@ is preserved after correcting Blender's V convention once and naming the native
 layer `UVMap`. Post-export restoration preserves the original normal and tangent
 frames, including tangent handedness, in the closed rig's coordinate frame.
 
-The silver derivative changes only the body base-colour image. The other six PNG
+The initial silver derivative changes only the body base-colour image. The other six PNG
 payloads, material factors, geometry, UVs and restored frame attributes are
 preserved from the textured comparison GLB. The audited silver atlas leaves all
 11,733,175 unmasked pixels byte-for-byte unchanged. VGPU adds restrained roughness
@@ -47,6 +47,14 @@ variation only where the paint mask permits it, preserving the source roughness
 on the black deck and other unpainted regions. These data checks do not establish
 an exact physical or photographic match. See `docs/source-texture-transfer-audit.md`
 and `docs/source-lettering-audit.md`.
+
+The current curved derivative refines the two broad shell meshes to support
+shallow geometry changes, increasing the complete model to 59,986 triangles.
+All seven silver-baseline image payloads and material factors are retained.
+UV interpolation stays aligned at the same physical surface positions. Shading
+frames are interpolated, transformed by the deformation's Jacobian and carried
+through export. See `docs/source-curvature-validation.md` for the scan evidence,
+independent surface probes and the limits of that comparison.
 
 The two baked boot-artwork meshes remain in the source geometry but are hidden
 at runtime in favour of live displays. Browser checks confirmed A/B, D-pad,
@@ -67,6 +75,15 @@ after both PNGs are saved does it clone the original PBR material, save
 The multi-object `silver_sourced_material.py` bake is superseded and must not be
 used; it caused severe memory and startup-disk pressure.
 
+For the next curvature pass, open the preserved `silver-source.blend`, then run
+`scripts/curve_sourced_shell.py` through Blender MCP. It rebuilds mesh attributes
+from the verified baseline GLB, refines and curves the broad faces, and saves
+`silver-curved.blend` / `.glb`. Custom `_FRAME_N`, `_FRAME_T`, `_FRAME_W` attributes
+carry the final GLB-axis shading frames. Export using `export_static` with
+`restore_frames=False, export_attributes=True`, then the curvature script's
+`restore_export_frames`. Do not run the earlier geometry-correspondence tangent
+restorer on this refined mesh: its topology has deliberately changed.
+
 For earlier pipeline stages, `analyze_sourced_rig.py` performs the read-only
 component audit; `rig_sourced_model.py` constructs the rig from
 `geometry-inspection.blend`; `anchor_sourced_displays.py` adds the initial display
@@ -78,12 +95,13 @@ the new export before refreshing the homepage GLB and its paint-mask mirror.
 
 ## Remaining fidelity work
 
-The closed envelope measures **156 × 92.397 × 22.233 mm**, compared with Nintendo's
-156 × 93 × 22 mm. No nonuniform deformation has been applied simply to force that
-box. The source has real rolled shell edges and broadly planar central faces;
-photographs have not established a precise crown height to justify local changes.
-See `docs/source-geometry-audit.md` and the historical orthographic inspection
-renders `source-closed-top.png`, `source-right-side.png`, `source-underside.png`.
+The closed envelope measures **156 × 92.397 × 22.206 mm**, compared with Nintendo's
+156 × 93 × 22 mm. The width and depth are unchanged from the source baseline.
+The outer lid and underside now have shallow broad curvature in addition to
+their existing rolled edges. This is supported by Wesk's physical original-XL
+scan, not manufacturer CAD. It does not establish exact identity to the user's
+unit. Matched native inspection views are `curved-open.png`, `curved-closed.png`
+and `curved-underside.png`; the previous `silver-*.png` renders are preserved.
 
 The source retains **USA underside markings**. Replacing them with the user's
 SPR-001(EUR) block, certification row and serial sticker is still pending.

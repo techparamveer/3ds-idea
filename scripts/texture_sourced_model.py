@@ -17,7 +17,7 @@ SOURCE = ROOT / '.local/sources/joshua-xl/original.glb'
 SOURCE_HASH = 'cc369289729c1b6cc24dd5aa17802d6984aa75da60ff81e187aeb9ac0fde2f6e'
 
 
-def export_static(root, hinge, path):
+def export_static(root, hinge, path, *, restore_frames=True, export_attributes=False):
     scene = bpy.context.scene
     saved_frame = scene.frame_current
     actions = [(o, o.animation_data.action) for o in (root, hinge)]
@@ -38,7 +38,7 @@ def export_static(root, hinge, path):
                 filepath=str(path), export_format='GLB', use_selection=True,
                 export_apply=True, export_extras=True, export_animations=False,
                 export_current_frame=True, export_cameras=False, export_lights=False,
-                export_tangents=True,
+                export_tangents=True, export_attributes=export_attributes,
             )
             if 'FINISHED' not in result:
                 raise RuntimeError(f'glTF export did not complete: {result}')
@@ -48,6 +48,8 @@ def export_static(root, hinge, path):
             o.animation_data.action = action
         scene.frame_set(saved_frame)
         bpy.context.view_layer.update()
+    if not restore_frames:
+        return None
     # Blender recalculates tangent frames instead of importing the creator's
     # explicit glTF tangents. Restore those frames only after a successful export.
     spec = importlib.util.spec_from_file_location(

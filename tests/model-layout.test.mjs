@@ -29,9 +29,9 @@ test('preserved legacy asset keeps its original screen placements', () => {
   assert.deepEqual(layout.screens.bottom.position.toArray(), [0, 13.83, 1]);
 });
 
-test('homepage serves the verified silver source export', async () => {
+test('homepage serves the verified curved silver source export', async () => {
   const shipped = await readFile(new URL('../public' + DEFAULT_MODEL_URL, import.meta.url));
-  const verified = await readFile(new URL('../model/candidates/joshua-xl/silver-source.glb', import.meta.url));
+  const verified = await readFile(new URL('../model/candidates/joshua-xl/silver-curved.glb', import.meta.url));
   assert.ok(shipped.equals(verified), 'default website asset must match the verified silver export');
 });
 

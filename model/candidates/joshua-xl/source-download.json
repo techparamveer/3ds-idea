@@ -1,0 +1,178 @@
+{
+  "sourceFile": ".local/sources/joshua-xl/original.glb",
+  "sourceSha256": "cc369289729c1b6cc24dd5aa17802d6984aa75da60ff81e187aeb9ac0fde2f6e",
+  "sourceSize": 28850812,
+  "source": {
+    "author": "Joshua P. (https://sketchfab.com/Pansdaz)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/nintendo-3ds-xl-6cf20040dc0e44559c3e69723945afcc",
+    "title": "Nintendo 3DS XL"
+  },
+  "materials": [
+    {
+      "doubleSided": true,
+      "emissiveFactor": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emissiveTexture": {
+        "index": 2
+      },
+      "extensions": {
+        "KHR_materials_emissive_strength": {
+          "emissiveStrength": 2.3654371017315476
+        }
+      },
+      "name": "standardSurface1",
+      "normalTexture": {
+        "index": 3
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "emissiveFactor": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emissiveTexture": {
+        "index": 4
+      },
+      "extensions": {
+        "KHR_materials_emissive_strength": {
+          "emissiveStrength": 10.0
+        }
+      },
+      "name": "image",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 4
+        },
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.6
+      }
+    },
+    {
+      "alphaMode": "BLEND",
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "specularFactor": 0.667727400498243
+        }
+      },
+      "name": "screen",
+      "occlusionTexture": {
+        "index": 6
+      },
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.0,
+          0.0,
+          0.0,
+          0.85
+        ],
+        "baseColorTexture": {
+          "index": 5
+        },
+        "metallicFactor": 0.0,
+        "metallicRoughnessTexture": {
+          "index": 6
+        },
+        "roughnessFactor": 0.47339108936580887
+      }
+    }
+  ],
+  "images": [
+    {
+      "index": 0,
+      "file": "model/candidates/joshua-xl/source-textures/body-basecolor.png",
+      "size": 5452245,
+      "sha256": "9e5dfaffd8dae55ec5330a59d37b0be7281d83649fb3f6ae217d702d1fcf1651",
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "mode": "RGB"
+    },
+    {
+      "index": 1,
+      "file": "model/candidates/joshua-xl/source-textures/body-metallic-roughness.png",
+      "size": 4404056,
+      "sha256": "4caec9da7efef6d5a340b35fe353b6e4325d714b176553eee2c6947497b00ab6",
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "mode": "RGB"
+    },
+    {
+      "index": 2,
+      "file": "model/candidates/joshua-xl/source-textures/body-emissive.png",
+      "size": 24862,
+      "sha256": "13e83ec341cae534e31f4361b64f331cae73f5c11fe53f3ec0aafd2da495d5aa",
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "mode": "P"
+    },
+    {
+      "index": 3,
+      "file": "model/candidates/joshua-xl/source-textures/body-normal.png",
+      "size": 6956696,
+      "sha256": "c0da55d15b2ca5dd70840a680b0384f4ba05b6794f37159edf95335c8455b5a5",
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "mode": "RGB"
+    },
+    {
+      "index": 4,
+      "file": "model/candidates/joshua-xl/source-textures/artwork-basecolor.png",
+      "size": 50744,
+      "sha256": "ed53356920e4cb68eecc66443ad0ae9553c95f32cb7b3b24bdd3fd97d5989c63",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGB"
+    },
+    {
+      "index": 5,
+      "file": "model/candidates/joshua-xl/source-textures/glass-basecolor.png",
+      "size": 2379,
+      "sha256": "2aae3903aee43fd900d3c9eb70b6b5ae56ec5d1ddb28aced5bb91842dd0a44c1",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "1"
+    },
+    {
+      "index": 6,
+      "file": "model/candidates/joshua-xl/source-textures/glass-occlusion-roughness.png",
+      "size": 11439823,
+      "sha256": "815c955f94a407acb7e1cf168e28ec793d89d4fa576d6fe6e22de87756610d24",
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "mode": "RGB"
+    }
+  ]
+}

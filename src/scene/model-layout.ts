@@ -1,6 +1,6 @@
 import { Box3, Matrix4, Mesh, Object3D, Quaternion, Vector3, type Material } from 'three';
 
-export const DEFAULT_MODEL_URL = '/models/silver-3ds-xl.glb';
+export const DEFAULT_MODEL_URL = '/models/candidates/joshua-xl.glb';
 
 export type ControlName = 'A' | 'B' | 'X' | 'Y' | 'HOME' | 'SELECT' | 'START' | 'POWER' | 'L' | 'R' | 'DPAD' | 'CIRCLE';
 export type DirectionalControlName = 'DPAD' | 'CIRCLE';

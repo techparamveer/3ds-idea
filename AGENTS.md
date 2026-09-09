@@ -6,7 +6,7 @@ This is a personal portfolio experienced entirely through a realistic original S
 
 ## Priorities
 
-The user's latest direction is to source an existing original-XL model and rig it. Follow `docs/model-source-evaluation.md`; pause further procedural reconstruction while evaluating the replacement. Preserve the existing `.blend` and `.glb`. All visual and interaction requirements below still apply to the imported asset.
+The user's latest direction is to source an existing original-XL model and rig it. The downloaded Joshua P. model is now rigged, textured, adapted to silver and used on the homepage. Follow `docs/model-source-evaluation.md` and `docs/source-silver-validation.md`; continue refining that source rather than resuming procedural reconstruction. Preserve the earlier `.blend` and `.glb`. All visual and interaction requirements below still apply to the imported asset.
 
 1. Research the correct hardware using Nintendo sources and the user's photos.
 2. Correct shell geometry and component proportions, including the curved back and underside.
@@ -17,8 +17,9 @@ The user has rejected the current visual fidelity. Existing geometry checks prov
 
 ## Working context
 
-- `model/silver-3ds-xl.blend`: current editable model; preserve it before major reconstruction. Historical modeling scripts are sequential passes, not a safe clean rebuild pipeline.
-- `public/models/silver-3ds-xl.glb`: browser asset. Export after verified Blender changes.
+- `model/candidates/joshua-xl/silver-source.blend`: active editable sourced rig. The adjacent README describes the sequential import, UV, material and tangent-restoration passes. Do not run an earlier pipeline pass against this file indiscriminately.
+- `public/models/candidates/joshua-xl.glb`: active browser asset; mirror the verified `silver-source.glb` and its paint mask after Blender changes. Source credit is in the adjacent licence file.
+- `model/silver-3ds-xl.blend` and `public/models/silver-3ds-xl.glb`: preserved earlier procedural model. Its dimension tests do not validate the sourced replacement.
 - `src/scene/`: Three.js scene and VGPU material generation.
 - `src/os/`: current plain HOME Menu approximation; actual firmware assets are still pending.
 - `/Users/paramveer/.codex/worktrees/b94c/3ds-idea`, branch `codex/home-menu-assets`: active separate HOME Menu task/worktree. Preserve its independent work. `../3ds-idea-os`, branch `codex/3ds-os`, is the older OS worktree.

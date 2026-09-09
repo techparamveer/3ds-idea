@@ -1,9 +1,11 @@
-import test from 'node:test';
+import { test as nodeTest } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { Matrix4, Quaternion, Vector3, Box3 } from 'three';
 const data=fs.readFileSync(new URL('../public/models/silver-3ds-xl.glb',import.meta.url));
 const gltf=JSON.parse(data.subarray(20,20+data.readUInt32LE(12)).toString());
+// These checks guard the preserved procedural checkpoint, not the sourced asset.
+const test=(name,fn)=>nodeTest('Legacy checkpoint: '+name,fn);
 function componentBounds(name){
  const node=gltf.nodes.find(n=>n.name===name);assert.ok(node,`${name} is missing`);
  const bounds=new Box3(),matrix=new Matrix4();

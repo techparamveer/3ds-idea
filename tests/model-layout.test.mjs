@@ -19,15 +19,20 @@ function cap(parent, name, position, bakedOffset = [0, 0, 0]) {
   const mesh = new Mesh(geometry, new MeshStandardMaterial());mesh.name = name;mesh.position.set(...position);parent.add(mesh);return mesh;
 }
 
-test('default asset keeps the current screen placements', () => {
+test('preserved legacy asset keeps its original screen placements', () => {
   const { model, base, hinge } = fixture();
   const layout = resolveModelLayout(model);
-  assert.equal(DEFAULT_MODEL_URL, '/models/silver-3ds-xl.glb');
   assert.equal(layout.source, 'legacy');
   assert.equal(layout.screens.top.parent, hinge);
   assert.equal(layout.screens.bottom.parent, base);
   assert.deepEqual(layout.screens.top.position.toArray(), [0, .145, 43.5]);
   assert.deepEqual(layout.screens.bottom.position.toArray(), [0, 13.83, 1]);
+});
+
+test('homepage serves the verified silver source export', async () => {
+  const shipped = await readFile(new URL('../public' + DEFAULT_MODEL_URL, import.meta.url));
+  const verified = await readFile(new URL('../model/candidates/joshua-xl/silver-source.glb', import.meta.url));
+  assert.ok(shipped.equals(verified), 'default website asset must match the verified silver export');
 });
 
 test('source anchors replace old offsets and follow their own hierarchy', () => {

@@ -5,6 +5,7 @@ import { createScreens } from '@/os/screens';
 import { initialState, reduceMenu, touchMenu, type Input } from '@/os/state';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
 import { DEFAULT_MODEL_URL, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement } from './model-layout';
+import { installSourcePaintSurface } from './source-paint-surface';
 
 const RAD = Math.PI / 180;
 export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MODEL_URL):Promise<()=>void> {
@@ -47,14 +48,33 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const topScreen=addDisplay('Display_Top',layout.screens.top,topMat);
   const touchScreen=addDisplay('Display_Touch',layout.screens.bottom,bottomMat);
   let surfaceDisposed=false;
+  const surfaceTextures=new Set<THREE.Texture>();
+  const removeSurfaceHooks:(()=>void)[]=[];
   const silverMaterials=new Set<THREE.MeshStandardMaterial>();
-  model.traverse(o=>{if(o instanceof THREE.Mesh)for(const material of Array.isArray(o.material)?o.material:[o.material])if(material instanceof THREE.MeshStandardMaterial&&isSilverPaintMaterial(material))silverMaterials.add(material);});
-  host.dataset.vgpu=silverMaterials.size?'initializing':'not-applicable';
-  if(silverMaterials.size)import('./silver-surface').then(({createSilverSurface})=>createSilverSurface()).then(texture=>{
+  const sourceMaterials=new Map<THREE.MeshStandardMaterial,string>();
+  model.traverse(o=>{if(o instanceof THREE.Mesh)for(const material of Array.isArray(o.material)?o.material:[o.material]){
+    if(!(material instanceof THREE.MeshStandardMaterial))continue;
+    if(isSilverPaintMaterial(material))silverMaterials.add(material);
+    if(material.userData.console_material_role==='sourced-body'&&typeof material.userData.console_paint_mask==='string')sourceMaterials.set(material,material.userData.console_paint_mask);
+  }});
+  const sourceIndicatorIntensity=new Map([...sourceMaterials.keys()].map(material=>[material,material.emissiveIntensity]));
+  host.dataset.vgpu=silverMaterials.size+sourceMaterials.size?'initializing':'not-applicable';
+  if(silverMaterials.size+sourceMaterials.size)import('./silver-surface').then(({createSilverSurface})=>createSilverSurface()).then(async texture=>{
     if(surfaceDisposed){texture?.dispose();return;}
     if(!texture){host.dataset.vgpu='webgl-fallback';return;}
-    for(const material of silverMaterials){material.roughnessMap=texture;material.roughness=1;material.needsUpdate=true;}host.dataset.vgpu='ready';
-  }).catch(e=>{host.dataset.vgpu='webgl-fallback';console.warn('VGPU surface unavailable; using the baked Blender surface.',e);});
+    surfaceTextures.add(texture);
+    const masks=new Map<string,THREE.Texture>();
+    await Promise.all([...new Set(sourceMaterials.values())].map(async url=>{
+      const mask=await new THREE.TextureLoader().loadAsync(url);
+      if(surfaceDisposed){mask.dispose();return;}
+      mask.flipY=false;mask.colorSpace=THREE.NoColorSpace;mask.wrapS=mask.wrapT=THREE.RepeatWrapping;mask.needsUpdate=true;
+      surfaceTextures.add(mask);masks.set(url,mask);
+    }));
+    if(surfaceDisposed)return;
+    for(const material of silverMaterials){material.roughnessMap=texture;material.roughness=1;material.needsUpdate=true;}
+    for(const [material,url] of sourceMaterials)removeSurfaceHooks.push(installSourcePaintSurface(material,texture,masks.get(url)!));
+    host.dataset.vgpu='ready';
+  }).catch(e=>{if(surfaceDisposed)return;host.dataset.vgpu='webgl-fallback';console.warn('VGPU surface unavailable; using the baked Blender surface.',e);});
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
   const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');let reduced=motionPreference.matches;
   let frame=0,disposed=false,last=performance.now(),intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1;
@@ -81,7 +101,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const writeState=()=>{
     host.dataset.ready='true';host.dataset.menu=state.opened?'folder':'home';host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
-  function paint(){model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});screens.paint(state);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*.97:0;writeState();}
+  function paint(){model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*.97:0;writeState();}
   function send(input:Input){state=reduceMenu(state,input);lastInput=input;paint();}
   function press(name:string,source?:string){
     const cap=caps.get(name);if(!cap)return;
@@ -130,7 +150,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(!drag){const h=hit(e);host.style.cursor=h?(controlName(h.object)||h.object===touchScreen?'pointer':'grab'):'default';return;}
     if(e.pointerId!==drag.pointerId)return;
     if(!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5){drag.moved=true;targetYaw=yaw;targetPitch=pitch;release('pointer');}
-    if(drag.moved){targetYaw+=(e.clientX-drag.x)*.007;targetPitch=THREE.MathUtils.clamp(targetPitch+(e.clientY-drag.y)*.003,-.45,.3);host.style.cursor='grabbing';}
+    if(drag.moved){targetYaw+=(e.clientX-drag.x)*.007;targetPitch=THREE.MathUtils.clamp(targetPitch+(e.clientY-drag.y)*.003,-1.65,1.3);host.style.cursor='grabbing';}
     drag.x=e.clientX;drag.y=e.clientY;
   }
   function pointerUp(e:PointerEvent){
@@ -202,5 +222,5 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   renderer.render(scene,camera);
   start=last=performance.now();
   let request=requestAnimationFrame(animate);writeState();
-  return ()=>{surfaceDisposed=true;disposed=true;cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
+  return ()=>{surfaceDisposed=true;disposed=true;for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
 }

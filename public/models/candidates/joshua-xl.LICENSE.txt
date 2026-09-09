@@ -1,13 +1,39 @@
-Nintendo 3DS XL — sourced model preview
+Nintendo 3DS XL — silver portfolio derivative
 
 Original model: Nintendo 3DS XL
 Author: Joshua P. / Pansdaz (@Pansdaz)
 Source: https://sketchfab.com/3d-models/nintendo-3ds-xl-6cf20040dc0e44559c3e69723945afcc
-Licence: Creative Commons Attribution 4.0 International — https://creativecommons.org/licenses/by/4.0/
+Licence: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
 
-Modifications: separated 68 rigid components while preserving source geometry, UVs and vertex normals; removed the presentation transform; uniformly scaled width to 156 mm; fitted an X-axis 0–155 degree hinge; added independent control pivots and provisional live-display anchors; flagged baked display artwork for runtime replacement.
+The original complete 4K GLB and all seven embedded texture images were acquired
+through the source download. Source file SHA-256:
+cc369289729c1b6cc24dd5aa17802d6984aa75da60ff81e187aeb9ac0fde2f6e
 
-Incomplete texture download: the authenticated source GLB transfer stalled at 4,636,960 of 28,850,812 bytes. Complete geometry buffers were retained; incomplete source images were omitted. Inspection materials are substitutes. This asset does not represent the creator’s finished PBR textures.
+Project modifications, 9 September 2026:
+- Separated 68 rigid components while preserving the original 9,353 triangles.
+- Removed the presentation transform, uniformly normalized width to 156 mm,
+  fitted an X-axis 0–155-degree hinge and added independent control pivots.
+- Corrected Blender's UV convention and restored original normal/tangent frames
+  after export, preserving the source layout and tangent handedness.
+- Added provisional live-display anchors and flagged two baked boot-artwork
+  components for runtime replacement; their source geometry remains preserved.
+- Replaced only red paint contributions in the body base-colour atlas with a
+  silver appearance, preserving neutral ink and wear. The other six source
+  image payloads and original material factors remain unchanged.
+- Added a paint-region mask for restrained VGPU roughness variation at runtime;
+  unpainted regions retain the source roughness treatment.
 
-Display placement: Provisional: Nintendo active display dimensions centred within source glass geometry; actual source texture boundaries are unverified.
-The candidate envelope and visual fidelity remain under evaluation. Nintendo names and marks identify the depicted hardware; no endorsement by Nintendo or the original model author is implied.
+This public GLB is the fully textured silver model used by the portfolio
+homepage, derived from model/candidates/joshua-xl/silver-source.blend. It is not
+the earlier textureless inspection preview. The original red source, its images
+and the earlier procedural model remain preserved separately.
+
+Known differences: the closed envelope is approximately 156 x 92.397 x 22.233 mm;
+original USA underside markings remain pending adaptation to the user's EUR
+unit; live displays use Nintendo's published active sizes but their placement
+within the source glass remains provisional. The silver colour is an authored
+adaptation, not a manufacturer measurement. Exact visual identity is not claimed.
+
+Nintendo names and marks identify the depicted hardware. No endorsement by
+Nintendo or by the original model author is implied.

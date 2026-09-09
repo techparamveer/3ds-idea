@@ -1,0 +1,47 @@
+{
+  "source": "Joshua P. original XL",
+  "sourceGeometryComplete": true,
+  "sourceTexturesComplete": false,
+  "uniform_scale_to_mm": 1.728715187406892,
+  "closed_dimensions_mm": [
+    156.0,
+    92.39666748046875,
+    22.23285484313965
+  ],
+  "hinge_native_mm": [
+    -0.2103884369134903,
+    39.80546951293945,
+    16.837026596069336
+  ],
+  "hinge_range_degrees": [
+    0,
+    155
+  ],
+  "parts": 68,
+  "control_names": [
+    "Button_A",
+    "Button_B",
+    "Button_Circle",
+    "Button_Dpad",
+    "Button_HOME",
+    "Button_L",
+    "Button_POWER",
+    "Button_R",
+    "Button_SELECT",
+    "Button_START",
+    "Button_X",
+    "Button_Y"
+  ],
+  "screen_surface_sizes_mm": {
+    "Screen_Bottom": [
+      90.93446350097656,
+      68.42549896240234,
+      0.0
+    ],
+    "Screen_Top": [
+      121.306396484375,
+      72.18695831298828,
+      4.768371127283899e-06
+    ]
+  }
+}

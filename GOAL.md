@@ -4,6 +4,12 @@ Build a personal portfolio website whose entire visible interface is a realistic
 
 The user's standard is exact visual resemblance to their reference photographs. The current prototype has been rejected for its smooth surfaces, wrong font, flat-looking back and inaccurate appearance. Treat it as an unfinished starting point. Passing dimensions or interaction tests does not satisfy the visual goal.
 
+## Current approach: source and rig an existing model
+
+The latest user direction is to obtain an existing 3D model from the web and rig it. Prioritize evaluating and importing a faithful, licensed original 2012 XL asset over continuing the procedural reconstruction. Preserve the current native model and browser asset until a replacement has been inspected. See `docs/model-source-evaluation.md` for candidates and download status.
+
+Import the source into a separate Blender evaluation file through Blender MCP. Inspect its mesh, textures, silhouette, dimensions and part separation before integrating it. Adapt the outer finish to silver, establish the true hinge pivot and 0–155° movement, separate interactive buttons, and align independent top/bottom display surfaces with the existing OS. Keep attribution and source provenance. A downloadable model is a starting point, not evidence of exactness; compare it with Nintendo's photographs and specifications before replacing the live asset.
+
 ## Research before reconstruction
 
 Use Nintendo's original product pages, operations manual and official front/rear imagery, supplemented by close-up photographs of the same silver model and all seven supplied images. Record source URLs, the view each supports, confirmed measurements, and remaining uncertainty in `docs/3ds-xl-research.md`. Distinguish published dimensions from estimates made from perspective photographs. Research the original XL hardware even though the firmware ZIP has NEW in its filename.

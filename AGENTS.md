@@ -6,6 +6,8 @@ This is a personal portfolio experienced entirely through a realistic original S
 
 ## Priorities
 
+The user's latest direction is to source an existing original-XL model and rig it. Follow `docs/model-source-evaluation.md`; pause further procedural reconstruction while evaluating the replacement. Preserve the existing `.blend` and `.glb`. All visual and interaction requirements below still apply to the imported asset.
+
 1. Research the correct hardware using Nintendo sources and the user's photos.
 2. Correct shell geometry and component proportions, including the curved back and underside.
 3. Texture front and back and match hardware lettering. Verify the result in the browser.

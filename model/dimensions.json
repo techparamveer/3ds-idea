@@ -28,12 +28,13 @@
     155
   ],
   "top_panel_mm": [
-    106.2879631279,
-    63.7727778768
+    106.2,
+    63.72
   ],
   "bottom_panel_mm": [
-    84.9376,
-    63.7032
+    84.96,
+    63.72
   ],
-  "notes": "Photographic reconstruction, not a manufacturer CAD scan. Physical screen ratio uses 400x240 per eye; browser top texture stores 800x240."
+  "notes": "Photographic reconstruction, not a manufacturer CAD scan. Physical screen ratio uses 400x240 per eye; browser top texture stores 800x240.",
+  "screen_source": "https://www.nintendo.co.jp/hardware/3dsseries/3dsll/index.html"
 }

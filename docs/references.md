@@ -1,5 +1,7 @@
 # Reference and fidelity record
 
+**Update, 2026-09-09:** Read `3ds-xl-research.md` and `../GOAL.md` first. The user rejected the current appearance. The measurements below describe the existing prototype; Nintendo's published active LCD dimensions supersede its diagonal-derived screen values. Matching the outer envelope is not evidence of visual identity.
+
 The hardware target is the **original 2012 silver/black Nintendo 3DS XL (SPR-001)**, not the 2015 New Nintendo 3DS XL. The supplied firmware archive is labelled NEW; that does not change the physical model target shown by all seven supplied photographs.
 
 The seven user reference images were inspected in full. Additional photographs were inspected in the browser, including:

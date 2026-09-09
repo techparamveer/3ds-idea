@@ -1,0 +1,132 @@
+{
+  "authoring": "Deterministic procedural reconstruction estimates; no measured Nintendo material constants or source photographs used as textures.",
+  "mapping": "All maps tile seamlessly in U and V. One UV unit = 16 mm. Base color is sRGB; roughness and normals are non-color data.",
+  "materials": [
+    {
+      "name": "silver",
+      "seed": 17050,
+      "resolution": [
+        512,
+        512
+      ],
+      "tile_mm": [
+        16.0,
+        16.0
+      ],
+      "basecolor_srgb_mean": [
+        172.999,
+        177.999,
+        182.999
+      ],
+      "roughness_linear_min_mean_max": [
+        0.23137,
+        0.34519,
+        0.47843
+      ],
+      "height_rms_mm": 0.002464,
+      "metalness_artistic_estimate": 0.4,
+      "normal_convention": "OpenGL tangent-space +Y, non-color, strength 1.0",
+      "files": [
+        {
+          "file": "silver-basecolor.png",
+          "bytes": 65451,
+          "sha256": "3325cfb34aeaa05b7de64a01969e327cafb46f188f59b996d7a9fa7a9c935704"
+        },
+        {
+          "file": "silver-roughness.png",
+          "bytes": 114380,
+          "sha256": "1bce15e0335d3ad2ff8be20157aae55ac3161fbd9924ca86da791767a326afe1"
+        },
+        {
+          "file": "silver-normal.png",
+          "bytes": 297340,
+          "sha256": "dca51a88fe4c10b077e3625e5ad790cd2266818d1ca5e36cbe601bf57383c325"
+        }
+      ]
+    },
+    {
+      "name": "graphite",
+      "seed": 17051,
+      "resolution": [
+        512,
+        512
+      ],
+      "tile_mm": [
+        16.0,
+        16.0
+      ],
+      "basecolor_srgb_mean": [
+        31.0,
+        34.0,
+        36.0
+      ],
+      "roughness_linear_min_mean_max": [
+        0.43922,
+        0.56509,
+        0.7098
+      ],
+      "height_rms_mm": 0.004653,
+      "metalness_artistic_estimate": 0.0,
+      "normal_convention": "OpenGL tangent-space +Y, non-color, strength 1.0",
+      "files": [
+        {
+          "file": "graphite-basecolor.png",
+          "bytes": 35908,
+          "sha256": "e33750a8b24d37b4abd90c832b4ce4a4da3ab9e6de3bb9c6414118ff66bad3cd"
+        },
+        {
+          "file": "graphite-roughness.png",
+          "bytes": 103461,
+          "sha256": "a38d2f022a0f76cb320dfcbf4734a2cbf3974d84c01c2b8ea11069f1a5f58500"
+        },
+        {
+          "file": "graphite-normal.png",
+          "bytes": 292973,
+          "sha256": "1a1f0db53e116138c0a2a3cbfeef0925df18c7596f259482b71114298d12ac33"
+        }
+      ]
+    },
+    {
+      "name": "silicone",
+      "seed": 17052,
+      "resolution": [
+        512,
+        512
+      ],
+      "tile_mm": [
+        16.0,
+        16.0
+      ],
+      "basecolor_srgb_mean": [
+        115.999,
+        119.999,
+        115.999
+      ],
+      "roughness_linear_min_mean_max": [
+        0.62745,
+        0.715,
+        0.79608
+      ],
+      "height_rms_mm": 0.001494,
+      "metalness_artistic_estimate": 0.0,
+      "normal_convention": "OpenGL tangent-space +Y, non-color, strength 1.0",
+      "files": [
+        {
+          "file": "silicone-basecolor.png",
+          "bytes": 32909,
+          "sha256": "ed5d304a555d2a7649cec266c53f9bcd2079a41e0e04698527de388fee20f2af"
+        },
+        {
+          "file": "silicone-roughness.png",
+          "bytes": 88521,
+          "sha256": "516ebcebe31055d4702557adda5f2f4ab1f6b3fcc4e65b5763023644eec70f53"
+        },
+        {
+          "file": "silicone-normal.png",
+          "bytes": 163665,
+          "sha256": "517ddc4c589be6def3a6603e90eabc03bbca49a95900fb366031b4f751f5d021"
+        }
+      ]
+    }
+  ]
+}

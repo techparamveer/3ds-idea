@@ -1,5 +1,7 @@
 # Silver 3DS XL
 
+Project brief and acceptance criteria: [GOAL.md](GOAL.md). Current research and visual defects: [3DS XL research](docs/3ds-xl-research.md). Agent instructions: [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md).
+
 A Blender-authored silver Nintendo 3DS XL, displayed as an interactive Next.js / Three.js portfolio. The page contains only the console. It turns left and opens, then the physical controls and bottom touchscreen navigate a plain HOME Menu.
 
 ## Run

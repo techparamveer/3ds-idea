@@ -15,3 +15,5 @@ Independent tests in `tests/test_web_model.py` reopen both GLBs, compare every d
 Browser inspection at 1280 × 720 covered the open interior, closed silver lid and underside. The WebP textures loaded with VGPU ready, A opened a folder, HOME returned and the hinge closed. The development-only baked fallback was also checked with the same pack. No application code or shader was changed. The pack remains large, and further delivery optimization must preserve the surface detail and model silhouette.
 
 After future Blender exports, run `pack_web_model.py` on the new authoring GLB, run the independent preservation tests against that pair, inspect the browser, and then update the public mirror and identity test. Preserve the full authoring GLB and source textures.
+
+The current power-indicator delivery pair is `silver-power-indicator.glb` and `silver-power-indicator-web.glb`. The latter is 104,636,804 bytes, with pixel-identical image decoding and unchanged non-image payloads verified independently. Keep editing `silver-power-indicator.blend`; see `source-power-indicator-validation.md`.

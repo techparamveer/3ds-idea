@@ -222,3 +222,7 @@ Current editable checkpoint: `silver-lower-keys.blend` / `.glb`, following the m
 The homepage uses `silver-lower-keys-web.glb`, a lossless WebP delivery pack made from that authoring export. Geometry and decoded texture pixels are identical. Continue Blender edits from `silver-lower-keys.blend`; repack only after exporting. See `docs/web-model-packing.md`.
 
 Latest checkpoint: `silver-dock-contacts.blend` / `.glb`, with `silver-dock-contacts-web.glb` on the homepage. Only the two rear docking contacts receive the corrected gold reflectance map; all geometry and other materials are retained. See `docs/source-dock-contact-validation.md`. Use this Blender file for subsequent edits and preserve the earlier checkpoints above.
+
+## Power indicator colour
+
+`silver-power-indicator.blend` and its PNG GLB follow the docking-contact checkpoint. The independent front indicator material replaces cyan emission with blue and retains the unlit charging lens. See `../../../docs/source-power-indicator-validation.md`. The browser uses the lossless `silver-power-indicator-web.glb` delivery pack.

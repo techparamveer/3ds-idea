@@ -1,0 +1,18 @@
+{
+  "source": "indicator-emissive-source.png",
+  "output": "indicator-blue-emissive.png",
+  "region": [
+    1353,
+    2813,
+    1500,
+    2886
+  ],
+  "blue_srgb": [
+    10,
+    120,
+    255
+  ],
+  "changed_pixels": 5716,
+  "sha256": "6569c2b408c6cf6325ca17bb5a9f8b56dcf962fabac1606bf6d5eb5a210a7df5",
+  "interpretation": "Blue hue confirmed by Nintendo; RGB and emission intensity are appearance estimates."
+}

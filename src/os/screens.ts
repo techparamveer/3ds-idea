@@ -1,10 +1,14 @@
-import { type MenuState, pageStart } from './state';
+import { type MenuState, menuTiles, isFolder } from './state';
+import { type BitmapFont } from './bitmap-font';
 type Context = CanvasRenderingContext2D;
+const fonts = new WeakMap<Context, BitmapFont>();
 function rounded(c: Context, x: number, y: number, w: number, h: number, r: number, fill: string, stroke?: string) {
   c.beginPath();c.roundRect(x,y,w,h,r);c.fillStyle=fill;c.fill();
   if(stroke){c.strokeStyle=stroke;c.lineWidth=1;c.stroke();}
 }
 function text(c:Context,t:string,x:number,y:number,size=11,color='#77817f',align:CanvasTextAlign='left'){
+ const font=fonts.get(c);if(font){font.draw(c,t,x,y,size,color,align);return;}
+ // Provisional fallback. No extracted Nintendo font ships in this repository.
  c.font=`${size}px Arial, sans-serif`;c.fillStyle=color;c.textAlign=align;c.textBaseline='middle';c.fillText(t,x,y);
 }
 function folder(c:Context,x:number,y:number,size:number){
@@ -31,35 +35,34 @@ function toolbar(c:Context){
  rounded(c,199,6,18,12,3,'#93bf8d','#78a779');c.fillStyle='#93bf8d';c.beginPath();c.moveTo(203,17);c.lineTo(203,21);c.lineTo(208,17);c.fill();
  c.strokeStyle='#6babb5';c.beginPath();c.ellipse(272,12,9,6,0,0,Math.PI*2);c.moveTo(263,12);c.lineTo(281,12);c.moveTo(272,6);c.lineTo(272,18);c.stroke();c.beginPath();c.ellipse(272,12,4,6,0,0,Math.PI*2);c.stroke();
 }
-export function createScreens(){
+export function createScreens(options: { font?: BitmapFont; reducedMotion?: boolean } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const t=top.getContext('2d')!,b=bottom.getContext('2d')!;
- function paint(state:MenuState,date=new Date()){
+ if(options.font){fonts.set(t,options.font);fonts.set(b,options.font);}
+ function paint(state:MenuState,date=new Date(), elapsedMs=0){
   t.resetTransform();t.clearRect(0,0,800,240);b.clearRect(0,0,320,240);
   if(!state.powered){t.fillStyle=b.fillStyle='#101719';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);return;}
-  // 800-wide backing texture preserves the dual-eye framebuffer dimensions;
-  // the monoscopic browser displays a 400-pixel logical canvas at 2x X density.
+  // Compatibility with the existing full-width texture UVs: 400 logical pixels
+  // resampled across 800 storage pixels. This is NOT a packed stereo pair.
   t.scale(2,1);
   const bg=t.createLinearGradient(0,0,0,240);bg.addColorStop(0,'#eef2eb');bg.addColorStop(.65,'#fff');bg.addColorStop(1,'#e3e8e0');t.fillStyle=bg;t.fillRect(0,0,400,240);
   t.strokeStyle='#e4e9e1';t.lineWidth=.5;for(let x=0;x<400;x+=12){t.beginPath();t.moveTo(x,24);t.lineTo(x,240);t.stroke();}for(let y=24;y<240;y+=12){t.beginPath();t.moveTo(0,y);t.lineTo(400,y);t.stroke();}
   status(t,400,date);
-  if(!state.opened){
+  if(!state.opened && isFolder(state.selected)){
    t.save();t.shadowColor='#b5beb2';t.shadowBlur=17;t.shadowOffsetY=14;folder(t,200,111,66);t.restore();
   }
   const bg2=b.createLinearGradient(0,26,0,240);bg2.addColorStop(0,'#f7f8f0');bg2.addColorStop(1,'#e0e6d9');b.fillStyle=bg2;b.fillRect(0,0,320,240);
   toolbar(b);
   if(!state.opened){
-   const cell=296/state.columns,size=Math.min(60,cell-11),start=pageStart(state);
-   for(let col=0;col<state.columns;col++)for(let row=0;row<2;row++){
-    const index=(start+col)*2+row,x=12+col*cell+(cell-size)/2,y=(row?120:42)+(60-size)/2;
+   for(const {index,x,y,size} of menuTiles(state)){
     b.save();b.shadowColor='#b4c0ae';b.shadowBlur=2;b.shadowOffsetY=2;rounded(b,x,y,size,size,8,'#fafbf6','#c7d1be');b.restore();
     rounded(b,x+4,y+4,size-8,size-8,5,'#eef2e7','#e1e7d9');
-    if(index<4)folder(b,x+size/2,y+size/2-2,size*.52);
-    if(index===state.selected){b.strokeStyle='#44d3c9';b.lineWidth=2.5;b.beginPath();b.roundRect(x-3,y-3,size+6,size+6,9);b.stroke();}
+    if(isFolder(index))folder(b,x+size/2,y+size/2-2,size*.52);
+    if(index===state.selected){const pulse=options.reducedMotion?0:Math.sin(elapsedMs*Math.PI/700)*.6;b.strokeStyle='#44d3c9';b.lineWidth=2.5;b.beginPath();b.roundRect(x-3-pulse,y-3-pulse,size+6+2*pulse,size+6+2*pulse,9);b.stroke();}
    }
    rounded(b,6,212,32,22,4,'#f2f6eb','#c5d0ba');text(b,'◀',22,223,13,'#8bb270','center');
-   rounded(b,46,212,228,22,4,'#f9fbf4','#c5d0ba');text(b,'Open',160,223,12,'#7d8a71','center');
+   if(isFolder(state.selected)){rounded(b,46,212,228,22,4,'#f9fbf4','#c5d0ba');text(b,'Open',160,223,12,'#7d8a71','center');}
    rounded(b,282,212,32,22,4,'#f2f6eb','#c5d0ba');text(b,'▶',298,223,13,'#8bb270','center');
   }else{
    // Plain empty portfolio folder. Content will be supplied by the owner.

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { initialState, reduceMenu, touchMenu, pageStart, SLOT_COUNT } from '../src/os/state.ts';
+import { menuTiles } from '../src/os/state.ts';
 test('D-pad navigation uses column-major rows and stays in the grid',()=>{
  let s={...initialState};s=reduceMenu(s,'right');assert.equal(s.selected,2);s=reduceMenu(s,'down');assert.equal(s.selected,3);
  for(let i=0;i<50;i++)s=reduceMenu(s,'right');assert.equal(s.selected,SLOT_COUNT-1);
@@ -19,3 +20,21 @@ test('Powered-off hardware ignores menu inputs and wakes cleanly',()=>{
  assert.deepEqual(touchMenu(off,100,100),off);const on=reduceMenu(off,'power');assert.equal(on.powered,true);assert.equal(on.opened,false);
 });
 test('Offscreen touches do not change selection',()=>{for(const [x,y]of [[-1,0],[321,120],[160,241]])assert.deepEqual(touchMenu(initialState,x,y),initialState);});
+test('Blank slots cannot launch or show a folder',()=>{
+ const s={...initialState,selected:4};assert.deepEqual(reduceMenu(s,'open'),s);
+ const tile=menuTiles(s).find(t=>t.index===4);
+ assert.equal(touchMenu(s,tile.x+tile.size/2,tile.y+tile.size/2).opened,false);
+});
+test('Touch gaps, button margins and non-finite coordinates do nothing',()=>{
+ for(const [x,y] of [[NaN,50],[50,Infinity],[40,220],[280,220],[160,239],[100,110]])
+  assert.deepEqual(touchMenu(initialState,x,y),initialState);
+});
+test('Every drawn tile remains reachable after scrolling or changing density',()=>{
+ for(const columns of [4,6])for(let selected=0;selected<SLOT_COUNT;selected++){
+  const state={...initialState,columns,selected};
+  for(const tile of menuTiles(state)) {
+   const touched=touchMenu(state,tile.x+tile.size/2,tile.y+tile.size/2);
+   assert.equal(touched.selected,tile.index);
+  }
+ }
+});

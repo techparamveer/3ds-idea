@@ -19,4 +19,4 @@ with zipfile.ZipFile(sys.argv[1]) as z:
    flags=b[off+0x188:off+0x190];row['ncch_flags']=flags.hex();row['ncch_no_crypto']=bool(flags[7]&4);row['romfs_size']=int.from_bytes(b[off+0x1b4:off+0x1b8],'little')*512
   rows.append(row)
 out=Path(__file__).resolve().parents[1]/'docs/firmware-inventory.json';out.write_text(json.dumps(rows,indent=2))
-print(json.dumps({'packages':len(rows),'readable_ncch':sum(r['ncch_magic']=='NCCH' for r in rows),'unencrypted_ncch':sum(r.get('ncch_no_crypto',False) for r in rows),'home_menu':[r for r in rows if '0004003000009802' in r['file'] or '0004003020009802' in r['file']]},indent=2))
+print(json.dumps({'packages':len(rows),'readable_ncch':sum(r['ncch_magic']=='NCCH' for r in rows),'unencrypted_ncch':sum(r.get('ncch_no_crypto',False) for r in rows),'home_menu':[r for r in rows if '0004003000009802' in r['file'] or '0004003020009802' in r['file']], 'shared_font':[r for r in rows if '0004009b00014002' in r['file'].lower()]},indent=2))

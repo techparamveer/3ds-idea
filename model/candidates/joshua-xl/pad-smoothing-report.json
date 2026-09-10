@@ -1,0 +1,14 @@
+{
+  "source_sha256": "42bbec5344bd0ea86b5ad6670c307af5ac6c4ef9411f1a7c1fdeabb8e38e8e07",
+  "pad_center_world_xy": [
+    -62.2249641459375,
+    15.174867628173828
+  ],
+  "source_segments": 16,
+  "triangles_before": 192,
+  "triangles_after": 8064,
+  "maximum_displacement_mm": 0.14932500998116838,
+  "minimum_jacobian_determinant": 0.9952102134631364,
+  "vertices_moved": 2999,
+  "interpretation": "Sixteen-sided outer pad outline rounded with original heights, centre and maximum radius retained. No factory CAD claim."
+}

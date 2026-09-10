@@ -101,3 +101,8 @@ Additional modification: refined the black chassis front corners with a fitted
 arc, retaining the silver lower cover and source texture seams. Maximum vertex
 movement is 0.155 mm. All other meshes and texture images are preserved.
 See docs/source-chassis-validation.md for evidence and approximation limits.
+
+Additional modification: rounded the original sixteen-sided circle-pad
+perimeter, retaining its height, maximum radius, stem and texture maps.
+Maximum movement is 0.150 mm. The separate socket trial was not integrated.
+See docs/source-pad-validation.md.

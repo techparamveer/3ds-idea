@@ -1,6 +1,6 @@
 # Black chassis corner refinement
 
-Active model: `model/candidates/joshua-xl/silver-chassis.blend`, with adjacent GLB mirrored publicly. SHA-256: `42bbec5344bd0ea86b5ad6670c307af5ac6c4ef9411f1a7c1fdeabb8e38e8e07`. The previous `silver-cover` checkpoint is preserved.
+Preserved model: `model/candidates/joshua-xl/silver-chassis.blend`, SHA-256 `42bbec5344bd0ea86b5ad6670c307af5ac6c4ef9411f1a7c1fdeabb8e38e8e07`. It is followed by the [circle-pad refinement](source-pad-validation.md). The previous `silver-cover` checkpoint is also preserved.
 
 The rounded front corners of the black chassis still used a segmented contour after the silver cover was refined. `scripts/smooth_sourced_chassis_corners.py` fits a 12.538453 mm arc to six existing front-outline points between native Z = 6 and 14 mm. The relative circle centre is `(64.645161, −33.940477)` with an X origin of −0.210388 mm. This is a fit to the sourced model, guided by the continuous rounded silhouette in the original-XL photographs documented in `source-side-audit.md`; it is not a measured factory radius.
 

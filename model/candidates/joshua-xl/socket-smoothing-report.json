@@ -1,0 +1,14 @@
+{
+  "source_sha256": "8e79f528aa3dd90e1a2a73af9001b6ce7713695203f9d1a99293f805b95f21e6",
+  "pad_center_world_xy": [
+    -62.2249641459375,
+    15.174867628173828
+  ],
+  "source_segments": 16,
+  "triangles_before": 63492,
+  "triangles_after": 74676,
+  "maximum_displacement_mm": 0.22539991287978625,
+  "minimum_jacobian_determinant": 0.8883799923699561,
+  "vertices_moved": 4200,
+  "interpretation": "Circle-pad recess rounded with original heights and remote chassis retained. No factory CAD claim."
+}

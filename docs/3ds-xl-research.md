@@ -103,3 +103,5 @@ The ABXY outline pass is documented in `source-abxy-round-validation.md`. It red
 The ABXY material pass (`source-abxy-finish-validation.md`) identifies the source normal map as the main cause of patchy cap reflections. Normal attenuation and retained narrow roughness variation improve the finish; cap lettering and surrounding deck opening fidelity remain unresolved.
 
 The ABXY ink pass (`source-abxy-ink-validation.md`) replaces narrow source ink with wider, heavier authored glyphs based on original-XL photographs. Nintendo’s product page confirms the hardware but does not identify its lettering font; the new outlines remain a documented photographic approximation.
+
+The current baked surface fallback is visually checked in `source-fallback-validation.md`: open interior, closed lid and underside retain their maps without VGPU. This is a forced development-path check, not a hardware compatibility guarantee.

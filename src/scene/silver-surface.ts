@@ -2,6 +2,8 @@ import { DataTexture, RepeatWrapping, RGBAFormat, UnsignedByteType, LinearFilter
 import shader from '@/shaders/silver.wgsl';
 /** VGPU computes the material map once. Three.js reuses it for every frame. */
 export async function createSilverSurface(): Promise<DataTexture | null> {
+  // Exercise the baked-texture path locally without changing browser GPU settings.
+  if (process.env.NODE_ENV === 'development' && new URLSearchParams(window.location.search).get('surface') === 'baked') return null;
   if (!('gpu' in navigator)) return null;
   const { init, target, effect } = await import('vgpu');
   const gpu = await init();

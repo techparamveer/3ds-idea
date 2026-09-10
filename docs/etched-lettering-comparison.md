@@ -1,5 +1,7 @@
 # MIC and POWER relief comparison — 10 September 2026
 
+The later [smooth fitted stencil checkpoint](source-etched-validation.md) supersedes these rejected trials.
+
 This is a native Blender experiment, **not a promoted model revision**. The
 homepage and saved rig remain the verified `silver-legends` checkpoint.
 

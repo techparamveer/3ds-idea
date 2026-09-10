@@ -15,12 +15,15 @@ PHOTO_GLYPHS = {
 }
 
 
-def main(retained_strength=.35, photographic=False):
+def main(retained_strength=.35, photographic=False, smooth=False, bake=False, render_views=True):
     assert Path(bpy.data.filepath).name == 'silver-legends.blend'
     source = bpy.data.materials['Sourced silver photographic lower-key legends']
     trial = source.copy()
     trial.name = 'Temporary etched legend comparison'
     nodes, links = trial.node_tree.nodes, trial.node_tree.links
+    if bake:
+        for node in nodes:
+            if node.type=='TEX_IMAGE':node.interpolation='Closest'
     normal = next(n for n in nodes if n.type == 'NORMAL_MAP')
     original = normal.inputs['Color'].links[0].from_node
     uv = nodes.new('ShaderNodeTexCoord')
@@ -44,8 +47,13 @@ def main(retained_strength=.35, photographic=False):
 
     X=math('MULTIPLY',components.outputs['X'],4096)
     Y=math('MULTIPLY',math('SUBTRACT',1,components.outputs['Y']),4096)
-    photo=None
-    if photographic:
+    photo=None;stencils={}
+    if smooth:
+        photographic=True
+        for word in REGIONS:
+            image=bpy.data.images.load(str(Path(__file__).resolve().parents[1]/'model/candidates/joshua-xl/derived-textures'/('etched-stencil-'+word.lower()+'.png')),check_existing=False)
+            image.colorspace_settings.name='Non-Color';stencils[word]=image
+    elif photographic:
         photo=bpy.data.images.load(str(Path(__file__).resolve().parents[1]/'.local/references/front/techradar-original.jpg'),check_existing=False)
         photo.colorspace_settings.name='sRGB'
     result=original.outputs['Color']
@@ -67,6 +75,8 @@ def main(retained_strength=.35, photographic=False):
             result=mix(result,baseline,math('MULTIPLY',mask,1-retained_strength))
             continue
         spec=PHOTO_GLYPHS[name];px0,py0,px1,py1=spec['crop']
+        if smooth:
+            photo=stencils[name];px0=py0=0;px1,py1=photo.size
         gx0,gy0,gx1,gy1=spec['glyph_rect']
         def ink(dx,dy):
             # Atlas Y decreases toward physical right; atlas X increases toward
@@ -82,13 +92,13 @@ def main(retained_strength=.35, photographic=False):
             lo,hi=map(linear,spec['threshold'])
             gate=1
             for op,a,b in [('GREATER_THAN',sx,gx0),('LESS_THAN',sx,gx1),('GREATER_THAN',sy,gy0),('LESS_THAN',sy,gy1)]:gate=math('MULTIPLY',gate,math(op,a,b))
-            return math('MULTIPLY',gate,clamp(math('DIVIDE',math('SUBTRACT',hi,gray.outputs[0]),hi-lo)))
+            return math('MULTIPLY',gate,gray.outputs[0] if smooth else clamp(math('DIVIDE',math('SUBTRACT',hi,gray.outputs[0]),hi-lo)))
         # Recessed photographic stencil, trial depth 0.05 mm; finite difference
         # derivatives are expressed in physical millimetres, not texture pixels.
         slope=nodes.new('ShaderNodeCombineXYZ')
         for axis,delta,pitch,sign in [('X',(1,0),spec['pitch_mm'][0],1),('Y',(0,1),spec['pitch_mm'][1],-1)]:
             difference=math('SUBTRACT',ink(*delta),ink(*[-v for v in delta]))
-            links.new(math('MULTIPLY',difference,sign*.05/(2*pitch)),slope.inputs[axis])
+            links.new(math('MULTIPLY',difference,sign*(.025 if smooth else .05)/(2*pitch)),slope.inputs[axis])
         unpack=nodes.new('ShaderNodeVectorMath');unpack.operation='MULTIPLY_ADD'
         links.new(baseline,unpack.inputs[0]);unpack.inputs[1].default_value=(2,2,2);unpack.inputs[2].default_value=(-1,-1,-1)
         add=nodes.new('ShaderNodeVectorMath');add.operation='ADD';links.new(unpack.outputs[0],add.inputs[0]);links.new(slope.outputs[0],add.inputs[1])
@@ -104,14 +114,21 @@ def main(retained_strength=.35, photographic=False):
     saved=renderer.VIEWS
     try:
         renderer.VIEWS=[('right-keys',-155,(52,-39,200),(52,-39,13),53,0)]
-        renderer.main('etched-before',resolution=(1200,650))
+        if render_views:renderer.main('etched-before',resolution=(1200,650))
         for o in users:o.data.materials[0]=trial
-        renderer.main('etched-photo-trial' if photographic else 'etched-trial',resolution=(1200,650))
+        if render_views:renderer.main('etched-smooth-trial' if smooth else 'etched-photo-trial' if photographic else 'etched-trial',resolution=(1200,650))
+        if bake:
+            assert smooth, 'Only the smooth candidate may produce derived atlas files.'
+            import render_uv_outputs
+            render_uv_outputs.render(trial,{'basecolor':base_color,'normal':result},
+                Path(__file__).resolve().parents[1]/'model/candidates/joshua-xl/derived-textures/body-etched')
     finally:
         for o in users:o.data.materials[0]=source
         renderer.VIEWS=saved
         bpy.data.materials.remove(trial)
-        if photo:bpy.data.images.remove(photo)
+        if stencils:
+            for image in stencils.values():bpy.data.images.remove(image)
+        elif photo:bpy.data.images.remove(photo)
     print('Native comparison complete; production material restored, no export changed.')
 
 

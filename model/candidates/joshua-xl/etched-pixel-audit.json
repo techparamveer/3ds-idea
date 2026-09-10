@@ -1,0 +1,16 @@
+{
+  "source": "silver-legends.glb",
+  "maps": {
+    "basecolor": {
+      "sha256": "774f5bd53bb8945e8c06961eff154f4fc5260e1a56196efdc4c309bee1a318b7",
+      "changed_pixels": 559,
+      "outside_edit_changed": 0
+    },
+    "normal": {
+      "sha256": "bb1291a010e5417e15e8efea83f900f416ffa47a8f2a1c2dc4311355a00e913b",
+      "changed_pixels": 8382,
+      "outside_edit_changed": 0
+    }
+  },
+  "interpretation": "Smooth fitted stencil; estimated engraving depth and cavity shade. Not a factory font."
+}

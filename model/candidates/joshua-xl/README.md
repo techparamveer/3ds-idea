@@ -2,7 +2,7 @@
 
 The homepage now uses the fully textured silver derivative of this sourced
 original Nintendo 3DS XL. `DEFAULT_MODEL_URL` points to
-`/models/candidates/joshua-xl.glb`, the public mirror of `silver-legends.glb`.
+`/models/candidates/joshua-xl.glb`, the public mirror of `silver-etched.glb`.
 The `/source-preview` route uses the same sourced model. The directory name
 “candidates” is retained for continuity; this is no longer a textureless preview.
 The earlier procedural model files remain preserved.
@@ -15,7 +15,8 @@ Public attribution: `public/models/candidates/joshua-xl.LICENSE.txt`.
 
 | File or folder | Role |
 | --- | --- |
-| `silver-legends.blend` / `.glb` | Current textured rig with photographic lower-key ink and exportable reflectance. |
+| `silver-etched.blend` / `.glb` | Current textured rig with smooth fitted MIC/POWER engraving. |
+| `silver-legends.blend` / `.glb` | Preserved photographic lower-key ink and reflectance checkpoint. |
 | `silver-front.blend` / `.glb` | Preserved upper-bezel geometry checkpoint. |
 | `silver-dimensions.blend` / `.glb` | Preserved envelope checkpoint, matching the published closed envelope while retaining controls and contact clearances. |
 | `silver-eur.blend` / `.glb` | Preserved photographic EUR underside artwork checkpoint before size correction. |
@@ -168,3 +169,7 @@ visible openings rather than hidden glass extents. It restores all inspection st
 ## Lower-key lettering
 
 From `silver-front.blend`, run `scripts/texture_sourced_legends.py` through Blender MCP to generate six UV-space maps. Run `scripts/audit_legends_atlas.py` independently, then call the module’s `install()` in Blender. This produces `silver-legends.blend` / `.glb`; verify with `scripts/audit_legends_export.py` before mirroring publicly. The explicit Separate Color red output is necessary to pack the ink reflectance into glTF specular alpha. Geometry and unrelated atlas pixels stay unchanged. See `docs/source-legends-validation.md` for comparison evidence and the reference-resolution limit.
+
+## Smooth MIC/POWER engraving
+
+From `silver-legends.blend`, run `build_etched_stencils.main()` then `inspect_etched_legends.main(smooth=True, bake=True)` through Blender MCP. Run `scripts/audit_etched_atlas.py` independently before `install_etched_legends.main()`. This creates `silver-etched.blend` / `.glb`; the public mirror is updated only after export tests and browser verification. The fitted glyphs, estimated recess and small-atlas limitations are recorded in `docs/source-etched-validation.md`. Earlier rejected trials remain clearly labelled.

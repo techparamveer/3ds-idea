@@ -1,6 +1,8 @@
 # Photographic lower-key lettering — 10 September 2026
 
-The homepage uses `model/candidates/joshua-xl/silver-legends.glb`, mirrored at
+The latest homepage adds [smooth fitted MIC/POWER engraving](source-etched-validation.md) while retaining this lower-key pass.
+
+The preserved lower-key checkpoint uses `model/candidates/joshua-xl/silver-legends.glb`, mirrored at
 `public/models/candidates/joshua-xl.glb`. The editable file is `silver-legends.blend`.
 SHA-256 of both GLBs: `580093f70a82dc7fdf7af2a11cc26171fb7ae66cbe5d1852079f780446b8de66`.
 

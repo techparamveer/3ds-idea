@@ -53,7 +53,7 @@ Additional modifications, 10 September 2026:
   See docs/source-dimensions-validation.md for the scope and evidence.
 
 This public GLB is the fully textured silver model used by the portfolio
-homepage, derived from model/candidates/joshua-xl/silver-legends.blend. It is not
+homepage, derived from model/candidates/joshua-xl/silver-etched.blend. It is not
 the earlier textureless inspection preview. The original red source, its images
 and the earlier procedural model remain preserved separately.
 
@@ -77,3 +77,9 @@ Old normal-map relief is suppressed only beneath these labels. Darker colour,
 roughness and specular maps approximate the ink finish; they are not factory
 measurements. Reference imagery is not represented as CC BY source material.
 See docs/source-legends-validation.md for provenance and limitations.
+
+Additional modification: MIC and POWER use manually fitted smooth monoline
+stencils, shallow estimated recess normals and cavity shading. The shapes are
+authored approximations guided by the TechRadar original-XL photograph, not a
+verified factory font. Geometry and all unrelated image pixels are preserved.
+See docs/source-etched-validation.md.

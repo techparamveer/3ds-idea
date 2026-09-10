@@ -1,0 +1,35 @@
+{
+  "method": "Resample authored atlas into exact original photographic crop dimensions, then nearest-neighbour enlarge only for inspection. Coverage is diagnostic, not a factory-fidelity score.",
+  "labels": {
+    "SELECT": {
+      "source_crop_size": [
+        71,
+        16
+      ],
+      "reference_mask_coverage": 154.49465509285398,
+      "authored_mask_coverage": 149.96470588235292,
+      "coverage_ratio": 0.970678926026415,
+      "mean_absolute_alpha_difference": 0.08985958249327267
+    },
+    "HOME": {
+      "source_crop_size": [
+        86,
+        16
+      ],
+      "reference_mask_coverage": 210.09824493259725,
+      "authored_mask_coverage": 214.5529411764706,
+      "coverage_ratio": 1.0212029198306845,
+      "mean_absolute_alpha_difference": 0.12201764593574072
+    },
+    "START": {
+      "source_crop_size": [
+        61,
+        16
+      ],
+      "reference_mask_coverage": 108.68329620310188,
+      "authored_mask_coverage": 110.78039215686275,
+      "coverage_ratio": 1.0192954761865332,
+      "mean_absolute_alpha_difference": 0.07142062725362369
+    }
+  }
+}

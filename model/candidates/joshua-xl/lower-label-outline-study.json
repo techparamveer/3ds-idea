@@ -1,0 +1,133 @@
+{
+  "source": {
+    "url": "https://cdn.mos.cms.futurecdn.net/0584727e6f39c0e334d6e9537772f9fa.jpg",
+    "sha256": "3623ad38a7ebf24d6bbb1cd7f6889d3763dab63c0e35b3e3f7843592f7024770"
+  },
+  "atlas_mm": [
+    32,
+    24
+  ],
+  "labels": {
+    "SELECT": {
+      "row": 0,
+      "glyph_boxes_photo_pixels": [
+        [
+          "S",
+          4,
+          11
+        ],
+        [
+          "E",
+          14,
+          22
+        ],
+        [
+          "L",
+          25,
+          32
+        ],
+        [
+          "E",
+          35,
+          43
+        ],
+        [
+          "C",
+          45,
+          53
+        ],
+        [
+          "T",
+          56,
+          65
+        ]
+      ],
+      "height_box": [
+        3.7,
+        12.1
+      ],
+      "stroke_photo_pixels": 1.15,
+      "size_mm": [
+        12.35,
+        3.4
+      ],
+      "house": null
+    },
+    "HOME": {
+      "row": 1,
+      "glyph_boxes_photo_pixels": [
+        [
+          "H",
+          28,
+          37
+        ],
+        [
+          "O",
+          40,
+          52
+        ],
+        [
+          "M",
+          56,
+          68
+        ],
+        [
+          "E",
+          72,
+          80
+        ]
+      ],
+      "height_box": [
+        3.7,
+        12.1
+      ],
+      "stroke_photo_pixels": 1.15,
+      "size_mm": [
+        15.0,
+        3.4
+      ],
+      "house": "authored filled roof/body with closed-bottom rectangular opening"
+    },
+    "START": {
+      "row": 2,
+      "glyph_boxes_photo_pixels": [
+        [
+          "S",
+          4,
+          12
+        ],
+        [
+          "T",
+          14,
+          23
+        ],
+        [
+          "A",
+          24,
+          34
+        ],
+        [
+          "R",
+          37,
+          45
+        ],
+        [
+          "T",
+          47,
+          56
+        ]
+      ],
+      "height_box": [
+        3.7,
+        12.1
+      ],
+      "stroke_photo_pixels": 1.0,
+      "size_mm": [
+        10.61,
+        3.4
+      ],
+      "house": null
+    }
+  },
+  "limits": "Photograph-constrained authored glyphs; not factory vectors. Curve geometry, stroke width and house interpretation remain estimates."
+}

@@ -32,4 +32,4 @@ Six matched views are saved as `corners-before-*` and `corners-after-*` in the c
 
 ## Remaining limitations
 
-This is a local contour correction, not proof of exact factory shape. The existing dark closed side seam, lower-cover corner faceting, faint MIC lettering and unverified glyph shapes still need comparison. The HOME Menu remains an approximation pending usable firmware assets. Browser inspection also found that rotating the open console sideways can clip it on a narrow viewport, although the default mobile presentation fits. That framing issue remains unresolved by this mesh-only pass.
+This is a local contour correction, not proof of exact factory shape. The existing dark closed side seam, lower-cover corner faceting, faint MIC lettering and unverified glyph shapes still need comparison. The HOME Menu remains an approximation pending usable firmware assets. Browser inspection also found that rotating the open console sideways could clip it on a narrow viewport; the subsequent [responsive framing fix](responsive-framing-validation.md) addresses that issue.

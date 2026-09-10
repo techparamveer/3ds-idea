@@ -6,6 +6,7 @@ import { initialState, reduceMenu, touchMenu, type Input } from '@/os/state';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
 import { DEFAULT_MODEL_URL, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
+import { createConsoleFraming } from './framing';
 
 const RAD = Math.PI / 180;
 export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MODEL_URL):Promise<()=>void> {
@@ -50,6 +51,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   }
   const topScreen=addDisplay('Display_Top',layout.screens.top,topMat);
   const touchScreen=addDisplay('Display_Touch',layout.screens.bottom,bottomMat);
+  const fitConsole=createConsoleFraming(model,camera);
   let surfaceDisposed=false;
   const surfaceTextures=new Set<THREE.Texture>();
   const removeSurfaceHooks:(()=>void)[]=[];
@@ -207,6 +209,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     const minute=Math.floor(Date.now()/60000);if(minute!==lastMinute){lastMinute=minute;paint();}
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     scene.updateMatrixWorld(true);
+    fitConsole();
     // Project controls into DOM data for repeatable browser QA without fake inputs.
     if(!intro&&frame%120===0){
       const targets:Record<string,number[]>={};for(const name of ['Button_A','Button_B','Button_HOME','Button_POWER','Button_Dpad','Display_Touch']){
@@ -220,6 +223,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   hinge.rotation.x=-angle*RAD;pivot.rotation.set(pitch,yaw,0);
   topScreen.visible=touchScreen.visible=angle>12;
   scene.updateMatrixWorld(true);
+  fitConsole();
   renderer.initTexture(topTexture);renderer.initTexture(bottomTexture);
   await renderer.compileAsync(scene,camera);
   renderer.render(scene,camera);

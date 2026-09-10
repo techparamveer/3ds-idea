@@ -111,3 +111,5 @@ The four ABXY deck apertures now have smooth circular boundaries; see `source-ab
 The power cap and matching deck aperture now have circular boundaries; see `source-power-fit-validation.md`. Their finish and exact glyph fidelity remain unfinished.
 
 The power cap now uses a localized rim-normal correction and restrained satin roughness; see `source-power-finish-validation.md`. The source symbol is preserved, not established as a factory-exact glyph.
+
+A later whole-shell calibration challenges the earlier 112 mm upper-opening fit; see `front-layout-calibration.md`. A reversible 115 mm trial is recorded, but the active delivery remains unchanged pending export and closure checks.

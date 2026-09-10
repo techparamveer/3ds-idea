@@ -1,0 +1,36 @@
+{
+  "source_sha256": "b436c0ff54433791c2dbe20c44149732231601d624d04b4b202d964a1b81696a",
+  "parameters": {
+    "side_inset_mm": -1.5,
+    "x_plateau_mm": [
+      54,
+      59
+    ],
+    "x_support_mm": [
+      47,
+      64
+    ],
+    "front_y_transition_mm": [
+      -39.5,
+      -37.5
+    ],
+    "hinge_y_transition_mm": [
+      31.9,
+      34.2
+    ],
+    "back_z_transition_mm": [
+      17,
+      18
+    ],
+    "interpretation": "Image-derived upper aperture correction. Preserve the LCD, side speakers, controls, outer cover and hinge. Not a manufacturer measurement."
+  },
+  "changed_mesh": "Sourced inner lid",
+  "changed_vertices": 3046,
+  "maximum_displacement_mm": 1.5,
+  "minimum_jacobian_determinant": 0.5500333399800393,
+  "closed_xyz_mm": [
+    155.9999237060547,
+    92.99995803833008,
+    22.0
+  ]
+}

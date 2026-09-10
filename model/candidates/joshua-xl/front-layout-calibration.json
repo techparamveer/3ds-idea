@@ -1,0 +1,61 @@
+{
+  "references": [
+    {
+      "name": "Nintendo original LL front",
+      "url": "https://www.nintendo.co.jp/hardware/3dsseries/3dsll/img/3dsll-front.jpg",
+      "image_size": [
+        576,
+        545
+      ],
+      "shell_x": [
+        96,
+        480
+      ],
+      "surround_x": [
+        146.5,
+        430
+      ],
+      "dark_panel_x": [
+        153,
+        423
+      ],
+      "edge_uncertainty_pixels": 1.5,
+      "surround_width_if_upper_shell_is_156_mm": 115.171875,
+      "edge_uncertainty_interval_mm": [
+        113.06976744186046,
+        117.30708661417323
+      ],
+      "panel_width_on_same_conditional_scale_mm": 109.6875
+    },
+    {
+      "name": "Original XL front promotional image",
+      "url": "https://cdn.mos.cms.futurecdn.net/0584727e6f39c0e334d6e9537772f9fa.jpg",
+      "image_size": [
+        1794,
+        1009
+      ],
+      "shell_x": [
+        526,
+        1307
+      ],
+      "surround_x": [
+        628,
+        1205
+      ],
+      "bright_panel_x": [
+        645.5,
+        1186.5
+      ],
+      "edge_uncertainty_pixels": 2,
+      "surround_width_if_upper_shell_is_156_mm": 115.25224071702945,
+      "edge_uncertainty_interval_mm": [
+        113.87006369426751,
+        116.64864864864865
+      ],
+      "panel_width_on_same_conditional_scale_mm": 108.06145966709347
+    }
+  ],
+  "method": "Manually inspected horizontal landmarks in native image pixels. Scale is the upper shell width, not dark screen width. Interval covers selected edge uncertainty only.",
+  "limitations": "156 mm is published closed overall width, not a separately published upper-cover dimension. Perspective, shell width differences, shadows and image artwork remain additional uncertainty. These are approximately 115 mm fits, not factory metrology.",
+  "decision": "Preview 115 mm upper opening against current 112 mm. Retain 106.2 x 63.72 mm active LCD. Do not treat the dark cover or artwork extent as exact active LCD width."
+}

@@ -53,3 +53,43 @@ This audit proves isolation of the experiment, not exact engraving depth or
 factory glyphs. Existing source attribution and photographic-reference limits
 continue to apply. The application was not modified; no application rebuild or
 new interaction test was needed for this reversible native experiment.
+
+## Photographic glyph projection experiment
+
+A subsequent `main(photographic=True)` trial replaces the two normal-map glyph
+signals with a recessed stencil derived from the TechRadar photo. It swaps and
+reverses the photograph axes according to the actual chassis UV triangles, then
+computes finite-difference slopes in physical millimetres. The independent audit
+now verifies the UV-to-position transform and pixel pitch as well as coverage.
+The projected crop footprints are 10.398 × 2.920 mm for POWER and
+4.214 × 2.527 mm for MIC; these include crop margins and are not published glyph
+dimensions. Exact crops, thresholds, transforms and pitches are recorded in
+`etched-region-audit.json`.
+
+The first 0.025 mm depth trial was too faint. The saved comparison below uses a
+0.05 mm estimated recess and a 0.6 colour multiplier for cavity shading. This is
+an authored approximation, not measured depth or a physically baked occlusion
+solution. No change to the actual mesh surface is implied.
+
+![Rejected photographic recess trial](../model/candidates/joshua-xl/etched-photo-trial-right-keys.png)
+
+**Do not promote this shader.** Its strokes show jagged highlights and noisy
+interiors because the low-resolution photograph's intensity also contains JPEG
+and lighting variation. Amplifying those variations into a normal signal does
+not recover clean factory engraving. MIC remains weak and uneven. Neither this
+trial nor the earlier amplitude-only version is a verified correction.
+
+The [SlashGear right-control close-up](https://www.slashgear.com/img/gallery/nintendo-3ds-xl-review/DSC00846-580x385.jpg)
+was also fetched and inspected. It shows the markings on a real silver/black XL,
+but its 580 × 385 resolution, viewing angle and shallow focus do not supply a
+clean replacement stencil. The unscaled filename returned 404. The iFixit
+original-XL device and microphone guide were inspected for further source
+imagery; the guide mainly shows the rear and internals, so it does not resolve
+these exterior glyph profiles. None of those additional images was installed as
+a model texture.
+
+The production GLB remains SHA-256
+`580093f70a82dc7fdf7af2a11cc26171fb7ae66cbe5d1852079f780446b8de66`.
+The native trial restores the original material and does not save or export.
+Further lettering work needs cleaner outline evidence or a deliberately fitted
+smooth reconstruction; raw photo gradients are now a tested, rejected approach.

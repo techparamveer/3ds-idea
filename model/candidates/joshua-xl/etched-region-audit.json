@@ -20,7 +20,54 @@
       ],
       "covered_pixels": {
         "Sourced graphite chassis": 8800
-      }
+      },
+      "atlas_pixel_to_local_position": [
+        [
+          0.0004420825130286228,
+          -1.6610865190454006e-17,
+          -0.07488217340191414
+        ],
+        [
+          -0.07818165960036981,
+          -1.393216101511902e-17,
+          -0.0001461033838481824
+        ],
+        [
+          79.45214860634553,
+          13.692810058593759,
+          65.803640746107
+        ]
+      ],
+      "physical_pixel_pitch_mm": [
+        0.0748834783536573,
+        0.07818179611691502
+      ],
+      "photographic_projection": {
+        "crop": [
+          1243,
+          775,
+          1302,
+          788
+        ],
+        "threshold": [
+          27,
+          48
+        ],
+        "pitch_mm": [
+          0.07488,
+          0.07818
+        ],
+        "glyph_rect": [
+          381,
+          140,
+          420,
+          273
+        ]
+      },
+      "projected_crop_width_height_mm": [
+        10.398178883549697,
+        2.920455655792635
+      ]
     },
     "MIC": {
       "rectangle_png_pixels": [
@@ -41,7 +88,54 @@
       ],
       "covered_pixels": {
         "Sourced graphite chassis": 1290
-      }
+      },
+      "atlas_pixel_to_local_position": [
+        [
+          0.0003803655003488101,
+          -4.285495794101475e-17,
+          -0.10530313889800758
+        ],
+        [
+          -0.11089242847949964,
+          3.0590208699567796e-17,
+          -1.84204164459272e-05
+        ],
+        [
+          98.16590152662559,
+          15.03954601287843,
+          108.9921796973316
+        ]
+      ],
+      "physical_pixel_pitch_mm": [
+        0.10530382585493715,
+        0.11089243000941355
+      ],
+      "photographic_projection": {
+        "crop": [
+          1147,
+          792,
+          1176,
+          807
+        ],
+        "threshold": [
+          32,
+          65
+        ],
+        "pitch_mm": [
+          0.1053,
+          0.11089
+        ],
+        "glyph_rect": [
+          625,
+          478,
+          649,
+          516
+        ]
+      },
+      "projected_crop_width_height_mm": [
+        4.213912340357715,
+        2.5272918205184918
+      ]
     }
   },
   "status": "Native trial only; homepage and saved production shader unchanged."

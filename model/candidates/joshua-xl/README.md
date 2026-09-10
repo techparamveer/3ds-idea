@@ -258,3 +258,5 @@ The localized inner-lid reflection revision is documented in `docs/source-lid-fa
 Current authoring checkpoint: `silver-lower-labels.blend` / PNG GLB. The public model mirrors `silver-lower-labels-web.glb`; see `../../../docs/source-lower-label-validation.md`. This follows silver-lid-face and preserves its geometry and materials outside the three lower cap tops. Run the lower-label map builder against silver-lid-face, then the installer from that native checkpoint; do not apply older passes indiscriminately.
 
 Current authoring checkpoint: `silver-cover-profile.blend` / PNG GLB. Public delivery mirrors `silver-cover-profile-web.glb`. See `../../../docs/source-cover-profile-validation.md`. The source is silver-lower-labels; earlier checkpoints remain preserved.
+
+Current authoring checkpoint: `silver-sd-outline.blend` / PNG GLB. Public delivery mirrors `silver-sd-outline-web.glb`. See `../../../docs/source-sd-outline-validation.md`. Run the SD outline script only from silver-cover-profile; earlier checkpoints remain preserved.

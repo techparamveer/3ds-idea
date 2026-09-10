@@ -1,0 +1,18 @@
+[
+  {
+    "object": "Source_0_part_32",
+    "triangles_before": 34,
+    "triangles_after": 444,
+    "vertices_moved": 230,
+    "maximum_displacement_mm": 0.19360599633646575,
+    "minimum_jacobian_determinant": 0.7461539058283599
+  },
+  {
+    "object": "Sourced graphite chassis",
+    "triangles_before": 211732,
+    "triangles_after": 212776,
+    "vertices_moved": 280,
+    "maximum_displacement_mm": 0.13266419152064599,
+    "minimum_jacobian_determinant": 0.8232031898590607
+  }
+]

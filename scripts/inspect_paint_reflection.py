@@ -1,9 +1,9 @@
 """Compare paint scratch maps under a narrower reflection; restore scene state."""
 from pathlib import Path
-import bpy,importlib
+import bpy,importlib,math
 import render_sourced_dimensions as renderer
 FOLDER=Path(__file__).resolve().parents[1]/'model/candidates/joshua-xl'
-def main(use_scratch=False):
+def main(use_scratch=False, prefix=None):
  lights=[o for o in bpy.context.scene.objects if o.type=='LIGHT'];light_settings=[(o,o.data.energy,o.data.size) for o in lights]
  background=next(n for n in bpy.context.scene.world.node_tree.nodes if n.type=='BACKGROUND');strength=background.inputs['Strength'].default_value
  saved=[];images=[];materials=[]
@@ -19,8 +19,10 @@ def main(use_scratch=False):
     normal_source='body-etched-normal.png' if kind=='lid' else 'body-socket-normal.png'
     n=next(n for n in m.node_tree.nodes if n.type=='TEX_IMAGE' and n.image and Path(n.image.filepath).name==normal_source);n.image=normal
   importlib.reload(renderer)
-  renderer.VIEWS=[('lid',0,(0,-90,200),(0,-10,22),40,0),('cover',0,(45,-90,-200),(45,-10,1),40,0)]
-  renderer.main('paint-reflection-'+('after' if use_scratch else 'before'),light_offsets=[(0,150,140),(140,0,100)])
+  # Looking up from below flips camera Y. Roll the underside camera so the
+  # camera-relative key stays opposite the viewer across the surface normal.
+  renderer.VIEWS=[('lid',0,(0,-90,200),(0,-10,22),40,0),('cover',0,(45,-90,-200),(45,-10,1),40,math.pi)]
+  renderer.main(prefix or 'paint-reflection-'+('after' if use_scratch else 'before'),light_offsets=[(0,150,140),(140,0,100)])
  finally:
   for o,m in saved:o.active_material=m
   for m in materials:bpy.data.materials.remove(m)

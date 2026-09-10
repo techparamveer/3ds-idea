@@ -1,0 +1,30 @@
+{
+  "body": {
+    "source": "body-legends-metallic-roughness.png",
+    "output": "body-graphite-metallic-roughness.png",
+    "sha256": "c0cb9452e5a35f8f7a3ab2e670d0c18eba261115b73b588cf0b496de47ba9e6b",
+    "changed_pixels": 11161357,
+    "paint_changes": 0,
+    "old_roughness_quantiles": [
+      0.29411765933036804,
+      0.32156863808631897,
+      0.35686275362968445,
+      0.3843137323856354,
+      0.9764705896377563
+    ]
+  },
+  "socket": {
+    "source": "body-socket-metallic-roughness.png",
+    "output": "socket-graphite-metallic-roughness.png",
+    "sha256": "ba44ee47d0a63670e835361f73379d0f5cc614b63a940ed92ffd25b43675c7b4",
+    "changed_pixels": 11160698,
+    "paint_changes": 0,
+    "old_roughness_quantiles": [
+      0.29411765933036804,
+      0.32156863808631897,
+      0.35686275362968445,
+      0.38823530077934265,
+      0.9764705896377563
+    ]
+  }
+}

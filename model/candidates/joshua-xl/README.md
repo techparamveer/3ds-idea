@@ -2,7 +2,7 @@
 
 The homepage now uses the fully textured silver derivative of this sourced
 original Nintendo 3DS XL. `DEFAULT_MODEL_URL` points to
-`/models/candidates/joshua-xl.glb`, the public mirror of `silver-recess.glb`.
+`/models/candidates/joshua-xl.glb`, the public mirror of `silver-plastic.glb`.
 The `/source-preview` route uses the same sourced model. The directory name
 “candidates” is retained for continuity; this is no longer a textureless preview.
 The earlier procedural model files remain preserved.
@@ -16,7 +16,8 @@ Public attribution: `public/models/candidates/joshua-xl.LICENSE.txt`.
 | File or folder | Role |
 | --- | --- |
 | `silver-pad.blend` / `.glb` | Preserved rounded circle pad checkpoint; see `docs/source-pad-validation.md`. |
-| `silver-recess.blend` / `.glb` | Current rig with rounded recess and localized matte graphite maps; see `docs/source-recess-validation.md`. |
+| `silver-plastic.blend` / `.glb` | Current rig with corrected inner-lid/chassis roughness; see `docs/source-plastic-validation.md`. |
+| `silver-recess.blend` / `.glb` | Preserved rig with rounded recess and localized matte graphite maps; see `docs/source-recess-validation.md`. |
 | `silver-chassis.blend` / `.glb` | Preserved smoother black chassis corners checkpoint. |
 | `silver-cover.blend` / `.glb` | Preserved smoother lower-cover corners checkpoint. |
 | `silver-corners.blend` / `.glb` | Preserved smoothed front lid corners checkpoint. |

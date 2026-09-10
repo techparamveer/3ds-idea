@@ -113,3 +113,9 @@ base-colour, normal and metallic/roughness image edits. Other parts retain
 their prior geometry and complete materials. Authored finish estimates;
 see docs/source-recess-validation.md. This supersedes the earlier rejection
 of the socket geometry-only trial; original source credit remains unchanged.
+
+2026-09-10: silver-plastic.glb narrows roughness variation on dark dielectric
+regions of the inner lid and graphite chassis. Other objects retain their
+materials; geometry and other texture channels are preserved. These are
+photographic finish estimates, not factory measurements. See
+source-plastic-validation.md for the diagnostic comparisons and limitations.

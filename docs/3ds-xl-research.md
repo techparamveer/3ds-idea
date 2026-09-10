@@ -135,3 +135,5 @@ The lower-cover radial profile refinement is exported and browser-checked in `so
 The SD-flap ends and opening are now refined together, with source size limits preserved; see `source-sd-outline-validation.md`. The adjacent shell paint boundary is still a separate unresolved contour.
 
 The lower-cover corner seam is now rounded with four verified tangent-sign repairs; see `source-cover-seam-validation.md`. Port rims and small molded details remain separate fidelity limitations.
+
+The headphone socket and matching aperture now have rounded contours; see `source-audio-socket-validation.md` and `audio-socket-study.md`. The original-XL front-edge photo reveals internal contacts absent from the source model; their geometry and the rim finish remain outstanding.

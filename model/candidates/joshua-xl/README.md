@@ -262,3 +262,5 @@ Current authoring checkpoint: `silver-cover-profile.blend` / PNG GLB. Public del
 Current authoring checkpoint: `silver-sd-outline.blend` / PNG GLB. Public delivery mirrors `silver-sd-outline-web.glb`. See `../../../docs/source-sd-outline-validation.md`. Run the SD outline script only from silver-cover-profile; earlier checkpoints remain preserved.
 
 Current authoring checkpoint: `silver-cover-seam.blend` / PNG GLB. Public delivery mirrors `silver-cover-seam-web.glb`. See `../../../docs/source-cover-seam-validation.md`. Run the seam script only from silver-sd-outline; earlier checkpoints remain preserved.
+
+Current authoring checkpoint: `silver-audio-socket.blend` / PNG GLB. Public delivery mirrors `silver-audio-socket-web.glb`. See `../../../docs/source-audio-socket-validation.md`. Run the socket script only from silver-cover-seam; earlier checkpoints remain preserved. Internal connector contacts and final rim finish remain unfinished.

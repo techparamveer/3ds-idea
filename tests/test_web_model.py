@@ -26,8 +26,8 @@ def view(asset, index):
 class WebModelTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.source = load('silver-cover-seam.glb')
-        cls.web = load('silver-cover-seam-web.glb')
+        cls.source = load('silver-audio-socket.glb')
+        cls.web = load('silver-audio-socket-web.glb')
 
     def test_geometry_and_document_are_unchanged_except_image_storage(self):
         before, after = copy.deepcopy(self.source[0]), copy.deepcopy(self.web[0])

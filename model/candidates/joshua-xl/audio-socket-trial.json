@@ -1,0 +1,30 @@
+[
+  {
+    "object": "Source_0_part_19",
+    "triangles_before": 96,
+    "triangles_after": 11680,
+    "triangle_flips": 0,
+    "vertices_moved": 6170,
+    "maximum_displacement_mm": 0.2850506008909761,
+    "axis_maximum_displacement_mm": [
+      0.2850506008909761,
+      0.0,
+      0.0
+    ],
+    "minimum_jacobian_determinant": 0.520834923774304
+  },
+  {
+    "object": "Sourced graphite chassis",
+    "triangles_before": 225190,
+    "triangles_after": 247044,
+    "triangle_flips": 0,
+    "vertices_moved": 3904,
+    "maximum_displacement_mm": 0.3047136662388681,
+    "axis_maximum_displacement_mm": [
+      0.3047136662388681,
+      0.0,
+      0.0
+    ],
+    "minimum_jacobian_determinant": 0.46556103700659457
+  }
+]

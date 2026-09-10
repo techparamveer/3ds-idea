@@ -226,3 +226,7 @@ Latest checkpoint: `silver-dock-contacts.blend` / `.glb`, with `silver-dock-cont
 ## Power indicator colour
 
 `silver-power-indicator.blend` and its PNG GLB follow the docking-contact checkpoint. The independent front indicator material replaces cyan emission with blue and retains the unlit charging lens. See `../../../docs/source-power-indicator-validation.md`. The browser uses the lossless `silver-power-indicator-web.glb` delivery pack.
+
+## Rounded cap rims
+
+`silver-abxy-rollover.blend` and its PNG GLB follow the power-indicator checkpoint. The four ABXY rims have a rounded cross-section and continuous radial shading frames, with original extents, top ink and materials retained. See `../../../docs/source-abxy-rollover-validation.md`. The delivery asset is `silver-abxy-rollover-web.glb`.

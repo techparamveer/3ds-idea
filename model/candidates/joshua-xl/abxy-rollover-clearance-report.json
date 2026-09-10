@@ -1,0 +1,18 @@
+{
+  "Button_A": {
+    "upper_vertex_probes": 9858,
+    "minimum_clearance_mm": 0.4655027389526367
+  },
+  "Button_B": {
+    "upper_vertex_probes": 9858,
+    "minimum_clearance_mm": 0.4654970169067383
+  },
+  "Button_X": {
+    "upper_vertex_probes": 9858,
+    "minimum_clearance_mm": 0.4655036926269531
+  },
+  "Button_Y": {
+    "upper_vertex_probes": 9858,
+    "minimum_clearance_mm": 0.4655027389526367
+  }
+}

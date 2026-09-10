@@ -1,0 +1,38 @@
+[
+  {
+    "object": "Button_A",
+    "changed_vertices": 2241,
+    "maximum_displacement_mm": 0.13334563081775871,
+    "minimum_z_before": -1.5976476669311523,
+    "maximum_z_before": 0.8572702407836914,
+    "minimum_z_after": -1.5976476669311523,
+    "maximum_z_after": 0.8572702407836914
+  },
+  {
+    "object": "Button_B",
+    "changed_vertices": 2241,
+    "maximum_displacement_mm": 0.13334563081775871,
+    "minimum_z_before": -1.5976486206054688,
+    "maximum_z_before": 0.857269287109375,
+    "minimum_z_after": -1.5976486206054688,
+    "maximum_z_after": 0.857269287109375
+  },
+  {
+    "object": "Button_X",
+    "changed_vertices": 2241,
+    "maximum_displacement_mm": 0.13334563081775888,
+    "minimum_z_before": -1.5976476669311523,
+    "maximum_z_before": 0.8572702407836914,
+    "minimum_z_after": -1.5976476669311523,
+    "maximum_z_after": 0.8572702407836914
+  },
+  {
+    "object": "Button_Y",
+    "changed_vertices": 2241,
+    "maximum_displacement_mm": 0.13334563081775877,
+    "minimum_z_before": -1.5976486206054688,
+    "maximum_z_before": 0.857269287109375,
+    "minimum_z_after": -1.5976486206054688,
+    "maximum_z_after": 0.857269287109375
+  }
+]

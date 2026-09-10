@@ -5,7 +5,7 @@ import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
-def main():
+def main(output_name='abxy-clearance-report.json'):
     scene=bpy.context.scene;root=scene.objects['3DS_XL'];hinge=scene.objects['Hinge']
     frame=scene.frame_current
     saved=[(o,o.animation_data.action,o.matrix_basis.copy()) for o in (root,hinge)]
@@ -28,7 +28,7 @@ def main():
                 if hit is not None:gaps.append(hit.z-v.z)
             assert gaps and min(gaps)>.1,(name,min(gaps))
             report[name]={'upper_vertex_probes':len(gaps),'minimum_clearance_mm':min(gaps)}
-        (Path(bpy.data.filepath).parent/'abxy-clearance-report.json').write_text(json.dumps(report,indent=2)+'\n')
+        (Path(bpy.data.filepath).parent/output_name).write_text(json.dumps(report,indent=2)+'\n')
         print(json.dumps(report))
     finally:
         for obj,action,_ in saved:obj.animation_data.action=action

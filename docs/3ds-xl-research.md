@@ -125,3 +125,5 @@ The localized inner-lid reflection revision is documented in `source-lid-face-va
 The lower-key flat-ink interpretation is now qualified by an independent grazing-angle photograph and reversible relief trials; see `lower-label-relief-comparison.md`. Dark colour is supported, but the shallow-relief and glyph-outline treatment remain unfinished.
 
 Clean photograph-constrained lower-label SVGs and a UV1 Blender trial now address broken strokes and the house silhouette; see `lower-label-outline-comparison.md`. The current live asset remains unchanged until equivalent glTF maps and browser checks are complete.
+
+The clean lower-label maps are now exported and browser-verified; see `source-lower-label-validation.md`. Their outlines remain photograph-constrained estimates.

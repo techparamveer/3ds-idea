@@ -57,7 +57,7 @@ test('actual Three standard shader retains atlas sampling and gates the roughnes
   const lighting = shader.fragmentShader.indexOf('#include <lights_physical_fragment>');
   assert.ok(roughness >= 0 && detail > roughness && lighting > detail,
     'source atlas roughness must be read before the detail is applied and lighting uses it');
-  assert.match(shader.fragmentShader, /texture2D\( consoleSourcePaintMask, vMapUv \)/);
+  assert.match(shader.fragmentShader, /texture2D\( consoleSourcePaintMask, vConsoleSourcePaintUv \)/);
   assert.match(shader.fragmentShader, /if \( consolePaintCoverage > 0\.0 \) \{/,
     'unpainted regions must skip the paint-specific roughness clamp');
   assert.match(shader.fragmentShader, /roughnessFactor \+ consolePaintCoverage \*/);
@@ -67,6 +67,20 @@ test('actual Three standard shader retains atlas sampling and gates the roughnes
   assert.match(shader.fragmentShader, /#include <normal_fragment_maps>/,
     'original normal-map evaluation stays in the standard shader');
   assert.match(shader.fragmentShader, /#include <metalnessmap_fragment>/);
+  remove();
+});
+
+test('a UV1 label map cannot redirect the UV0 silver-paint mask', () => {
+  const { material, noise, mask } = fixture();
+  material.map.channel = 1;
+  material.map.offset.set(.25, .5);
+  const remove = installSourcePaintSurface(material, noise, mask);
+  const shader = compile(material);
+  assert.equal(material.map.channel, 1, 'keep the label on its authored UV channel');
+  assert.deepEqual(material.map.offset.toArray(), [.25, .5]);
+  assert.match(shader.vertexShader, /vConsoleSourcePaintUv = uv;/);
+  assert.match(shader.fragmentShader, /texture2D\( consoleSourcePaintMask, vConsoleSourcePaintUv \)/);
+  assert.doesNotMatch(shader.fragmentShader, /texture2D\( consoleSourcePaintMask, vMapUv \)/);
   remove();
 });
 

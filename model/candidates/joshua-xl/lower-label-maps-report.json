@@ -1,0 +1,43 @@
+{
+  "source_sha256": "0ea84145a61ff35fd5cd346060103d64cebd8c685c8d5e0573006fbca5c7da2a",
+  "size": 1024,
+  "padding_pixels": 24,
+  "depth_estimate_mm": 0.02,
+  "caps": {
+    "Button_SELECT": {
+      "top_triangles": 899,
+      "covered_samples": 179445,
+      "central_band_uv_fit_error": 6.067212355853613e-06
+    },
+    "Button_HOME": {
+      "top_triangles": 2,
+      "covered_samples": 213796,
+      "central_band_uv_fit_error": 7.947285973752827e-08
+    },
+    "Button_START": {
+      "top_triangles": 923,
+      "covered_samples": 179753,
+      "central_band_uv_fit_error": 6.187335022000973e-06
+    }
+  },
+  "files": {
+    "basecolor": {
+      "file": "lower-clean-basecolor.png",
+      "sha256": "0661d14571ed28bd3e67cf0bb77d2ed2f42e474b0135213df0f4e94d60472f0e"
+    },
+    "metallic-roughness": {
+      "file": "lower-clean-metallic-roughness.png",
+      "sha256": "9468081ee174d606349d9fb1da096884d2966bc3e30681726b452caacbf92806"
+    },
+    "normal": {
+      "file": "lower-clean-normal.png",
+      "sha256": "b0d26cc97c20bf9eb73c344085a462b8f2f6aa65d52d79dcde985814e6a68b87"
+    },
+    "specular": {
+      "file": "lower-clean-specular.png",
+      "sha256": "ca58e6a5fffea7a8fc0550995b7f8e967051bdd649572f0b4a129e1f95fe36b1"
+    }
+  },
+  "normal_frame": "Encoded against carried UV0 tangent basis; image sampling uses UV1.",
+  "roughness_cleanup": "Interpolate glyph-free rows through the original cleared legend band before adding the new mask."
+}

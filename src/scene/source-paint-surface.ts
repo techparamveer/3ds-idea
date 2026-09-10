@@ -1,7 +1,7 @@
 import type { MeshStandardMaterial, Texture } from 'three';
 
 const activeMaterials = new WeakSet<MeshStandardMaterial>();
-const PROGRAM_KEY = 'console-source-paint-surface-v1';
+const PROGRAM_KEY = 'console-source-paint-surface-v2-uv0';
 const DEFINE = 'CONSOLE_SOURCE_PAINT_SURFACE';
 
 function afterChunk(source: string, name: string, addition: string): string {
@@ -15,7 +15,8 @@ function afterChunk(source: string, name: string, addition: string): string {
 /**
  * Adds restrained VGPU paint grain to a sourced PBR atlas without replacing it.
  *
- * The source base-color map must exist: its vMapUv coordinates locate the mask.
+ * The paint mask always uses the original glTF UV0 atlas. A separate UV1
+ * label or lens map must not change which surfaces receive paint grain.
  * Supply a non-color mask with flipY=false and glTF-compatible repeat wrapping,
  * and a repeating non-color VGPU noise texture. Geometry positions are native
  * glTF millimetres; the noise repeats every 16 mm in the mesh-local XZ plane.
@@ -45,19 +46,20 @@ export function installSourcePaintSurface(
   material.onBeforeCompile = function (shader, renderer) {
     previousCompile.call(this, shader, renderer);
     const vertexShader = afterChunk(
-      afterChunk(shader.vertexShader, 'common', 'varying vec3 vConsoleSourcePaintPosition;'),
+      afterChunk(shader.vertexShader, 'common', 'varying vec3 vConsoleSourcePaintPosition; varying vec2 vConsoleSourcePaintUv;'),
       'begin_vertex',
-      'vConsoleSourcePaintPosition = position;',
+      'vConsoleSourcePaintPosition = position; vConsoleSourcePaintUv = uv;',
     );
     const fragmentShader = afterChunk(
       afterChunk(shader.fragmentShader, 'common', `
 uniform sampler2D consoleSourcePaintNoise;
 uniform sampler2D consoleSourcePaintMask;
-varying vec3 vConsoleSourcePaintPosition;`),
+varying vec3 vConsoleSourcePaintPosition;
+varying vec2 vConsoleSourcePaintUv;`),
       'roughnessmap_fragment',
       `
 #if defined( USE_MAP ) && defined( CONSOLE_SOURCE_PAINT_SURFACE )
-  float consolePaintCoverage = clamp( texture2D( consoleSourcePaintMask, vMapUv ).r, 0.0, 1.0 );
+  float consolePaintCoverage = clamp( texture2D( consoleSourcePaintMask, vConsoleSourcePaintUv ).r, 0.0, 1.0 );
   // Black mask pixels retain the atlas result even below the paint-only clamp.
   if ( consolePaintCoverage > 0.0 ) {
     float consolePaintNoise = texture2D( consoleSourcePaintNoise, vConsoleSourcePaintPosition.xz / 16.0 ).r;

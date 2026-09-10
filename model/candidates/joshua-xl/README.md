@@ -254,3 +254,5 @@ Current authoring checkpoint: `silver-power-finish.blend` / PNG GLB. The public 
 Current authoring checkpoint: `silver-lid-face.blend` / PNG GLB. The public model mirrors `silver-lid-face-web.glb`; see `docs/source-upper-width-validation.md`. Earlier checkpoints remain preserved.
 
 The localized inner-lid reflection revision is documented in `docs/source-lid-face-validation.md`.
+
+Current authoring checkpoint: `silver-lower-labels.blend` / PNG GLB. The public model mirrors `silver-lower-labels-web.glb`; see `../../../docs/source-lower-label-validation.md`. This follows silver-lid-face and preserves its geometry and materials outside the three lower cap tops. Run the lower-label map builder against silver-lid-face, then the installer from that native checkpoint; do not apply older passes indiscriminately.

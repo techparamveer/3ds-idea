@@ -1,0 +1,94 @@
+{
+  "source_model": "silver-upper-width.glb",
+  "source_sha256": "2c8238e87bd7577422b21c5425219db4566ce043209c1e1664d34d0d720612e6",
+  "reference_url": "https://cdn.mos.cms.futurecdn.net/0584727e6f39c0e334d6e9537772f9fa.jpg",
+  "reference_pixels": [
+    1794,
+    1009
+  ],
+  "observed_corners": [
+    [
+      646.0,
+      130.0
+    ],
+    [
+      1187.0,
+      130.0
+    ],
+    [
+      1187.0,
+      455.0
+    ],
+    [
+      646.0,
+      455.0
+    ],
+    [
+      698.0,
+      543.0
+    ],
+    [
+      1135.0,
+      543.0
+    ],
+    [
+      1157.0,
+      774.0
+    ],
+    [
+      676.0,
+      774.0
+    ]
+  ],
+  "projected_corners": [
+    [
+      646.9710298403309,
+      129.5673087343065
+    ],
+    [
+      1186.0289785430741,
+      129.5673087343065
+    ],
+    [
+      1186.5468573667624,
+      452.487065057608
+    ],
+    [
+      646.4531510538459,
+      452.487065057608
+    ],
+    [
+      698.123875718999,
+      546.3042820155181
+    ],
+    [
+      1134.876115753049,
+      546.3042820155181
+    ],
+    [
+      1157.3180932312184,
+      773.6413441925818
+    ],
+    [
+      675.6818984927206,
+      773.6413441925818
+    ]
+  ],
+  "rmse_per_coordinate_pixels": 1.5335311555791264,
+  "camera_elevation_degrees": 42.32706680158021,
+  "hinge_open_degrees": 133.20993307121492,
+  "distance_mm": 493.165903266563,
+  "focal_pixels": 2598.6799419151766,
+  "principal_pixels": [
+    916.4999945104856,
+    701.0176708932057
+  ],
+  "camera_mm": [
+    -0.2103884071,
+    -364.6040019651135,
+    332.07910186542676
+  ],
+  "sensor_width_mm": 36,
+  "lens_mm": 52.14742358358214,
+  "limits": "Symmetric pinhole fit to manually picked artwork/display corners; no lens distortion or independent physical calibration. Parameter estimates are for visual comparison, not recovered factory geometry or mandated viewer pose."
+}

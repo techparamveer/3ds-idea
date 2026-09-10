@@ -115,3 +115,5 @@ The power cap now uses a localized rim-normal correction and restrained satin ro
 A later whole-shell calibration challenges the earlier 112 mm upper-opening fit; see `front-layout-calibration.md`. A reversible 115 mm trial is recorded, but the active delivery remains unchanged pending export and closure checks.
 
 The 115 mm upper-opening revision now has export and clearance verification; see `source-upper-width-validation.md`. This supersedes the earlier 112 mm horizontal-opening fit without changing active LCD dimensions.
+
+The original-XL reference is now compared with a fitted perspective camera and approximately 133° diagnostic hinge pose; see `reference-camera-comparison.md`. The website range stays 0–155°. This avoids using unmatched camera foreshortening as evidence of incorrect geometry.

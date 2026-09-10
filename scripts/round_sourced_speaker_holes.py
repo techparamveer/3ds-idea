@@ -82,7 +82,7 @@ def refine_speaker_patch(positions, normals, tangents, uvs, faces, kind, *, edge
     else:
         raise RuntimeError('Refinement did not converge')
     data = np.asarray(values)
-    return data[:, :3], data[:, 3:6], data[:, 6:10], data[:, 10:12], np.asarray(faces)
+    return data[:, :3], data[:, 3:6], data[:, 6:10], data[:, 10:], np.asarray(faces)
 
 
 def main():

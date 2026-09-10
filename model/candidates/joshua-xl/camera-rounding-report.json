@@ -1,0 +1,30 @@
+[
+  {
+    "object": "Sourced inner lid",
+    "centre": [
+      0.0,
+      -81.70998
+    ],
+    "segments_before": 16,
+    "triangles_before": 52817,
+    "triangles_after": 55141,
+    "initial_correction_mm": 0.04410104147647299,
+    "maximum_refinement_displacement_mm": 0.044025870615878045,
+    "minimum_jacobian": 0.9407312419135714,
+    "uv_layers": 1
+  },
+  {
+    "object": "Source_2_part_02",
+    "centre": [
+      0.0,
+      -81.1066437
+    ],
+    "segments_before": 20,
+    "triangles_before": 80,
+    "triangles_after": 7520,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.025293026331775475,
+    "minimum_jacobian": 0.9989663261132536,
+    "uv_layers": 2
+  }
+]

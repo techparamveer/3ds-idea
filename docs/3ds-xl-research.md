@@ -1,6 +1,8 @@
 # Original silver 3DS XL: research and reconstruction audit
 
-The current [inner-camera finish](source-camera-validation.md) separates optical material from the shared screen material.
+The current [rounded camera rim](source-camera-round-validation.md) smooths the sourced opening and insert.
+
+The preceding [inner-camera finish](source-camera-validation.md) separates optical material from the shared screen material.
 
 The earlier [speaker-opening revision](source-speakers-validation.md) rounds the eighteen source openings with retained textures and layout.
 

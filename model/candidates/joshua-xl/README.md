@@ -1,3 +1,7 @@
+# Current rounded camera
+
+`silver-camera-round.blend` / `silver-camera-round.glb` follow `silver-camera`. See `docs/source-camera-round-validation.md` and `scripts/round_inner_camera.py`.
+
 # Current camera finish
 
 `silver-camera.blend` / `silver-camera.glb` follow `silver-speakers` and add independent inner-camera optics. See `docs/source-camera-validation.md` and `scripts/install_inner_camera.py`. The earlier pipeline below is preserved.

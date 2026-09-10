@@ -248,3 +248,5 @@ Current authoring checkpoint: `silver-dpad-finish.blend` / PNG GLB. The public m
 Current authoring checkpoint: `silver-upper-cover.blend` / PNG GLB. The public model mirrors `silver-upper-cover-web.glb`; see `docs/source-upper-cover-validation.md`. Earlier checkpoints remain preserved.
 
 Current authoring checkpoint: `silver-power-fit.blend` / PNG GLB. The public model mirrors `silver-power-fit-web.glb`; see `docs/source-power-fit-validation.md`. Earlier checkpoints remain preserved.
+
+Current authoring checkpoint: `silver-power-finish.blend` / PNG GLB. The public model mirrors `silver-power-finish-web.glb`; see `docs/source-power-finish-validation.md`. Earlier checkpoints remain preserved.

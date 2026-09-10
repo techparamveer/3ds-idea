@@ -109,3 +109,5 @@ The current baked surface fallback is visually checked in `source-fallback-valid
 The four ABXY deck apertures now have smooth circular boundaries; see `source-abxy-openings-validation.md`. This resolves the faceting outside the refined caps. The radius and clearance remain source-model fits, not factory measurements.
 
 The power cap and matching deck aperture now have circular boundaries; see `source-power-fit-validation.md`. Their finish and exact glyph fidelity remain unfinished.
+
+The power cap now uses a localized rim-normal correction and restrained satin roughness; see `source-power-finish-validation.md`. The source symbol is preserved, not established as a factory-exact glyph.

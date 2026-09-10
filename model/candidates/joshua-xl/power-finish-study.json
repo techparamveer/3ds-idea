@@ -1,0 +1,25 @@
+{
+  "crop_origin_pixels": [
+    3220,
+    494
+  ],
+  "crop_size_pixels": [
+    831,
+    229
+  ],
+  "atlas_size_pixels": [
+    4096,
+    4096
+  ],
+  "crop_sha256": "b494744ba485f99c00f5c05667a2fbc8f383aa26505130a53c1b35796e19dcd6",
+  "source": "body-etched-normal.png",
+  "output": "power-rim-normal.png",
+  "protected_radius_mm": 2.5,
+  "transition_mm": 0.35,
+  "rim_xy_normal_scale": 0.15,
+  "padding_pixels": 4,
+  "changed_pixels": 8470,
+  "sha256": "f9a4e6236c2f0ca111c00c02ef3cb4e98fd85eef0676c1f84ff68d5f9dd37bc2",
+  "symbol_protection_radius_mm": 2.45,
+  "note": "Top symbol region explicitly restored after UV padding; normal changes apply only to cloned power material."
+}

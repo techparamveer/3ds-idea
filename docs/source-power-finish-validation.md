@@ -1,0 +1,19 @@
+# Power-button surface finish
+
+`silver-power-finish.blend` follows the rounded power cap/opening checkpoint. The existing normal map produced a visibly rippled rim and uneven bright reflections. The supplied original-XL front photograph shows a dark molded button with a raised symbol. It does not establish numerical roughness or exact local bevel dimensions.
+
+Three reversible studies (`preview_power_finish.py`) isolated rim-normal attenuation, satin roughness and their combination. The combined change was selected because it gives a smoother rim reflection while preserving the symbol. The roughness uses the existing satin map shared by ABXY and D-pad: .46 + .08 × source roughness. No new roughness atlas is added, and base colour, occlusion and metallic values remain unchanged.
+
+`build_power_finish.py` rasterizes the power mesh UV triangles into a mask. Radial normal attenuation begins at 2.5 mm and reaches .15 of the original XY components after .35 mm, followed by normalization. Four-texel padding supports texture filtering. An independent sample check caught padding reaching into the symbol region; the corrected builder explicitly restores the top central 2.45 mm region after padding, including two pixels of protection. The symbol-protection test samples 1,035 upper vertices inside 2.2 mm and requires zero mask at their source UVs. It also verifies every zero-mask pixel is unchanged and the compact export is an exact crop of the corrected atlas. These are source-symbol preservation checks, not verification of factory glyph shape.
+
+Only 8,470 atlas pixels change. The runtime normal image is an 831 × 229 crop, origin (3220, 494) in the 4096-pixel source. `install_power_finish.py` clones the power material and adds TEXCOORD_1 to that mesh for the cropped normal texture. Its UV0 and all geometry/shading frames remain unchanged. UV1 applies only a positive scale and translation, preserving the tangent orientation. The normal-map strength remains 1 so the unmodified symbol retains its original relief.
+
+The export test checks all node transforms/hierarchy, every original mesh attribute/index, every other material, the cropped normal hash, texCoord binding and numerical UV conversion. All three dedicated tests pass. Exact hardware lettering, source glyph shape and measured optical values remain unresolved; the chosen material values are photographic appearance estimates.
+
+Reproduce the builder outside Blender with NumPy/Pillow, open `silver-power-fit.blend`, then run `install_power_finish.main()` through Blender MCP. Use carried frames for export and the lossless WebP pack for delivery. Full-size intermediate normal/mask maps are retained as authoring evidence but are not additional browser textures.
+
+The seven final renders (six full-console views plus the power macro) were inspected. The rim reflection is smoother while the raised symbol remains legible. Exterior shape and texture are unchanged. The earlier three study images precede the explicit post-padding symbol mask; the `power-finish-final` views show the installed correction.
+
+The authoring PNG GLB is 148,417,916 bytes, SHA-256 `b436c0ff54433791c2dbe20c44149732231601d624d04b4b202d964a1b81696a`. The WebP delivery is 107,446,324 bytes, SHA-256 `04dad76b422d0438df654c1f4f4f5e9df5942a5b78361ae68b689f0ddb9d2aad`. Delivery grows by 114,056 bytes; the additional decoded normal texture is 831 × 229 pixels. No frame-rate improvement is claimed.
+
+Delivery verification: all 131 JavaScript tests, three dedicated finish/UV/pixel tests and both independent lossless packing checks passed. At 1280 × 720 both VGPU and forced development fallback displayed the new power material. Physical power clicks returned `lastInput=power` and switched the screens off in both paths. Browser warning/error retrieval returned no entries. The normal URL and viewport were restored. No application code changed, so no application rebuild was repeated.

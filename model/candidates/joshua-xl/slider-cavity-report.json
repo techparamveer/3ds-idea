@@ -1,0 +1,43 @@
+{
+  "regions": {
+    "3d": [
+      1042,
+      2066,
+      1091,
+      2128
+    ],
+    "off": [
+      885,
+      2045,
+      932,
+      2124
+    ],
+    "dot": [
+      897,
+      2015,
+      922,
+      2042
+    ],
+    "triangle": [
+      924,
+      2020,
+      1074,
+      2070
+    ]
+  },
+  "source": "body-etched-basecolor.png",
+  "sha256": "3057e8844d0b61ac9db43e622f91af6c4df9b6457013349d2e5fadd302224424",
+  "changed_pixels": 4095,
+  "outside_mask_changes": 0,
+  "linear_cavity_multiplier": 0.35,
+  "scope": "Inner lid only: bounded cavity colour and OFF-dot relief inversion; source glyph shapes retained",
+  "dot_normal": {
+    "sha256": "aa0f9e14f61180f4fa338ad58f0fc6ac3cb41d7a22399d0610b0cc42e9e2c911",
+    "changed_pixels": 395,
+    "radius_pixels": [
+      9,
+      12
+    ],
+    "blue_channel_unchanged": true
+  }
+}

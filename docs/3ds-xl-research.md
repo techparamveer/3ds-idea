@@ -1,6 +1,8 @@
 # Original silver 3DS XL: research and reconstruction audit
 
-The current [rubber finish revision](source-rubber-validation.md) isolates the circle-pad material and reduces its mottled reflection.
+The current [slider-marking revision](source-slider-validation.md) improves 3D/OFF cavity shading while retaining source glyph outlines.
+
+The earlier [rubber finish revision](source-rubber-validation.md) isolates the circle-pad material and reduces its mottled reflection.
 
 The earlier [dark-plastic roughness revision](source-plastic-validation.md) corrects excessive blotchy reflections on the inner lid and chassis.
 

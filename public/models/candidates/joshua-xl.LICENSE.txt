@@ -124,3 +124,9 @@ source-plastic-validation.md for the diagnostic comparisons and limitations.
 material, with narrowed roughness and a 0.8 linear colour multiplier. Geometry,
 normal detail and other objects remain unchanged. Authored photographic finish
 estimates; see docs/source-rubber-validation.md for evidence and limitations.
+
+2026-09-10: silver-slider.glb changes bounded cavity colour within existing
+3D/OFF glyphs and the triangle, and reverses the OFF-dot relief direction on
+the inner-lid atlas. Source glyph outlines, geometry and other materials are
+retained. See docs/source-slider-validation.md for photographic evidence and
+limits; this is not a claim of factory typography or measured cavity depth.

@@ -1,5 +1,7 @@
 # Unpromoted silver scratch trials
 
+Historical trial record: a restrained-grain revision of these scratch maps is now installed in `silver-restrained-paint`; see `source-restrained-paint-validation.md`. The original trial maps below remain preserved and were not installed directly.
+
 Starting checkpoint: `silver-abxy-openings.blend`. The live model remains unchanged. These are material diagnostics, not a completed or accepted scratch treatment.
 
 The supplied `image-4.png` shows a worn silver original XL with restrained hairlines and edge wear. The standard 40 mm-wide lid and underside macros (`surface-scale-before-*.png`) show existing fine grain but little distinct hairline wear. The reference photo is not a calibrated macro or a matched lighting setup, so it cannot establish exact microstructure dimensions.

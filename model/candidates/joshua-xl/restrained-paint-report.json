@@ -1,0 +1,25 @@
+{
+  "retained_authored_grain": 0.35,
+  "maps": {
+    "paint-lid-restrained-normal.png": {
+      "sha256": "9573950427d9d5772e93a75632d3870f4668aa181f2f3cdbca00b2b9d327c084",
+      "changed_pixels": 4829029,
+      "unpainted_changes": 0
+    },
+    "paint-cover-restrained-normal.png": {
+      "sha256": "850686d7686d5fb2165f7d70eb75484a076ef252da40dc930d27a0078ff456d8",
+      "changed_pixels": 4829029,
+      "unpainted_changes": 0
+    },
+    "paint-lid-restrained-metallic-roughness.png": {
+      "sha256": "8631be68398f8fb39ebe042d93fb6cf56e9c2489b57b14982bff96037c3c6c48",
+      "changed_pixels": 4378477,
+      "unpainted_changes": 0
+    },
+    "paint-cover-restrained-metallic-roughness.png": {
+      "sha256": "1ea3d2a0fac1bd0183b3f6414b67636a2f12ef2fe3aa8bee72057646fc2fc79b",
+      "changed_pixels": 4378477,
+      "unpainted_changes": 0
+    }
+  }
+}

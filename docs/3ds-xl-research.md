@@ -1,5 +1,7 @@
 # Original silver 3DS XL: research and reconstruction audit
 
+The latest material checkpoint is [the photographic EUR underside pass](source-eur-validation.md), which retains the measured curved source geometry. Historical audit tables below describe earlier models.
+
 Research date: 2026-09-09. Scope: exterior hardware, materials, typography, displays and the HOME Menu needed for this portfolio. This record supersedes the earlier implication that matching overall dimensions establishes visual fidelity. The user has explicitly rejected the current appearance.
 
 The tables below describe the starting audit. Applied repairs and current limits

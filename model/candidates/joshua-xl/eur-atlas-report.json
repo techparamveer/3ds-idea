@@ -1,0 +1,69 @@
+{
+  "input": "silver-grain.blend",
+  "output": "silver-eur.blend",
+  "clear_art_native_mm": [
+    [
+      -28,
+      28,
+      14,
+      21.5
+    ],
+    [
+      -44,
+      44,
+      -10.5,
+      9.5
+    ],
+    [
+      -11.5,
+      11.5,
+      -19.5,
+      -12
+    ]
+  ],
+  "clear_old_sticker_native_mm": [
+    -23.5,
+    23.5,
+    -34.8,
+    -21.5
+  ],
+  "new_paper": {
+    "center": [
+      0,
+      -30
+    ],
+    "outer": [
+      42.2,
+      8.2,
+      1.1
+    ],
+    "inner": [
+      41.6,
+      7.6,
+      0.9
+    ]
+  },
+  "method": "Isolated UV-space copy of actual underside triangles with a native millimetre UV layer; no production geometry changed.",
+  "maps": {
+    "basecolor": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-eur-basecolor.png",
+      "sha256": "a46b983addcc390fda5e146faed6a9d6dbd0b9549ac7ef3daf55a1d5499ab4f0"
+    },
+    "paint-mask": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-eur-paint-mask.png",
+      "sha256": "b7db74c899d0311f8faf719aed8726e0ad6484333434bc61044cf3a6c6836661"
+    },
+    "normal": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-eur-normal.png",
+      "sha256": "5c5f2cc498cfa2d25c30792c69fd729ebe72b00275993780d0181a2ae180e6a1"
+    },
+    "metallic-roughness": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-eur-metallic-roughness.png",
+      "sha256": "b252d7ccba7ad211c8be05059facc0b440b56254c75f871533f1c49458d0f2c6"
+    },
+    "edit-mask": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-eur-edit-mask.png",
+      "sha256": "462e3a0a12d511adf518f807ca95cc9806b95761efb525f32e6be14969cb8f19"
+    }
+  }
+}

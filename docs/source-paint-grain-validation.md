@@ -1,5 +1,7 @@
 # Fine paint grain — 10 September 2026
 
+Current update: [the EUR underside pass](source-eur-validation.md) builds on this preserved grain checkpoint and is now served by the homepage. Statements below describe the pre-EUR grain pass.
+
 The active `silver-grain.blend` / `.glb` adds fine normal and roughness variation
 to the silver painted regions of the curved sourced model. The homepage and
 inspection route serve this export. Earlier source, silver and curved checkpoints

@@ -1,5 +1,7 @@
 # Sourced shell curvature — 10 September 2026
 
+Current update: the homepage now serves [silver-eur](source-eur-validation.md), retaining the geometry measured below while adding paint grain and regional artwork.
+
 The current material pass adds [baked fine paint grain](source-paint-grain-validation.md)
 to this geometry and is saved as `silver-grain.blend` / `.glb`. The measurements
 and geometry verification below remain unchanged.

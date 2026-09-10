@@ -1,5 +1,7 @@
 # Unobstructed original silver 3DS XL underside reference
 
+Current update: this reference now informs the sourced-model [EUR artwork pass](source-eur-validation.md). The earlier authoring pause below records the procedural workflow, not the current state.
+
 Research captured 2026-09-09. Further model-script authoring was paused when the user requested evaluation of an existing downloadable 3D model. No Blender changes were made by this audit.
 
 ## Verified photograph

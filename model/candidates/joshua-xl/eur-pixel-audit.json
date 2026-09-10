@@ -1,0 +1,57 @@
+{
+  "edit_coverage_pixels": 493048,
+  "atlas_pixels": 16777216,
+  "maps": {
+    "basecolor": {
+      "source_sha256": "de02a6d179068ed5a40269da3f0a3cb4937ebf8d06c165daa4cfde27e4e8f06e",
+      "output_sha256": "a46b983addcc390fda5e146faed6a9d6dbd0b9549ac7ef3daf55a1d5499ab4f0",
+      "changed_pixels": 234044,
+      "changed_outside_edit_mask": 0,
+      "changed_bounds_xyxy": [
+        2475,
+        1727,
+        3634,
+        2379
+      ]
+    },
+    "paint-mask": {
+      "source_sha256": "5b368a30e13b4047db8f782b57786e79749e776177f6cf5142753f92b848f3ba",
+      "output_sha256": "b7db74c899d0311f8faf719aed8726e0ad6484333434bc61044cf3a6c6836661",
+      "changed_pixels": 195820,
+      "changed_outside_edit_mask": 0,
+      "changed_bounds_xyxy": [
+        2475,
+        1727,
+        3634,
+        2378
+      ]
+    },
+    "normal": {
+      "source_sha256": "4d018091900aa3d331499336bedeea5bcb539b90f6b68ac9ec06ac64e99ba2c9",
+      "output_sha256": "5c5f2cc498cfa2d25c30792c69fd729ebe72b00275993780d0181a2ae180e6a1",
+      "changed_pixels": 216452,
+      "changed_outside_edit_mask": 0,
+      "changed_bounds_xyxy": [
+        2476,
+        1719,
+        3632,
+        2384
+      ]
+    },
+    "metallic-roughness": {
+      "source_sha256": "202d15bf4421fe871f5df0bbcf1a4ca571f4e64bf1dd56e41fcd5f60523ea069",
+      "output_sha256": "b252d7ccba7ad211c8be05059facc0b440b56254c75f871533f1c49458d0f2c6",
+      "changed_pixels": 440091,
+      "changed_outside_edit_mask": 0,
+      "changed_bounds_xyxy": [
+        2475,
+        1719,
+        3634,
+        2391
+      ]
+    }
+  },
+  "old_us_upper_text_and_wordmark_strips": "uniform restored silver paint",
+  "serial_paper_bright_pixels_in_probe": 29244,
+  "old_sticker_lip_max_normal_xy_deviation_8bit": 10
+}

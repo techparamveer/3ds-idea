@@ -1,5 +1,7 @@
 # Complete source texture audit — 9 September 2026
 
+Current update: the source audit below is historical. The active derivative now replaces the USA underside artwork with [photographic EUR markings](source-eur-validation.md); the original source images remain preserved.
+
 The completed `/Users/paramveer/Downloads/nintendo_3ds_xl.glb` contains
 28,850,812 bytes, matching its GLB header. This read-only audit decoded its seven
 embedded PNGs into a temporary analysis folder. No production texture, Blender

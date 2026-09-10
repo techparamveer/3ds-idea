@@ -1,0 +1,360 @@
+{
+  "plate": {
+    "width_mm": 120,
+    "height_mm": 67.5,
+    "center_y_mm": -8,
+    "pixels": [
+      2048,
+      1152
+    ]
+  },
+  "elements": [
+    {
+      "name": "wordmark",
+      "source": "atlas",
+      "quad": [
+        [
+          2715,
+          2382
+        ],
+        [
+          3387,
+          2382
+        ],
+        [
+          3387,
+          2310
+        ],
+        [
+          2715,
+          2310
+        ]
+      ],
+      "center": [
+        0,
+        12
+      ],
+      "size": [
+        50.8,
+        5.75
+      ]
+    },
+    {
+      "name": "four-line-eur",
+      "source": "web",
+      "quad": [
+        [
+          197,
+          396
+        ],
+        [
+          600,
+          385
+        ],
+        [
+          600,
+          425
+        ],
+        [
+          197,
+          436
+        ]
+      ],
+      "center": [
+        0.25,
+        -5.4
+      ],
+      "size": [
+        92.5,
+        10.2
+      ],
+      "threshold_srgb": [
+        75,
+        165
+      ]
+    },
+    {
+      "name": "gs-group",
+      "source": "web",
+      "quad": [
+        [
+          195,
+          439
+        ],
+        [
+          291,
+          436
+        ],
+        [
+          292,
+          477
+        ],
+        [
+          195,
+          480
+        ]
+      ],
+      "center": [
+        -35.8,
+        -16.0
+      ],
+      "size": [
+        21.5,
+        9.0
+      ],
+      "threshold_srgb": [
+        85,
+        160
+      ]
+    },
+    {
+      "name": "ce",
+      "source": "user",
+      "quad": [
+        [
+          612,
+          612
+        ],
+        [
+          694,
+          612
+        ],
+        [
+          694,
+          669
+        ],
+        [
+          612,
+          669
+        ]
+      ],
+      "center": [
+        -13.48,
+        -16.75
+      ],
+      "size": [
+        9.69,
+        6.87
+      ],
+      "threshold_srgb": [
+        25,
+        65
+      ]
+    },
+    {
+      "name": "rcm",
+      "source": "user",
+      "quad": [
+        [
+          735,
+          610
+        ],
+        [
+          800,
+          610
+        ],
+        [
+          800,
+          667
+        ],
+        [
+          735,
+          667
+        ]
+      ],
+      "center": [
+        0.06,
+        -16.51
+      ],
+      "size": [
+        7.68,
+        6.87
+      ],
+      "threshold_srgb": [
+        40,
+        78
+      ]
+    },
+    {
+      "name": "pct-with-caption",
+      "source": "user",
+      "quad": [
+        [
+          806,
+          612
+        ],
+        [
+          865,
+          612
+        ],
+        [
+          865,
+          683
+        ],
+        [
+          806,
+          683
+        ]
+      ],
+      "center": [
+        8.1,
+        -17.59
+      ],
+      "size": [
+        6.97,
+        8.55
+      ],
+      "threshold_srgb": [
+        40,
+        80
+      ]
+    },
+    {
+      "name": "weee",
+      "source": "user",
+      "quad": [
+        [
+          872,
+          590
+        ],
+        [
+          942,
+          590
+        ],
+        [
+          942,
+          695
+        ],
+        [
+          872,
+          695
+        ]
+      ],
+      "center": [
+        16.55,
+        -16.99
+      ],
+      "size": [
+        8.27,
+        12.65
+      ],
+      "threshold_srgb": [
+        45,
+        85
+      ]
+    },
+    {
+      "name": "nintendo-oval",
+      "source": "user",
+      "quad": [
+        [
+          973,
+          614
+        ],
+        [
+          1143,
+          614
+        ],
+        [
+          1143,
+          666
+        ],
+        [
+          973,
+          666
+        ]
+      ],
+      "center": [
+        34.4,
+        -16.69
+      ],
+      "size": [
+        20.09,
+        6.27
+      ],
+      "threshold_srgb": [
+        55,
+        105
+      ]
+    },
+    {
+      "name": "address",
+      "source": "user",
+      "quad": [
+        [
+          558,
+          666
+        ],
+        [
+          738,
+          666
+        ],
+        [
+          738,
+          692
+        ],
+        [
+          558,
+          692
+        ]
+      ],
+      "center": [
+        -14.1,
+        -21.39
+      ],
+      "size": [
+        21.28,
+        3.13
+      ],
+      "threshold_srgb": [
+        25,
+        65
+      ]
+    },
+    {
+      "name": "serial-ink",
+      "source": "user",
+      "quad": [
+        [
+          619,
+          732
+        ],
+        [
+          933,
+          732
+        ],
+        [
+          933,
+          780
+        ],
+        [
+          619,
+          780
+        ]
+      ],
+      "center": [
+        0.6,
+        -30.27
+      ],
+      "size": [
+        37.1,
+        5.74
+      ],
+      "threshold_srgb": [
+        95,
+        175
+      ]
+    }
+  ],
+  "source_photos": {
+    "user": {
+      "file": "/Users/paramveer/.codex/attachments/0e128f9f-d25c-400d-ad5f-ca2b96c1b3d9/image-5.png",
+      "sha256": "569f0e370a9600f274448c06e681959564d1359c542f97ebe75ba7125bfd1d41"
+    },
+    "web": {
+      "url": "https://konsolen-chips.de/media/image/product/7758/lg/nintendo-3ds-xl-konsole-silber-schwarz-gebraucht~4.jpg",
+      "sha256": "abf75d467ee5121d8987eaa6fd87c1c45fa05ce5e55ac3739c80a2a2437e474f"
+    }
+  },
+  "limitations": "Photographic ink extraction with manually selected bounds and approximate physical placement. Lower-resolution web text and GS detail retain capture limits. No factory font or barcode encoding is claimed."
+}

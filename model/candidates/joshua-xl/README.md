@@ -2,7 +2,7 @@
 
 The homepage now uses the fully textured silver derivative of this sourced
 original Nintendo 3DS XL. `DEFAULT_MODEL_URL` points to
-`/models/candidates/joshua-xl.glb`, the public mirror of `silver-grain.glb`.
+`/models/candidates/joshua-xl.glb`, the public mirror of `silver-eur.glb`.
 The `/source-preview` route uses the same sourced model. The directory name
 “candidates” is retained for continuity; this is no longer a textureless preview.
 The earlier procedural model files remain preserved.
@@ -15,14 +15,16 @@ Public attribution: `public/models/candidates/joshua-xl.LICENSE.txt`.
 
 | File or folder | Role |
 | --- | --- |
-| `silver-grain.blend` / `.glb` | Current editable rig and static closed export, with curved shell and baked fine paint grain. |
+| `silver-eur.blend` / `.glb` | Current editable rig and static closed export, with photographic EUR underside artwork. |
+| `silver-grain.blend` / `.glb` | Preserved curved-shell checkpoint with baked fine paint grain, before EUR artwork. |
 | `silver-curved.blend` / `.glb` | Preserved geometry checkpoint adding shallow broad shell curvature measured from an original-XL reference scan. |
 | `silver-source.blend` / `.glb` | Preserved silver baseline before curvature, with original source normal/tangent frames restored after export. |
 | `textured-source.blend` / `.glb` | Preserved fully textured red/black source comparison and reproducible starting checkpoint for the silver pass. |
 | `source-textures/` | All seven unmodified embedded PNGs from the complete source download. |
 | `derived-textures/body-silver-basecolor.png` | Derived 4K colour atlas; only classified red paint pixels change. |
 | `derived-textures/paint-mask.png` | Exact 4K paint-region mask, including atlas padding; mirrored publicly as `joshua-xl-paint-mask.png`. |
-| `derived-textures/body-paint-grain-*.png` | Current body normal and metallic/roughness maps, adding fine grain only to the painted region. |
+| `derived-textures/body-paint-grain-*.png` | Preserved pre-EUR body normal and metallic/roughness maps. |
+| `derived-textures/body-eur-*.png` / `eur-ink-plate.png` | Current body maps, matching paint mask, bounded edit mask and photographic ink plate. |
 | `source-download.json` | Source hash, material definitions and all image hashes/dimensions. |
 | `geometry-inspection.*` / `rigged-geometry.*` | Historical geometry-only inspection and initial rig checkpoints. Their substitute materials do not describe the current appearance. |
 
@@ -50,7 +52,7 @@ on the black deck and other unpainted regions. These data checks do not establis
 an exact physical or photographic match. See `docs/source-texture-transfer-audit.md`
 and `docs/source-lettering-audit.md`.
 
-The current curved derivative refines the two broad shell meshes to support
+The curved derivative refines the two broad shell meshes to support
 shallow geometry changes, increasing the complete model to 59,986 triangles.
 All seven silver-baseline image payloads and material factors are retained.
 UV interpolation stays aligned at the same physical surface positions. Shading
@@ -62,6 +64,11 @@ The subsequent paint-grain pass changes only the normal and roughness atlases'
 painted pixels. Every unpainted pixel, the metallic channel, five other embedded
 images, and every geometric attribute remain exact. See
 `docs/source-paint-grain-validation.md` for the pixel audit and close-view limits.
+
+The EUR pass then replaces only bounded underside regions with photographic
+regional artwork. The complete geometry, rig and maps outside the edit mask are
+unchanged. See `docs/source-eur-validation.md` for provenance, matched views,
+pixel audits and lettering-resolution limits.
 
 The two baked boot-artwork meshes remain in the source geometry but are hidden
 at runtime in favour of live displays. Browser checks confirmed A/B, D-pad,
@@ -97,6 +104,12 @@ retains the atlas layout and every other map and factor. It uses the same carrie
 frame export path as the curved checkpoint. Run `scripts/audit_paint_grain.py`
 with NumPy/Pillow to audit decoded pixels independently before promoting it.
 
+From `silver-grain.blend`, run `scripts/create_eur_ink_plate.py`, then
+`scripts/apply_eur_underside.py` through Blender MCP. These isolated emission
+passes save `silver-eur.blend` / `.glb`. Run `scripts/audit_eur_atlas.py` for the
+decoded-pixel audit and mirror the export plus its new EUR paint mask only after
+verification. The plate report records the required ignored photographic inputs.
+
 For earlier pipeline stages, `analyze_sourced_rig.py` performs the read-only
 component audit; `rig_sourced_model.py` constructs the rig from
 `geometry-inspection.blend`; `anchor_sourced_displays.py` adds the initial display
@@ -116,9 +129,10 @@ scan, not manufacturer CAD. It does not establish exact identity to the user's
 unit. Matched native inspection views are `curved-open.png`, `curved-closed.png`
 and `curved-underside.png`; the previous `silver-*.png` renders are preserved.
 
-The source retains **USA underside markings**. Replacing them with the user's
-SPR-001(EUR) block, certification row and serial sticker is still pending.
-Hardware lettering is source artwork, not a newly verified Nintendo font.
+The original USA underside artwork has been replaced with the user's
+SPR-001(EUR) layout, photographic symbols and serial-label ink. Capture resolution
+limits the smallest text and seals; barcode encoding is unverified. Front
+hardware lettering remains source artwork, not a verified Nintendo font.
 The live LCDs use Nintendo's 106.2 × 63.72 mm and 84.96 × 63.72 mm dimensions,
 provisionally centred within the source glass and offset 0.02 mm outward.
 The complete glass bitmap is solid white and does not resolve an exact active-area

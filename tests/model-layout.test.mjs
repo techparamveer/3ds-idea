@@ -31,7 +31,7 @@ test('preserved legacy asset keeps its original screen placements', () => {
 
 test('homepage serves the verified full-size silver source with EUR markings and paint grain', async () => {
   const shipped = await readFile(new URL('../public' + DEFAULT_MODEL_URL, import.meta.url));
-  const verified = await readFile(new URL('../model/candidates/joshua-xl/silver-abxy-finish.glb', import.meta.url));
+  const verified = await readFile(new URL('../model/candidates/joshua-xl/silver-abxy-ink.glb', import.meta.url));
   assert.ok(shipped.equals(verified), 'default website asset must match the verified silver export');
 });
 

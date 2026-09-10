@@ -210,3 +210,5 @@ From `silver-etched.blend`, run `scripts/smooth_sourced_lid_corners.py` through 
 Latest checkpoint: `silver-abxy-round.blend` / `.glb`, following `silver-hinge-finish`. Run `scripts/round_abxy_caps.py` from its specified starting file. This smooths the four cap outlines, retains source textures and interpolated shading frames, and preserves their rig transforms and depths. See `docs/source-abxy-round-validation.md`.
 
 Latest material checkpoint: `silver-abxy-finish.blend` / `.glb`, following `silver-abxy-round`. Run `build_abxy_roughness.py` then `install_abxy_finish.py` against its declared starting file. See `docs/source-abxy-finish-validation.md` for the isolated cap material and remaining limits.
+
+Latest ink checkpoint: `silver-abxy-ink.blend` / `.glb`, following `silver-abxy-finish`. Run `build_abxy_ink.py`, optionally preview with `inspect_abxy_ink.py`, then `install_abxy_ink.py` against its declared starting file. The UV calibration is saved in `abxy-glyph-uv-fit.json`. Read `docs/source-abxy-ink-validation.md`; these glyphs are photographic approximations, not a verified factory font.

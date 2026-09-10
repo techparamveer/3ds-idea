@@ -1,0 +1,71 @@
+{
+  "glyphs": {
+    "A": {
+      "width_mm": 2.85,
+      "height_mm": 2.9,
+      "stroke_mm": 0.36,
+      "old_ink_pixels": 832,
+      "background_rgb": [
+        32.0,
+        32.0,
+        32.0
+      ],
+      "ink_rgb": [
+        188.0,
+        188.0,
+        188.0
+      ]
+    },
+    "B": {
+      "width_mm": 2.2,
+      "height_mm": 2.9,
+      "stroke_mm": 0.36,
+      "old_ink_pixels": 961,
+      "background_rgb": [
+        31.0,
+        31.0,
+        31.0
+      ],
+      "ink_rgb": [
+        188.0,
+        188.0,
+        188.0
+      ]
+    },
+    "X": {
+      "width_mm": 2.7,
+      "height_mm": 2.9,
+      "stroke_mm": 0.36,
+      "old_ink_pixels": 852,
+      "background_rgb": [
+        35.0,
+        35.0,
+        35.0
+      ],
+      "ink_rgb": [
+        188.0,
+        188.0,
+        188.0
+      ]
+    },
+    "Y": {
+      "width_mm": 2.7,
+      "height_mm": 2.9,
+      "stroke_mm": 0.36,
+      "old_ink_pixels": 623,
+      "background_rgb": [
+        35.0,
+        35.0,
+        35.0
+      ],
+      "ink_rgb": [
+        188.0,
+        188.0,
+        188.0
+      ]
+    }
+  },
+  "changed_pixels": 3015,
+  "sha256": "2006f6e7197a8cfbb3d42b83575e83fc317aa20797d46c22ee703e734da4b9eb",
+  "status": "photograph-fitted authored glyphs; not a verified factory font"
+}

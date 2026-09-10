@@ -1,0 +1,12 @@
+{
+  "source": "silver-plastic-normals.glb",
+  "radius_estimate_mm": 0.7,
+  "triangles": 58304,
+  "maximum_move_mm": 0.2899542616987215,
+  "minimum_jacobian": 0.5000357270734325,
+  "extent_delta_mm": [
+    0.0,
+    0.0,
+    0.0
+  ]
+}

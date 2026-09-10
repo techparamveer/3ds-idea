@@ -13,3 +13,5 @@ The immediate defects are the flat-looking clamshell, inadequate front/back surf
 Read `docs/source-corners-validation.md` for the current sourced-model checkpoint;
 `docs/comparison-pass-2026-09-09.md` records earlier procedural repairs. The active OS task uses
 branch `codex/home-menu-assets`; its decrypted asset dependency remains unresolved.
+
+The browser serves a lossless WebP delivery pack, `silver-lower-keys-web.glb`; keep editing the PNG-based Blender checkpoint. See `docs/web-model-packing.md` before updating the public asset.

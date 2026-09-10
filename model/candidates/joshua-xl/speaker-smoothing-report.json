@@ -1,0 +1,87 @@
+{
+  "source_sha256": "b502d0a2781c6dff9f4321cda36e3776dcbbf3a4f4c8a50245fd5286cfe3816b",
+  "centres_local_xy": [
+    [
+      -70.77972249999999,
+      -44.305975000000004
+    ],
+    [
+      -69.80152000000001,
+      -46.66756
+    ],
+    [
+      -69.80152000000001,
+      -41.944379999999995
+    ],
+    [
+      -67.43993499999999,
+      -40.96618
+    ],
+    [
+      -67.43993,
+      -47.645765
+    ],
+    [
+      -67.43993,
+      -44.30597
+    ],
+    [
+      -65.078345,
+      -41.944379999999995
+    ],
+    [
+      -65.07834,
+      -46.66756
+    ],
+    [
+      -64.088355,
+      -44.3059725
+    ],
+    [
+      64.0883575,
+      -44.3059725
+    ],
+    [
+      65.07834,
+      -41.944379999999995
+    ],
+    [
+      65.07834,
+      -46.66756
+    ],
+    [
+      67.43993,
+      -47.645765
+    ],
+    [
+      67.43992,
+      -44.30597
+    ],
+    [
+      67.43993499999999,
+      -40.96618
+    ],
+    [
+      69.801515,
+      -46.66756
+    ],
+    [
+      69.801515,
+      -41.944379999999995
+    ],
+    [
+      70.77972,
+      -44.305975000000004
+    ]
+  ],
+  "source_segments": 8,
+  "mixed_frame_midpoint_policy": "Preserve source endpoints; midpoint uses first endpoint sign at an exact tie",
+  "radius_mm": 0.6663102554553679,
+  "initial_wall_correction_mm": 0.0415668392748832,
+  "triangles_before": 43457,
+  "triangles_after": 52817,
+  "maximum_displacement_mm": 0.050719848137789805,
+  "minimum_jacobian_determinant": 1.0000000000001137,
+  "vertices_moved": 4910,
+  "interpretation": "Eighteen source speaker openings rounded to their fitted radius with original depths and layout retained. Local wall correction repairs an earlier aperture adjustment. No factory CAD claim."
+}

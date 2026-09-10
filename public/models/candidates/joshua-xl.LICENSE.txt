@@ -130,3 +130,8 @@ estimates; see docs/source-rubber-validation.md for evidence and limitations.
 the inner-lid atlas. Source glyph outlines, geometry and other materials are
 retained. See docs/source-slider-validation.md for photographic evidence and
 limits; this is not a claim of factory typography or measured cavity depth.
+
+2026-09-10: silver-speakers.glb rounds the eighteen eight-sided source speaker
+openings to their fitted source radius. It retains hole depths, materials and
+texture images. This is an authored refinement, not factory CAD; see
+source-speakers-validation.md for the local tangent interpolation compromise.

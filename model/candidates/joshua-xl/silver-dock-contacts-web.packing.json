@@ -1,0 +1,298 @@
+{
+  "source": "silver-dock-contacts.glb",
+  "output": "silver-dock-contacts-web.glb",
+  "source_sha256": "135aeeb178482e93fe316c0770fc56f5b4952119c349934910dffd5b51d9f1e7",
+  "output_sha256": "dbbc22af27f89f04d8e2392de7d0b28ed4741ec2961c1677f22d105d3b0d421c",
+  "before_bytes": 147749772,
+  "after_bytes": 104628312,
+  "saved_fraction": 0.29185466357267886,
+  "images": [
+    {
+      "name": "Image_2",
+      "image_index": 0,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "f552783852d8c9e70d297e3c3eb18c4c649b82abd31d3596d942b7b1afac4826",
+      "before_bytes": 24862,
+      "after_bytes": 7062,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-legends-specular",
+      "image_index": 1,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "bc09f8a3bf53fa5f8c986bc64e53fb51c13db373675028623cb66fbc11635c44",
+      "before_bytes": 317484,
+      "after_bytes": 9760,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-etched-normal",
+      "image_index": 2,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "85074f78b18bfdf999b27a5ab502b6ebb0206c7ecd9fe17ef2374095daede00a",
+      "before_bytes": 15991797,
+      "after_bytes": 10102984,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "abxy-fitted-basecolor",
+      "image_index": 3,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "82f7f7fd08b50487dd6461bd7cc0b4a404d2982b4a947c0602b6784d9ef7f1a3",
+      "before_bytes": 5677662,
+      "after_bytes": 3137140,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "abxy-metallic-roughness",
+      "image_index": 4,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "90ce5f6dc4bad6ae3065eba4b180ea76a2a273c43e6c708fa3722aa1b932a680",
+      "before_bytes": 2508601,
+      "after_bytes": 1604522,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-etched-basecolor",
+      "image_index": 5,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "ee595e4e687862bdd0df6cf878d84edc8309b8cfb1db65c99ef633d0c2a2b2d2",
+      "before_bytes": 7128941,
+      "after_bytes": 3138432,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "pad-rubber-metallic-roughness",
+      "image_index": 6,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "06bca77247b520d8116fb4d7bf4660c5b0c42d46a072909cd39b9133c46c8aa3",
+      "before_bytes": 2327332,
+      "after_bytes": 1354094,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-legends-metallic-roughness",
+      "image_index": 7,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "d78b487c582ae033bbee24ba2ae93869c6f16de9596509324905e13c5428562a",
+      "before_bytes": 7061642,
+      "after_bytes": 4722234,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "Image_6",
+      "image_index": 8,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "ef70b2855babcd102038642575bfeac04e1d5070cdaf122291b5607e94e96527",
+      "before_bytes": 11439823,
+      "after_bytes": 8536902,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "Image_5",
+      "image_index": 9,
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "rgba_sha256": "dffab0dd410657cb30c7b2fd7f2586a4792e8472e58882b3532581f8111a646d",
+      "before_bytes": 2379,
+      "after_bytes": 220,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "dock-contact-basecolor",
+      "image_index": 10,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "b9037ca278b376eb13533398765663358c24bf11d4a7790d226aa02bf8bc3dae",
+      "before_bytes": 5675409,
+      "after_bytes": 3135944,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "Image_4",
+      "image_index": 11,
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "rgba_sha256": "cd4e6f5c04c04718d8f429823954c9af4e7b85e76e04f65076152b2d0f14315c",
+      "before_bytes": 50744,
+      "after_bytes": 13878,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "paint-cover-restrained-normal",
+      "image_index": 12,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "f768fb3b1448862f9cc9e2f6a9be844ad0a3f758fa6f37b967d526d06b9e8b05",
+      "before_bytes": 11079930,
+      "after_bytes": 8123928,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-socket-basecolor",
+      "image_index": 13,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "e587237d00a153599ad789df889c473e69647f5fcb7faf08f7f1bb1e756c8b9d",
+      "before_bytes": 5634630,
+      "after_bytes": 3117572,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "paint-cover-restrained-metallic-roughness",
+      "image_index": 14,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "38084953467d22e1a47a6f50e4d4b45df79645c3858e670f9aa6b287137af29c",
+      "before_bytes": 4851152,
+      "after_bytes": 3049104,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "inner-camera-colour",
+      "image_index": 15,
+      "dimensions": [
+        256,
+        256
+      ],
+      "rgba_sha256": "bdb4a4d39beb8860a9700ea8df4a136f3a68e348545b1f20e8d08bf95ff9cf4a",
+      "before_bytes": 6986,
+      "after_bytes": 1684,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "inner-camera-roughness",
+      "image_index": 16,
+      "dimensions": [
+        256,
+        256
+      ],
+      "rgba_sha256": "3931da8d67b6f3447bbaa8f9e129ab19f1968895add8af0da8caa8334d59b016",
+      "before_bytes": 4354,
+      "after_bytes": 1422,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-slider-dot-normal",
+      "image_index": 17,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "2844c6c75b511b6cba0d455e095e35939a2b1c4e60a52017a88537c837ecb9ee",
+      "before_bytes": 13572928,
+      "after_bytes": 10103240,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-slider-basecolor",
+      "image_index": 18,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "abe56fb05420b5cef8dede9a35e35bb7365011d45dbfb32abb798fc365081434",
+      "before_bytes": 5679328,
+      "after_bytes": 3139456,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-hinge-metallic-roughness",
+      "image_index": 19,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "56fd89da24e5c3ad145dcfc3988954a39f8e11d0b569d5ed7f63a70a76cf233d",
+      "before_bytes": 6105940,
+      "after_bytes": 4017154,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "paint-lid-restrained-normal",
+      "image_index": 20,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "1428f59ab7fef60ffdfeadaef4508cca4eb67f9a6ec11d9daeedb18a27091238",
+      "before_bytes": 11121673,
+      "after_bytes": 8156212,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "paint-lid-restrained-metallic-roughness",
+      "image_index": 21,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "c661d1c47d44c8474be9be5c2f11505fb36fe665a4e81d13e98c80e9eacea5fc",
+      "before_bytes": 6220293,
+      "after_bytes": 3887892,
+      "format": "webp",
+      "pixels_identical": true
+    }
+  ],
+  "geometry_rig_materials_identical": true
+}

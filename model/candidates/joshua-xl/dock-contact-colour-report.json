@@ -1,0 +1,27 @@
+{
+  "source": "body-etched-basecolor.png",
+  "output": "dock-contact-basecolor.png",
+  "source_sha256": "774f5bd53bb8945e8c06961eff154f4fc5260e1a56196efdc4c309bee1a318b7",
+  "sha256": "8ce52f460de5ade69ea4a888601efa7c38c25900c8dc7c40af8f638072e0b232",
+  "gold_srgb": [
+    1.0,
+    0.8470588235294118,
+    0.5686274509803921
+  ],
+  "regions": [
+    [
+      1202,
+      1080,
+      1292,
+      1121
+    ],
+    [
+      1202,
+      1125,
+      1292,
+      1170
+    ]
+  ],
+  "changed_pixels": 7740,
+  "interpretation": "authored gold reflectance; actual contact alloy and roughness not measured"
+}

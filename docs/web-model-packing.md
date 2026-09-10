@@ -1,6 +1,8 @@
 # Lossless web delivery model
 
-The editable model remains `silver-lower-keys.blend`, with its PNG-based authoring export `silver-lower-keys.glb`. The homepage now serves the separate `silver-lower-keys-web.glb`. Do not import the web pack as the next authoring checkpoint.
+Current checkpoint update: the homepage now serves `silver-dock-contacts-web.glb`, packed from `silver-dock-contacts.glb`; edit `silver-dock-contacts.blend`. See `source-dock-contact-validation.md` for current sizes, hashes and checks. The initial packing measurements below remain a historical baseline.
+
+The initial packing pass used `silver-lower-keys.blend`, its PNG-based authoring export `silver-lower-keys.glb`, and the separate `silver-lower-keys-web.glb`. Do not import a web pack as the next authoring checkpoint.
 
 The authoring GLB is 142,072,916 bytes, including 116,808,481 bytes of embedded images. None of those image payloads were byte-identical duplicates. `scripts/pack_web_model.py` re-encodes each image as lossless WebP, verifies exact decoded RGBA pixels and dimensions, and retains the original format if WebP is larger. It rebuilds buffer offsets without changing non-image buffer bytes, accessors, meshes, nodes, hierarchy, animation data, material values, texture coordinates or samplers. It does not resize maps or simplify geometry.
 

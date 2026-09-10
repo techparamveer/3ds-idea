@@ -220,3 +220,5 @@ Current material checkpoint: `silver-restrained-paint.blend` / `.glb`. It retain
 Current editable checkpoint: `silver-lower-keys.blend` / `.glb`, following the material checkpoint above. `round_lower_key_strip.py` rounds SELECT/START outer rear corners and the matching chassis recess, with all material maps retained. Its default is a reversible preview; `main(install=True)` saves and exports after inspection. See `docs/source-lower-key-validation.md`.
 
 The homepage uses `silver-lower-keys-web.glb`, a lossless WebP delivery pack made from that authoring export. Geometry and decoded texture pixels are identical. Continue Blender edits from `silver-lower-keys.blend`; repack only after exporting. See `docs/web-model-packing.md`.
+
+Latest checkpoint: `silver-dock-contacts.blend` / `.glb`, with `silver-dock-contacts-web.glb` on the homepage. Only the two rear docking contacts receive the corrected gold reflectance map; all geometry and other materials are retained. See `docs/source-dock-contact-validation.md`. Use this Blender file for subsequent edits and preserve the earlier checkpoints above.

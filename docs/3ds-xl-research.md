@@ -99,3 +99,5 @@ The local ZIP inspection already established encrypted HOME Menu content; see `f
 Research is sufficient to identify these defects and direct the next pass. Exact local curves, port interiors and typeface outlines remain unresolved; this document does not declare the model finished.
 
 The ABXY outline pass is documented in `source-abxy-round-validation.md`. It reduces polygonal cap silhouettes without changing placement. Source bevel shading and hardware glyph fidelity remain unresolved.
+
+The ABXY material pass (`source-abxy-finish-validation.md`) identifies the source normal map as the main cause of patchy cap reflections. Normal attenuation and retained narrow roughness variation improve the finish; cap lettering and surrounding deck opening fidelity remain unresolved.

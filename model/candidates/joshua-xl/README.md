@@ -208,3 +208,5 @@ From `silver-legends.blend`, run `build_etched_stencils.main()` then `inspect_et
 From `silver-etched.blend`, run `scripts/smooth_sourced_lid_corners.py` through Blender MCP. It refines only the outer lid’s front corner region and smooths its polygonal contour, retaining the lower mating vertices. This produces `silver-corners.blend` / `.glb` with the same texture payloads. See `docs/source-corners-validation.md` for matched views, reference-scan comparison, export checks and limits.
 
 Latest checkpoint: `silver-abxy-round.blend` / `.glb`, following `silver-hinge-finish`. Run `scripts/round_abxy_caps.py` from its specified starting file. This smooths the four cap outlines, retains source textures and interpolated shading frames, and preserves their rig transforms and depths. See `docs/source-abxy-round-validation.md`.
+
+Latest material checkpoint: `silver-abxy-finish.blend` / `.glb`, following `silver-abxy-round`. Run `build_abxy_roughness.py` then `install_abxy_finish.py` against its declared starting file. See `docs/source-abxy-finish-validation.md` for the isolated cap material and remaining limits.

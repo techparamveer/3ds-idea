@@ -1,0 +1,31 @@
+{
+  "backing_mm": [
+    121.3064079284668,
+    72.7902946472168
+  ],
+  "black_edge_rectangle_mm": [
+    107,
+    64.6
+  ],
+  "active_display_mm": [
+    106.2,
+    63.72
+  ],
+  "border_linear_colour": 0.007,
+  "roughness_inner_outer": [
+    0.18,
+    0.35
+  ],
+  "edge_filter_mm": 0.06,
+  "resolution": 2048,
+  "maps": {
+    "colour": {
+      "file": "upper-cover-colour.png",
+      "sha256": "8a7627a25cb6b098d47a10fd4901618f1cd4b61d99fd552d7e8b8a7db854de36"
+    },
+    "metallic-roughness": {
+      "file": "upper-cover-metallic-roughness.png",
+      "sha256": "1302000d1b375cb5804a02bf29938b6570d837c95ebe5e52cdc50bec044d8a46"
+    }
+  }
+}

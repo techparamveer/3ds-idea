@@ -244,3 +244,5 @@ Current authoring checkpoint: `silver-plastic-normals.blend` / PNG GLB. The publ
 Current authoring checkpoint: `silver-dpad-fit.blend` / PNG GLB. The public model mirrors `silver-dpad-fit-web.glb`; see `docs/source-dpad-fit-validation.md`. Earlier checkpoints remain preserved.
 
 Current authoring checkpoint: `silver-dpad-finish.blend` / PNG GLB. The public model mirrors `silver-dpad-finish-web.glb`; see `docs/source-dpad-finish-validation.md`. Earlier checkpoints remain preserved.
+
+Current authoring checkpoint: `silver-upper-cover.blend` / PNG GLB. The public model mirrors `silver-upper-cover-web.glb`; see `docs/source-upper-cover-validation.md`. Earlier checkpoints remain preserved.

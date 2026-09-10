@@ -1,0 +1,60 @@
+{
+  "source_url": "https://cdn.mos.cms.futurecdn.net/0584727e6f39c0e334d6e9537772f9fa.jpg",
+  "sha256": "3623ad38a7ebf24d6bbb1cd7f6889d3763dab63c0e35b3e3f7843592f7024770",
+  "method": "Median seven-row luminance profile; strongest directed gradient in manually selected edge windows. Pixel intervals at half-pixel boundaries.",
+  "caveat": "Bright panel is a displayed/rendered image edge, not independently calibrated LCD glass. Perspective, shadows and artwork limit metric inference. Published 106.2 mm active width is used only as a conditional scale.",
+  "cuts": [
+    {
+      "row": 170,
+      "outer_frame_x": [
+        627.5,
+        1204.5
+      ],
+      "bright_panel_x": [
+        645.5,
+        1186.5
+      ],
+      "outer_to_panel_ratio": 1.066543438077634,
+      "outer_width_if_panel_is_106p2_mm": 113.26691312384473
+    },
+    {
+      "row": 220,
+      "outer_frame_x": [
+        627.5,
+        1204.5
+      ],
+      "bright_panel_x": [
+        645.5,
+        1186.5
+      ],
+      "outer_to_panel_ratio": 1.066543438077634,
+      "outer_width_if_panel_is_106p2_mm": 113.26691312384473
+    },
+    {
+      "row": 370,
+      "outer_frame_x": [
+        627.5,
+        1204.5
+      ],
+      "bright_panel_x": [
+        645.5,
+        1186.5
+      ],
+      "outer_to_panel_ratio": 1.066543438077634,
+      "outer_width_if_panel_is_106p2_mm": 113.26691312384473
+    },
+    {
+      "row": 410,
+      "outer_frame_x": [
+        628.5,
+        1204.5
+      ],
+      "bright_panel_x": [
+        645.5,
+        1186.5
+      ],
+      "outer_to_panel_ratio": 1.064695009242144,
+      "outer_width_if_panel_is_106p2_mm": 113.07060998151572
+    }
+  ]
+}

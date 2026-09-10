@@ -1,0 +1,11 @@
+{
+  "source": "body-legends-metallic-roughness.png",
+  "output": "pad-rubber-metallic-roughness.png",
+  "sha256": "1ef584d748d83ac6e6b302d362e2269031acda563a44ec16c24c0c5026d2f77e",
+  "roughness_range": [
+    0.67,
+    0.73
+  ],
+  "base_colour_multiplier": 0.8,
+  "scope": "Button_Circle material only; unchanged geometry and other maps"
+}

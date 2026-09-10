@@ -119,3 +119,8 @@ regions of the inner lid and graphite chassis. Other objects retain their
 materials; geometry and other texture channels are preserved. These are
 photographic finish estimates, not factory measurements. See
 source-plastic-validation.md for the diagnostic comparisons and limitations.
+
+2026-09-10: silver-rubber.glb gives Button_Circle an independent matte rubber
+material, with narrowed roughness and a 0.8 linear colour multiplier. Geometry,
+normal detail and other objects remain unchanged. Authored photographic finish
+estimates; see docs/source-rubber-validation.md for evidence and limitations.

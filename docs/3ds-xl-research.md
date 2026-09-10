@@ -1,6 +1,8 @@
 # Original silver 3DS XL: research and reconstruction audit
 
-The latest [dark-plastic roughness revision](source-plastic-validation.md) corrects excessive blotchy reflections on the inner lid and chassis.
+The current [rubber finish revision](source-rubber-validation.md) isolates the circle-pad material and reduces its mottled reflection.
+
+The earlier [dark-plastic roughness revision](source-plastic-validation.md) corrects excessive blotchy reflections on the inner lid and chassis.
 
 The preceding [circle-pad recess revision](source-recess-validation.md) combines rounded geometry with bounded matte graphite maps. Full visual fidelity remains unfinished.
 

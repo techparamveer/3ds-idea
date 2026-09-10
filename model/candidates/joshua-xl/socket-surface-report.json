@@ -1,0 +1,21 @@
+{
+  "nonzero_mask_pixels": 96985,
+  "shared_uv_conflicts": 0,
+  "maps": {
+    "basecolor": {
+      "changed_pixels": 81747,
+      "outside_mask_changes": 0,
+      "sha256": "9052bd3566e5c7f24e7ae9fcfc2f6b375cf84df77650bb2b1f8972d5113be516"
+    },
+    "normal": {
+      "changed_pixels": 80057,
+      "outside_mask_changes": 0,
+      "sha256": "0f5def0547a33abb6eafd25f9434356f803fb7f95b91703e3c9b7c8de4959c84"
+    },
+    "metallic-roughness": {
+      "changed_pixels": 85509,
+      "outside_mask_changes": 0,
+      "sha256": "7891adce79c9ea70007a01787f52a5083ad1c70ef7add714f1471141d6692c8d"
+    }
+  }
+}

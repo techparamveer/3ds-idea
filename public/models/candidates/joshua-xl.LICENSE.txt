@@ -106,3 +106,10 @@ Additional modification: rounded the original sixteen-sided circle-pad
 perimeter, retaining its height, maximum radius, stem and texture maps.
 Maximum movement is 0.150 mm. The separate socket trial was not integrated.
 See docs/source-pad-validation.md.
+
+2026-09-10: Coordinated circle-pad recess revision (silver-recess.glb).
+Rounded the source recess and added a separate chassis material with bounded
+base-colour, normal and metallic/roughness image edits. Other parts retain
+their prior geometry and complete materials. Authored finish estimates;
+see docs/source-recess-validation.md. This supersedes the earlier rejection
+of the socket geometry-only trial; original source credit remains unchanged.

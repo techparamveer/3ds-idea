@@ -1,0 +1,13 @@
+# Rounded lower button strip
+
+Active checkpoint: `model/candidates/joshua-xl/silver-lower-keys.blend` / `.glb`, following `silver-restrained-paint`. Public GLB SHA-256: `a98dfea08e53f3b998c1e0d4e66d20a4d5ed1bcce1da23694ccd7a0a80865f50`.
+
+The preceding `lower-key-corner-trial.md` documents the original-XL photographic evidence and rejected cap-only trial. The real SELECT/START strip has rounded outer rear corners. Rounding only the caps left triangular gaps because the source chassis opening was square. The current pass rounds both boundaries together. The cap radius is a one-millimetre photographic estimate, not a factory specification. The recess uses the existing approximately 0.13–0.24 mm offsets around the same centres, with corresponding elliptical radii recorded in `lower-key-strip-report.json`.
+
+`round_lower_key_strip.py` preserves the source UVs while subdividing the local corner patches. It transports normals and tangents through the deformation Jacobian and exports the carried frames. The SELECT/START meshes move at most 0.38494 mm, and the chassis corner field moves at most 0.57030 mm. The field fades outside the affected recess and below the upper deck; it changes no height. HOME, the control placement, all source maps and unrelated meshes stay unchanged. SELECT/START triangle counts increase from 14 to 4,644/4,650; the chassis increases from 108,276 to 123,696. This preserves visual quality but leaves mesh optimization as future work.
+
+The joint macro is `lower-keys-joint-keys.png`. It removes the square outer recess corners and triangular gaps while retaining the dark photographic ink. All six `lower-keys-final-*.png` views were inspected after installation. The closed shell and silver finish remain visually unchanged. Glyph softness and exact corner radii remain limited by reference resolution; this does not establish exact overall identity.
+
+Validation: two export tests compare every texture/material binding and node transform, all attributes/indices of unrelated meshes, the edited meshes' depth bounds and normalized orthogonal normal/tangent frames. All 119 JavaScript tests pass. Python compilation passes. `audit_lower_key_clearance.py` probes the upper cap vertices against the closed lid and finds minimum clearances of about 0.38523 mm. Their minimum distance to the chassis is 0.12917 mm. These are vertex probes, not an exhaustive swept-volume collision proof.
+
+Browser verification at 1280 × 720: VGPU ready, revised START opens the selected folder, HOME returns, SELECT changes menu density, and the hinge closes. No app or shader source changed. The material fallback was verified in the preceding silver-finish pass; textures and material bindings are identical here.

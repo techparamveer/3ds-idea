@@ -40,11 +40,11 @@ def move(points,outline,centres):
         result[:,:2]+=q*((1/factor-1)*weight)[:,None]
     return result
 
-def refine_speaker_patch(positions, normals, tangents, uvs, faces, kind, *, edge_filter=None):
+def refine_speaker_patch(positions, normals, tangents, uvs, faces, kind, *, edge_filter=None, maximum_iterations=12):
     """Conforming shared-edge bisection; no Catmull-Clark shrink or UV re-unwrap."""
     values = [np.r_[p, n, t, uv] for p, n, t, uv in zip(positions, normals, tangents, uvs)]
     faces = [tuple(map(int, f)) for f in faces]
-    for _ in range(12):
+    for _ in range(maximum_iterations):
         edges = set()
         for a, b, c in faces:
             for i, j in [(a, b), (b, c), (c, a)]:

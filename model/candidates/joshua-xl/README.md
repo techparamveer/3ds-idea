@@ -216,3 +216,5 @@ Latest ink checkpoint: `silver-abxy-ink.blend` / `.glb`, following `silver-abxy-
 Latest geometry checkpoint: `silver-abxy-openings.blend` / `.glb`, following `silver-abxy-ink`. `round_abxy_openings.py` rounds the four deck apertures at their existing centres and preserves the remainder of the source. See `docs/source-abxy-openings-validation.md`.
 
 Current material checkpoint: `silver-restrained-paint.blend` / `.glb`. It retains the complete openings geometry and installs restrained silver grain plus sparse hairlines on the outer lid and underside. `build_restrained_paint.py` produces the maps and `install_restrained_paint.py` installs them from the openings checkpoint. See `docs/source-restrained-paint-validation.md` for comparisons, exact preservation checks and remaining limitations.
+
+Current editable checkpoint: `silver-lower-keys.blend` / `.glb`, following the material checkpoint above. `round_lower_key_strip.py` rounds SELECT/START outer rear corners and the matching chassis recess, with all material maps retained. Its default is a reversible preview; `main(install=True)` saves and exports after inspection. See `docs/source-lower-key-validation.md`.

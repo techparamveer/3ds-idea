@@ -1,0 +1,70 @@
+{
+  "Button_SELECT": {
+    "corners": [
+      {
+        "direction": -1,
+        "centre_mm": [
+          39.12572479248047,
+          -40.27385330200195
+        ],
+        "radius_mm": [
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "triangles_before": 14,
+    "triangles_after": 4644,
+    "max_displacement_mm": 0.38493030460308386,
+    "minimum_jacobian": 0.5007449620370208
+  },
+  "Button_START": {
+    "corners": [
+      {
+        "direction": 1,
+        "centre_mm": [
+          38.70494842529297,
+          -40.27385330200195
+        ],
+        "radius_mm": [
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "triangles_before": 14,
+    "triangles_after": 4650,
+    "max_displacement_mm": 0.3849303051396824,
+    "minimum_jacobian": 0.5007449742334896
+  },
+  "Sourced graphite chassis": {
+    "corners": [
+      {
+        "direction": -1,
+        "centre_mm": [
+          39.12572479248047,
+          -40.27385330200195
+        ],
+        "radius_mm": [
+          1.2357552075195315,
+          1.129173302001952
+        ]
+      },
+      {
+        "direction": 1,
+        "centre_mm": [
+          38.70494842529297,
+          -40.27385330200195
+        ],
+        "radius_mm": [
+          1.235761574707034,
+          1.129173302001952
+        ]
+      }
+    ],
+    "triangles_before": 108276,
+    "triangles_after": 123696,
+    "max_displacement_mm": 0.570296019429305,
+    "minimum_jacobian": 0.5005523276507788
+  }
+}

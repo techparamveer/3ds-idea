@@ -1,0 +1,17 @@
+{
+  "Button_SELECT": {
+    "upper_vertex_probes": 833,
+    "minimum_clearance_mm": 0.3852367401123047,
+    "minimum_upper_vertex_distance_to_chassis_mm": 0.12916946411132812
+  },
+  "Button_HOME": {
+    "upper_vertex_probes": 14,
+    "minimum_clearance_mm": 0.3852357864379883,
+    "minimum_upper_vertex_distance_to_chassis_mm": 0.12916946411132812
+  },
+  "Button_START": {
+    "upper_vertex_probes": 836,
+    "minimum_clearance_mm": 0.3852348327636719,
+    "minimum_upper_vertex_distance_to_chassis_mm": 0.12916946411132812
+  }
+}

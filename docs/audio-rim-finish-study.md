@@ -1,0 +1,11 @@
+# Audio rim finish study
+
+Starting checkpoint: `silver-audio-socket.blend`. The source insert `Source_0_part_19` shares `Sourced silver fitted etched legends` with other source parts. Diagnostic changes use a temporary material copy on this insert only and restore the original afterwards.
+
+`preview_audio_finish.py` renders four matched underside macros: original maps; normal strength zero with original roughness; zero normal strength with uniform 0.45 roughness; and 0.2 normal strength with uniform 0.45 roughness. All four were inspected. Removing the normal contribution removes the wavy bright edge and much of the blotchy highlight. Changing roughness alone after removing the normal has little visible effect in this view. Zero strength also loses most of the small edge relief, so it is a diagnostic rather than the selected finish.
+
+The final trial in `install_audio_finish.py` uses **0.2 normal strength and the original roughness map**. Its matched front and underside macros retain restrained edge relief without the old exaggerated waviness. The original base-color, metallic/roughness, normal, specular and emission images remain connected. The value is an appearance fit to the original-XL photographs, not a Nintendo material measurement. This pass does not create a geometric bevel or change the socket contour.
+
+The original-XL assembled front-edge photograph is documented in `audio-socket-study.md`. Additional [iFixit original XL motherboard imagery](https://www.ifixit.com/Guide/Nintendo+3DS+XL+Motherboard+Replacement/25399), step 9 ([image](https://guide-images.cdn.ifixit.com/igi/nLUoPQfoGUNaBU3D.medium)), was inspected in the browser. It locates the black socket body on the underside board, but its resolution and viewing direction do not determine the mouth's internal contact profile. Generic replacement listings found in research group several Nintendo models together; those descriptions alone are not a basis for factory-exact original-XL geometry.
+
+Internal contact surfaces visible in the assembled photograph remain missing from the sourced model. Their dimensions and arrangement need a separate geometry study. The selected surface revision does not close that requirement.

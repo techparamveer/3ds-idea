@@ -137,3 +137,5 @@ The SD-flap ends and opening are now refined together, with source size limits p
 The lower-cover corner seam is now rounded with four verified tangent-sign repairs; see `source-cover-seam-validation.md`. Port rims and small molded details remain separate fidelity limitations.
 
 The headphone socket and matching aperture now have rounded contours; see `source-audio-socket-validation.md` and `audio-socket-study.md`. The original-XL front-edge photo reveals internal contacts absent from the source model; their geometry and the rim finish remain outstanding.
+
+The rim shading diagnostic isolates exaggerated normal-map relief; the audio insert now retains its maps at 0.2 normal strength. See `audio-rim-finish-study.md` and `source-audio-finish-validation.md`. Internal contacts remain a separate geometry gap.

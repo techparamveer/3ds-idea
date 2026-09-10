@@ -264,3 +264,5 @@ Current authoring checkpoint: `silver-sd-outline.blend` / PNG GLB. Public delive
 Current authoring checkpoint: `silver-cover-seam.blend` / PNG GLB. Public delivery mirrors `silver-cover-seam-web.glb`. See `../../../docs/source-cover-seam-validation.md`. Run the seam script only from silver-sd-outline; earlier checkpoints remain preserved.
 
 Current authoring checkpoint: `silver-audio-socket.blend` / PNG GLB. Public delivery mirrors `silver-audio-socket-web.glb`. See `../../../docs/source-audio-socket-validation.md`. Run the socket script only from silver-cover-seam; earlier checkpoints remain preserved. Internal connector contacts and final rim finish remain unfinished.
+
+Current authoring checkpoint: `silver-audio-finish.blend` / PNG GLB. Public delivery mirrors `silver-audio-finish-web.glb`. See `../../../docs/source-audio-finish-validation.md`. Start its installer from silver-audio-socket. It changes only the insert normal strength, retaining every texture and all geometry; internal contacts remain missing.

@@ -1,0 +1,17 @@
+{
+  "source": "silver-upper-cover.glb",
+  "centre_local_xy_mm": [
+    -0.09250450134277344,
+    -1.1444091796875e-05
+  ],
+  "triangles_before": 78,
+  "triangles_after": 4992,
+  "maximum_move_mm": 0.05856428316831196,
+  "extent_delta_mm": [
+    0.0,
+    7.587892714155942e-07,
+    0.0
+  ],
+  "symbol_protection_radius_mm": 2.0,
+  "symbol_region_max_move_mm": 0.0
+}

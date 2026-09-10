@@ -107,3 +107,5 @@ The ABXY ink pass (`source-abxy-ink-validation.md`) replaces narrow source ink w
 The current baked surface fallback is visually checked in `source-fallback-validation.md`: open interior, closed lid and underside retain their maps without VGPU. This is a forced development-path check, not a hardware compatibility guarantee.
 
 The four ABXY deck apertures now have smooth circular boundaries; see `source-abxy-openings-validation.md`. This resolves the faceting outside the refined caps. The radius and clearance remain source-model fits, not factory measurements.
+
+The power cap and matching deck aperture now have circular boundaries; see `source-power-fit-validation.md`. Their finish and exact glyph fidelity remain unfinished.

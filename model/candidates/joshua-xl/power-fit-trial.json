@@ -1,0 +1,26 @@
+{
+  "Button_POWER": {
+    "triangles_before": 78,
+    "triangles_after": 4992,
+    "initial_regularization_mm": 0.009544395428488218,
+    "maximum_refinement_move_mm": 0.058655967494835544,
+    "extent_delta_mm": [
+      3.6525878908122422e-06,
+      -1.6210937481275778e-07,
+      0.0
+    ]
+  },
+  "Sourced graphite chassis": {
+    "triangles_before": 209604,
+    "triangles_after": 211732,
+    "initial_regularization_mm": 0.009781318814506139,
+    "maximum_refinement_move_mm": 0.06005535100136415,
+    "extent_delta_mm": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "upper_cap_to_chassis_min_mm": 0.06932926177978516,
+  "clearance_scope": "Unsigned nearest-surface upper-vertex probes, not a complete swept-solid collision test."
+}

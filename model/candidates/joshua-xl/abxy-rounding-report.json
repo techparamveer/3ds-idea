@@ -1,0 +1,58 @@
+[
+  {
+    "object": "Button_A",
+    "centre": [
+      0.11909485,
+      -4.53e-06
+    ],
+    "segments_before": 16,
+    "triangles_before": 78,
+    "triangles_after": 27136,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.0753919878813683,
+    "minimum_jacobian": 0.989386149702259,
+    "uv_layers": 1
+  },
+  {
+    "object": "Button_B",
+    "centre": [
+      0.11908913,
+      2.86e-06
+    ],
+    "segments_before": 16,
+    "triangles_before": 78,
+    "triangles_after": 27136,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.07539196366641747,
+    "minimum_jacobian": 0.9889168408119615,
+    "uv_layers": 1
+  },
+  {
+    "object": "Button_X",
+    "centre": [
+      -0.11907578,
+      4.8e-07
+    ],
+    "segments_before": 16,
+    "triangles_before": 78,
+    "triangles_after": 27136,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.07539201688302405,
+    "minimum_jacobian": 0.988962351885865,
+    "uv_layers": 1
+  },
+  {
+    "object": "Button_Y",
+    "centre": [
+      -0.11908531,
+      5.48e-06
+    ],
+    "segments_before": 16,
+    "triangles_before": 78,
+    "triangles_after": 27136,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.07539198029599582,
+    "minimum_jacobian": 0.9892026078998731,
+    "uv_layers": 1
+  }
+]

@@ -97,3 +97,5 @@ The local ZIP inspection already established encrypted HOME Menu content; see `f
 6. Continue the separate HOME Menu work using documented assets and verified typography. Keep content empty until the visual reconstruction is ready.
 
 Research is sufficient to identify these defects and direct the next pass. Exact local curves, port interiors and typeface outlines remain unresolved; this document does not declare the model finished.
+
+The ABXY outline pass is documented in `source-abxy-round-validation.md`. It reduces polygonal cap silhouettes without changing placement. Source bevel shading and hardware glyph fidelity remain unresolved.

@@ -21,3 +21,5 @@ The current power-indicator delivery pair is `silver-power-indicator.glb` and `s
 The rounded-cap checkpoint now uses `silver-abxy-rollover.glb` and `silver-abxy-rollover-web.glb` (104,638,084 bytes). Both independent pixel/payload checks pass. The editable file remains the PNG-based `silver-abxy-rollover.blend`.
 
 The current planar-print pair is `silver-abxy-print.glb` / `silver-abxy-print-web.glb` (105,244,372 bytes). It adds the 1024-pixel cap-print atlas and preserves the other decoded maps. Both independent packing checks pass. Continue editing `silver-abxy-print.blend`.
+
+The current pair is `silver-screen-backings.glb` / `silver-screen-backings-web.glb` (96,707,412 bytes). Removing the erroneous screen-atlas bindings eliminates two now-unused images from delivery. The pixel/payload verification remains relative to the new authoring GLB; retained material images also pass comparison against the preceding checkpoint. Continue editing `silver-screen-backings.blend`.

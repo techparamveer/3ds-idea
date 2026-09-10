@@ -234,3 +234,7 @@ Latest checkpoint: `silver-dock-contacts.blend` / `.glb`, with `silver-dock-cont
 ## Planar cap printing
 
 `silver-abxy-print.blend` and its PNG GLB follow the rounded-cap checkpoint. A 1024-pixel atlas supplies higher-resolution ABXY print on planar top faces, retaining source UVs for plastic maps. See `../../../docs/source-abxy-print-validation.md`. The website uses `silver-abxy-print-web.glb`.
+
+## Screen backing correction
+
+`silver-screen-backings.blend` and its PNG GLB follow the cap-print checkpoint. Both backing materials remove the incorrectly mapped shell AO/roughness atlas; native renders show unlit panels and the website provides the live displays. See `../../../docs/source-screen-backings-validation.md`. The delivery asset is `silver-screen-backings-web.glb`.

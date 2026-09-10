@@ -260,3 +260,5 @@ Current authoring checkpoint: `silver-lower-labels.blend` / PNG GLB. The public 
 Current authoring checkpoint: `silver-cover-profile.blend` / PNG GLB. Public delivery mirrors `silver-cover-profile-web.glb`. See `../../../docs/source-cover-profile-validation.md`. The source is silver-lower-labels; earlier checkpoints remain preserved.
 
 Current authoring checkpoint: `silver-sd-outline.blend` / PNG GLB. Public delivery mirrors `silver-sd-outline-web.glb`. See `../../../docs/source-sd-outline-validation.md`. Run the SD outline script only from silver-cover-profile; earlier checkpoints remain preserved.
+
+Current authoring checkpoint: `silver-cover-seam.blend` / PNG GLB. Public delivery mirrors `silver-cover-seam-web.glb`. See `../../../docs/source-cover-seam-validation.md`. Run the seam script only from silver-sd-outline; earlier checkpoints remain preserved.

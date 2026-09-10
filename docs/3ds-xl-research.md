@@ -133,3 +133,5 @@ The underside corner diagnostic (`underside-surface-diagnostic.md`) finds uneven
 The lower-cover radial profile refinement is exported and browser-checked in `source-cover-profile-validation.md`. It improves the silver roll; adjacent seam and SD-flap faceting remain distinct defects.
 
 The SD-flap ends and opening are now refined together, with source size limits preserved; see `source-sd-outline-validation.md`. The adjacent shell paint boundary is still a separate unresolved contour.
+
+The lower-cover corner seam is now rounded with four verified tangent-sign repairs; see `source-cover-seam-validation.md`. Port rims and small molded details remain separate fidelity limitations.

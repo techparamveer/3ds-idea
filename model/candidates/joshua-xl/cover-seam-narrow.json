@@ -1,0 +1,15 @@
+{
+  "source": "silver-sd-outline.glb",
+  "repaired_handedness_vertices": {
+    "602": 1.0,
+    "604": 1.0,
+    "607": 1.0,
+    "603": 1.0
+  },
+  "triangles_before": 212776,
+  "triangles_after": 221127,
+  "maximum_displacement_mm": 0.15155558599002228,
+  "vertices_moved": 4385,
+  "minimum_jacobian_determinant": 0.9897686322733977,
+  "status": "reversible trial, not exported"
+}

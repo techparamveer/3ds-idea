@@ -121,3 +121,5 @@ The original-XL reference is now compared with a fitted perspective camera and a
 Matched-camera lighting and upper-lid reflection trials are recorded in `reference-lighting-comparison.md`. All four are diagnostic/rejected; no global darkening or zero-specular material was promoted.
 
 The localized inner-lid reflection revision is documented in `source-lid-face-validation.md`.
+
+The lower-key flat-ink interpretation is now qualified by an independent grazing-angle photograph and reversible relief trials; see `lower-label-relief-comparison.md`. Dark colour is supported, but the shallow-relief and glyph-outline treatment remain unfinished.

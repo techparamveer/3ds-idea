@@ -1,0 +1,12 @@
+{
+  "source_checkpoint": "silver-lid-face.blend",
+  "reference_url": "https://dejiki.com/2013/07/nintendo-3ds-xl-review/",
+  "reference_image": "https://farm4.staticflickr.com/3665/9248853256_d8506f1f7a_z.jpg",
+  "depth_trials_mm": [
+    0,
+    0.02,
+    0.05
+  ],
+  "method": "Temporary inverted Bump driven by the photographic ink mask, layered over existing normal. Same camera and lighting for all trials.",
+  "limits": "Not calibrated depth. Low-resolution stencil remains; no geometry or public asset changes."
+}

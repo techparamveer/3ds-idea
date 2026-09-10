@@ -1,5 +1,7 @@
 # Photographic lower-key lettering — 10 September 2026
 
+Later evidence qualifies this pass’s flat-ink interpretation: see [the lower-label relief comparison](lower-label-relief-comparison.md). The photograph-derived shape remains useful, but the physical finish and clean outlines are not resolved.
+
 The latest homepage adds [smooth fitted MIC/POWER engraving](source-etched-validation.md) while retaining this lower-key pass.
 
 The preserved lower-key checkpoint uses `model/candidates/joshua-xl/silver-legends.glb`, mirrored at

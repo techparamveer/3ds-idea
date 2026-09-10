@@ -90,3 +90,9 @@ is 0.165 mm. Existing lower mating vertices and all other meshes/textures are
 retained. Reference-only physical scan comparison supports a rounded contour;
 no scan triangles are shipped and no manufacturer CAD accuracy is claimed.
 See docs/source-corners-validation.md.
+
+Additional modification: refined the silver lower-cover front corners with a
+fitted arc and retained the source upper chassis texture seam. Maximum vertex
+movement is 0.150 mm. All other meshes and texture images are preserved.
+This is an authored contour approximation, not manufacturer CAD.
+See docs/source-cover-validation.md.

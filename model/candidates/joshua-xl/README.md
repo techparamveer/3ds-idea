@@ -2,7 +2,7 @@
 
 The homepage now uses the fully textured silver derivative of this sourced
 original Nintendo 3DS XL. `DEFAULT_MODEL_URL` points to
-`/models/candidates/joshua-xl.glb`, the public mirror of `silver-corners.glb`.
+`/models/candidates/joshua-xl.glb`, the public mirror of `silver-cover.glb`.
 The `/source-preview` route uses the same sourced model. The directory name
 “candidates” is retained for continuity; this is no longer a textureless preview.
 The earlier procedural model files remain preserved.
@@ -15,7 +15,8 @@ Public attribution: `public/models/candidates/joshua-xl.LICENSE.txt`.
 
 | File or folder | Role |
 | --- | --- |
-| `silver-corners.blend` / `.glb` | Current rig with smoothed front lid corners and retained textures. |
+| `silver-cover.blend` / `.glb` | Current rig with smoother lower-cover corners; see `docs/source-cover-validation.md`. |
+| `silver-corners.blend` / `.glb` | Preserved smoothed front lid corners checkpoint. |
 | `silver-etched.blend` / `.glb` | Preserved smooth fitted MIC/POWER engraving checkpoint. |
 | `silver-legends.blend` / `.glb` | Preserved photographic lower-key ink and reflectance checkpoint. |
 | `silver-front.blend` / `.glb` | Preserved upper-bezel geometry checkpoint. |

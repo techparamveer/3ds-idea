@@ -1,6 +1,6 @@
 # Sourced lid front-corner refinement
 
-The active checkpoint is `model/candidates/joshua-xl/silver-corners.blend`; its adjacent GLB is mirrored to `public/models/candidates/joshua-xl.glb`. SHA-256: `888afda46926ef705dd2c830c857cd4fca374b5af9d49ff3fc0a2fe406a8941d`.
+This preserved checkpoint is `model/candidates/joshua-xl/silver-corners.blend`, followed by the [lower-cover refinement](source-cover-validation.md). Its adjacent GLB has SHA-256 `888afda46926ef705dd2c830c857cd4fca374b5af9d49ff3fc0a2fe406a8941d`.
 
 The preceding `silver-etched` lid still showed straight segments around its rounded front corners. This pass refines only the outer lid and fits a smooth arc to its existing contour. The maximum vertex movement is 0.164716 mm. The lower mating edge is held fixed, and the closed envelope remains 156 × 93 × 22 mm.
 

@@ -1,0 +1,14 @@
+{
+  "source_sha256": "888afda46926ef705dd2c830c857cd4fca374b5af9d49ff3fc0a2fe406a8941d",
+  "circle_center_relative_xy": [
+    64.28580567,
+    -33.54466014
+  ],
+  "radius_mm": 12.109781456066825,
+  "triangles_before": 45379,
+  "triangles_after": 56682,
+  "maximum_displacement_mm": 0.14952461877054765,
+  "minimum_jacobian_determinant": 0.9985552159921413,
+  "vertices_moved": 1369,
+  "interpretation": "Existing lower contour fitted smoothly. Upper chassis at and above 5.5 mm retained. No factory CAD claim."
+}

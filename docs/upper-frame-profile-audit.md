@@ -1,0 +1,17 @@
+# Upper frame profile audit
+
+This is an inspection of `silver-screen-backings.blend`; it does not change the shipping model. The preceding screen material fix removed unrelated atlas patterns, making the remaining surround shape easier to judge.
+
+The supplied image 3 and the [original-XL front photograph](https://cdn.mos.cms.futurecdn.net/0584727e6f39c0e334d6e9537772f9fa.jpg) show a distinct dark frame edge around the upper active display. They do not establish its elevation or an exact bevel profile. The [replacement-lens listing](https://www.zedlabz.com/products/replacement-top-screen-lens-plastic-cover-for-nintendo-3ds-xl-new-3ds-xl-with-adhesive-strips-black-zedlabz) corroborates a separate bordered cover, but is aftermarket evidence and cannot establish original factory geometry. New-XL-only image-search results were not used as original-XL shape evidence.
+
+`audit_sourced_front.py` now accepts current sourced checkpoints through their layout metadata and named anchors, rather than a stale filename allowlist. Its temporary lit display planes, 180° inspection pose, visibility and scene state are restored. The 180° view is diagnostic only; the website's 0–155° hinge range is unchanged.
+
+The current aperture audit confirms approximately 112 mm visible upper width, with the active 106.2 × 63.72 mm display unchanged. Lower visible width remains approximately 87.1 mm. See `screen-frame-current-aperture.json`, `screen-frame-current-planar.png` and `screen-frame-current-live-front.png` in the candidate directory. These aligned views expose the surround and active-area relationships without source boot artwork or HOME Menu content.
+
+`audit_upper_frame_profile.py` samples the actual inner-lid triangles at three horizontal cuts in hinge-local coordinates. In the sampled right-side surround, the surface is approximately Z = −1.2092 mm from X = 56.5 through 64 mm. The glass plane is approximately Z = −0.7609 mm, giving a recess around 0.4483 mm relative to that surrounding plastic. A smaller Z faces the lower controls when closed. The sampled plastic does not contain a separately raised frame there. These are measurements of this model, not Nintendo hardware.
+
+A rectangular study band extends outside the measured opening to half-width 57.5 mm and half-height 37.2 mm. Vertex probes give approximately 0.01677 mm minimum clearance over the circle pad, versus about 0.4655 mm over the sampled ABXY regions. Thus an added 0.1 mm raised band would intersect the current circle pad. The band is a conservative study region, not a proposed finished shape; the probe is not an exhaustive swept-solid collision test.
+
+Do not simply add a raised frame to this checkpoint. Resolve the frame cross-section and circle-pad clearance together, using stronger profile evidence or a coordinated source-geometry fit. Preserve the measured display footprint and verify closure after any change. The distinction between material edge, recessed lip and genuinely raised frame remains unresolved; photographs alone have not supplied its height.
+
+The diagnostic scripts compiled and ran through Blender MCP. Both new lit-area views were inspected. No model, material, animation or website asset was changed, so application tests/build were not repeated for this inspection.

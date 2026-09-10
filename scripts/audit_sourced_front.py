@@ -1,6 +1,6 @@
 """Measure visible glass, not its hidden backing, and render the live LCD footprint.
 
-Run through Blender MCP with silver-dimensions.blend or silver-front.blend open. Inspection only:
+Run through Blender MCP with a sourced rig checkpoint open. Inspection only:
 the temporary 180-degree pose is not an animation-range change. No blend/export
 is saved and all temporary geometry, visibility and animation state is restored.
 """
@@ -36,7 +36,8 @@ def runs(samples):
 def main(prefix='front-audit'):
     scene = bpy.context.scene
     root, hinge = scene.objects['3DS_XL'], scene.objects['Hinge']
-    assert Path(bpy.data.filepath).name in ('silver-dimensions.blend', 'silver-front.blend', 'silver-speakers.blend')
+    assert root.get('console_layout'), 'This diagnostic requires sourced display anchors.'
+    assert all(scene.objects.get(name) for name in ['Screen_Top', 'Screen_Bottom', 'DisplayAnchor_Top', 'DisplayAnchor_Bottom'])
     frame = scene.frame_current
     actions = [(o, o.animation_data.action) for o in (root, hinge)]
     matrices = [(o, o.matrix_basis.copy()) for o in (root, hinge)]

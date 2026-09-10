@@ -1,6 +1,8 @@
 # Original silver 3DS XL: research and reconstruction audit
 
-The current [rounded camera rim](source-camera-round-validation.md) smooths the sourced opening and insert.
+The current [outer-camera optical finish](source-outer-optics-validation.md) restores optical centres on the two exterior inserts.
+
+The preceding [rounded camera rim](source-camera-round-validation.md) smooths the sourced opening and insert.
 
 The preceding [inner-camera finish](source-camera-validation.md) separates optical material from the shared screen material.
 

@@ -1,0 +1,190 @@
+{
+  "patch_centers_pixels": {
+    "lid_left": [
+      600,
+      200
+    ],
+    "lid_right": [
+      1240,
+      200
+    ],
+    "pad": [
+      591,
+      590
+    ],
+    "deck_right": [
+      1250,
+      720
+    ],
+    "deck_left": [
+      565,
+      745
+    ]
+  },
+  "patch_size_pixels": 11,
+  "median_srgb_bytes": {
+    "reference": {
+      "lid_left": [
+        56.0,
+        56.0,
+        56.0
+      ],
+      "lid_right": [
+        42.0,
+        42.0,
+        42.0
+      ],
+      "pad": [
+        129.0,
+        131.0,
+        130.0
+      ],
+      "deck_right": [
+        48.0,
+        48.0,
+        48.0
+      ],
+      "deck_left": [
+        77.0,
+        78.0,
+        80.0
+      ]
+    },
+    "reference-lit": {
+      "lid_left": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "lid_right": [
+        81.0,
+        81.0,
+        81.0
+      ],
+      "pad": [
+        138.0,
+        138.0,
+        138.0
+      ],
+      "deck_right": [
+        79.0,
+        79.0,
+        79.0
+      ],
+      "deck_left": [
+        76.0,
+        76.0,
+        76.0
+      ]
+    },
+    "reference-reduced-fill-lit": {
+      "lid_left": [
+        94.0,
+        94.0,
+        94.0
+      ],
+      "lid_right": [
+        58.0,
+        58.0,
+        58.0
+      ],
+      "pad": [
+        131.0,
+        131.0,
+        131.0
+      ],
+      "deck_right": [
+        55.0,
+        55.0,
+        55.0
+      ],
+      "deck_left": [
+        71.0,
+        70.0,
+        70.0
+      ]
+    },
+    "reference-off-axis-lit": {
+      "lid_left": [
+        88.0,
+        88.0,
+        88.0
+      ],
+      "lid_right": [
+        97.0,
+        97.0,
+        97.0
+      ],
+      "pad": [
+        153.0,
+        153.0,
+        153.0
+      ],
+      "deck_right": [
+        100.0,
+        99.0,
+        99.0
+      ],
+      "deck_left": [
+        99.0,
+        99.0,
+        99.0
+      ]
+    },
+    "reference-lid-no-specular-lit": {
+      "lid_left": [
+        54.0,
+        53.0,
+        53.0
+      ],
+      "lid_right": [
+        51.0,
+        50.0,
+        50.0
+      ],
+      "pad": [
+        138.0,
+        138.0,
+        138.0
+      ],
+      "deck_right": [
+        79.0,
+        79.0,
+        79.0
+      ],
+      "deck_left": [
+        76.0,
+        76.0,
+        76.0
+      ]
+    },
+    "reference-lid-roughness-lit": {
+      "lid_left": [
+        145.0,
+        145.0,
+        145.0
+      ],
+      "lid_right": [
+        64.0,
+        64.0,
+        64.0
+      ],
+      "pad": [
+        138.0,
+        138.0,
+        138.0
+      ],
+      "deck_right": [
+        79.0,
+        79.0,
+        79.0
+      ],
+      "deck_left": [
+        76.0,
+        76.0,
+        76.0
+      ]
+    }
+  },
+  "limits": "Matched image-space diagnostic. Promotional grading, lighting, local projection differences and renderer colour management are not calibrated. These values cannot establish physical albedo, IOR or roughness."
+}

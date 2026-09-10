@@ -5,7 +5,7 @@ import bpy
 from mathutils import Vector
 import render_sourced_dimensions as renderer
 FOLDER=Path(__file__).resolve().parents[1]/'model/candidates/joshua-xl'
-def main():
+def main(prefix='reference',light_offsets=None):
     assert Path(bpy.data.filepath).name=='silver-upper-width.blend'
     report=json.loads((FOLDER/'reference-camera-fit.json').read_text());scene=bpy.context.scene;cam=scene.camera
     root,hinge=scene.objects['3DS_XL'],scene.objects['Hinge']
@@ -18,7 +18,7 @@ def main():
         cam.data.sensor_width=36;cam.data.sensor_fit='HORIZONTAL';cam.data.shift_x=(width/2-cx)/width;cam.data.shift_y=(cy-height/2)/width
         importlib.reload(renderer)
         renderer.VIEWS=[('matched',-report['hinge_open_degrees'],report['camera_mm'],(report['camera_mm'][0],0,0),280,0)]
-        renderer.main('reference-dark',resolution=(width,height),perspective_lens=report['lens_mm'])
+        renderer.main(prefix+'-dark',resolution=(width,height),perspective_lens=report['lens_mm'],light_offsets=light_offsets)
         for o,_ in hidden:o.hide_render=True
         mat=bpy.data.materials.new('Reference diagnostic white LCD');mat.use_nodes=True;nodes=mat.node_tree.nodes;nodes.clear()
         out=nodes.new('ShaderNodeOutputMaterial');emit=nodes.new('ShaderNodeEmission');emit.inputs['Color'].default_value=(.8,.8,.8,1);mat.node_tree.links.new(emit.outputs[0],out.inputs['Surface'])
@@ -26,7 +26,7 @@ def main():
             anchor=scene.objects['DisplayAnchor_'+suffix];w,h=anchor['active_display_mm']
             mesh=bpy.data.meshes.new('Reference LCD footprint');mesh.from_pydata([(-w/2,-h/2,0),(w/2,-h/2,0),(w/2,h/2,0),(-w/2,h/2,0)],[],[(0,1,2,3)])
             o=bpy.data.objects.new('Reference LCD '+suffix,mesh);scene.collection.objects.link(o);o.parent=anchor;o.rotation_euler.x=math.pi/2 if suffix=='Bottom' else -math.pi/2;o.data.materials.append(mat);temporary.append(o)
-        renderer.main('reference-lit',resolution=(width,height),perspective_lens=report['lens_mm'])
+        renderer.main(prefix+'-lit',resolution=(width,height),perspective_lens=report['lens_mm'],light_offsets=light_offsets)
     finally:
         for o,hide in hidden:o.hide_render=hide
         for o in temporary:

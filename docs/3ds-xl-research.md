@@ -117,3 +117,5 @@ A later whole-shell calibration challenges the earlier 112 mm upper-opening fit;
 The 115 mm upper-opening revision now has export and clearance verification; see `source-upper-width-validation.md`. This supersedes the earlier 112 mm horizontal-opening fit without changing active LCD dimensions.
 
 The original-XL reference is now compared with a fitted perspective camera and approximately 133° diagnostic hinge pose; see `reference-camera-comparison.md`. The website range stays 0–155°. This avoids using unmatched camera foreshortening as evidence of incorrect geometry.
+
+Matched-camera lighting and upper-lid reflection trials are recorded in `reference-lighting-comparison.md`. All four are diagnostic/rejected; no global darkening or zero-specular material was promoted.

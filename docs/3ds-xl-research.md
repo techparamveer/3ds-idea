@@ -1,6 +1,8 @@
 # Original silver 3DS XL: research and reconstruction audit
 
-The current [outer-camera rim refinement](source-outer-round-validation.md) rounds the housings and adjacent openings.
+The current [front hinge finish](source-hinge-finish-validation.md) restores a narrower barrel reflection.
+
+The preceding [outer-camera rim refinement](source-outer-round-validation.md) rounds the housings and adjacent openings.
 
 The preceding [outer-camera optical finish](source-outer-optics-validation.md) restores optical centres on the two exterior inserts.
 

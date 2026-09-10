@@ -1,0 +1,11 @@
+{
+  "changed_pixels": 579398,
+  "outside_mask_changes": 0,
+  "shared_uv_conflicts": 0,
+  "red_blue_unchanged": true,
+  "sha256": "6d23511f00ac3c4f3b702f19553203a131015232007e174c8f35a47ff24722c2",
+  "local_y_transition_mm": [
+    -7.4,
+    -6.4
+  ]
+}

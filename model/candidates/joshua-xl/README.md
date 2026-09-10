@@ -1,3 +1,7 @@
+# Current hinge finish
+
+`silver-hinge-finish.blend` / `silver-hinge-finish.glb` follow `silver-outer-round`. See `docs/source-hinge-finish-validation.md` and `scripts/install_hinge_roughness.py`.
+
 # Current rounded outer cameras
 
 `silver-outer-round.blend` / `silver-outer-round.glb` follow `silver-outer-optics`. See `docs/source-outer-round-validation.md` and `scripts/round_outer_cameras.py`.

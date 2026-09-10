@@ -1,0 +1,24 @@
+"""Install the bounded hinge texture on the existing inner-lid material."""
+from pathlib import Path
+import json
+import bpy
+import texture_sourced_model as exporter
+import curve_sourced_shell as frames
+FOLDER=Path(__file__).resolve().parents[1]/'model/candidates/joshua-xl'
+
+def main():
+    assert Path(bpy.data.filepath).name=='silver-outer-round.blend'
+    mat=bpy.data.objects['Sourced inner lid'].active_material
+    assert mat.users==1
+    nodes=[n for n in mat.node_tree.nodes if n.type=='TEX_IMAGE' and n.image and Path(n.image.filepath).name=='body-graphite-metallic-roughness.png']
+    assert len(nodes)==1
+    image=bpy.data.images.load(str(FOLDER/'derived-textures/body-hinge-metallic-roughness.png'),check_existing=False)
+    image.colorspace_settings.name='Non-Color';image.pack();nodes[0].image=image
+    root=bpy.data.objects['3DS_XL'];hinge=bpy.data.objects['Hinge']
+    root['hinge_roughness']=json.dumps(json.loads((FOLDER/'hinge-roughness-report.json').read_text()))
+    root['source_changes']+=' Restored bounded source roughness on the inner-lid hinge barrel; inner surround, geometry and all other maps retained.'
+    bpy.ops.wm.save_as_mainfile(filepath=str(FOLDER/'silver-hinge-finish.blend'))
+    exporter.export_static(root,hinge,FOLDER/'silver-hinge-finish.glb',restore_frames=False,export_attributes=True)
+    frames.restore_export_frames(FOLDER/'silver-hinge-finish.glb')
+
+if __name__=='__main__':main()

@@ -1,3 +1,7 @@
+# Current rounded outer cameras
+
+`silver-outer-round.blend` / `silver-outer-round.glb` follow `silver-outer-optics`. See `docs/source-outer-round-validation.md` and `scripts/round_outer_cameras.py`.
+
 # Current outer-camera finish
 
 `silver-outer-optics.blend` / `silver-outer-optics.glb` follow `silver-camera-round`. See `docs/source-outer-optics-validation.md` and `scripts/finish_outer_cameras.py`.

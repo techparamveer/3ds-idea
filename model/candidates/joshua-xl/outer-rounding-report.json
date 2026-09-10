@@ -1,0 +1,86 @@
+[
+  {
+    "object": "Sourced outer lid",
+    "centre": [
+      [
+        -17.75168,
+        -80.82915
+      ],
+      [
+        17.75168,
+        -80.82915
+      ]
+    ],
+    "segments_before": 16,
+    "triangles_before": 44054,
+    "triangles_after": 73298,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.08837743402525504,
+    "minimum_jacobian": 0.8355578878170482,
+    "uv_layers": 1
+  },
+  {
+    "object": "Source_0_part_13",
+    "centre": [
+      [
+        17.75168,
+        -80.82915
+      ]
+    ],
+    "segments_before": 16,
+    "triangles_before": 128,
+    "triangles_after": 29696,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.0792542397183373,
+    "minimum_jacobian": 1.0000876512660621,
+    "uv_layers": 1
+  },
+  {
+    "object": "Source_0_part_14",
+    "centre": [
+      [
+        -17.75168,
+        -80.82915
+      ]
+    ],
+    "segments_before": 16,
+    "triangles_before": 128,
+    "triangles_after": 29696,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.0792542397183373,
+    "minimum_jacobian": 1.0000559637539057,
+    "uv_layers": 1
+  },
+  {
+    "object": "Source_2_part_00",
+    "centre": [
+      [
+        -17.76724,
+        -80.249187
+      ]
+    ],
+    "segments_before": 20,
+    "triangles_before": 80,
+    "triangles_after": 8160,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.027735859922968734,
+    "minimum_jacobian": 1.0000350479770788,
+    "uv_layers": 2
+  },
+  {
+    "object": "Source_2_part_01",
+    "centre": [
+      [
+        17.76724,
+        -80.249187
+      ]
+    ],
+    "segments_before": 20,
+    "triangles_before": 80,
+    "triangles_after": 8160,
+    "initial_correction_mm": 0.0,
+    "maximum_refinement_displacement_mm": 0.02773588603700678,
+    "minimum_jacobian": 1.0000350479397753,
+    "uv_layers": 2
+  }
+]

@@ -1,0 +1,393 @@
+{
+  "source_sha256": "c742ebbe2706ce6e983efc21039ecdde2f92b9609d37f4923fb66ac3d9229312",
+  "parameters": {
+    "target_closed_xyz_mm": [
+      156,
+      93,
+      22
+    ],
+    "depth_margin_transition_abs_y_mm": [
+      24.5,
+      32.5
+    ],
+    "rear_hinge_transition_y_mm": [
+      31.9,
+      34.2
+    ],
+    "base_hinge_transition_z_mm": [
+      9.5,
+      11
+    ],
+    "outer_lid_transition_z_mm": [
+      17,
+      21.5
+    ],
+    "specification": "https://www.nintendo.co.jp/hardware/3dsseries/3dsll/index.html",
+    "interpretation": "Published overall envelope. Local transition choices are authored; no manufacturer CAD claim. Inner contact face, control shapes and active display dimensions are preserved."
+  },
+  "objects": [
+    {
+      "name": "Button_A",
+      "rigid": true,
+      "maximum_displacement_mm": 0.0
+    },
+    {
+      "name": "Button_B",
+      "rigid": true,
+      "maximum_displacement_mm": 0.0
+    },
+    {
+      "name": "Button_Circle",
+      "rigid": true,
+      "maximum_displacement_mm": 0.0
+    },
+    {
+      "name": "Button_Dpad",
+      "rigid": true,
+      "maximum_displacement_mm": 0.0
+    },
+    {
+      "name": "Button_HOME",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Button_L",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Button_POWER",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Button_R",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Button_SELECT",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Button_START",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Button_X",
+      "rigid": true,
+      "maximum_displacement_mm": 0.0
+    },
+    {
+      "name": "Button_Y",
+      "rigid": true,
+      "maximum_displacement_mm": 0.0
+    },
+    {
+      "name": "Screen_Bottom",
+      "rigid": false,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_02",
+      "rigid": false,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_09",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_10",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_11",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_12",
+      "rigid": true,
+      "maximum_displacement_mm": 0.0
+    },
+    {
+      "name": "Source_0_part_15",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_16",
+      "rigid": false,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_17",
+      "rigid": false,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_19",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_20",
+      "rigid": false,
+      "maximum_displacement_mm": 0.29857805484438316
+    },
+    {
+      "name": "Source_0_part_22",
+      "rigid": false,
+      "maximum_displacement_mm": 0.000812358038096761
+    },
+    {
+      "name": "Source_0_part_23",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_24",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_30",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_32",
+      "rigid": false,
+      "maximum_displacement_mm": 0.3012787915151449
+    },
+    {
+      "name": "Source_0_part_33",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_34",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_38",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_39",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_40",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_41",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_48",
+      "rigid": false,
+      "maximum_displacement_mm": 0.3016662598408296
+    },
+    {
+      "name": "Source_0_part_49",
+      "rigid": false,
+      "maximum_displacement_mm": 0.3016662598408296
+    },
+    {
+      "name": "Source_0_part_51",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_52",
+      "rigid": false,
+      "maximum_displacement_mm": 0.2995560964513248
+    },
+    {
+      "name": "Source_0_part_53",
+      "rigid": true,
+      "maximum_displacement_mm": 0.36504644006933595
+    },
+    {
+      "name": "Source_0_part_54",
+      "rigid": true,
+      "maximum_displacement_mm": 0.04505463121463649
+    },
+    {
+      "name": "Source_0_part_55",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_56",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_57",
+      "rigid": false,
+      "maximum_displacement_mm": 0.30166649331019885
+    },
+    {
+      "name": "Source_1_part_00",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_1_part_03",
+      "rigid": false,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Sourced graphite chassis",
+      "rigid": false,
+      "maximum_displacement_mm": 0.36504644006933595
+    },
+    {
+      "name": "Screen_Top",
+      "rigid": false,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_07",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_08",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_13",
+      "rigid": false,
+      "maximum_displacement_mm": 0.36504644006933595
+    },
+    {
+      "name": "Source_0_part_14",
+      "rigid": false,
+      "maximum_displacement_mm": 0.36504644006933595
+    },
+    {
+      "name": "Source_0_part_21",
+      "rigid": false,
+      "maximum_displacement_mm": 0.03975038909466733
+    },
+    {
+      "name": "Source_0_part_31",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_0_part_35",
+      "rigid": false,
+      "maximum_displacement_mm": 0.3025888998090192
+    },
+    {
+      "name": "Source_0_part_36",
+      "rigid": false,
+      "maximum_displacement_mm": 0.35461983258139923
+    },
+    {
+      "name": "Source_0_part_37",
+      "rigid": false,
+      "maximum_displacement_mm": 0.35461983258139923
+    },
+    {
+      "name": "Source_0_part_42",
+      "rigid": false,
+      "maximum_displacement_mm": 0.3639670367921598
+    },
+    {
+      "name": "Source_0_part_43",
+      "rigid": false,
+      "maximum_displacement_mm": 0.3639670367921598
+    },
+    {
+      "name": "Source_0_part_47",
+      "rigid": false,
+      "maximum_displacement_mm": 0.04577557396982357
+    },
+    {
+      "name": "Source_0_part_50",
+      "rigid": false,
+      "maximum_displacement_mm": 0.36304473680709204
+    },
+    {
+      "name": "Source_1_part_01",
+      "rigid": true,
+      "maximum_displacement_mm": 0.0
+    },
+    {
+      "name": "Source_1_part_02",
+      "rigid": true,
+      "maximum_displacement_mm": 0.0
+    },
+    {
+      "name": "Source_1_part_04",
+      "rigid": false,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_2_part_00",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_2_part_01",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Source_2_part_02",
+      "rigid": true,
+      "maximum_displacement_mm": 0.301666259765625
+    },
+    {
+      "name": "Sourced inner lid",
+      "rigid": false,
+      "maximum_displacement_mm": 0.36504644006933595
+    },
+    {
+      "name": "Sourced outer lid",
+      "rigid": false,
+      "maximum_displacement_mm": 0.36504644006933595
+    }
+  ],
+  "before_closed_xyz_mm": [
+    156.0,
+    92.39666748046875,
+    22.20556354522705
+  ],
+  "margin_extension_mm": 0.301666259765625,
+  "outer_height_reduction_mm": 0.20556354522705078,
+  "hinge_before_mm": [
+    -0.2103884369134903,
+    39.80546951293945,
+    16.837026596069336
+  ],
+  "after_closed_xyz_mm": [
+    156.0,
+    93.0,
+    22.0
+  ],
+  "hinge_after_mm": [
+    -0.2103884369134903,
+    40.10713577270508,
+    16.63146209716797
+  ],
+  "total_triangles": 122402
+}

@@ -77,7 +77,7 @@ def deform(points, normals, tangents, kind):
     return result, changed_n, changed_t
 
 
-def refine(positions, normals, tangents, uvs, faces, kind):
+def refine(positions, normals, tangents, uvs, faces, kind, *, edge_filter=None):
     """Conforming shared-edge bisection; no Catmull-Clark shrink or UV re-unwrap."""
     values = [np.r_[p, n, t, uv] for p, n, t, uv in zip(positions, normals, tangents, uvs)]
     faces = [tuple(map(int, f)) for f in faces]
@@ -86,7 +86,8 @@ def refine(positions, normals, tangents, uvs, faces, kind):
         for a, b, c in faces:
             for i, j in [(a, b), (b, c), (c, a)]:
                 p, q = values[i][:3], values[j][:3]
-                affected = kind == 'lid' or min(p[2], q[2]) < PARAMETERS['base']['z_gate'][1]
+                affected = edge_filter(p, q) if edge_filter is not None else (
+                    kind == 'lid' or min(p[2], q[2]) < PARAMETERS['base']['z_gate'][1])
                 if affected and np.linalg.norm(p-q) > PARAMETERS['maximum_edge_mm']:
                     edges.add(tuple(sorted((i, j))))
         if not edges:

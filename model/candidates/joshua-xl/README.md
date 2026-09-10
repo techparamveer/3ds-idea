@@ -2,7 +2,7 @@
 
 The homepage now uses the fully textured silver derivative of this sourced
 original Nintendo 3DS XL. `DEFAULT_MODEL_URL` points to
-`/models/candidates/joshua-xl.glb`, the public mirror of `silver-eur.glb`.
+`/models/candidates/joshua-xl.glb`, the public mirror of `silver-dimensions.glb`.
 The `/source-preview` route uses the same sourced model. The directory name
 “candidates” is retained for continuity; this is no longer a textureless preview.
 The earlier procedural model files remain preserved.
@@ -15,7 +15,8 @@ Public attribution: `public/models/candidates/joshua-xl.LICENSE.txt`.
 
 | File or folder | Role |
 | --- | --- |
-| `silver-eur.blend` / `.glb` | Current editable rig and static closed export, with photographic EUR underside artwork. |
+| `silver-dimensions.blend` / `.glb` | Current editable rig and static closed export, matching the published closed envelope while retaining controls and contact clearances. |
+| `silver-eur.blend` / `.glb` | Preserved photographic EUR underside artwork checkpoint before size correction. |
 | `silver-grain.blend` / `.glb` | Preserved curved-shell checkpoint with baked fine paint grain, before EUR artwork. |
 | `silver-curved.blend` / `.glb` | Preserved geometry checkpoint adding shallow broad shell curvature measured from an original-XL reference scan. |
 | `silver-source.blend` / `.glb` | Preserved silver baseline before curvature, with original source normal/tangent frames restored after export. |
@@ -70,6 +71,12 @@ regional artwork. The complete geometry, rig and maps outside the edit mask are
 unchanged. See `docs/source-eur-validation.md` for provenance, matched views,
 pixel audits and lettering-resolution limits.
 
+The current dimension pass then matches the published 156 × 93 × 22 mm closed
+envelope. It adds local mesh support on the inner lid and rear connector,
+bringing the whole model to 122,402 triangles. Control arrays, all seven images,
+inner contact clearances and active LCD dimensions remain intact. See
+`docs/source-dimensions-validation.md` for the independent tests and matched views.
+
 The two baked boot-artwork meshes remain in the source geometry but are hidden
 at runtime in favour of live displays. Browser checks confirmed A/B, D-pad,
 touch selection, HOME and lid close/reopen, with VGPU ready. Tests also cover
@@ -110,6 +117,12 @@ passes save `silver-eur.blend` / `.glb`. Run `scripts/audit_eur_atlas.py` for th
 decoded-pixel audit and mirror the export plus its new EUR paint mask only after
 verification. The plate report records the required ignored photographic inputs.
 
+From `silver-eur.blend`, `scripts/fit_sourced_dimensions.py` produces the current
+`silver-dimensions.blend` / `.glb`. It uses local margin and outer-cover
+corrections, preserves the inner contact face, and moves both hinge sections
+together. `scripts/render_sourced_dimensions.py` captures six matched views.
+The existing EUR paint mask stays current because no material images change.
+
 For earlier pipeline stages, `analyze_sourced_rig.py` performs the read-only
 component audit; `rig_sourced_model.py` constructs the rig from
 `geometry-inspection.blend`; `anchor_sourced_displays.py` adds the initial display
@@ -121,13 +134,12 @@ the new export before refreshing the homepage GLB and its paint-mask mirror.
 
 ## Remaining fidelity work
 
-The closed envelope measures **156 × 92.397 × 22.206 mm**, compared with Nintendo's
-156 × 93 × 22 mm. The width and depth are unchanged from the source baseline.
-The outer lid and underside now have shallow broad curvature in addition to
-their existing rolled edges. This is supported by Wesk's physical original-XL
-scan, not manufacturer CAD. It does not establish exact identity to the user's
-unit. Matched native inspection views are `curved-open.png`, `curved-closed.png`
-and `curved-underside.png`; the previous `silver-*.png` renders are preserved.
+The closed envelope now measures **156 × 93 × 22 mm**. This resolves the
+previous 0.603 mm depth and 0.206 mm thickness differences, but does not prove
+all local proportions. The outer lid and underside retain their shallow broad
+curvature, informed by Wesk's physical original-XL scan. Matched current views
+are `dimensions-before-*.png` and `dimensions-after-*.png`; earlier renders and
+checkpoints remain preserved.
 
 The original USA underside artwork has been replaced with the user's
 SPR-001(EUR) layout, photographic symbols and serial-label ink. Capture resolution

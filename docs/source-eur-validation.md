@@ -1,5 +1,7 @@
 # EUR underside artwork — 10 September 2026
 
+Current update: [the published-envelope correction](source-dimensions-validation.md) is now active. This record describes its preserved preceding checkpoint.
+
 The active editable model is `model/candidates/joshua-xl/silver-eur.blend`.
 Its verified closed export is mirrored at `public/models/candidates/joshua-xl.glb`.
 This pass replaces the sourced USA underside artwork with the user's EUR layout,

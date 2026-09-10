@@ -46,13 +46,18 @@ Additional modifications, 10 September 2026:
   The photographic references are not represented as CC BY-licensed source
   material; the model author attribution above remains attached to this asset.
 
+- Subsequently matched the published 156 x 93 x 22 mm closed envelope with
+  local margin/outer-cover corrections and a shared hinge translation. Refined
+  inner-lid/rear-connector geometry brings the whole model to 122,402 triangles.
+  Original controls, contact clearances and all seven image payloads are retained.
+  See docs/source-dimensions-validation.md for the scope and evidence.
+
 This public GLB is the fully textured silver model used by the portfolio
-homepage, derived from model/candidates/joshua-xl/silver-eur.blend. It is not
+homepage, derived from model/candidates/joshua-xl/silver-dimensions.blend. It is not
 the earlier textureless inspection preview. The original red source, its images
 and the earlier procedural model remain preserved separately.
 
-Known differences: the closed envelope is approximately 156 x 92.397 x 22.206 mm;
-EUR artwork is photographic, with limited fine-detail resolution and
+The closed envelope is now 156 x 93 x 22 mm. Remaining differences: EUR artwork is photographic, with limited fine-detail resolution and
 unverified barcode encoding; live displays use Nintendo's published active sizes but their placement
 within the source glass remains provisional. The silver colour is an authored
 adaptation, not a manufacturer measurement. Exact visual identity is not claimed.

@@ -17,8 +17,8 @@ The user has rejected the current visual fidelity. Existing geometry checks prov
 
 ## Working context
 
-- `model/candidates/joshua-xl/silver-eur.blend`: active editable sourced rig. See `docs/source-eur-validation.md` for the photographic underside artwork and its limits, plus the earlier curvature and paint-grain comparisons. Earlier checkpoints are preserved. The adjacent README describes the sequential pipeline; do not run an earlier pass against the current file indiscriminately. Curved exports use the carried frame attributes, not the original geometry-matching tangent restorer.
-- `public/models/candidates/joshua-xl.glb`: active browser asset; mirror the verified `silver-eur.glb` and `joshua-xl-eur-paint-mask.png` after Blender changes. Source credit is in the adjacent licence file.
+- `model/candidates/joshua-xl/silver-dimensions.blend`: active editable sourced rig. See `docs/source-dimensions-validation.md` for the verified closed envelope and preserved clearances, plus `docs/source-eur-validation.md` for the artwork and its limits. Earlier checkpoints are preserved. The adjacent README describes the sequential pipeline; do not run an earlier pass against the current file indiscriminately. Curved exports use the carried frame attributes, not the original geometry-matching tangent restorer.
+- `public/models/candidates/joshua-xl.glb`: active browser asset; mirror the verified `silver-dimensions.glb` and `joshua-xl-eur-paint-mask.png` after Blender changes. Source credit is in the adjacent licence file.
 - `model/silver-3ds-xl.blend` and `public/models/silver-3ds-xl.glb`: preserved earlier procedural model. Its dimension tests do not validate the sourced replacement.
 - `src/scene/`: Three.js scene and VGPU material generation.
 - `src/os/`: current plain HOME Menu approximation; actual firmware assets are still pending.

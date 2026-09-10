@@ -38,6 +38,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const displayMaterial=(texture:THREE.Texture,roughness:number)=>new THREE.MeshPhysicalMaterial({
     color:0x080b0e,metalness:0,roughness,ior:1.46,specularIntensity:.35,envMapIntensity:.65,
     emissive:0xffffff,emissiveMap:texture,emissiveIntensity:.97,toneMapped:false,
+    // The live panel is only .02 mm ahead of the source glass. Bias raster depth
+    // so that precision at oblique views cannot make the two surfaces flicker.
+    polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2,
   });
   const topMat=displayMaterial(topTexture,.18);
   const bottomMat=displayMaterial(bottomTexture,.26);

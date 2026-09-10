@@ -1,10 +1,10 @@
 # Sourced shell curvature — 10 September 2026
 
-Current update: the homepage now serves [silver-eur](source-eur-validation.md), retaining the geometry measured below while adding paint grain and regional artwork.
+Current update: [the published-envelope correction](source-dimensions-validation.md) is now active. This record describes its preserved preceding checkpoint.
 
-The current material pass adds [baked fine paint grain](source-paint-grain-validation.md)
-to this geometry and is saved as `silver-grain.blend` / `.glb`. The measurements
-and geometry verification below remain unchanged.
+Later material passes added [fine paint grain](source-paint-grain-validation.md)
+and [EUR artwork](source-eur-validation.md) to this geometry before the current
+dimension correction. The measurements below record the curvature checkpoint.
 
 The active downloaded-model derivative now has shallow broad curvature on its
 outer lid and underside. It preserves the existing rolled edges, paint artwork,

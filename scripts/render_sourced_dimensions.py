@@ -15,7 +15,7 @@ VIEWS = [
 ]
 
 
-def main(prefix='dimensions-before', only=None, resolution=(1000, 750)):
+def main(prefix='dimensions-before', only=None, resolution=(1000, 750), perspective_lens=None):
     scene = bpy.context.scene
     root, hinge, camera = scene.objects['3DS_XL'], scene.objects['Hinge'], scene.camera
     frame = scene.frame_current
@@ -25,7 +25,7 @@ def main(prefix='dimensions-before', only=None, resolution=(1000, 750)):
     settings = (scene.render.engine, scene.cycles.samples, scene.cycles.device,
                 scene.render.resolution_x, scene.render.resolution_y,
                 scene.render.resolution_percentage, scene.render.filepath,
-                camera.data.type, camera.data.ortho_scale)
+                camera.data.type, camera.data.ortho_scale, camera.data.lens)
     try:
         for o, _ in actions:
             o.animation_data.action = None
@@ -35,7 +35,9 @@ def main(prefix='dimensions-before', only=None, resolution=(1000, 750)):
         scene.cycles.samples = 12
         scene.render.resolution_x, scene.render.resolution_y = resolution
         scene.render.resolution_percentage = 100
-        camera.data.type = 'ORTHO'
+        camera.data.type = 'PERSP' if perspective_lens is not None else 'ORTHO'
+        if perspective_lens is not None:
+            camera.data.lens = perspective_lens
         for name, angle, location, target, scale, roll in VIEWS:
             if only is not None and name not in only:
                 continue
@@ -61,7 +63,7 @@ def main(prefix='dimensions-before', only=None, resolution=(1000, 750)):
         (scene.render.engine, scene.cycles.samples, scene.cycles.device,
          scene.render.resolution_x, scene.render.resolution_y,
          scene.render.resolution_percentage, scene.render.filepath,
-         camera.data.type, camera.data.ortho_scale) = settings
+         camera.data.type, camera.data.ortho_scale, camera.data.lens) = settings
         bpy.context.view_layer.update()
 
 

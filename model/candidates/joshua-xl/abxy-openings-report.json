@@ -1,0 +1,27 @@
+{
+  "centres": [
+    [
+      68.47909546,
+      9.27863503
+    ],
+    [
+      60.73775864,
+      1.53730619
+    ],
+    [
+      60.73777008,
+      17.01997185
+    ],
+    [
+      52.99642944,
+      9.27864456
+    ]
+  ],
+  "radius_mm": 4.0155,
+  "initial_regularization_mm": 0.14588359838367626,
+  "refinement_displacement_mm": 0.07715670654083387,
+  "minimum_jacobian": 0.9999999999952287,
+  "triangles_before": 74676,
+  "triangles_after": 108276,
+  "source_frames": "interpolated and retained"
+}

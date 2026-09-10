@@ -212,3 +212,5 @@ Latest checkpoint: `silver-abxy-round.blend` / `.glb`, following `silver-hinge-f
 Latest material checkpoint: `silver-abxy-finish.blend` / `.glb`, following `silver-abxy-round`. Run `build_abxy_roughness.py` then `install_abxy_finish.py` against its declared starting file. See `docs/source-abxy-finish-validation.md` for the isolated cap material and remaining limits.
 
 Latest ink checkpoint: `silver-abxy-ink.blend` / `.glb`, following `silver-abxy-finish`. Run `build_abxy_ink.py`, optionally preview with `inspect_abxy_ink.py`, then `install_abxy_ink.py` against its declared starting file. The UV calibration is saved in `abxy-glyph-uv-fit.json`. Read `docs/source-abxy-ink-validation.md`; these glyphs are photographic approximations, not a verified factory font.
+
+Latest geometry checkpoint: `silver-abxy-openings.blend` / `.glb`, following `silver-abxy-ink`. `round_abxy_openings.py` rounds the four deck apertures at their existing centres and preserves the remainder of the source. See `docs/source-abxy-openings-validation.md`.

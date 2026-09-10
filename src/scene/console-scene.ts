@@ -191,6 +191,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=2*Math.atan(Math.tan(33*RAD/2)*Math.max(1,1.04/(w/h)))/RAD;camera.updateProjectionMatrix();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
   host.addEventListener('pointerdown',pointerDown);host.addEventListener('pointermove',pointerMove);host.addEventListener('pointerup',pointerUp);host.addEventListener('pointercancel',pointerCancel);host.addEventListener('keydown',keydown);host.addEventListener('keyup',keyup);host.addEventListener('blur',blur);host.addEventListener('wheel',wheel,{passive:false});motionPreference.addEventListener('change',motionChanged);
+  // Enable keyboard play on first load without taking focus from another control.
+  if(document.activeElement===document.body)host.focus({preventScroll:true});
   function animate(now:number){
     if(disposed)return;const dt=Math.min((now-last)/1000,.05);last=now;const elapsed=(now-start)/1000;
     if(intro){const pose=sampleIntroPose(elapsed);yaw=pose.yaw;angle=pose.angle;if(pose.done){intro=false;targetYaw=REST_YAW;angle=targetAngle=MAX_LID_DEGREES;}}

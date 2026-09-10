@@ -1,3 +1,7 @@
+# Current camera finish
+
+`silver-camera.blend` / `silver-camera.glb` follow `silver-speakers` and add independent inner-camera optics. See `docs/source-camera-validation.md` and `scripts/install_inner_camera.py`. The earlier pipeline below is preserved.
+
 # Joshua P. original XL — active silver model
 
 The homepage now uses the fully textured silver derivative of this sourced

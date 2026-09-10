@@ -36,7 +36,7 @@ def runs(samples):
 def main(prefix='front-audit'):
     scene = bpy.context.scene
     root, hinge = scene.objects['3DS_XL'], scene.objects['Hinge']
-    assert Path(bpy.data.filepath).name in ('silver-dimensions.blend', 'silver-front.blend')
+    assert Path(bpy.data.filepath).name in ('silver-dimensions.blend', 'silver-front.blend', 'silver-speakers.blend')
     frame = scene.frame_current
     actions = [(o, o.animation_data.action) for o in (root, hinge)]
     matrices = [(o, o.matrix_basis.copy()) for o in (root, hinge)]

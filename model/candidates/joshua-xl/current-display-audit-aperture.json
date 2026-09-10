@@ -1,0 +1,149 @@
+{
+  "source": "/Volumes/DeveloperStorage/GitHub/3ds-idea/model/candidates/joshua-xl/silver-speakers.blend",
+  "step_mm": 0.05,
+  "method": "Closest triangle intersection at glass centre lines; hidden backing excluded.",
+  "screens": {
+    "top": {
+      "anchor_closed_mm": [
+        -0.21038652956485748,
+        -1.3087081909179688,
+        15.850544929504395
+      ],
+      "active_mm": [
+        106.2,
+        63.72
+      ],
+      "backing_glass_mm": [
+        121.3064079284668,
+        72.7902946472168
+      ],
+      "visible_surface_runs": {
+        "horizontal": [
+          {
+            "surface": "Source_1_part_02",
+            "start_mm": -65.0,
+            "end_mm": -64.7
+          },
+          {
+            "surface": "Sourced inner lid",
+            "start_mm": -64.65,
+            "end_mm": -56.05
+          },
+          {
+            "surface": "Screen_Top",
+            "start_mm": -56.0,
+            "end_mm": 56.0
+          },
+          {
+            "surface": "Sourced inner lid",
+            "start_mm": 56.05,
+            "end_mm": 64.65
+          },
+          {
+            "surface": "Source_1_part_01",
+            "start_mm": 64.7,
+            "end_mm": 65.0
+          }
+        ],
+        "vertical": [
+          {
+            "surface": "Source_2_part_02",
+            "start_mm": -41.0,
+            "end_mm": -38.25
+          },
+          {
+            "surface": "Source_0_part_31",
+            "start_mm": -38.2,
+            "end_mm": -38.2
+          },
+          {
+            "surface": "Sourced inner lid",
+            "start_mm": -38.15,
+            "end_mm": -35.7
+          },
+          {
+            "surface": "Screen_Top",
+            "start_mm": -35.65,
+            "end_mm": 35.75
+          },
+          {
+            "surface": "Sourced inner lid",
+            "start_mm": 35.8,
+            "end_mm": 37.5
+          },
+          {
+            "surface": "Sourced outer lid",
+            "start_mm": 37.55,
+            "end_mm": 41.0
+          }
+        ]
+      }
+    },
+    "bottom": {
+      "anchor_closed_mm": [
+        -0.21038818359375,
+        -2.466350555419922,
+        13.936359405517578
+      ],
+      "active_mm": [
+        84.96,
+        63.72
+      ],
+      "backing_glass_mm": [
+        90.9344711303711,
+        69.02131271362305
+      ],
+      "visible_surface_runs": {
+        "horizontal": [
+          {
+            "surface": "Sourced graphite chassis",
+            "start_mm": -65.0,
+            "end_mm": -64.95
+          },
+          {
+            "surface": "Button_Dpad",
+            "start_mm": -64.9,
+            "end_mm": -59.15
+          },
+          {
+            "surface": "Sourced graphite chassis",
+            "start_mm": -59.1,
+            "end_mm": -43.6
+          },
+          {
+            "surface": "Screen_Bottom",
+            "start_mm": -43.55,
+            "end_mm": 43.55
+          },
+          {
+            "surface": "Sourced graphite chassis",
+            "start_mm": 43.6,
+            "end_mm": 65.0
+          }
+        ],
+        "vertical": [
+          {
+            "surface": "Button_HOME",
+            "start_mm": -41.0,
+            "end_mm": -36.85
+          },
+          {
+            "surface": "Sourced graphite chassis",
+            "start_mm": -36.8,
+            "end_mm": -33.2
+          },
+          {
+            "surface": "Screen_Bottom",
+            "start_mm": -33.15,
+            "end_mm": 32.6
+          },
+          {
+            "surface": "Sourced graphite chassis",
+            "start_mm": 32.65,
+            "end_mm": 41.0
+          }
+        ]
+      }
+    }
+  }
+}

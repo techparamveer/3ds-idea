@@ -1,6 +1,8 @@
 # Original silver 3DS XL: research and reconstruction audit
 
-The current [speaker-opening revision](source-speakers-validation.md) rounds the eighteen source openings with retained textures and layout.
+The current [inner-camera finish](source-camera-validation.md) separates optical material from the shared screen material.
+
+The earlier [speaker-opening revision](source-speakers-validation.md) rounds the eighteen source openings with retained textures and layout.
 
 The earlier [slider-marking revision](source-slider-validation.md) improves 3D/OFF cavity shading while retaining source glyph outlines.
 

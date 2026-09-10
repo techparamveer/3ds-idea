@@ -1,0 +1,26 @@
+{
+  "Button_Dpad": {
+    "triangles_before": 98,
+    "triangles_after": 34198,
+    "maximum_move_mm": 0.2899542616987215,
+    "minimum_jacobian": 0.5000357270734325,
+    "extent_delta_mm": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "Sourced graphite chassis": {
+    "triangles_before": 123696,
+    "triangles_after": 209604,
+    "maximum_move_mm": 0.5180474588753466,
+    "minimum_jacobian": 0.5009446858355399,
+    "extent_delta_mm": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "upper_cap_vertex_to_chassis_min_mm": 0.22106310725212097,
+  "clearance_scope": "Nearest surface distance at upper cap vertices only, not a signed swept-solid collision test."
+}

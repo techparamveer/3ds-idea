@@ -77,11 +77,11 @@ def deform(points, normals, tangents, kind):
     return result, changed_n, changed_t
 
 
-def refine(positions, normals, tangents, uvs, faces, kind, *, edge_filter=None):
+def refine(positions, normals, tangents, uvs, faces, kind, *, edge_filter=None, max_iterations=12):
     """Conforming shared-edge bisection; no Catmull-Clark shrink or UV re-unwrap."""
     values = [np.r_[p, n, t, uv] for p, n, t, uv in zip(positions, normals, tangents, uvs)]
     faces = [tuple(map(int, f)) for f in faces]
-    for _ in range(12):
+    for _ in range(max_iterations):
         edges = set()
         for a, b, c in faces:
             for i, j in [(a, b), (b, c), (c, a)]:

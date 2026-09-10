@@ -5,7 +5,7 @@ import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
-def main(output_name='abxy-clearance-report.json'):
+def main(output_name='abxy-clearance-report.json', *, controls=None, top_depth=.5):
     scene=bpy.context.scene;root=scene.objects['3DS_XL'];hinge=scene.objects['Hinge']
     frame=scene.frame_current
     saved=[(o,o.animation_data.action,o.matrix_basis.copy()) for o in (root,hinge)]
@@ -19,11 +19,11 @@ def main(output_name='abxy-clearance-report.json'):
             faces.extend(tuple(start+i for i in p.vertices) for p in obj.data.polygons)
         tree=BVHTree.FromPolygons(points,faces)
         report={}
-        for name in ['Button_A','Button_B','Button_X','Button_Y']:
+        for name in controls or ['Button_A','Button_B','Button_X','Button_Y']:
             obj=scene.objects[name];vertices=[obj.matrix_world@v.co for v in obj.data.vertices]
             top=max(v.z for v in vertices);gaps=[]
             for v in vertices:
-                if v.z<top-.5:continue
+                if v.z<top-top_depth:continue
                 hit,_,_,_=tree.ray_cast(Vector((v.x,v.y,0)),Vector((0,0,1)),40)
                 if hit is not None:gaps.append(hit.z-v.z)
             assert gaps and min(gaps)>.1,(name,min(gaps))

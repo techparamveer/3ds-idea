@@ -1,0 +1,38 @@
+{
+  "Button_A": {
+    "upper_vertex_probes": 10886,
+    "minimum_clearance_mm": 0.4655027389526367
+  },
+  "Button_B": {
+    "upper_vertex_probes": 10886,
+    "minimum_clearance_mm": 0.4654979705810547
+  },
+  "Button_X": {
+    "upper_vertex_probes": 10886,
+    "minimum_clearance_mm": 0.4655036926269531
+  },
+  "Button_Y": {
+    "upper_vertex_probes": 10886,
+    "minimum_clearance_mm": 0.913783073425293
+  },
+  "Button_Dpad": {
+    "upper_vertex_probes": 7688,
+    "minimum_clearance_mm": 0.41506004333496094
+  },
+  "Button_SELECT": {
+    "upper_vertex_probes": 1159,
+    "minimum_clearance_mm": 0.3852348327636719
+  },
+  "Button_HOME": {
+    "upper_vertex_probes": 14,
+    "minimum_clearance_mm": 0.3852348327636719
+  },
+  "Button_START": {
+    "upper_vertex_probes": 1167,
+    "minimum_clearance_mm": 0.3852348327636719
+  },
+  "Button_POWER": {
+    "upper_vertex_probes": 2404,
+    "minimum_clearance_mm": 1.7006607055664062
+  }
+}

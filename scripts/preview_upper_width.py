@@ -30,7 +30,7 @@ def move(points):
     return result
 
 
-def main():
+def main(persist=False):
     assert Path(bpy.data.filepath).resolve() == (FOLDER/'silver-power-finish.blend').resolve()
     reader = pipeline.module('front_reader', 'analyze_sourced_rig.py')
     data, doc, binary = reader.load_glb(FOLDER/'silver-power-finish.glb')
@@ -73,7 +73,7 @@ def main():
         tangents[:, :3] = np.einsum('nij,nj->ni', jacobian, tangents[:, :3])
         tangents[:, :3] -= np.sum(normals*tangents[:, :3], axis=1)[:, None]*normals
         tangents[:, :3] /= np.linalg.norm(tangents[:, :3], axis=1)[:, None]
-        new_mesh = bpy.data.meshes.new('Sourced inner lid narrower aperture')
+        new_mesh = bpy.data.meshes.new('Sourced inner lid whole-shell calibrated opening')
         new_mesh.from_pydata((moved-origin).tolist(), [], faces.tolist())
         new_mesh.update()
         for polygon in new_mesh.polygons:
@@ -105,7 +105,16 @@ def main():
                   'minimum_jacobian_determinant': float(min(determinant)), 'closed_xyz_mm': size.tolist()}
         import importlib,audit_sourced_front
         importlib.reload(audit_sourced_front)
-        audit_sourced_front.main('layout-wide-trial')
+        prefix='layout-wide-final' if persist else 'layout-wide-trial'
+        audit_sourced_front.main(prefix)
+        if persist:
+            import audit_abxy_clearance
+            importlib.reload(audit_abxy_clearance)
+            audit_abxy_clearance.main('layout-wide-clearance.json',controls=['Button_A','Button_B','Button_X','Button_Y','Button_Dpad','Button_SELECT','Button_HOME','Button_START','Button_POWER'],top_depth=1)
+            audit_abxy_clearance.main('upper-width-circle-clearance.json',controls=['Button_Circle'],top_depth=2,minimum_clearance=0)
+            root['upper_width_calibration']=json.dumps(report)
+            root['source_changes']+=' Widened upper cover opening to approximately 115 mm using whole-upper-shell reference calibration; active LCD retained.'
+            success=True
         print(json.dumps(report))
     finally:
         if not success and new_mesh:
@@ -116,6 +125,13 @@ def main():
         scene.frame_set(frame)
         for o,m in old_matrices:o.matrix_basis=m
         bpy.context.view_layer.update()
-    (FOLDER/'layout-wide-trial-report.json').write_text(json.dumps(report, indent=2)+'\n')
+    (FOLDER/('layout-wide-final-report.json' if persist else 'layout-wide-trial-report.json')).write_text(json.dumps(report, indent=2)+'\n')
+
+    if persist:
+        import texture_sourced_model as exporter,curve_sourced_shell as frames
+        bpy.ops.wm.save_as_mainfile(filepath=str(FOLDER/'silver-upper-width.blend'))
+        output=FOLDER/'silver-upper-width.glb'
+        exporter.export_static(root,hinge,output,restore_frames=False,export_attributes=True)
+        frames.restore_export_frames(output)
 
 if __name__=='__main__':main()

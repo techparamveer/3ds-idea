@@ -251,4 +251,6 @@ Current authoring checkpoint: `silver-power-fit.blend` / PNG GLB. The public mod
 
 Current authoring checkpoint: `silver-power-finish.blend` / PNG GLB. The public model mirrors `silver-power-finish-web.glb`; see `docs/source-power-finish-validation.md`. Earlier checkpoints remain preserved.
 
-Current authoring checkpoint: `silver-upper-width.blend` / PNG GLB. The public model mirrors `silver-upper-width-web.glb`; see `docs/source-upper-width-validation.md`. Earlier checkpoints remain preserved.
+Current authoring checkpoint: `silver-lid-face.blend` / PNG GLB. The public model mirrors `silver-lid-face-web.glb`; see `docs/source-upper-width-validation.md`. Earlier checkpoints remain preserved.
+
+The localized inner-lid reflection revision is documented in `docs/source-lid-face-validation.md`.

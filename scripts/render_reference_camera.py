@@ -6,7 +6,7 @@ from mathutils import Vector
 import render_sourced_dimensions as renderer
 FOLDER=Path(__file__).resolve().parents[1]/'model/candidates/joshua-xl'
 def main(prefix='reference',light_offsets=None):
-    assert Path(bpy.data.filepath).name=='silver-upper-width.blend'
+    assert Path(bpy.data.filepath).name in ['silver-upper-width.blend','silver-lid-face.blend']
     report=json.loads((FOLDER/'reference-camera-fit.json').read_text());scene=bpy.context.scene;cam=scene.camera
     root,hinge=scene.objects['3DS_XL'],scene.objects['Hinge']
     matrices=[(o,o.matrix_basis.copy()) for o in [root,hinge]]

@@ -1,0 +1,8 @@
+{
+  "factor_on_flat_face": 0.25,
+  "source": "body-legends-specular.png",
+  "output": "lid-face-specular.png",
+  "sha256": "aeb8e72ee08a3f49cd4771bb04bf4402c7fba4bff7b7f32b4b2a41a5823a6b8a",
+  "changed_pixels": 707592,
+  "scope": "Only front-facing, near-planar inner-lid surface below local Y=-6; barrel/back/steep edges explicitly protected. Appearance estimate, not measured material reflectance."
+}

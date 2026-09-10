@@ -53,7 +53,7 @@ Additional modifications, 10 September 2026:
   See docs/source-dimensions-validation.md for the scope and evidence.
 
 This public GLB is the fully textured silver model used by the portfolio
-homepage, derived from model/candidates/joshua-xl/silver-etched.blend. It is not
+homepage, derived from model/candidates/joshua-xl/silver-corners.blend. It is not
 the earlier textureless inspection preview. The original red source, its images
 and the earlier procedural model remain preserved separately.
 
@@ -83,3 +83,10 @@ stencils, shallow estimated recess normals and cavity shading. The shapes are
 authored approximations guided by the TechRadar original-XL photograph, not a
 verified factory font. Geometry and all unrelated image pixels are preserved.
 See docs/source-etched-validation.md.
+
+Additional modification: refined the outer lid front-corner mesh and fitted a
+smooth contour to remove visible polygonal facets. Maximum vertex movement
+is 0.165 mm. Existing lower mating vertices and all other meshes/textures are
+retained. Reference-only physical scan comparison supports a rounded contour;
+no scan triangles are shipped and no manufacturer CAD accuracy is claimed.
+See docs/source-corners-validation.md.

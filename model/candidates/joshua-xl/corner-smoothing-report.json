@@ -1,0 +1,14 @@
+{
+  "source_sha256": "a76c14e35433bbb7f4acf3841c9a34e73efbecba7de4e369ef8ee5521ebdd50c",
+  "circle_center_relative_xy": [
+    64.73468669614323,
+    -32.65577559448568
+  ],
+  "radius_mm": 13.05172710857818,
+  "triangles_before": 28554,
+  "triangles_after": 44054,
+  "maximum_displacement_mm": 0.16471554949254277,
+  "minimum_jacobian_determinant": 0.9813793119064765,
+  "vertices_moved": 1850,
+  "interpretation": "Existing contour fitted smoothly; scan used as reference only. Lower mating edge gated to zero. No factory CAD claim."
+}

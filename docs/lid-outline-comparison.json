@@ -1,0 +1,36 @@
+{
+  "source": "https://bitbuilt.net/forums/threads/3ds-xl-ll-scan.7046/",
+  "model_checkpoint": "silver-etched.glb",
+  "model_sha256": "a76c14e35433bbb7f4acf3841c9a34e73efbecba7de4e369ef8ee5521ebdd50c",
+  "method": "Every tenth scan triangle vertices; orthonormal broad-plane tilt removal; 7200 angular extrema; convex hull. Translation alignment only, no scale fitting.",
+  "scan_span_mm": [
+    155.18390680433097,
+    91.68384841718947
+  ],
+  "model_span_mm": [
+    155.57921600341797,
+    91.54256439208984
+  ],
+  "scan_hull_vertices": 140,
+  "model_hull_vertices": 31,
+  "orientation": "Scan depth reversed: rounded front aligned with the model camera/front edge; clipped hinge corners aligned at rear.",
+  "limits": "Convex silhouette only. Scan artifacts, undercuts and orientation must be checked before any geometry change. Not manufacturer CAD.",
+  "scan_front_corner_circle": {
+    "center_xy": [
+      64.07531679317415,
+      -32.07549785829286
+    ],
+    "radius_mm": 13.281284746525328,
+    "points": 44,
+    "rms_radial_mm": 0.038485680735956984
+  },
+  "model_front_corner_circle": {
+    "center_xy": [
+      64.73468669614323,
+      -32.65577559448568
+    ],
+    "radius_mm": 13.05172710857818,
+    "points": 6,
+    "rms_radial_mm": 0.055409926912010805
+  }
+}

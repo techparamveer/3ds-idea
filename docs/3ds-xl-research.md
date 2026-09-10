@@ -1,6 +1,6 @@
 # Original silver 3DS XL: research and reconstruction audit
 
-The latest checkpoint adds [smooth MIC/POWER engraving](source-etched-validation.md) and [photographic lower-key lettering](source-legends-validation.md) to [the upper-bezel refinement](source-front-validation.md), which retains the curved shell and EUR textures and verifies 156 × 93 × 22 mm closed. Historical audit tables below describe earlier models.
+The latest checkpoint adds [smooth front lid corners](source-corners-validation.md), [smooth MIC/POWER engraving](source-etched-validation.md) and [photographic lower-key lettering](source-legends-validation.md) to [the upper-bezel refinement](source-front-validation.md), which retains the curved shell and EUR textures and verifies 156 × 93 × 22 mm closed. Historical audit tables below describe earlier models.
 
 Research date: 2026-09-09. Scope: exterior hardware, materials, typography, displays and the HOME Menu needed for this portfolio. This record supersedes the earlier implication that matching overall dimensions establishes visual fidelity. The user has explicitly rejected the current appearance.
 

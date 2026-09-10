@@ -1,0 +1,32 @@
+{
+  "front": {
+    "mean_absolute_channel_change": 0.0004,
+    "pixels_over_16_levels": 0,
+    "total_pixels": 750000
+  },
+  "open": {
+    "mean_absolute_channel_change": 0.00046633333333333336,
+    "pixels_over_16_levels": 0,
+    "total_pixels": 750000
+  },
+  "top": {
+    "mean_absolute_channel_change": 0.017110333333333335,
+    "pixels_over_16_levels": 262,
+    "total_pixels": 750000
+  },
+  "side": {
+    "mean_absolute_channel_change": 0.0023213333333333332,
+    "pixels_over_16_levels": 9,
+    "total_pixels": 750000
+  },
+  "rear": {
+    "mean_absolute_channel_change": 0.0035353333333333335,
+    "pixels_over_16_levels": 34,
+    "total_pixels": 750000
+  },
+  "underside": {
+    "mean_absolute_channel_change": 0.007809666666666667,
+    "pixels_over_16_levels": 102,
+    "total_pixels": 750000
+  }
+}

@@ -1,6 +1,8 @@
 # Smooth MIC/POWER engraving — 10 September 2026
 
-The current editable rig is `model/candidates/joshua-xl/silver-etched.blend`.
+The latest homepage retains these materials with [smoothed front lid corners](source-corners-validation.md).
+
+This preserved material checkpoint is `model/candidates/joshua-xl/silver-etched.blend`.
 Its `silver-etched.glb` is mirrored to `public/models/candidates/joshua-xl.glb`.
 Both GLBs have SHA-256 `a76c14e35433bbb7f4acf3841c9a34e73efbecba7de4e369ef8ee5521ebdd50c`.
 The earlier `silver-legends` checkpoint and rejected experiments remain preserved.

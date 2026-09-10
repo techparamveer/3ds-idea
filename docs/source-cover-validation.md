@@ -1,6 +1,6 @@
 # Lower-cover corner refinement
 
-Active files: `model/candidates/joshua-xl/silver-cover.blend` and adjacent `.glb`. The public model mirrors that export, SHA-256 `7b479bc94e81966120dc2150896db137bbef7f7255cd30a420123edcfb1c79a4`. The preceding `silver-corners` files are preserved.
+Preserved files: `model/candidates/joshua-xl/silver-cover.blend` and adjacent `.glb`, SHA-256 `7b479bc94e81966120dc2150896db137bbef7f7255cd30a420123edcfb1c79a4`. This checkpoint is followed by the [black chassis refinement](source-chassis-validation.md). The preceding `silver-corners` files are also preserved.
 
 The silver lower-cover corner had visible straight contour segments. The underside photograph recorded in `source-eur-validation.md` supports a continuous rounded transition. This pass fits an arc to the existing model outline, retaining its broad curvature and texture artwork. It is an authored refinement, not a factory radius measurement.
 

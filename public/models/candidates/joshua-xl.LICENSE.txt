@@ -96,3 +96,8 @@ fitted arc and retained the source upper chassis texture seam. Maximum vertex
 movement is 0.150 mm. All other meshes and texture images are preserved.
 This is an authored contour approximation, not manufacturer CAD.
 See docs/source-cover-validation.md.
+
+Additional modification: refined the black chassis front corners with a fitted
+arc, retaining the silver lower cover and source texture seams. Maximum vertex
+movement is 0.155 mm. All other meshes and texture images are preserved.
+See docs/source-chassis-validation.md for evidence and approximation limits.

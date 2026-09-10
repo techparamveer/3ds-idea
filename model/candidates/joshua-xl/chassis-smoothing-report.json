@@ -1,0 +1,14 @@
+{
+  "source_sha256": "7b479bc94e81966120dc2150896db137bbef7f7255cd30a420123edcfb1c79a4",
+  "circle_center_relative_xy": [
+    64.64516091535619,
+    -33.94047678916422
+  ],
+  "radius_mm": 12.538452705791945,
+  "triangles_before": 56682,
+  "triangles_after": 63492,
+  "maximum_displacement_mm": 0.15438003279601964,
+  "minimum_jacobian_determinant": 0.995029351732595,
+  "vertices_moved": 3417,
+  "interpretation": "Existing black chassis contour fitted smoothly. Lower cover and texture seam at and below 5.65 mm retained. No factory CAD claim."
+}

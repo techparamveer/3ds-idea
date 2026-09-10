@@ -1,0 +1,17 @@
+# Unpromoted silver scratch trials
+
+Starting checkpoint: `silver-abxy-openings.blend`. The live model remains unchanged. These are material diagnostics, not a completed or accepted scratch treatment.
+
+The supplied `image-4.png` shows a worn silver original XL with restrained hairlines and edge wear. The standard 40 mm-wide lid and underside macros (`surface-scale-before-*.png`) show existing fine grain but little distinct hairline wear. The reference photo is not a calibrated macro or a matched lighting setup, so it cannot establish exact microstructure dimensions.
+
+`export_paint_uv_data.py` records the closed lid/chassis world coordinates in millimetres and their atlas UVs into `.local/paint-{lid,cover}-uv.npz`. It restores the scene actions and transforms. `build_paint_scratches.py` authors sparse deterministic segments, tapers their ends, and rasterizes them into each existing roughness map through the EUR silver-paint mask. There are 23 lid and 15 underside strokes; random segment lengths are 2.5–9 mm, half-widths 0.045–0.08 mm, and peak roughness increments 0.07–0.12. These are appearance estimates, not Nintendo material measurements. Red/blue channels and unpainted pixels stay unchanged. Roughness changes 2,035 lid pixels and 1,850 underside pixels.
+
+The initial roughness-only trial is recorded in `surface-scratches-trial-*.png`. Compared with the standard-light macros, the maximum channel difference was only 2/255 on either panel. This was too weak to justify promotion as a visible improvement.
+
+`render_sourced_dimensions.main()` now accepts optional camera-relative light offsets; defaults are unchanged. `inspect_paint_reflection.py` uses that option with narrower area lights and lower ambient illumination, restoring all settings afterward. The before/after renders are `paint-reflection-{before,after}-{lid,cover}.png`.
+
+The current trial generator also perturbs the normal map with a shallow groove derived from the scratch field. Its nominal two-micrometre depth assumes approximately 13 atlas pixels per millimetre; that scale is approximate and does not account exactly for local UV distortion or anisotropic scaling. The source normals and unedited areas remain otherwise intact. This is a trial normal perturbation, not newly cut mesh geometry.
+
+Under the narrower reflection, the current groove-plus-roughness trial produced a lid maximum channel difference of 22/255, with 2,849 pixels changing by more than 3/255. The underside maximum remained 2/255. Numeric differences establish that the material affects rendering; they do not establish realistic appearance. The lid macro still has a strong grain pattern that makes the individual hairlines difficult to judge, and the underside reflection remains too weak for acceptance.
+
+No trial maps were installed in the saved Blender checkpoint or public GLB. Both preview scripts use temporary material copies and restore the original assignments. No application code changed. Next work should validate the groove coordinate scale and obtain a useful matched reflection on the underside before deciding whether to retain or replace the trial. Do not describe these maps as live or the scratch requirement as completed.

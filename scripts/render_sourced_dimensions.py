@@ -15,7 +15,7 @@ VIEWS = [
 ]
 
 
-def main(prefix='dimensions-before', only=None, resolution=(1000, 750), perspective_lens=None):
+def main(prefix='dimensions-before', only=None, resolution=(1000, 750), perspective_lens=None, light_offsets=None):
     scene = bpy.context.scene
     root, hinge, camera = scene.objects['3DS_XL'], scene.objects['Hinge'], scene.camera
     frame = scene.frame_current
@@ -47,7 +47,7 @@ def main(prefix='dimensions-before', only=None, resolution=(1000, 750), perspect
                                      @ Quaternion((0, 0, 1), roll)).to_euler()
             camera.data.ortho_scale = scale
             basis = camera.rotation_euler.to_matrix()
-            for light, local in zip(lights, [(-110, 100, 170), (140, 0, 100)]):
+            for light, local in zip(lights, light_offsets or [(-110, 100, 170), (140, 0, 100)]):
                 light.location = Vector(target)+basis@Vector(local)
                 light.rotation_euler = (Vector(target)-light.location).to_track_quat('-Z', 'Y').to_euler()
             scene.render.filepath = str(FOLDER/(prefix+'-'+name+'.png'))

@@ -1,0 +1,14 @@
+{
+  "Button_SELECT": {
+    "radius_estimate_mm": 1,
+    "triangles": 4644,
+    "max_displacement_mm": 0.38493030460308386,
+    "minimum_jacobian": 0.5007449619980573
+  },
+  "Button_START": {
+    "radius_estimate_mm": 1,
+    "triangles": 4650,
+    "max_displacement_mm": 0.38493030513968396,
+    "minimum_jacobian": 0.5007449742227984
+  }
+}

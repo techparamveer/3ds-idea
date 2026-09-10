@@ -238,3 +238,5 @@ Latest checkpoint: `silver-dock-contacts.blend` / `.glb`, with `silver-dock-cont
 ## Screen backing correction
 
 `silver-screen-backings.blend` and its PNG GLB follow the cap-print checkpoint. Both backing materials remove the incorrectly mapped shell AO/roughness atlas; native renders show unlit panels and the website provides the live displays. See `../../../docs/source-screen-backings-validation.md`. The delivery asset is `silver-screen-backings-web.glb`.
+
+Current authoring checkpoint: `silver-plastic-normals.blend` / PNG GLB. The public model mirrors `silver-plastic-normals-web.glb`; see `docs/source-plastic-normal-validation.md`. Earlier checkpoints remain preserved.

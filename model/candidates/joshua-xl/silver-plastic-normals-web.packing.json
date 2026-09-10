@@ -1,0 +1,298 @@
+{
+  "source": "silver-plastic-normals.glb",
+  "output": "silver-plastic-normals-web.glb",
+  "source_sha256": "956d22a27b6c693126c364c77a0f8a0310e532247510ca3e18ccb85e583ec305",
+  "output_sha256": "9e60c5fda8248970807e6ff5eca9a31da3a35e2e353a2858252aecd8c7b557f8",
+  "before_bytes": 140183320,
+  "after_bytes": 99324416,
+  "saved_fraction": 0.2914676582064114,
+  "images": [
+    {
+      "name": "Image_2",
+      "image_index": 0,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "f552783852d8c9e70d297e3c3eb18c4c649b82abd31d3596d942b7b1afac4826",
+      "before_bytes": 24862,
+      "after_bytes": 7062,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-legends-specular",
+      "image_index": 1,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "bc09f8a3bf53fa5f8c986bc64e53fb51c13db373675028623cb66fbc11635c44",
+      "before_bytes": 317484,
+      "after_bytes": 9760,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-etched-normal",
+      "image_index": 2,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "85074f78b18bfdf999b27a5ab502b6ebb0206c7ecd9fe17ef2374095daede00a",
+      "before_bytes": 15991797,
+      "after_bytes": 10102984,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "abxy-fitted-basecolor",
+      "image_index": 3,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "82f7f7fd08b50487dd6461bd7cc0b4a404d2982b4a947c0602b6784d9ef7f1a3",
+      "before_bytes": 5677662,
+      "after_bytes": 3137140,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "abxy-metallic-roughness",
+      "image_index": 4,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "90ce5f6dc4bad6ae3065eba4b180ea76a2a273c43e6c708fa3722aa1b932a680",
+      "before_bytes": 2508601,
+      "after_bytes": 1604522,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "abxy-planar-print",
+      "image_index": 5,
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "rgba_sha256": "c396ff3dcd51c2726b25accc8f57692a899cfaf7c3bde5acd007ecc6183162e3",
+      "before_bytes": 156092,
+      "after_bytes": 98776,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-etched-basecolor",
+      "image_index": 6,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "ee595e4e687862bdd0df6cf878d84edc8309b8cfb1db65c99ef633d0c2a2b2d2",
+      "before_bytes": 7128941,
+      "after_bytes": 3138432,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "pad-rubber-metallic-roughness",
+      "image_index": 7,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "06bca77247b520d8116fb4d7bf4660c5b0c42d46a072909cd39b9133c46c8aa3",
+      "before_bytes": 2327332,
+      "after_bytes": 1354094,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-legends-metallic-roughness",
+      "image_index": 8,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "d78b487c582ae033bbee24ba2ae93869c6f16de9596509324905e13c5428562a",
+      "before_bytes": 7061642,
+      "after_bytes": 4722234,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "indicator-blue-emissive",
+      "image_index": 9,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "5bacd48745e822284047ca894ef0020d38152bc3d7afc03d0617ba7228218854",
+      "before_bytes": 51790,
+      "after_bytes": 7044,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "dock-contact-basecolor",
+      "image_index": 10,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "b9037ca278b376eb13533398765663358c24bf11d4a7790d226aa02bf8bc3dae",
+      "before_bytes": 5675409,
+      "after_bytes": 3135944,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "Image_4",
+      "image_index": 11,
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "rgba_sha256": "cd4e6f5c04c04718d8f429823954c9af4e7b85e76e04f65076152b2d0f14315c",
+      "before_bytes": 50744,
+      "after_bytes": 13878,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "plastic-normal-study-deck",
+      "image_index": 12,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "e70f7d9b8bb0f3d45fe0a7d68a230ea40544c54bfcb97635f56ce95dd71e9109",
+      "before_bytes": 12647146,
+      "after_bytes": 9423218,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-socket-basecolor",
+      "image_index": 13,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "e587237d00a153599ad789df889c473e69647f5fcb7faf08f7f1bb1e756c8b9d",
+      "before_bytes": 5634630,
+      "after_bytes": 3117572,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "paint-cover-restrained-metallic-roughness",
+      "image_index": 14,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "38084953467d22e1a47a6f50e4d4b45df79645c3858e670f9aa6b287137af29c",
+      "before_bytes": 4851152,
+      "after_bytes": 3049104,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "inner-camera-colour",
+      "image_index": 15,
+      "dimensions": [
+        256,
+        256
+      ],
+      "rgba_sha256": "bdb4a4d39beb8860a9700ea8df4a136f3a68e348545b1f20e8d08bf95ff9cf4a",
+      "before_bytes": 6986,
+      "after_bytes": 1684,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "inner-camera-roughness",
+      "image_index": 16,
+      "dimensions": [
+        256,
+        256
+      ],
+      "rgba_sha256": "3931da8d67b6f3447bbaa8f9e129ab19f1968895add8af0da8caa8334d59b016",
+      "before_bytes": 4354,
+      "after_bytes": 1422,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "plastic-normal-study-lid",
+      "image_index": 17,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "c593356c75fdb8ce0047a5ce01022db0172a5f8b0caa03db1f2d4fbd9c71dee2",
+      "before_bytes": 15163040,
+      "after_bytes": 11420600,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-slider-basecolor",
+      "image_index": 18,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "abe56fb05420b5cef8dede9a35e35bb7365011d45dbfb32abb798fc365081434",
+      "before_bytes": 5679328,
+      "after_bytes": 3139456,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "body-hinge-metallic-roughness",
+      "image_index": 19,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "56fd89da24e5c3ad145dcfc3988954a39f8e11d0b569d5ed7f63a70a76cf233d",
+      "before_bytes": 6105940,
+      "after_bytes": 4017154,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "paint-lid-restrained-normal",
+      "image_index": 20,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "1428f59ab7fef60ffdfeadaef4508cca4eb67f9a6ec11d9daeedb18a27091238",
+      "before_bytes": 11121673,
+      "after_bytes": 8156212,
+      "format": "webp",
+      "pixels_identical": true
+    },
+    {
+      "name": "paint-lid-restrained-metallic-roughness",
+      "image_index": 21,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "rgba_sha256": "c661d1c47d44c8474be9be5c2f11505fb36fe665a4e81d13e98c80e9eacea5fc",
+      "before_bytes": 6220293,
+      "after_bytes": 3887892,
+      "format": "webp",
+      "pixels_identical": true
+    }
+  ],
+  "geometry_rig_materials_identical": true
+}

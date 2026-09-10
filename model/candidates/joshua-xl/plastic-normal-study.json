@@ -1,0 +1,18 @@
+{
+  "blur_radius_pixels": 12,
+  "low_frequency_retained": 0.25,
+  "maps": {
+    "deck": {
+      "source": "paint-cover-restrained-normal.png",
+      "output": "plastic-normal-study-deck.png",
+      "changed_pixels": 8627748,
+      "fully_painted_changes": 0
+    },
+    "lid": {
+      "source": "body-slider-dot-normal.png",
+      "output": "plastic-normal-study-lid.png",
+      "changed_pixels": 8433354,
+      "fully_painted_changes": 0
+    }
+  }
+}

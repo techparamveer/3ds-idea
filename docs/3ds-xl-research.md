@@ -129,3 +129,5 @@ Clean photograph-constrained lower-label SVGs and a UV1 Blender trial now addres
 The clean lower-label maps are now exported and browser-verified; see `source-lower-label-validation.md`. Their outlines remain photograph-constrained estimates.
 
 The underside corner diagnostic (`underside-surface-diagnostic.md`) finds uneven highlights persisting with texture maps removed. The next local study must distinguish rolled cross-section geometry from smoothing boundaries; reducing the complete normal map was rejected.
+
+The lower-cover radial profile refinement is exported and browser-checked in `source-cover-profile-validation.md`. It improves the silver roll; adjacent seam and SD-flap faceting remain distinct defects.

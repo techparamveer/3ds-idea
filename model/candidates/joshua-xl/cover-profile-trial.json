@@ -1,0 +1,16 @@
+{
+  "source": "silver-lower-labels.blend",
+  "degree": 4,
+  "coefficients": [
+    2.571815444448006,
+    0.9289823587389494,
+    0.3509816443059958,
+    0.35920063602083085,
+    0.251795402240447
+  ],
+  "fit_samples": 1053,
+  "vertices_changed": 1385,
+  "maximum_displacement_mm": 0.15811656518795836,
+  "fit_rms_mm": 0.05370622559198863,
+  "scope": "Reversible symmetric corner cross-section and normal trial; not factory CAD and not exported."
+}

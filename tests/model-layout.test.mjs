@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { Group, Mesh, Box3, BoxGeometry, MeshStandardMaterial, Vector3 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { resolveModelLayout, directionFromControlHit, isSilverPaintMaterial, DEFAULT_MODEL_URL } from '../src/scene/model-layout.ts';
+import { resolveModelLayout, controlFromObject, directionFromControlHit, isSilverPaintMaterial, DEFAULT_MODEL_URL } from '../src/scene/model-layout.ts';
 
 function fixture() {
   const model = new Group();
@@ -31,7 +31,7 @@ test('preserved legacy asset keeps its original screen placements', () => {
 
 test('homepage serves the verified full-size silver source with EUR markings and paint grain', async () => {
   const shipped = await readFile(new URL('../public' + DEFAULT_MODEL_URL, import.meta.url));
-  const verified = await readFile(new URL('../model/candidates/joshua-xl/silver-abxy-rollover-web.glb', import.meta.url));
+  const verified = await readFile(new URL('../model/candidates/joshua-xl/silver-abxy-print-web.glb', import.meta.url));
   assert.ok(shipped.equals(verified), 'default website asset must match the verified silver export');
 });
 
@@ -191,4 +191,18 @@ test('actual sourced GLB anchors keep authored orientation, sizes and control hi
   }
   assert.equal(geometryHash(), originalGeometry, 'anchor resolution and hinge movement must preserve vertex, normal, UV and index arrays');
   assert.ok(file.equals(await readFile(path)), 'source GLB must remain unchanged');
+});
+
+test('printed top and plastic primitive resolve to the same physical button', () => {
+  const {model,base}=fixture();
+  const button=new Group();button.name='Button_A';base.add(button);
+  const plastic=cap(button,'Button_A_1',[0,0,0]);
+  const print=cap(button,'Button_A_2',[0,1,0]);
+  const deck=cap(base,'Unrelated_deck',[30,0,0]);
+  const layout=resolveModelLayout(model);
+  assert.equal(controlFromObject(layout,plastic),'A');
+  assert.equal(controlFromObject(layout,print),'A');
+  assert.equal(controlFromObject(layout,button),'A');
+  assert.equal(controlFromObject(layout,deck),undefined);
+  assert.equal(controlFromObject(layout,base),undefined);
 });

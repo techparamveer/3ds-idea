@@ -1,0 +1,77 @@
+{
+  "output": "abxy-planar-print.png",
+  "sha256": "8989816c6856deb73106eaaf7fd30ff4a565283877f972b46bf1f25956499422",
+  "tile_size": 512,
+  "tile_span_mm": 7.2,
+  "glyphs": {
+    "A": {
+      "tile": [
+        0,
+        0
+      ],
+      "pixels_per_mm": 71.11111111111111,
+      "background_rgb": [
+        33.0,
+        33.0,
+        33.0
+      ],
+      "ink_rgb": [
+        188.0,
+        188.0,
+        188.0
+      ]
+    },
+    "B": {
+      "tile": [
+        1,
+        0
+      ],
+      "pixels_per_mm": 71.11111111111111,
+      "background_rgb": [
+        31.0,
+        31.0,
+        31.0
+      ],
+      "ink_rgb": [
+        188.0,
+        188.0,
+        188.0
+      ]
+    },
+    "X": {
+      "tile": [
+        0,
+        1
+      ],
+      "pixels_per_mm": 71.11111111111111,
+      "background_rgb": [
+        35.0,
+        35.0,
+        35.0
+      ],
+      "ink_rgb": [
+        188.0,
+        188.0,
+        188.0
+      ]
+    },
+    "Y": {
+      "tile": [
+        1,
+        1
+      ],
+      "pixels_per_mm": 71.11111111111111,
+      "background_rgb": [
+        36.0,
+        35.0,
+        35.0
+      ],
+      "ink_rgb": [
+        188.0,
+        188.0,
+        188.0
+      ]
+    }
+  },
+  "status": "Same photograph-fitted outlines; higher resolution and planar base-colour mapping, not a verified factory typeface."
+}

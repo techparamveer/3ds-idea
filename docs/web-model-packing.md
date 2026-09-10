@@ -19,3 +19,5 @@ After future Blender exports, run `pack_web_model.py` on the new authoring GLB, 
 The current power-indicator delivery pair is `silver-power-indicator.glb` and `silver-power-indicator-web.glb`. The latter is 104,636,804 bytes, with pixel-identical image decoding and unchanged non-image payloads verified independently. Keep editing `silver-power-indicator.blend`; see `source-power-indicator-validation.md`.
 
 The rounded-cap checkpoint now uses `silver-abxy-rollover.glb` and `silver-abxy-rollover-web.glb` (104,638,084 bytes). Both independent pixel/payload checks pass. The editable file remains the PNG-based `silver-abxy-rollover.blend`.
+
+The current planar-print pair is `silver-abxy-print.glb` / `silver-abxy-print-web.glb` (105,244,372 bytes). It adds the 1024-pixel cap-print atlas and preserves the other decoded maps. Both independent packing checks pass. Continue editing `silver-abxy-print.blend`.

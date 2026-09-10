@@ -4,7 +4,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createScreens } from '@/os/screens';
 import { initialState, reduceMenu, touchMenu, type Input } from '@/os/state';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
-import { DEFAULT_MODEL_URL, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement } from './model-layout';
+import { DEFAULT_MODEL_URL, controlFromObject, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
 
@@ -123,6 +123,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     return ray.intersectObject(model,true).find(hit=>{for(let node:THREE.Object3D|null=hit.object;node;node=node.parent)if(!node.visible)return false;return true;});
   }
   function controlName(o:THREE.Object3D){
+    const physical=controlFromObject(layout,o);if(physical)return physical;
     const name=o.name.replace(/[\s_.-]+/g,'').toUpperCase();
     if(name.startsWith('BUTTON'))return name.slice(6);
     if(/^[ABXY]PRINT/.test(name))return name[0];

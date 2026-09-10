@@ -134,6 +134,14 @@ export function directionFromControlHit(layout: ModelLayout, name: DirectionalCo
   return Math.abs(point.x) > Math.abs(point.z) ? (point.x < 0 ? 'left' : 'right') : (point.z < 0 ? 'up' : 'down');
 }
 
+/** glTF material primitives become child meshes under one physical cap. */
+export function controlFromObject(layout: ModelLayout, hit: Object3D): ControlName | undefined {
+  for (let object: Object3D | null = hit; object && object !== layout.base; object = object.parent) {
+    for (const [name, control] of layout.controls) if (control.object === object) return name;
+  }
+  return undefined;
+}
+
 /** Explicit roles take priority; an untextured source material is never guessed silver. */
 export function isSilverPaintMaterial(material: Material): boolean {
   const role: unknown = material.userData.console_material_role;

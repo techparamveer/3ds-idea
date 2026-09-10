@@ -26,8 +26,8 @@ def view(asset, index):
 class WebModelTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.source = load('silver-abxy-rollover.glb')
-        cls.web = load('silver-abxy-rollover-web.glb')
+        cls.source = load('silver-abxy-print.glb')
+        cls.web = load('silver-abxy-print-web.glb')
 
     def test_geometry_and_document_are_unchanged_except_image_storage(self):
         before, after = copy.deepcopy(self.source[0]), copy.deepcopy(self.web[0])

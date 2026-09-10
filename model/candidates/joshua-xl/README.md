@@ -230,3 +230,7 @@ Latest checkpoint: `silver-dock-contacts.blend` / `.glb`, with `silver-dock-cont
 ## Rounded cap rims
 
 `silver-abxy-rollover.blend` and its PNG GLB follow the power-indicator checkpoint. The four ABXY rims have a rounded cross-section and continuous radial shading frames, with original extents, top ink and materials retained. See `../../../docs/source-abxy-rollover-validation.md`. The delivery asset is `silver-abxy-rollover-web.glb`.
+
+## Planar cap printing
+
+`silver-abxy-print.blend` and its PNG GLB follow the rounded-cap checkpoint. A 1024-pixel atlas supplies higher-resolution ABXY print on planar top faces, retaining source UVs for plastic maps. See `../../../docs/source-abxy-print-validation.md`. The website uses `silver-abxy-print-web.glb`.

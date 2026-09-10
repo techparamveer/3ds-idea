@@ -71,7 +71,10 @@ fallback test. Earlier fallback evidence remains in the preceding material recor
 ## Remaining work
 
 MIC, POWER, ABXY and other hardware markings still use source artwork; their
-relief and glyphs need separate comparisons. Rolled corners, seams and other local
+relief and glyphs need separate comparisons. The subsequent [etched-lettering
+trial](etched-lettering-comparison.md) establishes that MIC needs recessed detail
+and that reducing normal amplitude alone is not yet a verified replacement.
+Rolled corners, seams and other local
 shapes still require visual refinement despite the measured closed envelope and
 broad curvature. The HOME Menu remains an approximation, with decrypted firmware
 assets and the system font still unresolved in the separate OS task. This pass

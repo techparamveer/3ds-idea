@@ -1,0 +1,48 @@
+{
+  "checkpoint_sha256": "580093f70a82dc7fdf7af2a11cc26171fb7ae66cbe5d1852079f780446b8de66",
+  "regions": {
+    "POWER": {
+      "rectangle_png_pixels": [
+        373,
+        124,
+        428,
+        284
+      ],
+      "baseline_min_rgb": [
+        125,
+        124,
+        255
+      ],
+      "baseline_max_rgb": [
+        135,
+        132,
+        255
+      ],
+      "covered_pixels": {
+        "Sourced graphite chassis": 8800
+      }
+    },
+    "MIC": {
+      "rectangle_png_pixels": [
+        623,
+        475,
+        653,
+        518
+      ],
+      "baseline_min_rgb": [
+        124,
+        124,
+        255
+      ],
+      "baseline_max_rgb": [
+        131,
+        131,
+        255
+      ],
+      "covered_pixels": {
+        "Sourced graphite chassis": 1290
+      }
+    }
+  },
+  "status": "Native trial only; homepage and saved production shader unchanged."
+}

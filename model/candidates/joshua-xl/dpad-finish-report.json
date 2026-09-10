@@ -1,0 +1,9 @@
+{
+  "source": "body-legends-metallic-roughness.png",
+  "output": "dpad-metallic-roughness.png",
+  "roughness_offset": 0.46,
+  "roughness_scale": 0.08,
+  "normal_strength": 0.15,
+  "sha256": "3592bdbcacac19e5b219b0630a151e22b9efae937af131b35e5cfd18de183626",
+  "red_blue_unchanged": true
+}

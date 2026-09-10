@@ -242,3 +242,5 @@ Latest checkpoint: `silver-dock-contacts.blend` / `.glb`, with `silver-dock-cont
 Current authoring checkpoint: `silver-plastic-normals.blend` / PNG GLB. The public model mirrors `silver-plastic-normals-web.glb`; see `docs/source-plastic-normal-validation.md`. Earlier checkpoints remain preserved.
 
 Current authoring checkpoint: `silver-dpad-fit.blend` / PNG GLB. The public model mirrors `silver-dpad-fit-web.glb`; see `docs/source-dpad-fit-validation.md`. Earlier checkpoints remain preserved.
+
+Current authoring checkpoint: `silver-dpad-finish.blend` / PNG GLB. The public model mirrors `silver-dpad-finish-web.glb`; see `docs/source-dpad-finish-validation.md`. Earlier checkpoints remain preserved.

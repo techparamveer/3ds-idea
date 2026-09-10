@@ -10,7 +10,11 @@ function load(name) {
   const size=bytes.readUInt32LE(12);
   return {doc:JSON.parse(bytes.subarray(20,20+size)),bin:bytes.subarray(28+size)};
 }
-const before=load('silver-eur.glb'),after=load('silver-dimensions.glb');
+for (const [baseline, candidate, pass, preserveClearance] of [
+  ['silver-eur.glb', 'silver-dimensions.glb', 'dimensions', true],
+  ['silver-dimensions.glb', 'silver-front.glb', 'front aperture', false],
+]) {
+const before=load(baseline),after=load(candidate);
 function attribute(asset,index) {
   const a=asset.doc.accessors[index],v=asset.doc.bufferViews[a.bufferView];
   const columns={SCALAR:1,VEC2:2,VEC3:3,VEC4:4}[a.type];
@@ -79,7 +83,7 @@ function clearance(asset,meshes,name) {
   return Math.min(...gaps);
 }
 
-test('sourced export meets the published closed envelope with retained images, UVs and rigid controls',()=>{
+test(`${pass}: sourced export meets the published closed envelope with retained images, UVs and rigid controls`,()=>{
   const box=new Box3();
   for(const mesh of current.values())for(const p of mesh.points)box.expandByPoint(new Vector3(...p));
   const size=box.getSize(new Vector3());
@@ -94,6 +98,10 @@ test('sourced export meets the published closed envelope with retained images, U
   assert.ok(triangles>59986&&triangles<200000,'Local refinement must remain a bounded web asset');
   for(const [name,a] of old) {
     const b=current.get(name);assert.ok(b);
+    if(pass==='front aperture'&&name!=='Sourced inner lid') {
+      assert.deepEqual(a.points,b.points,name+' geometry must remain unchanged');
+      for(const key of Object.keys(a.primitive.attributes))assert.deepEqual(attribute(before,a.primitive.attributes[key]),attribute(after,b.primitive.attributes[key]),name+' '+key);
+    }
     const uvA=attribute(before,a.primitive.attributes.TEXCOORD_0),uvB=attribute(after,b.primitive.attributes.TEXCOORD_0);
     if(a.indices.length===b.indices.length){
       for(let i=0;i<a.indices.length;i++)for(let j=0;j<2;j++)assert.ok(Math.abs(uvA[a.indices[i]][j]-uvB[b.indices[i]][j])<1e-7,`${name} UV corner`);
@@ -109,11 +117,14 @@ test('sourced export meets the published closed envelope with retained images, U
   }
 });
 
-test('closed contact clearance and both circular hinge sections survive the size correction',()=>{
+test(`${pass}: closed caps retain clearance and both hinge sections stay circular`,()=>{
   for(const name of ['Button_A','Button_B','Button_Circle','Button_Dpad','Button_HOME','Button_POWER','Button_SELECT','Button_START','Button_X','Button_Y']) {
     const a=clearance(before,old,name),b=clearance(after,current,name);
     assert.ok(b>.008,`${name} penetrates or loses closed clearance: ${b} mm`);
-    assert.ok(Math.abs(a-b)<3e-5,`${name} clearance changed: ${a} -> ${b}`);
+    // Narrowing the bezel brings its underside over Y, which was previously
+    // under the glass. It must stay clear, but its old gap is not an invariant.
+    if(preserveClearance||name!=='Button_Y')assert.ok(Math.abs(a-b)<3e-5,`${name} clearance changed: ${a} -> ${b}`);
+    else assert.ok(b>.4,`Y needs clearance beneath the narrower bezel: ${b}`);
   }
   const hingeA=new Vector3(...before.doc.nodes.find(n=>n.name==='Hinge').translation);
   const hingeB=new Vector3(...after.doc.nodes.find(n=>n.name==='Hinge').translation);
@@ -130,7 +141,7 @@ test('closed contact clearance and both circular hinge sections survive the size
   }
 });
 
-test('broad shell crown remains geometric and current display planes keep their physical sizes through the hinge range',()=>{
+test(`${pass}: broad shell crown and physical display sizes survive the hinge range`,()=>{
   for(const [name,top,z] of [['Sourced outer lid',true,.336445],['Sourced graphite chassis',false,5.8]]) {
     const crown=mesh=>{
       const sample=x=>{const hits=heights(mesh,x,z);assert.ok(hits.length);return top?Math.max(...hits):Math.min(...hits);};
@@ -152,4 +163,17 @@ test('broad shell crown remains geometric and current display planes keep their 
     const glass=surface(after,after.doc.nodes.find(n=>n.name===glassName),angle);
     for(const p of glass.points)assert.ok(Math.abs(center.clone().sub(new Vector3(...p)).dot(normal)-.02)<1e-5,'Live LCD must remain coplanar and .02 mm in front of glass');
   }
+  if(pass==='front aperture') {
+    const inner=current.get('Sourced inner lid'),glass=current.get('Screen_Top');
+    const center=new Vector3().applyMatrix4(inRoot(after,after.doc.nodes.find(n=>n.name==='DisplayAnchor_Top')));
+    const glassHeight=glass.points[0][1];
+    const blocked=(x,z)=>heights(inner,x,z).some(y=>y>13&&y<glassHeight);
+    for(const sign of [-1,1]) {
+      assert.equal(blocked(center.x+sign*56,center.z),false,'112 mm aperture must expose the glass');
+      assert.equal(blocked(center.x+sign*56.1,center.z),true,'Aperture must stop before 112.2 mm');
+    }
+    for(const x of [-53.1,-26.55,0,26.55,53.1])for(const z of [-31.86,-15.93,0,15.93,31.86])
+      assert.equal(blocked(center.x+x,center.z+z),false,'The new bezel must not cover the active LCD');
+  }
 });
+}

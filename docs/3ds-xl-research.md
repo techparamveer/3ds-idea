@@ -1,6 +1,6 @@
 # Original silver 3DS XL: research and reconstruction audit
 
-The latest checkpoint is [the published-envelope correction](source-dimensions-validation.md), which retains the curved shell and EUR textures and verifies 156 × 93 × 22 mm closed. Historical audit tables below describe earlier models.
+The latest checkpoint is [the upper-bezel refinement](source-front-validation.md), which retains the curved shell and EUR textures and verifies 156 × 93 × 22 mm closed. Historical audit tables below describe earlier models.
 
 Research date: 2026-09-09. Scope: exterior hardware, materials, typography, displays and the HOME Menu needed for this portfolio. This record supersedes the earlier implication that matching overall dimensions establishes visual fidelity. The user has explicitly rejected the current appearance.
 

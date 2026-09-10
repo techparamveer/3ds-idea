@@ -1,7 +1,9 @@
 # Published envelope correction — 10 September 2026
 
-The active sourced model is `model/candidates/joshua-xl/silver-dimensions.blend`
-and its verified closed export is mirrored at `public/models/candidates/joshua-xl.glb`.
+This preserved checkpoint has been followed by [the upper-bezel refinement](source-front-validation.md).
+
+The dimension-pass sourced model is `model/candidates/joshua-xl/silver-dimensions.blend`
+and its verified closed export is `silver-dimensions.glb`.
 It now measures **156 × 93 × 22 mm closed**. This resolves the recorded overall
 size discrepancy; it does not establish exact local proportions or photographic
 identity. The previous `silver-eur` checkpoint is preserved.

@@ -53,7 +53,7 @@ Additional modifications, 10 September 2026:
   See docs/source-dimensions-validation.md for the scope and evidence.
 
 This public GLB is the fully textured silver model used by the portfolio
-homepage, derived from model/candidates/joshua-xl/silver-dimensions.blend. It is not
+homepage, derived from model/candidates/joshua-xl/silver-front.blend. It is not
 the earlier textureless inspection preview. The original red source, its images
 and the earlier procedural model remain preserved separately.
 
@@ -64,3 +64,8 @@ adaptation, not a manufacturer measurement. Exact visual identity is not claimed
 
 Nintendo names and marks identify the depicted hardware. No endorsement by
 Nintendo or by the original model author is implied.
+
+Additional modification: narrowed the upper inner-lid aperture by 1.5 mm per
+side using photographic proportions. LCD size, source textures, controls, outer
+cover and hinge barrels are retained. This is an estimated fit, not factory CAD.
+See docs/source-front-validation.md.

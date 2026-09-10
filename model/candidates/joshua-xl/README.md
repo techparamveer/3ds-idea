@@ -2,7 +2,7 @@
 
 The homepage now uses the fully textured silver derivative of this sourced
 original Nintendo 3DS XL. `DEFAULT_MODEL_URL` points to
-`/models/candidates/joshua-xl.glb`, the public mirror of `silver-dimensions.glb`.
+`/models/candidates/joshua-xl.glb`, the public mirror of `silver-front.glb`.
 The `/source-preview` route uses the same sourced model. The directory name
 “candidates” is retained for continuity; this is no longer a textureless preview.
 The earlier procedural model files remain preserved.
@@ -15,7 +15,7 @@ Public attribution: `public/models/candidates/joshua-xl.LICENSE.txt`.
 
 | File or folder | Role |
 | --- | --- |
-| `silver-dimensions.blend` / `.glb` | Current editable rig and static closed export, matching the published closed envelope while retaining controls and contact clearances. |
+| `silver-dimensions.blend` / `.glb` | Preserved envelope checkpoint, matching the published closed envelope while retaining controls and contact clearances. |
 | `silver-eur.blend` / `.glb` | Preserved photographic EUR underside artwork checkpoint before size correction. |
 | `silver-grain.blend` / `.glb` | Preserved curved-shell checkpoint with baked fine paint grain, before EUR artwork. |
 | `silver-curved.blend` / `.glb` | Preserved geometry checkpoint adding shallow broad shell curvature measured from an original-XL reference scan. |
@@ -150,3 +150,15 @@ provisionally centred within the source glass and offset 0.02 mm outward.
 The complete glass bitmap is solid white and does not resolve an exact active-area
 border, so placement remains provisional. The plain HOME Menu and firmware-asset
 work remain separate from this model's source textures.
+
+## Upper bezel refinement
+
+`silver-front.blend` / `.glb` is the current editable rig and verified export.
+`scripts/refine_sourced_front.py` starts from the preserved dimension checkpoint
+and narrows only the inner-lid aperture. Its center-line opening is about 112 mm,
+an image-derived fit; the active LCD stays 106.2 × 63.72 mm. All other meshes and
+all seven images are unchanged. Y now has 0.4655 mm closed clearance beneath the
+bezel; the other measured cap clearances and circular hinge sections are retained.
+See `docs/source-front-validation.md` for references, comparisons, and limits.
+`scripts/audit_sourced_front.py` renders white active LCD footprints and measures
+visible openings rather than hidden glass extents. It restores all inspection state.

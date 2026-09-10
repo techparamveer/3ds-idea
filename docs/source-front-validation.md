@@ -1,6 +1,8 @@
 # Upper screen bezel refinement — 10 September 2026
 
-The homepage now uses `model/candidates/joshua-xl/silver-front.glb`, mirrored at
+The latest homepage checkpoint adds [photographic lower-key lettering](source-legends-validation.md) with this geometry unchanged.
+
+This preserved geometry checkpoint uses `model/candidates/joshua-xl/silver-front.glb`, mirrored at
 `public/models/candidates/joshua-xl.glb`. The editable file is `silver-front.blend`.
 The visible upper opening is approximately **112 mm wide**, reduced from about
 115 mm. The LCD remains **106.2 × 63.72 mm**. This is a photographic fit, not a

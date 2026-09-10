@@ -53,7 +53,7 @@ Additional modifications, 10 September 2026:
   See docs/source-dimensions-validation.md for the scope and evidence.
 
 This public GLB is the fully textured silver model used by the portfolio
-homepage, derived from model/candidates/joshua-xl/silver-front.blend. It is not
+homepage, derived from model/candidates/joshua-xl/silver-legends.blend. It is not
 the earlier textureless inspection preview. The original red source, its images
 and the earlier procedural model remain preserved separately.
 
@@ -69,3 +69,11 @@ Additional modification: narrowed the upper inner-lid aperture by 1.5 mm per
 side using photographic proportions. LCD size, source textures, controls, outer
 cover and hinge barrels are retained. This is an estimated fit, not factory CAD.
 See docs/source-front-validation.md.
+
+Additional modification: SELECT/HOME/START and the house symbol use bounded
+photographic ink from TechRadar’s original-XL front photograph:
+https://cdn.mos.cms.futurecdn.net/0584727e6f39c0e334d6e9537772f9fa.jpg
+Old normal-map relief is suppressed only beneath these labels. Darker colour,
+roughness and specular maps approximate the ink finish; they are not factory
+measurements. Reference imagery is not represented as CC BY source material.
+See docs/source-legends-validation.md for provenance and limitations.

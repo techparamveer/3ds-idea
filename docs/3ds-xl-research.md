@@ -1,6 +1,6 @@
 # Original silver 3DS XL: research and reconstruction audit
 
-The latest checkpoint is [the upper-bezel refinement](source-front-validation.md), which retains the curved shell and EUR textures and verifies 156 × 93 × 22 mm closed. Historical audit tables below describe earlier models.
+The latest checkpoint adds [photographic lower-key lettering](source-legends-validation.md) to [the upper-bezel refinement](source-front-validation.md), which retains the curved shell and EUR textures and verifies 156 × 93 × 22 mm closed. Historical audit tables below describe earlier models.
 
 Research date: 2026-09-09. Scope: exterior hardware, materials, typography, displays and the HOME Menu needed for this portfolio. This record supersedes the earlier implication that matching overall dimensions establishes visual fidelity. The user has explicitly rejected the current appearance.
 
@@ -26,7 +26,7 @@ Use the user's silver-unit photographs for finish and regional markings. Nintend
 | [Circle pad / deck close-up](https://www.slashgear.com/img/gallery/nintendo-3ds-xl-review/DSC00847-580x385.jpg) | Visible molded deck grain, dished pad, raised D-pad, rounded case transition; browser inspected again this pass. |
 | [Silver closed-lid photograph](https://regmedia.co.uk/2012/07/30/3ds_xl_3.jpg) | Broad silver surface and rolled edge highlights; browser inspected again this pass. |
 
-Additional close-up URLs and the seven supplied photographs are indexed in `references.md` and the original task. No review photograph has been installed as a production texture.
+Additional close-up URLs and the seven supplied photographs are indexed in `references.md` and the original task. Later sourced-model passes use bounded photographic ink regions, recorded in `source-eur-validation.md` and `source-legends-validation.md`.
 
 ## Confirmed dimensions versus current implementation
 

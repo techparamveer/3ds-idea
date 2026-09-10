@@ -1,0 +1,9 @@
+{
+  "glb_sha256": "580093f70a82dc7fdf7af2a11cc26171fb7ae66cbe5d1852079f780446b8de66",
+  "specular_texture_sha256": "dc53c999a0ec1db8ec5a1b0926133bee93dbed6374681f81ec8599d3a5c1674d",
+  "maximum_alpha_error": 0,
+  "outside_edit_specular_factor": 1,
+  "specular_texcoord": 0,
+  "minimum_specular_alpha": 13,
+  "interpretation": "Authored grayscale factor transferred into glTF specularTexture alpha; original factor retained outside the lettering."
+}

@@ -1,0 +1,129 @@
+{
+  "source": {
+    "url": "https://cdn.mos.cms.futurecdn.net/0584727e6f39c0e334d6e9537772f9fa.jpg",
+    "sha256": "3623ad38a7ebf24d6bbb1cd7f6889d3763dab63c0e35b3e3f7843592f7024770"
+  },
+  "legends": {
+    "Button_SELECT": {
+      "crop": [
+        727,
+        792,
+        798,
+        808
+      ],
+      "size_mm": [
+        12.35,
+        3.4
+      ],
+      "threshold_srgb": [
+        35,
+        68
+      ],
+      "clear_width_mm": 18
+    },
+    "Button_HOME": {
+      "crop": [
+        874,
+        792,
+        960,
+        808
+      ],
+      "size_mm": [
+        15.0,
+        3.4
+      ],
+      "threshold_srgb": [
+        33,
+        64
+      ],
+      "clear_width_mm": 20
+    },
+    "Button_START": {
+      "crop": [
+        1041,
+        792,
+        1102,
+        808
+      ],
+      "size_mm": [
+        10.61,
+        3.4
+      ],
+      "threshold_srgb": [
+        30,
+        59
+      ],
+      "clear_width_mm": 18
+    }
+  },
+  "measurements": {
+    "Button_SELECT": {
+      "center_local_mm": [
+        -0.0023751258850097656,
+        0.39388275146484375,
+        1.097188949584961
+      ],
+      "uv_per_y_mm": [
+        3.389129689896882e-08,
+        -0.0015691527497489171
+      ],
+      "uv_fit_max_error": 6.067212355853613e-06
+    },
+    "Button_HOME": {
+      "center_local_mm": [
+        0.0,
+        0.3798408508300781,
+        1.0971908569335938
+      ],
+      "uv_per_y_mm": [
+        -5.615784731797972e-09,
+        0.0032314573078161602
+      ],
+      "uv_fit_max_error": 7.947285973752827e-08
+    },
+    "Button_START": {
+      "center_local_mm": [
+        0.0023784637451171875,
+        0.39388275146484375,
+        1.0971908569335938
+      ],
+      "uv_per_y_mm": [
+        3.254178246524267e-07,
+        -0.0015691416630179975
+      ],
+      "uv_fit_max_error": 6.187335022000973e-06
+    }
+  },
+  "ink_finish": {
+    "basecolor_multiplier": 0.18,
+    "roughness": 0.52,
+    "specular_factor": 0.05
+  },
+  "method": "Photographic ink thresholding projected through actual source top-face UVs. Glyph-free normal rows interpolate beneath the old relief. Geometry unchanged.",
+  "maps": {
+    "basecolor": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-legends-basecolor.png",
+      "sha256": "62c404551c97aef7f66a64a9f0215ca82cc7fbd58688c534a08df081b3876cc2"
+    },
+    "normal": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-legends-normal.png",
+      "sha256": "3615d2576f93239f80e8de37f6e1474d8a3955f6a89e862a589914a2067fdd5c"
+    },
+    "metallic-roughness": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-legends-metallic-roughness.png",
+      "sha256": "1273c770ca6eb0099c68676f603c9960759d55a731e1e484cedac0fe5fa2b0af"
+    },
+    "specular": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-legends-specular.png",
+      "sha256": "708f32f17b23d52fd68d33b8086095809b92597b5258ccdbd66ceebae2cf3384"
+    },
+    "edit-mask": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-legends-edit-mask.png",
+      "sha256": "d0fcbe2cc895abd69f1a51eaf367dbd7b10d59cd2834912cf0bf680e96d1c4b5"
+    },
+    "ink-mask": {
+      "file": "model/candidates/joshua-xl/derived-textures/body-legends-ink-mask.png",
+      "sha256": "2e97fe9ec6d745ccd6f53f1d87064e8821b95553e4f9d06f1178d473e362ed8f"
+    }
+  }
+}

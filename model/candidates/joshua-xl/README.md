@@ -2,7 +2,7 @@
 
 The homepage now uses the fully textured silver derivative of this sourced
 original Nintendo 3DS XL. `DEFAULT_MODEL_URL` points to
-`/models/candidates/joshua-xl.glb`, the public mirror of `silver-front.glb`.
+`/models/candidates/joshua-xl.glb`, the public mirror of `silver-legends.glb`.
 The `/source-preview` route uses the same sourced model. The directory name
 “candidates” is retained for continuity; this is no longer a textureless preview.
 The earlier procedural model files remain preserved.
@@ -15,6 +15,8 @@ Public attribution: `public/models/candidates/joshua-xl.LICENSE.txt`.
 
 | File or folder | Role |
 | --- | --- |
+| `silver-legends.blend` / `.glb` | Current textured rig with photographic lower-key ink and exportable reflectance. |
+| `silver-front.blend` / `.glb` | Preserved upper-bezel geometry checkpoint. |
 | `silver-dimensions.blend` / `.glb` | Preserved envelope checkpoint, matching the published closed envelope while retaining controls and contact clearances. |
 | `silver-eur.blend` / `.glb` | Preserved photographic EUR underside artwork checkpoint before size correction. |
 | `silver-grain.blend` / `.glb` | Preserved curved-shell checkpoint with baked fine paint grain, before EUR artwork. |
@@ -143,7 +145,7 @@ checkpoints remain preserved.
 
 The original USA underside artwork has been replaced with the user's
 SPR-001(EUR) layout, photographic symbols and serial-label ink. Capture resolution
-limits the smallest text and seals; barcode encoding is unverified. Front
+limits the smallest text and seals; barcode encoding is unverified. SELECT/HOME/START now use photographed dark ink. Other front
 hardware lettering remains source artwork, not a verified Nintendo font.
 The live LCDs use Nintendo's 106.2 × 63.72 mm and 84.96 × 63.72 mm dimensions,
 provisionally centred within the source glass and offset 0.02 mm outward.
@@ -153,7 +155,7 @@ work remain separate from this model's source textures.
 
 ## Upper bezel refinement
 
-`silver-front.blend` / `.glb` is the current editable rig and verified export.
+`silver-front.blend` / `.glb` preserves the upper-bezel checkpoint.
 `scripts/refine_sourced_front.py` starts from the preserved dimension checkpoint
 and narrows only the inner-lid aperture. Its center-line opening is about 112 mm,
 an image-derived fit; the active LCD stays 106.2 × 63.72 mm. All other meshes and
@@ -162,3 +164,7 @@ bezel; the other measured cap clearances and circular hinge sections are retaine
 See `docs/source-front-validation.md` for references, comparisons, and limits.
 `scripts/audit_sourced_front.py` renders white active LCD footprints and measures
 visible openings rather than hidden glass extents. It restores all inspection state.
+
+## Lower-key lettering
+
+From `silver-front.blend`, run `scripts/texture_sourced_legends.py` through Blender MCP to generate six UV-space maps. Run `scripts/audit_legends_atlas.py` independently, then call the module’s `install()` in Blender. This produces `silver-legends.blend` / `.glb`; verify with `scripts/audit_legends_export.py` before mirroring publicly. The explicit Separate Color red output is necessary to pack the ink reflectance into glTF specular alpha. Geometry and unrelated atlas pixels stay unchanged. See `docs/source-legends-validation.md` for comparison evidence and the reference-resolution limit.

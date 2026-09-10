@@ -15,7 +15,7 @@ VIEWS = [
 ]
 
 
-def main(prefix='dimensions-before', only=None):
+def main(prefix='dimensions-before', only=None, resolution=(1000, 750)):
     scene = bpy.context.scene
     root, hinge, camera = scene.objects['3DS_XL'], scene.objects['Hinge'], scene.camera
     frame = scene.frame_current
@@ -33,7 +33,7 @@ def main(prefix='dimensions-before', only=None):
         scene.render.engine = 'CYCLES'
         scene.cycles.device = 'CPU'
         scene.cycles.samples = 12
-        scene.render.resolution_x, scene.render.resolution_y = 1000, 750
+        scene.render.resolution_x, scene.render.resolution_y = resolution
         scene.render.resolution_percentage = 100
         camera.data.type = 'ORTHO'
         for name, angle, location, target, scale, roll in VIEWS:

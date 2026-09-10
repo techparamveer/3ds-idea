@@ -1,0 +1,40 @@
+{
+  "source": "silver-front.glb",
+  "maps": {
+    "basecolor": {
+      "changed_pixels": 3719,
+      "outside_edit_changed": 0,
+      "sha256": "62c404551c97aef7f66a64a9f0215ca82cc7fbd58688c534a08df081b3876cc2"
+    },
+    "normal": {
+      "changed_pixels": 18846,
+      "outside_edit_changed": 0,
+      "sha256": "3615d2576f93239f80e8de37f6e1474d8a3955f6a89e862a589914a2067fdd5c"
+    },
+    "metallic-roughness": {
+      "changed_pixels": 3793,
+      "outside_edit_changed": 0,
+      "sha256": "1273c770ca6eb0099c68676f603c9960759d55a731e1e484cedac0fe5fa2b0af"
+    },
+    "specular": {
+      "changed_pixels": 3828,
+      "outside_edit_changed": 0,
+      "sha256": "708f32f17b23d52fd68d33b8086095809b92597b5258ccdbd66ceebae2cf3384"
+    }
+  },
+  "Button_SELECT": {
+    "ink_pixels": 507,
+    "core_ink_pixels": 45
+  },
+  "Button_HOME": {
+    "ink_pixels": 2960,
+    "core_ink_pixels": 144
+  },
+  "Button_START": {
+    "ink_pixels": 363,
+    "core_ink_pixels": 20
+  },
+  "other_face_overlap": {},
+  "edited_pixels": 23723,
+  "outside_top_faces": 0
+}

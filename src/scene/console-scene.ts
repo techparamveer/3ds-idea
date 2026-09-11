@@ -7,6 +7,7 @@ import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
 import { DEFAULT_MODEL_URL, controlFromObject, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
+import { ButtonMotion, buttonTravel } from './button-motion';
 
 const RAD = Math.PI / 180;
 export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MODEL_URL):Promise<()=>void> {
@@ -85,8 +86,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   let frame=0,disposed=false,last=performance.now(),intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1;
   let start=last;
   let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D}|null=null;
-  type PressedCap={parts:{object:THREE.Object3D;y:number}[];travel:number;depth:number;until:number;held:Set<string>};
+  type PressedCap={parts:{object:THREE.Object3D;y:number}[];motion:ButtonMotion};
   const pressed=new Map<THREE.Object3D,PressedCap>();
+  let lastPress:{name:string;maxTravelMm:number}|undefined;
   const caps=new Map<string,THREE.Object3D>();
   const capParts=new Map<THREE.Object3D,{object:THREE.Object3D;y:number}[]>();
   model.updateMatrixWorld(true);
@@ -111,11 +113,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function press(name:string,source?:string){
     const cap=caps.get(name);if(!cap)return;
     let feedback=pressed.get(cap);
-    if(!feedback){const control=[...layout.controls.values()].find(value=>value.object===cap);feedback={parts:capParts.get(cap)!,travel:control?.pressTravelMm??.25,depth:0,until:0,held:new Set()};pressed.set(cap,feedback);}
-    if(source)feedback.held.add(source);else feedback.until=performance.now()+70;
+    if(!feedback){const control=[...layout.controls.values()].find(value=>value.object===cap);feedback={parts:capParts.get(cap)!,motion:new ButtonMotion(buttonTravel(name,control?.pressTravelMm??.25))};pressed.set(cap,feedback);}
+    feedback.motion.press(performance.now(),source);
+    lastPress={name:cap.name,maxTravelMm:0};
   }
-  function release(source:string){for(const feedback of pressed.values())feedback.held.delete(source);}
-  function releaseAll(){for(const feedback of pressed.values()){feedback.held.clear();feedback.until=0;}}
+  function release(source:string){for(const feedback of pressed.values())feedback.motion.release(source);}
+  function releaseAll(){for(const feedback of pressed.values()){feedback.motion.cancel();}}
   function hit(event:PointerEvent){
     const rect=host.getBoundingClientRect();mouse.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);
     // Raycaster includes invisible meshes. Baked screen artwork and displays
@@ -165,7 +168,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(angle<90){toggleLid(true);return;}
     if(h.object===touchScreen&&h.uv){state=touchMenu(state,h.uv.x*320,(1-h.uv.y)*240);lastInput='touch';paint();return;}
     const name=controlName(h.object);
-    if(name){press(name);
+    if(name&&(!was.control||controlName(was.control)!==name))return;
+    if(name){
       const mapping:Record<string,Input>={A:'open',B:'back',X:'zoom',Y:'brightness',HOME:'home',START:'open',SELECT:'zoom',POWER:'power',L:'left',R:'right'};
       if(name==='DPAD'||name==='CIRCLE'){
         send(directionFromControlHit(layout,name,h.point));
@@ -204,11 +208,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     hinge.rotation.x=-angle*RAD;pivot.rotation.set(pitch,yaw,0);pivot.scale.setScalar(scale);
     topScreen.visible=touchScreen.visible=angle>12;
     for(const [cap,feedback]of pressed){
-      const depth=(feedback.held.size>0||now<feedback.until)?feedback.travel:0;
-      feedback.depth=reduced?depth:THREE.MathUtils.damp(feedback.depth,depth,45,dt);
-      if(depth===0&&feedback.depth<.001){for(const part of feedback.parts)part.object.position.y=part.y;pressed.delete(cap);}
-      else for(const part of feedback.parts)part.object.position.y=part.y-feedback.depth;
+      const depth=feedback.motion.step(now,dt,reduced);
+      if(depth===0){for(const part of feedback.parts)part.object.position.y=part.y;pressed.delete(cap);}
+      else for(const part of feedback.parts)part.object.position.y=part.y-depth;
+      if(lastPress?.name===cap.name){
+        lastPress.maxTravelMm=Math.max(lastPress.maxTravelMm,feedback.parts[0].y-cap.position.y);
+        host.dataset.lastButtonPress=JSON.stringify(lastPress);
+      }
     }
+    host.dataset.buttonDepths=JSON.stringify(Object.fromEntries([...pressed].map(([cap,feedback])=>[cap.name,Number(feedback.motion.depth.toFixed(3))])));
     const minute=Math.floor(Date.now()/60000);if(minute!==lastMinute){lastMinute=minute;paint();}
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     scene.updateMatrixWorld(true);

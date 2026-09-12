@@ -1,0 +1,63 @@
+{
+  "status": "photograph-constrained estimate, not factory dimensions",
+  "reference": "https://commons.wikimedia.org/wiki/File:3DS_XL_and_New_3DS_XL_-_front.jpg",
+  "bore_diameter_mm": 3.58,
+  "housing_depth_mm": 6.7,
+  "leaf_thickness_mm": 0.075,
+  "objects": [
+    {
+      "name": "Audio_Bore_Housing",
+      "triangles": 480,
+      "bounds_mm": [
+        [
+          -61.52225112915039,
+          -57.49625015258789
+        ],
+        [
+          -44.29999923706055,
+          -37.599998474121094
+        ],
+        [
+          4.30109977722168,
+          8.327099800109863
+        ]
+      ]
+    },
+    {
+      "name": "Audio_Contact_Arc",
+      "triangles": 260,
+      "bounds_mm": [
+        [
+          -61.269248962402344,
+          -60.59682083129883
+        ],
+        [
+          -43.650001525878906,
+          -43.119998931884766
+        ],
+        [
+          5.570291996002197,
+          7.057908058166504
+        ]
+      ]
+    },
+    {
+      "name": "Audio_Contact_Leaf",
+      "triangles": 196,
+      "bounds_mm": [
+        [
+          -59.42924880981445,
+          -58.82925033569336
+        ],
+        [
+          -43.45000076293945,
+          -42.625
+        ],
+        [
+          5.264100074768066,
+          7.364099979400635
+        ]
+      ]
+    }
+  ]
+}

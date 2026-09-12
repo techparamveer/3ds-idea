@@ -1,0 +1,11 @@
+# Headphone socket interior study
+
+The original XL is the lower console in Antoine Turmel’s [front-edge photograph](https://commons.wikimedia.org/wiki/File:3DS_XL_and_New_3DS_XL_-_front.jpg), dated 14 February 2015 (CC BY 2.0). The full-resolution image was inspected in the browser. A curved metallic patch is visible at the left inside the socket, with a narrower bowed contact deeper toward the right. The upper console is a New XL and is not the geometry reference.
+
+The source model had a rim and opening but no internal contact surfaces. `preview_audio_contacts.py` adds a recessed dark housing, a curved left contact and a bowed leaf. The latest reversible macros are `audio-contacts-trial-front.png`, `audio-contacts-trial-under.png` and `audio-contacts-trial-photo-angle.png`. The earlier narrow arc trial is preserved in `audio-contacts-thin-arc-*.png`; it read as a thin line rather than the wider patch in the photograph. The revised housing overlaps the rear rim slightly to avoid an exposed join.
+
+These are photograph-constrained estimates. The 3.58 mm bore, 6.7 mm housing depth, 0.075 mm leaf thickness and plated-metal material are not manufacturer measurements or a verified alloy. The visible front surfaces are modeled; this is not a complete mechanically functional jack assembly. The photograph has different lighting and exposure, so its highlights do not establish metal dimensions or color calibration. The approximate reference-angle macro is not a calibrated camera fit.
+
+The script must start from `silver-audio-finish.blend`. Its default operation renders a reversible preview and removes the trial objects afterwards. `main(persist=True, preview=False)` renders the six standard views, saves a separate `silver-audio-contacts.blend`, exports a GLB and restores its carried shading frames. Existing checkpoints are preserved.
+
+All three additions are parented to Base. They use standard PBR materials with single-sided faces, valid UVs and explicit carried normal/tangent frames. The UVs are local per-triangle coordinates for frame consistency; they are not photographic textures. No new texture images are required. Zero-area faces at the housing cap are omitted, and the closed arc’s winding is checked by signed volume. Independent export validation and web verification are required before replacing the public model.

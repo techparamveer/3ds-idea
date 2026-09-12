@@ -66,7 +66,7 @@ function screenFromMetadata(model: Object3D, value: unknown, expectedParent: Obj
 }
 
 /** Bounds in Base space, independent of a mesh's baked vertices or object origin. */
-export function controlCenterInBase(base: Object3D, control: Object3D): Vector3 {
+export function controlBoundsInBase(base: Object3D, control: Object3D): Box3 {
   base.updateWorldMatrix(true, true);
   const inverseBase = base.matrixWorld.clone().invert();
   const bounds = new Box3();
@@ -83,7 +83,11 @@ export function controlCenterInBase(base: Object3D, control: Object3D): Vector3 
     }
   });
   if (bounds.isEmpty()) throw new Error(`Control ${control.name} has no mesh bounds.`);
-  return bounds.getCenter(new Vector3());
+  return bounds;
+}
+
+export function controlCenterInBase(base: Object3D, control: Object3D): Vector3 {
+  return controlBoundsInBase(base, control).getCenter(new Vector3());
 }
 
 /** Read layout without changing the asset, its rest transforms, UVs, or materials. */

@@ -4,10 +4,11 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createScreens } from '@/os/screens';
 import { initialState, reduceMenu, touchMenu, type Input } from '@/os/state';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
-import { DEFAULT_MODEL_URL, controlFromObject, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement } from './model-layout';
+import { DEFAULT_MODEL_URL, controlBoundsInBase, controlFromObject, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
+import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
 
 const RAD = Math.PI / 180;
 export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MODEL_URL):Promise<()=>void> {
@@ -85,7 +86,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');let reduced=motionPreference.matches;
   let frame=0,disposed=false,last=performance.now(),intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1;
   let start=last;
-  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D}|null=null;
+  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;repeatAt?:number}|null=null;
   type PressedCap={parts:{object:THREE.Object3D;y:number}[];motion:ButtonMotion};
   const pressed=new Map<THREE.Object3D,PressedCap>();
   let lastPress:{name:string;maxTravelMm:number}|undefined;
@@ -104,6 +105,39 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       if(center.x>=capBounds.min.x&&center.x<=capBounds.max.x&&center.z>=capBounds.min.z&&center.z<=capBounds.max.z)parts.push({object:o,y:o.position.y});
     });capParts.set(cap,parts);
   }
+  const directional=new Map<DirectionalControlName,{motion:DirectionalMotion;rig:ReturnType<typeof createDirectionalRig>;surfaceY:number}>();
+  for(const name of ['DPAD','CIRCLE'] as const){
+    const control=layout.controls.get(name);
+    if(control){
+      const surfaceY=controlBoundsInBase(layout.base,control.object).max.y;
+      directional.set(name,{motion:new DirectionalMotion(),surfaceY,rig:createDirectionalRig(layout.base,control.centerInBase,capParts.get(control.object)!.map(part=>part.object))});
+    }
+  }
+  function setPad(name:DirectionalControlName,vector:PadVector,source:string){
+    directional.get(name)?.motion.press(source,vector,performance.now());
+    host.dataset.lastPadInput=JSON.stringify({name,...vector});
+  }
+  function pointerPad(name:DirectionalControlName,event:PointerEvent){
+    const control=layout.controls.get(name)!;
+    const rect=host.getBoundingClientRect();
+    mouse.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);
+    const point=layout.base.localToWorld(new THREE.Vector3(control.centerInBase.x,directional.get(name)!.surfaceY,control.centerInBase.z));
+    const normal=new THREE.Vector3(0,1,0).transformDirection(layout.base.matrixWorld);
+    const projected=ray.ray.intersectPlane(new THREE.Plane().setFromNormalAndCoplanarPoint(normal,point),new THREE.Vector3());
+    if(!projected)return;
+    const local=layout.base.worldToLocal(projected).sub(control.centerInBase);
+    if(name==='CIRCLE'&&drag){
+      drag.padOrigin??=local.clone();
+      local.sub(drag.padOrigin);
+    }
+    const vector=clampPad({x:local.x/6,y:local.z/6});
+    const direction=padDirection(vector);
+    setPad(name,name==='DPAD'&&direction?DIRECTION_VECTOR[direction]:vector,'pointer');
+    if(drag){
+      if(direction&&direction!==drag.padDirection){send(direction);drag.repeatAt=performance.now()+420;}
+      drag.padDirection=direction;
+    }
+  }
   let lastInput='none';
   const writeState=()=>{
     host.dataset.ready='true';host.dataset.menu=state.opened?'folder':'home';host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
@@ -111,14 +145,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function paint(){model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*.97:0;writeState();}
   function send(input:Input){state=reduceMenu(state,input);lastInput=input;paint();}
   function press(name:string,source?:string){
+    if(name==='DPAD'||name==='CIRCLE')return;
     const cap=caps.get(name);if(!cap)return;
     let feedback=pressed.get(cap);
     if(!feedback){const control=[...layout.controls.values()].find(value=>value.object===cap);feedback={parts:capParts.get(cap)!,motion:new ButtonMotion(buttonTravel(name,control?.pressTravelMm??.25))};pressed.set(cap,feedback);}
     feedback.motion.press(performance.now(),source);
     lastPress={name:cap.name,maxTravelMm:0};
   }
-  function release(source:string){for(const feedback of pressed.values())feedback.motion.release(source);}
-  function releaseAll(){for(const feedback of pressed.values()){feedback.motion.cancel();}}
+  function release(source:string){for(const feedback of pressed.values())feedback.motion.release(source);for(const pad of directional.values())pad.motion.release(source);}
+  function releaseAll(){for(const feedback of pressed.values())feedback.motion.cancel();for(const pad of directional.values())pad.motion.cancel();}
   function hit(event:PointerEvent){
     const rect=host.getBoundingClientRect();mouse.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);
     // Raycaster includes invisible meshes. Baked screen artwork and displays
@@ -147,23 +182,30 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function toggleLid(open=false){
     const interrupted=intro;interruptIntro();
     targetAngle=open?MAX_LID_DEGREES:(interrupted?angle:targetAngle)>70?0:MAX_LID_DEGREES;
+    if(targetAngle===0){pointerCancel();releaseAll();}
     lastInput='hinge';writeState();
   }
   function pointerDown(e:PointerEvent){
     if(!e.isPrimary||e.button!==0||drag)return;
     host.focus({preventScroll:true});host.setPointerCapture(e.pointerId);interruptIntro();
     const h=hit(e);drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,control:h?.object};
-    if(h&&angle>90)press(controlName(h.object),'pointer');
+    if(h&&angle>90){
+      const name=controlName(h.object);
+      if(name==='DPAD'||name==='CIRCLE'){
+        drag.pad=name;pointerPad(name,e);
+      }else press(name,'pointer');
+    }
   }
   function pointerMove(e:PointerEvent){
     if(!drag){const h=hit(e);host.style.cursor=h?(controlName(h.object)||h.object===touchScreen?'pointer':'grab'):'default';return;}
     if(e.pointerId!==drag.pointerId)return;
+    if(drag.pad){pointerPad(drag.pad,e);return;}
     if(!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5){drag.moved=true;targetYaw=yaw;targetPitch=pitch;release('pointer');}
     if(drag.moved){targetYaw+=(e.clientX-drag.x)*.007;targetPitch=THREE.MathUtils.clamp(targetPitch+(e.clientY-drag.y)*.003,-1.65,1.3);host.style.cursor='grabbing';}
     drag.x=e.clientX;drag.y=e.clientY;
   }
   function pointerUp(e:PointerEvent){
-    if(!drag||e.pointerId!==drag.pointerId)return;const was=drag;drag=null;release('pointer');if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);host.style.cursor='grab';if(was.moved)return;
+    if(!drag||e.pointerId!==drag.pointerId)return;const was=drag;drag=null;release('pointer');if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);host.style.cursor='grab';if(was.moved||was.pad)return;
     const h=hit(e);if(!h)return;
     if(angle<90){toggleLid(true);return;}
     if(h.object===touchScreen&&h.uv){state=touchMenu(state,h.uv.x*320,(1-h.uv.y)*240);lastInput='touch';paint();return;}
@@ -186,7 +228,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     const action=map[key];if(!action)return;e.preventDefault();if(angle<=90)return;
     interruptIntro();
     const physical:Record<string,string>={ArrowLeft:'DPAD',ArrowRight:'DPAD',ArrowUp:'DPAD',ArrowDown:'DPAD',Enter:'A',a:'A',b:'B',Escape:'B',h:'HOME',p:'POWER',x:'X',y:'Y',q:'L',e:'R'};
-    press(physical[key],`key:${e.code}`);
+    if(physical[key]==='DPAD')setPad('DPAD',DIRECTION_VECTOR[action as ControlDirection],`key:${e.code}`);
+    else press(physical[key],`key:${e.code}`);
     if(!e.repeat||key.startsWith('Arrow'))send(action);
   }
   function keyup(e:KeyboardEvent){release(`key:${e.code}`);}
@@ -195,7 +238,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();targetScale=THREE.MathUtils.clamp(targetScale-e.deltaY*.0005,.7,1.3);}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=2*Math.atan(Math.tan(33*RAD/2)*Math.max(1,1.04/(w/h)))/RAD;camera.updateProjectionMatrix();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
-  host.addEventListener('pointerdown',pointerDown);host.addEventListener('pointermove',pointerMove);host.addEventListener('pointerup',pointerUp);host.addEventListener('pointercancel',pointerCancel);host.addEventListener('keydown',keydown);host.addEventListener('keyup',keyup);host.addEventListener('blur',blur);host.addEventListener('wheel',wheel,{passive:false});motionPreference.addEventListener('change',motionChanged);
+  host.addEventListener('pointerdown',pointerDown);host.addEventListener('pointermove',pointerMove);host.addEventListener('pointerup',pointerUp);host.addEventListener('pointercancel',pointerCancel);host.addEventListener('lostpointercapture',pointerCancel);host.addEventListener('keydown',keydown);host.addEventListener('keyup',keyup);host.addEventListener('blur',blur);host.addEventListener('wheel',wheel,{passive:false});motionPreference.addEventListener('change',motionChanged);
   // Enable keyboard play on first load without taking focus from another control.
   if(document.activeElement===document.body)host.focus({preventScroll:true});
   function animate(now:number){
@@ -207,6 +250,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     pitch=reduced?targetPitch:THREE.MathUtils.damp(pitch,targetPitch,drag?.moved?18:7,dt);scale=reduced?targetScale:THREE.MathUtils.damp(scale,targetScale,7,dt);
     hinge.rotation.x=-angle*RAD;pivot.rotation.set(pitch,yaw,0);pivot.scale.setScalar(scale);
     topScreen.visible=touchScreen.visible=angle>12;
+    if(drag?.pad&&drag.padDirection&&now>=(drag.repeatAt??Infinity)){
+      send(drag.padDirection);drag.repeatAt=now+150;
+    }
+    const padPoses:Record<string,unknown>={};
+    for(const [name,pad]of directional){
+      const vector=pad.motion.step(now,dt,reduced);pad.rig.apply(name,vector);
+      padPoses[name]={...vector,rotation:pad.rig.pivot.rotation.toArray().slice(0,3),position:pad.rig.pivot.position.toArray()};
+    }
+    host.dataset.padPoses=JSON.stringify(padPoses);
     for(const [cap,feedback]of pressed){
       const depth=feedback.motion.step(now,dt,reduced);
       if(depth===0){for(const part of feedback.parts)part.object.position.y=part.y;pressed.delete(cap);}
@@ -225,7 +277,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(!intro&&frame%120===0){
       const targets:Record<string,number[]>={};for(const name of ['Button_A','Button_B','Button_HOME','Button_POWER','Button_Dpad','Display_Touch']){
         const o=model.getObjectByName(name);if(o){const v=new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).project(camera);targets[name]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];}
-      }host.dataset.targets=JSON.stringify(targets);
+      }
+      for(const name of ['DPAD','CIRCLE'] as const){
+        const control=layout.controls.get(name);if(!control)continue;
+        for(const [direction,offset]of Object.entries(DIRECTION_VECTOR)){
+          const v=layout.base.localToWorld(control.centerInBase.clone().add(new THREE.Vector3(offset.x*6,2,offset.y*6))).project(camera);
+          targets[`${name}_${direction}`]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];
+        }
+      }
+      host.dataset.targets=JSON.stringify(targets);
     }
     renderer.render(scene,camera);frame++;request=requestAnimationFrame(animate);
   }
@@ -240,5 +300,5 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   renderer.render(scene,camera);
   start=last=performance.now();
   let request=requestAnimationFrame(animate);writeState();
-  return ()=>{surfaceDisposed=true;disposed=true;for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
+  return ()=>{surfaceDisposed=true;disposed=true;for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerCancel);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
 }

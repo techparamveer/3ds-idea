@@ -35,6 +35,8 @@ Open http://localhost:3000. `npm run build` creates a production build; `npm sta
 
 ## Model and rendering
 
+The homepage uses the sourced silver model in `public/models/candidates/joshua-xl.glb`: **12.35 MB**, reduced from 110.58 MB. See [compact model delivery](docs/compact-model-delivery.md) for regeneration, precision limits and verification. Its editable source is `model/candidates/joshua-xl/silver-audio-finish.blend`. The earlier procedural model below is preserved.
+
 - `model/silver-3ds-xl.blend`: native Blender model, studio lights, camera, packed surface map.
 - `public/models/silver-3ds-xl.glb`: web model, in metres, with hinge and separately named controls.
 - `model/dimensions.json`: physical measurements from evaluated Blender geometry.

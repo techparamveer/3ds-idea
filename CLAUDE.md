@@ -14,7 +14,7 @@ Read `docs/source-corners-validation.md` for the current sourced-model checkpoin
 `docs/comparison-pass-2026-09-09.md` records earlier procedural repairs. The active OS task uses
 branch `codex/home-menu-assets`; its decrypted asset dependency remains unresolved.
 
-The browser serves a lossless WebP delivery pack, `silver-audio-finish-web.glb`; keep editing the PNG-based Blender checkpoint. See `docs/web-model-packing.md` before updating the public asset.
+The browser serves `silver-audio-finish-compact.glb`, a 12.35 MB Meshopt/WebP delivery pack; keep editing the full-resolution Blender checkpoint. See `docs/compact-model-delivery.md` before updating the public asset.
 
 The power indicator colour pass is documented in `docs/source-power-indicator-validation.md`.
 

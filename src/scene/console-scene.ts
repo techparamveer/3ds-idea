@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createScreens } from '@/os/screens';
 import { initialState, reduceMenu, touchMenu, type Input } from '@/os/state';
@@ -26,7 +27,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.ShadowMaterial({color:0x625d55,opacity:.16}));floor.rotation.x=-Math.PI/2;floor.position.y=-.15;floor.receiveShadow=true;scene.add(floor);
   const pivot=new THREE.Group();scene.add(pivot);
   let gltf;
-  try{gltf=await new GLTFLoader().loadAsync(modelUrl);}catch(e){renderer.dispose();renderer.domElement.remove();env.dispose();throw e;}
+  try{gltf=await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(modelUrl);}catch(e){renderer.dispose();renderer.domElement.remove();env.dispose();throw e;}
   const model=gltf.scene;model.scale.setScalar(10);pivot.add(model);
   const layout=resolveModelLayout(model);const {hinge}=layout;
   host.dataset.model=modelUrl;host.dataset.layout=layout.source;

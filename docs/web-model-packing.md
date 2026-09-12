@@ -1,6 +1,10 @@
-# Lossless web delivery model
+# Web delivery model
 
-Current checkpoint update: the homepage now serves `silver-dock-contacts-web.glb`, packed from `silver-dock-contacts.glb`; edit `silver-dock-contacts.blend`. See `source-dock-contact-validation.md` for current sizes, hashes and checks. The initial packing measurements below remain a historical baseline.
+The current homepage uses the [compact delivery pack](compact-model-delivery.md),
+12.35 MB rather than the previous 110.58 MB. The lossless packing records below
+are historical source checkpoints.
+
+Historical checkpoint update: the homepage then served `silver-dock-contacts-web.glb`, packed from `silver-dock-contacts.glb`; edit `silver-dock-contacts.blend`. See `source-dock-contact-validation.md` for current sizes, hashes and checks. The initial packing measurements below remain a historical baseline.
 
 The initial packing pass used `silver-lower-keys.blend`, its PNG-based authoring export `silver-lower-keys.glb`, and the separate `silver-lower-keys-web.glb`. Do not import a web pack as the next authoring checkpoint.
 

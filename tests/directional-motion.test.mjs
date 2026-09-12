@@ -1,3 +1,4 @@
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -42,8 +43,11 @@ test('shipped D-pad rocks around its own centre with the opposite arm rising; ci
   for(const [nodeName,name]of [['Button_Dpad','DPAD'],['Button_Circle','CIRCLE']]) {
     const node=doc.nodes.find(n=>n.name===nodeName);const primitive=doc.meshes[node.mesh].primitives[0];
     const accessor=doc.accessors[primitive.attributes.POSITION],view=doc.bufferViews[accessor.bufferView];
-    const start=(view.byteOffset??0)+(accessor.byteOffset??0),stride=view.byteStride??12;
-    const positions=[];for(let i=0;i<accessor.count;i++)for(let j=0;j<3;j++)positions.push(binary.readFloatLE(start+i*stride+j*4));
+    const e=view.extensions?.EXT_meshopt_compression;
+    let data=binary,start=(view.byteOffset??0)+(accessor.byteOffset??0);
+    if(e){await MeshoptDecoder.ready;data=Buffer.alloc(e.count*e.byteStride);MeshoptDecoder.decodeGltfBuffer(data,e.count,e.byteStride,binary.subarray(e.byteOffset,e.byteOffset+e.byteLength),e.mode,e.filter);start=accessor.byteOffset??0;}
+    const stride=view.byteStride??12;
+    const positions=[];for(let i=0;i<accessor.count;i++)for(let j=0;j<3;j++)positions.push(data.readFloatLE(start+i*stride+j*4));
     const geometry=new BufferGeometry();geometry.setAttribute('position',new Float32BufferAttribute(positions,3));
     const model=new Group();model.scale.setScalar(.01);model.rotation.set(.3,-.4,.1);
     const base=new Group();model.add(base);const cap=new Mesh(geometry,new MeshBasicMaterial());cap.position.fromArray(node.translation);base.add(cap);

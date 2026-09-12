@@ -6,6 +6,15 @@ A Blender-authored silver Nintendo 3DS XL, displayed as an interactive Next.js /
 
 ## Run
 
+Install Git LFS before cloning, then fetch the model files:
+
+```sh
+git lfs install
+git lfs pull
+```
+
+Blender and GLB assets, including preserved model checkpoints, are stored in Git LFS. A checkout containing only LFS pointer files cannot render the console.
+
 ```sh
 npm install
 npm run dev

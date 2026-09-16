@@ -1,5 +1,7 @@
 # uifix: HOME Menu audit and visual rebuild
 
+> Historical empty-menu pass. The working portfolio implementation and current verification commands are in [portfolio-os-validation.md](portfolio-os-validation.md).
+
 Branch `uifix` was created from a clean `main` checkout for the user's new UI request. This supersedes the earlier direction to do new UI edits in the separate OS worktree **for this task only**. Neither independent OS worktree was edited. No Blender file, GLB, model texture, scene lighting or shader was changed.
 
 ## Scope and findings

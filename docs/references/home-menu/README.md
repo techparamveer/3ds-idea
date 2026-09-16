@@ -1,6 +1,6 @@
 # HOME Menu visual sources — uifix, 2026-09-16
 
-Target: the original XL running the theme-enabled, default white HOME Menu. The physical console's original 2012 generation does not mean it must run launch firmware. Preserve the four empty portfolio folders; do not invent portfolio copy.
+Target: the original XL running the theme-enabled, default white HOME Menu. The physical console's original 2012 generation does not mean it must run launch firmware. The original four empty folders have now been superseded by the user’s requested real portfolio apps on `uifix`; see `docs/portfolio-os-validation.md`.
 
 ## Primary references inspected
 

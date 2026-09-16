@@ -1,3 +1,4 @@
+// Historical empty-menu fixture verification. The current homepage uses verify-portfolio.mjs.
 /** End-to-end browser checks using actual keys and projected touchscreen hits. */
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';

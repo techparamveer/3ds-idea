@@ -27,7 +27,7 @@ test('Power-off ignores all other menu input and wakes without an overlay',()=>{
  const on=reduceMenu(off,'power');assert.equal(on.powered,true);assert.equal(on.panel,null);
 });
 test('Offscreen, nonfinite and genuine tile-gap touches do nothing',()=>{
- for(const [x,y]of [[-1,0],[320,120],[160,240],[NaN,50],[50,Infinity],[95,80]])assert.deepEqual(touchMenu(initialState,x,y),initialState);
+ for(const [x,y]of [[-1,0],[320,120],[160,240],[NaN,50],[50,Infinity],[118,80]])assert.deepEqual(touchMenu(initialState,x,y),initialState);
 });
 test('Empty slots create folders; opening then uses the newly created folder',()=>{
  let s={...initialState,selected:8};assert.equal(isFolder(8,s),false);

@@ -1,3 +1,5 @@
+import { createPortfolioGraphics } from './portfolio-screens';
+import { getApp } from './apps';
 import { type MenuState, type Theme, menuTiles, isFolder, pageStart, rowCount, slotCount, themeChoices, keyboardKeys } from './state';
 import { type BitmapFont } from './bitmap-font';
 type Context = CanvasRenderingContext2D;
@@ -87,6 +89,7 @@ function button(c:Context,x:number,y:number,w:number,h:number,label:string,activ
 }
 function footer(c:Context,state:MenuState){
  c.fillStyle=gradient(c,212,28,'#fff','#c4c5c9');c.fillRect(0,212,320,28);line(c,[[0,212.5],[320,212.5]],'#9c9da4');
+ if(state.system&&!state.opened&&state.system.layout[state.selected]){text(c,state.system.app?'Close software':'',50,226,10);text(c,state.system.app===state.system.layout[state.selected]?'Resume':'Open',212,226,14,'#494b51','center');return;}
  if(state.opened){text(c,'↶',24,226,19);text(c,'Close',170,226,14,'#494b51','center');return;}
  if(isFolder(state.selected,state)){line(c,[[104.5,214],[104.5,240]],'#aaabb2');text(c,'Settings',52,226,13,'#494b51','center');text(c,'Open',212,226,14,'#494b51','center');}
  else text(c,'Create Folder',160,226,14,'#494b51','center');
@@ -99,15 +102,15 @@ function arrows(c:Context,state:MenuState){
   const x=right?310:10;c.fillStyle='#91bdb7';c.beginPath();c.moveTo(x+(right?5:-5),131);c.lineTo(x+(right?-3:3),125);c.lineTo(x+(right?-3:3),137);c.fill();c.restore();
  }
 }
-function grid(c:Context,state:MenuState,time:number,reduced:boolean){
+function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>){
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
  const selected=state.opened?state.folderSelected:state.selected;
  for(const tile of menuTiles(state)){
-  const {x,y,size,index}=tile;const occupied=!state.opened&&isFolder(index,state);
+  const {x,y,size,index}=tile;const app=!state.opened?getApp(state.system?.layout[index]):undefined;const occupied=app||(!state.opened&&isFolder(index,state));
   if(occupied){
    c.save();c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
    rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();
-   folder(c,x+size/2,y+size/2,size*.78,state.folders[index]);
+   if(app)graphics.icon(c,app,x+size*.06,y+size*.06,size*.88);else folder(c,x+size/2,y+size/2,size*.78,state.folders[index]);
   }else{
    const inset=size*.34,side=size-inset*2;
    rounded(c,x+inset,y+inset,side,side,2,'#d3d4d766','#c8c9cc');
@@ -140,6 +143,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   }
   text(c,'Power-Saving Mode',63,208,14);button(c,50,220,100,34,'OFF',!state.powerSaving);button(c,150,220,100,34,'ON',state.powerSaving);
   rounded(c,267,20,19,106,4,gradient(c,20,106,'#fff','#d0d1d5'),'#b9bac0');line(c,[[272,71],[281,71]],'#aaa',2);line(c,[[272,76],[281,76]],'#aaa',2);
+  if(state.system){button(c,267,149,20,45,state.system.muted?'×':'♪');}
   if(state.panelChoice===0){rounded(c,37,32,225,78,12,'#0000','#dfb991');cursor(c,48,42,202,53,time,reduced);}
   else if(state.panelChoice===1)cursor(c,50,152,200,39,time,reduced);
   else cursor(c,50,220,200,34,time,reduced);
@@ -186,7 +190,9 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
 export function createScreens(options: { font?: BitmapFont; reducedMotion?: boolean } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
- const t=top.getContext('2d')!,b=bottom.getContext('2d')!;
+ const native=document.createElement('canvas');native.width=400;native.height=240;
+ const output=top.getContext('2d')!,t=native.getContext('2d')!,b=bottom.getContext('2d')!;
+ const graphics=createPortfolioGraphics();
  const sprite=new Image();sprite.src='/os/home-toolbar.png';
  const themeSprite=new Image();themeSprite.src='/os/change-theme.png';
  const shopSprite=new Image();shopSprite.src='/os/theme-shop.png';
@@ -194,9 +200,10 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
  if(options.font){fonts.set(t,options.font);fonts.set(b,options.font);}
  let reduced=options.reducedMotion??false;
  function paint(state:MenuState,date=new Date(),elapsedMs=0){
-  t.resetTransform();t.clearRect(0,0,800,240);b.clearRect(0,0,320,240);
-  if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);return;}
-  t.scale(2,1);const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);status(t,date);
+  t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
+  if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
+  const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);status(t,date);
+  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&state.system?.phase!=='launch')graphics.banner(t,app,time,reduced);
   if(isFolder(state.selected,state)&&!state.panel){
    t.save();t.shadowColor='#626d8a50';t.shadowBlur=12;t.shadowOffsetY=10;
    folder(t,200,115+Math.sin(time/800)*2,91,state.folders[state.selected],Math.sin(time/1500)*.32);t.restore();
@@ -211,7 +218,9 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
     if(sprite.complete&&sprite.naturalWidth){const sx=[12,55,96,138,181][i];t.drawImage(sprite,sx,3,i===4?30:25,25,x-sz*.4,y-sz*.4,sz*.8,sz*.8);}
    }
   }
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);toolbar(b,sprite);grid(b,state,time,reduced);footer(b,state);panel(b,state,time,reduced,themeSprite,shopSprite);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);toolbar(b,sprite);grid(b,state,time,reduced,graphics);footer(b,state);panel(b,state,time,reduced,themeSprite,shopSprite);
+  graphics.overlay(t,b,state,elapsedMs,reduced);
+  output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
  }
- return {top,bottom,paint,setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady])};
+ return {top,bottom,paint,dispose:graphics.dispose,setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready])};
 }

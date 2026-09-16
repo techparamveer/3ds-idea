@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "native two-finger pinch",
+    "pinch does not launch apps",
+    "pinch return to full console",
+    "hold and drag swaps icons",
+    "layout survives reload",
+    "physical preferences reset layout"
+  ]
+}

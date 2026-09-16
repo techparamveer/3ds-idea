@@ -17,7 +17,7 @@ export default function Console({modelUrl}:{modelUrl?:string}) {
     return () => { cancelled = true; teardown?.(); };
   }, [attempt,modelUrl]);
   return <main aria-label="Interactive silver 3DS XL">
-    <div ref={host} className="console-stage" tabIndex={0} role="application" aria-label="Nintendo 3DS XL. Drag to rotate. Click the lid to close or open. Arrow keys navigate; A or Enter opens; B or Escape returns; H opens HOME Menu; P toggles power. Space opens or closes the lid." />
+    <div ref={host} className="console-stage" tabIndex={0} role="application" aria-label="Nintendo 3DS XL. Drag to rotate. Pinch or scroll to zoom. Click the lid to close or open. Arrow keys navigate; A or Enter opens; B or Escape returns; H opens HOME Menu; P opens power options. M mutes sound. Space opens or closes the lid." />
     {failed && <div className="fallback"><Image src="/preview.png" alt="Silver Nintendo 3DS XL" width={1050} height={900} sizes="(max-width: 900px) 90vw, 800px"/><button className="retry" aria-label="Retry loading the interactive 3DS" onClick={()=>retry(n=>n+1)}>↻</button></div>}
   </main>;
 }

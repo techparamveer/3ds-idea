@@ -1,3 +1,4 @@
+import type { System } from './system';
 /** Native HOME Menu coordinates: 320 × 240; icons are ordered by column. */
 export const ROWS = 2;
 export const COLUMNS = 150;
@@ -8,11 +9,12 @@ export function slotCount(state: MenuState) { return state.opened ? 60 : SLOT_CO
 export type Panel = 'settings' | 'themes' | 'folder-settings' | 'rename' | 'delete' | 'notes' | 'friends' | 'notifications' | 'browser' | 'miiverse' | 'theme-shop' | null;
 export type Theme = 'white' | 'red' | 'blue' | 'yellow' | 'pink' | 'black';
 export type MenuState = {
+  system?: System;
   selected: number; opened: boolean; powered: boolean; brightness: number; columns: number;
   panel: Panel; theme: Theme; powerSaving: boolean; panelChoice: number;
   folders: Record<number, string>; folderSelected: number; nameDraft: string;
 };
-export type Input = 'left' | 'right' | 'up' | 'down' | 'open' | 'back' | 'home' | 'power' | 'brightness' | 'zoom' | 'zoom-in' | 'zoom-out' | 'settings';
+export type Input = 'left' | 'right' | 'up' | 'down' | 'open' | 'back' | 'home' | 'power' | 'brightness' | 'zoom' | 'zoom-in' | 'zoom-out' | 'settings' | 'preferences' | 'mute' | 'volume-up' | 'volume-down' | 'reset-layout';
 export const initialState: MenuState = {
   selected: 0, opened: false, powered: true, brightness: 1, columns: 4,
   panel: null, theme: 'white', powerSaving: false, panelChoice: 0,
@@ -29,10 +31,10 @@ export function pageStart(state: MenuState): number {
 }
 export function menuTiles(state: MenuState) {
   const rows = rowCount(state), pitch = rows === 1 ? 84 : 168 / rows, size = pitch - (rows <= 2 ? 12 : 8);
-  const start = pageStart(state), top = 40 + (168 - rows * pitch) / 2;
+  const start = pageStart(state), top = (rows === 2 ? 46 : 40) + (168 - rows * pitch) / 2;
   return Array.from({ length: (state.columns + 1) * rows }, (_, i) => {
     const col = Math.floor(i / rows), row = i % rows;
-    return { index: (start + col) * rows + row, x: 16 + col * pitch, y: top + row * pitch + (rows === 1 ? 42 : 0), size };
+    return { index: (start + col) * rows + row, x: 40 + col * pitch, y: top + row * pitch, size };
   }).filter(tile => tile.index < slotCount(state) && tile.x < 320);
 }
 export const toolbar = [

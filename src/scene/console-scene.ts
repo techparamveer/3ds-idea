@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createScreens } from '@/os/screens';
-import { initialState, reduceMenu, touchMenu, type Input } from '@/os/state';
+import { initialState, reduceMenu, touchMenu, renameFolder, rowCount, type Input } from '@/os/state';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
 import { DEFAULT_MODEL_URL, controlBoundsInBase, controlFromObject, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
@@ -32,7 +32,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const layout=resolveModelLayout(model);const {hinge}=layout;
   host.dataset.model=modelUrl;host.dataset.layout=layout.source;
   model.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(o.userData.console_replace_with_display===true)o.visible=false;}});
-  const screens=createScreens();let state={...initialState};screens.paint(state);
+  const screens=createScreens({reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches});await screens.ready;let state={...initialState};screens.paint(state);
   const topTexture=new THREE.CanvasTexture(screens.top),bottomTexture=new THREE.CanvasTexture(screens.bottom);
   for(const tx of [topTexture,bottomTexture]){tx.colorSpace=THREE.SRGBColorSpace;tx.minFilter=THREE.LinearFilter;tx.magFilter=THREE.LinearFilter;tx.generateMipmaps=false;tx.anisotropy=renderer.capabilities.getMaxAnisotropy();}
   // All locations below are the same millimetre coordinates as the Blender file.
@@ -87,7 +87,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');let reduced=motionPreference.matches;
   let frame=0,disposed=false,last=performance.now(),intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1;
   let start=last;
-  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;repeatAt?:number}|null=null;
+  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;repeatAt?:number;screen?:boolean}|null=null;
   type PressedCap={parts:{object:THREE.Object3D;y:number}[];motion:ButtonMotion};
   const pressed=new Map<THREE.Object3D,PressedCap>();
   let lastPress:{name:string;maxTravelMm:number}|undefined;
@@ -141,9 +141,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   }
   let lastInput='none';
   const writeState=()=>{
-    host.dataset.ready='true';host.dataset.menu=state.opened?'folder':'home';host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
+    host.dataset.ready='true';host.dataset.menu=state.panel??(state.opened?'folder':'home');host.dataset.rows=String(rowCount(state));host.dataset.theme=state.theme;host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
-  function paint(){model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*.97:0;writeState();}
+  function paint(){model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;writeState();}
   function send(input:Input){state=reduceMenu(state,input);lastInput=input;paint();}
   function press(name:string,source?:string){
     if(name==='DPAD'||name==='CIRCLE')return;
@@ -189,7 +189,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function pointerDown(e:PointerEvent){
     if(!e.isPrimary||e.button!==0||drag)return;
     host.focus({preventScroll:true});host.setPointerCapture(e.pointerId);interruptIntro();
-    const h=hit(e);drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,control:h?.object};
+    const h=hit(e);drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,control:h?.object,screen:h?.object===touchScreen};
     if(h&&angle>90){
       const name=controlName(h.object);
       if(name==='DPAD'||name==='CIRCLE'){
@@ -201,12 +201,13 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(!drag){const h=hit(e);host.style.cursor=h?(controlName(h.object)||h.object===touchScreen?'pointer':'grab'):'default';return;}
     if(e.pointerId!==drag.pointerId)return;
     if(drag.pad){pointerPad(drag.pad,e);return;}
+    if(drag.screen){if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>8)drag.moved=true;drag.x=e.clientX;drag.y=e.clientY;return;}
     if(!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5){drag.moved=true;targetYaw=yaw;targetPitch=pitch;release('pointer');}
     if(drag.moved){targetYaw+=(e.clientX-drag.x)*.007;targetPitch=THREE.MathUtils.clamp(targetPitch+(e.clientY-drag.y)*.003,-1.65,1.3);host.style.cursor='grabbing';}
     drag.x=e.clientX;drag.y=e.clientY;
   }
   function pointerUp(e:PointerEvent){
-    if(!drag||e.pointerId!==drag.pointerId)return;const was=drag;drag=null;release('pointer');if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);host.style.cursor='grab';if(was.moved||was.pad)return;
+    if(!drag||e.pointerId!==drag.pointerId)return;const was=drag;drag=null;release('pointer');if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);host.style.cursor='grab';if(was.screen&&was.moved){if(state.panel==='themes'&&Math.abs(e.clientY-was.startY)>18){for(let i=0;i<Math.min(4,Math.ceil(Math.abs(e.clientY-was.startY)/30));i++)send(e.clientY<was.startY?'down':'up');}else if(Math.abs(e.clientX-was.startX)>18)send(e.clientX<was.startX?'right':'left');return;}if(was.moved||was.pad)return;
     const h=hit(e);if(!h)return;
     if(angle<90){toggleLid(true);return;}
     if(h.object===touchScreen&&h.uv){state=touchMenu(state,h.uv.x*320,(1-h.uv.y)*240);lastInput='touch';paint();return;}
@@ -223,6 +224,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   }
   function pointerCancel(){if(drag&&host.hasPointerCapture(drag.pointerId))host.releasePointerCapture(drag.pointerId);drag=null;release('pointer');host.style.cursor='grab';}
   function keydown(e:KeyboardEvent){
+    if(state.panel==='rename'){
+      if(e.metaKey||e.ctrlKey||e.altKey)return;
+      e.preventDefault();
+      if(e.key==='Enter'){state=renameFolder(state,state.nameDraft);paint();}
+      else if(e.key==='Escape'){send('back');}
+      else if(e.key==='Backspace'){state={...state,nameDraft:state.nameDraft.slice(0,-1)};paint();}
+      else if(e.key.length===1&&!e.metaKey&&!e.ctrlKey){state={...state,nameDraft:(state.nameDraft+e.key).slice(0,16)};paint();}
+      return;
+    }
     const map:Record<string,Input>={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',Enter:'open',a:'open',b:'back',Escape:'back',h:'home',p:'power',x:'zoom',y:'brightness',q:'left',e:'right'};
     if(e.code==='Space'){e.preventDefault();if(!e.repeat)toggleLid();return;}
     const key=e.key.length===1?e.key.toLowerCase():e.key;
@@ -235,7 +245,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   }
   function keyup(e:KeyboardEvent){release(`key:${e.code}`);}
   function blur(){pointerCancel();releaseAll();}
-  function motionChanged(e:MediaQueryListEvent){reduced=e.matches;if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}}
+  function motionChanged(e:MediaQueryListEvent){reduced=e.matches;screens.setReducedMotion(reduced);if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();targetScale=THREE.MathUtils.clamp(targetScale-e.deltaY*.0005,.7,1.3);}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=2*Math.atan(Math.tan(33*RAD/2)*Math.max(1,1.04/(w/h)))/RAD;camera.updateProjectionMatrix();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
@@ -271,6 +281,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     }
     host.dataset.buttonDepths=JSON.stringify(Object.fromEntries([...pressed].map(([cap,feedback])=>[cap.name,Number(feedback.motion.depth.toFixed(3))])));
     const minute=Math.floor(Date.now()/60000);if(minute!==lastMinute){lastMinute=minute;paint();}
+    // Native UI motion must be uploaded continuously, independent of input.
+    if(state.powered&&angle>12&&!document.hidden&&!reduced&&frame%2===0){screens.paint(state,new Date(),now-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     scene.updateMatrixWorld(true);
     fitConsole();
@@ -285,6 +297,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
           const v=layout.base.localToWorld(control.centerInBase.clone().add(new THREE.Vector3(offset.x*6,2,offset.y*6))).project(camera);
           targets[`${name}_${direction}`]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];
         }
+      }
+      for(const [x,y]of [[20,16],[70,16],[105,16],[145,16],[190,16],[235,16],[277,16],[307,16],[52,76],[136,76],[52,160],[136,160],[50,226],[210,226],[150,65],[70,170],[230,170],[100,110],[100,90],[100,150],[200,180],[160,226]]){
+        const v=touchScreen.localToWorld(new THREE.Vector3((x/320-.5)*layout.screens.bottom.widthMm,(.5-y/240)*layout.screens.bottom.heightMm,0)).project(camera);
+        targets[`Touch_${x}_${y}`]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];
       }
       host.dataset.targets=JSON.stringify(targets);
     }
@@ -301,5 +317,6 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   renderer.render(scene,camera);
   start=last=performance.now();
   let request=requestAnimationFrame(animate);writeState();
+  if(process.env.NODE_ENV==='development'){Object.assign(host,{screenCanvases:{top:screens.top,bottom:screens.bottom}});}
   return ()=>{surfaceDisposed=true;disposed=true;for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerCancel);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
 }

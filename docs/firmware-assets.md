@@ -78,3 +78,7 @@ Remaining fidelity gaps: original graphics and typography; actual firmware layou
 ## Main-site integration
 
 The prepared worktree code through `06e7729` is now integrated into the main site. See `home-menu-integration.md` for full-suite and browser verification. Original asset extraction and font loading remain pending; the main renderer has not been switched to a Nintendo font.
+
+## uifix web-reference assets (2026-09-16)
+
+The live UI now uses small crops of Nintendo website screenshots and a documented NTLG web-font conversion. These are independently sourced references, not decrypted outputs from this archive. The BCFNT/HUD and HOME Menu resource dependency above remains open. See [the UI audit](uifix-audit.md) and [asset provenance](../public/os/README.md).

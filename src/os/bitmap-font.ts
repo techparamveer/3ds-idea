@@ -6,6 +6,7 @@ export type FontManifest = {
   height: number;
   width?: number;
   baseline: number;
+  ascent?: number;
   lineFeed?: number;
   colorMode?: 'alpha' | 'luminance-alpha';
   sheets: string[];
@@ -42,6 +43,7 @@ export function validateBitmapFont(value: unknown, dimensions?: { width: number;
   if (m.schema !== 1 || !/^[a-f0-9]{64}$/.test(m.sourceSha256) || !Number.isInteger(m.height) || m.height < 1 || m.height > 255 ||
       (m.width!==undefined&&(!Number.isInteger(m.width)||m.width<1||m.width>255)) ||
       !Number.isInteger(m.baseline) || m.baseline < 0 || m.baseline > 255 ||
+      (m.ascent !== undefined && (!Number.isInteger(m.ascent) || m.ascent < 0 || m.ascent > 255)) ||
       (m.lineFeed !== undefined && (!Number.isInteger(m.lineFeed) || m.lineFeed < 0 || m.lineFeed > 255)) ||
       !Array.isArray(m.sheets) || !m.sheets.length || m.sheets.length > 64 ||
       m.sheets.some(name => typeof name !== 'string' || !/^sheet-\d+\.png$/.test(name)) ||
@@ -109,6 +111,22 @@ export class BitmapFont {
     size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     const lines=value.replace(/\r\n?/g,'\n').split('\n').map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
+    if(lines.length===1&&alignment===4&&lineAlignment===0&&spacing===0&&lineSpacing===0){
+      // HOME's NW writer flags 0x111: ceil half the measured rectangle before
+      // adding FINF ascent and subtracting TGLP baseline (0x2ffc90/0x300340).
+      // Keep fractional advances; only the centered origin is rounded.
+      const f=Math.fround,scaleX=f(sx),scaleY=f(sy),glyphs=lines[0];
+      const runWidth=glyphs.reduce((n,g)=>f(n+f((g?.advance??0)*scaleX)),0);
+      const rectHeight=f((this.manifest.lineFeed??this.manifest.height)*scaleY);
+      let x=-Math.ceil(f(runWidth*.5));
+      const y=f(f(-Math.ceil(f(rectHeight*.5))+f((this.manifest.ascent??this.manifest.baseline)*scaleY))-f(this.manifest.baseline*scaleY));
+      for(const g of glyphs){if(!g)continue;
+        if(g.width)c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,
+          width/2+f(x+f(g.left*scaleX)),height/2+y,f(g.width*scaleX),f(g.height*scaleY));
+        x=f(x+f(g.advance*scaleX));
+      }
+      return;
+    }
     const lineHeight=(this.manifest.lineFeed??this.manifest.height)*sy+lineSpacing;
     const blockHeight=size[1]+(lines.length-1)*lineHeight;
     const y0=Math.floor(alignment/3)*(height-blockHeight)/2;

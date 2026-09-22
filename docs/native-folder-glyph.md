@@ -27,7 +27,7 @@ Addresses below are virtual addresses with image base `0x100000`.
 The center of the native “１” is dark RGB 85 with alpha 221; the white outline
 has alpha 204. It requires no RGB inversion. The default A4 mask samples zero
 RGB and preserves alpha; see the alpha-texture correction in
-[`native-home-labels.md`](native-home-labels.md). Both source consumer materials
+[`native-home-labels-2026-09-22.md`](native-home-labels-2026-09-22.md). Both source consumer materials
 preserve the glyph RGBA in the fully covered interior of that mask.
 
 ## Implementation and lifetime

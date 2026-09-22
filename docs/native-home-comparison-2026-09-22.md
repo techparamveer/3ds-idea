@@ -49,17 +49,43 @@ one pixel below the stable native reference. A temporary no-tilt diagnostic
 reduced label-region MAE from 4.693 to 1.851, but left a font-raster difference.
 The subsequent native dispatch trace proved that raw mode5 preserves world Y
 and faces camera direction. That source-backed rule now replaces the SPICA tilt;
-no fitted offset or camera change is used. Font baseline/filtering remains open.
+no fitted offset or camera change is used.
 Artifacts: `browser-folder-label-contact.png`, `folder-label-pixel-rows.json`,
 `folder-label-tilt-probe-contact.png`, `folder-label-tilt-probe-report.json`.
 The historical contact sheet contains native, SPICA and temporary no-tilt views
 in that order. Their folder-yaw phases are intentionally unmatched.
 
+The subsequent native font trace (`runtime/reference/folder-text-alignment/`)
+establishes `ceil` of half the measured string rectangle at `0x2ffc90`, followed
+by FINF ascent minus TGLP baseline. The single-line centered label now begins
+at target Y=22 instead of 22.7, with native float32 advances and unchanged source
+glyph rectangles. The bounded correction applies to a centered single line
+with automatic line alignment and zero added spacing; general multiline/control
+code alignment is not accepted by this trace.
+
+The actual browser label-region MAE falls from 1.842374 to **0.069392 / 255**.
+Ink occupies the same native rows 183..195. Seventeen pixels still differ by
+more than three levels, all at the right edge of one lowercase `e`; the maximum
+is 54. Fractional Canvas glyph-edge coverage is under investigation, not silently
+treated as an exact match. Artifacts: `native-text-center-comparison.json`,
+`native-text-residual-pixels.json` and `native-text-center-contact.png` (native,
+previous centered placement, corrected placement from top to bottom).
+
 Alpha-only PICA textures sample RGB zero. Projecting the delivery PNG preview
 masks back to that source meaning restores the native camera/capture hint
 color (73,77,80), while keeping alpha, LA font/button channels and delivery bytes.
-The native material colors are unchanged. Folder-icon initial glyph composition
-and directional selection scroll placement remain under verification.
+The native material colors are unchanged. The actual browser's folder initial
+matches the translated native 32×32 crop with MAE **0.022135 / 255**, maximum one
+level and 68 differing channels of 3,072. The grid slots intentionally differ;
+no rescaling or color adjustment is applied. Real pointer pickup retains the
+initial, and renaming a neighbouring folder from A to B updates its glyph while
+the original fullwidth `１` remains unchanged. These interaction checks verify
+cache freshness, not the native rename dialog or pickup timing. Artifacts:
+`browser-folder-glyph-pickup*`, `browser-folder-glyph-rename-{a,b}*`.
+
+Directional selection retains the viewport until a native edge is crossed, and
+one/two-row density changes preserve selected horizontal position. Folder
+interior/history and scroll transition timing remain under investigation.
 
 ## Audio and reference limitations
 
@@ -69,11 +95,12 @@ limits are recorded in `reference/home-sfx-native-metadata.json`. The native
 video dumper still emits zero video packets; the recording is audio evidence
 only. Native-resolution screenshots are separate artifacts.
 
-Converter v5 preserves the generated sample origin and the native sequence
-scheduler. Main and resume periods are 3,515,200 samples. Startup accounting,
-loop-carried voice state and native archive gain are separate issues; v5 and
-late-loop candidates are private pending cue and continuity verification. Public
-HOME audio has not been replaced merely because converter tests pass.
+Converter v6 preserves the generated sample origin and native sequence scheduler,
+and applies the source's linear archive-entry volume. Main and resume periods
+are 3,515,200 samples. Select and close cues now closely match native levels,
+but the opening envelope/pitch, music level and loop-carried voice state remain
+unresolved. Candidate PCM stays private pending that verification. Public HOME
+audio has not been replaced merely because converter tests pass.
 
 An attempted native F10 step shortcut conflicted with Azahar's existing screen
 layout shortcut. Top-only captures and a later capture failure are not accepted
@@ -103,11 +130,14 @@ native verification.
 
 ## Checks at this checkpoint
 
-- 282 combined JavaScript tests pass after the native label integration.
+- 294 combined JavaScript tests pass after the centered label and initial glyph integration.
 - Nonincremental TypeScript check passes.
 - 3 real-resource revision-5 CGFX regression tests pass, covering Folder, BG,
   Camera and Textures plus bounded malformed inputs.
-- 20 converter v5 audio tests pass against the owner source.
+- 21 converter v6 audio tests pass against the owner source.
 - The actual browser label capture reports no runtime errors.
-- The preceding native camera integration passed production build and shader
-  checks; those results do not substitute for rerunning them after final fixes.
+- Production build and shader validation pass after the centered label and glyph
+  integration (`integration-native-text-{build,shader}.log`).
+- Delivery audit passes with 475 registered resources and 1,988 private source
+  references checked; warnings and remaining unsupported fields are retained in
+  `integration-delivery-audit.json`.

@@ -44,7 +44,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   }));
   controller.signal.throwIfAborted();
   const renderer=new NativeLayoutRenderer(packs,textures,new Map([['cbf_std.bcfnt',sharedFont as BitmapFont],['Hud.bcfnt',hudFont as BitmapFont]]));
-  renderer.diagnostics.push('White-theme animated background remains reconstructed pending native comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.');
+  renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.');
   let disposed=false;
   return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;renderer.dispose();fonts.forEach(f=>f.dispose());}};
  }catch(error){controller.abort();fonts.forEach(font=>font.dispose());throw error;}

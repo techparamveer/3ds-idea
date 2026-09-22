@@ -1,5 +1,13 @@
 # Firmware asset inspection
 
+> Historical inspection of the earlier encrypted 11.17 archive. Its missing-input
+> statements and initial converter limitations below describe that earlier work.
+> The owner has since supplied decrypted EUR 10.7.0-32E packages. Current extraction,
+> real font conversion and provenance are documented in the
+> [firmware pipeline](../scripts/firmware/README.md), with current native comparisons
+> in [the HOME checkpoint](native-home-comparison-2026-09-22.md). Whole-firmware
+> visual and behavioral acceptance remains incomplete.
+
 Input: `/Users/paramveer/Downloads/11.17.0-50E-NEW.zip`.
 
 The read-only inspector found 137 CIA packages. It parses archive headers and TMD content flags; it does not execute firmware, follow embedded instructions, or copy firmware into the public website.

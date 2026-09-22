@@ -8,6 +8,7 @@ import { createPortfolioState, dispatchSystemEvent, tickSystem, reduceSystem, re
 import { HOME_GESTURE_TIMING as T, homeTouchLocation } from '../src/os/home-gestures.ts';
 import { resolveHomeDrop, restoreHomeLayout } from '../src/os/home-layout.ts';
 import { openFirmwareStorage } from '../src/os/app-persistence.ts';
+import {setHomeDensity,homeDensityIndex,commitHomeScroll,getHomeNavigationView} from '../src/os/home-navigation.ts';
 const home=()=>tickSystem(createPortfolioState(),3001);
 const root=slot=>({folder:null,slot});
 const child=(folder,slot)=>({folder,slot});
@@ -30,7 +31,7 @@ test('default eight portfolio slots stay first and touch press/up shares normal 
 test('quick swipe scrolls continuously and never moves or launches the touched icon',()=>{
  let s=home(),before=saveSettings(s);const [x,y]=center(s,4);s=touch(s,'down',x,y,4000);s=touch(s,'move',x-100,y,4100);
  assert.equal(getHomeGestureView(s).mode,'scroll');assert.ok(pageStart(s)>1&&pageStart(s)<2);assert.equal(saveSettings(s),before);
- s=tickSystem(s,4800);assert.equal(getHomeGestureView(s).mode,'scroll');s=touch(s,'up',x-100,y,4900);assert.equal(s.system.phase,'home');assert.equal(pageStart(s),1);assert.equal(getHomeGestureView(s),null);assert.equal(saveSettings(s),before);
+ s=tickSystem(s,4800);assert.equal(getHomeGestureView(s).mode,'scroll');s=touch(s,'up',x-100,y,4900);assert.equal(s.system.phase,'home');assert.equal(pageStart(s),1);assert.equal(getHomeGestureView(s),null);assert.deepEqual(JSON.parse(saveSettings(s)).homeView.rootView,{selectedSlot:2,currentLeftSlot:2,targetLeftSlot:2,density:1});assert.deepEqual(s.system.layout,JSON.parse(before).layout);
 });
 test('holding lifts from the shared clock and commits a swap only at up',()=>{
  const initial=home(),before=saveSettings(initial);let s=touch(initial,'down',...center(initial,0),4000);
@@ -91,7 +92,8 @@ test('edge scrolling advances on clock deadlines, stays bounded and never persis
  s=tickSystem(s,4500+T.edgeDelayMs+T.edgeIntervalMs);assert.equal(pageStart(s),2);assert.equal(saveSettings(s),before);s=releaseSystemInputs(s,5300);assert.equal(pageStart(s),0);assert.equal(saveSettings(s),before);
 });
 test('hit testing and fractional scrolling agree at every density without selecting gap pixels',()=>{
- for(const columns of densities){let s={...home(),columns};s={...s,system:{...s.system,homeNavigation:{scrollColumn:2.4,gesture:null}}};
+ for(const columns of densities){let s=commitHomeScroll(setHomeDensity(home(),homeDensityIndex(columns)),2);
+  const [sx,sy]=center(s,s.selected);s=touch(s,'down',sx,sy);s=touch(s,'move',sx-0.4*getHomeNavigationView(s).pitchX,sy,4100);
   for(const t of menuTiles(s).filter(t=>t.x>=20&&t.x+t.size<300&&t.y>=34&&t.y+t.size<204)){const [x,y]=center(s,t.index);assert.deepEqual(homeTouchLocation(s,x,y),root(t.index));}
   assert.equal(homeTouchLocation(s,0,100),null);assert.equal(homeTouchLocation(s,319,100),null);assert.ok(pageStart(s)>=0);assert.ok(rowCount(s)>0);
  }

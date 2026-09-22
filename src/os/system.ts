@@ -6,6 +6,7 @@ import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch 
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
 import { homeSlotAppId, moveHomeItem, restoreHomeLayout, type FolderLayouts } from './home-layout.ts';
 import { cancelHomeGesture, createHomeNavigation, resetHomeNavigation, tickHomeGesture, touchHomeGesture, homeTouchLocation, type HomeNavigation } from './home-gestures.ts';
+import { selectHomeSlot, saveHomeView, restoreHomeView, homeDensityIndex, HOME_DENSITIES, writeHomeNavigation } from './home-navigation.ts';
 export { homeSlotAppId, moveHomeItem } from './home-layout.ts';
 export { getHomeGestureView } from './home-gestures.ts';
 export type System = {
@@ -40,13 +41,13 @@ export function launch(state:MenuState,id:string,now:number):MenuState {
  if(s.app===id)return {...syncRuntime(state,resumeRuntimeApplication(s.runtime,now),'app'),panel:null};
  if(s.app){const released=releaseSystemInputs(state,now);return {...released,panel:null,system:{...released.system!,runtime:showRuntimeHome(released.system!.runtime,now),pending:id,dialog:'switch'}};}
  const started=syncRuntime(state,startApplication(s.runtime,id,now),'launch');
- return {...started,opened:false,panel:null,system:{...started.system!,since:now,dialog:null,pending:null,input:createInputLatch()}};
+ return {...started,panel:null,system:{...started.system!,since:now,dialog:null,pending:null,input:createInputLatch()}};
 }
 export function invokeSystemApplet(state: MenuState, appId: string, now: number, args: AppState = {}): MenuState {
  state=resetHomeNavigation(state);
  const s=state.system;if(!s||getTitle(appId)?.kind==='application')return state;
  const next=syncRuntime(state,openApplet(s.runtime,appId,`home:${appId}`,args,now));
- return {...next,panel:null,opened:false,system:{...next.system!,input:createInputLatch()}};
+ return {...next,panel:null,system:{...next.system!,input:createInputLatch()}};
 }
 export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return state;
@@ -85,7 +86,7 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
   if(input==='up'||input==='down')return change({preferenceChoice:Math.max(0,Math.min(2,s.preferenceChoice+(input==='down'?1:-1)))});
   if(input==='left'||input==='right')return reduceSystem(state,input==='left'?'volume-down':'volume-up',now);
   if(input==='open'&&s.preferenceChoice===2)return reduceSystem(state,'reset-layout',now);
-  if(input==='reset-layout')return {...state,folders:{},selected:0,opened:false,folderSelected:0,system:{...s,layout:initialAppLayout(),folderLayouts:{},homeNavigation:createHomeNavigation()}};
+  if(input==='reset-layout')return writeHomeNavigation({...state,folders:{},folderSelected:0,system:{...s,layout:initialAppLayout(),folderLayouts:{}}},createHomeNavigation());
   if(input==='open')return change({muted:!s.muted});return state;
  }
  if(s.phase==='power'){
@@ -100,9 +101,9 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
   }return state;
  }
  if(input==='home'){
-  if(state.panel)return {...state,panel:null,opened:false};
+  if(state.panel)return {...state,panel:null};
   const runtime=s.phase==='app'?showRuntimeHome(s.runtime,now):resumeRuntimeApplication(s.runtime,now);
-  return {...syncRuntime(state,runtime),panel:null,opened:false,system:{...syncRuntime(state,runtime).system!,input:createInputLatch()}};
+  return {...syncRuntime(state,runtime),panel:null,system:{...syncRuntime(state,runtime).system!,input:createInputLatch()}};
  }
  if(s.phase==='app'){
   if(input==='brightness')return reduceMenu(state,input);
@@ -139,10 +140,10 @@ export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuSt
   if(y>=104&&y<158&&(x<20||x>=300))return send(x<20?'left':'right');
   const location=homeTouchLocation(state,x,y);if(!location)return state;
   const selected=state.opened?state.folderSelected:state.selected;
-  return location.slot===selected&&(!state.opened||homeSlotAppId(state,location.slot))?send('open'):{...state,[state.opened?'folderSelected':'selected']:location.slot};
+  return location.slot===selected&&(!state.opened||homeSlotAppId(state,location.slot))?send('open'):selectHomeSlot(state,location.slot);
  }
  if(state.panel==='settings'&&x>=265&&y>=145&&y<201)return send('preferences');
- let next=touchMenu(state,x,y);if(next.opened!==state.opened)next=resetHomeNavigation(next);const target=next.panel&&toolbarApps[next.panel];
+ const next=touchMenu(state,x,y);const target=next.panel&&toolbarApps[next.panel];
  return target?invokeSystemApplet({...next,panel:null},target,now):next;
 }
 /** Full pointer/button protocol for scene adapters. Legacy single-command inputs remain supported. */
@@ -195,11 +196,12 @@ export function moveApp(state:MenuState,from:number,to:number):MenuState {
  return state.system?.layout[from]?moveHomeItem(state,{folder:null,slot:from},{folder:null,slot:to}):state;
 }
 export const STORAGE_KEY='paramveer-3ds-v1';
-export function saveSettings(state:MenuState){const s=state.system!;return JSON.stringify({version:3,theme:state.theme,brightness:state.brightness,columns:state.columns,powerSaving:state.powerSaving,folders:state.folders,nextFolderNumber:state.nextFolderNumber,layout:s.layout,folderLayouts:s.folderLayouts,muted:s.muted,volume:s.volume});}
+export function saveSettings(state:MenuState){const s=state.system!,homeView=saveHomeView(state);return JSON.stringify({version:4,homeView,theme:state.theme,brightness:state.brightness,columns:HOME_DENSITIES[homeView.rootView.density],powerSaving:state.powerSaving,folders:state.folders,nextFolderNumber:state.nextFolderNumber,layout:s.layout,folderLayouts:s.folderLayouts,muted:s.muted,volume:s.volume});}
 export function restoreSettings(state:MenuState,raw:string|null):MenuState {
  if(!raw)return state;
  try{const v=JSON.parse(raw),home=restoreHomeLayout(v);if(!home)return state;
  const {layout,folders,folderLayouts,nextFolderNumber}=home;
- return {...state,folders,nextFolderNumber,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system!,layout,folderLayouts,homeNavigation:createHomeNavigation(),muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
+ const restored = {...state,folders,nextFolderNumber,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system!,layout,folderLayouts,homeNavigation:createHomeNavigation(),muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
+ return restoreHomeView(restored,v.version===4?v.homeView:null,homeDensityIndex(restored.columns));
  }catch{return state;}
 }

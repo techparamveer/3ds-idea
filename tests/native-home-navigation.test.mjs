@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createPortfolioState,tickSystem,reduceSystem,touchSystem,dispatchSystemEvent} from '../src/os/system.ts';
 import {densities,menuTiles,pageStart,rowCount,visibleColumns} from '../src/os/state.ts';
-const home=columns=>({...tickSystem(createPortfolioState(),3001),columns});
+import {setHomeDensity,homeDensityIndex} from '../src/os/home-navigation.ts';
+const home=columns=>setHomeDensity(tickSystem(createPortfolioState(),3001),homeDensityIndex(columns));
 const at=state=>{const tile=menuTiles(state).find(t=>t.index===state.selected);assert.ok(tile);return tile.x+tile.size/2;};
 const move=(state,command)=>reduceSystem(state,command,4000);
 test('native one/two-row RIGHT follows the edge; reversing preserves the viewport',()=>{

@@ -46,7 +46,7 @@ failed creation and application launch do not advance it. Existing folder labels
 and child layouts continue to move together. Creation refuses to overlap an
 occupied software slot, including portfolio entries.
 
-Preferences now use payload **version 3**, requiring an integer
+Preferences use payload **version 4** (the naming counter was introduced in version 3), requiring an integer
 `nextFolderNumber` in 1…99. JSON and IndexedDB round trips preserve it. The
 IndexedDB database version and its preference-record envelope are unchanged.
 Malformed counters reject the saved layout as a whole and keep the caller's

@@ -1,4 +1,5 @@
 import { apps } from './apps.ts';
+import { enterHomeFolder, leaveHomeFolder, selectHomeSlot, remapHomeFolderViews, getHomeNavigation, writeHomeNavigation } from './home-navigation.ts';
 import { getTitle, homeTitles } from './app-registry.ts';
 import { FIRST_FOLDER_NUMBER, LAST_FOLDER_NUMBER, isFolder, MAX_FOLDERS, SLOT_COUNT, type MenuState } from './state.ts';
 
@@ -22,7 +23,7 @@ export function validHomeLocation(state: MenuState, location: HomeLocation): boo
 }
 export const sameHomeLocation = (a: HomeLocation | null, b: HomeLocation | null) => !!a && !!b && a.folder === b.folder && a.slot === b.slot;
 export function selectHomeLocation(state: MenuState, location: HomeLocation): MenuState {
-  return location.folder === null ? { ...state, opened: false, selected: location.slot } : { ...state, opened: true, selected: location.folder, folderSelected: location.slot };
+  return selectHomeSlot(location.folder === null ? leaveHomeFolder(state) : enterHomeFolder(state, location.folder), location.slot);
 }
 /** Resolves a folder-icon drop to its first free child slot; no layout is changed here. */
 export function resolveHomeDrop(state: MenuState, from: HomeLocation, target: HomeLocation): HomeLocation | null {
@@ -70,15 +71,21 @@ export function moveHomeItem(state: MenuState, from: HomeLocation, target: HomeL
     const displaced = destination[to.slot]; destination[to.slot] = item.id;
     if (displaced) source[from.slot] = displaced; else delete source[from.slot];
   }
-  return selectHomeLocation({ ...state, folders, system: { ...s, layout, folderLayouts } }, to);
+  let placed = { ...state, folders, system: { ...s, layout, folderLayouts } };
+  if (item.kind === 'folder') placed = remapHomeFolderViews(placed, from.slot, to.slot, isFolder(to.slot, state)) as typeof placed;
+  const activeFolder = getHomeNavigation(placed).activeFolderSlot;
+  const selected = selectHomeLocation(placed, to);
+  // A folder can move while its retained HOME context is active (e.g. software suspended).
+  return item.kind === 'folder' && activeFolder !== null
+    ? writeHomeNavigation(selected, { ...getHomeNavigation(selected), activeFolderSlot: activeFolder }) : selected;
 }
 const dictionary = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 const slotKey = (key: string, count: number) => /^(0|[1-9]\d*)$/.test(key) && Number(key) < count;
 /** Reject ambiguous/corrupt arrangements as a whole, retaining the caller's safe current layout. */
 export function restoreHomeLayout(value: unknown): { layout: Record<number, string>; folders: Record<number, string>; folderLayouts: FolderLayouts; nextFolderNumber: number } | null {
-  if (!dictionary(value) || (value.version !== undefined && value.version !== 1 && value.version !== 2 && value.version !== 3) || !dictionary(value.layout)) return null;
+  if (!dictionary(value) || (value.version !== undefined && value.version !== 1 && value.version !== 2 && value.version !== 3 && value.version !== 4) || !dictionary(value.layout)) return null;
   // Older browser saves contain no creation history. Start a new sequence; never infer it from labels/count/slots.
-  const nextFolderNumber = value.nextFolderNumber === undefined && value.version !== 3 ? FIRST_FOLDER_NUMBER : value.nextFolderNumber;
+  const nextFolderNumber = value.nextFolderNumber === undefined && value.version !== 3 && value.version !== 4 ? FIRST_FOLDER_NUMBER : value.nextFolderNumber;
   if (typeof nextFolderNumber !== 'number' || !Number.isInteger(nextFolderNumber) || nextFolderNumber < FIRST_FOLDER_NUMBER || nextFolderNumber > LAST_FOLDER_NUMBER) return null;
   const layout: Record<number, string> = {}, folders: Record<number, string> = {}, folderLayouts: FolderLayouts = {}, ids = new Set<string>();
   function add(source: Record<string, unknown>, target: Record<number, string>, count: number, child = false): boolean {
@@ -92,7 +99,7 @@ export function restoreHomeLayout(value: unknown): { layout: Record<number, stri
   if (value.folders !== undefined && !dictionary(value.folders)) return null;
   for (const [key, label] of Object.entries(value.folders ?? {})) {
     if (!slotKey(key, SLOT_COUNT) || typeof label !== 'string' || layout[Number(key)] || Object.keys(folders).length >= MAX_FOLDERS) {
-      if (value.version === 2 || value.version === 3) return null; else continue;
+      if (value.version === 2 || value.version === 3 || value.version === 4) return null; else continue;
     }
     folders[Number(key)] = label.slice(0, 16);
   }

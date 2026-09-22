@@ -1,3 +1,4 @@
+import {setHomeDensity,selectHomeSlot,enterHomeFolder,homeDensityIndex} from '../src/os/home-navigation.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame,nativeFolderBalloonPosition} from '../src/os/home-presentation.ts';
@@ -24,20 +25,20 @@ test('balloon position matches execution of native ARM including the interior br
  }
 });
 test('settled one-row folder balloon follows native placement with conservative gesture suppression',()=>{
- const initial=home(),state={...initial,columns:3,selected:2,folders:{2:'１ (New Folder)'},system:{...initial.system,homeNavigation:{scrollColumn:0,gesture:null}}};
+ const initial=home(),state=selectHomeSlot(setHomeDensity({...initial,folders:{2:'１ (New Folder)'}},0),2);
  const view=getHomePresentation(state),tile=view.tiles.find(t=>t.index===2);
  assert.deepEqual([tile.x,tile.y,tile.size],[208,125,72]);
  assert.deepEqual(getNativeFolderBalloon(state,view),{label:state.folders[2],baseX:84,bodyOffsetX:-76});
  assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,x:124}]}),{label:state.folders[2],baseX:0,bodyOffsetX:0});
  assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,folderLabel:''}]}),{label:'',baseX:84,bodyOffsetX:-76});
  assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,x:128,y:80}]}),{label:state.folders[2],baseX:4,bodyOffsetX:4},'native updater has no invented tile-Y gate');
- for(const columns of [4,6,8,10,12]){const dense={...state,columns};assert.equal(getNativeFolderBalloon(dense,getHomePresentation(dense)),null);}
+ for(const columns of [4,6,8,10,12]){const dense=setHomeDensity(state,homeDensityIndex(columns));assert.equal(getNativeFolderBalloon(dense,getHomePresentation(dense)),null);}
  const pressed=touch(state,'down',point(state,2),100);assert.equal(getNativeFolderBalloon(pressed,getHomePresentation(pressed)),null);
- const vacant={...state,selected:1};assert.equal(getNativeFolderBalloon(vacant,getHomePresentation(vacant)),null);
- assert.equal(getNativeFolderBalloon({...state,opened:true},view),null);assert.equal(getNativeFolderBalloon({...state,panel:'settings'},view),null);
+ const vacant=selectHomeSlot(state,1);assert.equal(getNativeFolderBalloon(vacant,getHomePresentation(vacant)),null);
+ assert.equal(getNativeFolderBalloon(enterHomeFolder(state,2),view),null);assert.equal(getNativeFolderBalloon({...state,panel:'settings'},view),null);
 });
 test('one-row lift and drop uses the lower drawn tiles while label space stays untargetable',()=>{
- const start={...home(),columns:3},a=point(start,0),b=point(start,1);
+ const start=setHomeDensity(home(),0),a=point(start,0),b=point(start,1);
  assert.equal(homeTouchLocation(start,a.x,118),null);assert.deepEqual(homeTouchLocation(start,a.x,a.y),{folder:null,slot:0});
  let state=touch(start,'down',a,100);state=tickSystem(state,550);assert.equal(getHomePresentation(state).ghost.item.id,start.system.layout[0]);
  state=touch(state,'move',b,560);assert.equal(getHomePresentation(state).tiles.find(t=>t.index===1).drop,true);
@@ -71,13 +72,13 @@ test('fractional scrolling keeps runtime tile coordinates and hides press/drop s
  assert.ok(view.tiles.every(t=>!t.pressed&&!t.drop&&!t.cursor));
 });
 test('folder child selection is distinct from its parent HOME slot',()=>{
- const initial=home(),childId=initial.system.layout[1],state={...initial,selected:4,opened:true,folderSelected:1,folders:{4:'A'},system:{...initial.system,folderLayouts:{4:{1:childId}}}};
+ const initial=home(),childId=initial.system.layout[1],state=selectHomeSlot(enterHomeFolder({...initial,folders:{4:'A'},system:{...initial.system,folderLayouts:{4:{1:childId}}}},4),1);
  const view=getHomePresentation(state);assert.equal(view.tiles.find(t=>t.index===1).appId,childId);assert.deepEqual(view.tiles.filter(t=>t.cursor).map(t=>t.index),[1]);
 });
 test('occupied folder footer closes the folder even when software is suspended',()=>{
  const initial=home(),childId=initial.system.layout[1];
  for(const active of [null,childId]){
-  const state={...initial,selected:4,opened:true,folderSelected:1,folders:{4:'A'},system:{...initial.system,app:active,folderLayouts:{4:{1:childId}}}};
+  const state=selectHomeSlot(enterHomeFolder({...initial,folders:{4:'A'},system:{...initial.system,app:active,folderLayouts:{4:{1:childId}}}},4),1);
   assert.deepEqual(getHomeFooter(state),{two:true,left:'close-folder',right:active?'resume':'open'});
   const closed=touchSystem(state,50,226,100);assert.equal(closed.opened,false);assert.equal(closed.system.app,active);assert.equal(closed.system.dialog,null);
  }

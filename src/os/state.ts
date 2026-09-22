@@ -1,4 +1,5 @@
 import type { System } from './system';
+import { HOME_DENSITIES, getHomeNavigationView, selectHomeSlot, stepHomeDirection, setHomeDensity, enterHomeFolder, leaveHomeFolder, initializeHomeFolderView, deleteHomeFolderView, type HomeNavigation, type HomeDensity } from './home-navigation.ts';
 /** Native HOME Menu coordinates: 320 × 240; icons are ordered by column. */
 export const ROWS = 2;
 export const COLUMNS = 150;
@@ -12,6 +13,8 @@ export type Panel = 'settings' | 'themes' | 'folder-settings' | 'rename' | 'dele
 export type Theme = 'white' | 'red' | 'blue' | 'yellow' | 'pink' | 'black';
 export type MenuState = {
   system?: System;
+  /** Navigation storage for isolated menu consumers without a System. */
+  homeNavigation?: HomeNavigation;
   selected: number; opened: boolean; powered: boolean; brightness: number; columns: number;
   panel: Panel; theme: Theme; powerSaving: boolean; panelChoice: number;
   folders: Record<number, string>; folderSelected: number; nameDraft: string; nextFolderNumber: number;
@@ -27,48 +30,22 @@ function createFolder(state: MenuState): MenuState {
   if (Object.keys(state.folders).length >= MAX_FOLDERS || state.system?.layout[state.selected]) return state;
   const number = state.nextFolderNumber;
   const digits = String(number).replace(/[0-9]/g, digit => String.fromCharCode(digit.charCodeAt(0) + 0xfee0));
-  return { ...state, folders: { ...state.folders, [state.selected]: `${digits} (New Folder)` },
-    nextFolderNumber: number === LAST_FOLDER_NUMBER ? FIRST_FOLDER_NUMBER : number + 1 };
+  return initializeHomeFolderView({ ...state, folders: { ...state.folders, [state.selected]: `${digits} (New Folder)` },
+    nextFolderNumber: number === LAST_FOLDER_NUMBER ? FIRST_FOLDER_NUMBER : number + 1 }, state.selected);
 }
 export function isFolder(index: number, state: MenuState = initialState): boolean {
   return Object.hasOwn(state.folders, index);
 }
-export const densities = [3, 4, 6, 8, 10, 12] as const;
-export function densityIndex(state:MenuState){return Math.max(0,densities.indexOf(state.columns as typeof densities[number]));}
-export function rowCount(state: MenuState) { return densityIndex(state)+1; }
-/** `columns` remains a legacy preference token. Native visible columns differ. */
-export function visibleColumns(state:MenuState){return state.opened?state.columns:[3,3,5,7,9,10][densityIndex(state)];}
-export function columnPitch(state:MenuState){return state.opened?(rowCount(state)===1?84:168/rowCount(state)):[84,84,54,40,32,28][densityIndex(state)];}
-function firstColumnX(state:MenuState){return state.opened?40+(columnPitch(state)-(rowCount(state)<=2?12:8))/2:[76,76,52,40,32,34][densityIndex(state)];}
-function withScroll(state:MenuState,scrollColumn:number):MenuState{return state.system?{...state,system:{...state.system,homeNavigation:{...state.system.homeNavigation,scrollColumn}}}:state;}
-export function pageStart(state: MenuState): number {
-  const rows = rowCount(state), selected = state.opened ? state.folderSelected : state.selected,columns=visibleColumns(state);
-  const scroll = state.system?.homeNavigation?.scrollColumn;
-  if (typeof scroll === 'number' && Number.isFinite(scroll)) return Math.max(0, Math.min(Math.max(0, Math.ceil(slotCount(state) / rows) - columns), scroll));
-  return Math.max(0, Math.min(Math.ceil(slotCount(state) / rows) - columns, Math.floor(selected / rows) - Math.floor((columns - 1) / 2)));
-}
+export const densities = HOME_DENSITIES;
+export function densityIndex(state: MenuState) { return getHomeNavigationView(state).currentDensity; }
+export function rowCount(state: MenuState) { return getHomeNavigationView(state).rows; }
+/** `columns` remains a legacy density token, independent from visible columns. */
+export function visibleColumns(state: MenuState) { return getHomeNavigationView(state).columns; }
+export function columnPitch(state: MenuState) { return getHomeNavigationView(state).pitchX; }
+export function pageStart(state: MenuState) { const view = getHomeNavigationView(state); return view.scrollPixels / view.pitchX; }
 export function menuTiles(state: MenuState) {
-  const rows=rowCount(state),density=densityIndex(state),pitch=columnPitch(state),size=state.opened?pitch-(rows<=2?12:8):[72,72,50,36,28,24][density];
-  const scroll=pageStart(state),start=Math.max(0,Math.floor(scroll)-1);
-  const top=state.opened?(rows===1?125:(rows===2?46:40)+(168-rows*pitch)/2):[161,82,70,64,60,54][density]-size/2;
-  return Array.from({ length: (visibleColumns(state) + 3) * rows }, (_, i) => {
-    const col = Math.floor(i / rows), row = i % rows;
-    return { index: (start + col) * rows + row, x: firstColumnX(state)-size/2+(start+col-scroll)*pitch, y: top + row * pitch, size };
-  }).filter(tile => tile.index < slotCount(state) && tile.x < 320 && tile.x+tile.size>0);
-}
-/** Native density touch chooses the earliest left column nearest the old X. */
-function changeDensity(state:MenuState,columns:number):MenuState{
-  if(columns===state.columns)return state;
-  const selected=state.opened?state.folderSelected:state.selected;
-  const oldX=Math.fround(firstColumnX(state)+Math.fround((Math.floor(selected/rowCount(state))-pageStart(state))*columnPitch(state)));
-  const next={...state,columns},rows=rowCount(next),count=visibleColumns(next),selectedColumn=Math.floor(selected/rows);
-  const first=Math.max(0,selectedColumn-count+1),last=Math.min(Math.max(0,Math.ceil(slotCount(next)/rows)-count),selectedColumn+count-1);
-  let closest=first,distance=Infinity;
-  for(let left=first;left<=last;left++){
-    const x=Math.fround(firstColumnX(next)+Math.fround((selectedColumn-left)*columnPitch(next))),delta=Math.fround(x-oldX),squared=Math.fround(delta*delta);
-    if(squared<distance){closest=left;distance=squared;}
-  }
-  return withScroll(next,closest);
+  return getHomeNavigationView(state).slots.map(slot => ({ ...slot, x: slot.x - slot.size / 2, y: slot.y - slot.size / 2 }))
+    .filter(tile => tile.x < 320 && tile.x + tile.size > 0);
 }
 export const toolbar = [
   { panel: 'settings', x: 0, width: 40 }, { panel: 'notes', x: 40, width: 44 },
@@ -93,15 +70,15 @@ function activatePanel(state: MenuState): MenuState {
     const folders = { ...state.folders }; delete folders[state.selected];
     const system = state.system ? { ...state.system, folderLayouts: { ...state.system.folderLayouts } } : undefined;
     if (system) delete system.folderLayouts[state.selected];
-    return { ...state, ...(system ? { system } : {}), folders, panel: null, opened: false };
+    return deleteHomeFolderView({ ...state, ...(system ? { system } : {}), folders, panel: null }, state.selected);
   }
   return state;
 }
 export function reduceMenu(state: MenuState, input: Input): MenuState {
-  if (input === 'power') return { ...state, powered: !state.powered, opened: false, panel: null };
+  if (input === 'power') return { ...state, powered: !state.powered, panel: null };
   if (!state.powered) return state;
-  if (input === 'home') return { ...state, opened: false, panel: null };
-  if (input === 'back') return { ...state, panel: state.panel === 'themes' ? 'settings' : state.panel === 'theme-shop' ? 'themes' : null, opened: state.panel ? state.opened : false, panelChoice: 0 };
+  if (input === 'home') return { ...state, panel: null };
+  if (input === 'back') return { ...(state.panel ? state : leaveHomeFolder(state)), panel: state.panel === 'themes' ? 'settings' : state.panel === 'theme-shop' ? 'themes' : null, panelChoice: 0 };
   if (input === 'settings') return { ...state, panel: 'settings', panelChoice: 0 };
   if (input === 'brightness') return { ...state, brightness: state.brightness >= .99 ? .2 : Math.round((state.brightness + .2) * 10) / 10 };
   if (state.panel) {
@@ -112,23 +89,14 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
   }
   if (input === 'zoom' || input === 'zoom-in' || input === 'zoom-out') {
     const i = densities.indexOf(state.columns as typeof densities[number]);
-    return changeDensity(state,densities[input === 'zoom' ? (i + 1) % densities.length : Math.max(0, Math.min(densities.length - 1, i + (input === 'zoom-in' ? -1 : 1)))]);
+    return setHomeDensity(state, (input === 'zoom' ? (i + 1) % densities.length : Math.max(0, Math.min(densities.length - 1, i + (input === 'zoom-in' ? -1 : 1)))) as HomeDensity);
   }
   if (input === 'open') {
     if (state.opened) return state;
-    if (isFolder(state.selected, state)) return withScroll({ ...state, opened: true, folderSelected: 0 },0);
+    if (isFolder(state.selected, state)) return enterHomeFolder(state, state.selected);
     return createFolder(state);
   }
-  const rows = rowCount(state), selected = state.opened ? state.folderSelected : state.selected;
-  const col = Math.floor(selected / rows), row = selected % rows;
-  const nextCol = input === 'left' ? Math.max(0, col - 1) : input === 'right' ? Math.min(Math.ceil(slotCount(state) / rows) - 1, col + 1) : col;
-  const nextRow = input === 'up' ? Math.max(0, row - 1) : input === 'down' ? Math.min(rows - 1, row + 1) : row;
-  const next = Math.min(slotCount(state) - 1, nextCol * rows + nextRow);
-  const moved={ ...state, [state.opened ? 'folderSelected' : 'selected']: next };
-  // Retain navigation history until an edge is crossed. Cancelling a gesture
-  // happens before this reducer, so fractional stylus scroll has one owner.
-  const left=pageStart(state),column=Math.floor(next/rows),columns=visibleColumns(state);
-  return withScroll(moved,Math.max(0,Math.min(Math.max(0,Math.ceil(slotCount(state)/rows)-columns),column<left?column:column>=left+columns?column-columns+1:left)));
+  return ['left', 'right', 'up', 'down'].includes(input) ? stepHomeDirection(state, input as 'left' | 'right' | 'up' | 'down') : state;
 }
 export function touchMenu(state: MenuState, x: number, y: number): MenuState {
   if (!state.powered || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= 320 || y < 0 || y >= 240) return state;
@@ -166,8 +134,8 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
   if (state.opened && x < 46 && y < 51) return reduceMenu(state, 'back');
   const tile = menuTiles(state).find(tile => x >= tile.x && x < Math.min(308, tile.x + tile.size) && y >= tile.y && y < tile.y + tile.size);
   if (!tile) return state;
-  if (state.opened) return { ...state, folderSelected: tile.index };
-  return tile.index === state.selected ? reduceMenu(state, 'open') : { ...state, selected: tile.index };
+  if (state.opened) return selectHomeSlot(state, tile.index);
+  return tile.index === state.selected ? reduceMenu(state, 'open') : selectHomeSlot(state, tile.index);
 }
 
 /** Canvas keyboard geometry is shared with touch, including the space/delete row. */

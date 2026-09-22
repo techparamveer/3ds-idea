@@ -11,10 +11,10 @@ test('D-pad navigation is column-major at every native density and remains in bo
   for(let i=0;i<400;i++)s=reduceMenu(s,'left');assert.equal(Math.floor(s.selected/rows),0);assert.equal(pageStart(s),0);
  }
 });
-test('A opens a folder; folder selection is independent; B and HOME restore its position',()=>{
+test('A opens a folder; folder selection is independent; B restores root while HOME retains the active context',()=>{
  let s=reduceMenu({...initialState,selected:2},'open');assert.equal(s.opened,true);
- s=reduceMenu(s,'right');assert.equal(s.selected,2);assert.equal(s.folderSelected,2);
- assert.equal(reduceMenu(s,'back').opened,false);assert.equal(reduceMenu(s,'home').opened,false);
+ s=reduceMenu(s,'right');assert.equal(s.selected,2);assert.equal(s.folderSelected,1);
+ assert.equal(reduceMenu(s,'back').opened,false);assert.equal(reduceMenu(s,'home').opened,true);
 });
 test('Touch selects the drawn icon, and a second tap opens it',()=>{
  const tile=menuTiles(initialState).find(t=>t.index===2);

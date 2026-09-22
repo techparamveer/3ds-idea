@@ -5,15 +5,16 @@ import { initialState, reduceMenu, renameFolder, MAX_FOLDERS } from '../src/os/s
 import { createPortfolioState, tickSystem, touchSystem, reduceSystem, saveSettings, restoreSettings, moveHomeItem } from '../src/os/system.ts';
 import { openFirmwareStorage } from '../src/os/app-persistence.ts';
 
+import {selectHomeLocation} from '../src/os/home-layout.ts';
 const home = () => tickSystem(createPortfolioState(), 3001);
-const create = (state, slot) => reduceMenu({ ...state, selected: slot, opened: false, panel: null }, 'open');
-const remove = (state, slot) => reduceMenu({ ...state, selected: slot, opened: false, panel: 'delete' }, 'open');
+const create = (state, slot) => reduceMenu({ ...selectHomeLocation(state, {folder: null, slot}), panel: null }, 'open');
+const remove = (state, slot) => reduceMenu({ ...selectHomeLocation(state, {folder: null, slot}), panel: 'delete' }, 'open');
 const root = slot => ({ folder: null, slot });
 const child = (folder, slot) => ({ folder, slot });
 
 test('fresh footer creation stores the native first name and icon-leading fullwidth numeral', () => {
   const before = home();
-  const after = touchSystem({ ...before, selected: 40 }, 210, 226, 4000);
+  const after = touchSystem(selectHomeLocation(before, {folder: null, slot: 40}), 210, 226, 4000);
   assert.equal(after.folders[40], '\uff11 (New Folder)');
   assert.equal(after.folders[40].codePointAt(0), 0xff11);
   assert.equal(after.nextFolderNumber, 2);
@@ -85,13 +86,13 @@ test('moving and swapping folders carries labels and contents while retaining th
   assert.equal(state.folders[41], '\uff13 (New Folder)');
 });
 
-test('schema 3 round-trips the independent sequence through settings and IndexedDB', async () => {
+test('schema 4 round-trips the independent sequence through settings and IndexedDB', async () => {
   const storage = await openFirmwareStorage({ indexedDB: new IDBFactory(), databaseName: 'folder-naming-test' });
   try {
     let state = create({ ...home(), nextFolderNumber: 98 }, 40);
     state = renameFolder(state, 'Personal');
     const raw = saveSettings(state);
-    assert.equal(JSON.parse(raw).version, 3);
+    assert.equal(JSON.parse(raw).version, 4);
     await storage.savePreferences(raw);
     const loaded = await storage.load();
     const restored = restoreSettings(home(), loaded.preferences);
@@ -116,7 +117,7 @@ test('legacy saves preserve custom and deliberately empty labels without guessin
   }
 });
 
-test('invalid or missing schema 3 counters reject the saved layout without losing current state', () => {
+test('invalid or missing schema 4 counters reject the saved layout without losing current state', () => {
   const state = create(home(), 40);
   for (const value of [undefined, null, 0, -1, 100, 1.5, '2']) {
     const saved = JSON.parse(saveSettings(state));

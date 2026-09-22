@@ -71,7 +71,7 @@ from folders. A folder's delete action refuses to remove occupied contents.
 The initial eight portfolio slots are unchanged; user rearrangements may move
 those icons while keeping every installed ID present exactly once.
 
-`saveSettings` now writes payload version 3 and includes folder layouts and the
+`saveSettings` now writes payload version 4 and includes folder layouts and the
 independent default-folder naming counter. See [folder naming](folder-naming-runtime.md)
 for native evidence, fullwidth digits and the explicit legacy-counter policy.
 Transient contact and scroll data are omitted. Unversioned/version 1 root
@@ -92,3 +92,10 @@ moves checks ID preservation and reload validation after each placement.
 Reference images, timings and renderer previews still need the orchestrator's
 centralized browser/Azahar acceptance. This is a behaviour foundation, not a
 claim of a completed native HOME Menu.
+
+Viewport authority now belongs to `home-navigation.ts`. Pointer scroll pixels and
+hover context are previews; the gesture retains the original navigation record.
+Cancellation restores it, and saving during any preview serializes that original
+record. A completed scroll persists its aligned viewport/selection. Lifecycle
+input release preserves all inactive folder histories. See
+[HOME navigation](home-navigation-runtime.md).

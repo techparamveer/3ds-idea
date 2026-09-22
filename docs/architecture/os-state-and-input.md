@@ -17,7 +17,8 @@
 | `animation.ts` | Layout animation sampling utilities |
 | `app-types.ts`, `app-registry.ts`, `app-host.ts` | Firmware contracts, installed titles and applet lifecycle |
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
-| `home-gestures.ts`, `home-layout.ts` | HOME stylus gestures, viewport, folder placement and validated layout saves |
+| `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
+| `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
 | `app-persistence.ts` | Versioned IndexedDB saves, preferences and media |
 | `app-capabilities.ts` | Opt-in browser devices, local capture and resource cleanup |
 
@@ -117,8 +118,8 @@ see [the gesture contract](../home-gesture-runtime.md) for renderer helpers,
 folder restrictions, persistence and explicitly unmeasured timings.
 
 `state.ts` owns the saved default-folder naming sequence (1…99, wrapping to 1),
-independent of folder count and labels. Preferences payload version 3 preserves
-that counter; legacy payloads preserve all labels and start a new sequence at 1
+independent of folder count and labels. Preferences payload version 4 preserves
+that counter and independent HOME context histories; legacy payloads preserve all labels and start a new sequence at 1
 because their creation history is absent. See [folder naming](../folder-naming-runtime.md)
 for source addresses, Unicode formatting and migration limits.
 
@@ -154,3 +155,16 @@ invalidation is deleted instead of being delivered. A storage failure during
 that cleanup can leave an unreferenced local Blob; no remote upload occurs.
 Browser device behaviour and the presentation of these views require the
 centralized scene integration and browser verification.
+
+## HOME navigation histories
+
+`home-navigation.ts` is the single owner of root/folder selection, density and
+left-slot records. Legacy `MenuState` fields are projections; system-less menu
+callers retain the same record under optional `MenuState.homeNavigation`.
+`state.ts` derives painted tiles and geometry helpers from this view, and stylus
+hit tests consume those exact tiles. Do not write projection fields to navigate.
+Folder labels, children, histories and active context references move atomically.
+App launch/HOME return preserve the retained HOME context; this bounded behavior
+does not claim the full native APT reconciliation graph. See
+[HOME navigation](../home-navigation-runtime.md) for source tables, migration,
+transient preview policy and remaining work.

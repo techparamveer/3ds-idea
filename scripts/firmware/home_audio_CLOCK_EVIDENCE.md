@@ -105,10 +105,10 @@ Matching repeat length does not make the exported loop waveform continuous.
 The renderer repeats a baked slice, whereas the native sequencer retains voices
 and other live state. The measured seam and long-recording comparison belong
 in the candidate report and must be reviewed before replacing public audio.
-The resume entry starts its loop before the renderer drops its initial silent
-block, so its exported two-pass slice is 160 samples shorter than its untrimmed
-schedule. The README records that startup boundary limitation separately from
-the validated main-music period; no native resume capture is available.
+V4's resume entry started its loop before the renderer dropped its initial
+silent block, making its exported slice 160 samples shorter than its untrimmed
+schedule. V5 retains the generated timeline to correct that origin mismatch;
+see `home_audio_LOOP_EVIDENCE.md`. Native resume behavior is still unverified.
 
 Changing the shared sequence-render frame cadence also changes how often the
 pinned voice envelope/modulation implementation updates. Native `0x14d120..130`

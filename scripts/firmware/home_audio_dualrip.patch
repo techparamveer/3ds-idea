@@ -232,7 +232,7 @@
          'loop_start', 'pos', 'inc', 'vol_l', 'vol_r', 'vol',
 --- a/dualrip/engine/ctr/render.py
 +++ b/dualrip/engine/ctr/render.py
-@@ -5,25 +5,26 @@
+@@ -5,25 +5,23 @@
      cdiv, cnv_attack, cnv_fall, cnv_sust,
  )
  from .sequencer import CseqPlayer
@@ -249,13 +249,11 @@
 +
 -    spc = 1.0 / DRIVER_HZ
 -    samples_per_clock = rate / DRIVER_HZ
-+    spc = 1.0 / FRAME_HZ
 +    samples_per_clock = rate / FRAME_HZ
      out_l = []
      out_r = []
-     recording = False
+-    recording = False
 -    tick0_ran = False
-+    tick0_ran = ply.ticked
      idle_clocks = 0
 -    hold_clocks = int(hold_seconds * DRIVER_HZ)
 +    hold_clocks = int(hold_seconds * FRAME_HZ)
@@ -268,7 +266,7 @@
          seq_done = ply.all_tracks_ended() or frozen
          if seq_done and not ply.any_voice_active():
              break
-@@ -34,7 +35,7 @@
+@@ -34,28 +32,24 @@
                  for v in ply.voices:
                      if v.state > CS_NONE and v.state != CS_RELEASE:
                          v.release()
@@ -277,7 +275,27 @@
                      break
          frac += samples_per_clock
          n = int(frac)
-@@ -56,6 +57,8 @@
+         frac -= n
+-        if recording:
+-            l, r = ply.generate(n)
+-            out_l.extend(l)
+-            out_r.extend(r)
+-        else:
+-            ply.generate(n)
+-            if tick0_ran:
+-                recording = True
+-                ply.now_sample = 0
+-        if ply.ticked:
+-            tick0_ran = True
++        # Keep the generated timeline intact, including the initial silent frame.
++        # Loop positions and retained PCM must use the same sample origin.
++        l, r = ply.generate(n)
++        out_l.extend(l)
++        out_r.extend(r)
+         ply.timer()
+-
++
+     chans = [[max(-32768, min(32767, int(x))) for x in out_l], [max(-32768, min(32767, int(x))) for x in out_r]]
      loop = None
      if ply.loop_detected and ply.loop_start_sample is not None:
          loop = (ply.loop_start_sample, ply.loop_end_sample or len(chans[0]))

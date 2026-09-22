@@ -1,5 +1,5 @@
 {
-  "id": "eur-home-24576-stereo-startup-v4",
+  "id": "eur-home-24576-stereo-startup-v5",
   "archiveSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
   "sourceRecord": {
     "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
@@ -388,5 +388,12 @@
     "tempoRatio": 1,
     "sourceRoutine": "0x1aa174",
     "fittedTimingConstants": false
+  },
+  "renderTimeline": {
+    "origin": "Sequence player sample zero; preserve every generated frame",
+    "startupTrimSamples": 0,
+    "initialFrame": "Existing converter timer order produces one silent frame; retained, not inserted",
+    "nativeOnsetVerified": false,
+    "loopSelection": "Original first loop start through second bytecode pass; not a steady-state waveform claim"
   }
 }

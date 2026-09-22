@@ -224,17 +224,33 @@ class SequencerTests(unittest.TestCase):
         self.assertTrue(p['nativeOutputMode']['referenceModeVerified'])
         self.assertFalse(p['captureSemantics']['hostVolumeSliderApplied'])
         self.assertFalse(p['captureSemantics']['hostTimeStretchApplied'])
+        self.assertEqual(p['renderTimeline']['startupTrimSamples'], 0)
+        self.assertFalse(p['renderTimeline']['nativeOnsetVerified'])
         self.assertTrue(p['remainingGaps'])
         self.assertEqual(p['runtimeAssumptions']['auxReturnA'], 1)
         self.assertNotEqual(p['originalFiles']['dualrip/engine/ctr/sequencer.py'],
                             p['patchedFiles']['dualrip/engine/ctr/sequencer.py'])
 
-    def test_startup_keeps_first_audible_frame(self):
+    def test_startup_preserves_generated_sample_origin(self):
         from dualrip.engine.ctr.render import render_entry
         player = self.player()
         channels, _, _ = render_entry(bytes([60, 127, 4, 255]), 0, player.bank_lookup, 32728, 64)
-        self.assertEqual(channels[0][0], 707)
-        self.assertEqual(channels[1][0], 707)
+        self.assertEqual(channels[0][:160], [0] * 160)
+        self.assertEqual(channels[1][:160], [0] * 160)
+        self.assertEqual(channels[0][160], 707)
+        self.assertEqual(channels[1][160], 707)
+
+    def test_loop_at_sequence_origin_keeps_complete_period(self):
+        from dualrip.engine.ctr.render import render_entry
+        player = self.player()
+        # Infinite loop at sample zero, each note waits 48 ticks at tempo 120.
+        # The second repeat is tick 96, in native frame 204: 32640 samples.
+        channels, loop, _ = render_entry(
+            bytes([0xd4, 0, 60, 127, 48, 0xfc, 0xff]),
+            0, player.bank_lookup, 32728, 64, loop_passes=2)
+        self.assertEqual(loop, (0, 32640))
+        self.assertEqual(channels[0][:160], [0] * 160)
+        self.assertEqual(channels[0][160], 707)
 
     def test_actual_music_native_loop_period(self):
         source = os.environ.get('HOME_AUDIO_SOURCE')

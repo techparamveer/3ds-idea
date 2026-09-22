@@ -14,7 +14,7 @@ export type MenuState = {
   panel: Panel; theme: Theme; powerSaving: boolean; panelChoice: number;
   folders: Record<number, string>; folderSelected: number; nameDraft: string;
 };
-export type Input = 'left' | 'right' | 'up' | 'down' | 'open' | 'back' | 'home' | 'power' | 'brightness' | 'zoom' | 'zoom-in' | 'zoom-out' | 'settings' | 'preferences' | 'mute' | 'volume-up' | 'volume-down' | 'reset-layout';
+export type Input = 'x' | 'y' | 'l' | 'r' | 'start' | 'select' | 'left' | 'right' | 'up' | 'down' | 'open' | 'back' | 'home' | 'power' | 'brightness' | 'zoom' | 'zoom-in' | 'zoom-out' | 'settings' | 'preferences' | 'mute' | 'volume-up' | 'volume-down' | 'reset-layout';
 export const initialState: MenuState = {
   selected: 0, opened: false, powered: true, brightness: 1, columns: 4,
   panel: null, theme: 'white', powerSaving: false, panelChoice: 0,

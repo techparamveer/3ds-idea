@@ -1,29 +1,62 @@
 import { apps, getApp } from './apps.ts';
+import { getTitle, initialAppLayout, homeTitles } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, menuTiles, type MenuState, type Input } from './state.ts';
+import { activeInstance, acknowledgeEffects, closeApplication, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, tickRuntime, type AppRuntime } from './app-host.ts';
+import { createInputLatch, latchInput, repeatInput, type InputLatch } from './app-input.ts';
+import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
 export type System = {
  phase:'boot'|'home'|'launch'|'app'|'power'|'off'; since:number; sleeping:boolean;
  app:string|null; pending:string|null; item:number; detail:boolean; page:number; photo:number;
  layout:Record<number,string>; muted:boolean; volume:number; dialog:'switch'|'close'|null;
  returnPhase:'home'|'app'; link:string|null; preferences:boolean; preferenceChoice:number;
+ runtime: AppRuntime; input: InputLatch;
 };
-export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:Object.fromEntries(apps.map((app,i)=>[i,app.id])),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0}};}
+export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch()}};}
+/** Kept for portfolio artwork compatibility; use selectedTitle for every installed title. */
 export function selectedApp(state:MenuState){return getApp(state.system?.layout[state.selected]);}
+export function selectedTitle(state:MenuState){return getTitle(state.system?.layout[state.selected]);}
 export function currentEntry(state:MenuState){const s=state.system;return getApp(s?.app)?.entries[s?.item??0];}
+export function getActiveAppView(state: MenuState, now?: number) { return state.system ? runtimeView(state.system.runtime, now) : null; }
+function syncRuntime(state: MenuState, runtime: AppRuntime, phase?: System['phase']): MenuState {
+ const s=state.system!, application=runtime.application?runtime.instances[runtime.application]:undefined;
+ const portfolio=application&&getApp(application.appId)?application.state:null;
+ return {...state,system:{...s,runtime,app:application?.appId??null,phase:phase??(runtime.active?'app':'home'),link:runtime.link,
+  ...(portfolio?{item:Number(portfolio.item),detail:portfolio.detail===true,page:Number(portfolio.page),photo:Number(portfolio.photo)}:{item:0,detail:false,page:0,photo:0})}};
+}
+function commitRuntime(state: MenuState, runtime: AppRuntime, now: number): MenuState {
+ const pending=runtime.pendingLaunch;let next=syncRuntime(state,pending?{...runtime,pendingLaunch:null}:runtime);
+ if(pending)next=launch(next,pending,now);
+ return next;
+}
 export function launch(state:MenuState,id:string,now:number):MenuState {
- const s=state.system!;if(!getApp(id))return state;
- if(s.app===id)return {...state,panel:null,system:{...s,phase:'app',dialog:null}};
+ const s=state.system!, title=getTitle(id);if(!title)return state;
+ if(title.kind!=='application')return invokeSystemApplet(state,id,now);
+ if(s.app===id)return {...syncRuntime(state,resumeRuntimeApplication(s.runtime,now),'app'),panel:null};
  if(s.app)return {...state,panel:null,system:{...s,pending:id,dialog:'switch'}};
- return {...state,opened:false,panel:null,system:{...s,phase:'launch',since:now,app:id,item:0,detail:false,page:0,photo:0,dialog:null,pending:null}};
+ const started=syncRuntime(state,startApplication(s.runtime,id,now),'launch');
+ return {...started,opened:false,panel:null,system:{...started.system!,since:now,dialog:null,pending:null,input:createInputLatch()}};
+}
+export function invokeSystemApplet(state: MenuState, appId: string, now: number, args: AppState = {}): MenuState {
+ const s=state.system;if(!s||getTitle(appId)?.kind==='application')return state;
+ const next=syncRuntime(state,openApplet(s.runtime,appId,`home:${appId}`,args,now));
+ return {...next,panel:null,opened:false,system:{...next.system!,input:createInputLatch()}};
 }
 export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
- const s=state.system;if(!s||s.sleeping)return state;
+ let s=state.system;if(!s)return state;
+ if(s.sleeping!==s.runtime.sleeping){state={...state,system:{...s,runtime:setRuntimeSleeping(s.runtime,s.sleeping,now),input:createInputLatch()}};s=state.system!;}
+ if(s.sleeping)return state;
  const duration=s.phase==='boot'?(reduced?300:3000):s.phase==='launch'?(reduced?120:1100):Infinity;
- return now-s.since>=duration?{...state,system:{...s,phase:s.phase==='boot'?'home':'app'}}:state;
+ if(now-s.since>=duration)return {...state,system:{...s,phase:s.phase==='boot'?'home':'app',runtime:{...s.runtime,lastTick:now}}};
+ if(s.phase!=='home'&&s.phase!=='app')return state;
+ const repeated=repeatInput(s.input,now);if(repeated.latch!==s.input)state={...state,system:{...s,input:repeated.latch}};
+ for(const command of repeated.commands)state=reduceSystem(state,command,now);
+ if(state.system!.phase==='app')return commitRuntime(state,tickRuntime(state.system!.runtime,now),now);
+ return state;
 }
 export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
  const s=state.system;if(!s)return reduceMenu(state,input);
  const change=(patch:Partial<System>):MenuState=>({...state,system:{...s,link:null,...patch}});
- if(input==='power')return s.phase==='off'?{...state,powered:true,panel:null,system:{...s,phase:'boot',since:now,sleeping:false,app:null,dialog:null}}:change({phase:'power',preferences:false,returnPhase:s.phase==='app'?'app':'home',dialog:null});
+ if(input==='power')return s.phase==='off'?{...state,powered:true,panel:null,system:{...s,phase:'boot',since:now,sleeping:false,app:null,dialog:null,runtime:{...s.runtime,sleeping:false,lastTick:now},input:createInputLatch()}}:change({phase:'power',preferences:false,returnPhase:s.phase==='app'?'app':'home',dialog:null,input:createInputLatch()});
  if(s.phase==='off'||s.sleeping||s.phase==='boot'||s.phase==='launch')return state;
  if(input==='mute')return change({muted:!s.muted});
  if(input==='volume-up'||input==='volume-down')return change({volume:Math.max(0,Math.min(1,s.volume+(input==='volume-up'?.1:-.1)))});
@@ -33,37 +66,35 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
   if(input==='up'||input==='down')return change({preferenceChoice:Math.max(0,Math.min(2,s.preferenceChoice+(input==='down'?1:-1)))});
   if(input==='left'||input==='right')return reduceSystem(state,input==='left'?'volume-down':'volume-up',now);
   if(input==='open'&&s.preferenceChoice===2)return reduceSystem(state,'reset-layout',now);
-  if(input==='reset-layout')return {...state,folders:{},selected:0,system:{...s,layout:createPortfolioState().system!.layout}};
-  if(input==='open')return change({muted:!s.muted});
-  return state;
+  if(input==='reset-layout')return {...state,folders:{},selected:0,system:{...s,layout:initialAppLayout()}};
+  if(input==='open')return change({muted:!s.muted});return state;
  }
  if(s.phase==='power'){
   if(input==='back'||input==='home')return change({phase:s.returnPhase});
-  if(input==='open')return {...change({phase:'off',app:null}),powered:false,panel:null};
-  return state;
+  if(input==='open')return {...change({phase:'off',app:null,runtime:closeApplication(s.runtime,now),input:createInputLatch()}),powered:false,panel:null};return state;
  }
  if(s.dialog){
   if(input==='back')return change({dialog:null,pending:null});
   if(input==='open'){
-   const closed={...state,system:{...s,app:null,dialog:null,pending:null,phase:'home' as const}};
+   const closing=syncRuntime(state,closeApplication(s.runtime,now),'home');const closed={...closing,system:{...closing.system!,dialog:null,pending:null}};
    return s.pending?launch(closed,s.pending,now):closed;
   }return state;
  }
- if(input==='home')return {...state,panel:null,opened:false,system:{...s,phase:s.phase==='app'?'home':s.app?'app':'home'}};
- if(s.phase==='app'){
-  const entry=currentEntry(state);const app=getApp(s.app)!;
-  if(input==='back')return s.detail?change({detail:false,page:0,photo:0}):change({phase:'home'});
-  if(input==='open')return s.detail?(entry?.app?launch(state,entry.app,now):entry?.url?change({link:entry.url}):change({detail:false})):change({detail:true,page:0,photo:0});
-  if(input==='up'||input==='down')return s.detail?change({page:Math.max(0,Math.min((entry?.pages.length??1)-1,s.page+(input==='down'?1:-1)))}):change({item:Math.max(0,Math.min(app.entries.length-1,s.item+(input==='down'?1:-1))),photo:0});
-  if(input==='left'||input==='right')return change({photo:Math.max(0,Math.min((entry?.images?.length??1)-1,s.photo+(input==='right'?1:-1)))});
-  if(input==='brightness')return reduceMenu(state,input);
-  return state;
+ if(input==='home'){
+  if(state.panel)return {...state,panel:null,opened:false};
+  const runtime=s.phase==='app'?showRuntimeHome(s.runtime,now):resumeRuntimeApplication(s.runtime,now);
+  return {...syncRuntime(state,runtime),panel:null,opened:false,system:{...syncRuntime(state,runtime).system!,input:createInputLatch()}};
  }
- if(input==='open'&&!state.panel&&!state.opened){const app=selectedApp(state);if(app)return launch(state,app.id,now);}
+ if(s.phase==='app'){
+  if(input==='brightness')return reduceMenu(state,input);
+  const mapping:Partial<Record<Input,import('./app-types.ts').AppCommand>>={left:'left',right:'right',up:'up',down:'down',open:'open',back:'back',x:'x',y:'y',l:'l',r:'r',start:'start',select:'select'};
+  const command=mapping[input];return command?commitRuntime(state,dispatchRuntime(s.runtime,{type:'command',command},now),now):state;
+ }
+ if(input==='open'&&!state.panel&&!state.opened){const title=selectedTitle(state);if(title)return launch(state,title.id,now);}
  if(input==='back'&&!state.panel&&s.app)return change({dialog:'close'});
- return reduceMenu(state,input);
+ return reduceMenu(state,input==='x'?'zoom':input==='y'?'brightness':input==='start'?'open':input==='select'?'zoom':input==='l'?'left':input==='r'?'right':input);
 }
-const toolbarApps:Record<string,string>={notes:'about',friends:'contact',notifications:'hackuk',browser:'projects',miiverse:'life'};
+const toolbarApps:Record<string,string>={notes:'game-notes',friends:'friends',notifications:'notifications',browser:'browser',miiverse:'miiverse'};
 export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuState {
  const s=state.system;if(!s)return touchMenu(state,x,y);
  if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>=320||y<0||y>=240||s.sleeping||s.phase==='off'||s.phase==='boot'||s.phase==='launch')return state;
@@ -71,21 +102,44 @@ export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuSt
  if(s.preferences){if(y>=212)return send('back');if(y>=53&&y<92)return send('mute');if(y>=106&&y<147)return send(x<160?'volume-down':'volume-up');if(y>=165&&y<204)return send('reset-layout');return state;}
  if(s.phase==='power'||s.dialog)return y>=170?send(x<160?'back':'open'):state;
  if(s.phase==='app'){
+  const active=activeInstance(s.runtime);
+  if(active&&getTitle(active.appId)?.source==='firmware')return commitRuntime(state,dispatchRuntime(s.runtime,{type:'touch',phase:'up',x,y},now),now);
   if(y>=212){if(x<100)return send('back');if(x>220)return send('open');return s.detail&&(currentEntry(state)?.images?.length??0)>1?send(x<160?'left':'right'):state;}
   if(s.detail){if(y>=174)return send(x<160?'up':'down');if(y<32)return send(x<160?'left':'right');return state;}
-  const first=Math.floor(s.item/4)*4,index=first+Math.floor((y-38)/41);
-  if(y>=38&&y<202&&index<getApp(s.app)!.entries.length)return index===s.item?send('open'):{...state,system:{...s,item:index,photo:0}};
+  const first=Math.floor(s.item/4)*4,index=first+Math.floor((y-38)/41),app=getApp(s.app);
+  if(y>=38&&y<202&&app&&index<app.entries.length){
+   if(index===s.item)return send('open');
+   if(active){const runtime={...s.runtime,instances:{...s.runtime.instances,[active.id]:{...active,state:{...active.state,item:index,photo:0}}}};return syncRuntime(state,runtime);}
+  }
   if(y<32)return send(x<160?'up':'down');return state;
  }
- if(!state.panel&&y>=212&&!state.opened&&selectedApp(state))return x<100&&s.app?{...state,system:{...s,dialog:'close'}}:send('open');
+ if(!state.panel&&y>=212&&!state.opened&&selectedTitle(state))return x<100&&s.app?{...state,system:{...s,dialog:'close'}}:send('open');
  if(!state.panel&&!state.opened&&y>=33&&y<204){const tile=menuTiles(state).find(t=>x>=t.x&&x<Math.min(308,t.x+t.size)&&y>=t.y&&y<t.y+t.size);if(tile&&s.layout[tile.index])return tile.index===state.selected?send('open'):{...state,selected:tile.index};}
- // The drawer handle doubles as audio control; no extra page chrome.
  if(state.panel==='settings'&&x>=265&&y>=145&&y<201)return send('preferences');
  const next=touchMenu(state,x,y);const target=next.panel&&toolbarApps[next.panel];
- return target?launch({...next,panel:null},target,now):next;
+ return target?invokeSystemApplet({...next,panel:null},target,now):next;
 }
+/** Full pointer/button protocol for scene adapters. Legacy single-command inputs remain supported. */
+export function dispatchSystemEvent(state: MenuState,event: AppEvent,now: number): MenuState {
+ const s=state.system;if(!s)return state;
+ if(event.type==='button'||event.type==='analog'||event.type==='command'){
+  const latched=latchInput(s.input,event,now);let next={...state,system:{...s,input:latched.latch}};
+  for(const command of latched.commands)next=reduceSystem(next,command,now) as typeof next;
+  return next;
+ }
+ if(s.phase!=='app'||s.sleeping||s.preferences||s.dialog)return event.type==='touch'&&event.phase==='up'?touchSystem(state,event.x,event.y,now):state;
+ if(event.type==='touch'&&event.phase==='up')return touchSystem(state,event.x,event.y,now);
+ return commitRuntime(state,dispatchRuntime(s.runtime,event,now),now);
+}
+export function resolveSystemCapability(state: MenuState,owner:string,event:Extract<AppEvent,{type:'capability-result'}>,now:number):MenuState {
+ if(!state.system)return state;return commitRuntime(state,deliverCapabilityResult(state.system.runtime,owner,event,now),now);
+}
+export function acknowledgeSystemEffects(state: MenuState,ids:readonly number[]):MenuState {return state.system?{...state,system:{...state.system,runtime:acknowledgeEffects(state.system.runtime,ids),link:null}}:state;}
+export function restoreRuntimeData(state:MenuState,shared:AppState,saves:Record<string,SaveRecord>):MenuState {return state.system?{...state,system:{...state.system,runtime:createAppRuntime(shared,saves)}}:state;}
+export function setSystemSleeping(state:MenuState,sleeping:boolean,now:number):MenuState {return state.system?{...state,system:{...state.system,sleeping,input:createInputLatch(),runtime:setRuntimeSleeping(state.system.runtime,sleeping,now)}}:state;}
+export function releaseSystemInputs(state:MenuState):MenuState {return state.system?{...state,system:{...state.system,input:createInputLatch()}}:state;}
 export function moveApp(state:MenuState,from:number,to:number):MenuState {
- const s=state.system;if(!s||!s.layout[from]||to<0||to>=300||state.folders[to]!==undefined)return state;
+ const s=state.system;if(!s||!Number.isInteger(from)||!Number.isInteger(to)||!s.layout[from]||to<0||to>=300||state.folders[to]!==undefined)return state;
  const layout={...s.layout};const previous=layout[to];layout[to]=layout[from];if(previous)layout[from]=previous;else delete layout[from];
  return {...state,selected:to,system:{...s,layout}};
 }
@@ -93,8 +147,10 @@ export const STORAGE_KEY='paramveer-3ds-v1';
 export function saveSettings(state:MenuState){const s=state.system!;return JSON.stringify({theme:state.theme,brightness:state.brightness,columns:state.columns,powerSaving:state.powerSaving,folders:state.folders,layout:s.layout,muted:s.muted,volume:s.volume});}
 export function restoreSettings(state:MenuState,raw:string|null):MenuState {
  if(!raw)return state;
- try{const v=JSON.parse(raw);const ids=Object.values(v.layout??{});if(ids.length!==apps.length||new Set(ids).size!==apps.length||!ids.every(id=>getApp(String(id)))||!Object.keys(v.layout).every(k=>/^\d+$/.test(k)&&+k<300))return state;
- const folders=Object.fromEntries(Object.entries(v.folders??{}).filter(([k,value])=>/^\d+$/.test(k)&&+k<300&&typeof value==='string'&&!v.layout[k]).slice(0,60).map(([k,value])=>[k,String(value).slice(0,16)]));
- return {...state,folders,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system!,layout:v.layout,muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
+ try{const v=JSON.parse(raw);if(!v.layout||typeof v.layout!=='object'||Array.isArray(v.layout))return state;
+ const ids=Object.values(v.layout);if(new Set(ids).size!==ids.length||!apps.every(app=>ids.includes(app.id))||!ids.every(id=>typeof id==='string'&&getTitle(id)?.home)||!Object.keys(v.layout).every(k=>/^(0|[1-9]\d*)$/.test(k)&&+k<300))return state;
+ const folders=Object.fromEntries(Object.entries(v.folders??{}).filter(([k,value])=>/^(0|[1-9]\d*)$/.test(k)&&+k<300&&typeof value==='string'&&!v.layout[k]).slice(0,60).map(([k,value])=>[k,String(value).slice(0,16)]));
+ const layout:Record<number,string>={...v.layout};for(const title of homeTitles)if(!ids.includes(title.id)){let slot=0;while(layout[slot]||folders[slot]!==undefined)slot++;if(slot<300)layout[slot]=title.id;}
+ return {...state,folders,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system!,layout,muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
  }catch{return state;}
 }

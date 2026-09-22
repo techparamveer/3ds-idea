@@ -1,61 +1,108 @@
-# First native HOME lower-screen comparison
+# Native HOME comparison checkpoint
 
-This pass compares the owner's European 10.7.0-32E HOME capture with the integrated browser output, then checks a software rendering of the corrections. It is a bounded presentation correction, not whole-screen visual acceptance. The integration task owns browser/Azahar operation and the final browser recapture.
+This checkpoint verifies parts of the representative HOME slice. It does not
+accept the complete HOME experience or any stock application. All private
+captures, owner-source scratch and comparison reports are under:
 
-## Reference and regions
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`
 
-Artifacts are under `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`:
+## Background and native camera
 
-- Native: `reference/screenshots/_22.09.26_21.15.03.46.png`, SHA-256 `60f5a4e1e19c904115c07767f47a06c17fe7dae674888b6146d7459159844994`. The lower display is the 320×240 crop at `(40,240)` of the 400×480 capture.
-- Browser before: `browser-home-first-bottom.png`, from integrated `9fc57bd`, SHA-256 `ee9717efe7ae6a2039a99710da407f5e84d611513ec80cc82802396e10d8eabd`.
-- Software after: `presentation/comparison-fixed-idle.png`, plus gesture states in `software-comparison-fixed.png` and `software-comparison-fixed-extra.png`. These use the actual Canvas presenter and decoded resources, with a software Canvas implementation.
-- Numeric samples: `presentation/comparison-pixels.json`. Diagnostic material alternatives are in `backplate-probe.png`, `tev-routing-probe.png` and `composed-constant-probe.png`; these are investigation artifacts, not delivered variants.
+The original `BannerBG` geometry, textures, material operations and selected
+`SceneIn`/`Loop` clips now use the original `BannerCamera` Aim/Perspective camera.
+The runtime source trace in `runtime/reference/banner-background/report.md`
+confirms that the default theme restores the authored BG texture and constants;
+there is no evidence for a replacement neutral texture or UV rescale.
 
-All coordinates below are lower-display logical pixels. Native and browser grid centers already agree at approximately `(76,82)`, `(160,82)`, `(244,82)` and the next row at `y166`. The native viewport is scrolled; different software artwork, selection, partial edge icons, notification badge and Manual action are not treated as geometry defects.
+A browser phase search compared the original 600-frame background loop with
+`reference/home-folder-two-rows-lower.png`. The regions exclude the HUD, hints,
+folder and label: x=0..82 and x=317..399, y=26..213. At source frame **509**:
 
-The first full native ordinary backplate is approximately 72×72 at `(40,47)–(111,118)`. The previous browser square was approximately 58×58 at `(47,53)–(104,110)`. The corrected ordinary plate follows the native bounds. On an unselected plate perimeter excluding icon artwork, the software comparison has mean absolute error 1.73 per RGB channel, with 81.6% of channels within two levels. Filtering and the native frame phase still limit pixel equality claims.
+- 93,624 RGB channels were compared, without shifting, resizing or recoloring
+  the native framebuffer. The browser's 800-wide texture adapter was reduced
+  to its logical 400-wide framebuffer with nearest sampling and `fit: fill`.
+- 89,299 channels are exact; the other 4,325 differ by **one** 8-bit level.
+- Mean absolute difference is **0.046195 / 255**; RMSE is **0.214931 / 255**.
+- No compared channel differs by more than one level. The remaining one-level
+  rounding difference is measured, but its exact GPU rounding cause is not yet
+  independently established.
 
-## Provenance-supported causes and corrections
+This is a **fitted animation-phase comparison**, not proof that the native and
+browser animation epochs or clocks are synchronized. The source phase search
+explains the earlier large-cell versus fine-cell appearance without changing
+geometry, texture scale or colors. Reports: `background-phase-fit.json`,
+`background-phase-refinement.json`, and `browser-background-phase-refine.json`.
 
-### One composed constant per TEV stage
+## Folder label and hints
 
-The old evaluator selected a complete constant register according to the output channel. That is incorrect when an RGB operand reads Constant.A, or an alpha operand reads Constant.R/G/B. It caused opaque rectangular backplate borders, white arrows and an overly dark toolbar shadow.
+The label now uses the native 256×64 `BnrDsTitle_00` surface, original font
+metrics, original 16-vertex `mt_Text` plane, source material and native horizontal
+fit rule. It remains readable through four parent-yaw checkpoints, and the
+transparent-target bridge preserves native RGB without applying coverage twice.
 
-Native material setup at `0x1a3044..305c` reads the low and high selector nibbles separately. At `0x1a3188..31a4` it combines RGB from the low-selected register with A from the high-selected register; `0x1a3308` writes that one RGBA constant to the PICA stage. Selector zero names the original material buffer, while 1–6 name its six constants. Every operand then reads the same composed vector. This static evidence supersedes the incomplete per-output-channel interpretation in the external CLYTShader reference. The original material buffer remains distinct from mutable TEV feedback.
+The SPICA-derived ScreenViewpoint orientation is **not accepted as native** yet.
+The browser panel/text is about one pixel below the stable native reference. A
+temporary no-tilt diagnostic reduced label-region MAE from 4.693 to 1.851, but
+still left a font-raster difference; it was reverted. No fitted offset or camera
+change was committed. Native billboard behavior is being traced separately.
+Artifacts: `browser-folder-label-contact.png`, `folder-label-pixel-rows.json`,
+`folder-label-tilt-probe-contact.png`, `folder-label-tilt-probe-report.json`.
+The latter contact sheet contains native, SPICA and temporary no-tilt views in
+that order. Their folder-yaw phases are intentionally unmatched.
 
-The evaluator now implements that composition. Swapping the selector nibbles is not the correction: that diagnostic alternative faded the toolbar. No textures, shader colors or individual pane colors were edited to compensate.
+Alpha-only PICA textures sample RGB zero. Projecting the delivery PNG preview
+masks back to that source meaning restores the native camera/capture hint
+color (73,77,80), while keeping alpha, LA font/button channels and delivery bytes.
+The native material colors are unchanged. Folder-icon initial glyph composition
+and directional selection scroll placement remain under verification.
 
-The independent asset evidence checkpoint is `d43b79d`, in `scripts/firmware/FORMAT_EVIDENCE.md` on the asset branch.
+## Audio and reference limitations
 
-### Ordinary software source and density
+`reference/home-sfx-native.wav` is a lossless 32728 Hz stereo native capture;
+its scenario, hashes, profile restoration, intended inputs and observation
+limits are recorded in `reference/home-sfx-native-metadata.json`. The native
+video dumper still emits zero video packets; the recording is audio evidence
+only. Native-resolution screenshots are separate artifacts.
 
-Every app previously used `LncIconCard_00`, the cartridge-shaped layout. Native launcher initialization separately loads `LncIconSetSrc_00` and its Scale clip at `0x2b1ddc..1df4`, and Card at `0x2b1e04..1e1c`. SetSrc is rendered to a source texture; a subsequent material receives that texture descriptor. It contains the ordinary software plate at `x+32` and the empty-slot source at `x−32`.
+Converter v5 preserves the generated sample origin and the native sequence
+scheduler. Main and resume periods are 3,515,200 samples. Startup accounting,
+loop-carried voice state and native archive gain are separate issues; v5 and
+late-loop candidates are private pending cue and continuity verification. Public
+HOME audio has not been replaced merely because converter tests pass.
 
-The presenter now renders the ordinary subtree and its source shadow, hiding the opposite empty-slot roots. Empty slots use the other source roots. Existing portfolio icon pixels are still placed over the ordinary plate. The paired source offsets and native materials are retained without modifying the shared decoded pack.
+An attempted native F10 step shortcut conflicted with Azahar's existing screen
+layout shortcut. Top-only captures and a later capture failure are not accepted
+as dual-screen references. The isolated profile and original user profile remain
+separate. Reference hotkeys must be checked for conflicts before another run.
 
-Scale key 1 gives a 72-pixel plate and matches the captured two-row arrangement; key 2 gives 50 pixels and was incorrectly selected for that arrangement. Native density keys now map rows 2–6 to keys 1–5 across ordinary/folder plates, cursor, pickup and lifted-source artwork. The prior additional six-row shrink has been removed. Higher-density placement and input alignment still require captures; the legacy one-row runtime state uses the largest available native key and is not established by this reference.
+## Reproducible browser presentation checkpoints
 
-The native update at `0x1d61d4` reads a density index and looks up the frame in table `0x308868` (`[0,1,2,3,4,5]`); `0x1d6324..6338` sends it to SetSrc. Transitions interpolate the frame. This establishes the native routing, while the index-to-row-count correspondence remains separately unconfirmed beyond the supplied two-row capture. This pass retains discrete runtime density changes.
+In development, `.console-stage.captureScreensAt(elapsedMs, isoDate?)` returns
+native screen data URLs at a selected presentation time. It validates its inputs,
+leaves software state/input/effects unchanged, and restores the current render
+in a `finally` block. It is removed on disposal and absent in production. Real
+browser controls must establish the scenario before calling it. A phase sample
+is not a replay of input timing or proof of native synchronization.
 
-The frozen `icon-tray` screenshot fragment no longer sits under native HOME rendering. The plain lower-tray fill is RGB `(223,219,215)`, sampled from the supplied native capture. This fill is observed reference data, not a claim that all runtime theme material parameters have been decoded.
+Example browser evaluation after real navigation to a folder:
 
-## Shared chrome samples
+```js
+const host = document.querySelector('.console-stage');
+const frame = host.captureScreensAt(509 * 1000 / 60, '2026-09-22T19:20:00Z');
+```
 
-| Region and point | Native RGB | Browser before | Software after |
-| --- | --- | --- | --- |
-| Toolbar shadow `(30,32)` | 206,208,217 | 136,136,136 | 206,208,217 |
-| Right arrow `(309,122)` | 161,193,187 | 254,254,254 | 161,193,188 |
-| Exposed tray `(120,120)` | 223,219,215 | 223,219,215 | 223,219,215 |
-| Left edge `(0,40)` | 223,219,215 | 246,246,252 | 227,227,235 |
-| Footer boundary `(160,210)` | 202,198,194 | 189,185,181 | 223,223,231 |
+The clock value, connection/battery indicators and first eight portfolio titles
+are not matched by this background-only comparison. Clock values and portfolio
+content are intentional differences; indicator behavior still needs separate
+native verification.
 
-Toolbar colored-glyph bounds already match: Notes `(65,4)–(88,26)`, Friends `(106,6)–(129,26)`, Browser `(191,5)–(212,26)` and Miiverse `(230,3)–(257,27)`. Footer geometry also largely matches; native Open ink is `(190,221)–(231,236)`, while the prior browser text was one pixel to the right.
+## Checks at this checkpoint
 
-## Remaining differences and checks
-
-- The native layout's default violet edge materials and footer boundary differ from the reference. Their runtime theme parameter changes have not been inferred or replaced with hand-painted shading.
-- The reconstructed scrollbar is visible around `x15–304,y204–208`, while none is visible in this native frame. Its appearance timing still requires a native scroll comparison.
-- After aligning selected slots, the software cursor threshold is about one pixel inward on three sides. Loop phase, alpha and filtering make this insufficient evidence for another geometry change.
-- Folder initials, other densities, native clip timing, theme behavior, upper background/banner and stock app interiors remain outside this lower-screen correction.
-
-The focused presentation, native-layout, bitmap-font, font-metrics and CGFX suite passes **33/33**, including cross-channel constant operands, selector-zero buffer independence, real source-template transparency, native green arrow ink and density selection. Nonincremental TypeScript and diff whitespace checks pass. Updated software gesture captures were inspected. Browser/GPU acceptance and any final native comparison are still owned by integration.
+- 282 combined JavaScript tests pass after the native label integration.
+- Nonincremental TypeScript check passes.
+- 3 real-resource revision-5 CGFX regression tests pass, covering Folder, BG,
+  Camera and Textures plus bounded malformed inputs.
+- 20 converter v5 audio tests pass against the owner source.
+- The actual browser label capture reports no runtime errors.
+- The preceding native camera integration passed production build and shader
+  checks; those results do not substitute for rerunning them after final fixes.

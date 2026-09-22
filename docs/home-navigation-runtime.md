@@ -99,6 +99,20 @@ update result.** `tickHomeNavigationClock` advances it from accepted input and
 `tests/fixtures/home-navigation-motion.json`, derived from the pinned executable
 investigation without copying firmware bytes.
 
+Banner/balloon owners can retain `startUpdate = homeClock.updateCount` and derive
+clip age as `homeClock.updateCount - startUpdate`; they must not add a second
+wall-clock accumulator. The count is monotonic within the live System, including
+clock reversal, input release, layout reset and sleep. A newly created or restored
+System starts at zero, so presentation must reset its baselines on that lifecycle
+boundary. Rendering samples the counter; it does not advance it. This supplies
+timing only, not native banner eligibility or per-pass lifecycle ordering.
+
+Rapid accepted zoom requests use `targetDensity`, already implemented in the
+motion change. Native handler `0x2a3db8` changes pending density at+0x1190 before
+requesting mode5. The regression test issues another zoom after only3 of15
+updates, retains the sampled geometry, and changes the target again. See
+[folder input](home-folder-input.md) for the additional source anchors.
+
 Beneath overlays or outside active HOME, the adapter freezes/rebases, discarding
 hidden elapsed time. A pointer contact freezes navigation geometry so hit tests
 match the displayed icon; the shared logical clock can continue for other clip

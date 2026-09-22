@@ -36,6 +36,16 @@ function createFolder(state: MenuState): MenuState {
 export function isFolder(index: number, state: MenuState = initialState): boolean {
   return Object.hasOwn(state.folders, index);
 }
+/** LncFolder_00/Bounding_00: bottom-centre origin 7, (-101,55), 72×22. Native edges are inclusive. */
+export const HOME_FOLDER_BACK_BOUNDS = { left: 23, top: 43, right: 95, bottom: 65 } as const;
+export function isHomeFolderBackTouch(state: MenuState, x: number, y: number): boolean {
+  const b = HOME_FOLDER_BACK_BOUNDS;
+  return state.opened && !state.panel && Number.isFinite(x) && Number.isFinite(y) && x >= b.left && x <= b.right && y >= b.top && y <= b.bottom;
+}
+/** Native 0x29af68 hides the footer for an empty selected child, even when other children exist. */
+export function hasEmptyHomeFolderSelection(state: MenuState): boolean {
+  return state.opened && !state.system?.folderLayouts?.[state.selected]?.[state.folderSelected];
+}
 export const densities = HOME_DENSITIES;
 export function densityIndex(state: MenuState) { return getHomeNavigationView(state).currentDensity; }
 export function rowCount(state: MenuState) { return getHomeNavigationView(state).rows; }
@@ -126,12 +136,12 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
     return item ? { ...state, panel: item.panel, panelChoice: 0 } : state;
   }
   if (y >= 212) {
-    if (state.opened) return reduceMenu(state, 'back');
+    if (state.opened) return hasEmptyHomeFolderSelection(state) ? state : reduceMenu(state, 'back');
     if (isFolder(state.selected, state) && x < 104) return { ...state, panel: 'folder-settings', panelChoice: 0 };
     return reduceMenu(state, 'open');
   }
   if (y >= 104 && y < 158 && (x < 12 || x >= 308)) return reduceMenu(state, x < 12 ? 'left' : 'right');
-  if (state.opened && x < 46 && y < 51) return reduceMenu(state, 'back');
+  if (isHomeFolderBackTouch(state, x, y)) return reduceMenu(state, 'back');
   const tile = menuTiles(state).find(tile => x >= tile.x && x < Math.min(308, tile.x + tile.size) && y >= tile.y && y < tile.y + tile.size);
   if (!tile) return state;
   if (state.opened) return selectHomeSlot(state, tile.index);

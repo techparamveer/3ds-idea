@@ -132,6 +132,12 @@ that counter and independent HOME context histories; legacy payloads preserve al
 because their creation history is absent. See [folder naming](../folder-naming-runtime.md)
 for source addresses, Unicode formatting and migration limits.
 
+`state.ts` also exports the source-derived settled folder Back hit rectangle and
+`hasEmptyHomeFolderSelection`. System routing tests Back before the grid; gesture
+routing treats it as chrome. Presentation must omit the footer when that
+empty-selected-child predicate is true. See [folder input](../home-folder-input.md)
+for source addresses, bounds and the occupied-footer verification limit.
+
 Runtime effects have a monotonic `id` and instance `owner`. A capability's
 `requestId` maps to that effect ID until completion or invalidation. Results
 must include `requestToken` equal to the originating effect ID. Closing,

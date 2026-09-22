@@ -22,7 +22,7 @@ test('A opens a folder; folder selection is independent; B restores root while H
 test('Touch selects the drawn icon, and a second tap opens it',()=>{
  const tile=menuTiles(initialState).find(t=>t.index===2);
  let s=touchMenu(initialState,...center(tile));assert.equal(s.selected,2);assert.equal(s.opened,false);
- s=touchMenu(s,...center(tile));assert.equal(s.opened,true);assert.equal(touchMenu(s,160,226).opened,false);
+ s=touchMenu(s,...center(tile));assert.equal(s.opened,true);assert.equal(touchMenu(s,160,226),s);assert.equal(touchMenu(s,59,54).opened,false);
 });
 test('Power-off ignores all other menu input and wakes without an overlay',()=>{
  const off=reduceMenu({...initialState,panel:'settings'},'power');assert.equal(off.powered,false);

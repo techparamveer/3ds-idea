@@ -1,6 +1,6 @@
 import { getApp } from './apps.ts';
 import { getTitle, initialAppLayout } from './app-registry.ts';
-import { initialState, reduceMenu, touchMenu, type MenuState, type Input } from './state.ts';
+import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, type MenuState, type Input } from './state.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
@@ -145,6 +145,7 @@ export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuSt
   }
   if(y<32)return send(x<160?'up':'down');return state;
  }
+ if(isHomeFolderBackTouch(state,x,y))return send('back');
  if(!state.panel&&y>=212&&selectedTitle(state)){if(state.opened)return send(x<100?'back':'open');return x<100&&s.app?{...state,system:{...s,dialog:'close'}}:send('open');}
  if(!state.panel&&y>=(state.opened?49:34)&&y<204){
   if(y>=104&&y<158&&(x<20||x>=300))return send(x<20?'left':'right');

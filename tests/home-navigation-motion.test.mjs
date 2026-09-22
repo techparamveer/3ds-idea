@@ -67,6 +67,24 @@ test('interrupted density/scroll starts from actual sampled slot geometry with n
   state = selectHomeSlot(state,22); after = getHomeNavigationView(state);
   assert.deepEqual(after.slots,before.slots); assert.equal(after.mode,2);
 });
+test('rapid zoom requests advance the pending native density without waiting for all15 updates', () => {
+  for (const initial of [home(),folder()]) {
+    let state=reduceSystem(initial,'zoom-out',4000);
+    assert.equal(getHomeNavigationView(state).currentDensity,1);assert.equal(getHomeNavigationView(state).targetDensity,2);
+    state=tickSystem(state,4050);const before=getHomeNavigationView(state);
+    assert.equal(before.elapsedUpdates,3);
+    state=reduceSystem(state,'zoom-out',4050);let view=getHomeNavigationView(state);
+    assert.equal(view.currentDensity,1);assert.equal(view.targetDensity,3);assert.equal(view.elapsedUpdates,0);
+    assert.deepEqual(view.slots,before.slots);
+    state=reduceSystem(state,'zoom-in',4050);assert.equal(getHomeNavigationView(state).targetDensity,2);
+    state=reduceSystem(state,'zoom',4050);assert.equal(getHomeNavigationView(state).targetDensity,3);
+    state=reduceSystem(reduceSystem(state,'zoom-out',4050),'zoom-out',4050);
+    const bounded=reduceSystem(state,'zoom-out',4050);
+    assert.equal(getHomeNavigationView(bounded).targetDensity,5);
+    assert.equal(getHomeNavigation(bounded).motion,getHomeNavigation(state).motion);
+    state=tickSystem(bounded,4300);assert.equal(getHomeNavigationView(state).currentDensity,5);assert.equal(getHomeNavigationView(state).mode,0);
+  }
+});
 test('motion saves the settled target and restores without transient arrays or clocks', () => {
   let state = settleHomeNavigation(selectHomeSlot(folder(),6)); state = advanceHomeNavigation(setHomeDensity(state,2),4);
   const view = getHomeNavigationView(state), raw = saveSettings(state), saved = JSON.parse(raw);
@@ -101,6 +119,23 @@ test('system clock starts at input, advances once per update, and freezes beneat
   assert.equal(getHomeNavigationView(state).elapsedUpdates,1);
   state={...state,panel:null};state=tickSystem(state,90001);assert.equal(getHomeNavigationView(state).elapsedUpdates,1);
   state=tickSystem(state,90001+1000/60);assert.equal(getHomeNavigationView(state).elapsedUpdates,2);
+});
+test('clip owners can derive age from one monotonic counter through contact, pauses and clock rebasing', () => {
+  let state=tickHomeNavigationClock(home(),4000);
+  const clipStart=state.system.homeClock.updateCount;
+  state=tickSystem(state,4250);assert.equal(state.system.homeClock.updateCount-clipStart,15);
+  state=dispatchSystemEvent(state,{type:'touch',phase:'down',pointerId:1,x:59,y:220},4250);
+  state=tickSystem(state,4500);assert.equal(state.system.homeClock.updateCount-clipStart,30);
+  state=releaseSystemInputs(state,4500);const retained=state.system.homeClock.updateCount;
+  state=setSystemSleeping(state,true,4500);state=tickSystem(state,90000);state=setSystemSleeping(state,false,90001);
+  state=tickSystem(state,90001);assert.equal(state.system.homeClock.updateCount,retained);
+  state=tickSystem(state,90001+1000/60);assert.equal(state.system.homeClock.updateCount,retained+1);
+  state=tickSystem(state,1000);assert.equal(state.system.homeClock.updateCount,retained+1);
+  state=reduceSystem(state,'preferences',1000);state=tickSystem(state,100000);
+  state=reduceSystem(state,'reset-layout',100001);assert.equal(state.system.homeClock.updateCount,retained+1);
+  state=reduceSystem(state,'back',100001);state=tickSystem(state,100001);state=tickSystem(state,100101);
+  assert.equal(state.system.homeClock.updateCount,retained+7);
+  const restored=restoreSettings(home(),saveSettings(state));assert.equal(restored.system.homeClock.updateCount,0);
 });
 test('sleep, release, launch and reduced motion settle endpoints without erasing context histories', () => {
   const moving = advanceHomeNavigation(setHomeDensity(folder(),5),5), expected = JSON.parse(saveSettings(moving)).homeView;

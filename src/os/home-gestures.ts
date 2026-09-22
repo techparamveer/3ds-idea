@@ -1,4 +1,4 @@
-import { columnPitch, menuTiles, pageStart, rowCount, slotCount, visibleColumns, type MenuState } from './state.ts';
+import { columnPitch, menuTiles, pageStart, rowCount, slotCount, visibleColumns, isHomeFolderBackTouch, type MenuState } from './state.ts';
 import { homeContainer, homeItemAt, moveHomeItem, resolveHomeDrop, sameHomeLocation, type HomeItem, type HomeLocation } from './home-layout.ts';
 import type { AppEvent } from './app-types.ts';
 import { getHomeNavigation, settleHomeNavigation, writeHomeNavigation, enterHomeFolder, leaveHomeFolder, commitHomeScroll, type HomeNavigation } from './home-navigation.ts';
@@ -16,7 +16,7 @@ export type HomeGesture = {
   anchorScroll: number; hoverFolder: number | null; hoverSince: number; edge: -1 | 0 | 1; edgeAt: number;
 };
 export function homeTouchLocation(state: MenuState, x: number, y: number): HomeLocation | null {
-  if (x < 20 || x >= 300 || y < (state.opened ? 49 : 34) || y >= 204) return null;
+  if (isHomeFolderBackTouch(state, x, y) || x < 20 || x >= 300 || y < (state.opened ? 49 : 34) || y >= 204) return null;
   const tile = menuTiles(state).find(t => x >= t.x && x < Math.min(300, t.x + t.size) && y >= t.y && y < t.y + t.size);
   return tile ? { folder: homeContainer(state), slot: tile.index } : null;
 }
@@ -71,7 +71,7 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   if (event.phase === 'cancel') return { state: cancelHomeGesture(state), tap: false };
   if (event.phase === 'down') {
     const source = !state.panel ? homeTouchLocation(state, event.x, event.y) : null;
-    const area = state.panel === 'themes' ? 'themes' : !state.panel && event.y >= (state.opened ? 49 : 34) && event.y < 204 ? 'grid' : 'chrome';
+    const area = state.panel === 'themes' ? 'themes' : !state.panel && !isHomeFolderBackTouch(state, event.x, event.y) && event.y >= (state.opened ? 49 : 34) && event.y < 204 ? 'grid' : 'chrome';
     const gesture: HomeGesture = { pointerId: event.pointerId ?? 0, mode: 'press', area, x: event.x, y: event.y, startX: event.x, startY: event.y, startedAt: now, updatedAt: now, source, item: source ? homeItemAt(state, source) : null, target: source, viewFolder: homeContainer(state), columns: state.columns, panel: state.panel,
       origin: { navigation: getHomeNavigation(state), panelChoice: state.panelChoice }, scrollPixels: null, anchorScroll: pageStart(state), hoverFolder: null, hoverSince: now, edge: 0, edgeAt: now };
     return { state: setNavigation(state, { ...state.system!.homeNavigation, gesture }), tap: false };
@@ -115,7 +115,8 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
     return { state, tap: false };
   }
   const end = !state.panel ? homeTouchLocation(state, event.x, event.y) : null;
-  const tap = gesture.source ? sameHomeLocation(gesture.source, end) : !end;
+  const beganOnBack = isHomeFolderBackTouch(state, gesture.startX, gesture.startY), endedOnBack = isHomeFolderBackTouch(state, event.x, event.y);
+  const tap = beganOnBack || endedOnBack ? beganOnBack && endedOnBack : gesture.source ? sameHomeLocation(gesture.source, end) : !end;
   return { state: setNavigation(state, { ...getHomeNavigation(state), gesture: null }), tap };
 }
 /** Renderer consumes this preview only; it must not implement another gesture recognizer. */

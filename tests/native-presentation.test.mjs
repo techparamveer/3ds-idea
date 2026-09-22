@@ -84,6 +84,28 @@ test('window raster uses four strips and preserves transparent content',()=>{
  assert.equal(patches.length,5);assert.deepEqual(patches.map(p=>[p.x,p.y,p.width,p.height]),[[8,8,24,14],[0,0,32,8],[32,0,8,22],[8,22,32,8],[0,8,8,22]]);
  assert.equal(rasterNativePicture(l,w.window.content,1,1,pixels).data[3],0);
 });
+test('four-frame window geometry and UVs match original ARM execution, including unequal corner sizes',()=>{
+ const fixture=JSON.parse(readFileSync(new URL('./fixtures/native-four-frame-window.json',import.meta.url)));
+ for(const sample of fixture.cases){
+  const l=layout(),textures=new Map();l.materials=[material()];l.textures=[];
+  sample.textureSizes.forEach(([width,height],i)=>{const m=material();m.name=`frame${i}`;m.textureMaps=[{texture:i,wrapS:0,wrapT:0,magFilter:0}];l.materials.push(m);l.textures.push(m.name);textures.set(m.name,{width,height,data:new Uint8ClampedArray(width*height*4)});});
+  const w={...pane('four'),size:sample.size,window:{content:{material:0,colors:nativeWhite,uvSets:[]},frames:[1,2,3,4].map(material=>({material,flip:0})),flags:0}};
+  const before=JSON.stringify(l),patches=nativeWindowPatches(w,l,textures);
+  assert.equal(patches.length,sample.draws.length);
+  patches.forEach((p,i)=>{const native=sample.draws[i];assert.deepEqual([p.width,p.height],native.size);assert.deepEqual([p.x,p.y],native.position.map((v,j)=>j===1?Math.abs(v):v));if(i){assert.equal(p.picture.material,native.material+1);assert.deepEqual(p.picture.uvSets[0],native.uv);}});
+  assert.equal(JSON.stringify(l),before);
+ }
+});
+test('four-frame TextureOnly corners retain the preceding full material state while binding their own textures',()=>{
+ const l=layout(),content=material(),full=material(),texture=material(),textures=new Map([['frame',{width:8,height:8,data:new Uint8ClampedArray(256).fill(255)}]]);
+ full.name='full';full.constantColors[0]=[20,40,60,255];full.textureMaps=[{texture:0,wrapS:0,wrapT:0,magFilter:0}];full.colorBlend={operation:1,sourceFactor:4,destinationFactor:5};
+ texture.name='texture-only';texture.textureOnly=true;texture.textureMaps=[...full.textureMaps];texture.textureMatrices=[{translation:[.25,.25],scale:[-1.5,1.5],rotation:0}];
+ l.materials=[content,full,texture];l.textures=['frame'];
+ const w={...pane('four'),size:[40,30],window:{content:{material:0,colors:nativeWhite,uvSets:[]},frames:[1,2,2,2].map(material=>({material,flip:0})),flags:0}};
+ const patches=nativeWindowPatches(w,l,textures),effective=patches[2].material;
+ assert.deepEqual(effective.constantColors,full.constantColors);assert.equal(effective.colorBlend,full.colorBlend);assert.equal(effective.textureMatrices,texture.textureMatrices);
+ assert.deepEqual([...rasterNativePicture(l,patches[2].picture,1,1,textures,1,effective).data],[20,40,60,255]);assert.deepEqual(texture.constantColors[0],[255,255,255,255]);
+});
 const resourceRoot=process.env.FIRMWARE_PRESENTATION_ASSETS??resolve('public/os/firmware/10.7.0-32E');
 const available=existsSync(resolve(resourceRoot,'packs/home/launcher.json'));
 test('real balloon preserves parent/child positioning, pointer anchors and authored fade resources',{skip:!available},()=>{

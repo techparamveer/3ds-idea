@@ -1,6 +1,6 @@
 import { BitmapFont } from './bitmap-font';
 import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, nativeAnimationDiagnostics, nativeMultiplyBlend, nativeTextMetrics, nativeWindowPatches, poseNativeLayout, rasterNativePicture,
- type AnimationBinding, type NativeLayout, type NativePack, type NativePane, type NativePicture, type NativePixels, type PaneOverrides } from './native-layout';
+ type AnimationBinding, type NativeLayout, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
 export type NativeDrawOptions={bindings?:AnimationBinding[];overrides?:PaneOverrides;center?:[number,number];scale?:number;clip?:[number,number,number,number];textures?:Readonly<Record<string,NativePixels>>};
@@ -24,17 +24,17 @@ export class NativeLayoutRenderer {
   while(this.bytes+size>this.cacheLimit&&this.cache.size){const first=this.cache.entries().next().value!;this.bytes-=first[1].width*first[1].height*4;first[1].width=first[1].height=0;this.cache.delete(first[0]);}
   if(size<=this.cacheLimit){this.cache.set(key,canvas);this.bytes+=size;}return canvas;
  }
- private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number,textures:ReadonlyMap<string,NativePixels>) {
+ private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number,textures:ReadonlyMap<string,NativePixels>,override?:NativeMaterial) {
   const w=Math.max(1,Math.ceil(width)),h=Math.max(1,Math.ceil(height));
   if(w*h>1024*1024)throw new Error('Native pane exceeds raster budget');
-  const material=layout.materials[picture.material];
+  const material=override??layout.materials[picture.material];
   // Dynamic textures are immutable snapshots. Identity isolates simultaneous folder
   // glyphs and renames without retaining their byte arrays in the raster cache.
   const textureIds=material.textureMaps.map(map=>{const pixels=textures.get(layout.textures[map.texture]);if(!pixels)return 0;
    let id=this.textureIds.get(pixels);if(id===undefined){id=this.nextTextureId++;this.textureIds.set(pixels,id);}return id;});
   const key=JSON.stringify([pack,material,picture.colors,picture.uvSets,w,h,alpha,layout.textures,textureIds]);
   return this.cached(key,()=>{
-   const pixels=rasterNativePicture(layout,picture,w,h,textures,alpha),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
+   const pixels=rasterNativePicture(layout,picture,w,h,textures,alpha,material),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
    const data=ctx.createImageData(w,h);data.data.set(pixels.data);
    // Project native LCD RGB to opaque Canvas for no-blend and multiplicative
    // masks. Their RGB remains meaningful under alpha zero (LA4 shadow masks).
@@ -61,8 +61,8 @@ export class NativeLayoutRenderer {
    ctx.putImageData(image,0,0);return canvas;
   });
  }
- private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number){
-  const blend=layout.materials[index].colorBlend;
+ private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial){
+  const blend=(override??layout.materials[index]).colorBlend;
   ctx.save();
   try{
    if(!blend||(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
@@ -119,7 +119,7 @@ export class NativeLayoutRenderer {
        if(pane.text){ctx.beginPath();ctx.rect(0,0,w,h);ctx.clip();this.composite(ctx,this.text(layout,pane,alpha),0,0,w,h,layout,pane.text.material);}
        if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;
-        this.composite(ctx,this.picture(packName,layout,patch.picture,patch.width,patch.height,alpha,textures),patch.x,patch.y,patch.width,patch.height,layout,patch.picture.material);
+        this.composite(ctx,this.picture(packName,layout,patch.picture,patch.width,patch.height,alpha,textures,patch.material),patch.x,patch.y,patch.width,patch.height,layout,patch.picture.material,patch.material);
        }
       }finally{ctx.restore();}
      }

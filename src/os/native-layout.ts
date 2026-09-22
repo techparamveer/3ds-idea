@@ -192,8 +192,8 @@ export function transformNativeUV(uv:number[],matrix?:NativeMaterial['textureMat
  return [.5+c*x-s*y,.5+s*x+c*y];
 }
 /** Native material sampling is independent of Canvas, making real texture/TEV tests possible. */
-export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,width:number,height:number,textures:ReadonlyMap<string,NativePixels>,alpha=1):NativePixels {
- const material=layout.materials[picture.material];if(!material)throw new Error(`Missing material ${picture.material}`);
+export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,width:number,height:number,textures:ReadonlyMap<string,NativePixels>,alpha=1,material=layout.materials[picture.material]):NativePixels {
+ if(!material)throw new Error(`Missing material ${picture.material}`);
  const sources=material.textureMaps.map(map=>{const name=layout.textures[map.texture],pixels=textures.get(name);if(!pixels)throw new Error(`Missing native texture ${name}`);return pixels;});
  const data=new Uint8ClampedArray(width*height*4),colors=picture.colors.flat();
  for(let y=0;y<height;y++)for(let x=0;x<width;x++){
@@ -207,12 +207,40 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
  }
  return {width,height,data};
 }
-export type NativeWindowPatch={x:number;y:number;width:number;height:number;picture:NativePicture};
-/** A single around-frame is four mirrored strips, not a stretched corner bitmap. */
+export type NativeWindowPatch={x:number;y:number;width:number;height:number;picture:NativePicture;material?:NativeMaterial};
+/** Native around-windows: one mirrored texture or four independently sampled frames. */
 export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures:ReadonlyMap<string,NativePixels>):NativeWindowPatch[] {
  const win=pane.window;if(!win)return [];
  if(win.inflation?.some(v=>v!==0)||win.frameSize?.some(v=>v!==0))throw new Error(`Unsupported window inflation/frame size ${pane.name}`);
- if(win.frames.length!==1||(win.flags&12)!==0)throw new Error(`Unsupported window frame arrangement ${pane.name}`);
+ if((win.flags&12)!==0||![1,4].includes(win.frames.length))throw new Error(`Unsupported window frame arrangement ${pane.name}`);
+ if(win.frames.length===4){
+  // Native 0x2e3164 returns left/right/top/bottom from frame textures
+  // LB.width, RT.width, LT.height, RB.height. Draw order is LT,RT,RB,LB.
+  const frames=win.frames.map(frame=>{
+   if(frame.flip!==0)throw new Error(`Unsupported window frame flip ${frame.flip}`);
+   const material=layout.materials[frame.material],map=material?.textureMaps[0],image=map&&textures.get(layout.textures[map.texture]);
+   if(!image)throw new Error(`Missing four-frame window texture ${pane.name}`);
+   return {frame,material,image};
+  });
+  const f=Math.fround,ratio=(value:number,length:number)=>f(value/length),back=(value:number,length:number)=>f(1-ratio(value,length));
+  const [w,h]=pane.size,left=frames[2].image.width,right=frames[1].image.width,top=frames[0].image.height,bottom=frames[3].image.height;
+  const result:NativeWindowPatch[]=[];
+  if(!(win.flags&16))result.push({x:left,y:top,width:w-left-right,height:h-top-bottom,picture:win.content});
+  let current=layout.materials[win.content.material];
+  const strip=(index:number,x:number,y:number,width:number,height:number,u0:number,v0:number,u1:number,v1:number)=>{
+   const {frame,material}=frames[index];
+   // 0x1cc998..9d4 skips blend/alpha/combiner writes for TextureOnly.
+   // Texture resources and coordinate transforms still come from this frame.
+   current=material.textureOnly?{...current,name:material.name,textureOnly:false,textureMaps:material.textureMaps,textureMatrices:material.textureMatrices,coordinateGenerators:material.coordinateGenerators}:material;
+   result.push({x,y,width,height,material:current,picture:{material:frame.material,colors:win.flags&2?win.content.colors:nativeWhite,uvSets:material.textureMaps.map(()=>[u0,v0,u1,v0,u0,v1,u1,v1])}});
+  };
+  // Native UV helpers 0x1cc2e4, 0x1cc1e4, 0x1cc0e4, 0x1cbfe4.
+  strip(0,0,0,w-right,top,0,0,ratio(w-right,frames[0].image.width),ratio(top,frames[0].image.height));
+  strip(1,w-right,0,right,h-bottom,back(right,frames[1].image.width),0,1,ratio(h-bottom,frames[1].image.height));
+  strip(3,left,h-bottom,w-left,bottom,back(w-left,frames[3].image.width),back(bottom,frames[3].image.height),1,1);
+  strip(2,0,top,left,h-top,0,back(h-top,frames[2].image.height),ratio(left,frames[2].image.width),1);
+  return result;
+ }
  const frame=win.frames[0],material=layout.materials[frame.material];
  if(frame.flip!==0)throw new Error(`Unsupported window frame flip ${frame.flip}`);
  const map=material?.textureMaps[0],image=map&&textures.get(layout.textures[map.texture]);

@@ -72,3 +72,62 @@ This directly confirms the converter's existing register numbering.
 These findings establish field routing and skip behavior, not shader or visual
 equivalence. Rendering still needs the orchestrator's matched Azahar/browser
 checks, especially color evaluation, text controls and alignment.
+
+## TEV stage constant composition
+
+Native TEV setup `0x1a2f78` selects a **single RGBA constant per stage**.
+At `0x1a3034` it gets the stage array, then addresses each 12-byte record.
+`0x1a3044..305c` reads the selector word at stage `+8`: the low nibble
+selects a color's RGB, and the high nibble selects a color's alpha. Both
+indices address the seven Material colors beginning at `+0x10`, established
+above (buffer = 0, constants 0..5 = indices 1..6).
+
+`0x1a3188` clears the alpha of the low-selected color; `0x1a319c..31a4`
+extracts the high-selected alpha and combines it with that RGB. The resulting
+packed RGBA is written to the PICA stage constant at `0x1a3308`. Thus **every
+constant operand uses the composed color**, including an RGB operation that
+reads constant alpha or an alpha operation that reads a constant RGB channel.
+Using the low-selected color wholesale for RGB and the high-selected color
+wholesale for alpha operations is wrong; swapping the nibble meanings is also
+wrong. `LncArw_00.bclyt` supplies a useful regression: both arrow materials'
+last stages have selector word `0x00000051` (buffer offsets `0x14c` and `0x1f0`).
+
+This independently explains the arrow and toolbar-shadow mismatch. The
+presentation worker reports an arrow pixel of `(161,193,188)` versus native
+`(161,193,187)`, and shadow pixel `(206,208,217)` matching native after the
+composed-constant correction. Those are limited matched-pixel checks, not
+proof that all materials or runtime theme colors match.
+
+## Ordinary icon template and density animation
+
+Scene initialization `0x2b1ddc..1df4` loads `LncIconSetSrc_00.bclyt` and
+`LncIconSetSrc_00_Scale.bclan` into the object at scene `+0x134`. It separately
+loads `LncIconCard_00` at scene `+0x1f8` (`0x2b1e04..1e1c`). These are distinct
+resources; the card shape is not evidence for every ordinary application tile.
+The SetSrc helper flag is 1. Loader `0x1bbc74` passes the corresponding
+64-by-128 render-target arguments to `0x208230`, loads the Scale animation
+into object `+0xc0`, and sets its initial frame to 0. Frame 0 is initialization,
+not a fixed frame for every density.
+
+Steady update `0x1d61d4` reads density index at scene `+0x118c`, indexes the
+float table at `0x308868` (`[0,1,2,3,4,5]`), and passes that frame to SetSrc
+at `0x1d6324..6338`. Helper `0x1d9fa4` forwards the float to the animation's
+SetFrame virtual method. During transitions `0x1d7c48..60` interpolates start
+and end frame values into scene `+0x1194`; `0x1d30dc..e4` forwards this fractional
+frame to the same helper. Preserve interpolation rather than rounding early.
+
+Rendering goes through `0x2453b8`, which uses the object's layout at `+0x98`
+and offscreen target at `+0xa0`. At `0x2b2244`, `0x1d9c68` copies SetSrc's
+texture descriptor at object `+0x90` into another material's texture map and
+marks it dirty. Together these support using its rendered template/atlas for
+ordinary tiles. They do not justify drawing every template pane directly at
+every application position.
+
+The native trace establishes density-index-to-animation-frame routing. The
+presentation worker's independent native capture establishes two displayed
+rows use frame 1 and a 72-pixel ordinary backplate. A complete native proof of
+the density-index-to-row-count mapping was outside this bounded trace. Runtime
+basic-theme recoloring, including the observed footer/background tint, remains
+unresolved; do not infer material writes from a similar screenshot color.
+
+Private excerpts are in the artifact directory `assets/material-research`.

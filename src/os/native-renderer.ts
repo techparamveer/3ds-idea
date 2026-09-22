@@ -1,5 +1,5 @@
 import { BitmapFont } from './bitmap-font';
-import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, nativeAnimationDiagnostics, nativeWindowPatches, poseNativeLayout, rasterNativePicture,
+import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, nativeAnimationDiagnostics, nativeTextMetrics, nativeWindowPatches, poseNativeLayout, rasterNativePicture,
  type AnimationBinding, type NativeLayout, type NativePack, type NativePane, type NativePicture, type NativePixels, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -42,7 +42,8 @@ export class NativeLayoutRenderer {
   const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material]);
   return this.cached(key,()=>{
    const canvas=surface(w,h),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
-   font.drawNative(ctx,text.value,w,h,text.size,text.alignment,text.characterSpacing,text.lineSpacing,text.lineAlignment);
+   const metrics=nativeTextMetrics(text,font.manifest);
+   font.drawNative(ctx,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment);
    const image=ctx.getImageData(0,0,w,h);
    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
     const at=(y*w+x)*4;if(!image.data[at+3])continue;

@@ -5,7 +5,7 @@ import {resolve} from 'node:path';
 import ts from 'typescript';
 import sharp from 'sharp';
 const source=readFileSync(new URL('../src/os/native-layout.ts',import.meta.url),'utf8');
-const api=await import('data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext}}).outputText).toString('base64'));
+const api=await import('data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
 const {sampleNativeTrack,poseNativeLayout,boundAnimationTracks,evaluateNativeMaterial,sampleNativeTexture,rasterNativePicture,nativeWindowPatches,transformNativeUV,nativeWhite}=api;
 const combiner=(mode=0,sources=[0,0,0],operands=[0,0,0])=>({mode,sources,operands,scale:1,savePrevious:false});
 const material=()=>({name:'test',bufferColor:[0,0,0,0],constantColors:Array.from({length:6},()=>[255,255,255,255]),textureMaps:[],textureMatrices:[],coordinateGenerators:[],tevStages:[],unsupported:[]});
@@ -80,4 +80,42 @@ test('real HOME toolbar presses bind only the selected control', {skip:!availabl
  const posed=poseNativeLayout(original,pack.animations,[{name:'LncBase_D_01_Select',frame:1,groups:['G_Memo_00']}]);
  const panes=[];const visit=items=>items.forEach(p=>{panes.push(p);visit(p.children);});visit(posed.roots);
  assert.equal(panes.find(p=>p.name==='P_Memo_10').translation[1],-2);assert.equal(panes.find(p=>p.name==='P_Frd_10').translation[1],0);
+});
+
+test('message styles replace font metrics and spacing without interpreting unresolved words',()=>{
+ const l=layout(),text={font:0,material:0,value:'original',size:[17,21],alignment:4,lineAlignment:0,characterSpacing:2,lineSpacing:3,topColor:[1,2,3,255],bottomColor:[4,5,6,255]};
+ l.roots[0].children[0].text=text;
+ const style={fontScale:[.6,.8],characterSpacing:4,lineSpacing:-5,unresolvedWords:{0:999,12:2}};
+ const posed=poseNativeLayout(l,{},[],{selected:{text:'styled',messageStyle:style}}),result=posed.roots[0].children[0].text;
+ assert.deepEqual(api.nativeTextMetrics(result,{width:20,height:30}),{size:[12,24],characterSpacing:4,lineSpacing:-5});
+ assert.equal(result.alignment,4);assert.equal(result.lineAlignment,0);assert.deepEqual(result.topColor,text.topColor);assert.equal(result.font,0);
+ assert.equal(l.roots[0].children[0].text.value,'original');assert.equal(l.roots[0].children[0].text.messageStyle,undefined);
+ result.messageStyle.fontScale[0]=9;assert.equal(style.fontScale[0],.6);
+ assert.deepEqual(api.nativeTextMetrics(text,{width:20,height:30}),{size:[17,21],characterSpacing:2,lineSpacing:3});
+});
+test('message style lookup uses the bank full path and leaves null styles untouched',()=>{
+ const hudStyle={fontScale:[1,1],characterSpacing:0,lineSpacing:0},homeStyle={fontScale:[.7,.7],characterSpacing:1,lineSpacing:2};
+ const pack={messages:{hud:{labels:{date:0,day:1},styleTable:'message_hud/EU_English/RI_mstl_LZ.bin',messages:[{text:'%d',styleIndex:0},{text:'22',styleIndex:null}]},home:{labels:{open:0},styleTable:'message/EU_English/RI_mstl_LZ.bin',messages:[{text:'Open',styleIndex:0}]}},styles:{'message_hud/EU_English/RI_mstl_LZ.bin':{styles:[hudStyle]},'message/EU_English/RI_mstl_LZ.bin':{styles:[homeStyle]}}};
+ assert.deepEqual(api.nativeMessageOverride(pack,'hud','date',''),{text:'%d',messageStyle:hudStyle});
+ assert.deepEqual(api.nativeMessageOverride(pack,'home','open',''),{text:'Open',messageStyle:homeStyle});
+ assert.deepEqual(api.nativeMessageOverride(pack,'hud','day',''),{text:'22'});
+ assert.deepEqual(api.nativeMessageOverride(pack,'hud','missing','fallback'),{text:'fallback'});
+ delete pack.styles['message_hud/EU_English/RI_mstl_LZ.bin'];assert.throws(()=>api.nativeMessageOverride(pack,'hud','date',''),/Missing native message style/);
+});
+test('native CLTS bounds skip an unallocated matrix without remapping to matrix zero',()=>{
+ const l=layout(),m=material();m.name='animated';m.textureMatrices=[{translation:[.25,.5],rotation:0,scale:[1,1]}];l.materials=[m];
+ const animation={frames:1,loop:false,groups:[],textures:[],tracks:[{target:'animated',binding:'material',property:'texture.translation.x',index:1,interpolation:'hermite',keys:[{frame:0,value:0},{frame:1,value:9}]}]};
+ const posed=poseNativeLayout(l,{clip:animation},[{name:'clip',frame:1}]);assert.deepEqual(posed.materials[0].textureMatrices,m.textureMatrices);
+ assert.deepEqual(api.nativeAnimationDiagnostics(l,animation),['Native CLTS skip: unallocated texture matrix animated[1] texture.translation.x']);
+});
+test('real HOME message styles use the actual HUD and shared font metrics',{skip:!available},()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/messages-and-loose.json')));
+ const shared=JSON.parse(readFileSync(resolve(resourceRoot,'fonts/shared/font.json'))),hud=JSON.parse(readFileSync(resolve(resourceRoot,'fonts/hud/font.json')));
+ const original={size:[99,99],characterSpacing:9,lineSpacing:9};
+ for(const [bank,label,font,size] of [['hud_msbt_LZ','lau_connect4',shared,[12.5,15]],['hud_msbt_LZ','lau_date',hud,[16,16]],['menu_msbt_LZ','lau_2b_folder_open',shared,[17.5,21]],['menu_msbt_LZ','lau_2b_close',shared,[17.5,21]]]){
+  const override=api.nativeMessageOverride(pack,bank,label,''),metrics=api.nativeTextMetrics({...original,...override},font);
+  assert.ok(metrics.size.every((v,i)=>Math.abs(v-size[i])<.00001));assert.equal(metrics.characterSpacing,0);assert.equal(metrics.lineSpacing,0);
+ }
+ const resume=api.nativeMessageOverride(pack,'menu_msbt_LZ','lau_2b_restart','');assert.equal(resume.text,'\ue073 Resume');assert.ok(shared.glyphs[String(0xe073)]);
+ assert.equal(api.nativeMessageOverride(pack,'hud_msbt_LZ','day_22','').messageStyle,undefined);
 });

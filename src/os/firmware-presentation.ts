@@ -1,6 +1,6 @@
 import { BitmapFont, loadBitmapFont, loadNativeImage } from './bitmap-font';
 import { NativeLayoutRenderer } from './native-renderer';
-import { poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
+import { nativeMessageOverride, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { rowCount, toolbar as toolbarRegions, type MenuState } from './state';
 import { getHomeGestureView } from './system';
 import { getHomeFooter } from './home-presentation';
@@ -21,6 +21,8 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const font=async (url:string)=>{const result=await loadBitmapFont(new URL(url,base).href,controller.signal);fonts.push(result);return result;};
   const [sharedFont,hudFont,...loaded]=await Promise.all([font(manifest.fonts.shared),font(manifest.fonts.hud),...['hud','launcher','messages'].map(name=>json<NativePack>(manifest.home[name]))]);
   const packs=Object.fromEntries(['hud','launcher','messages'].map((name,i)=>[name,loaded[i]])) as Record<string,NativePack>;
+  // Reject an incomplete style conversion during loading, before a paint can partially fail.
+  for(const [bank,data] of Object.entries(packs.messages.messages))for(const label of Object.keys(data.labels))nativeMessageOverride(packs.messages,bank,label,'');
   const textures:Record<string,Map<string,NativePixels>>={};const decoded=new Map<string,Promise<NativePixels>>();
   await Promise.all(Object.entries(homeLayouts).map(async ([name,names])=>{
    const pack=packs[name];if(pack.schema!==1||!pack.layouts||!pack.animations)throw new Error(`Invalid native pack ${name}`);
@@ -50,16 +52,16 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
 /** HOME assembly chooses groups and discrete firmware clip frames explicitly. */
 export function createFirmwareHome(assets:FirmwarePresentationAssets){
  const renderer=assets.renderer;
- const message=(table:string,key:string,fallback:string)=>{const data=renderer.packs.messages.messages[table];return data?.messages[data.labels[key]]?.text??fallback;};
+ const message=(table:string,key:string,fallback:string)=>nativeMessageOverride(renderer.packs.messages,table,key,fallback);
  const binding=(name:string,frame:number,groups?:string[]):AnimationBinding=>({name,frame,...(groups?{groups}:{})});
  const pressTrack=renderer.packs.launcher.animations.LncCsr_00_Select.tracks.find(track=>track.target==='N_Scene_00'&&track.property==='translation.y');
  const pressOffset=pressTrack?-sampleNativeTrack(pressTrack,5):0;
  function hud(ctx:Context,date:Date,time:number){
-  const table='hud_msbt_LZ',day=message(table,`day_${date.getDate()}`,String(date.getDate()).padStart(2,'0')),month=message(table,`month_${date.getMonth()+1}`,String(date.getMonth()+1).padStart(2,'0'));
-  const weekday=message(table,`week_${['sun','mon','tue','wed','thu','fri','sat'][date.getDay()]}`,'');
-  const dateText=message(table,'lau_date','%d/%M (%w)').replace('%d',day).replace('%M',month).replace('%w',weekday);
+  const table='hud_msbt_LZ',day=message(table,`day_${date.getDate()}`,String(date.getDate()).padStart(2,'0')).text!,month=message(table,`month_${date.getMonth()+1}`,String(date.getMonth()+1).padStart(2,'0')).text!;
+  const weekday=message(table,`week_${['sun','mon','tue','wed','thu','fri','sat'][date.getDay()]}`,'').text!;
+  const dateText=message(table,'lau_date','%d/%M (%w)');dateText.text=dateText.text!.replace('%d',day).replace('%M',month).replace('%w',weekday);
   return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',41),binding('HudMenu_00_WhiteBlack',0),binding('HudMenu_00_NetMode',4),binding('HudMenu_00_NetAtn',8),binding('HudMenu_00_Bat',3),binding('HudMenu_00_WalkCoin',time*.06)],overrides:{
-   T_NetMode_00:{text:message(table,'lau_connect4','Disabled')},T_Date_00:{text:dateText},T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:'0'},T_Coin_00:{text:'0'}
+   T_NetMode_00:message(table,'lau_connect4','Disabled'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:'0'},T_Coin_00:{text:'0'}
   }});
  }
  function toolbar(ctx:Context,state?:MenuState){
@@ -76,9 +78,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const active=new Set(two?['N_BtnW_R_02','N_BtnW_L_03']:['N_BtnW_C_01']);
   const overrides:PaneOverrides={};
   const walk=(panes:NativePack['layouts'][string]['roots'])=>panes.forEach(p=>{if(/^N_Btn[WB]_[LRC]+_\d+$/.test(p.name))overrides[p.name]={visible:active.has(p.name)};if(p.text)overrides[p.name]={text:''};walk(p.children);});walk(renderer.packs.launcher.layouts.LncBtmBtn_02.roots);
-  const label=(action:typeof leftAction|typeof rightAction)=>action===null?'':action==='resume'?'Resume':action==='close-software'?'Close software':message('menu_msbt_LZ',{'close-folder':'lau_2b_close','folder-settings':'lau_2b_folder_setting',open:'lau_2b_folder_open','create-folder':'lau_1b_make_folder'}[action],{'close-folder':'Close','folder-settings':'Settings',open:'Open','create-folder':'Create Folder'}[action]);
+  const label=(action:typeof leftAction|typeof rightAction)=>action===null?{text:''}:message('menu_msbt_LZ',{'close-folder':'lau_2b_close','close-software':'lau_2b_close','folder-settings':'lau_2b_folder_setting',open:'lau_2b_folder_open','create-folder':'lau_1b_make_folder',resume:'lau_2b_restart'}[action],{'close-folder':'Close','close-software':'Close','folder-settings':'Settings',open:'Open','create-folder':'Create Folder',resume:'Resume'}[action]);
   const right=label(rightAction),left=label(leftAction);
-  for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]={text:right};overrides[`${prefix}_R_02`]={text:right};overrides[`${prefix}_L_03`]={text:left};}
+  for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]=right;overrides[`${prefix}_R_02`]=right;overrides[`${prefix}_L_03`]=left;}
   const bindings=[binding('LncBtmBtn_02_SceneIn',15)],gesture=getHomeGestureView(state);
   if(!state.panel&&gesture?.mode==='press'&&gesture.y>=212&&gesture.y<240&&gesture.x>=0&&gesture.x<320){
    const group=two?(gesture.x<100?'G_BtnW_L_03':'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));

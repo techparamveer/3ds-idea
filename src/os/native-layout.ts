@@ -1,15 +1,31 @@
 /** Decoded NintendoWare CLYT/CLAN data. Format types contain no renderer state. */
 export type NativePicture={material:number;colors:number[][];uvSets:number[][]};
-export type NativePane={kind:string;name:string;flags:number;origin:number;alpha:number;translation:number[];rotation:number[];scale:number[];size:number[];children:NativePane[];picture?:NativePicture;text?:{font:number;material:number;value:string;size:number[];alignment:number;lineAlignment:number;characterSpacing:number;lineSpacing:number;topColor:number[];bottomColor:number[]};window?:{content:NativePicture;frames:{material:number;flip:number}[];inflation?:number[];frameSize?:number[];flags:number}};
+export type NativeMessageStyle={fontScale:number[];lineSpacing:number;characterSpacing:number;unresolvedWords?:Record<string,number>};
+export type NativeText={font:number;material:number;value:string;size:number[];alignment:number;lineAlignment:number;characterSpacing:number;lineSpacing:number;topColor:number[];bottomColor:number[];messageStyle?:NativeMessageStyle};
+export type NativePane={kind:string;name:string;flags:number;origin:number;alpha:number;translation:number[];rotation:number[];scale:number[];size:number[];children:NativePane[];picture?:NativePicture;text?:NativeText;window?:{content:NativePicture;frames:{material:number;flip:number}[];inflation?:number[];frameSize?:number[];flags:number}};
 export type NativeMaterial={name:string;bufferColor:number[];constantColors:number[][];textureOnly:boolean;textureMaps:{texture:number;wrapS:number;wrapT:number;minFilter:number;magFilter:number}[];textureMatrices:{translation:number[];rotation:number;scale:number[]}[];coordinateGenerators:{type:number;source:number}[];tevStages:{constantSelectors:number;color:NativeCombiner;alpha:NativeCombiner}[];alphaCompare?:{function:number;reference:number};colorBlend?:{operation:number;sourceFactor:number;destinationFactor:number};unsupported:unknown[]};
 export type NativeCombiner={sources:number[];operands:number[];mode:number;scale:number;savePrevious:boolean};
 export type NativeTrack={target:string;binding:string;property:string;index:number;component:number;interpolation:string;keys:{frame:number;value:number;slope?:number}[]};
 export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:NativeTrack[];childBinding?:boolean;textures:string[]};
 export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
 export type NativeLayout={canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
-export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number}>;messages:Record<string,{labels:Record<string,number>;messages:{text:string;tokens:unknown[]}[]}>};
-export type PaneOverrides=Record<string,{text?:string;visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number}>;
+export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
+export type PaneOverrides=Record<string,{text?:string;messageStyle?:NativeMessageStyle;visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number}>;
 export type AnimationBinding={name:string;frame:number;groups?:string[]};
+/** HOME RI_mstl changes font metrics and spacing only; unresolved words stay uninterpreted. */
+export function nativeTextMetrics(text:NativeText,font:{width?:number;height:number}){
+ const style=text.messageStyle;
+ return style?{size:[(font.width??font.height)*style.fontScale[0],font.height*style.fontScale[1]],characterSpacing:style.characterSpacing,lineSpacing:style.lineSpacing}
+  :{size:text.size,characterSpacing:text.characterSpacing,lineSpacing:text.lineSpacing};
+}
+export function nativeMessageOverride(pack:NativePack,bank:string,label:string,fallback:string):PaneOverrides[string]{
+ const data=pack.messages[bank],message=data?.messages[data.labels[label]];
+ if(!message)return {text:fallback};
+ if(message.styleIndex===undefined||message.styleIndex===null)return {text:message.text};
+ const style=data.styleTable?pack.styles?.[data.styleTable]?.styles[message.styleIndex]:undefined;
+ if(!style)throw new Error(`Missing native message style ${bank}/${label}[${message.styleIndex}]`);
+ return {text:message.text,messageStyle:style};
+}
 /** Equal-frame keys are intentional discontinuities: incoming uses first, outgoing uses last. */
 export function sampleNativeTrack(track:NativeTrack,frame:number){
  const keys=track.keys;if(!keys.length)return 0;if(frame<keys[0].frame)return keys[0].value;
@@ -63,6 +79,7 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
  for(const [name,value] of Object.entries(overrides)){
   const pane=panes.get(name);if(!pane)continue;
   if(value.text!==undefined&&pane.text)pane.text.value=value.text;
+  if(value.messageStyle&&pane.text)pane.text.messageStyle=structuredClone(value.messageStyle);
   if(value.visible!==undefined)pane.flags=value.visible?pane.flags|1:pane.flags&~1;
   if(value.alpha!==undefined)pane.alpha=value.alpha;
   if(value.translation)pane.translation=[...value.translation];if(value.scale)pane.scale=[...value.scale];if(value.size)pane.size=[...value.size];
@@ -169,13 +186,13 @@ export function blendNativePixel(source:number[],destination:number[],blend:NonN
  return source.map((value,i)=>{const s=value*factor(blend.sourceFactor,i),d=destination[i]*factor(blend.destinationFactor,i);if(blend.operation===1)return clamp(s+d);if(blend.operation===3)return clamp(s-d);throw new Error(`Unsupported native blend operation ${blend.operation}`);});
 }
 
-/** Keep unresolved native channels observable instead of assigning them to a guessed register. */
+/** Preserve native skips as information, without assigning an absent matrix to a guessed register. */
 export function nativeAnimationDiagnostics(layout:NativeLayout,animation:NativeAnimation):string[]{
  const diagnostics:string[]=[];
  for(const track of boundAnimationTracks(layout,animation))if(track.binding==='material'&&track.property.startsWith('texture.')){
   const material=layout.materials.find(m=>m.name===track.target);
   const available=track.property==='texture.pattern'?material?.textureMaps[track.index]:material?.textureMatrices[track.index];
-  if(!available&&track.keys.some(k=>k.value!==track.keys[0]?.value))diagnostics.push(`Unallocated animated texture channel ${track.target}[${track.index}] ${track.property}`);
+  if(!available&&track.keys.some(k=>k.value!==track.keys[0]?.value))diagnostics.push(`${track.property==='texture.pattern'?'Unallocated animated texture channel':'Native CLTS skip: unallocated texture matrix'} ${track.target}[${track.index}] ${track.property}`);
  }
  return [...new Set(diagnostics)];
 }

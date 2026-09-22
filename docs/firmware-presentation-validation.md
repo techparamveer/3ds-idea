@@ -19,7 +19,7 @@ The upper canvas remains 800×240 storage adapted from 400×240 logical pixels. 
 - One-frame around-windows use four mirrored strips. Nonzero inflation/frame size, other frame arrangements and flips remain explicit unsupported diagnostics.
 - HUD, lower toolbar, footer, folder/card tile, arrows and cursor consume native layouts. English status/footer labels come from MSBT. Calendar/clock values are injected; wireless is disabled and coins/steps are zero. The background, scrollbar, empty slots, dialogs and app interiors are still reconstructed.
 
-Material surfaces use an 8 MiB LRU cache, 16 posed layouts and a reusable blend target. Bitmap-font tinting caches up to 1 MiB of small text runs rather than entire duplicated atlases. The source pack is retained for reproducible scene pose choices. Dynamic unsupported texture channels are reported without guessing an allocation.
+Material surfaces use an 8 MiB LRU cache, 16 posed layouts and a reusable blend target. Bitmap-font tinting caches up to 1 MiB of small text runs rather than entire duplicated atlases. The source pack is retained for reproducible scene pose choices. Out-of-range texture matrix animation tracks retain their indices. Those with differing key values are reported as native CLTS skips, following the confirmed native bounds check.
 
 ## Evidence and limits
 
@@ -27,7 +27,7 @@ The tests cover material operations/register selection, alpha tests, blend facto
 
 The source font/texture/layout provenance resides in the asset manifest. CGFX folder provenance/conversion is documented separately by `scripts/firmware-cgfx/README.md` and the model sidecar. Native material parsing references include [EveryFileExplorer CLYTShader](https://github.com/Gericom/EveryFileExplorer/blob/master/3DS/NintendoWare/LYT1/CLYTShader.cs), [pane transformations](https://github.com/Gericom/EveryFileExplorer/blob/master/3DS/NintendoWare/LYT1/pan1.cs) and [window geometry](https://github.com/Gericom/EveryFileExplorer/blob/master/3DS/NintendoWare/LYT1/wnd1.cs). These format implementations inform the renderer; they do not replace emulator evidence.
 
-Unverified areas: the white theme background; exact scene clip frame selection and timing; density/selection movement alignment; alpha propagation semantics; native text formatting beyond the representative plain strings; 3D pane projection; unused animated texture-channel allocation; color-register mapping beyond the audited subset; CGFX PICA LUT lighting, model visibility channels and browser GPU shader/material parity. No additional title groups are included here.
+Unverified areas: the white theme background; exact scene clip frame selection and timing; density/selection movement alignment; alpha propagation semantics; native text formatting beyond the representative plain strings and four confirmed style fields; 3D pane projection; material channel quantization and shader parity; CGFX PICA LUT lighting, model visibility channels and browser GPU shader/material parity. No additional title groups are included here.
 
 ## Checkpoint checks (2026-09-22)
 
@@ -49,3 +49,15 @@ Native pickup, vacant-source and receiving-folder layouts are loaded alongside H
 - Software Canvas inspection artifacts: `software-gestures.png` and `software-gestures-extra.png` in the presentation artifact directory above. They cover app/folder pickup, receiving-folder preview, child view, cancellation, toolbar/footer press and fractional scrolling. These are not browser or Azahar captures.
 
 Remaining acceptance work includes native frame/timing comparison, the density/input alignment, folder initials, and renderer/material parity. The observed base tile shading and source placeholders still require matched native inspection. This follow-up does not claim completed HOME visual fidelity or add stock application interiors.
+
+## Message style linkage (2026-09-22)
+
+This bounded correction depends on asset checkpoint `5232f3c6a8d406600dfdb19956dae6a61482b246`, converter 1.2.0. Source evidence is recorded in `scripts/firmware/FORMAT_EVIDENCE.md`; the matching reproducible assets are under `assets/styles-repro-a/public` within the firmware artifact root. The presentation loader checks linked message styles before handing assets to screen painting.
+
+Each MSBT message resolves `styleIndex` through its bank's full `styleTable` path. HUD and HOME therefore keep separate tables despite identical basenames. A non-null style multiplies the actual pane font's FINF width and height by `fontScale` and replaces character/line spacing. A null style preserves CLYT metrics. The layout still supplies font choice, colors, alignment, material, clipping and transforms; the seven unresolved style words do not change rendering. Substituted date fragments retain the enclosing date message style.
+
+Current relevant sizes match the existing CLYT defaults: Disabled is 12.5×15, HUD date is 16×16 and footer labels are approximately 17.5×21. All have zero spacing. Resume now uses the source message's U+E073 HOME glyph, and the software-close action uses the native Close message. Static native analysis also confirms the existing CLMC buffer-plus-six-constants ordering and the CLTS bounds check; no texture channel is remapped.
+
+- Focused presentation/font/native-layout/CGFX suite: **27/27 passed** against the updated reproducible assets. It covers unequal font scales, separate style banks, null/missing styles, immutable overrides, actual HOME sizes/glyphs and no-remap texture skips.
+- Nonincremental TypeScript and diff whitespace checks passed.
+- Software Canvas captures: `software-styles.png`, `software-styles-extra.png`, `style-resume.png` and `style-upper.png`. Native format linkage is verified independently of visual acceptance; matched browser/Azahar comparisons remain with integration.

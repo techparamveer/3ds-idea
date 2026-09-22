@@ -62,7 +62,9 @@ def unpack_darc(data):
     magic, bom, header, version, size, table, table_size, payload = struct.unpack_from('<4sHHIIIII', data)
     if magic != b'darc' or bom != 0xfeff or header != 28 or size != len(data):
         raise ValueError('Expected little-endian DARC')
-    if table < header or table_size < 12 or table + table_size > payload or payload > size:
+    # Nintendo's empty archives end at the name table, before the aligned data
+    # offset. No file may use this absent padding as a payload.
+    if table < header or table_size < 12 or table + table_size > min(payload, size) or payload > ((size + 31) & ~31):
         raise ValueError('Invalid DARC table bounds')
     root_name, parent, count = struct.unpack_from('<III', data, table)
     if root_name >> 24 != 1 or parent != 0 or not 1 <= count <= 65536 or count * 12 > table_size:
@@ -84,6 +86,9 @@ def unpack_darc(data):
         if end + 2 > end_names:
             raise ValueError('Unterminated DARC name')
         name = data[name_at:end].decode('utf-16-le')
+        if name == '.' and index == 1 and raw >> 24 == 1 and offset == 0 and length == count:
+            stack.append((length, '', index))
+            continue
         if not name or name in ('.', '..') or any(c in name for c in '/\\:') or any(ord(c) < 32 for c in name):
             raise ValueError('Unsafe DARC path component')
         path = stack[-1][1] + name

@@ -1,7 +1,9 @@
+import { artifactPath } from './artifact-path.mjs';
 /** Focused native touch/pointer verification against the existing QA browser. */
 import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {writeFileSync} from 'node:fs';
+const out=artifactPath('portfolio');
 const binary=process.env.AGENT_BROWSER||'agent-browser',session=process.env.BROWSER_SESSION||'uifix-check';
 const run=(...args)=>execFileSync(binary,['--session',session,...args],{encoding:'utf8',timeout:60000}).trim();
 const evaluate=js=>JSON.parse(run('eval',js));
@@ -22,7 +24,7 @@ try{
  await call('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:points(95,285)});
  await tick(500);await call('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  assert.ok(Number(state().zoom)>1.7);assert.equal(state().menu,'home');
- run('screenshot','docs/validation/uifix-apps/mobile-pinch-console.png');
+ run('screenshot',`${out}/mobile-pinch-console.png`);
  await call('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:points(95,285)});
  await call('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:points(145,235)});
  await call('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await tick(500);assert.equal(state().zoom,'1.00');
@@ -34,6 +36,6 @@ try{
  assert.equal(layout()[2],'work');assert.equal(layout()[0],'hobbies');
  run('reload');run('wait','.console-stage[data-menu="home"]');assert.equal(layout()[2],'work');
  evaluate('document.querySelectorAll(".sr-only button")[8].click()');key('ArrowDown');key('ArrowDown');key('Enter');key('Escape');assert.equal(layout()[0],'work');
- writeFileSync('docs/validation/uifix-apps/gesture-checks.json',JSON.stringify({passed:true,checks:['native two-finger pinch','pinch does not launch apps','pinch return to full console','hold and drag swaps icons','layout survives reload','physical preferences reset layout']},null,2)+'\n');
+ writeFileSync(`${out}/gesture-checks.json`,JSON.stringify({passed:true,checks:['native two-finger pinch','pinch does not launch apps','pinch return to full console','hold and drag swaps icons','layout survives reload','physical preferences reset layout']},null,2)+'\n');
  console.log('Pinch, reorder, persistence and reset passed.');
 }finally{ws.close();}

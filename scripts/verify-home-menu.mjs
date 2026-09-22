@@ -1,3 +1,4 @@
+import { artifactPath } from './artifact-path.mjs';
 // Historical empty-menu fixture verification. The current homepage uses verify-portfolio.mjs.
 /** End-to-end browser checks using actual keys and projected touchscreen hits. */
 import { execFileSync } from 'node:child_process';
@@ -6,7 +7,7 @@ import assert from 'node:assert/strict';
 import sharp from 'sharp';
 const binary = process.env.AGENT_BROWSER || 'agent-browser';
 const session = process.env.BROWSER_SESSION || 'uifix';
-const out = 'docs/validation/uifix';
+const out = artifactPath('home');
 mkdirSync(out, { recursive: true });
 const run = (...args) => execFileSync(binary, ['--session', session, ...args], { encoding: 'utf8', timeout: 60000 }).trim();
 const evaluate = js => JSON.parse(run('eval', js));

@@ -1,15 +1,19 @@
 import { apps, getApp } from '@/os/apps';
-import { currentEntry, launch } from '@/os/system';
+import { currentEntry, launch, selectedTitle } from '@/os/system';
 import { createMenuAudio, type Sound } from '@/os/audio';
-import { createPortfolioState, reduceSystem, touchSystem, tickSystem, moveApp, restoreSettings, saveSettings, STORAGE_KEY } from '@/os/system';
+import { createPortfolioState, reduceSystem, tickSystem, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
+import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
+import { createRuntimeEffects } from '@/os/runtime-effects';
+import type { AppCommand, AppEvent } from '@/os/app-types';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { createScreens } from '@/os/screens';
-import { renameFolder, rowCount, menuTiles, type MenuState, type Input } from '@/os/state';
+import { createScreens, loadFirmwarePresentationAssets } from '@/os/screens';
+import { renameFolder, rowCount, type MenuState, type Input } from '@/os/state';
+import { createFirmwareBanner } from './firmware-banner';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
-import { DEFAULT_MODEL_URL, controlBoundsInBase, controlFromObject, directionFromControlHit, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
+import { DEFAULT_MODEL_URL, controlBoundsInBase, controlFromObject, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
@@ -38,13 +42,22 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const layout=resolveModelLayout(model);const {hinge}=layout;
   host.dataset.model=modelUrl;host.dataset.layout=layout.source;
   model.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(o.userData.console_replace_with_display===true)o.visible=false;}});
-  const screens=createScreens({reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches});await screens.ready;let state=createPortfolioState();try{state=restoreSettings(state,localStorage.getItem(STORAGE_KEY));}catch{}
+  let runtimeNotice:string|null=null,storage:FirmwareStorage|undefined,state=createPortfolioState();
+  let legacyPreferences:string|null=null;try{legacyPreferences=localStorage.getItem(STORAGE_KEY);}catch{}
+  const folderBanner=createFirmwareBanner(renderer);
+  const nativeAssets=loadFirmwarePresentationAssets().catch(error=>{host.dataset.firmwareFailure=String(error);return undefined;});
+  try{storage=await openFirmwareStorage({legacyPreferences});const saved=await storage.load();state=restoreRuntimeData(restoreSettings(state,saved.preferences),saved.shared,saved.saves);if(saved.issues.length)runtimeNotice='Some saved data could not be read.';}
+  catch(error){state=restoreSettings(state,legacyPreferences);runtimeNotice='Local saving is unavailable.';host.dataset.storageFailure=String(error);}
+  const firmwareAssets=await nativeAssets;
+  const screens=createScreens({reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,drawFolderBanner:folderBanner.draw,runtimeNotice:()=>runtimeNotice});
+  await Promise.all([screens.ready,folderBanner.ready]);
+  host.dataset.firmware=firmwareAssets?'native-home':'fallback';
   const audio=createMenuAudio();screens.paint(state);
   const accessible=document.createElement('section');accessible.className='sr-only';accessible.setAttribute('aria-label','Console controls');host.appendChild(accessible);
   const announcement=document.createElement('p');announcement.setAttribute('aria-live','polite');accessible.appendChild(announcement);
   const addControl=(title:string,action:()=>void)=>{const button=document.createElement('button');button.textContent=title;button.addEventListener('click',action);button.addEventListener('keydown',event=>event.stopPropagation());accessible.appendChild(button);return button;};
   for(const [title,input]of [['Up','up'],['Down','down'],['Left','left'],['Right','right'],['A: Open or visit','open'],['B: Back','back'],['HOME: Suspend or resume','home'],['Power','power'],['Sound and layout','preferences']] as [string,Input][])addControl(title,()=>send(input));
-  for(const app of apps)addControl(`Open ${app.title}`,()=>{if(state.system?.phase==='home')commit(launch(state,app.id,performance.now()-start),'open');});
+  for(const app of apps)addControl(`Open ${app.title}`,()=>{if(state.system?.phase==='home')commit(launch(state,app.id,performance.now()-start),'open',true);});
   let announced='';
   const topTexture=new THREE.CanvasTexture(screens.top),bottomTexture=new THREE.CanvasTexture(screens.bottom);
   for(const tx of [topTexture,bottomTexture]){tx.colorSpace=THREE.SRGBColorSpace;tx.minFilter=THREE.LinearFilter;tx.magFilter=THREE.NearestFilter;tx.generateMipmaps=false;tx.anisotropy=renderer.capabilities.getMaxAnisotropy();}
@@ -103,7 +116,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   let frame=0,disposed=false,last=performance.now(),lastRender=0,lastScreenPaint=0,intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1;
   let start=last;
   const touches=new Map<number,{x:number;y:number}>();let pinchDistance=0,pinchZoom=1,viewZoom=1;
-  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;repeatAt?:number;screen?:boolean;tile?:number;heldAt?:number}|null=null;
+  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;command?:AppCommand;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;screen?:boolean;touch?:{x:number;y:number}}|null=null;
   type PressedCap={parts:{object:THREE.Object3D;y:number}[];motion:ButtonMotion};
   const pressed=new Map<THREE.Object3D,PressedCap>();
   let lastPress:{name:string;maxTravelMm:number}|undefined;
@@ -150,24 +163,42 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     const vector=clampPad({x:local.x/6,y:local.z/6});
     const direction=padDirection(vector);
     setPad(name,name==='DPAD'&&direction?DIRECTION_VECTOR[direction]:vector,'pointer');
-    if(drag){
-      if(direction&&direction!==drag.padDirection){send(direction);drag.repeatAt=performance.now()+420;}
-      drag.padDirection=direction;
+    if(name==='CIRCLE')dispatch({type:'analog',x:vector.x,y:vector.y,source:'pointer:CIRCLE'},true);
+    else if(drag&&direction!==drag.padDirection){
+      if(drag.padDirection)button(drag.padDirection,'up','pointer:DPAD',true);
+      if(direction)button(direction,'down','pointer:DPAD',true);
     }
+    if(drag)drag.padDirection=direction;
   }
   let lastInput='none';
   const writeState=()=>{
-    const s=state.system!;const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title}. ${entry?.title}. ${s.detail?entry?.pages[s.page]:entry?.subtitle}`:s.phase==='home'?`HOME Menu. ${getApp(s.layout[state.selected])?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
+    const s=state.system!;const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
     host.dataset.audio=JSON.stringify(audio.status());host.dataset.preferences=String(state.system?.preferences??false);host.dataset.photo=String(state.system?.photo??0);host.dataset.page=String(state.system?.page??0);host.dataset.muted=String(state.system?.muted??false);host.dataset.ready='true';host.dataset.menu=state.panel??(state.system?.phase==='home'?(state.opened?'folder':'home'):state.system?.phase??'home');host.dataset.app=state.system?.app??'';host.dataset.item=String(state.system?.item??0);host.dataset.detail=String(state.system?.detail??false);host.dataset.sleeping=String(state.system?.sleeping??false);host.dataset.dialog=state.system?.dialog??'';host.dataset.rows=String(rowCount(state));host.dataset.theme=state.theme;host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
-  function paint(){model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;writeState();}
-  function commit(next:MenuState,input:string){
+  function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,elapsedMs:performance.now()-start});}
+  function paint(){updateAudio();model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;writeState();}
+  const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close']);
+  const effects=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;},now:()=>performance.now()-start,storage,
+    onChange:()=>{if(!disposed)paint();},
+    onFailure:error=>{runtimeNotice='Your changes could not be saved locally.';host.dataset.storageFailure=String(error);if(!disposed)paint();},
+    onSound:name=>{if(soundNames.has(name))audio.play(name as Sound,state.system!.muted,state.system!.volume);},
+    onLink:url=>{window.open(url,'_blank','noopener,noreferrer');},
+  });
+  function commit(next:MenuState,input:string,userGesture=false){
     const previous=state;state=next;lastInput=input;
-    if(state.system?.link){const url=state.system.link;state={...state,system:{...state.system,link:null}};if(url.startsWith('https://')||url.startsWith('mailto:'))window.open(url,'_blank','noopener,noreferrer');}
-    if(previous!==next){const sound:Sound=input==='power'?'power':state.system?.phase==='launch'?'open':input==='home'?'home':input==='back'?'back':input==='move'?'drop':'select';audio.play(sound,state.system!.muted,state.system!.volume);try{localStorage.setItem(STORAGE_KEY,saveSettings(state));}catch{}}
-    paint();
+    updateAudio();
+    const before=previous.system!,after=state.system!;
+    let sound:Sound|undefined;
+    if(after.phase!==before.phase){if(after.phase==='launch')sound='open';else if(after.phase==='power')sound='power';else if(input==='home')sound='home';else if(input==='back')sound='back';}
+    else if(previous.opened!==state.opened)sound=state.opened?'folder-open':'folder-close';
+    else if(previous.selected!==state.selected||before.item!==after.item||before.page!==after.page)sound='select';
+    else if(previous.panel!==state.panel||before.detail!==after.detail||before.dialog!==after.dialog||before.preferences!==after.preferences)sound=input==='back'?'back':'open';
+    if(sound&&!after.runtime.effects.some(item=>item.effect.type==='sound'))audio.play(sound,after.muted,after.volume);
+    effects.drain(userGesture);paint();
   }
-  function send(input:Input){void audio.unlock();commit(reduceSystem(state,input,performance.now()-start),input);}
+  function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit(dispatchSystemEvent(state,event,performance.now()-start),label,userGesture);}
+  function button(command:AppCommand,phase:'down'|'up',source:string,userGesture=false){dispatch({type:'button',command,phase,source},userGesture);}
+  function send(input:Input){void audio.unlock();if(['left','right','up','down','open','back','home','power','x','y','start','select','l','r'].includes(input)){button(input as AppCommand,'down',`accessible:${input}`,true);button(input as AppCommand,'up',`accessible:${input}`,true);}else commit(reduceSystem(state,input,performance.now()-start),input,true);}
   function press(name:string,source?:string){
     if(name==='DPAD'||name==='CIRCLE')return;
     const cap=caps.get(name);if(!cap)return;
@@ -207,7 +238,14 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     const interrupted=intro;interruptIntro();
     targetAngle=open?MAX_LID_DEGREES:(interrupted?angle:targetAngle)>70?0:MAX_LID_DEGREES;
     if(targetAngle===0){pointerCancel();releaseAll();}
-    state={...state,system:{...state.system!,sleeping:targetAngle===0}};if(targetAngle===0)audio.stop();lastInput='hinge';paint();
+    commit(setSystemSleeping(state,targetAngle===0,performance.now()-start),'hinge');
+  }
+  const controlCommands:Record<string,AppCommand>={A:'open',B:'back',X:'x',Y:'y',HOME:'home',START:'start',SELECT:'select',POWER:'power',L:'l',R:'r'};
+  function touchPosition(e:PointerEvent){
+    const rect=host.getBoundingClientRect();mouse.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);
+    const origin=touchScreen.getWorldPosition(new THREE.Vector3()),normal=new THREE.Vector3(0,0,1).transformDirection(touchScreen.matrixWorld);
+    const point=ray.ray.intersectPlane(new THREE.Plane().setFromNormalAndCoplanarPoint(normal,origin),new THREE.Vector3());if(!point)return;
+    const local=touchScreen.worldToLocal(point);return{x:(local.x/layout.screens.bottom.widthMm+.5)*320,y:(.5-local.y/layout.screens.bottom.heightMm)*240};
   }
   function pointerDown(e:PointerEvent){
     if(e.pointerType==='touch'){
@@ -216,14 +254,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     }
     if(!e.isPrimary||e.button!==0||drag)return;
     void audio.unlock();host.focus({preventScroll:true});host.setPointerCapture(e.pointerId);interruptIntro();
-    const h=hit(e);drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,control:h?.object,screen:h?.object===touchScreen};
-    if(h?.object===touchScreen&&h.uv&&state.system?.phase==='home'&&!state.panel){const x=h.uv.x*320,y=(1-h.uv.y)*240;drag.tile=menuTiles(state).find(t=>x>=t.x&&x<t.x+t.size&&y>=t.y&&y<t.y+t.size)?.index;drag.heldAt=performance.now();}
-    if(h&&angle>90){
-      const name=controlName(h.object);
-      if(name==='DPAD'||name==='CIRCLE'){
-        drag.pad=name;pointerPad(name,e);
-      }else press(name,'pointer');
-    }
+    const h=hit(e);drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,control:h?.object,screen:angle>90&&h?.object===touchScreen};
+    if(drag.screen&&h?.uv){drag.touch={x:h.uv.x*320,y:(1-h.uv.y)*240};dispatch({type:'touch',phase:'down',...drag.touch,pointerId:e.pointerId},true);return;}
+    if(h&&angle>90){const name=controlName(h.object);if(name==='DPAD'||name==='CIRCLE'){drag.pad=name;pointerPad(name,e);}else{press(name,'pointer');drag.command=controlCommands[name];if(drag.command)button(drag.command,'down',`pointer:${e.pointerId}`,true);}}
   }
   function pointerMove(e:PointerEvent){
     if(touches.has(e.pointerId))touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -231,58 +264,55 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(!drag){const h=hit(e);host.style.cursor=h?(controlName(h.object)||h.object===touchScreen?'pointer':'grab'):'default';return;}
     if(e.pointerId!==drag.pointerId)return;
     if(drag.pad){pointerPad(drag.pad,e);return;}
-    if(drag.screen){if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>8)drag.moved=true;drag.x=e.clientX;drag.y=e.clientY;return;}
-    if(!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5){drag.moved=true;targetYaw=yaw;targetPitch=pitch;release('pointer');}
+    if(drag.screen){const point=touchPosition(e);if(point){drag.touch=point;dispatch({type:'touch',phase:'move',...point,pointerId:e.pointerId},true);}return;}
+    if(!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5){drag.moved=true;targetYaw=yaw;targetPitch=pitch;release('pointer');if(drag.command){button(drag.command,'up',`pointer:${e.pointerId}`);drag.command=undefined;}}
     if(drag.moved){targetYaw+=(e.clientX-drag.x)*.007;targetPitch=THREE.MathUtils.clamp(targetPitch+(e.clientY-drag.y)*.003,-1.65,1.3);host.style.cursor='grabbing';}
     drag.x=e.clientX;drag.y=e.clientY;
+  }
+  function endPointer(was:NonNullable<typeof drag>,cancelled:boolean,e?:PointerEvent){
+    if(was.screen&&was.touch){const point=e?touchPosition(e)??was.touch:was.touch;const inside=point.x>=0&&point.x<320&&point.y>=0&&point.y<240;dispatch({type:'touch',phase:cancelled||!inside?'cancel':'up',...point,pointerId:was.pointerId},!cancelled);}
+    if(was.command)button(was.command,'up',`pointer:${was.pointerId}`,!cancelled);
+    if(was.pad==='CIRCLE')dispatch({type:'analog',x:0,y:0,source:'pointer:CIRCLE'});
+    if(was.pad==='DPAD'&&was.padDirection)button(was.padDirection,'up','pointer:DPAD');
+    release('pointer');
   }
   function pointerUp(e:PointerEvent){
     const wasPinching=pinchDistance>0;touches.delete(e.pointerId);
     if(wasPinching){if(touches.size===0)pinchDistance=0;if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);return;}
-    if(!drag||e.pointerId!==drag.pointerId)return;const was=drag;drag=null;release('pointer');if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);host.style.cursor='grab';if(was.screen&&was.moved&&was.tile!==undefined&&performance.now()-(was.heldAt??Infinity)>450){const target=hit(e);if(target?.object===touchScreen&&target.uv){const x=target.uv.x*320,y=(1-target.uv.y)*240;const tile=menuTiles(state).find(t=>x>=t.x&&x<t.x+t.size&&y>=t.y&&y<t.y+t.size);if(tile)commit(moveApp(state,was.tile,tile.index),'move');}return;}if(was.screen&&was.moved){if(state.panel==='themes'&&Math.abs(e.clientY-was.startY)>18){for(let i=0;i<Math.min(4,Math.ceil(Math.abs(e.clientY-was.startY)/30));i++)send(e.clientY<was.startY?'down':'up');}else if(Math.abs(e.clientX-was.startX)>18)send(e.clientX<was.startX?'right':'left');return;}if(was.moved||was.pad)return;
-    const h=hit(e);if(!h)return;
-    if(angle<90){toggleLid(true);return;}
-    if(h.object===touchScreen&&h.uv){commit(touchSystem(state,h.uv.x*320,(1-h.uv.y)*240,performance.now()-start),'touch');return;}
-    const name=controlName(h.object);
-    if(name&&(!was.control||controlName(was.control)!==name))return;
-    if(name){
-      const mapping:Record<string,Input>={A:'open',B:'back',X:'zoom',Y:'brightness',HOME:'home',START:'open',SELECT:'zoom',POWER:'power',L:'left',R:'right'};
-      if(name==='DPAD'||name==='CIRCLE'){
-        send(directionFromControlHit(layout,name,h.point));
-      }else if(mapping[name])send(mapping[name]);
-      return;
-    }
-    if(h.object.parent===hinge||h.object.name.includes('Hinge'))toggleLid();
+    if(!drag||e.pointerId!==drag.pointerId)return;const was=drag;drag=null;endPointer(was,false,e);if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);host.style.cursor='grab';
+    if(was.screen||was.moved||was.pad||was.command)return;
+    const h=hit(e);if(!h)return;if(angle<90){toggleLid(true);return;}
+    if(!controlName(h.object)&&(h.object.parent===hinge||h.object.name.includes('Hinge')))toggleLid();
   }
-  function pointerCancel(){if(drag&&host.hasPointerCapture(drag.pointerId))host.releasePointerCapture(drag.pointerId);drag=null;release('pointer');host.style.cursor='grab';}
+  function pointerCancel(){const was=drag;drag=null;if(was){endPointer(was,true);if(host.hasPointerCapture(was.pointerId))host.releasePointerCapture(was.pointerId);}host.style.cursor='grab';}
   function pointerAbort(){touches.clear();pinchDistance=0;pointerCancel();}
+  const keyCommands:Record<string,Input>={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',Enter:'open',a:'open',b:'back',Escape:'back',h:'home',p:'power',x:'x',y:'y',q:'l',e:'r',m:'mute','+':'volume-up','-':'volume-down'};
+  const heldKeys=new Map<string,AppCommand>();
   function keydown(e:KeyboardEvent){
     if(state.panel==='rename'){
-      if(e.metaKey||e.ctrlKey||e.altKey)return;
-      e.preventDefault();
-      if(e.key==='Enter'){commit(renameFolder(state,state.nameDraft),'rename');}
-      else if(e.key==='Escape'){send('back');}
-      else if(e.key==='Backspace'){state={...state,nameDraft:state.nameDraft.slice(0,-1)};paint();}
-      else if(e.key.length===1&&!e.metaKey&&!e.ctrlKey){state={...state,nameDraft:(state.nameDraft+e.key).slice(0,16)};paint();}
+      if(e.metaKey||e.ctrlKey||e.altKey)return;e.preventDefault();
+      if(e.key==='Enter')commit(renameFolder(state,state.nameDraft),'rename',true);
+      else if(e.key==='Escape')send('back');
+      else if(e.key==='Backspace')commit({...state,nameDraft:state.nameDraft.slice(0,-1)},'text',true);
+      else if(e.key.length===1)commit({...state,nameDraft:(state.nameDraft+e.key).slice(0,16)},'text',true);
       return;
     }
-    const map:Record<string,Input>={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',Enter:'open',a:'open',b:'back',Escape:'back',h:'home',p:'power',x:'zoom',y:'brightness',q:'left',e:'right',m:'mute','+':'volume-up','-':'volume-down'};
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
     if(e.code==='Space'){e.preventDefault();if(!e.repeat)toggleLid();return;}
-    const key=e.key.length===1?e.key.toLowerCase():e.key;
-    const action=map[key];if(!action)return;e.preventDefault();if(angle<=90)return;
+    const key=e.key.length===1?e.key.toLowerCase():e.key,action=keyCommands[key];if(!action)return;e.preventDefault();if(angle<=90||e.repeat)return;
     interruptIntro();
     const physical:Record<string,string>={ArrowLeft:'DPAD',ArrowRight:'DPAD',ArrowUp:'DPAD',ArrowDown:'DPAD',Enter:'A',a:'A',b:'B',Escape:'B',h:'HOME',p:'POWER',x:'X',y:'Y',q:'L',e:'R'};
-    if(physical[key]==='DPAD')setPad('DPAD',DIRECTION_VECTOR[action as ControlDirection],`key:${e.code}`);
-    else press(physical[key],`key:${e.code}`);
-    if(!e.repeat||key.startsWith('Arrow'))send(action);
+    if(physical[key]==='DPAD')setPad('DPAD',DIRECTION_VECTOR[action as ControlDirection],`key:${e.code}`);else press(physical[key],`key:${e.code}`);
+    if(['mute','volume-up','volume-down'].includes(action))send(action);else{heldKeys.set(e.code,action as AppCommand);button(action as AppCommand,'down',`key:${e.code}`,true);}
   }
-  function keyup(e:KeyboardEvent){release(`key:${e.code}`);}
-  function blur(){touches.clear();pinchDistance=0;pointerCancel();releaseAll();}
+  function keyup(e:KeyboardEvent){release(`key:${e.code}`);const command=heldKeys.get(e.code);heldKeys.delete(e.code);if(command)button(command,'up',`key:${e.code}`,true);}
+  function blur(){touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit(releaseSystemInputs(state,performance.now()-start),'blur');}
+  function visibilityChanged(){if(document.hidden)blur();}
   function motionChanged(e:MediaQueryListEvent){reduced=e.matches;screens.setReducedMotion(reduced);if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();viewZoom=THREE.MathUtils.clamp(viewZoom-e.deltaY*.001,1,3);}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=2*Math.atan(Math.tan(33*RAD/2)*Math.max(1,1.04/(w/h)))/RAD;camera.updateProjectionMatrix();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
-  host.addEventListener('pointerdown',pointerDown);host.addEventListener('pointermove',pointerMove);host.addEventListener('pointerup',pointerUp);host.addEventListener('pointercancel',pointerAbort);host.addEventListener('lostpointercapture',pointerCancel);host.addEventListener('keydown',keydown);host.addEventListener('keyup',keyup);host.addEventListener('blur',blur);host.addEventListener('wheel',wheel,{passive:false});motionPreference.addEventListener('change',motionChanged);
+  host.addEventListener('pointerdown',pointerDown);host.addEventListener('pointermove',pointerMove);host.addEventListener('pointerup',pointerUp);host.addEventListener('pointercancel',pointerAbort);host.addEventListener('lostpointercapture',pointerCancel);host.addEventListener('keydown',keydown);host.addEventListener('keyup',keyup);host.addEventListener('blur',blur);host.addEventListener('wheel',wheel,{passive:false});motionPreference.addEventListener('change',motionChanged);document.addEventListener('visibilitychange',visibilityChanged);
   // Enable keyboard play on first load without taking focus from another control.
   if(document.activeElement===document.body)host.focus({preventScroll:true});
   function animate(now:number){
@@ -294,9 +324,6 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     pitch=reduced?targetPitch:THREE.MathUtils.damp(pitch,targetPitch,drag?.moved?18:7,dt);scale=reduced?targetScale:THREE.MathUtils.damp(scale,targetScale,7,dt);
     hinge.rotation.x=-angle*RAD;pivot.rotation.set(pitch,yaw,0);pivot.scale.setScalar(scale);
     topScreen.visible=touchScreen.visible=angle>12;
-    if(drag?.pad&&drag.padDirection&&now>=(drag.repeatAt??Infinity)){
-      send(drag.padDirection);drag.repeatAt=now+150;
-    }
     const padPoses:Record<string,unknown>={};
     for(const [name,pad]of directional){
       const vector=pad.motion.step(now,dt,reduced);pad.rig.apply(name,vector);
@@ -313,7 +340,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       }
     }
     if(diagnostics)host.dataset.buttonDepths=JSON.stringify(Object.fromEntries([...pressed].map(([cap,feedback])=>[cap.name,Number(feedback.motion.depth.toFixed(3))])));
-    const advanced=tickSystem(state,now-start,reduced);if(advanced!==state){state=advanced;paint();}
+    const advanced=tickSystem(state,now-start,reduced);if(advanced!==state)commit(advanced,'tick');updateAudio();
     const minute=Math.floor(Date.now()/60000);if(minute!==lastMinute){lastMinute=minute;paint();}
     // Native UI motion must be uploaded continuously, independent of input.
     if(state.powered&&angle>12&&!document.hidden&&!reduced&&now-lastScreenPaint>=1000/quality.screenFps){lastScreenPaint=now;screens.paint(state,new Date(),now-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
@@ -360,5 +387,5 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     surfaceSchedule=idle?idle(()=>void initializeSurface(),{timeout:3500}):window.setTimeout(()=>void initializeSurface(),3000);
   }
   if(diagnostics){Object.assign(host,{screenCanvases:{top:screens.top,bottom:screens.bottom}});}
-  return ()=>{accessible.remove();audio.dispose();screens.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
+  return ()=>{state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
 }

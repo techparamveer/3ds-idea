@@ -1,0 +1,319 @@
+{
+  "schema": 1,
+  "firmware": "10.7.0-32E",
+  "title": {
+    "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
+    "productCode": "CTR-N-HMMP",
+    "size": 3799296,
+    "sourceSha256": "2863c6c4e7b1c79e4352b63cde72994fa9c3b8bdd8dfd2afd4dd4104636b1898",
+    "titleId": "0004003000009802",
+    "version": 24576
+  },
+  "source": "romfs/sound/menu.bcsar",
+  "sourceSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
+  "converter": {
+    "name": "render_firmware_audio",
+    "version": 1,
+    "sha256": "59fbd411db21cb95f5e07877497f26e520734b0bb4963527bf8cf48b7236ea89"
+  },
+  "renderer": {
+    "name": "DualRip",
+    "url": "https://github.com/TetraSsky/DualRip",
+    "revision": "c00e809ad4fcc44056a5b3c11d30f6a698b92be0"
+  },
+  "method": "offline CSEQ interpretation with original CBNK instruments and CWAV samples",
+  "verification": "pending matched Azahar timing and waveform comparison",
+  "cues": {
+    "music": {
+      "name": "BGM_CTR_HOME",
+      "index": 26,
+      "kind": "sequence",
+      "url": "music.wav",
+      "sha256": "3cc0954fe32ba572f8e899a3ea86b295c725aef4f5735b3d734e513dee213349",
+      "size": 15316468,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 3829089,
+      "loopStart": 314447,
+      "loopEnd": 3829089,
+      "sourceVolume": 96,
+      "banks": [
+        {
+          "id": 1,
+          "waveArchives": [
+            3
+          ]
+        }
+      ],
+      "unappliedCommands": {
+        "span": 5,
+        "fxsend_a": 3
+      }
+    },
+    "music-resume": {
+      "name": "BGM_CTR_HOME_NO_INTRO",
+      "index": 25,
+      "kind": "sequence",
+      "url": "music-resume.wav",
+      "sha256": "dcecc5eeae328f863c5c2e3b85da2db206490c587bd12270b57bbce808b60fc0",
+      "size": 14057320,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 3514302,
+      "loopStart": 340,
+      "loopEnd": 3514302,
+      "sourceVolume": 96,
+      "banks": [
+        {
+          "id": 1,
+          "waveArchives": [
+            3
+          ]
+        }
+      ],
+      "unappliedCommands": {
+        "span": 6,
+        "fxsend_a": 4
+      }
+    },
+    "select": {
+      "name": "SE_CTR_HOME_ICON_SELECT",
+      "index": 44,
+      "kind": "sequence",
+      "url": "select.wav",
+      "sha256": "e8716ca9e3bd26e46ccc18639f067a8cbc3820007f03cd5fcd8ef83288ea59c7",
+      "size": 1408,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 341,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 48,
+      "banks": [
+        {
+          "id": 2,
+          "waveArchives": [
+            4
+          ]
+        }
+      ],
+      "unappliedCommands": {}
+    },
+    "open": {
+      "name": "SE_CTR_HOME_START",
+      "index": 30,
+      "kind": "sequence",
+      "url": "open.wav",
+      "sha256": "f126ce22910411d31a7d43c48959a14e122e3e718b54f65ceed2d9d8dc426446",
+      "size": 287732,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 71922,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 64,
+      "banks": [
+        {
+          "id": 0,
+          "waveArchives": [
+            2
+          ]
+        }
+      ],
+      "unappliedCommands": {
+        "init_pan": 9
+      }
+    },
+    "back": {
+      "name": "SE_CTR_COMMON_CANCEL",
+      "index": 12,
+      "kind": "sequence",
+      "url": "back.wav",
+      "sha256": "9e8869a77d6c3699008a3422ae52b76360a1d327188a9ded1c92edb497de77ef",
+      "size": 242740,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 60674,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 100,
+      "banks": [
+        {
+          "id": 0,
+          "waveArchives": [
+            2
+          ]
+        }
+      ],
+      "unappliedCommands": {
+        "init_pan": 8
+      }
+    },
+    "home": {
+      "name": "SE_CTR_HOME_HOMEBUTTON",
+      "index": 27,
+      "kind": "sequence",
+      "url": "home.wav",
+      "sha256": "fd9ccebcc1c16be3ef7b7136ef67cbebadc70ed9561ff4c7e7da95ee0822c741",
+      "size": 409080,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 102259,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 127,
+      "banks": [
+        {
+          "id": 0,
+          "waveArchives": [
+            2
+          ]
+        }
+      ],
+      "unappliedCommands": {
+        "init_pan": 3
+      }
+    },
+    "power": {
+      "name": "SE_CTR_HOME_POPUP_POWER",
+      "index": 55,
+      "kind": "sequence",
+      "url": "power.wav",
+      "sha256": "f4a4f2f2ee09a1dac2c1008ba5c68592afd3c80d9b6be81210c5fa37cd6b9371",
+      "size": 75036,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 18748,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 40,
+      "banks": [
+        {
+          "id": 0,
+          "waveArchives": [
+            2
+          ]
+        }
+      ],
+      "unappliedCommands": {
+        "span": 2,
+        "init_pan": 10
+      }
+    },
+    "touch": {
+      "name": "SE_CTR_HOME_ICON_TOUCH",
+      "index": 43,
+      "kind": "sequence",
+      "url": "touch.wav",
+      "sha256": "b27dd6313c13c6af655503a56bc309c4cf25f86387ee0a527ba6b2ec945a7345",
+      "size": 5500,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 1364,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 30,
+      "banks": [
+        {
+          "id": 2,
+          "waveArchives": [
+            4
+          ]
+        }
+      ],
+      "unappliedCommands": {}
+    },
+    "grab": {
+      "name": "SE_CTR_HOME_ICON_GRAB",
+      "index": 47,
+      "kind": "sequence",
+      "url": "grab.wav",
+      "sha256": "bd34d7d509c9eeb7632bd2835f78c162ae20f218ef4afc78913fe0a1925fa4a7",
+      "size": 9588,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 2386,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 32,
+      "banks": [
+        {
+          "id": 2,
+          "waveArchives": [
+            4
+          ]
+        }
+      ],
+      "unappliedCommands": {}
+    },
+    "drop": {
+      "name": "SE_CTR_HOME_ICON_EXCHANGE",
+      "index": 48,
+      "kind": "sequence",
+      "url": "drop.wav",
+      "sha256": "497330203f54fc26fa7565f90619e58c8c406ad277c52a79cd773f001aeb39bd",
+      "size": 12316,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 3068,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 64,
+      "banks": [
+        {
+          "id": 2,
+          "waveArchives": [
+            4
+          ]
+        }
+      ],
+      "unappliedCommands": {}
+    },
+    "folder-open": {
+      "name": "SE_CTR_HOME_OPEN_FOLDER",
+      "index": 52,
+      "kind": "sequence",
+      "url": "folder-open.wav",
+      "sha256": "cecde28ab51ec418ec443f9fe82e3a2cf63c27644570eac8b65e4d1352e911d8",
+      "size": 62084,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 15510,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 44,
+      "banks": [
+        {
+          "id": 2,
+          "waveArchives": [
+            4
+          ]
+        }
+      ],
+      "unappliedCommands": {}
+    },
+    "folder-close": {
+      "name": "SE_CTR_HOME_CLOSE_FOLDER",
+      "index": 53,
+      "kind": "sequence",
+      "url": "folder-close.wav",
+      "sha256": "9eaa6eb3a36dd5f580412fc57712c72e93348884c7d66b18d9317c828bc01212",
+      "size": 25952,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 6477,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 48,
+      "banks": [
+        {
+          "id": 2,
+          "waveArchives": [
+            4
+          ]
+        }
+      ],
+      "unappliedCommands": {}
+    }
+  }
+}

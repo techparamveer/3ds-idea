@@ -1,9 +1,10 @@
+import { artifactPath } from './artifact-path.mjs';
 /** Real browser inputs; no synthetic OS state setters. */
 import {execFileSync} from 'node:child_process';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
-const binary=process.env.AGENT_BROWSER||'agent-browser',session=process.env.BROWSER_SESSION||'uifix-check',out='docs/validation/uifix-apps';
+const binary=process.env.AGENT_BROWSER||'agent-browser',session=process.env.BROWSER_SESSION||'uifix-check',out=artifactPath('portfolio');
 mkdirSync(out,{recursive:true});
 const run=(...args)=>execFileSync(binary,['--session',session,...args],{encoding:'utf8',timeout:60000}).trim();
 const evaluate=js=>JSON.parse(run('eval',js));

@@ -158,7 +158,7 @@ def decode_animation(data):
         if tag == 'pat1':
             order, count, name, groups, first, last, child = r.read('HHIIhhB', 8)
             out.update(name=r.string(name), order=order, sourceFrameRange=[first, last], childBinding=bool(child),
-                       groups=[r.string(groups+i*16, 16) for i in range(count)])
+                       groups=[r.string(groups+i*20, 20) for i in range(count)])
         elif tag == 'pai1':
             frames, loop, pad, texture_count, target_count, table = r.read('HBBHHI', 8)
             out.update(frames=frames, loop=bool(loop))

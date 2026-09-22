@@ -76,6 +76,16 @@ class TextureTests(unittest.TestCase):
 
 
 class ContainerTests(unittest.TestCase):
+    def test_clan_group_names_use_twenty_byte_records(self):
+        groups = [b'G_First', b'G_Second']
+        section = struct.pack('<4sIHHIIhhB3x', b'pat1', 76, 1, 2, 28, 36, 0, 10, 1)
+        section += b'Select\0\0' + b''.join(name.ljust(20, b'\0') for name in groups)
+        header = struct.pack('<4sHHIIHH', b'CLAN', 0xfeff, 20, 0x2020000, 20+len(section), 1, 0)
+        animation = decode_animation(header+section)
+        self.assertEqual(animation['groups'], ['G_First', 'G_Second'])
+        self.assertEqual(animation['name'], 'Select')
+        self.assertTrue(animation['childBinding'])
+
     def test_empty_native_dot_wrapper(self):
         header = struct.pack('<4sHHIIIII', b'darc', 0xfeff, 28, 0x1000000, 58, 28, 30, 64)
         entries = struct.pack('<IIIIII', 0x1000000, 0, 2, 0x1000002, 0, 2)
@@ -97,6 +107,36 @@ ARTIFACTS = Path(os.environ['FIRMWARE_ARTIFACTS']) if 'FIRMWARE_ARTIFACTS' in os
 
 @unittest.skipUnless(ARTIFACTS, 'Owner assets are opt-in private fixtures')
 class OwnerResources(unittest.TestCase):
+    def test_home_animation_groups_and_targets_resolve(self):
+        def flatten(nodes):
+            for node in nodes:
+                yield node
+                yield from flatten(node['children'])
+
+        checked = 0
+        for package in (ARTIFACTS/'extracted/home/romfs').rglob('*_LZ.bin'):
+            raw = decompress(package.read_bytes())
+            if raw[:4] != b'darc': continue
+            resources = unpack_darc(raw)
+            layouts = {Path(name).stem: decode_layout(data) for name, data in resources.items() if data[:4] == b'CLYT'}
+            for name, data in resources.items():
+                if data[:4] != b'CLAN': continue
+                clip = Path(name).stem
+                candidates = [key for key in layouts if clip.startswith(key+'_')]
+                self.assertTrue(candidates, clip)
+                layout = layouts[max(candidates, key=len)]
+                groups = {node['name'] for node in flatten(layout['groups'])}
+                panes = {node['name'] for node in flatten(layout['roots'])}
+                materials = {material['name'] for material in layout['materials']}
+                animation = decode_animation(data)
+                for group in animation['groups']:
+                    self.assertIn(group, groups, clip)
+                for track in animation['tracks']:
+                    self.assertIn(track['target'], materials if track['binding'] == 'material' else panes, clip)
+                checked += 1
+        # 641 root archives plus 25 English theme-introduction clips.
+        self.assertEqual(checked, 666)
+
     def test_every_home_resource_and_english_message_decodes(self):
         romfs = ARTIFACTS/'extracted/home/romfs'; counts = {'layout': 0, 'animation': 0, 'texture': 0}
         for p in romfs.glob('*_LZ.bin'):

@@ -189,7 +189,7 @@ def main():
             manifest['fonts']['shared'] = builder.font(raw, 'shared', {'titleId': title, 'path': p.name, 'sha256': digest(raw)})
             continue
         info = {'titleId': title, 'slug': slug, 'name': TITLES[title][1], 'kind': TITLES[title][2],
-                'version': metadata['version'], 'sourceSha256': metadata['sourceSha256'], 'packs': [], 'icon': None}
+                'version': metadata['version'], 'sourceSha256': metadata['sourceSha256'], 'packs': [], 'fonts': {}, 'icon': None}
         icon = exefs/'icon.bin'
         if not icon.exists(): icon = exefs/'icon'
         if icon.is_file():
@@ -222,7 +222,13 @@ def main():
             elif raw[:4] in (b'CLYT', b'CLAN') or raw[:8] == b'MsgStdBn' or (len(raw) >= 40 and raw[-40:-36] == b'CLIM'):
                 loose[relative] = raw
             elif raw[:4] == b'CFNT':
-                if title == HOME and p.name == 'Hud_JP.bcfnt': manifest['fonts']['hud'] = builder.font(raw, 'hud', source)
+                try:
+                    font_name = 'hud' if title == HOME and p.name == 'Hud_JP.bcfnt' else slug+'/'+re.sub(r'[^a-zA-Z0-9_-]', '-', p.stem)
+                    url = builder.font(raw, font_name, source)
+                    info['fonts'][p.name] = url
+                    if title == HOME and p.name == 'Hud_JP.bcfnt': manifest['fonts']['hud'] = url
+                except ValueError as error:
+                    builder.unsupported.append({**source, 'reason': 'Font: '+str(error)})
             elif raw[:4] in (b'CGFX', b'CSAR', b'CWAV', b'CSTM'):
                 # Owned by the separate model/audio conversion commands.
                 continue

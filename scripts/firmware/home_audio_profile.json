@@ -1,5 +1,5 @@
 {
-  "id": "eur-home-24576-stereo-startup-v5",
+  "id": "eur-home-24576-stereo-startup-v6",
   "archiveSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
   "sourceRecord": {
     "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
@@ -367,7 +367,7 @@
     "source": "Static HOME startup paths; later runtime overrides not captured"
   },
   "remainingGaps": [
-    "Native archive-entry volume routing, runtime master/player gains and later aux state need controlled capture",
+    "Runtime player/master gains and later aux state need controlled capture",
     "Native envelope timing/floors, modulation, exact gain-table rounding, resampling, clipping and DSP arithmetic not validated by these corrections",
     "Native PCM still differs in gain and waveform; no measured normalization, padding or time stretching is applied",
     "Native scheduler now source-derived; baked loop waveform continuity, envelope evolution and full PCM parity remain unverified"
@@ -395,5 +395,14 @@
     "initialFrame": "Existing converter timer order produces one silent frame; retained, not inserted",
     "nativeOnsetVerified": false,
     "loopSelection": "Original first loop start through second bytecode pass; not a steady-state waveform claim"
+  },
+  "archiveVolume": {
+    "model": "Linear float32 raw volume times float32(1/127), floored at zero; separate from track/envelope dB",
+    "reader": "0x149168: CSAR entry+8 to SoundInfo+0x10",
+    "sequenceSetup": "0x1a53d4..0x1a53e8",
+    "setter": "0x1a66f4: BasicSound+0xb0",
+    "playerUpdate": "0x1a6428..0x1a65d4; command8 handler0x14c434",
+    "trackProduct": "0x208a88..0x208ab8",
+    "fittedGain": false
   }
 }

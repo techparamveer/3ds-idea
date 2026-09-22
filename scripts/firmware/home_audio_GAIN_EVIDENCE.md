@@ -81,7 +81,9 @@ sample-accurate timing acceptance.
 
 The pinned mix/render/WAV paths do not contain a further fixed master attenuation:
 voice samples are multiplied by their gains, summed, clamped to int16, and written
-without normalization. Native archive-entry volume routing, runtime player/master
+without normalization. V6 subsequently traces archive-entry volume through the
+reader, player and track path and corrects it to a separate linear factor; see
+[entry-volume evidence](home_audio_ENTRY_VOLUME_EVIDENCE.md). Runtime player/master
 values, envelope evolution/floors, interpolation and DSP bus clipping remain
 separate checks. Do not replace those checks with a measured +9 dB multiplier.
 

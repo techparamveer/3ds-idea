@@ -58,3 +58,9 @@ def amplitude_gain(table_units, region_raw=127):
     # Other driver state/floors are still the pinned renderer's approximation.
     region = clamp(f32(region_raw * SEND_SCALE), 0, 1)
     return math.pow(10.0, table_units / 200.0) * region
+
+
+def archive_gain(raw):
+    # SoundInfo volume is a linear player factor, separate from track/envelope dB.
+    # Native setter floors at zero; it does not cap the normalized value at one.
+    return max(0, f32(raw * SEND_SCALE))

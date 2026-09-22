@@ -1,6 +1,6 @@
 # Bounded HOME audio correction
 
-`../render_firmware_audio.py` version 5 builds a diagnostic candidate for the exact
+`../render_firmware_audio.py` version 6 builds a diagnostic candidate for the exact
 owner-supplied EUR HOME archive identified by `home_audio_profile.json`. It rejects
 other archive hashes, source records, nonallowlisted sounds, altered sound options,
 unexpected banks and stereo source waves. It does not load neighboring `extData`.
@@ -29,6 +29,10 @@ Version 5 preserves the renderer's initial generated frame so PCM and loop
 metadata share the same sample origin. Native onset remains unverified. See
 `home_audio_LOOP_EVIDENCE.md` for that fix and the separate eight-pass analysis
 of voices carried across loop boundaries.
+Version 6 removes archive-entry volume from the sustain-table sum and applies
+its native linear float32 factor separately. The complete native call chain and
+lossless short-cue/music comparison are in
+`home_audio_ENTRY_VOLUME_EVIDENCE.md`. No compensating gain is fitted.
 
 Two aux buses remain distinct from main and from each other; each has a transparent
 unity return. This is a **startup runtime-state assumption** supported by the
@@ -198,3 +202,29 @@ two seconds of continuous converter PCM exactly, while preserving the full
 lead-in. They are larger, and their full passages still differ from later
 continuous passes. Details, state snapshots, limitations and private candidate
 paths are in `home_audio_LOOP_EVIDENCE.md`. Public replacement remains held.
+
+## Version 6 linear archive-entry volume, 2026-09-22
+
+`assets/audio-candidate-v6` and `assets/audio-candidate-v6-repro` independently
+produce identical 12 WAVs and `audio.json`. All 21 focused tests pass, including
+nonunity entry/track-volume separation. Provenance matches current sources;
+the pinned renderer is clean. All sample counts and loop positions match v5,
+and every cue has zero samples at the int16 clipping limits.
+
+The native reader/setup/player/track call chain establishes a linear entry gain
+of `float32(raw * float32(1/127))`, floored at zero. Native music subtraction
+using independently verified sample offsets enables bounded short-cue comparison.
+The first RIGHT select residual moves from +8.421 dB above v5 to -0.031 dB
+relative to v6 (correlation 0.998925). A lower-volume HOME_SELECT hypothesis
+similarly moves from +12.546 to -0.031 dB; folder-close moves from +8.571 to
++0.090 dB (correlation 0.998158). These are measured waveform matches, not
+complete verification of input intent or UI outcomes. Folder opening's early
+waveform remains mismatched despite a closely matching tail.
+
+Main music becomes 2.470456 dB louder than v5 and is now 1.52–1.80 dB above the
+long native recording in four 12–100 s windows. Native bus/player gain and
+synthesis differences remain unresolved; no compensating attenuation is added.
+The exact 3515200-sample period is retained, while the baked waveform seam still
+differs from continuous playback. Full evidence, capture identity, methods,
+before/after gains and private reproducibility paths are in
+`home_audio_ENTRY_VOLUME_EVIDENCE.md`. Public replacement remains held.

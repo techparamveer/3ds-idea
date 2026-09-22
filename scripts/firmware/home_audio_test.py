@@ -128,11 +128,12 @@ class SequencerTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.context.__exit__(None, None, None)
 
-    def player(self, blob=b'\xff', region_pan=64):
+    def player(self, blob=b'\xff', region_pan=64, base_vol=127):
         region = SimpleNamespace(org_key=60, volume=127, pan=region_pan, pitch=1,
                                  attack=127, decay=127, sustain=127, release=127)
         wave = SimpleNamespace(samples=[1000] * 100, rate=32728, loop=False, loop_start=0)
-        player = self.seq.CseqPlayer(blob, lambda *args: (region, wave), 32728)
+        player = self.seq.CseqPlayer(blob, lambda *args: (region, wave), 32728,
+                                     base_vol=base_vol)
         player.setup(0)
         return player
 
@@ -203,6 +204,21 @@ class SequencerTests(unittest.TestCase):
                 self.assertAlmostEqual(voice.vol_l, expected, places=7)
                 self.assertAlmostEqual(voice.vol_r, expected, places=7)
                 self.assertEqual(voice.region_vol, region_volume)
+
+    def test_archive_volume_is_linear_and_separate_from_track_curve(self):
+        for volume in (0, 30, 48, 96, 127):
+            with self.subTest(volume=volume):
+                player = self.player(base_vol=volume)
+                track = player.tracks[0]
+                track.vol = 64
+                voice = track.note_on(60, 127, 10)
+                player.update_voice(voice)
+                # Native track raw64 is approximately -11.9 dB; entry is linear.
+                expected = 10 ** (-11.9 / 20) * (volume / 127) * math.PAN_LUT[128]
+                self.assertAlmostEqual(voice.vol_l, expected, places=7)
+                self.assertAlmostEqual(voice.vol_r, expected, places=7)
+        self.assertEqual(math.archive_gain(-1), 0)
+        self.assertEqual(math.archive_gain(254), 2)
 
     def test_span_is_retained_but_does_not_change_stereo(self):
         samples = []

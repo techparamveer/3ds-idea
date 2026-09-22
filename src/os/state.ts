@@ -5,6 +5,8 @@ export const COLUMNS = 150;
 export const SLOT_COUNT = 300;
 export const FOLDER_COUNT = 4;
 export const MAX_FOLDERS = 60;
+export const FIRST_FOLDER_NUMBER = 1;
+export const LAST_FOLDER_NUMBER = 99;
 export function slotCount(state: MenuState) { return state.opened ? 60 : SLOT_COUNT; }
 export type Panel = 'settings' | 'themes' | 'folder-settings' | 'rename' | 'delete' | 'notes' | 'friends' | 'notifications' | 'browser' | 'miiverse' | 'theme-shop' | null;
 export type Theme = 'white' | 'red' | 'blue' | 'yellow' | 'pink' | 'black';
@@ -12,14 +14,22 @@ export type MenuState = {
   system?: System;
   selected: number; opened: boolean; powered: boolean; brightness: number; columns: number;
   panel: Panel; theme: Theme; powerSaving: boolean; panelChoice: number;
-  folders: Record<number, string>; folderSelected: number; nameDraft: string;
+  folders: Record<number, string>; folderSelected: number; nameDraft: string; nextFolderNumber: number;
 };
 export type Input = 'x' | 'y' | 'l' | 'r' | 'start' | 'select' | 'left' | 'right' | 'up' | 'down' | 'open' | 'back' | 'home' | 'power' | 'brightness' | 'zoom' | 'zoom-in' | 'zoom-out' | 'settings' | 'preferences' | 'mute' | 'volume-up' | 'volume-down' | 'reset-layout';
 export const initialState: MenuState = {
   selected: 0, opened: false, powered: true, brightness: 1, columns: 4,
   panel: null, theme: 'white', powerSaving: false, panelChoice: 0,
-  folders: { 0: '', 1: '', 2: '', 3: '' }, folderSelected: 0, nameDraft: '',
+  folders: { 0: '', 1: '', 2: '', 3: '' }, folderSelected: 0, nameDraft: '', nextFolderNumber: FIRST_FOLDER_NUMBER,
 };
+/** Native creation uses a saved 1..99 counter and fullwidth leading digits. See docs/folder-naming-runtime.md. */
+function createFolder(state: MenuState): MenuState {
+  if (Object.keys(state.folders).length >= MAX_FOLDERS || state.system?.layout[state.selected]) return state;
+  const number = state.nextFolderNumber;
+  const digits = String(number).replace(/[0-9]/g, digit => String.fromCharCode(digit.charCodeAt(0) + 0xfee0));
+  return { ...state, folders: { ...state.folders, [state.selected]: `${digits} (New Folder)` },
+    nextFolderNumber: number === LAST_FOLDER_NUMBER ? FIRST_FOLDER_NUMBER : number + 1 };
+}
 export function isFolder(index: number, state: MenuState = initialState): boolean {
   return Object.hasOwn(state.folders, index);
 }
@@ -86,7 +96,7 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
   if (input === 'open') {
     if (state.opened) return state;
     if (isFolder(state.selected, state)) return { ...state, opened: true, folderSelected: 0 };
-    return Object.keys(state.folders).length < MAX_FOLDERS ? { ...state, folders: { ...state.folders, [state.selected]: '' } } : state;
+    return createFolder(state);
   }
   const rows = rowCount(state), selected = state.opened ? state.folderSelected : state.selected;
   const col = Math.floor(selected / rows), row = selected % rows;

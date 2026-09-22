@@ -195,11 +195,11 @@ export function moveApp(state:MenuState,from:number,to:number):MenuState {
  return state.system?.layout[from]?moveHomeItem(state,{folder:null,slot:from},{folder:null,slot:to}):state;
 }
 export const STORAGE_KEY='paramveer-3ds-v1';
-export function saveSettings(state:MenuState){const s=state.system!;return JSON.stringify({version:2,theme:state.theme,brightness:state.brightness,columns:state.columns,powerSaving:state.powerSaving,folders:state.folders,layout:s.layout,folderLayouts:s.folderLayouts,muted:s.muted,volume:s.volume});}
+export function saveSettings(state:MenuState){const s=state.system!;return JSON.stringify({version:3,theme:state.theme,brightness:state.brightness,columns:state.columns,powerSaving:state.powerSaving,folders:state.folders,nextFolderNumber:state.nextFolderNumber,layout:s.layout,folderLayouts:s.folderLayouts,muted:s.muted,volume:s.volume});}
 export function restoreSettings(state:MenuState,raw:string|null):MenuState {
  if(!raw)return state;
  try{const v=JSON.parse(raw),home=restoreHomeLayout(v);if(!home)return state;
- const {layout,folders,folderLayouts}=home;
- return {...state,folders,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system!,layout,folderLayouts,homeNavigation:createHomeNavigation(),muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
+ const {layout,folders,folderLayouts,nextFolderNumber}=home;
+ return {...state,folders,nextFolderNumber,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system!,layout,folderLayouts,homeNavigation:createHomeNavigation(),muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
  }catch{return state;}
 }

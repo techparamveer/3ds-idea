@@ -71,9 +71,11 @@ from folders. A folder's delete action refuses to remove occupied contents.
 The initial eight portfolio slots are unchanged; user rearrangements may move
 those icons while keeping every installed ID present exactly once.
 
-`saveSettings` now writes payload version 2 and includes folder layouts.
-Transient contact and scroll data are omitted. Unversioned and version 1 root
-preferences still migrate, including custom positions and labels. Restore
+`saveSettings` now writes payload version 3 and includes folder layouts and the
+independent default-folder naming counter. See [folder naming](folder-naming-runtime.md)
+for native evidence, fullwidth digits and the explicit legacy-counter policy.
+Transient contact and scroll data are omitted. Unversioned/version 1 root
+preferences and version 2 folder preferences still migrate, preserving custom positions and labels. Restore
 rejects ambiguous duplicate IDs across root/children, missing portfolio apps,
 invalid slots, unknown titles, orphan children, forbidden child placements and
 future payload versions. Rejection keeps the current safe state, rather than

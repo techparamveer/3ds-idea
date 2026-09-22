@@ -91,6 +91,12 @@ cancelled. HOME drag/folder behaviour is centralized in `home-gestures.ts`;
 see [the gesture contract](../home-gesture-runtime.md) for renderer helpers,
 folder restrictions, persistence and explicitly unmeasured timings.
 
+`state.ts` owns the saved default-folder naming sequence (1…99, wrapping to 1),
+independent of folder count and labels. Preferences payload version 3 preserves
+that counter; legacy payloads preserve all labels and start a new sequence at 1
+because their creation history is absent. See [folder naming](../folder-naming-runtime.md)
+for source addresses, Unicode formatting and migration limits.
+
 Runtime effects have a monotonic `id` and instance `owner`. A capability's
 `requestId` maps to that effect ID until completion or invalidation. Results
 must include `requestToken` equal to the originating effect ID. Closing,

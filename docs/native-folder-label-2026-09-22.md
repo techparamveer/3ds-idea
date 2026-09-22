@@ -3,8 +3,8 @@
 The upper folder label now uses the original `BannerFolder/mt_Text` geometry and
 material with the native `BnrDsTitle_00` offscreen layout. It replaces the authored
 Canvas pill when both native rendering and the label texture are available.
-This is a bounded source/runtime implementation, pending browser comparison of
-the new text plane and its billboard orientation.
+This is a bounded source/runtime implementation with browser checkpoints;
+remaining font raster differences are still under comparison.
 
 ## Verified native path
 
@@ -34,24 +34,31 @@ changes. The temporary Canvas is released immediately after RGBA readback.
 
 ## Billboard preservation and implementation
 
-Raw Text bone 11 begins at decoded CGFX offset `0x74e8`. Its `BillboardMode` at
-`+0xd4` / `0x75bc` is **5, ScreenViewpoint**. Root and FolderRoot are Off.
-SPICA's `Gfx.ToH3D()` copies transforms but omits BillboardMode; the exporter now
-preserves this field directly by native bone name. The regenerated folder differs
-only in Text's mode and converter provenance. Meshes, materials, curves, all
-other bone fields and all nine PNGs are unchanged.
+Raw Text bone 11 begins at decoded CGFX offset `0x74e8`. Its raw billboard
+value at `+0xd4` / `0x75bc` is **5**. SPICA names that number ScreenViewpoint,
+but the supplied HOME binary uses a different dispatch. The exporter retains
+both `NativeBillboardMode: 5` and the SPICA string as parser provenance; rendering
+uses the raw number. Other source bones have value zero.
 
-`cgfx-billboard.ts` ports the pinned SPICA renderer's ScreenViewpoint rule into
-Three's matrix convention, including the transpose required by SPICA's matrix
-column upload and shader dot products. The full parent/world yaw is present
-before computing the billboard. With the native camera, identity Text resolves
-to approximately +1.27911° X tilt and cancels external Y yaw. The original plane
-therefore stays readable while the rest of the folder follows whole-model yaw.
+The private `runtime/reference/native-billboard/report.md` establishes the actual
+path: raw mode5 selects `0x2e19bc`, which passes inverse-view camera Z to
+`0x1cce54` with flag0. This preserves normalized bone world Y, forms normalized
+X=Y×cameraZ, then Z=X×Y. It preserves translation and reinstates world column
+scale. For the horizontal source camera and whole-model Y yaw, this yields an
+upright world basis without the earlier SPICA-derived +1.279° X tilt.
 
-**Limit:** this is SPICA renderer evidence, not an independently traced native
-billboard implementation. SPICA's separate model/view upload convention is not
-treated as an authoritative native pipeline. Browser/native comparison must
-check the small tilt, panel placement and camera-facing behavior.
+`cgfx-billboard.ts` implements this bounded rigid mode in world space, then
+converts it back into the model parent's local space. Parent yaw is retained
+for the folder and cancelled by the label's source billboard behavior. Camera
+position one unit above the model origin does not tilt a direction-facing mode.
+No screen offset, panel dimension or native camera parameter is adjusted.
+
+The previous temporary no-tilt browser diagnostic independently reduced
+label-region MAE from 4.693 to 1.851 at a matched background phase; the native
+source trace, rather than that fitted comparison, authorizes this correction.
+Other billboard modes, smooth billboard skinning, degenerate transforms and
+full native float32 matrix parity remain outside this bounded implementation.
+Font baseline/filtering still differs and is a separate verification item.
 
 ## Transparent overlay transport
 
@@ -79,7 +86,7 @@ as a bogus count/pointer. This caused Camera and Textures conversion to fail.
 shape, validates the header and dictionary bounds/counts, and reads the 15 typed
 dictionaries using SPICA's deserializer. Other shapes retain the pinned reader.
 No pinned SPICA files are modified and no emitter data is fabricated. The
-converter version is now 1.2.0; folder resource hashes in the main manifest are
+converter version is now 1.3.0; folder resource hashes in the main manifest are
 refreshed. The shared Textures resource contains body, FrdCtrCol, FrdCtrEnv and
 shadow; no hypothetical background texture override is added.
 
@@ -87,7 +94,9 @@ shadow; no hypothetical background texture override is added.
 
 - **63/63 focused JavaScript tests pass**, including source label metrics,
   float32 fit thresholds, width reset after rename, original 16-vertex geometry,
-  parent-yaw cancellation, raw RGBA replacement reuse and overlay transfer.
+  parent-yaw cancellation, raw RGBA replacement reuse and overlay transfer. The
+  subsequent raw-mode5 regression additionally checks upright orientation,
+  preserved world Y under a tilted camera, world translation and nonuniform scale.
 - **3/3 opt-in Python regression tests pass** against the owner's real CGFX
   files: all four resources convert; corrupt length/count fixtures are rejected.
 - Exporter builds with .NET 8; nonincremental TypeScript and diff checks pass.

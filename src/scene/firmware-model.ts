@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { sampleCgfxCurve, selectCgfxClips, cgfxClipFrame, type CgfxCurve, type CgfxClipChoice } from '../os/cgfx-animation';
 import { cgfxLightingShader, decodeCgfxLutWord, type CgfxLightingData } from './cgfx-lighting';
 import { decodeNativePng } from '../os/native-png';
-import { screenViewpointBone } from './cgfx-billboard';
+import { nativeYAxialBone } from './cgfx-billboard';
 import type { NativePixels } from '../os/native-layout';
 type Color={R:number;G:number;B:number;A:number};
 type Vec={X:number;Y:number;Z:number;W?:number};
@@ -10,7 +10,7 @@ type Coord={MappingType:string;TransformType:string;Scale:Vec;Rotation:number;Tr
 type Stage={Source:{Color:string[];Alpha:string[]};Operand:{Color:string[];Alpha:string[]};Combiner:{Color:string;Alpha:string};Scale:{Color:string;Alpha:string};UpdateColorBuffer:boolean;UpdateAlphaBuffer:boolean};
 type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
 type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string}[]};
-type Bone={Name:string;ParentIndex:number;BillboardMode?:string;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
+type Bone={Name:string;ParentIndex:number;BillboardMode?:string;NativeBillboardMode?:number;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
 type Submesh={indices:number[];bones:number[];skinning:string;primitive:string};
 type Mesh={material:number;node:number;layer:number;priority:number;position:number[][];normal:number[][];color:number[][];uv0:number[][];uv1:number[][];uv2:number[][];joints:number[][];weights:number[][];submeshes:Submesh[]};
 type Clip={Name:string;FramesCount:number;AnimationFlags:string;Elements:{Name:string;TargetType:string;PrimitiveType:string;Content:Record<string,CgfxCurve>}[]};
@@ -152,11 +152,13 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    }
    values.forEach((v,i)=>{translation.set(v.translation.X,v.translation.Y,v.translation.Z);scale.set(v.scale.X,v.scale.Y,v.scale.Z);rot.setFromEuler(new THREE.Euler(v.rotation.X,v.rotation.Y,v.rotation.Z,'ZYX'));bones[i].compose(translation,rot,scale);const parent=model.skeleton[i].ParentIndex;if(parent>=0)bones[i].premultiply(bones[parent]);});
    for(const {geometry,source,sub} of drawMeshes){const dst=geometry.getAttribute('position'),normals=geometry.getAttribute('normal');
-    const worldView=camera?new THREE.Matrix4().multiplyMatrices(camera.matrixWorldInverse,modelGroup.matrixWorld):undefined;
     const matrices=sub.bones.map(index=>{
      let transform=sub.skinning==='Smooth'?bones[index].clone().multiply(inverse[index]):bones[index];
-     const bone=model.skeleton[index],mode=bone.BillboardMode??'Off';
-     if(mode!=='Off'&&worldView){if(mode!=='ScreenViewpoint')throw new Error(`Unsupported native billboard mode ${mode}`);transform=screenViewpointBone(transform,bone.Rotation,worldView);}
+     const bone=model.skeleton[index],mode=bone.NativeBillboardMode??((bone.BillboardMode??'Off')==='Off'?0:undefined);
+     if(mode!==0&&camera){
+      if(mode!==5||sub.skinning==='Smooth')throw new Error(`Unsupported native billboard mode ${mode}`);
+      transform=nativeYAxialBone(transform,modelGroup.matrixWorld,camera.matrixWorld);
+     }
      return transform;
     });
     for(let i=0;i<source.position.length;i++){

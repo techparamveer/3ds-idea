@@ -41,6 +41,9 @@ class LegacyRootTests(unittest.TestCase):
                 if name == 'BannerFolder':
                     modes = {b['Name']: b['BillboardMode'] for b in data['models'][0]['skeleton']}
                     self.assertEqual(modes['Text'], 'ScreenViewpoint')
+                    native_modes = {b['Name']: b['NativeBillboardMode'] for b in data['models'][0]['skeleton']}
+                    self.assertEqual(native_modes['Text'], 5)
+                    self.assertEqual(native_modes['Root'], 0)
                     self.assertEqual(modes['Root'], 'Off')
 
     def test_rejects_corrupt_declared_file_length(self):

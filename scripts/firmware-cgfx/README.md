@@ -6,15 +6,15 @@ Build `Exporter.csproj` with `-p:SpicaRoot=/absolute/path/to/SPICA`, then run `c
 
 The intermediate JSON retains meshes, four bone influences, skeleton bind transforms, all native material records, texture combiners, LUTs, skeletal/material/visibility/camera animation and source cameras/lights. Native texture-combiner constant selection is copied directly from CGFX because SPICA's H3D conversion otherwise omits it. Browser PNGs are vertically normalized from SPICA's bottom-up RGBA.
 
-`src/scene/firmware-model.ts` renders the original meshes with PICA texture-combiner programs, native blending/wrapping/filtering, rigid or smooth skinning, Hermite skeletal transform curves and texture matrix material animation. The folder's empty contents and placeholder text meshes are hidden. Its source bone channel bobs over 150 frames within a 600-frame looping clip.
+`src/scene/firmware-model.ts` renders the original meshes with PICA texture-combiner programs, native blending/wrapping/filtering, rigid or smooth skinning, Hermite skeletal transform curves and texture matrix material animation. The folder's empty contents are hidden; its Text mesh receives the original layout's dynamic label surface. Its source bone channel bobs over 150 frames within a 600-frame looping clip.
 
 The exporter also retains each native light subtype and all 256 raw PICA words per LUT sampler. The subtype avoids SPICA's zero-based CGFX to one-based H3D enum mismatch; the raw words retain interpolation slopes omitted from its float-only table. `src/scene/cgfx-lighting.ts` evaluates directional, unbumped Dist0 and Fresnel lighting with the source light direction, material colors and authored LUTs. Native folder geometry and texture pixels are unchanged.
 
-Version 1.2.0 preserves native bone BillboardMode, which ToH3D omits, and adapts
+Version 1.3.0 preserves raw NativeBillboardMode alongside the SPICA enum label, which ToH3D omits, and adapts
 the observed revision-5 root with 15 dictionaries through `LegacyGfxReader.cs`.
 This prevents the first DICT header from being misread as a sixteenth Emitters
 field. Typed object parsing still uses the pinned SPICA source. The Text bone's
-ScreenViewpoint mode, native label surface and display transfer are documented in
+Native direction-facing axial mode5, native label surface and display transfer are documented in
 `docs/native-folder-label-2026-09-22.md`. Opt-in real-resource tests are in
 `tests/test_legacy_cgfx.py`.
 

@@ -79,8 +79,8 @@ static class Exporter {
       var sourceModel=native.Models.First(m=>m.Name==model.Name);
       var materials=model.Materials.Select((mat,i)=>{var clean=(SortedDictionary<string,object>)Clean(mat); clean["ConstantAssignments"]=sourceModel.Materials[i].FragmentShader.TextureEnvironments.Select(stage=>(int)stage.Constant).ToArray();return clean;});
       // ToH3D copies bone transforms but drops BillboardMode. Preserve the native
-      // enum by bone identity, including BannerFolder/Text's ScreenViewpoint.
-      var skeleton=model.Skeleton.Select(bone=>{var clean=(SortedDictionary<string,object>)Clean(bone);if(sourceModel is GfxModelSkeletal skeletal)clean["BillboardMode"]=skeletal.Skeleton.Bones.First(b=>b.Name==bone.Name).BillboardMode.ToString();return clean;});
+      // number and SPICA label by bone identity; native mode5 differs from that label.
+      var skeleton=model.Skeleton.Select(bone=>{var clean=(SortedDictionary<string,object>)Clean(bone);if(sourceModel is GfxModelSkeletal skeletal){var mode=skeletal.Skeleton.Bones.First(b=>b.Name==bone.Name).BillboardMode;clean["BillboardMode"]=mode.ToString();clean["NativeBillboardMode"]=(int)mode;}return clean;});
       models.Add(new{name=model.Name,transform=Clean(model.WorldTransform),skeleton,materials,nodes=Clean(model.MeshNodesVisibility),nodeNames=Clean(model.MeshNodesTree),meshes});
     }
     // Retain PICA interpolation words and the native zero-based light subtype;

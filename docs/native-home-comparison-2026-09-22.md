@@ -44,15 +44,16 @@ metrics, original 16-vertex `mt_Text` plane, source material and native horizont
 fit rule. It remains readable through four parent-yaw checkpoints, and the
 transparent-target bridge preserves native RGB without applying coverage twice.
 
-The SPICA-derived ScreenViewpoint orientation is **not accepted as native** yet.
-The browser panel/text is about one pixel below the stable native reference. A
-temporary no-tilt diagnostic reduced label-region MAE from 4.693 to 1.851, but
-still left a font-raster difference; it was reverted. No fitted offset or camera
-change was committed. Native billboard behavior is being traced separately.
+The SPICA-derived ScreenViewpoint interpretation placed the panel/text about
+one pixel below the stable native reference. A temporary no-tilt diagnostic
+reduced label-region MAE from 4.693 to 1.851, but left a font-raster difference.
+The subsequent native dispatch trace proved that raw mode5 preserves world Y
+and faces camera direction. That source-backed rule now replaces the SPICA tilt;
+no fitted offset or camera change is used. Font baseline/filtering remains open.
 Artifacts: `browser-folder-label-contact.png`, `folder-label-pixel-rows.json`,
 `folder-label-tilt-probe-contact.png`, `folder-label-tilt-probe-report.json`.
-The latter contact sheet contains native, SPICA and temporary no-tilt views in
-that order. Their folder-yaw phases are intentionally unmatched.
+The historical contact sheet contains native, SPICA and temporary no-tilt views
+in that order. Their folder-yaw phases are intentionally unmatched.
 
 Alpha-only PICA textures sample RGB zero. Projecting the delivery PNG preview
 masks back to that source meaning restores the native camera/capture hint

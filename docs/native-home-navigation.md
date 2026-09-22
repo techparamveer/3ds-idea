@@ -32,3 +32,12 @@ focus, folder-inside row counts/entry/return and gesture timing still require
 separate verification. Existing folder interior geometry is retained for that
 follow-up; this document does not accept it as native. Standalone legacy menu
 states without the System runtime have no viewport-history store.
+
+Browser verification after the change used real ArrowRight presses and the
+projected physical touchscreen density control. At slot20 in one-row mode the
+selection was at x244; its measured green cursor bounds were x204..283. Touching
+the density control changed to two rows while preserving slot20 and its right
+column. `browser-native-axial-navigation-one/two-*.png` and matching JSON captures
+record the result. The folder slot differs intentionally from the native title
+order because the portfolio occupies the first eight entries. This verifies the
+shared interaction path, not transition easing or complete pixel equality.

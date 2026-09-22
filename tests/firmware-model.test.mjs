@@ -11,7 +11,7 @@ const lightingSource=readFileSync(new URL('../src/scene/cgfx-lighting.ts',import
 const {decodeCgfxLutWord,sampleCgfxLut,resolveCgfxLut,cgfxLightingShader}=await import('data:text/javascript;base64,'+Buffer.from(ts.transpileModule(lightingSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
 const pngUrl=asModule(readFileSync(new URL('../src/os/native-png.ts',import.meta.url),'utf8'));
 const billboardUrl=asModule(readFileSync(new URL('../src/scene/cgfx-billboard.ts',import.meta.url),'utf8').replace("'three'",JSON.stringify(import.meta.resolve('three'))));
-const {screenViewpointBone}=await import(billboardUrl);
+const {nativeYAxialBone}=await import(billboardUrl);
 const modelSource=readFileSync(new URL('../src/scene/firmware-model.ts',import.meta.url),'utf8').replace("'three'",JSON.stringify(import.meta.resolve('three'))).replace("'../os/cgfx-animation'",JSON.stringify(animationUrl)).replace("'./cgfx-lighting'",JSON.stringify(asModule(lightingSource))).replace("'../os/native-png'",JSON.stringify(pngUrl)).replace("'./cgfx-billboard'",JSON.stringify(billboardUrl));
 const {createFirmwareModel}=await import(asModule(modelSource));
 test('native CGFX Hermite curve preserves tangents and repeat period',()=>{
@@ -26,17 +26,23 @@ test('folder conversion includes source geometry, textures, bone and material an
  assert.equal(data.skeletalAnimations.length,1);assert.equal(data.materialAnimations.length,1);
  assert.ok(data.models[0].materials.every(m=>Array.isArray(m.ConstantAssignments)));
  assert.ok(data.models[0].meshes.some(m=>m.position.length===502));
- assert.equal(data.models[0].skeleton.find(b=>b.Name==='Text').BillboardMode,'ScreenViewpoint');
+ assert.equal(data.models[0].skeleton.find(b=>b.Name==='Text').BillboardMode,'ScreenViewpoint','SPICA enum label is preserved only as parser provenance');
+ assert.equal(data.models[0].skeleton.find(b=>b.Name==='Text').NativeBillboardMode,5);
 });
-test('ScreenViewpoint preserves the source renderer tilt while cancelling the complete parent yaw',()=>{
+test('raw native mode5 preserves world Y and faces camera direction without viewpoint tilt',()=>{
  const camera=new THREE.PerspectiveCamera(30,5/3,26.5,1000);camera.position.set(0,1,44.786);camera.lookAt(0,1,0);camera.updateMatrixWorld();
- const expected=new THREE.Matrix4().makeRotationX(Math.atan(1/44.786));
  for(const yaw of [0,.2,-.3,Math.PI]){
-  const parent=new THREE.Matrix4().makeRotationY(yaw),worldView=new THREE.Matrix4().multiplyMatrices(camera.matrixWorldInverse,parent);
-  const local=screenViewpointBone(new THREE.Matrix4(),{X:0,Y:0,Z:0},worldView),world=parent.clone().multiply(local);
-  world.elements.forEach((n,i)=>assert.ok(Math.abs(n-expected.elements[i])<1e-10,`${yaw}, component ${i}`));
+  const parent=new THREE.Matrix4().makeRotationY(yaw);
+  const local=nativeYAxialBone(new THREE.Matrix4(),parent,camera.matrixWorld),world=parent.clone().multiply(local);
+  world.elements.forEach((n,i)=>assert.ok(Math.abs(n-new THREE.Matrix4().elements[i])<1e-10,`${yaw}, component ${i}`));
  }
- assert.throws(()=>screenViewpointBone(new THREE.Matrix4(),{X:0,Y:0,Z:0},new THREE.Matrix4()),/Degenerate/);
+ const parent=new THREE.Matrix4().compose(new THREE.Vector3(2,3,4),new THREE.Quaternion().setFromEuler(new THREE.Euler(.2,.3,0)),new THREE.Vector3(2,3,4));
+ camera.position.set(8,12,44);camera.lookAt(0,0,0);camera.updateMatrixWorld();
+ const local=nativeYAxialBone(new THREE.Matrix4(),parent,camera.matrixWorld),world=parent.clone().multiply(local);
+ assert.ok(new THREE.Vector3().setFromMatrixColumn(world,1).normalize().distanceTo(new THREE.Vector3().setFromMatrixColumn(parent,1).normalize())<1e-10);
+ assert.ok(new THREE.Vector3().setFromMatrixPosition(world).distanceTo(new THREE.Vector3(2,3,4))<1e-10);
+ assert.ok(new THREE.Vector3().setFromMatrixScale(world).distanceTo(new THREE.Vector3(2,3,4))<1e-10);
+ assert.throws(()=>nativeYAxialBone(new THREE.Matrix4(),new THREE.Matrix4().makeScale(0,1,1),camera.matrixWorld),/Degenerate/);
 });
 test('native text mesh keeps its authored corners, remains visible under parent yaw, and accepts cached RGBA replacement',()=>{
  const data=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/folder/model.json',import.meta.url),'utf8'));

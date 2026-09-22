@@ -33,7 +33,7 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def render(source, output, renderer, source_record, names, rate=32728):
+def render(source, output, renderer, source_record, names, rate=32728, scratch=None):
     if output.exists():
         raise ValueError('Use a new output directory to avoid stale or mixed audio packs')
     if not names or len(set(names)) != len(names) or any(name not in CUES for name in names):
@@ -42,7 +42,7 @@ def render(source, output, renderer, source_record, names, rate=32728):
         raise ValueError('Unsupported sample rate')
     title = json.loads(source_record.read_text())
     validate_source(source, title)
-    with isolated_renderer(renderer) as profile:
+    with isolated_renderer(renderer, scratch) as profile:
         from dualrip.formats.ctr.archive import CtrArchive
         from dualrip.formats.ctr import cstm, cseq
         from dualrip.engine.ctr.render import render_entry
@@ -100,8 +100,9 @@ if __name__ == '__main__':
     parser.add_argument('source', type=Path)
     parser.add_argument('output', type=Path)
     parser.add_argument('--renderer', type=Path, required=True)
+    parser.add_argument('--scratch', type=Path, required=True, help='SSD directory for disposable renderer sources')
     parser.add_argument('--source-record', type=Path, required=True)
     parser.add_argument('--only', nargs='+', choices=list(CUES), default=list(CUES))
     parser.add_argument('--rate', type=int, default=32728, choices=[32728, 32000, 44100, 48000])
     args = parser.parse_args()
-    render(args.source, args.output, args.renderer, args.source_record, args.only, args.rate)
+    render(args.source, args.output, args.renderer, args.source_record, args.only, args.rate, args.scratch)

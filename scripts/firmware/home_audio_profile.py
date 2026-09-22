@@ -70,9 +70,13 @@ def validate_archive(archive, names):
 
 
 @contextmanager
-def isolated_renderer(renderer):
+def isolated_renderer(renderer, scratch):
     """Export tracked pinned sources; patch only the disposable copy, never checkout."""
     renderer = Path(renderer).resolve()
+    if scratch is None:
+        raise ValueError('An explicit SSD scratch directory is required')
+    scratch = Path(scratch).resolve()
+    scratch.mkdir(parents=True, exist_ok=True)
     git = ['git', '-C', str(renderer)]
     revision = subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
     if revision != PROFILE['rendererRevision']:
@@ -83,7 +87,7 @@ def isolated_renderer(renderer):
         raise ValueError('Run with no DualRip modules previously imported')
     # git archive excludes all untracked files and bytecode caches.
     source_tar = subprocess.check_output(git + ['archive', '--format=tar', 'HEAD', 'dualrip'])
-    with tempfile.TemporaryDirectory(prefix='home-audio-renderer-') as temp:
+    with tempfile.TemporaryDirectory(prefix='home-audio-renderer-', dir=scratch) as temp:
         root = Path(temp)
         with tarfile.open(fileobj=io.BytesIO(source_tar)) as package:
             package.extractall(root, filter='data')

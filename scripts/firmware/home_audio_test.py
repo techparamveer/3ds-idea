@@ -15,6 +15,15 @@ from firmware import home_audio_math as math
 from firmware.home_audio_profile import PROFILE, isolated_renderer, validate_source, validate_archive
 
 
+def scratch_root():
+    value = os.environ.get('HOME_AUDIO_SCRATCH')
+    if not value:
+        raise RuntimeError('Set HOME_AUDIO_SCRATCH to an SSD scratch directory')
+    root = Path(value).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
 class ArithmeticTests(unittest.TestCase):
     def test_quantized_curve(self):
         self.assertEqual(math.pan_gains(0, 0), (0.7071067690849304,) * 2)
@@ -46,7 +55,7 @@ class ArithmeticTests(unittest.TestCase):
             math.stereo_span(64, output_mode=2)
 
     def test_source_fails_closed(self):
-        with tempfile.TemporaryDirectory() as temp:
+        with tempfile.TemporaryDirectory(dir=scratch_root()) as temp:
             path = Path(temp) / 'bad.bcsar'
             path.write_bytes(b'not the allowlisted HOME archive')
             with self.assertRaisesRegex(ValueError, 'archive'):
@@ -59,10 +68,11 @@ class SequencerTests(unittest.TestCase):
         renderer = os.environ.get('HOME_AUDIO_RENDERER')
         if not renderer:
             raise RuntimeError('Set HOME_AUDIO_RENDERER to run the patched sequencer checks')
-        cls.context = isolated_renderer(Path(renderer))
+        cls.context = isolated_renderer(Path(renderer), scratch_root())
         cls.provenance = cls.context.__enter__()
         cls.seq = importlib.import_module('dualrip.engine.ctr.sequencer')
         cls.prims = importlib.import_module('dualrip.engine.ctr.cprims')
+        assert Path(cls.seq.__file__).is_relative_to(scratch_root())
 
     @classmethod
     def tearDownClass(cls):

@@ -7,7 +7,9 @@ unexpected banks and stereo source waves. It does not load neighboring `extData`
 
 The wrapper exports the pinned DualRip commit through `git archive`, verifies the
 three source-file hashes, applies `home_audio_dualrip.patch` in a disposable copy,
-and adds `home_audio_math.py`. It never modifies the renderer checkout. The patch
+and adds `home_audio_math.py`. The required `--scratch` argument places this
+copy under the caller's SSD artifact root; there is no host temporary-directory
+fallback. It never modifies the renderer checkout. The patch
 is based on DualRip by Tetra_Sky; its MIT notice is in
 `home_audio_DUALRIP_LICENSE.txt`. Firmware code is not executed or distributed.
 
@@ -37,6 +39,7 @@ Use the existing audio Python environment, or Python 3.12+ with the pinned
 DualRip dependencies installed. Supply local paths; do not put firmware in Git.
 
 ```sh
+HOME_AUDIO_SCRATCH=/Volumes/YourSSD/audio-scratch \
 HOME_AUDIO_RENDERER=/path/to/pinned/DualRip \
 HOME_AUDIO_SOURCE=/path/to/romfs/sound/menu.bcsar \
 python scripts/firmware/home_audio_test.py -v
@@ -44,12 +47,14 @@ python scripts/firmware/home_audio_test.py -v
 python scripts/render_firmware_audio.py \
   /path/to/romfs/sound/menu.bcsar /path/to/new/candidate \
   --renderer /path/to/pinned/DualRip \
+  --scratch /Volumes/YourSSD/audio-scratch \
   --source-record /path/to/extracted/home/source.json
 ```
 
 The output directory must not already exist. Tests use synthetic sequence/PCM data;
 when `HOME_AUDIO_SOURCE` is provided they additionally validate the actual archive.
-The renderer path is required for sequencer tests; absence is an error, not a
+Both `HOME_AUDIO_RENDERER` and `HOME_AUDIO_SCRATCH` are required for the full
+test suite; test fixtures also use the SSD scratch root. Absence is an error, not a
 silently skipped correction test. The wrapper always validates the real archive.
 
 ## Candidate check, 2026-09-22

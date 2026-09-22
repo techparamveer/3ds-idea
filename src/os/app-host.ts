@@ -1,7 +1,7 @@
 import { getAppModule, getTitle } from './app-registry.ts';
 import { initialSharedData } from './stock-apps.ts';
 import type { AppEffect, AppEvent, AppState, AppView, SaveRecord } from './app-types.ts';
-export type AppInstance = { id: string; appId: string; state: AppState; caller: string | null; requestId: string | null; suspended: boolean };
+export type AppInstance = { id: string; appId: string; state: AppState; caller: string | null; requestId: string | null; suspended: boolean; requests: Record<string, number>; closing?: boolean };
 export type RuntimeEffect = { id: number; owner: string; effect: AppEffect | { type: 'storage'; key: string; record: SaveRecord } };
 export type AppRuntime = {
   instances: Record<string, AppInstance>; application: string | null; systemApplet: string | null;
@@ -18,7 +18,10 @@ export function runtimeView(runtime: AppRuntime, now = runtime.lastTick): AppVie
   const active = activeInstance(runtime); return active ? getAppModule(active.appId)!.view(active.state, { now, shared: runtime.shared }) : null;
 }
 function emit(runtime: AppRuntime, owner: string, effect: RuntimeEffect['effect']): AppRuntime {
-  const id = runtime.effectSequence + 1; return { ...runtime, effectSequence: id, effects: [...runtime.effects, { id, owner, effect }] };
+  const id = runtime.effectSequence + 1;
+  const instance = runtime.instances[owner];
+  const instances = effect.type === 'capability' && instance ? { ...runtime.instances, [owner]: { ...instance, requests: { ...instance.requests, [effect.requestId]: id } } } : runtime.instances;
+  return { ...runtime, instances, effectSequence: id, effects: [...runtime.effects, { id, owner, effect }] };
 }
 export function acknowledgeEffects(runtime: AppRuntime, ids: readonly number[]): AppRuntime {
   const consumed = new Set(ids); return { ...runtime, effects: runtime.effects.filter(effect => !consumed.has(effect.id)), link: null };
@@ -34,19 +37,22 @@ function applyEffects(runtime: AppRuntime, owner: string, effects: readonly AppE
   let next = runtime;
   for (const effect of effects) {
     if (!next.instances[owner]) break;
+    if (next.instances[owner].closing && !['save', 'shared', 'release-capabilities'].includes(effect.type)) continue;
     if (effect.type === 'save') next = saveInstance(next, owner);
     else if (effect.type === 'shared') {
       next = { ...next, shared: { ...next.shared, [effect.key]: effect.value } };
       next = emit(next, owner, { type: 'storage', key: '@shared', record: { version: 1, data: next.shared } });
     } else if (effect.type === 'invoke') next = openApplet(next, effect.appId, effect.requestId, effect.args ?? {}, now, owner, depth + 1);
     else if (effect.type === 'complete') next = completeApplet(next, owner, effect.value ?? null, effect.cancelled ?? false, now, depth + 1);
+    else if (effect.type === 'home') next = showRuntimeHome(next, now);
     else if (effect.type === 'close') {
       const instance = next.instances[owner];
-      if (getTitle(instance.appId)!.kind === 'application') next = showRuntimeHome(next, now);
+      if (getTitle(instance.appId)!.kind === 'application') next = closeApplication(next, now);
       else next = completeApplet(next, owner, null, true, now, depth + 1);
     } else if (effect.type === 'launch') next = { ...next, pendingLaunch: effect.appId };
     else if (effect.type === 'link') next = { ...emit(next, owner, effect), link: effect.url };
-    else next = emit(next, owner, effect);
+    else if (effect.type === 'release-capabilities') next = releaseCapabilities(next, owner);
+    else if (effect.type !== 'capability' || (!next.sleeping && next.active === owner && !next.instances[owner].suspended)) next = emit(next, owner, effect);
   }
   return next;
 }
@@ -57,9 +63,22 @@ function deliver(runtime: AppRuntime, owner: string, event: AppEvent, now: numbe
   const next = result.state === instance.state ? runtime : { ...runtime, instances: { ...runtime.instances, [owner]: { ...instance, state: result.state } } };
   return result.effects?.length ? applyEffects(next, owner, result.effects, now, depth) : next;
 }
+/** Invalidates queued and in-flight requests even if the same owner later resumes. */
+function releaseCapabilities(runtime: AppRuntime, owner: string): AppRuntime {
+  const instance = runtime.instances[owner];
+  const next = { ...runtime, instances: instance ? { ...runtime.instances, [owner]: { ...instance, requests: {} } } : runtime.instances,
+    effects: runtime.effects.filter(item => item.owner !== owner || item.effect.type !== 'capability') };
+  return emit(next, owner, { type: 'release-capabilities' });
+}
+export function isRuntimeEffectCurrent(runtime: AppRuntime, item: RuntimeEffect): boolean {
+  const instance = runtime.instances[item.owner];
+  return item.effect.type !== 'capability' || (Number.isSafeInteger(item.id) && !runtime.sleeping && runtime.active === item.owner && !!instance && !instance.suspended && !instance.closing && Object.hasOwn(instance.requests, item.effect.requestId) && instance.requests[item.effect.requestId] === item.id);
+}
 function suspend(runtime: AppRuntime, owner: string | null, now: number): AppRuntime {
   if (!owner || !runtime.instances[owner] || runtime.instances[owner].suspended) return runtime;
-  const next = deliver(runtime, owner, { type: 'lifecycle', phase: 'suspend' }, now);
+  const marked = { ...runtime, instances: { ...runtime.instances, [owner]: { ...runtime.instances[owner], suspended: true } } };
+  const next = releaseCapabilities(deliver(marked, owner, { type: 'lifecycle', phase: 'suspend' }, now), owner);
+  if (!next.instances[owner]) return next;
   return { ...next, instances: { ...next.instances, [owner]: { ...next.instances[owner], suspended: true } } };
 }
 function resume(runtime: AppRuntime, owner: string | null, now: number): AppRuntime {
@@ -70,12 +89,13 @@ function resume(runtime: AppRuntime, owner: string | null, now: number): AppRunt
 function newInstance(runtime: AppRuntime, appId: string, args: AppState, caller: string | null, requestId: string | null, now: number): { runtime: AppRuntime; id: string } | null {
   const module = getAppModule(appId); if (!module) return null;
   const serial = runtime.sequence + 1, id = `${appId}:${serial}`, saved = runtime.saves[appId];
-  const restored = saved ? module.migrate(saved.data, saved.version) : null;
+  let restored = null;
+  try { restored = saved ? module.migrate(saved.data, saved.version) : null; } catch { /* A malformed save cannot prevent launch. */ }
   const state = module.create(args, restored, { now, shared: runtime.shared });
-  return { runtime: { ...runtime, sequence: serial, instances: { ...runtime.instances, [id]: { id, appId, state, caller, requestId, suspended: false } }, active: id }, id };
+  return { runtime: { ...runtime, sequence: serial, instances: { ...runtime.instances, [id]: { id, appId, state, caller, requestId, suspended: false, requests: {} } }, active: id }, id };
 }
 export function startApplication(runtime: AppRuntime, appId: string, now: number): AppRuntime {
-  if (getTitle(appId)?.kind !== 'application') return runtime;
+  if (!Number.isFinite(now) || runtime.sleeping || getTitle(appId)?.kind !== 'application') return runtime;
   if (runtime.application && runtime.instances[runtime.application]?.appId === appId) return resumeRuntimeApplication(runtime, now);
   let next = closeApplication(runtime, now);
   const created = newInstance(next, appId, {}, null, null, now); if (!created) return runtime;
@@ -86,13 +106,14 @@ export function startApplication(runtime: AppRuntime, appId: string, now: number
   return emit(next, created.id, { type: 'storage', key: '@shared', record: { version: 1, data: next.shared } });
 }
 export function openApplet(runtime: AppRuntime, appId: string, requestId: string, args: AppState, now: number, caller = runtime.active, depth = 0): AppRuntime {
-  const descriptor = getTitle(appId); if (!descriptor || descriptor.kind === 'application') return runtime;
+  const descriptor = getTitle(appId); if (!Number.isFinite(now) || runtime.sleeping || !descriptor || descriptor.kind === 'application') return runtime;
   if (Object.values(runtime.instances).filter(instance => getTitle(instance.appId)?.kind === 'library-applet').length >= 8) return runtime;
   let next = runtime;
   // A system applet occupies a different slot from the suspended application.
   if (descriptor.kind === 'system-applet' && next.systemApplet) next = completeApplet(next, next.systemApplet, null, true, now, depth + 1);
   if (caller && !next.instances[caller]) caller = next.active;
   next = suspend(next, next.active, now);
+  if (caller && !next.instances[caller]) caller = next.active;
   const created = newInstance(next, appId, args, caller, requestId, now); if (!created) return runtime;
   return { ...created.runtime, [descriptor.kind === 'library-applet' ? 'libraryApplet' : 'systemApplet']: created.id, lastTick: now };
 }
@@ -106,10 +127,13 @@ export function completeApplet(runtime: AppRuntime, owner: string, value: import
   return next;
 }
 function removeInstance(runtime: AppRuntime, owner: string, now: number): AppRuntime {
-  let next = runtime;
+  const instance = runtime.instances[owner];
+  if (!instance || instance.closing) return runtime;
+  let next = { ...runtime, instances: { ...runtime.instances, [owner]: { ...instance, closing: true } } };
   for (const instance of Object.values(runtime.instances)) if (instance.caller === owner) next = removeInstance(next, instance.id, now);
+  next = deliver(next, owner, { type: 'lifecycle', phase: 'close' }, now);
   next = saveInstance(next, owner);
-  next = emit(next, owner, { type: 'release-capabilities' });
+  next = releaseCapabilities(next, owner);
   const instances = { ...next.instances }; delete instances[owner];
   return { ...next, instances, active: next.active === owner ? null : next.active, application: next.application === owner ? null : next.application, systemApplet: next.systemApplet === owner ? null : next.systemApplet, libraryApplet: next.libraryApplet === owner ? null : next.libraryApplet, homeReturn: next.homeReturn === owner ? null : next.homeReturn };
 }
@@ -119,28 +143,35 @@ export function closeApplication(runtime: AppRuntime, now: number): AppRuntime {
   return { ...next, active: null, application: null, systemApplet: null, libraryApplet: null, homeReturn: null, pendingLaunch: null };
 }
 export function showRuntimeHome(runtime: AppRuntime, now: number): AppRuntime {
-  if (!runtime.active) return runtime;
+  if (!Number.isFinite(now) || !runtime.active) return runtime;
   const active = runtime.active;
-  return { ...suspend(runtime, active, now), active: null, homeReturn: active, lastTick: now };
+  const next = suspend(runtime, active, now);
+  return { ...next, active: null, homeReturn: next.instances[active] ? active : null, lastTick: now };
 }
 export function resumeRuntimeApplication(runtime: AppRuntime, now: number): AppRuntime {
+  if (!Number.isFinite(now) || runtime.sleeping) return runtime;
   const owner = runtime.homeReturn && runtime.instances[runtime.homeReturn] ? runtime.homeReturn : runtime.application;
   return { ...resume(runtime, owner, now), homeReturn: null, lastTick: now };
 }
 export function setRuntimeSleeping(runtime: AppRuntime, sleeping: boolean, now: number): AppRuntime {
-  if (runtime.sleeping === sleeping) return runtime;
+  if (!Number.isFinite(now) || runtime.sleeping === sleeping) return runtime;
   let next = { ...runtime, sleeping, lastTick: now };
-  for (const instance of Object.values(next.instances)) next = deliver(next, instance.id, { type: 'lifecycle', phase: sleeping ? 'sleep' : 'wake' }, now);
+  for (const instance of Object.values(next.instances)) {
+    next = deliver(next, instance.id, { type: 'lifecycle', phase: sleeping ? 'sleep' : 'wake' }, now);
+    if (sleeping) next = releaseCapabilities(next, instance.id);
+  }
   return next;
 }
 export function dispatchRuntime(runtime: AppRuntime, event: AppEvent, now: number): AppRuntime {
   if (!Number.isFinite(now) || runtime.sleeping || !runtime.active) return runtime;
-  return deliver(runtime, runtime.active, event, now);
+  return event.type === 'capability-result' ? deliverCapabilityResult(runtime, runtime.active, event, now) : deliver(runtime, runtime.active, event, now);
 }
 export function deliverCapabilityResult(runtime: AppRuntime, owner: string, event: Extract<AppEvent, { type: 'capability-result' }>, now: number): AppRuntime {
   // Late permission/media completions must not mutate a suspended or closed app.
-  if (runtime.sleeping || runtime.active !== owner || !runtime.instances[owner]) return runtime;
-  return deliver(runtime, owner, event, now);
+  const instance = runtime.instances[owner];
+  if (!Number.isFinite(now) || !Number.isSafeInteger(event.requestToken) || runtime.sleeping || runtime.active !== owner || !instance || instance.suspended || instance.closing || !Object.hasOwn(instance.requests, event.requestId) || instance.requests[event.requestId] !== event.requestToken) return runtime;
+  const requests = { ...instance.requests }; delete requests[event.requestId];
+  return deliver({ ...runtime, instances: { ...runtime.instances, [owner]: { ...instance, requests } } }, owner, event, now);
 }
 export function tickRuntime(runtime: AppRuntime, now: number): AppRuntime {
   if (!Number.isFinite(now) || now < runtime.lastTick) return runtime;

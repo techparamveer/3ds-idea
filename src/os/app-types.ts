@@ -9,7 +9,7 @@ export type AppDescriptor = {
 export type AppCommand = 'left' | 'right' | 'up' | 'down' | 'open' | 'back' | 'home' | 'power' | 'x' | 'y' | 'start' | 'select' | 'l' | 'r';
 export type AppEvent =
   | { type: 'command'; command: AppCommand }
-  | { type: 'button'; command: AppCommand; phase: 'down' | 'up' | 'repeat'; source: string }
+  | { type: 'button'; command: AppCommand; phase: 'down' | 'up' | 'repeat'; source: string; activate?: boolean }
   | { type: 'touch'; phase: 'down' | 'move' | 'up' | 'cancel'; x: number; y: number; pointerId?: number }
   | { type: 'analog'; x: number; y: number; source: string }
   | { type: 'action'; id: string; value?: JsonValue }
@@ -17,13 +17,14 @@ export type AppEvent =
   | { type: 'tick'; elapsedMs: number }
   | { type: 'lifecycle'; phase: 'suspend' | 'resume' | 'sleep' | 'wake' | 'close' }
   | { type: 'applet-result'; requestId: string; value: JsonValue; cancelled: boolean }
-  | { type: 'capability-result'; requestId: string; ok: boolean; value?: JsonValue; reason?: string };
+  | { type: 'capability-result'; requestId: string; requestToken: number; ok: boolean; value?: JsonValue; reason?: string };
 export type Capability = 'camera' | 'microphone' | 'motion' | 'import-photo' | 'import-audio' | 'local-wireless' | 'nfc' | 'nintendo-network';
 export type AppEffect =
   | { type: 'invoke'; appId: string; requestId: string; args?: AppState }
   | { type: 'complete'; value?: JsonValue; cancelled?: boolean }
   | { type: 'launch'; appId: string }
   | { type: 'close' }
+  | { type: 'home' }
   | { type: 'save' }
   | { type: 'shared'; key: string; value: JsonValue }
   | { type: 'sound'; name: string }

@@ -34,7 +34,8 @@ scene state. This avoids React reconciliation on animation frames.
 | State | Owner | Persistence |
 | --- | --- | --- |
 | Scene transforms, pointers, held controls | `console-scene.ts` | Runtime only |
-| HOME Menu and application lifecycle | `src/os/system.ts` and `state.ts` | Selected preferences/layout in `localStorage` |
+| HOME Menu and application lifecycle | `src/os/system.ts`, `state.ts`, `app-host.ts` | Versioned saves/preferences via `app-persistence.ts`; legacy localStorage migration |
+| Browser device resources | `app-capabilities.ts`, created/disposed by scene | Captured media Blobs in IndexedDB |
 | Screen pixels | `screens.ts` and `portfolio-screens.ts` | Regenerated from state |
 | Model geometry/material metadata | GLB and `model-layout.ts` | Authored/exported asset |
 | Render capability tier | `render-quality.ts` | Recomputed on load |

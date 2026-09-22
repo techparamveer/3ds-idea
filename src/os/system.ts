@@ -2,7 +2,7 @@ import { apps, getApp } from './apps.ts';
 import { getTitle, initialAppLayout, homeTitles } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, menuTiles, type MenuState, type Input } from './state.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, tickRuntime, type AppRuntime } from './app-host.ts';
-import { createInputLatch, latchInput, repeatInput, type InputLatch } from './app-input.ts';
+import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
 export type System = {
  phase:'boot'|'home'|'launch'|'app'|'power'|'off'; since:number; sleeping:boolean;
@@ -20,7 +20,7 @@ export function getActiveAppView(state: MenuState, now?: number) { return state.
 function syncRuntime(state: MenuState, runtime: AppRuntime, phase?: System['phase']): MenuState {
  const s=state.system!, application=runtime.application?runtime.instances[runtime.application]:undefined;
  const portfolio=application&&getApp(application.appId)?application.state:null;
- return {...state,system:{...s,runtime,app:application?.appId??null,phase:phase??(runtime.active?'app':'home'),link:runtime.link,
+ return {...state,system:{...s,runtime,input:runtime.active===s.runtime.active?s.input:createInputLatch(),app:application?.appId??null,phase:phase??(runtime.active?'app':'home'),link:runtime.link,
   ...(portfolio?{item:Number(portfolio.item),detail:portfolio.detail===true,page:Number(portfolio.page),photo:Number(portfolio.photo)}:{item:0,detail:false,page:0,photo:0})}};
 }
 function commitRuntime(state: MenuState, runtime: AppRuntime, now: number): MenuState {
@@ -32,7 +32,7 @@ export function launch(state:MenuState,id:string,now:number):MenuState {
  const s=state.system!, title=getTitle(id);if(!title)return state;
  if(title.kind!=='application')return invokeSystemApplet(state,id,now);
  if(s.app===id)return {...syncRuntime(state,resumeRuntimeApplication(s.runtime,now),'app'),panel:null};
- if(s.app)return {...state,panel:null,system:{...s,pending:id,dialog:'switch'}};
+ if(s.app){const released=releaseSystemInputs(state,now);return {...released,panel:null,system:{...released.system!,runtime:showRuntimeHome(released.system!.runtime,now),pending:id,dialog:'switch'}};}
  const started=syncRuntime(state,startApplication(s.runtime,id,now),'launch');
  return {...started,opened:false,panel:null,system:{...started.system!,since:now,dialog:null,pending:null,input:createInputLatch()}};
 }
@@ -42,27 +42,35 @@ export function invokeSystemApplet(state: MenuState, appId: string, now: number,
  return {...next,panel:null,opened:false,system:{...next.system!,input:createInputLatch()}};
 }
 export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
- let s=state.system;if(!s)return state;
+ let s=state.system;if(!s||!Number.isFinite(now))return state;
  if(s.sleeping!==s.runtime.sleeping){state={...state,system:{...s,runtime:setRuntimeSleeping(s.runtime,s.sleeping,now),input:createInputLatch()}};s=state.system!;}
  if(s.sleeping)return state;
  const duration=s.phase==='boot'?(reduced?300:3000):s.phase==='launch'?(reduced?120:1100):Infinity;
  if(now-s.since>=duration)return {...state,system:{...s,phase:s.phase==='boot'?'home':'app',runtime:{...s.runtime,lastTick:now}}};
  if(s.phase!=='home'&&s.phase!=='app')return state;
  const repeated=repeatInput(s.input,now);if(repeated.latch!==s.input)state={...state,system:{...s,input:repeated.latch}};
- for(const command of repeated.commands)state=reduceSystem(state,command,now);
- if(state.system!.phase==='app')return commitRuntime(state,tickRuntime(state.system!.runtime,now),now);
+ for(const event of repeated.events)state=state.system!.phase==='app'&&!state.system!.preferences&&!state.system!.dialog?commitRuntime(state,dispatchRuntime(state.system!.runtime,event,now),now):reduceSystem(state,event.command,now);
+ if(state.system!.phase==='app'&&!state.system!.preferences&&!state.system!.dialog)return commitRuntime(state,tickRuntime(state.system!.runtime,now),now);
  return state;
 }
 export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
- const s=state.system;if(!s)return reduceMenu(state,input);
- const change=(patch:Partial<System>):MenuState=>({...state,system:{...s,link:null,...patch}});
- if(input==='power')return s.phase==='off'?{...state,powered:true,panel:null,system:{...s,phase:'boot',since:now,sleeping:false,app:null,dialog:null,runtime:{...s.runtime,sleeping:false,lastTick:now},input:createInputLatch()}}:change({phase:'power',preferences:false,returnPhase:s.phase==='app'?'app':'home',dialog:null,input:createInputLatch()});
+ let s=state.system;if(!s||!Number.isFinite(now))return !s?reduceMenu(state,input):state;
+ const change=(patch:Partial<System>):MenuState=>({...state,system:{...s!,link:null,...patch}});
+ if(input==='power'){
+  if(s.phase==='off')return {...state,powered:true,panel:null,system:{...s,phase:'boot',since:now,sleeping:false,app:null,dialog:null,runtime:{...s.runtime,sleeping:false,lastTick:now},input:createInputLatch()}};
+  if(s.phase==='power')return state;
+  state=releaseSystemInputs(state,now);s=state.system!;
+  return change({phase:'power',preferences:false,returnPhase:s.phase==='app'?'app':'home',runtime:showRuntimeHome(s.runtime,now),dialog:null,input:createInputLatch()});
+ }
  if(s.phase==='off'||s.sleeping||s.phase==='boot'||s.phase==='launch')return state;
  if(input==='mute')return change({muted:!s.muted});
  if(input==='volume-up'||input==='volume-down')return change({volume:Math.max(0,Math.min(1,s.volume+(input==='volume-up'?.1:-.1)))});
- if(input==='preferences')return change({preferences:!s.preferences});
+ if(input==='preferences'){
+  state=releaseSystemInputs(state,now);s=state.system!;
+  return change({preferences:!s.preferences,runtime:s.phase==='app'?(s.preferences?resumeRuntimeApplication(s.runtime,now):showRuntimeHome(s.runtime,now)):s.runtime});
+ }
  if(s.preferences){
-  if(input==='back'||input==='home')return change({preferences:false});
+  if(input==='back'||input==='home')return change({preferences:false,input:createInputLatch(),runtime:s.phase==='app'?resumeRuntimeApplication(s.runtime,now):s.runtime});
   if(input==='up'||input==='down')return change({preferenceChoice:Math.max(0,Math.min(2,s.preferenceChoice+(input==='down'?1:-1)))});
   if(input==='left'||input==='right')return reduceSystem(state,input==='left'?'volume-down':'volume-up',now);
   if(input==='open'&&s.preferenceChoice===2)return reduceSystem(state,'reset-layout',now);
@@ -70,11 +78,11 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
   if(input==='open')return change({muted:!s.muted});return state;
  }
  if(s.phase==='power'){
-  if(input==='back'||input==='home')return change({phase:s.returnPhase});
+  if(input==='back'||input==='home')return change({phase:s.returnPhase,input:createInputLatch(),runtime:s.returnPhase==='app'?resumeRuntimeApplication(s.runtime,now):s.runtime});
   if(input==='open')return {...change({phase:'off',app:null,runtime:closeApplication(s.runtime,now),input:createInputLatch()}),powered:false,panel:null};return state;
  }
  if(s.dialog){
-  if(input==='back')return change({dialog:null,pending:null});
+  if(input==='back')return change({dialog:null,pending:null,input:createInputLatch(),runtime:s.phase==='app'?resumeRuntimeApplication(s.runtime,now):s.runtime});
   if(input==='open'){
    const closing=syncRuntime(state,closeApplication(s.runtime,now),'home');const closed={...closing,system:{...closing.system!,dialog:null,pending:null}};
    return s.pending?launch(closed,s.pending,now):closed;
@@ -121,23 +129,46 @@ export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuSt
 }
 /** Full pointer/button protocol for scene adapters. Legacy single-command inputs remain supported. */
 export function dispatchSystemEvent(state: MenuState,event: AppEvent,now: number): MenuState {
- const s=state.system;if(!s)return state;
+ let s=state.system;if(!s||!Number.isFinite(now))return state;
+ if(event.type==='analog'){if(!Number.isFinite(event.x)||!Number.isFinite(event.y))return state;event={...event,x:Math.max(-1,Math.min(1,event.x)),y:Math.max(-1,Math.min(1,event.y))};}
+ if((s.sleeping||s.phase==='off'||s.phase==='boot'||s.phase==='launch')&&!(event.type==='button'&&event.command==='power')&&!(event.type==='command'&&event.command==='power'))return state;
+ if(event.type==='touch'){
+  const touched=latchTouch(s.input,event);if(!touched.accepted)return state;
+  state={...state,system:{...s,input:touched.latch}};s=state.system!;
+ }
  if(event.type==='button'||event.type==='analog'||event.type==='command'){
-  const latched=latchInput(s.input,event,now);let next={...state,system:{...s,input:latched.latch}};
-  for(const command of latched.commands)next=reduceSystem(next,command,now) as typeof next;
+  const latched=latchInput(s.input,event,now);let next:MenuState={...state,system:{...s,input:latched.latch}};
+  const foreground=s.phase==='app'&&!s.sleeping&&!s.preferences&&!s.dialog;
+  const globalButton=event.type==='button'&&(event.command==='home'||event.command==='power');
+  if(foreground&&event.type==='button'&&!globalButton){
+   return commitRuntime(next,dispatchRuntime(s.runtime,{...event,activate:latched.commands.includes(event.command)},now),now);
+  }
+  if(foreground&&event.type==='analog')next=commitRuntime(next,dispatchRuntime(s.runtime,event,now),now);
+  for(const command of latched.commands)next=reduceSystem(next,command,now);
   return next;
  }
  if(s.phase!=='app'||s.sleeping||s.preferences||s.dialog)return event.type==='touch'&&event.phase==='up'?touchSystem(state,event.x,event.y,now):state;
- if(event.type==='touch'&&event.phase==='up')return touchSystem(state,event.x,event.y,now);
+ if(event.type==='touch'&&getTitle(activeInstance(s.runtime)?.appId)?.source==='portfolio'){
+  const next=commitRuntime(state,dispatchRuntime(s.runtime,event,now),now);return event.phase==='up'?touchSystem(next,event.x,event.y,now):next;
+ }
  return commitRuntime(state,dispatchRuntime(s.runtime,event,now),now);
 }
 export function resolveSystemCapability(state: MenuState,owner:string,event:Extract<AppEvent,{type:'capability-result'}>,now:number):MenuState {
- if(!state.system)return state;return commitRuntime(state,deliverCapabilityResult(state.system.runtime,owner,event,now),now);
+ if(!state.system)return state;const runtime=deliverCapabilityResult(state.system.runtime,owner,event,now);return runtime===state.system.runtime?state:commitRuntime(state,runtime,now);
 }
 export function acknowledgeSystemEffects(state: MenuState,ids:readonly number[]):MenuState {return state.system?{...state,system:{...state.system,runtime:acknowledgeEffects(state.system.runtime,ids),link:null}}:state;}
-export function restoreRuntimeData(state:MenuState,shared:AppState,saves:Record<string,SaveRecord>):MenuState {return state.system?{...state,system:{...state.system,runtime:createAppRuntime(shared,saves)}}:state;}
-export function setSystemSleeping(state:MenuState,sleeping:boolean,now:number):MenuState {return state.system?{...state,system:{...state.system,sleeping,input:createInputLatch(),runtime:setRuntimeSleeping(state.system.runtime,sleeping,now)}}:state;}
-export function releaseSystemInputs(state:MenuState):MenuState {return state.system?{...state,system:{...state.system,input:createInputLatch()}}:state;}
+export function restoreRuntimeData(state:MenuState,shared:AppState,saves:Record<string,SaveRecord>):MenuState {return state.system&&state.system.runtime.sequence===0?{...state,system:{...state.system,runtime:createAppRuntime(shared,saves)}}:state;}
+export function setSystemSleeping(state:MenuState,sleeping:boolean,now:number):MenuState {
+ if(!state.system||!Number.isFinite(now))return state;
+ state=releaseSystemInputs(state,now);return {...state,system:{...state.system!,sleeping,input:createInputLatch(),runtime:setRuntimeSleeping(state.system!.runtime,sleeping,now)}};
+}
+export function releaseSystemInputs(state:MenuState,now=state.system?.runtime.lastTick??0):MenuState {
+ const s=state.system;if(!s)return state;
+ let runtime=s.runtime;
+ for(const [source,held]of Object.entries(s.input.held))runtime=dispatchRuntime(runtime,{type:'button',command:held.command,phase:'up',source,activate:false},now);
+ if(s.input.touch)runtime=dispatchRuntime(runtime,{type:'touch',phase:'cancel',...s.input.touch},now);
+ return {...state,system:{...s,runtime,input:createInputLatch()}};
+}
 export function moveApp(state:MenuState,from:number,to:number):MenuState {
  const s=state.system;if(!s||!Number.isInteger(from)||!Number.isInteger(to)||!s.layout[from]||to<0||to>=300||state.folders[to]!==undefined)return state;
  const layout={...s.layout};const previous=layout[to];layout[to]=layout[from];if(previous)layout[from]=previous;else delete layout[from];

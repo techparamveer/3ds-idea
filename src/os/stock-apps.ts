@@ -91,7 +91,7 @@ export function createStockModule(descriptor: AppDescriptor): AppModule {
         return sharedChange(withScreen(state, 'main'), 'notes', notes);
       }
       if (screen !== 'main') return { state: withScreen(state, 'main', { recording: false, playing: false }), effects: [{ type: 'release-capabilities' }] };
-      return { state, effects: [{ type: 'close' }] };
+      return { state, effects: [{ type: descriptor.kind === 'application' ? 'home' : 'close' }] };
     }
     if (action === 'retry') return beginOffline(state, context);
     if (id === 'keyboard') {
@@ -259,9 +259,9 @@ export function createStockModule(descriptor: AppDescriptor): AppModule {
       if (event.type === 'text' && id === 'keyboard') return { state: { ...state, draft: Array.from(event.value).filter(char => !state.numeric || /^\d$/.test(char)).slice(0, num(state.maxLength, 32)).join('') } };
       if (event.type === 'action') return activate(state, event.id, context, event.value);
       if (event.type === 'touch') {
+        if (event.phase === 'cancel') return { state: { ...state, currentStroke: [] } };
         if (!Number.isFinite(event.x) || !Number.isFinite(event.y) || event.x < 0 || event.x >= 320 || event.y < 0 || event.y >= 240) return { state };
         if ((id === 'game-notes' || id === 'memo') && state.screen === 'drawing') {
-          if (event.phase === 'cancel') return { state: { ...state, currentStroke: [] } };
           if (event.y >= 34 && event.y < 211) {
             const point: JsonValue = [Math.round(event.x), Math.round(event.y)], stroke = Array.isArray(state.currentStroke) ? state.currentStroke : [];
             if (event.phase === 'down') return { state: { ...state, currentStroke: [point] } };
@@ -284,7 +284,7 @@ export function createStockModule(descriptor: AppDescriptor): AppModule {
         if (event.y >= 38 && event.y < 202 && current.rows[index]) return index === num(state.selection) ? activate(state, current.rows[index].id, context) : { state: { ...state, selection: index } };
         return { state };
       }
-      const command = event.type === 'command' ? event.command : event.type === 'button' && event.phase !== 'up' ? event.command : null;
+      const command = event.type === 'command' ? event.command : event.type === 'button' && event.phase !== 'up' && event.activate !== false ? event.command : null;
       if (!command) return { state };
       if (command === 'back') return activate(state, 'back', context);
       const current = view(state, context);

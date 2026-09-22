@@ -15,7 +15,8 @@ function loadSystemFont() {
   .then(face=>{document.fonts.add(face);}).catch(()=>undefined);
 }
 const themes: Record<Theme, { top: string; bottom: string; ink: string; tile: string }> = {
- white: { top: '#d9d8e6', bottom: '#dedede', ink: '#44464b', tile: '#f9f9fa' },
+ // Plain lower-tray RGB sampled from the owner's native 10.7.0-32E capture.
+ white: { top: '#d9d8e6', bottom: '#dfdbd7', ink: '#44464b', tile: '#f9f9fa' },
  red: { top: '#ec6864', bottom: '#d64748', ink: '#4b2021', tile: '#fff3ef' },
  blue: { top: '#8dc5eb', bottom: '#61a9dc', ink: '#193c64', tile: '#eff8ff' },
  yellow: { top: '#fae585', bottom: '#f5d14d', ink: '#655326', tile: '#fffced' },
@@ -122,7 +123,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
     rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();}
    if(app)graphics.menuIcon(c,app,x,y,size);
    else if(folderLabel!==null&&!nativeDrawn)folder(c,x+size/2,y+size/2,size*.78,folderLabel);
-  }else{
+  }else if(!nativeHome?.empty(c,x,y,size,view.rows)){
    const inset=size*.34,side=size-inset*2;
    rounded(c,x+inset,y+inset,side,side,2,'#d3d4d766','#c8c9cc');
    line(c,[[x+inset+1,y+inset+side],[x+inset+side,y+inset+side],[x+inset+side,y+inset+1]],'#e9e9eb');
@@ -248,7 +249,7 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
     if(sprite.complete&&sprite.naturalWidth){const sx=[12,55,96,138,181][i];t.drawImage(sprite,sx,3,i===4?30:25,25,x-sz*.4,y-sz*.4,sz*.8,sz*.8);}
    }
   }
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);grid(b,state,time,reduced,graphics,chrome,view,nativeHome);if(!nativeHome?.footer(b,state))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome);panel(b,state,time,reduced,themeSprite,shopSprite);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);grid(b,state,time,reduced,graphics,chrome,view,nativeHome);if(!nativeHome?.footer(b,state))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome);panel(b,state,time,reduced,themeSprite,shopSprite);
   graphics.overlay(t,b,state,elapsedMs,reduced);
   const notice=options.runtimeNotice?.();if(notice){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);

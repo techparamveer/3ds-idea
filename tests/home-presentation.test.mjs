@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {getHomeFooter,getHomePresentation} from '../src/os/home-presentation.ts';
+import {getHomeFooter,getHomePresentation,nativeHomeDensityFrame} from '../src/os/home-presentation.ts';
 import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
 const home=()=>{const state=createPortfolioState();return {...state,system:{...state.system,phase:'home'}};};
@@ -12,6 +12,10 @@ test('pressed tile follows runtime pointer source without changing keyboard sele
  assert.equal(pressed.selected,start.selected);assert.equal(view.tiles.find(t=>t.index===2).pressed,true);
  assert.deepEqual(view.tiles.filter(t=>t.cursor).map(t=>t.index),[2]);assert.equal(view.ghost,null);
  const released=releaseSystemInputs(pressed,101);assert.ok(getHomePresentation(released).tiles.every(t=>!t.pressed));
+});
+test('native density selects the five authored keys for two through six rows',()=>{
+ assert.deepEqual([2,3,4,5,6].map(nativeHomeDensityFrame),[1,2,3,4,5]);
+ assert.equal(nativeHomeDensityFrame(1),1,'legacy single-row state retains the largest available native tile');
 });
 test('lifted source stays in the reducer map but paints as vacant until placement',()=>{
  const start=home(),original=start.system.layout[0];let state=touch(start,'down',point(start,0),100);state=tickSystem(state,550);

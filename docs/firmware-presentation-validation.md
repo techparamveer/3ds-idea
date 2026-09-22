@@ -17,7 +17,7 @@ The upper canvas remains 800×240 storage adapted from 400×240 logical pixels. 
 - Picture UV sets and centred texture matrices, clamp/repeat/mirror wrapping, nearest/bilinear sampling, interpolated corner colors, eight TEV operations, constant/buffer registers, alpha comparison and native framebuffer blending.
 - Native bitmap text with bearings/advances, two-axis font size, multiline/line alignment, top/bottom color, spacing, shared-font glyph pixels and HUD LA4 luminance.
 - One-frame around-windows use four mirrored strips. Nonzero inflation/frame size, other frame arrangements and flips remain explicit unsupported diagnostics.
-- HUD, lower toolbar, footer, folder/card tile, arrows and cursor consume native layouts. English status/footer labels come from MSBT. Calendar/clock values are injected; wireless is disabled and coins/steps are zero. The background, scrollbar, empty slots, dialogs and app interiors are still reconstructed.
+- HUD, lower toolbar, footer, ordinary software/folder tile, empty slots, arrows and cursor consume native layouts. English status/footer labels come from MSBT. Calendar/clock values are injected; wireless is disabled and coins/steps are zero. The animated upper background, scrollbar, dialogs and app interiors are still reconstructed; plain lower-tray color follows the supplied native capture.
 
 Material surfaces use an 8 MiB LRU cache, 16 posed layouts and a reusable blend target. Bitmap-font tinting caches up to 1 MiB of small text runs rather than entire duplicated atlases. The source pack is retained for reproducible scene pose choices. Out-of-range texture matrix animation tracks retain their indices. Those with differing key values are reported as native CLTS skips, following the confirmed native bounds check.
 
@@ -70,3 +70,7 @@ The native material animator at `0x1a16dc..1714` evaluates a CLMC channel, adds 
 
 - Focused suite: **29/29 passed**, covering the buffer and all six constants, lower/upper clamps, half steps, a float32 rounding boundary, interpolation-before-quantization and source immutability.
 - Nonincremental TypeScript and diff whitespace checks passed. Browser/Azahar material acceptance remains with integration.
+
+## First matched lower-screen correction
+
+See `docs/native-home-comparison-2026-09-22.md` for the actual native/browser reference, measured regions, evidence and remaining differences. Native code confirms one composed RGBA TEV constant per stage, correcting cross-channel operands that previously caused square gray borders and white arrows. Ordinary apps now use the SetSrc software plate rather than the cartridge layout; the captured two-row density selects native key 1. Shared toolbar geometry already matched, while its shadow and arrow tint improve to exact/one-level sampled agreement in software. The focused suite now passes **33/33**; browser recapture and theme/scrollbar/cursor acceptance remain pending with integration.

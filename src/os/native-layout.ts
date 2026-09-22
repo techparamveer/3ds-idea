@@ -93,26 +93,30 @@ const clamp=(n:number)=>Math.max(0,Math.min(1,n));
 const white=[1,1,1,1];
 /** Evaluate NintendoWare TEV in normalized channel space, before framebuffer blending. */
 export function evaluateNativeMaterial(material:NativeMaterial, textures:number[][], primary:number[]=white):number[] {
- const constants=material.constantColors.map(c=>c.map(v=>v/255));let buffer=material.bufferColor.map(v=>v/255),previous=[...primary];
+ const constants=material.constantColors.map(c=>c.map(v=>v/255)),baseBuffer=material.bufferColor.map(v=>v/255);let buffer=[...baseBuffer],previous=[...primary];
  if(!material.tevStages.length){
   // NintendoWare's implicit material interpolates black/white registers using the texture.
   const tex=textures[0]??white,constant=constants[0]??white;
   previous=tex.map((v,i)=>(buffer[i]+(constant[i]-buffer[i])*v)*primary[i]);
  }
  for(const stage of material.tevStages){
-  const channel=(combiner:NativeCombiner,index:number,constant:number)=>{
+  // The stage has one RGBA constant: its RGB and alpha selectors may name different registers.
+  const registers=[baseBuffer,...constants],rgb=registers[stage.constantSelectors&15],a=registers[(stage.constantSelectors>>4)&15];
+  const stageConstant=[rgb?.[0],rgb?.[1],rgb?.[2],a?.[3]];
+  const channel=(combiner:NativeCombiner,index:number)=>{
    const args=combiner.sources.map((source,i)=>{
-    const color=source<4?textures[source]??white:source===4?constants[constant]:source===5?primary:source===6?previous:source===7?buffer:undefined;
-    if(!color)throw new Error(`Unsupported native TEV source/constant ${source}/${constant}`);
+    const color=source<4?textures[source]??white:source===4?stageConstant:source===5?primary:source===6?previous:source===7?buffer:undefined;
+    if(!color)throw new Error(`Unsupported native TEV source ${source}`);
     const operand=combiner.operands[i],part=Math.floor(operand/2),component=index===3?[3,0,1,2][part]:part===0?index:[3,0,1,2][part-1];
     if(component===undefined)throw new Error(`Unsupported native TEV operand ${operand}`);
-    return operand%2?1-color[component]:color[component];
+    const value=color[component];if(value===undefined)throw new Error(`Unsupported native TEV constant selector ${stage.constantSelectors}`);
+    return operand%2?1-value:value;
    });
    const [a,b,c]=args;let result:number;
    switch(combiner.mode){case 0:result=a;break;case 1:result=a*b;break;case 2:result=a+b;break;case 3:result=a+b-.5;break;case 4:result=a*c+b*(1-c);break;case 5:result=a-b;break;case 6:result=clamp(a+b)*c;break;case 7:result=a*b+c;break;default:throw new Error(`Unsupported native TEV mode ${combiner.mode}`);}
    return clamp(result*combiner.scale);
   };
-  const result=[0,1,2].map(i=>channel(stage.color,i,(stage.constantSelectors&15)-1));result.push(channel(stage.alpha,3,((stage.constantSelectors>>4)&15)-1));
+  const result=[0,1,2].map(i=>channel(stage.color,i));result.push(channel(stage.alpha,3));
   if(stage.color.savePrevious)buffer=[...previous.slice(0,3),buffer[3]];
   if(stage.alpha.savePrevious)buffer[3]=previous[3];previous=result;
  }

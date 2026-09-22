@@ -137,3 +137,30 @@ test('CLMC quantizes after interpolation and preserves float32 half-step boundar
  animation.tracks[0].interpolation='step';animation.tracks[0].keys=[{frame:0,value:.4999999701976776}];
  assert.equal(channel(0),1,'the float32 addition rounds this boundary to 1 before truncation');
 });
+
+test('TEV uses one composed RGBA constant even when operands cross output channels',()=>{
+ const m=material();m.constantColors[0]=[51,102,153,204];m.constantColors[4]=[230,25,50,64];
+ m.tevStages=[{constantSelectors:0x51,color:combiner(0,[4,4,4],[2,0,0]),alpha:combiner(0,[4,4,4],[2,0,0])}];
+ assert.deepEqual(evaluateNativeMaterial(m,[]),[64/255,64/255,64/255,51/255]);
+ m.tevStages[0].color.operands[0]=3;m.tevStages[0].alpha.operands[0]=3;
+ assert.deepEqual(evaluateNativeMaterial(m,[]),[1-64/255,1-64/255,1-64/255,1-51/255]);
+});
+test('constant selector zero references the material buffer independently of TEV feedback',()=>{
+ const m=material();m.bufferColor=[25,50,75,100];m.constantColors[0]=[0,0,0,200];
+ m.tevStages=[{constantSelectors:0x10,color:combiner(0,[4,4,4]),alpha:combiner(0,[4,4,4])}];
+ assert.deepEqual(evaluateNativeMaterial(m,[]),[25/255,50/255,75/255,200/255]);
+ m.tevStages.unshift({constantSelectors:0,color:{...combiner(0,[0,0,0]),savePrevious:true},alpha:{...combiner(0,[0,0,0]),savePrevious:true}});
+ assert.deepEqual(evaluateNativeMaterial(m,[[1,1,1,1]]),[25/255,50/255,75/255,200/255]);
+});
+test('real HOME ordinary source and arrow retain rounded alpha and native green',{skip:!available},async()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/launcher.json'))),name='LncIconSetSrc_00';
+ const l=poseNativeLayout(pack.layouts[name],pack.animations,[{name:name+'_Scale',frame:1}]);
+ const panes=[];const walk=ps=>ps.forEach(p=>{panes.push(p);walk(p.children);});walk(l.roots);
+ const plate=panes.find(p=>p.name==='N_IconRoot_00');assert.ok(Math.abs(plate.scale[0]*100-72)<.0001);assert.equal(plate.translation[0],32);
+ const pixels=new Map();for(const key of new Set([...l.textures,...pack.layouts.LncArw_00.textures])){const {data,info}=await sharp(resolve(resourceRoot,pack.textures[key].url)).ensureAlpha().raw().toBuffer({resolveWithObject:true});pixels.set(key,{width:info.width,height:info.height,data:new Uint8ClampedArray(data)});}
+ const body=panes.find(p=>p.name==='P_Btn_01'),raster=rasterNativePicture(l,body.picture,72,72,pixels);
+ assert.equal(raster.data[3],0,'ordinary plate corner must not produce an opaque gray square');
+ assert.ok(raster.data[(36*72+36)*4+3]>240,'ordinary plate centre is opaque');
+ const arrows=pack.layouts.LncArw_00;panes.length=0;walk(arrows.roots);const arrow=panes.find(p=>p.name==='P_arwIconR_00'),ink=rasterNativePicture(arrows,arrow.picture,16,16,pixels);
+ assert.ok(Array.from({length:256},(_,i)=>i*4).some(i=>ink.data[i+3]>250&&ink.data[i+1]>ink.data[i]+20&&ink.data[i+2]>ink.data[i]+15),'native arrow tint must remain green rather than saturate to white');
+});

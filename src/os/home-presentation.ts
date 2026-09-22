@@ -1,6 +1,9 @@
 import { getHomeGestureView, homeSlotAppId } from './system.ts';
 import { isFolder, menuTiles, rowCount, type MenuState } from './state.ts';
 
+/** Captured two-row HOME uses key 1; larger densities follow the authored size sequence. */
+export const nativeHomeDensityFrame=(rows:number)=>Math.max(1,Math.min(5,rows-1));
+
 /** A derived view, never a second recognizer or a speculative mutation of icon maps. */
 export function getHomePresentation(state:MenuState){
  const folder=state.opened?state.selected:null,gesture=getHomeGestureView(state),selected=state.opened?state.folderSelected:state.selected;

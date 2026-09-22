@@ -6,11 +6,14 @@ The presentation branch now consumes the owner's converted European 10.7.0-32E H
 
 `loadFirmwarePresentationAssets(manifestUrl?, signal?)`, exported from `screens.ts`, loads shared/HUD bitmap fonts and the selected HOME packs. Manifest-relative URLs remain relative to the entry manifest. It accepts cancellation and exposes `diagnostics`; no silent native-asset fallback occurs in that loader.
 
-`createScreens({firmwareAssets?, drawFolderBanner?, runtimeNotice?})` accepts an injected asset set; `setFirmwareAssets(assets)` supports asynchronous arrival. The folder callback receives `(CanvasRenderingContext2D, elapsedMilliseconds, reducedMotion)` and returns whether it painted the native folder. The optional notice callback supplies the scene's runtime status after screen overlays. The scene owns Three.js and the CGFX renderer. Screen disposal owns the attached layout/font caches. Calling the setter after disposal disposes the arriving assets.
+`createScreens({firmwareAssets?, drawFolderBanner?, drawHomeBackground?, runtimeNotice?})` accepts an injected asset set; `setFirmwareAssets(assets)` supports asynchronous arrival. The folder/background callbacks receive `(CanvasRenderingContext2D, elapsedMilliseconds, reducedMotion)` and return whether they painted the native resource. The white-theme background callback runs over the fallback before the HUD/banner. The optional notice callback supplies the scene's runtime status after screen overlays. The scene owns Three.js and the CGFX renderer. Screen disposal owns the attached layout/font caches. Calling the setter after disposal disposes the arriving assets.
 
 The upper canvas remains 800×240 storage adapted from 400×240 logical pixels. Lower remains 320×240. Existing portfolio state/input modules are unchanged by this checkpoint. Native artwork uses existing menu geometry, so mismatches between native density frames and input layout are still subject to reference comparison.
 
 ## Renderer coverage
+
+The upper camera hints, bounded lower folder balloon and straight PNG/blend
+corrections are documented in [the label follow-up](native-home-labels-2026-09-22.md).
 
 - Group-filtered CLAN bindings, child binding, step/Hermite curves including duplicate-frame discontinuities; immutable posed copies.
 - CLYT hierarchy, origins, 2D transformations, visibility, alpha propagation, explicit clip rectangles and text-pane clipping.

@@ -22,6 +22,18 @@ export function getHomePresentation(state:MenuState){
 }
 export type HomePresentation=ReturnType<typeof getHomePresentation>;
 
+/** Source balloon placement at the captured large-icon lower-screen position.
+ * Body and pointer move independently. The bounded horizontal clamp interpolates
+ * the centre/right native captures. This currently maps to the browser's two-row
+ * lower row; the native density/row mapping itself still awaits capture. */
+export function getNativeFolderBalloon(state:MenuState,view:HomePresentation){
+ if(state.opened||state.panel||view.gesture||view.rows!==2)return null;
+ const tile=view.tiles.find(tile=>tile.index===state.selected);
+ if(tile?.folderLabel===null||tile?.folderLabel===undefined||tile.y<120)return null;
+ const x=tile.x+tile.size/2;if(x<0||x>320)return null;
+ return {label:tile.folderLabel,bodyX:Math.max(152,Math.min(168,x))-160,pointerX:x-160};
+}
+
 /** Footer actions follow the runtime's currently selected container. */
 export function getHomeFooter(state:MenuState){
  const appId=homeSlotAppId(state,state.opened?state.folderSelected:state.selected);

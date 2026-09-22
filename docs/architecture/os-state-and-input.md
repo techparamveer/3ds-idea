@@ -63,6 +63,19 @@ fallback for context-constrained browsers.
 Firmware resources are optional and provenance-controlled. Do not describe a
 procedural or photograph-constrained reconstruction as firmware-rendered.
 
+## Native firmware presentation
+
+`firmware-presentation.ts` loads the versioned manifest and assembles the selected
+HOME layouts. `native-layout.ts` owns pure format types, binding/curve sampling,
+material evaluation and window geometry; `native-renderer.ts` owns disposable
+Canvas targets and bounded caches. `native-png.ts` preserves independent RGBA
+texture channels through bounded PNG decoding, avoiding Canvas premultiplication
+before native material evaluation. The OS layer receives injected folder banner
+and white-theme background callbacks; Three.js model/material interpretation stays in
+`scene/firmware-model.ts`. See
+[`../firmware-presentation-validation.md`](../firmware-presentation-validation.md)
+for the loader/disposal contract, coverage and unresolved visual differences.
+
 ## Firmware application foundation
 
 `app-types.ts` defines renderer-independent application state, effects and views.

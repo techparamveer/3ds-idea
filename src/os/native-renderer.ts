@@ -1,5 +1,5 @@
 import { BitmapFont } from './bitmap-font';
-import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, nativeAnimationDiagnostics, nativeTextMetrics, nativeWindowPatches, poseNativeLayout, rasterNativePicture,
+import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, nativeAnimationDiagnostics, nativeMultiplyBlend, nativeTextMetrics, nativeWindowPatches, poseNativeLayout, rasterNativePicture,
  type AnimationBinding, type NativeLayout, type NativePack, type NativePane, type NativePicture, type NativePixels, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -30,8 +30,9 @@ export class NativeLayoutRenderer {
   return this.cached(key,()=>{
    const pixels=rasterNativePicture(layout,picture,w,h,this.textures[pack],alpha),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
    const data=ctx.createImageData(w,h);data.data.set(pixels.data);
-   // The LCD displays RGB even when a no-blend native material writes alpha zero.
-   if(material.colorBlend?.operation===0)for(let i=3;i<data.data.length;i+=4)data.data[i]=255;
+   // Project native LCD RGB to opaque Canvas for no-blend and multiplicative
+   // masks. Their RGB remains meaningful under alpha zero (LA4 shadow masks).
+   if(material.colorBlend?.operation===0||nativeMultiplyBlend(material.colorBlend))for(let i=3;i<data.data.length;i+=4)data.data[i]=255;
    if(data.data.every((v,i)=>i%4!==3||v===255))this.opaque.add(canvas);
    ctx.putImageData(data,0,0);return canvas;
   });
@@ -60,7 +61,7 @@ export class NativeLayoutRenderer {
   try{
    if(!blend||(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
    if(blend.operation===0){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
-   if(blend.operation===1&&blend.sourceFactor===0&&blend.destinationFactor===2&&this.opaque.has(canvas)){ctx.globalCompositeOperation='multiply';ctx.drawImage(canvas,x,y,w,h);return;}
+   if(nativeMultiplyBlend(blend)&&this.opaque.has(canvas)){ctx.globalCompositeOperation='multiply';ctx.drawImage(canvas,x,y,w,h);return;}
    // Readback is limited to uncommon native blend modes; ordinary panes stay on Canvas's fast path.
    const target=this.blendTarget??=surface(ctx.canvas.width,ctx.canvas.height);
    if(target.width!==ctx.canvas.width||target.height!==ctx.canvas.height){target.width=ctx.canvas.width;target.height=ctx.canvas.height;}
@@ -73,6 +74,9 @@ export class NativeLayoutRenderer {
     if(lx<x||ly<y||lx>=x+w||ly>=y+h)continue;
     const at=(py*target.width+px)*4,a=Array.from(src.data.subarray(at,at+4),n=>n/255),b=Array.from(dst.data.subarray(at,at+4),n=>n/255);
     dst.data.set(blendNativePixel(a,b,blend).map(n=>n*255),at);
+    // This target is the LCD's visible RGB. Retaining native blend alpha here
+    // would attenuate edge RGB again when the screen CanvasTexture is sampled.
+    dst.data[at+3]=255;
    }
    tmp.putImageData(dst,0,0);ctx.resetTransform();ctx.globalCompositeOperation='copy';ctx.drawImage(target,0,0);
   }finally{ctx.restore();}

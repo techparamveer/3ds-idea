@@ -186,11 +186,16 @@ export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures
 /** Straight framebuffer channels, as used by the native fixed-function blend unit. */
 export function blendNativePixel(source:number[],destination:number[],blend:NonNullable<NativeMaterial['colorBlend']>):number[]{
  if(blend.operation===0)return source;
- const factor=(kind:number,component:number)=>{
-  switch(kind){case 0:return 0;case 1:return 1;case 2:return source[component];case 3:return 1-source[component];case 4:return source[3];case 5:return 1-source[3];case 6:return destination[3];case 7:return 1-destination[3];case 8:return destination[component];case 9:return 1-destination[component];default:throw new Error(`Unsupported native blend factor ${kind}`);}
+ // CLYT's compact enums are role-specific: source 2/3 use destination RGB;
+ // destination 2/3 use source RGB. They are not the PICA register enum.
+ const factor=(kind:number,component:number,other:number[])=>{
+  switch(kind){case 0:return 0;case 1:return 1;case 2:return other[component];case 3:return 1-other[component];case 4:return source[3];case 5:return 1-source[3];case 6:return destination[3];case 7:return 1-destination[3];default:throw new Error(`Unsupported native blend factor ${kind}`);}
  };
- return source.map((value,i)=>{const s=value*factor(blend.sourceFactor,i),d=destination[i]*factor(blend.destinationFactor,i);if(blend.operation===1)return clamp(s+d);if(blend.operation===3)return clamp(s-d);throw new Error(`Unsupported native blend operation ${blend.operation}`);});
+ return source.map((value,i)=>{const s=value*factor(blend.sourceFactor,i,destination),d=destination[i]*factor(blend.destinationFactor,i,source);if(blend.operation===1)return clamp(s+d);if(blend.operation===2)return clamp(s-d);if(blend.operation===3)return clamp(d-s);throw new Error(`Unsupported native blend operation ${blend.operation}`);});
 }
+
+/** Both native multiplication forms affect LCD RGB independently of alpha. */
+export const nativeMultiplyBlend=(blend:NativeMaterial['colorBlend'])=>blend?.operation===1&&((blend.sourceFactor===2&&blend.destinationFactor===0)||(blend.sourceFactor===0&&blend.destinationFactor===2));
 
 /** Preserve native skips as information, without assigning an absent matrix to a guessed register. */
 export function nativeAnimationDiagnostics(layout:NativeLayout,animation:NativeAnimation):string[]{

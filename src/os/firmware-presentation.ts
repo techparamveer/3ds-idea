@@ -1,14 +1,15 @@
-import { BitmapFont, loadBitmapFont, loadNativeImage } from './bitmap-font';
+import { BitmapFont, loadBitmapFont } from './bitmap-font';
+import { decodeNativePng } from './native-png';
 import { NativeLayoutRenderer } from './native-renderer';
 import { nativeMessageOverride, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { rowCount, toolbar as toolbarRegions, type MenuState } from './state';
 import { getHomeGestureView } from './system';
-import { getHomeFooter, nativeHomeDensityFrame } from './home-presentation';
+import { getHomeFooter, getNativeFolderBalloon, nativeHomeDensityFrame, type HomePresentation } from './home-presentation';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>};
-const homeLayouts={hud:['HudMenu_00'],launcher:['LncBase_D_01','LncBase_U_00','LncCsr_00','LncBtmBtn_02','LncIconFolder_00','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00']};
+const homeLayouts={hud:['HudMenu_00'],launcher:['LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncBtmBtn_02','LncIconFolder_00','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
  const base=new URL(manifestUrl,window.location.href),controller=new AbortController();
@@ -33,11 +34,10 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
    await Promise.all([...needed].map(async key=>{
     const record=pack.textures[key];if(!record)throw new Error(`Missing texture record ${name}/${key}`);
     let pending=decoded.get(record.url);
-    if(!pending){pending=(async()=>{const image=await loadNativeImage(new URL(record.url,base).href,controller.signal);
-     if(image.naturalWidth!==record.width||image.naturalHeight!==record.height)throw new Error(`Texture dimensions differ: ${key}`);
-     const canvas=document.createElement('canvas');canvas.width=record.width;canvas.height=record.height;const ctx=canvas.getContext('2d',{willReadFrequently:true})!;ctx.drawImage(image,0,0);
-     const pixels=ctx.getImageData(0,0,record.width,record.height);canvas.width=canvas.height=0;return {width:record.width,height:record.height,data:pixels.data};})();decoded.set(record.url,pending);}
-    images.set(key,await pending);
+    if(!pending){pending=(async()=>{const response=await fetch(new URL(record.url,base),{signal:controller.signal});
+     if(!response.ok)throw new Error(`Firmware texture HTTP ${response.status}: ${key}`);
+     return decodeNativePng(new Uint8Array(await response.arrayBuffer()),record,controller.signal);})();decoded.set(record.url,pending);}
+    const pixels=await pending;if(pixels.width!==record.width||pixels.height!==record.height)throw new Error(`Texture dimensions differ: ${key}`);images.set(key,pixels);
    }));
   }));
   controller.signal.throwIfAborted();
@@ -56,6 +56,15 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  const binding=(name:string,frame:number,groups?:string[]):AnimationBinding=>({name,frame,...(groups?{groups}:{})});
  const pressTrack=renderer.packs.launcher.animations.LncCsr_00_Select.tracks.find(track=>track.target==='N_Scene_00'&&track.property==='translation.y');
  const pressOffset=pressTrack?-sampleNativeTrack(pressTrack,5):0;
+ function upperBase(ctx:Context){
+  return renderer.draw(ctx,'launcher','LncBase_U_00',{bindings:[binding('LncBase_U_00_SceneIn',40),binding('LncBase_U_00_Appear',10),binding('LncBase_U_00_WhiteBlack',0)],overrides:{N_Wndw_00:{visible:false}},clip:[0,212,400,28]});
+ }
+ function folderBalloon(ctx:Context,state:MenuState,view:HomePresentation){
+  const label=getNativeFolderBalloon(state,view);if(!label)return false;
+  return renderer.draw(ctx,'launcher','LncBlln_00',{bindings:[binding('LncBlln_00_Appear',5)],overrides:{
+   N_LR_00:{translation:[label.bodyX,-6,0]},T_Blln_00:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)'),P_Pnt_00:{translation:[label.pointerX,9,0]},P_PntShdw_00:{translation:[label.pointerX,9,0]}
+  }});
+ }
  function hud(ctx:Context,date:Date,time:number){
   const table='hud_msbt_LZ',day=message(table,`day_${date.getDate()}`,String(date.getDate()).padStart(2,'0')).text!,month=message(table,`month_${date.getMonth()+1}`,String(date.getMonth()+1).padStart(2,'0')).text!;
   const weekday=message(table,`week_${['sun','mon','tue','wed','thu','fri','sat'][date.getDay()]}`,'').text!;
@@ -112,5 +121,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,rows:number){
   const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(rows))]});
  }
- return {hud,toolbar,footer,tile,empty,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,folderBalloon,toolbar,footer,tile,empty,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
 }

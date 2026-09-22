@@ -65,7 +65,12 @@ test('real HOME cursor bindings/materials render finite pixels with transparent 
 
 test('native framebuffer shadow multiplies RGB and respects alpha factors',()=>{
  assert.deepEqual(api.blendNativePixel([.2,.4,.6,1],[.5,.5,.5,1],{operation:1,sourceFactor:0,destinationFactor:2}),[.1,.2,.3,1]);
+ assert.deepEqual(api.blendNativePixel([.2,.4,.6,0],[.5,.5,.5,1],{operation:1,sourceFactor:2,destinationFactor:0}),[.1,.2,.3,0]);
  assert.deepEqual(api.blendNativePixel([1,0,0,.5],[0,0,1,1],{operation:1,sourceFactor:4,destinationFactor:5}),[.5,0,.5,.75]);
+ assert.deepEqual(api.blendNativePixel([.25,.25,.25,1],[.5,.5,.5,1],{operation:2,sourceFactor:1,destinationFactor:1}),[0,0,0,0]);
+ assert.deepEqual(api.blendNativePixel([.25,.25,.25,1],[.5,.5,.5,1],{operation:3,sourceFactor:1,destinationFactor:1}),[.25,.25,.25,0]);
+ assert.equal(api.nativeMultiplyBlend({operation:1,sourceFactor:2,destinationFactor:0}),true);
+ assert.equal(api.nativeMultiplyBlend({operation:1,sourceFactor:4,destinationFactor:5}),false);
 });
 
 test('per-control animation binding cannot animate unrelated groups',()=>{

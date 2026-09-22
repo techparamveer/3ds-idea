@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {getHomeFooter,getHomePresentation,nativeHomeDensityFrame} from '../src/os/home-presentation.ts';
+import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame} from '../src/os/home-presentation.ts';
 import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
 const home=()=>{const state=createPortfolioState();return {...state,system:{...state.system,phase:'home'}};};
@@ -16,6 +16,15 @@ test('pressed tile follows runtime pointer source without changing keyboard sele
 test('native density selects the five authored keys for two through six rows',()=>{
  assert.deepEqual([2,3,4,5,6].map(nativeHomeDensityFrame),[1,2,3,4,5]);
  assert.equal(nativeHomeDensityFrame(1),1,'legacy single-row state retains the largest available native tile');
+});
+test('native folder balloon keeps body and pointer separate and excludes unverified placements and gestures',()=>{
+ const initial=home(),state={...initial,selected:5,folders:{5:'１ (New Folder)'}};
+ const view={...getHomePresentation(state),rows:2,gesture:null,tiles:[{index:5,x:208,y:130,size:72,folderLabel:state.folders[5]}]};
+ assert.deepEqual(getNativeFolderBalloon(state,view),{label:state.folders[5],bodyX:8,pointerX:84});
+ assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...view.tiles[0],x:124}]}),{label:state.folders[5],bodyX:0,pointerX:0});
+ assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...view.tiles[0],folderLabel:''}]}),{label:'',bodyX:8,pointerX:84});
+ for(const variant of [{...view,rows:3},{...view,gesture:{mode:'drag'}},{...view,tiles:[{...view.tiles[0],y:46}]}])assert.equal(getNativeFolderBalloon(state,variant),null);
+ assert.equal(getNativeFolderBalloon({...state,opened:true},view),null);assert.equal(getNativeFolderBalloon({...state,panel:'settings'},view),null);
 });
 test('lifted source stays in the reducer map but paints as vacant until placement',()=>{
  const start=home(),original=start.system.layout[0];let state=touch(start,'down',point(start,0),100);state=tickSystem(state,550);

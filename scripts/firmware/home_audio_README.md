@@ -39,6 +39,9 @@ and gain connections, plus native sequence-before-voice ordering, gates and
 track-close semantics. Its 1,522 table entries match native bytes exactly.
 See `home_audio_VOICE_EVIDENCE.md` for source addresses, capture comparisons and
 the unresolved baked-loop defect. Wrapper version 6 remains unchanged.
+The subsequent [input-route and original-volume mixture diagnostic](home_audio_OPEN_ROUTE_EVIDENCE.md)
+rejects COMMON_BUTTON at folder opening and shows that the short confirmation
+cannot explain the remaining early folder-sweep difference. It changes no audio.
 
 Two aux buses remain distinct from main and from each other; each has a transparent
 unity return. This is a **startup runtime-state assumption** supported by the

@@ -1,0 +1,372 @@
+{
+  "id": "eur-home-24576-stereo-startup-v2",
+  "archiveSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
+  "sourceRecord": {
+    "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
+    "productCode": "CTR-N-HMMP",
+    "size": 3799296,
+    "sourceSha256": "2863c6c4e7b1c79e4352b63cde72994fa9c3b8bdd8dfd2afd4dd4104636b1898",
+    "titleId": "0004003000009802",
+    "version": 24576
+  },
+  "rendererRevision": "c00e809ad4fcc44056a5b3c11d30f6a698b92be0",
+  "patchedSourceHashes": {
+    "dualrip/engine/ctr/sequencer.py": "acbc3680446c26dcc8c0cb109380485c4d4b9b7a550dba3be1d1248227d6de26",
+    "dualrip/engine/ctr/channel.py": "4ee5aa99545538936eac3a201e8a16a7de4f79e7941f360dd2182e7873ba08cb",
+    "dualrip/engine/ctr/render.py": "742cc49e879df7afe0427aba2f51b80fc21c0c0eed78c6674867fb3394c39701"
+  },
+  "soundOptions": {
+    "SE_CTR_COMMON_CANCEL": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 12,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 100,
+      "player": 67108864
+    },
+    "BGM_CTR_HOME_NO_INTRO": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 25,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 96,
+      "player": 67108867
+    },
+    "BGM_CTR_HOME": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 26,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 96,
+      "player": 67108867
+    },
+    "SE_CTR_HOME_HOMEBUTTON": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 27,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 127,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_START": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 30,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 64,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_ICON_TOUCH": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 43,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 30,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_ICON_SELECT": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 44,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 48,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_ICON_GRAB": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 47,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 32,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_ICON_EXCHANGE": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 48,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 64,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_OPEN_FOLDER": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 52,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 44,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_CLOSE_FOLDER": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 53,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 48,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_POPUP_POWER": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 55,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 40,
+      "player": 67108868
+    }
+  },
+  "bankIds": [
+    0,
+    1,
+    2
+  ],
+  "referencedBankWaves": [
+    {
+      "archive": 2,
+      "wave": 0,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 1,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 2,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 3,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 4,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 5,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 6,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 7,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 8,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 9,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 0,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 1,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 2,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 3,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 4,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 5,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 6,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 0,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 1,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 2,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 3,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 4,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 5,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 6,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 7,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 8,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 9,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 10,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 11,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 12,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 13,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 14,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 15,
+      "channels": 1
+    }
+  ],
+  "note": "Bank resource superset; unused instruments may be included. No additional cue is rendered.",
+  "nativeOutputMode": {
+    "value": 1,
+    "name": "stereo",
+    "referenceModeVerified": false
+  },
+  "runtimeAssumptions": {
+    "dspDelayEnabled": false,
+    "dspReverbEnabled": false,
+    "hostAuxCallback": null,
+    "auxReturnA": 1,
+    "auxReturnB": 1,
+    "playerPanOffset": 0,
+    "playerSendOffsets": 0,
+    "panScale": 1,
+    "source": "Static HOME startup paths; later runtime overrides not captured"
+  },
+  "remainingGaps": [
+    "Reference system sound mode, master/player gains and later aux state need controlled capture",
+    "Native envelope, modulation, resampling, clipping and DSP arithmetic not validated by these corrections",
+    "Vorbis reference is approximately 8.6\u20139.7 dB louder than v1 at unknown gain; no compensating gain applied",
+    "Loop and cue timing remain from pinned DualRip; native timing and full PCM parity unverified"
+  ],
+  "nativePanLutSha256": "383ea4d362109b74ddccfdaacf46a0bf4b0255f3609cf01f5824e1910e7c7597"
+}

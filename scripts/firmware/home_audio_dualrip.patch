@@ -1,0 +1,210 @@
+--- a/dualrip/engine/ctr/sequencer.py
++++ b/dualrip/engine/ctr/sequencer.py
+@@ -9,6 +9,7 @@
+     cdiv, s8, s16, cnv_sine, cnv_attack, cnv_fall, cnv_sust, readvl, Rng,
+ )
+ from .channel import Voice
++from .home_audio_math import capture_pan, live_pan, pan_gains, send_gain, stereo_span
+-
++
+ # CSEQ command argument layouts (big-endian multi-byte args)
+ ARG_NONE, ARG_U8, ARG_S16, ARG_U16, ARG_VL, ARG_U8_U24, ARG_U24 = range(7)
+@@ -160,7 +161,11 @@
+         self.channel_prio = channel_prio
+         self.baseVol = cnv_sust(base_vol) # entry volume, dB
+         # aux buses by id
+-        self.effects = effects or {}
++        if effects:
++            raise ValueError('HOME startup profile supports transparent aux only')
++        self.effects = {}  # DSP delay/reverb disabled; host aux has no callback.
++        self.aux_returns = {'a': 1.0, 'b': 1.0}
++        self.handled_commands = {}
+         self.loop_passes = loop_passes
+         self.loop_detected = False
+         self.loop_start_sample = None
+@@ -177,6 +182,9 @@
+         self.active = []
+         self.voices = [Voice() for _ in range(self.NUM_VOICES)]
+         self.unapplied = {}
++
++    def note_handled(self, name):
++        self.handled_commands[name] = self.handled_commands.get(name, 0) + 1
+-
++
+     def note_unapplied(self, name):
+         self.unapplied[name] = self.unapplied.get(name, 0) + 1
+@@ -298,20 +306,16 @@
+         totalVol = max(-AMPL_K, min(0, totalVol))
+         amp = math.pow(10.0, totalVol / 160.0)
+         v.vol = int(amp * (1 << 20))
+-        # pan law: center 64 is full both sides, off-center attenuates the far side
+-        pan = v.pan + v.ext_pan
+-        if bMod and v.modType == 2:
+-            pan += modParam
+-        pan = max(0, min(127, pan + 64))
+-        v.vol_l = amp if pan <= 64 else amp * (127 - pan) / 63.0
+-        v.vol_r = amp if pan >= 64 else amp * pan / 64.0
++        # Native mode 0, curve 0, mono sources; initial pan was captured at note-on.
++        modulation = modParam / 63.0 if bMod and v.modType == 2 else 0.0
++        left, right = pan_gains(v.pan, v.ext_pan, modulation)
++        v.vol_l, v.vol_r = amp * left, amp * right
+-
++
+     def generate(self, n):
+-        """Mix n samples from all active voices, splitting over aux buses when effects are set."""
+-        fx = self.effects
++        """Mix main and two transparent startup aux buses (runtime assumption)."""
+         out_l = [0.0] * n
+         out_r = [0.0] * n
+-        aux = {k: ([0.0] * n, [0.0] * n) for k in fx}
++        aux = {k: ([0.0] * n, [0.0] * n) for k in self.aux_returns}
+         for v in self.voices:
+             if v.state == CS_NONE or v.inc <= 0:
+                 continue
+@@ -324,17 +328,12 @@
+             ls = v.loop_start
+             vl = v.vol_l
+             vr = v.vol_r
+-            if fx:
+-                gm = v.send_main
+-                targets = [(out_l, out_r, vl * gm, vr * gm)]
+-                if 'a' in fx and v.send_a > 1e-5:
+-                    al, ar = aux['a']
+-                    targets.append((al, ar, vl * v.send_a, vr * v.send_a))
+-                if 'b' in fx and v.send_b > 1e-5:
+-                    bl, br = aux['b']
+-                    targets.append((bl, br, vl * v.send_b, vr * v.send_b))
+-            else:
+-                targets = [(out_l, out_r, vl, vr)]
++            gm = v.send_main
++            targets = [(out_l, out_r, vl * gm, vr * gm)]
++            for bus, gain in (('a', v.send_a), ('b', v.send_b)):
++                if gain > 0:
++                    al, ar = aux[bus]
++                    targets.append((al, ar, vl * gain, vr * gain))
+             for i in range(n):
+                 if pos >= ln:
+                     if v.loop and not cut_at_wrap:
+@@ -356,10 +355,8 @@
+             v.pos = pos
+             if v.dead_wrap:
+                 v.kill()
+-        for k, eff in fx.items():
+-            al, ar = aux[k]
+-            wl, wr = eff.process(al, ar)
+-            ret = eff.ret
++        for k, ret in self.aux_returns.items():
++            wl, wr = aux[k]
+             for i in range(n):
+                 out_l[i] += wl[i] * ret
+                 out_r[i] += wr[i] * ret
+@@ -387,6 +384,8 @@
+         self.bank_no = 0
+         self.vol = self.expr = 127
+         self.pan = 0
++        self.initial_pan = 64
++        self.span = 0
+         self.pitchBend = 0
+         self.pitchBendRange = 2
+         self.transpose = 0
+@@ -467,7 +466,7 @@
+         v.org_key = region.org_key
+         v.velocity = cnv_sust(vel)
+         v.region_vol = cnv_sust(region.volume)
+-        v.pan = region.pan - 64 # region pan is 0..127, center 64
++        v.pan = capture_pan(region.pan, self.initial_pan)
+         v.modDelayCnt = 0
+         v.modCounter = 0
+         v.noteLength = length
+@@ -510,17 +509,18 @@
+         ply = self.ply
+         final = ply.masterVol + ply.baseVol + cnv_sust(self.vol) + cnv_sust(self.expr)
+         v.ext_ampl = max(-AMPL_K, final)
+-        v.ext_pan = self.pan
++        v.ext_pan = live_pan(self.pan)
++        v.span = stereo_span(self.span, output_mode=1)
+         v.ext_tune = (v.key - v.org_key) * 64 + ((self.pitchBend * self.pitchBendRange) >> 1)
+         v.modType = self.modType
+         v.modSpeed = self.modSpeed
+         v.modDepth = self.modDepth
+         v.modRange = self.modRange
+         v.modDelay = self.modDelay
+-        # bus send gains, applied only when effects are configured
+-        v.send_main = 10.0 ** (cnv_sust(self.mainsend) / 160.0)
+-        v.send_a = 10.0 ** (cnv_sust(self.fxsend_a) / 160.0)
+-        v.send_b = 10.0 ** (cnv_sust(self.fxsend_b) / 160.0)
++        # Linear sends are state even with no DSP effect/host callback installed.
++        v.send_main = send_gain(self.mainsend)
++        v.send_a = send_gain(self.fxsend_a)
++        v.send_b = send_gain(self.fxsend_b)
+-
++
+     def update_porta(self, v, gate):
+         v.manualSweep = False
+@@ -740,18 +740,23 @@
+                 self.r = self.oval8()
+             elif cmd == 0xB6:
+                 self.bank_no = self.oval8() & 3
+-            elif cmd in (0xD9, 0xDA, 0xDB): # fxsend_a / fxsend_b / mainsend
++            elif cmd == 0xDC:  # Captured only by newly allocated notes, never ties.
++                self.initial_pan = self.oval8()
++                ply.note_handled('init_pan')
++            elif cmd == 0xD7:
++                self.span = self.oval8()
++                self.push_params()
++                ply.note_handled('span_stereo_no_effect')
++            elif cmd in (0xD9, 0xDA, 0xDB):
+                 val = self.oval8()
+-                if ply.effects:
+-                    if cmd == 0xD9:
+-                        self.fxsend_a = val
+-                    elif cmd == 0xDA:
+-                        self.fxsend_b = val
+-                    else:
+-                        self.mainsend = val
+-                    self.push_params()
++                if cmd == 0xD9:
++                    self.fxsend_a = val
++                elif cmd == 0xDA:
++                    self.fxsend_b = val
+                 else:
+-                    ply.note_unapplied(CSEQ_NAMES[cmd])
++                    self.mainsend = val
++                self.push_params()
++                ply.note_handled(CSEQ_NAMES[cmd])
+             elif cmd in (0xA0, 0xA1): # random / variable prefixes
+                 self.over_cmd = self.read8()
+                 self.over_sub = None
+--- a/dualrip/engine/ctr/channel.py
++++ b/dualrip/engine/ctr/channel.py
+@@ -71,7 +71,7 @@
+ class Voice:
+     """One CSEQ software voice."""
+     __slots__ = ('state', 'trackId', 'prio', 'key', 'org_key', 'velocity',
+-        'pan', 'region_pan', 'ampl', 'ext_ampl', 'ext_pan', 'ext_tune',
++        'pan', 'region_pan', 'span', 'ampl', 'ext_ampl', 'ext_pan', 'ext_tune',
+         'attackLvl', 'decayRate', 'sustainLvl', 'releaseRate',
+         'noteLength', 'samples', 'base_rate', 'pitch_mul', 'loop',
+         'loop_start', 'pos', 'inc', 'vol_l', 'vol_r', 'vol',
+--- a/dualrip/engine/ctr/render.py
++++ b/dualrip/engine/ctr/render.py
+@@ -6,7 +6,7 @@
+ )
+ from .sequencer import CseqPlayer
+-
++
+-def render_entry(blob, start_offset, bank_lookup, rate, channel_prio, hold_seconds=2.0, loop_passes=2, base_vol=127, effects=None):
++def render_entry(blob, start_offset, bank_lookup, rate, channel_prio, hold_seconds=2.0, loop_passes=2, base_vol=127, effects=None, handled=None):
+     """Render one CSEQ entry to (chans, loop, unapplied)."""
+     ply = CseqPlayer(blob, bank_lookup, rate, channel_prio, loop_passes, base_vol, effects)
+     ply.setup(start_offset)
+@@ -56,6 +56,8 @@
+     loop = None
+     if ply.loop_detected and ply.loop_start_sample is not None:
+         loop = (ply.loop_start_sample, ply.loop_end_sample or len(chans[0]))
++    if handled is not None:
++        handled.update(ply.handled_commands)
+     return chans, loop, ply.unapplied
+-
++
+ def render_wsd(ctx, cwsd, item_index, rate, base_vol):

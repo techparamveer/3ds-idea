@@ -3,13 +3,14 @@
 DualRip interprets the original CSEQ bytecode, CBNK instruments and CWAV samples
 offline. Only PCM cues and provenance enter the site, never firmware code. Pin
 the renderer revision: changes to driver arithmetic can change rendered PCM.
+The exact EUR HOME profile patches a disposable source copy. This is a
+diagnostic candidate with explicit runtime assumptions, not a fidelity claim.
 """
 from pathlib import Path
 import argparse
 import hashlib
 import json
-import subprocess
-import sys
+from firmware.home_audio_profile import isolated_renderer, validate_archive, validate_source
 
 DUALRIP_REVISION = 'c00e809ad4fcc44056a5b3c11d30f6a698b92be0'
 CUES = {
@@ -33,61 +34,65 @@ def sha(path):
 
 
 def render(source, output, renderer, source_record, names, rate=32728):
-    revision = subprocess.check_output(['git', '-C', str(renderer), 'rev-parse', 'HEAD'], text=True).strip()
-    if revision != DUALRIP_REVISION:
-        raise ValueError(f'DualRip must be at {DUALRIP_REVISION}, found {revision}')
-    if subprocess.check_output(['git', '-C', str(renderer), 'status', '--porcelain', '--untracked-files=no'], text=True).strip():
-        raise ValueError('Renderer source has unrecorded modifications')
     if output.exists():
         raise ValueError('Use a new output directory to avoid stale or mixed audio packs')
+    if not names or len(set(names)) != len(names) or any(name not in CUES for name in names):
+        raise ValueError('Expected unique allowlisted cue aliases')
+    if rate not in (32728, 32000, 44100, 48000):
+        raise ValueError('Unsupported sample rate')
     title = json.loads(source_record.read_text())
-    if title.get('titleId') != '0004003000009802':
-        raise ValueError('Expected European HOME Menu source record')
-    sys.path.insert(0, str(renderer.resolve()))
-    from dualrip.formats.ctr import open_bcsar, cstm
-    archive = open_bcsar(str(source))
-    available = {sound.name: sound for sound in archive.sounds}
-    if any(CUES[name] not in available for name in names):
-        raise ValueError('Missing requested native cue')
-    output.mkdir(parents=True)
-    result = {
-        'schema': 1, 'firmware': '10.7.0-32E', 'title': title,
-        'source': 'romfs/sound/menu.bcsar', 'sourceSha256': sha(source),
-        'converter': {'name': 'render_firmware_audio', 'version': 1, 'sha256': sha(Path(__file__))},
-        'renderer': {'name': 'DualRip', 'url': 'https://github.com/TetraSsky/DualRip', 'revision': revision},
-        'method': 'offline CSEQ interpretation with original CBNK instruments and CWAV samples',
-        'verification': 'pending matched Azahar timing and waveform comparison',
-        'cues': {},
-    }
-    for alias in names:
-        sound = available[CUES[alias]]
-        archive.unapplied.clear()
-        native_rate, channels, loop = archive.render(sound, rate)
-        samples = len(channels[0])
-        if not samples or any(len(channel) != samples for channel in channels):
-            raise ValueError(f'Invalid rendered channels for {sound.name}')
-        # Export exactly one intro/loop, retaining the driver's sample boundaries.
-        if loop:
-            if not 0 <= loop[0] < loop[1] <= samples:
-                raise ValueError(f'Invalid loop in {sound.name}: {loop}')
-            channels = [channel[:loop[1]] for channel in channels]
-            samples = loop[1]
-        path = output / f'{alias}.wav'
-        cstm.write_wav(str(path), channels, native_rate, loop)
-        banks = []
-        for bank_id in sound.bank_ids:
-            banks.append({'id': bank_id, 'waveArchives': archive.bank_wave_archives(bank_id)})
-        result['cues'][alias] = {
-            'name': sound.name, 'index': sound.index, 'kind': sound.kind,
-            'url': path.name, 'sha256': sha(path), 'size': path.stat().st_size,
-            'sampleRate': native_rate, 'channels': len(channels), 'samples': samples,
-            'loopStart': loop[0] if loop else None, 'loopEnd': loop[1] if loop else None,
-            'sourceVolume': sound.volume, 'banks': banks,
-            'unappliedCommands': dict(archive.unapplied),
+    validate_source(source, title)
+    with isolated_renderer(renderer) as profile:
+        from dualrip.formats.ctr.archive import CtrArchive
+        from dualrip.formats.ctr import cstm, cseq
+        from dualrip.engine.ctr.render import render_entry
+        # Exact embedded archive only; never load unverified neighboring extData.
+        archive = CtrArchive(source.read_bytes(), [], source.name)
+        metadata, waves = validate_archive(archive, [CUES[name] for name in names])
+        available = {sound.name: sound for sound in archive.sounds}
+        output.mkdir(parents=True)
+        result = {
+            'schema': 1, 'firmware': '10.7.0-32E', 'title': title,
+            'source': 'romfs/sound/menu.bcsar', 'sourceSha256': sha(source),
+            'converter': {'name': 'render_firmware_audio', 'version': 2, 'sha256': sha(Path(__file__))},
+            'renderer': {'name': 'DualRip', 'url': 'https://github.com/TetraSsky/DualRip', 'revision': DUALRIP_REVISION},
+            'profile': profile, 'validatedMonoBankWaves': waves,
+            'method': 'offline CSEQ interpretation with original CBNK/CWAV and a versioned HOME-only stereo startup patch',
+            'verification': 'diagnostic candidate; native runtime gain, timing and PCM equivalence unresolved',
+            'cues': {},
         }
-        print(f'{alias}: {samples / native_rate:.3f}s, loop={loop}, unapplied={archive.unapplied}', flush=True)
-    (output / 'audio.json').write_text(json.dumps(result, indent=2) + '\n')
-    return result
+        for alias in names:
+            sound = available[CUES[alias]]
+            blob, _ = cseq.parse_cseq(archive.ctx.file_bytes(sound.file_id, 'seq'))
+            handled = {}
+            channels, loop, unapplied = render_entry(
+                blob, sound.start_offset, archive.ctx.make_lookup(sound.bank_ids), rate,
+                sound.channel_prio or 64, base_vol=sound.volume, handled=handled)
+            native_rate = rate
+            samples = len(channels[0])
+            if not samples or any(len(channel) != samples for channel in channels):
+                raise ValueError(f'Invalid rendered channels for {sound.name}')
+            if loop:
+                if not 0 <= loop[0] < loop[1] <= samples:
+                    raise ValueError(f'Invalid loop in {sound.name}: {loop}')
+                channels = [channel[:loop[1]] for channel in channels]
+                samples = loop[1]
+            path = output / f'{alias}.wav'
+            cstm.write_wav(str(path), channels, native_rate, loop)
+            banks = [{'id': bank_id, 'waveArchives': archive.bank_wave_archives(bank_id)}
+                     for bank_id in sound.bank_ids]
+            result['cues'][alias] = {
+                'name': sound.name, 'index': sound.index, 'kind': sound.kind,
+                'url': path.name, 'sha256': sha(path), 'size': path.stat().st_size,
+                'sampleRate': native_rate, 'channels': len(channels), 'samples': samples,
+                'loopStart': loop[0] if loop else None, 'loopEnd': loop[1] if loop else None,
+                'sourceVolume': sound.volume, 'banks': banks,
+                'sourceOptions': metadata[sound.name],
+                'handledProfileCommands': handled, 'unappliedCommands': unapplied,
+            }
+            print(f'{alias}: {samples / native_rate:.3f}s, loop={loop}, handled={handled}, unapplied={unapplied}', flush=True)
+        (output / 'audio.json').write_text(json.dumps(result, indent=2) + '\n')
+        return result
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
 export type NativeLayout={canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
 export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number}>;messages:Record<string,{labels:Record<string,number>;messages:{text:string;tokens:unknown[]}[]}>};
 export type PaneOverrides=Record<string,{text?:string;visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number}>;
-export type AnimationBinding={name:string;frame:number};
+export type AnimationBinding={name:string;frame:number;groups?:string[]};
 /** Equal-frame keys are intentional discontinuities: incoming uses first, outgoing uses last. */
 export function sampleNativeTrack(track:NativeTrack,frame:number){
  const keys=track.keys;if(!keys.length)return 0;if(frame<keys[0].frame)return keys[0].value;
@@ -31,7 +31,9 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
  const posed=structuredClone(layout), panes=new Map<string,NativePane>();
  const visit=(items:NativePane[])=>items.forEach(p=>{panes.set(p.name,p);visit(p.children);});visit(posed.roots);
  for(const binding of bindings){
-  const animation=animations[binding.name];if(!animation)throw new Error(`Missing native animation ${binding.name}`);
+  const source=animations[binding.name];if(!source)throw new Error(`Missing native animation ${binding.name}`);
+  const groups=binding.groups?.filter(name=>source.groups.includes(name));if(groups&&!groups.length)continue;
+  const animation=groups?{...source,groups}:source;
   const frame=animation.loop&&animation.frames>0?((binding.frame%animation.frames)+animation.frames)%animation.frames:Math.max(0,Math.min(animation.frames,binding.frame));
   for(const track of boundAnimationTracks(layout,animation)){
    const value=sampleNativeTrack(track,frame), parts=track.property.split('.');

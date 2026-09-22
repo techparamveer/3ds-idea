@@ -36,15 +36,17 @@ export function createPortfolioGraphics(){
   if(app.icon==='mail'){box(c,12,21,40,28,3,'white');c.strokeStyle=app.color;c.beginPath();c.moveTo(13,23);c.lineTo(32,37);c.lineTo(51,23);c.stroke();}
   c.restore();
  }
- function menuIcon(c:C,app:PortfolioApp,x:number,y:number,tileSize:number){
+ function menuArtwork(c:C,app:PortfolioApp,x:number,y:number,width:number,height:number){
   let canvas=menuIcons.get(app.id);
   if(!canvas){
    canvas=document.createElement('canvas');canvas.width=canvas.height=48;
    const native=canvas.getContext('2d')!;native.scale(48/56,48/56);native.translate(-4,-4);icon(native,app,0,0,64);menuIcons.set(app.id,canvas);
   }
+  c.save();c.imageSmoothingEnabled=false;c.drawImage(canvas,x,y,width,height);c.restore();
+ }
+ function menuIcon(c:C,app:PortfolioApp,x:number,y:number,tileSize:number){
   // HOME software artwork is 48×48 inside the 72×72 two-row tile.
-  const size=Math.round(tileSize*2/3);c.save();c.imageSmoothingEnabled=false;
-  c.drawImage(canvas,Math.round(x+(tileSize-size)/2),Math.round(y+(tileSize-size)/2),size,size);c.restore();
+  const size=Math.round(tileSize*2/3);menuArtwork(c,app,Math.round(x+(tileSize-size)/2),Math.round(y+(tileSize-size)/2),size,size);
  }
  // One small rasterized 3D scene shared by every HOME banner.
  let renderer:THREE.WebGLRenderer|undefined;
@@ -108,5 +110,5 @@ export function createPortfolioGraphics(){
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,banner,overlay,dispose(){renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,dispose(){renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

@@ -6,7 +6,7 @@ The presentation branch now consumes the owner's converted European 10.7.0-32E H
 
 `loadFirmwarePresentationAssets(manifestUrl?, signal?)`, exported from `screens.ts`, loads shared/HUD bitmap fonts and the selected HOME packs. Manifest-relative URLs remain relative to the entry manifest. It accepts cancellation and exposes `diagnostics`; no silent native-asset fallback occurs in that loader.
 
-`createScreens({firmwareAssets?, drawFolderBanner?})` accepts an injected asset set; `setFirmwareAssets(assets)` supports asynchronous arrival. The callback receives `(CanvasRenderingContext2D, elapsedMilliseconds, reducedMotion)` and returns whether it painted the native folder. The scene owns Three.js and the CGFX renderer. Screen disposal owns the attached layout/font caches. Calling the setter after disposal disposes the arriving assets.
+`createScreens({firmwareAssets?, drawFolderBanner?, runtimeNotice?})` accepts an injected asset set; `setFirmwareAssets(assets)` supports asynchronous arrival. The folder callback receives `(CanvasRenderingContext2D, elapsedMilliseconds, reducedMotion)` and returns whether it painted the native folder. The optional notice callback supplies the scene's runtime status after screen overlays. The scene owns Three.js and the CGFX renderer. Screen disposal owns the attached layout/font caches. Calling the setter after disposal disposes the arriving assets.
 
 The upper canvas remains 800×240 storage adapted from 400×240 logical pixels. Lower remains 320×240. Existing portfolio state/input modules are unchanged by this checkpoint. Native artwork uses existing menu geometry, so mismatches between native density frames and input layout are still subject to reference comparison.
 
@@ -36,3 +36,16 @@ Unverified areas: the white theme background; exact scene clip frame selection a
 - `npm test` with the same resource override: **70 passed, 39 failed**. Remaining failures read unhydrated Git LFS model/texture pointer files in this isolated checkout; presentation/font tests pass.
 - `npm run build`: blocked by Turbopack rejecting the pre-existing `node_modules` symlink outside its filesystem root. `npm run build -- --webpack` reaches compilation but the existing configuration has no webpack loader for `silver.wgsl`. Neither build is reported as passing.
 - Software Canvas sample: initial HOME raster approximately 710 ms; repeated static HUD/toolbar/footer paint approximately 1.0–1.4 ms with a 0.53 MiB material cache in this runtime. This excludes the Three.js banner, does not measure browser GPU performance, and does not establish acceptable first-paint cost.
+
+## Gesture presentation follow-up (2026-09-22)
+
+This follows the runtime helper contract in `docs/home-gesture-runtime.md` and depends on runtime checkpoint `7870730119b15792d06fb3ab5eff723a8de348d8` after its foundation commits. `home-presentation.ts` derives visible child IDs, pressed/source/target tiles and the pickup ghost from `homeSlotAppId`, `getHomeGestureView` and `menuTiles`. It never interprets touch events or changes persistent icon maps. Fractional viewport positions come directly from the runtime. The source icon is suppressed during pickup, valid targets get the cursor, and cancellation restores the runtime's original view.
+
+Native pickup, vacant-source and receiving-folder layouts are loaded alongside HOME chrome. Portfolio artwork replaces the pickup dummy icon within the native sampled bounds. Cursor press displacement and toolbar/footer press clips use the existing native animation data; per-control group subsets prevent a press from animating every toolbar control. Opened folders show child artwork and Open/Resume, with Close on the left to match the runtime's folder-back action. The root folder banner is suppressed while its child view is open.
+
+- Focused presentation, native-layout, bitmap-font, font-metrics and CGFX tests: **23/23 passed**, including actual reducer press/lift/hover/scroll/cancel paths and the folder footer contract with suspended software.
+- `npm run typecheck` and a direct nonincremental TypeScript check passed. `git diff --check` passed.
+- An additional runtime test file could not load `fake-indexeddb` from this checkout's pre-existing dependency symlink; no dependency files or other worktrees were changed to work around that environment issue. The runtime task owns its complete runtime suite.
+- Software Canvas inspection artifacts: `software-gestures.png` and `software-gestures-extra.png` in the presentation artifact directory above. They cover app/folder pickup, receiving-folder preview, child view, cancellation, toolbar/footer press and fractional scrolling. These are not browser or Azahar captures.
+
+Remaining acceptance work includes native frame/timing comparison, the density/input alignment, folder initials, and renderer/material parity. The observed base tile shading and source placeholders still require matched native inspection. This follow-up does not claim completed HOME visual fidelity or add stock application interiors.

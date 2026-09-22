@@ -67,3 +67,17 @@ test('native framebuffer shadow multiplies RGB and respects alpha factors',()=>{
  assert.deepEqual(api.blendNativePixel([.2,.4,.6,1],[.5,.5,.5,1],{operation:1,sourceFactor:0,destinationFactor:2}),[.1,.2,.3,1]);
  assert.deepEqual(api.blendNativePixel([1,0,0,.5],[0,0,1,1],{operation:1,sourceFactor:4,destinationFactor:5}),[.5,0,.5,.75]);
 });
+
+test('per-control animation binding cannot animate unrelated groups',()=>{
+ const l=layout();l.groups.push({name:'other',panes:['unrelated'],children:[]});
+ const animation={frames:2,loop:false,childBinding:true,groups:['selection','other'],textures:[],tracks:[track('selected',2),track('unrelated',4)]};
+ const posed=poseNativeLayout(l,{clip:animation},[{name:'clip',frame:1,groups:['selection']}]);
+ assert.equal(posed.roots[0].children[0].translation[0],2);assert.equal(posed.roots[0].children[1].translation[0],0);
+ const unbound=poseNativeLayout(l,{clip:animation},[{name:'clip',frame:1,groups:['missing']}]);assert.equal(unbound.roots[0].children[0].translation[0],0);
+});
+test('real HOME toolbar presses bind only the selected control', {skip:!available},()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/launcher.json'))),original=pack.layouts.LncBase_D_01;
+ const posed=poseNativeLayout(original,pack.animations,[{name:'LncBase_D_01_Select',frame:1,groups:['G_Memo_00']}]);
+ const panes=[];const visit=items=>items.forEach(p=>{panes.push(p);visit(p.children);});visit(posed.roots);
+ assert.equal(panes.find(p=>p.name==='P_Memo_10').translation[1],-2);assert.equal(panes.find(p=>p.name==='P_Frd_10').translation[1],0);
+});

@@ -1,7 +1,8 @@
 import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
-import { type MenuState, type Theme, menuTiles, isFolder, pageStart, rowCount, slotCount, themeChoices, keyboardKeys } from './state';
+import { getHomeFooter, getHomePresentation, type HomePresentation } from './home-presentation';
+import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices, keyboardKeys } from './state';
 import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
 export { loadFirmwarePresentationAssets, type FirmwarePresentationAssets } from './firmware-presentation';
@@ -94,10 +95,9 @@ function button(c:Context,x:number,y:number,w:number,h:number,label:string,activ
 }
 function footer(c:Context,state:MenuState,chrome:ReturnType<typeof createNativeChrome>){
  c.fillStyle=gradient(c,212,28,'#fff','#c4c5c9');c.fillRect(0,212,320,28);line(c,[[0,212.5],[320,212.5]],'#9c9da4');chrome.draw(c,'home-footer',0,214);
- if(state.system&&!state.opened&&state.system.layout[state.selected]){text(c,state.system.app?'Close software':'',50,226,10);text(c,state.system.app===state.system.layout[state.selected]?'Resume':'Open',212,226,14,'#494b51','center');return;}
- if(state.opened){text(c,'↶',24,226,19);text(c,'Close',170,226,14,'#494b51','center');return;}
- if(isFolder(state.selected,state)){line(c,[[104.5,214],[104.5,240]],'#aaabb2');text(c,'Settings',52,226,13,'#494b51','center');text(c,'Open',212,226,14,'#494b51','center');}
- else text(c,'Create Folder',160,226,14,'#494b51','center');
+ const {two,left,right}=getHomeFooter(state),labels={'close-folder':'Close','close-software':'Close software','folder-settings':'Settings',resume:'Resume',open:'Open','create-folder':'Create Folder'};
+ if(two){line(c,[[104.5,214],[104.5,240]],'#aaabb2');text(c,left?labels[left]:'',52,226,11,'#494b51','center');text(c,labels[right],212,226,14,'#494b51','center');}
+ else{if(state.opened)text(c,'↶',24,226,19);text(c,labels[right],160,226,14,'#494b51','center');}
 }
 function arrows(c:Context,state:MenuState){
  for(const right of [false,true]){
@@ -107,29 +107,46 @@ function arrows(c:Context,state:MenuState){
   const x=right?310:10;c.fillStyle='#91bdb7';c.beginPath();c.moveTo(x+(right?5:-5),131);c.lineTo(x+(right?-3:3),125);c.lineTo(x+(right?-3:3),137);c.fill();c.restore();
  }
 }
-function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,nativeHome?:NativeHome){
+function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome){
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
- const selected=state.opened?state.folderSelected:state.selected;
- for(const tile of menuTiles(state)){
-  const {x,y,size,index}=tile;const app=!state.opened?getApp(state.system?.layout[index]):undefined;const occupied=app||(!state.opened&&isFolder(index,state));
-  if(occupied){
-   if(!(nativeHome?.tile(c,x,y,size,rowCount(state),!app)??chrome.tile(c,x,y,size))){c.save();c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
-   rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();}
-   if(app)graphics.menuIcon(c,app,x,y,size);else if(!nativeHome)folder(c,x+size/2,y+size/2,size*.78,state.folders[index]);
+ for(const tile of view.tiles){
+  const {x,size,appId,folderLabel,pressed,source,drop}=tile,y=tile.y+(pressed?(nativeHome?.pressOffset??2):0);
+  const app=getApp(appId),occupied=!!appId||folderLabel!==null;
+  if(source){
+   if(!nativeHome?.liftedSource(c,x,tile.y,size,view.rows)){
+    const inset=size*.34;rounded(c,x+inset,tile.y+inset,size-inset*2,size-inset*2,2,'#d3d4d766','#c8c9cc');
+   }
+  }else if(occupied){
+   const nativeDrawn=nativeHome?.tile(c,x,y,size,view.rows,folderLabel!==null,drop&&folderLabel!==null);
+   if(!(nativeDrawn??chrome.tile(c,x,y,size))){c.save();c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
+    rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();}
+   if(app)graphics.menuIcon(c,app,x,y,size);
+   else if(folderLabel!==null&&!nativeDrawn)folder(c,x+size/2,y+size/2,size*.78,folderLabel);
   }else{
    const inset=size*.34,side=size-inset*2;
    rounded(c,x+inset,y+inset,side,side,2,'#d3d4d766','#c8c9cc');
    line(c,[[x+inset+1,y+inset+side],[x+inset+side,y+inset+side],[x+inset+side,y+inset+1]],'#e9e9eb');
   }
-  if(index===selected&&!(nativeHome?.cursor(c,x,y,size,rowCount(state),time)))cursor(c,x,y,size,size,time,reduced);
+  if(tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.rows,time,pressed))cursor(c,x,y,size,size,time,reduced);
  }c.restore();
- // The real scroll arrows sit halfway up the icon field, not in the footer.
  if(!nativeHome?.arrows(c,pageStart(state)>0))arrows(c,state);
  rounded(c,15,204,290,5,2,'#bfc0c580');
  const width=Math.max(14,290*state.columns/Math.ceil(slotCount(state)/rowCount(state)));
  rounded(c,15+(290-width)*pageStart(state)/Math.max(1,Math.ceil(slotCount(state)/rowCount(state))-state.columns),204,width,5,2,'#fafafa','#b8b9bc');
  if(state.opened){c.fillStyle='#737982';c.fillRect(0,33,320,16);text(c,'↶',21,41,15,'white');text(c,state.folders[state.selected]||'',160,41,11,'white','center');}
 }
+function dragGhost(c:Context,view:HomePresentation,graphics:ReturnType<typeof createPortfolioGraphics>,nativeHome?:NativeHome){
+ const ghost=view.ghost;if(!ghost)return;
+ const {x,y,size,item}=ghost,app=item.kind==='app'?getApp(item.id):undefined;
+ c.save();c.beginPath();c.rect(0,0,320,240);c.clip();
+ const pickup=nativeHome?.pickup(c,x,y,size,view.rows,item.kind==='folder');
+ if(pickup?.drawn){
+  if(app){const rect=pickup.icon;c.globalAlpha=rect.alpha;graphics.menuArtwork(c,app,rect.x,rect.y,rect.width,rect.height);}
+ }else if(item.kind==='folder')folder(c,x,y,size*.78,item.label);
+ else if(app){rounded(c,x-size/2,y-size/2,size,size,8,'#f8f9fc','#adb4bf');graphics.menuIcon(c,app,x-size/2,y-size/2,size);}
+ c.restore();
+}
+
 function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite:HTMLImageElement,shopSprite:HTMLImageElement){
  if(!state.panel)return;
  c.fillStyle='#171a2b66';c.fillRect(0,0,320,240);
@@ -212,9 +229,10 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
   if(disposed)return;
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
+  const view=getHomePresentation(state);
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(!nativeHome?.hud(t,date,time))status(t,date,chrome);
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&state.system?.phase!=='launch')graphics.banner(t,app,time,reduced);
-  if(isFolder(state.selected,state)&&!state.panel){
+  if(!state.opened&&isFolder(state.selected,state)&&!state.panel){
    if(!options.drawFolderBanner?.(t,time,reduced)){
    t.save();t.shadowColor='#626d8a50';t.shadowBlur=12;t.shadowOffsetY=10;
    folder(t,200,115+Math.sin(time/800)*2,91,state.folders[state.selected],Math.sin(time/1500)*.32);t.restore();
@@ -230,7 +248,7 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
     if(sprite.complete&&sprite.naturalWidth){const sx=[12,55,96,138,181][i];t.drawImage(sprite,sx,3,i===4?30:25,25,x-sz*.4,y-sz*.4,sz*.8,sz*.8);}
    }
   }
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b))toolbar(b,sprite,chrome);grid(b,state,time,reduced,graphics,chrome,nativeHome);if(!nativeHome?.footer(b,state))footer(b,state,chrome);panel(b,state,time,reduced,themeSprite,shopSprite);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);grid(b,state,time,reduced,graphics,chrome,view,nativeHome);if(!nativeHome?.footer(b,state))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome);panel(b,state,time,reduced,themeSprite,shopSprite);
   graphics.overlay(t,b,state,elapsedMs,reduced);
   const notice=options.runtimeNotice?.();if(notice){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);

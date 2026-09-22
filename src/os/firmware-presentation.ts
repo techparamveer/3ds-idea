@@ -1,12 +1,14 @@
 import { BitmapFont, loadBitmapFont, loadNativeImage } from './bitmap-font';
 import { NativeLayoutRenderer } from './native-renderer';
-import type { NativePack, NativePixels, PaneOverrides } from './native-layout';
-import { isFolder, rowCount, type MenuState } from './state';
+import { poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
+import { rowCount, toolbar as toolbarRegions, type MenuState } from './state';
+import { getHomeGestureView } from './system';
+import { getHomeFooter } from './home-presentation';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>};
-const homeLayouts={hud:['HudMenu_00'],launcher:['LncBase_D_01','LncBase_U_00','LncCsr_00','LncBtmBtn_02','LncIconFolder_00','LncIconCard_00','LncArw_00']};
+const homeLayouts={hud:['HudMenu_00'],launcher:['LncBase_D_01','LncBase_U_00','LncCsr_00','LncBtmBtn_02','LncIconFolder_00','LncIconCard_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
  const base=new URL(manifestUrl,window.location.href),controller=new AbortController();
@@ -49,7 +51,9 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
 export function createFirmwareHome(assets:FirmwarePresentationAssets){
  const renderer=assets.renderer;
  const message=(table:string,key:string,fallback:string)=>{const data=renderer.packs.messages.messages[table];return data?.messages[data.labels[key]]?.text??fallback;};
- const binding=(name:string,frame:number)=>({name,frame});
+ const binding=(name:string,frame:number,groups?:string[]):AnimationBinding=>({name,frame,...(groups?{groups}:{})});
+ const pressTrack=renderer.packs.launcher.animations.LncCsr_00_Select.tracks.find(track=>track.target==='N_Scene_00'&&track.property==='translation.y');
+ const pressOffset=pressTrack?-sampleNativeTrack(pressTrack,5):0;
  function hud(ctx:Context,date:Date,time:number){
   const table='hud_msbt_LZ',day=message(table,`day_${date.getDate()}`,String(date.getDate()).padStart(2,'0')),month=message(table,`month_${date.getMonth()+1}`,String(date.getMonth()+1).padStart(2,'0'));
   const weekday=message(table,`week_${['sun','mon','tue','wed','thu','fri','sat'][date.getDay()]}`,'');
@@ -58,25 +62,50 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    T_NetMode_00:{text:message(table,'lau_connect4','Disabled')},T_Date_00:{text:dateText},T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:'0'},T_Coin_00:{text:'0'}
   }});
  }
- function toolbar(ctx:Context){return renderer.draw(ctx,'launcher','LncBase_D_01',{bindings:[binding('LncBase_D_01_PaletteOut',12),binding('LncBase_D_01_MvsToggle',0)],clip:[0,0,320,212]});}
+ function toolbar(ctx:Context,state?:MenuState){
+  const gesture=state&&getHomeGestureView(state),bindings=[binding('LncBase_D_01_PaletteOut',12),binding('LncBase_D_01_MvsToggle',0)];
+  if(!state?.panel&&gesture?.mode==='press'&&gesture.y>=0&&gesture.y<33&&gesture.x>=0&&gesture.x<320){
+   const index=toolbarRegions.findIndex(region=>gesture.x>=region.x&&gesture.x<region.x+region.width);
+   const group=index>=0?['G_Light_00','G_Memo_00','G_Friend_00','G_News_00','G_Web_00','G_Mvs_00'][index]:gesture.x<294?'G_Dw_00':'G_Up_00';
+   bindings.push(binding('LncBase_D_01_Select',1,[group]));
+  }
+  return renderer.draw(ctx,'launcher','LncBase_D_01',{bindings,clip:[0,0,320,212]});
+ }
  function footer(ctx:Context,state:MenuState){
-  const occupied=!!state.system?.layout[state.selected],folder=isFolder(state.selected,state)&&!state.opened,two=folder||occupied;
+  const {two,left:leftAction,right:rightAction}=getHomeFooter(state);
   const active=new Set(two?['N_BtnW_R_02','N_BtnW_L_03']:['N_BtnW_C_01']);
   const overrides:PaneOverrides={};
   const walk=(panes:NativePack['layouts'][string]['roots'])=>panes.forEach(p=>{if(/^N_Btn[WB]_[LRC]+_\d+$/.test(p.name))overrides[p.name]={visible:active.has(p.name)};if(p.text)overrides[p.name]={text:''};walk(p.children);});walk(renderer.packs.launcher.layouts.LncBtmBtn_02.roots);
-  const right=state.opened?message('menu_msbt_LZ','lau_2b_close','Close'):two?(state.system?.app&&state.system.app===state.system.layout[state.selected]?'Resume':message('menu_msbt_LZ','lau_2b_folder_open','Open')):message('menu_msbt_LZ','lau_1b_make_folder','Create Folder');
-  const left=folder?message('menu_msbt_LZ','lau_2b_folder_setting','Settings'):state.system?.app?'Close software':'';
+  const label=(action:typeof leftAction|typeof rightAction)=>action===null?'':action==='resume'?'Resume':action==='close-software'?'Close software':message('menu_msbt_LZ',{'close-folder':'lau_2b_close','folder-settings':'lau_2b_folder_setting',open:'lau_2b_folder_open','create-folder':'lau_1b_make_folder'}[action],{'close-folder':'Close','folder-settings':'Settings',open:'Open','create-folder':'Create Folder'}[action]);
+  const right=label(rightAction),left=label(leftAction);
   for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]={text:right};overrides[`${prefix}_R_02`]={text:right};overrides[`${prefix}_L_03`]={text:left};}
-  return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings:[binding('LncBtmBtn_02_SceneIn',15)],overrides,clip:[0,210,320,30]});
+  const bindings=[binding('LncBtmBtn_02_SceneIn',15)],gesture=getHomeGestureView(state);
+  if(!state.panel&&gesture?.mode==='press'&&gesture.y>=212&&gesture.y<240&&gesture.x>=0&&gesture.x<320){
+   const group=two?(gesture.x<100?'G_BtnW_L_03':'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));
+  }
+  return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings,overrides,clip:[0,210,320,30]});
  }
- function tile(ctx:Context,x:number,y:number,size:number,rows:number,folder:boolean){
-  const name=folder?'LncIconFolder_00':'LncIconCard_00';
+ function tile(ctx:Context,x:number,y:number,size:number,rows:number,folder:boolean,receiving=false){
+  const name=folder?(receiving?'LncIconFolderInT_00':'LncIconFolder_00'):'LncIconCard_00';
   // Native size clips encode the five icon densities. The sixth uses the smallest authored artwork.
   return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],scale:rows>5?size/26:1,bindings:[binding(name+'_Scale',Math.min(5,rows))]});
  }
- function cursor(ctx:Context,x:number,y:number,size:number,rows:number,time:number){
-  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[x+size/2,y+size/2],scale:rows>5?size/26:1,bindings:[binding('LncCsr_00_Select',0),binding('LncCsr_00_Scale',Math.min(5,rows)),binding('LncCsr_00_Loop',time*.06)]});
+ function cursor(ctx:Context,x:number,y:number,size:number,rows:number,time:number,pressed=false){
+  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[x+size/2,y+size/2],scale:rows>5?size/26:1,bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',Math.min(5,rows)),binding('LncCsr_00_Loop',time*.06)]});
  }
  function arrows(ctx:Context,showLeft:boolean){return renderer.draw(ctx,'launcher','LncArw_00',{bindings:[binding('LncArw_00_Appear',15)],overrides:{N_arwL_00:{visible:showLeft}},clip:[0,33,320,179]});}
- return {hud,toolbar,footer,tile,cursor,arrows,rows:rowCount};
+ const pickupSizes=new Map<string,{x:number;y:number;width:number;height:number;alpha:number}>();
+ function pickup(ctx:Context,x:number,y:number,size:number,rows:number,folder:boolean){
+  const name=folder?'LncIconFolderPickUp_00':'LncIconPickUp_00',frame=Math.min(5,rows),scale=rows>5?size/26:1;
+  const drawn=renderer.draw(ctx,'launcher',name,{center:[x,y],scale,bindings:[binding(name+'_Scale',frame)],overrides:{P_Icon_00:{visible:false},P_IconPrize_00:{visible:false}}});
+  // Native P_Icon is a direct child of RootPane; retain its sampled bounds for portfolio artwork.
+  const key=`${name}:${frame}`;let rect=pickupSizes.get(key);
+  if(!rect){const pack=renderer.packs.launcher,posed=poseNativeLayout(pack.layouts[name],pack.animations,[binding(name+'_Scale',frame)]),pane=posed.roots[0].children.find(p=>p.name==='P_Icon_00')!;
+   rect={x:pane.translation[0]-pane.size[0]/2,y:-pane.translation[1]-pane.size[1]/2,width:pane.size[0],height:pane.size[1],alpha:pane.alpha/255};pickupSizes.set(key,rect);}
+  return {drawn,icon:{x:x+rect.x*scale,y:y+rect.y*scale,width:rect.width*scale,height:rect.height*scale,alpha:rect.alpha}};
+ }
+ function liftedSource(ctx:Context,x:number,y:number,size:number,rows:number){
+  const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],scale:rows>5?size/26:1,bindings:[binding(name+'_Scale',Math.min(5,rows))]});
+ }
+ return {hud,toolbar,footer,tile,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
 }

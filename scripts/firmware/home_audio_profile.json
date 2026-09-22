@@ -1,5 +1,5 @@
 {
-  "id": "eur-home-24576-stereo-startup-v6",
+  "id": "eur-home-24576-stereo-startup-v7",
   "archiveSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
   "sourceRecord": {
     "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
@@ -13,7 +13,8 @@
   "patchedSourceHashes": {
     "dualrip/engine/ctr/sequencer.py": "acbc3680446c26dcc8c0cb109380485c4d4b9b7a550dba3be1d1248227d6de26",
     "dualrip/engine/ctr/channel.py": "4ee5aa99545538936eac3a201e8a16a7de4f79e7941f360dd2182e7873ba08cb",
-    "dualrip/engine/ctr/render.py": "742cc49e879df7afe0427aba2f51b80fc21c0c0eed78c6674867fb3394c39701"
+    "dualrip/engine/ctr/render.py": "742cc49e879df7afe0427aba2f51b80fc21c0c0eed78c6674867fb3394c39701",
+    "dualrip/formats/ctr/cseq.py": "644b6d9feb3707b9381011a7c7fd866d07ca86428880b7ad59c092c6602a3c73"
   },
   "soundOptions": {
     "SE_CTR_COMMON_CANCEL": {
@@ -368,9 +369,8 @@
   },
   "remainingGaps": [
     "Runtime player/master gains and later aux state need controlled capture",
-    "Native envelope timing/floors, modulation, exact gain-table rounding, resampling, clipping and DSP arithmetic not validated by these corrections",
-    "Native PCM still differs in gain and waveform; no measured normalization, padding or time stretching is applied",
-    "Native scheduler now source-derived; baked loop waveform continuity, envelope evolution and full PCM parity remain unverified"
+    "Native resampling, DSP gain ramps, clipping and fixed-point mixing remain outside this voice-state transcription",
+    "Full native waveform equivalence and baked-loop waveform continuity remain unverified; no measured normalization, trimming, padding or time stretching is applied"
   ],
   "nativePanLutSha256": "383ea4d362109b74ddccfdaacf46a0bf4b0255f3609cf01f5824e1910e7c7597",
   "captureSemantics": {
@@ -392,7 +392,7 @@
   "renderTimeline": {
     "origin": "Sequence player sample zero; preserve every generated frame",
     "startupTrimSamples": 0,
-    "initialFrame": "Existing converter timer order produces one silent frame; retained, not inserted",
+    "initialFrame": "Native sequence callback and track parameters precede voice update; no artificial startup silence",
     "nativeOnsetVerified": false,
     "loopSelection": "Original first loop start through second bytecode pass; not a steady-state waveform claim"
   },
@@ -404,5 +404,23 @@
     "playerUpdate": "0x1a6428..0x1a65d4; command8 handler0x14c434",
     "trackProduct": "0x208a88..0x208ab8",
     "fittedGain": false
+  },
+  "voiceArithmetic": {
+    "sourceCodeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "envelope": "Float32 attack/hold/decay/sustain/release; reset -904 table units; native strict thresholds and pre-update expiry",
+    "sweepPitch": "Float32 semitone sweep and bend; 1/256-semitone quantization; native octave/semitone/fraction tables",
+    "lfo": "Float32 phase/delay with native sine table, pre-update pitch/pan and post-update volume",
+    "amplitude": "Velocity-squared times linear region, squared track/expression/master product, separate player and envelope gains",
+    "frameOrder": "Sequence ticks, live track parameters, voice pitch/pan, sweep/LFO/envelope updates, voice gain",
+    "gate": "Positive gates decrement before parse; nonpositive notes become -1; CWAV loop persists; native FIN forces release and detaches track",
+    "nativeTableSha256": {
+      "attack": "3a9d21132f66d969657cf76ea8f5ffb5e4a9df7abba4dd66baaf2d2695ae35c6",
+      "pitchSemitone": "268bc185e52bc0f4973bfc9d4959f605057e1b6a5bc386a8ce8feb4afcb1936d",
+      "pitchFraction": "ce9d87899dbdc1e5b59a1cd3b26107334c55d50aef782242944eb83d7c401cc6",
+      "gain": "bbda3f9ee473d0aba17c2c98369d0d5b7b0a9d788b47384bc76d17e0f91d1696",
+      "sustain": "3315552d46c21be4911d400e3a3a747a36b9866088226f6f7a113ca3f9b01086",
+      "sine": "a742b4ef2370e98c41180ed22400a062ced15a1ffb49d17e2b12a2bf0eabdfd6"
+    },
+    "fittedConstants": false
   }
 }

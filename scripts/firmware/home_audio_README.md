@@ -1,13 +1,14 @@
 # Bounded HOME audio correction
 
-`../render_firmware_audio.py` version 6 builds a diagnostic candidate for the exact
+`../render_firmware_audio.py` version 6 with **voice profile v7** builds a diagnostic candidate for the exact
 owner-supplied EUR HOME archive identified by `home_audio_profile.json`. It rejects
 other archive hashes, source records, nonallowlisted sounds, altered sound options,
 unexpected banks and stereo source waves. It does not load neighboring `extData`.
 
 The wrapper exports the pinned DualRip commit through `git archive`, verifies the
-three source-file hashes, applies `home_audio_dualrip.patch` in a disposable copy,
-and adds `home_audio_math.py` and `home_audio_clock.py`. The required `--scratch` argument places this
+four source-file hashes, applies `home_audio_dualrip.patch` in a disposable copy,
+and adds `home_audio_math.py`, `home_audio_clock.py` and `home_audio_voice.py`.
+The required `--scratch` argument places this
 copy under the caller's SSD artifact root; there is no host temporary-directory
 fallback. It never modifies the renderer checkout. The patch
 is based on DualRip by Tetra_Sky; its MIT notice is in
@@ -33,6 +34,11 @@ Version 6 removes archive-entry volume from the sustain-table sum and applies
 its native linear float32 factor separately. The complete native call chain and
 lossless short-cue/music comparison are in
 `home_audio_ENTRY_VOLUME_EVIDENCE.md`. No compensating gain is fitted.
+Profile v7 transcribes the complete traced float32 envelope, sweep/pitch, LFO
+and gain connections, plus native sequence-before-voice ordering, gates and
+track-close semantics. Its 1,522 table entries match native bytes exactly.
+See `home_audio_VOICE_EVIDENCE.md` for source addresses, capture comparisons and
+the unresolved baked-loop defect. Wrapper version 6 remains unchanged.
 
 Two aux buses remain distinct from main and from each other; each has a transparent
 unity return. This is a **startup runtime-state assumption** supported by the
@@ -45,7 +51,7 @@ helper instead of silently treating it as stereo.
 
 `audio.json` preserves the original source/title/cue metadata and adds raw sound
 options, pan mode/curve, all 33 validated mono bank-wave references, handled-command
-counts, profile/patch/adapter/math/clock hashes and before/after source hashes.
+counts, profile/patch/adapter/math/clock/voice hashes and before/after source hashes.
 Startup-origin assumptions are recorded in `renderTimeline`. Remaining runtime
 and synthesizer gaps are included in every pack. Zero unapplied commands
 means only that the interpreter has handling for those commands; it does not prove
@@ -233,3 +239,19 @@ The subsequent `home_audio_RUNTIME_FOLLOWUP.md` rules out most of the aux-return
 explanation for music's level gap and traces remaining native frame-order,
 attack and pitch differences. Its private counterfactuals are not converter
 revisions or public delivery candidates.
+
+## Voice profile v7, 2026-09-22
+
+The two fresh v7 packs are identical across all 13 files; all 31 focused tests
+pass, current provenance matches, the pinned renderer stays clean, and no cue
+hits an int16 clipping limit. Both music periods remain 3,515,200 samples.
+Without normalization, the 12–100 s music level gap narrows from v6's
+1.52–1.80 dB to 0.046–0.119 dB. Select remains a close native residual match;
+folder-close is slightly worse and folder-open's early waveform remains poor.
+
+The current first-loop slice still replays sustained intro state. Its v7 main
+boundary step is 0.0538025 left / 0.0202332 right, versus only
+0.00186157 / 0.00079346 in independent continuous playback. Both complete WAVs
+match continuous prefixes, but their repeated slices differ. The original loop
+selection and public audio remain unchanged. Full measurements, limits and
+private reproduction paths are in `home_audio_VOICE_EVIDENCE.md`.

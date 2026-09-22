@@ -1,16 +1,27 @@
 --- a/dualrip/engine/ctr/sequencer.py
 +++ b/dualrip/engine/ctr/sequencer.py
-@@ -9,6 +9,8 @@
-     cdiv, s8, s16, cnv_sine, cnv_attack, cnv_fall, cnv_sust, readvl, Rng,
+@@ -1,14 +1,15 @@
+ """3DS CSEQ sequencer: opcode grammar, CseqPlayer and CseqTrack interpreter."""
+ 
+-import math
+ 
+ from .cprims import (
+-    AMPL_K, AMPL_THRESHOLD,
+     CS_NONE, CS_START, CS_ATTACK, CS_DECAY, CS_SUSTAIN, CS_RELEASE,
+     TS_NOTEWAIT, TS_PORTA, TS_TIE, TS_END,
+-    cdiv, s8, s16, cnv_sine, cnv_attack, cnv_fall, cnv_sust, readvl, Rng,
++    cdiv, s8, s16, readvl, Rng,
  )
  from .channel import Voice
 +from .home_audio_clock import NativeSequenceClock
-+from .home_audio_math import amplitude_gain, archive_gain, capture_pan, live_pan, pan_gains, send_gain, stereo_span
--
-+
++from .home_audio_math import f32, archive_gain, capture_pan, live_pan, pan_gains, send_gain, stereo_span
++from .home_audio_voice import NativeEnvelope, NativeSweep, NativeLfo, decibel_gain, note_gain, track_gain, pitch_bend, pitch_ratio
+ 
  # CSEQ command argument layouts (big-endian multi-byte args)
  ARG_NONE, ARG_U8, ARG_S16, ARG_U16, ARG_VL, ARG_U8_U24, ARG_U24 = range(7)
-@@ -160,13 +162,18 @@
+@@ -158,17 +159,22 @@
+         self.bank_lookup = bank_lookup # (bank_no, program, key, vel) -> (VelRegion, Cwav)
+         self.rate = out_rate
          self.channel_prio = channel_prio
 -        self.baseVol = cnv_sust(base_vol) # entry volume, dB
 +        self.base_gain = archive_gain(base_vol)  # Native archive volume is linear.
@@ -30,23 +41,25 @@
 +        self.sequence_clock = NativeSequenceClock()
 +        self.tempo_ratio = 1.0
          self.timebase = 48
-         self.masterVol = 0
+-        self.masterVol = 0
++        self.masterVol = 127
          self.ticked = False
-@@ -178,5 +185,8 @@
+         self.now_sample = 0
+         self.variables = [-1] * 32
+@@ -177,6 +183,9 @@
+         self.active = []
          self.voices = [Voice() for _ in range(self.NUM_VOICES)]
          self.unapplied = {}
--
 +
 +    def note_handled(self, name):
 +        self.handled_commands[name] = self.handled_commands.get(name, 0) + 1
-+
+ 
      def note_unapplied(self, name):
          self.unapplied[name] = self.unapplied.get(name, 0) + 1
-@@ -209,19 +219,15 @@
+@@ -209,24 +218,24 @@
          elif end > (self.loop_end_sample or 0):
              self.loop_end_sample = end
--
-+
+ 
 -    def tick_threshold(self):
 -        return 240.0 * 48.0 / self.timebase
 -
@@ -63,22 +76,104 @@
 -        self.tempoCount += self.tempo
 +        self.sequence_clock.advance(
 +            lambda: (self.tempo, self.timebase, self.tempo_ratio), tick)
--
-+
+ 
      def timer(self):
++        # Native sound-thread callback: sequence ticks, track params, then voices.
++        self.run()
++        for i in self.active:
++            if not self.tracks[i].state[TS_END]:
++                self.tracks[i].push_params()
          for v in self.voices:
-@@ -292,26 +298,22 @@
-         v.inc = v.base_rate * v.pitch_mul * ratio / self.rate
+             self.update_voice(v)
+-        self.run()
+ 
+     def all_tracks_ended(self):
+         return all(self.tracks[i].state[TS_END] or self.tracks[i].stuck
+@@ -236,87 +245,38 @@
+         return any(v.state != CS_NONE for v in self.voices)
+ 
+     def update_voice(self, v):
+-        st = v.state
+-        if st == CS_NONE:
++        if v.state == CS_NONE:
+             return
+-        if st == CS_START:
+-            v.ampl = AMPL_THRESHOLD
+-            v.state = st = CS_ATTACK
+-        if st == CS_ATTACK:
+-            newAmpl = v.ampl
+-            oldAmpl = v.ampl >> 7
+-            while True:
+-                newAmpl = cdiv(newAmpl * v.attackLvl, 256)
+-                if (newAmpl >> 7) != oldAmpl:
+-                    break
+-            v.ampl = newAmpl
+-            if not v.ampl:
+-                v.state = CS_DECAY
+-        elif st == CS_DECAY:
+-            v.ampl -= v.decayRate
+-            sustLvl = cnv_sust(v.sustainLvl) << 7
+-            if v.ampl <= sustLvl:
+-                v.ampl = sustLvl
+-                v.state = CS_SUSTAIN
+-        elif st == CS_RELEASE:
+-            v.ampl -= v.releaseRate
+-            if v.ampl <= AMPL_THRESHOLD:
+-                v.kill()
+-                return
 -
-+
-         # volume in continuous dB
+-        modParam = 0
+-        bMod = bool(v.modDepth)
+-        if bMod and v.modDelayCnt < v.modDelay:
+-            v.modDelayCnt += 1
+-            bMod = False
+-        if bMod:
+-            modParam = cnv_sine(v.modCounter >> 8) * v.modRange * v.modDepth
+-            if v.modType == 1:
+-                modParam = (modParam * 60) >> 14
+-            else:
+-                modParam >>= 8
+-            counter = v.modCounter + (v.modSpeed << 6)
+-            while counter >= 0x8000:
+-                counter -= 0x8000
+-            v.modCounter = counter
+-
+-        # pitch in 1/64-semitone units
+-        totalAdj = v.ext_tune
+-        if bMod and v.modType == 0:
+-            totalAdj += modParam
+-        if v.sweepPitch and v.sweepLen and v.sweepCnt <= v.sweepLen:
+-            totalAdj += cdiv(v.sweepPitch * (v.sweepLen - v.sweepCnt), v.sweepLen)
+-            if not v.manualSweep:
+-                v.sweepCnt += 1
+-        ratio = math.pow(2.0, totalAdj / 768.0) if totalAdj else 1.0
+-        v.inc = v.base_rate * v.pitch_mul * ratio / self.rate
+-
+-        # volume in continuous dB
 -        totalVol = (v.ampl >> 7) + v.ext_ampl + v.velocity + v.region_vol
-+        totalVol = (v.ampl >> 7) + v.ext_ampl + v.velocity
-         if bMod and v.modType == 1:
-             totalVol += modParam
-         totalVol = max(-AMPL_K, min(0, totalVol))
+-        if bMod and v.modType == 1:
+-            totalVol += modParam
+-        totalVol = max(-AMPL_K, min(0, totalVol))
 -        amp = math.pow(10.0, totalVol / 160.0)
-+        amp = amplitude_gain(totalVol, v.region_vol) * self.base_gain
++        if v.envelope.expired():
++            v.kill()
++            return
++        # Pitch and pan consume the old LFO/sweep state; volume consumes the
++        # updated envelope and LFO, as in 0x14cee8.
++        modulation = v.lfo.value()
++        pitch = f32(f32(v.sweep.value() + f32(v.key - v.org_key)) + v.ext_tune)
++        if v.modType == 0:
++            pitch = f32(pitch + modulation)
++        ratio = f32(f32(v.pitch_mul) * pitch_ratio(pitch))
++        v.inc = v.base_rate * ratio / self.rate  # Pinned linear resampler remains.
++        left, right = pan_gains(v.pan, v.ext_pan, modulation if v.modType == 2 else 0.0)
++        v.sweep.advance()
++        v.lfo.update()
++        v.envelope.update()
++        v.state = (CS_ATTACK, CS_DECAY, CS_DECAY, CS_SUSTAIN, CS_RELEASE)[v.envelope.state]
++        amp = f32(decibel_gain(v.envelope.db()) * f32(v.velocity * v.ext_ampl))
++        if v.modType == 1:
++            amp = f32(amp * decibel_gain(f32(v.lfo.value() * 6)))
          v.vol = int(amp * (1 << 20))
 -        # pan law: center 64 is full both sides, off-center attenuates the far side
 -        pan = v.pan + v.ext_pan
@@ -87,12 +182,8 @@
 -        pan = max(0, min(127, pan + 64))
 -        v.vol_l = amp if pan <= 64 else amp * (127 - pan) / 63.0
 -        v.vol_r = amp if pan >= 64 else amp * pan / 64.0
-+        # Native mode 0, curve 0, mono sources; initial pan was captured at note-on.
-+        modulation = modParam / 63.0 if bMod and v.modType == 2 else 0.0
-+        left, right = pan_gains(v.pan, v.ext_pan, modulation)
-+        v.vol_l, v.vol_r = amp * left, amp * right
--
-+
++        v.vol_l, v.vol_r = f32(amp * left), f32(amp * right)
+ 
      def generate(self, n):
 -        """Mix n samples from all active voices, splitting over aux buses when effects are set."""
 -        fx = self.effects
@@ -104,7 +195,12 @@
          for v in self.voices:
              if v.state == CS_NONE or v.inc <= 0:
                  continue
-@@ -324,17 +326,12 @@
+-            # an endless note plays one pass of its looped sample, then stops
+-            cut_at_wrap = v.noteLength <= 0 and CS_ATTACK <= v.state <= CS_SUSTAIN
+             smp = v.samples
+             ln = len(smp)
+             pos = v.pos
+@@ -324,23 +284,16 @@
              ls = v.loop_start
              vl = v.vol_l
              vr = v.vol_r
@@ -127,8 +223,16 @@
 +                    targets.append((al, ar, vl * gain, vr * gain))
              for i in range(n):
                  if pos >= ln:
-                     if v.loop and not cut_at_wrap:
-@@ -356,10 +353,8 @@
+-                    if v.loop and not cut_at_wrap:
+-                        pos = ls + (pos - ln)
+-                        if pos >= ln:
+-                            pos = ls
++                    if v.loop:
++                        pos = ls + (pos - ln) % (ln - ls)
+                     else:
+                         v.dead_wrap = True
+                         break
+@@ -356,10 +309,8 @@
              v.pos = pos
              if v.dead_wrap:
                  v.kill()
@@ -141,53 +245,232 @@
              for i in range(n):
                  out_l[i] += wl[i] * ret
                  out_r[i] += wr[i] * ret
-@@ -387,6 +382,8 @@
+@@ -385,15 +336,17 @@
+         self.prio = self.ply.channel_prio + 64
+         self.patch = 0
          self.bank_no = 0
-         self.vol = self.expr = 127
+-        self.vol = self.expr = 127
++        self.vol = self.expr = self.velocity_range = 127
          self.pan = 0
 +        self.initial_pan = 64
 +        self.span = 0
          self.pitchBend = 0
          self.pitchBendRange = 2
          self.transpose = 0
-@@ -466,8 +463,8 @@
+         self.portaKey = 60
+         self.portaTime = 0
+         self.sweepPitch = 0
+-        self.a = self.d = self.s = self.r = 0xFF
++        self.a = self.h = self.d = self.s = self.r = 0xFF
+         self.modType = 0
+         self.modDepth = 0
+         self.modSpeed = 16
+@@ -465,12 +418,12 @@
+         v.prio = self.prio
          v.key = key
          v.org_key = region.org_key
-         v.velocity = cnv_sust(vel)
+-        v.velocity = cnv_sust(vel)
 -        v.region_vol = cnv_sust(region.volume)
 -        v.pan = region.pan - 64 # region pan is 0..127, center 64
-+        v.region_vol = region.volume  # Native region gain is linear, unlike velocity.
+-        v.modDelayCnt = 0
+-        v.modCounter = 0
+-        v.noteLength = length
++        v.velocity = note_gain(vel, region.volume)
++        v.region_vol = region.volume
++        v.ignore_note_off = region.ignore_note_off
 +        v.pan = capture_pan(region.pan, self.initial_pan)
-         v.modDelayCnt = 0
-         v.modCounter = 0
-         v.noteLength = length
-@@ -510,17 +507,18 @@
++        v.lfo = NativeLfo()
++        v.noteLength = length if length > 0 else -1
+         v.samples = cwav.samples
+         v.base_rate = cwav.rate
+         v.pitch_mul = region.pitch
+@@ -479,12 +432,14 @@
+         v.pos = 0.0
+         v.inc = 0.0
+         v.dead_wrap = False
+-        v.attackLvl = cnv_attack(region.attack if self.a == 0xFF else self.a)
+-        v.decayRate = cnv_fall(region.decay if self.d == 0xFF else self.d)
+-        v.sustainLvl = region.sustain if self.s == 0xFF else self.s
+-        v.releaseRate = cnv_fall(region.release if self.r == 0xFF else self.r)
++        v.envelope = NativeEnvelope(
++            region.attack if self.a == 0xFF else self.a,
++            region.hold if self.h == 0xFF else self.h,
++            region.decay if self.d == 0xFF else self.d,
++            region.sustain if self.s == 0xFF else self.s,
++            region.release if self.r == 0xFF else self.r)
+         self.apply_to_voice(v)
+-        self.update_porta(v, length if gate is None else gate)
++        self.update_porta(v, v.noteLength if gate is None else gate)
+         self.portaKey = key
+         return v
+ 
+@@ -498,9 +453,8 @@
+             return self.note_on(key, vel, -1, gate=gate)
+         chn.prio = self.prio
+         chn.key = key
+-        chn.velocity = cnv_sust(vel)
+-        chn.modDelayCnt = 0
+-        chn.modCounter = 0
++        chn.velocity = note_gain(vel, chn.region_vol)
++        chn.lfo = NativeLfo()
+         self.apply_to_voice(chn)
+         self.update_porta(chn, gate)
+         self.portaKey = key
+@@ -508,52 +462,44 @@
+ 
+     def apply_to_voice(self, v):
          ply = self.ply
 -        final = ply.masterVol + ply.baseVol + cnv_sust(self.vol) + cnv_sust(self.expr)
-+        final = ply.masterVol + cnv_sust(self.vol) + cnv_sust(self.expr)
-         v.ext_ampl = max(-AMPL_K, final)
+-        v.ext_ampl = max(-AMPL_K, final)
 -        v.ext_pan = self.pan
+-        v.ext_tune = (v.key - v.org_key) * 64 + ((self.pitchBend * self.pitchBendRange) >> 1)
++        v.ext_ampl = track_gain(self.vol, self.expr, ply.masterVol, ply.base_gain)
 +        v.ext_pan = live_pan(self.pan)
 +        v.span = stereo_span(self.span, output_mode=1)
-         v.ext_tune = (v.key - v.org_key) * 64 + ((self.pitchBend * self.pitchBendRange) >> 1)
++        v.ext_tune = pitch_bend(self.pitchBend, self.pitchBendRange)
          v.modType = self.modType
-         v.modSpeed = self.modSpeed
-         v.modDepth = self.modDepth
-         v.modRange = self.modRange
-         v.modDelay = self.modDelay
+-        v.modSpeed = self.modSpeed
+-        v.modDepth = self.modDepth
+-        v.modRange = self.modRange
+-        v.modDelay = self.modDelay
 -        # bus send gains, applied only when effects are configured
 -        v.send_main = 10.0 ** (cnv_sust(self.mainsend) / 160.0)
 -        v.send_a = 10.0 ** (cnv_sust(self.fxsend_a) / 160.0)
 -        v.send_b = 10.0 ** (cnv_sust(self.fxsend_b) / 160.0)
++        v.lfo.parameters(self.modDepth, self.modSpeed, self.modDelay, self.modRange)
 +        # Linear sends are state even with no DSP effect/host callback installed.
 +        v.send_main = send_gain(self.mainsend)
 +        v.send_a = send_gain(self.fxsend_a)
 +        v.send_b = send_gain(self.fxsend_b)
--
-+
+ 
      def update_porta(self, v, gate):
-         v.manualSweep = False
-@@ -740,18 +738,23 @@
+-        v.manualSweep = False
+-        v.sweepPitch = self.sweepPitch
+-        v.sweepCnt = 0
+-        if not self.state[TS_PORTA]:
+-            v.sweepLen = 0
+-            return
+-        diff = (self.portaKey - v.key) << 22
+-        v.sweepPitch += diff >> 16
+-        if not self.portaTime:
+-            v.sweepLen = v.noteLength if gate is None else gate
+-            v.manualSweep = True
+-        else:
+-            sq = self.portaTime * self.portaTime
+-            v.sweepLen = (abs(v.sweepPitch) * sq) >> 11
++        v.sweep = NativeSweep(self.sweepPitch, self.state[TS_PORTA], self.portaKey,
++                              v.key, self.portaTime, gate if gate > 0 else -1)
+ 
+     def release_all(self):
+         for v in self.ply.voices:
+             if v.state > CS_NONE and v.trackId == self.num and v.state != CS_RELEASE:
+                 v.release()
+ 
++    def finish(self):
++        # Native FIN forces release (even ignore-noteoff) and detaches callbacks.
++        self.push_params()
++        for v in self.ply.voices:
++            if v.state != CS_NONE and v.trackId == self.num:
++                v.release()
++                v.trackId = -1
++        self.state[TS_END] = True
++
+     def tick_lengths(self):
+         for v in self.ply.voices:
+-            if v.trackId != self.num:
++            if v.state == CS_NONE or v.trackId != self.num:
+                 continue
+-            if v.state > CS_START:
+-                if v.state < CS_RELEASE and v.noteLength > 0:
+-                    v.noteLength -= 1
+-                    if not v.noteLength:
+-                        v.release()
+-                if v.manualSweep and v.sweepCnt < v.sweepLen:
+-                    v.sweepCnt += 1
++            if v.noteLength > 0:
++                v.noteLength -= 1
++            if v.noteLength == 0 and v.state != CS_RELEASE and not v.ignore_note_off:
++                v.release()
++            v.sweep.advance(sequence_tick=True)
+ 
+     def push_params(self):
+         for v in self.ply.voices:
+@@ -562,9 +508,9 @@
+ 
+     def run(self):
+         ply = self.ply
+-        self.tick_lengths()
+         if self.state[TS_END]:
+             return
++        self.tick_lengths()
+         if self.waitChn:
+             for v in ply.voices:
+                 if v.state != CS_NONE and v.trackId == self.num:
+@@ -597,8 +543,8 @@
+                 cmd = self.read8()
+ 
+             if cmd < 0x80:
+-                key = (cmd + self.transpose) & 0xFF
+-                vel = self.oval8(extra=True)
++                key = max(0, min(127, cmd + self.transpose))
++                vel = cdiv(self.oval8(extra=True) * self.velocity_range, 127)
+                 length = self.ovalvl()
+                 if self.state[TS_NOTEWAIT]:
+                     self.wait = length
+@@ -645,7 +591,7 @@
+                 if self.stack and self.stack[-1][0] == 'call':
+                     self.pos = self.stack.pop()[1]
+             elif cmd == 0xFF:
+-                self.state[TS_END] = True
++                self.finish()
+                 return
+             elif cmd == 0xFE:
+                 self.read16() # alloc track mask
+@@ -666,7 +612,10 @@
+                             self.stack[-1] = (kind, rpos, ply.now_sample, count)
+                             self.pos = rpos
+                         else:
+-                            self.stack.pop()
++                            # Offline pass limit is not a native FIN. Retain the
++                            # continuing state at the reported loop boundary.
++                            self.state[TS_END] = True
++                            return
+                     else:
+                         count -= 1
+                         if count:
+@@ -684,7 +633,7 @@
+                 self.expr = self.oval8()
+                 self.push_params()
+             elif cmd == 0xC2:
+-                ply.masterVol = cnv_sust(self.oval8())
++                ply.masterVol = self.oval8()
+                 for i in ply.active:
+                     ply.tracks[i].push_params()
+             elif cmd == 0xC3:
+@@ -711,8 +660,7 @@
+             elif cmd == 0xCF:
+                 self.portaTime = self.oval8()
+             elif cmd == 0xE3:
+-                self.sweepPitch = s16(self.oval16())
+-                self.state[TS_PORTA] = True
++                self.sweepPitch = f32(s16(self.oval16()) / 64)
+             elif cmd == 0xCA:
+                 self.modDepth = self.oval8()
+                 self.push_params()
+@@ -730,6 +678,12 @@
+                 self.push_params()
+             elif cmd == 0xE1:
+                 ply.tempo = self.oval16()
++            elif cmd == 0xB1:
++                self.h = self.oval8()
++            elif cmd == 0xB3:
++                self.velocity_range = self.oval8()
++            elif cmd == 0xFB:
++                self.a = self.h = self.d = self.s = self.r = 0xFF
+             elif cmd == 0xD0:
+                 self.a = self.oval8()
+             elif cmd == 0xD1:
+@@ -740,18 +694,23 @@
                  self.r = self.oval8()
              elif cmd == 0xB6:
                  self.bank_no = self.oval8() & 3
@@ -223,15 +506,36 @@
                  self.over_sub = None
 --- a/dualrip/engine/ctr/channel.py
 +++ b/dualrip/engine/ctr/channel.py
-@@ -71,7 +71,7 @@
+@@ -71,14 +71,10 @@
  class Voice:
      """One CSEQ software voice."""
      __slots__ = ('state', 'trackId', 'prio', 'key', 'org_key', 'velocity',
 -        'pan', 'region_pan', 'ampl', 'ext_ampl', 'ext_pan', 'ext_tune',
-+        'pan', 'region_pan', 'span', 'ampl', 'ext_ampl', 'ext_pan', 'ext_tune',
-         'attackLvl', 'decayRate', 'sustainLvl', 'releaseRate',
-         'noteLength', 'samples', 'base_rate', 'pitch_mul', 'loop',
-         'loop_start', 'pos', 'inc', 'vol_l', 'vol_r', 'vol',
+-        'attackLvl', 'decayRate', 'sustainLvl', 'releaseRate',
+-        'noteLength', 'samples', 'base_rate', 'pitch_mul', 'loop',
+-        'loop_start', 'pos', 'inc', 'vol_l', 'vol_r', 'vol',
+-        'modType', 'modSpeed', 'modDepth', 'modRange', 'modDelay',
+-        'modDelayCnt', 'modCounter', 'sweepPitch', 'sweepLen',
+-        'sweepCnt', 'manualSweep', 'flags', 'region_vol',
+-        'send_main', 'send_a', 'send_b', 'dead_wrap')
++        'pan', 'span', 'ext_ampl', 'ext_pan', 'ext_tune', 'envelope', 'sweep', 'lfo',
++        'ignore_note_off', 'noteLength', 'samples', 'base_rate', 'pitch_mul', 'loop',
++        'loop_start', 'pos', 'inc', 'vol_l', 'vol_r', 'vol', 'modType', 'flags',
++        'region_vol', 'send_main', 'send_a', 'send_b', 'dead_wrap')
+ 
+     def __init__(self):
+         self.state = CS_NONE
+@@ -88,9 +84,9 @@
+         self.noteLength = -1
+ 
+     def release(self):
+-        self.noteLength = -1
+         self.prio = 1
+         self.state = CS_RELEASE
++        self.envelope.state = self.envelope.RELEASE
+ 
+     def kill(self):
+         self.state = CS_NONE
 --- a/dualrip/engine/ctr/render.py
 +++ b/dualrip/engine/ctr/render.py
 @@ -5,25 +5,23 @@
@@ -239,16 +543,14 @@
  )
  from .sequencer import CseqPlayer
 +from .home_audio_clock import FRAME_HZ
--
-+
+ 
 -def render_entry(blob, start_offset, bank_lookup, rate, channel_prio, hold_seconds=2.0, loop_passes=2, base_vol=127, effects=None):
 +def render_entry(blob, start_offset, bank_lookup, rate, channel_prio, hold_seconds=2.0, loop_passes=2, base_vol=127, effects=None, handled=None):
      """Render one CSEQ entry to (chans, loop, unapplied)."""
      ply = CseqPlayer(blob, bank_lookup, rate, channel_prio, loop_passes, base_vol, effects)
      ply.setup(start_offset)
      ply.timer()
--
-+
+ 
 -    spc = 1.0 / DRIVER_HZ
 -    samples_per_clock = rate / DRIVER_HZ
 +    samples_per_clock = rate / FRAME_HZ
@@ -260,8 +562,7 @@
 -    hold_clocks = int(hold_seconds * DRIVER_HZ)
 +    hold_clocks = int(hold_seconds * FRAME_HZ)
      frac = 0.0
--
-+
+ 
      while True:
 -        frozen = ply.tempo == 0 and ply.tempoCount < ply.tick_threshold()
 +        frozen = ply.tempo == 0
@@ -289,14 +590,13 @@
 -                ply.now_sample = 0
 -        if ply.ticked:
 -            tick0_ran = True
-+        # Keep the generated timeline intact, including the initial silent frame.
++        # Keep the generated timeline intact, starting with the native sequence-before-voice frame.
 +        # Loop positions and retained PCM must use the same sample origin.
 +        l, r = ply.generate(n)
 +        out_l.extend(l)
 +        out_r.extend(r)
          ply.timer()
--
-+
+ 
      chans = [[max(-32768, min(32767, int(x))) for x in out_l], [max(-32768, min(32767, int(x))) for x in out_r]]
      loop = None
      if ply.loop_detected and ply.loop_start_sample is not None:
@@ -304,6 +604,26 @@
 +    if handled is not None:
 +        handled.update(ply.handled_commands)
      return chans, loop, ply.unapplied
--
-+
+ 
  def render_wsd(ctx, cwsd, item_index, rate, base_vol):
+--- a/dualrip/formats/ctr/cseq.py
++++ b/dualrip/formats/ctr/cseq.py
+@@ -84,7 +84,7 @@
+ 
+ class VelRegion:
+     """One velocity region of an instrument."""
+-    __slots__ = ('war_slot', 'wav_index', 'org_key', 'volume', 'pan', 'pitch', 'interp', 'attack', 'decay', 'sustain', 'hold', 'release')
++    __slots__ = ('war_slot', 'wav_index', 'org_key', 'volume', 'pan', 'pitch', 'interp', 'attack', 'decay', 'sustain', 'hold', 'release', 'ignore_note_off')
+ 
+ class Cbnk:
+     """CBNK instrument bank."""
+@@ -171,7 +171,8 @@
+         r.pitch = struct.unpack('<f', struct.pack('<I', pitch_bits))[0]
+         note_p = vals.get(4, 0)
+         r.interp = (note_p >> 16) & 0xFF
+-        r.attack = r.decay = r.sustain = r.hold = r.release = 127
++        r.ignore_note_off = bool(note_p & 0xFF)
++        r.attack = r.decay = r.sustain = r.hold = r.release = 0
+         if 9 in vals and vals[9] != 0xFFFFFFFF:
+             env = off + vals[9]
+             rid, _, roff = struct.unpack_from('<HHi', d, env)

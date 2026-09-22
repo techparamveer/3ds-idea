@@ -13,6 +13,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from firmware import home_audio_math as math
 from firmware.home_audio_clock import NativeSequenceClock
+from firmware import home_audio_voice as native
 from firmware.home_audio_profile import PROFILE, isolated_renderer, validate_source, validate_archive
 
 
@@ -49,15 +50,15 @@ class ArithmeticTests(unittest.TestCase):
         self.assertEqual(math.send_gain(30, -1), 0)
         self.assertEqual(math.send_gain(127, 1), 1)
 
-    def test_amplitude_units_and_linear_region(self):
-        # Independent examples from native envelope/gain-table addresses.
-        self.assertAlmostEqual(math.amplitude_gain(-100), 0.316227764, places=7)
-        self.assertAlmostEqual(math.amplitude_gain(-10), 0.891250908, places=7)
-        self.assertAlmostEqual(math.amplitude_gain(-49), 10 ** (-4.9 / 20))
-        self.assertEqual(math.amplitude_gain(0), 1)
-        self.assertEqual(math.amplitude_gain(-100, 0), 0)
-        self.assertAlmostEqual(math.amplitude_gain(0, 64), 64 / 127, places=7)
-        self.assertAlmostEqual(math.amplitude_gain(-100, 64), 0.316227766 * 64 / 127, places=7)
+    def test_native_gain_connections(self):
+        self.assertEqual(native.decibel_gain(-100), 0)
+        self.assertEqual(native.decibel_gain(0), 1)
+        self.assertEqual(native.decibel_gain(-10), 0.3162277638912201)
+        self.assertEqual(native.note_gain(127, 0), 0)
+        self.assertEqual(native.note_gain(127, 127), 0.9999999403953552)
+        self.assertEqual(native.track_gain(127, 127, 127, .5), 0.4999999403953552)
+        self.assertAlmostEqual(native.note_gain(64, 100), (64 / 127) ** 2 * (100 / 127), places=7)
+        self.assertAlmostEqual(native.track_gain(64, 100, 96, .5), (64 * 100 * 96 / 127 ** 3) ** 2 * .5, places=7)
 
     def test_span_requires_stereo(self):
         self.assertEqual(math.stereo_span(0), 0)
@@ -71,6 +72,95 @@ class ArithmeticTests(unittest.TestCase):
             path.write_bytes(b'not the allowlisted HOME archive')
             with self.assertRaisesRegex(ValueError, 'archive'):
                 validate_source(path, PROFILE['sourceRecord'])
+
+
+class NativeVoiceTests(unittest.TestCase):
+    def test_every_native_table_byte(self):
+        for name, table, fmt in (
+            ('attack', native.ATTACK_LUT, 'f'), ('pitchSemitone', native.PITCH_SEMITONE, 'f'),
+            ('pitchFraction', native.PITCH_FRACTION, 'f'), ('gain', native.GAIN_LUT, 'f'),
+            ('sustain', native.SUSTAIN_LUT, 'h'), ('sine', native.SINE_LUT, 'b'),
+        ):
+            with self.subTest(table=name):
+                packed = struct.pack('<' + str(len(table)) + fmt, *table)
+                self.assertEqual(hashlib.sha256(packed).hexdigest(),
+                                 PROFILE['voiceArithmetic']['nativeTableSha256'][name])
+
+    def test_attack_reset_threshold_and_no_carry(self):
+        env = native.NativeEnvelope(64, 3, 100, 96, 100)
+        self.assertEqual(env.level, -904)
+        self.assertEqual(env.db(), math.f32(-90.4))
+        self.assertEqual(env.attack, 0.9431020021438599)
+        env.attack = 1.0
+        env.level = -0.03125
+        env.update()
+        self.assertEqual(env.state, env.ATTACK)  # Equality does not transition.
+        env.level = -0.03124999813735485
+        env.update()
+        self.assertEqual((env.state, env.level, env.remaining), (env.HOLD, 0, 4))
+        env.update()
+        self.assertEqual(env.remaining, 0)
+        self.assertEqual(env.state, env.DECAY)
+        self.assertEqual(env.level, -env.decay)  # Only one leftover hold unit.
+
+    def test_decay_equality_and_release_crossing(self):
+        env = native.NativeEnvelope(127, 0, 127, 0, 126)
+        self.assertEqual(env.db(), 0)  # Zero attack getter before first update.
+        env.update()
+        self.assertEqual((env.state, env.level), (env.HOLD, 0))
+        env.state, env.level, env.decay = env.DECAY, -722.0, 1.0
+        env.update(1)
+        self.assertEqual((env.state, env.level), (env.DECAY, -723))
+        env.update(1)
+        self.assertEqual((env.state, env.level), (env.SUSTAIN, -723))
+        env.state, env.level = env.RELEASE, -904.0
+        self.assertFalse(env.expired())
+        self.assertEqual(native.decibel_gain(env.db()), 0)
+        env.update()
+        self.assertEqual(env.level, -1024)
+        self.assertTrue(env.expired())
+        self.assertEqual(native.fall_rate(0), math.f32(1 / 640))
+        self.assertEqual(native.fall_rate(126), 24)
+        self.assertEqual(native.fall_rate(127), 65535)
+
+    def test_sweep_units_and_explicit_without_portamento(self):
+        sweep = native.NativeSweep(-1.5, False, 60, 74, 0, 3)
+        self.assertEqual(sweep.value(), -1.5)
+        sweep.advance()
+        self.assertEqual(sweep.counter, 0)
+        sweep.advance(sequence_tick=True)
+        self.assertEqual(sweep.value(), -1)
+        sweep = native.NativeSweep(0, True, 64, 74, 8, 10)
+        self.assertEqual(sweep.duration, 100)
+        sweep.advance(sequence_tick=True)
+        self.assertEqual(sweep.counter, 0)
+        sweep.advance()
+        self.assertEqual(sweep.value(), -9.5)
+        self.assertEqual(native.NativeSweep(3, False, 60, 60, 0, -1).value(), 0)
+
+    def test_signed_pitch_quantization(self):
+        self.assertEqual(native.pitch_ratio(12), 2)
+        self.assertEqual(native.pitch_ratio(-12), .5)
+        self.assertEqual(native.pitch_ratio(-.001), 1)  # Truncation toward zero.
+        self.assertEqual(native.pitch_ratio(.001), 1)
+        self.assertEqual(native.pitch_ratio(1), native.PITCH_SEMITONE[1])
+        self.assertEqual(native.pitch_bend(-127, 2), -1.984375)
+
+    def test_lfo_delay_phase_and_float32_order(self):
+        lfo = native.NativeLfo()
+        lfo.parameters(128, 128, 1, 1)
+        lfo.update()
+        self.assertEqual((lfo.elapsed, lfo.phase, lfo.value()), (5, 0, 0))
+        lfo.update()
+        self.assertEqual(lfo.speed, 50)
+        self.assertEqual(lfo.phase, math.f32(50 * math.f32(math.f32(5) * math.f32(.001))))
+        lfo.phase = .25
+        self.assertEqual(lfo.value(), 1)
+        lfo.phase = .75
+        self.assertEqual(lfo.value(), -1)
+        lfo.parameters(0, 1, 0, 1)
+        lfo.update()
+        self.assertGreater(lfo.phase, .75)  # Depth zero does not freeze phase.
 
 
 class ClockTests(unittest.TestCase):
@@ -130,7 +220,8 @@ class SequencerTests(unittest.TestCase):
 
     def player(self, blob=b'\xff', region_pan=64, base_vol=127):
         region = SimpleNamespace(org_key=60, volume=127, pan=region_pan, pitch=1,
-                                 attack=127, decay=127, sustain=127, release=127)
+                                 attack=127, hold=0, decay=127, sustain=127, release=127,
+                                 ignore_note_off=False)
         wave = SimpleNamespace(samples=[1000] * 100, rate=32728, loop=False, loop_start=0)
         player = self.seq.CseqPlayer(blob, lambda *args: (region, wave), 32728,
                                      base_vol=base_vol)
@@ -139,7 +230,7 @@ class SequencerTests(unittest.TestCase):
 
     def test_overlap_and_initial_pan_command(self):
         # New initial-pan command must not change an overlapping existing note.
-        player = self.player(bytes([0xdc, 127, 0xff]))
+        player = self.player(bytes([0xdc, 127, 0x80, 100]))
         track = player.tracks[0]
         first = track.note_on(60, 127, 10)
         track.run()
@@ -173,15 +264,15 @@ class SequencerTests(unittest.TestCase):
     def test_sends_work_without_effects(self):
         for main, aux_a, aux_b in ((127, 0, 0), (0, 0, 0), (127, 30, 0), (0, 127, 0), (0, 0, 127)):
             with self.subTest(main=main, a=aux_a, b=aux_b):
-                player = self.player(bytes([0xdb, main, 0xd9, aux_a, 0xda, aux_b, 0xff]))
+                player = self.player(bytes([0xdb, main, 0xd9, aux_a, 0xda, aux_b, 0x80, 100]))
                 track = player.tracks[0]
                 voice = track.note_on(60, 127, 10)
                 track.run()
                 player.update_voice(voice)
                 channels = player.generate(1)
                 expected = 1000 * math.PAN_LUT[128] * sum(math.send_gain(v) for v in (main, aux_a, aux_b))
-                self.assertAlmostEqual(channels[0][0], expected)
-                self.assertAlmostEqual(channels[1][0], expected)
+                self.assertAlmostEqual(channels[0][0], expected, delta=.001)
+                self.assertAlmostEqual(channels[1][0], expected, delta=.001)
                 self.assertEqual(player.unapplied, {})
                 self.assertEqual(player.handled_commands, {'mainsend': 1, 'fxsend_a': 1, 'fxsend_b': 1})
                 self.assertEqual(player.effects, {})
@@ -198,11 +289,12 @@ class SequencerTests(unittest.TestCase):
                 player.bank_lookup = changed_region
                 voice = player.tracks[0].note_on(60, 127, 10)
                 voice.state = self.prims.CS_SUSTAIN
-                voice.ampl = -49 << 7  # Native sustain raw 96: -4.9 dB.
+                voice.envelope.state = native.NativeEnvelope.SUSTAIN
+                voice.envelope.level = -49.0  # Native sustain raw 96: -4.9 dB.
                 player.update_voice(voice)
-                expected = 10 ** (-4.9 / 20) * region_volume / 127 * math.PAN_LUT[128]
-                self.assertAlmostEqual(voice.vol_l, expected, places=7)
-                self.assertAlmostEqual(voice.vol_r, expected, places=7)
+                expected = native.decibel_gain(math.f32(-49 * math.f32(.1))) * region_volume / 127 * math.PAN_LUT[128]
+                self.assertAlmostEqual(voice.vol_l, expected, delta=2e-7)
+                self.assertAlmostEqual(voice.vol_r, expected, delta=2e-7)
                 self.assertEqual(voice.region_vol, region_volume)
 
     def test_archive_volume_is_linear_and_separate_from_track_curve(self):
@@ -213,8 +305,8 @@ class SequencerTests(unittest.TestCase):
                 track.vol = 64
                 voice = track.note_on(60, 127, 10)
                 player.update_voice(voice)
-                # Native track raw64 is approximately -11.9 dB; entry is linear.
-                expected = 10 ** (-11.9 / 20) * (volume / 127) * math.PAN_LUT[128]
+                # Native track product is squared in linear amplitude, before the envelope.
+                expected = (64 / 127) ** 2 * (volume / 127) * math.PAN_LUT[128]
                 self.assertAlmostEqual(voice.vol_l, expected, places=7)
                 self.assertAlmostEqual(voice.vol_r, expected, places=7)
         self.assertEqual(math.archive_gain(-1), 0)
@@ -223,7 +315,7 @@ class SequencerTests(unittest.TestCase):
     def test_span_is_retained_but_does_not_change_stereo(self):
         samples = []
         for raw in (0, 64, 127):
-            player = self.player(bytes([0xd7, raw, 0xff]))
+            player = self.player(bytes([0xd7, raw, 0x80, 100]))
             track = player.tracks[0]
             voice = track.note_on(60, 127, 10)
             track.run()
@@ -251,10 +343,64 @@ class SequencerTests(unittest.TestCase):
         from dualrip.engine.ctr.render import render_entry
         player = self.player()
         channels, _, _ = render_entry(bytes([60, 127, 4, 255]), 0, player.bank_lookup, 32728, 64)
-        self.assertEqual(channels[0][:160], [0] * 160)
-        self.assertEqual(channels[1][:160], [0] * 160)
-        self.assertEqual(channels[0][160], 707)
-        self.assertEqual(channels[1][160], 707)
+        self.assertEqual(channels[0][:100], [707] * 100)
+        self.assertEqual(channels[1][:100], [707] * 100)
+        self.assertEqual(channels[0][100:160], [0] * 60)
+
+    def test_zero_gate_keeps_loop_and_fin_forces_release_detach(self):
+        player = self.player()
+        track = player.tracks[0]
+        voice = track.note_on(60, 127, 0)
+        voice.loop = True
+        self.assertEqual(voice.noteLength, -1)
+        player.update_voice(voice)
+        player.generate(320)
+        self.assertNotEqual(voice.state, self.prims.CS_NONE)
+        voice.ignore_note_off = True
+        voice.noteLength = 1
+        track.tick_lengths()
+        self.assertNotEqual(voice.state, self.prims.CS_RELEASE)
+        voice.sweep = importlib.import_module('dualrip.engine.ctr.home_audio_voice').NativeSweep(4, False, 60, 60, 0, 10)
+        track.finish()
+        self.assertEqual((voice.state, voice.trackId), (self.prims.CS_RELEASE, -1))
+        track.run()
+        self.assertEqual(voice.sweep.counter, 0)  # Detached manual sweep freezes.
+        player.update_voice(voice)
+        self.assertNotEqual(voice.state, self.prims.CS_NONE)  # Crossing frame retained.
+        self.assertEqual(voice.vol_l, 0)
+        player.update_voice(voice)
+        self.assertEqual(voice.state, self.prims.CS_NONE)
+
+    def test_multiple_ticks_before_first_voice_update(self):
+        player = self.player(bytes([60, 127, 1, 0x80, 10]))
+        player.tempo, player.timebase = 149, 96  # Two ticks in the first native frame.
+        player.timer()
+        voice = next(v for v in player.voices if v.state != self.prims.CS_NONE)
+        self.assertEqual(voice.noteLength, 0)
+        self.assertEqual(voice.state, self.prims.CS_RELEASE)
+        self.assertEqual(voice.vol_l, 0)
+
+    def test_explicit_sweep_command_does_not_enable_portamento(self):
+        player = self.player(bytes([0xe3, 0xff, 0xa0, 74, 127, 10]))
+        track = player.tracks[0]
+        track.run()
+        voice = next(v for v in player.voices if v.state != self.prims.CS_NONE)
+        self.assertFalse(track.state[self.prims.TS_PORTA])
+        self.assertEqual(voice.sweep.pitch, -1.5)
+        self.assertEqual(voice.sweep.duration, 10)
+
+    def test_bank_defaults_and_ignore_noteoff_field(self):
+        from dualrip.formats.ctr.cseq import Cbnk
+        bank = object.__new__(Cbnk)
+        bank.waves = [(0, 0)]
+        bank.data = struct.pack('<II', 0, 0)
+        region = bank._read_vel_region(0)
+        self.assertEqual((region.attack, region.hold, region.decay, region.sustain, region.release), (0,) * 5)
+        self.assertFalse(region.ignore_note_off)
+        bank.data = struct.pack('<III', 0, 1 << 4, 0x00010001)
+        region = bank._read_vel_region(0)
+        self.assertTrue(region.ignore_note_off)
+        self.assertEqual(region.interp, 1)
 
     def test_loop_at_sequence_origin_keeps_complete_period(self):
         from dualrip.engine.ctr.render import render_entry
@@ -265,8 +411,7 @@ class SequencerTests(unittest.TestCase):
             bytes([0xd4, 0, 60, 127, 48, 0xfc, 0xff]),
             0, player.bank_lookup, 32728, 64, loop_passes=2)
         self.assertEqual(loop, (0, 32640))
-        self.assertEqual(channels[0][:160], [0] * 160)
-        self.assertEqual(channels[0][160], 707)
+        self.assertEqual(channels[0][:100], [707] * 100)
 
     def test_actual_music_native_loop_period(self):
         source = os.environ.get('HOME_AUDIO_SOURCE')
@@ -289,10 +434,9 @@ class SequencerTests(unittest.TestCase):
             for voice in player.voices:
                 if voice.state == self.prims.CS_NONE or voice.inc <= 0:
                     continue
-                cut = voice.noteLength <= 0 and self.prims.CS_ATTACK <= voice.state <= self.prims.CS_SUSTAIN
                 voice.pos += 160 * voice.inc
                 if voice.pos >= len(voice.samples):
-                    if voice.loop and not cut:
+                    if voice.loop:
                         voice.pos = voice.loop_start + (voice.pos - len(voice.samples)) % (len(voice.samples) - voice.loop_start)
                     else:
                         voice.kill()

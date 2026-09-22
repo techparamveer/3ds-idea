@@ -1,7 +1,7 @@
 """Narrow HOME mono/stereo pan and send arithmetic; see AUDIO_EVIDENCE.md.
 
-This is not a complete CTR mixer. Native interpolation, envelopes, modulation,
-DSP quantization and runtime gains are outside this correction.
+This is not a complete CTR mixer. Native interpolation, DSP quantization and
+runtime gains remain outside this correction. Voice state is in home_audio_voice.
 """
 import math
 import struct
@@ -51,13 +51,6 @@ def stereo_span(raw, output_mode=1):
     # Retain normalized state for diagnosis. Native stereo uses fixed 0/2
     # front/rear values and does not use this voice value to change L/R gains.
     return clamp(f32(raw * PAN_SCALE), 0, 2)
-
-
-def amplitude_gain(table_units, region_raw=127):
-    # Native envelope units are 0.1 dB; region volume is independent and linear.
-    # Other driver state/floors are still the pinned renderer's approximation.
-    region = clamp(f32(region_raw * SEND_SCALE), 0, 1)
-    return math.pow(10.0, table_units / 200.0) * region
 
 
 def archive_gain(raw):

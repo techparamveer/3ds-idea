@@ -228,3 +228,8 @@ The exact 3515200-sample period is retained, while the baked waveform seam still
 differs from continuous playback. Full evidence, capture identity, methods,
 before/after gains and private reproducibility paths are in
 `home_audio_ENTRY_VOLUME_EVIDENCE.md`. Public replacement remains held.
+
+The subsequent `home_audio_RUNTIME_FOLLOWUP.md` rules out most of the aux-return
+explanation for music's level gap and traces remaining native frame-order,
+attack and pitch differences. Its private counterfactuals are not converter
+revisions or public delivery candidates.

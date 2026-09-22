@@ -34,6 +34,9 @@ the independently streamed, untrimmed eight-pass diagnostics exactly.
 
 This makes the converter's PCM and loop metadata consistent. Native startup
 latency, native resume behavior and short-cue fidelity remain unverified.
+The later [runtime follow-up](home_audio_RUNTIME_FOLLOWUP.md) traces a native
+sequence-before-voice callback order, unlike the retained converter order.
+V5's origin consistency does not establish native callback-order parity.
 
 ## Eight untrimmed passes
 
@@ -58,6 +61,15 @@ track-9 notes carried from the intro. Its later nonterminating boundaries have
 15 active voices and different release/sample positions. Consequently, jumping
 back to the first start restores audio with intro state rather than the audio
 that continuous playback would generate at that boundary.
+
+The historical eight-pass reports stored each track's state list by reference,
+so their serialized track flags show final state rather than boundary state.
+Do not infer an early track end from those flags. PCM and copied voice scalar
+snapshots are unaffected. The private diagnostic now copies that list, and
+`intro-voice-origin.json` independently traces track 9's three notes to sample
+102880, length 2736 ticks, with 911 ticks remaining at the first loop. No track
+end occurs during the first 14.67 s of that trace. This supports carried intro
+voices without establishing a missed native release; no track-end fix is made.
 
 | Main two-pass slice | Baked step L / R | Continuous step L / R | Next-second difference RMS |
 | --- | --- | --- | ---: |

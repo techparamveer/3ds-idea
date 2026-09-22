@@ -64,7 +64,7 @@ export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
 export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return !s?reduceMenu(state,input):state;
  state=cancelHomeGesture(state);
- if(['left','right','up','down','l','r','open','back','home','zoom','zoom-in','zoom-out','x','select'].includes(input))state=resetHomeNavigation(state);
+ if(['back','home'].includes(input))state=resetHomeNavigation(state);
  s=state.system!;
  const change=(patch:Partial<System>):MenuState=>({...state,system:{...s!,link:null,...patch}});
  if(input==='power'){
@@ -142,7 +142,7 @@ export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuSt
   return location.slot===selected&&(!state.opened||homeSlotAppId(state,location.slot))?send('open'):{...state,[state.opened?'folderSelected':'selected']:location.slot};
  }
  if(state.panel==='settings'&&x>=265&&y>=145&&y<201)return send('preferences');
- let next=touchMenu(state,x,y);if(next.opened!==state.opened||next.columns!==state.columns)next=resetHomeNavigation(next);const target=next.panel&&toolbarApps[next.panel];
+ let next=touchMenu(state,x,y);if(next.opened!==state.opened)next=resetHomeNavigation(next);const target=next.panel&&toolbarApps[next.panel];
  return target?invokeSystemApplet({...next,panel:null},target,now):next;
 }
 /** Full pointer/button protocol for scene adapters. Legacy single-command inputs remain supported. */

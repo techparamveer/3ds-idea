@@ -1,4 +1,4 @@
-import { menuTiles, pageStart, rowCount, slotCount, type MenuState } from './state.ts';
+import { columnPitch, menuTiles, pageStart, rowCount, slotCount, visibleColumns, type MenuState } from './state.ts';
 import { homeContainer, homeItemAt, moveHomeItem, resolveHomeDrop, sameHomeLocation, type HomeItem, type HomeLocation } from './home-layout.ts';
 import type { AppEvent } from './app-types.ts';
 
@@ -37,7 +37,7 @@ export function resetHomeNavigation(state: MenuState): MenuState {
   state = cancelHomeGesture(state);
   return state.system && state.system.homeNavigation.scrollColumn !== null ? setNavigation(state, createHomeNavigation()) : state;
 }
-function boundedScroll(state: MenuState, value: number) { return Math.max(0, Math.min(Math.max(0, Math.ceil(slotCount(state) / rowCount(state)) - state.columns), value)); }
+function boundedScroll(state: MenuState, value: number) { return Math.max(0, Math.min(Math.max(0, Math.ceil(slotCount(state) / rowCount(state)) - visibleColumns(state)), value)); }
 function dragTarget(state: MenuState, gesture: HomeGesture, now: number): HomeGesture {
   const target = homeTouchLocation(state, gesture.x, gesture.y);
   const candidate = target && target.folder === null && homeItemAt(state, target)?.kind === 'folder' && gesture.item?.kind === 'app' && gesture.source && resolveHomeDrop(state, gesture.source, target) ? target.slot : null;
@@ -86,7 +86,7 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   let scrollColumn = state.system!.homeNavigation.scrollColumn;
   if (gesture.mode === 'scroll') {
     if (gesture.area === 'grid') {
-      const pitch = rowCount(state) === 1 ? 84 : 168 / rowCount(state);
+      const pitch = columnPitch(state);
       scrollColumn = boundedScroll(state, gesture.anchorScroll + (gesture.startX - event.x) / pitch);
     } else if (gesture.area === 'themes') state = { ...state, panelChoice: Math.max(0, Math.min(6, gesture.origin.panelChoice + Math.round((gesture.startY - event.y) / 53))) };
   }
@@ -111,7 +111,7 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
     if (gesture.area === 'grid') {
       scrollColumn = Math.round(scrollColumn ?? pageStart(state));
       const rows = rowCount(state), selected = state.opened ? state.folderSelected : state.selected;
-      const col = Math.max(scrollColumn, Math.min(scrollColumn + state.columns - 1, Math.floor(selected / rows)));
+      const col = Math.max(scrollColumn, Math.min(scrollColumn + visibleColumns(state) - 1, Math.floor(selected / rows)));
       state = { ...state, [state.opened ? 'folderSelected' : 'selected']: Math.min(slotCount(state) - 1, col * rows + selected % rows) };
     }
     return { state: setNavigation(state, { scrollColumn, gesture: null }), tap: false };

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { initialState, reduceMenu, touchMenu, pageStart, SLOT_COUNT, menuTiles, rowCount, densities, isFolder, keyboardKeys } from '../src/os/state.ts';
-const center = tile => [tile.x + Math.min(tile.size, 308 - tile.x) / 2, tile.y + tile.size / 2];
+const center = tile => [(Math.max(20,tile.x)+Math.min(300,tile.x+tile.size))/2, tile.y + tile.size / 2];
 test('D-pad navigation is column-major at every native density and remains in bounds',()=>{
  for(const columns of densities){
   let s={...initialState,columns};const rows=rowCount(s);
@@ -37,7 +37,7 @@ test('Empty slots create folders; opening then uses the newly created folder',()
 test('Drawn tiles remain reachable after scrolling or density changes',()=>{
  for(const columns of densities)for(const selected of [0,2,17,72,298,299]){
   const state={...initialState,columns,selected};
-  for(const tile of menuTiles(state).filter(t=>t.x<300)){
+  for(const tile of menuTiles(state).filter(t=>t.x<300&&t.x+t.size>20)){
    const touched=touchMenu(state,...center(tile));assert.equal(touched.selected,tile.index);
   }
  }

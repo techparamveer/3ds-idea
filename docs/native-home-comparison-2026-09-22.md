@@ -6,6 +6,10 @@ captures, owner-source scratch and comparison reports are under:
 
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`
 
+The earlier lower-screen material and density evidence is retained in
+[native-home-lower-comparison-2026-09-22.md](native-home-lower-comparison-2026-09-22.md).
+Its remaining-difference list describes that earlier checkpoint.
+
 ## Background and native camera
 
 The original `BannerBG` geometry, textures, material operations and selected

@@ -34,21 +34,41 @@ export function isFolder(index: number, state: MenuState = initialState): boolea
   return Object.hasOwn(state.folders, index);
 }
 export const densities = [3, 4, 6, 8, 10, 12] as const;
-export function rowCount(state: MenuState) { return [1, 2, 3, 4, 5, 6][Math.max(0, densities.indexOf(state.columns as typeof densities[number]))]; }
+export function densityIndex(state:MenuState){return Math.max(0,densities.indexOf(state.columns as typeof densities[number]));}
+export function rowCount(state: MenuState) { return densityIndex(state)+1; }
+/** `columns` remains a legacy preference token. Native visible columns differ. */
+export function visibleColumns(state:MenuState){return state.opened?state.columns:[3,3,5,7,9,10][densityIndex(state)];}
+export function columnPitch(state:MenuState){return state.opened?(rowCount(state)===1?84:168/rowCount(state)):[84,84,54,40,32,28][densityIndex(state)];}
+function firstColumnX(state:MenuState){return state.opened?40+(columnPitch(state)-(rowCount(state)<=2?12:8))/2:[76,76,52,40,32,34][densityIndex(state)];}
+function withScroll(state:MenuState,scrollColumn:number):MenuState{return state.system?{...state,system:{...state.system,homeNavigation:{...state.system.homeNavigation,scrollColumn}}}:state;}
 export function pageStart(state: MenuState): number {
-  const rows = rowCount(state), selected = state.opened ? state.folderSelected : state.selected;
+  const rows = rowCount(state), selected = state.opened ? state.folderSelected : state.selected,columns=visibleColumns(state);
   const scroll = state.system?.homeNavigation?.scrollColumn;
-  if (typeof scroll === 'number' && Number.isFinite(scroll)) return Math.max(0, Math.min(Math.max(0, Math.ceil(slotCount(state) / rows) - state.columns), scroll));
-  return Math.max(0, Math.min(Math.ceil(slotCount(state) / rows) - state.columns, Math.floor(selected / rows) - Math.floor((state.columns - 1) / 2)));
+  if (typeof scroll === 'number' && Number.isFinite(scroll)) return Math.max(0, Math.min(Math.max(0, Math.ceil(slotCount(state) / rows) - columns), scroll));
+  return Math.max(0, Math.min(Math.ceil(slotCount(state) / rows) - columns, Math.floor(selected / rows) - Math.floor((columns - 1) / 2)));
 }
 export function menuTiles(state: MenuState) {
-  const rows = rowCount(state), pitch = rows === 1 ? 84 : 168 / rows, size = pitch - (rows <= 2 ? 12 : 8);
-  // Native one-row mode reserves the upper area for the selection balloon.
-  const scroll = pageStart(state), start = Math.floor(scroll), top = rows === 1 ? 125 : (rows === 2 ? 46 : 40) + (168 - rows * pitch) / 2;
-  return Array.from({ length: (state.columns + 2) * rows }, (_, i) => {
+  const rows=rowCount(state),density=densityIndex(state),pitch=columnPitch(state),size=state.opened?pitch-(rows<=2?12:8):[72,72,50,36,28,24][density];
+  const scroll=pageStart(state),start=Math.max(0,Math.floor(scroll)-1);
+  const top=state.opened?(rows===1?125:(rows===2?46:40)+(168-rows*pitch)/2):[161,82,70,64,60,54][density]-size/2;
+  return Array.from({ length: (visibleColumns(state) + 3) * rows }, (_, i) => {
     const col = Math.floor(i / rows), row = i % rows;
-    return { index: (start + col) * rows + row, x: 40 + (col - (scroll - start)) * pitch, y: top + row * pitch, size };
-  }).filter(tile => tile.index < slotCount(state) && tile.x < 320);
+    return { index: (start + col) * rows + row, x: firstColumnX(state)-size/2+(start+col-scroll)*pitch, y: top + row * pitch, size };
+  }).filter(tile => tile.index < slotCount(state) && tile.x < 320 && tile.x+tile.size>0);
+}
+/** Native density touch chooses the earliest left column nearest the old X. */
+function changeDensity(state:MenuState,columns:number):MenuState{
+  if(columns===state.columns)return state;
+  const selected=state.opened?state.folderSelected:state.selected;
+  const oldX=Math.fround(firstColumnX(state)+Math.fround((Math.floor(selected/rowCount(state))-pageStart(state))*columnPitch(state)));
+  const next={...state,columns},rows=rowCount(next),count=visibleColumns(next),selectedColumn=Math.floor(selected/rows);
+  const first=Math.max(0,selectedColumn-count+1),last=Math.min(Math.max(0,Math.ceil(slotCount(next)/rows)-count),selectedColumn+count-1);
+  let closest=first,distance=Infinity;
+  for(let left=first;left<=last;left++){
+    const x=Math.fround(firstColumnX(next)+Math.fround((selectedColumn-left)*columnPitch(next))),delta=Math.fround(x-oldX),squared=Math.fround(delta*delta);
+    if(squared<distance){closest=left;distance=squared;}
+  }
+  return withScroll(next,closest);
 }
 export const toolbar = [
   { panel: 'settings', x: 0, width: 40 }, { panel: 'notes', x: 40, width: 44 },
@@ -92,11 +112,11 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
   }
   if (input === 'zoom' || input === 'zoom-in' || input === 'zoom-out') {
     const i = densities.indexOf(state.columns as typeof densities[number]);
-    return { ...state, columns: densities[input === 'zoom' ? (i + 1) % densities.length : Math.max(0, Math.min(densities.length - 1, i + (input === 'zoom-in' ? -1 : 1)))] };
+    return changeDensity(state,densities[input === 'zoom' ? (i + 1) % densities.length : Math.max(0, Math.min(densities.length - 1, i + (input === 'zoom-in' ? -1 : 1)))]);
   }
   if (input === 'open') {
     if (state.opened) return state;
-    if (isFolder(state.selected, state)) return { ...state, opened: true, folderSelected: 0 };
+    if (isFolder(state.selected, state)) return withScroll({ ...state, opened: true, folderSelected: 0 },0);
     return createFolder(state);
   }
   const rows = rowCount(state), selected = state.opened ? state.folderSelected : state.selected;
@@ -104,7 +124,11 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
   const nextCol = input === 'left' ? Math.max(0, col - 1) : input === 'right' ? Math.min(Math.ceil(slotCount(state) / rows) - 1, col + 1) : col;
   const nextRow = input === 'up' ? Math.max(0, row - 1) : input === 'down' ? Math.min(rows - 1, row + 1) : row;
   const next = Math.min(slotCount(state) - 1, nextCol * rows + nextRow);
-  return { ...state, [state.opened ? 'folderSelected' : 'selected']: next };
+  const moved={ ...state, [state.opened ? 'folderSelected' : 'selected']: next };
+  // Retain navigation history until an edge is crossed. Cancelling a gesture
+  // happens before this reducer, so fractional stylus scroll has one owner.
+  const left=pageStart(state),column=Math.floor(next/rows),columns=visibleColumns(state);
+  return withScroll(moved,Math.max(0,Math.min(Math.max(0,Math.ceil(slotCount(state)/rows)-columns),column<left?column:column>=left+columns?column-columns+1:left)));
 }
 export function touchMenu(state: MenuState, x: number, y: number): MenuState {
   if (!state.powered || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= 320 || y < 0 || y >= 240) return state;

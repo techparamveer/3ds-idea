@@ -19,6 +19,7 @@
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
+| `home-banner-lifecycle.ts` | Pure banner request/activation, folder visibility/yaw and independent source clip clocks |
 | `app-persistence.ts` | Versioned IndexedDB saves, preferences and media |
 | `app-capabilities.ts` | Opt-in browser devices, local capture and resource cleanup |
 
@@ -88,6 +89,14 @@ pure native outline pass in `native-layout.ts`. Presentation caches at most 64
 immutable glyph cells; `native-renderer.ts` binds them per draw and keys its
 bounded raster cache by texture identity. Sampler overrides isolate each pane's
 material. See [`../native-folder-glyph.md`](../native-folder-glyph.md).
+
+`home-banner-lifecycle.ts` separates requested selection from active banner
+identity and separates native manager updates from attached-scene clip updates.
+The host supplies activation readiness and pass counts; the module does not
+derive them from milliseconds. Background clips have scene-level epochs, while
+new folder activation resets its own yaw and clips. See
+[`../native-banner-lifecycle.md`](../native-banner-lifecycle.md) for the pure API,
+source evidence and the remaining runtime/scene integration work.
 
 ## Firmware application foundation
 

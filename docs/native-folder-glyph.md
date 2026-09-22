@@ -24,6 +24,14 @@ Addresses below are virtual addresses with image base `0x100000`.
 | `0x1e801c`, `0x1e855c` | Pickup binds the glyph to its authored `P_Icon_00`; the source Scale animation supplies dimensions and offset. |
 | `0x2b25a0`–`0x2b25c4`, `0x24d0a0` | Default sampler 1 is `IconMask.bclim`. Native flat UV memory is `[.25,.25,.25,1.75,1.75,.25,1.75,1.75]`; the converted layout's row-ordered corners are `[.25,.25,1.75,.25,.25,1.75,1.75,1.75]`. The authored mirrored wrapping and converted UVs are preserved. |
 
+During a density transition, glyph metrics interpolate continuously. The updater
+at `0x1d7bcc` calls `0x1d7f3c` with argument 1; the latter samples float density
+at scene `+0x1194` through `0x1d8424` for both width (`0x1d7f80..88`) and Y
+(`0x1d7fa0..a8`). The helper linearly interpolates adjacent table entries using
+float32 operations and returns entry 5 at density >= 5. Initial setup instead
+passes argument 0 (`0x2b12e0`), selecting the integer density at scene `+0x118c`.
+Do not wait for integer density commit to change a transitioning glyph's metrics.
+
 The center of the native “１” is dark RGB 85 with alpha 221; the white outline
 has alpha 204. It requires no RGB inversion. The default A4 mask samples zero
 RGB and preserves alpha; see the alpha-texture correction in

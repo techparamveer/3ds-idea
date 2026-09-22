@@ -19,24 +19,24 @@ test('Manifest validation rejects invalid codepoints, metrics and atlas rectangl
  }
  assert.throws(()=>validateBitmapFont(fixture(),[{width:2,height:2}]),/outside bitmap/);
 });
-test('Drawing preserves middle alignment and reuses atlas tints',()=>{
+test('Drawing preserves middle alignment and reuses bounded text-run tints',()=>{
  const old=globalThis.document;let created=0;
  globalThis.document={createElement(){created++;return {getContext:()=>({drawImage(){},fillRect(){}})};}};
  try{
   const m=fixture();const font=new BitmapFont(m,[{naturalWidth:8,naturalHeight:8}]);m.glyphs[65].advance=90;
   const calls=[];const context={drawImage:(...args)=>calls.push(args)};
   font.draw(context,'A',10,20,6,'#555','center');font.draw(context,'A',10,20,6,'#555','center');
-  assert.deepEqual(calls[0].slice(5),[5,17,4,6]);assert.equal(created,1);
+  assert.deepEqual(calls[0].slice(1),[5,17]);assert.equal(calls[0][0].width,5);assert.equal(calls[0][0].height,6);assert.equal(created,1);
  }finally{globalThis.document=old;}
 });
 test('Font loader resolves sheets and validates their decoded dimensions',async()=>{
- const old={fetch:globalThis.fetch,Image:globalThis.Image,window:globalThis.window};const paths=[];
- globalThis.fetch=async()=>new Response(JSON.stringify(fixture()));
+ const old={fetch:globalThis.fetch,Image:globalThis.Image,window:globalThis.window};const paths=[],requests=[];
+ globalThis.fetch=async(url)=>{requests.push(String(url));return new Response(JSON.stringify(fixture()));};
  globalThis.window={location:{href:'https://example.test/'}};
  globalThis.Image=class{naturalWidth=8;naturalHeight=8;set src(value){paths.push(value);}async decode(){}};
  try{
   const font=await loadBitmapFont('/os/font/font.json');assert.ok(font instanceof BitmapFont);
-  assert.deepEqual(paths,['https://example.test/os/font/sheet-0.png']);
+  assert.deepEqual(requests,['/os/font/font.json','https://example.test/os/font/sheet-0.png']);assert.ok(paths[0].startsWith('blob:'));
   globalThis.Image=class{naturalWidth=1;naturalHeight=1;async decode(){}};
   await assert.rejects(()=>loadBitmapFont('/os/font/font.json'),/outside bitmap/);
  }finally{Object.assign(globalThis,old);}

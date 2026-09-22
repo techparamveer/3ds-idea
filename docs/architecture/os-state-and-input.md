@@ -120,3 +120,13 @@ invalidation is deleted instead of being delivered. A storage failure during
 that cleanup can leave an unreferenced local Blob; no remote upload occurs.
 Browser device behaviour and the presentation of these views require the
 centralized scene integration and browser verification.
+## Native firmware presentation
+
+`firmware-presentation.ts` loads the versioned manifest and assembles the selected
+HOME layouts. `native-layout.ts` owns pure format types, binding/curve sampling,
+material evaluation and window geometry; `native-renderer.ts` owns disposable
+Canvas targets and bounded caches. The OS layer receives an injected folder
+banner callback; Three.js model/material interpretation stays in
+`scene/firmware-model.ts`. See
+[`../firmware-presentation-validation.md`](../firmware-presentation-validation.md)
+for the loader/disposal contract, coverage and unresolved visual differences.

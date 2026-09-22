@@ -4,8 +4,10 @@ export type FontManifest = {
   schema: 1;
   sourceSha256: string;
   height: number;
+  width?: number;
   baseline: number;
   lineFeed?: number;
+  colorMode?: 'alpha' | 'luminance-alpha';
   sheets: string[];
   glyphs: Record<string, Glyph>;
   fallback: Glyph | null;
@@ -38,6 +40,7 @@ export function validateBitmapFont(value: unknown, dimensions?: { width: number;
   if (!value || typeof value !== 'object') throw new Error('Invalid bitmap font manifest');
   const m = value as FontManifest;
   if (m.schema !== 1 || !/^[a-f0-9]{64}$/.test(m.sourceSha256) || !Number.isInteger(m.height) || m.height < 1 || m.height > 255 ||
+      (m.width!==undefined&&(!Number.isInteger(m.width)||m.width<1||m.width>255)) ||
       !Number.isInteger(m.baseline) || m.baseline < 0 || m.baseline > 255 ||
       (m.lineFeed !== undefined && (!Number.isInteger(m.lineFeed) || m.lineFeed < 0 || m.lineFeed > 255)) ||
       !Array.isArray(m.sheets) || !m.sheets.length || m.sheets.length > 64 ||
@@ -63,7 +66,8 @@ export function validateBitmapFont(value: unknown, dimensions?: { width: number;
 }
 
 export class BitmapFont {
-  private tinted = new Map<string, HTMLCanvasElement[]>();
+  private tinted = new Map<string, {canvas:HTMLCanvasElement;x:number;y:number}>();
+  private tintedBytes=0;
   readonly manifest: FontManifest;
   private sheets: HTMLImageElement[];
   constructor(manifest: FontManifest, sheets: HTMLImageElement[]) {
@@ -77,42 +81,67 @@ export class BitmapFont {
     // Preserve existing single-line middle positioning; baseline-aware clients can
     // use measureBitmapText directly without losing the original baseline metric.
     const baselineY = y - size / 2 + this.manifest.baseline * size / this.manifest.height;
-    let sheets = this.tinted.get(color);
-    if (!sheets) {
-      sheets = this.sheets.map(image => {
-        const canvas = document.createElement('canvas');
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-        const context = canvas.getContext('2d')!;
-        context.drawImage(image, 0, 0);
-        context.globalCompositeOperation = 'source-in';
-        context.fillStyle = color;
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        return canvas;
-      });
-      // Palette is small; bound memory if a caller supplies arbitrary colours.
-      if (this.tinted.size >= 16) this.tinted.clear();
-      this.tinted.set(color, sheets);
+    const key=JSON.stringify([value,size,color,align]);
+    let cached=this.tinted.get(key);
+    if(!cached){
+      const left=Math.floor(Math.min(0,...run.placed.map(p=>p.x))),top=Math.floor(Math.min(0,...run.placed.map(p=>p.y)));
+      const width=Math.max(1,Math.ceil(Math.max(0,...run.placed.map(p=>p.x+p.width))-left));
+      const height=Math.max(1,Math.ceil(Math.max(0,...run.placed.map(p=>p.y+p.height))-top));
+      const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+      const ctx=canvas.getContext('2d')!;
+      for(const p of run.placed)if(p.glyph.width)ctx.drawImage(this.sheets[p.glyph.sheet],p.glyph.x,p.glyph.y,p.glyph.width,p.glyph.height,p.x-left,p.y-top,p.width,p.height);
+      if(this.manifest.colorMode==='luminance-alpha'){
+        const pixels=ctx.getImageData(0,0,width,height);ctx.clearRect(0,0,width,height);ctx.fillStyle=color;ctx.fillRect(0,0,1,1);
+        const tint=ctx.getImageData(0,0,1,1).data;
+        for(let at=0;at<pixels.data.length;at+=4){for(let i=0;i<3;i++)pixels.data[at+i]*=tint[i]/255;pixels.data[at+3]*=tint[3]/255;}
+        ctx.putImageData(pixels,0,0);
+      }else{ctx.globalCompositeOperation='source-in';ctx.fillStyle=color;ctx.fillRect(0,0,width,height);}
+      // Cache short painted text runs, never four full copies of the six shared-font atlases.
+      const bytes=width*height*4;
+      while(this.tintedBytes+bytes>1024*1024&&this.tinted.size){const [oldKey,old]=this.tinted.entries().next().value!;this.tintedBytes-=old.canvas.width*old.canvas.height*4;old.canvas.width=old.canvas.height=0;this.tinted.delete(oldKey);}
+      cached={canvas,x:left,y:top};if(bytes<=1024*1024){this.tinted.set(key,cached);this.tintedBytes+=bytes;}
     }
-    for (const placed of run.placed) {
-      const glyph = placed.glyph;
-      if (glyph.width) c.drawImage(sheets[glyph.sheet], glyph.x, glyph.y, glyph.width, glyph.height,
-        x + placed.x, baselineY + placed.y, placed.width, placed.height);
-    }
+    c.drawImage(cached.canvas,x+cached.x,baselineY+cached.y);
   }
+
+  /** CLYT font size is a two-axis native cell size, not a CSS font size. */
+  drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0) {
+    const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
+    const lines=value.replace(/\r\n?/g,'\n').split('\n').map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
+    const lineHeight=(this.manifest.lineFeed??this.manifest.height)*sy+lineSpacing;
+    const blockHeight=size[1]+(lines.length-1)*lineHeight;
+    const y0=Math.floor(alignment/3)*(height-blockHeight)/2;
+    const widths=lines.map(glyphs=>glyphs.reduce((n,g)=>n+(g?.advance??0)*sx+spacing,0)-(glyphs.length?spacing:0));
+    const blockWidth=Math.max(0,...widths);
+    lines.forEach((glyphs,row)=>{
+      const runWidth=widths[row],horizontal=lineAlignment===0?alignment%3:lineAlignment-1;
+      let x=(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
+      for(const g of glyphs){if(!g)continue;
+        if(g.width)c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,x+g.left*sx,y0+row*lineHeight,g.width*sx,g.height*sy);
+        x+=g.advance*sx+spacing;
+      }
+    });
+  }
+
+  dispose(){for(const {canvas} of this.tinted.values())canvas.width=canvas.height=0;this.tinted.clear();this.tintedBytes=0;this.sheets=[];}
 }
 
 /** Explicit opt-in: absent firmware assets must not cause a silent authenticity claim. */
-export async function loadBitmapFont(url: string): Promise<BitmapFont> {
-  const response = await fetch(url);
+export async function loadBitmapFont(url: string, signal?: AbortSignal): Promise<BitmapFont> {
+  const response = await fetch(url,{signal});
   if (!response.ok) throw new Error(`Font manifest: HTTP ${response.status}`);
   const manifest = validateBitmapFont(await response.json());
   const sheets = await Promise.all(manifest.sheets.map(async name => {
     if (!/^sheet-\d+\.png$/.test(name)) throw new Error('Invalid font sheet name');
-    const image = new Image();
-    image.src = new URL(name, new URL(url, window.location.href)).href;
-    await image.decode();
-    return image;
+    return loadNativeImage(new URL(name,new URL(url,window.location.href)).href,signal);
   }));
   return new BitmapFont(manifest, sheets);
+}
+
+/** Fetch allows an abandoned title load to cancel its pending image transfers. */
+export async function loadNativeImage(url:string,signal?:AbortSignal):Promise<HTMLImageElement>{
+ const response=await fetch(url,{signal});if(!response.ok)throw new Error(`Image HTTP ${response.status}: ${url}`);
+ const blob=await response.blob();signal?.throwIfAborted();const objectUrl=URL.createObjectURL(blob),image=new Image();
+ try{image.src=objectUrl;await image.decode();signal?.throwIfAborted();return image;}finally{URL.revokeObjectURL(objectUrl);}
 }

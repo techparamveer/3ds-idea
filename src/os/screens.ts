@@ -1,9 +1,12 @@
 import { createNativeChrome } from './native-chrome';
-import { createPortfolioGraphics } from './portfolio-screens';
+import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
 import { type MenuState, type Theme, menuTiles, isFolder, pageStart, rowCount, slotCount, themeChoices, keyboardKeys } from './state';
 import { type BitmapFont } from './bitmap-font';
+import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
+export { loadFirmwarePresentationAssets, type FirmwarePresentationAssets } from './firmware-presentation';
 type Context = CanvasRenderingContext2D;
+type NativeHome=ReturnType<typeof createFirmwareHome>;
 const fonts = new WeakMap<Context, BitmapFont>();
 let systemFont: Promise<void> | undefined;
 function loadSystemFont() {
@@ -26,7 +29,7 @@ function gradient(c: Context, y: number, h: number, a: string, b: string) {
  const g=c.createLinearGradient(0,y,0,y+h);g.addColorStop(0,a);g.addColorStop(1,b);return g;
 }
 function text(c:Context,t:string,x:number,y:number,size=13,color='#44464b',align:CanvasTextAlign='left'){
- const font=fonts.get(c);if(font){font.draw(c,t,x,y+size*.35,size,color,align);return;}
+ const font=fonts.get(c);if(font){font.draw(c,t,x,y,size,color,align);return;}
  // Fontworks NTLG conversion; provenance and the distinction from CFNT rasterization are documented.
  c.font=`${size}px "HOME Menu", Arial, sans-serif`;c.fillStyle=color;c.textAlign=align;c.textBaseline='middle';c.fillText(t,x,y);
 }
@@ -104,24 +107,24 @@ function arrows(c:Context,state:MenuState){
   const x=right?310:10;c.fillStyle='#91bdb7';c.beginPath();c.moveTo(x+(right?5:-5),131);c.lineTo(x+(right?-3:3),125);c.lineTo(x+(right?-3:3),137);c.fill();c.restore();
  }
 }
-function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>){
+function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,nativeHome?:NativeHome){
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
  const selected=state.opened?state.folderSelected:state.selected;
  for(const tile of menuTiles(state)){
   const {x,y,size,index}=tile;const app=!state.opened?getApp(state.system?.layout[index]):undefined;const occupied=app||(!state.opened&&isFolder(index,state));
   if(occupied){
-   if(!chrome.tile(c,x,y,size)){c.save();c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
+   if(!(nativeHome?.tile(c,x,y,size,rowCount(state),!app)??chrome.tile(c,x,y,size))){c.save();c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
    rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();}
-   if(app)graphics.menuIcon(c,app,x,y,size);else folder(c,x+size/2,y+size/2,size*.78,state.folders[index]);
+   if(app)graphics.menuIcon(c,app,x,y,size);else if(!nativeHome)folder(c,x+size/2,y+size/2,size*.78,state.folders[index]);
   }else{
    const inset=size*.34,side=size-inset*2;
    rounded(c,x+inset,y+inset,side,side,2,'#d3d4d766','#c8c9cc');
    line(c,[[x+inset+1,y+inset+side],[x+inset+side,y+inset+side],[x+inset+side,y+inset+1]],'#e9e9eb');
   }
-  if(index===selected)cursor(c,x,y,size,size,time,reduced);
+  if(index===selected&&!(nativeHome?.cursor(c,x,y,size,rowCount(state),time)))cursor(c,x,y,size,size,time,reduced);
  }c.restore();
  // The real scroll arrows sit halfway up the icon field, not in the footer.
- arrows(c,state);
+ if(!nativeHome?.arrows(c,pageStart(state)>0))arrows(c,state);
  rounded(c,15,204,290,5,2,'#bfc0c580');
  const width=Math.max(14,290*state.columns/Math.ceil(slotCount(state)/rowCount(state)));
  rounded(c,15+(290-width)*pageStart(state)/Math.max(1,Math.ceil(slotCount(state)/rowCount(state))-state.columns),204,width,5,2,'#fafafa','#b8b9bc');
@@ -189,7 +192,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { font?: BitmapFont; reducedMotion?: boolean } = {}){
+export function createScreens(options: { font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean)=>boolean } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -199,16 +202,23 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
  const themeSprite=new Image();themeSprite.src='/os/change-theme.png';
  const shopSprite=new Image();shopSprite.src='/os/theme-shop.png';
  const fontReady=loadSystemFont();
- if(options.font){fonts.set(t,options.font);fonts.set(b,options.font);}
+ let firmwareAssets:FirmwarePresentationAssets|undefined,nativeHome:NativeHome|undefined,disposed=false;
+ const useFont=(font:BitmapFont)=>{for(const ctx of [t,b]){fonts.set(ctx,font);setPortfolioFont(ctx,font);}};
+ if(options.font)useFont(options.font);
+ function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);useFont(assets.sharedFont);}
+ if(options.firmwareAssets)setFirmwareAssets(options.firmwareAssets);
  let reduced=options.reducedMotion??false;
  function paint(state:MenuState,date=new Date(),elapsedMs=0){
+  if(disposed)return;
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
-  const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);status(t,date,chrome);
+  const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(!nativeHome?.hud(t,date,time))status(t,date,chrome);
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&state.system?.phase!=='launch')graphics.banner(t,app,time,reduced);
   if(isFolder(state.selected,state)&&!state.panel){
+   if(!options.drawFolderBanner?.(t,time,reduced)){
    t.save();t.shadowColor='#626d8a50';t.shadowBlur=12;t.shadowOffsetY=10;
    folder(t,200,115+Math.sin(time/800)*2,91,state.folders[state.selected],Math.sin(time/1500)*.32);t.restore();
+   if(firmwareAssets&&!firmwareAssets.diagnostics.includes('Native folder model unavailable; drawing reconstructed fallback.'))firmwareAssets.diagnostics.push('Native folder model unavailable; drawing reconstructed fallback.');}
    const name=state.folders[state.selected];if(name){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,name,200,196,16,palette.ink,'center');}
   }
   if(state.panel){
@@ -220,9 +230,9 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
     if(sprite.complete&&sprite.naturalWidth){const sx=[12,55,96,138,181][i];t.drawImage(sprite,sx,3,i===4?30:25,25,x-sz*.4,y-sz*.4,sz*.8,sz*.8);}
    }
   }
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(state.theme==='white')chrome.draw(b,'icon-tray',0,33);toolbar(b,sprite,chrome);grid(b,state,time,reduced,graphics,chrome);footer(b,state,chrome);panel(b,state,time,reduced,themeSprite,shopSprite);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b))toolbar(b,sprite,chrome);grid(b,state,time,reduced,graphics,chrome,nativeHome);if(!nativeHome?.footer(b,state))footer(b,state,chrome);panel(b,state,time,reduced,themeSprite,shopSprite);
   graphics.overlay(t,b,state,elapsedMs,reduced);
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
  }
- return {top,bottom,paint,dispose:graphics.dispose,setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,bottom,paint,setFirmwareAssets,dispose(){if(disposed)return;disposed=true;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

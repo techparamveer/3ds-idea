@@ -1,0 +1,123 @@
+import { BitmapFont } from './bitmap-font';
+import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, nativeAnimationDiagnostics, nativeWindowPatches, poseNativeLayout, rasterNativePicture,
+ type AnimationBinding, type NativeLayout, type NativePack, type NativePane, type NativePicture, type NativePixels, type PaneOverrides } from './native-layout';
+
+type Context=CanvasRenderingContext2D;
+export type NativeDrawOptions={bindings?:AnimationBinding[];overrides?:PaneOverrides;center?:[number,number];scale?:number;clip?:[number,number,number,number]};
+const surface=(width:number,height:number)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;return canvas;};
+/** Canvas owns only layout targets. The scene owns all 3D banner rendering. */
+export class NativeLayoutRenderer {
+ private cache=new Map<string,HTMLCanvasElement>();
+ private opaque=new WeakSet<HTMLCanvasElement>();
+ private poses=new Map<string,NativeLayout>();
+ private bytes=0;
+ private blendTarget?:HTMLCanvasElement;
+ private disposed=false;
+ readonly diagnostics:string[]=[];
+ constructor(readonly packs:Record<string,NativePack>,private textures:Record<string,Map<string,NativePixels>>,private fonts:ReadonlyMap<string,BitmapFont>,private cacheLimit=8*1024*1024){}
+ private report(message:string){if(!this.diagnostics.includes(message))this.diagnostics.push(message);}
+ private cached(key:string,make:()=>HTMLCanvasElement){
+  const previous=this.cache.get(key);if(previous){this.cache.delete(key);this.cache.set(key,previous);return previous;}
+  const canvas=make(),size=canvas.width*canvas.height*4;
+  while(this.bytes+size>this.cacheLimit&&this.cache.size){const first=this.cache.entries().next().value!;this.bytes-=first[1].width*first[1].height*4;first[1].width=first[1].height=0;this.cache.delete(first[0]);}
+  if(size<=this.cacheLimit){this.cache.set(key,canvas);this.bytes+=size;}return canvas;
+ }
+ private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number) {
+  const w=Math.max(1,Math.ceil(width)),h=Math.max(1,Math.ceil(height));
+  if(w*h>1024*1024)throw new Error('Native pane exceeds raster budget');
+  const material=layout.materials[picture.material];
+  const key=JSON.stringify([pack,material,picture.colors,picture.uvSets,w,h,alpha,layout.textures]);
+  return this.cached(key,()=>{
+   const pixels=rasterNativePicture(layout,picture,w,h,this.textures[pack],alpha),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
+   const data=ctx.createImageData(w,h);data.data.set(pixels.data);
+   // The LCD displays RGB even when a no-blend native material writes alpha zero.
+   if(material.colorBlend?.operation===0)for(let i=3;i<data.data.length;i+=4)data.data[i]=255;
+   if(data.data.every((v,i)=>i%4!==3||v===255))this.opaque.add(canvas);
+   ctx.putImageData(data,0,0);return canvas;
+  });
+ }
+ private text(layout:NativeLayout,pane:NativePane,alpha:number){
+  const text=pane.text!,font=this.fonts.get(layout.fonts[text.font]);if(!font)throw new Error(`Missing native font ${layout.fonts[text.font]}`);
+  const [w,h]=pane.size.map(Math.ceil),material=layout.materials[text.material];
+  const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material]);
+  return this.cached(key,()=>{
+   const canvas=surface(w,h),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
+   font.drawNative(ctx,text.value,w,h,text.size,text.alignment,text.characterSpacing,text.lineSpacing,text.lineAlignment);
+   const image=ctx.getImageData(0,0,w,h);
+   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const at=(y*w+x)*4;if(!image.data[at+3])continue;
+    const primary=interpolateNativeQuad([...text.topColor,...text.topColor,...text.bottomColor,...text.bottomColor],.5,(y+.5)/h,4).map(v=>v/255);primary[3]*=alpha;
+    const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
+    image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
+   }
+   ctx.putImageData(image,0,0);return canvas;
+  });
+ }
+ private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number){
+  const blend=layout.materials[index].colorBlend;
+  ctx.save();
+  try{
+   if(!blend||(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
+   if(blend.operation===0){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
+   if(blend.operation===1&&blend.sourceFactor===0&&blend.destinationFactor===2&&this.opaque.has(canvas)){ctx.globalCompositeOperation='multiply';ctx.drawImage(canvas,x,y,w,h);return;}
+   // Readback is limited to uncommon native blend modes; ordinary panes stay on Canvas's fast path.
+   const target=this.blendTarget??=surface(ctx.canvas.width,ctx.canvas.height);
+   if(target.width!==ctx.canvas.width||target.height!==ctx.canvas.height){target.width=ctx.canvas.width;target.height=ctx.canvas.height;}
+   const tmp=target.getContext('2d',{willReadFrequently:true})!,m=ctx.getTransform();
+   tmp.resetTransform();tmp.clearRect(0,0,target.width,target.height);tmp.setTransform(m);tmp.drawImage(canvas,x,y,w,h);tmp.resetTransform();
+   const src=tmp.getImageData(0,0,target.width,target.height),dst=ctx.getImageData(0,0,target.width,target.height),det=m.a*m.d-m.b*m.c;
+   if(!det)return;
+   for(let py=0;py<target.height;py++)for(let px=0;px<target.width;px++){
+    const rx=px+.5-m.e,ry=py+.5-m.f,lx=(m.d*rx-m.c*ry)/det,ly=(-m.b*rx+m.a*ry)/det;
+    if(lx<x||ly<y||lx>=x+w||ly>=y+h)continue;
+    const at=(py*target.width+px)*4,a=Array.from(src.data.subarray(at,at+4),n=>n/255),b=Array.from(dst.data.subarray(at,at+4),n=>n/255);
+    dst.data.set(blendNativePixel(a,b,blend).map(n=>n*255),at);
+   }
+   tmp.putImageData(dst,0,0);ctx.resetTransform();ctx.globalCompositeOperation='copy';ctx.drawImage(target,0,0);
+  }finally{ctx.restore();}
+ }
+
+ draw(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions={}):boolean {
+  if(this.disposed)return false;
+  const pack=this.packs[packName],original=pack?.layouts[layoutName];if(!original){this.report(`Missing layout ${packName}/${layoutName}`);return false;}
+  const poseKey=JSON.stringify([packName,layoutName,options.bindings,options.overrides]);
+  let posed=this.poses.get(poseKey);
+  if(posed){this.poses.delete(poseKey);this.poses.set(poseKey,posed);}
+  else{for(const binding of options.bindings??[]){const animation=pack.animations[binding.name];if(animation)for(const message of nativeAnimationDiagnostics(original,animation))this.report(`${layoutName}: ${message}`);}
+   posed=poseNativeLayout(original,pack.animations,options.bindings,options.overrides);if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(poseKey,posed);}
+  const layout=posed;
+  ctx.save();
+  try{
+   if(options.clip){ctx.beginPath();ctx.rect(...options.clip);ctx.clip();}
+   const center=options.center??[layout.canvas.width/2,layout.canvas.height/2];ctx.translate(...center);ctx.scale(options.scale??1,options.scale??1);
+   const visit=(pane:NativePane,parentAlpha:number)=>{
+    if(!(pane.flags&1))return;
+    const alpha=parentAlpha*pane.alpha/255;ctx.save();
+    try{
+     ctx.translate(pane.translation[0],-pane.translation[1]);ctx.rotate(-pane.rotation[2]*Math.PI/180);
+     if(pane.rotation[0]||pane.rotation[1])this.report(`Unverified 3D pane projection: ${layoutName}/${pane.name}`);
+     ctx.scale(pane.scale[0]*Math.cos(pane.rotation[1]*Math.PI/180),pane.scale[1]*Math.cos(pane.rotation[0]*Math.PI/180));
+     const [w,h]=pane.size,x=-w*(pane.origin%3)/2,y=-h*Math.floor(pane.origin/3)/2;
+     if(w>0&&h>0&&alpha>0){
+      ctx.save();ctx.translate(x,y);
+      try{
+       if(pane.picture){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha),0,0,w,h,layout,pane.picture.material);}
+       if(pane.text){ctx.beginPath();ctx.rect(0,0,w,h);ctx.clip();this.composite(ctx,this.text(layout,pane,alpha),0,0,w,h,layout,pane.text.material);}
+       if(pane.window)for(const patch of nativeWindowPatches(pane,layout,this.textures[packName])){
+        if(patch.width<=0||patch.height<=0)continue;
+        this.composite(ctx,this.picture(packName,layout,patch.picture,patch.width,patch.height,alpha),patch.x,patch.y,patch.width,patch.height,layout,patch.picture.material);
+       }
+      }finally{ctx.restore();}
+     }
+     // InfluenceAlpha transmits this pane's alpha; an unflagged pane keeps the inherited chain.
+     for(const child of pane.children)visit(child,pane.flags&2?alpha:parentAlpha);
+    }finally{ctx.restore();}
+   };
+   for(const root of layout.roots)visit(root,1);
+   return true;
+  }catch(error){this.report(`${packName}/${layoutName}: ${error instanceof Error?error.message:String(error)}`);return false;}
+  finally{ctx.restore();}
+ }
+ get cacheBytes(){return this.bytes;}
+ dispose(){if(this.disposed)return;this.disposed=true;for(const c of this.cache.values())c.width=c.height=0;this.cache.clear();this.poses.clear();this.bytes=0;if(this.blendTarget)this.blendTarget.width=this.blendTarget.height=0;for(const images of Object.values(this.textures))images.clear();}
+}

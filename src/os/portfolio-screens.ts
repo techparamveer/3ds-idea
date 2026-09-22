@@ -2,15 +2,19 @@ import * as THREE from 'three';
 import { apps, getApp, type PortfolioApp } from './apps';
 import { currentEntry, selectedApp } from './system';
 import type { MenuState } from './state';
+import { measureBitmapText, type BitmapFont } from './bitmap-font';
 type C=CanvasRenderingContext2D;
+const nativeFonts=new WeakMap<C,BitmapFont>();
+export function setPortfolioFont(ctx:C,font?:BitmapFont){if(font)nativeFonts.set(ctx,font);else nativeFonts.delete(ctx);}
 export function label(c:C,value:string,x:number,y:number,size=13,color='#454952',align:CanvasTextAlign='left'){
+ const font=nativeFonts.get(c);if(font){font.draw(c,value,x,y,size,color,align);return;}
  c.font=`${size}px "HOME Menu", Arial, sans-serif`;c.textAlign=align;c.textBaseline='middle';c.fillStyle=color;c.fillText(value,x,y);
 }
 function box(c:C,x:number,y:number,w:number,h:number,r:number,fill:string|CanvasGradient,stroke?:string){c.beginPath();c.roundRect(x,y,w,h,r);c.fillStyle=fill;c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=1;c.stroke();}}
 function button(c:C,x:number,y:number,w:number,h:number,title:string,active=false){const g=c.createLinearGradient(0,y,0,y+h);g.addColorStop(0,active?'#dafff2':'#fff');g.addColorStop(1,active?'#94e9ca':'#d9dde2');c.beginPath();c.roundRect(x,y,w,h,5);c.fillStyle=g;c.fill();c.strokeStyle=active?'#39b692':'#a9afb8';c.stroke();label(c,title,x+w/2,y+h/2,13,'#48515c','center');}
 function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineHeight=20){
  c.font=`${size}px "HOME Menu", Arial, sans-serif`;const lines:string[]=[];let row='';
- for(const word of value.split(' ')){const next=row?`${row} ${word}`:word;if(c.measureText(next).width>width&&row){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);
+ for(const word of value.split(' ')){const next=row?`${row} ${word}`:word;if((nativeFonts.has(c)?measureBitmapText(nativeFonts.get(c)!.manifest,next,size).width:c.measureText(next).width)>width&&row){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
 export function createPortfolioGraphics(){

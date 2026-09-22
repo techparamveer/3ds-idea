@@ -54,11 +54,11 @@ def render(source, output, renderer, source_record, names, rate=32728, scratch=N
         result = {
             'schema': 1, 'firmware': '10.7.0-32E', 'title': title,
             'source': 'romfs/sound/menu.bcsar', 'sourceSha256': sha(source),
-            'converter': {'name': 'render_firmware_audio', 'version': 3, 'sha256': sha(Path(__file__))},
+            'converter': {'name': 'render_firmware_audio', 'version': 4, 'sha256': sha(Path(__file__))},
             'renderer': {'name': 'DualRip', 'url': 'https://github.com/TetraSsky/DualRip', 'revision': DUALRIP_REVISION},
             'profile': profile, 'validatedMonoBankWaves': waves,
             'method': 'offline CSEQ interpretation with original CBNK/CWAV and a versioned HOME-only stereo startup patch',
-            'verification': 'diagnostic candidate; native runtime gain, timing and PCM equivalence unresolved',
+            'verification': 'diagnostic candidate; source-derived sequence clock, native runtime gain/envelopes and PCM equivalence unresolved',
             'cues': {},
         }
         for alias in names:

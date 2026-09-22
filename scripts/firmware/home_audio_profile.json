@@ -1,5 +1,5 @@
 {
-  "id": "eur-home-24576-stereo-startup-v3",
+  "id": "eur-home-24576-stereo-startup-v4",
   "archiveSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
   "sourceRecord": {
     "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
@@ -369,8 +369,8 @@
   "remainingGaps": [
     "Native archive-entry volume routing, runtime master/player gains and later aux state need controlled capture",
     "Native envelope timing/floors, modulation, exact gain-table rounding, resampling, clipping and DSP arithmetic not validated by these corrections",
-    "Provisional Vorbis reference was about 9\u201310 dB louder than v2; v3 corrects table units/linear region gain, not a guessed normalization",
-    "Loop and cue timing remain from pinned DualRip; native timing and full PCM parity unverified"
+    "Native PCM still differs in gain and waveform; no measured normalization, padding or time stretching is applied",
+    "Native scheduler now source-derived; baked loop waveform continuity, envelope evolution and full PCM parity remain unverified"
   ],
   "nativePanLutSha256": "383ea4d362109b74ddccfdaacf46a0bf4b0255f3609cf01f5824e1910e7c7597",
   "captureSemantics": {
@@ -378,5 +378,15 @@
     "hostVolumeSliderApplied": false,
     "hostTimeStretchApplied": false,
     "nativePlayerAndDspGainsApplied": true
+  },
+  "sequenceClock": {
+    "model": "Native 160-sample DSP frame with float32 fractional next-tick carry and uint64 truncation",
+    "nativeRate": 32728,
+    "frameSamples": 160,
+    "arm11Hz": 268111856,
+    "frameBudgetCyclesTimes1000": 1310720000,
+    "tempoRatio": 1,
+    "sourceRoutine": "0x1aa174",
+    "fittedTimingConstants": false
   }
 }

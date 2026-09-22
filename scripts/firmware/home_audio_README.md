@@ -1,13 +1,13 @@
 # Bounded HOME audio correction
 
-`../render_firmware_audio.py` version 3 builds a diagnostic candidate for the exact
+`../render_firmware_audio.py` version 4 builds a diagnostic candidate for the exact
 owner-supplied EUR HOME archive identified by `home_audio_profile.json`. It rejects
 other archive hashes, source records, nonallowlisted sounds, altered sound options,
 unexpected banks and stereo source waves. It does not load neighboring `extData`.
 
 The wrapper exports the pinned DualRip commit through `git archive`, verifies the
 three source-file hashes, applies `home_audio_dualrip.patch` in a disposable copy,
-and adds `home_audio_math.py`. The required `--scratch` argument places this
+and adds `home_audio_math.py` and `home_audio_clock.py`. The required `--scratch` argument places this
 copy under the caller's SSD artifact root; there is no host temporary-directory
 fallback. It never modifies the renderer checkout. The patch
 is based on DualRip by Tetra_Sky; its MIT notice is in
@@ -20,6 +20,11 @@ at index 2; its packed float32 SHA-256 is checked against the researched table.
 Version 3 also converts envelope/table units as tenths of a decibel (`/200`
 for amplitude), with bank-region volume as a separate linear gain. See
 `AUDIO_EVIDENCE.md` and `home_audio_GAIN_EVIDENCE.md` for the native evidence.
+Version 4 adds the native 160-sample frame scheduler with float32 next-tick
+fraction, integer cost truncation, strict frame-budget comparison and tempo
+recomputation after each tick. See `home_audio_CLOCK_EVIDENCE.md` for the
+transcription and independent native PCM period measurement. No timing constant
+is fitted, and no samples are inserted or stretched to achieve that period.
 
 Two aux buses remain distinct from main and from each other; each has a transparent
 unity return. This is a **startup runtime-state assumption** supported by the
@@ -32,7 +37,7 @@ helper instead of silently treating it as stereo.
 
 `audio.json` preserves the original source/title/cue metadata and adds raw sound
 options, pan mode/curve, all 33 validated mono bank-wave references, handled-command
-counts, profile/patch/adapter/math hashes and before/after source hashes. Remaining
+counts, profile/patch/adapter/math/clock hashes and before/after source hashes. Remaining
 runtime and synthesizer gaps are included in every pack. Zero unapplied commands
 means only that the interpreter has handling for those commands; it does not prove
 native arithmetic, timing, resampling, envelopes or PCM equality.
@@ -56,7 +61,8 @@ python scripts/render_firmware_audio.py \
 ```
 
 The output directory must not already exist. Tests use synthetic sequence/PCM data;
-when `HOME_AUDIO_SOURCE` is provided they additionally validate the actual archive.
+when `HOME_AUDIO_SOURCE` is provided they additionally validate the actual archive
+and check the music loop period against independently measured native PCM.
 Both `HOME_AUDIO_RENDERER` and `HOME_AUDIO_SCRATCH` are required for the full
 test suite; test fixtures also use the SSD scratch root. Absence is an error, not a
 silently skipped correction test. The wrapper always validates the real archive.
@@ -117,3 +123,57 @@ Private reproducible evidence: `compare-v3-pcm.py`,
 `candidate-v3-pcm-comparison.json`, `candidate-v3-validation.json`,
 `native-cfg-sound-mode.json`, and `native-gain-checks.json` under
 `assets/audio-research`. The v2 pack and reports remain available as the baseline.
+
+## Version 4 native clock comparison, 2026-09-22
+
+`assets/audio-candidate-v4` and `assets/audio-candidate-v4-repro` independently
+produce byte-identical 12 WAVs and `audio.json`. All 19 focused tests pass.
+Manifest hashes match the converter, profile, patch and helper sources; every
+cue has an empty unapplied-command map and no samples at the int16 clipping
+limits. The pinned renderer, v2/v3 candidates and public assets are preserved.
+
+Music has loop start 314560, end 3829760, and a **3515200-sample** period at
+32728 Hz. This agrees exactly with all three independent waveform period
+measurements in the long native PCM recording. It corrects v3's 558-sample
+shortfall without fitted constants, padding or stretching. See
+`home_audio_CLOCK_EVIDENCE.md` for the source-derived arithmetic.
+
+The long-recording spectral alignment selects speed 1.0 and onset about 1.775 s.
+This is approximate feature alignment, not sample-by-sample PCM equality.
+
+| Candidate window | Native minus v4 RMS | Feature similarity |
+| --- | ---: | ---: |
+| 12–25 s | +0.751 dB | 0.945 |
+| 25–50 s | +0.951 dB | 0.954 |
+| 50–75 s | +0.669 dB | 0.945 |
+| 75–100 s | +0.804 dB | 0.949 |
+| 108–115 s | +0.411 dB | 0.945 |
+| 115–122 s, containing the baked seam | -0.339 dB | 0.889 |
+| 125–150 s, repeated slice | +0.782 dB | 0.950 |
+| 150–180 s, repeated slice | +0.942 dB | 0.948 |
+
+The changed voice-update cadence affects envelopes as well as scheduling.
+Although the level gap shrinks, aggregate first-cycle feature similarity is
+0.9487 versus v3's 0.9533; this is not evidence that every aspect of v4 sounds
+closer. Music peak is 0.155640 in normalized int16 units. No gain normalization
+is applied.
+
+The baked main-loop join jumps by 0.0104065 left / 0.0085144 right, compared with
+v3's 0.0251160 / 0.0152893. The v4 jump is still the largest adjacent-sample
+step in its surrounding 20 ms window (local RMS 0.0146035). These numbers do not
+establish audible seamlessness. Similarity is weaker in the window containing
+the join, and full native voice/envelope state across the loop is unresolved.
+
+The resume cue exports `[0,3515040)`, one frame (160 samples) shorter than the
+main loop. A scheduling-only trace explains the discrepancy: the untrimmed
+resume entry's first two bytecode passes span 1757440 and 1757760 samples,
+totaling 3515200; the existing render startup trim drops the initial silent
+160-sample block while the loop's captured start stays zero. Its third pass
+is 1757600 samples. The native recording does not exercise resume behavior.
+This remains an explicit baked-loop/startup limitation; the scheduler correction
+does not pad it or claim that cue's loop is verified for delivery.
+
+Private evidence under `assets/audio-research`: `compare-v4-long.py`,
+`candidate-v4-long-comparison.json`, `candidate-v4-validation.json`, and
+`candidate-v4-resume-boundary-diagnostic.json`. Public replacement remains held
+for native gain/envelope, startup/loop-state and short-cue review.

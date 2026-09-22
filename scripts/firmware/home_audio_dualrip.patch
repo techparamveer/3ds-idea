@@ -1,15 +1,16 @@
 --- a/dualrip/engine/ctr/sequencer.py
 +++ b/dualrip/engine/ctr/sequencer.py
-@@ -9,6 +9,7 @@
+@@ -9,6 +9,8 @@
      cdiv, s8, s16, cnv_sine, cnv_attack, cnv_fall, cnv_sust, readvl, Rng,
  )
  from .channel import Voice
++from .home_audio_clock import NativeSequenceClock
 +from .home_audio_math import amplitude_gain, capture_pan, live_pan, pan_gains, send_gain, stereo_span
 -
 +
  # CSEQ command argument layouts (big-endian multi-byte args)
  ARG_NONE, ARG_U8, ARG_S16, ARG_U16, ARG_VL, ARG_U8_U24, ARG_U24 = range(7)
-@@ -160,7 +161,11 @@
+@@ -160,13 +162,18 @@
          self.channel_prio = channel_prio
          self.baseVol = cnv_sust(base_vol) # entry volume, dB
          # aux buses by id
@@ -22,18 +23,50 @@
          self.loop_passes = loop_passes
          self.loop_detected = False
          self.loop_start_sample = None
-@@ -177,6 +182,9 @@
-         self.active = []
+         self.loop_end_sample = None
+         self.tempo = 120
+-        self.tempoCount = 0
++        self.sequence_clock = NativeSequenceClock()
++        self.tempo_ratio = 1.0
+         self.timebase = 48
+         self.masterVol = 0
+         self.ticked = False
+@@ -178,5 +185,8 @@
          self.voices = [Voice() for _ in range(self.NUM_VOICES)]
          self.unapplied = {}
+-
 +
 +    def note_handled(self, name):
 +        self.handled_commands[name] = self.handled_commands.get(name, 0) + 1
--
 +
      def note_unapplied(self, name):
          self.unapplied[name] = self.unapplied.get(name, 0) + 1
-@@ -292,26 +300,22 @@
+@@ -209,19 +219,15 @@
+         elif end > (self.loop_end_sample or 0):
+             self.loop_end_sample = end
+-
++
+-    def tick_threshold(self):
+-        return 240.0 * 48.0 / self.timebase
+-
+     def run(self):
+-        thr = self.tick_threshold()
+-        while self.tempoCount >= thr:
+-            self.tempoCount -= thr
++        def tick():
+             self.ticked = True
+             i = 0
+             while i < len(self.active):
+                 self.tracks[self.active[i]].run()
+                 i += 1
+-        self.tempoCount += self.tempo
++        self.sequence_clock.advance(
++            lambda: (self.tempo, self.timebase, self.tempo_ratio), tick)
+-
++
+     def timer(self):
+         for v in self.voices:
+@@ -292,26 +298,22 @@
          v.inc = v.base_rate * v.pitch_mul * ratio / self.rate
 -
 +
@@ -70,7 +103,7 @@
          for v in self.voices:
              if v.state == CS_NONE or v.inc <= 0:
                  continue
-@@ -324,17 +328,12 @@
+@@ -324,17 +326,12 @@
              ls = v.loop_start
              vl = v.vol_l
              vr = v.vol_r
@@ -94,7 +127,7 @@
              for i in range(n):
                  if pos >= ln:
                      if v.loop and not cut_at_wrap:
-@@ -356,10 +355,8 @@
+@@ -356,10 +353,8 @@
              v.pos = pos
              if v.dead_wrap:
                  v.kill()
@@ -107,7 +140,7 @@
              for i in range(n):
                  out_l[i] += wl[i] * ret
                  out_r[i] += wr[i] * ret
-@@ -387,6 +384,8 @@
+@@ -387,6 +382,8 @@
          self.bank_no = 0
          self.vol = self.expr = 127
          self.pan = 0
@@ -116,7 +149,7 @@
          self.pitchBend = 0
          self.pitchBendRange = 2
          self.transpose = 0
-@@ -466,8 +465,8 @@
+@@ -466,8 +463,8 @@
          v.key = key
          v.org_key = region.org_key
          v.velocity = cnv_sust(vel)
@@ -127,7 +160,7 @@
          v.modDelayCnt = 0
          v.modCounter = 0
          v.noteLength = length
-@@ -510,17 +509,18 @@
+@@ -510,17 +507,18 @@
          ply = self.ply
          final = ply.masterVol + ply.baseVol + cnv_sust(self.vol) + cnv_sust(self.expr)
          v.ext_ampl = max(-AMPL_K, final)
@@ -152,7 +185,7 @@
 +
      def update_porta(self, v, gate):
          v.manualSweep = False
-@@ -740,18 +740,23 @@
+@@ -740,18 +738,23 @@
                  self.r = self.oval8()
              elif cmd == 0xB6:
                  self.bank_no = self.oval8() & 3
@@ -199,9 +232,11 @@
          'loop_start', 'pos', 'inc', 'vol_l', 'vol_r', 'vol',
 --- a/dualrip/engine/ctr/render.py
 +++ b/dualrip/engine/ctr/render.py
-@@ -6,7 +6,7 @@
+@@ -5,25 +5,26 @@
+     cdiv, cnv_attack, cnv_fall, cnv_sust,
  )
  from .sequencer import CseqPlayer
++from .home_audio_clock import FRAME_HZ
 -
 +
 -def render_entry(blob, start_offset, bank_lookup, rate, channel_prio, hold_seconds=2.0, loop_passes=2, base_vol=127, effects=None):
@@ -209,7 +244,40 @@
      """Render one CSEQ entry to (chans, loop, unapplied)."""
      ply = CseqPlayer(blob, bank_lookup, rate, channel_prio, loop_passes, base_vol, effects)
      ply.setup(start_offset)
-@@ -56,6 +56,8 @@
+     ply.timer()
+-
++
+-    spc = 1.0 / DRIVER_HZ
+-    samples_per_clock = rate / DRIVER_HZ
++    spc = 1.0 / FRAME_HZ
++    samples_per_clock = rate / FRAME_HZ
+     out_l = []
+     out_r = []
+     recording = False
+-    tick0_ran = False
++    tick0_ran = ply.ticked
+     idle_clocks = 0
+-    hold_clocks = int(hold_seconds * DRIVER_HZ)
++    hold_clocks = int(hold_seconds * FRAME_HZ)
+     frac = 0.0
+-
++
+     while True:
+-        frozen = ply.tempo == 0 and ply.tempoCount < ply.tick_threshold()
++        frozen = ply.tempo == 0
+         seq_done = ply.all_tracks_ended() or frozen
+         if seq_done and not ply.any_voice_active():
+             break
+@@ -34,7 +35,7 @@
+                 for v in ply.voices:
+                     if v.state > CS_NONE and v.state != CS_RELEASE:
+                         v.release()
+-                if idle_clocks > hold_clocks + int(5 * DRIVER_HZ):
++                if idle_clocks > hold_clocks + int(5 * FRAME_HZ):
+                     break
+         frac += samples_per_clock
+         n = int(frac)
+@@ -56,6 +57,8 @@
      loop = None
      if ply.loop_detected and ply.loop_start_sample is not None:
          loop = (ply.loop_start_sample, ply.loop_end_sample or len(chans[0]))

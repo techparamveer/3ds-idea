@@ -15,6 +15,7 @@ HERE = Path(__file__).resolve().parent
 PROFILE_PATH = HERE / 'home_audio_profile.json'
 PATCH_PATH = HERE / 'home_audio_dualrip.patch'
 MATH_PATH = HERE / 'home_audio_math.py'
+CLOCK_PATH = HERE / 'home_audio_clock.py'
 PROFILE = json.loads(PROFILE_PATH.read_text())
 
 
@@ -100,11 +101,14 @@ def isolated_renderer(renderer, scratch):
         subprocess.run(['git', 'apply', str(PATCH_PATH)], cwd=root, check=True)
         math_rel = 'dualrip/engine/ctr/home_audio_math.py'
         shutil.copyfile(MATH_PATH, root / math_rel)
+        clock_rel = 'dualrip/engine/ctr/home_audio_clock.py'
+        shutil.copyfile(CLOCK_PATH, root / clock_rel)
         provenance = {
             'id': PROFILE['id'], 'profileSha256': sha(PROFILE_PATH),
             'patchSha256': sha(PATCH_PATH), 'adapterSha256': sha(Path(__file__)),
-            'mathSha256': sha(MATH_PATH), 'originalFiles': original,
-            'patchedFiles': {rel: sha(root / rel) for rel in [*original, math_rel]},
+            'mathSha256': sha(MATH_PATH), 'clockSha256': sha(CLOCK_PATH),
+            'sequenceClock': PROFILE['sequenceClock'], 'originalFiles': original,
+            'patchedFiles': {rel: sha(root / rel) for rel in [*original, math_rel, clock_rel]},
             'nativeOutputMode': PROFILE['nativeOutputMode'],
             'captureSemantics': PROFILE['captureSemantics'],
             'runtimeAssumptions': PROFILE['runtimeAssumptions'],

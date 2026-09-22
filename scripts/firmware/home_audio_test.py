@@ -12,6 +12,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from firmware import home_audio_math as math
+from firmware.home_audio_clock import NativeSequenceClock
 from firmware.home_audio_profile import PROFILE, isolated_renderer, validate_source, validate_archive
 
 
@@ -70,6 +71,45 @@ class ArithmeticTests(unittest.TestCase):
             path.write_bytes(b'not the allowlisted HOME archive')
             with self.assertRaisesRegex(ValueError, 'archive'):
                 validate_source(path, PROFILE['sourceRecord'])
+
+
+class ClockTests(unittest.TestCase):
+    def test_fixed_149_and_fractional_carry(self):
+        clock = NativeSequenceClock()
+        events = []
+        for frame in range(1024):
+            clock.advance(lambda: (149, 96, 1.0), lambda: events.append(frame))
+        # ceil(1024 * 1310720000 / trunc_f32(268111856 / rate149))
+        self.assertEqual(len(events), 1194)
+        self.assertEqual(events[:8], [0, 0, 1, 2, 3, 4, 5, 6])
+        self.assertGreater(clock.remaining_fraction, 0)
+        self.assertLess(clock.remaining_fraction, 1)
+
+    def test_exact_budget_boundary_waits_until_next_frame(self):
+        clock = NativeSequenceClock()
+        clock.remaining_fraction = struct.unpack('<f', struct.pack('<I', 0x3ef04a28))[0]
+        events = []
+        self.assertEqual(clock.advance(lambda: (120, 48, 1.0), lambda: events.append(1)), 0)
+        self.assertEqual(clock.remaining_fraction, 0)
+        self.assertEqual(clock.advance(lambda: (120, 48, 1.0), lambda: events.append(1)), 1)
+        self.assertEqual(len(events), 1)
+        below = NativeSequenceClock()
+        below.remaining_fraction = struct.unpack('<f', struct.pack('<I', 0x3ef04a27))[0]
+        self.assertEqual(below.advance(lambda: (120, 48, 1.0), lambda: None), 1)
+
+    def test_tempo_change_recomputes_period_inside_frame(self):
+        clock = NativeSequenceClock()
+        values = [120, 48, 1.0]
+        def tick():
+            values[:] = [60000, 1, 1.0]
+        self.assertEqual(clock.advance(lambda: values, tick), 5)
+
+    def test_zero_tempo_preserves_fraction(self):
+        clock = NativeSequenceClock()
+        clock.remaining_fraction = 0.25
+        self.assertEqual(clock.advance(lambda: (0, 48, 1.0), lambda: self.fail('frozen tick')), 0)
+        self.assertEqual(clock.remaining_fraction, 0.25)
+        self.assertEqual(clock.advance(lambda: (120, 48, 1.0), lambda: None), 1)
 
 
 class SequencerTests(unittest.TestCase):
@@ -188,6 +228,47 @@ class SequencerTests(unittest.TestCase):
         self.assertEqual(p['runtimeAssumptions']['auxReturnA'], 1)
         self.assertNotEqual(p['originalFiles']['dualrip/engine/ctr/sequencer.py'],
                             p['patchedFiles']['dualrip/engine/ctr/sequencer.py'])
+
+    def test_startup_keeps_first_audible_frame(self):
+        from dualrip.engine.ctr.render import render_entry
+        player = self.player()
+        channels, _, _ = render_entry(bytes([60, 127, 4, 255]), 0, player.bank_lookup, 32728, 64)
+        self.assertEqual(channels[0][0], 707)
+        self.assertEqual(channels[1][0], 707)
+
+    def test_actual_music_native_loop_period(self):
+        source = os.environ.get('HOME_AUDIO_SOURCE')
+        if not source:
+            self.skipTest('Set HOME_AUDIO_SOURCE for native PCM-backed loop-period check')
+        from dualrip.formats.ctr.archive import CtrArchive
+        from dualrip.formats.ctr import cseq
+        archive = CtrArchive(Path(source).read_bytes(), [], 'test')
+        sound = next(s for s in archive.sounds if s.name == 'BGM_CTR_HOME')
+        blob, _ = cseq.parse_cseq(archive.ctx.file_bytes(sound.file_id, 'seq'))
+        player = self.seq.CseqPlayer(blob, archive.ctx.make_lookup(sound.bank_ids),
+                                     32728, sound.channel_prio, loop_passes=2, base_vol=sound.volume)
+        player.setup(sound.start_offset)
+        for _ in range(30000):
+            player.timer()
+            if player.all_tracks_ended():
+                break
+            # Diagnostic only: advance voices without PCM work. Timing does not
+            # depend on those samples for this exact HOME music sequence.
+            for voice in player.voices:
+                if voice.state == self.prims.CS_NONE or voice.inc <= 0:
+                    continue
+                cut = voice.noteLength <= 0 and self.prims.CS_ATTACK <= voice.state <= self.prims.CS_SUSTAIN
+                voice.pos += 160 * voice.inc
+                if voice.pos >= len(voice.samples):
+                    if voice.loop and not cut:
+                        voice.pos = voice.loop_start + (voice.pos - len(voice.samples)) % (len(voice.samples) - voice.loop_start)
+                    else:
+                        voice.kill()
+            player.now_sample += 160
+        else:
+            self.fail('native frame limit')
+        # Independently measured from three native PCM waveform windows.
+        self.assertEqual(player.loop_end_sample - player.loop_start_sample, 3515200)
 
     def test_actual_archive_guards(self):
         source = os.environ.get('HOME_AUDIO_SOURCE')

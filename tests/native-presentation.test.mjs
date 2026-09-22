@@ -119,3 +119,21 @@ test('real HOME message styles use the actual HUD and shared font metrics',{skip
  const resume=api.nativeMessageOverride(pack,'menu_msbt_LZ','lau_2b_restart','');assert.equal(resume.text,'\ue073 Resume');assert.ok(shared.glyphs[String(0xe073)]);
  assert.equal(api.nativeMessageOverride(pack,'hud_msbt_LZ','day_22','').messageStyle,undefined);
 });
+
+test('CLMC samples round and clamp to native bytes in buffer and all six constants',()=>{
+ const l=layout(),m=material();m.name='animated';l.materials=[m];const before=structuredClone(m);
+ const samples=[-.75,.49,.5,127.49,127.5,254.5,255.75],expected=[0,0,1,127,128,255,255];
+ const tracks=samples.map((value,index)=>({target:'animated',binding:'material',property:`materialColor.${index}.${index%4}`,index:0,component:index*4+index%4,interpolation:'step',keys:[{frame:0,value}]}));
+ const posed=poseNativeLayout(l,{clip:{frames:1,loop:false,groups:[],textures:[],tracks}},[{name:'clip',frame:0}]);
+ const colors=[posed.materials[0].bufferColor,...posed.materials[0].constantColors];
+ assert.deepEqual(colors.map((color,index)=>color[index%4]),expected);
+ assert.deepEqual(l.materials[0],before);
+});
+test('CLMC quantizes after interpolation and preserves float32 half-step boundaries',()=>{
+ const l=layout(),m=material();m.name='animated';l.materials=[m];
+ const animation={frames:1,loop:false,groups:[],textures:[],tracks:[{target:'animated',binding:'material',property:'materialColor.1.0',index:0,component:4,interpolation:'hermite',keys:[{frame:0,value:10,slope:1},{frame:1,value:11,slope:1}]}]};
+ const channel=frame=>poseNativeLayout(l,{clip:animation},[{name:'clip',frame}]).materials[0].constantColors[0][0];
+ assert.equal(channel(.49),10);assert.equal(channel(.5),11);
+ animation.tracks[0].interpolation='step';animation.tracks[0].keys=[{frame:0,value:.4999999701976776}];
+ assert.equal(channel(0),1,'the float32 addition rounds this boundary to 1 before truncation');
+});

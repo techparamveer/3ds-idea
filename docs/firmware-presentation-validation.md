@@ -27,7 +27,7 @@ The tests cover material operations/register selection, alpha tests, blend facto
 
 The source font/texture/layout provenance resides in the asset manifest. CGFX folder provenance/conversion is documented separately by `scripts/firmware-cgfx/README.md` and the model sidecar. Native material parsing references include [EveryFileExplorer CLYTShader](https://github.com/Gericom/EveryFileExplorer/blob/master/3DS/NintendoWare/LYT1/CLYTShader.cs), [pane transformations](https://github.com/Gericom/EveryFileExplorer/blob/master/3DS/NintendoWare/LYT1/pan1.cs) and [window geometry](https://github.com/Gericom/EveryFileExplorer/blob/master/3DS/NintendoWare/LYT1/wnd1.cs). These format implementations inform the renderer; they do not replace emulator evidence.
 
-Unverified areas: the white theme background; exact scene clip frame selection and timing; density/selection movement alignment; alpha propagation semantics; native text formatting beyond the representative plain strings and four confirmed style fields; 3D pane projection; material channel quantization and shader parity; CGFX PICA LUT lighting, model visibility channels and browser GPU shader/material parity. No additional title groups are included here.
+Unverified areas: the white theme background; exact scene clip frame selection and timing; density/selection movement alignment; alpha propagation semantics; native text formatting beyond the representative plain strings and four confirmed style fields; 3D pane projection; full float32 curve interpolation and shader parity; CGFX PICA LUT lighting, model visibility channels and browser GPU shader/material parity. No additional title groups are included here.
 
 ## Checkpoint checks (2026-09-22)
 
@@ -61,3 +61,12 @@ Current relevant sizes match the existing CLYT defaults: Disabled is 12.5×15, H
 - Focused presentation/font/native-layout/CGFX suite: **27/27 passed** against the updated reproducible assets. It covers unequal font scales, separate style banks, null/missing styles, immutable overrides, actual HOME sizes/glyphs and no-remap texture skips.
 - Nonincremental TypeScript and diff whitespace checks passed.
 - Software Canvas captures: `software-styles.png`, `software-styles-extra.png`, `style-resume.png` and `style-upper.png`. Native format linkage is verified independently of visual acceptance; matched browser/Azahar comparisons remain with integration.
+
+## CLMC byte quantization (2026-09-22)
+
+The native material animator at `0x1a16dc..1714` evaluates a CLMC channel, adds 0.5 in float32, clamps to 0..255, converts to an unsigned integer and sends the byte to the material setter. The setter at `0x209c90` routes it to the buffer or one of six constant colors. See the same asset format evidence note and its private static instruction extracts; no firmware is executed by the renderer.
+
+`poseNativeLayout` now applies that byte conversion after sampling each material-color track. Both conversion of the sample to float32 and the float32 addition are retained, including the case where 0.4999999701976776 becomes 1 after addition and truncation. This changes only CLMC register writes and preserves the source asset data. It does not assert that every intermediate operation of Hermite sampling matches the native evaluator, or define parity for malformed nonfinite samples.
+
+- Focused suite: **29/29 passed**, covering the buffer and all six constants, lower/upper clamps, half steps, a float32 rounding boundary, interpolation-before-quantization and source immutability.
+- Nonincremental TypeScript and diff whitespace checks passed. Browser/Azahar material acceptance remains with integration.

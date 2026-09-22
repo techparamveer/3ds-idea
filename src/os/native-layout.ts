@@ -56,7 +56,9 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
    if(track.binding==='material'){
     const material=posed.materials.find(m=>m.name===track.target);if(!material)continue;
     if(parts[0]==='materialColor'){
-     const index=Number(parts[1]),colors=index===0?material.bufferColor:material.constantColors[index-1];if(colors)colors[Number(parts[2])]=value;
+     // Native CLMC adds 0.5f, clamps to a byte and truncates before the register write.
+     const byte=Math.floor(Math.max(0,Math.min(255,Math.fround(Math.fround(value)+0.5))));
+     const index=Number(parts[1]),colors=index===0?material.bufferColor:material.constantColors[index-1];if(colors)colors[Number(parts[2])]=byte;
     }else if(parts[0]==='texture'){
      const matrix=material.textureMatrices[track.index];
      if(parts[1]==='pattern'){

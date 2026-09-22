@@ -9,10 +9,23 @@ using SPICA.Formats.CtrH3D;
 using SPICA.Formats.CtrH3D.Model.Mesh;
 using SPICA.PICA.Converters;
 using SPICA.PICA.Commands;
+using SPICA.PICA;
 
 static class Exporter {
   static readonly JsonSerializerOptions Json = new() { WriteIndented=false };
   static float[] V(Vector4 v) => new[]{v.X,v.Y,v.Z,v.W};
+  static uint[] LutWords(object sampler) {
+    var bytes=(byte[])sampler.GetType().GetField("RawCommands",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(sampler);
+    var commands=new uint[bytes.Length/4];Buffer.BlockCopy(bytes,0,commands,0,bytes.Length);
+    var reader=new PICACommandReader(commands);var words=new uint[256];int index=0;
+    while(reader.HasCommand) {
+      var command=reader.GetCommand();
+      if(command.Register==PICARegister.GPUREG_LIGHTING_LUT_INDEX) index=(int)(command.Parameters[0]&255);
+      else if(command.Register>=PICARegister.GPUREG_LIGHTING_LUT_DATA0&&command.Register<=PICARegister.GPUREG_LIGHTING_LUT_DATA7)
+        foreach(uint value in command.Parameters) {if(index>=256)throw new InvalidDataException("LUT overflow");words[index++]=value;}
+    }
+    return words;
+  }
   static object Clean(object value, int depth=0) {
     if(value==null || depth>24) return null;
     Type t=value.GetType();
@@ -66,8 +79,12 @@ static class Exporter {
       var materials=model.Materials.Select((mat,i)=>{var clean=(SortedDictionary<string,object>)Clean(mat); clean["ConstantAssignments"]=sourceModel.Materials[i].FragmentShader.TextureEnvironments.Select(stage=>(int)stage.Constant).ToArray();return clean;});
       models.Add(new{name=model.Name,transform=Clean(model.WorldTransform),skeleton=Clean(model.Skeleton),materials,nodes=Clean(model.MeshNodesVisibility),nodeNames=Clean(model.MeshNodesTree),meshes});
     }
+    // Retain PICA interpolation words and the native zero-based light subtype;
+    // ToH3D drops the former and incorrectly ORs the latter into a one-based enum.
+    var luts=scene.LUTs.Select(lut=>new{Name=lut.Name,Samplers=lut.Samplers.Select(s=>new{s.Name,Flags=s.Flags.ToString(),s.Table,RawWords=LutWords(native.LUTs.First(l=>l.Name==lut.Name).Samplers.First(n=>n.Name==s.Name))})});
+    var lights=scene.Lights.Select(light=>{var clean=(SortedDictionary<string,object>)Clean(light);var original=native.Lights.First(l=>l.Name==light.Name);var type=original.GetType().GetField("Type");if(type!=null)clean["NativeType"]=type.GetValue(original).ToString();return clean;});
     var result=new{schema=1,sourceSha256=Convert.ToHexString(SHA256.HashData(source)).ToLowerInvariant(),
-      converter="SPICA headless CGFX exporter",models,textures,luts=Clean(scene.LUTs),cameras=Clean(scene.Cameras),lights=Clean(scene.Lights),
+      converter="SPICA headless CGFX exporter",models,textures,luts,cameras=Clean(scene.Cameras),lights,
       skeletalAnimations=Clean(scene.SkeletalAnimations),materialAnimations=Clean(scene.MaterialAnimations),visibilityAnimations=Clean(scene.VisibilityAnimations),cameraAnimations=Clean(scene.CameraAnimations)};
     File.WriteAllText(Path.Combine(args[1],"model.json"),JsonSerializer.Serialize(result,Json));
     Console.WriteLine($"Exported {scene.Models.Count} models, {scene.Textures.Count} textures, {scene.SkeletalAnimations.Count} skeletal, {scene.MaterialAnimations.Count} material animations");

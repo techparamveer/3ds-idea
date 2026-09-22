@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { sampleCgfxCurve, type CgfxCurve } from '../os/cgfx-animation';
+import { cgfxLightingShader, decodeCgfxLutWord, type CgfxLightingData } from './cgfx-lighting';
 type Color={R:number;G:number;B:number;A:number};
 type Vec={X:number;Y:number;Z:number;W?:number};
 type Coord={MappingType:string;TransformType:string;Scale:Vec;Rotation:number;Translation:Vec};
@@ -10,7 +11,7 @@ type Bone={Name:string;ParentIndex:number;Scale:Vec;Rotation:Vec;Translation:Vec
 type Submesh={indices:number[];bones:number[];skinning:string;primitive:string};
 type Mesh={material:number;node:number;layer:number;priority:number;position:number[][];normal:number[][];color:number[][];uv0:number[][];uv1:number[][];uv2:number[][];joints:number[][];weights:number[][];submeshes:Submesh[]};
 type Clip={Name:string;FramesCount:number;AnimationFlags:string;Elements:{Name:string;TargetType:string;PrimitiveType:string;Content:Record<string,CgfxCurve>}[]};
-export type FirmwareModelData={schema:1;sourceSha256:string;models:{name:string;transform:Record<string,number>;skeleton:Bone[];materials:Material[];nodes:boolean[];meshes:Mesh[]}[];textures:{name:string;url:string;width:number;height:number}[];skeletalAnimations:Clip[];materialAnimations:Clip[];visibilityAnimations:Clip[];luts:unknown[]};
+export type FirmwareModelData=CgfxLightingData&{schema:1;sourceSha256:string;models:{name:string;transform:Record<string,number>;skeleton:Bone[];materials:Material[];nodes:boolean[];meshes:Mesh[]}[];textures:{name:string;url:string;width:number;height:number}[];skeletalAnimations:Clip[];materialAnimations:Clip[];visibilityAnimations:Clip[]};
 export type FirmwareModelAsset={data:FirmwareModelData;images:Map<string,HTMLImageElement>};
 export async function loadFirmwareModel(url:string):Promise<FirmwareModelAsset>{
  const response=await fetch(url);if(!response.ok)throw new Error(`Model HTTP ${response.status}`);
@@ -37,7 +38,7 @@ function combine(mode:string,args:string[],alpha:boolean){
  if(!operations[mode]||(alpha&&mode.startsWith('Dot')))throw new Error(`Unsupported PICA combiner ${mode}`);
  return operations[mode];
 }
-export function picaFragmentShader(material:Material):string{
+export function picaFragmentShader(material:Material,lighting:ReturnType<typeof cgfxLightingShader>=null):string{
  const p=material.MaterialParams;
  let stages='';
  p.TexEnvStages.forEach((s,i)=>{
@@ -53,20 +54,21 @@ export function picaFragmentShader(material:Material):string{
  const comparison:Record<string,string>={Never:'false',Always:'true',Equal:'==',NotEqual:'!=',Less:'<',LessOrEqual:'<=',Greater:'>',GreaterOrEqual:'>='};
  const alpha=p.AlphaTest;const op=comparison[alpha.Function]??'>';
  const test=alpha.Enabled?`if(!(${op==='true'||op==='false'?op:`previous.a ${op} ${(alpha.Reference/255).toFixed(8)}`}))discard;`:'';
- return `varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;\n
+ return `varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;varying vec3 vView;\n
  uniform sampler2D tex0;uniform sampler2D tex1;uniform sampler2D tex2;uniform mat3 uvMatrix0;uniform mat3 uvMatrix1;uniform mat3 uvMatrix2;
  uniform vec4 constant0;uniform vec4 constant1;uniform vec4 constant2;uniform vec4 constant3;uniform vec4 constant4;uniform vec4 constant5;
+ ${lighting?.declarations??''}
  void main(){
  vec4 t0=texture2D(tex0,(uvMatrix0*vec3(vUv0,1.0)).xy);vec4 t1=texture2D(tex1,(uvMatrix1*vec3(vUv1,1.0)).xy);vec4 t2=texture2D(tex2,(uvMatrix2*vec3(vUv2,1.0)).xy);
- float illumination=max(dot(normalize(vNormal),normalize(vec3(-0.25,0.45,1.0))),0.0);
+ ${lighting?.code??`float illumination=max(dot(normalize(vNormal),normalize(vec3(-0.25,0.45,1.0))),0.0);
  vec4 litPrimary=clamp(${glcolor(p.AmbientColor)}+${glcolor(p.DiffuseColor)}*illumination,0.0,1.0);
- vec4 litSecondary=${glcolor(p.Specular0Color)}*pow(max(dot(normalize(vNormal),normalize(vec3(-0.12,0.22,1.0))),0.0),16.0);
+ vec4 litSecondary=${glcolor(p.Specular0Color)}*pow(max(dot(normalize(vNormal),normalize(vec3(-0.12,0.22,1.0))),0.0),16.0);`}
  vec4 previous=vColor;vec4 buffer=${glcolor(p.TexEnvBufferColor)};
  ${stages}${test}gl_FragColor=previous;}`;
 }
 const vertexShader=`attribute vec4 nativeColor;attribute vec2 nativeUv1;attribute vec2 nativeUv2;
- varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;
- void main(){vColor=nativeColor;vUv0=uv;vUv1=nativeUv1;vUv2=nativeUv2;vNormal=normalMatrix*normal;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`;
+ varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;varying vec3 vView;
+ void main(){vColor=nativeColor;vUv0=uv;vUv1=nativeUv1;vUv2=nativeUv2;vNormal=normalMatrix*normal;vec4 view=modelViewMatrix*vec4(position,1.0);vView=-view.xyz;gl_Position=projectionMatrix*view;}`;
 function textureMatrix(coord:Coord){
  const {X:sx,Y:sy}=coord.Scale,{X:tx,Y:ty}=coord.Translation,c=Math.cos(coord.Rotation),s=Math.sin(coord.Rotation);
  let x=sx*((.5*s-.5*c)+.5-tx),y=sy*((-.5*s-.5*c)+.5-ty);
@@ -78,7 +80,7 @@ const wrap=(value:string)=>value==='Repeat'?THREE.RepeatWrapping:value==='Mirror
 const factor:Record<string,THREE.BlendingDstFactor>={Zero:THREE.ZeroFactor,One:THREE.OneFactor,SourceAlpha:THREE.SrcAlphaFactor,OneMinusSourceAlpha:THREE.OneMinusSrcAlphaFactor,DestinationAlpha:THREE.DstAlphaFactor,OneMinusDestinationAlpha:THREE.OneMinusDstAlphaFactor,SourceColor:THREE.SrcColorFactor,OneMinusSourceColor:THREE.OneMinusSrcColorFactor,DestinationColor:THREE.DstColorFactor,OneMinusDestinationColor:THREE.OneMinusDstColorFactor};
 function matrix(source:Record<string,number>){return new THREE.Matrix4().set(source.M11,source.M21,source.M31,source.M41,source.M12,source.M22,source.M32,source.M42,source.M13,source.M23,source.M33,source.M43,0,0,0,1);}
 
-/** Uses original meshes, combiners and native curves; PICA lighting remains a documented approximation. */
+/** Uses original meshes/combiners/curves and directional LUT lighting; other lighting remains approximate. */
 export function createFirmwareModel(asset:FirmwareModelAsset){
  const group=new THREE.Group(),textures:THREE.Texture[]=[],materials:THREE.ShaderMaterial[]=[],geometries:THREE.BufferGeometry[]=[];
  const updaters:((frame:number)=>void)[]=[];
@@ -88,6 +90,11 @@ export function createFirmwareModel(asset:FirmwareModelAsset){
   const materialCopies=model.materials.map(m=>structuredClone(m));
   const mats=materialCopies.map(m=>{
    const p=m.MaterialParams,uniforms:Record<string,THREE.IUniform>={};
+   const lighting=cgfxLightingShader(p,asset.data);
+   for(const [index,sampler] of lighting?.samplers.entries()??[]){
+    const pixels=new Float32Array(256*4);sampler.RawWords.forEach((word,i)=>{const [value,difference]=decodeCgfxLutWord(word);pixels[i*4]=value;pixels[i*4+1]=difference;pixels[i*4+3]=1;});
+    const texture=new THREE.DataTexture(pixels,256,1,THREE.RGBAFormat,THREE.FloatType);texture.minFilter=texture.magFilter=THREE.NearestFilter;texture.needsUpdate=true;textures.push(texture);uniforms[`nativeLut${index}`]={value:texture};
+   }
    for(let i=0;i<6;i++)uniforms[`constant${i}`]={value:rgba(p[`Constant${i}Color`] as Color)};
    for(let i=0;i<3;i++){
     const image=asset.images.get(m[`Texture${i}Name` as 'Texture0Name']);let texture:THREE.Texture=white;
@@ -95,7 +102,7 @@ export function createFirmwareModel(asset:FirmwareModelAsset){
     uniforms[`tex${i}`]={value:texture};uniforms[`uvMatrix${i}`]={value:textureMatrix(p.TextureCoords[i])};
    }
    const blend=p.BlendFunction;
-   const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
+   const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m,lighting),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
    materials.push(material);return material;
   });
   const bones=model.skeleton.map(()=>new THREE.Matrix4()),inverse=model.skeleton.map(b=>matrix(b.InverseTransform));

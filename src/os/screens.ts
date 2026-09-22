@@ -131,9 +131,13 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
   if(tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.rows,time,pressed))cursor(c,x,y,size,size,time,reduced);
  }c.restore();
  if(!nativeHome?.arrows(c,pageStart(state)>0))arrows(c,state);
- rounded(c,15,204,290,5,2,'#bfc0c580');
- const width=Math.max(14,290*state.columns/Math.ceil(slotCount(state)/rowCount(state)));
- rounded(c,15+(290-width)*pageStart(state)/Math.max(1,Math.ceil(slotCount(state)/rowCount(state))-state.columns),204,width,5,2,'#fafafa','#b8b9bc');
+ // Native idle HOME has no track above the footer. Keep the old fallback's
+ // scroll indicator separate from the decoded native chrome.
+ if(!nativeHome){
+  rounded(c,15,204,290,5,2,'#bfc0c580');
+  const width=Math.max(14,290*state.columns/Math.ceil(slotCount(state)/rowCount(state)));
+  rounded(c,15+(290-width)*pageStart(state)/Math.max(1,Math.ceil(slotCount(state)/rowCount(state))-state.columns),204,width,5,2,'#fafafa','#b8b9bc');
+ }
  if(state.opened){c.fillStyle='#737982';c.fillRect(0,33,320,16);text(c,'↶',21,41,15,'white');text(c,state.folders[state.selected]||'',160,41,11,'white','center');}
 }
 function dragGhost(c:Context,view:HomePresentation,graphics:ReturnType<typeof createPortfolioGraphics>,nativeHome?:NativeHome){

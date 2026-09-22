@@ -10,7 +10,9 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   const camera = new THREE.OrthographicCamera(-20, 20, 12, -12, .1, 200);
   camera.position.set(0, 0, 100); camera.lookAt(0, 0, 0);
   const target = new THREE.WebGLRenderTarget(400, 240, { depthBuffer: true, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
-  target.texture.colorSpace = THREE.SRGBColorSpace;
+  // PICA shaders write native numeric color channels. Readback must keep those
+  // bytes unchanged; an sRGB attachment encodes them again and washes out cyan.
+  target.texture.colorSpace = THREE.NoColorSpace;
   const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 240;
   const context = canvas.getContext('2d')!, pixels = new Uint8Array(400 * 240 * 4), image = context.createImageData(400, 240);
   let model: ReturnType<typeof createFirmwareModel> | undefined, disposed = false, failure: string | undefined;

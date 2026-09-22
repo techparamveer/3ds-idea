@@ -8,7 +8,8 @@ const animationUrl=asModule(source);
 const {sampleCgfxCurve,selectCgfxClips,cgfxClipFrame}=await import(animationUrl);
 const lightingSource=readFileSync(new URL('../src/scene/cgfx-lighting.ts',import.meta.url),'utf8');
 const {decodeCgfxLutWord,sampleCgfxLut,resolveCgfxLut,cgfxLightingShader}=await import('data:text/javascript;base64,'+Buffer.from(ts.transpileModule(lightingSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
-const modelSource=readFileSync(new URL('../src/scene/firmware-model.ts',import.meta.url),'utf8').replace("'three'",JSON.stringify(import.meta.resolve('three'))).replace("'../os/cgfx-animation'",JSON.stringify(animationUrl)).replace("'./cgfx-lighting'",JSON.stringify(asModule(lightingSource)));
+const pngUrl=asModule(readFileSync(new URL('../src/os/native-png.ts',import.meta.url),'utf8'));
+const modelSource=readFileSync(new URL('../src/scene/firmware-model.ts',import.meta.url),'utf8').replace("'three'",JSON.stringify(import.meta.resolve('three'))).replace("'../os/cgfx-animation'",JSON.stringify(animationUrl)).replace("'./cgfx-lighting'",JSON.stringify(asModule(lightingSource))).replace("'../os/native-png'",JSON.stringify(pngUrl));
 const {createFirmwareModel}=await import(asModule(modelSource));
 test('native CGFX Hermite curve preserves tangents and repeat period',()=>{
  const curve={KeyFrames:[{Frame:0,Value:-.4,InSlope:0,OutSlope:0},{Frame:75,Value:.6,InSlope:0,OutSlope:0},{Frame:150,Value:-.4,InSlope:0,OutSlope:0}],StartFrame:0,EndFrame:150,PreRepeat:'Repeat',PostRepeat:'Repeat',InterpolationType:'Hermite'};
@@ -78,4 +79,23 @@ test('HOME runtime yaw wraps independently of selection and native bob clips',as
  assert.ok(Math.abs(homeBannerYaw(149.5*1000/60)+Math.PI/2)<1e-6);
  assert.ok(Math.abs(homeBannerYaw(299.5*1000/60)+Math.PI)<1e-6);
  assert.equal(homeBannerYaw(9999),-0);assert.throws(()=>homeBannerYaw(NaN),/Invalid banner time/);
+});
+test('native HOME camera projects the source folder label at its captured width',async()=>{
+ const {Vector3}=await import('three');
+ const cameraSource=readFileSync(new URL('../src/scene/firmware-camera.ts',import.meta.url),'utf8').replace("'three'",JSON.stringify(import.meta.resolve('three')));
+ const {createFirmwareCamera}=await import(asModule(cameraSource));
+ const data=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/home-camera/camera.json',import.meta.url),'utf8'));
+ const camera=createFirmwareCamera(data),left=new Vector3(-10,-5,4.95).project(camera),right=new Vector3(10,-5,4.95).project(camera);
+ assert.ok(Math.abs((right.x-left.x)*200-224.84491)<.00001);
+ assert.deepEqual(camera.position.toArray(),[0,1,44.7859992980957]);assert.equal(camera.near,26.5);
+ const bad=structuredClone(data);bad.cameras[0].near=-1;assert.throws(()=>createFirmwareCamera(bad),/Invalid native camera projection/);
+ bad.cameras[0].near=26.5;bad.cameras[0].rotation[1]=1;assert.throws(()=>createFirmwareCamera(bad),/Unsupported native camera transform/);
+});
+test('model raw texture upload preserves hidden RGB and reverses PNG rows explicitly',()=>{
+ const data=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/home-background/model.json',import.meta.url),'utf8'));
+ const pixels={width:1,height:2,data:new Uint8ClampedArray([10,20,30,0,40,50,60,255])};
+ const model=createFirmwareModel({data,images:new Map([['BG_DmyApp_00',pixels]])},{skeletal:[],material:[]});
+ const texture=model.group.children[0].children[0].material.uniforms.tex0.value;
+ assert.deepEqual([...texture.image.data],[40,50,60,255,10,20,30,0]);
+ assert.equal(texture.flipY,false);assert.deepEqual([...pixels.data],[10,20,30,0,40,50,60,255]);model.dispose();
 });

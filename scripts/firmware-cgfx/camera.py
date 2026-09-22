@@ -203,7 +203,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('source', type=Path)
     parser.add_argument('--output', type=Path, help='Write JSON here; default is stdout')
+    parser.add_argument('--manifest', type=Path)
+    parser.add_argument('--model-key')
+    parser.add_argument('--title-id')
+    parser.add_argument('--source-path')
     args = parser.parse_args()
+    if any((args.manifest, args.model_key, args.title_id, args.source_path)) and not all((args.output, args.manifest, args.model_key, args.title_id, args.source_path)):
+        parser.error('Manifest registration requires output and all four registration arguments')
     if args.output and args.output.resolve() == args.source.resolve():
         parser.error('Output must not replace the source resource')
     try:
@@ -213,6 +219,10 @@ def main():
     text = json.dumps(result, indent=2, allow_nan=False) + '\n'
     if args.output:
         args.output.write_text(text, encoding='utf-8')
+        if args.manifest:
+            from manifest import register_resources
+            register_resources(args.manifest, args.output.parent, args.model_key, args.title_id,
+                               args.source_path, result['compressedSourceSha256'], [args.output.name])
     else:
         print(text, end='')
 

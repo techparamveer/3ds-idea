@@ -49,8 +49,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   try{storage=await openFirmwareStorage({legacyPreferences});const saved=await storage.load();state=restoreRuntimeData(restoreSettings(state,saved.preferences),saved.shared,saved.saves);if(saved.issues.length)runtimeNotice='Some saved data could not be read.';}
   catch(error){state=restoreSettings(state,legacyPreferences);runtimeNotice='Local saving is unavailable.';host.dataset.storageFailure=String(error);}
   const firmwareAssets=await nativeAssets;
-  const screens=createScreens({reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,drawFolderBanner:folderBanner.draw,runtimeNotice:()=>runtimeNotice});
+  const screens=createScreens({reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,drawFolderBanner:folderBanner.draw,drawHomeBackground:folderBanner.drawBackground,runtimeNotice:()=>runtimeNotice});
   await Promise.all([screens.ready,folderBanner.ready]);
+  if(diagnostics)host.dataset.banner=JSON.stringify(folderBanner.status());
   host.dataset.firmware=firmwareAssets?'native-home':'fallback';
   const audio=createMenuAudio();screens.paint(state);
   const accessible=document.createElement('section');accessible.className='sr-only';accessible.setAttribute('aria-label','Console controls');host.appendChild(accessible);

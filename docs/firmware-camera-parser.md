@@ -128,3 +128,8 @@ fixtures stay there. The additional test checks both source hashes, decoded
 parameters and the text-plane projection. Without that source variable the
 private test is skipped. Renderer integration and matched native/browser views
 remain the responsibility of the caller.
+
+The CLI can also register its output in an existing delivery manifest. Add
+`--manifest /delivery/manifest.json --model-key homeCamera --title-id 0004003000009802 --source-path 3D/BannerCamera_LZ.bin`, with `--output /delivery/models/home-camera/camera.json`.
+The shared `manifest.py` helper records file hash/size and compressed source
+provenance, while the firmware builder preserves separately converted models.

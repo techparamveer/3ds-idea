@@ -1,6 +1,7 @@
 """Convert decompressed or LZ CGFX with the pinned SPICA exporter; no firmware execution."""
 import argparse, hashlib, json, os, subprocess, sys
 from pathlib import Path
+from manifest import register_resources
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from unpack_home_resources import decompress
 from convert_bcfnt import png
@@ -32,16 +33,7 @@ def convert(source, output, scratch, dotnet, exporter, manifest=None, model_key=
     (output/'model.json').write_text(json.dumps(model,separators=(',',':'))+'\n')
     if manifest is not None:
         if not all((model_key,title_id,source_path)): raise ValueError('Manifest registration needs model key, title ID and relative source path')
-        relative=output.resolve().relative_to(manifest.parent.resolve())
-        if relative.parts[0]!='models' or Path(source_path).is_absolute() or '..' in Path(source_path).parts: raise ValueError('Invalid model delivery/source path')
-        record=json.loads(manifest.read_text())
-        if title_id not in record['sources']: raise ValueError('Model title is absent from the extracted manifest')
-        record.setdefault('models',{})[model_key]=(relative/'model.json').as_posix()
-        provenance={'titleId':title_id,'path':source_path,'sha256':model['compressedSourceSha256']}
-        for name in ['model.json',*[texture['url'] for texture in model['textures']]]:
-            payload=(output/name).read_bytes()
-            record['resources'][(relative/name).as_posix()]={'kind':'model' if name=='model.json' else 'model-texture','size':len(payload),'sha256':hashlib.sha256(payload).hexdigest(),'sources':[provenance]}
-        manifest.write_text(json.dumps(record,sort_keys=True,separators=(',',':'))+'\n')
+        register_resources(manifest,output,model_key,title_id,source_path,model['compressedSourceSha256'],['model.json',*[texture['url'] for texture in model['textures']]])
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)

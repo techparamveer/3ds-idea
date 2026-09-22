@@ -83,3 +83,11 @@ node scripts/compare-firmware-screens.mjs --native NATIVE.png \
 The full app groups, native offline flows, native keyboard/dialogs, permission UI,
 mobile/reduced-motion/fallback checks, cleanup profiling and final PR remain
 required. Existing stock application scaffolds are not accepted implementations.
+
+## Native camera and texture checkpoint
+
+The folder/background pass now uses the camera decoded from `BannerCamera_LZ.bin`: position `(0, 1, 44.7859993)`, target `(0, 1, 0)`, 30-degree vertical perspective, source aspect ratio, near 26.5 and far 1000. The native loading path registers it in the same scene as the folder. Its projection places the original 20-unit text plane at about 224.845 pixels wide, independently agreeing with the capture. The prior orthographic framing has been removed.
+
+CGFX PNGs now upload as straight byte textures with explicit row reversal. RGB under alpha zero is preserved, as it is in the 2D layout renderer. Model and camera outputs are registered in the main manifest with size, hash and source provenance; both conversion CLIs accept the same four manifest registration options. The actual source camera parser passes 11 checks, the model/camera tests pass 9, and the combined JavaScript suite passes 277 tests at this checkpoint.
+
+Fresh browser capture `browser-native-camera-{top,bottom}.png` in the SSD artifact root confirms successful native camera/background loading. This is still an implementation checkpoint: folder text remains the prior 2D pill, the runtime yaw call cadence and phase are not video-calibrated, and background scale/theme material differences remain visible. `home-folder-two-rows-lower.png` proves the two-row native layout omits the name balloon; the one-row capture's identical empty-tile patch is five pixels higher than its two-row counterpart. The corrected shared grid places one-row tiles at y=125 and shows the native balloon only in that mode.

@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { sampleCgfxCurve, selectCgfxClips, cgfxClipFrame, type CgfxCurve, type CgfxClipChoice } from '../os/cgfx-animation';
 import { cgfxLightingShader, decodeCgfxLutWord, type CgfxLightingData } from './cgfx-lighting';
+import { decodeNativePng } from '../os/native-png';
+import type { NativePixels } from '../os/native-layout';
 type Color={R:number;G:number;B:number;A:number};
 type Vec={X:number;Y:number;Z:number;W?:number};
 type Coord={MappingType:string;TransformType:string;Scale:Vec;Rotation:number;Translation:Vec};
@@ -12,14 +14,14 @@ type Submesh={indices:number[];bones:number[];skinning:string;primitive:string};
 type Mesh={material:number;node:number;layer:number;priority:number;position:number[][];normal:number[][];color:number[][];uv0:number[][];uv1:number[][];uv2:number[][];joints:number[][];weights:number[][];submeshes:Submesh[]};
 type Clip={Name:string;FramesCount:number;AnimationFlags:string;Elements:{Name:string;TargetType:string;PrimitiveType:string;Content:Record<string,CgfxCurve>}[]};
 export type FirmwareModelData=CgfxLightingData&{schema:1;sourceSha256:string;models:{name:string;transform:Record<string,number>;skeleton:Bone[];materials:Material[];nodes:boolean[];meshes:Mesh[]}[];textures:{name:string;url:string;width:number;height:number}[];skeletalAnimations:Clip[];materialAnimations:Clip[];visibilityAnimations:Clip[]};
-export type FirmwareModelAsset={data:FirmwareModelData;images:Map<string,HTMLImageElement>};
+export type FirmwareModelAsset={data:FirmwareModelData;images:Map<string,NativePixels>};
 export type FirmwareModelPlayback={skeletal?:readonly CgfxClipChoice[];material?:readonly CgfxClipChoice[]};
 export async function loadFirmwareModel(url:string):Promise<FirmwareModelAsset>{
  const response=await fetch(url);if(!response.ok)throw new Error(`Model HTTP ${response.status}`);
  const data=await response.json() as FirmwareModelData;
  if(data.schema!==1||!Array.isArray(data.models)||!Array.isArray(data.textures))throw new Error('Invalid firmware model');
- const images=new Map<string,HTMLImageElement>();
- await Promise.all(data.textures.map(async record=>{const image=new Image();image.src=new URL(record.url,new URL(url,window.location.href)).href;await image.decode();images.set(record.name,image);}));
+ const images=new Map<string,NativePixels>();
+ await Promise.all(data.textures.map(async record=>{const response=await fetch(new URL(record.url,new URL(url,window.location.href)));if(!response.ok)throw new Error(`Model texture HTTP ${response.status}`);images.set(record.name,await decodeNativePng(new Uint8Array(await response.arrayBuffer()),record));}));
  return {data,images};
 }
 const rgba=(c:Color)=>new THREE.Vector4(c.R/255,c.G/255,c.B/255,c.A/255);
@@ -101,7 +103,13 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    for(let i=0;i<6;i++)uniforms[`constant${i}`]={value:rgba(p[`Constant${i}Color`] as Color)};
    for(let i=0;i<3;i++){
     const image=asset.images.get(m[`Texture${i}Name` as 'Texture0Name']);let texture:THREE.Texture=white;
-    if(image){texture=new THREE.Texture(image);texture.colorSpace=THREE.NoColorSpace;texture.wrapS=wrap(m.TextureMappers[i].WrapU);texture.wrapT=wrap(m.TextureMappers[i].WrapV);texture.magFilter=m.TextureMappers[i].MagFilter==='Nearest'?THREE.NearestFilter:THREE.LinearFilter;texture.minFilter=texture.magFilter;texture.generateMipmaps=false;texture.needsUpdate=true;textures.push(texture);}
+    if(image){
+     // PNG rows are top-down; raw GL data starts at the bottom. Preserve RGB
+     // under zero alpha while flipping explicitly instead of using a DOM image.
+     const pixels=new Uint8Array(image.data.length),stride=image.width*4;
+     for(let row=0;row<image.height;row++)pixels.set(image.data.subarray(row*stride,(row+1)*stride),(image.height-1-row)*stride);
+     texture=new THREE.DataTexture(pixels,image.width,image.height);texture.colorSpace=THREE.NoColorSpace;texture.wrapS=wrap(m.TextureMappers[i].WrapU);texture.wrapT=wrap(m.TextureMappers[i].WrapV);texture.magFilter=m.TextureMappers[i].MagFilter==='Nearest'?THREE.NearestFilter:THREE.LinearFilter;texture.minFilter=texture.magFilter;texture.generateMipmaps=false;texture.needsUpdate=true;textures.push(texture);
+    }
     uniforms[`tex${i}`]={value:texture};uniforms[`uvMatrix${i}`]={value:textureMatrix(p.TextureCoords[i])};
    }
    const blend=p.BlendFunction;

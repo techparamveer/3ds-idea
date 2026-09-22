@@ -1,16 +1,13 @@
 import * as THREE from 'three';
 import { createFirmwareModel, loadFirmwareModel } from './firmware-model';
 import { homeBannerYaw } from '../os/banner-motion';
+import { loadFirmwareCamera } from './firmware-camera';
 
 /** Reuses the console renderer and one native-resolution offscreen target. */
 export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   const scene = new THREE.Scene();
   const backgroundScene = new THREE.Scene();
-  // Native folder capture places the ~12-unit mesh across ~120 pixels. Ten
-  // pixels per unit also matches its vertical center without a model offset.
-  // This is measured framing, not recovered native camera/projection metadata.
-  const camera = new THREE.OrthographicCamera(-20, 20, 12, -12, .1, 200);
-  camera.position.set(0, 0, 100); camera.lookAt(0, 0, 0);
+  let camera:THREE.PerspectiveCamera|undefined;
   const target = new THREE.WebGLRenderTarget(400, 240, { depthBuffer: true, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
   // PICA shaders write native numeric color channels. Readback must keep those
   // bytes unchanged; an sRGB attachment encodes them again and washes out cyan.
@@ -27,8 +24,10 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     background=createFirmwareModel(asset,{skeletal:[{name:'BannerBG_SceneIn',frame:20}],material:[{name:'BannerBG_Loop'}]});
     backgroundScene.add(background.group);
   }).catch(error=>{if(!disposed)backgroundFailure=String(error);});
-  const ready=Promise.all([folderReady,backgroundReady]);
+  const cameraReady=loadFirmwareCamera('/os/firmware/10.7.0-32E/models/home-camera/camera.json').then(value=>{if(!disposed)camera=value;}).catch(error=>{if(!disposed){failure=String(error);backgroundFailure=String(error);}});
+  const ready=Promise.all([folderReady,backgroundReady,cameraReady]);
   function render(ctx:CanvasRenderingContext2D,source:THREE.Scene) {
+    if(!camera)return false;
     const previous = renderer.getRenderTarget(), color = renderer.getClearColor(new THREE.Color()), alpha = renderer.getClearAlpha();
     const toneMapping = renderer.toneMapping, autoClear = renderer.autoClear;
     const viewport = renderer.getViewport(new THREE.Vector4()), scissor = renderer.getScissor(new THREE.Vector4()), scissorTest = renderer.getScissorTest();
@@ -54,5 +53,5 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     try{background.update(reduced?0:elapsedMs);return render(ctx,backgroundScene);}
     catch(error){backgroundFailure=String(error);return false;}
   }
-  return { ready, draw, drawBackground, status: () => ({ ready: !!model, failure, backgroundReady:!!background, backgroundFailure }), dispose() { disposed = true; model?.dispose();background?.dispose(); target.dispose(); } };
+  return { ready, draw, drawBackground, status: () => ({ ready: !!model&&!!camera, failure, backgroundReady:!!background&&!!camera, backgroundFailure }), dispose() { disposed = true; model?.dispose();background?.dispose(); target.dispose(); } };
 }

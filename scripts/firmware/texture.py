@@ -24,7 +24,9 @@ def png(width, height, rgba):
 
 
 def _expand(v, bits):
-    return (v * 255 + ((1 << bits) - 1)//2) // ((1 << bits) - 1)
+    # PICA and ETC1 replicate the most significant bits into the low bits.
+    # Rounded normalization differs by one for e.g. a 5-bit value of 3.
+    return (v << (8-bits)) | (v >> (2*bits-8))
 
 
 def _etc_block(block):
@@ -99,7 +101,7 @@ def decode_texture(data, width, height, fmt):
                 elif fmt == 5:
                     rgba = (val>>8, val>>8, val>>8, val&255)
                 elif fmt == 6:
-                    rgba = (val>>8, val&255, 255, 255)
+                    rgba = (val>>8, val&255, 0, 255)
                 elif fmt == 7:
                     rgba = (val, val, val, 255)
                 elif fmt == 8:

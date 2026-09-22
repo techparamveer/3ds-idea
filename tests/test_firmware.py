@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import struct
 import sys
+import tempfile
 import unittest
 import zlib
 
@@ -16,7 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'scripts'))
 from firmware.texture import decode_texture, decode_bclim, png
 from firmware.native import decode_layout, decode_animation, decode_msbt
-from firmware.build import EXCLUDED, TITLES, cia_metadata
+from firmware.build import EXCLUDED, TITLES, Builder, cia_metadata, public_path, digest, encode
+from firmware.audit import audit, compare_delivery
 from convert_bcfnt import convert, decode_sheet
 from unpack_home_resources import unpack_darc, decompress
 
@@ -34,6 +36,20 @@ def decode_png(raw):
 
 
 class TextureTests(unittest.TestCase):
+    def test_packed_channels_replicate_bits(self):
+        # Values chosen where rounded 0..255 scaling differs from native bits.
+        for value in range(32):
+            expected = (value << 3) | (value >> 2)
+            raw = struct.pack('<H', value << 11)*64
+            self.assertEqual(decode_texture(raw, 8, 8, 3)[:4], bytes([expected, 0, 0, 255]))
+            self.assertEqual(decode_texture(raw, 8, 8, 2)[:4], bytes([expected, 0, 0, 0]))
+            block = ((value << 59) | (1 << 33)).to_bytes(8, 'little')
+            self.assertEqual(decode_texture(block*4, 8, 8, 12)[0], min(255, expected+2))
+        for value in range(64):
+            raw = struct.pack('<H', value << 5)*64
+            self.assertEqual(decode_texture(raw, 8, 8, 3)[1], (value << 2) | (value >> 4))
+        self.assertEqual(decode_texture(bytes([3, 10])*64, 8, 8, 6)[:4], bytes([10, 3, 0, 255]))
+
     def test_channel_orders_and_nibbles(self):
         self.assertEqual(decode_texture(bytes([4, 3, 2, 1])*64, 8, 8, 0)[:4], bytes([1, 2, 3, 4]))
         self.assertEqual(decode_texture(bytes([3, 2, 1])*64, 8, 8, 1)[:4], bytes([1, 2, 3, 255]))
@@ -76,6 +92,69 @@ class TextureTests(unittest.TestCase):
 
 
 class ContainerTests(unittest.TestCase):
+    def test_message_style_indices_attributes_and_control_arguments(self):
+        def section(tag, payload):
+            raw = struct.pack('<4sI8x', tag, len(payload))+payload
+            return raw + bytes((-len(raw))%16)
+        first = 'A'.encode('utf-16-le')+struct.pack('<4H', 14, 1, 2, 2)+b'xy'+b'\0\0'
+        second = 'B\0'.encode('utf-16-le')
+        txt = struct.pack('<III', 2, 12, 12+len(first))+first+second
+        blocks = section(b'TSY1', struct.pack('<ii', 28, -1))
+        blocks += section(b'ATR1', struct.pack('<II', 2, 2)+b'\x01\x02\x03\x04')
+        blocks += section(b'TXT2', txt)
+        header = bytearray(32); header[:8] = b'MsgStdBn'
+        struct.pack_into('<H', header, 8, 0xfeff)
+        struct.pack_into('<BBH', header, 12, 1, 3, 3)
+        struct.pack_into('<I', header, 18, len(header)+len(blocks))
+        result = decode_msbt(header+blocks)
+        self.assertEqual([m['styleIndex'] for m in result['messages']], [28, None])
+        self.assertEqual(result['attributes']['records'], ['0102', '0304'])
+        self.assertEqual(result['messages'][0]['tokens'], [{'text': 'A'}, {'control': 14, 'group': 1, 'type': 2, 'arguments': '7879'}])
+        self.assertEqual(result['unsupported'], [])
+
+    def test_window_fixed_point_inflation_and_integer_frame_sizes(self):
+        section = bytearray(128)
+        struct.pack_into('<4sI', section, 0, b'wnd1', len(section))
+        struct.pack_into('<4H4HBBHII', section, 76, 16, 24, 32, 48, 3, 4, 5, 6, 0, 0, 0, 104, 124)
+        header = struct.pack('<4sHHIIHH', b'CLYT', 0xfeff, 20, 0x2020000, 20+len(section), 1, 0)
+        window = decode_layout(header+section)['roots'][0]['window']
+        self.assertEqual(window['inflation'], [1, 1.5, 2, 3])
+        self.assertEqual(window['frameSize'], [3, 4, 5, 6])
+
+    def test_delivery_paths_and_duplicate_content_are_checked_before_writing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); builder = Builder(root)
+            for url in ('/escape.json', '../escape.json', 'a/../b.json', 'a//b.json', 'a\\b.json', 'https://a.json', 'a.json?x'):
+                with self.subTest(url=url), self.assertRaises(ValueError): public_path(root, url)
+            builder.write('test.json', b'first', {}, 'pack')
+            with self.assertRaisesRegex(ValueError, 'Conflicting'): builder.write('test.json', b'second', {}, 'pack')
+            self.assertEqual((root/'test.json').read_bytes(), b'first')
+
+    def test_audit_detects_tampered_delivery_and_missing_references(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            manifest = {'schema': 1, 'firmware': '10.7.0-32E', 'sources': {}, 'fonts': {}, 'titles': {},
+                        'home': {}, 'converter': {'version': '1', 'scripts': {'test.py': 'test'}, 'extractor': {'name': 'test'}},
+                        'resources': {'test.json': {'kind': 'metadata', 'size': 3, 'sha256': digest(b'{}\n'), 'sources': []}}}
+            (root/'test.json').write_bytes(b'{}\n'); (root/'manifest.json').write_bytes(encode(manifest))
+            self.assertTrue(audit(root)['ok'])
+            (root/'test.json').write_bytes(b'changed')
+            self.assertIn('hash/size mismatch', ' '.join(audit(root)['errors']))
+            manifest['home']['missing'] = 'missing.json'; (root/'manifest.json').write_bytes(encode(manifest))
+            self.assertIn('missing resource record', ' '.join(audit(root)['errors']))
+
+    def test_rebuild_comparison_checks_actual_bytes_and_file_sets(self):
+        with tempfile.TemporaryDirectory() as temp:
+            a, b = Path(temp)/'a', Path(temp)/'b'; a.mkdir(); b.mkdir()
+            for root in (a, b): (root/'data.json').write_bytes(b'{}\n')
+            self.assertTrue(compare_delivery(a, b)['equal'])
+            (b/'data.json').write_bytes(b'{"changed":true}\n')
+            (b/'extra.png').write_bytes(b'extra')
+            result = compare_delivery(a, b)
+            self.assertFalse(result['equal'])
+            self.assertEqual(result['changed'], ['data.json'])
+            self.assertEqual(result['onlyRight'], ['extra.png'])
+
     def test_clan_group_names_use_twenty_byte_records(self):
         groups = [b'G_First', b'G_Second']
         section = struct.pack('<4sIHHIIhhB3x', b'pat1', 76, 1, 2, 28, 36, 0, 10, 1)
@@ -154,6 +233,10 @@ class OwnerResources(unittest.TestCase):
         messages = decode_msbt(decompress((romfs/'message/EU_English/menu_msbt_LZ.bin').read_bytes()))
         self.assertEqual(len(messages['messages']), 558)
         self.assertEqual(messages['messages'][0]['text'], 'HOME Menu')
+        self.assertEqual(messages['attributes'], {'count': 558, 'recordSize': 0, 'records': [], 'stringTable': ''})
+        self.assertEqual(sum(m['styleIndex'] is None for m in messages['messages']), 22)
+        self.assertEqual(max(m['styleIndex'] for m in messages['messages'] if m['styleIndex'] is not None), 670)
+        self.assertEqual(messages['unsupported'], [])
 
     def test_original_fonts_pack_without_changing_glyph_pixels(self):
         for folder, filename in [('home', 'font/Hud_JP.bcfnt'), ('shared-font', 'cbf_std.bcfnt.lz')]:
@@ -170,9 +253,39 @@ class OwnerResources(unittest.TestCase):
             self.assertEqual(manifest['sourceSha256'], hashlib.sha256(raw).hexdigest())
             tglp = struct.unpack_from('<I', raw, 36)[0]
             cw, ch, baseline, _, size, count, fmt, cols, rows, sw, sh, at = struct.unpack_from('<BBBBIHHHHHHI', raw, tglp)
-            original = decode_sheet(raw[at:at+size], sw, sh, fmt)
-            destw, _, atlas = images[0]
-            self.assertEqual(original, b''.join(atlas[y*destw*4:y*destw*4+sw*4] for y in range(sh)))
+            columns, per_atlas = 1024//sw, (1024//sw)*(1024//sh)
+            for index in range(count):
+                original = decode_sheet(raw[at+index*size:at+(index+1)*size], sw, sh, fmt)
+                destw, _, atlas = images[index//per_atlas]
+                x, y = (index%per_atlas%columns)*sw, (index%per_atlas//columns)*sh
+                restored = b''.join(atlas[((y+row)*destw+x)*4:((y+row)*destw+x+sw)*4] for row in range(sh))
+                self.assertEqual(original, restored, f'{filename}: sheet {index}')
+            self.assertEqual(manifest['cellWidth'], cw)
+            self.assertEqual(manifest['cellHeight'], ch)
+            self.assertEqual(manifest['width'], raw[49])
+            self.assertEqual(manifest['height'], raw[48])
+            self.assertEqual(manifest['ascent'], raw[50])
+            # Independently read every CWDH record; recover source glyph indices
+            # from packed rectangles and verify signed bearing/width/advance.
+            widths = {}; cursor = struct.unpack_from('<I', raw, 40)[0]
+            while cursor:
+                first, last, next_block = struct.unpack_from('<HHI', raw, cursor)
+                for index in range(first, last+1): widths[index] = struct.unpack_from('<bBB', raw, cursor+8+(index-first)*3)
+                cursor = next_block
+            fallback_widths = struct.unpack_from('<bBB', raw, 32)
+            for glyph in [*manifest['glyphs'].values(), manifest['fallback']]:
+                if glyph is None: continue
+                source_sheet = glyph['sheet']*per_atlas + (glyph['y']//sh)*columns + glyph['x']//sw
+                index = source_sheet*cols*rows + ((glyph['y']%sh-1)//(ch+1))*cols + (glyph['x']%sw-1)//(cw+1)
+                self.assertEqual((glyph['left'], glyph['width'], glyph['advance']), widths.get(index, fallback_widths))
+
+    def test_delivery_integrity_and_private_provenance(self):
+        result = audit(ROOT/'public/os/firmware/10.7.0-32E', ARTIFACTS, ROOT)
+        self.assertEqual(result['errors'], [])
+        self.assertEqual(result['counts']['animations'], 666)
+        self.assertEqual(result['counts']['layouts'], 184)
+        self.assertEqual(result['counts']['fontAtlases'], 7)
+        self.assertGreater(result['privateSourcesChecked'], 1800)
 
 
 if __name__ == '__main__': unittest.main()

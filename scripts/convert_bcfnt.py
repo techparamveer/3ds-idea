@@ -1,4 +1,4 @@
-"""Decode a standalone, decrypted CFNT (A4/A8) to browser bitmap sheets.
+"""Decode a standalone, decrypted CFNT (A4/A8/LA4) to browser bitmap sheets.
 
 No keys, decryption, firmware execution, or external Python dependencies.
 Format references and limitations: docs/firmware-assets.md.
@@ -61,11 +61,11 @@ def convert(data, compact=False):
         return at + length
 
     block(20, b'FINF')
-    _, line_feed, alternate, left, glyph_width, advance, encoding, tglp, cwdh, cmap, height, _, ascent, _ = read('BBHbBBBIIIBBBB', 28)
+    _, line_feed, alternate, left, glyph_width, advance, encoding, tglp, cwdh, cmap, height, width, ascent, _ = read('BBHbBBBIIIBBBB', 28)
     if encoding != 1:
         raise ValueError('Only UTF-16 CMAP fonts are supported')
     block(tglp - 8, b'TGLP')
-    cw, ch, baseline, _, sheet_size, count, fmt, cols, rows, sw, sh, sheet_offset = read('BBBBIHHHHHHI', tglp)
+    cw, ch, baseline, max_width, sheet_size, count, fmt, cols, rows, sw, sh, sheet_offset = read('BBBBIHHHHHHI', tglp)
     if not (cw and ch and cols and rows and 0 < count <= 16384 and height):
         raise ValueError('Invalid glyph / sheet dimensions')
     if cols * (cw + 1) > sw or rows * (ch + 1) > sh:
@@ -131,7 +131,9 @@ def convert(data, compact=False):
                     y=(local // cols) * (ch + 1) + 1, width=width, height=ch, left=bearing, advance=step)
 
     manifest = dict(schema=1, sourceSha256=hashlib.sha256(data).hexdigest(), version=version,
-                    height=height, ascent=ascent, baseline=baseline, lineFeed=line_feed,
+                    height=height, width=width, ascent=ascent, baseline=baseline, lineFeed=line_feed,
+                    cellWidth=cw, cellHeight=ch, maxCharWidth=max_width,
+                    textureFormat=fmt, colorMode='luminance-alpha' if fmt == 9 else 'alpha',
                     sheets=[f'sheet-{i}.png' for i in range(count)],
                     glyphs={str(code): glyph(index) for code, index in mappings.items()},
                     fallback=None if alternate == 0xffff else glyph(alternate))
@@ -157,8 +159,7 @@ def convert(data, compact=False):
             entry['sheet'] = original // per_atlas
             entry['x'] += (original % per_atlas % columns) * sw
             entry['y'] += (original % per_atlas // columns) * sh
-        manifest.update(sheets=[f'sheet-{i}.png' for i in range(len(sheets))], sourceSheetCount=count,
-                        textureFormat=fmt, colorMode='luminance-alpha' if fmt == 9 else 'alpha')
+        manifest.update(sheets=[f'sheet-{i}.png' for i in range(len(sheets))], sourceSheetCount=count)
     else:
         sheets = [png(sw, sh, decode_sheet(data[sheet_offset + i * sheet_size:sheet_offset + (i + 1) * sheet_size], sw, sh, fmt)) for i in range(count)]
     return manifest, sheets

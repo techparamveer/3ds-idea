@@ -6,11 +6,13 @@ directory receives only converted PNG/JSON; never CIA, ExeFS, credentials or sav
 import argparse
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import platform
 import re
 import struct
 import subprocess
 import sys
+import zlib
 
 SCRIPTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPTS))
@@ -20,6 +22,7 @@ from firmware.native import decode_layout, decode_animation, decode_msbt
 from firmware.texture import decode_bclim, decode_texture, png
 
 FIRMWARE = '10.7.0-32E'
+CONVERTER_VERSION = '1.1.0'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 EXCLUDED = {'0004001000022d00', '0004001000022e00'}
@@ -60,6 +63,31 @@ DENIED_NAMES = {'masterkey.bin', 'ticket', 'certs', '.code'}
 
 def digest(data): return hashlib.sha256(data).hexdigest()
 def encode(value): return (json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(',', ':'), allow_nan=False)+'\n').encode()
+
+
+def public_path(root, url):
+    """Resolve a manifest URL without allowing filesystem or URL escapes."""
+    if not isinstance(url, str) or not url or any(c in url for c in '\\:#?'):
+        raise ValueError('Invalid public resource URL')
+    path = PurePosixPath(url)
+    if path.is_absolute() or any(p in ('', '.', '..') for p in url.split('/')):
+        raise ValueError('Public resource URL must be a canonical relative path')
+    target = root.joinpath(*path.parts)
+    if not target.resolve().is_relative_to(root.resolve()):
+        raise ValueError('Public resource escapes output directory')
+    return target
+
+
+def converter_provenance(ctrtool):
+    scripts = ['firmware/build.py', 'firmware/native.py', 'firmware/texture.py',
+               'convert_bcfnt.py', 'unpack_home_resources.py']
+    result = subprocess.run([str(ctrtool), '--help'], capture_output=True, text=True, timeout=10)
+    # CTRTool prints its identity with help, returning 1 for this invocation.
+    match = re.search(r'^CTRTool v([^\s]+)', result.stdout+result.stderr, re.MULTILINE)
+    if not match: raise ValueError('Unable to identify selected CTRTool version')
+    return {'name': 'ctr-native-web', 'version': CONVERTER_VERSION,
+            'scripts': {f'scripts/{name}': digest((SCRIPTS/name).read_bytes()) for name in scripts},
+            'extractor': {'name': 'CTRTool', 'version': match[1], 'sha256': digest(ctrtool.read_bytes())}}
 
 
 def cia_metadata(data, expected_title):
@@ -106,15 +134,16 @@ class Builder:
     def __init__(self, output):
         self.output = output; self.records = {}; self.unsupported = []; self.texture_cache = {}
     def write(self, path, data, source, kind):
-        if Path(path).suffix not in ('.png', '.json') or '..' in Path(path).parts:
+        target = public_path(self.output, path)
+        if target.suffix not in ('.png', '.json'):
             raise ValueError('Public export is not allowlisted')
-        target = self.output/path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
         record = {'kind': kind, 'size': len(data), 'sha256': digest(data), 'sources': [source]}
         if path in self.records:
             old = self.records[path]
             if old['sha256'] != record['sha256']: raise ValueError('Conflicting exported resource')
             if source not in old['sources']: old['sources'].append(source)
         else: self.records[path] = record
+        target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
         return path
     def texture(self, raw, source):
         key = digest(raw)
@@ -130,16 +159,23 @@ class Builder:
         return self.write(f'fonts/{name}/font.json', encode(manifest), source, 'font')
     def pack(self, resources, name, title, source_path, source_hash):
         result = {'schema': 1, 'name': name, 'titleId': title, 'sourceSha256': source_hash,
-                  'layouts': {}, 'animations': {}, 'textures': {}, 'messages': {}, 'unsupported': []}
+                  'layouts': {}, 'animations': {}, 'textures': {}, 'messages': {}, 'unsupported': [],
+                  'resourceSources': {'layouts': {}, 'animations': {}, 'textures': {}, 'messages': {}}}
         for path, raw in sorted(resources.items()):
             source = {'titleId': title, 'path': source_path+'/'+path, 'sha256': digest(raw)}
             key = Path(path).stem
             try:
-                if raw[:4] == b'CLYT': result['layouts'][key] = decode_layout(raw)
-                elif raw[:4] == b'CLAN': result['animations'][key] = decode_animation(raw)
-                elif len(raw) >= 40 and raw[-40:-36] == b'CLIM': result['textures'][Path(path).name] = self.texture(raw, source)
-                elif raw[:8] == b'MsgStdBn': result['messages'][key] = decode_msbt(raw)
-                else: result['unsupported'].append({'path': path, 'sha256': digest(raw), 'size': len(raw), 'reason': 'Unconverted resource type'})
+                if raw[:4] == b'CLYT': bucket, value = 'layouts', decode_layout(raw)
+                elif raw[:4] == b'CLAN': bucket, value = 'animations', decode_animation(raw)
+                elif len(raw) >= 40 and raw[-40:-36] == b'CLIM':
+                    bucket, key, value = 'textures', Path(path).name, self.texture(raw, source)
+                elif raw[:8] == b'MsgStdBn': bucket, value = 'messages', decode_msbt(raw)
+                else:
+                    result['unsupported'].append({'path': path, 'sha256': digest(raw), 'size': len(raw), 'reason': 'Unconverted resource type'})
+                    continue
+                if key in result[bucket]: raise ValueError(f'Duplicate {bucket} resource name: {key}')
+                result[bucket][key] = value
+                result['resourceSources'][bucket][key] = source
             except (ValueError, UnicodeError, struct.error, IndexError) as error:
                 result['unsupported'].append({'path': path, 'sha256': digest(raw), 'reason': str(error)})
         slug = TITLES[title][0]
@@ -168,6 +204,7 @@ def main():
     packages = {p.stem.lower(): p for p in args.source.glob('*.cia')}
     builder = Builder(args.output)
     manifest = {'schema': 1, 'firmware': FIRMWARE, 'region': 'EUR', 'locale': 'EU_English', 'sources': {}, 'fonts': {}, 'home': {}, 'titles': {},
+                'converter': converter_provenance(args.ctrtool),
                 'excludedTitles': sorted(EXCLUDED), 'limitations': ['Converted resources require native-screen visual verification.',
                  'Unsupported formats/fields are recorded explicitly; no substitute assets are generated.']}
     previous = args.output/'manifest.json'
@@ -181,7 +218,7 @@ def main():
     for title in [SHARED, *selected]:
         if title not in packages: raise ValueError(f'Missing supplied title {title}')
         metadata = cia_metadata(packages[title].read_bytes(), title)
-        manifest['sources'][title] = metadata
+        manifest['sources'][title] = {**metadata, 'file': packages[title].name}
         slug = 'shared-font' if title == SHARED else TITLES[title][0]
         romfs, exefs = extract(args.ctrtool, packages[title], args.artifacts/'extracted'/slug, metadata)
         if title == SHARED:
@@ -244,7 +281,11 @@ def main():
     manifest['unsupported'] = builder.unsupported
     (args.output/'manifest.json').write_bytes(encode(manifest))
     report = {'firmware': FIRMWARE, 'titles': len(manifest['titles']), 'resources': len(builder.records), 'bytes': sum(r['size'] for r in builder.records.values()),
-              'manifestSha256': digest(encode(manifest)), 'unsupportedContainers': len(builder.unsupported)}
+              'manifestSha256': digest(encode(manifest)), 'unsupportedContainers': len(builder.unsupported),
+              'environment': {'python': platform.python_version(), 'platform': platform.platform(),
+                              'zlib': zlib.ZLIB_VERSION, 'zlibRuntime': zlib.ZLIB_RUNTIME_VERSION},
+              'invocation': {'source': str(args.source.resolve()), 'ctrtool': str(args.ctrtool.resolve()),
+                             'artifacts': str(args.artifacts.resolve()), 'output': str(args.output.resolve()), 'homeOnly': args.home_only}}
     (args.artifacts/'build-report.json').write_bytes(encode(report)); print(json.dumps(report), flush=True)
 
 

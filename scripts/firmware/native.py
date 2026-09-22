@@ -108,7 +108,11 @@ def decode_layout(data):
                                 'size': list(r.read('2f', 100)), 'characterSpacing': r.read('f', 108)[0], 'lineSpacing': r.read('f', 112)[0]}
             if tag == 'wnd1':
                 count, flags, pad, content, table = r.read('BBHII', 92)
-                pane['window'] = {'stretch': list(r.read('4f', 76)), 'flags': flags, 'content': _picture(r, content), 'frames': []}
+                # CTR stores fixed-point inflation followed by integer frame
+                # sizes, each in left/right/top/bottom order (not four floats).
+                pane['window'] = {'inflation': [v/16 for v in r.read('4H', 76)],
+                                  'frameSize': list(r.read('4H', 84)), 'flags': flags,
+                                  'content': _picture(r, content), 'frames': []}
                 for i in range(count):
                     ptr = r.u32(table+i*4); material, flip, pad = r.read('HBB', ptr)
                     pane['window']['frames'].append({'material': material, 'flip': flip})
@@ -201,6 +205,7 @@ def decode_msbt(data):
     encoding, version, count = r.read('BBH', 12)
     if encoding != 1: raise ValueError('Only UTF-16 MSBT supported')
     labels, texts, unknown, at = {}, [], [], 32
+    styles, attributes = None, None
     for _ in range(count):
         tag, size = r.read('4sI', at); s = Reader(r.bytes(at+16, size))
         if tag == b'LBL1':
@@ -209,6 +214,16 @@ def decode_msbt(data):
                 for _ in range(n):
                     length = s.read('B', pos)[0]; label = s.bytes(pos+1, length).decode('utf-8'); pos += 1+length
                     labels[label] = s.u32(pos); pos += 4
+        elif tag == b'TSY1':
+            if size % 4: raise ValueError('Invalid message style table')
+            styles = list(s.read('i'*(size//4), 0))
+        elif tag == b'ATR1':
+            n, width = s.read('II', 0)
+            if n > 65536: raise ValueError('Excessive message attribute count')
+            end = 8+n*width
+            attributes = {'count': n, 'recordSize': width,
+                          'records': [s.bytes(8+i*width, width).hex() for i in range(n)] if width else [],
+                          'stringTable': s.bytes(end, size-end).hex()}
         elif tag == b'TXT2':
             n = s.u32(0); offsets = [s.u32(4+i*4) for i in range(n)] + [len(s.data)]
             for begin, end in zip(offsets, offsets[1:]):
@@ -232,4 +247,8 @@ def decode_msbt(data):
                 texts.append({'text': ''.join(token.get('text', '') for token in tokens), 'tokens': tokens})
         else: unknown.append({'tag': tag.decode('ascii'), 'size': size, 'sha256': hashlib.sha256(s.data).hexdigest()})
         at = (at+16+size+15)&~15
-    return {'version': version, 'labels': labels, 'messages': texts, 'unsupported': unknown}
+    if styles is not None:
+        if len(styles) != len(texts): raise ValueError('Message style count mismatch')
+        for message, style in zip(texts, styles): message['styleIndex'] = None if style == -1 else style
+    if attributes is not None and attributes['count'] != len(texts): raise ValueError('Message attribute count mismatch')
+    return {'version': version, 'labels': labels, 'messages': texts, 'attributes': attributes, 'unsupported': unknown}

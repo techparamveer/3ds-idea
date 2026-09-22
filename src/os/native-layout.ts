@@ -10,7 +10,7 @@ export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:N
 export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
 export type NativeLayout={canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
 export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
-export type PaneOverrides=Record<string,{text?:string;messageStyle?:NativeMessageStyle;visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number}>;
+export type PaneOverrides=Record<string,{text?:string;messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number}>;
 export type AnimationBinding={name:string;frame:number;groups?:string[]};
 /** HOME RI_mstl changes font metrics and spacing only; unresolved words stay uninterpreted. */
 export function nativeTextMetrics(text:NativeText,font:{width?:number;height:number}){
@@ -82,6 +82,7 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
   const pane=panes.get(name);if(!pane)continue;
   if(value.text!==undefined&&pane.text)pane.text.value=value.text;
   if(value.messageStyle&&pane.text)pane.text.messageStyle=structuredClone(value.messageStyle);
+  if(value.fontSize&&pane.text)pane.text.size=[...value.fontSize];
   if(value.visible!==undefined)pane.flags=value.visible?pane.flags|1:pane.flags&~1;
   if(value.alpha!==undefined)pane.alpha=value.alpha;
   if(value.translation)pane.translation=[...value.translation];if(value.scale)pane.scale=[...value.scale];if(value.size)pane.size=[...value.size];

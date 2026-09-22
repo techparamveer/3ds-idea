@@ -10,6 +10,14 @@ The intermediate JSON retains meshes, four bone influences, skeleton bind transf
 
 The exporter also retains each native light subtype and all 256 raw PICA words per LUT sampler. The subtype avoids SPICA's zero-based CGFX to one-based H3D enum mismatch; the raw words retain interpolation slopes omitted from its float-only table. `src/scene/cgfx-lighting.ts` evaluates directional, unbumped Dist0 and Fresnel lighting with the source light direction, material colors and authored LUTs. Native folder geometry and texture pixels are unchanged.
 
+Version 1.2.0 preserves native bone BillboardMode, which ToH3D omits, and adapts
+the observed revision-5 root with 15 dictionaries through `LegacyGfxReader.cs`.
+This prevents the first DICT header from being misread as a sixteenth Emitters
+field. Typed object parsing still uses the pinned SPICA source. The Text bone's
+ScreenViewpoint mode, native label surface and display transfer are documented in
+`docs/native-folder-label-2026-09-22.md`. Opt-in real-resource tests are in
+`tests/test_legacy_cgfx.py`.
+
 Remaining fidelity work: bump/reflection/geometry-factor lighting, quaternion/matrix animation elements and visibility animation are exported but not yet evaluated by the presenter. Unsupported lighting still uses the previous approximation. Light sign, camera/view convention and runtime banner transforms require matched Azahar captures; passing a conversion or shader test alone is not a fidelity claim. See `docs/native-folder-lighting-2026-09-22.md`.
 
 For registration in the extracted delivery manifest, add `--manifest /delivery/manifest.json --model-key homeBackground --title-id 0004003000009802 --source-path 3D/BannerBG_LZ.bin`. All four arguments are required together. The output must be inside the manifest's `models/` directory and the source title must already be registered. Model JSON and texture hashes, sizes and compressed source provenance are written to `resources`; the normal firmware builder preserves these separately converted entries. The sidecar also records the wrapper and exporter hashes.

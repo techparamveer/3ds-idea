@@ -1,5 +1,6 @@
 import { BitmapFont, loadBitmapFont } from './bitmap-font';
 import { decodeNativePng } from './native-png';
+import { nativeBannerLabelOverride } from './native-banner-label';
 import { NativeLayoutRenderer } from './native-renderer';
 import { nativeMessageOverride, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { rowCount, toolbar as toolbarRegions, type MenuState } from './state';
@@ -9,7 +10,7 @@ import { getHomeFooter, getNativeFolderBalloon, nativeHomeDensityFrame, type Hom
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>};
-const homeLayouts={hud:['HudMenu_00'],launcher:['LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncBtmBtn_02','LncIconFolder_00','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00']};
+const homeLayouts={hud:['HudMenu_00'],banner:['BnrDsTitle_00'],launcher:['LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncBtmBtn_02','LncIconFolder_00','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
  const base=new URL(manifestUrl,window.location.href),controller=new AbortController();
@@ -20,8 +21,9 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const manifest=await json<Manifest>(base.href);
   if(manifest.schema!==1||manifest.firmware!=='10.7.0-32E'||!manifest.fonts||!manifest.home)throw new Error('Unsupported firmware presentation manifest');
   const font=async (url:string)=>{const result=await loadBitmapFont(new URL(url,base).href,controller.signal);fonts.push(result);return result;};
-  const [sharedFont,hudFont,...loaded]=await Promise.all([font(manifest.fonts.shared),font(manifest.fonts.hud),...['hud','launcher','messages'].map(name=>json<NativePack>(manifest.home[name]))]);
-  const packs=Object.fromEntries(['hud','launcher','messages'].map((name,i)=>[name,loaded[i]])) as Record<string,NativePack>;
+  const packNames=['hud','launcher','messages','banner'];
+  const [sharedFont,hudFont,...loaded]=await Promise.all([font(manifest.fonts.shared),font(manifest.fonts.hud),...packNames.map(name=>json<NativePack>(manifest.home[name]))]);
+  const packs=Object.fromEntries(packNames.map((name,i)=>[name,loaded[i]])) as Record<string,NativePack>;
   // Reject an incomplete style conversion during loading, before a paint can partially fail.
   for(const [bank,data] of Object.entries(packs.messages.messages))for(const label of Object.keys(data.labels))nativeMessageOverride(packs.messages,bank,label,'');
   const textures:Record<string,Map<string,NativePixels>>={};const decoded=new Map<string,Promise<NativePixels>>();
@@ -56,6 +58,18 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  const binding=(name:string,frame:number,groups?:string[]):AnimationBinding=>({name,frame,...(groups?{groups}:{})});
  const pressTrack=renderer.packs.launcher.animations.LncCsr_00_Select.tracks.find(track=>track.target==='N_Scene_00'&&track.property==='translation.y');
  const pressOffset=pressTrack?-sampleNativeTrack(pressTrack,5):0;
+ let bannerLabel:{name:string;pixels:NativePixels}|undefined;
+ function folderBannerLabel(name:string):NativePixels|undefined{
+  if(bannerLabel?.name===name)return bannerLabel.pixels;
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=64;
+  try{
+   const ctx=canvas.getContext('2d',{willReadFrequently:true})!;
+   const text=name||message('menu_msbt_LZ','lau_2b_folder_noname','(No name)').text!;
+   const layout=renderer.packs.banner?.layouts.BnrDsTitle_00;if(!layout)return;
+   if(!renderer.draw(ctx,'banner','BnrDsTitle_00',{overrides:nativeBannerLabelOverride(layout,assets.sharedFont.manifest,text)}))return;
+   const pixels={width:256,height:64,data:ctx.getImageData(0,0,256,64).data};bannerLabel={name,pixels};return pixels;
+  }finally{canvas.width=canvas.height=0;}
+ }
  function upperBase(ctx:Context){
   return renderer.draw(ctx,'launcher','LncBase_U_00',{bindings:[binding('LncBase_U_00_SceneIn',40),binding('LncBase_U_00_Appear',10),binding('LncBase_U_00_WhiteBlack',0)],overrides:{N_Wndw_00:{visible:false}},clip:[0,212,400,28]});
  }
@@ -121,5 +135,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,rows:number){
   const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(rows))]});
  }
- return {hud,upperBase,folderBalloon,toolbar,footer,tile,empty,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,footer,tile,empty,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
 }

@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { createFirmwareModel, loadFirmwareModel } from './firmware-model';
 import { homeBannerYaw } from '../os/banner-motion';
 import { loadFirmwareCamera } from './firmware-camera';
+import type { NativePixels } from '../os/native-layout';
+import { copyNativeOverlay } from './native-overlay';
 
 /** Reuses the console renderer and one native-resolution offscreen target. */
 export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
@@ -17,7 +19,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   let model: ReturnType<typeof createFirmwareModel> | undefined, background: ReturnType<typeof createFirmwareModel> | undefined, disposed = false, failure: string | undefined, backgroundFailure:string|undefined;
   const folderReady = loadFirmwareModel('/os/firmware/10.7.0-32E/models/folder/model.json').then(asset => {
     if (disposed) return;
-    model = createFirmwareModel(asset); scene.add(model.group);
+    model = createFirmwareModel(asset,{}, {overlayCoverage:true}); scene.add(model.group);
   }).catch(error => { if (!disposed) failure = String(error); });
   const backgroundReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/home-background/model.json').then(asset=>{
     if(disposed)return;
@@ -26,7 +28,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   }).catch(error=>{if(!disposed)backgroundFailure=String(error);});
   const cameraReady=loadFirmwareCamera('/os/firmware/10.7.0-32E/models/home-camera/camera.json').then(value=>{if(!disposed)camera=value;}).catch(error=>{if(!disposed){failure=String(error);backgroundFailure=String(error);}});
   const ready=Promise.all([folderReady,backgroundReady,cameraReady]);
-  function render(ctx:CanvasRenderingContext2D,source:THREE.Scene) {
+  function render(ctx:CanvasRenderingContext2D,source:THREE.Scene,overlay=false) {
     if(!camera)return false;
     const previous = renderer.getRenderTarget(), color = renderer.getClearColor(new THREE.Color()), alpha = renderer.getClearAlpha();
     const toneMapping = renderer.toneMapping, autoClear = renderer.autoClear;
@@ -35,7 +37,8 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       renderer.setRenderTarget(target); renderer.setViewport(0, 0, 400, 240); renderer.setScissorTest(false);
       renderer.setClearColor(0, 0); renderer.autoClear = true; renderer.toneMapping = THREE.NoToneMapping;
       renderer.render(source, camera); renderer.readRenderTargetPixels(target, 0, 0, 400, 240, pixels);
-      for (let row = 0; row < 240; row++) image.data.set(pixels.subarray((239 - row) * 1600, (240 - row) * 1600), row * 1600);
+      if(overlay)copyNativeOverlay(pixels,image.data,400,240);
+      else for (let row = 0; row < 240; row++) image.data.set(pixels.subarray((239 - row) * 1600, (240 - row) * 1600), row * 1600);
       context.putImageData(image, 0, 0); ctx.drawImage(canvas, 0, 0); return true;
     }
     finally {
@@ -43,9 +46,12 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       renderer.setClearColor(color, alpha); renderer.toneMapping = toneMapping; renderer.autoClear = autoClear;
     }
   }
-  function draw(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean){
+  function draw(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,label?:NativePixels){
     if(disposed||!model||failure)return false;
-    try{model.update(reduced?0:elapsedMs);model.group.rotation.y=homeBannerYaw(reduced?0:elapsedMs);return render(ctx,scene);}
+    try{
+      const labelReady=!!label&&model.setTexture('DmyText_00',label);model.setMaterialVisible('mt_Text',labelReady);
+      model.group.rotation.y=homeBannerYaw(reduced?0:elapsedMs);model.update(reduced?0:elapsedMs,camera);return render(ctx,scene,true);
+    }
     catch(error){failure=String(error);return false;}
   }
   function drawBackground(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean){

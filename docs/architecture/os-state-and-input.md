@@ -76,6 +76,12 @@ and white-theme background callbacks; Three.js model/material interpretation sta
 [`../firmware-presentation-validation.md`](../firmware-presentation-validation.md)
 for the loader/disposal contract, coverage and unresolved visual differences.
 
+`native-banner-label.ts` derives the source folder text layout's horizontal fit.
+`firmware-presentation.ts` renders and caches its 256×64 RGBA surface and passes
+it to the injected folder callback. The scene owns dynamic texture upload, bone
+billboarding and the transparent-target coverage transfer back to Canvas. This
+keeps fonts/layouts out of the Three.js model renderer.
+
 ## Firmware application foundation
 
 `app-types.ts` defines renderer-independent application state, effects and views.

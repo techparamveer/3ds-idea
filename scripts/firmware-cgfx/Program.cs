@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SPICA.Formats.CtrGfx;
+using SPICA.Formats.CtrGfx.Model;
 using SPICA.Formats.CtrH3D;
 using SPICA.Formats.CtrH3D.Model.Mesh;
 using SPICA.PICA.Converters;
@@ -45,7 +46,7 @@ static class Exporter {
     if(args.Length!=2) { Console.Error.WriteLine("Exporter input.bcres output-directory");return 2; }
     var source=File.ReadAllBytes(args[0]);
     if(source.Length<20 || System.Text.Encoding.ASCII.GetString(source,0,4)!="CGFX") throw new InvalidDataException("Expected decompressed CGFX");
-    var native=Gfx.Open(args[0]);
+    var native=LegacyGfxReader.Open(args[0]);
     var scene=native.ToH3D();
     Directory.CreateDirectory(args[1]);
     var textures=new List<object>();
@@ -77,7 +78,10 @@ static class Exporter {
       }
       var sourceModel=native.Models.First(m=>m.Name==model.Name);
       var materials=model.Materials.Select((mat,i)=>{var clean=(SortedDictionary<string,object>)Clean(mat); clean["ConstantAssignments"]=sourceModel.Materials[i].FragmentShader.TextureEnvironments.Select(stage=>(int)stage.Constant).ToArray();return clean;});
-      models.Add(new{name=model.Name,transform=Clean(model.WorldTransform),skeleton=Clean(model.Skeleton),materials,nodes=Clean(model.MeshNodesVisibility),nodeNames=Clean(model.MeshNodesTree),meshes});
+      // ToH3D copies bone transforms but drops BillboardMode. Preserve the native
+      // enum by bone identity, including BannerFolder/Text's ScreenViewpoint.
+      var skeleton=model.Skeleton.Select(bone=>{var clean=(SortedDictionary<string,object>)Clean(bone);if(sourceModel is GfxModelSkeletal skeletal)clean["BillboardMode"]=skeletal.Skeleton.Bones.First(b=>b.Name==bone.Name).BillboardMode.ToString();return clean;});
+      models.Add(new{name=model.Name,transform=Clean(model.WorldTransform),skeleton,materials,nodes=Clean(model.MeshNodesVisibility),nodeNames=Clean(model.MeshNodesTree),meshes});
     }
     // Retain PICA interpolation words and the native zero-based light subtype;
     // ToH3D drops the former and incorrectly ORs the latter into a one-based enum.

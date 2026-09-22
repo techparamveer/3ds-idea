@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { sampleCgfxCurve, selectCgfxClips, cgfxClipFrame, type CgfxCurve, type CgfxClipChoice } from '../os/cgfx-animation';
 import { cgfxLightingShader, decodeCgfxLutWord, type CgfxLightingData } from './cgfx-lighting';
 import { decodeNativePng } from '../os/native-png';
+import { screenViewpointBone } from './cgfx-billboard';
 import type { NativePixels } from '../os/native-layout';
 type Color={R:number;G:number;B:number;A:number};
 type Vec={X:number;Y:number;Z:number;W?:number};
@@ -9,7 +10,7 @@ type Coord={MappingType:string;TransformType:string;Scale:Vec;Rotation:number;Tr
 type Stage={Source:{Color:string[];Alpha:string[]};Operand:{Color:string[];Alpha:string[]};Combiner:{Color:string;Alpha:string};Scale:{Color:string;Alpha:string};UpdateColorBuffer:boolean;UpdateAlphaBuffer:boolean};
 type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
 type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string}[]};
-type Bone={Name:string;ParentIndex:number;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
+type Bone={Name:string;ParentIndex:number;BillboardMode?:string;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
 type Submesh={indices:number[];bones:number[];skinning:string;primitive:string};
 type Mesh={material:number;node:number;layer:number;priority:number;position:number[][];normal:number[][];color:number[][];uv0:number[][];uv1:number[][];uv2:number[][];joints:number[][];weights:number[][];submeshes:Submesh[]};
 type Clip={Name:string;FramesCount:number;AnimationFlags:string;Elements:{Name:string;TargetType:string;PrimitiveType:string;Content:Record<string,CgfxCurve>}[]};
@@ -80,13 +81,20 @@ function textureMatrix(coord:Coord){
  return new THREE.Matrix3().set(sx*c,-sx*s,x,sy*s,sy*c,y,0,0,1);
 }
 const wrap=(value:string)=>value==='Repeat'?THREE.RepeatWrapping:value==='MirroredRepeat'?THREE.MirroredRepeatWrapping:THREE.ClampToEdgeWrapping;
+function texturePixels(image:NativePixels){
+ const pixels=new Uint8Array(image.data.length),stride=image.width*4;
+ for(let row=0;row<image.height;row++)pixels.set(image.data.subarray(row*stride,(row+1)*stride),(image.height-1-row)*stride);
+ return pixels;
+}
 const factor:Record<string,THREE.BlendingDstFactor>={Zero:THREE.ZeroFactor,One:THREE.OneFactor,SourceAlpha:THREE.SrcAlphaFactor,OneMinusSourceAlpha:THREE.OneMinusSrcAlphaFactor,DestinationAlpha:THREE.DstAlphaFactor,OneMinusDestinationAlpha:THREE.OneMinusDstAlphaFactor,SourceColor:THREE.SrcColorFactor,OneMinusSourceColor:THREE.OneMinusSrcColorFactor,DestinationColor:THREE.DstColorFactor,OneMinusDestinationColor:THREE.OneMinusDstColorFactor};
 function matrix(source:Record<string,number>){return new THREE.Matrix4().set(source.M11,source.M21,source.M31,source.M41,source.M12,source.M22,source.M32,source.M42,source.M13,source.M23,source.M33,source.M43,0,0,0,1);}
 
 /** Uses original meshes/combiners/curves and directional LUT lighting; other lighting remains approximate. */
-export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:FirmwareModelPlayback={}){
+export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:FirmwareModelPlayback={},options:{overlayCoverage?:boolean}={}){
  const group=new THREE.Group(),textures:THREE.Texture[]=[],materials:THREE.ShaderMaterial[]=[],geometries:THREE.BufferGeometry[]=[];
- const updaters:((frame:number)=>void)[]=[];
+ const updaters:((frame:number,camera?:THREE.Camera)=>void)[]=[];
+ const textureBindings=new Map<string,THREE.DataTexture[]>(),materialMeshes=new Map<string,THREE.Mesh[]>();
+ const replacementPixels=new Map<string,NativePixels>();
  const select=(playback:FirmwareModelPlayback)=>({skeletal:selectCgfxClips(asset.data.skeletalAnimations,playback.skeletal),material:selectCgfxClips(asset.data.materialAnimations,playback.material)});
  let playback=select(initialPlayback);
  const white=new THREE.DataTexture(new Uint8Array([255,255,255,255]),1,1);white.needsUpdate=true;textures.push(white);
@@ -106,14 +114,19 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
     if(image){
      // PNG rows are top-down; raw GL data starts at the bottom. Preserve RGB
      // under zero alpha while flipping explicitly instead of using a DOM image.
-     const pixels=new Uint8Array(image.data.length),stride=image.width*4;
-     for(let row=0;row<image.height;row++)pixels.set(image.data.subarray(row*stride,(row+1)*stride),(image.height-1-row)*stride);
-     texture=new THREE.DataTexture(pixels,image.width,image.height);texture.colorSpace=THREE.NoColorSpace;texture.wrapS=wrap(m.TextureMappers[i].WrapU);texture.wrapT=wrap(m.TextureMappers[i].WrapV);texture.magFilter=m.TextureMappers[i].MagFilter==='Nearest'?THREE.NearestFilter:THREE.LinearFilter;texture.minFilter=texture.magFilter;texture.generateMipmaps=false;texture.needsUpdate=true;textures.push(texture);
+     const nativeTexture=new THREE.DataTexture(texturePixels(image),image.width,image.height);texture=nativeTexture;texture.colorSpace=THREE.NoColorSpace;texture.wrapS=wrap(m.TextureMappers[i].WrapU);texture.wrapT=wrap(m.TextureMappers[i].WrapV);texture.magFilter=m.TextureMappers[i].MagFilter==='Nearest'?THREE.NearestFilter:THREE.LinearFilter;texture.minFilter=texture.magFilter;texture.generateMipmaps=false;texture.needsUpdate=true;textures.push(texture);
+     const name=m[`Texture${i}Name` as 'Texture0Name'];textureBindings.set(name,[...(textureBindings.get(name)??[]),nativeTexture]);
     }
     uniforms[`tex${i}`]={value:texture};uniforms[`uvMatrix${i}`]={value:textureMatrix(p.TextureCoords[i])};
    }
    const blend=p.BlendFunction;
    const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m,lighting),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
+   // The transparent Canvas bridge needs geometric blend coverage. Preserve
+   // native RGB blending, but do not square alpha as native mt_Text's otherwise
+   // invisible framebuffer-alpha equation does. Other blend families are kept.
+   if(options.overlayCoverage&&blend.ColorSrcFunc==='SourceAlpha'&&blend.ColorDstFunc==='OneMinusSourceAlpha'){
+    material.blendSrcAlpha=THREE.OneFactor;material.blendDstAlpha=THREE.OneMinusSrcAlphaFactor;
+   }
    materials.push(material);return material;
   });
   const bones=model.skeleton.map(()=>new THREE.Matrix4()),inverse=model.skeleton.map(b=>matrix(b.InverseTransform));
@@ -126,10 +139,11 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    geometry.setIndex(sub.indices);const mesh=new THREE.Mesh(geometry,mats[source.material]);mesh.frustumCulled=false;mesh.renderOrder=source.layer*100+source.priority;
    // Empty-folder content slots and text are populated by HOME code, not intrinsic banner artwork.
    if(model.name==='BannerFolder'&&(model.materials[source.material].Name.startsWith('Prize_')||model.materials[source.material].Name==='mt_Text'))mesh.visible=false;
+   const materialName=model.materials[source.material].Name;materialMeshes.set(materialName,[...(materialMeshes.get(materialName)??[]),mesh]);
    modelGroup.add(mesh);drawMeshes.push({geometry,source,sub});
   }
   const position=new THREE.Vector3(),normal=new THREE.Vector3(),transformed=new THREE.Vector3(),rot=new THREE.Quaternion(),scale=new THREE.Vector3(),translation=new THREE.Vector3(),normalMatrix=new THREE.Matrix3();
-  updaters.push(frame=>{
+  updaters.push((frame,camera)=>{
    const values=model.skeleton.map(b=>({scale:{...b.Scale},rotation:{...b.Rotation},translation:{...b.Translation}}));
    for(const selection of playback.skeletal){const {clip}=selection,at=cgfxClipFrame(clip,selection.frame??frame);
     for(const element of clip.Elements){const index=model.skeleton.findIndex(b=>b.Name===element.Name);if(index<0||element.PrimitiveType!=='Transform')continue;const value=values[index];
@@ -138,7 +152,13 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    }
    values.forEach((v,i)=>{translation.set(v.translation.X,v.translation.Y,v.translation.Z);scale.set(v.scale.X,v.scale.Y,v.scale.Z);rot.setFromEuler(new THREE.Euler(v.rotation.X,v.rotation.Y,v.rotation.Z,'ZYX'));bones[i].compose(translation,rot,scale);const parent=model.skeleton[i].ParentIndex;if(parent>=0)bones[i].premultiply(bones[parent]);});
    for(const {geometry,source,sub} of drawMeshes){const dst=geometry.getAttribute('position'),normals=geometry.getAttribute('normal');
-    const matrices=sub.bones.map(index=>sub.skinning==='Smooth'?bones[index].clone().multiply(inverse[index]):bones[index]);
+    const worldView=camera?new THREE.Matrix4().multiplyMatrices(camera.matrixWorldInverse,modelGroup.matrixWorld):undefined;
+    const matrices=sub.bones.map(index=>{
+     let transform=sub.skinning==='Smooth'?bones[index].clone().multiply(inverse[index]):bones[index];
+     const bone=model.skeleton[index],mode=bone.BillboardMode??'Off';
+     if(mode!=='Off'&&worldView){if(mode!=='ScreenViewpoint')throw new Error(`Unsupported native billboard mode ${mode}`);transform=screenViewpointBone(transform,bone.Rotation,worldView);}
+     return transform;
+    });
     for(let i=0;i<source.position.length;i++){
      position.set(0,0,0);normal.set(0,0,0);const count=sub.skinning==='Smooth'?4:1;
      for(let j=0;j<count;j++){const weight=count===1?1:source.weights[i][j];if(!weight)continue;const bone=matrices[source.joints[i][j]??0]??matrices[0]??new THREE.Matrix4();position.addScaledVector(transformed.fromArray(source.position[i]).applyMatrix4(bone),weight);normalMatrix.getNormalMatrix(bone);normal.addScaledVector(transformed.fromArray(source.normal[i]).applyMatrix3(normalMatrix),weight);}
@@ -168,5 +188,15 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    materialCopies.forEach((m,index)=>m.MaterialParams.TextureCoords.forEach((coord,i)=>{mats[index].uniforms[`uvMatrix${i}`].value=textureMatrix(coord);}));
   });
  }
- return {group,setPlayback(next:FirmwareModelPlayback){playback=select(next);},update(elapsedMs:number){for(const update of updaters)update(elapsedMs*60/1000);},dispose(){textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());}};
+ return {group,setPlayback(next:FirmwareModelPlayback){playback=select(next);},
+  setTexture(name:string,image:NativePixels){
+   const targets=textureBindings.get(name),record=asset.data.textures.find(t=>t.name===name);
+   if(!targets?.length||!record)return false;
+   if(image.width!==record.width||image.height!==record.height||image.data.length!==record.width*record.height*4)throw new Error(`Native replacement texture dimensions differ: ${name}`);
+   if(replacementPixels.get(name)===image)return true;
+   const pixels=texturePixels(image);for(const texture of targets){texture.image={data:pixels,width:image.width,height:image.height};texture.needsUpdate=true;}replacementPixels.set(name,image);return true;
+  },
+  setMaterialVisible(name:string,visible:boolean){const meshes=materialMeshes.get(name);meshes?.forEach(mesh=>{mesh.visible=visible;});return !!meshes?.length;},
+  update(elapsedMs:number,camera?:THREE.Camera){group.updateWorldMatrix(true,true);camera?.updateWorldMatrix(true,false);for(const update of updaters)update(elapsedMs*60/1000,camera);},
+  dispose(){replacementPixels.clear();textureBindings.clear();materialMeshes.clear();textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());}};
 }

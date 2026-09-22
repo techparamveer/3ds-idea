@@ -5,6 +5,7 @@ import { getHomeFooter, getHomePresentation, type HomePresentation } from './hom
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices, keyboardKeys } from './state';
 import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
+import type { NativePixels } from './native-layout';
 export { loadFirmwarePresentationAssets, type FirmwarePresentationAssets } from './firmware-presentation';
 type Context = CanvasRenderingContext2D;
 type NativeHome=ReturnType<typeof createFirmwareHome>;
@@ -214,7 +215,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -238,11 +239,12 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white')options.drawHomeBackground?.(t,time,reduced);if(!nativeHome?.hud(t,date,time))status(t,date,chrome);
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&state.system?.phase!=='launch')graphics.banner(t,app,time,reduced);
   if(!state.opened&&isFolder(state.selected,state)&&!state.panel){
-   if(!options.drawFolderBanner?.(t,time,reduced)){
+   const name=state.folders[state.selected],label=nativeHome?.folderBannerLabel(name),nativeDrawn=options.drawFolderBanner?.(t,time,reduced,label);
+   if(!nativeDrawn){
    t.save();t.shadowColor='#626d8a50';t.shadowBlur=12;t.shadowOffsetY=10;
    folder(t,200,115+Math.sin(time/800)*2,91,state.folders[state.selected],Math.sin(time/1500)*.32);t.restore();
    if(firmwareAssets&&!firmwareAssets.diagnostics.includes('Native folder model unavailable; drawing reconstructed fallback.'))firmwareAssets.diagnostics.push('Native folder model unavailable; drawing reconstructed fallback.');}
-   const name=state.folders[state.selected];if(name){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,name,200,196,16,palette.ink,'center');}
+   if(name&&(!nativeDrawn||!label)){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,name,200,196,16,palette.ink,'center');}
   }
   if(state.panel){
    const panels=['notes','friends','notifications','browser','miiverse'];

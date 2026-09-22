@@ -86,6 +86,35 @@ test('window raster uses four strips and preserves transparent content',()=>{
 });
 const resourceRoot=process.env.FIRMWARE_PRESENTATION_ASSETS??resolve('public/os/firmware/10.7.0-32E');
 const available=existsSync(resolve(resourceRoot,'packs/home/launcher.json'));
+test('real balloon preserves parent/child positioning, pointer anchors and authored fade resources',{skip:!available},()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/launcher.json'))),original=pack.layouts.LncBlln_00;
+ const base=original.roots[0].children[0],body=base.children[0];
+ assert.equal(base.name,'N_Base_00');assert.equal(base.flags&2,2);
+ assert.deepEqual([body.name,body.translation],['N_LR_00',[-0,-6,0]]);
+ assert.deepEqual(base.children.slice(1).map(p=>[p.name,p.translation,p.size]),[
+  ['P_PntShdw_00',[0,9,0],[16,26]],['P_Pnt_00',[0,9,0],[16,21]]
+ ]);
+ const text=body.children.find(p=>p.name==='T_Blln_00');
+ assert.deepEqual([text.translation,text.size],[[0,46,0],[248,56]]);
+ for(const [name,frames,values] of [['Appear',6,[0,255]],['DisAppear',6,[255,0]],['SceneIn',11,[0,255]],['SceneOut',11,[255,0]]]){
+  const clip=pack.animations['LncBlln_00_'+name];
+  assert.deepEqual([clip.frames,clip.loop,clip.childBinding,clip.groups],[frames,false,true,['G_Scene_00']]);
+  assert.equal(clip.tracks.length,1);const track=clip.tracks[0];
+  assert.deepEqual([track.target,track.property,track.interpolation],['N_Base_00','alpha','hermite']);
+  assert.deepEqual(track.keys,[{frame:0,slope:0,value:values[0]},{frame:frames-1,slope:0,value:values[1]}]);
+  assert.equal(sampleNativeTrack(track,(frames-1)/2),127.5);
+ }
+ for(const [anchor,offset,worldBody] of [[-84,76,-8],[0,0,0],[4,4,8],[84,-76,8]]){
+  const posed=poseNativeLayout(original,pack.animations,[{name:'LncBlln_00_Appear',frame:5}],{
+   N_Base_00:{translation:[anchor,0,0]},N_LR_00:{translation:[offset,-6,0]}
+  }),base=posed.roots[0].children[0],body=base.children[0];
+  assert.equal(base.alpha,255);assert.equal(base.translation[0]+body.translation[0],worldBody);
+  assert.equal(base.translation[1]+body.translation[1]+text.translation[1],40);
+  assert.ok(base.children.slice(1).every(p=>p.translation[0]===0&&p.translation[1]===9));
+  assert.deepEqual(body.children,original.roots[0].children[0].children[0].children);
+ }
+ assert.deepEqual(base.translation,[0,0,0]);assert.deepEqual(body.translation,[-0,-6,0]);
+});
 test('real folder glyph target and stationary/pickup materials retain native metrics and RGBA under an alpha-only mask',{skip:!available},()=>{
  const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/launcher.json'))),target=pack.layouts.LncIconFolderText_00;
  const text=target.roots[0].children.find(p=>p.name==='T_Icon_00');

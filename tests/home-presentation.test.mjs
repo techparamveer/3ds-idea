@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame} from '../src/os/home-presentation.ts';
+import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame,nativeFolderBalloonPosition} from '../src/os/home-presentation.ts';
 import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
 import {homeTouchLocation} from '../src/os/home-gestures.ts';
@@ -17,15 +17,23 @@ test('pressed tile follows runtime pointer source without changing keyboard sele
 test('native density shares the first size across one/two rows then selects smaller keys',()=>{
  assert.deepEqual([1,2,3,4,5,6].map(nativeHomeDensityFrame),[1,1,2,3,4,5]);
 });
-test('one-row folder balloon follows shared tile positions and disappears at two rows and during gestures',()=>{
+test('balloon position matches execution of native ARM including the interior branch and boundary discontinuities',()=>{
+ // 0x1e6758..0x1e67c8 executed from the pinned HOME code.bin; see provenance doc.
+ for(const [anchor,offset] of [[-244,236],[-160,152],[-84,76],[-8.000999450683594,.00099945068359375],[-8,-8],[-4,-4],[0,0],[4,4],[8,8],[8.000999450683594,-.00099945068359375],[84,-76],[160,-152],[244,-236]]){
+  assert.deepEqual(nativeFolderBalloonPosition(anchor),{baseX:anchor,bodyOffsetX:offset});
+ }
+});
+test('settled one-row folder balloon follows native placement with conservative gesture suppression',()=>{
  const initial=home(),state={...initial,columns:3,selected:2,folders:{2:'１ (New Folder)'},system:{...initial.system,homeNavigation:{scrollColumn:0,gesture:null}}};
  const view=getHomePresentation(state),tile=view.tiles.find(t=>t.index===2);
  assert.deepEqual([tile.x,tile.y,tile.size],[208,125,72]);
- assert.deepEqual(getNativeFolderBalloon(state,view),{label:state.folders[2],bodyX:8,pointerX:84});
- assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,x:124}]}),{label:state.folders[2],bodyX:0,pointerX:0});
- assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,folderLabel:''}]}),{label:'',bodyX:8,pointerX:84});
+ assert.deepEqual(getNativeFolderBalloon(state,view),{label:state.folders[2],baseX:84,bodyOffsetX:-76});
+ assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,x:124}]}),{label:state.folders[2],baseX:0,bodyOffsetX:0});
+ assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,folderLabel:''}]}),{label:'',baseX:84,bodyOffsetX:-76});
+ assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,x:128,y:80}]}),{label:state.folders[2],baseX:4,bodyOffsetX:4},'native updater has no invented tile-Y gate');
  for(const columns of [4,6,8,10,12]){const dense={...state,columns};assert.equal(getNativeFolderBalloon(dense,getHomePresentation(dense)),null);}
  const pressed=touch(state,'down',point(state,2),100);assert.equal(getNativeFolderBalloon(pressed,getHomePresentation(pressed)),null);
+ const vacant={...state,selected:1};assert.equal(getNativeFolderBalloon(vacant,getHomePresentation(vacant)),null);
  assert.equal(getNativeFolderBalloon({...state,opened:true},view),null);assert.equal(getNativeFolderBalloon({...state,panel:'settings'},view),null);
 });
 test('one-row lift and drop uses the lower drawn tiles while label space stays untargetable',()=>{

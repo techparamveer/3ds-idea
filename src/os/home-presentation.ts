@@ -22,15 +22,27 @@ export function getHomePresentation(state:MenuState){
 }
 export type HomePresentation=ReturnType<typeof getHomePresentation>;
 
-/** Source balloon placement in native one-row mode.
- * Body and pointer move independently. The bounded horizontal clamp interpolates
- * the centre/right native captures; two-row captures show no lower balloon. */
+/** HOME 0x1e6758..0x1e67c8, width initialized to 256 at 0x2b4920.
+ * Preserve the native interior branch: it retains the anchor as child offset,
+ * so this is not equivalent to clamping the final body center near zero.
+ */
+export function nativeFolderBalloonPosition(anchor:number){
+ const baseX=Math.fround(anchor),halfWidth=128,bound=136;
+ let bodyOffsetX=baseX;
+ if(Math.fround(baseX-halfWidth)<-bound)bodyOffsetX=Math.fround(-bound+halfWidth-baseX);
+ else if(Math.fround(baseX+halfWidth)>bound)bodyOffsetX=Math.fround(bound-halfWidth-baseX);
+ return {baseX,bodyOffsetX};
+}
+
+/** Settled folder subset of the native lower balloon; transition state is owned
+ * by the runtime. See docs/native-folder-balloon.md for the source predicate. */
 export function getNativeFolderBalloon(state:MenuState,view:HomePresentation){
+ // Gesture suppression is the existing conservative adapter, not the full native
+ // mode predicate. Exact fade/target-density state must come from the runtime.
  if(state.opened||state.panel||view.gesture||view.rows!==1)return null;
  const tile=view.tiles.find(tile=>tile.index===state.selected);
- if(tile?.folderLabel===null||tile?.folderLabel===undefined||tile.y<120)return null;
- const x=tile.x+tile.size/2;if(x<0||x>320)return null;
- return {label:tile.folderLabel,bodyX:Math.max(152,Math.min(168,x))-160,pointerX:x-160};
+ if(tile?.folderLabel===null||tile?.folderLabel===undefined)return null;
+ return {label:tile.folderLabel,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
 }
 
 /** Footer actions follow the runtime's currently selected container. */

@@ -89,7 +89,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function folderBalloon(ctx:Context,state:MenuState,view:HomePresentation){
   const label=getNativeFolderBalloon(state,view);if(!label)return false;
   return renderer.draw(ctx,'launcher','LncBlln_00',{bindings:[binding('LncBlln_00_Appear',5)],overrides:{
-   N_LR_00:{translation:[label.bodyX,-6,0]},T_Blln_00:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)'),P_Pnt_00:{translation:[label.pointerX,9,0]},P_PntShdw_00:{translation:[label.pointerX,9,0]}
+   N_Base_00:{translation:[label.baseX,0,0]},N_LR_00:{translation:[label.bodyOffsetX,-6,0]},T_Blln_00:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)')
   }});
  }
  function hud(ctx:Context,date:Date,time:number){

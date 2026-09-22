@@ -12,6 +12,38 @@ const material=()=>({name:'test',bufferColor:[0,0,0,0],constantColors:Array.from
 const pane=(name,children=[])=>({kind:'pan1',name,flags:1,origin:4,alpha:255,translation:[0,0,0],rotation:[0,0,0],scale:[1,1],size:[20,20],children});
 const layout=()=>({canvas:{width:320,height:240,origin:1},roots:[pane('root',[pane('selected',[pane('child')]),pane('unrelated')])],materials:[],textures:[],fonts:[],groups:[{name:'selection',panes:['selected'],children:[]}],unsupported:[]});
 const track=(target,value)=>({target,binding:'pane',property:'translation.x',index:0,component:0,interpolation:'step',keys:[{frame:0,value}]});
+test('native folder glyph compositor retains RGBA4444 coverage, ordered outline distances and hidden RGB',()=>{
+ const mask={width:32,height:32,data:new Uint8ClampedArray(4096)};
+ const at=(x,y)=>(y*32+x)*4,pixel=(image,x,y)=>[...image.data.slice(at(x,y),at(x,y)+4)];
+ mask.data[at(16,16)+2]=255;
+ const original=mask.data.slice(),glyph=api.nativeFolderGlyphPixels(mask);
+ assert.deepEqual(pixel(glyph,16,16),[85,85,85,221]);
+ assert.deepEqual(pixel(glyph,15,16),[255,255,255,204]);
+ assert.deepEqual(pixel(glyph,14,15),[255,255,255,153]);
+ assert.deepEqual(pixel(glyph,14,14),[255,255,255,34]);
+ assert.deepEqual(pixel(glyph,13,16),[204,221,238,0]);
+ assert.deepEqual(mask.data,original);
+ mask.data.fill(0);mask.data[at(0,0)+2]=8;
+ const edge=api.nativeFolderGlyphPixels(mask);
+ assert.deepEqual(pixel(edge,0,0),[238,238,238,221]);
+ assert.deepEqual(pixel(edge,1,0),[255,255,255,204]);
+ assert.deepEqual(pixel(edge,2,0),[255,255,255,17]);
+ assert.deepEqual(pixel(edge,2,2),[204,221,238,0]);
+ mask.data.fill(0);mask.data[at(16,16)+2]=7;
+ assert.ok(api.nativeFolderGlyphPixels(mask).data.every((v,i)=>v===[204,221,238,0][i%4]));
+ assert.throws(()=>api.nativeFolderGlyphPixels({...mask,width:31}),/Invalid native folder glyph mask/);
+});
+test('per-pane texture sampler bindings keep shared materials independent and preserve native UV sets',()=>{
+ const l=layout(),a=l.roots[0].children[0],b=l.roots[0].children[1],m=material();
+ l.textures=['dummy'];m.textureMaps=[{texture:0},{texture:0}];l.materials=[m];
+ a.picture={material:0,colors:nativeWhite,uvSets:[[0,0,1,0,0,1,1,1]]};b.picture=structuredClone(a.picture);
+ const before=JSON.stringify(l);
+ const posed=poseNativeLayout(l,{},[],{selected:{textureBindings:{0:'glyph',1:'mask'}}}),p=posed.roots[0].children[0];
+ assert.deepEqual(posed.materials[p.picture.material].textureMaps.map(t=>posed.textures[t.texture]),['glyph','mask']);
+ assert.equal(posed.roots[0].children[1].picture.material,0);assert.deepEqual(posed.materials[0].textureMaps.map(t=>t.texture),[0,0]);
+ assert.deepEqual(p.picture.uvSets,a.picture.uvSets);assert.equal(JSON.stringify(l),before);
+ assert.throws(()=>poseNativeLayout(l,{},[],{selected:{textureBindings:{2:'missing'}}}),/Missing native texture sampler/);
+});
 test('Hermite discontinuities preserve incoming/outgoing keys and step timing',()=>{
  const t={interpolation:'hermite',keys:[{frame:0,value:0,slope:0},{frame:10,value:10,slope:0},{frame:10,value:20,slope:0},{frame:20,value:40,slope:0}]};
  assert.equal(sampleNativeTrack(t,5),5);assert.equal(sampleNativeTrack(t,10),20);assert.equal(sampleNativeTrack(t,15),30);
@@ -54,6 +86,19 @@ test('window raster uses four strips and preserves transparent content',()=>{
 });
 const resourceRoot=process.env.FIRMWARE_PRESENTATION_ASSETS??resolve('public/os/firmware/10.7.0-32E');
 const available=existsSync(resolve(resourceRoot,'packs/home/launcher.json'));
+test('real folder glyph target and stationary/pickup materials retain native metrics and RGBA under an alpha-only mask',{skip:!available},()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/launcher.json'))),target=pack.layouts.LncIconFolderText_00;
+ const text=target.roots[0].children.find(p=>p.name==='T_Icon_00');
+ assert.deepEqual([target.canvas.width,target.canvas.height,text.size,text.text.size,text.text.alignment,text.text.lineAlignment],[32,32,[30,30],[25,30],4,2]);
+ assert.equal(pack.textures['IconMask.bclim'].picaFormat,11);
+ const glyph=[85/255,85/255,85/255,221/255],mask=[0,0,0,1];
+ for(const name of ['LncIconDist_01','LncIconFolderPickUp_00']){
+  const material=pack.layouts[name].materials.find(m=>m.name==='P_Icon_00');
+  const result=evaluateNativeMaterial(material,[glyph,mask,[.1,.2,.3,.4]]);
+  result.forEach((value,i)=>assert.ok(Math.abs(value-glyph[i])<1e-12,`${name}/${i}`));
+  assert.equal(evaluateNativeMaterial(material,[[.8,.8,.8,0],mask,[1,1,1,1]])[3],0);
+ }
+});
 test('real HOME cursor bindings/materials render finite pixels with transparent centre', {skip:!available}, async()=>{
  const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/launcher.json')));
  const l=poseNativeLayout(pack.layouts.LncCsr_00,pack.animations,[{name:'LncCsr_00_Scale',frame:2},{name:'LncCsr_00_Loop',frame:30}]);

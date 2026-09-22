@@ -10,7 +10,7 @@ export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:N
 export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
 export type NativeLayout={canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
 export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number;picaFormat?:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
-export type PaneOverrides=Record<string,{text?:string;messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number}>;
+export type PaneOverrides=Record<string,{text?:string;messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number;textureBindings?:Record<number,string>}>;
 export type AnimationBinding={name:string;frame:number;groups?:string[]};
 /** HOME RI_mstl changes font metrics and spacing only; unresolved words stay uninterpreted. */
 export function nativeTextMetrics(text:NativeText,font:{width?:number;height:number}){
@@ -86,6 +86,14 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
   if(value.visible!==undefined)pane.flags=value.visible?pane.flags|1:pane.flags&~1;
   if(value.alpha!==undefined)pane.alpha=value.alpha;
   if(value.translation)pane.translation=[...value.translation];if(value.scale)pane.scale=[...value.scale];if(value.size)pane.size=[...value.size];
+  if(value.textureBindings&&pane.picture){
+   const material=structuredClone(posed.materials[pane.picture.material]);
+   for(const [slot,texture] of Object.entries(value.textureBindings)){
+    const map=material.textureMaps[Number(slot)];if(!map)throw new Error(`Missing native texture sampler ${name}/${slot}`);
+    let index=posed.textures.indexOf(texture);if(index<0){index=posed.textures.length;posed.textures.push(texture);}map.texture=index;
+   }
+   pane.picture.material=posed.materials.length;posed.materials.push(material);
+  }
  }
  return posed;
 }
@@ -126,6 +134,33 @@ export function evaluateNativeMaterial(material:NativeMaterial, textures:number[
  return previous;
 }
 export type NativePixels={width:number;height:number;data:Uint8ClampedArray};
+/** HOME 10.7's 0x202940 first-character outline pass. Input is the decoded
+ * 32×32 RGB565 target; output is one decoded RGBA4444 atlas cell. Badge mode
+ * uses different tables and is deliberately outside this path.
+ */
+export function nativeFolderGlyphPixels(mask:NativePixels):NativePixels {
+ if(mask.width!==32||mask.height!==32||mask.data.length!==4096)throw new Error('Invalid native folder glyph mask');
+ const fill=[0xeeed,0xeeed,0xeeed,0xdddd,0xdddd,0xdddd,0xdddd,0xcccd,0xcccd,0xcccd,0xbbbd,0xbbbd,0xbbbd,0xaaad,0xaaad,0xaaad,0x999d,0x999d,0x999d,0x888d,0x888d,0x888d,0x777d,0x777d,0x777d,0x666d,0x666d,0x666d,0x555d,0x555d,0x555d,0x555d];
+ const edge=[0xfffc,0xfffc,0xfffc,0xfffb,0xfffb,0xfffb,0xfffa,0xfffa,0xfff9,0xfff9,0xfff9,0xfff8,0xfff8,0xfff7,0xfff7,0xfff7,0xfff6,0xfff6,0xfff6,0xfff5,0xfff5,0xfff4,0xfff4,0xfff4,0xfff3,0xfff3,0xfff2,0xfff2,0xfff2,0xfff1,0xfff1,0xfff1];
+ // Ordered distance records at 0x3137b4; the four boundary-row tables omit
+ // neighbours outside Y before the native X clamp and early exit.
+ const neighbours=[[-1,0,32],[1,0,32],[0,-1,32],[0,1,32],[1,1,45],[1,-1,45],[-1,1,45],[-1,-1,45],[-2,0,64],[2,0,64],[0,-2,64],[0,2,64],[2,1,72],[2,-1,72],[-1,2,72],[1,2,72],[-2,1,72],[-2,-1,72],[-1,-2,72],[1,-2,72],[2,2,90],[2,-2,90],[-2,2,90],[-2,-2,90]];
+ const coverage=(x:number,y:number)=>mask.data[(y*32+x)*4+2]>>3,data=new Uint8ClampedArray(4096);
+ for(let y=0;y<32;y++)for(let x=0;x<32;x++){
+  const level=coverage(x,y);let packed=fill[level];
+  if(!level){
+   let nearest=0x7fffffff;
+   for(const [dx,dy,distance] of neighbours){
+    if(y+dy<0||y+dy>=32||distance>nearest)continue;
+    const value=coverage(Math.min(31,Math.max(0,x+dx)),y+dy);if(!value)continue;
+    const candidate=distance+31-value;if(candidate<nearest){nearest=candidate;if(nearest<64)break;}
+   }
+   packed=nearest>=96?0xcde0:nearest<64?0xfffc:edge[nearest-64];
+  }
+  const at=(y*32+x)*4;data[at]=(packed>>12)*17;data[at+1]=(packed>>8&15)*17;data[at+2]=(packed>>4&15)*17;data[at+3]=(packed&15)*17;
+ }
+ return {width:32,height:32,data};
+}
 /** BCLIM delivery uses white preview masks; PICA A8/A4 sample zero RGB.
  * Keep PNG decoding lossless and font atlas tinting separate from GPU sampling.
  */

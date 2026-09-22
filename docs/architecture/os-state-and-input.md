@@ -82,6 +82,12 @@ it to the injected folder callback. The scene owns dynamic texture upload, bone
 billboarding and the transparent-target coverage transfer back to Canvas. This
 keeps fonts/layouts out of the Three.js model renderer.
 
+Lower folder first-character surfaces use the source 32×32 font target and the
+pure native outline pass in `native-layout.ts`. Presentation caches at most 64
+immutable glyph cells; `native-renderer.ts` binds them per draw and keys its
+bounded raster cache by texture identity. Sampler overrides isolate each pane's
+material. See [`../native-folder-glyph.md`](../native-folder-glyph.md).
+
 ## Firmware application foundation
 
 `app-types.ts` defines renderer-independent application state, effects and views.

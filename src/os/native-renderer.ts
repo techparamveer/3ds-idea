@@ -3,7 +3,7 @@ import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, native
  type AnimationBinding, type NativeLayout, type NativePack, type NativePane, type NativePicture, type NativePixels, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
-export type NativeDrawOptions={bindings?:AnimationBinding[];overrides?:PaneOverrides;center?:[number,number];scale?:number;clip?:[number,number,number,number]};
+export type NativeDrawOptions={bindings?:AnimationBinding[];overrides?:PaneOverrides;center?:[number,number];scale?:number;clip?:[number,number,number,number];textures?:Readonly<Record<string,NativePixels>>};
 const surface=(width:number,height:number)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;return canvas;};
 /** Canvas owns only layout targets. The scene owns all 3D banner rendering. */
 export class NativeLayoutRenderer {
@@ -11,6 +11,8 @@ export class NativeLayoutRenderer {
  private opaque=new WeakSet<HTMLCanvasElement>();
  private poses=new Map<string,NativeLayout>();
  private bytes=0;
+ private textureIds=new WeakMap<NativePixels,number>();
+ private nextTextureId=1;
  private blendTarget?:HTMLCanvasElement;
  private disposed=false;
  readonly diagnostics:string[]=[];
@@ -22,13 +24,17 @@ export class NativeLayoutRenderer {
   while(this.bytes+size>this.cacheLimit&&this.cache.size){const first=this.cache.entries().next().value!;this.bytes-=first[1].width*first[1].height*4;first[1].width=first[1].height=0;this.cache.delete(first[0]);}
   if(size<=this.cacheLimit){this.cache.set(key,canvas);this.bytes+=size;}return canvas;
  }
- private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number) {
+ private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number,textures:ReadonlyMap<string,NativePixels>) {
   const w=Math.max(1,Math.ceil(width)),h=Math.max(1,Math.ceil(height));
   if(w*h>1024*1024)throw new Error('Native pane exceeds raster budget');
   const material=layout.materials[picture.material];
-  const key=JSON.stringify([pack,material,picture.colors,picture.uvSets,w,h,alpha,layout.textures]);
+  // Dynamic textures are immutable snapshots. Identity isolates simultaneous folder
+  // glyphs and renames without retaining their byte arrays in the raster cache.
+  const textureIds=material.textureMaps.map(map=>{const pixels=textures.get(layout.textures[map.texture]);if(!pixels)return 0;
+   let id=this.textureIds.get(pixels);if(id===undefined){id=this.nextTextureId++;this.textureIds.set(pixels,id);}return id;});
+  const key=JSON.stringify([pack,material,picture.colors,picture.uvSets,w,h,alpha,layout.textures,textureIds]);
   return this.cached(key,()=>{
-   const pixels=rasterNativePicture(layout,picture,w,h,this.textures[pack],alpha),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
+   const pixels=rasterNativePicture(layout,picture,w,h,textures,alpha),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
    const data=ctx.createImageData(w,h);data.data.set(pixels.data);
    // Project native LCD RGB to opaque Canvas for no-blend and multiplicative
    // masks. Their RGB remains meaningful under alpha zero (LA4 shadow masks).
@@ -91,8 +97,11 @@ export class NativeLayoutRenderer {
   else{for(const binding of options.bindings??[]){const animation=pack.animations[binding.name];if(animation)for(const message of nativeAnimationDiagnostics(original,animation))this.report(`${layoutName}: ${message}`);}
    posed=poseNativeLayout(original,pack.animations,options.bindings,options.overrides);if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(poseKey,posed);}
   const layout=posed;
+  // Bind replacements for this draw only; shared source packs/textures stay intact.
+  const textures=options.textures?new Map([...this.textures[packName],...Object.entries(options.textures)]):this.textures[packName];
   ctx.save();
   try{
+   for(const pixels of Object.values(options.textures??{}))if(!Number.isInteger(pixels.width)||!Number.isInteger(pixels.height)||pixels.width<1||pixels.height<1||pixels.width*pixels.height>1024*1024||pixels.data.length!==pixels.width*pixels.height*4)throw new Error('Invalid dynamic native texture');
    if(options.clip){ctx.beginPath();ctx.rect(...options.clip);ctx.clip();}
    const center=options.center??[layout.canvas.width/2,layout.canvas.height/2];ctx.translate(...center);ctx.scale(options.scale??1,options.scale??1);
    const visit=(pane:NativePane,parentAlpha:number)=>{
@@ -106,11 +115,11 @@ export class NativeLayoutRenderer {
      if(w>0&&h>0&&alpha>0){
       ctx.save();ctx.translate(x,y);
       try{
-       if(pane.picture){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha),0,0,w,h,layout,pane.picture.material);}
+       if(pane.picture){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material);}
        if(pane.text){ctx.beginPath();ctx.rect(0,0,w,h);ctx.clip();this.composite(ctx,this.text(layout,pane,alpha),0,0,w,h,layout,pane.text.material);}
-       if(pane.window)for(const patch of nativeWindowPatches(pane,layout,this.textures[packName])){
+       if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;
-        this.composite(ctx,this.picture(packName,layout,patch.picture,patch.width,patch.height,alpha),patch.x,patch.y,patch.width,patch.height,layout,patch.picture.material);
+        this.composite(ctx,this.picture(packName,layout,patch.picture,patch.width,patch.height,alpha,textures),patch.x,patch.y,patch.width,patch.height,layout,patch.picture.material);
        }
       }finally{ctx.restore();}
      }

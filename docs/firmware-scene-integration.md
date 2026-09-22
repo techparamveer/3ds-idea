@@ -39,14 +39,47 @@ an audio fidelity sign-off. Compression and measured playback timing remain open
   and `data-vgpu=ready`, no error overlay or captured browser errors. Real keyboard
   selection and portfolio launch reached the expected title. Native HOME music
   and ten effects decoded. This is a functional smoke check, not reference parity.
-- Azahar 2126.1.2 booted EUR HOME with an isolated profile and original-3DS mode.
-  Computer-use touchscreen coordinates failed window lookup, and reliable native
-  framebuffer/audio/timing capture remains unfinished. Do not infer 1:1 fidelity.
+- After native message-style and material-byte rounding integration, all 240
+  integration tests and nonincremental type checking passed. The independent CTM
+  helper subsequently passed its 11 focused tests in the integration worktree.
+- Azahar 2126.1.2 produced native 400×480 HOME screenshots using its Capture
+  Screenshot action. The lower 320×240 viewport begins at (40,240). A first
+  two-row comparison identified incorrect ordinary icon backplates/density and
+  material constant handling. These are open visual defects at this checkpoint.
+- Native movie recording captured 27,596 pad/touch pairs. The attempted computer-use
+  touchscreen event was absent from that recording. A derived CTM played through
+  the official `--movie-play` route and visibly dismissed a notification and moved
+  selection to empty slots. Persisted notification state changes subsequent replay
+  behavior; exact profile/content state must accompany each scenario.
+- Compatible FFmpeg 6 libraries enabled native audio dumping. The first 123-second
+  capture contains stereo Vorbis audio at 32,728 Hz, but its Vulkan video stream has
+  no packets. Use native screenshots for visual comparison. The lossy recording
+  identifies the expected HOME music/tempo, but cannot establish PCM parity.
+  Native pan/aux evidence and measured level/stereo differences remain open.
 
 Evidence is under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`:
 `integration-tests.log`, `integration-focused.log`, `integration-build.log`,
 `browser-first-integrated.png`, `audio/cues-full/`, and `reference/`.
+The newer evidence includes `integration-native-checkpoint-tests.log`,
+`integration-native-checkpoint-typecheck.log`, `integration-ctm-tests.log`,
+`home-comparison-first/`, `runtime/reference/`, and `assets/audio-research/`.
+
+`scripts/compare-firmware-screens.mjs` normalizes the native composite and browser
+canvases, records source hashes, writes native/browser/difference strips and RGB
+region measurements under the SSD artifact root. It accepts optional region JSON
+(`name`, `screen`, `bounds: [x,y,width,height]`, optional explanatory fields) and
+does not declare acceptance from a numeric threshold. Portfolio artwork, clock,
+connectivity state and animation phase require explicit interpretation.
+
+Example (all paths are local capture files):
+
+```sh
+node scripts/compare-firmware-screens.mjs --native NATIVE.png \
+  --browser-top BROWSER-TOP.png --browser-bottom BROWSER-BOTTOM.png \
+  --suite home-comparison-first
+```
+
 The full app groups, native offline flows, native keyboard/dialogs, permission UI,
 mobile/reduced-motion/fallback checks, cleanup profiling and final PR remain
 required. Existing stock application scaffolds are not accepted implementations.

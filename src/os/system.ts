@@ -1,23 +1,28 @@
-import { apps, getApp } from './apps.ts';
-import { getTitle, initialAppLayout, homeTitles } from './app-registry.ts';
-import { initialState, reduceMenu, touchMenu, menuTiles, type MenuState, type Input } from './state.ts';
+import { getApp } from './apps.ts';
+import { getTitle, initialAppLayout } from './app-registry.ts';
+import { initialState, reduceMenu, touchMenu, type MenuState, type Input } from './state.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
+import { homeSlotAppId, moveHomeItem, restoreHomeLayout, type FolderLayouts } from './home-layout.ts';
+import { cancelHomeGesture, createHomeNavigation, resetHomeNavigation, tickHomeGesture, touchHomeGesture, homeTouchLocation, type HomeNavigation } from './home-gestures.ts';
+export { homeSlotAppId, moveHomeItem } from './home-layout.ts';
+export { getHomeGestureView } from './home-gestures.ts';
 export type System = {
  phase:'boot'|'home'|'launch'|'app'|'power'|'off'; since:number; sleeping:boolean;
  app:string|null; pending:string|null; item:number; detail:boolean; page:number; photo:number;
  layout:Record<number,string>; muted:boolean; volume:number; dialog:'switch'|'close'|null;
  returnPhase:'home'|'app'; link:string|null; preferences:boolean; preferenceChoice:number;
- runtime: AppRuntime; input: InputLatch;
+ runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation;
 };
-export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch()}};}
+export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation()}};}
 /** Kept for portfolio artwork compatibility; use selectedTitle for every installed title. */
-export function selectedApp(state:MenuState){return getApp(state.system?.layout[state.selected]);}
-export function selectedTitle(state:MenuState){return getTitle(state.system?.layout[state.selected]);}
+export function selectedApp(state:MenuState){return getApp(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
+export function selectedTitle(state:MenuState){return getTitle(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
 export function currentEntry(state:MenuState){const s=state.system;return getApp(s?.app)?.entries[s?.item??0];}
 export function getActiveAppView(state: MenuState, now?: number) { return state.system ? runtimeView(state.system.runtime, now) : null; }
 function syncRuntime(state: MenuState, runtime: AppRuntime, phase?: System['phase']): MenuState {
+ if(runtime.active!==state.system?.runtime.active)state=resetHomeNavigation(state);
  const s=state.system!, application=runtime.application?runtime.instances[runtime.application]:undefined;
  const portfolio=application&&getApp(application.appId)?application.state:null;
  return {...state,system:{...s,runtime,input:runtime.active===s.runtime.active?s.input:createInputLatch(),app:application?.appId??null,phase:phase??(runtime.active?'app':'home'),link:runtime.link,
@@ -29,6 +34,7 @@ function commitRuntime(state: MenuState, runtime: AppRuntime, now: number): Menu
  return next;
 }
 export function launch(state:MenuState,id:string,now:number):MenuState {
+ state=resetHomeNavigation(state);
  const s=state.system!, title=getTitle(id);if(!title)return state;
  if(title.kind!=='application')return invokeSystemApplet(state,id,now);
  if(s.app===id)return {...syncRuntime(state,resumeRuntimeApplication(s.runtime,now),'app'),panel:null};
@@ -37,6 +43,7 @@ export function launch(state:MenuState,id:string,now:number):MenuState {
  return {...started,opened:false,panel:null,system:{...started.system!,since:now,dialog:null,pending:null,input:createInputLatch()}};
 }
 export function invokeSystemApplet(state: MenuState, appId: string, now: number, args: AppState = {}): MenuState {
+ state=resetHomeNavigation(state);
  const s=state.system;if(!s||getTitle(appId)?.kind==='application')return state;
  const next=syncRuntime(state,openApplet(s.runtime,appId,`home:${appId}`,args,now));
  return {...next,panel:null,opened:false,system:{...next.system!,input:createInputLatch()}};
@@ -44,7 +51,8 @@ export function invokeSystemApplet(state: MenuState, appId: string, now: number,
 export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return state;
  if(s.sleeping!==s.runtime.sleeping){state={...state,system:{...s,runtime:setRuntimeSleeping(s.runtime,s.sleeping,now),input:createInputLatch()}};s=state.system!;}
- if(s.sleeping)return state;
+ if(s.sleeping)return cancelHomeGesture(state);
+ state=tickHomeGesture(state,now);s=state.system!;
  const duration=s.phase==='boot'?(reduced?300:3000):s.phase==='launch'?(reduced?120:1100):Infinity;
  if(now-s.since>=duration)return {...state,system:{...s,phase:s.phase==='boot'?'home':'app',runtime:{...s.runtime,lastTick:now}}};
  if(s.phase!=='home'&&s.phase!=='app')return state;
@@ -55,6 +63,9 @@ export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
 }
 export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return !s?reduceMenu(state,input):state;
+ state=cancelHomeGesture(state);
+ if(['left','right','up','down','l','r','open','back','home','zoom','zoom-in','zoom-out','x','select'].includes(input))state=resetHomeNavigation(state);
+ s=state.system!;
  const change=(patch:Partial<System>):MenuState=>({...state,system:{...s!,link:null,...patch}});
  if(input==='power'){
   if(s.phase==='off')return {...state,powered:true,panel:null,system:{...s,phase:'boot',since:now,sleeping:false,app:null,dialog:null,runtime:{...s.runtime,sleeping:false,lastTick:now},input:createInputLatch()}};
@@ -74,7 +85,7 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
   if(input==='up'||input==='down')return change({preferenceChoice:Math.max(0,Math.min(2,s.preferenceChoice+(input==='down'?1:-1)))});
   if(input==='left'||input==='right')return reduceSystem(state,input==='left'?'volume-down':'volume-up',now);
   if(input==='open'&&s.preferenceChoice===2)return reduceSystem(state,'reset-layout',now);
-  if(input==='reset-layout')return {...state,folders:{},selected:0,system:{...s,layout:initialAppLayout()}};
+  if(input==='reset-layout')return {...state,folders:{},selected:0,opened:false,folderSelected:0,system:{...s,layout:initialAppLayout(),folderLayouts:{},homeNavigation:createHomeNavigation()}};
   if(input==='open')return change({muted:!s.muted});return state;
  }
  if(s.phase==='power'){
@@ -98,12 +109,14 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
   const mapping:Partial<Record<Input,import('./app-types.ts').AppCommand>>={left:'left',right:'right',up:'up',down:'down',open:'open',back:'back',x:'x',y:'y',l:'l',r:'r',start:'start',select:'select'};
   const command=mapping[input];return command?commitRuntime(state,dispatchRuntime(s.runtime,{type:'command',command},now),now):state;
  }
- if(input==='open'&&!state.panel&&!state.opened){const title=selectedTitle(state);if(title)return launch(state,title.id,now);}
- if(input==='back'&&!state.panel&&s.app)return change({dialog:'close'});
- return reduceMenu(state,input==='x'?'zoom':input==='y'?'brightness':input==='start'?'open':input==='select'?'zoom':input==='l'?'left':input==='r'?'right':input);
+ if(input==='start')return reduceSystem(state,'open',now);
+ if(input==='open'&&!state.panel){const title=selectedTitle(state);if(title)return launch(state,title.id,now);}
+ if(input==='back'&&!state.panel&&!state.opened&&s.app)return change({dialog:'close'});
+ return reduceMenu(state,input==='x'?'zoom':input==='y'?'brightness':input==='select'?'zoom':input==='l'?'left':input==='r'?'right':input);
 }
 const toolbarApps:Record<string,string>={notes:'game-notes',friends:'friends',notifications:'notifications',browser:'browser',miiverse:'miiverse'};
 export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuState {
+ state=cancelHomeGesture(state);
  const s=state.system;if(!s)return touchMenu(state,x,y);
  if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>=320||y<0||y>=240||s.sleeping||s.phase==='off'||s.phase==='boot'||s.phase==='launch')return state;
  const send=(input:Input)=>reduceSystem(state,input,now);
@@ -121,10 +134,15 @@ export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuSt
   }
   if(y<32)return send(x<160?'up':'down');return state;
  }
- if(!state.panel&&y>=212&&!state.opened&&selectedTitle(state))return x<100&&s.app?{...state,system:{...s,dialog:'close'}}:send('open');
- if(!state.panel&&!state.opened&&y>=33&&y<204){const tile=menuTiles(state).find(t=>x>=t.x&&x<Math.min(308,t.x+t.size)&&y>=t.y&&y<t.y+t.size);if(tile&&s.layout[tile.index])return tile.index===state.selected?send('open'):{...state,selected:tile.index};}
+ if(!state.panel&&y>=212&&selectedTitle(state)){if(state.opened)return send(x<100?'back':'open');return x<100&&s.app?{...state,system:{...s,dialog:'close'}}:send('open');}
+ if(!state.panel&&y>=(state.opened?49:34)&&y<204){
+  if(y>=104&&y<158&&(x<20||x>=300))return send(x<20?'left':'right');
+  const location=homeTouchLocation(state,x,y);if(!location)return state;
+  const selected=state.opened?state.folderSelected:state.selected;
+  return location.slot===selected&&(!state.opened||homeSlotAppId(state,location.slot))?send('open'):{...state,[state.opened?'folderSelected':'selected']:location.slot};
+ }
  if(state.panel==='settings'&&x>=265&&y>=145&&y<201)return send('preferences');
- const next=touchMenu(state,x,y);const target=next.panel&&toolbarApps[next.panel];
+ let next=touchMenu(state,x,y);if(next.opened!==state.opened||next.columns!==state.columns)next=resetHomeNavigation(next);const target=next.panel&&toolbarApps[next.panel];
  return target?invokeSystemApplet({...next,panel:null},target,now):next;
 }
 /** Full pointer/button protocol for scene adapters. Legacy single-command inputs remain supported. */
@@ -135,6 +153,7 @@ export function dispatchSystemEvent(state: MenuState,event: AppEvent,now: number
  if(event.type==='touch'){
   const touched=latchTouch(s.input,event);if(!touched.accepted)return state;
   state={...state,system:{...s,input:touched.latch}};s=state.system!;
+  if(s.phase==='home'&&!s.preferences&&!s.dialog&&!s.sleeping){const result=touchHomeGesture(state,event,now);return result.tap?touchSystem(result.state,event.x,event.y,now):result.state;}
  }
  if(event.type==='button'||event.type==='analog'||event.type==='command'){
   const latched=latchInput(s.input,event,now);let next:MenuState={...state,system:{...s,input:latched.latch}};
@@ -163,25 +182,24 @@ export function setSystemSleeping(state:MenuState,sleeping:boolean,now:number):M
  state=releaseSystemInputs(state,now);return {...state,system:{...state.system!,sleeping,input:createInputLatch(),runtime:setRuntimeSleeping(state.system!.runtime,sleeping,now)}};
 }
 export function releaseSystemInputs(state:MenuState,now=state.system?.runtime.lastTick??0):MenuState {
+ state=cancelHomeGesture(state);
  const s=state.system;if(!s)return state;
  let runtime=s.runtime;
  for(const [source,held]of Object.entries(s.input.held))runtime=dispatchRuntime(runtime,{type:'button',command:held.command,phase:'up',source,activate:false},now);
  if(s.input.touch)runtime=dispatchRuntime(runtime,{type:'touch',phase:'cancel',...s.input.touch},now);
  return {...state,system:{...s,runtime,input:createInputLatch()}};
 }
+/** Legacy root-only entry point; scene input should use the phase protocol instead. */
 export function moveApp(state:MenuState,from:number,to:number):MenuState {
- const s=state.system;if(!s||!Number.isInteger(from)||!Number.isInteger(to)||!s.layout[from]||to<0||to>=300||state.folders[to]!==undefined)return state;
- const layout={...s.layout};const previous=layout[to];layout[to]=layout[from];if(previous)layout[from]=previous;else delete layout[from];
- return {...state,selected:to,system:{...s,layout}};
+ state=resetHomeNavigation(state);
+ return state.system?.layout[from]?moveHomeItem(state,{folder:null,slot:from},{folder:null,slot:to}):state;
 }
 export const STORAGE_KEY='paramveer-3ds-v1';
-export function saveSettings(state:MenuState){const s=state.system!;return JSON.stringify({theme:state.theme,brightness:state.brightness,columns:state.columns,powerSaving:state.powerSaving,folders:state.folders,layout:s.layout,muted:s.muted,volume:s.volume});}
+export function saveSettings(state:MenuState){const s=state.system!;return JSON.stringify({version:2,theme:state.theme,brightness:state.brightness,columns:state.columns,powerSaving:state.powerSaving,folders:state.folders,layout:s.layout,folderLayouts:s.folderLayouts,muted:s.muted,volume:s.volume});}
 export function restoreSettings(state:MenuState,raw:string|null):MenuState {
  if(!raw)return state;
- try{const v=JSON.parse(raw);if(!v.layout||typeof v.layout!=='object'||Array.isArray(v.layout))return state;
- const ids=Object.values(v.layout);if(new Set(ids).size!==ids.length||!apps.every(app=>ids.includes(app.id))||!ids.every(id=>typeof id==='string'&&getTitle(id)?.home)||!Object.keys(v.layout).every(k=>/^(0|[1-9]\d*)$/.test(k)&&+k<300))return state;
- const folders=Object.fromEntries(Object.entries(v.folders??{}).filter(([k,value])=>/^(0|[1-9]\d*)$/.test(k)&&+k<300&&typeof value==='string'&&!v.layout[k]).slice(0,60).map(([k,value])=>[k,String(value).slice(0,16)]));
- const layout:Record<number,string>={...v.layout};for(const title of homeTitles)if(!ids.includes(title.id)){let slot=0;while(layout[slot]||folders[slot]!==undefined)slot++;if(slot<300)layout[slot]=title.id;}
- return {...state,folders,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system!,layout,muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
+ try{const v=JSON.parse(raw),home=restoreHomeLayout(v);if(!home)return state;
+ const {layout,folders,folderLayouts}=home;
+ return {...state,folders,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system!,layout,folderLayouts,homeNavigation:createHomeNavigation(),muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
  }catch{return state;}
 }

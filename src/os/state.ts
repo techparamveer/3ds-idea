@@ -27,14 +27,16 @@ export const densities = [3, 4, 6, 8, 10, 12] as const;
 export function rowCount(state: MenuState) { return [1, 2, 3, 4, 5, 6][Math.max(0, densities.indexOf(state.columns as typeof densities[number]))]; }
 export function pageStart(state: MenuState): number {
   const rows = rowCount(state), selected = state.opened ? state.folderSelected : state.selected;
+  const scroll = state.system?.homeNavigation?.scrollColumn;
+  if (typeof scroll === 'number' && Number.isFinite(scroll)) return Math.max(0, Math.min(Math.max(0, Math.ceil(slotCount(state) / rows) - state.columns), scroll));
   return Math.max(0, Math.min(Math.ceil(slotCount(state) / rows) - state.columns, Math.floor(selected / rows) - Math.floor((state.columns - 1) / 2)));
 }
 export function menuTiles(state: MenuState) {
   const rows = rowCount(state), pitch = rows === 1 ? 84 : 168 / rows, size = pitch - (rows <= 2 ? 12 : 8);
-  const start = pageStart(state), top = (rows === 2 ? 46 : 40) + (168 - rows * pitch) / 2;
-  return Array.from({ length: (state.columns + 1) * rows }, (_, i) => {
+  const scroll = pageStart(state), start = Math.floor(scroll), top = (rows === 2 ? 46 : 40) + (168 - rows * pitch) / 2;
+  return Array.from({ length: (state.columns + 2) * rows }, (_, i) => {
     const col = Math.floor(i / rows), row = i % rows;
-    return { index: (start + col) * rows + row, x: 40 + col * pitch, y: top + row * pitch, size };
+    return { index: (start + col) * rows + row, x: 40 + (col - (scroll - start)) * pitch, y: top + row * pitch, size };
   }).filter(tile => tile.index < slotCount(state) && tile.x < 320);
 }
 export const toolbar = [
@@ -56,8 +58,11 @@ function activatePanel(state: MenuState): MenuState {
   }
   if (state.panel === 'folder-settings') return { ...state, panel: state.panelChoice === 0 ? 'rename' : 'delete', nameDraft: state.folders[state.selected] ?? '', panelChoice: 0 };
   if (state.panel === 'delete') {
+    if (Object.keys(state.system?.folderLayouts?.[state.selected] ?? {}).length) return state;
     const folders = { ...state.folders }; delete folders[state.selected];
-    return { ...state, folders, panel: null, opened: false };
+    const system = state.system ? { ...state.system, folderLayouts: { ...state.system.folderLayouts } } : undefined;
+    if (system) delete system.folderLayouts[state.selected];
+    return { ...state, ...(system ? { system } : {}), folders, panel: null, opened: false };
   }
   return state;
 }

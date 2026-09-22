@@ -17,6 +17,7 @@
 | `animation.ts` | Layout animation sampling utilities |
 | `app-types.ts`, `app-registry.ts`, `app-host.ts` | Firmware contracts, installed titles and applet lifecycle |
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
+| `home-gestures.ts`, `home-layout.ts` | HOME stylus gestures, viewport, folder placement and validated layout saves |
 | `app-persistence.ts` | Versioned IndexedDB saves, preferences and media |
 | `app-capabilities.ts` | Opt-in browser devices, local capture and resource cleanup |
 
@@ -86,7 +87,9 @@ Legacy `reduceSystem` and `touchSystem` calls remain available. An owner change
 clears held controls; the scene calls `releaseSystemInputs(state, now)` on blur,
 pointer loss and teardown. `setSystemSleeping` releases inputs and capabilities.
 Power and preferences overlays suspend the foreground owner and resume it when
-cancelled. HOME drag/folder placement still needs native-reference work.
+cancelled. HOME drag/folder behaviour is centralized in `home-gestures.ts`;
+see [the gesture contract](../home-gesture-runtime.md) for renderer helpers,
+folder restrictions, persistence and explicitly unmeasured timings.
 
 Runtime effects have a monotonic `id` and instance `owner`. A capability's
 `requestId` maps to that effect ID until completion or invalidation. Results

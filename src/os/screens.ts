@@ -1,3 +1,4 @@
+import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics } from './portfolio-screens';
 import { getApp } from './apps';
 import { type MenuState, type Theme, menuTiles, isFolder, pageStart, rowCount, slotCount, themeChoices, keyboardKeys } from './state';
@@ -53,7 +54,7 @@ function cursor(c:Context,x:number,y:number,w:number,h:number,time:number,reduce
   c.beginPath();c.moveTo(px,py+sy*d);c.lineTo(px,py+sy*5);c.quadraticCurveTo(px,py,px+sx*5,py);c.lineTo(px+sx*d,py);c.stroke();
  }c.restore();
 }
-function status(c:Context,date:Date){
+function status(c:Context,date:Date,chrome:ReturnType<typeof createNativeChrome>){
  c.fillStyle=gradient(c,0,22,'#ffffffd9','#ffffff00');c.fillRect(0,0,400,24);
  c.fillStyle='#38b5e8';for(let i=0;i<4;i++)c.fillRect(3+i*5,17-i*4,3,3+i*4);
  rounded(c,26,3,108,14,3,gradient(c,3,14,'#69d2f3','#25a5df'),'#5eb4db');text(c,'Internet',80,10,12,'white','center');
@@ -62,6 +63,7 @@ function status(c:Context,date:Date){
  text(c,d,222,11,13,'#34343b');text(c,`${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`,319,11,13,'#34343b');
  rounded(c,374,4,23,12,1,'#f1f8ff','#454958');c.fillStyle='#464959';c.fillRect(371,7,3,6);
  for(let i=0;i<4;i++)rounded(c,377+i*4,6,3,8,.3,gradient(c,6,8,'#6ce2fb','#1678b4'));
+ chrome.draw(c,'internet-status',0,0);chrome.draw(c,'battery-status',370,0);
 }
 function background(c:Context,state:MenuState,time:number){
  const palette=themes[state.theme];c.fillStyle=gradient(c,0,240,state.theme==='white'?'#f3f2f7':palette.top,palette.top);c.fillRect(0,0,400,240);
@@ -77,9 +79,9 @@ function settingsIcon(c:Context){
  c.beginPath();c.moveTo(-12,-1);c.lineTo(0,-12);c.lineTo(12,-1);c.lineTo(8,-1);c.lineTo(8,10);c.lineTo(2,10);c.lineTo(2,3);c.lineTo(-3,3);c.lineTo(-3,10);c.lineTo(-9,10);c.lineTo(-9,-1);c.fill();
  line(c,[[-7,9],[8,-7]],'#f6f7fa',5);line(c,[[-7,9],[8,-7]],'#91a7bf',2);c.restore();
 }
-function toolbar(c:Context,sprite:HTMLImageElement){
+function toolbar(c:Context,sprite:HTMLImageElement,chrome:ReturnType<typeof createNativeChrome>){
  c.fillStyle=gradient(c,0,33,'#fff','#d7d8dc');c.fillRect(0,0,320,33);
- if(sprite.complete&&sprite.naturalWidth)c.drawImage(sprite,48,0);settingsIcon(c);
+ if(sprite.complete&&sprite.naturalWidth)c.drawImage(sprite,48,0);if(!chrome.draw(c,'settings-glyph',7,0))settingsIcon(c);
  line(c,[[0,32.5],[320,32.5]],'#b6b7bc');
 }
 function button(c:Context,x:number,y:number,w:number,h:number,label:string,active=false){
@@ -87,8 +89,8 @@ function button(c:Context,x:number,y:number,w:number,h:number,label:string,activ
  rounded(c,x,y,w,h,5,gradient(c,y,h,active?'#b1ffba':'#fff',active?'#7cef9e':'#d6d7da'),'#a8a9ae');c.restore();
  text(c,label,x+w/2,y+h/2,14,'#44464b','center');
 }
-function footer(c:Context,state:MenuState){
- c.fillStyle=gradient(c,212,28,'#fff','#c4c5c9');c.fillRect(0,212,320,28);line(c,[[0,212.5],[320,212.5]],'#9c9da4');
+function footer(c:Context,state:MenuState,chrome:ReturnType<typeof createNativeChrome>){
+ c.fillStyle=gradient(c,212,28,'#fff','#c4c5c9');c.fillRect(0,212,320,28);line(c,[[0,212.5],[320,212.5]],'#9c9da4');chrome.draw(c,'home-footer',0,214);
  if(state.system&&!state.opened&&state.system.layout[state.selected]){text(c,state.system.app?'Close software':'',50,226,10);text(c,state.system.app===state.system.layout[state.selected]?'Resume':'Open',212,226,14,'#494b51','center');return;}
  if(state.opened){text(c,'↶',24,226,19);text(c,'Close',170,226,14,'#494b51','center');return;}
  if(isFolder(state.selected,state)){line(c,[[104.5,214],[104.5,240]],'#aaabb2');text(c,'Settings',52,226,13,'#494b51','center');text(c,'Open',212,226,14,'#494b51','center');}
@@ -102,15 +104,15 @@ function arrows(c:Context,state:MenuState){
   const x=right?310:10;c.fillStyle='#91bdb7';c.beginPath();c.moveTo(x+(right?5:-5),131);c.lineTo(x+(right?-3:3),125);c.lineTo(x+(right?-3:3),137);c.fill();c.restore();
  }
 }
-function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>){
+function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>){
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
  const selected=state.opened?state.folderSelected:state.selected;
  for(const tile of menuTiles(state)){
   const {x,y,size,index}=tile;const app=!state.opened?getApp(state.system?.layout[index]):undefined;const occupied=app||(!state.opened&&isFolder(index,state));
   if(occupied){
-   c.save();c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
-   rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();
-   if(app)graphics.icon(c,app,x+size*.06,y+size*.06,size*.88);else folder(c,x+size/2,y+size/2,size*.78,state.folders[index]);
+   if(!chrome.tile(c,x,y,size)){c.save();c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
+   rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();}
+   if(app)graphics.menuIcon(c,app,x,y,size);else folder(c,x+size/2,y+size/2,size*.78,state.folders[index]);
   }else{
    const inset=size*.34,side=size-inset*2;
    rounded(c,x+inset,y+inset,side,side,2,'#d3d4d766','#c8c9cc');
@@ -192,7 +194,7 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
  const output=top.getContext('2d')!,t=native.getContext('2d')!,b=bottom.getContext('2d')!;
- const graphics=createPortfolioGraphics();
+ const graphics=createPortfolioGraphics();const chrome=createNativeChrome();
  const sprite=new Image();sprite.src='/os/home-toolbar.png';
  const themeSprite=new Image();themeSprite.src='/os/change-theme.png';
  const shopSprite=new Image();shopSprite.src='/os/theme-shop.png';
@@ -202,7 +204,7 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
  function paint(state:MenuState,date=new Date(),elapsedMs=0){
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
-  const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);status(t,date);
+  const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);status(t,date,chrome);
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&state.system?.phase!=='launch')graphics.banner(t,app,time,reduced);
   if(isFolder(state.selected,state)&&!state.panel){
    t.save();t.shadowColor='#626d8a50';t.shadowBlur=12;t.shadowOffsetY=10;
@@ -218,9 +220,9 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
     if(sprite.complete&&sprite.naturalWidth){const sx=[12,55,96,138,181][i];t.drawImage(sprite,sx,3,i===4?30:25,25,x-sz*.4,y-sz*.4,sz*.8,sz*.8);}
    }
   }
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);toolbar(b,sprite);grid(b,state,time,reduced,graphics);footer(b,state);panel(b,state,time,reduced,themeSprite,shopSprite);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(state.theme==='white')chrome.draw(b,'icon-tray',0,33);toolbar(b,sprite,chrome);grid(b,state,time,reduced,graphics,chrome);footer(b,state,chrome);panel(b,state,time,reduced,themeSprite,shopSprite);
   graphics.overlay(t,b,state,elapsedMs,reduced);
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
  }
- return {top,bottom,paint,dispose:graphics.dispose,setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready])};
+ return {top,bottom,paint,dispose:graphics.dispose,setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

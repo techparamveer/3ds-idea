@@ -14,9 +14,10 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
 export function createPortfolioGraphics(){
+ const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  const urls=new Set(apps.flatMap(a=>[...(a.icon.startsWith('/')?[a.icon]:[]),...a.entries.flatMap(e=>e.images??[])]));
- const ready=Promise.allSettled([...urls].map(async url=>{const image=new Image();image.src=url;images.set(url,image);await image.decode();}));
+ const ready=Promise.allSettled([...urls].map(async url=>{const image=new Image();image.src=url;images.set(url,image);await image.decode();})).then(()=>{menuIcons.clear();});
  function fit(c:C,url:string,x:number,y:number,w:number,h:number){const im=images.get(url);if(!im?.naturalWidth)return false;const k=Math.min(w/im.naturalWidth,h/im.naturalHeight);c.drawImage(im,x+(w-im.naturalWidth*k)/2,y+(h-im.naturalHeight*k)/2,im.naturalWidth*k,im.naturalHeight*k);return true;}
  function icon(c:C,app:PortfolioApp,x:number,y:number,size:number){
   c.save();c.translate(x,y);c.scale(size/64,size/64);
@@ -30,6 +31,16 @@ export function createPortfolioGraphics(){
   if(app.icon==='person'){c.beginPath();c.arc(32,24,9,0,Math.PI*2);c.fill();c.beginPath();c.ellipse(32,45,16,10,0,Math.PI,0);c.fill();}
   if(app.icon==='mail'){box(c,12,21,40,28,3,'white');c.strokeStyle=app.color;c.beginPath();c.moveTo(13,23);c.lineTo(32,37);c.lineTo(51,23);c.stroke();}
   c.restore();
+ }
+ function menuIcon(c:C,app:PortfolioApp,x:number,y:number,tileSize:number){
+  let canvas=menuIcons.get(app.id);
+  if(!canvas){
+   canvas=document.createElement('canvas');canvas.width=canvas.height=48;
+   const native=canvas.getContext('2d')!;native.scale(48/56,48/56);native.translate(-4,-4);icon(native,app,0,0,64);menuIcons.set(app.id,canvas);
+  }
+  // HOME software artwork is 48×48 inside the 72×72 two-row tile.
+  const size=Math.round(tileSize*2/3);c.save();c.imageSmoothingEnabled=false;
+  c.drawImage(canvas,Math.round(x+(tileSize-size)/2),Math.round(y+(tileSize-size)/2),size,size);c.restore();
  }
  // One small rasterized 3D scene shared by every HOME banner.
  let renderer:THREE.WebGLRenderer|undefined;
@@ -93,5 +104,5 @@ export function createPortfolioGraphics(){
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,banner,overlay,dispose(){renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,banner,overlay,dispose(){renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

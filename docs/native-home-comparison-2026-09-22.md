@@ -63,11 +63,14 @@ glyph rectangles. The bounded correction applies to a centered single line
 with automatic line alignment and zero added spacing; general multiline/control
 code alignment is not accepted by this trace.
 
-The actual browser label-region MAE falls from 1.842374 to **0.069392 / 255**.
-Ink occupies the same native rows 183..195. Seventeen pixels still differ by
-more than three levels, all at the right edge of one lowercase `e`; the maximum
-is 54. Fractional Canvas glyph-edge coverage is under investigation, not silently
-treated as an exact match. Artifacts: `native-text-center-comparison.json`,
+The first centered-placement correction reduces browser label-region MAE from
+1.842374 to 0.069392 / 255. Ink occupies the same native rows 183..195. Its 17
+remaining errors above three levels arise at one fractional glyph boundary.
+Source-confirmed linear alpha sampling with native pixel-centre quad coverage
+then reduces MAE to **0.031001 / 255**, maximum **2**. See
+[native-font-raster.md](native-font-raster.md) for source and coverage evidence,
+scope and remaining interpolation-precision limits. Artifacts include
+`font-quad-verified-report.json`, `native-text-center-comparison.json`,
 `native-text-residual-pixels.json` and `native-text-center-contact.png` (native,
 previous centered placement, corrected placement from top to bottom).
 
@@ -130,14 +133,15 @@ native verification.
 
 ## Checks at this checkpoint
 
-- 294 combined JavaScript tests pass after the centered label and initial glyph integration.
+- 297 combined JavaScript tests pass after native font raster and balloon placement integration.
 - Nonincremental TypeScript check passes.
 - 3 real-resource revision-5 CGFX regression tests pass, covering Folder, BG,
   Camera and Textures plus bounded malformed inputs.
 - 21 converter v6 audio tests pass against the owner source.
 - The actual browser label capture reports no runtime errors.
-- Production build and shader validation pass after the centered label and glyph
-  integration (`integration-native-text-{build,shader}.log`).
+- Production build passes after native font raster and balloon integration
+  (`integration-font-quad-build.log`). The unchanged GPU shader passed validation
+  at the preceding centered-label checkpoint (`integration-native-text-shader.log`).
 - Delivery audit passes with 475 registered resources and 1,988 private source
   references checked; warnings and remaining unsupported fields are retained in
   `integration-delivery-audit.json`.

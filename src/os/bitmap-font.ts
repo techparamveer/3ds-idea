@@ -14,6 +14,39 @@ export type FontManifest = {
   fallback: Glyph | null;
 };
 
+export type NativeGlyphQuad={glyph:Glyph;x:number;y:number;width:number;height:number};
+/** Bounded NW writer flags 0x111: one centered line, no added spacing. */
+export function nativeCenteredGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[]):NativeGlyphQuad[]{
+  const f=Math.fround,sx=f(size[0]/(manifest.width??manifest.height)),sy=f(size[1]/manifest.height);
+  const glyphs=Array.from(value,char=>manifest.glyphs[String(char.codePointAt(0))]??manifest.fallback);
+  const runWidth=glyphs.reduce((n,g)=>f(n+f((g?.advance??0)*sx)),0);
+  const rectHeight=f((manifest.lineFeed??manifest.height)*sy);
+  let x=-Math.ceil(f(runWidth*.5));
+  const y=f(f(-Math.ceil(f(rectHeight*.5))+f((manifest.ascent??manifest.baseline)*sy))-f(manifest.baseline*sy));
+  const quads:NativeGlyphQuad[]=[];
+  for(const glyph of glyphs){if(!glyph)continue;
+    if(glyph.width)quads.push({glyph,x:width/2+f(x+f(glyph.left*sx)),y:height/2+y,width:f(glyph.width*sx),height:f(glyph.height*sy)});
+    x=f(x+f(glyph.advance*sx));
+  }
+  return quads;
+}
+type AlphaSurface={width:number;height:number;data:Uint8ClampedArray};
+/** Bilinear font coverage at pixel centres; fractional quad edges are not
+ * antialiased. Source includes one unscaled atlas texel around every edge. */
+export function rasterNativeAlphaGlyph(target:AlphaSurface,source:AlphaSurface,quad:NativeGlyphQuad){
+  const {x,y,width,height,glyph}=quad;
+  if(width<=0||height<=0||source.width!==glyph.width+2||source.height!==glyph.height+2)throw new Error('Invalid native glyph raster bounds');
+  for(let py=Math.max(0,Math.ceil(y-.5));py<Math.min(target.height,Math.ceil(y+height-.5));py++)for(let px=Math.max(0,Math.ceil(x-.5));px<Math.min(target.width,Math.ceil(x+width-.5));px++){
+    const u=(px+.5-x)/width*glyph.width+.5,v=(py+.5-y)/height*glyph.height+.5,ix=Math.floor(u),iy=Math.floor(v),fx=u-ix,fy=v-iy;
+    let alpha=0;
+    for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++)alpha+=source.data[((iy+dy)*source.width+ix+dx)*4+3]*(dx?fx:1-fx)*(dy?fy:1-fy);
+    const at=(py*target.width+px)*4,a=alpha/255,b=target.data[at+3]/255;
+    // Alpha fonts are white coverage masks; don't interpolate Canvas's zero RGB
+    // under transparent pixels into the material's text color.
+    const result=a+b*(1-a);target.data[at]=target.data[at+1]=target.data[at+2]=result?255:0;target.data[at+3]=result*255;
+  }
+}
+
 /** Positions use native font units scaled to size; baseline is first-line baseline. */
 export function measureBitmapText(manifest: FontManifest, value: string, size: number, align: CanvasTextAlign = 'left') {
   if (!Number.isFinite(size) || size <= 0) throw new Error('Invalid font size');
@@ -70,6 +103,8 @@ export function validateBitmapFont(value: unknown, dimensions?: { width: number;
 export class BitmapFont {
   private tinted = new Map<string, {canvas:HTMLCanvasElement;x:number;y:number}>();
   private tintedBytes=0;
+  private glyphMasks=new Map<Glyph,AlphaSurface>();
+  private glyphMaskBytes=0;
   readonly manifest: FontManifest;
   private sheets: HTMLImageElement[];
   constructor(manifest: FontManifest, sheets: HTMLImageElement[]) {
@@ -115,15 +150,13 @@ export class BitmapFont {
       // HOME's NW writer flags 0x111: ceil half the measured rectangle before
       // adding FINF ascent and subtracting TGLP baseline (0x2ffc90/0x300340).
       // Keep fractional advances; only the centered origin is rounded.
-      const f=Math.fround,scaleX=f(sx),scaleY=f(sy),glyphs=lines[0];
-      const runWidth=glyphs.reduce((n,g)=>f(n+f((g?.advance??0)*scaleX)),0);
-      const rectHeight=f((this.manifest.lineFeed??this.manifest.height)*scaleY);
-      let x=-Math.ceil(f(runWidth*.5));
-      const y=f(f(-Math.ceil(f(rectHeight*.5))+f((this.manifest.ascent??this.manifest.baseline)*scaleY))-f(this.manifest.baseline*scaleY));
-      for(const g of glyphs){if(!g)continue;
-        if(g.width)c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,
-          width/2+f(x+f(g.left*scaleX)),height/2+y,f(g.width*scaleX),f(g.height*scaleY));
-        x=f(x+f(g.advance*scaleX));
+      const quads=nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
+      if(this.manifest.colorMode==='luminance-alpha'){
+        for(const q of quads){const g=q.glyph;c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,q.x,q.y,q.width,q.height);}
+      }else{
+        const image=c.createImageData(Math.ceil(width),Math.ceil(height));
+        for(const q of quads)rasterNativeAlphaGlyph(image,this.glyphMask(q.glyph),q);
+        c.putImageData(image,0,0);
       }
       return;
     }
@@ -142,7 +175,28 @@ export class BitmapFont {
     });
   }
 
-  dispose(){for(const {canvas} of this.tinted.values())canvas.width=canvas.height=0;this.tinted.clear();this.tintedBytes=0;this.sheets=[];}
+  private glyphMask(glyph:Glyph):AlphaSurface{
+    const cached=this.glyphMasks.get(glyph);if(cached)return cached;
+    const canvas=document.createElement('canvas');canvas.width=glyph.width+2;canvas.height=glyph.height+2;
+    try{
+      const ctx=canvas.getContext('2d',{willReadFrequently:true})!,sheet=this.sheets[glyph.sheet];
+      ctx.drawImage(sheet,glyph.x-1,glyph.y-1,canvas.width,canvas.height,0,0,canvas.width,canvas.height);
+      const image=ctx.getImageData(0,0,canvas.width,canvas.height);
+      // Native font atlases contain padding. Clamp at the sheet boundary too,
+      // so a valid edge glyph never samples an invented transparent texel.
+      for(let y=0;y<image.height;y++)for(let x=0;x<image.width;x++){
+        const sx=glyph.x+x-1,sy=glyph.y+y-1;
+        if(sx>=0&&sx<sheet.naturalWidth&&sy>=0&&sy<sheet.naturalHeight)continue;
+        const cx=Math.max(0,Math.min(sheet.naturalWidth-1,sx))-glyph.x+1,cy=Math.max(0,Math.min(sheet.naturalHeight-1,sy))-glyph.y+1;
+        image.data[(y*image.width+x)*4+3]=image.data[(cy*image.width+cx)*4+3];
+      }
+      const bytes=image.data.byteLength;
+      while(this.glyphMaskBytes+bytes>1024*1024&&this.glyphMasks.size){const [key,old]=this.glyphMasks.entries().next().value!;this.glyphMasks.delete(key);this.glyphMaskBytes-=old.data.byteLength;}
+      if(bytes<=1024*1024){this.glyphMasks.set(glyph,image);this.glyphMaskBytes+=bytes;}return image;
+    }finally{canvas.width=canvas.height=0;}
+  }
+
+  dispose(){for(const {canvas} of this.tinted.values())canvas.width=canvas.height=0;this.tinted.clear();this.glyphMasks.clear();this.tintedBytes=0;this.glyphMaskBytes=0;this.sheets=[];}
 }
 
 /** Explicit opt-in: absent firmware assets must not cause a silent authenticity claim. */

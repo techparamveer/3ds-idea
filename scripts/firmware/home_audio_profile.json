@@ -1,5 +1,5 @@
 {
-  "id": "eur-home-24576-stereo-startup-v7",
+  "id": "eur-home-24576-stereo-startup-v8",
   "archiveSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
   "sourceRecord": {
     "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
@@ -369,7 +369,7 @@
   },
   "remainingGaps": [
     "Runtime player/master gains and later aux state need controlled capture",
-    "Native resampling, DSP gain ramps, clipping and fixed-point mixing remain outside this voice-state transcription",
+    "Native hardware polyphase/DSP precision is unverified; pinned Azahar capture interpolation, source gain ramps and integer source mixing are modeled; later runtime bus gains and filters remain open",
     "Full native waveform equivalence and baked-loop waveform continuity remain unverified; no measured normalization, trimming, padding or time stretching is applied"
   ],
   "nativePanLutSha256": "383ea4d362109b74ddccfdaacf46a0bf4b0255f3609cf01f5824e1910e7c7597",
@@ -392,7 +392,7 @@
   "renderTimeline": {
     "origin": "Sequence player sample zero; preserve every generated frame",
     "startupTrimSamples": 0,
-    "initialFrame": "Native sequence callback and track parameters precede voice update; no artificial startup silence",
+    "initialFrame": "Native sequence-before-voice order preserved; each new DSP source dequeues its initial buffer without consuming PCM in its first generated frame, with no trim or post-render padding",
     "nativeOnsetVerified": false,
     "loopSelection": "Original first loop start through second bytecode pass; not a steady-state waveform claim"
   },
@@ -421,6 +421,39 @@
       "sustain": "3315552d46c21be4911d400e3a3a747a36b9866088226f6f7a113ca3f9b01086",
       "sine": "a742b4ef2370e98c41180ed22400a062ced15a1ffb49d17e2b12a2bf0eabdfd6"
     },
+    "fittedConstants": false
+  },
+  "captureDsp": {
+    "model": "Pinned Azahar mono source interpolation/history, initial dequeue, float32 gain ramps and per-source/bus integer truncation",
+    "emulatorRevision": "9e6f523a57fac9564ac0bf8286db3c3702d301ec",
+    "sourceProvenance": {
+      "src/audio_core/interpolate.cpp": {
+        "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/interpolate.cpp",
+        "sha256": "e5246de03956bf86252ff3f0531e438803c0ec69fd11272d8374d433e4296dcb",
+        "gitBlob": "48a7c85adc394a656c8f28b17f1fb0df5f9ce6b7"
+      },
+      "src/audio_core/interpolate.h": {
+        "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/interpolate.h",
+        "sha256": "c258df7a2d839ab2733c8915a529f649fb6301e0a29d97af237cf875d0330925",
+        "gitBlob": "ba46b5ad78670c61a8a4be98cd7f04dc57f69f82"
+      },
+      "src/audio_core/hle/source.cpp": {
+        "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/hle/source.cpp",
+        "sha256": "2c2e450a25a6fc11b3cceb192728e86fabc78f1addf67aa7283b832194ac29c1",
+        "gitBlob": "4728526b2ce29fa53969281d7f96aeda784daeb8"
+      },
+      "src/audio_core/hle/source.h": {
+        "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/hle/source.h",
+        "sha256": "098f0121bd845cf8ead26a879792945c0dc367022938320a66894fc58092af2e",
+        "gitBlob": "1223f68ea3b9481373add974a1c3b956d1c5da4f"
+      }
+    },
+    "frameSamples": 160,
+    "fractionalBits": 24,
+    "interpolation": "Polyphase falls back to Linear in this pinned emulator; two historical samples, saturated difference and integer output",
+    "initialDequeueFrame": true,
+    "gainRamp": "Previous to target float32 gain, inclusive 0..159/159; each source/bus product truncates to integer before summation",
+    "hardwareVerified": false,
     "fittedConstants": false
   }
 }

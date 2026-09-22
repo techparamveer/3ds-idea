@@ -1,6 +1,6 @@
 --- a/dualrip/engine/ctr/sequencer.py
 +++ b/dualrip/engine/ctr/sequencer.py
-@@ -1,14 +1,15 @@
+@@ -1,14 +1,17 @@
  """3DS CSEQ sequencer: opcode grammar, CseqPlayer and CseqTrack interpreter."""
  
 -import math
@@ -12,14 +12,16 @@
 -    cdiv, s8, s16, cnv_sine, cnv_attack, cnv_fall, cnv_sust, readvl, Rng,
 +    cdiv, s8, s16, readvl, Rng,
  )
++import numpy as np
  from .channel import Voice
++from .home_audio_dsp import CaptureDsp, FRAME_SAMPLES
 +from .home_audio_clock import NativeSequenceClock
 +from .home_audio_math import f32, archive_gain, capture_pan, live_pan, pan_gains, send_gain, stereo_span
 +from .home_audio_voice import NativeEnvelope, NativeSweep, NativeLfo, decibel_gain, note_gain, track_gain, pitch_bend, pitch_ratio
  
  # CSEQ command argument layouts (big-endian multi-byte args)
  ARG_NONE, ARG_U8, ARG_S16, ARG_U16, ARG_VL, ARG_U8_U24, ARG_U24 = range(7)
-@@ -158,17 +159,22 @@
+@@ -158,17 +161,22 @@
          self.bank_lookup = bank_lookup # (bank_no, program, key, vel) -> (VelRegion, Cwav)
          self.rate = out_rate
          self.channel_prio = channel_prio
@@ -46,7 +48,7 @@
          self.ticked = False
          self.now_sample = 0
          self.variables = [-1] * 32
-@@ -177,6 +183,9 @@
+@@ -177,6 +185,9 @@
          self.active = []
          self.voices = [Voice() for _ in range(self.NUM_VOICES)]
          self.unapplied = {}
@@ -56,7 +58,7 @@
  
      def note_unapplied(self, name):
          self.unapplied[name] = self.unapplied.get(name, 0) + 1
-@@ -209,24 +218,24 @@
+@@ -209,24 +220,24 @@
          elif end > (self.loop_end_sample or 0):
              self.loop_end_sample = end
  
@@ -89,7 +91,7 @@
  
      def all_tracks_ended(self):
          return all(self.tracks[i].state[TS_END] or self.tracks[i].stuck
-@@ -236,87 +245,38 @@
+@@ -236,135 +247,48 @@
          return any(v.state != CS_NONE for v in self.voices)
  
      def update_voice(self, v):
@@ -165,7 +167,7 @@
 +        if v.modType == 0:
 +            pitch = f32(pitch + modulation)
 +        ratio = f32(f32(v.pitch_mul) * pitch_ratio(pitch))
-+        v.inc = v.base_rate * ratio / self.rate  # Pinned linear resampler remains.
++        v.inc = f32(v.base_rate * ratio / self.rate)  # Float32 DSP configuration rate.
 +        left, right = pan_gains(v.pan, v.ext_pan, modulation if v.modType == 2 else 0.0)
 +        v.sweep.advance()
 +        v.lfo.update()
@@ -187,23 +189,25 @@
      def generate(self, n):
 -        """Mix n samples from all active voices, splitting over aux buses when effects are set."""
 -        fx = self.effects
-+        """Mix main and two transparent startup aux buses (runtime assumption)."""
-         out_l = [0.0] * n
-         out_r = [0.0] * n
+-        out_l = [0.0] * n
+-        out_r = [0.0] * n
 -        aux = {k: ([0.0] * n, [0.0] * n) for k in fx}
-+        aux = {k: ([0.0] * n, [0.0] * n) for k in self.aux_returns}
++        """One pinned-capture DSP frame, retaining main and both aux sums."""
++        if n != FRAME_SAMPLES:
++            raise ValueError('HOME DSP generation requires complete 160-sample frames')
++        buses = np.zeros((3, n, 2), dtype=np.int64)
          for v in self.voices:
              if v.state == CS_NONE or v.inc <= 0:
                  continue
 -            # an endless note plays one pass of its looped sample, then stops
 -            cut_at_wrap = v.noteLength <= 0 and CS_ATTACK <= v.state <= CS_SUSTAIN
-             smp = v.samples
-             ln = len(smp)
-             pos = v.pos
-@@ -324,23 +284,16 @@
-             ls = v.loop_start
-             vl = v.vol_l
-             vr = v.vol_r
+-            smp = v.samples
+-            ln = len(smp)
+-            pos = v.pos
+-            inc = v.inc
+-            ls = v.loop_start
+-            vl = v.vol_l
+-            vr = v.vol_r
 -            if fx:
 -                gm = v.send_main
 -                targets = [(out_l, out_r, vl * gm, vr * gm)]
@@ -215,37 +219,48 @@
 -                    targets.append((bl, br, vl * v.send_b, vr * v.send_b))
 -            else:
 -                targets = [(out_l, out_r, vl, vr)]
-+            gm = v.send_main
-+            targets = [(out_l, out_r, vl * gm, vr * gm)]
-+            for bus, gain in (('a', v.send_a), ('b', v.send_b)):
-+                if gain > 0:
-+                    al, ar = aux[bus]
-+                    targets.append((al, ar, vl * gain, vr * gain))
-             for i in range(n):
-                 if pos >= ln:
+-            for i in range(n):
+-                if pos >= ln:
 -                    if v.loop and not cut_at_wrap:
 -                        pos = ls + (pos - ln)
 -                        if pos >= ln:
 -                            pos = ls
-+                    if v.loop:
-+                        pos = ls + (pos - ln) % (ln - ls)
-                     else:
-                         v.dead_wrap = True
-                         break
-@@ -356,10 +309,8 @@
-             v.pos = pos
-             if v.dead_wrap:
+-                    else:
+-                        v.dead_wrap = True
+-                        break
+-                ip = int(pos)
+-                frac = pos - ip
+-                s0 = smp[ip]
+-                s1 = smp[ip + 1] if ip + 1 < ln else (smp[ls] if v.loop else 0)
+-                s = s0 + (s1 - s0) * frac
+-                for tl, tr, gl, gr in targets:
+-                    tl[i] += s * gl
+-                    tr[i] += s * gr
+-                pos += inc
+-            v.pos = pos
+-            if v.dead_wrap:
++            gains = [[f32(v.vol_l * send), f32(v.vol_r * send)]
++                     for send in (v.send_main, v.send_a, v.send_b)]
++            buses += v.dsp.mix(v.inc, gains)
++            if not v.dsp.enabled:
                  v.kill()
 -        for k, eff in fx.items():
 -            al, ar = aux[k]
 -            wl, wr = eff.process(al, ar)
 -            ret = eff.ret
-+        for k, ret in self.aux_returns.items():
-+            wl, wr = aux[k]
-             for i in range(n):
-                 out_l[i] += wl[i] * ret
-                 out_r[i] += wr[i] * ret
-@@ -385,15 +336,17 @@
+-            for i in range(n):
+-                out_l[i] += wl[i] * ret
+-                out_r[i] += wr[i] * ret
++        # Transparent startup aux returns remain an explicit runtime assumption.
++        output = (buses[0] + buses[1] * self.aux_returns['a'] +
++                  buses[2] * self.aux_returns['b'])
+         self.now_sample += n
+-        return out_l, out_r
++        return output[:, 0].tolist(), output[:, 1].tolist()
+ 
+ class CseqTrack:
+     """One CSEQ track."""
+@@ -385,15 +309,17 @@
          self.prio = self.ply.channel_prio + 64
          self.patch = 0
          self.bank_no = 0
@@ -265,7 +280,16 @@
          self.modType = 0
          self.modDepth = 0
          self.modSpeed = 16
-@@ -465,12 +418,12 @@
+@@ -456,6 +382,8 @@
+         if found is None:
+             return None
+         region, cwav = found
++        if region.interp != 0:
++            raise ValueError('HOME DSP profile requires the validated default interpolation flag')
+         v = ply.voice_alloc(self.prio)
+         if v is None:
+             return None
+@@ -465,13 +393,14 @@
          v.prio = self.prio
          v.key = key
          v.org_key = region.org_key
@@ -282,9 +306,11 @@
 +        v.lfo = NativeLfo()
 +        v.noteLength = length if length > 0 else -1
          v.samples = cwav.samples
++        v.dsp = CaptureDsp(cwav.samples, cwav.loop, cwav.loop_start)
          v.base_rate = cwav.rate
          v.pitch_mul = region.pitch
-@@ -479,12 +432,14 @@
+         v.loop = cwav.loop
+@@ -479,12 +408,14 @@
          v.pos = 0.0
          v.inc = 0.0
          v.dead_wrap = False
@@ -304,7 +330,7 @@
          self.portaKey = key
          return v
  
-@@ -498,9 +453,8 @@
+@@ -498,9 +429,8 @@
              return self.note_on(key, vel, -1, gate=gate)
          chn.prio = self.prio
          chn.key = key
@@ -316,7 +342,7 @@
          self.apply_to_voice(chn)
          self.update_porta(chn, gate)
          self.portaKey = key
-@@ -508,52 +462,44 @@
+@@ -508,52 +438,44 @@
  
      def apply_to_voice(self, v):
          ply = self.ply
@@ -395,7 +421,7 @@
  
      def push_params(self):
          for v in self.ply.voices:
-@@ -562,9 +508,9 @@
+@@ -562,9 +484,9 @@
  
      def run(self):
          ply = self.ply
@@ -406,7 +432,7 @@
          if self.waitChn:
              for v in ply.voices:
                  if v.state != CS_NONE and v.trackId == self.num:
-@@ -597,8 +543,8 @@
+@@ -597,8 +519,8 @@
                  cmd = self.read8()
  
              if cmd < 0x80:
@@ -417,7 +443,7 @@
                  length = self.ovalvl()
                  if self.state[TS_NOTEWAIT]:
                      self.wait = length
-@@ -645,7 +591,7 @@
+@@ -645,7 +567,7 @@
                  if self.stack and self.stack[-1][0] == 'call':
                      self.pos = self.stack.pop()[1]
              elif cmd == 0xFF:
@@ -426,7 +452,7 @@
                  return
              elif cmd == 0xFE:
                  self.read16() # alloc track mask
-@@ -666,7 +612,10 @@
+@@ -666,7 +588,10 @@
                              self.stack[-1] = (kind, rpos, ply.now_sample, count)
                              self.pos = rpos
                          else:
@@ -438,7 +464,7 @@
                      else:
                          count -= 1
                          if count:
-@@ -684,7 +633,7 @@
+@@ -684,7 +609,7 @@
                  self.expr = self.oval8()
                  self.push_params()
              elif cmd == 0xC2:
@@ -447,7 +473,7 @@
                  for i in ply.active:
                      ply.tracks[i].push_params()
              elif cmd == 0xC3:
-@@ -711,8 +660,7 @@
+@@ -711,8 +636,7 @@
              elif cmd == 0xCF:
                  self.portaTime = self.oval8()
              elif cmd == 0xE3:
@@ -457,7 +483,7 @@
              elif cmd == 0xCA:
                  self.modDepth = self.oval8()
                  self.push_params()
-@@ -730,6 +678,12 @@
+@@ -730,6 +654,12 @@
                  self.push_params()
              elif cmd == 0xE1:
                  ply.tempo = self.oval16()
@@ -470,7 +496,7 @@
              elif cmd == 0xD0:
                  self.a = self.oval8()
              elif cmd == 0xD1:
-@@ -740,18 +694,23 @@
+@@ -740,18 +670,23 @@
                  self.r = self.oval8()
              elif cmd == 0xB6:
                  self.bank_no = self.oval8() & 3
@@ -520,7 +546,7 @@
 -        'send_main', 'send_a', 'send_b', 'dead_wrap')
 +        'pan', 'span', 'ext_ampl', 'ext_pan', 'ext_tune', 'envelope', 'sweep', 'lfo',
 +        'ignore_note_off', 'noteLength', 'samples', 'base_rate', 'pitch_mul', 'loop',
-+        'loop_start', 'pos', 'inc', 'vol_l', 'vol_r', 'vol', 'modType', 'flags',
++        'loop_start', 'pos', 'dsp', 'inc', 'vol_l', 'vol_r', 'vol', 'modType', 'flags',
 +        'region_vol', 'send_main', 'send_a', 'send_b', 'dead_wrap')
  
      def __init__(self):

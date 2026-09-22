@@ -17,6 +17,7 @@ PATCH_PATH = HERE / 'home_audio_dualrip.patch'
 MATH_PATH = HERE / 'home_audio_math.py'
 CLOCK_PATH = HERE / 'home_audio_clock.py'
 VOICE_PATH = HERE / 'home_audio_voice.py'
+DSP_PATH = HERE / 'home_audio_dsp.py'
 PROFILE = json.loads(PROFILE_PATH.read_text())
 
 
@@ -106,15 +107,18 @@ def isolated_renderer(renderer, scratch):
         shutil.copyfile(CLOCK_PATH, root / clock_rel)
         voice_rel = 'dualrip/engine/ctr/home_audio_voice.py'
         shutil.copyfile(VOICE_PATH, root / voice_rel)
+        dsp_rel = 'dualrip/engine/ctr/home_audio_dsp.py'
+        shutil.copyfile(DSP_PATH, root / dsp_rel)
         provenance = {
             'id': PROFILE['id'], 'profileSha256': sha(PROFILE_PATH),
             'patchSha256': sha(PATCH_PATH), 'adapterSha256': sha(Path(__file__)),
             'mathSha256': sha(MATH_PATH), 'clockSha256': sha(CLOCK_PATH),
             'voiceSha256': sha(VOICE_PATH), 'voiceArithmetic': PROFILE['voiceArithmetic'],
+            'dspSha256': sha(DSP_PATH), 'captureDsp': PROFILE['captureDsp'],
             'sequenceClock': PROFILE['sequenceClock'],
             'renderTimeline': PROFILE['renderTimeline'],
             'archiveVolume': PROFILE['archiveVolume'], 'originalFiles': original,
-            'patchedFiles': {rel: sha(root / rel) for rel in [*original, math_rel, clock_rel, voice_rel]},
+            'patchedFiles': {rel: sha(root / rel) for rel in [*original, math_rel, clock_rel, voice_rel, dsp_rel]},
             'nativeOutputMode': PROFILE['nativeOutputMode'],
             'captureSemantics': PROFILE['captureSemantics'],
             'runtimeAssumptions': PROFILE['runtimeAssumptions'],

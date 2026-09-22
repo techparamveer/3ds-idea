@@ -1,13 +1,14 @@
 # Bounded HOME audio correction
 
-`../render_firmware_audio.py` version 6 with **voice profile v7** builds a diagnostic candidate for the exact
+`../render_firmware_audio.py` version 6 with **voice/DSP profile v8** builds a diagnostic candidate for the exact
 owner-supplied EUR HOME archive identified by `home_audio_profile.json`. It rejects
 other archive hashes, source records, nonallowlisted sounds, altered sound options,
 unexpected banks and stereo source waves. It does not load neighboring `extData`.
 
 The wrapper exports the pinned DualRip commit through `git archive`, verifies the
 four source-file hashes, applies `home_audio_dualrip.patch` in a disposable copy,
-and adds `home_audio_math.py`, `home_audio_clock.py` and `home_audio_voice.py`.
+and adds `home_audio_math.py`, `home_audio_clock.py`, `home_audio_voice.py` and
+`home_audio_dsp.py`.
 The required `--scratch` argument places this
 copy under the caller's SSD artifact root; there is no host temporary-directory
 fallback. It never modifies the renderer checkout. The patch
@@ -42,6 +43,12 @@ the unresolved baked-loop defect. Wrapper version 6 remains unchanged.
 The subsequent [input-route and original-volume mixture diagnostic](home_audio_OPEN_ROUTE_EVIDENCE.md)
 rejects COMMON_BUTTON at folder opening and shows that the short confirmation
 cannot explain the remaining early folder-sweep difference. It changes no audio.
+Profile v8 then resolves that early sweep against the pinned Azahar capture by
+modeling initial buffer dequeue, persistent interpolation history and source gain
+ramps. See [DSP evidence](home_audio_DSP_EVIDENCE.md) for the C++ oracle checks,
+36 passing tests, native comparisons and continuing baked-loop blocker. This
+profile requires native 32728 Hz / 160-sample generation and is not a hardware
+polyphase verification.
 
 Two aux buses remain distinct from main and from each other; each has a transparent
 unity return. This is a **startup runtime-state assumption** supported by the
@@ -54,7 +61,7 @@ helper instead of silently treating it as stereo.
 
 `audio.json` preserves the original source/title/cue metadata and adds raw sound
 options, pan mode/curve, all 33 validated mono bank-wave references, handled-command
-counts, profile/patch/adapter/math/clock/voice hashes and before/after source hashes.
+counts, profile/patch/adapter/math/clock/voice/DSP hashes and before/after source hashes.
 Startup-origin assumptions are recorded in `renderTimeline`. Remaining runtime
 and synthesizer gaps are included in every pack. Zero unapplied commands
 means only that the interpreter has handling for those commands; it does not prove

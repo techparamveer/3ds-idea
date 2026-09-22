@@ -150,7 +150,27 @@ steps.
 
 Playback's dialog looks up the header program ID in the application list. A
 valid file can still be unavailable there if the title is missing from that
-list. `PrepareForPlayback` restores initial clock/base ticks before boot;
+list. The coordinating task encountered this exact blocker for the HOME Menu
+candidate: the dialog recognized the movie but disabled playback because the
+application was absent from its list.
+
+The same release's Qt argument parser also supports `--movie-play` / `-p`:
+
+```sh
+/path/to/azahar-qt --movie-play /path/to/derived.ctm /path/to/intended-title-content.app
+```
+
+Keep the content path as the **final argument**. The constructor parses that
+path into `game_path` and calls `BootGame` directly, without `MoviePlayDialog`
+or its application-list lookup. This is a source-supported alternate launch
+path, not a native execution performed by this task. It still requires the
+intended isolated profile and content. The CLI route does not verify that the
+supplied title content matches the movie header; independently check the actual
+content's title ID and build before replay. The helper's title check only binds
+the expected value to the CTM header. The parser also accepts `--movie-record`
+/ `-r` and `--movie-record-author` / `-a` for recording at startup.
+
+`PrepareForPlayback` restores initial clock/base ticks before boot;
 `StartPlayback` loads records after ROM loading. Azahar warns on revision
 mismatch but permits playback; this helper deliberately requires the audited
 revision for generation.

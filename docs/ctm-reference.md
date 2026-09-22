@@ -234,3 +234,19 @@ checks are in `runtime/reference/staged-movies-verification.json`. The copied
 configuration does not certify the live profile, effective per-title overrides,
 firmware contents or saved state. Native result and environment compatibility
 must be evaluated by the coordinating reference-capture task.
+
+### Native launch report (2026-09-22)
+
+The coordinating task reports launching the matching HOME Menu `.app` as the
+final argument with `--movie-play`, using the official application bundle and
+the isolated XDG environment. Its comparison of the live configuration against
+the bound recording snapshot found only a UI secondary-window geometry change;
+it reported the compared core flags unchanged. This is a reported configuration
+comparison, not an independent
+profile inspection by this helper task or proof that all runtime/content state
+matches. The original snapshot remains the manifest's hash-bound input; the
+live configuration should not be described as byte-identical to it.
+
+At the time of this note, visual confirmation of native folder replay is still
+pending. Launching through the supported argument path does not itself confirm
+touch registration, navigation, folder creation or deterministic reproduction.

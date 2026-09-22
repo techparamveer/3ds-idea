@@ -1,10 +1,12 @@
-import {setHomeDensity,selectHomeSlot,enterHomeFolder,homeDensityIndex} from '../src/os/home-navigation.ts';
+import {settleHomeNavigation} from '../src/os/home-navigation.ts';
+import {setHomeDensity as setHomeDensityMotion,selectHomeSlot,enterHomeFolder,homeDensityIndex} from '../src/os/home-navigation.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame,nativeFolderBalloonPosition} from '../src/os/home-presentation.ts';
 import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
 import {homeTouchLocation} from '../src/os/home-gestures.ts';
+const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
 const home=()=>{const state=createPortfolioState();return {...state,system:{...state.system,phase:'home'}};};
 const point=(state,index)=>{const tile=menuTiles(state).find(t=>t.index===index);return {x:tile.x+tile.size/2,y:tile.y+tile.size/2};};
 const touch=(state,phase,position,time)=>dispatchSystemEvent(state,{type:'touch',phase,...position,pointerId:1},time);

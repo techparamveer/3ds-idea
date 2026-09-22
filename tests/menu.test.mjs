@@ -1,6 +1,9 @@
+import {settleHomeNavigation} from '../src/os/home-navigation.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { initialState, reduceMenu, touchMenu, pageStart, SLOT_COUNT, menuTiles, rowCount, densities, isFolder, keyboardKeys } from '../src/os/state.ts';
+import { initialState, reduceMenu as reduceMenuMotion, touchMenu as touchMenuMotion, pageStart, SLOT_COUNT, menuTiles, rowCount, densities, isFolder, keyboardKeys } from '../src/os/state.ts';
+const reduceMenu=(...args)=>settleHomeNavigation(reduceMenuMotion(...args));
+const touchMenu=(...args)=>settleHomeNavigation(touchMenuMotion(...args));
 const center = tile => [(Math.max(20,tile.x)+Math.min(300,tile.x+tile.size))/2, tile.y + tile.size / 2];
 test('D-pad navigation is column-major at every native density and remains in bounds',()=>{
  for(const columns of densities){

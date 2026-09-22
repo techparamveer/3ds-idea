@@ -1,3 +1,4 @@
+import {settleHomeNavigation} from '../src/os/home-navigation.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { IDBFactory } from 'fake-indexeddb';
@@ -8,7 +9,8 @@ import { createPortfolioState, dispatchSystemEvent, tickSystem, reduceSystem, re
 import { HOME_GESTURE_TIMING as T, homeTouchLocation } from '../src/os/home-gestures.ts';
 import { resolveHomeDrop, restoreHomeLayout } from '../src/os/home-layout.ts';
 import { openFirmwareStorage } from '../src/os/app-persistence.ts';
-import {setHomeDensity,homeDensityIndex,commitHomeScroll,getHomeNavigationView} from '../src/os/home-navigation.ts';
+import {setHomeDensity as setHomeDensityMotion,homeDensityIndex,commitHomeScroll,getHomeNavigationView} from '../src/os/home-navigation.ts';
+const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
 const home=()=>tickSystem(createPortfolioState(),3001);
 const root=slot=>({folder:null,slot});
 const child=(folder,slot)=>({folder,slot});

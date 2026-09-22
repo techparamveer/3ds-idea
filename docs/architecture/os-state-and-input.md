@@ -168,3 +168,10 @@ App launch/HOME return preserve the retained HOME context; this bounded behavior
 does not claim the full native APT reconciliation graph. See
 [HOME navigation](../home-navigation-runtime.md) for source tables, migration,
 transient preview policy and remaining work.
+
+Navigation motion advances in integer native updates. The shared provisional
+nominal 60 Hz adapter stores `System.homeClock.updateCount` for presentation clip
+owners; it freezes/rebases beneath overlays and inactive/sleeping HOME. Rendering
+reads `getHomeNavigationView` without advancing state. Source-proven counts are 16
+for scroll and 15 for density; the wall-clock cadence remains an explicit
+application assumption. See the motion section of the navigation contract.

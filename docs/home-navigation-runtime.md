@@ -22,14 +22,14 @@ or firmware assets are copied into this implementation.
 | 4 | 5 | 4 | 9 | 32 | 60 | 87 | 32/32 | 28 |
 | 5 | 6 | 5 | 10 | 34 | 54 | 80 | 28/28 | 24 |
 
-Coordinates are slot centres. Child capacity is60; root capacity remains the
-existing portfolio300 (not a claim of native360 parity). Folder maximum left
-slots are57,57,50,39,24,10. Slots use column-major order, including empty slots.
-The legacy `columns` token is3,4,6,8,10,12; it does not count visible columns.
+Coordinates are slot centres. Child capacity is 60; root capacity remains the
+existing portfolio 300 (not a claim of native 360 parity). Folder maximum left
+slots are 57,57,50,39,24,10. Slots use column-major order, including empty slots.
+The legacy `columns` token is 3,4,6,8,10,12; it does not count visible columns.
 
-A newly created folder has density1: native state47 creates through `0x1bfc30`,
-then `0x1e4520–0x1e452c` stores1 in its density record. Fresh browser selection0
-and left0 are explicit defaults; native reuse of old folder IDs is not claimed.
+A newly created folder has density 1: native state 47 creates through `0x1bfc30`,
+then `0x1e4520–0x1e452c` stores 1 in its density record. Fresh browser selection 0
+and left 0 are explicit defaults; native reuse of old folder IDs is not claimed.
 Entering restores that folder's record and guards an out-of-view selection.
 Back restores root density, selection and left slot. HOME closes overlays or
 suspends/resumes software while retaining the active HOME context. Full native
@@ -54,9 +54,9 @@ cancel/focus/sleep restore it. A completed pan saves its aligned viewport.
 App launch and HOME return retain histories and active folder. Explicit reset
 layout discards these histories, retaining the global folder-name counter.
 
-Preferences version4 adds `homeView` with active folder and root/folder records.
-It saves no pointer state or animation clock. Version1–3 migration uses the
-legacy root density and initializes each folder to density1, selected0,left0;
+Preferences version 4 adds `homeView` with active folder and root/folder records.
+It saves no pointer state or animation clock. Version 1–3 migration uses the
+legacy root density and initializes each folder to density 1, selected 0,left 0;
 these are migration defaults, not recovered history. Invalid view records reset
 individually while a valid layout and valid sibling records survive. Invalid
 layout data still rejects the saved layout through the existing validator.
@@ -65,8 +65,50 @@ layout data still rejects the saved layout through the existing validator.
 
 Focused tests exercise all six geometry tables, independent histories, nearest-X
 placement, moves/swaps/delete/recreate, retained context through lifecycle,
-version4 round-trip and malformed-record isolation, plus existing gesture,
+version 4 round-trip and malformed-record isolation, plus existing gesture,
 menu, app runtime and persistence suites. In this worker checkout, full model
 suites are blocked by LFS pointer fixtures; integration owns those heavy assets
-and browser verification. Native interpolation is the next separate commit;
-this checkpoint settles navigation endpoints immediately.
+and browser verification. Interpolation and the provisional clock are covered by a separate implementation
+commit and the dedicated motion suite below.
+
+## Native motion and the provisional application clock
+
+Directional edge scroll uses mode 2 for 16 native updates. Density change uses
+mode 5 for 15. `homeMotionWeight` preserves the native float32 Bezier operation
+order for `[0,0,1,1]`; each update increments before sampling. Scroll rounds
+away from zero; slot positions, pitch, box size and density interpolate as
+floats. Current density and current left slot commit only at completion; target
+density/left and immediate selection remain separately available. Each slot's
+source/target positions interpolate independently, so changing row count never
+regroups indices through a fractional row count. Interruption snapshots the
+currently rendered geometry before starting a new transition.
+
+`advanceHomeNavigation(state, updates)` accepts integer native update counts
+and never reads a clock. `getHomeNavigationView` is read-only and cached per
+immutable navigation record. It exposes `currentDensity`, `targetDensity`,
+interpolated `density`, `mode`, `elapsedUpdates`, selected slot/anchor/revision,
+metrics and slot geometry. Presentation owns balloon eligibility, text and
+clip state. Mode 3 data and linear sampling are supported internally, but its
+10/5-update event routing remains deferred; touch panning is not labeled mode 3.
+
+`System.homeClock` / `stepHomeUpdateClock` provide one nominal 60 Hz accumulator
+and monotonic `updateCount` for navigation and presentation-owned clips. **60 Hz
+is an application cadence assumption, not a measured firmware milliseconds-per-
+update result.** `tickHomeNavigationClock` advances it from accepted input and
+`tickSystem`; painting never advances it. Native numeric fixtures live in
+`tests/fixtures/home-navigation-motion.json`, derived from the pinned executable
+investigation without copying firmware bytes.
+
+Beneath overlays or outside active HOME, the adapter freezes/rebases, discarding
+hidden elapsed time. A pointer contact freezes navigation geometry so hit tests
+match the displayed icon; the shared logical clock can continue for other clip
+owners. Cancel restores the original sampled navigation and resumes from the
+next live update. App launch, context changes, release/blur, explicit sleep and
+reduced motion settle the intended endpoint as a browser lifecycle/accessibility
+policy. These policies preserve every folder record. Saving during motion stores
+the intended settled endpoint; restoring creates no motion or elapsed clock.
+
+The motion suite compares all 16/15 source-derived float32 samples, individual
+slot interpolation, interruption continuity, save/restore endpoints, read-only
+painting, fractional clock accumulation, pause/reversal and lifecycle handling.
+It also checks touch against an icon while navigation is between endpoints.

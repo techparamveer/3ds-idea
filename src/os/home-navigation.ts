@@ -4,16 +4,25 @@ import type { HomeGesture } from './home-gestures.ts';
 export type HomeDensity = 0 | 1 | 2 | 3 | 4 | 5;
 export const HOME_DENSITIES = [3, 4, 6, 8, 10, 12] as const;
 export type HomeViewRecord = { selectedSlot: number; currentLeftSlot: number; targetLeftSlot: number; density: HomeDensity };
+export type HomeGridSnapshot = ReturnType<typeof homeGridMetrics> & {
+  densityValue: number; scrollPixels: number; slots: { index: number; x: number; y: number; size: number }[];
+};
+export type HomeMotion = {
+  mode: 2 | 3 | 5; elapsedUpdates: number; durationUpdates: 5 | 10 | 15 | 16;
+  currentDensity: HomeDensity; targetDensity: HomeDensity;
+  fromGeometry: HomeGridSnapshot; targetGeometry: HomeGridSnapshot;
+};
 export type HomeNavigation = {
   activeFolderSlot: number | null;
   rootView: HomeViewRecord;
   folderViews: Record<number, HomeViewRecord>;
+  motion: HomeMotion | null;
   gesture: HomeGesture | null;
   selectionRevision: number;
 };
 export const homeDensityIndex = (columns: number): HomeDensity => Math.max(0, HOME_DENSITIES.indexOf(columns as typeof HOME_DENSITIES[number])) as HomeDensity;
 export const freshHomeView = (density: HomeDensity = 1): HomeViewRecord => ({ selectedSlot: 0, currentLeftSlot: 0, targetLeftSlot: 0, density });
-export const createHomeNavigation = (density: HomeDensity = 1): HomeNavigation => ({ activeFolderSlot: null, rootView: freshHomeView(density), folderViews: {}, gesture: null, selectionRevision: 0 });
+export const createHomeNavigation = (density: HomeDensity = 1): HomeNavigation => ({ activeFolderSlot: null, rootView: freshHomeView(density), folderViews: {}, motion: null, gesture: null, selectionRevision: 0 });
 /** Source tables use centres, not top-left corners. Root capacity remains the portfolio's existing 300. */
 export function homeGridMetrics(folder: boolean, density: HomeDensity) {
   return { rows: (folder ? [1, 1, 2, 3, 4, 5] : [1, 2, 3, 4, 5, 6])[density],
@@ -46,33 +55,90 @@ export function writeHomeNavigation(state: MenuState, navigation: HomeNavigation
     folderSelected: folder === null ? state.folderSelected : view.selectedSlot, columns: HOME_DENSITIES[view.density],
     ...(state.system ? { system: { ...state.system, homeNavigation: navigation } } : { homeNavigation: navigation }) };
 }
-function withActiveRecord(state: MenuState, record: HomeViewRecord, changed = false): MenuState {
+function withActiveRecord(state: MenuState, record: HomeViewRecord, changed = false, motion = getHomeNavigation(state).motion): MenuState {
   const nav = getHomeNavigation(state);
-  return writeHomeNavigation(state, { ...nav, selectionRevision: nav.selectionRevision + Number(changed),
+  return writeHomeNavigation(state, { ...nav, motion, selectionRevision: nav.selectionRevision + Number(changed),
     ...(nav.activeFolderSlot === null ? { rootView: record } : { folderViews: { ...nav.folderViews, [nav.activeFolderSlot]: record } }) });
 }
-export function getHomeNavigationView(state: MenuState) {
-  const nav = getHomeNavigation(state), record = activeHomeRecord(nav), folder = nav.activeFolderSlot !== null;
-  const metrics = homeGridMetrics(folder, record.density);
-  const scrollPixels = nav.gesture?.scrollPixels ?? record.currentLeftSlot / metrics.rows * metrics.pitchX;
-  const slots = Array.from({ length: metrics.capacity }, (_, index) => ({ index,
-    x: metrics.baseX + Math.floor(index / metrics.rows) * metrics.pitchX - scrollPixels,
-    y: metrics.baseY + index % metrics.rows * metrics.pitchY, size: metrics.size }));
-  return { ...metrics, context: nav.activeFolderSlot, selectedSlot: record.selectedSlot,
-    currentDensity: record.density, targetDensity: record.density, density: record.density, mode: 0 as number,
+function gridSnapshot(folder: boolean, density: HomeDensity, left: number): HomeGridSnapshot {
+  const metrics = homeGridMetrics(folder, density);
+  return { ...metrics, densityValue: density, scrollPixels: left / metrics.rows * metrics.pitchX,
+    slots: Array.from({ length: metrics.capacity }, (_, index) => ({ index,
+      x: metrics.baseX + Math.floor(index / metrics.rows) * metrics.pitchX,
+      y: metrics.baseY + index % metrics.rows * metrics.pitchY, size: metrics.size })) };
+}
+const f32 = Math.fround;
+/** Native Bezier [0,0,1,1], preserving the VFP operation order (0x17eb34). */
+export function homeMotionWeight(update: number, duration: number, linear = false) {
+  const t = f32(update / duration); if (linear) return t;
+  const omt = f32(1 - t), t2 = f32(t * t), omt2 = f32(omt * omt);
+  const p1 = f32(f32(omt2 * t) * 3), p2 = f32(f32(t2 * omt) * 3);
+  let value = f32(f32(f32(omt2 * omt) * 0) + f32(p1 * 0));
+  value = f32(value + f32(p2 * 1)); return f32(value + f32(f32(t2 * t) * 1));
+}
+const blend = (from: number, to: number, weight: number) => f32(f32(f32(1 - weight) * from) + f32(weight * to));
+function sampleHomeGrid(nav: HomeNavigation): HomeGridSnapshot {
+  const record = activeHomeRecord(nav), motion = nav.motion;
+  if (!motion) return gridSnapshot(nav.activeFolderSlot !== null, record.density, record.currentLeftSlot);
+  const a = motion.fromGeometry, b = motion.targetGeometry, weight = homeMotionWeight(motion.elapsedUpdates, motion.durationUpdates, motion.mode === 3);
+  const scroll = blend(a.scrollPixels, b.scrollPixels, weight);
+  return { ...a, densityValue: blend(a.densityValue, b.densityValue, weight),
+    baseX: blend(a.baseX, b.baseX, weight), baseY: blend(a.baseY, b.baseY, weight),
+    pitchX: blend(a.pitchX, b.pitchX, weight), pitchY: blend(a.pitchY, b.pitchY, weight), size: blend(a.size, b.size, weight),
+    scrollPixels: scroll > 0 ? Math.ceil(scroll) : Math.floor(scroll),
+    slots: a.slots.map((slot, index) => ({ index, x: blend(slot.x, b.slots[index].x, weight),
+      y: blend(slot.y, b.slots[index].y, weight), size: blend(slot.size, b.slots[index].size, weight) })) };
+}
+const homeViewCache = new WeakMap<HomeNavigation, ReturnType<typeof deriveHomeNavigationView>>();
+function deriveHomeNavigationView(state: MenuState) {
+  const nav = getHomeNavigation(state), record = activeHomeRecord(nav), grid = sampleHomeGrid(nav);
+  const scrollPixels = nav.gesture?.scrollPixels ?? grid.scrollPixels;
+  const slots = Object.freeze(grid.slots.map(slot => Object.freeze({ ...slot, x: slot.x - scrollPixels })));
+  return Object.freeze({ ...grid, context: nav.activeFolderSlot, selectedSlot: record.selectedSlot,
+    currentDensity: record.density, targetDensity: nav.motion?.targetDensity ?? record.density, density: grid.densityValue,
+    mode: nav.motion?.mode ?? 0, elapsedUpdates: nav.motion?.elapsedUpdates ?? 0,
     currentLeftSlot: record.currentLeftSlot, targetLeftSlot: record.targetLeftSlot, scrollPixels, slots,
-    selectionRevision: nav.selectionRevision, selectedAnchorX: slots[record.selectedSlot].x };
+    selectionRevision: nav.selectionRevision, selectedAnchorX: slots[record.selectedSlot].x });
+}
+/** Immutable navigation records allow all geometry consumers to share one sample per update. */
+export function getHomeNavigationView(state: MenuState) {
+  const nav = getHomeNavigation(state), cached = homeViewCache.get(nav); if (cached) return cached;
+  const view = deriveHomeNavigationView(state); homeViewCache.set(nav, view); return view;
+}
+function startHomeMotion(state: MenuState, target: HomeViewRecord, mode: 2 | 5, changed = false): MenuState {
+  const nav = getHomeNavigation(state), current = activeHomeRecord(nav);
+  const motion: HomeMotion = { mode, elapsedUpdates: 0, durationUpdates: mode === 2 ? 16 : 15,
+    currentDensity: current.density, targetDensity: target.density,
+    fromGeometry: sampleHomeGrid(nav), targetGeometry: gridSnapshot(nav.activeFolderSlot !== null, target.density, target.targetLeftSlot) };
+  return withActiveRecord(state, { ...current, selectedSlot: target.selectedSlot, targetLeftSlot: target.targetLeftSlot }, changed, motion);
+}
+/** Pure native update counts. Painting never mutates elapsed progress. */
+export function advanceHomeNavigation(state: MenuState, updates: number): MenuState {
+  const nav = getHomeNavigation(state), motion = nav.motion;
+  if (!motion || !Number.isInteger(updates) || updates <= 0) return state;
+  const elapsedUpdates = Math.min(motion.durationUpdates, motion.elapsedUpdates + updates);
+  if (elapsedUpdates === motion.durationUpdates) return settleHomeNavigation(state);
+  return writeHomeNavigation(state, { ...nav, motion: { ...motion, elapsedUpdates } });
+}
+/** Explicit accessibility/lifecycle policy: retain the intended endpoint, never replay hidden time. */
+export function settleHomeNavigation(state: MenuState): MenuState {
+  const nav = getHomeNavigation(state), motion = nav.motion; if (!motion) return state;
+  const record = activeHomeRecord(nav);
+  return withActiveRecord(state, { ...record, density: motion.targetDensity, currentLeftSlot: record.targetLeftSlot }, false, null);
 }
 export function selectHomeSlot(state: MenuState, slot: number): MenuState {
   const nav = getHomeNavigation(state), record = activeHomeRecord(nav), folder = nav.activeFolderSlot !== null;
-  const { rows, columns, capacity } = homeGridMetrics(folder, record.density);
+  const density = nav.motion?.targetDensity ?? record.density, { rows, columns, capacity } = homeGridMetrics(folder, density);
   if (!Number.isInteger(slot) || slot < 0 || slot >= capacity) return state;
   const column = Math.floor(slot / rows), left = record.targetLeftSlot / rows;
-  const target = Math.max(0, Math.min(maxHomeLeftSlot(folder, record.density), (column < left ? column : column >= left + columns ? column - columns + 1 : left) * rows));
-  return withActiveRecord(state, { ...record, selectedSlot: slot, currentLeftSlot: target, targetLeftSlot: target }, slot !== record.selectedSlot);
+  const target = Math.max(0, Math.min(maxHomeLeftSlot(folder, density), (column < left ? column : column >= left + columns ? column - columns + 1 : left) * rows));
+  const changed = slot !== record.selectedSlot;
+  return target === record.targetLeftSlot ? withActiveRecord(state, { ...record, selectedSlot: slot }, changed)
+    : startHomeMotion(state, { ...record, density, selectedSlot: slot, targetLeftSlot: target }, nav.motion?.mode === 5 ? 5 : 2, changed);
 }
 export function stepHomeDirection(state: MenuState, direction: 'left' | 'right' | 'up' | 'down'): MenuState {
-  const view = getHomeNavigationView(state), row = view.selectedSlot % view.rows, col = Math.floor(view.selectedSlot / view.rows);
+  const current = getHomeNavigationView(state), view = { ...current, ...homeGridMetrics(current.context !== null, current.targetDensity) };
+  const row = view.selectedSlot % view.rows, col = Math.floor(view.selectedSlot / view.rows);
   const nextCol = direction === 'left' ? Math.max(0, col - 1) : direction === 'right' ? Math.min(Math.ceil(view.capacity / view.rows) - 1, col + 1) : col;
   const nextRow = direction === 'up' ? Math.max(0, row - 1) : direction === 'down' ? Math.min(view.rows - 1, row + 1) : row;
   return selectHomeSlot(state, Math.min(view.capacity - 1, nextCol * view.rows + nextRow));
@@ -80,7 +146,7 @@ export function stepHomeDirection(state: MenuState, direction: 'left' | 'right' 
 /** Native density touch chooses the earliest left slot nearest the previous selected X (float32). */
 export function setHomeDensity(state: MenuState, density: HomeDensity): MenuState {
   const nav = getHomeNavigation(state), record = activeHomeRecord(nav);
-  if (density === record.density) return state;
+  if (density === (nav.motion?.targetDensity ?? record.density)) return state;
   const oldX = Math.fround(getHomeNavigationView(state).selectedAnchorX), folder = nav.activeFolderSlot !== null;
   const { rows, columns, baseX, pitchX } = homeGridMetrics(folder, density), top = record.selectedSlot - record.selectedSlot % rows;
   const first = Math.max(0, top - (columns - 1) * rows), last = Math.min(maxHomeLeftSlot(folder, density), top + (columns - 1) * rows);
@@ -89,19 +155,21 @@ export function setHomeDensity(state: MenuState, density: HomeDensity): MenuStat
     const x = Math.fround(baseX + Math.fround((top - candidate) / rows * pitchX)), delta = Math.fround(x - oldX), squared = Math.fround(delta * delta);
     if (squared < distance) { left = candidate; distance = squared; }
   }
-  return withActiveRecord(state, { ...record, density, currentLeftSlot: left, targetLeftSlot: left });
+  return startHomeMotion(state, { ...record, density, targetLeftSlot: left }, 5);
 }
 export function enterHomeFolder(state: MenuState, slot: number): MenuState {
   if (!Object.hasOwn(state.folders, slot)) return state;
+  state = settleHomeNavigation(state);
   let nav = getHomeNavigation(state);
   if (nav.activeFolderSlot === slot) return state;
-  if (nav.activeFolderSlot === null) { state = selectHomeSlot(state, slot); nav = getHomeNavigation(state); }
+  if (nav.activeFolderSlot === null) { state = settleHomeNavigation(selectHomeSlot(state, slot)); nav = getHomeNavigation(state); }
   let record = nav.folderViews[slot] ?? freshHomeView();
   const { rows, columns } = homeGridMetrics(true, record.density);
   if (record.selectedSlot < record.currentLeftSlot || record.selectedSlot >= record.currentLeftSlot + rows * columns) record = { ...record, selectedSlot: record.currentLeftSlot };
   return writeHomeNavigation(state, { ...nav, activeFolderSlot: slot, folderViews: { ...nav.folderViews, [slot]: record }, selectionRevision: nav.selectionRevision + 1 });
 }
 export function leaveHomeFolder(state: MenuState): MenuState {
+  state = settleHomeNavigation(state);
   const nav = getHomeNavigation(state);
   return nav.activeFolderSlot === null ? state : writeHomeNavigation(state, { ...nav, activeFolderSlot: null, selectionRevision: nav.selectionRevision + 1 });
 }
@@ -115,6 +183,7 @@ export function deleteHomeFolderView(state: MenuState, slot: number): MenuState 
   return writeHomeNavigation(state, { ...nav, folderViews });
 }
 export function remapHomeFolderViews(state: MenuState, from: number, to: number, swap: boolean): MenuState {
+  state = settleHomeNavigation(state);
   const nav = getHomeNavigation(state), folderViews = { ...nav.folderViews }, source = folderViews[from] ?? freshHomeView(), other = folderViews[to] ?? freshHomeView();
   delete folderViews[from]; delete folderViews[to]; folderViews[to] = source; if (swap) folderViews[from] = other;
   const activeFolderSlot = nav.activeFolderSlot === from ? to : swap && nav.activeFolderSlot === to ? from : nav.activeFolderSlot;
@@ -122,6 +191,7 @@ export function remapHomeFolderViews(state: MenuState, from: number, to: number,
 }
 /** Touch panning commits an aligned viewport and keeps selection inside it. */
 export function commitHomeScroll(state: MenuState, column: number): MenuState {
+  state = settleHomeNavigation(state);
   const nav = getHomeNavigation(state), record = activeHomeRecord(nav), folder = nav.activeFolderSlot !== null;
   const { rows, columns, capacity } = homeGridMetrics(folder, record.density);
   const left = Math.max(0, Math.min(maxHomeLeftSlot(folder, record.density), Math.round(column) * rows));
@@ -131,9 +201,9 @@ export function commitHomeScroll(state: MenuState, column: number): MenuState {
 }
 export function saveHomeView(state: MenuState) {
   const stored = getHomeNavigation(state), nav = stored.gesture?.origin.navigation ?? stored;
-  const settle = (v: HomeViewRecord) => ({ selectedSlot: v.selectedSlot, currentLeftSlot: v.targetLeftSlot, targetLeftSlot: v.targetLeftSlot, density: v.density });
-  return { activeFolderSlot: nav.activeFolderSlot, rootView: settle(nav.rootView),
-    folderViews: Object.fromEntries(Object.keys(state.folders).map(key => [key, settle(nav.folderViews[Number(key)] ?? freshHomeView())])) };
+  const settle = (v: HomeViewRecord, active: boolean) => ({ selectedSlot: v.selectedSlot, currentLeftSlot: v.targetLeftSlot, targetLeftSlot: v.targetLeftSlot, density: active && nav.motion ? nav.motion.targetDensity : v.density });
+  return { activeFolderSlot: nav.activeFolderSlot, rootView: settle(nav.rootView, nav.activeFolderSlot === null),
+    folderViews: Object.fromEntries(Object.keys(state.folders).map(key => [key, settle(nav.folderViews[Number(key)] ?? freshHomeView(), nav.activeFolderSlot === Number(key))])) };
 }
 const dictionary = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 export function restoreHomeView(state: MenuState, value: unknown, density: HomeDensity): MenuState {
@@ -151,4 +221,16 @@ export function restoreHomeView(state: MenuState, value: unknown, density: HomeD
   for (const key of Object.keys(state.folders)) nav.folderViews[Number(key)] = valid(views[key], true) ?? freshHomeView();
   if (Number.isInteger(saved.activeFolderSlot) && Object.hasOwn(state.folders, Number(saved.activeFolderSlot))) nav.activeFolderSlot = Number(saved.activeFolderSlot);
   return writeHomeNavigation(state, nav);
+}
+
+export type HomeUpdateClock = { lastNow: number | null; remainderMs: number; updateCount: number };
+export const createHomeUpdateClock = (): HomeUpdateClock => ({ lastNow: null, remainderMs: 0, updateCount: 0 });
+/** Provisional application cadence, NOT a source-measured native duration. */
+export function stepHomeUpdateClock(clock: HomeUpdateClock, now: number, active: boolean): { clock: HomeUpdateClock; updates: number } {
+  if (!Number.isFinite(now)) return { clock, updates: 0 };
+  if (!active) return { clock: clock.lastNow === null && clock.remainderMs === 0 ? clock : { ...clock, lastNow: null, remainderMs: 0 }, updates: 0 };
+  if (clock.lastNow === null || now < clock.lastNow) return { clock: { ...clock, lastNow: now, remainderMs: 0 }, updates: 0 };
+  if (now === clock.lastNow) return { clock, updates: 0 };
+  const elapsed = clock.remainderMs + now - clock.lastNow, step = 1000 / 60, updates = Math.floor(elapsed / step + 1e-9);
+  return { clock: { lastNow: now, remainderMs: Math.max(0, elapsed - updates * step), updateCount: clock.updateCount + updates }, updates };
 }

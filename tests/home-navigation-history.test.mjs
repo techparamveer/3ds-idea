@@ -1,9 +1,12 @@
+import {settleHomeNavigation} from '../src/os/home-navigation.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPortfolioState, tickSystem, reduceSystem, launch, saveSettings, restoreSettings, releaseSystemInputs, setSystemSleeping } from '../src/os/system.ts';
 import { reduceMenu, menuTiles } from '../src/os/state.ts';
 import { moveHomeItem, selectHomeLocation } from '../src/os/home-layout.ts';
-import { getHomeNavigation, getHomeNavigationView, setHomeDensity, selectHomeSlot, enterHomeFolder, leaveHomeFolder, maxHomeLeftSlot } from '../src/os/home-navigation.ts';
+import { getHomeNavigation, getHomeNavigationView, setHomeDensity as setHomeDensityMotion, selectHomeSlot as selectHomeSlotMotion, enterHomeFolder, leaveHomeFolder, maxHomeLeftSlot } from '../src/os/home-navigation.ts';
+const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
+const selectHomeSlot=(state,slot)=>settleHomeNavigation(selectHomeSlotMotion(state,slot));
 const home = () => tickSystem(createPortfolioState(), 3001);
 const create = (state, slot) => reduceMenu(selectHomeLocation(state, { folder: null, slot }), 'open');
 const record = state => structuredClone(getHomeNavigation(state));

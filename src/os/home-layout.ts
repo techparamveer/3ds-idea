@@ -1,5 +1,5 @@
 import { apps } from './apps.ts';
-import { enterHomeFolder, leaveHomeFolder, selectHomeSlot, remapHomeFolderViews, getHomeNavigation, writeHomeNavigation } from './home-navigation.ts';
+import { enterHomeFolder, leaveHomeFolder, selectHomeSlot, remapHomeFolderViews, getHomeNavigation, writeHomeNavigation, settleHomeNavigation } from './home-navigation.ts';
 import { getTitle, homeTitles } from './app-registry.ts';
 import { FIRST_FOLDER_NUMBER, LAST_FOLDER_NUMBER, isFolder, MAX_FOLDERS, SLOT_COUNT, type MenuState } from './state.ts';
 
@@ -76,8 +76,9 @@ export function moveHomeItem(state: MenuState, from: HomeLocation, target: HomeL
   const activeFolder = getHomeNavigation(placed).activeFolderSlot;
   const selected = selectHomeLocation(placed, to);
   // A folder can move while its retained HOME context is active (e.g. software suspended).
-  return item.kind === 'folder' && activeFolder !== null
-    ? writeHomeNavigation(selected, { ...getHomeNavigation(selected), activeFolderSlot: activeFolder }) : selected;
+  if (item.kind !== 'folder' || activeFolder === null) return selected;
+  const settled = settleHomeNavigation(selected);
+  return writeHomeNavigation(settled, { ...getHomeNavigation(settled), activeFolderSlot: activeFolder });
 }
 const dictionary = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 const slotKey = (key: string, count: number) => /^(0|[1-9]\d*)$/.test(key) && Number(key) < count;

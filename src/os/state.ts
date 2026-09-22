@@ -88,7 +88,7 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
     return state;
   }
   if (input === 'zoom' || input === 'zoom-in' || input === 'zoom-out') {
-    const i = densities.indexOf(state.columns as typeof densities[number]);
+    const i = getHomeNavigationView(state).targetDensity;
     return setHomeDensity(state, (input === 'zoom' ? (i + 1) % densities.length : Math.max(0, Math.min(densities.length - 1, i + (input === 'zoom-in' ? -1 : 1)))) as HomeDensity);
   }
   if (input === 'open') {

@@ -4,9 +4,10 @@ import { createFirmwareModel, loadFirmwareModel } from './firmware-model';
 /** Reuses the console renderer and one native-resolution offscreen target. */
 export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   const scene = new THREE.Scene();
-  // The HOME camera is external to the model archive. This framing remains a
-  // candidate until matched to captures; it is not claimed as native metadata.
-  const camera = new THREE.OrthographicCamera(-40, 40, 24, -24, .1, 200);
+  // Native folder capture places the ~12-unit mesh across ~120 pixels. Ten
+  // pixels per unit also matches its vertical center without a model offset.
+  // This is measured framing, not recovered native camera/projection metadata.
+  const camera = new THREE.OrthographicCamera(-20, 20, 12, -12, .1, 200);
   camera.position.set(0, 0, 100); camera.lookAt(0, 0, 0);
   const target = new THREE.WebGLRenderTarget(400, 240, { depthBuffer: true, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
   target.texture.colorSpace = THREE.SRGBColorSpace;

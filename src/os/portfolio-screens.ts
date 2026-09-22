@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { apps, getApp, type PortfolioApp } from './apps';
-import { currentEntry, selectedApp } from './system';
+import { currentEntry, getActiveAppView, selectedApp } from './system';
+import { getTitle } from './app-registry';
+import type { AppView } from './app-types';
 import type { MenuState } from './state';
 import { measureBitmapText, type BitmapFont } from './bitmap-font';
 type C=CanvasRenderingContext2D;
@@ -86,12 +88,33 @@ export function createPortfolioGraphics(){
   if(s.detail&&entry.images&&entry.images.length>1)label(b,`◀ ${s.photo+1}/${entry.images.length} ▶`,157,226,12,'#6b7380','center');
   button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
+ // Keep the semantic runtime usable until each title's native presentation is
+ // integrated. This fallback is not part of the native visual acceptance slice.
+ function semanticApplication(t:C,b:C,view:AppView){
+  t.fillStyle=b.fillStyle='#edf0f4';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
+  label(t,view.heading,200,70,20,'#454952','center');
+  if(view.subheading)label(t,view.subheading,200,98,13,'#686b79','center');
+  (view.text??[]).forEach((value,index)=>paragraph(t,value,25,128+index*38,350,14,18));
+  label(b,view.heading,160,18,15,'#454952','center');
+  const start=Math.floor(view.selection/4)*4;
+  view.rows.slice(start,start+4).forEach((row,index)=>{
+   const y=38+index*41;button(b,8,y,304,38,row.label,start+index===view.selection);
+   if(row.value)label(b,row.value,298,y+28,10,'#686b79','right');
+  });
+  if(view.footer.left)button(b,3,214,154,24,view.footer.left.label);
+  if(view.footer.right)button(b,163,214,154,24,view.footer.right.label);
+ }
  function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean){
   const s=state.system;if(!s)return;
-  if(s.phase==='app')application(t,b,state,time,reduced);
+  if(s.phase==='app'){
+   const view=getActiveAppView(state,time);
+   if(view&&getApp(view.appId)&&currentEntry(state))application(t,b,state,time,reduced);
+   else if(view)semanticApplication(t,b,view);
+  }
   if(s.phase==='launch'){
    t.fillStyle=b.fillStyle='#fff';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
-   const app=getApp(s.app)!;icon(t,app,155,50,90);label(t,app.title,200,164,23,'#454952','center');label(t,'Paramveer Singh',200,194,12,'#9398a0','center');
+   const app=getApp(s.app);if(app){icon(t,app,155,50,90);label(t,'Paramveer Singh',200,194,12,'#9398a0','center');}
+   label(t,getTitle(s.app)?.title??'',200,164,23,'#454952','center');
    label(b,'Starting software…',160,125,14,'#777e86','center');
   }
   if(s.preferences){

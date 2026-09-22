@@ -48,6 +48,16 @@ class ArithmeticTests(unittest.TestCase):
         self.assertEqual(math.send_gain(30, -1), 0)
         self.assertEqual(math.send_gain(127, 1), 1)
 
+    def test_amplitude_units_and_linear_region(self):
+        # Independent examples from native envelope/gain-table addresses.
+        self.assertAlmostEqual(math.amplitude_gain(-100), 0.316227764, places=7)
+        self.assertAlmostEqual(math.amplitude_gain(-10), 0.891250908, places=7)
+        self.assertAlmostEqual(math.amplitude_gain(-49), 10 ** (-4.9 / 20))
+        self.assertEqual(math.amplitude_gain(0), 1)
+        self.assertEqual(math.amplitude_gain(-100, 0), 0)
+        self.assertAlmostEqual(math.amplitude_gain(0, 64), 64 / 127, places=7)
+        self.assertAlmostEqual(math.amplitude_gain(-100, 64), 0.316227766 * 64 / 127, places=7)
+
     def test_span_requires_stereo(self):
         self.assertEqual(math.stereo_span(0), 0)
         self.assertAlmostEqual(math.stereo_span(64), 64 / 63, delta=1e-7)
@@ -135,6 +145,25 @@ class SequencerTests(unittest.TestCase):
                 self.assertEqual(player.handled_commands, {'mainsend': 1, 'fxsend_a': 1, 'fxsend_b': 1})
                 self.assertEqual(player.effects, {})
 
+    def test_voice_sustain_and_region_use_distinct_gains(self):
+        for region_volume in (0, 64, 127):
+            with self.subTest(region_volume=region_volume):
+                player = self.player()
+                lookup = player.bank_lookup
+                def changed_region(*args):
+                    region, wave = lookup(*args)
+                    region.volume = region_volume
+                    return region, wave
+                player.bank_lookup = changed_region
+                voice = player.tracks[0].note_on(60, 127, 10)
+                voice.state = self.prims.CS_SUSTAIN
+                voice.ampl = -49 << 7  # Native sustain raw 96: -4.9 dB.
+                player.update_voice(voice)
+                expected = 10 ** (-4.9 / 20) * region_volume / 127 * math.PAN_LUT[128]
+                self.assertAlmostEqual(voice.vol_l, expected, places=7)
+                self.assertAlmostEqual(voice.vol_r, expected, places=7)
+                self.assertEqual(voice.region_vol, region_volume)
+
     def test_span_is_retained_but_does_not_change_stereo(self):
         samples = []
         for raw in (0, 64, 127):
@@ -152,7 +181,9 @@ class SequencerTests(unittest.TestCase):
     def test_provenance_includes_reproducible_patch(self):
         p = self.provenance
         self.assertEqual(p['nativeOutputMode']['value'], 1)
-        self.assertFalse(p['nativeOutputMode']['referenceModeVerified'])
+        self.assertTrue(p['nativeOutputMode']['referenceModeVerified'])
+        self.assertFalse(p['captureSemantics']['hostVolumeSliderApplied'])
+        self.assertFalse(p['captureSemantics']['hostTimeStretchApplied'])
         self.assertTrue(p['remainingGaps'])
         self.assertEqual(p['runtimeAssumptions']['auxReturnA'], 1)
         self.assertNotEqual(p['originalFiles']['dualrip/engine/ctr/sequencer.py'],

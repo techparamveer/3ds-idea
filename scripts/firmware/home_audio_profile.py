@@ -106,6 +106,7 @@ def isolated_renderer(renderer, scratch):
             'mathSha256': sha(MATH_PATH), 'originalFiles': original,
             'patchedFiles': {rel: sha(root / rel) for rel in [*original, math_rel]},
             'nativeOutputMode': PROFILE['nativeOutputMode'],
+            'captureSemantics': PROFILE['captureSemantics'],
             'runtimeAssumptions': PROFILE['runtimeAssumptions'],
             'remainingGaps': PROFILE['remainingGaps'],
         }

@@ -4,7 +4,7 @@
      cdiv, s8, s16, cnv_sine, cnv_attack, cnv_fall, cnv_sust, readvl, Rng,
  )
  from .channel import Voice
-+from .home_audio_math import capture_pan, live_pan, pan_gains, send_gain, stereo_span
++from .home_audio_math import amplitude_gain, capture_pan, live_pan, pan_gains, send_gain, stereo_span
 -
 +
  # CSEQ command argument layouts (big-endian multi-byte args)
@@ -33,9 +33,18 @@
 +
      def note_unapplied(self, name):
          self.unapplied[name] = self.unapplied.get(name, 0) + 1
-@@ -298,20 +306,16 @@
+@@ -292,26 +300,22 @@
+         v.inc = v.base_rate * v.pitch_mul * ratio / self.rate
+-
++
+         # volume in continuous dB
+-        totalVol = (v.ampl >> 7) + v.ext_ampl + v.velocity + v.region_vol
++        totalVol = (v.ampl >> 7) + v.ext_ampl + v.velocity
+         if bMod and v.modType == 1:
+             totalVol += modParam
          totalVol = max(-AMPL_K, min(0, totalVol))
-         amp = math.pow(10.0, totalVol / 160.0)
+-        amp = math.pow(10.0, totalVol / 160.0)
++        amp = amplitude_gain(totalVol, v.region_vol)
          v.vol = int(amp * (1 << 20))
 -        # pan law: center 64 is full both sides, off-center attenuates the far side
 -        pan = v.pan + v.ext_pan
@@ -107,11 +116,13 @@
          self.pitchBend = 0
          self.pitchBendRange = 2
          self.transpose = 0
-@@ -467,7 +466,7 @@
+@@ -466,8 +465,8 @@
+         v.key = key
          v.org_key = region.org_key
          v.velocity = cnv_sust(vel)
-         v.region_vol = cnv_sust(region.volume)
+-        v.region_vol = cnv_sust(region.volume)
 -        v.pan = region.pan - 64 # region pan is 0..127, center 64
++        v.region_vol = region.volume  # Native region gain is linear, unlike velocity.
 +        v.pan = capture_pan(region.pan, self.initial_pan)
          v.modDelayCnt = 0
          v.modCounter = 0

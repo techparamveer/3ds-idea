@@ -1,5 +1,5 @@
 {
-  "id": "eur-home-24576-stereo-startup-v2",
+  "id": "eur-home-24576-stereo-startup-v3",
   "archiveSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
   "sourceRecord": {
     "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
@@ -349,7 +349,11 @@
   "nativeOutputMode": {
     "value": 1,
     "name": "stereo",
-    "referenceModeVerified": false
+    "referenceModeVerified": true,
+    "verificationScope": "Saved 3DS CFG block; no per-frame DSP memory capture",
+    "referenceCfgSaveSha256": "e9caff9ef9b4394499ae857da458c7fb7d3af472be8521357d4bbb56977b0f9e",
+    "referenceCfgBlock": "0x00070001",
+    "referenceEmulator": "Azahar 2126.1.2 (9e6f523a57fac9564ac0bf8286db3c3702d301ec)"
   },
   "runtimeAssumptions": {
     "dspDelayEnabled": false,
@@ -363,10 +367,16 @@
     "source": "Static HOME startup paths; later runtime overrides not captured"
   },
   "remainingGaps": [
-    "Reference system sound mode, master/player gains and later aux state need controlled capture",
-    "Native envelope, modulation, resampling, clipping and DSP arithmetic not validated by these corrections",
-    "Vorbis reference is approximately 8.6\u20139.7 dB louder than v1 at unknown gain; no compensating gain applied",
+    "Native archive-entry volume routing, runtime master/player gains and later aux state need controlled capture",
+    "Native envelope timing/floors, modulation, exact gain-table rounding, resampling, clipping and DSP arithmetic not validated by these corrections",
+    "Provisional Vorbis reference was about 9\u201310 dB louder than v2; v3 corrects table units/linear region gain, not a guessed normalization",
     "Loop and cue timing remain from pinned DualRip; native timing and full PCM parity unverified"
   ],
-  "nativePanLutSha256": "383ea4d362109b74ddccfdaacf46a0bf4b0255f3609cf01f5824e1910e7c7597"
+  "nativePanLutSha256": "383ea4d362109b74ddccfdaacf46a0bf4b0255f3609cf01f5824e1910e7c7597",
+  "captureSemantics": {
+    "builtInAzaharDump": "DspInterface OutputFrame/OutputSample forwards PCM before host OutputCallback",
+    "hostVolumeSliderApplied": false,
+    "hostTimeStretchApplied": false,
+    "nativePlayerAndDspGainsApplied": true
+  }
 }

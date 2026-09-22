@@ -43,7 +43,8 @@ export function pageStart(state: MenuState): number {
 }
 export function menuTiles(state: MenuState) {
   const rows = rowCount(state), pitch = rows === 1 ? 84 : 168 / rows, size = pitch - (rows <= 2 ? 12 : 8);
-  const scroll = pageStart(state), start = Math.floor(scroll), top = (rows === 2 ? 46 : 40) + (168 - rows * pitch) / 2;
+  // Native one-row mode reserves the upper area for the selection balloon.
+  const scroll = pageStart(state), start = Math.floor(scroll), top = rows === 1 ? 125 : (rows === 2 ? 46 : 40) + (168 - rows * pitch) / 2;
   return Array.from({ length: (state.columns + 2) * rows }, (_, i) => {
     const col = Math.floor(i / rows), row = i % rows;
     return { index: (start + col) * rows + row, x: 40 + (col - (scroll - start)) * pitch, y: top + row * pitch, size };

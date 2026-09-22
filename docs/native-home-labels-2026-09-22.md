@@ -59,14 +59,14 @@ independently. `getNativeFolderBalloon` clamps the body center to 152–168 and
 anchors the pointer to the tile center; the clamp is an inferred interpolation
 of those observations, not a recovered runtime formula.
 
-Only the matching large-icon/lower-screen placement is enabled, currently mapped
-to the browser's two-row lower row. Subsequent native navigation suggests the
-reference may actually be a single row placed lower; the native density-to-row
-mapping is not established by these static captures. Integration is obtaining
-new density captures before that layout mapping is changed. Labels disappear
-during gestures, panels and an opened folder. Other densities and upper-row
-placement await native capture; the source has only alpha animation tracks and
-no below-icon variant. Existing upper folder naming remains available there.
+The subsequent [density comparison](native-home-density-2026-09-22.md) establishes
+that these were **one-row** captures. Only one-row mode shows the lower balloon;
+the native two-row capture has no balloon even with a selected lower-row folder.
+The shared one-row grid now uses tile top 125 / anchor 161, while two rows retain
+tops 46 and 130 / anchors 82 and 166. Labels disappear during gestures, panels and
+an opened folder. The source has only alpha animation tracks; no inferred
+below-icon balloon is introduced. Existing upper folder naming remains available
+at the other densities.
 Empty folder labels resolve the native `(No name)` message and style.
 
 The screen API also accepts `drawHomeBackground(ctx,time,reduced):boolean`.

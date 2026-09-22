@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame} from '../src/os/home-presentation.ts';
 import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
+import {homeTouchLocation} from '../src/os/home-gestures.ts';
 const home=()=>{const state=createPortfolioState();return {...state,system:{...state.system,phase:'home'}};};
 const point=(state,index)=>{const tile=menuTiles(state).find(t=>t.index===index);return {x:tile.x+tile.size/2,y:tile.y+tile.size/2};};
 const touch=(state,phase,position,time)=>dispatchSystemEvent(state,{type:'touch',phase,...position,pointerId:1},time);
@@ -13,18 +14,26 @@ test('pressed tile follows runtime pointer source without changing keyboard sele
  assert.deepEqual(view.tiles.filter(t=>t.cursor).map(t=>t.index),[2]);assert.equal(view.ghost,null);
  const released=releaseSystemInputs(pressed,101);assert.ok(getHomePresentation(released).tiles.every(t=>!t.pressed));
 });
-test('native density selects the five authored keys for two through six rows',()=>{
- assert.deepEqual([2,3,4,5,6].map(nativeHomeDensityFrame),[1,2,3,4,5]);
- assert.equal(nativeHomeDensityFrame(1),1,'legacy single-row state retains the largest available native tile');
+test('native density shares the first size across one/two rows then selects smaller keys',()=>{
+ assert.deepEqual([1,2,3,4,5,6].map(nativeHomeDensityFrame),[1,1,2,3,4,5]);
 });
-test('native folder balloon keeps body and pointer separate and excludes unverified placements and gestures',()=>{
- const initial=home(),state={...initial,selected:5,folders:{5:'１ (New Folder)'}};
- const view={...getHomePresentation(state),rows:2,gesture:null,tiles:[{index:5,x:208,y:130,size:72,folderLabel:state.folders[5]}]};
- assert.deepEqual(getNativeFolderBalloon(state,view),{label:state.folders[5],bodyX:8,pointerX:84});
- assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...view.tiles[0],x:124}]}),{label:state.folders[5],bodyX:0,pointerX:0});
- assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...view.tiles[0],folderLabel:''}]}),{label:'',bodyX:8,pointerX:84});
- for(const variant of [{...view,rows:3},{...view,gesture:{mode:'drag'}},{...view,tiles:[{...view.tiles[0],y:46}]}])assert.equal(getNativeFolderBalloon(state,variant),null);
+test('one-row folder balloon follows shared tile positions and disappears at two rows and during gestures',()=>{
+ const initial=home(),state={...initial,columns:3,selected:2,folders:{2:'１ (New Folder)'},system:{...initial.system,homeNavigation:{scrollColumn:0,gesture:null}}};
+ const view=getHomePresentation(state),tile=view.tiles.find(t=>t.index===2);
+ assert.deepEqual([tile.x,tile.y,tile.size],[208,125,72]);
+ assert.deepEqual(getNativeFolderBalloon(state,view),{label:state.folders[2],bodyX:8,pointerX:84});
+ assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,x:124}]}),{label:state.folders[2],bodyX:0,pointerX:0});
+ assert.deepEqual(getNativeFolderBalloon(state,{...view,tiles:[{...tile,folderLabel:''}]}),{label:'',bodyX:8,pointerX:84});
+ for(const columns of [4,6,8,10,12]){const dense={...state,columns};assert.equal(getNativeFolderBalloon(dense,getHomePresentation(dense)),null);}
+ const pressed=touch(state,'down',point(state,2),100);assert.equal(getNativeFolderBalloon(pressed,getHomePresentation(pressed)),null);
  assert.equal(getNativeFolderBalloon({...state,opened:true},view),null);assert.equal(getNativeFolderBalloon({...state,panel:'settings'},view),null);
+});
+test('one-row lift and drop uses the lower drawn tiles while label space stays untargetable',()=>{
+ const start={...home(),columns:3},a=point(start,0),b=point(start,1);
+ assert.equal(homeTouchLocation(start,a.x,118),null);assert.deepEqual(homeTouchLocation(start,a.x,a.y),{folder:null,slot:0});
+ let state=touch(start,'down',a,100);state=tickSystem(state,550);assert.equal(getHomePresentation(state).ghost.item.id,start.system.layout[0]);
+ state=touch(state,'move',b,560);assert.equal(getHomePresentation(state).tiles.find(t=>t.index===1).drop,true);
+ state=touch(state,'up',b,570);assert.equal(state.system.layout[1],start.system.layout[0]);assert.equal(state.system.layout[0],start.system.layout[1]);assert.equal(state.system.phase,'home');
 });
 test('lifted source stays in the reducer map but paints as vacant until placement',()=>{
  const start=home(),original=start.system.layout[0];let state=touch(start,'down',point(start,0),100);state=tickSystem(state,550);

@@ -1,7 +1,7 @@
 import { getHomeGestureView, homeSlotAppId } from './system.ts';
 import { isFolder, menuTiles, rowCount, type MenuState } from './state.ts';
 
-/** Captured two-row HOME uses key 1; larger densities follow the authored size sequence. */
+/** One and two native rows share key 1's 72px plate; denser modes use smaller keys. */
 export const nativeHomeDensityFrame=(rows:number)=>Math.max(1,Math.min(5,rows-1));
 
 /** A derived view, never a second recognizer or a speculative mutation of icon maps. */
@@ -22,12 +22,11 @@ export function getHomePresentation(state:MenuState){
 }
 export type HomePresentation=ReturnType<typeof getHomePresentation>;
 
-/** Source balloon placement at the captured large-icon lower-screen position.
+/** Source balloon placement in native one-row mode.
  * Body and pointer move independently. The bounded horizontal clamp interpolates
- * the centre/right native captures. This currently maps to the browser's two-row
- * lower row; the native density/row mapping itself still awaits capture. */
+ * the centre/right native captures; two-row captures show no lower balloon. */
 export function getNativeFolderBalloon(state:MenuState,view:HomePresentation){
- if(state.opened||state.panel||view.gesture||view.rows!==2)return null;
+ if(state.opened||state.panel||view.gesture||view.rows!==1)return null;
  const tile=view.tiles.find(tile=>tile.index===state.selected);
  if(tile?.folderLabel===null||tile?.folderLabel===undefined||tile.y<120)return null;
  const x=tile.x+tile.size/2;if(x<0||x>320)return null;

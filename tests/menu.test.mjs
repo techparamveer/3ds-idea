@@ -42,6 +42,16 @@ test('Drawn tiles remain reachable after scrolling or density changes',()=>{
   }
  }
 });
+test('one-row icons stay below the label area and density changes retain shared touch bounds',()=>{
+ const one={...initialState,columns:3,selected:0},tiles=menuTiles(one);
+ assert.deepEqual(tiles.slice(0,3).map(t=>[t.x,t.y,t.size]),[[40,125,72],[124,125,72],[208,125,72]]);
+ assert.deepEqual(touchMenu(one,160,118),one,'the old single-row centre is now label space');
+ const selected=touchMenu(one,244,161);assert.equal(selected.selected,2);
+ const two=touchMenu(selected,307,16);assert.equal(rowCount(two),2);assert.equal(two.selected,2);
+ assert.deepEqual(menuTiles(two).slice(0,2).map(t=>[t.y,t.size]),[[46,72],[130,72]]);
+ const back=touchMenu(two,277,16);assert.equal(rowCount(back),1);assert.equal(back.selected,2);
+ assert.ok(menuTiles(back).every(t=>t.y===125));
+});
 test('Zoom-in and zoom-out are separate bounded controls, preserving selected software',()=>{
  let s={...initialState,selected:17};
  s=touchMenu(s,307,16);assert.equal(rowCount(s),3);assert.equal(s.selected,17);

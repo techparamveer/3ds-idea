@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { sampleCgfxCurve, type CgfxCurve } from '../os/cgfx-animation';
+import { sampleCgfxCurve, selectCgfxClips, cgfxClipFrame, type CgfxCurve, type CgfxClipChoice } from '../os/cgfx-animation';
 import { cgfxLightingShader, decodeCgfxLutWord, type CgfxLightingData } from './cgfx-lighting';
 type Color={R:number;G:number;B:number;A:number};
 type Vec={X:number;Y:number;Z:number;W?:number};
@@ -13,6 +13,7 @@ type Mesh={material:number;node:number;layer:number;priority:number;position:num
 type Clip={Name:string;FramesCount:number;AnimationFlags:string;Elements:{Name:string;TargetType:string;PrimitiveType:string;Content:Record<string,CgfxCurve>}[]};
 export type FirmwareModelData=CgfxLightingData&{schema:1;sourceSha256:string;models:{name:string;transform:Record<string,number>;skeleton:Bone[];materials:Material[];nodes:boolean[];meshes:Mesh[]}[];textures:{name:string;url:string;width:number;height:number}[];skeletalAnimations:Clip[];materialAnimations:Clip[];visibilityAnimations:Clip[]};
 export type FirmwareModelAsset={data:FirmwareModelData;images:Map<string,HTMLImageElement>};
+export type FirmwareModelPlayback={skeletal?:readonly CgfxClipChoice[];material?:readonly CgfxClipChoice[]};
 export async function loadFirmwareModel(url:string):Promise<FirmwareModelAsset>{
  const response=await fetch(url);if(!response.ok)throw new Error(`Model HTTP ${response.status}`);
  const data=await response.json() as FirmwareModelData;
@@ -81,9 +82,11 @@ const factor:Record<string,THREE.BlendingDstFactor>={Zero:THREE.ZeroFactor,One:T
 function matrix(source:Record<string,number>){return new THREE.Matrix4().set(source.M11,source.M21,source.M31,source.M41,source.M12,source.M22,source.M32,source.M42,source.M13,source.M23,source.M33,source.M43,0,0,0,1);}
 
 /** Uses original meshes/combiners/curves and directional LUT lighting; other lighting remains approximate. */
-export function createFirmwareModel(asset:FirmwareModelAsset){
+export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:FirmwareModelPlayback={}){
  const group=new THREE.Group(),textures:THREE.Texture[]=[],materials:THREE.ShaderMaterial[]=[],geometries:THREE.BufferGeometry[]=[];
  const updaters:((frame:number)=>void)[]=[];
+ const select=(playback:FirmwareModelPlayback)=>({skeletal:selectCgfxClips(asset.data.skeletalAnimations,playback.skeletal),material:selectCgfxClips(asset.data.materialAnimations,playback.material)});
+ let playback=select(initialPlayback);
  const white=new THREE.DataTexture(new Uint8Array([255,255,255,255]),1,1);white.needsUpdate=true;textures.push(white);
  for(const model of asset.data.models){
   const modelGroup=new THREE.Group();modelGroup.matrixAutoUpdate=false;modelGroup.matrix.copy(matrix(model.transform));group.add(modelGroup);
@@ -120,7 +123,7 @@ export function createFirmwareModel(asset:FirmwareModelAsset){
   const position=new THREE.Vector3(),normal=new THREE.Vector3(),transformed=new THREE.Vector3(),rot=new THREE.Quaternion(),scale=new THREE.Vector3(),translation=new THREE.Vector3(),normalMatrix=new THREE.Matrix3();
   updaters.push(frame=>{
    const values=model.skeleton.map(b=>({scale:{...b.Scale},rotation:{...b.Rotation},translation:{...b.Translation}}));
-   for(const clip of asset.data.skeletalAnimations){const at=clip.AnimationFlags.includes('IsLooping')&&clip.FramesCount?frame%clip.FramesCount:frame;
+   for(const selection of playback.skeletal){const {clip}=selection,at=cgfxClipFrame(clip,selection.frame??frame);
     for(const element of clip.Elements){const index=model.skeleton.findIndex(b=>b.Name===element.Name);if(index<0||element.PrimitiveType!=='Transform')continue;const value=values[index];
      for(const [property,target] of [['Scale','scale'],['Rotation','rotation'],['Translation','translation']] as const)for(const axis of ['X','Y','Z'] as const)value[target][axis]=sampleCgfxCurve(element.Content[`${property}${axis}`],at,value[target][axis]);
     }
@@ -134,14 +137,28 @@ export function createFirmwareModel(asset:FirmwareModelAsset){
      dst.setXYZ(i,position.x,position.y,position.z);normal.normalize();normals.setXYZ(i,normal.x,normal.y,normal.z);
     }dst.needsUpdate=true;normals.needsUpdate=true;
    }
-   for(const clip of asset.data.materialAnimations){const at=clip.AnimationFlags.includes('IsLooping')&&clip.FramesCount?frame%clip.FramesCount:frame;
-    for(const element of clip.Elements){const index=materialCopies.findIndex(m=>m.Name===element.Name);if(index<0)continue;const match=/MaterialTexCoord(\d)(Trans|Scale|Rot)/.exec(element.TargetType);if(!match)continue;const coord=materialCopies[index].MaterialParams.TextureCoords[Number(match[1])];
+   // Reset authored state before applying the selected clips so switching clips
+   // cannot retain a previous animation's color or texture transform.
+   materialCopies.forEach((m,index)=>{
+    const original=model.materials[index].MaterialParams;
+    m.MaterialParams.TextureCoords=structuredClone(original.TextureCoords);
+    for(let i=0;i<6;i++){const c=original[`Constant${i}Color`] as Color;mats[index].uniforms[`constant${i}`].value.set(c.R/255,c.G/255,c.B/255,c.A/255);}
+   });
+   for(const selection of playback.material){const {clip}=selection,at=cgfxClipFrame(clip,selection.frame??frame);
+    for(const element of clip.Elements){const index=materialCopies.findIndex(m=>m.Name===element.Name);if(index<0)continue;
+     const constant=/^MaterialConstant([0-5])$/.exec(element.TargetType);
+     if(constant&&element.PrimitiveType==='RGBA'){
+      const value=mats[index].uniforms[`constant${constant[1]}`].value as THREE.Vector4;
+      for(const [channel,axis] of [['R','x'],['G','y'],['B','z'],['A','w']] as const)value[axis]=Math.max(0,Math.min(1,sampleCgfxCurve(element.Content[channel],at,value[axis])));
+      continue;
+     }
+     const match=/^MaterialTexCoord([0-2])(Trans|Scale|Rot)$/.exec(element.TargetType);if(!match)continue;const coord=materialCopies[index].MaterialParams.TextureCoords[Number(match[1])];
      if(match[2]==='Rot')coord.Rotation=sampleCgfxCurve(element.Content.Value,at,coord.Rotation);
      else{const vec=match[2]==='Scale'?coord.Scale:coord.Translation;vec.X=sampleCgfxCurve(element.Content.X,at,vec.X);vec.Y=sampleCgfxCurve(element.Content.Y,at,vec.Y);}
-     mats[index].uniforms[`uvMatrix${match[1]}`].value=textureMatrix(coord);
     }
    }
+   materialCopies.forEach((m,index)=>m.MaterialParams.TextureCoords.forEach((coord,i)=>{mats[index].uniforms[`uvMatrix${i}`].value=textureMatrix(coord);}));
   });
  }
- return {group,update(elapsedMs:number){for(const update of updaters)update(elapsedMs*60/1000);},dispose(){textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());}};
+ return {group,setPlayback(next:FirmwareModelPlayback){playback=select(next);},update(elapsedMs:number){for(const update of updaters)update(elapsedMs*60/1000);},dispose(){textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());}};
 }

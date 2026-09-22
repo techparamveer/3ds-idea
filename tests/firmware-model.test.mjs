@@ -3,9 +3,13 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 const source=readFileSync(new URL('../src/os/cgfx-animation.ts',import.meta.url),'utf8');
-const {sampleCgfxCurve}=await import('data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext}}).outputText).toString('base64'));
+const asModule=source=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
+const animationUrl=asModule(source);
+const {sampleCgfxCurve,selectCgfxClips,cgfxClipFrame}=await import(animationUrl);
 const lightingSource=readFileSync(new URL('../src/scene/cgfx-lighting.ts',import.meta.url),'utf8');
 const {decodeCgfxLutWord,sampleCgfxLut,resolveCgfxLut,cgfxLightingShader}=await import('data:text/javascript;base64,'+Buffer.from(ts.transpileModule(lightingSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
+const modelSource=readFileSync(new URL('../src/scene/firmware-model.ts',import.meta.url),'utf8').replace("'three'",JSON.stringify(import.meta.resolve('three'))).replace("'../os/cgfx-animation'",JSON.stringify(animationUrl)).replace("'./cgfx-lighting'",JSON.stringify(asModule(lightingSource)));
+const {createFirmwareModel}=await import(asModule(modelSource));
 test('native CGFX Hermite curve preserves tangents and repeat period',()=>{
  const curve={KeyFrames:[{Frame:0,Value:-.4,InSlope:0,OutSlope:0},{Frame:75,Value:.6,InSlope:0,OutSlope:0},{Frame:150,Value:-.4,InSlope:0,OutSlope:0}],StartFrame:0,EndFrame:150,PreRepeat:'Repeat',PostRepeat:'Repeat',InterpolationType:'Hermite'};
  assert.ok(Math.abs(sampleCgfxCurve(curve,37.5)-.1)<1e-7);
@@ -39,4 +43,39 @@ test('real folder binds its authored directional light and LUT without a power h
  const quarter=structuredClone(params);quarter.LUTInputScale.Dist0='Quarter';assert.ok(cgfxLightingShader(quarter,data).code.includes('*0.25'));
  const broken=structuredClone(data);broken.luts=[];assert.throws(()=>cgfxLightingShader(params,broken),/Missing native CGFX LUT/);
  const icon=data.models[0].materials.find(m=>m.Name==='mt_icon').MaterialParams;assert.equal(cgfxLightingShader(icon,data).samplers[0].Name,'Icon_00');
+});
+test('CGFX alternatives require explicit selection and independent frozen checkpoints',()=>{
+ const clips=[{Name:'in',FramesCount:20,AnimationFlags:'0'},{Name:'out',FramesCount:40,AnimationFlags:'0'}];
+ assert.throws(()=>selectCgfxClips(clips),/explicit animation selection/);
+ assert.throws(()=>selectCgfxClips(clips,[{name:'missing'}]),/Invalid native animation selection/);
+ assert.throws(()=>selectCgfxClips(clips,[{name:'in'},{name:'in'}]),/Invalid native animation selection/);
+ assert.deepEqual(selectCgfxClips(clips,[]),[]);
+ assert.equal(selectCgfxClips(clips,[{name:'in',frame:20}])[0].frame,20);
+ assert.equal(cgfxClipFrame(clips[0],800),20);
+ assert.equal(cgfxClipFrame({Name:'loop',FramesCount:600,AnimationFlags:'IsLooping'},650),50);
+});
+test('real HOME background binds one scene clip and restores colors/UVs when clips change',()=>{
+ const data=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/home-background/model.json',import.meta.url),'utf8'));
+ const before=JSON.stringify(data),asset={data,images:new Map()};
+ assert.throws(()=>createFirmwareModel(asset),/explicit animation selection/);
+ const model=createFirmwareModel(asset,{skeletal:[{name:'BannerBG_SceneIn',frame:20}],material:[]});
+ model.update(9000);
+ const mesh=model.group.children[0].children[0],uniforms=mesh.material.uniforms,position=mesh.geometry.getAttribute('position');
+ const source=data.models[0].meshes[0].position;
+ for(let i=0;i<source.length;i++)for(let axis=0;axis<3;axis++)assert.ok(Math.abs(position.array[i*3+axis]-source[i][axis])<1e-4,'settled SceneIn must not also apply SceneOut');
+ const originalColor=uniforms.constant0.value.toArray(),originalMatrix=uniforms.uvMatrix1.value.toArray();
+ model.setPlayback({skeletal:[],material:[{name:'BannerBG_AppPause',frame:0}]});model.update(9000);
+ assert.deepEqual(uniforms.constant0.value.toArray(),[1,1,1,originalColor[3]],'RGBA animation preserves an unauthored alpha channel');
+ assert.notDeepEqual(uniforms.uvMatrix1.value.toArray(),originalMatrix);
+ model.setPlayback({skeletal:[],material:[]});model.update(9000);
+ assert.deepEqual(uniforms.constant0.value.toArray(),originalColor);
+ assert.deepEqual(uniforms.uvMatrix1.value.toArray(),originalMatrix);
+ assert.equal(JSON.stringify(data),before,'playback must not mutate the shared asset');model.dispose();
+});
+test('HOME runtime yaw wraps independently of selection and native bob clips',async()=>{
+ const {homeBannerYaw}=await import(asModule(readFileSync(new URL('../src/os/banner-motion.ts',import.meta.url),'utf8')));
+ assert.equal(homeBannerYaw(0),homeBannerYaw(10000));
+ assert.ok(Math.abs(homeBannerYaw(149.5*1000/60)+Math.PI/2)<1e-6);
+ assert.ok(Math.abs(homeBannerYaw(299.5*1000/60)+Math.PI)<1e-6);
+ assert.equal(homeBannerYaw(9999),-0);assert.throws(()=>homeBannerYaw(NaN),/Invalid banner time/);
 });

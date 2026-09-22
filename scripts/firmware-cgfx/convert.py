@@ -5,7 +5,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from unpack_home_resources import decompress
 from convert_bcfnt import png
 
-def convert(source, output, scratch, dotnet, exporter):
+def convert(source, output, scratch, dotnet, exporter, manifest=None, model_key=None, title_id=None, source_path=None):
     data=source.read_bytes()
     decoded=decompress(data) if data[0] in (16,17) else data
     if decoded[:4]!=b'CGFX': raise ValueError('Not a CGFX resource')
@@ -17,6 +17,9 @@ def convert(source, output, scratch, dotnet, exporter):
     model['sourceName']=source.name
     model['compressedSourceSha256']=hashlib.sha256(data).hexdigest()
     model['spicaRevision']='bd29a7828595d7839cda2ac61c76bb63f9071250'
+    model['converter']={'name':'ctr-cgfx-web','version':'1.1.0',
+                        'wrapperSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                        'exporterSha256':hashlib.sha256(exporter.read_bytes()).hexdigest()}
     output.mkdir(parents=True,exist_ok=True)
     for texture in model['textures']:
         width,height=texture['width'],texture['height']
@@ -27,9 +30,24 @@ def convert(source, output, scratch, dotnet, exporter):
         (output/texture['url']).write_bytes(encoded)
         texture['sha256']=hashlib.sha256(encoded).hexdigest()
     (output/'model.json').write_text(json.dumps(model,separators=(',',':'))+'\n')
+    if manifest is not None:
+        if not all((model_key,title_id,source_path)): raise ValueError('Manifest registration needs model key, title ID and relative source path')
+        relative=output.resolve().relative_to(manifest.parent.resolve())
+        if relative.parts[0]!='models' or Path(source_path).is_absolute() or '..' in Path(source_path).parts: raise ValueError('Invalid model delivery/source path')
+        record=json.loads(manifest.read_text())
+        if title_id not in record['sources']: raise ValueError('Model title is absent from the extracted manifest')
+        record.setdefault('models',{})[model_key]=(relative/'model.json').as_posix()
+        provenance={'titleId':title_id,'path':source_path,'sha256':model['compressedSourceSha256']}
+        for name in ['model.json',*[texture['url'] for texture in model['textures']]]:
+            payload=(output/name).read_bytes()
+            record['resources'][(relative/name).as_posix()]={'kind':'model' if name=='model.json' else 'model-texture','size':len(payload),'sha256':hashlib.sha256(payload).hexdigest(),'sources':[provenance]}
+        manifest.write_text(json.dumps(record,sort_keys=True,separators=(',',':'))+'\n')
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('source',type=Path);p.add_argument('output',type=Path);p.add_argument('--scratch',required=True,type=Path)
     p.add_argument('--dotnet',required=True,type=Path);p.add_argument('--exporter',required=True,type=Path)
-    a=p.parse_args();convert(a.source,a.output,a.scratch,a.dotnet,a.exporter)
+    p.add_argument('--manifest',type=Path);p.add_argument('--model-key');p.add_argument('--title-id');p.add_argument('--source-path')
+    a=p.parse_args()
+    if any((a.manifest,a.model_key,a.title_id,a.source_path)) and not all((a.manifest,a.model_key,a.title_id,a.source_path)): p.error('Supply all four manifest registration arguments together')
+    convert(a.source,a.output,a.scratch,a.dotnet,a.exporter,a.manifest,a.model_key,a.title_id,a.source_path)

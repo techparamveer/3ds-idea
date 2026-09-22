@@ -136,10 +136,11 @@ def audit(root, artifacts=None, repository=None):
     packs = sorted(url for url, record in records.items() if record['kind'] == 'pack')
     for url in packs:
         pack = json.loads(public_path(root, url).read_text())
-        for bucket in ('layouts', 'animations', 'textures', 'messages'):
-            report['counts'][bucket] += len(pack[bucket])
+        for bucket in ('layouts', 'animations', 'textures', 'messages', 'styles'):
+            members = pack.get(bucket, {})
+            report['counts'][bucket] += len(members)
             sources = pack.get('resourceSources', {}).get(bucket, {})
-            check(set(sources) == set(pack[bucket]), f'{url}: missing {bucket} member provenance')
+            check(set(sources) == set(members), f'{url}: missing {bucket} member provenance')
             for key, source in sources.items():
                 try: source_check(source, f'{url}/{key}')
                 except (ValueError, KeyError, OSError) as error: report['errors'].append(f'{url}/{key}: {error}')
@@ -183,8 +184,11 @@ def audit(root, artifacts=None, repository=None):
                 material = materials.get(track['target']) if track['binding'] == 'material' else None
                 check(track['target'] in (materials if track['binding'] == 'material' else panes), f'{context}: missing target {track["target"]}')
                 if track['tag'] == 'CLTS' and material and track['index'] >= len(material['textureMatrices']):
+                    identity = 1 if track['component'] in (3, 4) else 0
                     report['warnings'].append({'kind': 'unallocatedTextureMatrix', 'pack': url, 'animation': name,
-                                               'target': track['target'], 'index': track['index'], 'component': track['component']})
+                                               'target': track['target'], 'index': track['index'], 'component': track['component'],
+                                               'behavior': 'nativeSkip', 'nonIdentity': any(
+                                                   key['value'] != identity or key.get('slope', 0) != 0 for key in track['keys'])})
                 if track['tag'] == 'CLMC': check(0 <= track['component'] < 28, f'{context}: material color out of bounds')
                 if track['tag'] == 'CLTP':
                     for key in track['keys']: check(0 <= key['value'] < len(animation['textures']), f'{context}: texture pattern out of bounds')
@@ -192,8 +196,20 @@ def audit(root, artifacts=None, repository=None):
         for name, messages in pack['messages'].items():
             for label, index in messages['labels'].items():
                 check(0 <= index < len(messages['messages']), f'{url}/{name}: message label {label} out of bounds')
+            table_name = messages.get('styleTable')
+            if table_name is not None:
+                table = pack.get('styles', {}).get(table_name)
+                check(table is not None, f'{url}/{name}: missing style table {table_name}')
+                if table is not None:
+                    for message in messages['messages']:
+                        index = message['styleIndex']
+                        check(index is None or 0 <= index < len(table['styles']), f'{url}/{name}: style index out of bounds')
             for issue in messages['unsupported']:
                 report['warnings'].append({'kind': 'unsupportedMessageField', 'resource': f'{url}/{name}', 'detail': issue})
+        for name, table in pack.get('styles', {}).items():
+            report['counts']['messageStyles'] += len(table['styles'])
+            for issue in table['unsupported']:
+                report['warnings'].append({'kind': 'unsupportedStyleField', 'resource': f'{url}/{name}', 'detail': issue})
         for issue in pack['unsupported']: report['warnings'].append({'kind': 'unsupportedResource', 'pack': url, **issue})
     report['warnings'] += [{'kind': 'unsupportedContainer', **issue} for issue in manifest.get('unsupported', [])]
     report['warningCounts'] = dict(Counter(w['kind'] for w in report['warnings']))

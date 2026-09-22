@@ -16,8 +16,8 @@ import zlib
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'scripts'))
 from firmware.texture import decode_texture, decode_bclim, png
-from firmware.native import decode_layout, decode_animation, decode_msbt
-from firmware.build import EXCLUDED, TITLES, Builder, cia_metadata, public_path, digest, encode
+from firmware.native import decode_layout, decode_animation, decode_msbt, decode_mstl
+from firmware.build import EXCLUDED, TITLES, HOME, Builder, cia_metadata, public_path, digest, encode
 from firmware.audit import audit, compare_delivery
 from convert_bcfnt import convert, decode_sheet
 from unpack_home_resources import unpack_darc, decompress
@@ -92,6 +92,19 @@ class TextureTests(unittest.TestCase):
 
 
 class ContainerTests(unittest.TestCase):
+    def test_home_style_axes_spacing_and_unresolved_words(self):
+        # Distinct horizontal/vertical values catch the native Y-before-X order.
+        record = struct.pack('<6I4fI', 256, 3, 10, 11, 12, 13, .5, .75, -2, .25, 4)
+        result = decode_mstl(struct.pack('<I', 1)+record)
+        self.assertEqual(result['recordSize'], 44)
+        self.assertEqual(result['styles'], [{'fontScale': [.75, .5], 'lineSpacing': -2,
+            'characterSpacing': .25, 'unresolvedWords': {'0': 256, '4': 3, '8': 10,
+            '12': 11, '16': 12, '20': 13, '40': 4}}])
+        self.assertEqual(result['unsupported'][0]['offsets'], [0, 4, 8, 12, 16, 20, 40])
+        for raw in (b'', struct.pack('<I', 2)+record, struct.pack('<I', 1)+record+b'\0',
+                    struct.pack('<I', 1)+record[:24]+struct.pack('<f', float('nan'))+record[28:]):
+            with self.subTest(raw=raw), self.assertRaises(ValueError): decode_mstl(raw)
+
     def test_message_style_indices_attributes_and_control_arguments(self):
         def section(tag, payload):
             raw = struct.pack('<4sI8x', tag, len(payload))+payload
@@ -111,6 +124,33 @@ class ContainerTests(unittest.TestCase):
         self.assertEqual(result['attributes']['records'], ['0102', '0304'])
         self.assertEqual(result['messages'][0]['tokens'], [{'text': 'A'}, {'control': 14, 'group': 1, 'type': 2, 'arguments': '7879'}])
         self.assertEqual(result['unsupported'], [])
+        # Same basename in two directories must remain two independent tables.
+        styles = struct.pack('<I', 29)+struct.pack('<6I4fI', 0, 0, 0, 0, 0, 0, .5, .75, 0, 1, 4)*29
+        with tempfile.TemporaryDirectory() as temp:
+            builder = Builder(Path(temp))
+            url, pack = builder.pack({'message/EU_English/menu_msbt_LZ.bin': header+blocks,
+                'message/EU_English/RI_mstl_LZ.bin': styles,
+                'message_hud/EU_English/hud_msbt_LZ.bin': header+blocks,
+                'message_hud/EU_English/RI_mstl_LZ.bin': styles,
+                'unknown/RI_mstl_LZ.bin': styles}, 'test', HOME, 'RomFS', 'source')
+            self.assertEqual(len(pack['styles']), 2)
+            for folder, name in [('message', 'menu'), ('message_hud', 'hud')]:
+                table = f'{folder}/EU_English/RI_mstl_LZ.bin'
+                self.assertEqual(pack['messages'][name+'_msbt_LZ']['styleTable'], table)
+                self.assertEqual(pack['resourceSources']['styles'][table]['sha256'], digest(styles))
+            self.assertEqual([entry['path'] for entry in pack['unsupported']], ['unknown/RI_mstl_LZ.bin'])
+            manifest = {'schema': 1, 'firmware': '10.7.0-32E', 'sources': {HOME: {'titleId': HOME, 'file': 'home.cia'}},
+                        'fonts': {}, 'titles': {}, 'home': {'messages': url}, 'resources': builder.records,
+                        'converter': {'version': 'test', 'scripts': {'test.py': 'test'}, 'extractor': {'name': 'test'}}}
+            (Path(temp)/'manifest.json').write_bytes(encode(manifest))
+            self.assertEqual(audit(temp)['errors'], [])
+            # Update integrity metadata so the audit must check the relationship,
+            # rather than detecting only an unrelated file-hash change.
+            pack['messages']['menu_msbt_LZ']['messages'][0]['styleIndex'] = 29
+            broken = encode(pack); (Path(temp)/url).write_bytes(broken)
+            manifest['resources'][url].update(sha256=digest(broken), size=len(broken))
+            (Path(temp)/'manifest.json').write_bytes(encode(manifest))
+            self.assertIn('style index out of bounds', ' '.join(audit(temp)['errors']))
 
     def test_window_fixed_point_inflation_and_integer_frame_sizes(self):
         section = bytearray(128)
@@ -186,6 +226,24 @@ ARTIFACTS = Path(os.environ['FIRMWARE_ARTIFACTS']) if 'FIRMWARE_ARTIFACTS' in os
 
 @unittest.skipUnless(ARTIFACTS, 'Owner assets are opt-in private fixtures')
 class OwnerResources(unittest.TestCase):
+    def test_home_style_records_and_message_links(self):
+        romfs = ARTIFACTS/'extracted/home/romfs'
+        for folder, name, count in [('message', 'menu', 679), ('message_hud', 'hud', 7)]:
+            base = romfs/folder/'EU_English'
+            raw = decompress((base/'RI_mstl_LZ.bin').read_bytes())
+            table = decode_mstl(raw)
+            self.assertEqual(len(table['styles']), count)
+            self.assertEqual(len(raw), 4+44*count)
+            messages = decode_msbt(decompress((base/(name+'_msbt_LZ.bin')).read_bytes()))
+            for message in messages['messages']:
+                if message['styleIndex'] is not None:
+                    self.assertGreaterEqual(message['styleIndex'], 0)
+                    self.assertLess(message['styleIndex'], count)
+            if name == 'hud':
+                self.assertEqual(table['styles'][2]['fontScale'], [.5, .5])
+                self.assertEqual(table['styles'][2]['lineSpacing'], 0)
+                self.assertEqual(table['styles'][2]['characterSpacing'], 0)
+
     def test_home_animation_groups_and_targets_resolve(self):
         def flatten(nodes):
             for node in nodes:
@@ -285,6 +343,12 @@ class OwnerResources(unittest.TestCase):
         self.assertEqual(result['counts']['animations'], 666)
         self.assertEqual(result['counts']['layouts'], 184)
         self.assertEqual(result['counts']['fontAtlases'], 7)
+        self.assertEqual(result['counts']['styles'], 2)
+        self.assertEqual(result['counts']['messageStyles'], 686)
+        skipped = [issue for issue in result['warnings'] if issue['kind'] == 'unallocatedTextureMatrix']
+        self.assertEqual(len(skipped), 351)
+        self.assertEqual(sum(issue['nonIdentity'] for issue in skipped), 15)
+        self.assertTrue(all(issue['behavior'] == 'nativeSkip' for issue in skipped))
         self.assertGreater(result['privateSourcesChecked'], 1800)
 
 

@@ -18,13 +18,14 @@ SCRIPTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPTS))
 from convert_bcfnt import convert as convert_font
 from unpack_home_resources import decompress, unpack_darc
-from firmware.native import decode_layout, decode_animation, decode_msbt
+from firmware.native import decode_layout, decode_animation, decode_msbt, decode_mstl
 from firmware.texture import decode_bclim, decode_texture, png
 
 FIRMWARE = '10.7.0-32E'
-CONVERTER_VERSION = '1.1.0'
+CONVERTER_VERSION = '1.2.0'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
+HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
 EXCLUDED = {'0004001000022d00', '0004001000022e00'}
 TITLES = {
     HOME: ('home', 'HOME Menu', 'system'),
@@ -170,6 +171,10 @@ class Builder:
                 elif len(raw) >= 40 and raw[-40:-36] == b'CLIM':
                     bucket, key, value = 'textures', Path(path).name, self.texture(raw, source)
                 elif raw[:8] == b'MsgStdBn': bucket, value = 'messages', decode_msbt(raw)
+                elif title == HOME and path in HOME_STYLE_PATHS:
+                    bucket, key, value = 'styles', path, decode_mstl(raw)
+                    result.setdefault(bucket, {})
+                    result['resourceSources'].setdefault(bucket, {})
                 else:
                     result['unsupported'].append({'path': path, 'sha256': digest(raw), 'size': len(raw), 'reason': 'Unconverted resource type'})
                     continue
@@ -178,6 +183,11 @@ class Builder:
                 result['resourceSources'][bucket][key] = source
             except (ValueError, UnicodeError, struct.error, IndexError) as error:
                 result['unsupported'].append({'path': path, 'sha256': digest(raw), 'reason': str(error)})
+        for key, message in result['messages'].items():
+            member = result['resourceSources']['messages'][key]['path'].removeprefix(source_path+'/')
+            table = str(Path(member).parent/'RI_mstl_LZ.bin')
+            if table in result.get('styles', {}):
+                message['styleTable'] = table
         slug = TITLES[title][0]
         url = f'packs/{slug}/{name}.json'
         self.write(url, encode(result), {'titleId': title, 'path': source_path, 'sha256': source_hash}, 'pack')
@@ -256,7 +266,8 @@ def main():
                 url, pack = builder.pack(resources, name, title, relative, digest(packed))
                 info['packs'].append(url)
                 if title == HOME: manifest['home'][name] = url
-            elif raw[:4] in (b'CLYT', b'CLAN') or raw[:8] == b'MsgStdBn' or (len(raw) >= 40 and raw[-40:-36] == b'CLIM'):
+            elif (raw[:4] in (b'CLYT', b'CLAN') or raw[:8] == b'MsgStdBn' or
+                  (len(raw) >= 40 and raw[-40:-36] == b'CLIM') or (title == HOME and relative in HOME_STYLE_PATHS)):
                 loose[relative] = raw
             elif raw[:4] == b'CFNT':
                 try:

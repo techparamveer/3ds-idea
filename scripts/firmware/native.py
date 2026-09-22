@@ -199,6 +199,31 @@ def decode_animation(data):
     return out
 
 
+def decode_mstl(data):
+    """Read HOME's RI_mstl table, not MSBP's shorter SYL3 record format.
+
+    Native 10.7 EUR HOME: 0x1338f0 resolves TSY1 to base+4+44*index;
+    0x11e5b0 applies the four floats below. The TextBox constructor at
+    0x1a42c8 confirms the width/height and spacing destinations. The other
+    seven words have no established runtime semantics and stay unnamed.
+    This headerless format must only be selected by known resource path.
+    """
+    r = Reader(data)
+    count = r.u32(0)
+    if count > 65536 or len(data) != 4+44*count:
+        raise ValueError('Invalid HOME message style table size')
+    out = {'recordSize': 44, 'styles': [], 'unsupported': [
+        {'kind': 'styleFields', 'offsets': [0, 4, 8, 12, 16, 20, 40]}]}
+    for index in range(count):
+        at = 4+index*44
+        sy, sx, line, character = r.read('4f', at+24)
+        out['styles'].append({'fontScale': [sx, sy], 'lineSpacing': line,
+                              'characterSpacing': character,
+                              'unresolvedWords': {str(offset): r.u32(at+offset)
+                                                  for offset in (0, 4, 8, 12, 16, 20, 40)}})
+    return out
+
+
 def decode_msbt(data):
     r = Reader(data)
     if r.bytes(0, 8) != b'MsgStdBn' or r.read('H', 8)[0] != 0xfeff or r.u32(18) != len(data): raise ValueError('Invalid MSBT header')

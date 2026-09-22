@@ -1,0 +1,140 @@
+import * as THREE from 'three';
+import { sampleCgfxCurve, type CgfxCurve } from '../os/cgfx-animation';
+type Color={R:number;G:number;B:number;A:number};
+type Vec={X:number;Y:number;Z:number;W?:number};
+type Coord={MappingType:string;TransformType:string;Scale:Vec;Rotation:number;Translation:Vec};
+type Stage={Source:{Color:string[];Alpha:string[]};Operand:{Color:string[];Alpha:string[]};Combiner:{Color:string;Alpha:string};Scale:{Color:string;Alpha:string};UpdateColorBuffer:boolean;UpdateAlphaBuffer:boolean};
+type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
+type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string}[]};
+type Bone={Name:string;ParentIndex:number;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
+type Submesh={indices:number[];bones:number[];skinning:string;primitive:string};
+type Mesh={material:number;node:number;layer:number;priority:number;position:number[][];normal:number[][];color:number[][];uv0:number[][];uv1:number[][];uv2:number[][];joints:number[][];weights:number[][];submeshes:Submesh[]};
+type Clip={Name:string;FramesCount:number;AnimationFlags:string;Elements:{Name:string;TargetType:string;PrimitiveType:string;Content:Record<string,CgfxCurve>}[]};
+export type FirmwareModelData={schema:1;sourceSha256:string;models:{name:string;transform:Record<string,number>;skeleton:Bone[];materials:Material[];nodes:boolean[];meshes:Mesh[]}[];textures:{name:string;url:string;width:number;height:number}[];skeletalAnimations:Clip[];materialAnimations:Clip[];visibilityAnimations:Clip[];luts:unknown[]};
+export type FirmwareModelAsset={data:FirmwareModelData;images:Map<string,HTMLImageElement>};
+export async function loadFirmwareModel(url:string):Promise<FirmwareModelAsset>{
+ const response=await fetch(url);if(!response.ok)throw new Error(`Model HTTP ${response.status}`);
+ const data=await response.json() as FirmwareModelData;
+ if(data.schema!==1||!Array.isArray(data.models)||!Array.isArray(data.textures))throw new Error('Invalid firmware model');
+ const images=new Map<string,HTMLImageElement>();
+ await Promise.all(data.textures.map(async record=>{const image=new Image();image.src=new URL(record.url,new URL(url,window.location.href)).href;await image.decode();images.set(record.name,image);}));
+ return {data,images};
+}
+const rgba=(c:Color)=>new THREE.Vector4(c.R/255,c.G/255,c.B/255,c.A/255);
+const glcolor=(c:Color)=>`vec4(${[c.R,c.G,c.B,c.A].map(v=>(v/255).toFixed(8)).join(',')})`;
+function argument(source:string,operand:string,constant:number,alpha:boolean){
+ const sources:Record<string,string>={PrimaryColor:'vColor',FragmentPrimaryColor:'litPrimary',FragmentSecondaryColor:'litSecondary',Texture0:'t0',Texture1:'t1',Texture2:'t2',Texture3:'vec4(1.0)',Previous:'previous',PreviousBuffer:'buffer',Constant:`constant${constant}`};
+ let expression=sources[source];if(!expression)throw new Error(`Unsupported PICA source ${source}`);
+ const inverted=operand.startsWith('OneMinus'),op=inverted?operand.slice(8):operand;
+ const swizzle:Record<string,string>={Color:'rgb',Alpha:'a',Red:'r',Green:'g',Blue:'b'};
+ const component=swizzle[op];if(!component)throw new Error(`Unsupported PICA operand ${operand}`);
+ expression+=`.${alpha?(component==='rgb'?'a':component):component==='rgb'?'rgb':component.repeat(3)}`;
+ return inverted?`(1.0-${expression})`:expression;
+}
+function combine(mode:string,args:string[],alpha:boolean){
+ const [a,b,c]=args.map(x=>`(${x})`);
+ const operations:Record<string,string>={Replace:a,Modulate:`${a}*${b}`,Add:`${a}+${b}`,AddSigned:`${a}+${b}-0.5`,Interpolate:`${a}*${c}+${b}*(1.0-${c})`,Subtract:`${a}-${b}`,MultAdd:`${a}*${b}+${c}`,AddMult:`min(${a}+${b},1.0)*${c}`,Dot3RGB:`vec3(dot(${a}-0.5,${b}-0.5)*4.0)`,Dot3RGBA:`vec3(dot(${a}-0.5,${b}-0.5)*4.0)`};
+ if(!operations[mode]||(alpha&&mode.startsWith('Dot')))throw new Error(`Unsupported PICA combiner ${mode}`);
+ return operations[mode];
+}
+export function picaFragmentShader(material:Material):string{
+ const p=material.MaterialParams;
+ let stages='';
+ p.TexEnvStages.forEach((s,i)=>{
+  const constant=material.ConstantAssignments?.[i]??i;
+  const color=combine(s.Combiner.Color,s.Source.Color.map((v,j)=>argument(v,s.Operand.Color[j],constant,false)),false);
+  const alpha=combine(s.Combiner.Alpha,s.Source.Alpha.map((v,j)=>argument(v,s.Operand.Alpha[j],constant,true)),true);
+  const scale=(x:string)=>x==='Two'?'2.0':x==='Four'?'4.0':'1.0';
+  stages+=`vec4 stage${i}=clamp(vec4((${color})*${scale(s.Scale.Color)},(${alpha})*${scale(s.Scale.Alpha)}),0.0,1.0);\n`;
+  if(s.UpdateColorBuffer)stages+='buffer.rgb=previous.rgb;\n';
+  if(s.UpdateAlphaBuffer)stages+='buffer.a=previous.a;\n';
+  stages+=`previous=stage${i};\n`;
+ });
+ const comparison:Record<string,string>={Never:'false',Always:'true',Equal:'==',NotEqual:'!=',Less:'<',LessOrEqual:'<=',Greater:'>',GreaterOrEqual:'>='};
+ const alpha=p.AlphaTest;const op=comparison[alpha.Function]??'>';
+ const test=alpha.Enabled?`if(!(${op==='true'||op==='false'?op:`previous.a ${op} ${(alpha.Reference/255).toFixed(8)}`}))discard;`:'';
+ return `varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;\n
+ uniform sampler2D tex0;uniform sampler2D tex1;uniform sampler2D tex2;uniform mat3 uvMatrix0;uniform mat3 uvMatrix1;uniform mat3 uvMatrix2;
+ uniform vec4 constant0;uniform vec4 constant1;uniform vec4 constant2;uniform vec4 constant3;uniform vec4 constant4;uniform vec4 constant5;
+ void main(){
+ vec4 t0=texture2D(tex0,(uvMatrix0*vec3(vUv0,1.0)).xy);vec4 t1=texture2D(tex1,(uvMatrix1*vec3(vUv1,1.0)).xy);vec4 t2=texture2D(tex2,(uvMatrix2*vec3(vUv2,1.0)).xy);
+ float illumination=max(dot(normalize(vNormal),normalize(vec3(-0.25,0.45,1.0))),0.0);
+ vec4 litPrimary=clamp(${glcolor(p.AmbientColor)}+${glcolor(p.DiffuseColor)}*illumination,0.0,1.0);
+ vec4 litSecondary=${glcolor(p.Specular0Color)}*pow(max(dot(normalize(vNormal),normalize(vec3(-0.12,0.22,1.0))),0.0),16.0);
+ vec4 previous=vColor;vec4 buffer=${glcolor(p.TexEnvBufferColor)};
+ ${stages}${test}gl_FragColor=previous;}`;
+}
+const vertexShader=`attribute vec4 nativeColor;attribute vec2 nativeUv1;attribute vec2 nativeUv2;
+ varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;
+ void main(){vColor=nativeColor;vUv0=uv;vUv1=nativeUv1;vUv2=nativeUv2;vNormal=normalMatrix*normal;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`;
+function textureMatrix(coord:Coord){
+ const {X:sx,Y:sy}=coord.Scale,{X:tx,Y:ty}=coord.Translation,c=Math.cos(coord.Rotation),s=Math.sin(coord.Rotation);
+ let x=sx*((.5*s-.5*c)+.5-tx),y=sy*((-.5*s-.5*c)+.5-ty);
+ if(coord.TransformType==='DccSoftImage'){x=sx*(-c*tx-s*ty);y=sy*(s*tx-c*ty);}
+ if(coord.TransformType==='Dcc3dsMax'){x=sx*c*(-tx-.5)-sx*s*(ty-.5)+.5;y=sy*s*(-tx-.5)+sy*c*(ty-.5)+.5;}
+ return new THREE.Matrix3().set(sx*c,-sx*s,x,sy*s,sy*c,y,0,0,1);
+}
+const wrap=(value:string)=>value==='Repeat'?THREE.RepeatWrapping:value==='MirroredRepeat'?THREE.MirroredRepeatWrapping:THREE.ClampToEdgeWrapping;
+const factor:Record<string,THREE.BlendingDstFactor>={Zero:THREE.ZeroFactor,One:THREE.OneFactor,SourceAlpha:THREE.SrcAlphaFactor,OneMinusSourceAlpha:THREE.OneMinusSrcAlphaFactor,DestinationAlpha:THREE.DstAlphaFactor,OneMinusDestinationAlpha:THREE.OneMinusDstAlphaFactor,SourceColor:THREE.SrcColorFactor,OneMinusSourceColor:THREE.OneMinusSrcColorFactor,DestinationColor:THREE.DstColorFactor,OneMinusDestinationColor:THREE.OneMinusDstColorFactor};
+function matrix(source:Record<string,number>){return new THREE.Matrix4().set(source.M11,source.M21,source.M31,source.M41,source.M12,source.M22,source.M32,source.M42,source.M13,source.M23,source.M33,source.M43,0,0,0,1);}
+
+/** Uses original meshes, combiners and native curves; PICA lighting remains a documented approximation. */
+export function createFirmwareModel(asset:FirmwareModelAsset){
+ const group=new THREE.Group(),textures:THREE.Texture[]=[],materials:THREE.ShaderMaterial[]=[],geometries:THREE.BufferGeometry[]=[];
+ const updaters:((frame:number)=>void)[]=[];
+ const white=new THREE.DataTexture(new Uint8Array([255,255,255,255]),1,1);white.needsUpdate=true;textures.push(white);
+ for(const model of asset.data.models){
+  const modelGroup=new THREE.Group();modelGroup.matrixAutoUpdate=false;modelGroup.matrix.copy(matrix(model.transform));group.add(modelGroup);
+  const materialCopies=model.materials.map(m=>structuredClone(m));
+  const mats=materialCopies.map(m=>{
+   const p=m.MaterialParams,uniforms:Record<string,THREE.IUniform>={};
+   for(let i=0;i<6;i++)uniforms[`constant${i}`]={value:rgba(p[`Constant${i}Color`] as Color)};
+   for(let i=0;i<3;i++){
+    const image=asset.images.get(m[`Texture${i}Name` as 'Texture0Name']);let texture:THREE.Texture=white;
+    if(image){texture=new THREE.Texture(image);texture.colorSpace=THREE.NoColorSpace;texture.wrapS=wrap(m.TextureMappers[i].WrapU);texture.wrapT=wrap(m.TextureMappers[i].WrapV);texture.magFilter=m.TextureMappers[i].MagFilter==='Nearest'?THREE.NearestFilter:THREE.LinearFilter;texture.minFilter=texture.magFilter;texture.generateMipmaps=false;texture.needsUpdate=true;textures.push(texture);}
+    uniforms[`tex${i}`]={value:texture};uniforms[`uvMatrix${i}`]={value:textureMatrix(p.TextureCoords[i])};
+   }
+   const blend=p.BlendFunction;
+   const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
+   materials.push(material);return material;
+  });
+  const bones=model.skeleton.map(()=>new THREE.Matrix4()),inverse=model.skeleton.map(b=>matrix(b.InverseTransform));
+  const drawMeshes:{geometry:THREE.BufferGeometry;source:Mesh;sub:Submesh}[]=[];
+  for(const source of model.meshes)for(const sub of source.submeshes){
+   if(sub.primitive!=='Triangles')throw new Error(`Unsupported native primitive ${sub.primitive}`);
+   const geometry=new THREE.BufferGeometry();geometries.push(geometry);
+   geometry.setAttribute('position',new THREE.Float32BufferAttribute(source.position.flat(),3));geometry.setAttribute('normal',new THREE.Float32BufferAttribute(source.normal.flat(),3));geometry.setAttribute('nativeColor',new THREE.Float32BufferAttribute(source.color.flat(),4));
+   for(let i=0;i<3;i++){const sourceIndex=materialCopies[source.material].MaterialParams.TextureSources[i]??0;geometry.setAttribute(i===0?'uv':`nativeUv${i}`,new THREE.Float32BufferAttribute(source[`uv${Math.min(2,sourceIndex)}` as 'uv0'].flat(),2));}
+   geometry.setIndex(sub.indices);const mesh=new THREE.Mesh(geometry,mats[source.material]);mesh.frustumCulled=false;mesh.renderOrder=source.layer*100+source.priority;
+   // Empty-folder content slots and text are populated by HOME code, not intrinsic banner artwork.
+   if(model.name==='BannerFolder'&&(model.materials[source.material].Name.startsWith('Prize_')||model.materials[source.material].Name==='mt_Text'))mesh.visible=false;
+   modelGroup.add(mesh);drawMeshes.push({geometry,source,sub});
+  }
+  const position=new THREE.Vector3(),normal=new THREE.Vector3(),transformed=new THREE.Vector3(),rot=new THREE.Quaternion(),scale=new THREE.Vector3(),translation=new THREE.Vector3(),normalMatrix=new THREE.Matrix3();
+  updaters.push(frame=>{
+   const values=model.skeleton.map(b=>({scale:{...b.Scale},rotation:{...b.Rotation},translation:{...b.Translation}}));
+   for(const clip of asset.data.skeletalAnimations){const at=clip.AnimationFlags.includes('IsLooping')&&clip.FramesCount?frame%clip.FramesCount:frame;
+    for(const element of clip.Elements){const index=model.skeleton.findIndex(b=>b.Name===element.Name);if(index<0||element.PrimitiveType!=='Transform')continue;const value=values[index];
+     for(const [property,target] of [['Scale','scale'],['Rotation','rotation'],['Translation','translation']] as const)for(const axis of ['X','Y','Z'] as const)value[target][axis]=sampleCgfxCurve(element.Content[`${property}${axis}`],at,value[target][axis]);
+    }
+   }
+   values.forEach((v,i)=>{translation.set(v.translation.X,v.translation.Y,v.translation.Z);scale.set(v.scale.X,v.scale.Y,v.scale.Z);rot.setFromEuler(new THREE.Euler(v.rotation.X,v.rotation.Y,v.rotation.Z,'ZYX'));bones[i].compose(translation,rot,scale);const parent=model.skeleton[i].ParentIndex;if(parent>=0)bones[i].premultiply(bones[parent]);});
+   for(const {geometry,source,sub} of drawMeshes){const dst=geometry.getAttribute('position'),normals=geometry.getAttribute('normal');
+    const matrices=sub.bones.map(index=>sub.skinning==='Smooth'?bones[index].clone().multiply(inverse[index]):bones[index]);
+    for(let i=0;i<source.position.length;i++){
+     position.set(0,0,0);normal.set(0,0,0);const count=sub.skinning==='Smooth'?4:1;
+     for(let j=0;j<count;j++){const weight=count===1?1:source.weights[i][j];if(!weight)continue;const bone=matrices[source.joints[i][j]??0]??matrices[0]??new THREE.Matrix4();position.addScaledVector(transformed.fromArray(source.position[i]).applyMatrix4(bone),weight);normalMatrix.getNormalMatrix(bone);normal.addScaledVector(transformed.fromArray(source.normal[i]).applyMatrix3(normalMatrix),weight);}
+     dst.setXYZ(i,position.x,position.y,position.z);normal.normalize();normals.setXYZ(i,normal.x,normal.y,normal.z);
+    }dst.needsUpdate=true;normals.needsUpdate=true;
+   }
+   for(const clip of asset.data.materialAnimations){const at=clip.AnimationFlags.includes('IsLooping')&&clip.FramesCount?frame%clip.FramesCount:frame;
+    for(const element of clip.Elements){const index=materialCopies.findIndex(m=>m.Name===element.Name);if(index<0)continue;const match=/MaterialTexCoord(\d)(Trans|Scale|Rot)/.exec(element.TargetType);if(!match)continue;const coord=materialCopies[index].MaterialParams.TextureCoords[Number(match[1])];
+     if(match[2]==='Rot')coord.Rotation=sampleCgfxCurve(element.Content.Value,at,coord.Rotation);
+     else{const vec=match[2]==='Scale'?coord.Scale:coord.Translation;vec.X=sampleCgfxCurve(element.Content.X,at,vec.X);vec.Y=sampleCgfxCurve(element.Content.Y,at,vec.Y);}
+     mats[index].uniforms[`uvMatrix${match[1]}`].value=textureMatrix(coord);
+    }
+   }
+  });
+ }
+ return {group,update(elapsedMs:number){for(const update of updaters)update(elapsedMs*60/1000);},dispose(){textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());}};
+}

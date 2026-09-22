@@ -2,7 +2,7 @@ import { BitmapFont, loadBitmapFont } from './bitmap-font';
 import { decodeNativePng } from './native-png';
 import { nativeBannerLabelOverride } from './native-banner-label';
 import { NativeLayoutRenderer } from './native-renderer';
-import { nativeMessageOverride, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
+import { nativeMessageOverride, nativeTextureSamplePixels, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { rowCount, toolbar as toolbarRegions, type MenuState } from './state';
 import { getHomeGestureView } from './system';
 import { getHomeFooter, getNativeFolderBalloon, nativeHomeDensityFrame, type HomePresentation } from './home-presentation';
@@ -35,10 +35,10 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
    const images=new Map<string,NativePixels>();textures[name]=images;
    await Promise.all([...needed].map(async key=>{
     const record=pack.textures[key];if(!record)throw new Error(`Missing texture record ${name}/${key}`);
-    let pending=decoded.get(record.url);
+    const decodeKey=`${record.picaFormat??'rgba'}:${record.url}`;let pending=decoded.get(decodeKey);
     if(!pending){pending=(async()=>{const response=await fetch(new URL(record.url,base),{signal:controller.signal});
      if(!response.ok)throw new Error(`Firmware texture HTTP ${response.status}: ${key}`);
-     return decodeNativePng(new Uint8Array(await response.arrayBuffer()),record,controller.signal);})();decoded.set(record.url,pending);}
+     return nativeTextureSamplePixels(await decodeNativePng(new Uint8Array(await response.arrayBuffer()),record,controller.signal),record.picaFormat);})();decoded.set(decodeKey,pending);}
     const pixels=await pending;if(pixels.width!==record.width||pixels.height!==record.height)throw new Error(`Texture dimensions differ: ${key}`);images.set(key,pixels);
    }));
   }));

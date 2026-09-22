@@ -91,3 +91,31 @@ HUD/banner painting. The scene owns the model callback and its fallback result.
 Full build limitations remain those recorded in
 `firmware-presentation-validation.md`; this pass does not claim a new build or
 completed HOME fidelity. Browser recapture after integration is required.
+
+## Follow-up: native alpha-only texture sampling
+
+The upper camera/capture ink discrepancy is now traced to texture expansion,
+not missing theme colors or a TEV interpolation rule. The runtime theme trace
+(`runtime/reference/banner-background/report.md` in the private firmware
+artifacts) confirms default buffer RGB **73,77,80**, with constant0 RGB
+**200,200,200** retained. The native RGB-only theme writes preserve alpha and do
+not collide with WhiteBlack's constant5-alpha track.
+
+The BCLIM converter emits display-friendly white RGB for A8/A4 mask PNGs.
+[Pinned Azahar's texture decoder](https://github.com/azahar-emu/azahar/blob/b8c29a64c306bac3866a5ed293ebee94ef6dcb00/src/video_core/texture/texture_decode.cpp#L116)
+uses **zero RGB** for ordinary A8/A4 texture sampling; its alpha-disabled preview
+branch is separate. In the source camera/capture material, white preview RGB
+selects constant0 gray200; zero sampled RGB selects the buffer charcoal.
+
+`nativeTextureSamplePixels` therefore makes an immutable sampling projection only
+for texture records with PICA format 8 (A8) or 11 (A4). The presentation loader's
+cache key includes the source format. PNG bytes, alpha, decoded LA4/LA8 RGB,
+unknown-format textures and the separate bitmap-font atlas path remain unchanged.
+No delivered asset hash, material register or native shader formula is altered.
+
+Tests exercise both alpha-only formats, retained hidden RGB in luminance-alpha
+formats, source immutability and the actual camera/capture TEV output
+`[73,77,80,255]` for opaque ink. A software Canvas comparison at
+`presentation/native-alpha-source-top.png` shows the corrected charcoal symbols;
+integration owns the required actual browser capture. This source-backed channel
+correction does not establish pixel-perfect GPU rounding or full HOME fidelity.

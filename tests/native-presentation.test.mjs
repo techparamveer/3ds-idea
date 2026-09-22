@@ -169,3 +169,25 @@ test('real HOME ordinary source and arrow retain rounded alpha and native green'
  const arrows=pack.layouts.LncArw_00;panes.length=0;walk(arrows.roots);const arrow=panes.find(p=>p.name==='P_arwIconR_00'),ink=rasterNativePicture(arrows,arrow.picture,16,16,pixels);
  assert.ok(Array.from({length:256},(_,i)=>i*4).some(i=>ink.data[i+3]>250&&ink.data[i+1]>ink.data[i]+20&&ink.data[i+2]>ink.data[i]+15),'native arrow tint must remain green rather than saturate to white');
 });
+
+test('native A8/A4 sampling projects preview RGB to zero without changing PNG bytes, alpha or luminance-alpha formats',()=>{
+ const original={width:2,height:1,data:new Uint8ClampedArray([255,255,255,0,255,255,255,153])};
+ for(const format of [8,11]){
+  const sample=api.nativeTextureSamplePixels(original,format);
+  assert.deepEqual([...sample.data],[0,0,0,0,0,0,0,153]);assert.notEqual(sample.data,original.data);
+ }
+ assert.deepEqual([...original.data],[255,255,255,0,255,255,255,153]);
+ for(const format of [undefined,0,5,9,10])assert.equal(api.nativeTextureSamplePixels(original,format),original);
+});
+test('real camera and capture hints use authored charcoal after native alpha-only sampling',{skip:!available},async()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/launcher.json')));
+ const l=poseNativeLayout(pack.layouts.LncBase_U_00,pack.animations,[{name:'LncBase_U_00_WhiteBlack',frame:0}]);
+ for(const [material,texture] of [['P_PictCam_00','PictCam.bclim'],['P_PictCam_01','PictCapture_05.bclim']]){
+  const record=pack.textures[texture],{data,info}=await sharp(resolve(resourceRoot,record.url)).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+  assert.equal(record.picaFormat,11);
+  const delivery={width:info.width,height:info.height,data:new Uint8ClampedArray(data)},sample=api.nativeTextureSamplePixels(delivery,record.picaFormat);
+  const at=sample.data.findIndex((n,i)=>i%4===3&&n===255)-3;assert.ok(at>=0);
+  const m=l.materials.find(m=>m.name===material),result=evaluateNativeMaterial(m,[Array.from(sample.data.slice(at,at+4),n=>n/255)]).map(n=>Math.round(n*255));
+  assert.deepEqual(result,[73,77,80,255]);assert.deepEqual(m.constantColors[0],[200,200,200,255],'source constants are retained');
+ }
+});

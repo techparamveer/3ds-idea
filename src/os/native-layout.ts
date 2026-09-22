@@ -9,7 +9,7 @@ export type NativeTrack={target:string;binding:string;property:string;index:numb
 export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:NativeTrack[];childBinding?:boolean;textures:string[]};
 export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
 export type NativeLayout={canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
-export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
+export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number;picaFormat?:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
 export type PaneOverrides=Record<string,{text?:string;messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number}>;
 export type AnimationBinding={name:string;frame:number;groups?:string[]};
 /** HOME RI_mstl changes font metrics and spacing only; unresolved words stay uninterpreted. */
@@ -126,6 +126,15 @@ export function evaluateNativeMaterial(material:NativeMaterial, textures:number[
  return previous;
 }
 export type NativePixels={width:number;height:number;data:Uint8ClampedArray};
+/** BCLIM delivery uses white preview masks; PICA A8/A4 sample zero RGB.
+ * Keep PNG decoding lossless and font atlas tinting separate from GPU sampling.
+ */
+export function nativeTextureSamplePixels(pixels:NativePixels,picaFormat?:number):NativePixels {
+ if(picaFormat!==8&&picaFormat!==11)return pixels;
+ const data=new Uint8ClampedArray(pixels.data);
+ for(let at=0;at<data.length;at+=4)data[at]=data[at+1]=data[at+2]=0;
+ return {...pixels,data};
+}
 const wrapPixel=(n:number,length:number,wrap:number)=>wrap===1?((n%length)+length)%length:wrap===2?((n%(length*2)+length*2)%(length*2)<length?((n%(length*2))+length*2)%(length*2):length*2-1-((n%(length*2)+length*2)%(length*2))):Math.min(length-1,Math.max(0,n));
 /** Sampling addresses texel centres and applies wrapping to each bilinear neighbour. */
 export function sampleNativeTexture(image:NativePixels,u:number,v:number,wrapS=0,wrapT=0,linear=true):number[]{

@@ -1,5 +1,10 @@
 # Goal: a faithful silver Nintendo 3DS XL portfolio
 
+> Latest OS scope (2026-09-23): stock apps require their UI and basic navigation
+> only. Remove the software keyboard. Recreate power-on, power-off and opening
+> an app. See `docs/portfolio-ui-scope.md` for the current exclusions, ownership
+> and acceptance scope; it supersedes the full firmware-behaviour brief.
+
 > Current UI scope (2026-09-16): the user now requests real portfolio collection apps from paramveer.co.uk, dedicated HackUK/NVIDIA apps, hardware-style startup and original UI sounds on `uifix`. This supersedes the historical empty-content and separate-worktree directions for this UI task only. See `docs/portfolio-os-validation.md`.
 
 Build a personal portfolio website whose entire visible interface is a realistic, interactive **original 2012 Silver + Black Nintendo 3DS XL, model SPR-001**. Reconstruct the console in Blender using Blender MCP, then present it in Next.js and Three.js with VGPU. The console spins left, opens, and lets visitors navigate through its physical buttons and bottom touchscreen. Keep portfolio content plain until the hardware and HOME Menu are faithful.

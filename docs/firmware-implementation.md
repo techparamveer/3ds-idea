@@ -2,6 +2,12 @@
 
 ## Working agreement
 
+**Latest scope:** [portfolio UI only](portfolio-ui-scope.md) supersedes the
+earlier full-behaviour brief below. The software keyboard is removed; remaining
+stock apps need UI and basic navigation. Power-on, power-off and app-opening
+transitions are explicitly included. Historical keyboard/audio research is no
+longer a delivery dependency.
+
 The owner requests the supplied original European firmware's UI and bundled applications inside the existing 3DS portfolio. AR Games, Face Raiders, Activity Log, Download Play, Mii Maker and StreetPass Mii Plaza are excluded. The four latter exclusions were requested on2026-09-23; older saved layouts omit those titles while retaining all other positions/folders. Mii Selector and other remaining internal applets stay in scope. Portfolio apps occupy the first eight HOME positions. Browser media access is opt-in; Nintendo networking and unavailable peripherals reproduce offline behaviour. Do not claim full fidelity without native-screen comparisons.
 
 The user requested faster delivery, then explicitly retained strict1:1 acceptance

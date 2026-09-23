@@ -61,4 +61,5 @@ during every transitional native state has not been executed here.
 
 The later [folder-close source trace](native-folder-close-boundary.md) establishes
 the normal animation completion and clear-to-restored-selection request boundary.
-That proposal does not yet replace this input correction's immediate Back reducer.
+The [System adapter](home-folder-close-system.md) now retains folder context until
+that counted completion; the standalone menu helper remains immediate.

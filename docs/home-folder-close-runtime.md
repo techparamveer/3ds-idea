@@ -3,8 +3,8 @@
 `src/os/home-folder-close.ts` implements the counted transition from the
 [source trace](native-folder-close-boundary.md). It owns reverse folder/capture
 clocks, completion predicates and operation-local observations. It has no menu,
-banner, renderer, audio, timer or persistence dependency. System/scene scheduling
-and the current immediate Back reducer are unchanged.
+banner, renderer, audio, timer or persistence dependency. The later [System adapter](home-folder-close-system.md) integrates the counted
+Back transition. Scene/host/painter scheduling remains separately owned.
 
 ## API and ownership
 

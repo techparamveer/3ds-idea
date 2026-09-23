@@ -174,6 +174,27 @@ export function leaveHomeFolder(state: MenuState): MenuState {
   const nav = getHomeNavigation(state);
   return nav.activeFolderSlot === null ? state : writeHomeNavigation(state, { ...nav, activeFolderSlot: null, selectionRevision: nav.selectionRevision + 1 });
 }
+/** Restored root visibility uses its own settled geometry, never child density. */
+export function isHomeRootSelectionVisible(state: MenuState): boolean {
+  const root = getHomeNavigation(state).rootView, { rows, columns } = homeGridMetrics(false, root.density);
+  return root.selectedSlot >= root.currentLeftSlot && root.selectedSlot < root.currentLeftSlot + rows * columns;
+}
+/** Defensive offscreen restoration: native mode3 linear motion with an explicit
+ * duration. Nearest visible endpoint also handles damaged/far-off history; its
+ * duration/target adapter policy is documented separately from native evidence. */
+export function restoreHomeFolderRoot(state: MenuState, duration: 5 | 10): MenuState {
+  if (duration !== 5 && duration !== 10) throw new RangeError('Invalid folder root viewport duration');
+  state = leaveHomeFolder(state);
+  if (isHomeRootSelectionVisible(state)) return state;
+  const nav = getHomeNavigation(state), root = nav.rootView;
+  const { rows, columns } = homeGridMetrics(false, root.density), column = Math.floor(root.selectedSlot / rows);
+  const targetLeftSlot = Math.max(0, Math.min(maxHomeLeftSlot(false, root.density),
+    (root.selectedSlot < root.currentLeftSlot ? column : column - columns + 1) * rows));
+  return writeHomeNavigation(state, { ...nav, rootView: { ...root, targetLeftSlot }, motion: {
+    mode: 3, elapsedUpdates: 0, durationUpdates: duration, currentDensity: root.density, targetDensity: root.density,
+    fromGeometry: gridSnapshot(false, root.density, root.currentLeftSlot), targetGeometry: gridSnapshot(false, root.density, targetLeftSlot),
+  } });
+}
 export function initializeHomeFolderView(state: MenuState, slot: number): MenuState {
   const nav = getHomeNavigation(state);
   return writeHomeNavigation(state, { ...nav, folderViews: { ...nav.folderViews, [slot]: freshHomeView() } });

@@ -62,7 +62,8 @@ test('launch and HOME return retain active folder, and overlays/release/sleep ke
   state = reduceSystem({...state,panel:'settings'},'home',5400); assert.equal(state.opened,true); assert.equal(state.panel,null);
   state = releaseSystemInputs(state,5500); state = setSystemSleeping(state,true,5600); state = tickSystem(state,100000); state = setSystemSleeping(state,false,100001);
   assert.deepEqual(JSON.parse(saveSettings(state)).homeView,before);
-  state = reduceSystem(state,'back',100002); assert.equal(state.opened,false);
+  state = reduceSystem(state,'back',100002); assert.equal(state.opened,true);
+  state = tickSystem(state,100302); assert.equal(state.opened,false);
 });
 test('v4 round-trip preserves histories and v1–3 seed density1 folders from valid old layouts', () => {
   let state = create(setHomeDensity(home(),5),40);

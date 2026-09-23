@@ -10,6 +10,7 @@ const home = () => tickSystem(createPortfolioState(), 3001);
 const folder = () => enterHomeFolder(reduceMenu(selectHomeLocation(home(), { folder: null, slot: 40 }), 'open'), 40);
 const touch = (state, phase, x, y, now = 4000, pointerId = 1) => dispatchSystemEvent(state, { type: 'touch', phase, x, y, pointerId }, now);
 const views = state => JSON.parse(saveSettings(state)).homeView;
+const completed = state => tickSystem(state, state.system.homeClock.lastNow + 18 * 1000 / 60);
 
 test('Back uses the bottom-centre native boundary, including its four edges, at every folder density', () => {
   assert.deepEqual(HOME_FOLDER_BACK_BOUNDS, { left: 23, top: 43, right: 95, bottom: 65 });
@@ -19,7 +20,7 @@ test('Back uses the bottom-centre native boundary, including its four edges, at 
       assert.equal(isHomeFolderBackTouch(state,x,y),true);
       assert.equal(homeTouchLocation(state,x,y),null);
       assert.equal(touchMenu(state,x,y).opened,false);
-      assert.equal(touchSystem(state,x,y,4000).opened,false);
+      const started=touchSystem(state,x,y,4000);assert.equal(started.opened,true);assert.equal(completed(started).opened,false);
     }
     for (const [x, y] of [[22.99,54], [95.01,54], [59,42.99], [59,65.01], [10,40], [NaN,54], [59,Infinity]]) {
       assert.equal(isHomeFolderBackTouch(state,x,y),false);
@@ -38,13 +39,14 @@ test('Back touch and physical B restore the same root and retain both folder his
   state = settleHomeNavigation(selectHomeSlot(setHomeDensity(enterHomeFolder(state,41),0),21));
   state = enterHomeFolder(leaveHomeFolder(state),40);
   const histories = structuredClone(getHomeNavigation(state).folderViews);
-  const physical = dispatchSystemEvent(state,{type:'button',phase:'down',source:'model:B',command:'back'},4000);
+  const physical = completed(dispatchSystemEvent(state,{type:'button',phase:'down',source:'model:B',command:'back'},4000));
   const pressed = touch(state,'down',80,60);
   assert.equal(pressed.system.homeNavigation.gesture.area,'chrome');
   assert.equal(pressed.system.homeNavigation.gesture.source,null);
   assert.equal(pressed.opened,true);
-  const tapped = touch(pressed,'up',80,60,4010);
-  assert.equal(tapped.opened,false);
+  const closing = touch(pressed,'up',80,60,4010);
+  assert.equal(closing.opened,true);
+  const tapped = completed(closing);assert.equal(tapped.opened,false);
   assert.deepEqual(views(tapped),views(physical));
   assert.deepEqual(getHomeNavigation(tapped).folderViews,histories);
   assert.equal(tapped.system.homeNavigation.gesture,null);
@@ -68,7 +70,7 @@ test('Back contact cannot pan or lift the grid, and cancelling or crossing its b
   state=touch(initial,'down',59,54);state=touch(state,'cancel',59,54,4010);state=touch(state,'up',59,54,4020);
   assert.equal(state.opened,true);assert.deepEqual(views(state),before);
   state=touch(initial,'down',59,54);state=touch(state,'up',59,54,4010,2);
-  assert.equal(state.opened,true);state=touch(state,'up',59,54,4020);assert.equal(state.opened,false);
+  assert.equal(state.opened,true);state=touch(state,'up',59,54,4020);assert.equal(state.opened,true);assert.equal(completed(state).opened,false);
 });
 
 test('empty selected child suppresses every footer tap and A even when the folder has other software', () => {
@@ -87,8 +89,8 @@ test('empty selected child suppresses every footer tap and A even when the folde
     }
     const opened=reduceSystem(state,'open',4000);
     assert.equal(opened.opened,true);assert.equal(opened.system.phase,'home');assert.equal(saveSettings(opened),before);
-    assert.equal(touchSystem(state,59,54,4000).opened,false);
-    assert.equal(reduceSystem(state,'back',4000).opened,false);
+    assert.equal(completed(touchSystem(state,59,54,4000)).opened,false);
+    assert.equal(completed(reduceSystem(state,'back',4000)).opened,false);
   }
   const launched=touchSystem(occupied,250,226,4000);
   assert.equal(launched.system.app,'work');assert.equal(launched.system.phase,'launch');

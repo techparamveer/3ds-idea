@@ -7,7 +7,7 @@ import { createHomePrimaryCursor, setHomePrimaryCursorRequest, updateHomePrimary
 import { createHomeCursorPresentation, consumeHomeCursorObservation, advanceHomeCursorPresentation,
   updateHomeCursorEffectPositions, type HomeCursorPresentation } from './home-cursor-presentation.ts';
 import { advanceHomeCursorLoop } from './home-cursor-loop.ts';
-import { activeHomeRecord, createHomeGridFocus, sampleHomeGrid, writeHomeNavigation, type HomeNavigation } from './home-navigation.ts';
+import { activeHomeRecord, sampleHomeGrid, writeHomeNavigation, type HomeNavigation } from './home-navigation.ts';
 import { consumeHomeGridKeyEvent, selectHomeTouchSlot, type HomeScrollObservation, type HomeScrollState } from './home-scroll-consumer.ts';
 import { advanceSystemHomeFolderCloseNative, consumeSystemHomeFolderCloseInput,
   isSystemHomeFolderClosing, sampleSystemHomeFolderClose } from './home-folder-close-system.ts';
@@ -86,25 +86,14 @@ function observe(controls: HomeControls, observations: readonly HomeScrollObserv
   }
   return { ...controls, primary, presentation };
 }
-/** Ordinary accepted touch selection uses the same native cursor/mode3 consumer.
- * The pre-existing drag recognizer and toolbar-to-grid touch handoff stay external. */
+/** Accepted touch selection shares the native cursor/mode3 consumer, including
+ * a departed toolbar effect. Raw press/drag eligibility remains external. */
 export function selectHomeControlTouch(state: MenuState, slot: number): MenuState | null {
-  let controls = state.system?.homeControls;
+  const controls = state.system?.homeControls;
   if (!controls || !isHomeControlsActive(state)) return null;
-  const fromToolbar = state.system!.homeNavigation.focus.toolbarActive;
-  if (fromToolbar) {
-    // Browser handoff policy for the still-unverified toolbar-to-grid touch
-    // route: accept the tile, clear toolbar focus, and retire old effects.
-    // Do not manufacture a native departed-toolbar animation for this route.
-    const nav = state.system!.homeNavigation;
-    if (nav.motion || nav.gesture) return null;
-    state = writeHomeNavigation(state, { ...nav, focus: createHomeGridFocus() });
-    controls = { ...controls, presentation: createHomeCursorPresentation(sampleHomeGrid(nav).densityValue) };
-  }
   const result = selectHomeTouchSlot({ navigation: state.system!.homeNavigation, cursorLoop: state.system!.homeCursorLoop }, slot);
   if (result.disposition === 'unsupported') return null;
-  return put(writeScroll(state, result.state), observe(controls, fromToolbar
-    ? result.observations.filter(observation => observation.kind !== 'cursor-select') : result.observations));
+  return put(writeScroll(state, result.state), observe(controls, result.observations));
 }
 /** Adapter boundaries for app/overlay/context changes. Ordinary direction passes
  * never use this path; their retained state advances only in stepHomeControls. */

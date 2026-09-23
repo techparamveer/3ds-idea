@@ -188,7 +188,7 @@ test('toolbar A/Start opens the focused applet instead of the old selected appli
   }
 });
 
-test('toolbar-to-grid touch clears focus/effects and selects before a second tap activates', () => {
+test('accepted toolbar-to-grid touch retains the departed effect and selects before a second tap activates', () => {
   for (const slot of [0, 1]) {
     let state = at(reduceSystem(home(), 'up', T), 1).state;
     assert.ok(controls(state).presentation.effects.some(effect => effect.visible));
@@ -197,8 +197,11 @@ test('toolbar-to-grid touch clears focus/effects and selects before a second tap
     assert.equal(state.system.phase, 'home');
     assert.equal(state.selected, slot);
     assert.equal(nav(state).focus.toolbarActive, false);
-    assert.equal(controls(state).presentation.effects.some(effect => effect.visible), false,
-      'handoff is explicit browser policy, without an invented toolbar departure');
+    const effect = controls(state).presentation.effects.find(effect => effect.target?.kind === 'toolbar');
+    assert.equal(effect.visible, true);
+    assert.equal(effect.target.focus, 1);
+    assert.equal(effect.scale.currentFrame, 11);
+    assert.deepEqual(effect.center, { x: 76, y: 16.5 });
     state = at(state, 2).state;
     assert.deepEqual(controls(state).primary.center, center(state));
     state = touchSystem(state, point.x, point.y, now(state));

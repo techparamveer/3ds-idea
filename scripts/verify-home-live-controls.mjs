@@ -35,7 +35,11 @@ browser('press', 'ArrowUp');settle();
 const toolbar = evaluate(read);assert.equal(toolbar.cursor.focus.toolbarActive, true);assert.equal(toolbar.cursor.focus.currentFocus, 1);
 assert.deepEqual(toolbar.cursor.primary.center, { x: 76, y: 16.5 });assert.equal(toolbar.cursor.presentation.primaryScale.appliedFrame, 11);
 const toolbarCapture = evaluate(`document.querySelector('[role=application]').captureScreensAt(0,'2026-09-23T12:06:00Z')`);
-browser('press', 'ArrowDown');settle();
+point('Touch_76_137');browser('mouse', 'down');browser('mouse', 'up');settle();
+const touchFromToolbar = sample(150);
+assert.ok(touchFromToolbar.every(row => !row.cursor.focus.toolbarActive && row.menu === 'folder'));
+assert.ok(touchFromToolbar.some(row => row.cursor.presentation.effects.some(effect =>
+ effect.target?.kind === 'toolbar' && effect.target.focus === 1 && effect.scale.appliedFrame === 11)), 'Accepted grid touch retains its departed toolbar effect');
 assert.equal(evaluate(read).cursor.focus.toolbarActive, false);
 focus(/button "Right" \[ref=(e\d+)\]/);browser('press', 'Enter');settle();
 const quick = sample(250);assert.ok(quick.every(row => row.cursor.visibleSlot === 1), 'Synchronous accessible down/up moves exactly once');
@@ -70,10 +74,10 @@ point('DPAD_left');browser('mouse', 'down');try { sample(3000); } finally { brow
 settle();assert.equal(evaluate(read).cursor.visibleSlot, 0);
 const capture = evaluate(`document.querySelector('[role=application]').captureScreensAt(0,'2026-09-23T12:06:00Z')`);
 const errors = browser('errors');assert.ok(!errors || /No errors/i.test(errors), errors);
-const summary = { passed: true, nativeToolbar: true, quickActivationOnce: true, physicalMode3: true,
+const summary = { passed: true, nativeToolbar: true, acceptedToolbarTouch: true, quickActivationOnce: true, physicalMode3: true,
  circlePadYDirection: true, acceleratedLoop: true, departedEffects: true, releaseReset: true, referenceRestored: true };
 mkdirSync(values['artifact-dir'], { recursive: true });
-writeFileSync(join(values['artifact-dir'], `${values.name}.json`), JSON.stringify({ summary, initial, toolbar, quick, circleUp, circleDown, held, released, capture }, null, 2));
+writeFileSync(join(values['artifact-dir'], `${values.name}.json`), JSON.stringify({ summary, initial, toolbar, touchFromToolbar, quick, circleUp, circleDown, held, released, capture }, null, 2));
 writeFileSync(join(values['artifact-dir'], `${values.name}-toolbar.png`), Buffer.from(toolbarCapture.bottom.split(',')[1], 'base64'));
 writeFileSync(join(values['artifact-dir'], `${values.name}-restored.png`), Buffer.from(capture.bottom.split(',')[1], 'base64'));
 console.log(JSON.stringify(summary, null, 2));

@@ -64,10 +64,11 @@ instead of assuming two animation frames settle it.
   the retained cursor group; chrome gestures preserve it, including disabled
   density buttons. Full native stylus capture/press/drag layout behavior remains
   unfinished.
-- An accepted grid touch from toolbar focus clears that focus and retires old
-  effects. This is a browser handoff policy; no departed-toolbar effect is
-  invented for the still-unverified native touch route. Ordinary grid touch
-  selection uses the native selection/mode3 consumer.
+- An accepted grid touch from toolbar focus clears its active/current/saved
+  column fields, preserves remembered focus, seeks primary density and emits
+  the departed toolbar effect before viewport correction. The consumer follows
+  the five original accepted-fragment cases. Earlier raw touch eligibility is
+  still supplied by the browser recognizer; it is not proved by that fragment.
 - Toolbar activation hands off to existing feature entrypoints. These stock
   applets and their banners remain incomplete. Physical D-pad pointer hit testing
   still chooses a cardinal direction; keyboard/axis masks support the sampler's
@@ -111,6 +112,11 @@ diagnostic observer: primary hidden during closing, root restoration atC+18,
 same-pass Loop resume, completed close and reopening the same folder. This
 browser path has an in-viewport parent; offscreen close remains covered by the
 combined original-ARM and System fixtures rather than injected browser state.
+The later accepted-toolbar-touch integration passed39 focused consumer/System/
+painter tests and typecheck. `live-accepted-toolbar-touch.json` adds an actual
+projected grid touch from toolbar focus, observing the departed focus1 effect
+at applied Scale11, while repeating the keyboard, accessible, circle-pad and
+held D-pad checks. Earlier hit/press eligibility remains a separate gap.
 Fresh Azahar interaction remains unavailable
 while the Mac is locked. Existing captures and bounded original-ARM evidence
 remain available; the complete requested firmware/application acceptance is

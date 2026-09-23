@@ -26,8 +26,11 @@ in the [acceleration evidence](../scripts/firmware/CURSOR_ACCELERATION_EVIDENCE.
 
 Regression coverage includes the coordinator's fixes for zero-update reduced
 motion, gesture-origin cancellation order, chrome cursor visibility, toolbar
-touch focus and viewport input ownership. Toolbar-to-grid touch remains an
-explicit browser policy; these tests do not establish its native full lifecycle.
+touch focus and viewport input ownership. A later integration update replaces
+the temporary toolbar-touch effect clearing with the existing proved accepted
+fragment: the System test now expects its departed toolbar effect. Earlier raw
+touch eligibility remains browser policy; neither test establishes its full
+native lifecycle. See [the accepted fragment contract](home-accepted-toolbar-touch-contract.md).
 
 Validation on the runtime worktree:
 

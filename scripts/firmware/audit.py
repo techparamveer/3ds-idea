@@ -12,6 +12,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from firmware.build import FIRMWARE, HOME, SHARED, TITLES, SCRIPTS, digest, encode, public_path, decode_layers
+from firmware.cia import content_record, content_directory
 from unpack_home_resources import unpack_darc
 
 
@@ -50,13 +51,21 @@ def audit(root, artifacts=None, repository=None):
     def source_check(source, context):
         title = source.get('titleId')
         check(title in manifest['sources'], f'{context}: unknown source title {title}')
+        metadata = manifest['sources'].get(title, {})
+        contents = metadata.get('contents', [])
+        content = None
+        if len(contents) > 1 or 'contentIndex' in source or 'contentId' in source:
+            content = content_record(metadata, source.get('contentIndex'))
+            if source.get('contentId') != content['id']:
+                raise ValueError('Missing/mismatched content identity')
         if artifacts is None or title not in {SHARED, *TITLES}: return
         slug = 'shared-font' if title == SHARED else TITLES[title][0]
-        base = Path(artifacts)/'extracted'/slug
+        title_root = Path(artifacts)/'extracted'/slug
+        base = content_directory(title_root, metadata, content['index']) if content else title_root
         name = source['path']
         # Pack roots hash the stored compressed archive; members and fonts hash
         # decoded bytes. Both identities are verified against the actual source.
-        key = (title, name)
+        key = (title, content['index'] if content else None, name)
         if key not in cache:
             if name.startswith('ExeFS/'):
                 path = public_path(base/'exefs', name[6:])
@@ -68,7 +77,7 @@ def audit(root, artifacts=None, repository=None):
                     relative = '/'.join(parts[:end])
                     path = public_path(base/'romfs', relative)
                     if not path.is_file(): continue
-                    archive_key = (title, relative, 'decoded')
+                    archive_key = (title, content['index'] if content else None, relative, 'decoded')
                     if archive_key not in cache:
                         packed = path.read_bytes(); decoded = decode_layers(packed)
                         cache[archive_key] = (packed, decoded, unpack_darc(decoded) if decoded[:4] == b'darc' else {})
@@ -78,8 +87,13 @@ def audit(root, artifacts=None, repository=None):
                     break
                 else:
                     if name == 'RomFS':
-                        metadata = json.loads((base/'source.json').read_text())
-                        cache[key] = [metadata['contentSha256']]
+                        stored = json.loads((title_root/'source.json').read_text())
+                        if content:
+                            original = content_record(stored, content['index'])
+                            if original != content: raise ValueError('Private content metadata mismatch')
+                            cache[key] = [original['sha256']]
+                        else:
+                            cache[key] = [stored['contentSha256']]
                     else: raise ValueError(f'Missing private resource: {name}')
         check(source['sha256'] in cache[key], f'{context}: private source hash mismatch for {name}')
         report['privateSourcesChecked'] += 1
@@ -93,6 +107,29 @@ def audit(root, artifacts=None, repository=None):
     for title, source in manifest['sources'].items():
         check(source.get('titleId') == title, f'Source title mismatch: {title}')
         check(Path(source.get('file', '')).name == source.get('file') and bool(source.get('file')), f'Missing/absolute source filename: {title}')
+        if source.get('contents'):
+            try:
+                contents = source['contents']
+                for content in contents: content_record(source, content['index'])
+                check(len({c['id'] for c in contents}) == len(contents), f'{title}: duplicate content ids')
+                selected = content_record(source, source['resourceContentIndex'])
+                applications = [c for c in contents if c['ncch']['formType'] in (2, 3) and c['ncch']['contentType'] == 0]
+                check((len(applications) == 1 and selected == applications[0]) or
+                      (len(contents) == 1 and not applications), f'{title}: ambiguous resource content')
+                check(source['contentSha256'] == selected['sha256'], f'{title}: selected content hash mismatch')
+                check(all(c['sha256'] == c['tmdSha256'] and c['ncch']['programId'] == title for c in contents),
+                      f'{title}: content hash/program identity mismatch')
+                if artifacts is not None and title in {SHARED, *TITLES}:
+                    slug = 'shared-font' if title == SHARED else TITLES[title][0]
+                    stored = json.loads((Path(artifacts)/'extracted'/slug/'source.json').read_text())
+                    check(stored['sourceSha256'] == source['sourceSha256'], f'{title}: private CIA hash mismatch')
+                    if 'contents' in stored:
+                        check(stored['contents'] == contents, f'{title}: private content metadata mismatch')
+                    else:
+                        check(len(contents) == 1 and stored['contentSha256'] == selected['sha256'],
+                              f'{title}: incompatible legacy extraction')
+            except (ValueError, KeyError, OSError) as error:
+                report['errors'].append(f'{title}: {error}')
     for url, record in records.items():
         try:
             raw = public_path(root, url).read_bytes()
@@ -136,12 +173,19 @@ def audit(root, artifacts=None, repository=None):
     packs = sorted(url for url, record in records.items() if record['kind'] == 'pack')
     for url in packs:
         pack = json.loads(public_path(root, url).read_text())
+        multi_content = len(manifest['sources'].get(pack['titleId'], {}).get('contents', [])) > 1
+        if multi_content:
+            identity = {key: pack.get(key) for key in ('contentIndex', 'contentId')}
+            check(all(all(source.get(key) == value for key, value in identity.items())
+                      for source in records[url]['sources']), f'{url}: pack content identity mismatch')
         for bucket in ('layouts', 'animations', 'textures', 'messages', 'styles'):
             members = pack.get(bucket, {})
             report['counts'][bucket] += len(members)
             sources = pack.get('resourceSources', {}).get(bucket, {})
             check(set(sources) == set(members), f'{url}: missing {bucket} member provenance')
             for key, source in sources.items():
+                if multi_content:
+                    check(all(source.get(k) == v for k, v in identity.items()), f'{url}/{key}: member content identity mismatch')
                 try: source_check(source, f'{url}/{key}')
                 except (ValueError, KeyError, OSError) as error: report['errors'].append(f'{url}/{key}: {error}')
         for name, texture in pack['textures'].items():

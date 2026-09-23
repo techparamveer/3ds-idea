@@ -31,6 +31,28 @@ Keep `--home-only` until the orchestrator accepts the representative HOME slice 
 
 The additive `converter` record identifies converter version, every conversion script's SHA-256, and the chosen CTRTool version/binary SHA-256. Source records include CIA basenames; personal absolute paths and Python/zlib/platform build details stay in the private artifact `build-report.json`. No timestamp enters delivery JSON. A tool version identifies the implementation, not a visual acceptance level.
 
+Converter 1.3.0 validates every included TMD content record and plaintext NCCH,
+including its hash, identity and section bounds. `sources[title].contents`
+identifies each content by index, ID, flags, size, offset, SHA-256 and NCCH
+metadata. `resourceContentIndex` selects the unique executable/application
+content, or the sole content of a single-content archive such as the shared
+font. Ambiguous selection and incomplete content sets are rejected.
+`contentSha256` remains the selected NCCH's hash, never a concatenation hash.
+
+Single-content extraction paths, resource provenance and converted bytes retain
+their existing meaning, and matching legacy extraction markers can be reused.
+Multi-content private roots use `contents/INDEX-ID/`; public pack/font paths
+also carry this namespace. Every multi-content resource source and pack member
+has `contentIndex` and `contentId`. The title icon comes from the selected
+application; other contents are converted independently, including manual
+archives, with unsupported members reported. The audit checks content identity
+and resolves each source against its own extraction root.
+
+See [multi-content validation](../../docs/firmware-multicontent-validation.md)
+for the private HOME/Keyboard/Settings checks and unresolved native formats.
+System Transfer and System Update are included in the allowlist; their resource
+conversion has not been run in this bounded slice.
+
 Each pack contains `layouts`, `animations`, `textures`, `messages`, `resourceSources` and `unsupported`, plus `styles` when a supported HOME style table is present. `resourceSources` maps each resource category and name to original member paths and decoded SHA-256 hashes. Layouts contain pane hierarchy, native transforms, text metrics, groups, window frames, texture mapping, blend state and TEV stages. Windows expose `inflation` (four unsigned fixed-point values divided by 16) and `frameSize` (four unsigned integers), both in left/right/top/bottom order. These replace the earlier incorrectly decoded `stretch` float array. Fonts also expose FINF `width`, `cellWidth`, `cellHeight` and `maxCharWidth` alongside baseline, ascent, line feed and per-glyph metrics.
 
 Animation tracks retain target/binding/tag/index/component/property, step or Hermite keys, clip duration/looping and texture names. Duplicate-frame Hermite keys represent split tangents and must not be collapsed. MSBT messages retain control tokens and arguments separately from printable text, plus `styleIndex` (`null` for the native -1 sentinel). ATR1 count, record width, attribute records and trailing string table are preserved; typed attribute semantics require the title's definition. The HOME ATR1 tables have zero-width records. The two English HOME `RI_mstl` tables are converted into `styles`, keyed by full member path because their basenames are identical. Messages link with `styleTable`; `styleIndex` indexes that table's `styles` array. Each 44-byte record exposes `fontScale` in X/Y order, `lineSpacing`, `characterSpacing` and `unresolvedWords` keyed by decimal byte offset. The four named fields are confirmed by native HOME code; the remaining seven words stay unnamed. Font scales multiply native font width/height, and spacings replace the corresponding CLYT text fields. A null style index leaves the layout values intact. These tables are selected only by the two known paths, since this format has no magic signature.

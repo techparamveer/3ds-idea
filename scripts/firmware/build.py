@@ -20,9 +20,10 @@ from convert_bcfnt import convert as convert_font
 from unpack_home_resources import decompress, unpack_darc
 from firmware.native import decode_layout, decode_animation, decode_msbt, decode_mstl
 from firmware.texture import decode_bclim, decode_texture, png
+from firmware.cia import cia_metadata, content_directory, content_key, content_provenance
 
 FIRMWARE = '10.7.0-32E'
-CONVERTER_VERSION = '1.2.0'
+CONVERTER_VERSION = '1.3.0'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
@@ -41,7 +42,9 @@ TITLES = {
     '0004001000022400': ('camera', 'Nintendo 3DS Camera', 'app'),
     '0004001000022500': ('sound', 'Nintendo 3DS Sound', 'app'),
     '0004001000022900': ('eshop', 'Nintendo eShop', 'app'),
+    '0004001000022a00': ('system-transfer', 'System Transfer', 'app'),
     '0004001000022b00': ('nintendo-zone', 'Nintendo Zone Viewer', 'app'),
+    '0004001000022f00': ('system-updater', 'System Update', 'app'),
     '000400100002c100': ('nnid-settings', 'Nintendo Network ID Settings', 'app'),
     '0004003000009902': ('camera-applet', 'Camera', 'applet'),
     '0004003000009b02': ('manual', 'Instruction Manual', 'applet'),
@@ -83,7 +86,7 @@ def public_path(root, url):
 
 
 def converter_provenance(ctrtool):
-    scripts = ['firmware/build.py', 'firmware/native.py', 'firmware/texture.py',
+    scripts = ['firmware/build.py', 'firmware/cia.py', 'firmware/native.py', 'firmware/texture.py',
                'convert_bcfnt.py', 'unpack_home_resources.py']
     result = subprocess.run([str(ctrtool), '--help'], capture_output=True, text=True, timeout=10)
     # CTRTool prints its identity with help, returning 1 for this invocation.
@@ -94,44 +97,39 @@ def converter_provenance(ctrtool):
             'extractor': {'name': 'CTRTool', 'version': match[1], 'sha256': digest(ctrtool.read_bytes())}}
 
 
-def cia_metadata(data, expected_title):
-    if len(data) < 32: raise ValueError('Truncated CIA')
-    header, kind, version, cert, ticket, tmd, meta, size = struct.unpack_from('<IHHIIIIQ', data)
-    align = lambda n: (n+63)&~63
-    tmd_at = align(align(header)+cert)+align(ticket)
-    content_at = tmd_at+align(tmd)
-    sig_sizes = {0x10000: 0x240, 0x10001: 0x140, 0x10002: 0x80, 0x10003: 0x240, 0x10004: 0x140, 0x10005: 0x80}
-    sig = int.from_bytes(data[tmd_at:tmd_at+4], 'big')
-    if sig not in sig_sizes: raise ValueError('Unsupported TMD signature container')
-    base = tmd_at+sig_sizes[sig]
-    if base+0x9c4+48 > tmd_at+tmd or content_at+size > len(data): raise ValueError('CIA sections outside input')
-    title = data[base+0x4c:base+0x54].hex()
-    count = int.from_bytes(data[base+0x9e:base+0xa0], 'big')
-    if title != expected_title or count != 1: raise ValueError('Unexpected CIA title/content count')
-    if int.from_bytes(data[base+0x9ca:base+0x9cc], 'big') & 1: raise ValueError('CIA is still encrypted')
-    ncch = data[content_at:content_at+size]
-    if ncch[0x100:0x104] != b'NCCH' or not ncch[0x18f]&4: raise ValueError('NCCH is still encrypted')
-    expected_length = int.from_bytes(ncch[0x104:0x108], 'little')*512
-    if expected_length != len(ncch): raise ValueError('NCCH content length mismatch')
-    return {'titleId': title, 'version': int.from_bytes(data[base+0x9c:base+0x9e], 'big'),
-            'sourceSha256': digest(data), 'contentSha256': digest(ncch), 'size': len(data),
-            'productCode': ncch[0x150:0x160].split(b'\0', 1)[0].decode('ascii')}
-
-
 def extract(ctrtool, package, scratch, metadata):
+    if cia_metadata(package.read_bytes(), metadata['titleId']) != metadata:
+        raise ValueError('Package changed since metadata validation')
+    selected = content_directory(scratch, metadata, metadata['resourceContentIndex'])
     marker = scratch/'source.json'
-    if marker.exists() and json.loads(marker.read_text()) == metadata:
-        return scratch/'romfs', scratch/'exefs'
+    legacy = {k: v for k, v in metadata.items() if k not in ('contents', 'resourceContentIndex')}
+    if marker.exists():
+        stored = json.loads(marker.read_text())
+        if stored == metadata or (len(metadata['contents']) == 1 and stored == legacy):
+            for content in metadata['contents']:
+                folder = content_directory(scratch, metadata, content['index'])
+                for name in ('romfs', 'exefs'):
+                    if content['ncch']['regions'][name]['size'] and not (folder/name).is_dir():
+                        raise ValueError('Incomplete cached extraction')
+            return selected/'romfs', selected/'exefs'
+        raise ValueError(f'Extraction provenance differs: {scratch}')
     scratch.mkdir(parents=True, exist_ok=True)
-    if any((scratch/n).exists() for n in ('romfs', 'exefs')):
+    if any((scratch/n).exists() for n in ('romfs', 'exefs', 'contents')):
         # Old output must not silently mingle with a different firmware revision.
         raise ValueError(f'Extraction directory already exists without matching provenance: {scratch}')
-    result = subprocess.run([str(ctrtool), '--plain', '--quiet', f'--romfsdir={scratch / "romfs"}',
-                             f'--exefsdir={scratch / "exefs"}', str(package)], capture_output=True, text=True, check=False)
-    (scratch/'ctrtool.log').write_text(result.stdout+result.stderr)
-    if result.returncode: raise ValueError(f'CTRTool failed; see {scratch / "ctrtool.log"}')
+    for content in metadata['contents']:
+        folder = content_directory(scratch, metadata, content['index'])
+        folder.mkdir(parents=True, exist_ok=True)
+        result = subprocess.run([str(ctrtool), '--plain', '--quiet', f'--ncch={content["index"]}',
+                                f'--romfsdir={folder / "romfs"}', f'--exefsdir={folder / "exefs"}',
+                                str(package)], capture_output=True, text=True, check=False)
+        (folder/'ctrtool.log').write_text(result.stdout+result.stderr)
+        if result.returncode: raise ValueError(f'CTRTool failed; see {folder / "ctrtool.log"}')
+        for name in ('romfs', 'exefs'):
+            if content['ncch']['regions'][name]['size'] and not (folder/name).is_dir():
+                raise ValueError(f'CTRTool did not extract {name} for content {content["index"]}')
     marker.write_bytes(encode(metadata))
-    return scratch/'romfs', scratch/'exefs'
+    return selected/'romfs', selected/'exefs'
 
 
 class Builder:
@@ -161,12 +159,13 @@ class Builder:
         manifest, sheets = convert_font(raw, compact=True)
         for filename, image in zip(manifest['sheets'], sheets): self.write(f'fonts/{name}/{filename}', image, source, 'font-sheet')
         return self.write(f'fonts/{name}/font.json', encode(manifest), source, 'font')
-    def pack(self, resources, name, title, source_path, source_hash):
-        result = {'schema': 1, 'name': name, 'titleId': title, 'sourceSha256': source_hash,
+    def pack(self, resources, name, title, source_path, source_hash, content=None):
+        content = content or {}
+        result = {'schema': 1, 'name': name, 'titleId': title, 'sourceSha256': source_hash, **content,
                   'layouts': {}, 'animations': {}, 'textures': {}, 'messages': {}, 'unsupported': [],
                   'resourceSources': {'layouts': {}, 'animations': {}, 'textures': {}, 'messages': {}}}
         for path, raw in sorted(resources.items()):
-            source = {'titleId': title, 'path': source_path+'/'+path, 'sha256': digest(raw)}
+            source = {'titleId': title, 'path': source_path+'/'+path, 'sha256': digest(raw), **content}
             key = Path(path).stem
             try:
                 if raw[:4] == b'CLYT': bucket, value = 'layouts', decode_layout(raw)
@@ -192,8 +191,9 @@ class Builder:
             if table in result.get('styles', {}):
                 message['styleTable'] = table
         slug = TITLES[title][0]
-        url = f'packs/{slug}/{name}.json'
-        self.write(url, encode(result), {'titleId': title, 'path': source_path, 'sha256': source_hash}, 'pack')
+        namespace = f'contents/{content["contentIndex"]:04x}-{content["contentId"]}/' if content else ''
+        url = f'packs/{slug}/{namespace}{name}.json'
+        self.write(url, encode(result), {'titleId': title, 'path': source_path, 'sha256': source_hash, **content}, 'pack')
         return url, result
 
 
@@ -202,6 +202,69 @@ def decode_layers(raw):
         if raw[:1] not in (b'\x10', b'\x11'): return raw
         raw = decompress(raw)
     raise ValueError('Excessive compression nesting')
+
+
+def convert_title(builder, title, metadata, scratch, home):
+    """Convert each extracted content independently; never merge resource names."""
+    slug = TITLES[title][0]
+    info = {'titleId': title, 'slug': slug, 'name': TITLES[title][1], 'kind': TITLES[title][2],
+            'version': metadata['version'], 'sourceSha256': metadata['sourceSha256'], 'packs': [], 'fonts': {}, 'icon': None}
+    if len(metadata['contents']) > 1: info['resourceContentIndex'] = metadata['resourceContentIndex']
+    for content in metadata['contents']:
+        folder = content_directory(scratch, metadata, content['index'])
+        romfs, exefs = folder/'romfs', folder/'exefs'
+        identity = content_provenance(metadata, content['index'])
+        namespace = 'contents/'+content_key(content)+'/' if identity else ''
+        icon = exefs/'icon.bin'
+        if not icon.exists(): icon = exefs/'icon'
+        if content['index'] == metadata['resourceContentIndex'] and icon.is_file():
+            smdh = icon.read_bytes()
+            if smdh[:4] == b'SMDH' and len(smdh) >= 0x36c0:
+                name = smdh[0x208:0x288].decode('utf-16-le').rstrip('\0')
+                if name.strip() and name != '???': info['name'] = name
+                image = png(48, 48, decode_texture(smdh[0x24c0:0x36c0], 48, 48, 3))
+                info['icon'] = builder.write(f'icons/{slug}.png', image, {'titleId': title, 'path': 'ExeFS/icon', 'sha256': digest(smdh), **identity}, 'title-icon')
+        loose = {}
+        for p in sorted(romfs.rglob('*')):
+            if not p.is_file() or p.suffix.lower() in DENIED_SUFFIXES or p.name.lower() in DENIED_NAMES: continue
+            relative = str(p.relative_to(romfs))
+            # Only English messages enter the site's delivery set; inventory
+            # does not discard the owner-provided original packages.
+            if re.search(r'(?:EU_|US_)(?:Dutch|French|German|Italian|Portuguese|Russian|Spanish)(?:/|_)', relative): continue
+            packed = p.read_bytes()
+            try: raw = decode_layers(packed)
+            except (ValueError, IndexError):
+                builder.unsupported.append({'titleId': title, 'path': relative, 'size': len(packed), 'sha256': digest(packed), 'reason': 'Not supported LZ stream', **identity}); continue
+            source = {'titleId': title, 'path': relative, 'sha256': digest(raw), **identity}
+            if raw[:4] == b'darc':
+                try: resources = unpack_darc(raw)
+                except ValueError as error:
+                    builder.unsupported.append({**source, 'reason': str(error)}); continue
+                name = re.sub(r'[^a-zA-Z0-9_-]', '-', relative.removesuffix('_LZ.bin').removesuffix('.arc').removesuffix('.bin'))
+                url, pack = builder.pack(resources, name, title, relative, digest(packed), identity)
+                info['packs'].append(url)
+                if title == HOME: home[name] = url
+            elif (raw[:4] in (b'CLYT', b'CLAN') or raw[:8] == b'MsgStdBn' or
+                  (len(raw) >= 40 and raw[-40:-36] == b'CLIM') or (title == HOME and relative in HOME_STYLE_PATHS)):
+                loose[relative] = raw
+            elif raw[:4] == b'CFNT':
+                try:
+                    font_name = 'hud' if title == HOME and p.name == 'Hud_JP.bcfnt' else slug+'/'+re.sub(r'[^a-zA-Z0-9_-]', '-', p.stem)
+                    if identity: font_name = slug+'/'+namespace+re.sub(r'[^a-zA-Z0-9_-]', '-', p.stem)
+                    url = builder.font(raw, font_name, source)
+                    info['fonts'][namespace+p.name] = url
+                except ValueError as error:
+                    builder.unsupported.append({**source, 'reason': 'Font: '+str(error)})
+            elif raw[:4] in (b'CGFX', b'CSAR', b'CWAV', b'CSTM'):
+                # Owned by the separate model/audio conversion commands.
+                continue
+            else:
+                builder.unsupported.append({**source, 'size': len(raw), 'reason': 'Unconverted application resource container'})
+        if loose:
+            url, pack = builder.pack(loose, 'messages-and-loose', title, 'RomFS', content['sha256'], identity)
+            info['packs'].append(url)
+            if title == HOME: home['messages'] = url
+    return info
 
 
 def main():
@@ -238,57 +301,9 @@ def main():
             p = romfs/'cbf_std.bcfnt.lz'; raw = decode_layers(p.read_bytes())
             manifest['fonts']['shared'] = builder.font(raw, 'shared', {'titleId': title, 'path': p.name, 'sha256': digest(raw)})
             continue
-        info = {'titleId': title, 'slug': slug, 'name': TITLES[title][1], 'kind': TITLES[title][2],
-                'version': metadata['version'], 'sourceSha256': metadata['sourceSha256'], 'packs': [], 'fonts': {}, 'icon': None}
-        icon = exefs/'icon.bin'
-        if not icon.exists(): icon = exefs/'icon'
-        if icon.is_file():
-            smdh = icon.read_bytes()
-            if smdh[:4] == b'SMDH' and len(smdh) >= 0x36c0:
-                name = smdh[0x208:0x288].decode('utf-16-le').rstrip('\0')
-                if name.strip() and name != '???': info['name'] = name
-                image = png(48, 48, decode_texture(smdh[0x24c0:0x36c0], 48, 48, 3))
-                info['icon'] = builder.write(f'icons/{slug}.png', image, {'titleId': title, 'path': 'ExeFS/icon', 'sha256': digest(smdh)}, 'title-icon')
-        loose = {}
-        for p in sorted(romfs.rglob('*')):
-            if not p.is_file() or p.suffix.lower() in DENIED_SUFFIXES or p.name.lower() in DENIED_NAMES: continue
-            relative = str(p.relative_to(romfs))
-            # Only English messages enter the site's delivery set; inventory
-            # does not discard the owner-provided original packages.
-            if re.search(r'(?:EU_|US_)(?:Dutch|French|German|Italian|Portuguese|Russian|Spanish)(?:/|_)', relative): continue
-            packed = p.read_bytes()
-            try: raw = decode_layers(packed)
-            except (ValueError, IndexError):
-                builder.unsupported.append({'titleId': title, 'path': relative, 'size': len(packed), 'sha256': digest(packed), 'reason': 'Not supported LZ stream'}); continue
-            source = {'titleId': title, 'path': relative, 'sha256': digest(raw)}
-            if raw[:4] == b'darc':
-                try: resources = unpack_darc(raw)
-                except ValueError as error:
-                    builder.unsupported.append({**source, 'reason': str(error)}); continue
-                name = re.sub(r'[^a-zA-Z0-9_-]', '-', relative.removesuffix('_LZ.bin').removesuffix('.arc').removesuffix('.bin'))
-                url, pack = builder.pack(resources, name, title, relative, digest(packed))
-                info['packs'].append(url)
-                if title == HOME: manifest['home'][name] = url
-            elif (raw[:4] in (b'CLYT', b'CLAN') or raw[:8] == b'MsgStdBn' or
-                  (len(raw) >= 40 and raw[-40:-36] == b'CLIM') or (title == HOME and relative in HOME_STYLE_PATHS)):
-                loose[relative] = raw
-            elif raw[:4] == b'CFNT':
-                try:
-                    font_name = 'hud' if title == HOME and p.name == 'Hud_JP.bcfnt' else slug+'/'+re.sub(r'[^a-zA-Z0-9_-]', '-', p.stem)
-                    url = builder.font(raw, font_name, source)
-                    info['fonts'][p.name] = url
-                    if title == HOME and p.name == 'Hud_JP.bcfnt': manifest['fonts']['hud'] = url
-                except ValueError as error:
-                    builder.unsupported.append({**source, 'reason': 'Font: '+str(error)})
-            elif raw[:4] in (b'CGFX', b'CSAR', b'CWAV', b'CSTM'):
-                # Owned by the separate model/audio conversion commands.
-                continue
-            else:
-                builder.unsupported.append({**source, 'size': len(raw), 'reason': 'Unconverted application resource container'})
-        if loose:
-            url, pack = builder.pack(loose, 'messages-and-loose', title, 'RomFS', metadata['contentSha256'])
-            info['packs'].append(url)
-            if title == HOME: manifest['home']['messages'] = url
+        info = convert_title(builder, title, metadata, args.artifacts/'extracted'/slug, manifest['home'])
+        if title == HOME and 'Hud_JP.bcfnt' in info['fonts']:
+            manifest['fonts']['hud'] = info['fonts']['Hud_JP.bcfnt']
         manifest['titles'][title] = info
         print(json.dumps({'title': title, 'name': info['name'], 'packs': len(info['packs']), 'icon': bool(info['icon'])}), flush=True)
     manifest['resources'] = dict(sorted(builder.records.items()))

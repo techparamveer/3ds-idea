@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400300000f602": {
+      "packs": {
+        "packs/memo/Memo_D.json": {
+          "layouts": [
+            "Memo_D",
+            "Memo_U",
+            "P_BtnPage",
+            "P_BtnStamp"
+          ],
+          "animations": [
+            "Memo_D_Base",
+            "Memo_D_BtnCursorBase",
+            "Memo_D_BtnCursorDecide",
+            "Memo_D_BtnCursorLRSelect",
+            "Memo_D_BtnDlgBase",
+            "Memo_D_BtnDlgDecide",
+            "Memo_D_BtnDlgSelect",
+            "Memo_D_CursorIn",
+            "Memo_D_CursorOut",
+            "Memo_D_Decide",
+            "Memo_D_DecideRadio",
+            "Memo_D_DlgIn",
+            "Memo_D_DlgOut00",
+            "Memo_D_DlgOut01",
+            "Memo_D_HomeIconInOut",
+            "Memo_D_Invalid",
+            "Memo_D_SceneIn",
+            "Memo_D_SceneOut",
+            "Memo_D_Select",
+            "Memo_D_SelectLoop",
+            "Memo_D_StpWinIn",
+            "Memo_D_StpWinMoveCC",
+            "Memo_D_StpWinMoveCR",
+            "Memo_D_StpWinMoveLC",
+            "Memo_D_StpWinMoveLR",
+            "Memo_D_StpWinOut",
+            "Memo_D_StpWinSize01",
+            "Memo_D_StpWinSize02",
+            "Memo_D_StpWinSize03",
+            "Memo_U_SceneIn",
+            "Memo_U_SceneOut",
+            "P_BtnPage_Base",
+            "P_BtnPage_DecideRadio",
+            "P_BtnPage_Invalid",
+            "P_BtnPage_Select",
+            "P_BtnStamp_Base",
+            "P_BtnStamp_Decide",
+            "P_BtnStamp_Invalid",
+            "P_BtnStamp_Select"
+          ]
+        },
+        "packs/memo/messages-and-loose.json": {
+          "messages": {
+            "memo3ds": [
+              "Button_OK",
+              "Button_Quit",
+              "MoveSlidebar",
+              "ReturnCanvas"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

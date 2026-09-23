@@ -77,6 +77,20 @@
             "P_SldShow_D_Default",
             "P_SldShow_D_Push"
           ]
+        },
+        "packs/camera/contents/0000-0000001a/msg-EU_English.json": {
+          "messages": {
+            "P": [
+              "Brws_02",
+              "Brws_06",
+              "Brws_U_01_01",
+              "Brws_U_04",
+              "Brws_U_05",
+              "SShow_00_01",
+              "SShow_04_01",
+              "back"
+            ]
+          }
         }
       }
     }

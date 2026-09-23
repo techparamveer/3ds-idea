@@ -105,6 +105,23 @@
             "ParakeetA_U_InL_U",
             "ParakeetA_U_OutL_U"
           ]
+        },
+        "packs/sound/contents/0000-0000000b/msg-EU_English.json": {
+          "messages": {
+            "S": [
+              "C_T_00",
+              "C_T_03",
+              "C_B_01",
+              "C_B_02",
+              "P_B_00",
+              "P_B_02",
+              "P_BR_03",
+              "P_BR_04",
+              "F_N_00",
+              "E_00",
+              "E_I_00"
+            ]
+          }
         }
       }
     }

@@ -23,6 +23,10 @@ All five titles include `messages-and-loose.json` with selected labels. Banks
 are `message`, `friend_msbt_LZ`, `newslist_msbt_LZ`, `spider`, and `cave`
 respectively. Complete label lists are in each selection plan. Friend and
 notification messages retain their source English sibling MSTL tables.
+Browser and Miiverse have no delivered sibling style table. Their source message
+style indices remain unchanged. Presentation may use a documented plain-text
+override that retains the native text pane's typography; this does not recreate
+the missing message styles.
 
 The original converter allowed Chinese/other regional loose banks to claim a
 basename before EU English. Stock conversion now selects an exact EU_English

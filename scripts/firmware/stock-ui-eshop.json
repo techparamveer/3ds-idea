@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022900": {
+      "packs": {
+        "packs/eshop/contents/0000-0000006b/cad-Boot-arc-lz.json": {
+          "layouts": [
+            "opening_U_00",
+            "opening_D_00",
+            "splash_U_00",
+            "splash_D_00",
+            "welcome_U_00",
+            "welcome_D_00"
+          ],
+          "animations": [
+            "opening_D_00_in_00",
+            "opening_D_00_opening_00",
+            "opening_U_00_change_00",
+            "opening_U_00_change_01",
+            "opening_U_00_loopIn_00",
+            "opening_U_00_loop_00",
+            "opening_U_00_region_00",
+            "opening_U_00_welcome_00",
+            "splash_D_00_bow_00",
+            "splash_D_00_in_00",
+            "splash_D_00_out_00",
+            "splash_D_00_out_01",
+            "splash_D_00_wait_00",
+            "splash_U_00_in_00",
+            "splash_U_00_out_00",
+            "splash_U_00_out_01",
+            "splash_U_00_region_00",
+            "welcome_U_00_balloonIn_00",
+            "welcome_U_00_in_00",
+            "welcome_U_00_out_00",
+            "welcome_U_00_out_01",
+            "welcome_U_00_wait_00"
+          ]
+        },
+        "packs/eshop/contents/0000-0000006b/cad-Common-arc-lz.json": {
+          "layouts": [
+            "BG_U_00",
+            "BG_D_00",
+            "sysMenu_U_00",
+            "sysMenu_D_00"
+          ],
+          "animations": [
+            "BG_D_00_inOut_00",
+            "BG_U_00_inOut_00",
+            "sysMenu_D_00_inOut_00",
+            "sysMenu_U_00_inOut_00"
+          ]
+        },
+        "packs/eshop/contents/0000-0000006b/cad-Entrance-arc-lz.json": {
+          "layouts": [
+            "menuPos_D_00",
+            "menuBtn_D_00",
+            "positionA_D_00"
+          ],
+          "animations": [
+            "menuBtn_D_00_inOut_00",
+            "menuBtn_D_00_touchOff_00",
+            "menuBtn_D_00_touchOn_00"
+          ]
+        },
+        "packs/eshop/contents/0000-0000006b/messages-and-loose.json": {
+          "messages": {
+            "tiger.msbt": [
+              "BootWelcome_txt01_01",
+              "BootWelcome_txt01_02",
+              "CommonBtn_01_01",
+              "CommonBtn_01_02",
+              "CommonBtn_01_03",
+              "Entrance_btn01_01",
+              "Entrance_icon01_01",
+              "Entrance_icon01_02"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

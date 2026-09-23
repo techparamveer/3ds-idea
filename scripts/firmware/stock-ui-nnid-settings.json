@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400100002c100": {
+      "packs": {
+        "packs/nnid-settings/layout-Root.json": {
+          "layouts": [
+            "Root"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-BG.json": {
+          "layouts": [
+            "BG"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-sysinfo-AccountHeader.json": {
+          "layouts": [
+            "AccountHeader"
+          ],
+          "animations": [
+            "AccountHeader_ApltFade",
+            "AccountHeader_TextFade"
+          ]
+        },
+        "packs/nnid-settings/layout-TopButton.json": {
+          "layouts": [
+            "TopButton"
+          ],
+          "animations": [
+            "TopButton_FadeIn",
+            "TopButton_FocusedOnOff",
+            "TopButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/layout-toolbar-ToolBar.json": {
+          "layouts": [
+            "ToolBar"
+          ],
+          "animations": [
+            "ToolBar_BarUpDown",
+            "ToolBar_FadeIn",
+            "ToolBar_FadeOut",
+            "ToolBar_FadeOutDecided",
+            "ToolBar_FadeOutFavoriteGo",
+            "ToolBar_PartBarDown",
+            "ToolBar_PartBarUp"
+          ]
+        },
+        "packs/nnid-settings/layout-toolbar-OliveBack.json": {
+          "layouts": [
+            "OliveBack"
+          ],
+          "animations": [
+            "OliveBack_DecidedOn",
+            "OliveBack_DecidedOnOff",
+            "OliveBack_FocusedOnOff",
+            "OliveBack_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/layout-toolbar-ExitButton.json": {
+          "layouts": [
+            "ExitButton"
+          ],
+          "animations": [
+            "ExitButton_DecidedOn",
+            "ExitButton_FocusedOnOff",
+            "ExitButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/messages-and-loose.json": {
+          "messages": {
+            "cave": [
+              "StartMenu_End",
+              "StartMenu_Close"
+            ]
+          }
+        }
+      },
+      "fontBindings": {
+        "font.bcfnt": "shared"
+      }
+    }
+  }
+}

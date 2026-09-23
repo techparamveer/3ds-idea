@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400300000cd02": {
+      "packs": {
+        "packs/circle-pad-pro/extrapad.json": {
+          "layouts": [
+            "Bg_U_00",
+            "Bg_D_00",
+            "CommonBG_U_00",
+            "AnalogPad_D_00",
+            "AnalogPad_U_00",
+            "B_S",
+            "TextBG_U_00"
+          ],
+          "animations": [
+            "AnalogPad_D_00_ArwCover",
+            "AnalogPad_D_00_Rotate_00",
+            "AnalogPad_D_00_SceneIn_00",
+            "AnalogPad_D_00_SceneIn_01",
+            "AnalogPad_U_00_Rotate_00",
+            "AnalogPad_U_00_TextFadeIn",
+            "B_S_Decide",
+            "B_S_Select",
+            "CommonBG_U_00_ObjFadeIn",
+            "CommonBG_U_00_SceneIn_00",
+            "CommonBG_U_00_SceneIn_01",
+            "CommonBG_U_00_SceneIn_03",
+            "CommonBG_U_00_SceneIn_04",
+            "CommonBG_U_00_SceneIn_05",
+            "TextBG_U_00_TextFadeIn"
+          ]
+        },
+        "packs/circle-pad-pro/messages-and-loose.json": {
+          "messages": {
+            "extrapad_msbt_LZ": [
+              "top_comm_u",
+              "base_2b_cancel",
+              "base_2b_next",
+              "cepd_comm_u",
+              "cepd_comm",
+              "cepd_comm1"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

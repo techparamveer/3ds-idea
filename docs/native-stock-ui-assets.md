@@ -65,6 +65,7 @@ Title `0004001000022500`, URL prefix
 | `lyt-S_Common-arc-LZ.json` | `S_Common-BackBtn`, `S_Common-OpenBtn`, `S_Common-BrwCursor`, `S_Common-IconList`, `S_Common-ListScroll` |
 | `lyt-S_Inf_U-arc-LZ.json` | `S_Inf_U-TitleBar`, `S_Inf_U-TrackNameU`, `S_Inf_U-TrackNameD`, `S_Inf_U-PlayTime`, `S_Inf_U-UnderBar` |
 | `lyt-Parakeet-arc-LZ.json` | `ParakeetA_U` with Wait/InL_U/OutL_U only |
+| `msg-EU_English.json` | Bank `S`: `C_T_00`, `C_T_03`, `C_B_01`, `C_B_02`, `P_B_00`, `P_B_02`, `P_BR_03`, `P_BR_04`, `F_N_00`, `E_00`, `E_I_00`; original sibling styles |
 
 All matching clips are preserved for the selected non-parakeet layouts.
 `S_Play_D-CtrPanel3` contains the native previous/play-pause/next controls:
@@ -72,12 +73,13 @@ Default is a 20-frame loop, In/Out are 9 frames, Push 3, Disable 2. The title
 pane is `TitlTxt`; track panes are `TrkNamTxtU0`/`TrkNamTxtU1`; time uses
 `PlyTimeTxt`. The selected layouts borrow `cbf_std.bcfnt`.
 
-This subset is 121 resources and 660,458 bytes including shared dependencies.
+This subset is 122 resources and 681,315 bytes including shared dependencies.
 The integrity audit passes. `sound-player-textures.png` was inspected in the
 same private artifact directory; screen composition is still presentation-owned.
-The original English message container has not been decoded yet. Song labels
-come from the portfolio's song manifest; do not represent authored UI text as
-extracted messages. No recording layouts or recording behavior are delivered.
+The original English message container is now decoded through the bounded stock
+table reader. It supplies title, playlist, Close, Back, Open, Play, Autoplay,
+Resume and shuffle labels. Song labels still come from the portfolio's song
+manifest. No recording layouts or recording behavior are delivered.
 
 ## Camera gallery components
 
@@ -87,15 +89,19 @@ Title `0004001000022400`, prefix `packs/camera/contents/0000-0000001a/`.
 - `lyt-P_Brws_D-arc-LZ.json`: `P_BrwsBase_D`, `P_BrwsFld`, `P_BrwsPic`,
   `P_BrwsCursor_D`, `P_BrwsPhoMntBase`, `P_BrwsTxt_D` and their own clips.
 - `lyt-P_SldShow_D-arc-LZ.json`: `P_SldNavi`, `P_SldShow_D` and their clips.
+- `msg-EU_English.json`: bank `P`, labels `Brws_02`, `Brws_06`,
+  `Brws_U_01_01`, `Brws_U_04`, `Brws_U_05`, `SShow_00_01`, `SShow_04_01`
+  and `back`, with original sibling styles.
 
 The folder label is `TxtThmb`, photo image pane `ThmbPic` (56 × 42), mask
 `ThmbMask` (66 × 52), cursor `Cursor` and empty label `TxtNoData`. Large,
 medium and small thumbnail clips retain native source sizes. Position repeated
 thumbnail instances around the real portfolio photos. The capture/settings
-menu is deliberately omitted; gallery Back/HOME navigation is presentation
-content. English source messages are still pending.
+menu is deliberately omitted. The English bank supplies Slideshow, empty-gallery,
+photo-count, chronological-order and Back text. HOME navigation is presentation
+behavior.
 
-The final subset contains 46 resources totalling 177,228 bytes including shared
+The final subset contains 47 resources totalling 198,509 bytes including shared
 dependencies. Its delivery audit passes. `camera-gallery-textures.png` was
 inspected as texture evidence, not assembled-screen verification.
 
@@ -128,5 +134,7 @@ The delivery audit passes, and the English sibling-style test passes alongside
 existing locale tests. `health-textures.png` was inspected; browser composition
 remains required. Native source messages are historical device UI content.
 
-Other stock/app/helper screens remain pending. No keyboard or audio-behaviour
-reconstruction is part of this delivery.
+Toolbar resources are documented in `native-toolbar-ui-assets.md`; further
+service/helper subsets and remaining format gaps are in
+`native-service-ui-assets.md`. No keyboard or audio-behaviour reconstruction is
+part of this delivery.

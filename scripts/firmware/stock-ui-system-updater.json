@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022f00": {
+      "packs": {
+        "packs/system-updater/base.json": {
+          "layouts": [
+            "Bg_U_00",
+            "Bg_D_00",
+            "Base_D_00"
+          ],
+          "animations": [
+            "Bg_D_00_SceneIn_Legacy",
+            "Bg_U_00_SceneIn_Legacy"
+          ]
+        },
+        "packs/system-updater/up.json": {
+          "layouts": [
+            "TextBG_U_00",
+            "CommonBG_U_00",
+            "IconUpdate"
+          ],
+          "animations": [
+            "CommonBG_U_00_3DOnOff",
+            "CommonBG_U_00_ObjFadeIn",
+            "CommonBG_U_00_SceneIn_00",
+            "CommonBG_U_00_SceneIn_01",
+            "CommonBG_U_00_SceneIn_03",
+            "CommonBG_U_00_SceneIn_04",
+            "CommonBG_U_00_SceneIn_05",
+            "TextBG_U_00_TextFadeIn"
+          ]
+        },
+        "packs/system-updater/layout.json": {
+          "layouts": [
+            "MessageOnly_D_00",
+            "StartBtn2_D_00"
+          ],
+          "animations": [
+            "MessageOnly_D_00_SceneIn_00",
+            "MessageOnly_D_00_SceneIn_01",
+            "MessageOnly_D_00_SpecialIn_00"
+          ]
+        },
+        "packs/system-updater/button.json": {
+          "layouts": [
+            "B_L"
+          ],
+          "animations": [
+            "B_L_Decide",
+            "B_L_Invalid",
+            "B_L_Select"
+          ]
+        },
+        "packs/system-updater/message_EU.json": {
+          "messages": {
+            "mset": [
+              "update",
+              "update_title",
+              "update_comm",
+              "update_comm_u",
+              "base_2b_back",
+              "base_2b_cancel",
+              "base_1b_ok",
+              "dlg_update_new"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

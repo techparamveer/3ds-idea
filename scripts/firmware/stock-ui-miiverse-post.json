@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400300000ba02": {
+      "packs": {
+        "packs/miiverse-post/cad-Main-arc-lz.json": {
+          "layouts": [
+            "MainNull_D_00",
+            "MainNull_U_00",
+            "MemoWin_D_00",
+            "CancelBtn_D_01"
+          ],
+          "animations": [
+            "CancelBtn_D_01_invalid_00",
+            "CancelBtn_D_01_touchOff_00",
+            "CancelBtn_D_01_touchOn_00",
+            "MainNull_D_00_in_00",
+            "MainNull_D_00_out_00",
+            "MainNull_U_00_confirmIn_00",
+            "MainNull_U_00_confirmOut_00",
+            "MainNull_U_00_in_00",
+            "MainNull_U_00_invalid_00",
+            "MainNull_U_00_out_00",
+            "MainNull_U_00_pctOnOff_00",
+            "MainNull_U_00_zoom_00",
+            "MemoWin_D_00_confirmIn_00",
+            "MemoWin_D_00_confirmOut_00"
+          ]
+        },
+        "packs/miiverse-post/cad-Common-arc-lz.json": {
+          "layouts": [
+            "DlgNull_D_00",
+            "DlgBtnC_D_00"
+          ],
+          "animations": [
+            "DlgBtnC_D_00_invalid_00",
+            "DlgBtnC_D_00_touchOff_00",
+            "DlgBtnC_D_00_touchOn_00",
+            "DlgNull_D_00_in_00",
+            "DlgNull_D_00_out_00",
+            "DlgNull_D_00_out_01"
+          ]
+        },
+        "packs/miiverse-post/messages-and-loose.json": {
+          "messages": {
+            "message.msbt": [
+              "STR_CANCEL",
+              "STR_OK",
+              "STR_ERROR_INIT",
+              "STR_ERROR_NNID"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

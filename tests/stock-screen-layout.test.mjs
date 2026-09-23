@@ -78,3 +78,7 @@ test('service source buttons and readonly profile footer have no generic row tar
  const zone=view('nintendo-zone','main',['scan','information']);assert.equal(hit(zone,160,73),'scan');assert.equal(hit(zone,160,154),'information');assert.equal(hit(zone,160,125),null);assert.equal(hit(zone,50,226),'back');assert.equal(hit(zone,160,226),null);
  const profile=view('friends','profile',[]);assert.equal(hit(profile,160,226),'back');assert.equal(hit(profile,160,146),null);
 });
+
+test('selected Notes exposes only its native Back control',()=>{
+ const v=view('game-notes','drawing',[]);assert.equal(hit(v,22,226),'back');assert.equal(hit(v,70,226),null);assert.equal(hit(v,160,110),null);
+});

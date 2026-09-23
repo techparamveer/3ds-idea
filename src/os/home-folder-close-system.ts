@@ -59,14 +59,15 @@ function writeScroll(state: MenuState, result: HomeScrollResult): MenuState {
   return { ...state, system: { ...state.system!, homeCursorLoop: result.state.cursorLoop } };
 }
 
-/** The only input mutation allowed through a pending close: source event7.
- * Identity and navigation ownership must both match before any state changes.
+/** Mode44 admits source event7. Restored viewport ownership is ordinary mode3
+ * and also receives held/press/repeat events (including pending markers).
+ * Identity and navigation ownership must match before any state changes.
  */
 export function consumeSystemHomeFolderCloseInput(state: MenuState, identity: HomeFolderCloseIdentity, event: HomeKeyEvent): Readonly<{
   state: MenuState; observations: readonly HomeScrollObservation[]; disposition: 'handled' | 'unsupported';
 }> {
   const current = sampleSystemHomeFolderClose(state);
-  if (!current || current.controller.phase === 'complete' || event.type !== 7
+  if (!current || current.controller.phase === 'complete' || event.type !== 7 && current.controller.phase !== 'viewport'
     || current.controller.identity.generation !== identity.generation || current.controller.identity.transitionId !== identity.transitionId) {
     return Object.freeze({ state, observations: Object.freeze([]), disposition: 'unsupported' });
   }

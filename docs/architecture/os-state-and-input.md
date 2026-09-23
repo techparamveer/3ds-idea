@@ -17,11 +17,12 @@
 | `animation.ts` | Layout animation sampling utilities |
 | `app-types.ts`, `app-registry.ts`, `app-host.ts` | Firmware contracts, installed titles and applet lifecycle |
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
-| `home-input-producer.ts` | Pure native poll/event arithmetic; live scheduler integration pending |
-| `home-input-sample.ts` | Explicit digital/primary-axis snapshots and independent sample edges; integration pending |
-| `home-scroll-consumer.ts` | Native direction/focus/mode3 arithmetic and ordered cue, cursor and banner observations; live input integration pending |
+| `home-input-producer.ts` | Native poll/event arithmetic used by the live HOME host |
+| `home-input-sample.ts`, `home-input-adapter.ts` | Native independent digital/axis edges and explicit browser pulse adaptation |
+| `home-scroll-consumer.ts` | Native direction/focus/mode3 arithmetic and ordered cue, cursor and banner observations |
 | `home-navigation-pass.ts` | Pure ordinary input/lower/Loop composition with ordered observations and explicit eligibility; live integration pending |
-| `home-cursor-presentation.ts` | Retained primary Scale and two departed-selection effect controllers; live integration pending |
+| `home-cursor-presentation.ts`, `home-primary-cursor.ts` | Retained Scale/effects and independent primary visibility/position |
+| `home-controls.ts` | Live native HOME sampling, lower tasks, cursor footer/controllers and counted observation journals |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-cursor-loop.ts`, `home-cursor-visibility.ts` | Retained primary cursor Loop and shared visibility predicate |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
@@ -141,8 +142,7 @@ persistence boundaries and tests.
 The native lower consumer reports banner resolver snapshots before pending
 movement can change selection again. `resolveHomeBannerHostObservation` resolves
 those recorded slots/contexts and keeps unsupported toolbar categories explicit;
-the service deduplicates accepted targets. The live scene still uses its earlier
-selection boundary until counted host integration. See
+the service deduplicates accepted targets. The live scene consumes each counted journal after its upper manager pass. See
 [observed banner selection](../home-banner-observation-resolution.md).
 
 ## Firmware application foundation
@@ -160,9 +160,9 @@ timings; it is not a verified reproduction of those applications.
 `dispatchSystemEvent` accepts button down/up, touch down/move/up/cancel and
 analog samples. Sources identify individual controls, such as
 `keyboard:ArrowRight`. `app-input.ts` suppresses duplicate activation across
-sources, clamps analog input and permits one stylus contact. `tickSystem`
-generates directional repeats (420 ms delay, 150 ms interval, still unverified
-against native firmware). Browser repeat events do not activate a second time.
+sources, clamps analog input and permits one stylus contact. The native HOME host generates source20/5 poll repeats. `tickSystem`
+retains420ms/150ms repeats for applications, overlays and missing-asset fallback;
+those timings are still unverified against their native owners. Browser repeat events do not activate a second time.
 Foreground modules receive raw button phases with `activate: false` for
 non-activating events, and receive analog samples plus direction commands.
 Legacy `reduceSystem` and `touchSystem` calls remain available. An owner change
@@ -234,31 +234,31 @@ transient preview policy and remaining work.
 `home-input-producer.ts` implements the source-proven ordinary digital/primary
 axis press, held, repeat and release/cancel producer. Its explicit normalized
 masks and gate inputs make each poll independent from scene updates and time.
-The module is not yet connected to System; the live generic latch remains as
-described above. See [producer evidence and limits](../home-input-producer-runtime.md).
+The native HOME session uses it through `home-controls.ts`; applications and
+fallback retain the generic latch described above. See [producer evidence and limits](../home-input-producer-runtime.md).
 `home-input-sample.ts` supplies separate digital and primary-axis edges before
 their masks are combined. Its source snapshots and explicit sample calls are
-also unconnected to the live adapter; see [source sampling](../home-input-sample-runtime.md).
+consumed by the explicit browser adapter; see [source sampling](../home-input-sample-runtime.md).
 
 Navigation motion advances in integer native updates. The shared provisional
 nominal 60 Hz adapter stores `System.homeClock.updateCount` for presentation clip
 owners; it freezes/rebases beneath overlays and inactive/sleeping HOME. Rendering
 reads `getHomeNavigationView` without advancing state. Source-proven counts are16
 for page-arrow mode2 and15 for density. Ordinary directional edge movement
-instead uses mode3 with10 then5 updates; the live adapter's directional mode2
-routing remains pending correction. The wall-clock cadence remains an explicit
+instead uses mode3 with10 then5 updates; the native live host now uses that route. The fallback retains its earlier
+directional behavior. The wall-clock cadence remains an explicit
 application assumption. See the motion section of the navigation contract.
 
 The primary cursor retains its submitted/current Loop frames independently of
 paint elapsed time. Its ordinary update submits the current frame, then advances
 by one and wraps before60; hidden cursor updates preserve phase. System and
-presentation share the same visibility predicate. Counted close resumes it on
-the exact selection-ready update, including that update in the adopted
-lower-task-before-layout order. Reduced motion samples frame0 without resetting
+presentation share the same visibility predicate. Native counted close resumes it at root restoration, including an offscreen
+mode3 viewport correction. The legacy compatibility path still uses its earlier
+selection-ready policy. The native footer precedes the later layout submission. Reduced motion samples frame0 without resetting
 the retained controller. See [cursor runtime](../home-cursor-loop-runtime.md),
 [presentation](../native-cursor-loop-presentation.md) and
-[browser checks](../native-cursor-browser-validation.md). Native acceleration,
-the complete gesture schedule and hardware cadence remain separate gaps.
+[browser checks](../native-cursor-browser-validation.md). Native acceleration is integrated; the complete gesture schedule and hardware
+cadence remain separate gaps.
 
 Native lower folder assembly and its captured-background lifetime are documented in
 [native-folder-assembly.md](../native-folder-assembly.md). The renderer consumes
@@ -268,8 +268,9 @@ it does not derive native animation frames from row counts.
 The scene now wires ordinary folder banners through the shared update counter
 and pre-mutation boundaries; see [live banner integration](../home-banner-integration.md).
 The new pure single-pass host API can place lower-task observations between
-the manager and attached-scene phases. Live input integration is pending; see
-[ordered banner passes](../home-banner-ordered-pass.md).
+the manager and attached-scene phases. The live scene now consumes that API; see
+[ordered banner passes](../home-banner-ordered-pass.md) and
+[live controls and remaining adapter boundaries](../home-controls-runtime.md).
 `native-home-audio/` owns verified resource decoding and persistent music
 synthesis. Browser transport remains owned by `audio.ts`; see
 [the audio boundary](../native-home-audio-contract.md).

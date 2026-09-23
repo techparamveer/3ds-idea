@@ -143,7 +143,11 @@ export function stepHomeControls(state: MenuState): HomeControlPass {
   for (const event of produced.events) {
     const close = sampleSystemHomeFolderClose(state);
     if (close && isSystemHomeFolderClosing(state)) {
-      if (event.type === 7) state = consumeSystemHomeFolderCloseInput(state, close.controller.identity, event).state;
+      if (event.type === 7 || close.controller.phase === 'viewport') {
+        const consumed = consumeSystemHomeFolderCloseInput(state, close.controller.identity, event);
+        state = consumed.state; controls = observe(controls, consumed.observations);
+        observations.push(...consumed.observations.map(observation => ({ phase: 'input' as const, observation })));
+      }
       continue;
     }
     const consumed = consumeHomeGridKeyEvent({ navigation: state.system!.homeNavigation, cursorLoop: state.system!.homeCursorLoop }, event);

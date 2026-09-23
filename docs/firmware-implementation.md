@@ -2,7 +2,12 @@
 
 ## Working agreement
 
-The owner requests the supplied original European firmware's UI and bundled applications inside the existing 3DS portfolio. AR Games and Face Raiders are excluded. Portfolio apps occupy the first eight HOME positions. Browser media access is opt-in; Nintendo networking and unavailable peripherals reproduce offline behaviour. Do not claim full fidelity without native-screen comparisons.
+The owner requests the supplied original European firmware's UI and bundled applications inside the existing 3DS portfolio. AR Games, Face Raiders, Activity Log, Download Play, Mii Maker and StreetPass Mii Plaza are excluded. The four latter exclusions were requested on2026-09-23; older saved layouts omit those titles while retaining all other positions/folders. Mii Selector and other remaining internal applets stay in scope. Portfolio apps occupy the first eight HOME positions. Browser media access is opt-in; Nintendo networking and unavailable peripherals reproduce offline behaviour. Do not claim full fidelity without native-screen comparisons.
+
+The user requested faster delivery, then explicitly retained strict1:1 acceptance
+even if it takes longer than the end of the day. Do not replace that standard
+with a working-but-incomplete PR. All three separate worker tasks now use
+GPT-6 Astra High, superseding the earlier Extra High preference.
 
 The integration branch is `codex/firmware-os-10-7`. The original `uifix` checkout and existing OS worktrees remain preserved. Baseline changes are recorded under `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/baseline`.
 
@@ -18,7 +23,7 @@ precedence for active work. For live HOME controls, the orchestrator owns
 `system.ts`, `home-controls.ts`, browser adaptation and scene journals; runtime
 owns the bounded pure controllers and presentation owns the screen painter.
 See [the current tile-touch contract](home-tile-touch-contract.md). Reuse the
-three separate worker tasks/worktrees, each on Astra Extra High.
+three separate worker tasks/worktrees, each on Astra High.
 
 The entry manifest lives at `/os/firmware/10.7.0-32E/manifest.json` and has `schema: 1`, `firmware: "10.7.0-32E"`, `region: "EUR"`, `locale: "EU_English"`, source title/version/SHA records, relative `fonts.shared` and `fonts.hud` URLs, relative HOME pack URLs, title metadata, and converted resource size/hash/provenance records. Audio and model records can be appended by separate deterministic compilation commands without changing existing fields. All relative paths resolve against this manifest URL.
 

@@ -1,7 +1,7 @@
 import { apps } from './apps.ts';
 import { getHomeFolderIdentities, moveHomeFolderIdentity } from './home-folder-identity.ts';
 import { enterHomeFolder, leaveHomeFolder, selectHomeSlot, remapHomeFolderViews, getHomeNavigation, writeHomeNavigation, settleHomeNavigation } from './home-navigation.ts';
-import { getTitle, homeTitles } from './app-registry.ts';
+import { getTitle, homeTitles, retiredHomeTitleIds } from './app-registry.ts';
 import { FIRST_FOLDER_NUMBER, LAST_FOLDER_NUMBER, isFolder, MAX_FOLDERS, SLOT_COUNT, type MenuState } from './state.ts';
 
 export const FOLDER_SLOT_COUNT = 60;
@@ -94,7 +94,9 @@ export function restoreHomeLayout(value: unknown): { layout: Record<number, stri
   const layout: Record<number, string> = {}, folders: Record<number, string> = {}, folderLayouts: FolderLayouts = {}, ids = new Set<string>();
   function add(source: Record<string, unknown>, target: Record<number, string>, count: number, child = false): boolean {
     for (const [key, id] of Object.entries(source)) {
-      if (!slotKey(key, count) || typeof id !== 'string' || !getTitle(id)?.home || ids.has(id) || child && !canEnterFolder(id)) return false;
+      if (!slotKey(key, count) || typeof id !== 'string') return false;
+      if (retiredHomeTitleIds.has(id)) continue;
+      if (!getTitle(id)?.home || ids.has(id) || child && !canEnterFolder(id)) return false;
       ids.add(id); target[Number(key)] = id;
     }
     return true;

@@ -8,13 +8,9 @@ const firmware = (id: string, title: string, titleId: string, kind: AppDescripto
 });
 export const stockTitles: readonly AppDescriptor[] = [
   firmware('system-settings', 'System Settings', '0004001000022000'),
-  firmware('download-play', 'Download Play', '0004001000022100'),
-  firmware('activity-log', 'Activity Log', '0004001000022200'),
   firmware('health-safety', 'Health and Safety Information', '0004001000022300'),
   firmware('camera', 'Nintendo 3DS Camera', '0004001000022400'),
   firmware('sound', 'Nintendo 3DS Sound', '0004001000022500'),
-  firmware('mii-maker', 'Mii Maker', '0004001000022700'),
-  firmware('streetpass', 'StreetPass Mii Plaza', '0004001000022800'),
   firmware('eshop', 'Nintendo eShop', '0004001000022900'),
   firmware('system-transfer', 'System Transfer', '0004001000022A00', 'application', false),
   firmware('nintendo-zone', 'Nintendo Zone Viewer', '0004001000022B00'),
@@ -38,6 +34,9 @@ export const stockTitles: readonly AppDescriptor[] = [
   firmware('mint', 'Nintendo eShop', '000400300000D602', 'library-applet'),
   firmware('memo', 'Memo', '000400300000F602', 'library-applet'),
 ];
+/** Removed from the portfolio scope on2026-09-23. Keep only their IDs so older
+ * saved layouts can omit them without losing the user's other placements. */
+export const retiredHomeTitleIds: ReadonlySet<string> = new Set(['activity-log', 'download-play', 'mii-maker', 'streetpass']);
 const modules = new Map<string, AppModule>();
 for (const app of apps) modules.set(app.id, createPortfolioModule(app));
 for (const descriptor of stockTitles) modules.set(descriptor.id, createStockModule(descriptor));

@@ -7,11 +7,14 @@ import { createPortfolioState, tickSystem, reduceSystem, touchSystem, dispatchSy
 import { createInputLatch, latchInput, repeatInput } from '../src/os/app-input.ts';
 const event=(r,id,value)=>dispatchRuntime(r,{type:'action',id,value},1000);
 const home=()=>tickSystem(createPortfolioState(),3001);
-test('registry preserves portfolio positions, distinguishes applets, and excludes AR/Face games',()=>{
+const titleSlot=id=>Number(Object.entries(initialAppLayout()).find(([,title])=>title===id)[0]);
+test('registry preserves portfolio positions, distinguishes applets, and excludes removed portfolio titles',()=>{
  assert.deepEqual(Object.values(initialAppLayout()).slice(0,8),apps.map(app=>app.id));
  assert.ok(installedTitles.some(t=>t.id==='camera-applet'&&t.kind==='system-applet'));
  assert.ok(installedTitles.some(t=>t.id==='keyboard'&&t.kind==='library-applet'));
- assert.ok(!installedTitles.some(t=>/face-raiders|ar-games/.test(t.id)));
+ for(const id of ['face-raiders','ar-games','activity-log','download-play','mii-maker','streetpass']){
+  assert.equal(getAppModule(id),undefined);assert.ok(!Object.values(initialAppLayout()).includes(id));
+ }
  for(const title of installedTitles){const module=getAppModule(title.id),ctx={now:0,shared:createAppRuntime().shared};const view=module.view(module.create({},null,ctx),ctx);assert.equal(view.appId,title.id);assert.ok(Array.isArray(view.rows));}
 });
 test('system applets preserve the suspended portfolio and library results return to the caller',()=>{
@@ -23,12 +26,12 @@ test('system applets preserve the suspended portfolio and library results return
  r=resumeRuntimeApplication(r,50);assert.equal(activeInstance(r).appId,'work');assert.equal(activeInstance(r).state.item,1);
 });
 test('nested library applets restore parent state and HOME resumes the innermost active applet',()=>{
- let r=startApplication(createAppRuntime(),'mii-maker',0);r=event(r,'new');r=event(r,'name');const keyboard=r.active;
+ let r=startApplication(createAppRuntime(),'system-settings',0);r=event(r,'profile');r=event(r,'nickname');const keyboard=r.active;
  r=dispatchRuntime(r,{type:'text',value:'Ada'},1);r=openApplet(r,'error','error',{message:'Test'},2);
  r=event(r,'ok');assert.equal(r.active,keyboard);assert.equal(activeInstance(r).state.draft,'Ada');
  r=showRuntimeHome(r,3);r=resumeRuntimeApplication(r,4);assert.equal(r.active,keyboard);
- r=event(r,'submit');assert.equal(activeInstance(r).appId,'mii-maker');assert.equal(activeInstance(r).state.fields.name,'Ada');
- r=event(r,'save');assert.equal(r.shared.miis[0].name,'Ada');assert.ok(r.effects.some(e=>e.effect.type==='storage'&&e.effect.key==='@shared'));
+ r=event(r,'submit');assert.equal(activeInstance(r).appId,'system-settings');assert.equal(r.shared.settings.nickname,'Ada');
+ assert.ok(r.effects.some(e=>e.effect.type==='storage'&&e.effect.key==='@shared'));
 });
 test('closing an application clears child applets and emits capability release for every instance',()=>{
  let r=startApplication(createAppRuntime(),'camera',0);r=event(r,'preview');const application=r.application;
@@ -71,6 +74,15 @@ test('legacy eight-app layout migrates without destroying custom positions or fo
  const restored=restoreSettings(home(),JSON.stringify({layout,folders:{8:'Docs'}}));
  assert.equal(restored.system.layout[30],'work');assert.equal(restored.folders[8],'Docs');
  assert.ok(Object.values(restored.system.layout).includes('system-settings'));assert.equal(new Set(Object.values(restored.system.layout)).size,Object.values(restored.system.layout).length);
+});
+test('removed titles migrate out of old root and folder layouts without moving retained content',()=>{
+ const layout={...initialAppLayout(),40:'activity-log',41:'download-play',42:'mii-maker',43:'streetpass'};
+ delete layout[0];layout[30]='work';
+ const restored=restoreSettings(home(),JSON.stringify({version:4,layout,folders:{50:'Saved'},folderLayouts:{50:{2:'activity-log',3:'streetpass'}},nextFolderNumber:8}));
+ assert.equal(restored.system.layout[30],'work');assert.equal(restored.folders[50],'Saved');
+ assert.deepEqual(restored.system.folderLayouts[50],{});
+ for(const slot of [40,41,42,43])assert.equal(restored.system.layout[slot],undefined);
+ for(const [slot,id]of Object.entries(layout))if(!['activity-log','download-play','mii-maker','streetpass'].includes(id))assert.equal(restored.system.layout[slot],id);
 });
 test('effect acknowledgement is selective and preserves newly queued effects',()=>{
  let r=startApplication(createAppRuntime(),'camera',0);const ids=r.effects.map(e=>e.id);r=event(r,'preview');const after=acknowledgeEffects(r,ids);
@@ -144,7 +156,7 @@ test('opening an applet resets held input and raw analog coordinates are finite 
  }finally{module.reduce=original;}
 });
 test('power and preferences suspend device requests, resume on cancel, and sleep releases input',()=>{
- let s={...home(),selected:12};s=tickSystem(reduceSystem(s,'open',4000),6000);
+ let s={...home(),selected:titleSlot('camera')};s=tickSystem(reduceSystem(s,'open',4000),6000);
  s=dispatchSystemEvent(s,{type:'action',id:'preview'},6001);const owner=s.system.runtime.active,request=s.system.runtime.effects.at(-1);
  s=reduceSystem(s,'power',6002);assert.equal(s.system.phase,'power');assert.equal(s.system.runtime.active,null);assert.equal(isRuntimeEffectCurrent(s.system.runtime,request),false);
  s=reduceSystem(s,'back',6003);assert.equal(s.system.phase,'app');assert.equal(s.system.runtime.active,owner);
@@ -156,7 +168,7 @@ test('power and preferences suspend device requests, resume on cancel, and sleep
 });
 
 test('late capability callbacks cannot dismiss overlays or replace running state',()=>{
- let s={...home(),selected:12};s=tickSystem(reduceSystem(s,'open',4000),6000);const owner=s.system.runtime.active;
+ let s={...home(),selected:titleSlot('camera')};s=tickSystem(reduceSystem(s,'open',4000),6000);const owner=s.system.runtime.active;
  s=dispatchSystemEvent(s,{type:'action',id:'capture'},6001);const request=s.system.runtime.effects.at(-1);
  s=reduceSystem(s,'power',6002);assert.equal(resolveSystemCapability(s,owner,{type:'capability-result',requestId:'capture',requestToken:request.id,ok:true},6003),s);
  assert.equal(restoreRuntimeData(s,{},{}),s);

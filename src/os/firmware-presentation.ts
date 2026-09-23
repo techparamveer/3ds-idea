@@ -232,8 +232,8 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  }
  function arrows(ctx:Context,showLeft:boolean){return renderer.draw(ctx,'launcher','LncArw_00',{bindings:[binding('LncArw_00_Appear',15)],overrides:{N_arwL_00:{visible:showLeft}},clip:[0,33,320,179]});}
  const pickupSizes=new Map<string,{x:number;y:number;width:number;height:number;alpha:number}>();
- function pickup(ctx:Context,x:number,y:number,size:number,density:number,folder:boolean,folderName=''){
-  const name=folder?'LncIconFolderPickUp_00':'LncIconPickUp_00',frame=nativeHomeDensityFrame(density);
+ function paintPickupAt(ctx:Context,x:number,y:number,frame:number,folder:boolean,folderName=''){
+  const name=folder?'LncIconFolderPickUp_00':'LncIconPickUp_00';
   const glyph=folder&&folderGlyph(folderName);
   const drawn=renderer.draw(ctx,'launcher',name,{center:[x,y],bindings:[binding(name+'_Scale',frame)],textures:glyph?{[glyphTexture]:glyph}:undefined,overrides:{
    P_Icon_00:glyph?{visible:true,textureBindings:{0:glyphTexture,1:'IconMask.bclim'}}:{visible:false},P_IconPrize_00:{visible:false}
@@ -244,8 +244,20 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    rect={x:pane.translation[0]-pane.size[0]/2,y:-pane.translation[1]-pane.size[1]/2,width:pane.size[0],height:pane.size[1],alpha:pane.alpha/255};if(pickupSizes.size>=16)pickupSizes.delete(pickupSizes.keys().next().value!);pickupSizes.set(key,rect);}
   return {drawn,icon:{x:x+rect.x,y:y+rect.y,width:rect.width,height:rect.height,alpha:rect.alpha}};
  }
- function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
-  const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))]});
+ /** Ordinary entry consumes an applied Scale and LCD center. The caller omits
+  * null submissions and owns visibility, anchor, source hiding and artwork.
+  */
+ function pickupAt(ctx:Context,centerX:number,centerY:number,appliedScaleFrame:number){
+  return paintPickupAt(ctx,centerX,centerY,appliedScaleFrame,false);
  }
- return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
+ function pickupBlankAt(ctx:Context,centerX:number,centerY:number,appliedScaleFrame:number){
+  const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[centerX,centerY],bindings:[binding(name+'_Scale',appliedScaleFrame)]});
+ }
+ function pickup(ctx:Context,x:number,y:number,size:number,density:number,folder:boolean,folderName=''){
+  return paintPickupAt(ctx,x,y,nativeHomeDensityFrame(density),folder,folderName);
+ }
+ function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
+  return pickupBlankAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density));
+ }
+ return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

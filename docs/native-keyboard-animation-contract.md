@@ -9,10 +9,11 @@ Presentation owns this bounded slice: establish the binary section schema and
 native binding behavior from primary format implementations and the supplied
 keyboard executable/resources; implement an isolated decoder helper under
 `scripts/firmware/animation_hierarchy.py` plus the matching native animation types,
-binding support and focused tests where proven. Coordinate the small
-`decode_animation` call site with the asset worker, which currently owns Settings
-locale conversion in `build.py` and `native.py`. Do not edit its in-progress
-changes. The coordinator integrates the decoder call site after both commits.
+binding support and focused tests where proven. Settings locale conversion and
+its completeness review are now integrated. Presentation may own the small
+`decode_animation` call site in `native.py` for this slice after syncing those
+commits. Assets has moved to separate keyboard sound modules; preserve the
+completed locale/style changes in `build.py`, `audit.py` and `native.py`.
 
 Record exact original clip hashes and source offsets. Validate section bounds,
 record references and hierarchy targets. Use the actual QWERTY layouts and all

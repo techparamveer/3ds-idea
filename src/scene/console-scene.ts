@@ -5,10 +5,11 @@ import { getHomeCursorSlot } from '../os/home-cursor-visibility';
 import { apps, getApp } from '@/os/apps';
 import { currentEntry, launch, selectedTitle } from '@/os/system';
 import { createMenuAudio, type Sound } from '@/os/audio';
-import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClock, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
+import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClockObserved, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
+import { enableHomeControls, reconcileHomeControls } from '@/os/home-controls';
 import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
 import { createRuntimeEffects } from '@/os/runtime-effects';
-import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, getHomeBannerCloseReadyUpdate, resolveHomeBannerHostSelection } from '@/os/home-banner-host';
+import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, getHomeBannerHostView, getHomeBannerCloseReadyUpdate, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
 import type { AppCommand, AppEvent } from '@/os/app-types';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -55,6 +56,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   try{storage=await openFirmwareStorage({legacyPreferences});const saved=await storage.load();state=restoreRuntimeData(restoreSettings(state,saved.preferences),saved.shared,saved.saves);if(saved.issues.length)runtimeNotice='Some saved data could not be read.';}
   catch(error){state=restoreSettings(state,legacyPreferences);runtimeNotice='Local saving is unavailable.';host.dataset.storageFailure=String(error);}
   const firmwareAssets=await nativeAssets;
+  if(firmwareAssets)state=enableHomeControls(state);
   // Restore is complete before the host is created. A later System restore must
   // allocate a new session as well; individual folder scopes are owned by the host.
   const bannerGeneration=`console-session:${++nextBannerSession}`;
@@ -192,7 +194,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(drag)drag.padDirection=direction;
   }
   let lastInput='none';
-  function cursorDiagnostic(){return {...state.system!.homeCursorLoop,visibleSlot:getHomeCursorSlot(state),sampledFrame:getHomeCursorLoopFrame(state,reduced)};}
+  function cursorDiagnostic(){const controls=state.system!.homeControls;return {...state.system!.homeCursorLoop,visibleSlot:getHomeCursorSlot(state),sampledFrame:getHomeCursorLoopFrame(state,reduced),...(controls?{primary:controls.primary,presentation:controls.presentation,focus:state.system!.homeNavigation.focus,mode3:state.system!.homeNavigation.mode3,mode:state.system!.homeNavigation.motion?.mode??0}: {})};}
   const writeState=()=>{
     if(diagnostics)host.dataset.homeCursor=JSON.stringify(cursorDiagnostic());
     const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderClose=JSON.stringify(sampleSystemHomeFolderClose(state));host.dataset.folderBannerFallback=String(!nativePrimaryAvailable(resolveHomeBannerHostSelection(state).kind));}const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
@@ -202,10 +204,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function recordScreenPaint(){if(diagnostics){const close=sampleSystemHomeFolderClose(state);host.dataset.screenPaint=JSON.stringify({at:performance.now(),homeUpdates:state.system!.homeClock.updateCount,cursor:cursorDiagnostic(),closePhase:close?.controller.phase??null,closeFrame:close?.controller.folder.appliedFrame??null});}}
   function paint(){updateAudio();model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state,new Date(),performance.now()-start);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;lastScreenPaint=performance.now();writeState();}
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
-  function observeFolderBanner(clock=bannerClock()){
+  function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
     const system=state.system!,inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog||system.preferences||!!state.panel||homeClockSuspended;
     const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:true,resourceReady:bannerHost.inputs.resourceReady};
-    bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:resolveHomeBannerHostSelection(state),inputs});
+    bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:selection??(system.homeControls?undefined:resolveHomeBannerHostSelection(state)),inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
     if(view.status!=='unsupported'){
       const status=folderBanner.status(),selection=view.selection;
@@ -223,9 +225,31 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function advanceBeforeMutation(now:number){
     const previous=state;
     if(homeClockSuspended){const system=state.system!;if(system.homeClock.lastNow!==null||system.homeClock.remainderMs!==0)state={...state,system:{...system,homeClock:{...system.homeClock,lastNow:null,remainderMs:0}}};}
-    else state=tickHomeNavigationClock(state,now,reduced);
+    else {
+      const advanced=tickHomeNavigationClockObserved(state,now,reduced);
+      for(const pass of advanced.passes){
+        state=pass.state;
+        let beforeManager:HomeBannerHostSelection|undefined,afterManager:HomeBannerHostSelection|undefined;
+        for(const entry of pass.observations)if(entry.observation.kind==='banner-resolve'){
+          const selection=resolveHomeBannerHostObservation(pass.state,entry.observation);
+          if(entry.phase==='input')beforeManager=selection;else afterManager=selection;
+        }
+        bannerHost=stepHomeBannerHost(bannerHost,bannerClock(),{
+          beforeManager:beforeManager?{selection:beforeManager}:undefined,
+          afterManager:afterManager?{selection:afterManager}:undefined,
+        });
+        // A lower request's resource ticket is acknowledged after this pass;
+        // it cannot retroactively make the preceding upper manager eligible.
+        observeFolderBanner();
+        for(const entry of pass.observations)if(entry.observation.kind==='cue'){
+          const name=entry.observation.cue==='selection'?'select':entry.observation.cue==='invalid'?'scroll-invalid':'toolbar-select';
+          audio.play(name,state.system!.muted,state.system!.volume);
+        }
+      }
+      state=advanced.state;
+    }
     const readyAt=getHomeBannerCloseReadyUpdate(previous,state);
-    if(readyAt!==null)observeFolderBanner({...bannerClock(),updateCount:readyAt});
+    if(!state.system!.homeControls&&readyAt!==null)observeFolderBanner({...bannerClock(),updateCount:readyAt});
     bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock());
   }
   const effects=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;observeFolderBanner();},now:()=>performance.now()-start,beforeMutation:advanceBeforeMutation,storage,
@@ -236,7 +260,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   });
   function reducedBannerKey(){const view=getHomeBannerHostView(bannerHost);return view.status==='active'?JSON.stringify([view.status,view.primary.generation,view.primary.activationEpoch,view.primary.selection.kind,view.primary.selection.kind==='folder'?view.primary.selection.label:null,view.primary.motion.visible]):view.status;}
   function commit(reduce:(current:MenuState,now:number)=>MenuState,input:string,userGesture=false,now=performance.now()-start){
-    const previous=state,previousBanner=reduced?reducedBannerKey():undefined;advanceBeforeMutation(now);const beforeAction=state;state=reduce(state,now);observeFolderBanner();if(state===previous)return;lastInput=input;
+    const previous=state,previousBanner=reduced?reducedBannerKey():undefined;advanceBeforeMutation(now);const beforeAction=state;state=reconcileHomeControls(beforeAction,reduce(state,now));
+    const close=sampleSystemHomeFolderClose(state),previousClose=sampleSystemHomeFolderClose(beforeAction);
+    observeFolderBanner(bannerClock(),close&&close.controller.phase!=='complete'&&close.controller.identity.transitionId!==previousClose?.controller.identity.transitionId?{kind:'clear'}:undefined);
+    if(state===previous)return;lastInput=input;
     updateAudio();
     const before=previous.system!,after=state.system!;
     const sound=getMenuActionSound(beforeAction,state,input);

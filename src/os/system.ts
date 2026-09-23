@@ -67,8 +67,9 @@ export function tickHomeNavigationClockObserved(state: MenuState, now: number, r
  const s=state.system;if(!s||!Number.isFinite(now))return {state,passes:[]};
  const active=isHomeControlsActive(state);
  const stepped=stepHomeUpdateClock(s.homeClock,now,active);
- if(active&&s.homeControls&&stepped.updates>0){
+ if(active&&s.homeControls){
   const passes:HomeControlPass[]=[];
+  if(stepped.updates===0&&stepped.clock!==s.homeClock)state={...state,system:{...s,homeClock:stepped.clock}};
   for(let i=1;i<=stepped.updates;i++){
    state={...state,system:{...state.system!,homeClock:{...stepped.clock,updateCount:s.homeClock.updateCount+i}}};
    const pass=stepHomeControls(state);state=pass.state;passes.push(pass);
@@ -277,8 +278,8 @@ export function setSystemSleeping(state:MenuState,sleeping:boolean,now:number):M
  state=releaseSystemInputs(state,now);return {...state,system:{...state.system!,sleeping,input:createInputLatch(),runtime:setRuntimeSleeping(state.system!.runtime,sleeping,now)}};
 }
 export function releaseSystemInputs(state:MenuState,now=state.system?.runtime.lastTick??0):MenuState {
- state=cancelHomeControls(state);
  state=isSystemHomeFolderClosing(state)?cancelHomeGesture(state):resetHomeNavigation(state);
+ state=cancelHomeControls(state);
  const s=state.system;if(!s)return state;
  let runtime=s.runtime;
  for(const [source,held]of Object.entries(s.input.held))runtime=dispatchRuntime(runtime,{type:'button',command:held.command,phase:'up',source,activate:false},now);

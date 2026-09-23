@@ -86,3 +86,13 @@ test('selected Notes exposes only its native Back control',()=>{
 test('readonly helper entry screens expose only their source Back button',()=>{
  for(const [id,width,y]of [['nnid-settings',64,212],['system-updater',120,208]]){const v=view(id,'main',[]);assert.equal(hit(v,width-1,226),'back');assert.equal(hit(v,width,226),null);assert.equal(hit(v,35,y-1),null);assert.equal(hit(v,160,80),null);}
 });
+
+test('Transfer and Circle Pad targets follow native choice mounts and Back bars',()=>{
+ const transfer=view('system-transfer','main',['3ds','dsi']);
+ assert.equal(hit(transfer,160,40),'3ds');assert.equal(hit(transfer,160,140),'dsi');
+ assert.equal(hit(transfer,160,90),null);assert.equal(hit(transfer,30,225),'back');
+ assert.equal(hit(view('system-transfer','detail',[]),160,40),null);
+ const circle=view('extrapad','main',['information']);
+ assert.equal(hit(circle,159,226),'back');assert.equal(hit(circle,160,226),'information');
+ assert.equal(hit(circle,160,180),null);assert.equal(hit(view('extrapad','detail',[]),300,226),'back');
+});

@@ -1,0 +1,171 @@
+import type { AppView, JsonValue } from './app-types';
+import type { BitmapFont } from './bitmap-font';
+import type { NativeLayoutRenderer } from './native-renderer';
+import { createNativeTitleSession } from './native-title-session';
+import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-settings';
+import { stockScreenTargets } from './stock-screen-layout';
+
+type Context=CanvasRenderingContext2D;
+type MediaRecord=Record<string,JsonValue>;
+export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean};
+const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
+const records=(v:JsonValue|undefined):MediaRecord[]=>Array.isArray(v)?v.map(record):[];
+const string=(v:JsonValue|undefined)=>typeof v==='string'?v:'';
+const number=(v:JsonValue|undefined)=>typeof v==='number'&&Number.isFinite(v)?v:0;
+const camera=(id:string)=>id==='camera'||id==='camera-applet';
+function fill(ctx:Context,x:number,y:number,w:number,h:number,r:number,color:string,stroke?:string){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=color;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke();}}
+function text(ctx:Context,font:BitmapFont|undefined,value:string,x:number,y:number,size=14,color='#444',align:CanvasTextAlign='center'){
+  if(font){font.draw(ctx,value,x,y,size,color,align);return;}
+  ctx.font=`${size}px sans-serif`;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(value,x,y);
+}
+function lines(ctx:Context,font:BitmapFont|undefined,value:string,x:number,y:number,width:number,size=14,color='#444'){
+  const rows:string[]=[];
+  for(const paragraph of value.split('\n')){
+    let row='';
+    for(const word of paragraph.split(' ')){
+      const next=row?row+' '+word:word;
+      // This adaptation wraps portfolio labels; native text panes use their own metrics.
+      if(next.length*size*.52>width&&row){rows.push(row);row=word;}else row=next;
+    }
+    rows.push(row);
+  }
+  rows.forEach((row,i)=>text(ctx,font,row,x,y+i*(size+4),size,color));
+}
+const accents:Record<string,string>={'system-settings':'#9aa5b1',camera:'#d98b19','camera-applet':'#d98b19',sound:'#69ae23','health-safety':'#e58f20','game-notes':'#c8a52b',friends:'#ee8729',notifications:'#78ad52',browser:'#229ac6',miiverse:'#4d9f69'};
+function chrome(ctx:Context,width:number,heading:string,accent:string,font?:BitmapFont){
+  ctx.fillStyle='#f5f5f2';ctx.fillRect(0,0,width,240);
+  const g=ctx.createLinearGradient(0,0,0,30);g.addColorStop(0,'#fff');g.addColorStop(1,'#e4e5df');ctx.fillStyle=g;ctx.fillRect(0,0,width,30);
+  ctx.fillStyle=accent;ctx.fillRect(0,29,width,3);text(ctx,font,heading,width/2,15,15,'#525751');
+}
+function control(ctx:Context,label:string,x:number,y:number,w:number,h:number,active:boolean,font?:BitmapFont,accent='#80b953'){
+  const gradient=ctx.createLinearGradient(0,y,0,y+h);gradient.addColorStop(0,active?'#fffdeb':'#fff');gradient.addColorStop(1,active?'#f7de96':'#e5e7e0');
+  ctx.beginPath();ctx.roundRect(x,y,w,h,5);ctx.fillStyle=gradient;ctx.fill();ctx.strokeStyle=active?accent:'#a9aea4';ctx.lineWidth=active?2:1;ctx.stroke();text(ctx,font,label,x+w/2,y+h/2,13);
+}
+function footer(ctx:Context,view:AppView,font?:BitmapFont){
+  ctx.fillStyle='#d9ddd4';ctx.fillRect(0,212,320,28);
+  for(const side of ['left','right'] as const){const item=view.footer[side];if(item)control(ctx,item.label,side==='left'?3:172,215,145,23,false,font);}
+}
+function mediaImage(ctx:Context,item:MediaRecord,rect:number[],options:StockScreenPaintOptions){
+  const url=string(item.thumbnail)||string(item.src)||string(item.artwork);
+  return url?options.image?.(ctx,url,rect[0],rect[1],rect[2],rect[3])??false:false;
+}
+function albumSymbol(ctx:Context,x:number,y:number,accent:string){
+  fill(ctx,x-21,y-15,42,31,3,'#fff',accent);fill(ctx,x-14,y-23,28,12,3,accent);
+  ctx.strokeStyle=accent;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-14,y+9);ctx.lineTo(x-3,y-3);ctx.lineTo(x+4,y+4);ctx.lineTo(x+10,y-2);ctx.lineTo(x+16,y+9);ctx.stroke();
+}
+function duration(seconds:number){return `${Math.floor(Math.max(0,seconds)/60)}:${String(Math.floor(Math.max(0,seconds)%60)).padStart(2,'0')}`;}
+function transportIcon(ctx:Context,action:string,x:number,y:number,playing:boolean){
+  ctx.fillStyle='#58722d';
+  if(action==='play'&&playing){ctx.fillRect(x-7,y-9,5,18);ctx.fillRect(x+2,y-9,5,18);return;}
+  const direction=action==='previous'?-1:1;
+  ctx.beginPath();ctx.moveTo(x-direction*6,y-9);ctx.lineTo(x+direction*8,y);ctx.lineTo(x-direction*6,y+9);ctx.closePath();ctx.fill();
+  if(action!=='play')ctx.fillRect(x+direction*10-(direction<0?3:0),y-9,3,18);
+}
+
+/** Stock-specific 400×240 / 320×240 surfaces. Media is supplied by AppView. */
+export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,options:StockScreenPaintOptions={}):void{
+  const {font}=options,accent=accents[view.appId]??'#809d8c',data=view.data??{};
+  if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view))return;
+  chrome(top,400,view.heading,accent,font);chrome(bottom,320,view.heading,accent,font);
+  if(camera(view.appId)){
+    const folders=records(data.folders),photos=records(data.photos),selected=view.rows[view.selection];
+    const folder=folders.find(f=>'folder:'+string(f.id)===selected?.id);
+    const photo=view.screen==='photo'?record(data.photo):view.screen==='gallery'?photos.find(p=>'photo:'+string(p.id)===selected?.id)??{}:records(folder?.photos)[0]??{};
+    top.fillStyle='#292923';top.fillRect(0,32,400,181);
+    if(!mediaImage(top,photo,[5,35,390,175],options))albumSymbol(top,200,120,accent);
+    text(top,font,string(photo.title)||string(folder?.title)||'Photo Album',200,226,14);
+    if(view.screen==='photo'){
+      fill(bottom,63,51,194,134,5,'#e5e0cf','#b5a887');mediaImage(bottom,photo,[68,56,184,124],options);
+      for(const r of stockScreenTargets(view).filter(r=>r.action==='previous'||r.action==='next'))control(bottom,r.action==='previous'?'‹':'›',r.x,r.y,r.width,r.height,false,font,accent);
+      text(bottom,font,string(photo.title),160,199,12);
+    }else{
+      for(const r of stockScreenTargets(view).filter(r=>r.row!==undefined)){
+        const row=view.rows[r.row!],active=r.row===view.selection;
+        fill(bottom,r.x,r.y,r.width,r.height,4,active?'#ffe6a7':'#eeeee6',active?'#d79123':'#b5b8a9');
+        let image:MediaRecord;
+        if(view.screen==='gallery')image=photos.find(p=>'photo:'+string(p.id)===row.id)??{};
+        else image=records(folders.find(f=>'folder:'+string(f.id)===row.id)?.photos)[0]??{};
+        if(!mediaImage(bottom,image,[r.x+4,r.y+4,r.width-8,47],options))albumSymbol(bottom,r.x+r.width/2,r.y+28,accent);
+        text(bottom,font,row.label,r.x+r.width/2,r.y+61,10);
+      }
+      if(!view.rows.length)text(bottom,font,'No photos',160,112,15,'#858574');
+    }
+  }else if(view.appId==='sound'){
+    const tracks=records(data.tracks),track=record(data.track),selected=Object.keys(track).length?track:tracks[view.selection]??{};
+    const gradient=top.createLinearGradient(0,32,0,240);gradient.addColorStop(0,'#e7f2c4');gradient.addColorStop(1,'#82b849');top.fillStyle=gradient;top.fillRect(0,32,400,208);
+    for(let i=0;i<8;i++){top.strokeStyle='#f8ffdd55';top.lineWidth=2;top.beginPath();top.ellipse(200,230,80+i*28,70+i*17,0,Math.PI,2*Math.PI);top.stroke();}
+    fill(top,159,48,82,82,9,'#f9ffe5','#6c9833');
+    if(!mediaImage(top,selected,[164,53,72,72],options)){text(top,font,'♪',200,88,42,'#6c9b29');}
+    text(top,font,string(selected.title)||'Nintendo 3DS Sound',200,155,18,'#36501e');
+    text(top,font,string(selected.artist),200,181,13,'#416224');text(top,font,string(selected.album),200,203,11,'#416224');
+    if(view.screen==='playback'){
+      text(bottom,font,string(track.title),160,54,16,'#43671b');text(bottom,font,string(track.artist),160,77,12,'#718160');
+      const total=number(data.duration)||number(track.duration),position=number(data.position),fraction=total>0?Math.max(0,Math.min(1,position/total)):0;
+      fill(bottom,30,104,260,5,3,'#bfc6af');fill(bottom,30,104,Math.max(5,260*fraction),5,3,'#81ad32');
+      bottom.beginPath();bottom.arc(30+260*fraction,106,6,0,2*Math.PI);bottom.fillStyle='#5c8c20';bottom.fill();
+      text(bottom,font,duration(position),31,91,10,'#718160','left');text(bottom,font,duration(total),290,91,10,'#718160','right');
+      const labels:Record<string,string>={play:data.playing?'Ⅱ':'▶',previous:'|◀',next:'▶|',repeat:'Repeat '+(string(data.repeat)||'off'),shuffle:'Shuffle '+(data.shuffle?'on':'off')};
+      for(const r of stockScreenTargets(view).filter(r=>Object.hasOwn(labels,r.action))){
+        const transport=['previous','play','next'].includes(r.action);
+        control(bottom,transport?'':labels[r.action],r.x,r.y,r.width,r.height,r.action==='play'&&data.playing===true,font,accent);
+        if(transport)transportIcon(bottom,r.action,r.x+r.width/2,r.y+r.height/2,data.playing===true);
+      }
+    }else{
+      for(const r of stockScreenTargets(view).filter(r=>r.row!==undefined)){const row=view.rows[r.row!];control(bottom,'',r.x,r.y,r.width,r.height,r.row===view.selection,font,accent);text(bottom,font,'♪',r.x+18,r.y+17,19,'#6f9f26');text(bottom,font,row.label,r.x+39,r.y+12,12,'#444','left');text(bottom,font,row.value??'',r.x+39,r.y+27,10,'#7a856d','left');}
+      if(!view.rows.length)text(bottom,font,'No music added',160,117,15,'#718160');
+    }
+  }else if((view.appId==='game-notes'||view.appId==='memo')&&view.screen==='main'){
+    fill(top,55,53,290,148,4,'#fffef2','#b6ad7d');for(let y=78;y<196;y+=16){top.fillStyle='#dbe5e7';top.fillRect(68,y,264,1);}text(top,font,view.rows[view.selection]?.label??'Game Notes',200,221,14);
+    for(const r of stockScreenTargets(view).filter(r=>r.row!==undefined)){fill(bottom,r.x,r.y,r.width,r.height,2,r.row===view.selection?'#fff3a1':'#fffef2',r.row===view.selection?'#b79516':'#c4c0a7');text(bottom,font,String(r.row!+1),r.x+10,r.y+11,10,'#99917b');}
+  }else{
+    const settings=view.appId==='system-settings';
+    if(settings&&view.screen==='main'){
+      text(top,font,'System Settings',200,130,24);
+      for(const r of stockScreenTargets(view).filter(r=>r.row!==undefined)){control(bottom,'',r.x,r.y,r.width,r.height,r.row===view.selection,font,accent);lines(bottom,font,view.rows[r.row!].label,r.x+r.width/2,r.y+r.height/2-7,r.width-12,13);}
+    }else{
+      text(top,font,view.subheading??view.heading,200,66,19);
+      (view.text??[]).slice(0,3).forEach((value,i)=>lines(top,font,value,200,106+i*38,348,13));
+      if(view.screen==='document'||view.screen==='detail'){
+        fill(bottom,16,42,288,155,5,'#fff','#c7ccbf');
+        (view.text??[]).slice(0,3).forEach((value,i)=>lines(bottom,font,value,160,64+i*44,258,13));
+        if(view.screen==='document')text(bottom,font,String(number(data.page)+1),294,195,10,'#999','right');
+      }else for(const r of stockScreenTargets(view).filter(r=>r.row!==undefined)){const row=view.rows[r.row!];control(bottom,row.label,r.x,r.y,r.width,r.height,r.row===view.selection,font,accent);}
+    }
+  }
+  footer(bottom,view,font);
+}
+
+/** One foreground session; asynchronous resources never outlive its owner. */
+export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void}={}){
+  let revision=0,painted='',paintedFont:BitmapFont|undefined;
+  const changed=()=>{revision++;options.onChange?.();};
+  const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:changed});
+  const images=new Map<string,HTMLImageElement>();let owner:string|null=null,disposed=false;
+  const upper=document.createElement('canvas'),lower=document.createElement('canvas');upper.width=400;upper.height=240;lower.width=320;lower.height=240;
+  const upperContext=upper.getContext('2d')!,lowerContext=lower.getContext('2d')!;
+  function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();}
+  function image(ctx:Context,url:string,x:number,y:number,w:number,h:number){
+    let im=images.get(url);
+    if(!im){if(images.size>=64){const first=images.keys().next().value!;const stale=images.get(first)!;stale.onload=null;stale.onerror=null;stale.src='';images.delete(first);}im=new Image();images.set(url,im);im.onload=()=>{if(!disposed)changed();};im.onerror=()=>{if(!disposed)changed();};im.src=url;}
+    if(!im.complete||!im.naturalWidth)return false;
+    const scale=Math.min(w/im.naturalWidth,h/im.naturalHeight);ctx.drawImage(im,x+(w-im.naturalWidth*scale)/2,y+(h-im.naturalHeight*scale)/2,im.naturalWidth*scale,im.naturalHeight*scale);return true;
+  }
+  return {
+    sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;session.update(null);releaseImages();painted='';}},
+    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont){
+      if(disposed)return;
+      if(owner!==nextOwner){owner=nextOwner;session.update(null);releaseImages();painted='';}
+      const nativeSettings=view.appId==='system-settings'&&view.screen==='main'&&font;
+      const state=session.update(nativeSettings?{owner:nextOwner,view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks,sharedFonts:new Map([['cbf_std.bcfnt',font]])}:null);
+      const key=JSON.stringify([nextOwner,view,revision]);
+      if(painted!==key||paintedFont!==font){
+        upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
+        drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined});
+        painted=key;paintedFont=font;
+      }
+      top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
+    },
+    getState:session.getState,
+    dispose(){if(disposed)return;disposed=true;session.dispose();releaseImages();owner=null;upper.width=upper.height=lower.width=lower.height=0;},
+  };
+}

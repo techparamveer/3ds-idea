@@ -5,6 +5,7 @@ import { getTitle } from './app-registry';
 import type { AppView } from './app-types';
 import type { MenuState } from './state';
 import { measureBitmapText, type BitmapFont } from './bitmap-font';
+import { createStockScreenPresentation } from './stock-screen-presentation';
 type C=CanvasRenderingContext2D;
 const nativeFonts=new WeakMap<C,BitmapFont>();
 export function setPortfolioFont(ctx:C,font?:BitmapFont){if(font)nativeFonts.set(ctx,font);else nativeFonts.delete(ctx);}
@@ -20,6 +21,8 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
 export function createPortfolioGraphics(){
+ const stockScreens=createStockScreenPresentation();
+ function syncStockView(state:MenuState){const s=state.system;stockScreens.sync(s?.phase==='app'&&!s.sleeping&&!s.preferences&&!s.dialog?s.runtime.active:null);}
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  const urls=new Set(apps.flatMap(a=>[...(a.icon.startsWith('/')?[a.icon]:[]),...a.entries.flatMap(e=>e.images??[])]));
@@ -88,28 +91,15 @@ export function createPortfolioGraphics(){
   if(s.detail&&entry.images&&entry.images.length>1)label(b,`◀ ${s.photo+1}/${entry.images.length} ▶`,157,226,12,'#6b7380','center');
   button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
- // Keep the semantic runtime usable until each title's native presentation is
- // integrated. This fallback is not part of the native visual acceptance slice.
- function semanticApplication(t:C,b:C,view:AppView){
-  t.fillStyle=b.fillStyle='#edf0f4';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
-  label(t,view.heading,200,70,20,'#454952','center');
-  if(view.subheading)label(t,view.subheading,200,98,13,'#686b79','center');
-  (view.text??[]).forEach((value,index)=>paragraph(t,value,25,128+index*38,350,14,18));
-  label(b,view.heading,160,18,15,'#454952','center');
-  const start=Math.floor(view.selection/4)*4;
-  view.rows.slice(start,start+4).forEach((row,index)=>{
-   const y=38+index*41;button(b,8,y,304,38,row.label,start+index===view.selection);
-   if(row.value)label(b,row.value,298,y+28,10,'#686b79','right');
-  });
-  if(view.footer.left)button(b,3,214,154,24,view.footer.left.label);
-  if(view.footer.right)button(b,163,214,154,24,view.footer.right.label);
+ function semanticApplication(t:C,b:C,view:AppView,owner:string){
+  stockScreens.draw(t,b,view,owner,nativeFonts.get(t));
  }
  function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false){
   const s=state.system;if(!s)return;
   if(s.phase==='app'){
    const view=getActiveAppView(state,time);
    if(view&&getApp(view.appId)&&currentEntry(state))application(t,b,state,time,reduced);
-   else if(view)semanticApplication(t,b,view);
+   else if(view&&s.runtime.active)semanticApplication(t,b,view,s.runtime.active);
   }
   if(s.phase==='launch'&&!nativeSystem){
    t.fillStyle=b.fillStyle='#fff';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
@@ -133,5 +123,5 @@ export function createPortfolioGraphics(){
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,dispose(){renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,dispose(){stockScreens.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

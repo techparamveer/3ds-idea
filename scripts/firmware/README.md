@@ -2,6 +2,8 @@
 
 [Folder-close overlay evidence](FOLDER_CLOSE_OVERLAY_EVIDENCE.md) records the
 native cursor hide, footer SceneOut request and conditional balloon lifecycle.
+[Child-selection cue evidence](home_audio_CHILD_SELECTION_EVIDENCE.md) confirms
+the shared root/folder movement sound and distinct boundary/focus cues.
 
 `build.py` reads the owner's **decrypted** CIA packages with an explicitly selected CTRTool. It verifies the CIA/NCCH plaintext flags and title identity before extraction. Only known native visual/message formats become browser PNG/JSON. Raw packages, executable sections, certificates, keys, shaders and private state never become public assets. AR Games and Face Raiders are excluded by title ID.
 

@@ -127,4 +127,6 @@ tests run its predicate and metadata reads without stubbing those decisions.
 Animation start and handler destruction are recording endpoints; no graphics
 drivers, framebuffer draw or browser pixels are tested.
 
-The child-selection sound cue remains unresolved. No cue mapping changed.
+The subsequent [child-selection trace](home_audio_CHILD_SELECTION_EVIDENCE.md)
+resolves ordinary directional movement and identifies the balloon's density
+fields. No cue mapping changed in this close-overlay pass.

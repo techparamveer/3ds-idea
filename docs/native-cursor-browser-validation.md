@@ -104,3 +104,10 @@ normal sample, stable repeated paints, frozen preferences/sleep, and retained
 phase after resume. See `reference/cursor-after-lower-order.json`. This rerun
 checks the ordinary step1 live path; native acceleration remains pending its
 consumer and scheduler integration.
+
+After native consumer/painter integration, a fresh browser verifier again passed:
+49 normal counted updates, stable repeated capture, frozen preferences/sleep and
+retained phase on resume. See `reference/cursor-after-native-consumer.json`.
+The first attempt ran before the freshly reloaded scene was ready; after waiting
+for its existing ready flag, the complete check passed. This still exercises the
+live compatibility step1 route, not the newly composed pure native input pass.

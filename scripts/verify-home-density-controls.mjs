@@ -26,12 +26,13 @@ function point(name) {
 assert.equal(evaluate('matchMedia("(prefers-reduced-motion: reduce)").matches'), true);
 const before = capture();
 assert.equal(before.menu, 'folder'); assert.equal(before.rows, 1); assert.equal(before.theme, 'white');
+assert.equal(before.capture.homeCursor.visibleSlot, 0, 'Select child slot0 for the reference density round trip; other slots may legitimately change viewport');
 point('Touch_277_16'); browser('mouse', 'down');
 const disabledDown = capture(); browser('mouse', 'up'); settle();
 const disabledUp = capture();
 for (const item of [disabledDown, disabledUp]) {
  assert.equal(item.menu, before.menu); assert.equal(item.rows, before.rows); assert.equal(item.selected, before.selected);
- assert.equal(item.capture.bottom, before.capture.bottom, 'Disabled control must retain the full lower LCD at fixed pose');
+ assert.ok(item.capture.bottom === before.capture.bottom, 'Disabled control must retain the full lower LCD at fixed pose');
 }
 point('Touch_307_16'); browser('mouse', 'down');
 const enabledDown = capture(); browser('mouse', 'up'); settle();
@@ -41,7 +42,7 @@ assert.equal(increased.rows, 2); assert.equal(increased.menu, 'folder'); assert.
 point('Touch_277_16'); browser('mouse', 'down'); browser('mouse', 'up'); settle();
 const restored = capture();
 assert.equal(restored.rows, 1); assert.equal(restored.menu, 'folder'); assert.equal(restored.selected, before.selected);
-assert.equal(restored.capture.bottom, before.capture.bottom, 'Density round trip returns to the original lower LCD');
+assert.ok(restored.capture.bottom === before.capture.bottom, 'Density round trip returns to the original lower LCD');
 const summary = { passed: true, disabledPressUnchanged: true, disabledTapUnchanged: true,
  enabledPressedPose: true, increasedRows: increased.rows, roundTripExact: true };
 mkdirSync(values['artifact-dir'], { recursive: true });

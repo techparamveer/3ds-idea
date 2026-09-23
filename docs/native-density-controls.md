@@ -98,3 +98,17 @@ Artifacts under the SSD firmware artifact directory:
 - `density-controls-integration-tests.log`:67 focused integration tests passed,
   no skips. Production verification is recorded with the subsequent combined
   integration checkpoint.
+
+The post-consumer/painter browser check passes again in
+`reference/density-after-native-consumer.json`; all nine measured native/browser
+regions are identical to the preceding comparison, recorded in
+`reference/native-consumer-preservation-comparison.json`. The resulting browser
+LCD was visually inspected. The production build passed at this checkpoint.
+
+The verifier now explicitly requires child slot0 for its exact round-trip check.
+An initial run had child1 selected after the audio keyboard check; density's
+nearest-anchor rule can change that slot's viewport during the round trip, so
+requiring the entire LCD to remain identical was an invalid test precondition.
+After real keyboard input restored child0, disabled press/tap, enabled pressed
+pose, one-to-two rows and exact return all passed. Image equality failures now
+produce a concise assertion rather than dumping encoded PNGs into the log.

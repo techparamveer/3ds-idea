@@ -16,6 +16,10 @@ existing title identities; internal helpers need no invented HOME entrypoints.
 - Basic screen navigation, app open/close and HOME return so visitors can explore
   the UI. Portfolio apps retain their content and working navigation.
 - Power-on, power confirmation/shutdown and app-opening screen transitions.
+- Camera displays the existing portfolio photo folders/gallery read-only. It
+  does not capture or edit photos. Sound plays user-supplied favourite songs
+  with the 3DS music UI and working playback controls; this is an explicit
+  exception to the other stock apps' UI-only scope.
 - No software keyboard or text-entry flows. No camera/microphone permissions,
   media recording/import, network emulation, account operations, editable stock
   profiles or extra stock app functionality are required.
@@ -32,7 +36,9 @@ Reuse `AppDescriptor`, `AppView`, `AppModule`, `NativePack`,
 `loadNativeTitleAssets` and `createNativeTitleSession`. Do not create another
 app state system. App views continue to expose app ID, screen, heading, text,
 rows, selection and footer. UI navigation may change screen/selection; stock
-modules must not emit device, storage or network operations.
+modules must not emit device, storage or network operations. The Sound module
+may emit owner-scoped music playback effects. Existing portfolio photographs
+seed the gallery; the song manifest stays empty until songs are supplied.
 
 - **Runtime task:** `app-registry.ts`, `stock-apps.ts`, related app-host changes
   if necessary and their tests. Remove registered keyboard and all keyboard

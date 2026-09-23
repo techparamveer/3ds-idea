@@ -5,7 +5,7 @@ import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
 import { leaveHomeFolder } from './home-navigation';
 import { getHomeFooter, getHomePresentation, type HomePresentation } from './home-presentation';
-import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices, keyboardKeys } from './state';
+import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices } from './state';
 import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
 import { getHomeFolderIdentity } from './home-folder-identity';
@@ -238,9 +238,6 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   text(c,'Ⓑ Cancel',160,200,13,'#484b53','center');
  }else if(state.panel==='delete'){
   rounded(c,20,44,280,164,9,'#f5f5f7','#adb0b8');text(c,'Delete this folder?',160,97,15,'#44464b','center');button(c,28,165,126,35,'Cancel');button(c,166,165,126,35,'Delete');
- }else if(state.panel==='rename'){
-  rounded(c,0,0,320,240,0,'#e6e7ec');text(c,'Folder name',160,20,14,'#42464e','center');rounded(c,16,38,288,34,3,'white','#9ca7b7');text(c,state.nameDraft,25,55,16);
-  keyboardKeys.forEach(key=>button(c,key.x,key.y,key.width,29,key.value===' '?'Space':key.value));button(c,3,212,153,28,'Cancel');button(c,164,212,153,28,'OK');
  }else{
   const titles={notes:'Game Notes',friends:'Friend List',notifications:'Notifications',browser:'Internet Browser',miiverse:'Miiverse','theme-shop':'Theme Shop'};
   rounded(c,0,0,320,240,0,'#eff0f4');c.fillStyle=gradient(c,0,31,'#fff','#d7dae0');c.fillRect(0,0,320,31);text(c,titles[state.panel],160,16,15,'#454b58','center');

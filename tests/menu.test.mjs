@@ -1,7 +1,7 @@
 import {settleHomeNavigation} from '../src/os/home-navigation.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { initialState, reduceMenu as reduceMenuMotion, touchMenu as touchMenuMotion, pageStart, SLOT_COUNT, menuTiles, rowCount, densities, isFolder, keyboardKeys } from '../src/os/state.ts';
+import { initialState, reduceMenu as reduceMenuMotion, touchMenu as touchMenuMotion, pageStart, SLOT_COUNT, menuTiles, rowCount, densities, isFolder } from '../src/os/state.ts';
 const reduceMenu=(...args)=>settleHomeNavigation(reduceMenuMotion(...args));
 const touchMenu=(...args)=>settleHomeNavigation(touchMenuMotion(...args));
 const center = tile => [(Math.max(20,tile.x)+Math.min(300,tile.x+tile.size))/2, tile.y + tile.size / 2];
@@ -69,13 +69,10 @@ test('Settings drawer changes brightness and theme without changing the underlyi
  s=touchMenu(s,100,160);assert.equal(s.theme,'blue');assert.equal(s.panel,'settings');
  s=reduceMenu(s,'back');assert.equal(s.panel,null);assert.equal(s.selected,0);
 });
-test('Rename is transactional, touch keyboard works, and deletion requires confirmation',()=>{
+test('folder rename cannot open a keyboard and deletion still requires confirmation',()=>{
  let s=touchMenu(initialState,50,226);assert.equal(s.panel,'folder-settings');
- s=touchMenu(s,100,90);assert.equal(s.panel,'rename');
- const key=keyboardKeys.find(k=>k.value==='a');s=touchMenu(s,key.x+10,key.y+10);assert.equal(s.nameDraft,'a');assert.equal(s.folders[0],'');
- const cancelled=reduceMenu(s,'back');assert.equal(cancelled.folders[0],'');
- s=touchMenu(s,240,226);assert.equal(s.folders[0],'a');assert.equal(s.panel,null);
- s=touchMenu(s,50,226);s=touchMenu(s,100,150);assert.equal(s.panel,'delete');assert.equal(isFolder(0,s),true);
+ assert.equal(touchMenu(s,100,90),s);assert.equal(reduceMenu(s,'open'),s);
+ s=touchMenu(s,100,150);assert.equal(s.panel,'delete');assert.equal(isFolder(0,s),true);
  s=touchMenu(s,200,180);assert.equal(isFolder(0,s),false);assert.equal(isFolder(0,initialState),true);
 });
 test('All toolbar applets can be entered and closed without launching a folder',()=>{

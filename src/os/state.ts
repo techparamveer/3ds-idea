@@ -11,7 +11,7 @@ export const MAX_FOLDERS = 60;
 export const FIRST_FOLDER_NUMBER = 1;
 export const LAST_FOLDER_NUMBER = 99;
 export function slotCount(state: MenuState) { return state.opened ? 60 : SLOT_COUNT; }
-export type Panel = 'settings' | 'themes' | 'folder-settings' | 'rename' | 'delete' | 'notes' | 'friends' | 'notifications' | 'browser' | 'miiverse' | 'theme-shop' | null;
+export type Panel = 'settings' | 'themes' | 'folder-settings' | 'delete' | 'notes' | 'friends' | 'notifications' | 'browser' | 'miiverse' | 'theme-shop' | null;
 export type Theme = 'white' | 'red' | 'blue' | 'yellow' | 'pink' | 'black';
 export type MenuState = {
   system?: System;
@@ -79,7 +79,7 @@ function activatePanel(state: MenuState): MenuState {
     if (state.panelChoice === 1) return reduceMenu(state, 'brightness');
     return { ...state, powerSaving: !state.powerSaving };
   }
-  if (state.panel === 'folder-settings') return { ...state, panel: state.panelChoice === 0 ? 'rename' : 'delete', nameDraft: state.folders[state.selected] ?? '', panelChoice: 0 };
+  if (state.panel === 'folder-settings') return state.panelChoice === 0 ? state : { ...state, panel: 'delete', panelChoice: 0 };
   if (state.panel === 'delete') {
     if (Object.keys(state.system?.folderLayouts?.[state.selected] ?? {}).length) return state;
     const folders = { ...state.folders }; delete folders[state.selected];
@@ -117,12 +117,6 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
 export function touchMenu(state: MenuState, x: number, y: number): MenuState {
   if (!state.powered || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= 320 || y < 0 || y >= 240) return state;
   if (state.panel) {
-    if (state.panel === 'rename') {
-      if (y >= 212) return x < 160 ? reduceMenu(state, 'back') : renameFolder(state, state.nameDraft);
-      const key = keyboardKeys.find(key => x >= key.x && x < key.x + key.width && y >= key.y && y < key.y + 29);
-      if (key) return { ...state, nameDraft: key.value === '⌫' ? state.nameDraft.slice(0, -1) : (state.nameDraft + key.value).slice(0, 16) };
-      return state;
-    }
     if ((state.panel !== 'settings' && y >= 214) || (state.panel === 'settings' && x < 30 && y > 206)) return reduceMenu(state, 'back');
     if (state.panel === 'settings') {
       if (x >= 42 && x < 256 && y >= 34 && y < 105) return { ...state, panel: 'themes', panelChoice: 0 };
@@ -131,7 +125,7 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
     }
     if (state.panel === 'themes' && x >= 293 && y >= 31 && y < 213) return {...state, panelChoice:Math.min(6,Math.floor((y-31)/182*7))};
     if (state.panel === 'themes' && x >= 8 && x < 288 && y >= 31 && y < 213) return activatePanel({ ...state, panelChoice: Math.max(0,state.panelChoice-2) + Math.floor((y-31)/53) });
-    if (state.panel === 'folder-settings' && x > 30 && x < 290 && y >= 68 && y < 188) return { ...state, panel: y < 128 ? 'rename' : 'delete', nameDraft: state.folders[state.selected] ?? '', panelChoice: 0 };
+    if (state.panel === 'folder-settings' && x > 30 && x < 290 && y >= 68 && y < 188) return y < 128 ? state : { ...state, panel: 'delete', panelChoice: 0 };
     if (state.panel === 'delete' && y >= 165 && y < 205 && x >= 166 && x < 292) return activatePanel(state);
     if (state.panel === 'delete' && y >= 165 && y < 205 && x >= 28 && x < 154) return reduceMenu(state, 'back');
     return state;
@@ -158,9 +152,3 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
   return tile.index === state.selected ? reduceMenu(state, 'open') : selectHomeSlot(state, tile.index);
 }
 
-/** Canvas keyboard geometry is shared with touch, including the space/delete row. */
-export const keyboardKeys = ['1234567890', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'].flatMap((row, r) =>
-  Array.from(row, (value, i) => ({ value, x: 5 + (10 - row.length) * 15.5 + i * 31, y: 75 + r * 32, width: 28 }))
-);
-// Use the free positions at either end of the final letter row.
-keyboardKeys.push({ value: ' ', x: 1, y: 171, width: 41 }, { value: '⌫', x: 275, y: 171, width: 43 });

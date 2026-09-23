@@ -16,7 +16,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createScreens, loadFirmwarePresentationAssets } from '@/os/screens';
-import { renameFolder, rowCount, type MenuState, type Input } from '@/os/state';
+import { rowCount, type MenuState, type Input } from '@/os/state';
 import { createFirmwareBanner, type PrimaryBannerRenderFrame } from './firmware-banner';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
 import { DEFAULT_MODEL_URL, controlBoundsInBase, controlFromObject, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
@@ -368,14 +368,6 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const keyCommands:Record<string,Input>={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',Enter:'open',a:'open',b:'back',Escape:'back',h:'home',p:'power',x:'x',y:'y',q:'l',e:'r',m:'mute','+':'volume-up','-':'volume-down'};
   const heldKeys=new Map<string,AppCommand>();
   function keydown(e:KeyboardEvent){
-    if(state.panel==='rename'){
-      if(e.metaKey||e.ctrlKey||e.altKey)return;e.preventDefault();
-      if(e.key==='Enter')commit(current=>renameFolder(current,current.nameDraft),'rename',true);
-      else if(e.key==='Escape')send('back');
-      else if(e.key==='Backspace')commit(current=>({...current,nameDraft:current.nameDraft.slice(0,-1)}),'text',true);
-      else if(e.key.length===1)commit(current=>({...current,nameDraft:(current.nameDraft+e.key).slice(0,16)}),'text',true);
-      return;
-    }
     if(e.metaKey||e.ctrlKey||e.altKey)return;
     if(e.code==='Space'){e.preventDefault();if(!e.repeat)toggleLid();return;}
     const key=e.key.length===1?e.key.toLowerCase():e.key,action=keyCommands[key];if(!action)return;e.preventDefault();if(angle<=90||e.repeat)return;

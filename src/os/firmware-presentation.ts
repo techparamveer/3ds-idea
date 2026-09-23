@@ -3,11 +3,12 @@ import { BitmapFont, loadBitmapFont } from './bitmap-font';
 import { decodeNativePng } from './native-png';
 import { nativeBannerLabelOverride } from './native-banner-label';
 import { NativeLayoutRenderer } from './native-renderer';
-import { nativeFolderGlyphPixels, nativeMessageOverride, nativeTextureSamplePixels, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
+import { boundAnimationTracks, nativeFolderGlyphPixels, nativeMessageOverride, nativePaneParentPath, nativeTextureSamplePixels, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { isHomeFolderBackTouch, rowCount, toolbar as toolbarRegions, type MenuState } from './state';
 import { getHomeGestureView } from './system';
 import { getHomeDensityControls } from './home-density-controls';
 import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
+import type { HomeTilePose } from './home-tile-pose';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;diagnostics:string[];dispose():void};
@@ -160,6 +161,29 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }
   return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings,overrides,clip:[0,210,320,30]});
  }
+ /** Sample the last actual tile writer, not two possibly disabled controllers.
+  * Dist has no density Scale clip: density sizes its child/artwork elsewhere,
+  * below this translated pane. Only ancestors can scale its displacement.
+  */
+ function tilePressOffset(pose:HomeTilePose|null|undefined,density:number):number {
+  if(!pose)return 0;
+  if(!Number.isFinite(density)||!Number.isFinite(pose.frame)||!['select','decide'].includes(pose.clip))throw new RangeError('Invalid native tile pose');
+  const pack=renderer.packs.launcher,name='LncIconDist_01',layout=pack.layouts[name];
+  const animation=pack.animations[`${name}_${pose.clip==='select'?'Select':'Decide'}`];
+  const path=layout&&nativePaneParentPath(layout,'P_IconBtnDmy_00');
+  const track=layout&&animation&&boundAnimationTracks(layout,animation).find(track=>track.target==='P_IconBtnDmy_00'&&track.property==='translation.y');
+  if(!path||!track)throw new Error('Missing native tile press transform');
+  const frame=Math.max(0,Math.min(animation.frames,pose.frame));
+  let x=0,y=-(sampleNativeTrack(track,frame)-path[path.length-1].translation[1]);
+  // Same Y sign and ancestor rotate/scale convention as NativeLayoutRenderer.
+  // Target/child scales do not scale the target's own parent-space translation.
+  for(let i=path.length-2;i>=0;i--){
+   const pane=path[i],angle=-pane.rotation[2]*Math.PI/180;
+   const sx=x*pane.scale[0]*Math.cos(pane.rotation[1]*Math.PI/180),sy=y*pane.scale[1]*Math.cos(pane.rotation[0]*Math.PI/180);
+   x=Math.cos(angle)*sx-Math.sin(angle)*sy;y=Math.sin(angle)*sx+Math.cos(angle)*sy;
+  }
+  return y===0?0:y;
+ }
  function tile(ctx:Context,x:number,y:number,size:number,density:number,folder:boolean,receiving=false,folderName=''){
   const name=folder?(receiving?'LncIconFolderInT_00':'LncIconFolder_00'):'LncIconSetSrc_00';
   // SetSrc stores the ordinary plate at +32 and the empty-slot source at -32.
@@ -223,5 +247,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))]});
  }
- return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
 }

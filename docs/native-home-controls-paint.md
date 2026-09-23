@@ -32,8 +32,10 @@ group. The wider native layout order remains unverified.
 
 The whole retained group is suppressed during background capture, with power
 off, outside active HOME, during sleep, with a panel/dialog/preferences overlay,
-or during an active **grid** gesture. Grid suppression is an explicit browser
-adapter policy, not a native gesture-parity claim. It reads the raw retained
+or during an authored grid **scroll/drag** gesture. Ordinary grid press preserves
+the group; see [retained tile touch painting](native-tile-touch-paint.md).
+Scroll/drag suppression is an explicit browser adapter policy, not a native
+gesture-parity claim. It reads the raw retained
 `System.homeNavigation.gesture.area`; the derived presentation gesture does not
 include that area. These drawing gates do not mutate the retained controllers.
 
@@ -85,7 +87,7 @@ painter commit. No browser or Azahar session was controlled and no new source
 research was performed. These tests establish caller ordering and state use;
 actual browser rendering and visual parity remain root-owned verification.
 
-The grid-only correction adds four painter cases: chrome press/scroll, disabled
+The earlier grid-only correction added four painter cases: chrome press/scroll, disabled
 root0/folder1 decrease and root5 increase presses, and enabled decrease/increase
 presses. The density cases run the actual toolbar presenter and pose the actual
 firmware layout beside the screen painter's retained control calls. Disabled

@@ -120,7 +120,9 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
  const system=state.system,controls=nativeHome?system?.homeControls:null;
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
  for(const tile of view.tiles){
-  const {x,size,appId,folderLabel,pressed,source,drop}=tile,y=tile.y+(pressed?(nativeHome?.pressOffset??2):0);
+  const {x,size,appId,folderLabel,pressed,source,drop}=tile;
+  // Retained poses belong to the active container, never the captured root.
+  const offset=controls?(capture?0:nativeHome!.tilePressOffset(controls.tilePoses[tile.index],view.density)):(pressed?(nativeHome?.pressOffset??2):0),y=tile.y+offset;
   const app=getApp(appId),occupied=!!appId||folderLabel!==null;
   const drawTile=(alpha:number)=>{
   const artwork=(draw:()=>void)=>{c.save();try{c.globalAlpha*=alpha;draw();}finally{c.restore();}};
@@ -148,9 +150,10 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
  // Retained native layouts can target toolbar anchors and offscreen departures.
  // Paint after the tile clip, before the existing arrows; the host owns close
  // visibility and controller updates. Rendering only samples applied poses.
- // Grid-gesture suppression is adapter policy; chrome presses retain this group.
+ // Only authored grid scroll/drag suppress this group; ordinary press does not.
  if(nativeHome&&controls&&!capture&&state.powered&&system?.phase==='home'
-  &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel&&system.homeNavigation.gesture?.area!=='grid'){
+  &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel
+  &&!(system.homeNavigation.gesture?.area==='grid'&&system.homeNavigation.gesture.mode!=='press')){
   const {primary,presentation}=controls;
   if(primary.layoutVisible)nativeHome.cursorAt(c,primary.center.x,primary.center.y,presentation.primaryScale.appliedFrame,getHomeCursorLoopFrame(state,reduced));
   if(!reduced)for(const effect of presentation.effects)if(effect.visible){

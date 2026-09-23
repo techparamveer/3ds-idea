@@ -27,7 +27,7 @@ async function loadPresentation(name, overrides = {}) {
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
-  './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>undefined,menuIcon(){},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
+  './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>undefined,menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
   './firmware-presentation': moduleUrl('export const createFirmwareHome=assets=>assets.presenter;export const loadFirmwarePresentationAssets=()=>{throw Error("Unexpected asset load");};'),
 };
 const { createScreens } = await loadPresentation('screens', overrides);
@@ -54,6 +54,7 @@ function home() {
     homeCursorLoop: { currentFrame: 20.25, appliedFrame: 17.25, step: 3 },
     homeControls: {
       input: createHomeInputAdapter(), producer: createHomeInputProducer(),
+      tilePoses: {},
       primary: { request: 0, shown: true, layoutVisible: true, center: { x: 26, y: 16 } },
       presentation: { ...presentation, primaryScale: { currentFrame: 12, appliedFrame: 10 },
         effects: [effect(0, { x: -35.5, y: 131 }, 2.375, 9.375), effect(1, { x: 370, y: 16.5 }, 11, 4.25)],
@@ -85,7 +86,7 @@ function canvas(events) {
   surface.getContext = () => context;
   return surface;
 }
-async function withScreens(run, { native = true, legacyCursorDrawn = true, realToolbar = false } = {}) {
+async function withScreens(run, { native = true, legacyCursorDrawn = true, realToolbar = false, realTilePose = false, legacyPressOffset = 0 } = {}) {
   const saved = new Map(['document', 'Image', 'FontFace'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   const events = [];
   Object.assign(globalThis, {
@@ -93,14 +94,15 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     Image: class { complete = false; naturalWidth = 0; decode() { return Promise.resolve(); } },
     FontFace: class { load() { return Promise.resolve(this); } },
   });
-  const toolbar = realToolbar ? createFirmwareHome({ renderer: { packs: { launcher: pack },
+  const actual = realToolbar || realTilePose ? createFirmwareHome({ renderer: { packs: { launcher: pack },
     draw(ctx, bank, name, options) {
       ctx.record('toolbar-layout', [bank, name, options, poseNativeLayout(pack.layouts[name], pack.animations, options.bindings, options.overrides)]);
       return true;
     },
-  } }).toolbar : null;
-  const presenter = new Proxy({ pressOffset: 0,
-    toolbar(ctx, ...args) { ctx.record('toolbar', args); return toolbar ? toolbar(ctx, ...args) : true; },
+  } }) : null;
+  const presenter = new Proxy({ pressOffset: legacyPressOffset,
+    tilePressOffset: (pose, density) => realTilePose ? actual.tilePressOffset(pose, density) : 0,
+    toolbar(ctx, ...args) { ctx.record('toolbar', args); return realToolbar ? actual.toolbar(ctx, ...args) : true; },
     folderBannerLabel() {},
     folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); },
     cursor(ctx, ...args) { ctx.record('cursor', args); return legacyCursorDrawn; },
@@ -252,7 +254,7 @@ test('inactive HOME, sleep, panels, preferences and dialogs explicitly suppress 
   });
 });
 
-for (const mode of ['press', 'scroll', 'drag']) {
+for (const mode of ['scroll', 'drag']) {
   test(`active grid ${mode} gesture suppresses retained controls without falling back to a tile cursor`, async () => {
     await withScreens(({ paint, cursorCalls }) => {
       const state = home(), tile = getHomePresentation(state).tiles.find(tile => tile.appId);
@@ -269,6 +271,111 @@ for (const mode of ['press', 'scroll', 'drag']) {
     });
   });
 }
+
+test('ordinary grid press preserves primary and effects without setting primary Select', async () => {
+  await withScreens(({ paint, cursorCalls }) => {
+    const state = home(), tile = getHomePresentation(state).tiles.find(tile => tile.appId);
+    paint(state); const before = cursorCalls().map(({ name, args }) => [name, ...args]);
+    const pressed = freeze(touchHomeGesture(state, { type: 'touch', phase: 'down', x: tile.x + tile.size / 2,
+      y: tile.y + tile.size / 2, pointerId: 4 }, 0).state);
+    assert.equal(pressed.system.homeNavigation.gesture.area, 'grid');
+    assert.equal(pressed.system.homeNavigation.gesture.mode, 'press');
+    paint(pressed);
+    assert.deepEqual(cursorCalls().map(({ name, args }) => [name, ...args]), before);
+    assert.equal(cursorCalls()[0].args.length, 4, 'primary Select remains the cursorAt default0');
+  });
+});
+
+test('retained tile writer moves assembled app artwork and plate together, independent of immediate contact', async () => {
+  await withScreens(({ paint, events, cursorCalls }) => {
+    const state = home(), tile = getHomePresentation(state).tiles.find(tile => tile.appId);
+    const draw = () => {
+      const plate = events.find(event => event.name === 'tile' && event.args[0] === tile.x && event.args[2] === tile.size);
+      const artwork = events.find(event => event.name === 'menuIcon' && event.args[1] === tile.x && event.args[3] === tile.size);
+      assert.ok(plate && artwork);
+      return { plateY: plate.args[1], artworkY: artwork.args[2], cursors: cursorCalls().map(({ name, args }) => [name, ...args]) };
+    };
+    paint(state); const baseline = draw();
+    for (const [pose, offset] of [[undefined, 0], [{ clip: 'select', frame: 0 }, 0],
+      [{ clip: 'select', frame: 1 }, 2], [{ clip: 'decide', frame: 0 }, 2], [{ clip: 'decide', frame: 1 }, 0]]) {
+      for (const touching of [false, true]) {
+        let supplied = controls(state, { tilePoses: pose ? { [tile.index]: pose } : {} });
+        if (touching) supplied = touchHomeGesture(supplied, { type: 'touch', phase: 'down', x: tile.x + tile.size / 2,
+          y: tile.y + tile.size / 2, pointerId: 4 }, 0).state;
+        freeze(supplied); const before = JSON.stringify(supplied), geometry = getHomePresentation(supplied).tiles.map(({ index, x, y, size }) => [index, x, y, size]);
+        paint(supplied, touching ? 999999 : 0); const painted = draw();
+        assert.equal(painted.plateY, baseline.plateY + offset);
+        assert.equal(painted.artworkY, baseline.artworkY + offset);
+        assert.deepEqual(painted.cursors, baseline.cursors);
+        assert.deepEqual(getHomePresentation(supplied).tiles.map(({ index, x, y, size }) => [index, x, y, size]), geometry);
+        assert.equal(JSON.stringify(supplied), before);
+      }
+    }
+  }, { realTilePose: true, legacyPressOffset: 99 });
+});
+
+test('retained slot poses move folder and vacant assemblies without moving neighboring tiles', async () => {
+  await withScreens(({ paint, events }) => {
+    const initial = home(), state = { ...initial, folders: { 1: 'A' }, system: { ...initial.system,
+      layout: { 0: initial.system.layout[0] },
+    } };
+    const view = getHomePresentation(state), folder = view.tiles.find(tile => tile.folderLabel === 'A'), vacant = view.tiles.find(tile => !tile.appId && tile.folderLabel === null);
+    assert.ok(folder && vacant);
+    const assemblies = () => events.filter(event => event.name === 'tile' || event.name === 'empty')
+      .map(({ name, args }) => ({ name, x: args[0], y: args[1], size: args[2] }));
+    paint(state); const baseline = assemblies();
+    const supplied = freeze(controls(state, { tilePoses: { [folder.index]: { clip: 'select', frame: 1 }, [vacant.index]: { clip: 'decide', frame: 0 } } }));
+    paint(supplied);
+    assert.deepEqual(assemblies(), baseline.map(draw => ({ ...draw, y: draw.y +
+      ([folder, vacant].some(tile => tile.x === draw.x && tile.y === draw.y) ? 2 : 0) })));
+  }, { realTilePose: true });
+});
+
+test('child tile poses never leak into a fresh root capture and remain sampled during close/reduced drawing', async () => {
+  await withScreens(({ screens, paint, events }) => {
+    const folder = enterHomeFolder({ ...home(), folders: { 20: 'A' } }, 20);
+    const tile = getHomePresentation(folder).tiles[0];
+    const child = freeze(controls(folder, { tilePoses: { [tile.index]: { clip: 'select', frame: 1 } } }));
+    paint(child);
+    const capture = events.find(event => event.name === 'capture-read');
+    assert.ok(capture);
+    const captured = events.filter(event => event.context === capture.context && ['tile', 'empty', 'captureFolder'].includes(event.name));
+    const root = getHomePresentation({ ...child, opened: false, system: { ...child.system, homeNavigation: {
+      ...child.system.homeNavigation, activeFolderSlot: null,
+    } } });
+    for (const draw of captured) assert.ok(root.tiles.some(tile => tile.x === draw.args[0] && tile.y === draw.args[1]));
+    const childDraw = () => events.find(event => event.context === screens.bottom.getContext('2d') && event.name === 'empty' && event.args[0] === tile.x);
+    assert.equal(childDraw().args[1], tile.y + 2);
+    const closing = freeze(beginSystemHomeFolderClose(child));
+    assert.equal(isSystemHomeFolderClosing(closing), true);
+    paint(closing); assert.equal(childDraw().args[1], tile.y + 2);
+    screens.setReducedMotion(true); paint(closing); assert.equal(childDraw().args[1], tile.y + 2);
+  }, { realTilePose: true });
+});
+
+test('legacy callers retain their immediate pressed-tile offset', async () => {
+  await withScreens(({ paint, events }) => {
+    const state = home(); state.system.homeControls = null;
+    const tile = getHomePresentation(state).tiles.find(tile => tile.appId);
+    const pressed = freeze(touchHomeGesture(state, { type: 'touch', phase: 'down', x: tile.x + tile.size / 2,
+      y: tile.y + tile.size / 2, pointerId: 4 }, 0).state);
+    paint(pressed);
+    const plate = events.find(event => event.name === 'tile' && event.args[0] === tile.x);
+    assert.equal(plate.args[1], tile.y + 2);
+  }, { realTilePose: true, legacyPressOffset: 2 });
+});
+
+test('missing native assets keep the fallback contact offset even with a retained unpressed writer', async () => {
+  await withScreens(({ paint, events }) => {
+    const initial = home(), tile = getHomePresentation(initial).tiles.find(tile => tile.appId);
+    const state = controls(initial, { tilePoses: { [tile.index]: { clip: 'select', frame: 0 } } });
+    const pressed = freeze(touchHomeGesture(state, { type: 'touch', phase: 'down', x: tile.x + tile.size / 2,
+      y: tile.y + tile.size / 2, pointerId: 4 }, 0).state);
+    paint(pressed);
+    const artwork = events.find(event => event.name === 'menuIcon' && event.args[1] === tile.x);
+    assert.equal(artwork.args[2], tile.y + 2);
+  }, { native: false });
+});
 
 for (const moved of [false, true]) {
   test(`chrome ${moved ? 'scroll' : 'press'} retains primary and effects using the gesture's original area`, async () => {

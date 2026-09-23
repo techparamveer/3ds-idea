@@ -56,7 +56,9 @@ export function createRuntimeEffects(options: {
         options.setState(acknowledgeSystemEffects(options.getState(), effects.map(item => item.id)));
         for (const item of effects) {
           const effect = item.effect;
-          if (effect.type === 'storage') write(storage => storage.saveRecord(effect.key, effect.record));
+          if (effect.type === 'storage') write(storage => effect.removedMedia
+            ? storage.saveSharedAndDeleteMedia(effect.record, effect.removedMedia)
+            : storage.saveRecord(effect.key, effect.record));
           else if (effect.type === 'release-capabilities') adapter.release(item.owner);
           else if (effect.type === 'capability') {
             if (isRuntimeEffectCurrent(options.getState().system!.runtime, item)) void adapter.execute(item, { userGesture }).catch(report);

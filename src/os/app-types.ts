@@ -27,6 +27,7 @@ export type AppEffect =
   | { type: 'home' }
   | { type: 'save' }
   | { type: 'shared'; key: string; value: JsonValue }
+  | { type: 'remove-media'; collection: 'photos' | 'sounds'; id: string }
   | { type: 'sound'; name: string }
   | { type: 'link'; url: string }
   | { type: 'capability'; capability: Capability; requestId: string; intent: 'user'; options?: AppState }

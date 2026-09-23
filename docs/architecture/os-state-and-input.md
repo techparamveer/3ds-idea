@@ -225,6 +225,17 @@ quota failure retains previous data. Blocked, unavailable, closed and quota
 failures are explicit errors. Restore data before accepting input;
 `restoreRuntimeData` will not replace a runtime that already launched software.
 
+Camera/Sound removal emits `remove-media` for the selected collection and ID.
+The host removes that metadata and emits one ordered storage effect containing
+the resulting shared save and removed media IDs. `saveSharedAndDeleteMedia`
+commits the shared record and Blob deletions in one IndexedDB transaction;
+an abort preserves both previous records. It rejects deletion of a Blob still
+referenced by either media collection. The runtime consumes this durable write
+even if the app subsequently suspends or closes. Failures use the existing
+storage error reporting; the optimistic in-memory gallery is not automatically
+rolled back. This corrects local file cleanup, not native deletion-dialog
+fidelity or the unfinished Camera/Sound presentation.
+
 `app-capabilities.ts` owns browser devices outside the reducers. Its
 `execute(effect, { userGesture })` starts permission work only from an explicit
 gesture. It exposes preview video and the latest motion sample without putting

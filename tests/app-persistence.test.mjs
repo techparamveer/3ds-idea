@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { IDBFactory } from 'fake-indexeddb';
+import { IDBFactory, IDBObjectStore } from 'fake-indexeddb';
 import { openFirmwareStorage, validateSaveRecord, FirmwareStorageError } from '../src/os/app-persistence.ts';
 import { createPortfolioState, saveSettings } from '../src/os/system.ts';
 const req = request => new Promise((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});
@@ -62,4 +62,32 @@ test('version changes close active storage handles',async()=>{
 });
 test('synchronous API security errors map to unavailable storage',async()=>{
  await rejectsCode(openFirmwareStorage({indexedDB:{open(){throw new DOMException('Blocked','SecurityError');}}}),'unavailable');
+});
+
+test('gallery removal saves metadata and deletes only the selected Blob atomically',async()=>{
+ const storage=await openFirmwareStorage({indexedDB:new IDBFactory(),databaseName:'test'});
+ const a=await storage.putMedia(media('a'),image('a')),b=await storage.putMedia(media('b'),image('b'));
+ await storage.saveRecord('@shared',{version:1,data:{photos:[a,b],sounds:[],settings:{nickname:'Ada'}}});
+ const removed={version:1,data:{photos:[b],sounds:[],settings:{nickname:'Ada'}}};
+ await storage.saveSharedAndDeleteMedia(removed,['a','a']);
+ assert.equal(await storage.getMedia('a'),null);assert.equal(await (await storage.getMedia('b')).blob.text(),'b');
+ const restored=await storage.load();assert.deepEqual(restored.shared.photos,[b]);assert.equal(restored.shared.settings.nickname,'Ada');
+ await rejectsCode(storage.saveSharedAndDeleteMedia(removed,['b']),'corrupt');
+ assert.ok(await storage.getMedia('b'));storage.dispose();
+});
+
+test('transaction abort after a media delete retains the old gallery and Blob',async()=>{
+ const storage=await openFirmwareStorage({indexedDB:new IDBFactory(),databaseName:'test'});
+ const a=await storage.putMedia(media('a'),image('private pixels'));
+ await storage.saveRecord('@shared',{version:1,data:{photos:[a],sounds:[]}});
+ const original=IDBObjectStore.prototype.delete;
+ IDBObjectStore.prototype.delete=function(key){
+  const result=original.call(this,key);
+  if(this.name==='media')result.addEventListener('success',()=>result.transaction.abort(),{once:true});
+  return result;
+ };
+ try{await assert.rejects(storage.saveSharedAndDeleteMedia({version:1,data:{photos:[],sounds:[]}},['a']),FirmwareStorageError);}
+ finally{IDBObjectStore.prototype.delete=original;}
+ assert.equal(await (await storage.getMedia('a')).blob.text(),'private pixels');
+ assert.deepEqual((await storage.load()).shared.photos,[a]);storage.dispose();
 });

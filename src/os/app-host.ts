@@ -2,7 +2,7 @@ import { getAppModule, getTitle } from './app-registry.ts';
 import { initialSharedData } from './stock-apps.ts';
 import type { AppEffect, AppEvent, AppState, AppView, SaveRecord } from './app-types.ts';
 export type AppInstance = { id: string; appId: string; state: AppState; caller: string | null; requestId: string | null; suspended: boolean; requests: Record<string, number>; closing?: boolean };
-export type RuntimeEffect = { id: number; owner: string; effect: AppEffect | { type: 'storage'; key: string; record: SaveRecord } };
+export type RuntimeEffect = { id: number; owner: string; effect: AppEffect | { type: 'storage'; key: string; record: SaveRecord; removedMedia?: string[] } };
 export type AppRuntime = {
   instances: Record<string, AppInstance>; application: string | null; systemApplet: string | null;
   libraryApplet: string | null; active: string | null; homeReturn: string | null; sleeping: boolean;
@@ -42,6 +42,13 @@ function applyEffects(runtime: AppRuntime, owner: string, effects: readonly AppE
     else if (effect.type === 'shared') {
       next = { ...next, shared: { ...next.shared, [effect.key]: effect.value } };
       next = emit(next, owner, { type: 'storage', key: '@shared', record: { version: 1, data: next.shared } });
+    } else if (effect.type === 'remove-media') {
+      const items = next.shared[effect.collection];
+      if (!effect.id || !Array.isArray(items)) continue;
+      const kept = items.filter(item => !item || typeof item !== 'object' || Array.isArray(item) || item.id !== effect.id);
+      if (kept.length === items.length) continue;
+      next = { ...next, shared: { ...next.shared, [effect.collection]: kept } };
+      next = emit(next, owner, { type: 'storage', key: '@shared', record: { version: 1, data: next.shared }, removedMedia: [effect.id] });
     } else if (effect.type === 'invoke') next = openApplet(next, effect.appId, effect.requestId, effect.args ?? {}, now, owner, depth + 1);
     else if (effect.type === 'complete') next = completeApplet(next, owner, effect.value ?? null, effect.cancelled ?? false, now, depth + 1);
     else if (effect.type === 'home') next = showRuntimeHome(next, now);

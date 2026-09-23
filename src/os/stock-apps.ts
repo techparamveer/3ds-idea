@@ -140,7 +140,7 @@ export function createStockModule(descriptor: AppDescriptor): AppModule {
       if (action === 'capture') return { state, effects: [{ type: 'capability', capability: 'camera', requestId: 'capture', intent: 'user', options: { operation: 'capture' } }] };
       if (action === 'import') return { state, effects: [{ type: 'capability', capability: 'import-photo', requestId: 'import', intent: 'user' }] };
       if (action === 'gallery') return { state: withScreen(state, 'gallery'), effects: [{ type: 'release-capabilities' }] };
-      if (action === 'delete') return sharedChange(withScreen(state, 'gallery'), 'photos', list(shared.photos).filter(photo => photo.id !== state.mediaId));
+      if (action === 'delete' && screen === 'photo') return { state: withScreen(state, 'gallery', { mediaId: null }), effects: [{ type: 'remove-media', collection: 'photos', id: str(state.mediaId) }, { type: 'save' }] };
       if (list(shared.photos).some(photo => photo.id === action)) return { state: withScreen(state, 'photo', { mediaId: action }) };
     }
     if (id === 'sound') {
@@ -151,7 +151,7 @@ export function createStockModule(descriptor: AppDescriptor): AppModule {
       if (action === 'play') return { state: { ...state, playing: !state.playing }, effects: [{ type: 'sound', name: `${state.playing ? 'pause' : 'media'}:${str(state.mediaId)}` }] };
       if (action === 'slower' || action === 'faster') return { state: { ...state, speed: Math.max(.5, Math.min(2, num(state.speed, 1) + (action === 'faster' ? .1 : -.1))) } };
       if (action === 'rename') return invokeKeyboard(state, 'sound-name', str(list(shared.sounds).find(sound => sound.id === state.mediaId)?.name), 32);
-      if (action === 'delete') return sharedChange(withScreen(state, 'library', { playing: false }), 'sounds', list(shared.sounds).filter(sound => sound.id !== state.mediaId));
+      if (action === 'delete' && screen === 'playback') return { state: withScreen(state, 'library', { playing: false, mediaId: null }), effects: [{ type: 'remove-media', collection: 'sounds', id: str(state.mediaId) }, { type: 'save' }] };
       if (list(shared.sounds).some(sound => sound.id === action)) return { state: withScreen(state, 'playback', { mediaId: action, playing: false, speed: 1 }) };
     }
     if (id === 'browser') {

@@ -17,6 +17,7 @@ export type RestoredRuntime = { shared: AppState; saves: Record<string, SaveReco
 export type FirmwareStorage = {
   load(): Promise<RestoredRuntime>;
   saveRecord(key: string, record: SaveRecord): Promise<void>;
+  saveSharedAndDeleteMedia(record: SaveRecord, ids: readonly string[]): Promise<void>;
   savePreferences(raw: string): Promise<void>;
   putMedia(metadata: Omit<MediaMetadata, 'bytes' | 'mime'>, blob: Blob): Promise<MediaMetadata>;
   getMedia(id: string): Promise<StoredMedia | null>;
@@ -136,6 +137,23 @@ export async function openFirmwareStorage(options: { indexedDB?: IDBFactory; dat
     async saveRecord(key, record) {
       if ((key !== '@shared' && !getAppModule(key)) || !validateSaveRecord(record)) throw new FirmwareStorageError('corrupt');
       await run(['saves'], 'readwrite', tx => request(tx.objectStore('saves').put(record, key)).then(() => {}));
+    },
+    async saveSharedAndDeleteMedia(record, ids) {
+      if (!validateSaveRecord(record) || record.version !== 1 || !Array.isArray(ids) ||
+          ids.some(id => typeof id !== 'string' || !id || id.length > 128)) throw new FirmwareStorageError('corrupt');
+      // Refuse to delete a Blob still referenced by either collection.
+      const removed = new Set(ids);
+      for (const collection of ['photos', 'sounds']) {
+        const items = record.data[collection];
+        if (!Array.isArray(items) || items.some(item => objectValue(item) && typeof item.id === 'string' && removed.has(item.id)))
+          throw new FirmwareStorageError('corrupt');
+      }
+      await run(['saves', 'media'], 'readwrite', async tx => {
+        await Promise.all([
+          request(tx.objectStore('saves').put(record, '@shared')),
+          ...[...removed].map(id => request(tx.objectStore('media').delete(id))),
+        ]);
+      });
     },
     async savePreferences(raw) {
       const data = preferences(raw); if (!data) throw new FirmwareStorageError('corrupt');

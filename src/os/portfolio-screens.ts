@@ -67,7 +67,7 @@ export function createPortfolioGraphics(){
   }else icon(c,app,151,62,98);
   box(c,55,183,290,33,12,'#ffffffcb');label(c,app.title,200,199,19,'#454952','center');label(c,app.subtitle,200,229,11,'#686b79','center');
  }
- function application(t:C,b:C,state:MenuState,time:number,reduced:boolean){
+ function application(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false){
   const s=state.system!;const app=getApp(s.app)!;const entry=currentEntry(state)!;
   t.fillStyle='#edf0f4';t.fillRect(0,24,400,216);
   const photo=entry.images?.[s.photo];
@@ -104,14 +104,14 @@ export function createPortfolioGraphics(){
   if(view.footer.left)button(b,3,214,154,24,view.footer.left.label);
   if(view.footer.right)button(b,163,214,154,24,view.footer.right.label);
  }
- function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean){
+ function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false){
   const s=state.system;if(!s)return;
   if(s.phase==='app'){
    const view=getActiveAppView(state,time);
    if(view&&getApp(view.appId)&&currentEntry(state))application(t,b,state,time,reduced);
    else if(view)semanticApplication(t,b,view);
   }
-  if(s.phase==='launch'){
+  if(s.phase==='launch'&&!nativeSystem){
    t.fillStyle=b.fillStyle='#fff';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
    const app=getApp(s.app);if(app){icon(t,app,155,50,90);label(t,'Paramveer Singh',200,194,12,'#9398a0','center');}
    label(t,getTitle(s.app)?.title??'',200,164,23,'#454952','center');
@@ -122,13 +122,13 @@ export function createPortfolioGraphics(){
    button(b,20,53,280,39,s.muted?'Sound: OFF':'Sound: ON',s.preferenceChoice===0);button(b,20,106,80,39,'−',s.preferenceChoice===1);label(b,`${Math.round(s.volume*100)}%`,160,126,18,'#454952','center');button(b,220,106,80,39,'+',s.preferenceChoice===1);
    button(b,20,165,280,39,'Reset HOME icon layout',s.preferenceChoice===2);button(b,3,214,314,24,'Ⓑ Back');
   }
-  if(s.phase==='power'||s.dialog){
+  if((s.phase==='power'&&!nativeSystem)||s.dialog){
    b.fillStyle='#17243777';b.fillRect(0,0,320,240);box(b,12,42,296,167,9,'#f5f7fa','#a0a9b7');
    const power=s.phase==='power';label(b,power?'Power Options':'Close software?',160,65,17,'#454952','center');
    paragraph(b,power?'To take a break, close the system to enter Sleep Mode.':s.pending?'Close the current app and start the selected software?':'Close the current app and return to the HOME Menu?',30,98,260,13,20);
    button(b,23,173,128,29,'Ⓑ Cancel');button(b,169,173,128,29,power?'Ⓐ Power Off':'Ⓐ Close');
   }
-  if(s.phase==='boot'||s.sleeping||s.phase==='off'){
+  if((s.phase==='boot'&&!nativeSystem)||s.phase==='shutdown'&&!nativeSystem||s.sleeping||s.phase==='off'){
    const alpha=s.phase==='boot'&&!s.sleeping?Math.max(0,Math.min(1,1-(time-s.since-2100)/900)):1;
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }

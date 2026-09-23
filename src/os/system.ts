@@ -1,3 +1,4 @@
+import {systemTransitionDuration} from './system-transitions.ts';
 import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { createHomeCursorLoop, advanceHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
@@ -17,7 +18,7 @@ import { selectHomeSlot, saveHomeView, restoreHomeView, homeDensityIndex, HOME_D
 export { homeSlotAppId, moveHomeItem } from './home-layout.ts';
 export { getHomeGestureView } from './home-gestures.ts';
 export type System = {
- phase:'boot'|'home'|'launch'|'app'|'power'|'off'; since:number; sleeping:boolean;
+ phase:'boot'|'home'|'launch'|'app'|'power'|'shutdown'|'off'; since:number; sleeping:boolean;
  app:string|null; pending:string|null; item:number; detail:boolean; page:number; photo:number;
  layout:Record<number,string>; muted:boolean; volume:number; dialog:'switch'|'close'|null;
  returnPhase:'home'|'app'; link:string|null; preferences:boolean; preferenceChoice:number;
@@ -127,7 +128,8 @@ export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
  if(s.sleeping!==s.runtime.sleeping){state={...state,system:{...s,runtime:setRuntimeSleeping(s.runtime,s.sleeping,now),input:createInputLatch()}};s=state.system!;}
  if(s.sleeping)return cancelHomeGesture(state);
  state=isSystemHomeFolderClosing(state)?cancelHomeGesture(state):tickHomeGesture(state,now);s=state.system!;
- const duration=s.phase==='boot'?(reduced?300:3000):s.phase==='launch'?(reduced?120:1100):Infinity;
+ const duration=systemTransitionDuration(s.phase,reduced);
+ if(s.phase==='shutdown'&&now-s.since>=duration)return {...state,powered:false,panel:null,system:{...s,phase:'off',since:now}};
  if(now-s.since>=duration)return {...state,system:{...s,phase:s.phase==='boot'?'home':'app',runtime:{...s.runtime,lastTick:now}}};
  if(s.phase!=='home'&&s.phase!=='app')return state;
  const repeated=repeatInput(s.input,now);if(repeated.latch!==s.input)state={...state,system:{...s,input:repeated.latch}};
@@ -150,11 +152,11 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  const change=(patch:Partial<System>):MenuState=>({...state,system:{...s!,link:null,...patch}});
  if(input==='power'){
   if(s.phase==='off')return {...state,powered:true,panel:null,system:{...s,phase:'boot',since:now,sleeping:false,app:null,dialog:null,runtime:{...s.runtime,sleeping:false,lastTick:now},input:createInputLatch(),homeCursorLoop:createHomeCursorLoop()}};
-  if(s.phase==='power')return state;
+  if(s.phase==='power'||s.phase==='shutdown')return state;
   state=releaseSystemInputs(state,now);s=state.system!;
-  return change({phase:'power',preferences:false,returnPhase:s.phase==='app'?'app':'home',runtime:showRuntimeHome(s.runtime,now),dialog:null,input:createInputLatch()});
+  return change({phase:'power',since:now,preferences:false,returnPhase:s.phase==='app'?'app':'home',app:null,runtime:closeApplication(s.runtime,now),dialog:null,input:createInputLatch()});
  }
- if(s.phase==='off'||s.sleeping||s.phase==='boot'||s.phase==='launch')return state;
+ if(s.phase==='off'||s.phase==='shutdown'||s.sleeping||s.phase==='boot'||s.phase==='launch')return state;
  if(input==='mute')return change({muted:!s.muted});
  if(input==='volume-up'||input==='volume-down')return change({volume:Math.max(0,Math.min(1,s.volume+(input==='volume-up'?.1:-.1)))});
  if(input==='preferences'){
@@ -170,8 +172,8 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
   if(input==='open')return change({muted:!s.muted});return state;
  }
  if(s.phase==='power'){
-  if(input==='back'||input==='home')return change({phase:s.returnPhase,input:createInputLatch(),runtime:s.returnPhase==='app'?resumeRuntimeApplication(s.runtime,now):s.runtime});
-  if(input==='open')return cancelSystemHomeFolderClose({...change({phase:'off',app:null,runtime:closeApplication(s.runtime,now),input:createInputLatch()}),powered:false,panel:null});return state;
+  if(input==='back'||input==='home')return change({phase:'home',input:createInputLatch()});
+  if(input==='open')return cancelSystemHomeFolderClose({...change({phase:'shutdown',since:now,app:null,runtime:closeApplication(s.runtime,now),input:createInputLatch()}),panel:null});return state;
  }
  if(s.dialog){
   if(input==='back')return change({dialog:null,pending:null,input:createInputLatch(),runtime:s.phase==='app'?resumeRuntimeApplication(s.runtime,now):s.runtime});
@@ -213,10 +215,11 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  if(!Number.isFinite(now)||!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>=320||y<0||y>=240)return state;
  state=cancelHomeGesture(tickHomeNavigationClock(state,now));
  const s=state.system;if(!s)return touchMenu(state,x,y);
- if(s.sleeping||s.phase==='off'||s.phase==='boot'||s.phase==='launch')return state;
+ if(s.sleeping||s.phase==='off'||s.phase==='shutdown'||s.phase==='boot'||s.phase==='launch')return state;
  const send=(input:Input)=>reduceSystem(state,input,now);
  if(s.preferences){if(y>=212)return send('back');if(y>=53&&y<92)return send('mute');if(y>=106&&y<147)return send(x<160?'volume-down':'volume-up');if(y>=165&&y<204)return send('reset-layout');return state;}
- if(s.phase==='power'||s.dialog)return y>=170?send(x<160?'back':'open'):state;
+ if(s.phase==='power')return y>=214?send('back'):x>=66&&x<=254&&y>=166&&y<=202?send('open'):state;
+ if(s.dialog)return y>=170?send(x<160?'back':'open'):state;
  if(s.phase==='app'){
   const active=activeInstance(s.runtime);
   if(active&&getTitle(active.appId)?.source==='firmware')return commitRuntime(state,dispatchRuntime(s.runtime,{type:'touch',phase:'up',x,y},now),now);
@@ -255,7 +258,7 @@ export function dispatchSystemEvent(state: MenuState,event: AppEvent,now: number
 function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number): MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return state;
  if(event.type==='analog'){if(!Number.isFinite(event.x)||!Number.isFinite(event.y))return state;event={...event,x:Math.max(-1,Math.min(1,event.x)),y:Math.max(-1,Math.min(1,event.y))};}
- if((s.sleeping||s.phase==='off'||s.phase==='boot'||s.phase==='launch')&&!(event.type==='button'&&event.command==='power')&&!(event.type==='command'&&event.command==='power'))return state;
+ if((s.sleeping||s.phase==='off'||s.phase==='shutdown'||s.phase==='boot'||s.phase==='launch')&&!(event.type==='button'&&event.command==='power')&&!(event.type==='command'&&event.command==='power'))return state;
  if(event.type==='touch'){
   const touched=latchTouch(s.input,event);if(!touched.accepted)return state;
   state=tickHomeNavigationClock(state,now);s=state.system!;

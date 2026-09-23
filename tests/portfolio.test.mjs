@@ -26,9 +26,19 @@ test('HOME suspends and resumes exact position; switching requires confirmation'
 });
 test('power requires confirmation, off is inert, sleep preserves application',()=>{
  let s=send(home(),'power');assert.equal(s.system.phase,'power');assert.equal(s.powered,true);
- assert.equal(send(s,'back').system.phase,'home');s=send(s,'open');assert.equal(s.powered,false);assert.equal(send(s,'open'),s);
+ assert.equal(send(s,'back').system.phase,'home');s=send(s,'open');assert.equal(s.system.phase,'shutdown');assert.equal(s.powered,true);assert.equal(send(s,'open'),s);
+ s=tickSystem(s,4550);assert.equal(s.powered,false);assert.equal(s.system.phase,'off');
  s=send(s,'power');assert.equal(s.system.phase,'boot');assert.equal(s.powered,true);
  s={...home(),system:{...home().system,sleeping:true}};assert.equal(send(s,'open'),s);assert.equal(touchSystem(s,200,225,6000),s);
+});
+test('power menu uses the native central power-off button and leaves HOME return available',()=>{
+ const s=reduceSystem(home(),'power',5000);assert.equal(s.system.since,5000);
+ assert.equal(touchSystem(s,20,180,5001),s);
+ assert.equal(touchSystem(s,160,185,5001).system.phase,'shutdown');
+ assert.equal(touchSystem(s,160,228,5001).system.phase,'home');
+ const shutdown=touchSystem(s,160,185,5001);
+ assert.equal(tickSystem(shutdown,5120,true).system.phase,'shutdown');
+ assert.equal(tickSystem(shutdown,5121,true).system.phase,'off');
 });
 test('external links are explicit effects, and details/page/image navigation stays bounded',()=>{
  let s=tickSystem(send({...home(),selected:2},'open'),6000);s=send(s,'open');

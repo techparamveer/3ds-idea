@@ -14,6 +14,7 @@
 | `resources.ts` | Validated optional firmware-derived resource loading |
 | `native-chrome.ts` | Authored/cropped native chrome asset loading |
 | `audio.ts` | Gesture-unlocked sound decoding and playback |
+| `system-transitions.ts`, `native-system-presentation.ts` | Browser boot/launch/shutdown timing and source HOME power/fade rendering |
 | `native-keyboard-audio/sequence.ts` | Isolated `common_back` sequence controls, counted native updates and release-tail ownership; transport integration pending |
 | `animation.ts` | Layout animation sampling utilities |
 | `app-types.ts`, `app-registry.ts`, `app-host.ts` | Firmware contracts, installed titles and applet lifecycle |
@@ -60,6 +61,12 @@ This single path keeps touch and hardware behavior equivalent and makes the OS
 testable in Node without a browser renderer.
 
 ## Application lifecycle
+
+The current [portfolio UI scope](../portfolio-ui-scope.md) supersedes the earlier
+full stock-app behaviour plan. Stock screens need basic navigation; Camera is
+a read-only portfolio gallery and Sound is a functional favourite-song player.
+The software keyboard is removed. See [power and opening UI](../portfolio-power-transitions.md)
+for the native screen assets and explicit browser timing policy.
 
 The system models cold boot, HOME, launch splash, running software, suspension,
 resume, close confirmation, power menu, off and sleep. HOME suspends the current

@@ -6,6 +6,7 @@ import { NativeLayoutRenderer } from './native-renderer';
 import { nativeFolderGlyphPixels, nativeMessageOverride, nativeTextureSamplePixels, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { isHomeFolderBackTouch, rowCount, toolbar as toolbarRegions, type MenuState } from './state';
 import { getHomeGestureView } from './system';
+import { getHomeDensityControls } from './home-density-controls';
 import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
 
 type Context=CanvasRenderingContext2D;
@@ -105,10 +106,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  }
  function toolbar(ctx:Context,state?:MenuState,fullHeight=false){
   const gesture=state&&getHomeGestureView(state),bindings=[binding('LncBase_D_01_PaletteOut',12),binding('LncBase_D_01_MvsToggle',0)];
+  const controls=state&&getHomeDensityControls(state),disabled:string[]=[];
+  if(controls&&!controls.decreaseEnabled)disabled.push('G_Dw_00');
+  if(controls&&!controls.increaseEnabled)disabled.push('G_Up_00');
+  if(disabled.length)bindings.push(binding('LncBase_D_01_Invalid',0,disabled));
   if(!state?.panel&&gesture?.mode==='press'&&gesture.y>=0&&gesture.y<33&&gesture.x>=0&&gesture.x<320){
    const index=toolbarRegions.findIndex(region=>gesture.x>=region.x&&gesture.x<region.x+region.width);
    const group=index>=0?['G_Light_00','G_Memo_00','G_Friend_00','G_News_00','G_Web_00','G_Mvs_00'][index]:gesture.x<294?'G_Dw_00':'G_Up_00';
-   bindings.push(binding('LncBase_D_01_Select',1,[group]));
+   if(!disabled.includes(group))bindings.push(binding('LncBase_D_01_Select',1,[group]));
   }
   return renderer.draw(ctx,'launcher','LncBase_D_01',{bindings,clip:[0,0,320,state?.opened||fullHeight?240:212]});
  }

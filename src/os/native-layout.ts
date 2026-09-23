@@ -223,17 +223,19 @@ export function nativeVisibleRasterRect(x:number,y:number,width:number,height:nu
   rasterWidth:right-left,rasterHeight:bottom-top,sampling:{x:left,y:top,fullWidth,fullHeight}};
 }
 type RasterChannel={a:number;b:number;c:number;mode:number;scale:number};
-type RasterStage={constant:(number|undefined)[];channels:RasterChannel[];saveColor:boolean;saveAlpha:boolean};
-/** Register slots match the compact TEV sources: textures 0..3, constant 4,
- * primary 5, previous 6, buffer 7. Slot 32 supplies NaN for absent combiner args.
+type RasterStage={constant:(number|undefined)[];channels:RasterChannel[];previous:number;output:number;saveColor:boolean;saveAlpha:boolean};
+/** Textures occupy offsets 0..15, primary 20..23 and feedback 28..31.
+ * Stage outputs alternate between 24..27 and 36..39. Constants have permanent
+ * per-stage slots from 40 onward; slot 32 supplies NaN for absent combiner args.
  * A selector packs the channel offset and complement bit, without functions in
  * the pixel loop. Validate even unused args, as the scalar evaluator does.
  */
 function prepareRasterStages(material:NativeMaterial,base:number[],constants:number[][]):RasterStage[]{
  const registers=[base,...constants];
- return material.tevStages.map(stage=>{
+ return material.tevStages.map((stage,stageIndex)=>{
   const rgb=registers[stage.constantSelectors&15],alpha=registers[(stage.constantSelectors>>4)&15];
   const constant=[rgb?.[0],rgb?.[1],rgb?.[2],alpha?.[3]];
+  const previous=stageIndex===0?20:stageIndex%2===1?24:36,output=stageIndex%2===0?24:36;
   const channels=Array.from({length:4},(_,index)=>{
    const combiner=index===3?stage.alpha:stage.color;
    const selectors=combiner.sources.map((source,i)=>{
@@ -241,12 +243,13 @@ function prepareRasterStages(material:NativeMaterial,base:number[],constants:num
     const operand=combiner.operands[i],part=Math.floor(operand/2),component=index===3?[3,0,1,2][part]:part===0?index:[3,0,1,2][part-1];
     if(component===undefined)throw new Error(`Unsupported native TEV operand ${operand}`);
     if(source===4&&constant[component]===undefined)throw new Error(`Unsupported native TEV constant selector ${stage.constantSelectors}`);
-    return (source*4+component)*2+Number(!!(operand%2));
+    const offset=source===4?40+stageIndex*4:source===6?previous:source*4;
+    return (offset+component)*2+Number(!!(operand%2));
    });
    if(!Number.isInteger(combiner.mode)||combiner.mode<0||combiner.mode>7)throw new Error(`Unsupported native TEV mode ${combiner.mode}`);
    return {a:selectors[0]??64,b:selectors[1]??64,c:selectors[2]??64,mode:combiner.mode,scale:combiner.scale};
   });
-  return {constant,channels,saveColor:stage.color.savePrevious,saveAlpha:stage.alpha.savePrevious};
+  return {constant,channels,previous,output,saveColor:stage.color.savePrevious,saveAlpha:stage.alpha.savePrevious};
  });
 }
 /** Native material sampling is independent of Canvas. Per-raster preparation
@@ -268,7 +271,9 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
  const base=material.bufferColor.map(v=>v/255),constants=material.constantColors.map(c=>c.map(v=>v/255)),implicit=constants[0]??white;
  const stages=prepareRasterStages(material,base,constants),compare=material.alphaCompare;
  // Float64 keeps JS number precision; no Float32 or byte rounding occurs here.
- const bank=new Float64Array(33).fill(1),result=new Float64Array(4);bank[32]=NaN;
+ const bank=new Float64Array(40+stages.length*4).fill(1);bank[32]=NaN;
+ for(let stageIndex=0;stageIndex<stages.length;stageIndex++)for(let i=0;i<4;i++)bank[40+stageIndex*4+i]=stages[stageIndex].constant[i]!;
+ const output=stages.length?stages[stages.length-1].output:24;
  const offsetX=sampling?.x??0,offsetY=sampling?.y??0,fullWidth=sampling?.fullWidth??width,fullHeight=sampling?.fullHeight??height;
  for(let y=0;y<height;y++){
   const v=(y+offsetY+.5)/fullHeight;
@@ -303,11 +308,10 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
      }
     }
    }
-   for(let i=0;i<4;i++){bank[24+i]=bank[20+i];bank[28+i]=base[i];}
+   for(let i=0;i<4;i++)bank[28+i]=base[i];
    if(!stages.length)for(let i=0;i<4;i++)bank[24+i]=(base[i]+(implicit[i]-base[i])*bank[i])*bank[20+i];
    for(let stageIndex=0;stageIndex<stages.length;stageIndex++){
     const stage=stages[stageIndex];
-    for(let i=0;i<4;i++)bank[16+i]=stage.constant[i]!;
     for(let i=0;i<4;i++){
      const channel=stage.channels[i];
      let a=bank[channel.a>>1],b=bank[channel.b>>1],c=bank[channel.c>>1],value:number;
@@ -317,19 +321,18 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
       case 4:value=a*c+b*(1-c);break;case 5:value=a-b;break;case 6:value=clamp(a+b)*c;break;
       default:value=a*b+c;
      }
-     result[i]=clamp(value*channel.scale);
+     bank[stage.output+i]=clamp(value*channel.scale);
     }
     // Buffer capture reads the preceding stage, never this stage's result.
-    if(stage.saveColor){bank[28]=bank[24];bank[29]=bank[25];bank[30]=bank[26];}
-    if(stage.saveAlpha)bank[31]=bank[27];
-    for(let i=0;i<4;i++)bank[24+i]=result[i];
+    if(stage.saveColor){bank[28]=bank[stage.previous];bank[29]=bank[stage.previous+1];bank[30]=bank[stage.previous+2];}
+    if(stage.saveAlpha)bank[31]=bank[stage.previous+3];
    }
    if(compare){
-    const a=bank[27],r=compare.reference;let pass=false;
+    const a=bank[output+3],r=compare.reference;let pass=false;
     switch(compare.function){case 1:pass=a<r;break;case 2:pass=a<=r;break;case 3:pass=a===r;break;case 4:pass=a!==r;break;case 5:pass=a>=r;break;case 6:pass=a>r;break;case 7:pass=true;}
-    if(!pass)bank[27]=0;
+    if(!pass)bank[output+3]=0;
    }
-   const at=(y*width+x)*4;for(let i=0;i<4;i++)data[at+i]=Math.round(bank[24+i]*255);
+   const at=(y*width+x)*4;for(let i=0;i<4;i++)data[at+i]=Math.round(bank[output+i]*255);
   }
  }
  return {width,height,data};

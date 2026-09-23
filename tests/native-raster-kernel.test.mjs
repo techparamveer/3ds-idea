@@ -96,6 +96,16 @@ test('all alpha comparisons retain RGB and use exact unquantized result alpha',(
   m.alphaCompare={function:fn,reference:ref};const out=identical([l,p,1,1,textures]);assert.deepEqual([...out.data.slice(0,3)],[17,33,199]);
  }
 });
+test('cross-channel previous reads and delayed feedback stay intact across odd/even stage counts',()=>{
+ const {m,l,textures,p}=fixture(0);
+ for(let count=1;count<=8;count++)for(let save=0;save<4;save++){
+  m.tevStages=Array.from({length:count},(_,i)=>stage(
+   combiner(i%2?4:0,[6,7,4],[2,0,0],1,!!(save&1)),
+   combiner(i%2?4:0,[6,7,4],[2,0,0],1,!!(save&2)),(i%7)|(((i+3)%7)<<4)));
+  m.alphaCompare={function:6,reference:.37};
+  identical([l,p,17,11,textures,.731],`previous cross-channel/${count}/save${save}`);
+ }
+});
 test('wrap/filter neighbors, flipped/multi-set UVs, matrix trig and cropped sampling preserve operation order',()=>{
  const {m,l,textures,p}=fixture(3);
  p.uvSets=[[-1.25,-.25,2.75,-.25,-1.25,3.25,2.75,3.25],[1,.5,-1.5,1,2,-2,-.25,-1],[.125,.25,.125,.25,.125,.25,.125,.25]];

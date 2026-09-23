@@ -1,8 +1,8 @@
 # Prepared native CPU raster kernel
 
 The runtime raster now prepares texture sampling and TEV selectors once per
-`rasterNativePicture` call. The pixel loop reuses a 33-number register bank and
-four result channels; it allocates no arrays, closures, maps or subarrays.
+`rasterNativePicture` call. The pixel loop reuses a Float64 register bank;
+it allocates no arrays, closures, maps or subarrays.
 Output storage and preparation still allocate once per raster. There is no
 cross-raster cache, generated code, lookup approximation or animation change.
 
@@ -69,7 +69,7 @@ The private per-texture SHA256 receipt is `resource-provenance.json`, SHA256
 Logs and receipts are on the supplied SSD at:
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/runtime/reference/native-raster/`.
 
-## Local CPU measurement
+## First-kernel local CPU measurement
 
 On Apple M2, macOS arm64, Node 22.23.2, the benchmark renders 80 fresh cursor
 rasters across eight phases, totaling 120,872 pixels. Every call includes
@@ -105,3 +105,55 @@ Parity here is with the existing JavaScript raster over decoded resource inputs,
 not a new claim of pixel identity with original hardware, Canvas blending or
 arbitrary malformed texture buffers. Raster API, filters, animation frames,
 alpha inheritance and framebuffer blending are unchanged.
+
+## Second pass: prepared register storage
+
+The follow-up uses the first kernel `c5e68af` (integrated as `8e25301`) as its
+comparison baseline. Each stage now has permanent constant slots initialized
+once per raster. Prepared source selectors refer directly to those slots.
+Two output banks alternate; first-stage source6 reads primary, and subsequent
+stages read the preceding output bank. All four old channels remain intact
+until the stage finishes and its feedback capture reads them. The final alpha
+comparison and byte packing read the final output bank. No arithmetic, alpha
+factoring, spatial cache or material specialization was introduced.
+
+Scratch size is `(40 + 4*stageCount)*8` bytes, including both output banks,
+primary, feedback, texture slots, constants and the absent-argument NaN slot.
+For six stages this is 512 bytes per raster, replacing the first kernel's
+296 bytes. This small preparation increase removes constant/result copying
+from every pixel and eliminates the separate result array.
+
+The complete reused suite passed 37 tests, including all six cursor density
+endpoints and the 2,106 real-resource rasters listed above. A new targeted test
+also passed: RGB reads previous alpha while alpha reads previous red over odd
+and even stage counts 1–8, with independent color/alpha feedback and final
+alpha comparison. Type checking passed. No broad build or browser run was
+performed by this worker.
+
+The close benchmark uses the actual renderer's pane, inherited-alpha and crop
+traversal for an empty density1 folder. Its immutable capture is deterministic
+generated RGBA; other textures are real decoded resources. It times newly keyed
+rasters relative to the settled-open frame, excluding pose construction, Canvas,
+upper LCD, eviction and cache hits. Each phase is considered independently;
+later repeated capture frames can be cache hits in the real scene. It compares
+every output byte against the first kernel before seven alternating-order timed
+rounds. JIT is warm, but raster output and preparation are uncached each time.
+
+| Folder phase | First kernel median | Second kernel median | Ratio |
+| --- | ---: | ---: | ---: |
+| 14 | 48.62 ms | 36.63 ms | 1.33× |
+| 8 | 48.80 ms | 36.52 ms | 1.34× |
+| 6 | 49.35 ms | 37.08 ms | 1.33× |
+| 5 | 51.20 ms | 40.45 ms | 1.27× |
+| 4 | 52.77 ms | 36.91 ms | 1.43× |
+| 0, capture only | 24.66 ms | 17.26 ms | 1.43× |
+
+These are local Apple M2/Node 22.23.2 CPU timings, not predictions of browser
+frame cadence. Root independently measures the combined renderer in Chrome.
+The same SSD artifact directory contains `second-pass-tests.log` and the
+reproducible `second-pass-close-benchmark.mjs` harness, SHA256
+`b8583d52d6c30894c10dcf5f11a69f5a7558f21ba30899d38c2b5c3c1f56df2b`.
+Its `second-pass-close-benchmark.json` result has SHA256
+`f24fec9a12432c840f20151d109409afad4ab4f1a37796419e9438227c9243c3`.
+The harness loads the first kernel directly from the named Git commit and the
+current kernel from this runtime worktree; it only writes SSD audit artifacts.

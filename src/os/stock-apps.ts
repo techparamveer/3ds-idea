@@ -21,7 +21,7 @@ const serviceRows: Record<string, readonly [string, string][]> = {
   'system-transfer': [['3ds', 'Transfer from a Nintendo 3DS'], ['dsi', 'Transfer from Nintendo DSi']],
   'system-updater': [['information', 'System Update']],
   eshop: [['information', 'Nintendo eShop']], mint: [['information', 'Nintendo eShop']],
-  'nintendo-zone': [['information', 'Nintendo Zone']], miiverse: [['information', 'Miiverse']],
+  'nintendo-zone': [['information', 'Nintendo Zone']], miiverse: [['communities', 'Communities'], ['activity', 'Activity Feed'], ['profile', 'My Menu'], ['notifications', 'Notifications']],
   'miiverse-post': [['information', 'Post to Miiverse']], extrapad: [['information', 'Circle Pad Pro']],
 };
 const withScreen = (state: AppState, screen: string, patch: AppState = {}): AppState => ({ ...state, screen, selection: 0, ...patch });
@@ -61,7 +61,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (id === 'game-notes' || id === 'memo') return Array.from({ length: 16 }, (_, index) => row(String(index), `Note ${index + 1}`));
     if (id === 'browser') {
       if (screen === 'bookmarks' || screen === 'history') return list(record(shared.browser)[screen]).map((entry, index) => row(String(index), str(entry.title, str(entry.url))));
-      return [row('bookmarks', 'Bookmarks'), row('history', 'History'), row('settings', 'Settings')];
+      return [row('search', 'Enter search text'), row('bookmarks', 'Bookmarks'), row('add-bookmark', 'Add'), row('settings', 'Settings'), row('page-info', 'Page Info'), row('address', 'Enter URL')];
     }
     if (id === 'friends') {
       if (screen === 'profile') return [row('name', 'Name', str(record(shared.settings).nickname, 'Player')), row('message', 'Favourite message', str(state.message))];

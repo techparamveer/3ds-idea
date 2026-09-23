@@ -144,3 +144,20 @@ test('Health exposes the native article labels and bounded pagination for every 
  }
  assert.equal(action(module,main,'privacy').state,main);assert.equal(action(module,main,'next').state,main);
 });
+
+test('Browser native menu destinations are read-only and preserve existing URL/bookmark/history data',()=>{
+ const context={now:0,shared:{...initialSharedData(),browser:{bookmarks:[{title:'Saved',url:'https://example.com'}],history:[{title:'Earlier',url:'https://example.org'}]}}};
+ const {module}=setup('browser'),main=module.create({}, {url:'https://saved.example'},context),before=structuredClone(context.shared);
+ assert.deepEqual(module.view(main,context).rows.map(({id,label})=>[id,label]),[['search','Enter search text'],['bookmarks','Bookmarks'],['add-bookmark','Add'],['settings','Settings'],['page-info','Page Info'],['address','Enter URL']]);
+ for(const row of module.view(main,context).rows){
+  const result=module.reduce(main,{type:'action',id:row.id},context);assert.equal(result.state.screen,row.id);assert.deepEqual(result.effects??[],[]);
+  assert.equal(module.reduce(result.state,{type:'text',value:'Changed'},context).state,result.state);
+  assert.equal(module.reduce(result.state,{type:'command',command:'back'},context).state.screen,'main');
+ }
+ assert.equal(module.save(main).url,'https://saved.example');assert.deepEqual(context.shared,before);
+});
+test('Miiverse source toolbar rows open local details without remote/account effects',()=>{
+ const {module,state}=setup('miiverse');const view=module.view(state,ctx);
+ assert.deepEqual(view.rows.map(({id,label})=>[id,label]),[['communities','Communities'],['activity','Activity Feed'],['profile','My Menu'],['notifications','Notifications']]);
+ for(const row of view.rows){const out=action(module,state,row.id);assert.equal(out.state.screen,'detail');assert.equal(out.state.field,row.id);assert.deepEqual(out.effects??[],[]);assert.equal(action(module,out.state,'back').state.screen,'main');}
+});

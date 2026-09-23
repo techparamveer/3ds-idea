@@ -38,7 +38,8 @@ never draw new strokes. Power, HOME and app-open transitions belong to System.
 | Notes / Memo | main → drawing | 16 note slots; data.slot, data.strokes from existing saved notes |
 | Friends | main → profile/friend | existing cards and read-only details |
 | Notifications | main → notification | existing title/message; no read-state mutation |
-| Browser | main → bookmarks/history/settings | existing lists; no URL entry or network request |
+| Browser | main → search/bookmarks/add-bookmark/settings/page-info/address | original six menu destinations; read-only screens with no text entry, bookmark write or network request |
+| Miiverse | main → detail | communities/activity/profile/notifications; local toolbar views only |
 | Services/helpers | main → detail | selected existing menu row; no simulated operation |
 
 Health uses the native article labels 3D Display Precautions, General

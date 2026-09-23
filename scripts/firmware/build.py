@@ -80,7 +80,8 @@ TITLES = {
 }
 DENIED_SUFFIXES = {'.key', '.pem', '.p12', '.der', '.crr', '.crs', '.cro', '.shbin', '.cdc', '.code'}
 DENIED_NAMES = {'masterkey.bin', 'ticket', 'certs', '.code'}
-STOCK_TABLE_TITLES = {'0004001000022400', '0004001000022500'}
+STOCK_TABLE_TITLES = {'0004001000022400', '0004001000022500', '0004003000009902',
+                      '000400300000d302', '000400300000d402'}
 STOCK_TABLE_PATHS = {'lyt/C.LZ', 'msg/EU_English.LZ'}
 STOCK_STYLE_NAMES = {'RI.mstl', 'RI.mstl.lz', 'RI.mstl.cmp', 'RI_mstl_LZ.bin'}
 

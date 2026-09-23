@@ -165,3 +165,8 @@ states are native resources; their bounded layout, pagination and read-only
 content are web composition choices. The canvas verification run includes both
 settings pages, empty and specimen bookmarks, entry panels, page info, a reset
 preview, and each Miiverse destination, with no renderer diagnostics.
+
+Friend List main/profile now share one title session. Game Notes list/selected
+views request a union of their small native packs under one session identity.
+This removes the observed generic-screen flash and redundant asset reload on
+interior navigation; owner changes still dispose the entire session.

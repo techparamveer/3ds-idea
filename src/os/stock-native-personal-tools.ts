@@ -17,6 +17,7 @@ export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
   {url:notesPrefix+'memo-MemoWriteDown-arc-l.json',alias:'notes-write',layouts:['MemoWriteDown'],animations:['MemoWriteDown_Base','MemoWriteDown_SceneIn']},
   {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:['ImageScreenUp_PanelNoGameIn']},
 ];
+const personalAllNotePacks:readonly NativeTitlePackRequest[]=[...personalNotesPacks,...personalSelectedNotePacks.filter(({alias})=>!personalNotesPacks.some(pack=>pack.alias===alias))];
 export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn']},
   {url:'packs/notifications/messages-and-loose.json',alias:'notification-messages',layouts:[],animations:[]},
@@ -36,10 +37,10 @@ function initialFriendView(view:AppView):boolean{
 }
 export function nativePersonalToolView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
   if(view.appId==='notifications'&&view.screen==='main'&&view.rows.length===0)return {view:'notifications-empty',titleId:'000400300000a002',packs:personalNotificationPacks};
-  if(view.appId==='game-notes'&&view.screen==='drawing')return {view:'game-notes-selected',titleId:'0004003000009c02',packs:personalSelectedNotePacks};
-  if(view.appId==='game-notes'&&view.screen==='main')return {view:'game-notes-main',titleId:'0004003000009c02',packs:personalNotesPacks};
-  if(view.appId==='friends'&&view.screen==='profile')return {view:'friends-profile',titleId:'0004003000009f02',packs:personalFriendPacks};
-  if(initialFriendView(view))return {view:'friends-initial',titleId:'0004003000009f02',packs:personalFriendPacks};
+  if(view.appId==='game-notes'&&view.screen==='drawing')return {view:'game-notes',titleId:'0004003000009c02',packs:personalAllNotePacks};
+  if(view.appId==='game-notes'&&view.screen==='main')return {view:'game-notes',titleId:'0004003000009c02',packs:personalAllNotePacks};
+  if(view.appId==='friends'&&view.screen==='profile')return {view:'friends',titleId:'0004003000009f02',packs:personalFriendPacks};
+  if(initialFriendView(view))return {view:'friends',titleId:'0004003000009f02',packs:personalFriendPacks};
   return null;
 }
 /** Source notification components for the empty, offline portfolio state. */

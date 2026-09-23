@@ -10,7 +10,7 @@ const session=url(compile('native-title-session').replace("'./native-title-asset
 let source=compile('stock-screen-presentation').replace("'./native-title-session'",JSON.stringify(session));
 for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSettingsMain'],['sound','soundScreenPacks','drawNativeSoundFrame'],['camera','cameraScreenPacks','drawNativeCameraLower'],['health','healthScreenPacks','drawNativeHealthFrame']])source=source.replace(`'./stock-native-${file}'`,JSON.stringify(url(`export const ${packs}=[{url:'${file}.json',alias:'${file}',layouts:[],animations:[]}];export const ${draw}=()=>false;`)));
 source=source.replace("'./stock-screen-layout'",JSON.stringify(url('export const stockScreenTargets=()=>[];')));
-source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url('export const nativePersonalToolView=()=>null;export const drawNativePersonalToolFrame=()=>false;')));
+source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url(compile('stock-native-personal-tools').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))))));
 source=source.replace("'./stock-native-web'",JSON.stringify(url("export const browserScreenPacks=[{url:'browser.json',alias:'browser',layouts:[],animations:[]}],miiverseScreenPacks=[{url:'miiverse.json',alias:'miiverse',layouts:[],animations:[]}];export const drawNativeWebFrame=()=>false;")));
 source=source.replace("'./stock-native-services'",JSON.stringify(url('export const nativeServiceView=()=>null;export const drawNativeServiceFrame=()=>false;')));
 const {createStockScreenPresentation}=await import(url(source));
@@ -35,4 +35,15 @@ test('returning HOME during launch aborts a prepared owner and rejects late comp
   assert.equal(calls[0].args[4].aborted,true);let disposed=0;calls[0].resolve({renderer:{},diagnostics:[],dispose(){disposed++;}});await flush();
   assert.equal(disposed,1);assert.equal(screen.getState().status,'idle');
  }finally{screen.dispose();globalThis.document=old;}
+});
+
+test('Friend profiles and selected Notes retain loaded native title assets across navigation',async()=>{
+ const old=globalThis.document;globalThis.document={createElement:()=>({width:0,height:0,getContext:()=>({})})};
+ try{for(const [appId,screen]of [['friends','profile'],['game-notes','drawing']]){
+  calls.length=0;const presentation=createStockScreenPresentation(),font={},main={...view(appId),rows:appId==='friends'?[{id:'profile',label:'Your friend card'}]:[]};
+  presentation.prepare(main,appId+':1',font);await flush();assert.equal(calls.length,1);
+  let disposed=0;const assets={renderer:{},diagnostics:[],dispose(){disposed++;}};calls[0].resolve(assets);await flush();
+  assert.equal(presentation.prepare({...main,screen,rows:[]},appId+':1',font).assets,assets);assert.equal(calls.length,1);
+  assert.equal(presentation.prepare(main,appId+':1',font).assets,assets);presentation.dispose();assert.equal(disposed,1);
+ }}finally{globalThis.document=old;}
 });

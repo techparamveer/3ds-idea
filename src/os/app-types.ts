@@ -20,6 +20,7 @@ export type AppEvent =
   | { type: 'capability-result'; requestId: string; requestToken: number; ok: boolean; value?: JsonValue; reason?: string };
 export type Capability = 'camera' | 'microphone' | 'motion' | 'import-photo' | 'import-audio' | 'local-wireless' | 'nfc' | 'nintendo-network';
 export type AppEffect =
+  | { type: 'music'; command: 'load' | 'play' | 'pause' | 'seek'; trackId: string; revision: number; src?: string; position?: number }
   | { type: 'invoke'; appId: string; requestId: string; args?: AppState }
   | { type: 'complete'; value?: JsonValue; cancelled?: boolean }
   | { type: 'launch'; appId: string }

@@ -27,7 +27,6 @@ export const stockTitles: readonly AppDescriptor[] = [
   firmware('miiverse', 'Miiverse', '000400300000BE02', 'system-applet'),
   firmware('error', 'Error', '000400300000C502', 'library-applet'),
   firmware('extrapad', 'Circle Pad Pro', '000400300000CD02', 'library-applet'),
-  firmware('keyboard', 'Software Keyboard', '000400300000D002', 'library-applet'),
   firmware('mii-selector', 'Mii', '000400300000D102', 'library-applet'),
   firmware('photo-selector', 'Select a Photo', '000400300000D302', 'library-applet'),
   firmware('sound-selector', 'Select a Sound', '000400300000D402', 'library-applet'),
@@ -36,7 +35,7 @@ export const stockTitles: readonly AppDescriptor[] = [
 ];
 /** Removed from the portfolio scope on2026-09-23. Keep only their IDs so older
  * saved layouts can omit them without losing the user's other placements. */
-export const retiredHomeTitleIds: ReadonlySet<string> = new Set(['activity-log', 'download-play', 'mii-maker', 'streetpass']);
+export const retiredHomeTitleIds: ReadonlySet<string> = new Set(['activity-log', 'download-play', 'mii-maker', 'streetpass', 'keyboard']);
 const modules = new Map<string, AppModule>();
 for (const app of apps) modules.set(app.id, createPortfolioModule(app));
 for (const descriptor of stockTitles) modules.set(descriptor.id, createStockModule(descriptor));

@@ -29,6 +29,7 @@ export function acknowledgeEffects(runtime: AppRuntime, ids: readonly number[]):
 function saveInstance(runtime: AppRuntime, owner: string): AppRuntime {
   const instance = runtime.instances[owner]; if (!instance) return runtime;
   const module = getAppModule(instance.appId)!;
+  if (module.descriptor.source === 'firmware') return runtime;
   const record = { version: module.descriptor.saveVersion, data: module.save(instance.state) };
   return emit({ ...runtime, saves: { ...runtime.saves, [instance.appId]: record } }, owner, { type: 'storage', key: instance.appId, record });
 }
@@ -37,7 +38,7 @@ function applyEffects(runtime: AppRuntime, owner: string, effects: readonly AppE
   let next = runtime;
   for (const effect of effects) {
     if (!next.instances[owner]) break;
-    if (next.instances[owner].closing && !['save', 'shared', 'release-capabilities'].includes(effect.type)) continue;
+    if (next.instances[owner].closing && !['save', 'shared', 'release-capabilities'].includes(effect.type) && !(effect.type === 'music' && effect.command === 'pause')) continue;
     if (effect.type === 'save') next = saveInstance(next, owner);
     else if (effect.type === 'shared') {
       next = { ...next, shared: { ...next.shared, [effect.key]: effect.value } };
@@ -107,6 +108,7 @@ export function startApplication(runtime: AppRuntime, appId: string, now: number
   let next = closeApplication(runtime, now);
   const created = newInstance(next, appId, {}, null, null, now); if (!created) return runtime;
   next = { ...created.runtime, application: created.id, pendingLaunch: null, lastTick: now };
+  if (getTitle(appId)!.source === 'firmware') return next;
   const activity = typeof next.shared.activity === 'object' && next.shared.activity && !Array.isArray(next.shared.activity) ? next.shared.activity as AppState : {};
   const old = activity[appId]; const previous = old && typeof old === 'object' && !Array.isArray(old) ? old : {};
   next = { ...next, shared: { ...next.shared, activity: { ...activity, [appId]: { ...previous, title: getTitle(appId)!.title, launches: Number(previous.launches ?? 0) + 1, seconds: Number(previous.seconds ?? 0) } } } };
@@ -186,7 +188,7 @@ export function tickRuntime(runtime: AppRuntime, now: number): AppRuntime {
   const elapsedMs = Math.min(1000, now - runtime.lastTick);
   let next = dispatchRuntime({ ...runtime, lastTick: now }, { type: 'tick', elapsedMs }, now);
   const active = activeInstance(next);
-  if (active && active.id === next.application && elapsedMs > 0) {
+  if (active && active.id === next.application && getTitle(active.appId)?.source === 'portfolio' && elapsedMs > 0) {
     const activity = next.shared.activity as AppState, current = activity[active.appId] as AppState;
     next = { ...next, shared: { ...next.shared, activity: { ...activity, [active.appId]: { ...current, seconds: Number(current.seconds ?? 0) + elapsedMs / 1000 } } } };
   }

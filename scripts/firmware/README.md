@@ -82,6 +82,11 @@ continues the original wave path through CSND command submission and the first
 voice service update, with explicit allocation/physical-address/stereo stubs.
 See [keyboard parameter contract](../../docs/firmware-keyboard-audio-parameters.md)
 for gain/pan/timer/loop evidence and the remaining hardware/transport limits.
+`keyboard_sequence.py` interprets only the source-required `common_back.sseq`
+track controls; `keyboard_sequence_native.py` compares that timeline with the
+original sequence, envelope and wave engines through completion and explicit
+stop. See [keyboard sequence validation](../../docs/firmware-keyboard-sequence-validation.md).
+The earlier frozen WAV export still does not synthesize SSEQ.
 
 Each pack contains `layouts`, `animations`, `textures`, `messages`, `resourceSources` and `unsupported`, plus `styles` when a supported HOME style table is present. `resourceSources` maps each resource category and name to original member paths and decoded SHA-256 hashes. Layouts contain pane hierarchy, native transforms, text metrics, groups, window frames, texture mapping, blend state and TEV stages. Windows expose `inflation` (four unsigned fixed-point values divided by 16) and `frameSize` (four unsigned integers), both in left/right/top/bottom order. These replace the earlier incorrectly decoded `stretch` float array. Fonts also expose FINF `width`, `cellWidth`, `cellHeight` and `maxCharWidth` alongside baseline, ascent, line feed and per-glyph metrics.
 

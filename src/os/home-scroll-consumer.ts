@@ -241,13 +241,26 @@ export function advanceHomeScroll(state: HomeScrollState, updates: number, optio
   return result(state, observations);
 }
 
+/** Already-accepted ordinary idle tile selection. Earlier widget/hit/manager
+ * eligibility belongs to the host; toolbar departure runs before correction.
+ */
 export function selectHomeTouchSlot(state: HomeScrollState, slot: number): HomeScrollResult {
   validate(state);
-  if (state.navigation.motion || state.navigation.gesture || state.navigation.focus.toolbarActive) return result(state, [], 'unsupported');
-  const view = activeHomeRecord(state.navigation), { rows, columns, capacity } = homeGridMetrics(state.navigation.activeFolderSlot !== null, view.density);
+  if (state.navigation.motion || state.navigation.gesture) return result(state, [], 'unsupported');
+  const nav = state.navigation, view = activeHomeRecord(nav), { rows, columns, capacity } = homeGridMetrics(nav.activeFolderSlot !== null, view.density);
   if (!Number.isInteger(slot) || slot < 0 || slot >= capacity) throw new RangeError('Invalid HOME tile slot');
+  const oldFocus = nav.focus.toolbarActive ? nav.focus.currentFocus : -1;
+  if (nav.focus.toolbarActive && (!Number.isInteger(oldFocus) || oldFocus < 0 || oldFocus > 7)) throw new RangeError('Invalid HOME toolbar focus');
   state = record(state, { ...view, selectedSlot: slot });
-  const observations: HomeScrollObservation[] = [cursorSelection(state, 'touch', view.selectedSlot, -1)];
+  const observations: HomeScrollObservation[] = [];
+  if (nav.focus.toolbarActive) {
+    // 0x2a4c58..6c clears active/current/saved-column, but does not write
+    // remembered focus at S+3c90. This differs from directional grid return.
+    state = { ...state, navigation: { ...state.navigation,
+      focus: Object.freeze({ ...nav.focus, toolbarActive: false, currentFocus: -1, savedColumn: -1 }) } };
+    observations.push(Object.freeze({ kind: 'scale-seek', frame: view.density, updateOffset: null }));
+  }
+  observations.push(cursorSelection(state, 'touch', view.selectedSlot, oldFocus));
   if (slot < view.currentLeftSlot || slot >= view.currentLeftSlot + rows * columns) {
     const target = Math.floor(slot / rows) * rows - (slot < view.currentLeftSlot ? 0 : (columns - 1) * rows);
     const entered = enterHomeMode3(state, target, 'touch'); state = entered.state; observations.push(...entered.observations);

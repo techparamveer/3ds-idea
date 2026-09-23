@@ -120,6 +120,8 @@ feature labels, activation behavior or painted anchors are inferred.
 
 Absolute touch correction chooses the nearest aligned visible target and
 enters3 without setting a direction marker; its cursor effect precedes entry.
+Accepted toolbar-to-grid touch seeks the grid Scale and emits the departed
+toolbar effect before that correction; see the bounded extension below.
 Page arrows preserve mode2/16 and the existing curve. Density mode5/15 remains
 unchanged. Ordinary root return moves one column; `repairFarHistory: true`
 explicitly enables the previous farther-history repair policy.
@@ -226,8 +228,52 @@ tests, including the three optional Canvas checks, and the overlay regression.
 Typecheck passed. The two separate optional audio-diagnostic skips remain.
 
 Still unsupported: unrelated key/button routes; gestures and nonordinary
-service states; touch/page activation from toolbar focus; arrow mode14 or the
+service states; earlier toolbar-to-grid touch eligibility and toolbar page activation; arrow mode14 or the
 selection-status0 early-exit route; full toolbar activation/presentation and
 raw touch scheduling. Additional normalized input channels and physical
 frequency remain outside the pure boundary. This is not live HOME acceptance:
 root owns System/scene wiring, audio delivery and browser/native verification.
+
+## Accepted toolbar-to-grid touch extension
+
+2026-09-23, against integration `a32bcf7`. `selectHomeTouchSlot` now accepts an
+already-approved ordinary idle tile while toolbar focus is active. Its existing
+signature, busy/gesture rejection and slot bounds remain. Invalid active toolbar
+focus throws before mutation. The host still owns earlier widget/hit/manager
+gates and raw stylus recognition.
+
+The existing accepted fragment `0x2a4bb8..0x2a4d28` saves the old slot, writes
+the selected slot, and takes these toolbar-conditional writes:
+
+- `0x2a4c58`: clear toolbar-active at `S+0x3ca8`.
+- `0x2a4c60`: clear saved column at `S+0x3c94` to−1 using the supplied stack pointer.
+- `0x2a4c68/6c`: clear current focus `S+0x3c8c` and adjacent `S+0x3c8e` to−1.
+  The latter field has no representation in this reducer.
+- No write to remembered focus `S+0x3c90`: preserve it, unlike directional return.
+- `0x2a4c7c`: seek primary Scale to current density; `0x2a4d24`: emit the
+  departed toolbar effect with saved focus and Scale10/11/12. Viewport correction
+  follows at `0x2a4d28`. No cue or layout/controller update is added.
+
+The focus object preserves all other modeled fields. Grid-only accepted touch
+keeps its existing effect and does not write focus or seek Scale. Both routes
+retain Loop phase; existing mode3 entry may change its step. The extension
+does not clear either old effect: the retained presentation consumer selects
+one of its two instances and preserves current/applied separation as before.
+
+[The focused numeric fixture](../tests/fixtures/home-accepted-toolbar-touch.json)
+copies all five accepted cases from the existing toolbar audit: grid departure
+and toolbar focus0/3/6/7, root density2, selected3, tapped8. Its provenance pins
+the same original fixture/results SHA above and excerpt text SHA
+`3ac57d7d2352f6170d83bb7ee7bf5c4adc6a3541dad501e45985f3bc8f065d86`.
+The results and excerpt hashes were checked; no firmware was executed again.
+The original trace stops before viewport correction and supplies selection
+flags, bindings and other service endpoints as documented in
+[toolbar evidence](../scripts/firmware/TOOLBAR_CURSOR_EVIDENCE.md).
+
+[Five focused tests](../tests/home-accepted-toolbar-touch.test.mjs) compare all
+five recorded anchors/Scale/effects, observation order, retained controllers,
+exact modeled focus writes, immutable inputs and rejection boundaries. Their
+144 root/folder/density/viewport/acceleration combinations are implementation
+composition checks, not newly executed native cases. The focused consumer,
+presentation, primary-cursor and System run passed59 tests; typecheck passed.
+Root owns replacing its temporary host handoff policy and browser verification.

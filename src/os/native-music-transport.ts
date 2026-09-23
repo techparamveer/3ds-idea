@@ -48,7 +48,7 @@ type Waiter = {
 };
 const counterKeys = ['outputRate', 'firstContextFrame', 'contextFrame', 'outputConsumed', 'outputAccepted', 'bufferedFrames',
   'creditEnd', 'minimumBufferedFrames', 'underrunFrames', 'underrunEvents', 'staleMessages', 'discontinuities',
-  'outputProduced', 'missedByFrames', 'missingFrames', 'nativeAccepted', 'nativePosition', 'phaseNumerator', 'phaseDenominator',
+  'outputProduced', 'maxScheduleDelayMs', 'maxChunkMs', 'chunksProcessed', 'missedByFrames', 'missingFrames', 'nativeAccepted', 'nativePosition', 'phaseNumerator', 'phaseDenominator',
   'retainedNativeStart', 'bufferedNativeFrames', 'capacityNativeFrames', 'taps', 'delayNativeFrames', 'delaySeconds', 'delayOutputFrames'] as const;
 const frameNumber = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 function errorWithName(name: string, message: string): Error { const error = new Error(message); error.name = name; return error; }

@@ -285,6 +285,12 @@ test('counter diagnostics are bounded, throttled and do not forward PCM or expos
   h.context.currentTime += 1; h.reply(h.nodes[0].port, started.epoch, 'underrun', { missingFrames: 17 });
   assert.equal(h.diagnostics.filter(d => d.type === 'underrun').length, 1);
   const snapshot = h.transport.status(); snapshot.worklet.underrunFrames = -1; assert.equal(h.transport.status().worklet.underrunFrames, 29);
+  h.context.currentTime += 1;
+  const previous = h.transport.status().worker, counters = { maxScheduleDelayMs: 12.5, maxChunkMs: 8, chunksProcessed: 200 };
+  h.reply(h.workers[0], started.epoch, 'status', { ...counters, unknown: 99 });
+  assert.deepEqual(h.transport.status().worker, { ...previous, ...counters });
+  assert.deepEqual(h.diagnostics.at(-1).counters, counters);
+  assert.equal(h.messages.length, initialMessages);
 });
 
 test('invalid protocol/future epochs cannot satisfy acknowledgements and malformed current timing fails safely', async () => {

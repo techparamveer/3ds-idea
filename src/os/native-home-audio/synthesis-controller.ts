@@ -13,12 +13,16 @@ export class MusicSynthesisController {
   private preparing = false; private paused = false; private creditEnd = 0; private outputProduced = 0;
   private task: unknown; private scheduled = false; private generation = 0; private scheduleTicket = 0; private buffers: ArrayBuffer[] = [];
   private outputRate = 0; private failure?: string; private staleMessages = 0; private entry?: string;
-  constructor(notify: (message: unknown) => void, scheduler: WorkerScheduler, decode = decodeNativeHomeMusicResources) {
-    this.notify = notify; this.scheduler = scheduler; this.decode = decode;
+  private now: () => number; private maxScheduleDelayMs = 0; private maxChunkMs = 0; private chunksProcessed = 0;
+  constructor(notify: (message: unknown) => void, scheduler: WorkerScheduler, decode = decodeNativeHomeMusicResources, now = () => performance.now()) {
+    this.notify = notify; this.scheduler = scheduler; this.decode = decode; this.now = now;
   }
   private message(type: string, details: object = {}) { this.notify({ ...stamp(this.epoch), type, source: 'worker', ...details }); }
   private cancel() { this.scheduleTicket++; if (this.scheduled) this.scheduler.cancel(this.task); this.scheduled = false; }
-  private clear() { this.cancel(); this.engine = undefined; this.resampler = undefined; this.creditEnd = 0; this.outputProduced = 0; this.paused = false; this.entry = undefined; }
+  private clear() {
+    this.cancel(); this.engine = undefined; this.resampler = undefined; this.creditEnd = 0; this.outputProduced = 0; this.paused = false; this.entry = undefined;
+    this.maxScheduleDelayMs = this.maxChunkMs = this.chunksProcessed = 0;
+  }
   private fail(error: unknown) { if (!this.disposed) { this.clear(); this.failure = String(error); this.message('error', { error: this.failure }); } }
   async control(value: unknown) {
     try {
@@ -78,11 +82,14 @@ export class MusicSynthesisController {
   }
   private schedule() {
     if (this.scheduled || this.disposed || this.paused || !this.engine || this.outputProduced + OUTPUT_CHUNK_FRAMES > this.creditEnd) return;
+    const queuedAt = this.now();
     this.scheduled = true; const ticket = ++this.scheduleTicket; this.task = this.scheduler.schedule(() => {
       if (ticket !== this.scheduleTicket) return;
       this.scheduled = false;
       try {
         if (!this.engine || !this.resampler || this.paused || this.disposed) return;
+        const startedAt = this.now();
+        this.maxScheduleDelayMs = Math.max(this.maxScheduleDelayMs, startedAt - queuedAt);
         const buffer = this.buffers.pop() ?? new ArrayBuffer(OUTPUT_CHUNK_FRAMES * 8), pcm = new Float32Array(buffer);
         let written = 0, guard = 0;
         while (written < OUTPUT_CHUNK_FRAMES) {
@@ -92,11 +99,13 @@ export class MusicSynthesisController {
         }
         const startOutputFrame = this.outputProduced; this.outputProduced += OUTPUT_CHUNK_FRAMES;
         this.stream!.postMessage({ ...stamp(this.epoch), type: 'pcm', startOutputFrame, frames: OUTPUT_CHUNK_FRAMES, buffer }, [buffer]);
+        this.maxChunkMs = Math.max(this.maxChunkMs, this.now() - startedAt); this.chunksProcessed++;
         this.schedule(); // A separate task gives cancellation/control messages a turn between chunks.
       } catch (error) { this.fail(error); }
     });
   }
   status() { return { state: this.disposed ? 'disposed' : this.failure ? 'failed' : this.preparing ? 'loading' : this.engine ? this.paused ? 'paused' : 'running' : this.resources ? 'prepared' : 'idle',
     entry: this.entry, outputRate: this.outputRate, creditEnd: this.creditEnd, outputProduced: this.outputProduced,
+    maxScheduleDelayMs: this.maxScheduleDelayMs, maxChunkMs: this.maxChunkMs, chunksProcessed: this.chunksProcessed,
     staleMessages: this.staleMessages, failure: this.failure, resampler: this.resampler?.status() }; }
 }

@@ -97,3 +97,14 @@ test('child attachment follows runtime parent overrides and does not reuse an ea
  assert.ok(calls.some(call=>JSON.stringify(call)===JSON.stringify(['translate',1,-2])));
  assert.equal(JSON.stringify(pack),before);renderer.dispose();
 });
+
+test('parent attachment cache does not bypass animation diagnostics in a subsequent draw',()=>{
+ const parent={...layout,roots:[{...pane,kind:'pan1',picture:undefined,name:'parent',children:[]}]};
+ const animation={frames:1,loop:false,groups:[],textures:[],tracks:[{target:'picture',binding:'material',property:'texture.translation.x',index:0,component:0,interpolation:'hermite',keys:[{frame:0,value:0},{frame:1,value:1}]}]};
+ const pack={schema:1,layouts:{parent},animations:{move:animation},textures:{},messages:{}};
+ const renderer=new NativeLayoutRenderer({test:pack},{test:new Map()},new Map()),ctx=canvas().getContext('2d'),bindings=[{name:'move',frame:0}];
+ renderer.withPaneParent(ctx,'test','parent','parent',bindings,()=>{},{});
+ renderer.draw(ctx,'test','parent',{bindings,overrides:{}});
+ assert.ok(renderer.diagnostics.some(message=>message.includes('unallocated texture matrix')));
+ renderer.dispose();
+});

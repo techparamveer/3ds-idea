@@ -110,7 +110,9 @@ export class NativeLayoutRenderer {
  withPaneParent(ctx:Context,packName:string,layoutName:string,paneName:string,bindings:AnimationBinding[],draw:(alpha:number)=>void,overrides:PaneOverrides={}):boolean {
   if(this.disposed)return false;
   const pack=this.packs[packName],original=pack?.layouts[layoutName];if(!original)return false;
-  const key=JSON.stringify([packName,layoutName,bindings,overrides]);
+  // Attachment does not run draw diagnostics. Keep its entries separate so a
+  // later draw cannot mistake an attachment-only pose for a validated draw.
+  const key=JSON.stringify(['parent',packName,layoutName,bindings,overrides]);
   let posed=this.poses.get(key);
   if(!posed){posed=poseNativeLayout(original,pack.animations,bindings,overrides);if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(key,posed);}
   const path=nativePaneParentPath(posed,paneName);if(!path){this.report(`Missing native parent ${layoutName}/${paneName}`);return false;}

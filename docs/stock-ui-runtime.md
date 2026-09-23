@@ -33,12 +33,20 @@ never draw new strokes. Power, HOME and app-open transitions belong to System.
 | Camera / Camera applet | photo | previous, next, back; data.photo |
 | Sound | main | track:&lt;id&gt;; data.tracks |
 | Sound | playback | play, previous, next, seek, repeat, shuffle; data.track plus state below |
-| Health / Manual | main → document | topic chosen from rows; data.topic, data.page=0 |
+| Health | main → document | 3d/general/usage; data.topic, data.page and data.pageCount; next/previous bounded to shared article counts |
+| Manual | main → document | topic chosen from rows; data.topic, data.page=0 |
 | Notes / Memo | main → drawing | 16 note slots; data.slot, data.strokes from existing saved notes |
 | Friends | main → profile/friend | existing cards and read-only details |
 | Notifications | main → notification | existing title/message; no read-state mutation |
 | Browser | main → bookmarks/history/settings | existing lists; no URL entry or network request |
 | Services/helpers | main → detail | selected existing menu row; no simulated operation |
+
+Health uses the native article labels 3D Display Precautions, General
+Precautions and Usage Precautions. Shared `stock-health-layout.ts` defines
+12/44/27 pages at eight source lines each; this is the explicit portfolio
+pagination adapter, not native continuous scrolling. Left/right moves a page;
+B always returns to the article menu. Footer Previous/Next becomes Back on the
+first page and Done on the final page.
 
 Settings transfer/update/NNID rows request navigation to their existing titles.
 Library helpers can close/return; error OK completes its existing caller. Other

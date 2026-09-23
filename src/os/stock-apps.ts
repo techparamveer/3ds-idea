@@ -1,4 +1,5 @@
 import { objectValue, type AppContext, type AppDescriptor, type AppEffect, type AppModule, type AppReduction, type AppState, type AppView, type AppViewRow, type JsonValue } from './app-types.ts';
+import { healthDocumentPageCounts } from './stock-health-layout.ts';
 import { stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
 
@@ -67,7 +68,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return [row('profile', 'Your friend card'), ...list(shared.friends).map(friend => row(str(friend.id), str(friend.name, 'Friend')))];
     }
     if (id === 'notifications') return list(shared.notifications).map(note => row(str(note.id), str(note.title), note.read ? '' : 'New'));
-    if (id === 'health-safety') return [row('health', 'Health and Safety'), row('precautions', 'Usage Precautions'), row('privacy', 'Privacy Information')];
+    if (id === 'health-safety') return [row('3d', '3D Display Precautions'), row('general', 'General Precautions'), row('usage', 'Usage Precautions')];
     if (id === 'manual') return [row('contents', 'Contents'), row('controls', 'Controls'), row('support', 'Support Information')];
     return (serviceRows[id] ?? []).map(([action, label]) => row(action, label));
   }
@@ -122,6 +123,11 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         return id === 'sound' && state.playing ? music(next, 'pause', { playing: false }) : { state: next };
       }
       return { state, effects: [{ type: descriptor.kind === 'application' ? 'home' : 'close' }] };
+    }
+    if (id === 'health-safety' && screen === 'document' && (action === 'next' || action === 'previous')) {
+      const count = healthDocumentPageCounts[str(state.topic)] ?? 1;
+      const page = bounds(num(state.page) + (action === 'next' ? 1 : -1), count - 1);
+      return page === state.page ? { state } : { state: { ...state, page } };
     }
     if (cameraTitles.has(id)) {
       if (screen === 'main' && action.startsWith('folder:') && media.folders.some(item => item.id === action.slice(7))) return { state: withScreen(state, 'gallery', { folderId: action.slice(7) }) };
@@ -188,9 +194,13 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (id === 'notifications' && !options.length && screen === 'main') text.push('There are no notifications.');
     if (id === 'system-settings' && screen === 'detail') text.push(str(record(context.shared.settings)[str(state.field)]));
     if (id === 'error') text.push(str(state.message, 'An error has occurred.'));
-    const right = id === 'error' ? { label: 'OK', action: 'ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
+    const healthDocument = id === 'health-safety' && screen === 'document';
+    const pageCount = healthDocumentPageCounts[str(state.topic)] ?? 1;
+    if (healthDocument) data.pageCount = pageCount;
+    const left = healthDocument && num(state.page) > 0 ? { label: 'Previous', action: 'previous' } : { label: 'Back', action: 'back' };
+    const right = healthDocument ? (num(state.page) < pageCount - 1 ? { label: 'Next', action: 'next' } : { label: 'Done', action: 'back' }) : id === 'error' ? { label: 'OK', action: 'ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: descriptor.title, text, rows: options, selection,
-      footer: { left: { label: 'Back', action: 'back' }, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
+      footer: { left, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }
   return {
     descriptor, view,
@@ -217,6 +227,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       const current = view(state, context);
       if (command === 'open') return activate(state, current.footer.right?.action ?? '', context);
       if (command === 'left' || command === 'right') {
+        if (id === 'health-safety' && state.screen === 'document') return activate(state, command === 'right' ? 'next' : 'previous', context);
         if (cameraTitles.has(id) && state.screen === 'photo' || id === 'sound' && state.screen === 'playback') return activate(state, command === 'right' ? 'next' : 'previous', context);
       }
       if (command === 'left' || command === 'right' || command === 'up' || command === 'down') {

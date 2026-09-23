@@ -82,6 +82,12 @@ and white-theme background callbacks; Three.js model/material interpretation sta
 [`../firmware-presentation-validation.md`](../firmware-presentation-validation.md)
 for the loader/disposal contract, coverage and unresolved visual differences.
 
+The CPU picture raster prepares selectors and texture transforms per call and
+reuses scratch inside its pixel loop; scalar helpers remain differential test
+oracles. The upper-base caller alone opts into guarded opaque darkening without
+full LCD readback. Other blends and unverified transforms retain the generic
+path. See [browser preservation and timing](../native-raster-browser-validation.md).
+
 `native-banner-label.ts` derives the source folder text layout's horizontal fit.
 `firmware-presentation.ts` renders and caches its 256×64 RGBA surface and passes
 it to the injected folder callback. The scene owns dynamic texture upload, bone

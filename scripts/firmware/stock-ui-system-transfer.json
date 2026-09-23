@@ -44,11 +44,15 @@
         "packs/system-transfer/messages-and-loose.json": {
           "messages": {
             "cardboard_ctr": [
-              "Title_Name",
               "Button_CM_00_CTR",
               "Button_CM_00_TWL",
               "Button_CM_01_FromCTR",
-              "Button_CM_01_ToCTR"
+              "Button_CM_01_ToCTR",
+              "Button_Return",
+              "Button_ReturnCTRMenu",
+              "Button_ReturnHomeMenu",
+              "CM_00_Header",
+              "Title_Name"
             ]
           }
         }

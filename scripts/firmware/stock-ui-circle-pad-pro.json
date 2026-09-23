@@ -5,12 +5,16 @@
       "packs": {
         "packs/circle-pad-pro/extrapad.json": {
           "layouts": [
-            "Bg_U_00",
-            "Bg_D_00",
-            "CommonBG_U_00",
             "AnalogPad_D_00",
             "AnalogPad_U_00",
             "B_S",
+            "Base_D_00",
+            "Base_D_01",
+            "Bg_D_00",
+            "Bg_U_00",
+            "CommonBG_U_00",
+            "Dialog_D_00",
+            "Dialog_D_01",
             "TextBG_U_00"
           ],
           "animations": [
@@ -22,24 +26,47 @@
             "AnalogPad_U_00_TextFadeIn",
             "B_S_Decide",
             "B_S_Select",
+            "Base_D_00_Decide",
+            "Base_D_00_SceneIn_00",
+            "Base_D_00_Select",
+            "Base_D_00_Slide_00",
+            "Base_D_01_Decide",
+            "Base_D_01_SceneIn_00",
+            "Base_D_01_Select",
+            "Base_D_01_Slide_00",
             "CommonBG_U_00_ObjFadeIn",
             "CommonBG_U_00_SceneIn_00",
             "CommonBG_U_00_SceneIn_01",
             "CommonBG_U_00_SceneIn_03",
             "CommonBG_U_00_SceneIn_04",
             "CommonBG_U_00_SceneIn_05",
+            "Dialog_D_00_Decide",
+            "Dialog_D_00_FadeIn",
+            "Dialog_D_00_FadeOut00",
+            "Dialog_D_00_FadeOut01",
+            "Dialog_D_00_Invalid",
+            "Dialog_D_00_Select",
+            "Dialog_D_01_Decide",
+            "Dialog_D_01_FadeIn",
+            "Dialog_D_01_FadeOut00",
+            "Dialog_D_01_FadeOut01",
+            "Dialog_D_01_Invalid",
+            "Dialog_D_01_Select",
             "TextBG_U_00_TextFadeIn"
           ]
         },
         "packs/circle-pad-pro/messages-and-loose.json": {
           "messages": {
             "extrapad_msbt_LZ": [
-              "top_comm_u",
               "base_2b_cancel",
               "base_2b_next",
-              "cepd_comm_u",
               "cepd_comm",
-              "cepd_comm1"
+              "cepd_comm1",
+              "cepd_comm_u",
+              "cepd_dlg_ready",
+              "dlg_1b_ok",
+              "dlg_2b_cancel2",
+              "top_comm_u"
             ]
           }
         }

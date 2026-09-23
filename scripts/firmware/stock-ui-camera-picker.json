@@ -12,16 +12,20 @@
         "packs/camera-picker/lyt-P_Brws_D-arc-LZ.json": {
           "layouts": [
             "AptMenu_D",
+            "AptTxt",
             "P_BrwsBase_D",
+            "P_BrwsCursor_D",
             "P_BrwsFld",
             "P_BrwsPic",
-            "P_BrwsCursor_D",
             "P_BrwsTxt_D"
           ],
           "animations": [
             "AptMenu_D_Default",
             "AptMenu_D_Disable",
             "AptMenu_D_Push",
+            "AptTxt_Default",
+            "AptTxt_In",
+            "AptTxt_Out",
             "P_BrwsBase_D_Default",
             "P_BrwsBase_D_Disable",
             "P_BrwsBase_D_Push",

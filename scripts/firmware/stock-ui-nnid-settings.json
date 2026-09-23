@@ -72,10 +72,57 @@
         "packs/nnid-settings/messages-and-loose.json": {
           "messages": {
             "cave": [
-              "StartMenu_End",
-              "StartMenu_Close"
+              "Button_Return",
+              "Dialog_Cancel",
+              "Dialog_NonIconOk",
+              "StartMenu_Close",
+              "StartMenu_End"
             ]
           }
+        },
+        "packs/nnid-settings/layout-dialog-DialogBaseNormal.json": {
+          "layouts": [
+            "DialogBaseNormal"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-dialog-DialogNotice.json": {
+          "layouts": [
+            "DialogNotice"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-dialog-DialogNormal.json": {
+          "layouts": [
+            "DialogNormal"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-button-ButtonNormal.json": {
+          "layouts": [
+            "ButtonNormal"
+          ],
+          "animations": [
+            "ButtonNormal_DecidedOn",
+            "ButtonNormal_FocusedOnOff",
+            "ButtonNormal_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/layout-dialog-BottomButtonF.json": {
+          "layouts": [
+            "BottomButtonF"
+          ],
+          "animations": [
+            "BottomButtonF_DecidedOn",
+            "BottomButtonF_FocusedOnOff",
+            "BottomButtonF_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/layout-dialogheader-DialogHeaderNormal.json": {
+          "layouts": [
+            "DialogHeaderNormal"
+          ],
+          "animations": []
         }
       },
       "fontBindings": {

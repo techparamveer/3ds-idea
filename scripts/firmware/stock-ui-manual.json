@@ -84,9 +84,12 @@
         "packs/manual/messages-and-loose.json": {
           "messages": {
             "ebird": [
+              "BootMsg_Ebird",
               "BtnBack",
               "BtnBack_Picto",
-              "BtnClose"
+              "BtnClose",
+              "ContentsText",
+              "PageNum"
             ]
           }
         }

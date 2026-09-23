@@ -44,7 +44,8 @@
         },
         "packs/system-updater/button.json": {
           "layouts": [
-            "B_L"
+            "B_L",
+            "B_M"
           ],
           "animations": [
             "B_L_Decide",
@@ -55,14 +56,14 @@
         "packs/system-updater/message_EU.json": {
           "messages": {
             "mset": [
-              "update",
-              "update_title",
-              "update_comm",
-              "update_comm_u",
+              "base_1b_ok",
               "base_2b_back",
               "base_2b_cancel",
-              "base_1b_ok",
-              "dlg_update_new"
+              "dlg_update_new",
+              "update",
+              "update_comm",
+              "update_comm_u",
+              "update_title"
             ]
           }
         }

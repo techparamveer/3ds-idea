@@ -56,3 +56,22 @@ runs and native continuous scrolling remain explicit adaptations.
 The remaining titles still need their native screen composition;
 Settings colours, pose and typography need matched native/browser review.
 The integration task owns browser verification and audio transport.
+
+## Integrated browser checkpoint, 23 September
+
+The localhost integration was reloaded and visually checked on the actual
+console: Settings source menu, Sound source title/parakeet/checkerboard/Back,
+Camera source folder frames/cursor with existing photos, and Health source
+upper title/three precaution buttons all rendered. Camera horizontal navigation
+and opening an existing photo folder were exercised. Assets can still settle
+after the first app frame; launch preparation starts their request earlier but
+is not a guarantee of zero fallback frames on a cold load.
+
+The production build through Health and the horizontal window-frame fix passes.
+The full JavaScript run had1064 passes,17 skips and one outdated launch-time
+assertion; that assertion was corrected and its46-test focused suite passes.
+The native window/raster suite passes38 checks, including306 raster comparisons.
+A subsequent Notifications composition is wired but awaits browser inspection.
+This is an integration checkpoint, not full1:1 acceptance. Remaining toolbar
+and service compositions, inline text/layout differences, native reference
+comparisons and transition raster performance remain open.

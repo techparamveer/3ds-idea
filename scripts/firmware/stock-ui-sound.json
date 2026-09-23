@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022500": {
+      "packs": {
+        "packs/sound/contents/0000-0000000b/lyt-S_BG-arc-LZ.json": {
+          "layouts": [
+            "S_BG",
+            "S_BG_D-Ctr",
+            "S_BG_D-Grid"
+          ],
+          "animations": [
+            "S_BG_D-Ctr_Down",
+            "S_BG_D-Ctr_Up",
+            "S_BG_D-Grid_Default",
+            "S_BG_D-Grid_In",
+            "S_BG_D-Grid_Out"
+          ]
+        },
+        "packs/sound/contents/0000-0000000b/lyt-S_Play_D-arc-LZ.json": {
+          "layouts": [
+            "S_Play_D-CtrPanel3",
+            "S_Play_D-LRBtn"
+          ],
+          "animations": [
+            "S_Play_D-CtrPanel3_Default",
+            "S_Play_D-CtrPanel3_Disable",
+            "S_Play_D-CtrPanel3_In",
+            "S_Play_D-CtrPanel3_Out",
+            "S_Play_D-CtrPanel3_Push",
+            "S_Play_D-LRBtn_Default",
+            "S_Play_D-LRBtn_In",
+            "S_Play_D-LRBtn_LR_IconL_In",
+            "S_Play_D-LRBtn_LR_IconL_Out",
+            "S_Play_D-LRBtn_LR_IconR_In",
+            "S_Play_D-LRBtn_LR_IconR_Out",
+            "S_Play_D-LRBtn_L_Push_Off",
+            "S_Play_D-LRBtn_L_Push_On",
+            "S_Play_D-LRBtn_Out",
+            "S_Play_D-LRBtn_Push",
+            "S_Play_D-LRBtn_R_Push_Off",
+            "S_Play_D-LRBtn_R_Push_On"
+          ]
+        },
+        "packs/sound/contents/0000-0000000b/lyt-S_Common-arc-LZ.json": {
+          "layouts": [
+            "S_Common-BackBtn",
+            "S_Common-OpenBtn",
+            "S_Common-BrwCursor",
+            "S_Common-IconList",
+            "S_Common-ListScroll"
+          ],
+          "animations": [
+            "S_Common-BackBtn_Default",
+            "S_Common-BackBtn_Disable",
+            "S_Common-BackBtn_In",
+            "S_Common-BackBtn_Out",
+            "S_Common-BackBtn_Push",
+            "S_Common-BrwCursor_CurBarIconPushP",
+            "S_Common-BrwCursor_Default",
+            "S_Common-BrwCursor_In",
+            "S_Common-BrwCursor_Out",
+            "S_Common-IconList_IconCHG",
+            "S_Common-ListScroll_Default",
+            "S_Common-ListScroll_In",
+            "S_Common-ListScroll_Out",
+            "S_Common-OpenBtn_Default",
+            "S_Common-OpenBtn_Disable",
+            "S_Common-OpenBtn_In",
+            "S_Common-OpenBtn_Out",
+            "S_Common-OpenBtn_Push"
+          ]
+        },
+        "packs/sound/contents/0000-0000000b/lyt-S_Inf_U-arc-LZ.json": {
+          "layouts": [
+            "S_Inf_U-TitleBar",
+            "S_Inf_U-TrackNameU",
+            "S_Inf_U-TrackNameD",
+            "S_Inf_U-PlayTime",
+            "S_Inf_U-UnderBar"
+          ],
+          "animations": [
+            "S_Inf_U-TitleBar_TitleBevelIn",
+            "S_Inf_U-TitleBar_TitleBevelOut",
+            "S_Inf_U-TitleBar_TitleCenterIn",
+            "S_Inf_U-TitleBar_TitleCenterOut",
+            "S_Inf_U-TitleBar_TitleLeftIn",
+            "S_Inf_U-TitleBar_TitleLeftOut",
+            "S_Inf_U-TrackNameD_FrameIn",
+            "S_Inf_U-TrackNameD_FrameOut",
+            "S_Inf_U-TrackNameD_In",
+            "S_Inf_U-TrackNameD_Out",
+            "S_Inf_U-TrackNameU_FrameIn",
+            "S_Inf_U-TrackNameU_FrameOut",
+            "S_Inf_U-TrackNameU_In",
+            "S_Inf_U-TrackNameU_Out"
+          ]
+        },
+        "packs/sound/contents/0000-0000000b/lyt-Parakeet-arc-LZ.json": {
+          "layouts": [
+            "ParakeetA_U"
+          ],
+          "animations": [
+            "ParakeetA_U_Wait",
+            "ParakeetA_U_InL_U",
+            "ParakeetA_U_OutL_U"
+          ]
+        }
+      }
+    }
+  }
+}

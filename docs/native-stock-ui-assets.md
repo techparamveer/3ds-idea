@@ -52,7 +52,34 @@ Private artifacts are under
 decoded textures only. Combined screen composition and browser comparison belong
 to the presentation/coordinator tasks and remain required for visual acceptance.
 
-Sound and Health & Safety RomFS extraction succeeded. Camera CTRTool extraction
+## Sound library/player components
+
+Title `0004001000022500`, URL prefix
+`packs/sound/contents/0000-0000000b/`; selection is
+`scripts/firmware/stock-ui-sound.json`.
+
+| Pack | Native layouts |
+| --- | --- |
+| `lyt-S_BG-arc-LZ.json` | `S_BG`, `S_BG_D-Ctr`, `S_BG_D-Grid` |
+| `lyt-S_Play_D-arc-LZ.json` | `S_Play_D-CtrPanel3`, `S_Play_D-LRBtn` |
+| `lyt-S_Common-arc-LZ.json` | `S_Common-BackBtn`, `S_Common-OpenBtn`, `S_Common-BrwCursor`, `S_Common-IconList`, `S_Common-ListScroll` |
+| `lyt-S_Inf_U-arc-LZ.json` | `S_Inf_U-TitleBar`, `S_Inf_U-TrackNameU`, `S_Inf_U-TrackNameD`, `S_Inf_U-PlayTime`, `S_Inf_U-UnderBar` |
+| `lyt-Parakeet-arc-LZ.json` | `ParakeetA_U` with Wait/InL_U/OutL_U only |
+
+All matching clips are preserved for the selected non-parakeet layouts.
+`S_Play_D-CtrPanel3` contains the native previous/play-pause/next controls:
+Default is a 20-frame loop, In/Out are 9 frames, Push 3, Disable 2. The title
+pane is `TitlTxt`; track panes are `TrkNamTxtU0`/`TrkNamTxtU1`; time uses
+`PlyTimeTxt`. The selected layouts borrow `cbf_std.bcfnt`.
+
+This subset is 121 resources and 660,458 bytes including shared dependencies.
+The integrity audit passes. `sound-player-textures.png` was inspected in the
+same private artifact directory; screen composition is still presentation-owned.
+The original English message container has not been decoded yet. Song labels
+come from the portfolio's song manifest; do not represent authored UI text as
+extracted messages. No recording layouts or recording behavior are delivered.
+
+Health & Safety RomFS extraction succeeded. Camera CTRTool extraction
 stops after several files; its complete UI resource set is not published yet.
 Other stock/app/helper screens remain pending. No keyboard or audio-behaviour
 reconstruction is part of this delivery.

@@ -25,7 +25,7 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     if(screen==='internet'&&view.footer.left)result.push(target(view.footer.left.action,0,208,120,32));
     return result;
   }else if(appId==='system-settings'&&screen!=='main'){
-    const rects=screen==='data'?[[19,17,146,78],[177,17,126,78],[28,109,264,38],[28,171,264,26]]:screen==='profile'||screen==='data-3ds'?[[28,37,264,38],[28,82,264,38],[28,127,264,38],[28,173,264,26]]:screen==='other'?[[35,50,249,41],[35,98,249,41],[35,146,249,41]]:screen==='clock'?[[28,125,264,26],[28,165,264,26]]:[];
+    const rects=screen==='data'?[[19,17,146,78],[177,17,126,78],[28,109,264,38],[28,171,264,26]]:screen==='profile'||screen==='data-3ds'?[[28,37,264,38],[28,82,264,38],[28,127,264,38],[28,173,264,26]]:screen==='other'?[[35,50,249,41],[35,98,249,41],[35,146,249,41]]:screen==='clock'?[[28,27,264,66],[28,123,264,66]]:[];
     if(screen==='connections'){
       const locations:Record<string,number[]>={'new-connection':[28,19,264,66],'connection-1':[12,117,92,70],'connection-2':[114,117,92,70],'connection-3':[216,117,92,70]};
       rows.forEach((row,index)=>{const r=locations[row.id];if(r)result.push(target(row.id,r[0],r[1],r[2],r[3],index));});

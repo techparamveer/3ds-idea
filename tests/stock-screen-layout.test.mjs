@@ -105,3 +105,11 @@ test('Manual and selectors expose only their visible native controls',()=>{
   const v=view(id,'main',['saved']);assert.equal(hit(v,50,226),'back');assert.equal(hit(v,240,226),null);assert.equal(hit(v,160,75),null);
  }
 });
+
+test('Date and Time targets match the original large B_L buttons',()=>{
+ const clock=view('system-settings','clock',['date','time']);
+ assert.equal(hit(clock,160,27),'date');assert.equal(hit(clock,291,92),'date');
+ assert.equal(hit(clock,160,93),null);assert.equal(hit(clock,160,122),null);
+ assert.equal(hit(clock,28,123),'time');assert.equal(hit(clock,291,188),'time');
+ assert.equal(hit(clock,160,189),null);assert.equal(hit(clock,27,60),null);
+});

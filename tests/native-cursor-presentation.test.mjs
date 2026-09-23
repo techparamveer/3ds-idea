@@ -49,6 +49,116 @@ test('native cursor submits the exact Loop frame while fractional Scale reaches 
  }
 });
 
+const resourcePack=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json',import.meta.url)));
+const walk=panes=>panes.flatMap(pane=>[pane,...walk(pane.children)]);
+function cursorPresenter(){
+ const draws=[],renderer={packs:{launcher:resourcePack},result:true,draw(ctx,bank,name,options){
+  draws.push({ctx,bank,name,options,pose:poseNativeLayout(resourcePack.layouts[name],resourcePack.animations,options.bindings)});
+  return this.result;
+ }};
+ return {home:createFirmwareHome({renderer}),renderer,draws};
+}
+
+test('center cursor preserves native toolbar Scale discontinuities, fractional frames and press groups',()=>{
+ const {home,draws}=cursorPresenter(),ctx={},centers=[[26,16],[76,16.5],[118,16.5],[160,16.5],[202,16.5],[244,16.5],[281,16],[307,16]];
+ const geometry={10:[[78,72],[69,64],.82],11:[[78,75],[69,66],.82],12:[[68,68],[66,66],.70]};
+ for(const [focus,[x,y]]of centers.entries())for(const loopFrame of [0,17.25,59])for(const pressed of [false,true]){
+  const scaleFrame=focus===0?10:focus>=6?12:11;
+  assert.equal(home.cursorAt(ctx,x,y,scaleFrame,loopFrame,pressed),true);
+  const draw=draws.at(-1),panes=Object.fromEntries(walk(draw.pose.roots).map(p=>[p.name,p]));
+  assert.equal(draw.ctx,ctx);assert.equal(draw.bank,'launcher');assert.equal(draw.name,'LncCsr_00');
+  assert.deepEqual(draw.options,{center:[x,y],bindings:[
+   {name:'LncCsr_00_Select',frame:pressed?5:0},{name:'LncCsr_00_Scale',frame:scaleFrame},{name:'LncCsr_00_Loop',frame:loopFrame},
+  ]});
+  assert.deepEqual(panes.W_CsrF_00.size,geometry[scaleFrame][0]);
+  assert.deepEqual(panes.W_CsrLgt_00.size,geometry[scaleFrame][1]);
+  assert.deepEqual(panes.W_CsrF_00.scale,[Math.fround(.58),Math.fround(.58)]);
+  assert.deepEqual(panes.W_CsrLgt_00.scale,[Math.fround(geometry[scaleFrame][2]),Math.fround(geometry[scaleFrame][2])]);
+  assert.equal(panes.N_Scene_00.translation[1],pressed?-2:0,'Select binds only its native parent group');
+  assert.ok([panes.W_CsrF_00,panes.W_CsrLgt_00].every(p=>p.translation[1]===0),'unrelated fixed Select tracks stay unbound');
+ }
+ home.cursorAt(ctx,76,16.5,9.999,17.25);
+ const before=walk(draws.at(-1).pose.roots).find(p=>p.name==='W_CsrF_00');assert.deepEqual(before.size,[76,76]);
+ home.cursorAt(ctx,118.25,16.5,2.375,19.375);
+ assert.equal(draws.at(-1).options.bindings[1].frame,2.375);
+ assert.equal(draws.at(-1).options.bindings[2].frame,19.375);
+ assert.deepEqual(draws.at(-1).options.center,[118.25,16.5]);
+ assert.equal(draws.at(-1).options.bindings[0].frame,0,'default press remains released');
+});
+
+test('effect painter uses exact applied Scale and DisAppear frames with native alpha at0/10/20',()=>{
+ const {home,draws}=cursorPresenter(),ctx={};
+ for(const scaleFrame of [2.375,10,11,12])for(const [disappearFrame,alpha]of [[0,120],[10,60+2.5*Math.fround(-15.6016)],[20,0]]){
+  assert.equal(home.cursorEffectAt(ctx,281,16.5,scaleFrame,disappearFrame),true);
+  const draw=draws.at(-1),pane=walk(draw.pose.roots).find(p=>p.name==='W_CsrEfct_00');
+  assert.equal(draw.ctx,ctx);assert.equal(draw.bank,'launcher');assert.equal(draw.name,'LncCsrEfct_00');
+  assert.deepEqual(draw.options,{center:[281,16.5],bindings:[
+   {name:'LncCsrEfct_00_Scale',frame:scaleFrame},{name:'LncCsrEfct_00_DisAppear',frame:disappearFrame},
+  ]});
+  assert.equal(pane.alpha,alpha);
+  if(scaleFrame>=10){
+   assert.deepEqual(pane.size,scaleFrame===12?[66,66]:[72,69]);
+   assert.deepEqual(pane.scale,Array(2).fill(Math.fround(scaleFrame===12?.70:.73)));
+  }
+ }
+ home.cursorEffectAt(ctx,307,16,11,9.375);
+ assert.equal(draws.at(-1).options.bindings[1].frame,9.375,'fractional supplied frames are not snapped');
+});
+
+test('cursor helpers are read-only, propagate renderer results and retain grid clamp compatibility',()=>{
+ const {home,renderer,draws}=cursorPresenter(),ctx=Object.freeze({}),before=JSON.stringify(resourcePack);
+ const freeze=value=>{if(value&&typeof value==='object'&&!Object.isFrozen(value)){Object.values(value).forEach(freeze);Object.freeze(value);}return value;};
+ freeze(resourcePack);
+ // Runtime deliberately retains different requested/current and applied values.
+ // Only supplied applied frames reach these stateless painters.
+ const retained=freeze({scale:{current:12,applied:10},loop:{current:18.25,applied:17.25},disappear:{current:0,applied:9}});
+ for(const result of [true,false]){
+  renderer.result=result;
+  for(let paint=0;paint<3;paint++){
+   assert.equal(home.cursorAt(ctx,26,16,retained.scale.applied,retained.loop.applied),result);
+   assert.equal(home.cursorEffectAt(ctx,307,16,retained.scale.applied,retained.disappear.applied),result);
+  }
+  for(const [density,frame]of [[-3,0],[2.375,2.375],[12,5]]){
+   assert.equal(home.cursor(ctx,10,20,40,density,19.375,true),result);
+   const wrapper=draws.at(-1);assert.equal(home.cursorAt(ctx,30,40,frame,19.375,true),result);
+   assert.deepEqual(wrapper.options,draws.at(-1).options);assert.deepEqual(wrapper.pose,draws.at(-1).pose);
+  }
+ }
+ assert.deepEqual(draws[0].options,draws[2].options);assert.deepEqual(draws[1].options,draws[3].options);
+ assert.equal(draws[1].options.bindings[1].frame,9,'painting does not apply a pending restart');
+ assert.equal(JSON.stringify(resourcePack),before);
+ assert.deepEqual(retained,{scale:{current:12,applied:10},loop:{current:18.25,applied:17.25},disappear:{current:0,applied:9}});
+});
+
+test('asset loader includes the existing cursor effect layout and shared texture',async()=>{
+ const {loadFirmwarePresentationAssets}=await loadPresentation('firmware-presentation',{
+  './bitmap-font':moduleUrl('export class BitmapFont {} export const loadBitmapFont=async()=>({dispose(){}});'),
+  './native-renderer':moduleUrl('export class NativeLayoutRenderer {diagnostics=[];constructor(packs,textures){this.packs=packs;this.textures=textures;}dispose(){}}'),
+ });
+ const saved=new Map(['window','fetch'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+ const fetched=[];let omitEffect=false;
+ Object.assign(globalThis,{window:{location:{href:'https://fixture.invalid/'}},fetch:async url=>{
+  const path=new URL(url).pathname;fetched.push(path);
+  const bytes=readFileSync(new URL(`../public${path}`,import.meta.url));
+  if(omitEffect&&path.endsWith('/launcher.json')){const data=JSON.parse(bytes);delete data.layouts.LncCsrEfct_00;return new Response(JSON.stringify(data));}
+  return new Response(bytes);
+ }});
+ try{
+  const assets=await loadFirmwarePresentationAssets();
+  try{
+   const pack=assets.renderer.packs.launcher;
+   assert.deepEqual(pack.layouts.LncCsrEfct_00,resourcePack.layouts.LncCsrEfct_00);
+   for(const name of ['Scale','DisAppear'])assert.deepEqual(pack.animations[`LncCsrEfct_00_${name}`],resourcePack.animations[`LncCsrEfct_00_${name}`]);
+   for(const name of pack.layouts.LncCsrEfct_00.textures){
+    const record=pack.textures[name],pixels=assets.renderer.textures.launcher.get(name);
+    assert.deepEqual([pixels.width,pixels.height],[record.width,record.height]);
+    assert.equal(fetched.filter(path=>path.endsWith('/'+record.url)).length,1,'shared texture decoded from one fetch');
+   }
+  }finally{assets.dispose();}
+  omitEffect=true;await assert.rejects(loadFirmwarePresentationAssets(),/Missing native layout LncCsrEfct_00/);
+ }finally{for(const [key,descriptor]of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
+});
+
 function canvas(){
  const surface={width:0,height:0},curves=[];
  const context=new Proxy({canvas:surface,globalAlpha:1,curves,

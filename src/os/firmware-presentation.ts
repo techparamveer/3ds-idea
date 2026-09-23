@@ -12,7 +12,7 @@ import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeH
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>};
-const homeLayouts={hud:['HudMenu_00'],banner:['BnrDsTitle_00'],launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
+const homeLayouts={hud:['HudMenu_00'],banner:['BnrDsTitle_00'],launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
  const base=new URL(manifestUrl,window.location.href),controller=new AbortController();
@@ -196,8 +196,15 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    const name='LncIconSetSrc_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2+32,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))],overrides:{N_IconRoot_00:{visible:false},P_BtnShdw_00:{visible:false},N_Pic_01:{visible:false}}});
   }finally{ctx.restore();}
  }
+ /** Caller supplies applied controller frames; toolbar Scale10–12 is not density. */
+ function cursorAt(ctx:Context,centerX:number,centerY:number,scaleFrame:number,loopFrame:number,pressed=false){
+  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[centerX,centerY],bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',scaleFrame),binding('LncCsr_00_Loop',loopFrame)]});
+ }
+ function cursorEffectAt(ctx:Context,centerX:number,centerY:number,scaleFrame:number,disappearFrame:number){
+  return renderer.draw(ctx,'launcher','LncCsrEfct_00',{center:[centerX,centerY],bindings:[binding('LncCsrEfct_00_Scale',scaleFrame),binding('LncCsrEfct_00_DisAppear',disappearFrame)]});
+ }
  function cursor(ctx:Context,x:number,y:number,size:number,density:number,loopFrame:number,pressed=false){
-  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[x+size/2,y+size/2],bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',nativeHomeDensityFrame(density)),binding('LncCsr_00_Loop',loopFrame)]});
+  return cursorAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density),loopFrame,pressed);
  }
  function arrows(ctx:Context,showLeft:boolean){return renderer.draw(ctx,'launcher','LncArw_00',{bindings:[binding('LncArw_00_Appear',15)],overrides:{N_arwL_00:{visible:showLeft}},clip:[0,33,320,179]});}
  const pickupSizes=new Map<string,{x:number;y:number;width:number;height:number;alpha:number}>();
@@ -216,5 +223,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))]});
  }
- return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tile,captureFolder,empty,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
 }

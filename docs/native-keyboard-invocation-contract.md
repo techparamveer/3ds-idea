@@ -101,18 +101,135 @@ The available shared `cbf_std.bcfnt` decoded source identity is
 `95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581`
 from title`0004009b00014002`; keyboard style/pixel acceptance is still pending.
 
-## Presentation boundary and unresolved branches
+## Bounded lower local composition continuation
 
-Consume the private `initial-pose-fixture.json` for proven cell pane geometry,
-visibility and cursor indices; `invocation-fixture.json` for caller fields;
-`normalize-fixture.json` for normalized request/default page state. The earlier
-`TextArea_01` proposed dependency is incorrect for this native Settings path.
+The private `settings-nickname/lower-first-paint/` directory adds separate
+fixtures; the accepted invocation, normalization, initial-pose scripts/results
+and parent evidence index remain unchanged. Its README gives endpoints and
+reproduction order. `verification.json` checks every parent-indexed file and
+compares every emitted text-pane field with the frozen consumer checkpoint.
+No application files changed in this research checkpoint.
 
-Do not call this a complete initial-pose fixture. Remaining initialization from
-0x187244 includes decorations, material/color state and world transforms; the
-first text/cursor paint and complete QWERTY/group visibility/animation sampling
-remain untraced. Upper-screen caller composition is also unresolved: darkenTop0
-alone does not define the retained Settings image. Native timing, touch/physical
-input, validation/filter effects and submit/cancel behavior are outside this
-initialization slice. These require additional source fixtures and coordinator
-reference capture before a complete composition is accepted.
+`text-first-paint.py` executes original constructor0x187670, complete resource
+initializer0x186d48, and text update0x1891c0 including cell update0x186718 for
+empty, `Ada`, and `ABCDEFGHIJ`. It stops before the shared layout pass0x187868;
+a separate original controller update and draw0x1877fc capture local submission
+inputs. Resource/font/text/GPU boundaries are explicit, not a full applet boot.
+
+### Text, decorations and cursor inputs
+
+| Painter input | Original-code result |
+| --- | --- |
+| Cells1–10 | Preserve the geometry above and decoded source styles/materials. Each occupied cell receives one UTF-16 unit. Remaining cells receive one U+0020, not an empty string. |
+| Occupied background vertices | All four vertices use source picture01 colour `[252,255,243,255]`. |
+| Empty background vertices | All four vertices use source picture02 colour `[203,197,179,255]`. |
+| Cells11–32 | Hidden; first text update does not overwrite their authored text. |
+| First text line spacing | `T_textAreaMSC01` becomes -5.03703498840332; other text panes retain authored spacing. |
+| Decoration anchors | `N_decor` and `N_transDecor` both copy first text position `[-85.00001525878906,8.96296501159668,0]`. |
+| Overlay text | Exact pane name is `T_trans`. It receives one U+0020 and keeps its authored local geometry. |
+| Cursor body | `P_decorCursor` hidden; `P_decorCursorMS` visible, size `[1.2592594623565674,23]`. |
+| Cursor parent | `N_decorCursor` Y3/Z0; X0/51/168.11111450195312 for the three cases. |
+| Cursor animation | `DecorCursor_blink`, mode2, original first controller update submits frame0 and advances stored frame to1. |
+
+For plain initial text, cursor X is17 times UTF-16 length through length9. The
+initial full ten-cell buffer adds float32 offset -1.888889193534851 to170,
+producing168.11111450195312. This is the end-of-buffer branch0x186c54–0x186ca0;
+it is not a general cursor/selection implementation. The initializer stops at
+NUL, maximum10, or a disallowed newline. Cell painting stops at a unit below
+0x20 and fills the remainder with spaces. Only the three stated ASCII cases
+are fixture-validated; surrogate/control/filter behavior remains separate.
+
+Original0x115e40/0x115eac attaches child roots to the named parent, appends native
+links and enables root alpha inheritance (flags bit1). Exact resources/order:
+
+- `N_transDecor`: one `DecorArea_cellphone`, four `DecorArea_roman`, four
+  `DecorTrans`, then `DecorCursor`.
+- `N_decor`: four `DecorArea_select`.
+
+The first text update hides every decoration root except the cursor. Do not
+swap `cellphone` and `select` based on guessed object-field roles. Retain the
+source hierarchy and authored pane order, including the two separate anchor
+positions in that hierarchy. Native child attachment is established; native
+world/anchor/bounds evaluation is not established by the synthetic world endpoint.
+
+### English environment correction
+
+The immutable earlier `text-pane-*-frozen` continuation files supplied endpoint
+0x15bcfc=0. Source inspection subsequently established that this routine classifies
+language at0x1b7744; English1 returns family1. Current fixtures execute the
+original query. **Every emitted local pane field in all three text cases is
+exactly equal to the frozen checkpoint**, including text, colours, position,
+scale, size, visibility, parent and spacing.
+
+The correction does change a material branch excluded from those local fields:
+0x1873d0–0x1873f8 gets `T_trans` material0 and writes32-bit0 at material+0x14,
+from table0x1b8464. The current journal records it. The native field's rendering
+meaning remains unverified; blank overlay text is not evidence to discard the
+write. World matrices in the fixture likewise depend on an explicit resource
+translation/scale endpoint and are excluded from the consumer contract.
+
+### QWERTY local initialization and first submission
+
+`qwerty-first-paint.py` executes original0x17ffe0,0x17e5d0 and0x17f40c, including
+widget/submode decisions. Resource target membership comes from presentation's
+`animation-hierarchy/binding-inventory.json`; its `pah1` expansion has separate
+original-ARM evidence. The resource endpoint's per-pane controller state is
+checked against original0x18a91c for all four clips by
+`controller-constructor-check.py`. Named-message/style resolution and font
+queries remain stated resource boundaries. Pane-animation sinks record inputs;
+they do not render pixels or prove global layout traversal.
+
+- Mode0,54 key records,45 character labels:
+  `1234567890-qwertyuiopasdfghjkl'=/zxcvbnm,.?!@`.
+- `T_key_Spc` visible and `T_key_Tra` hidden. The Japanese Backspace icon
+  `P_Key_BspIconJP` has alpha0.
+- Enter is disabled (widget state5). English keeps the dictionary panes visible
+  but disabled (state5); prediction is off. `T_dictionary` receives `English`.
+- English hides `P_romanKey_00..02`, `T_romanKey_00..02` and
+  `B_romanKey_00..02`. Their parent nodes retain source visibility. Internal
+  Roman00 state4 does not make its English panes visible.
+- Caps and Shift are normal (state0). Their picture/icon/text panes receive
+  immediate `Keytop_qwerty_n0s1` frame0 submissions. Hidden Roman00 picture/text
+  receive `Keytop_qwerty_s1t0` frame1. These poses persist after disabling the
+  corresponding animation bindings.
+- The explicit first local controller pass submits `Keytop_qwerty_i0` frame0
+  for Enter picture/icon and dictionary picture/icon/text. Preserve binding
+  scope; do not sample this disabled-state clip onto every character key.
+
+Earlier provisional findings that hid the dictionary and displayed Roman keys
+came from the incorrect language-family endpoint and are withdrawn. Only the
+corrected `qwerty-first-paint.json` and its indexed dependencies are accepted.
+
+### Footer initialization boundary
+
+`footer-first-paint.py` runs original0x1915fc through0x191bec. `T_btn_00` and
+`T_btnB_00` receive `Cancel`; `T_btn_02` and `T_btnB_02` receive `OK` through the
+original caller-string path. Groups `G_btn_00`/`G_btn_02` bind
+`Btm3Btn_n0s1` and `Btm3Btn_i0`; both widgets start in state0, all four controllers
+stopped, with no initial animation submission. Use authored materials at this
+boundary. This is **before** global text-validity reconciliation; it does not
+prove whether OK remains enabled for an empty name at the eventual first frame.
+
+Recorded wrapper priorities are500 for BG/Btm2Btn/TextArea02,3 for Fade_D
+(screen0)/Fade_U(screen1), and9999 for attached decorations. This captures
+construction inputs, not final draw order. SceneIn fade controllers start;
+SceneOut controllers do not. Keep screen identity and pass count explicit.
+
+## Presentation boundary and remaining composition work
+
+Consume immutable `text-pane-contract-frozen.json` for local overrides, together
+with the corrected material-write journal; `qwerty-first-paint.json` for local
+labels/visibility and retained animation submissions; `footer-first-paint.json`
+for its initializer boundary. Preserve decoded materials, textures, font styles,
+source hierarchy and animation binding scope. A painter also needs caller-supplied
+layout/world/bounds policy, retained property state, native update counts and
+root ordering; these fixtures do not replace those inputs.
+
+The coordinator has separated the remaining global first-paint task: root
+registration/update/draw order, complete mode-selector controller state, footer
+validity reconciliation, and0x191f00's two owner updates plus child update before
+capturing the lower image into Fade_D. The retained lower capture and fade clock
+must be resolved before calling this a coherent visible first transition frame.
+Upper Settings composition, input/repeat/filter/submit behavior and browser
+pixel acceptance remain outside this bounded local checkpoint. No application
+rebuild was required for this documentation-only commit.

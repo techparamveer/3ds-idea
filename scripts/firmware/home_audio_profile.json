@@ -17,6 +17,18 @@
     "dualrip/formats/ctr/cseq.py": "644b6d9feb3707b9381011a7c7fd866d07ca86428880b7ad59c092c6602a3c73"
   },
   "soundOptions": {
+    "SE_CTR_HOME_ICON_SCROLL_INVALID": {
+      "flags": "0x80020107",
+      "values": { "0": 46, "1": 0, "2": 64, "8": 48, "17": 1, "31": 0 },
+      "volume": 96,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_SELECT": {
+      "flags": "0x80020107",
+      "values": { "0": 63, "1": 0, "2": 64, "8": 48, "17": 1, "31": 0 },
+      "volume": 30,
+      "player": 67108868
+    },
     "SE_CTR_COMMON_CANCEL": {
       "flags": "0x80020107",
       "values": {

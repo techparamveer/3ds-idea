@@ -2,7 +2,7 @@ import { createNativeMusicTransport } from './native-music-transport.ts';
 import { loadNativeMusicPack } from './native-music-pack.ts';
 import type { MusicEntry } from './native-home-audio/types.ts';
 
-export type Sound = 'select' | 'open' | 'back' | 'home' | 'power' | 'touch' | 'grab' | 'drop' | 'folder-open' | 'folder-close';
+export type Sound = 'select' | 'open' | 'back' | 'home' | 'power' | 'touch' | 'grab' | 'drop' | 'folder-open' | 'folder-close' | 'scroll-invalid' | 'toolbar-select';
 export type AudioCue = { name: string; url: string; sampleRate: number; samples: number; loopStart: number | null; loopEnd: number | null };
 export type AudioPack = { schema: 1; cues: Record<string, AudioCue> };
 export type AudioState = { home: boolean; powered: boolean; sleeping: boolean; muted: boolean; volume: number; elapsedMs: number; homeUpdates: number };

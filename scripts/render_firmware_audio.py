@@ -1,4 +1,4 @@
-"""Render the ten short HOME cues from the owner's decrypted sound archive.
+"""Render the twelve short HOME cues from the owner's decrypted sound archive.
 
 DualRip interprets the original CSEQ bytecode, CBNK instruments and CWAV samples
 offline. Only PCM cues and provenance enter the site, never firmware code. Pin
@@ -28,6 +28,8 @@ CUES = {
     'drop': 'SE_CTR_HOME_ICON_EXCHANGE',
     'folder-open': 'SE_CTR_HOME_OPEN_FOLDER',
     'folder-close': 'SE_CTR_HOME_CLOSE_FOLDER',
+    'scroll-invalid': 'SE_CTR_HOME_ICON_SCROLL_INVALID',
+    'toolbar-select': 'SE_CTR_HOME_SELECT',
 }
 MUSIC = ('music', 'music-resume')
 SHORT_CUES = tuple(name for name in CUES if name not in MUSIC)
@@ -68,7 +70,7 @@ def render(source, output, renderer, source_record, names=None, rate=NATIVE_RATE
         result = {
             'schema': 1, 'pack': pack, 'firmware': '10.7.0-32E', 'title': title,
             'source': 'romfs/sound/menu.bcsar', 'sourceSha256': sha(source),
-            'converter': {'name': 'render_firmware_audio', 'version': 8, 'sha256': sha(Path(__file__))},
+            'converter': {'name': 'render_firmware_audio', 'version': 9, 'sha256': sha(Path(__file__))},
             'renderer': {'name': 'DualRip', 'url': 'https://github.com/TetraSsky/DualRip', 'revision': DUALRIP_REVISION},
             'profile': profile, 'validatedMonoBankWaves': waves,
             'method': 'offline CSEQ interpretation with original CBNK/CWAV and a versioned HOME-only stereo startup patch',
@@ -121,7 +123,7 @@ if __name__ == '__main__':
     parser.add_argument('--scratch', type=Path, required=True, help='SSD directory for disposable renderer sources')
     parser.add_argument('--source-record', type=Path, required=True)
     parser.add_argument('--pack', choices=['cues', 'diagnostic'], default='cues',
-                        help='cues (default): ten short sounds; diagnostic: also allow baked music WAVs')
+                        help='cues (default): twelve short sounds; diagnostic: also allow baked music WAVs')
     parser.add_argument('--only', nargs='+', choices=list(CUES),
                         help='subset of the selected pack; defaults to every entry in that pack')
     parser.add_argument('--rate', type=int, default=NATIVE_RATE, choices=[NATIVE_RATE],

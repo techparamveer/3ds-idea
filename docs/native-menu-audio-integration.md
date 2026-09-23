@@ -50,13 +50,18 @@ readiness on pass4, stop30 mixing of an existing sound and first DSP sample timi
 remain unverified. A slow browser preparation starts only when ready without
 seeking ahead or claiming that it met a native deadline.
 
-Short effects now use the reproduced cue-only v8 pack: ten native WAVs and a
+Short effects initially used the reproduced cue-only v8 pack: ten native WAVs and a
 provenance manifest,1,255,395 bytes total. All ten WAVs equal the previously
 checked v8 candidate; the native select/folder waveform evidence therefore
 carries forward by byte identity. The old thirteen-file delivery was preserved
 on SSD at audio/public-before-cues-v8, and both unused music WAVs were removed
 from public delivery. Complete input-to-native-sound event mapping remains a
 separate check; asset identity does not prove trigger timing.
+
+The current v9 delivery adds native invalid-movement and toolbar-selection
+cues, retains all ten preceding WAVs unchanged and totals1,263,078 bytes.
+See [navigation cue validation](native-navigation-cues.md) for reproduction,
+browser decoding and the remaining event-routing/capture checks.
 
 ## Verification
 

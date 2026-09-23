@@ -14,8 +14,8 @@
   "sourceSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
   "converter": {
     "name": "render_firmware_audio",
-    "version": 8,
-    "sha256": "60532eadbf7212609d91f188fd11841910a46d0fce7dc8623b71401c58fbecbd"
+    "version": 9,
+    "sha256": "9d7a43e9f8500073b345a0d9110479ad908910179a761b5ea8c7e306663696c9"
   },
   "renderer": {
     "name": "DualRip",
@@ -24,7 +24,7 @@
   },
   "profile": {
     "id": "eur-home-24576-stereo-startup-v8",
-    "profileSha256": "4f87d3112bc3a4cb4198983794cbf6cd875198ac937d25d1bab4e3212ff07eb6",
+    "profileSha256": "22da63262ee9b68cae7fa0541a4a6334101c48fc6e76901eb44bea531b4d65fd",
     "patchSha256": "f46df7fa9324b3166f3a8cd2be4619cb3e306e3e7669e710ddcb0af0384a3ed0",
     "adapterSha256": "7d702c9e5315188a54ccad71360412d0b45ca69b448171ae7c11770c8c287c5d",
     "mathSha256": "2a315f888178687192f2292dc9b4cf386ee4e65ba8dd1e4db2c73eab4348e50f",
@@ -728,6 +728,86 @@
           "31": 0
         },
         "volume": 48,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {},
+      "unappliedCommands": {}
+    },
+    "scroll-invalid": {
+      "name": "SE_CTR_HOME_ICON_SCROLL_INVALID",
+      "index": 46,
+      "archiveId": 16777262,
+      "kind": "sequence",
+      "url": "scroll-invalid.wav",
+      "sha256": "13f0cfdb4668344e749551da58aebde97d48ba72c4f620d437d06353e60c2a94",
+      "size": 1964,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 480,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 96,
+      "banks": [
+        {
+          "id": 2,
+          "waveArchives": [
+            4
+          ]
+        }
+      ],
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 46,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 1,
+          "31": 0
+        },
+        "volume": 96,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {},
+      "unappliedCommands": {}
+    },
+    "toolbar-select": {
+      "name": "SE_CTR_HOME_SELECT",
+      "index": 63,
+      "archiveId": 16777279,
+      "kind": "sequence",
+      "url": "toolbar-select.wav",
+      "sha256": "9865661874de768ec6f0a07ac26f3cf66b8f250d98d6936fcb972be8ea6671fa",
+      "size": 3884,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 960,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 30,
+      "banks": [
+        {
+          "id": 2,
+          "waveArchives": [
+            4
+          ]
+        }
+      ],
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 63,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 1,
+          "31": 0
+        },
+        "volume": 30,
         "player": 67108868,
         "panMode": 0,
         "panCurve": 0

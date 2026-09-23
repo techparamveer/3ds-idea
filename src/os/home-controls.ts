@@ -44,7 +44,7 @@ export function isHomeControlsActive(state: MenuState): boolean {
 }
 function put(state: MenuState, controls: HomeControls): MenuState {
   return { ...state, system: { ...state.system!, homeControls: Object.freeze({ ...controls,
-    tilePoses: homeTileTouchPoses(controls.tileTouch) }) } };
+    tilePoses: homeTileTouchPoses(controls.tileTouch, controls.tilePoses) }) } };
 }
 function writeScroll(state: MenuState, scroll: HomeScrollState): MenuState {
   if (scroll.navigation !== state.system!.homeNavigation) state = writeHomeNavigation(state, scroll.navigation);
@@ -170,7 +170,7 @@ export function stepHomeControls(state: MenuState): HomeControlPass {
   let controls = state.system!.homeControls!;
   const observations: HomeNavigationPassObservation[] = [], sounds: ('touch' | 'open' | 'folder-open')[] = [];
   let unsupportedInput = false;
-  const touch = sampleHomeTileTouch(controls.tileTouch, (slot, x, y) => homeTouchLocation(state, x, y)?.slot === slot);
+  const touch = sampleHomeTileTouch(controls.tileTouch, (x, y) => homeTouchLocation(state, x, y)?.slot ?? null);
   controls = { ...controls, tileTouch: touch.state };
   // The authored recognizer remains alive for a possible drag takeover, but an
   // ordinary native press does not inhibit native idle/lower/cursor work.

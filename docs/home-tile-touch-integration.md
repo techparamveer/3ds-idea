@@ -93,6 +93,21 @@ Artifacts remain on the SSD under
 - `live-native-tile-touch-open.json`: actual pointer tap opens Work after Decide,
   HOME count/Loop stop through launch, then HOME/close and navigation restore the
   original folder. This verifies the existing portfolio bridge, not APT parity.
+- `live-native-tile-touch-reduced.json`: the same counted acceptance under
+  reduced motion, including actual LCD refresh for changed Decide poses before
+  selection changes. Stable pose records retain identity so idle counts do not
+  cause unnecessary reduced-motion paints.
+- `live-tile-touch-density.json`: disabled controls preserve the full lower
+  screen and a density round trip returns exactly. All nine static-region
+  metrics in `live-tile-touch-preservation-comparison.json` equal the preceding
+  controls checkpoint's measurements against the saved Azahar capture.
+
+The final hit-query/pose-refresh follow-up passes56 focused host/painter tests,
+typecheck and a fresh production build (`live-tile-touch-reduced-tests.log`,
+`live-tile-touch-reduced-typecheck.log`, `live-tile-touch-final-build.log`). Idle
+and Decide-waiting widgets do not query hit geometry; a traversed input pass
+calculates a browser grid hit at most once, independently of retained widget
+count. No fresh Azahar interaction or full-application fidelity is implied.
 
 The browser observer only reads existing diagnostics. A quick press may produce
 one painted snapshot, so its Loop assertion compares consumed shared counts

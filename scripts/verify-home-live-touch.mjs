@@ -8,6 +8,7 @@ import { parseArgs } from 'node:util';
 const { values } = parseArgs({ options: {
  'artifact-dir': { type: 'string' }, 'browser-bin': { type: 'string', default: 'agent-browser' },
  name: { type: 'string', default: 'home-live-touch' }, session: { type: 'string', default: 'firmware-native-check' },
+ reduced: { type: 'boolean', default: false },
 } });
 if (!values['artifact-dir'] || !isAbsolute(values['artifact-dir']) || !/^[a-z0-9-]+$/.test(values.name)) throw Error('Supply absolute --artifact-dir and simple --name');
 function browser(...args) {
@@ -16,11 +17,11 @@ function browser(...args) {
  return r.stdout.trim();
 }
 const evaluate = code => JSON.parse(browser('eval', code));
-const read = `(()=>{const h=document.querySelector('[role=application]');return {updates:Number(h.dataset.homeUpdates),cursor:JSON.parse(h.dataset.homeCursor),menu:h.dataset.menu,audio:JSON.parse(h.dataset.audio)};})()`;
+const read = `(()=>{const h=document.querySelector('[role=application]');return {updates:Number(h.dataset.homeUpdates),cursor:JSON.parse(h.dataset.homeCursor),paint:JSON.parse(h.dataset.screenPaint),menu:h.dataset.menu,audio:JSON.parse(h.dataset.audio)};})()`;
 const initial = evaluate(read);
 assert.equal(initial.menu, 'folder');assert.equal(initial.cursor.selectedSlot, 0);
 assert.equal(initial.cursor.focus.toolbarActive, false);
-assert.equal(evaluate('matchMedia("(prefers-reduced-motion: reduce)").matches'), false);
+assert.equal(evaluate('matchMedia("(prefers-reduced-motion: reduce)").matches'), values.reduced);
 const point = name => {
  const xy = evaluate(`JSON.parse(document.querySelector('[role=application]').dataset.targets)[${JSON.stringify(name)}]`);
  assert.ok(Array.isArray(xy));browser('mouse', 'move', ...xy.map(v => String(Math.round(v))));
@@ -49,6 +50,7 @@ for (const row of pressed) assert.equal(row.cursor.currentFrame,
 const waiting = rows.filter(row => row.cursor.tileTouch.widgets[1]?.state === 2);
 assert.ok(waiting.length, 'Release leaves an observable Decide wait');
 assert.ok(waiting.every(row => row.cursor.selectedSlot === 0));
+if (values.reduced) for (const row of waiting) assert.deepEqual(row.paint.cursor.tilePoses[1], row.cursor.tilePoses[1], 'Reduced-motion LCD updates each changed tile pose');
 const selected = evaluate(read);assert.equal(selected.cursor.selectedSlot, 1);assert.equal(selected.audio.lastPlayed, 'touch');
 assert.deepEqual(selected.cursor.primary.center, { x: 160, y: 137 });
 point('Touch_160_137');browser('mouse', 'down');browser('mouse', 'up');settled(1);
@@ -58,7 +60,7 @@ const restored = evaluate(read);assert.equal(restored.cursor.selectedSlot, 0);
 const capture = evaluate(`document.querySelector('[role=application]').captureScreensAt(0,'2026-09-23T12:06:00Z')`);
 const errors = browser('errors');assert.ok(!errors || /No errors/i.test(errors), errors);
 const summary = { passed: true, delayedAcceptance: true, primaryRetainedDuringPress: true,
- loopContinues: true, touchCueOnly: true, sameVacancyInert: true, referenceRestored: true };
+ loopContinues: true, touchCueOnly: true, sameVacancyInert: true, referenceRestored: true, reducedMotion: values.reduced };
 mkdirSync(values['artifact-dir'], { recursive: true });
 writeFileSync(join(values['artifact-dir'], `${values.name}.json`), JSON.stringify({ summary, initial, rows, selected, second, restored, capture }, null, 2));
 writeFileSync(join(values['artifact-dir'], `${values.name}-restored.png`), Buffer.from(capture.bottom.split(',')[1], 'base64'));

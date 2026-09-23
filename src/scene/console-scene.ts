@@ -271,7 +271,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(sound&&!after.runtime.effects.some(item=>item.effect.type==='sound'))audio.play(sound,after.muted,after.volume);
     effects.drain(userGesture);
     // Logical clock updates do not bypass the quality policy's LCD upload cadence.
-    const reducedChanged=reduced&&(previousBanner!==reducedBannerKey()||before.homeNavigation!==after.homeNavigation);
+    const reducedChanged=reduced&&(previousBanner!==reducedBannerKey()||before.homeNavigation!==after.homeNavigation
+      ||before.homeControls?.tilePoses!==after.homeControls?.tilePoses);
     if(input!=='tick'||reducedChanged||before.phase!==after.phase||previous.powered!==state.powered||previous.panel!==state.panel)paint();else writeState();
   }
   function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit((current,now)=>dispatchSystemEvent(current,event,now),label,userGesture);}

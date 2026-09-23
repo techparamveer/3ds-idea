@@ -321,5 +321,7 @@ synthesis. Browser transport remains owned by `audio.ts`; see
 The scene consumes counted close readiness at its exact shared-update boundary,
 then observes the current action for sound routing through menu-action-sound.ts.
 Native child layouts inherit decoded parent transforms/primary alpha through
-NativeLayoutRenderer.withPaneParent. See [close integration](../native-folder-close-integration.md)
+NativeLayoutRenderer.withPaneParent. Callers that write runtime parent overrides
+pass the same overrides to both parent drawing and child attachment; attachment
+cache identity includes those values. See [close integration](../native-folder-close-integration.md)
 for visual bindings, reduced-motion policy and the measured rendering slowdown.

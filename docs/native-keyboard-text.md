@@ -20,6 +20,14 @@ first text cell. It returns separate cursor-layout overrides and the names of
 decoration layouts whose instances must remain hidden. Child attachment,
 animation sampling and world transforms remain the composition owner's work.
 
+`NativeLayoutRenderer.withPaneParent` now accepts parent overrides as its final
+argument, after the draw callback. The caller must pass the same overrides used
+for the parent draw. This applies the moved `N_transDecor` and scaled text-area
+ancestor to the cursor instead of using their authored positions. The pose
+cache includes those overrides. Existing callers without overrides retain
+their prior behavior; tests cover placement, scale, inherited alpha, visibility,
+changed override values and restoration to the source pose.
+
 At lengths below 10, the initial plain-text cursor X is 17 times the UTF-16
 length. At the full buffer it is 168.11111450195312. The helper preserves the
 native float32 width/offset arithmetic, including the adjustment made only at

@@ -76,3 +76,24 @@ test('real closing folder parents carry source shrink, separate blank alpha, and
  assert.ok(samples[1].N_Dlg_00.calls.some(([name,x,y])=>name==='scale'&&Math.abs(x-.745)<1e-7&&Math.abs(y-.745)<1e-7));
  assert.equal(JSON.stringify(pack.layouts.LncFolder_00),before);renderer.dispose();
 });
+
+test('child attachment follows runtime parent overrides and does not reuse an earlier position or hidden pose',()=>{
+ const parent={...layout,roots:[{...pane,kind:'pan1',picture:undefined,name:'parent',flags:3,translation:[1,2,0],children:[]}]};
+ const pack={schema:1,layouts:{parent},animations:{},textures:{},messages:{}};
+ const renderer=new NativeLayoutRenderer({test:pack},{test:new Map()},new Map()),ctx=canvas().getContext('2d');
+ const before=JSON.stringify(pack),calls=[];
+ for(const name of ['translate','rotate','scale'])ctx[name]=(...values)=>calls.push([name,...values]);
+ let drawn=0;
+ const overrides={parent:{translation:[-85.00001525878906,8.96296501159668,0],scale:[1.5882350206375122,1.5882350206375122],alpha:128}};
+ const draw=()=>renderer.withPaneParent(ctx,'test','parent','parent',[],alpha=>{drawn++;assert.equal(alpha,128/255);},overrides);
+ assert.equal(draw(),true);assert.equal(drawn,1);
+ assert.ok(calls.some(call=>JSON.stringify(call)===JSON.stringify(['translate',-85.00001525878906,-8.96296501159668])));
+ assert.ok(calls.some(call=>JSON.stringify(call)===JSON.stringify(['scale',1.5882350206375122,1.5882350206375122])));
+ overrides.parent.translation=[10,20,0];calls.length=0;assert.equal(draw(),true);assert.equal(drawn,2);
+ assert.ok(calls.some(call=>JSON.stringify(call)===JSON.stringify(['translate',10,-20])));
+ overrides.parent.visible=false;assert.equal(draw(),true);assert.equal(drawn,2);
+ overrides.parent.visible=true;assert.equal(draw(),true);assert.equal(drawn,3);
+ calls.length=0;renderer.withPaneParent(ctx,'test','parent','parent',[],alpha=>{assert.equal(alpha,1);});
+ assert.ok(calls.some(call=>JSON.stringify(call)===JSON.stringify(['translate',1,-2])));
+ assert.equal(JSON.stringify(pack),before);renderer.dispose();
+});

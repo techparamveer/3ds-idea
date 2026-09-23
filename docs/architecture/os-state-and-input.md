@@ -15,6 +15,9 @@ console is off. Settings consumes native layout/texture/message packs. Gallery
 and music presentation use the shared `stock-screen-layout.ts` hit geometry.
 `portfolio-music.ts` owns the single foreground audio element, while
 `runtime-effects.ts` checks owner/revision and routes progress into reducers.
+Native preparation holds the source black fade endpoint until an atomic screen
+pair is ready. The host gates unseen app input and offers explicit browser
+recovery on timeout/load/draw failure; see [native screen readiness](../native-screen-readiness.md).
 See [stock UI runtime](../stock-ui-runtime.md) and
 [screen presentation](../stock-screen-presentation.md) for current verification.
 

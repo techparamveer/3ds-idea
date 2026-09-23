@@ -1,3 +1,5 @@
+import { createNativeScreenInputGate } from '@/os/native-screen-input';
+import { escapeUnreadyNativeScreen, releaseUnreadyNativeInput } from '@/os/native-screen-system';
 import { getMenuActionSound } from '../os/menu-action-sound';
 import { sampleSystemHomeFolderClose } from '../os/home-folder-close-system';
 import { getHomeCursorLoopFrame } from '../os/home-cursor-loop';
@@ -198,8 +200,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   let lastInput='none';
   function cursorDiagnostic(){const controls=state.system!.homeControls;return {...state.system!.homeCursorLoop,visibleSlot:getHomeCursorSlot(state),selectedSlot:state.opened?state.folderSelected:state.selected,sampledFrame:getHomeCursorLoopFrame(state,reduced),...(controls?{primary:controls.primary,presentation:controls.presentation,producer:controls.producer,tileTouch:controls.tileTouch,tilePoses:controls.tilePoses,tileCandidate:controls.tileCandidate,tilePickup:controls.tilePickup,focus:state.system!.homeNavigation.focus,mode3:state.system!.homeNavigation.mode3,mode:controls.tilePickup?14:state.system!.homeNavigation.motion?.mode??0}: {})};}
   const writeState=()=>{
-    if(diagnostics)host.dataset.homeCursor=JSON.stringify(cursorDiagnostic());
-    const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderClose=JSON.stringify(sampleSystemHomeFolderClose(state));host.dataset.folderBannerFallback=String(!nativePrimaryAvailable(resolveHomeBannerHostSelection(state).kind));}const entry=currentEntry(state),appView=getActiveAppView(state);const description=s.phase==='app'?(getApp(s.app)?`${getApp(s.app)?.title}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:[appView?.heading,appView?.subheading,appView?.rows[appView.selection]?.label,...(appView?.text??[])].filter(Boolean).join('. ')):s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
+    if(diagnostics){host.dataset.homeCursor=JSON.stringify(cursorDiagnostic());host.dataset.nativeScreen=screens.stockStatus(state);host.dataset.nativeScreenFailure=String(screens.stockFailure()??'');}
+    const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderClose=JSON.stringify(sampleSystemHomeFolderClose(state));host.dataset.folderBannerFallback=String(!nativePrimaryAvailable(resolveHomeBannerHostSelection(state).kind));}const entry=currentEntry(state),appView=getActiveAppView(state);const nativeStatus=screens.stockStatus(state);const description=nativeStatus==='error'?'Website display unavailable. A to retry. B or HOME to return to HOME Menu.':nativeStatus==='loading'?'Loading software screen. B or HOME to return to HOME Menu.':s.phase==='app'?(getApp(s.app)?`${getApp(s.app)?.title}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:[appView?.heading,appView?.subheading,appView?.rows[appView.selection]?.label,...(appView?.text??[])].filter(Boolean).join('. ')):s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
     host.dataset.audio=JSON.stringify(audio.status());host.dataset.preferences=String(state.system?.preferences??false);host.dataset.photo=String(state.system?.photo??0);host.dataset.page=String(state.system?.page??0);host.dataset.muted=String(state.system?.muted??false);host.dataset.ready='true';host.dataset.menu=state.panel??(state.system?.phase==='home'?(state.opened?'folder':'home'):state.system?.phase??'home');host.dataset.app=state.system?.app??'';host.dataset.item=String(state.system?.item??0);host.dataset.detail=String(state.system?.detail??false);host.dataset.sleeping=String(state.system?.sleeping??false);host.dataset.dialog=state.system?.dialog??'';host.dataset.rows=String(rowCount(state));host.dataset.theme=state.theme;host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
   function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:performance.now()-start});}
@@ -262,8 +264,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     onLink:url=>{window.open(url,'_blank','noopener,noreferrer');},
   });
   function reducedBannerKey(){const view=getHomeBannerHostView(bannerHost);return view.status==='active'?JSON.stringify([view.status,view.primary.generation,view.primary.activationEpoch,view.primary.selection.kind,view.primary.selection.kind==='folder'?view.primary.selection.label:null,view.primary.motion.visible]):view.status;}
+  const nativeScreenInput=createNativeScreenInputGate();
   function commit(reduce:(current:MenuState,now:number)=>MenuState,input:string,userGesture=false,now=performance.now()-start){
-    const previous=state,previousBanner=reduced?reducedBannerKey():undefined;advanceBeforeMutation(now);const beforeAction=state;state=reconcileHomeControls(beforeAction,reduce(state,now));
+    const previous=state,previousBanner=reduced?reducedBannerKey():undefined;advanceBeforeMutation(now);const readiness=screens.stockStatus(state);if(readiness==='loading'||readiness==='error')nativeScreenInput.cancelHeld(state.system!.input);state=releaseUnreadyNativeInput(state,readiness,now);const beforeAction=state;state=reconcileHomeControls(beforeAction,reduce(state,now));
     const close=sampleSystemHomeFolderClose(state),previousClose=sampleSystemHomeFolderClose(beforeAction);
     observeFolderBanner(bannerClock(),close&&close.controller.phase!=='complete'&&close.controller.identity.transitionId!==previousClose?.controller.identity.transitionId?{kind:'clear'}:undefined);
     if(state===previous)return;lastInput=input;
@@ -277,7 +280,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       ||before.homeControls?.tilePoses!==after.homeControls?.tilePoses||before.homeControls?.tilePickup!==after.homeControls?.tilePickup);
     if(input!=='tick'||reducedChanged||before.phase!==after.phase||previous.powered!==state.powered||previous.panel!==state.panel)paint();else writeState();
   }
-  function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit((current,now)=>dispatchSystemEvent(current,event,now),label,userGesture);}
+  function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit((current,now)=>{
+    const decision=nativeScreenInput(event,screens.stockStatus(current));
+    if(decision==='home')return escapeUnreadyNativeScreen(current,now);
+    if(decision==='retry'){screens.retryStockScreen();return releaseSystemInputs(current,now);}
+    return decision==='pass'?dispatchSystemEvent(current,event,now):current;
+  },label,userGesture);}
   function button(command:AppCommand,phase:'down'|'up',source:string,userGesture=false){dispatch({type:'button',command,phase,source},userGesture);}
   function send(input:Input){void audio.unlock();if(['left','right','up','down','open','back','home','power','x','y','start','select','l','r'].includes(input)){button(input as AppCommand,'down',`accessible:${input}`,true);button(input as AppCommand,'up',`accessible:${input}`,true);}else commit((current,now)=>reduceSystem(current,input,now),input,true);}
   function press(name:string,source?:string){

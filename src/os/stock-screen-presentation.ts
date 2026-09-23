@@ -11,11 +11,12 @@ import { drawNativeCameraLower, cameraScreenPacks } from './stock-native-camera'
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
 import { drawNativePersonalToolFrame, nativePersonalToolView } from './stock-native-personal-tools';
 import { drawNativeWebFrame, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
+import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
-export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean};
+export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean};
 const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const records=(v:JsonValue|undefined):MediaRecord[]=>Array.isArray(v)?v.map(record):[];
 const string=(v:JsonValue|undefined)=>typeof v==='string'?v:'';
@@ -70,6 +71,14 @@ function transportIcon(ctx:Context,action:string,x:number,y:number,playing:boole
   if(action!=='play')ctx.fillRect(x+direction*10-(direction<0?3:0),y-9,3,18);
 }
 
+/** Resource support is independent of shared-font readiness. */
+export function nativeStockView(view:AppView){
+  return view.appId==='system-settings'?{view:'settings',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:view.appId==='browser'?{view:'browser',titleId:'0004003000009d02',packs:browserScreenPacks}:view.appId==='miiverse'?{view:'miiverse',titleId:'000400300000be02',packs:miiverseScreenPacks}:nativePersonalToolView(view)??nativeServiceView(view)??nativeHelperView(view)??nativeSelectorView(view);
+}
+export type NativeScreenStatus='inactive'|'loading'|'ready'|'error';
+/** Browser resource deadline, not a measured Nintendo loading duration. */
+export const NATIVE_SCREEN_DEADLINE_MS=20_000;
+
 /** Stock-specific 400×240 / 320×240 surfaces. Media is supplied by AppView. */
 export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,options:StockScreenPaintOptions={}):void{
   const {font}=options,accent=accents[view.appId]??'#809d8c',data=view.data??{};
@@ -81,6 +90,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
   if(options.native&&drawNativeServiceFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativeSelectorFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativeHelperFrame(options.native,top,bottom,view,options))return;
+  if((options.nativeRequired||options.native)&&nativeStockView(view)&&!camera(view.appId))throw new Error('Native screen composition failed: '+view.appId+'/'+view.screen);
   chrome(top,400,view.heading,accent,font);chrome(bottom,320,view.heading,accent,font);
   if(camera(view.appId)){
     const folders=records(data.folders),photos=records(data.photos),selected=view.rows[view.selection];
@@ -90,6 +100,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
     if(!mediaImage(top,photo,[5,35,390,175],options))albumSymbol(top,200,120,accent);
     text(top,font,string(photo.title)||string(folder?.title)||'Photo Album',200,226,14);
     if(options.native&&drawNativeCameraLower(options.native,bottom,view,options)){footer(bottom,view,font);return;}
+    if(options.nativeRequired||options.native)throw new Error('Native camera composition failed');
     if(view.screen==='photo'){
       fill(bottom,63,51,194,134,5,'#e5e0cf','#b5a887');mediaImage(bottom,photo,[68,56,184,124],options);
       for(const r of stockScreenTargets(view).filter(r=>r.action==='previous'||r.action==='next'))control(bottom,r.action==='previous'?'‹':'›',r.x,r.y,r.width,r.height,false,font,accent);
@@ -152,13 +163,24 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
 }
 
 /** One foreground session; asynchronous resources never outlive its owner. */
-export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void}={}){
+export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number}={}){
   let revision=0,painted='',paintedFont:BitmapFont|undefined;
   const changed=()=>{revision++;options.onChange?.();};
-  const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:changed});
+  const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:state=>{if(state.status==='ready'||state.status==='error')clearDeadline();changed();}});
   const images=new Map<string,HTMLImageElement>();let owner:string|null=null,disposed=false;
+  let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
+  let published:NativeLayoutRenderer|undefined;
+  const deadlineMs=options.deadlineMs??NATIVE_SCREEN_DEADLINE_MS;
+  if(!Number.isFinite(deadlineMs)||deadlineMs<=0)throw new Error('Invalid native preparation deadline');
   const upper=document.createElement('canvas'),lower=document.createElement('canvas');upper.width=400;upper.height=240;lower.width=320;lower.height=240;
   const upperContext=upper.getContext('2d')!,lowerContext=lower.getContext('2d')!;
+  const clearDeadline=()=>{if(deadline!==undefined)clearTimeout(deadline);deadline=undefined;};
+  function fail(error:unknown){
+    clearDeadline();failure=error??new Error('Native screen preparation failed');recoveryPublished=false;published=undefined;
+    // Invalidates the generation as well as aborting a cooperative loader.
+    session.update(null);changed();
+  }
+  function reset(){clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
   function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();}
   function image(ctx:Context,url:string,x:number,y:number,w:number,h:number){
     let im=images.get(url);
@@ -166,27 +188,66 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     if(!im.complete||!im.naturalWidth)return false;
     const scale=Math.min(w/im.naturalWidth,h/im.naturalHeight);ctx.drawImage(im,x+(w-im.naturalWidth*scale)/2,y+(h-im.naturalHeight*scale)/2,im.naturalWidth*scale,im.naturalHeight*scale);return true;
   }
-  function sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;session.update(null);releaseImages();painted='';}}
+  function sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;reset();releaseImages();}}
   function prepare(view:AppView,nextOwner:string,font?:BitmapFont){
     if(disposed)return session.getState();
     sync(nextOwner);
-    const nativeView=font&&(view.appId==='system-settings'?{view:'settings',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:view.appId==='browser'?{view:'browser',titleId:'0004003000009d02',packs:browserScreenPacks}:view.appId==='miiverse'?{view:'miiverse',titleId:'000400300000be02',packs:miiverseScreenPacks}:nativePersonalToolView(view)??nativeServiceView(view)??nativeHelperView(view)??nativeSelectorView(view));
-    return session.update(nativeView?{owner:nextOwner,...nativeView,sharedFonts:new Map([['cbf_std.bcfnt',font!]])}:null);
+    const descriptor=nativeStockView(view),next=descriptor?JSON.stringify([nextOwner,descriptor]):'';
+    if(identity!==next){reset();identity=next;}
+    if(!descriptor||failure)return session.getState();
+    const state=session.update(font?{owner:nextOwner,...descriptor,sharedFonts:new Map([['cbf_std.bcfnt',font]])}:null);
+    if(state.status==='error'){fail(state.error);return state;}
+    if(state.status==='ready')clearDeadline();
+    else if(deadline===undefined)deadline=setTimeout(()=>{if(!disposed&&identity===next)fail(new Error('Native screen preparation timed out'));},deadlineMs);
+    return state;
+  }
+  function status(view:AppView,nextOwner:string,font?:BitmapFont):NativeScreenStatus{
+    const state=prepare(view,nextOwner,font);
+    if(!identity||disposed)return 'inactive';
+    if(failure)return recoveryPublished?'error':'loading';
+    return state.status==='ready'&&published===state.assets.renderer?'ready':'loading';
+  }
+  function black(){
+    // CmnFadeNinLogo_U/D_00 SceneOut frame20: full-screen RGB0, alpha255.
+    for(const ctx of [upperContext,lowerContext]){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,ctx.canvas.width,240);ctx.fillStyle='#000';ctx.fillRect(0,0,ctx.canvas.width,240);}
+  }
+  function recovery(){
+    black();
+    // Authored host recovery, intentionally not presented as a firmware dialog.
+    text(upperContext,undefined,'Website display unavailable',200,92,16,'#fff');
+    text(upperContext,undefined,'The software screen could not be loaded.',200,121,13,'#ddd');
+    text(lowerContext,undefined,'A: Retry',160,92,16,'#fff');
+    text(lowerContext,undefined,'B / HOME: Return to HOME Menu',160,121,13,'#ddd');
+    for(const item of NATIVE_RECOVERY_TARGETS){
+      lowerContext.strokeStyle='#aaa';lowerContext.lineWidth=1;lowerContext.strokeRect(item.x,item.y,item.width,item.height);
+      text(lowerContext,undefined,item.action==='retry'?'Retry':'HOME',item.x+item.width/2,item.y+item.height/2,14,'#fff');
+    }
   }
   return {
-    sync,prepare,
+    sync,prepare,status,
+    retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont){
       if(disposed)return;
-      const state=prepare(view,nextOwner,font);
-      const key=JSON.stringify([nextOwner,view,revision]);
+      const state=prepare(view,nextOwner,font),key=JSON.stringify([nextOwner,view,revision]);
       if(painted!==key||paintedFont!==font){
-        upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
-        drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined});
-        painted=key;paintedFont=font;
+        black();
+        if(failure)recovery();
+        else if(!identity||state.status==='ready'){
+          upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
+          try{
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity});
+            published=state.status==='ready'?state.assets.renderer:undefined;
+          }catch(error){fail(error);recovery();}
+        }
+        // Only publish after both native surfaces succeed, or after both were
+        // replaced with the pending/error pair. Never expose a partial draw.
+        painted=JSON.stringify([nextOwner,view,revision]);paintedFont=font;
       }
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
+      if(failure)recoveryPublished=true;
     },
     getState:session.getState,
-    dispose(){if(disposed)return;disposed=true;session.dispose();releaseImages();owner=null;upper.width=upper.height=lower.width=lower.height=0;},
+    getFailure:()=>failure,
+    dispose(){if(disposed)return;disposed=true;clearDeadline();session.dispose();releaseImages();owner=null;published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
   };
 }

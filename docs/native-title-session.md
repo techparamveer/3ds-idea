@@ -2,8 +2,9 @@
 
 `createNativeTitleSession` owns the resolved resources and pending acquisition
 for one foreground application view. It wraps the
-[explicit native title loader](native-title-assets-validation.md). It is ready
-for scene integration; no current stock app uses this session yet.
+[explicit native title loader](native-title-assets-validation.md). Stock screen presentation uses it per foreground owner. The presentation layer
+owns its deadline, atomic screen publication and recoverable failure policy;
+see [native screen readiness](native-screen-readiness.md).
 
 The request identifies the AppInstance owner, view, title, explicit pack/layout/
 animation selections and borrowed shared-font objects. Reopening the same title

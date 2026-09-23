@@ -179,3 +179,10 @@ explicit local text because the remote account body is unavailable. Updater
 uses its own source title/icon/background and a readonly notice, never an
 invented up-to-date status. Returning from these helper applications currently
 goes to HOME rather than restoring the Settings parent; that remains a gap.
+
+## Native preparation and recovery
+
+All native-supported views now hold the source black fade endpoint while
+resources/fonts prepare. Load, timeout and render errors show explicit browser
+recovery; hidden application input is gated until the first native pair is
+published. See [the preparation and recovery contract](native-screen-readiness.md).

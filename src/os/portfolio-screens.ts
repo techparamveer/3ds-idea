@@ -26,6 +26,12 @@ export function createPortfolioGraphics(){
   const s=state.system,owner=s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog?s.runtime.active:null;
   stockScreens.sync(owner);if(owner&&context){const view=getActiveAppView(state);if(view)stockScreens.prepare(view,owner,nativeFonts.get(context));}
  }
+ function stockStatus(state:MenuState,context:C){
+  syncStockView(state,context);
+  const s=state.system,view=getActiveAppView(state);
+  return s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog&&s.runtime.active&&view
+   ?stockScreens.status(view,s.runtime.active,nativeFonts.get(context)):'inactive' as const;
+ }
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  const urls=new Set(apps.flatMap(a=>[...(a.icon.startsWith('/')?[a.icon]:[]),...a.entries.flatMap(e=>e.images??[])]));
@@ -126,5 +132,5 @@ export function createPortfolioGraphics(){
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,dispose(){stockScreens.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

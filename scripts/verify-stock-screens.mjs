@@ -9,7 +9,7 @@ export async function verifyStockScreens(options){
  for(const key of ['artifactDir','assetRoot','canvasModule','fontManifest'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-')),sourceHashes={};
- for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','native-title-session','stock-screen-layout','stock-native-settings','stock-native-sound','stock-native-camera','stock-native-health','stock-health-layout','stock-native-personal-tools','stock-native-web','stock-native-services','stock-native-helpers','stock-native-selectors','stock-screen-presentation']){
+ for(const name of ['native-screen-input','bitmap-font','native-layout','native-png','native-renderer','native-title-assets','native-title-session','stock-screen-layout','stock-native-settings','stock-native-sound','stock-native-camera','stock-native-health','stock-health-layout','stock-native-personal-tools','stock-native-web','stock-native-services','stock-native-helpers','stock-native-selectors','stock-screen-presentation']){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');sourceHashes[name]=createHash('sha256').update(source).digest('hex');
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
  }

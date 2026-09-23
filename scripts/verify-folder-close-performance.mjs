@@ -36,7 +36,7 @@ const initial = evaluate(`(()=>{
   const key=event=>{if(event.key==='Enter'&&result.inputAt===null)result.inputAt=performance.now();};
   document.addEventListener('keydown',key,true);
   const stop=()=>{finished=true;cancelAnimationFrame(request);observer.disconnect();document.removeEventListener('keydown',key,true);result.done=true;};
-  const frame=now=>{if(finished)return;result.frames.push({now,updates:Number(host.dataset.homeUpdates),close:JSON.parse(host.dataset.folderClose||'null'),paint:JSON.parse(host.dataset.screenPaint||'null')});if(now-started>6000){stop();return;}request=requestAnimationFrame(frame);};
+  const frame=now=>{if(finished)return;result.frames.push({now,updates:Number(host.dataset.homeUpdates),cursor:JSON.parse(host.dataset.homeCursor||'null'),close:JSON.parse(host.dataset.folderClose||'null'),paint:JSON.parse(host.dataset.screenPaint||'null')});if(now-started>6000){stop();return;}request=requestAnimationFrame(frame);};
   window.__folderClosePerformance={result,stop};request=requestAnimationFrame(frame);
   return {selected:host.dataset.selected,rows:host.dataset.rows,quality:host.dataset.quality};
 })()`);

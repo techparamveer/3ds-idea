@@ -18,6 +18,7 @@
 | `app-types.ts`, `app-registry.ts`, `app-host.ts` | Firmware contracts, installed titles and applet lifecycle |
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
+| `home-cursor-loop.ts`, `home-cursor-visibility.ts` | Retained primary cursor Loop and shared visibility predicate |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
 | `home-folder-identity.ts` | Session-local opaque folder keys, immutable allocation and movement; never persisted |
 | `home-folder-close.ts` | Pure normal-close task/layout phases and per-operation observations |
@@ -224,6 +225,17 @@ owners; it freezes/rebases beneath overlays and inactive/sleeping HOME. Renderin
 reads `getHomeNavigationView` without advancing state. Source-proven counts are 16
 for scroll and 15 for density; the wall-clock cadence remains an explicit
 application assumption. See the motion section of the navigation contract.
+
+The primary cursor retains its submitted/current Loop frames independently of
+paint elapsed time. Its ordinary update submits the current frame, then advances
+by one and wraps before60; hidden cursor updates preserve phase. System and
+presentation share the same visibility predicate. Counted close resumes it on
+the exact selection-ready update, including that update in the adopted
+lower-task-before-layout order. Reduced motion samples frame0 without resetting
+the retained controller. See [cursor runtime](../home-cursor-loop-runtime.md),
+[presentation](../native-cursor-loop-presentation.md) and
+[browser checks](../native-cursor-browser-validation.md). Native acceleration,
+the complete gesture schedule and hardware cadence remain separate gaps.
 
 Native lower folder assembly and its captured-background lifetime are documented in
 [native-folder-assembly.md](../native-folder-assembly.md). The renderer consumes

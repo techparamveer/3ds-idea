@@ -7,18 +7,18 @@ const send=(s,input)=>reduceSystem(s,input,4000);
 test('hardware boot gates input, launches software, and never cold-boots into a logo app',()=>{
  const boot=createPortfolioState();assert.equal(boot.system.phase,'boot');assert.equal(send(boot,'open'),boot);
  let s=send(home(),'open');assert.equal(s.system.phase,'launch');assert.equal(s.system.app,'work');
- s=tickSystem(s,5101);assert.equal(s.system.phase,'app');assert.equal(s.system.detail,false);
+ s=tickSystem(s,6101);assert.equal(s.system.phase,'app');assert.equal(s.system.detail,false);
 });
 test('every installed app is reachable by touch and physical A, with real entries',()=>{
  for(let i=0;i<apps.length;i++){
-  let s=send({...home(),selected:i},'open');s=tickSystem(s,6000);
+  let s=send({...home(),selected:i},'open');s=tickSystem(s,6200);
   assert.equal(s.system.app,apps[i].id);assert.ok(currentEntry(s).pages[0]);
-  s=touchSystem(s,100,50,6000);assert.equal(s.system.detail,true);
+  s=touchSystem(s,100,50,6200);assert.equal(s.system.detail,true);
   s=send(s,'back');assert.equal(s.system.detail,false);
  }
 });
 test('HOME suspends and resumes exact position; switching requires confirmation',()=>{
- let s=tickSystem(send(home(),'open'),6000);s=send(s,'down');s=send(s,'open');s=send(s,'home');
+ let s=tickSystem(send(home(),'open'),6200);s=send(s,'down');s=send(s,'open');s=send(s,'home');
  assert.equal(s.system.phase,'home');assert.equal(s.system.item,1);assert.equal(s.system.detail,true);
  const resumed=send(s,'home');assert.equal(resumed.system.phase,'app');assert.equal(resumed.system.item,1);
  s=send({...s,selected:5},'open');assert.equal(s.system.dialog,'switch');assert.equal(s.system.app,'work');
@@ -29,7 +29,7 @@ test('power requires confirmation, off is inert, sleep preserves application',()
  assert.equal(send(s,'back').system.phase,'home');s=send(s,'open');assert.equal(s.system.phase,'shutdown');assert.equal(s.powered,true);assert.equal(send(s,'open'),s);
  s=tickSystem(s,4550);assert.equal(s.powered,false);assert.equal(s.system.phase,'off');
  s=send(s,'power');assert.equal(s.system.phase,'boot');assert.equal(s.powered,true);
- s={...home(),system:{...home().system,sleeping:true}};assert.equal(send(s,'open'),s);assert.equal(touchSystem(s,200,225,6000),s);
+ s={...home(),system:{...home().system,sleeping:true}};assert.equal(send(s,'open'),s);assert.equal(touchSystem(s,200,225,6200),s);
 });
 test('power menu uses the native central power-off button and leaves HOME return available',()=>{
  const s=reduceSystem(home(),'power',5000);assert.equal(s.system.since,5000);
@@ -41,7 +41,7 @@ test('power menu uses the native central power-off button and leaves HOME return
  assert.equal(tickSystem(shutdown,5121,true).system.phase,'off');
 });
 test('external links are explicit effects, and details/page/image navigation stays bounded',()=>{
- let s=tickSystem(send({...home(),selected:2},'open'),6000);s=send(s,'open');
+ let s=tickSystem(send({...home(),selected:2},'open'),6200);s=send(s,'open');
  for(let i=0;i<20;i++){s=send(s,'down');s=send(s,'right');}assert.equal(s.system.page,1);assert.equal(s.system.photo,2);
  s=send(s,'open');assert.equal(s.system.link,'https://pmvrsi.gumroad.com/');
 });
@@ -59,5 +59,5 @@ test('sound preferences support physical navigation and preserve power-saving se
  const restored=restoreSettings(createPortfolioState(),saveSettings(s));assert.equal(restored.powerSaving,true);assert.equal(restored.system.muted,true);
 });
 test('a detail without a link has a working Done action',()=>{
- let s=tickSystem(send({...home(),selected:3},'open'),6000);s=send(s,'open');assert.equal(s.system.detail,true);s=send(s,'open');assert.equal(s.system.detail,false);
+ let s=tickSystem(send({...home(),selected:3},'open'),6200);s=send(s,'open');assert.equal(s.system.detail,true);s=send(s,'open');assert.equal(s.system.detail,false);
 });

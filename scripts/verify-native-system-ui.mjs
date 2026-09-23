@@ -21,9 +21,9 @@ const root=join(repo,'public/os/firmware/10.7.0-32E'),json=path=>JSON.parse(read
 const manifest=json(join(root,'fonts/shared/font.json'));
 const sheets=await Promise.all(manifest.sheets.map(sheet=>loadImage(join(root,'fonts/shared',typeof sheet==='string'?sheet:sheet.url))));
 const font=new BitmapFont(manifest,sheets),packs={},textures={};
-for(const name of ['common','sleep','messages']){
- const pack=json(join(root,'packs/home',name==='messages'?'messages-and-loose.json':name+'.json'));packs[name]=pack;textures[name]=new Map();
- const layouts=name==='common'?['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00']:name==='sleep'?['Slp_U_00','Slp_D_00']:[];
+for(const name of ['common','sleep','messages','launch']){
+ const pack=json(name==='launch'?join(root,'packs/launch/logo.json'):join(root,'packs/home',name==='messages'?'messages-and-loose.json':name+'.json'));packs[name]=pack;textures[name]=new Map();
+ const layouts=name==='launch'?['NintendoLogo_U_00','NintendoLogo_D_00']:name==='common'?['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00']:name==='sleep'?['Slp_U_00','Slp_D_00']:[];
  for(const key of new Set(layouts.flatMap(layout=>pack.layouts[layout].textures))){
   const record=pack.textures[key],pixels=await decodeNativePng(new Uint8Array(readFileSync(join(root,record.url))),record);
   textures[name].set(key,nativeTextureSamplePixels(pixels,record.picaFormat));
@@ -31,7 +31,7 @@ for(const name of ['common','sleep','messages']){
 }
 const renderer=new NativeLayoutRenderer(packs,textures,new Map([['cbf_std.bcfnt',font]]));
 const assets={renderer},results=[];
-for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['power',550,true],['shutdown',250,true],['shutdown',550,true],['boot',0,false],['boot',2990,false],['launch',350,false]]){
+for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['power',550,true],['shutdown',250,true],['shutdown',550,true],['boot',0,false],['boot',2990,false],['launch',350,false],['launch',800,false],['launch',1400,false],['launch',1950,false],['launch',2099,false]]){
  const top=createCanvas(400,240),bottom=createCanvas(320,240),t=top.getContext('2d'),b=bottom.getContext('2d');
  t.fillStyle=b.fillStyle='#dde5ed';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
  const state={system:{phase,since:0,sleeping:false,returnPhase:fromApp?'app':'home'}};
@@ -39,7 +39,7 @@ for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['pow
  const id=`${phase}-${elapsed}-${fromApp?'app':'home'}`;
  writeFileSync(join(out,id+'-upper.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-lower.png'),bottom.toBuffer('image/png'));
  results.push({id});
- if((phase==='boot'&&elapsed===0)||(phase==='launch'&&elapsed===350)||(phase==='shutdown'&&elapsed===550)){
+ if((phase==='boot'&&elapsed===0)||(phase==='launch'&&elapsed===2099)||(phase==='shutdown'&&elapsed===550)){
   for(const c of [top,bottom]){const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data;assert.ok(data.every((v,i)=>i%4===3?v===255:v===0),id+' ends opaque black');}
  }
 }

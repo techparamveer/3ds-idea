@@ -10,7 +10,7 @@ function fixture(extra={}){
  let state=createPortfolioState(),now=4000;state=tickSystem(state,now);
  const failures=[],links=[],sounds=[];
  const adapter=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;},now:()=>now,onChange(){},onFailure:e=>failures.push(e),onLink:url=>links.push(url),onSound:name=>sounds.push(name),...extra});
- return {adapter,failures,links,sounds,get state(){return state;},set state(next){state=next;},launch(id){state=tickSystem(launch(state,id,now),now+=1200);},confirmSwitch(){state=tickSystem(reduceSystem(state,'open',now),now+=1200);},action(id){state=dispatchSystemEvent(state,{type:'action',id},now+=10);}};
+ return {adapter,failures,links,sounds,get state(){return state;},set state(next){state=next;},launch(id){state=tickSystem(launch(state,id,now),now+=2200);},confirmSwitch(){state=tickSystem(reduceSystem(state,'open',now),now+=2200);},action(id){state=dispatchSystemEvent(state,{type:'action',id},now+=10);}};
 }
 // These legacy adapter-boundary checks inject a synthetic request. Production
 // stock modules never request devices, including through old preview actions.

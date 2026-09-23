@@ -1,7 +1,7 @@
 import {nativeMessageOverride,type PaneOverrides} from './native-layout';
 import type {FirmwarePresentationAssets} from './firmware-presentation';
 import type {MenuState} from './state';
-import {systemTransitionDuration,systemTransitionFrame} from './system-transitions';
+import {appLaunchLogoFrame,systemTransitionDuration,systemTransitionFrame} from './system-transitions';
 
 /** Source HOME power layouts and common black fades. Browser clock is explicit;
  * this does not claim measured hardware cold-boot or title-loading latency. */
@@ -21,7 +21,14 @@ export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:Canv
   const duration=systemTransitionDuration('boot',reduced),fadeMs=reduced?120:350;
   return fade('SceneIn',Math.max(0,Math.min(20,Math.floor((elapsed-(duration-fadeMs))*20/fadeMs))));
  }
- if(s.phase==='launch')return fade('SceneOut',systemTransitionFrame(elapsed,20,reduced));
+ if(s.phase==='launch'){
+  const pose=appLaunchLogoFrame(elapsed,reduced);
+  if(!pose||!renderer.packs.launch)return fade('SceneOut',systemTransitionFrame(elapsed,20,reduced));
+  top.fillStyle=bottom.fillStyle='#000';top.fillRect(0,0,400,240);bottom.fillRect(0,0,320,240);
+  let okay=true;
+  for(const [ctx,suffix]of [[top,'U'],[bottom,'D']] as const){const name=`NintendoLogo_${suffix}_00`;okay=renderer.draw(ctx,'launch',name,{bindings:[{name:`${name}_SceneOut${pose.clip}`,frame:pose.frame}]})&&okay;}
+  return okay;
+ }
  top.fillStyle=bottom.fillStyle='#fff';top.fillRect(0,0,400,240);bottom.fillRect(0,0,320,240);
  const clip=s.returnPhase==='app'?'SceneInApp':'SceneIn',last=s.returnPhase==='app'?30:20;
  const frame=s.phase==='shutdown'?last:systemTransitionFrame(elapsed,last,reduced);

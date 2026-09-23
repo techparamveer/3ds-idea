@@ -24,13 +24,14 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const manifest=await json<Manifest>(base.href);
   if(manifest.schema!==1||manifest.firmware!=='10.7.0-32E'||!manifest.fonts||!manifest.home)throw new Error('Unsupported firmware presentation manifest');
   const font=async (url:string)=>{const result=await loadBitmapFont(new URL(url,base).href,controller.signal);fonts.push(result);return result;};
-  const packNames=['hud','launcher','messages','banner','common','sleep'];
+  const packNames=['hud','launcher','messages','banner','common','sleep',...(manifest.home.launch?['launch']:[])];
+  const requestedLayouts={...homeLayouts,...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
   const [sharedFont,hudFont,...loaded]=await Promise.all([font(manifest.fonts.shared),font(manifest.fonts.hud),...packNames.map(name=>json<NativePack>(manifest.home[name]))]);
   const packs=Object.fromEntries(packNames.map((name,i)=>[name,loaded[i]])) as Record<string,NativePack>;
   // Reject an incomplete style conversion during loading, before a paint can partially fail.
   for(const [bank,data] of Object.entries(packs.messages.messages))for(const label of Object.keys(data.labels))nativeMessageOverride(packs.messages,bank,label,'');
   const textures:Record<string,Map<string,NativePixels>>={};const decoded=new Map<string,Promise<NativePixels>>();
-  await Promise.all(Object.entries(homeLayouts).map(async ([name,names])=>{
+  await Promise.all(Object.entries(requestedLayouts).map(async ([name,names])=>{
    const pack=packs[name];if(pack.schema!==1||!pack.layouts||!pack.animations)throw new Error(`Invalid native pack ${name}`);
    const needed=new Set<string>();
    for(const layout of names){if(!pack.layouts[layout])throw new Error(`Missing native layout ${layout}`);pack.layouts[layout].textures.forEach(n=>needed.add(n));

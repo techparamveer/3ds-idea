@@ -303,3 +303,22 @@ test('visible window raster preserves full-pane UV and corner-color sampling wit
  assert.equal(reflected.sampling.x,299);assert.equal(reflected.rasterWidth,322);
  assert.equal(api.nativeVisibleRasterRect(0,0,32,16,{a:1,b:0,c:0,d:1,e:1000,f:0},320,240),null);
 });
+
+test('real Notes four-frame thumbnails mirror only the right source frames',()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/game-notes/memo-MemoListDown-arc-l.json')));
+ const l=pack.layouts.MemoListDown,flatten=ps=>ps.flatMap(p=>[p,...flatten(p.children)]),w=flatten(l.roots).find(p=>p.name==='W_BtnMemoThum00');
+ assert.deepEqual(w.window.frames.map(f=>f.flip),[0,1,0,1]);
+ const textures=new Map(Object.entries(pack.textures).map(([name,t])=>[name,{width:t.width,height:t.height,data:new Uint8ClampedArray(t.width*t.height*4)}]));
+ const source=JSON.stringify(w),unflipped=structuredClone(w);unflipped.window.frames.forEach(f=>f.flip=0);
+ const original=nativeWindowPatches(unflipped,l,textures),mirrored=nativeWindowPatches(w,l,textures);
+ assert.equal(JSON.stringify(w),source);assert.equal(mirrored.length,original.length);
+ for(let i=0;i<mirrored.length;i++){
+  assert.deepEqual([mirrored[i].x,mirrored[i].y,mirrored[i].width,mirrored[i].height],[original[i].x,original[i].y,original[i].width,original[i].height]);
+  if(i!==2&&i!==3)assert.deepEqual(mirrored[i].picture.uvSets,original[i].picture.uvSets);
+ }
+ // A right strip now starts at the texture's right edge and ends at its left;
+ // its vertical span and tiling remain unchanged.
+ const uv=mirrored[2].picture.uvSets[0],base=original[2].picture.uvSets[0];
+ assert.deepEqual([uv[0],uv[2],uv[4],uv[6]],[1,0,1,0]);assert.deepEqual([uv[1],uv[3],uv[5],uv[7]],[base[1],base[3],base[5],base[7]]);
+ const rotated=structuredClone(w);rotated.window.frames[1].flip=3;assert.throws(()=>nativeWindowPatches(rotated,l,textures),/Unsupported window frame flip 3/);
+});

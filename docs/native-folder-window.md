@@ -53,3 +53,15 @@ empty-folder footer and animation epochs still differ. The native reference is
 with the browser capture. Those differences must be resolved through native
 runtime layout bindings and matched captures, not inferred offsets or a claim
 that the numerical fixture establishes full visual fidelity.
+
+## Game Notes horizontal frame reflection
+
+The supplied `MemoListDown` layouts encode their four thumbnail frames as
+`[0,1,0,1]`. The format's value1 is horizontal reflection, also named `FlipH` by
+[EveryFileExplorer's CLYT window reader](https://github.com/Gericom/EveryFileExplorer/blob/master/3DS/NintendoWare/LYT1/wnd1.cs).
+The four-frame compositor now reflects each affected texture U coordinate about
+0.5, preserving V, strip geometry, material inheritance and out-of-range tiling.
+Source layouts are immutable. This is a format-based implementation; it has no
+new ARM or matched-LCD claim. The real Notes-resource regression checks both
+right-frame UV direction and preservation of all other strips. Rotated frames
+and nonzero flips in the one-frame arrangement remain explicitly unsupported.

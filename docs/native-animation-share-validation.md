@@ -120,5 +120,7 @@ application acceptance. No browser was controlled in this worker task.
 The coordinator-requested `PaneOverrides.lineSpacing` writes text-pane spacing.
 `vertexColors` clones every supplied color array into picture/window content; it
 does not alter text top/bottom colors. The focused tests cover both additions.
-Integration must include `firmware/animation_hierarchy.py` in `build.py`'s converter
-provenance script list; the coordinator owns that remaining one-line glue.
+Integration includes `firmware/animation_hierarchy.py` in `build.py`'s converter
+provenance script list and advances the converter to 1.3.2. Existing public HOME
+packs remain unchanged; freshly converted packs retain content indices even when
+no sharing section is present.

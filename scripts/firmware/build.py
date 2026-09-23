@@ -23,7 +23,7 @@ from firmware.texture import decode_bclim, decode_texture, png
 from firmware.cia import cia_metadata, content_directory, content_key, content_provenance
 
 FIRMWARE = '10.7.0-32E'
-CONVERTER_VERSION = '1.3.1'
+CONVERTER_VERSION = '1.3.2'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
@@ -130,7 +130,7 @@ def public_path(root, url):
 
 
 def converter_provenance(ctrtool):
-    scripts = ['firmware/build.py', 'firmware/cia.py', 'firmware/native.py', 'firmware/texture.py',
+    scripts = ['firmware/build.py', 'firmware/cia.py', 'firmware/native.py', 'firmware/animation_hierarchy.py', 'firmware/texture.py',
                'convert_bcfnt.py', 'unpack_home_resources.py']
     result = subprocess.run([str(ctrtool), '--help'], capture_output=True, text=True, timeout=10)
     # CTRTool prints its identity with help, returning 1 for this invocation.

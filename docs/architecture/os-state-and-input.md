@@ -173,6 +173,12 @@ see [pickup entry and remaining boundaries](../home-pickup-entry-integration.md)
 
 ## Firmware application foundation
 
+`native-keyboard-text.ts` supplies the source-derived initial local cell and
+cursor overrides for the bounded Settings name keyboard request. It consumes
+normalized text and original cell colors; it does not own filtering, editing,
+controller time or composition. See [the component evidence and remaining
+integration work](../native-keyboard-text.md).
+
 `app-types.ts` defines renderer-independent application state, effects and views.
 `app-registry.ts` retains the eight portfolio entries before stock title slots;
 AR Games and Face Raiders are absent. `app-host.ts` owns the application, system

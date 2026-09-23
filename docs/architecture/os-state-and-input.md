@@ -19,6 +19,7 @@
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
 | `home-input-producer.ts` | Pure native poll/event arithmetic; live scheduler integration pending |
 | `home-input-sample.ts` | Explicit digital/primary-axis snapshots and independent sample edges; integration pending |
+| `home-scroll-consumer.ts` | Native direction/focus/mode3 arithmetic and ordered cue, cursor and banner observations; live input integration pending |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-cursor-loop.ts`, `home-cursor-visibility.ts` | Retained primary cursor Loop and shared visibility predicate |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
@@ -134,6 +135,13 @@ them; layout reset retains allocation history. Successful restore mints a fresh
 identity set and requires a new banner-service generation. See
 [live folder identity](../home-folder-identity.md) for isolated-menu fallback,
 persistence boundaries and tests.
+
+The native lower consumer reports banner resolver snapshots before pending
+movement can change selection again. `resolveHomeBannerHostObservation` resolves
+those recorded slots/contexts and keeps unsupported toolbar categories explicit;
+the service deduplicates accepted targets. The live scene still uses its earlier
+selection boundary until counted host integration. See
+[observed banner selection](../home-banner-observation-resolution.md).
 
 ## Firmware application foundation
 

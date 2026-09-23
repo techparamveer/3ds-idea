@@ -1,7 +1,7 @@
 import type { AppView } from './app-types';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
-import { nativeMessageOverride, type NativeAnimation, type NativeLayout, type PaneOverrides } from './native-layout';
+import { nativeMessageOverride, nativePaneParentPath, type NativeAnimation, type NativeLayout, type PaneOverrides } from './native-layout';
 
 const prefix='packs/settings/contents/0000-0000003d/';
 const mainButtons=['I_TopLTs','I_TopRTs','I_TopLBs','I_TopRBs','I_TopTs'];
@@ -9,9 +9,9 @@ const buttons=[...mainButtons,'B_L','B_LBlue','B_SB','B_SMngCTRO','B_SMngDSiO','
 const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_AnalogPad','I_Trans','I_Lang','I_Update','I_Format'];
 export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
-  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','TextBG_U_00_TextFadeIn']},
-  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00'],animations:['Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
-  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_S','B_M','R_ArrowL','R_ArrowR','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear']},
+  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn']},
+  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00'],animations:['Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
+  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
 ];
 /** These archive-level shares have neither endpoint in the requested Settings buttons.
@@ -55,6 +55,25 @@ export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasR
   return okay;
 }
 
+const preparedFields=new WeakSet<NativeLayoutRenderer>();
+/** Read-only fields reuse source text/materials and source numeric boxes. The
+ * source digit samples and editing arrows are hidden, never treated as data. */
+function prepareReadOnlyFields(renderer:NativeLayoutRenderer){
+  if(preparedFields.has(renderer))return;
+  const pack=renderer.packs.layout,layouts={...pack.layouts};
+  for(const name of ['Birthday_D_00','DateTime_D_00','DateTime_D_01']){
+    const layout=structuredClone(pack.layouts[name]);
+    const parent=nativePaneParentPath(layout,'Null_00')!.at(-1)!;
+    const fields=name==='DateTime_D_00'?['TextBox_00','TextBox_01','TextBox_02']:['TextBox_01','TextBox_02'];
+    for(const field of fields){
+      const template=nativePaneParentPath(layout,field)!.at(-1)!;
+      const pane=structuredClone(template);pane.name=field+'_Value';pane.children=[];pane.origin=4;pane.translation=[template.translation[0],12,0];pane.size=[field==='TextBox_00'?112:62,42];pane.text!.size=[27,32.4];pane.text!.alignment=4;pane.text!.messageStyle=undefined;
+      parent.children.push(pane);
+    }
+    layouts[name+'_ReadOnly']=layout;
+  }
+  renderer.packs.layout={...pack,layouts};preparedFields.add(renderer);
+}
 type Child=readonly [mount:string,layout:string,id:string,label?:string];
 const otherButtons:Record<string,[string,string]>={profile:['I_User','user_info'],clock:['I_Date','date_time'],touch:['I_Touch','touch'],sound:['I_Sound','sound'],mic:['I_Mic','mic_test'],'calibration-3d':['I_3DTest','3d_check'],'outer-cameras':['I_Ocam','ocam'],'circle-pad':['I_AnalogPad','analog_pad'],transfer:['I_Trans','trans'],language:['I_Lang','language'],update:['I_Update','update'],format:['I_Format','initialize']};
 const panelMirrors={UpWndwLT_01:{size:[184,80],scale:[-1,1]},UpWndwLT_02:{size:[184,80],scale:[1,-1]},UpWndwLT_03:{size:[184,80],scale:[-1,-1]}};
@@ -64,6 +83,9 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   prepareSettingsButtons(renderer);
   const message=(label:string)=>nativeMessageOverride(renderer.packs.messages,'mset',label,'');
   const {screen}=view,data=view.data??{},page=typeof data.page==='number'?data.page:0;
+  const preferences=data.settings&&typeof data.settings==='object'?data.settings as Record<string,unknown>:{};
+  const value=(key:string)=>typeof preferences[key]==='string'&&preferences[key]!==''?String(preferences[key]):'Not set';
+  const field=String(data.field??'');
   const section=screen==='detail'?String(data.parent??'other'):screen;
   const sections:Record<string,[string,string,string]>={internet:['IconNet','net_top_title','net_top_comm_u'],connections:['IconNet','net_set_title','net_set_comm_u'],parental:['IconParental','parental_title_u','par_top_comm_u_n'],restrictions:['IconParental','parental_title_u','par_chan_comm_u1'],data:['IconDataMa','dat_title_u','dat_comm_u'],'data-3ds':['IconDataMa','dat_title_u','dat_3ds_comm_u'],profile:['IconUser','user_info_title','user_info_comm_u'],clock:['IconDateTime','date_time_title','datetime_comm_u'],other:['IconBasic','settings_title','settings_comm_u']};
   const [icon,title,instruction]=sections[section]??sections.other;
@@ -75,7 +97,12 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   draw(top,'up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_00',frame:20}],overrides:{TextBoxTitle_00:screen==='detail'?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.
-  draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='detail'?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
+  draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
+  if(screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'){
+    draw(top,'up','UserInfo_U_00',{bindings:[{name:'UserInfo_U_00_TextFadeIn',frame:20}],overrides:{
+      IconTop_00:{visible:false},TextBox_01:message('user_name_u'),TextBox_02:{text:value('nickname')},TextBox_03:message('region_u'),TextBox_04:{visible:false},TextBox_05:{visible:false},TextBox_06:{text:value('region')},TextBox_07:message('birthday_u'),TextBox_08:{text:value('birthday')},TextBox_00:{text:screen==='profile'?message('user_info_comm_u').text:(view.text??[]).join('\n')},
+    }});
+  }
   const child=(layout:string,id:string,label?:string)=>{
     const clip=layout==='B_S'?'B_SB':layout==='B_M'?'B_L':otherIcons.includes(layout)?'I_User':layout;
     const bindings=buttons.includes(clip)?[{name:clip+'_DirectSettings',frame:view.rows[view.selection]?.id===id?1:0}]:[];
@@ -116,6 +143,22 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     view.rows.slice(start,start+4).forEach((row,i)=>{
       draw(bottom,'button','B_M',{center:[160,43+i*44],bindings:[{name:'B_L_DirectSettings',frame:start+i===view.selection?1:0}],overrides:{TextBox_00:{text:row.label,fontSize:[15,18]}}});
     });
+  }else if(screen==='detail'&&field==='sound'){
+    draw(bottom,'layout','Sound_D_00',{overrides:{Null_00:{translation:[0,0,0],alpha:255}},attachments:Object.fromEntries(['surround','stereo','mono'].map((label,i)=>['N_T_OnOff_0'+i,()=>draw(bottom,'button','T_OnOff',{bindings:[{name:value('sound').toLowerCase()===label?'T_OnOff_Decide':'T_OnOff_UnDecide',frame:value('sound').toLowerCase()===label?11:1}],overrides:{TextBox_00:message(label)}})]))});
+  }else if(screen==='detail'&&['birthday','date','time'].includes(field)){
+    // Reflow the source panel behind read-only fields so captions retain the
+    // source dark text's contrast. This does not expose the editing arrows.
+    draw(bottom,'up','TextBG_U_00',{center:[160,120],bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{TextBox_00:{visible:false},UpWndwLT_00:{size:[154,104],translation:[0,68,0]},UpWndwLT_01:{size:[154,104],translation:[154,68,0],scale:[-1,1]},UpWndwLT_02:{size:[154,104],translation:[0,-36,0],scale:[1,-1]},UpWndwLT_03:{size:[154,104],translation:[154,-36,0],scale:[-1,-1]}}});
+    prepareReadOnlyFields(renderer);
+    const layout=field==='birthday'?'Birthday_D_00':field==='date'?'DateTime_D_00':'DateTime_D_01';
+    const raw=value(field),parts=field==='time'?/^(\d{2}):(\d{2})$/.exec(raw):field==='date'?/^(\d{4})-(\d{2})-(\d{2})$/.exec(raw):/^(?:\d{4}-)?(\d{2})-(\d{2})$/.exec(raw);
+    const values=parts?parts.slice(1):field==='date'?['—','—','—']:['—','—'];
+    const labels=field==='time'?['Hour','Minute']:field==='date'?['Year','Month','Day']:['Month','Day'];
+    const fields=field==='date'?['TextBox_00','TextBox_01','TextBox_02']:['TextBox_01','TextBox_02'];
+    const overrides:PaneOverrides={Null_00:{translation:[0,0,0],alpha:255},TextBoxTitle_00:message(field+'_comm')};
+    fields.forEach((name,i)=>{overrides[name]={text:labels[i]};overrides[name+'_Value']={text:values[i]};});
+    const hideSamples=(panes:NativeLayout['roots'])=>panes.forEach(pane=>{if(/^(Picture_|Number_|Sign_|N_R_)/.test(pane.name))overrides[pane.name]={visible:false};hideSamples(pane.children);});hideSamples(renderer.packs.layout.layouts[layout].roots);
+    draw(bottom,'layout',layout+'_ReadOnly',{overrides});
   }else{
     draw(bottom,'up','TextBG_U_00',{center:[160,104.4],scale:.8,bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}}});
   }

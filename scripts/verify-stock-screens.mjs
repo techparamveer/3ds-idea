@@ -33,6 +33,7 @@ export async function verifyStockScreens(options){
  for(const [screen,items]of Object.entries({data:[['data-3ds','Nintendo 3DS'],['data-dsi','Nintendo DSiWare'],['streetpass','StreetPass Management'],['blocked-users','Reset blocked-user settings']],profile:[['nickname','User Name'],['birthday','Date of Birth'],['region','Region Settings'],['ds-profile','Nintendo DS Profile']],'data-3ds':[['software','Software'],['extra-data','Extra Data'],['add-on-content','Add-on Content'],['backup','Save Data Backup']],connections:[['connection-1','Connection 1'],['connection-2','Connection 2'],['connection-3','Connection 3'],['new-connection','New Connection']],clock:[['date',"Today's Date"],['time','Current Time']],restrictions:[['rating','Software Rating'],['browser','Internet Browser'],['shopping','Nintendo 3DS Shopping Services'],['3d','Display of 3D Images']]}))views.push({appId:'system-settings',screen,heading:screen,rows:rows(items),selection:0,footer:{left:footer.left}});
  for(const [page,items]of [[0,[['profile','Profile'],['clock','Date & Time'],['touch','Touch Screen']]],[3,[['language','Language'],['update','System Update'],['format','Format System Memory']]]])views.push({appId:'system-settings',screen:'other',verificationId:'settings-other-'+page,heading:'Other Settings',rows:rows(items),selection:1,footer:{left:footer.left},data:{page}});
  views.push({appId:'system-settings',screen:'detail',heading:'User Name',rows:[],selection:0,footer:{left:footer.left},text:['Not set in this portfolio.'],data:{parent:'profile',field:'nickname'}});
+ for(const field of ['sound','birthday','date','time','language'])views.push({appId:'system-settings',screen:'detail',verificationId:'settings-detail-'+field,heading:field,rows:[],selection:0,footer:{left:footer.left},text:[field==='sound'?'Stereo':field==='language'?'English':'Not set in this portfolio.'],data:{parent:['date','time'].includes(field)?'clock':'profile',field,settings:{sound:'Stereo',language:'English'}}});
  const playback=views.find(view=>view.appId==='sound'&&view.screen==='playback');
  views.push({...playback,verificationId:'sound-paused',data:{...playback.data,playing:false}});
  views.push({...playback,verificationId:'sound-error',text:['This track could not be played.'],data:{...playback.data,playing:false,mediaError:true}});
@@ -55,7 +56,7 @@ export async function verifyStockScreens(options){
   miiverseAssets=await loadNativeTitleAssets('https://stock-ui.invalid/manifest.json','000400300000be02',miiverseScreenPacks,new Map());
   const healthMessages=healthAssets.renderer.packs['health-messages'].messages.safe_msbt_LZ;
   for(const [topic,label]of Object.entries(healthDocumentArticles))assert.equal(Math.ceil(healthMessages.messages[healthMessages.labels[label]].text.split('\n').length/healthDocumentLinesPerPage),healthDocumentPageCounts[topic],'runtime and native document page totals agree');
-  const sourceButtonPack=assets.renderer.packs.button,sourceButtonJson=JSON.stringify(sourceButtonPack);
+  const sourceButtonPack=assets.renderer.packs.button,sourceButtonJson=JSON.stringify(sourceButtonPack),sourceLayoutPack=assets.renderer.packs.layout,sourceLayoutJson=JSON.stringify(sourceLayoutPack);
   const buttonLayout=sourceButtonPack.layouts.I_TopLTs,buttonClip=sourceButtonPack.animations.I_TopLTs_Select;
   assert.deepEqual(settingsDirectButtonClip(buttonLayout,buttonClip).shares,[]);
   assert.throws(()=>settingsDirectButtonClip({...buttonLayout,groups:[...buttonLayout.groups,{name:'AS_Picture_00',panes:[],children:[]}]},buttonClip),/explicit composition/);
@@ -83,6 +84,7 @@ export async function verifyStockScreens(options){
   }
   assert.equal(new Set(focusHashes).size,5,'each Settings selection paints a distinct native focus state');
   assert.equal(JSON.stringify(sourceButtonPack),sourceButtonJson,'derived Settings clips preserve the source pack');
+  assert.equal(JSON.stringify(sourceLayoutPack),sourceLayoutJson,'derived Settings read-only fields preserve the source pack');
   writeFileSync(join(out,'settings-focus.png'),focusSheet.toBuffer('image/png'));
   const diagnostics=[...assets.diagnostics,...soundAssets.diagnostics,...cameraAssets.diagnostics,...healthAssets.diagnostics,...browserAssets.diagnostics,...miiverseAssets.diagnostics];
   const failures=diagnostics.filter(d=>!d.includes('unrequested converter omissions'));assert.deepEqual(failures,[]);

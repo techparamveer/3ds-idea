@@ -80,6 +80,12 @@ function textureMatrix(coord:Coord){
  if(coord.TransformType==='Dcc3dsMax'){x=sx*c*(-tx-.5)-sx*s*(ty-.5)+.5;y=sy*s*(-tx-.5)+sy*c*(ty-.5)+.5;}
  return new THREE.Matrix3().set(sx*c,-sx*s,x,sy*s,sy*c,y,0,0,1);
 }
+const depthFunction:Record<string,THREE.DepthModes>={Never:THREE.NeverDepth,Always:THREE.AlwaysDepth,Equal:THREE.EqualDepth,NotEqual:THREE.NotEqualDepth,Less:THREE.LessDepth,LessOrEqual:THREE.LessEqualDepth,Greater:THREE.GreaterDepth,GreaterOrEqual:THREE.GreaterEqualDepth};
+function nativeDepthFunction(value:string){
+ const result=depthFunction[value];
+ if(result===undefined)throw new Error(`Unsupported native depth comparison ${value}`);
+ return result;
+}
 const wrap=(value:string)=>value==='Repeat'?THREE.RepeatWrapping:value==='MirroredRepeat'?THREE.MirroredRepeatWrapping:THREE.ClampToEdgeWrapping;
 function texturePixels(image:NativePixels){
  const pixels=new Uint8Array(image.data.length),stride=image.width*4;
@@ -120,7 +126,7 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
     uniforms[`tex${i}`]={value:texture};uniforms[`uvMatrix${i}`]={value:textureMatrix(p.TextureCoords[i])};
    }
    const blend=p.BlendFunction;
-   const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m,lighting),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
+   const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m,lighting),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,depthFunc:nativeDepthFunction(p.DepthColorMask.DepthFunc),side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
    // The transparent Canvas bridge needs geometric blend coverage. Preserve
    // native RGB blending, but do not square alpha as native mt_Text's otherwise
    // invisible framebuffer-alpha equation does. Other blend families are kept.

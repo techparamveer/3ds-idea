@@ -139,3 +139,21 @@ test('model raw texture upload preserves hidden RGB and reverses PNG rows explic
  assert.deepEqual([...texture.image.data],[40,50,60,255,10,20,30,0]);
  assert.equal(texture.flipY,false);assert.deepEqual([...pixels.data],[10,20,30,0,40,50,60,255]);model.dispose();
 });
+
+// These real resources previously fell through to Three's LessEqual default.
+test('native folder and background preserve authored depth comparison on every mesh',()=>{
+ for(const name of ['folder','home-background']){
+  const data=JSON.parse(readFileSync(new URL(`../public/os/firmware/10.7.0-32E/models/${name}/model.json`,import.meta.url),'utf8'));
+  const before=JSON.stringify(data),model=createFirmwareModel({data,images:new Map()},{skeletal:[],material:[]});
+  const comparisons={Never:THREE.NeverDepth,Always:THREE.AlwaysDepth,Equal:THREE.EqualDepth,NotEqual:THREE.NotEqualDepth,Less:THREE.LessDepth,LessOrEqual:THREE.LessEqualDepth,Greater:THREE.GreaterDepth,GreaterOrEqual:THREE.GreaterEqualDepth};
+  data.models.forEach((source,index)=>{
+   let child=0;
+   for(const mesh of source.meshes)for(const sub of mesh.submeshes){
+    const actual=model.group.children[index].children[child++].material,expected=source.materials[mesh.material].MaterialParams.DepthColorMask;
+    assert.equal(actual.depthFunc,comparisons[expected.DepthFunc]);
+    assert.equal(actual.depthTest,expected.Enabled);assert.equal(actual.depthWrite,expected.DepthWrite);
+   }
+  });
+  assert.equal(JSON.stringify(data),before);model.dispose();
+ }
+});

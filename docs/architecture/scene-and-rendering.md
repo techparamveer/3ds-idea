@@ -56,6 +56,12 @@ The sourced glTF PBR maps remain the base appearance. VGPU adds bounded silver
 roughness variation only to materials carrying explicit paint roles and masks.
 It must not recolor unclassified materials, screen parts or printed details.
 
+Native CGFX material depth tests use each exported comparison function, including
+`Less`; they no longer inherit Three.js’s `LessEqual` default. Focused real-model
+tests and a live folder capture (`reference/browser-depth-source-top.png` in the
+firmware SSD artifacts) cover the change. Runtime stencil masks and native mip
+levels remain separate fidelity gaps.
+
 ## Cleanup contract
 
 Every allocated geometry, material, texture, environment target, renderer,

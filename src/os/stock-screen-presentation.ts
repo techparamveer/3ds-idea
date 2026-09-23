@@ -6,6 +6,7 @@ import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-sett
 import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
 import { drawNativeCameraLower, cameraScreenPacks } from './stock-native-camera';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
+import { drawNativePersonalToolFrame, nativePersonalToolView } from './stock-native-personal-tools';
 import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -71,6 +72,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
   if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view))return;
   if(options.native&&drawNativeSoundFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativeHealthFrame(options.native,top,bottom,view,options))return;
+  if(options.native&&drawNativePersonalToolFrame(options.native,top,bottom,view,options))return;
   chrome(top,400,view.heading,accent,font);chrome(bottom,320,view.heading,accent,font);
   if(camera(view.appId)){
     const folders=records(data.folders),photos=records(data.photos),selected=view.rows[view.selection];
@@ -160,7 +162,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   function prepare(view:AppView,nextOwner:string,font?:BitmapFont){
     if(disposed)return session.getState();
     sync(nextOwner);
-    const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:null);
+    const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:nativePersonalToolView(view));
     return session.update(nativeView?{owner:nextOwner,...nativeView,sharedFonts:new Map([['cbf_std.bcfnt',font!]])}:null);
   }
   return {

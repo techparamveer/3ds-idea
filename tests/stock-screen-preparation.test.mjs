@@ -10,6 +10,7 @@ const session=url(compile('native-title-session').replace("'./native-title-asset
 let source=compile('stock-screen-presentation').replace("'./native-title-session'",JSON.stringify(session));
 for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSettingsMain'],['sound','soundScreenPacks','drawNativeSoundFrame'],['camera','cameraScreenPacks','drawNativeCameraLower'],['health','healthScreenPacks','drawNativeHealthFrame']])source=source.replace(`'./stock-native-${file}'`,JSON.stringify(url(`export const ${packs}=[{url:'${file}.json',alias:'${file}',layouts:[],animations:[]}];export const ${draw}=()=>false;`)));
 source=source.replace("'./stock-screen-layout'",JSON.stringify(url('export const stockScreenTargets=()=>[];')));
+source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url('export const nativePersonalToolView=()=>null;export const drawNativePersonalToolFrame=()=>false;')));
 const {createStockScreenPresentation}=await import(url(source));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const view=appId=>({appId,screen:'main',heading:'',rows:[],selection:0,footer:{}});

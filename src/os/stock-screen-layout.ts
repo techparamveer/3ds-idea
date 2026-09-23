@@ -24,6 +24,7 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     const start=Math.floor(selection/4)*4;
     rows.slice(start,start+4).forEach((row,i)=>result.push(target(row.id,18,40+i*39,284,35,start+i)));
   }
+  if(appId==='notifications'&&screen==='main'&&rows.length===0&&view.footer.left)return [...result,target(view.footer.left.action,0,212,320,28)];
   if(view.footer.left)result.push(target(view.footer.left.action,0,214,150,26));
   if(view.footer.right)result.push(target(view.footer.right.action,170,214,150,26));
   return result;

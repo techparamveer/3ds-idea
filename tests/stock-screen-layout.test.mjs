@@ -26,3 +26,9 @@ test('music controls and seek surface are separate, bounded, finite targets',()=
  assert.equal(seek(v,30,106),0);assert.equal(seek(v,160,106),.5);assert.equal(seek(v,290,106),1);
  assert.equal(seek(v,291,106),null);assert.equal(seek(v,NaN,106),null);assert.equal(seek(view('camera','photo',[]),160,106),null);
 });
+
+test('empty Notifications full-width native Close button returns HOME across its full width',()=>{
+ const view={appId:'notifications',screen:'main',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}};
+ for(const x of [0,160,319])assert.equal(hit(view,x,226),'back');
+ assert.equal(hit(view,160,211),null);
+});

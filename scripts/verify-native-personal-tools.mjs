@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {parseArgs} from 'node:util';
 import ts from 'typescript';
 export async function verifyPersonalTools(options){
- options.title??='notifications';assert.equal(options.title,'notifications');
+ options.title??='notifications';assert.ok(['notifications','notes'].includes(options.title));
  for(const key of ['artifactDir','assetRoot','canvasModule','interfaceRoot'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-')),sourceHashes={};

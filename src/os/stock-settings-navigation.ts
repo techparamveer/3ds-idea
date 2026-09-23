@@ -5,7 +5,7 @@ const settingsMenus:Record<string,readonly Choice[]>={
   main:[['internet','Internet Settings'],['parental','Parental Controls'],['data','Data Management'],['other','Other Settings'],['nnid','Nintendo Network ID Settings']],
   internet:[['connections','Connection Settings'],['spotpass','SpotPass'],['ds-connections','Nintendo DS Connections'],['internet-info','Other Information']],
   connections:[['connection-1','Connection 1'],['connection-2','Connection 2'],['connection-3','Connection 3'],['new-connection','New Connection']],
-  parental:[['next','Next'],['back','Back']],
+  parental:[['next','Set'],['back','Back']],
   restrictions:[['rating','Software Rating'],['browser','Internet Browser'],['shopping','Nintendo 3DS Shopping Services'],['3d','Display of 3D Images'],['sharing','Sharing Images / Audio / Video / Long Text Data'],['interaction','Online Interaction'],['friend-registration','Friend Registration'],['download-play','DS Download Play'],['streetpass-restriction','StreetPass'],['videos','Viewing Distributed Videos'],['miiverse','Miiverse']],
   data:[['data-3ds','Nintendo 3DS'],['data-dsi','Nintendo DSiWare'],['streetpass','StreetPass Management'],['blocked-users','Reset blocked-user settings']],
   'data-3ds':[['software','Software'],['extra-data','Extra Data'],['add-on-content','Add-on Content'],['backup','Save Data Backup']],

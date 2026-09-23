@@ -333,3 +333,10 @@ test('Settings-launched helper main Back retains the current HOME behavior',()=>
   const {module,state}=setup(id);assert.deepEqual(action(module,state,'back'),{state,effects:[{type:'home'}]});
  }
 });
+
+test('Parental footer follows its horizontal Back and Set arrangement',()=>{
+ const {module}=setup('system-settings');let state=action(module,module.create({},null,ctx),'parental').state;
+ assert.equal(module.view(state,ctx).rows[0].label,'Set');
+ const move=command=>{state=module.reduce(state,{type:'command',command},ctx).state;return module.view(state,ctx).rows[state.selection].id;};
+ assert.equal(move('left'),'back');assert.equal(move('up'),'back');assert.equal(move('right'),'next');assert.equal(move('down'),'next');
+});

@@ -60,7 +60,7 @@ test('Settings Internet and introductory Parental Controls use source child butt
  assert.equal(hit(internet,160,56),'connections');assert.equal(hit(internet,160,119),'spotpass');assert.equal(hit(internet,160,152),'ds-connections');assert.equal(hit(internet,160,185),'internet-info');
  assert.equal(hit(internet,160,99),null);assert.equal(hit(internet,80,226),'back');assert.equal(hit(internet,200,226),null);
  const parental=view('system-settings','parental',['next','back']);
- assert.equal(hit(parental,160,138),'next');assert.equal(hit(parental,160,178),'back');assert.equal(hit(parental,160,158),null);
+ assert.equal(hit(parental,260,226),'next');assert.equal(hit(parental,60,226),'back');assert.equal(hit(parental,160,226),null);assert.equal(hit(parental,260,207),null);assert.equal(hit(parental,160,138),null);
 });
 test('Settings submenus retain native geometry and bounded page arrows',()=>{
  const data=view('system-settings','data',['data-3ds','data-dsi','streetpass','blocked-users']);

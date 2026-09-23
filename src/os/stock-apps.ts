@@ -79,6 +79,11 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       const next = current.rows.findIndex(item => item.id === nextId);
       return next < 0 ? selected : next;
     }
+    if (id === 'system-settings' && current.screen === 'parental') {
+      const nextId = direction === 'left' ? 'back' : direction === 'right' ? 'next' : undefined;
+      const next = current.rows.findIndex(item => item.id === nextId);
+      return next < 0 ? selected : next;
+    }
     if (id === 'system-settings' && current.screen === 'data') {
       const neighbors: Record<string, Partial<Record<typeof direction, string>>> = {
         'data-3ds': { right: 'data-dsi', down: 'streetpass' },

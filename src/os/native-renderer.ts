@@ -3,8 +3,14 @@ import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, native
  type AnimationBinding, type NativeLayout, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
-export type NativeDrawOptions={bindings?:AnimationBinding[];overrides?:PaneOverrides;center?:[number,number];scale?:number;clip?:[number,number,number,number];textures?:Readonly<Record<string,NativePixels>>};
+export type NativeDrawOptions={bindings?:AnimationBinding[];overrides?:PaneOverrides;center?:[number,number];scale?:number;clip?:[number,number,number,number];textures?:Readonly<Record<string,NativePixels>>;
+ /** Caller guarantees an opaque LCD target with no inherited fractional clip. */
+ allowOpaqueDarken?:boolean};
 const surface=(width:number,height:number)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;return canvas;};
+// On the opaque LCD, Add(Zero, OneMinusSourceAlpha) is D*(1-As).
+// Black source-over has the same visible RGB; retain the evaluated alpha bytes.
+const nativeDarkenBlend=(material:NativeMaterial)=>material.colorBlend?.operation===1&&material.colorBlend.sourceFactor===0&&material.colorBlend.destinationFactor===5&&material.alphaCompare?.function===7;
+const wholeDevicePixelRect=([x,y,w,h]:[number,number,number,number],m:DOMMatrix)=>m.b===0&&m.c===0&&[m.a*x+m.e,m.d*y+m.f,m.a*(x+w)+m.e,m.d*(y+h)+m.f].every(Number.isInteger);
 /** Canvas owns only layout targets. The scene owns all 3D banner rendering. */
 export class NativeLayoutRenderer {
  private cache=new Map<string,HTMLCanvasElement>();
@@ -37,6 +43,7 @@ export class NativeLayoutRenderer {
   return this.cached(key,()=>{
    const pixels=rasterNativePicture(layout,picture,w,h,textures,alpha,material,sampling),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
    const data=ctx.createImageData(w,h);data.data.set(pixels.data);
+   if(nativeDarkenBlend(material))for(let i=0;i<data.data.length;i+=4)data.data[i]=data.data[i+1]=data.data[i+2]=0;
    // Project native LCD RGB to opaque Canvas for no-blend and multiplicative
    // masks. Their RGB remains meaningful under alpha zero (LA4 shadow masks).
    if(material.colorBlend?.operation===0||nativeMultiplyBlend(material.colorBlend))for(let i=3;i<data.data.length;i+=4)data.data[i]=255;
@@ -59,20 +66,25 @@ export class NativeLayoutRenderer {
     const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
     image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
    }
+   if(nativeDarkenBlend(material))for(let i=0;i<image.data.length;i+=4)image.data[i]=image.data[i+1]=image.data[i+2]=0;
    ctx.putImageData(image,0,0);return canvas;
   });
  }
- private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial){
-  const blend=(override??layout.materials[index]).colorBlend;
+ private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial,allowOpaqueDarken=false){
+  const material=override??layout.materials[index],blend=material.colorBlend;
   ctx.save();
   try{
+   // Coverage/resampling and nonunit Canvas alpha differ from readback. Opt in
+   // only for whole device pixels with one raster texel per destination pixel.
+   const darkenTransform=allowOpaqueDarken&&nativeDarkenBlend(material)?ctx.getTransform():undefined;
+   if(darkenTransform&&ctx.globalAlpha===1&&wholeDevicePixelRect([x,y,w,h],darkenTransform)&&Math.abs(darkenTransform.a*w)===canvas.width&&Math.abs(darkenTransform.d*h)===canvas.height){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
    if(!blend||(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
    if(blend.operation===0){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
    if(nativeMultiplyBlend(blend)&&this.opaque.has(canvas)){ctx.globalCompositeOperation='multiply';ctx.drawImage(canvas,x,y,w,h);return;}
    // Readback is limited to uncommon native blend modes; ordinary panes stay on Canvas's fast path.
    const target=this.blendTarget??=surface(ctx.canvas.width,ctx.canvas.height);
    if(target.width!==ctx.canvas.width||target.height!==ctx.canvas.height){target.width=ctx.canvas.width;target.height=ctx.canvas.height;}
-   const tmp=target.getContext('2d',{willReadFrequently:true})!,m=ctx.getTransform();
+   const tmp=target.getContext('2d',{willReadFrequently:true})!,m=darkenTransform??ctx.getTransform();
    tmp.resetTransform();tmp.clearRect(0,0,target.width,target.height);tmp.setTransform(m);tmp.drawImage(canvas,x,y,w,h);tmp.resetTransform();
    const src=tmp.getImageData(0,0,target.width,target.height),dst=ctx.getImageData(0,0,target.width,target.height),det=m.a*m.d-m.b*m.c;
    if(!det)return;
@@ -129,6 +141,7 @@ export class NativeLayoutRenderer {
   ctx.save();
   try{
    for(const pixels of Object.values(options.textures??{}))if(!Number.isInteger(pixels.width)||!Number.isInteger(pixels.height)||pixels.width<1||pixels.height<1||pixels.width*pixels.height>1024*1024||pixels.data.length!==pixels.width*pixels.height*4)throw new Error('Invalid dynamic native texture');
+   const allowOpaqueDarken=options.allowOpaqueDarken===true&&(!options.clip||wholeDevicePixelRect(options.clip,ctx.getTransform()));
    if(options.clip){ctx.beginPath();ctx.rect(...options.clip);ctx.clip();}
    const center=options.center??[layout.canvas.width/2,layout.canvas.height/2];ctx.translate(...center);ctx.scale(options.scale??1,options.scale??1);
    const visit=(pane:NativePane,parentAlpha:number)=>{
@@ -142,12 +155,12 @@ export class NativeLayoutRenderer {
      if(w>0&&h>0&&alpha>0){
       ctx.save();ctx.translate(x,y);
       try{
-       if(pane.picture){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material);}
+       if(pane.picture){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){ctx.beginPath();ctx.rect(0,0,w,h);ctx.clip();this.composite(ctx,this.text(layout,pane,alpha),0,0,w,h,layout,pane.text.material);}
        if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;
         const visible=nativeVisibleRasterRect(patch.x,patch.y,patch.width,patch.height,ctx.getTransform(),ctx.canvas.width,ctx.canvas.height);if(!visible)continue;
-        this.composite(ctx,this.picture(packName,layout,patch.picture,visible.rasterWidth,visible.rasterHeight,alpha,textures,patch.material,visible.sampling),visible.x,visible.y,visible.width,visible.height,layout,patch.picture.material,patch.material);
+        this.composite(ctx,this.picture(packName,layout,patch.picture,visible.rasterWidth,visible.rasterHeight,alpha,textures,patch.material,visible.sampling),visible.x,visible.y,visible.width,visible.height,layout,patch.picture.material,patch.material,allowOpaqueDarken);
        }
       }finally{ctx.restore();}
      }

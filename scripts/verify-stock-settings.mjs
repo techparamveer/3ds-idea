@@ -14,7 +14,7 @@ for(const name of ['bitmap-font','native-layout','native-png','native-renderer',
  const text=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(text,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
 }
-const [{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,drawNativeSettingsMain}]=await Promise.all(['bitmap-font','native-title-assets','stock-native-settings'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs')))));
+const [{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,drawNativeSettingsMain,settingsSceneVariant}]=await Promise.all(['bitmap-font','native-title-assets','stock-native-settings'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs')))));
 globalThis.document={createElement:()=>createCanvas(1,1)};globalThis.window={location:{href:'https://helper.invalid/manifest.json'}};globalThis.Image=Image;
 const bytesForBlob=new WeakMap();URL.createObjectURL=blob=>'data:image/png;base64,'+bytesForBlob.get(blob).toString('base64');URL.revokeObjectURL=()=>{};
 globalThis.fetch=async value=>{const url=new URL(value);assert.equal(url.origin,'https://helper.invalid');const file=resolve(assetRoot,url.pathname.slice(1));assert.ok(file.startsWith(assetRoot+'/'));const bytes=readFileSync(file),response=new Response(bytes);response.blob=async()=>{const blob=new Blob([bytes]);bytesForBlob.set(blob,bytes);return blob;};return response;};
@@ -51,8 +51,41 @@ try{
   assert.deepEqual(top.getContext('2d').getImageData(2,2,1,1).data,source.getContext('2d').getImageData(2,2,1,1).data);
  }
  assert.equal(new Set(focusHashes).size,5,'five distinct source selection states');
+ const cases=[
+  ['internet',3,['connections','spotpass','ds-connections','internet-info']],
+  ['connections',3,['connection-1','connection-2','connection-3','new-connection']],
+  ['data',4,['data-3ds','data-dsi','streetpass','blocked-users']],
+  ['data-3ds',4,['software','extra-data','add-on-content','backup']],
+  ['parental',5,['next','back']],['restrictions',5,['rating','browser','shopping','3d']],
+  ['profile',1,['nickname','birthday','region','ds-profile']],['clock',1,['date','time']],
+  ['other',1,['profile','clock','touch']],
+ ];
+ const subpages=cases.map(([screen,variant,ids])=>({...view,screen,variant,rows:ids.map(id=>({id,label:id}))}));
+ for(const [field,parent,variant]of [['sound','other',1],['language','other',1],['date','clock',1],['time','clock',1],['birthday','profile',1],['nickname','profile',1],['ds-profile','profile',2]])subpages.push({...view,screen:'detail',variant,rows:[],data:{field,parent},heading:field,text:[]});
+ for(const subpage of subpages){
+  const top=createCanvas(400,240),bottom=createCanvas(320,240),calls=[];
+  renderer.draw=(ctx,pack,layout,options)=>{calls.push({pack,layout,options});return originalDraw(ctx,pack,layout,options);};
+  assert.equal(settingsSceneVariant(subpage),subpage.variant);
+  assert.equal(drawNativeSettingsMain(renderer,top.getContext('2d'),bottom.getContext('2d'),subpage),true);
+  for(const name of ['Bg_U_00','Bg_D_00']){
+   const call=calls.find(c=>c.layout===name);assert.ok(call);
+   assert.deepEqual(call.options?.bindings??[],subpage.variant===2?[{name:name+'_SceneIn_Legacy',frame:40}]:[]);
+  }
+  const title=calls.find(c=>c.layout==='CommonBG_U_00');
+  assert.equal(title.options.bindings[0].name,'CommonBG_U_00_SceneIn_0'+(subpage.variant===2?0:subpage.variant));
+  if(subpage.screen==='detail'&&subpage.variant!==2){
+   assert.ok(title.options.overrides.TextBoxTitle_00.messageStyle,'identified detail keeps native title style');
+   const text=calls.find(c=>c.layout===(['nickname','birthday'].includes(subpage.data.field)?'UserInfo_U_00':'TextBG_U_00'));
+   assert.ok(text.options.overrides.TextBox_00.messageStyle,'identified detail keeps source instruction style');
+  }
+  for(const [name,canvas]of [['top',top],['bottom',bottom]]){
+   const id=subpage.screen+(subpage.data?.field?'-'+subpage.data.field:'')+'-'+name;
+   writeFileSync(join(out,id+'.png'),canvas.toBuffer('image/png'));
+   reports.push({id,variant:subpage.variant,sha256:createHash('sha256').update(canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data).digest('hex')});
+  }
+ }
  assert.equal(JSON.stringify(sourcePacks),before,'source packs remain immutable');
  assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
- writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Subpage background states are not inferred from main.']},null,2)+'\n');
- console.log('Settings main: five paired renders, source default background, English styles, immutable packs and diagnostics passed.');
+ writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette; DS Profile still needs its original Ls layouts.']},null,2)+'\n');
+ console.log('Settings: five main and sixteen subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.');
 }finally{assets.dispose();font.dispose();}

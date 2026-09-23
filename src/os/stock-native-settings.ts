@@ -9,7 +9,7 @@ const buttons=[...mainButtons,'B_L','B_LBlue','B_SB','B_SMngCTRO','B_SMngDSiO','
 const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_AnalogPad','I_Trans','I_Lang','I_Update','I_Format'];
 export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
-  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn']},
+  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn']},
   {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00'],animations:['Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
   {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
@@ -58,6 +58,19 @@ export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasR
   return okay;
 }
 
+/** Source table byte 0x23 selects both the background transition and title
+ * animation. Adapted detail cards inherit their parent section's presentation;
+ * only the identified DS Profile route requests Legacy. */
+export function settingsSceneVariant(view:AppView):1|2|3|4|5{
+  if(view.screen==='main')return 3;
+  if(view.screen==='detail'&&view.data?.field==='ds-profile')return 2;
+  const section=view.screen==='detail'?String(view.data?.parent??'other'):view.screen;
+  if(section==='internet'||section==='connections')return 3;
+  if(section==='data'||section==='data-3ds')return 4;
+  if(section==='parental'||section==='restrictions')return 5;
+  return 1;
+}
+
 const preparedFields=new WeakSet<NativeLayoutRenderer>();
 /** Read-only fields reuse source text/materials and source numeric boxes. The
  * source digit samples and editing arrows are hidden, never treated as data. */
@@ -91,19 +104,24 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   const field=String(data.field??'');
   const section=screen==='detail'?String(data.parent??'other'):screen;
   const sections:Record<string,[string,string,string]>={internet:['IconNet','net_top_title','net_top_comm_u'],connections:['IconNet','net_set_title','net_set_comm_u'],parental:['IconParental','parental_title_u','par_top_comm_u_n'],restrictions:['IconParental','parental_title_u','par_chan_comm_u1'],data:['IconDataMa','dat_title_u','dat_comm_u'],'data-3ds':['IconDataMa','dat_title_u','dat_3ds_comm_u'],profile:['IconUser','user_info_title','user_info_comm_u'],clock:['IconDateTime','date_time_title','datetime_comm_u'],other:['IconBasic','settings_title','settings_comm_u']};
-  const [icon,title,instruction]=sections[section]??sections.other;
+  const detailSections:Record<string,[string,string,string]>={sound:['IconSound','sound_title','sound_comm_u'],language:['IconLang','language','language_comm_u'],date:['IconDateTime','date_time_title','date_comm_u'],time:['IconDateTime','date_time_title','time_comm_u'],birthday:['IconUser','user_info_title','birthday_comm_u'],nickname:['IconUser','user_info_title','user_name_comm_u']};
+  const detailSource=screen==='detail'?detailSections[field]:undefined;
+  const [icon,title,instruction]=detailSource??sections[section]??sections.other;
+  const variant=settingsSceneVariant(view);
   let okay=true;
   const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,options:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,options)&&okay;};
   const back=()=>draw(bottom,'base','Base_D_00',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back')}});
-  draw(top,'base','Bg_U_00',{bindings:[{name:'Bg_U_00_SceneIn_Legacy',frame:40}]});
-  draw(bottom,'base','Bg_D_00',{bindings:[{name:'Bg_D_00_SceneIn_Legacy',frame:40}]});
-  draw(top,'up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_00',frame:20}],overrides:{TextBoxTitle_00:screen==='detail'?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
+  for(const [ctx,name] of [[top,'Bg_U_00'],[bottom,'Bg_D_00']] as const){
+    draw(ctx,'base',name,variant===2?{bindings:[{name:name+'_SceneIn_Legacy',frame:40}]}:{});
+  }
+  draw(top,'up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
+  const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.
-  draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
-  if(screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'){
+  if(!profileInfo)draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'&&!detailSource?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
+  if(profileInfo){
     draw(top,'up','UserInfo_U_00',{bindings:[{name:'UserInfo_U_00_TextFadeIn',frame:20}],overrides:{
-      IconTop_00:{visible:false},TextBox_01:message('user_name_u'),TextBox_02:{text:value('nickname')},TextBox_03:message('region_u'),TextBox_04:{visible:false},TextBox_05:{visible:false},TextBox_06:{text:value('region')},TextBox_07:message('birthday_u'),TextBox_08:{text:value('birthday')},TextBox_00:{text:screen==='profile'?message('user_info_comm_u').text:(view.text??[]).join('\n')},
+      IconTop_00:{visible:false},TextBox_01:message('user_name_u'),TextBox_02:{text:value('nickname')},TextBox_03:message('region_u'),TextBox_04:{visible:false},TextBox_05:{visible:false},TextBox_06:{text:value('region')},TextBox_07:message('birthday_u'),TextBox_08:{text:value('birthday')},TextBox_00:message(instruction),
     }});
   }
   const child=(layout:string,id:string,label?:string)=>{

@@ -96,6 +96,13 @@ comparisons and transition raster performance remain open.
 ## Settings subpages
 
 Settings retains one native title session from launch through all subpages.
+Identified subpages now select background and upper-title animation variants
+from their source scene-table state. Internet is state 3, Data state 4,
+ordinary Settings state 1 and Parental state 5; DS Profile selects Legacy state
+2. Known detail instructions use their source English messages and styles.
+Profile, User Name and Birthday retain their source `UserInfo_U_00` upper
+composition without an added generic text panel. The source trace and remaining
+adaptations are recorded in [Settings scene validation](settings-main-source-validation.md).
 Internet uses `NetTop_D_01` and its four source child buttons. Parental Controls
 uses introductory English messages and `Btn2Text_D_00`; the configured
 `PareTop` views are not used to imply saved restrictions or a PIN. Its lower

@@ -52,9 +52,46 @@ name selection at `0x2358dc`. It must not be generalized from the main screen.
 The state-2 Nintendo DS profile route demonstrates an actual Legacy use.
 Runtime writes found at `0x2147d4`, `0x214808`, `0x21485c`, `0x214918` and
 `0x215058` target outer-camera scenes (`ocam_check` / `ocam_auto1`), not
-`top4btn`. This commit changes main only. The existing global Legacy binding
-in the subpage painter is still a defect requiring per-scene correction;
-main's proof is not used to silently replace it everywhere.
+`top4btn`. The first correction changed main only. The subsequent subpage
+correction below uses each identified scene's separate value.
+
+## Subpage correction
+
+`settingsSceneVariant` maps Internet/Connection Settings to state 3, Data
+Management/3DS data to 4, ordinary Other Settings/Profile/Clock to 1, and
+Parental Controls/restrictions to 5. `net_set`, `date_time`, `date`, `time`,
+`birthday`, `sound`, `language_eu`, `user_name_input`, `pare_new_set` and
+`pare_fact_top` were read from the same original archive, not inferred from
+their appearance. DS Profile alone requests state 2. Other adapted detail
+cards explicitly inherit their parent section's palette; they are not claimed
+to implement the source detail scene.
+
+The executable also consumes byte `0x23` at `0x2358dc..0x235920`: state 2
+maps to 0, and the resulting number formats `SceneIn_%2.2d.bclan` for the
+upper scene layout. Consequently `CommonBG_U_00` now uses the exact `_01`,
+`_03`, `_04` and `_05` clips. Their source title-material RGB endpoints are
+respectively `(233,137,14)`, `(96,154,178)`, `(50,168,101)` and `(246,100,118)`.
+No RGB values are hardcoded into the painter. Previously every section used
+the pink `_00` variant and the dark Legacy background.
+
+The identified Sound, Language, Date, Time, Birthday and User Name details now
+use their source upper title, icon and instruction messages with English mset
+styles. Profile, User Name and Birthday use `UserInfo_U_00` without the extra
+`TextBG_U_00` that their source scene tables do not name. Existing preference
+values remain supplied by the runtime. This does not add device data.
+
+The subpage verifier adds 16 paired scenes including the state-2 route and
+source-styled detail text. Original resource objects remain immutable and
+renderer diagnostics are empty. Images are under
+`presentation/settings-scene-variants/`; the matching 19 scene records and
+hashes are saved in `presentation/settings-source-audit/subpage-scenes.json`.
+
+Remaining differences: DS Profile still uses adapted detail composition and
+needs its `Ls*` layouts; the parental introductory lower layout, restriction
+list and other generic detail cards still differ from their native scenes.
+Date & Time and Connection Settings need their source-specific layouts in a
+following change. Background and title selection do not establish complete
+native scene scheduling or 1:1 visual fidelity.
 
 ## Composition, typography and verification
 

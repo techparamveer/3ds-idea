@@ -79,7 +79,35 @@ The original English message container has not been decoded yet. Song labels
 come from the portfolio's song manifest; do not represent authored UI text as
 extracted messages. No recording layouts or recording behavior are delivered.
 
-Health & Safety RomFS extraction succeeded. Camera CTRTool extraction
-stops after several files; its complete UI resource set is not published yet.
+## Camera gallery components
+
+Title `0004001000022400`, prefix `packs/camera/contents/0000-0000001a/`.
+`scripts/firmware/stock-ui-camera.json` selects:
+
+- `lyt-P_Brws_D-arc-LZ.json`: `P_BrwsBase_D`, `P_BrwsFld`, `P_BrwsPic`,
+  `P_BrwsCursor_D`, `P_BrwsPhoMntBase`, `P_BrwsTxt_D` and their own clips.
+- `lyt-P_SldShow_D-arc-LZ.json`: `P_SldNavi`, `P_SldShow_D` and their clips.
+
+The folder label is `TxtThmb`, photo image pane `ThmbPic` (56 × 42), mask
+`ThmbMask` (66 × 52), cursor `Cursor` and empty label `TxtNoData`. Large,
+medium and small thumbnail clips retain native source sizes. Position repeated
+thumbnail instances around the real portfolio photos. The capture/settings
+menu is deliberately omitted; gallery Back/HOME navigation is presentation
+content. English source messages are still pending.
+
+The final subset contains 46 resources totalling 177,228 bytes including shared
+dependencies. Its delivery audit passes. `camera-gallery-textures.png` was
+inspected as texture evidence, not assembled-screen verification.
+
+CTRTool stopped while extracting Camera's primary RomFS. The bounded read-only
+`scripts/firmware/romfs.py` recovered all 63 primary files and one manual file,
+including an empty file. It follows local Project_CTR `romfs.h`, `ivfc.h` and
+`IvfcStream.cpp`, verifies all three IVFC hash levels, and rejects unsafe paths,
+parent cycles and out-of-bounds metadata/payloads. Four reader tests pass; an
+independent comparison matches all 62 Sound/Health RomFS paths and bytes with
+CTRTool output. The reader script hash is recorded in Camera's source converter
+provenance. Private extraction lives in `stock-ui/reader-extracted/camera/`.
+
+Health & Safety RomFS extraction succeeded but is not published yet.
 Other stock/app/helper screens remain pending. No keyboard or audio-behaviour
 reconstruction is part of this delivery.

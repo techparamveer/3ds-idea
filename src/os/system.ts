@@ -1,5 +1,6 @@
-import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
-import { createHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
+import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
+import { createHomeCursorLoop, advanceHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
+import { getHomeCursorSlot } from './home-cursor-visibility.ts';
 export { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHomeFolderCloseRecord, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
@@ -60,7 +61,34 @@ export function tickHomeNavigationClock(state: MenuState, now: number, reduced =
  const active=state.powered&&s.phase==='home'&&!s.sleeping&&!s.dialog&&!s.preferences&&!state.panel;
  const stepped=stepHomeUpdateClock(s.homeClock,now,active);
  if(stepped.clock!==s.homeClock)state={...state,system:{...s,homeClock:stepped.clock}};
- return active?advanceSystemHomeFolderClose(state,stepped.updates,reduced):state;
+ return active?advanceHomePresentationClocks(state,stepped.updates,reduced):state;
+}
+/** Lower navigation tasks precede the cursor layout submission. The close's
+ * selection-ready update itself is eligible, followed by any visible tail.
+ * Ordinary geometry can expose a selected tile mid-batch; inspect only its
+ * bounded motion steps before consuming the remaining stable interval.
+ */
+function advanceHomePresentationClocks(state:MenuState,updates:number,reduced:boolean):MenuState {
+ let cursor=state.system!.homeCursorLoop;
+ if(isSystemHomeFolderClosing(state)){
+  const before=sampleSystemHomeFolderClose(state)!;
+  state=advanceSystemHomeFolderClose(state,updates,reduced);
+  const after=sampleSystemHomeFolderClose(state),ready=after?.selectionReadyAtUpdate;
+  if(after&&ready!==null&&ready!==undefined&&before.controller.identity.generation===after.controller.identity.generation
+   &&before.controller.identity.transitionId===after.controller.identity.transitionId){
+   const count=state.system!.homeClock.updateCount;
+   if(ready>count-updates&&ready<=count)cursor=advanceHomeCursorLoop(cursor,count-ready+1,getHomeCursorSlot(state)!==null);
+  }
+ }else{
+  let remaining=updates;
+  while(remaining>0&&!reduced&&state.system!.homeNavigation.motion&&!state.system!.homeNavigation.gesture){
+   state=advanceSystemHomeFolderClose(state,1,reduced);
+   cursor=advanceHomeCursorLoop(cursor,1,getHomeCursorSlot(state)!==null);remaining--;
+  }
+  state=advanceSystemHomeFolderClose(state,remaining,reduced);
+  cursor=advanceHomeCursorLoop(cursor,remaining,getHomeCursorSlot(state)!==null);
+ }
+ return cursor===state.system!.homeCursorLoop?state:{...state,system:{...state.system!,homeCursorLoop:cursor}};
 }
 export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return state;

@@ -1,4 +1,5 @@
 import { getHomeGestureView, homeSlotAppId } from './system.ts';
+import { getHomeCursorSlot } from './home-cursor-visibility.ts';
 import { hasEmptyHomeFolderSelection, isFolder, menuTiles, rowCount, type MenuState } from './state.ts';
 import { getHomeNavigationView, homeGridMetrics, type HomeDensity } from './home-navigation.ts';
 
@@ -33,14 +34,14 @@ export const getNativeFolderPanel=(state:MenuState)=>state.opened?getNativeHomeP
 
 /** A derived view, never a second recognizer or a speculative mutation of icon maps. */
 export function getHomePresentation(state:MenuState){
- const folder=state.opened?state.selected:null,gesture=getHomeGestureView(state),selected=state.opened?state.folderSelected:state.selected;
+ const folder=state.opened?state.selected:null,gesture=getHomeGestureView(state),cursorSlot=getHomeCursorSlot(state);
  const matches=(location:{folder:number|null;slot:number}|null|undefined,slot:number)=>!!location&&location.folder===folder&&location.slot===slot;
  const tiles=menuTiles(state).map(tile=>{
   const source=matches(gesture?.dragged?.source,tile.index),pressed=matches(gesture?.pressed,tile.index);
   const folderLabel=folder===null&&isFolder(tile.index,state)?state.folders[tile.index]:null;
   const drop=!!gesture?.dragged&&gesture.canDrop&&matches(gesture.target,tile.index)&&!source;
   return {...tile,appId:homeSlotAppId(state,tile.index),folderLabel,source,pressed,drop,
-   cursor:gesture?.mode==='drag'?drop:gesture?.mode==='scroll'?false:gesture?.pressed?pressed:tile.index===selected};
+   cursor:tile.index===cursorSlot};
  });
  const navigation=getHomeNavigationView(state);
  return {tiles,rows:rowCount(state),density:navigation.density,currentDensity:navigation.currentDensity,targetDensity:navigation.targetDensity,mode:navigation.mode,folder,gesture,ghost:gesture?.dragged?{

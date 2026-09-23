@@ -4,8 +4,8 @@ import type { MenuState } from './state.ts';
 export type HomeCursorLoop = Readonly<{ currentFrame: number; appliedFrame: number }>;
 export const createHomeCursorLoop = (): HomeCursorLoop => Object.freeze({ currentFrame: 0, appliedFrame: 0 });
 
-/** Submit before float32 step1; the looping endpoint60 is not submitted.
- * Integer phases have an exact60-update period, so long ordinary batches need
+/** Submit before float32 step 1; the looping endpoint 60 is not submitted.
+ * Integer phases repeat exactly after 60 updates, so long ordinary batches need
  * only their last submission. Fractional source fixtures retain scalar stepping.
  */
 export function advanceHomeCursorLoop(state: HomeCursorLoop, updates: number, eligible: boolean): HomeCursorLoop {

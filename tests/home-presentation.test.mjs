@@ -4,7 +4,7 @@ import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame,nativeHomeDensityMetric,nativeFolderPanelGeometry,getNativeFolderPanel,nativeFolderBalloonPosition} from '../src/os/home-presentation.ts';
-import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem} from '../src/os/system.ts';
+import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem,sampleSystemHomeFolderClose} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
 import {homeTouchLocation} from '../src/os/home-gestures.ts';
 const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
@@ -83,7 +83,12 @@ test('occupied folder footer closes the folder even when software is suspended',
  for(const active of [null,childId]){
   const state=selectHomeSlot(enterHomeFolder({...initial,folders:{4:'A'},system:{...initial.system,app:active,folderLayouts:{4:{1:childId}}}},4),1);
   assert.deepEqual(getHomeFooter(state),{two:true,left:'close-folder',right:active?'resume':'open'});
-  const closed=touchSystem(state,50,226,100);assert.equal(closed.opened,false);assert.equal(closed.system.app,active);assert.equal(closed.system.dialog,null);
+  const closing=touchSystem(state,50,226,100);
+  assert.equal(closing.opened,true);assert.equal(sampleSystemHomeFolderClose(closing).controller.phase,'closing');
+  assert.equal(closing.system.app,active);assert.equal(closing.system.dialog,null);
+  const closed=tickSystem(closing,400);
+  assert.equal(closed.opened,false);assert.equal(sampleSystemHomeFolderClose(closed).selectionReadyAtUpdate,18);
+  assert.equal(closed.system.app,active);assert.equal(closed.system.dialog,null);
  }
 });
 

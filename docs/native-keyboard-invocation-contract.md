@@ -225,11 +225,161 @@ source hierarchy and animation binding scope. A painter also needs caller-suppli
 layout/world/bounds policy, retained property state, native update counts and
 root ordering; these fixtures do not replace those inputs.
 
-The coordinator has separated the remaining global first-paint task: root
-registration/update/draw order, complete mode-selector controller state, footer
-validity reconciliation, and0x191f00's two owner updates plus child update before
-capturing the lower image into Fade_D. The retained lower capture and fade clock
-must be resolved before calling this a coherent visible first transition frame.
-Upper Settings composition, input/repeat/filter/submit behavior and browser
-pixel acceptance remain outside this bounded local checkpoint. No application
-rebuild was required for this documentation-only commit.
+The following global continuation closes the selected CPU schedule and retained
+composition inputs. It does not turn the local fixtures into native pixel
+acceptance. Upper Settings composition, input/repeat/filter/submit behavior and
+browser pixel acceptance remain separate.
+
+## Global lower first-paint continuation
+
+Private evidence is in the new sibling `global-first-paint/`. Both earlier
+accepted indexes and every file they cover remain unchanged:656 parent entries
+and115 local continuation entries were rehashed. The new directory has its own
+README, contract, original-code journals, assertions and index; provisional
+exploration files are excluded. Executables/resources remain private.
+
+Reproduce using `assets/research-venv/bin/python -B` and pass the private
+`global-first-paint` directory to these committed fixtures:
+
+- `scripts/firmware/keyboard_global_first_paint.py`
+- `scripts/firmware/keyboard_parent_alpha.py`
+
+Then run the new directory's `verify-evidence.py`. Do not run the frozen local
+verification script, which rewrites its index. `global-schedule.json` contains
+the complete journal; `global-first-paint-contract.json` selects exact retained
+submissions/controller states for empty, Ada and ABCDEFGHIJ. These scripts use
+indexed copies of the local resource/font/binding support endpoints.
+
+### Chosen schedule and native execution
+
+The checkpoint assumes immediately ready decoded archives, English1, default
+status, the normalized existing-profile request, no input and an available
+caller lower texture. Pass0 begins after the owner's archive-load request and
+before its initializer. Pass numbers are counts of this fixture's task/root/draw
+sequence, not measured device loading latency or a fixed millisecond duration.
+
+Original0x1054e0 traverses tasks, calling readiness0x109c70 and dispatcher0x109d18.
+The fixture executes owner constructor0x192970 and its **complete** initializer
+0x1915fc, factory0x190f1c, child constructor0x193d34/initializer0x1931c8,
+registration0x15b964 and subsequent task passes. Main0x101e94 places task updates
+before root update0x102e84; lower drawing calls both0x15ba28 halves. No manually
+chosen single local controller pass substitutes for this sequence.
+
+| Pass/checkpoint | Native outcome |
+| --- | --- |
+| 0, initialization display | Owner preparation sees no initialized child; child initializes later in the same task traversal. Ordinary roots update. Lower SceneIn submits0; its captured-applet alpha curve is0. Caller texture still supplies the fade underlay. |
+| 1, preparation/capture | Owner0x191f00 shows live layouts, executes owner0x192060 **twice**, child0x1938e8 **once**, then capture0x17af5c. Capture performs an additional root update and both lower draw halves. |
+| 1, first captured display | Capture descriptor is bound to `P_Aplt_00`; live wrappers hide, Fade_D shows. Ordinary root update submits lower SceneIn1. Lower draw submits only Fade_D. This is the first positive-alpha captured-applet checkpoint. |
+| 2..15 | The same retained texture is used; lower SceneIn progresses to submitted15. Live layout controllers remain hidden from ordinary root updates, apart from independently registered decorations. |
+| 16, first live settled display | Preparation observes completed fade controllers, shows live layouts and hides Fade_D. The following root update/draw is the selected settled checkpoint. Owner task state becomes5; it enters the normal update state on a later pass. |
+
+The fixture records one capture and one descriptor binding through original
+0x17ae04, copying the capture texture into the material's texture descriptor.
+`P_App_00` holds the caller image; `P_Aplt_00` holds the keyboard capture. They
+are distinct. Fade children draw in source order **P_App_00, P_Mask_00,
+P_Aplt_00**. Do not place the live keyboard behind an additional inherited fade
+alpha or recapture it each display frame.
+
+Upper Fade_U advances during capture's two-screen root update and remains part
+of the native completion predicate. Its clock is journaled solely to preserve
+that predicate; no upper Settings image/composition is supplied or accepted.
+
+### Root order and attached decorations
+
+Original0x116e38 sorts priorities descending, retaining insertion order for ties.
+Root update0x102e84 traverses screen0 then1, skips hidden wrappers, and calls
+priority9999 decorations with argument0 before ordinary roots with argument1.
+Those decorations propagate dirty state to their attached parent. They are
+not independent painter roots: draw0x15ba28 excludes priorities **>=9990** and
+splits the remaining list at5000. This fixture has no high-half lower draws.
+
+Capture and settled lower painter order are:
+
+| Order | Layout | Priority |
+| --- | --- | --- |
+| 1 | BG | 500 |
+| 2 | Btm2Btn | 500 |
+| 3 | TextArea_02, including attached decorations in the frozen hierarchy | 500 |
+| 4 | KeytopModeSelect | 500 |
+| 5 | Keytop_qwerty | 500 |
+| 6 | LncArw_00 | 499 |
+| 7 | WaitIcon | 10 |
+
+The full initializer constructs WaitIcon after the earlier footer fixture's
+stop boundary. Its picture has authored alpha0; all three WaitIcon controllers
+remain stopped. Its draw submission therefore must be preserved in evidence
+without inventing a visible spinner. Transition display uses only Fade_D at
+priority3. The lower cursor's local X values remain0,51 and168.11111450195312
+for the three inputs; its parent anchors remain those of the frozen contract.
+
+### Selector, footer and exact retained submissions
+
+The native selector initializer writes `char_type_00..03` to
+`T_ktpMode_00..03`: **ABC / ËαЯ / Symbol / Mobile**. Root position is[0,4,0];
+QWERTY and arrows use[0,8,0]. Selected mode0 has widget state4; the remaining
+three selectors have state0. Only `G_ktpMode_00` receives immediate
+`KeytopModeSelect_n0s1` frame1 (B/P/T panes), then stops. Other selector groups
+keep their authored state. Both arrow groups receive immediate
+`LncArw_00_Appear` frame0 and stop; they do not begin an appearance animation
+for this QWERTY page.
+
+| Subsystem | Captured texture at pass1 | First live settled draw at pass16 |
+| --- | --- | --- |
+| Caps/Shift | Retained n0s1 frame0 on picture/icon/text | Same retained pose |
+| English-hidden Roman00 | Retained s1t0 frame1 on picture/text | Same; source visibility overrides remain hidden |
+| Enter and dictionary | Five per-pane i0 submissions at frame1, after initialization's frame0 | i0 controllers deactivate; retain the already-applied frame1 pose |
+| Selected mode | Retained n0s1 frame1 on group00 | Same |
+| Arrows | Retained Appear frame0 on both groups | Same; parent alpha0 |
+| Cursor | Blink frame1 for empty; frame0 for Ada/full10 | Same submitted frames at this checkpoint; native mode5 holds during opening |
+| Footer, empty | OK state5; G_btn_02 i0 frame0 applied during capture root update | G_btn_02 i0 frame1 is applied on resuming the live root |
+| Footer, Ada/full10 | Cancel and OK state0; no footer animation submission | Same authored footer state |
+
+The nonempty cursor restarts at0x188960 during pass0's text-layout update; empty
+input retains its earlier advance. This is separate from the frozen isolated
+local fixture's mode2/frame0 boundary. Blink changes visibility, not pane alpha;
+frames0/1 are both visible. The exact ordered journal includes source pane/group
+membership, current/submitted frames and controller states; a blanket sample of
+a clip across unrelated panes is not equivalent.
+
+Validity0x18bb78 reads validity2, current length, max10 and the plain UTF-16
+buffer. Empty and all-U+0020/U+3000 text is invalid; a non-space unit is valid
+within this bounded predicate. The executed first-paint cases are empty/Ada/
+ABCDEFGHIJ. Owner0x192568 reconciles only caller-marked submit buttons, leaving
+Cancel enabled and disabling empty OK before capture. This does not claim that
+editing, other filters or submission dispatch have been implemented.
+
+### Parent alpha and explicit remaining boundaries
+
+`parent-alpha.py` executes keyboard0x176584..0x1765b8 for effective alpha and
+0x1765b8..0x1765f8/0x17664c for child-factor propagation. The native code multiplies
+an inherited factor into the pane byte when enabled and a parent exists, then
+converts to an unsigned integer. InfluenceAlpha flag2 controls propagation of
+the pane's own alpha to descendants. Six original-ARM probes include full alpha,
+zero alpha, transparent inherited parents and128×0.5→64.
+
+For the chosen capture/settled compositions, layout roots and ordinary ancestor
+chains have alpha255 and incoming factor1. Each `N_arwL_00`/`N_arwR_00` has
+InfluenceAlpha and its retained Appear0 alpha is0, so its shade/picture/icon
+children receive factor0. WaitIcon's own alpha is0. Native attachment enables
+InfluenceAlpha on decoration roots; their authored ancestors are alpha255.
+The Fade_D root is alpha255. Its three children are siblings; the captured
+keyboard is a texture on P_Aplt, not a child hierarchy under that pane.
+
+The first captured display uses exact **SceneIn frame1**, with source Hermite
+tracks `P_Aplt_00.translation.y` (-48→0), `P_Aplt_00.alpha` (0→255), and
+`P_Mask_00.materialColor.1.3` (0→140), keyed at0/15. The contract includes their
+keys/slopes verbatim as private resource data. Native animation-curve sampling
+and its byte conversion are not replayed here; do not replace the exact frame
+contract with an asserted pixel opacity or round a derived curve value without
+separate evidence.
+
+Resource loading, font/message lookup, animation binding membership/application,
+translation/scale-only world matrices, single-line paragraph cache and GPU calls
+remain explicit endpoints. The fixed-width scroll-helper constructor/update now
+executes, with bnd1 RTTI and missing groups supplied correctly; its hit/bounds
+math still consumes endpoint matrices. Native world/anchor/bounds results,
+clipping/material/TEV pixels, caller screenshot content, asynchronous resource
+latency and browser visual acceptance remain unverified. They are not required
+to establish the ordered CPU submissions and retained composition contract.
+No interaction/edit/repeat or upper Settings work was added. All three schedule
+fixtures and six alpha probes pass; application code was unchanged.

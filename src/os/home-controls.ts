@@ -12,12 +12,15 @@ import { consumeHomeGridKeyEvent, selectHomeTouchSlot, type HomeScrollObservatio
 import { advanceSystemHomeFolderCloseNative, consumeSystemHomeFolderCloseInput,
   isSystemHomeFolderClosing, sampleSystemHomeFolderClose } from './home-folder-close-system.ts';
 import type { HomeNavigationPassObservation } from './home-navigation-pass.ts';
+import type { HomeTilePose } from './home-tile-pose.ts';
 
 export type HomeControls = Readonly<{
   input: HomeInputAdapter;
   producer: HomeInputProducer;
   primary: HomePrimaryCursor;
   presentation: HomeCursorPresentation;
+  /** Applied tile-local poses; hit geometry and primary cursor are independent. */
+  tilePoses: Readonly<Record<number, HomeTilePose>>;
 }>;
 export type HomeControlPass = Readonly<{
   updateCount: number;
@@ -47,7 +50,7 @@ export function enableHomeControls(state: MenuState): MenuState {
   if (!state.system || state.system.homeControls) return state;
   return put(state, { input: createHomeInputAdapter(), producer: createHomeInputProducer(),
     primary: createHomePrimaryCursor({ request: 0, shown: true, layoutVisible: true, center: selectedCenter(state.system.homeNavigation) }),
-    presentation: createHomeCursorPresentation(sampleHomeGrid(state.system.homeNavigation).densityValue) });
+    presentation: createHomeCursorPresentation(sampleHomeGrid(state.system.homeNavigation).densityValue), tilePoses: Object.freeze({}) });
 }
 const directions = new Set(['right', 'left', 'up', 'down']);
 /** Null means another existing System owner must route the event. No sampling here. */

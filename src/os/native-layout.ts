@@ -222,19 +222,115 @@ export function nativeVisibleRasterRect(x:number,y:number,width:number,height:nu
  return {x:x+left/fullWidth*width,y:y+top/fullHeight*height,width:(right-left)/fullWidth*width,height:(bottom-top)/fullHeight*height,
   rasterWidth:right-left,rasterHeight:bottom-top,sampling:{x:left,y:top,fullWidth,fullHeight}};
 }
-/** Native material sampling is independent of Canvas, making real texture/TEV tests possible. */
+type RasterChannel={a:number;b:number;c:number;mode:number;scale:number};
+type RasterStage={constant:(number|undefined)[];channels:RasterChannel[];saveColor:boolean;saveAlpha:boolean};
+/** Register slots match the compact TEV sources: textures 0..3, constant 4,
+ * primary 5, previous 6, buffer 7. Slot 32 supplies NaN for absent combiner args.
+ * A selector packs the channel offset and complement bit, without functions in
+ * the pixel loop. Validate even unused args, as the scalar evaluator does.
+ */
+function prepareRasterStages(material:NativeMaterial,base:number[],constants:number[][]):RasterStage[]{
+ const registers=[base,...constants];
+ return material.tevStages.map(stage=>{
+  const rgb=registers[stage.constantSelectors&15],alpha=registers[(stage.constantSelectors>>4)&15];
+  const constant=[rgb?.[0],rgb?.[1],rgb?.[2],alpha?.[3]];
+  const channels=Array.from({length:4},(_,index)=>{
+   const combiner=index===3?stage.alpha:stage.color;
+   const selectors=combiner.sources.map((source,i)=>{
+    if(!Number.isInteger(source)||source<0||source>7)throw new Error(`Unsupported native TEV source ${source}`);
+    const operand=combiner.operands[i],part=Math.floor(operand/2),component=index===3?[3,0,1,2][part]:part===0?index:[3,0,1,2][part-1];
+    if(component===undefined)throw new Error(`Unsupported native TEV operand ${operand}`);
+    if(source===4&&constant[component]===undefined)throw new Error(`Unsupported native TEV constant selector ${stage.constantSelectors}`);
+    return (source*4+component)*2+Number(!!(operand%2));
+   });
+   if(!Number.isInteger(combiner.mode)||combiner.mode<0||combiner.mode>7)throw new Error(`Unsupported native TEV mode ${combiner.mode}`);
+   return {a:selectors[0]??64,b:selectors[1]??64,c:selectors[2]??64,mode:combiner.mode,scale:combiner.scale};
+  });
+  return {constant,channels,saveColor:stage.color.savePrevious,saveAlpha:stage.alpha.savePrevious};
+ });
+}
+/** Native material sampling is independent of Canvas. Per-raster preparation
+ * leaves only scalar arithmetic and reusable scratch in the pixel loop. The
+ * exported scalar helpers above remain independent reference implementations.
+ */
 export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,width:number,height:number,textures:ReadonlyMap<string,NativePixels>,alpha=1,material=layout.materials[picture.material],sampling?:NativeRasterRegion):NativePixels {
  if(!material)throw new Error(`Missing material ${picture.material}`);
  const sources=material.textureMaps.map(map=>{const name=layout.textures[map.texture],pixels=textures.get(name);if(!pixels)throw new Error(`Missing native texture ${name}`);return pixels;});
  const data=new Uint8ClampedArray(width*height*4),colors=picture.colors.flat();
- for(let y=0;y<height;y++)for(let x=0;x<width;x++){
-  const u=(x+(sampling?.x??0)+.5)/(sampling?.fullWidth??width),v=(y+(sampling?.y??0)+.5)/(sampling?.fullHeight??height),primary=interpolateNativeQuad(colors,u,v,4).map(c=>c/255);primary[3]*=alpha;
-  const samples=material.textureMaps.map((map,index)=>{
-   const generator=material.coordinateGenerators[index];if(generator&&(generator.type!==0||generator.source>2))throw new Error(`Unsupported coordinate generator ${generator.type}/${generator.source}`);
-   const uv=transformNativeUV(interpolateNativeQuad(picture.uvSets[generator?.source??index]??unitUV,u,v),material.textureMatrices[index]);
-   return sampleNativeTexture(sources[index],uv[0],uv[1],map.wrapS,map.wrapT,map.magFilter!==0);
-  });
-  data.set(evaluateNativeMaterial(material,samples,primary).map(c=>Math.round(c*255)),(y*width+x)*4);
+ // Empty rasters never evaluate generators or materials in the scalar path.
+ if(width<=0||height<=0)return {width,height,data};
+ const samplers=material.textureMaps.map((map,index)=>{
+  const generator=material.coordinateGenerators[index];if(generator&&(generator.type!==0||generator.source>2))throw new Error(`Unsupported coordinate generator ${generator.type}/${generator.source}`);
+  const matrix=material.textureMatrices[index],angle=matrix?matrix.rotation*Math.PI/180:0;
+  return {image:sources[index],uv:picture.uvSets[generator?.source??index]??unitUV,wrapS:map.wrapS,wrapT:map.wrapT,linear:map.magFilter!==0,
+   matrix:matrix?{c:Math.cos(angle),s:Math.sin(angle),sx:matrix.scale[0],sy:matrix.scale[1],tx:matrix.translation[0],ty:matrix.translation[1]}:null};
+ });
+ const base=material.bufferColor.map(v=>v/255),constants=material.constantColors.map(c=>c.map(v=>v/255)),implicit=constants[0]??white;
+ const stages=prepareRasterStages(material,base,constants),compare=material.alphaCompare;
+ // Float64 keeps JS number precision; no Float32 or byte rounding occurs here.
+ const bank=new Float64Array(33).fill(1),result=new Float64Array(4);bank[32]=NaN;
+ const offsetX=sampling?.x??0,offsetY=sampling?.y??0,fullWidth=sampling?.fullWidth??width,fullHeight=sampling?.fullHeight??height;
+ for(let y=0;y<height;y++){
+  const v=(y+offsetY+.5)/fullHeight;
+  for(let x=0;x<width;x++){
+   const u=(x+offsetX+.5)/fullWidth;
+   for(let i=0;i<4;i++){
+    bank[20+i]=((colors[i]*(1-u)+colors[4+i]*u)*(1-v)+(colors[8+i]*(1-u)+colors[12+i]*u)*v)/255;
+   }
+   bank[23]*=alpha;
+   for(let index=0;index<samplers.length;index++){
+    const sampler=samplers[index],uv=sampler.uv,matrix=sampler.matrix,image=sampler.image;
+    let tu=(uv[0]*(1-u)+uv[2]*u)*(1-v)+(uv[4]*(1-u)+uv[6]*u)*v;
+    let tv=(uv[1]*(1-u)+uv[3]*u)*(1-v)+(uv[5]*(1-u)+uv[7]*u)*v;
+    if(matrix){
+     const mx=(tu-.5)*matrix.sx+matrix.tx,my=(tv-.5)*matrix.sy+matrix.ty;
+     tu=.5+matrix.c*mx-matrix.s*my;tv=.5+matrix.s*mx+matrix.c*my;
+    }
+    const px=tu*image.width-.5,py=tv*image.height-.5,slot=index*4;
+    if(!sampler.linear){
+     const at=(wrapPixel(Math.floor(py+.5),image.height,sampler.wrapT)*image.width+wrapPixel(Math.floor(px+.5),image.width,sampler.wrapS))*4;
+     // TEV addresses four texture slots. Extra sampler metadata is validated
+     // above, but must not overwrite primary/feedback registers.
+     if(index<4)for(let i=0;i<4;i++)bank[slot+i]=image.data[at+i]/255;
+    }else{
+     const x0=Math.floor(px),y0=Math.floor(py),tx=px-x0,ty=py-y0;
+     const left=wrapPixel(x0,image.width,sampler.wrapS),right=wrapPixel(x0+1,image.width,sampler.wrapS);
+     const top=wrapPixel(y0,image.height,sampler.wrapT)*image.width,bottom=wrapPixel(y0+1,image.height,sampler.wrapT)*image.width;
+     const a=(top+left)*4,b=(top+right)*4,c=(bottom+left)*4,d=(bottom+right)*4;
+     if(index<4)for(let i=0;i<4;i++){
+      // Normalize each texel BEFORE interpolation, preserving both pair sums.
+      bank[slot+i]=(image.data[a+i]/255*(1-tx)+image.data[b+i]/255*tx)*(1-ty)+(image.data[c+i]/255*(1-tx)+image.data[d+i]/255*tx)*ty;
+     }
+    }
+   }
+   for(let i=0;i<4;i++){bank[24+i]=bank[20+i];bank[28+i]=base[i];}
+   if(!stages.length)for(let i=0;i<4;i++)bank[24+i]=(base[i]+(implicit[i]-base[i])*bank[i])*bank[20+i];
+   for(let stageIndex=0;stageIndex<stages.length;stageIndex++){
+    const stage=stages[stageIndex];
+    for(let i=0;i<4;i++)bank[16+i]=stage.constant[i]!;
+    for(let i=0;i<4;i++){
+     const channel=stage.channels[i];
+     let a=bank[channel.a>>1],b=bank[channel.b>>1],c=bank[channel.c>>1],value:number;
+     if(channel.a&1)a=1-a;if(channel.b&1)b=1-b;if(channel.c&1)c=1-c;
+     switch(channel.mode){
+      case 0:value=a;break;case 1:value=a*b;break;case 2:value=a+b;break;case 3:value=a+b-.5;break;
+      case 4:value=a*c+b*(1-c);break;case 5:value=a-b;break;case 6:value=clamp(a+b)*c;break;
+      default:value=a*b+c;
+     }
+     result[i]=clamp(value*channel.scale);
+    }
+    // Buffer capture reads the preceding stage, never this stage's result.
+    if(stage.saveColor){bank[28]=bank[24];bank[29]=bank[25];bank[30]=bank[26];}
+    if(stage.saveAlpha)bank[31]=bank[27];
+    for(let i=0;i<4;i++)bank[24+i]=result[i];
+   }
+   if(compare){
+    const a=bank[27],r=compare.reference;let pass=false;
+    switch(compare.function){case 1:pass=a<r;break;case 2:pass=a<=r;break;case 3:pass=a===r;break;case 4:pass=a!==r;break;case 5:pass=a>=r;break;case 6:pass=a>r;break;case 7:pass=true;}
+    if(!pass)bank[27]=0;
+   }
+   const at=(y*width+x)*4;for(let i=0;i<4;i++)data[at+i]=Math.round(bank[24+i]*255);
+  }
  }
  return {width,height,data};
 }

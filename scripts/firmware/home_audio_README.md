@@ -1,7 +1,9 @@
 # Bounded HOME audio correction
 
-`../render_firmware_audio.py` version 7 with **voice/DSP profile v8** builds a diagnostic candidate for the exact
-owner-supplied EUR HOME archive identified by `home_audio_profile.json`. It rejects
+`../render_firmware_audio.py` version 8 with **voice/DSP profile v8** defaults to
+the ten short cues from the exact owner-supplied EUR HOME archive identified by
+`home_audio_profile.json`. Baked music requires explicit `--pack diagnostic`;
+normal cue packs cannot contain either music WAV. It rejects
 other archive hashes, source records, nonallowlisted sounds, altered sound options,
 unexpected banks and stereo source waves. It does not load neighboring `extData`.
 
@@ -58,6 +60,11 @@ The subsequent [pure TypeScript music engine](home_audio_ENGINE_EVIDENCE.md)
 implements the agreed music-only boundary with private resource export and
 exact v8 PCM/state conformance. Browser scheduling and public promotion remain
 separate integration work; the offline WAV repeat is still not certified.
+Wrapper version 8 changes delivery selection and metadata only. Its default
+`--pack cues` emits select/open/back/home/power/touch/grab/drop/folder-open/folder-close,
+and `--only` can select a subset. Both API and CLI reject music in that pack.
+See [cue-only delivery evidence](home_audio_CUE_DELIVERY_EVIDENCE.md) for two
+identical reproductions and equality of all ten WAVs with the preserved v8 pack.
 
 Two aux buses remain distinct from main and from each other; each has a transparent
 unity return. This is a **startup runtime-state assumption** supported by the
@@ -68,7 +75,8 @@ dumps bypass the host output slider and time stretching; provenance records this
 No compensating gain is applied. The profile rejects surround mode in its span
 helper instead of silently treating it as stereo.
 
-`audio.json` preserves the original source/title/cue metadata and adds raw sound
+`audio.json` records its pack mode and each original archive sound ID alongside
+the original source/title/cue metadata, raw sound
 options, pan mode/curve, all 33 validated mono bank-wave references, handled-command
 counts, profile/patch/adapter/math/clock/voice/DSP hashes and before/after source hashes.
 Startup-origin assumptions are recorded in `renderTimeline`. Remaining runtime
@@ -100,6 +108,10 @@ and check the music loop period against independently measured native PCM.
 Both `HOME_AUDIO_RENDERER` and `HOME_AUDIO_SCRATCH` are required for the full
 test suite; test fixtures also use the SSD scratch root. Absence is an error, not a
 silently skipped correction test. The wrapper always validates the real archive.
+The default command above produces ten WAVs and `audio.json`, with no music
+WAVs. Historical full-pack diagnostics require `--pack diagnostic`; for a
+single diagnostic music render also pass `--only music` or `--only music-resume`.
+Those WAVs remain unsuitable as certified repeating music delivery.
 
 ## Version 2 baseline, 2026-09-22
 

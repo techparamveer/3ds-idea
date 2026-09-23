@@ -1,10 +1,11 @@
-"""Render allowlisted native HOME cues from the owner's decrypted sound archive.
+"""Render the ten short HOME cues from the owner's decrypted sound archive.
 
 DualRip interprets the original CSEQ bytecode, CBNK instruments and CWAV samples
 offline. Only PCM cues and provenance enter the site, never firmware code. Pin
 the renderer revision: changes to driver arithmetic can change rendered PCM.
 The exact EUR HOME profile patches a disposable source copy. This is a
 diagnostic candidate with explicit runtime assumptions, not a fidelity claim.
+Music WAVs require --pack diagnostic; cue delivery uses separate persistent music.
 """
 from pathlib import Path
 import argparse
@@ -28,19 +29,31 @@ CUES = {
     'folder-open': 'SE_CTR_HOME_OPEN_FOLDER',
     'folder-close': 'SE_CTR_HOME_CLOSE_FOLDER',
 }
+MUSIC = ('music', 'music-resume')
+SHORT_CUES = tuple(name for name in CUES if name not in MUSIC)
+
+
+def cue_names(names=None, pack='cues'):
+    if pack not in ('cues', 'diagnostic'):
+        raise ValueError('Expected cues or diagnostic pack')
+    names = list(names) if names is not None else list(SHORT_CUES if pack == 'cues' else CUES)
+    if not names or len(set(names)) != len(names) or any(name not in CUES for name in names):
+        raise ValueError('Expected unique allowlisted cue aliases')
+    if pack == 'cues' and any(name in MUSIC for name in names):
+        raise ValueError('Music WAVs require --pack diagnostic; cue packs contain only short sounds')
+    return names
 
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def render(source, output, renderer, source_record, names, rate=NATIVE_RATE, scratch=None):
+def render(source, output, renderer, source_record, names=None, rate=NATIVE_RATE, scratch=None, *, pack='cues'):
     if rate != NATIVE_RATE:
         raise ValueError(f'The HOME DSP profile supports only {NATIVE_RATE} Hz')
+    names = cue_names(names, pack)
     if output.exists():
         raise ValueError('Use a new output directory to avoid stale or mixed audio packs')
-    if not names or len(set(names)) != len(names) or any(name not in CUES for name in names):
-        raise ValueError('Expected unique allowlisted cue aliases')
     title = json.loads(source_record.read_text())
     validate_source(source, title)
     with isolated_renderer(renderer, scratch) as profile:
@@ -53,13 +66,14 @@ def render(source, output, renderer, source_record, names, rate=NATIVE_RATE, scr
         available = {sound.name: sound for sound in archive.sounds}
         output.mkdir(parents=True)
         result = {
-            'schema': 1, 'firmware': '10.7.0-32E', 'title': title,
+            'schema': 1, 'pack': pack, 'firmware': '10.7.0-32E', 'title': title,
             'source': 'romfs/sound/menu.bcsar', 'sourceSha256': sha(source),
-            'converter': {'name': 'render_firmware_audio', 'version': 7, 'sha256': sha(Path(__file__))},
+            'converter': {'name': 'render_firmware_audio', 'version': 8, 'sha256': sha(Path(__file__))},
             'renderer': {'name': 'DualRip', 'url': 'https://github.com/TetraSsky/DualRip', 'revision': DUALRIP_REVISION},
             'profile': profile, 'validatedMonoBankWaves': waves,
             'method': 'offline CSEQ interpretation with original CBNK/CWAV and a versioned HOME-only stereo startup patch',
-            'verification': 'diagnostic candidate; pinned-capture voice/DSP model; runtime overrides, hardware parity and baked-loop delivery remain unresolved',
+            'verification': 'pinned-capture voice/DSP model; runtime overrides, input/event timing and hardware parity remain unresolved'
+                            + ('; diagnostic music WAVs are not certified for looping delivery' if pack == 'diagnostic' else ''),
             'cues': {},
         }
         for alias in names:
@@ -74,6 +88,8 @@ def render(source, output, renderer, source_record, names, rate=NATIVE_RATE, scr
             if not samples or any(len(channel) != samples for channel in channels):
                 raise ValueError(f'Invalid rendered channels for {sound.name}')
             if loop:
+                if pack == 'cues':
+                    raise ValueError(f'Cue packs require non-looping sounds: {sound.name}')
                 if not 0 <= loop[0] < loop[1] <= samples:
                     raise ValueError(f'Invalid loop in {sound.name}: {loop}')
                 channels = [channel[:loop[1]] for channel in channels]
@@ -83,7 +99,8 @@ def render(source, output, renderer, source_record, names, rate=NATIVE_RATE, scr
             banks = [{'id': bank_id, 'waveArchives': archive.bank_wave_archives(bank_id)}
                      for bank_id in sound.bank_ids]
             result['cues'][alias] = {
-                'name': sound.name, 'index': sound.index, 'kind': sound.kind,
+                'name': sound.name, 'index': sound.index, 'archiveId': 0x01000000 | sound.index,
+                'kind': sound.kind,
                 'url': path.name, 'sha256': sha(path), 'size': path.stat().st_size,
                 'sampleRate': native_rate, 'channels': len(channels), 'samples': samples,
                 'loopStart': loop[0] if loop else None, 'loopEnd': loop[1] if loop else None,
@@ -103,8 +120,15 @@ if __name__ == '__main__':
     parser.add_argument('--renderer', type=Path, required=True)
     parser.add_argument('--scratch', type=Path, required=True, help='SSD directory for disposable renderer sources')
     parser.add_argument('--source-record', type=Path, required=True)
-    parser.add_argument('--only', nargs='+', choices=list(CUES), default=list(CUES))
+    parser.add_argument('--pack', choices=['cues', 'diagnostic'], default='cues',
+                        help='cues (default): ten short sounds; diagnostic: also allow baked music WAVs')
+    parser.add_argument('--only', nargs='+', choices=list(CUES),
+                        help='subset of the selected pack; defaults to every entry in that pack')
     parser.add_argument('--rate', type=int, default=NATIVE_RATE, choices=[NATIVE_RATE],
                         help='native output rate required by the HOME DSP profile')
     args = parser.parse_args()
-    render(args.source, args.output, args.renderer, args.source_record, args.only, args.rate, args.scratch)
+    try:
+        names = cue_names(args.only, args.pack)
+    except ValueError as error:
+        parser.error(str(error))
+    render(args.source, args.output, args.renderer, args.source_record, names, args.rate, args.scratch, pack=args.pack)

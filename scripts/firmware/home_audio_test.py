@@ -215,6 +215,62 @@ class CaptureDspTests(unittest.TestCase):
 
 
 class RendererInterfaceTests(unittest.TestCase):
+    def test_cue_delivery_defaults_and_explicit_music_diagnostics(self):
+        from render_firmware_audio import cue_names
+        expected = ['select', 'open', 'back', 'home', 'power', 'touch', 'grab', 'drop', 'folder-open', 'folder-close']
+        self.assertEqual(cue_names(), expected)
+        self.assertEqual(cue_names(['home', 'select']), ['home', 'select'])
+        self.assertEqual(cue_names(pack='diagnostic'), ['music', 'music-resume', *expected])
+        self.assertEqual(cue_names(['music'], 'diagnostic'), ['music'])
+        for names in ([], ['select', 'select'], ['unknown']):
+            with self.subTest(names=names), self.assertRaisesRegex(ValueError, 'allowlisted'):
+                cue_names(names)
+        with self.assertRaisesRegex(ValueError, 'pack'):
+            cue_names(pack='unknown')
+
+    def test_cue_delivery_rejects_music_before_reading_or_writing(self):
+        from render_firmware_audio import render
+        with tempfile.TemporaryDirectory(dir=scratch_root()) as temp:
+            root = Path(temp)
+            for names in (['music'], ['music-resume'], ['select', 'music']):
+                with self.subTest(names=names), self.assertRaisesRegex(ValueError, '--pack diagnostic'):
+                    render(root / 'missing-source', root / 'output', root / 'missing-renderer',
+                           root / 'missing-record', names, scratch=root / 'scratch')
+                self.assertEqual(list(root.iterdir()), [])
+
+    def test_cli_rejects_music_in_default_cue_pack(self):
+        script = Path(__file__).resolve().parent.parent / 'render_firmware_audio.py'
+        with tempfile.TemporaryDirectory(dir=scratch_root()) as temp:
+            root = Path(temp)
+            command = [sys.executable, str(script), str(root / 'missing-source'), str(root / 'output'),
+                       '--renderer', str(root / 'missing-renderer'), '--scratch', str(root / 'scratch'),
+                       '--source-record', str(root / 'missing-record'), '--only', 'music']
+            result = subprocess.run(command, text=True, capture_output=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('--pack diagnostic', result.stderr)
+            self.assertEqual(list(root.iterdir()), [])
+
+    def test_actual_cue_pack_metadata_and_no_music_files(self):
+        source = os.environ.get('HOME_AUDIO_SOURCE')
+        if not source:
+            self.skipTest('Set HOME_AUDIO_SOURCE for actual cue emission')
+        from render_firmware_audio import render
+        with tempfile.TemporaryDirectory(dir=scratch_root()) as temp:
+            root = Path(temp)
+            record = root / 'source.json'
+            record.write_text(json.dumps(PROFILE['sourceRecord']))
+            result = render(Path(source), root / 'output', Path(os.environ['HOME_AUDIO_RENDERER']),
+                            record, ['select'], scratch=scratch_root())
+            self.assertEqual(result['pack'], 'cues')
+            self.assertEqual(result['converter']['version'], 8)
+            self.assertEqual(set(result['cues']), {'select'})
+            cue = result['cues']['select']
+            self.assertEqual((cue['name'], cue['archiveId']), ('SE_CTR_HOME_ICON_SELECT', 0x0100002c))
+            self.assertEqual((cue['loopStart'], cue['loopEnd']), (None, None))
+            self.assertEqual(cue['sha256'], '79cce738dbe8e64e5b86a626c238c31ff97c1ccae9ea576592329d8612e22c9c')
+            self.assertEqual(sorted(p.name for p in (root / 'output').iterdir()), ['audio.json', 'select.wav'])
+            self.assertEqual(json.loads((root / 'output/audio.json').read_text()), result)
+
     def test_api_rejects_alternate_rates_before_reading_or_writing(self):
         from render_firmware_audio import render
         with tempfile.TemporaryDirectory(dir=scratch_root()) as temp:

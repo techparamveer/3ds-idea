@@ -129,7 +129,7 @@ test('settings restoration and layout reset retain phase; true off-to-boot reset
  restored=tickSystem(restored,90000);assert.equal(loop(restored),before);
  assert.deepEqual(loop(tickSystem(restored,90000+F)),advanceHomeCursorLoop(before,1,true));
  const reset=reduceSystem(reduceSystem(initial,'preferences',now),'reset-layout',now);assert.equal(loop(reset),before);
- let state=reduceSystem(reduceSystem(initial,'power',now),'open',now);assert.equal(state.system.phase,'off');assert.equal(loop(state),before);
+ let state=reduceSystem(reduceSystem(initial,'power',now),'open',now);assert.equal(state.system.phase,'shutdown');state=tickSystem(state,now+550);assert.equal(state.system.phase,'off');assert.equal(loop(state),before);
  state=reduceSystem(state,'power',10000);assert.equal(state.system.phase,'boot');assert.deepEqual(loop(state),createHomeCursorLoop());
  state=tickSystem(state,13001);state=tickSystem(state,13002);assert.deepEqual(loop(state),createHomeCursorLoop());
  assert.deepEqual(loop(tickSystem(state,13002+F)),{currentFrame:1,appliedFrame:0,step:1});

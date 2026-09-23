@@ -1,5 +1,23 @@
 # OS, state and input architecture
 
+## Current portfolio scope
+
+[The current scope](../portfolio-ui-scope.md) supersedes the earlier full-firmware
+workflow descriptions below. Stock apps now expose their UI and basic navigation;
+software keyboard and device capture/import paths are not registered or reachable.
+Camera reuses portfolio photo folders. Sound is a real player for the user-provided
+track manifest, currently empty. Legacy converters, keyboard modules and capability
+utilities remain preserved research; their presence is not a delivery requirement.
+
+`stock-screen-presentation.ts` owns stock screen image caches and asynchronous
+per-instance native assets; `screens.ts` synchronizes its owner even when the
+console is off. Settings consumes native layout/texture/message packs. Gallery
+and music presentation use the shared `stock-screen-layout.ts` hit geometry.
+`portfolio-music.ts` owns the single foreground audio element, while
+`runtime-effects.ts` checks owner/revision and routes progress into reducers.
+See [stock UI runtime](../stock-ui-runtime.md) and
+[screen presentation](../stock-screen-presentation.md) for current verification.
+
 ## Modules
 
 | Module | Responsibility |

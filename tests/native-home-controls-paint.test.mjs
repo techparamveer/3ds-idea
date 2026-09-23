@@ -26,8 +26,9 @@ async function loadPresentation(name, overrides = {}) {
 // Execute the real screen painter. Resource transport and unrelated artwork
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
+ './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>false;'),
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
-  './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>undefined,menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
+  './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>undefined,syncStockView(){},menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
   './firmware-presentation': moduleUrl('export const createFirmwareHome=assets=>assets.presenter;export const loadFirmwarePresentationAssets=()=>{throw Error("Unexpected asset load");};'),
 };
 const { createScreens } = await loadPresentation('screens', overrides);

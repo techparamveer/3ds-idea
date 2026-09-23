@@ -86,3 +86,32 @@ Private integration logs use the `reference/native-title-loader-*` prefix;
 converter checks use `reference/multicontent-integration-tests.log` under the
 artifact root above. Native app composition, behavior and matched reference
 pixels remain required before acceptance.
+
+## Keyboard resource and local text checkpoint
+
+Converter 1.3.2 and the renderer now support the QWERTY clips' native animation
+sharing; all four original clips agree with the bounded ARM binding replay.
+The initial Settings name text component preserves native cell colors, spacing,
+UTF-16 indexing and the full-buffer cursor adjustment. Attached child layouts
+now consume runtime parent overrides, with separate cache entries that preserve
+draw diagnostics. See [animation sharing](native-animation-share-validation.md),
+[text component](native-keyboard-text.md), and [local composition evidence](native-keyboard-invocation-contract.md).
+The corrected English source replay preserves all earlier frozen local text
+outputs; an unimplemented overlay material write remains explicitly recorded.
+The coordinator verified all 115 indexed continuation files without mismatch.
+
+The isolated [keyboard audio exporter](firmware-keyboard-audio-validation.md)
+converts 15 original waves and records 19 cue bindings. The eight integration
+checks pass, including sample-exact comparison with vgmstream and the bounded
+native event probes. Gain/pitch/loop transport, host timing and the sequence
+resource remain unresolved. Nothing new is published to the website by this
+resource checkpoint.
+
+Combined application checks pass 985 tests with six optional skips and no
+failures; type checking and production build pass. A separate real-Canvas
+regression run passes all 28 checks, covering the four Canvas tests skipped in
+the broad run. The attachment-cache follow-up passes all five renderer tests.
+Logs use `reference/native-keyboard-*` and `reference/native-parent-cache-*`
+under the artifact root. The native keyboard remains unwired: full lower-frame
+ordering/capture, interaction, audio transport and actual native/browser
+comparison are still required. Other stock applications remain scaffolds.

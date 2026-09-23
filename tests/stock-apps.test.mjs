@@ -161,3 +161,78 @@ test('Miiverse source toolbar rows open local details without remote/account eff
  assert.deepEqual(view.rows.map(({id,label})=>[id,label]),[['communities','Communities'],['activity','Activity Feed'],['profile','My Menu'],['notifications','Notifications']]);
  for(const row of view.rows){const out=action(module,state,row.id);assert.equal(out.state.screen,'detail');assert.equal(out.state.field,row.id);assert.deepEqual(out.effects??[],[]);assert.equal(action(module,out.state,'back').state.screen,'main');}
 });
+
+test('Settings exposes source-labelled Internet/Data/Profile branches and returns to immediate parents',()=>{
+ const {module}=setup('system-settings'),main=module.create({},null,ctx);
+ const cases=[
+  [['internet'],['connections','spotpass','ds-connections','internet-info']],
+  [['internet','connections'],['connection-1','connection-2','connection-3','new-connection']],
+  [['data'],['data-3ds','data-dsi','streetpass','blocked-users']],
+  [['data','data-3ds'],['software','extra-data','add-on-content','backup']],
+  [['other','profile'],['nickname','birthday','region','ds-profile']],
+  [['other','clock'],['date','time']],
+ ];
+ for(const [path,ids] of cases){
+  let state=main;for(const id of path)state=action(module,state,id).state;
+  assert.deepEqual(module.view(state,ctx).rows.map(row=>row.id),ids);
+  const back=module.reduce(state,{type:'command',command:'back'},ctx).state;
+  assert.equal(back.screen,path.length===1?'main':path.at(-2));
+  assert.equal(module.view(back,ctx).rows[back.selection].id,path.at(-1));
+ }
+});
+test('Parental intro explores restrictions without creating a configured profile or PIN flow',()=>{
+ const {module}=setup('system-settings');let state=action(module,module.create({},null,ctx),'parental').state;
+ assert.deepEqual(module.view(state,ctx).rows.map(row=>row.id),['next','back']);assert.ok(module.view(state,ctx).text.length);
+ state=action(module,state,'next').state;assert.equal(state.screen,'restrictions');assert.equal(module.view(state,ctx).rows.length,11);
+ for(const row of module.view(state,ctx).rows){
+  const detail=action(module,state,row.id);assert.deepEqual(detail.effects??[],[]);assert.equal(detail.state.screen,'detail');
+  assert.ok(module.view(detail.state,ctx).text[0]);assert.equal(action(module,detail.state,'back').state.screen,'restrictions');
+ }
+ assert.equal(action(module,state,'back').state.screen,'parental');
+ assert.equal(action(module,state,'change-pin').state,state);assert.deepEqual(module.save(state),{});
+});
+test('Other Settings pages bound directions and preserve page plus selection after leaf Back',()=>{
+ const {module}=setup('system-settings');let state=action(module,module.create({},null,ctx),'other').state;
+ const expected=[['profile','clock','touch'],['sound','mic','calibration-3d'],['outer-cameras','circle-pad','transfer'],['language','update','format']];
+ assert.equal(module.reduce(state,{type:'command',command:'left'},ctx).state,state);
+ for(let page=0;page<4;page++){
+  const view=module.view(state,ctx);assert.equal(view.data.page,page);assert.equal(view.data.pageCount,4);assert.deepEqual(view.rows.map(row=>row.id),expected[page]);
+  for(const row of view.rows){
+   const result=action(module,state,row.id);
+   if(['transfer','update'].includes(row.id)){assert.equal(result.effects[0].type,'launch');continue;}
+   const back=action(module,result.state,'back').state;assert.equal(back.screen,'other');assert.equal(back.page,page);assert.equal(module.view(back,ctx).rows[back.selection].id,row.id);
+  }
+  const next=module.reduce(state,{type:'command',command:'right'},ctx).state;
+  if(page===3)assert.equal(next,state);else assert.equal(next.page,page+1);state=next;
+ }
+ state=action(module,state,'settings-previous').state;assert.equal(state.page,2);
+ assert.equal(action(module,state,'back').state.screen,'main');
+});
+test('Settings leaves expose only supplied values and every reachable detail has readable content',()=>{
+ const {module}=setup('system-settings'),context={now:0,shared:{...initialSharedData(),settings:{nickname:'Ada',birthday:'14 March',region:'United Kingdom',language:'English',sound:'Mono'}}},before=structuredClone(context.shared);
+ const run=(state,id)=>module.reduce(state,{type:'action',id},context);
+ const main=module.create({},null,context),other=run(main,'other').state,profile=run(other,'profile').state;
+ for(const field of ['nickname','birthday','region']){
+  const state=run(profile,field).state;assert.deepEqual(module.view(state,context).text,[context.shared.settings[field]]);
+  assert.equal(module.reduce(state,{type:'text',value:'Changed'},context).state,state);
+ }
+ const queue=[main],seen=new Set();
+ while(queue.length){
+  const state=queue.shift(),key=JSON.stringify(state);if(seen.has(key))continue;seen.add(key);assert.ok(seen.size<160);
+  const view=module.view(state,context);
+  if(state.screen==='detail')assert.ok(view.text.some(text=>text.trim()),String(state.field));
+  for(const id of [...view.rows.map(row=>row.id),'settings-next','settings-previous','back']){
+   const result=run(state,id);assert.ok((result.effects??[]).every(effect=>['launch','home'].includes(effect.type)));
+   if(result.state!==state)queue.push(result.state);
+  }
+ }
+ assert.deepEqual(context.shared,before);assert.ok(seen.size>45);
+ const emptyContext={now:0,shared:{settings:{}}},leaf=run(profile,'nickname').state;
+ assert.deepEqual(module.view(leaf,emptyContext).text,['Not set in this portfolio.']);
+});
+
+test('Data Management directions follow the two upper tiles then the full-width rows',()=>{
+ const {module}=setup('system-settings');let state=action(module,module.create({},null,ctx),'data').state;
+ const move=command=>{state=module.reduce(state,{type:'command',command},ctx).state;return module.view(state,ctx).rows[state.selection].id;};
+ assert.equal(move('right'),'data-dsi');assert.equal(move('right'),'data-dsi');assert.equal(move('down'),'streetpass');assert.equal(move('down'),'blocked-users');assert.equal(move('up'),'streetpass');assert.equal(move('up'),'data-3ds');
+});

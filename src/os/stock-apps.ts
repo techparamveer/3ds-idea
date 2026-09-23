@@ -1,4 +1,5 @@
 import { objectValue, type AppContext, type AppDescriptor, type AppEffect, type AppModule, type AppReduction, type AppState, type AppView, type AppViewRow, type JsonValue } from './app-types.ts';
+import { settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
 import { healthDocumentPageCounts } from './stock-health-layout.ts';
 import { stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
@@ -14,7 +15,6 @@ const settingsDefaults: AppState = { nickname: 'Player', language: 'English', so
 export const initialSharedData = (): AppState => ({ settings: { ...settingsDefaults }, miis: [], photos: [], sounds: [], notes: [], friends: [], notifications: [], activity: {}, browser: { bookmarks: [], history: [] }, plaza: { greeting: 'Hello!', miiId: null, streetPass: false } });
 const cameraTitles = new Set(['camera', 'camera-applet']);
 const selectorSources: Record<string, string> = { 'mii-selector': 'miis', 'photo-selector': 'photos', 'sound-selector': 'sounds' };
-const settingsLabels: Record<string, string> = { nickname: 'User Name', birthday: 'Birthday', language: 'Language', sound: 'Sound', clock: 'Date & Time' };
 const serviceRows: Record<string, readonly [string, string][]> = {
   'amiibo-settings': [['register', 'Register Owner and Nickname'], ['delete-data', 'Delete amiibo Game Data'], ['reset', 'Reset amiibo']],
   'nnid-settings': [['sign-in', 'Link an Existing ID'], ['create', 'Create a New ID']],
@@ -48,14 +48,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       if (screen === 'main') return media.tracks.map(item => row(`track:${item.id}`, item.title, item.artist));
       return [row('play', state.playing ? 'Pause' : 'Play'), row('previous', 'Previous'), row('next', 'Next'), row('repeat', 'Repeat', str(state.repeat, 'off')), row('shuffle', 'Shuffle', state.shuffle ? 'On' : 'Off')];
     }
-    if (id === 'system-settings') {
-      const prefs = { ...settingsDefaults, ...record(shared.settings) };
-      if (screen === 'profile') return ['nickname', 'birthday'].map(key => row(key, settingsLabels[key], str(prefs[key])));
-      if (screen === 'data') return [row('photos', 'Photos', String(list(shared.photos).length)), row('sounds', 'Sounds', String(list(shared.sounds).length)), row('miis', 'Mii characters', String(list(shared.miis).length)), row('notes', 'Game Notes', String(list(shared.notes).length))];
-      if (screen === 'other') return [row('profile', 'Profile'), row('clock', 'Date & Time'), row('sound', 'Sound'), row('language', 'Language'), row('transfer', 'System Transfer'), row('update', 'System Update')];
-      if (screen !== 'main') return [];
-      return [row('internet', 'Internet Settings'), row('parental', 'Parental Controls'), row('data', 'Data Management'), row('other', 'Other Settings'), row('nnid', 'Nintendo Network ID Settings')];
-    }
+    if (id === 'system-settings') return settingsChoices(state, record(shared.settings));
     if (screen !== 'main' && !['bookmarks', 'history', 'profile'].includes(screen)) return [];
     if (selectorSources[id]) return list(shared[selectorSources[id]]).map((entry, index) => row(String(index), str(entry.name, str(entry.title, `Item ${index + 1}`))));
     if (id === 'game-notes' || id === 'memo') return Array.from({ length: 16 }, (_, index) => row(String(index), `Note ${index + 1}`));
@@ -85,6 +78,16 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       };
       const nextId = neighbors[current.rows[selected]?.id]?.[direction];
       const next = current.rows.findIndex(item => item.id === nextId);
+      return next < 0 ? selected : next;
+    }
+    if (id === 'system-settings' && current.screen === 'data') {
+      const neighbors: Record<string, Partial<Record<typeof direction, string>>> = {
+        'data-3ds': { right: 'data-dsi', down: 'streetpass' },
+        'data-dsi': { left: 'data-3ds', down: 'streetpass' },
+        streetpass: { up: 'data-3ds', down: 'blocked-users' },
+        'blocked-users': { up: 'streetpass' },
+      };
+      const next = current.rows.findIndex(item => item.id === neighbors[current.rows[selected]?.id]?.[direction]);
       return next < 0 ? selected : next;
     }
     const columns = cameraTitles.has(id) && ['main', 'gallery'].includes(current.screen) ? 3
@@ -118,7 +121,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const screen = str(state.screen, 'main');
     if (action === 'back') {
       if (screen !== 'main') {
-        const parent = cameraTitles.has(id) && screen === 'photo' ? 'gallery' : id === 'system-settings' && screen === 'detail' ? str(state.parent, 'other') : 'main';
+        if (id === 'system-settings') return { state: settingsBack(state) };
+        const parent = cameraTitles.has(id) && screen === 'photo' ? 'gallery' : 'main';
         const next = withScreen(state, parent);
         return id === 'sound' && state.playing ? music(next, 'pause', { playing: false }) : { state: next };
       }
@@ -163,12 +167,12 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return { state };
     }
     if (id === 'error' && action === 'ok') return { state, effects: [{ type: 'complete' }] };
+    if (id === 'system-settings' && screen === 'other' && (action === 'settings-next' || action === 'settings-previous')) return { state: settingsNavigate(state, action) };
     // Unknown/stale actions cannot open hidden flows or mutate saved data.
     if (!rows(state, context).some(item => item.id === action && !item.disabled)) return { state };
     if (id === 'system-settings') {
-      if (['profile', 'data', 'other', 'internet', 'parental'].includes(action)) return { state: withScreen(state, action) };
       if (['nnid', 'transfer', 'update'].includes(action)) return { state, effects: [{ type: 'launch', appId: { nnid: 'nnid-settings', transfer: 'system-transfer', update: 'system-updater' }[action]! }] };
-      return { state: withScreen(state, 'detail', { field: action, parent: screen }) };
+      return { state: settingsNavigate(state, action) };
     }
     if (id === 'game-notes' || id === 'memo') return { state: withScreen(state, 'drawing', { slot: Number(action), strokes: list(context.shared.notes).find(note => note.slot === Number(action))?.strokes ?? [] }) };
     if (id === 'health-safety' || id === 'manual') return { state: withScreen(state, 'document', { topic: action, page: 0 }) };
@@ -192,14 +196,14 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'notifications' && screen === 'notification') text.push(str(list(context.shared.notifications).find(item => item.id === state.notificationId)?.message));
     if (id === 'notifications' && !options.length && screen === 'main') text.push('There are no notifications.');
-    if (id === 'system-settings' && screen === 'detail') text.push(str(record(context.shared.settings)[str(state.field)]));
+    if (id === 'system-settings') { text.push(...settingsText(state, context.shared)); if (screen === 'other') { data.page=settingsPage(state); data.pageCount=settingsOtherPages.length; } }
     if (id === 'error') text.push(str(state.message, 'An error has occurred.'));
     const healthDocument = id === 'health-safety' && screen === 'document';
     const pageCount = healthDocumentPageCounts[str(state.topic)] ?? 1;
     if (healthDocument) data.pageCount = pageCount;
     const left = healthDocument && num(state.page) > 0 ? { label: 'Previous', action: 'previous' } : { label: 'Back', action: 'back' };
     const right = healthDocument ? (num(state.page) < pageCount - 1 ? { label: 'Next', action: 'next' } : { label: 'Done', action: 'back' }) : id === 'error' ? { label: 'OK', action: 'ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
-    return { appId: id, titleId: descriptor.titleId, screen, heading: descriptor.title, text, rows: options, selection,
+    return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : descriptor.title, text, rows: options, selection,
       footer: { left, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }
   return {
@@ -227,6 +231,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       const current = view(state, context);
       if (command === 'open') return activate(state, current.footer.right?.action ?? '', context);
       if (command === 'left' || command === 'right') {
+        if (id === 'system-settings' && state.screen === 'other') return activate(state, command === 'right' ? 'settings-next' : 'settings-previous', context);
         if (id === 'health-safety' && state.screen === 'document') return activate(state, command === 'right' ? 'next' : 'previous', context);
         if (cameraTitles.has(id) && state.screen === 'photo' || id === 'sound' && state.screen === 'playback') return activate(state, command === 'right' ? 'next' : 'previous', context);
       }

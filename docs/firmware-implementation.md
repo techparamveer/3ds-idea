@@ -179,3 +179,26 @@ browser audio. Wave-voice conversion and transport integration remain required.
 These subsequent isolated modules were checked with focused tests after the
 shared-sampler full-suite run; that earlier count is not a new full-suite run
 at this later HEAD. No final implementation PR is ready.
+
+## Selector fields and retained texture checkpoint
+
+The two local [composition gaps](native-keyboard-composition.md) are resolved:
+the four selector labels apply native styles225–228 and original float32
+auto-fit, and English `T_trans` clears its first constant RGBA register. The
+source-backed component plus app-registry/migration checks pass22 tests with no
+skips. All six ordinary component render hashes remain unchanged; a nonblank
+overlay probe verifies that the material write has a visible effect when the
+overlay contains a glyph. This remains an isolated component, not a finished
+live keyboard.
+
+The [retained texture contract](native-keyboard-capture-texture.md) now proves
+320×240 content in a512×256 RGB565 capture and separate256×512 caller storage,
+including original descriptor writes and UV generation. Five caller format
+branches pass. GPU capture pixels and browser sampling remain separate gaps.
+Evidence and the22-test integration log are under `reference/keyboard-opening/`
+and `reference/keyboard-composition-fields-integration-tests.log` on the SSD.
+
+Activity Log, Download Play, Mii Maker and StreetPass Mii Plaza remain excluded
+from the registry and restored layouts, alongside AR Games and Face Raiders.
+Other included stock applications still need native implementation; strict1:1
+acceptance and the final PR have not been achieved.

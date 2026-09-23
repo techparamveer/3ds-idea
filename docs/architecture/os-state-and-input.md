@@ -20,6 +20,7 @@
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
 | `home-folder-identity.ts` | Session-local opaque folder keys, immutable allocation and movement; never persisted |
+| `home-folder-close.ts` | Pure normal-close task/layout phases and per-operation observations; System integration pending |
 | `home-banner-lifecycle.ts` | Pure folder/default request/activation, explicit clear, shared visibility/yaw and independent source clip clocks |
 | `home-banner-service.ts` | Pure native banner gate and ordered manager/scene passes from a shared update counter |
 | `app-persistence.ts` | Versioned IndexedDB saves, preferences and media |
@@ -107,6 +108,12 @@ are explicit inputs; generation-scoped tickets reject stale async completions.
 It does not yet wire the System or renderer. See
 [the service contract](../home-banner-service.md) for counter reset behavior,
 stable folder identity requirements and the external app/blank loader boundaries.
+
+`home-folder-close.ts` owns the isolated normal-close controller and its immutable
+observations. It preserves lower-task-before-layout ordering, explicit eligibility
+and batch event offsets; it does not mutate menu history or call the banner host.
+System/scene integration must consume each observation at its shared-update
+boundary. See [the close controller](../home-folder-close-runtime.md).
 
 `System.homeFolderIdentities` owns live folder keys independently from slots,
 labels and the saved naming counter. Creation/delete/move/swap reducers maintain

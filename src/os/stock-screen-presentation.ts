@@ -7,6 +7,7 @@ import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
 import { drawNativeCameraLower, cameraScreenPacks } from './stock-native-camera';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
 import { drawNativePersonalToolFrame, nativePersonalToolView } from './stock-native-personal-tools';
+import { drawNativeWebFrame, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
 import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -46,8 +47,8 @@ function control(ctx:Context,label:string,x:number,y:number,w:number,h:number,ac
   ctx.beginPath();ctx.roundRect(x,y,w,h,5);ctx.fillStyle=gradient;ctx.fill();ctx.strokeStyle=active?accent:'#a9aea4';ctx.lineWidth=active?2:1;ctx.stroke();text(ctx,font,label,x+w/2,y+h/2,13);
 }
 function footer(ctx:Context,view:AppView,font?:BitmapFont){
-  ctx.fillStyle='#d9ddd4';ctx.fillRect(0,212,320,28);
-  for(const side of ['left','right'] as const){const item=view.footer[side];if(item)control(ctx,item.label,side==='left'?3:172,215,145,23,false,font);}
+  ctx.fillStyle='#d9ddd4';ctx.fillRect(view.appId==='miiverse'?256:0,212,view.appId==='miiverse'?64:320,28);
+  for(const side of ['left','right'] as const){const item=view.footer[side],target=item&&stockScreenTargets(view).find(r=>r.row===undefined&&r.action===item.action);if(item&&target)control(ctx,item.label,target.x+3,target.y+1,target.width-6,target.height-3,false,font);}
 }
 function mediaImage(ctx:Context,item:MediaRecord,rect:number[],options:StockScreenPaintOptions){
   const url=string(item.thumbnail)||string(item.src)||string(item.artwork);
@@ -73,6 +74,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
   if(options.native&&drawNativeSoundFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativeHealthFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativePersonalToolFrame(options.native,top,bottom,view,options))return;
+  if(options.native&&drawNativeWebFrame(options.native,top,bottom,view,options))return;
   chrome(top,400,view.heading,accent,font);chrome(bottom,320,view.heading,accent,font);
   if(camera(view.appId)){
     const folders=records(data.folders),photos=records(data.photos),selected=view.rows[view.selection];
@@ -162,7 +164,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   function prepare(view:AppView,nextOwner:string,font?:BitmapFont){
     if(disposed)return session.getState();
     sync(nextOwner);
-    const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:nativePersonalToolView(view));
+    const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:view.appId==='browser'?{view:'browser',titleId:'0004003000009d02',packs:browserScreenPacks}:view.appId==='miiverse'?{view:'miiverse',titleId:'000400300000be02',packs:miiverseScreenPacks}:nativePersonalToolView(view));
     return session.update(nativeView?{owner:nextOwner,...nativeView,sharedFonts:new Map([['cbf_std.bcfnt',font!]])}:null);
   }
   return {

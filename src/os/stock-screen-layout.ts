@@ -10,6 +10,15 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     rows.forEach((row,index)=>{const rect=locations[row.id];if(rect)result.push(target(row.id,rect[0],rect[1],rect[2],rect[3],index));});
   }else if(appId==='health-safety'&&screen==='main'){
     rows.slice(0,3).forEach((row,index)=>result.push(target(row.id,36,21+index*64,248,48,index)));
+  }else if(appId==='browser'&&screen==='main'){
+    const locations:Record<string,number[]>={search:[16,38,288,64],bookmarks:[16,111,144,42],'add-bookmark':[160,111,144,42],settings:[9,164,100,34],'page-info':[110,164,100,34],address:[211,164,100,34]};
+    rows.forEach((row,index)=>{const r=locations[row.id];if(r)result.push(target(row.id,r[0],r[1],r[2],r[3],index));});
+    if(view.footer.left)result.push(target(view.footer.left.action,0,212,106,28));
+    return result;
+  }else if(appId==='miiverse'){
+    if(screen==='main')rows.slice(0,4).forEach((row,index)=>result.push(target(row.id,index*64,212,64,28,index)));
+    if(view.footer.left)result.push(target(view.footer.left.action,256,212,64,28));
+    return result;
   }else if((appId==='camera'||appId==='camera-applet')&&(screen==='main'||screen==='gallery')){
     const start=Math.floor(selection/6)*6;
     rows.slice(start,start+6).forEach((row,i)=>result.push(target(row.id,12+(i%3)*102,38+Math.floor(i/3)*80,92,72,start+i)));
@@ -30,6 +39,7 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     rows.slice(start,start+4).forEach((row,i)=>result.push(target(row.id,18,40+i*39,284,35,start+i)));
   }
   if(appId==='notifications'&&screen==='main'&&rows.length===0&&view.footer.left)return [...result,target(view.footer.left.action,0,212,320,28)];
+  if(appId==='browser'){if(view.footer.left)result.push(target(view.footer.left.action,0,212,106,28));return result;}
   if(view.footer.left)result.push(target(view.footer.left.action,0,214,150,26));
   if(view.footer.right)result.push(target(view.footer.right.action,170,214,150,26));
   return result;

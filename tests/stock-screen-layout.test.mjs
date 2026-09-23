@@ -39,3 +39,11 @@ test('Game Notes uses the source four-by-four grid and a single full-width Close
  assert.equal(hit(v,250,226),'back');assert.equal(targets(v).length,17);
  assert.equal(hit(view('memo','main',['0']),42,30),null);
 });
+test('Browser source menu mounts and Miiverse toolbar map to their visible destinations',()=>{
+ const browser=view('browser','main',['search','bookmarks','add-bookmark','settings','page-info','address']);
+ for(const r of targets(browser))assert.equal(hit(browser,r.x+r.width/2,r.y+r.height/2),r.action);
+ assert.equal(hit(browser,160,106),null);assert.equal(hit(browser,109,181),null);assert.equal(hit(browser,200,226),null);
+ const miiverse=view('miiverse','main',['communities','activity','profile','notifications']);
+ assert.equal(hit(miiverse,32,226),'communities');assert.equal(hit(miiverse,224,226),'notifications');assert.equal(hit(miiverse,288,226),'back');
+ assert.equal(hit(view('miiverse','detail',[]),32,226),null);
+});

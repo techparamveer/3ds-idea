@@ -53,6 +53,20 @@ the native button bounds. Documents use eight source lines per page with base
 message styles; the shared counts are 12/44/27 pages for 3D/general/usage.
 Verification checks those counts against delivered text. Rich inline message
 runs and native continuous scrolling remain explicit adaptations.
+Browser assembles the source StartDialog and six button children at their native
+mounts, with matching touch regions and English message labels. Its
+outer dialog frame uses a plain bounded panel because its source window
+flip 4 is not supported by the renderer. The original child buttons remain
+native; this frame substitution is not treated as native fidelity. Browser and
+Miiverse crop their original 400×480 background separately to the two LCDs;
+the lower screen is not scaled from 400 to 320 pixels. Miiverse uses the four
+source navigation icons and a Back control in a documented local toolbar
+assembly. Website content, remote feeds, detailed browser settings and native
+navigation scheduling remain absent. The title-bound `font.bcfnt` resources
+load through the normal manifest font bindings, including in the render verifier.
+Where Browser/Miiverse messages reference an unavailable sibling style table,
+the adapter applies their English text while retaining the source pane's font
+size and spacing; those unresolved message styles are not treated as verified.
 The remaining titles still need their native screen composition;
 Settings colours, pose and typography need matched native/browser review.
 The integration task owns browser verification and audio transport.

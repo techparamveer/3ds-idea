@@ -120,13 +120,251 @@
         "packs/miiverse/messages-and-loose.json": {
           "messages": {
             "cave": [
-              "lau_title_olive",
+              "Dialog_Abort",
+              "Dialog_AbortWI",
+              "Dialog_Cancel",
+              "Dialog_Decide",
+              "Dialog_NonIconOk",
+              "Dialog_Off",
+              "Dialog_Ok",
+              "Dialog_On",
+              "ErrorMsg_AC_Connection_Failed",
+              "ErrorMsg_Brs_Exit",
+              "ErrorMsg_Brs_Normal_Conn",
+              "ErrorMsg_Brs_RecoveryGoTop",
+              "ErrorMsg_Brs_RecoveryReload",
+              "ErrorMsg_Brs_RecoveryReloadOrExit",
+              "ErrorMsg_HTTP_Cannot_Get_Page",
+              "ErrorMsg_Title",
               "StartMenu_End",
               "StartMenu_Manual",
               "dlg_top_internet_flw",
-              "dlg_top_net_off_flw"
+              "dlg_top_net_off_flw",
+              "lau_title_olive"
             ]
           }
+        },
+        "packs/miiverse/layout-TextField.json": {
+          "layouts": [
+            "TextField"
+          ],
+          "animations": [
+            "TextField_FocusedOnOff",
+            "TextField_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-TextField2.json": {
+          "layouts": [
+            "TextField2"
+          ],
+          "animations": [
+            "TextField2_FocusedOnOff",
+            "TextField2_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-button-ButtonNormal.json": {
+          "layouts": [
+            "ButtonNormal"
+          ],
+          "animations": [
+            "ButtonNormal_DecidedOn",
+            "ButtonNormal_FocusedOnOff",
+            "ButtonNormal_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-button-ButtonSelect.json": {
+          "layouts": [
+            "ButtonSelect"
+          ],
+          "animations": [
+            "ButtonSelect_DecidedOn",
+            "ButtonSelect_FocusedOnOff",
+            "ButtonSelect_InvalidatedOnOff",
+            "ButtonSelect_ReadOnlyOnOff"
+          ]
+        },
+        "packs/miiverse/layout-button-ButtonSelectH.json": {
+          "layouts": [
+            "ButtonSelectH"
+          ],
+          "animations": [
+            "ButtonSelectH_DecidedOn",
+            "ButtonSelectH_FocusedOnOff",
+            "ButtonSelectH_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-dialog-BottomButtonF.json": {
+          "layouts": [
+            "BottomButtonF"
+          ],
+          "animations": [
+            "BottomButtonF_DecidedOn",
+            "BottomButtonF_FocusedOnOff",
+            "BottomButtonF_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-dialog-BottomButtonF2.json": {
+          "layouts": [
+            "BottomButtonF2"
+          ],
+          "animations": [
+            "BottomButtonF2_DecidedOn",
+            "BottomButtonF2_FocusedOnOff",
+            "BottomButtonF2_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-dialog-BottomButtonH.json": {
+          "layouts": [
+            "BottomButtonH"
+          ],
+          "animations": [
+            "BottomButtonH_DecidedOn",
+            "BottomButtonH_FocusedOnOff",
+            "BottomButtonH_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-dialog-Dialog.json": {
+          "layouts": [
+            "Dialog"
+          ],
+          "animations": [
+            "Dialog_FadeIn",
+            "Dialog_FadeOut00",
+            "Dialog_FadeOut01"
+          ]
+        },
+        "packs/miiverse/layout-dialog-DialogBaseNormal.json": {
+          "layouts": [
+            "DialogBaseNormal"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-dialog-DialogInput.json": {
+          "layouts": [
+            "DialogInput"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-dialog-DialogNormal.json": {
+          "layouts": [
+            "DialogNormal"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-dialog-DialogNormalNT.json": {
+          "layouts": [
+            "DialogNormalNT"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-dialog-DialogNotice.json": {
+          "layouts": [
+            "DialogNotice"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-dialog-DialogScrollArea.json": {
+          "layouts": [
+            "DialogScrollArea"
+          ],
+          "animations": [
+            "DialogScrollArea_Size"
+          ]
+        },
+        "packs/miiverse/layout-dialogheader-DialogHeaderBaseNormal.json": {
+          "layouts": [
+            "DialogHeaderBaseNormal"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-dialogheader-DialogHeaderNormal.json": {
+          "layouts": [
+            "DialogHeaderNormal"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-error-DialogError.json": {
+          "layouts": [
+            "DialogError"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-toolbar-BackButton.json": {
+          "layouts": [
+            "BackButton"
+          ],
+          "animations": [
+            "BackButton_DecidedOn",
+            "BackButton_FocusedOnOff",
+            "BackButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-CloseMenuButton.json": {
+          "layouts": [
+            "CloseMenuButton"
+          ],
+          "animations": [
+            "CloseMenuButton_DecidedOn",
+            "CloseMenuButton_FocusedOnOff",
+            "CloseMenuButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-browse-Canvas.json": {
+          "layouts": [
+            "Canvas"
+          ],
+          "animations": [
+            "Canvas_ColorChanging"
+          ]
+        },
+        "packs/miiverse/layout-browse-jsdialog-BaseDialog.json": {
+          "layouts": [
+            "BaseDialog"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-browse-jsdialog-Content.json": {
+          "layouts": [
+            "Content"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-AccountBelt.json": {
+          "layouts": [
+            "AccountBelt"
+          ],
+          "animations": [
+            "AccountBelt_Color",
+            "AccountBelt_FadeIn",
+            "AccountBelt_FadeOut"
+          ]
+        },
+        "packs/miiverse/layout-sysinfo-AccountHeader.json": {
+          "layouts": [
+            "AccountHeader"
+          ],
+          "animations": [
+            "AccountHeader_ApltFade",
+            "AccountHeader_TextFade"
+          ]
+        },
+        "packs/miiverse/layout-PageFade.json": {
+          "layouts": [
+            "PageFade"
+          ],
+          "animations": [
+            "PageFade_FadeIn"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-TextButton.json": {
+          "layouts": [
+            "TextButton"
+          ],
+          "animations": [
+            "TextButton_DecidedOnOff",
+            "TextButton_FocusedOnOff",
+            "TextButton_InvalidatedOnOff"
+          ]
         }
       },
       "fontBindings": {

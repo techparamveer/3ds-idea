@@ -174,17 +174,395 @@
         "packs/browser/contents/0000-0000001f/messages-and-loose.json": {
           "messages": {
             "spider": [
-              "lau_title_web",
-              "StartMenu_Search",
-              "StartMenu_Favorite",
+              "Dialog_Abort",
+              "Dialog_AbortWI",
+              "Dialog_Cancel",
+              "Dialog_Decide",
+              "Dialog_NonIconOk",
+              "Dialog_Off",
+              "Dialog_Ok",
+              "Dialog_On",
+              "ErrorMsg_AC_Connection_Failed",
+              "ErrorMsg_Brs_Normal_Conn",
+              "ErrorMsg_HTTP_Cannot_Get_Page",
+              "ErrorMsg_Title",
+              "FavoriteMode_EditTitle",
+              "Favorite_EmptyMessage",
+              "Favorite_HeaderInfo",
+              "Favorite_HeaderRegisterNumLabel",
+              "Favorite_HeaderTitle",
+              "Keyboard_InputDefault",
+              "Keyboard_InputSearch",
+              "Keyboard_InputURL",
+              "Option_AutoWrap",
+              "Option_DeleteCookie",
+              "Option_DeleteHistoryAll",
+              "Option_HeaderAutoWrap",
+              "Option_HeaderDeleteCookie",
+              "Option_HeaderDeleteHistoryAll",
+              "Option_HeaderNetwork",
+              "Option_HeaderProxy",
+              "Option_HeaderReset",
+              "Option_HeaderSearchEngine",
+              "Option_HeaderTop",
+              "Option_HeaderVersionInfo",
+              "Option_Initialize",
+              "Option_Network",
+              "Option_NetworkSSID",
+              "Option_NetworkSecurity",
+              "Option_NetworkSetKind",
+              "Option_NoConnection",
+              "Option_Proxy",
+              "Option_SearchEngine",
+              "Option_Title",
+              "Option_VersionInfo",
+              "PageInfo_Security",
+              "PageInfo_SecurityInvalid",
+              "PageInfo_Title",
+              "PageInfo_Url",
+              "SearchEngineGoogle",
+              "SearchEngineYahoo",
+              "Search_ButtonWordInput",
               "StartMenu_Add",
               "StartMenu_Close",
               "StartMenu_End",
-              "StartMenu_PageInfo",
+              "StartMenu_Favorite",
               "StartMenu_Manual",
-              "StartUp_Welcome"
+              "StartMenu_PageInfo",
+              "StartMenu_Search",
+              "StartUp_Welcome",
+              "lau_title_web"
             ]
           }
+        },
+        "packs/browser/contents/0000-0000001f/layout-TextField.json": {
+          "layouts": [
+            "TextField"
+          ],
+          "animations": [
+            "TextField_FocusedOnOff",
+            "TextField_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-TextField2.json": {
+          "layouts": [
+            "TextField2"
+          ],
+          "animations": [
+            "TextField2_FocusedOnOff",
+            "TextField2_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-button-ButtonNormal.json": {
+          "layouts": [
+            "ButtonNormal"
+          ],
+          "animations": [
+            "ButtonNormal_DecidedOn",
+            "ButtonNormal_FocusedOnOff",
+            "ButtonNormal_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-button-ButtonSelect.json": {
+          "layouts": [
+            "ButtonSelect"
+          ],
+          "animations": [
+            "ButtonSelect_DecidedOn",
+            "ButtonSelect_FocusedOnOff",
+            "ButtonSelect_InvalidatedOnOff",
+            "ButtonSelect_ReadOnlyOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-button-ButtonSelectH.json": {
+          "layouts": [
+            "ButtonSelectH"
+          ],
+          "animations": [
+            "ButtonSelectH_DecidedOn",
+            "ButtonSelectH_FocusedOnOff",
+            "ButtonSelectH_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-BottomButtonF.json": {
+          "layouts": [
+            "BottomButtonF"
+          ],
+          "animations": [
+            "BottomButtonF_DecidedOn",
+            "BottomButtonF_FocusedOnOff",
+            "BottomButtonF_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-BottomButtonF2.json": {
+          "layouts": [
+            "BottomButtonF2"
+          ],
+          "animations": [
+            "BottomButtonF2_DecidedOn",
+            "BottomButtonF2_FocusedOnOff",
+            "BottomButtonF2_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-BottomButtonH.json": {
+          "layouts": [
+            "BottomButtonH"
+          ],
+          "animations": [
+            "BottomButtonH_DecidedOn",
+            "BottomButtonH_FocusedOnOff",
+            "BottomButtonH_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-Dialog.json": {
+          "layouts": [
+            "Dialog"
+          ],
+          "animations": [
+            "Dialog_FadeIn",
+            "Dialog_FadeOut00",
+            "Dialog_FadeOut01"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-DialogBaseNormal.json": {
+          "layouts": [
+            "DialogBaseNormal"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-DialogInput.json": {
+          "layouts": [
+            "DialogInput"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-DialogNormal.json": {
+          "layouts": [
+            "DialogNormal"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-DialogNormalNT.json": {
+          "layouts": [
+            "DialogNormalNT"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-DialogNotice.json": {
+          "layouts": [
+            "DialogNotice"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialog-DialogScrollArea.json": {
+          "layouts": [
+            "DialogScrollArea"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialogheader-DialogHeaderBaseNormal.json": {
+          "layouts": [
+            "DialogHeaderBaseNormal"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-dialogheader-DialogHeaderNormal.json": {
+          "layouts": [
+            "DialogHeaderNormal"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-error-DialogError.json": {
+          "layouts": [
+            "DialogError"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-BackButton.json": {
+          "layouts": [
+            "BackButton"
+          ],
+          "animations": [
+            "BackButton_DecidedOn",
+            "BackButton_FocusedOnOff",
+            "BackButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-CloseMenuButton.json": {
+          "layouts": [
+            "CloseMenuButton"
+          ],
+          "animations": [
+            "CloseMenuButton_DecidedOn",
+            "CloseMenuButton_FocusedOnOff",
+            "CloseMenuButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-favorite-Container.json": {
+          "layouts": [
+            "Container"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-favorite-Item.json": {
+          "layouts": [
+            "Item"
+          ],
+          "animations": [
+            "Item_DecidedOff",
+            "Item_DecidedOn",
+            "Item_Delete",
+            "Item_FocusedOnOff",
+            "Item_TargetedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-favorite-EmptyMessage.json": {
+          "layouts": [
+            "EmptyMessage"
+          ],
+          "animations": [
+            "EmptyMessage_FadeIn",
+            "EmptyMessage_FadeOut"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-favorite-EditDialog.json": {
+          "layouts": [
+            "EditDialog"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-favorite-EditButton.json": {
+          "layouts": [
+            "EditButton"
+          ],
+          "animations": [
+            "EditButton_DecidedOn",
+            "EditButton_FocusedOnOff",
+            "EditButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-TextFieldFavicon.json": {
+          "layouts": [
+            "TextFieldFavicon"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-browse-pageinfo-PageInfoDialog.json": {
+          "layouts": [
+            "PageInfoDialog"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-browse-pageinfo-PageInfoItem.json": {
+          "layouts": [
+            "PageInfoItem"
+          ],
+          "animations": [
+            "PageInfoItem_Heading"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-browse-pageinfo-IconSecurity.json": {
+          "layouts": [
+            "IconSecurity"
+          ],
+          "animations": [
+            "IconSecurity_Break",
+            "IconSecurity_Green",
+            "IconSecurity_Normal",
+            "IconSecurity_Red",
+            "IconSecurity_Usually",
+            "IconSecurity_Yellow"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-option-HelpButton.json": {
+          "layouts": [
+            "HelpButton"
+          ],
+          "animations": [
+            "HelpButton_FocusedOnOff",
+            "HelpButton_ForcedToggledOnOff",
+            "HelpButton_InvalidatedOnOff",
+            "HelpButton_ToggledFocusedOnOff",
+            "HelpButton_ToggledInvalidatedOnOff",
+            "HelpButton_ToggledOff",
+            "HelpButton_ToggledOn"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-option-item-1Button.json": {
+          "layouts": [
+            "1Button"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-option-item-2Button.json": {
+          "layouts": [
+            "2Button"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-option-item-NetworkInfo.json": {
+          "layouts": [
+            "NetworkInfo"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-option-item-Separator.json": {
+          "layouts": [
+            "Separator"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-option-item-VersionInfo.json": {
+          "layouts": [
+            "VersionInfo"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-sceneinfo-SceneInfo.json": {
+          "layouts": [
+            "SceneInfo"
+          ],
+          "animations": [
+            "SceneInfo_LimitColorOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-sceneinfo-SceneInfoText.json": {
+          "layouts": [
+            "SceneInfoText"
+          ],
+          "animations": [
+            "SceneInfoText_Appear"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-sceneinfo-icon-IconFavorite.json": {
+          "layouts": [
+            "IconFavorite"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-sceneinfo-icon-IconOption.json": {
+          "layouts": [
+            "IconOption"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-scrollbar-ScrollBar.json": {
+          "layouts": [
+            "ScrollBar"
+          ],
+          "animations": [
+            "ScrollBar_FocusedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-button-ButtonSelectHSearch.json": {
+          "layouts": [
+            "ButtonSelectHSearch"
+          ],
+          "animations": [
+            "ButtonSelectHSearch_DecidedOn",
+            "ButtonSelectHSearch_FocusedOnOff",
+            "ButtonSelectHSearch_InvalidatedOnOff"
+          ]
         }
       },
       "fontBindings": {

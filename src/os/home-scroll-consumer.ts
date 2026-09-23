@@ -224,7 +224,10 @@ export function advanceHomeScroll(state: HomeScrollState, updates: number, optio
     const direction = markers.directionMask & 0x20 ? 0x20 : markers.directionMask & 0x10 ? 0x10 : 0;
     if (direction) {
       if (markers.pendingMask & direction) {
-        const replay = consumeHomeGridKeyEvent(state, { type: 6, mask: direction }); state = replay.state;
+        // Idle entry still resolves under this overlay, but the replayed key
+        // callback observes its ordinary input gate at the same boundary.
+        const replay = consumeHomeGridKeyEvent(state, { type: 6, mask: direction },
+          { ...ordinaryGates, overlayActive: options.idleOverlayActive ?? false }); state = replay.state;
         observations.push(...replay.observations.map(observation => Object.freeze({ ...observation, updateOffset: updates - remaining - 1 })));
         // These writes follow replay, including any marker that replay sets.
         state = mode3(state, { pendingMask: state.navigation.mode3.pendingMask & ~direction });

@@ -202,6 +202,20 @@ test('lower resolver attempts precede pending replay and preserve every unchange
   const huge=advanceHomeScroll(inView.state,Number.MAX_SAFE_INTEGER);
   assert.equal(huge.observations.length,1);assert.equal(huge.observations[0].updateCount,Number.MAX_SAFE_INTEGER);
 });
+test('mode3 completion resolves under overlay while the replay callback stays gated', () => {
+  const initial = setup(false,0,{selected:3,left:0,target:1,mode:3,elapsed:9,duration:10,counter:5,
+    directionFlags:[0,1],pendingFlags:[0,1]});
+  const gated = advanceHomeScroll(initial,1,{idleOverlayActive:true});
+  assert.equal(gated.disposition,'handled');
+  assertState(gated.state,{selected:3,left:1,target:1,mode:0,counter:5,directionFlags:[0,0],pendingFlags:[0,0]});
+  assert.deepEqual(gated.observations.map(o=>[o.kind,o.slot,o.updateOffset,o.updateCount]),[['banner-resolve',3,0,1]]);
+  const ordinary = advanceHomeScroll(initial,1);
+  assertState(ordinary.state,{selected:4,left:1,target:2,mode:3,elapsed:0,duration:5,counter:5,
+    directionFlags:[0,0],pendingFlags:[0,0]});
+  assert.deepEqual(ordinary.observations.map(o=>o.kind),['banner-resolve','mode3-entry','cue','cursor-select']);
+  assert.equal(ordinary.observations[0].slot,3);
+});
+
 test('32 original ARM resolver scenarios preserve host offsets, focus, completion and overlay boundaries', () => {
   const banner=result=>expandResolvers(result.observations).filter(o=>o.kind==='banner-resolve');
   const check=(seen,row)=>assert.deepEqual(seen.map(o=>[o.reason,o.updateOffset,o.context,o.slot,o.focus,o.toolbarActive]),

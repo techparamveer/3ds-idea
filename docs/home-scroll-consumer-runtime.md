@@ -56,6 +56,9 @@ the input dispatcher consumed a direction earlier in the pass.
 The overlay value describes that lower boundary, not a guarantee that earlier
 services retained an overlay for the entire host pass. Mode2/5 with an active
 overlay remains unsupported; their source proof covers ordinary completion.
+Mode3 completion still resolves under the overlay, but passes that gate to the
+replayed direction callback. The callback then stays inert while the usual
+post-call pending/direction clears still run.
 
 Input-route observation `updateOffset` is null: the caller owns that boundary.
 Counted advances use zero-based offsets within the supplied update batch.
@@ -203,6 +206,24 @@ compatibility run passed200 tests,0 failures,0 skips. Type checking passed.
 Close identity, ready-boundary and existing lifecycle tests remain intact.
 The expanded checks caught and fixed an unnecessary navigation write on a
 no-change tick that otherwise overwrote a legacy selected-slot override.
+
+Integration review found and corrected a completion replay that had dropped
+the supplied overlay gate. An independent original-ARM completion/control pair
+proves selected3 resolves in both cases: without overlay, replay selects4 and
+re-enters mode3; with overlay, it stays selected3/mode0. Both clear the serviced
+markers afterward. The new regression checks that distinction and cue/effect
+suppression. Private evidence is under `audio/native-banner-overlay-replay/`:
+`review.py` SHA `d8c4527e424b2f5016341be4556bf17e0e256df1e3d61aa590ddd3a139867148`,
+`verified/checked.json` SHA
+`05df4a8228f7d8e3dcb8590e26ca076aab188f4a395a8e78133df73e30c3b2cc`.
+The check pins the base request fixture and four source excerpts. An independent
+86-case batch/scalar and close-boundary review found no further issues within
+the supported ordinary states. This does not extend the full overlay lifecycle.
+
+The combined integration suite passed721 tests total,716 passing and five
+optional skips, with no failure. The follow-up consumer/Canvas run passed all36
+tests, including the three optional Canvas checks, and the overlay regression.
+Typecheck passed. The two separate optional audio-diagnostic skips remain.
 
 Still unsupported: unrelated key/button routes; gestures and nonordinary
 service states; touch/page activation from toolbar focus; arrow mode14 or the

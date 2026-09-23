@@ -39,15 +39,15 @@ test('foreground modules receive raw press, release, repeat and analog without d
  const module=getAppModule('system-settings'),original=module.reduce,seen=[];
  module.reduce=(state,event,context)=>{seen.push(event);return original(state,event,context);};
  try{
-  let s=home();s={...s,selected:8};s=tickSystem(reduceSystem(s,'open',4000),6000);
-  s=dispatchSystemEvent(s,{type:'action',id:'other'},6000);
-  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'dpad'},6001);
-  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'keyboard'},6002);
+  let s=home();s={...s,selected:8};s=tickSystem(reduceSystem(s,'open',4000),6200);
+  s=dispatchSystemEvent(s,{type:'action',id:'other'},6200);
+  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'dpad'},6201);
+  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'keyboard'},6202);
   assert.equal(getActiveAppView(s).selection,1);
-  s=tickSystem(s,6450);assert.equal(getActiveAppView(s).selection,2);
-  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'up',source:'dpad'},6451);
-  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'up',source:'keyboard'},6452);
-  s=dispatchSystemEvent(s,{type:'analog',source:'circle',x:.8,y:0},6500);
+  s=tickSystem(s,6650);assert.equal(getActiveAppView(s).selection,2);
+  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'up',source:'dpad'},6651);
+  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'up',source:'keyboard'},6652);
+  s=dispatchSystemEvent(s,{type:'analog',source:'circle',x:.8,y:0},6700);
   assert.deepEqual(seen.filter(e=>e.type==='button').map(e=>e.phase),['down','down','repeat','up','up']);
   assert.equal(seen.find(e=>e.type==='button'&&e.source==='keyboard').activate,false);
   assert.ok(seen.some(e=>e.type==='analog'&&e.x===.8));assert.equal(s.system.input.held.dpad,undefined);

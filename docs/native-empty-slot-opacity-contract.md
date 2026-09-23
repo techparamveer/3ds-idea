@@ -30,3 +30,15 @@ and closing inherited alpha, all density endpoints and intermediate density,
 state restoration and occupied-path preservation. Run focused tests/typecheck,
 commit, and report exact equivalence boundaries. Root compares the same paired
 vacancy regions and retains all remaining pixel differences explicitly.
+
+## Integration decision after the diagnostic
+
+The single-picture proof passed. CPU Canvas projection and a synthetic320×240
+transparent intermediate agree exactly at ordinary integer density endpoints;
+fractional placement and inherited close transforms differ by up to2 RGB levels.
+The synthetic intermediate is not the native64×128 source-target pipeline and
+does not establish which rounding matches PICA. Proceed with the verified final
+opacity in the existing direct path as a bounded correction, documenting those
+differences. This authorizes neither a2-byte acceptance tolerance nor a native
+pixel-parity claim. Actual atlas capture, final UV/filter sampling and native
+alpha quantization remain required fidelity work.

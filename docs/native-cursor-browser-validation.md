@@ -65,6 +65,12 @@ tracing is checking the final slot pane separately from its SetSrc artwork.
 Notification unread state, HUD connectivity/battery/clock and portfolio content
 also differ. These comparisons do not establish whole-screen parity.
 
+The later [empty-slot opacity pass](native-empty-slot-browser-validation.md)
+proved and corrected the missing final128/255 alpha; it reduced each vacancy's
+maximum error from26 to1. The later [density-button check](native-density-controls.md)
+also corrected the disabled minimum-density toolbar pose. The measurements
+above remain the historical pre-correction baseline.
+
 ## Verification and artifacts
 
 The combined suite passes603 of605 tests, zero failures and two pre-existing
@@ -89,3 +95,12 @@ All files are under
 Runtime batching, visibility and lifecycle boundaries are documented in
 [the runtime note](home-cursor-loop-runtime.md). Hardware scheduling, offscreen
 native updates, mode3 acceleration and full APT lifetime remain outside this pass.
+
+After System refactor`622b149`, the cursor is read after lower-task work before
+its2D submission, preserving any same-pass step change. All39 focused
+cursor/close/navigation-motion tests passed (`cursor-lower-order-tests.log`).
+The actual browser verifier passed again with47 counted updates during its
+normal sample, stable repeated paints, frozen preferences/sleep, and retained
+phase after resume. See `reference/cursor-after-lower-order.json`. This rerun
+checks the ordinary step1 live path; native acceleration remains pending its
+consumer and scheduler integration.

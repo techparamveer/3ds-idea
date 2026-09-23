@@ -148,8 +148,9 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
  // Retained native layouts can target toolbar anchors and offscreen departures.
  // Paint after the tile clip, before the existing arrows; the host owns close
  // visibility and controller updates. Rendering only samples applied poses.
+ // Grid-gesture suppression is adapter policy; chrome presses retain this group.
  if(nativeHome&&controls&&!capture&&state.powered&&system?.phase==='home'
-  &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel&&!view.gesture){
+  &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel&&system.homeNavigation.gesture?.area!=='grid'){
   const {primary,presentation}=controls;
   if(primary.layoutVisible)nativeHome.cursorAt(c,primary.center.x,primary.center.y,presentation.primaryScale.appliedFrame,getHomeCursorLoopFrame(state,reduced));
   if(!reduced)for(const effect of presentation.effects)if(effect.visible){

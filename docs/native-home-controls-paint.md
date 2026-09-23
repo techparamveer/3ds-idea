@@ -32,8 +32,17 @@ group. The wider native layout order remains unverified.
 
 The whole retained group is suppressed during background capture, with power
 off, outside active HOME, during sleep, with a panel/dialog/preferences overlay,
-or during any active HOME gesture. These are drawing gates and do not mutate the
-retained controllers.
+or during an active **grid** gesture. Grid suppression is an explicit browser
+adapter policy, not a native gesture-parity claim. It reads the raw retained
+`System.homeNavigation.gesture.area`; the derived presentation gesture does not
+include that area. These drawing gates do not mutate the retained controllers.
+
+Chrome gestures preserve the retained primary and effects. This includes
+disabled density presses, whose toolbar pose remains unchanged, and enabled
+presses, which can change the toolbar's own Select pose. The originating area
+remains authoritative if a chrome gesture moves into grid coordinates. This
+corrects the initial contract's blanket gesture suppression and preserves the
+existing [disabled-density appearance](native-density-controls.md).
 
 Normal folder close does **not** add another suppression condition to native
 controls. The painter reads actual `primary.layoutVisible`, not `request`,
@@ -56,7 +65,8 @@ replacement tile cursors.
 
 `node --test tests/native-home-controls-paint.test.mjs
 tests/native-cursor-presentation.test.mjs tests/home-cursor-presentation.test.mjs
-tests/home-primary-cursor.test.mjs`: **40 passed, 0 failed, 0 skipped**.
+tests/home-primary-cursor.test.mjs`: **40 passed, 0 failed, 0 skipped** at the
+initial integration checkpoint.
 `npm run typecheck` passed after merging the root-owned `7148e2a` dependency.
 
 The 14 new painter tests execute the real screen painter with a Canvas recording
@@ -74,3 +84,18 @@ No System, scene, input, clock, controller or resource edits belong to this
 painter commit. No browser or Azahar session was controlled and no new source
 research was performed. These tests establish caller ordering and state use;
 actual browser rendering and visual parity remain root-owned verification.
+
+The grid-only correction adds four painter cases: chrome press/scroll, disabled
+root0/folder1 decrease and root5 increase presses, and enabled decrease/increase
+presses. The density cases run the actual toolbar presenter and pose the actual
+firmware layout beside the screen painter's retained control calls. Disabled
+presses preserve both outputs; enabled presses add only the expected toolbar
+Select binding while retaining primary/effects. The focused density suite also
+checks that this Select pose is isolated to its control's native group.
+
+The five-suite follow-up (the four above plus
+`tests/home-density-controls.test.mjs`) passed **49 tests, 0 failed, 0 skipped**,
+and `npm run typecheck` passed. Logs are `chrome-gesture-focused.tap` and
+`chrome-gesture-typecheck.log` in the same SSD directory. This tests retained
+paint snapshots; root owns the corresponding host request gate and actual LCD
+verification. No System or controls implementation was changed here.

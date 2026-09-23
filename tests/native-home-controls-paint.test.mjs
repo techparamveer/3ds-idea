@@ -6,16 +6,23 @@ import { createPortfolioState } from '../src/os/system.ts';
 import { createHomeInputAdapter } from '../src/os/home-input-adapter.ts';
 import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
 import { createHomeCursorPresentation } from '../src/os/home-cursor-presentation.ts';
-import { enterHomeFolder, getHomeNavigation, writeHomeNavigation } from '../src/os/home-navigation.ts';
+import { enterHomeFolder, getHomeNavigation, writeHomeNavigation, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomePresentation } from '../src/os/home-presentation.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
+import { getHomeDensityControls } from '../src/os/home-density-controls.ts';
+import { poseNativeLayout } from '../src/os/native-layout.ts';
 
 const moduleUrl = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
-const sourceUrl = new URL('../src/os/screens.ts', import.meta.url);
-const { outputText } = ts.transpileModule(readFileSync(sourceUrl, 'utf8'), {
-  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
-});
+async function loadPresentation(name, overrides = {}) {
+  const sourceUrl = new URL(`../src/os/${name}.ts`, import.meta.url);
+  const { outputText } = ts.transpileModule(readFileSync(sourceUrl, 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  });
+  const resolved = outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g, (_all, prefix, path, suffix) =>
+    prefix + (overrides[path] ?? new URL(path.endsWith('.ts') ? path : `${path}.ts`, sourceUrl).href) + suffix);
+  return import(moduleUrl(resolved));
+}
 // Execute the real screen painter. Resource transport and unrelated artwork
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
@@ -23,9 +30,11 @@ const overrides = {
   './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>undefined,menuIcon(){},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
   './firmware-presentation': moduleUrl('export const createFirmwareHome=assets=>assets.presenter;export const loadFirmwarePresentationAssets=()=>{throw Error("Unexpected asset load");};'),
 };
-const resolved = outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g, (_all, prefix, path, suffix) =>
-  prefix + (overrides[path] ?? new URL(path.endsWith('.ts') ? path : `${path}.ts`, sourceUrl).href) + suffix);
-const { createScreens } = await import(moduleUrl(resolved));
+const { createScreens } = await loadPresentation('screens', overrides);
+const { createFirmwareHome } = await loadPresentation('firmware-presentation', {
+  './native-renderer': moduleUrl('export class NativeLayoutRenderer {}'),
+});
+const pack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url)));
 const nativeCursorNames = new Set(['cursor', 'cursorAt', 'cursorEffectAt']);
 
 function freeze(value) {
@@ -76,7 +85,7 @@ function canvas(events) {
   surface.getContext = () => context;
   return surface;
 }
-async function withScreens(run, { native = true, legacyCursorDrawn = true } = {}) {
+async function withScreens(run, { native = true, legacyCursorDrawn = true, realToolbar = false } = {}) {
   const saved = new Map(['document', 'Image', 'FontFace'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   const events = [];
   Object.assign(globalThis, {
@@ -84,7 +93,14 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true } = {}
     Image: class { complete = false; naturalWidth = 0; decode() { return Promise.resolve(); } },
     FontFace: class { load() { return Promise.resolve(this); } },
   });
+  const toolbar = realToolbar ? createFirmwareHome({ renderer: { packs: { launcher: pack },
+    draw(ctx, bank, name, options) {
+      ctx.record('toolbar-layout', [bank, name, options, poseNativeLayout(pack.layouts[name], pack.animations, options.bindings, options.overrides)]);
+      return true;
+    },
+  } }).toolbar : null;
   const presenter = new Proxy({ pressOffset: 0,
+    toolbar(ctx, ...args) { ctx.record('toolbar', args); return toolbar ? toolbar(ctx, ...args) : true; },
     folderBannerLabel() {},
     folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); },
     cursor(ctx, ...args) { ctx.record('cursor', args); return legacyCursorDrawn; },
@@ -237,7 +253,7 @@ test('inactive HOME, sleep, panels, preferences and dialogs explicitly suppress 
 });
 
 for (const mode of ['press', 'scroll', 'drag']) {
-  test(`active ${mode} gesture suppresses retained controls without falling back to a tile cursor`, async () => {
+  test(`active grid ${mode} gesture suppresses retained controls without falling back to a tile cursor`, async () => {
     await withScreens(({ paint, cursorCalls }) => {
       const state = home(), tile = getHomePresentation(state).tiles.find(tile => tile.appId);
       assert.ok(tile);
@@ -246,12 +262,73 @@ for (const mode of ['press', 'scroll', 'drag']) {
       const nav = getHomeNavigation(gestureState);
       gestureState = writeHomeNavigation(gestureState, { ...nav, gesture: { ...nav.gesture, mode } });
       assert.equal(getHomePresentation(gestureState).gesture.mode, mode);
+      assert.equal(gestureState.system.homeNavigation.gesture.area, 'grid');
       freeze(gestureState); const before = JSON.stringify(gestureState);
       paint(gestureState); assert.deepEqual(cursorCalls(), []);
       assert.equal(JSON.stringify(gestureState), before);
     });
   });
 }
+
+for (const moved of [false, true]) {
+  test(`chrome ${moved ? 'scroll' : 'press'} retains primary and effects using the gesture's original area`, async () => {
+    await withScreens(({ paint, cursorCalls }) => {
+      const state = home();
+      paint(state); const baseline = cursorCalls().map(({ name, args }) => [name, ...args]);
+      let pressed = touchHomeGesture(state, { type: 'touch', phase: 'down', x: 76, y: 16, pointerId: 4 }, 0).state;
+      if (moved) pressed = touchHomeGesture(pressed, { type: 'touch', phase: 'move', x: 76, y: 80, pointerId: 4 }, 1).state;
+      assert.equal(pressed.system.homeNavigation.gesture.area, 'chrome');
+      const view = getHomePresentation(pressed);
+      assert.equal(view.gesture.mode, moved ? 'scroll' : 'press');
+      assert.equal(Object.hasOwn(view.gesture, 'area'), false, 'derived view deliberately has no area');
+      freeze(pressed); const before = JSON.stringify(pressed);
+      paint(pressed);
+      assert.deepEqual(cursorCalls().map(({ name, args }) => [name, ...args]), baseline);
+      assert.equal(JSON.stringify(pressed), before);
+    });
+  });
+}
+
+test('disabled density chrome presses preserve real toolbar poses and all retained cursor calls', async () => {
+  await withScreens(({ screens, paint, events, cursorCalls }) => {
+    for (const [folder, density, x, availability] of [[false, 0, 282, 'decreaseEnabled'],
+      [true, 1, 282, 'decreaseEnabled'], [false, 5, 307, 'increaseEnabled']]) {
+      let state = home();
+      if (folder) state = enterHomeFolder({ ...state, folders: { 20: 'A' } }, 20);
+      state = settleHomeNavigation(setHomeDensity(state, density));
+      assert.equal(getHomeDensityControls(state)[availability], false);
+      const toolbarDraw = () => events.find(event => event.name === 'toolbar-layout' && event.context === screens.bottom.getContext('2d')).args;
+      paint(state);
+      const baselineToolbar = structuredClone(toolbarDraw()), baselineCursors = cursorCalls().map(({ name, args }) => [name, ...args]);
+      const pressed = freeze(touchHomeGesture(state, { type: 'touch', phase: 'down', x, y: 16, pointerId: 4 }, 0).state);
+      const before = JSON.stringify(pressed);
+      assert.equal(pressed.system.homeNavigation.gesture.area, 'chrome');
+      paint(pressed);
+      assert.deepEqual(toolbarDraw(), baselineToolbar);
+      assert.ok(!toolbarDraw()[2].bindings.some(binding => binding.name === 'LncBase_D_01_Select'));
+      assert.deepEqual(cursorCalls().map(({ name, args }) => [name, ...args]), baselineCursors);
+      assert.equal(JSON.stringify(pressed), before);
+    }
+  }, { realToolbar: true });
+});
+
+test('enabled density chrome press changes its real toolbar Select binding without hiding retained controls', async () => {
+  await withScreens(({ screens, paint, events, cursorCalls }) => {
+    const state = settleHomeNavigation(setHomeDensity(home(), 1));
+    assert.deepEqual(getHomeDensityControls(state), { decreaseEnabled: true, increaseEnabled: true });
+    const toolbarDraw = () => events.find(event => event.name === 'toolbar-layout' && event.context === screens.bottom.getContext('2d')).args;
+    paint(state);
+    const baselineToolbar = structuredClone(toolbarDraw()), baselineCursors = cursorCalls().map(({ name, args }) => [name, ...args]);
+    for (const [x, group] of [[282, 'G_Dw_00'], [307, 'G_Up_00']]) {
+      const pressed = freeze(touchHomeGesture(state, { type: 'touch', phase: 'down', x, y: 16, pointerId: 4 }, 0).state);
+      paint(pressed);
+      assert.deepEqual(toolbarDraw()[2].bindings, [...baselineToolbar[2].bindings,
+        { name: 'LncBase_D_01_Select', frame: 1, groups: [group] }]);
+      assert.notDeepEqual(toolbarDraw()[3], baselineToolbar[3]);
+      assert.deepEqual(cursorCalls().map(({ name, args }) => [name, ...args]), baselineCursors);
+    }
+  }, { realToolbar: true });
+});
 
 test('native assets without retained controls and legacy menu callers keep their existing tile path', async () => {
   await withScreens(({ paint, cursorCalls }) => {

@@ -9,12 +9,12 @@ export async function verifyStockScreens(options){
  for(const key of ['artifactDir','assetRoot','canvasModule','fontManifest'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-')),sourceHashes={};
- for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','native-title-session','stock-screen-layout','stock-native-settings','stock-native-sound','stock-screen-presentation']){
+ for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','native-title-session','stock-screen-layout','stock-native-settings','stock-native-sound','stock-native-camera','stock-screen-presentation']){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');sourceHashes[name]=createHash('sha256').update(source).digest('hex');
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
  }
- const [{createCanvas,loadImage},{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,settingsDirectButtonClip},{soundScreenPacks},{drawStockScreenFrame}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','stock-native-settings','stock-native-sound','stock-screen-presentation'].map(n=>import(pathToFileURL(join(compiled,n+'.mjs'))))]);
- const previousDocument=Object.getOwnPropertyDescriptor(globalThis,'document'),oldFetch=globalThis.fetch;let font,assets,soundAssets;
+ const [{createCanvas,loadImage},{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,settingsDirectButtonClip},{soundScreenPacks},{cameraScreenPacks},{drawStockScreenFrame}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','stock-native-settings','stock-native-sound','stock-native-camera','stock-screen-presentation'].map(n=>import(pathToFileURL(join(compiled,n+'.mjs'))))]);
+ const previousDocument=Object.getOwnPropertyDescriptor(globalThis,'document'),oldFetch=globalThis.fetch;let font,assets,soundAssets,cameraAssets;
  const rows=ids=>ids.map(([id,label])=>({id,label})),footer={left:{action:'back',label:'Back'},right:{action:'open',label:'Open'}};
  const photos=[1,2,3].map(i=>({id:'building'+i,title:'Building '+i,src:'/portfolio/building'+i+'.jpg'}));
  const folders=[{id:'building',title:'Building Collection',photos}];
@@ -38,6 +38,7 @@ export async function verifyStockScreens(options){
   font=new BitmapFont(manifest,await Promise.all(manifest.sheets.map(name=>loadImage(join(dirname(options.fontManifest),name)))));
   assets=await loadNativeTitleAssets('https://stock-ui.invalid/manifest.json','0004001000022000',settingsScreenPacks,new Map([['cbf_std.bcfnt',font]]));
   soundAssets=await loadNativeTitleAssets('https://stock-ui.invalid/manifest.json','0004001000022500',soundScreenPacks,new Map([['cbf_std.bcfnt',font]]));
+  cameraAssets=await loadNativeTitleAssets('https://stock-ui.invalid/manifest.json','0004001000022400',cameraScreenPacks,new Map([['cbf_std.bcfnt',font]]));
   const sourceButtonPack=assets.renderer.packs.button,sourceButtonJson=JSON.stringify(sourceButtonPack);
   const buttonLayout=sourceButtonPack.layouts.I_TopLTs,buttonClip=sourceButtonPack.animations.I_TopLTs_Select;
   assert.deepEqual(settingsDirectButtonClip(buttonLayout,buttonClip).shares,[]);
@@ -50,7 +51,7 @@ export async function verifyStockScreens(options){
   for(const [index,view] of views.entries()){
    const top=createCanvas(400,240),bottom=createCanvas(320,240),id=view.verificationId??view.appId+'-'+view.screen;
    requestedImages.length=0;
-   drawStockScreenFrame(top.getContext('2d'),bottom.getContext('2d'),view,{font,image,native:view.appId==='system-settings'?assets.renderer:view.appId==='sound'?soundAssets.renderer:undefined});
+   drawStockScreenFrame(top.getContext('2d'),bottom.getContext('2d'),view,{font,image,native:view.appId==='system-settings'?assets.renderer:view.appId==='sound'?soundAssets.renderer:view.appId==='camera'?cameraAssets.renderer:undefined});
    if(id==='sound-playback')assert.deepEqual(requestedImages,[photos[0].src],'Sound loads artwork, never the audio URL, as an image');
    writeFileSync(join(out,id+'-top.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-bottom.png'),bottom.toBuffer('image/png'));
    sheetContext.drawImage(top,index*400,0);sheetContext.drawImage(bottom,index*400+40,240);
@@ -67,11 +68,11 @@ export async function verifyStockScreens(options){
   assert.equal(new Set(focusHashes).size,5,'each Settings selection paints a distinct native focus state');
   assert.equal(JSON.stringify(sourceButtonPack),sourceButtonJson,'derived Settings clips preserve the source pack');
   writeFileSync(join(out,'settings-focus.png'),focusSheet.toBuffer('image/png'));
-  const diagnostics=[...assets.diagnostics,...soundAssets.diagnostics];
+  const diagnostics=[...assets.diagnostics,...soundAssets.diagnostics,...cameraAssets.diagnostics];
   const failures=diagnostics.filter(d=>!d.includes('unrequested converter omissions'));assert.deepEqual(failures,[]);
-  const report={passed:true,sourceHashes,reports,diagnostics,gaps:['Settings native source assembly is not a matched native LCD capture.','Camera native gallery chrome is pending; Sound uses source artwork with adapted control placement and portfolio track content.','Health and remaining stock title native layouts are pending.','Playback specimen is synthetic validation only; no user track is supplied.']};
+  const report={passed:true,sourceHashes,reports,diagnostics,gaps:['Settings native source assembly is not a matched native LCD capture.','Camera and Sound use source artwork with adapted gallery/control placement and portfolio media content.','Health and remaining stock title native layouts are pending.','Playback specimen is synthetic validation only; no user track is supplied.']};
   writeFileSync(join(out,'verification.json'),JSON.stringify(report,null,2)+'\n');return report;
- }finally{soundAssets?.dispose();assets?.dispose();font?.dispose();globalThis.fetch=oldFetch;if(previousDocument)Object.defineProperty(globalThis,'document',previousDocument);else delete globalThis.document;}
+ }finally{cameraAssets?.dispose();soundAssets?.dispose();assets?.dispose();font?.dispose();globalThis.fetch=oldFetch;if(previousDocument)Object.defineProperty(globalThis,'document',previousDocument);else delete globalThis.document;}
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const {values}=parseArgs({options:Object.fromEntries(['artifact-dir','asset-root','canvas-module','font-manifest'].map(k=>[k,{type:'string'}]))});

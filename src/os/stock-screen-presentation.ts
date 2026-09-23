@@ -4,6 +4,7 @@ import type { NativeLayoutRenderer } from './native-renderer';
 import { createNativeTitleSession } from './native-title-session';
 import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-settings';
 import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
+import { drawNativeCameraLower, cameraScreenPacks } from './stock-native-camera';
 import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -76,6 +77,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
     top.fillStyle='#292923';top.fillRect(0,32,400,181);
     if(!mediaImage(top,photo,[5,35,390,175],options))albumSymbol(top,200,120,accent);
     text(top,font,string(photo.title)||string(folder?.title)||'Photo Album',200,226,14);
+    if(options.native&&drawNativeCameraLower(options.native,bottom,view,options)){footer(bottom,view,font);return;}
     if(view.screen==='photo'){
       fill(bottom,63,51,194,134,5,'#e5e0cf','#b5a887');mediaImage(bottom,photo,[68,56,184,124],options);
       for(const r of stockScreenTargets(view).filter(r=>r.action==='previous'||r.action==='next'))control(bottom,r.action==='previous'?'‹':'›',r.x,r.y,r.width,r.height,false,font,accent);
@@ -157,7 +159,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont){
       if(disposed)return;
       if(owner!==nextOwner){owner=nextOwner;session.update(null);releaseImages();painted='';}
-      const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:null);
+      const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:null);
       const state=session.update(nativeView?{owner:nextOwner,...nativeView,sharedFonts:new Map([['cbf_std.bcfnt',font!]])}:null);
       const key=JSON.stringify([nextOwner,view,revision]);
       if(painted!==key||paintedFont!==font){

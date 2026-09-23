@@ -33,8 +33,13 @@ seven 400×240 / 320×240 screen pairs and a contact sheet under the SSD artifac
 directory `presentation/stock-ui-first`, with no renderer diagnostics. The
 Settings assembly, gallery images and player controls were visually inspected.
 
-These are reviewable UI changes, not 1:1 acceptance. Camera currently uses a portfolio adaptation while its native gallery chrome
-is being converted. Sound now consumes the source background/grid, title and
+These are reviewable UI changes, not 1:1 acceptance. Camera consumes the original browser background, folder and photo thumbnails,
+selection frame and album mount. Portfolio image and folder content is composed
+inside those frames. The six-cell placement, upper photo preview and Back/Open
+footer remain portfolio adaptations; native capture and zoom controls are hidden.
+The neutral source transition BG remains visible in place of UserBG's blue
+replacement default; native runtime background binding is still unresolved.
+Sound now consumes the source background/grid, title and
 track panels, parakeet, Back button, list cursor and transport art. Track strings
 and artwork come from AppView. The transport mounts are repositioned to the
 shared control targets; seek/repeat/shuffle remain authored portfolio controls.

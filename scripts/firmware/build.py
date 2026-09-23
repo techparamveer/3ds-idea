@@ -23,10 +23,17 @@ from firmware.texture import decode_bclim, decode_texture, png
 from firmware.cia import cia_metadata, content_directory, content_key, content_provenance
 
 FIRMWARE = '10.7.0-32E'
-CONVERTER_VERSION = '1.3.0'
+CONVERTER_VERSION = '1.3.1'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
+SETTINGS = '0004001000022000'
+SETTINGS_MESSAGE_ARCHIVE = 'message_EU_LZ.bin'
+SETTINGS_STYLE_PAIRS = {
+    'message_hud/EU_English/hud.msbt': 'message_hud/EU_English/RI.mstl',
+    'message_mset/EU_English/mset.msbt': 'message_mset/EU_English/RI.mstl',
+}
+MESSAGE_LOCALE = 'EU_English'
 EXCLUDED = {
     '0004001000022100',  # Download Play
     '0004001000022200',  # Activity Log
@@ -70,6 +77,40 @@ DENIED_NAMES = {'masterkey.bin', 'ticket', 'certs', '.code'}
 
 def digest(data): return hashlib.sha256(data).hexdigest()
 def encode(value): return (json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(',', ':'), allow_nan=False)+'\n').encode()
+
+
+def message_locale(path):
+    """Read a complete locale directory component, never a basename substring."""
+    locales = [part for part in PurePosixPath(path).parts if re.fullmatch(r'[A-Z]{2}_[A-Za-z]+', part)]
+    if len(locales) != 1: raise ValueError(f'Missing or ambiguous message locale: {path}')
+    return locales[0]
+
+
+def select_message_locale(resources, title, source_path, content):
+    if (title, source_path) != (SETTINGS, SETTINGS_MESSAGE_ARCHIVE): return resources, None
+    selection = {'locale': MESSAGE_LOCALE, 'selected': [], 'rejected': []}
+    selected = {}; banks = {}
+    for path, raw in sorted(resources.items()):
+        locale = message_locale(path)
+        source = {'titleId': title, 'path': source_path+'/'+path, 'sha256': digest(raw), **content, 'locale': locale}
+        if locale != MESSAGE_LOCALE:
+            selection['rejected'].append(source)
+            continue
+        if path in SETTINGS_STYLE_PAIRS and raw[:8] != b'MsgStdBn':
+            raise ValueError(f'Invalid selected Settings message signature: {path}')
+        selection['selected'].append(source); selected[path] = raw
+        if raw[:8] == b'MsgStdBn':
+            key = PurePosixPath(path).stem
+            if key in banks:
+                raise ValueError(f'Ambiguous {locale} message bank {key}: {banks[key]}; {path}')
+            banks[key] = path
+    if not banks: raise ValueError(f'No {MESSAGE_LOCALE} message banks in {source_path}')
+    for path in banks.values():
+        if path not in SETTINGS_STYLE_PAIRS:
+            raise ValueError(f'Unestablished Settings message/style binding: {path}')
+        if SETTINGS_STYLE_PAIRS[path] not in selected:
+            raise ValueError(f'Missing same-locale Settings style table for {path}')
+    return selected, selection
 
 
 def public_path(root, url):
@@ -161,9 +202,11 @@ class Builder:
         return self.write(f'fonts/{name}/font.json', encode(manifest), source, 'font')
     def pack(self, resources, name, title, source_path, source_hash, content=None):
         content = content or {}
+        resources, selection = select_message_locale(resources, title, source_path, content)
         result = {'schema': 1, 'name': name, 'titleId': title, 'sourceSha256': source_hash, **content,
                   'layouts': {}, 'animations': {}, 'textures': {}, 'messages': {}, 'unsupported': [],
                   'resourceSources': {'layouts': {}, 'animations': {}, 'textures': {}, 'messages': {}}}
+        if selection is not None: result['localeSelection'] = selection
         for path, raw in sorted(resources.items()):
             source = {'titleId': title, 'path': source_path+'/'+path, 'sha256': digest(raw), **content}
             key = Path(path).stem
@@ -173,7 +216,8 @@ class Builder:
                 elif len(raw) >= 40 and raw[-40:-36] == b'CLIM':
                     bucket, key, value = 'textures', Path(path).name, self.texture(raw, source)
                 elif raw[:8] == b'MsgStdBn': bucket, value = 'messages', decode_msbt(raw)
-                elif title == HOME and path in HOME_STYLE_PATHS:
+                elif ((title == HOME and path in HOME_STYLE_PATHS) or
+                      (selection is not None and path in SETTINGS_STYLE_PAIRS.values())):
                     bucket, key, value = 'styles', path, decode_mstl(raw)
                     result.setdefault(bucket, {})
                     result['resourceSources'].setdefault(bucket, {})
@@ -184,10 +228,14 @@ class Builder:
                 result[bucket][key] = value
                 result['resourceSources'][bucket][key] = source
             except (ValueError, UnicodeError, struct.error, IndexError) as error:
+                if selection is not None and (path in SETTINGS_STYLE_PAIRS or path in SETTINGS_STYLE_PAIRS.values()):
+                    raise ValueError(f'Invalid selected Settings message/style resource {path}: {error}') from error
                 result['unsupported'].append({'path': path, 'sha256': digest(raw), 'reason': str(error)})
         for key, message in result['messages'].items():
             member = result['resourceSources']['messages'][key]['path'].removeprefix(source_path+'/')
-            table = str(Path(member).parent/'RI_mstl_LZ.bin')
+            table = SETTINGS_STYLE_PAIRS[member] if selection is not None else str(Path(member).parent/'RI_mstl_LZ.bin')
+            if selection is not None and table not in result.get('styles', {}):
+                raise ValueError(f'Undecodable same-locale Settings style table for {member}')
             if table in result.get('styles', {}):
                 message['styleTable'] = table
         slug = TITLES[title][0]

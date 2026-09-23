@@ -200,18 +200,21 @@ def decode_animation(data):
 
 
 def decode_mstl(data):
-    """Read HOME's RI_mstl table, not MSBP's shorter SYL3 record format.
+    """Read verified HOME/Settings RI tables, not MSBP's shorter SYL3 records.
 
     Native 10.7 EUR HOME: 0x1338f0 resolves TSY1 to base+4+44*index;
     0x11e5b0 applies the four floats below. The TextBox constructor at
     0x1a42c8 confirms the width/height and spacing destinations. The other
     seven words have no established runtime semantics and stay unnamed.
+    Settings 10.7 EUR: getter 0x131700 has the same 44-byte stride;
+    style application 0x1c8754..0x1c8814 is byte-identical to HOME's
+    0x11e634..0x11e6f4. The other words remain unnamed in both titles.
     This headerless format must only be selected by known resource path.
     """
     r = Reader(data)
     count = r.u32(0)
     if count > 65536 or len(data) != 4+44*count:
-        raise ValueError('Invalid HOME message style table size')
+        raise ValueError('Invalid RI message style table size')
     out = {'recordSize': 44, 'styles': [], 'unsupported': [
         {'kind': 'styleFields', 'offsets': [0, 4, 8, 12, 16, 20, 40]}]}
     for index in range(count):

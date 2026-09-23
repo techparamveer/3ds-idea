@@ -6,12 +6,13 @@ Reports and optional private extraction inputs remain outside the repository.
 import argparse
 from collections import Counter
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import struct
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from firmware.build import FIRMWARE, HOME, SHARED, TITLES, SCRIPTS, digest, encode, public_path, decode_layers
+from firmware.build import SETTINGS, SETTINGS_MESSAGE_ARCHIVE, SETTINGS_STYLE_PAIRS, MESSAGE_LOCALE, message_locale
 from firmware.cia import content_record, content_directory
 from unpack_home_resources import unpack_darc
 
@@ -173,6 +174,31 @@ def audit(root, artifacts=None, repository=None):
     packs = sorted(url for url, record in records.items() if record['kind'] == 'pack')
     for url in packs:
         pack = json.loads(public_path(root, url).read_text())
+        selection = pack.get('localeSelection')
+        localized_settings = pack['titleId'] == SETTINGS and any(
+            s.get('path') == SETTINGS_MESSAGE_ARCHIVE for s in records[url]['sources'])
+        check(not localized_settings or selection is not None, f'{url}: missing Settings locale selection')
+        if selection is not None:
+            check(localized_settings and selection.get('locale') == MESSAGE_LOCALE, f'{url}: unexpected locale selection')
+            selected_paths = set(); rejected_paths = set()
+            for disposition, paths in [('selected', selected_paths), ('rejected', rejected_paths)]:
+                for source in selection.get(disposition, []):
+                    try:
+                        locale = message_locale(source['path'])
+                        check(all(source.get(k) == pack.get(k) for k in ('titleId', 'contentIndex', 'contentId')),
+                              f'{url}: locale-selection content identity mismatch')
+                        check(locale == source.get('locale'), f'{url}: source locale mismatch')
+                        check((locale == MESSAGE_LOCALE) == (disposition == 'selected'), f'{url}: incorrect locale disposition')
+                        check(source['path'] not in paths, f'{url}: duplicate locale-selection path')
+                        paths.add(source['path'])
+                        source_check(source, f'{url}/{disposition}')
+                    except (ValueError, KeyError, OSError) as error:
+                        report['errors'].append(f'{url}/{disposition}: {error}')
+            check(not selected_paths.intersection(rejected_paths), f'{url}: selected/rejected paths overlap')
+            converted = [s for bucket in ('messages', 'styles') for s in pack.get('resourceSources', {}).get(bucket, {}).values()]
+            selected = [{k: v for k, v in s.items() if k != 'locale'} for s in selection.get('selected', [])]
+            check(sorted(converted, key=lambda s: s['path']) == sorted(selected, key=lambda s: s['path']),
+                  f'{url}: selected message/style provenance differs from converted resources')
         multi_content = len(manifest['sources'].get(pack['titleId'], {}).get('contents', [])) > 1
         if multi_content:
             identity = {key: pack.get(key) for key in ('contentIndex', 'contentId')}
@@ -241,6 +267,16 @@ def audit(root, artifacts=None, repository=None):
             for label, index in messages['labels'].items():
                 check(0 <= index < len(messages['messages']), f'{url}/{name}: message label {label} out of bounds')
             table_name = messages.get('styleTable')
+            if selection is not None:
+                source = pack['resourceSources']['messages'][name]
+                member = source['path'].removeprefix(SETTINGS_MESSAGE_ARCHIVE+'/')
+                expected_table = SETTINGS_STYLE_PAIRS.get(member)
+                check(expected_table is not None and table_name == expected_table, f'{url}/{name}: wrong source-locale style binding')
+                style_source = pack.get('resourceSources', {}).get('styles', {}).get(table_name, {})
+                check(style_source.get('path') == SETTINGS_MESSAGE_ARCHIVE+'/'+str(expected_table) and
+                      PurePosixPath(source['path']).parent == PurePosixPath(style_source.get('path', '')).parent and
+                      all(source.get(k) == style_source.get(k) for k in ('titleId', 'contentIndex', 'contentId')),
+                      f'{url}/{name}: style source differs from message archive/content/locale')
             if table_name is not None:
                 table = pack.get('styles', {}).get(table_name)
                 check(table is not None, f'{url}/{name}: missing style table {table_name}')

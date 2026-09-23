@@ -1,5 +1,6 @@
 {
   "schema": 1,
+  "pack": "cues",
   "firmware": "10.7.0-32E",
   "title": {
     "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
@@ -13,79 +14,329 @@
   "sourceSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
   "converter": {
     "name": "render_firmware_audio",
-    "version": 1,
-    "sha256": "59fbd411db21cb95f5e07877497f26e520734b0bb4963527bf8cf48b7236ea89"
+    "version": 8,
+    "sha256": "60532eadbf7212609d91f188fd11841910a46d0fce7dc8623b71401c58fbecbd"
   },
   "renderer": {
     "name": "DualRip",
     "url": "https://github.com/TetraSsky/DualRip",
     "revision": "c00e809ad4fcc44056a5b3c11d30f6a698b92be0"
   },
-  "method": "offline CSEQ interpretation with original CBNK instruments and CWAV samples",
-  "verification": "pending matched Azahar timing and waveform comparison",
+  "profile": {
+    "id": "eur-home-24576-stereo-startup-v8",
+    "profileSha256": "4f87d3112bc3a4cb4198983794cbf6cd875198ac937d25d1bab4e3212ff07eb6",
+    "patchSha256": "f46df7fa9324b3166f3a8cd2be4619cb3e306e3e7669e710ddcb0af0384a3ed0",
+    "adapterSha256": "7d702c9e5315188a54ccad71360412d0b45ca69b448171ae7c11770c8c287c5d",
+    "mathSha256": "2a315f888178687192f2292dc9b4cf386ee4e65ba8dd1e4db2c73eab4348e50f",
+    "clockSha256": "0221c59396f2fbdb0f3d7d5e84adf4f040c983e9c1cc128874723d4279e53a97",
+    "voiceSha256": "d2f61ff069ee05a40406137eb9b9b55d2118c40d67bceb15f4643c0263bbf184",
+    "voiceArithmetic": {
+      "sourceCodeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+      "envelope": "Float32 attack/hold/decay/sustain/release; reset -904 table units; native strict thresholds and pre-update expiry",
+      "sweepPitch": "Float32 semitone sweep and bend; 1/256-semitone quantization; native octave/semitone/fraction tables",
+      "lfo": "Float32 phase/delay with native sine table, pre-update pitch/pan and post-update volume",
+      "amplitude": "Velocity-squared times linear region, squared track/expression/master product, separate player and envelope gains",
+      "frameOrder": "Sequence ticks, live track parameters, voice pitch/pan, sweep/LFO/envelope updates, voice gain",
+      "gate": "Positive gates decrement before parse; nonpositive notes become -1; CWAV loop persists; native FIN forces release and detaches track",
+      "nativeTableSha256": {
+        "attack": "3a9d21132f66d969657cf76ea8f5ffb5e4a9df7abba4dd66baaf2d2695ae35c6",
+        "pitchSemitone": "268bc185e52bc0f4973bfc9d4959f605057e1b6a5bc386a8ce8feb4afcb1936d",
+        "pitchFraction": "ce9d87899dbdc1e5b59a1cd3b26107334c55d50aef782242944eb83d7c401cc6",
+        "gain": "bbda3f9ee473d0aba17c2c98369d0d5b7b0a9d788b47384bc76d17e0f91d1696",
+        "sustain": "3315552d46c21be4911d400e3a3a747a36b9866088226f6f7a113ca3f9b01086",
+        "sine": "a742b4ef2370e98c41180ed22400a062ced15a1ffb49d17e2b12a2bf0eabdfd6"
+      },
+      "fittedConstants": false
+    },
+    "dspSha256": "f1ac787ea636477acbc33682c11e86ca17c8e3666bd6ee3c3839b260f9291e8b",
+    "captureDsp": {
+      "model": "Pinned Azahar mono source interpolation/history, initial dequeue, float32 gain ramps and per-source/bus integer truncation",
+      "emulatorRevision": "9e6f523a57fac9564ac0bf8286db3c3702d301ec",
+      "sourceProvenance": {
+        "src/audio_core/interpolate.cpp": {
+          "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/interpolate.cpp",
+          "sha256": "e5246de03956bf86252ff3f0531e438803c0ec69fd11272d8374d433e4296dcb",
+          "gitBlob": "48a7c85adc394a656c8f28b17f1fb0df5f9ce6b7"
+        },
+        "src/audio_core/interpolate.h": {
+          "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/interpolate.h",
+          "sha256": "c258df7a2d839ab2733c8915a529f649fb6301e0a29d97af237cf875d0330925",
+          "gitBlob": "ba46b5ad78670c61a8a4be98cd7f04dc57f69f82"
+        },
+        "src/audio_core/hle/source.cpp": {
+          "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/hle/source.cpp",
+          "sha256": "2c2e450a25a6fc11b3cceb192728e86fabc78f1addf67aa7283b832194ac29c1",
+          "gitBlob": "4728526b2ce29fa53969281d7f96aeda784daeb8"
+        },
+        "src/audio_core/hle/source.h": {
+          "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/hle/source.h",
+          "sha256": "098f0121bd845cf8ead26a879792945c0dc367022938320a66894fc58092af2e",
+          "gitBlob": "1223f68ea3b9481373add974a1c3b956d1c5da4f"
+        }
+      },
+      "frameSamples": 160,
+      "fractionalBits": 24,
+      "interpolation": "Polyphase falls back to Linear in this pinned emulator; two historical samples, saturated difference and integer output",
+      "initialDequeueFrame": true,
+      "gainRamp": "Previous to target float32 gain, inclusive 0..159/159; each source/bus product truncates to integer before summation",
+      "hardwareVerified": false,
+      "fittedConstants": false
+    },
+    "sequenceClock": {
+      "model": "Native 160-sample DSP frame with float32 fractional next-tick carry and uint64 truncation",
+      "nativeRate": 32728,
+      "frameSamples": 160,
+      "arm11Hz": 268111856,
+      "frameBudgetCyclesTimes1000": 1310720000,
+      "tempoRatio": 1,
+      "sourceRoutine": "0x1aa174",
+      "fittedTimingConstants": false
+    },
+    "renderTimeline": {
+      "origin": "Sequence player sample zero; preserve every generated frame",
+      "startupTrimSamples": 0,
+      "initialFrame": "Native sequence-before-voice order preserved; each new DSP source dequeues its initial buffer without consuming PCM in its first generated frame, with no trim or post-render padding",
+      "nativeOnsetVerified": false,
+      "loopSelection": "Original first loop start through second bytecode pass; not a steady-state waveform claim"
+    },
+    "archiveVolume": {
+      "model": "Linear float32 raw volume times float32(1/127), floored at zero; separate from track/envelope dB",
+      "reader": "0x149168: CSAR entry+8 to SoundInfo+0x10",
+      "sequenceSetup": "0x1a53d4..0x1a53e8",
+      "setter": "0x1a66f4: BasicSound+0xb0",
+      "playerUpdate": "0x1a6428..0x1a65d4; command8 handler0x14c434",
+      "trackProduct": "0x208a88..0x208ab8",
+      "fittedGain": false
+    },
+    "originalFiles": {
+      "dualrip/engine/ctr/sequencer.py": "acbc3680446c26dcc8c0cb109380485c4d4b9b7a550dba3be1d1248227d6de26",
+      "dualrip/engine/ctr/channel.py": "4ee5aa99545538936eac3a201e8a16a7de4f79e7941f360dd2182e7873ba08cb",
+      "dualrip/engine/ctr/render.py": "742cc49e879df7afe0427aba2f51b80fc21c0c0eed78c6674867fb3394c39701",
+      "dualrip/formats/ctr/cseq.py": "644b6d9feb3707b9381011a7c7fd866d07ca86428880b7ad59c092c6602a3c73"
+    },
+    "patchedFiles": {
+      "dualrip/engine/ctr/sequencer.py": "826a3ba2e98a5bf0bd9c2d2acdc185e9018f623c4fe6201d3b212b9e5cc93a91",
+      "dualrip/engine/ctr/channel.py": "cd0884b7f210ca7ad1719345eff5e7409acb12b57a2f9d8b7e5047c1de8453ef",
+      "dualrip/engine/ctr/render.py": "f7e3263abe97002c6e4b3fb57ca365295c2309c26d64c4b97079c3088a7f3b9d",
+      "dualrip/formats/ctr/cseq.py": "42183fbc474a0736dcba45d683d6825ab73665b80e167e765d9f93933f8a18a1",
+      "dualrip/engine/ctr/home_audio_math.py": "2a315f888178687192f2292dc9b4cf386ee4e65ba8dd1e4db2c73eab4348e50f",
+      "dualrip/engine/ctr/home_audio_clock.py": "0221c59396f2fbdb0f3d7d5e84adf4f040c983e9c1cc128874723d4279e53a97",
+      "dualrip/engine/ctr/home_audio_voice.py": "d2f61ff069ee05a40406137eb9b9b55d2118c40d67bceb15f4643c0263bbf184",
+      "dualrip/engine/ctr/home_audio_dsp.py": "f1ac787ea636477acbc33682c11e86ca17c8e3666bd6ee3c3839b260f9291e8b"
+    },
+    "nativeOutputMode": {
+      "value": 1,
+      "name": "stereo",
+      "referenceModeVerified": true,
+      "verificationScope": "Saved 3DS CFG block; no per-frame DSP memory capture",
+      "referenceCfgSaveSha256": "e9caff9ef9b4394499ae857da458c7fb7d3af472be8521357d4bbb56977b0f9e",
+      "referenceCfgBlock": "0x00070001",
+      "referenceEmulator": "Azahar 2126.1.2 (9e6f523a57fac9564ac0bf8286db3c3702d301ec)"
+    },
+    "captureSemantics": {
+      "builtInAzaharDump": "DspInterface OutputFrame/OutputSample forwards PCM before host OutputCallback",
+      "hostVolumeSliderApplied": false,
+      "hostTimeStretchApplied": false,
+      "nativePlayerAndDspGainsApplied": true
+    },
+    "runtimeAssumptions": {
+      "dspDelayEnabled": false,
+      "dspReverbEnabled": false,
+      "hostAuxCallback": null,
+      "auxReturnA": 1,
+      "auxReturnB": 1,
+      "playerPanOffset": 0,
+      "playerSendOffsets": 0,
+      "panScale": 1,
+      "source": "Static HOME startup paths; later runtime overrides not captured"
+    },
+    "remainingGaps": [
+      "Runtime player/master gains and later aux state need controlled capture",
+      "Native hardware polyphase/DSP precision is unverified; pinned Azahar capture interpolation, source gain ramps and integer source mixing are modeled; later runtime bus gains and filters remain open",
+      "Full native waveform equivalence and baked-loop waveform continuity remain unverified; no measured normalization, trimming, padding or time stretching is applied"
+    ]
+  },
+  "validatedMonoBankWaves": [
+    {
+      "archive": 2,
+      "wave": 0,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 1,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 2,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 3,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 4,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 5,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 6,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 7,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 8,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 9,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 0,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 1,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 2,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 3,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 4,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 5,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 6,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 0,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 1,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 2,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 3,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 4,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 5,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 6,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 7,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 8,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 9,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 10,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 11,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 12,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 13,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 14,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 15,
+      "channels": 1
+    }
+  ],
+  "method": "offline CSEQ interpretation with original CBNK/CWAV and a versioned HOME-only stereo startup patch",
+  "verification": "pinned-capture voice/DSP model; runtime overrides, input/event timing and hardware parity remain unresolved",
   "cues": {
-    "music": {
-      "name": "BGM_CTR_HOME",
-      "index": 26,
-      "kind": "sequence",
-      "url": "music.wav",
-      "sha256": "3cc0954fe32ba572f8e899a3ea86b295c725aef4f5735b3d734e513dee213349",
-      "size": 15316468,
-      "sampleRate": 32728,
-      "channels": 2,
-      "samples": 3829089,
-      "loopStart": 314447,
-      "loopEnd": 3829089,
-      "sourceVolume": 96,
-      "banks": [
-        {
-          "id": 1,
-          "waveArchives": [
-            3
-          ]
-        }
-      ],
-      "unappliedCommands": {
-        "span": 5,
-        "fxsend_a": 3
-      }
-    },
-    "music-resume": {
-      "name": "BGM_CTR_HOME_NO_INTRO",
-      "index": 25,
-      "kind": "sequence",
-      "url": "music-resume.wav",
-      "sha256": "dcecc5eeae328f863c5c2e3b85da2db206490c587bd12270b57bbce808b60fc0",
-      "size": 14057320,
-      "sampleRate": 32728,
-      "channels": 2,
-      "samples": 3514302,
-      "loopStart": 340,
-      "loopEnd": 3514302,
-      "sourceVolume": 96,
-      "banks": [
-        {
-          "id": 1,
-          "waveArchives": [
-            3
-          ]
-        }
-      ],
-      "unappliedCommands": {
-        "span": 6,
-        "fxsend_a": 4
-      }
-    },
     "select": {
       "name": "SE_CTR_HOME_ICON_SELECT",
       "index": 44,
+      "archiveId": 16777260,
       "kind": "sequence",
       "url": "select.wav",
-      "sha256": "e8716ca9e3bd26e46ccc18639f067a8cbc3820007f03cd5fcd8ef83288ea59c7",
-      "size": 1408,
+      "sha256": "79cce738dbe8e64e5b86a626c238c31ff97c1ccae9ea576592329d8612e22c9c",
+      "size": 3884,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 341,
+      "samples": 960,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 48,
@@ -97,18 +348,35 @@
           ]
         }
       ],
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 44,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 1,
+          "31": 0
+        },
+        "volume": 48,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {},
       "unappliedCommands": {}
     },
     "open": {
       "name": "SE_CTR_HOME_START",
       "index": 30,
+      "archiveId": 16777246,
       "kind": "sequence",
       "url": "open.wav",
-      "sha256": "f126ce22910411d31a7d43c48959a14e122e3e718b54f65ceed2d9d8dc426446",
-      "size": 287732,
+      "sha256": "34494bf8cf2a2e19b213bec69c0ca4e2fbc667667a9d5f80940db436ed661d74",
+      "size": 321324,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 71922,
+      "samples": 80320,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 64,
@@ -120,20 +388,37 @@
           ]
         }
       ],
-      "unappliedCommands": {
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 30,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 0,
+          "31": 0
+        },
+        "volume": 64,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {
         "init_pan": 9
-      }
+      },
+      "unappliedCommands": {}
     },
     "back": {
       "name": "SE_CTR_COMMON_CANCEL",
       "index": 12,
+      "archiveId": 16777228,
       "kind": "sequence",
       "url": "back.wav",
-      "sha256": "9e8869a77d6c3699008a3422ae52b76360a1d327188a9ded1c92edb497de77ef",
-      "size": 242740,
+      "sha256": "ba6380709937cc21865dd01fdd5bf8b11ed194e0286c796790abc640aa40bcd4",
+      "size": 271404,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 60674,
+      "samples": 67840,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 100,
@@ -145,20 +430,37 @@
           ]
         }
       ],
-      "unappliedCommands": {
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 12,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 0,
+          "31": 0
+        },
+        "volume": 100,
+        "player": 67108864,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {
         "init_pan": 8
-      }
+      },
+      "unappliedCommands": {}
     },
     "home": {
       "name": "SE_CTR_HOME_HOMEBUTTON",
       "index": 27,
+      "archiveId": 16777243,
       "kind": "sequence",
       "url": "home.wav",
-      "sha256": "fd9ccebcc1c16be3ef7b7136ef67cbebadc70ed9561ff4c7e7da95ee0822c741",
-      "size": 409080,
+      "sha256": "0fa58b64b3478a4e3e56d0021b466d3e41deb6da4052b72034a319afaa07a99c",
+      "size": 431404,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 102259,
+      "samples": 107840,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 127,
@@ -170,20 +472,37 @@
           ]
         }
       ],
-      "unappliedCommands": {
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 27,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 0,
+          "31": 0
+        },
+        "volume": 127,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {
         "init_pan": 3
-      }
+      },
+      "unappliedCommands": {}
     },
     "power": {
       "name": "SE_CTR_HOME_POPUP_POWER",
       "index": 55,
+      "archiveId": 16777271,
       "kind": "sequence",
       "url": "power.wav",
-      "sha256": "f4a4f2f2ee09a1dac2c1008ba5c68592afd3c80d9b6be81210c5fa37cd6b9371",
-      "size": 75036,
+      "sha256": "103f51bee786f592d243218192381205c263b2faab8fdd8d167cc3a6aaa1473d",
+      "size": 76204,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 18748,
+      "samples": 19040,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 40,
@@ -195,21 +514,38 @@
           ]
         }
       ],
-      "unappliedCommands": {
-        "span": 2,
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 55,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 1,
+          "31": 0
+        },
+        "volume": 40,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {
+        "span_stereo_no_effect": 2,
         "init_pan": 10
-      }
+      },
+      "unappliedCommands": {}
     },
     "touch": {
       "name": "SE_CTR_HOME_ICON_TOUCH",
       "index": 43,
+      "archiveId": 16777259,
       "kind": "sequence",
       "url": "touch.wav",
-      "sha256": "b27dd6313c13c6af655503a56bc309c4cf25f86387ee0a527ba6b2ec945a7345",
-      "size": 5500,
+      "sha256": "876084b4d50aa97c8b28ef489de12979d21d68e65e2101ecc3d957242a428cf2",
+      "size": 6444,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 1364,
+      "samples": 1600,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 30,
@@ -221,18 +557,35 @@
           ]
         }
       ],
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 43,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 1,
+          "31": 0
+        },
+        "volume": 30,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {},
       "unappliedCommands": {}
     },
     "grab": {
       "name": "SE_CTR_HOME_ICON_GRAB",
       "index": 47,
+      "archiveId": 16777263,
       "kind": "sequence",
       "url": "grab.wav",
-      "sha256": "bd34d7d509c9eeb7632bd2835f78c162ae20f218ef4afc78913fe0a1925fa4a7",
-      "size": 9588,
+      "sha256": "3f6e1e7ac4292b1de0ff7d8077ffad7925dca8728501967698c6dc87973d9dcb",
+      "size": 10924,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 2386,
+      "samples": 2720,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 32,
@@ -244,18 +597,35 @@
           ]
         }
       ],
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 47,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 1,
+          "31": 0
+        },
+        "volume": 32,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {},
       "unappliedCommands": {}
     },
     "drop": {
       "name": "SE_CTR_HOME_ICON_EXCHANGE",
       "index": 48,
+      "archiveId": 16777264,
       "kind": "sequence",
       "url": "drop.wav",
-      "sha256": "497330203f54fc26fa7565f90619e58c8c406ad277c52a79cd773f001aeb39bd",
-      "size": 12316,
+      "sha256": "ea32e9a688adf02afd747ad6cbbf52071cad52104ff26960b7664dc764f4e19a",
+      "size": 13484,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 3068,
+      "samples": 3360,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 64,
@@ -267,18 +637,35 @@
           ]
         }
       ],
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 48,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 1,
+          "31": 0
+        },
+        "volume": 64,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {},
       "unappliedCommands": {}
     },
     "folder-open": {
       "name": "SE_CTR_HOME_OPEN_FOLDER",
       "index": 52,
+      "archiveId": 16777268,
       "kind": "sequence",
       "url": "folder-open.wav",
-      "sha256": "cecde28ab51ec418ec443f9fe82e3a2cf63c27644570eac8b65e4d1352e911d8",
-      "size": 62084,
+      "sha256": "e76e362d7f88f6f33849afc7cb07b71d8a02249dc14cac578207b2adbf4351c3",
+      "size": 70444,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 15510,
+      "samples": 17600,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 44,
@@ -290,18 +677,35 @@
           ]
         }
       ],
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 52,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 1,
+          "31": 0
+        },
+        "volume": 44,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {},
       "unappliedCommands": {}
     },
     "folder-close": {
       "name": "SE_CTR_HOME_CLOSE_FOLDER",
       "index": 53,
+      "archiveId": 16777269,
       "kind": "sequence",
       "url": "folder-close.wav",
-      "sha256": "9eaa6eb3a36dd5f580412fc57712c72e93348884c7d66b18d9317c828bc01212",
-      "size": 25952,
+      "sha256": "1cf47bcd5621f6ee9886919956610fd5d2f4ebd2d47a0042e0f158d51d1974c1",
+      "size": 28844,
       "sampleRate": 32728,
       "channels": 2,
-      "samples": 6477,
+      "samples": 7200,
       "loopStart": null,
       "loopEnd": null,
       "sourceVolume": 48,
@@ -313,6 +717,22 @@
           ]
         }
       ],
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 53,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 1,
+          "31": 0
+        },
+        "volume": 48,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {},
       "unappliedCommands": {}
     }
   }

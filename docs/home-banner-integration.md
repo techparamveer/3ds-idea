@@ -127,3 +127,12 @@ checks independently pass65, using real model/texture delivery. Typecheck passes
 See native-default-banner-runtime.md for the executed original null-primary gate
 and clear-to-default9-pass evidence. Browser/native comparison remains distinct
 from those CPU contracts.
+
+Live real-control checks are saved in reference/browser-native-owner-checks.json
+and -summary.json. A root vacancy activated default epoch2; moving to a folder
+activated folder epoch3; opening its empty child activated default epoch4.
+Adjacent child vacancies retained request/activation4 while independent yaw and
+skeletal clocks advanced. Material playback settled at frame60/status0. Sleep
+froze HOME update7244 and wake retained the same instance. This establishes
+actual host wiring; the native default material color mismatch and the still
+instantaneous folder-close reducer remain open visual/transition defects.

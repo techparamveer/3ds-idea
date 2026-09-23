@@ -50,9 +50,13 @@ readiness on pass4, stop30 mixing of an existing sound and first DSP sample timi
 remain unverified. A slow browser preparation starts only when ready without
 seeking ahead or claiming that it met a native deadline.
 
-Short effects still use the prior public cue pack in this change; v8 candidate
-cue promotion and complete input-to-native-sound event mapping remain separate.
-The old music WAV files may remain in the historical pack but are unused.
+Short effects now use the reproduced cue-only v8 pack: ten native WAVs and a
+provenance manifest,1,255,395 bytes total. All ten WAVs equal the previously
+checked v8 candidate; the native select/folder waveform evidence therefore
+carries forward by byte identity. The old thirteen-file delivery was preserved
+on SSD at audio/public-before-cues-v8, and both unused music WAVs were removed
+from public delivery. Complete input-to-native-sound event mapping remains a
+separate check; asset identity does not prove trigger timing.
 
 ## Verification
 
@@ -61,5 +65,20 @@ coverage includes gesture gating, shared context, no baked music fetch/seek,
 overlapping cues, mute/sleep identity, counted gain, power cycling, fetch/start
 cancellation, rapid-return race, failed worker retry, asleep startup and disposal.
 The production transport's513.77-second stress proof is documented separately in
-native-music-browser-validation.md. Actual console browser verification and a
-final production build follow integration with the default primary banner.
+native-music-browser-validation.md. The combined default/music integration passed523 tests, followed by37 relevant
+audio tests after counted return changes. The final production application
+build passed; its live console fetched one music pack, played cold entry at
+epoch2, stopped to prepared epoch3 in Work, and returned with a fresh no-intro
+entry at epoch4, with no reported underrun. All served music resources returned
+HTTP200; no music WAV was fetched. The development capture hooks were absent
+in production. Details are in reference/production-native-owner-lifecycle.json
+and production-native-owner-start.json under the firmware SSD root.
+
+Real keyboard mute and lid sleep retained music epoch2. Sleep froze the HOME
+count at7244 while synthesis continued silently; wake retained the same stream.
+The cue-only exporter suite passed44 tests with the pinned renderer and real
+archive configured. Production decoded all ten v8 effects and a real selection
+input reported select with no asset/transport error. The initial converter test
+attempt lacked its required renderer environment, and a second used the source
+research Python without NumPy; the correctly configured audio runtime passed.
+Those setup failures did not change the application or public cue data.

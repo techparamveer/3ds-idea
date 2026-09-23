@@ -34,3 +34,22 @@ Source draw ordering, register masks and Frame displacement semantics remain in
 native-banner-stencil.md. Out-of-mask GPU coverage, native reference phase epochs,
 reactive displacement inputs, upper chrome pass ordering and mip-level fidelity
 still require separate verification.
+
+## Displaced GPU coverage check
+
+Development captureNativeBanner samples rendered the real default primary at
+idle, skeletal frame92, a forced translation(14,7), outside translation(50,0),
+and separated primary/Frame offsets. All samples left the full host view and
+HOME counter unchanged. A separate CPU projection of the authored994 Frame
+vertices through the source camera produced a70-vertex convex silhouette.
+With one-pixel raster-edge tolerance, all2,879 covered pixels in the translated
+sample were inside it;26 lay at the mask boundary. Idle covered7,566 pixels,
+frame92 covered7,582, and the outside sample was empty. This exercises the actual
+GPU stencil boundary without claiming a native input produced those poses.
+
+Reports/images: reference/browser-default-samples.json,
+reference/browser-native-mask-coverage.json, native-frame-projected-mask.png,
+and browser-default-sample-*.png. It verifies bounded coverage and read-only
+sampling, not material color fidelity. The live BannerDef currently has a
+washed-out white/color mismatch against home-folder-open-a.png; native light
+installation semantics remain under investigation.

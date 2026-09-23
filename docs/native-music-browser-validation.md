@@ -3,9 +3,9 @@
 The emitted worker/worklet and actual main-thread adapter passed an 8.56-minute
 48 kHz production-origin playback run with zero reported underruns, stale PCM or
 discontinuities. This validates the transport candidate, not complete native
-entry policy, hardware mixing or every browser. The live OS wiring is a separate
-integration step; the test used a gesture-unlocked probe context alongside the
-actual console page.
+entry policy, hardware mixing or every browser. This probe preceded live OS wiring; the test used a gesture-unlocked context
+alongside the actual console page. Subsequent live-owner checks are documented
+in native-menu-audio-integration.md.
 
 All reports are under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`.

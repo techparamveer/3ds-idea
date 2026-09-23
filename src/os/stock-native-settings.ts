@@ -8,9 +8,9 @@ const mainButtons=['I_TopLTs','I_TopRTs','I_TopLBs','I_TopRBs','I_TopTs'];
 const buttons=[...mainButtons,'B_L','B_LBlue','B_SB','B_SMngCTRO','B_SMngDSiO','B_CnctW1','B_CnctW2','B_CnctW3','I_User','T_Page01'];
 const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_AnalogPad','I_Trans','I_Lang','I_Update','I_Format'];
 export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
-  {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
+  {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00','Base_D_01'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
   {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn']},
-  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00'],animations:['Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
+  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00'],animations:['Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
   {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
 ];
@@ -146,8 +146,9 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     ['N_B_LBlue_00','B_LBlue','connections','net_set'],['N_B_S_00','B_S','spotpass','net_bg24'],['N_B_S_01','B_S','ds-connections','net_ds_card'],['N_B_S_02','B_S','internet-info','net_option'],
   ],'NetTop_D_01_SpecialIn_00');
   else if(screen==='parental'){
-    draw(bottom,'up','TextBG_U_00',{center:[160,44.4],scale:.8,bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:{visible:false}}});
-    menu('Btn2Text_D_00',[['N_B_S_00','B_S','next','base_2b_next'],['N_B_S_01','B_S','back','base_2b_back']],undefined,{TextBoxTitle_00:{...message('par_top_comm1'),fontSize:[16,19.2]}});
+    // pare_new_set: source instruction-only page and two-control base footer.
+    draw(bottom,'layout','MessageOnly_D_00',{bindings:[{name:'MessageOnly_D_00_SceneIn_00',frame:20}],overrides:{TextBoxTitle_00:message('par_top_comm0_n')}});
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_set'),TextBoxShdw_01:message('base_2b_set')}});
     return okay;
   }else if(screen==='data')menu('SMngTopO_D_00',[
     ['N_B_SMngCTRO_00','B_SMngCTRO','data-3ds'],['N_B_SMngDSiO_00','B_SMngDSiO','data-dsi'],['N_B_M_00','B_M','streetpass','dat_ce'],['N_B_S_00','B_S','blocked-users','dat_blist_reset'],

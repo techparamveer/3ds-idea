@@ -78,6 +78,15 @@ try{
    const text=calls.find(c=>c.layout===(['nickname','birthday'].includes(subpage.data.field)?'UserInfo_U_00':'TextBG_U_00'));
    assert.ok(text.options.overrides.TextBox_00.messageStyle,'identified detail keeps source instruction style');
   }
+  if(subpage.screen==='parental'){
+   const body=calls.find(c=>c.layout==='MessageOnly_D_00'),footer=calls.find(c=>c.layout==='Base_D_01');
+   assert.ok(body);assert.ok(footer);
+   assert.equal(body.options.overrides.TextBoxTitle_00.text.startsWith('You may limit access'),true);
+   assert.ok(body.options.overrides.TextBoxTitle_00.messageStyle);
+   assert.equal(body.options.overrides.TextBoxTitle_00.fontSize,undefined);
+   assert.equal(footer.options.overrides.TextBox_00.text,'Back');assert.equal(footer.options.overrides.TextBox_01.text,'Set');
+   assert.equal(calls.some(c=>c.layout==='Btn2Text_D_00'),false);
+  }
   if(subpage.screen==='clock'){
    const lower=calls.find(c=>c.layout==='NetType2_D_00');assert.ok(lower);
    assert.deepEqual(Object.keys(lower.options.attachments),['N_B_L_00','N_B_L_01']);

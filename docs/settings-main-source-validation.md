@@ -118,6 +118,29 @@ paired renders and typecheck pass; the two changed pairs were visually
 inspected. Before images remain in `presentation/settings-scene-variants/`,
 and after images are in `presentation/settings-clock-connections/`.
 
+## Parental introduction
+
+`pare_new_set.bin` names `MessageOnly_D_00` with `par_top_comm0_n`; the
+previous `Btn2Text_D_00` / `par_top_comm1` combination was not this scene.
+The correction retains all eight source message lines, the English message
+style and `MessageOnly_D_00_SceneIn_00` frame 20. It removes the extra scaled
+lower text-panel backdrop and the font-size override.
+
+The table's first byte is 2. The executable's footer name table at `0x2987bc`
+maps index 2 (`0x2987c4`) to `Base_D_01`, whose two source labels are
+`base_2b_back` and `base_2b_set`. Its native bound rectangles are Back
+`(0,208,120,32)` and Set `(200,208,120,32)`. Integration owns those targets,
+the Set row label and footer navigation. The existing `next` action remains
+an inert UI route to the restrictions list; this slice does not claim to
+recreate the following native PIN/setup flow (`pare_explain`).
+
+`base_2b_set` must be present in the published English message subset; an
+empty fallback is not accepted by the verifier. Source table hashes and raw
+records are saved in `presentation/settings-source-audit/parental-ds-scenes.json`.
+Assets publication `91d1213` supplies the missing label. All 21 paired render
+checks and typecheck pass; the complete introduction and both footer labels
+were visually inspected in `presentation/settings-parental-intro/`.
+
 ## Composition, typography and verification
 
 Main retains source child mounts, the settled `Top_D_02_SceneIn_00` frame 35,

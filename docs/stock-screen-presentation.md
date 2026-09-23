@@ -104,9 +104,10 @@ Profile, User Name and Birthday retain their source `UserInfo_U_00` upper
 composition without an added generic text panel. The source trace and remaining
 adaptations are recorded in [Settings scene validation](settings-main-source-validation.md).
 Internet uses `NetTop_D_01` and its four source child buttons. Parental Controls
-uses introductory English messages and `Btn2Text_D_00`; the configured
-`PareTop` views are not used to imply saved restrictions or a PIN. Its lower
-information card reuses a scaled source upper panel for readable contrast.
+now uses `pare_new_set`'s `MessageOnly_D_00`, complete English introduction
+and `Base_D_01` Back/Set footer. The borrowed two-button card, added backdrop
+and font-size override have been removed. It does not imply saved restrictions
+or a PIN; the subsequent setup flow is still incomplete.
 
 Data Management, Nintendo 3DS data, Profile, Connection Settings and Other
 Settings mount the original button components in their source layouts. Other

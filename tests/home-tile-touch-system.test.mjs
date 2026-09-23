@@ -202,6 +202,23 @@ test('release after H20 still accepts normally; pickup exits cancel state withou
   assert.equal(ctl(dropped.state).primary.layoutVisible, true);
 });
 
+test('candidate-cleared reentry cannot become an authored lift during physical release', () => {
+  let s = home(), grid = sampleHomeGrid(nav(s)), center = point(s, 1);
+  const edge = { x: center.x - grid.size / 2 + 1, y: center.y }, layout = s.system.layout;
+  s = at(touch(s, 'down', 1, edge), 1).state;
+  s = at(touch(s, 'move', 1, { ...edge, x: edge.x - 2 }), 2).state;
+  assert.equal(ctl(s).tileCandidate, null);
+  s = at(touch(s, 'move', 1, edge), 3).state;
+  s = at(s, 31).state;
+  assert.equal(ctl(s).tileTouch.widgets[1].longPressFlag, true);
+  assert.equal(ctl(s).tilePickup, null);
+  assert.equal(nav(s).gesture.mode, 'press');
+  s = touch(s, 'up', 2); // Browser coalesces the final displacement into up.
+  assert.deepEqual(s.system.layout, layout);
+  assert.equal(selected(s), 0);
+  assert.equal(ctl(s).tilePickup, null);
+});
+
 test('same vacant root and folder taps do not create or open anything', () => {
   for (const folder of [false, true]) {
     let s = home(folder ? 0 : 40, folder), folders = s.folders;

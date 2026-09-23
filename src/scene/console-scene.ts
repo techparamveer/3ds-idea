@@ -194,7 +194,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(drag)drag.padDirection=direction;
   }
   let lastInput='none';
-  function cursorDiagnostic(){const controls=state.system!.homeControls;return {...state.system!.homeCursorLoop,visibleSlot:getHomeCursorSlot(state),selectedSlot:state.opened?state.folderSelected:state.selected,sampledFrame:getHomeCursorLoopFrame(state,reduced),...(controls?{primary:controls.primary,presentation:controls.presentation,producer:controls.producer,tileTouch:controls.tileTouch,tilePoses:controls.tilePoses,focus:state.system!.homeNavigation.focus,mode3:state.system!.homeNavigation.mode3,mode:state.system!.homeNavigation.motion?.mode??0}: {})};}
+  function cursorDiagnostic(){const controls=state.system!.homeControls;return {...state.system!.homeCursorLoop,visibleSlot:getHomeCursorSlot(state),selectedSlot:state.opened?state.folderSelected:state.selected,sampledFrame:getHomeCursorLoopFrame(state,reduced),...(controls?{primary:controls.primary,presentation:controls.presentation,producer:controls.producer,tileTouch:controls.tileTouch,tilePoses:controls.tilePoses,tileCandidate:controls.tileCandidate,tilePickup:controls.tilePickup,focus:state.system!.homeNavigation.focus,mode3:state.system!.homeNavigation.mode3,mode:controls.tilePickup?14:state.system!.homeNavigation.motion?.mode??0}: {})};}
   const writeState=()=>{
     if(diagnostics)host.dataset.homeCursor=JSON.stringify(cursorDiagnostic());
     const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderClose=JSON.stringify(sampleSystemHomeFolderClose(state));host.dataset.folderBannerFallback=String(!nativePrimaryAvailable(resolveHomeBannerHostSelection(state).kind));}const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
@@ -272,7 +272,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     effects.drain(userGesture);
     // Logical clock updates do not bypass the quality policy's LCD upload cadence.
     const reducedChanged=reduced&&(previousBanner!==reducedBannerKey()||before.homeNavigation!==after.homeNavigation
-      ||before.homeControls?.tilePoses!==after.homeControls?.tilePoses);
+      ||before.homeControls?.tilePoses!==after.homeControls?.tilePoses||before.homeControls?.tilePickup!==after.homeControls?.tilePickup);
     if(input!=='tick'||reducedChanged||before.phase!==after.phase||previous.powered!==state.powered||previous.panel!==state.panel)paint();else writeState();
   }
   function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit((current,now)=>dispatchSystemEvent(current,event,now),label,userGesture);}

@@ -127,8 +127,9 @@ Folder-icon, cartridge and special-title candidate eligibility are still unaudit
 
 The candidate lives outside the widget, so a controller reset does not erase it.
 Explicit browser cancellation, blur/sleep/overlay, context replacement, density
-change and authored gesture takeover clear it as ownership policy. Pickup
-callback3/4 hosting remains pending the completed occupied-entry trace.
+change and authored gesture takeover clear it as ownership policy. The later
+[pickup-entry checkpoint](home-pickup-entry-integration.md) adds occupied
+callback3 hosting and the vacant callback4 path; native drop remains untraced.
 
 The added root/child candidate, leave/reentry, acceptance and cancellation
 regressions pass alongside existing controls:29 tests, zero failures. Typecheck

@@ -2,10 +2,12 @@
 
 Root owns the `HomeControls.tilePickup` state and its transition from widget
 callback3. The threshold widget is integrated at `4cb429d`; retained candidates
-at `a8a8fdd`. The assets task's executed continuation extends occupied H21
-through mode14 and one unchanged-position H22. Its frozen report is being
-prepared separately; the earlier `GRID_LONG_PRESS_EVIDENCE.md` ends before this
-continuation and must not be cited as proof of completed mode14.
+at `a8a8fdd`. [GRID_PICKUP_ENTRY_EVIDENCE.md](../scripts/firmware/GRID_PICKUP_ENTRY_EVIDENCE.md),
+integrated at `610b7ae`, extends occupied H21 through mode14 and one
+unchanged-position H22. Its four-case report hash is
+`6f18a19bed6bf3daf39fb5ba41e2852cb3a8b1e19bb184cc1eac4d82c446330c`.
+The earlier `GRID_LONG_PRESS_EVIDENCE.md` ends before this continuation and must
+not be cited as proof of completed mode14.
 
 The entry copies candidate to selection without ordinary acceptance effects,
 requests primary2, starts/seeks native Pickup and PickUpBlank Scale, and emits

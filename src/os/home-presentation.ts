@@ -35,17 +35,18 @@ export const getNativeFolderPanel=(state:MenuState)=>state.opened?getNativeHomeP
 /** A derived view, never a second recognizer or a speculative mutation of icon maps. */
 export function getHomePresentation(state:MenuState){
  const folder=state.opened?state.selected:null,gesture=getHomeGestureView(state),cursorSlot=getHomeCursorSlot(state);
+ const pickup=state.system?.homeControls?.tilePickup??null;
  const matches=(location:{folder:number|null;slot:number}|null|undefined,slot:number)=>!!location&&location.folder===folder&&location.slot===slot;
  const tiles=menuTiles(state).map(tile=>{
-  const source=matches(gesture?.dragged?.source,tile.index),pressed=matches(gesture?.pressed,tile.index);
+  const source=matches(pickup?.source??gesture?.dragged?.source,tile.index),pressed=matches(gesture?.pressed,tile.index);
   const folderLabel=folder===null&&isFolder(tile.index,state)?state.folders[tile.index]:null;
   const drop=!!gesture?.dragged&&gesture.canDrop&&matches(gesture.target,tile.index)&&!source;
   return {...tile,appId:homeSlotAppId(state,tile.index),folderLabel,source,pressed,drop,
    cursor:tile.index===cursorSlot};
  });
  const navigation=getHomeNavigationView(state);
- return {tiles,rows:rowCount(state),density:navigation.density,currentDensity:navigation.currentDensity,targetDensity:navigation.targetDensity,mode:navigation.mode,folder,gesture,ghost:gesture?.dragged?{
-  x:gesture.x,y:gesture.y,item:gesture.dragged.item,canDrop:gesture.canDrop,
+ return {tiles,rows:rowCount(state),density:navigation.density,currentDensity:navigation.currentDensity,targetDensity:navigation.targetDensity,mode:pickup?14:navigation.mode,folder,gesture,pickup,ghost:gesture?.dragged?{
+  x:pickup?.center.x??gesture.x,y:pickup?.center.y??gesture.y,item:gesture.dragged.item,canDrop:gesture.canDrop,
   size:tiles[0]?.size??(rowCount(state)<=2?72:168/rowCount(state)-8)
  }:null};
 }

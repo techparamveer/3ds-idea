@@ -54,8 +54,13 @@ export function tickHomeGesture(state: MenuState, now: number): MenuState {
   let gesture = state.system?.homeNavigation?.gesture;
   if (!gesture || !Number.isFinite(now) || now < gesture.updatedAt) return state;
   if (!eligible(state) || state.panel !== gesture.panel || state.columns !== gesture.columns || homeContainer(state) !== gesture.viewFolder || !currentSource(state, gesture)) return cancelHomeGesture(state);
-  if (gesture.mode === 'press' && gesture.area === 'grid' && gesture.item && !state.system?.homeControls?.tileTouch.strokeOwned
-    && now - gesture.startedAt >= HOME_GESTURE_TIMING.liftMs) gesture = dragTarget(state, { ...gesture, mode: 'drag' }, now);
+  if (gesture.mode === 'press' && gesture.area === 'grid' && gesture.item) {
+    const touch = state.system?.homeControls?.tileTouch;
+    // Physical up closes the browser stroke before its queued native release is
+    // sampled. Keep ownership through that edge and retained widget capture.
+    const nativeOwned = touch && (touch.strokeOwned || touch.pending.length > 0 || Object.values(touch.widgets).some(widget => widget.capture));
+    if (!nativeOwned && now - gesture.startedAt >= HOME_GESTURE_TIMING.liftMs) gesture = dragTarget(state, { ...gesture, mode: 'drag' }, now);
+  }
   if (gesture.mode === 'drag') {
     if (gesture.hoverFolder !== null && now - gesture.hoverSince >= HOME_GESTURE_TIMING.folderHoverMs) {
       const folder = gesture.hoverFolder;

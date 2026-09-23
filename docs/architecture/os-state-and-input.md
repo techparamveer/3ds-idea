@@ -25,6 +25,7 @@
 | `home-controls.ts` | Live native HOME sampling, lower tasks, cursor footer/controllers and counted observation journals |
 | `home-tile-widget.ts`, `home-tile-pose.ts` | Pure native ordinary tile input/2D controllers and last applied pose writer |
 | `home-tile-touch.ts` | Browser touch edges, widget capture scan and per-container pose storage |
+| `home-tile-pickup.ts` | Retained ordinary pickup/blank Scale submissions and explicitly supplied positioning anchor |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-cursor-loop.ts`, `home-cursor-visibility.ts` | Retained primary cursor Loop and shared visibility predicate |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
@@ -155,6 +156,14 @@ Application/folder opening exits that bounded host pass; System rebases unused
 HOME time, while the scene accounts for the count without inventing banner
 manager or3D work. Browser cancellation and authored scroll/drag takeover reset
 widget ownership explicitly. See [the integration boundary](../home-tile-touch-integration.md).
+
+Stationary native pickup begins at callback3 after held count21. The host retains
+its candidate, copies selection, requests primary hiding and emits grab during
+input. The lower/footer then hides primary and the source tile before2D; their
+controllers freeze while separate Pickup/Blank mode5 controllers submit their
+held density frames. Painters consume applied frames and host centers. The
+browser still supplies zero anchor and authored movement/drop/lifecycle exits;
+see [pickup entry and remaining boundaries](../home-pickup-entry-integration.md).
 
 ## Firmware application foundation
 

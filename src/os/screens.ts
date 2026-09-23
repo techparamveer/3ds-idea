@@ -127,7 +127,10 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
   const drawTile=(alpha:number)=>{
   const artwork=(draw:()=>void)=>{c.save();try{c.globalAlpha*=alpha;draw();}finally{c.restore();}};
   if(source){
-   if(!nativeHome?.liftedSource(c,x,tile.y,size,view.density)){
+   const pickup=!capture&&controls?view.pickup:null;
+   const drawn=pickup?pickup.blankScale.appliedFrame===null||nativeHome!.pickupBlankAt(c,pickup.blankCenter.x,pickup.blankCenter.y,pickup.blankScale.appliedFrame)
+    :nativeHome?.liftedSource(c,x,tile.y,size,view.density);
+   if(!drawn){
     artwork(()=>{const inset=size*.34;rounded(c,x+inset,tile.y+inset,size-inset*2,size-inset*2,2,'#d3d4d766','#c8c9cc');});
    }
   }else if(occupied){
@@ -172,9 +175,12 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
 }
 function dragGhost(c:Context,view:HomePresentation,graphics:ReturnType<typeof createPortfolioGraphics>,nativeHome?:NativeHome){
  const ghost=view.ghost;if(!ghost)return;
+ if(nativeHome&&view.pickup?.scale.appliedFrame===null)return;
  const {x,y,size,item}=ghost,app=item.kind==='app'?getApp(item.id):undefined;
  c.save();c.beginPath();c.rect(0,0,320,240);c.clip();
- const pickup=nativeHome?.pickup(c,x,y,size,view.density,item.kind==='folder',item.kind==='folder'?item.label:'');
+ const pickup=nativeHome&&(view.pickup
+  ?nativeHome.pickupAt(c,x,y,view.pickup.scale.appliedFrame!)
+  :nativeHome.pickup(c,x,y,size,view.density,item.kind==='folder',item.kind==='folder'?item.label:''));
  if(pickup?.drawn){
   if(app){const rect=pickup.icon;c.globalAlpha=rect.alpha;graphics.menuArtwork(c,app,rect.x,rect.y,rect.width,rect.height);}
  }else if(item.kind==='folder')folder(c,x,y,size*.78,item.label);

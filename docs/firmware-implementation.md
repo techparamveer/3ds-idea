@@ -53,10 +53,15 @@ controls, circle pad, keyboard, ordinary app handoff, reduced motion, fallback
 and close. Nine static lower-screen regions preserve their prior comparison
 metrics against the saved Azahar capture; this is not whole-screen parity.
 
-Stationary long-press entry is the next bounded source audit. Complete native
+Stationary long-press entry is now integrated through completed ordinary pickup
+and vacant release; see [pickup entry](home-pickup-entry-integration.md).
+The checkpoint passes924 tests with two existing optional skips, typecheck and
+production build. Native positioning initialization, content binding and later
 drag/drop/scroll behavior, broader opening and overlay lifecycles, missing
 banner categories and included stock title packs/workflows remain unfinished.
 Most stock application screens are still scaffolds. Fresh Azahar interaction
 remains dependent on unlocking the Mac. The full goal and final implementation
 PR are not complete; do not publish a finished-fidelity claim from this HOME
-checkpoint alone.
+checkpoint alone. The next parallel work fixes multi-content CIA extraction
+and establishes the native keyboard input/view contract; see
+[title expansion](native-title-expansion-contract.md).

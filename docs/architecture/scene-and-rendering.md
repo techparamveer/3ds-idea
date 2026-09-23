@@ -59,8 +59,24 @@ It must not recolor unclassified materials, screen parts or printed details.
 Native CGFX material depth tests use each exported comparison function, including
 `Less`; they no longer inherit Three.js’s `LessEqual` default. Focused real-model
 tests and a live folder capture (`reference/browser-depth-source-top.png` in the
-firmware SSD artifacts) cover the change. Runtime stencil masks and native mip
-levels remain separate fidelity gaps.
+firmware SSD artifacts) cover the change. `firmware-model.ts` also maps authored
+stencil comparisons/operations and per-instance runtime overrides, independently
+of depth and blend state. Native draw groups are carried through every internal
+Three Group, with source mesh layer/priority retained inside each group.
+
+The folder banner target has a stencil attachment. It clears stencil to zero,
+then draws the authored BannerFrame producer (group 1) and the folder consumer
+(group 2) as siblings in one transaction before the transparent Canvas transfer.
+The existing background Canvas transaction remains separate. Frame load failure
+makes the masked folder unavailable; background readiness is independent.
+Teardown owns Frame resources and the target, and transaction cleanup restores
+the caller's stencil clear value alongside its target, viewport and other render
+settings. The scene adapter supplies explicit zero idle translation samples;
+reactive native displacement is still unimplemented. See the
+[agreed stencil contract](../native-banner-stencil-renderer-contract.md).
+Frame public-pack promotion and GPU/native comparison remain integration work;
+CPU tests can consume the extracted candidate through
+`FIRMWARE_BANNER_FRAME_MODEL`. Native mip levels remain a fidelity gap.
 
 ## Cleanup contract
 

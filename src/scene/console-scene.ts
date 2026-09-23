@@ -60,7 +60,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
   const screens=createScreens({reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
     getFolderBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&(!nativeFolderAvailable()||bannerLabelFailure)?undefined:view;},
-    drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame},label),
+    // Idle-only native translation sample. Reactive +0x90 motion is not yet hosted.
+    drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawHomeBackground:folderBanner.drawBackground,runtimeNotice:()=>runtimeNotice});
   await Promise.all([screens.ready,folderBanner.ready]);
   if(diagnostics)host.dataset.banner=JSON.stringify(folderBanner.status());

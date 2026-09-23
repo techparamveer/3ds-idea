@@ -8,7 +8,14 @@ type Color={R:number;G:number;B:number;A:number};
 type Vec={X:number;Y:number;Z:number;W?:number};
 type Coord={MappingType:string;TransformType:string;Scale:Vec;Rotation:number;Translation:Vec};
 type Stage={Source:{Color:string[];Alpha:string[]};Operand:{Color:string[];Alpha:string[]};Combiner:{Color:string;Alpha:string};Scale:{Color:string;Alpha:string};UpdateColorBuffer:boolean;UpdateAlphaBuffer:boolean};
-type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
+export type NativeComparison='Never'|'Always'|'Equal'|'NotEqual'|'Less'|'LessOrEqual'|'Greater'|'GreaterOrEqual';
+export type NativeStencilOperation='Keep'|'Zero'|'Replace'|'Increment'|'Decrement'|'Invert'|'IncrementWrap'|'DecrementWrap';
+export type FirmwareStencilState=Readonly<{
+ enabled:boolean;function:NativeComparison;reference:number;compareMask:number;writeMask:number;
+ fail:NativeStencilOperation;depthFail:NativeStencilOperation;depthPass:NativeStencilOperation;
+}>;
+export type FirmwareModelOptions=Readonly<{overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>}>;
+type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};StencilTest?:{Enabled:boolean;Function:NativeComparison;Reference:number;Mask:number;BufferMask:number};StencilOperation?:{FailOp:NativeStencilOperation;ZFailOp:NativeStencilOperation;ZPassOp:NativeStencilOperation};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
 type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string}[]};
 type Bone={Name:string;ParentIndex:number;BillboardMode?:string;NativeBillboardMode?:number;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
 type Submesh={indices:number[];bones:number[];skinning:string;primitive:string};
@@ -86,6 +93,26 @@ function nativeDepthFunction(value:string){
  if(result===undefined)throw new Error(`Unsupported native depth comparison ${value}`);
  return result;
 }
+const stencilFunction:Record<NativeComparison,THREE.StencilFunc>={Never:THREE.NeverStencilFunc,Always:THREE.AlwaysStencilFunc,Equal:THREE.EqualStencilFunc,NotEqual:THREE.NotEqualStencilFunc,Less:THREE.LessStencilFunc,LessOrEqual:THREE.LessEqualStencilFunc,Greater:THREE.GreaterStencilFunc,GreaterOrEqual:THREE.GreaterEqualStencilFunc};
+const stencilOperation:Record<NativeStencilOperation,THREE.StencilOp>={Keep:THREE.KeepStencilOp,Zero:THREE.ZeroStencilOp,Replace:THREE.ReplaceStencilOp,Increment:THREE.IncrementStencilOp,Decrement:THREE.DecrementStencilOp,Invert:THREE.InvertStencilOp,IncrementWrap:THREE.IncrementWrapStencilOp,DecrementWrap:THREE.DecrementWrapStencilOp};
+function stencilMaterialState(state:FirmwareStencilState){
+ const comparison=stencilFunction[state.function];
+ if(typeof comparison!=='number')throw new Error(`Unsupported native stencil comparison ${state.function}`);
+ const operation=(value:NativeStencilOperation)=>{
+  const result=stencilOperation[value];
+  if(typeof result!=='number')throw new Error(`Unsupported native stencil operation ${value}`);
+  return result;
+ };
+ return {stencilWrite:state.enabled,stencilFunc:comparison,stencilRef:state.reference,stencilFuncMask:state.compareMask,stencilWriteMask:state.writeMask,stencilFail:operation(state.fail),stencilZFail:operation(state.depthFail),stencilZPass:operation(state.depthPass)};
+}
+function nativeStencilState(params:Params,override:FirmwareModelOptions['runtimeStencil']){
+ const test=params.StencilTest,ops=params.StencilOperation;
+ const source:FirmwareStencilState={enabled:test?.Enabled??false,function:test?.Function??'Always',reference:test?.Reference??0,compareMask:test?.Mask??0xff,writeMask:test?.BufferMask??0xff,fail:ops?.FailOp??'Keep',depthFail:ops?.ZFailOp??'Keep',depthPass:ops?.ZPassOp??'Keep'};
+ // Validate authored enums even when a runtime override replaces them. BufferMask
+ // is kept literally: omitted register write lanes are a runtime responsibility.
+ const authored=stencilMaterialState(source);
+ return override?stencilMaterialState({...source,...override}):authored;
+}
 const wrap=(value:string)=>value==='Repeat'?THREE.RepeatWrapping:value==='MirroredRepeat'?THREE.MirroredRepeatWrapping:THREE.ClampToEdgeWrapping;
 function texturePixels(image:NativePixels){
  const pixels=new Uint8Array(image.data.length),stride=image.width*4;
@@ -96,18 +123,21 @@ const factor:Record<string,THREE.BlendingDstFactor>={Zero:THREE.ZeroFactor,One:T
 function matrix(source:Record<string,number>){return new THREE.Matrix4().set(source.M11,source.M21,source.M31,source.M41,source.M12,source.M22,source.M32,source.M42,source.M13,source.M23,source.M33,source.M43,0,0,0,1);}
 
 /** Uses original meshes/combiners/curves and directional LUT lighting; other lighting remains approximate. */
-export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:FirmwareModelPlayback={},options:{overlayCoverage?:boolean}={}){
+export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:FirmwareModelPlayback={},options:FirmwareModelOptions={}){
+ // Reject unsupported stencil state before allocating any GPU-owned resources.
+ const stencilStates=asset.data.models.map(model=>model.materials.map(m=>nativeStencilState(m.MaterialParams,options.runtimeStencil)));
  const group=new THREE.Group(),textures:THREE.Texture[]=[],materials:THREE.ShaderMaterial[]=[],geometries:THREE.BufferGeometry[]=[];
+ group.renderOrder=options.drawGroup??0;
  const updaters:((frame:number,camera?:THREE.Camera)=>void)[]=[];
  const textureBindings=new Map<string,THREE.DataTexture[]>(),materialMeshes=new Map<string,THREE.Mesh[]>();
  const replacementPixels=new Map<string,NativePixels>();
  const select=(playback:FirmwareModelPlayback)=>({skeletal:selectCgfxClips(asset.data.skeletalAnimations,playback.skeletal),material:selectCgfxClips(asset.data.materialAnimations,playback.material)});
  let playback=select(initialPlayback);
  const white=new THREE.DataTexture(new Uint8Array([255,255,255,255]),1,1);white.needsUpdate=true;textures.push(white);
- for(const model of asset.data.models){
-  const modelGroup=new THREE.Group();modelGroup.matrixAutoUpdate=false;modelGroup.matrix.copy(matrix(model.transform));group.add(modelGroup);
+ for(const [modelIndex,model] of asset.data.models.entries()){
+  const modelGroup=new THREE.Group();modelGroup.renderOrder=group.renderOrder;modelGroup.matrixAutoUpdate=false;modelGroup.matrix.copy(matrix(model.transform));group.add(modelGroup);
   const materialCopies=model.materials.map(m=>structuredClone(m));
-  const mats=materialCopies.map(m=>{
+  const mats=materialCopies.map((m,materialIndex)=>{
    const p=m.MaterialParams,uniforms:Record<string,THREE.IUniform>={};
    const lighting=cgfxLightingShader(p,asset.data);
    for(const [index,sampler] of lighting?.samplers.entries()??[]){
@@ -126,7 +156,9 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
     uniforms[`tex${i}`]={value:texture};uniforms[`uvMatrix${i}`]={value:textureMatrix(p.TextureCoords[i])};
    }
    const blend=p.BlendFunction;
+   const stencil=stencilStates[modelIndex][materialIndex];
    const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m,lighting),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,depthFunc:nativeDepthFunction(p.DepthColorMask.DepthFunc),side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
+   Object.assign(material,stencil);
    // The transparent Canvas bridge needs geometric blend coverage. Preserve
    // native RGB blending, but do not square alpha as native mt_Text's otherwise
    // invisible framebuffer-alpha equation does. Other blend families are kept.

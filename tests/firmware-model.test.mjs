@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import * as THREE from 'three';
+import {WebGLRenderLists} from 'three/src/renderers/webgl/WebGLRenderLists.js';
 const source=readFileSync(new URL('../src/os/cgfx-animation.ts',import.meta.url),'utf8');
 const asModule=source=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
 const animationUrl=asModule(source);
@@ -156,4 +157,66 @@ test('native folder and background preserve authored depth comparison on every m
   });
   assert.equal(JSON.stringify(data),before);model.dispose();
  }
+});
+
+const folderData=()=>JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/folder/model.json',import.meta.url),'utf8'));
+const stencilProperties=material=>Object.fromEntries(['stencilWrite','stencilFunc','stencilRef','stencilFuncMask','stencilWriteMask','stencilFail','stencilZFail','stencilZPass'].map(key=>[key,material[key]]));
+test('all eight authored stencil comparisons and operations map exactly, including zero write mask',()=>{
+ const comparisons={Never:THREE.NeverStencilFunc,Always:THREE.AlwaysStencilFunc,Equal:THREE.EqualStencilFunc,NotEqual:THREE.NotEqualStencilFunc,Less:THREE.LessStencilFunc,LessOrEqual:THREE.LessEqualStencilFunc,Greater:THREE.GreaterStencilFunc,GreaterOrEqual:THREE.GreaterEqualStencilFunc};
+ const operations={Keep:THREE.KeepStencilOp,Zero:THREE.ZeroStencilOp,Replace:THREE.ReplaceStencilOp,Increment:THREE.IncrementStencilOp,Decrement:THREE.DecrementStencilOp,Invert:THREE.InvertStencilOp,IncrementWrap:THREE.IncrementWrapStencilOp,DecrementWrap:THREE.DecrementWrapStencilOp};
+ for(const [index,[comparison,expected]]of Object.entries(comparisons).entries()){
+  const [operation,op]=Object.entries(operations)[index],data=folderData();
+  for(const material of data.models[0].materials){material.MaterialParams.StencilTest={Enabled:true,Function:comparison,Reference:3,Mask:5,BufferMask:0};material.MaterialParams.StencilOperation={FailOp:operation,ZFailOp:operation,ZPassOp:operation};}
+  const model=createFirmwareModel({data,images:new Map()});
+  model.group.traverse(node=>{if(node.isMesh)assert.deepEqual(stencilProperties(node.material),{stencilWrite:true,stencilFunc:expected,stencilRef:3,stencilFuncMask:5,stencilWriteMask:0,stencilFail:op,stencilZFail:op,stencilZPass:op});});model.dispose();
+ }
+});
+
+test('per-instance stencil overrides cover all primary materials, survive animation and preserve asset and blend state',()=>{
+ const data=folderData(),before=JSON.stringify(data),asset={data,images:new Map()},runtimeStencil=Object.freeze({enabled:true,function:'Equal',reference:1,compareMask:1,writeMask:255,fail:'Keep',depthFail:'Keep',depthPass:'Keep'});
+ const primary=createFirmwareModel(asset,{}, {runtimeStencil,overlayCoverage:true}),original=createFirmwareModel(asset);
+ for(const sample of [0,75,225]){
+  primary.setPlayback({skeletal:[{name:'BannerFolder',frame:sample}],material:[{name:'BannerFolder',frame:sample}]});primary.update(0);
+  primary.group.traverse(node=>{if(node.isMesh)assert.deepEqual(stencilProperties(node.material),{stencilWrite:true,stencilFunc:THREE.EqualStencilFunc,stencilRef:1,stencilFuncMask:1,stencilWriteMask:255,stencilFail:THREE.KeepStencilOp,stencilZFail:THREE.KeepStencilOp,stencilZPass:THREE.KeepStencilOp});});
+ }
+ original.group.traverse(node=>{if(node.isMesh)assert.equal(node.material.stencilWrite,false);});
+ assert.equal(JSON.stringify(data),before);
+ const textIndex=data.models[0].materials.findIndex(m=>m.Name==='mt_Text'),textMeshIndex=data.models[0].meshes.findIndex(m=>m.material===textIndex),material=primary.group.children[0].children[textMeshIndex].material;
+ assert.equal(material.blendSrc,THREE.SrcAlphaFactor);assert.equal(material.blendSrcAlpha,THREE.OneFactor);
+ assert.equal(material.depthFunc,THREE.LessDepth);primary.dispose();original.dispose();
+});
+
+test('missing source stencil stays disabled and a write-mask-only override does not enable it',()=>{
+ const data=folderData();for(const m of data.models[0].materials){delete m.MaterialParams.StencilTest;delete m.MaterialParams.StencilOperation;}
+ const model=createFirmwareModel({data,images:new Map()},{},{runtimeStencil:{writeMask:0}});
+ model.group.traverse(node=>{if(node.isMesh){assert.equal(node.material.stencilWrite,false);assert.equal(node.material.stencilWriteMask,0);}});model.dispose();
+});
+
+test('invalid authored and override stencil enums throw, even when overridden or disabled',()=>{
+ for(const invalid of ['Bogus','constructor'])for(const field of ['Function','FailOp','ZFailOp','ZPassOp']){
+  const data=folderData(),p=data.models[0].materials[0].MaterialParams;
+  if(field==='Function')p.StencilTest.Function=invalid;else p.StencilOperation[field]=invalid;
+  assert.throws(()=>createFirmwareModel({data,images:new Map()},{},{runtimeStencil:{enabled:false,function:'Equal',fail:'Keep',depthFail:'Keep',depthPass:'Keep'}}),/Unsupported native stencil/);
+ }
+ for(const field of ['function','fail','depthFail','depthPass'])assert.throws(()=>createFirmwareModel({data:folderData(),images:new Map()},{},{runtimeStencil:{[field]:'Bogus'}}),/Unsupported native stencil/);
+});
+
+test('native draw groups survive every internal Group and Three transparent sorting regardless of insertion',()=>{
+ const models=[2,0,1].map(drawGroup=>{
+  const data=folderData();data.models.push(structuredClone(data.models[0]));
+  // Force priorities opposite to the native outer group order.
+  for(const source of data.models)for(const mesh of source.meshes){mesh.layer=2-drawGroup;mesh.priority=99;}
+  return createFirmwareModel({data,images:new Map()},{},{drawGroup});
+ });
+ const scene=new THREE.Scene();scene.add(...models.map(m=>m.group));
+ const lists=new WebGLRenderLists(),list=lists.get(scene,0),camera=new THREE.PerspectiveCamera();list.init();
+ // WebGLRenderer.projectObject replaces inherited groupOrder at each Group.
+ function project(object,groupOrder=0){
+  if(object.isGroup)groupOrder=object.renderOrder;
+  if(object.isMesh)list.push(object,object.geometry,object.material,groupOrder,0,null,camera);
+  for(const child of object.children)project(child,groupOrder);
+ }
+ project(scene);list.sort();
+ assert.deepEqual([...new Set(list.transparent.map(item=>item.groupOrder))],[0,1,2]);
+ for(const model of models){model.group.traverse(node=>{if(node.isGroup)assert.equal(node.renderOrder,model.group.renderOrder);});model.dispose();}lists.dispose();
 });

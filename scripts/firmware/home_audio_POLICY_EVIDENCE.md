@@ -9,6 +9,10 @@ The subsequent [ordinary HOME-return trace](home_audio_HOME_RETURN_EVIDENCE.md)
 resolves a bounded state10 return with the power marker clear, including its
 temporary-start cancellation and delayed no-intro queue ordering.
 
+The [application-launch trace](home_audio_LAUNCH_STOP_EVIDENCE.md) checks the
+successful preparation's stop30, actual fade completion and handle detach,
+and the conditional audio-driver handoff. It distinguishes these from event5.
+
 Source: owner-supplied EUR HOME `0004003000009802`, version 24576, code SHA-256
 `243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
 Private fixtures and source excerpts are on SSD under

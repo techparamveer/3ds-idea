@@ -13,7 +13,7 @@ export type HomeTileTouch = Readonly<{
   globalCapture: boolean;
 }>;
 export type HomeTileTouchEvent = Readonly<{ slot: number } & (
-  { kind: 'cue'; cue: 'touch' } | { kind: 'callback'; value: 0 | 1 | 2 }
+  { kind: 'cue'; cue: 'touch' } | { kind: 'callback'; value: 0 | 1 | 2 | 3 | 4 }
 )>;
 const neutral = Object.freeze({ x: -1, y: -1, down: false });
 export function createHomeTileTouch(): HomeTileTouch {

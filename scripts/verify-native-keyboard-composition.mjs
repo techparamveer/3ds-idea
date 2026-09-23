@@ -14,7 +14,7 @@ const pixels=c=>c.getContext('2d').getImageData(0,0,320,240).data;
 const difference=(a,b)=>{let count=0;for(let i=0;i<a.length;i+=4)if(a.subarray(i,i+4).some((v,j)=>v!==b[i+j]))count++;return count;};
 
 export async function verifyNativeKeyboardComposition(options){
- for(const name of ['artifactDir','referenceRoot','fontManifest','canvasModule'])assert.ok(isAbsolute(options[name]??''),`Supply absolute ${name}`);
+ for(const name of ['artifactDir','referenceRoot','fontManifest','canvasModule','fieldEvidence'])assert.ok(isAbsolute(options[name]??''),`Supply absolute ${name}`);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const packDir=join(out,'pack'),prepared=spawnSync('python3',[join(repo,'scripts/prepare-native-keyboard-composition.py'),'--reference-root',options.referenceRoot,'--artifact-dir',packDir],{encoding:'utf8'});assert.equal(prepared.status,0,prepared.stderr);
  const pack=json(join(packDir,'pack.json')),caller=json(join(packDir,'caller.json')),fontData=json(options.fontManifest),before=JSON.stringify(pack);
@@ -26,14 +26,30 @@ export async function verifyNativeKeyboardComposition(options){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');sourceHashes[name]=sha(source);
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,p)=>`from '${p}.mjs'`));
  }
- const [{createCanvas,loadImage},{BitmapFont},{NativeLayoutRenderer},{decodeNativePng},{nativeTextureSamplePixels},{nativeNicknameComposition:compose,drawNativeNicknameComposition:draw}]=await Promise.all([
+ const [{createCanvas,loadImage},{BitmapFont},{NativeLayoutRenderer},{decodeNativePng},{nativeTextureSamplePixels,evaluateNativeMaterial},{nativeNicknameComposition:compose,drawNativeNicknameComposition:draw}]=await Promise.all([
   import(pathToFileURL(options.canvasModule).href),...['bitmap-font','native-renderer','native-png','native-layout','native-keyboard-composition'].map(n=>import(pathToFileURL(join(compiled,n+'.mjs')).href)),
  ]);
+ const fieldEvidence=json(options.fieldEvidence);
+ assert.equal(fieldEvidence.passed,true);assert.equal(fieldEvidence.fixtureSha256,sha(readFileSync(join(repo,'scripts/verify-native-keyboard-composition-fields.py'))));
+ assert.equal(fieldEvidence.fontManifestSha256,sha(readFileSync(options.fontManifest)));
+ for(const [name,hash] of Object.entries(fieldEvidence.sourceHashes))assert.equal(sha(readFileSync(join(options.referenceRoot,name))),hash,'Field evidence source '+name);
+ for(const [name,hash] of Object.entries(fieldEvidence.dependencies))assert.equal(sha(readFileSync(join(options.referenceRoot,'settings-nickname/lower-first-paint',name))),hash,'Field evidence dependency '+name);
+ assert.equal(fieldEvidence.codeSha256,fieldEvidence.sourceHashes['extracted/exefs/code.bin']);
+ const fontMetrics={width:fontData.width,height:fontData.height,glyphs:fontData.glyphs};
+ for(const nativeCase of fieldEvidence.selectorCases){
+  const probe=structuredClone(pack);
+  for(const p of flat(probe.layouts.KeytopModeSelect.roots).filter(p=>p.text)){
+   if(nativeCase.widthProbe!==null)p.size[0]=nativeCase.widthProbe;
+   if(nativeCase.metricProbe){p.text.size=[11.25,12.5];p.text.lineSpacing=-3.25;p.text.characterSpacing=2.75;}
+  }
+  const state=compose(probe,'Ada','capture',caller,fontMetrics);
+  for(const row of nativeCase.panes){const t=pane(state.pack.layouts.KeytopModeSelect,row.name).text;same({fontSize:t.size,lineSpacing:t.lineSpacing,characterSpacing:t.characterSpacing},{fontSize:row.fontSize,lineSpacing:row.lineSpacing,characterSpacing:row.characterSpacing},'Original selector metric/fit writes '+row.name);}
+ }
  const compositions=[];
  const nativeSubmission=s=>({layout:s.pane.split(':')[0].replace('.bclyt',''),pane:s.pane.split(':')[1],clip:s.clip.replace('.bclan',''),frame:s.frame});
  const lowerSubmission=s=>!s.pane.startsWith('ApltFade_');
  for(const nativeCase of contract.cases)for(const phase of ['capture','settled']){
-  const composition=compose(pack,nativeCase.input,phase,caller,{width:fontData.width,height:fontData.height}),id=`${nativeCase.input||'empty'}-${phase}`;
+  const composition=compose(pack,nativeCase.input,phase,caller,fontMetrics),id=`${nativeCase.input||'empty'}-${phase}`;
   same(composition.drawOrder,contract.drawOrder.map(n=>n.replace('.bclyt','')),'Painter order');
   same(composition.submissions.initial,nativeCase.initialImmediateSubmissions.map(nativeSubmission),'Immediate submission order');
   same(composition.submissions.capture,nativeCase.captureSubmissions.filter(lowerSubmission).map(nativeSubmission),'Capture submission order');
@@ -78,11 +94,33 @@ export async function verifyNativeKeyboardComposition(options){
  try{
   globalThis.document={createElement:()=>createCanvas(1,1)};
   font=new BitmapFont(fontData,await Promise.all(fontData.sheets.map(name=>loadImage(join(dirname(options.fontManifest),name)))));
-  const requiredText=Object.values(pack.messages.english.labels).length&&'1234567890-qwertyuiopasdfghjkl\'=/zxcvbnm,.?!@EnglishABCËαЯSymbolMobileCancelOK';
+  const requiredText='1234567890-qwertyuiopasdfghjkl\'=/zxcvbnm,.?!@EnglishABCËαЯSymbolMobileCancelOK';
   for(const c of requiredText)assert.ok(fontData.glyphs[String(c.charCodeAt(0))],`Required font glyph ${c}`);
   const textures=new Map();
   for(const [name,record] of Object.entries(pack.textures))textures.set(name,nativeTextureSamplePixels(await decodeNativePng(readFileSync(join(packDir,record.url)),record),record.picaFormat));
   renderer=new NativeLayoutRenderer(Object.fromEntries(compositions.map(c=>[c.id,c.composition.pack])),Object.fromEntries(compositions.map(c=>[c.id,new Map(textures)])),new Map([['cbf_std.bcfnt',font]]));
+  const overlayLayout=pack.layouts.TextArea_02,overlayPane=pane(overlayLayout,'T_trans'),materialIndex=overlayPane.text.material;
+  const appliedMaterial=compositions[0].composition.pack.layouts.TextArea_02.materials[materialIndex];
+  same(appliedMaterial.constantColors[0],fieldEvidence.materialMapping.value,'Original English constant-color write');
+  same(evaluateNativeMaterial(appliedMaterial,[],[1,1,1,1]),[0,0,0,0],'Cleared constant makes covered text transparent');
+  const probePacks={};
+  for(const [id,value,cleared] of [['sourceSpace',' ',false],['clearedSpace',' ',true],['sourceGlyph','A',false],['clearedGlyph','A',true]]){
+   const layout=structuredClone(overlayLayout);layout.roots=[structuredClone(overlayPane)];layout.roots[0].text.value=value;
+   if(cleared)layout.materials[materialIndex].constantColors[0]=[0,0,0,0];
+   probePacks[id]={...pack,layouts:{Overlay:layout}};
+  }
+  const probeRenderer=new NativeLayoutRenderer(probePacks,Object.fromEntries(Object.keys(probePacks).map(id=>[id,new Map(textures)])),new Map([['cbf_std.bcfnt',font]]));
+  const overlayProbe={spaceGlyphWidth:fontData.glyphs['32'].width,pixels:{}};
+  try{
+   for(const id of Object.keys(probePacks)){
+    const canvas=createCanvas(320,240);probeRenderer.draw(canvas.getContext('2d'),id,'Overlay');
+    const rgba=pixels(canvas);overlayProbe.pixels[id]=Array.from(rgba).filter((v,i)=>i%4===3&&v>0).length;
+    writeFileSync(join(out,'overlay-'+id+'.png'),canvas.toBuffer('image/png'));
+   }
+   assert.equal(overlayProbe.pixels.sourceSpace,0);assert.equal(overlayProbe.pixels.clearedSpace,0);
+   assert.ok(overlayProbe.pixels.sourceGlyph>0);assert.equal(overlayProbe.pixels.clearedGlyph,0);
+   assert.deepEqual(probeRenderer.diagnostics,[]);
+  }finally{probeRenderer.dispose();}
   const snapshots=new Map(),results=[];
   function paint(c,variant){
    const canvas=createCanvas(320,240),ctx=canvas.getContext('2d');
@@ -104,11 +142,11 @@ export async function verifyNativeKeyboardComposition(options){
   // identical pixels; do not require an invented visual change between phases.
   for(const input of ['Ada','ABCDEFGHIJ'])assert.deepEqual(snapshots.get(input+'-capture'),snapshots.get(input+'-settled'));
   assert.deepEqual(renderer.diagnostics,[]);assert.equal(JSON.stringify(pack),before,'Shared source pack immutable');
-  const report={schema:1,passed:true,scope:'Lower nickname captured texture contents and first live settled CPU component. No Fade_D/caller underlay, native LCD, browser or input acceptance.',sourceHashes,nativeHashes,provenance:json(join(packDir,'provenance.json')),fontSourceSha256:fontData.sourceSha256,emptyCaptureSettledPixelDifference:emptyDifference,results,gaps:compositions[0].composition.gaps};
+  const report={schema:1,passed:true,scope:'Lower nickname captured texture contents and first live settled CPU component. No Fade_D/caller underlay, native LCD, browser or input acceptance.',sourceHashes,nativeHashes,provenance:json(join(packDir,'provenance.json')),fontSourceSha256:fontData.sourceSha256,fieldEvidenceSha256:sha(readFileSync(options.fieldEvidence)),overlayProbe,emptyCaptureSettledPixelDifference:emptyDifference,results,gaps:compositions[0].composition.gaps};
   writeFileSync(join(out,'verification.json'),JSON.stringify(report,null,2)+'\n');return report;
  }finally{renderer?.dispose();font?.dispose();if(oldDocument)Object.defineProperty(globalThis,'document',oldDocument);else delete globalThis.document;}
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const {values}=parseArgs({options:Object.fromEntries(['artifact-dir','reference-root','font-manifest','canvas-module'].map(name=>[name,{type:'string'}]))});
+ const {values}=parseArgs({options:Object.fromEntries(['artifact-dir','reference-root','font-manifest','canvas-module','field-evidence'].map(name=>[name,{type:'string'}]))});
  const report=await verifyNativeKeyboardComposition(Object.fromEntries(Object.entries(values).map(([key,value])=>[key.replace(/-([a-z])/g,(_,c)=>c.toUpperCase()),value])));console.log(JSON.stringify({passed:report.passed,results:report.results,gaps:report.gaps},null,2));
 }

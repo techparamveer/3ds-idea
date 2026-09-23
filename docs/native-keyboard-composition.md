@@ -17,7 +17,9 @@ drawNativeNicknameComposition(ctx, renderer, alias, state);
 ```
 
 Use `phase: 'settled'` for the first resumed live draw. The font argument is
-`{width, height}` from the bound shared font. `callerButtons` contains plain
+`{width, height, glyphs}` from the bound shared font; `glyphs` maps UTF-16 code
+units to records containing `advance`. These advances drive selector auto-fit.
+`callerButtons` contains plain
 `{cancel, confirm}` strings from the normalized caller request; no Settings
 message style transfers with those strings. The pack contains the twelve
 required layouts, seven clips, English messages/style table and texture records.
@@ -72,12 +74,26 @@ the existing text helper and renderer attachment API.
 
 ## Reproduction and checks
 
+First replay the component-local fields with the research Python environment
+containing Unicorn:
+
+```sh
+"$RESEARCH_PYTHON" -B scripts/verify-native-keyboard-composition-fields.py \
+  --reference-root "$NATIVE_KEYBOARD_REFERENCE_ROOT" \
+  --artifact-dir "$NATIVE_KEYBOARD_COMPOSITION_FIELDS_DIR" \
+  --font-manifest "$NATIVE_KEYBOARD_FONT_MANIFEST"
+```
+
+Set `NATIVE_KEYBOARD_COMPOSITION_FIELD_EVIDENCE` to the resulting absolute
+`verification.json` path, then run:
+
 ```sh
 node scripts/verify-native-keyboard-composition.mjs \
   --artifact-dir "$NATIVE_KEYBOARD_COMPOSITION_ARTIFACT_DIR" \
   --reference-root "$NATIVE_KEYBOARD_REFERENCE_ROOT" \
   --font-manifest "$NATIVE_KEYBOARD_FONT_MANIFEST" \
-  --canvas-module "$NATIVE_CANVAS_MODULE"
+  --canvas-module "$NATIVE_CANVAS_MODULE" \
+  --field-evidence "$NATIVE_KEYBOARD_COMPOSITION_FIELD_EVIDENCE"
 ```
 
 All paths must be absolute. The reference root is private
@@ -110,22 +126,60 @@ OK appears disabled. No renderer diagnostics were emitted.
 Artifacts live under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/keyboard-composition/`.
 `verification.json` records hashes, ordered calls, per-case cursor contributions,
-pixel identities and gaps. The matching test consumes the four corresponding
+pixel identities and gaps. The matching test consumes the five corresponding
 environment variables, writes a `test/` subdirectory and skips the private
 resource check when they are absent. Always-on tests cover attachment wiring,
 root order, checkpoint validation and failed child draws.
-The combined composition/QWERTY/text/renderer selection passed all 23 tests
-with no skips; TypeScript and diff checks passed.
+The component field report also binds the original code, message/style resources,
+selector/text layouts, shared font manifest and immutable fixture dependencies
+by SHA-256. The renderer runner checks these hashes before comparing the replay.
+The focused composition/QWERTY/text/renderer checks passed all 26 tests with no
+skips, including the text renderer rerun with its required title pack. TypeScript
+and diff checks passed.
+
+## Selector style and auto-fit fields
+
+The selector initializer calls named wrapper `0x155e38` for `char_type_00..03`
+with auto-fit enabled (`0x19326c`, `0x193288`, `0x1932a4`, `0x1932c0`). The new
+field fixture executes that caller, named style setter, complete `0x12b278`
+auto-fit helper and native string measurement using actual font advances.
+Label/TSY1 lookup, resource construction, allocation and font metric queries
+remain explicit endpoints. Styles 225–228 produce font size
+`[15.000000953674316, 18]`, line spacing 0 and character spacing 0, matching the
+authored values. Distinct incoming metric sentinels prove all four fields are
+assigned; retaining authored values alone would fail those probes.
+
+Measured widths for ABC, ËαЯ, Symbol and Mobile are respectively
+`31.200000762939453`, `29.400001525878906`, `54.000003814697266` and
+`48.60000228881836`. All fit their original panes. The native helper shrinks
+only X when measured width reaches pane width: it subtracts one percentage
+point from the available ratio, truncates, and clamps to an 80% floor, with
+float32 rounding at the original operations. Width probes 12, 30 and 52 verify
+the shrinking branch, including `[14.250000953674316, 18]` for ABC at width 30.
+These probes are diagnostics, not additional native keyboard modes. All five
+cases compare the implementation's final metrics to original CPU writes.
+
+## Blank overlay material field
+
+The complete original text initializer identifies the English write at
+`0x1873f8`, reading zero from `0x1b8464`. Executing the original material color
+constructor (`0x141130..0x141188`) maps seven source RGBA registers beginning at
+source +0x14 to runtime +0x10. Therefore the runtime +0x14 write clears the first
+constant RGBA, represented by `constantColors[0]`, to `[0, 0, 0, 0]`.
+Bounded replay of the actual caller write against both original and distinct
+sentinel registers confirms that only those four bytes change.
+
+The authored constant is `[50, 50, 50, 255]`. The real space glyph has zero
+width, so the normal blank overlay is pixel-empty before and after the write.
+A separate real-font A probe produces 65 covered pixels with the authored
+material and zero after clearing the register. This verifies its renderer
+effect without relying on a blank glyph. All six normal component image hashes
+remain unchanged. The field evidence lives under the adjacent
+`presentation/keyboard-composition-fields/` directory; overlay probe PNGs are
+in the component output directory.
 
 ## Explicit gaps
 
-The selector initializer calls named wrapper `0x155e38` for `char_type_00..03`
-with auto-fit enabled (`0x19326c`, `0x193288`, `0x1932a4`, `0x1932c0`). The global
-fixture stops at its named-message boundary. Resulting style/auto-fit writes
-have not been replayed here; this component retains authored selector metrics
-and reports the gap. This is distinct from the resolved QWERTY conversion style.
-
-The blank `T_trans` material write at +0x14 remains unresolved. Original native
-world/anchor evaluation, clipping/material/glyph pixels, matched LCD captures,
+Original native world/anchor evaluation, clipping/material/glyph pixels, matched LCD captures,
 browser comparison and transition caller-image content remain unverified.
 These complete component specimens do not establish native LCD or 1:1 acceptance.

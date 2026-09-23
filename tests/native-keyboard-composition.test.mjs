@@ -10,7 +10,17 @@ for(const name of ['native-layout','native-keyboard-text','native-keyboard-keys'
  const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"]\.\/([^'"]+)['"]/g,(_,dependency)=>`from '${urls[dependency]}'`);
  urls[name]='data:text/javascript;base64,'+Buffer.from(code).toString('base64');
 }
-const {nativeNicknameComposition:compose,drawNativeNicknameComposition:draw}=await import(urls['native-keyboard-composition']);
+const {nativeNicknameComposition:compose,drawNativeNicknameComposition:draw,nativeNicknameSelectorMetrics:metrics}=await import(urls['native-keyboard-composition']);
+test('selector metrics preserve native float32 measurement and shrink width with the original 80 percent floor',()=>{
+ const style={fontScale:[Math.fround(.6),Math.fround(.6)],lineSpacing:0,characterSpacing:0},font={width:25,height:30,glyphs:{65:{advance:17},66:{advance:17},67:{advance:18}}};
+ const before=structuredClone({style,font});
+ assert.deepEqual(metrics('ABC',74,style,font),{fontSize:[15.000000953674316,18],lineSpacing:0,characterSpacing:0,measuredWidth:31.200000762939453});
+ assert.deepEqual(metrics('ABC',12,style,font).fontSize,[12,18]);
+ assert.deepEqual(metrics('ABC',30,style,font).fontSize,[14.250000953674316,18]);
+ assert.deepEqual({style,font},before);
+ assert.throws(()=>metrics('D',74,style,font),/glyph/);
+ assert.throws(()=>metrics('ABC',74,{...style,characterSpacing:1},font),/Unverified/);
+});
 test('nickname painter connects both inline parents and preserves root order and per-instance overrides',()=>{
  const selection={RootPane:{visible:false}},cursor={};
  const composition={drawOrder:['BG','TextArea_02','KeytopModeSelect','LncArw_00','WaitIcon'],attachments:[
@@ -29,7 +39,7 @@ test('invalid checkpoint and failed child submission fail explicitly',()=>{
  const renderer={draw(ctx,alias,name,options){if(name==='TextArea_02'){options.attachments.N_transDecor(1);return true;}return false;}};
  assert.throws(()=>draw({},renderer,'case',composition),/DecorCursor/);
 });
-const options={artifactDir:process.env.NATIVE_KEYBOARD_COMPOSITION_ARTIFACT_DIR,referenceRoot:process.env.NATIVE_KEYBOARD_REFERENCE_ROOT,fontManifest:process.env.NATIVE_KEYBOARD_FONT_MANIFEST,canvasModule:process.env.NATIVE_CANVAS_MODULE};
+const options={fieldEvidence:process.env.NATIVE_KEYBOARD_COMPOSITION_FIELD_EVIDENCE,artifactDir:process.env.NATIVE_KEYBOARD_COMPOSITION_ARTIFACT_DIR,referenceRoot:process.env.NATIVE_KEYBOARD_REFERENCE_ROOT,fontManifest:process.env.NATIVE_KEYBOARD_FONT_MANIFEST,canvasModule:process.env.NATIVE_CANVAS_MODULE};
 test('complete real-resource capture and settled components match ordered native journals and preserve cache isolation',{skip:!Object.values(options).every(Boolean)},async()=>{
  const report=await verifyNativeKeyboardComposition({...options,artifactDir:join(options.artifactDir,'test')});
  assert.equal(report.passed,true);assert.equal(report.results.length,6);

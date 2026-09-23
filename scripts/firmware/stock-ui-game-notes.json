@@ -94,13 +94,38 @@
         "packs/game-notes/messages-and-loose.json": {
           "messages": {
             "message": [
-              "lau_title_memo",
               "0100Exitbtn",
+              "0200DescriptionAllClear",
+              "0200DescriptionPhotoSave",
+              "0201Dlog_Ngbtn",
               "1000Help_WelcomeP1",
               "9900Help_Donebtn",
-              "9900NoBreakGameMesList"
+              "9900NoBreakGameMes",
+              "9900NoBreakGameMesList",
+              "lau_title_memo"
             ]
           }
+        },
+        "packs/game-notes/memo-ImageScreenUp-arc-l.json": {
+          "layouts": [
+            "ImageScreenUp"
+          ],
+          "animations": [
+            "ImageScreenUp_HudDoubleInOut",
+            "ImageScreenUp_HudDownInOut",
+            "ImageScreenUp_HudUpInOut",
+            "ImageScreenUp_PanelGameIn",
+            "ImageScreenUp_PanelGameOut",
+            "ImageScreenUp_PanelNoGameIn",
+            "ImageScreenUp_PanelNoGameOut",
+            "ImageScreenUp_SceneIn",
+            "ImageScreenUp_SceneOut",
+            "ImageScreenUp_SwitchDouble",
+            "ImageScreenUp_SwitchDown",
+            "ImageScreenUp_SwitchUp",
+            "ImageScreenUp_TextPanelInOut",
+            "ImageScreenUp_TextPanelStay"
+          ]
         }
       }
     }

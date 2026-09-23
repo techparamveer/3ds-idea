@@ -5,6 +5,7 @@ import { createNativeTitleSession } from './native-title-session';
 import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-settings';
 import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
 import { drawNativeCameraLower, cameraScreenPacks } from './stock-native-camera';
+import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
 import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -69,6 +70,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
   const {font}=options,accent=accents[view.appId]??'#809d8c',data=view.data??{};
   if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view))return;
   if(options.native&&drawNativeSoundFrame(options.native,top,bottom,view,options))return;
+  if(options.native&&drawNativeHealthFrame(options.native,top,bottom,view,options))return;
   chrome(top,400,view.heading,accent,font);chrome(bottom,320,view.heading,accent,font);
   if(camera(view.appId)){
     const folders=records(data.folders),photos=records(data.photos),selected=view.rows[view.selection];
@@ -154,13 +156,18 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     if(!im.complete||!im.naturalWidth)return false;
     const scale=Math.min(w/im.naturalWidth,h/im.naturalHeight);ctx.drawImage(im,x+(w-im.naturalWidth*scale)/2,y+(h-im.naturalHeight*scale)/2,im.naturalWidth*scale,im.naturalHeight*scale);return true;
   }
+  function sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;session.update(null);releaseImages();painted='';}}
+  function prepare(view:AppView,nextOwner:string,font?:BitmapFont){
+    if(disposed)return session.getState();
+    sync(nextOwner);
+    const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:null);
+    return session.update(nativeView?{owner:nextOwner,...nativeView,sharedFonts:new Map([['cbf_std.bcfnt',font!]])}:null);
+  }
   return {
-    sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;session.update(null);releaseImages();painted='';}},
+    sync,prepare,
     draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont){
       if(disposed)return;
-      if(owner!==nextOwner){owner=nextOwner;session.update(null);releaseImages();painted='';}
-      const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:null);
-      const state=session.update(nativeView?{owner:nextOwner,...nativeView,sharedFonts:new Map([['cbf_std.bcfnt',font!]])}:null);
+      const state=prepare(view,nextOwner,font);
       const key=JSON.stringify([nextOwner,view,revision]);
       if(painted!==key||paintedFont!==font){
         upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);

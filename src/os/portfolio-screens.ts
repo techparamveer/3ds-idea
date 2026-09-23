@@ -22,7 +22,10 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
 }
 export function createPortfolioGraphics(){
  const stockScreens=createStockScreenPresentation();
- function syncStockView(state:MenuState){const s=state.system;stockScreens.sync(s?.phase==='app'&&!s.sleeping&&!s.preferences&&!s.dialog?s.runtime.active:null);}
+ function syncStockView(state:MenuState,context?:C){
+  const s=state.system,owner=s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog?s.runtime.active:null;
+  stockScreens.sync(owner);if(owner&&context){const view=getActiveAppView(state);if(view)stockScreens.prepare(view,owner,nativeFonts.get(context));}
+ }
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  const urls=new Set(apps.flatMap(a=>[...(a.icon.startsWith('/')?[a.icon]:[]),...a.entries.flatMap(e=>e.images??[])]));

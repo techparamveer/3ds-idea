@@ -8,6 +8,8 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
   if(appId==='system-settings'&&screen==='main'){
     const locations:Record<string,number[]>={nnid:[4,0,312,33],internet:[16,38,140,78],parental:[164,38,140,78],data:[16,123,140,78],other:[164,123,140,78]};
     rows.forEach((row,index)=>{const rect=locations[row.id];if(rect)result.push(target(row.id,rect[0],rect[1],rect[2],rect[3],index));});
+  }else if(appId==='health-safety'&&screen==='main'){
+    rows.slice(0,3).forEach((row,index)=>result.push(target(row.id,36,21+index*64,248,48,index)));
   }else if((appId==='camera'||appId==='camera-applet')&&(screen==='main'||screen==='gallery')){
     const start=Math.floor(selection/6)*6;
     rows.slice(start,start+6).forEach((row,i)=>result.push(target(row.id,12+(i%3)*102,38+Math.floor(i/3)*80,92,72,start+i)));

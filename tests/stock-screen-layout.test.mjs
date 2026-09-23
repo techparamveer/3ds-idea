@@ -15,6 +15,11 @@ test('gallery paging uses six visible cells and leaves gaps without accidental a
  assert.deepEqual(targets(v).filter(r=>r.row!==undefined).map(r=>r.action),['photo:6','photo:7','photo:8']);
  assert.equal(hit(v,50,70),'photo:6');assert.equal(hit(v,108,70),null);assert.equal(hit(v,50,170),null);
 });
+test('Health touch regions follow the three native precaution buttons and their gaps',()=>{
+ const v=view('health-safety','main',['3d','general','usage']);
+ assert.equal(hit(v,160,45),'3d');assert.equal(hit(v,160,109),'general');assert.equal(hit(v,160,173),'usage');
+ assert.equal(hit(v,160,77),null);assert.equal(hit(v,35,109),null);assert.equal(hit(v,284,109),null);
+});
 test('music controls and seek surface are separate, bounded, finite targets',()=>{
  const v=view('sound','playback',[]);
  assert.equal(hit(v,160,150),'play');assert.equal(hit(v,60,195),'repeat');assert.equal(hit(v,250,195),'shuffle');

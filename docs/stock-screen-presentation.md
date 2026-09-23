@@ -25,7 +25,10 @@ presentation adapter, not a general native binding claim.
 Missing/failed native assets retain a per-app fallback. Native
 assets belong to an application instance through `createNativeTitleSession`;
 owner changes, suspension and disposal release them. Completed screens are
-cached until view/font/image/native readiness changes.
+cached until view/font/image/native readiness changes. `prepare(view,owner,font)`
+starts resource acquisition without drawing. `syncStockView(state,context)`
+primes during launch and app phases, and cancels on HOME, off or suspension;
+the scene passes its font-bearing upper context before painting the launch.
 
 `scripts/verify-stock-screens.mjs` accepts absolute `--artifact-dir`,
 `--asset-root`, `--canvas-module` and `--font-manifest` paths. The first run wrote
@@ -44,6 +47,12 @@ track panels, parakeet, Back button, list cursor and transport art. Track string
 and artwork come from AppView. The transport mounts are repositioned to the
 shared control targets; seek/repeat/shuffle remain authored portfolio controls.
 Source animation frames are settled snapshots, not a claim of native scheduling.
-Health and the remaining titles still need their native screen composition;
+Health consumes the source upper background/title, three precaution buttons,
+reading frame, footer and exact English messages. The menu hit regions match
+the native button bounds. Documents use eight source lines per page with base
+message styles; the shared counts are 12/44/27 pages for 3D/general/usage.
+Verification checks those counts against delivered text. Rich inline message
+runs and native continuous scrolling remain explicit adaptations.
+The remaining titles still need their native screen composition;
 Settings colours, pose and typography need matched native/browser review.
 The integration task owns browser verification and audio transport.

@@ -52,7 +52,7 @@ export function sampleHomeTileTouch(host: HomeTileTouch, hit: (x: number, y: num
     // Native idle/no-edge and Decide waiting do not query hit geometry. All
     // browser widgets share this point, so build its grid hit at most once.
     const needsHit = widget.enabled && (widget.capture || !globalCapture)
-      && (widget.state === 1 || widget.state === 3 && point.down || widget.state === 0 && point.down && !host.previous);
+      && (widget.state === 1 && !widget.longPressFlag || widget.state === 3 && point.down || widget.state === 0 && point.down && !host.previous);
     if (needsHit && hitSlot === undefined) hitSlot = hit(point.x, point.y);
     const result = updateHomeTileWidgetInput(widget,
       { current: point.down, previous: host.previous, inside: hitSlot === slot, globalCapture });
@@ -63,11 +63,11 @@ export function sampleHomeTileTouch(host: HomeTileTouch, hit: (x: number, y: num
   }
   const state: HomeTileTouch = Object.freeze({ ...host, widgets: Object.freeze(widgets),
     previous: point.down, pending: Object.freeze(host.pending.slice(1)), globalCapture });
-  return { state, events: Object.freeze(events), touchActive: point.down, captureActive: globalCapture, unsupportedLongPress };
+  return { state, events: Object.freeze(events), point, touchActive: point.down, captureActive: globalCapture, unsupportedLongPress };
 }
-export function advanceHomeTileTouch2D(host: HomeTileTouch): HomeTileTouch {
+export function advanceHomeTileTouch2D(host: HomeTileTouch, hiddenSlot: number | null = null): HomeTileTouch {
   return Object.freeze({ ...host, widgets: Object.freeze(Object.fromEntries(
-    Object.entries(host.widgets).map(([slot, widget]) => [slot, advanceHomeTileWidget2D(widget)]))) });
+    Object.entries(host.widgets).map(([slot, widget]) => [slot, Number(slot) === hiddenSlot ? widget : advanceHomeTileWidget2D(widget)]))) });
 }
 export function homeTileTouchPoses(host: HomeTileTouch, previous?: Readonly<Record<number, HomeTilePose>>): Readonly<Record<number, HomeTilePose>> {
   const entries = Object.entries(host.widgets).filter(([, widget]) => widget.pose !== null);

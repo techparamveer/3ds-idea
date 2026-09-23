@@ -119,6 +119,89 @@ test('controller reset preserves candidate while explicit browser cancellation r
   }
 });
 
+test('occupied H21 enters pickup before lower2D, freezes original tile and primary Loop, and emits grab once', () => {
+  for (const folder of [false, true]) for (const same of [false, true]) {
+    const target = same ? 0 : 1;
+    let s = home(0, folder);
+    if (folder) s = { ...s, system: { ...s.system, folderLayouts: { 40: { [target]: 'projects' } } } };
+    s = at(touch(s, 'down', target), 1).state;
+    const before = at(s, 21); s = before.state; // Initial P1, then H1..H20.
+    const oldLoop = s.system.homeCursorLoop, oldPose = ctl(s).tilePoses[target], oldSelect = ctl(s).tileTouch.widgets[target].select;
+    assert.equal(ctl(s).tileTouch.widgets[target].heldCount, 20);
+    assert.equal(oldSelect.direction, 'reverse');
+    assert.equal(ctl(s).tilePickup, null);
+    const h21 = at(s, 22); s = h21.state;
+    assert.equal(selected(s), target);
+    assert.equal(nav(s).gesture.mode, 'drag');
+    assert.deepEqual(ctl(s).tileCandidate, { folder: folder ? 40 : null, slot: target });
+    const pickup = ctl(s).tilePickup;
+    assert.deepEqual(pickup.source, ctl(s).tileCandidate);
+    assert.deepEqual(pickup.center, point(s, target));
+    assert.deepEqual(pickup.blankCenter, point(s, target));
+    assert.deepEqual(pickup.scale, { currentFrame: 2, appliedFrame: 2 });
+    assert.deepEqual(pickup.blankScale, { currentFrame: 2, appliedFrame: 2 });
+    assert.equal(pickup.priority, 375);
+    assert.equal(pickup.rootScale, 1);
+    assert.deepEqual(ctl(s).primary, { ...ctl(before.state).primary, request: 2, shown: false, layoutVisible: false });
+    assert.deepEqual(s.system.homeCursorLoop, oldLoop);
+    assert.equal(ctl(s).tileTouch.widgets[target].longPressFlag, true);
+    assert.equal(ctl(s).tileTouch.widgets[target].capture, true);
+    assert.deepEqual(ctl(s).tileTouch.widgets[target].select, oldSelect);
+    assert.deepEqual(ctl(s).tilePoses[target], oldPose);
+    assert.deepEqual(h21.passes[0].sounds, ['grab']);
+    assert.deepEqual(h21.passes[0].observations, []);
+    assert.equal(h21.passes[0].completed, true);
+    const h22 = at(s, 23); s = h22.state;
+    assert.deepEqual(h22.passes[0].sounds, []);
+    assert.deepEqual(s.system.homeCursorLoop, oldLoop);
+    assert.equal(ctl(s).tilePickup, pickup);
+    assert.deepEqual(ctl(s).tileTouch.widgets[target].select, oldSelect);
+  }
+});
+
+test('vacant H21 completes reverse pose and release callback4 does not select or start Decide', () => {
+  for (const folder of [false, true]) {
+    let s = home(folder ? 0 : 40, folder), target = folder ? 1 : 41, initialSelection = selected(s);
+    s = at(touch(s, 'down', target), 22).state;
+    assert.equal(ctl(s).tilePickup, null);
+    assert.equal(ctl(s).tileTouch.widgets[target].longPressFlag, true);
+    assert.deepEqual(ctl(s).tilePoses[target], { clip: 'select', frame: 0 });
+    const loop = s.system.homeCursorLoop.currentFrame;
+    s = at(s, 31).state; // Holding beyond450ms must not create an authored lift.
+    assert.equal(nav(s).gesture.mode, 'press');
+    assert.equal(s.system.homeCursorLoop.currentFrame, (loop + 9) % 60);
+    s = at(touch(s, 'up', target), 32).state;
+    assert.equal(selected(s), initialSelection);
+    assert.equal(ctl(s).tileTouch.widgets[target].longPressFlag, false);
+    assert.equal(ctl(s).tileTouch.widgets[target].decide.appliedFrame, null);
+    assert.equal(ctl(s).tileTouch.globalCapture, true);
+    assert.equal(ctl(at(s, 33).state).tileTouch.globalCapture, true);
+    assert.equal(ctl(at(s, 34).state).tileTouch.globalCapture, false);
+  }
+});
+
+test('release after H20 still accepts normally; pickup exits cancel state without a stale open', () => {
+  let s = at(touch(home(), 'down', 1), 21).state;
+  const accepted = at(touch(s, 'up', 1), 25);
+  assert.equal(selected(accepted.state), 1);
+  assert.equal(ctl(accepted.state).tilePickup, null);
+  assert.deepEqual(accepted.passes.flatMap(p => p.sounds), []);
+  for (const stop of [s => touch(s, 'cancel', 1), s => releaseSystemInputs(s),
+    s => setSystemSleeping(s, true, s.system.homeClock.lastNow),
+    s => reduceSystem(s, 'preferences', s.system.homeClock.lastNow)]) {
+    s = at(touch(home(), 'down', 1), 22).state;
+    const ended = at(stop(s), 40);
+    assert.equal(ctl(ended.state).tilePickup, null);
+    assert.equal(ctl(ended.state).tileCandidate, null);
+    assert.equal(ended.passes.some(p => p.handoff), false);
+  }
+  s = at(touch(home(), 'down', 1), 22).state;
+  const dropped = at(touch(s, 'up', 1), 30);
+  assert.equal(dropped.state.system.phase, 'home');
+  assert.equal(ctl(dropped.state).tilePickup, null);
+  assert.equal(ctl(dropped.state).primary.layoutVisible, true);
+});
+
 test('same vacant root and folder taps do not create or open anything', () => {
   for (const folder of [false, true]) {
     let s = home(folder ? 0 : 40, folder), folders = s.folders;

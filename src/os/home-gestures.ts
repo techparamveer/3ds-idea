@@ -44,11 +44,18 @@ function dragTarget(state: MenuState, gesture: HomeGesture, now: number): HomeGe
   const edge = gesture.y >= (state.opened ? 49 : 34) && gesture.y < 204 ? gesture.x >= 0 && gesture.x < 20 ? -1 : gesture.x >= 300 && gesture.x < 320 ? 1 : 0 : 0;
   return { ...gesture, target, hoverFolder: candidate, hoverSince: candidate === gesture.hoverFolder ? gesture.hoverSince : now, edge, edgeAt: edge === gesture.edge ? gesture.edgeAt : now + HOME_GESTURE_TIMING.edgeDelayMs };
 }
+/** Native callback3 owns the lift threshold. Movement, hover and placement after
+ * this entry remain the existing browser gesture adapter. */
+export function beginHomePickupGesture(state: MenuState, gesture: HomeGesture): MenuState {
+  return setNavigation(state, { ...getHomeNavigation(state),
+    gesture: dragTarget(state, { ...gesture, mode: 'drag' }, gesture.updatedAt) });
+}
 export function tickHomeGesture(state: MenuState, now: number): MenuState {
   let gesture = state.system?.homeNavigation?.gesture;
   if (!gesture || !Number.isFinite(now) || now < gesture.updatedAt) return state;
   if (!eligible(state) || state.panel !== gesture.panel || state.columns !== gesture.columns || homeContainer(state) !== gesture.viewFolder || !currentSource(state, gesture)) return cancelHomeGesture(state);
-  if (gesture.mode === 'press' && gesture.area === 'grid' && gesture.item && now - gesture.startedAt >= HOME_GESTURE_TIMING.liftMs) gesture = dragTarget(state, { ...gesture, mode: 'drag' }, now);
+  if (gesture.mode === 'press' && gesture.area === 'grid' && gesture.item && !state.system?.homeControls?.tileTouch.strokeOwned
+    && now - gesture.startedAt >= HOME_GESTURE_TIMING.liftMs) gesture = dragTarget(state, { ...gesture, mode: 'drag' }, now);
   if (gesture.mode === 'drag') {
     if (gesture.hoverFolder !== null && now - gesture.hoverSince >= HOME_GESTURE_TIMING.folderHoverMs) {
       const folder = gesture.hoverFolder;

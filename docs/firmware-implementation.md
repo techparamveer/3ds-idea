@@ -115,3 +115,35 @@ Logs use `reference/native-keyboard-*` and `reference/native-parent-cache-*`
 under the artifact root. The native keyboard remains unwired: full lower-frame
 ordering/capture, interaction, audio transport and actual native/browser
 comparison are still required. Other stock applications remain scaffolds.
+
+## Keyboard selection and composition contracts
+
+The [plain edit core](native-keyboard-edit.md) matches256 original ARM insert/
+backspace cases. [Cursor and selection presentation](native-keyboard-selection.md)
+matches154 original local updates and paints selection children between the
+cell backgrounds and glyphs. Seven real-resource selection renders exercise
+both directions, moved cursors, equal endpoints and the full ten-unit span.
+This component remains separate from live input and applet lifecycle.
+
+The [QWERTY component](native-keyboard-keys-validation.md) uses original labels,
+retained per-pane animation submissions and the proven named-message style
+boundary. Conversion text alone applies style220; dictionary and individual
+character paths retain their authored metrics. The [global first-paint
+contract](native-keyboard-invocation-contract.md#global-lower-first-paint-continuation)
+now fixes CPU capture/update/draw order and retained frame values for the
+immediately-ready resource scenario. All159 new indexed files were verified
+without mismatch. Complete lower composition is the next presentation task;
+source frame evidence is not native LCD pixel acceptance.
+
+The [wave parameters](firmware-keyboard-audio-parameters.md) establish native
+gain/pan/pitch/loop command preparation. The [return/cancel sequence](firmware-keyboard-sequence-validation.md)
+now has a source-bound interpreter and original parser/envelope/backend replay
+through final release-tail stop; all seven new integration tests pass. A
+browser sequence/envelope port and audible hardware-equivalence checks remain.
+
+The application suite now passes992 tests with15 optional-environment skips.
+A separate focused keyboard/renderer run passes25 tests with no skips, including
+four private keyboard checks skipped by the default run. Type checking and the
+production build pass. Logs are in `reference/keyboard-text-selection/` and
+`reference/keyboard-sequence-integration-tests.log`. No public keyboard pack or
+live stock-app keyboard was introduced. No implementation PR is ready.

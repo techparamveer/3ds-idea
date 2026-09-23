@@ -12,7 +12,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createScreens, loadFirmwarePresentationAssets } from '@/os/screens';
 import { renameFolder, rowCount, type MenuState, type Input } from '@/os/state';
-import { createFirmwareBanner } from './firmware-banner';
+import { createFirmwareBanner, type PrimaryBannerRenderFrame } from './firmware-banner';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
 import { DEFAULT_MODEL_URL, controlBoundsInBase, controlFromObject, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
@@ -430,7 +430,16 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     const idle=window.requestIdleCallback?.bind(window);
     surfaceSchedule=idle?idle(()=>void initializeSurface(),{timeout:3500}):window.setTimeout(()=>void initializeSurface(),3000);
   }
-  if(diagnostics){Object.assign(host,{screenCanvases:{top:screens.top,bottom:screens.bottom},captureScreensAt(elapsedMs:number,isoDate?:string){
+  if(diagnostics){Object.assign(host,{screenCanvases:{top:screens.top,bottom:screens.bottom},captureNativeBanner(kind:'folder'|'default',frame:PrimaryBannerRenderFrame){
+    if(disposed||!['folder','default'].includes(kind)||typeof frame.visible!=='boolean'||(['scale','yawRadians','skeletalFrame','materialFrame','nativeDisplacementY','offsetX','offsetY'] as const).some(key=>!Number.isFinite(frame[key])))throw new Error('Invalid diagnostic banner sample');
+    const canvas=document.createElement('canvas');canvas.width=400;canvas.height=240;const ctx=canvas.getContext('2d')!;
+    try{
+      const view=getHomeBannerHostView(bannerHost),label=view.status==='active'&&view.primary.selection.kind==='folder'?screens.prepareFolderBannerLabel(view.primary.selection.label):undefined;
+      const drawn=kind==='default'?folderBanner.drawDefaultFrame(ctx,frame):folderBanner.drawFrame(ctx,frame,label);
+      if(!drawn)throw new Error('Native diagnostic banner unavailable');
+      return canvas.toDataURL();
+    }finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;canvas.width=canvas.height=0;}
+  },captureScreensAt(elapsedMs:number,isoDate?:string){
     if(disposed||!Number.isFinite(elapsedMs)||elapsedMs<0)throw new Error('Invalid diagnostic capture time');
     const date=isoDate===undefined?new Date():new Date(isoDate);
     if(!Number.isFinite(date.getTime()))throw new Error('Invalid diagnostic capture date');
@@ -439,5 +448,5 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     try{screens.paint(state,date,elapsedMs);return {elapsedMs,date:date.toISOString(),homeUpdates:state.system!.homeClock.updateCount,folderBanner:getHomeBannerHostView(bannerHost),top:screens.top.toDataURL(),bottom:screens.bottom.toDataURL()};}
     finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   }});}
-  return ()=>{if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureScreensAt');}state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
+  return ()=>{if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureScreensAt');Reflect.deleteProperty(host,'captureNativeBanner');}state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
 }

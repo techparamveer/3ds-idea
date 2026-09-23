@@ -159,3 +159,12 @@ must accompany HUD's post3D position rather than remain before the banner.
   and matched native captures. No application, public asset, browser, Azahar,
   runtime or audio edits are included. Documentation-only work needs no app
   rebuild; the ARM fixture passes and JSON/diff validation is the relevant check.
+
+## Bounded live integration
+
+The integration keeps the two existing presenter calls explicit in screens.ts:
+upperBase, then HUD (or its existing fallback), both after primary drawing.
+No generic layout scheduler is required for those two supported layers. Camera
+hints stay within upperBase. This fixes the earlier HUD-before-primary ordering
+without enabling unsupported capture/popup/theme effects or inventing their
+visibility. Existing application overlay painting remains a separate path.

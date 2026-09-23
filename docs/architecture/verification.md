@@ -45,3 +45,11 @@ that build artifacts are product changes.
 Report commands run, pass/fail counts, browser evidence and any unavailable
 tooling separately. Keep unresolved visual defects and firmware dependencies
 explicit even when every automated check passes.
+
+Development-only diagnostics expose captureNativeBanner(kind, frame) for exact
+primary shader/geometry samples at 400x240. It accepts explicit finite sampled
+motion and offsets, renders into a disposable Canvas, restores the current LCD
+paint, and never advances the host/service clock. This complements whole-screen
+captureScreensAt for source-model/clip comparisons. Neither hook is installed
+in production; both are removed on teardown. Forced diagnostic poses are not
+claims that native input has produced those states.

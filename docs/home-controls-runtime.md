@@ -117,6 +117,13 @@ painter tests and typecheck. `live-accepted-toolbar-touch.json` adds an actual
 projected grid touch from toolbar focus, observing the departed focus1 effect
 at applied Scale11, while repeating the keyboard, accessible, circle-pad and
 held D-pad checks. Earlier hit/press eligibility remains a separate gap.
+The same complete controls script also passes at a390×844 viewport; the console
+stays fully framed in `live-native-controls-mobile-console.png`. Blocking the
+exact presentation-manifest URL verifies missing-asset fallback: native controls
+are absent, legacy Right/Left remains usable, and removing the route restores
+native presentation. See `live-controls-fallback-script.json` and the repeatable
+`verify-home-controls-fallback.mjs` script. These checks retain the existing
+fallback's behavior; they do not make its graphics native.
 Fresh Azahar interaction remains unavailable
 while the Mac is locked. Existing captures and bounded original-ARM evidence
 remain available; the complete requested firmware/application acceptance is

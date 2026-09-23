@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPortfolioState, tickSystem, dispatchSystemEvent, reduceSystem, touchSystem,
   tickHomeNavigationClockObserved, releaseSystemInputs, setSystemSleeping } from '../src/os/system.ts';
-import { enableHomeControls } from '../src/os/home-controls.ts';
+import { enableHomeControls, queueHomeControlTouch, cancelHomeControlTouch } from '../src/os/home-controls.ts';
+import { resetHomeTileTouch } from '../src/os/home-tile-touch.ts';
 import { createHomeNavigation, writeHomeNavigation, activeHomeRecord, sampleHomeGrid, enterHomeFolder } from '../src/os/home-navigation.ts';
 import { reduceMenu } from '../src/os/state.ts';
 import { createHomeBannerHost, crossHomeBannerBoundary, skipHomeBannerHostPass } from '../src/os/home-banner-host.ts';
@@ -69,6 +70,53 @@ test('down/up between polls survives as one press and one delayed acceptance', (
   const accepted = result.passes.filter(p => p.observations.some(o => o.observation.kind === 'cursor-select'));
   assert.deepEqual(accepted.map(p => p.updateCount), [5]);
   assert.equal(ctl(result.state).tileTouch.globalCapture, false);
+});
+
+test('occupied press retains its container candidate independently from selection until acceptance', () => {
+  for (const folder of [false, true]) {
+    let s = home(0, folder);
+    if (folder) s = { ...s, system: { ...s.system, folderLayouts: { 40: { 1: 'projects' } } } };
+    s = at(touch(s, 'down', 1), 1).state;
+    assert.deepEqual(ctl(s).tileCandidate, { folder: folder ? 40 : null, slot: 1 });
+    assert.equal(selected(s), 0);
+    s = at(touch(s, 'up', 1), 4).state;
+    assert.equal(ctl(s).tileCandidate.slot, 1, 'Decide completion does not itself accept');
+    s = at(s, 5).state;
+    assert.equal(ctl(s).tileCandidate, null);
+    assert.equal(selected(s), 1);
+  }
+  const vacant = at(touch(home(40), 'down', 40), 1).state;
+  assert.equal(ctl(vacant).tileCandidate, null);
+});
+
+test('leaving clears candidate and reentry does not acquire it again without callback0', () => {
+  let s = at(touch(home(), 'down', 1), 1).state;
+  // Drive the widget hit route directly so browser scroll takeover does not
+  // replace the native callback2/reentry sequence under test.
+  s = queueHomeControlTouch(s, { type: 'touch', phase: 'move', x: -1, y: -1 }).state;
+  s = at(s, 2).state;
+  assert.equal(ctl(s).tileTouch.widgets[1].state, 3);
+  assert.equal(ctl(s).tileCandidate, null);
+  s = queueHomeControlTouch(s, { type: 'touch', phase: 'move', ...point(s, 1) }).state;
+  s = at(s, 3).state;
+  assert.equal(ctl(s).tileTouch.widgets[1].state, 1);
+  assert.equal(ctl(s).tileCandidate, null);
+  s = at(touch(s, 'up', 1), 7).state;
+  assert.equal(selected(s), 1, 'ordinary release still accepts without a pickup candidate');
+});
+
+test('controller reset preserves candidate while explicit browser cancellation releases it', () => {
+  let s = at(touch(home(), 'down', 1), 1).state;
+  const candidate = ctl(s).tileCandidate;
+  s = { ...s, system: { ...s.system, homeControls: { ...ctl(s), tileTouch: resetHomeTileTouch(ctl(s).tileTouch) } } };
+  assert.deepEqual(ctl(s).tileCandidate, candidate);
+  assert.equal(ctl(cancelHomeControlTouch(s)).tileCandidate, null);
+  for (const stop of [s => touch(s, 'cancel', 1), s => releaseSystemInputs(s),
+    s => setSystemSleeping(s, true, s.system.homeClock.lastNow),
+    s => reduceSystem(s, 'preferences', s.system.homeClock.lastNow)]) {
+    const held = at(touch(home(), 'down', 1), 1).state;
+    assert.equal(ctl(stop(held)).tileCandidate, null);
+  }
 });
 
 test('same vacant root and folder taps do not create or open anything', () => {

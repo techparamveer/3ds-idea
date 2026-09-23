@@ -16,7 +16,7 @@ import type { HomeTilePose } from './home-tile-pose.ts';
 import { createHomeTileTouch, queueHomeTileTouch, resetHomeTileTouch, sampleHomeTileTouch,
   advanceHomeTileTouch2D, homeTileTouchPoses, type HomeTileTouch } from './home-tile-touch.ts';
 import { homeTouchLocation } from './home-gestures.ts';
-import { homeItemAt } from './home-layout.ts';
+import { homeItemAt, type HomeLocation } from './home-layout.ts';
 
 export type HomeControls = Readonly<{
   input: HomeInputAdapter;
@@ -26,6 +26,8 @@ export type HomeControls = Readonly<{
   /** Applied tile-local poses; hit geometry and primary cursor are independent. */
   tilePoses: Readonly<Record<number, HomeTilePose>>;
   tileTouch: HomeTileTouch;
+  /** Press candidate is independent of selection and widget controller resets. */
+  tileCandidate: Readonly<HomeLocation> | null;
 }>;
 export type HomeControlPass = Readonly<{
   updateCount: number;
@@ -61,7 +63,7 @@ export function enableHomeControls(state: MenuState): MenuState {
   return put(state, { input: createHomeInputAdapter(), producer: createHomeInputProducer(),
     primary: createHomePrimaryCursor({ request: 0, shown: true, layoutVisible: true, center: selectedCenter(state.system.homeNavigation) }),
     presentation: createHomeCursorPresentation(sampleHomeGrid(state.system.homeNavigation).densityValue),
-    tilePoses: Object.freeze({}), tileTouch: createHomeTileTouch() });
+    tilePoses: Object.freeze({}), tileTouch: createHomeTileTouch(), tileCandidate: null });
 }
 /** Only settled grid strokes enter the audited widget route. Other gestures
  * keep their existing owner. Hit rectangles remain the browser layout policy. */
@@ -71,7 +73,8 @@ export function queueHomeControlTouch(state: MenuState, event: Extract<AppEvent,
   const nav = state.system!.homeNavigation;
   const location = !nav.motion ? homeTouchLocation(state, event.x, event.y) : null;
   const result = queueHomeTileTouch(controls.tileTouch, event, location?.slot ?? null);
-  return { state: result.state === controls.tileTouch ? state : put(state, { ...controls, tileTouch: result.state }), handled: result.handled };
+  return { state: result.state === controls.tileTouch ? state : put(state, { ...controls, tileTouch: result.state,
+    tileCandidate: event.phase === 'cancel' ? null : controls.tileCandidate }), handled: result.handled };
 }
 /** Explicit browser takeover: authored drag/scroll and lifecycle changes reset
  * the native ordinary widget; this is not an inferred native context guard. */
@@ -79,15 +82,15 @@ export function reconcileHomeControlGesture(state: MenuState): MenuState {
   const controls = state.system?.homeControls, gesture = state.system?.homeNavigation.gesture;
   if (!controls) return state;
   if (controls.tileTouch.strokeOwned && !gesture && !state.system!.input.touch) {
-    return put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch) });
+    return put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null });
   }
   if (!gesture || gesture.area !== 'grid' || gesture.mode === 'press') return state;
-  if (!controls.tileTouch.strokeOwned && !controls.tileTouch.pending.length && !Object.values(controls.tileTouch.widgets).some(w => w.capture || w.state !== 0)) return state;
-  return put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch) });
+  if (!controls.tileCandidate && !controls.tileTouch.strokeOwned && !controls.tileTouch.pending.length && !Object.values(controls.tileTouch.widgets).some(w => w.capture || w.state !== 0)) return state;
+  return put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null });
 }
 export function cancelHomeControlTouch(state: MenuState): MenuState {
   const controls = state.system?.homeControls;
-  return controls ? put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch) }) : state;
+  return controls ? put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null }) : state;
 }
 const directions = new Set(['right', 'left', 'up', 'down']);
 /** Null means another existing System owner must route the event. No sampling here. */
@@ -115,7 +118,7 @@ export function cancelHomeControls(state: MenuState): MenuState {
   if (close && isSystemHomeFolderClosing(state)) state = consumeSystemHomeFolderCloseInput(state, close.controller.identity, event).state;
   else state = writeScroll(state, consumeHomeGridKeyEvent({ navigation: state.system!.homeNavigation, cursorLoop: state.system!.homeCursorLoop }, event).state);
   return put(state, { ...controls, input: createHomeInputAdapter(), producer: createHomeInputProducer(),
-    tileTouch: resetHomeTileTouch(controls.tileTouch) });
+    tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null });
 }
 function observe(controls: HomeControls, observations: readonly HomeScrollObservation[]): HomeControls {
   let { primary, presentation, tileTouch } = controls;
@@ -135,7 +138,7 @@ export function selectHomeControlTouch(state: MenuState, slot: number): MenuStat
   if (!controls || !isHomeControlsActive(state)) return null;
   const result = selectHomeTouchSlot({ navigation: state.system!.homeNavigation, cursorLoop: state.system!.homeCursorLoop }, slot);
   if (result.disposition === 'unsupported') return null;
-  return put(writeScroll(state, result.state), observe(controls, result.observations));
+  return put(writeScroll(state, result.state), observe({ ...controls, tileCandidate: null }, result.observations));
 }
 /** Adapter boundaries for app/overlay/context changes. Ordinary direction passes
  * never use this path; their retained state advances only in stepHomeControls. */
@@ -147,7 +150,7 @@ export function reconcileHomeControls(before: MenuState, state: MenuState): Menu
     const primary = updateHomePrimaryCursorFooter(setHomePrimaryCursorRequest(controls.primary, 2),
       { overlayActive: false, secondaryOverlayActive: false, mode: 44,
         position: { kind: 'grid', selectedCenter: controls.primary.center } }).state;
-    return put(state, { ...controls, primary, tileTouch: resetHomeTileTouch(controls.tileTouch) });
+    return put(state, { ...controls, primary, tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null });
   }
   if (before.system?.homeNavigation.activeFolderSlot !== state.system!.homeNavigation.activeFolderSlot) {
     state = cancelHomeControls(state); controls = state.system!.homeControls!;
@@ -159,7 +162,7 @@ export function reconcileHomeControls(before: MenuState, state: MenuState): Menu
       presentation: createHomeCursorPresentation(sampleHomeGrid(nav).densityValue), tileTouch: createHomeTileTouch() });
   }
   if (before.columns !== state.columns || !before.system?.homeNavigation.motion && state.system!.homeNavigation.motion) {
-    state = put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch) });
+    state = put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null });
   }
   return reconcileHomeControlGesture(state);
 }
@@ -179,6 +182,14 @@ export function stepHomeControls(state: MenuState): HomeControlPass {
   if (ordinaryGesture) state = writeHomeNavigation(state, { ...state.system!.homeNavigation, gesture: null });
   for (const event of touch.events) {
     if (event.kind === 'cue') { sounds.push(event.cue); continue; }
+    if (event.value === 0) {
+      const location = Object.freeze({ folder: state.system!.homeNavigation.activeFolderSlot, slot: event.slot });
+      // Browser metadata supplies eligible installed app records. Native folder,
+      // cartridge and special-record eligibility require their separate audit.
+      if (homeItemAt(state, location)?.kind === 'app') controls = { ...controls, tileCandidate: location };
+      continue;
+    }
+    if (event.value === 1 || event.value === 2) controls = { ...controls, tileCandidate: null };
     if (event.value !== 1) continue;
     const nav = state.system!.homeNavigation, oldSlot = activeHomeRecord(nav).selectedSlot, oldToolbar = nav.focus.toolbarActive;
     const accepted = selectHomeTouchSlot({ navigation: nav, cursorLoop: state.system!.homeCursorLoop }, event.slot);

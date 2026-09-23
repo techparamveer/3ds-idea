@@ -114,3 +114,24 @@ one painted snapshot, so its Loop assertion compares consumed shared counts
 instead of requiring multiple rendering snapshots. Exact native controller
 phase timing remains covered by source and System fixtures. These are browser
 integration checks, not a fresh whole-screen Azahar parity result.
+# Retained pickup candidate
+
+`HomeControls.tileCandidate` now records the current container/slot on widget
+callback0 for installed app records. It does not move selection. Callback2
+clears it; reentering the hit group does not emit another callback0 and therefore
+does not reacquire the candidate. Callback1 clears it before reading current
+selection/content for ordinary acceptance. These boundaries follow
+`GRID_STYLUS_EVIDENCE.md`; the browser supplies installed-app eligibility instead
+of pretending its registry contains native record flags or icon-status values.
+Folder-icon, cartridge and special-title candidate eligibility are still unaudited.
+
+The candidate lives outside the widget, so a controller reset does not erase it.
+Explicit browser cancellation, blur/sleep/overlay, context replacement, density
+change and authored gesture takeover clear it as ownership policy. Pickup
+callback3/4 hosting remains pending the completed occupied-entry trace.
+
+The added root/child candidate, leave/reentry, acceptance and cancellation
+regressions pass alongside existing controls:29 tests, zero failures. Typecheck
+passes. Logs are in the SSD `reference/tile-candidate-system-tests.log` and
+`reference/tile-candidate-typecheck.log`. This state-only addition changes no
+paint output and establishes no pickup rendering claim.

@@ -13,7 +13,7 @@ export interface BufferConfig { outputRate: number; chunkFrames: 1024; lowWaterF
 export function musicBufferConfig(outputRate: number): BufferConfig {
   if (!Number.isSafeInteger(outputRate) || outputRate < 8000 || outputRate > 192000) throw new Error('Unsupported music output rate');
   const round = (seconds: number) => Math.ceil(outputRate * seconds / OUTPUT_CHUNK_FRAMES) * OUTPUT_CHUNK_FRAMES;
-  return { outputRate, chunkFrames: OUTPUT_CHUNK_FRAMES, lowWaterFrames: round(.1), targetFrames: round(.2), capacityFrames: 2 ** Math.ceil(Math.log2(round(.5))) };
+  return { outputRate, chunkFrames: OUTPUT_CHUNK_FRAMES, lowWaterFrames: round(.2), targetFrames: round(.3), capacityFrames: 2 ** Math.ceil(Math.log2(round(.5))) };
 }
 export function validateBufferConfig(value: unknown): BufferConfig {
   if (!value || typeof value !== 'object') throw new Error('Missing music buffer config');

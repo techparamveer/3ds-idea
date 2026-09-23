@@ -48,9 +48,11 @@ No native PCM, output PCM or credit message is forwarded through main.
   for bounded reuse. The ring already owns its samples. Old-epoch PCM is ignored
   and its buffer may still be recycled; it cannot enter the current ring.
 
-The initial settings round approximately 100 ms low-water, 200 ms target and
-500 ms capacity to output chunks/powers of two. These are initial browser-test
-parameters, not proven stall tolerances. Credits never exceed ring capacity.
+The settings round approximately 200 ms low-water, 300 ms target and
+500 ms capacity to output chunks/powers of two. The original 100/200 ms refill
+policy underran during concurrent full-suite CPU load; a measured 155.2 ms
+chunk and 28.2 ms scheduling delay motivated this larger reserve. These are
+measured test settings, not a guarantee against arbitrary host stalls. Credits never exceed ring capacity.
 One worker task produces at most one output chunk, then yields.
 
 ## Pause, stop, disposal and failure

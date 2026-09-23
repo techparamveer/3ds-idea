@@ -53,18 +53,19 @@ function outputFixture(rate=8000){
  return {output,events,sent,port,send,fill};
 }
 test('begin/readiness/credits bound accepted plus in-flight frames',()=>{
- const f=outputFixture();assert.equal(f.events.at(-1).type,'begun');assert.equal(f.sent[0].creditEnd,2048);
+ const f=outputFixture();assert.equal(f.events.at(-1).type,'begun');assert.equal(f.sent[0].creditEnd,musicBufferConfig(8000).targetFrames);
  const l=new Float32Array(128),r=new Float32Array(128);f.output.process(l,r,0);assert.equal(f.output.status().underrunFrames,0);assert.ok(l.every(x=>x===0));
  f.fill();f.output.process(l,r,128);assert.equal(l[0],1);assert.equal(f.events.find(x=>x.type==='started').firstContextFrame,128);
  for(let frame=256;frame<4096;frame+=128){f.output.process(l,r,frame);f.fill();const s=f.output.status();assert.ok(s.creditEnd-s.outputConsumed<=musicBufferConfig(8000).capacityFrames);}
  assert.equal(f.output.status().underrunFrames,0);
 });
 test('underrun zeros only missing frames, rebuffer preserves order and counters, arbitrary quantum',()=>{
- const f=outputFixture();f.fill();const l=new Float32Array(768),r=new Float32Array(768);
- f.output.process(l,r,0);assert.equal(l[0],1);f.output.process(l,r,768);f.output.process(l,r,1536);
- assert.equal(l[511],2048);assert.equal(l[512],0);assert.equal(f.output.status().underrunFrames,256);assert.equal(f.output.status().underrunEvents,1);
- f.output.process(l,r,2304);assert.equal(f.output.status().underrunFrames,1024);assert.equal(f.output.status().outputConsumed,2048);
- f.fill();f.output.process(l,r,3072);assert.equal(l[0],2049);assert.equal(f.output.status().underrunEvents,1);
+ const f=outputFixture(),initial=musicBufferConfig(8000).targetFrames;f.fill();
+ f.output.process(new Float32Array(initial-512),new Float32Array(initial-512),0);
+ const l=new Float32Array(768),r=new Float32Array(768);f.output.process(l,r,initial-512);
+ assert.equal(l[511],initial);assert.equal(l[512],0);assert.equal(f.output.status().underrunFrames,256);assert.equal(f.output.status().underrunEvents,1);
+ f.output.process(l,r,initial+256);assert.equal(f.output.status().underrunFrames,1024);assert.equal(f.output.status().outputConsumed,initial);
+ f.fill();f.output.process(l,r,initial+1024);assert.equal(l[0],initial+1);assert.equal(f.output.status().underrunEvents,1);
 });
 test('pause boundary freezes consumption; stop rejects late blocks; dispose closes and terminates output',()=>{
  const f=outputFixture();f.fill();const l=new Float32Array(256),r=new Float32Array(256);f.output.process(l,r,0);
@@ -89,7 +90,7 @@ test('scheduled start respects an intra-quantum frame and reports a missed deadl
  for(const [when,contextFrame,first,missed]of [[170,128,170,0],[170,256,256,86]]){
   const f=outputFixture();f.output.control({...stamp(2),type:'begin',config:musicBufferConfig(8000),whenContextFrame:when});
   f.port.onmessage({data:{...stamp(2),type:'producer-ready'}});
-  f.port.onmessage({data:{...stamp(2),type:'pcm',startOutputFrame:0,frames:1024,buffer:new Float32Array(2048).fill(.25).buffer}});
+  for(let at=0;at<musicBufferConfig(8000).lowWaterFrames;at+=1024)f.port.onmessage({data:{...stamp(2),type:'pcm',startOutputFrame:at,frames:1024,buffer:new Float32Array(2048).fill(.25).buffer}});
   const left=new Float32Array(128),right=new Float32Array(128);f.output.process(left,right,contextFrame);
   const offset=first-contextFrame;assert.ok(left.subarray(0,offset).every(x=>x===0));assert.ok(left.subarray(offset).every(x=>x===.25));
   const start=f.events.find(x=>x.type==='started');assert.equal(start.firstContextFrame,first);assert.equal(start.missedByFrames,missed);
@@ -102,16 +103,16 @@ test('pause before producer readiness resumes priming credits without deadlock o
  output.control({...stamp(1),type:'begin',config:musicBufferConfig(8000)});output.control({...stamp(1),type:'pause'});
  port.onmessage({data:{...stamp(1),type:'producer-ready'}});assert.equal(sent.length,0);
  const left=new Float32Array(256),right=new Float32Array(256);output.process(left,right,0);assert.equal(events.at(-1).type,'paused');
- output.control({...stamp(1),type:'resume'});assert.equal(sent.at(-1).type,'credit');assert.equal(sent.at(-1).creditEnd,2048);
+ output.control({...stamp(1),type:'resume'});assert.equal(sent.at(-1).type,'credit');assert.equal(sent.at(-1).creditEnd,musicBufferConfig(8000).targetFrames);
  output.process(left,right,256);assert.equal(events.at(-1).type,'resumed');assert.equal(output.status().state,'priming');assert.equal(output.status().underrunFrames,0);
- port.onmessage({data:{...stamp(1),type:'pcm',startOutputFrame:0,frames:1024,buffer:new Float32Array(2048).fill(.5).buffer}});
+ for(let at=0;at<musicBufferConfig(8000).lowWaterFrames;at+=1024)port.onmessage({data:{...stamp(1),type:'pcm',startOutputFrame:at,frames:1024,buffer:new Float32Array(2048).fill(.5).buffer}});
  output.process(left,right,512);assert.equal(left[0],.5);assert.equal(output.status().state,'running');assert.equal(output.status().underrunEvents,0);
 });
 test('pause/resume below low-water preserves running mode until an actual underrun',()=>{
- const f=outputFixture();f.fill();f.output.process(new Float32Array(1536),new Float32Array(1536),0);
+ const f=outputFixture(),initial=musicBufferConfig(8000).targetFrames;f.fill();f.output.process(new Float32Array(initial-512),new Float32Array(initial-512),0);
  assert.equal(f.output.status().bufferedFrames,512);f.output.control({...stamp(1),type:'pause'});
  const left=new Float32Array(256),right=new Float32Array(256);f.output.process(left,right,1536);assert.equal(f.events.at(-1).type,'paused');
- f.output.control({...stamp(1),type:'resume'});f.output.process(left,right,1792);assert.equal(left[0],1537);assert.equal(f.output.status().underrunFrames,0);assert.equal(f.output.status().state,'running');
+ f.output.control({...stamp(1),type:'resume'});f.output.process(left,right,1792);assert.equal(left[0],initial-511);assert.equal(f.output.status().underrunFrames,0);assert.equal(f.output.status().state,'running');
  f.output.process(new Float32Array(384),new Float32Array(384),2048);assert.equal(f.output.status().underrunFrames,128);assert.equal(f.output.status().underrunEvents,1);
  f.output.control({...stamp(1),type:'pause'});f.output.process(left,right,2432);f.output.control({...stamp(1),type:'resume'});f.output.process(left,right,2688);
  assert.equal(f.output.status().state,'starved');assert.equal(f.output.status().underrunEvents,1);assert.equal(f.output.status().underrunFrames,384);
@@ -125,4 +126,16 @@ test('stale asynchronous decode completion/rejection cannot resurrect or fail a 
   assert.equal(worker.status().state,'idle');assert.equal(events.some(x=>x.type==='prepared'||x.type==='error'),false);
   await worker.control({...stamp(2),type:'dispose'});assert.equal(worker.status().state,'disposed');
  }
+});
+
+test('48 kHz refill reserve covers the observed 184 ms producer processing and scheduling stall',()=>{
+ const f=outputFixture(48000),config=musicBufferConfig(48000),left=new Float32Array(128),right=new Float32Array(128);f.fill();
+ let at=0;
+ while(f.output.status().outputConsumed<config.targetFrames-config.lowWaterFrames){f.output.process(left,right,at);at+=128;}
+ assert.equal(f.output.status().bufferedFrames,config.lowWaterFrames);
+ const consumed=f.output.status().outputConsumed;
+ for(let elapsed=0;elapsed<Math.ceil(.184*48000);elapsed+=128){f.output.process(left,right,at);at+=128;}
+ assert.equal(f.output.status().underrunFrames,0);assert.ok(f.output.status().outputConsumed>consumed);
+ f.fill();f.output.process(left,right,at);assert.equal(f.output.status().underrunEvents,0);
+ assert.ok(f.output.status().creditEnd-f.output.status().outputConsumed<=config.capacityFrames);
 });

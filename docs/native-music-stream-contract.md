@@ -29,8 +29,9 @@ Every control, PCM, acknowledgement, credit and diagnostic carries protocol
 version and epoch. Worklet begin acknowledgement precedes worker start.
 Reject duplicate/gapped/out-of-order/oversize blocks without overwriting unread
 samples. Bound credits by accepted plus in-flight frames. Use1024-output-frame
-chunks and initial approximate100ms low-water/200ms target/500ms capacity for
-initial browser tests, not as measured underrun guarantees. The worker yields
+chunks and approximate200ms low-water/300ms target/500ms capacity. Production
+CPU-load measurements motivated the increased refill reserve; it is not an
+arbitrary-stall guarantee. The worker yields
 between bounded chunks; recycle transferred buffers where practical.
 
 Pause/resume mechanically retain synthesis/resampling/queue state and freeze

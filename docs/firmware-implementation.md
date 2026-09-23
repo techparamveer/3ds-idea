@@ -147,3 +147,35 @@ four private keyboard checks skipped by the default run. Type checking and the
 production build pass. Logs are in `reference/keyboard-text-selection/` and
 `reference/keyboard-sequence-integration-tests.log`. No public keyboard pack or
 live stock-app keyboard was introduced. No implementation PR is ready.
+
+## Complete lower keyboard component and native arithmetic checkpoint
+
+The [capture/settled lower composition](native-keyboard-composition.md) is now
+integrated: seven roots and fourteen attached decoration instances, exact
+retained submissions, three input lengths and both checkpoints. Its three
+integration tests pass with all six real-resource renders. The Ada settled
+render was inspected. The selector auto-fit/style and blank-text material write
+remain explicit local gaps; this is not yet a live applet.
+
+[Shared animation arithmetic](native-animation-curves.md) now matches3665
+original HOME/keyboard float32 samples and34 native pane/material submissions.
+The shared-sampler checkpoint passes994 application tests with15 optional
+skips, plus39 real-Canvas/share checks without skips. Its production build
+passes. Browser screenshot/reconnection attempts timed out; no new browser
+fidelity claim is made. Azahar remains live but injected button/touch gestures
+still do not change HOME selection.
+
+[Ordinary nickname input](native-keyboard-input-contract.md) is integrated with
+source-verified down/held/release, repeat, rejection latch, caret selection and
+digital routing. The coordinator rehashed51 new evidence files without mismatch;
+input plus existing plain edit tests pass37 checks. Physical-coordinate mapping,
+confirm/cancel result lifecycle and live scene wiring remain separate.
+
+The [keyboard sequence control port](firmware-keyboard-control-port.md) is also
+integrated. Its13 focused checks pass with private original evidence, including
+2792 ordered control/status observations and1481 original wave-command records.
+It preserves natural and explicit-stop release tails; it does not yet supply
+browser audio. Wave-voice conversion and transport integration remain required.
+These subsequent isolated modules were checked with focused tests after the
+shared-sampler full-suite run; that earlier count is not a new full-suite run
+at this later HEAD. No final implementation PR is ready.

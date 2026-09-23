@@ -179,6 +179,11 @@ normalized text and original cell colors; it does not own filtering, editing,
 controller time or composition. See [the component evidence and remaining
 integration work](../native-keyboard-text.md).
 
+`native-keyboard-edit.ts` owns the bounded non-composing Settings name buffer's
+insertion/backspace/selection replacement in UTF-16 units. It reports ordered
+paragraph invalidations without invoking presentation; the native event adapter
+and input eligibility remain separate, unwired work. See [edit model evidence](../native-keyboard-edit.md).
+
 `app-types.ts` defines renderer-independent application state, effects and views.
 `app-registry.ts` retains the eight portfolio entries before stock title slots;
 AR Games and Face Raiders are absent. `app-host.ts` owns the application, system

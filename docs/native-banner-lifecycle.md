@@ -78,8 +78,11 @@ an instance; use the activation epoch as well when retaining renderer caches.
 
 The native counter restarts when a replacement activates, rather than when the
 cursor input first arrives. Normal folder opening eventually requests the
-selected child or blank; normal closing requests non-folder content and then
-the restored parent. The HOME reducer owns that request sequence. Returning to
+selected child's target; a settled vacant child uses default `BannerDef` type 7.
+Normal closing first requests type 13 (clear primary), then the restored parent.
+See [native-banner-targets.md](native-banner-targets.md) for the caller predicates,
+media exceptions and the distinct vacancy/clear completion requirements.
+The HOME reducer owns that request sequence. Returning to
 a folder after completed replacement creates a fresh activation, without a
 per-folder phase cache.
 

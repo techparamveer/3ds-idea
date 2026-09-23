@@ -46,7 +46,9 @@ export function cgfxLightingShader(params:Params,data:CgfxLightingData){
  let code=`vec3 N=normalize(vNormal),V=normalize(vView);vec4 litPrimary=vec4(${color(params.EmissionColor as Color??black)},1.0);vec4 litSecondary=vec4(0.0,0.0,0.0,1.0);\n`;
  for(const light of lights){
   const c=light.Content,d=c.Direction;
-  code+=`{vec3 L=normalize(mat3(viewMatrix)*vec3(${d.X.toFixed(8)},${d.Y.toFixed(8)},${d.Z.toFixed(8)}));vec3 H=normalize(V+L);float ln=max(dot(L,N),0.0);\n`;
+  // HOME installs -view3x3*direction (w=0); see docs/native-directional-light-installation.md.
+  // Native float16 packing before normalization remains a separate precision gap.
+  code+=`{vec3 L=normalize(-mat3(viewMatrix)*vec3(${d.X.toFixed(8)},${d.Y.toFixed(8)},${d.Z.toFixed(8)}));vec3 H=normalize(V+L);float ln=max(dot(L,N),0.0);\n`;
   code+=`litPrimary.rgb+=${color(params.AmbientColor)}*${color(c.AmbientColor)}+${color(params.DiffuseColor)}*${color(c.DiffuseColor)}*ln;\n`;
   code+=`litSecondary.rgb+=(${color(params.Specular0Color)}*${color(c.Specular0Color)}*${distribution}+${color(params.Specular1Color as Color??black)}*${color(c.Specular1Color)})${flags.includes('ClampHighLight')?'*step(0.0,dot(L,N))':''};\n`;
   if(fresnelValue){if(fresnel.includes('Pri'))code+=`litPrimary.a=${fresnelValue};\n`;if(fresnel.includes('Sec'))code+=`litSecondary.a=${fresnelValue};\n`;}

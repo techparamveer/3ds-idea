@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import * as THREE from 'three';
 import {WebGLRenderLists} from 'three/src/renderers/webgl/WebGLRenderLists.js';
+import {defaultBannerData,hasAuthoredDefault} from './helpers/banner-default.mjs';
 const source=readFileSync(new URL('../src/os/cgfx-animation.ts',import.meta.url),'utf8');
 const asModule=source=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
 const animationUrl=asModule(source);
@@ -15,6 +16,37 @@ const billboardUrl=asModule(readFileSync(new URL('../src/scene/cgfx-billboard.ts
 const {nativeYAxialBone}=await import(billboardUrl);
 const modelSource=readFileSync(new URL('../src/scene/firmware-model.ts',import.meta.url),'utf8').replace("'three'",JSON.stringify(import.meta.resolve('three'))).replace("'../os/cgfx-animation'",JSON.stringify(animationUrl)).replace("'./cgfx-lighting'",JSON.stringify(asModule(lightingSource))).replace("'../os/native-png'",JSON.stringify(pngUrl)).replace("'./cgfx-billboard'",JSON.stringify(billboardUrl));
 const {createFirmwareModel}=await import(asModule(modelSource));
+// Evaluate only the emitted direction expression in Node. Expected vectors come
+// from original ARM execution, not this shader; GPU compilation is a separate check.
+function generatedLightDirection(code,viewMatrix){
+ const expression=code.match(/vec3 L=normalize\((-?)mat3\(viewMatrix\)\*vec3\(([^)]+)\)\);/);
+ assert.ok(expression,'expected a direction (w=0) transformed by the view matrix');
+ return new THREE.Vector3(...expression[2].split(',').map(Number)).applyMatrix3(new THREE.Matrix3().setFromMatrix4(viewMatrix)).multiplyScalar(expression[1]?-1:1).normalize();
+}
+test('generated CGFX direction agrees with executed native camera and nonunit controls',()=>{
+ const evidence=JSON.parse(readFileSync(new URL('../docs/evidence/native-directional-light-installation.json',import.meta.url),'utf8')).nativeDrawExecution;
+ const data=folderData(),params=data.models[0].materials.find(m=>m.Name==='mt_folder_00').MaterialParams;
+ for(const row of evidence.cases.filter(row=>row.case!=='light_slot3_control')){
+  const [X,Y,Z]=row.cachedDirection;data.lights[0].Content.Direction={X,Y,Z};
+  const view=new THREE.Matrix4().set(...row.viewMatrixRowMajor3x4,0,0,0,1);
+  const actual=generatedLightDirection(cgfxLightingShader(params,data).code,view);
+  const expected=new THREE.Vector3(...row.setterCapture.vector4.slice(0,3)).normalize();
+  assert.ok(actual.distanceTo(expected)<1e-8,row.case);
+  assert.ok(actual.distanceTo(new THREE.Vector3(...row.normalizedPosition))<.0001,'native float16 packing is a separate bounded precision difference');
+ }
+});
+test('authored default materials use the native direction and retain unit disabled-LUT specular', {skip:!hasAuthoredDefault},()=>{
+ const data=defaultBannerData(),before=JSON.stringify(data);
+ assert.equal(data.sourceSha256,'e5711a422d51e11c7047ebcb415401451335c39c46ecfbf1e3abdbffe8985955');
+ for(const material of data.models[0].materials){
+  const shader=cgfxLightingShader(material.MaterialParams,data);
+  assert.ok(shader);assert.equal(shader.samplers.length,0);
+  const direction=generatedLightDirection(shader.code,new THREE.Matrix4());
+  assert.ok(Math.abs(direction.z-.91192151)<1e-7,'front-facing diffuse must be positive');
+  assert.match(shader.code,/litSecondary\.rgb\+=\(vec3\(1\.00000000,1\.00000000,1\.00000000\)\*vec3\(1\.00000000,1\.00000000,1\.00000000\)\*1\.0\+/);
+ }
+ assert.equal(JSON.stringify(data),before,'lighting generation preserves authored TEV, colors and texture records');
+});
 test('native CGFX Hermite curve preserves tangents and repeat period',()=>{
  const curve={KeyFrames:[{Frame:0,Value:-.4,InSlope:0,OutSlope:0},{Frame:75,Value:.6,InSlope:0,OutSlope:0},{Frame:150,Value:-.4,InSlope:0,OutSlope:0}],StartFrame:0,EndFrame:150,PreRepeat:'Repeat',PostRepeat:'Repeat',InterpolationType:'Hermite'};
  assert.ok(Math.abs(sampleCgfxCurve(curve,37.5)-.1)<1e-7);
@@ -82,6 +114,8 @@ test('real folder binds its authored directional light and LUT without a power h
  for(const lut of data.luts)for(const s of lut.Samplers)for(let i=0;i<256;i++)assert.ok(Math.abs(decodeCgfxLutWord(s.RawWords[i])[0]-s.Table[i])<1e-7);
  assert.equal(data.lights[0].NativeType,'Directional');assert.equal(data.lights[0].Content.Direction.Z,-.70710677);
  const shader=cgfxLightingShader(params,data);assert.equal(shader.samplers[0],sampler);assert.ok(!shader.code.includes('pow('));
+ const light=generatedLightDirection(shader.code,new THREE.Matrix4()),half=new THREE.Vector3(0,0,1).add(light).normalize();
+ assert.ok(Math.abs(sampleCgfxLut(sampler,half.z)-.214974)<1e-6,'corrected native light feeds the authored folder half-vector LUT');
  const quarter=structuredClone(params);quarter.LUTInputScale.Dist0='Quarter';assert.ok(cgfxLightingShader(quarter,data).code.includes('*0.25'));
  const broken=structuredClone(data);broken.luts=[];assert.throws(()=>cgfxLightingShader(params,broken),/Missing native CGFX LUT/);
  const icon=data.models[0].materials.find(m=>m.Name==='mt_icon').MaterialParams;assert.equal(cgfxLightingShader(icon,data).samplers[0].Name,'Icon_00');

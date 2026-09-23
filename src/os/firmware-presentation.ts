@@ -85,7 +85,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }finally{canvas.width=canvas.height=0;}
  }
  function upperBase(ctx:Context){
-  return renderer.draw(ctx,'launcher','LncBase_U_00',{bindings:[binding('LncBase_U_00_SceneIn',40),binding('LncBase_U_00_Appear',10),binding('LncBase_U_00_WhiteBlack',0)],overrides:{N_Wndw_00:{visible:false}},clip:[0,212,400,28]});
+  // screens.paint supplies the opaque native LCD with no inherited clip. The
+  // renderer additionally checks exact placement and this integer clip.
+  return renderer.draw(ctx,'launcher','LncBase_U_00',{allowOpaqueDarken:true,bindings:[binding('LncBase_U_00_SceneIn',40),binding('LncBase_U_00_Appear',10),binding('LncBase_U_00_WhiteBlack',0)],overrides:{N_Wndw_00:{visible:false}},clip:[0,212,400,28]});
  }
  function folderBalloon(ctx:Context,state:MenuState,view:HomePresentation){
   const label=getNativeFolderBalloon(state,view);if(!label)return false;

@@ -25,7 +25,7 @@ const {createFirmwareHome}=await loadPresentation('firmware-presentation',{
 const {createScreens}=await loadPresentation('screens',{
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>false;'),
  './native-chrome':moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
- './portfolio-screens':moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>undefined,syncStockView(){},menuIcon(){},menuArtwork(){},overlay(){},dispose(){}});'),
+ './portfolio-screens':moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>undefined,syncStockView(){},stockStatus:()=>"inactive",retryStockScreen:()=>false,stockFailure:()=>null,menuIcon(){},menuArtwork(){},overlay(){},dispose(){}});'),
  './firmware-presentation':moduleUrl('export const createFirmwareHome=assets=>assets.presenter;export const loadFirmwarePresentationAssets=()=>{throw Error("Unexpected asset load");};'),
 });
 

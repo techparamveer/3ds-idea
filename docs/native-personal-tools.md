@@ -18,7 +18,7 @@ The upper background is drawn before the source translucent unread overlay.
 The HUD title uses the shared source bitmap font and native English title;
 the lower empty-state line comes from the existing AppView text. These two text
 placements are portfolio adapters, not claims about native text-task placement.
-Populated notifications, notification detail, Friends and non-main Notes views
+Populated notifications, notification detail, populated/detail Friends and non-main Notes views
 return null / false until their own visual slice is verified. Existing fallback UI can handle
 those views. This module never fetches notifications or marks them read.
 
@@ -54,3 +54,30 @@ Outputs under `runtime/personal-tools/notes` were visually inspected. Use the
 same verifier with `--title notes`. Source blank cards, cursor, close lettering,
 and introductory panel all appear; matched browser/native LCD comparison is
 still the coordinator's integration check.
+
+
+## Friend List initial screen
+
+The third slice covers main with just the existing `profile` row. Eight layouts
+from `friend.json` supply upper/lower backgrounds, both card layers, toolbar and
+curved Close footer. The `friend_msbt_LZ` English bank supplies Settings,
+Register Friend, Offline, Favourite Title, unknown friend code and Close labels.
+The source SceneIn frame 20, offline palette and selected card clips are held
+for this static composition. The nickname comes only from AppView settings;
+missing nickname remains empty. Friend count is zero and the code retains the
+source `???? - ???? - ????` placeholder. No avatar, friend, account, title or
+network status data is invented. The two dynamic Mii surfaces remain absent.
+
+Settings/Register Friend are source visual chrome, with no account operations.
+The selected lower card is approximately x107,y114,width106,height66 in this
+composition. Its target maps to the existing profile row. The curved Close
+source bounds form six centered horizontal strips: widths 110/150/186/214/242/270
+and heights 32/27/22/17/12/6, all bottom-aligned to y240. Populated main and detail
+views retain fallback presentation. Upper HUD title placement remains an adapter.
+This is a resource-based read-only composition, not a verified native initial
+session or a substitute for missing dynamic Mii rendering.
+
+Run the same verifier with `--title friends`. Strict interface checking, paired
+400/320-pixel rendering, zero loader/renderer diagnostics, guarded view selection
+and immutable source packs pass. Both PNGs under `runtime/personal-tools/friends`
+were visually inspected; browser verification remains the coordinator's check.

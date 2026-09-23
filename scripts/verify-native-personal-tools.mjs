@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {parseArgs} from 'node:util';
 import ts from 'typescript';
 export async function verifyPersonalTools(options){
- options.title??='notifications';assert.ok(['notifications','notes'].includes(options.title));
+ options.title??='notifications';assert.ok(['notifications','notes','friends'].includes(options.title));
  for(const key of ['artifactDir','assetRoot','canvasModule','interfaceRoot'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-')),sourceHashes={};
@@ -30,11 +30,12 @@ export async function verifyPersonalTools(options){
   const manifest=JSON.parse(readFileSync(join(options.assetRoot,'manifest.json'))),fontPath=join(options.assetRoot,manifest.fonts.shared),fontData=JSON.parse(readFileSync(fontPath));
   font=new BitmapFont(fontData,await Promise.all(fontData.sheets.map(name=>loadImage(join(dirname(fontPath),name)))));
   const notes={appId:'game-notes',screen:'main',heading:'Game Notes',rows:Array.from({length:16},(_,i)=>({id:String(i),label:'Note '+(i+1)})),selection:0,footer:{left:{action:'back',label:'Back'}}};
-  const base=options.title==='notifications'?{...notes,appId:'notifications',heading:'Notifications',rows:[],text:['There are no notifications.']}:notes;
+  const base=options.title==='notifications'?{...notes,appId:'notifications',heading:'Notifications',rows:[],text:['There are no notifications.']}:options.title==='friends'?{...notes,appId:'friends',heading:'Friend List',rows:[{id:'profile',label:'Your friend card'}],data:{settings:{nickname:'Player'}}}:notes;
   const contract=nativePersonalToolView(base);assert.ok(contract);assert.equal(nativePersonalToolView({...base,screen:'drawing'}),null);assert.equal(nativePersonalToolView({...base,appId:'work'}),null);
   assets=await loadNativeTitleAssets('https://personal-tools.invalid/manifest.json',contract.titleId,contract.packs,new Map([['cbf_std.bcfnt',font]]));
-  const sourceJson=JSON.stringify(assets.renderer.packs),reports=[],sheet=createCanvas(400*4,480),sheetContext=sheet.getContext('2d');
-  for(const [index,selection] of (options.title==='notifications'?[0]:[0,1,4,15]).entries()){
+  if(options.title==='friends'){assert.equal(nativePersonalToolView({...base,rows:[...base.rows,{id:'saved-friend',label:'Saved'}]}),null);assert.equal(nativePersonalToolView({...base,rows:[]}),null);}
+  const sourceJson=JSON.stringify(assets.renderer.packs),reports=[],sheet=createCanvas(400*(options.title==='notes'?4:1),480),sheetContext=sheet.getContext('2d');
+  for(const [index,selection] of (options.title==='notes'?[0,1,4,15]:[0]).entries()){
    const top=createCanvas(400,240),bottom=createCanvas(320,240),view={...base,selection};
    assert.equal(drawNativePersonalToolFrame(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font}),true,JSON.stringify(assets.renderer.diagnostics));
    const id=base.appId+'-'+selection;writeFileSync(join(out,id+'-top.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-bottom.png'),bottom.toBuffer('image/png'));
@@ -42,8 +43,9 @@ export async function verifyPersonalTools(options){
    const bytes=bottom.getContext('2d').getImageData(0,0,320,240).data;assert.ok(bytes.some((v,i)=>i%4===3&&v>0));
    reports.push({id,bottomSha256:createHash('sha256').update(bytes).digest('hex')});
   }
-  assert.equal(new Set(reports.map(r=>r.bottomSha256)).size,options.title==='notifications'?1:4,'distinct source states');
+  assert.equal(new Set(reports.map(r=>r.bottomSha256)).size,options.title==='notes'?4:1,'distinct source states');
   assert.equal(JSON.stringify(assets.renderer.packs),sourceJson,'source packs remain immutable');
+  assert.deepEqual(assets.renderer.diagnostics,[]);
   assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
   writeFileSync(join(out,'contact-sheet.png'),sheet.toBuffer('image/png'));
   const report={passed:true,sourceHashes,reports,diagnostics:assets.diagnostics,gaps:['Native components are composed for read-only portfolio navigation; no game capture or note editing.','Source resource renders are not matched native LCD captures.']};

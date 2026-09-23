@@ -58,10 +58,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   let bannerHost=createHomeBannerHost(bannerClock(),{managerInhibited:true,sceneInhibited:true,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});
   let bannerLabelFailure=false;
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
+  const nativePrimaryAvailable=(kind:string)=>{const value=folderBanner.status();return kind==='default'?value.defaultReady&&!value.defaultFailure:kind==='clear'||nativeFolderAvailable();};
   const screens=createScreens({reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
-    getFolderBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&(!nativeFolderAvailable()||bannerLabelFailure)?undefined:view;},
+    getHomeBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&(!nativePrimaryAvailable(view.selection.kind)||bannerLabelFailure)?undefined:view;},
     // Idle-only native translation sample. Reactive +0x90 motion is not yet hosted.
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
+    drawDefaultBannerFrame:(ctx,motion)=>folderBanner.drawDefaultFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0}),
     drawHomeBackground:folderBanner.drawBackground,runtimeNotice:()=>runtimeNotice});
   await Promise.all([screens.ready,folderBanner.ready]);
   if(diagnostics)host.dataset.banner=JSON.stringify(folderBanner.status());
@@ -187,7 +189,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   }
   let lastInput='none';
   const writeState=()=>{
-    const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderBannerFallback=String(!nativeFolderAvailable());}const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
+    const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderBannerFallback=String(!nativePrimaryAvailable(resolveHomeBannerHostSelection(state).kind));}const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
     host.dataset.audio=JSON.stringify(audio.status());host.dataset.preferences=String(state.system?.preferences??false);host.dataset.photo=String(state.system?.photo??0);host.dataset.page=String(state.system?.page??0);host.dataset.muted=String(state.system?.muted??false);host.dataset.ready='true';host.dataset.menu=state.panel??(state.system?.phase==='home'?(state.opened?'folder':'home'):state.system?.phase??'home');host.dataset.app=state.system?.app??'';host.dataset.item=String(state.system?.item??0);host.dataset.detail=String(state.system?.detail??false);host.dataset.sleeping=String(state.system?.sleeping??false);host.dataset.dialog=state.system?.dialog??'';host.dataset.rows=String(rowCount(state));host.dataset.theme=state.theme;host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
   function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:performance.now()-start});}
@@ -199,13 +201,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{selection:resolveHomeBannerHostSelection(state),inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
     if(view.status!=='unsupported'){
-      const status=folderBanner.status(),label=screens.prepareFolderBannerLabel(bannerHost.pending!.selection.label);
-      bannerLabelFailure=!label;
-      const resourceReady=status.ready&&!status.failure&&label?view.resourceTicket:null;
+      const status=folderBanner.status(),selection=view.selection;
+      const label=selection.kind==='folder'?screens.prepareFolderBannerLabel(selection.label):undefined;
+      bannerLabelFailure=selection.kind==='folder'&&!label;
+      const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:false;
+      const resourceReady=ready?view.resourceTicket:null;
       bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{inputs:{...inputs,resourceReady}});
       view=getHomeBannerHostView(bannerHost);
-      if(view.status==='active'&&view.stage==='active'&&view.selection.key===view.folder.selection.key&&view.selection.nativeType===view.folder.selection.nativeType&&view.selection.label!==view.folder.selection.label&&screens.prepareFolderBannerLabel(view.selection.label)){
-        bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{refreshActiveLabel:{generation:view.folder.generation,activationEpoch:view.folder.activationEpoch,key:view.selection.key,label:view.selection.label}});
+      if(view.status==='active'&&view.stage==='active'&&view.selection.kind==='folder'&&view.primary.selection.kind==='folder'&&view.selection.key===view.primary.selection.key&&view.selection.nativeType===view.primary.selection.nativeType&&view.selection.label!==view.primary.selection.label&&screens.prepareFolderBannerLabel(view.selection.label)){
+        bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{refreshActiveLabel:{generation:view.primary.generation,activationEpoch:view.primary.activationEpoch,key:view.selection.key,label:view.selection.label}});
       }
     }
   }
@@ -220,7 +224,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     onSound:name=>{if(soundNames.has(name))audio.play(name as Sound,state.system!.muted,state.system!.volume);},
     onLink:url=>{window.open(url,'_blank','noopener,noreferrer');},
   });
-  function reducedBannerKey(){const view=getHomeBannerHostView(bannerHost);return view.status==='active'?JSON.stringify([view.status,view.folder.generation,view.folder.activationEpoch,view.folder.selection.label,view.folder.motion.visible]):view.status;}
+  function reducedBannerKey(){const view=getHomeBannerHostView(bannerHost);return view.status==='active'?JSON.stringify([view.status,view.primary.generation,view.primary.activationEpoch,view.primary.selection.kind,view.primary.selection.kind==='folder'?view.primary.selection.label:null,view.primary.motion.visible]):view.status;}
   function commit(reduce:(current:MenuState,now:number)=>MenuState,input:string,userGesture=false,now=performance.now()-start){
     const previous=state,previousBanner=reduced?reducedBannerKey():undefined;advanceBeforeMutation(now);state=reduce(state,now);observeFolderBanner();if(state===previous)return;lastInput=input;
     updateAudio();

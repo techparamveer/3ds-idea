@@ -1,11 +1,11 @@
-# Live ordinary folder banner integration
+# Live folder and default banner integration
 
 The console now consumes the pure folder host/service/lifecycle through its
 shared HOME update counter. Its native folder model no longer derives yaw or
 clip phase from the renderer's elapsed time. Folder selection first requests
 an instance, passes the source gate, and activates it only after current
-resources are acknowledged. This is the ordinary folder slice; non-folder
-handoffs still use the explicit unsupported policy below.
+resources are acknowledged. The host now also supports native default type7 and explicit clear type13.
+Application-banner handoffs retain the explicit unsupported policy below.
 
 ## State and rendering ownership
 
@@ -19,13 +19,15 @@ from being applied retroactively to earlier shared ticks.
 
 Storage restore completes before host creation. Each scene allocates a fresh
 host session; any future in-place System restore must allocate another. The
-host allocates deterministic folder scopes within it and invalidates stale
+host allocates deterministic primary scopes within it and invalidates stale
 tickets. Folder identities, active/pending labels and source motion remain in
-the pure modules. The scene acknowledges only successful model/camera status
-and a prepared native label; a caught loader promise is not readiness.
+the pure modules. The scene acknowledges successful model, camera and Frame status, plus a
+prepared native label for folders. Default readiness requires all six actual
+textures and explicit EUR skeletal/material clips; it never requests a label.
+A caught loader promise is not readiness.
 
-The screen renderer uses the active snapshot even while another folder is
-requested. It does not paint the incoming folder while a request is pending
+The screen renderer uses the active snapshot even while another folder or
+default banner is requested. It does not paint the incoming folder while a request is pending
 or the old instance is detached. A two-entry native label cache retains the
 active and prepared label targets. Renames refresh only the matching active
 identity after preparation, without resetting motion. Failure of an incoming label or renderer retains any active/outgoing host
@@ -56,14 +58,23 @@ therefore supplies no outstanding native worker and no native load inhibition;
 it does not fabricate a measured worker delay. Source gate and later-pass
 activation ordering still execute.
 
-At app/blank selections, including a selected child in an opened folder, the
-first host abandons its folder-only scope and reports unsupported. Reentry
-starts a fresh scope. It does not guess a native target type or non-folder
-hidden acknowledgement. The source [vacancy/unavailable mapping](native-banner-targets.md) is now
-proven; its default-banner resources and full application loader stages still
-need integration. Background lifecycle remains
-separate and still uses the earlier elapsed-time adapter; its native epoch is
-not verified by this integration. These are remaining fidelity gaps.
+True vacant root/child slots now resolve to the native default primary. Folder,
+default and explicit clear share one service scope, preserving outgoing motion
+and immutable folder labels through hide/release/load. Adjacent vacancies reuse
+the same active instance. Default uses its own 300-frame skeletal and60-frame
+nonlooping material clocks, with the shared600-update yaw. The painter uses
+`primary` and dispatches label-free default drawing through the same authored
+Frame mask, native camera and alpha coverage transfer as folders.
+
+Clear completion is supported in the pure host/service and has no primary or
+resource ticket. The live scene does not yet reproduce the native folder-close
+clear-to-restored-selection timing: its current reducer returns directly to the
+root selection. Same-counter clear then folder requests would coalesce, so that
+sequence must await source-proven update boundaries rather than a guessed delay.
+Application selections still end the supported scope and report unsupported;
+reentry creates a fresh scope. Native application loader states4/5 remain pending.
+Background lifecycle is separate and still uses the earlier elapsed-time adapter;
+its native epoch is not verified. These remain fidelity gaps.
 
 Logical tick commits no longer force an additional LCD paint before the
 existing render-quality cadence paints again. Input and phase changes still
@@ -104,3 +115,15 @@ Real browser evidence in the SSD firmware artifact directory includes:
 No browser error or framework overlay was reported in these checks. Native
 Azahar animation epochs and all non-folder transitions still need matched
 reference captures; this is not a whole-HOME fidelity claim.
+
+## Default delivery and integration checks
+
+The default model and six textures were independently regenerated from original
+BannerDef_LZ.bin and registered as bannerDefault. Model payload equals the private
+candidate except converter metadata; PNG bytes match exactly. Public model SHA256
+is d0d771a36fe3cc054db94582bd6c7ebbec2d2c9eedbba9a09946c20e3488dfb6.
+The shared runtime/renderer focused checks pass112 tests; the expanded renderer
+checks independently pass65, using real model/texture delivery. Typecheck passes.
+See native-default-banner-runtime.md for the executed original null-primary gate
+and clear-to-default9-pass evidence. Browser/native comparison remains distinct
+from those CPU contracts.

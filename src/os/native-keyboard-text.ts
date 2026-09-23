@@ -1,7 +1,8 @@
 import type { NativeLayout, NativePane, PaneOverrides } from './native-layout';
+import type { NativeNicknameEditState } from './native-keyboard-edit';
 
 // TextArea_02, ordinary existing-profile Settings name request: maximum 10,
-// fixed width, one row, no composition, initial cursor at the end. These are
+// fixed width, one row, no composition. These are
 // the float32 outputs of the native initialization, not generic keyboard sizes.
 const SCALE = 1.5882350206375122;
 const FIRST_X = -85.00001525878906;
@@ -12,9 +13,11 @@ const MAXIMUM = 10;
 export type NativeNicknameTextPose = {
   cursor: number;
   selectionAnchor: number;
-  selectionActive: false;
+  selectionActive: boolean;
   textArea: PaneOverrides;
   cursorLayout: PaneOverrides;
+  /** Four separate DecorArea_select instances attached at N_decor, in order. */
+  selectionLayouts: PaneOverrides[];
   /** Applied separately to each instance, since their roots share a name. */
   hiddenDecorations: readonly string[];
 };
@@ -38,8 +41,20 @@ function findPane(layout: NativeLayout, name: string): NativePane {
  * layouts, or establish the full keyboard's first rendered frame.
  */
 export function nativeNicknameInitialTextPose(text: string, textArea: NativeLayout): NativeNicknameTextPose {
+  return nativeNicknameTextPose({ value: text, cursor: text.length, anchor: text.length, selectionActive: false }, textArea);
+}
+
+/** Local non-composing text update, with an explicit model cursor/selection.
+ * Child attachment order and controller sampling remain the painter's work.
+ */
+export function nativeNicknameTextPose(state: NativeNicknameEditState, textArea: NativeLayout): NativeNicknameTextPose {
+  const text = state.value;
   if (text.length > MAXIMUM || /[\u0000-\u001f]/u.test(text)) {
     throw new Error('Native nickname pose requires normalized text of at most 10 UTF-16 units');
+  }
+  if (!Number.isInteger(state.cursor) || state.cursor < 0 || state.cursor > text.length
+    || !Number.isInteger(state.anchor) || state.anchor < 0 || state.anchor > text.length) {
+    throw new Error('Invalid native nickname cursor or selection anchor');
   }
   const occupied = findPane(textArea, 'P_textAreaMSC01').picture?.colors;
   const empty = findPane(textArea, 'P_textAreaMSC02').picture?.colors;
@@ -76,9 +91,22 @@ export function nativeNicknameInitialTextPose(text: string, textArea: NativeLayo
   const width = Math.fround(2 / SCALE);
   // Original 187310..187324, then 186c54..186ca0 at a full buffer only.
   const endOffset = Math.fround(-Math.floor(Math.fround(Math.fround(width + SCALE) + 0.5)) / SCALE);
-  const cursorX = Math.fround(text.length * 17 + (text.length === MAXIMUM ? endOffset : 0));
+  const cursorX = Math.fround(state.cursor * 17 + (state.cursor === MAXIMUM ? endOffset : 0));
+  const selected = state.selectionActive && state.cursor !== state.anchor;
+  const selectionLayouts: PaneOverrides[] = Array.from({ length: 4 }, () => ({ RootPane: { visible: false } }));
+  if (selected) {
+    // Original selection update, then 186ca4..186ce8 adds obj+744 (-width).
+    // The one-line name occupies only the first of four decoration instances.
+    selectionLayouts[0] = {
+      RootPane: { visible: true },
+      P_decorArea: {
+        translation: [17 * Math.min(state.cursor, state.anchor), 0, 0],
+        size: [Math.fround(17 * Math.abs(state.cursor - state.anchor) - width), 18],
+      },
+    };
+  }
   return {
-    cursor: text.length, selectionAnchor: text.length, selectionActive: false,
+    cursor: state.cursor, selectionAnchor: state.anchor, selectionActive: state.selectionActive,
     textArea: overrides,
     cursorLayout: {
       RootPane: { visible: true },
@@ -86,6 +114,7 @@ export function nativeNicknameInitialTextPose(text: string, textArea: NativeLayo
       P_decorCursor: { visible: false },
       P_decorCursorMS: { visible: true, size: [width, 23] },
     },
-    hiddenDecorations: ['DecorArea_select', 'DecorArea_roman', 'DecorTrans', 'DecorArea_cellphone'],
+    selectionLayouts,
+    hiddenDecorations: [...(selected ? [] : ['DecorArea_select']), 'DecorArea_roman', 'DecorTrans', 'DecorArea_cellphone'],
   };
 }

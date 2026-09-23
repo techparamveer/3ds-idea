@@ -7,7 +7,7 @@ import ts from 'typescript';
 
 const source = readFileSync(new URL('../src/os/native-keyboard-text.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
-const { nativeNicknameInitialTextPose: pose } = await import('data:text/javascript;base64,' + Buffer.from(js).toString('base64'));
+const { nativeNicknameInitialTextPose: pose, nativeNicknameTextPose: selectionPose } = await import('data:text/javascript;base64,' + Buffer.from(js).toString('base64'));
 const occupied = Array.from({length:4}, () => [252,255,243,255]);
 const empty = Array.from({length:4}, () => [203,197,179,255]);
 function fixture() {
@@ -105,4 +105,35 @@ test('frozen original ARM pane writes agree with real decoded layouts for all th
       assert.ok(instances.length>0,name);assert.ok(instances.every(p=>!p.visible),name);
     }
   }
+});
+
+// Numeric original-ARM outputs; no firmware bytes or authored approximations.
+test('all 154 original cursor/selection updates match the model and visible child geometry', () => {
+  const captures=JSON.parse(readFileSync(new URL('./fixtures/native-keyboard-selection.json',import.meta.url),'utf8'));
+  assert.equal(captures.cases.length,154);
+  for(const row of captures.cases){
+    const state={value:row.input.text,cursor:row.model.cursor,anchor:row.model.anchor,selectionActive:row.model.selection};
+    const out=selectionPose(state,fixture());
+    assert.equal(out.cursor,row.model.cursor);assert.equal(out.selectionAnchor,row.model.anchor);assert.equal(out.selectionActive,row.model.selection);
+    for(const [name,override] of Object.entries(out.cursorLayout))for(const [field,value] of Object.entries(override)){
+      assert.deepEqual(value,row.cursor[name][field==='translation'?'position':field],`${JSON.stringify(row.input)}/${name}/${field}`);
+    }
+    for(const [i,override] of out.selectionLayouts.entries()){
+      assert.equal(override.RootPane.visible,row.selections[i].root.visible,`${JSON.stringify(row.input)}/selection${i}`);
+      if(override.RootPane.visible){
+        assert.deepEqual(override.P_decorArea.translation,row.selections[i].picture.position);
+        assert.deepEqual(override.P_decorArea.size,row.selections[i].picture.size);
+      }
+    }
+    assert.equal(out.hiddenDecorations.includes('DecorArea_select'),!row.selections.some(s=>s.root.visible));
+    assert.deepEqual(state,{value:row.input.text,cursor:row.model.cursor,anchor:row.model.anchor,selectionActive:row.model.selection});
+  }
+});
+
+test('selection state validates UTF-16 offsets and creates independent decoration instances',()=>{
+  const state={value:'Ada',cursor:1,anchor:3,selectionActive:true};
+  for(const field of ['cursor','anchor'])for(const value of [-1,4,0.5,NaN])assert.throws(()=>selectionPose({...state,[field]:value},fixture()),/cursor or selection anchor/);
+  const out=selectionPose(state,fixture());out.selectionLayouts[1].RootPane.visible=true;
+  assert.equal(out.selectionLayouts[2].RootPane.visible,false);assert.equal(out.selectionLayouts[3].RootPane.visible,false);
+  assert.deepEqual(selectionPose({...state,selectionActive:false},fixture()).selectionLayouts,Array.from({length:4},()=>({RootPane:{visible:false}})));
 });

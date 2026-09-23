@@ -330,3 +330,8 @@ NativeLayoutRenderer.withPaneParent. Callers that write runtime parent overrides
 pass the same overrides to both parent drawing and child attachment; attachment
 cache identity includes those values. See [close integration](../native-folder-close-integration.md)
 for visual bindings, reduced-motion policy and the measured rendering slowdown.
+
+Native nickname text presentation accepts explicit model cursor/selection state.
+Selection and cursor child layouts can be submitted inline through renderer
+`attachments` at their native hierarchy positions, preserving glyph ordering
+and inherited transforms/alpha. See [selection verification](../native-keyboard-selection.md).

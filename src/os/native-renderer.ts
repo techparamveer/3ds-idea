@@ -4,6 +4,10 @@ import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, native
 
 type Context=CanvasRenderingContext2D;
 export type NativeDrawOptions={bindings?:AnimationBinding[];overrides?:PaneOverrides;center?:[number,number];scale?:number;clip?:[number,number,number,number];textures?:Readonly<Record<string,NativePixels>>;
+ /** Native child-layout instances appended to a named pane's existing children.
+  * Callbacks run in traversal order with parent transform/primary alpha active.
+  */
+ attachments?:Readonly<Record<string,(alpha:number)=>void>>;
  /** Caller guarantees an opaque LCD target with no inherited fractional clip. */
  allowOpaqueDarken?:boolean};
 const surface=(width:number,height:number)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;return canvas;};
@@ -169,7 +173,16 @@ export class NativeLayoutRenderer {
       }finally{ctx.restore();}
      }
      // InfluenceAlpha transmits this pane's alpha; an unflagged pane keeps the inherited chain.
-     for(const child of pane.children)visit(child,pane.flags&2?alpha:parentAlpha);
+     const childAlpha=pane.flags&2?alpha:parentAlpha;
+     for(const child of pane.children)visit(child,childAlpha);
+     const attached=options.attachments?.[pane.name];
+     if(attached){
+      // A child draw supplies its normal layout center. Cancel the parent's
+      // center here, as withPaneParent does, while retaining its pane transform.
+      const previous=this.parentAlpha.get(ctx);ctx.save();
+      try{ctx.translate(-layout.canvas.width/2,-layout.canvas.height/2);this.parentAlpha.set(ctx,childAlpha);attached(childAlpha);}
+      finally{if(previous===undefined)this.parentAlpha.delete(ctx);else this.parentAlpha.set(ctx,previous);ctx.restore();}
+     }
     }finally{ctx.restore();}
    };
    for(const root of layout.roots)visit(root,this.parentAlpha.get(ctx)??1);

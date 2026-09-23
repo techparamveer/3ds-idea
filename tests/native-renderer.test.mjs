@@ -108,3 +108,39 @@ test('parent attachment cache does not bypass animation diagnostics in a subsequ
  assert.ok(renderer.diagnostics.some(message=>message.includes('unallocated texture matrix')));
  renderer.dispose();
 });
+
+test('inline child layouts draw after authored children and before later siblings, with inherited transform and alpha',()=>{
+ const prior=globalThis.document;globalThis.document={createElement:canvas};
+ try{
+  const parent={...layout,canvas:{width:320,height:240,origin:1},roots:[{...pane,name:'parent',kind:'pan1',picture:undefined,flags:3,alpha:128,translation:[10,20,0],scale:[2,3],children:[{...pane,name:'authored'}]}, {...pane,name:'later'}]};
+  const pack={schema:1,layouts:{parent,child:layout},animations:{},textures:{},messages:{}};
+  const renderer=new NativeLayoutRenderer({test:pack},{test:new Map([['dynamic',pixels([0,0,255])]])},new Map()),target=canvas(),ctx=target.getContext('2d'),events=[];
+  let depth=0;ctx.save=()=>{depth++;};ctx.restore=()=>{depth--;};
+  ctx.translate=(...args)=>events.push(['translate',...args]);ctx.scale=(...args)=>events.push(['scale',...args]);
+  ctx.drawImage=source=>events.push(['pixel',...source.image.data]);
+  const attach=color=>alpha=>{
+   assert.equal(alpha,128/255);events.push(['attached']);
+   // A child with a different canvas size needs its center supplied explicitly.
+   assert.equal(renderer.draw(ctx,'test','child',{center:[160,120],textures:{dynamic:pixels(color)}}),true);
+  };
+  const before=JSON.stringify(pack);
+  assert.equal(renderer.draw(ctx,'test','parent',{attachments:{parent:attach([255,0,0])}}),true);
+  assert.deepEqual(events.filter(e=>e[0]==='pixel'),[['pixel',0,0,255,128],['pixel',255,0,0,128],['pixel',0,0,255,255]]);
+  const at=events.findIndex(e=>e[0]==='attached');assert.deepEqual(events[at-1],['translate',-160,-120]);
+  assert.ok(events.some(e=>JSON.stringify(e)===JSON.stringify(['translate',10,-20])));assert.ok(events.some(e=>JSON.stringify(e)===JSON.stringify(['scale',2,3])));assert.equal(depth,0);
+  events.length=0;
+  assert.equal(renderer.draw(ctx,'test','parent',{attachments:{parent:attach([0,255,0])}}),true);
+  assert.deepEqual(events.filter(e=>e[0]==='pixel')[1],['pixel',0,255,0,128],'Pose cache must not retain an earlier callback');
+  assert.equal(renderer.draw(ctx,'test','parent',{attachments:{parent:()=>{throw new Error('attachment failure');}}}),false);assert.equal(depth,0);
+  events.length=0;assert.equal(renderer.draw(ctx,'test','child'),true);assert.deepEqual(events.find(e=>e[0]==='pixel'),['pixel',0,0,255,255],'Error cleanup restores inherited alpha');
+  let hiddenCalls=0;renderer.draw(ctx,'test','parent',{overrides:{parent:{visible:false}},attachments:{parent:()=>hiddenCalls++}});assert.equal(hiddenCalls,0);
+  assert.equal(JSON.stringify(pack),before);renderer.dispose();
+ }finally{globalThis.document=prior;}
+});
+
+test('an unflagged zero-alpha attachment parent still transmits the inherited chain',()=>{
+ const parent={...layout,roots:[{...pane,name:'parent',kind:'pan1',picture:undefined,flags:1,alpha:0}]};
+ const pack={schema:1,layouts:{parent},animations:{},textures:{},messages:{}};
+ const renderer=new NativeLayoutRenderer({test:pack},{test:new Map()},new Map()),ctx=canvas().getContext('2d');
+ const values=[];assert.equal(renderer.draw(ctx,'test','parent',{attachments:{parent:alpha=>values.push(alpha)}}),true);assert.deepEqual(values,[1]);renderer.dispose();
+});

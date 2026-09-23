@@ -69,7 +69,12 @@ export function tickHomeNavigationClock(state: MenuState, now: number, reduced =
  * bounded motion steps before consuming the remaining stable interval.
  */
 function advanceHomePresentationClocks(state:MenuState,updates:number,reduced:boolean):MenuState {
- let cursor=state.system!.homeCursorLoop;
+ const submitCursor=(current:MenuState,count:number):MenuState=>{
+  // Read after lower-task work: a mode3 entry may change step while preserving
+  // phase. A cached pre-task cursor would overwrite that same-pass change.
+  const cursor=advanceHomeCursorLoop(current.system!.homeCursorLoop,count,getHomeCursorSlot(current)!==null);
+  return cursor===current.system!.homeCursorLoop?current:{...current,system:{...current.system!,homeCursorLoop:cursor}};
+ };
  if(isSystemHomeFolderClosing(state)){
   const before=sampleSystemHomeFolderClose(state)!;
   state=advanceSystemHomeFolderClose(state,updates,reduced);
@@ -77,18 +82,18 @@ function advanceHomePresentationClocks(state:MenuState,updates:number,reduced:bo
   if(after&&ready!==null&&ready!==undefined&&before.controller.identity.generation===after.controller.identity.generation
    &&before.controller.identity.transitionId===after.controller.identity.transitionId){
    const count=state.system!.homeClock.updateCount;
-   if(ready>count-updates&&ready<=count)cursor=advanceHomeCursorLoop(cursor,count-ready+1,getHomeCursorSlot(state)!==null);
+   if(ready>count-updates&&ready<=count)state=submitCursor(state,count-ready+1);
   }
  }else{
   let remaining=updates;
   while(remaining>0&&!reduced&&state.system!.homeNavigation.motion&&!state.system!.homeNavigation.gesture){
    state=advanceSystemHomeFolderClose(state,1,reduced);
-   cursor=advanceHomeCursorLoop(cursor,1,getHomeCursorSlot(state)!==null);remaining--;
+   state=submitCursor(state,1);remaining--;
   }
   state=advanceSystemHomeFolderClose(state,remaining,reduced);
-  cursor=advanceHomeCursorLoop(cursor,remaining,getHomeCursorSlot(state)!==null);
+  state=submitCursor(state,remaining);
  }
- return cursor===state.system!.homeCursorLoop?state:{...state,system:{...state.system!,homeCursorLoop:cursor}};
+ return state;
 }
 export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return state;

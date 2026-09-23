@@ -36,7 +36,7 @@ local evidence only; root owns actual browser profiling and visual checks.
 
 Presentation worker owns `src/os/native-renderer.ts`,
 `tests/native-darken-blend.test.mjs` and a dedicated validation note. Keep the
-renderer and material APIs stable. For the exact blend predicate Add (1), source
+material APIs stable. For the exact blend predicate Add (1), source
 Zero (0), destination OneMinusSourceAlpha (5), with Always alpha comparison (7),
 source RGB is discarded and visible LCD RGB is D*(1-As). Reuse the same evaluated
 alpha, set cached RGB to black and draw source-over to the opaque LCD target.
@@ -44,6 +44,18 @@ This must avoid the uncommon full-canvas readback while preserving visible RGB.
 Do not use destination-out. Preserve cache accounting, dynamic texture identity,
 clip/transform behavior and other blend paths. Keep this predicate local to the
 renderer to avoid concurrent native-layout edits.
+
+Measured Canvas coverage requires a bounded opt-in: `NativeDrawOptions` may add
+`allowOpaqueDarken?: boolean`. Its caller guarantees an opaque target and no
+inherited fractional clip. The renderer additionally requires axis-aligned
+transforms, globalAlpha1 and whole-device-pixel bounds for its own options.clip.
+Text draws with their additional pane clip use the existing path. Root opts in
+only at upperBase, whose caller has an opaque400×240 LCD with no inherited clip
+and whose explicit clip is [0,212,400,28]. All other calls remain unchanged.
+Keep the generic path for rotated/sheared/nonunit-alpha and fractional-clip
+cases: CPU Canvas comparison found up to4 RGB byte differences in rotated edges,
+and up to1 with a fractional clip. Cache preparation may discard source RGB
+under this exact blend predicate even for fallback because its coefficient is0.
 
 Acceptance: actual CameraBase material and all alpha endpoints, guarded negative
 cases, no fast-path readback, cache/clip/transform behavior, and type checking.

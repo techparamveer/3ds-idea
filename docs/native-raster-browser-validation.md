@@ -72,3 +72,10 @@ type checking and the production build also pass. The optional CPU Canvas tests
 were enabled from the SSD-only module installation. Logs are
 `integration-raster-all-tests.log` and `integration-raster-build.log` at the
 firmware artifact root. No new dependency was added to the application.
+
+The actual projected model A button opened the folder; a projected touchscreen
+Back tap restored HOME at start+18 with the folder-close cue. The record is
+`reference/raster-combined-physical-touch.json`. At390×844, the console is fully
+framed with no document overflow (`raster-combined-mobile.png`). Fixed-date,
+fixed-time reduced-motion captures remained identical across48 logical updates,
+with no error overlay (`raster-combined-reduced-stability.json`).

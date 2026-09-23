@@ -94,3 +94,19 @@ TypeScript checks pass. Root owns audio element wiring and combined browser
 verification; presentation owns native art/layout painting. Unit tests establish
 runtime behavior, not visual fidelity. No firmware execution, browser or Azahar
 was used for this slice.
+
+## Integrated browser transport
+
+`portfolio-music.ts` owns one foreground HTMLAudioElement. The runtime effect
+consumer validates owner, track and revision before starting playback or
+accepting callbacks. HOME, sleep and close release the element; later explicit
+Play reloads the track at the saved position. Console volume/mute apply to music.
+Replacing tracks invalidates old event handlers and rejected play promises.
+Focused fake-audio tests cover progress, seek, release, resume and stale callbacks.
+Production audio still awaits user tracks; no browser playback success is claimed
+from the empty library or from the fake-audio tests.
+
+On 23 September, the integrated localhost browser was visually checked with the
+actual Camera folders/photos and Sound empty-library screen on the console.
+Camera/Sound chrome is currently adapted, pending original gallery/player assets.
+Settings and remaining native compositions need further visual verification.

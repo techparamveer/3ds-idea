@@ -83,23 +83,19 @@ test('asynchronous capability results preserve state flushed at their arrival bo
  assert.ok(calls>before);assert.equal(changedLabel,`boundary:${calls}`);assert.equal(f.state.nameDraft,changedLabel);f.adapter.dispose();
 });
 
-test('Camera and Sound deletion removes local files as well as gallery entries through the effect queue',async()=>{
+test('UI-only Camera and Sound cannot delete preserved local media',async()=>{
  const storage=await openFirmwareStorage({indexedDB:new IDBFactory(),databaseName:'media-effects'});
  const photo=await storage.putMedia({id:'photo-one',name:'Photo',kind:'photo',createdAt:1},new Blob(['pixels'],{type:'image/png'}));
  const audio=await storage.putMedia({id:'audio-one',name:'Sound',kind:'audio',createdAt:2},new Blob(['samples'],{type:'audio/webm'}));
- const keep=await storage.putMedia({id:'photo-two',name:'Keep',kind:'photo',createdAt:3},new Blob(['keep'],{type:'image/png'}));
  const f=fixture({storage}),runtime=f.state.system.runtime;
- f.state={...f.state,system:{...f.state.system,runtime:{...runtime,shared:{...runtime.shared,photos:[photo,keep],sounds:[audio]}}}};
+ f.state={...f.state,system:{...f.state.system,runtime:{...runtime,shared:{...runtime.shared,photos:[photo],sounds:[audio]}}}};
  f.launch('camera');f.action('gallery');f.action(photo.id);f.action('delete');
- const deletion=f.state.system.runtime.effects.find(item=>item.effect.removedMedia);
- assert.deepEqual(deletion.effect.removedMedia,[photo.id]);assert.equal(deletion.effect.key,'@shared');
- f.adapter.drain(true);f.adapter.drain(false);await f.adapter.settled();
- assert.equal(await storage.getMedia(photo.id),null);assert.ok(await storage.getMedia(audio.id));
- assert.deepEqual((await storage.load()).shared.photos,[keep]);
+ f.adapter.drain(true);await f.adapter.settled();
  f.launch('sound');f.confirmSwitch();f.action('library');f.action(audio.id);f.action('delete');
- f.state=reduceSystem(f.state,'home',9000);f.adapter.drain(false);await f.adapter.settled();
- assert.equal(await storage.getMedia(audio.id),null);assert.deepEqual((await storage.load()).shared.sounds,[]);
- assert.equal(await (await storage.getMedia(keep.id)).blob.text(),'keep');assert.deepEqual(f.failures,[]);f.adapter.dispose();
+ f.adapter.drain(true);await f.adapter.settled();
+ assert.ok(await storage.getMedia(photo.id));assert.ok(await storage.getMedia(audio.id));
+ assert.deepEqual(f.state.system.runtime.shared.photos,[photo]);assert.deepEqual(f.state.system.runtime.shared.sounds,[audio]);
+ assert.deepEqual(f.failures,[]);f.adapter.dispose();
 });
 
 test('media deletion waits for preceding writes and failure is reported without duplicating the operation',async()=>{

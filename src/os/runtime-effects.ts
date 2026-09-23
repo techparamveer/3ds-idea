@@ -1,7 +1,8 @@
 import { createCapabilityAdapter, type CapabilityEnvironment } from './app-capabilities.ts';
 import { isRuntimeEffectCurrent } from './app-host.ts';
 import { FirmwareStorageError, type FirmwareStorage } from './app-persistence.ts';
-import { acknowledgeSystemEffects, resolveSystemCapability, saveSettings } from './system.ts';
+import { acknowledgeSystemEffects, dispatchSystemEvent, resolveSystemCapability, saveSettings } from './system.ts';
+import {createPortfolioMusic,type PortfolioAudio} from './portfolio-music.ts';
 import type { MenuState } from './state.ts';
 
 /** Browser effects are consumed synchronously; device prompts never block release.
@@ -14,6 +15,7 @@ export function createRuntimeEffects(options: {
   beforeMutation?: (now: number) => void;
   storage?: FirmwareStorage;
   environment?: CapabilityEnvironment;
+  createMusicAudio?: () => PortfolioAudio;
   onChange: () => void;
   onFailure: (error: unknown) => void;
   onSound: (name: string) => void;
@@ -22,6 +24,10 @@ export function createRuntimeEffects(options: {
   let disposed = false, draining = false, writes = Promise.resolve();
   let preferences = saveSettings(options.getState());
   const report = (error: unknown) => { if (!disposed) options.onFailure(error); };
+  const music=createPortfolioMusic({createAudio:options.createMusicAudio,
+    isCurrent(owner,effect){const s=options.getState().system!,r=s.runtime,i=r.instances[owner];return !disposed&&s.phase==='app'&&!s.sleeping&&r.active===owner&&!!i&&!i.suspended&&!i.closing&&i.appId==='sound'&&i.state.trackId===effect.trackId&&i.state.revision===effect.revision;},
+    onEvent(owner,event){if(disposed)return;const now=options.now();options.beforeMutation?.(now);const current=options.getState();if(current.system?.runtime.active!==owner)return;const next=dispatchSystemEvent(current,event,now);if(next!==current){options.setState(next);drain(false);options.onChange();}},
+  });
   const adapter = createCapabilityAdapter({
     storage: options.storage, environment: options.environment,
     isCurrent: item => !disposed && isRuntimeEffectCurrent(options.getState().system!.runtime, item),
@@ -49,6 +55,7 @@ export function createRuntimeEffects(options: {
     if (disposed || draining) return;
     draining = true;
     try {
+      const state=options.getState().system!;music.setVolume(state.volume,state.muted);
       // A synchronous capability result can append another effect during execute.
       while (options.getState().system!.runtime.effects.length) {
         options.beforeMutation?.(options.now());
@@ -59,7 +66,8 @@ export function createRuntimeEffects(options: {
           if (effect.type === 'storage') write(storage => effect.removedMedia
             ? storage.saveSharedAndDeleteMedia(effect.record, effect.removedMedia)
             : storage.saveRecord(effect.key, effect.record));
-          else if (effect.type === 'release-capabilities') adapter.release(item.owner);
+          else if (effect.type === 'release-capabilities') {adapter.release(item.owner);music.release(item.owner);}
+          else if (effect.type === 'music') music.execute(item.owner,effect);
           else if (effect.type === 'capability') {
             if (isRuntimeEffectCurrent(options.getState().system!.runtime, item)) void adapter.execute(item, { userGesture }).catch(report);
           } else if (effect.type === 'sound') options.onSound(effect.name);
@@ -74,7 +82,7 @@ export function createRuntimeEffects(options: {
     settled: () => writes,
     dispose() {
       if (disposed) return;
-      disposed = true; adapter.dispose();
+      disposed = true; adapter.dispose(); music.dispose();
       // Complete already emitted save writes before closing their database.
       void writes.finally(() => options.storage?.dispose());
     },

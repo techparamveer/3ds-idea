@@ -283,6 +283,7 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
  let reduced=options.reducedMotion??false;
  function paint(state:MenuState,date=new Date(),elapsedMs=0){
   if(disposed)return;
+  graphics.syncStockView(state);
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
   const view=getHomePresentation(state);

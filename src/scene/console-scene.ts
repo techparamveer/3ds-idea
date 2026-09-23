@@ -9,7 +9,7 @@ import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClock
 import { enableHomeControls, reconcileHomeControls } from '@/os/home-controls';
 import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
 import { createRuntimeEffects } from '@/os/runtime-effects';
-import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, getHomeBannerHostView, getHomeBannerCloseReadyUpdate, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
+import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerCloseReadyUpdate, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
 import type { AppCommand, AppEvent } from '@/os/app-types';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -194,7 +194,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(drag)drag.padDirection=direction;
   }
   let lastInput='none';
-  function cursorDiagnostic(){const controls=state.system!.homeControls;return {...state.system!.homeCursorLoop,visibleSlot:getHomeCursorSlot(state),sampledFrame:getHomeCursorLoopFrame(state,reduced),...(controls?{primary:controls.primary,presentation:controls.presentation,producer:controls.producer,focus:state.system!.homeNavigation.focus,mode3:state.system!.homeNavigation.mode3,mode:state.system!.homeNavigation.motion?.mode??0}: {})};}
+  function cursorDiagnostic(){const controls=state.system!.homeControls;return {...state.system!.homeCursorLoop,visibleSlot:getHomeCursorSlot(state),selectedSlot:state.opened?state.folderSelected:state.selected,sampledFrame:getHomeCursorLoopFrame(state,reduced),...(controls?{primary:controls.primary,presentation:controls.presentation,producer:controls.producer,tileTouch:controls.tileTouch,tilePoses:controls.tilePoses,focus:state.system!.homeNavigation.focus,mode3:state.system!.homeNavigation.mode3,mode:state.system!.homeNavigation.motion?.mode??0}: {})};}
   const writeState=()=>{
     if(diagnostics)host.dataset.homeCursor=JSON.stringify(cursorDiagnostic());
     const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderClose=JSON.stringify(sampleSystemHomeFolderClose(state));host.dataset.folderBannerFallback=String(!nativePrimaryAvailable(resolveHomeBannerHostSelection(state).kind));}const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
@@ -234,10 +234,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
           const selection=resolveHomeBannerHostObservation(pass.state,entry.observation);
           if(entry.phase==='input')beforeManager=selection;else afterManager=selection;
         }
-        bannerHost=stepHomeBannerHost(bannerHost,bannerClock(),{
+        bannerHost=pass.completed?stepHomeBannerHost(bannerHost,bannerClock(),{
           beforeManager:beforeManager?{selection:beforeManager}:undefined,
           afterManager:afterManager?{selection:afterManager}:undefined,
-        });
+        }):skipHomeBannerHostPass(bannerHost,bannerClock());
         // A lower request's resource ticket is acknowledged after this pass;
         // it cannot retroactively make the preceding upper manager eligible.
         observeFolderBanner();
@@ -245,6 +245,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
           const name=entry.observation.cue==='selection'?'select':entry.observation.cue==='invalid'?'scroll-invalid':'toolbar-select';
           audio.play(name,state.system!.muted,state.system!.volume);
         }
+        for(const sound of pass.sounds)audio.play(sound,state.system!.muted,state.system!.volume);
       }
       state=advanced.state;
     }
@@ -443,7 +444,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
           targets[`${name}_${direction}`]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];
         }
       }
-      for(const [x,y]of [[59,54],[76,137],[20,16],[70,16],[105,16],[145,16],[190,16],[235,16],[277,16],[307,16],[52,76],[136,76],[52,160],[136,160],[50,226],[210,226],[150,65],[70,170],[230,170],[100,110],[100,90],[100,150],[200,180],[160,226]]){
+      for(const [x,y]of [[59,54],[76,137],[160,137],[20,16],[70,16],[105,16],[145,16],[190,16],[235,16],[277,16],[307,16],[52,76],[136,76],[52,160],[136,160],[50,226],[210,226],[150,65],[70,170],[230,170],[100,110],[100,90],[100,150],[200,180],[160,226]]){
         const v=touchScreen.localToWorld(new THREE.Vector3((x/320-.5)*layout.screens.bottom.widthMm,(.5-y/240)*layout.screens.bottom.heightMm,0)).project(camera);
         targets[`Touch_${x}_${y}`]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];
       }

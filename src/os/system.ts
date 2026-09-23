@@ -1,7 +1,7 @@
 import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { createHomeCursorLoop, advanceHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
-import { cancelHomeControls, isHomeControlsActive, queueHomeControlEvent, reconcileHomeControls, selectHomeControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
+import { cancelHomeControls, cancelHomeControlTouch, isHomeControlsActive, queueHomeControlEvent, queueHomeControlTouch, reconcileHomeControlGesture, reconcileHomeControls, selectHomeControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
 import { getHomeToolbarCursorAnchor } from './home-cursor-presentation.ts';
 export { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHomeFolderCloseRecord, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { getApp } from './apps.ts';
@@ -72,7 +72,17 @@ export function tickHomeNavigationClockObserved(state: MenuState, now: number, r
   if(stepped.updates===0&&stepped.clock!==s.homeClock)state={...state,system:{...s,homeClock:stepped.clock}};
   for(let i=1;i<=stepped.updates;i++){
    state={...state,system:{...state.system!,homeClock:{...stepped.clock,updateCount:s.homeClock.updateCount+i}}};
-   const pass=stepHomeControls(state);state=pass.state;passes.push(pass);
+   const passNow=now-stepped.clock.remainderMs-(stepped.updates-i)*1000/60;
+   state=reconcileHomeControlGesture(tickHomeGesture(state,passNow));
+   const pass=stepHomeControls(state);state=pass.state;
+   if(pass.handoff){
+    // The audited open call ends the native input pass. Existing application
+    // and folder lifecycles remain explicit browser bridges after that point.
+    state=reduceSystem(state,'open',now);
+    state={...state,system:{...state.system!,homeClock:{...state.system!.homeClock,lastNow:null,remainderMs:0}}};
+    passes.push(Object.freeze({...pass,state}));break;
+   }
+   passes.push(pass);
   }
   return {state,passes};
  }
@@ -130,10 +140,11 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
 }
 function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return !s?reduceMenu(state,input):state;
- state=cancelHomeGesture(tickHomeNavigationClock(state,now));
+ state=tickHomeNavigationClock(state,now);
  if(['left','right','up','down'].includes(input)){
   const queued=queueHomeControlEvent(state,{type:'command',command:input as 'left'|'right'|'up'|'down'});if(queued)return queued;
  }
+ state=cancelHomeGesture(state);
  if(['back','home'].includes(input)&&!isSystemHomeFolderClosing(state))state=resetHomeNavigation(state);
  s=state.system!;
  const change=(patch:Partial<System>):MenuState=>({...state,system:{...s!,link:null,...patch}});
@@ -224,6 +235,11 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  if(!state.panel&&y>=(state.opened?49:34)&&y<204){
   if(y>=104&&y<158&&(x<20||x>=300))return send(x<20?'left':'right');
   const location=homeTouchLocation(state,x,y);if(!location)return state;
+  if(s.homeControls&&!s.homeNavigation.motion){
+   // Compatibility one-shot touches use the same sampled widget route.
+   const down=queueHomeControlTouch(state,{type:'touch',phase:'down',x,y});
+   return down.handled?queueHomeControlTouch(down.state,{type:'touch',phase:'up',x,y}).state:state;
+  }
   const selected=state.opened?state.folderSelected:state.selected;
   return location.slot===selected&&!s.homeNavigation.focus.toolbarActive&&(!state.opened||homeSlotAppId(state,location.slot))?send('open')
    :selectHomeControlTouch(state,location.slot)??selectHomeSlot(state,location.slot);
@@ -245,7 +261,12 @@ function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number)
   state=tickHomeNavigationClock(state,now);s=state.system!;
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&isSystemHomeFolderClosing(state))return state;
   state={...state,system:{...s,input:touched.latch}};s=state.system!;
-  if(s.phase==='home'&&!s.preferences&&!s.dialog&&!s.sleeping){const result=touchHomeGesture(state,event,now);return result.tap?touchSystem(result.state,event.x,event.y,now):result.state;}
+  if(s.phase==='home'&&!s.preferences&&!s.dialog&&!s.sleeping){
+   const native=queueHomeControlTouch(state,event);
+   const result=touchHomeGesture(native.state,event,now);
+   const next=result.nonTapGesture?cancelHomeControlTouch(result.state):reconcileHomeControlGesture(result.state);
+   return result.tap&&!native.handled?touchSystem(next,event.x,event.y,now):next;
+  }
  }
  if(event.type==='button'||event.type==='analog'||event.type==='command'){
   state=tickHomeNavigationClock(state,now);s=state.system!;

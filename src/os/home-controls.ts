@@ -13,6 +13,10 @@ import { advanceSystemHomeFolderCloseNative, consumeSystemHomeFolderCloseInput,
   isSystemHomeFolderClosing, sampleSystemHomeFolderClose } from './home-folder-close-system.ts';
 import type { HomeNavigationPassObservation } from './home-navigation-pass.ts';
 import type { HomeTilePose } from './home-tile-pose.ts';
+import { createHomeTileTouch, queueHomeTileTouch, resetHomeTileTouch, sampleHomeTileTouch,
+  advanceHomeTileTouch2D, homeTileTouchPoses, type HomeTileTouch } from './home-tile-touch.ts';
+import { homeTouchLocation } from './home-gestures.ts';
+import { homeItemAt } from './home-layout.ts';
 
 export type HomeControls = Readonly<{
   input: HomeInputAdapter;
@@ -21,6 +25,7 @@ export type HomeControls = Readonly<{
   presentation: HomeCursorPresentation;
   /** Applied tile-local poses; hit geometry and primary cursor are independent. */
   tilePoses: Readonly<Record<number, HomeTilePose>>;
+  tileTouch: HomeTileTouch;
 }>;
 export type HomeControlPass = Readonly<{
   updateCount: number;
@@ -28,13 +33,18 @@ export type HomeControlPass = Readonly<{
   observations: readonly HomeNavigationPassObservation[];
   /** Explicit unsupported mask/gesture routes are not reinterpreted as cardinals. */
   unsupportedInput: boolean;
+  sounds: readonly ('touch' | 'open' | 'folder-open')[];
+  /** Native ordinary open audit stops before remaining host phases. */
+  handoff: 'application' | 'folder' | null;
+  completed: boolean;
 }>;
 export function isHomeControlsActive(state: MenuState): boolean {
   const s = state.system;
   return !!s && state.powered && s.phase === 'home' && !s.sleeping && !s.dialog && !s.preferences && !state.panel;
 }
 function put(state: MenuState, controls: HomeControls): MenuState {
-  return { ...state, system: { ...state.system!, homeControls: Object.freeze(controls) } };
+  return { ...state, system: { ...state.system!, homeControls: Object.freeze({ ...controls,
+    tilePoses: homeTileTouchPoses(controls.tileTouch) }) } };
 }
 function writeScroll(state: MenuState, scroll: HomeScrollState): MenuState {
   if (scroll.navigation !== state.system!.homeNavigation) state = writeHomeNavigation(state, scroll.navigation);
@@ -50,7 +60,34 @@ export function enableHomeControls(state: MenuState): MenuState {
   if (!state.system || state.system.homeControls) return state;
   return put(state, { input: createHomeInputAdapter(), producer: createHomeInputProducer(),
     primary: createHomePrimaryCursor({ request: 0, shown: true, layoutVisible: true, center: selectedCenter(state.system.homeNavigation) }),
-    presentation: createHomeCursorPresentation(sampleHomeGrid(state.system.homeNavigation).densityValue), tilePoses: Object.freeze({}) });
+    presentation: createHomeCursorPresentation(sampleHomeGrid(state.system.homeNavigation).densityValue),
+    tilePoses: Object.freeze({}), tileTouch: createHomeTileTouch() });
+}
+/** Only settled grid strokes enter the audited widget route. Other gestures
+ * keep their existing owner. Hit rectangles remain the browser layout policy. */
+export function queueHomeControlTouch(state: MenuState, event: Extract<AppEvent, { type: 'touch' }>) {
+  const controls = state.system?.homeControls;
+  if (!controls || !isHomeControlsActive(state) || isSystemHomeFolderClosing(state)) return { state, handled: false };
+  const nav = state.system!.homeNavigation;
+  const location = !nav.motion ? homeTouchLocation(state, event.x, event.y) : null;
+  const result = queueHomeTileTouch(controls.tileTouch, event, location?.slot ?? null);
+  return { state: result.state === controls.tileTouch ? state : put(state, { ...controls, tileTouch: result.state }), handled: result.handled };
+}
+/** Explicit browser takeover: authored drag/scroll and lifecycle changes reset
+ * the native ordinary widget; this is not an inferred native context guard. */
+export function reconcileHomeControlGesture(state: MenuState): MenuState {
+  const controls = state.system?.homeControls, gesture = state.system?.homeNavigation.gesture;
+  if (!controls) return state;
+  if (controls.tileTouch.strokeOwned && !gesture && !state.system!.input.touch) {
+    return put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch) });
+  }
+  if (!gesture || gesture.area !== 'grid' || gesture.mode === 'press') return state;
+  if (!controls.tileTouch.strokeOwned && !controls.tileTouch.pending.length && !Object.values(controls.tileTouch.widgets).some(w => w.capture || w.state !== 0)) return state;
+  return put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch) });
+}
+export function cancelHomeControlTouch(state: MenuState): MenuState {
+  const controls = state.system?.homeControls;
+  return controls ? put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch) }) : state;
 }
 const directions = new Set(['right', 'left', 'up', 'down']);
 /** Null means another existing System owner must route the event. No sampling here. */
@@ -77,17 +114,19 @@ export function cancelHomeControls(state: MenuState): MenuState {
   const close = sampleSystemHomeFolderClose(state), event = { type: 7 as const, mask: 0x30 };
   if (close && isSystemHomeFolderClosing(state)) state = consumeSystemHomeFolderCloseInput(state, close.controller.identity, event).state;
   else state = writeScroll(state, consumeHomeGridKeyEvent({ navigation: state.system!.homeNavigation, cursorLoop: state.system!.homeCursorLoop }, event).state);
-  return put(state, { ...controls, input: createHomeInputAdapter(), producer: createHomeInputProducer() });
+  return put(state, { ...controls, input: createHomeInputAdapter(), producer: createHomeInputProducer(),
+    tileTouch: resetHomeTileTouch(controls.tileTouch) });
 }
 function observe(controls: HomeControls, observations: readonly HomeScrollObservation[]): HomeControls {
-  let { primary, presentation } = controls;
+  let { primary, presentation, tileTouch } = controls;
   for (const observation of observations) {
     presentation = consumeHomeCursorObservation(presentation, observation);
     if (observation.kind === 'mode3-entry' || observation.kind === 'banner-resolve' && observation.reason === 'idle-entry') {
       primary = setHomePrimaryCursorRequest(primary, 0);
+      tileTouch = resetHomeTileTouch(tileTouch);
     }
   }
-  return { ...controls, primary, presentation };
+  return { ...controls, primary, presentation, tileTouch };
 }
 /** Accepted touch selection shares the native cursor/mode3 consumer, including
  * a departed toolbar effect. Raw press/drag eligibility remains external. */
@@ -108,7 +147,7 @@ export function reconcileHomeControls(before: MenuState, state: MenuState): Menu
     const primary = updateHomePrimaryCursorFooter(setHomePrimaryCursorRequest(controls.primary, 2),
       { overlayActive: false, secondaryOverlayActive: false, mode: 44,
         position: { kind: 'grid', selectedCenter: controls.primary.center } }).state;
-    return put(state, { ...controls, primary });
+    return put(state, { ...controls, primary, tileTouch: resetHomeTileTouch(controls.tileTouch) });
   }
   if (before.system?.homeNavigation.activeFolderSlot !== state.system!.homeNavigation.activeFolderSlot) {
     state = cancelHomeControls(state); controls = state.system!.homeControls!;
@@ -117,21 +156,49 @@ export function reconcileHomeControls(before: MenuState, state: MenuState): Menu
     // layout lifecycles are hosted. Never map departed effects across containers.
     return put(state, { ...controls,
       primary: createHomePrimaryCursor({ request: 0, shown: true, layoutVisible: true, center: selectedCenter(nav) }),
-      presentation: createHomeCursorPresentation(sampleHomeGrid(nav).densityValue) });
+      presentation: createHomeCursorPresentation(sampleHomeGrid(nav).densityValue), tileTouch: createHomeTileTouch() });
   }
-  return state;
+  if (before.columns !== state.columns || !before.system?.homeNavigation.motion && state.system!.homeNavigation.motion) {
+    state = put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch) });
+  }
+  return reconcileHomeControlGesture(state);
 }
 /** One eligible shared count. The caller has installed its absolute count first.
  * Banner manager/3D phases and audio consume the returned ordered journal. */
 export function stepHomeControls(state: MenuState): HomeControlPass {
+  state = reconcileHomeControlGesture(state);
   let controls = state.system!.homeControls!;
+  const observations: HomeNavigationPassObservation[] = [], sounds: ('touch' | 'open' | 'folder-open')[] = [];
+  let unsupportedInput = false;
+  const touch = sampleHomeTileTouch(controls.tileTouch, (slot, x, y) => homeTouchLocation(state, x, y)?.slot === slot);
+  controls = { ...controls, tileTouch: touch.state };
+  // The authored recognizer remains alive for a possible drag takeover, but an
+  // ordinary native press does not inhibit native idle/lower/cursor work.
+  const gesture = state.system!.homeNavigation.gesture;
+  const ordinaryGesture = gesture?.area === 'grid' && gesture.mode === 'press' && Object.keys(controls.tileTouch.widgets).length > 0 ? gesture : null;
+  if (ordinaryGesture) state = writeHomeNavigation(state, { ...state.system!.homeNavigation, gesture: null });
+  for (const event of touch.events) {
+    if (event.kind === 'cue') { sounds.push(event.cue); continue; }
+    if (event.value !== 1) continue;
+    const nav = state.system!.homeNavigation, oldSlot = activeHomeRecord(nav).selectedSlot, oldToolbar = nav.focus.toolbarActive;
+    const accepted = selectHomeTouchSlot({ navigation: nav, cursorLoop: state.system!.homeCursorLoop }, event.slot);
+    if (accepted.disposition === 'unsupported') { unsupportedInput = true; continue; }
+    state = writeScroll(state, accepted.state); controls = observe(controls, accepted.observations);
+    observations.push(...accepted.observations.map(observation => ({ phase: 'input' as const, observation })));
+    const item = homeItemAt(state, { folder: nav.activeFolderSlot, slot: event.slot });
+    if (!oldToolbar && oldSlot === event.slot && item) {
+      const handoff = item.kind === 'folder' ? 'folder' : 'application';
+      sounds.push(handoff === 'folder' ? 'folder-open' : 'open');
+      return Object.freeze({ updateCount: state.system!.homeClock.updateCount, state: put(state, controls),
+        observations: Object.freeze(observations), sounds: Object.freeze(sounds), unsupportedInput, handoff, completed: false });
+    }
+  }
+  if (touch.unsupportedLongPress) { unsupportedInput = true; controls = { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch) }; }
   const sampled = sampleHomeInputAdapter(controls.input);
   const produced = pollHomeInput(controls.producer, { ...sampled.sample.combined,
-    touchActive: !!state.system!.input.touch, captureActive: false,
+    touchActive: touch.touchActive || !!state.system!.input.touch, captureActive: touch.captureActive,
     hostFlags: 0, gateWord14: 0, readiness10dc20: true, readiness10cd20: true });
   controls = { ...controls, input: sampled.state, producer: produced.state };
-  const observations: HomeNavigationPassObservation[] = [];
-  let unsupportedInput = false;
   for (const event of produced.events) {
     const close = sampleSystemHomeFolderClose(state);
     if (close && isSystemHomeFolderClosing(state)) {
@@ -153,8 +220,8 @@ export function stepHomeControls(state: MenuState): HomeControlPass {
   observations.push(...lower.observations.map(observation => ({ phase: 'lower' as const, observation })));
   const nav = state.system!.homeNavigation, grid = sampleHomeGrid(nav), close = sampleSystemHomeFolderClose(state);
   const closing = close?.controller.phase === 'closing';
-  const gesture = nav.gesture?.area === 'grid';
-  let primary = setHomePrimaryCursorRequest(controls.primary, closing || gesture ? 2 : 0);
+  const gestureHidden = nav.gesture?.area === 'grid' && nav.gesture.mode !== 'press';
+  let primary = setHomePrimaryCursorRequest(controls.primary, closing || gestureHidden ? 2 : 0);
   if (!nav.focus.toolbarActive) controls = observe(controls, [{ kind: 'scale-seek', frame: grid.densityValue, updateOffset: null }]);
   const footer = updateHomePrimaryCursorFooter(primary, { overlayActive: false, secondaryOverlayActive: false,
     mode: closing ? 44 : nav.motion?.mode ?? 0,
@@ -167,7 +234,8 @@ export function stepHomeControls(state: MenuState): HomeControlPass {
   presentation = advanceHomeCursorPresentation(presentation, 1,
     { primaryWrapperEligible: primary.layoutVisible, effectWrapperEligible: [true, true] });
   state = { ...state, system: { ...state.system!, homeCursorLoop: advanceHomeCursorLoop(state.system!.homeCursorLoop, 1, primary.layoutVisible) } };
-  state = put(state, { ...controls, primary, presentation });
+  state = put(state, { ...controls, primary, presentation, tileTouch: advanceHomeTileTouch2D(controls.tileTouch) });
+  if (ordinaryGesture) state = writeHomeNavigation(state, { ...state.system!.homeNavigation, gesture: ordinaryGesture });
   return Object.freeze({ updateCount: state.system!.homeClock.updateCount, state,
-    observations: Object.freeze(observations), unsupportedInput });
+    observations: Object.freeze(observations), sounds: Object.freeze(sounds), unsupportedInput, handoff: null, completed: true });
 }

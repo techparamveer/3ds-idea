@@ -18,7 +18,7 @@ const browser = (...args) => {
 const evaluate = code => JSON.parse(browser('eval', code));
 const read = `(()=>{const h=document.querySelector('[role=application]');return {updates:Number(h.dataset.homeUpdates),cursor:JSON.parse(h.dataset.homeCursor),banner:JSON.parse(h.dataset.folderBanner),menu:h.dataset.menu,audio:JSON.parse(h.dataset.audio)};})()`;
 const sample = ms => evaluate(`new Promise(resolve=>{const frames=[],start=performance.now();function next(){frames.push(${read});if(performance.now()-start>=${ms})resolve(frames);else requestAnimationFrame(next);}requestAnimationFrame(next);})`);
-const settle = () => browser('wait', '--fn', `JSON.parse(document.querySelector('[role=application]').dataset.homeCursor).mode===0`);
+const settle = () => browser('wait', '--fn', `(()=>{const c=JSON.parse(document.querySelector('[role=application]').dataset.homeCursor);return c.mode===0&&!c.tileTouch?.globalCapture&&!c.tileTouch?.pending.length;})()`);
 function focus(pattern) {
  const ref = browser('snapshot', '-i').match(pattern)?.[1];assert.ok(ref, 'Required accessible control exists');browser('focus', `@${ref}`);
 }

@@ -25,7 +25,8 @@ such as the held count belong here if required by the executed leaf.
 
 Input is `{ current: boolean, previous: boolean, inside: boolean,
 globalCapture: boolean }`. The host skips this function when the producer does
-not traverse widgets. The result is `{ state: HomeTileWidget, events }`, where
+not traverse widgets. The result is `{ state: HomeTileWidget, events,
+unsupportedLongPress: boolean }`, where
 ordered events are `{ kind: 'cue', cue: 'touch' }` or
 `{ kind: 'callback', value: 0 | 1 | 2 }`. Preserve the source's enable and
 own/global capture gates. The initial cue precedes callback0. Do not invent
@@ -37,6 +38,8 @@ bindings in Select→Decide order, retaining only the last actual writer as
 Select0 and disables bindings, without generating callback2. Enabling/disabling
 and reset must follow their distinct source leaves. All operations are pure
 and immutable. Do not bind navigation or elapsed milliseconds into this module.
+The source's static held threshold20 starts an unhosted long-press route. Report
+that boundary before executing it; the coordinator owns explicit takeover.
 
 Tests must replay the relevant widget/controller/pose/capture fields from all
 43 source cases, including quick release, leave/reentry, second tap, waiting

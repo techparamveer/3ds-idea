@@ -66,7 +66,7 @@ export function tickHomeGesture(state: MenuState, now: number): MenuState {
   return setNavigation(state, { ...state.system!.homeNavigation, gesture: { ...gesture, updatedAt: now } });
 }
 /** Called after the shared stylus latch accepts the event. A returned tap is consumed once by touchSystem. */
-export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { type: 'touch' }>, now: number): { state: MenuState; tap: boolean } {
+export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { type: 'touch' }>, now: number): { state: MenuState; tap: boolean; nonTapGesture?: boolean } {
   if (!eligible(state)) return { state: cancelHomeGesture(state), tap: false };
   if (event.phase === 'cancel') return { state: cancelHomeGesture(state), tap: false };
   if (event.phase === 'down') {
@@ -105,14 +105,14 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   if (event.phase !== 'up') return { state, tap: false };
   if (event.x < 0 || event.x >= 320 || event.y < 0 || event.y >= 240) return { state: cancelHomeGesture(state), tap: false };
   if (gesture.mode === 'drag') {
-    if (!gesture.source || !gesture.target || !resolveHomeDrop(state, gesture.source, gesture.target)) return { state: cancelHomeGesture(state), tap: false };
+    if (!gesture.source || !gesture.target || !resolveHomeDrop(state, gesture.source, gesture.target)) return { state: cancelHomeGesture(state), tap: false, nonTapGesture: true };
     state = commitHomeScroll(setNavigation(state, { ...getHomeNavigation(state), gesture: null }), scrollColumn);
-    return { state: moveHomeItem(state, gesture.source, gesture.target), tap: false };
+    return { state: moveHomeItem(state, gesture.source, gesture.target), tap: false, nonTapGesture: true };
   }
   if (gesture.mode === 'scroll') {
     state = setNavigation(state, { ...getHomeNavigation(state), gesture: null });
     if (gesture.area === 'grid') state = commitHomeScroll(state, scrollColumn);
-    return { state, tap: false };
+    return { state, tap: false, nonTapGesture: true };
   }
   const end = !state.panel ? homeTouchLocation(state, event.x, event.y) : null;
   const beganOnBack = isHomeFolderBackTouch(state, gesture.startX, gesture.startY), endedOnBack = isHomeFolderBackTouch(state, event.x, event.y);

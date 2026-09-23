@@ -193,6 +193,17 @@ export function stepHomeBannerHost(host: HomeBannerHost, clock: HomeBannerServic
   return { ...next, clock: { ...clock }, service };
 }
 
+/** Browser handoff after native input ends the bounded pass. Account for the
+ * shared count without inventing the unexecuted manager/global3D phases. */
+export function skipHomeBannerHostPass(host: HomeBannerHost, clock: HomeBannerServiceClock): HomeBannerHost {
+  assertClock(clock);
+  if (clock.generation !== host.clock.generation || clock.updateCount !== host.clock.updateCount + 1) {
+    throw new RangeError('HOME banner skipped pass requires the next count in its current generation');
+  }
+  return { ...host, clock: { ...clock }, service: host.service && { ...host.service,
+    clock: { ...host.service.clock, updateCount: clock.updateCount } } };
+}
+
 /** First settle the old request/inputs; only then install boundary observations. */
 export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerServiceClock,
   boundary: HomeBannerHostBoundary = {}): HomeBannerHost {

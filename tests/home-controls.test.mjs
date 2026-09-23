@@ -194,6 +194,7 @@ test('accepted toolbar-to-grid touch retains the departed effect and selects bef
     assert.ok(controls(state).presentation.effects.some(effect => effect.visible));
     const point = center(state, slot);
     state = touch(touch(state, 'down', point.x, point.y), 'up', point.x, point.y);
+    state = at(state, 6).state;
     assert.equal(state.system.phase, 'home');
     assert.equal(state.selected, slot);
     assert.equal(nav(state).focus.toolbarActive, false);
@@ -202,9 +203,10 @@ test('accepted toolbar-to-grid touch retains the departed effect and selects bef
     assert.equal(effect.target.focus, 1);
     assert.equal(effect.scale.currentFrame, 11);
     assert.deepEqual(effect.center, { x: 76, y: 16.5 });
-    state = at(state, 2).state;
+    state = at(state, 7).state;
     assert.deepEqual(controls(state).primary.center, center(state));
     state = touchSystem(state, point.x, point.y, now(state));
+    state = at(state, 12).state;
     assert.equal(state.system.phase, 'launch');
     assert.equal(state.system.app, slot === 0 ? 'work' : 'projects');
   }
@@ -363,15 +365,14 @@ test('blur cancellation cannot resurrect acceleration from a gesture origin', ()
   assert.deepEqual(tickHomeNavigationClockObserved(state, T + 60000).passes, []);
 });
 
-test('chrome contact preserves primary visibility; grid contact hides without advancing Loop', () => {
-  for (const [x, y, visible] of [[307, 16, true], [76, 161, false]]) {
+test('chrome and ordinary grid contact preserve primary visibility and Loop', () => {
+  for (const [x, y, area] of [[307, 16, 'chrome'], [76, 161, 'grid']]) {
     let state = home(), loop = state.system.homeCursorLoop;
     state = touch(state, 'down', x, y);
     state = at(state, 1).state;
-    assert.equal(nav(state).gesture.area, visible ? 'chrome' : 'grid');
-    assert.equal(controls(state).primary.layoutVisible, visible);
-    if (visible) assert.equal(state.system.homeCursorLoop.currentFrame, loop.currentFrame + 1);
-    else assert.deepEqual(state.system.homeCursorLoop, loop);
+    assert.equal(nav(state).gesture.area, area);
+    assert.equal(controls(state).primary.layoutVisible, true);
+    assert.equal(state.system.homeCursorLoop.currentFrame, loop.currentFrame + 1);
     state = touch(state, 'cancel', x, y);
     state = at(state, 2).state;
     assert.equal(nav(state).gesture, null);

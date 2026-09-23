@@ -9,7 +9,8 @@ application/overlay input retain their existing generic latch.
 ## Counted host and effects
 
 `tickHomeNavigationClockObserved` returns one journal per eligible shared count.
-The ordinary pass samples held input, produces native events, consumes input,
+The ordinary pass samples touch and held input, traverses native tile widgets,
+produces native key events, consumes input,
 advances the lower navigation/close task, applies the primary footer, then
 submits primary Loop/Scale and the two departure controllers. Native20/5 poll
 repeat and mode3's first-five10/later5 update behavior now reach the live page.
@@ -60,10 +61,12 @@ instead of assuming two animation frames settle it.
 - Overlay/app ownership changes and blur/sleep explicitly cancel held input.
   Gesture-origin restoration precedes cancellation so it cannot restore stale
   horizontal markers. Hidden intervals rebase the clock instead of catching up.
-- Existing drag/scroll/press recognition remains an adapter. Grid gestures hide
-  the retained cursor group; chrome gestures preserve it, including disabled
-  density buttons. Full native stylus capture/press/drag layout behavior remains
-  unfinished.
+- Ordinary settled tile presses now use the source widget's input/2D phases,
+  retained Select/Decide poses and delayed acceptance. The primary stays shown
+  and continues Loop throughout an ordinary press. Authored drag/scroll routes
+  still hide the group; chrome presses preserve it. Hit geometry, long press,
+  drag and the complete service lifecycle remain unfinished. See
+  [live tile touch](home-tile-touch-integration.md).
 - An accepted grid touch from toolbar focus clears its active/current/saved
   column fields, preserves remembered focus, seeks primary density and emits
   the departed toolbar effect before viewport correction. The consumer follows
@@ -124,6 +127,12 @@ are absent, legacy Right/Left remains usable, and removing the route restores
 native presentation. See `live-controls-fallback-script.json` and the repeatable
 `verify-home-controls-fallback.mjs` script. These checks retain the existing
 fallback's behavior; they do not make its graphics native.
+The subsequent tile-touch checkpoint passes889 of891 tests, with the same two
+optional skips, typecheck and production build. The source widget replays43
+cases/305 input and2D boundaries. Real browser touch additionally verifies
+delayed selection, retained primary/Loop, touch cue and inert repeated vacancy.
+The keyboard/physical/circle-pad/toolbar and normal-close scripts still pass.
+See the linked tile-touch note for artifacts and intentional browser boundaries.
 Fresh Azahar interaction remains unavailable
 while the Mac is locked. Existing captures and bounded original-ARM evidence
 remain available; the complete requested firmware/application acceptance is

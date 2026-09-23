@@ -23,6 +23,8 @@
 | `home-navigation-pass.ts` | Pure ordinary input/lower/Loop composition with ordered observations and explicit eligibility; live integration pending |
 | `home-cursor-presentation.ts`, `home-primary-cursor.ts` | Retained Scale/effects and independent primary visibility/position |
 | `home-controls.ts` | Live native HOME sampling, lower tasks, cursor footer/controllers and counted observation journals |
+| `home-tile-widget.ts`, `home-tile-pose.ts` | Pure native ordinary tile input/2D controllers and last applied pose writer |
+| `home-tile-touch.ts` | Browser touch edges, widget capture scan and per-container pose storage |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-cursor-loop.ts`, `home-cursor-visibility.ts` | Retained primary cursor Loop and shared visibility predicate |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
@@ -144,6 +146,15 @@ movement can change selection again. `resolveHomeBannerHostObservation` resolves
 those recorded slots/contexts and keeps unsupported toolbar categories explicit;
 the service deduplicates accepted targets. The live scene consumes each counted journal after its upper manager pass. See
 [observed banner selection](../home-banner-observation-resolution.md).
+
+Ordinary settled grid touch runs its widget input before key production and
+task updates, then submits tile Select/Decide in the later2D phase. Release
+starts Decide; input accepts only after the controller becomes idle. The host
+reads live selection/content at acceptance and keeps the primary cursor shown.
+Application/folder opening exits that bounded host pass; System rebases unused
+HOME time, while the scene accounts for the count without inventing banner
+manager or3D work. Browser cancellation and authored scroll/drag takeover reset
+widget ownership explicitly. See [the integration boundary](../home-tile-touch-integration.md).
 
 ## Firmware application foundation
 

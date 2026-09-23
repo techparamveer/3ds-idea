@@ -75,3 +75,11 @@ for the HOME paint tests now implement the new readiness interface. Logs are
 on the designated SSD. Timeout, reduced-motion, touch retry and held-control
 browser checks remain beyond this verified subset (covered by focused unit
 checks, not claimed as live browser evidence).
+
+
+A later browser pass delayed the Settings base pack for 30 seconds. The app
+reached its visible recovery notice rather than remaining black. A touchscreen
+press on Retry, after removing the delay, changed the announcement back to
+loading. Browser control then timed out and disconnected; completion of this
+touch-retry attempt is unverified. This does not replace the earlier successful
+A-button retry check. The isolated proxy was stopped.

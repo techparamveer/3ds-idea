@@ -147,3 +147,13 @@ preview displays the original pale-yellow main background on both LCDs, with
 all five original controls and version text visible. Browser error/warning log
 was empty. Subpage legacy-background/title-variant corrections remain open;
 this main-screen inspection is not full Settings fidelity acceptance.
+
+
+Integration checkpoint: per-scene palettes, source detail instructions,
+NetType2_D_00 Date & Time buttons and Connect_U_00 empty connection rows are
+integrated. Clock touch bounds now match the source 264×66 B_L buttons at
+(28,27) and (28,123), with gap/edge regression tests. The 53 focused navigation
+checks pass; the 21-pair scene-variant verifier passes. Native-resolution clock
+and Internet renders were inspected. Live browser verification of this subpage
+batch remains pending after browser control disconnected; the earlier main
+screen check remains valid for that narrower screen.

@@ -1,4 +1,5 @@
 import { isSystemHomeFolderClosing } from './home-folder-close-system';
+import { getHomeCursorLoopFrame } from './home-cursor-loop';
 import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
@@ -141,7 +142,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
   }
   };
   if(nativeHome&&!capture)nativeHome.folderChild(c,state,!occupied,drawTile,reduced);else drawTile(1);
-  if(!capture&&!isSystemHomeFolderClosing(state)&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,time,pressed))cursor(c,x,y,size,size,time,reduced);
+  if(!capture&&!isSystemHomeFolderClosing(state)&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,getHomeCursorLoopFrame(state,reduced),pressed))cursor(c,x,y,size,size,time,reduced);
  }c.restore();
  if(!capture&&!nativeHome?.arrows(c,pageStart(state)>0))arrows(c,state);
  // Native idle HOME has no track above the footer. Keep the old fallback's

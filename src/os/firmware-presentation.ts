@@ -185,8 +185,8 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function empty(ctx:Context,x:number,y:number,size:number,density:number){
   const name='LncIconSetSrc_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2+32,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))],overrides:{N_IconRoot_00:{visible:false},P_BtnShdw_00:{visible:false},N_Pic_01:{visible:false}}});
  }
- function cursor(ctx:Context,x:number,y:number,size:number,density:number,time:number,pressed=false){
-  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[x+size/2,y+size/2],bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',nativeHomeDensityFrame(density)),binding('LncCsr_00_Loop',time*.06)]});
+ function cursor(ctx:Context,x:number,y:number,size:number,density:number,loopFrame:number,pressed=false){
+  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[x+size/2,y+size/2],bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',nativeHomeDensityFrame(density)),binding('LncCsr_00_Loop',loopFrame)]});
  }
  function arrows(ctx:Context,showLeft:boolean){return renderer.draw(ctx,'launcher','LncArw_00',{bindings:[binding('LncArw_00_Appear',15)],overrides:{N_arwL_00:{visible:showLeft}},clip:[0,33,320,179]});}
  const pickupSizes=new Map<string,{x:number;y:number;width:number;height:number;alpha:number}>();

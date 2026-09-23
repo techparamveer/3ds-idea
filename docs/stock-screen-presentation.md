@@ -143,3 +143,25 @@ Paired renders are in SSD `reference/service-ui`. Known visual gaps are the
 unverified 212/220-pixel viewport placement, flattened banner grid/battery pane
 projection (reported by the renderer), source HUD status placeholders and native
 reference timing. These are not a claim of 1:1 acceptance.
+## Browser and Miiverse interiors
+
+Browser Settings uses eight English source option labels in two four-row pages
+of source buttons. Its help text is the corresponding source `Option_Header*`
+message. Bookmark lists use the source Item/EmptyMessage components; page info
+uses source title/address rows and only existing saved metadata. Search and
+address views reuse `DialogInput`/`TextField` as read-only presentation adapters.
+The original entry flow depends on the omitted software keyboard, so these are
+not claimed as exact original standalone input screens. No field submits data.
+Delete/reset options display read-only text and do not mutate saved data.
+
+Miiverse's four destinations use its own source dialog base and information pane
+above the original toolbar. These explicitly empty local views do not recreate
+remote feeds, profiles, or notifications. The main view uses the same empty
+panel so selecting a tab has visible context before opening its local view.
+
+Both titles retain source pane typography when a message references an absent
+sibling style table. Dialog backgrounds, controls, English labels and selected
+states are native resources; their bounded layout, pagination and read-only
+content are web composition choices. The canvas verification run includes both
+settings pages, empty and specimen bookmarks, entry panels, page info, a reset
+preview, and each Miiverse destination, with no renderer diagnostics.

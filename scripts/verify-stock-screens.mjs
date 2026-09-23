@@ -25,7 +25,7 @@ export async function verifyStockScreens(options){
   {appId:'camera',screen:'photo',heading:'Building Collection',rows:[],selection:0,footer:{left:footer.left},data:{photo:photos[1],photos}},
   {appId:'sound',screen:'main',heading:'Nintendo 3DS Sound',rows:[],selection:0,footer:{left:footer.left},data:{tracks:[]}},
   // Deliberately labelled renderer specimen, not an invented user's music record.
-  {appId:'sound',screen:'playback',heading:'Nintendo 3DS Sound',rows:[],selection:0,footer:{left:footer.left},data:{track:{id:'renderer-probe',title:'Playback controls specimen'},playing:true,position:45,duration:180,repeat:'all',shuffle:false}},
+  {appId:'sound',screen:'playback',heading:'Nintendo 3DS Sound',rows:[],selection:0,footer:{left:footer.left},data:{track:{id:'renderer-probe',title:'Playback controls specimen',src:'/renderer-probe.mp3',artwork:photos[0].src},playing:true,position:45,duration:180,repeat:'all',shuffle:false}},
   {appId:'health-safety',screen:'main',heading:'Health and Safety Information',rows:rows([['health','Health and Safety'],['precautions','Usage Precautions'],['privacy','Privacy Information']]),selection:0,footer},
  ];
  try{
@@ -35,11 +35,14 @@ export async function verifyStockScreens(options){
   font=new BitmapFont(manifest,await Promise.all(manifest.sheets.map(name=>loadImage(join(dirname(options.fontManifest),name)))));
   assets=await loadNativeTitleAssets('https://stock-ui.invalid/manifest.json','0004001000022000',settingsScreenPacks,new Map([['cbf_std.bcfnt',font]]));
   const images=new Map();for(const p of photos)images.set(p.src,await loadImage(join(repo,'public',p.src)));
-  const image=(ctx,url,x,y,w,h)=>{const im=images.get(url);if(!im)return false;const scale=Math.min(w/im.width,h/im.height);ctx.drawImage(im,x+(w-im.width*scale)/2,y+(h-im.height*scale)/2,im.width*scale,im.height*scale);return true;};
+  const requestedImages=[];
+  const image=(ctx,url,x,y,w,h)=>{requestedImages.push(url);const im=images.get(url);if(!im)return false;const scale=Math.min(w/im.width,h/im.height);ctx.drawImage(im,x+(w-im.width*scale)/2,y+(h-im.height*scale)/2,im.width*scale,im.height*scale);return true;};
   const reports=[],sheet=createCanvas(400*views.length,480),sheetContext=sheet.getContext('2d');
   for(const [index,view] of views.entries()){
    const top=createCanvas(400,240),bottom=createCanvas(320,240),id=view.appId+'-'+view.screen;
+   requestedImages.length=0;
    drawStockScreenFrame(top.getContext('2d'),bottom.getContext('2d'),view,{font,image,native:view.appId==='system-settings'?assets.renderer:undefined});
+   if(id==='sound-playback')assert.deepEqual(requestedImages,[photos[0].src],'Sound loads artwork, never the audio URL, as an image');
    writeFileSync(join(out,id+'-top.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-bottom.png'),bottom.toBuffer('image/png'));
    sheetContext.drawImage(top,index*400,0);sheetContext.drawImage(bottom,index*400+40,240);
    reports.push({id,topSha256:createHash('sha256').update(top.getContext('2d').getImageData(0,0,400,240).data).digest('hex'),bottomSha256:createHash('sha256').update(bottom.getContext('2d').getImageData(0,0,320,240).data).digest('hex')});

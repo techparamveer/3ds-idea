@@ -95,7 +95,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
     const gradient=top.createLinearGradient(0,32,0,240);gradient.addColorStop(0,'#e7f2c4');gradient.addColorStop(1,'#82b849');top.fillStyle=gradient;top.fillRect(0,32,400,208);
     for(let i=0;i<8;i++){top.strokeStyle='#f8ffdd55';top.lineWidth=2;top.beginPath();top.ellipse(200,230,80+i*28,70+i*17,0,Math.PI,2*Math.PI);top.stroke();}
     fill(top,159,48,82,82,9,'#f9ffe5','#6c9833');
-    if(!mediaImage(top,selected,[164,53,72,72],options)){text(top,font,'♪',200,88,42,'#6c9b29');}
+    if(!mediaImage(top,{artwork:selected.artwork??''},[164,53,72,72],options)){text(top,font,'♪',200,88,42,'#6c9b29');}
     text(top,font,string(selected.title)||'Nintendo 3DS Sound',200,155,18,'#36501e');
     text(top,font,string(selected.artist),200,181,13,'#416224');text(top,font,string(selected.album),200,203,11,'#416224');
     if(view.screen==='playback'){

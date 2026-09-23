@@ -52,7 +52,7 @@ function applyEffects(runtime: AppRuntime, owner: string, effects: readonly AppE
       next = emit(next, owner, { type: 'storage', key: '@shared', record: { version: 1, data: next.shared }, removedMedia: [effect.id] });
     } else if (effect.type === 'invoke') next = openApplet(next, effect.appId, effect.requestId, effect.args ?? {}, now, owner, depth + 1);
     else if (effect.type === 'complete') next = completeApplet(next, owner, effect.value ?? null, effect.cancelled ?? false, now, depth + 1);
-    else if (effect.type === 'home') next = showRuntimeHome(next, now);
+    else if (effect.type === 'home') next = returnFromSettingsHelper(next, owner, now) ?? showRuntimeHome(next, now);
     else if (effect.type === 'close') {
       const instance = next.instances[owner];
       if (getTitle(instance.appId)!.kind === 'application') next = closeApplication(next, now);
@@ -113,6 +113,22 @@ export function startApplication(runtime: AppRuntime, appId: string, now: number
   const old = activity[appId]; const previous = old && typeof old === 'object' && !Array.isArray(old) ? old : {};
   next = { ...next, shared: { ...next.shared, activity: { ...activity, [appId]: { ...previous, title: getTitle(appId)!.title, launches: Number(previous.launches ?? 0) + 1, seconds: Number(previous.seconds ?? 0) } } } };
   return emit(next, created.id, { type: 'storage', key: '@shared', record: { version: 1, data: next.shared } });
+}
+const settingsHelpers = new Set(['nnid-settings', 'system-updater', 'system-transfer']);
+/** Settings subprograms retain their parent page instead of closing Settings.
+ * This is a bounded UI route, not a general application stack. */
+export function startSettingsHelper(runtime: AppRuntime, appId: string, now: number): AppRuntime {
+  const parent=activeInstance(runtime);
+  if(!Number.isFinite(now)||runtime.sleeping||!settingsHelpers.has(appId)||!parent||parent.appId!=='system-settings'||parent.id!==runtime.application||parent.suspended)return runtime;
+  const suspended=suspend(runtime,parent.id,now);
+  const created=newInstance(suspended,appId,{},parent.id,null,now);
+  return created?{...created.runtime,application:created.id,pendingLaunch:null,homeReturn:null,lastTick:now}:runtime;
+}
+function returnFromSettingsHelper(runtime: AppRuntime, owner: string, now: number): AppRuntime|null {
+  const child=runtime.instances[owner],parent=child?.caller?runtime.instances[child.caller]:undefined;
+  if(!child||child.id!==runtime.application||!settingsHelpers.has(child.appId)||parent?.appId!=='system-settings')return null;
+  const removed=removeInstance(runtime,owner,now);
+  return {...resume(removed,parent.id,now),application:parent.id,homeReturn:null,pendingLaunch:null,lastTick:now};
 }
 export function openApplet(runtime: AppRuntime, appId: string, requestId: string, args: AppState, now: number, caller = runtime.active, depth = 0): AppRuntime {
   const descriptor = getTitle(appId); if (!Number.isFinite(now) || runtime.sleeping || !descriptor || descriptor.kind === 'application') return runtime;

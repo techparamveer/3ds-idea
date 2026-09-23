@@ -176,7 +176,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     // Unknown/stale actions cannot open hidden flows or mutate saved data.
     if (!rows(state, context).some(item => item.id === action && !item.disabled)) return { state };
     if (id === 'system-settings') {
-      if (['nnid', 'transfer', 'update'].includes(action)) return { state, effects: [{ type: 'launch', appId: { nnid: 'nnid-settings', transfer: 'system-transfer', update: 'system-updater' }[action]! }] };
+      if (['nnid', 'transfer', 'update'].includes(action)) return { state: { ...state, selection: rows(state, context).findIndex(item => item.id === action) }, effects: [{ type: 'launch', appId: { nnid: 'nnid-settings', transfer: 'system-transfer', update: 'system-updater' }[action]! }] };
       return { state: settingsNavigate(state, action) };
     }
     if (id === 'game-notes' || id === 'memo') return { state: withScreen(state, 'drawing', { slot: Number(action), strokes: list(context.shared.notes).find(note => note.slot === Number(action))?.strokes ?? [] }) };

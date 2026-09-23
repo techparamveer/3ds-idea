@@ -9,7 +9,7 @@ import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, type MenuState, type Input } from './state.ts';
-import { activeInstance, acknowledgeEffects, closeApplication, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, tickRuntime, type AppRuntime } from './app-host.ts';
+import { activeInstance, acknowledgeEffects, closeApplication, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
 import { homeSlotAppId, moveHomeItem, restoreHomeLayout, type FolderLayouts } from './home-layout.ts';
@@ -38,7 +38,15 @@ function syncRuntime(state: MenuState, runtime: AppRuntime, phase?: System['phas
   ...(portfolio?{item:Number(portfolio.item),detail:portfolio.detail===true,page:Number(portfolio.page),photo:Number(portfolio.photo)}:{item:0,detail:false,page:0,photo:0})}};
 }
 function commitRuntime(state: MenuState, runtime: AppRuntime, now: number): MenuState {
- const pending=runtime.pendingLaunch;let next=syncRuntime(state,pending?{...runtime,pendingLaunch:null}:runtime);
+ const pending=runtime.pendingLaunch;
+ if(pending){
+  const helper=startSettingsHelper(runtime,pending,now);
+  if(helper!==runtime){
+   const next=syncRuntime(state,helper,'launch');
+   return {...next,panel:null,system:{...next.system!,since:now,dialog:null,pending:null,input:createInputLatch()}};
+  }
+ }
+ let next=syncRuntime(state,pending?{...runtime,pendingLaunch:null}:runtime);
  if(pending)next=launch(next,pending,now);
  return next;
 }

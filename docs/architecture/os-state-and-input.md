@@ -229,6 +229,14 @@ saves state. Modules must discard pressed/gesture state on suspend, sleep and
 close. `stock-apps.ts` is a behavioural scaffold, with authored rows, text and
 timings; it is not a verified reproduction of those applications.
 
+Settings-launched NNID, System Update and System Transfer retain a suspended
+Settings caller through `startSettingsHelper`. Their application Back effect
+removes the helper and resumes the same Settings page and selection. Physical
+HOME still suspends the helper; closing or powering off removes its caller tree.
+This bounded portfolio navigation adapter is not a general application stack or
+a claim to reproduce native APT process switching. Regression coverage is in
+`tests/settings-helper-return.test.mjs`.
+
 `dispatchSystemEvent` accepts button down/up, touch down/move/up/cancel and
 analog samples. Sources identify individual controls, such as
 `keyboard:ArrowRight`. `app-input.ts` suppresses duplicate activation across

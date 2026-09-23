@@ -17,8 +17,9 @@ Portfolio launch/activity/save behavior is retained.
 
 `AppView` is unchanged. Presentation and runtime share the current UI adapter's
 `stock-screen-layout.ts` hit targets; these are not a native input oracle. Touch
-release selects its semantic action. Physical up/down selects rows, A activates,
-B returns, and left/right browses photos or tracks. Notes accept navigation but
+release selects its semantic action. Physical directions follow Camera's three
+columns, Notes' four columns and Settings' top bar/four tiles. Other lists use
+up/down. A activates, B returns, and left/right browses photos or tracks. Notes accept navigation but
 never draw new strokes. Power, HOME and app-open transitions belong to System.
 
 | Title | Screen | Rows/actions and view data |

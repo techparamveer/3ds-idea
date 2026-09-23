@@ -40,6 +40,7 @@ test('foreground modules receive raw press, release, repeat and analog without d
  module.reduce=(state,event,context)=>{seen.push(event);return original(state,event,context);};
  try{
   let s=home();s={...s,selected:8};s=tickSystem(reduceSystem(s,'open',4000),6000);
+  s=dispatchSystemEvent(s,{type:'action',id:'other'},6000);
   s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'dpad'},6001);
   s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'keyboard'},6002);
   assert.equal(getActiveAppView(s).selection,1);

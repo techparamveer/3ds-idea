@@ -92,3 +92,39 @@ test('music lifecycle pauses without resuming automatically; close pause survive
 test('empty media and injected saved screens never create hidden playback/capture state',()=>{
  for(const id of ['camera','sound']){const {module}=setup(id,{folders:[],tracks:[]});const state=module.create({screen:'record',playing:true},{screen:'playback',playing:true},ctx);assert.equal(state.screen,'main');assert.equal(module.view(state,ctx).rows.length,0);assert.equal(action(module,state,'play').state,state);}
 });
+
+test('Camera directions follow three columns across pages and bound incomplete rows',()=>{
+ const photos=Array.from({length:8},(_,i)=>({id:String(i),title:String(i),src:`/fixture/${i}.jpg`}));
+ const folders=photos.map(photo=>({id:photo.id,title:photo.title,photos}));
+ for(const id of ['camera','camera-applet'])for(const screen of ['main','gallery']){
+  const {module}=setup(id,{folders,tracks:[]});let state={...module.create({},null,ctx),screen,folderId:'0'};
+  const move=command=>{state=module.reduce(state,{type:'command',command},ctx).state;return state.selection;};
+  assert.equal(move('left'),0);assert.equal(move('up'),0);assert.equal(move('right'),1);assert.equal(move('right'),2);assert.equal(move('right'),2);
+  assert.equal(move('down'),5);assert.equal(move('down'),7); // closest cell in the partial third row, on the next page
+  assert.equal(move('down'),7);assert.equal(move('right'),7);assert.equal(move('left'),6);assert.equal(move('left'),6);assert.equal(move('up'),3);assert.equal(move('up'),0);
+  state=module.reduce(state,{type:'button',command:'right',phase:'down',source:'pad'},ctx).state;assert.equal(state.selection,1);
+  const released=module.reduce(state,{type:'button',command:'right',phase:'up',source:'pad'},ctx).state;assert.equal(released,state);
+  const opened=module.reduce(state,{type:'command',command:'open'},ctx).state;
+  assert.equal(opened[screen==='main'?'folderId':'photoId'],'1');
+ }
+});
+test('Notes directions follow the displayed four-by-four grid without wrapping edges',()=>{
+ for(const id of ['game-notes','memo']){
+  let {module,state}=setup(id);const move=command=>{state=module.reduce(state,{type:'command',command},ctx).state;return state.selection;};
+  assert.equal(move('right'),1);assert.equal(move('down'),5);assert.equal(move('down'),9);assert.equal(move('down'),13);assert.equal(move('down'),13);
+  assert.equal(move('right'),14);assert.equal(move('right'),15);assert.equal(move('right'),15);assert.equal(move('up'),11);assert.equal(move('left'),10);
+  state=module.reduce(state,{type:'command',command:'open'},ctx).state;assert.equal(state.slot,10);
+ }
+});
+test('Settings directions follow tile geometry and its full-width NNID bar',()=>{
+ let {module,state}=setup('system-settings');const move=command=>{state=module.reduce(state,{type:'command',command},ctx).state;return module.view(state,ctx).rows[state.selection].id;};
+ assert.equal(move('left'),'internet');assert.equal(move('right'),'parental');assert.equal(move('down'),'other');assert.equal(move('down'),'other');
+ assert.equal(move('left'),'data');assert.equal(move('up'),'internet');assert.equal(move('up'),'nnid');assert.equal(move('up'),'nnid');assert.equal(move('right'),'nnid');assert.equal(move('down'),'internet');
+});
+test('photo and playback left/right still browse media instead of moving row selection',()=>{
+ let {module,state}=setup('camera');state=action(module,state,'folder:test').state;state=action(module,state,'photo:a').state;
+ state=module.reduce(state,{type:'command',command:'right'},ctx).state;assert.equal(state.photoId,'b');assert.equal(state.selection,0);
+ ({module,state}=setup('sound'));state=action(module,state,'track:a').state;
+ state=module.reduce(state,{type:'command',command:'right'},ctx).state;assert.equal(state.trackId,'b');assert.equal(state.selection,0);
+ state=module.reduce(state,{type:'command',command:'left'},ctx).state;assert.equal(state.trackId,'a');
+});

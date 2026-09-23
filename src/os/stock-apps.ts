@@ -71,6 +71,29 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (id === 'manual') return [row('contents', 'Contents'), row('controls', 'Controls'), row('support', 'Support Information')];
     return (serviceRows[id] ?? []).map(([action, label]) => row(action, label));
   }
+  function directionalSelection(current: AppView, direction: 'left' | 'right' | 'up' | 'down'): number {
+    const selected = current.selection, count = current.rows.length;
+    if (!count) return 0;
+    if (id === 'system-settings' && current.screen === 'main') {
+      const neighbors: Record<string, Partial<Record<typeof direction, string>>> = {
+        nnid: { down: 'internet' },
+        internet: { up: 'nnid', right: 'parental', down: 'data' },
+        parental: { up: 'nnid', left: 'internet', down: 'other' },
+        data: { up: 'internet', right: 'other' },
+        other: { up: 'parental', left: 'data' },
+      };
+      const nextId = neighbors[current.rows[selected]?.id]?.[direction];
+      const next = current.rows.findIndex(item => item.id === nextId);
+      return next < 0 ? selected : next;
+    }
+    const columns = cameraTitles.has(id) && ['main', 'gallery'].includes(current.screen) ? 3
+      : (id === 'game-notes' || id === 'memo') && current.screen === 'main' ? 4 : 1;
+    if (direction === 'left') return columns > 1 && selected % columns > 0 ? selected - 1 : selected;
+    if (direction === 'right') return columns > 1 && selected % columns < columns - 1 && selected + 1 < count ? selected + 1 : selected;
+    if (direction === 'up') return selected >= columns ? selected - columns : selected;
+    // Keep the column where possible; a partial final row uses its last cell.
+    return Math.floor(selected / columns) < Math.floor((count - 1) / columns) ? Math.min(selected + columns, count - 1) : selected;
+  }
   function music(state: AppState, command: 'load' | 'play' | 'pause' | 'seek', patch: AppState = {}): AppReduction {
     const next: AppState = { ...state, ...patch, revision: num(state.revision) + 1 }, selected = track(next);
     if (!selected) return { state };
@@ -193,9 +216,12 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       if (command === 'back') return activate(state, 'back', context);
       const current = view(state, context);
       if (command === 'open') return activate(state, current.footer.right?.action ?? '', context);
-      if (command === 'up' || command === 'down') return { state: { ...state, selection: bounds(num(state.selection) + (command === 'down' ? 1 : -1), current.rows.length - 1) } };
       if (command === 'left' || command === 'right') {
         if (cameraTitles.has(id) && state.screen === 'photo' || id === 'sound' && state.screen === 'playback') return activate(state, command === 'right' ? 'next' : 'previous', context);
+      }
+      if (command === 'left' || command === 'right' || command === 'up' || command === 'down') {
+        const selection = directionalSelection(current, command);
+        return selection === current.selection ? { state } : { state: { ...state, selection } };
       }
       return { state };
     },

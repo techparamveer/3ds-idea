@@ -161,6 +161,13 @@ source instructions and no fabricated network names/security state. The
 [scene validation](settings-main-source-validation.md) records the new clock
 hit rectangles and the required source asset publication.
 
+Nintendo DS Profile now uses `LsCommonBG_U_00`, `LsMenu_D_00`, two
+`B_LsMenu` children and the full-width `LsBase_D_00` Back footer. Source
+English captions remain; absent saved nickname/comment/birthday values are
+blank. Original layout materials are retained without inventing a favorite
+color. Message and Colour are inert source controls; no keyboard or profile
+editing has been resumed.
+
 ## Browser and Miiverse interiors
 
 Browser Settings uses eight English source option labels in two four-row pages

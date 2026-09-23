@@ -8,10 +8,10 @@ const mainButtons=['I_TopLTs','I_TopRTs','I_TopLBs','I_TopRBs','I_TopTs'];
 const buttons=[...mainButtons,'B_L','B_LBlue','B_SB','B_SMngCTRO','B_SMngDSiO','B_CnctW1','B_CnctW2','B_CnctW3','I_User','T_Page01'];
 const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_AnalogPad','I_Trans','I_Lang','I_Update','I_Format'];
 export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
-  {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00','Base_D_01'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
-  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn']},
-  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00'],animations:['Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
-  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
+  {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
+  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00']},
+  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00'],animations:['LsMenu_D_00_SceneIn_00','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
+  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
 ];
 /** These archive-level shares have neither endpoint in the requested Settings buttons.
@@ -113,6 +113,19 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   const back=()=>draw(bottom,'base','Base_D_00',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back')}});
   for(const [ctx,name] of [[top,'Bg_U_00'],[bottom,'Bg_D_00']] as const){
     draw(ctx,'base',name,variant===2?{bindings:[{name:name+'_SceneIn_Legacy',frame:40}]}:{});
+  }
+  if(screen==='detail'&&field==='ds-profile'){
+    // ds_user_info uses independent Legacy chrome. No stored DS profile was
+    // supplied; clear authored sample values rather than inventing device data.
+    draw(top,'up','LsCommonBG_U_00',{bindings:[{name:'LsCommonBG_U_00_SceneIn_00',frame:20}],overrides:{
+      TextBox_00:{text:''},TextBox_01:{text:''},TextBox_02:message('ds_birthday_u'),TextBox_03:{text:''},TextBoxTitle_01:message('ds_info_comm_u'),
+    }});
+    draw(bottom,'layout','LsMenu_D_00',{bindings:[{name:'LsMenu_D_00_SceneIn_00',frame:20}],attachments:{
+      N_B_LsMenu_00:()=>draw(bottom,'button','B_LsMenu',{overrides:{TextBox_00:message('ds_comment')}}),
+      N_B_LsMenu_01:()=>draw(bottom,'button','B_LsMenu',{overrides:{TextBox_00:message('ds_user_color')}}),
+    }});
+    draw(bottom,'base','LsBase_D_00',{overrides:{TextBox_00:message('ds_base_1b_back'),TextBox_02:message('ds_info_comm')}});
+    return okay;
   }
   draw(top,'up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
   const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);

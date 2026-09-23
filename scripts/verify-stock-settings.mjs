@@ -72,7 +72,15 @@ try{
    assert.deepEqual(call.options?.bindings??[],subpage.variant===2?[{name:name+'_SceneIn_Legacy',frame:40}]:[]);
   }
   const title=calls.find(c=>c.layout==='CommonBG_U_00');
-  assert.equal(title.options.bindings[0].name,'CommonBG_U_00_SceneIn_0'+(subpage.variant===2?0:subpage.variant));
+  if(subpage.variant===2){
+   assert.equal(title,undefined,'DS Profile does not use modern title chrome');
+   const legacy=calls.find(c=>c.layout==='LsCommonBG_U_00'),menu=calls.find(c=>c.layout==='LsMenu_D_00'),footer=calls.find(c=>c.layout==='LsBase_D_00');
+   assert.ok(legacy);assert.ok(menu);assert.ok(footer);
+   for(const name of ['TextBox_00','TextBox_01','TextBox_03'])assert.equal(legacy.options.overrides[name].text,'','no fabricated DS profile data');
+   assert.deepEqual(Object.keys(menu.options.attachments),['N_B_LsMenu_00','N_B_LsMenu_01']);
+   assert.equal(footer.options.overrides.TextBox_00.text,'Back');assert.equal(footer.options.overrides.TextBox_02.text,'Nintendo DS Profile');
+   assert.equal(calls.some(c=>c.layout==='TextBG_U_00'),false);
+  }else assert.equal(title.options.bindings[0].name,'CommonBG_U_00_SceneIn_0'+subpage.variant);
   if(subpage.screen==='detail'&&subpage.variant!==2){
    assert.ok(title.options.overrides.TextBoxTitle_00.messageStyle,'identified detail keeps native title style');
    const text=calls.find(c=>c.layout===(['nickname','birthday'].includes(subpage.data.field)?'UserInfo_U_00':'TextBG_U_00'));
@@ -109,6 +117,6 @@ try{
  }
  assert.equal(JSON.stringify(sourcePacks),before,'source packs remain immutable');
  assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
- writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette; DS Profile still needs its original Ls layouts.']},null,2)+'\n');
+ writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.']},null,2)+'\n');
  console.log('Settings: five main and sixteen subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.');
 }finally{assets.dispose();font.dispose();}

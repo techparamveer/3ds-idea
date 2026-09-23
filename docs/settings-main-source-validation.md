@@ -86,9 +86,9 @@ renderer diagnostics are empty. Images are under
 `presentation/settings-scene-variants/`; the matching 19 scene records and
 hashes are saved in `presentation/settings-source-audit/subpage-scenes.json`.
 
-Remaining differences: DS Profile still uses adapted detail composition and
-needs its `Ls*` layouts; the parental introductory lower layout, restriction
-list and other generic detail cards still differ from their native scenes.
+Remaining differences after this palette slice included DS Profile and the
+parental introductory lower layout (corrected below), the restriction list
+and other generic detail cards.
 Background and title selection do not establish complete native scene
 scheduling or 1:1 visual fidelity.
 
@@ -140,6 +140,40 @@ records are saved in `presentation/settings-source-audit/parental-ds-scenes.json
 Assets publication `91d1213` supplies the missing label. All 21 paired render
 checks and typecheck pass; the complete introduction and both footer labels
 were visually inspected in `presentation/settings-parental-intro/`.
+
+## Nintendo DS Profile
+
+`ds_user_info.bin` names `LsMenu_D_00` and `LsCommonBG_U_00`, with state 2.
+Its footer kind 4 selects `LsBase_D_00` through the same executable name
+table (`0x2987cc`). The painter now uses those three layouts, their original
+materials and settled SceneIn frame 20, plus the two source `B_LsMenu`
+children. It no longer overlays modern Settings chrome or a generic detail
+card. The two buttons retain the original `ds_comment` / `ds_user_color`
+messages; the header is `ds_info_comm` and the full-width footer is
+`ds_base_1b_back`.
+
+Executable initialization at `0x210d10..0x210e9c` establishes the upper text
+bindings: `ds_info_comm_u` → `TextBoxTitle_01`, stored nickname →
+`TextBox_00`, stored comment → `TextBox_01`, `ds_birthday_u` → `TextBox_02`,
+and formatted birthday → `TextBox_03`. It reads the stored favorite-color
+low nibble and starts a corresponding color clip. The private disassembly is
+`presentation/settings-source-audit/ds-profile-upper-init.asm`.
+
+No stored DS profile was supplied. The three value panes are blank rather
+than showing the layout's sample nickname, percent characters or `88/88`.
+The original layout materials remain; no favorite-color selection is
+invented. Message and Colour controls retain their source artwork but are
+inert; the full-width Back target is `(0,208,320,32)`. Their source bounds
+are Message `(42,72,236,32)` and Colour `(42,132,236,32)` if a subsequent
+UI-only route is implemented. No keyboard or profile editing is added.
+
+Assets `91d1213` supplies the exact Legacy layouts, button and English
+messages. The verifier asserts the `Ls*` composition, the two original child
+mounts, cleared value panes, original footer labels and absence of modern
+title/text panels. All 21 paired render checks and typecheck pass. Both
+DS Profile LCDs were visually inspected under `presentation/settings-ds-profile/`;
+the earlier generic pair remains in `presentation/settings-parental-intro/`.
+Browser and matched native LCD verification remain separate checks.
 
 ## Composition, typography and verification
 

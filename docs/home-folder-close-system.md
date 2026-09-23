@@ -1,5 +1,10 @@
 # Counted folder close in System
 
+The later [native scroll consumer](home-scroll-consumer-runtime.md) supersedes
+the fixed10 viewport plan with identity-checked late resolution at restoration.
+It also adds ordered native observations and a narrow event7 close bridge.
+The initial integration and validation below remain a historical record.
+
 Normal HOME Back now keeps the folder context until the source close predicate
 completes. Keyboard/physical B, legacy command input, the native Back tab and
 occupied-footer Back use the same System path. The lower-level standalone menu

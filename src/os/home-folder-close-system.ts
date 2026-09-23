@@ -1,12 +1,14 @@
 import type { MenuState } from './state.ts';
 import type { HomeNavigation } from './home-navigation.ts';
 import {
-  advanceHomeNavigation, getHomeNavigation, isHomeRootSelectionVisible,
-  restoreHomeFolderRoot, settleHomeNavigation,
+  getHomeNavigation, isHomeRootSelectionVisible,
+  leaveHomeFolder, settleHomeNavigation, writeHomeNavigation,
 } from './home-navigation.ts';
-import { beginHomeFolderClose, stepHomeFolderClose, type HomeFolderClose } from './home-folder-close.ts';
+import { beginHomeFolderClose, stepHomeFolderClose, resolveHomeFolderCloseRestoration, type HomeFolderClose, type HomeFolderCloseIdentity } from './home-folder-close.ts';
+import { advanceHomeScroll, consumeHomeGridKeyEvent, restoreHomeRootViewport, type HomeScrollObservation, type HomeScrollResult } from './home-scroll-consumer.ts';
+import type { HomeKeyEvent } from './home-input-producer.ts';
 
-/** Defensive adapter policy. The native shared acceleration counter is unmodeled. */
+/** Compatibility preview only; the actual plan is resolved at restoration. */
 export const SYSTEM_HOME_FOLDER_CLOSE_VIEWPORT_UPDATES = 10 as const;
 export type SystemHomeFolderCloseRecord = Readonly<{
   controller: HomeFolderClose;
@@ -51,6 +53,28 @@ export function isSystemHomeFolderClosing(state: MenuState): boolean {
 function write(state: MenuState, session: SystemHomeFolderCloseSession): MenuState {
   return { ...state, system: { ...state.system!, homeFolderClose: Object.freeze(session) } };
 }
+function writeScroll(state: MenuState, result: HomeScrollResult): MenuState {
+  if (state.system!.homeNavigation === result.state.navigation && state.system!.homeCursorLoop === result.state.cursorLoop) return state;
+  state = writeHomeNavigation(state, result.state.navigation);
+  return { ...state, system: { ...state.system!, homeCursorLoop: result.state.cursorLoop } };
+}
+
+/** The only input mutation allowed through a pending close: source event7.
+ * Identity and navigation ownership must both match before any state changes.
+ */
+export function consumeSystemHomeFolderCloseInput(state: MenuState, identity: HomeFolderCloseIdentity, event: HomeKeyEvent): Readonly<{
+  state: MenuState; observations: readonly HomeScrollObservation[]; disposition: 'handled' | 'unsupported';
+}> {
+  const current = sampleSystemHomeFolderClose(state);
+  if (!current || current.controller.phase === 'complete' || event.type !== 7
+    || current.controller.identity.generation !== identity.generation || current.controller.identity.transitionId !== identity.transitionId) {
+    return Object.freeze({ state, observations: Object.freeze([]), disposition: 'unsupported' });
+  }
+  const consumed = consumeHomeGridKeyEvent({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop }, event);
+  state = writeScroll(state, consumed);
+  state = write(state, { ...state.system!.homeFolderClose, navigation: getHomeNavigation(state) });
+  return Object.freeze({ state, observations: consumed.observations, disposition: consumed.disposition });
+}
 /** No ready/restored observation is manufactured on cancellation. */
 export function cancelSystemHomeFolderClose(state: MenuState): MenuState {
   const session = state.system?.homeFolderClose;
@@ -80,35 +104,68 @@ export function beginSystemHomeFolderClose(state: MenuState): MenuState {
   const current = Object.freeze({ controller, folderSlot, startedAtUpdate, restoredAtUpdate: null, selectionReadyAtUpdate: null });
   return write(state, { ...session, nextTransitionId: transitionId + 1, current, navigation, lastUpdate: startedAtUpdate });
 }
-function advanceOrdinaryNavigation(state: MenuState, updates: number, reduced: boolean): MenuState {
-  return reduced ? settleHomeNavigation(state) : state.system!.homeNavigation.gesture ? state : advanceHomeNavigation(state, updates);
+export type SystemHomeFolderCloseAdvance = Readonly<{ state: MenuState; observations: readonly HomeScrollObservation[] }>;
+function advanced(state: MenuState, observations: HomeScrollObservation[] = []): SystemHomeFolderCloseAdvance {
+  return Object.freeze({ state, observations: Object.freeze(observations) });
+}
+function advanceOrdinaryNavigation(state: MenuState, updates: number, reduced: boolean): SystemHomeFolderCloseAdvance {
+  if (reduced || state.system!.homeNavigation.gesture) return advanced(reduced ? settleHomeNavigation(state) : state);
+  const result = advanceHomeScroll({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop }, updates);
+  return advanced(writeScroll(state, result), [...result.observations]);
 }
 /** Called only for an active shared-clock batch, after its final count is stored.
  * At most28 close steps are needed; remaining work runs against restored root.
  * No external completion callback can apply a retained transition to new state.
  */
-export function advanceSystemHomeFolderClose(state: MenuState, updates: number, reduced = false): MenuState {
+export function advanceSystemHomeFolderCloseNative(state: MenuState, updates: number, reduced = false): SystemHomeFolderCloseAdvance {
+  if (!Number.isSafeInteger(updates) || updates < 0) throw new RangeError('Invalid HOME close update count');
   state = reconcileSystemHomeFolderClose(state);
   if (!isSystemHomeFolderClosing(state)) return advanceOrdinaryNavigation(state, updates, reduced);
   const before = state.system!.homeFolderClose, first = state.system!.homeClock.updateCount - updates;
   if (before.lastUpdate !== first) return advanceOrdinaryNavigation(cancelSystemHomeFolderClose(state), updates, reduced);
   let session = before;
+  const observations: HomeScrollObservation[] = [];
   for (let i = 0; i < updates; i++) {
     const record = session.current!, update = first + i + 1;
-    const result = stepHomeFolderClose(record.controller, record.controller.identity, { taskEligible: true, layoutEligible: true });
+    let controller = record.controller;
+    if (controller.phase === 'closing' && controller.folder.status === 0) {
+      const restoredSelectionVisible = isHomeRootSelectionVisible(state);
+      const restoration = restoredSelectionVisible ? { restoredSelectionVisible: true as const }
+        : { restoredSelectionVisible: false as const, viewportDuration: getHomeNavigation(state).mode3.entryCount < 5 ? 10 as const : 5 as const };
+      controller = resolveHomeFolderCloseRestoration(controller, controller.identity, restoration).state!;
+    }
+    const result = stepHomeFolderClose(controller, controller.identity, { taskEligible: true, layoutEligible: true });
     let restoredAtUpdate = record.restoredAtUpdate, selectionReadyAtUpdate = record.selectionReadyAtUpdate;
     if (result.observations.some(event => event.kind === 'rootRestored')) {
-      state = restoreHomeFolderRoot(state, record.controller.viewportDuration ?? SYSTEM_HOME_FOLDER_CLOSE_VIEWPORT_UPDATES);
+      state = leaveHomeFolder(state);
+      // Native ordinary correction is one column. Keep farther damaged history
+      // repair explicit at this compatibility boundary.
+      const correction = restoreHomeRootViewport({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop }, { repairFarHistory: true });
+      state = writeScroll(state, correction);
+      observations.push(...correction.observations.map(observation => Object.freeze({ ...observation, updateOffset: i })));
       restoredAtUpdate = update;
     } else if (record.controller.phase === 'viewport') {
       // Native mode3 geometry advances on each counted viewport task pass.
-      state = advanceHomeNavigation(state, 1);
+      const viewport = advanceHomeScroll({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop }, 1);
+      state = writeScroll(state, viewport);
+      observations.push(...viewport.observations.map(observation => Object.freeze({ ...observation, updateOffset: i })));
     }
     if (result.observations.some(event => event.kind === 'rootSelectionReady')) selectionReadyAtUpdate = update;
     session = Object.freeze({ ...session, current: Object.freeze({ ...record, controller: result.state!, restoredAtUpdate, selectionReadyAtUpdate }),
       navigation: getHomeNavigation(state), lastUpdate: update });
     state = write(state, session);
-    if (result.state!.phase === 'complete') return advanceOrdinaryNavigation(state, updates - i - 1, reduced);
+    if (result.state!.phase === 'complete') {
+      const tail = advanceOrdinaryNavigation(state, updates - i - 1, reduced);
+      observations.push(...tail.observations.map(observation => Object.freeze({ ...observation, updateOffset: observation.updateOffset === null ? null : observation.updateOffset + i + 1 })));
+      return advanced(tail.state, observations);
+    }
   }
-  return state;
+  return advanced(state, observations);
+}
+
+/** Existing callers retain their state-only shape. The native host must consume
+ * advanceSystemHomeFolderCloseNative to deliver ordered replay observations.
+ */
+export function advanceSystemHomeFolderClose(state: MenuState, updates: number, reduced = false): MenuState {
+  return advanceSystemHomeFolderCloseNative(state, updates, reduced).state;
 }

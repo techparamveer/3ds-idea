@@ -3,13 +3,30 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   beginHomeFolderClose, stepHomeFolderClose, advanceHomeFolderClose,
-  cancelHomeFolderClose, sampleHomeFolderClose,
+  cancelHomeFolderClose, sampleHomeFolderClose, resolveHomeFolderCloseRestoration,
 } from '../src/os/home-folder-close.ts';
 
 const oracle = JSON.parse(readFileSync(new URL('../docs/evidence/native-folder-close-boundary.json', import.meta.url), 'utf8'));
 const identity = { generation: 'system:1', transitionId: 1 };
 const both = { taskEligible: true, layoutEligible: true };
 const taskOnly = { taskEligible: true, layoutEligible: false };
+
+test('late restoration resolution accepts only the matching idle closing boundary', () => {
+  const initial = beginHomeFolderClose(null, identity, { restoredSelectionVisible: false, viewportDuration: 5 }).state;
+  assert.equal(resolveHomeFolderCloseRestoration(initial, identity, { restoredSelectionVisible: true }).state, initial);
+  const idle = advanceHomeFolderClose(initial, identity, 18, both).state;
+  assert.equal(idle.folder.status, 0); assert.equal(idle.phase, 'closing');
+  const stale = resolveHomeFolderCloseRestoration(idle, { ...identity, transitionId: 999 }, { restoredSelectionVisible: true });
+  assert.equal(stale.state, idle); assert.deepEqual(stale.observations, []);
+  const resolved = resolveHomeFolderCloseRestoration(idle, identity, { restoredSelectionVisible: false, viewportDuration: 10 });
+  assert.equal(resolved.processedSteps, 0); assert.deepEqual(resolved.observations, []); assert.equal(resolved.state.viewportDuration, 10);
+  const restored = stepHomeFolderClose(resolved.state, identity, both);
+  assert.equal(restored.state.phase, 'viewport'); assert.equal(restored.state.viewportUpdates, 0);
+  assert.equal(resolveHomeFolderCloseRestoration(restored.state, identity, { restoredSelectionVisible: true }).state, restored.state);
+  const complete = advanceHomeFolderClose(restored.state, identity, 10, both);
+  assert.equal(complete.state.phase, 'complete');
+  assert.equal(resolveHomeFolderCloseRestoration(complete.state, identity, { restoredSelectionVisible: true }).state, complete.state);
+});
 const layoutOnly = { taskEligible: false, layoutEligible: true };
 const blocked = { taskEligible: false, layoutEligible: false };
 const begin = (restoration = { restoredSelectionVisible: true }, key = identity, current = null) =>

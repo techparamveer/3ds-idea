@@ -18,21 +18,21 @@ const folder=()=>enterHomeFolder(reduceMenu(selectHomeSlot(home(),40),'open'),40
 const touch=(state,phase,x,y,now)=>dispatchSystemEvent(state,{type:'touch',phase,pointerId:1,x,y},now);
 
 test('ordinary Loop submits before float32 step1 and excludes endpoint60',()=>{
- const initial=createHomeCursorLoop();assert.deepEqual(initial,{currentFrame:0,appliedFrame:0});
+ const initial=createHomeCursorLoop();assert.deepEqual(initial,{currentFrame:0,appliedFrame:0,step:1});
  for(const [count,currentFrame,appliedFrame] of [[0,0,0],[1,1,0],[59,59,58],[60,0,59],[61,1,0],[121,1,0]]){
-  const next=advanceHomeCursorLoop(initial,count,true);assert.deepEqual(next,{currentFrame,appliedFrame});assert.ok(Object.isFrozen(next));
+  const next=advanceHomeCursorLoop(initial,count,true);assert.deepEqual(next,{currentFrame,appliedFrame,step:1});assert.ok(Object.isFrozen(next));
  }
  assert.equal(advanceHomeCursorLoop(initial,0,true),initial);
  for(const count of [-1,.5,NaN,Infinity,Number.MAX_SAFE_INTEGER+1])assert.throws(()=>advanceHomeCursorLoop(initial,count,true),RangeError);
  const count=Number.MAX_SAFE_INTEGER;
- assert.deepEqual(advanceHomeCursorLoop(initial,count,true),{currentFrame:count%60,appliedFrame:(count-1)%60});
+ assert.deepEqual(advanceHomeCursorLoop(initial,count,true),{currentFrame:count%60,appliedFrame:(count-1)%60,step:1});
  // The ordinary live phase is integer; a fractional source fixture still uses scalar float32 steps.
- assert.deepEqual(advanceHomeCursorLoop({currentFrame:59.5,appliedFrame:58.5},2,true),{currentFrame:1.5,appliedFrame:.5});
+ assert.deepEqual(advanceHomeCursorLoop({currentFrame:59.5,appliedFrame:58.5,step:1},2,true),{currentFrame:1.5,appliedFrame:.5,step:1});
 });
 test('pure batching and hidden/show retain both phase fields',()=>{
  const initial=createHomeCursorLoop(),before=advanceHomeCursorLoop(initial,17,true);
  assert.equal(advanceHomeCursorLoop(before,999,false),before);
- assert.deepEqual(advanceHomeCursorLoop(before,1,true),{currentFrame:18,appliedFrame:17});
+ assert.deepEqual(advanceHomeCursorLoop(before,1,true),{currentFrame:18,appliedFrame:17,step:1});
  let stepped=initial;for(let i=0;i<121;i++)stepped=advanceHomeCursorLoop(stepped,1,true);
  assert.deepEqual(advanceHomeCursorLoop(initial,121,true),stepped);
  let split=initial;for(const count of [7,0,43,1,70])split=advanceHomeCursorLoop(split,count,true);
@@ -56,7 +56,7 @@ test('read-only sampling, reduced motion and legacy callers cannot advance the c
  }
  assert.equal(loop(state),before);assert.equal(JSON.stringify(state),saved);
  assert.equal(getHomeCursorLoopFrame(initialState),0);assert.equal(getHomeCursorLoopFrame(initialState,true),0);
- const reduced=at(state,18,true);assert.deepEqual(loop(reduced),{currentFrame:18,appliedFrame:17});
+ const reduced=at(state,18,true);assert.deepEqual(loop(reduced),{currentFrame:18,appliedFrame:17,step:1});
  assert.equal(getHomeCursorLoopFrame(reduced,true),0);assert.equal(getHomeCursorLoopFrame(reduced),17);
 });
 test('selection, density, root/folder transitions and independent histories retain phase',()=>{
@@ -68,7 +68,7 @@ test('selection, density, root/folder transitions and independent histories reta
  state=settleHomeNavigation(selectHomeSlot(setHomeDensity(state,2),13));
  state=leaveHomeFolder(state);assert.equal(loop(state),before);
  state=enterHomeFolder(state,40);assert.equal(state.folderSelected,13);assert.equal(loop(state),before);
- state=at(state,10);assert.deepEqual(loop(state),{currentFrame:10,appliedFrame:9});
+ state=at(state,10);assert.deepEqual(loop(state),{currentFrame:10,appliedFrame:9,step:1});
 });
 test('geometry revealing an offscreen selection is identical under batched and stepped clocks',()=>{
  for(const transform of [s=>selectHomeSlot(s,100),s=>setHomeDensity(settleHomeNavigation(selectHomeSlot(s,100)),0)]){
@@ -132,7 +132,7 @@ test('settings restoration and layout reset retain phase; true off-to-boot reset
  let state=reduceSystem(reduceSystem(initial,'power',now),'open',now);assert.equal(state.system.phase,'off');assert.equal(loop(state),before);
  state=reduceSystem(state,'power',10000);assert.equal(state.system.phase,'boot');assert.deepEqual(loop(state),createHomeCursorLoop());
  state=tickSystem(state,13001);state=tickSystem(state,13002);assert.deepEqual(loop(state),createHomeCursorLoop());
- assert.deepEqual(loop(tickSystem(state,13002+F)),{currentFrame:1,appliedFrame:0});
+ assert.deepEqual(loop(tickSystem(state,13002+F)),{currentFrame:1,appliedFrame:0,step:1});
 });
 test('shared cursor predicate freezes scroll and dragging without a painted target, then resumes on a valid drop',()=>{
  let state=at(home(),5),now=T+5*F;

@@ -11,7 +11,7 @@ import {
   enterHomeFolder, leaveHomeFolder, selectHomeSlot, setHomeDensity, settleHomeNavigation,
   getHomeNavigation, getHomeNavigationView, writeHomeNavigation, isHomeRootSelectionVisible,
 } from '../src/os/home-navigation.ts';
-import { SYSTEM_HOME_FOLDER_CLOSE_VIEWPORT_UPDATES } from '../src/os/home-folder-close-system.ts';
+import { SYSTEM_HOME_FOLDER_CLOSE_VIEWPORT_UPDATES, advanceSystemHomeFolderCloseNative, consumeSystemHomeFolderCloseInput } from '../src/os/home-folder-close-system.ts';
 
 const T = 4000, FRAME = 1000 / 60;
 const home = () => tickSystem(createPortfolioState(), 3001);
@@ -25,6 +25,67 @@ function offscreen(left = 0) {
   const state = folder(), nav = getHomeNavigation(state);
   return writeHomeNavigation(state, { ...nav, rootView: { ...nav.rootView, currentLeftSlot: left, targetLeftSlot: left } });
 }
+
+function acceleratedClose(visible = false) {
+  let state = folder(), nav = getHomeNavigation(state);
+  const root = nav.rootView;
+  const left = visible ? root.currentLeftSlot : root.selectedSlot - 6;
+  state = writeHomeNavigation(state, { ...nav, rootView: { ...root, currentLeftSlot: left, targetLeftSlot: left },
+    mode3: Object.freeze({ entryCount: 5, directionMask: 0, pendingMask: 0 }) });
+  state = { ...state, system: { ...state.system, homeCursorLoop: Object.freeze({ currentFrame: 17.25, appliedFrame: 16.25, step: 1 }) } };
+  return close(state);
+}
+function nativeCloseUpdates(state, updates) {
+  state = { ...state, system: { ...state.system, homeClock: { ...state.system.homeClock, updateCount: state.system.homeClock.updateCount + updates } } };
+  return advanceSystemHomeFolderCloseNative(state, updates);
+}
+
+test('native close resolves acceleration at restoration and spends no viewport update there', () => {
+  const initial = acceleratedClose(), result = nativeCloseUpdates(initial, 18), root = result.state;
+  assert.equal(record(root).restoredAtUpdate, 18); assert.equal(record(root).selectionReadyAtUpdate, null);
+  assert.equal(record(root).controller.viewportDuration, 5); assert.equal(getHomeNavigationView(root).elapsedUpdates, 0);
+  assert.deepEqual(root.system.homeCursorLoop, { currentFrame: 17.25, appliedFrame: 16.25, step: 3 });
+  assert.deepEqual(result.observations.map(o => [o.kind, o.updateOffset]), [['mode3-entry', 17]]);
+  const completed = nativeCloseUpdates(root, 5), complete = completed.state;
+  assert.equal(record(complete).selectionReadyAtUpdate, 23); assert.equal(isHomeRootSelectionVisible(complete), true);
+  assert.deepEqual(completed.observations.map(o => [o.kind, o.reason, o.context, o.slot, o.updateOffset, o.updateCount]),
+    [['banner-resolve', 'idle-entry', null, 40, 4, 1]]);
+  assert.deepEqual(nativeCloseUpdates(complete, 0).observations, []);
+  const visible = nativeCloseUpdates(acceleratedClose(true), 18);
+  assert.equal(record(visible.state).selectionReadyAtUpdate, 18);
+  assert.deepEqual(visible.observations.map(o => [o.kind, o.reason, o.context, o.slot, o.updateOffset, o.updateCount]),
+    [['banner-resolve', 'idle-entry', null, 40, 17, 1]]);
+  assert.equal(getHomeNavigation(visible.state).mode3.entryCount, 5); assert.equal(visible.state.system.homeCursorLoop.step, 1);
+});
+
+test('event7 before late restoration selects10; release during the viewport preserves5', () => {
+  let state = nativeCloseUpdates(acceleratedClose(), 17).state;
+  const identity = record(state).controller.identity;
+  const released = consumeSystemHomeFolderCloseInput(state, identity, { type: 7, mask: 16 });
+  assert.equal(released.disposition, 'handled'); assert.ok(record(released.state));
+  state = nativeCloseUpdates(released.state, 1).state;
+  assert.equal(record(state).controller.viewportDuration, 10); assert.equal(getHomeNavigation(state).mode3.entryCount, 1);
+  assert.equal(record(nativeCloseUpdates(state, 10).state).selectionReadyAtUpdate, 28);
+  state = nativeCloseUpdates(acceleratedClose(), 20).state;
+  const before = getHomeNavigation(state).motion;
+  state = consumeSystemHomeFolderCloseInput(state, record(state).controller.identity, { type: 7, mask: 0xcfff }).state;
+  assert.equal(getHomeNavigation(state).motion, before); assert.equal(before.durationUpdates, 5);
+  assert.equal(state.system.homeCursorLoop.step, 1);
+  assert.equal(record(nativeCloseUpdates(state, 3).state).selectionReadyAtUpdate, 23);
+});
+
+test('close release bridge cannot adopt a stale identity or out-of-band navigation replacement', () => {
+  const initial = acceleratedClose(), identity = record(initial).controller.identity;
+  for (const key of [{ ...identity, transitionId: identity.transitionId + 1 }, { ...identity, generation: 'old' }]) {
+    const result = consumeSystemHomeFolderCloseInput(initial, key, { type: 7, mask: 16 });
+    assert.equal(result.state, initial); assert.equal(result.disposition, 'unsupported');
+  }
+  const pressed = consumeSystemHomeFolderCloseInput(initial, identity, { type: 4, mask: 16 });
+  assert.equal(pressed.state, initial); assert.equal(pressed.disposition, 'unsupported');
+  const replaced = writeHomeNavigation(initial, { ...getHomeNavigation(initial) });
+  assert.equal(record(replaced), null);
+  assert.equal(consumeSystemHomeFolderCloseInput(replaced, identity, { type: 7, mask: 16 }).state, replaced);
+});
 
 test('Back consumes setup layout at C once and restores at C+18 with retained bounded timestamps', () => {
   let initial = tickHomeNavigationClock(folder(), T);

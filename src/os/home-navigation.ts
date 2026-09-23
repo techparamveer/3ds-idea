@@ -12,6 +12,10 @@ export type HomeMotion = {
   currentDensity: HomeDensity; targetDensity: HomeDensity;
   fromGeometry: HomeGridSnapshot; targetGeometry: HomeGridSnapshot;
 };
+export type HomeMode3State = Readonly<{ entryCount: number; directionMask: number; pendingMask: number }>;
+export const createHomeMode3State = (): HomeMode3State => Object.freeze({ entryCount: 0, directionMask: 0, pendingMask: 0 });
+export type HomeGridFocus = Readonly<{ toolbarActive: boolean; currentFocus: number; rememberedFocus: number; savedColumn: number }>;
+export const createHomeGridFocus = (): HomeGridFocus => Object.freeze({ toolbarActive: false, currentFocus: -1, rememberedFocus: -1, savedColumn: -1 });
 export type HomeNavigation = {
   activeFolderSlot: number | null;
   rootView: HomeViewRecord;
@@ -19,10 +23,13 @@ export type HomeNavigation = {
   motion: HomeMotion | null;
   gesture: HomeGesture | null;
   selectionRevision: number;
+  /** Scene-local input state; never part of persisted root/folder view records. */
+  mode3: HomeMode3State;
+  focus: HomeGridFocus;
 };
 export const homeDensityIndex = (columns: number): HomeDensity => Math.max(0, HOME_DENSITIES.indexOf(columns as typeof HOME_DENSITIES[number])) as HomeDensity;
 export const freshHomeView = (density: HomeDensity = 1): HomeViewRecord => ({ selectedSlot: 0, currentLeftSlot: 0, targetLeftSlot: 0, density });
-export const createHomeNavigation = (density: HomeDensity = 1): HomeNavigation => ({ activeFolderSlot: null, rootView: freshHomeView(density), folderViews: {}, motion: null, gesture: null, selectionRevision: 0 });
+export const createHomeNavigation = (density: HomeDensity = 1): HomeNavigation => ({ activeFolderSlot: null, rootView: freshHomeView(density), folderViews: {}, motion: null, gesture: null, selectionRevision: 0, mode3: createHomeMode3State(), focus: createHomeGridFocus() });
 /** Source tables use centres, not top-left corners. Root capacity remains the portfolio's existing 300. */
 export function homeGridMetrics(folder: boolean, density: HomeDensity) {
   return { rows: (folder ? [1, 1, 2, 3, 4, 5] : [1, 2, 3, 4, 5, 6])[density],
@@ -60,7 +67,7 @@ function withActiveRecord(state: MenuState, record: HomeViewRecord, changed = fa
   return writeHomeNavigation(state, { ...nav, motion, selectionRevision: nav.selectionRevision + Number(changed),
     ...(nav.activeFolderSlot === null ? { rootView: record } : { folderViews: { ...nav.folderViews, [nav.activeFolderSlot]: record } }) });
 }
-function gridSnapshot(folder: boolean, density: HomeDensity, left: number): HomeGridSnapshot {
+export function gridSnapshot(folder: boolean, density: HomeDensity, left: number): HomeGridSnapshot {
   const metrics = homeGridMetrics(folder, density);
   return { ...metrics, densityValue: density, scrollPixels: left / metrics.rows * metrics.pitchX,
     slots: Array.from({ length: metrics.capacity }, (_, index) => ({ index,
@@ -77,7 +84,7 @@ export function homeMotionWeight(update: number, duration: number, linear = fals
   value = f32(value + f32(p2 * 1)); return f32(value + f32(f32(t2 * t) * 1));
 }
 const blend = (from: number, to: number, weight: number) => f32(f32(f32(1 - weight) * from) + f32(weight * to));
-function sampleHomeGrid(nav: HomeNavigation): HomeGridSnapshot {
+export function sampleHomeGrid(nav: HomeNavigation): HomeGridSnapshot {
   const record = activeHomeRecord(nav), motion = nav.motion;
   if (!motion) return gridSnapshot(nav.activeFolderSlot !== null, record.density, record.currentLeftSlot);
   const a = motion.fromGeometry, b = motion.targetGeometry, weight = homeMotionWeight(motion.elapsedUpdates, motion.durationUpdates, motion.mode === 3);

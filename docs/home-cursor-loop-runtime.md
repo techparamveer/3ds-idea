@@ -1,5 +1,10 @@
 # Retained primary HOME cursor Loop
 
+The later [native scroll consumer](home-scroll-consumer-runtime.md) adds retained
+step1/3, phase-preserving speed changes and late10/5 close correction. The
+step1-only scope and fixed10 policy below record this module's initial pass;
+the later note supersedes those limitations without changing the paint getter.
+
 The primary `LncCsr_00_Loop` now has a controller retained by System. It advances
 from eligible shared HOME update counts, rather than deriving phase from elapsed
 milliseconds. The ordinary source step is 1. Native mode3 acceleration and its

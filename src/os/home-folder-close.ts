@@ -106,6 +106,18 @@ export function beginHomeFolderClose(current: HomeFolderClose | null, identity: 
   return result(state, [Object.freeze({ kind: 'closeStarted', identity: state.identity, stepOffset: null })]);
 }
 
+/** Resolve the restoration plan at its actual task boundary. Only a matching,
+ * still-closing operation whose folder layout is idle can accept this update.
+ * No task, layout, restoration observation or viewport update is consumed.
+ */
+export function resolveHomeFolderCloseRestoration(state: HomeFolderClose | null, identity: HomeFolderCloseIdentity,
+  restoration: HomeFolderCloseRestoration): HomeFolderCloseResult {
+  assertIdentity(identity); assertRestoration(restoration);
+  if (!state || !matches(state, identity) || state.phase !== 'closing' || state.folder.status !== 0) return result(state);
+  return result(Object.freeze({ ...state, restoredSelectionVisible: restoration.restoredSelectionVisible,
+    viewportDuration: restoration.restoredSelectionVisible ? null : restoration.viewportDuration }));
+}
+
 function step(state: HomeFolderClose, input: HomeFolderCloseEligibility, stepOffset: number): HomeFolderCloseResult {
   let next = state;
   const observations: HomeFolderCloseObservation[] = [];

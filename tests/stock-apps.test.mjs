@@ -297,3 +297,39 @@ test('Browser empty and unavailable interiors always provide visible content wit
  }
  assert.deepEqual(ctx.shared,before);assert.deepEqual(module.save(main),{url:''});
 });
+
+test('helper initial and one-step views always have readable content and only read-only navigation',()=>{
+ const ids=['nnid-settings','system-updater','system-transfer','amiibo-settings','extrapad','manual','mii-selector','photo-selector','sound-selector'];
+ const before=structuredClone(ctx.shared);
+ for(const id of ids){
+  const {module,state}=setup(id),main=module.view(state,ctx);assert.ok(main.text.some(text=>text.trim()),id);assert.equal(main.data.readOnly,true);
+  if(id==='nnid-settings'||id==='system-updater'){
+   assert.deepEqual(main.rows,[]);assert.equal(main.footer.right,undefined);
+   for(const actionId of ['sign-in','create','information','update','confirm'])assert.deepEqual(action(module,state,actionId),{state});
+  }
+  for(const [index,row] of main.rows.entries()){
+   const detail=action(module,state,row.id);assert.deepEqual(detail.effects??[],[]);assert.ok(module.view(detail.state,ctx).text.some(text=>text.trim()),id+':'+row.id);
+   for(const actionId of ['confirm','submit','connect','update','format','delete','scan'])assert.deepEqual(action(module,detail.state,actionId),{state:detail.state});
+   assert.deepEqual(module.reduce(detail.state,{type:'text',value:'Changed'},ctx),{state:detail.state});
+   const back=action(module,detail.state,'back');assert.equal(back.state.screen,'main');assert.equal(back.state.selection,index);assert.deepEqual(back.effects??[],[]);
+  }
+ }
+ assert.deepEqual(ctx.shared,before);
+});
+test('selectors project existing item identity without fabricating media, choosing a result, or editing',()=>{
+ const context={now:0,shared:{...initialSharedData(),miis:[{id:'m',name:'Existing Mii',secret:'not projected'}],photos:[{id:'p',title:'Existing Photo',src:'unloaded.jpg'}],sounds:[{id:'s',name:'Existing Sound',src:'unplayed.mp3'}]}},before=structuredClone(context.shared);
+ for(const [id,expected] of [['mii-selector',{id:'m',name:'Existing Mii'}],['photo-selector',{id:'p',title:'Existing Photo'}],['sound-selector',{id:'s',name:'Existing Sound'}]]){
+  const {module}=setup(id);const initial=module.create({},null,context),main=module.view(initial,context);assert.equal(main.rows.length,1);
+  const result=module.reduce(initial,{type:'action',id:'0'},context);assert.deepEqual(result.effects??[],[]);
+  const view=module.view(result.state,context);assert.deepEqual(view.data.entry,expected);assert.ok(view.text[0]);assert.deepEqual(view.rows,[]);
+  assert.deepEqual(module.reduce(result.state,{type:'action',id:'select'},context),{state:result.state});
+  const missing=module.view({...result.state,field:'99'},context);assert.equal(missing.data.entry,null);assert.ok(missing.text[0]);
+ }
+ assert.deepEqual(context.shared,before);
+});
+
+test('Settings-launched helper main Back retains the current HOME behavior',()=>{
+ for(const id of ['nnid-settings','system-updater','system-transfer']){
+  const {module,state}=setup(id);assert.deepEqual(action(module,state,'back'),{state,effects:[{type:'home'}]});
+ }
+});

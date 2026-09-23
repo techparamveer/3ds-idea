@@ -1,4 +1,5 @@
 import { objectValue, type AppContext, type AppDescriptor, type AppEffect, type AppModule, type AppReduction, type AppState, type AppView, type AppViewRow, type JsonValue } from './app-types.ts';
+import { helperSelectorSources, helperTitle, helperView, isHelperTitle } from './stock-helper-views.ts';
 import { browserBack, browserChoices, browserHeading, browserNavigate, browserPageEntry, browserText } from './stock-browser-navigation.ts';
 import { settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
 import { healthDocumentPageCounts } from './stock-health-layout.ts';
@@ -15,12 +16,12 @@ const settingsDefaults: AppState = { nickname: 'Player', language: 'English', so
 // Keep legacy keys intact so existing saves remain readable. Stock screens never write them.
 export const initialSharedData = (): AppState => ({ settings: { ...settingsDefaults }, miis: [], photos: [], sounds: [], notes: [], friends: [], notifications: [], activity: {}, browser: { bookmarks: [], history: [] }, plaza: { greeting: 'Hello!', miiId: null, streetPass: false } });
 const cameraTitles = new Set(['camera', 'camera-applet']);
-const selectorSources: Record<string, string> = { 'mii-selector': 'miis', 'photo-selector': 'photos', 'sound-selector': 'sounds' };
+const selectorSources = helperSelectorSources;
 const serviceRows: Record<string, readonly [string, string][]> = {
   'amiibo-settings': [['register', 'Register Owner and Nickname'], ['delete-data', 'Delete amiibo Game Data'], ['reset', 'Reset amiibo']],
-  'nnid-settings': [['sign-in', 'Link an Existing ID'], ['create', 'Create a New ID']],
-  'system-transfer': [['3ds', 'Transfer from a Nintendo 3DS'], ['dsi', 'Transfer from Nintendo DSi']],
-  'system-updater': [['information', 'System Update']],
+  'nnid-settings': [],
+  'system-transfer': [['3ds', 'Transfer from a Nintendo 3DS System'], ['dsi', 'Transfer from a Nintendo DSi System']],
+  'system-updater': [],
   eshop: [['back', 'OK']], mint: [['information', 'Nintendo eShop']],
   'nintendo-zone': [['scan', 'Search for Nintendo Zone'], ['information', 'What is Nintendo Zone?']], miiverse: [['communities', 'Communities'], ['activity', 'Activity Feed'], ['profile', 'My Menu'], ['notifications', 'Notifications']],
   'miiverse-post': [['information', 'Post to Miiverse']], extrapad: [['information', 'Circle Pad Pro']],
@@ -122,6 +123,10 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         if ((id === 'game-notes' || id === 'memo') && screen === 'drawing') return { state: withScreen(state, 'main', { selection: bounds(num(state.slot), 15) }) };
         if (id === 'system-settings') return { state: settingsBack(state) };
         if (id === 'browser') return { state: browserBack(state) };
+        if (isHelperTitle(id)) {
+          const index=rows(withScreen(state,'main'),context).findIndex(item=>item.id===(state.field??state.topic));
+          return { state: withScreen(state,'main',{selection:Math.max(0,index)}) };
+        }
         const parent = cameraTitles.has(id) && screen === 'photo' ? 'gallery' : 'main';
         const next = withScreen(state, parent);
         return id === 'sound' && state.playing ? music(next, 'pause', { playing: false }) : { state: next };
@@ -198,13 +203,15 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (id === 'notifications' && !options.length && screen === 'main') text.push('There are no notifications.');
     if (id === 'system-settings') { text.push(...settingsText(state, context.shared)); if (screen === 'other') { data.page=settingsPage(state); data.pageCount=settingsOtherPages.length; } }
     if (id === 'browser') { text.push(...browserText(state, context.shared)); data.entry=browserPageEntry(state, context.shared); if (screen === 'settings') { data.page=Math.floor(selection/4); data.pageCount=2; } }
+    const helper=helperView(id,state,context.shared,options);
+    if(helper){text.push(...helper.text);Object.assign(data,helper.data);}
     if (id === 'error') text.push(str(state.message, 'An error has occurred.'));
     const healthDocument = id === 'health-safety' && screen === 'document';
     const pageCount = healthDocumentPageCounts[str(state.topic)] ?? 1;
     if (healthDocument) data.pageCount = pageCount;
     const left = healthDocument && num(state.page) > 0 ? { label: 'Previous', action: 'previous' } : { label: 'Back', action: 'back' };
     const right = healthDocument ? (num(state.page) < pageCount - 1 ? { label: 'Next', action: 'next' } : { label: 'Done', action: 'back' }) : id === 'error' ? { label: 'OK', action: 'ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
-    return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : descriptor.title, text, rows: options, selection,
+    return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { left, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }
   return {

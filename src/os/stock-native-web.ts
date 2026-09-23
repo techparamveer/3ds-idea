@@ -51,16 +51,12 @@ export function drawNativeWebFrame(renderer:NativeLayoutRenderer,top:CanvasRende
   if(browser){
     if(view.screen==='main'){
       const selected=view.rows[view.selection]?.id;
-      // The source outer frame uses window flip 4, outside the renderer's
-      // supported frame orientations. Keep a bounded plain panel behind the
-      // original button children instead of losing the entire native menu.
-      bottom.fillStyle='#f8f8f7';bottom.strokeStyle='#b9bcbe';bottom.beginPath();bottom.roundRect(5,25,310,186,7);bottom.fill();bottom.stroke();
       const attachments=Object.fromEntries(browserButtons.map(([id,name,mount,label])=>[mount,()=>{
         const localized=label?message(label):undefined;
         const overrides={...(localized?{TextBox:localized,EmbossTxb:localized}:{}),...(id==='search'?{GooglePct:{visible:true},YahooPct:{visible:false},YahooJappanPct:{visible:false},NaverPct:{visible:false},YahooChinaPct:{visible:false}}:{})};
         draw(bottom,name,name,{center:[160,120],bindings:[{name:name+'_FocusedOnOff',frame:selected===id?1:0}],overrides});
       }]));
-      draw(bottom,'web-menu','StartDialog',{bindings:[{name:'StartDialog_FadeIn',frame:20}],attachments,overrides:{Window:{visible:false}}});
+      draw(bottom,'web-menu','StartDialog',{bindings:[{name:'StartDialog_FadeIn',frame:20}],attachments});
     }else{
       const titles:Record<string,string>={bookmarks:'Bookmarks',history:'History',settings:'Settings',search:'Enter search text',address:'Enter URL','page-info':'Page Info','add-bookmark':'Add'};
       text(bottom,titles[view.screen]??view.heading,160,28,18);

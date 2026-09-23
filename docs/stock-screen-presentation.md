@@ -55,9 +55,8 @@ Verification checks those counts against delivered text. Rich inline message
 runs and native continuous scrolling remain explicit adaptations.
 Browser assembles the source StartDialog and six button children at their native
 mounts, with matching touch regions and English message labels. Its
-outer dialog frame uses a plain bounded panel because its source window
-flip 4 is not supported by the renderer. The original child buttons remain
-native; this frame substitution is not treated as native fidelity. The search
+outer dialog frame now uses its original four source textures with horizontal,
+vertical and 180-degree texture orientations. The search
 button shows the source Google provider variant and hides the mutually exclusive
 regional logos; it does not perform searches. Browser and
 Miiverse crop their original 400×480 background separately to the two LCDs;

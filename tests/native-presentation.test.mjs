@@ -322,3 +322,21 @@ test('real Notes four-frame thumbnails mirror only the right source frames',()=>
  assert.deepEqual([uv[0],uv[2],uv[4],uv[6]],[1,0,1,0]);assert.deepEqual([uv[1],uv[3],uv[5],uv[7]],[base[1],base[3],base[5],base[7]]);
  const rotated=structuredClone(w);rotated.window.frames[1].flip=3;assert.throws(()=>nativeWindowPatches(rotated,l,textures),/Unsupported window frame flip 3/);
 });
+
+test('Browser source window retains its vertical and 180-degree frame orientations',()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/browser/contents/0000-0000001f/layout-start-dialog-StartDialog.json')));
+ const l=pack.layouts.StartDialog,flatten=ps=>ps.flatMap(p=>[p,...flatten(p.children)]),w=flatten(l.roots).find(p=>p.name==='Window');
+ assert.deepEqual(w.window.frames.map(f=>f.flip),[4,2,1,0]);
+ const textures=new Map(Object.entries(pack.textures).map(([name,t])=>[name,{width:t.width,height:t.height,data:new Uint8ClampedArray(t.width*t.height*4)}]));
+ const before=JSON.stringify(w),plain=structuredClone(w);plain.window.frames.forEach(f=>f.flip=0);
+ const base=nativeWindowPatches(plain,l,textures),oriented=nativeWindowPatches(w,l,textures);
+ assert.equal(JSON.stringify(w),before);
+ // Native strip order is content, LT, RT, RB, LB. Texture orientation does not resize the geometry.
+ for(let i=0;i<oriented.length;i++){
+  assert.deepEqual([oriented[i].x,oriented[i].y,oriented[i].width,oriented[i].height],[base[i].x,base[i].y,base[i].width,base[i].height]);
+  for(let uv=0;uv<(base[i].picture.uvSets[0]?.length??0);uv++){
+   const reflect=i===1||(i===2&&uv%2===1)||(i===4&&uv%2===0);
+   assert.equal(oriented[i].picture.uvSets[0][uv],reflect?1-base[i].picture.uvSets[0][uv]:base[i].picture.uvSets[0][uv]);
+  }
+ }
+});

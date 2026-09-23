@@ -63,5 +63,17 @@ The four-frame compositor now reflects each affected texture U coordinate about
 0.5, preserving V, strip geometry, material inheritance and out-of-range tiling.
 Source layouts are immutable. This is a format-based implementation; it has no
 new ARM or matched-LCD claim. The real Notes-resource regression checks both
-right-frame UV direction and preservation of all other strips. Rotated frames
+right-frame UV direction and preservation of all other strips. Quarter-turn frames
 and nonzero flips in the one-frame arrangement remain explicitly unsupported.
+
+## Browser window orientations
+
+The source Browser `StartDialog` window uses frame orientations `[4,2,1,0]`.
+The same format reader identifies 2 as vertical reflection and 4 as a 180-degree
+rotation. Four-frame rendering now reflects V for 2 and both U/V for 4 without
+changing strip geometry or source resources. This lets Browser render its actual
+rounded dark panel and pointer in place of the plain substitute. The real-resource
+regression checks every UV and unchanged geometry; the 29 presentation tests and
+typecheck pass. Sixteen paired native screen renders pass, with the Browser lower
+frame visually inspected under SSD `reference/browser-native-window/`. This is
+format/source evidence, not a matched hardware timing or LCD acceptance claim.

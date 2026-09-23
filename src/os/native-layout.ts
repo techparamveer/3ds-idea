@@ -412,7 +412,7 @@ export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures
   // Native 0x2e3164 returns left/right/top/bottom from frame textures
   // LB.width, RT.width, LT.height, RB.height. Draw order is LT,RT,RB,LB.
   const frames=win.frames.map(frame=>{
-   if(frame.flip!==0&&frame.flip!==1)throw new Error(`Unsupported window frame flip ${frame.flip}`);
+   if(![0,1,2,4].includes(frame.flip))throw new Error(`Unsupported window frame flip ${frame.flip}`);
    const material=layout.materials[frame.material],map=material?.textureMaps[0],image=map&&textures.get(layout.textures[map.texture]);
    if(!image)throw new Error(`Missing four-frame window texture ${pane.name}`);
    return {frame,material,image};
@@ -427,7 +427,7 @@ export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures
    // 0x1cc998..9d4 skips blend/alpha/combiner writes for TextureOnly.
    // Texture resources and coordinate transforms still come from this frame.
    current=material.textureOnly?{...current,name:material.name,textureOnly:false,textureMaps:material.textureMaps,textureMatrices:material.textureMatrices,coordinateGenerators:material.coordinateGenerators}:material;
-   result.push({x,y,width,height,material:current,picture:{material:frame.material,colors:win.flags&2?win.content.colors:nativeWhite,uvSets:material.textureMaps.map(()=>{const left=frame.flip===1?1-u0:u0,right=frame.flip===1?1-u1:u1;return [left,v0,right,v0,left,v1,right,v1];})}});
+   result.push({x,y,width,height,material:current,picture:{material:frame.material,colors:win.flags&2?win.content.colors:nativeWhite,uvSets:material.textureMaps.map(()=>{const flipU=frame.flip===1||frame.flip===4,flipV=frame.flip===2||frame.flip===4;const left=flipU?1-u0:u0,right=flipU?1-u1:u1,top=flipV?1-v0:v0,bottom=flipV?1-v1:v1;return [left,top,right,top,left,bottom,right,bottom];})}});
   };
   // Native UV helpers 0x1cc2e4, 0x1cc1e4, 0x1cc0e4, 0x1cbfe4.
   strip(0,0,0,w-right,top,0,0,ratio(w-right,frames[0].image.width),ratio(top,frames[0].image.height));

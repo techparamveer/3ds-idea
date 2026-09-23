@@ -47,3 +47,11 @@ test('Browser source menu mounts and Miiverse toolbar map to their visible desti
  assert.equal(hit(miiverse,32,226),'communities');assert.equal(hit(miiverse,224,226),'notifications');assert.equal(hit(miiverse,288,226),'back');
  assert.equal(hit(view('miiverse','detail',[]),32,226),null);
 });
+
+test('Friend List touches follow the source card and curved Close button',()=>{
+ const v=view('friends','main',['profile']);
+ assert.equal(hit(v,160,147),'profile');assert.equal(hit(v,20,57),null);
+ assert.equal(hit(v,160,210),'back');assert.equal(hit(v,26,236),'back');
+ assert.equal(hit(v,26,210),null);assert.equal(hit(v,295,236),null);
+ assert.equal(hit(view('friends','detail',[]),160,147),null);
+});

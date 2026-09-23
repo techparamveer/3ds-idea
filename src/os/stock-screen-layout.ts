@@ -26,6 +26,10 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     result.push(target('previous',10,85,45,60),target('next',265,85,45,60));
   }else if(appId==='sound'&&screen==='playback'){
     result.push(target('previous',45,130,58,50),target('play',123,122,74,64),target('next',217,130,58,50),target('repeat',25,185,100,24),target('shuffle',195,185,100,24));
+  }else if(appId==='friends'&&screen==='main'&&rows.length===1&&rows[0].id==='profile'){
+    result.push(target('profile',107,114,106,66,0));
+    if(view.footer.left)for(const [width,height]of [[110,32],[150,27],[186,22],[214,17],[242,12],[270,6]])result.push(target(view.footer.left.action,(320-width)/2,240-height,width,height));
+    return result;
   }else if(appId==='game-notes'&&screen==='main'){
     const start=Math.floor(selection/16)*16;
     rows.slice(start,start+16).forEach((row,i)=>result.push(target(row.id,7+(i%4)*79,8+Math.floor(i/4)*51,70,44,start+i)));

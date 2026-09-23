@@ -11,7 +11,13 @@ An offline exporter writes a versioned, resource-only pack: the two sequence
 DATA blobs, the complete selected bank tree, the five referenced mono signed
 16-bit PCM waves and original loop boundaries, and the seven exact arithmetic
 tables. Metadata records title/version, source paths and SHA-256 hashes,
-converter version, source dependencies and delivery hashes. No ARM executable,
+converter version, source dependencies and delivery hashes. The complete bank
+tree also describes unused programs0/1 whose waves5/6 are outside the audited
+entry scope: retain their descriptors as unavailable metadata, explicitly
+whitelist the reachable programs5/6/11/14, and reject any attempt to select an
+unavailable program. Validate every reachable program/key/velocity reference
+against delivered waves0–4; do not expose missing resources as usable entries.
+No extra waves are required by this bounded music engine. No ARM executable,
 complete firmware package, ticket or credential enters the pack. Export first
 into the SSD private artifact directory; public promotion is a separate
 integration step after validation. Reject unsupported reachable operations,

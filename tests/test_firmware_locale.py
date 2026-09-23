@@ -87,6 +87,15 @@ class LocaleTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, error):
                     Builder(Path(tmp)).pack(inputs, 'message_EU', SETTINGS, SETTINGS_MESSAGE_ARCHIVE, 'archive')
 
+    def test_missing_required_bank_fails_before_public_write(self):
+        for bank in ('hud', 'mset'):
+            inputs = {k: v for k, v in resources().items() if not k.startswith(f'message_{bank}/EU_English/')}
+            with self.subTest(bank=bank), tempfile.TemporaryDirectory() as tmp:
+                output = Path(tmp)
+                with self.assertRaisesRegex(ValueError, f'Missing required Settings message banks: message_{bank}/EU_English/{bank}.msbt'):
+                    Builder(output).pack(inputs, 'message_EU', SETTINGS, SETTINGS_MESSAGE_ARCHIVE, 'archive')
+                self.assertEqual(list(output.rglob('*')), [])
+
     def test_audit_detects_wrong_locale_style_and_selection_provenance(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); builder = Builder(root)
@@ -110,6 +119,17 @@ class LocaleTests(unittest.TestCase):
             self.assertIn('selected message/style provenance differs', ' '.join(check(pack)))
             pack = copy.deepcopy(original); pack.pop('localeSelection')
             self.assertIn('missing Settings locale selection', ' '.join(check(pack)))
+            for bank in ('hud', 'mset'):
+                with self.subTest(missing_bank=bank):
+                    pack = copy.deepcopy(original)
+                    style = pack['messages'][bank]['styleTable']
+                    for bucket, key in [('messages', bank), ('styles', style)]:
+                        del pack[bucket][key]
+                        del pack['resourceSources'][bucket][key]
+                    prefix = SETTINGS_MESSAGE_ARCHIVE+f'/message_{bank}/EU_English/'
+                    pack['localeSelection']['selected'] = [s for s in pack['localeSelection']['selected']
+                                                           if not s['path'].startswith(prefix)]
+                    self.assertEqual(check(pack), [f'{url}: missing required Settings message/style pairs'])
 
 
 SOURCE = os.environ.get('FIRMWARE_MULTICONTENT_ARTIFACTS')

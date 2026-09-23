@@ -105,6 +105,9 @@ def select_message_locale(resources, title, source_path, content):
                 raise ValueError(f'Ambiguous {locale} message bank {key}: {banks[key]}; {path}')
             banks[key] = path
     if not banks: raise ValueError(f'No {MESSAGE_LOCALE} message banks in {source_path}')
+    missing = set(SETTINGS_STYLE_PAIRS).difference(banks.values())
+    if missing:
+        raise ValueError(f'Missing required Settings message banks: {", ".join(sorted(missing))}')
     for path in banks.values():
         if path not in SETTINGS_STYLE_PAIRS:
             raise ValueError(f'Unestablished Settings message/style binding: {path}')

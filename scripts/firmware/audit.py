@@ -195,6 +195,9 @@ def audit(root, artifacts=None, repository=None):
                     except (ValueError, KeyError, OSError) as error:
                         report['errors'].append(f'{url}/{disposition}: {error}')
             check(not selected_paths.intersection(rejected_paths), f'{url}: selected/rejected paths overlap')
+            required_paths = {SETTINGS_MESSAGE_ARCHIVE+'/'+path
+                              for pair in SETTINGS_STYLE_PAIRS.items() for path in pair}
+            check(required_paths.issubset(selected_paths), f'{url}: missing required Settings message/style pairs')
             converted = [s for bucket in ('messages', 'styles') for s in pack.get('resourceSources', {}).get(bucket, {}).values()]
             selected = [{k: v for k, v in s.items() if k != 'locale'} for s in selection.get('selected', [])]
             check(sorted(converted, key=lambda s: s['path']) == sorted(selected, key=lambda s: s['path']),

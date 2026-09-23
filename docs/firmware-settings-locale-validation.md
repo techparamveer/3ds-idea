@@ -33,7 +33,8 @@ Every exact rejected path and SHA-256 is retained in `localeSelection.rejected`
 and the private `selection.json`; no source packages or members are deleted.
 
 Selection requires the whole directory component `EU_English`; `US_English`
-does not qualify. Missing or multiple locale components, absent English banks,
+does not qualify. Both declared English message banks and their sibling style
+tables are required. Missing or multiple locale components, absent English banks,
 invalid selected records, absent sibling styles and any same-locale basename
 collision are hard errors. No other language or directory supplies a fallback.
 Unexpected Settings message/style bindings are rejected rather than inferred.
@@ -61,6 +62,8 @@ archive. It checks exact locale disposition, selected/converted provenance,
 content identity, explicit sibling style path and style-index bounds. Pairing a
 bank with another bank's English style table is an error even when indices fit.
 Dropping selection provenance from this known archive is also an error.
+The audit requires both declared pairs even if an entire bank, style table and
+all their provenance are removed together.
 
 ## Bounded native style evidence
 
@@ -117,3 +120,10 @@ with the committed delivery.
 | `selection.json` | `8518f238f5d5fda86891dc554000548b73390c95e356f4747f59f835fa4c0651` |
 | `public/manifest.json` | `5a0d43433531ae05d2591ed47d142ab77e73e588efcd84f45465dfce443c37af` |
 | Settings `message_EU.json` | `23410b654a43aa4f3bf7b8310bf21194101b57fe687839baeaa1bafada574686` |
+
+The completeness review adds regressions for removing either whole English
+bank/style pair during conversion or coherently from an exported pack. All 25
+focused checks pass. Its separate private output is in
+`assets/localized-messages/completeness-review/` under the same SSD artifact
+root. All 921 generated resource files are byte-identical to the frozen locale
+checkpoint above; the full audit retains the same 19 known binding errors.

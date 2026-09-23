@@ -77,7 +77,11 @@ It inventories the SSEQ member without synthesizing it and preserves the native
 provides opt-in, bounded original ARM probes for cue requests with explicit
 touch/animation/text-acceptance stubs. Neither helper changes HOME synthesis or
 public delivery. See [keyboard audio validation](../../docs/firmware-keyboard-audio-validation.md)
-for commands, source hashes, callback evidence and remaining timing/gain limits.
+for commands, source hashes and callback evidence. `keyboard_audio_parameters.py`
+continues the original wave path through CSND command submission and the first
+voice service update, with explicit allocation/physical-address/stereo stubs.
+See [keyboard parameter contract](../../docs/firmware-keyboard-audio-parameters.md)
+for gain/pan/timer/loop evidence and the remaining hardware/transport limits.
 
 Each pack contains `layouts`, `animations`, `textures`, `messages`, `resourceSources` and `unsupported`, plus `styles` when a supported HOME style table is present. `resourceSources` maps each resource category and name to original member paths and decoded SHA-256 hashes. Layouts contain pane hierarchy, native transforms, text metrics, groups, window frames, texture mapping, blend state and TEV stages. Windows expose `inflation` (four unsigned fixed-point values divided by 16) and `frameSize` (four unsigned integers), both in left/right/top/bottom order. These replace the earlier incorrectly decoded `stretch` float array. Fonts also expose FINF `width`, `cellWidth`, `cellHeight` and `maxCharWidth` alongside baseline, ascent, line feed and per-glyph metrics.
 

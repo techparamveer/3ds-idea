@@ -31,13 +31,24 @@ update count using float32 gain, never converted to an asserted three-second
 native duration. The shared nominal60 Hz host clock remains provisional and is
 not yet the fully proven native sound application pump.
 
-The newly traced ordinary native return helper can enqueue more than one stop
-and play command, including a countdown3 entry. This initial browser owner does
-not yet reproduce that queue/stop-ramp sequence. Its one fresh no-intro start is
-a bounded interim policy, not a complete app-return fidelity claim. Source
-fixtures and the counted queue integration must resolve this before final
-acceptance. Cold entry, retained mute/sleep identity and raw transport are
-independent of that remaining return-path work.
+The checked ordinary native state10 return enqueues stop30/play-now/stop30 in
+queue pass1 and a no-intro180 entry due on pass4. Pass1 follows the return callback
+in the same application update. Original ready/start/stop execution tears down
+the temporary fresh first start before any sound update, so the browser omits
+that inaudible intermediate allocation on this successful path. It schedules the
+actual no-intro engine after three further shared updates, then begins calculated
+gain at float32 1/180 on its first ready update. Repeated paints at the same count
+do not consume queue passes. Resource preparation can happen while pending.
+See scripts/firmware/home_audio_HOME_RETURN_EVIDENCE.md for checked gates, sinks
+and failure cases.
+
+This reproduces counted ordering under the current host update adaptation, not
+native wall-clock/sample timing or every return route. Native state11 disables
+music in this helper; the current portfolio phase transition has no corresponding
+full APT state distinction. Ordinary launch's exact stop producer/timing, native
+readiness on pass4, stop30 mixing of an existing sound and first DSP sample timing
+remain unverified. A slow browser preparation starts only when ready without
+seeking ahead or claiming that it met a native deadline.
 
 Short effects still use the prior public cue pack in this change; v8 candidate
 cue promotion and complete input-to-native-sound event mapping remain separate.

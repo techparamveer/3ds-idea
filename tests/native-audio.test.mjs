@@ -56,12 +56,14 @@ test('effects overlap music; mute and accepted sleep retain the music stream whi
  f.audio.play('select',false,.4);assert.equal(f.audio.status().active,0);
  f.audio.update({...home,homeUpdates:3});await flush();assert.equal(f.contexts[0].gains[0].gain.value,.35);assert.equal(f.transports[0].status().epoch,epoch);assert.equal(starts(f).length,1);f.audio.dispose();
 });
-test('ordinary home reentry uses fresh no-intro engine and counted fade; power cycle selects cold intro again',async()=>{
+test('browser home reentry waits the native queue passes and uses counted ready fade; power cycle selects cold intro again',async()=>{
  const f=fixture();f.audio.update(home);await f.audio.unlock();await flush();
  f.audio.update({...home,home:false,homeUpdates:30});assert.equal(f.contexts[0].gains[1].gain.value,0);
- f.audio.update({...home,homeUpdates:30});await flush();assert.deepEqual(starts(f),[{entry:'music'},{entry:'music-resume'}]);assert.equal(f.packs.length,1);
- assert.equal(f.contexts[0].gains[1].gain.value,0);f.audio.update({...home,homeUpdates:120});assert.equal(f.contexts[0].gains[1].gain.value,.5);
- f.audio.update({...home,homeUpdates:210});assert.equal(f.contexts[0].gains[1].gain.value,1);
+ f.audio.update({...home,homeUpdates:30});await flush();assert.deepEqual(starts(f),[{entry:'music'}]);assert.equal(f.packs.length,1);
+ for(const homeUpdates of [30,31,32,32]){f.audio.update({...home,homeUpdates});await flush();assert.equal(starts(f).length,1);assert.equal(f.contexts[0].gains[1].gain.value,0);}
+ f.audio.update({...home,homeUpdates:33});await flush();assert.deepEqual(starts(f).at(-1),{entry:'music-resume'});assert.equal(f.contexts[0].gains[1].gain.value,Math.fround(1/180));
+ f.audio.update({...home,homeUpdates:122});assert.equal(f.contexts[0].gains[1].gain.value,.5);
+ f.audio.update({...home,homeUpdates:212});assert.equal(f.contexts[0].gains[1].gain.value,1);
  f.audio.update({...home,powered:false});f.audio.update(home);await flush();assert.deepEqual(starts(f).at(-1),{entry:'music'});f.audio.dispose();
 });
 test('leaving HOME cancels preparation and late resources cannot resurrect the old request',async()=>{
@@ -70,12 +72,12 @@ test('leaving HOME cancels preparation and late resources cannot resurrect the o
  f.audio.update(home);await f.audio.unlock();await flush();assert.equal(f.packs.length,1);
  f.audio.update({...home,home:false});assert.equal(f.packs[0].options.signal.aborted,true);
  pending.resolve({manifest:{},files:[]});await flush();assert.equal(starts(f).length,0);
- f.audio.update({...home,homeUpdates:50});await flush();assert.deepEqual(starts(f),[{entry:'music-resume'}]);assert.equal(f.audio.status().failure,undefined);f.audio.dispose();
+ f.audio.update({...home,homeUpdates:50});await flush();assert.equal(starts(f).length,0);f.audio.update({...home,homeUpdates:53});await flush();assert.deepEqual(starts(f),[{entry:'music-resume'}]);assert.equal(f.audio.status().failure,undefined);f.audio.dispose();
 });
 test('rapid home return supersedes an in-flight start without stale audible completion',async()=>{
  const pending=deferred();let calls=0;const f=fixture({startMusic:()=>++calls===1?pending.promise:Promise.resolve()});
  f.audio.update(home);await f.audio.unlock();await flush();f.audio.update({...home,home:false});f.audio.update({...home,homeUpdates:10});
- assert.equal(f.contexts[0].gains[1].gain.value,0);pending.resolve();await flush();
+ assert.equal(f.contexts[0].gains[1].gain.value,0);pending.resolve();await flush();assert.equal(starts(f).length,1);f.audio.update({...home,homeUpdates:13});await flush();
  assert.deepEqual(starts(f),[{entry:'music'},{entry:'music-resume'}]);assert.equal(f.audio.status().music,true);assert.equal(f.audio.status().failure,undefined);f.audio.dispose();
 });
 test('music failures silence only music, do not fall back, and retry only after another gesture',async()=>{

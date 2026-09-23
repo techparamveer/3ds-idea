@@ -20,7 +20,7 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
   let lastPlayed: Sound | undefined, musicGain: GainNode | undefined;
   let transport: ReturnType<typeof createNativeMusicTransport> | undefined;
   let musicFailure: string | undefined, musicRevision = 0, activeRevision = -1, gainRevision = -1;
-  let musicEntry: MusicEntry = 'music', enteredHome = false, fadeStart = 0;
+  let musicEntry: MusicEntry = 'music', enteredHome = false, fadeStart = 0, musicDueUpdate = 0;
   let musicWork = false, musicDirty = false, fetchMusicAbort: AbortController | undefined;
   let stopping: Promise<void> = Promise.resolve();
   let state: AudioState = { home: false, powered: true, sleeping: false, muted: false, volume: .35, elapsedMs: 0, homeUpdates: 0 };
@@ -128,8 +128,11 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
                 if (fetchMusicAbort === controller) fetchMusicAbort = undefined;
               }
             }
-            if (!current() || state.sleeping) continue;
-            fadeStart = soundUpdate(); gainRevision = token; applyGain();
+            if (!current() || state.sleeping || soundUpdate() < musicDueUpdate) continue;
+            // Queue dispatch follows the same application update as the return
+            // callback. Countdown3 is due on pass4 (three subsequent updates).
+            // The first ready sequence update increments before calculating gain.
+            fadeStart = soundUpdate() - 1; gainRevision = token; applyGain();
             await transport.start({ entry: musicEntry });
             if (current()) { activeRevision = token; applyGain(); }
           } catch (error) {
@@ -166,6 +169,7 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
     if (!state.powered) enteredHome = false;
     if (!wasEnabled && musicEnabled()) {
       musicRevision++; activeRevision = -1; musicEntry = enteredHome ? 'music-resume' : 'music'; enteredHome = true;
+      musicDueUpdate = soundUpdate() + (musicEntry === 'music-resume' ? 3 : 0);
     }
     if ((!state.powered && previous.powered) || (state.sleeping && !previous.sleeping)) stopEffects();
     // Accepted sleep/mute changes gain without selecting an archive entry. The

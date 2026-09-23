@@ -99,3 +99,12 @@ within the app-opening transition. This task has not changed that shared
 manifest or runtime painting. Source texture and
 container support are verified; actual composed browser placement, material
 appearance, animation sequencing and fidelity remain integration checks.
+
+
+The exporter now carries verified Sound content identity (index 0, id 0000000b)
+through the pack, every member and texture source, and delivery records. Sound
+has multiple CIA contents; omitting this identity previously failed the delivery
+provenance audit. The rebuilt pack preserves the visual layouts, animations and
+texture pixels. The combined delivery audit now passes with 1,542 records, while
+its documented unsupported-feature warnings remain. The amiibo integration also
+retains its newly added source-title metadata alongside existing global records.

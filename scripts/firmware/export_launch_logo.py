@@ -13,6 +13,7 @@ from firmware.texture import decode_bclim
 
 SOURCE_SHA = '2a98c49d919e254e15dc213cab47a800ed63b248dcd43119e8fb82d9e62ae51c'
 PREFIX = 'packs/launch/'
+CONTENT = {'contentIndex': 0, 'contentId': '0000000b'}
 
 
 def export(source, output, scratch):
@@ -27,7 +28,7 @@ def export(source, output, scratch):
     archive, trailer = decoded[:size], decoded[size:]
     files = unpack_darc(archive)  # Independently bounds every member to declared DARC.
     builder = Builder(scratch)
-    _, pack = builder.pack(files, 'nintendo-launch-logo', '0004001000022500', 'ExeFS/logo.bin', sha(raw))
+    _, pack = builder.pack(files, 'nintendo-launch-logo', '0004001000022500', 'ExeFS/logo.bin', sha(raw), CONTENT)
     if len(files) != 16 or pack['unsupported'] or any(item['unsupported'] for item in [*pack['layouts'].values(), *pack['animations'].values()]):
         raise ValueError('Unexpected or unsupported resource')
     output.mkdir(parents=True, exist_ok=True)
@@ -48,12 +49,12 @@ def export(source, output, scratch):
     packed = encode(pack)
     (output / 'logo.json').write_bytes(packed)
     records[PREFIX + 'logo.json'] = {'kind': 'pack', 'size': len(packed), 'sha256': sha(packed),
-        'sources': [{'titleId': '0004001000022500', 'path': 'ExeFS/logo.bin', 'sha256': sha(raw)}]}
+        'sources': [{'titleId': '0004001000022500', 'path': 'ExeFS/logo.bin', 'sha256': sha(raw), **CONTENT}]}
     scripts = ['scripts/firmware/export_launch_logo.py', 'scripts/unpack_home_resources.py',
         'scripts/firmware/build.py', 'scripts/firmware/native.py', 'scripts/firmware/texture.py']
     repo = Path(__file__).resolve().parents[2]
     provenance = {'schema': 1, 'pack': PREFIX + 'logo.json', 'source': {
-        'titleId': '0004001000022500', 'version': 3088, 'productCode': 'CTR-N-HESP',
+        **CONTENT, 'titleId': '0004001000022500', 'version': 3088, 'productCode': 'CTR-N-HESP',
         'ciaSha256': '25d7c0803392d4b2febd2ce1eb6879c63a000d2b39cbaefcbe4ebf8d3a649f72',
         'contentSha256': 'da6fce19bff1e663cadf03d3a103bccc9d65c18c3890b7a50cae26c62c24268d',
         'path': 'ExeFS/logo.bin', 'sha256': sha(raw), 'bytes': len(raw)},

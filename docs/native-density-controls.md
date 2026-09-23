@@ -70,3 +70,31 @@ behavior. Native physical hit-box edges, complete controller/APT lifecycle and
 browser pixel parity are outside these tests. Existing toolbar hit-region
 boundaries are preserved. Root owns actual native/browser recapture and combined
 integration/build verification; this worker used no browser or Azahar session.
+
+## Integrated browser/reference check
+
+Root integrated the patch as`ad23468`. The parameterized
+`scripts/verify-home-density-controls.mjs` drives actual projected touchscreen
+coordinates from the development diagnostics, using the fixed reduced-motion
+empty-folder pose. It does not inject menu state. A disabled decrease press and
+release leave the entire lower LCD byte-exact to the pre-press capture. The
+enabled increase shows its pressed pose, changes one row to two, and the enabled
+decrease returns to the original one-row lower LCD byte-for-byte.
+
+The same original native400×480 capture used for the
+[vacancy comparison](native-empty-slot-browser-validation.md) was compared with
+the new browser capture. In the24×24 decrease-button region at(269,5), RGB mean
+absolute error fell from12.528356481 to0.470486111, and maximum channel error
+from84 to2. The increase region and all seven previously measured folder regions
+remain unchanged. The actual after image was visually inspected. Residual
+one/two-value differences remain recorded; this is not whole-screen parity.
+
+Artifacts under the SSD firmware artifact directory:
+
+- `reference/density-controls-live.json`: real input sequence and fixed captures.
+- `reference/density-controls-live-capture.json`: final lower/upper capture.
+- `reference/density-controls-{before,after}-comparison.json`: region metrics.
+- `reference/density-controls-after-{native,browser}.png`: extracted LCDs.
+- `density-controls-integration-tests.log`:67 focused integration tests passed,
+  no skips. Production verification is recorded with the subsequent combined
+  integration checkpoint.

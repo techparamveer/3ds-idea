@@ -32,6 +32,8 @@ const browser = await browserImage.ensureAlpha().raw().toBuffer();
 // They deliberately omit the cursor and differing parent application artwork.
 // Notification badges and all upper-display animation phases need separate checks.
 const regions = {
+  densityDecrease: [269, 5, 24, 24],
+  densityIncrease: [294, 5, 24, 24],
   panelInterior: [120, 74, 150, 30],
   backTab: [25, 43, 68, 21],
   leftShadow: [0, 80, 20, 40],

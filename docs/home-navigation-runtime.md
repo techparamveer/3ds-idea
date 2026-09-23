@@ -73,8 +73,11 @@ commit and the dedicated motion suite below.
 
 ## Native motion and the provisional application clock
 
-Directional edge scroll uses mode 2 for 16 native updates. Density change uses
-mode 5 for 15. `homeMotionWeight` preserves the native float32 Bezier operation
+The current browser adapter routes directional edge scroll through mode2/16
+updates. New [original-ARM acceleration evidence](../scripts/firmware/CURSOR_ACCELERATION_EVIDENCE.md)
+establishes that ordinary native directional edges instead enter mode3/10 or5;
+page arrows use mode2. Correcting that live event routing and deferred input is
+pending. Density change uses mode5 for15. `homeMotionWeight` preserves the native float32 Bezier operation
 order for `[0,0,1,1]`; each update increments before sampling. Scroll rounds
 away from zero; slot positions, pitch, box size and density interpolate as
 floats. Current density and current left slot commit only at completion; target

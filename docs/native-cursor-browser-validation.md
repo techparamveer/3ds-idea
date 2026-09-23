@@ -25,6 +25,9 @@ empty folder19, with normal motion and the first child selected.
   close samples. The close started at9182, restored root at9200, and the same
   ready update submitted2/current3. All330 completed samples followed the
   expected count difference thereafter.
+- Fixed-date reduced-motion captures before and after the cursor change retain
+  identical upper and lower images:1,075,200 RGBA bytes, zero differences.
+  The same static native-region measurements remain unchanged.
 
 The close still skips visual samples: this run painted16,14,12,9,6,3,0,
 with66.7ms maximum RAF gap and72ms longest task. This is a separate development
@@ -80,6 +83,8 @@ All files are under
 - `reference/cursor-before-matched-folder.json`: browser fixed capture.
 - `reference/cursor-before-regions-{native,browser}.png` and
   `cursor-before-regions-comparison.json`: extracted lower LCDs and measurements.
+- `reference/cursor-after-matched-folder.json`, `cursor-after-regions-comparison.json`
+  and `cursor-reduced-preservation.json`: retained fixed-pose appearance.
 
 Runtime batching, visibility and lifecycle boundaries are documented in
 [the runtime note](home-cursor-loop-runtime.md). Hardware scheduling, offscreen

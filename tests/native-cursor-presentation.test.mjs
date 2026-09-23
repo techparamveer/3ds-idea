@@ -88,7 +88,7 @@ test('center cursor preserves native toolbar Scale discontinuities, fractional f
 
 test('effect painter uses exact applied Scale and DisAppear frames with native alpha at0/10/20',()=>{
  const {home,draws}=cursorPresenter(),ctx={};
- for(const scaleFrame of [2.375,10,11,12])for(const [disappearFrame,alpha]of [[0,120],[10,60+2.5*Math.fround(-15.6016)],[20,0]]){
+ for(const scaleFrame of [2.375,10,11,12])for(const [disappearFrame,alpha]of [[0,120],[10,21],[20,0]]){
   assert.equal(home.cursorEffectAt(ctx,281,16.5,scaleFrame,disappearFrame),true);
   const draw=draws.at(-1),pane=walk(draw.pose.roots).find(p=>p.name==='W_CsrEfct_00');
   assert.equal(draw.ctx,ctx);assert.equal(draw.bank,'launcher');assert.equal(draw.name,'LncCsrEfct_00');

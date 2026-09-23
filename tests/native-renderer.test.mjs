@@ -68,7 +68,8 @@ test('real closing folder parents carry source shrink, separate blank alpha, and
   }samples.push(sample);
  }
  assert.equal(samples[0].N_Dlg_00.alpha,1);assert.equal(samples[0].N_BlankAnime_00.alpha,1);
- assert.equal(samples[1].N_Dlg_00.alpha,.625);assert.ok(Math.abs(samples[1].N_BlankAnime_00.alpha-.145)<1e-7);
+ // Original HOME submissions round these pane bytes to159 and59.
+ assert.equal(samples[1].N_Dlg_00.alpha,159/255);assert.equal(samples[1].N_BlankAnime_00.alpha,(159/255)*(59/255));
  assert.equal(samples[2].N_BlankAnime_00.alpha,0);assert.equal(samples[3].N_Dlg_00.alpha,0);
  for(const sample of samples)for(const value of [sample.N_Dlg_00,sample.N_BlankAnime_00]){
   assert.deepEqual(value.calls[0],['translate',160,120]);assert.deepEqual(value.calls.at(-1),['translate',-160,-120]);

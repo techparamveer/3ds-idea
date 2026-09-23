@@ -50,15 +50,18 @@ test('source Select/Decide duplicate endpoints produce the recorded local writes
   }
 });
 
-test('only the retained writer is sampled; null poses and fractional incoming endpoints preserve their actual resource values', () => {
+test('only the retained writer is sampled; null poses and fractional endpoints preserve the native key snap', () => {
   const presenter = home();
   for (const density of densities) {
     assert.equal(presenter.tilePressOffset(null, density), 0);
     assert.equal(presenter.tilePressOffset(undefined, density), 0);
-    for (const frame of [.125, .5, .999999]) {
+    for (const frame of [.125, .5, .998]) {
       assert.equal(presenter.tilePressOffset({ clip: 'select', frame }, density), 0);
       assert.equal(presenter.tilePressOffset({ clip: 'decide', frame }, density), 2);
     }
+    // Original HOME209cd0 snaps within the strict0.001 key boundary.
+    assert.equal(presenter.tilePressOffset({ clip: 'select', frame: .999999 }, density), 2);
+    assert.equal(presenter.tilePressOffset({ clip: 'decide', frame: .999999 }, density), 0);
     // Decide1 restored the pane; a subsequent Select0 cannot be overwritten
     // by any old Decide0 applied frame because the API receives only its writer.
     const poses = [{ clip: 'select', frame: 1 }, { clip: 'decide', frame: 1 },

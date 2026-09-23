@@ -38,14 +38,32 @@ export function nativePaneParentPath(layout: NativeLayout, name: string): readon
  return find(layout.roots,[]);
 }
 
-/** Equal-frame keys are intentional discontinuities: incoming uses first, outgoing uses last. */
+/** Original HOME209cd0 / keyboard141f2c sampler: float32 VFP order and
+ * a strict +/-0.001 key snap. Duplicate keys preserve the outgoing value.
+ */
 export function sampleNativeTrack(track:NativeTrack,frame:number){
- const keys=track.keys;if(!keys.length)return 0;if(frame<keys[0].frame)return keys[0].value;
- let left=0;while(left+1<keys.length&&keys[left+1].frame<=frame)left++;
- const a=keys[left],b=keys[left+1];if(!b||track.interpolation==='step')return a.value;
- const duration=b.frame-a.frame,t=(frame-a.frame)/duration,t2=t*t,t3=t2*t;
- return (2*t3-3*t2+1)*a.value+(t3-2*t2+t)*duration*(a.slope??0)+(-2*t3+3*t2)*b.value+(t3-t2)*duration*(b.slope??0);
+ const keys=track.keys;if(!keys.length)return 0;
+ if(track.interpolation==='step'){
+  let left=0;while(left+1<keys.length&&keys[left+1].frame<=frame)left++;return keys[left].value;
+ }
+ const f=Math.fround;frame=f(frame);
+ if(keys.length===1||frame<=keys[0].frame)return keys[0].value;
+ if(frame>=keys.at(-1)!.frame)return keys.at(-1)!.value;
+ let low=0,high=keys.length-1;
+ while(low!==high-1&&low!==high){const middle=(low+high)>>>1;if(frame<=keys[middle].frame)high=middle;else low=middle;}
+ const a=keys[low],b=keys[high],distance=f(frame-b.frame),epsilon=f(.001);
+ if(distance>-epsilon&&distance<epsilon)return high<keys.length-1&&b.frame===keys[high+1].frame?keys[high+1].value:b.value;
+ // VMLA/VMLS round the product before addition; these are not fused FMA.
+ const delta=f(frame-a.frame),inverse=f(1/f(b.frame-a.frame));
+ const square=f(delta*delta),scaledSquare=f(square*inverse),t2=f(scaledSquare*inverse);
+ const scaledCube=f(delta*t2),t3=f(scaledCube*inverse);
+ const tangentA=f(f(scaledCube-f(scaledSquare*2))+delta),tangentB=f(scaledCube-scaledSquare);
+ const weightA=f(f(f(t3*2)-f(t2*3))+1),weightB=f(f(t3*-2)+f(t2*3));
+ let value=f(weightA*a.value);value=f(value+f(b.value*weightB));
+ value=f(value+f((a.slope??0)*tangentA));return f(value+f((b.slope??0)*tangentB));
 }
+/** Native CLVC adds0.5f, saturates to u32, then writes the low byte. */
+function nativeVertexColorByte(value:number){return Math.trunc(Math.max(0,Math.min(0xffffffff,Math.fround(value+.5))))&255;}
 /** CLAN stores unrelated channels too; its binding groups select the active panes/materials. */
 export function boundAnimationTracks(layout:NativeLayout,animation:NativeAnimation){
  if(!animation.groups.length&&!animation.shares?.length)return animation.tracks;
@@ -127,10 +145,10 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
    }else{
     const pane=panes.get(track.target);if(!pane)continue;
     if(parts[0]==='visible')pane.flags=value?pane.flags|1:pane.flags&~1;
-    else if(parts[0]==='alpha')pane.alpha=value;
+    else if(parts[0]==='alpha')pane.alpha=nativeVertexColorByte(value);
     else if(parts[0]==='translation'||parts[0]==='rotation'||parts[0]==='scale'||parts[0]==='size')pane[parts[0]][parts[1]==='x'||parts[1]==='width'?0:parts[1]==='y'||parts[1]==='height'?1:2]=value;
     else if(parts[0]==='vertexColor'){
-     const colors=pane.picture?.colors??pane.window?.content.colors;if(colors?.[Number(parts[1])])colors[Number(parts[1])][Number(parts[2])]=value;
+     const colors=pane.picture?.colors??pane.window?.content.colors;if(colors?.[Number(parts[1])])colors[Number(parts[1])][Number(parts[2])]=nativeVertexColorByte(value);
     }
    }
   }

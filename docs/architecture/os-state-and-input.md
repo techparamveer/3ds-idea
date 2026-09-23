@@ -335,3 +335,8 @@ Native nickname text presentation accepts explicit model cursor/selection state.
 Selection and cursor child layouts can be submitted inline through renderer
 `attachments` at their native hierarchy positions, preserving glyph ordering
 and inherited transforms/alpha. See [selection verification](../native-keyboard-selection.md).
+
+Shared decoded animations use the byte-identical HOME/keyboard float32 Hermite
+sampler and native CLVC byte writes. Runtime overrides remain explicit caller
+values. See [curve and color arithmetic](../native-animation-curves.md) for the
+original-code fixture, key-boundary behavior and remaining rendering boundaries.

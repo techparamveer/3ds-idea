@@ -60,7 +60,7 @@ test('real FolderInT PicToggle binds only its three native group members and pre
  const posed=poseNativeLayout(layout,animations,bindings),panes=byName(posed);
  assert.equal(panes.get('N_Color_00').flags&1,1);
  assert.equal(panes.get('N_Pic_00').flags&1,0);
- assert.equal(panes.get('N_Had_00').translation[1],0);
+ assert.equal(panes.get('N_Had_00').translation[1],-0); // Original float32 constant key retains its sign.
  assert.equal(panes.get('P_FolderHad_01').flags&1,0);
  assert.deepEqual(panes.get('N_Had_01').scale,[1,1]);
  assert.equal(panes.get('N_Had_01').translation[1],7);

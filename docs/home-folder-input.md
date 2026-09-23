@@ -58,3 +58,7 @@ transforms, palette/rearrangement mode, native press timing, drag-out boundaries
 and native occupied-footer left actions are outside this bounded correction.
 The native rapid-request arithmetic is verified from source; event delivery
 during every transitional native state has not been executed here.
+
+The later [folder-close source trace](native-folder-close-boundary.md) establishes
+the normal animation completion and clear-to-restored-selection request boundary.
+That proposal does not yet replace this input correction's immediate Back reducer.

@@ -99,7 +99,9 @@ does not validate their `folder`-to-`primary` migration. The broad model suite w
 not needed for these pure modules and was not run against absent local LFS assets.
 
 Root owns scene/screens migration to `primary`/`motion`, rendering readiness,
-explicit clear event wiring and browser verification. The elapsed native passes
-between close-start and restored selection, native worker retarget races,
+explicit clear event wiring and browser verification. The later source-only
+[folder-close boundary](native-folder-close-boundary.md) establishes the normal
+18 eligible CLAN advances and subsequent root request boundary; its proposed
+runtime transition is not yet implemented. Native worker retarget races,
 application loader states4/5, wall-clock cadence and GPU/mipmap equivalence remain
 unproved. This change modifies no renderer, audio module or public assets.

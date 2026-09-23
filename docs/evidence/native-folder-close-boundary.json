@@ -1,0 +1,599 @@
+{
+  "sourceSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "fixtureSha256": "e014f17ac961270d5a7978aa8e8e34ea7f1787d6d6707a13f09a09ac41369d27",
+  "unicornVersion": "2.1.4",
+  "resources": [
+    {
+      "name": "LncFolder_00_FadeIn",
+      "path": "assets/extracted/home/unpacked/launcher_LZ/anim/LncFolder_00_FadeIn.bclan",
+      "sha256": "0cc21b182087829e94470dbd171a2c0af5d61118668eeb9a550b70e74cdecfda",
+      "frames": 17,
+      "loop": false
+    },
+    {
+      "name": "LncFolderCapture_00_Fade",
+      "path": "assets/extracted/home/unpacked/launcher_LZ/anim/LncFolderCapture_00_Fade.bclan",
+      "sha256": "a340868b91e6bde04ac212cc1e6b03acdd25325290b59694b84c0137a01b8f60",
+      "frames": 9,
+      "loop": false
+    }
+  ],
+  "execution": {
+    "original": [
+      "0x11eb44 controller construction and resource range binding",
+      "0x1de434..0x1de478 normal reverse start subsection",
+      "0x103df8 global layout traversal with presentation argument0",
+      "0x1f58e4 layout controller traversal",
+      "0x269430 frame application and 0x1bbd94 clock",
+      "0x29f0a4 close predicate and ordinary post-commit branching",
+      "0x1d9ea0 root history copy for branch preconditions",
+      "0x2a3600..0x2a3668 viewport adjustment counter setup and 0x2a1bbc completion predicate"
+    ],
+    "stubs": [
+      "0x1d45d8 ancillary display/theme update returns immediately in predicate fixture",
+      "0x2b021c whole root commit returns immediately in branch fixture; history preconditions supplied separately",
+      "0x1d7b50 viewport geometry interpolation returns immediately in viewport fixture"
+    ],
+    "limitations": [
+      "Pane binding uses an empty group list; no CLAN pane evaluation or GPU draw.",
+      "Predicate fixture stops on entry to root commit. It does not execute whole application scheduling.",
+      "Global layout fixture suppresses geometry evaluation with its classification field; this does not bypass controller traversal.",
+      "Post-commit branch fixtures preapply root history with native copy routine and set active folder=-1, and stop on entry to state setter."
+    ]
+  },
+  "initial": {
+    "panel": {
+      "frame": 16.0,
+      "status": 1,
+      "endReached": 0,
+      "appliedFrame": 0.0
+    },
+    "capture": {
+      "frame": 8.0,
+      "status": 1,
+      "endReached": 0,
+      "appliedFrame": 0.0
+    },
+    "panelRange": [
+      0.0,
+      16.0
+    ],
+    "step": 1.0,
+    "mode": 1
+  },
+  "predicateRows": [
+    {
+      "completedLayoutPasses": 0,
+      "panel": {
+        "frame": 16.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 0.0
+      },
+      "capture": {
+        "frame": 8.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        0.0,
+        -0.0,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 1,
+      "panel": {
+        "frame": 15.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 16.0
+      },
+      "capture": {
+        "frame": 7.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 8.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        0.09375,
+        -0.046875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 2,
+      "panel": {
+        "frame": 14.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 15.0
+      },
+      "capture": {
+        "frame": 6.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 7.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        0.375,
+        -0.1875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 3,
+      "panel": {
+        "frame": 13.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 14.0
+      },
+      "capture": {
+        "frame": 5.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 6.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        0.84375,
+        -0.421875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 4,
+      "panel": {
+        "frame": 12.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 13.0
+      },
+      "capture": {
+        "frame": 4.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 5.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        1.5,
+        -0.75,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 5,
+      "panel": {
+        "frame": 11.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 12.0
+      },
+      "capture": {
+        "frame": 3.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 4.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        2.34375,
+        -1.171875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 6,
+      "panel": {
+        "frame": 10.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 11.0
+      },
+      "capture": {
+        "frame": 2.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 3.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        3.375,
+        -1.6875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 7,
+      "panel": {
+        "frame": 9.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 10.0
+      },
+      "capture": {
+        "frame": 1.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 2.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        4.59375,
+        -2.296875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 8,
+      "panel": {
+        "frame": 8.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 9.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 1,
+        "endReached": 1,
+        "appliedFrame": 1.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        6.0,
+        -3.0,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 9,
+      "panel": {
+        "frame": 7.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 8.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 2,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        7.59375,
+        -3.796875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 10,
+      "panel": {
+        "frame": 6.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 7.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        9.375,
+        -4.6875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 11,
+      "panel": {
+        "frame": 5.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 6.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        11.34375,
+        -5.671875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 12,
+      "panel": {
+        "frame": 4.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 5.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        13.5,
+        -6.75,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 13,
+      "panel": {
+        "frame": 3.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 4.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        15.84375,
+        -7.921875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 14,
+      "panel": {
+        "frame": 2.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 3.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        18.375,
+        -9.1875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 15,
+      "panel": {
+        "frame": 1.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 2.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        21.09375,
+        -10.546875,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 16,
+      "panel": {
+        "frame": 0.0,
+        "status": 1,
+        "endReached": 1,
+        "appliedFrame": 1.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        24.0,
+        -12.0,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 17,
+      "panel": {
+        "frame": 0.0,
+        "status": 2,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": false,
+      "panelTranslation": [
+        24.0,
+        -12.0,
+        0.0
+      ]
+    },
+    {
+      "completedLayoutPasses": 18,
+      "panel": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "capture": {
+        "frame": 0.0,
+        "status": 0,
+        "endReached": 1,
+        "appliedFrame": 0.0
+      },
+      "rootCommitReached": true,
+      "panelTranslation": [
+        24.0,
+        -12.0,
+        0.0
+      ]
+    }
+  ],
+  "layoutGates": [
+    {
+      "field": "0x60",
+      "blockedValue": 0,
+      "attemptedPasses": 4,
+      "blocked": {
+        "frame": 16.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 0.0
+      },
+      "afterOneEligiblePass": {
+        "frame": 15.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 16.0
+      }
+    },
+    {
+      "field": "0x5c",
+      "blockedValue": 2,
+      "attemptedPasses": 4,
+      "blocked": {
+        "frame": 16.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 0.0
+      },
+      "afterOneEligiblePass": {
+        "frame": 15.0,
+        "status": 1,
+        "endReached": 0,
+        "appliedFrame": 16.0
+      }
+    }
+  ],
+  "postCommitBranches": [
+    {
+      "selected": 0,
+      "left": 0,
+      "density": 0,
+      "events": [
+        "stub-root-commit",
+        {
+          "setMode": 0
+        }
+      ],
+      "targetLeft": 0
+    },
+    {
+      "selected": 0,
+      "left": 3,
+      "density": 0,
+      "events": [
+        "stub-root-commit",
+        {
+          "setMode": 3
+        }
+      ],
+      "targetLeft": 2
+    },
+    {
+      "selected": 20,
+      "left": 0,
+      "density": 0,
+      "events": [
+        "stub-root-commit",
+        {
+          "setMode": 3
+        }
+      ],
+      "targetLeft": 1
+    }
+  ],
+  "viewportAdjustment": [
+    {
+      "initialAccelerationCounter": 0,
+      "nextAccelerationCounter": 1,
+      "requiredTaskUpdates": 10,
+      "returns": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "initialAccelerationCounter": 4,
+      "nextAccelerationCounter": 5,
+      "requiredTaskUpdates": 10,
+      "returns": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "initialAccelerationCounter": 5,
+      "nextAccelerationCounter": 5,
+      "requiredTaskUpdates": 5,
+      "returns": [
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "initialAccelerationCounter": 9,
+      "nextAccelerationCounter": 9,
+      "requiredTaskUpdates": 5,
+      "returns": [
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  ]
+}

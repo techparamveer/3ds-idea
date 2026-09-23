@@ -9,8 +9,8 @@ const buttons=[...mainButtons,'B_L','B_LBlue','B_SB','B_SMngCTRO','B_SMngDSiO','
 const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_AnalogPad','I_Trans','I_Lang','I_Update','I_Format'];
 export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
-  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn']},
-  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00'],animations:['Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
+  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn']},
+  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00'],animations:['Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
   {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
 ];
@@ -118,11 +118,21 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.
-  if(!profileInfo)draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'&&!detailSource?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
+  if(!profileInfo&&screen!=='connections')draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'&&!detailSource?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
   if(profileInfo){
     draw(top,'up','UserInfo_U_00',{bindings:[{name:'UserInfo_U_00_TextFadeIn',frame:20}],overrides:{
       IconTop_00:{visible:false},TextBox_01:message('user_name_u'),TextBox_02:{text:value('nickname')},TextBox_03:message('region_u'),TextBox_04:{visible:false},TextBox_05:{visible:false},TextBox_06:{text:value('region')},TextBox_07:message('birthday_u'),TextBox_08:{text:value('birthday')},TextBox_00:message(instruction),
     }});
+  }
+  if(screen==='connections'){
+    const overrides:PaneOverrides={TextBox_00:message('net_set_comm_u')};
+    for(let i=0;i<3;i++){
+      overrides['TextBox_0'+(i*2+1)]=message('net_connect'+(i+1)+'_u');
+      overrides['TextBox_0'+(i*2+2)]=message('net_none_set_u');
+      // This portfolio has no configured console networks or security keys.
+      overrides['NetKeyL_0'+i]={visible:false};
+    }
+    draw(top,'up','Connect_U_00',{bindings:[{name:'Connect_U_00_TextFadeIn',frame:20}],overrides});
   }
   const child=(layout:string,id:string,label?:string)=>{
     const clip=layout==='B_S'?'B_SB':layout==='B_M'?'B_L':otherIcons.includes(layout)?'I_User':layout;
@@ -158,7 +168,7 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     if(page>0)attachments.N_R_ArrowL_00=()=>draw(bottom,'button','R_ArrowL',{bindings:[{name:'R_ArrowL_Appear',frame:0}]});
     if(page<3)attachments.N_R_ArrowR_00=()=>draw(bottom,'button','R_ArrowR',{bindings:[{name:'R_ArrowR_Appear',frame:0}]});
     draw(bottom,'layout','BasicTop_D_00',{bindings:[{name:'BasicTop_D_00_SpecialIn_00',frame:1}],attachments});
-  }else if(screen==='clock')menu('Btn2Text_D_00',[['N_B_S_00','B_S','date','date_btn'],['N_B_S_01','B_S','time','time_btn']],undefined,{TextBoxTitle_00:message('datetime_comm_u')});
+  }else if(screen==='clock')menu('NetType2_D_00',[['N_B_L_00','B_L','date','date_btn'],['N_B_L_01','B_L','time','time_btn']]);
   else if(screen==='restrictions'){
     const start=Math.floor(view.selection/4)*4;
     view.rows.slice(start,start+4).forEach((row,i)=>{

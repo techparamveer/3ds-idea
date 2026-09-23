@@ -78,6 +78,20 @@ try{
    const text=calls.find(c=>c.layout===(['nickname','birthday'].includes(subpage.data.field)?'UserInfo_U_00':'TextBG_U_00'));
    assert.ok(text.options.overrides.TextBox_00.messageStyle,'identified detail keeps source instruction style');
   }
+  if(subpage.screen==='clock'){
+   const lower=calls.find(c=>c.layout==='NetType2_D_00');assert.ok(lower);
+   assert.deepEqual(Object.keys(lower.options.attachments),['N_B_L_00','N_B_L_01']);
+   assert.equal(calls.some(c=>c.layout==='Btn2Text_D_00'),false);
+  }
+  if(subpage.screen==='connections'){
+   const upper=calls.find(c=>c.layout==='Connect_U_00');assert.ok(upper);
+   for(let i=0;i<3;i++){
+    assert.equal(upper.options.overrides['TextBox_0'+(i*2+1)].text,'Connection '+(i+1));
+    assert.equal(upper.options.overrides['TextBox_0'+(i*2+2)].text,'None');
+    assert.equal(upper.options.overrides['NetKeyL_0'+i].visible,false);
+   }
+   assert.equal(calls.some(c=>c.layout==='TextBG_U_00'),false);
+  }
   for(const [name,canvas]of [['top',top],['bottom',bottom]]){
    const id=subpage.screen+(subpage.data?.field?'-'+subpage.data.field:'')+'-'+name;
    writeFileSync(join(out,id+'.png'),canvas.toBuffer('image/png'));

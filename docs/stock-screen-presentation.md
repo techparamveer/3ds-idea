@@ -153,6 +153,13 @@ Paired renders are in SSD `reference/service-ui`. Known visual gaps are the
 unverified 212/220-pixel viewport placement, flattened banner grid/battery pane
 projection (reported by the renderer), source HUD status placeholders and native
 reference timing. These are not a claim of 1:1 acceptance.
+Date & Time now uses the scene table's `NetType2_D_00` with two full-size
+`B_L` children and source Date/Time labels. Connection Settings uses the
+table's `Connect_U_00` upper layout with three source empty connection rows,
+source instructions and no fabricated network names/security state. The
+[scene validation](settings-main-source-validation.md) records the new clock
+hit rectangles and the required source asset publication.
+
 ## Browser and Miiverse interiors
 
 Browser Settings uses eight English source option labels in two four-row pages

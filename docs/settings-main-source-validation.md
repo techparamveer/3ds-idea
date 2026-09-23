@@ -89,9 +89,34 @@ hashes are saved in `presentation/settings-source-audit/subpage-scenes.json`.
 Remaining differences: DS Profile still uses adapted detail composition and
 needs its `Ls*` layouts; the parental introductory lower layout, restriction
 list and other generic detail cards still differ from their native scenes.
-Date & Time and Connection Settings need their source-specific layouts in a
-following change. Background and title selection do not establish complete
-native scene scheduling or 1:1 visual fidelity.
+Background and title selection do not establish complete native scene
+scheduling or 1:1 visual fidelity.
+
+## Date & Time and Connection Settings layouts
+
+The next bounded correction consumes the exact `NetType2_D_00` named by
+`date_time.bin`, replacing the borrowed `Btn2Text_D_00` and duplicated help
+text. Its settled child mounts are `N_B_L_00` at `(0,60)` and `N_B_L_01` at
+`(0,-36)`, with `date_btn` and `time_btn` source messages. Each source `B_L`
+has a centered `Bounding_00` of 264 × 66. The lower-LCD hit rectangles are
+therefore `(28,27,264,66)` and `(28,123,264,66)`. Integration owns the matching
+input geometry change; the existing Back footer stays in place.
+
+`net_set.bin` names `Connect_U_00` rather than `TextBG_U_00`. The painter now
+uses that source upper layout and its `TextFadeIn` endpoint. Original panes
+display `net_connect1_u` through `net_connect3_u`, the source empty value
+`net_none_set_u`, and `net_set_comm_u`, all with their English source styles.
+The local portfolio has no configured console networks; the sample `%` names
+and key icons are not presented as saved device data. This is the source empty
+presentation, not an inspection of the visitor's network configuration.
+
+These two layouts require assets publication `e7d885c` (integrated by root as
+`b08ac64`). No converter or shared renderer code changes. The focused verifier
+checks the two clock mounts, original connection labels, empty values, hidden
+keys, absence of the substituted upper text panel and immutable packs. All 21
+paired renders and typecheck pass; the two changed pairs were visually
+inspected. Before images remain in `presentation/settings-scene-variants/`,
+and after images are in `presentation/settings-clock-connections/`.
 
 ## Composition, typography and verification
 

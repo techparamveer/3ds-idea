@@ -39,6 +39,18 @@ def resources():
 
 
 class LocaleTests(unittest.TestCase):
+    def test_health_english_loose_message_keeps_its_sibling_style(self):
+        title = '0004001000022300'
+        message = 'message/EU_English/safe_msbt_LZ.bin'
+        style = 'message/EU_English/RI_mstl_LZ.bin'
+        raw_style = struct.pack('<I6I4fI', 1, 36, 0, 0, 0, 0, 0, .5, .75, 0, 1, 4)
+        with tempfile.TemporaryDirectory() as tmp:
+            _, pack = Builder(Path(tmp)).pack({message: msbt('Health'), style: raw_style},
+                                              'messages-and-loose', title, 'RomFS', 'content')
+            self.assertEqual(pack['messages']['safe_msbt_LZ']['styleTable'], style)
+            self.assertEqual(pack['resourceSources']['styles'][style]['sha256'], digest(raw_style))
+            self.assertEqual(pack['unsupported'], [])
+
     def test_selects_exact_english_members_before_assigning_bank_keys(self):
         with tempfile.TemporaryDirectory() as tmp:
             _, pack = Builder(Path(tmp)).pack(resources(), 'message_EU', SETTINGS, SETTINGS_MESSAGE_ARCHIVE, 'archive')

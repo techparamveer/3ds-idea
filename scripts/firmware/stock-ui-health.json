@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022300": {
+      "packs": {
+        "packs/health-and-safety/bg.json": {
+          "layouts": [
+            "Bg_U_00",
+            "Bg_D_00"
+          ],
+          "animations": [
+            "Bg_U_00_TopLoop"
+          ]
+        },
+        "packs/health-and-safety/btmbtn.json": {
+          "layouts": [
+            "BtmBtn_White"
+          ],
+          "animations": [
+            "BtmBtn_White_Decide",
+            "BtmBtn_White_SceneIn",
+            "BtmBtn_White_SceneOut",
+            "BtmBtn_White_Select"
+          ]
+        },
+        "packs/health-and-safety/safehealth.json": {
+          "layouts": [
+            "SafeText_D_00",
+            "SafeTop_D_00",
+            "SafeTop_D_01"
+          ],
+          "animations": [
+            "SafeText_D_00_SceneIn",
+            "SafeText_D_00_SceneOut",
+            "SafeTop_D_00_Decide",
+            "SafeTop_D_00_SceneIn",
+            "SafeTop_D_00_SceneInBlack",
+            "SafeTop_D_00_SceneOut",
+            "SafeTop_D_00_Select",
+            "SafeTop_D_01_Decide",
+            "SafeTop_D_01_SceneIn",
+            "SafeTop_D_01_SceneInBlack",
+            "SafeTop_D_01_SceneOut",
+            "SafeTop_D_01_Select"
+          ]
+        },
+        "packs/health-and-safety/slidebar.json": {
+          "layouts": [
+            "SlideBar"
+          ],
+          "animations": [
+            "SlideBar_Select"
+          ]
+        },
+        "packs/health-and-safety/messages-and-loose.json": {
+          "messages": {
+            "safe_msbt_LZ": [
+              "article_1",
+              "article_2",
+              "article_2_flw",
+              "article_3",
+              "article_3_flw",
+              "article_title_1",
+              "article_title_2",
+              "article_title_3",
+              "article_title_4",
+              "article_title_5",
+              "article_title_6",
+              "back",
+              "base_1b_menu",
+              "base_button_",
+              "title",
+              "warning"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

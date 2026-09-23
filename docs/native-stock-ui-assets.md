@@ -108,6 +108,25 @@ independent comparison matches all 62 Sound/Health RomFS paths and bytes with
 CTRTool output. The reader script hash is recorded in Camera's source converter
 provenance. Private extraction lives in `stock-ui/reader-extracted/camera/`.
 
-Health & Safety RomFS extraction succeeded but is not published yet.
+## Health and Safety
+
+Title `0004001000022300` uses single-content prefix `packs/health-and-safety/`.
+`stock-ui-health.json` publishes `bg.json` (Bg_U_00/Bg_D_00), `safehealth.json`
+(SafeTop_D_00, SafeTop_D_01, SafeText_D_00), `btmbtn.json` (BtmBtn_White),
+`slidebar.json` (SlideBar) and `messages-and-loose.json` (safe_msbt_LZ).
+Matching source clips and all 16 English message labels are retained. The
+converter now explicitly recognizes this title's English sibling MSTL table.
+
+Use SafeTop_D_00 for the original-3DS three-topic screen. Replace both button
+text layers T_BtnB_00/T_BtnF_00 through 02 with article_title_1..3. Upper
+Bg_U_00 TextBoxTitle_00 uses title; lower T_Home_00 uses base_1b_menu. Article
+content uses SafeText_D_00 TextArea_00..04 and TextBoxTitle_00. BtmBtn_White's
+T_BtnB_00/T_BtnF_00 are also source-language placeholders requiring English back.
+
+This pack set is 26 resources/431,611 bytes including shared dependencies.
+The delivery audit passes, and the English sibling-style test passes alongside
+existing locale tests. `health-textures.png` was inspected; browser composition
+remains required. Native source messages are historical device UI content.
+
 Other stock/app/helper screens remain pending. No keyboard or audio-behaviour
 reconstruction is part of this delivery.

@@ -27,6 +27,7 @@ CONVERTER_VERSION = '1.3.2'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
+STOCK_STYLE_PATHS = {'0004001000022300': {'message/EU_English/RI_mstl_LZ.bin'}}
 SETTINGS = '0004001000022000'
 SETTINGS_MESSAGE_ARCHIVE = 'message_EU_LZ.bin'
 SETTINGS_STYLE_PAIRS = {
@@ -220,6 +221,7 @@ class Builder:
                     bucket, key, value = 'textures', Path(path).name, self.texture(raw, source)
                 elif raw[:8] == b'MsgStdBn': bucket, value = 'messages', decode_msbt(raw)
                 elif ((title == HOME and path in HOME_STYLE_PATHS) or
+                      path in STOCK_STYLE_PATHS.get(title, set()) or
                       (selection is not None and path in SETTINGS_STYLE_PAIRS.values())):
                     bucket, key, value = 'styles', path, decode_mstl(raw)
                     result.setdefault(bucket, {})
@@ -296,7 +298,8 @@ def convert_title(builder, title, metadata, scratch, home):
                 info['packs'].append(url)
                 if title == HOME: home[name] = url
             elif (raw[:4] in (b'CLYT', b'CLAN') or raw[:8] == b'MsgStdBn' or
-                  (len(raw) >= 40 and raw[-40:-36] == b'CLIM') or (title == HOME and relative in HOME_STYLE_PATHS)):
+                  (len(raw) >= 40 and raw[-40:-36] == b'CLIM') or (title == HOME and relative in HOME_STYLE_PATHS) or
+                  relative in STOCK_STYLE_PATHS.get(title, set())):
                 loose[relative] = raw
             elif raw[:4] == b'CFNT':
                 try:

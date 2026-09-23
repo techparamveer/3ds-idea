@@ -41,6 +41,22 @@ focus(/button "Right" \[ref=(e\d+)\]/);browser('press', 'Enter');settle();
 const quick = sample(250);assert.ok(quick.every(row => row.cursor.visibleSlot === 1), 'Synchronous accessible down/up moves exactly once');
 point('DPAD_left');browser('mouse', 'down');browser('mouse', 'up');settle();
 assert.equal(evaluate(read).cursor.visibleSlot, 0);
+// The physical circle pad is a drag surface: its down point is neutral origin.
+point('CIRCLE_down');browser('mouse', 'down');point('CIRCLE_up');
+let circleUp;
+try { circleUp = sample(450); }
+finally { browser('mouse', 'up'); }
+assert.ok(circleUp.some(row => row.cursor.producer.repeatCandidate === 0x40 && row.cursor.focus.toolbarActive && row.cursor.primary.center.y === 16.5));
+focus(/application .* \[ref=(e\d+)\]/);
+if (!evaluate(read).cursor.focus.toolbarActive) { browser('press', 'ArrowUp');sample(100); }
+point('CIRCLE_up');browser('mouse', 'down');point('CIRCLE_down');
+let circleDown;
+try { circleDown = sample(450); }
+finally { browser('mouse', 'up'); }
+assert.ok(circleDown.some(row => row.cursor.producer.repeatCandidate === 0x80 && !row.cursor.focus.toolbarActive && row.cursor.primary.center.y === 137));
+focus(/application .* \[ref=(e\d+)\]/);
+if (evaluate(read).cursor.focus.toolbarActive) { browser('press', 'ArrowDown');sample(100); }
+settle();assert.equal(evaluate(read).cursor.visibleSlot, 0);
 point('DPAD_right');browser('mouse', 'down');
 let held;
 try { held = sample(2000); } finally { browser('mouse', 'up'); }
@@ -55,9 +71,9 @@ settle();assert.equal(evaluate(read).cursor.visibleSlot, 0);
 const capture = evaluate(`document.querySelector('[role=application]').captureScreensAt(0,'2026-09-23T12:06:00Z')`);
 const errors = browser('errors');assert.ok(!errors || /No errors/i.test(errors), errors);
 const summary = { passed: true, nativeToolbar: true, quickActivationOnce: true, physicalMode3: true,
- acceleratedLoop: true, departedEffects: true, releaseReset: true, referenceRestored: true };
+ circlePadYDirection: true, acceleratedLoop: true, departedEffects: true, releaseReset: true, referenceRestored: true };
 mkdirSync(values['artifact-dir'], { recursive: true });
-writeFileSync(join(values['artifact-dir'], `${values.name}.json`), JSON.stringify({ summary, initial, toolbar, quick, held, released, capture }, null, 2));
+writeFileSync(join(values['artifact-dir'], `${values.name}.json`), JSON.stringify({ summary, initial, toolbar, quick, circleUp, circleDown, held, released, capture }, null, 2));
 writeFileSync(join(values['artifact-dir'], `${values.name}-toolbar.png`), Buffer.from(toolbarCapture.bottom.split(',')[1], 'base64'));
 writeFileSync(join(values['artifact-dir'], `${values.name}-restored.png`), Buffer.from(capture.bottom.split(',')[1], 'base64'));
 console.log(JSON.stringify(summary, null, 2));

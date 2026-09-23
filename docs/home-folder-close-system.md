@@ -115,10 +115,18 @@ would omit that relationship. This is static bounded source evidence against
 the same executable hash as the [close trace](native-folder-close-boundary.md),
 not a GPU or browser comparison.
 
-The exact close-time cursor/footer visibility predicates remain unresolved.
-The entry-capture visibility exclusions documented in the panel investigation
-are a different path and do not prove close behavior. This System change does
-not alter painting or claim that every child vanishes at close-start.
+Later bounded audits resolve the ordinary primary cursor branch: close setup
+requests hiding, and root restoration shows it immediately, retaining its prior
+child position during offscreen mode3. See
+[combined restoration evidence](../scripts/firmware/CLOSE_PRIMARY_RESTORATION_EVIDENCE.md)
+and [live controls](home-controls-runtime.md). Footer/child-layout painting has
+its own evidence and is not inferred from primary visibility.
+
+The live native host's identity-checked input bridge admits event7 during the
+mode44 interval. After root restoration, the retained viewport phase is ordinary
+mode3 and accepts its press/held/repeat events too, preserving pending horizontal
+markers without invalidating the close's navigation ownership. This does not
+invent an initiating direction marker for root restoration.
 
 ## Verification and remaining boundary
 

@@ -5,6 +5,13 @@ step1/3, phase-preserving speed changes and late10/5 close correction. The
 step1-only scope and fixed10 policy below record this module's initial pass;
 the later note supersedes those limitations without changing the paint getter.
 
+The [live native controls host](home-controls-runtime.md) also supersedes the
+initial visibility policy below when native assets are enabled. It uses actual
+retained layout visibility, keeps the primary shown during mode3 independently
+of selected-tile culling, and resumes close-time Loop at root restoration C+18,
+including offscreen viewport correction. Reduced motion changes painting while
+native logical counts continue. The old path remains for compatibility callers.
+
 The primary `LncCsr_00_Loop` now has a controller retained by System. It advances
 from eligible shared HOME update counts, rather than deriving phase from elapsed
 milliseconds. The ordinary source step is 1. Native mode3 acceleration and its

@@ -106,6 +106,11 @@ enabled pressed pose and an exact settled density round trip. All nine static
 regions in `live-native-controls-preservation-comparison.json` match the prior
 comparison metrics exactly. The comparison still excludes unmatched parent
 artwork, HUD and cursor phase; it does not establish whole-screen parity.
+`live-native-close.json` observes real keyboard Back through a read-only DOM
+diagnostic observer: primary hidden during closing, root restoration atC+18,
+same-pass Loop resume, completed close and reopening the same folder. This
+browser path has an in-viewport parent; offscreen close remains covered by the
+combined original-ARM and System fixtures rather than injected browser state.
 Fresh Azahar interaction remains unavailable
 while the Mac is locked. Existing captures and bounded original-ARM evidence
 remain available; the complete requested firmware/application acceptance is

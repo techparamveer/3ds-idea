@@ -91,3 +91,8 @@ per-case diagnostic JSON. Without the optional Canvas runtime, that comparison
 is skipped; the three other focused tests still run when firmware assets exist.
 Root owns actual matched native/browser capture and integration/build checks.
 No browser or Azahar session was used for this worker patch.
+
+The integrated patch has since passed an actual matched browser/native capture,
+focused tests, typecheck and production build. See
+[the browser comparison](native-empty-slot-browser-validation.md) for measured
+improvement and the remaining differences.

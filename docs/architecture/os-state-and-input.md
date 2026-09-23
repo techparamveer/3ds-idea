@@ -17,6 +17,7 @@
 | `animation.ts` | Layout animation sampling utilities |
 | `app-types.ts`, `app-registry.ts`, `app-host.ts` | Firmware contracts, installed titles and applet lifecycle |
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
+| `home-input-producer.ts` | Pure native poll/event arithmetic; live scheduler integration pending |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-cursor-loop.ts`, `home-cursor-visibility.ts` | Retained primary cursor Loop and shared visibility predicate |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
@@ -219,11 +220,19 @@ does not claim the full native APT reconciliation graph. See
 [HOME navigation](../home-navigation-runtime.md) for source tables, migration,
 transient preview policy and remaining work.
 
+`home-input-producer.ts` implements the source-proven ordinary digital/primary
+axis press, held, repeat and release/cancel producer. Its explicit normalized
+masks and gate inputs make each poll independent from scene updates and time.
+The module is not yet connected to System; the live generic latch remains as
+described above. See [producer evidence and limits](../home-input-producer-runtime.md).
+
 Navigation motion advances in integer native updates. The shared provisional
 nominal 60 Hz adapter stores `System.homeClock.updateCount` for presentation clip
 owners; it freezes/rebases beneath overlays and inactive/sleeping HOME. Rendering
-reads `getHomeNavigationView` without advancing state. Source-proven counts are 16
-for scroll and 15 for density; the wall-clock cadence remains an explicit
+reads `getHomeNavigationView` without advancing state. Source-proven counts are16
+for page-arrow mode2 and15 for density. Ordinary directional edge movement
+instead uses mode3 with10 then5 updates; the live adapter's directional mode2
+routing remains pending correction. The wall-clock cadence remains an explicit
 application assumption. See the motion section of the navigation contract.
 
 The primary cursor retains its submitted/current Loop frames independently of

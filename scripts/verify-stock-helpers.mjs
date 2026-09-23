@@ -26,6 +26,9 @@ views.find(v=>v.appId==='extrapad').rows=[{id:'information',label:'Circle Pad Pr
 views.push({...views.find(v=>v.appId==='system-transfer'),screen:'detail',rows:[],data:{field:'3ds'},text:['No console data is connected.']});
 views.push({...views.find(v=>v.appId==='extrapad'),screen:'detail',rows:[],text:['Accessory calibration is unavailable.']});
 views.push({...views.find(v=>v.appId==='system-transfer'&&v.screen==='main'),selection:1,verificationId:'transfer-second-choice'});
+const manual={appId:'manual',screen:'main',heading:'Manual',rows:[{id:'contents',label:'Contents'},{id:'controls',label:'Controls'},{id:'support',label:'Support Information'}],selection:1,footer:{left:{action:'back',label:'Back'}},text:['Choose a section of the local guide.']};
+views.push(manual);
+for(const [topic,heading,text] of [['contents','Contents',['Browse the portfolio from HOME.','Select a title to open it.','B returns to the previous screen.']],['controls','Controls',['A: open the selected item.','B: go back.','HOME: return to HOME Menu.','Touch the lower screen to select.']],['support','Support Information',['No application manual was supplied.','This guide covers portfolio controls.']]])views.push({...manual,screen:'document',verificationId:'manual-'+topic,rows:[],heading,text,data:{topic}});
 const reports=[];
 try{
  for(const view of views){
@@ -37,6 +40,7 @@ try{
   const targets=nativeHelperTargets(view);assert.equal(targets.filter(target=>target.action==='back').length,1);
   if(view.appId==='system-transfer'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['back','3ds','dsi']);
   else if(view.appId==='extrapad'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['back','information']);
+  else if(view.appId==='manual'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['contents','controls','support','back']);
   else assert.equal(targets.length,1);
   for(const target of targets){assert.ok(target.x>=0&&target.y>=0&&target.x+target.width<=320&&target.y+target.height<=240,'targets remain inside lower LCD');}
   for(const [name,canvas]of [['top',top],['bottom',bottom]]){writeFileSync(join(out,(view.verificationId??view.appId+'-'+view.screen)+'-'+name+'.png'),canvas.toBuffer('image/png'));reports.push({id:(view.verificationId??view.appId+'-'+view.screen)+'-'+name,sha256:createHash('sha256').update(canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data).digest('hex')});}

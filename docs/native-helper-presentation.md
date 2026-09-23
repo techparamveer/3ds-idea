@@ -63,3 +63,28 @@ entry and physical B control. Back restores Settings with NNID selected, without
 a close-software dialog. Settings still has unresolved source composition/colour
 differences; NNID's authored availability body is not a verified native prompt.
 These checks do not establish strict 1:1 fidelity.
+## Manual viewer and supplied guide
+
+Runtime `manual`, title `0004003000009b02`, uses the source `SoftTitleHeader`,
+`IndexBase00`, `ContentsTxt`, numbered `BtnHeadLineTxt`, `PageBg00`, `PageNum`,
+Close and Back components. The title is **Portfolio Guide**. Its three section
+names and document paragraphs come from the existing runtime helper view;
+Japanese sample chapter text is never treated as supplied manual content.
+The original viewer's application manual body was not supplied.
+
+The guide body is a derived `ContentsTxt` text pane with the same native font
+and material, resized and left-aligned for the supplied paragraphs. Source
+resources remain immutable. A document has one supplied page, shown as 1/1;
+no nonexistent chapters, scrolling, or page actions are exposed. Paper placement
+and the guide body are explicit web content composition, not verified original
+application-manual pixels.
+
+The Back button's separate glyph and text panes both start at x0 in the source
+layout. Their horizontal placement is computed from the source message styles
+and actual native font advances, while retaining each pane's vertical baseline.
+This prevents the B glyph overlapping the translated Back label.
+
+Touch regions: main section buttons (24,56.5 + 44*i,272,37); main Close
+(0,212,320,28); document Back (40,212,140,28), matching the source button pane.
+The dedicated verifier now renders the contents screen and all three supplied
+sections, alongside the earlier helpers. All paired images were inspected.

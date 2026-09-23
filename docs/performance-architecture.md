@@ -12,6 +12,11 @@ surface generation consume that policy instead of selecting independent values.
 | Balanced | 1.25 | 45 | 18 | 1024² | 512², idle-created |
 | Constrained | 1 | 30 | 12 | 512² | baked Blender fallback |
 
+An advancing counted folder close temporarily uses the scene FPS budget for LCD
+painting (60/45/30), including the restored-root update. Idle loops retain the
+table's LCD values. Reduced motion keeps its settled-pose policy; a frozen HOME
+clock does not increase uploads. State timing never depends on completed paints.
+
 Constrained mode is selected for data-saving connections, devices reporting at
 most four logical cores or 4 GiB memory, and displays above three million CSS
 pixels. The fallback is the already verified baked surface, not an untextured

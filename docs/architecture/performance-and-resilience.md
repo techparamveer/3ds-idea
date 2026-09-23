@@ -15,6 +15,12 @@ if it competes with model decoding and the opening animation.
 LCD FPS, VGPU texture size and constrained-device fallback. Do not add unrelated
 quality heuristics inside render modules.
 
+`screenPaintFps` temporarily allows the scene cadence for an advancing counted
+folder close, including its final root restoration. Idle loops keep the ordinary
+LCD cadence. Frozen clocks and reduced motion do not activate this boost. The
+controller still consumes the shared clock independently from rendering; slow
+devices can skip visual samples and must be measured separately.
+
 ## Degradation order
 
 1. Lower LCD repaint/upload cadence.

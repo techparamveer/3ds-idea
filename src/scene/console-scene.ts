@@ -21,7 +21,7 @@ import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
-import { browserRenderQuality } from './render-quality';
+import { browserRenderQuality, screenPaintFps } from './render-quality';
 
 const RAD = Math.PI / 180;
 let nextBannerSession=0;
@@ -386,10 +386,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       }
     }
     if(diagnostics)host.dataset.buttonDepths=JSON.stringify(Object.fromEntries([...pressed].map(([cap,feedback])=>[cap.name,Number(feedback.motion.depth.toFixed(3))])));
+    const closeBeforeTick=sampleSystemHomeFolderClose(state),updatesBeforeTick=state.system!.homeClock.updateCount;
     if(!homeClockSuspended)commit((current,time)=>tickSystem(current,time,reduced),'tick',false,now-start);updateAudio();
     const minute=Math.floor(Date.now()/60000);if(minute!==lastMinute){lastMinute=minute;paint();}
     // Native UI motion must be uploaded continuously, independent of input.
-    if(state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&now-lastScreenPaint>=1000/quality.screenFps){lastScreenPaint=now;screens.paint(state,new Date(),now-start);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
+    // Include the final restored-root update. Frozen clocks do not boost the
+    // cadence, and a high-refresh monitor cannot paint extra close updates.
+    const closeAdvanced=!!closeBeforeTick&&closeBeforeTick.controller.phase!=='complete'&&state.system!.homeClock.updateCount!==updatesBeforeTick;
+    const lcdFps=screenPaintFps(quality,closeAdvanced);
+    if(state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps)){lastScreenPaint=now;screens.paint(state,new Date(),now-start);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     camera.zoom=reduced?viewZoom:THREE.MathUtils.damp(camera.zoom,viewZoom,10,dt);
     const renderDue=quality.renderFps>=60||now-lastRender>=1000/quality.renderFps;

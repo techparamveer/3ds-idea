@@ -18,6 +18,12 @@ export type RenderCapabilities = {
   height: number;
 };
 
+/** Short counted transitions may use the scene budget; idle LCD loops retain
+ * the lower upload cadence. State still advances independently of painting. */
+export function screenPaintFps(quality: RenderQuality, transitionAdvanced: boolean): number {
+  return transitionAdvanced ? quality.renderFps : quality.screenFps;
+}
+
 /** One policy owns expensive renderer choices so the scene cannot drift. */
 export function chooseRenderQuality(capabilities: RenderCapabilities): RenderQuality {
   const pixels = capabilities.width * capabilities.height;

@@ -117,6 +117,7 @@ function arrows(c:Context,state:MenuState){
  }
 }
 function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false){
+ const system=state.system,controls=nativeHome?system?.homeControls:null;
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
  for(const tile of view.tiles){
   const {x,size,appId,folderLabel,pressed,source,drop}=tile,y=tile.y+(pressed?(nativeHome?.pressOffset??2):0);
@@ -142,8 +143,19 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
   }
   };
   if(nativeHome&&!capture)nativeHome.folderChild(c,state,!occupied,drawTile,reduced);else drawTile(1);
-  if(!capture&&!isSystemHomeFolderClosing(state)&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,getHomeCursorLoopFrame(state,reduced),pressed))cursor(c,x,y,size,size,time,reduced);
+  if(!controls&&!capture&&!isSystemHomeFolderClosing(state)&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,getHomeCursorLoopFrame(state,reduced),pressed))cursor(c,x,y,size,size,time,reduced);
  }c.restore();
+ // Retained native layouts can target toolbar anchors and offscreen departures.
+ // Paint after the tile clip, before the existing arrows; the host owns close
+ // visibility and controller updates. Rendering only samples applied poses.
+ if(nativeHome&&controls&&!capture&&state.powered&&system?.phase==='home'
+  &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel&&!view.gesture){
+  const {primary,presentation}=controls;
+  if(primary.layoutVisible)nativeHome.cursorAt(c,primary.center.x,primary.center.y,presentation.primaryScale.appliedFrame,getHomeCursorLoopFrame(state,reduced));
+  if(!reduced)for(const effect of presentation.effects)if(effect.visible){
+   nativeHome.cursorEffectAt(c,effect.center.x,effect.center.y,effect.scale.appliedFrame,effect.disappear.appliedFrame);
+  }
+ }
  if(!capture&&!nativeHome?.arrows(c,pageStart(state)>0))arrows(c,state);
  // Native idle HOME has no track above the footer. Keep the old fallback's
  // scroll indicator separate from the decoded native chrome.

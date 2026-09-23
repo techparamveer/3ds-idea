@@ -96,3 +96,12 @@ test('Transfer and Circle Pad targets follow native choice mounts and Back bars'
  assert.equal(hit(circle,159,226),'back');assert.equal(hit(circle,160,226),'information');
  assert.equal(hit(circle,160,180),null);assert.equal(hit(view('extrapad','detail',[]),300,226),'back');
 });
+
+test('Manual and selectors expose only their visible native controls',()=>{
+ const manual=view('manual','main',['intro','controls','about']);
+ assert.equal(hit(manual,160,70),'intro');assert.equal(hit(manual,160,115),'controls');assert.equal(hit(manual,300,226),'back');
+ const page=view('manual','document',[]);assert.equal(hit(page,100,226),'back');assert.equal(hit(page,200,226),null);
+ for(const id of ['mii-selector','photo-selector','sound-selector']){
+  const v=view(id,'main',['saved']);assert.equal(hit(v,50,226),'back');assert.equal(hit(v,240,226),null);assert.equal(hit(v,160,75),null);
+ }
+});

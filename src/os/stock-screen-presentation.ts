@@ -1,3 +1,4 @@
+import { drawNativeSelectorFrame, nativeSelectorView } from './stock-native-selectors';
 import { drawNativeHelperFrame, nativeHelperView } from './stock-native-helpers';
 import { drawNativeServiceFrame, nativeServiceView } from './stock-native-services';
 import type { AppView, JsonValue } from './app-types';
@@ -78,6 +79,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
   if(options.native&&drawNativePersonalToolFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativeWebFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativeServiceFrame(options.native,top,bottom,view,options))return;
+  if(options.native&&drawNativeSelectorFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativeHelperFrame(options.native,top,bottom,view,options))return;
   chrome(top,400,view.heading,accent,font);chrome(bottom,320,view.heading,accent,font);
   if(camera(view.appId)){
@@ -168,7 +170,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   function prepare(view:AppView,nextOwner:string,font?:BitmapFont){
     if(disposed)return session.getState();
     sync(nextOwner);
-    const nativeView=font&&(view.appId==='system-settings'?{view:'settings',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:view.appId==='browser'?{view:'browser',titleId:'0004003000009d02',packs:browserScreenPacks}:view.appId==='miiverse'?{view:'miiverse',titleId:'000400300000be02',packs:miiverseScreenPacks}:nativePersonalToolView(view)??nativeServiceView(view)??nativeHelperView(view));
+    const nativeView=font&&(view.appId==='system-settings'?{view:'settings',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:view.appId==='browser'?{view:'browser',titleId:'0004003000009d02',packs:browserScreenPacks}:view.appId==='miiverse'?{view:'miiverse',titleId:'000400300000be02',packs:miiverseScreenPacks}:nativePersonalToolView(view)??nativeServiceView(view)??nativeHelperView(view)??nativeSelectorView(view));
     return session.update(nativeView?{owner:nextOwner,...nativeView,sharedFonts:new Map([['cbf_std.bcfnt',font!]])}:null);
   }
   return {

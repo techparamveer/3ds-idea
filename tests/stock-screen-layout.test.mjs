@@ -32,3 +32,10 @@ test('empty Notifications full-width native Close button returns HOME across its
  for(const x of [0,160,319])assert.equal(hit(view,x,226),'back');
  assert.equal(hit(view,160,211),null);
 });
+test('Game Notes uses the source four-by-four grid and a single full-width Close footer',()=>{
+ const v=view('game-notes','main',Array.from({length:16},(_,i)=>String(i)));
+ v.footer.right={label:'OK',action:'0'};
+ assert.equal(hit(v,42,30),'0');assert.equal(hit(v,279,183),'15');assert.equal(hit(v,80,30),null);
+ assert.equal(hit(v,250,226),'back');assert.equal(targets(v).length,17);
+ assert.equal(hit(view('memo','main',['0']),42,30),null);
+});

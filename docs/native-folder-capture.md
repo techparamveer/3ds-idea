@@ -42,6 +42,12 @@ execute original instructions. The fixture yields ordinary layout/pane hidden,
 B and T shown, both roots `(-84, 38, 0)` (logical center `(76, 82)`), and both
 Scale frames 1. It does not execute the entire HOME process or native GPU draw.
 
+Paint **T before B**. The constructor at `0x2b3930..3964` supplies B priority
+`0x19c` (412) and T priority `0x19e` (414); `0x2587c4..8830` installs them.
+The insertion routine `0x11eae8..eb3c` orders larger priorities first, and
+`0x23662c..6750` draws that list head-to-tail. T's body/shadow therefore precede
+B's dynamic glyph.
+
 ## PicToggle and the empty contents tab
 
 For the settled default color branch, use PicToggle frame 0 **with direct group
@@ -58,8 +64,14 @@ the three group members. It does **not** bind `N_Had_01` or `P_FolderHad_01`.
 The exported resource's `childBinding: true` must not override this call-site
 behavior. Recursively applying its unrelated negative-frame channels would
 incorrectly shrink the contents tab and make it visible. The empty `+0xb54`
-instance retains the authored hidden `P_FolderHad_01`. The `+0xb50` instance
-has a separate HadToggle controller constructed at `0x2b3d9c..db4`; empty-case
+instance retains the authored hidden `P_FolderHad_01`. `AnimationBinding` now
+accepts an optional `childBinding` override: bind this PicToggle with
+`childBinding: false`. Omission preserves the resource's existing behavior;
+the override applies only to that binding and does not rewrite the shared
+resource. The focused `native-animation-binding.test.mjs` covers both override
+directions, ungrouped clips and the actual FolderInT panes with source assets.
+The `+0xb50` instance has a separate HadToggle controller constructed at
+`0x2b3d9c..db4`; empty-case
 handling must not copy that instance's controller state.
 
 `0x1e07b4` selects the no-image path and calls `0x2b041c(S, 0)`. Original

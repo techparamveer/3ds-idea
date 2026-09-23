@@ -1,6 +1,8 @@
 import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { createHomeCursorLoop, advanceHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
+import { cancelHomeControls, isHomeControlsActive, queueHomeControlEvent, reconcileHomeControls, selectHomeControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
+import { getHomeToolbarCursorAnchor } from './home-cursor-presentation.ts';
 export { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHomeFolderCloseRecord, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
@@ -19,9 +21,9 @@ export type System = {
  app:string|null; pending:string|null; item:number; detail:boolean; page:number; photo:number;
  layout:Record<number,string>; muted:boolean; volume:number; dialog:'switch'|'close'|null;
  returnPhase:'home'|'app'; link:string|null; preferences:boolean; preferenceChoice:number;
- runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation; homeClock: HomeUpdateClock; homeFolderIdentities: HomeFolderIdentities; homeFolderClose: SystemHomeFolderCloseSession; homeCursorLoop: HomeCursorLoop;
+ runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation; homeClock: HomeUpdateClock; homeFolderIdentities: HomeFolderIdentities; homeFolderClose: SystemHomeFolderCloseSession; homeCursorLoop: HomeCursorLoop; homeControls: HomeControls | null;
 };
-export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(),homeFolderClose:createSystemHomeFolderClose(),homeCursorLoop:createHomeCursorLoop()}};}
+export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(),homeFolderClose:createSystemHomeFolderClose(),homeCursorLoop:createHomeCursorLoop(),homeControls:null}};}
 /** Kept for portfolio artwork compatibility; use selectedTitle for every installed title. */
 export function selectedApp(state:MenuState){return getApp(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
 export function selectedTitle(state:MenuState){return getTitle(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
@@ -56,12 +58,25 @@ export function invokeSystemApplet(state: MenuState, appId: string, now: number,
 }
 /** One logical update source for navigation and presentation-owned clips. */
 export function tickHomeNavigationClock(state: MenuState, now: number, reduced = false): MenuState {
+ return tickHomeNavigationClockObserved(state,now,reduced).state;
+}
+/** Scene consumes journals once; nested action reducers see the same timestamp
+ * and therefore cannot replay their input, cue or banner observations. */
+export function tickHomeNavigationClockObserved(state: MenuState, now: number, reduced = false): {state:MenuState;passes:readonly HomeControlPass[]} {
  state=reconcileSystemHomeFolderClose(state);
- const s=state.system;if(!s||!Number.isFinite(now))return state;
- const active=state.powered&&s.phase==='home'&&!s.sleeping&&!s.dialog&&!s.preferences&&!state.panel;
+ const s=state.system;if(!s||!Number.isFinite(now))return {state,passes:[]};
+ const active=isHomeControlsActive(state);
  const stepped=stepHomeUpdateClock(s.homeClock,now,active);
+ if(active&&s.homeControls&&stepped.updates>0){
+  const passes:HomeControlPass[]=[];
+  for(let i=1;i<=stepped.updates;i++){
+   state={...state,system:{...state.system!,homeClock:{...stepped.clock,updateCount:s.homeClock.updateCount+i}}};
+   const pass=stepHomeControls(state);state=pass.state;passes.push(pass);
+  }
+  return {state,passes};
+ }
  if(stepped.clock!==s.homeClock)state={...state,system:{...s,homeClock:stepped.clock}};
- return active?advanceHomePresentationClocks(state,stepped.updates,reduced):state;
+ return {state:active?advanceHomePresentationClocks(state,stepped.updates,reduced):state,passes:[]};
 }
 /** Lower navigation tasks precede the cursor layout submission. The close's
  * selection-ready update itself is eligible, followed by any visible tail.
@@ -110,8 +125,14 @@ export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
  return state;
 }
 export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
+ return reconcileHomeControls(state,reduceSystemAction(state,input,now));
+}
+function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return !s?reduceMenu(state,input):state;
  state=cancelHomeGesture(tickHomeNavigationClock(state,now));
+ if(['left','right','up','down'].includes(input)){
+  const queued=queueHomeControlEvent(state,{type:'command',command:input as 'left'|'right'|'up'|'down'});if(queued)return queued;
+ }
  if(['back','home'].includes(input)&&!isSystemHomeFolderClosing(state))state=resetHomeNavigation(state);
  s=state.system!;
  const change=(patch:Partial<System>):MenuState=>({...state,system:{...s!,link:null,...patch}});
@@ -163,12 +184,20 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
   return {...state,system:{...state.system!,input:createInputLatch()}};
  }
  if(input==='start')return reduceSystem(state,'open',now);
+ if(input==='open'&&!state.panel&&s.homeControls&&s.homeNavigation.focus.toolbarActive){
+  // Existing feature entrypoints remain the adapter for native toolbar focus.
+  const anchor=getHomeToolbarCursorAnchor(s.homeNavigation.focus.currentFocus).center;
+  return touchSystem(state,anchor.x,anchor.y,now);
+ }
  if(input==='open'&&!state.panel){const title=selectedTitle(state);if(title)return launch(state,title.id,now);}
  if(input==='back'&&!state.panel&&!state.opened&&s.app)return change({dialog:'close'});
  return reduceMenu(state,input==='x'?'zoom':input==='y'?'brightness':input==='select'?'zoom':input==='l'?'left':input==='r'?'right':input);
 }
 const toolbarApps:Record<string,string>={notes:'game-notes',friends:'friends',notifications:'notifications',browser:'browser',miiverse:'miiverse'};
 export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuState {
+ return reconcileHomeControls(state,touchSystemAction(state,x,y,now));
+}
+function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuState {
  if(!Number.isFinite(now)||!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>=320||y<0||y>=240)return state;
  state=cancelHomeGesture(tickHomeNavigationClock(state,now));
  const s=state.system;if(!s)return touchMenu(state,x,y);
@@ -195,7 +224,8 @@ export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuSt
   if(y>=104&&y<158&&(x<20||x>=300))return send(x<20?'left':'right');
   const location=homeTouchLocation(state,x,y);if(!location)return state;
   const selected=state.opened?state.folderSelected:state.selected;
-  return location.slot===selected&&(!state.opened||homeSlotAppId(state,location.slot))?send('open'):selectHomeSlot(state,location.slot);
+  return location.slot===selected&&!s.homeNavigation.focus.toolbarActive&&(!state.opened||homeSlotAppId(state,location.slot))?send('open')
+   :selectHomeControlTouch(state,location.slot)??selectHomeSlot(state,location.slot);
  }
  if(state.panel==='settings'&&x>=265&&y>=145&&y<201)return send('preferences');
  const next=touchMenu(state,x,y);const target=next.panel&&toolbarApps[next.panel];
@@ -203,6 +233,9 @@ export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuSt
 }
 /** Full pointer/button protocol for scene adapters. Legacy single-command inputs remain supported. */
 export function dispatchSystemEvent(state: MenuState,event: AppEvent,now: number): MenuState {
+ return reconcileHomeControls(state,dispatchSystemEventAction(state,event,now));
+}
+function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number): MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return state;
  if(event.type==='analog'){if(!Number.isFinite(event.x)||!Number.isFinite(event.y))return state;event={...event,x:Math.max(-1,Math.min(1,event.x)),y:Math.max(-1,Math.min(1,event.y))};}
  if((s.sleeping||s.phase==='off'||s.phase==='boot'||s.phase==='launch')&&!(event.type==='button'&&event.command==='power')&&!(event.type==='command'&&event.command==='power'))return state;
@@ -215,6 +248,7 @@ export function dispatchSystemEvent(state: MenuState,event: AppEvent,now: number
  }
  if(event.type==='button'||event.type==='analog'||event.type==='command'){
   state=tickHomeNavigationClock(state,now);s=state.system!;
+  const queued=queueHomeControlEvent(state,event);if(queued)return queued;
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&isSystemHomeFolderClosing(state)
    &&(event.type==='analog'||!['power','home','preferences','mute','volume-up','volume-down'].includes(event.command)))return state;
   const latched=latchInput(s.input,event,now);let next:MenuState={...state,system:{...s,input:latched.latch}};
@@ -243,6 +277,7 @@ export function setSystemSleeping(state:MenuState,sleeping:boolean,now:number):M
  state=releaseSystemInputs(state,now);return {...state,system:{...state.system!,sleeping,input:createInputLatch(),runtime:setRuntimeSleeping(state.system!.runtime,sleeping,now)}};
 }
 export function releaseSystemInputs(state:MenuState,now=state.system?.runtime.lastTick??0):MenuState {
+ state=cancelHomeControls(state);
  state=isSystemHomeFolderClosing(state)?cancelHomeGesture(state):resetHomeNavigation(state);
  const s=state.system;if(!s)return state;
  let runtime=s.runtime;

@@ -119,4 +119,4 @@ simulation or retained time into painting. Root decides that separate scope.
 - Existing depth, folder label, billboard, blend coverage and camera tests pass.
 - Root owns GPU/browser/native matched comparison and public pack promotion.
 
-Implementation ownership: presentation worktree owns firmware-model.ts, firmware-banner.ts, their focused tests and the narrowly required zero offset fields in screens.ts. Root owns public pack promotion and browser/native comparison. Include a0d64a7 and bac8580 as dependencies so the current shared-clock integration is preserved.
+Implementation ownership: presentation worktree owns firmware-model.ts, firmware-banner.ts, their focused tests and the narrowly required zero offset fields in console-scene.ts. Root owns public pack promotion and browser/native comparison. Include a0d64a7 and bac8580 as dependencies so the current shared-clock integration is preserved.

@@ -81,3 +81,29 @@ Run the same verifier with `--title friends`. Strict interface checking, paired
 400/320-pixel rendering, zero loader/renderer diagnostics, guarded view selection
 and immutable source packs pass. Both PNGs under `runtime/personal-tools/friends`
 were visually inspected; browser verification remains the coordinator's check.
+
+## Friend List own-card profile
+
+Opening `profile` now stays in native presentation. The same source card layers
+are reused; `FrdTopUIUp_D_00/N_BtnTopPivot_01` selects the own-card Favourite
+Title / Message toolbar and hides the mutually exclusive main/join branches.
+The toolbar is visual only. Runtime profile rows are empty, so those labels and
+the name/status fields cannot launch editors or generic follow-on pages.
+
+The saved status uses the native lower `N_Blln_00/T_Box_03` bubble. Without a
+status, `N_Blln_02/T_NoComment_00` shows source `fri_twitt_none` instead.
+Source `fri_dlg_2b_back` supplies the B glyph and Back text in the existing curved
+footer. Its hit geometry matches the main footer described above; this is the
+only profile action. Saved nickname/message and Mii ID are retained unchanged.
+No Mii image, favourite title or friend code is synthesized.
+
+Requires the expanded English message selection from assets commit 6644715.
+The source components are held in a settled read-only composition; this does not
+claim the original app's complete card-turn/task sequence. Use verifier title
+`friends-profile` to render empty and supplied-status fixtures. Both screen pairs
+were inspected at `runtime/personal-tools/friends-profile`; the fixture nickname
+and status appear in their native text panes, with distinct pixel hashes, zero
+loader/renderer diagnostics, strict interface checking and immutable views/packs.
+Runtime coverage checks that profile actions and text events cannot open an
+editor or change saved values, and Back returns to main. Browser verification is
+still a separate integration check.

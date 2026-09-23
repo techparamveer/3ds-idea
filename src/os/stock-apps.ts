@@ -57,7 +57,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return [row('search', 'Enter search text'), row('bookmarks', 'Bookmarks'), row('add-bookmark', 'Add'), row('settings', 'Settings'), row('page-info', 'Page Info'), row('address', 'Enter URL')];
     }
     if (id === 'friends') {
-      if (screen === 'profile') return [row('name', 'Name', str(record(shared.settings).nickname, 'Player')), row('message', 'Favourite message', str(state.message))];
+      if (screen === 'profile') return []; // Native own-card fields are read-only surfaces.
       return [row('profile', 'Your friend card'), ...list(shared.friends).map(friend => row(str(friend.id), str(friend.name, 'Friend')))];
     }
     if (id === 'notifications') return list(shared.notifications).map(note => row(str(note.id), str(note.title), note.read ? '' : 'New'));

@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {parseArgs} from 'node:util';
 import ts from 'typescript';
 export async function verifyPersonalTools(options){
- options.title??='notifications';assert.ok(['notifications','notes','friends'].includes(options.title));
+ options.title??='notifications';assert.ok(['notifications','notes','friends','friends-profile'].includes(options.title));
  for(const key of ['artifactDir','assetRoot','canvasModule','interfaceRoot'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-')),sourceHashes={};
@@ -30,20 +30,22 @@ export async function verifyPersonalTools(options){
   const manifest=JSON.parse(readFileSync(join(options.assetRoot,'manifest.json'))),fontPath=join(options.assetRoot,manifest.fonts.shared),fontData=JSON.parse(readFileSync(fontPath));
   font=new BitmapFont(fontData,await Promise.all(fontData.sheets.map(name=>loadImage(join(dirname(fontPath),name)))));
   const notes={appId:'game-notes',screen:'main',heading:'Game Notes',rows:Array.from({length:16},(_,i)=>({id:String(i),label:'Note '+(i+1)})),selection:0,footer:{left:{action:'back',label:'Back'}}};
-  const base=options.title==='notifications'?{...notes,appId:'notifications',heading:'Notifications',rows:[],text:['There are no notifications.']}:options.title==='friends'?{...notes,appId:'friends',heading:'Friend List',rows:[{id:'profile',label:'Your friend card'}],data:{settings:{nickname:'Player'}}}:notes;
-  const contract=nativePersonalToolView(base);assert.ok(contract);assert.equal(nativePersonalToolView({...base,screen:'drawing'}),null);assert.equal(nativePersonalToolView({...base,appId:'work'}),null);
+  const base=options.title==='notifications'?{...notes,appId:'notifications',heading:'Notifications',rows:[],text:['There are no notifications.']}:options.title.startsWith('friends')?{...notes,appId:'friends',screen:options.title==='friends-profile'?'profile':'main',heading:'Friend List',rows:options.title==='friends-profile'?[]:[{id:'profile',label:'Your friend card'}],data:{settings:{nickname:'Player'},message:''}}:notes;
+  const contract=nativePersonalToolView(base);assert.ok(contract);assert.equal(nativePersonalToolView({...base,screen:'unrecognized'}),null);assert.equal(nativePersonalToolView({...base,appId:'work'}),null);
   assets=await loadNativeTitleAssets('https://personal-tools.invalid/manifest.json',contract.titleId,contract.packs,new Map([['cbf_std.bcfnt',font]]));
   if(options.title==='friends'){assert.equal(nativePersonalToolView({...base,rows:[...base.rows,{id:'saved-friend',label:'Saved'}]}),null);assert.equal(nativePersonalToolView({...base,rows:[]}),null);}
-  const sourceJson=JSON.stringify(assets.renderer.packs),reports=[],sheet=createCanvas(400*(options.title==='notes'?4:1),480),sheetContext=sheet.getContext('2d');
-  for(const [index,selection] of (options.title==='notes'?[0,1,4,15]:[0]).entries()){
-   const top=createCanvas(400,240),bottom=createCanvas(320,240),view={...base,selection};
+  const views=options.title==='friends-profile'?[base,{...base,data:{settings:{nickname:'Ada'},message:'Existing saved message'}}]:options.title==='notes'?[0,1,4,15].map(selection=>({...base,selection})):[base];
+  const sourceJson=JSON.stringify(assets.renderer.packs),viewJson=JSON.stringify(views),reports=[],sheet=createCanvas(400*views.length,480),sheetContext=sheet.getContext('2d');
+  for(const [index,view] of views.entries()){
+   const top=createCanvas(400,240),bottom=createCanvas(320,240);
    assert.equal(drawNativePersonalToolFrame(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font}),true,JSON.stringify(assets.renderer.diagnostics));
-   const id=base.appId+'-'+selection;writeFileSync(join(out,id+'-top.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-bottom.png'),bottom.toBuffer('image/png'));
+   const id=base.appId+'-'+(base.screen==='main'?view.selection:base.screen+'-'+index);writeFileSync(join(out,id+'-top.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-bottom.png'),bottom.toBuffer('image/png'));
    sheetContext.drawImage(top,index*400,0);sheetContext.drawImage(bottom,index*400+40,240);
    const bytes=bottom.getContext('2d').getImageData(0,0,320,240).data;assert.ok(bytes.some((v,i)=>i%4===3&&v>0));
    reports.push({id,bottomSha256:createHash('sha256').update(bytes).digest('hex')});
   }
-  assert.equal(new Set(reports.map(r=>r.bottomSha256)).size,options.title==='notes'?4:1,'distinct source states');
+  assert.equal(new Set(reports.map(r=>r.bottomSha256)).size,views.length,'distinct source states');
+  assert.equal(JSON.stringify(views),viewJson,'views remain immutable');
   assert.equal(JSON.stringify(assets.renderer.packs),sourceJson,'source packs remain immutable');
   assert.deepEqual(assets.renderer.diagnostics,[]);
   assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);

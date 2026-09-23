@@ -236,3 +236,15 @@ test('Data Management directions follow the two upper tiles then the full-width 
  const move=command=>{state=module.reduce(state,{type:'command',command},ctx).state;return module.view(state,ctx).rows[state.selection].id;};
  assert.equal(move('right'),'data-dsi');assert.equal(move('right'),'data-dsi');assert.equal(move('down'),'streetpass');assert.equal(move('down'),'blocked-users');assert.equal(move('up'),'streetpass');assert.equal(move('up'),'data-3ds');
 });
+
+test('Friend profile is a read-only card and retains existing nickname/message without opening editors',()=>{
+ const {module}=setup('friends'),context={now:0,shared:{...initialSharedData(),settings:{nickname:'Ada'}}};
+ let state=module.create({}, {message:'Existing status',miiId:'existing'},context);
+ state=module.reduce(state,{type:'action',id:'profile'},context).state;
+ const view=module.view(state,context);assert.equal(view.screen,'profile');assert.deepEqual(view.rows,[]);assert.equal(view.footer.right,undefined);
+ assert.equal(view.data.settings.nickname,'Ada');assert.equal(view.data.message,'Existing status');
+ for(const id of ['name','message','edit','register','favorite'])assert.equal(module.reduce(state,{type:'action',id},context).state,state);
+ assert.equal(module.reduce(state,{type:'text',value:'Changed'},context).state,state);
+ const result=module.reduce(state,{type:'command',command:'back'},context);assert.equal(result.state.screen,'main');assert.deepEqual(result.effects??[],[]);
+ assert.deepEqual(module.save(result.state),{message:'Existing status',miiId:'existing'});
+});

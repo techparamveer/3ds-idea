@@ -122,7 +122,7 @@
   "privateDirectory": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/banner-stencil",
   "fixtureScript": {
     "path": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/banner-stencil/execute-contract.py",
-    "sha256": "144b0f7f2386ffaf60d5905bd4f4a417df5ba57db64811804ee3bfd6af49c7e1"
+    "sha256": "a2f5e1e3f44071da963721fc40805be4d373c2c6ff5ac8788eb6ac08f4c9bdfe"
   },
   "fixtureResults": {
     "passed": true,
@@ -136,7 +136,8 @@
       "0x4500",
       "0x100"
     ],
-    "externalStubs": "See private execute-contract.py and native-contract.json. Sort-key secondary mesh/material fields are null and float-to-integer conversion is stubbed."
+    "externalStubs": "See private execute-contract.py and native-contract.json. Sort-key secondary mesh/material fields are null and float-to-integer conversion is stubbed.",
+    "nativeDisplacementIdleAndSyntheticImpulse": true
   },
   "runtimeConsumer": {
     "entry": "0x1fa19c",
@@ -199,6 +200,95 @@
     "No browser or Azahar interaction",
     "No raster/coverage or stereo verification",
     "No published asset or renderer changes",
-    "No music first-entry/resume proof"
+    "No music first-entry/resume proof",
+    "S0 impulse input meaning/source untraced; current lifecycle lacks native displacement/offset fields"
+  ],
+  "nativeDisplacement": [
+    {
+      "case": "idle",
+      "primaryOffset94": 0.25,
+      "primaryOffset98": 0.75,
+      "samples": [
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        }
+      ]
+    },
+    {
+      "case": "syntheticImpulse",
+      "primaryOffset94": 0.25,
+      "primaryOffset98": 0.75,
+      "samples": [
+        {
+          "inputS0": 12,
+          "native90": 0.025663770735263824,
+          "velocity8c": 0.025663770735263824,
+          "primaryY": 0.2756637632846832
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.07196477055549622,
+          "velocity8c": 0.04630099982023239,
+          "primaryY": 0.3219647705554962
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.1340775191783905,
+          "velocity8c": 0.06211274117231369,
+          "primaryY": 0.3840775191783905
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.20736953616142273,
+          "velocity8c": 0.07329200953245163,
+          "primaryY": 0.45736953616142273
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.28739362955093384,
+          "velocity8c": 0.08002408593893051,
+          "primaryY": 0.5373936295509338
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.3698805272579193,
+          "velocity8c": 0.08248689025640488,
+          "primaryY": 0.6198805570602417
+        }
+      ]
+    }
   ]
 }

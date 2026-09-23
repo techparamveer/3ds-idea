@@ -31,7 +31,21 @@ to the frame's Y translation, forces X/Z translation to zero and marks the
 transform dirty. It does not copy the primary's animated scale or yaw. The
 generic constructor initializes this primary Y offset to zero at `0x1fa168`.
 The update is skipped when the primary is absent/hidden; it does not reset the
-frame translation in that case.
+frame translation in that case. Folder reset `0x2492a0` and generic reset
+`0x24e4f4` also zero `+0x90`.
+
+`+0x90` is specifically a manager displacement, not the resource's animated
+bone Y or the primary's total world Y. Shared update `0x24e190..21c` evolves
+it using velocity `+0x8c`, gravity, a floor bounce and an upper clamp of 1;
+the preceding code can feed velocity from an input-triggered spin impulse.
+The primary transform at `0x24e418..42c` receives X=`+0x98`,
+Y=`+0x90 + +0x94`, Z=0. **The mask receives only `+0x90`.** Original ARM
+fixtures confirm zero-input idle stays at displacement 0 and a synthetic S0=12
+impulse produces nonzero displacement while preserving the separate Y offset.
+The meaning/source of that S0 input is outside this investigation. The current
+folder lifecycle/render-frame types expose no such displacement/offset fields;
+an integration must make the distinction explicit rather than derive mask Y
+from a sampled skeleton, total translation, yaw or visibility scale.
 
 Scene 1 receives `BannerCamera_LZ.bin` at `0x287950..95c` through `0x24ee9c`.
 The source mono camera is position `(0,1,44.7859992980957)`, Aim target `(0,1,0)`,

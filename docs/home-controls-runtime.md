@@ -77,22 +77,36 @@ instead of assuming two animation frames settle it.
 
 ## Verification
 
-Before the new painter tests, the combined suite passed778 tests, with two
-existing optional audio-diagnostic skips. Primary/footer, sampler/producer,
+The combined integration suite passed812 tests out of814, with zero failures
+and two existing optional audio-diagnostic skips. The native Canvas dependency
+was enabled. Primary/footer, sampler/producer,
 consumer/controller, captured resolver and phased-banner tests retain their
 independent original-resource/source fixtures.
 
 `scripts/verify-home-live-controls.mjs` uses actual browser keyboard, accessible
 buttons and projected physical D-pad pointer events. Read-only diagnostic traces
 confirm toolbar focus/center/Scale, one movement per quick activation, mode3,
-accelerated Loop, visible departure effects and release reset. It restores empty
+accelerated Loop, visible departure effects and release reset. Real circle-pad
+drags produce native up0x40/down0x80 candidate masks and their corresponding
+focus transitions. The pad's pointer-down establishes a neutral origin; the
+verification therefore moves it while held, and samples native repeats during
+the hold instead of assuming release preserves the first focus transition.
+It restores empty
 folder child0 for reference comparison. Root inspected the toolbar and restored
 lower-screen PNGs; these are browser checks, not a new Azahar parity claim.
 
 Artifacts are under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/`,
-including `live-native-controls-first.json`, its toolbar/restored PNGs and
-`live-controls-first-tests.log`. Fresh Azahar interaction remains unavailable
+including `live-native-controls-complete.json`, its toolbar/restored PNGs and
+`live-controls-final-tests.log`. Typecheck and production build passed.
+`live-native-cursor-preservation.json` confirms48 normal shared updates,
+read-only paint stability, overlay/sleep freezes and retained resume phase.
+`live-native-density-preservation.json` confirms disabled press/tap preservation,
+enabled pressed pose and an exact settled density round trip. All nine static
+regions in `live-native-controls-preservation-comparison.json` match the prior
+comparison metrics exactly. The comparison still excludes unmatched parent
+artwork, HUD and cursor phase; it does not establish whole-screen parity.
+Fresh Azahar interaction remains unavailable
 while the Mac is locked. Existing captures and bounded original-ARM evidence
 remain available; the complete requested firmware/application acceptance is
 not finished.

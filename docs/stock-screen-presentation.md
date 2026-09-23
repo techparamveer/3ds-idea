@@ -90,3 +90,33 @@ A subsequent Notifications composition is wired but awaits browser inspection.
 This is an integration checkpoint, not full1:1 acceptance. Remaining toolbar
 and service compositions, inline text/layout differences, native reference
 comparisons and transition raster performance remain open.
+## Settings subpages
+
+Settings retains one native title session from launch through all subpages.
+Internet uses `NetTop_D_01` and its four source child buttons. Parental Controls
+uses introductory English messages and `Btn2Text_D_00`; the configured
+`PareTop` views are not used to imply saved restrictions or a PIN. Its lower
+information card reuses a scaled source upper panel for readable contrast.
+
+Data Management, Nintendo 3DS data, Profile, Connection Settings and Other
+Settings mount the original button components in their source layouts. Other
+Settings uses the source three-row layout, numbered pages and side arrows;
+the four-page ordering is portfolio navigation, not a verified executable
+ordering. The source `Appear` arrow clip is visible at frame zero and disappears
+at its end. Read-only restriction lists use source buttons in four-row pages.
+Details currently reuse source information panels with existing preferences or
+explicitly absent data; editor-specific date/language layouts remain pending.
+
+The source upper panel has three signed-size picture quadrants. The Settings
+adapter converts only those derived panes to absolute sizes and reflected
+scales, retaining pane origins and immutable source resources. Fractional lower
+panel centres align the scaled quadrant edges to whole pixels. The bounded
+Select adapter also accepts the source `BottunUser/AS_Picture_00` share used by
+numbered page buttons, only after proving both endpoints absent in that layout.
+No shared renderer semantics are changed by these adapters.
+
+Canvas verification covers the main screen, both initial subpages, Data,
+Profile, Nintendo 3DS data, Connection Settings, Date & Time, restriction lists,
+Other Settings pages 1 and 4, and an empty nickname detail. Touch checks cover
+native button centres, gaps and bounded arrows. Final browser integration and
+matched native LCD comparison remain separate checks.

@@ -13,6 +13,21 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     rows.forEach((row,index)=>{const r=rects[index];if(r)result.push(target(row.id,r[0],r[1],r[2],r[3],index));});
     if(screen==='internet'&&view.footer.left)result.push(target(view.footer.left.action,0,208,120,32));
     return result;
+  }else if(appId==='system-settings'&&screen!=='main'){
+    const rects=screen==='data'?[[19,17,146,78],[177,17,126,78],[28,109,264,38],[28,171,264,26]]:screen==='profile'||screen==='data-3ds'?[[28,37,264,38],[28,82,264,38],[28,127,264,38],[28,173,264,26]]:screen==='other'?[[35,50,249,41],[35,98,249,41],[35,146,249,41]]:screen==='clock'?[[28,125,264,26],[28,165,264,26]]:[];
+    if(screen==='connections'){
+      const locations:Record<string,number[]>={'new-connection':[28,19,264,66],'connection-1':[12,117,92,70],'connection-2':[114,117,92,70],'connection-3':[216,117,92,70]};
+      rows.forEach((row,index)=>{const r=locations[row.id];if(r)result.push(target(row.id,r[0],r[1],r[2],r[3],index));});
+    }else if(screen==='restrictions'){
+      const start=Math.floor(selection/4)*4;rows.slice(start,start+4).forEach((row,i)=>result.push(target(row.id,28,24+i*44,264,38,start+i)));
+    }else rows.forEach((row,index)=>{const r=rects[index];if(r)result.push(target(row.id,r[0],r[1],r[2],r[3],index));});
+    if(screen==='other'){
+      const page=typeof view.data?.page==='number'?view.data.page:0;
+      if(page>0)result.push(target('settings-previous',0,65,30,100));
+      if(page<3)result.push(target('settings-next',290,65,30,100));
+    }
+    if(view.footer.left)result.push(target(view.footer.left.action,0,208,120,32));
+    return result;
   }else if(appId==='health-safety'&&screen==='main'){
     rows.slice(0,3).forEach((row,index)=>result.push(target(row.id,36,21+index*64,248,48,index)));
   }else if(appId==='browser'&&screen==='main'){

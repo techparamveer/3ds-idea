@@ -30,6 +30,8 @@ export async function verifyStockScreens(options){
  ];
  const playback=views.find(view=>view.appId==='sound'&&view.screen==='playback');
  views.push({...playback,verificationId:'sound-paused',data:{...playback.data,playing:false}});
+ views.push({...playback,verificationId:'sound-error',text:['This track could not be played.'],data:{...playback.data,playing:false,mediaError:true}});
+ views.push({appId:'camera',screen:'main',verificationId:'camera-empty',heading:'Nintendo 3DS Camera',rows:[],selection:0,footer:{left:footer.left},data:{folders:[]}});
  views.push({appId:'sound',screen:'main',verificationId:'sound-library',heading:'Nintendo 3DS Sound',rows:[{id:'track:renderer-probe',label:'Library controls specimen',value:'Renderer verification'}],selection:0,footer,data:{tracks:[{...playback.data.track,title:'Library controls specimen'}]}});
  for(const [topic,page]of [['3d',0],['general',1],['usage',26]])views.push({appId:'health-safety',screen:'document',verificationId:'health-'+topic+'-'+page,heading:'Health and Safety Information',rows:[],selection:0,footer:{left:page?{label:'Previous',action:'previous'}:footer.left,right:page===26&&topic==='usage'?{label:'Done',action:'back'}:{label:'Next',action:'next'}},data:{topic,page}});
  views.push({appId:'browser',screen:'main',heading:'Internet Browser',rows:rows([['search','Enter search text'],['bookmarks','Bookmarks'],['add-bookmark','Add'],['settings','Settings'],['page-info','Page Info'],['address','Enter URL']]),selection:1,footer});

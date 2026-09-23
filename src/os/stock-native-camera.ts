@@ -3,12 +3,13 @@ import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 import { stockScreenTargets } from './stock-screen-layout';
+import { nativeMessageOverride } from './native-layout';
 
 export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',alias:'camera-gallery',
   layouts:['P_BrwsBase_D','P_BrwsFld','P_BrwsPic','P_BrwsCursor_D','P_BrwsPhoMntBase','P_BrwsTxt_D'],
   animations:['P_BrwsBase_D_Default','P_BrwsFld_Default','P_BrwsPic_Default','P_BrwsCursor_D_Default','P_BrwsCursor_D_CurDefault','P_BrwsPhoMntBase_PicL'],
-}];
+},{url:'packs/camera/contents/0000-0000001a/msg-EU_English.json',alias:'camera-messages',layouts:[],animations:[]}];
 type RecordValue=Record<string,JsonValue>;
 const record=(value:JsonValue|undefined):RecordValue=>value&&typeof value==='object'&&!Array.isArray(value)?value:{};
 const records=(value:JsonValue|undefined)=>Array.isArray(value)?value.map(record):[];
@@ -52,7 +53,7 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
       if(r.row===view.selection)draw('P_BrwsCursor_D',{center:[x,y],bindings:[{name:'P_BrwsCursor_D_Default',frame:0},{name:'P_BrwsCursor_D_CurDefault',frame:0}]});
       text(row.label,x,r.y+61,10);
     }
-    if(!view.rows.length)draw('P_BrwsTxt_D',{overrides:{TxtNoData:{text:'No photos',size:[240,24]}}});
+    if(!view.rows.length)draw('P_BrwsTxt_D',{overrides:{TxtNoData:{...nativeMessageOverride(renderer.packs['camera-messages'],'P','Brws_06',''),size:[280,56]}}});
   }
   return okay;
 }

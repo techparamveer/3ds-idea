@@ -20,6 +20,8 @@
 | `home-input-producer.ts` | Pure native poll/event arithmetic; live scheduler integration pending |
 | `home-input-sample.ts` | Explicit digital/primary-axis snapshots and independent sample edges; integration pending |
 | `home-scroll-consumer.ts` | Native direction/focus/mode3 arithmetic and ordered cue, cursor and banner observations; live input integration pending |
+| `home-navigation-pass.ts` | Pure ordinary input/lower/Loop composition with ordered observations and explicit eligibility; live integration pending |
+| `home-cursor-presentation.ts` | Retained primary Scale and two departed-selection effect controllers; live integration pending |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-cursor-loop.ts`, `home-cursor-visibility.ts` | Retained primary cursor Loop and shared visibility predicate |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |

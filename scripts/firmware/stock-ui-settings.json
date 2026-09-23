@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022000": {
+      "packs": {
+        "packs/settings/contents/0000-0000003d/base.json": {
+          "layouts": [
+            "Bg_U_00",
+            "Bg_D_00",
+            "TopBase_D_00",
+            "Base_D_00"
+          ],
+          "animations": [
+            "Bg_D_00_SceneIn_Legacy",
+            "Bg_U_00_SceneIn_Legacy"
+          ]
+        },
+        "packs/settings/contents/0000-0000003d/up.json": {
+          "layouts": [
+            "TopText_U_00",
+            "CommonBG_U_00"
+          ],
+          "animations": [
+            "CommonBG_U_00_3DOnOff",
+            "CommonBG_U_00_ObjFadeIn",
+            "CommonBG_U_00_SceneIn_00",
+            "CommonBG_U_00_SceneIn_01",
+            "CommonBG_U_00_SceneIn_03",
+            "CommonBG_U_00_SceneIn_04",
+            "CommonBG_U_00_SceneIn_05",
+            "TopText_U_00_IconLoop",
+            "TopText_U_00_SceneIn_00"
+          ]
+        },
+        "packs/settings/contents/0000-0000003d/layout.json": {
+          "layouts": [
+            "Top_D_02"
+          ],
+          "animations": [
+            "Top_D_02_SceneIn_00",
+            "Top_D_02_SpecialIn_00",
+            "Top_D_02_Special_00",
+            "Top_D_02_Special_01",
+            "Top_D_02_Special_02",
+            "Top_D_02_Special_03"
+          ]
+        },
+        "packs/settings/contents/0000-0000003d/button.json": {
+          "layouts": [
+            "I_TopLTs",
+            "I_TopRTs",
+            "I_TopLBs",
+            "I_TopRBs",
+            "I_TopTs",
+            "B_L"
+          ],
+          "animations": [
+            "I_TopLTs_Decide",
+            "I_TopLTs_Select",
+            "I_TopRTs_Decide",
+            "I_TopRTs_Select",
+            "I_TopLBs_Decide",
+            "I_TopLBs_Select",
+            "I_TopRBs_Decide",
+            "I_TopRBs_Select",
+            "I_TopTs_Decide",
+            "I_TopTs_Select",
+            "B_L_Decide",
+            "B_L_Invalid",
+            "B_L_Select"
+          ]
+        },
+        "packs/settings/contents/0000-0000003d/message_EU.json": {
+          "messages": {
+            "mset": [
+              "top_sysset_title",
+              "top_nnid",
+              "top_internet",
+              "top_parental",
+              "top_software",
+              "top_settings",
+              "top_btm_text",
+              "base_2b_back",
+              "dat_dlg_1b_close"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

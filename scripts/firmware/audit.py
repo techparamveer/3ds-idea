@@ -200,8 +200,14 @@ def audit(root, artifacts=None, repository=None):
             check(required_paths.issubset(selected_paths), f'{url}: missing required Settings message/style pairs')
             converted = [s for bucket in ('messages', 'styles') for s in pack.get('resourceSources', {}).get(bucket, {}).values()]
             selected = [{k: v for k, v in s.items() if k != 'locale'} for s in selection.get('selected', [])]
-            check(sorted(converted, key=lambda s: s['path']) == sorted(selected, key=lambda s: s['path']),
-                  f'{url}: selected message/style provenance differs from converted resources')
+            if pack.get('uiSelection', {}).get('schema') == 1:
+                # Locale selection describes the complete source archive; a UI
+                # delivery can retain only named banks and their sibling styles.
+                check(all(source in selected for source in converted),
+                      f'{url}: selected message/style provenance differs from converted resources')
+            else:
+                check(sorted(converted, key=lambda s: s['path']) == sorted(selected, key=lambda s: s['path']),
+                      f'{url}: selected message/style provenance differs from converted resources')
         multi_content = len(manifest['sources'].get(pack['titleId'], {}).get('contents', [])) > 1
         if multi_content:
             identity = {key: pack.get(key) for key in ('contentIndex', 'contentId')}
@@ -267,6 +273,11 @@ def audit(root, artifacts=None, repository=None):
                     for key in track['keys']: check(0 <= key['value'] < len(animation['textures']), f'{context}: texture pattern out of bounds')
                 report['counts']['tracks'] += 1
         for name, messages in pack['messages'].items():
+            if 'uiSelection' in pack:
+                indices = pack['uiSelection'].get('sourceMessageIndices', {}).get(name, [])
+                check(len(indices) == len(messages['messages']) and
+                      all(isinstance(index, int) and index >= 0 for index in indices) and
+                      indices == sorted(set(indices)), f'{url}/{name}: invalid selected source message indexes')
             for label, index in messages['labels'].items():
                 check(0 <= index < len(messages['messages']), f'{url}/{name}: message label {label} out of bounds')
             table_name = messages.get('styleTable')

@@ -4,6 +4,7 @@ import {join} from 'node:path';
 import {verifyNativeKeyboardKeys} from '../scripts/verify-native-keyboard-keys.mjs';
 
 const options={
+ styleEvidence:process.env.NATIVE_KEYBOARD_STYLE_EVIDENCE,
  artifactDir:process.env.NATIVE_KEYBOARD_KEYS_ARTIFACT_DIR,
  referenceRoot:process.env.NATIVE_KEYBOARD_REFERENCE_ROOT,
  pack:process.env.NATIVE_KEYBOARD_KEYS_PACK,
@@ -18,9 +19,8 @@ test('real QWERTY resources preserve frozen property writes, exact retained subm
  assert.equal(report.passed,true);
  assert.equal(report.submissions.immediate.length,8);
  assert.equal(report.submissions.firstLocalController.length,5);
- assert.deepEqual(report.unresolvedMessageStyles,[
+ assert.deepEqual(report.messageStyleApplications,[
   {pane:'T_key_Tra',label:'qwerty_conv',styleIndex:220},
-  {pane:'T_dictionary',label:'qwerty_dic_en',styleIndex:171},
  ]);
  const renders=Object.fromEntries(report.renders.map(r=>[r.name,r.rgbaSha256]));
  assert.notEqual(renders.initialized,renders.submitted);

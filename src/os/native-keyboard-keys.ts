@@ -1,14 +1,17 @@
-import {boundAnimationTracks, poseNativeLayout, type NativeAnimation, type NativeLayout, type NativePack, type NativePane, type PaneOverrides} from './native-layout';
+import {boundAnimationTracks, poseNativeLayout, type NativeAnimation, type NativeLayout, type NativeMessageStyle, type NativePack, type NativePane, type PaneOverrides} from './native-layout';
 
 export type NativeQwertyPaneSubmission = {pane:string;clip:string;frame:number};
+export type NativeQwertyStyleResources = {styles:readonly NativeMessageStyle[];font:{width:number;height:number}};
 export type NativeNicknameQwertyPresentation = {
   /** Property writes followed by the eight immediate, retained submissions. */
   layout:NativeLayout;
+  /** Complete property state, including native text metric writes. */
+  initializationLayout:NativeLayout;
   initializationOverrides:PaneOverrides;
   immediateSubmissions:NativeQwertyPaneSubmission[];
   /** Explicit local-pass evidence, not an automatically advanced scene clock. */
   firstLocalControllerSubmissions:NativeQwertyPaneSubmission[];
-  unresolvedMessageStyles:{pane:string;label:string;styleIndex:number}[];
+  messageStyleApplications:{pane:string;label:string;styleIndex:number}[];
 };
 
 function paneMap(layout:NativeLayout){
@@ -39,19 +42,17 @@ export function applyNativeQwertyPaneSubmissions(layout:NativeLayout,animations:
 }
 
 /** Corrected English page0 initialization for the existing-profile name request.
- * Messages supply text only. Preserve authored text/material styles and surface
- * resource style indices as unresolved metadata rather than inventing a style
- * transfer at the fixture's message lookup boundary.
+ * Only the named qwerty_conv path applies message metrics (0x116bdc).
+ * Dictionary and per-unit character paths copy text and retain authored styles.
  */
-export function nativeNicknameQwertyPresentation(layout:NativeLayout,animations:Record<string,NativeAnimation>,messages:NativePack['messages'][string]):NativeNicknameQwertyPresentation{
-  const panes=paneMap(layout),overrides:PaneOverrides={},unresolvedMessageStyles:NativeNicknameQwertyPresentation['unresolvedMessageStyles']=[];
+export function nativeNicknameQwertyPresentation(layout:NativeLayout,animations:Record<string,NativeAnimation>,messages:NativePack['messages'][string],styleResources:NativeQwertyStyleResources):NativeNicknameQwertyPresentation{
+  const panes=paneMap(layout),overrides:PaneOverrides={},messageStyleApplications:NativeNicknameQwertyPresentation['messageStyleApplications']=[];
   const requirePane=(name:string)=>{const pane=panes.get(name);if(!pane)throw new Error(`Missing QWERTY pane ${name}`);return pane;};
   const write=(pane:string,value:PaneOverrides[string])=>{requirePane(pane);overrides[pane]={...overrides[pane],...value};};
   const message=(label:string)=>{const index=messages.labels[label],row=messages.messages[index];if(!Number.isInteger(index)||!row||typeof row.text!=='string')throw new Error(`Missing QWERTY message ${label}`);return row;};
   const text=(pane:string,label:string,value?:string)=>{
     if(!requirePane(pane).text)throw new Error(`QWERTY text target is not text ${pane}`);
     const row=message(label);write(pane,{text:value??row.text});
-    if(row.styleIndex!==undefined&&row.styleIndex!==null)unresolvedMessageStyles.push({pane,label,styleIndex:row.styleIndex});
   };
   // Original named-message call precedes dictionary/character assignment.
   text('T_key_Tra','qwerty_conv');text('T_dictionary','qwerty_dic_en');
@@ -76,5 +77,17 @@ export function nativeNicknameQwertyPresentation(layout:NativeLayout,animations:
   ];
   const firstLocalControllerSubmissions=['P_key_Ent','P_Key_EntIcon','P_dictionary','P_dictionaryIcon','T_dictionary'].map(pane=>({pane,clip:'Keytop_qwerty_i0',frame:0}));
   const initialized=poseNativeLayout(layout,{},[],overrides);
-  return {layout:applyNativeQwertyPaneSubmissions(initialized,animations,immediateSubmissions),initializationOverrides:overrides,immediateSubmissions,firstLocalControllerSubmissions,unresolvedMessageStyles};
+  const styleIndex=message('qwerty_conv').styleIndex;
+  if(styleIndex!==undefined&&styleIndex!==null){
+    const style=styleResources?.styles[styleIndex],font=styleResources?.font;
+    if(!Number.isInteger(styleIndex)||!style||style.fontScale.length!==2||!font||![...style.fontScale,style.lineSpacing,style.characterSpacing,font.width,font.height].every(Number.isFinite)||font.width<=0||font.height<=0)throw new Error('Missing or invalid QWERTY conversion style resources');
+    // Original 0x116c68..0x116d1c writes only these four metrics, using f32.
+    // poseNativeLayout cloned the pane; never modify the shared source style.
+    const target=paneMap(initialized).get('T_key_Tra')!.text!;
+    target.size=[Math.fround(Math.fround(style.fontScale[0])*font.width),Math.fround(Math.fround(style.fontScale[1])*font.height)];
+    target.lineSpacing=Math.fround(style.lineSpacing);target.characterSpacing=Math.fround(style.characterSpacing);
+    delete target.messageStyle; // Metrics above are already resolved for this font.
+    messageStyleApplications.push({pane:'T_key_Tra',label:'qwerty_conv',styleIndex});
+  }
+  return {layout:applyNativeQwertyPaneSubmissions(initialized,animations,immediateSubmissions),initializationLayout:initialized,initializationOverrides:overrides,immediateSubmissions,firstLocalControllerSubmissions,messageStyleApplications};
 }

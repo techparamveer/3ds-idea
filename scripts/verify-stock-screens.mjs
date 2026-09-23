@@ -28,6 +28,8 @@ export async function verifyStockScreens(options){
   {appId:'sound',screen:'playback',heading:'Nintendo 3DS Sound',rows:[],selection:0,footer:{left:footer.left},data:{track:{id:'renderer-probe',title:'Playback controls specimen',src:'/renderer-probe.mp3',artwork:photos[0].src},playing:true,position:45,duration:180,repeat:'all',shuffle:false}},
   {appId:'health-safety',screen:'main',heading:'Health and Safety Information',rows:rows([['3d','3D Display Precautions'],['general','General Precautions'],['usage','Usage Precautions']]),selection:0,footer},
  ];
+ views.push({appId:'system-settings',screen:'internet',heading:'Internet Settings',rows:rows([['connections','Connection Settings'],['spotpass','SpotPass'],['ds-connections','Nintendo DS Connections'],['internet-info','Other Information']]),selection:0,footer:{left:footer.left}});
+ views.push({appId:'system-settings',screen:'parental',heading:'Parental Controls',rows:rows([['next','Next'],['back','Back']]),selection:0,footer:{left:footer.left}});
  const playback=views.find(view=>view.appId==='sound'&&view.screen==='playback');
  views.push({...playback,verificationId:'sound-paused',data:{...playback.data,playing:false}});
  views.push({...playback,verificationId:'sound-error',text:['This track could not be played.'],data:{...playback.data,playing:false,mediaError:true}});

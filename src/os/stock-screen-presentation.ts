@@ -164,7 +164,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   function prepare(view:AppView,nextOwner:string,font?:BitmapFont){
     if(disposed)return session.getState();
     sync(nextOwner);
-    const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:view.appId==='browser'?{view:'browser',titleId:'0004003000009d02',packs:browserScreenPacks}:view.appId==='miiverse'?{view:'miiverse',titleId:'000400300000be02',packs:miiverseScreenPacks}:nativePersonalToolView(view));
+    const nativeView=font&&(view.appId==='system-settings'?{view:'settings',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:camera(view.appId)?{view:'camera-gallery',titleId:'0004001000022400',packs:cameraScreenPacks}:view.appId==='health-safety'?{view:'health',titleId:'0004001000022300',packs:healthScreenPacks}:view.appId==='browser'?{view:'browser',titleId:'0004003000009d02',packs:browserScreenPacks}:view.appId==='miiverse'?{view:'miiverse',titleId:'000400300000be02',packs:miiverseScreenPacks}:nativePersonalToolView(view));
     return session.update(nativeView?{owner:nextOwner,...nativeView,sharedFonts:new Map([['cbf_std.bcfnt',font!]])}:null);
   }
   return {

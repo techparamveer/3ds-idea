@@ -55,3 +55,10 @@ test('Friend List touches follow the source card and curved Close button',()=>{
  assert.equal(hit(v,26,210),null);assert.equal(hit(v,295,236),null);
  assert.equal(hit(view('friends','detail',[]),160,147),null);
 });
+test('Settings Internet and introductory Parental Controls use source child buttons and gaps',()=>{
+ const internet=view('system-settings','internet',['connections','spotpass','ds-connections','internet-info']);
+ assert.equal(hit(internet,160,56),'connections');assert.equal(hit(internet,160,119),'spotpass');assert.equal(hit(internet,160,152),'ds-connections');assert.equal(hit(internet,160,185),'internet-info');
+ assert.equal(hit(internet,160,99),null);assert.equal(hit(internet,80,226),'back');assert.equal(hit(internet,200,226),null);
+ const parental=view('system-settings','parental',['next','back']);
+ assert.equal(hit(parental,160,138),'next');assert.equal(hit(parental,160,178),'back');assert.equal(hit(parental,160,158),null);
+});

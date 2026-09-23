@@ -69,6 +69,16 @@ packs and their generated resource bytes are unchanged. See
 [Settings locale validation](../../docs/firmware-settings-locale-validation.md)
 for original paths/hashes, native evidence and the still-failed binding audit.
 
+Keyboard audio has a separate offline path: `keyboard_audio.py` exports the
+supplied title's 15 mono PCM16/IMA BCWAV resources into a new private directory,
+requiring sample and metadata agreement with a supplied `vgmstream-cli`.
+It inventories the SSEQ member without synthesizing it and preserves the native
+19-cue table independently from resource indices. `keyboard_audio_events.py`
+provides opt-in, bounded original ARM probes for cue requests with explicit
+touch/animation/text-acceptance stubs. Neither helper changes HOME synthesis or
+public delivery. See [keyboard audio validation](../../docs/firmware-keyboard-audio-validation.md)
+for commands, source hashes, callback evidence and remaining timing/gain limits.
+
 Each pack contains `layouts`, `animations`, `textures`, `messages`, `resourceSources` and `unsupported`, plus `styles` when a supported HOME style table is present. `resourceSources` maps each resource category and name to original member paths and decoded SHA-256 hashes. Layouts contain pane hierarchy, native transforms, text metrics, groups, window frames, texture mapping, blend state and TEV stages. Windows expose `inflation` (four unsigned fixed-point values divided by 16) and `frameSize` (four unsigned integers), both in left/right/top/bottom order. These replace the earlier incorrectly decoded `stretch` float array. Fonts also expose FINF `width`, `cellWidth`, `cellHeight` and `maxCharWidth` alongside baseline, ascent, line feed and per-glyph metrics.
 
 Animation tracks retain target/binding/tag/index/component/property, step or Hermite keys, clip duration/looping and texture names. Duplicate-frame Hermite keys represent split tangents and must not be collapsed. MSBT messages retain control tokens and arguments separately from printable text, plus `styleIndex` (`null` for the native -1 sentinel). ATR1 count, record width, attribute records and trailing string table are preserved; typed attribute semantics require the title's definition. The HOME ATR1 tables have zero-width records. The two English HOME `RI_mstl` tables are converted into `styles`, keyed by full member path because their basenames are identical. Messages link with `styleTable`; `styleIndex` indexes that table's `styles` array. Each 44-byte record exposes `fontScale` in X/Y order, `lineSpacing`, `characterSpacing` and `unresolvedWords` keyed by decimal byte offset. The four named fields are confirmed by native HOME code; the remaining seven words stay unnamed. Font scales multiply native font width/height, and spacings replace the corresponding CLYT text fields. A null style index leaves the layout values intact. These tables are selected only by the two known paths, since this format has no magic signature.

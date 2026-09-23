@@ -109,7 +109,7 @@ def _origin(raw):
 def _pane(tag, r, depth=0):
     if depth >= 32: raise ValueError('Excessive FLYT part nesting')
     flags, origin, alpha, magnify = r.read('4B', 8)
-    out = {'kind': tag, 'name': r.string(12, 24), 'userData': r.bytes(36, 8).hex(),
+    out = {'kind': tag, 'sourceFormat': 'FLYT', 'name': r.string(12, 24), 'userData': r.bytes(36, 8).hex(),
            'flags': flags, 'origin': _origin(origin), 'sourceOrigin': origin, 'alpha': alpha,
            'sourceMagnifyFlags': magnify, 'translation': list(r.read('3f', 44)),
            'rotation': list(r.read('3f', 56)), 'scale': list(r.read('2f', 68)),
@@ -153,7 +153,15 @@ def _pane(tag, r, depth=0):
             if user:
                 if r.bytes(user, 4) != b'usd1': raise ValueError('Invalid part user data')
                 entry['userDataBytes'] = r.bytes(user, r.u32(user+4)).hex()
-            if info: entry['paneInfoBytes'] = r.bytes(info, 52).hex()
+            if info:
+                entry['paneInfoBytes'] = r.bytes(info, 52).hex()
+                entry['basicInfo'] = {'userData': r.bytes(info, 8).hex(),
+                                      'translation': list(r.read('3f', info+8)),
+                                      'rotation': list(r.read('3f', info+20)),
+                                      'scale': list(r.read('2f', info+32)),
+                                      'size': list(r.read('2f', info+40)),
+                                      'alpha': r.read('B', info+48)[0],
+                                      'padding': r.bytes(info+49, 3).hex()}
             part['entries'].append(entry)
         out['part'] = part
         out['unsupported'].append({'kind': 'flytPartComposition', 'layout': part['layout']})
@@ -210,7 +218,33 @@ def decode_flyt(data):
         elif tag == 'cnt1': out.setdefault('sourceControls', []).append(_control(r))
         else: out['unsupported'].append({'tag': tag, 'bytes': r.data.hex()})
     if parents or groups or out['canvas'] is None: raise ValueError('Incomplete FLYT hierarchy/canvas')
+    _initial_portal_capabilities(out)
     return out
+
+
+def _initial_portal_capabilities(layout):
+    """Only the original portal's observed resource combinations are enabled."""
+    name = layout['sourceLayout']['name']
+    if name != 'PortalSceneCTR': return
+    def walk(panes):
+        for pane in panes:
+            yield pane
+            yield from walk(pane['children'])
+    for pane in walk(layout['roots']):
+        part = pane.get('part')
+        if not part or part['layout'] not in ('PortalBtn', 'PortalBtnSub', 'BtnBtm_03') or part['magnify'] != [1.0, 1.0]: continue
+        valid = True
+        for entry in part['entries']:
+            prop = entry.get('property'); basic = entry.get('basicInfo')
+            valid = valid and entry['usageFlags'] in (0, 1) and entry['materialUsageFlags'] == 0
+            valid = valid and entry['basicUsageFlags'] in (0, 0x10, 0x18, 0x28) and not entry.get('userDataBytes')
+            valid = valid and ((entry['basicUsageFlags'] == 0 and basic is None) or
+                              (basic is not None and basic['padding'] == '000000'))
+            valid = valid and (prop is None or prop['kind'] in ('pic1', 'txt1'))
+            valid = valid and (entry['usageFlags'] != 1 or prop is not None and prop['kind'] == 'txt1')
+        if valid:
+            pane['unsupported'] = [v for v in pane['unsupported'] if v.get('kind') != 'flytPartComposition']
+            part['capability'] = 'amiibo-portal-v1'
 
 
 def decode_flan(data):

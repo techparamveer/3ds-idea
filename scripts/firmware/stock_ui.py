@@ -58,6 +58,27 @@ def select_pack(pack, selection):
     return result, fonts
 
 
+def validate_part_links(layouts):
+    """Selected FLYT parts must have one explicit, acyclic selected dependency."""
+    by_name = {}
+    for name, layout in layouts:
+        by_name.setdefault(name, []).append(layout)
+    def links(panes):
+        for pane in panes:
+            if pane.get('part'): yield pane['part']['layout']
+            yield from links(pane.get('children', []))
+    def visit(layout, path):
+        if len(path) > 8: raise ValueError('Excessive selected FLYT part depth')
+        for name in links(layout['roots']):
+            targets = by_name.get(name, [])
+            if len(targets) != 1 or targets[0].get('sourceFormat') != 'FLYT':
+                raise ValueError('Missing or ambiguous selected FLYT part: '+name)
+            if name in path: raise ValueError('Cyclic selected FLYT part: '+name)
+            visit(targets[0], path+[name])
+    for name, layout in layouts:
+        if layout.get('sourceFormat') == 'FLYT': visit(layout, [name])
+
+
 def publish(source_root, output, plan):
     source = json.loads((source_root/'manifest.json').read_bytes())
     manifest_path = output/'manifest.json'
@@ -81,18 +102,20 @@ def publish(source_root, output, plan):
     for title, requested in plan['titles'].items():
         if title in UI_EXCLUDED or title in (HOME, SHARED): raise ValueError('Title outside stock UI scope')
         info = copy.deepcopy(source['titles'][title]); info['packs'] = []; info['fonts'] = {}
-        needed_fonts = set()
+        needed_fonts = set(); selected_layouts = []
         for url, selection in requested['packs'].items():
             if url not in source['titles'][title]['packs']: raise ValueError('Unlisted source pack')
             data, record = original(url); pack = json.loads(data)
             if pack['titleId'] != title: raise ValueError('Pack title mismatch')
             selected, fonts = select_pack(pack, selection)
+            selected_layouts.extend(selected['layouts'].items())
             namespace = f'contents/{pack["contentIndex"]:04x}-{pack["contentId"]}/' if 'contentIndex' in pack else ''
             needed_fonts.update(namespace + name for name in fonts)
             encoded = encode(selected)
             record.update(size=len(encoded), sha256=digest(encoded))
             pending[url] = encoded; records[url] = record; info['packs'].append(url)
             for texture in selected['textures'].values(): copied(texture['url'])
+        validate_part_links(selected_layouts)
         for name in sorted(needed_fonts):
             url = source['titles'][title]['fonts'].get(name)
             if url:

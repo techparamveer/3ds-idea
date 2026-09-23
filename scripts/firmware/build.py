@@ -25,7 +25,7 @@ from firmware.cia import cia_metadata, content_directory, content_key, content_p
 from firmware.archives import unpack_sarc, unpack_stock_table
 
 FIRMWARE = '10.7.0-32E'
-CONVERTER_VERSION = '1.5.0'
+CONVERTER_VERSION = '1.5.1'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}

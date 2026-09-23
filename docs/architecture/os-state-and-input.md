@@ -136,6 +136,14 @@ selection, without changing pane hierarchy. Unverified shared controller conflic
 and pane kinds fail explicitly. See
 [animation-share validation](../native-animation-share-validation.md).
 
+Amiibo FLYT parts use explicit source component links and retain one child layout
+scope per instance. `instantiateNativePart` owns the bounded source overrides;
+`NativeLayoutRenderer` owns nested traversal, inherited alpha and per-instance
+pose caches. Unsupported FLYT materials fail before the CLYT fallback can hide a
+missing feature. The publisher validates selected part dependency closure. See
+[the amiibo checkpoint](../native-amiibo-initial-ui.md) for supported flags and
+unresolved material/reference evidence.
+
 The CPU picture raster prepares selectors and texture transforms per call and
 reuses scratch inside its pixel loop; scalar helpers remain differential test
 oracles. The upper-base caller alone opts into guarded opaque darkening without

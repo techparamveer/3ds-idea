@@ -145,3 +145,48 @@ test('an unflagged zero-alpha attachment parent still transmits the inherited ch
  const renderer=new NativeLayoutRenderer({test:pack},{test:new Map()},new Map()),ctx=canvas().getContext('2d');
  const values=[];assert.equal(renderer.draw(ctx,'test','parent',{attachments:{parent:alpha=>values.push(alpha)}}),true);assert.deepEqual(values,[1]);renderer.dispose();
 });
+
+test('FLYT part draws preserve independent source textures, clip bindings, alpha and parent transform scopes',()=>{
+ const prior=globalThis.document;globalThis.document={createElement:canvas};
+ try{
+  const child={...layout,sourceFormat:'FLYT'},parentMaterial={...material,name:'picture'};
+  const part=(name,texture,alpha)=>({...pane,sourceFormat:'FLYT',kind:'prt1',name,picture:undefined,flags:3,alpha,translation:[10+texture*30,20,0],part:{layout:'Button',capability:'amiibo-portal-v1',magnify:[1,1],entries:[{name:'picture',usageFlags:0,basicUsageFlags:0,materialUsageFlags:0,property:{...pane,picture:{...pane.picture,material:texture}}}]}});
+  const parent={...layout,sourceFormat:'FLYT',roots:[part('first',0,128),part('second',1,255)],textures:['red','blue'],materials:[parentMaterial,{...parentMaterial,textureMaps:[{...parentMaterial.textureMaps[0],texture:1}]}]};
+  const pack=l=>({schema:1,layouts:l,animations:{},textures:{},messages:{}});
+  const packs={parent:pack({parent}),child:pack({child})},before=JSON.stringify(packs);
+  const renderer=new NativeLayoutRenderer(packs,{parent:new Map([['red',pixels([255,0,0])],['blue',pixels([0,0,255])]]),child:new Map([['dynamic',pixels([0,255,0])]])},new Map());
+  const target=canvas(),ctx=target.getContext('2d'),draws=[],translates=[];ctx.drawImage=c=>draws.push([...c.image.data]);ctx.translate=(...v)=>translates.push(v);
+  const options={parts:{Button:{pack:'child',layout:'child'}},partBindings:{first:{overrides:{picture:{alpha:64}}}}};
+  assert.equal(renderer.draw(ctx,'parent','parent',options),true);
+  assert.deepEqual(draws,[[255,0,0,32],[0,0,255,255]]);
+  assert.deepEqual(translates.slice(0,3),[[.5,.5],[10,-20],[-.5,-.5]]);
+  assert.ok(translates.some(v=>v[0]===0&&v[1]===0));
+  assert.equal(JSON.stringify(packs),before);
+  draws.length=0;assert.equal(renderer.draw(ctx,'parent','parent',options),true);assert.deepEqual(draws,[[255,0,0,32],[0,0,255,255]]);
+  assert.equal(renderer.draw(ctx,'parent','parent'),false);assert.match(renderer.diagnostics.at(-1),/Missing native part layout/);
+  renderer.dispose();
+ }finally{globalThis.document=prior;}
+});
+
+test('FLYT unresolved material fields are rejected instead of using the CLYT implicit single texture',()=>{
+ const prior=globalThis.document;globalThis.document={createElement:canvas};
+ try{
+  const unsupported={...material,sourceFormat:'FLYT',unsupported:[{kind:'flytTextureCombiner'}]};
+  const pack={schema:1,layouts:{test:{...layout,sourceFormat:'FLYT',materials:[unsupported]}},animations:{},textures:{},messages:{}};
+  const renderer=new NativeLayoutRenderer({test:pack},{test:new Map([['dynamic',pixels([255,255,255])]])},new Map());
+  assert.equal(renderer.draw(canvas().getContext('2d'),'test','test'),false);assert.match(renderer.diagnostics.at(-1),/Unsupported FLYT material/);renderer.dispose();
+ }finally{globalThis.document=prior;}
+});
+
+test('part pose cache includes the parent material animation state',()=>{
+ const prior=globalThis.document;globalThis.document={createElement:canvas};
+ try{
+  const part={...pane,sourceFormat:'FLYT',kind:'prt1',name:'instance',picture:undefined,part:{layout:'Button',capability:'amiibo-portal-v1',magnify:[1,1],entries:[{name:'picture',usageFlags:0,basicUsageFlags:0,materialUsageFlags:0,property:pane}]}};
+  const parent={...layout,sourceFormat:'FLYT',roots:[part]},child={...layout,sourceFormat:'FLYT'};
+  const animation={frames:2,loop:false,groups:[],textures:[],tracks:[{target:'picture',binding:'material',property:'materialColor.1.0',index:0,component:4,interpolation:'step',keys:[{frame:0,value:255},{frame:1,value:0}]}]};
+  const packs={parent:{schema:1,layouts:{parent},animations:{shade:animation},textures:{},messages:{}},child:{schema:1,layouts:{child},animations:{},textures:{},messages:{}}};
+  const renderer=new NativeLayoutRenderer(packs,{parent:new Map([['dynamic',pixels([255,255,255])]]),child:new Map([['dynamic',pixels([255,255,255])]])},new Map()),target=canvas();
+  const draw=frame=>{assert.equal(renderer.draw(target.getContext('2d'),'parent','parent',{parts:{Button:{pack:'child',layout:'child'}},bindings:[{name:'shade',frame}]}),true);return [...target.image.data];};
+  assert.deepEqual(draw(0),[255,255,255,255]);assert.deepEqual(draw(1),[0,255,255,255]);assert.deepEqual(draw(0),[255,255,255,255]);renderer.dispose();
+ }finally{globalThis.document=prior;}
+});

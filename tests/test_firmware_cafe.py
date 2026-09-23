@@ -9,7 +9,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'scripts'))
 from firmware.cafe import decode_bflim, decode_flyt, decode_flan
 from firmware.build import unpack_archive, decompress
-from firmware.stock_ui import supported
+from firmware.stock_ui import supported, validate_part_links
 
 
 def section(tag, body):
@@ -87,6 +87,14 @@ class CafeTests(unittest.TestCase):
         self.assertEqual(parsed['roots'][0]['part']['layout'], 'PortalBtn')
         with self.assertRaisesRegex(ValueError, 'unsupported'): supported(parsed)
 
+    def test_selected_part_dependencies_must_resolve_before_publication(self):
+        leaf = {'sourceFormat': 'FLYT', 'roots': []}
+        parent = {'sourceFormat': 'FLYT', 'roots': [{'part': {'layout': 'Button'}, 'children': []}]}
+        validate_part_links([('Portal', parent), ('Button', leaf)])
+        for layouts in [[('Portal', parent)], [('Portal', parent), ('Button', leaf), ('Button', leaf)],
+                        [('Button', parent)]]:
+            with self.assertRaises(ValueError): validate_part_links(layouts)
+
     def test_multi_texture_material_is_not_silently_approximated(self):
         material = struct.pack('<28s4B4BI', b'header', 0, 0, 0, 0, 255, 255, 255, 255, 0x40)+b'\x01\x00\0\0'
         parsed = decode_flyt(layout([section('mat1', struct.pack('<II', 1, 16)+material)]))
@@ -126,7 +134,11 @@ class AmiiboResourceTests(unittest.TestCase):
         self.assertEqual([p['translation'][1] for p in parts], [87, 35, -17, -65, 0])
         calls = [e['property']['text']['callName'] for p in parts for e in p['part']['entries'] if 'text' in e.get('property', {})]
         self.assertEqual(calls, ['BtnSetNicknameOwner', 'BtnEraseGameData', 'BtnInitializeAmiibo', 'BtnUpdateFangate', 'Finish', 'Finish'])
-        with self.assertRaises(ValueError): supported(parsed)
+        supported(parsed)
+        self.assertEqual(parts[0]['part']['capability'], 'amiibo-portal-v1')
+        entry = parts[0]['part']['entries'][0]
+        self.assertEqual(entry['basicUsageFlags'], 0x10)
+        self.assertEqual(entry['basicInfo']['size'], [290.0, 54.0])
 
     def test_selected_buttons_and_source_animation_channels(self):
         members = self.members('Parts/Portal/PortalBtn.arc.cmp')

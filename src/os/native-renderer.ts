@@ -1,9 +1,14 @@
 import { BitmapFont } from './bitmap-font';
-import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, nativeAnimationDiagnostics, nativeMultiplyBlend, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
+import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instantiateNativePart, nativeAnimationDiagnostics, nativeMultiplyBlend, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
  type AnimationBinding, type NativeLayout, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
-export type NativeDrawOptions={bindings?:AnimationBinding[];overrides?:PaneOverrides;center?:[number,number];scale?:number;clip?:[number,number,number,number];textures?:Readonly<Record<string,NativePixels>>;
+export type NativeDrawOptions={
+ /** Explicit source layout links; each prt1 retains its own pane/material scope. */
+ parts?:Readonly<Record<string,{pack:string;layout:string}>>;
+ partBindings?:Readonly<Record<string,{bindings?:AnimationBinding[];overrides?:PaneOverrides}>>;
+ textByCallName?:Readonly<Record<string,string>>;
+ bindings?:AnimationBinding[];overrides?:PaneOverrides;center?:[number,number];scale?:number;clip?:[number,number,number,number];textures?:Readonly<Record<string,NativePixels>>;
  /** Native child-layout instances appended to a named pane's existing children.
   * Callbacks run in traversal order with parent transform/primary alpha active.
   */
@@ -147,23 +152,32 @@ export class NativeLayoutRenderer {
  }
 
  draw(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions={}):boolean {
+  return this.drawResolved(ctx,packName,layoutName,options);
+ }
+ private drawResolved(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions,instance?:{layout:NativeLayout;textures:ReadonlyMap<string,NativePixels>;key:string;depth:number}):boolean {
   if(this.disposed)return false;
-  const pack=this.packs[packName],original=pack?.layouts[layoutName];if(!original){this.report(`Missing layout ${packName}/${layoutName}`);return false;}
-  const poseKey=JSON.stringify([packName,layoutName,options.bindings,options.overrides]);
+  const pack=this.packs[packName],original=instance?.layout??pack?.layouts[layoutName];if(!original){this.report(`Missing layout ${packName}/${layoutName}`);return false;}
+  const poseKey=JSON.stringify([instance?.key,packName,layoutName,options.bindings,options.overrides,options.textByCallName]);
   let posed=this.poses.get(poseKey);
   if(posed){this.poses.delete(poseKey);this.poses.set(poseKey,posed);}
   else{for(const binding of options.bindings??[]){const animation=pack.animations[binding.name];if(animation)for(const message of nativeAnimationDiagnostics(original,animation))this.report(`${layoutName}: ${message}`);}
-   posed=poseNativeLayout(original,pack.animations,options.bindings,options.overrides);if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(poseKey,posed);}
+   posed=poseNativeLayout(original,pack.animations,options.bindings,options.overrides);
+   const textByCallName=options.textByCallName;
+   if(textByCallName){const bind=(panes:NativePane[])=>panes.forEach(p=>{if(p.text?.callName&&options.overrides?.[p.name]?.text===undefined&&Object.hasOwn(textByCallName,p.text.callName))p.text.value=textByCallName[p.text.callName];bind(p.children);});bind(posed.roots);}
+   if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(poseKey,posed);}
   const layout=posed;
   // Bind replacements for this draw only; shared source packs/textures stay intact.
-  const textures=options.textures?new Map([...this.textures[packName],...Object.entries(options.textures)]):this.textures[packName];
+  const sourceTextures=instance?.textures??this.textures[packName];
+  const textures=options.textures?new Map([...sourceTextures,...Object.entries(options.textures)]):sourceTextures;
   ctx.save();
   try{
+   if(layout.sourceFormat==='FLYT'&&layout.unsupported.length)throw new Error('Unsupported FLYT layout fields');
    for(const pixels of Object.values(options.textures??{}))if(!Number.isInteger(pixels.width)||!Number.isInteger(pixels.height)||pixels.width<1||pixels.height<1||pixels.width*pixels.height>1024*1024||pixels.data.length!==pixels.width*pixels.height*4)throw new Error('Invalid dynamic native texture');
    const allowOpaqueDarken=options.allowOpaqueDarken===true&&(!options.clip||wholeDevicePixelRect(options.clip,ctx.getTransform()));
    if(options.clip){ctx.beginPath();ctx.rect(...options.clip);ctx.clip();}
    const center=options.center??[layout.canvas.width/2,layout.canvas.height/2];ctx.translate(...center);ctx.scale(options.scale??1,options.scale??1);
    const visit=(pane:NativePane,parentAlpha:number)=>{
+    if(pane.sourceFormat==='FLYT'&&pane.unsupported?.length)throw new Error(`Unsupported FLYT pane fields ${pane.name}`);
     if(!(pane.flags&1))return;
     const alpha=parentAlpha*pane.alpha/255;ctx.save();
     try{
@@ -182,6 +196,23 @@ export class NativeLayoutRenderer {
         this.composite(ctx,this.picture(packName,layout,patch.picture,visible.rasterWidth,visible.rasterHeight,alpha,textures,patch.material,visible.sampling),visible.x,visible.y,visible.width,visible.height,layout,patch.picture.material,patch.material,allowOpaqueDarken);
        }
       }finally{ctx.restore();}
+     }
+     if(pane.part){
+      const depth=(instance?.depth??0)+1;if(depth>8)throw new Error('Native part dependency cycle/depth limit');
+      const link=options.parts?.[pane.part.layout];
+      const template=link&&this.packs[link.pack]?.layouts[link.layout];
+      if(!link||!template)throw new Error(`Missing native part layout ${pane.part.layout}`);
+      const prepared=instantiateNativePart(layout,pane.part,template),images=new Map(this.textures[link.pack]);
+      for(const [alias,name] of Object.entries(prepared.parentTextures)){
+       const image=textures.get(name);if(!image)throw new Error(`Missing native part texture ${name}`);images.set(alias,image);
+      }
+      const partOptions=options.partBindings?.[pane.name],previous=this.parentAlpha.get(ctx);
+      this.parentAlpha.set(ctx,pane.flags&2?alpha:parentAlpha);
+      try{
+       const key=JSON.stringify([poseKey,pane.name,pane.part]);
+       if(!this.drawResolved(ctx,link.pack,link.layout,{parts:options.parts,partBindings:options.partBindings,textByCallName:options.textByCallName,
+        bindings:partOptions?.bindings,overrides:partOptions?.overrides,center:[0,0]}, {layout:prepared.layout,textures:images,key,depth}))throw new Error(`Failed native part ${pane.name}`);
+      }finally{if(previous===undefined)this.parentAlpha.delete(ctx);else this.parentAlpha.set(ctx,previous);}
      }
      // InfluenceAlpha transmits this pane's alpha; an unflagged pane keeps the inherited chain.
      const childAlpha=pane.flags&2?alpha:parentAlpha;

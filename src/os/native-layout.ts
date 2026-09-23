@@ -1,15 +1,16 @@
 /** Decoded NintendoWare CLYT/CLAN data. Format types contain no renderer state. */
 export type NativePicture={material:number;colors:number[][];uvSets:number[][]};
 export type NativeMessageStyle={fontScale:number[];lineSpacing:number;characterSpacing:number;unresolvedWords?:Record<string,number>};
-export type NativeText={font:number;material:number;value:string;size:number[];alignment:number;lineAlignment:number;characterSpacing:number;lineSpacing:number;topColor:number[];bottomColor:number[];messageStyle?:NativeMessageStyle};
-export type NativePane={kind:string;name:string;flags:number;origin:number;alpha:number;translation:number[];rotation:number[];scale:number[];size:number[];children:NativePane[];picture?:NativePicture;text?:NativeText;window?:{content:NativePicture;frames:{material:number;flip:number}[];inflation?:number[];frameSize?:number[];flags:number}};
-export type NativeMaterial={name:string;bufferColor:number[];constantColors:number[][];textureOnly:boolean;textureMaps:{texture:number;wrapS:number;wrapT:number;minFilter:number;magFilter:number}[];textureMatrices:{translation:number[];rotation:number;scale:number[]}[];coordinateGenerators:{type:number;source:number}[];tevStages:{constantSelectors:number;color:NativeCombiner;alpha:NativeCombiner}[];alphaCompare?:{function:number;reference:number};colorBlend?:{operation:number;sourceFactor:number;destinationFactor:number};unsupported:unknown[]};
+export type NativeText={callName?:string;font:number;material:number;value:string;size:number[];alignment:number;lineAlignment:number;characterSpacing:number;lineSpacing:number;topColor:number[];bottomColor:number[];messageStyle?:NativeMessageStyle};
+export type NativePane={unsupported?:unknown[];sourceFormat?:string;part?:NativePart;kind:string;name:string;flags:number;origin:number;alpha:number;translation:number[];rotation:number[];scale:number[];size:number[];children:NativePane[];picture?:NativePicture;text?:NativeText;window?:{content:NativePicture;frames:{material:number;flip:number}[];inflation?:number[];frameSize?:number[];flags:number}};
+export type NativeMaterial={sourceFormat?:string;name:string;bufferColor:number[];constantColors:number[][];textureOnly:boolean;textureMaps:{texture:number;wrapS:number;wrapT:number;minFilter:number;magFilter:number}[];textureMatrices:{translation:number[];rotation:number;scale:number[]}[];coordinateGenerators:{type:number;source:number;sourceExtra?:string}[];tevStages:{constantSelectors:number;color:NativeCombiner;alpha:NativeCombiner}[];alphaCompare?:{function:number;reference:number};colorBlend?:{operation:number;sourceFactor:number;destinationFactor:number};unsupported:unknown[]};
+export type NativePart={layout:string;magnify:number[];capability?:string;entries:{name:string;usageFlags:number;basicUsageFlags:number;materialUsageFlags:number;property?:NativePane;userDataBytes?:string;basicInfo?:{translation:number[];rotation:number[];scale:number[];size:number[];alpha:number;userData:string;padding:string}}[]};
 export type NativeCombiner={sources:number[];operands:number[];mode:number;scale:number;savePrevious:boolean};
 export type NativeTrack={target:string;contentIndex?:number;binding:string;property:string;index:number;component:number;interpolation:string;keys:{frame:number;value:number;slope?:number}[]};
 export type NativeAnimationShare={sourcePane:string;targetGroup:string};
 export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:NativeTrack[];contents?:{target:string;binding:string}[];childBinding?:boolean;textures:string[];shares?:NativeAnimationShare[]};
 export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
-export type NativeLayout={canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
+export type NativeLayout={sourceFormat?:string;canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
 export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number;picaFormat?:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
 export type PaneOverrides=Record<string,{text?:string;lineSpacing?:number;vertexColors?:number[][];messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number;textureBindings?:Record<number,string>}>;
 export type AnimationBinding={name:string;frame:number;groups?:string[];childBinding?:boolean};
@@ -36,6 +37,52 @@ export function nativePaneParentPath(layout: NativeLayout, name: string): readon
   for(const pane of panes){const path=[...parents,pane];if(pane.name===name)return path;const child=find(pane.children,path);if(child)return child;}return null;
  };
  return find(layout.roots,[]);
+}
+
+/** Instantiate the observed CTR portal part overrides in a separate child layout.
+ * LayoutExporterU corroborates the 52-byte basic record; the source portal uses
+ * only size(0x10), translation+size(0x18), translation+scale(0x28), and text(1).
+ * Keep child pane/material names scoped to this instance so source clips bind
+ * independently. No source pane is flattened into its parent's name table.
+ */
+export function instantiateNativePart(parent:NativeLayout,part:NativePart,template:NativeLayout){
+ if(parent.sourceFormat!=='FLYT'||template.sourceFormat!=='FLYT'||part.capability!=='amiibo-portal-v1'||part.magnify.length!==2||part.magnify.some(v=>v!==1))throw new Error('Unsupported native part composition');
+ const layout=structuredClone(template),panes=new Map<string,NativePane>(),parentTextures:Record<string,string>={};
+ const visit=(items:NativePane[])=>items.forEach(p=>{if(panes.has(p.name))throw new Error(`Ambiguous part pane ${p.name}`);panes.set(p.name,p);visit(p.children);});visit(layout.roots);
+ const material=(sourceIndex:number,destinationIndex:number)=>{
+  const source=parent.materials[sourceIndex],destination=layout.materials[destinationIndex];
+  if(!source||!destination||source.name!==destination.name)throw new Error('Missing or mismatched part material');
+  const value=structuredClone(source);
+  value.textureMaps=value.textureMaps.map(map=>{
+   const name=parent.textures[map.texture];if(!name)throw new Error('Missing part texture reference');
+   const alias=`__parent_texture_${map.texture}`;parentTextures[alias]=name;
+   let index=layout.textures.indexOf(alias);if(index<0){index=layout.textures.length;layout.textures.push(alias);}
+   return {...map,texture:index};
+  });
+  layout.materials[destinationIndex]=value;return destinationIndex;
+ };
+ const used=new Set<string>();
+ for(const entry of part.entries){
+  const pane=panes.get(entry.name);if(!pane||used.has(entry.name))throw new Error(`Missing or duplicate part target ${entry.name}`);used.add(entry.name);
+  if(![0,1].includes(entry.usageFlags)||entry.materialUsageFlags!==0||entry.userDataBytes||![0,0x10,0x18,0x28].includes(entry.basicUsageFlags))throw new Error('Unsupported part override flags');
+  if(entry.basicUsageFlags){
+   const basic=entry.basicInfo;if(!basic||basic.padding!=='000000')throw new Error('Missing part basic information');
+   if(entry.basicUsageFlags&8)pane.translation=[...basic.translation];
+   if(entry.basicUsageFlags&16)pane.size=[...basic.size];
+   if(entry.basicUsageFlags&32)pane.scale=[...basic.scale];
+  }else if(entry.basicInfo)throw new Error('Unbound part basic information');
+  const property=entry.property;if(!property){if(entry.usageFlags)throw new Error('Missing part text property');continue;}
+  if(property.kind!==pane.kind)throw new Error('Mismatched part property kind');
+  if(property.picture&&pane.picture){
+   pane.picture={...structuredClone(property.picture),material:material(property.picture.material,pane.picture.material)};
+  }else if(property.text&&pane.text){
+   const source=property.text,original=pane.text;
+   let font=original.font;
+   if(source.font!==0xffff){const name=parent.fonts[source.font];if(!name)throw new Error('Missing part font reference');font=layout.fonts.indexOf(name);if(font<0){font=layout.fonts.length;layout.fonts.push(name);}}
+   pane.text={...structuredClone(source),font,material:material(source.material,original.material),value:entry.usageFlags&1?source.value:original.value};
+  }else throw new Error('Unsupported part property body');
+ }
+ return {layout,parentTextures};
 }
 
 /** Original HOME209cd0 / keyboard141f2c sampler: float32 VFP order and
@@ -179,6 +226,7 @@ const clamp=(n:number)=>Math.max(0,Math.min(1,n));
 const white=[1,1,1,1];
 /** Evaluate NintendoWare TEV in normalized channel space, before framebuffer blending. */
 export function evaluateNativeMaterial(material:NativeMaterial, textures:number[][], primary:number[]=white):number[] {
+ if(material.sourceFormat==='FLYT'&&material.unsupported.length)throw new Error('Unsupported FLYT material fields');
  const constants=material.constantColors.map(c=>c.map(v=>v/255)),baseBuffer=material.bufferColor.map(v=>v/255);let buffer=[...baseBuffer],previous=[...primary];
  if(!material.tevStages.length){
   // NintendoWare's implicit material interpolates black/white registers using the texture.
@@ -323,6 +371,7 @@ function prepareRasterStages(material:NativeMaterial,base:number[],constants:num
  */
 export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,width:number,height:number,textures:ReadonlyMap<string,NativePixels>,alpha=1,material=layout.materials[picture.material],sampling?:NativeRasterRegion):NativePixels {
  if(!material)throw new Error(`Missing material ${picture.material}`);
+ if(material.sourceFormat==='FLYT'&&material.unsupported.length)throw new Error('Unsupported FLYT material fields');
  const sources=material.textureMaps.map(map=>{const name=layout.textures[map.texture],pixels=textures.get(name);if(!pixels)throw new Error(`Missing native texture ${name}`);return pixels;});
  const data=new Uint8ClampedArray(width*height*4),colors=picture.colors.flat();
  // Empty rasters never evaluate generators or materials in the scalar path.
@@ -406,7 +455,8 @@ export type NativeWindowPatch={x:number;y:number;width:number;height:number;pict
 /** Native around-windows: one mirrored texture or four independently sampled frames. */
 export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures:ReadonlyMap<string,NativePixels>):NativeWindowPatch[] {
  const win=pane.window;if(!win)return [];
- if(win.inflation?.some(v=>v!==0)||win.frameSize?.some(v=>v!==0))throw new Error(`Unsupported window inflation/frame size ${pane.name}`);
+ if(win.inflation?.some(v=>v!==0)||layout.sourceFormat!=='FLYT'&&win.frameSize?.some(v=>v!==0))throw new Error(`Unsupported window inflation/frame size ${pane.name}`);
+ const validateFlytFrameSize=(expected:number[])=>{if(layout.sourceFormat==='FLYT'&&win.frameSize?.some((v,i)=>v!==expected[i]))throw new Error(`Unsupported FLYT custom frame size ${pane.name}`);};
  if((win.flags&12)!==0||![1,4].includes(win.frames.length))throw new Error(`Unsupported window frame arrangement ${pane.name}`);
  if(win.frames.length===4){
   // Native 0x2e3164 returns left/right/top/bottom from frame textures
@@ -419,6 +469,7 @@ export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures
   });
   const f=Math.fround,ratio=(value:number,length:number)=>f(value/length),back=(value:number,length:number)=>f(1-ratio(value,length));
   const [w,h]=pane.size,left=frames[2].image.width,right=frames[1].image.width,top=frames[0].image.height,bottom=frames[3].image.height;
+  validateFlytFrameSize([left,right,top,bottom]);
   const result:NativeWindowPatch[]=[];
   if(!(win.flags&16))result.push({x:left,y:top,width:w-left-right,height:h-top-bottom,picture:win.content});
   let current=layout.materials[win.content.material];
@@ -440,6 +491,7 @@ export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures
  if(frame.flip!==0)throw new Error(`Unsupported window frame flip ${frame.flip}`);
  const map=material?.textureMaps[0],image=map&&textures.get(layout.textures[map.texture]);
  const [w,h]=pane.size;if(!image)return [{x:0,y:0,width:w,height:h,picture:win.content}];
+ validateFlytFrameSize([image.width,image.width,image.height,image.height]);
  const tw=Math.min(image.width,w/2),th=Math.min(image.height,h/2),uw=(w-tw)/image.width,vh=(h-th)/image.height;
  const picture=(uv:number[]):NativePicture=>({material:frame.material,colors:win.flags&2?win.content.colors:nativeWhite,uvSets:material.textureMaps.map(()=>uv)});
  const result:NativeWindowPatch[]=[];

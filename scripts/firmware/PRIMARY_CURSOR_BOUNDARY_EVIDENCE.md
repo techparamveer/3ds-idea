@@ -123,8 +123,10 @@ coordinates. `0x1d7b50` performs the original interpolation and rounding.
 The five-update root density0 sequence produces scroll `[17,34,51,68,84]`;
 the10-update version produces `[9,17,26,34,42,51,59,68,76,84]`. Root density2
 produces `[11,22,33,44,54]`; the tested child left transition gives
-`[44,33,22,11,0]`. These are actual numeric results, not unrounded browser
-interpolation. They do not imply a wall-clock rate.
+`[44,33,22,11,0]`. These are actual numeric results. The existing integration `sampleHomeGrid`
+already applies the matching positive-ceiling/nonpositive-floor scroll rule;
+see [the narrow arithmetic check](SCROLL_SCALAR_ROUNDING_EVIDENCE.md).
+These counts do not imply a wall-clock rate.
 
 On ordinary idle completion, `0x1d914c` uses current selected coordinates:
 X=`S+0x1868[slot]−S+0x3a28`, Y=`S+0x1e08[slot]`, Z0, then the real pane

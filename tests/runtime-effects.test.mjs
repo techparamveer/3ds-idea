@@ -46,3 +46,19 @@ test('external links require a gesture and a safe protocol',()=>{
  link('https://example.com',1);f.adapter.drain(false);link('javascript:alert(1)',2);f.adapter.drain(true);link('https://example.com',3);f.adapter.drain(true);
  assert.deepEqual(f.links,['https://example.com']);f.adapter.dispose();
 });
+
+test('effect acknowledgements read the state after the host mutation boundary',()=>{
+ let calls=0;
+ const f=fixture({beforeMutation(now){assert.equal(now,4000);calls++;f.state={...f.state,system:{...f.state.system,homeClock:{...f.state.system.homeClock,updateCount:17}}};}});
+ f.state={...f.state,system:{...f.state.system,runtime:{...f.state.system.runtime,effects:[{id:1,owner:'test',effect:{type:'sound',name:'select'}}]}}};
+ f.adapter.drain(false);
+ assert.equal(calls,1);assert.equal(f.state.system.homeClock.updateCount,17);
+ assert.equal(f.state.system.runtime.effects.length,0);assert.deepEqual(f.sounds,['select']);f.adapter.dispose();
+});
+test('asynchronous capability results preserve state flushed at their arrival boundary',async()=>{
+ const gate=deferred();let calls=0,changedLabel;
+ const f=fixture({beforeMutation(){calls++;f.state={...f.state,nameDraft:`boundary:${calls}`};},onChange(){changedLabel=f.state.nameDraft;},environment:{getUserMedia:()=>gate.promise,createVideo:()=>({play:async()=>{},pause(){},srcObject:null})}});
+ f.launch('camera');f.action('preview');f.adapter.drain(true);const before=calls;
+ gate.resolve({getTracks:()=>[{stop(){}}]});await new Promise(resolve=>setImmediate(resolve));
+ assert.ok(calls>before);assert.equal(changedLabel,`boundary:${calls}`);assert.equal(f.state.nameDraft,changedLabel);f.adapter.dispose();
+});

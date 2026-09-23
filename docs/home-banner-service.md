@@ -126,5 +126,7 @@ worker or native software transition completed. The host must also drive their
 visibility and motion. No guessed app fade or readiness delay is substituted.
 
 Asynchronous browser loading/cancellation and GPU resource disposal remain host
-work. Stale tickets prevent activation but do not cancel external I/O. This
-module is not wired to system/scene and has not received browser verification.
+work. Stale tickets prevent activation but do not cancel external I/O. The
+scene now wires the ordinary-folder subset through the shared counter;
+see [integration and browser evidence](home-banner-integration.md). Full
+non-folder loading and transition equivalence remain open.

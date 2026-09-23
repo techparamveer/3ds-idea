@@ -58,7 +58,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  const binding=(name:string,frame:number,groups?:string[]):AnimationBinding=>({name,frame,...(groups?{groups}:{})});
  const pressTrack=renderer.packs.launcher.animations.LncCsr_00_Select.tracks.find(track=>track.target==='N_Scene_00'&&track.property==='translation.y');
  const pressOffset=pressTrack?-sampleNativeTrack(pressTrack,5):0;
- let bannerLabel:{name:string;pixels:NativePixels}|undefined;
+ const bannerLabels=new Map<string,NativePixels>();
  const folderGlyphs=new Map<string,NativePixels>(),glyphTexture='runtime:folder-first-character';
  function folderGlyph(name:string):NativePixels|undefined{
   // Native 0x2027d0 reads one UTF-16 code unit, including a lone surrogate.
@@ -73,14 +73,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }finally{canvas.width=canvas.height=0;}
  }
  function folderBannerLabel(name:string):NativePixels|undefined{
-  if(bannerLabel?.name===name)return bannerLabel.pixels;
+  const cached=bannerLabels.get(name);if(cached){bannerLabels.delete(name);bannerLabels.set(name,cached);return cached;}
   const canvas=document.createElement('canvas');canvas.width=256;canvas.height=64;
   try{
    const ctx=canvas.getContext('2d',{willReadFrequently:true})!;
    const text=name||message('menu_msbt_LZ','lau_2b_folder_noname','(No name)').text!;
    const layout=renderer.packs.banner?.layouts.BnrDsTitle_00;if(!layout)return;
    if(!renderer.draw(ctx,'banner','BnrDsTitle_00',{overrides:nativeBannerLabelOverride(layout,assets.sharedFont.manifest,text)}))return;
-   const pixels={width:256,height:64,data:ctx.getImageData(0,0,256,64).data};bannerLabel={name,pixels};return pixels;
+   const pixels={width:256,height:64,data:ctx.getImageData(0,0,256,64).data};if(bannerLabels.size>=2)bannerLabels.delete(bannerLabels.keys().next().value!);bannerLabels.set(name,pixels);return pixels;
   }finally{canvas.width=canvas.height=0;}
  }
  function upperBase(ctx:Context){

@@ -10,6 +10,8 @@ export function createRuntimeEffects(options: {
   getState: () => MenuState;
   setState: (state: MenuState) => void;
   now: () => number;
+  /** Flush the host clock before reading the state an effect will mutate. */
+  beforeMutation?: (now: number) => void;
   storage?: FirmwareStorage;
   environment?: CapabilityEnvironment;
   onChange: () => void;
@@ -25,7 +27,8 @@ export function createRuntimeEffects(options: {
     isCurrent: item => !disposed && isRuntimeEffectCurrent(options.getState().system!.runtime, item),
     onResult(owner, event) {
       if (disposed) return;
-      const current = options.getState(), next = resolveSystemCapability(current, owner, event, options.now());
+      const now = options.now(); options.beforeMutation?.(now);
+      const current = options.getState(), next = resolveSystemCapability(current, owner, event, now);
       if (next === current) return;
       options.setState(next); drain(false); options.onChange();
     },
@@ -48,6 +51,7 @@ export function createRuntimeEffects(options: {
     try {
       // A synchronous capability result can append another effect during execute.
       while (options.getState().system!.runtime.effects.length) {
+        options.beforeMutation?.(options.now());
         const effects = options.getState().system!.runtime.effects;
         options.setState(acknowledgeSystemEffects(options.getState(), effects.map(item => item.id)));
         for (const item of effects) {

@@ -1,9 +1,10 @@
 import { apps, getApp } from '@/os/apps';
 import { currentEntry, launch, selectedTitle } from '@/os/system';
 import { createMenuAudio, type Sound } from '@/os/audio';
-import { createPortfolioState, reduceSystem, tickSystem, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
+import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClock, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
 import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
 import { createRuntimeEffects } from '@/os/runtime-effects';
+import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostSelection } from '@/os/home-banner-host';
 import type { AppCommand, AppEvent } from '@/os/app-types';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -21,6 +22,7 @@ import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, pa
 import { browserRenderQuality } from './render-quality';
 
 const RAD = Math.PI / 180;
+let nextBannerSession=0;
 export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MODEL_URL):Promise<()=>void> {
   const quality=browserRenderQuality(host);const diagnostics=process.env.NODE_ENV==='development';host.dataset.quality=quality.tier;
   const renderer=new THREE.WebGLRenderer({antialias:quality.antialias,alpha:true,powerPreference:'high-performance'});
@@ -49,7 +51,17 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   try{storage=await openFirmwareStorage({legacyPreferences});const saved=await storage.load();state=restoreRuntimeData(restoreSettings(state,saved.preferences),saved.shared,saved.saves);if(saved.issues.length)runtimeNotice='Some saved data could not be read.';}
   catch(error){state=restoreSettings(state,legacyPreferences);runtimeNotice='Local saving is unavailable.';host.dataset.storageFailure=String(error);}
   const firmwareAssets=await nativeAssets;
-  const screens=createScreens({reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,drawFolderBanner:folderBanner.draw,drawHomeBackground:folderBanner.drawBackground,runtimeNotice:()=>runtimeNotice});
+  // Restore is complete before the host is created. A later System restore must
+  // allocate a new session as well; individual folder scopes are owned by the host.
+  const bannerGeneration=`console-session:${++nextBannerSession}`;
+  const bannerClock=()=>({generation:bannerGeneration,updateCount:state.system!.homeClock.updateCount});
+  let bannerHost=createHomeBannerHost(bannerClock(),{managerInhibited:true,sceneInhibited:true,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});
+  let bannerLabelFailure=false;
+  const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
+  const screens=createScreens({reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
+    getFolderBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&(!nativeFolderAvailable()||bannerLabelFailure)?undefined:view;},
+    drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame},label),
+    drawHomeBackground:folderBanner.drawBackground,runtimeNotice:()=>runtimeNotice});
   await Promise.all([screens.ready,folderBanner.ready]);
   if(diagnostics)host.dataset.banner=JSON.stringify(folderBanner.status());
   host.dataset.firmware=firmwareAssets?'native-home':'fallback';
@@ -58,7 +70,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const announcement=document.createElement('p');announcement.setAttribute('aria-live','polite');accessible.appendChild(announcement);
   const addControl=(title:string,action:()=>void)=>{const button=document.createElement('button');button.textContent=title;button.addEventListener('click',action);button.addEventListener('keydown',event=>event.stopPropagation());accessible.appendChild(button);return button;};
   for(const [title,input]of [['Up','up'],['Down','down'],['Left','left'],['Right','right'],['A: Open or visit','open'],['B: Back','back'],['HOME: Suspend or resume','home'],['Power','power'],['Sound and layout','preferences']] as [string,Input][])addControl(title,()=>send(input));
-  for(const app of apps)addControl(`Open ${app.title}`,()=>{if(state.system?.phase==='home')commit(launch(state,app.id,performance.now()-start),'open',true);});
+  for(const app of apps)addControl(`Open ${app.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>launch(current,app.id,now),'open',true);});
   let announced='';
   const topTexture=new THREE.CanvasTexture(screens.top),bottomTexture=new THREE.CanvasTexture(screens.bottom);
   for(const tx of [topTexture,bottomTexture]){tx.colorSpace=THREE.SRGBColorSpace;tx.minFilter=THREE.LinearFilter;tx.magFilter=THREE.NearestFilter;tx.generateMipmaps=false;tx.anisotropy=renderer.capabilities.getMaxAnisotropy();}
@@ -116,6 +128,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');let reduced=motionPreference.matches;
   let frame=0,disposed=false,last=performance.now(),lastRender=0,lastScreenPaint=0,intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1;
   let start=last;
+  let homeClockSuspended=document.hidden;
   const touches=new Map<number,{x:number;y:number}>();let pinchDistance=0,pinchZoom=1,viewZoom=1;
   let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;command?:AppCommand;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;screen?:boolean;touch?:{x:number;y:number}}|null=null;
   type PressedCap={parts:{object:THREE.Object3D;y:number}[];motion:ButtonMotion};
@@ -173,20 +186,42 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   }
   let lastInput='none';
   const writeState=()=>{
-    const s=state.system!;const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
+    const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderBannerFallback=String(!nativeFolderAvailable());}const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
     host.dataset.audio=JSON.stringify(audio.status());host.dataset.preferences=String(state.system?.preferences??false);host.dataset.photo=String(state.system?.photo??0);host.dataset.page=String(state.system?.page??0);host.dataset.muted=String(state.system?.muted??false);host.dataset.ready='true';host.dataset.menu=state.panel??(state.system?.phase==='home'?(state.opened?'folder':'home'):state.system?.phase??'home');host.dataset.app=state.system?.app??'';host.dataset.item=String(state.system?.item??0);host.dataset.detail=String(state.system?.detail??false);host.dataset.sleeping=String(state.system?.sleeping??false);host.dataset.dialog=state.system?.dialog??'';host.dataset.rows=String(rowCount(state));host.dataset.theme=state.theme;host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
   function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,elapsedMs:performance.now()-start});}
-  function paint(){updateAudio();model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;writeState();}
+  function paint(){updateAudio();model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;lastScreenPaint=performance.now();writeState();}
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close']);
-  const effects=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;},now:()=>performance.now()-start,storage,
+  function observeFolderBanner(){
+    const system=state.system!,inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog||system.preferences||!!state.panel||homeClockSuspended;
+    const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:true,resourceReady:bannerHost.inputs.resourceReady};
+    bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{selection:resolveHomeBannerHostSelection(state),inputs});
+    let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
+    if(view.status!=='unsupported'){
+      const status=folderBanner.status(),label=screens.prepareFolderBannerLabel(bannerHost.pending!.selection.label);
+      bannerLabelFailure=!label;
+      const resourceReady=status.ready&&!status.failure&&label?view.resourceTicket:null;
+      bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{inputs:{...inputs,resourceReady}});
+      view=getHomeBannerHostView(bannerHost);
+      if(view.status==='active'&&view.stage==='active'&&view.selection.key===view.folder.selection.key&&view.selection.nativeType===view.folder.selection.nativeType&&view.selection.label!==view.folder.selection.label&&screens.prepareFolderBannerLabel(view.selection.label)){
+        bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{refreshActiveLabel:{generation:view.folder.generation,activationEpoch:view.folder.activationEpoch,key:view.selection.key,label:view.selection.label}});
+      }
+    }
+  }
+  function advanceBeforeMutation(now:number){
+    if(homeClockSuspended){const system=state.system!;if(system.homeClock.lastNow!==null||system.homeClock.remainderMs!==0)state={...state,system:{...system,homeClock:{...system.homeClock,lastNow:null,remainderMs:0}}};}
+    else state=tickHomeNavigationClock(state,now,reduced);
+    bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock());
+  }
+  const effects=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;observeFolderBanner();},now:()=>performance.now()-start,beforeMutation:advanceBeforeMutation,storage,
     onChange:()=>{if(!disposed)paint();},
     onFailure:error=>{runtimeNotice='Your changes could not be saved locally.';host.dataset.storageFailure=String(error);if(!disposed)paint();},
     onSound:name=>{if(soundNames.has(name))audio.play(name as Sound,state.system!.muted,state.system!.volume);},
     onLink:url=>{window.open(url,'_blank','noopener,noreferrer');},
   });
-  function commit(next:MenuState,input:string,userGesture=false){
-    const previous=state;state=next;lastInput=input;
+  function reducedBannerKey(){const view=getHomeBannerHostView(bannerHost);return view.status==='active'?JSON.stringify([view.status,view.folder.generation,view.folder.activationEpoch,view.folder.selection.label,view.folder.motion.visible]):view.status;}
+  function commit(reduce:(current:MenuState,now:number)=>MenuState,input:string,userGesture=false,now=performance.now()-start){
+    const previous=state,previousBanner=reduced?reducedBannerKey():undefined;advanceBeforeMutation(now);state=reduce(state,now);observeFolderBanner();if(state===previous)return;lastInput=input;
     updateAudio();
     const before=previous.system!,after=state.system!;
     let sound:Sound|undefined;
@@ -195,11 +230,14 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     else if(previous.selected!==state.selected||before.item!==after.item||before.page!==after.page)sound='select';
     else if(previous.panel!==state.panel||before.detail!==after.detail||before.dialog!==after.dialog||before.preferences!==after.preferences)sound=input==='back'?'back':'open';
     if(sound&&!after.runtime.effects.some(item=>item.effect.type==='sound'))audio.play(sound,after.muted,after.volume);
-    effects.drain(userGesture);paint();
+    effects.drain(userGesture);
+    // Logical clock updates do not bypass the quality policy's LCD upload cadence.
+    const reducedChanged=reduced&&(previousBanner!==reducedBannerKey()||before.homeNavigation!==after.homeNavigation);
+    if(input!=='tick'||reducedChanged||before.phase!==after.phase||previous.powered!==state.powered||previous.panel!==state.panel)paint();else writeState();
   }
-  function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit(dispatchSystemEvent(state,event,performance.now()-start),label,userGesture);}
+  function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit((current,now)=>dispatchSystemEvent(current,event,now),label,userGesture);}
   function button(command:AppCommand,phase:'down'|'up',source:string,userGesture=false){dispatch({type:'button',command,phase,source},userGesture);}
-  function send(input:Input){void audio.unlock();if(['left','right','up','down','open','back','home','power','x','y','start','select','l','r'].includes(input)){button(input as AppCommand,'down',`accessible:${input}`,true);button(input as AppCommand,'up',`accessible:${input}`,true);}else commit(reduceSystem(state,input,performance.now()-start),input,true);}
+  function send(input:Input){void audio.unlock();if(['left','right','up','down','open','back','home','power','x','y','start','select','l','r'].includes(input)){button(input as AppCommand,'down',`accessible:${input}`,true);button(input as AppCommand,'up',`accessible:${input}`,true);}else commit((current,now)=>reduceSystem(current,input,now),input,true);}
   function press(name:string,source?:string){
     if(name==='DPAD'||name==='CIRCLE')return;
     const cap=caps.get(name);if(!cap)return;
@@ -239,7 +277,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     const interrupted=intro;interruptIntro();
     targetAngle=open?MAX_LID_DEGREES:(interrupted?angle:targetAngle)>70?0:MAX_LID_DEGREES;
     if(targetAngle===0){pointerCancel();releaseAll();}
-    commit(setSystemSleeping(state,targetAngle===0,performance.now()-start),'hinge');
+    commit((current,now)=>setSystemSleeping(current,targetAngle===0,now),'hinge');
   }
   const controlCommands:Record<string,AppCommand>={A:'open',B:'back',X:'x',Y:'y',HOME:'home',START:'start',SELECT:'select',POWER:'power',L:'l',R:'r'};
   function touchPosition(e:PointerEvent){
@@ -292,10 +330,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function keydown(e:KeyboardEvent){
     if(state.panel==='rename'){
       if(e.metaKey||e.ctrlKey||e.altKey)return;e.preventDefault();
-      if(e.key==='Enter')commit(renameFolder(state,state.nameDraft),'rename',true);
+      if(e.key==='Enter')commit(current=>renameFolder(current,current.nameDraft),'rename',true);
       else if(e.key==='Escape')send('back');
-      else if(e.key==='Backspace')commit({...state,nameDraft:state.nameDraft.slice(0,-1)},'text',true);
-      else if(e.key.length===1)commit({...state,nameDraft:(state.nameDraft+e.key).slice(0,16)},'text',true);
+      else if(e.key==='Backspace')commit(current=>({...current,nameDraft:current.nameDraft.slice(0,-1)}),'text',true);
+      else if(e.key.length===1)commit(current=>({...current,nameDraft:(current.nameDraft+e.key).slice(0,16)}),'text',true);
       return;
     }
     if(e.metaKey||e.ctrlKey||e.altKey)return;
@@ -307,9 +345,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(['mute','volume-up','volume-down'].includes(action))send(action);else{heldKeys.set(e.code,action as AppCommand);button(action as AppCommand,'down',`key:${e.code}`,true);}
   }
   function keyup(e:KeyboardEvent){release(`key:${e.code}`);const command=heldKeys.get(e.code);heldKeys.delete(e.code);if(command)button(command,'up',`key:${e.code}`,true);}
-  function blur(){touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit(releaseSystemInputs(state,performance.now()-start),'blur');}
-  function visibilityChanged(){if(document.hidden)blur();}
-  function motionChanged(e:MediaQueryListEvent){reduced=e.matches;screens.setReducedMotion(reduced);if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}}
+  function blur(){touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit((current,now)=>releaseSystemInputs(current,now),'blur');}
+  function visibilityChanged(){if(document.hidden){blur();homeClockSuspended=true;observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
+  function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}paint();}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();viewZoom=THREE.MathUtils.clamp(viewZoom-e.deltaY*.001,1,3);}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=2*Math.atan(Math.tan(33*RAD/2)*Math.max(1,1.04/(w/h)))/RAD;camera.updateProjectionMatrix();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
@@ -341,10 +379,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       }
     }
     if(diagnostics)host.dataset.buttonDepths=JSON.stringify(Object.fromEntries([...pressed].map(([cap,feedback])=>[cap.name,Number(feedback.motion.depth.toFixed(3))])));
-    const advanced=tickSystem(state,now-start,reduced);if(advanced!==state)commit(advanced,'tick');updateAudio();
+    if(!homeClockSuspended)commit((current,time)=>tickSystem(current,time,reduced),'tick',false,now-start);updateAudio();
     const minute=Math.floor(Date.now()/60000);if(minute!==lastMinute){lastMinute=minute;paint();}
     // Native UI motion must be uploaded continuously, independent of input.
-    if(state.powered&&angle>12&&!document.hidden&&!reduced&&now-lastScreenPaint>=1000/quality.screenFps){lastScreenPaint=now;screens.paint(state,new Date(),now-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
+    if(state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&now-lastScreenPaint>=1000/quality.screenFps){lastScreenPaint=now;screens.paint(state,new Date(),now-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     camera.zoom=reduced?viewZoom:THREE.MathUtils.damp(camera.zoom,viewZoom,10,dt);
     const renderDue=quality.renderFps>=60||now-lastRender>=1000/quality.renderFps;
@@ -393,7 +431,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(!Number.isFinite(date.getTime()))throw new Error('Invalid diagnostic capture date');
     // Sample presentation only. Inputs, software state, effects and the shared
     // runtime clock continue normally; the next paint restores current time.
-    try{screens.paint(state,date,elapsedMs);return {elapsedMs,date:date.toISOString(),top:screens.top.toDataURL(),bottom:screens.bottom.toDataURL()};}
+    try{screens.paint(state,date,elapsedMs);return {elapsedMs,date:date.toISOString(),homeUpdates:state.system!.homeClock.updateCount,folderBanner:getHomeBannerHostView(bannerHost),top:screens.top.toDataURL(),bottom:screens.bottom.toDataURL()};}
     finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   }});}
   return ()=>{if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureScreensAt');}state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};

@@ -8,6 +8,8 @@ import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
 import { getHomeFolderIdentity } from './home-folder-identity';
 import type { NativePixels } from './native-layout';
+import type { HomeBannerHostView } from './home-banner-host';
+import type { HomeFolderBannerMotion } from './home-banner-lifecycle';
 export { loadFirmwarePresentationAssets, type FirmwarePresentationAssets } from './firmware-presentation';
 type Context = CanvasRenderingContext2D;
 type NativeHome=ReturnType<typeof createFirmwareHome>;
@@ -220,7 +222,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getFolderBanner?:()=>HomeBannerHostView|undefined; drawFolderBannerFrame?:(ctx:Context,motion:HomeFolderBannerMotion,label?:NativePixels)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -260,7 +262,17 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
   const view=getHomePresentation(state);
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white')options.drawHomeBackground?.(t,time,reduced);if(!nativeHome?.hud(t,date,time))status(t,date,chrome);
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&state.system?.phase!=='launch')graphics.banner(t,app,time,reduced);
-  if(!state.opened&&isFolder(state.selected,state)&&!state.panel){
+  const hostedBanner=options.getFolderBanner?.();
+  if(hostedBanner&&hostedBanner.status!=='unsupported'){
+   // Pending/hidden native instances are handled without painting the incoming fallback.
+   if(hostedBanner.status==='active'&&hostedBanner.folder.motion.visible&&!state.panel&&state.system?.phase==='home'){
+    const {selection,motion}=hostedBanner.folder,label=nativeHome?.folderBannerLabel(selection.label);
+    if(!options.drawFolderBannerFrame?.(t,motion,label)){
+     folder(t,200,115,91*(reduced?1:motion.scale),selection.label,reduced?0:motion.yawRadians);
+     if(selection.label){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,selection.label,200,196,16,palette.ink,'center');}
+    }
+   }
+  }else if(!hostedBanner&&!state.opened&&isFolder(state.selected,state)&&!state.panel){
    const name=state.folders[state.selected],label=nativeHome?.folderBannerLabel(name),nativeDrawn=options.drawFolderBanner?.(t,time,reduced,label);
    if(!nativeDrawn){
    t.save();t.shadowColor='#626d8a50';t.shadowBlur=12;t.shadowOffsetY=10;
@@ -283,5 +295,5 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
   const notice=options.runtimeNotice?.();if(notice){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
  }
- return {top,bottom,paint,setFirmwareAssets,dispose(){if(disposed)return;disposed=true;folderCapture=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,bottom,paint,setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;folderCapture=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

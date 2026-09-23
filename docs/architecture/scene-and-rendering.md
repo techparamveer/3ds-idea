@@ -33,8 +33,11 @@ small polygon offset to prevent oblique z-fighting.
 - Keyboard, physical pointer hits and lower-screen touches all dispatch the
   same OS inputs.
 
-Animation is elapsed-time based. Render throttling must never change reducer or
-motion semantics; it may only change how often the latest state reaches the GPU.
+Hardware animation is elapsed-time based. Native HOME folder motion samples
+the shared integer OS update counter through an immutable host view; see
+[folder integration](../home-banner-integration.md). Render throttling must
+never change reducer or motion semantics; it may only change how often the
+latest state reaches the GPU.
 
 The native folder banner additionally accepts explicit immutable lifecycle
 samples through `firmware-banner.ts`'s `drawFrame`. OS/runtime code owns its yaw,

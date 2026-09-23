@@ -211,3 +211,9 @@ Native lower folder assembly and its captured-background lifetime are documented
 [native-folder-assembly.md](../native-folder-assembly.md). The renderer consumes
 fractional density and immutable unscrolled slot endpoints from navigation;
 it does not derive native animation frames from row counts.
+
+The scene now wires ordinary folder banners through the shared update counter
+and pre-mutation boundaries; see [live banner integration](../home-banner-integration.md).
+`native-home-audio/` owns verified resource decoding and persistent music
+synthesis. Browser transport remains owned by `audio.ts`; see
+[the audio boundary](../native-home-audio-contract.md).

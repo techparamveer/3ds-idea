@@ -28,6 +28,17 @@ export class NativeLayoutRenderer {
  private parentAlpha=new WeakMap<Context,number>();
  readonly diagnostics:string[]=[];
  constructor(readonly packs:Record<string,NativePack>,private textures:Record<string,Map<string,NativePixels>>,private fonts:ReadonlyMap<string,BitmapFont>,private cacheLimit=8*1024*1024){}
+ /** Draw an explicitly loaded bundled bitmap at its original logical size. */
+ drawBitmap(ctx:Context,pack:string,name:string,x:number,y:number):boolean{
+  if(this.disposed)return false;
+  const pixels=this.textures[pack]?.get(name);
+  if(!pixels||!Number.isFinite(x)||!Number.isFinite(y)){this.report(`Missing or invalid native bitmap ${pack}/${name}`);return false;}
+  const canvas=this.cached(JSON.stringify(['bitmap',pack,name]),()=>{
+   const canvas=surface(pixels.width,pixels.height),context=canvas.getContext('2d')!;
+   const data=context.createImageData(pixels.width,pixels.height);data.data.set(pixels.data);context.putImageData(data,0,0);return canvas;
+  });
+  ctx.drawImage(canvas,x,y);return true;
+ }
  private report(message:string){if(!this.diagnostics.includes(message))this.diagnostics.push(message);}
  private cached(key:string,make:()=>HTMLCanvasElement){
   const previous=this.cache.get(key);if(previous){this.cache.delete(key);this.cache.set(key,previous);return previous;}

@@ -12,6 +12,7 @@ for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSett
 source=source.replace("'./stock-screen-layout'",JSON.stringify(url('export const stockScreenTargets=()=>[];')));
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url('export const nativePersonalToolView=()=>null;export const drawNativePersonalToolFrame=()=>false;')));
 source=source.replace("'./stock-native-web'",JSON.stringify(url("export const browserScreenPacks=[{url:'browser.json',alias:'browser',layouts:[],animations:[]}],miiverseScreenPacks=[{url:'miiverse.json',alias:'miiverse',layouts:[],animations:[]}];export const drawNativeWebFrame=()=>false;")));
+source=source.replace("'./stock-native-services'",JSON.stringify(url('export const nativeServiceView=()=>null;export const drawNativeServiceFrame=()=>false;')));
 const {createStockScreenPresentation}=await import(url(source));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const view=appId=>({appId,screen:'main',heading:'',rows:[],selection:0,footer:{}});

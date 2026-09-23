@@ -126,3 +126,20 @@ Profile, Nintendo 3DS data, Connection Settings, Date & Time, restriction lists,
 Other Settings pages 1 and 4, and an empty nickname detail. Touch checks cover
 native button centres, gaps and bounded arrows. Final browser integration and
 matched native LCD comparison remain separate checks.
+
+## Local service screens, 23 September
+
+`stock-native-services.ts` now composes the native eShop welcome and Nintendo
+Zone offline/Info screens. eShop uses its native message balloon, bag animation,
+backgrounds and mounted OK button. OK returns HOME; no agreement, account or
+purchase operation exists. Zone uses original English HTML bitmap pixels at
+320×212, without stretching, and the source upper banner or 400×220 MPO frame.
+Source HTML links share their exact button rectangles with touch navigation.
+Both read-only destinations show the bundled no-content page; the search button
+does not invoke wireless. The source footer retains Back; unavailable menu/save
+controls are omitted. This is an intentional portfolio adaptation.
+
+Paired renders are in SSD `reference/service-ui`. Known visual gaps are the
+unverified 212/220-pixel viewport placement, flattened banner grid/battery pane
+projection (reported by the renderer), source HUD status placeholders and native
+reference timing. These are not a claim of 1:1 acceptance.

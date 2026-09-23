@@ -9,6 +9,8 @@ export type NativeTitlePackRequest = {
   alias: string;
   layouts: readonly string[];
   animations: readonly string[];
+  /** Explicit original bitmaps used by bundled HTML rather than a CLYT pane. */
+  textures?: readonly string[];
 };
 export type NativeTitleAssets = {
   renderer: NativeLayoutRenderer;
@@ -93,10 +95,11 @@ export async function loadNativeTitleAssets(
     // Snapshot callers' requests before the first await.
     const selected = requests.map(request => {
       if (!request || typeof request.alias !== 'string' || !request.alias || aliases.has(request.alias) ||
-          typeof request.url !== 'string' || !request.url || !strings(request.layouts) || !strings(request.animations))
+          typeof request.url !== 'string' || !request.url || !strings(request.layouts) || !strings(request.animations) ||
+          (request.textures !== undefined && !strings(request.textures)))
         throw new Error('Invalid or duplicate native title pack request');
       aliases.add(request.alias);
-      return { ...request, url: url(request.url), layouts: [...new Set(request.layouts)], animations: [...new Set(request.animations)] };
+      return { ...request, url: url(request.url), layouts: [...new Set(request.layouts)], animations: [...new Set(request.animations)], textures: [...new Set(request.textures??[])] };
     });
     const borrowed = new Map(sharedFonts);
     const raw = await json(base.href);
@@ -124,7 +127,7 @@ export async function loadNativeTitleAssets(
         throw new Error(`Invalid native title pack ${request.url}`);
       const source = value as TitlePack, namespace = contentNamespace(source);
       const layouts: NativePack['layouts'] = Object.create(null), animations: NativePack['animations'] = Object.create(null);
-      const neededTextures = new Set<string>(), neededFonts = new Set<string>();
+      const neededTextures = new Set<string>(request.textures), neededFonts = new Set<string>();
       for (const name of request.layouts) {
         const layout = own(source.layouts, name);
         if (!layout) throw new Error(`Missing native title layout ${request.alias}/${name}`);

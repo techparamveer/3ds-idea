@@ -71,7 +71,7 @@ export function createNativeTitleSession(options: {
       const nextKey = JSON.stringify([next.owner, next.view, next.titleId, next.packs]);
       if (request && key === nextKey && sameFonts(request.sharedFonts, next.sharedFonts)) return state;
       request = { ...next, packs: next.packs.map(pack => ({ ...pack,
-        layouts: [...pack.layouts], animations: [...pack.animations] })), sharedFonts: new Map(next.sharedFonts) };
+        layouts: [...pack.layouts], animations: [...pack.animations], ...(pack.textures?{textures:[...pack.textures]}:{}) })), sharedFonts: new Map(next.sharedFonts) };
       key = nextKey; begin(); return state;
     },
     retry() { if (!disposed && request && state.status === 'error') begin(); return state; },

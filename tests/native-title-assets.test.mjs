@@ -348,3 +348,18 @@ test('real bitmap-font loader follows title source metadata, fetches its atlas a
     }
   });
 });
+
+test('bundled Zone HTML bitmaps load only the explicit source selection and preserve original pixels', async () => {
+  await fixture(async f => {
+    const request={url:'packs/nintendo-zone/local-html-images.json',alias:'html',layouts:[],animations:[],textures:['offline']};
+    const source=f.pack(request.url),resources=await f.load([request],undefined,'0004001000022b00');
+    const bitmap=resources.renderer.textures.html.get('offline');
+    assert.equal(bitmap.width,320);assert.equal(bitmap.height,212);
+    const original=await decodeNativePng(new Uint8Array(read(source.textures.offline.url)),source.textures.offline);
+    assert.deepEqual(bitmap.data,original.data);
+    assert.deepEqual([...resources.renderer.textures.html.keys()],['offline']);
+    assert.equal(f.fetched.some(v=>v.path===source.textures['no-content'].url),false);
+    resources.dispose();assert.equal(resources.renderer.textures.html.size,0);
+    await assert.rejects(f.load([{...request,textures:['missing']}],undefined,'0004001000022b00'),/Missing native title texture/);
+  });
+});

@@ -87,3 +87,11 @@ test('a reentrant loading callback can close the view before any acquisition sta
     onChange(state){changes++;if(state.status==='loading')session.update(null);},load(){loads++;throw Error('must not load');}});
   session.update(request());await flush();assert.equal(loads,0);assert.equal(changes,2);assert.equal(session.getState().status,'idle');session.dispose();
 });
+
+test('explicit bitmap selection is snapshotted and changing it invalidates the native session',async()=>{
+ const f=fixture(),input=request();input.packs[0].textures=['offline'];f.session.update(input);
+ input.packs[0].textures.push('no-content');await flush();assert.deepEqual(f.calls[0].args[2][0].textures,['offline']);
+ f.session.update(input);await flush();assert.equal(f.calls[0].args[4].aborted,true);
+ assert.deepEqual(f.calls[1].args[2][0].textures,['offline','no-content']);f.session.dispose();
+ f.calls.forEach(call=>call.reject(Error('disposed')));await flush();
+});

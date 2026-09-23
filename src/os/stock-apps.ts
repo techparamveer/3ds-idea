@@ -20,8 +20,8 @@ const serviceRows: Record<string, readonly [string, string][]> = {
   'nnid-settings': [['sign-in', 'Link an Existing ID'], ['create', 'Create a New ID']],
   'system-transfer': [['3ds', 'Transfer from a Nintendo 3DS'], ['dsi', 'Transfer from Nintendo DSi']],
   'system-updater': [['information', 'System Update']],
-  eshop: [['information', 'Nintendo eShop']], mint: [['information', 'Nintendo eShop']],
-  'nintendo-zone': [['information', 'Nintendo Zone']], miiverse: [['communities', 'Communities'], ['activity', 'Activity Feed'], ['profile', 'My Menu'], ['notifications', 'Notifications']],
+  eshop: [['back', 'OK']], mint: [['information', 'Nintendo eShop']],
+  'nintendo-zone': [['scan', 'Search for Nintendo Zone'], ['information', 'What is Nintendo Zone?']], miiverse: [['communities', 'Communities'], ['activity', 'Activity Feed'], ['profile', 'My Menu'], ['notifications', 'Notifications']],
   'miiverse-post': [['information', 'Post to Miiverse']], extrapad: [['information', 'Circle Pad Pro']],
 };
 const withScreen = (state: AppState, screen: string, patch: AppState = {}): AppState => ({ ...state, screen, selection: 0, ...patch });

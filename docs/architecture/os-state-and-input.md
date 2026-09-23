@@ -375,3 +375,12 @@ Shared decoded animations use the byte-identical HOME/keyboard float32 Hermite
 sampler and native CLVC byte writes. Runtime overrides remain explicit caller
 values. See [curve and color arithmetic](../native-animation-curves.md) for the
 original-code fixture, key-boundary behavior and remaining rendering boundaries.
+
+### Bundled local service bitmaps
+
+Native title requests can explicitly select texture names for source HTML images
+that have no CLYT layout. The existing validated loader still checks manifest
+membership, format and dimensions, and session identity includes the selection.
+`NativeLayoutRenderer.drawBitmap` uses the existing bounded disposable canvas
+cache and draws at source dimensions. No texture fetch bypass or new image
+lifecycle is introduced. Zone uses this path for its original offline HTML assets.

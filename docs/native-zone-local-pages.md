@@ -55,9 +55,7 @@ The eShop subset now contains `cad-CommonBtn-arc-lz.json` with `OKBtn_D_00`,
 matching source clips. `OKBtn_D_00` has both `T_OK_00` and `T_OK_01` text layers;
 override both consistently if using a source English message.
 
-`welcome_D_00` contains the message pane `T_message_00` but does not encode the
-OK button's final screen placement. Composition must supply that placement from
-reference evidence rather than claiming a source parent mount exists.
+`welcome_D_00` contains `T_message_00` and the `OKBtn_D_00` parent mount beneath `N_root_00`, at translation `[0,-89,0]`. The renderer attaches the source button at that mount; both text layers receive the English OK label.
 
 Also delivered are Common `message_D_00/U_00`, `position_D_00`,
 `sysMenu_D_01/02`; CommonWin `ErrorDialog_D_00`, `dialog_D_00/U_00`; Entrance

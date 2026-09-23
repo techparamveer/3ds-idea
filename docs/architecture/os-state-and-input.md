@@ -18,6 +18,7 @@
 | `app-types.ts`, `app-registry.ts`, `app-host.ts` | Firmware contracts, installed titles and applet lifecycle |
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
 | `home-input-producer.ts` | Pure native poll/event arithmetic; live scheduler integration pending |
+| `home-input-sample.ts` | Explicit digital/primary-axis snapshots and independent sample edges; integration pending |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-cursor-loop.ts`, `home-cursor-visibility.ts` | Retained primary cursor Loop and shared visibility predicate |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
@@ -114,7 +115,7 @@ source evidence and the remaining runtime/scene integration work.
 `home-banner-service.ts` supplies the normal primary-folder gate and interleaves
 manager/scene steps from the host's integer update count. Readiness and inhibition
 are explicit inputs; generation-scoped tickets reject stale async completions.
-It does not yet wire the System or renderer. See
+The pure host composes it with scene-provided selection/readiness. See
 [the service contract](../home-banner-service.md) for counter reset behavior,
 stable folder identity requirements and the external app/blank loader boundaries.
 
@@ -225,6 +226,9 @@ axis press, held, repeat and release/cancel producer. Its explicit normalized
 masks and gate inputs make each poll independent from scene updates and time.
 The module is not yet connected to System; the live generic latch remains as
 described above. See [producer evidence and limits](../home-input-producer-runtime.md).
+`home-input-sample.ts` supplies separate digital and primary-axis edges before
+their masks are combined. Its source snapshots and explicit sample calls are
+also unconnected to the live adapter; see [source sampling](../home-input-sample-runtime.md).
 
 Navigation motion advances in integer native updates. The shared provisional
 nominal 60 Hz adapter stores `System.homeClock.updateCount` for presentation clip
@@ -253,6 +257,9 @@ it does not derive native animation frames from row counts.
 
 The scene now wires ordinary folder banners through the shared update counter
 and pre-mutation boundaries; see [live banner integration](../home-banner-integration.md).
+The new pure single-pass host API can place lower-task observations between
+the manager and attached-scene phases. Live input integration is pending; see
+[ordered banner passes](../home-banner-ordered-pass.md).
 `native-home-audio/` owns verified resource decoding and persistent music
 synthesis. Browser transport remains owned by `audio.ts`; see
 [the audio boundary](../native-home-audio-contract.md).

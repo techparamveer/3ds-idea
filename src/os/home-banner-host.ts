@@ -5,6 +5,7 @@ import { getHomeFolderIdentity, type HomeFolderIdentity } from './home-folder-id
 import { HOME_BANNER_EMPTY_KEY, type HomeBannerMotion, type HomeBannerTarget } from './home-banner-lifecycle.ts';
 import {
   createHomeBannerService, getHomeBannerResourceTicket, requestHomeBannerService, syncHomeBannerService,
+  advanceHomeBannerManagerPass, completeHomeBannerScenePass,
   type HomeBannerService, type HomeBannerServiceClock, type HomeBannerServiceInputs, type HomeBannerResourceTicket,
 } from './home-banner-service.ts';
 
@@ -130,6 +131,38 @@ export function createHomeBannerHost(clock: HomeBannerServiceClock, inputs: Home
   return { clock: { ...clock }, scope: 0, selection: null, inputs: retainInputs(inputs, null), service: null, pending: null, active: null };
 }
 
+function activePresentation(service: HomeBannerService, pending: HomeBannerHostPresentation | null,
+  previous: HomeBannerHostActivePresentation | null): HomeBannerHostActivePresentation | null {
+  const instance = service.lifecycle.active;
+  if (!instance) return null;
+  if (previous?.activationEpoch === instance.activationEpoch) return previous;
+  if (!pending || pending.selection.kind === 'clear' || pending.requestEpoch !== instance.requestEpoch || pending.generation !== service.clock.generation) {
+    throw new Error('Missing HOME primary activation presentation');
+  }
+  return { ...pending, selection: pending.selection, activationEpoch: instance.activationEpoch };
+}
+
+/** One ordinary input→upper manager→lower boundary→global3D pass. Boundaries
+ * are explicit observations supplied by the host, never inferred from time.
+ * A lower request cannot affect the manager pass that has already happened.
+ * Session replacement uses create/cross first; this function consumes only the
+ * immediately following count in the current session. */
+export function stepHomeBannerHost(host: HomeBannerHost, clock: HomeBannerServiceClock,
+  boundaries: Readonly<{ beforeManager?: HomeBannerHostBoundary; afterManager?: HomeBannerHostBoundary }> = {}): HomeBannerHost {
+  assertClock(clock);
+  if (clock.generation !== host.clock.generation || clock.updateCount !== host.clock.updateCount + 1) {
+    throw new RangeError('HOME banner pass requires the next count in its current generation');
+  }
+  let next = crossHomeBannerBoundary(host, host.clock, boundaries.beforeManager);
+  if (next.service) {
+    const service = advanceHomeBannerManagerPass(next.service, next.inputs);
+    next = { ...next, service, active: activePresentation(service, next.pending, next.active) };
+  }
+  next = crossHomeBannerBoundary(next, next.clock, boundaries.afterManager);
+  const service = next.service && completeHomeBannerScenePass(next.service, next.inputs);
+  return { ...next, clock: { ...clock }, service };
+}
+
 /** First settle the old request/inputs; only then install boundary observations. */
 export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerServiceClock,
   boundary: HomeBannerHostBoundary = {}): HomeBannerHost {
@@ -140,14 +173,7 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
   let { service, pending, active, scope } = host;
   if (service) {
     service = syncHomeBannerService(service, { generation: service.clock.generation, updateCount: clock.updateCount }, host.inputs);
-    const instance = service.lifecycle.active;
-    if (!instance) active = null;
-    else if (!active || active.activationEpoch !== instance.activationEpoch) {
-      if (!pending || pending.selection.kind === 'clear' || pending.requestEpoch !== instance.requestEpoch || pending.generation !== service.clock.generation) {
-        throw new Error('Missing HOME primary activation presentation');
-      }
-      active = { ...pending, selection: pending.selection, activationEpoch: instance.activationEpoch };
-    }
+    active = activePresentation(service, pending, active);
   }
 
   const selection = boundary.selection === undefined ? host.selection : copySelection(boundary.selection);

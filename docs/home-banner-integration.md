@@ -67,10 +67,11 @@ nonlooping material clocks, with the shared600-update yaw. The painter uses
 Frame mask, native camera and alpha coverage transfer as folders.
 
 Clear completion is supported in the pure host/service and has no primary or
-resource ticket. The live scene does not yet reproduce the native folder-close
-clear-to-restored-selection timing: its current reducer returns directly to the
-root selection. Same-counter clear then folder requests would coalesce, so that
-sequence must await source-proven update boundaries rather than a guessed delay.
+resource ticket. The later counted-close integration now retains clear through
+the actual restoration/readiness boundaries instead of returning immediately;
+see [close integration](native-folder-close-integration.md). The ordinary
+single-pass input/upper/lower/3D scheduler is still being connected through
+[the phased host API](home-banner-ordered-pass.md).
 Application selections still end the supported scope and report unsupported;
 reentry creates a fresh scope. Native application loader states4/5 remain pending.
 Background lifecycle is separate and still uses the earlier elapsed-time adapter;
@@ -134,5 +135,6 @@ activated folder epoch3; opening its empty child activated default epoch4.
 Adjacent child vacancies retained request/activation4 while independent yaw and
 skeletal clocks advanced. Material playback settled at frame60/status0. Sleep
 froze HOME update7244 and wake retained the same instance. This establishes
-actual host wiring; the native default material color mismatch and the still
-instantaneous folder-close reducer remain open visual/transition defects.
+actual host wiring. These were early captures: subsequent default-material and
+counted-close validation notes record later corrections. They do not establish
+current whole-HOME parity.

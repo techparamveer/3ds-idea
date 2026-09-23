@@ -71,7 +71,9 @@ function primaryHidden(state: HomeBannerService, input: HomeBannerServiceInputs)
     && external.activationEpoch === active.activationEpoch && !external.visible;
 }
 
-function advanceOne(state: HomeBannerService, input: HomeBannerServiceInputs): HomeBannerService {
+/** Upper task phase only. Requests must already be installed. Pair with the
+ * later scene phase; callers needing count validation use stepHomeBannerHost. */
+export function advanceHomeBannerManagerPass(state: HomeBannerService, input: Omit<HomeBannerServiceInputs, 'request'>): HomeBannerService {
   let { lifecycle, stage, waitUpdates, loadDeferred } = state;
   if (!input.managerInhibited) {
     if (stage === 'active') {
@@ -108,9 +110,19 @@ function advanceOne(state: HomeBannerService, input: HomeBannerServiceInputs): H
     // A newly activated object is updated in this same manager call.
     lifecycle = advanceHomeBannerManager(lifecycle, 1);
   }
-  if (!input.sceneInhibited) lifecycle = advanceHomeBannerClips(lifecycle, 1);
-  return { lifecycle, stage, waitUpdates, loadDeferred,
+  return { ...state, lifecycle, stage, waitUpdates, loadDeferred };
+}
+
+/** Later global3D phase, completing one shared pass even when clips are gated.
+ * The host pairs this with exactly one preceding manager phase. */
+export function completeHomeBannerScenePass(state: HomeBannerService, input: Omit<HomeBannerServiceInputs, 'request'>): HomeBannerService {
+  assertCount(state.clock.updateCount + 1);
+  return { ...state, lifecycle: input.sceneInhibited ? state.lifecycle : advanceHomeBannerClips(state.lifecycle, 1),
     clock: { ...state.clock, updateCount: state.clock.updateCount + 1 } };
+}
+
+function advanceOne(state: HomeBannerService, input: HomeBannerServiceInputs): HomeBannerService {
+  return completeHomeBannerScenePass(advanceHomeBannerManagerPass(state, input), input);
 }
 
 /** Constant inputs cover the entire batch. Split at every request/readiness/gate change. */

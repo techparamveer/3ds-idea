@@ -61,6 +61,8 @@ class StockUiTests(unittest.TestCase):
             put(source, incoming, 'textures/shared.png', b'shared', SETTINGS)
             put(source, incoming, 'textures/selected.png', b'selected', SETTINGS)
             put(output, delivery, 'textures/shared.png', b'shared', HOME)
+            put(output, delivery, 'font.json', b'{}', HOME)
+            delivery['resources']['font.json']['kind'] = 'font'
             incoming['titles'][SETTINGS] = {'packs': [url], 'fonts': {}}
             incoming['sources'][SETTINGS] = {'titleId': SETTINGS}
             delivery['titles'][HOME] = {'packs': ['home.json']}
@@ -74,6 +76,15 @@ class StockUiTests(unittest.TestCase):
             self.assertEqual(after['resources']['textures/shared.png'], delivery['resources']['textures/shared.png'])
             self.assertEqual((output/'textures/shared.png').read_bytes(), b'shared')
             self.assertEqual(publish(source, output, plan), result)
+            pack['layouts']['Main']['fonts'] = ['font.bcfnt']
+            put(source, incoming, url, encode(pack), SETTINGS)
+            (source/'manifest.json').write_bytes(encode(incoming))
+            with self.assertRaisesRegex(ValueError, 'Unbound stock font'): publish(source, output, plan)
+            plan['titles'][SETTINGS]['fontBindings'] = {'font.bcfnt': 'shared'}
+            publish(source, output, plan)
+            bound = json.loads((output/'manifest.json').read_bytes())['titles'][SETTINGS]
+            self.assertEqual(bound['fonts'], {'font.bcfnt': 'font.json'})
+            self.assertEqual(bound['uiSelection']['presentationFontBindings'], {'font.bcfnt': 'shared'})
             snapshot = {p.relative_to(output): p.read_bytes() for p in output.rglob('*') if p.is_file()}
             (source/'textures/selected.png').write_bytes(b'corrupt')
             with self.assertRaisesRegex(ValueError, 'hash differs'): publish(source, output, plan)

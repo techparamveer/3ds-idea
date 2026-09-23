@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400300000be02": {
+      "packs": {
+        "packs/miiverse/layout-BG.json": {
+          "layouts": [
+            "BG"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-Root.json": {
+          "layouts": [
+            "Root"
+          ],
+          "animations": []
+        },
+        "packs/miiverse/layout-TopButton.json": {
+          "layouts": [
+            "TopButton"
+          ],
+          "animations": [
+            "TopButton_FadeIn",
+            "TopButton_FocusedOnOff",
+            "TopButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-ActivityButton.json": {
+          "layouts": [
+            "ActivityButton"
+          ],
+          "animations": [
+            "ActivityButton_ActiveOnOff",
+            "ActivityButton_DecidedOnOff",
+            "ActivityButton_FocusedOnOff",
+            "ActivityButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-CommunityButton.json": {
+          "layouts": [
+            "CommunityButton"
+          ],
+          "animations": [
+            "CommunityButton_ActiveOnOff",
+            "CommunityButton_DecidedOnOff",
+            "CommunityButton_FocusedOnOff",
+            "CommunityButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-ExitButton.json": {
+          "layouts": [
+            "ExitButton"
+          ],
+          "animations": [
+            "ExitButton_DecidedOn",
+            "ExitButton_FocusedOnOff",
+            "ExitButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-MyMenuButton.json": {
+          "layouts": [
+            "MyMenuButton"
+          ],
+          "animations": [
+            "MyMenuButton_ActiveOnOff",
+            "MyMenuButton_DecidedOnOff",
+            "MyMenuButton_FocusedOnOff",
+            "MyMenuButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-NotificationButton.json": {
+          "layouts": [
+            "NotificationButton"
+          ],
+          "animations": [
+            "NotificationButton_ActiveOnOff",
+            "NotificationButton_DecidedOnOff",
+            "NotificationButton_FocusedOnOff",
+            "NotificationButton_InvalidatedOnOff",
+            "NotificationButton_ReceiveOrange",
+            "NotificationButton_Size"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-OliveBack.json": {
+          "layouts": [
+            "OliveBack"
+          ],
+          "animations": [
+            "OliveBack_DecidedOn",
+            "OliveBack_DecidedOnOff",
+            "OliveBack_FocusedOnOff",
+            "OliveBack_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-OliveManualButton.json": {
+          "layouts": [
+            "OliveManualButton"
+          ],
+          "animations": [
+            "OliveManualButton_ActiveOnOff",
+            "OliveManualButton_DecidedOnOff",
+            "OliveManualButton_FocusedOnOff",
+            "OliveManualButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/miiverse/layout-toolbar-ToolBar.json": {
+          "layouts": [
+            "ToolBar"
+          ],
+          "animations": [
+            "ToolBar_BarUpDown",
+            "ToolBar_FadeIn",
+            "ToolBar_FadeOut",
+            "ToolBar_FadeOutDecided",
+            "ToolBar_FadeOutFavoriteGo",
+            "ToolBar_PartBarDown",
+            "ToolBar_PartBarUp"
+          ]
+        },
+        "packs/miiverse/messages-and-loose.json": {
+          "messages": {
+            "cave": [
+              "lau_title_olive",
+              "StartMenu_End",
+              "StartMenu_Manual",
+              "dlg_top_internet_flw",
+              "dlg_top_net_off_flw"
+            ]
+          }
+        }
+      },
+      "fontBindings": {
+        "font.bcfnt": "shared"
+      }
+    }
+  }
+}

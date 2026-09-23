@@ -99,6 +99,14 @@ def publish(source_root, output, plan):
                 copied(url); font = json.loads(pending[url])
                 for sheet in font['sheets']: copied(str(Path(url).parent/sheet))
                 info['fonts'][name] = url
+            elif name.split('/')[-1] in requested.get('fontBindings', {}):
+                binding = requested['fontBindings'][name.split('/')[-1]]
+                if binding not in manifest['fonts']: raise ValueError('Unknown shared font binding: '+binding)
+                target = manifest['fonts'][binding]
+                if existing.get(target, {}).get('kind') != 'font': raise ValueError('Unverified shared font binding: '+binding)
+                # An explicit presentation binding to an existing native font,
+                # not a claim about the application's internal resource mapping.
+                info['fonts'][name] = target
             elif name.split('/')[-1] not in ('cbf_std.bcfnt', 'Hud_JP.bcfnt'):
                 raise ValueError('Unbound stock font: '+name)
         if info.get('icon'): copied(info['icon'])
@@ -106,6 +114,8 @@ def publish(source_root, output, plan):
                                'sourceManifestSha256': digest((source_root/'manifest.json').read_bytes()),
                                'publisherSha256': digest(Path(__file__).read_bytes()),
                                'sourceConverter': source.get('converter')}
+        if requested.get('fontBindings'):
+            info['uiSelection']['presentationFontBindings'] = copy.deepcopy(requested['fontBindings'])
         manifest['titles'][title] = info
         manifest['sources'][title] = copy.deepcopy(source['sources'][title])
     manifest['resources'].update(records)

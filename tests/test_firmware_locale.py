@@ -39,6 +39,21 @@ def resources():
 
 
 class LocaleTests(unittest.TestCase):
+    def test_stock_loose_messages_select_european_english_before_bank_names(self):
+        title = '0004003000009c02'
+        metadata = {'version': 0, 'sourceSha256': 'source', 'resourceContentIndex': 0,
+                    'contents': [{'index': 0, 'id': '00000000', 'sha256': 'content'}]}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); scratch = root/'source'; builder = Builder(root/'output')
+            for locale in ('CN_Simp_Chinese', 'EU_English', 'US_English', 'JP_Japanese', 'TW_English', 'KR_Hangeul'):
+                folder = scratch/'romfs/lang'/locale; folder.mkdir(parents=True)
+                (folder/'message.msbt').write_bytes(msbt(locale))
+            info = convert_title(builder, title, metadata, scratch, {})
+            pack = json.loads((builder.output/info['packs'][0]).read_bytes())
+            self.assertEqual(pack['messages']['message']['messages'][0]['text'], 'EU_English')
+            self.assertEqual(pack['resourceSources']['messages']['message']['path'], 'RomFS/lang/EU_English/message.msbt')
+            self.assertEqual(pack['unsupported'], [])
+
     def test_health_english_loose_message_keeps_its_sibling_style(self):
         title = '0004001000022300'
         message = 'message/EU_English/safe_msbt_LZ.bin'

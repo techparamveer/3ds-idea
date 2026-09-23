@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004003000009d02": {
+      "packs": {
+        "packs/browser/contents/0000-0000001f/layout-BG.json": {
+          "layouts": [
+            "BG"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-Root.json": {
+          "layouts": [
+            "Root"
+          ],
+          "animations": []
+        },
+        "packs/browser/contents/0000-0000001f/layout-start-dialog-AddressButton.json": {
+          "layouts": [
+            "AddressButton"
+          ],
+          "animations": [
+            "AddressButton_DecidedOn",
+            "AddressButton_FocusedOnOff",
+            "AddressButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-start-dialog-FavoriteAddButton.json": {
+          "layouts": [
+            "FavoriteAddButton"
+          ],
+          "animations": [
+            "FavoriteAddButton_DecidedOn",
+            "FavoriteAddButton_FocusedOnOff",
+            "FavoriteAddButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-start-dialog-FavoriteButton.json": {
+          "layouts": [
+            "FavoriteButton"
+          ],
+          "animations": [
+            "FavoriteButton_DecidedOn",
+            "FavoriteButton_FocusedOnOff",
+            "FavoriteButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-start-dialog-OptionButton.json": {
+          "layouts": [
+            "OptionButton"
+          ],
+          "animations": [
+            "OptionButton_DecidedOn",
+            "OptionButton_FocusedOnOff",
+            "OptionButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-start-dialog-PageInfoButton.json": {
+          "layouts": [
+            "PageInfoButton"
+          ],
+          "animations": [
+            "PageInfoButton_DecidedOn",
+            "PageInfoButton_FocusedOnOff",
+            "PageInfoButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-start-dialog-SearchButton.json": {
+          "layouts": [
+            "SearchButton"
+          ],
+          "animations": [
+            "SearchButton_DecidedOn",
+            "SearchButton_FocusedOnOff",
+            "SearchButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-start-dialog-StartDialog.json": {
+          "layouts": [
+            "StartDialog"
+          ],
+          "animations": [
+            "StartDialog_FadeIn",
+            "StartDialog_FadeOut",
+            "StartDialog_FadeOutDefault"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-ExitButton.json": {
+          "layouts": [
+            "ExitButton"
+          ],
+          "animations": [
+            "ExitButton_DecidedOn",
+            "ExitButton_FocusedOnOff",
+            "ExitButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-NextButton.json": {
+          "layouts": [
+            "NextButton"
+          ],
+          "animations": [
+            "NextButton_FocusedOnOff",
+            "NextButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-PrevButton.json": {
+          "layouts": [
+            "PrevButton"
+          ],
+          "animations": [
+            "PrevButton_FocusedOnOff",
+            "PrevButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-StartMenuButton.json": {
+          "layouts": [
+            "StartMenuButton"
+          ],
+          "animations": [
+            "StartMenuButton_DecidedOn",
+            "StartMenuButton_FocusedOnOff",
+            "StartMenuButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-ToolBar.json": {
+          "layouts": [
+            "ToolBar"
+          ],
+          "animations": [
+            "ToolBar_BarUpDown",
+            "ToolBar_FadeIn",
+            "ToolBar_FadeOut",
+            "ToolBar_FadeOutDecided",
+            "ToolBar_FadeOutFavoriteGo",
+            "ToolBar_PartBarDown",
+            "ToolBar_PartBarUp"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-UpdateButton.json": {
+          "layouts": [
+            "UpdateButton"
+          ],
+          "animations": [
+            "UpdateButton_FocusedOnOff",
+            "UpdateButton_ForcedToggledOnOff",
+            "UpdateButton_InvalidatedOnOff",
+            "UpdateButton_ToggledFocusedOnOff",
+            "UpdateButton_ToggledInvalidatedOnOff",
+            "UpdateButton_ToggledOff",
+            "UpdateButton_ToggledOffDecidedOn",
+            "UpdateButton_ToggledOn",
+            "UpdateButton_ToggledOnDecidedOn"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-ZoomMinusButton.json": {
+          "layouts": [
+            "ZoomMinusButton"
+          ],
+          "animations": [
+            "ZoomMinusButton_FocusedOnOff",
+            "ZoomMinusButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/layout-toolbar-ZoomPlusButton.json": {
+          "layouts": [
+            "ZoomPlusButton"
+          ],
+          "animations": [
+            "ZoomPlusButton_FocusedOnOff",
+            "ZoomPlusButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/browser/contents/0000-0000001f/messages-and-loose.json": {
+          "messages": {
+            "spider": [
+              "lau_title_web",
+              "StartMenu_Search",
+              "StartMenu_Favorite",
+              "StartMenu_Add",
+              "StartMenu_Close",
+              "StartMenu_End",
+              "StartMenu_PageInfo",
+              "StartMenu_Manual",
+              "StartUp_Welcome"
+            ]
+          }
+        }
+      },
+      "fontBindings": {
+        "font.bcfnt": "shared"
+      }
+    }
+  }
+}

@@ -27,7 +27,11 @@ CONVERTER_VERSION = '1.3.2'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
-STOCK_STYLE_PATHS = {'0004001000022300': {'message/EU_English/RI_mstl_LZ.bin'}}
+STOCK_STYLE_PATHS = {
+    '0004001000022300': {'message/EU_English/RI_mstl_LZ.bin'},
+    '0004003000009f02': {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'},
+    '000400300000a002': {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'},
+}
 SETTINGS = '0004001000022000'
 SETTINGS_MESSAGE_ARCHIVE = 'message_EU_LZ.bin'
 SETTINGS_STYLE_PAIRS = {
@@ -281,6 +285,11 @@ def convert_title(builder, title, metadata, scratch, home):
         for p in sorted(romfs.rglob('*')):
             if not p.is_file() or p.suffix.lower() in DENIED_SUFFIXES or p.name.lower() in DENIED_NAMES: continue
             relative = str(p.relative_to(romfs))
+            if title != HOME:
+                locales = [part for part in PurePosixPath(relative).parts[:-1]
+                           if re.fullmatch(r'(?:EU|US|JP|CN|TW|KR)_[A-Za-z_]+', part)]
+                if len(locales) > 1: raise ValueError('Ambiguous stock resource locale: '+relative)
+                if locales and locales[0] != MESSAGE_LOCALE: continue
             # Only English messages enter the site's delivery set; inventory
             # does not discard the owner-provided original packages.
             if re.search(r'(?:EU_|US_)(?:Dutch|French|German|Italian|Portuguese|Russian|Spanish)(?:/|_)', relative): continue

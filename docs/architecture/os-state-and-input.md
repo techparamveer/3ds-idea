@@ -20,7 +20,7 @@
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
 | `home-folder-identity.ts` | Session-local opaque folder keys, immutable allocation and movement; never persisted |
-| `home-banner-lifecycle.ts` | Pure banner request/activation, folder visibility/yaw and independent source clip clocks |
+| `home-banner-lifecycle.ts` | Pure folder/default request/activation, explicit clear, shared visibility/yaw and independent source clip clocks |
 | `home-banner-service.ts` | Pure native banner gate and ordered manager/scene passes from a shared update counter |
 | `app-persistence.ts` | Versioned IndexedDB saves, preferences and media |
 | `app-capabilities.ts` | Opt-in browser devices, local capture and resource cleanup |
@@ -96,7 +96,8 @@ material. See [`../native-folder-glyph.md`](../native-folder-glyph.md).
 identity and separates native manager updates from attached-scene clip updates.
 The host supplies activation readiness and pass counts; the module does not
 derive them from milliseconds. Background clips have scene-level epochs, while
-new folder activation resets its own yaw and clips. See
+new folder/default activation resets its own yaw and clips. Clear completes
+without a primary instance; see [default banner runtime](../native-default-banner-runtime.md). See
 [`../native-banner-lifecycle.md`](../native-banner-lifecycle.md) for the pure API,
 source evidence and the remaining runtime/scene integration work.
 

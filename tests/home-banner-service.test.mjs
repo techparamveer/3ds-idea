@@ -17,7 +17,7 @@ const input = (state,patch={}) => ({managerInhibited:false,sceneInhibited:false,
 const fresh = () => createHomeBannerService({generation:'session:1',updateCount:100});
 const request = (state,target=folder(),options) => requestHomeBannerService(state,{target,options});
 const advance = (state,n=1,patch={}) => advanceHomeBannerService(state,n,input(state,patch));
-const motion = state => state.lifecycle.active.folder;
+const motion = state => state.lifecycle.active.motion;
 const activated = target => advance(request(fresh(),target),7);
 const settled = () => advance(activated(folder()),6);
 
@@ -131,7 +131,7 @@ test('type0 waits without counting; native types6/13 bypass counter/inhibition b
 
 test('non-folder primary release requires explicit visibility for that activation and session',()=>{
   for(const target of [app,blank]){
-    let state=activated(target);assert.equal(state.lifecycle.active.folder,null);
+    let state=activated(target);assert.equal(state.lifecycle.active.motion,null);
     state=advance(request(state,folder()));assert.equal(state.stage,'hiding');
     state=advance(state,20);assert.equal(state.stage,'hiding');
     for(const stale of [

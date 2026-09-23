@@ -23,7 +23,7 @@ export type HomeBannerServiceInputs = Readonly<{
   nativeWorkerReady: boolean;
   /** Ready renderable resources for this request. Never inferred from elapsed updates. */
   resourceReady: HomeBannerResourceTicket | null;
-  /** Non-folder motion is external. Missing/stale visibility prevents its release. */
+  /** App/legacy special motion is external. Folder/default motion is owned here. */
   nonFolderPrimary?: Readonly<{ generation: string; activationEpoch: number; visible: boolean }>;
 }>;
 export type HomeBannerService = Readonly<{
@@ -55,8 +55,8 @@ export function requestHomeBannerService(state: HomeBannerService, request: Home
   return lifecycle === state.lifecycle ? state : { ...state, lifecycle, waitUpdates: 0 };
 }
 export function getHomeBannerResourceTicket(state: HomeBannerService): HomeBannerResourceTicket | null {
-  const requestEpoch = state.lifecycle.requested?.epoch;
-  return requestEpoch === undefined ? null : { generation: state.clock.generation, requestEpoch };
+  const request = state.lifecycle.requested;
+  return !request || request.target.kind === 'clear' ? null : { generation: state.clock.generation, requestEpoch: request.epoch };
 }
 function resourceReady(state: HomeBannerService, input: HomeBannerServiceInputs): boolean {
   return !!input.resourceReady && input.resourceReady.generation === state.clock.generation
@@ -65,7 +65,7 @@ function resourceReady(state: HomeBannerService, input: HomeBannerServiceInputs)
 function primaryHidden(state: HomeBannerService, input: HomeBannerServiceInputs): boolean {
   const active = state.lifecycle.active;
   if (!active) return true;
-  if (active.folder) return !active.folder.visible;
+  if (active.motion) return !active.motion.visible;
   const external = input.nonFolderPrimary;
   return !!external && external.generation === state.clock.generation
     && external.activationEpoch === active.activationEpoch && !external.visible;
@@ -99,7 +99,8 @@ function advanceOne(state: HomeBannerService, input: HomeBannerServiceInputs): H
           }
         }
       }
-    } else if (lifecycle.requested?.target.nativeType && input.nativeWorkerReady && resourceReady(state, input)) {
+    } else if (lifecycle.requested?.target.nativeType && input.nativeWorkerReady &&
+      (lifecycle.requested.target.kind === 'clear' || resourceReady(state, input))) {
       // This branch occurs on a later pass than gate release, even for cached assets.
       lifecycle = activateHomeBanner(lifecycle, lifecycle.requested!.epoch);
       stage = 'active';

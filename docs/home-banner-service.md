@@ -4,8 +4,9 @@
 existing pure banner lifecycle. It owns the normal primary-banner gate and
 per-tick ordering; it has no renderer, DOM, loader, persistence or millisecond
 clock. `system.ts` and scene integration remain the host's responsibility.
-The lifecycle module is unchanged. Source gate/order evidence and isolated ARM
-fixtures are documented in [banner scheduling](home-banner-scheduling.md).
+Source gate/order evidence and isolated ARM fixtures are documented in
+[banner scheduling](home-banner-scheduling.md) and the
+[default/clear extension](native-default-banner-runtime.md).
 
 ## API and explicit inputs
 
@@ -13,10 +14,11 @@ Create a service with `createHomeBannerService({generation,updateCount})`. Use a
 nonempty host-session identity for `generation`, and the current
 `System.homeClock.updateCount` as the baseline. Creating at counter900 does not
 replay900 ticks. Queue selection using
-`requestHomeBannerService(service,{target,options?})`. The unchanged lifecycle
-deduplicates requests and decides same-current folder reuse; changed requests
+`requestHomeBannerService(service,{target,options?})`. The lifecycle
+deduplicates requests and decides same-current folder/default reuse; changed requests
 reset the gate wait count. `getHomeBannerResourceTicket(service)` returns
-`{generation,requestEpoch}` for that request, suitable for an async completion.
+`{generation,requestEpoch}` for a renderable request, suitable for an async
+completion. Explicit clear returns null and requires no render resources.
 
 `advanceHomeBannerService(service,count,inputs)` processes native update counts.
 `syncHomeBannerService(service,{generation,updateCount},inputs)` consumes the
@@ -31,7 +33,7 @@ All inhibition/readiness fields are required so callers state their policy:
 | `loadInhibited` | Native byte0x32f50d; freezes the state1 wait counter and sets the deferred flag, but leaves object/scene updates eligible |
 | `nativeWorkerReady` | Completion of the worker checked before release in state1 and before activation in state3; the host supplies the relevant stage's result |
 | `resourceReady` | Null or the exact ready `{generation,requestEpoch}` ticket; a stale completion never activates a different request |
-| `nonFolderPrimary?` | `{generation,activationEpoch,visible}` for an active app/blank primary, whose visibility is not simulated by the folder lifecycle; missing/stale evidence keeps the old primary in hiding |
+| `nonFolderPrimary?` | `{generation,activationEpoch,visible}` for an external app/legacy special primary; missing/stale evidence keeps it in hiding. Folder/default visibility is internal |
 
 Inputs cover the entire requested batch. Split batches at request, readiness,
 visibility and inhibition changes. Consume elapsed updates under the previous
@@ -45,9 +47,12 @@ an event rather than a persistent per-frame preference.
 Service stages correspond to native gate/state1, hiding/state2, loading/state3
 and active/state6. A new service starts at the gate without a selected target.
 Type0 returns without progressing the gate or loading stage. Types6/13 preserve
-the source's wait/inhibition bypass, without implementing their special visuals.
+the source's wait/inhibition bypass. Explicit `kind:'clear',nativeType:13`
+completes loading with no primary, resource ticket or new model activation epoch.
+A following request enters state2 even with null primary, then observes it and
+enters the gate on the next pass. Type6 visuals remain external.
 
-For ordinary folders9/10, the gate increments and returns on calls1…5, then may
+For ordinary folders9/10 and default7, the gate increments and returns on calls1…5, then may
 release on call6 when the worker is ready. Even preloaded resources activate in
 the loading branch of a later pass. When replacing a visible folder, the old
 folder first fades/detaches; the next manager pass observes it hidden and enters
@@ -56,7 +61,7 @@ receive manager updates until release, but no detached clip updates.
 
 Each consumed tick runs the manager state branch, possible activation, the
 retained folder's manager update, and then the eligible scene clip pass. Thus a
-newly activated normal folder reaches yaw1 and clip1 in the same eligible tick.
+newly activated normal folder/default reaches yaw1 and clip1 in the same eligible tick.
 BatchingN ticks interleavesN such steps. It never runs all manager updates before
 all scene updates, which would erase attached fade-out clip frames.
 
@@ -64,7 +69,8 @@ Readiness remains external. A loading request can wait indefinitely without
 activation; count alone does not manufacture a completion. A request during
 hiding/gating/loading retargets the pending lifecycle without reviving the
 object being removed. Retargeting resets the native gate counter, while an
-already-loading stage stays loading and requires the new request's ready ticket.
+already-loading stage stays loading. The new renderable request requires its
+own ready ticket; clear completes without one after native worker readiness.
 
 ## Counter and rendering ownership
 
@@ -104,8 +110,10 @@ banner identity. The runtime now supplies opaque instance keys through
 - Restore may generate fresh session-local keys together with a new service
   generation. This bounded adapter does not require or add a persistence schema.
 
-App registry IDs can identify app targets; a dedicated stable blank key can
-identify the blank target. Include kind/native type as well as key in requests.
+App registry IDs can identify external app targets. `HOME_BANNER_EMPTY_KEY`
+identifies default7 and clear13; kind/type distinguish them. Do not use a slot
+or context key for adjacent vacancies or classify a missing app asset as default.
+The host explicitly hands off unsupported apps.
 
 ## Verification and remaining gaps
 

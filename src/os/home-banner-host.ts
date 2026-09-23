@@ -1,7 +1,7 @@
 import type { MenuState } from './state.ts';
 import { folderHasItems, homeSlotAppId } from './home-layout.ts';
 import { getHomeFolderIdentity, type HomeFolderIdentity } from './home-folder-identity.ts';
-import type { HomeFolderBannerMotion } from './home-banner-lifecycle.ts';
+import { HOME_BANNER_EMPTY_KEY, type HomeBannerMotion, type HomeBannerTarget } from './home-banner-lifecycle.ts';
 import {
   createHomeBannerService, getHomeBannerResourceTicket, requestHomeBannerService, syncHomeBannerService,
   type HomeBannerService, type HomeBannerServiceClock, type HomeBannerServiceInputs, type HomeBannerResourceTicket,
@@ -10,18 +10,23 @@ import {
 export type HomeFolderBannerSelection = Readonly<{
   kind: 'folder'; key: HomeFolderIdentity; label: string; nativeType: 9 | 10;
 }>;
-export type HomeBannerHostSelection = HomeFolderBannerSelection
-  | Readonly<{ kind: 'app'; id: string }> | Readonly<{ kind: 'blank' }>;
+export type HomeDefaultBannerSelection = Readonly<{ kind: 'default' }>;
+export type HomeClearBannerSelection = Readonly<{ kind: 'clear' }>;
+type RenderSelection = HomeFolderBannerSelection | HomeDefaultBannerSelection;
+type SupportedSelection = RenderSelection | HomeClearBannerSelection;
+export type HomeBannerHostSelection = SupportedSelection | Readonly<{ kind: 'app'; id: string }>;
 export type HomeBannerHostInputs = Pick<HomeBannerServiceInputs,
   'managerInhibited' | 'sceneInhibited' | 'loadInhibited' | 'nativeWorkerReady' | 'resourceReady'>;
 export type HomeBannerHostPresentation = Readonly<{
-  generation: string; requestEpoch: number; selection: HomeFolderBannerSelection;
+  generation: string; requestEpoch: number; selection: SupportedSelection;
 }>;
-export type HomeBannerHostActivePresentation = HomeBannerHostPresentation & Readonly<{ activationEpoch: number }>;
+export type HomeBannerHostActivePresentation = Readonly<{
+  generation: string; requestEpoch: number; activationEpoch: number; selection: RenderSelection;
+}>;
 export type HomeBannerHost = Readonly<{
   /** System session generation and last observed shared counter, including unsupported intervals. */
   clock: HomeBannerServiceClock;
-  /** Monotonic folder-scope allocation within this System session. */
+  /** Monotonic supported-primary scope allocation within this System session. */
   scope: number;
   selection: HomeBannerHostSelection | null;
   inputs: HomeBannerHostInputs;
@@ -31,7 +36,7 @@ export type HomeBannerHost = Readonly<{
   active: HomeBannerHostActivePresentation | null;
 }>;
 export type HomeBannerHostBoundary = Readonly<{
-  /** Omit to retain selection; panels/eligibility never imply blank content. */
+  /** Omit to retain selection; panels/eligibility never imply clear or vacancy. */
   selection?: HomeBannerHostSelection;
   /** Replaces all retained inputs AFTER consuming this boundary's elapsed updates. */
   inputs?: HomeBannerHostInputs;
@@ -42,18 +47,19 @@ export type HomeBannerHostBoundary = Readonly<{
 }>;
 type SupportedView = Readonly<{
   generation: string;
-  selection: HomeFolderBannerSelection;
-  resourceTicket: HomeBannerResourceTicket;
+  selection: SupportedSelection;
+  resourceTicket: HomeBannerResourceTicket | null;
   stage: HomeBannerService['stage'];
   waitUpdates: number;
 }>;
 export type HomeBannerHostView =
-  | Readonly<{ status: 'unsupported'; selection: Exclude<HomeBannerHostSelection, HomeFolderBannerSelection> | null; resourceTicket: null }>
-  | (SupportedView & Readonly<{ status: 'pending'; folder: null }>)
+  | Readonly<{ status: 'unsupported'; selection: Extract<HomeBannerHostSelection, { kind: 'app' }> | null; resourceTicket: null }>
+  | (SupportedView & Readonly<{ status: 'pending'; primary: null }>)
+  | (SupportedView & Readonly<{ status: 'cleared'; primary: null; resourceTicket: null }>)
   | (SupportedView & Readonly<{
     status: 'active';
     /** This is the retained instance, which can differ from the incoming selection. */
-    folder: HomeBannerHostActivePresentation & Readonly<{ motion: HomeFolderBannerMotion }>;
+    primary: HomeBannerHostActivePresentation & Readonly<{ motion: HomeBannerMotion }>;
   }>);
 
 /** Resolve content only. Overlays, power, suspension and pass eligibility are host inputs. */
@@ -65,7 +71,7 @@ export function resolveHomeBannerHostSelection(state: MenuState): HomeBannerHost
     const key = getHomeFolderIdentity(state, slot);
     if (key !== undefined) return { kind: 'folder', key, label: state.folders[slot], nativeType: folderHasItems(state, slot) ? 10 : 9 };
   }
-  return { kind: 'blank' };
+  return { kind: 'default' };
 }
 
 function assertClock(clock: HomeBannerServiceClock): void {
@@ -91,11 +97,17 @@ function copySelection(selection: HomeBannerHostSelection): HomeBannerHostSelect
     return { kind: 'folder', key: selection.key, label: selection.label, nativeType: selection.nativeType };
   }
   if (selection.kind === 'app' && selection.id) return { kind: 'app', id: selection.id };
-  if (selection.kind === 'blank') return { kind: 'blank' };
+  if (selection.kind === 'default' || selection.kind === 'clear') return { kind: selection.kind };
   throw new RangeError('Unsupported HOME banner host selection');
 }
 function sameFolder(a: HomeFolderBannerSelection, b: HomeFolderBannerSelection): boolean {
   return a.key === b.key && a.nativeType === b.nativeType;
+}
+function targetFor(selection: SupportedSelection): HomeBannerTarget {
+  if (selection.kind === 'folder') return { kind: 'folder', key: selection.key, nativeType: selection.nativeType };
+  return selection.kind === 'default'
+    ? { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 }
+    : { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };
 }
 
 export function createHomeBannerHost(clock: HomeBannerServiceClock, inputs: HomeBannerHostInputs): HomeBannerHost {
@@ -116,34 +128,34 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
     const instance = service.lifecycle.active;
     if (!instance) active = null;
     else if (!active || active.activationEpoch !== instance.activationEpoch) {
-      if (!pending || pending.requestEpoch !== instance.requestEpoch || pending.generation !== service.clock.generation) {
-        throw new Error('Missing HOME folder activation presentation');
+      if (!pending || pending.selection.kind === 'clear' || pending.requestEpoch !== instance.requestEpoch || pending.generation !== service.clock.generation) {
+        throw new Error('Missing HOME primary activation presentation');
       }
-      active = { ...pending, activationEpoch: instance.activationEpoch };
+      active = { ...pending, selection: pending.selection, activationEpoch: instance.activationEpoch };
     }
   }
 
   const selection = boundary.selection === undefined ? host.selection : copySelection(boundary.selection);
-  if (selection?.kind !== 'folder') {
+  if (!selection || selection.kind === 'app') {
     // Authored unsupported handoff: no guessed type, fade or hidden acknowledgement.
     return { clock: { ...clock }, scope, selection, inputs: retainInputs(boundary.inputs ?? host.inputs, null), service: null, pending: null, active: null };
   }
   if (!service) {
-    if (!Number.isSafeInteger(scope + 1)) throw new RangeError('HOME folder scope allocation exhausted');
+    if (!Number.isSafeInteger(scope + 1)) throw new RangeError('HOME primary scope allocation exhausted');
     scope++;
     // Tuple encoding cannot collide when session strings contain arbitrary separators.
-    service = createHomeBannerService({ generation: JSON.stringify(['home-folder-scope', clock.generation, scope]), updateCount: clock.updateCount });
+    service = createHomeBannerService({ generation: JSON.stringify(['home-primary-scope', clock.generation, scope]), updateCount: clock.updateCount });
   }
-  const requested = requestHomeBannerService(service, { target: { kind: 'folder', key: selection.key, nativeType: selection.nativeType } });
+  const requested = requestHomeBannerService(service, { target: targetFor(selection) });
   if (requested !== service) {
     pending = { generation: requested.clock.generation, requestEpoch: requested.lifecycle.requested!.epoch, selection: { ...selection } };
   }
   service = requested;
   const refresh = boundary.refreshActiveLabel;
-  if (refresh && active && service.stage === 'active' && sameFolder(selection, active.selection)
+  if (refresh && selection.kind === 'folder' && active?.selection.kind === 'folder' && service.stage === 'active' && sameFolder(selection, active.selection)
     && refresh.generation === active.generation && refresh.activationEpoch === active.activationEpoch && refresh.key === active.selection.key) {
     active = { ...active, selection: { ...active.selection, label: refresh.label } };
-    if (pending && sameFolder(pending.selection, active.selection)) pending = { ...pending, selection: { ...pending.selection, label: refresh.label } };
+    if (pending?.selection.kind === 'folder' && sameFolder(pending.selection, selection)) pending = { ...pending, selection: { ...pending.selection, label: refresh.label } };
   }
   return { clock: { ...clock }, scope, selection, service, pending, active, inputs: retainInputs(boundary.inputs ?? host.inputs, service, host.inputs) };
 }
@@ -151,8 +163,12 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
 /** Sampling never requests, acknowledges resources, or advances either native pass. */
 export function getHomeBannerHostView(host: HomeBannerHost): HomeBannerHostView {
   const { service, selection, active } = host;
-  if (!service || selection?.kind !== 'folder') return { status: 'unsupported', selection: selection?.kind === 'folder' ? null : selection, resourceTicket: null };
-  const common = { generation: service.clock.generation, selection, resourceTicket: getHomeBannerResourceTicket(service)!, stage: service.stage, waitUpdates: service.waitUpdates };
-  const motion = service.lifecycle.active?.folder;
-  return active && motion ? { ...common, status: 'active', folder: { ...active, motion } } : { ...common, status: 'pending', folder: null };
+  if (!service || !selection || selection.kind === 'app') return { status: 'unsupported', selection: selection?.kind === 'app' ? selection : null, resourceTicket: null };
+  const common = { generation: service.clock.generation, selection, resourceTicket: getHomeBannerResourceTicket(service), stage: service.stage, waitUpdates: service.waitUpdates };
+  const motion = service.lifecycle.active?.motion;
+  if (active && motion) return { ...common, status: 'active', primary: { ...active, motion } };
+  if (service.stage === 'active' && !service.lifecycle.requestPending && service.lifecycle.requested?.target.kind === 'clear') {
+    return { ...common, status: 'cleared', primary: null, resourceTicket: null };
+  }
+  return { ...common, status: 'pending', primary: null };
 }

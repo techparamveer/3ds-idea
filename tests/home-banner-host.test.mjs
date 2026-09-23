@@ -16,7 +16,7 @@ const started = (selection = folder()) => acknowledge(request(fresh(), selection
 const activated = (selection = folder()) => step(started(selection), 7);
 const settled = (selection = folder()) => step(activated(selection), 6);
 const view = getHomeBannerHostView;
-const motion = host => view(host).folder.motion;
+const motion = host => view(host).primary.motion;
 function freeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
     Object.freeze(value); for (const child of Object.values(value)) freeze(child);
@@ -40,20 +40,20 @@ test('first selection establishes a current-count baseline without replay or imp
 });
 
 test('a new selection at a later boundary cannot retroactively replace the old request', () => {
-  const old = activated(), oldEpoch = view(old).folder.activationEpoch;
+  const old = activated(), oldEpoch = view(old).primary.activationEpoch;
   let host = at(freeze(old), 13, { selection: folder('b', 'Folder B') });
   assert.equal(motion(host).yawCounter, 7);
   assert.equal(view(host).stage, 'active'); assert.equal(host.service.lifecycle.requestPending, true);
-  assert.equal(view(host).folder.selection.label, 'Folder A');
+  assert.equal(view(host).primary.selection.label, 'Folder A');
   assert.equal(host.pending.selection.label, 'Folder B'); assert.equal(host.inputs.resourceReady, null);
   host = acknowledge(host); host = step(host);
-  assert.equal(view(host).stage, 'hiding'); assert.equal(view(host).folder.activationEpoch, oldEpoch);
-  assert.equal(view(host).folder.selection.label, 'Folder A');
+  assert.equal(view(host).stage, 'hiding'); assert.equal(view(host).primary.activationEpoch, oldEpoch);
+  assert.equal(view(host).primary.selection.label, 'Folder A');
 });
 
 test('activation crossed inside the old-input batch binds the old pending label before retargeting', () => {
   const host = at(started(folder('a', 'Captured A')), 7, { selection: folder('b', 'Pending B') });
-  assert.equal(view(host).status, 'active'); assert.equal(view(host).folder.selection.label, 'Captured A');
+  assert.equal(view(host).status, 'active'); assert.equal(view(host).primary.selection.label, 'Captured A');
   assert.equal(host.pending.selection.label, 'Pending B'); assert.equal(motion(host).yawCounter, 1);
 });
 
@@ -94,7 +94,7 @@ test('resource revocation prevents activation and a stale request ticket never a
   assert.equal(host.inputs.resourceReady, null);
   host = step(host, 20); assert.equal(view(host).status, 'pending');
   host = acknowledge(host); host = step(host);
-  assert.equal(view(host).folder.selection.key, 'b'); assert.equal(motion(host).yawCounter, 1);
+  assert.equal(view(host).primary.selection.key, 'b'); assert.equal(motion(host).yawCounter, 1);
 });
 
 test('a stale completion cannot revoke a newer valid acknowledgement; explicit null still revokes', () => {
@@ -103,7 +103,7 @@ test('a stale completion cannot revoke a newer valid acknowledgement; explicit n
   const valid = view(host).resourceTicket;
   host = acknowledge(host, stale);
   assert.deepEqual(host.inputs.resourceReady, valid);
-  host = step(host, 7); assert.equal(view(host).folder.selection.key, 'b');
+  host = step(host, 7); assert.equal(view(host).primary.selection.key, 'b');
   host = acknowledge(request(host, folder('c', 'C')));
   host = acknowledge(host, null); assert.equal(host.inputs.resourceReady, null);
   host = step(host, 40); assert.equal(view(host).status, 'pending');
@@ -113,12 +113,12 @@ test('old presentation survives every visible and hidden retained stage before r
   let host = acknowledge(request(settled(folder('a', 'Old label')), folder('b', 'New label')));
   for (let i = 1; i <= 11; i++) {
     host = step(host);
-    assert.equal(view(host).status, 'active'); assert.equal(view(host).folder.selection.label, 'Old label');
+    assert.equal(view(host).status, 'active'); assert.equal(view(host).primary.selection.label, 'Old label');
     assert.equal(motion(host).visible, i <= 4);
   }
-  host = step(host); assert.equal(view(host).status, 'pending'); assert.equal(view(host).folder, null);
-  host = step(host); assert.equal(view(host).status, 'active'); assert.equal(view(host).folder.selection.label, 'New label');
-  assert.equal(view(host).folder.activationEpoch, 2); assert.equal(motion(host).yawCounter, 1);
+  host = step(host); assert.equal(view(host).status, 'pending'); assert.equal(view(host).primary, null);
+  host = step(host); assert.equal(view(host).status, 'active'); assert.equal(view(host).primary.selection.label, 'New label');
+  assert.equal(view(host).primary.activationEpoch, 2); assert.equal(motion(host).yawCounter, 1);
 });
 
 test('same-target label observations cannot silently rewrite prepared snapshots', () => {
@@ -127,92 +127,92 @@ test('same-target label observations cannot silently rewrite prepared snapshots'
   assert.equal(host.pending.selection.label, 'Prepared label');
   host = step(acknowledge(host), 7);
   assert.equal(view(host).selection.label, 'Unprepared rename');
-  assert.equal(view(host).folder.selection.label, 'Prepared label');
+  assert.equal(view(host).primary.selection.label, 'Prepared label');
 });
 
 test('explicit same-instance label refresh changes text without changing motion or tickets', () => {
   const before = settled(), beforeView = view(before);
-  const refresh = { generation: beforeView.generation, activationEpoch: beforeView.folder.activationEpoch, key: 'a', label: 'Renamed' };
+  const refresh = { generation: beforeView.generation, activationEpoch: beforeView.primary.activationEpoch, key: 'a', label: 'Renamed' };
   const host = at(freeze(before), before.clock.updateCount, { selection: folder('a', 'Renamed'), refreshActiveLabel: refresh });
-  assert.equal(view(host).folder.selection.label, 'Renamed'); assert.equal(host.pending.selection.label, 'Renamed');
+  assert.equal(view(host).primary.selection.label, 'Renamed'); assert.equal(host.pending.selection.label, 'Renamed');
   assert.equal(motion(host), motion(before)); assert.equal(host.service, before.service);
   assert.deepEqual(view(host).resourceTicket, beforeView.resourceTicket);
-  assert.equal(view(before).folder.selection.label, 'Folder A');
+  assert.equal(view(before).primary.selection.label, 'Folder A');
 });
 
 test('wrong generation/key/activation refreshes and refreshes of outgoing folders are ignored', () => {
   const before = settled(), v = view(before);
-  const valid = { generation: v.generation, activationEpoch: v.folder.activationEpoch, key: 'a', label: 'Wrong' };
+  const valid = { generation: v.generation, activationEpoch: v.primary.activationEpoch, key: 'a', label: 'Wrong' };
   for (const patch of [{ generation: 'old' }, { key: 'b' }, { activationEpoch: 0 }]) {
     const host = at(before, before.clock.updateCount, { refreshActiveLabel: { ...valid, ...patch } });
-    assert.equal(view(host).folder.selection.label, 'Folder A');
+    assert.equal(view(host).primary.selection.label, 'Folder A');
   }
   let host = at(before, before.clock.updateCount, { selection: folder('b', 'B'), refreshActiveLabel: valid });
-  assert.equal(view(host).folder.selection.label, 'Folder A');
+  assert.equal(view(host).primary.selection.label, 'Folder A');
   host = step(host); host = at(host, host.clock.updateCount, { selection: folder(), refreshActiveLabel: valid });
-  assert.equal(view(host).stage, 'hiding'); assert.equal(view(host).folder.selection.label, 'Folder A');
+  assert.equal(view(host).stage, 'hiding'); assert.equal(view(host).primary.selection.label, 'Folder A');
 });
 
 test('move retains identity; delete/recreate preserves the outgoing label rather than reading its former slot', () => {
   let menu = createFolder(createPortfolioState(), 40, 'Original');
   let host = settled(resolveHomeBannerHostSelection(menu));
-  const active = view(host).folder, ticket = view(host).resourceTicket;
+  const active = view(host).primary, ticket = view(host).resourceTicket;
   menu = moveHomeItem(menu, root(40), root(42));
   host = request(host, resolveHomeBannerHostSelection(menu));
-  assert.deepEqual(view(host).resourceTicket, ticket); assert.equal(view(host).folder.activationEpoch, active.activationEpoch);
-  assert.equal(view(host).folder.motion, active.motion); assert.equal(view(host).folder.selection.label, 'Original');
+  assert.deepEqual(view(host).resourceTicket, ticket); assert.equal(view(host).primary.activationEpoch, active.activationEpoch);
+  assert.equal(view(host).primary.motion, active.motion); assert.equal(view(host).primary.selection.label, 'Original');
   menu = reduceMenu({ ...menu, panel: 'delete' }, 'open');
   menu = createFolder(menu, 42, 'Replacement');
   host = step(acknowledge(request(host, resolveHomeBannerHostSelection(menu))));
-  assert.equal(view(host).folder.selection.label, 'Original');
+  assert.equal(view(host).primary.selection.label, 'Original');
   assert.equal(view(host).selection.label, 'Replacement');
-  assert.notEqual(view(host).folder.selection.key, view(host).selection.key);
+  assert.notEqual(view(host).primary.selection.key, view(host).selection.key);
 });
 
 test('empty/nonempty native type changes create a new request without reusing its resource ticket', () => {
   const before = settled(), ticket = view(before).resourceTicket;
   let host = request(before, folder('a', 'Now contains software', 10));
-  assert.equal(view(host).folder.selection.nativeType, 9); assert.equal(host.inputs.resourceReady, null);
+  assert.equal(view(host).primary.selection.nativeType, 9); assert.equal(host.inputs.resourceReady, null);
   host = acknowledge(host, ticket); assert.equal(host.inputs.resourceReady, null);
   host = step(acknowledge(host), 13);
-  assert.equal(view(host).folder.selection.nativeType, 10); assert.equal(view(host).folder.activationEpoch, 2);
+  assert.equal(view(host).primary.selection.nativeType, 10); assert.equal(view(host).primary.activationEpoch, 2);
 });
 
-test('opened folders resolve selected children or blank; overlays do not fabricate blank selections', () => {
+test('opened folders resolve selected children or default; overlays do not fabricate clears', () => {
   let menu = createFolder(createPortfolioState(), 40, 'Folder');
   assert.deepEqual(resolveHomeBannerHostSelection(selectHomeLocation(menu, root(0))), { kind: 'app', id: 'work' });
   assert.equal(resolveHomeBannerHostSelection(menu).nativeType, 9);
   menu = moveHomeItem(menu, root(0), { folder: 40, slot: 4 });
   const opened = selectHomeLocation(menu, { folder: 40, slot: 4 });
   assert.deepEqual(resolveHomeBannerHostSelection(opened), { kind: 'app', id: 'work' });
-  assert.deepEqual(resolveHomeBannerHostSelection(selectHomeLocation(opened, { folder: 40, slot: 5 })), { kind: 'blank' });
+  assert.deepEqual(resolveHomeBannerHostSelection(selectHomeLocation(opened, { folder: 40, slot: 5 })), { kind: 'default' });
   const parent = selectHomeLocation(opened, root(40)), expected = resolveHomeBannerHostSelection(parent);
   assert.equal(expected.nativeType, 10);
   for (const panel of ['settings', 'rename', 'delete']) assert.deepEqual(resolveHomeBannerHostSelection({ ...parent, panel, powered: false }), expected);
   assert.equal(resolveHomeBannerHostSelection(initialState).kind, 'folder', 'isolated menu identity fallback is supported');
 });
 
-test('unsupported app/blank handoff abandons service without guessed native types or visibility', () => {
+test('unsupported app handoff abandons service without guessed native types or visibility', () => {
   let host = at(settled(), 20, { selection: { kind: 'app', id: 'work' } });
   assert.deepEqual(view(host), { status: 'unsupported', selection: { kind: 'app', id: 'work' }, resourceTicket: null });
   assert.equal(host.service, null); assert.equal(host.pending, null); assert.equal(host.active, null); assert.equal(host.inputs.resourceReady, null);
-  host = at(host, 200, { selection: { kind: 'blank' } });
+  host = at(host, 200, { selection: { kind: 'app', id: 'notes' } });
   assert.equal(host.scope, 1); assert.equal(host.service, null);
   assert.equal(view(host).status, 'unsupported'); assert.equal(host.clock.updateCount, 200);
 });
 
 test('folder-scope reentry is deterministic, starts at the current count and invalidates old tickets', () => {
   const before = settled(), oldTicket = view(before).resourceTicket;
-  const unsupported = request(before, { kind: 'blank' });
+  const unsupported = request(before, { kind: 'app', id: 'work' });
   let host = at(unsupported, 400, { selection: folder(), inputs: inputs({ resourceReady: oldTicket }) });
   assert.equal(host.scope, 2); assert.equal(host.service.lifecycle.managerUpdates, 0);
   assert.equal(view(host).resourceTicket.requestEpoch, oldTicket.requestEpoch);
   assert.notEqual(view(host).generation, oldTicket.generation); assert.equal(host.inputs.resourceReady, null);
   assert.deepEqual(host, at(unsupported, 400, { selection: folder(), inputs: inputs({ resourceReady: oldTicket }) }));
   host = step(host, 10); assert.equal(view(host).status, 'pending');
-  host = step(acknowledge(host)); assert.equal(view(host).folder.activationEpoch, 1); assert.equal(motion(host).yawCounter, 1);
+  host = step(acknowledge(host)); assert.equal(view(host).primary.activationEpoch, 1); assert.equal(motion(host).yawCounter, 1);
   host = at(host, host.clock.updateCount, { refreshActiveLabel: { generation: oldTicket.generation, activationEpoch: 1, key: 'a', label: 'Previous scope' } });
-  assert.equal(view(host).folder.selection.label, 'Folder A');
+  assert.equal(view(host).primary.selection.label, 'Folder A');
 });
 
 test('new System generation clears presentation/readiness and requires selection to be supplied again', () => {
@@ -225,16 +225,16 @@ test('new System generation clears presentation/readiness and requires selection
   host = step(acknowledge(host)); assert.equal(motion(host).yawCounter, 1);
   const refresh = { generation: oldTicket.generation, activationEpoch: 1, key: 'a', label: 'Stale session label' };
   host = at(host, host.clock.updateCount, { refreshActiveLabel: refresh });
-  assert.equal(view(host).folder.selection.label, 'Folder A');
+  assert.equal(view(host).primary.selection.label, 'Folder A');
 });
 
 test('same-current reversal before hiding reuses active presentation, reversal during hiding activates anew', () => {
   const before = settled();
   let host = step(request(request(before, folder('b', 'B')), folder('a', 'New A observation')));
-  assert.equal(view(host).folder.activationEpoch, 1); assert.equal(view(host).folder.selection.label, 'Folder A');
+  assert.equal(view(host).primary.activationEpoch, 1); assert.equal(view(host).primary.selection.label, 'Folder A');
   host = step(request(before, folder('b', 'B')));
   host = step(acknowledge(request(host, folder('a', 'Reloaded A'))), 12);
-  assert.equal(view(host).folder.activationEpoch, 2); assert.equal(view(host).folder.selection.label, 'Reloaded A');
+  assert.equal(view(host).primary.activationEpoch, 2); assert.equal(view(host).primary.selection.label, 'Reloaded A');
 });
 
 test('sampling and zero-count boundaries leave motion unchanged; background stays separate', () => {
@@ -267,7 +267,7 @@ test('input/selection observations are copied and arbitrary extra service reques
   host = at(host, 0, { inputs: { ...host.inputs, resourceReady: ready, request: { target: { kind: 'blank', key: 'invalid', nativeType: 0 } } } });
   ready.requestEpoch = 999;
   host = step(host, 7);
-  assert.equal(view(host).folder.selection.label, 'Folder A'); assert.equal(host.service.lifecycle.requested.target.kind, 'folder');
+  assert.equal(view(host).primary.selection.label, 'Folder A'); assert.equal(host.service.lifecycle.requested.target.kind, 'folder');
 });
 
 test('clock validation covers unsupported intervals and scope generation encoding is unambiguous', () => {
@@ -277,5 +277,5 @@ test('clock validation covers unsupported intervals and scope generation encodin
   assert.throws(() => at(unsupported, 9), /new System generation/);
   assert.throws(() => request(fresh(), folder('a', 'Invalid type', 0)), RangeError);
   const session = 'session:"1",2';
-  assert.deepEqual(JSON.parse(view(request(fresh(session))).generation), ['home-folder-scope', session, 1]);
+  assert.deepEqual(JSON.parse(view(request(fresh(session))).generation), ['home-primary-scope', session, 1]);
 });

@@ -1,7 +1,7 @@
 # Native banner lifecycle
 
-`src/os/home-banner-lifecycle.ts` is a pure state adapter for the native folder
-banner and the upper background's SceneIn, Loop and AppPause controllers. It has
+`src/os/home-banner-lifecycle.ts` is a pure state adapter for native folder/default
+banners, explicit clear and the upper background's SceneIn, Loop and AppPause controllers. It has
 no DOM, Three.js, resource loader or HOME selection dependency. Runtime and scene
 integration remain separate: this module does not replace call sites of the old
 `banner-motion.ts` time approximation by itself.
@@ -34,6 +34,11 @@ The decoded BannerFolder resource SHA-256 is
 BannerBG has a 20-frame SceneIn and AppPause, and a 600-frame Loop; decoded resource
 SHA-256 is `092c8682d0cfabf0a1823a8e3a2c12556515c437afba2aa6f6ac7fc4d5e34595`.
 
+Default7 uses 300-loop skeletal and 60-nonloop material controllers, separately
+from its 600-update manager yaw. Its visibility/yaw path shares the original
+folder updater. Clear13 completes with no object or activation epoch increment.
+See [default/clear implementation and executed ordering](native-default-banner-runtime.md).
+
 ## Host integration
 
 Create one lifecycle with `createHomeBannerLifecycle()`. Its manager and scene
@@ -47,7 +52,7 @@ milliseconds, assumes 60 Hz, or derives one clock from another.
    explicit forced reload. This does not immediately change the active banner.
 2. Call `beginHomeBannerReplacement(state)` at the host's manager boundary.
    A same-current identity before hiding reuses the active object. A different
-   request asks the active folder to hide. Requests during hiding/loading retarget
+   request asks the active folder/default to hide. Requests during hiding/loading retarget
    the eventual replacement, without reviving an object already being removed.
 3. Feed eligible manager calls through `advanceHomeBannerManager(state, count)`.
    Requested visibility and actual attachment remain distinct. Retained hidden
@@ -64,13 +69,15 @@ milliseconds, assumes 60 Hz, or derives one clock from another.
 
 An initial request has no old object to hide, so `beginHomeBannerReplacement`
 enters `loading` directly. A ready initial resource can then activate. A request
+after a completed clear instead enters `hiding` even though the primary is null;
+this preserves the native state6-to-state2 boundary before the next gate pass. A request
 does not automatically activate after any number of update calls. The native
 loader has a wait counter and asynchronous readiness conditions; their full
 relationship to the host's update loop is not reproduced here. Do not introduce
 a guessed millisecond delay or treat `releaseHomeBanner` as automatic on detach.
 
 `active.activationEpoch` identifies the banner instance. Request epochs are
-loader tokens; unchanged requests reuse their token. Active folders expose
+loader tokens; unchanged requests reuse their token. `active.motion` exposes
 `yawCounter`, `yawRadians`, actual/requested visibility, native scale/progress,
 and their skeletal/material source frames. Yaw-reset, attachment and clip-start
 epochs make independent lifecycle changes observable. Clip epochs are local to

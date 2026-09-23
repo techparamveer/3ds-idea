@@ -1,0 +1,233 @@
+{
+  "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "fixtureSHA256": "a86ee156906e46ee4c2594f66ee7f8f9f87f343018dd21d3a8b9496013d216db",
+  "clearCompletion": [
+    {
+      "state": 3,
+      "wait": 0,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "OS worker creation (successful, no running handle)",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 6,
+      "wait": 0,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "worker completion (ready)",
+        "OS worker join",
+        "OS worker join",
+        "OS worker cleanup",
+        "interrupt mask save/restore"
+      ]
+    }
+  ],
+  "clearToDefault": [
+    {
+      "state": 2,
+      "wait": 0,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "ancillary hide task lookup",
+        "ancillary hide task notification",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 0,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 1,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 2,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 3,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 4,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 5,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 3,
+      "wait": 5,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "OS worker creation (successful, no running handle)",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 6,
+      "wait": 5,
+      "primary": 134217728,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "worker completion (ready)",
+        "OS worker join",
+        "OS worker join",
+        "OS worker cleanup",
+        "cached default resource construction",
+        "default virtual reset",
+        "loaded primary virtual update",
+        "interrupt mask save/restore"
+      ]
+    }
+  ],
+  "initialDefault": [
+    {
+      "state": 1,
+      "wait": 1,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 2,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 3,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 4,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 1,
+      "wait": 5,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 3,
+      "wait": 5,
+      "primary": 0,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "OS worker creation (successful, no running handle)",
+        "interrupt mask save/restore"
+      ]
+    },
+    {
+      "state": 6,
+      "wait": 5,
+      "primary": 134217728,
+      "pending": 0,
+      "events": [
+        "global manager eligibility (eligible)",
+        "interrupt mask save/restore",
+        "worker completion (ready)",
+        "OS worker join",
+        "OS worker join",
+        "OS worker cleanup",
+        "cached default resource construction",
+        "default virtual reset",
+        "loaded primary virtual update",
+        "interrupt mask save/restore"
+      ]
+    }
+  ],
+  "unchangedDefaultRequestDeduplicated": true,
+  "limits": "Original manager, hide request, same-current predicate, gate, loader dispatch, key copy, type13 completion and type7 installation execute. OS workers, global eligibility, ancillary hide notifications, cached resource construction/reset and primary update are explicit stubs. No attached scene pass, native wall clock, OS process or GPU execution. Nine passes describe this all-ready primary-only fixture; native async scheduling can delay them."
+}

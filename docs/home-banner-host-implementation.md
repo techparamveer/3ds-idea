@@ -1,13 +1,14 @@
-# Pure folder host adapter
+# Pure primary banner host adapter
 
-`src/os/home-banner-host.ts` implements the prepared ordinary-folder slice of
-the accepted host contract. It does not change System, scene transactions,
+`src/os/home-banner-host.ts` supports ordinary folders, default type7 BannerDef
+and explicit type13 clear. See [source verification](native-default-banner-runtime.md). It does not change System, scene transactions,
 screens or GPU resources. Background lifecycle remains separate.
 
 ## API
 
 - `resolveHomeBannerHostSelection(state)` returns folder `{kind,key,label,nativeType}`,
-  app `{kind,id}` or blank `{kind}`. Open folders resolve the selected child;
+  app `{kind,id}` or default `{kind:'default'}` for a true vacant slot. The resolver
+  never returns explicit `{kind:'clear'}`. Open folders resolve the selected child;
   root folders use stable session identities and empty9/nonempty10. Power,
   overlays and eligibility do not alter content selection.
 - `createHomeBannerHost(clock, inputs)` takes a System session generation,
@@ -19,15 +20,17 @@ screens or GPU resources. Background lifecycle remains separate.
   activated presentation, then applies observations at the same count. Omitted
   observations remain unchanged. Supplied inputs replace the complete set.
 - `getHomeBannerHostView(host)` is read-only and returns `unsupported`, `pending`
-  or `active`. Supported views expose the current `resourceTicket`, folder-scope
-  `generation`, service `stage` and `waitUpdates`. `active.folder` contains the
-  retained presentation selection/label, generation/request/activation epochs
+  `cleared` or `active`. Supported views expose the current `resourceTicket`
+  (null for clear), primary-scope
+  `generation`, service `stage` and `waitUpdates`. `active.primary` contains the
+  retained folder/default presentation selection, generation/request/activation epochs
   and full `motion` (actual visibility, scale, yaw and independent clip frames).
 
 An active retained instance may be hidden and awaiting release while the
-incoming selection differs. Paint `view.folder.selection.label`, not
-`view.selection.label`. Pending means there is no active folder instance; it
-must not automatically paint an incoming reconstructed folder. Unsupported is
+incoming selection differs. For an outgoing folder, paint `view.primary.selection.label`; default has no
+label. Pending means there is no active primary and must not invent a ready
+incoming model. Cleared means type13 completed with `primary:null` and no new
+model activation epoch. Unsupported is
 an explicit handoff to the application's separate fallback.
 
 ## Ordering and readiness
@@ -40,6 +43,10 @@ Resource revocation likewise applies after the preceding interval is consumed.
 Revocation prevents later activation; it does not detach an already-active
 instance. The scene independently decides how an actual rendering failure falls
 back. Promise settlement is not evidence that model/camera/label loading worked.
+
+Default readiness requires exact EUR model/clips, all required textures, camera
+and a usable compositing path. Clear has no resource ticket or model readiness,
+but still needs the native worker and hide/gate handshake.
 
 Only matching generation/request tickets are retained. A stale completion is
 ignored and cannot revoke a newer valid acknowledgement; use explicit
@@ -56,16 +63,16 @@ capture and render throttling only sample its view.
 ## Presentation snapshots and rename
 
 The host stores only `pending` (latest request snapshot, including after
-activation) and `active`. New requests capture immutable label text. The outgoing
+activation/clear) and `active` (folder/default only). Folder requests capture immutable label text. The outgoing
 active snapshot survives moves, deletion, slot reuse, retargeting and hiding.
 Repeated same-target observations do not change an already-prepared label or
 create a new request. This also applies to a rename observed while loading: the
 request's prepared label remains authoritative until explicitly refreshed after
 activation. A different identity/type captures a new snapshot as usual.
 
-`refreshActiveLabel` is an explicit prepared-text event with
-`{generation,activationEpoch,key,label}`. It updates text only for the selected
-active identity/type while the service is active; outgoing/hiding instances and
+Default never requests label preparation. `refreshActiveLabel` is an explicit prepared-text event with
+`{generation,activationEpoch,key,label}`. It updates text only when both selected and active kinds are folder, with matching
+identity/type while the service is active; outgoing/hiding instances and
 stale events are ignored. It never restarts motion or invalidates resource
 tickets. The caller must prepare the replacement label before submitting this
 event. This is authored content refresh, not a claim about native rename timing.
@@ -79,13 +86,17 @@ System generation string is invalid caller behavior; a same-generation counter
 decrease throws, including while unsupported. Layout reset alone keeps the
 System generation.
 
-App/blank selections explicitly abandon the folder service. Reentering folder
-content allocates the next deterministic `host.scope` and starts at the current
+Folder/default/clear retain one service scope. Adjacent vacancies deduplicate
+across slots and root/child contexts using `HOME_BANNER_EMPTY_KEY`; kind/type
+distinguish default7 from clear13 despite the shared key. App selections
+explicitly abandon the service. Reentering supported content allocates the next deterministic `host.scope` and starts at the current
 count with a new service generation. Its opaque generation encodes the tuple
-`['home-folder-scope', systemGeneration, scope]`. Reused request/activation numbers
+`['home-primary-scope', systemGeneration, scope]`. Reused request/activation numbers
 therefore cannot accept an earlier scope's tickets or label refreshes. There is
 no global counter, randomness or wall clock. This handoff is authored degradation;
-it does not reproduce native app/blank transitions or intermediate close requests.
+it does not reproduce native app transitions. Integration supplies intermediate
+clear requests at explicit event/update boundaries. Same-counter observations
+remain a latest-request latch and do not manufacture intermediate completions.
 Background attachment, mode and clip lifecycle are not initialized by this host.
 
 ## Verification

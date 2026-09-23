@@ -1,18 +1,21 @@
-/** Pure HOME banner lifecycle. Inputs are native update counts, never milliseconds.
+/** Pure HOME folder/default/clear lifecycle. Inputs are native update counts, never milliseconds.
  * Native addresses, integration ordering and unmeasured scheduling are documented
  * in docs/native-banner-lifecycle.md. This does not own the HOME selection reducer.
  */
 export const HOME_BANNER_PERIOD = 600;
 export const HOME_BANNER_BG_SCENE_IN_SETTLED_FRAME = 19;
-const FOLDER_INITIAL_YAW = -0.010471975430846214; // float32 bits 0xbc2b92a6
+export const HOME_BANNER_EMPTY_KEY = 'native:ffffffff:ffffffff:0';
+const INITIAL_YAW = -0.010471975430846214; // float32 bits 0xbc2b92a6
 
 export type HomeBannerTarget = Readonly<{
+  /** Legacy blank is an external special-target boundary, not vacancy or clear. */
   kind: 'folder' | 'app' | 'blank';
   /** Stable identity, not its displayed name or current grid slot. */
   key: string;
   /** Ordinary folders use 9 (empty) or 10 (nonempty), mapped variants 11/12. */
   nativeType: number;
-}>;
+}> | Readonly<{ kind: 'default'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 7 }>
+  | Readonly<{ kind: 'clear'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 13 }>;
 
 export type HomeBannerRequest = Readonly<{
   target: HomeBannerTarget;
@@ -36,7 +39,7 @@ export type HomeBannerClip = Readonly<{
   updates: number;
 }>;
 
-export type HomeFolderBannerMotion = Readonly<{
+export type HomeBannerMotion = Readonly<{
   requestedVisible: boolean;
   visible: boolean;
   visibilityEpoch: number;
@@ -51,6 +54,8 @@ export type HomeFolderBannerMotion = Readonly<{
   skeletal: HomeBannerClip;
   material: HomeBannerClip;
 }>;
+/** Compatibility for callers that only draw folders; motion ownership is generic. */
+export type HomeFolderBannerMotion = HomeBannerMotion;
 
 export type HomeBannerInstance = Readonly<{
   target: HomeBannerTarget;
@@ -58,8 +63,8 @@ export type HomeBannerInstance = Readonly<{
   requestEpoch: number;
   activatedAtManagerUpdate: number;
   activatedAtSceneUpdate: number;
-  /** App/blank banner geometry and motion are outside this folder adapter. */
-  folder: HomeFolderBannerMotion | null;
+  /** App/legacy special-target motion remains an explicit external boundary. */
+  motion: HomeBannerMotion | null;
 }>;
 
 export type HomeBannerLifecycle = Readonly<{
@@ -129,6 +134,10 @@ function sameTarget(a: HomeBannerTarget, b: HomeBannerTarget): boolean {
 /** Queue selection separately from activation. No banner clock changes here. */
 export function requestHomeBanner(state: HomeBannerLifecycle, target: HomeBannerTarget,
   options: { optionA?: number; optionB?: number; forceReload?: boolean } = {}): HomeBannerLifecycle {
+  if ((target.kind === 'default' || target.kind === 'clear') &&
+    (target.key !== HOME_BANNER_EMPTY_KEY || target.nativeType !== (target.kind === 'default' ? 7 : 13))) {
+    throw new RangeError('Invalid default/clear banner identity');
+  }
   const { optionA = 0, optionB = 0, forceReload = false } = options;
   const previous = state.requested;
   if (!forceReload && previous && sameTarget(previous.target, target)
@@ -137,10 +146,10 @@ export function requestHomeBanner(state: HomeBannerLifecycle, target: HomeBanner
     managerUpdate: state.managerUpdates, optionA, optionB, forceReload }, requestPending: true };
 }
 
-function requestVisibility(folder: HomeFolderBannerMotion, visible: boolean, update: number): HomeFolderBannerMotion {
+function requestVisibility(folder: HomeBannerMotion, visible: boolean, update: number): HomeBannerMotion {
   // 0x1f9e64 resets only when actual +0x3c is clear, for either requested value.
   return folder.visible ? { ...folder, requestedVisible: visible } : {
-    ...folder, requestedVisible: visible, yawCounter: 0, yawRadians: FOLDER_INITIAL_YAW,
+    ...folder, requestedVisible: visible, yawCounter: 0, yawRadians: INITIAL_YAW,
     yawEpoch: folder.yawEpoch + 1, yawResetManagerUpdate: update,
   };
 }
@@ -149,19 +158,20 @@ function requestVisibility(folder: HomeFolderBannerMotion, visible: boolean, upd
  * begun, returning to the old key does not cancel the native replacement path. */
 export function beginHomeBannerReplacement(state: HomeBannerLifecycle): HomeBannerLifecycle {
   if (!state.requestPending || !state.requested || state.phase === 'hiding' || state.phase === 'loading') return state;
-  if (state.active?.folder && sameTarget(state.active.target, state.requested.target) && !state.requested.forceReload) {
+  if (state.active?.motion && sameTarget(state.active.target, state.requested.target) && !state.requested.forceReload) {
     return { ...state, requestPending: false };
   }
-  if (!state.active) return { ...state, phase: 'loading', requestPending: false };
-  const folder = state.active.folder;
+  // Native state6 requests state2 even when a completed clear left no primary.
+  if (!state.active) return { ...state, phase: state.phase === 'active' ? 'hiding' : 'loading', requestPending: false };
+  const folder = state.active.motion;
   return { ...state, phase: 'hiding', requestPending: false, active: { ...state.active,
-    folder: folder ? requestVisibility(folder, false, state.managerUpdates) : null } };
+    motion: folder ? requestVisibility(folder, false, state.managerUpdates) : null } };
 }
 
 /** Explicit native primary-slot release. The asynchronous load gate is owned by
  * the host; reaching hidden alone does not invent an activation deadline. */
 export function releaseHomeBanner(state: HomeBannerLifecycle): HomeBannerLifecycle {
-  if (state.phase !== 'hiding' || state.active?.folder?.visible) return state;
+  if (state.phase !== 'hiding' || state.active?.motion?.visible) return state;
   return { ...state, phase: 'loading', active: null };
 }
 
@@ -169,17 +179,19 @@ export function releaseHomeBanner(state: HomeBannerLifecycle): HomeBannerLifecyc
  * The host must release a hidden previous banner first. No implicit update here. */
 export function activateHomeBanner(state: HomeBannerLifecycle, requestEpoch: number): HomeBannerLifecycle {
   if (state.phase !== 'loading' || !state.requested || requestEpoch !== state.requested.epoch) return state;
+  if (state.requested.target.kind === 'clear') return { ...state, phase: 'active', requestPending: false, active: null };
   const activationEpoch = state.activationEpoch + 1;
-  const folder: HomeFolderBannerMotion | null = state.requested.target.kind !== 'folder' ? null : {
+  const kind = state.requested.target.kind;
+  const motion: HomeBannerMotion | null = kind !== 'folder' && kind !== 'default' ? null : {
     requestedVisible: true, visible: false, visibilityEpoch: 0, visibilityManagerUpdate: state.managerUpdates,
     visibilityCounter: 0, visibilityProgress: 0, scale: 1, yawCounter: 0,
-    yawRadians: FOLDER_INITIAL_YAW, yawEpoch: 1, yawResetManagerUpdate: state.managerUpdates,
-    skeletal: startClip(clip(HOME_BANNER_PERIOD, true), state.sceneUpdates),
-    material: startClip(clip(HOME_BANNER_PERIOD, true), state.sceneUpdates),
+    yawRadians: INITIAL_YAW, yawEpoch: 1, yawResetManagerUpdate: state.managerUpdates,
+    skeletal: startClip(clip(kind === 'default' ? 300 : HOME_BANNER_PERIOD, true), state.sceneUpdates),
+    material: startClip(clip(kind === 'default' ? 60 : HOME_BANNER_PERIOD, kind !== 'default'), state.sceneUpdates),
   };
   return { ...state, phase: 'active', activationEpoch, requestPending: false, active: {
     target: state.requested.target, activationEpoch, requestEpoch,
-    activatedAtManagerUpdate: state.managerUpdates, activatedAtSceneUpdate: state.sceneUpdates, folder,
+    activatedAtManagerUpdate: state.managerUpdates, activatedAtSceneUpdate: state.sceneUpdates, motion,
   } };
 }
 
@@ -187,17 +199,17 @@ export function activateHomeBanner(state: HomeBannerLifecycle, requestEpoch: num
  * and deliberately preserves yaw; the normal request matches 0x1f9e64. */
 export function setHomeBannerVisibility(state: HomeBannerLifecycle, visible: boolean,
   immediate = false): HomeBannerLifecycle {
-  const active = state.active, folder = active?.folder;
+  const active = state.active, folder = active?.motion;
   if (!active || !folder) return state;
   const next = immediate ? { ...folder, requestedVisible: visible, visible,
     visibilityCounter: folder.visible ? 4 : 0,
     visibilityEpoch: folder.visibilityEpoch + Number(folder.visible !== visible),
     visibilityManagerUpdate: folder.visible !== visible ? state.managerUpdates : folder.visibilityManagerUpdate,
   } : requestVisibility(folder, visible, state.managerUpdates);
-  return { ...state, active: { ...active, folder: next } };
+  return { ...state, active: { ...active, motion: next } };
 }
 
-function advanceFolder(folder: HomeFolderBannerMotion, update: number): HomeFolderBannerMotion {
+function advanceMotion(folder: HomeBannerMotion, update: number): HomeBannerMotion {
   let visible = folder.visible, visibilityCounter = folder.visibilityCounter;
   let visibilityProgress = folder.visibilityProgress, scale = folder.scale;
   let writeScale = false;
@@ -230,21 +242,21 @@ export function advanceHomeBannerManager(state: HomeBannerLifecycle, updates = 1
   let next = state;
   for (let i = 0; i < updates; i++) {
     const managerUpdates = next.managerUpdates + 1, active = next.active;
-    next = { ...next, managerUpdates, active: active?.folder
-      ? { ...active, folder: advanceFolder(active.folder, managerUpdates) } : active };
+    next = { ...next, managerUpdates, active: active?.motion
+      ? { ...active, motion: advanceMotion(active.motion, managerUpdates) } : active };
   }
   return next;
 }
 
-/** Separate native visible-scene pass. A hidden retained folder still gets yaw
+/** Separate native visible-scene pass. A hidden retained primary still gets yaw
  * updates above but is absent from the controller list traversed by 0x103850. */
 export function advanceHomeBannerClips(state: HomeBannerLifecycle, updates = 1): HomeBannerLifecycle {
   count(updates);
   let next = state;
   for (let i = 0; i < updates; i++) {
-    const active = next.active, folder = active?.folder, background = next.background;
+    const active = next.active, folder = active?.motion, background = next.background;
     next = { ...next, sceneUpdates: next.sceneUpdates + 1,
-      active: active && folder?.visible ? { ...active, folder: { ...folder,
+      active: active && folder?.visible ? { ...active, motion: { ...folder,
         skeletal: advanceClip(folder.skeletal), material: advanceClip(folder.material) } } : active,
       background: background.attached ? { ...background, sceneIn: advanceClip(background.sceneIn),
         loop: advanceClip(background.loop), appPause: advanceClip(background.appPause) } : background };

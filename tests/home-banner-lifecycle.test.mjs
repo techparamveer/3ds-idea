@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  HOME_BANNER_BG_SCENE_IN_SETTLED_FRAME,
+  HOME_BANNER_BG_SCENE_IN_SETTLED_FRAME, HOME_BANNER_EMPTY_KEY,
   createHomeBannerLifecycle, requestHomeBanner, beginHomeBannerReplacement,
   releaseHomeBanner, activateHomeBanner, setHomeBannerVisibility,
   advanceHomeBannerManager, advanceHomeBannerClips, homeBannerYawAtCounter,
@@ -10,9 +10,10 @@ import {
 } from '../src/os/home-banner-lifecycle.ts';
 
 const folder = (key = 'folder:4', nativeType = 9) => ({ kind: 'folder', key, nativeType });
-const blank = { kind: 'blank', key: 'blank', nativeType: 7 };
+const defaultBanner = { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 };
+const clear = { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };
 const app = { kind: 'app', key: 'app:notes', nativeType: 1 };
-const motion = state => state.active.folder;
+const motion = state => state.active.motion;
 function activate(state = createHomeBannerLifecycle(), target = folder()) {
   state = beginHomeBannerReplacement(requestHomeBanner(state, target));
   if (state.phase === 'hiding') {
@@ -164,13 +165,13 @@ test('folder clip period is 600 even though the skeletal bob curve repeats every
   assert.equal(motion(state).yawCounter, 8);
 });
 
-test('normal child app or blank selection and return activate a parent folder afresh', () => {
-  for (const child of [app, blank]) {
+test('normal child app or default selection, explicit clear and return activate a parent folder afresh', () => {
+  for (const child of [app, defaultBanner]) {
     let state = advanceHomeBannerClips(visible(), 200);
     state = activate(state, child);
-    assert.equal(state.active.folder, null);
-    // Native close requests blank, then restored parent; host selection owns this sequence.
-    state = activate(state, blank);
+    assert.equal(state.active.motion === null, child.kind === 'app');
+    // Native close requests clear, then restored parent; host selection owns this sequence.
+    state = activate(state, clear); assert.equal(state.active, null);
     state = activate(state, folder());
     assert.equal(motion(state).yawCounter, 0);
     assert.equal(motion(state).skeletal.frame, 0);

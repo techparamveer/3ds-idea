@@ -54,6 +54,10 @@ it does not change native-rate synthesis. The subsequent
 [complete repeat-state audit](home_audio_REPEAT_STATE_EVIDENCE.md) finds no
 certified fixed music cycle and specifies the proposed persistent synthesis
 boundary. This is a contract for review, not an implemented browser engine.
+The subsequent [pure TypeScript music engine](home_audio_ENGINE_EVIDENCE.md)
+implements the agreed music-only boundary with private resource export and
+exact v8 PCM/state conformance. Browser scheduling and public promotion remain
+separate integration work; the offline WAV repeat is still not certified.
 
 Two aux buses remain distinct from main and from each other; each has a transparent
 unity return. This is a **startup runtime-state assumption** supported by the

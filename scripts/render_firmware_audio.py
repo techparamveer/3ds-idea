@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 from firmware.home_audio_profile import isolated_renderer, validate_archive, validate_source
+from firmware.home_audio_clock import NATIVE_RATE
 
 DUALRIP_REVISION = 'c00e809ad4fcc44056a5b3c11d30f6a698b92be0'
 CUES = {
@@ -33,13 +34,13 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def render(source, output, renderer, source_record, names, rate=32728, scratch=None):
+def render(source, output, renderer, source_record, names, rate=NATIVE_RATE, scratch=None):
+    if rate != NATIVE_RATE:
+        raise ValueError(f'The HOME DSP profile supports only {NATIVE_RATE} Hz')
     if output.exists():
         raise ValueError('Use a new output directory to avoid stale or mixed audio packs')
     if not names or len(set(names)) != len(names) or any(name not in CUES for name in names):
         raise ValueError('Expected unique allowlisted cue aliases')
-    if rate not in (32728, 32000, 44100, 48000):
-        raise ValueError('Unsupported sample rate')
     title = json.loads(source_record.read_text())
     validate_source(source, title)
     with isolated_renderer(renderer, scratch) as profile:
@@ -54,11 +55,11 @@ def render(source, output, renderer, source_record, names, rate=32728, scratch=N
         result = {
             'schema': 1, 'firmware': '10.7.0-32E', 'title': title,
             'source': 'romfs/sound/menu.bcsar', 'sourceSha256': sha(source),
-            'converter': {'name': 'render_firmware_audio', 'version': 6, 'sha256': sha(Path(__file__))},
+            'converter': {'name': 'render_firmware_audio', 'version': 7, 'sha256': sha(Path(__file__))},
             'renderer': {'name': 'DualRip', 'url': 'https://github.com/TetraSsky/DualRip', 'revision': DUALRIP_REVISION},
             'profile': profile, 'validatedMonoBankWaves': waves,
             'method': 'offline CSEQ interpretation with original CBNK/CWAV and a versioned HOME-only stereo startup patch',
-            'verification': 'diagnostic candidate; source-derived sequence clock, native runtime gain/envelopes and PCM equivalence unresolved',
+            'verification': 'diagnostic candidate; pinned-capture voice/DSP model; runtime overrides, hardware parity and baked-loop delivery remain unresolved',
             'cues': {},
         }
         for alias in names:
@@ -103,6 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('--scratch', type=Path, required=True, help='SSD directory for disposable renderer sources')
     parser.add_argument('--source-record', type=Path, required=True)
     parser.add_argument('--only', nargs='+', choices=list(CUES), default=list(CUES))
-    parser.add_argument('--rate', type=int, default=32728, choices=[32728, 32000, 44100, 48000])
+    parser.add_argument('--rate', type=int, default=NATIVE_RATE, choices=[NATIVE_RATE],
+                        help='native output rate required by the HOME DSP profile')
     args = parser.parse_args()
     render(args.source, args.output, args.renderer, args.source_record, args.only, args.rate, args.scratch)

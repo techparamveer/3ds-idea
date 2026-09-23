@@ -1,6 +1,6 @@
 # Bounded HOME audio correction
 
-`../render_firmware_audio.py` version 6 with **voice/DSP profile v8** builds a diagnostic candidate for the exact
+`../render_firmware_audio.py` version 7 with **voice/DSP profile v8** builds a diagnostic candidate for the exact
 owner-supplied EUR HOME archive identified by `home_audio_profile.json`. It rejects
 other archive hashes, source records, nonallowlisted sounds, altered sound options,
 unexpected banks and stereo source waves. It does not load neighboring `extData`.
@@ -49,6 +49,11 @@ ramps. See [DSP evidence](home_audio_DSP_EVIDENCE.md) for the C++ oracle checks,
 36 passing tests, native comparisons and continuing baked-loop blocker. This
 profile requires native 32728 Hz / 160-sample generation and is not a hardware
 polyphase verification.
+Wrapper version 7 explicitly accepts only 32728 Hz in both its API and CLI;
+it does not change native-rate synthesis. The subsequent
+[complete repeat-state audit](home_audio_REPEAT_STATE_EVIDENCE.md) finds no
+certified fixed music cycle and specifies the proposed persistent synthesis
+boundary. This is a contract for review, not an implemented browser engine.
 
 Two aux buses remain distinct from main and from each other; each has a transparent
 unity return. This is a **startup runtime-state assumption** supported by the

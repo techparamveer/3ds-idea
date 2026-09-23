@@ -225,3 +225,8 @@ All diagnostic files are under SSD `assets/audio-research`:
 Application/UI/model code is unchanged, so no browser, shader or Next.js rebuild
 is claimed. Public audio remains held for loop delivery and the remaining
 capture/runtime/hardware limits described above.
+
+The follow-up [complete repeat-state audit](home_audio_REPEAT_STATE_EVIDENCE.md)
+tests later cycles without resetting state and documents the proposed persistent
+engine boundary. Wrapper version 7 subsequently makes the native-only CLI rate
+constraint explicit; the v8 pack and wrapper-6 provenance above remain historical.

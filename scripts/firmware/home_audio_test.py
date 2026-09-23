@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import struct
+import subprocess
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -16,6 +17,7 @@ from firmware import home_audio_math as math
 from firmware.home_audio_clock import NativeSequenceClock
 from firmware import home_audio_voice as native
 from firmware.home_audio_dsp import CaptureDsp
+from firmware.home_audio_loop_state import snapshot, differences
 from firmware.home_audio_profile import PROFILE, isolated_renderer, validate_source, validate_archive
 
 
@@ -212,6 +214,34 @@ class CaptureDspTests(unittest.TestCase):
                 CaptureDsp([0], False, 0).frame(rate)
 
 
+class RendererInterfaceTests(unittest.TestCase):
+    def test_api_rejects_alternate_rates_before_reading_or_writing(self):
+        from render_firmware_audio import render
+        with tempfile.TemporaryDirectory(dir=scratch_root()) as temp:
+            root = Path(temp)
+            for rate in (32000, 44100, 48000):
+                with self.subTest(rate=rate), self.assertRaisesRegex(ValueError, 'only 32728 Hz'):
+                    render(root / 'missing-source', root / 'output', root / 'missing-renderer',
+                           root / 'missing-record', ['select'], rate, root / 'scratch')
+                self.assertEqual(list(root.iterdir()), [])
+
+    def test_cli_advertises_native_rate_and_rejects_other_rates(self):
+        script = Path(__file__).resolve().parent.parent / 'render_firmware_audio.py'
+        help_text = subprocess.check_output([sys.executable, str(script), '--help'], text=True)
+        self.assertIn('--rate {32728}', help_text)
+        with tempfile.TemporaryDirectory(dir=scratch_root()) as temp:
+            root = Path(temp)
+            for rate in (32000, 44100, 48000):
+                command = [sys.executable, str(script), str(root / 'missing-source'), str(root / 'output'),
+                           '--renderer', str(root / 'missing-renderer'), '--scratch', str(root / 'scratch'),
+                           '--source-record', str(root / 'missing-record'), '--rate', str(rate)]
+                result = subprocess.run(command, text=True, capture_output=True)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn('invalid choice', result.stderr)
+                self.assertIn('32728', result.stderr)
+                self.assertEqual(list(root.iterdir()), [])
+
+
 class ClockTests(unittest.TestCase):
     def test_fixed_149_and_fractional_carry(self):
         clock = NativeSequenceClock()
@@ -395,6 +425,40 @@ class SequencerTests(unittest.TestCase):
             Path(__file__).with_name('home_audio_dsp.py').read_bytes()).hexdigest())
         self.assertNotEqual(p['originalFiles']['dualrip/engine/ctr/sequencer.py'],
                             p['patchedFiles']['dualrip/engine/ctr/sequencer.py'])
+
+    def test_repeat_snapshot_excludes_reporting_but_keeps_native_loop_count(self):
+        player = self.player()
+        track = player.tracks[0]
+        track.stack = [('loop', 12, 1000, 3), ('call', 24)]
+        before = snapshot(player)
+        player.now_sample += 3515200
+        player.loop_start_sample = 1000
+        player.loop_end_sample = 3516200
+        track.visited = {12: player.now_sample}
+        track.passes_left -= 1
+        track.stack[0] = ('loop', 12, 3516200, 3)
+        after = snapshot(player)
+        self.assertEqual(before['stateSha256'], after['stateSha256'])
+        track.stack[0] = ('loop', 12, 3516200, 2)
+        self.assertNotEqual(after['stateSha256'], snapshot(player)['stateSha256'])
+
+    def test_repeat_snapshot_copies_clock_history_and_gains_without_aliasing(self):
+        player = self.player()
+        voice = player.tracks[0].note_on(60, 127, 10)
+        player.update_voice(voice)
+        before = snapshot(player)
+        player.sequence_clock.remaining_fraction = 0.25
+        voice.dsp.fraction = 1
+        voice.dsp.history[0] = -123
+        voice.dsp.gains[0, 0] = 0.5
+        after = snapshot(player)
+        paths = {row['path'] for row in differences(before['state'], after['state'])}
+        self.assertIn('clock.fraction', paths)
+        self.assertIn('voices[0].dsp.fraction', paths)
+        self.assertIn('voices[0].dsp.history[0]', paths)
+        self.assertIn('voices[0].dsp.gains[0][0]', paths)
+        self.assertEqual(before['state']['voices'][0]['dsp']['gains'][0][0], 0)
+        self.assertNotEqual(before['activeVoiceMultisetSha256'], after['activeVoiceMultisetSha256'])
 
     def test_startup_preserves_generated_sample_origin(self):
         from dualrip.engine.ctr.render import render_entry

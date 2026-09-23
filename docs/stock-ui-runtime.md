@@ -61,7 +61,8 @@ media never enters the shared save store.
 State/view data: `trackId`, `track`, `playing`, `position`/`duration` in seconds,
 `repeat: 'off'|'all'|'one'`, `shuffle`, `revision`, and optional `mediaError`.
 All music effects include `{type:'music',command,trackId,revision}`. Load also
-contains `src` and `position`; seek contains `position`. Selecting a track emits
+contains `src` and `position`; play also includes both so a released audio
+element can be recreated at the paused position. Seek contains `position`. Selecting a track emits
 ordered load then play with one revision. Paused next/previous emits load only.
 Every load/play/pause/seek increments revision, including lifecycle pauses.
 

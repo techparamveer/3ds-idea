@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCapabilityAdapter } from '../src/os/app-capabilities.ts';
-import { createAppRuntime, startApplication, dispatchRuntime, showRuntimeHome, resumeRuntimeApplication, isRuntimeEffectCurrent, deliverCapabilityResult } from '../src/os/app-host.ts';
+import { createAppRuntime, startApplication, showRuntimeHome, resumeRuntimeApplication, isRuntimeEffectCurrent, deliverCapabilityResult } from '../src/os/app-host.ts';
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
 const stream=()=>{const track={stops:0,stop(){this.stops++;}};return {track,getTracks:()=>[track]};};
 const video=()=>({muted:false,playsInline:false,srcObject:null,videoWidth:640,videoHeight:480,play:async()=>{},pause(){this.paused=true;}});
@@ -36,8 +36,10 @@ test('camera preview, captured Blob metadata and repeated disposal stop every li
  f.adapter.release('owner');assert.ok(source.track.stops>0);assert.equal(v.srcObject,null);assert.equal(f.adapter.getPreview('owner'),null);f.adapter.dispose();f.adapter.dispose();
 });
 test('permission completion after suspend/resume stops its stream and cannot mutate the app',async()=>{
- let runtime=dispatchRuntime(startApplication(createAppRuntime(),'camera',0),{type:'action',id:'preview'},1);
- const request=runtime.effects.find(e=>e.effect.type==='capability'),permission=deferred(),source=stream();let callbacks=0;
+ // Synthetic legacy adapter request; stock Camera no longer emits device effects.
+ let runtime=startApplication(createAppRuntime(),'work',0);const owner=runtime.active,id=runtime.effectSequence+1;
+ const request={...item(id,'camera','preview','test-preview'),owner},permission=deferred(),source=stream();let callbacks=0;
+ runtime={...runtime,effectSequence:id,instances:{...runtime.instances,[owner]:{...runtime.instances[owner],requests:{'test-preview':id}}}};
  const adapter=createCapabilityAdapter({environment:{getUserMedia:()=>permission.promise,createVideo:video},isCurrent:item=>isRuntimeEffectCurrent(runtime,item),onResult:(owner,event)=>{callbacks++;runtime=deliverCapabilityResult(runtime,owner,event,5);}});
  const promise=adapter.execute(request,{userGesture:true});runtime=showRuntimeHome(runtime,2);adapter.release(request.owner);runtime=resumeRuntimeApplication(runtime,3);
  permission.resolve(source);await promise;assert.ok(source.track.stops>0);assert.equal(callbacks,0);assert.equal(runtime.shared.photos.length,0);adapter.dispose();

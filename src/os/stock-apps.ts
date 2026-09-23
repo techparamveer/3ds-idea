@@ -74,8 +74,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   function music(state: AppState, command: 'load' | 'play' | 'pause' | 'seek', patch: AppState = {}): AppReduction {
     const next: AppState = { ...state, ...patch, revision: num(state.revision) + 1 }, selected = track(next);
     if (!selected) return { state };
-    const effect: AppEffect = { type: 'music', command, trackId: selected.id, revision: num(next.revision), ...(command === 'load' ? { src: selected.src } : {}), ...(command === 'load' || command === 'seek' ? { position: num(next.position) } : {}) };
-    return { state: next, effects: command === 'load' && next.playing ? [effect, { type: 'music', command: 'play', trackId: selected.id, revision: num(next.revision) }] : [effect] };
+    const effect: AppEffect = { type: 'music', command, trackId: selected.id, revision: num(next.revision), ...(command === 'load' || command === 'play' ? { src: selected.src } : {}), ...(command === 'load' || command === 'play' || command === 'seek' ? { position: num(next.position) } : {}) };
+    return { state: next, effects: command === 'load' && next.playing ? [effect, { type: 'music', command: 'play', trackId: selected.id, revision: num(next.revision), src: selected.src, position: num(next.position) }] : [effect] };
   }
   function selectTrack(state: AppState, trackId: string, playing = true): AppReduction {
     const selected = media.tracks.find(item => item.id === trackId);

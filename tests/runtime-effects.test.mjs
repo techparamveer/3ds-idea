@@ -12,12 +12,30 @@ function fixture(extra={}){
  const adapter=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;},now:()=>now,onChange(){},onFailure:e=>failures.push(e),onLink:url=>links.push(url),onSound:name=>sounds.push(name),...extra});
  return {adapter,failures,links,sounds,get state(){return state;},set state(next){state=next;},launch(id){state=tickSystem(launch(state,id,now),now+=1200);},confirmSwitch(){state=tickSystem(reduceSystem(state,'open',now),now+=1200);},action(id){state=dispatchSystemEvent(state,{type:'action',id},now+=10);}};
 }
+// These legacy adapter-boundary checks inject a synthetic request. Production
+// stock modules never request devices, including through old preview actions.
+function queueTestCapability(f) {
+ const runtime=f.state.system.runtime,owner=runtime.active,id=runtime.effectSequence+1;
+ const instance=runtime.instances[owner];
+ const effect={id,owner,effect:{type:'capability',capability:'camera',requestId:'test-preview',intent:'user',options:{operation:'preview'}}};
+ f.state={...f.state,system:{...f.state.system,runtime:{...runtime,effectSequence:id,effects:[...runtime.effects,effect],instances:{...runtime.instances,[owner]:{...instance,requests:{...instance.requests,'test-preview':id}}}}}};
+}
+test('read-only camera gallery and obsolete device actions never request permissions or save media',async()=>{
+ let permissions=0,imports=0;const writes=[];
+ const f=fixture({storage:{async saveRecord(key){writes.push(key);},async savePreferences(){},dispose(){}},environment:{getUserMedia(){permissions++;throw new Error('Unexpected device access');},pickFile(){imports++;throw new Error('Unexpected import');}}});
+ f.launch('camera');
+ for(const id of ['preview','capture','import','record-start']){f.action(id);f.adapter.drain(true);}
+ f.action('folder:buildings');f.action('photo:buildings-1');f.adapter.drain(true);
+ assert.equal(f.state.system.runtime.instances[f.state.system.runtime.active].state.screen,'photo');
+ f.state=reduceSystem(f.state,'home',6500);f.adapter.drain(false);await f.adapter.settled();
+ assert.equal(permissions,0);assert.equal(imports,0);assert.deepEqual(writes,[]);f.adapter.dispose();
+});
 test('capability release bypasses a pending save and stops a granted stream',async()=>{
  const gate=deferred(),writes=[];let stopped=0,permissionCalls=0;
  const storage={async saveRecord(key){writes.push(key);await gate.promise;},async savePreferences(){},dispose(){}};
  const source={getTracks:()=>[{stop(){stopped++;}}]},video={play:async()=>{},pause(){},srcObject:null};
  const f=fixture({storage,environment:{getUserMedia:async()=>{permissionCalls++;return source;},createVideo:()=>video}});
- f.launch('camera');f.action('preview');f.adapter.drain(true);
+ f.launch('work');queueTestCapability(f);f.adapter.drain(true);
  assert.equal(permissionCalls,1,'permission starts synchronously in originating gesture');
  await new Promise(resolve=>setImmediate(resolve));assert.equal(f.adapter.getPreview(f.state.system.runtime.active),video);
  f.state=reduceSystem(f.state,'home',6000);f.adapter.drain(false);assert.ok(stopped>0,'release must not wait for IndexedDB');
@@ -31,7 +49,7 @@ test('save writes preserve order, failures are explicit, and draining does not d
 });
 test('late permission completion after HOME cannot overwrite later state',async()=>{
  const gate=deferred();let stopped=0;const f=fixture({environment:{getUserMedia:()=>gate.promise,createVideo:()=>({play:async()=>{},pause(){},srcObject:null})}});
- f.launch('camera');f.action('preview');f.adapter.drain(true);
+ f.launch('work');queueTestCapability(f);f.adapter.drain(true);
  f.state=reduceSystem(f.state,'home',6500);f.adapter.drain(false);f.state=reduceSystem(f.state,'right',6600);const selected=f.state.selected;
  gate.resolve({getTracks:()=>[{stop(){stopped++;}}]});await new Promise(resolve=>setImmediate(resolve));
  assert.ok(stopped>0);assert.equal(f.state.selected,selected);assert.equal(f.state.system.phase,'home');f.adapter.dispose();
@@ -60,7 +78,7 @@ test('effect acknowledgements read the state after the host mutation boundary',(
 test('asynchronous capability results preserve state flushed at their arrival boundary',async()=>{
  const gate=deferred();let calls=0,changedLabel;
  const f=fixture({beforeMutation(){calls++;f.state={...f.state,nameDraft:`boundary:${calls}`};},onChange(){changedLabel=f.state.nameDraft;},environment:{getUserMedia:()=>gate.promise,createVideo:()=>({play:async()=>{},pause(){},srcObject:null})}});
- f.launch('camera');f.action('preview');f.adapter.drain(true);const before=calls;
+ f.launch('work');queueTestCapability(f);f.adapter.drain(true);const before=calls;
  gate.resolve({getTracks:()=>[{stop(){}}]});await new Promise(resolve=>setImmediate(resolve));
  assert.ok(calls>before);assert.equal(changedLabel,`boundary:${calls}`);assert.equal(f.state.nameDraft,changedLabel);f.adapter.dispose();
 });

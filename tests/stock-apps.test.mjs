@@ -56,9 +56,9 @@ test('notes display existing strokes without drawing or saving and notifications
 });
 test('music selection emits ordered load/play and pause/play/seek use a fresh revision',()=>{
  let {module,state}=setup('sound'),out=action(module,state,'track:a');state=out.state;
- assert.deepEqual(out.effects,[{type:'music',command:'load',trackId:'a',revision:1,src:'/fixture/a.mp3',position:0},{type:'music',command:'play',trackId:'a',revision:1}]);
+ assert.deepEqual(out.effects,[{type:'music',command:'load',trackId:'a',revision:1,src:'/fixture/a.mp3',position:0},{type:'music',command:'play',trackId:'a',revision:1,src:'/fixture/a.mp3',position:0}]);
  out=action(module,state,'play');state=out.state;assert.equal(state.playing,false);assert.equal(out.effects[0].command,'pause');assert.equal(state.revision,2);
- state=action(module,state,'play').state;out=action(module,state,'seek',500);assert.equal(out.state.position,100);assert.equal(out.effects[0].command,'seek');
+ out=action(module,state,'play');state=out.state;assert.equal(out.effects[0].src,'/fixture/a.mp3');assert.equal(out.effects[0].position,0);out=action(module,state,'seek',500);assert.equal(out.state.position,100);assert.equal(out.effects[0].command,'seek');
  assert.equal(action(module,out.state,'seek',NaN).state,out.state);
 });
 test('music progress accepts only the current track/revision and stale ended/error cannot change tracks',()=>{
@@ -81,9 +81,10 @@ test('music lifecycle pauses without resuming automatically; close pause survive
  const registered=getAppModule('sound'),original={...registered};Object.assign(registered,createStockModule(getTitle('sound'),media));
  try {
   let runtime=startApplication(createAppRuntime(),'sound',0);runtime=dispatchRuntime(runtime,{type:'action',id:'track:a'},1);
+  const current=activeInstance(runtime).state;runtime=dispatchRuntime(runtime,{type:'action',id:'music-time',value:{trackId:current.trackId,revision:current.revision,position:42}},1.5);
   runtime=showRuntimeHome(runtime,2);assert.equal(runtime.instances[runtime.application].state.playing,false);assert.equal(runtime.effects.at(-2).effect.command,'pause');
   runtime=resumeRuntimeApplication(runtime,3);assert.equal(activeInstance(runtime).state.playing,false);
-  runtime=dispatchRuntime(runtime,{type:'action',id:'play'},4);runtime=setRuntimeSleeping(runtime,true,5);assert.equal(activeInstance(runtime).state.playing,false);
+  runtime=dispatchRuntime(runtime,{type:'action',id:'play'},4);assert.deepEqual(runtime.effects.at(-1).effect,{type:'music',command:'play',trackId:'a',revision:3,src:'/fixture/a.mp3',position:42});runtime=setRuntimeSleeping(runtime,true,5);assert.equal(activeInstance(runtime).state.playing,false);
   runtime=setRuntimeSleeping(runtime,false,6);runtime=dispatchRuntime(runtime,{type:'action',id:'play'},7);const before=runtime.effectSequence;
   runtime=closeApplication(runtime,8);assert.ok(runtime.effects.some(e=>e.id>before&&e.effect.type==='music'&&e.effect.command==='pause'));assert.deepEqual(runtime.instances,{});
  } finally {Object.assign(registered,original);}

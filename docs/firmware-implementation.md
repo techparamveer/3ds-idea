@@ -59,9 +59,30 @@ The checkpoint passes924 tests with two existing optional skips, typecheck and
 production build. Native positioning initialization, content binding and later
 drag/drop/scroll behavior, broader opening and overlay lifecycles, missing
 banner categories and included stock title packs/workflows remain unfinished.
-Most stock application screens are still scaffolds. Fresh Azahar interaction
-remains dependent on unlocking the Mac. The full goal and final implementation
+Most stock application screens are still scaffolds. Azahar screenshots and
+accessible menu actions are available, but the latest native keyboard/touch
+attempts did not change HOME selection; fresh interactive reference capture
+remains unresolved. The full goal and final implementation
 PR are not complete; do not publish a finished-fidelity claim from this HOME
-checkpoint alone. The next parallel work fixes multi-content CIA extraction
-and establishes the native keyboard input/view contract; see
+checkpoint alone. The next parallel work establishes the native keyboard
+input/view contract and correct English Settings resources; see
 [title expansion](native-title-expansion-contract.md).
+
+## Native title infrastructure checkpoint
+
+The multi-content converter and isolated lazy title loader are integrated.
+[Extraction validation](firmware-multicontent-validation.md) records separate
+Settings application/manual identities, unchanged HOME delivery bytes, and the
+19 unresolved animation-binding audit errors. The integration's 18 synthetic
+CIA/container checks pass; the asset worker also passed the two real-input
+checks. No stock title was added to public delivery by this checkpoint.
+
+[Loader validation](native-title-assets-validation.md) covers explicit selected
+resources, exact content-specific font lookup, conflicting font identities,
+cancellation and disposal. Its 35 focused checks, integration typecheck and
+production build pass. The combined suite passes959 tests with two existing
+optional skips and no failures. The loader is not connected to a stock app view yet.
+Private integration logs use the `reference/native-title-loader-*` prefix;
+converter checks use `reference/multicontent-integration-tests.log` under the
+artifact root above. Native app composition, behavior and matched reference
+pixels remain required before acceptance.

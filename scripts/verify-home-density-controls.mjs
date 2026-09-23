@@ -17,7 +17,7 @@ const browser = (...args) => {
 };
 const evaluate = code => JSON.parse(browser('eval', code));
 const capture = () => evaluate(`(()=>{const h=document.querySelector('[role=application]');return {menu:h.dataset.menu,rows:Number(h.dataset.rows),selected:Number(h.dataset.selected),theme:h.dataset.theme,capture:h.captureScreensAt(0,'2026-09-23T12:06:00Z')};})()`);
-const settle = () => evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(true))))');
+const settle = () => browser('wait', '--fn', `(()=>{const h=document.querySelector('[role=application]'),c=JSON.parse(h.dataset.homeCursor);return c.mode===undefined||c.mode===0;})()`);
 function point(name) {
  const target = evaluate(`JSON.parse(document.querySelector('[role=application]').dataset.targets)[${JSON.stringify(name)}]`);
  assert.ok(Array.isArray(target) && target.length === 2 && target.every(Number.isFinite));

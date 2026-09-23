@@ -21,7 +21,7 @@ effects using `cursorEffectAt`; use applied Scale/DisAppear and the retained
 Loop sample. Primary precedes effect0/effect1. Draw this group outside grid
 tile culling and its clip, so toolbar anchors are possible. Preserve the existing
 surrounding draw order; the wider native layout order remains unverified.
-Suppress the group for capture, overlays/inactive HOME and active gestures,
+Suppress the group for capture, overlays/inactive HOME and active grid gestures,
 without mutating it. Root owns close request2/show behavior: do not hide it solely
 because `isSystemHomeFolderClosing` is true. With reduced motion, primary uses
 Loop0 and effects are omitted as an explicit accessibility policy. Fallback and
@@ -30,3 +30,8 @@ legacy callers keep the old tile-cursor path. Avoid duplicate primary drawing.
 Root owns pointer/keyboard/analog routing, input cancellation, native cues,
 close integration, toolbar activation handoff, and browser/Azahar verification.
 No worker controls those sessions. Tests alone do not establish visual parity.
+
+Chrome gestures retain the cursor group. In particular, a disabled density
+button must not hide the existing cursor; its verified fixed-pose lower LCD
+remains unchanged. Grid gesture visibility remains an explicit temporary adapter
+policy pending the full native stylus lifecycle.

@@ -1,5 +1,5 @@
 import { BitmapFont } from './bitmap-font';
-import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, nativeAnimationDiagnostics, nativeMultiplyBlend, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
+import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, nativeAnimationDiagnostics, nativeMultiplyBlend, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
  type AnimationBinding, type NativeLayout, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -15,6 +15,7 @@ export class NativeLayoutRenderer {
  private nextTextureId=1;
  private blendTarget?:HTMLCanvasElement;
  private disposed=false;
+ private parentAlpha=new WeakMap<Context,number>();
  readonly diagnostics:string[]=[];
  constructor(readonly packs:Record<string,NativePack>,private textures:Record<string,Map<string,NativePixels>>,private fonts:ReadonlyMap<string,BitmapFont>,private cacheLimit=8*1024*1024){}
  private report(message:string){if(!this.diagnostics.includes(message))this.diagnostics.push(message);}
@@ -88,6 +89,32 @@ export class NativeLayoutRenderer {
   }finally{ctx.restore();}
  }
 
+ /** Attach independently painted child layouts to an animated native pane.
+  * The native renderer receives inherited primary alpha before TEV evaluation;
+  * portfolio artwork can use the supplied alpha for its Canvas-only content.
+  */
+ withPaneParent(ctx:Context,packName:string,layoutName:string,paneName:string,bindings:AnimationBinding[],draw:(alpha:number)=>void):boolean {
+  if(this.disposed)return false;
+  const pack=this.packs[packName],original=pack?.layouts[layoutName];if(!original)return false;
+  const key=JSON.stringify([packName,layoutName,bindings]);
+  let posed=this.poses.get(key);
+  if(!posed){posed=poseNativeLayout(original,pack.animations,bindings);if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(key,posed);}
+  const path=nativePaneParentPath(posed,paneName);if(!path){this.report(`Missing native parent ${layoutName}/${paneName}`);return false;}
+  const previous=this.parentAlpha.get(ctx);let alpha=previous??1;
+  ctx.save();
+  try{
+   ctx.translate(posed.canvas.width/2,posed.canvas.height/2);
+   for(const pane of path){
+    if(!(pane.flags&1))return true;
+    ctx.translate(pane.translation[0],-pane.translation[1]);ctx.rotate(-pane.rotation[2]*Math.PI/180);
+    ctx.scale(pane.scale[0]*Math.cos(pane.rotation[1]*Math.PI/180),pane.scale[1]*Math.cos(pane.rotation[0]*Math.PI/180));
+    if(pane.flags&2)alpha*=pane.alpha/255;
+   }
+   ctx.translate(-posed.canvas.width/2,-posed.canvas.height/2);
+   this.parentAlpha.set(ctx,alpha);draw(alpha);return true;
+  }finally{if(previous===undefined)this.parentAlpha.delete(ctx);else this.parentAlpha.set(ctx,previous);ctx.restore();}
+ }
+
  draw(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions={}):boolean {
   if(this.disposed)return false;
   const pack=this.packs[packName],original=pack?.layouts[layoutName];if(!original){this.report(`Missing layout ${packName}/${layoutName}`);return false;}
@@ -128,7 +155,7 @@ export class NativeLayoutRenderer {
      for(const child of pane.children)visit(child,pane.flags&2?alpha:parentAlpha);
     }finally{ctx.restore();}
    };
-   for(const root of layout.roots)visit(root,1);
+   for(const root of layout.roots)visit(root,this.parentAlpha.get(ctx)??1);
    return true;
   }catch(error){this.report(`${packName}/${layoutName}: ${error instanceof Error?error.message:String(error)}`);return false;}
   finally{ctx.restore();}

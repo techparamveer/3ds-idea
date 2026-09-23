@@ -1,10 +1,12 @@
+import { getMenuActionSound } from '../os/menu-action-sound';
+import { sampleSystemHomeFolderClose } from '../os/home-folder-close-system';
 import { apps, getApp } from '@/os/apps';
 import { currentEntry, launch, selectedTitle } from '@/os/system';
 import { createMenuAudio, type Sound } from '@/os/audio';
 import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClock, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
 import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
 import { createRuntimeEffects } from '@/os/runtime-effects';
-import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostSelection } from '@/os/home-banner-host';
+import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, getHomeBannerCloseReadyUpdate, resolveHomeBannerHostSelection } from '@/os/home-banner-host';
 import type { AppCommand, AppEvent } from '@/os/app-types';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -189,16 +191,16 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   }
   let lastInput='none';
   const writeState=()=>{
-    const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderBannerFallback=String(!nativePrimaryAvailable(resolveHomeBannerHostSelection(state).kind));}const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
+    const s=state.system!;if(diagnostics){host.dataset.folderBanner=JSON.stringify(getHomeBannerHostView(bannerHost));host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderClose=JSON.stringify(sampleSystemHomeFolderClose(state));host.dataset.folderBannerFallback=String(!nativePrimaryAvailable(resolveHomeBannerHostSelection(state).kind));}const entry=currentEntry(state);const description=s.phase==='app'?`${getApp(s.app)?.title??s.app}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
     host.dataset.audio=JSON.stringify(audio.status());host.dataset.preferences=String(state.system?.preferences??false);host.dataset.photo=String(state.system?.photo??0);host.dataset.page=String(state.system?.page??0);host.dataset.muted=String(state.system?.muted??false);host.dataset.ready='true';host.dataset.menu=state.panel??(state.system?.phase==='home'?(state.opened?'folder':'home'):state.system?.phase??'home');host.dataset.app=state.system?.app??'';host.dataset.item=String(state.system?.item??0);host.dataset.detail=String(state.system?.detail??false);host.dataset.sleeping=String(state.system?.sleeping??false);host.dataset.dialog=state.system?.dialog??'';host.dataset.rows=String(rowCount(state));host.dataset.theme=state.theme;host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
   function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:performance.now()-start});}
   function paint(){updateAudio();model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;lastScreenPaint=performance.now();writeState();}
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close']);
-  function observeFolderBanner(){
+  function observeFolderBanner(clock=bannerClock()){
     const system=state.system!,inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog||system.preferences||!!state.panel||homeClockSuspended;
     const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:true,resourceReady:bannerHost.inputs.resourceReady};
-    bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{selection:resolveHomeBannerHostSelection(state),inputs});
+    bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:resolveHomeBannerHostSelection(state),inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
     if(view.status!=='unsupported'){
       const status=folderBanner.status(),selection=view.selection;
@@ -206,16 +208,19 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       bannerLabelFailure=selection.kind==='folder'&&!label;
       const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:false;
       const resourceReady=ready?view.resourceTicket:null;
-      bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{inputs:{...inputs,resourceReady}});
+      bannerHost=crossHomeBannerBoundary(bannerHost,clock,{inputs:{...inputs,resourceReady}});
       view=getHomeBannerHostView(bannerHost);
       if(view.status==='active'&&view.stage==='active'&&view.selection.kind==='folder'&&view.primary.selection.kind==='folder'&&view.selection.key===view.primary.selection.key&&view.selection.nativeType===view.primary.selection.nativeType&&view.selection.label!==view.primary.selection.label&&screens.prepareFolderBannerLabel(view.selection.label)){
-        bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock(),{refreshActiveLabel:{generation:view.primary.generation,activationEpoch:view.primary.activationEpoch,key:view.selection.key,label:view.selection.label}});
+        bannerHost=crossHomeBannerBoundary(bannerHost,clock,{refreshActiveLabel:{generation:view.primary.generation,activationEpoch:view.primary.activationEpoch,key:view.selection.key,label:view.selection.label}});
       }
     }
   }
   function advanceBeforeMutation(now:number){
+    const previous=state;
     if(homeClockSuspended){const system=state.system!;if(system.homeClock.lastNow!==null||system.homeClock.remainderMs!==0)state={...state,system:{...system,homeClock:{...system.homeClock,lastNow:null,remainderMs:0}}};}
     else state=tickHomeNavigationClock(state,now,reduced);
+    const readyAt=getHomeBannerCloseReadyUpdate(previous,state);
+    if(readyAt!==null)observeFolderBanner({...bannerClock(),updateCount:readyAt});
     bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock());
   }
   const effects=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;observeFolderBanner();},now:()=>performance.now()-start,beforeMutation:advanceBeforeMutation,storage,
@@ -226,14 +231,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   });
   function reducedBannerKey(){const view=getHomeBannerHostView(bannerHost);return view.status==='active'?JSON.stringify([view.status,view.primary.generation,view.primary.activationEpoch,view.primary.selection.kind,view.primary.selection.kind==='folder'?view.primary.selection.label:null,view.primary.motion.visible]):view.status;}
   function commit(reduce:(current:MenuState,now:number)=>MenuState,input:string,userGesture=false,now=performance.now()-start){
-    const previous=state,previousBanner=reduced?reducedBannerKey():undefined;advanceBeforeMutation(now);state=reduce(state,now);observeFolderBanner();if(state===previous)return;lastInput=input;
+    const previous=state,previousBanner=reduced?reducedBannerKey():undefined;advanceBeforeMutation(now);const beforeAction=state;state=reduce(state,now);observeFolderBanner();if(state===previous)return;lastInput=input;
     updateAudio();
     const before=previous.system!,after=state.system!;
-    let sound:Sound|undefined;
-    if(after.phase!==before.phase){if(after.phase==='launch')sound='open';else if(after.phase==='power')sound='power';else if(input==='home')sound='home';else if(input==='back')sound='back';}
-    else if(previous.opened!==state.opened)sound=state.opened?'folder-open':'folder-close';
-    else if(previous.selected!==state.selected||before.item!==after.item||before.page!==after.page)sound='select';
-    else if(previous.panel!==state.panel||before.detail!==after.detail||before.dialog!==after.dialog||before.preferences!==after.preferences)sound=input==='back'?'back':'open';
+    const sound=getMenuActionSound(beforeAction,state,input);
     if(sound&&!after.runtime.effects.some(item=>item.effect.type==='sound'))audio.play(sound,after.muted,after.volume);
     effects.drain(userGesture);
     // Logical clock updates do not bypass the quality policy's LCD upload cadence.

@@ -1,4 +1,5 @@
 import type { MenuState } from './state.ts';
+import { isSystemHomeFolderClosing, sampleSystemHomeFolderClose } from './home-folder-close-system.ts';
 import { folderHasItems, homeSlotAppId } from './home-layout.ts';
 import { getHomeFolderIdentity, type HomeFolderIdentity } from './home-folder-identity.ts';
 import { HOME_BANNER_EMPTY_KEY, type HomeBannerMotion, type HomeBannerTarget } from './home-banner-lifecycle.ts';
@@ -64,6 +65,7 @@ export type HomeBannerHostView =
 
 /** Resolve content only. Overlays, power, suspension and pass eligibility are host inputs. */
 export function resolveHomeBannerHostSelection(state: MenuState): HomeBannerHostSelection {
+  if (isSystemHomeFolderClosing(state)) return { kind: 'clear' };
   const slot = state.opened ? state.folderSelected : state.selected;
   const app = homeSlotAppId(state, slot, state.opened ? state.selected : null);
   if (app) return { kind: 'app', id: app };
@@ -72,6 +74,19 @@ export function resolveHomeBannerHostSelection(state: MenuState): HomeBannerHost
     if (key !== undefined) return { kind: 'folder', key, label: state.folders[slot], nativeType: folderHasItems(state, slot) ? 10 : 9 };
   }
   return { kind: 'default' };
+}
+
+/** A completed close may restore selection inside one batched HOME-clock tick.
+ * Consume old clear work up to this boundary before installing the restored
+ * selection. No event queue, timer, or dependency on banner-clear completion.
+ */
+export function getHomeBannerCloseReadyUpdate(before: MenuState, after: MenuState): number | null {
+  const previous = sampleSystemHomeFolderClose(before), next = sampleSystemHomeFolderClose(after);
+  if (!previous || !next || previous.controller.identity.generation !== next.controller.identity.generation
+    || previous.controller.identity.transitionId !== next.controller.identity.transitionId) return null;
+  const ready = next.selectionReadyAtUpdate;
+  return previous.selectionReadyAtUpdate === null && ready !== null
+    && ready > before.system!.homeClock.updateCount && ready <= after.system!.homeClock.updateCount ? ready : null;
 }
 
 function assertClock(clock: HomeBannerServiceClock): void {

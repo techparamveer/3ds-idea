@@ -1,3 +1,4 @@
+import { sampleSystemHomeFolderClose } from './home-folder-close-system';
 import { BitmapFont, loadBitmapFont } from './bitmap-font';
 import { decodeNativePng } from './native-png';
 import { nativeBannerLabelOverride } from './native-banner-label';
@@ -114,21 +115,27 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const panel=getNativeHomePanel(state);
   return renderer.draw(ctx,'launcher','LncPlt_00',{bindings:[binding('LncPlt_00_PaletteOut',11)],overrides:{W_Plt_00:{translation:[panel.x,-92,0],size:[panel.width,175]},W_Shdw_00:{translation:[panel.x,-102,0],size:[panel.shadowWidth,193]}}});
  }
- function folderBackdrop(ctx:Context,capture:NativePixels){
+ function folderBackdrop(ctx:Context,capture:NativePixels,state:MenuState,reduced=false){
+  const close=sampleSystemHomeFolderClose(state),frame=!reduced&&close?.controller.phase==='closing'?close.controller.capture.appliedFrame??8:8;
   // The host supplies canonical rows34..239 of the fresh pre-folder render.
   // This replaces the native rotated framebuffer plus its UV0 crop; UV1 and TEV stay original.
   const texture='runtime:folder-background';
-  return renderer.draw(ctx,'launcher','LncFolderCapture_00',{bindings:[binding('LncFolderCapture_00_Fade',8),binding('LncFolderCapture_00_PicUp',0)],textures:{[texture]:capture},overrides:{P_Capture_00:{textureBindings:{0:texture}}}});
+  return renderer.draw(ctx,'launcher','LncFolderCapture_00',{bindings:[binding('LncFolderCapture_00_Fade',frame),binding('LncFolderCapture_00_PicUp',0)],textures:{[texture]:capture},overrides:{P_Capture_00:{textureBindings:{0:texture}}}});
  }
- function folderChrome(ctx:Context,state:MenuState){
+ function folderChrome(ctx:Context,state:MenuState,reduced=false){
   const panel=getNativeFolderPanel(state);if(!panel)return false;
-  // HOME 0x2b2b68 loads this layout and its FadeIn controller; entry
-  // 0x2a34bc starts it. This is the settled frame, pending transition wiring.
+  const close=sampleSystemHomeFolderClose(state),frame=!reduced&&close?.controller.phase==='closing'?close.controller.folder.appliedFrame??16:16;
   const gesture=state.system?.homeNavigation.gesture;
   const pressed=gesture?.mode==='press'&&isHomeFolderBackTouch(state,gesture.startX,gesture.startY)&&isHomeFolderBackTouch(state,gesture.x,gesture.y);
-  return renderer.draw(ctx,'launcher','LncFolder_00',{bindings:[binding('LncFolder_00_FadeIn',16),binding('LncFolder_00_Select',pressed?1:0,['G_Btn_00'])],overrides:{W_Plt_00:{translation:[panel.x,-16,0],size:[panel.width,144]},W_Shdw_00:{translation:[panel.x,-20,0],size:[panel.shadowWidth,164]}}});
+  return renderer.draw(ctx,'launcher','LncFolder_00',{bindings:[binding('LncFolder_00_FadeIn',frame),binding('LncFolder_00_Select',pressed?1:0,['G_Btn_00'])],overrides:{W_Plt_00:{translation:[panel.x,-16,0],size:[panel.width,144]},W_Shdw_00:{translation:[panel.x,-20,0],size:[panel.shadowWidth,164]}}});
  }
- function footer(ctx:Context,state:MenuState){
+ function folderChild(ctx:Context,state:MenuState,empty:boolean,draw:(alpha:number)=>void,reduced=false){
+  const close=sampleSystemHomeFolderClose(state);
+  if(reduced||!state.opened||close?.controller.phase!=='closing'){draw(1);return;}
+  const frame=close.controller.folder.appliedFrame??16;
+  if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw))draw(1);
+ }
+ function footer(ctx:Context,state:MenuState,reduced=false){
   const actions=getHomeFooter(state);if(!actions)return true;
   const {two,left:leftAction,right:rightAction}=actions;
   const active=new Set(two?['N_BtnW_R_02','N_BtnW_L_03']:['N_BtnW_C_01']);
@@ -137,7 +144,10 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const label=(action:typeof leftAction|typeof rightAction)=>action===null?{text:''}:message('menu_msbt_LZ',{'close-folder':'lau_2b_close','close-software':'lau_2b_close','folder-settings':'lau_2b_folder_setting',open:'lau_2b_folder_open','create-folder':'lau_1b_make_folder',resume:'lau_2b_restart'}[action],{'close-folder':'Close','close-software':'Close','folder-settings':'Settings',open:'Open','create-folder':'Create Folder',resume:'Resume'}[action]);
   const right=label(rightAction),left=label(leftAction);
   for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]=right;overrides[`${prefix}_R_02`]=right;overrides[`${prefix}_L_03`]=left;}
-  const bindings=[binding('LncBtmBtn_02_SceneIn',15)],gesture=getHomeGestureView(state);
+  const close=sampleSystemHomeFolderClose(state);
+  const bindings=[!reduced&&close&&close.controller.phase!=='complete'
+   ?binding('LncBtmBtn_02_SceneOut',Math.min(14,state.system!.homeClock.updateCount-close.startedAtUpdate))
+   :binding('LncBtmBtn_02_SceneIn',15)],gesture=getHomeGestureView(state);
   if(!state.panel&&gesture?.mode==='press'&&gesture.y>=212&&gesture.y<240&&gesture.x>=0&&gesture.x<320){
    const group=two?(gesture.x<100?'G_BtnW_L_03':'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));
   }
@@ -193,5 +203,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))]});
  }
- return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,footer,tile,captureFolder,empty,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tile,captureFolder,empty,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
 }

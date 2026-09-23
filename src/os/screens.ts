@@ -1,3 +1,4 @@
+import { isSystemHomeFolderClosing } from './home-folder-close-system';
 import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
@@ -119,24 +120,28 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
  for(const tile of view.tiles){
   const {x,size,appId,folderLabel,pressed,source,drop}=tile,y=tile.y+(pressed?(nativeHome?.pressOffset??2):0);
   const app=getApp(appId),occupied=!!appId||folderLabel!==null;
+  const drawTile=(alpha:number)=>{
+  const artwork=(draw:()=>void)=>{c.save();try{c.globalAlpha*=alpha;draw();}finally{c.restore();}};
   if(source){
    if(!nativeHome?.liftedSource(c,x,tile.y,size,view.density)){
-    const inset=size*.34;rounded(c,x+inset,tile.y+inset,size-inset*2,size-inset*2,2,'#d3d4d766','#c8c9cc');
+    artwork(()=>{const inset=size*.34;rounded(c,x+inset,tile.y+inset,size-inset*2,size-inset*2,2,'#d3d4d766','#c8c9cc');});
    }
   }else if(occupied){
    const nativeDrawn=capture&&tile.index===state.selected&&folderLabel!==null
     ?nativeHome?.captureFolder(c,x,y,size,view.density,folderLabel)
     :nativeHome?.tile(c,x,y,size,view.density,folderLabel!==null,drop&&folderLabel!==null,folderLabel??'');
-   if(!(nativeDrawn??chrome.tile(c,x,y,size))){c.save();c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
+   if(!(nativeDrawn??chrome.tile(c,x,y,size))){c.save();c.globalAlpha*=alpha;c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
     rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();}
-   if(app)graphics.menuIcon(c,app,x,y,size);
-   else if(folderLabel!==null&&!nativeDrawn)folder(c,x+size/2,y+size/2,size*.78,folderLabel);
+   if(app)artwork(()=>graphics.menuIcon(c,app,x,y,size));
+   else if(folderLabel!==null&&!nativeDrawn)artwork(()=>folder(c,x+size/2,y+size/2,size*.78,folderLabel));
   }else if(!nativeHome?.empty(c,x,y,size,view.density)){
-   const inset=size*.34,side=size-inset*2;
+   artwork(()=>{const inset=size*.34,side=size-inset*2;
    rounded(c,x+inset,y+inset,side,side,2,'#d3d4d766','#c8c9cc');
-   line(c,[[x+inset+1,y+inset+side],[x+inset+side,y+inset+side],[x+inset+side,y+inset+1]],'#e9e9eb');
+   line(c,[[x+inset+1,y+inset+side],[x+inset+side,y+inset+side],[x+inset+side,y+inset+1]],'#e9e9eb');});
   }
-  if(!capture&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,time,pressed))cursor(c,x,y,size,size,time,reduced);
+  };
+  if(nativeHome&&!capture)nativeHome.folderChild(c,state,!occupied,drawTile,reduced);else drawTile(1);
+  if(!capture&&!isSystemHomeFolderClosing(state)&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,time,pressed))cursor(c,x,y,size,size,time,reduced);
  }c.restore();
  if(!capture&&!nativeHome?.arrows(c,pageStart(state)>0))arrows(c,state);
  // Native idle HOME has no track above the footer. Keep the old fallback's
@@ -252,7 +257,7 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
    nativeHome.toolbar(ctx,root,true);nativeHome.homePlate(ctx,root);grid(ctx,root,time,reduced,graphics,chrome,view,nativeHome,true);
    folderCapture={identity,pixels:{width:320,height:206,data:ctx.getImageData(0,34,320,206).data}};
   }
-  nativeHome.folderBackdrop(b,folderCapture.pixels);
+  nativeHome.folderBackdrop(b,folderCapture.pixels,state,reduced);
  }
  let reduced=options.reducedMotion??false;
  function paint(state:MenuState,date=new Date(),elapsedMs=0){
@@ -297,7 +302,7 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.
   nativeHome?.upperBase(t);if(!nativeHome?.hud(t,date,time))status(t,date,chrome);
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state);grid(b,state,time,reduced,graphics,chrome,view,nativeHome);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome);panel(b,state,time,reduced,themeSprite,shopSprite);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome);panel(b,state,time,reduced,themeSprite,shopSprite);
   graphics.overlay(t,b,state,elapsedMs,reduced);
   const notice=options.runtimeNotice?.();if(notice){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);

@@ -26,6 +26,17 @@ export function nativeMessageOverride(pack:NativePack,bank:string,label:string,f
  if(!style)throw new Error(`Missing native message style ${bank}/${label}[${message.styleIndex}]`);
  return {text:message.text,messageStyle:style};
 }
+/** Native child layouts inherit the named parent's world transform and only
+ * InfluenceAlpha panes contribute to the alpha passed to the child's root.
+ * Return source panes without changing their hierarchy or animation sample.
+ */
+export function nativePaneParentPath(layout: NativeLayout, name: string): readonly NativePane[] | null {
+ const find=(panes:NativePane[],parents:NativePane[]):NativePane[]|null=>{
+  for(const pane of panes){const path=[...parents,pane];if(pane.name===name)return path;const child=find(pane.children,path);if(child)return child;}return null;
+ };
+ return find(layout.roots,[]);
+}
+
 /** Equal-frame keys are intentional discontinuities: incoming uses first, outgoing uses last. */
 export function sampleNativeTrack(track:NativeTrack,frame:number){
  const keys=track.keys;if(!keys.length)return 0;if(frame<keys[0].frame)return keys[0].value;

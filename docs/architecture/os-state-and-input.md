@@ -229,3 +229,9 @@ and pre-mutation boundaries; see [live banner integration](../home-banner-integr
 `native-home-audio/` owns verified resource decoding and persistent music
 synthesis. Browser transport remains owned by `audio.ts`; see
 [the audio boundary](../native-home-audio-contract.md).
+
+The scene consumes counted close readiness at its exact shared-update boundary,
+then observes the current action for sound routing through menu-action-sound.ts.
+Native child layouts inherit decoded parent transforms/primary alpha through
+NativeLayoutRenderer.withPaneParent. See [close integration](../native-folder-close-integration.md)
+for visual bindings, reduced-motion policy and the measured rendering slowdown.

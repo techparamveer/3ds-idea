@@ -258,3 +258,42 @@ test('selected notes preserve saved strokes and return to the selected grid cell
  for(const phase of ['down','move','up'])assert.deepEqual(module.reduce(state,{type:'touch',phase,x:160,y:100},context),{state});
  const result=module.reduce(state,{type:'command',command:'back'},context);assert.equal(result.state.screen,'main');assert.equal(result.state.selection,15);assert.deepEqual(result.effects??[],[]);assert.deepEqual(context.shared,before);
 });
+
+test('Browser settings expose read-only pages and restore the selected option on Back',()=>{
+ const {module}=setup('browser'),main=module.create({}, {url:'https://saved.example'},ctx);
+ let state=action(module,main,'settings').state;
+ const ids=['auto-wrap','search-engine','delete-cookies','clear-history','network','proxy','version','reset'];
+ assert.deepEqual(module.view(state,ctx).rows.map(row=>row.id),ids);
+ for(let i=0;i<ids.length;i++){
+  const view=module.view({...state,selection:i},ctx);assert.equal(view.data.page,Math.floor(i/4));assert.equal(view.data.pageCount,2);
+  const detail=action(module,state,ids[i]);assert.equal(detail.state.screen,'detail');assert.equal(detail.state.field,ids[i]);assert.deepEqual(detail.effects??[],[]);
+  assert.ok(module.view(detail.state,ctx).text[0]);
+  const back=action(module,detail.state,'back').state;assert.equal(back.screen,'settings');assert.equal(back.selection,i);assert.equal(back.url,main.url);
+  assert.deepEqual(action(module,detail.state,'confirm'),{state:detail.state});
+ }
+ for(let i=0;i<4;i++)state=module.reduce(state,{type:'command',command:'down'},ctx).state;
+ assert.equal(module.view(state,ctx).data.page,1);
+ assert.equal(action(module,state,'back').state.screen,'main');
+});
+test('Browser saved entries expose only existing context and Back restores the bookmark/history list',()=>{
+ const {module}=setup('browser'),context={now:0,shared:{...initialSharedData(),browser:{bookmarks:[{title:'Saved title',url:'https://saved.example'},{title:'Second',url:'https://second.example'}],history:[{title:'Earlier',url:'https://earlier.example'}]}}},before=structuredClone(context.shared);
+ for(const parent of ['bookmarks','history']){
+  const initial={...module.create({}, {url:'https://existing.example'},context),screen:parent};
+  const index=parent==='bookmarks'?1:0;
+  const page=module.reduce(initial,{type:'action',id:String(index)},context);
+  assert.deepEqual(page.effects??[],[]);assert.equal(page.state.screen,'page');assert.equal(page.state.url,'https://existing.example');
+  assert.deepEqual(module.view(page.state,context).data.entry,context.shared.browser[parent][index]);
+  assert.ok(module.view(page.state,context).text.includes(context.shared.browser[parent][index].url));
+  const back=module.reduce(page.state,{type:'command',command:'back'},context).state;assert.equal(back.screen,parent);assert.equal(back.selection,index);
+ }
+ assert.deepEqual(context.shared,before);
+});
+test('Browser empty and unavailable interiors always provide visible content without actions or data changes',()=>{
+ const {module}=setup('browser'),main=module.create({},null,ctx),before=structuredClone(ctx.shared);
+ for(const id of ['bookmarks','search','address','page-info','add-bookmark']){
+  const result=action(module,main,id);assert.deepEqual(result.effects??[],[]);assert.ok(module.view(result.state,ctx).text.some(text=>text.trim()));
+  assert.deepEqual(module.view(result.state,ctx).rows,[]);assert.equal(module.reduce(result.state,{type:'text',value:'changed'},ctx).state,result.state);
+  assert.equal(action(module,result.state,'submit').state,result.state);
+ }
+ assert.deepEqual(ctx.shared,before);assert.deepEqual(module.save(main),{url:''});
+});

@@ -1,4 +1,5 @@
 import { objectValue, type AppContext, type AppDescriptor, type AppEffect, type AppModule, type AppReduction, type AppState, type AppView, type AppViewRow, type JsonValue } from './app-types.ts';
+import { browserBack, browserChoices, browserHeading, browserNavigate, browserPageEntry, browserText } from './stock-browser-navigation.ts';
 import { settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
 import { healthDocumentPageCounts } from './stock-health-layout.ts';
 import { stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
@@ -49,13 +50,10 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return [row('play', state.playing ? 'Pause' : 'Play'), row('previous', 'Previous'), row('next', 'Next'), row('repeat', 'Repeat', str(state.repeat, 'off')), row('shuffle', 'Shuffle', state.shuffle ? 'On' : 'Off')];
     }
     if (id === 'system-settings') return settingsChoices(state, record(shared.settings));
+    if (id === 'browser') return browserChoices(state, shared);
     if (screen !== 'main' && !['bookmarks', 'history', 'profile'].includes(screen)) return [];
     if (selectorSources[id]) return list(shared[selectorSources[id]]).map((entry, index) => row(String(index), str(entry.name, str(entry.title, `Item ${index + 1}`))));
     if (id === 'game-notes' || id === 'memo') return Array.from({ length: 16 }, (_, index) => row(String(index), `Note ${index + 1}`));
-    if (id === 'browser') {
-      if (screen === 'bookmarks' || screen === 'history') return list(record(shared.browser)[screen]).map((entry, index) => row(String(index), str(entry.title, str(entry.url))));
-      return [row('search', 'Enter search text'), row('bookmarks', 'Bookmarks'), row('add-bookmark', 'Add'), row('settings', 'Settings'), row('page-info', 'Page Info'), row('address', 'Enter URL')];
-    }
     if (id === 'friends') {
       if (screen === 'profile') return []; // Native own-card fields are read-only surfaces.
       return [row('profile', 'Your friend card'), ...list(shared.friends).map(friend => row(str(friend.id), str(friend.name, 'Friend')))];
@@ -123,6 +121,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       if (screen !== 'main') {
         if ((id === 'game-notes' || id === 'memo') && screen === 'drawing') return { state: withScreen(state, 'main', { selection: bounds(num(state.slot), 15) }) };
         if (id === 'system-settings') return { state: settingsBack(state) };
+        if (id === 'browser') return { state: browserBack(state) };
         const parent = cameraTitles.has(id) && screen === 'photo' ? 'gallery' : 'main';
         const next = withScreen(state, parent);
         return id === 'sound' && state.playing ? music(next, 'pause', { playing: false }) : { state: next };
@@ -177,7 +176,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'game-notes' || id === 'memo') return { state: withScreen(state, 'drawing', { slot: Number(action), strokes: list(context.shared.notes).find(note => note.slot === Number(action))?.strokes ?? [] }) };
     if (id === 'health-safety' || id === 'manual') return { state: withScreen(state, 'document', { topic: action, page: 0 }) };
-    if (id === 'browser') return { state: withScreen(state, screen === 'main' ? action : 'page', { parent: screen }) };
+    if (id === 'browser') return { state: browserNavigate(state, action) };
     if (id === 'friends') return { state: withScreen(state, action === 'profile' ? 'profile' : 'friend', { friendId: action }) };
     if (id === 'notifications') return { state: withScreen(state, 'notification', { notificationId: action }) };
     return { state: withScreen(state, 'detail', { field: action }) };
@@ -198,13 +197,14 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (id === 'notifications' && screen === 'notification') text.push(str(list(context.shared.notifications).find(item => item.id === state.notificationId)?.message));
     if (id === 'notifications' && !options.length && screen === 'main') text.push('There are no notifications.');
     if (id === 'system-settings') { text.push(...settingsText(state, context.shared)); if (screen === 'other') { data.page=settingsPage(state); data.pageCount=settingsOtherPages.length; } }
+    if (id === 'browser') { text.push(...browserText(state, context.shared)); data.entry=browserPageEntry(state, context.shared); if (screen === 'settings') { data.page=Math.floor(selection/4); data.pageCount=2; } }
     if (id === 'error') text.push(str(state.message, 'An error has occurred.'));
     const healthDocument = id === 'health-safety' && screen === 'document';
     const pageCount = healthDocumentPageCounts[str(state.topic)] ?? 1;
     if (healthDocument) data.pageCount = pageCount;
     const left = healthDocument && num(state.page) > 0 ? { label: 'Previous', action: 'previous' } : { label: 'Back', action: 'back' };
     const right = healthDocument ? (num(state.page) < pageCount - 1 ? { label: 'Next', action: 'next' } : { label: 'Done', action: 'back' }) : id === 'error' ? { label: 'OK', action: 'ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
-    return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : descriptor.title, text, rows: options, selection,
+    return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : descriptor.title, text, rows: options, selection,
       footer: { left, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }
   return {

@@ -64,3 +64,22 @@ measurements, not browser frame-rate numbers, but show a remaining transition
 rendering cost. Static stock screens cache completed images; animated logo
 rasterization still needs a performance pass before smooth-motion acceptance.
 Timings are stored with each checkpoint in `reference/system-ui-logo-timed`.
+
+
+## Uniform common fade fast path
+
+`native-system-fade.ts` evaluates the original common layout pose and material
+once for its uniform full-screen pane. It uses the resulting quantized colour in
+a Canvas fill. The regular renderer remains responsible for textures, extra
+panes, altered geometry, fractional edges, and inherited partial opacity. Source
+animation interpolation and frame scheduling are unchanged.
+
+The real-resource verifier compares all 84 upper/lower SceneIn/SceneOut integer
+frames byte for byte with the original renderer, plus 2× LCD scaling. Fractional
+edges, partial parent opacity and changed geometry explicitly decline the fast
+path. Partial parent opacity was found to round differently and is not optimized.
+The same verifier also passes 24 complete transition LCD checkpoints. Recorded
+aggregate CPU time for the 84 comparison frames was 226ms for the original path
+and 5.4ms for the uniform fill on this host; this is not a browser FPS claim and
+does not resolve the separate logo/material rasterization costs.
+Artifacts: `reference/system-ui-fast-fade/` on the designated SSD.

@@ -1,3 +1,4 @@
+import {drawNativeSystemFade} from './native-system-fade';
 import {nativeMessageOverride,type PaneOverrides} from './native-layout';
 import type {FirmwarePresentationAssets} from './firmware-presentation';
 import type {MenuState} from './state';
@@ -13,7 +14,7 @@ export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:Canv
   let ok=true;
   for(const [ctx,suffix]of [[top,'U'],[bottom,'D']] as const){
    const name=`CmnFadeNinLogo_${suffix}_00`;
-   ok=renderer.draw(ctx,'common',name,{bindings:[{name:`${name}_${direction}`,frame}]})&&ok;
+   ok=(drawNativeSystemFade(ctx,renderer.packs.common,name,`${name}_${direction}`,frame)||renderer.draw(ctx,'common',name,{bindings:[{name:`${name}_${direction}`,frame}]}))&&ok;
   }
   return ok;
  };

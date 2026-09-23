@@ -1,16 +1,30 @@
+import { createNativeMusicTransport } from './native-music-transport.ts';
+import { loadNativeMusicPack } from './native-music-pack.ts';
+import type { MusicEntry } from './native-home-audio/types.ts';
+
 export type Sound = 'select' | 'open' | 'back' | 'home' | 'power' | 'touch' | 'grab' | 'drop' | 'folder-open' | 'folder-close';
 export type AudioCue = { name: string; url: string; sampleRate: number; samples: number; loopStart: number | null; loopEnd: number | null };
 export type AudioPack = { schema: 1; cues: Record<string, AudioCue> };
-export type AudioState = { home: boolean; powered: boolean; sleeping: boolean; muted: boolean; volume: number; elapsedMs: number };
+export type AudioState = { home: boolean; powered: boolean; sleeping: boolean; muted: boolean; volume: number; elapsedMs: number; homeUpdates: number };
 
-/** Native PCM is rendered offline from original sequences and instruments.
- * The OS clock owns transport; Web Audio owns sample-accurate loops. */
-export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/audio.json', environment: { fetch?: typeof fetch; AudioContext?: typeof AudioContext } = {}) {
+export type MenuAudioEnvironment = {
+  fetch?: typeof fetch; AudioContext?: typeof AudioContext;
+  createMusicTransport?: typeof createNativeMusicTransport; loadMusicPack?: typeof loadNativeMusicPack;
+};
+
+/** Short cues share one gesture-unlocked context with persistent native music.
+ * The worker owns synthesis; HOME updates own the provisional native fade clock. */
+export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/audio.json', environment: MenuAudioEnvironment = {}) {
   const fetchAsset = environment.fetch ?? globalThis.fetch;
   let context: AudioContext | undefined, master: GainNode | undefined, disposed = false;
-  let lastPlayed: Sound | undefined, music: AudioBufferSourceNode | undefined, musicSince = 0;
-  let state: AudioState = { home: false, powered: true, sleeping: false, muted: false, volume: .35, elapsedMs: 0 };
-  let failure: string | undefined, musicLoading = false, generation = 0, effectGeneration = 0;
+  let lastPlayed: Sound | undefined, musicGain: GainNode | undefined;
+  let transport: ReturnType<typeof createNativeMusicTransport> | undefined;
+  let musicFailure: string | undefined, musicRevision = 0, activeRevision = -1, gainRevision = -1;
+  let musicEntry: MusicEntry = 'music', enteredHome = false, fadeStart = 0;
+  let musicWork = false, musicDirty = false, fetchMusicAbort: AbortController | undefined;
+  let stopping: Promise<void> = Promise.resolve();
+  let state: AudioState = { home: false, powered: true, sleeping: false, muted: false, volume: .35, elapsedMs: 0, homeUpdates: 0 };
+  let failure: string | undefined, effectGeneration = 0;
   const abort = new AbortController();
   const active = new Set<AudioBufferSourceNode>(), buffers = new Map<string, AudioBuffer>();
   const pending = new Map<string, Promise<AudioBuffer | undefined>>();
@@ -58,48 +72,105 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
     try { source.stop(); } catch { /* already ended */ }
     source.disconnect(); active.delete(source);
   }
-  function stopMusic() { generation++; if (music) stopSource(music); music = undefined; }
-  function stop() { effectGeneration++; stopMusic(); for (const source of active) stopSource(source); }
-  function audibleHome() { return state.home && state.powered && !state.sleeping && !state.muted; }
-  async function updateMusic() {
-    if (disposed || !audibleHome() || context?.state !== 'running' || music || musicLoading) return;
-    musicLoading = true;
-    const token = generation;
-    try {
-      const [assets, buffer] = await Promise.all([pack, load('music')]);
-      if (!assets || !buffer || disposed || token !== generation || !audibleHome() || context?.state !== 'running' || !master) return;
-      const cue = assets.cues.music, source = context.createBufferSource();
-      source.buffer = buffer;
-      const loopStart = (cue.loopStart ?? 0) / cue.sampleRate, loopEnd = (cue.loopEnd ?? cue.samples) / cue.sampleRate;
-      source.loop = cue.loopStart !== null; source.loopStart = loopStart; source.loopEnd = loopEnd;
-      let offset = Math.max(0, (state.elapsedMs - musicSince) / 1000);
-      if (source.loop && offset >= loopEnd) offset = loopStart + (offset - loopStart) % (loopEnd - loopStart);
-      if (offset >= buffer.duration) offset = 0;
-      source.connect(master); active.add(source); music = source;
-      source.onended = () => { source.disconnect(); active.delete(source); if (music === source) music = undefined; };
-      source.start(0, offset);
-    } finally { musicLoading = false; }
+  function musicEnabled() { return state.home && state.powered; }
+  function soundUpdate() { return state.homeUpdates; }
+  function applyGain() {
+    if (!context) return;
+    master?.gain.setValueAtTime(state.muted || state.sleeping || !state.powered ? 0 : state.volume, context.currentTime);
+    const fade = musicEntry === 'music' ? 1 : Math.min(1, Math.max(0, soundUpdate() - fadeStart) / 180);
+    musicGain?.gain.setValueAtTime(musicEnabled() && gainRevision === musicRevision && !musicFailure ? Math.fround(fade) : 0, context.currentTime);
+  }
+  function stopEffects() { effectGeneration++; for (const source of active) stopSource(source); }
+  function stopMusic() {
+    const token = ++musicRevision; activeRevision = -1; gainRevision = -1;
+    fetchMusicAbort?.abort();
+    if (context) musicGain?.gain.setValueAtTime(0, context.currentTime);
+    if (transport) {
+      // Stop gates synchronously and invalidates module/prepare/start completions.
+      stopping = transport.stop().catch(error => {
+        if (!disposed && token === musicRevision && error?.name !== 'AbortError') musicFailure = String(error);
+      });
+    }
+  }
+  function stop() { stopEffects(); stopMusic(); }
+  function updateMusic() {
+    if (disposed) return;
+    musicDirty = true;
+    if (musicWork) return;
+    musicWork = true;
+    void (async () => {
+      try {
+        while (musicDirty && !disposed) {
+          musicDirty = false;
+          await stopping;
+          if (disposed || !musicEnabled() || musicFailure || context?.state !== 'running' || !musicGain) continue;
+          if (activeRevision === musicRevision || state.sleeping) continue;
+          const token = musicRevision, ctx = context;
+          const current = () => !disposed && token === musicRevision && musicEnabled() && context === ctx;
+          try {
+            if (!transport) transport = (environment.createMusicTransport ?? createNativeMusicTransport)({
+              context: ctx, destination: musicGain,
+              workerUrl: new URL('../audio-stream/music-synthesis.worker.js', base),
+              workletUrl: new URL('../audio-stream/music-output.worklet.js', base),
+              onDiagnostic: event => {
+                if (!disposed && event.type === 'error') { musicFailure = event.error ?? 'Native music failed'; applyGain(); }
+              },
+            });
+            if (!transport.status().prepared) {
+              const controller = new AbortController(); fetchMusicAbort = controller;
+              const cancel = () => controller.abort(); abort.signal.addEventListener('abort', cancel, { once: true });
+              try {
+                const raw = await (environment.loadMusicPack ?? loadNativeMusicPack)(new URL('../music/music.json', base).href, { fetch: fetchAsset, signal: controller.signal });
+                if (!current()) continue;
+                await transport.prepare(raw, controller.signal);
+              } finally {
+                abort.signal.removeEventListener('abort', cancel);
+                if (fetchMusicAbort === controller) fetchMusicAbort = undefined;
+              }
+            }
+            if (!current() || state.sleeping) continue;
+            fadeStart = soundUpdate(); gainRevision = token; applyGain();
+            await transport.start({ entry: musicEntry });
+            if (current()) { activeRevision = token; applyGain(); }
+          } catch (error) {
+            if (current() && (error as Error)?.name !== 'AbortError') {
+              musicFailure = String(error); applyGain();
+            }
+          }
+        }
+      } finally { musicWork = false; }
+    })();
   }
   async function unlock() {
     if (disposed) return;
     try {
-      if (!context) { const Context = environment.AudioContext ?? globalThis.AudioContext; context = new Context(); master = context.createGain(); master.connect(context.destination); }
+      if (!context) {
+        const Context = environment.AudioContext ?? globalThis.AudioContext;
+        context = new Context(); master = context.createGain(); master.connect(context.destination);
+        musicGain = context.createGain(); musicGain.gain.value = 0; musicGain.connect(master);
+      }
       if (context.state === 'suspended') await context.resume();
+      if (disposed) return;
+      // Failed native music retries only on a new gesture, never every paint.
+      if (musicFailure) { musicRevision++; fetchMusicAbort?.abort(); transport?.dispose(); transport = undefined; musicFailure = undefined; activeRevision = -1; }
+      applyGain(); updateMusic();
       const assets = await pack;
       if (disposed) return;
       if (assets) for (const name of Object.keys(assets.cues)) if (!name.startsWith('music')) void load(name);
-      if (master) master.gain.value = state.muted ? 0 : state.volume;
-      void updateMusic();
-    } catch (error) { failure = String(error); }
+    } catch (error) { if (!disposed) failure = String(error); }
   }
   function update(next: AudioState) {
-    const wasHome = audibleHome(), oldPhase = state.home;
+    const previous = state, wasEnabled = musicEnabled();
     state = { ...next, volume: Number.isFinite(next.volume) ? Math.max(0, Math.min(1, next.volume)) : .35 };
-    if (oldPhase !== state.home && state.home) musicSince = state.elapsedMs;
-    if (master && context) master.gain.setValueAtTime(state.muted ? 0 : state.volume, context.currentTime);
-    if (!state.powered || state.sleeping) stop();
-    else if (!audibleHome()) { if (wasHome || music) stopMusic(); }
-    else void updateMusic();
+    if (wasEnabled && !musicEnabled()) stopMusic();
+    if (!state.powered) enteredHome = false;
+    if (!wasEnabled && musicEnabled()) {
+      musicRevision++; activeRevision = -1; musicEntry = enteredHome ? 'music-resume' : 'music'; enteredHome = true;
+    }
+    if ((!state.powered && previous.powered) || (state.sleeping && !previous.sleeping)) stopEffects();
+    // Accepted sleep/mute changes gain without selecting an archive entry. The
+    // browser retains synthesis; hardware DSP sleep continuity is unverified.
+    applyGain(); updateMusic();
   }
   function play(name: Sound, muted: boolean, volume: number) {
     if (disposed || muted || !state.powered || state.sleeping || !context || !master) return;
@@ -109,7 +180,7 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
       // A cold decode may finish just after the unlock gesture. Drop old effects
       // instead of playing a delayed burst after a slow asset or decoder.
       if (performance.now() - requested > 250) return;
-      master.gain.value = Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : .35;
+      // The current OS state owns master volume; a late cue cannot unmute it.
       const source = ctx.createBufferSource(); source.buffer = buffer; source.connect(master);
       active.add(source); source.onended = () => { active.delete(source); source.disconnect(); };
       source.start(); lastPlayed = name;
@@ -118,7 +189,7 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
   }
   return {
     unlock, play, update, stop,
-    status() { return { state: context?.state ?? 'locked', decoded: buffers.size, lastPlayed, music: Boolean(music), active: active.size, failure }; },
-    dispose() { if (disposed) return; disposed = true; abort.abort(); stop(); buffers.clear(); bytes.clear(); master?.disconnect(); void context?.close(); },
+    status() { const native = transport?.status(); return { state: context?.state ?? 'locked', decoded: buffers.size, lastPlayed, music: native?.state === 'playing', active: active.size, failure: failure ?? musicFailure, musicFailure, musicEntry, musicTransport: native }; },
+    dispose() { if (disposed) return; disposed = true; abort.abort(); fetchMusicAbort?.abort(); stopEffects(); transport?.dispose(); buffers.clear(); bytes.clear(); musicGain?.disconnect(); master?.disconnect(); void context?.close(); },
   };
 }

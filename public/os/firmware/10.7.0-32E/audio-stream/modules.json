@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "protocol": 1,
+  "processor": "native-home-music-output-v1",
+  "compiler": {
+    "name": "TypeScript",
+    "version": "5.9.3"
+  },
+  "entries": {
+    "worker": "music-synthesis.worker.js",
+    "worklet": "music-output.worklet.js"
+  },
+  "sources": {
+    "src/os/native-home-audio/types.ts": "befe521bc103886267ddb1d6171b56cf1b94fbe592c2c08cc4bb85034c6adc0e",
+    "src/os/native-home-audio/resources.ts": "dda9355a46382e5badc96ab837bd2eb7ed731c1f7d6940fb63b9f6973f916010",
+    "src/os/native-home-audio/arithmetic.ts": "a4604784f2131f4ff41f1b0b4a68f58677c597cfe0bcafb0648552c823d0f483",
+    "src/os/native-home-audio/dsp.ts": "1f50ee248652976415d4ec27b5f7dd404ad9b3b28d223a3cc73008b85717d773",
+    "src/os/native-home-audio/engine.ts": "9f497d31d0dae297a0cb307d97a99310bba87685cb7080886a629e73f4ef701b",
+    "src/os/native-home-audio/continuous-resampler.ts": "ab7272809723c0b1a450224e34ecd34a8ab801cb4231e7fb0cbb905ef3e370ff",
+    "src/os/native-home-audio/transport-protocol.ts": "751606ef02800aa688df7857421632422971806dcfcc40b3144452f2aa38d653",
+    "src/os/native-home-audio/synthesis-controller.ts": "a211dc3da8d458ac707acb6154ea4690117c90384fd6f8ccf01c786167b758bb",
+    "src/os/native-home-audio/task-scheduler.ts": "88b478a284e3b324015d6ca8c8cdb9a884f2d0d1cda79065955a2502b020d960",
+    "src/os/native-home-audio/music-synthesis.worker.ts": "083f1d9baccbdbfbeb80c95519fcdbf6e3a4ee9e85014c0c62cf628a43648991",
+    "src/os/native-home-audio/worklet-globals.d.ts": "79817fddbd932ca3e0e0dc2a1ac256ee0f42d98ed11eae259cb9b7ba657a4965",
+    "src/os/native-home-audio/pcm-ring.ts": "082146ba5045566b8028e2864c7064c2bd24031bf8fde0a70408dc33522c5bd5",
+    "src/os/native-home-audio/output-controller.ts": "3328f99b65ac34f90119b479a3bb806bf92727d1550a65000cad6581ccc545f2",
+    "src/os/native-home-audio/music-output.worklet.ts": "d86bdd17b41f6cfadbdb6913382abfbdab3d639e6c2f07f1b980a7bdf2465a73",
+    "src/os/native-home-audio/stream.ts": "7a1b888375ecf356a75a9d1638a400ee94ce8774c507581ab2392151765df308",
+    "tsconfig.native-audio.json": "c16a4fea8a0fb97d132bb6c5557422b55630975a68cd3376f42db2c24b39995e",
+    "scripts/emit-native-audio-modules.mjs": "9ba53d6d4b600d833eed7efe39f4fddb699e19d4547f793b9557768fe1bc27b9"
+  },
+  "files": {
+    "arithmetic.js": {
+      "bytes": 5875,
+      "sha256": "ce69f25f5366233a16e10c7df254d5d93a0636d406400483d9019cf4a351b7bd"
+    },
+    "continuous-resampler.js": {
+      "bytes": 5708,
+      "sha256": "29090d976b77d627627e78b9fdbe1790ceb86a379bca3bf20131b8e73ff6eb9c"
+    },
+    "dsp.js": {
+      "bytes": 3371,
+      "sha256": "daa625f0874eb121dd1fc31b5e520a94303fe96935043bcbf4d860e7815c0a04"
+    },
+    "engine.js": {
+      "bytes": 14917,
+      "sha256": "96170984dfb4caee22e13701d32835cdf6dc4d88d912ba1c727a61a65cd6207a"
+    },
+    "LICENSE.txt": {
+      "bytes": 1066,
+      "sha256": "f282953d520388cf5ddec2cf0b0142b9c53f7f22cba309bde4addc5422e705d2"
+    },
+    "music-output.worklet.js": {
+      "bytes": 1015,
+      "sha256": "f2bbda60f53b3f851919846b1d00d85dccedf44b5e9bb2826e80b2ec40c2f1a0"
+    },
+    "music-synthesis.worker.js": {
+      "bytes": 550,
+      "sha256": "0d4779732bdcbcf62d614719d7c9f72662db6fcc9ce421e4433c6625149b01c7"
+    },
+    "output-controller.js": {
+      "bytes": 10935,
+      "sha256": "1b0e45e69f446dd6453d3c05a25120e3c18b40365ac70feb95c89c9a3274f4d8"
+    },
+    "pcm-ring.js": {
+      "bytes": 2698,
+      "sha256": "6ee40df96034db5632d086f72a7ff469d075d88232d22f895dd02c63b023bb4f"
+    },
+    "resources.js": {
+      "bytes": 13223,
+      "sha256": "ac408943140dd6b8fc16ce3980f0ebd5525caaf83243e149ba97f03048e4d39e"
+    },
+    "stream.js": {
+      "bytes": 238,
+      "sha256": "39c488d1ab96619353dd7db5705b7dc0c72dd534163d078f3d929ba51ca1b5b4"
+    },
+    "synthesis-controller.js": {
+      "bytes": 10031,
+      "sha256": "52bf439de4b874f0f3bf4cbe2921b658966f8351c5b98b4fad9b19fdea364ee9"
+    },
+    "task-scheduler.js": {
+      "bytes": 1601,
+      "sha256": "d7984ca7f741c3fb81c291a86152ed9e39de7d14189c452d55920f04074f6b1a"
+    },
+    "transport-protocol.js": {
+      "bytes": 1301,
+      "sha256": "fbc0b1b5313b7eac19844d0bf8a5d8c6362ec6dc8a266d4cba0f11a9743ccb0d"
+    },
+    "types.js": {
+      "bytes": 11,
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    }
+  }
+}

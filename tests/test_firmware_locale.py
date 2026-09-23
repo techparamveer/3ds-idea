@@ -39,6 +39,13 @@ def resources():
 
 
 class LocaleTests(unittest.TestCase):
+    def test_system_updater_uses_same_explicit_english_archive_binding(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _, pack = Builder(Path(tmp)).pack(resources(), 'message_EU', '0004001000022f00', SETTINGS_MESSAGE_ARCHIVE, 'archive')
+            self.assertEqual(pack['messages']['mset']['messages'][0]['text'], 'EU_English mset')
+            self.assertEqual(pack['messages']['mset']['styleTable'], SETTINGS_STYLE_PAIRS['message_mset/EU_English/mset.msbt'])
+            self.assertEqual(pack['unsupported'], [])
+
     def test_stock_loose_messages_select_european_english_before_bank_names(self):
         title = '0004003000009c02'
         metadata = {'version': 0, 'sourceSha256': 'source', 'resourceContentIndex': 0,

@@ -12,7 +12,8 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from firmware.build import FIRMWARE, HOME, SHARED, TITLES, SCRIPTS, digest, encode, public_path, decode_layers
-from firmware.build import SETTINGS, SETTINGS_MESSAGE_ARCHIVE, SETTINGS_STYLE_PAIRS, MESSAGE_LOCALE, message_locale
+from firmware.build import SETTINGS, SYSTEM_UPDATER, SETTINGS_MESSAGE_ARCHIVE, SETTINGS_STYLE_PAIRS, MESSAGE_LOCALE, message_locale
+from firmware.build import unpack_archive, unpack_stock_table, STOCK_TABLE_TITLES, STOCK_TABLE_PATHS
 from firmware.cia import content_record, content_directory
 from unpack_home_resources import unpack_darc
 
@@ -81,7 +82,13 @@ def audit(root, artifacts=None, repository=None):
                     archive_key = (title, content['index'] if content else None, relative, 'decoded')
                     if archive_key not in cache:
                         packed = path.read_bytes(); decoded = decode_layers(packed)
-                        cache[archive_key] = (packed, decoded, unpack_darc(decoded) if decoded[:4] == b'darc' else {})
+                        members = unpack_archive(decoded) if decoded[:4] in (b'darc', b'SARC') else {}
+                        if title in STOCK_TABLE_TITLES and relative in STOCK_TABLE_PATHS:
+                            members = unpack_stock_table(decoded)
+                            for member, data in list(members.items()):
+                                if data[:4] in (b'darc', b'SARC'):
+                                    members.update({member+'/'+name: value for name, value in unpack_archive(data).items()})
+                        cache[archive_key] = (packed, decoded, members)
                     packed, decoded, members = cache[archive_key]
                     cache[key] = ([digest(members['/'.join(parts[end:])])] if end < len(parts)
                                   else [digest(packed), digest(decoded)])
@@ -175,7 +182,7 @@ def audit(root, artifacts=None, repository=None):
     for url in packs:
         pack = json.loads(public_path(root, url).read_text())
         selection = pack.get('localeSelection')
-        localized_settings = pack['titleId'] == SETTINGS and any(
+        localized_settings = pack['titleId'] in (SETTINGS, SYSTEM_UPDATER) and any(
             s.get('path') == SETTINGS_MESSAGE_ARCHIVE for s in records[url]['sources'])
         check(not localized_settings or selection is not None, f'{url}: missing Settings locale selection')
         if selection is not None:

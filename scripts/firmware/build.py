@@ -21,9 +21,10 @@ from unpack_home_resources import decompress, unpack_darc
 from firmware.native import decode_layout, decode_animation, decode_msbt, decode_mstl
 from firmware.texture import decode_bclim, decode_texture, png
 from firmware.cia import cia_metadata, content_directory, content_key, content_provenance
+from firmware.archives import unpack_sarc, unpack_stock_table
 
 FIRMWARE = '10.7.0-32E'
-CONVERTER_VERSION = '1.3.2'
+CONVERTER_VERSION = '1.4.0'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
@@ -33,6 +34,7 @@ STOCK_STYLE_PATHS = {
     '000400300000a002': {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'},
 }
 SETTINGS = '0004001000022000'
+SYSTEM_UPDATER = '0004001000022f00'
 SETTINGS_MESSAGE_ARCHIVE = 'message_EU_LZ.bin'
 SETTINGS_STYLE_PAIRS = {
     'message_hud/EU_English/hud.msbt': 'message_hud/EU_English/RI.mstl',
@@ -78,6 +80,17 @@ TITLES = {
 }
 DENIED_SUFFIXES = {'.key', '.pem', '.p12', '.der', '.crr', '.crs', '.cro', '.shbin', '.cdc', '.code'}
 DENIED_NAMES = {'masterkey.bin', 'ticket', 'certs', '.code'}
+STOCK_TABLE_TITLES = {'0004001000022400', '0004001000022500'}
+STOCK_TABLE_PATHS = {'lyt/C.LZ', 'msg/EU_English.LZ'}
+STOCK_STYLE_NAMES = {'RI.mstl', 'RI.mstl.lz', 'RI.mstl.cmp', 'RI_mstl_LZ.bin'}
+
+
+def stock_style(title, path):
+    return title in TITLES and title not in (HOME, '000400300000d002') and PurePosixPath(path).name in STOCK_STYLE_NAMES
+
+
+def unpack_archive(raw):
+    return unpack_sarc(raw) if raw[:4] == b'SARC' else unpack_darc(raw)
 
 
 def digest(data): return hashlib.sha256(data).hexdigest()
@@ -92,7 +105,7 @@ def message_locale(path):
 
 
 def select_message_locale(resources, title, source_path, content):
-    if (title, source_path) != (SETTINGS, SETTINGS_MESSAGE_ARCHIVE): return resources, None
+    if title not in (SETTINGS, SYSTEM_UPDATER) or source_path != SETTINGS_MESSAGE_ARCHIVE: return resources, None
     selection = {'locale': MESSAGE_LOCALE, 'selected': [], 'rejected': []}
     selected = {}; banks = {}
     for path, raw in sorted(resources.items()):
@@ -136,7 +149,7 @@ def public_path(root, url):
 
 def converter_provenance(ctrtool):
     scripts = ['firmware/build.py', 'firmware/cia.py', 'firmware/native.py', 'firmware/animation_hierarchy.py', 'firmware/texture.py',
-               'convert_bcfnt.py', 'unpack_home_resources.py']
+               'firmware/archives.py', 'convert_bcfnt.py', 'unpack_home_resources.py']
     result = subprocess.run([str(ctrtool), '--help'], capture_output=True, text=True, timeout=10)
     # CTRTool prints its identity with help, returning 1 for this invocation.
     match = re.search(r'^CTRTool v([^\s]+)', result.stdout+result.stderr, re.MULTILINE)
@@ -226,6 +239,7 @@ class Builder:
                 elif raw[:8] == b'MsgStdBn': bucket, value = 'messages', decode_msbt(raw)
                 elif ((title == HOME and path in HOME_STYLE_PATHS) or
                       path in STOCK_STYLE_PATHS.get(title, set()) or
+                      stock_style(title, path) or
                       (selection is not None and path in SETTINGS_STYLE_PAIRS.values())):
                     bucket, key, value = 'styles', path, decode_mstl(raw)
                     result.setdefault(bucket, {})
@@ -243,6 +257,11 @@ class Builder:
         for key, message in result['messages'].items():
             member = result['resourceSources']['messages'][key]['path'].removeprefix(source_path+'/')
             table = SETTINGS_STYLE_PAIRS[member] if selection is not None else str(Path(member).parent/'RI_mstl_LZ.bin')
+            if selection is None and title != HOME:
+                candidates = [str(PurePosixPath(member).parent/name) for name in STOCK_STYLE_NAMES
+                              if str(PurePosixPath(member).parent/name) in result.get('styles', {})]
+                if len(candidates) > 1: raise ValueError('Ambiguous stock sibling message style')
+                if candidates: table = candidates[0]
             if selection is not None and table not in result.get('styles', {}):
                 raise ValueError(f'Undecodable same-locale Settings style table for {member}')
             if table in result.get('styles', {}):
@@ -298,17 +317,27 @@ def convert_title(builder, title, metadata, scratch, home):
             except (ValueError, IndexError):
                 builder.unsupported.append({'titleId': title, 'path': relative, 'size': len(packed), 'sha256': digest(packed), 'reason': 'Not supported LZ stream', **identity}); continue
             source = {'titleId': title, 'path': relative, 'sha256': digest(raw), **identity}
-            if raw[:4] == b'darc':
-                try: resources = unpack_darc(raw)
+            if raw[:4] in (b'darc', b'SARC'):
+                try: resources = unpack_archive(raw)
                 except ValueError as error:
                     builder.unsupported.append({**source, 'reason': str(error)}); continue
                 name = re.sub(r'[^a-zA-Z0-9_-]', '-', relative.removesuffix('_LZ.bin').removesuffix('.arc').removesuffix('.bin'))
                 url, pack = builder.pack(resources, name, title, relative, digest(packed), identity)
                 info['packs'].append(url)
                 if title == HOME: home[name] = url
+            elif title in STOCK_TABLE_TITLES and relative in STOCK_TABLE_PATHS:
+                resources = unpack_stock_table(raw)
+                if relative == 'msg/EU_English.LZ':
+                    url, _ = builder.pack(resources, 'msg-EU_English', title, relative, digest(packed), identity)
+                    info['packs'].append(url)
+                else:
+                    for member, data in resources.items():
+                        if data[:4] not in (b'darc', b'SARC'): raise ValueError('Unsupported stock table nested archive')
+                        url, _ = builder.pack(unpack_archive(data), 'lyt-C-'+member, title, relative+'/'+member, digest(data), identity)
+                        info['packs'].append(url)
             elif (raw[:4] in (b'CLYT', b'CLAN') or raw[:8] == b'MsgStdBn' or
                   (len(raw) >= 40 and raw[-40:-36] == b'CLIM') or (title == HOME and relative in HOME_STYLE_PATHS) or
-                  relative in STOCK_STYLE_PATHS.get(title, set())):
+                  relative in STOCK_STYLE_PATHS.get(title, set()) or stock_style(title, relative)):
                 loose[relative] = raw
             elif raw[:4] == b'CFNT':
                 try:

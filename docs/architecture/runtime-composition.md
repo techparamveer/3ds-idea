@@ -43,6 +43,12 @@ scene state. This avoids React reconciliation on animation frames.
 Do not introduce a second copy of the same state in React. New UI behavior
 should normally be a pure OS transition followed by one screen repaint.
 
+The isolated `native-title-session.ts` prepares foreground native view resource
+ownership by AppInstance/view identity; see [its lifecycle contract](../native-title-session.md).
+It cancels and discards stale loads, releases owned renderers and preserves
+borrowed fonts. Scene wiring is pending the native keyboard view; it is not yet
+an active source of screen pixels. Its teardown must precede shared-font disposal.
+
 ## Failure behavior
 
 - A GLB or scene-start failure rejects to `Console.tsx`, which shows the static

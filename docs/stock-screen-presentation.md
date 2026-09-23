@@ -33,8 +33,12 @@ seven 400×240 / 320×240 screen pairs and a contact sheet under the SSD artifac
 directory `presentation/stock-ui-first`, with no renderer diagnostics. The
 Settings assembly, gallery images and player controls were visually inspected.
 
-These are reviewable UI changes, not 1:1 acceptance. Camera/Sound currently use
-portfolio adaptations while native gallery/player chrome is being converted.
+These are reviewable UI changes, not 1:1 acceptance. Camera currently uses a portfolio adaptation while its native gallery chrome
+is being converted. Sound now consumes the source background/grid, title and
+track panels, parakeet, Back button, list cursor and transport art. Track strings
+and artwork come from AppView. The transport mounts are repositioned to the
+shared control targets; seek/repeat/shuffle remain authored portfolio controls.
+Source animation frames are settled snapshots, not a claim of native scheduling.
 Health and the remaining titles still need their native screen composition;
 Settings colours, pose and typography need matched native/browser review.
 The integration task owns browser verification and audio transport.

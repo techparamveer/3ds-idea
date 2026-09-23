@@ -3,6 +3,7 @@ import type { BitmapFont } from './bitmap-font';
 import type { NativeLayoutRenderer } from './native-renderer';
 import { createNativeTitleSession } from './native-title-session';
 import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-settings';
+import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
 import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -66,6 +67,7 @@ function transportIcon(ctx:Context,action:string,x:number,y:number,playing:boole
 export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,options:StockScreenPaintOptions={}):void{
   const {font}=options,accent=accents[view.appId]??'#809d8c',data=view.data??{};
   if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view))return;
+  if(options.native&&drawNativeSoundFrame(options.native,top,bottom,view,options))return;
   chrome(top,400,view.heading,accent,font);chrome(bottom,320,view.heading,accent,font);
   if(camera(view.appId)){
     const folders=records(data.folders),photos=records(data.photos),selected=view.rows[view.selection];
@@ -155,8 +157,8 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont){
       if(disposed)return;
       if(owner!==nextOwner){owner=nextOwner;session.update(null);releaseImages();painted='';}
-      const nativeSettings=view.appId==='system-settings'&&view.screen==='main'&&font;
-      const state=session.update(nativeSettings?{owner:nextOwner,view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks,sharedFonts:new Map([['cbf_std.bcfnt',font]])}:null);
+      const nativeView=font&&(view.appId==='system-settings'&&view.screen==='main'?{view:'settings-main',titleId:'0004001000022000',packs:settingsScreenPacks}:view.appId==='sound'?{view:'sound',titleId:'0004001000022500',packs:soundScreenPacks}:null);
+      const state=session.update(nativeView?{owner:nextOwner,...nativeView,sharedFonts:new Map([['cbf_std.bcfnt',font!]])}:null);
       const key=JSON.stringify([nextOwner,view,revision]);
       if(painted!==key||paintedFont!==font){
         upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);

@@ -49,3 +49,17 @@ The paired outputs require visual inspection; successful asset loading does not
 establish a matched native LCD reproduction. Browser verification remains the
 integration coordinator's responsibility. Details and notice panel placement are
 bounded web compositions using source components, not operation reenactments.
+
+## Integration check — 2026-09-24
+
+The integration routes Transfer and Circle Pad Pro through the native helper
+renderer and maps touch targets to its source control rectangles. The focused
+runtime/layout suite passes 54 tests; type checking and the production build
+pass. Seven paired native helper renders pass without renderer diagnostics.
+Artifacts: `CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/helper-wiring*`.
+
+The rebuilt localhost preview was checked using the Settings touchscreen NNID
+entry and physical B control. Back restores Settings with NNID selected, without
+a close-software dialog. Settings still has unresolved source composition/colour
+differences; NNID's authored availability body is not a verified native prompt.
+These checks do not establish strict 1:1 fidelity.

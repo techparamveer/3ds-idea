@@ -26,17 +26,20 @@ CONVERTER_VERSION = '1.2.0'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
-EXCLUDED = {'0004001000022d00', '0004001000022e00'}
+EXCLUDED = {
+    '0004001000022100',  # Download Play
+    '0004001000022200',  # Activity Log
+    '0004001000022700',  # Mii Maker
+    '0004001000022800',  # StreetPass Mii Plaza
+    '0004001000022d00',  # Face Raiders
+    '0004001000022e00',  # AR Games
+}
 TITLES = {
     HOME: ('home', 'HOME Menu', 'system'),
     '0004001000022000': ('settings', 'System Settings', 'app'),
-    '0004001000022100': ('download-play', 'Download Play', 'app'),
-    '0004001000022200': ('activity-log', 'Activity Log', 'app'),
     '0004001000022300': ('health-and-safety', 'Health and Safety Information', 'app'),
     '0004001000022400': ('camera', 'Nintendo 3DS Camera', 'app'),
     '0004001000022500': ('sound', 'Nintendo 3DS Sound', 'app'),
-    '0004001000022700': ('mii-maker', 'Mii Maker', 'app'),
-    '0004001000022800': ('mii-plaza', 'StreetPass Mii Plaza', 'app'),
     '0004001000022900': ('eshop', 'Nintendo eShop', 'app'),
     '0004001000022b00': ('nintendo-zone', 'Nintendo Zone Viewer', 'app'),
     '000400100002c100': ('nnid-settings', 'Nintendo Network ID Settings', 'app'),

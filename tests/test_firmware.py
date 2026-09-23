@@ -213,8 +213,31 @@ class ContainerTests(unittest.TestCase):
         with self.assertRaises(ValueError): unpack_darc(bad)
 
     def test_public_title_allowlist_excludes_requested_apps(self):
-        self.assertFalse(EXCLUDED.intersection(TITLES))
-        self.assertNotIn('face-raiders', [v[0] for v in TITLES.values()])
+        excluded = {'0004001000022100', '0004001000022200', '0004001000022700',
+                    '0004001000022800', '0004001000022d00', '0004001000022e00'}
+        self.assertEqual(EXCLUDED, excluded)
+        self.assertTrue(excluded.isdisjoint(TITLES))
+        # Excluding Mii applications must not remove the shared Mii picker or
+        # other retained media and library applets used by included titles.
+        for title in (HOME, '0004001000022400', '0004001000022500',
+                      '000400300000d002', '000400300000d102',
+                      '000400300000d302', '000400300000d402'):
+            with self.subTest(title=title): self.assertIn(title, TITLES)
+
+    def test_current_delivery_has_no_excluded_title_sources(self):
+        root = ROOT/'public/os/firmware/10.7.0-32E'
+        manifest = json.loads((root/'manifest.json').read_text())
+        self.assertTrue(EXCLUDED.isdisjoint(manifest['titles']))
+        self.assertTrue(EXCLUDED.isdisjoint(manifest['sources']))
+        # Inspect delivered provenance too: removing a catalog row must not
+        # leave an excluded title's icon, pack or resource published behind it.
+        for url, record in manifest['resources'].items():
+            for source in record.get('sources', []):
+                with self.subTest(url=url):
+                    self.assertNotIn(source.get('titleId', '').lower(), EXCLUDED)
+        self.assertIn(HOME, manifest['titles'])
+        self.assertIn('shared', manifest['fonts'])
+        self.assertIn('hud', manifest['fonts'])
 
     def test_cia_parser_rejects_malformed_container(self):
         for raw in (b'', bytes(256)):

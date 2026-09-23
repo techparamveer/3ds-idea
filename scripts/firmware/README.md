@@ -5,7 +5,16 @@ native cursor hide, footer SceneOut request and conditional balloon lifecycle.
 [Child-selection cue evidence](home_audio_CHILD_SELECTION_EVIDENCE.md) confirms
 the shared root/folder movement sound and distinct boundary/focus cues.
 
-`build.py` reads the owner's **decrypted** CIA packages with an explicitly selected CTRTool. It verifies the CIA/NCCH plaintext flags and title identity before extraction. Only known native visual/message formats become browser PNG/JSON. Raw packages, executable sections, certificates, keys, shaders and private state never become public assets. AR Games and Face Raiders are excluded by title ID.
+`build.py` reads the owner's **decrypted** CIA packages with an explicitly selected CTRTool. It verifies the CIA/NCCH plaintext flags and title identity before extraction. Only known native visual/message formats become browser PNG/JSON. Raw packages, executable sections, certificates, keys, shaders and private state never become public assets. Download Play, Activity Log, Mii Maker, StreetPass Mii Plaza, AR Games and Face Raiders are excluded by title ID. Mii Selector and the other shared library applets remain included.
+
+The September 23 scope change removes the four newly excluded applications
+from future conversion. The existing delivery contains only HOME title packs,
+shared/HUD fonts and their resources; its title/source/provenance records contain
+none of the excluded titles, so no delivered files require deletion. The stored
+manifest retains the provenance of its earlier build; the next conversion will
+emit the expanded `excludedTitles` policy. Private supplied packages and prior
+extractions are preserved. This allowlist change does not establish fidelity for
+the remaining stock applications.
 
 Example (use the actual installed paths):
 

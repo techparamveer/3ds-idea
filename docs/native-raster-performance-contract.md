@@ -32,6 +32,16 @@ supported TEV modes/operands, delayed buffer writes and wrap/filter behavior;
 existing native-layout/firmware tests and type checking. Record CPU timings as
 local evidence only; root owns actual browser profiling and visual checks.
 
+The first kernel is integrated as8e25301. A bounded second pass may pre-bind each
+stage's constants to permanent scratch-bank slots and alternate previous/output
+register banks. This removes repeated constant/result copies; it must retain the
+same scalar arithmetic, read all source/previous channels before overwriting
+them, and capture the old previous value into the feedback buffer after the
+stage. First-stage previous equals primary. Implicit materials and final alpha
+comparison/byte packing remain unchanged. Reuse the complete differential suite
+and report a real close-material benchmark against the first kernel. No spatial
+cache, alpha factoring, shader work or animation changes are included.
+
 ## Upper-base blend fast path
 
 Presentation worker owns `src/os/native-renderer.ts`,

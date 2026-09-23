@@ -20,11 +20,12 @@ from convert_bcfnt import convert as convert_font
 from unpack_home_resources import decompress, unpack_darc
 from firmware.native import decode_layout, decode_animation, decode_msbt, decode_mstl
 from firmware.texture import decode_bclim, decode_texture, png
+from firmware.cafe import decode_flyt, decode_flan, decode_bflim
 from firmware.cia import cia_metadata, content_directory, content_key, content_provenance
 from firmware.archives import unpack_sarc, unpack_stock_table
 
 FIRMWARE = '10.7.0-32E'
-CONVERTER_VERSION = '1.4.0'
+CONVERTER_VERSION = '1.5.0'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
@@ -150,7 +151,7 @@ def public_path(root, url):
 
 def converter_provenance(ctrtool):
     scripts = ['firmware/build.py', 'firmware/cia.py', 'firmware/native.py', 'firmware/animation_hierarchy.py', 'firmware/texture.py',
-               'firmware/archives.py', 'convert_bcfnt.py', 'unpack_home_resources.py']
+               'firmware/archives.py', 'firmware/cafe.py', 'convert_bcfnt.py', 'unpack_home_resources.py']
     result = subprocess.run([str(ctrtool), '--help'], capture_output=True, text=True, timeout=10)
     # CTRTool prints its identity with help, returning 1 for this invocation.
     match = re.search(r'^CTRTool v([^\s]+)', result.stdout+result.stderr, re.MULTILINE)
@@ -213,7 +214,7 @@ class Builder:
     def texture(self, raw, source):
         key = digest(raw)
         if key not in self.texture_cache:
-            info, rgba = decode_bclim(raw); image = png(info['width'], info['height'], rgba)
+            info, rgba = decode_bflim(raw) if raw[-40:-36] == b'FLIM' else decode_bclim(raw); image = png(info['width'], info['height'], rgba)
             self.texture_cache[key] = (info, image)
         info, image = self.texture_cache[key]
         url = self.write(f'textures/{digest(image)}.png', image, source, 'texture')
@@ -235,6 +236,10 @@ class Builder:
             try:
                 if raw[:4] == b'CLYT': bucket, value = 'layouts', decode_layout(raw)
                 elif raw[:4] == b'CLAN': bucket, value = 'animations', decode_animation(raw)
+                elif title == '000400300000b902' and raw[:4] == b'FLYT': bucket, value = 'layouts', decode_flyt(raw)
+                elif title == '000400300000b902' and raw[:4] == b'FLAN': bucket, value = 'animations', decode_flan(raw)
+                elif title == '000400300000b902' and len(raw) >= 40 and raw[-40:-36] == b'FLIM':
+                    bucket, key, value = 'textures', Path(path).name, self.texture(raw, source)
                 elif len(raw) >= 40 and raw[-40:-36] == b'CLIM':
                     bucket, key, value = 'textures', Path(path).name, self.texture(raw, source)
                 elif raw[:8] == b'MsgStdBn': bucket, value = 'messages', decode_msbt(raw)

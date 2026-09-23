@@ -67,9 +67,11 @@ Use source Cancel or OK labels as appropriate for readonly navigation.
 connection, reset or calibration success, nor claim that virtual input calibrated
 the accessory.
 
-amiibo Settings (`000400300000b902`) still has no public native screen set:
-its FLYT/FLAN/FLIM graphics remain unsupported. Generic presentation is not a
-native conversion and must not be described as one.
+amiibo Settings (`000400300000b902`) still has no complete public native screen set:
+its FLYT/FLAN/FLIM initial components now have a bounded conversion checkpoint,
+but part composition and material dependencies still prevent a complete screen.
+See [amiibo initial UI](native-amiibo-initial-ui.md). Generic presentation is not
+a native conversion and must not be described as one.
 
 ## Manual — `0004003000009b02`
 

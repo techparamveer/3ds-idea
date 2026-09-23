@@ -15,9 +15,14 @@ pending the user's tracks; the verification player is explicitly synthetic.
 `stock-screen-layout.ts` supplies the same controls to runtime touch navigation.
 
 Settings consumes source Bg_U/D, TopText_U_00, Top_D_02 and the five I_Top*s child
-layouts, plus English mset message styles. The first slice uses settled scene
-frames and a temporary focus outline; button Select clips await freshly decoded
-asset delivery. Missing/failed native assets retain a per-app fallback. Native
+layouts, plus English mset message styles. Settled scene frames and each button's
+source Select clip paint focus (frame 1 selected, frame 0 inactive). The bounded
+Settings adapter creates derived direct-track clips, omitting only the archive's
+`Button → AS_Picture_00` and `BottunPage01 → AS_Picture_16` share records after
+asserting both endpoints are absent in each button layout. It preserves original
+clips and source packs; any new or applicable share fails explicitly. This is a
+presentation adapter, not a general native binding claim.
+Missing/failed native assets retain a per-app fallback. Native
 assets belong to an application instance through `createNativeTitleSession`;
 owner changes, suspension and disposal release them. Completed screens are
 cached until view/font/image/native readiness changes.

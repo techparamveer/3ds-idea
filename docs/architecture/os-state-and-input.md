@@ -14,6 +14,7 @@
 | `resources.ts` | Validated optional firmware-derived resource loading |
 | `native-chrome.ts` | Authored/cropped native chrome asset loading |
 | `audio.ts` | Gesture-unlocked sound decoding and playback |
+| `native-keyboard-audio/sequence.ts` | Isolated `common_back` sequence controls, counted native updates and release-tail ownership; transport integration pending |
 | `animation.ts` | Layout animation sampling utilities |
 | `app-types.ts`, `app-registry.ts`, `app-host.ts` | Firmware contracts, installed titles and applet lifecycle |
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
@@ -78,6 +79,15 @@ fallback for context-constrained browsers.
 
 Firmware resources are optional and provenance-controlled. Do not describe a
 procedural or photograph-constrained reconstruction as firmware-rendered.
+
+The isolated keyboard sequence controller owns eight logical note slots and
+seventeen wave-slot identities for cues 6/7. It emits ordered prepare, parameter,
+stop and wave-service observations without importing WebAudio, scene or app-host
+code. Sequence completion and final silence are separate states. Its host must
+supply counted native player updates and retain release tails after `stop()`;
+it must not treat each render frame as an established native update. See
+[the control port contract](../firmware-keyboard-control-port.md) for verified
+native comparisons and the still-unimplemented transport connection.
 
 ## Native firmware presentation
 

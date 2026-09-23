@@ -87,6 +87,11 @@ track controls; `keyboard_sequence_native.py` compares that timeline with the
 original sequence, envelope and wave engines through completion and explicit
 stop. See [keyboard sequence validation](../../docs/firmware-keyboard-sequence-validation.md).
 The earlier frozen WAV export still does not synthesize SSEQ.
+The isolated TypeScript `native-keyboard-audio/sequence.ts` port now reproduces
+the source's note/envelope/backend controls. Its private differential helper is
+`tests/helpers/keyboard_sequence_control_oracle.py`; it also replays those
+controls through the original wave backend through final loop stop. See the
+[control port contract](../../docs/firmware-keyboard-control-port.md).
 
 Each pack contains `layouts`, `animations`, `textures`, `messages`, `resourceSources` and `unsupported`, plus `styles` when a supported HOME style table is present. `resourceSources` maps each resource category and name to original member paths and decoded SHA-256 hashes. Layouts contain pane hierarchy, native transforms, text metrics, groups, window frames, texture mapping, blend state and TEV stages. Windows expose `inflation` (four unsigned fixed-point values divided by 16) and `frameSize` (four unsigned integers), both in left/right/top/bottom order. These replace the earlier incorrectly decoded `stretch` float array. Fonts also expose FINF `width`, `cellWidth`, `cellHeight` and `maxCharWidth` alongside baseline, ascent, line feed and per-glyph metrics.
 

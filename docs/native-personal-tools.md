@@ -107,3 +107,38 @@ loader/renderer diagnostics, strict interface checking and immutable views/packs
 Runtime coverage checks that profile actions and text events cannot open an
 editor or change saved values, and Back returns to main. Browser verification is
 still a separate integration check.
+
+## Game Notes selected-note screen
+
+Opening a note now routes `game-notes/drawing` to a separate native pack selection:
+source Bg_U_00/Bg_D_00, MemoWriteDown, ImageScreenUp and English messages. The lower
+paper frame and seven-tool strip are the original MemoWriteDown artwork, held at
+Base 0 / SceneIn 20. Extended clear/export controls, shutter/capture transitions
+and the pen cursor are hidden. Toolbar icons are noninteractive except the source
+Back target `(0,212,44,28)`. The runtime restores the selected note's grid cell on
+Back and emits no editing or save effects.
+
+ImageScreenUp is held at PanelNoGameIn frame20. Its screenshot/shadow panes,
+dynamic software-title panel and alternate note-up surface remain hidden because
+there is no suspended-software capture. Source T_TextList explicitly receives the
+complete English `9900NoBreakGameMesList` message and visible/opaque overrides;
+T_TextWrite stays hidden. The clip itself hides both text panes, so selecting the
+visible native pane is an explicit portfolio composition adapter. The message
+represents the absence of a captured software surface; this is not a claim about
+native APT/software suspension state. No software screenshot is fabricated.
+
+Existing legacy saved points are displayed at their stored lower-LCD coordinates,
+clipped inside the paper. This small read-only raster adapter uses 2px black/red/
+blue strokes and a 12px white eraser, round ends, and the legacy limits of 2048
+strokes / 4096 points. Those widths are authored display choices, not verified
+native pen behavior. Invalid points and unsupported colours are ignored without
+mutating saved data. No stroke is created by touchscreen input.
+
+Requires assets6644715 for ImageScreenUp and its message selection. Verifier
+`--title notes-selected` renders blank and saved-stroke fixtures and checks their
+native-resolution outputs, distinct canvas pixels, red/blue/erased samples,
+identical toolbar pixels despite an out-of-canvas stroke, unchanged views/packs,
+strict interfaces and zero diagnostics. Both pairs were visually inspected at
+`runtime/personal-tools/notes-selected`. Tests confirm that all editing actions
+and canvas touches are inert, saved points remain intact, and Back restores slot15.
+Browser integration and a matched native LCD session remain separate checks.

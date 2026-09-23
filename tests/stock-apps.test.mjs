@@ -248,3 +248,13 @@ test('Friend profile is a read-only card and retains existing nickname/message w
  const result=module.reduce(state,{type:'command',command:'back'},context);assert.equal(result.state.screen,'main');assert.deepEqual(result.effects??[],[]);
  assert.deepEqual(module.save(result.state),{message:'Existing status',miiId:'existing'});
 });
+
+test('selected notes preserve saved strokes and return to the selected grid cell without editing effects',()=>{
+ const strokes=[{color:'red',points:[[20,40],[30,60]]}],context={now:0,shared:{...initialSharedData(),notes:[{slot:15,strokes}]}},before=structuredClone(context.shared);
+ const {module}=setup('game-notes');let state=module.create({},null,context);
+ state=module.reduce(state,{type:'action',id:'15'},context).state;
+ assert.equal(state.screen,'drawing');assert.deepEqual(module.view(state,context).data.strokes,strokes);
+ for(const id of ['black','red','blue','eraser','clear','export','save'])assert.deepEqual(module.reduce(state,{type:'action',id},context),{state});
+ for(const phase of ['down','move','up'])assert.deepEqual(module.reduce(state,{type:'touch',phase,x:160,y:100},context),{state});
+ const result=module.reduce(state,{type:'command',command:'back'},context);assert.equal(result.state.screen,'main');assert.equal(result.state.selection,15);assert.deepEqual(result.effects??[],[]);assert.deepEqual(context.shared,before);
+});

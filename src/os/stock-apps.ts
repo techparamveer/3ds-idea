@@ -121,6 +121,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const screen = str(state.screen, 'main');
     if (action === 'back') {
       if (screen !== 'main') {
+        if ((id === 'game-notes' || id === 'memo') && screen === 'drawing') return { state: withScreen(state, 'main', { selection: bounds(num(state.slot), 15) }) };
         if (id === 'system-settings') return { state: settingsBack(state) };
         const parent = cameraTitles.has(id) && screen === 'photo' ? 'gallery' : 'main';
         const next = withScreen(state, parent);

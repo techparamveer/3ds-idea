@@ -12,6 +12,11 @@ export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
   {url:notesPrefix+'memo-MemoTutorialUp-arc-l.json',alias:'notes-help',layouts:['MemoTutorialUp'],animations:['MemoTutorialUp_Base','MemoTutorialUp_SceneIn']},
   {url:notesPrefix+'messages-and-loose.json',alias:'notes-messages',layouts:[],animations:[]},
 ];
+export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
+  ...personalNotesPacks.filter(({alias})=>alias!=='notes-list'&&alias!=='notes-help'),
+  {url:notesPrefix+'memo-MemoWriteDown-arc-l.json',alias:'notes-write',layouts:['MemoWriteDown'],animations:['MemoWriteDown_Base','MemoWriteDown_SceneIn']},
+  {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:['ImageScreenUp_PanelNoGameIn']},
+];
 export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn']},
   {url:'packs/notifications/messages-and-loose.json',alias:'notification-messages',layouts:[],animations:[]},
@@ -31,6 +36,7 @@ function initialFriendView(view:AppView):boolean{
 }
 export function nativePersonalToolView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
   if(view.appId==='notifications'&&view.screen==='main'&&view.rows.length===0)return {view:'notifications-empty',titleId:'000400300000a002',packs:personalNotificationPacks};
+  if(view.appId==='game-notes'&&view.screen==='drawing')return {view:'game-notes-selected',titleId:'0004003000009c02',packs:personalSelectedNotePacks};
   if(view.appId==='game-notes'&&view.screen==='main')return {view:'game-notes-main',titleId:'0004003000009c02',packs:personalNotesPacks};
   if(view.appId==='friends'&&view.screen==='profile')return {view:'friends-profile',titleId:'0004003000009f02',packs:personalFriendPacks};
   if(initialFriendView(view))return {view:'friends-initial',titleId:'0004003000009f02',packs:personalFriendPacks};
@@ -52,6 +58,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
     return okay;
   }
   if(initialFriendView(view)||(view.appId==='friends'&&view.screen==='profile'))return drawFriendFrame(renderer,top,bottom,view,options);
+  if(view.appId==='game-notes'&&view.screen==='drawing')return drawSelectedNote(renderer,top,bottom,view);
   if(view.appId!=='game-notes'||view.screen!=='main')return false;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['notes-messages'],'message',label,'');
   const selection=Math.max(0,Math.min(15,Math.floor(view.selection))),column=selection%4,row=Math.floor(selection/4);
@@ -102,4 +109,40 @@ function drawFriendFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContex
     T_FrdNumNumer_00:{text:'0'},T_FrdNumDenom_00:{text:'100'},
   })&&okay;
   return okay;
+}
+
+/** Source selected-note chrome around the existing, immutable legacy stroke data. */
+function drawSelectedNote(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView):boolean{
+  const message=(label:string)=>nativeMessageOverride(renderer.packs['notes-messages'],'message',label,'');
+  let okay=renderer.draw(top,'notes-upper','Bg_U_00');
+  okay=renderer.draw(top,'notes-image','ImageScreenUp',{bindings:[{name:'ImageScreenUp_PanelNoGameIn',frame:20}],overrides:{
+    T_TextList:{...message('9900NoBreakGameMesList'),visible:true,alpha:255},T_TextWrite:{visible:false},
+    P_ScreenUpR:{visible:false},P_ScreenUpL:{visible:false},P_ScreenDown:{visible:false},
+    P_ScreenShdwUp:{visible:false},P_ScreenShdwDown:{visible:false},W_ScreenShdwUp:{visible:false},W_ScreenShdwDown:{visible:false},
+    W_TextPanel:{visible:false},P_IconSwitch:{visible:false},P_Mask:{visible:false},N_BtnMemoUp:{visible:false},
+  }})&&okay;
+  okay=renderer.draw(bottom,'notes-lower','Bg_D_00')&&okay;
+  okay=renderer.draw(bottom,'notes-write','MemoWriteDown',{bindings:[{name:'MemoWriteDown_Base',frame:0},{name:'MemoWriteDown_SceneIn',frame:20}],overrides:{
+    N_ExtendMenu:{visible:false},P_CsrPenSsizeM:{visible:false},
+    P_ShutterFlash:{visible:false},P_ShutterParts:{visible:false},
+    P_BtnMemoNext:{visible:false},P_BtnMemoShdwN:{visible:false},
+  }})&&okay;
+  // Existing legacy points are lower-LCD coordinates. This is a display adapter,
+  // not an implementation of the native pen or eraser; nothing writes to state.
+  bottom.save();bottom.beginPath();bottom.rect(4,4,312,208);bottom.clip();
+  bottom.lineCap='round';bottom.lineJoin='round';
+  for(const stroke of Array.isArray(view.data?.strokes)?view.data.strokes.slice(-2048):[]){
+    if(!stroke||typeof stroke!=='object'||Array.isArray(stroke)||!Array.isArray(stroke.points))continue;
+    const color=stroke.color??'black';
+    if(color!=='black'&&color!=='red'&&color!=='blue'&&color!=='eraser')continue;
+    bottom.strokeStyle={black:'#000',red:'#f00',blue:'#00f',eraser:'#fff'}[color];bottom.lineWidth=color==='eraser'?12:2;
+    bottom.beginPath();let started=false;
+    for(const point of stroke.points.slice(-4096)){
+      if(!Array.isArray(point)||typeof point[0]!=='number'||typeof point[1]!=='number'||!Number.isFinite(point[0])||!Number.isFinite(point[1])){started=false;continue;}
+      const [x,y]=point;
+      if(!started){bottom.moveTo(x,y);bottom.lineTo(x+0.01,y);started=true;}else bottom.lineTo(x,y);
+    }
+    bottom.stroke();
+  }
+  bottom.restore();return okay;
 }

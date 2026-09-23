@@ -36,6 +36,12 @@ small polygon offset to prevent oblique z-fighting.
 Animation is elapsed-time based. Render throttling must never change reducer or
 motion semantics; it may only change how often the latest state reaches the GPU.
 
+The native folder banner additionally accepts explicit immutable lifecycle
+samples through `firmware-banner.ts`'s `drawFrame`. OS/runtime code owns its yaw,
+visibility and separate clip clocks; the scene samples those values without
+advancing them during painting. The authored model bind matrix stays inside the
+outer motion group. See [the banner contract](../native-banner-lifecycle.md).
+
 ## Lighting and materials
 
 The room environment, hemisphere light, key, rim and shadow-catching floor are

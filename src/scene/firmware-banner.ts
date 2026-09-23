@@ -5,6 +5,11 @@ import { loadFirmwareCamera } from './firmware-camera';
 import type { NativePixels } from '../os/native-layout';
 import { copyNativeOverlay } from './native-overlay';
 
+/** A sampled lifecycle state; painting never advances these source-frame clocks. */
+export type FolderBannerRenderFrame=Readonly<{
+  visible:boolean;scale:number;yawRadians:number;skeletalFrame:number;materialFrame:number;
+}>;
+
 /** Reuses the console renderer and one native-resolution offscreen target. */
 export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   const scene = new THREE.Scene();
@@ -54,10 +59,21 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     }
     catch(error){failure=String(error);return false;}
   }
+  function drawFrame(ctx:CanvasRenderingContext2D,frame:FolderBannerRenderFrame,label?:NativePixels){
+    if(disposed||!model||!camera||failure)return false;
+    if(!frame.visible)return true;
+    try{
+      const labelReady=!!label&&model.setTexture('DmyText_00',label);model.setMaterialVisible('mt_Text',labelReady);
+      model.group.rotation.y=frame.yawRadians;model.group.scale.setScalar(frame.scale);
+      model.setPlayback({skeletal:[{name:'BannerFolder',frame:frame.skeletalFrame}],material:[{name:'BannerFolder',frame:frame.materialFrame}]});
+      model.update(0,camera);return render(ctx,scene,true);
+    }
+    catch(error){failure=String(error);return false;}
+  }
   function drawBackground(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean){
     if(disposed||!background||backgroundFailure)return false;
     try{background.update(reduced?0:elapsedMs);return render(ctx,backgroundScene);}
     catch(error){backgroundFailure=String(error);return false;}
   }
-  return { ready, draw, drawBackground, status: () => ({ ready: !!model&&!!camera, failure, backgroundReady:!!background&&!!camera, backgroundFailure }), dispose() { disposed = true; model?.dispose();background?.dispose(); target.dispose(); } };
+  return { ready, draw, drawFrame, drawBackground, status: () => ({ ready: !!model&&!!camera, failure, backgroundReady:!!background&&!!camera, backgroundFailure }), dispose() { disposed = true; model?.dispose();background?.dispose(); target.dispose(); } };
 }

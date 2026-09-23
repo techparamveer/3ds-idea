@@ -109,6 +109,40 @@ A background Loop frame of 509 does not establish a folder yaw counter of 509.
 Reference fixtures must provide separate states or counts, without fitting the
 offset to a screenshot.
 
+## Explicit folder rendering
+
+`createFirmwareBanner(renderer).drawFrame(ctx, frame, label?)` accepts a readonly
+`FolderBannerRenderFrame`: `{visible, scale, yawRadians, skeletalFrame,
+materialFrame}`. Supply the active folder's sampled lifecycle values. The method
+sets the outer group yaw and uniform scale, preserves the authored inner bind
+matrix, selects the two `BannerFolder` clips at their separate explicit frames,
+then calls `model.update(0, camera)` and the existing coverage-preserving overlay
+render. It applies no opacity fade or elapsed-time clock. Painting a frame again
+does not advance lifecycle or animation state.
+
+When folder and camera assets are available, an intentionally hidden frame
+returns `true` without modifying the canvas or sampled model state. Missing,
+failed or disposed resources return `false`, including for hidden frames. The
+raw `ready` Promise **catches load failures and resolves**; awaiting it is not
+proof of successful loading. Check `status().ready` and `status().failure` before
+activation and handle a `false` draw result. A background-only load failure does
+not prevent folder rendering. Runtime integration owns request/activation and
+the switch from the retained legacy `draw` entry point; background methods are
+unchanged.
+
+`tests/firmware-banner.test.mjs` uses the real model, textures, camera and CPU
+animation facilities with a recording Canvas/WebGL transport. It covers repeated
+immutable frames, independent skeletal/material checkpoints, label-upload reuse,
+inner bind preservation, hidden/disposed frames, resolved load failures and
+renderer-state restoration after a draw failure. It does not execute GPU shaders
+or replace browser verification.
+
+Renderer validation: all 32 banner/model/lifecycle tests and nonincremental
+TypeScript checking pass. Production build passes with a temporary
+`turbopack.root` common-parent override for this worktree's existing shared
+`node_modules` symlink; the default root rejects that symlink. The configuration
+was restored afterward. Browser/runtime integration remains with the main task.
+
 ## Verification and limits
 
 `tests/home-banner-lifecycle.test.mjs` covers request/activation separation,

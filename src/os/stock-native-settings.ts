@@ -40,8 +40,11 @@ export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasR
   if(view.screen!=='main')return drawNativeSettingsSubpage(renderer,top,bottom,view);
   prepareSettingsButtons(renderer);
   let okay=true;
-  okay=renderer.draw(top,'base','Bg_U_00',{bindings:[{name:'Bg_U_00_SceneIn_Legacy',frame:40}]})&&okay;
-  okay=renderer.draw(bottom,'base','Bg_D_00',{bindings:[{name:'Bg_D_00_SceneIn_Legacy',frame:40}]})&&okay;
+  // top4btn requests background state 3 from initial state 0. The executable
+  // starts Legacy only for 1→2, so main retains the original white-pane defaults.
+  // See docs/settings-main-source-validation.md; subpages have separate states.
+  okay=renderer.draw(top,'base','Bg_U_00')&&okay;
+  okay=renderer.draw(bottom,'base','Bg_D_00')&&okay;
   const message=(label:string)=>nativeMessageOverride(renderer.packs.messages,'mset',label,'');
   okay=renderer.draw(top,'up','TopText_U_00',{bindings:[{name:'TopText_U_00_SceneIn_00',frame:20}],overrides:{
     TextBoxTitle_00:message('top_sysset_title'),T_ver_00:{text:'Ver. 10.7.0-32E'},

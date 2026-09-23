@@ -22,6 +22,9 @@ Settings adapter creates derived direct-track clips, omitting only the archive's
 asserting both endpoints are absent in each button layout. It preserves original
 clips and source packs; any new or applicable share fails explicitly. This is a
 presentation adapter, not a general native binding claim.
+Main now retains the source default background, following the executable's
+initial state 0 → scene state 3 rather than forcing Legacy frame 40. See
+[the source trace and subpage distinctions](settings-main-source-validation.md).
 Missing/failed native assets retain a per-app fallback. Native
 assets belong to an application instance through `createNativeTitleSession`;
 owner changes, suspension and disposal release them. Completed screens are

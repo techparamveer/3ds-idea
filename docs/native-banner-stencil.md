@@ -101,10 +101,16 @@ Do not clear stencil between these three groups. Native scene draw
 `0x2362b4` draws the sorted list without an intervening framebuffer clear.
 Upper dispatch `0x10214c..17c` runs the earlier layout pass, scene 1, the later
 layout pass, then output/clear. Stereo repeats the corresponding dispatch.
-The layout split is priority 5000 in `0x2365d4`: earlier priorities are below
-5000. `LncBase_U_00`, including its camera hints, is constructed at priority
-499 (`0x286608..614`, stored at layout `+0x58` by `0x22a8c4`). It belongs to
-the earlier pass; do not infer that every piece of chrome is a final overlay.
+The layout split is priority 5000 in `0x2365d4`. **Correction:** the earlier
+version of this note inverted its comparison. The first dispatch (`r1=1`)
+draws enabled priorities **5000 through 9989**, then stops at the first priority
+below 5000. The later dispatch (`r1=0`) draws priorities **below 5000**.
+Registration sorts layouts in descending priority, independently of the 3D
+model groups above. `LncBase_U_00`, including its camera hints, is constructed at
+priority 499 (`0x286608..614`, stored at layout `+0x58` by `0x22a8c4`), so it
+belongs **after the 3D scene**. The existing camera-hint strip after the primary
+was not an ordering defect. See the executed threshold, registration and layout
+fixtures in [native upper composition](native-upper-composition.md).
 
 Stock output clear descriptors at `0x32e7a4+8/+0xc/+0x1c` are `0x4500`
 (color/depth/stencil). `0x2303b4` transfers output before applying the selected

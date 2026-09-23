@@ -1,0 +1,1225 @@
+{
+  "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "execution": "Original ARM in Unicorn; synthetic objects, heap/formatter/asset/GPU stubs. Not native rendering or visibility lifecycle execution.",
+  "constructors": [
+    {
+      "layout": "LncBase_U_00",
+      "entry": "0x286580",
+      "stop": "0x28662c",
+      "screen": 1,
+      "priority": 499,
+      "enabledAtSliceEnd": true
+    },
+    {
+      "layout": "HudMenu_00",
+      "entry": "0x27c100",
+      "stop": "0x27c168",
+      "screen": 1,
+      "priority": 100,
+      "enabledAtSliceEnd": true
+    },
+    {
+      "layout": "LncPopUp_U_00",
+      "entry": "0x292584",
+      "stop": "0x2925f8",
+      "screen": 1,
+      "priority": 99,
+      "enabledAtSliceEnd": false
+    },
+    {
+      "layout": "LncBgSlide_U_00",
+      "entry": "0x266df4",
+      "stop": "0x266e18",
+      "screen": 1,
+      "priority": 5001,
+      "enabledAtSliceEnd": true
+    },
+    {
+      "layout": "LncCaptureEfct_U_00",
+      "entry": "0x2b3834",
+      "stop": "0x2b386c",
+      "screen": 1,
+      "priority": 346,
+      "enabledAtSliceEnd": false
+    },
+    {
+      "layout": "LncBgThemeEfct_U_00",
+      "entry": "0x269f48",
+      "stop": "0x269f6c",
+      "screen": 1,
+      "priority": 3,
+      "enabledAtSliceEnd": true
+    }
+  ],
+  "registration": {
+    "entry": "0x11eae8",
+    "insertion": "0x230710",
+    "ordered": [
+      {
+        "name": "reserved",
+        "priority": 9990
+      },
+      {
+        "name": "disabled",
+        "priority": 6001
+      },
+      {
+        "name": "preSynthetic",
+        "priority": 6000
+      },
+      {
+        "name": "slide",
+        "priority": 5001
+      },
+      {
+        "name": "preBoundary",
+        "priority": 5000
+      },
+      {
+        "name": "postBoundary",
+        "priority": 4999
+      },
+      {
+        "name": "upperBase",
+        "priority": 499
+      },
+      {
+        "name": "upperBaseEqual",
+        "priority": 499
+      },
+      {
+        "name": "capture",
+        "priority": 346
+      },
+      {
+        "name": "hud",
+        "priority": 100
+      },
+      {
+        "name": "popup",
+        "priority": 99
+      },
+      {
+        "name": "themeEffect",
+        "priority": 3
+      }
+    ]
+  },
+  "layoutPasses": [
+    {
+      "r1": 1,
+      "drawn": [
+        {
+          "name": "preSynthetic",
+          "priority": 6000
+        },
+        {
+          "name": "slide",
+          "priority": 5001
+        },
+        {
+          "name": "preBoundary",
+          "priority": 5000
+        }
+      ]
+    },
+    {
+      "r1": 0,
+      "drawn": [
+        {
+          "name": "postBoundary",
+          "priority": 4999
+        },
+        {
+          "name": "upperBase",
+          "priority": 499
+        },
+        {
+          "name": "upperBaseEqual",
+          "priority": 499
+        },
+        {
+          "name": "capture",
+          "priority": 346
+        },
+        {
+          "name": "hud",
+          "priority": 100
+        },
+        {
+          "name": "popup",
+          "priority": 99
+        },
+        {
+          "name": "themeEffect",
+          "priority": 3
+        }
+      ]
+    }
+  ],
+  "upperDispatch": [
+    {
+      "eyeMode": 0,
+      "calls": [
+        {
+          "call": "layout",
+          "args": [
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "call": "3D",
+          "args": [
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "call": "layout",
+          "args": [
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "call": "upper output",
+          "args": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "call": "layout",
+          "args": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "call": "3D",
+          "args": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "call": "layout",
+          "args": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "eyeMode": 1,
+      "calls": [
+        {
+          "call": "layout",
+          "args": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "call": "3D",
+          "args": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "call": "layout",
+          "args": [
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "call": "upper output",
+          "args": [
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "call": "layout",
+          "args": [
+            1,
+            1,
+            2
+          ]
+        },
+        {
+          "call": "3D",
+          "args": [
+            1,
+            2,
+            2
+          ]
+        },
+        {
+          "call": "layout",
+          "args": [
+            1,
+            0,
+            2
+          ]
+        },
+        {
+          "call": "upper output",
+          "args": [
+            2,
+            0,
+            2
+          ]
+        },
+        {
+          "call": "layout",
+          "args": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "call": "3D",
+          "args": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "call": "layout",
+          "args": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "pre3dRange": [
+    5000,
+    9989
+  ],
+  "post3dUpperExclusive": 5000,
+  "disabledFlagOffset": "0x60",
+  "priorityOffset": "0x58",
+  "fixture": {
+    "path": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/upper-composition/execute-order.py",
+    "sha256": "093adb0e737e99c90846c8f759e48b2e5b858d9e6712d58d72d68b579482d62c",
+    "passed": true
+  },
+  "layoutAssets": {
+    "launcher": {
+      "sha256": "f251db1a92bed36da178099640fadcc9a6a53ba3e7e5410a7b3ddd7dfc02a044",
+      "layouts": {
+        "LncBase_U_00": {
+          "groups": [
+            {
+              "children": [
+                {
+                  "children": [],
+                  "name": "G_Scene_00",
+                  "panes": [
+                    "N_Root_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_Hud_00",
+                  "panes": [
+                    "N_Hud_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_Wndw_00",
+                  "panes": [
+                    "N_Wndw_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_Btm_00",
+                  "panes": [
+                    "N_Btm_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_WndwScale_00",
+                  "panes": [
+                    "N_WndwScale_00",
+                    "T_TextTop_00",
+                    "T_AppTitle_00",
+                    "T_TextBtmR_00",
+                    "N_TextBtm_00",
+                    "W_Wndw_00",
+                    "N_IconWrp_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_TextInOut_00",
+                  "panes": [
+                    "N_TextInOut_00",
+                    "P_BnrText_00",
+                    "N_BnrTxtB_01",
+                    "N_BnrTxtW_01"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_WhiteBlack_00",
+                  "panes": [
+                    "P_BnrText_00",
+                    "P_Plus_00",
+                    "P_PictL_00",
+                    "P_PictCam_00",
+                    "P_PictR_00",
+                    "CameraBaseS_00",
+                    "CameraBase_00",
+                    "P_PictL_01",
+                    "P_PictR_01",
+                    "P_PictCam_01",
+                    "N_TxtW_00",
+                    "N_TxtB_00",
+                    "N_BnrTxtW_00",
+                    "N_BnrTxtB_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_Sleep_00",
+                  "panes": [
+                    "P_Sleep_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_CamLR_00",
+                  "panes": [
+                    "N_Wrapper_00",
+                    "N_Wrapper_01",
+                    "CameraBaseS_00",
+                    "CameraBase_00",
+                    "N_R_00",
+                    "N_L_00",
+                    "T_CamText_01",
+                    "N_TxtW_01"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_CamLR_01",
+                  "panes": [
+                    "T_CamText_01",
+                    "N_TxtW_01"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_PressL_00",
+                  "panes": [
+                    "P_PictL_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_PressR_00",
+                  "panes": [
+                    "P_PictR_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_PressL_01",
+                  "panes": [
+                    "P_PictL_01"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_PressR_01",
+                  "panes": [
+                    "P_PictR_01"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_Loop_00",
+                  "panes": [
+                    "T_CamText_00",
+                    "T_CamText_02"
+                  ]
+                }
+              ],
+              "name": "RootGroup",
+              "panes": []
+            }
+          ],
+          "panes": [
+            {
+              "path": "RootPane",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Hud_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/P_BnrText_00",
+              "kind": "pic1",
+              "flags": 3,
+              "alpha": 0
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/P_BnrText_00/N_BnrTxtW_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/P_BnrText_00/N_BnrTxtW_00/N_BnrTxtW_01",
+              "kind": "pan1",
+              "flags": 2,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/P_BnrText_00/N_BnrTxtW_00/N_BnrTxtW_01/T_BnrText_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/P_BnrText_00/N_BnrTxtW_00/N_BnrTxtW_01/T_BnrText_01",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/P_BnrText_00/N_BnrTxtB_00",
+              "kind": "pan1",
+              "flags": 2,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/P_BnrText_00/N_BnrTxtB_00/N_BnrTxtB_01",
+              "kind": "pan1",
+              "flags": 2,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/P_BnrText_00/N_BnrTxtB_00/N_BnrTxtB_01/T_BnrText_10",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/P_BnrText_00/N_BnrTxtB_00/N_BnrTxtB_01/T_BnrText_11",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_Wrapper_01",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_Wrapper_01/CameraBaseS_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 100
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_Wrapper_01/CameraBase_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_R_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_R_00/P_PictCam_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_R_00/P_PictL_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_R_00/P_Plus_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_R_00/P_PictR_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_L_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_L_00/P_PictL_01",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_L_00/P_PictR_01",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_L_00/P_PictCam_01",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_TxtW_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_TxtW_00/N_TxtW_01",
+              "kind": "pan1",
+              "flags": 2,
+              "alpha": 0
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_TxtW_00/N_TxtW_01/T_CamText_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_TxtW_00/N_TxtW_01/T_CamText_02",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 0
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_TxtB_00",
+              "kind": "pan1",
+              "flags": 2,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Btm_00/N_TextInOut_00/N_Wrapper_00/N_TxtB_00/T_CamText_01",
+              "kind": "txt1",
+              "flags": 0,
+              "alpha": 0
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/W_Wndw_00",
+              "kind": "wnd1",
+              "flags": 0,
+              "alpha": 0
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/T_TextTop_00",
+              "kind": "txt1",
+              "flags": 2,
+              "alpha": 0
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/T_TextTop_00/T_AppTitle_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/N_TextBtm_00",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/N_TextBtm_00/N_TestCenter_00",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/N_TextBtm_00/N_TestCenter_00/P_Home_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/N_TextBtm_00/N_TestCenter_00/T_TextBtmR_00",
+              "kind": "txt1",
+              "flags": 0,
+              "alpha": 0
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/N_IconWrp_00",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/N_IconWrp_00/P_Icon_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/N_IconWrp_00/P_Icon_Badge_00",
+              "kind": "pic1",
+              "flags": 0,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Root_00/N_Wndw_00/N_WndwScale_00/N_IconWrp_00/P_Sleep_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 140
+            }
+          ]
+        },
+        "LncBgSlide_U_00": {
+          "groups": [
+            {
+              "children": [
+                {
+                  "children": [],
+                  "name": "G_Bg_00",
+                  "panes": [
+                    "P_Bg_00"
+                  ]
+                }
+              ],
+              "name": "RootGroup",
+              "panes": []
+            }
+          ],
+          "panes": [
+            {
+              "path": "RootPane",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_Bg_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            }
+          ]
+        },
+        "LncCaptureEfct_U_00": {
+          "groups": [
+            {
+              "children": [
+                {
+                  "children": [],
+                  "name": "G_Capture_00",
+                  "panes": [
+                    "P_Capture_00"
+                  ]
+                }
+              ],
+              "name": "RootGroup",
+              "panes": []
+            }
+          ],
+          "panes": [
+            {
+              "path": "RootPane",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_Capture_00",
+              "kind": "pic1",
+              "flags": 0,
+              "alpha": 0
+            }
+          ]
+        },
+        "LncPopUp_U_00": {
+          "groups": [
+            {
+              "children": [
+                {
+                  "children": [],
+                  "name": "G_Scene_00",
+                  "panes": [
+                    "P_PopUp_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_WhiteBlack_00",
+                  "panes": [
+                    "P_PopUp_00",
+                    "T_Bnr_00"
+                  ]
+                }
+              ],
+              "name": "RootGroup",
+              "panes": []
+            }
+          ],
+          "panes": [
+            {
+              "path": "RootPane",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00",
+              "kind": "pic1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/T_Bnr_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Bat_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Bat_00/P_Icon_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Bat_00/P_Bat_00",
+              "kind": "pic1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Bat_00/P_Bat_00/P_BatF_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Bat_00/P_Bat_00/P_BatF_01",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Frd_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Frd_00/P_Icon_01",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Mars_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Mars_00/P_Icon_02",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Mars_00/P_Wave_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 250
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Mars_00/P_Pole_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 250
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Tiger_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_PopUp_00/N_Tiger_00/P_Icon_03",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            }
+          ]
+        },
+        "LncBgThemeEfct_U_00": {
+          "groups": [
+            {
+              "children": [
+                {
+                  "children": [],
+                  "name": "G_Mask",
+                  "panes": [
+                    "P_BgBtm_00"
+                  ]
+                }
+              ],
+              "name": "RootGroup",
+              "panes": []
+            }
+          ],
+          "panes": [
+            {
+              "path": "RootPane",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/P_BgBtm_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 0
+            }
+          ]
+        }
+      }
+    },
+    "hud": {
+      "sha256": "76df2ed42d3bbe09bef599bc242ac2946b811a3c5ee362a8776483a257b4c775",
+      "layouts": {
+        "HudMenu_00": {
+          "groups": [
+            {
+              "children": [
+                {
+                  "children": [],
+                  "name": "G_Scene_00",
+                  "panes": [
+                    "N_Scene_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_WhiteBlack_00",
+                  "panes": [
+                    "P_Walk_00",
+                    "T_Walk_00",
+                    "P_Coin_00",
+                    "T_Coin_00",
+                    "T_Date_00",
+                    "T_TimeL_00",
+                    "T_TimeC_00",
+                    "T_TimeR_00",
+                    "P_Bat_00",
+                    "P_NetModeBase_00",
+                    "N_NetAtnBaseW_00",
+                    "N_NetAtnBaseB_00",
+                    "N_PlugBg_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_NetAtn_00",
+                  "panes": [
+                    "P_NetAntL_00",
+                    "P_NetAntR_00",
+                    "P_NetAntL_02",
+                    "P_NetAntR_02",
+                    "P_NetAntL_01",
+                    "P_NetAntR_01"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_NetMode_00",
+                  "panes": [
+                    "P_NetMode_00",
+                    "T_NetMode_00"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_Bat_00",
+                  "panes": [
+                    "P_BatF_00",
+                    "P_BatF_01",
+                    "P_BatF_03",
+                    "P_BatF_02"
+                  ]
+                },
+                {
+                  "children": [],
+                  "name": "G_WalkCoin_00",
+                  "panes": [
+                    "P_Coin_00",
+                    "P_Walk_00"
+                  ]
+                }
+              ],
+              "name": "RootGroup",
+              "panes": []
+            }
+          ],
+          "panes": [
+            {
+              "path": "RootPane",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00",
+              "kind": "pan1",
+              "flags": 3,
+              "alpha": 0
+            },
+            {
+              "path": "RootPane/N_Scene_00/N_NetAtnBaseW_00",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/N_NetAtnBaseW_00/P_NetAntL_01",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/N_NetAtnBaseW_00/P_NetAntR_01",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/N_NetAtnBaseB_00",
+              "kind": "pan1",
+              "flags": 2,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/N_NetAtnBaseB_00/P_NetAntL_02",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/N_NetAtnBaseB_00/P_NetAntR_02",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_NetAntL_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_NetAntR_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_NetModeBase_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 200
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_NetMode_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/T_NetMode_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Walk_00",
+              "kind": "pic1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Walk_00/T_Walk_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Coin_00",
+              "kind": "pic1",
+              "flags": 3,
+              "alpha": 0
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Coin_00/T_Coin_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/T_Date_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/T_TimeL_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/T_TimeC_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/T_TimeR_00",
+              "kind": "txt1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Bat_00",
+              "kind": "pic1",
+              "flags": 3,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Bat_00/P_BatF_00",
+              "kind": "pic1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Bat_00/P_BatF_01",
+              "kind": "pic1",
+              "flags": 0,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Bat_00/N_PlugBg_00",
+              "kind": "pan1",
+              "flags": 1,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Bat_00/N_PlugBg_00/P_BatF_02",
+              "kind": "pic1",
+              "flags": 0,
+              "alpha": 255
+            },
+            {
+              "path": "RootPane/N_Scene_00/P_Bat_00/P_BatF_03",
+              "kind": "pic1",
+              "flags": 0,
+              "alpha": 255
+            }
+          ]
+        }
+      }
+    }
+  },
+  "limits": [
+    "Constructor priorities and native register/list/pass behavior are executed; complete visibility and activation lifecycles are not.",
+    "GPU work and CLYT rendering are stubbed, not executed.",
+    "The list fixture deliberately enables known capture and popup layouts despite their constructor slices disabling them, to establish ordering independently of visibility.",
+    "Additional upper layouts, dynamic priority changes and software overlays are not a complete inventory.",
+    "Animation groups are binding selections within a layout; no separate draw priority was established for individual LncBase_U_00 groups."
+  ]
+}

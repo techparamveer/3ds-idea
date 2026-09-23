@@ -1,5 +1,11 @@
 # Native folder lighting correction
 
+**Direction-convention follow-up:** [Native draw-time execution](native-directional-light-installation.md)
+subsequently proved that HOME negates the view-transformed cached direction.
+That source evidence supersedes the SPICA preview sign assumption recorded below.
+Integrating the shared correction requires a matched folder capture because it
+changes the authored half-vector LUT input.
+
 The supplied native folder captures are `reference/screenshots/_22.09.26_21.31.33.514.png` and `_22.09.26_21.43.16.442.png`, under `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`. Browser before was `browser-folder-created-top.png`. The integration task owns browser/native operation and camera changes.
 
 ## Color-transfer finding

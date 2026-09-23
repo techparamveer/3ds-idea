@@ -1,5 +1,12 @@
 # Default banner material investigation
 
+**Follow-up:** [Executed native draw-time installation](native-directional-light-installation.md)
+now proves that HOME negates the view-transformed cached direction before writing
+the PICA light-position registers. The unresolved sign and proposed diagnostic
+below describe this investigation's earlier boundary; the linked follow-up
+supersedes that blocker with exact source evidence. GPU comparison remains with
+integration.
+
 The current default shader can reproduce the observed washed-out cubes and cyan
 Internet ink directly from the authored material. The immediate mechanism is
 zero fragment-primary illumination on front-facing normals, followed by the

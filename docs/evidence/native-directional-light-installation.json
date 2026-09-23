@@ -1,0 +1,514 @@
+{
+  "scope": "Source evidence only; no shader, public asset, runtime, browser or native process edits",
+  "fixture": {
+    "path": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/banner-default-material/execute-draw-light.py",
+    "sha256": "1083394040ff99d05096666298819708eebf34674460190bd37d3b3edb26354e",
+    "outputPath": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/banner-default-material/executed-draw-light.json",
+    "outputSha256": "d571884a97fec50e648c0fae5342d7fc7d6d035463b75b8e7118db52f7b3bcf0",
+    "python": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/assets/research-venv/bin/python",
+    "passedCases": 5
+  },
+  "nativeDrawExecution": {
+    "kind": "Original ARM in Unicorn; source camera Aim and draw-time light installation, no GPU/native process",
+    "codeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "bannerDefSha256": "e5711a422d51e11c7047ebcb415401451335c39c46ecfbf1e3abdbffe8985955",
+    "cameraCompressedSha256": "54df078dfb80a7fe55b391d10993353fe3b9ae2135a87f204b1ad8f641cc4ad9",
+    "cameraDecodedSha256": "19d1009bc472a34626a10ec903d689fbd4b3b6951addc28beaa4f155db9bf897",
+    "lightResourceOffset": "0x4f40",
+    "cameraResourceOffset": "0xc0",
+    "aimResourceOffset": "0x3a4",
+    "sourceDirection": [
+      0.0,
+      -0.41036465764045715,
+      -0.911921501159668
+    ],
+    "mapping": "positionPICA = truncateFloat16(-view3x3 * cachedDirection); directional w=0",
+    "stubbedCalls": [],
+    "patchedInstructions": [],
+    "fixtureSetup": [
+      "Synthetic runtime allocations, pointers, command buffer and enabled light list; real immutable resource bytes copied into mapped memory.",
+      "Camera runtime world-position entries copied from authored SRT for the unparented mono case; controls explicitly replace position/target.",
+      "Real Aim object vtable and resource pointer installed without allocator/constructor execution.",
+      "Scene1 camera slot0 registration supplied from prior static source trace; original scene camera-selection slice executes.",
+      "Original light constructor direction-copy slice and full source-direction updater execute before each case.",
+      "Camera update stops after native view calculation, before inverse/projection/stereo work. Light caller stops after vector/global attenuation-config commands.",
+      "For slot0 cases, a separate material-config slice executes with the same light list/count/mask and clear geometry flags, appending LIGHT0_CONFIG=1 at 0x149. Other material setup and control flow are outside this slice."
+    ],
+    "cases": [
+      {
+        "case": "authored_mono",
+        "cameraPosition": [
+          0.0,
+          1.0,
+          44.7859992980957
+        ],
+        "cameraTarget": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "viewMatrixRowMajor3x4": [
+          1.0,
+          0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          1.0,
+          0.0,
+          -1.0,
+          0.0,
+          0.0,
+          1.0,
+          -44.7859992980957
+        ],
+        "cameraUpdateBounds": {
+          "entry": "0x10a324",
+          "stop": "0x10a3b0",
+          "instructions": 205
+        },
+        "cameraSelectBounds": {
+          "entry": "0x236324",
+          "stop": "0x236368",
+          "instructions": 17
+        },
+        "cachedDirection": [
+          0.0,
+          -0.41036465764045715,
+          -0.911921501159668
+        ],
+        "installBounds": {
+          "entry": "0x11b4f0",
+          "stop": "0x11b584",
+          "instructions": 198
+        },
+        "separateConfigSliceBounds": {
+          "entry": "0x192448",
+          "stop": "0x1924e8",
+          "instructions": 37
+        },
+        "setterCapture": {
+          "pc": "0x13a640",
+          "lightIndex": 0,
+          "vector4": [
+            -0.0,
+            0.41036465764045715,
+            0.911921501159668,
+            -0.0
+          ]
+        },
+        "directionalMask": "0x1",
+        "words": [
+          "0x36908000",
+          "0x801f0144",
+          "0x00003b4b",
+          "0x00000000",
+          "0xff00ffff",
+          "0x000b01c4",
+          "0x00000001",
+          "0x00010149"
+        ],
+        "positionRegisters": [
+          "0x144",
+          "0x145"
+        ],
+        "halfBits": [
+          "0x8000",
+          "0x3690",
+          "0x3b4b"
+        ],
+        "decodedPosition": [
+          -0.0,
+          0.41015625,
+          0.91162109375
+        ],
+        "normalizedPosition": [
+          -0.0,
+          0.4103037462455622,
+          0.9119489217148389
+        ]
+      },
+      {
+        "case": "translated_camera_control",
+        "cameraPosition": [
+          13.0,
+          -6.0,
+          48.7859992980957
+        ],
+        "cameraTarget": [
+          13.0,
+          -6.0,
+          4.0
+        ],
+        "viewMatrixRowMajor3x4": [
+          1.0,
+          0.0,
+          0.0,
+          -13.0,
+          -0.0,
+          1.0,
+          0.0,
+          6.0,
+          0.0,
+          0.0,
+          1.0,
+          -48.7859992980957
+        ],
+        "cameraUpdateBounds": {
+          "entry": "0x10a324",
+          "stop": "0x10a3b0",
+          "instructions": 205
+        },
+        "cameraSelectBounds": {
+          "entry": "0x236324",
+          "stop": "0x236368",
+          "instructions": 17
+        },
+        "cachedDirection": [
+          0.0,
+          -0.41036465764045715,
+          -0.911921501159668
+        ],
+        "installBounds": {
+          "entry": "0x11b4f0",
+          "stop": "0x11b584",
+          "instructions": 198
+        },
+        "separateConfigSliceBounds": {
+          "entry": "0x192448",
+          "stop": "0x1924e8",
+          "instructions": 37
+        },
+        "setterCapture": {
+          "pc": "0x13a640",
+          "lightIndex": 0,
+          "vector4": [
+            -0.0,
+            0.41036465764045715,
+            0.911921501159668,
+            -0.0
+          ]
+        },
+        "directionalMask": "0x1",
+        "words": [
+          "0x36908000",
+          "0x801f0144",
+          "0x00003b4b",
+          "0x00000000",
+          "0xff00ffff",
+          "0x000b01c4",
+          "0x00000001",
+          "0x00010149"
+        ],
+        "positionRegisters": [
+          "0x144",
+          "0x145"
+        ],
+        "halfBits": [
+          "0x8000",
+          "0x3690",
+          "0x3b4b"
+        ],
+        "decodedPosition": [
+          -0.0,
+          0.41015625,
+          0.91162109375
+        ],
+        "normalizedPosition": [
+          -0.0,
+          0.4103037462455622,
+          0.9119489217148389
+        ]
+      },
+      {
+        "case": "rotated_camera_control",
+        "cameraPosition": [
+          44.7859992980957,
+          1,
+          0
+        ],
+        "cameraTarget": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "viewMatrixRowMajor3x4": [
+          0.0,
+          0.0,
+          -1.0,
+          0.0,
+          -0.0,
+          1.0,
+          0.0,
+          -1.0,
+          1.0,
+          0.0,
+          0.0,
+          -44.7859992980957
+        ],
+        "cameraUpdateBounds": {
+          "entry": "0x10a324",
+          "stop": "0x10a3b0",
+          "instructions": 205
+        },
+        "cameraSelectBounds": {
+          "entry": "0x236324",
+          "stop": "0x236368",
+          "instructions": 17
+        },
+        "cachedDirection": [
+          0.0,
+          -0.41036465764045715,
+          -0.911921501159668
+        ],
+        "installBounds": {
+          "entry": "0x11b4f0",
+          "stop": "0x11b584",
+          "instructions": 198
+        },
+        "separateConfigSliceBounds": {
+          "entry": "0x192448",
+          "stop": "0x1924e8",
+          "instructions": 37
+        },
+        "setterCapture": {
+          "pc": "0x13a640",
+          "lightIndex": 0,
+          "vector4": [
+            -0.911921501159668,
+            0.41036465764045715,
+            -0.0,
+            -0.0
+          ]
+        },
+        "directionalMask": "0x1",
+        "words": [
+          "0x3690bb4b",
+          "0x801f0144",
+          "0x00008000",
+          "0x00000000",
+          "0xff00ffff",
+          "0x000b01c4",
+          "0x00000001",
+          "0x00010149"
+        ],
+        "positionRegisters": [
+          "0x144",
+          "0x145"
+        ],
+        "halfBits": [
+          "0xbb4b",
+          "0x3690",
+          "0x8000"
+        ],
+        "decodedPosition": [
+          -0.91162109375,
+          0.41015625,
+          -0.0
+        ],
+        "normalizedPosition": [
+          -0.9119489217148389,
+          0.4103037462455622,
+          -0.0
+        ]
+      },
+      {
+        "case": "light_slot3_control",
+        "cameraPosition": [
+          0.0,
+          1.0,
+          44.7859992980957
+        ],
+        "cameraTarget": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "viewMatrixRowMajor3x4": [
+          1.0,
+          0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          1.0,
+          0.0,
+          -1.0,
+          0.0,
+          0.0,
+          1.0,
+          -44.7859992980957
+        ],
+        "cameraUpdateBounds": {
+          "entry": "0x10a324",
+          "stop": "0x10a3b0",
+          "instructions": 205
+        },
+        "cameraSelectBounds": {
+          "entry": "0x236324",
+          "stop": "0x236368",
+          "instructions": 17
+        },
+        "cachedDirection": [
+          0.0,
+          -0.41036465764045715,
+          -0.911921501159668
+        ],
+        "installBounds": {
+          "entry": "0x12f954",
+          "stop": "0x8200000",
+          "instructions": 161
+        },
+        "separateConfigSliceBounds": null,
+        "setterCapture": {
+          "pc": "0x13a640",
+          "lightIndex": 3,
+          "vector4": [
+            -0.0,
+            0.41036465764045715,
+            0.911921501159668,
+            -0.0
+          ]
+        },
+        "directionalMask": "0x8",
+        "words": [
+          "0x36908000",
+          "0x801f0174",
+          "0x00003b4b",
+          "0x00000000"
+        ],
+        "positionRegisters": [
+          "0x174",
+          "0x175"
+        ],
+        "halfBits": [
+          "0x8000",
+          "0x3690",
+          "0x3b4b"
+        ],
+        "decodedPosition": [
+          -0.0,
+          0.41015625,
+          0.91162109375
+        ],
+        "normalizedPosition": [
+          -0.0,
+          0.4103037462455622,
+          0.9119489217148389
+        ]
+      },
+      {
+        "case": "nonunit_direction_control",
+        "cameraPosition": [
+          0.0,
+          1.0,
+          44.7859992980957
+        ],
+        "cameraTarget": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "viewMatrixRowMajor3x4": [
+          1.0,
+          0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          1.0,
+          0.0,
+          -1.0,
+          0.0,
+          0.0,
+          1.0,
+          -44.7859992980957
+        ],
+        "cameraUpdateBounds": {
+          "entry": "0x10a324",
+          "stop": "0x10a3b0",
+          "instructions": 205
+        },
+        "cameraSelectBounds": {
+          "entry": "0x236324",
+          "stop": "0x236368",
+          "instructions": 17
+        },
+        "cachedDirection": [
+          0.25,
+          -2,
+          4
+        ],
+        "installBounds": {
+          "entry": "0x11b4f0",
+          "stop": "0x11b584",
+          "instructions": 204
+        },
+        "separateConfigSliceBounds": {
+          "entry": "0x192448",
+          "stop": "0x1924e8",
+          "instructions": 37
+        },
+        "setterCapture": {
+          "pc": "0x13a640",
+          "lightIndex": 0,
+          "vector4": [
+            -0.25,
+            2.0,
+            -4.0,
+            -0.0
+          ]
+        },
+        "directionalMask": "0x1",
+        "words": [
+          "0x4000b400",
+          "0x801f0144",
+          "0x0000c400",
+          "0x00000000",
+          "0xff00ffff",
+          "0x000b01c4",
+          "0x00000001",
+          "0x00010149"
+        ],
+        "positionRegisters": [
+          "0x144",
+          "0x145"
+        ],
+        "halfBits": [
+          "0xb400",
+          "0x4000",
+          "0xc400"
+        ],
+        "decodedPosition": [
+          -0.25,
+          2.0,
+          -4.0
+        ],
+        "normalizedPosition": [
+          -0.05581455721859476,
+          0.4465164577487581,
+          -0.8930329154975162
+        ]
+      }
+    ],
+    "limits": "No GPU execution, native process capture, transformed/parented light claim, stereo basis verification or vertex-normal pipeline parity claim."
+  },
+  "sourceReferences": {
+    "picaRegisterMap": "https://github.com/gdkchan/SPICA/blob/bd29a7828595d7839cda2ac61c76bb63f9071250/SPICA/PICA/PICARegister.cs#L152",
+    "picaDirectionalConsumption": "https://github.com/azahar-emu/azahar/blob/b8c29a64c306bac3866a5ed293ebee94ef6dcb00/src/video_core/shader/generator/glsl_fs_shader_gen.cpp#L639",
+    "priorCameraRegistrationReport": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/runtime/reference/folder-camera/report.md",
+    "priorLightLoaderEvidence": "docs/evidence/native-default-material.json"
+  },
+  "correction": {
+    "supportedAuthoredLightGlsl": "normalize(-mat3(viewMatrix) * sourceDirection)",
+    "nativePrecisionStep": "Truncate to PICA float16 after view transform and sign conversion, before PICA normalization",
+    "keep": [
+      "Authored material constants",
+      "TEV stages and delayed buffer timing",
+      "LA4 luminance/alpha masks",
+      "Specular distribution default and secondary lighting"
+    ],
+    "remainingIntegrationVerification": [
+      "Matched default capture",
+      "Matched folder capture with authored half-vector LUT",
+      "Native precision and normal/quaternion interpolation parity remain separate"
+    ]
+  }
+}

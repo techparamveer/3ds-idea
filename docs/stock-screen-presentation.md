@@ -57,7 +57,9 @@ Browser assembles the source StartDialog and six button children at their native
 mounts, with matching touch regions and English message labels. Its
 outer dialog frame uses a plain bounded panel because its source window
 flip 4 is not supported by the renderer. The original child buttons remain
-native; this frame substitution is not treated as native fidelity. Browser and
+native; this frame substitution is not treated as native fidelity. The search
+button shows the source Google provider variant and hides the mutually exclusive
+regional logos; it does not perform searches. Browser and
 Miiverse crop their original 400×480 background separately to the two LCDs;
 the lower screen is not scaled from 400 to 320 pixels. Miiverse uses the four
 source navigation icons and a Back control in a documented local toolbar

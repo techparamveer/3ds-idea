@@ -57,7 +57,8 @@ export function drawNativeWebFrame(renderer:NativeLayoutRenderer,top:CanvasRende
       bottom.fillStyle='#f8f8f7';bottom.strokeStyle='#b9bcbe';bottom.beginPath();bottom.roundRect(5,25,310,186,7);bottom.fill();bottom.stroke();
       const attachments=Object.fromEntries(browserButtons.map(([id,name,mount,label])=>[mount,()=>{
         const localized=label?message(label):undefined;
-        draw(bottom,name,name,{center:[160,120],bindings:[{name:name+'_FocusedOnOff',frame:selected===id?1:0}],overrides:localized?{TextBox:localized,EmbossTxb:localized}:{}});
+        const overrides={...(localized?{TextBox:localized,EmbossTxb:localized}:{}),...(id==='search'?{GooglePct:{visible:true},YahooPct:{visible:false},YahooJappanPct:{visible:false},NaverPct:{visible:false},YahooChinaPct:{visible:false}}:{})};
+        draw(bottom,name,name,{center:[160,120],bindings:[{name:name+'_FocusedOnOff',frame:selected===id?1:0}],overrides});
       }]));
       draw(bottom,'web-menu','StartDialog',{bindings:[{name:'StartDialog_FadeIn',frame:20}],attachments,overrides:{Window:{visible:false}}});
     }else{

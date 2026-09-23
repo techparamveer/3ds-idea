@@ -78,3 +78,10 @@ hashes are under the SSD artifact directory
 `firmware-10.7.0-32E/presentation/settings-source-audit/`; corrected verification
 images are in `presentation/settings-main-correction/`. No executable or scene
 table binaries are added to public delivery.
+
+
+Integration browser check: after a production rebuild, the normal localhost
+preview displays the original pale-yellow main background on both LCDs, with
+all five original controls and version text visible. Browser error/warning log
+was empty. Subpage legacy-background/title-variant corrections remain open;
+this main-screen inspection is not full Settings fidelity acceptance.

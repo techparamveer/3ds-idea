@@ -57,3 +57,21 @@ recovery and caller preservation. TypeScript checking and real-resource Canvas
 composition checks complement these tests. Final browser throttling, reduced
 motion, HOME/sleep resume and physical control verification belong to integration;
 these checks do not establish native hardware timing or 1:1 LCD fidelity.
+
+
+## Integration browser checks
+
+A separate localhost:3105 proxy delayed the Settings base pack by 15 seconds.
+On HOME resume, both LCDs remained opaque black with the loading announcement;
+Down and A pressed during the wait did not change the retained Data Management
+page or its Nintendo 3DS selection when loading completed. A forced HTTP503
+produced the visible recovery pair. Restoring the resource and pressing A retried
+successfully and restored the same page. The test proxy and tab were stopped
+afterward; the normal localhost:3000 preview was refreshed independently.
+
+Combined build passes. Full tests: 1,117 pass, 17 skip, zero fail. The test doubles
+for the HOME paint tests now implement the new readiness interface. Logs are
+`reference/native-readiness-final-tests.log` and `reference/settings-readiness-build.log`
+on the designated SSD. Timeout, reduced-motion, touch retry and held-control
+browser checks remain beyond this verified subset (covered by focused unit
+checks, not claimed as live browser evidence).

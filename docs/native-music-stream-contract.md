@@ -70,3 +70,11 @@ production-served worker/worklet module-load and stereo handshake smoke before
 public promotion, then sustained playback across jumps, UI/effect load and
 forced worker stalls. Runtime diagnostics are bounded low-frequency counters
 and state/error transitions, never per-quantum logs or full engine snapshots.
+
+`native-music-pack.ts` supplies the browser fetch boundary. It loads exactly the
+eight named sequence/table/sample resources, streams with declared and actual
+byte limits, rejects redirects and truncated resources, and aborts sibling
+requests on failure. It returns raw manifest plus owned ArrayBuffers; the worker
+still validates source identity, digests and grammar before synthesis. No
+AudioContext is created by loading a pack. Five focused loader tests cover
+normal bytes, malformed manifests, streaming limits, HTTP errors and aborts.

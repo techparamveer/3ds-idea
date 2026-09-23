@@ -1,0 +1,59 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,mkdirSync,mkdtempSync} from 'node:fs';
+import {resolve,dirname,join,isAbsolute} from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+import {createHash} from 'node:crypto';
+import {parseArgs} from 'node:util';
+import ts from 'typescript';
+export async function verifySelectors(options){
+ for(const key of ['artifactDir','assetRoot','canvasModule','interfaceRoot'])assert.ok(isAbsolute(options[key]??''),key);
+ const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
+ const compiled=mkdtempSync(join(out,'compiled-')),sourceHashes={};
+ const sourceName='stock-native-selectors',source=readFileSync(join(repo,'src/os',sourceName+'.ts'),'utf8');
+ // Type-check the new module against the coordinator's read-only interfaces.
+ const virtual=join(options.interfaceRoot,'src/os',sourceName+'.ts');
+ const compilerOptions={noEmit:true,strict:true,skipLibCheck:true,target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler,allowImportingTsExtensions:true,jsx:ts.JsxEmit.ReactJSX};
+ const host=ts.createCompilerHost(compilerOptions),read=host.readFile.bind(host),exists=host.fileExists.bind(host);
+ host.readFile=path=>resolve(path)===virtual?source:read(path);host.fileExists=path=>resolve(path)===virtual||exists(path);
+ const program=ts.createProgram([virtual],compilerOptions,host),diagnostics=ts.getPreEmitDiagnostics(program);
+ assert.equal(diagnostics.length,0,ts.formatDiagnosticsWithColorAndContext(diagnostics,{getCanonicalFileName:p=>p,getCurrentDirectory:()=>options.interfaceRoot,getNewLine:()=> '\n'}));
+ for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets',sourceName]){
+  const code=name===sourceName?source:readFileSync(join(options.interfaceRoot,'src/os',name+'.ts'),'utf8');sourceHashes[name]=createHash('sha256').update(code).digest('hex');
+  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(code,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
+ }
+ const [{createCanvas,loadImage},{BitmapFont},{loadNativeTitleAssets},{nativeSelectorView,drawNativeSelectorFrame,nativeSelectorTargets}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets',sourceName].map(n=>import(pathToFileURL(join(compiled,n+'.mjs'))))]);
+ const previousDocument=Object.getOwnPropertyDescriptor(globalThis,'document'),oldFetch=globalThis.fetch;let font,assets;
+ try{
+  globalThis.document={createElement:()=>createCanvas(1,1)};
+  globalThis.fetch=async value=>{const u=new URL(value);assert.equal(u.origin,'https://personal-tools.invalid');const file=resolve(options.assetRoot,u.pathname.slice(1));assert.ok(file.startsWith(options.assetRoot+'/'));return new Response(readFileSync(file));};
+  const manifest=JSON.parse(readFileSync(join(options.assetRoot,'manifest.json'))),fontPath=join(options.assetRoot,manifest.fonts.shared),fontData=JSON.parse(readFileSync(fontPath));
+  font=new BitmapFont(fontData,await Promise.all(fontData.sheets.map(name=>loadImage(join(dirname(fontPath),name)))));
+  const reports=[];
+  for(const appId of ['mii-selector','photo-selector','sound-selector']){
+   const base={appId,screen:'main',heading:appId,rows:[],selection:0,text:['No saved sounds are available.'],footer:{left:{action:'back',label:'Back'}},data:{readOnly:true}};
+   const contract=nativeSelectorView(base);assert.ok(contract);assert.equal(nativeSelectorView({...base,screen:'unrecognized'}),null);assert.equal(nativeSelectorView({...base,appId:'work'}),null);
+   assets=await loadNativeTitleAssets('https://personal-tools.invalid/manifest.json',contract.titleId,contract.packs,new Map([['cbf_std.bcfnt',font]]));
+   const sourceJson=JSON.stringify(assets.renderer.packs),views=[base,{...base,rows:[{id:'0',label:'Existing saved name'}]},{...base,screen:'detail',data:{readOnly:true,entry:{name:'Existing detail name'}}}],viewJson=JSON.stringify(views);
+   const sheet=createCanvas(1200,480),sheetContext=sheet.getContext('2d'),titleReports=[];
+   for(const [index,view] of views.entries()){
+    const targets=nativeSelectorTargets(view);assert.equal(targets.length,1);assert.equal(targets[0].action,'back');
+    const top=createCanvas(400,240),bottom=createCanvas(320,240);
+    assert.equal(drawNativeSelectorFrame(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font}),true,JSON.stringify(assets.renderer.diagnostics));
+    const id=appId+'-'+index;writeFileSync(join(out,id+'-top.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-bottom.png'),bottom.toBuffer('image/png'));
+    sheetContext.drawImage(top,index*400,0);sheetContext.drawImage(bottom,index*400+40,240);
+    const bytes=bottom.getContext('2d').getImageData(0,0,320,240).data;assert.ok(bytes.some((v,i)=>i%4===3&&v>0));
+    titleReports.push({id,bottomSha256:createHash('sha256').update(bytes).digest('hex'),targets});
+   }
+   assert.equal(new Set(titleReports.map(r=>r.bottomSha256)).size,3,'empty and supplied-name states differ');
+   assert.equal(JSON.stringify(views),viewJson);assert.equal(JSON.stringify(assets.renderer.packs),sourceJson);
+   assert.deepEqual(assets.renderer.diagnostics,[]);assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
+   writeFileSync(join(out,appId+'-contact-sheet.png'),sheet.toBuffer('image/png'));reports.push(...titleReports);assets.dispose();assets=undefined;
+  }
+  const report={passed:true,sourceHashes,reports,gaps:['No Mii portraits or photo/audio media are rendered.','Sound upper frame and unavailable notices are explicit composition adapters.','Source resource renders are not matched native LCD/browser captures.']};
+  writeFileSync(join(out,'verification.json'),JSON.stringify(report,null,2)+'\n');return report;
+ }finally{assets?.dispose();font?.dispose();globalThis.fetch=oldFetch;if(previousDocument)Object.defineProperty(globalThis,'document',previousDocument);else delete globalThis.document;}
+}
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+ const {values}=parseArgs({options:Object.fromEntries(['artifact-dir','asset-root','canvas-module','interface-root'].map(k=>[k,{type:'string'}]))});
+ console.log(JSON.stringify(await verifySelectors(Object.fromEntries(Object.entries(values).map(([k,v])=>[k.replace(/-([a-z])/g,(_,c)=>c.toUpperCase()),v]))),null,2));
+}

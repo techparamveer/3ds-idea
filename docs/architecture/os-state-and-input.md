@@ -92,6 +92,12 @@ and white-theme background callbacks; Three.js model/material interpretation sta
 [`../firmware-presentation-validation.md`](../firmware-presentation-validation.md)
 for the loader/disposal contract, coverage and unresolved visual differences.
 
+Native `pah1` animation shares are decoded as source-pane/target-group records.
+The pure binder expands pane channels and material slots after named-group
+selection, without changing pane hierarchy. Unverified shared controller conflicts
+and pane kinds fail explicitly. See
+[animation-share validation](../native-animation-share-validation.md).
+
 The CPU picture raster prepares selectors and texture transforms per call and
 reuses scratch inside its pixel loop; scalar helpers remain differential test
 oracles. The upper-base caller alone opts into guarded opaque darkening without

@@ -5,12 +5,13 @@ export type NativeText={font:number;material:number;value:string;size:number[];a
 export type NativePane={kind:string;name:string;flags:number;origin:number;alpha:number;translation:number[];rotation:number[];scale:number[];size:number[];children:NativePane[];picture?:NativePicture;text?:NativeText;window?:{content:NativePicture;frames:{material:number;flip:number}[];inflation?:number[];frameSize?:number[];flags:number}};
 export type NativeMaterial={name:string;bufferColor:number[];constantColors:number[][];textureOnly:boolean;textureMaps:{texture:number;wrapS:number;wrapT:number;minFilter:number;magFilter:number}[];textureMatrices:{translation:number[];rotation:number;scale:number[]}[];coordinateGenerators:{type:number;source:number}[];tevStages:{constantSelectors:number;color:NativeCombiner;alpha:NativeCombiner}[];alphaCompare?:{function:number;reference:number};colorBlend?:{operation:number;sourceFactor:number;destinationFactor:number};unsupported:unknown[]};
 export type NativeCombiner={sources:number[];operands:number[];mode:number;scale:number;savePrevious:boolean};
-export type NativeTrack={target:string;binding:string;property:string;index:number;component:number;interpolation:string;keys:{frame:number;value:number;slope?:number}[]};
-export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:NativeTrack[];childBinding?:boolean;textures:string[]};
+export type NativeTrack={target:string;contentIndex?:number;binding:string;property:string;index:number;component:number;interpolation:string;keys:{frame:number;value:number;slope?:number}[]};
+export type NativeAnimationShare={sourcePane:string;targetGroup:string};
+export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:NativeTrack[];contents?:{target:string;binding:string}[];childBinding?:boolean;textures:string[];shares?:NativeAnimationShare[]};
 export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
 export type NativeLayout={canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
 export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number;picaFormat?:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
-export type PaneOverrides=Record<string,{text?:string;messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number;textureBindings?:Record<number,string>}>;
+export type PaneOverrides=Record<string,{text?:string;lineSpacing?:number;vertexColors?:number[][];messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number;textureBindings?:Record<number,string>}>;
 export type AnimationBinding={name:string;frame:number;groups?:string[];childBinding?:boolean};
 /** HOME RI_mstl changes font metrics and spacing only; unresolved words stay uninterpreted. */
 export function nativeTextMetrics(text:NativeText,font:{width?:number;height:number}){
@@ -47,10 +48,54 @@ export function sampleNativeTrack(track:NativeTrack,frame:number){
 }
 /** CLAN stores unrelated channels too; its binding groups select the active panes/materials. */
 export function boundAnimationTracks(layout:NativeLayout,animation:NativeAnimation){
- if(!animation.groups.length)return animation.tracks;
+ if(!animation.groups.length&&!animation.shares?.length)return animation.tracks;
  const selected=new Set<string>();const visit=(groups:NativeGroup[])=>groups.forEach(g=>{if(animation.groups.includes(g.name))g.panes.forEach(n=>selected.add(n));visit(g.children);});visit(layout.groups);
  const materials=new Set<string>();const panes=(items:NativePane[],inherited=false)=>items.forEach(p=>{const included=selected.has(p.name)||(!!animation.childBinding&&inherited);if(included){selected.add(p.name);for(const id of [p.picture?.material,p.text?.material,p.window?.content.material,...(p.window?.frames.map(f=>f.material)??[])])if(id!==undefined&&layout.materials[id])materials.add(layout.materials[id].name);}panes(p.children,included);});panes(layout.roots);
- return animation.tracks.filter(t=>t.binding==='material'?materials.has(t.target):selected.has(t.target));
+ const tracks=animation.groups.length?animation.tracks.filter(t=>t.binding==='material'?materials.has(t.target):selected.has(t.target)):animation.tracks;
+ if(!animation.shares?.length)return tracks;
+ const shared=sharedAnimationTracks(layout,animation,selected);
+ // Competing controllers need their native update-order contract before support.
+ const key=(t:NativeTrack)=>JSON.stringify([t.binding,t.target,t.property,t.index,t.component]);
+ const occupied=new Set(tracks.map(key));
+ for(const track of shared){const id=key(track);if(occupied.has(id))throw new Error(`Unsupported overlapping animation-share channel ${track.target}/${track.property}`);occupied.add(id);}
+ return [...tracks,...shared];
+}
+
+/** pah1 shares the source pane's own animation content and its material slots.
+ * Native 0x177c2c / 0x1795f8 / 0x197358: no source descendants, no reparenting,
+ * source itself skipped, destination group members filtered by pat1 selection.
+ */
+function sharedAnimationTracks(layout:NativeLayout,animation:NativeAnimation,selected:Set<string>):NativeTrack[]{
+ const panes=new Map<string,NativePane>(),groups=new Map<string,NativeGroup>();
+ const indexPanes=(items:NativePane[])=>items.forEach(p=>{if(panes.has(p.name))throw new Error(`Ambiguous animation-share pane ${p.name}`);panes.set(p.name,p);indexPanes(p.children);});indexPanes(layout.roots);
+ const indexGroups=(items:NativeGroup[])=>items.forEach(g=>{if(groups.has(g.name))throw new Error(`Ambiguous animation-share group ${g.name}`);groups.set(g.name,g);indexGroups(g.children);});indexGroups(layout.groups);
+ const materialSlots=(pane:NativePane)=>{
+  // Window material enumeration has not been verified for animation sharing.
+  if(!['pan1','bnd1','pic1','txt1'].includes(pane.kind))throw new Error(`Unsupported animation-share pane kind ${pane.kind}`);
+  const ids=pane.picture?[pane.picture.material]:pane.text?[pane.text.material]:[];
+  return ids.map(id=>{const material=layout.materials[id];if(!material)throw new Error(`Missing animation-share material ${pane.name}/${id}`);if(layout.materials.filter(m=>m.name===material.name).length!==1)throw new Error(`Ambiguous animation-share material ${material.name}`);return material.name;});
+ };
+ const content=(target:string,binding:string)=>{
+  const matching=animation.tracks.filter(t=>t.target===target&&t.binding===binding);
+  // The native share descriptor chooses the first matching pai1 content entry.
+  const first=animation.contents?animation.contents.findIndex(c=>c.target===target&&c.binding===binding):matching[0]?.contentIndex;
+  return first===undefined?matching:matching.filter(t=>t.contentIndex===first);
+ };
+ const result:NativeTrack[]=[];
+ for(const share of animation.shares??[]){
+  const source=panes.get(share.sourcePane),group=groups.get(share.targetGroup);
+  if(!source)throw new Error(`Missing animation-share source ${share.sourcePane}`);
+  if(!group)throw new Error(`Missing animation-share group ${share.targetGroup}`);
+  const paneTracks=content(source.name,'pane'),sourceMaterials=materialSlots(source);
+  for(const name of group.panes){
+   const target=panes.get(name);if(!target)throw new Error(`Missing animation-share target ${name}`);
+   if(target===source||(animation.groups.length&&!selected.has(name)))continue;
+   result.push(...paneTracks.map(t=>({...t,target:name})));
+   const targetMaterials=materialSlots(target);
+   for(let i=0;i<Math.min(sourceMaterials.length,targetMaterials.length);i++)result.push(...content(sourceMaterials[i],'material').map(t=>({...t,target:targetMaterials[i]})));
+  }
+ }
+ return result;
 }
 
 /** Applies only explicitly bound clips, without mutating the shared asset pack. */
@@ -93,6 +138,8 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
  for(const [name,value] of Object.entries(overrides)){
   const pane=panes.get(name);if(!pane)continue;
   if(value.text!==undefined&&pane.text)pane.text.value=value.text;
+  if(value.lineSpacing!==undefined&&pane.text)pane.text.lineSpacing=value.lineSpacing;
+  if(value.vertexColors){const picture=pane.picture??pane.window?.content;if(picture)picture.colors=value.vertexColors.map(color=>[...color]);}
   if(value.messageStyle&&pane.text)pane.text.messageStyle=structuredClone(value.messageStyle);
   if(value.fontSize&&pane.text)pane.text.size=[...value.fontSize];
   if(value.visible!==undefined)pane.flags=value.visible?pane.flags|1:pane.flags&~1;

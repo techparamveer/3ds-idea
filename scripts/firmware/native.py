@@ -6,6 +6,11 @@ import hashlib
 import math
 import struct
 
+if __package__:
+    from .animation_hierarchy import decode_animation_hierarchy
+else:  # Existing standalone resource-inspection scripts also import native.
+    from animation_hierarchy import decode_animation_hierarchy
+
 
 class Reader:
     def __init__(self, data): self.data = data
@@ -163,21 +168,26 @@ def decode_animation(data):
             order, count, name, groups, first, last, child = r.read('HHIIhhB', 8)
             out.update(name=r.string(name), order=order, sourceFrameRange=[first, last], childBinding=bool(child),
                        groups=[r.string(groups+i*20, 20) for i in range(count)])
+        elif tag == 'pah1':
+            if 'shares' in out: raise ValueError('Duplicate pah1 section')
+            out['shares'] = decode_animation_hierarchy(r.data)
         elif tag == 'pai1':
             frames, loop, pad, texture_count, target_count, table = r.read('HBBHHI', 8)
-            out.update(frames=frames, loop=bool(loop))
+            out.update(frames=frames, loop=bool(loop), contents=[])
             out['textures'] = [r.string(20+r.u32(20+i*4)) for i in range(texture_count)]
             for i in range(target_count):
                 base = r.u32(table+i*4)
                 target = r.string(base, 20)
                 count, binding, reserved = r.read('BBH', base+20)
+                binding_name = 'material' if binding == 1 else 'pane' if binding == 0 else binding
+                out['contents'].append({'target': target, 'binding': binding_name})
                 for j in range(count):
                     info = base+r.u32(base+24+j*4)
                     kind = r.string(info, 4); n = r.read('B', info+4)[0]
                     for k in range(n):
                         track = info+r.u32(info+8+k*4)
                         index, component, curve, pad, count, reserved, keys = r.read('4BHHI', track)
-                        record = {'target': target, 'binding': 'material' if binding == 1 else 'pane' if binding == 0 else binding,
+                        record = {'target': target, 'contentIndex': i, 'binding': binding_name,
                                   'tag': kind, 'index': index, 'component': component, 'interpolation': {1: 'step', 2: 'hermite'}.get(curve, 'unsupported'), 'keys': []}
                         if kind in PROPERTIES and component < len(PROPERTIES[kind]): record['property'] = PROPERTIES[kind][component]
                         elif kind == 'CLVC': record['property'] = 'alpha' if component == 16 else f'vertexColor.{component//4}.{component%4}'

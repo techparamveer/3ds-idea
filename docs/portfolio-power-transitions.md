@@ -57,3 +57,10 @@ under `reference/system-ui-logo`, with no renderer diagnostics and verified
 black endpoints. It replaces the earlier missing logo layer.38 focused state and
 transition tests pass. Live animation cadence still needs a matched reference
 recording; these checks do not establish hardware timing.
+
+The timed CPU reference pass records roughly200–244ms for representative logo
+frames and a1405ms first power-menu paint on this host. These are software-canvas
+measurements, not browser frame-rate numbers, but show a remaining transition
+rendering cost. Static stock screens cache completed images; animated logo
+rasterization still needs a performance pass before smooth-motion acceptance.
+Timings are stored with each checkpoint in `reference/system-ui-logo-timed`.

@@ -35,10 +35,10 @@ for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['pow
  const top=createCanvas(400,240),bottom=createCanvas(320,240),t=top.getContext('2d'),b=bottom.getContext('2d');
  t.fillStyle=b.fillStyle='#dde5ed';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
  const state={system:{phase,since:0,sleeping:false,returnPhase:fromApp?'app':'home'}};
- assert.equal(drawNativeSystemOverlay(t,b,state,elapsed,false,assets),true);
+ const before=performance.now();assert.equal(drawNativeSystemOverlay(t,b,state,elapsed,false,assets),true);const paintMs=performance.now()-before;
  const id=`${phase}-${elapsed}-${fromApp?'app':'home'}`;
  writeFileSync(join(out,id+'-upper.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-lower.png'),bottom.toBuffer('image/png'));
- results.push({id});
+ results.push({id,paintMs});
  if((phase==='boot'&&elapsed===0)||(phase==='launch'&&elapsed===2099)||(phase==='shutdown'&&elapsed===550)){
   for(const c of [top,bottom]){const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data;assert.ok(data.every((v,i)=>i%4===3?v===255:v===0),id+' ends opaque black');}
  }

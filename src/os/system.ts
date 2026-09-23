@@ -1,4 +1,5 @@
 import { getApp } from './apps.ts';
+import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, type MenuState, type Input } from './state.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, tickRuntime, type AppRuntime } from './app-host.ts';
@@ -14,9 +15,9 @@ export type System = {
  app:string|null; pending:string|null; item:number; detail:boolean; page:number; photo:number;
  layout:Record<number,string>; muted:boolean; volume:number; dialog:'switch'|'close'|null;
  returnPhase:'home'|'app'; link:string|null; preferences:boolean; preferenceChoice:number;
- runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation; homeClock: HomeUpdateClock;
+ runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation; homeClock: HomeUpdateClock; homeFolderIdentities: HomeFolderIdentities;
 };
-export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock()}};}
+export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities()}};}
 /** Kept for portfolio artwork compatibility; use selectedTitle for every installed title. */
 export function selectedApp(state:MenuState){return getApp(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
 export function selectedTitle(state:MenuState){return getTitle(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
@@ -95,7 +96,7 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
   if(input==='up'||input==='down')return change({preferenceChoice:Math.max(0,Math.min(2,s.preferenceChoice+(input==='down'?1:-1)))});
   if(input==='left'||input==='right')return reduceSystem(state,input==='left'?'volume-down':'volume-up',now);
   if(input==='open'&&s.preferenceChoice===2)return reduceSystem(state,'reset-layout',now);
-  if(input==='reset-layout')return writeHomeNavigation({...state,folders:{},folderSelected:0,system:{...s,layout:initialAppLayout(),folderLayouts:{}}},createHomeNavigation());
+  if(input==='reset-layout')return writeHomeNavigation({...state,folders:{},folderSelected:0,system:{...s,layout:initialAppLayout(),folderLayouts:{},homeFolderIdentities:clearHomeFolderIdentities(getHomeFolderIdentities(state))}},createHomeNavigation());
   if(input==='open')return change({muted:!s.muted});return state;
  }
  if(s.phase==='power'){
@@ -210,10 +211,10 @@ export function moveApp(state:MenuState,from:number,to:number):MenuState {
 export const STORAGE_KEY='paramveer-3ds-v1';
 export function saveSettings(state:MenuState){const s=state.system!,homeView=saveHomeView(state);return JSON.stringify({version:4,homeView,theme:state.theme,brightness:state.brightness,columns:HOME_DENSITIES[homeView.rootView.density],powerSaving:state.powerSaving,folders:state.folders,nextFolderNumber:state.nextFolderNumber,layout:s.layout,folderLayouts:s.folderLayouts,muted:s.muted,volume:s.volume});}
 export function restoreSettings(state:MenuState,raw:string|null):MenuState {
- if(!raw)return state;
+ if(!raw||!state.system)return state;
  try{const v=JSON.parse(raw),home=restoreHomeLayout(v);if(!home)return state;
  const {layout,folders,folderLayouts,nextFolderNumber}=home;
- const restored = {...state,folders,nextFolderNumber,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system!,layout,folderLayouts,homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
+ const restored = {...state,folders,nextFolderNumber,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system,layout,folderLayouts,homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(folders),muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
  return restoreHomeView(restored,v.version===4?v.homeView:null,homeDensityIndex(restored.columns));
  }catch{return state;}
 }

@@ -1,4 +1,5 @@
 import type { System } from './system';
+import { allocateHomeFolderIdentity, getHomeFolderIdentities, removeHomeFolderIdentity, writeHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { HOME_DENSITIES, getHomeNavigationView, selectHomeSlot, stepHomeDirection, setHomeDensity, enterHomeFolder, leaveHomeFolder, initializeHomeFolderView, deleteHomeFolderView, type HomeNavigation, type HomeDensity } from './home-navigation.ts';
 /** Native HOME Menu coordinates: 320 × 240; icons are ordered by column. */
 export const ROWS = 2;
@@ -15,6 +16,8 @@ export type MenuState = {
   system?: System;
   /** Navigation storage for isolated menu consumers without a System. */
   homeNavigation?: HomeNavigation;
+  /** Session-local identity storage for isolated menu consumers without a System. */
+  homeFolderIdentities?: HomeFolderIdentities;
   selected: number; opened: boolean; powered: boolean; brightness: number; columns: number;
   panel: Panel; theme: Theme; powerSaving: boolean; panelChoice: number;
   folders: Record<number, string>; folderSelected: number; nameDraft: string; nextFolderNumber: number;
@@ -30,8 +33,9 @@ function createFolder(state: MenuState): MenuState {
   if (Object.keys(state.folders).length >= MAX_FOLDERS || state.system?.layout[state.selected]) return state;
   const number = state.nextFolderNumber;
   const digits = String(number).replace(/[0-9]/g, digit => String.fromCharCode(digit.charCodeAt(0) + 0xfee0));
-  return initializeHomeFolderView({ ...state, folders: { ...state.folders, [state.selected]: `${digits} (New Folder)` },
-    nextFolderNumber: number === LAST_FOLDER_NUMBER ? FIRST_FOLDER_NUMBER : number + 1 }, state.selected);
+  const identities = allocateHomeFolderIdentity(getHomeFolderIdentities(state), state.selected);
+  return initializeHomeFolderView(writeHomeFolderIdentities({ ...state, folders: { ...state.folders, [state.selected]: `${digits} (New Folder)` },
+    nextFolderNumber: number === LAST_FOLDER_NUMBER ? FIRST_FOLDER_NUMBER : number + 1 }, identities), state.selected);
 }
 export function isFolder(index: number, state: MenuState = initialState): boolean {
   return Object.hasOwn(state.folders, index);
@@ -65,7 +69,7 @@ export const toolbar = [
 export const themeChoices: Theme[] = ['red', 'blue', 'yellow', 'pink', 'black', 'white'];
 export function renameFolder(state: MenuState, name: string): MenuState {
   if (!isFolder(state.selected, state)) return state;
-  return { ...state, panel: null, folders: { ...state.folders, [state.selected]: name.slice(0, 16) } };
+  return writeHomeFolderIdentities({ ...state, panel: null, folders: { ...state.folders, [state.selected]: name.slice(0, 16) } }, getHomeFolderIdentities(state));
 }
 function activatePanel(state: MenuState): MenuState {
   if (state.panel === 'themes') return state.panelChoice === 0 ? { ...state, panel: 'theme-shop' } : { ...state, theme: themeChoices[state.panelChoice - 1], panel: 'settings', panelChoice: 0 };
@@ -80,7 +84,8 @@ function activatePanel(state: MenuState): MenuState {
     const folders = { ...state.folders }; delete folders[state.selected];
     const system = state.system ? { ...state.system, folderLayouts: { ...state.system.folderLayouts } } : undefined;
     if (system) delete system.folderLayouts[state.selected];
-    return deleteHomeFolderView({ ...state, ...(system ? { system } : {}), folders, panel: null }, state.selected);
+    const identities = removeHomeFolderIdentity(getHomeFolderIdentities(state), state.selected);
+    return deleteHomeFolderView(writeHomeFolderIdentities({ ...state, ...(system ? { system } : {}), folders, panel: null }, identities), state.selected);
   }
   return state;
 }

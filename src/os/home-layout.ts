@@ -1,4 +1,5 @@
 import { apps } from './apps.ts';
+import { getHomeFolderIdentities, moveHomeFolderIdentity } from './home-folder-identity.ts';
 import { enterHomeFolder, leaveHomeFolder, selectHomeSlot, remapHomeFolderViews, getHomeNavigation, writeHomeNavigation, settleHomeNavigation } from './home-navigation.ts';
 import { getTitle, homeTitles } from './app-registry.ts';
 import { FIRST_FOLDER_NUMBER, LAST_FOLDER_NUMBER, isFolder, MAX_FOLDERS, SLOT_COUNT, type MenuState } from './state.ts';
@@ -45,7 +46,7 @@ export function resolveHomeDrop(state: MenuState, from: HomeLocation, target: Ho
   if (from.folder !== null && displaced && !canEnterFolder(displaced)) return null;
   return to;
 }
-/** Atomic placement: folder labels and children travel together; apps swap without duplication. */
+/** Atomic placement: folder identity, labels and children travel together; apps swap without duplication. */
 export function moveHomeItem(state: MenuState, from: HomeLocation, target: HomeLocation): MenuState {
   const s = state.system, to = resolveHomeDrop(state, from, target);
   if (!s || !to || sameHomeLocation(from, to)) return state;
@@ -71,7 +72,9 @@ export function moveHomeItem(state: MenuState, from: HomeLocation, target: HomeL
     const displaced = destination[to.slot]; destination[to.slot] = item.id;
     if (displaced) source[from.slot] = displaced; else delete source[from.slot];
   }
-  let placed = { ...state, folders, system: { ...s, layout, folderLayouts } };
+  const identities = getHomeFolderIdentities(state);
+  const homeFolderIdentities = item.kind === 'folder' ? moveHomeFolderIdentity(identities, from.slot, to.slot) : identities;
+  let placed = { ...state, folders, system: { ...s, layout, folderLayouts, homeFolderIdentities } };
   if (item.kind === 'folder') placed = remapHomeFolderViews(placed, from.slot, to.slot, isFolder(to.slot, state)) as typeof placed;
   const activeFolder = getHomeNavigation(placed).activeFolderSlot;
   const selected = selectHomeLocation(placed, to);

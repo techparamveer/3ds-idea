@@ -19,6 +19,7 @@
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
 | `home-navigation.ts` | Native grid geometry, per-context selection/density/viewport histories and derived view |
 | `home-gestures.ts`, `home-layout.ts` | HOME stylus previews, atomic folder placement and validated layout saves |
+| `home-folder-identity.ts` | Session-local opaque folder keys, immutable allocation and movement; never persisted |
 | `home-banner-lifecycle.ts` | Pure banner request/activation, folder visibility/yaw and independent source clip clocks |
 | `home-banner-service.ts` | Pure native banner gate and ordered manager/scene passes from a shared update counter |
 | `app-persistence.ts` | Versioned IndexedDB saves, preferences and media |
@@ -105,6 +106,13 @@ are explicit inputs; generation-scoped tickets reject stale async completions.
 It does not yet wire the System or renderer. See
 [the service contract](../home-banner-service.md) for counter reset behavior,
 stable folder identity requirements and the external app/blank loader boundaries.
+
+`System.homeFolderIdentities` owns live folder keys independently from slots,
+labels and the saved naming counter. Creation/delete/move/swap reducers maintain
+them; layout reset retains allocation history. Successful restore mints a fresh
+identity set and requires a new banner-service generation. See
+[live folder identity](../home-folder-identity.md) for isolated-menu fallback,
+persistence boundaries and tests.
 
 ## Firmware application foundation
 

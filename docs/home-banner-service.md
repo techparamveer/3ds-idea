@@ -89,8 +89,10 @@ application assumption.
 
 ## Folder identity required from the host
 
-Current folder maps store labels by grid slot, so neither slot nor label is a
-stable banner identity. The host must retain an opaque instance key per folder:
+Folder maps store labels by grid slot, so neither slot nor label is a stable
+banner identity. The runtime now supplies opaque instance keys through
+`getHomeFolderIdentity(state,slot)` and `System.homeFolderIdentities`; see
+[live folder identity](home-folder-identity.md). The host uses that key per folder:
 
 - Creation allocates a new key; deletion retires it. Recreating a folder in the
   same slot with the same label gets a different key.

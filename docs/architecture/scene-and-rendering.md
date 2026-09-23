@@ -39,8 +39,9 @@ the shared integer OS update counter through an immutable host view; see
 never change reducer or motion semantics; it may only change how often the
 latest state reaches the GPU.
 
-The native folder banner additionally accepts explicit immutable lifecycle
-samples through `firmware-banner.ts`'s `drawFrame`. OS/runtime code owns its yaw,
+The native folder and default banners accept explicit immutable lifecycle
+samples through `firmware-banner.ts`'s `drawFrame` and `drawDefaultFrame`.
+OS/runtime code owns their yaw,
 visibility and separate clip clocks; the scene samples those values without
 advancing them during painting. The authored model bind matrix stays inside the
 outer motion group. See [the banner contract](../native-banner-lifecycle.md).
@@ -64,12 +65,14 @@ stencil comparisons/operations and per-instance runtime overrides, independently
 of depth and blend state. Native draw groups are carried through every internal
 Three Group, with source mesh layer/priority retained inside each group.
 
-The folder banner target has a stencil attachment. It clears stencil to zero,
-then draws the authored BannerFrame producer (group 1) and the folder consumer
+The primary banner target has a stencil attachment. It clears stencil to zero,
+then draws the authored BannerFrame producer (group 1) and the selected consumer
 (group 2) as siblings in one transaction before the transparent Canvas transfer.
 The existing background Canvas transaction remains separate. Frame load failure
-makes the masked folder unavailable; background readiness is independent.
-Teardown owns Frame resources and the target, and transaction cleanup restores
+makes both masked primaries unavailable; background readiness is independent.
+Only one of the retained folder/default groups is visible in each transaction.
+Hidden samples do not advance clips or change the retained Frame displacement.
+Teardown owns both primary models, Frame resources and the target; cleanup restores
 the caller's stencil clear value alongside its target, viewport and other render
 settings. The scene adapter supplies explicit zero idle translation samples;
 reactive native displacement is still unimplemented. See the
@@ -77,6 +80,17 @@ reactive native displacement is still unimplemented. See the
 Frame public-pack promotion and GPU/native comparison remain integration work;
 CPU tests can consume the extracted candidate through
 `FIRMWARE_BANNER_FRAME_MODEL`. Native mip levels remain a fidelity gap.
+
+Default readiness is separate from folder readiness and requires the BannerDef
+model, all six decoded 64×64 textures, the exact EUR `BannerDef_anim00` skeletal
+clip (300 frames, looping), `BannerDef` material clip (60 frames, nonlooping),
+camera and Frame. The KR material alternative is never auto-selected. Missing
+default resources cannot substitute folder geometry or white texture samplers.
+`drawDefaultFrame` takes the same explicit motion fields and has no label input.
+Its authored root bob stays independent of native Frame displacement. The
+candidate can be tested through `FIRMWARE_BANNER_DEFAULT_MODEL` before root-owned
+public promotion and browser/native comparison. See the
+[default integration contract](../native-default-banner-integration-contract.md).
 
 ## Cleanup contract
 

@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import ts from 'typescript';
 import * as THREE from 'three';
 import {bannerFrameData,hasAuthoredFrame} from './helpers/banner-frame.mjs';
+import {defaultBannerData,defaultBannerResource,hasAuthoredDefault} from './helpers/banner-default.mjs';
 
 const modules=new Map();
 function moduleUrl(path){
@@ -17,13 +19,21 @@ function moduleUrl(path){
 const {createFirmwareBanner}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/firmware-banner.ts',import.meta.url))));
 const publicRoot=fileURLToPath(new URL('../public/',import.meta.url));
 const frame=Object.freeze({visible:true,scale:.8,yawRadians:.31,skeletalFrame:0,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});
-function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false}={}){
+function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false,alterDefault,delayDefault,corruptDefaultTexture,defaultFetchObserver}={}){
  const prior={document:globalThis.document,window:globalThis.window,fetch:globalThis.fetch};
  globalThis.document={createElement(){return {width:0,height:0,getContext(){return {createImageData(w,h){return {data:new Uint8ClampedArray(w*h*4)};},putImageData(){}};}};}};
  globalThis.window={location:{href:'https://firmware.test/'}};
  globalThis.fetch=async input=>{
   const path=new URL(String(input),globalThis.window.location.href).pathname;
   if(failure&&path.includes(failure))return new Response('',{status:503});
+  if(path.includes('/banner-default/')){
+   const name=path.split('/').at(-1);defaultFetchObserver?.(name);
+   if(delayDefault?.name===name)await delayDefault.promise;
+   if(name==='model.json'){
+    const data=defaultBannerData();alterDefault?.(data);return new Response(JSON.stringify(data));
+   }
+   return new Response(corruptDefaultTexture===name?'invalid PNG':defaultBannerResource(name));
+  }
   if(path.endsWith('/banner-frame/model.json')){
    if(delayFrame)await delayFrame;
    const data=bannerFrameData();if(invalidFrame)data.models[0].materials[0].MaterialParams.StencilTest.Function='Invalid';
@@ -44,13 +54,13 @@ function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false}={}){
   getViewport:value=>value.copy(state.viewport),setViewport(...values){values.length===1?state.viewport.copy(values[0]):state.viewport.set(...values);},
   getScissor:value=>value.copy(state.scissor),setScissor:value=>state.scissor.copy(value),getScissorTest:()=>state.scissorTest,setScissorTest:value=>{state.scissorTest=value;},
   clear(...buffers){events.push(['clear',buffers,state.stencilClear,state.target]);},
-  render(scene,camera){scene.updateMatrixWorld(true);draws.push({scene,camera});events.push(['render',scene,renderer.autoClear]);},readRenderTargetPixels(target,x,y,w,h,pixels){pixels.fill(0);events.push(['readback',target]);}
+  render(scene,camera){scene.updateMatrixWorld(true);draws.push({scene,camera,primaries:scene.children.filter(group=>group.renderOrder===2&&group.visible)});events.push(['render',scene,renderer.autoClear]);},readRenderTargetPixels(target,x,y,w,h,pixels){pixels.fill(0);events.push(['readback',target]);}
  };
  let paints=0;const ctx={drawImage(){paints++;}},banner=createFirmwareBanner(renderer);
  t.after(()=>{banner.dispose();Object.assign(globalThis,prior);});
  return {banner,renderer,state,draws,events,ctx,paints:()=>paints};
 }
-const primary=scene=>scene.children.find(group=>group.renderOrder===2);
+const primary=scene=>scene.children.find(group=>group.renderOrder===2&&group.visible);
 const mask=scene=>scene.children.find(group=>group.renderOrder===1);
 function snapshot(group){
  const meshes=[];group.traverse(node=>{if(node.isMesh)meshes.push({positions:[...node.geometry.attributes.position.array],uniforms:Object.fromEntries(Object.entries(node.material.uniforms).filter(([name])=>name.startsWith('constant')||name.startsWith('uvMatrix')).map(([name,{value}])=>[name,value.toArray()]))});});
@@ -182,4 +192,154 @@ test('readback failure restores clear color, stencil clear, target and all share
  assert.equal(h.banner.drawFrame(h.ctx,frame),false);assert.match(h.banner.status().failure,/readback failed/);
  assert.equal(h.state.target,null);assert.equal(h.state.stencilClear,7);assert.equal(h.state.scissorTest,true);assert.equal(h.renderer.autoClear,true);assert.equal(h.renderer.toneMapping,THREE.ACESFilmicToneMapping);
  for(const [key,value]of Object.entries(before))assert.deepEqual(h.state[key],value);
+});
+
+// The public pack is integration-owned; the same tests run before promotion
+// with FIRMWARE_BANNER_DEFAULT_MODEL pointing at the extracted SSD model.json.
+const defaultTest=(name,run)=>test(name,{skip:!hasAuthoredDefault},run);
+defaultTest('default readiness requires the actual six textures and selects EUR material despite the KR alternative',async t=>{
+ const fetched=[],h=setup(t,{defaultFetchObserver:name=>fetched.push(name)});
+ assert.equal(h.banner.status().defaultReady,false);assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),false);
+ await h.banner.ready;assert.equal(h.banner.status().defaultReady,true);assert.equal(h.banner.status().defaultFailure,undefined);
+ const data=defaultBannerData();assert.equal(data.sourceSha256,'e5711a422d51e11c7047ebcb415401451335c39c46ecfbf1e3abdbffe8985955');
+ assert.equal(data.textures.length,6);assert.deepEqual(fetched.sort(),['model.json',...data.textures.map(t=>t.url)].sort());
+ for(const texture of data.textures)assert.equal(createHash('sha256').update(defaultBannerResource(texture.url)).digest('hex'),texture.sha256);
+ assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),true);
+ const group=primary(h.draws.at(-1).scene),meshes=group.children[0].children;
+ assert.equal(meshes.length,5);assert.equal(meshes[0].geometry.attributes.position.count,200);
+ assert.deepEqual(meshes[0].material.uniforms.constant0.value.toArray().slice(0,3),[.12,.86,0]);
+ assert.equal(meshes[0].material.uniforms.constant5.value.w,1,'EUR retains the HOME logo; KR sets this alpha to zero');
+ const textures=new Set();for(const mesh of meshes)for(const name of ['tex0','tex1','tex2']){
+  const texture=mesh.material.uniforms[name].value;if(texture.image.width===64){assert.equal(texture.image.height,64);assert.equal(texture.image.data.length,64*64*4);assert.equal(texture.colorSpace,THREE.NoColorSpace);textures.add(texture);}
+ }
+ assert.equal(textures.size,6);assert.ok([...textures].every(texture=>texture.image.data.some(value=>value!==255)),'actual pixels replace white samplers');
+ assert.ok(data.models[0].materials.every(m=>m.Name!=='mt_Text'));assert.ok(data.textures.every(t=>t.name!=='DmyText_00'));
+ const producer=mask(h.draws[0].scene);assert.equal(group.parent,producer.parent);
+ for(const mesh of meshes){const m=mesh.material;assert.equal(m.stencilWrite,true);assert.equal(m.stencilFunc,THREE.EqualStencilFunc);assert.equal(m.stencilRef,1);assert.equal(m.stencilFuncMask,1);assert.equal(m.stencilWriteMask,255);assert.equal(m.stencilFail,THREE.KeepStencilOp);assert.equal(m.stencilZFail,THREE.KeepStencilOp);assert.equal(m.stencilZPass,THREE.KeepStencilOp);assert.equal(m.depthFunc,THREE.LessDepth);}
+ assert.deepEqual(h.events.map(e=>e[0]),['target','stencilClear','clear','render','readback','target','stencilClear']);
+ assert.equal(h.events[2][2],0);assert.equal(h.events[0][1].stencilBuffer,true);assert.equal(h.events[3][2],false);
+ assert.deepEqual(h.draws[0].camera.position.toArray(),[0,1,44.7859992980957]);assert.equal(h.state.stencilClear,7);
+});
+
+defaultTest('default samples preserve bind matrices and separate authored bob, manager yaw and Frame displacement',async t=>{
+ const h=setup(t,{alterDefault:data=>Object.assign(data.models[0].transform,{M11:1.2,M22:.9,M33:1.1,M41:2,M43:.4})});await h.banner.ready;
+ const sample={...frame,nativeDisplacementY:.2,offsetX:3,offsetY:4};h.banner.drawDefaultFrame(h.ctx,sample);
+ const group=primary(h.draws[0].scene),producer=mask(h.draws[0].scene),start=snapshot(group),maskStart=snapshot(producer);
+ assert.deepEqual([start.inner[0][0],start.inner[0][5],start.inner[0][10],start.inner[0][12],start.inner[0][14]],[1.2,.9,1.1,2,.4]);
+ assert.deepEqual(start.position,[3,4.2,0]);assert.deepEqual(start.scale,[.8,.8,.8]);assert.equal(start.yaw,.31);
+ h.banner.drawDefaultFrame(h.ctx,{...sample,skeletalFrame:92});const bob=snapshot(group);
+ assert.deepEqual(bob.meshes.map(m=>m.uniforms),start.meshes.map(m=>m.uniforms));
+ for(let m=0;m<bob.meshes.length;m++)for(let i=1;i<bob.meshes[m].positions.length;i+=3)assert.ok(Math.abs(bob.meshes[m].positions[i]-start.meshes[m].positions[i]-.464378)<.00001);
+ assert.deepEqual(snapshot(producer),maskStart,'resource bob never changes Frame Y');
+ h.banner.drawDefaultFrame(h.ctx,{...sample,skeletalFrame:392});assert.deepEqual(snapshot(group),bob,'300 source frames loop independently of yaw');
+ h.banner.drawDefaultFrame(h.ctx,{...sample,skeletalFrame:0,materialFrame:60});assert.deepEqual(snapshot(group),start,'EUR material clip is constant through its endpoint');
+ h.banner.drawDefaultFrame(h.ctx,{...sample,skeletalFrame:0,materialFrame:600});assert.deepEqual(snapshot(group),start,'nonlooping material clamps to its authored endpoint');
+ h.banner.drawDefaultFrame(h.ctx,{...sample,yawRadians:1.1});assert.equal(group.rotation.y,1.1);assert.deepEqual(snapshot(group).meshes,start.meshes);
+ const count=h.events.length,before=snapshot(group);
+ assert.equal(h.banner.drawDefaultFrame(h.ctx,{...sample,visible:false,skeletalFrame:200,materialFrame:30,nativeDisplacementY:99}),true);
+ assert.equal(h.events.length,count);assert.deepEqual(snapshot(group),before);assert.deepEqual(snapshot(producer),maskStart);
+ h.banner.drawDefaultFrame(h.ctx,sample);assert.deepEqual(snapshot(group),start,'returning to the same checkpoint is deterministic');
+});
+
+defaultTest('folder/default switches render exactly one primary and retain the inactive folder label and clocks',async t=>{
+ const h=setup(t);await h.banner.ready;
+ const label={width:256,height:64,data:new Uint8ClampedArray(256*64*4).fill(255)};
+ h.banner.drawFrame(h.ctx,frame,label);const folder=primary(h.draws[0].scene),folderStart=snapshot(folder),camera=h.draws[0].camera;
+ const texture=folder.children[0].children.find(mesh=>mesh.visible&&mesh.material.uniforms.tex0.value.image.width===256).material.uniforms.tex0.value,version=texture.version;
+ h.banner.drawDefaultFrame(h.ctx,{...frame,skeletalFrame:92});const defaultGroup=primary(h.draws.at(-1).scene),defaultStart=snapshot(defaultGroup);
+ assert.notEqual(defaultGroup,folder);assert.equal(folder.visible,false);assert.equal(defaultGroup.visible,true);assert.equal(h.draws.at(-1).camera,camera);
+ assert.deepEqual(snapshot(folder),folderStart);assert.equal(texture.version,version);
+ const count=h.events.length;h.banner.drawFrame(h.ctx,{...frame,visible:false,skeletalFrame:99},{...label});
+ assert.equal(h.events.length,count);assert.equal(defaultGroup.visible,true);assert.equal(texture.version,version);
+ h.banner.drawFrame(h.ctx,frame,label);assert.equal(defaultGroup.visible,false);assert.equal(folder.visible,true);
+ assert.deepEqual(snapshot(folder),folderStart);assert.deepEqual(snapshot(defaultGroup),defaultStart);assert.equal(texture.version,version);
+ h.banner.drawDefaultFrame(h.ctx,frame);h.banner.draw(h.ctx,0,false,label);
+ for(const draw of h.draws)assert.equal(draw.primaries.length,1);
+ assert.equal(h.draws.at(-1).primaries[0],folder);
+});
+
+defaultTest('default forwards independent material checkpoints instead of deriving them from skeletal frames',async t=>{
+ const h=setup(t,{alterDefault:data=>{
+  // EUR's real material channels are constant. A controlled ramp makes the
+  // independent checkpoint wiring observable without changing its clip profile.
+  const curve=data.materialAnimations.find(c=>c.Name==='BannerDef').Elements[0].Content.A;
+  Object.assign(curve,{StartFrame:0,EndFrame:60,InterpolationType:'Linear',KeyFrames:[{Frame:0,Value:.1,InSlope:0,OutSlope:0},{Frame:60,Value:.9,InSlope:0,OutSlope:0}]});
+ }});await h.banner.ready;h.banner.drawDefaultFrame(h.ctx,frame);
+ const group=primary(h.draws[0].scene),before=snapshot(group),material=group.children[0].children[0].material;
+ assert.equal(material.uniforms.constant5.value.w,.1);
+ h.banner.drawDefaultFrame(h.ctx,{...frame,skeletalFrame:92});assert.equal(material.uniforms.constant5.value.w,.1);const bob=snapshot(group);
+ h.banner.drawDefaultFrame(h.ctx,{...frame,skeletalFrame:92,materialFrame:60});assert.equal(material.uniforms.constant5.value.w,.9);
+ assert.deepEqual(snapshot(group).meshes.map(m=>m.positions),bob.meshes.map(m=>m.positions));
+ h.banner.drawDefaultFrame(h.ctx,{...frame,skeletalFrame:92,materialFrame:300});assert.equal(material.uniforms.constant5.value.w,.9);
+ h.banner.drawDefaultFrame(h.ctx,frame);assert.deepEqual(snapshot(group),before);
+});
+
+for(const name of ['model.json',...Array.from({length:6},(_,i)=>`texture-${i}.png`)])defaultTest(`default ${name} failure remains separate from folder/background availability`,async t=>{
+ const h=setup(t,{failure:`/banner-default/${name}`});await h.banner.ready;
+ assert.equal(h.banner.status().defaultReady,false);assert.match(h.banner.status().defaultFailure,/HTTP 503/);
+ assert.equal(h.banner.status().failure,undefined);assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),false);assert.equal(h.banner.drawDefaultFrame(h.ctx,{...frame,visible:false}),false);
+ assert.equal(h.banner.drawFrame(h.ctx,frame),true);assert.equal(h.banner.drawBackground(h.ctx,0,false),true);
+});
+
+const invalidDefaults=[
+ ['missing texture record',d=>{d.textures.pop();}],
+ ['duplicate texture name',d=>{d.textures[0].name=d.textures[1].name;}],
+ ['unresolved texture binding',d=>{d.models[0].materials[0].Texture0Name='Missing';}],
+ ['wrong PNG dimensions',d=>{d.textures[0].width=32;}],
+ ['wrong model',d=>{d.models[0].name='BannerFolder';}],
+ ['missing geometry',d=>{d.models[0].meshes=[];}],
+ ['KR without EUR clip',d=>{d.materialAnimations=d.materialAnimations.filter(c=>c.Name==='BannerDef_KR');}],
+ ['duplicate EUR clip',d=>{d.materialAnimations.push(structuredClone(d.materialAnimations.find(c=>c.Name==='BannerDef')));}],
+ ['looping EUR material',d=>{d.materialAnimations.find(c=>c.Name==='BannerDef').AnimationFlags='IsLooping';}],
+ ['missing skeletal clip',d=>{d.skeletalAnimations=[];}],
+ ['wrong skeletal duration',d=>{d.skeletalAnimations[0].FramesCount=600;}],
+ ['nonlooping skeletal clip',d=>{d.skeletalAnimations[0].AnimationFlags='0';}],
+];
+for(const [name,alterDefault]of invalidDefaults)defaultTest(`default rejects ${name} before readiness`,async t=>{
+ const h=setup(t,{alterDefault});await h.banner.ready;
+ assert.equal(h.banner.status().defaultReady,false);assert.ok(h.banner.status().defaultFailure);assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),false);
+ assert.equal(h.banner.drawFrame(h.ctx,frame),true);
+});
+
+defaultTest('a corrupt default PNG cannot be replaced by a white sampler',async t=>{
+ const h=setup(t,{corruptDefaultTexture:'texture-5.png'});await h.banner.ready;
+ assert.equal(h.banner.status().defaultReady,false);assert.match(h.banner.status().defaultFailure,/Invalid native PNG/);assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),false);
+});
+
+for(const failure of ['/folder/model.json','/home-camera/camera.json','/banner-frame/model.json'])defaultTest(`default availability distinguishes shared and folder-only failure: ${failure}`,async t=>{
+ const h=setup(t,{failure});await h.banner.ready;const available=failure.includes('/folder/');
+ assert.equal(h.banner.status().defaultReady,available);assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),available);
+ if(!available){assert.match(h.banner.status().defaultFailure,/HTTP 503/);assert.equal(h.paints(),0);}
+});
+
+defaultTest('default remains unready until the last texture decodes',async t=>{
+ let release,reached;const promise=new Promise(r=>{release=r;}),seen=new Promise(r=>{reached=r;});
+ const h=setup(t,{delayDefault:{name:'texture-5.png',promise},defaultFetchObserver:name=>{if(name==='texture-5.png')reached();}});
+ await seen;assert.equal(h.banner.status().defaultReady,false);assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),false);
+ release();await h.banner.ready;assert.equal(h.banner.status().defaultReady,true);assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),true);
+});
+
+defaultTest('disposal during default texture loading prevents late model allocation and readiness',async t=>{
+ let release,reached;const promise=new Promise(r=>{release=r;}),seen=new Promise(r=>{reached=r;});
+ const h=setup(t,{delayDefault:{name:'texture-5.png',promise},defaultFetchObserver:name=>{if(name==='texture-5.png')reached();}});
+ await seen;h.banner.dispose();release();await h.banner.ready;
+ assert.equal(h.banner.status().defaultReady,false);assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),false);assert.equal(h.events.length,0);
+});
+
+defaultTest('default GPU resources and shared target are disposed once after primary switches',async t=>{
+ const h=setup(t);await h.banner.ready;h.banner.drawDefaultFrame(h.ctx,frame);
+ const resources=new Set([h.events[0][1]]);primary(h.draws[0].scene).traverse(node=>{
+  if(node.isMesh){resources.add(node.geometry);resources.add(node.material);for(const {value}of Object.values(node.material.uniforms))if(value instanceof THREE.Texture)resources.add(value);}
+ });
+ const counts=new Map();for(const resource of resources)resource.addEventListener('dispose',()=>counts.set(resource,(counts.get(resource)??0)+1));
+ h.banner.drawFrame(h.ctx,frame);h.banner.dispose();h.banner.dispose();
+ assert.equal(counts.size,resources.size);for(const count of counts.values())assert.equal(count,1);assert.equal(h.banner.status().defaultReady,false);
+});
+
+defaultTest('default render errors restore shared controls and do not disable the folder',async t=>{
+ const h=setup(t);await h.banner.ready;const original=h.renderer.render,before={...h.state,color:h.state.color.clone(),viewport:h.state.viewport.clone(),scissor:h.state.scissor.clone()};
+ h.renderer.autoClear=true;h.renderer.render=()=>{throw new Error('default render failed');};
+ assert.equal(h.banner.drawDefaultFrame(h.ctx,frame),false);assert.match(h.banner.status().defaultFailure,/default render failed/);assert.equal(h.banner.status().defaultReady,false);
+ assert.deepEqual(h.state,before);assert.equal(h.renderer.autoClear,true);assert.equal(h.renderer.toneMapping,THREE.ACESFilmicToneMapping);assert.equal(h.banner.status().failure,undefined);
+ h.renderer.render=original;assert.equal(h.banner.drawFrame(h.ctx,frame),true);assert.equal(h.draws.at(-1).primaries.length,1);
 });

@@ -170,3 +170,12 @@ Friend List main/profile now share one title session. Game Notes list/selected
 views request a union of their small native packs under one session identity.
 This removes the observed generic-screen flash and redundant asset reload on
 interior navigation; owner changes still dispose the entire session.
+
+Native NNID and System Update entry screens are now wired through
+`stock-native-helpers.ts`, with their exact Back rectangles shared by input.
+Their account/update rows are absent: these screens cannot start account or
+update operations. NNID uses its source header and generic native notice with
+explicit local text because the remote account body is unavailable. Updater
+uses its own source title/icon/background and a readonly notice, never an
+invented up-to-date status. Returning from these helper applications currently
+goes to HOME rather than restoring the Settings parent; that remains a gap.

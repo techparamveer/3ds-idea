@@ -13,6 +13,7 @@ source=source.replace("'./stock-screen-layout'",JSON.stringify(url('export const
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url(compile('stock-native-personal-tools').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))))));
 source=source.replace("'./stock-native-web'",JSON.stringify(url("export const browserScreenPacks=[{url:'browser.json',alias:'browser',layouts:[],animations:[]}],miiverseScreenPacks=[{url:'miiverse.json',alias:'miiverse',layouts:[],animations:[]}];export const drawNativeWebFrame=()=>false;")));
 source=source.replace("'./stock-native-services'",JSON.stringify(url('export const nativeServiceView=()=>null;export const drawNativeServiceFrame=()=>false;')));
+source=source.replace("'./stock-native-helpers'",JSON.stringify(url('export const nativeHelperView=()=>null;export const drawNativeHelperFrame=()=>false;')));
 const {createStockScreenPresentation}=await import(url(source));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const view=appId=>({appId,screen:'main',heading:'',rows:[],selection:0,footer:{}});

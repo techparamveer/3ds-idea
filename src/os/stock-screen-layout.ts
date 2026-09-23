@@ -5,6 +5,8 @@ export type StockScreenTarget = {action:string;x:number;y:number;width:number;he
 const target=(action:string,x:number,y:number,width:number,height:number,row?:number):StockScreenTarget=>({action,x,y,width,height,...(row===undefined?{}:{row})});
 export function stockScreenTargets(view:AppView):StockScreenTarget[]{
   const {appId,screen,rows,selection}=view, result:StockScreenTarget[]=[];
+  if(appId==='nnid-settings')return [target('back',0,212,64,28)];
+  if(appId==='system-updater')return [target('back',0,208,120,32)];
   if(appId==='system-settings'&&screen==='main'){
     const locations:Record<string,number[]>={nnid:[4,0,312,33],internet:[16,38,140,78],parental:[164,38,140,78],data:[16,123,140,78],other:[164,123,140,78]};
     rows.forEach((row,index)=>{const rect=locations[row.id];if(rect)result.push(target(row.id,rect[0],rect[1],rect[2],rect[3],index));});

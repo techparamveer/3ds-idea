@@ -82,3 +82,7 @@ test('service source buttons and readonly profile footer have no generic row tar
 test('selected Notes exposes only its native Back control',()=>{
  const v=view('game-notes','drawing',[]);assert.equal(hit(v,22,226),'back');assert.equal(hit(v,70,226),null);assert.equal(hit(v,160,110),null);
 });
+
+test('readonly helper entry screens expose only their source Back button',()=>{
+ for(const [id,width,y]of [['nnid-settings',64,212],['system-updater',120,208]]){const v=view(id,'main',[]);assert.equal(hit(v,width-1,226),'back');assert.equal(hit(v,width,226),null);assert.equal(hit(v,35,y-1),null);assert.equal(hit(v,160,80),null);}
+});

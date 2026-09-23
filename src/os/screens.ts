@@ -1,10 +1,12 @@
 import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
+import { leaveHomeFolder } from './home-navigation';
 import { getHomeFooter, getHomePresentation, type HomePresentation } from './home-presentation';
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices, keyboardKeys } from './state';
 import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
+import { getHomeFolderIdentity } from './home-folder-identity';
 import type { NativePixels } from './native-layout';
 export { loadFirmwarePresentationAssets, type FirmwarePresentationAssets } from './firmware-presentation';
 type Context = CanvasRenderingContext2D;
@@ -96,8 +98,9 @@ function button(c:Context,x:number,y:number,w:number,h:number,label:string,activ
  text(c,label,x+w/2,y+h/2,14,'#44464b','center');
 }
 function footer(c:Context,state:MenuState,chrome:ReturnType<typeof createNativeChrome>){
+ const actions=getHomeFooter(state);if(!actions)return;
  c.fillStyle=gradient(c,212,28,'#fff','#c4c5c9');c.fillRect(0,212,320,28);line(c,[[0,212.5],[320,212.5]],'#9c9da4');chrome.draw(c,'home-footer',0,214);
- const {two,left,right}=getHomeFooter(state),labels={'close-folder':'Close','close-software':'Close software','folder-settings':'Settings',resume:'Resume',open:'Open','create-folder':'Create Folder'};
+ const {two,left,right}=actions,labels={'close-folder':'Close','close-software':'Close software','folder-settings':'Settings',resume:'Resume',open:'Open','create-folder':'Create Folder'};
  if(two){line(c,[[104.5,214],[104.5,240]],'#aaabb2');text(c,left?labels[left]:'',52,226,11,'#494b51','center');text(c,labels[right],212,226,14,'#494b51','center');}
  else{if(state.opened)text(c,'↶',24,226,19);text(c,labels[right],160,226,14,'#494b51','center');}
 }
@@ -109,29 +112,31 @@ function arrows(c:Context,state:MenuState){
   const x=right?310:10;c.fillStyle='#91bdb7';c.beginPath();c.moveTo(x+(right?5:-5),131);c.lineTo(x+(right?-3:3),125);c.lineTo(x+(right?-3:3),137);c.fill();c.restore();
  }
 }
-function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome){
+function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false){
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
  for(const tile of view.tiles){
   const {x,size,appId,folderLabel,pressed,source,drop}=tile,y=tile.y+(pressed?(nativeHome?.pressOffset??2):0);
   const app=getApp(appId),occupied=!!appId||folderLabel!==null;
   if(source){
-   if(!nativeHome?.liftedSource(c,x,tile.y,size,view.rows)){
+   if(!nativeHome?.liftedSource(c,x,tile.y,size,view.density)){
     const inset=size*.34;rounded(c,x+inset,tile.y+inset,size-inset*2,size-inset*2,2,'#d3d4d766','#c8c9cc');
    }
   }else if(occupied){
-   const nativeDrawn=nativeHome?.tile(c,x,y,size,view.rows,folderLabel!==null,drop&&folderLabel!==null,folderLabel??'');
+   const nativeDrawn=capture&&tile.index===state.selected&&folderLabel!==null
+    ?nativeHome?.captureFolder(c,x,y,size,view.density,folderLabel)
+    :nativeHome?.tile(c,x,y,size,view.density,folderLabel!==null,drop&&folderLabel!==null,folderLabel??'');
    if(!(nativeDrawn??chrome.tile(c,x,y,size))){c.save();c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
     rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();}
    if(app)graphics.menuIcon(c,app,x,y,size);
    else if(folderLabel!==null&&!nativeDrawn)folder(c,x+size/2,y+size/2,size*.78,folderLabel);
-  }else if(!nativeHome?.empty(c,x,y,size,view.rows)){
+  }else if(!nativeHome?.empty(c,x,y,size,view.density)){
    const inset=size*.34,side=size-inset*2;
    rounded(c,x+inset,y+inset,side,side,2,'#d3d4d766','#c8c9cc');
    line(c,[[x+inset+1,y+inset+side],[x+inset+side,y+inset+side],[x+inset+side,y+inset+1]],'#e9e9eb');
   }
-  if(tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.rows,time,pressed))cursor(c,x,y,size,size,time,reduced);
+  if(!capture&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,time,pressed))cursor(c,x,y,size,size,time,reduced);
  }c.restore();
- if(!nativeHome?.arrows(c,pageStart(state)>0))arrows(c,state);
+ if(!capture&&!nativeHome?.arrows(c,pageStart(state)>0))arrows(c,state);
  // Native idle HOME has no track above the footer. Keep the old fallback's
  // scroll indicator separate from the decoded native chrome.
  if(!nativeHome){
@@ -139,13 +144,13 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
   const width=Math.max(14,290*state.columns/Math.ceil(slotCount(state)/rowCount(state)));
   rounded(c,15+(290-width)*pageStart(state)/Math.max(1,Math.ceil(slotCount(state)/rowCount(state))-state.columns),204,width,5,2,'#fafafa','#b8b9bc');
  }
- if(state.opened){c.fillStyle='#737982';c.fillRect(0,33,320,16);text(c,'↶',21,41,15,'white');text(c,state.folders[state.selected]||'',160,41,11,'white','center');}
+ if(state.opened&&!nativeHome){c.fillStyle='#737982';c.fillRect(0,33,320,16);text(c,'↶',21,41,15,'white');text(c,state.folders[state.selected]||'',160,41,11,'white','center');}
 }
 function dragGhost(c:Context,view:HomePresentation,graphics:ReturnType<typeof createPortfolioGraphics>,nativeHome?:NativeHome){
  const ghost=view.ghost;if(!ghost)return;
  const {x,y,size,item}=ghost,app=item.kind==='app'?getApp(item.id):undefined;
  c.save();c.beginPath();c.rect(0,0,320,240);c.clip();
- const pickup=nativeHome?.pickup(c,x,y,size,view.rows,item.kind==='folder',item.kind==='folder'?item.label:'');
+ const pickup=nativeHome?.pickup(c,x,y,size,view.density,item.kind==='folder',item.kind==='folder'?item.label:'');
  if(pickup?.drawn){
   if(app){const rect=pickup.icon;c.globalAlpha=rect.alpha;graphics.menuArtwork(c,app,rect.x,rect.y,rect.width,rect.height);}
  }else if(item.kind==='folder')folder(c,x,y,size*.78,item.label);
@@ -226,10 +231,27 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
  const shopSprite=new Image();shopSprite.src='/os/theme-shop.png';
  const fontReady=loadSystemFont();
  let firmwareAssets:FirmwarePresentationAssets|undefined,nativeHome:NativeHome|undefined,disposed=false;
+ let folderCapture:{identity:string;pixels:NativePixels}|undefined;
  const useFont=(font:BitmapFont)=>{for(const ctx of [t,b]){fonts.set(ctx,font);setPortfolioFont(ctx,font);}};
  if(options.font)useFont(options.font);
- function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);useFont(assets.sharedFont);}
+ function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);folderCapture=undefined;useFont(assets.sharedFont);}
  if(options.firmwareAssets)setFirmwareAssets(options.firmwareAssets);
+ const captureCanvas=document.createElement('canvas');captureCanvas.width=320;captureCanvas.height=240;
+ const captureContext=captureCanvas.getContext('2d',{willReadFrequently:true})!;
+ function folderBackdrop(state:MenuState,time:number){
+  if(!state.opened){folderCapture=undefined;return;}
+  if(!nativeHome)return;
+  const identity=getHomeFolderIdentity(state,state.selected)??`slot:${state.selected}`;
+  if(folderCapture?.identity!==identity){
+   // Native 0x1b56f4 redraws the root before capture, with the footer,
+   // cursor/effects, arrows and balloon hidden. Never copy the old onscreen footer.
+   const root=leaveHomeFolder(state),view=getHomePresentation(root),ctx=captureContext;
+   ctx.resetTransform();ctx.clearRect(0,0,320,240);ctx.fillStyle=themes[root.theme].bottom;ctx.fillRect(0,0,320,240);
+   nativeHome.toolbar(ctx,root,true);nativeHome.homePlate(ctx,root);grid(ctx,root,time,reduced,graphics,chrome,view,nativeHome,true);
+   folderCapture={identity,pixels:{width:320,height:206,data:ctx.getImageData(0,34,320,206).data}};
+  }
+  nativeHome.folderBackdrop(b,folderCapture.pixels);
+ }
  let reduced=options.reducedMotion??false;
  function paint(state:MenuState,date=new Date(),elapsedMs=0){
   if(disposed)return;
@@ -256,10 +278,10 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
    }
   }
   nativeHome?.upperBase(t);
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);grid(b,state,time,reduced,graphics,chrome,view,nativeHome);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome);panel(b,state,time,reduced,themeSprite,shopSprite);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state);grid(b,state,time,reduced,graphics,chrome,view,nativeHome);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome);panel(b,state,time,reduced,themeSprite,shopSprite);
   graphics.overlay(t,b,state,elapsedMs,reduced);
   const notice=options.runtimeNotice?.();if(notice){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
  }
- return {top,bottom,paint,setFirmwareAssets,dispose(){if(disposed)return;disposed=true;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,bottom,paint,setFirmwareAssets,dispose(){if(disposed)return;disposed=true;folderCapture=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

@@ -362,7 +362,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
           targets[`${name}_${direction}`]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];
         }
       }
-      for(const [x,y]of [[20,16],[70,16],[105,16],[145,16],[190,16],[235,16],[277,16],[307,16],[52,76],[136,76],[52,160],[136,160],[50,226],[210,226],[150,65],[70,170],[230,170],[100,110],[100,90],[100,150],[200,180],[160,226]]){
+      for(const [x,y]of [[59,54],[76,137],[20,16],[70,16],[105,16],[145,16],[190,16],[235,16],[277,16],[307,16],[52,76],[136,76],[52,160],[136,160],[50,226],[210,226],[150,65],[70,170],[230,170],[100,110],[100,90],[100,150],[200,180],[160,226]]){
         const v=touchScreen.localToWorld(new THREE.Vector3((x/320-.5)*layout.screens.bottom.widthMm,(.5-y/240)*layout.screens.bottom.heightMm,0)).project(camera);
         targets[`Touch_${x}_${y}`]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];
       }

@@ -93,11 +93,12 @@ const homeViewCache = new WeakMap<HomeNavigation, ReturnType<typeof deriveHomeNa
 function deriveHomeNavigationView(state: MenuState) {
   const nav = getHomeNavigation(state), record = activeHomeRecord(nav), grid = sampleHomeGrid(nav);
   const scrollPixels = nav.gesture?.scrollPixels ?? grid.scrollPixels;
-  const slots = Object.freeze(grid.slots.map(slot => Object.freeze({ ...slot, x: slot.x - scrollPixels })));
+  const unscrolledSlots = Object.freeze(grid.slots.map(slot => Object.freeze(slot)));
+  const slots = Object.freeze(unscrolledSlots.map(slot => Object.freeze({ ...slot, x: slot.x - scrollPixels })));
   return Object.freeze({ ...grid, context: nav.activeFolderSlot, selectedSlot: record.selectedSlot,
     currentDensity: record.density, targetDensity: nav.motion?.targetDensity ?? record.density, density: grid.densityValue,
     mode: nav.motion?.mode ?? 0, elapsedUpdates: nav.motion?.elapsedUpdates ?? 0,
-    currentLeftSlot: record.currentLeftSlot, targetLeftSlot: record.targetLeftSlot, scrollPixels, slots,
+    currentLeftSlot: record.currentLeftSlot, targetLeftSlot: record.targetLeftSlot, scrollPixels, slots, unscrolledSlots,
     selectionRevision: nav.selectionRevision, selectedAnchorX: slots[record.selectedSlot].x });
 }
 /** Immutable navigation records allow all geometry consumers to share one sample per update. */

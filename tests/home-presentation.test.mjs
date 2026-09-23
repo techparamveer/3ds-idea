@@ -1,8 +1,9 @@
 import {settleHomeNavigation} from '../src/os/home-navigation.ts';
 import {setHomeDensity as setHomeDensityMotion,selectHomeSlot,enterHomeFolder,homeDensityIndex} from '../src/os/home-navigation.ts';
 import test from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame,nativeFolderBalloonPosition} from '../src/os/home-presentation.ts';
+import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame,nativeHomeDensityMetric,nativeFolderPanelGeometry,getNativeFolderPanel,nativeFolderBalloonPosition} from '../src/os/home-presentation.ts';
 import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
 import {homeTouchLocation} from '../src/os/home-gestures.ts';
@@ -17,8 +18,8 @@ test('pressed tile follows runtime pointer source without changing keyboard sele
  assert.deepEqual(view.tiles.filter(t=>t.cursor).map(t=>t.index),[2]);assert.equal(view.ghost,null);
  const released=releaseSystemInputs(pressed,101);assert.ok(getHomePresentation(released).tiles.every(t=>!t.pressed));
 });
-test('native density shares the first size across one/two rows then selects smaller keys',()=>{
- assert.deepEqual([1,2,3,4,5,6].map(nativeHomeDensityFrame),[1,1,2,3,4,5]);
+test('native Scale binding accepts the density independently from row count',()=>{
+ assert.deepEqual([0,1,2,3,4,5,2.5].map(nativeHomeDensityFrame),[0,1,2,3,4,5,2.5]);
 });
 test('balloon position matches execution of native ARM including the interior branch and boundary discontinuities',()=>{
  // 0x1e6758..0x1e67c8 executed from the pinned HOME code.bin; see provenance doc.
@@ -84,4 +85,31 @@ test('occupied folder footer closes the folder even when software is suspended',
   assert.deepEqual(getHomeFooter(state),{two:true,left:'close-folder',right:active?'resume':'open'});
   const closed=touchSystem(state,50,226,100);assert.equal(closed.opened,false);assert.equal(closed.system.app,active);assert.equal(closed.system.dialog,null);
  }
+});
+
+test('empty folder selection hides the footer even when another child is occupied',()=>{
+ const initial=home(),childId=initial.system.layout[1];
+ const opened=enterHomeFolder({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{1:childId}}}},20);
+ for(const index of [0,2])assert.equal(getHomeFooter(selectHomeSlot(opened,index)),null);
+ assert.equal(getHomeFooter(selectHomeSlot(opened,1)).right,'open');
+ assert.deepEqual(getHomeFooter(selectHomeSlot(initial,20)),{two:false,left:null,right:'create-folder'});
+});
+
+test('folder plate and shadow geometry match original ARM fixtures at every density and transition anchor',()=>{
+ const fixture=JSON.parse(readFileSync(new URL('./fixtures/native-folder-panel.json',import.meta.url)));
+ for(const v of fixture.fixtures){
+  const input={...v,currentLeftSlot:v.currentLeft,targetLeftSlot:v.targetLeft};
+  assert.deepEqual(nativeFolderPanelGeometry(input),{x:v.plate.x,width:v.plate.width,shadowWidth:v.shadow.width},v.label);
+ }
+ for(const v of fixture.glyphInterpolation){
+  assert.equal(nativeHomeDensityMetric([32,32,24,20,18,16],v.density),v.width);
+  assert.equal(nativeHomeDensityMetric([-6,-6,-3,-3,-2,-1],v.density),v.yOffset);
+ }
+ const opened=enterHomeFolder({...home(),folders:{20:'A'}},20);
+ for(const v of fixture.fixtures.filter(v=>v.label.startsWith('settled-'))){
+  const state=setHomeDensity(opened,v.currentDensity),before=JSON.stringify(state);
+  assert.deepEqual(getNativeFolderPanel(state),{x:v.plate.x,width:v.plate.width,shadowWidth:v.shadow.width});
+  assert.equal(JSON.stringify(state),before);
+ }
+ assert.equal(getNativeFolderPanel(home()),null);
 });

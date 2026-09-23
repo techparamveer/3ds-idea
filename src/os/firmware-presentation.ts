@@ -3,14 +3,14 @@ import { decodeNativePng } from './native-png';
 import { nativeBannerLabelOverride } from './native-banner-label';
 import { NativeLayoutRenderer } from './native-renderer';
 import { nativeFolderGlyphPixels, nativeMessageOverride, nativeTextureSamplePixels, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
-import { rowCount, toolbar as toolbarRegions, type MenuState } from './state';
+import { isHomeFolderBackTouch, rowCount, toolbar as toolbarRegions, type MenuState } from './state';
 import { getHomeGestureView } from './system';
-import { getHomeFooter, getNativeFolderBalloon, nativeHomeDensityFrame, type HomePresentation } from './home-presentation';
+import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>};
-const homeLayouts={hud:['HudMenu_00'],banner:['BnrDsTitle_00'],launcher:['LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncBtmBtn_02','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00']};
+const homeLayouts={hud:['HudMenu_00'],banner:['BnrDsTitle_00'],launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
  const base=new URL(manifestUrl,window.location.href),controller=new AbortController();
@@ -100,17 +100,37 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    T_NetMode_00:message(table,'lau_connect4','Disabled'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:'0'},T_Coin_00:{text:'0'}
   }});
  }
- function toolbar(ctx:Context,state?:MenuState){
+ function toolbar(ctx:Context,state?:MenuState,fullHeight=false){
   const gesture=state&&getHomeGestureView(state),bindings=[binding('LncBase_D_01_PaletteOut',12),binding('LncBase_D_01_MvsToggle',0)];
   if(!state?.panel&&gesture?.mode==='press'&&gesture.y>=0&&gesture.y<33&&gesture.x>=0&&gesture.x<320){
    const index=toolbarRegions.findIndex(region=>gesture.x>=region.x&&gesture.x<region.x+region.width);
    const group=index>=0?['G_Light_00','G_Memo_00','G_Friend_00','G_News_00','G_Web_00','G_Mvs_00'][index]:gesture.x<294?'G_Dw_00':'G_Up_00';
    bindings.push(binding('LncBase_D_01_Select',1,[group]));
   }
-  return renderer.draw(ctx,'launcher','LncBase_D_01',{bindings,clip:[0,0,320,212]});
+  return renderer.draw(ctx,'launcher','LncBase_D_01',{bindings,clip:[0,0,320,state?.opened||fullHeight?240:212]});
+ }
+ function homePlate(ctx:Context,state:MenuState){
+  if(state.opened)return false;
+  const panel=getNativeHomePanel(state);
+  return renderer.draw(ctx,'launcher','LncPlt_00',{bindings:[binding('LncPlt_00_PaletteOut',11)],overrides:{W_Plt_00:{translation:[panel.x,-92,0],size:[panel.width,175]},W_Shdw_00:{translation:[panel.x,-102,0],size:[panel.shadowWidth,193]}}});
+ }
+ function folderBackdrop(ctx:Context,capture:NativePixels){
+  // The host supplies canonical rows34..239 of the fresh pre-folder render.
+  // This replaces the native rotated framebuffer plus its UV0 crop; UV1 and TEV stay original.
+  const texture='runtime:folder-background';
+  return renderer.draw(ctx,'launcher','LncFolderCapture_00',{bindings:[binding('LncFolderCapture_00_Fade',8),binding('LncFolderCapture_00_PicUp',0)],textures:{[texture]:capture},overrides:{P_Capture_00:{textureBindings:{0:texture}}}});
+ }
+ function folderChrome(ctx:Context,state:MenuState){
+  const panel=getNativeFolderPanel(state);if(!panel)return false;
+  // HOME 0x2b2b68 loads this layout and its FadeIn controller; entry
+  // 0x2a34bc starts it. This is the settled frame, pending transition wiring.
+  const gesture=state.system?.homeNavigation.gesture;
+  const pressed=gesture?.mode==='press'&&isHomeFolderBackTouch(state,gesture.startX,gesture.startY)&&isHomeFolderBackTouch(state,gesture.x,gesture.y);
+  return renderer.draw(ctx,'launcher','LncFolder_00',{bindings:[binding('LncFolder_00_FadeIn',16),binding('LncFolder_00_Select',pressed?1:0,['G_Btn_00'])],overrides:{W_Plt_00:{translation:[panel.x,-16,0],size:[panel.width,144]},W_Shdw_00:{translation:[panel.x,-20,0],size:[panel.shadowWidth,164]}}});
  }
  function footer(ctx:Context,state:MenuState){
-  const {two,left:leftAction,right:rightAction}=getHomeFooter(state);
+  const actions=getHomeFooter(state);if(!actions)return true;
+  const {two,left:leftAction,right:rightAction}=actions;
   const active=new Set(two?['N_BtnW_R_02','N_BtnW_L_03']:['N_BtnW_C_01']);
   const overrides:PaneOverrides={};
   const walk=(panes:NativePack['layouts'][string]['roots'])=>panes.forEach(p=>{if(/^N_Btn[WB]_[LRC]+_\d+$/.test(p.name))overrides[p.name]={visible:active.has(p.name)};if(p.text)overrides[p.name]={text:''};walk(p.children);});walk(renderer.packs.launcher.layouts.LncBtmBtn_02.roots);
@@ -123,14 +143,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }
   return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings,overrides,clip:[0,210,320,30]});
  }
- function tile(ctx:Context,x:number,y:number,size:number,rows:number,folder:boolean,receiving=false,folderName=''){
+ function tile(ctx:Context,x:number,y:number,size:number,density:number,folder:boolean,receiving=false,folderName=''){
   const name=folder?(receiving?'LncIconFolderInT_00':'LncIconFolder_00'):'LncIconSetSrc_00';
   // SetSrc stores the ordinary plate at +32 and the empty-slot source at -32.
-  const frame=nativeHomeDensityFrame(rows),drawn=renderer.draw(ctx,'launcher',name,{center:[x+size/2-(folder?0:32),y+size/2],bindings:[binding(name+'_Scale',frame)],overrides:folder?{}:{N_Color_01:{visible:false},N_Pic_01:{visible:false}}});
+  const frame=nativeHomeDensityFrame(density),drawn=renderer.draw(ctx,'launcher',name,{center:[x+size/2-(folder?0:32),y+size/2],bindings:[binding(name+'_Scale',frame)],overrides:folder?{}:{N_Color_01:{visible:false},N_Pic_01:{visible:false}}});
   const glyph=folder&&folderGlyph(folderName);
   if(glyph){
    // 0x1d7f3c → 0x256df4 → 0x257254: plain folder glyph size/Y tables.
-   const width=[32,32,24,20,18,16][frame],offset=[-6,-6,-3,-3,-2,-1][frame];
+   const width=nativeHomeDensityMetric([32,32,24,20,18,16],frame),offset=nativeHomeDensityMetric([-6,-6,-3,-3,-2,-1],frame);
    renderer.draw(ctx,'launcher','LncIconDist_01',{center:[x+size/2,y+size/2],textures:{[glyphTexture]:glyph},overrides:{
     // The folder plate above supplies the separately rendered button surface.
     P_IconBtnDmy_00:{size:[0,0]},P_Icon_00:{size:[width,width],translation:[0,offset,0],textureBindings:{0:glyphTexture}}
@@ -138,16 +158,28 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }
   return drawn;
  }
- function empty(ctx:Context,x:number,y:number,size:number,rows:number){
-  const name='LncIconSetSrc_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2+32,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(rows))],overrides:{N_IconRoot_00:{visible:false},P_BtnShdw_00:{visible:false},N_Pic_01:{visible:false}}});
+ /** Fresh opening capture replaces only the selected ordinary folder instance.
+  * Native priority414 T precedes priority412 B; preserve authored pane geometry.
+  */
+ function captureFolder(ctx:Context,x:number,y:number,size:number,density:number,name:string){
+  const center:[number,number]=[x+size/2,y+size/2],frame=nativeHomeDensityFrame(density);
+  const top='LncIconFolderInT_00',bottom='LncIconFolderInB_00',glyph=folderGlyph(name);
+  const drawn=renderer.draw(ctx,'launcher',top,{center,bindings:[binding(top+'_Scale',frame),{...binding(top+'_PicToggle',0),childBinding:false}]});
+  renderer.draw(ctx,'launcher',bottom,{center,bindings:[binding(bottom+'_Scale',frame)],textures:glyph?{[glyphTexture]:glyph}:undefined,overrides:{
+   P_Icon_00:glyph?{visible:true,textureBindings:{0:glyphTexture,1:'IconMask.bclim'}}:{visible:false},P_IconPrize_00:{visible:false}
+  }});
+  return drawn;
  }
- function cursor(ctx:Context,x:number,y:number,size:number,rows:number,time:number,pressed=false){
-  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[x+size/2,y+size/2],bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',nativeHomeDensityFrame(rows)),binding('LncCsr_00_Loop',time*.06)]});
+ function empty(ctx:Context,x:number,y:number,size:number,density:number){
+  const name='LncIconSetSrc_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2+32,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))],overrides:{N_IconRoot_00:{visible:false},P_BtnShdw_00:{visible:false},N_Pic_01:{visible:false}}});
+ }
+ function cursor(ctx:Context,x:number,y:number,size:number,density:number,time:number,pressed=false){
+  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[x+size/2,y+size/2],bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',nativeHomeDensityFrame(density)),binding('LncCsr_00_Loop',time*.06)]});
  }
  function arrows(ctx:Context,showLeft:boolean){return renderer.draw(ctx,'launcher','LncArw_00',{bindings:[binding('LncArw_00_Appear',15)],overrides:{N_arwL_00:{visible:showLeft}},clip:[0,33,320,179]});}
  const pickupSizes=new Map<string,{x:number;y:number;width:number;height:number;alpha:number}>();
- function pickup(ctx:Context,x:number,y:number,size:number,rows:number,folder:boolean,folderName=''){
-  const name=folder?'LncIconFolderPickUp_00':'LncIconPickUp_00',frame=nativeHomeDensityFrame(rows);
+ function pickup(ctx:Context,x:number,y:number,size:number,density:number,folder:boolean,folderName=''){
+  const name=folder?'LncIconFolderPickUp_00':'LncIconPickUp_00',frame=nativeHomeDensityFrame(density);
   const glyph=folder&&folderGlyph(folderName);
   const drawn=renderer.draw(ctx,'launcher',name,{center:[x,y],bindings:[binding(name+'_Scale',frame)],textures:glyph?{[glyphTexture]:glyph}:undefined,overrides:{
    P_Icon_00:glyph?{visible:true,textureBindings:{0:glyphTexture,1:'IconMask.bclim'}}:{visible:false},P_IconPrize_00:{visible:false}
@@ -155,11 +187,11 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   // Native P_Icon is a direct child of RootPane; retain its sampled bounds for portfolio artwork.
   const key=`${name}:${frame}`;let rect=pickupSizes.get(key);
   if(!rect){const pack=renderer.packs.launcher,posed=poseNativeLayout(pack.layouts[name],pack.animations,[binding(name+'_Scale',frame)]),pane=posed.roots[0].children.find(p=>p.name==='P_Icon_00')!;
-   rect={x:pane.translation[0]-pane.size[0]/2,y:-pane.translation[1]-pane.size[1]/2,width:pane.size[0],height:pane.size[1],alpha:pane.alpha/255};pickupSizes.set(key,rect);}
+   rect={x:pane.translation[0]-pane.size[0]/2,y:-pane.translation[1]-pane.size[1]/2,width:pane.size[0],height:pane.size[1],alpha:pane.alpha/255};if(pickupSizes.size>=16)pickupSizes.delete(pickupSizes.keys().next().value!);pickupSizes.set(key,rect);}
   return {drawn,icon:{x:x+rect.x,y:y+rect.y,width:rect.width,height:rect.height,alpha:rect.alpha}};
  }
- function liftedSource(ctx:Context,x:number,y:number,size:number,rows:number){
-  const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(rows))]});
+ function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
+  const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))]});
  }
- return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,footer,tile,empty,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,footer,tile,captureFolder,empty,cursor,arrows,pickup,liftedSource,pressOffset,rows:rowCount};
 }

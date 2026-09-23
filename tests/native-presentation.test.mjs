@@ -287,3 +287,19 @@ test('real camera and capture hints use authored charcoal after native alpha-onl
   assert.deepEqual(result,[73,77,80,255]);assert.deepEqual(m.constantColors[0],[200,200,200,255],'source constants are retained');
  }
 });
+
+test('visible window raster preserves full-pane UV and corner-color sampling without allocating the offscreen span',()=>{
+ const l=layout(),m=material();m.textureMaps=[{texture:0,wrapS:1,wrapT:2,minFilter:1,magFilter:1}];l.materials=[m];l.textures=['pattern'];
+ const image={width:3,height:2,data:new Uint8ClampedArray([255,0,0,128,0,255,0,255,0,0,255,64,40,50,60,255,70,80,90,128,100,110,120,255])};
+ const picture={material:0,colors:[[10,20,30,40],[250,240,230,220],[90,80,70,60],[190,180,170,160]],uvSets:[[-3,-1,9,-1,-3,3,9,3]]};
+ const textures=new Map([['pattern',image]]),full=rasterNativePicture(l,picture,1024,24,textures);
+ const rect=api.nativeVisibleRasterRect(0,0,1024,24,{a:1,b:0,c:0,d:1,e:-300.25,f:0},320,240);
+ assert.equal(rect.rasterWidth,323);assert.equal(rect.rasterHeight,24);assert.equal(rect.sampling.x,299);
+ const clipped=rasterNativePicture(l,picture,rect.rasterWidth,rect.rasterHeight,textures,1,m,rect.sampling);
+ for(let row=0;row<24;row++)assert.deepEqual(clipped.data.slice(row*rect.rasterWidth*4,(row+1)*rect.rasterWidth*4),full.data.slice((row*1024+299)*4,(row*1024+622)*4));
+ const huge=api.nativeVisibleRasterRect(0,0,25308,175,{a:1,b:0,c:0,d:1,e:10,f:37},320,240);
+ assert.ok(huge.rasterWidth<=321);assert.equal(huge.sampling.fullWidth,25308);
+ const reflected=api.nativeVisibleRasterRect(0,0,1024,24,{a:-1,b:0,c:0,d:1,e:620,f:0},320,240);
+ assert.equal(reflected.sampling.x,299);assert.equal(reflected.rasterWidth,322);
+ assert.equal(api.nativeVisibleRasterRect(0,0,32,16,{a:1,b:0,c:0,d:1,e:1000,f:0},320,240),null);
+});

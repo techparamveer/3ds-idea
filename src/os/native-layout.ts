@@ -192,13 +192,32 @@ export function transformNativeUV(uv:number[],matrix?:NativeMaterial['textureMat
  const x=(uv[0]-.5)*matrix.scale[0]+matrix.translation[0],y=(uv[1]-.5)*matrix.scale[1]+matrix.translation[1];
  return [.5+c*x-s*y,.5+s*x+c*y];
 }
+export type NativeRasterRegion={x:number;y:number;fullWidth:number;fullHeight:number};
+/** Keep the original sampling grid when an axis-aligned pane extends beyond the LCD.
+ * One neighboring raster pixel preserves Canvas filtering at the visible boundary.
+ * Rotated panes retain the existing full-surface path and its raster budget.
+ */
+export function nativeVisibleRasterRect(x:number,y:number,width:number,height:number,m:{a:number;b:number;c:number;d:number;e:number;f:number},targetWidth:number,targetHeight:number){
+ const fullWidth=Math.ceil(width),fullHeight=Math.ceil(height);
+ let left=0,top=0,right=fullWidth,bottom=fullHeight;
+ if(m.b===0&&m.c===0&&m.a!==0&&m.d!==0){
+  const xs=[-m.e/m.a,(targetWidth-m.e)/m.a],ys=[-m.f/m.d,(targetHeight-m.f)/m.d];
+  left=Math.max(0,Math.floor((Math.min(...xs)-x)/width*fullWidth)-1);
+  right=Math.min(fullWidth,Math.ceil((Math.max(...xs)-x)/width*fullWidth)+1);
+  top=Math.max(0,Math.floor((Math.min(...ys)-y)/height*fullHeight)-1);
+  bottom=Math.min(fullHeight,Math.ceil((Math.max(...ys)-y)/height*fullHeight)+1);
+ }
+ if(right<=left||bottom<=top)return null;
+ return {x:x+left/fullWidth*width,y:y+top/fullHeight*height,width:(right-left)/fullWidth*width,height:(bottom-top)/fullHeight*height,
+  rasterWidth:right-left,rasterHeight:bottom-top,sampling:{x:left,y:top,fullWidth,fullHeight}};
+}
 /** Native material sampling is independent of Canvas, making real texture/TEV tests possible. */
-export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,width:number,height:number,textures:ReadonlyMap<string,NativePixels>,alpha=1,material=layout.materials[picture.material]):NativePixels {
+export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,width:number,height:number,textures:ReadonlyMap<string,NativePixels>,alpha=1,material=layout.materials[picture.material],sampling?:NativeRasterRegion):NativePixels {
  if(!material)throw new Error(`Missing material ${picture.material}`);
  const sources=material.textureMaps.map(map=>{const name=layout.textures[map.texture],pixels=textures.get(name);if(!pixels)throw new Error(`Missing native texture ${name}`);return pixels;});
  const data=new Uint8ClampedArray(width*height*4),colors=picture.colors.flat();
  for(let y=0;y<height;y++)for(let x=0;x<width;x++){
-  const u=(x+.5)/width,v=(y+.5)/height,primary=interpolateNativeQuad(colors,u,v,4).map(c=>c/255);primary[3]*=alpha;
+  const u=(x+(sampling?.x??0)+.5)/(sampling?.fullWidth??width),v=(y+(sampling?.y??0)+.5)/(sampling?.fullHeight??height),primary=interpolateNativeQuad(colors,u,v,4).map(c=>c/255);primary[3]*=alpha;
   const samples=material.textureMaps.map((map,index)=>{
    const generator=material.coordinateGenerators[index];if(generator&&(generator.type!==0||generator.source>2))throw new Error(`Unsupported coordinate generator ${generator.type}/${generator.source}`);
    const uv=transformNativeUV(interpolateNativeQuad(picture.uvSets[generator?.source??index]??unitUV,u,v),material.textureMatrices[index]);

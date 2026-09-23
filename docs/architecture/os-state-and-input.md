@@ -206,3 +206,8 @@ owners; it freezes/rebases beneath overlays and inactive/sleeping HOME. Renderin
 reads `getHomeNavigationView` without advancing state. Source-proven counts are 16
 for scroll and 15 for density; the wall-clock cadence remains an explicit
 application assumption. See the motion section of the navigation contract.
+
+Native lower folder assembly and its captured-background lifetime are documented in
+[native-folder-assembly.md](../native-folder-assembly.md). The renderer consumes
+fractional density and immutable unscrolled slot endpoints from navigation;
+it does not derive native animation frames from row counts.

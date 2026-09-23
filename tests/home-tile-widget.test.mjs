@@ -38,6 +38,7 @@ test('compact oracle retains all43 source cases and305 input/2D pass boundaries'
 for (const source of oracle.cases) test(`original ARM widget phases: ${source.id}`, () => {
   let widget = createHomeTileWidget();
   if (!source.before[1]) widget = setHomeTileWidgetEnabled(widget, false);
+  assert.equal(widget.longPressFlag, false);
   assert.deepEqual(snapshot(widget), source.before);
   for (const row of source.rows) {
     const label = `${source.id} pass${row.pass}`;
@@ -55,6 +56,7 @@ for (const source of oracle.cases) test(`original ARM widget phases: ${source.id
     assert.equal(result.unsupportedLongPress, false, label);
     assert.deepEqual(events(result), row.events, `${label} cue/callback order`);
     widget = result.state;
+    assert.equal(widget.longPressFlag, false, `${label} short input leaves flag clear`);
     assert.deepEqual(snapshot(widget), row.afterInput, `${label} input`);
     // Host starts with the capture scan; a new press sets it, while clearing
     // own capture does not retroactively undo the already completed scan.
@@ -65,6 +67,7 @@ for (const source of oracle.cases) test(`original ARM widget phases: ${source.id
       assert.equal(row.events.at(-1), 1, `${label} host acts on input callback1`);
     }
     assert.deepEqual(snapshot(widget), row.after2D, `${label} later2D or stopped pass`);
+    assert.equal(widget.longPressFlag, false, `${label} short2D leaves flag clear`);
     const writers = row.advance2D ? ['select', 'decide'].filter(name => widget[name].bindingEnabled)
       .map(name => [name, widget[name].appliedFrame, poseY({ clip: name, frame: widget[name].appliedFrame })]) : [];
     assert.deepEqual(writers, row.writes, `${label} actual enabled binding writes`);
@@ -153,7 +156,7 @@ test('leave and held reentry reverse/restart Select without a second touch cue o
   assert.deepEqual(advanceHomeTileWidget2D(result.state).pose, { clip: 'select', frame: 0 });
 });
 
-test('the twentieth subsequent held input reports the unsupported long-press boundary before animation/callback work', () => {
+test('H20 reverses Select and H21 emits callback3 without synchronously applying a pose', () => {
   let widget = advanceHomeTileWidget2D(sample(createHomeTileWidget(), true, false).state);
   for (let count = 1; count < 20; count++) {
     const result = sample(widget, true, true);
@@ -163,14 +166,23 @@ test('the twentieth subsequent held input reports the unsupported long-press bou
     widget = advanceHomeTileWidget2D(result.state);
   }
   const boundary = sample(widget, true, true);
-  assert.equal(boundary.unsupportedLongPress, true);
+  assert.equal(boundary.unsupportedLongPress, false);
   assert.equal(boundary.state.heldCount, 20);
-  assert.equal(boundary.state.select, widget.select, 'stop before unhosted native threshold reversal');
+  assert.equal(boundary.state.longPressFlag, false);
+  assert.deepEqual(controller(boundary.state.select), [1, 1, 1, 1, 1]);
   assert.equal(boundary.state.pose, widget.pose);
   assert.deepEqual(boundary.events, []);
-  const pastBoundary = sample(boundary.state, true, true);
-  assert.equal(pastBoundary.unsupportedLongPress, true);
-  assert.deepEqual(pastBoundary.events, [], 'no invented callback3/4');
+  widget = advanceHomeTileWidget2D(boundary.state);
+  assert.deepEqual(controller(widget.select), [0, 1, 1, 1, 1]);
+  const pastBoundary = sample(widget, true, true);
+  assert.equal(pastBoundary.unsupportedLongPress, false);
+  assert.equal(pastBoundary.state.longPressFlag, true);
+  assert.equal(pastBoundary.state.heldCount, 0);
+  assert.equal(pastBoundary.state.capture, true);
+  assert.equal(pastBoundary.state.select, widget.select);
+  assert.equal(pastBoundary.state.decide, widget.decide);
+  assert.equal(pastBoundary.state.pose, widget.pose);
+  assert.deepEqual(events(pastBoundary), [3]);
   const reset = resetHomeTileWidget(boundary.state);
   assert.equal(reset.heldCount, 20, 'native reset preserves held count until idle input');
   assert.equal(sample(reset, false, false).state.heldCount, 0);
@@ -183,6 +195,7 @@ test('public operations reject malformed input and retain immutable results', ()
   }
   assert.throws(() => setHomeTileWidgetEnabled(widget, 1), /Invalid HOME tile enabled/);
   for (const bad of [{ ...widget, state: 4 }, { ...widget, heldCount: -1 }, { ...widget, heldCount: 1.5 },
+    { ...widget, longPressFlag: 1 },
     { ...widget, select: { ...widget.select, currentFrame: 2 } }, { ...widget, pose: { clip: 'select', frame: NaN } }]) {
     assert.throws(() => advanceHomeTileWidget2D(bad), /Invalid HOME tile/);
   }

@@ -13,6 +13,7 @@ export type HomeTileWidget = Readonly<{
   enabled: boolean;
   capture: boolean;
   heldCount: number;
+  longPressFlag: boolean;
   select: HomeTileController;
   decide: HomeTileController;
   pose: HomeTilePose | null;
@@ -24,11 +25,11 @@ export type HomeTileWidgetInput = Readonly<{
   globalCapture: boolean;
 }>;
 export type HomeTileWidgetEvent = Readonly<{ kind: 'cue'; cue: 'touch' }>
-  | Readonly<{ kind: 'callback'; value: 0 | 1 | 2 }>;
+  | Readonly<{ kind: 'callback'; value: 0 | 1 | 2 | 3 | 4 }>;
 export type HomeTileWidgetInputResult = Readonly<{
   state: HomeTileWidget;
   events: readonly HomeTileWidgetEvent[];
-  /** Stop this slice and hand off/reset before its unhosted long-press branch. */
+  /** Compatibility field; false for the supported widget threshold slice. */
   unsupportedLongPress: boolean;
 }>;
 
@@ -37,9 +38,9 @@ const heldThreshold = 20;
 const emptyController = (): HomeTileController => Object.freeze({
   currentFrame: 0, appliedFrame: null, status: 0, direction: 'forward', bindingEnabled: false,
 });
-const finish = (state: HomeTileWidget, events: HomeTileWidgetEvent[] = [], unsupportedLongPress = false): HomeTileWidgetInputResult =>
-  Object.freeze({ state, events: Object.freeze(events), unsupportedLongPress });
-const callback = (value: 0 | 1 | 2): HomeTileWidgetEvent => Object.freeze({ kind: 'callback', value });
+const finish = (state: HomeTileWidget, events: HomeTileWidgetEvent[] = []): HomeTileWidgetInputResult =>
+  Object.freeze({ state, events: Object.freeze(events), unsupportedLongPress: false });
+const callback = (value: 0 | 1 | 2 | 3 | 4): HomeTileWidgetEvent => Object.freeze({ kind: 'callback', value });
 const touchCue: HomeTileWidgetEvent = Object.freeze({ kind: 'cue', cue: 'touch' });
 
 function boolean(value: boolean, name: string): void {
@@ -48,6 +49,7 @@ function boolean(value: boolean, name: string): void {
 function validate(widget: HomeTileWidget): void {
   if (![0, 1, 2, 3].includes(widget.state)) throw new RangeError('Invalid HOME tile state');
   boolean(widget.enabled, 'enabled'); boolean(widget.capture, 'capture');
+  boolean(widget.longPressFlag, 'long-press flag');
   if (!Number.isInteger(widget.heldCount) || widget.heldCount < 0 || widget.heldCount > 0xffffffff) throw new RangeError('Invalid HOME tile held count');
   for (const controller of [widget.select, widget.decide]) {
     if (![0, 1].includes(controller.currentFrame) || ![null, 0, 1].includes(controller.appliedFrame)
@@ -70,19 +72,19 @@ function stop(controller: HomeTileController): HomeTileController {
 
 /** Ordinary registered widget initialization, with no applied tile animation. */
 export function createHomeTileWidget(): HomeTileWidget {
-  return Object.freeze({ state: 0, enabled: true, capture: false, heldCount: 0,
+  return Object.freeze({ state: 0, enabled: true, capture: false, heldCount: 0, longPressFlag: false,
     select: emptyController(), decide: emptyController(), pose: null });
 }
 
 /** Native0x2501f8 clears capture even when enabled already has this value.
- * Pending state, held count and independently updated controllers survive. */
+ * Pending state, held count, long-press flag and controllers survive. */
 export function setHomeTileWidgetEnabled(widget: HomeTileWidget, enabled: boolean): HomeTileWidget {
   validate(widget); boolean(enabled, 'enabled');
   return widget.enabled === enabled && !widget.capture ? widget : Object.freeze({ ...widget, enabled, capture: false });
 }
 
 /** Native0x250194 ordinary reset: stop, immediately apply Select0, disable its
- * binding, and enter idle. Capture/enable/held count remain until their owner runs.
+ * binding, and enter idle. Capture/enable/held count/long-press flag survive.
  * No callback is emitted; candidate cleanup is a separate HOME responsibility. */
 export function resetHomeTileWidget(widget: HomeTileWidget): HomeTileWidget {
   validate(widget);
@@ -100,12 +102,17 @@ export function updateHomeTileWidgetInput(widget: HomeTileWidget, input: HomeTil
   for (const key of ['current', 'previous', 'inside', 'globalCapture'] as const) boolean(input[key], key);
   if (!widget.enabled || !widget.capture && input.globalCapture) return finish(widget);
   if (widget.state === 0) {
-    const idle = widget.capture || widget.heldCount !== 0
-      ? Object.freeze({ ...widget, capture: false, heldCount: 0 }) : widget;
+    const idle = widget.capture || widget.heldCount !== 0 || widget.longPressFlag
+      ? Object.freeze({ ...widget, capture: false, heldCount: 0, longPressFlag: false }) : widget;
     if (!input.current || input.previous || !input.inside) return finish(idle);
     return finish(Object.freeze({ ...idle, state: 1, capture: true, select: start(widget.select, 'forward') }), [touchCue, callback(0)]);
   }
   if (widget.state === 1) {
+    // The flag branch precedes hit testing and does not advance held count.
+    if (widget.longPressFlag) {
+      return input.previous && !input.current
+        ? finish(Object.freeze({ ...widget, state: 0, longPressFlag: false }), [callback(4)]) : finish(widget);
+    }
     if (!input.inside) {
       return finish(Object.freeze({ ...widget, state: 3, heldCount: 0, select: start(widget.select, 'reverse') }), [callback(2)]);
     }
@@ -113,9 +120,13 @@ export function updateHomeTileWidgetInput(widget: HomeTileWidget, input: HomeTil
       return finish(Object.freeze({ ...widget, state: 2, heldCount: 0, decide: start(widget.decide, 'forward') }));
     }
     const heldCount = (widget.heldCount + 1) >>> 0;
-    // 0x253208 compares signed after the uint32 increment. At equality the
-    // unhosted long-press path first reverses Select; do not invent callbacks3/4.
-    return finish(Object.freeze({ ...widget, heldCount }), [], (heldCount | 0) >= heldThreshold);
+    // 0x253208 compares signed after the uint32 increment. Release above wins
+    // before this increment. H20 reverses; H21 enters the flag branch.
+    if ((heldCount | 0) > heldThreshold) {
+      return finish(Object.freeze({ ...widget, heldCount: 0, longPressFlag: true }), [callback(3)]);
+    }
+    return finish(Object.freeze({ ...widget, heldCount,
+      select: (heldCount | 0) === heldThreshold ? start(widget.select, 'reverse') : widget.select }));
   }
   if (widget.state === 2) {
     return widget.decide.status !== 0 ? finish(widget)

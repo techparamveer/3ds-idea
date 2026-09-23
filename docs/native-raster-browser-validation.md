@@ -37,6 +37,7 @@ explicitly supplied with `--artifact-dir`.
 | Original renderer, with paint diagnostics |100 /116.8ms|816.6ms|820ms|14|
 | First prepared kernel |16.7 /33.4ms|116.6ms|109ms|14,4,0|
 | Kernel + guarded blend + close cadence |16.7 /16.8ms|66.6ms|62ms|15,12,8,5,3,1,0|
+| Permanent TEV register bindings (7f7896f) |16.7 /16.8ms|66.6ms|59ms|15,12,10,6,4,2,0|
 
 Each run restored root at start+18 shared updates. The combined run had two
 50ms-or-longer tasks. A second, warmer run with Chrome profiling enabled observed
@@ -45,6 +46,15 @@ overhead and changed cache/JIT state make that a separate diagnostic observation
 The close still skips source frames. Its cold material work remains an open
 performance issue; neither the state tests nor these gains establish fully
 smooth native-speed animation.
+
+The second kernel also preserves all four baseline images byte for byte
+(`raster-second-fixed-{root,folder}.json` and
+`raster-second-fixed-comparison.json`). Its non-profiled timing is
+`raster-second-close.json`, with one50ms-or-longer task. The observed maximum
+changed only slightly; the local CPU benchmark improvement must not be treated
+as an equivalent browser gain. Combined focused tests pass53/53 with no skips,
+and type checking/production build pass again (`integration-raster-second-tests.log`
+and `integration-raster-second-build.log` at the artifact root).
 
 Idle LCDs retain the high/balanced/constrained24/18/12FPS policy. Advancing close
 updates, including final root restoration, can paint at the scene60/45/30FPS

@@ -183,7 +183,13 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   return drawn;
  }
  function empty(ctx:Context,x:number,y:number,size:number,density:number){
-  const name='LncIconSetSrc_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2+32,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))],overrides:{N_IconRoot_00:{visible:false},P_BtnShdw_00:{visible:false},N_Pic_01:{visible:false}}});
+  // Native category5 sets final P_IconBtnDmy_00 alpha128 after SetSrc.
+  // The supported vacancy subtree contributes one source-over picture.
+  ctx.save();
+  try{
+   ctx.globalAlpha*=128/255;
+   const name='LncIconSetSrc_00';return renderer.draw(ctx,'launcher',name,{center:[x+size/2+32,y+size/2],bindings:[binding(name+'_Scale',nativeHomeDensityFrame(density))],overrides:{N_IconRoot_00:{visible:false},P_BtnShdw_00:{visible:false},N_Pic_01:{visible:false}}});
+  }finally{ctx.restore();}
  }
  function cursor(ctx:Context,x:number,y:number,size:number,density:number,loopFrame:number,pressed=false){
   return renderer.draw(ctx,'launcher','LncCsr_00',{center:[x+size/2,y+size/2],bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',nativeHomeDensityFrame(density)),binding('LncCsr_00_Loop',loopFrame)]});

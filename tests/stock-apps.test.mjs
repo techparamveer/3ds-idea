@@ -199,7 +199,7 @@ test('Settings exposes source-labelled Internet/Data/Profile branches and return
   assert.deepEqual(module.view(state,ctx).rows.map(row=>row.id),ids);
   const back=module.reduce(state,{type:'command',command:'back'},ctx).state;
   assert.equal(back.screen,path.length===1?'main':path.at(-2));
-  assert.equal(module.view(back,ctx).rows[back.selection].id,path.at(-1));
+  assert.equal(module.view(back,ctx).rows[back.selection].id,path.at(-2)==='other'?'profile':path.at(-1));
  }
 });
 test('Data Management Software and Extra Data are read-only accessible-empty-SD leaves',()=>{
@@ -237,7 +237,7 @@ test('Parental Set follows source explanation and PIN notice without entering co
  assert.equal(intro.screen,'parental');assert.equal(module.view(intro,ctx).rows[intro.selection].label,'Set');
  assert.deepEqual(module.save(state),{});assert.deepEqual(ctx.shared,before);
 });
-test('Other Settings pages bound directions and preserve page plus selection after leaf Back',()=>{
+test('Other Settings pages bound directions and restore source focus after Profile and Date & Time Back',()=>{
  const {module}=setup('system-settings');let state=action(module,module.create({},null,ctx),'other').state;
  const expected=[['profile','clock','touch'],['calibration-3d','sound','mic'],['outer-cameras','circle-pad','transfer'],['language','update','format']];
  assert.equal(module.reduce(state,{type:'command',command:'left'},ctx).state,state);
@@ -246,7 +246,12 @@ test('Other Settings pages bound directions and preserve page plus selection aft
   for(const row of view.rows){
    const result=action(module,state,row.id);
    if(['transfer','update'].includes(row.id)){assert.equal(result.effects[0].type,'launch');continue;}
-   const back=action(module,result.state,'back').state;assert.equal(back.screen,'other');assert.equal(back.page,page);assert.equal(module.view(back,ctx).rows[back.selection].id,row.id);
+   const back=action(module,result.state,'back').state;assert.equal(back.screen,'other');assert.equal(back.page,page);
+   if(page===0&&['profile','clock'].includes(row.id)){
+    assert.equal(back.selection,0);assert.equal(back.selectionActive,false);
+    const down=module.reduce(back,{type:'command',command:'down'},ctx).state;
+    assert.equal(module.view(down,ctx).rows[down.selection].id,'clock');assert.equal(down.selectionActive,true);
+   }else assert.equal(module.view(back,ctx).rows[back.selection].id,row.id);
   }
   const next=module.reduce(state,{type:'command',command:'right'},ctx).state;
   if(page===3)assert.equal(next,state);else assert.equal(next.page,page+1);state=next;

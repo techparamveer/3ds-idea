@@ -69,3 +69,12 @@ it focus. The resulting browser capture is
 Down then highlighted Date & Time; browser warnings/errors stayed empty. This
 corrects the observed touch-entry pose, not unmeasured focus timing or every
 return path.
+
+The [Other Settings focus audit](settings-other-focus-source-audit.md) later
+traced the cross-scene rebuild. On the corrected production build, Back from
+both Profile and Date & Time returned to page 1 with all three rows white and
+logical focus at Profile. Down after Date & Time Back focused Date & Time.
+The browser warning/error log was empty. The Profile return capture is
+`reference/native-settings-2026-09-24/browser-other-page1-after-profile-back.jpg`
+under the same SSD root. Native return timing and a direct return capture are
+still unavailable.

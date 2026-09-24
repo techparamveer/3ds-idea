@@ -43,6 +43,10 @@ export function settingsHeading(state:AppState):string{
 function menuState(screen:string,page=0,selection=0):AppState{return {screen,selection,...(screen==='other'?{page,selectionActive:false}:{})};}
 export function settingsBack(state:AppState):AppState{
   const screen=screenOf(state),parent=screen==='detail'&&typeof state.parent==='string'?state.parent:menuParents[screen]??'main';
+  // Native user_info/date_time return by reconstructing basic_top1. Its
+  // manager starts at logical Profile while all three Select clips stay at
+  // frame 0 until directional input (settings-other-focus-source-audit.md).
+  if(parent==='other'&&(screen==='profile'||screen==='clock'))return menuState('other',0);
   const child=screen==='detail'?state.field:['parental-explain','parental-pin-notice','restrictions'].includes(screen)?'next':screen;
   const next=menuState(parent,settingsPage(state));
   const index=settingsChoices(next,{}).findIndex(row=>row.id===child);

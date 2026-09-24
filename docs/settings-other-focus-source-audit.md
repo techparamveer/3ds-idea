@@ -12,8 +12,8 @@ Integration `21b41b3` is correct for touch entry and page changes: Other
 Settings can logically start at Profile while all three buttons render in
 their white frame 0. Down then targets row 1, Date & Time.
 
-One bounded correction is needed after returning from an Other Settings
-detail. The source reconstructs `basic_top1` with logical row 0 and the
+The integration also corrects the return from Profile and Date & Time. The
+source reconstructs `basic_top1` with logical row 0 and the
 cross-scene visual flag 0. It does not restore the detail's originating row as
 an active yellow selection. Therefore Back from Profile or Date & Time should:
 
@@ -21,10 +21,10 @@ an active yellow selection. Therefore Back from Profile or Date & Time should:
 - render Profile, Date & Time, and Touch Screen at Select frame 0;
 - let the next Down target Date & Time.
 
-The `21b41b3` Back path instead preserves the child index and forces
-`selectionActive: true`. For an Other Settings parent only, it should use the
-same inactive, selection-0 state as a page entry. The audit branch records
-this correction but does not duplicate the integration change.
+The earlier Back path preserved the child index and forced
+`selectionActive: true`. The corrected Profile/Date & Time return uses the
+same inactive, selection-0 state as page entry. Other detail return branches
+retain their existing behavior until their native routes are traced.
 
 ## Executable trace
 
@@ -104,7 +104,7 @@ report is under the private SSD artifact root at
 python3 -B scripts/audit_settings_focus.py \
   --romfs /Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/assets/multicontent/verified/extracted/settings/contents/0000-0000003d/romfs \
   --code /Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/assets/multicontent/verified/extracted/settings/contents/0000-0000003d/exefs/code.bin \
-  --published /Volumes/DeveloperStorage/GitHub/3ds-idea-worktrees/settings-native-status/public/os/firmware/10.7.0-32E/packs/settings/contents/0000-0000003d \
+  --published "$PWD/public/os/firmware/10.7.0-32E/packs/settings/contents/0000-0000003d" \
   --native-capture /Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/native-settings-2026-09-24/other-page1-opengl.jpg \
   --browser-capture /Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/native-settings-2026-09-24/browser-other-page1-touch-unselected.jpg \
   --report /Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/settings-focus-source-audit/report.json
@@ -112,7 +112,11 @@ python3 -B scripts/audit_settings_focus.py \
 
 ## Gaps
 
-- No browser or emulator was operated in this worktree.
+- The source-audit worker did not operate browser or emulator. The integration
+  coordinator subsequently operated Profile Back and Date & Time Back in the
+  production browser; both showed all three page-1 buttons white, with no
+  browser warnings/errors. This is browser verification, not a native return
+  capture.
 - The native capture proves only touch entry. Page-change and detail-Back
   poses are static executable/layout conclusions without new live captures.
 - The audit does not recover input polling latency, transition duration,

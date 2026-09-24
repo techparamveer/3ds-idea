@@ -1,5 +1,10 @@
 # Camera preview events, fade component and touch cancellation
 
+The [owner lifecycle continuation](camera-owner-lifecycle-source-audit.md)
+corrects `helper+0xe0`: it is a synchronous initialization latch, not image
+completion. It traces the separate worker/readiness callbacks and replays mode
+configuration plus three-page routing. Read it before implementing this checkpoint.
+
 This continues the [blank presentation audit](camera-blank-presentation-source-audit.md)
 against the same hash-pinned EUR Camera executable. The extended original-ARM
 replay closes the normal browse `0x23` handler and identifies the upper fade

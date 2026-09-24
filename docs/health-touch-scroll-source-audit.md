@@ -226,7 +226,7 @@ The renders were visually inspected. Text alignment, warning placement, colour
 runs, thumb position and the pressed thumb colours look as the source layouts
 predict.
 
-The coordinator inspected the `localhost:3000` preview after merging the source pose and browser click-edge fix: seven short Down presses visibly moved the article and the browser logged no warnings or errors. A quick physical press/release is latched for one update so the browser cannot miss it between VBlanks.
+The coordinator inspected the `localhost:3000` preview after merging the source pose and browser click-edge fix: seven short Down presses visibly moved the article, a drag scrolled its text, a thumb drag moved the scrollbar, and the browser logged no warnings or errors. A quick physical press/release is latched for one update so the browser cannot miss it between VBlanks.
 
 Not claimed: native Azahar frames,
 wall-clock timing under load, HOME suspension behaviour, the Back control's
@@ -237,7 +237,7 @@ native state machine, or audio.
 The coordinator should:
 
 1. Complete browser inspection of all three articles at top, interior and end,
-   plus held keys, drag/release/inertia, thumb drag and groove press.
+   plus held-key timing, release/inertia and groove press.
 2. Capture the same scenarios natively in Azahar and compare them.
 3. Convert `safe.bcsar` cues `0x1000012`/`0x1000013` through the audio pipeline,
    then trace the row tick's pitch and volume before playing them.

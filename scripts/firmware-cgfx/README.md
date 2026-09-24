@@ -4,6 +4,16 @@ The browser model is converted from the owner's decrypted EUR HOME Menu `romfs/3
 
 Build `Exporter.csproj` with `-p:SpicaRoot=/absolute/path/to/SPICA`, then run `convert.py SOURCE OUTPUT --scratch SCRATCH --dotnet /path/to/dotnet --exporter /path/to/Exporter.dll`. Keep build, decompressed input and RGBA intermediates in the configured Sandisk artifacts directory. The wrapper records compressed and decompressed SHA256 plus upstream revision. No executable, encrypted container or keys are published.
 
+Version 1.4.1 also accepts a **decrypted** ExeFS `banner.bin` CBMD directly.
+`--language eur-en` (the default) selects its EUR-English CGFX entry, or the
+common model when that entry is zero. The source CBMD hash, selected compressed
+block hash, clear CGFX hash and exact offsets are recorded in model JSON. The
+LZ11 model is bounded to the native 0x80000-byte limit; BCWAV audio remains
+outside the graphics conversion. A CBMD with only textures is converted as
+data but is not a renderable `createFirmwareModel` primary. See
+`docs/stock-home-banner-source.md` for the title inventory and remaining HOME
+presentation work.
+
 The intermediate JSON retains meshes, four bone influences, skeleton bind transforms, all native material records, texture combiners, LUTs, skeletal/material/visibility/camera animation and source cameras/lights. Native texture-combiner constant selection is copied directly from CGFX because SPICA's H3D conversion otherwise omits it. Browser PNGs are vertically normalized from SPICA's bottom-up RGBA.
 
 `src/scene/firmware-model.ts` renders the original meshes with PICA texture-combiner programs, native blending/wrapping/filtering, rigid or smooth skinning, Hermite skeletal transform curves and texture matrix material animation. The folder's empty contents are hidden; its Text mesh receives the original layout's dynamic label surface. Its source bone channel bobs over 150 frames within a 600-frame looping clip.

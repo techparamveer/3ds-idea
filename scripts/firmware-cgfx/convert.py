@@ -2,13 +2,16 @@
 import argparse, hashlib, json, os, subprocess, sys
 from pathlib import Path
 from manifest import register_resources
+from cbmd import LANGUAGES, extract_cbmd
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from unpack_home_resources import decompress
 from convert_bcfnt import png
 
-def convert(source, output, scratch, dotnet, exporter, manifest=None, model_key=None, title_id=None, source_path=None, include_mipmaps=False):
+def convert(source, output, scratch, dotnet, exporter, manifest=None, model_key=None, title_id=None, source_path=None, include_mipmaps=False, language='eur-en'):
     data=source.read_bytes()
-    decoded=decompress(data) if data[0] in (16,17) else data
+    cbmd=None
+    if data[:4]==b'CBMD': decoded,cbmd=extract_cbmd(data,language)
+    else: decoded=decompress(data) if data[0] in (16,17) else data
     if decoded[:4]!=b'CGFX': raise ValueError('Not a CGFX resource')
     scratch.mkdir(parents=True,exist_ok=True)
     native=scratch/'input.bcres';native.write_bytes(decoded)
@@ -17,8 +20,9 @@ def convert(source, output, scratch, dotnet, exporter, manifest=None, model_key=
     model=json.loads((scratch/'model.json').read_text())
     model['sourceName']=source.name
     model['compressedSourceSha256']=hashlib.sha256(data).hexdigest()
+    if cbmd is not None: model['cbmd']=cbmd
     model['spicaRevision']='bd29a7828595d7839cda2ac61c76bb63f9071250'
-    model['converter']={'name':'ctr-cgfx-web','version':'1.4.0',
+    model['converter']={'name':'ctr-cgfx-web','version':'1.4.1',
                         'wrapperSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                         'exporterSha256':hashlib.sha256(exporter.read_bytes()).hexdigest()}
     output.mkdir(parents=True,exist_ok=True)
@@ -44,6 +48,7 @@ if __name__=='__main__':
     p.add_argument('--dotnet',required=True,type=Path);p.add_argument('--exporter',required=True,type=Path)
     p.add_argument('--mipmaps', action='store_true', help='Preserve authored ETC1/ETC1A4 mip levels')
     p.add_argument('--manifest',type=Path);p.add_argument('--model-key');p.add_argument('--title-id');p.add_argument('--source-path')
+    p.add_argument('--language',choices=LANGUAGES,default='eur-en',help='CBMD model language (default: EUR English)')
     a=p.parse_args()
     if any((a.manifest,a.model_key,a.title_id,a.source_path)) and not all((a.manifest,a.model_key,a.title_id,a.source_path)): p.error('Supply all four manifest registration arguments together')
-    convert(a.source,a.output,a.scratch,a.dotnet,a.exporter,a.manifest,a.model_key,a.title_id,a.source_path,a.mipmaps)
+    convert(a.source,a.output,a.scratch,a.dotnet,a.exporter,a.manifest,a.model_key,a.title_id,a.source_path,a.mipmaps,a.language)

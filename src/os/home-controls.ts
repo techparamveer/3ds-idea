@@ -18,8 +18,10 @@ import { createHomeTileTouch, queueHomeTileTouch, resetHomeTileTouch, sampleHome
 import { homeTouchLocation, beginHomePickupGesture } from './home-gestures.ts';
 import { homeItemAt, type HomeLocation } from './home-layout.ts';
 import { createHomeTilePickup, positionHomeTilePickup, advanceHomeTilePickup2D, type HomeTilePickup } from './home-tile-pickup.ts';
+import { advanceHomeBalloonPresentation, createHomeBalloonPresentation, type HomeBalloonPresentation } from './home-balloon-presentation.ts';
 
 export type HomeControls = Readonly<{
+  balloon: HomeBalloonPresentation;
   input: HomeInputAdapter;
   producer: HomeInputProducer;
   primary: HomePrimaryCursor;
@@ -62,7 +64,7 @@ function selectedCenter(navigation: HomeNavigation) {
 /** Browser initialization from restored mature HOME state, not a native boot trace. */
 export function enableHomeControls(state: MenuState): MenuState {
   if (!state.system || state.system.homeControls) return state;
-  return put(state, { input: createHomeInputAdapter(), producer: createHomeInputProducer(),
+  return put(state, { input: createHomeInputAdapter(), producer: createHomeInputProducer(), balloon: createHomeBalloonPresentation(state),
     primary: createHomePrimaryCursor({ request: 0, shown: true, layoutVisible: true, center: selectedCenter(state.system.homeNavigation) }),
     presentation: createHomeCursorPresentation(sampleHomeGrid(state.system.homeNavigation).densityValue),
     tilePoses: Object.freeze({}), tileTouch: createHomeTileTouch(), tileCandidate: null, tilePickup: null });
@@ -280,7 +282,7 @@ export function stepHomeControls(state: MenuState): HomeControlPass {
   presentation = advanceHomeCursorPresentation(presentation, 1,
     { primaryWrapperEligible: primary.layoutVisible, effectWrapperEligible: [true, true] });
   state = { ...state, system: { ...state.system!, homeCursorLoop: advanceHomeCursorLoop(state.system!.homeCursorLoop, 1, primary.layoutVisible) } };
-  state = put(state, { ...controls, primary, presentation,
+  state = put(state, { ...controls, primary, presentation, balloon: advanceHomeBalloonPresentation(controls.balloon, state),
     tileTouch: advanceHomeTileTouch2D(controls.tileTouch, controls.tilePickup?.source.slot ?? null),
     tilePickup: controls.tilePickup ? advanceHomeTilePickup2D(positionHomeTilePickup(controls.tilePickup, touch.point)) : null });
   if (ordinaryGesture) state = writeHomeNavigation(state, { ...state.system!.homeNavigation, gesture: ordinaryGesture });

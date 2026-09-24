@@ -169,12 +169,20 @@ A concrete shared-state contract for the runtime owner is:
   `bodyOffsetX` and retained text. Paint must continue through DisAppear even
   when the new selected state is ineligible.
 
-No shared interface was changed in this commit. The present adapter still
-requires a root folder, one rendered row, no panel and no active gesture. It
-renders Appear frame 5 immediately and removes the balloon immediately when
-that adapter returns null. Thus it does not reproduce the native visibility
-predicate, latching, force-update behavior or fade timing. Those are explicit
-integration work, not measured fidelity claims.
+The initial adapter required a root folder, one rendered row, no panel and no
+active gesture. It rendered Appear frame 5 immediately and removed the balloon
+immediately when that adapter returned null. The later HOME presentation pass
+now retains the selected label/anchor across the original six-frame
+`LncBlln_00_Appear` and `DisAppear` clips. `home-controls.ts` advances one clip
+frame per HOME update; initial HOME uses the source static settled pose, and the
+last DisAppear frame stays visible until the following update. This fixes the
+instantaneous lower-LCD pop for supported root-folder selections.
+
+The eligibility adapter remains conservative and is not the complete source
+visibility predicate. It still omits the unknown `+0x3fd0`, `+0x3ca8` and
+external-object conditions and does not implement native force-update or title
+balloons. No matched native transition frames are available for pixel/timing
+acceptance; the supplied native capture verifies the settled appearance only.
 
 ## Verification
 

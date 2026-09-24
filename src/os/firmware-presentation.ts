@@ -93,8 +93,11 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   return renderer.draw(ctx,'launcher','LncBase_U_00',{allowOpaqueDarken:true,bindings:[binding('LncBase_U_00_SceneIn',40),binding('LncBase_U_00_Appear',10),binding('LncBase_U_00_WhiteBlack',0)],overrides:{N_Wndw_00:{visible:false}},clip:[0,212,400,28]});
  }
  function folderBalloon(ctx:Context,state:MenuState,view:HomePresentation){
-  const label=getNativeFolderBalloon(state,view);if(!label)return false;
-  return renderer.draw(ctx,'launcher','LncBlln_00',{bindings:[binding('LncBlln_00_Appear',5)],overrides:{
+  const retained=state.system?.homeControls?.balloon;
+  const label=retained ? retained.visible ? retained : null : getNativeFolderBalloon(state,view);
+  if(!label)return false;
+  const clip=retained?.clip??'Appear',frame=retained?.frame??5;
+  return renderer.draw(ctx,'launcher','LncBlln_00',{bindings:[binding(`LncBlln_00_${clip}`,frame)],overrides:{
    N_Base_00:{translation:[label.baseX,0,0]},N_LR_00:{translation:[label.bodyOffsetX,-6,0]},T_Blln_00:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)')
   }});
  }

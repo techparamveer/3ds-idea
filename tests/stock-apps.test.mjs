@@ -25,8 +25,8 @@ test('read-only gallery navigates folders/photos and returns through parent scre
 });
 test('native-layout touch targets open Settings and gallery entries directly',()=>{
  let {module,state}=setup('system-settings');state=module.reduce(state,{type:'touch',phase:'up',x:200,y:160},ctx).state;assert.equal(state.screen,'other');
- ({module,state}=setup('camera'));state=module.reduce(state,{type:'touch',phase:'up',x:50,y:60},ctx).state;assert.equal(state.folderId,'test');
- state=module.reduce(state,{type:'touch',phase:'up',x:50,y:60},ctx).state;assert.equal(state.photoId,'a');
+ ({module,state}=setup('camera'));state=module.reduce(state,{type:'touch',phase:'up',x:84,y:74},ctx).state;assert.equal(state.folderId,'test');
+ state=module.reduce(state,{type:'touch',phase:'up',x:84,y:74},ctx).state;assert.equal(state.photoId,'a');
 });
 test('all stock screen actions remain navigation only, without text/media/save side effects',()=>{
  const forbidden=new Set(['capability','shared','save','invoke','link']);

@@ -285,3 +285,13 @@ These two leaves remain adapted detail cards. Their source scenes
 `SMng_U_01` with executable-selected empty messages. The lower layout and
 eleven labels are unpublished, and the native SD state is a pending portfolio
 decision. See the [Data Management list source audit](settings-data-lists-source-audit.md).
+
+## Language
+
+The Language leaf's lower screen is no longer an adapted card. On EUR,
+`language` is replaced by `language_eu`: `Country_D_00` holds eight `T_SB`
+rows, with slots 2–7 showing English to Nederlands at top 0. It also has an
+`R_SlideBar` with a traced 104 px thumb and the `Base_D_01` Back/OK footer.
+Configured English is decided with `T_SB_Decide`'s final frame. The upper
+title, icon and instruction are unchanged. OK, rows and the slide bar are
+inert adaptations. See the [Language source audit](settings-language-source-audit.md).

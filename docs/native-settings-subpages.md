@@ -79,9 +79,10 @@ not inherit source placeholder text such as HHHHHH or Japanese strings.
 
 `Sound_D_00` mounts `T_OnOff` at y74,18,-38 with `surround`, `stereo`, `mono`.
 `LanguageA_D_00` and `LanguageUS_D_00` are regional layout variants, not an
-eight-language European screen. EU language labels are supplied, but mapping
-all eight to a verified EU arrangement remains a presentation gap; do not call
-the US layout a faithful EU language page.
+eight-language European screen; do not call the US layout a faithful EU
+language page. EUR redirects `language` to `language_eu`, which uses the
+`Country_D_00` list of `T_SB` rows and an `R_SlideBar`. See the
+[Language source audit](settings-language-source-audit.md).
 
 `NetSetTop_D_00`, `B_CnctW1/2/3`, `PareSelect_D_00`, `B_PareSB/Qst`,
 `SMngCTR_D_00/01/02`, `SMngComm_D_00`, `SMngBackup_D_00`, upper `SMng_U_00/01/02`,

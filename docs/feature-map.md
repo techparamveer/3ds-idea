@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: integration **`9586990`** on `codex/firmware-os-10-7`,
+Checkpoint: integration **`ea4cdfe`** on `codex/firmware-os-10-7`,
 24 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -28,7 +28,7 @@ the browser by the coordinator.
 
 ## Features
 
-| Feature | Status at `9586990` | Next action | Owner | Evidence |
+| Feature | Status at `ea4cdfe` | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
@@ -41,7 +41,7 @@ the browser by the coordinator.
 | Settings main and subpages | Implemented from source scenes: Internet, Data, Other pages, Connection, Date & Time, Profile, DS Profile. Software/Extra Data empty lists now use original layout and labels (`9586990`) and were operated live; unknown Open Blocks stays blank | EU eight-choice Language layout, Data list motion/material and whole-screen native comparison remain open | Presentation; coordinator for browser | [Settings trace](settings-main-source-validation.md), [Data lists](settings-data-lists-source-audit.md), [fields](settings-native-fields-validation.md) |
 | Settings helpers (NNID, Transfer, Updater) | Implemented: helper Back restores the exact Settings page, and HOME suspends the helper (`251f88f` tests). NNID helper return was operated in the live browser | Transfer/Updater return and matched native helper comparison remain. The older "returns to HOME" note in [screen presentation](stock-screen-presentation.md) predates `251f88f` and is superseded | Runtime; coordinator for browser | [Helper return tests](../tests/settings-helper-return.test.mjs) |
 | Parental Controls | Implemented: intro Back/Set → source explanation (Back/Next) → source PIN notice (`Dialog_D_01`, one OK). Adaptation: OK/B return to the explanation with Next selected, but native OK continues to PIN setup. The old restrictions list is unreachable. Touch targets follow source bounds. Integrated live flow was operated, including an inert obscured background | Upper LCD during the notice keeps the explanation page, and the native upper mask and timing are unverified. Matched native comparison remains open | Coordinator (browser, touch geometry); presentation (upper mask) | [Source flow](settings-parental-source-audit.md), [PIN notice](settings-parental-pin-presentation.md), [dialog assets](native-parental-dialog-assets.md) |
-| Camera | Read-only portfolio gallery now uses published `PicL` browse clips, source thumbnail mask and photo mount (`9b50576`); source renders, tests and live folder → gallery → photo pass | Upper LCD remains generic; six-cell centres and footer are adapters; matched native comparison remains open | Coordinator for browser; presentation | [Camera source validation](camera-gallery-source-validation.md) |
+| Camera | Read-only gallery uses source lower `PicL` browse and upper `P_FinderVS_U` (`ea4cdfe`); source verifier, combined tests and live folder → gallery → photo pass | Six-cell centres and footer are adapters; gallery/photo upper uses portfolio pixels as a viewfinder replacement; matched native comparison remains open | Coordinator for browser; presentation | [Camera source validation](camera-gallery-source-validation.md) |
 | Sound | Source-position transport, seek, loop-mode and error dialog integrated from Sound resources (`5c5709f`); owner-scoped playback remains. Empty state was checked live. The production track manifest is empty | Live favourite-track playback needs supplied songs; native player/visualiser comparison remains open | Runtime; presentation | [Sound source validation](sound-source-validation.md) |
 | Health and Safety | Implemented. Adaptation: bounded pagination instead of continuous scroll | Remaining document scenarios | Presentation | [Screen presentation](stock-screen-presentation.md) |
 | Game Notes | Implemented grid/editor and source-pane capture of the suspended app (`f9219d7`). Full suite, build and standalone source render pass; live Health → HOME → selected Note check shows frozen Health LCDs | Trace initial Double/Up/Down mode and switch animation; compare the delivered screen to native capture | Coordinator; assets audit integrated | [Capture validation](native-notes-suspended-capture.md), [source contract](native-notes-capture-assets.md) |
@@ -52,7 +52,7 @@ the browser by the coordinator.
 | amiibo settings | Implemented bounded FLYT parts. **Source gap:** header and `PortalBtnSub` materials unsupported | Support them or omit them explicitly; no accepted opening-screen comparison | Assets | [amiibo limits](native-amiibo-initial-ui.md) |
 | Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
 | Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power announcements corrected | Screen-specific announcements, full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
-| Asset conversion, provenance | Implemented. The `9586990` public audit reports 1,575 resources, 576 layouts and 1,830 animations with zero errors; private-source cross-check was unavailable in this worktree | Keep unsupported fields explicit and rerun after further asset integration | Assets | [Asset architecture](architecture/assets-and-materials.md) |
+| Asset conversion, provenance | Implemented. The `ea4cdfe` public audit reports 1,600 resources, 577 layouts and 1,830 animations with zero errors; private-source cross-check was unavailable in this worktree | Keep unsupported fields explicit and rerun after further asset integration | Assets | [Asset architecture](architecture/assets-and-materials.md) |
 | Final acceptance | Open | Versioned browser + Azahar scenario matrix, requirement audit, then push/PR on the user's request | Coordinator | [Verification](architecture/verification.md) |
 
 ## Worktrees on 24 September 2026
@@ -62,7 +62,7 @@ this table.
 
 | Role | Worktree | Branch @ head | Not yet integrated |
 | --- | --- | --- | --- |
-| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `9586990` | — |
+| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `ea4cdfe` | — |
 | Assets | `3ds-idea-worktrees/assets` | `codex/settings-native-assets` @ `b30bcc0` | Service-screen visual fix remains uncommitted/unverified; Notes audit integrated |
 | Presentation | `3ds-idea-worktrees/presentation` | `codex/settings-native-fields` @ `5090b10` | None found (subject match) |
 | Runtime | `3ds-idea-worktrees/runtime` | `codex/parental-flow-audit` @ `057173b` | None found (subject match) |
@@ -70,7 +70,7 @@ this table.
 | Camera gallery | `3ds-idea-worktrees/camera-native-gallery` | `codex/camera-native-gallery` @ `3bae6ca` | Integrated as `9b50576` |
 | Sound favourites | `3ds-idea-worktrees/sound-native-favorites` | `codex/sound-native-favorites` @ `7c22239` | Integrated as `5c5709f` |
 | Settings Data lists | `3ds-idea-worktrees/settings-data-source` | `codex/settings-data-source` @ `cd13051` | Integrated as `fa731dc` and `9586990` |
-| Camera upper LCD | `3ds-idea-worktrees/camera-upper-source` | `codex/camera-upper-source` | Cursor/Grok source-backed browse-screen work in progress |
+| Camera upper LCD | `3ds-idea-worktrees/camera-upper-source` | `codex/camera-upper-source` @ `fd7183a` | Integrated as `ea4cdfe` |
 | Notes switch | `3ds-idea-worktrees/notes-switch-native` | `codex/notes-switch-native` | Cursor/Fable source trace and bounded implementation in progress |
 | Settings Language | `3ds-idea-worktrees/settings-language-source` | `codex/settings-language-source` | Cursor/Opus source trace and read-only page correction in progress |
 | Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` @ `91fe40f` | Integrated as `24d7aa6` and `ee036df` |

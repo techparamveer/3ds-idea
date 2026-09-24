@@ -1,0 +1,216 @@
+{
+  "firmware": "EUR HOME 10.7.0-32E",
+  "staticHomePath": {
+    "codeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "selectorFunction": "0x1f9324",
+    "banner2DDispatchType": 8,
+    "banner2DArm": "0x1f9474",
+    "resourceTableEntry": "0x32ed24",
+    "titleToType8Verified": false
+  },
+  "template": {
+    "model": "Banner2D",
+    "quadPositions": [
+      [
+        -12,
+        -6,
+        6.5
+      ],
+      [
+        12,
+        -6,
+        6.5
+      ],
+      [
+        -12,
+        6,
+        6.5
+      ],
+      [
+        12,
+        6,
+        6.5
+      ]
+    ],
+    "uv0": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "dummyTexture": "Dmy_00",
+    "nativeBillboardMode": 5,
+    "sourceSha256": "070883e42b4a0b33d7aa82d9b95d3612d3afab9cff772fa359f651fb0675c23c"
+  },
+  "titles": {
+    "camera": {
+      "cbmdSha256": "e4808dcf84e490c73200ee5f9cb2ba72d096c93d6ccdf08d88d733988fd66280",
+      "selectedCgfxSha256": "21f8723b955b36b9575d0a92b942889bd978f868163c9b75063528f561105ccb",
+      "usedCommon": false,
+      "models": 0,
+      "textures": [
+        {
+          "name": "COMMON1",
+          "size": [
+            512,
+            128
+          ],
+          "pngSha256": "6b566c82012f733a15c58e75512bd6df766cd9bd8b9023c518a02c83bb350a3f",
+          "opaqueOrTranslucentPixels": 65536,
+          "alphaBoundsExclusive": [
+            0,
+            0,
+            512,
+            128
+          ]
+        },
+        {
+          "name": "COMMON2",
+          "size": [
+            512,
+            128
+          ],
+          "pngSha256": "697027f0dafc090a487ba249dee23f8677bf05fac81ff68b4ca296c1a0d8712a",
+          "opaqueOrTranslucentPixels": 27917,
+          "alphaBoundsExclusive": [
+            13,
+            9,
+            510,
+            123
+          ]
+        }
+      ]
+    },
+    "sound": {
+      "cbmdSha256": "fb5ee57657e781fadef6d90261f6eebae185996f82428d60ff439a9d568da3f7",
+      "selectedCgfxSha256": "9924a70685eab60a05c669da0cab75c0ffdbd9e21852bc82497cab2bccc862e1",
+      "usedCommon": false,
+      "models": 0,
+      "textures": [
+        {
+          "name": "COMMON1",
+          "size": [
+            512,
+            128
+          ],
+          "pngSha256": "e6785cacc30e0da27f685483b3eebf005bd44d613253a19800fd7b89a85700fb",
+          "opaqueOrTranslucentPixels": 65536,
+          "alphaBoundsExclusive": [
+            0,
+            0,
+            512,
+            128
+          ]
+        },
+        {
+          "name": "COMMON2",
+          "size": [
+            512,
+            128
+          ],
+          "pngSha256": "94f2217945e5ade7e14b940b271260261dbc1e14b7de3dd8ecc92d8811fd7259",
+          "opaqueOrTranslucentPixels": 23851,
+          "alphaBoundsExclusive": [
+            22,
+            4,
+            474,
+            127
+          ]
+        }
+      ]
+    },
+    "health": {
+      "cbmdSha256": "bb810ecddba00bf196d7f480d8c1c13fc569a707416fded522b78ae5679f0755",
+      "selectedCgfxSha256": "97a1a31d289451077579c641c3826968907c2e16f6bf3855afbbf55f9653ea21",
+      "usedCommon": false,
+      "models": 0,
+      "textures": [
+        {
+          "name": "COMMON1",
+          "size": [
+            512,
+            128
+          ],
+          "pngSha256": "d4246a781cf32857f855de005e985a08679828dfede69706c6c3982c95d76aef",
+          "opaqueOrTranslucentPixels": 23299,
+          "alphaBoundsExclusive": [
+            123,
+            15,
+            470,
+            113
+          ]
+        },
+        {
+          "name": "COMMON2",
+          "size": [
+            128,
+            128
+          ],
+          "pngSha256": "73efc52786afc4a768c1270eeafe5b04a0f73187f6f85a666196bd6721bd698a",
+          "opaqueOrTranslucentPixels": 3443,
+          "alphaBoundsExclusive": [
+            42,
+            28,
+            119,
+            98
+          ]
+        }
+      ]
+    },
+    "eshop": {
+      "cbmdSha256": "c810cc2e10769f26a857bc5edd35acc17cee0372c1f775be02ed407b9e4678de",
+      "selectedCgfxSha256": "9c07477aca53fcafa2f76359fee39640d27228f75924739b44be0960bf88d94b",
+      "usedCommon": false,
+      "models": 0,
+      "textures": [
+        {
+          "name": "COMMON1",
+          "size": [
+            512,
+            128
+          ],
+          "pngSha256": "57c1a381dd5465206336637e8f16fe44265b1543b8650b990dc299bfb8546e90",
+          "opaqueOrTranslucentPixels": 18176,
+          "alphaBoundsExclusive": [
+            3,
+            24,
+            511,
+            98
+          ]
+        }
+      ]
+    },
+    "zone": {
+      "cbmdSha256": "258aa3167be080eacb396539c5c3d76001d5ca12dc9d8b87955f7a977c4b2ec3",
+      "selectedCgfxSha256": "57b8a0b278379dad8619d6eecc71a9354881b988775404d5dfc8b61485bbb992",
+      "usedCommon": false,
+      "models": 0,
+      "textures": [
+        {
+          "name": "JPN_JP",
+          "size": [
+            256,
+            32
+          ],
+          "pngSha256": "47b65ce15f259641808b2e4bacdd7753864f7f6cbf015095e55fac59362f5c69",
+          "opaqueOrTranslucentPixels": 0,
+          "alphaBoundsExclusive": null
+        }
+      ]
+    }
+  },
+  "nativeBindingVerified": false,
+  "scope": "Offline CGFX/PNG resource audit; no HOME texture substitution or rendered-pixel claim"
+}

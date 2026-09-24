@@ -106,6 +106,50 @@ call(0x1654a8, 0x150bb4, 'write scene return separately waits lower slot2')
 call(0x1654c4, 0x151c78, 'write scene queues draw disable after lower return')
 call(0x1654dc, 0x151ca4, 'write scene queues update disable after lower return')
 
+def cstr(address):
+    return b[address - 0x100000:].split(b'\0', 1)[0]
+def names(table, count):
+    return [cstr(struct.unpack_from('<I', b, table + i * 4 - 0x100000)[0]).decode() for i in range(count)]
+assert names(0x1aa810, 3) == ['MemoListDown_Base.bclan', 'MemoListDown_SceneIn.bclan', 'MemoListDown_SceneOut.bclan']
+assert names(0x1aa81c, 4) == ['MemoListDown_Base.bclan', 'MemoListDown_SceneIn.bclan', 'MemoListDown_SceneOut.bclan', 'MemoListDown_MemoReturn.bclan']
+assert names(0x1aa82c, 3) == ['MemoListDown_Base.bclan', 'MemoListDown_SceneIn.bclan', 'MemoListDown_SceneOut.bclan']
+assert names(0x1aa838, 13) == [
+    'MemoListDown_Base.bclan', 'MemoListDown_CursorUp.bclan', 'MemoListDown_CursorDown.bclan',
+    'MemoListDown_CursorLeft.bclan', 'MemoListDown_CursorRight.bclan', 'MemoListDown_CursorLT.bclan',
+    'MemoListDown_CursorRT.bclan', 'MemoListDown_CursorLB.bclan', 'MemoListDown_CursorRB.bclan',
+    'MemoListDown_Select.bclan', 'MemoListDown_MemoDecide.bclan', 'MemoListDown_MemoReturn.bclan',
+    'MemoListDown_CursorMove.bclan']
+assert names(0x1aa248, 2) == ['ApltBoot_D_00_SceneIn.bclan', 'ApltBoot_D_00_SceneOut.bclan']
+assert names(0x1aa2d8, 2) == ['ApltBoot_U_00_SceneIn.bclan', 'ApltBoot_U_00_SceneOut.bclan']
+checks.append(dict(table=hex(0x1aa810), meaning='list G_Scene_00 Base/SceneIn/SceneOut'))
+checks.append(dict(table=hex(0x1aa81c), meaning='selected-note four slots; slot3 MemoReturn'))
+checks.append(dict(table=hex(0x1aa82c), meaning='list +f80 N_Scene_00; slot1 SceneIn slot2 SceneOut'))
+checks.append(dict(table=hex(0x1aa838), meaning='list +fa0 G_Cursor_00 thirteen slots; slot0 Base slot10 MemoDecide slot11 MemoReturn'))
+word(0x13d09c, 0xe3a02003, 'G_Scene_00 controller registers three slots')
+word(0x13d258, 0xe3a02004, 'each selected-note controller registers four slots')
+word(0x13d2f8, 0xe3a02003, 'N_Scene_00 +f80 registers three slots')
+word(0x13d3c8, 0xe3a0200d, 'G_Cursor_00 +fa0 registers thirteen slots')
+word(0x13d4e0, 0xe355000d, 'cursor slot bind loop stops at 13')
+word(0x13c8c8, 0xe3a07002, 'accepted open uses r7=2 as +f80 slot and start argument')
+word(0x13c8f0, 0xe3a0100a, 'accepted open starts +fa0 slot 10 MemoDecide')
+word(0x13bd70, 0xe3a01003, 'list return event1 starts selected-note slot3 MemoReturn')
+word(0x13bd90, 0xe3a0100b, 'list return event1 starts +fa0 slot 11 MemoReturn')
+word(0x13db38, 0xe1a01003, 'return frame5 start uses r1=r3=1 so +f80 slot1 SceneIn')
+word(0x166fcc, 0xe3520000, 'scene3 event0 tests nonzero history parameter')
+word(0x166fd8, 0xe3a00001, 'nonzero event0 writes scene state 1')
+call(0x1675a8, 0x14efec, 'software nonzero event0 starts title slot0 only')
+word(0x1675b0, 0xe5c403c2, 'software nonzero event0 writes title phase 0')
+word(0x13aae4, 0x13abbc, 'scene factory index 10')
+word(0x13abc0, 0x1b00ad64, 'scene 10 factory conditionally constructs 0x166158')
+word(0x16617c, 0x1b6b04, 'scene 10 constructor vtable literal')
+word(0x1b6b28, 0x16601c, 'scene 10 update is ApltBoot_U state machine')
+word(0x1b6b30, 0x165fd0, 'scene 10 virtual +2c loads ApltBoot_U layout')
+word(0x166018, 0x1aa31c, 'scene 10 layout pointer ApltBoot_U_00.bclyt')
+assert cstr(0x1aa28c) == b'ApltBoot_D_00.bclyt'
+assert cstr(0x1aa31c) == b'ApltBoot_U_00.bclyt'
+word(0x13b93c, 0xe5c01069, 'lower intro completion clears its own draw flag')
+word(0x1660f4, 0xe5c01069, 'upper intro completion clears its own draw flag')
+
 pack = json.loads((a.asset_root / 'packs/game-notes/memo-ImageScreenUp-arc-l.json').read_text())
 layout = pack['layouts']['ImageScreenUp']
 assert pack['sourceSha256'] == '8001ff24296fc5c1a627c238c1bf8e4682102cb66882411cae32362e2c442d7a'
@@ -119,7 +163,15 @@ panes = list(walk(layout['roots'][0]))
 assert set(pane['kind'] for pane in panes) == {'pan1','pic1','txt1','wnd1'}
 panel = next(pane for pane in panes if pane['name'] == 'W_TextPanel')
 assert [pane['name'] for pane in panel['children']] == ['P_Icon_00','T_TextTitle','P_ObjIcn','P_ObjIcnUp00','P_ObjIcnDown00']
-checks.append(dict(resource='ImageScreenUp', root='pan1 RootPane', selectiveTitleRoot='W_TextPanel'))
+assert panel['flags'] == 2 and panel['alpha'] == 0 and panel['translation'][1] == -90
+inout = pack['animations']['ImageScreenUp_TextPanelInOut']
+visible = next(track['keys'] for track in inout['tracks']
+               if track['property'] == 'visible' and inout['contents'][track['contentIndex']]['target'] == 'W_TextPanel')
+assert [(key['frame'], key['value']) for key in visible] == [(0, 0), (1, 1)]
+assert not (a.asset_root / 'packs/game-notes/memo-ApltBoot_U_00-arc-l.json').exists()
+assert not (a.asset_root / 'packs/game-notes/memo-ApltBoot_D_00-arc-l.json').exists()
+checks.append(dict(resource='ImageScreenUp', root='pan1 RootPane', selectiveTitleRoot='W_TextPanel',
+                   titleDefaults='flags=2 alpha=0 y=-90; InOut visible 0 then 1', apltBootPacks='unpublished'))
 
 ranges = [
  ('wrapper-construction',0x14f148,0x14f18c),('wrapper-vtable',0x17b738,0x17b774),
@@ -137,6 +189,10 @@ ranges = [
  ('picture-render-leaf',0x199234,0x19944c),('text-render-leaf',0x1996b8,0x19975c),
  ('window-render-prefix',0x1983c0,0x198590),('list-initial-ready-gate',0x13d9b4,0x13daa0),
  ('list-return-gate',0x13db0c,0x13dbd8),('write-return-disable',0x1654a0,0x1654ec),
+ ('list-cursor-bind',0x13d3e4,0x13d4e8),('list-open-controllers',0x13c8c0,0x13c920),
+ ('list-return-event',0x13bd5c,0x13bdc4),('list-return-frame5',0x13db20,0x13db58),
+ ('title-event0-branch',0x166fcc,0x166fe8),('title-event0-start',0x167518,0x1675c8),
+ ('apltboot-u-register',0x165fd0,0x166180),
 ]
 a.artifact_dir.mkdir(parents=True, exist_ok=True)
 listing = a.listing.read_text().splitlines(True)
@@ -146,9 +202,17 @@ for name, start, end in ranges:
     assert selected
     (a.artifact_dir / (name + '.txt')).write_text(selected)
     records.append(dict(name=name, start=hex(start), endExclusive=hex(end), sha256=hashlib.sha256(b[start-0x100000:end-0x100000]).hexdigest()))
+data_ranges = [('list-scene-resources',0x1aa810,0x1aa86c),('scene10-vtable',0x1b6b04,0x1b6b34)]
+for name, start, end in data_ranges:
+    blob = b[start-0x100000:end-0x100000]
+    (a.artifact_dir / (name + '.bin.txt')).write_text(blob.hex() + '\n')
+    records.append(dict(name=name, start=hex(start), endExclusive=hex(end), sha256=hashlib.sha256(blob).hexdigest(), source='code.bin'))
 report = dict(passed=True, method='Static original-byte/resource verification; no firmware execution or raster claim', checks=checks, ranges=records,
               contract=dict(animationApplication='scene3 update tail', lateEvent9='controller reset/enable only; no immediate property sampling',
                             materialApplication='enabled-link traversal in update; enable only changes link flag',
-                            matrixPublication='draw-time root virtual +5c', remaining='complete render-helper graph and composed scene gates/initial property state'))
+                            matrixPublication='draw-time root virtual +5c',
+                            firstAppliedTitle='resource defaults plus TextPanelInOut frame 1 after the first scene-3 apply; event 0 does not sample',
+                            firstUserVisibleTitle='blocked by unpublished ApltBoot_U scene 10 drawn after scene 3',
+                            remaining='publish ApltBoot_U/D, prove intro draw-disable, then compose ImageScreenUp title over the list; live paint stays disconnected'))
 (a.artifact_dir / 'source-validation.json').write_text(json.dumps(report,indent=2)+'\n')
 print(f'PASS: {len(checks)} publication/source checks and {len(records)} hashed source ranges')

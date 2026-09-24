@@ -2,8 +2,10 @@
 
 Follow-up: [material sampling and list gates](native-notes-material-publication.md)
 resolves material +0x20/+0x14, identifies render-leaf +0x68 targets, verifies
-retained properties and traces the three-controller list-return gate. Its
-expanded verifier now runs 96 checks; the counts below describe this earlier pass.
+retained properties and traces the three-controller list-return gate.
+[Composed publication](native-notes-composed-publication.md) then proves the
+first applied ImageScreenUp title pose and Open→Back owner replacement. The
+counts below describe this earlier pane-dispatch pass.
 
 This trace resolves the concrete layout methods behind the two previously
 unidentified virtual calls. It establishes an **update-time pane-property
@@ -115,6 +117,9 @@ Before live connection, finish these concrete pieces:
 4. Verify composed startup/Open/Switch/Back frames and owner replacement,
    including the late Open pass, before importing the source panel into live
    rendering. The existing isolated 31 specimens do not cover these gates.
+   The applied-layout subset of that item is now in
+   [composed publication](native-notes-composed-publication.md); the remaining
+   visibility gate is unpublished ApltBoot_U over the first title apply.
 
 ## Reproducible validation
 

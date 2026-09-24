@@ -92,18 +92,20 @@ draw/update disablement (`0x1654a0–0x1654e8`). This slot was already identifie
 as `MemoWriteDown_SceneOut` by the sleep/reentry audit. HUD reverse completion
 does not replace either the lower return gate or the three list gates.
 
-The next implementation must bind the list-controller slots above to their
-verified resources, reproduce their update/input gates alongside the intro and
-write scene, seed the correct initially applied layout, and use the existing
-owner-bound metadata barrier and source scheduler. The selected history branch
-and browser-to-source update clock must remain explicit. Only then can combined
-startup/Open/Switch/Back specimens justify live panel connection.
+Follow-up: [composed title publication](native-notes-composed-publication.md)
+binds those list slots to the MemoListDown names above, seeds the first applied
+ImageScreenUp title from resource defaults plus InOut frame 1, and proves one
+Open→Back owner replacement. Live paint stays off because unpublished
+`ApltBoot_U` can still hide that first applied title.
 
 ## Verification and handoff
 
-The expanded `scripts/verify-notes-panel-publication.py` passes **96 original
-byte/resource assertions** and writes **29 hashed source listings** under
+The expanded `scripts/verify-notes-panel-publication.py` from this material pass
+wrote **96 original byte/resource assertions** and **29 hashed source listings**
+under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-material-publication/`.
-The four retained-property fixtures pass alongside the existing Notes tests.
-No application code or live output changed; no new browser/raster fidelity claim
-or application rebuild is needed for this static-source/test slice.
+The composed follow-up reuses the same verifier with additional list/intro
+checks and writes
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-composed-publication/`.
+The four retained-property fixtures remain. No live title/HUD paint or
+application rebuild is justified until ApltBoot_U is published and composed.

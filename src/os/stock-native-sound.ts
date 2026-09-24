@@ -56,7 +56,7 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
   const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,opts)&&okay;};
   // Settled SD-absent entry captured in native EUR Sound. Recording, StreetPass,
   // Add and Settings are presentation-only here; supplied-song views keep their player.
-  // The room CGFX and source 2D Record backdrop are separate composition work.
+  // The room CGFX and source 2D Record backdrop are separate source layers.
   if(!playback&&!tracks.length){
     const entry=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{
       const source=renderer.packs[pack]?.layouts?.[layout];
@@ -68,6 +68,7 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     const smallLabel=(label:string)=>{const value=message('S',label);return {...value,messageStyle:value.messageStyle?{...value.messageStyle,fontScale:value.messageStyle.fontScale.map(v=>v*.8)}:undefined};};
 
     entry(top,'sound-bg','S_BG');entry(bottom,'sound-bg','S_BG');
+    if(options.soundRoom)okay=options.soundRoom.draw(top)&&okay;
     // The same original Record layout draws on both LCDs in the settled,
     // SD-absent entry capture, behind the entry chrome.
     okay=drawNativeSoundRecordBackground(renderer,top,'top')&&okay;
@@ -94,7 +95,6 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     return okay;
   }
   draw(top,'sound-bg','S_BG');draw(bottom,'sound-bg','S_BG_D-Grid',{bindings:[{name:'S_BG_D-Grid_Default',frame:0}]});
-  if(view.screen==='main'&&options.soundRoom)okay=options.soundRoom.draw(top)&&okay;
   // DefUndBar carries PlyTimeTxt during playback; its battery/clock HUD slots are not composed here.
   if(playback)draw(top,'sound-info','S_Inf_U-UnderBar');
   draw(top,'sound-info','S_Inf_U-TitleBar',{bindings:[{name:'S_Inf_U-TitleBar_TitleLeftIn',frame:5}],overrides:{TitlTxt:message('S','C_T_00')}});

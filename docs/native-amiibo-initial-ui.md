@@ -202,3 +202,14 @@ checks passed, zero skips. Evidence is in SSD firmware root
 `reference/integration-amiibo-real-renderer.log`. This verifies the bounded
 supported resources only; unresolved Header/PortalBtnSub materials and the
 missing matched native reference remain unresolved.
+
+## Native command trace follow-up
+
+The [material command trace](amiibo-material-command-trace.md) now locates the
+applet's constructor, two-texture PICA command builder and source-4 projection
+routine. Source alpha 0 selects saturated addition in that bounded command
+path; external Max/Min labels are not sufficient equations. Native texture
+metadata patching, complete later-stage state and projection composition still
+prevent a defensible full renderer implementation. Header and PortalBtnSub
+remain unsupported; the follow-up includes reproducible source ranges, command
+tables, passing focused checks and fresh explicit render-rejection evidence.

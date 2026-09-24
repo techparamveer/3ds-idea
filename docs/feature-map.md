@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: integration **`a6b74c8`** on `codex/firmware-os-10-7`,
+Checkpoint: integration **`861540b`** on `codex/firmware-os-10-7`,
 24 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -28,7 +28,7 @@ the browser by the coordinator.
 
 ## Features
 
-| Feature | Status at `a6b74c8` | Next action | Owner | Evidence |
+| Feature | Status at `861540b` | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
@@ -38,7 +38,7 @@ the browser by the coordinator.
 | Power on/off, startup | Implemented from source layouts and fades. Adaptation: cold boot reveals HOME directly | Native timing of shutdown and boot | Coordinator | [Power transitions](portfolio-power-transitions.md) |
 | App opening | Implemented: HOME `SceneOutA/B/C` fade is composited under the source logo (`667a15a`); focused tests and source-frame verifier pass; live Work launch was inspected | Matched native launch/logo timing and animated raster cost | Coordinator | [Power transitions](portfolio-power-transitions.md) |
 | Loading and recovery | Implemented for stock views: paired publication, timeout, retry, input gate | Initial scene startup is not deadline-bounded; broader leak scenarios | Coordinator; runtime | [Readiness](native-screen-readiness.md) |
-| Settings main and subpages | Implemented from source scenes: Internet, Data, Other pages, Connection, Date & Time, Profile, DS Profile. Software/Extra Data empty lists use original layout and labels (`9586990`); the source EU eight-choice Language page is integrated (`0e2309b`). Both were operated live; unknown Open Blocks stays blank | Verify Language scroll/thumb and Data list motion/material; whole-screen native comparison remains open | Presentation; coordinator for browser | [Settings trace](settings-main-source-validation.md), [Data lists](settings-data-lists-source-audit.md), [Language audit](settings-language-source-audit.md), [fields](settings-native-fields-validation.md) |
+| Settings main and subpages | Implemented from source scenes: Internet, Data, Other pages, Connection, Date & Time, Profile, DS Profile. Software/Extra Data empty lists use original layout and labels (`9586990`); the source EU eight-choice Language page scrolls read-only through all rows (`861540b`). Live browser entry, arrows and return pass; unknown Open Blocks stays blank | Native Language scroll motion/drag/held-arrow repeat/D-pad focus and Data list motion/material; whole-screen native comparison remains open | Coordinator | [Settings trace](settings-main-source-validation.md), [Data lists](settings-data-lists-source-audit.md), [Language audit](settings-language-source-audit.md), [fields](settings-native-fields-validation.md) |
 | Settings helpers (NNID, Transfer, Updater) | Implemented: helper Back restores the exact Settings page, and HOME suspends the helper (`251f88f` tests). NNID helper return was operated in the live browser | Transfer/Updater return and matched native helper comparison remain. The older "returns to HOME" note in [screen presentation](stock-screen-presentation.md) predates `251f88f` and is superseded | Runtime; coordinator for browser | [Helper return tests](../tests/settings-helper-return.test.mjs) |
 | Parental Controls | Implemented: intro Back/Set → source explanation (Back/Next) → source PIN notice (`Dialog_D_01`, one OK). Adaptation: OK/B return to the explanation with Next selected, but native OK continues to PIN setup. The old restrictions list is unreachable. Touch targets follow source bounds. Integrated live flow was operated, including an inert obscured background | Upper LCD during the notice keeps the explanation page, and the native upper mask and timing are unverified. Matched native comparison remains open | Coordinator (browser, touch geometry); presentation (upper mask) | [Source flow](settings-parental-source-audit.md), [PIN notice](settings-parental-pin-presentation.md), [dialog assets](native-parental-dialog-assets.md) |
 | Camera | Read-only gallery uses source lower `PicL` browse and upper `P_FinderVS_U` (`ea4cdfe`); source verifier, combined tests and live folder → gallery → photo pass | Six-cell centres and footer are adapters; gallery/photo upper uses portfolio pixels as a viewfinder replacement; matched native comparison remains open | Coordinator for browser; presentation | [Camera source validation](camera-gallery-source-validation.md) |
@@ -62,7 +62,7 @@ this table.
 
 | Role | Worktree | Branch @ head | Not yet integrated |
 | --- | --- | --- | --- |
-| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `a6b74c8` | — |
+| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `861540b` | — |
 | Assets | `3ds-idea-worktrees/assets` | `codex/settings-native-assets` @ `b30bcc0` | Service-screen visual fix remains uncommitted/unverified; Notes audit integrated |
 | Presentation | `3ds-idea-worktrees/presentation` | `codex/settings-native-fields` @ `5090b10` | None found (subject match) |
 | Runtime | `3ds-idea-worktrees/runtime` | `codex/parental-flow-audit` @ `057173b` | None found (subject match) |
@@ -74,6 +74,7 @@ this table.
 | Settings Data lists | `3ds-idea-worktrees/settings-data-source` | `codex/settings-data-source` @ `cd13051` | Integrated as `fa731dc` and `9586990` |
 | Camera upper LCD | `3ds-idea-worktrees/camera-upper-source` | `codex/camera-upper-source` @ `fd7183a` | Integrated as `ea4cdfe` |
 | Settings Language | `3ds-idea-worktrees/settings-language-source` | `codex/settings-language-source` @ `29b60ed` | Integrated as `3be6851`, `0e2309b`, `3797de6`; browser entry/return inspected |
+| Language scroll | `3ds-idea-worktrees/settings-language-scroll` | `codex/settings-language-scroll` @ `8bb2af2` | Integrated as `861540b`; all eight rows operated live |
 | amiibo materials | `3ds-idea-worktrees/amiibo-source-materials` | `codex/amiibo-source-materials` @ `fa46764` | Audit integrated as `a6b74c8`; material support still missing |
 | Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` @ `91fe40f` | Integrated as `24d7aa6` and `ee036df` |
 | Preserved | Original checkout, `3ds-idea-os`, `.codex/worktrees/b94c` | `uifix`, `codex/3ds-os`, `codex/home-menu-assets` | Keep, don't modify |

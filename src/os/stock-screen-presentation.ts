@@ -132,7 +132,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
       fill(bottom,30,104,260,5,3,'#bfc6af');fill(bottom,30,104,Math.max(5,260*fraction),5,3,'#81ad32');
       bottom.beginPath();bottom.arc(30+260*fraction,106,6,0,2*Math.PI);bottom.fillStyle='#5c8c20';bottom.fill();
       text(bottom,font,duration(position),31,91,10,'#718160','left');text(bottom,font,duration(total),290,91,10,'#718160','right');
-      const labels:Record<string,string>={play:data.playing?'Ⅱ':'▶',previous:'|◀',next:'▶|',repeat:'Repeat '+(string(data.repeat)||'off'),shuffle:'Shuffle '+(data.shuffle?'on':'off')};
+      const labels:Record<string,string>={play:data.playing?'Ⅱ':'▶',previous:'|◀',next:'▶|',mode:data.shuffle===true?'Shuffle':data.repeat==='all'?'Repeat all':data.repeat==='one'?'Repeat one':'Play once'};
       for(const r of stockScreenTargets(view).filter(r=>Object.hasOwn(labels,r.action))){
         const transport=['previous','play','next'].includes(r.action);
         control(bottom,transport?'':labels[r.action],r.x,r.y,r.width,r.height,r.action==='play'&&data.playing===true,font,accent);
@@ -140,7 +140,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
       }
     }else{
       for(const r of stockScreenTargets(view).filter(r=>r.row!==undefined)){const row=view.rows[r.row!];control(bottom,'',r.x,r.y,r.width,r.height,r.row===view.selection,font,accent);text(bottom,font,'♪',r.x+18,r.y+17,19,'#6f9f26');text(bottom,font,row.label,r.x+39,r.y+12,12,'#444','left');text(bottom,font,row.value??'',r.x+39,r.y+27,10,'#7a856d','left');}
-      if(!view.rows.length)text(bottom,font,'No music added',160,117,15,'#718160');
+      // An empty song manifest stays visibly empty; the source has no SD-card-empty list message.
     }
   }else if((view.appId==='game-notes'||view.appId==='memo')&&view.screen==='main'){
     fill(top,55,53,290,148,4,'#fffef2','#b6ad7d');for(let y=78;y<196;y+=16){top.fillStyle='#dbe5e7';top.fillRect(68,y,264,1);}text(top,font,view.rows[view.selection]?.label??'Game Notes',200,221,14);

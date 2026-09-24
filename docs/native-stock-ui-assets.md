@@ -65,16 +65,25 @@ Title `0004001000022500`, URL prefix
 | `lyt-S_Common-arc-LZ.json` | `S_Common-BackBtn`, `S_Common-OpenBtn`, `S_Common-BrwCursor`, `S_Common-IconList`, `S_Common-ListScroll` |
 | `lyt-S_Inf_U-arc-LZ.json` | `S_Inf_U-TitleBar`, `S_Inf_U-TrackNameU`, `S_Inf_U-TrackNameD`, `S_Inf_U-PlayTime`, `S_Inf_U-UnderBar` |
 | `lyt-Parakeet-arc-LZ.json` | `ParakeetA_U` with Wait/InL_U/OutL_U only |
-| `msg-EU_English.json` | Bank `S`: `C_T_00`, `C_T_03`, `C_B_01`, `C_B_02`, `P_B_00`, `P_B_02`, `P_BR_03`, `P_BR_04`, `F_N_00`, `E_00`, `E_I_00`; original sibling styles |
+| `lyt-C-Sld.json` | `C_SldT` with `C_SldT_Default`, `C_SldT_Push`, `C_SldT_Rate` |
+| `lyt-C-Dlg.json` | `C_Dlg`, `C_DlgTxt`, `C_Dlg1BtnB` with the button's Default/Disable/Push clips |
+| `msg-EU_English.json` | Bank `S`: `C_T_00`, `C_T_03`, `C_B_01`, `C_B_02`, `P_B_00`, `P_B_02`, `P_BR_03`, `P_BR_04`, `F_N_00`, `E_00`, `E_I_00`; bank `S_dlg`: `C_ErrPlay`, `C_B_ErrPlay`; original sibling styles |
 
 All matching clips are preserved for the selected non-parakeet layouts.
 `S_Play_D-CtrPanel3` contains the native previous/play-pause/next controls:
-Default is a 20-frame loop, In/Out are 9 frames, Push 3, Disable 2. The title
-pane is `TitlTxt`; track panes are `TrkNamTxtU0`/`TrkNamTxtU1`; time uses
-`PlyTimeTxt`. The selected layouts borrow `cbf_std.bcfnt`.
+Default is a 20-frame loop, In/Out are 9 frames, Push 3, Disable 2. Its
+`PacIconM_Opt0..5_P0` panes are the six loop-mode icons (NoLoop, Folder,
+Random, OneTime, Single, ABLoop). `C_SldT` is the source track slider; its
+281-frame `C_SldT_Rate` clip moves the handle across the 280-pixel bar and the
+`AB-` pane is its touch surface. `C_Dlg` with `C_DlgTxt` and `C_Dlg1BtnB` is
+the common one-button dialog that carries the `S_dlg/C_ErrPlay` "Could not
+play." message. The title pane is `TitlTxt`; track panes are
+`TrkNamTxtU0`/`TrkNamTxtU1`; time uses `PlyTimeTxt`. The selected layouts
+borrow `cbf_std.bcfnt`.
 
-This subset is 122 resources and 681,315 bytes including shared dependencies.
-The integrity audit passes. `sound-player-textures.png` was inspected in the
+This subset is 136 resources and 740,830 bytes including shared dependencies
+(122 resources, 681,315 bytes before the slider/dialog extension). The
+integrity audit passes and HOME/shared manifest entries were preserved. `sound-player-textures.png` was inspected in the
 same private artifact directory; screen composition is still presentation-owned.
 The original English message container is now decoded through the bounded stock
 table reader. It supplies title, playlist, Close, Back, Open, Play, Autoplay,

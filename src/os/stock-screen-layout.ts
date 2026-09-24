@@ -1,8 +1,19 @@
-import type { AppView } from './app-types';
+import type { AppView, JsonValue } from './app-types';
+
+/** Source S_Play_D loop icons: NoLoop, Folder, Single and Random. OneTime and ABLoop have no portfolio state. */
+export type SoundPlaybackMode='no-loop'|'folder'|'single'|'random';
+export const soundPlaybackMode=(state:Readonly<Record<string,JsonValue|undefined>>):SoundPlaybackMode=>state.shuffle===true?'random':state.repeat==='all'?'folder':state.repeat==='one'?'single':'no-loop';
+/** The single mode control cycles the four supported icons; this ordering is a portfolio choice, not a verified native sequence. */
+export const soundNextPlaybackMode:Record<SoundPlaybackMode,{repeat:string;shuffle:boolean}>={'no-loop':{repeat:'all',shuffle:false},folder:{repeat:'one',shuffle:false},single:{repeat:'off',shuffle:true},random:{repeat:'off',shuffle:false}};
 
 /** Logical lower-LCD rectangles shared by presentation and UI navigation. */
 export type StockScreenTarget = {action:string;x:number;y:number;width:number;height:number;row?:number};
 const target=(action:string,x:number,y:number,width:number,height:number,row?:number):StockScreenTarget=>({action,x,y,width,height,...(row===undefined?{}:{row})});
+/** Sound library rows: S_Common-BrwCursor's source mount (y 49) is the first row centre; the pitch is a portfolio adaptation. */
+export const soundLibraryRows=3;
+export const soundLibraryRowTop=(index:number)=>31.5+index*39;
+/** Source C_SldT time slider mounted by S_Play_D-CtrPanel3 at y −39: AB- bound 280×18, handle S_Rate travels x −140…140. */
+export const soundSeekBar={x:20,y:150,width:280,height:18};
 export function stockScreenTargets(view:AppView):StockScreenTarget[]{
   const {appId,screen,rows,selection}=view, result:StockScreenTarget[]=[];
   if(appId==='manual')return screen==='main'?[...rows.slice(0,3).map((row,index)=>target(row.id,24,56.5+44*index,272,37,index)),target('back',0,212,320,28)]:[target('back',40,212,140,28)];
@@ -61,8 +72,20 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     rows.slice(start,start+6).forEach((row,i)=>result.push(target(row.id,12+(i%3)*102,38+Math.floor(i/3)*80,92,72,start+i)));
   }else if((appId==='camera'||appId==='camera-applet')&&screen==='photo'){
     result.push(target('previous',10,85,45,60),target('next',265,85,45,60));
-  }else if(appId==='sound'&&screen==='playback'){
-    result.push(target('previous',45,130,58,50),target('play',123,122,74,64),target('next',217,130,58,50),target('repeat',25,185,100,24),target('shuffle',195,185,100,24));
+  }else if(appId==='sound'){
+    // Source S_dlg dialog: C_Dlg1BtnB BB-Dlg1BtnB (128×40 at y −84) is the only control while "Could not play." is shown.
+    if(view.data?.mediaError===true)return [target('error-ok',96,184,128,40)];
+    if(screen==='playback'){
+      // S_Play_D-CtrPanel3 bounds BB-Big3L_P0, CB-Big3C_P0, BB-Big3R_P0 and the CB-MiniP0 playback-mode panel at their native mounts.
+      result.push(target('previous',98,178,33,60),target('play',133,178,54,60),target('next',189,178,33,60),target('mode',230,210,90,28));
+    }else{
+      // Three two-line rows keep clear of the S_Common-OpenBtn CB-Open (124×60 at y −89); the first row centre is BrwCursor's source mount.
+      const start=Math.floor(selection/soundLibraryRows)*soundLibraryRows;
+      rows.slice(start,start+soundLibraryRows).forEach((row,i)=>result.push(target(row.id,18,soundLibraryRowTop(i),284,35,start+i)));
+      if(view.footer.right&&rows.length)result.push(target(view.footer.right.action,98,178,124,60));
+    }
+    if(view.footer.left)result.push(target(view.footer.left.action,0,210,90,30)); // S_Common-BackBtn CB-Back
+    return result;
   }else if(appId==='friends'&&(screen==='profile'||screen==='main'&&rows.length===1&&rows[0].id==='profile')){
     if(screen==='main')result.push(target('profile',107,114,106,66,0));
     if(view.footer.left)for(const [width,height]of [[110,32],[150,27],[186,22],[214,17],[242,12],[270,6]])result.push(target(view.footer.left.action,(320-width)/2,240-height,width,height));
@@ -93,6 +116,7 @@ export function stockScreenActionAt(view:AppView,x:number,y:number):string|null{
 }
 /** The player owns seek seconds; this function only maps its displayed track. */
 export function stockScreenSeekAt(view:AppView,x:number,y:number):number|null{
-  if(view.appId!=='sound'||view.screen!=='playback'||!Number.isFinite(x)||!Number.isFinite(y)||x<30||x>290||y<95||y>119)return null;
-  return Math.max(0,Math.min(1,(x-30)/260));
+  const bar=soundSeekBar;
+  if(view.appId!=='sound'||view.screen!=='playback'||view.data?.mediaError===true||!Number.isFinite(x)||!Number.isFinite(y)||x<bar.x||x>bar.x+bar.width||y<bar.y||y>bar.y+bar.height)return null;
+  return Math.max(0,Math.min(1,(x-bar.x)/bar.width));
 }

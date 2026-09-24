@@ -3,7 +3,7 @@ import { helperSelectorSources, helperTitle, helperView, isHelperTitle } from '.
 import { browserBack, browserChoices, browserHeading, browserNavigate, browserPageEntry, browserText } from './stock-browser-navigation.ts';
 import { settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
 import { healthDocumentPageCounts } from './stock-health-layout.ts';
-import { stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
+import { soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
 
 const str = (value: JsonValue | undefined, fallback = '') => typeof value === 'string' ? value : fallback;
@@ -48,7 +48,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'sound') {
       if (screen === 'main') return media.tracks.map(item => row(`track:${item.id}`, item.title, item.artist));
-      return [row('play', state.playing ? 'Pause' : 'Play'), row('previous', 'Previous'), row('next', 'Next'), row('repeat', 'Repeat', str(state.repeat, 'off')), row('shuffle', 'Shuffle', state.shuffle ? 'On' : 'Off')];
+      return [row('play', state.playing ? 'Pause' : 'Play'), row('previous', 'Previous'), row('next', 'Next'), row('mode', 'Playback mode', soundPlaybackMode(state))];
     }
     if (id === 'system-settings') return settingsChoices(state, record(shared.settings));
     if (id === 'browser') return browserChoices(state, shared);
@@ -124,6 +124,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   function activate(state: AppState, action: string, context: AppContext, value?: JsonValue): AppReduction {
     const screen = str(state.screen, 'main');
     if (action === 'back') {
+      if (id === 'sound' && state.mediaError === true) return { state: { ...state, mediaError: false } };
       if (screen !== 'main') {
         if ((id === 'game-notes' || id === 'memo') && screen === 'drawing') return { state: withScreen(state, 'main', { selection: bounds(num(state.slot), 15) }) };
         if (id === 'system-settings') return { state: settingsBack(state) };
@@ -164,6 +165,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         if (action === 'music-error') return music(state, 'pause', { playing: false, mediaError: true });
         return { state };
       }
+      // The source "Could not play." dialog offers only OK; other controls stay inert until it closes.
+      if (state.mediaError === true) return action === 'error-ok' || action === 'back' ? { state: { ...state, mediaError: false } } : { state };
       if (screen === 'main' && action.startsWith('track:')) return selectTrack(state, action.slice(6));
       if (screen !== 'playback' || !track(state)) return { state };
       if (action === 'play') {
@@ -172,6 +175,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       }
       if (action === 'previous' || action === 'next') return adjacentTrack(state, action === 'next' ? 1 : -1);
       if (action === 'seek' && typeof value === 'number' && Number.isFinite(value)) return music(state, 'seek', { position: bounds(value, num(state.duration)) });
+      if (action === 'mode') return { state: { ...state, ...soundNextPlaybackMode[soundPlaybackMode(state)] } };
       if (action === 'repeat') return { state: { ...state, repeat: state.repeat === 'off' ? 'all' : state.repeat === 'all' ? 'one' : 'off' } };
       if (action === 'shuffle') return { state: { ...state, shuffle: !state.shuffle } };
       return { state };
@@ -202,7 +206,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (id === 'sound') {
       data.tracks = media.tracks.map(item => ({ ...item })); data.track = track(state) ? { ...track(state)! } : null;
       if (!media.tracks.length) text.push('There is no music.');
-      if (state.mediaError) text.push('This track could not be played.');
+      if (state.mediaError) text.push('Could not play.'); // Source S_dlg C_ErrPlay
     }
     if (id === 'notifications' && screen === 'notification') text.push(str(list(context.shared.notifications).find(item => item.id === state.notificationId)?.message));
     if (id === 'notifications' && !options.length && screen === 'main') text.push('There are no notifications.');
@@ -215,7 +219,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const pageCount = healthDocumentPageCounts[str(state.topic)] ?? 1;
     if (healthDocument) data.pageCount = pageCount;
     const left = healthDocument && num(state.page) > 0 ? { label: 'Previous', action: 'previous' } : { label: 'Back', action: 'back' };
-    const right = healthDocument ? (num(state.page) < pageCount - 1 ? { label: 'Next', action: 'next' } : { label: 'Done', action: 'back' }) : id === 'error' ? { label: 'OK', action: 'ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
+    const right = healthDocument ? (num(state.page) < pageCount - 1 ? { label: 'Next', action: 'next' } : { label: 'Done', action: 'back' }) : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { left, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }

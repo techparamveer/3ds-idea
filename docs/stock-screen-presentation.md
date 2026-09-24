@@ -10,8 +10,9 @@ including the powered-off early return, to release inactive native sessions.
 Camera uses the real portfolio photo records, asynchronous bounded image loading,
 six thumbnails per page, a selected-image upper screen and a full-photo view.
 It has no capture, edit or import controls. Sound paints supplied track metadata,
-play/pause, previous/next, seek, repeat and shuffle. Production music is empty
-pending the user's tracks; the verification player is explicitly synthetic.
+play/pause, previous/next, seek and a single source loop-mode control. Production
+music is empty pending the user's tracks; the verification player is explicitly
+synthetic.
 `stock-screen-layout.ts` supplies the same controls to runtime touch navigation.
 
 Settings consumes source Bg_U/D, TopText_U_00, Top_D_02 and the five I_Top*s child
@@ -52,8 +53,11 @@ native runtime background binding is still unresolved. See
 [the gallery comparison](camera-gallery-source-validation.md).
 Sound now consumes the source background/grid, title and
 track panels, parakeet, Back button, list cursor and transport art. Track strings
-and artwork come from AppView. The transport mounts are repositioned to the
-shared control targets; seek/repeat/shuffle remain authored portfolio controls.
+and artwork come from AppView. The transport, loop-mode icon, `C_SldT` slider,
+Open ("Play") button, Back width and the "Could not play." dialog sit at their
+source mounts and touch bounds; see
+[the Sound source validation](sound-source-validation.md) for the mounts,
+adaptations and open gaps.
 Source animation frames are settled snapshots, not a claim of native scheduling.
 Health consumes the source upper background/title, three precaution buttons,
 reading frame, footer and exact English messages. The menu hit regions match

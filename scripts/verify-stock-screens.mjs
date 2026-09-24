@@ -25,7 +25,7 @@ export async function verifyStockScreens(options){
   {appId:'camera',screen:'photo',heading:'Building Collection',rows:[],selection:0,footer:{left:footer.left},data:{photo:photos[1],photos}},
   {appId:'sound',screen:'main',heading:'Nintendo 3DS Sound',rows:[],selection:0,footer:{left:footer.left},data:{tracks:[]}},
   // Deliberately labelled renderer specimen, not an invented user's music record.
-  {appId:'sound',screen:'playback',heading:'Nintendo 3DS Sound',rows:[],selection:0,footer:{left:footer.left},data:{track:{id:'renderer-probe',title:'Playback controls specimen',src:'/renderer-probe.mp3',artwork:photos[0].src},playing:true,position:45,duration:180,repeat:'all',shuffle:false}},
+  {appId:'sound',screen:'playback',heading:'Nintendo 3DS Sound',rows:rows([['play','Pause'],['previous','Previous'],['next','Next'],['mode','Playback mode']]),selection:0,footer:{left:footer.left,right:{label:'OK',action:'play'}},data:{track:{id:'renderer-probe',title:'Playback controls specimen',src:'/renderer-probe.mp3',artwork:photos[0].src},playing:true,position:45,duration:180,repeat:'all',shuffle:false}},
   {appId:'health-safety',screen:'main',heading:'Health and Safety Information',rows:rows([['3d','3D Display Precautions'],['general','General Precautions'],['usage','Usage Precautions']]),selection:0,footer},
  ];
  views.push({appId:'system-settings',screen:'internet',heading:'Internet Settings',rows:rows([['connections','Connection Settings'],['spotpass','SpotPass'],['ds-connections','Nintendo DS Connections'],['internet-info','Other Information']]),selection:0,footer:{left:footer.left}});
@@ -36,9 +36,14 @@ export async function verifyStockScreens(options){
  for(const field of ['sound','birthday','date','time','language'])views.push({appId:'system-settings',screen:'detail',verificationId:'settings-detail-'+field,heading:field,rows:[],selection:0,footer:{left:footer.left},text:[field==='sound'?'Stereo':field==='language'?'English':'Not set in this portfolio.'],data:{parent:['date','time'].includes(field)?'clock':'profile',field,settings:{sound:'Stereo',language:'English'}}});
  const playback=views.find(view=>view.appId==='sound'&&view.screen==='playback');
  views.push({...playback,verificationId:'sound-paused',data:{...playback.data,playing:false}});
- views.push({...playback,verificationId:'sound-error',text:['This track could not be played.'],data:{...playback.data,playing:false,mediaError:true}});
+ views.push({...playback,verificationId:'sound-error',text:['Could not play.'],footer:{left:footer.left,right:{label:'OK',action:'error-ok'}},data:{...playback.data,playing:false,mediaError:true}});
+ // Source loop icons for the three remaining supported modes; the base playback view shows repeat-all (Folder).
+ for(const [id,patch]of [['sound-mode-no-loop',{repeat:'off',shuffle:false}],['sound-mode-single',{repeat:'one',shuffle:false}],['sound-mode-random',{repeat:'off',shuffle:true}]])views.push({...playback,verificationId:id,data:{...playback.data,...patch}});
+ for(const [id,position]of [['sound-seek-start',0],['sound-seek-end',180]])views.push({...playback,verificationId:id,data:{...playback.data,position}});
  views.push({appId:'camera',screen:'main',verificationId:'camera-empty',heading:'Nintendo 3DS Camera',rows:[],selection:0,footer:{left:footer.left},data:{folders:[]}});
- views.push({appId:'sound',screen:'main',verificationId:'sound-library',heading:'Nintendo 3DS Sound',rows:[{id:'track:renderer-probe',label:'Library controls specimen',value:'Renderer verification'}],selection:0,footer,data:{tracks:[{...playback.data.track,title:'Library controls specimen'}]}});
+ const specimenTracks=[1,2,3,4].map(i=>({...playback.data.track,id:'renderer-probe-'+i,title:'Library controls specimen '+i}));
+ views.push({appId:'sound',screen:'main',verificationId:'sound-library',heading:'Nintendo 3DS Sound',rows:[{id:'track:renderer-probe',label:'Library controls specimen',value:'Renderer verification'}],selection:0,footer:{left:footer.left,right:{label:'OK',action:'track:renderer-probe'}},data:{tracks:[{...playback.data.track,title:'Library controls specimen'}]}});
+ views.push({appId:'sound',screen:'main',verificationId:'sound-library-page2',heading:'Nintendo 3DS Sound',rows:specimenTracks.map(t=>({id:'track:'+t.id,label:t.title,value:'Renderer verification'})),selection:3,footer:{left:footer.left,right:{label:'OK',action:'track:renderer-probe-4'}},data:{tracks:specimenTracks}});
  for(const [topic,page]of [['3d',0],['general',1],['usage',26]])views.push({appId:'health-safety',screen:'document',verificationId:'health-'+topic+'-'+page,heading:'Health and Safety Information',rows:[],selection:0,footer:{left:page?{label:'Previous',action:'previous'}:footer.left,right:page===26&&topic==='usage'?{label:'Done',action:'back'}:{label:'Next',action:'next'}},data:{topic,page}});
  views.push({appId:'browser',screen:'main',heading:'Internet Browser',rows:rows([['search','Enter search text'],['bookmarks','Bookmarks'],['add-bookmark','Add'],['settings','Settings'],['page-info','Page Info'],['address','Enter URL']]),selection:1,footer});
  views.push({appId:'miiverse',screen:'main',heading:'Miiverse',rows:rows([['communities','Communities'],['activity','Activity Feed'],['profile','My Menu'],['notifications','Notifications']]),selection:0,footer});
@@ -82,6 +87,11 @@ export async function verifyStockScreens(options){
   }
   writeFileSync(join(out,'contact-sheet.png'),sheet.toBuffer('image/png'));
   assert.notEqual(reports.find(r=>r.id==='sound-playback').bottomSha256,reports.find(r=>r.id==='sound-paused').bottomSha256,'native play and pause artwork differ');
+  const soundBottom=id=>reports.find(r=>r.id===id).bottomSha256;
+  assert.equal(new Set(['sound-playback','sound-mode-no-loop','sound-mode-single','sound-mode-random'].map(soundBottom)).size,4,'each supported playback mode paints a distinct source loop icon');
+  assert.equal(new Set(['sound-seek-start','sound-playback','sound-seek-end'].map(soundBottom)).size,3,'the source C_SldT handle follows the playback position');
+  assert.notEqual(soundBottom('sound-error'),soundBottom('sound-paused'),'the source Could-not-play dialog is visible over the paused player');
+  assert.equal(reports.find(r=>r.id==='sound-main').topSha256===reports.find(r=>r.id==='sound-library').topSha256,false,'an empty library shows no track panels');
   const focusSheet=createCanvas(320*5,240),focusContext=focusSheet.getContext('2d'),focusHashes=[];
   for(let selection=0;selection<5;selection++){
    const top=createCanvas(400,240),bottom=createCanvas(320,240);
@@ -94,7 +104,7 @@ export async function verifyStockScreens(options){
   writeFileSync(join(out,'settings-focus.png'),focusSheet.toBuffer('image/png'));
   const diagnostics=[...assets.diagnostics,...soundAssets.diagnostics,...cameraAssets.diagnostics,...healthAssets.diagnostics,...browserAssets.diagnostics,...miiverseAssets.diagnostics];
   const failures=diagnostics.filter(d=>!d.includes('unrequested converter omissions'));assert.deepEqual(failures,[]);
-  const report={passed:true,sourceHashes,reports,diagnostics,gaps:['Settings native source assembly is not a matched native LCD capture.','Camera and Sound use source artwork with adapted gallery/control placement and portfolio media content.','Health source text is paginated with base styles; rich inline runs and continuous scroll remain adaptations. Remaining stock title layouts are pending.','Browser and Miiverse display local chrome only; website content and remote feeds are not present.','Playback specimen is synthetic validation only; no user track is supplied.']};
+  const report={passed:true,sourceHashes,reports,diagnostics,gaps:['Settings native source assembly is not a matched native LCD capture.','Camera uses source artwork with adapted gallery placement and portfolio media content.','Sound transport, playback-mode panel, C_SldT slider, Open, Back and the Could-not-play dialog sit at source mounts; list row pitch, the mode cycle order and the absent effects/percussion/visualiser surfaces are adaptations.','Health source text is paginated with base styles; rich inline runs and continuous scroll remain adaptations. Remaining stock title layouts are pending.','Browser and Miiverse display local chrome only; website content and remote feeds are not present.','Playback specimen is synthetic validation only; no user track is supplied.']};
   writeFileSync(join(out,'verification.json'),JSON.stringify(report,null,2)+'\n');return report;
  }finally{miiverseAssets?.dispose();browserAssets?.dispose();healthAssets?.dispose();cameraAssets?.dispose();soundAssets?.dispose();assets?.dispose();font?.dispose();globalThis.fetch=oldFetch;URL.createObjectURL=oldObjectURL;URL.revokeObjectURL=oldRevokeURL;for(const [name,descriptor]of Object.entries(previousGlobals)){if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name];}}
 }

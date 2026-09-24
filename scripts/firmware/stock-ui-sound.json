@@ -106,6 +106,28 @@
             "ParakeetA_U_OutL_U"
           ]
         },
+        "packs/sound/contents/0000-0000000b/lyt-C-Sld.json": {
+          "layouts": [
+            "C_SldT"
+          ],
+          "animations": [
+            "C_SldT_Default",
+            "C_SldT_Push",
+            "C_SldT_Rate"
+          ]
+        },
+        "packs/sound/contents/0000-0000000b/lyt-C-Dlg.json": {
+          "layouts": [
+            "C_Dlg",
+            "C_Dlg1BtnB",
+            "C_DlgTxt"
+          ],
+          "animations": [
+            "C_Dlg1BtnB_Default",
+            "C_Dlg1BtnB_Disable",
+            "C_Dlg1BtnB_Push"
+          ]
+        },
         "packs/sound/contents/0000-0000000b/msg-EU_English.json": {
           "messages": {
             "S": [
@@ -120,6 +142,10 @@
               "F_N_00",
               "E_00",
               "E_I_00"
+            ],
+            "S_dlg": [
+              "C_ErrPlay",
+              "C_B_ErrPlay"
             ]
           }
         }

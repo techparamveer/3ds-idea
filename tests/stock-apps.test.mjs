@@ -89,6 +89,28 @@ test('music lifecycle pauses without resuming automatically; close pause survive
   runtime=closeApplication(runtime,8);assert.ok(runtime.effects.some(e=>e.id>before&&e.effect.type==='music'&&e.effect.command==='pause'));assert.deepEqual(runtime.instances,{});
  } finally {Object.assign(registered,original);}
 });
+test('single playback-mode control cycles the four source loop icons and stays inert without a track',()=>{
+ let {module,state}=setup('sound');assert.equal(action(module,state,'mode').state,state);
+ state=action(module,state,'track:a').state;
+ const modes=[];for(let i=0;i<5;i++){modes.push([state.repeat,state.shuffle,module.view(state,ctx).rows.find(r=>r.id==='mode').value]);state=action(module,state,'mode').state;}
+ assert.deepEqual(modes,[['off',false,'no-loop'],['all',false,'folder'],['one',false,'single'],['off',true,'random'],['off',false,'no-loop']]);
+ assert.deepEqual(module.view(state,ctx).rows.map(r=>r.id),['play','previous','next','mode']);
+ // Touching the source CB-MiniP0 panel and pressing the transport reach the same actions.
+ state=module.reduce(state,{type:'touch',phase:'up',x:275,y:224},ctx).state;assert.equal(state.repeat,'one');
+ const paused=module.reduce(state,{type:'touch',phase:'up',x:160,y:208},ctx);assert.equal(paused.state.playing,false);assert.equal(paused.effects[0].command,'pause');
+ const sought=module.reduce(action(module,paused.state,'play').state,{type:'touch',phase:'up',x:90,y:159},ctx);assert.equal(sought.state.position,25);assert.equal(sought.effects[0].command,'seek');
+});
+test('the source Could-not-play dialog blocks transport until OK, B or the shared Back closes it',()=>{
+ let {module,state}=setup('sound');state=action(module,state,'track:a').state;
+ state=action(module,state,'music-error',{trackId:'a',revision:state.revision}).state;
+ const view=module.view(state,ctx);assert.equal(state.mediaError,true);assert.equal(state.playing,false);assert.deepEqual(view.text,['Could not play.']);assert.deepEqual(view.footer.right,{label:'OK',action:'error-ok'});
+ for(const id of ['play','next','previous','mode','seek'])assert.equal(action(module,state,id,id==='seek'?10:undefined).state,state);
+ for(const [x,y] of [[160,232],[275,224],[45,225],[160,159]])assert.equal(module.reduce(state,{type:'touch',phase:'up',x,y},ctx).state,state);
+ assert.equal(module.reduce(state,{type:'touch',phase:'up',x:160,y:204},ctx).state.mediaError,false);
+ const viaB=module.reduce(state,{type:'button',command:'back',phase:'down'},ctx).state;assert.equal(viaB.mediaError,false);assert.equal(viaB.screen,'playback');assert.equal(viaB.trackId,'a');
+ const viaA=module.reduce(state,{type:'button',command:'open',phase:'down'},ctx).state;assert.equal(viaA.mediaError,false);assert.equal(viaA.playing,false);
+ const resumed=action(module,viaA,'play');assert.equal(resumed.state.mediaError,false);assert.equal(resumed.effects[0].command,'play');
+});
 test('empty media and injected saved screens never create hidden playback/capture state',()=>{
  for(const id of ['camera','sound']){const {module}=setup(id,{folders:[],tracks:[]});const state=module.create({screen:'record',playing:true},{screen:'playback',playing:true},ctx);assert.equal(state.screen,'main');assert.equal(module.view(state,ctx).rows.length,0);assert.equal(action(module,state,'play').state,state);}
 });

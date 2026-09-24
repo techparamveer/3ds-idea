@@ -20,11 +20,26 @@ test('Health touch regions follow the three native precaution buttons and their 
  assert.equal(hit(v,160,45),'3d');assert.equal(hit(v,160,109),'general');assert.equal(hit(v,160,173),'usage');
  assert.equal(hit(v,160,77),null);assert.equal(hit(v,35,109),null);assert.equal(hit(v,284,109),null);
 });
-test('music controls and seek surface are separate, bounded, finite targets',()=>{
- const v=view('sound','playback',[]);
- assert.equal(hit(v,160,150),'play');assert.equal(hit(v,60,195),'repeat');assert.equal(hit(v,250,195),'shuffle');
- assert.equal(seek(v,30,106),0);assert.equal(seek(v,160,106),.5);assert.equal(seek(v,290,106),1);
- assert.equal(seek(v,291,106),null);assert.equal(seek(v,NaN,106),null);assert.equal(seek(view('camera','photo',[]),160,106),null);
+test('music controls follow the source CtrPanel3, mode panel, Back and C_SldT bounds',()=>{
+ const v=view('sound','playback',['play','previous','next','mode']);v.footer.right={label:'OK',action:'play'};
+ assert.equal(hit(v,160,208),'play');assert.equal(hit(v,114,208),'previous');assert.equal(hit(v,205,208),'next');assert.equal(hit(v,275,224),'mode');assert.equal(hit(v,45,225),'back');
+ assert.equal(hit(v,132,208),null);assert.equal(hit(v,188,208),null);assert.equal(hit(v,225,224),null);assert.equal(hit(v,160,100),null);assert.equal(hit(v,95,225),null);
+ assert.equal(seek(v,20,159),0);assert.equal(seek(v,160,159),.5);assert.equal(seek(v,300,159),1);assert.equal(hit(v,160,159),null);
+ assert.equal(seek(v,301,159),null);assert.equal(seek(v,160,149),null);assert.equal(seek(v,NaN,159),null);assert.equal(seek(view('camera','photo',[]),160,159),null);
+ assert.deepEqual(targets(v).map(r=>r.action),['previous','play','next','mode','back']);
+});
+test('the source Could-not-play dialog leaves OK as the only Sound control',()=>{
+ const v={...view('sound','playback',['play']),footer:{left:{label:'Back',action:'back'},right:{label:'OK',action:'error-ok'}},data:{mediaError:true}};
+ assert.deepEqual(targets(v).map(r=>r.action),['error-ok']);
+ assert.equal(hit(v,160,204),'error-ok');assert.equal(hit(v,160,208),'error-ok');assert.equal(hit(v,45,225),null);assert.equal(hit(v,160,225),null);assert.equal(seek(v,160,159),null);
+});
+test('Sound library pages three rows above the source Open button and keeps Back at its native width',()=>{
+ const v=view('sound','main',['track:a','track:b','track:c','track:d'],3);v.footer.right={label:'OK',action:'track:d'};
+ assert.deepEqual(targets(v).filter(r=>r.row!==undefined).map(r=>r.action),['track:d']);
+ assert.equal(hit(v,160,49),'track:d');assert.equal(hit(v,160,208),'track:d');assert.equal(hit(v,45,225),'back');assert.equal(hit(v,97,208),null);assert.equal(hit(v,160,165),null);
+ const first=view('sound','main',['track:a','track:b','track:c','track:d']);first.footer.right={label:'OK',action:'track:a'};
+ assert.equal(hit(first,160,49),'track:a');assert.equal(hit(first,160,88),'track:b');assert.equal(hit(first,160,127),'track:c');
+ const empty=view('sound','main',[]);assert.deepEqual(targets(empty).map(r=>r.action),['back']);
 });
 
 test('empty Notifications full-width native Close button returns HOME across its full width',()=>{

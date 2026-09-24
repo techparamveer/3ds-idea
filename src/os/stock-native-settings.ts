@@ -10,8 +10,8 @@ const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_An
 export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
   {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00','SMng_U_01'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00','SMng_U_01_NonSD']},
-  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00','SMngCTRData_D_00'],animations:['LsMenu_D_00_SceneIn_00','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00','SMngCTRData_D_00_SceneIn_00','SMngCTRData_D_00_TextIn','SMngCTRData_D_00_BtnIn']},
-  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
+  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00','SMngCTRData_D_00','Country_D_00'],animations:['LsMenu_D_00_SceneIn_00','Country_D_00_SceneIn_00','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00','SMngCTRData_D_00_SceneIn_00','SMngCTRData_D_00_TextIn','SMngCTRData_D_00_BtnIn']},
+  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04','T_SB','R_SlideBar'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide','T_SB_Decide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
   {url:prefix+'dialog.json',alias:'dialog',layouts:['Dialog_D_01','DlgMask_D_00'],animations:['Dialog_D_02_FadeIn','Dialog_D_02_Select','DlgMask_D_00_FadeIn']},
 ];
@@ -33,6 +33,7 @@ function prepareSettingsButtons(renderer:NativeLayoutRenderer){
   if(prepared.has(renderer))return;
   const source=renderer.packs.button,animations={...source.animations};
   for(const name of buttons)animations[name+'_DirectSettings']=settingsDirectButtonClip(source.layouts[name],source.animations[name+'_Select']);
+  animations.T_SB_Decide_DirectSettings=settingsDirectButtonClip(source.layouts.T_SB,source.animations.T_SB_Decide);
   renderer.packs.button={...source,animations};prepared.add(renderer);
 }
 /** Native source layouts and child mounts; this presents a settled menu. */
@@ -121,6 +122,8 @@ const dataLists:Record<string,{title:string;instruction:string;page:string;empty
   software:{title:'dat_sof_title_u',instruction:'dat_3ds_comm1_u',page:'dat_soft_page',empty:'dat_no_software'},
   'extra-data':{title:'dat_opt_title_u',instruction:'dat_3ds_comm2_u',page:'dat_opt_page',empty:'dat_no_option'},
 };
+/** language_eu row order from 0x22c7d0 (CFG codes 1,2,3,5,4,8,9,10). */
+const euLanguages=['eu_english','eu_french','eu_german','eu_spanish','eu_italian','eu_dutch','eu_portuguese','eu_russian'];
 /** Source menus retain their child mounts. Introductory and read-only detail
  * cards reuse source text panels; they never imply configured device state. */
 function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView):boolean{
@@ -239,6 +242,18 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     });
   }else if(screen==='detail'&&field==='sound'){
     draw(bottom,'layout','Sound_D_00',{overrides:{Null_00:{translation:[0,0,0],alpha:255}},attachments:Object.fromEntries(['surround','stereo','mono'].map((label,i)=>['N_T_OnOff_0'+i,()=>draw(bottom,'button','T_OnOff',{bindings:[{name:value('sound').toLowerCase()===label?'T_OnOff_Decide':'T_OnOff_UnDecide',frame:value('sound').toLowerCase()===label?11:1}],overrides:{TextBox_00:message(label)}})]))});
+  }else if(screen==='detail'&&field==='language'){
+    // 0x19f204 starts at top 0 with decided row 0; refresh 0x1a022c hides slots
+    // 0-1 and fills slots 2-7 with rows 0-5. Only CFG English maps to row 0.
+    const english=value('language')===message('eu_english').text;
+    const attachments:Record<string,()=>void>={};
+    for(let slot=2;slot<8;slot++)attachments['N_T_SB_0'+slot]=()=>draw(bottom,'button','T_SB',{bindings:english&&slot===2?[{name:'T_SB_Decide_DirectSettings',frame:11}]:[],overrides:{TextBox_00:message(euLanguages[slot-2])}});
+    // 0x1f37c4 sizes the thumb to 144-24-(8-4)*4; nothing positions it before input.
+    const thumb=[22,104];
+    attachments.R_SlideBar=()=>draw(bottom,'button','R_SlideBar',{overrides:{SBBtnShdw:{size:thumb},SBBtn:{size:thumb},SBBtnFrame:{size:thumb},B_Slide_00:{size:[24,104]}}});
+    draw(bottom,'layout','Country_D_00',{bindings:[{name:'Country_D_00_SceneIn_00',frame:20}],attachments});
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_decide'),TextBoxShdw_01:message('base_2b_decide')}});
+    return okay;
   }else if(screen==='detail'&&['birthday','date','time'].includes(field)){
     const layout=field==='birthday'?'Birthday_D_00':field==='date'?'DateTime_D_00':'DateTime_D_01';
     const source=renderer.packs.layout.layouts[layout];

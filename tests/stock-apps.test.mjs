@@ -254,6 +254,18 @@ test('Other Settings pages bound directions and preserve page plus selection aft
  state=action(module,state,'settings-previous').state;assert.equal(state.page,2);
  assert.equal(action(module,state,'back').state.screen,'main');
 });
+test('Language is a read-only leaf that passes the configured English value and returns to Other page 4',()=>{
+ const {module}=setup('system-settings'),before=structuredClone(ctx.shared);
+ let state=action(module,module.create({},null,ctx),'other').state;
+ for(let page=0;page<3;page++)state=action(module,state,'settings-next').state;
+ const leaf=action(module,state,'language').state,view=module.view(leaf,ctx);
+ assert.equal(view.screen,'detail');assert.equal(view.data.field,'language');assert.equal(view.data.parent,'other');
+ assert.equal(view.data.settings.language,'English');assert.deepEqual(view.text,['English']);
+ assert.deepEqual(view.rows,[]);assert.equal(view.footer.left.action,'back');assert.equal(view.footer.right,undefined);
+ assert.equal(module.reduce(leaf,{type:'text',value:'Deutsch'},ctx).state,leaf);
+ const back=action(module,leaf,'back').state;assert.equal(back.screen,'other');assert.equal(back.page,3);
+ assert.equal(module.view(back,ctx).rows[back.selection].id,'language');assert.deepEqual(ctx.shared,before);
+});
 test('Settings leaves expose only supplied values and every reachable detail has readable content',()=>{
  const {module}=setup('system-settings'),context={now:0,shared:{...initialSharedData(),settings:{nickname:'Ada',birthday:'14 March',region:'United Kingdom',language:'English',sound:'Mono'}}},before=structuredClone(context.shared);
  const run=(state,id)=>module.reduce(state,{type:'action',id},context);

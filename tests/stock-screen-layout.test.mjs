@@ -142,6 +142,12 @@ test('DS Profile uses its full-width legacy Back footer while its read-only rows
  assert.equal(hit(v,160,88),null);assert.equal(hit(v,160,148),null);assert.equal(hit(v,160,207),null);
 });
 
+test('Language keeps the Base_D_01 Back target while OK, list rows and slide bar stay inert',()=>{
+ const v={...view('system-settings','detail',[]),data:{field:'language',parent:'other'}};
+ assert.deepEqual(targets(v),[{action:'back',x:0,y:208,width:120,height:32}]);
+ for(const [x,y] of [[260,224],[144,35],[144,123],[304,20],[304,101],[304,182]])assert.equal(hit(v,x,y),null);
+});
+
 test('read-only native date time and birthday keep Cancel active and editing controls inert',()=>{
  for(const field of ['date','time','birthday']){
   const v={...view('system-settings','detail',[]),data:{field}};

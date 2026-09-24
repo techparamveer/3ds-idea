@@ -9,7 +9,7 @@ import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, type MenuState, type Input } from './state.ts';
-import { activeInstance, acknowledgeEffects, closeApplication, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
+import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
 import { homeSlotAppId, moveHomeItem, restoreHomeLayout, type FolderLayouts } from './home-layout.ts';
@@ -192,7 +192,12 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  }
  if(input==='home'){
   if(state.panel)return {...state,panel:null};
-  const runtime=s.phase==='app'?showRuntimeHome(s.runtime,now):resumeRuntimeApplication(s.runtime,now);
+  const returning=s.phase==='home'&&s.runtime.homeReturn?s.runtime.instances[s.runtime.homeReturn]:undefined;
+  // Notes' accepted HOME exit destroys its scenes before returning to HOME (scene9 → APT 0x101).
+  // Complete the applet normally, then keep any caller suspended on HOME; never revive the old Notes owner.
+  const closeNotes=returning?.appId==='game-notes'&&returning.suspended&&!returning.closing&&s.runtime.systemApplet===returning.id;
+  const runtime=closeNotes?showRuntimeHome(completeApplet(s.runtime,returning.id,null,true,now),now)
+   :s.phase==='app'?showRuntimeHome(s.runtime,now):resumeRuntimeApplication(s.runtime,now);
   return {...syncRuntime(state,runtime),panel:null,system:{...syncRuntime(state,runtime).system!,input:createInputLatch()}};
  }
  if(s.phase==='app'){

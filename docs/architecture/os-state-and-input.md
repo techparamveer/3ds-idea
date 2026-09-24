@@ -20,6 +20,9 @@ HOME suspends the active owner; launching different software requires the existi
 close/switch confirmation. Nested library applets return to their caller. The
 Settings helper adapter restores its suspended parent page/selection on helper
 Back, while physical HOME suspends the helper. Recursive close removes the tree.
+For suspended Game Notes, a second HOME press closes that applet through the
+normal lifecycle and keeps its application caller suspended at HOME; see the
+[owner correction](../notes-home-owner-exit.md). Other titles retain HOME resume.
 This is bounded portfolio navigation, not a complete native APT implementation.
 See [helper return tests](../../tests/settings-helper-return.test.mjs).
 

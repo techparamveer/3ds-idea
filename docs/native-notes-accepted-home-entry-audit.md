@@ -121,6 +121,11 @@ consistently. A same-title new application is a new owner. Unsupported SMDH
 (including portfolio apps with none) must remain unavailable; use neither a
 HOME short label nor the native scratch placeholder as a title substitute.
 
+The later [HOME owner correction](notes-home-owner-exit.md) fixes the specific
+second-HOME same-instance resume route. The observations above describe the
+pre-correction integration baseline; native exit timing and title scheduling
+remain separate work.
+
 ## What still prevents enabling the live panel
 
 The title's static pixels are available in the

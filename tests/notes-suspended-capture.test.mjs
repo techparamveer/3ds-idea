@@ -149,3 +149,27 @@ test('a resumed application replaces its frame, and a new instance never sees an
  capture.dispose();assert.deepEqual(capture.read(s.system.runtime),{status:'none'});
  assert.equal(record(capture,openHealth(tickSystem(createPortfolioState(),3001),4000),'health-safety:1',appFrame(5)),false,'a disposed capture never records');
 });
+
+
+test('Notes HOME dismissal retains only the application-owned capture and parent closure frees it',()=>{
+ for(const fromHome of [false,true]){
+  const surfaces=fakeSurfaces(),capture=createSuspendedApplicationCapture({createSurface:surfaces.createSurface});
+  let s=openHealth(tickSystem(createPortfolioState(),3001),4000);const application=s.system.runtime.active;
+  assert.equal(record(capture,s,application,appFrame(1)),true);
+  if(fromHome)s=reduceSystem(s,'home',6300);
+  s=invokeSystemApplet(s,'game-notes',6400);const notes=s.system.runtime.active;
+  const before=capture.read(s.system.runtime);assert.equal(before.status,'ready');
+  s=reduceSystem(reduceSystem(s,'home',6500),'home',6600);
+  assert.equal(s.system.phase,'home');assert.equal(s.system.runtime.instances[notes],undefined);
+  const after=capture.read(s.system.runtime);
+  assert.equal(after.status,'ready');assert.equal(after.owner,application);assert.equal(after.generation,before.generation);
+  assert.equal(after.upper,before.upper);assert.equal(after.lower,before.lower,'closing Notes cannot discard its suspended application pixels');
+  s=invokeSystemApplet(s,'game-notes',6700);assert.notEqual(s.system.runtime.active,notes);
+  assert.equal(capture.read(s.system.runtime).upper,before.upper,'fresh Notes may access the same still-valid application capture');
+  assert.equal(record(capture,s,notes,appFrame(2)),false,'retired Notes cannot publish a capture');
+  s=reduceSystem(s,'power',6800);
+  assert.deepEqual(capture.read(s.system.runtime),{status:'none'});
+  assert.ok(surfaces.made.every(surface=>surface.width===0&&surface.height===0),'application closure frees both surfaces');
+  capture.dispose();
+ }
+});

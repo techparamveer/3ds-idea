@@ -1,5 +1,10 @@
 # Camera blank selection: final cursor and preview ownership
 
+The [preview lifecycle continuation](camera-preview-lifecycle-source-audit.md)
+adds full-owner blank-event replay, native FadeAll sequences and early touch
+cancellation. The remaining image/layer and combined ordering gap is recorded
+there. The remainder is this earlier checkpoint.
+
 This continues the [input audit](camera-input-source-audit.md). Original ARM
 replay now verifies the **final lower cursor writer** for padded blank cells.
 It also rules out an incorrect shortcut: the upper `BrwsNoData` pane is not

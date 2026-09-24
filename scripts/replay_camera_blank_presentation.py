@@ -107,11 +107,84 @@ def replay(code_path):
     machine.reg_write(UC_ARM_REG_S0, struct.unpack('<I', struct.pack('<f', 1))[0])
     call(0x2fb564, widget)
     assert byte(blank_pane + 0xb7) & 1 and byte(blank_pane + 0xb4) == 255
+    # Rebuild the original owner's event tables (skip only the unrelated
+    # registration prologue/stack epilogue of the static initializer).
+    machine.emu_start(0x31bfbc, 0x31c328, count=10000)
+    assert machine.reg_read(UC_ARM_REG_PC) == 0x31c328
+    event = 0x1010000
+    put(event + 4, 0x23)
+    repeat_blank_states = []
+    for state in (1, 2, 6):
+        machine.mem_write(app_owner + 0x7ba, bytes([state]))
+        before = bytes(machine.mem_read(app_owner, 0x1800))
+        call(0x28bcf4, app_owner, event)
+        assert bytes(machine.mem_read(app_owner, 0x1800)) == before
+        repeat_blank_states.append(state)
+
+    # Changed blank goes through the complete owner event handler. A null
+    # source-control payload skips RTTI; the source permits this explicitly.
+    # Pane state and animation-list state are synthetic, with no rendering.
+    put(event + 4, 0x22)
+    put(app_owner + 0x12b8, 0x1011000)
+    machine.mem_write(app_owner + 0x7ba, b'\x01')
+    for index in range(12):
+        machine.mem_write(widget + 0x30 + index * 0x1c, b'\x01')
+    call(0x28bcf4, app_owner, event)
+    assert byte(app_owner + 0xce0) == 2 and byte(app_owner + 0x8fa) == 1
+    fade_out_indices = [i for i in range(12) if byte(widget + 0x30 + i * 0x1c) == 3]
+    assert fade_out_indices == [0, 2, 6, 7, 8, 9, 10, 11]
+    # Real cancellation entry, before any new touch or direction dispatch.
+    manager = 0x1012000
+    put(word(0x2d5ac4), manager)
+    put(scene + 0x11c, owner)
+    cancellation = []
+    for state in (0, 1, 2, 3):
+        machine.mem_write(owner + 4, bytes([state, 0xff]))
+        machine.mem_write(scene + 0x7c, b'\x01\x01')
+        call(0x2d5740, scene)  # manager +0x254 is zero: cancel gate
+        assert bytes(machine.mem_read(scene + 0x7c, 2)) == b'\0\0'
+        next_state = byte(owner + 4)
+        assert next_state == (3 if state == 3 else 2)
+        assert byte(owner + 5) == (0xff if state == 3 else state)
+        cancellation.append({'previousState': state, 'nextState': next_state,
+                             'captureCleared': True, 'dragCleared': True})
+
+    # The owner's +0xce4 is notes::lyt::FadeAll, not an image decoder.
+    call(0x3199cc)  # source color constants, including RGB e5/e0/d8
+    fade = 0x1013000
+    call(0x22026c, fade)
+    put(fade, 0x41e638)
+    put(app_owner + 0xce4, fade)
+    machine.reg_write(UC_ARM_REG_S0, struct.unpack('<I', struct.pack('<f', 12))[0])
+    call(0x2591a4, fade, 2)
+    assert bytes(machine.mem_read(fade + 0x9a, 8)) == bytes.fromhex('00000000000000ff'), bytes(machine.mem_read(fade + 0x9a, 8)).hex()
+    fade_samples = []
+    for update in range(1, 15):
+        machine.mem_write(fade + 0x38, struct.pack('<f', 1))
+        call(0x26de78, fade)
+        fade_samples.append({'update': update, 'state': byte(fade + 0x80),
+                             'rgba': bytes(machine.mem_read(fade + 0xa4, 4)).hex()})
+    assert fade_samples[-1]['state'] == 1
+    assert fade_samples[-1]['rgba'] == '000000ff'
+    # Owner helper schedules the inverse black fade with the same native 12.
+    call(0x20f450, app_owner)
+    assert bytes(machine.mem_read(fade + 0x9a, 8)) == bytes.fromhex('000000ff00000000')
+    fade_in_samples = []
+    for update in range(1, 13):
+        call(0x26de78, fade)
+        fade_in_samples.append({'update': update, 'state': byte(fade + 0x80),
+                                'rgba': bytes(machine.mem_read(fade + 0xa4, 4)).hex()})
+    assert fade_in_samples[-1]['state'] == 1
+    assert fade_in_samples[-1]['rgba'] == '00000000'
     return {'ok': True, 'codeSha256': CODE_SHA, 'cursorCases': cases,
             'wholeGalleryEmptyPane': 'BrwsNoData', 'paneIndex': 9,
             'populatedGallerySkipsNoDataRoutine': True,
+            'repeatBlankOwnerStateIndicesWithNoMutation': repeat_blank_states,
+            'changedBlankFadeOutIndices': fade_out_indices,
+            'cancelGateSamples': cancellation, 'nativeFadeAllSamples': fade_samples,
+            'nativeFadeAllInverseSamples': fade_in_samples,
             'nativeNoDataPaneWriterVerifiedWithSyntheticAlphaEndpoints': True,
-            'scope': 'Original ARM cursor writer, descriptor initializer, populated-gallery early exit, and no-data pane writer. Full scene lifecycle, preview fade/image clearing, browser ordering and native screen equivalence are not claimed.'}
+            'scope': 'Original ARM cursor/pane writers, owner blank events, cancellation gate and FadeAll component with synthetic state. Full image lifecycle, ordered scene traversal, browser ordering and native screen equivalence are not claimed.'}
 
 
 if __name__ == '__main__':

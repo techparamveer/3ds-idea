@@ -6,12 +6,16 @@ import sys
 import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'scripts'))
-from audit_zone_projection import inspect
+from audit_zone_projection import inspect, arm_bl_target
 
 class FailClosedTests(unittest.TestCase):
     def test_unpinned_executable_is_rejected_before_resource_access(self):
         with self.assertRaisesRegex(ValueError, 'Unexpected Nintendo Zone code'):
             inspect(b'not firmware', Path('/does-not-exist'))
+
+    def test_call_edge_decoder_rejects_non_call(self):
+        with self.assertRaisesRegex(ValueError, 'Expected unconditional ARM BL'):
+            arm_bl_target(bytes(4), 0x100000)
 
 @unittest.skipUnless(os.environ.get('FIRMWARE_ZONE_CONTENT'), 'Original Nintendo Zone content is required')
 class SourceProjectionTests(unittest.TestCase):
@@ -42,9 +46,28 @@ class SourceProjectionTests(unittest.TestCase):
         self.assertEqual(len(clip['depthTracks']), 37)
         self.assertEqual(clip['depthTracks'], [t for t in self.pack['animations']['U_top_Loop_anim']['tracks'] if t['property'] == 'translation.z'])
 
-    def test_camera_candidate_is_not_promoted_to_banner_evidence(self):
-        camera = self.report['unboundCameraCandidate']
-        self.assertFalse(camera['confirmedBannerCamera'])
+    def test_page_camera_uses_parent_canvas_not_content_target(self):
+        camera = self.report['upperPageCamera']
+        self.assertTrue(camera['confirmedPageBinding'])
+        self.assertFalse(camera['rasterValidated'])
         self.assertEqual(camera['fovyNearFarHalfAngle'], [45, 0.05000000074505806, 10000, 22.5])
+        self.assertEqual(camera['pageCanvas'], {'origin': 1, 'width': 320, 'height': 240})
+        self.assertEqual(camera['upperPictureSize'], [400, 240])
+        self.assertEqual(camera['upperParent'], {'name': 'N_ScreenU_P', 'flags': 5,
+            'translation': [0, 0, 0], 'rotation': [0, 0, 0], 'scale': [1, 1]})
+        self.assertAlmostEqual(camera['aspectCorrection'][0], .8, places=7)
+        self.assertEqual(camera['aspectCorrection'][1], 1)
+        self.assertEqual(camera['stereoScaleAndConvergence'], [1, 289.84271240234375])
+
+    def test_executable_upper_callbacks_reach_camera_and_draw_traversal(self):
+        camera = self.report['upperPageCamera']
+        self.assertEqual(camera['service12VtableUpperCallbacks'], ['0x249054', '0x249004'])
+        self.assertEqual(camera['callEdges'], {
+            '0x249040': '0x1cbfa8', '0x249090': '0x1cbfa8',
+            '0x1cbfcc': '0x21fecc', '0x1cbfe0': '0x220198',
+            '0x21ff30': '0x1a8854', '0x21ff58': '0x1a8854',
+            '0x220200': '0x1a8d68', '0x220248': '0x20d9f8',
+            '0x220270': '0x217afc', '0x220280': '0x20d7ec',
+            '0x253f40': '0x1bcb60'})
 
 if __name__ == '__main__': unittest.main()

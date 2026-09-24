@@ -109,6 +109,10 @@ browser inspection, source render or application build is claimed.
 
 Next prerequisite: combine **request allocation/full-tag writes, descriptor
 resource installation and ready-bit publication**, then execute those stages
-with owner input/presentation traversal and touch cancellation. This audit
+with owner input/presentation traversal and touch cancellation. A later
+[strip-port replay](camera-browse-strip-port.md) shows the ring router passing
+a mapped ready bit without comparing the full logical tag, and the post-draw
+bitset rewrite keying bits by mapping control. Those fragments do not install
+resources or publish ready bits, and live paging remains unchanged. This audit
 narrows stale-readiness and deferred-release behavior without claiming that
 remaining sequence, upload ordering or native visual equivalence is solved.

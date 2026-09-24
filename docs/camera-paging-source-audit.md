@@ -62,7 +62,10 @@ ownership/reset behavior is not traced here.
   selection, inputs and captured frames.
 
 The current six-cell page adapter and static cursor phase remain explicit
-fidelity gaps. [Footer limitations](camera-footer-source-audit.md) are unchanged.
+fidelity gaps. A disconnected TypeScript port of the replayed strip arithmetic
+now lives in [`camera-browse.ts`](../src/os/camera-browse.ts); it is not
+imported by live Camera modules. See [the strip port](camera-browse-strip-port.md).
+[Footer limitations](camera-footer-source-audit.md) are unchanged.
 
 ## Controller continuation: exact output path
 

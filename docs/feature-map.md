@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: integration **`9aa0544`** on `codex/firmware-os-10-7`,
+Checkpoint: integration **`e30704d`** on `codex/firmware-os-10-7`,
 24 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -28,7 +28,7 @@ the browser by the coordinator.
 
 ## Features
 
-| Feature | Status at `9aa0544` | Next action | Owner | Evidence |
+| Feature | Status at `e30704d` | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
@@ -52,7 +52,7 @@ the browser by the coordinator.
 | amiibo settings | Source-backed English opening UI and bounded Header/`PortalBtnSub` materials are published and render as internal read-only applet (`aeb54a4`, `b707a5b`); no visible HOME/Settings route exists | Matched native opening comparison, font/motion and entrypoint validation; keep NFC/account/update operations inert | Assets; coordinator for entry/browser | [amiibo opening](native-amiibo-opening.md), [command trace](amiibo-material-command-trace.md) |
 | Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
 | Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power and foreground applet announcements corrected (`b1fedf5`), including live Notes over suspended Work | Other screen-specific announcements and full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
-| Asset conversion, provenance | Implemented. Latest public-only audit reports 1,643 resources, 588 layouts and 1,847 animations with zero errors; private-source cross-check remains unavailable from this integration worktree | Keep unsupported fields explicit and rerun with the original extraction tree before native acceptance | Assets | [Asset architecture](architecture/assets-and-materials.md) |
+| Asset conversion, provenance | Implemented. Latest public-only audit reports 1,648 resources, 590 layouts and 1,851 animations with zero errors; private-source cross-check remains unavailable from this integration worktree | Keep unsupported fields explicit and rerun with the original extraction tree before native acceptance | Assets | [Asset architecture](architecture/assets-and-materials.md) |
 | Final acceptance | Open | Isolated Azahar profile and one mapped Settings touch route are verified; extend reliable native input, then run a versioned browser/native scenario matrix and requirement audit | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
 
 ## Worktrees on 24 September 2026
@@ -62,7 +62,7 @@ this table.
 
 | Role | Worktree | Branch @ head | Not yet integrated |
 | --- | --- | --- | --- |
-| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `9aa0544` | — |
+| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `e30704d` | — |
 | eShop idle source | `3ds-idea-worktrees/eshop-idle-source` | `codex/eshop-idle-source` @ `b447c25` | Entrance/idle, curtain/exit and title-owned HUD integrated through `cd4b534` |
 | Settings status and focus | `3ds-idea-worktrees/settings-native-status` | `codex/settings-native-status` @ `f592e0d` | Status integrated as `b52aeb3`; focus audit integrated as `825b3f8`; Profile/Date & Time Back corrected and inspected |
 | Camera strip controller | `3ds-idea-worktrees/camera-native-paging` | `codex/camera-native-paging` @ `6ed2903` | Integrated as `2d6285d`; disconnected from live paging |
@@ -105,7 +105,7 @@ this table.
 | Health rich text, font and input | `3ds-idea-worktrees/health-richtext-source`, `health-font-clip-source`, `health-clip-owner-source` | `codex/health-richtext-source` @ `82cfc35`, `codex/health-font-clip-source` @ `a487eef`, `codex/health-clip-owner-source` @ `824f326` | Integrated as `40b0539`, `3c6280a`, `f7e7de1`; live scrolling gated |
 | Health article draw | `3ds-idea-worktrees/health-article-draw-source` | `codex/health-article-draw-source` @ `1908219` | Integrated as `ca67998`; glyph stream/cancellation still gated |
 | Notes metadata and ordered startup | `3ds-idea-worktrees/notes-metadata-owner`, `notes-ordered-startup`, `notes-panel-scheduler` | `codex/notes-metadata-owner` @ `2d6a835`, `codex/notes-ordered-startup` @ `de78835`, `codex/notes-panel-scheduler` @ `74681fa` | Integrated as `01105ca`, `386f351`, `a7a8c8a`; title/HUD paint gated |
-| Notes intro/title publication | `3ds-idea-worktrees/notes-material-publication` | `codex/notes-material-publication` @ `c11a8e2` | Applied composer integrated as `f91865f`; original boot packs and 21-pass intro replay integrated in this commit. Live paint remains disconnected pending a browser-to-source update clock |
+| Notes intro/title publication | `3ds-idea-worktrees/notes-material-publication` | `codex/notes-material-publication` @ `c11a8e2` | Applied composer integrated as `f91865f`; original boot packs and 21-pass intro replay integrated as `e30704d`. Live paint remains disconnected pending a browser-to-source update clock |
 | Zone camera and raster state | `3ds-idea-worktrees/zone-draw-camera`, `zone-raster-state` | `codex/zone-draw-camera` @ `cd81f35`, `codex/zone-raster-state` @ `3c022fb` | Integrated as `734ac98`, `e4c054e`; projection still gated |
 | Zone placement inputs | `3ds-idea-worktrees/zone-final-placement` | `codex/zone-final-placement` @ `22d92ba` | Integrated as `934e863`; actual HTML inputs and final draw state remain open |
 | Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` @ `91fe40f` | Integrated as `24d7aa6` and `ee036df` |

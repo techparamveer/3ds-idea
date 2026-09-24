@@ -87,7 +87,7 @@ def replay(code_path):
         'passEntryReset': {'depthColorShadow': hex(word(0x2e79e8)),
             'commands': [hex(v) for v in packet], 'scope': '0x122730..0x12277c only'},
         'limits': ['Calibration memory is synthetic; zero-slider invariance is tested.',
-            'Ordered service/queued state after pass entry is not replayed.',
+            'Ordered service state and framebuffer-readback synchronization after pass entry are not replayed.',
             'HTML root placement, final scissor and picture shader raster remain unresolved.']}
 
 

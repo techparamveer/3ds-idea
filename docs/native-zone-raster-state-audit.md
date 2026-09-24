@@ -64,10 +64,11 @@ Scissor disabling updates cached state; this packet is not proof of a final
 scissor rectangle at the later banner draw.
 
 **This is pass-entry state, not established U_top draw-time state.** The pass
-iterates ordered services and queued commands before individual dispatches;
-`0x2045e8`–`0x204638`/`0x204780`–`0x2047d0` execute queued work through
-`0x1fd82c`. State changes by earlier services and those commands have not been
-replayed or excluded. The target object's dimensions also remain unexecuted in
+iterates ordered services and queued work before individual dispatches;
+`0x2045e8`–`0x204638`/`0x204780`–`0x2047d0` execute work through `0x1fd82c`.
+The [placement follow-up](native-zone-placement-inputs-audit.md) identifies that
+work as framebuffer readback, not arbitrary draw commands. Earlier service state
+and the readback synchronization helpers still need bounded closure. The target object's dimensions also remain unexecuted in
 this fixture. Do not infer a full-screen scissor or disable banner depth solely
 from these defaults.
 
@@ -133,3 +134,8 @@ Zone image was inspected, and no visual improvement is claimed.
 Private evidence: `reference/zone-raster-state/camera-replay.json` and
 `current-renders/verification.json` beneath the firmware artifact root. No title,
 network operation, device operation, integration checkout or browser was used.
+
+The [placement-input follow-up](native-zone-placement-inputs-audit.md) executes
+the bound document viewport callback and the root arithmetic with explicitly
+conditional HTML inputs. It also narrows GL command writers and corrects the
+queued-work classification above.

@@ -81,6 +81,12 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
   okay=drawNotesMainUpper(renderer,top,message,options)&&okay;
   okay=renderer.draw(bottom,'notes-lower','Bg_D_00')&&okay;
   okay=renderer.draw(bottom,'notes-list','MemoListDown',{bindings:[{name:'MemoListDown_Base',frame:0},{name:'MemoListDown_SceneIn',frame:20}],overrides})&&okay;
+  // Native priority-0 scene 9 draws after the list, independently of scene 10.
+  // Use the owner clock's already-applied lower pose; painting never steps it.
+  if(options.notesIntro?.status==='posed'&&options.notesIntro.scene9Draw)
+    okay=renderer.drawLayout(bottom,'notes-aplt-d','ApltBoot_D_00',options.notesIntro.lower,{overrides:{T_Aplt_00:message('lau_title_memo')}})&&okay;
+  else if(options.notesIntro?.status==='pending')
+    okay=renderer.draw(bottom,'notes-aplt-d','ApltBoot_D_00',{bindings:[{name:'ApltBoot_D_00_SceneIn',frame:0}],overrides:{T_Aplt_00:message('lau_title_memo')}})&&okay;
   return okay;
 }
 

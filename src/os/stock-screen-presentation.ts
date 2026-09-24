@@ -24,6 +24,8 @@ export type NotesIntroPaint =
       status: 'posed';
       title: NativeLayout;
       upper: NativeLayout;
+      lower: NativeLayout;
+      scene9Draw: boolean;
       scene10Draw: boolean;
       titleUserVisible: boolean;
       ticket: number;
@@ -256,7 +258,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       // Host remainder time drives Notes but is not itself a paint identity.
       const data=view.data&&typeof view.data==='object'&&!Array.isArray(view.data)?view.data:{};
       const notesView=view.appId==='game-notes'?{...view,data:Object.fromEntries(Object.entries(data).filter(([key])=>key!=='notesHostMs'))}:view;
-      const introKey=notesIntro?.status==='posed'?[notesIntro.ticket,notesIntro.steps,notesIntro.scene10Draw,notesIntro.titleUserVisible]:notesIntro?.status??null;
+      const introKey=notesIntro?.status==='posed'?[notesIntro.ticket,notesIntro.steps,notesIntro.scene9Draw,notesIntro.scene10Draw,notesIntro.titleUserVisible]:notesIntro?.status??null;
       const state=prepare(view,nextOwner,font);
       // Poses, not passes, key the eShop pair: settled passes do not repaint.
       const eshop=nativeServiceView(view)?.view==='eshop-welcome';

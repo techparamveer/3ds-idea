@@ -51,7 +51,7 @@ export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={})
   if(view?.appId!=='game-notes'||view.screen!=='main'||!sources)return undefined;
   const composed=notesIntro.compose(sources),session=notesIntro.getState();
   if(composed&&meta.status==='ready')return {
-   status:'posed',title:composed.title,upper:composed.upper,scene10Draw:composed.scene10Draw,titleUserVisible:composed.titleUserVisible,
+   status:'posed',title:composed.title,upper:composed.upper,lower:composed.lower,scene9Draw:composed.scene9Draw,scene10Draw:composed.scene10Draw,titleUserVisible:composed.titleUserVisible,
    ticket:session.ticket,steps:session.observation?.steps??0,icon:meta.metadata.icon,description:meta.metadata.selection.description,
   };
   return meta.status==='ready'?{status:'pending'}:undefined;

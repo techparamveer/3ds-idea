@@ -104,9 +104,9 @@ Software Keyboard, note text entry/editing, and unproven sounds stay absent.
 ## Precise next gate
 
 Wave cues and matched native comparison remain outside this slice.
-Window-leaf / render-helper raster is still a later fidelity question. The
-21-pass cover is proven for the upper painter only; lower list SceneIn stays
-on the existing `MemoListDown` adapter.
+Window-leaf / render-helper raster is still a later fidelity question. The lower applet cover is now also published by the live painter; see
+[lower intro validation](native-notes-lower-intro-validation.md). Lower list
+SceneIn stays on the existing `MemoListDown` adapter.
 
 ## Verification
 

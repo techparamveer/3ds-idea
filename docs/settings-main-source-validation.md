@@ -277,3 +277,11 @@ portfolio folders, A opened Renu's folder, and HOME suspended it. Opening Sound
 displayed Close software?, A confirmed, and Sound showed the empty music state.
 No user music is supplied, so this does not verify live track playback. No
 matched emulator capture or transition timing comparison was performed.
+
+## Data Management Software and Extra Data
+
+These two leaves remain adapted detail cards. Their source scenes
+(`datamng_ctr_soft` / `datamng_ctr_data`) use `SMngCTRData_D_00` and
+`SMng_U_01` with executable-selected empty messages. The lower layout and
+eleven labels are unpublished, and the native SD state is a pending portfolio
+decision. See the [Data Management list source audit](settings-data-lists-source-audit.md).

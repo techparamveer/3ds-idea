@@ -151,8 +151,10 @@ Power and launch use source common/sleep/logo resources with explicit browser
 durations in `system-transitions.ts`; see [power transitions](../portfolio-power-transitions.md).
 App opening binds the matching HOME `CmnFadeNinLogo` and logo SceneOutA/B/C clips
 over painted HOME instead of a sequential fade-to-black then logo. Cold boot
-currently reveals HOME directly. Source animation poses do not establish native
-startup latency, looping-logo hold or input-to-display timing.
+fades HOME in during the final 350 ms of the current 3 s host sequence, without
+the app-opening logo. The source [cold-boot trace](../native-cold-boot-reveal-source-audit.md)
+does not establish the native startup latency, backlight order or input-to-display
+timing.
 
 ## Effects and persistence
 

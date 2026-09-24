@@ -97,6 +97,19 @@ test('unavailable capture/portfolio source never acquires; failures do not retry
  f.session.sync(runtime,capture(s,2));await flush();f.session.dispose();f.calls[1].reject(Error('late'));await flush();assert.equal(f.session.getState().status,'idle');
 });
 
+test('portfolio title uses its own artwork in the source Notes panel and retains owner lifetime',async()=>{
+ const calls=[];const session=createNotesMetadataSession({loadPortfolio:async(id,signal)=>{
+  calls.push({id,signal});return {selection:{titleId:`portfolio:${id}`,description:'Work'},icon:{width:64,height:64,data:new Uint8ClampedArray(64*64*4)},disposals:0,dispose(){this.disposals++;}};
+ }});
+ let s=tickSystem(launch(tickSystem(createPortfolioState(),4000),'work',4100),6500);
+ s=invokeSystemApplet(s,'game-notes',6600);
+ const pair=capture(s);session.sync(s.system.runtime,pair);await flush();
+ const ready=session.getState();assert.equal(ready.status,'ready');assert.equal(ready.titleId,'portfolio:work');assert.equal(ready.metadata.selection.description,'Work');assert.equal(calls.length,1);
+ session.sync(s.system.runtime,pair);assert.equal(calls.length,1);
+ s=reduceSystem(reduceSystem(s,'home',6700),'home',6800);session.sync(s.system.runtime,pair);
+ assert.equal(ready.metadata.disposals,1);assert.equal(session.getState().status,'idle');session.dispose();
+});
+
 test('synchronous onChange disposal prevents starting a resource request',async()=>{
  let count=0;const session=createNotesMetadataSession({load(){count++;throw Error('unexpected');},onChange(){session.dispose();}});const s=start();session.sync(s.system.runtime,capture(s));await flush();assert.equal(count,0);assert.equal(session.getState().status,'idle');
 });

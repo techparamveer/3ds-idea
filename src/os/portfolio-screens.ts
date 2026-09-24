@@ -26,7 +26,17 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
 export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={}){
- const stockScreens=createStockScreenPresentation({reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture(),notesMetadata=createNotesMetadataSession(),notesIntro=createNotesIntroSession();
+ const stockScreens=createStockScreenPresentation({reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture(),notesMetadata=createNotesMetadataSession({
+  async loadPortfolio(appId,signal){
+   await ready;signal.throwIfAborted();
+   const app=getApp(appId);if(!app)throw Error(`Unknown portfolio title ${appId}`);
+   const canvas=document.createElement('canvas');canvas.width=canvas.height=64;
+   const context=canvas.getContext('2d');if(!context)throw Error('Portfolio icon canvas unavailable');
+   icon(context,app,0,0,64);const pixels=context.getImageData(0,0,64,64);
+   const metadata={selection:{titleId:`portfolio:${appId}`,description:app.title},icon:{width:64,height:64,data:pixels.data},dispose(){pixels.data.fill(0);}};
+   signal.throwIfAborted();return metadata;
+  },
+ }),notesIntro=createNotesIntroSession();
  function syncNotesIntro(state:MenuState,view:AppView|null|undefined,packs:Record<string,NativePack|undefined>|undefined):NotesIntroPaint|undefined{
   const s=state.system,meta=notesMetadata.getState(),data=view?.data??{};
   const sources=packs?notesIntroSourcesFromPacks(packs):undefined;

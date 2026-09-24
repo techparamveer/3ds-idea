@@ -1,11 +1,12 @@
 # Goal: a faithful silver Nintendo 3DS XL portfolio
 
-> Latest OS scope (2026-09-23): stock apps require their UI and basic navigation
-> only. Remove the software keyboard. Recreate power-on, power-off and opening
-> an app. See `docs/portfolio-ui-scope.md` for the current exclusions, ownership
-> and acceptance scope; it supersedes the full firmware-behaviour brief.
-
-> Current UI scope (2026-09-16): the user now requests real portfolio collection apps from paramveer.co.uk, dedicated HackUK/NVIDIA apps, hardware-style startup and original UI sounds on `uifix`. This supersedes the historical empty-content and separate-worktree directions for this UI task only. See `docs/portfolio-os-validation.md`.
+> Current scope: [portfolio UI scope](docs/portfolio-ui-scope.md) supersedes
+> the original full-firmware behaviour brief and historical empty-content rules.
+> Preserve the eight portfolio apps; deliver EUR 10.7.0-32E stock UI/basic
+> navigation, read-only Camera gallery, supplied-song Sound playback, startup,
+> power-off and app opening. Software Keyboard and the six excluded apps remain
+> out of scope. [Progress and evidence](docs/progress-2026-09-24.md) records the
+> integration checkpoint; strict 1:1 acceptance remains open.
 
 Build a personal portfolio website whose entire visible interface is a realistic, interactive **original 2012 Silver + Black Nintendo 3DS XL, model SPR-001**. Reconstruct the console in Blender using Blender MCP, then present it in Next.js and Three.js with VGPU. The console spins left, opens, and lets visitors navigate through its physical buttons and bottom touchscreen. Keep portfolio content plain until the hardware and HOME Menu are faithful.
 
@@ -36,8 +37,8 @@ Use Nintendo's original product pages, operations manual and official front/rear
 - Show only the console against a simple background. No headings, explanatory copy, floating navigation, decorative cards or unrelated UI outside the device.
 - Animate the leftward spin and opening cleanly. Support rotation and inspection of the back. Keep the console usable and fully framed on desktop and mobile, with reduced-motion support.
 - Make physical button clicks, keyboard equivalents and bottom-screen touch input operate the same menu state. Keep screen graphics correctly aligned with the display openings throughout hinge movement.
-- Recreate the 3DS HOME Menu's layout, typography, icons, selection states and transitions. Leave portfolio entries empty for now. Arial and approximate folder graphics must not be described as the original OS.
-- Continue OS work in the separate `codex/home-menu-assets` task/worktree. Inspect the supplied firmware archive as data and use available extracted assets with recorded provenance. The current archive inspection found encrypted HOME Menu content; do not claim extraction has succeeded. Record missing decrypted assets/fonts as dependencies while continuing independent hardware work. The older `codex/3ds-os` worktree remains preserved.
+- Recreate the 3DS HOME Menu's layout, typography, icons, selection states and transitions. Preserve the eight existing portfolio apps and their plain content. Native assets, authored adaptations and fallback graphics must be distinguished in evidence; generic fonts and approximate folders are not original OS assets.
+- Firmware UI work is integrated on `codex/firmware-os-10-7` from separate worker worktrees. Decrypted resources now supply native fonts, layouts, textures, messages, model banners and audio with recorded provenance. Keep raw firmware and executables private, preserve earlier OS worktrees, and record unsupported features and missing source content explicitly. See the [asset architecture](docs/architecture/assets-and-materials.md).
 - Keep VGPU integrated and verify `npx vgpu`, the material shader and its visible output. Preserve a working texture fallback.
 
 ## Iteration and acceptance

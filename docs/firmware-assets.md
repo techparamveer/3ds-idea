@@ -1,5 +1,12 @@
 # Firmware asset inspection
 
+> Historical research record: firmware availability statements below describe
+> the original encrypted-archive checkpoint. Supplied decrypted assets are now
+> integrated; see [current progress](progress-2026-09-24.md) and
+> [asset architecture](architecture/assets-and-materials.md). Hardware observations
+> retain their stated scope; old OS blockers are not current acceptance dependencies.
+
+
 > Historical inspection of the earlier encrypted 11.17 archive. Its missing-input
 > statements and initial converter limitations below describe that earlier work.
 > The owner has since supplied decrypted EUR 10.7.0-32E packages. Current extraction,

@@ -1,53 +1,65 @@
 # Application architecture
 
-This directory explains how the portfolio is assembled and where each kind of
-change belongs. `GOAL.md` remains the product authority. The research and
-validation notes remain the authority for hardware fidelity.
+The portfolio runs inside the two screens of a sourced original Silver + Black
+3DS XL. Next.js serves the page and static delivery assets; the browser owns the
+interactive console. There is no application backend or firmware executable in
+the runtime. Native resources are converted offline and interpreted by browser
+renderers around deterministic software state.
+
+This design map describes integration **`1be4133` (24 September 2026)**. Read
+[GOAL](../../GOAL.md) for acceptance, [current scope](../portfolio-ui-scope.md)
+for exclusions/worker ownership and [progress](../progress-2026-09-24.md) for
+what has actually been verified. Later worker commits are outside this checkpoint.
+Repository instructions live only in [AGENTS.md](../../AGENTS.md); this directory
+explains the design and its tradeoffs.
 
 ## System map
 
-```text
-Next.js page
-  └─ Console client boundary
-      └─ Three.js console scene
-          ├─ compact sourced GLB and mechanical rig
-          ├─ physical control and pointer input
-          ├─ upper and lower CanvasTexture displays
-          │   └─ HOME Menu / portfolio state machine
-          └─ baked PBR materials + optional VGPU paint surface
+```mermaid
+flowchart TD
+  Page[Next.js page] --> React[Console client lifecycle]
+  React --> Scene[Three.js scene and mechanical rig]
+  GLB[Compact sourced GLB and PBR maps] --> Scene
+  VGPU[Optional VGPU roughness] --> Scene
+  Scene --> Input[Shared input gate and adapters]
+  Input --> State[System and AppModule reducers]
+  Clock[Shared clock] --> State
+  State --> Effects[Browser effects and persistence]
+  Effects --> State
+  State --> Paint[HOME and app screen composition]
+  Packs[Native resource packs and fonts] --> Paint
+  Paint --> LCD[400x240 upper and 320x240 lower logical LCDs]
+  LCD --> Scene
+  Banner[Native CGFX banner renderer] --> Paint
+  Scene --> Banner
 ```
 
-The visible page intentionally contains only the console and its background.
-The portfolio is not a conventional collection of routes or DOM panels: its
-content is rendered into the two in-world screens and operated through the
-console.
+The upper logical surface expands to 800×240 texture storage; the physical
+panel remains 5:3. Three.js dependencies stay in `src/scene/`. The OS receives
+injected banner drawing callbacks and never navigates scene objects.
 
-## Documents
+## Design documents
 
-| Area | Read this | Primary code |
+| Area | Document | Main implementation |
 | --- | --- | --- |
-| Application composition and ownership | [runtime-composition.md](runtime-composition.md) | `src/app/`, `src/components/Console.tsx`, `src/scene/console-scene.ts` |
-| Three.js scene, rig and rendering | [scene-and-rendering.md](scene-and-rendering.md) | `src/scene/` |
-| HOME Menu, portfolio state and input | [os-state-and-input.md](os-state-and-input.md) | `src/os/` |
-| Blender, GLB, textures and VGPU | [assets-and-materials.md](assets-and-materials.md) | `model/`, `public/models/`, `src/shaders/` |
-| Visual rules, responsive behavior and accessibility | [experience-design.md](experience-design.md) | `src/app/globals.css`, `src/os/screens.ts` |
-| Performance budgets and degradation | [performance-and-resilience.md](performance-and-resilience.md) | `src/scene/render-quality.ts` |
-| Tests, builds and browser verification | [verification.md](verification.md) | `tests/`, `scripts/` |
+| Startup, ownership, teardown | [Runtime composition](runtime-composition.md) | `Console.tsx`, `console-scene.ts`, `runtime-effects.ts` |
+| Hardware, LCDs, native banners | [Scene and rendering](scene-and-rendering.md) | `src/scene/` |
+| Input, application lifecycle, views | [OS state and input](os-state-and-input.md) | `src/os/system.ts`, `app-host.ts`, `screens.ts` |
+| Offline conversion, delivery, provenance | [Assets and materials](assets-and-materials.md) | `scripts/firmware/`, `public/os/firmware/` |
+| Visual/interaction/accessibility contract | [Experience design](experience-design.md) | `Console.tsx`, screen painters |
+| Quality, cache, loading, failure | [Performance and resilience](performance-and-resilience.md) | quality tiers, native sessions and renderers |
+| Checks and evidence | [Verification](verification.md) | `tests/`, verification scripts, SSD records |
+| Future changes with rationale | [Proposed improvements](proposed-improvements.md) | No runtime changes in this documentation task |
 
-## Architectural boundaries
+## Boundaries that matter
 
-- `src/app/` owns the Next.js route shell, metadata and global page styling.
-- `src/components/Console.tsx` is the React lifecycle boundary. It lazy-loads,
-  starts and disposes the imperative scene.
-- `src/scene/` owns Three.js objects, model interpretation, rendering quality,
-  physical hit testing and hardware motion.
-- `src/os/` owns deterministic software state, menu layout, screen painting,
-  audio and portfolio data. It must not depend on Three.js scene objects.
-- `model/`, `public/models/` and `public/textures/` form the asset pipeline.
-  Editable source, browser delivery asset and generated maps are distinct.
-- `tests/` protect both behavior and the audited model invariants. A passing
-  bounding-box test is never a visual-fidelity sign-off.
+React starts and stops one imperative scene; it does not mirror frame-by-frame OS
+state. The scene translates browser input and mechanics into software events.
+Reducers decide state and emit effects; effect owners perform browser operations.
+Presentation derives pixels from state and owns resources without putting Canvas,
+audio or GPU handles in saves. Source conversion is separate from public delivery:
+a decoded resource may remain unsupported, unpublished or unused by a live view.
 
-Keep dependencies pointed inward through these boundaries. For example, the
-scene may ask the OS to reduce an input, but OS reducers must not reach into the
-scene graph. This keeps menu behavior testable without WebGL.
+The progress matrix distinguishes those stages. A source trace establishes only
+the code/resource fact it traces; a screenshot establishes only its captured
+scenario. Neither replaces matched native visual, motion and audio comparisons.

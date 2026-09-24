@@ -1,5 +1,12 @@
 # Original silver 3DS XL: research and reconstruction audit
 
+> Historical research record: firmware availability statements below describe
+> the original encrypted-archive checkpoint. Supplied decrypted assets are now
+> integrated; see [current progress](progress-2026-09-24.md) and
+> [asset architecture](architecture/assets-and-materials.md). Hardware observations
+> retain their stated scope; old OS blockers are not current acceptance dependencies.
+
+
 The current [front hinge finish](source-hinge-finish-validation.md) restores a narrower barrel reflection.
 
 The preceding [outer-camera rim refinement](source-outer-round-validation.md) rounds the housings and adjacent openings.

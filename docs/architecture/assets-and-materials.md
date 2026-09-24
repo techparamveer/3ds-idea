@@ -1,56 +1,84 @@
-# Asset and material architecture
+# Asset, firmware and material architecture
 
-## Source-to-browser pipeline
+Editable sources, private extraction, converted delivery and runtime ownership
+are separate layers. A resource can decode successfully without being published,
+supported by the renderer, used by a live screen or visually accepted.
+
+## Hardware pipeline
 
 ```text
-licensed source model
-  → sequential Blender refinement checkpoints
-  → active silver-audio-finish.blend
-  → full-resolution validation GLB
-  → scripts/compress-delivery.mjs
-  → public/models/candidates/joshua-xl.glb
+licensed Joshua P. model
+  -> sequential Blender refinement checkpoints
+  -> model/candidates/joshua-xl/silver-audio-finish.blend
+  -> full-resolution validation GLB and maps
+  -> scripts/compress-delivery.mjs
+  -> public/models/candidates/joshua-xl.glb + EUR paint mask
 ```
 
-The active editable source is
-`model/candidates/joshua-xl/silver-audio-finish.blend`. The public homepage asset
-is the compact GLB. The earlier procedural `.blend` and `.glb` are historical
-artifacts and must remain preserved.
+The compact GLB carries the base/hinge hierarchy, LCD/control metadata, UVs,
+tangents, PBR maps and paint roles. Renaming nodes, flattening hierarchy or
+losing attributes can break mechanics and materials even when Blender still
+looks plausible. Follow the [model validation index](../model-validation-index.md)
+and preserve earlier checkpoints and attribution.
 
-Read the candidate README and the matching `docs/source-*-validation.md` before
-changing a modeled area. Refinement scripts form a sequential pipeline; running
-an earlier script indiscriminately against the current checkpoint can erase
-later work.
+Embedded maps are the complete fallback. VGPU generates bounded silver
+roughness variation once; `source-paint-surface.ts` applies it only through
+exported roles and masks. A browser without WebGPU must retain silver paint,
+dark plastic, rubber, glass, legends, lenses and indicators.
 
-## Contracts carried in the GLB
+## Firmware source-to-delivery flow
 
-- Closed envelope: 156 × 93 × 22 mm.
-- Separate base and lid/hinge hierarchy.
-- Semantic screen anchors and physical-control metadata.
-- Original UV0 PBR atlas coordinates.
-- Secondary UV channels where bounded labels or optical maps require them.
-- Explicit material roles and paint-mask URLs used by the browser extension.
-- Meshopt-compressed geometry and browser-compatible texture delivery.
+```mermaid
+flowchart LR
+  CIA[Private decrypted CIAs] --> Verify[Identity, plaintext and hash checks]
+  Verify --> Extract[CTRTool private extraction]
+  Extract --> Decode[Layouts, textures, fonts, messages, models and audio]
+  Decode --> Private[Private converted candidates and reports]
+  Private --> Publish[Explicit title and pack allowlist]
+  Publish --> Public[Versioned public manifest and selected resources]
+  Public --> Load[Validated lazy browser loaders]
+  Load --> Render[Canvas, Three.js and audio owners]
+```
 
-Geometry, textures and metadata are one contract. Renaming nodes, flattening the
-hierarchy or dropping UV/tangent attributes can break runtime behavior even when
-the model still looks plausible in Blender.
+`scripts/firmware/build.py` verifies title/content identity before extracting
+known formats. Converter and publisher records include script/tool and source
+hashes. `scripts/firmware/stock_ui.py` adds selected title packs while preserving
+HOME/shared provenance. `audit.py` validates public records and can compare an
+independent rebuild. Full packages, executables, tickets, credentials and
+absolute private paths never enter public delivery.
 
-## Material layers
+The schema-1 manifest at `public/os/firmware/10.7.0-32E/manifest.json` is the
+URL/provenance authority. At this checkpoint it identifies EUR 10.7.0-32E,
+EU English, 25 titles and 1,553 resources. It records exclusions and unsupported
+inputs instead of generating substitutes. Title loaders require manifest
+membership, exact title/pack identity, requested layouts/animations, valid
+texture metadata and exact font bindings.
 
-1. Embedded glTF base color, roughness, normal and emission maps provide the
-   complete baked fallback.
-2. `silver-surface.ts` optionally computes a small repeating roughness texture
-   through VGPU.
-3. `source-paint-surface.ts` injects that texture into Three.js roughness only
-   where the exported UV0 paint mask permits it.
+## Runtime resource boundaries
 
-The VGPU layer is an enhancement, not the sole source of surface detail. A
-browser without WebGPU must still show silver paint, graphite plastic, rubber,
-glass, legends, lenses and indicators correctly.
+HOME resources and shared fonts have console-session lifetime. Stock title
+packs are lazy and scoped to one foreground owner/view through
+`createNativeTitleSession`. Requests are snapshotted and generation-fenced;
+replacement aborts pending work and disposes late completions. Owned title fonts
+are released with the result; shared fonts remain borrowed.
 
-## Delivery update checklist
+`NativeLayoutRenderer` bounds its raster cache to 8 MiB by default and its pose
+cache to 16 entries. Stock presentation bounds decoded media images to 64 and
+releases them on owner change. Banner models/targets and HOME audio resources
+have scene/audio-owner lifetimes. See [runtime ownership](runtime-composition.md)
+and [resilience](performance-and-resilience.md).
 
-After Blender changes, update the compact delivery GLB and matching EUR paint
-mask together. Retain the adjacent source licence. Validate hierarchy, scale,
-hinge motion, UV channels, material maps and browser appearance before replacing
-the live asset. File-size reduction is not permission to remove visible detail.
+Unsupported selected material/layout fields are hard failures that reach paired
+screen recovery. Unrequested unsupported resources remain diagnostics and do
+not prevent a bounded supported view. This keeps partial format support useful
+without presenting it as complete firmware support.
+
+## Provenance and acceptance
+
+Private reports and comparisons belong under the designated SSD root; public
+files carry only safe relative provenance. A hash proves source identity. A
+converter test proves its bounded contract. A real-resource render proves that
+the renderer consumes that selection. Browser inspection proves one integrated
+scenario. Matched native evidence is still required for visual, motion and audio
+fidelity. See [verification](verification.md) and the
+[progress matrix](../progress-2026-09-24.md).

@@ -1,52 +1,63 @@
-# Performance and resilience architecture
+# Performance, cache and recovery architecture
 
-The detailed tier table and implementation history are in
-[`../performance-architecture.md`](../performance-architecture.md).
+`render-quality.ts` is the single policy for DPR, antialiasing, shadow size,
+scene/LCD cadence, VGPU surface size and constrained-device fallback. State and
+native controller clocks advance independently of render cadence.
 
-## Performance model
+## Quality and degradation
 
-The dominant recurring costs are full-screen fill rate, shadow rendering, model
-draw calls, animated bounds fitting, the secondary banner renderer and uploading
-two changing canvas textures. VGPU surface generation is a one-time cost, but
-its allocation/readback and subsequent shader recompilation can disrupt startup
-if it competes with model decoding and the opening animation.
+Constrained devices use 30 FPS scenes, 12 FPS idle LCD paint, DPR at most 1,
+512 shadows, no antialiasing and baked materials. Balanced/high tiers use
+45/60 FPS scenes, 18/24 FPS LCD paint, bounded DPR, 1024 shadows and optional
+VGPU. Counted short transitions may paint LCDs at scene cadence.
 
-`render-quality.ts` is the only place that selects DPR, shadow size, scene FPS,
-LCD FPS, VGPU texture size and constrained-device fallback. Do not add unrelated
-quality heuristics inside render modules.
+Degrade in this order: LCD cadence, scene cadence, DPR/shadows, baked materials
+instead of VGPU, then Canvas banner fallback if a secondary WebGL context fails.
+The model, controls and portfolio content remain available.
 
-`screenPaintFps` temporarily allows the scene cadence for an advancing counted
-folder close, including its final root restoration. Idle loops keep the ordinary
-LCD cadence. Frozen clocks and reduced motion do not activate this boost. The
-controller still consumes the shared clock independently from rendering; slow
-devices can skip visual samples and must be measured separately.
+## Bounded caches
 
-## Degradation order
+| Cache/resource | Bound / invalidation |
+| --- | --- |
+| Native raster canvases | 8 MiB LRU by default; oversize results are not retained |
+| Native layout poses | 16 entries, oldest evicted |
+| Stock media images | 64; cleared on owner replacement/disposal |
+| Stock LCD pair | One private upper/lower pair keyed by owner, view, revision and font |
+| Native title session | One foreground owner/view; replacement aborts and disposes |
+| HOME/banner resources | One console-session owner; scene teardown disposes |
+| Portfolio music | One foreground audio element; revision/owner guarded |
 
-1. Lower LCD repaint/upload cadence.
-2. Lower scene render cadence while keeping elapsed-time state updates.
-3. Bound DPR and shadow-map resolution.
-4. Use the baked material fallback instead of allocating VGPU on constrained
-   devices or data-saving connections.
-5. Fall back from the small 3D banner to canvas artwork if another WebGL context
-   cannot be created.
+Do not add unbounded caches to animation or paint paths. Keys must include every
+mutable pixel/pose input. Caches are not persistence; IndexedDB stores user state.
 
-The model, controls and portfolio content remain available in every tier.
+## Loading and recovery
 
-## Runtime safeguards
+Stock native views have a 20-second resource deadline. Both screens hold the
+source black fade endpoint and app input is gated until a complete pair is
+painted. HTTP/decode/font timeout, selected unsupported data or drawing failure
+invalidates the generation and publishes an authored website recovery pair.
+A retries; B/HOME escapes. No automatic retry or generic native-looking fallback
+hides failure.
 
-- Compile initial Three.js materials before starting the intro clock.
-- Defer VGPU generation until browser idle.
-- Never regenerate the paint texture per frame.
-- Skip screen animation while hidden, powered off, closed or reduced-motion.
-- Keep QA dataset serialization development-only.
-- Dispose asynchronously created resources if unmount wins the race.
-- Avoid allocating new scene geometry, materials or renderers in animation loops.
+GLB/scene-start rejection reaches React's static console and Retry. Failed VGPU
+retains baked materials. HOME banner failure can retain documented Canvas art.
+Missing portfolio media gets an explicit placeholder. IndexedDB failure keeps
+an in-memory session and reports unavailable saving.
 
-## Measuring changes
+## Disposal and races
 
-Compare production builds on representative desktop and constrained/mobile
-profiles. Record scene FPS, long tasks, GPU frame time, texture uploads, memory
-and startup milestones. Also compare screenshots at matched camera poses: a
-faster result that loses material maps, curvature or readable screens is a
-regression.
+Native sessions abort cooperative work and generation-check noncooperative
+completion; late resources are disposed. Effect callbacks validate owner and
+revision. Save writes preserve order and settle before database close. Scene
+teardown cancels frames/idle work/listeners/observers and disposes audio, screens,
+banners and GPU objects. Every new async resource needs stale-completion handling
+and idempotent release.
+
+Initial scene startup does not yet have one abortable, deadline-bound phase
+controller, so stock-view recovery evidence cannot be generalized to all startup
+failures. See [proposed improvements](proposed-improvements.md).
+
+Record startup milestones, cadence, long tasks, GPU time, cache bytes, audio
+underruns and resources before/after teardown. Pair performance data with matched
+screenshots. Historical detail remains in
+[performance architecture](../performance-architecture.md).

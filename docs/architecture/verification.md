@@ -1,55 +1,50 @@
-# Verification architecture
+# Verification and evidence architecture
 
-Verification is layered because no single test proves the complete experience.
+No single layer proves the complete experience. Report each claim at the
+strongest layer actually reached and keep adaptations and gaps visible.
 
-## Automated layers
+| Layer | Typical evidence | Establishes | Does not establish |
+| --- | --- | --- | --- |
+| Unit/invariant | `npm test`, focused Node/Python tests | Reducer, format, lifecycle and model invariants | Browser integration or visual fidelity |
+| Static/build | `npm run typecheck`, `npm run build` | Contracts and production bundling | Correct pixels, timing or cleanup |
+| GPU/shader | `npm run check:shader`, GPU readback | WGSL validity and bounded generated output | Hardware material resemblance |
+| Delivery audit | `scripts/firmware/audit.py`, independent compare | Hashes, closure, exclusions and reproducibility | Visible correctness |
+| Real-resource render | `verify-stock-*.mjs`, `verify-native-system-ui.mjs` | Selected public resources render | Live behavior or native match |
+| Browser scenario | Operated homepage plus capture/log | Integrated controls and visible state | Native equivalence beyond that scenario |
+| Native comparison | Azahar capture, waveform or executed source fixture | Explicitly aligned region/state/timing fact | Whole-firmware or strict 1:1 acceptance |
 
-| Layer | Command or location | Protects |
-| --- | --- | --- |
-| Unit/invariant tests | `npm test` | Reducers, menu layout, motion, model structure, maps and dimensions |
-| Type system | `npm run typecheck` | Module and API contracts |
-| Production compilation | `npm run build` | Next.js client/server boundaries and bundling |
-| Shader validation | `npm run check:shader` | WGSL parsing and GPU validation |
-| Asset scripts | `scripts/` and model-specific tests | Export and compression invariants |
+Documentation-only work needs reference/link and diff checks, not a rebuild.
+Code, asset, shader, configuration and conversion changes require the relevant
+layers. Run the full suite when integrated changes cross subsystems.
 
-Documentation-only edits do not require rebuilding. Code, shader, asset or
-configuration changes require the relevant layers above.
+## Browser and native scenarios
 
-## Browser layer
+Exercise load/retry, intro, lid, resize/rotation; keyboard, model, accessible and
+touch controls; HOME folders/density/pickup; launch, suspend/resume/switch/close;
+power/boot/sleep; persistence and corrupt/unavailable storage; native pack
+delay/failure/retry; reduced motion, mobile framing and baked fallback. State
+exactly which app screens and transitions were operated. Empty Sound cannot
+prove playback, and visible source artwork cannot prove native timing/state.
 
-Inspect the actual homepage after meaningful scene, material, screen or input
-changes. Check:
+Use the isolated original-3DS EUR 10.7.0-32E Azahar profile, white theme and
+English locale. Keep the coordinator's reference session exclusive. Record the
+initial state, exact inputs, clock/date differences, capture resolution,
+timestamps and hashes. Label phase fitting or executed fixtures explicitly.
 
-- load, intro, open/close and resize behavior;
-- keyboard, physical control hits and touchscreen equivalence;
-- suspend/resume, application switching, power and persistence;
-- VGPU-ready and forced baked-fallback paths;
-- reduced motion and mobile/portrait framing;
-- front, back, underside, side and grazing material views;
-- console errors, failed resources and WebGL/WebGPU cleanup.
+## Evidence and integration
 
-Use matched reference/render views for geometry and material claims. Browser
-presence of a texture or `data-vgpu="ready"` proves only that a path executed,
-not that the surface looks correct.
+Write new evidence beneath
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`.
+Scripts accept absolute artifact paths. Raw firmware and executables stay private.
+Each checkpoint identifies commit, scenario, commands/results, browser inspection,
+native comparison, artifact paths and remaining differences. The
+[progress matrix](../progress-2026-09-24.md) is the cross-system index.
 
-## Branch/worktree checks
+Development-only `captureScreensAt` and `captureNativeBanner` force explicit
+presentation samples without advancing host state and are absent in production.
+They prove a render pose, not that live input reached it with native timing.
 
-The main UI work occurs on `uifix`. `codex/home-menu-assets` remains an
-independent worktree, and `codex/3ds-os` is the older preserved OS branch. Check
-ancestry before merging: never create a redundant merge when the requested
-branch is already contained. Do not overwrite dirty worktree changes or assume
-that build artifacts are product changes.
-
-## Reporting
-
-Report commands run, pass/fail counts, browser evidence and any unavailable
-tooling separately. Keep unresolved visual defects and firmware dependencies
-explicit even when every automated check passes.
-
-Development-only diagnostics expose captureNativeBanner(kind, frame) for exact
-primary shader/geometry samples at 400x240. It accepts explicit finite sampled
-motion and offsets, renders into a disposable Canvas, restores the current LCD
-paint, and never advances the host/service clock. This complements whole-screen
-captureScreensAt for source-model/clip comparisons. Neither hook is installed
-in production; both are removed on teardown. Forced diagnostic poses are not
-claims that native input has produced those states.
+Before edits or integration, inspect status, branch, worktrees and ancestry.
+Never modify another worker's checkout. Integrate coherent commits sequentially
+and run combined checks afterward. Preserve `uifix`, `codex/home-menu-assets`
+and `codex/3ds-os`; integration is `codex/firmware-os-10-7`.

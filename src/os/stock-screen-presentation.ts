@@ -1,6 +1,6 @@
 import { drawNativeSelectorFrame, nativeSelectorView } from './stock-native-selectors';
 import { drawNativeHelperFrame, nativeHelperView } from './stock-native-helpers';
-import { drawNativeServiceFrame, nativeServiceView } from './stock-native-services';
+import { drawNativeServiceFrame, nativeServiceView, zoneClock } from './stock-native-services';
 import type { AppView, JsonValue } from './app-types';
 import type { BitmapFont } from './bitmap-font';
 import type { NativeLayoutRenderer } from './native-renderer';
@@ -17,7 +17,7 @@ import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
-export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean};
+export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number};
 const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const records=(v:JsonValue|undefined):MediaRecord[]=>Array.isArray(v)?v.map(record):[];
 const string=(v:JsonValue|undefined)=>typeof v==='string'?v:'';
@@ -231,12 +231,15 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     sync,prepare,status,
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     /** True only when the published pair is this owner's complete application frame. */
-    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture):boolean{
+    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0):boolean{
       if(disposed)return false;
       // Pixels stay out of the key; one frozen capture has one generation.
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
       const reducedMotion=options.reducedMotion?.()??false;
-      const state=prepare(view,nextOwner,font),key=JSON.stringify([nextOwner,view,revision,capture,reducedMotion]);
+      // Only Zone's native HUD has a live clock in this stock-screen cache.
+      const zoneTime=view.appId==='nintendo-zone'?zoneClock(date,elapsedMs):null;
+      const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60]:null;
+      const state=prepare(view,nextOwner,font),key=JSON.stringify([nextOwner,view,revision,capture,reducedMotion,zonePaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();
@@ -244,13 +247,13 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||state.status==='ready'){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
           }catch(error){fail(error);recovery();}
         }
         // Only publish after both native surfaces succeed, or after both were
         // replaced with the pending/error pair. Never expose a partial draw.
-        painted=JSON.stringify([nextOwner,view,revision,capture,reducedMotion]);paintedFont=font;
+        painted=key;paintedFont=font;
       }
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
       if(failure)recoveryPublished=true;

@@ -80,12 +80,14 @@ verifier checks whole-turn rotation and zero depth and records it under
   a matched Azahar capture, plus a projective warp for rotated pictures in the
   shared renderer. No perspective values were guessed.
 - **HUD clock.** `T_TimeL_00`, `T_TimeC_00` and `T_TimeR_00` use the delivered
-  title font `Hud.bcfnt`, which includes 0–9 and `:`. `Hud_00_time_Blinking` is
-  a 119-frame loop whose colon is visible on frames 0–59. Stock frames are
-  cached by `[owner, view, revision]`, so a value painted here would freeze at
-  launch. The clock stays blank until the presentation owner adds a
-  clock-driven repaint key. `stock-screen-presentation.ts` is outside this
-  task's scope.
+  title font `Hud.bcfnt`, which includes 0–9 and `:`. The painter now splits
+  the browser's local `HH:MM` across those original panes and binds
+  `Hud_00_time_Blinking`: the 119-frame source clip keeps the colon visible on
+  frames 0–59. The stock pair cache includes minute and colon visibility only
+  for Nintendo Zone, so the display changes without redrawing every video
+  frame. The host elapsed-time epoch is a portfolio timing adaptation; the
+  original clock-clip activation epoch is unverified. The source verifier checks
+  the split text, clip visibility boundaries and source-rendered 09:05 LCD.
 - **HUD title.** Source `T_Title_00` is empty. The runtime source of the
   service's `Nintendo Zone` text is unverified.
 - **Footer mode.** Hiding Menu and Save leaves x 106–320 of the footer strip

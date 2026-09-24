@@ -102,16 +102,16 @@ export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={})
   if(s.detail&&entry.images&&entry.images.length>1)label(b,`◀ ${s.photo+1}/${entry.images.length} ▶`,157,226,12,'#6b7380','center');
   button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
- function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string){
+ function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number){
   const capture=view.appId==='game-notes'&&view.screen==='drawing'?suspendedCapture.read(state.system!.runtime):undefined;
-  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture);
+  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time);
  }
- function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false){
+ function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date()){
   const s=state.system;if(!s)return;
   if(s.phase==='app'){
    const view=getActiveAppView(state,time);let complete=false;
    if(view&&getApp(view.appId)&&currentEntry(state)){application(t,b,state,time,reduced);complete=true;}
-   else if(view&&s.runtime.active)complete=semanticApplication(t,b,view,state,s.runtime.active);
+   else if(view&&s.runtime.active)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time);
    // Retain the application slot's last complete pair, before host overlays.
    if(complete&&s.runtime.active&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);
   }

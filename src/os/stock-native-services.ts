@@ -16,7 +16,7 @@ const zonePrefix='packs/nintendo-zone/';
 export const zoneScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:zonePrefix+'local-html-images.json',alias:'zone-pages',layouts:[],animations:[],textures:['offline','no-content','info-top-frame-0']},
   {url:zonePrefix+'www-included_html-3dbanner_EU-nwcla.json',alias:'zone-banner',layouts:['U_top'],animations:['U_top_Loop_anim']},
-  {url:zonePrefix+'layout-nwcx.json',alias:'zone-chrome',layouts:['Hud_00','bottommenu_l'],animations:['Hud_00_Bar_Appear','Hud_00_Battery','Hud_00_Signal']},
+  {url:zonePrefix+'layout-nwcx.json',alias:'zone-chrome',layouts:['Hud_00','bottommenu_l'],animations:['Hud_00_Bar_Appear','Hud_00_Battery','Hud_00_Signal','Hud_00_time_Blinking']},
   {url:zonePrefix+'messages-and-loose.json',alias:'zone-messages',layouts:[],animations:[]},
 ];
 
@@ -35,8 +35,8 @@ export function nativeServiceView(view:AppView):{view:string;titleId:string;pack
 }
 
 /** The bundled welcome is a read-only screen, without account or purchase operations. */
-export function drawNativeServiceFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,_options:StockScreenPaintOptions):boolean{
-  if(view.appId==='nintendo-zone')return drawZone(renderer,top,bottom,view);
+export function drawNativeServiceFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
+  if(view.appId==='nintendo-zone')return drawZone(renderer,top,bottom,view,options);
   if(view.appId!=='eshop'||!['main','detail'].includes(view.screen))return false;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['shop-messages'],'tiger.msbt',label,'');
   let okay=renderer.draw(top,'shop-background','BG_U_00');
@@ -57,16 +57,27 @@ export function drawNativeServiceFrame(renderer:NativeLayoutRenderer,top:CanvasR
   return okay;
 }
 
-function drawZone(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView):boolean{
+/** The delivered Hud_00 text panes split HH:MM into three source fields. */
+export function zoneClock(date:Date,elapsedMs:number){
+  const frame=Math.floor(Math.max(0,elapsedMs)*60/1000)%119;
+  return {
+    hour:String(date.getHours()).padStart(2,'0'),
+    minute:String(date.getMinutes()).padStart(2,'0'),
+    frame,
+  };
+}
+
+function drawZone(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   const main=view.screen==='main';
+  const clock=zoneClock(options.date??new Date(),options.elapsedMs??0);
   top.fillStyle='#000';top.fillRect(0,0,400,240);bottom.fillStyle='#fff';bottom.fillRect(0,0,320,240);
   let okay=renderer.drawBitmap(bottom,'zone-pages',main?'offline':'no-content',0,0);
   if(main){top.save();top.translate(0,20);okay=renderer.draw(top,'zone-banner','U_top',{bindings:[{name:'U_top_Loop_anim',frame:120}]})&&okay;top.restore();}
   else okay=renderer.drawBitmap(top,'zone-pages','info-top-frame-0',0,20)&&okay;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['zone-messages'],'mars',label,'');
   okay=renderer.draw(top,'zone-chrome','Hud_00',{
-    bindings:zoneHudBindings,overrides:{
-      T_Title_00:{text:'Nintendo Zone'},T_TimeL_00:{text:''},T_TimeC_00:{text:''},T_TimeR_00:{text:''},
+    bindings:[...zoneHudBindings,{name:'Hud_00_time_Blinking',frame:clock.frame}],overrides:{
+      T_Title_00:{text:'Nintendo Zone'},T_TimeL_00:{text:clock.hour},T_TimeC_00:{text:':'},T_TimeR_00:{text:clock.minute},
       WHITE_01:{visible:false},P_Debug_Rotate:{visible:false},N_ReadIcon:{visible:false},Timer_Icon:{visible:false},
     },
   })&&okay;

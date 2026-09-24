@@ -156,6 +156,11 @@ The delivery audit passes, and the English sibling-style test passes alongside
 existing locale tests. `health-textures.png` was inspected; browser composition
 remains required. Native source messages are historical device UI content.
 
+The [continuous-scroll source audit](health-scroll-source-audit.md) establishes
+native event mapping and controller/pane motion with a hash-pinned ARM replay.
+It records the remaining rich-document geometry and input-scheduling blockers;
+the current eight-line pagination remains an explicit adaptation.
+
 Toolbar resources are documented in `native-toolbar-ui-assets.md`; further
 service/helper subsets and remaining format gaps are in
 `native-service-ui-assets.md`. No keyboard or audio-behaviour reconstruction is

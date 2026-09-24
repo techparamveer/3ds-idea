@@ -214,3 +214,25 @@ checks pass; the 21-pair scene-variant verifier passes. Native-resolution clock
 and Internet renders were inspected. Live browser verification of this subpage
 batch remains pending after browser control disconnected; the earlier main
 screen check remains valid for that narrower screen.
+
+### Integrated source Settings checkpoint, 2026-09-24
+
+Parental introduction and DS Profile are now integrated with the published
+source packs. Parental Back/Set targets match the two footer ends and horizontal
+navigation; DS Profile uses its full-width Back target with Message/Colour
+read-only. Other Settings page two follows basic_top2.bin: 3D Calibration,
+Sound, Mic Test.
+
+The combined renderer/parental batch passed 1,125 tests (18 skipped). After the
+DS footer and source-order change, all 48 focused input tests passed; the old
+page-order assertion was updated to the verified source order. Type checking
+and the production build passed. Public asset audit passed: 1,552 resources,
+567 layouts, 1,812 animations; existing unsupported-field warnings remain.
+The audit did not check private source files.
+
+Evidence is under the SSD firmware artifact root, reference/parts-settings-*
+and reference/ds-footer-tests.log. The source-resolution Parental and DS Profile
+renders were inspected. The production server was restarted with this build
+at localhost:3000. Actual browser verification remains pending: CUA getState
+timed out and reset its kernel. These checks do not establish matched native
+1:1 fidelity or close the wider goal.

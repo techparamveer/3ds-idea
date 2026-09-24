@@ -11,6 +11,11 @@ and [scene manager audit](native-notes-title-lifecycle-audit.md). Their unnamed
 scene-2 return slot is resolved below; their owner-safe metadata requirement
 still applies.
 
+The later [accepted-HOME/entry audit](native-notes-accepted-home-entry-audit.md)
+resolves the accepted route through **scene 9 hooks**, which run before the
+manager callback. Its new evidence supersedes this note's remaining accepted-HOME
+blocker; the sleep fence and slot binding below remain valid.
+
 ## Scene-2 slot 2 is now identified
 
 At `0x164ba4–0x164c68`, the constructor copies three resource pointers from

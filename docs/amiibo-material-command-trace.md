@@ -1,7 +1,7 @@
 # amiibo native material command trace
 
 The bounded Header and PortalBtnSub material path is now supported in converter
-1.5.2 and the native renderer. This resolves the material blockers in the
+1.5.4 in the combined integration branch and the native renderer. This resolves the material blockers in the
 [initial audit](native-amiibo-initial-ui.md#material-blocker-audit-2026-09-24).
 The resources are privately source-rendered, not published or native-compared.
 The header's `IGN_Header` call-name remains unresolved; its embedded fallback is

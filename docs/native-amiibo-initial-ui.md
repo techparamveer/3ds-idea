@@ -216,7 +216,7 @@ tables, passing focused checks and fresh explicit render-rejection evidence.
 
 ### Material resolution follow-up
 
-Converter 1.5.2 and the bounded renderer path now source-render Header and
+Converter 1.5.4 and the bounded renderer path now source-render Header and
 PortalBtnSub, including the full five-part original-model portal. The earlier
 unsupported-material result above is historical. The
 [resolved native command trace](amiibo-material-command-trace.md) records texture

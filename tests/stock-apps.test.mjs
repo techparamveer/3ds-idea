@@ -11,6 +11,15 @@ const media={folders:[{id:'test',title:'Test fixture',photos:[{id:'a',title:'A',
 const setup=(id,data=media)=>{const module=createStockModule(getTitle(id),data);return{module,state:module.create({},null,ctx)};};
 const action=(module,state,id,value)=>module.reduce(state,{type:'action',id,value},ctx);
 
+test('Health enters with no highlighted precaution button',()=>{
+ const {module,state}=setup('health-safety');
+ assert.equal(state.selectionActive,false);
+ assert.equal(module.view(state,ctx).data.selectionActive,false);
+ const focused=module.reduce(state,{type:'command',command:'up'},ctx).state;
+ assert.equal(focused.selection,0);
+ assert.equal(module.view(focused,ctx).data.selectionActive,true);
+});
+
 test('production gallery exactly reuses existing unique portfolio images and songs are not invented',()=>{
  const expected=[...new Set(apps.flatMap(app=>app.entries.flatMap(entry=>entry.images??[])))];
  assert.deepEqual(portfolioMedia.folders.flatMap(folder=>folder.photos.map(photo=>photo.src)),expected);

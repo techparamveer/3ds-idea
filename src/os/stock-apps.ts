@@ -269,7 +269,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     descriptor, view,
     create(args, saved) {
       const restored = objectValue(saved) ? saved : {};
-      return { screen: 'main', selection: 0, ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
+      return { screen: 'main', selection: 0, ...(id === 'health-safety' ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
         ...(id === 'browser' ? { url: str(restored.url) } : {}), ...(id === 'error' ? { message: str(args.message, 'An error has occurred.') } : {}),
         ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0 } : {}),
         ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}) };
@@ -314,9 +314,9 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       }
       if (command === 'left' || command === 'right' || command === 'up' || command === 'down') {
         const selection = directionalSelection(current, command);
-        const otherFocus=id === 'system-settings' && current.screen === 'other';
-        return selection === current.selection && (!otherFocus || state.selectionActive !== false)
-          ? { state } : { state: { ...state, selection, ...(otherFocus ? { selectionActive: true } : {}) } };
+        const inactiveEntryFocus=(id === 'system-settings' && current.screen === 'other') || (id === 'health-safety' && current.screen === 'main');
+        return selection === current.selection && (!inactiveEntryFocus || state.selectionActive !== false)
+          ? { state } : { state: { ...state, selection, ...(inactiveEntryFocus ? { selectionActive: true } : {}) } };
       }
       return { state };
     },

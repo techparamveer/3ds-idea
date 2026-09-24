@@ -70,7 +70,7 @@ export function drawNativeHealthFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   if(view.screen==='main'){
     const overrides:PaneOverrides={T_Home_00:message('base_1b_menu')};
     for(let i=0;i<3;i++)for(const layer of ['B','F'])overrides[`T_Btn${layer}_0${i}`]=message('article_title_'+(i+1));
-    draw(bottom,'health-pages','SafeTop_D_00',{bindings:[{name:'SafeTop_D_00_SceneIn',frame:20},...[0,1,2].map(i=>({name:'SafeTop_D_00_Select',frame:view.selection===i?1:0,groups:['G_Btn_0'+i]}))],overrides});
+    draw(bottom,'health-pages','SafeTop_D_00',{bindings:[{name:'SafeTop_D_00_SceneIn',frame:20},...[0,1,2].map(i=>({name:'SafeTop_D_00_Select',frame:view.data?.selectionActive!==false&&view.selection===i?1:0,groups:['G_Btn_0'+i]}))],overrides});
   }else if(view.screen==='document'){
     const topic=typeof view.data?.topic==='string'?view.data.topic:'3d',label=healthDocumentArticles[topic]??'article_1';
     const article=articleView(view),font=options.font,bank=renderer.packs['health-messages']?.messages.safe_msbt_LZ;

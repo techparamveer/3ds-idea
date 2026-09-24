@@ -16,10 +16,11 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     return result;
   }
   if(appId==='extrapad')return screen==='main'?[target('back',0,212,160,28),target('information',160,212,160,28,0)]:[target('back',0,212,320,28)];
+  if(appId==='system-settings'&&screen==='parental-pin-notice')return [target('back',10,188,300,40,0)];
   if(appId==='system-settings'&&screen==='main'){
     const locations:Record<string,number[]>={nnid:[4,0,312,33],internet:[16,38,140,78],parental:[164,38,140,78],data:[16,123,140,78],other:[164,123,140,78]};
     rows.forEach((row,index)=>{const rect=locations[row.id];if(rect)result.push(target(row.id,rect[0],rect[1],rect[2],rect[3],index));});
-  }else if(appId==='system-settings'&&(screen==='internet'||screen==='parental')){
+  }else if(appId==='system-settings'&&(screen==='internet'||screen==='parental'||screen==='parental-explain')){
     const rects=screen==='internet'?[[28,23,264,66],[28,106,264,26],[28,139,264,26],[28,172,264,26]]:[[200,208,120,32],[0,208,120,32]];
     rows.forEach((row,index)=>{const r=rects[index];if(r)result.push(target(row.id,r[0],r[1],r[2],r[3],index));});
     if(screen==='internet'&&view.footer.left)result.push(target(view.footer.left.action,0,208,120,32));

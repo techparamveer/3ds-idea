@@ -127,3 +127,12 @@ test('read-only native date time and birthday keep Cancel active and editing con
   for(const [x,y] of [[260,224],[116,55],[203,55],[116,150],[203,150]])assert.equal(hit(v,x,y),null,field);
  }
 });
+
+test('parental explanation and modal targets follow source footer and isolate the obscured page',()=>{
+ const explanation=view('system-settings','parental-explain',['next','back']);
+ assert.equal(hit(explanation,260,224),'next');assert.equal(hit(explanation,60,224),'back');
+ assert.equal(hit(explanation,160,224),null);assert.equal(hit(explanation,160,120),null);
+ const notice=view('system-settings','parental-pin-notice',['back']);
+ for(const x of [10,160,309])assert.equal(hit(notice,x,208),'back');
+ for(const [x,y] of [[9,208],[310,208],[160,187],[160,228],[260,234],[60,234]])assert.equal(hit(notice,x,y),null);
+});

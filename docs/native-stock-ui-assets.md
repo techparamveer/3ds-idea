@@ -97,10 +97,12 @@ Title `0004001000022400`, prefix `packs/camera/contents/0000-0000001a/`.
 
 - `lyt-P_Brws_D-arc-LZ.json`: `P_BrwsBase_D`, `P_BrwsFld`, `P_BrwsPic`,
   `P_BrwsCursor_D`, `P_BrwsPhoMntBase`, `P_BrwsTxt_D` and their own clips.
+- `lyt-P_Finder_U-arc-LZ.json`: `P_FinderVS_U` only (browse/view-select
+  upper). Shooting layouts in the same archive are omitted.
 - `lyt-P_SldShow_D-arc-LZ.json`: `P_SldNavi`, `P_SldShow_D` and their clips.
 - `msg-EU_English.json`: bank `P`, labels `Brws_02`, `Brws_06`,
-  `Brws_U_01_01`, `Brws_U_04`, `Brws_U_05`, `SShow_00_01`, `SShow_04_01`
-  and `back`, with original sibling styles.
+  `Brws_U_01_01`, `Brws_U_02_01`, `Brws_U_04`, `Brws_U_05`, `SShow_00_01`,
+  `SShow_04_01` and `back`, with original sibling styles.
 
 The folder label is `TxtThmb`, photo image pane `ThmbPic` (56 × 42), mask
 `ThmbMask` (66 × 52), cursor `Cursor` and empty label `TxtNoData`. Large,
@@ -112,9 +114,18 @@ supplies Slideshow, empty-gallery, photo-count, chronological-order and Back
 text. HOME navigation is presentation behavior. See
 [the gallery comparison](camera-gallery-source-validation.md).
 
-The final subset contains 47 resources totalling 198,509 bytes including shared
-dependencies. Its delivery audit passes. `camera-gallery-textures.png` was
-inspected as texture evidence, not assembled-screen verification.
+`P_FinderVS_U` is the SceneBrowse upper: empty `BrwsNoData`/`Brws_U_04`, folder
+summary `BrwsFolder` with native `Brws_U_fold` chrome and `Photos:` plus count,
+and `FndEdge` over a 400×240 viewfinder. Capture overlays (`Preview`,
+`FocusAdj`, `ImageInfo`, `Fit`) stay hidden. `C_Titl_U` belongs to Settings
+`P_Set_U` (`Set_Title`) and is not published. Title-owned `HudNOTES.bcfnt` is
+published from the converter's `HudNOTES.bcfnt.LZ` key because hidden capture
+text panes still reference that font.
+
+The published Camera subset is 72 resources totalling 287,632 bytes including
+shared dependencies from this `P_FinderVS_U` selection. Its delivery audit is
+recorded with the source renders. `camera-gallery-textures.png` was inspected
+as earlier texture evidence, not assembled-screen verification.
 
 CTRTool stopped while extracting Camera's primary RomFS. The bounded read-only
 `scripts/firmware/romfs.py` recovered all 63 primary files and one manual file,

@@ -19,9 +19,9 @@ within a loaded title session.
 
 `stock-screen-presentation.ts` renders both screens into private canvases before
 publishing either. Native draw failure or exception discards the entire pair and
-shows recovery rather than falling through to generic chrome. Camera retains
-its documented portfolio upper-screen composition; failure of its native lower
-frame is still a whole-pair failure. The session is input-ready only after the
+shows recovery rather than falling through to generic chrome. Camera now composes
+both LCDs from native browse layouts; failure of that pair is still a whole-pair
+failure. The session is input-ready only after the
 first successful native pair has been published. Recovery controls likewise
 become eligible only after the recovery pair is painted; global storage notices
 are deferred so they cannot cover loading or recovery pixels.

@@ -2,17 +2,64 @@
 
 Read-only Nintendo 3DS Camera gallery for existing portfolio folders. No
 capture, import, zoom or slideshow behaviour is added. This note records the
-two source-backed lower-screen repairs in `stock-native-camera.ts`. It is not
-a matched native LCD acceptance.
+source-backed lower browse repairs and the later source-backed upper browse
+composition in `stock-native-camera.ts`. It is not a matched native LCD
+acceptance.
 
 ## Source used
 
-Title `0004001000022400`, content `0000-0000001a`. Public pack
-`packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json` and bank `P` of
-`msg-EU_English.json`. Private RomFS members under
-`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/assets/stock-ui/reader-extracted/camera/`
-confirm those browse layouts. Converted but unpublished upper/common layouts
-(`C_Titl_U`, `P_Tape`, `C_Hud`) were inspected and not consumed.
+Title `0004001000022400`, content `0000-0000001a`. Reader-extracted Camera
+`code.bin` SHA-256
+`3a3c4152ebcc74443ed245a0e9840d31219bbd2559295364cc8dab9497e4492c`. Public packs
+under `packs/camera/contents/0000-0000001a/`:
+
+- `lyt-P_Brws_D-arc-LZ.json` (lower browse)
+- `lyt-P_Finder_U-arc-LZ.json` layout `P_FinderVS_U` (upper browse)
+- bank `P` of `msg-EU_English.json`
+
+Private conversion is
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/assets/stock-ui/camera-native14`.
+RomFS members under `stock-ui/reader-extracted/camera/` corroborate the browse
+layouts. Shooting layouts (`P_Finder_U`, `P_FinderFC_U`, `P_FinderQU_U`),
+`P_Tape`, `C_Hud` and `C_Titl_U` were inspected and are not consumed.
+
+## Upper browse mapping
+
+`N5notes5pnote11SceneBrowseE` uses `P_FinderVS_U` as the browse/view-select
+upper. Pane flag bit 0 is visible. The executable has no `C_Titl_U` string.
+`P_Set_U/-L-Titl` userdata is `LYT=C--Titl_U/C_Titl_U` and
+`TEXT_TitlTxt=P/Set_Title` (`Settings`). `C_Titl_U` is therefore the Settings
+title bar (`TitlBar` 400×38 at y=101), not the gallery.
+
+| Pane | Source translation / size / flags | Notes |
+| --- | --- | --- |
+| `P_FinderVS_U` canvas | 400×240 | CTR browse upper |
+| `BrwsNoData` | flags **0** | Empty copy parent; child `Txt_NoData` MSG `P/Brws_U_04` |
+| `BrwsFolder` | flags **0** | Folder-summary parent |
+| `Brws_U_fold` | `[-108, 0]`, **128×96**, flags 1 | Folder chrome `P_Fnd_Fold.bclim`, not a photo slot |
+| `Brws_U_fold_Bir` | same slot | Birthday overlay; kept hidden |
+| `Txt_data2` | `[80, 34]`, 92×64 | MSG `P/Brws_U_01_01` (`Photos:`) |
+| `Txt_data3` | `[160, 34]`, 80×64 | MSG `P/Brws_U_02_01` (source text is a space; count replaces it) |
+| `Txt_Date` / `Txt_total` / `Txt_data4` / `Txt_data5` | under `BrwsFolder` | Date/`Total`/day counts; unproven for portfolio folders, hidden |
+| `FndEdge` | flags 1, 400×240 | Viewfinder frame; stays visible |
+| `Preview` / `FocusAdj` / `ImageInfo` / `Fit` | flags 1 or 3 | Capture overlays; hidden |
+| `BrwsError` / `MovInfo` / `ViewInfo` | flags 0 | Error/movie/3D; kept hidden |
+
+`HudNOTES.bcfnt` is required because hidden capture text panes still index font 1.
+The converter keys that font as `contents/0000-0000001a/HudNOTES.bcfnt.LZ`;
+`stock_ui.py` publishes it under the layout name `HudNOTES.bcfnt`. `cbf_std.bcfnt`
+(font 0, including `Txt_NoData`) remains the borrowed shared font.
+
+Read-only composition:
+
+- **Folder list:** black 400×240, then `P_FinderVS_U` with `BrwsFolder` visible
+  and native fold chrome. Portfolio pixels are not drawn into `Brws_U_fold`.
+- **Empty:** `BrwsNoData` / English `Brws_U_04`.
+- **Gallery and opened photo:** existing portfolio image as the 400×240
+  viewfinder framebuffer replacement, then the same layout with `BrwsFolder`
+  hidden so `FndEdge` remains.
+
+## Lower browse mapping
 
 | Pane | Source translation / size | Notes |
 | --- | --- | --- |
@@ -47,6 +94,10 @@ unposed layouts keep the small 5×7 textures (`P_Thmb_DatePho5x7.bclim`,
    `TxtThmb` still shows the folder count. Physical left/right still change
    photos through the existing runtime.
 
+3. **Upper LCD was generic portfolio chrome.** Folder/gallery/photo now share
+   source `P_FinderVS_U`. Capture overlays stay hidden. `C_Titl_U` is not
+   published.
+
 ## Remaining gaps
 
 - Six-cell centres still come from `stock-screen-layout.ts`. Native L/M/S
@@ -57,9 +108,16 @@ unposed layouts keep the small 5×7 textures (`P_Thmb_DatePho5x7.bclim`,
 - Presentation still paints the generic Back/Open footer over the native
   lower screen. Camera has no published Back layout in this pack; `P_Tape`
   and `C_Hud` were not delivered.
-- Upper LCD is still the generic chrome plus selected portfolio image.
-  `C_Titl_U` and `Brws_U_*` exist in private conversion but are not in the
-  public pack. They were not invented here.
+- Folder-list upper does not place a portfolio still in the viewfinder; native
+  SceneBrowse may show a live feed there. Gallery/photo stretch existing
+  portfolio images to 400×240 as a framebuffer replacement, not a native
+  capture buffer.
+- Empty `Brws_U_04` uses the source black vertex colour. Native sits that text
+  on the viewfinder framebuffer; this portfolio has no capture feed, so the
+  empty upper is currently the `FndEdge` frame on black rather than readable
+  white copy. Vertex colours were not invented.
+- Date, total and day-count panes stay hidden: portfolio folders have no
+  proven native date source.
 - `P_SldShow_D` / `P_SldNavi` are published and unused. Slideshow is outside
   this read-only folder gallery.
 - Capture, zoom, edit and import stay hidden or unregistered.
@@ -67,9 +125,8 @@ unposed layouts keep the small 5×7 textures (`P_Thmb_DatePho5x7.bclim`,
   fits; the source pane is 96×24.
 - Neutral `BG` remains forced over blue `UserBG`. Native background binding
   is unresolved.
-- No Azahar or hardware LCD comparison. Unit tests lock pane math and draw
-  contracts. `scripts/verify-stock-screens.mjs` wrote Camera pairs to SSD
-  `presentation/camera-gallery-source/` with empty renderer diagnostics.
-  Isolated `P_BrwsFld` probes there show Default versus PicL changing the
-  folder’s top edge; the live folder cell still sits under the red cursor.
-  This is a composition check, not a matched native LCD.
+- No Azahar or hardware LCD comparison. Unit tests lock pane math, MSG labels
+  and draw contracts. `scripts/verify-stock-screens.mjs` wrote Camera pairs to
+  SSD `presentation/camera-upper-source/`. Isolated `P_BrwsFld` probes in the
+  earlier `presentation/camera-gallery-source/` folder remain lower-cell
+  evidence. These are composition checks, not matched native LCDs.

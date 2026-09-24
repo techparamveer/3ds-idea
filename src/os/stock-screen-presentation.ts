@@ -8,7 +8,7 @@ import type { SuspendedCapture } from './notes-suspended-capture';
 import { createNativeTitleSession } from './native-title-session';
 import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-settings';
 import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
-import { drawNativeCameraLower, cameraScreenPacks } from './stock-native-camera';
+import { drawNativeCameraFrame, cameraScreenPacks } from './stock-native-camera';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
 import { drawNativePersonalToolFrame, nativePersonalToolView } from './stock-native-personal-tools';
 import { drawNativeWebFrame, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
@@ -85,6 +85,10 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
   const {font}=options,accent=accents[view.appId]??'#809d8c',data=view.data??{};
   if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view))return;
   if(options.native&&drawNativeSoundFrame(options.native,top,bottom,view,options))return;
+  if(options.native&&camera(view.appId)){
+    if(!drawNativeCameraFrame(options.native,top,bottom,view,options))throw new Error('Native camera composition failed');
+    footer(bottom,view,font);return;
+  }
   if(options.native&&drawNativeHealthFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativePersonalToolFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativeWebFrame(options.native,top,bottom,view,options))return;
@@ -100,7 +104,6 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
     top.fillStyle='#292923';top.fillRect(0,32,400,181);
     if(!mediaImage(top,photo,[5,35,390,175],options))albumSymbol(top,200,120,accent);
     text(top,font,string(photo.title)||string(folder?.title)||'Photo Album',200,226,14);
-    if(options.native&&drawNativeCameraLower(options.native,bottom,view,options)){footer(bottom,view,font);return;}
     if(options.nativeRequired||options.native)throw new Error('Native camera composition failed');
     if(view.screen==='photo'){
       fill(bottom,63,51,194,134,5,'#e5e0cf','#b5a887');mediaImage(bottom,photo,[68,56,184,124],options);

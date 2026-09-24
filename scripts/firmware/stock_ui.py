@@ -117,7 +117,10 @@ def publish(source_root, output, plan):
             for texture in selected['textures'].values(): copied(texture['url'])
         validate_part_links(selected_layouts)
         for name in sorted(needed_fonts):
-            url = source['titles'][title]['fonts'].get(name)
+            fonts = source['titles'][title].get('fonts') or {}
+            # Camera converters key owned fonts as Member.bcfnt.LZ; layouts
+            # request Member.bcfnt. Prefer the layout name in delivery.
+            url = fonts.get(name) or fonts.get(name + '.LZ')
             if url:
                 copied(url); font = json.loads(pending[url])
                 for sheet in font['sheets']: copied(str(Path(url).parent/sheet))

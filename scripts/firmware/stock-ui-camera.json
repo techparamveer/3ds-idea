@@ -64,6 +64,11 @@
             "P_BrwsPic_Push"
           ]
         },
+        "packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json": {
+          "layouts": [
+            "P_FinderVS_U"
+          ]
+        },
         "packs/camera/contents/0000-0000001a/lyt-P_SldShow_D-arc-LZ.json": {
           "layouts": [
             "P_SldNavi",
@@ -84,6 +89,7 @@
               "Brws_02",
               "Brws_06",
               "Brws_U_01_01",
+              "Brws_U_02_01",
               "Brws_U_04",
               "Brws_U_05",
               "SShow_00_01",

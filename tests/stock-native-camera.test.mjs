@@ -10,11 +10,12 @@ const transpile=(name,overrides={})=>{
   const {outputText}=ts.transpileModule(readFileSync(url,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
   return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(`${path}.ts`,url).href)+suffix));
 };
-const {cameraScreenPacks,drawNativeCameraLower,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect}=await import(transpile('stock-native-camera',{
+const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect}=await import(transpile('stock-native-camera',{
   './stock-screen-layout':transpile('stock-screen-layout'),
   './native-layout':transpile('native-layout'),
 }));
 const pack=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',import.meta.url),'utf8'));
+const finder=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',import.meta.url),'utf8'));
 const messages=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/msg-EU_English.json',import.meta.url),'utf8'));
 const find=(panes,name)=>{for(const pane of panes){if(pane.name===name)return pane;const child=find(pane.children??[],name);if(child)return child;}};
 const view=(screen,rows=[],data={},selection=0)=>({appId:'camera',screen,heading:'Nintendo 3DS Camera',rows,selection,footer:{left:{action:'back',label:'Back'}},data});
@@ -30,12 +31,23 @@ const ctx=()=>{
 function paint(screenView,imageResult=true){
   const {log,bottom}=ctx(),draws=[];
   const renderer={
-    packs:{'camera-gallery':pack,'camera-messages':messages},
-    draw(_ctx,_pack,layout,opts){draws.push({layout,opts});return true;},
+    packs:{'camera-gallery':pack,'camera-finder':finder,'camera-messages':messages},
+    draw(_ctx,_pack,layout,opts){draws.push({layout,opts,pack:_pack});return true;},
   };
   const images=[];
   const okay=drawNativeCameraLower(renderer,bottom,screenView,{image:(_c,url,x,y,w,h)=>{images.push([url,x,y,w,h]);return imageResult;}});
   return {okay,draws,images,log};
+}
+function paintFrame(screenView,imageResult=true){
+  const {log,bottom}=ctx(),draws=[],fills=[];
+  const top={fillStyle:'',fillRect:(...args)=>fills.push(args)};
+  const renderer={
+    packs:{'camera-gallery':pack,'camera-finder':finder,'camera-messages':messages},
+    draw(_ctx,_pack,layout,opts){draws.push({layout,opts,pack:_pack});return true;},
+  };
+  const images=[];
+  const okay=drawNativeCameraFrame(renderer,top,bottom,screenView,{image:(_c,url,x,y,w,h)=>{images.push([url,x,y,w,h]);return imageResult;}});
+  return {okay,draws,images,log,fills};
 }
 
 test('published browse pack contains the large thumbnail clips the gallery now requests',()=>{
@@ -106,5 +118,74 @@ test('empty gallery uses the source English no-data message and ignores other ti
   assert.equal(empty.opts.overrides.TxtNoData.text,'There are no saved\nphotos or videos.');
   const {log,bottom}=ctx();
   assert.equal(drawNativeCameraLower({packs:{},draw:()=>true},bottom,{...view('main'),appId:'sound'},{}),false);
+  assert.deepEqual(log,[]);
+});
+
+test('published finder pack is the browse upper layout, not C_Titl_U',()=>{
+  const request=cameraScreenPacks.find(p=>p.alias==='camera-finder');
+  assert.deepEqual([...request.layouts],['P_FinderVS_U']);
+  assert.deepEqual([...request.animations],[]);
+  assert.ok(finder.layouts.P_FinderVS_U);
+  assert.equal(finder.layouts.C_Titl_U,undefined);
+  assert.ok(!cameraScreenPacks.some(p=>p.url.includes('C-Titl')));
+  const noData=find(finder.layouts.P_FinderVS_U.roots,'Txt_NoData');
+  const photos=find(finder.layouts.P_FinderVS_U.roots,'Txt_data2');
+  const count=find(finder.layouts.P_FinderVS_U.roots,'Txt_data3');
+  const fold=find(finder.layouts.P_FinderVS_U.roots,'Brws_U_fold');
+  assert.deepEqual(noData.metadata,[{name:'MSG',type:0,value:'P/Brws_U_04'}]);
+  assert.deepEqual(photos.metadata,[{name:'MSG',type:0,value:'P/Brws_U_01_01'}]);
+  assert.deepEqual(count.metadata,[{name:'MSG',type:0,value:'P/Brws_U_02_01'}]);
+  assert.deepEqual(fold.translation.slice(0,2).map(v=>v+0),[-108,0]);
+  assert.deepEqual(fold.size,[128,96]);
+  assert.deepEqual(cameraFolderPicRect,nativeLowerPaneRect(fold.translation,fold.size,[400,240]));
+  assert.deepEqual(cameraFolderPicRect,[28,72,128,96]);
+  assert.deepEqual([...cameraFolderPicSize],[128,96]);
+  assert.equal(messages.messages.P.messages[messages.messages.P.labels.Brws_U_02_01].text,' ');
+});
+
+test('folder upper shows P_FinderVS_U browse panes and hides capture overlays',()=>{
+  const {okay,draws,images,fills}=paintFrame(view('main',[{id:'folder:building',label:'Building Collection'}],{folders:[{id:'building',photos:[{id:'a'},{id:'b'}]}]}));
+  assert.equal(okay,true);
+  assert.deepEqual(fills,[[0,0,400,240]]);
+  assert.deepEqual(images,[]);
+  const upper=draws.find(d=>d.layout==='P_FinderVS_U');
+  assert.equal(upper.pack,'camera-finder');
+  assert.equal(upper.opts.overrides.BrwsFolder.visible,true);
+  assert.equal(upper.opts.overrides.BrwsNoData.visible,false);
+  assert.equal(upper.opts.overrides.Preview.visible,false);
+  assert.equal(upper.opts.overrides.FocusAdj.visible,false);
+  assert.equal(upper.opts.overrides.ImageInfo.visible,false);
+  assert.equal(upper.opts.overrides.Fit.visible,false);
+  assert.equal(upper.opts.overrides.BrwsError.visible,false);
+  assert.equal(upper.opts.overrides.Txt_data2.text,'Photos:');
+  assert.equal(upper.opts.overrides.Txt_data3.text,'2');
+  assert.equal(upper.opts.overrides.Txt_Date.visible,false);
+  assert.equal(upper.opts.overrides.Txt_total.visible,false);
+  assert.equal(upper.opts.overrides['Brws_U_fold_Bir'].visible,false);
+  assert.equal(upper.opts.overrides.FndEdge,undefined);
+  assert.ok(draws.some(d=>d.layout==='P_BrwsFld'));
+});
+
+test('gallery and photo uppers draw portfolio pixels as the 400×240 view',()=>{
+  const gallery=paintFrame(view('gallery',[{id:'photo:a',label:'Building 1'}],{photos:[{id:'a',src:'/portfolio/building1.jpg'}]}));
+  assert.equal(gallery.okay,true);
+  assert.deepEqual(gallery.images[0],['/portfolio/building1.jpg',0,0,400,240]);
+  assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.BrwsFolder.visible,false);
+  assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.BrwsNoData.visible,false);
+  const photo=paintFrame(view('photo',[],{photo:{id:'a',title:'Building 2',src:'/portfolio/building2.jpg'}}));
+  assert.deepEqual(photo.images[0],['/portfolio/building2.jpg',0,0,400,240]);
+  assert.equal(photo.draws.find(d=>d.layout==='P_BrwsPhoMntBase').opts.overrides['-PhoMntPos'].visible,false);
+});
+
+test('empty upper uses Brws_U_04 and does not invent a title bar',()=>{
+  const {okay,draws,images}=paintFrame(view('main',[],{folders:[]}));
+  assert.equal(okay,true);
+  assert.deepEqual(images,[]);
+  const upper=draws.find(d=>d.layout==='P_FinderVS_U');
+  assert.equal(upper.opts.overrides.BrwsNoData.visible,true);
+  assert.equal(upper.opts.overrides.BrwsFolder.visible,false);
+  assert.equal(upper.opts.overrides.Txt_NoData.text,'There are no photos or\nvideos to display.');
+  const {log,bottom}=ctx();
+  assert.equal(drawNativeCameraFrame({packs:{},draw:()=>true},{fillRect(){}},bottom,{...view('main'),appId:'sound'},{}),false);
   assert.deepEqual(log,[]);
 });

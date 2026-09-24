@@ -8,8 +8,8 @@ unchanged. Root calls `graphics.syncStockView(state)` before every paint,
 including the powered-off early return, to release inactive native sessions.
 
 Camera uses the real portfolio photo records, asynchronous bounded image loading,
-six thumbnails per page, a selected-image upper screen and a full-photo view.
-It has no capture, edit or import controls. Sound paints supplied track metadata,
+six thumbnails per page, a source `P_FinderVS_U` upper browse screen and a
+full-photo view. It has no capture, edit or import controls. Sound paints supplied track metadata,
 play/pause, previous/next, seek and a single source loop-mode control. Production
 music is empty pending the user's tracks; the verification player is explicitly
 synthetic.
@@ -46,8 +46,11 @@ large PicL clips so the 66×52 frames use their 2×3 textures instead of
 stretched 5×7 placeholders. Portfolio photos draw under `ThmbMask` at the
 source 56×42 slot; the opened photo uses `-PhoMntPos` at `[32, 43, 256, 128]`.
 Invented heading, cell labels and photo-view arrows were removed. The six-cell
-placement, upper photo preview and Back/Open footer remain portfolio
-adaptations; native capture and zoom controls are hidden. The neutral source
+placement and Back/Open footer remain portfolio adaptations. Folder/empty uppers
+use source `P_FinderVS_U` browse panes; gallery and photo replace the native
+viewfinder framebuffer with portfolio pixels. Native capture and zoom controls
+are hidden. The generic Camera chrome remains only as a non-native fallback.
+The neutral source
 transition BG remains visible in place of UserBG's blue replacement default;
 native runtime background binding is still unresolved. See
 [the gallery comparison](camera-gallery-source-validation.md).

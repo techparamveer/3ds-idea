@@ -90,5 +90,33 @@ class StockUiTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'hash differs'): publish(source, output, plan)
             self.assertEqual(snapshot, {p.relative_to(output): p.read_bytes() for p in output.rglob('*') if p.is_file()})
 
+    def test_lz_suffixed_title_font_is_published_under_the_layout_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp)/'source'; output = Path(tmp)/'output'
+            source.mkdir(); output.mkdir(); pack, selection = fixture(); url = 'packs/settings/main.json'
+            pack['layouts']['Main']['fonts'] = ['HudNOTES.bcfnt']
+            common = {'firmware': '10.7.0-32E', 'locale': 'EU_English', 'resources': {}, 'sources': {}, 'titles': {}}
+            incoming = copy.deepcopy(common); delivery = copy.deepcopy(common)
+            def put(root, manifest, path, data, title):
+                target = root/path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
+                manifest['resources'][path] = {'sha256': digest(data), 'size': len(data), 'sources': [{'titleId': title}]}
+            put(source, incoming, url, encode(pack), SETTINGS)
+            put(source, incoming, 'textures/shared.png', b'shared', SETTINGS)
+            put(source, incoming, 'textures/selected.png', b'selected', SETTINGS)
+            put(source, incoming, 'font-hud.json', encode({'sheets': []}), SETTINGS)
+            put(output, delivery, 'textures/shared.png', b'shared', HOME)
+            put(output, delivery, 'font.json', b'{}', HOME)
+            delivery['resources']['font.json']['kind'] = 'font'
+            incoming['titles'][SETTINGS] = {'packs': [url], 'fonts': {'HudNOTES.bcfnt.LZ': 'font-hud.json'}}
+            incoming['sources'][SETTINGS] = {'titleId': SETTINGS}
+            delivery['titles'][HOME] = {'packs': ['home.json']}
+            delivery['sources'][HOME] = {'titleId': HOME}
+            delivery.update(home={'root': 'home.json'}, fonts={'shared': 'font.json'}, converter={'historical': True})
+            (source/'manifest.json').write_bytes(encode(incoming)); (output/'manifest.json').write_bytes(encode(delivery))
+            plan = {'titles': {SETTINGS: {'packs': {url: selection}}}}
+            publish(source, output, plan)
+            published = json.loads((output/'manifest.json').read_bytes())['titles'][SETTINGS]
+            self.assertEqual(published['fonts'], {'HudNOTES.bcfnt': 'font-hud.json'})
+
 
 if __name__ == '__main__': unittest.main()

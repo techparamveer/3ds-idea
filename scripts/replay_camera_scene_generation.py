@@ -15,15 +15,15 @@ from audit_camera_grid import CODE_SHA
 
 
 def replay(code_path):
+    code = code_path.read_bytes()
+    if hashlib.sha256(code).hexdigest() != CODE_SHA:
+        raise ValueError('Unexpected Camera executable')
     from unicorn import Uc, UC_ARCH_ARM, UC_MODE_ARM, UC_HOOK_CODE, UC_HOOK_MEM_WRITE
     from unicorn.arm_const import (
         UC_ARM_REG_C1_C0_2, UC_ARM_REG_FPEXC, UC_ARM_REG_LR, UC_ARM_REG_PC,
         UC_ARM_REG_R0, UC_ARM_REG_R1, UC_ARM_REG_R2, UC_ARM_REG_R3,
         UC_ARM_REG_R6, UC_ARM_REG_S0, UC_ARM_REG_S1, UC_ARM_REG_S2, UC_ARM_REG_SP,
     )
-    code = code_path.read_bytes()
-    if hashlib.sha256(code).hexdigest() != CODE_SHA:
-        raise ValueError('Unexpected Camera executable')
     source_word = lambda a: struct.unpack_from('<I', code, a - 0x100000)[0]
 
     def branch_target(address):

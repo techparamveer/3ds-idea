@@ -107,8 +107,10 @@ unposed layouts keep the small 5×7 textures (`P_Thmb_DatePho5x7.bclim`,
   adapter even though the invented arrows are gone. D-pad/button previous and
   next still work.
 - Presentation still paints the generic Back/Open footer over the native
-  lower screen. Camera has no published Back layout in this pack; `P_Tape`
-  and `C_Hud` were not delivered.
+  lower screen. [The footer source audit](camera-footer-source-audit.md) confirms
+  native browse instead has Shoot/Settings and Slideshow. `P_Tape` is a
+  decorative strip and `C_HudBut_B` is battery status, not a Back control.
+  Neither is delivered as a substitute for portfolio navigation.
 - Folder-list upper does not place a portfolio still in the viewfinder; native
   SceneBrowse may show a live feed there. Gallery/photo stretch existing
   portfolio images to 400×240 as a framebuffer replacement, not a native

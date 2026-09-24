@@ -10,11 +10,11 @@ for(const key of ['artifact-dir','asset-root','canvas-module','font-manifest'])a
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),assetRoot=values['asset-root'],out=values['artifact-dir'];mkdirSync(out,{recursive:true});
 const {createCanvas,loadImage,Image}=await import(pathToFileURL(values['canvas-module']));
 const compiled=mkdtempSync(join(out,'compiled-'));
-for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-settings']){
+for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-settings','stock-settings-navigation','app-types']){
  const text=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
- writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(text,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
+ writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(text,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name.replace(/\.ts$/,'')}.mjs'`));
 }
-const [{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,drawNativeSettingsMain,settingsSceneVariant},{poseNativeLayout}]=await Promise.all(['bitmap-font','native-title-assets','stock-native-settings','native-layout'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs')))));
+const [{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,drawNativeSettingsMain,settingsSceneVariant},{poseNativeLayout,sampleNativeTrack}]=await Promise.all(['bitmap-font','native-title-assets','stock-native-settings','native-layout'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs')))));
 globalThis.document={createElement:()=>createCanvas(1,1)};globalThis.window={location:{href:'https://helper.invalid/manifest.json'}};globalThis.Image=Image;
 const bytesForBlob=new WeakMap();URL.createObjectURL=blob=>'data:image/png;base64,'+bytesForBlob.get(blob).toString('base64');URL.revokeObjectURL=()=>{};
 globalThis.fetch=async value=>{const url=new URL(value);assert.equal(url.origin,'https://helper.invalid');const file=resolve(assetRoot,url.pathname.slice(1));assert.ok(file.startsWith(assetRoot+'/'));const bytes=readFileSync(file),response=new Response(bytes);response.blob=async()=>{const blob=new Blob([bytes]);bytesForBlob.set(blob,bytes);return blob;};return response;};
@@ -71,11 +71,13 @@ try{
  for(const [field,value]of [['date','2024-02-29'],['time','23:07'],['birthday','02-29']])subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field,parent:field==='birthday'?'profile':'clock',settings:{[field]:value}},verificationId:'supplied-'+field,heading:field,text:[]});
  subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field:'language',parent:'other',settings:{language:'English'}},verificationId:'supplied-language',heading:'language',text:[]});
  for(let top=0;top<=4;top++)subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field:'language',parent:'other',languageTop:top,settings:{language:'English'}},verificationId:'language-scroll-'+top,heading:'language',text:[]});
+ for(const direction of [-1,1])for(const frame of [0,1,2,3])subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field:'language',parent:'other',languageTop:direction===1?0:1,languageScrollDirection:direction,languageScrollElapsed:frame*1000/60,settings:{language:'English'}},verificationId:'language-motion-'+direction+'-'+frame,heading:'language',text:[]});
+ subpages.push({...subpages.at(-1),data:{...subpages.at(-1).data,languageScrollElapsed:0},reducedMotion:true,verificationId:'language-motion-reduced'});
  for(const subpage of subpages){
   const top=createCanvas(400,240),bottom=createCanvas(320,240),calls=[];
   renderer.draw=(ctx,pack,layout,options)=>{calls.push({pack,layout,options});return originalDraw(ctx,pack,layout,options);};
   assert.equal(settingsSceneVariant(subpage),subpage.variant);
-  assert.equal(drawNativeSettingsMain(renderer,top.getContext('2d'),bottom.getContext('2d'),subpage),true);
+  assert.equal(drawNativeSettingsMain(renderer,top.getContext('2d'),bottom.getContext('2d'),subpage,subpage.reducedMotion),true);
   for(const name of ['Bg_U_00','Bg_D_00']){
    const call=calls.find(c=>c.layout===name);assert.ok(call);
    assert.deepEqual(call.options?.bindings??[],subpage.variant===2?[{name:name+'_SceneIn_Legacy',frame:40}]:[]);
@@ -166,8 +168,12 @@ try{
   if(subpage.screen==='detail'&&subpage.data.field==='language'){
    const lower=calls.find(c=>c.layout==='Country_D_00'),bar=calls.find(c=>c.layout==='R_SlideBar'),footer=calls.find(c=>c.layout==='Base_D_01'),rows=calls.filter(c=>c.layout==='T_SB');
    assert.ok(lower);assert.ok(bar);assert.ok(footer);
-   assert.deepEqual(lower.options.bindings,[{name:'Country_D_00_SceneIn_00',frame:20}]);
-   const listTop=subpage.data.languageTop??0,scrolled=subpage.data.languageTop!==undefined;
+   const direction=subpage.data.languageScrollDirection,frame=Math.min(3,Math.floor((subpage.data.languageScrollElapsed??0)*60/1000));
+   const clip=direction&&!subpage.reducedMotion?'Country_D_00_Scroll'+(direction===1?'Up':'Dw'):null;
+   assert.deepEqual(lower.options.bindings,[{name:'Country_D_00_SceneIn_00',frame:20},...(clip?[{name:clip,frame,groups:['Group_01']}]:[])]);
+   const listTop=(subpage.data.languageTop??0)+(direction&&subpage.reducedMotion?direction:0),scrolled=subpage.data.languageTop!==undefined;
+   const sourceTrack=clip?renderer.packs.layout.animations[clip].tracks.find(t=>t.target==='Null_Slideanim'&&t.property==='translation.y'):null;
+   const offset=sourceTrack?sampleNativeTrack(sourceTrack,frame):0,thumbY=20-(listTop*44+offset)*40/176;
    const languages=['English','Français','Deutsch','Español','Italiano','Nederlands','Português','Русский'];
    const slots=Array.from({length:8},(_,slot)=>({slot,row:listTop+slot-2})).filter(({row})=>row>=0&&row<8);
    assert.deepEqual(Object.keys(lower.options.attachments),[...slots.map(({slot})=>'N_T_SB_0'+slot),'R_SlideBar']);
@@ -177,8 +183,8 @@ try{
    assert.deepEqual(rows.map(c=>c.options.bindings),slots.map(({row})=>english&&row===0?[{name:'T_SB_Decide_DirectSettings',frame:11}]:[]),'only configured English is decided, never a recycled slot');
    for(const name of ['SBBtnShdw','SBBtn','SBBtnFrame'])assert.deepEqual(bar.options.overrides[name].size,[22,104]);
    assert.deepEqual(bar.options.bindings??[],[],'settled viewport does not invent a slide-bar clip');
-   assert.deepEqual(bar.options.overrides.N_Slide,scrolled?{translation:[0,20-listTop*10,0]}:undefined);
-   assert.deepEqual(bar.options.overrides.B_Slide_00,{size:[24,104],...(scrolled?{translation:[0,20-listTop*10,0]}:{})});
+   assert.deepEqual(bar.options.overrides.N_Slide,scrolled?{translation:[0,thumbY,0]}:undefined);
+   assert.deepEqual(bar.options.overrides.B_Slide_00,{size:[24,104],...(scrolled?{translation:[0,thumbY,0]}:{})});
    assert.equal(footer.options.overrides.TextBox_00.text,'Back');assert.equal(footer.options.overrides.TextBox_01.text,'OK');
    assert.equal(calls.some(c=>c.layout==='Base_D_00'),false,'footer index 2 is Base_D_01');
    const upper=calls.filter(c=>c.layout==='TextBG_U_00');assert.equal(upper.length,1,'no adapted lower text card');
@@ -215,6 +221,17 @@ try{
  assert.notEqual(reports.find(r=>r.id==='supplied-language-bottom').sha256,reports.find(r=>r.id==='detail-language-bottom').sha256,'configured English marks its row');
  for(let top=0;top<=4;top++)assert.equal(reports.find(r=>r.id==='language-scroll-'+top+'-top').sha256,reports.find(r=>r.id==='supplied-language-top').sha256,'scroll only changes the lower LCD');
  assert.equal(new Set(reports.filter(r=>/^language-scroll-\d-bottom$/.test(r.id)).map(r=>r.sha256)).size,5,'five distinct bounded viewport poses');
+ for(const direction of [-1,1])for(const lcd of ['top','bottom']){
+  const hash=id=>reports.find(r=>r.id===id+'-'+lcd).sha256;
+  assert.equal(hash('language-motion-'+direction+'-0'),hash('language-scroll-'+(direction===1?0:1)),'source motion starts at previous settled pose');
+  assert.equal(hash('language-motion-'+direction+'-3'),hash('language-scroll-'+(direction===1?1:0)),'source endpoint matches recycled settled rows');
+ }
+ for(const direction of [-1,1]){
+  const frames=[0,1,2,3].map(frame=>reports.find(r=>r.id==='language-motion-'+direction+'-'+frame+'-bottom').sha256);
+  assert.equal(new Set(frames).size,4,'source motion has distinct intermediate lower poses');
+  for(const frame of [0,1,2,3])assert.equal(reports.find(r=>r.id==='language-motion-'+direction+'-'+frame+'-top').sha256,reports.find(r=>r.id==='supplied-language-top').sha256,'motion leaves upper LCD unchanged');
+ }
+ assert.equal(reports.find(r=>r.id==='language-motion-reduced-bottom').sha256,reports.find(r=>r.id==='language-scroll-1-bottom').sha256,'reduced motion shows target immediately');
  // UpLineWide_03's signed -330 width: the reflected override must draw the rule behind "SD Card".
  const ruleCoverage=overrides=>{const canvas=createCanvas(400,240),ctx=canvas.getContext('2d');assert.equal(originalDraw(ctx,'up','SMng_U_01',{bindings:[{name:'SMng_U_01_NonSD',frame:1}],overrides:{TextBox_03:{text:''},...overrides}}),true);const row=ctx.getImageData(60,86,320,1).data;let n=0;for(let i=3;i<row.length;i+=4)if(row[i])n++;return n;};
  assert.equal(ruleCoverage({}),0,'unmirrored signed size leaves the rule undrawn');
@@ -224,6 +241,6 @@ try{
  assert.equal(reports.find(r=>r.id==='parental-pin-notice-top').sha256,reports.find(r=>r.id==='parental-explain-top').sha256,'notice preserves explanation upper LCD');
  assert.notEqual(reports.find(r=>r.id==='parental-pin-notice-bottom').sha256,reports.find(r=>r.id==='parental-explain-bottom').sha256,'notice changes lower LCD');
  assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
- writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.','Data Management Software/Extra Data present SD state 2 with no titles; Open Blocks is blank and arrow/wait-icon settled states are unattached.','Language arrow scrolling is settled viewport navigation; motion, drag, keyboard selection and language edits remain unsupported.']},null,2)+'\n');
+ writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.','Data Management Software/Extra Data present SD state 2 with no titles; Open Blocks is blank and arrow/wait-icon settled states are unattached.','Language arrows use original four-frame source clips with a nominal 60 Hz browser adapter; pressed arrows, hold/repeat, drag, D-pad selection and language edits remain unsupported. Native timing and LCD comparison are unverified.']},null,2)+'\n');
  console.log(`Settings: five main and ${subpages.length} subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.`);
 }finally{assets.dispose();font.dispose();}

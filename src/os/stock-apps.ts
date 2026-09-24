@@ -1,7 +1,7 @@
 import { objectValue, type AppContext, type AppDescriptor, type AppEffect, type AppModule, type AppReduction, type AppState, type AppView, type AppViewRow, type JsonValue } from './app-types.ts';
 import { helperSelectorSources, helperTitle, helperView, isHelperTitle } from './stock-helper-views.ts';
 import { browserBack, browserChoices, browserHeading, browserNavigate, browserPageEntry, browserText } from './stock-browser-navigation.ts';
-import { settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
+import { settingsLanguageTick, LANGUAGE_SCROLL_DURATION_MS, settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
 import { healthDocumentPageCounts } from './stock-health-layout.ts';
 import { notesCaptureView, notesNextCaptureView, notesSwitchFrame, NOTES_SWITCH_LAST_FRAME, NOTES_SWITCH_DURATION_MS, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
@@ -242,6 +242,11 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0 } : {}) };
     },
     reduce(state, event, context) {
+      if (id === 'system-settings') {
+        if (event.type === 'tick') return { state: settingsLanguageTick(state, event.elapsedMs) };
+        // A paused foreground transition settles on resume, as in the Notes adapter.
+        if (event.type === 'lifecycle' && ['suspend', 'sleep'].includes(event.phase)) return { state: settingsLanguageTick(state, LANGUAGE_SCROLL_DURATION_MS) };
+      }
       if (id === 'game-notes' && state.screen === 'drawing') {
         if (event.type === 'tick' && Number.isFinite(event.elapsedMs) && event.elapsedMs > 0 && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)
           return { state: { ...state, captureSwitchElapsed: Math.min(NOTES_SWITCH_DURATION_MS, num(state.captureSwitchElapsed) + event.elapsedMs) } };

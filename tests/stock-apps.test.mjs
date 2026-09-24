@@ -272,12 +272,12 @@ test('Language arrow touches reveal all eight rows without changing locale and c
  assert.equal(action(module,state,'language-up').state,state);
  for(let top=1;top<=4;top++){
   const out=module.reduce(state,{type:'touch',phase:'up',x:304,y:185},ctx);
-  assert.equal(out.state.languageTop,top);assert.equal(out.effects,undefined);state=out.state;
+  assert.equal(out.state.languageTop,top-1);assert.equal(out.effects,undefined);state=module.reduce(out.state,{type:'tick',elapsedMs:50},ctx).state;assert.equal(state.languageTop,top);
   assert.equal(module.view(state,ctx).data.settings.language,'English');
  }
  assert.equal(action(module,state,'language-down').state,state);
  for(const phase of ['down','move','cancel'])assert.equal(module.reduce(state,{type:'touch',phase,x:304,y:17},ctx).state,state);
- for(let top=3;top>=0;top--){state=module.reduce(state,{type:'touch',phase:'up',x:304,y:17},ctx).state;assert.equal(state.languageTop,top);}
+ for(let top=3;top>=0;top--){state=module.reduce(state,{type:'touch',phase:'up',x:304,y:17},ctx).state;state=module.reduce(state,{type:'tick',elapsedMs:50},ctx).state;assert.equal(state.languageTop,top);}
  assert.equal(action(module,state,'language-up').state,state);
  for(const id of ['eu_german','language-select','ok'])assert.equal(action(module,state,id).state,state);
  const parent=action(module,state,'back').state;assert.equal(parent.screen,'other');assert.equal(parent.page,3);

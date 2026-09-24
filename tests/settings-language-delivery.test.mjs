@@ -9,6 +9,8 @@ const P='packs/settings/contents/0000-0000003d/';
 // Decoded member hashes from scripts/audit_settings_language.py against code 1f9351cd….
 const members={
  layout:{
+  Country_D_00_ScrollUp:['animations','layout_LZ.bin/anim/Country_D_00_ScrollUp.bclan','273994b57cbee174a835392230aa24ce8addb56367f55486f4a5c18ff0c98350'],
+  Country_D_00_ScrollDw:['animations','layout_LZ.bin/anim/Country_D_00_ScrollDw.bclan','cd1c5e0c8f0d11d236eda5e9008a9994bb3ae5f13d6a2991589c5966f47a2f4e'],
   Country_D_00:['layouts','layout_LZ.bin/blyt/Country_D_00.bclyt','c784303517ed52466482fd89e5c4274e2603b36c2e276ce7437988fe1139d0f2'],
   Country_D_00_SceneIn_00:['animations','layout_LZ.bin/anim/Country_D_00_SceneIn_00.bclan','326469de59d1a374e354112e4cfe7c72c23d6477a1c37f1da1ca0e92f90bf1bd'],
   Country_D_00_SceneIn_01:['animations','layout_LZ.bin/anim/Country_D_00_SceneIn_01.bclan','adf6216ab5471b4260348d1fdb77fae9396600739a5086a79e0b553bece57c6d'],
@@ -45,8 +47,8 @@ test('Language page labels keep source text and styles; the confirmation dialog 
  const dialog=JSON.parse(read(P+'dialog.json'));
  assert.equal(Object.keys(dialog.layouts).some(name=>/lang/i.test(name)),false);
 });
-test('List selection and scroll clips stay unpublished for the read-only page',()=>{
+test('List selection clips stay unpublished for the read-only page',()=>{
  const layout=JSON.parse(read(P+'layout.json')),button=JSON.parse(read(P+'button.json'));
- for(const name of ['Country_D_00_ScrollDw','Country_D_00_ScrollUp'])assert.equal(name in layout.animations,false,name);
+ for(const name of ['Country_D_00_ScrollDw','Country_D_00_ScrollUp'])assert.equal(layout.animations[name].frames,4,name);
  for(const name of ['T_SB_Select','T_SB_UnDecide','R_SlideBar_Select','R_SlideBar_Invalid'])assert.equal(name in button.animations,false,name);
 });

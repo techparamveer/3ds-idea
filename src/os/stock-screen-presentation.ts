@@ -83,7 +83,7 @@ export const NATIVE_SCREEN_DEADLINE_MS=20_000;
 /** Stock-specific 400×240 / 320×240 surfaces. Media is supplied by AppView. */
 export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,options:StockScreenPaintOptions={}):void{
   const {font}=options,accent=accents[view.appId]??'#809d8c',data=view.data??{};
-  if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view))return;
+  if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view,options.reducedMotion))return;
   if(options.native&&drawNativeSoundFrame(options.native,top,bottom,view,options))return;
   if(options.native&&camera(view.appId)){
     if(!drawNativeCameraFrame(options.native,top,bottom,view,options))throw new Error('Native camera composition failed');

@@ -46,14 +46,31 @@ export function settingsBack(state:AppState):AppState{
   const index=settingsChoices(next,{}).findIndex(row=>row.id===child);
   return {...next,selection:Math.max(0,index)};
 }
+// The two source Country scroll clips span frames 0..3. Nominal 60 Hz is
+// the browser clock adapter; native input-to-display latency is not measured.
+export const LANGUAGE_SCROLL_DURATION_MS=50;
+export function languageScroll(state:AppState):{from:number;to:number;direction:-1|1;frame:number}|null{
+  if(state.screen!=='detail'||state.field!=='language'||(state.languageScrollDirection!==-1&&state.languageScrollDirection!==1)||typeof state.languageScrollElapsed!=='number'||!Number.isFinite(state.languageScrollElapsed))return null;
+  const from=typeof state.languageTop==='number'&&Number.isFinite(state.languageTop)?Math.max(0,Math.min(4,Math.floor(state.languageTop))):0;
+  const to=from+state.languageScrollDirection;if(to<0||to>4)return null;
+  return {from,to,direction:state.languageScrollDirection,frame:Math.max(0,Math.min(3,Math.floor(state.languageScrollElapsed*60/1000)))};
+}
+export function settingsLanguageTick(state:AppState,elapsed:number):AppState{
+  const scroll=languageScroll(state);if(!scroll||!Number.isFinite(elapsed)||elapsed<=0)return state;
+  const next=Math.max(0,state.languageScrollElapsed as number)+elapsed;
+  if(next<LANGUAGE_SCROLL_DURATION_MS)return {...state,languageScrollElapsed:next};
+  const {languageScrollDirection:_direction,languageScrollElapsed:_elapsed,...rest}=state;
+  return {...rest,languageTop:scroll.to};
+}
 export function settingsNavigate(state:AppState,action:string):AppState{
   const screen=screenOf(state);
   if(screen==='detail'&&state.field==='language'&&(action==='language-up'||action==='language-down')){
-    // Source list 0x19f044 / 0x1983d4: arrows move one row within 8−4.
-    // This is viewport navigation only; configured language stays immutable.
+    // Source 0x19f044 blocks arrows while either clip runs; 0x1983d4/0x198434
+    // commit one row only after completion. Configuration stays immutable.
+    if(languageScroll(state))return state;
     const top=typeof state.languageTop==='number'&&Number.isFinite(state.languageTop)?Math.max(0,Math.min(4,Math.floor(state.languageTop))):0;
     const next=Math.max(0,Math.min(4,top+(action==='language-down'?1:-1)));
-    return next===top?state:{...state,languageTop:next};
+    return next===top?state:{...state,languageTop:top,languageScrollDirection:action==='language-down'?1:-1,languageScrollElapsed:0};
   }
   if(screen==='other'&&(action==='settings-next'||action==='settings-previous')){
     const page=Math.max(0,Math.min(settingsOtherPages.length-1,settingsPage(state)+(action==='settings-next'?1:-1)));

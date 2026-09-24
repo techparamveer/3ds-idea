@@ -253,3 +253,8 @@ Artifacts: `reference/language-scroll/` under the firmware SSD artifact root.
 It contains `source-ranges.json` (full code and traced-range SHA-256 hashes),
 `list-arrow-dispatch.asm`, `list-arrow-update.asm`, `tests.log`,
 `typecheck.log`, `render.log` and `render/verification.json` plus paired PNGs.
+
+The subsequent [source scroll motion validation](settings-language-motion-validation.md)
+adds the two original four-frame Country clips and completion-gated row
+recycling. It supersedes the settled-only motion limitation above; pressed
+arrows, dragging and D-pad focus remain unproven.

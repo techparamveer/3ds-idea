@@ -1,5 +1,9 @@
 # Camera image lifecycle, mode switch and ring routing
 
+The [cache/rebind continuation](camera-rebind-source-audit.md) now replays
+logical-slot collision validation, deferred release and isolated touch ancestry;
+the combined live-paging sequence remains unverified.
+
 This continues the [preview lifecycle audit](camera-preview-lifecycle-source-audit.md)
 in an isolated worktree based on integration `3698dae`. It corrects an important
 assumption: **image helper `+0xe0` is an initialization latch, not asynchronous

@@ -141,3 +141,8 @@ substituting browser pointer capture is not sufficient. Continuous live scroll
 must wait for these geometry and cancellation links; native per-update motion,
 font metrics, buffer selection and this draw order alone are not end-to-end
 acceptance.
+
+Follow-up: the [glyph/owner audit](health-glyph-owner-source-audit.md) executes
+the generic text loop through native cached glyph records and the outer control
+manager's ownership scan, dispatch and teardown. Actual rich-style binding,
+final command composition and scene-specific cancellation remain explicit gates.

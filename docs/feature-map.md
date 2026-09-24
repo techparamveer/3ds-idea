@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: integration **`62f0b97`** on `codex/firmware-os-10-7`,
+Checkpoint: integration **`19db308`** on `codex/firmware-os-10-7`,
 24 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -28,7 +28,7 @@ the browser by the coordinator.
 
 ## Features
 
-| Feature | Status at `62f0b97` | Next action | Owner | Evidence |
+| Feature | Status at `19db308` | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
@@ -47,7 +47,7 @@ the browser by the coordinator.
 | Game Notes | Implemented grid/editor and source-pane capture of the suspended app (`f9219d7`). Double → Up → Down and 0–25 frame Switch clip are integrated. Eight original SMDH descriptions/icons are published; the hidden metadata session binds Notes, application and capture owners (`01105ca`). HOME-again retires Notes (`34ebf75`). Ordered startup/Open/Back and pane apply/material publication are source-traced through `1047fa9` and represented by a pure owner-bound scheduler (`a7a8c8a`); the live title panel stays disconnected. Visible Notes over Work has the correct accessible announcement (`b1fedf5`) | Prove complete applied-state and intro/input/return gates, then connect the title/HUD panel, wave cues and matched native comparison | Coordinator | [Capture validation](native-notes-suspended-capture.md), [switch audit](native-notes-switch-source-audit.md), [metadata lifecycle](notes-metadata-lifecycle.md), [ordered startup](native-notes-ordered-startup-audit.md), [scheduler](notes-panel-scheduler.md), [title lifecycle](native-notes-title-lifecycle-audit.md), [owner exit](notes-home-owner-exit.md), [audio delivery](native-notes-switch-audio-delivery.md) |
 | Friend List, Notifications | Implemented source initial/empty states | Interior fidelity; nonempty states only if brought into scope | Presentation; runtime | [Personal tools](native-personal-tools.md) |
 | Internet Browser, Miiverse | Implemented source chrome. Adaptation: local read-only interiors | Interior fidelity. No remote browsing or keyboard | Presentation; runtime | [Interiors](native-browser-miiverse-interiors.md) |
-| eShop, Nintendo Zone | Implemented source welcome/offline chrome. Zone status icons use original HUD clips (`410e8b4`); HH:MM text panes and 119-frame colon clip paint live (`fa8b87e`). Its 400×220 target, actual upper camera, 320×240 parent, stereo-zero matrix, entry render-state reset, viewport callback and paint dispatch are traced through `40a21c9`. eShop's sourced in/balloonIn/75-frame wait sequence now plays with an owner-bound browser clock (`c2b6cbb`) | Resolve Zone actual HTML root inputs, final clipping and shader interpolation; eShop shared upper status, background curtain, OK exit, sound and matched native comparison | Coordinator | [Service HUD trace](native-service-screen-trace.md), [projection audit](native-zone-projection-source-audit.md), [raster state](native-zone-raster-state-audit.md), [placement](native-zone-placement-inputs-audit.md), [paint dispatch](native-zone-draw-dispatch-audit.md), [eShop lifecycle](eshop-welcome-lifecycle-source-audit.md), [native direct route](native-eshop-direct-launch-2026-09-24.md) |
+| eShop, Nintendo Zone | Implemented source welcome/offline chrome. Zone status icons use original HUD clips (`410e8b4`); HH:MM text panes and 119-frame colon clip paint live (`fa8b87e`). Its 400×220 target, actual upper camera, 320×240 parent, stereo-zero matrix, entry render-state reset, viewport callback and paint dispatch are traced through `40a21c9`. eShop's source entrance/wait, BG curtain, 30 Hz pass cadence, OK gate and exit are integrated (`c2b6cbb`, `19db308`); welcome → OK → HOME was operated live | Resolve Zone actual HTML root inputs, final clipping and shader interpolation; eShop's visibly incorrect inherited gray HOME status strip, sound and matched native comparison | Coordinator | [Service HUD trace](native-service-screen-trace.md), [projection audit](native-zone-projection-source-audit.md), [raster state](native-zone-raster-state-audit.md), [placement](native-zone-placement-inputs-audit.md), [paint dispatch](native-zone-draw-dispatch-audit.md), [eShop lifecycle](eshop-welcome-lifecycle-source-audit.md), [native direct route](native-eshop-direct-launch-2026-09-24.md) |
 | NNID | **Source gap:** the unsigned-in body is absent from supplied data. Adaptation: native header plus local notice | Obtain a defensible reference if possible; otherwise keep it labelled | Assets; runtime | [NNID audit](nnid-entry-source-audit.md) |
 | amiibo settings | Source-backed English opening UI and bounded Header/`PortalBtnSub` materials are published and render as internal read-only applet (`aeb54a4`, `b707a5b`); no visible HOME/Settings route exists | Matched native opening comparison, font/motion and entrypoint validation; keep NFC/account/update operations inert | Assets; coordinator for entry/browser | [amiibo opening](native-amiibo-opening.md), [command trace](amiibo-material-command-trace.md) |
 | Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
@@ -62,8 +62,8 @@ this table.
 
 | Role | Worktree | Branch @ head | Not yet integrated |
 | --- | --- | --- | --- |
-| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `62f0b97` | — |
-| eShop idle source | `3ds-idea-worktrees/eshop-idle-source` | `codex/eshop-idle-source` @ `ea48912` | Entrance/idle integrated as `c2b6cbb`; Opus source follow-up in progress |
+| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `19db308` | — |
+| eShop idle source | `3ds-idea-worktrees/eshop-idle-source` | `codex/eshop-idle-source` @ `17dfa3f` | Entrance/idle integrated as `c2b6cbb`; curtain/exit integrated as `19db308` |
 | Settings status | `3ds-idea-worktrees/settings-native-status` | `codex/settings-native-status` @ `f4bd4ed` | Integrated as `b52aeb3`, manifest preservation as `62f0b97`; live Other page 1 inspected |
 | Camera strip controller | `3ds-idea-worktrees/camera-native-paging` | `codex/camera-native-paging` @ `6ed2903` | Integrated as `2d6285d`; disconnected from live paging |
 | Health glyph follow-up | `3ds-idea-worktrees/health-glyph-stream-source` | `codex/health-glyph-stream-source` @ `c1624d7` | Fable source/implementation follow-up in progress |

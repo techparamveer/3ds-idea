@@ -53,7 +53,9 @@ adapter plays those 105 source frames together at nominal 60Hz (1750ms). This
 schedule is an explicit browser choice from the clip lengths; the B clip is
 looping in the resource and its actual hardware hold depends on software loading.
 Reduced motion holds a settled logo over the opaque B fade for the existing 120ms
-launch phase. Cold boot still opens HOME directly.
+launch phase. Cold boot reveals HOME through the common SceneIn fade without the app-launch
+logo. Its 3000 ms phase and final 350 ms fade mapping remain browser choices;
+see the [cold-boot source audit](native-cold-boot-reveal-source-audit.md).
 
 The source logo was visually inspected in24 native-resolution transition renders
 under `reference/system-ui-logo`, with no renderer diagnostics and verified

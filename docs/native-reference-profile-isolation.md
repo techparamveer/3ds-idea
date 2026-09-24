@@ -41,3 +41,16 @@ Azahar screenshot was available to verify whether the tap landed. The title
 was stopped, Azahar quit, and the isolated config was restored from its
 pre-test backup. This workaround remains **unverified**. Do not use its
 attempted input as native comparison evidence.
+
+On 24 September, a fresh isolated trial resolved that mapping ambiguity. The
+Qt config requires both `profiles\\1\\use_touch_from_button=true` **and**
+`profiles\\1\\use_touch_from_button\\default=false`; leaving the latter true
+causes Azahar to load the default false value and rewrite the file on exit.
+An entry with `code:85,engine:keyboard,x:240,y:170` bound U to the centre of
+Other Settings on the lower LCD. With the isolated renderer set to OpenGL,
+pressing U visibly highlighted that button and opened Other Settings page 1.
+The pair was captured under `reference/native-settings-2026-09-24/` beside the
+private firmware artifacts; see [the comparison](native-settings-live-comparison-2026-09-24.md).
+The isolated config was restored after the trial; the default profile config
+timestamp remained `1790215510` seconds. This verifies this single touch route,
+not arbitrary coordinate input, native timing or whole-screen fidelity.

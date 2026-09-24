@@ -18,7 +18,7 @@ with `unicorn==2.1.4` and checks three input hashes:
 | --- | --- |
 | Private Health `code.bin` (EUR `0004001000022300`, v3077) | `74c813cc1f00a67c06ad85e10723b1440949b2d448e2e1f5532d2a61fb57600c` |
 | Shared font JSON (`public/os/firmware/10.7.0-32E/fonts/shared/font.json`) | `d48b661f446e3e581abeceb62b86312a6fea6c8120cd1214ba76b298f94c9f27` |
-| Converted `health-and-safety/messages-and-loose.json` | `cb2cb2c1b396c80c9ccfed2352f0e8082f05a51f94e6091a4a1c83ae4ad5b5e1` |
+| Private converted-styles `health-and-safety/messages-and-loose.json` | `cb2cb2c1b396c80c9ccfed2352f0e8082f05a51f94e6091a4a1c83ae4ad5b5e1` |
 
 It takes absolute `--code`, `--font`, `--pack` and `--output` paths. The
 private report is `reference/health-live-scroll/replay.json` under the firmware
@@ -27,6 +27,8 @@ artifact root, SHA-256
 produce identical bytes. Scratch disassembly helpers are in the same private
 directory. No firmware bytes, decoded article text or glyph records are
 committed.
+
+The public delivery pack has SHA-256 `efad61573648fea2d2c56854590f3ff1093dc744a7c3c450a169f26fedb22ac9` because it adds `uiSelection` metadata. Its `messages`, styles and resource sources are identical to the pinned private converted-styles pack. The replay intentionally pins the latter, which is under the SSD artifact root rather than the repository.
 
 Intercepted leaves are limited to the following:
 

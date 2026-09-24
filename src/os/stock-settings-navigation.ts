@@ -38,13 +38,15 @@ export function settingsHeading(state:AppState):string{
   const parent=typeof state.parent==='string'?state.parent:'main';
   return settingsChoices({screen:parent,page:state.page},{}).find(row=>row.id===state.field)?.label??'System Settings';
 }
-function menuState(screen:string,page=0,selection=0):AppState{return {screen,selection,...(screen==='other'?{page}:{})};}
+// Native touch entry shows the Other buttons in their frame-0 white pose; a
+// logical first row is retained so A can still activate Profile immediately.
+function menuState(screen:string,page=0,selection=0):AppState{return {screen,selection,...(screen==='other'?{page,selectionActive:false}:{})};}
 export function settingsBack(state:AppState):AppState{
   const screen=screenOf(state),parent=screen==='detail'&&typeof state.parent==='string'?state.parent:menuParents[screen]??'main';
   const child=screen==='detail'?state.field:['parental-explain','parental-pin-notice','restrictions'].includes(screen)?'next':screen;
   const next=menuState(parent,settingsPage(state));
   const index=settingsChoices(next,{}).findIndex(row=>row.id===child);
-  return {...next,selection:Math.max(0,index)};
+  return {...next,selection:Math.max(0,index),...(parent==='other'?{selectionActive:true}:{})};
 }
 // The two source Country scroll clips span frames 0..3. Nominal 60 Hz is
 // the browser clock adapter; native input-to-display latency is not measured.

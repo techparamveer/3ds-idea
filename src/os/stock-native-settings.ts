@@ -218,7 +218,7 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   }
   const child=(layout:string,id:string,label?:string)=>{
     const clip=layout==='B_S'?'B_SB':layout==='B_M'?'B_L':otherIcons.includes(layout)?'I_User':layout;
-    const bindings=buttons.includes(clip)?[{name:clip+'_DirectSettings',frame:view.rows[view.selection]?.id===id?1:0}]:[];
+    const bindings=buttons.includes(clip)?[{name:clip+'_DirectSettings',frame:view.rows[view.selection]?.id===id&&!(view.screen==='other'&&view.data?.selectionActive===false)?1:0}]:[];
     const overrides:PaneOverrides=label?{TextBox_00:message(label)}:{};
     if(layout.startsWith('B_CnctW'))overrides.TextBox_00={text:message('net_connect1_u').text!.replace(/ 1$/,''),fontSize:[15,18]};
     draw(bottom,'button',layout,{bindings,overrides});

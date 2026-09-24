@@ -220,7 +220,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'notifications' && screen === 'notification') text.push(str(list(context.shared.notifications).find(item => item.id === state.notificationId)?.message));
     if (id === 'notifications' && !options.length && screen === 'main') text.push('There are no notifications.');
-    if (id === 'system-settings') { text.push(...settingsText(state, context.shared)); if (screen === 'other') { data.page=settingsPage(state); data.pageCount=settingsOtherPages.length; } }
+    if (id === 'system-settings') { text.push(...settingsText(state, context.shared)); if (screen === 'other') { data.page=settingsPage(state); data.pageCount=settingsOtherPages.length; data.selectionActive=state.selectionActive!==false; } }
     if (id === 'browser') { text.push(...browserText(state, context.shared)); data.entry=browserPageEntry(state, context.shared); if (screen === 'settings') { data.page=Math.floor(selection/4); data.pageCount=2; } }
     const helper=helperView(id,state,context.shared,options);
     if(helper){text.push(...helper.text);Object.assign(data,helper.data);}
@@ -276,7 +276,9 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       }
       if (command === 'left' || command === 'right' || command === 'up' || command === 'down') {
         const selection = directionalSelection(current, command);
-        return selection === current.selection ? { state } : { state: { ...state, selection } };
+        const otherFocus=id === 'system-settings' && current.screen === 'other';
+        return selection === current.selection && (!otherFocus || state.selectionActive !== false)
+          ? { state } : { state: { ...state, selection, ...(otherFocus ? { selectionActive: true } : {}) } };
       }
       return { state };
     },

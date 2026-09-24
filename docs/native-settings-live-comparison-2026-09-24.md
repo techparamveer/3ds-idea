@@ -32,9 +32,9 @@ draws that source layout last on main and subpages, using a fixed
 reference-observed network/battery state and the injected local clock. Its
 bounded top-17-row source render has RGB MAE 10.9467 against this JPEG capture.
 See the [status-strip source audit](settings-native-status-source-audit.md).
-This has not yet had coordinator browser inspection, and the content below the
-strip still needs aligned native-LCD comparison. Neither result establishes
-whole-screen 1:1 fidelity.
+The integrated strip was subsequently inspected in the live browser on main
+and Other Settings page 1. The content below it still needs aligned native-LCD
+comparison. Neither result establishes whole-screen 1:1 fidelity.
 
 Evidence under the SSD artifact root:
 
@@ -49,3 +49,15 @@ The isolated profile was restored after capture, and the default Azahar profile
 was not changed. The prior black capture after an A press was not evidence that
 mapped touch could not work: the earlier config still had Qt's default flag
 enabled. This trial establishes one working coordinate, not complete input.
+
+At `62f0b97`, the browser capture
+`reference/native-settings-2026-09-24/browser-other-page1-touch-62f0b97.jpg`
+showed one remaining settled-pose mismatch: touch-opened Other Settings
+highlighted Profile yellow, while the native touch-opened capture left it
+white. The integration now keeps Profile as the logical first A target but
+applies the source button's frame-0 white pose until directional input gives
+it focus. The resulting browser capture is
+`reference/native-settings-2026-09-24/browser-other-page1-touch-unselected.jpg`.
+Down then highlighted Date & Time; browser warnings/errors stayed empty. This
+corrects the observed touch-entry pose, not unmeasured focus timing or every
+return path.

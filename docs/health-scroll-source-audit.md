@@ -45,8 +45,9 @@ That constructor copies the descriptor into `controller+4`, so descriptor
 flags `+0x19/+0x1a` become controller `+0x1d/+0x1e`; do not confuse the offsets.
 The two key masks at `0x1641fc` are `0x40/0x80` (Up/Down). Their descriptor is
 created by `0x154a44` and selectively overwritten by the scene; tracing the
-common control scheduler/repeat writer remains necessary before assigning a
-browser repeat interval.
+common control scheduler remains necessary before assigning wall-clock timing.
+The later [key audit](health-key-clip-consumer-audit.md) establishes that Health
+overrides the generic 20/5 repeat defaults with delay 0/interval 1 update.
 
 The event1 callback `0x157df0` dispatches to request mapper `0x127bb4`:
 

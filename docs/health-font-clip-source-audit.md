@@ -1,5 +1,9 @@
 # Health installed font metrics, warning width and clipping boundary
 
+The [key/clip-consumer continuation](health-key-clip-consumer-audit.md) now
+replays Health's 0/1 held-key cadence, prescribed touch ownership and the generic
+rectangle command consumer. Article-specific clip production remains open.
+
 Continuation of the [rich-text audit](health-richtext-source-audit.md), based on
 integration `40b0539`. Native setter and measurement arithmetic now support the
 previous18px/3px/21px metric fixture. This remains a bounded source replay; the

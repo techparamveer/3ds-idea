@@ -97,3 +97,11 @@ public promotion and browser/native comparison. See the
 Every allocated geometry, material, texture, environment target, renderer,
 listener, observer, animation request and audio context must be disposed by the
 returned teardown. New scene resources must be added to this ownership model.
+
+The Sound main view has a separate lazy `sound-room.ts` model owner. It reuses
+`createFirmwareModel` and the console renderer, renders the source embedded camera
+into one native-resolution target, then caches opaque LCD RGB. A small injected
+`StockModelBackground` prepare/draw contract joins the stock paired-screen
+readiness/deadline; the OS never receives scene objects. Leaving main, failure,
+retry and teardown release its generation/resources. This does not enable music
+visualisers or change HOME rendering. See [room evidence](../sound-room-source.md).

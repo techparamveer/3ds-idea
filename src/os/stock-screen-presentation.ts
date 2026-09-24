@@ -1,3 +1,4 @@
+import type { StockModelBackground } from './stock-model-background';
 import { drawNativeSelectorFrame, nativeSelectorView } from './stock-native-selectors';
 import { drawNativeHelperFrame, nativeHelperView } from './stock-native-helpers';
 import { drawNativeServiceFrame, eshopHudClock, eshopWelcomePose, nativeServiceView, zoneClock } from './stock-native-services';
@@ -33,7 +34,7 @@ export type NotesIntroPaint =
       icon?: NativePixels;
       description?: string;
     };
-export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
+export type StockScreenPaintOptions={soundRoom?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
 const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const records=(v:JsonValue|undefined):MediaRecord[]=>Array.isArray(v)?v.map(record):[];
 const string=(v:JsonValue|undefined)=>typeof v==='string'?v:'';
@@ -183,24 +184,25 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
 }
 
 /** One foreground session; asynchronous resources never outlive its owner. */
-export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number;reducedMotion?:()=>boolean}={}){
+export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number;soundRoom?:StockModelBackground;reducedMotion?:()=>boolean}={}){
   let revision=0,painted='',paintedFont:BitmapFont|undefined,complete=false;
   const changed=()=>{revision++;options.onChange?.();};
-  const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:state=>{if(state.status==='ready'||state.status==='error')clearDeadline();changed();}});
+  const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:state=>{if((state.status==='ready'&&roomReady)||state.status==='error')clearDeadline();changed();}});
   const images=new Map<string,HTMLImageElement>();let owner:string|null=null,disposed=false;
   let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
   let published:NativeLayoutRenderer|undefined;
+  let roomReady=true;
   const deadlineMs=options.deadlineMs??NATIVE_SCREEN_DEADLINE_MS;
   if(!Number.isFinite(deadlineMs)||deadlineMs<=0)throw new Error('Invalid native preparation deadline');
   const upper=document.createElement('canvas'),lower=document.createElement('canvas');upper.width=400;upper.height=240;lower.width=320;lower.height=240;
   const upperContext=upper.getContext('2d')!,lowerContext=lower.getContext('2d')!;
   const clearDeadline=()=>{if(deadline!==undefined)clearTimeout(deadline);deadline=undefined;};
   function fail(error:unknown){
-    clearDeadline();failure=error??new Error('Native screen preparation failed');recoveryPublished=false;published=undefined;
+    options.soundRoom?.prepare(null,changed);roomReady=true;clearDeadline();failure=error??new Error('Native screen preparation failed');recoveryPublished=false;published=undefined;
     // Invalidates the generation as well as aborting a cooperative loader.
     session.update(null);changed();
   }
-  function reset(){clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
+  function reset(){options.soundRoom?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
   function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();}
   function image(ctx:Context,url:string,x:number,y:number,w:number,h:number){
     let im=images.get(url);
@@ -217,7 +219,10 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     if(!descriptor||failure)return session.getState();
     const state=session.update(font?{owner:nextOwner,...descriptor,sharedFonts:new Map([['cbf_std.bcfnt',font]])}:null);
     if(state.status==='error'){fail(state.error);return state;}
-    if(state.status==='ready')clearDeadline();
+    const room=options.soundRoom?.prepare(view.appId==='sound'&&view.screen==='main'?nextOwner:null,changed);
+    roomReady=!room||room.status==='inactive'||room.status==='ready';
+    if(room?.status==='error'){fail(room.error);return state;}
+    if(state.status==='ready'&&roomReady)clearDeadline();
     else if(deadline===undefined)deadline=setTimeout(()=>{if(!disposed&&identity===next)fail(new Error('Native screen preparation timed out'));},deadlineMs);
     return state;
   }
@@ -225,7 +230,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     const state=prepare(view,nextOwner,font);
     if(!identity||disposed)return 'inactive';
     if(failure)return recoveryPublished?'error':'loading';
-    return state.status==='ready'&&published===state.assets.renderer?'ready':'loading';
+    return state.status==='ready'&&roomReady&&published===state.assets.renderer?'ready':'loading';
   }
   function black(){
     // CmnFadeNinLogo_U/D_00 SceneOut frame20: full-screen RGB0, alpha255.
@@ -271,10 +276,10 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         complete=false;
         black();
         if(failure)recovery();
-        else if(!identity||state.status==='ready'){
+        else if(!identity||(state.status==='ready'&&roomReady)){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,soundRoom:options.soundRoom,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
           }catch(error){fail(error);recovery();}
         }
@@ -288,6 +293,6 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     },
     getState:session.getState,
     getFailure:()=>failure,
-    dispose(){if(disposed)return;disposed=true;clearDeadline();session.dispose();releaseImages();owner=null;published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
+    dispose(){if(disposed)return;disposed=true;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);releaseImages();owner=null;published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
   };
 }

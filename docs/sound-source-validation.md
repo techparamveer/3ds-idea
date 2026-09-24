@@ -201,17 +201,15 @@ ETC1A4, L4, L8, LA8, A8 and HiLo8 (the clock normal map).
   constructor builds at `+0xc88`/`+0xe9c`. **The default visualiser is index 1,
   `S_Vis_Span_U`.** The save-load path that may restore a user-changed value
   was not traced.
-- `S_Back_U` is not the playback backdrop. Its object (constructor `0x192030`,
-  vtable `0x31fa58`, loader `0x191e98` with camera constants 11.5 and 0.5) is
-  created disabled at `app+0x8c` by `0x1c65c8`, and all five toggle sites gate
-  on the slot-`0x70` predicate of the current type-`0x372190` object. That type
-  is returned by `0x2903a0`, the `getType` of the eight `S_Cec` StreetPass scene
-  classes (vtables `0x321b80…0x32207c`). No music playback path enables it.
+- The earlier `S_Back_U` StreetPass-only inference was incorrect. The
+  `0x272xxx` sites operate on a different layout owner's +0x8c; the global
+  room's flags are written at `0x235e00..0x235e80`. Its textures contain the
+  captured entry room. See [the corrected trace and renderer](sound-room-source.md).
 
 ### Conclusion and next gate
 
-There is no source-proven static resting upper-screen pose that can be shown
-without audio: the default Span model's bars all sit at one bind transform and
+The separate entry room is implemented; no source-proven static resting playback
+visualiser pose can be shown without audio: the default Span model's bars all sit at one bind transform and
 are placed by its class at runtime, and none of the resources carries a clip.
 Drawing any bind pose would invent a pose, so nothing is composed. Before a
 visualiser can be shown:

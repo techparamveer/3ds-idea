@@ -94,6 +94,7 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     return okay;
   }
   draw(top,'sound-bg','S_BG');draw(bottom,'sound-bg','S_BG_D-Grid',{bindings:[{name:'S_BG_D-Grid_Default',frame:0}]});
+  if(view.screen==='main'&&options.soundRoom)okay=options.soundRoom.draw(top)&&okay;
   // DefUndBar carries PlyTimeTxt during playback; its battery/clock HUD slots are not composed here.
   if(playback)draw(top,'sound-info','S_Inf_U-UnderBar');
   draw(top,'sound-info','S_Inf_U-TitleBar',{bindings:[{name:'S_Inf_U-TitleBar_TitleLeftIn',frame:5}],overrides:{TitlTxt:message('S','C_T_00')}});

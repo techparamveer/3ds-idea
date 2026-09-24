@@ -2015,7 +2015,7 @@
   ],
   "restingPose": {
     "assetDefinedPose": "bind pose only; no skeletal, material, visibility or camera clip exists in any of the 12 resources",
-    "backgroundVisibility": "S_Back_U is not part of playback (see upperBackground)",
+    "backgroundVisibility": "Entry room visibility is separately traced in sound-room-replay.json; playback visualiser placement remains unproven",
     "defaultBindPose": "not displayable: LightLine00-31 share one bind transform (0,-45,0) and LightLineSide sits at (0,-40,0); the Span class places the bars at runtime",
     "defaultVisualiser": "S_Vis_Span_U (index 1) on default settings",
     "runtimeDrivers": "bone transforms are written by the visualiser classes at runtime; audio coupling and the silent placement were not traced",
@@ -2036,107 +2036,112 @@
   },
   "title": "0004001000022500",
   "upperBackground": {
+    "activeWriter": "0x235e00..0x235e80",
     "cameraDistance": 11.5,
     "cameraSecondConstant": 0.5,
-    "conclusion": "S_Back_U is the StreetPass (S_Cec) upper background; no music playback path enables it",
+    "conclusion": "S_Back_U is the captured entry room; the former StreetPass-only inference confused two owners with the same field offset",
     "createdDisabledBy": "0x1c65c8 (app+0x8c)",
-    "enableCondition": "slot-0x70 predicate of the current type-0x372190 object",
+    "evidence": "sound-room-replay.json",
     "loader": "0x191e98",
+    "modePredicate": "0x28fcf8",
     "model": "S_Back_U.bcmdl",
     "objectConstructor": "0x192030",
-    "toggleSites": [
-      {
-        "load": "0x1c67ac",
-        "operation": "disable",
-        "toggle": "0x1c67b4"
-      },
-      {
-        "load": "0x27202c",
-        "operation": "enable",
-        "toggle": "0x272034"
-      },
-      {
-        "load": "0x2723d4",
-        "operation": "disable",
-        "toggle": "0x2723e0"
-      },
-      {
-        "load": "0x2729b0",
-        "operation": "enable",
-        "toggle": "0x2729b8"
-      },
-      {
-        "load": "0x2729d8",
-        "operation": "disable",
-        "toggle": "0x2729e0"
-      }
-    ],
-    "typeOwners": [
-      {
-        "layouts": [
-          "S_Cec_U-NoList2"
-        ],
-        "predicate": "0x29015c",
-        "vtable": "0x321b80"
-      },
-      {
-        "layouts": [
-          "S_Cec_U-NoList2"
-        ],
-        "predicate": "0x290188",
-        "vtable": "0x321c8c"
-      },
-      {
-        "layouts": [
-          "S_Cec",
-          "S_Cec_U-ArtstRslt",
-          "S_Cec_U-NoList2"
-        ],
-        "predicate": "0x292a90",
-        "vtable": "0x321d34"
-      },
-      {
-        "layouts": [
-          "S_Cec",
-          "S_Cec_U-MtchRcrd"
-        ],
-        "predicate": "0x292a90",
-        "vtable": "0x321ddc"
-      },
-      {
-        "layouts": [
-          "S_Cec",
-          "S_Cec_U-MtchRslt",
-          "S_Cec_U-NoMatch"
-        ],
-        "predicate": "0x292a90",
-        "vtable": "0x321e84"
-      },
-      {
-        "layouts": [
-          "S_Cec",
-          "S_Cec_U-NoList2",
-          "S_Cec_U-SngRslt"
-        ],
-        "predicate": "0x292a90",
-        "vtable": "0x321f2c"
-      },
-      {
-        "layouts": [
-          "S_Cec",
-          "S_Cec_U-MtchRslt"
-        ],
-        "predicate": "0x2901b4",
-        "vtable": "0x321fd4"
-      },
-      {
-        "layouts": [
-          "S_Cec_U-NoMatch"
-        ],
-        "predicate": "0x2901f4",
-        "vtable": "0x32207c"
-      }
-    ],
+    "unrelatedSameOffsetMatches": {
+      "layoutConstructor": "0x27231c..0x2723ac",
+      "toggleSites": [
+        {
+          "load": "0x1c67ac",
+          "operation": "disable",
+          "toggle": "0x1c67b4"
+        },
+        {
+          "load": "0x27202c",
+          "operation": "enable",
+          "toggle": "0x272034"
+        },
+        {
+          "load": "0x2723d4",
+          "operation": "disable",
+          "toggle": "0x2723e0"
+        },
+        {
+          "load": "0x2729b0",
+          "operation": "enable",
+          "toggle": "0x2729b8"
+        },
+        {
+          "load": "0x2729d8",
+          "operation": "disable",
+          "toggle": "0x2729e0"
+        }
+      ],
+      "typeOwners": [
+        {
+          "layouts": [
+            "S_Cec_U-NoList2"
+          ],
+          "predicate": "0x29015c",
+          "vtable": "0x321b80"
+        },
+        {
+          "layouts": [
+            "S_Cec_U-NoList2"
+          ],
+          "predicate": "0x290188",
+          "vtable": "0x321c8c"
+        },
+        {
+          "layouts": [
+            "S_Cec",
+            "S_Cec_U-ArtstRslt",
+            "S_Cec_U-NoList2"
+          ],
+          "predicate": "0x292a90",
+          "vtable": "0x321d34"
+        },
+        {
+          "layouts": [
+            "S_Cec",
+            "S_Cec_U-MtchRcrd"
+          ],
+          "predicate": "0x292a90",
+          "vtable": "0x321ddc"
+        },
+        {
+          "layouts": [
+            "S_Cec",
+            "S_Cec_U-MtchRslt",
+            "S_Cec_U-NoMatch"
+          ],
+          "predicate": "0x292a90",
+          "vtable": "0x321e84"
+        },
+        {
+          "layouts": [
+            "S_Cec",
+            "S_Cec_U-NoList2",
+            "S_Cec_U-SngRslt"
+          ],
+          "predicate": "0x292a90",
+          "vtable": "0x321f2c"
+        },
+        {
+          "layouts": [
+            "S_Cec",
+            "S_Cec_U-MtchRslt"
+          ],
+          "predicate": "0x2901b4",
+          "vtable": "0x321fd4"
+        },
+        {
+          "layouts": [
+            "S_Cec_U-NoMatch"
+          ],
+          "predicate": "0x2901f4",
+          "vtable": "0x32207c"
+        }
+      ]
+    },
     "vtable": "0x31fa58"
   },
   "visualiserFactory": {

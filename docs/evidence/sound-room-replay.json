@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "codeSha256": "3c57f2c4091c1bec6b3834609f1e2a6488712e21775d7548b441c69c60b3e5a9",
+  "globalRoom": "app+0x8c from 0x1c674c/0x1c6754",
+  "writer": "0x235e00..0x235e80",
+  "modePredicate": "0x28fcf8 (null child returns true; otherwise signed byte child+0xa0)",
+  "managedDisableMask": "0x1c",
+  "cases": [
+    {
+      "controlFlags": 0,
+      "hostIndex": 0,
+      "hostFlags": 0,
+      "modeByte": null,
+      "roomFlags": 962,
+      "enabled": true
+    },
+    {
+      "controlFlags": 196,
+      "hostIndex": 1,
+      "hostFlags": 0,
+      "modeByte": null,
+      "roomFlags": 990,
+      "enabled": false
+    },
+    {
+      "controlFlags": 196,
+      "hostIndex": 0,
+      "hostFlags": 0,
+      "modeByte": null,
+      "roomFlags": 962,
+      "enabled": true
+    },
+    {
+      "controlFlags": 196,
+      "hostIndex": 1,
+      "hostFlags": 208,
+      "modeByte": null,
+      "roomFlags": 962,
+      "enabled": true
+    },
+    {
+      "controlFlags": 0,
+      "hostIndex": 0,
+      "hostFlags": 0,
+      "modeByte": 0,
+      "roomFlags": 990,
+      "enabled": false
+    },
+    {
+      "controlFlags": 0,
+      "hostIndex": 0,
+      "hostFlags": 0,
+      "modeByte": 1,
+      "roomFlags": 962,
+      "enabled": true
+    },
+    {
+      "controlFlags": 0,
+      "hostIndex": 0,
+      "hostFlags": 0,
+      "modeByte": 255,
+      "roomFlags": 962,
+      "enabled": true
+    }
+  ],
+  "unrelatedLayoutConstructor": "0x27231c..0x2723ac",
+  "scope": "raw native field cases, not invented scene/save-state labels"
+}

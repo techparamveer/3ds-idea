@@ -1,3 +1,4 @@
+import type { StockModelBackground } from './stock-model-background';
 import * as THREE from 'three';
 import { apps, getApp, type PortfolioApp } from './apps';
 import { currentEntry, getActiveAppView, selectedApp } from './system';
@@ -25,8 +26,8 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
  for(const word of value.split(' ')){const next=row?`${row} ${word}`:word;if((nativeFonts.has(c)?measureBitmapText(nativeFonts.get(c)!.manifest,next,size).width:c.measureText(next).width)>width&&row){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
-export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={}){
- const stockScreens=createStockScreenPresentation({reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture(),notesMetadata=createNotesMetadataSession({
+export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground;reducedMotion?:()=>boolean}={}){
+ const stockScreens=createStockScreenPresentation({soundRoom:options.soundRoom,reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture(),notesMetadata=createNotesMetadataSession({
   async loadPortfolio(appId,signal){
    await ready;signal.throwIfAborted();
    const app=getApp(appId);if(!app)throw Error(`Unknown portfolio title ${appId}`);

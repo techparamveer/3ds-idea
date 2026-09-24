@@ -1,5 +1,9 @@
 # Sound entry record and room source
 
+The later [room implementation](sound-room-source.md) resolves the owner-offset
+confusion described below and adds the entry room; sampling/native GPU comparison
+remains open. This note records the earlier record-only publication.
+
 This slice publishes the original record layout, one ETC1A4 texture and all 12
 associated clips. It supplies a standalone resting-layer helper; it does **not**
 change live Sound composition, input, playback, camera ownership or visibility.

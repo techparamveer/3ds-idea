@@ -70,9 +70,11 @@ test('selection facts name Span as the default and leave the resting pose unprov
   assert.equal(span.rendererSupport,'supported');
   assert.deepEqual(span.sharedBindPlacements,[{bones:Array.from({length:32},(_,i)=>`LightLine${String(i).padStart(2,'0')}`),translation:[0,-45,0]}]);
   assert.equal(summary.restingPose.status,'unproven');
-  assert.equal(summary.upperBackground.typeOwners.length,8);
-  assert.ok(summary.upperBackground.typeOwners.every(o=>o.layouts.every(l=>l.startsWith('S_Cec'))));
-  assert.ok(summary.upperBackground.toggleSites.some(s=>s.operation==='enable'));
+  assert.equal(summary.upperBackground.activeWriter,'0x235e00..0x235e80');
+  assert.equal(summary.upperBackground.evidence,'sound-room-replay.json');
+  assert.equal(summary.upperBackground.unrelatedSameOffsetMatches.typeOwners.length,8);
+  assert.ok(summary.upperBackground.unrelatedSameOffsetMatches.typeOwners.every(o=>o.layouts.every(l=>l.startsWith('S_Cec'))));
+  assert.ok(summary.upperBackground.unrelatedSameOffsetMatches.toggleSites.some(s=>s.operation==='enable'));
 });
 
 test('production Sound composition requests no visualiser model and the song manifest stays empty',()=>{

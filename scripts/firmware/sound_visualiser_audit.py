@@ -353,12 +353,9 @@ fact('default', 0x1ec920, 'add r0, r0, #0x24')
 fact('default', 0x1ec924, 'ldrsb r1, [r0, #0x92]')
 fact('default', 0x1ec930, 'ldrsb r5, [r0, #0x93]')
 
-# Upper background S_Back_U: its object (constructor 0x192030, vtable 0x31fa58) loads the
-# model with an aim camera in 0x191e98; it is created disabled by 0x1c65c8 (app+0x8c) and
-# every enable site is guarded by the slot-0x70 predicate of a type-0x372190 object. That
-# type is returned by 0x2903a0, the getType of the eight S_Cec (StreetPass) scene classes,
-# so S_Back_U belongs to the StreetPass screens, not to music playback.
-assert word(0x1920b4) == 0x31fa58 and word(0x31fa58 + 0x30) == 0x191e98
+# S_Back_U is the global entry room. The 0x272xxx +0x8c matches below
+# belong to a different layout owner; keep them only as a regression record.
+# Actual global flags are updated individually at 0x235e00..0x235e80.
 fact('background', 0x192038, 'ldr r1, [pc, #0x74]', '0x31fa58')
 fact('background', 0x19203c, 'str r1, [r0], #0x40')
 fact('background', 0x191f10, 'add r0, pc, #0x98', 'res/S--S_Back_U.bcmdl')
@@ -419,16 +416,18 @@ summary = {
                                            'defaultsInitializer': '0x1908e0 through the this+0x24 thunk 0x1908d8 in vtable slot 5 (0x320188)', 'defaultValue': 1, 'defaultCase': 'S_Vis_Span_U.bcmdl',
                                            'caveat': 'the saved value may differ once the user has cycled visualisers; the save-load path was not traced'}},
     'upperBackground': {'model': 'S_Back_U.bcmdl', 'objectConstructor': '0x192030', 'vtable': '0x31fa58', 'loader': '0x191e98', 'cameraDistance': 11.5, 'cameraSecondConstant': 0.5,
-                        'createdDisabledBy': '0x1c65c8 (app+0x8c)', 'toggleSites': enable_sites,
-                        'enableCondition': 'slot-0x70 predicate of the current type-0x372190 object', 'typeOwners': cec_vtables,
-                        'conclusion': 'S_Back_U is the StreetPass (S_Cec) upper background; no music playback path enables it'},
+                        'createdDisabledBy': '0x1c65c8 (app+0x8c)',
+                        'unrelatedSameOffsetMatches': {'toggleSites': enable_sites, 'typeOwners': cec_vtables, 'layoutConstructor': '0x27231c..0x2723ac'},
+                        'activeWriter': '0x235e00..0x235e80', 'modePredicate': '0x28fcf8',
+                        'evidence': 'sound-room-replay.json',
+                        'conclusion': 'S_Back_U is the captured entry room; the former StreetPass-only inference confused two owners with the same field offset'},
     'restingPose': {
         'status': 'unproven',
         'assetDefinedPose': 'bind pose only; no skeletal, material, visibility or camera clip exists in any of the 12 resources',
         'defaultVisualiser': 'S_Vis_Span_U (index 1) on default settings',
         'defaultBindPose': 'not displayable: LightLine00-31 share one bind transform (0,-45,0) and LightLineSide sits at (0,-40,0); the Span class places the bars at runtime',
         'runtimeDrivers': 'bone transforms are written by the visualiser classes at runtime; audio coupling and the silent placement were not traced',
-        'backgroundVisibility': 'S_Back_U is not part of playback (see upperBackground)'},
+        'backgroundVisibility': 'Entry room visibility is separately traced in sound-room-replay.json; playback visualiser placement remains unproven'},
     'nextGate': [
         'Trace the Span class (vtable 0x321890; slots 0x252b70, 0x252670, 0x251b2c) for the bar layout and its silent-audio heights before drawing any resting pose.',
         'Confirm the save-load path keeps byte +0x1090 (visualiser index) or record how it is restored, so the default remains Span for a fresh save.',

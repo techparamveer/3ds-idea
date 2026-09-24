@@ -155,3 +155,27 @@ test('a new owner cannot display a completed old native frame',async()=>{
   assert.equal(f.screen.status(f.v,'settings:2',f.font),'loading');
  }finally{f.dispose();}
 });
+
+test('Sound room readiness holds the pair, releases on playback, and preserves recovery/retry',async()=>{
+ let roomState={status:'loading'},roomOwner=null,notify=()=>{};const prepares=[];
+ const soundRoom={prepare(owner,onChange){roomOwner=owner;prepares.push(owner);notify=onChange;return owner?roomState:{status:'inactive'};},draw(){return roomState.status==='ready';}};
+ const f=paintFixture({soundRoom});f.v.appId='sound';
+ try{
+  f.draw('sound:1');await flush();calls[0].resolve(nativeAssets());await flush();
+  f.draw('sound:1');assert.equal(f.screen.status(f.v,'sound:1',f.font),'loading');
+  assert.deepEqual(f.top.marks,[['fill','#000']]);assert.deepEqual(f.bottom.marks,[['fill','#000']]);
+  roomState={status:'ready'};notify();f.draw('sound:1');assert.equal(f.screen.status(f.v,'sound:1',f.font),'ready');
+  f.v.screen='playback';f.draw('sound:1');assert.equal(roomOwner,null);assert.equal(f.screen.status(f.v,'sound:1',f.font),'ready');
+  f.v.screen='main';roomState={status:'error',error:Error('room texture unavailable')};notify();f.draw('sound:1');
+  assert.equal(f.screen.status(f.v,'sound:1',f.font),'error');assert.match(String(f.screen.getFailure()),/room texture/);
+  assert.equal(f.screen.retry(),true);assert.equal(roomOwner,null);
+  roomState={status:'ready'};f.draw('sound:1');await flush();calls[1].resolve(nativeAssets());await flush();f.draw('sound:1');
+  assert.equal(f.screen.status(f.v,'sound:1',f.font),'ready');f.screen.sync(null);assert.equal(roomOwner,null);
+ }finally{f.dispose();}
+});
+
+test('a hanging Sound room keeps the original preparation deadline after layouts finish',async t=>{
+ t.mock.timers.enable({apis:['setTimeout']});const f=paintFixture({deadlineMs:100,soundRoom:{prepare:owner=>({status:owner?'loading':'inactive'}),draw:()=>false}});f.v.appId='sound';
+ try{f.draw('sound:1');await flush();calls[0].resolve(nativeAssets());await flush();t.mock.timers.tick(100);f.draw('sound:1');assert.equal(f.screen.status(f.v,'sound:1',f.font),'error');assert.match(String(f.screen.getFailure()),/timed out/);}
+ finally{f.dispose();t.mock.timers.reset();}
+});

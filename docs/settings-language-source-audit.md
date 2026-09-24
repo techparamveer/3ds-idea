@@ -258,3 +258,8 @@ The subsequent [source scroll motion validation](settings-language-motion-valida
 adds the two original four-frame Country clips and completion-gated row
 recycling. It supersedes the settled-only motion limitation above; pressed
 arrows, dragging and D-pad focus remain unproven.
+
+The [input routing follow-up](settings-language-input-source-audit.md) pins the
+Language event handler and distinguishes arrow, thumb and content-drag states.
+It records the remaining producer/focus/repeat and drag cancellation gates;
+there is no additional runtime behavior in that audit.

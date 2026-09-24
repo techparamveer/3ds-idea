@@ -43,9 +43,11 @@ flowchart LR
 `scripts/firmware/build.py` verifies title/content identity before extracting
 known formats. Converter and publisher records include script/tool and source
 hashes. `scripts/firmware/stock_ui.py` adds selected title packs while preserving
-HOME/shared provenance. `audit.py` validates public records and can compare an
-independent rebuild. Full packages, executables, tickets, credentials and
-absolute private paths never enter public delivery.
+HOME/shared provenance. `--additive` appends new packs without rewriting an
+already-delivered title pack whose converted source now hashes differently.
+`audit.py` validates public records and can compare an independent rebuild.
+Full packages, executables, tickets, credentials and absolute private paths
+never enter public delivery.
 
 The schema-1 manifest at `public/os/firmware/10.7.0-32E/manifest.json` is the
 URL/provenance authority. At this checkpoint it identifies EUR 10.7.0-32E,

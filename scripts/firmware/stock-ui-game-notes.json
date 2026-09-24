@@ -126,6 +126,24 @@
             "ImageScreenUp_TextPanelInOut",
             "ImageScreenUp_TextPanelStay"
           ]
+        },
+        "packs/game-notes/memo-ApltBoot_D_00-arc-l.json": {
+          "layouts": [
+            "ApltBoot_D_00"
+          ],
+          "animations": [
+            "ApltBoot_D_00_SceneIn",
+            "ApltBoot_D_00_SceneOut"
+          ]
+        },
+        "packs/game-notes/memo-ApltBoot_U_00-arc-l.json": {
+          "layouts": [
+            "ApltBoot_U_00"
+          ],
+          "animations": [
+            "ApltBoot_U_00_SceneIn",
+            "ApltBoot_U_00_SceneOut"
+          ]
         }
       }
     }

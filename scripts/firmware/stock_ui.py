@@ -162,10 +162,92 @@ def publish(source_root, output, plan):
     return {'titles': list(plan['titles']), 'resources': len(pending), 'bytes': sum(map(len, pending.values())),
             'manifestSha256': digest(encode(manifest)), 'homeAndSharedPreserved': True}
 
+
+def publish_additive(source_root, output, plan):
+    """Add selected packs to an existing title without rewriting other packs.
+
+    Existing requested packs must keep their delivered bytes. That preserves the
+    already-published Game Notes messages slice, whose converted source now
+    reports additional omitted-unsupported bookkeeping.
+    """
+    source = json.loads((source_root/'manifest.json').read_bytes())
+    manifest_path = output/'manifest.json'
+    manifest = json.loads(manifest_path.read_bytes())
+    if source.get('firmware') != manifest.get('firmware') or source.get('locale') != manifest.get('locale'):
+        raise ValueError('Source/delivery firmware or locale differs')
+    protected = {key: copy.deepcopy(manifest.get(key)) for key in ('home', 'fonts', 'audio', 'models', 'converter')}
+    old_home_title = copy.deepcopy(manifest['titles'][HOME]); old_home_source = copy.deepcopy(manifest['sources'][HOME])
+    existing = copy.deepcopy(manifest['resources']); pending = {}; records = {}
+    added = []; preserved = []
+    def original(url):
+        data = public_path(source_root, url).read_bytes()
+        record = source['resources'][url]
+        if digest(data) != record['sha256'] or len(data) != record['size']: raise ValueError('Source resource hash differs: '+url)
+        return data, copy.deepcopy(record)
+    def copied(url):
+        data, record = original(url)
+        if url in existing and existing[url]['sha256'] != record['sha256']: raise ValueError('Existing dependency differs: '+url)
+        pending[url] = data; records[url] = copy.deepcopy(existing.get(url, record))
+    for title, requested in plan['titles'].items():
+        if title in UI_EXCLUDED or title in (HOME, SHARED): raise ValueError('Title outside stock UI scope')
+        if title not in manifest['titles']: raise ValueError('Additive publish requires an existing title: '+title)
+        info = copy.deepcopy(manifest['titles'][title])
+        selected_layouts = []
+        for url, selection in requested['packs'].items():
+            if url not in source['titles'][title]['packs']: raise ValueError('Unlisted source pack')
+            data, record = original(url); pack = json.loads(data)
+            if pack['titleId'] != title: raise ValueError('Pack title mismatch')
+            selected, fonts = select_pack(pack, selection)
+            selected_layouts.extend(selected['layouts'].items())
+            for name in fonts:
+                leaf = name.split('/')[-1]
+                if leaf in ('cbf_std.bcfnt', 'Hud_JP.bcfnt') or leaf in (info.get('fonts') or {}):
+                    continue
+                if leaf in requested.get('fontBindings', {}):
+                    continue
+                raise ValueError('Unbound stock font: '+name)
+            encoded = encode(selected)
+            selected_hash = digest(encoded)
+            if url in existing:
+                if existing[url]['sha256'] != selected_hash:
+                    preserved.append(url)
+                continue
+            record.update(size=len(encoded), sha256=selected_hash)
+            pending[url] = encoded; records[url] = record
+            if url not in info['packs']: info['packs'].append(url)
+            added.append(url)
+            for texture in selected['textures'].values(): copied(texture['url'])
+        validate_part_links(selected_layouts)
+        info['uiSelection'] = {'schema': 1, 'planSha256': digest(encode(requested)),
+                               'sourceManifestSha256': digest((source_root/'manifest.json').read_bytes()),
+                               'publisherSha256': digest(Path(__file__).read_bytes()),
+                               'sourceConverter': source.get('converter'),
+                               'additive': True}
+        manifest['titles'][title] = info
+        if title not in manifest['sources']:
+            manifest['sources'][title] = copy.deepcopy(source['sources'][title])
+    manifest['resources'].update(records)
+    if protected != {key: manifest.get(key) for key in protected} or old_home_title != manifest['titles'][HOME] or old_home_source != manifest['sources'][HOME]:
+        raise ValueError('HOME/shared delivery changed')
+    for url, record in existing.items():
+        if any(s.get('titleId') in (HOME, SHARED) for s in record.get('sources', [])):
+            if manifest['resources'][url] != record: raise ValueError('HOME/shared provenance changed')
+    for url, data in pending.items():
+        target = public_path(output, url); target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
+    manifest_path.write_bytes(encode(manifest))
+    return {'titles': list(plan['titles']), 'added': added, 'preservedDivergent': preserved,
+            'resources': len(pending), 'bytes': sum(map(len, pending.values())),
+            'manifestSha256': digest(encode(manifest)), 'homeAndSharedPreserved': True,
+            'existingPacksUnchanged': True}
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--plan', type=Path, required=True)
+    parser.add_argument('--additive', action='store_true',
+                        help='Add packs to an existing title; refuse to rewrite existing packs')
     args = parser.parse_args()
-    print(json.dumps(publish(args.source, args.output, json.loads(args.plan.read_bytes())), sort_keys=True))
+    plan = json.loads(args.plan.read_bytes())
+    result = publish_additive(args.source, args.output, plan) if args.additive else publish(args.source, args.output, plan)
+    print(json.dumps(result, sort_keys=True))

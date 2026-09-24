@@ -95,8 +95,11 @@ does not replace either the lower return gate or the three list gates.
 Follow-up: [composed title publication](native-notes-composed-publication.md)
 binds those list slots to the MemoListDown names above, seeds the first applied
 ImageScreenUp title from resource defaults plus InOut frame 1, and proves one
-Open→Back owner replacement. Live paint stays off because unpublished
-`ApltBoot_U` can still hide that first applied title.
+Open→Back owner replacement.
+[Intro publication](native-notes-intro-publication.md) then publishes both
+original ApltBoot archives and proves the first user-visible title after
+scene-10 draw-disable. Live paint stays off because a browser-to-source
+update clock is still missing.
 
 ## Verification and handoff
 
@@ -108,4 +111,5 @@ The composed follow-up reuses the same verifier with additional list/intro
 checks and writes
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-composed-publication/`.
 The four retained-property fixtures remain. No live title/HUD paint or
-application rebuild is justified until ApltBoot_U is published and composed.
+application rebuild is justified until a browser-to-source update clock
+owns the intro composer.

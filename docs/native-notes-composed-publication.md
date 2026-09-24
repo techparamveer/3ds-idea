@@ -66,9 +66,12 @@ intros clear their own draw flag at +0x69 when their SceneIn slot finishes
 draws after priority-4 scene 3 and can hide an already-applied title.
 
 The extracted archives
-`romfs/memo/ApltBoot_U_00.arc.l` and `ApltBoot_D_00.arc.l` exist. They are
-**not** in `public/os/firmware/10.7.0-32E/packs/game-notes/`. The composer
-therefore cannot pose the intro that occupies the first user-visible frames.
+`romfs/memo/ApltBoot_U_00.arc.l` and `ApltBoot_D_00.arc.l` are now published
+additively as `memo-ApltBoot_U_00-arc-l.json` and
+`memo-ApltBoot_D_00-arc-l.json`. Follow-up:
+[intro publication](native-notes-intro-publication.md) replays their SceneIn
+clocks over scene 3 and proves the first user-visible title after scene-10
+draw-disable.
 
 ## Why the live panel stays disconnected
 
@@ -78,34 +81,26 @@ visible gap in
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/live-smoke-2026-09-24/notes-main-title-gap.jpg`:
 the browser shows the tutorial upper, not capture plus a source title/HUD.
 
-Connecting the publisher now would skip unpublished ApltBoot_U, invent a first
-visible frame the source does not show, and still lack a browser-to-source
-update clock. Window-leaf / render-helper raster remains a later fidelity
-question; it is not the next visibility gate.
+ApltBoot publication no longer blocks the first user-visible pose. Connecting
+the composer now would still invent when those 21 manager passes occur,
+because a browser-to-source update clock is missing. Window-leaf /
+render-helper raster remains a later fidelity question.
 
 No Software Keyboard or editing path is added.
 
 ## Precise next gate
 
-1. Convert and publish the two original ApltBoot archives with the same
-   provenance rules as ImageScreenUp. Do not reconstruct intro pixels.
-2. Replay scene 10/9 SceneIn clocks through their own draw-flag clear, in
-   draw order with scene 3, using the explicit `nonzero-history` startup.
-3. Prove the first **user-visible** ImageScreenUp title frame after upper
-   intro disable, then one Open→Back cycle that also waits the list
-   MemoReturn/MemoDecide/SceneIn gates above.
-4. Only then import the publisher into the live painter in place of
-   `MemoTutorialUp` on the suspended-software list. Keep `W_TextPanel` hidden
-   until that composed ownership is proven.
+See [intro publication](native-notes-intro-publication.md): establish a
+browser-to-source update clock, then import the intro composer in place of
+`MemoTutorialUp`. Keep `W_TextPanel` hidden until that live ownership is
+proven.
 
 ## Verification
 
-`scripts/verify-notes-panel-publication.py` now pins the list-slot names,
-event-0 title start, and scene-10 ApltBoot_U identity. This run passed **122
-original byte/resource checks** and wrote **38 hashed source ranges** under
+The composed pass wrote **122 original byte/resource checks** and **38 hashed
+source ranges** under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-composed-publication/`.
-Focused tests in `tests/notes-panel-publication.test.mjs` replay the first
-applied frame, late Open, same-pass Back, owner reseed, and the painter
-disconnect (26 Notes tests with the retained-property and scheduler suites).
-Typecheck passes. The composer is not a live paint path and makes no browser
-or native-raster claim.
+The intro follow-up extends the same verifier and writes
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-intro-publication/`.
+The composer is not a live paint path and makes no browser or native-raster
+claim.

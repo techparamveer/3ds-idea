@@ -118,8 +118,11 @@ Before live connection, finish these concrete pieces:
    including the late Open pass, before importing the source panel into live
    rendering. The existing isolated 31 specimens do not cover these gates.
    The applied-layout subset of that item is now in
-   [composed publication](native-notes-composed-publication.md); the remaining
-   visibility gate is unpublished ApltBoot_U over the first title apply.
+   [composed publication](native-notes-composed-publication.md).
+   [Intro publication](native-notes-intro-publication.md) published both
+   original ApltBoot archives and proved the first user-visible title after
+   scene-10 draw-disable. The remaining live gate is a browser-to-source
+   update clock.
 
 ## Reproducible validation
 

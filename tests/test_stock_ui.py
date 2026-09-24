@@ -9,7 +9,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'scripts'))
 from firmware.build import HOME, SETTINGS, digest, encode
-from firmware.stock_ui import publish, select_pack
+from firmware.stock_ui import publish, publish_additive, select_pack
 
 
 def fixture():
@@ -117,6 +117,45 @@ class StockUiTests(unittest.TestCase):
             publish(source, output, plan)
             published = json.loads((output/'manifest.json').read_bytes())['titles'][SETTINGS]
             self.assertEqual(published['fonts'], {'HudNOTES.bcfnt': 'font-hud.json'})
+
+    def test_publish_additive_keeps_divergent_pack_bytes_and_adds_new(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp)/'source'; output = Path(tmp)/'output'
+            source.mkdir(); output.mkdir(); pack, selection = fixture()
+            extra = copy.deepcopy(pack)
+            extra['layouts']['Extra'] = {'fonts': [], 'textures': [], 'unsupported': [], 'roots': []}
+            extra['resourceSources']['layouts']['Extra'] = {'titleId': SETTINGS, 'path': 'Extra', 'sha256': 'source'}
+            existing_url, added_url = 'packs/settings/main.json', 'packs/settings/extra.json'
+            common = {'firmware': '10.7.0-32E', 'locale': 'EU_English', 'resources': {}, 'sources': {}, 'titles': {}}
+            incoming = copy.deepcopy(common); delivery = copy.deepcopy(common)
+            def put(root, manifest, path, data, title):
+                target = root/path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
+                manifest['resources'][path] = {'sha256': digest(data), 'size': len(data), 'sources': [{'titleId': title}]}
+            put(source, incoming, existing_url, encode(pack), SETTINGS)
+            put(source, incoming, added_url, encode(extra), SETTINGS)
+            put(source, incoming, 'textures/shared.png', b'shared', SETTINGS)
+            put(source, incoming, 'textures/selected.png', b'selected', SETTINGS)
+            put(output, delivery, existing_url, b'already-published-divergent', SETTINGS)
+            put(output, delivery, 'textures/shared.png', b'shared', HOME)
+            put(output, delivery, 'font.json', b'{}', HOME)
+            delivery['resources']['font.json']['kind'] = 'font'
+            incoming['titles'][SETTINGS] = {'packs': [existing_url, added_url], 'fonts': {}}
+            incoming['sources'][SETTINGS] = {'titleId': SETTINGS}
+            delivery['titles'][SETTINGS] = {'packs': [existing_url], 'fonts': {}}
+            delivery['titles'][HOME] = {'packs': ['home.json']}
+            delivery['sources'][HOME] = {'titleId': HOME}
+            delivery.update(home={'root': 'home.json'}, fonts={'shared': 'font.json'}, converter={'historical': True})
+            (source/'manifest.json').write_bytes(encode(incoming)); (output/'manifest.json').write_bytes(encode(delivery))
+            plan = {'titles': {SETTINGS: {'packs': {existing_url: selection, added_url: {'layouts': ['Extra'], 'animations': []}}}}}
+            result = publish_additive(source, output, plan)
+            after = json.loads((output/'manifest.json').read_bytes())
+            self.assertEqual(result['added'], [added_url])
+            self.assertEqual(result['preservedDivergent'], [existing_url])
+            self.assertEqual((output/existing_url).read_bytes(), b'already-published-divergent')
+            self.assertEqual(after['resources'][existing_url]['sha256'], digest(b'already-published-divergent'))
+            self.assertIn(added_url, after['titles'][SETTINGS]['packs'])
+            self.assertTrue(after['titles'][SETTINGS]['uiSelection']['additive'])
+            self.assertEqual(after['resources']['textures/shared.png'], delivery['resources']['textures/shared.png'])
 
 
 if __name__ == '__main__': unittest.main()

@@ -59,9 +59,11 @@ These are **controller observations, not applied poses or reference screenshots*
 Follow-up: [pane application and matrix publication](native-notes-panel-publication.md)
 resolves the concrete +0x34/+0x5c methods and the late-event pane-property
 contract. [Composed publication](native-notes-composed-publication.md) poses
-`afterScene3` observations with constructor group bindings. The scheduler still
-exposes controller observations only; live paint stays disconnected because
-unpublished ApltBoot_U can hide the first applied title.
+`afterScene3` observations with constructor group bindings.
+[Intro publication](native-notes-intro-publication.md) now publishes both
+original ApltBoot archives and poses SceneIn over that title. The scheduler
+still exposes controller observations only; live paint stays disconnected
+because a browser-to-source update clock is missing.
 
 Scene 3's update tail calls layout virtual +0x34 via `0x14f7cc` or individual
 pane callbacks. Its draw path `0x1675dc` runs the capture visibility callback

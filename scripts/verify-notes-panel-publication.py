@@ -149,6 +149,19 @@ assert cstr(0x1aa28c) == b'ApltBoot_D_00.bclyt'
 assert cstr(0x1aa31c) == b'ApltBoot_U_00.bclyt'
 word(0x13b93c, 0xe5c01069, 'lower intro completion clears its own draw flag')
 word(0x1660f4, 0xe5c01069, 'upper intro completion clears its own draw flag')
+word(0x1b6b64, 0x165f40, 'scene 10 virtual +60 event')
+word(0x165f74, 0xe5c01069, 'scene 10 event 0 writes draw flag +69')
+word(0x165f78, 0xe3a00001, 'scene 10 event 0 pending state 1')
+word(0x165f80, 0xe1c461b0, 'scene 10 event 0 current state 0')
+call(0x165f68, 0x15e950, 'scene 10 event 0 enables update')
+word(0x162fd4, 0xe3a03000, 'initialization scene 10 event parameter 0')
+word(0x162fd8, 0xe1a02003, 'initialization scene 10 event 0')
+word(0x162fdc, 0xe3a0100a, 'initialization targets scene 10')
+call(0x162fe0, 0x14f78c, 'initialization dispatches scene 10 event immediately')
+call(0x166088, 0x151cd0, 'scene 10 state 0 starts SceneIn slot 0')
+call(0x1660c0, 0x150bb4, 'scene 10 state 1 waits SceneIn busy before draw clear')
+call(0x166134, 0x152508, 'scene 10 always advances after the completion check')
+call(0x166140, 0x14f7cc, 'scene 10 always applies layout after advance')
 
 pack = json.loads((a.asset_root / 'packs/game-notes/memo-ImageScreenUp-arc-l.json').read_text())
 layout = pack['layouts']['ImageScreenUp']
@@ -168,10 +181,24 @@ inout = pack['animations']['ImageScreenUp_TextPanelInOut']
 visible = next(track['keys'] for track in inout['tracks']
                if track['property'] == 'visible' and inout['contents'][track['contentIndex']]['target'] == 'W_TextPanel')
 assert [(key['frame'], key['value']) for key in visible] == [(0, 0), (1, 1)]
-assert not (a.asset_root / 'packs/game-notes/memo-ApltBoot_U_00-arc-l.json').exists()
-assert not (a.asset_root / 'packs/game-notes/memo-ApltBoot_D_00-arc-l.json').exists()
+upper = json.loads((a.asset_root / 'packs/game-notes/memo-ApltBoot_U_00-arc-l.json').read_text())
+lower = json.loads((a.asset_root / 'packs/game-notes/memo-ApltBoot_D_00-arc-l.json').read_text())
+assert upper['sourceSha256'] == 'b5ce29b07a28ae27bd813c860bae25a5825a06d26aafdc727ee31c4129469e18'
+assert lower['sourceSha256'] == '284c4d476528edbf732599f2066a8af8f573854042b469f1e112d3e19459d4e6'
+assert list(upper['layouts']) == ['ApltBoot_U_00']
+assert list(lower['layouts']) == ['ApltBoot_D_00']
+for pack_name, clip_name, archive in (
+    (upper, 'ApltBoot_U_00_SceneIn', 'U'), (lower, 'ApltBoot_D_00_SceneIn', 'D')):
+    clip = pack_name['animations'][clip_name]
+    assert clip['frames'] == 21 and clip['loop'] is False and clip['unsupported'] == []
+    checks.append(dict(resource='ApltBoot_'+archive, clip=clip_name, frames=21, loop=False))
+u_alpha = next(track['keys'] for track in upper['animations']['ApltBoot_U_00_SceneIn']['tracks']
+               if track['property'] == 'alpha' and track['target'] == 'P_Bg_U_00')
+assert [(key['frame'], key['value']) for key in u_alpha] == [(0.0, 255.0), (20.0, 0.0)]
+assert upper['unsupported'] == [] and lower['unsupported'] == []
 checks.append(dict(resource='ImageScreenUp', root='pan1 RootPane', selectiveTitleRoot='W_TextPanel',
-                   titleDefaults='flags=2 alpha=0 y=-90; InOut visible 0 then 1', apltBootPacks='unpublished'))
+                   titleDefaults='flags=2 alpha=0 y=-90; InOut visible 0 then 1',
+                   apltBootPacks='published original SceneIn/SceneOut'))
 
 ranges = [
  ('wrapper-construction',0x14f148,0x14f18c),('wrapper-vtable',0x17b738,0x17b774),
@@ -193,6 +220,7 @@ ranges = [
  ('list-return-event',0x13bd5c,0x13bdc4),('list-return-frame5',0x13db20,0x13db58),
  ('title-event0-branch',0x166fcc,0x166fe8),('title-event0-start',0x167518,0x1675c8),
  ('apltboot-u-register',0x165fd0,0x166180),
+ ('apltboot-u-event',0x165f40,0x165fb0),('scene10-init-event',0x162fd0,0x163018),
 ]
 a.artifact_dir.mkdir(parents=True, exist_ok=True)
 listing = a.listing.read_text().splitlines(True)
@@ -202,7 +230,7 @@ for name, start, end in ranges:
     assert selected
     (a.artifact_dir / (name + '.txt')).write_text(selected)
     records.append(dict(name=name, start=hex(start), endExclusive=hex(end), sha256=hashlib.sha256(b[start-0x100000:end-0x100000]).hexdigest()))
-data_ranges = [('list-scene-resources',0x1aa810,0x1aa86c),('scene10-vtable',0x1b6b04,0x1b6b34)]
+data_ranges = [('list-scene-resources',0x1aa810,0x1aa86c),('scene10-vtable',0x1b6b04,0x1b6b68)]
 for name, start, end in data_ranges:
     blob = b[start-0x100000:end-0x100000]
     (a.artifact_dir / (name + '.bin.txt')).write_text(blob.hex() + '\n')
@@ -212,7 +240,7 @@ report = dict(passed=True, method='Static original-byte/resource verification; n
                             materialApplication='enabled-link traversal in update; enable only changes link flag',
                             matrixPublication='draw-time root virtual +5c',
                             firstAppliedTitle='resource defaults plus TextPanelInOut frame 1 after the first scene-3 apply; event 0 does not sample',
-                            firstUserVisibleTitle='blocked by unpublished ApltBoot_U scene 10 drawn after scene 3',
-                            remaining='publish ApltBoot_U/D, prove intro draw-disable, then compose ImageScreenUp title over the list; live paint stays disconnected'))
+                            firstUserVisibleTitle='same manager pass that finds ApltBoot_U SceneIn not busy and clears scene-10 +0x69; Stay frame 1; priority-0 draw no longer covers scene 3',
+                            remaining='browser-to-source update clock and live painter import; window-leaf raster; live paint stays disconnected'))
 (a.artifact_dir / 'source-validation.json').write_text(json.dumps(report,indent=2)+'\n')
 print(f'PASS: {len(checks)} publication/source checks and {len(records)} hashed source ranges')

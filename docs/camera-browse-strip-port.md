@@ -20,7 +20,7 @@ page. This slice does not close that gate:
 
 | Required before live | Status here |
 | --- | --- |
-| Request allocation, full-tag writes, descriptor install, ready-bit publication (`0x2d9450`, `0x2dbb50`, `0x2da6fc`) executed with the rebind queue | Open. Isolated cache validator/release already live in the rebind audit; this replay does not run those writers |
+| Request allocation, full-tag writes, descriptor install, ready-bit publication (`0x2d9450`, `0x2dbb50`, `0x2da6fc`) executed with the rebind queue | Bounded replayed in the later [ordering audit](camera-rebind-order-source-audit.md). It exposes separate resource-ready and consumer-ready bitsets; the upload/post-draw handoff remains open |
 | Combined owner input/presentation traversal with touch cancellation, ancestry, 12px drag and slider history | Open. Only the key-skip-while-stylus-down gate is modelled |
 | Native wall-clock cadence | Open. `CAMERA_BROWSE_UPDATE_MS` is the host's nominal 60 Hz conversion for tests, not hardware milliseconds |
 | FadeAll blank/folder preview, 3-page ring allocator, CurDefault ownership | Open |
@@ -65,7 +65,10 @@ The same replay runs two presentation fragments that the TypeScript module does
    by mapping control ID, not tag match.
 
 Allocator identity, descriptor resource installation and ready-bit publication
-remain the next ARM fixture. A browser URL assignment is not that lifecycle.
+are replayed in the later [ordering audit](camera-rebind-order-source-audit.md).
+That fixture leaves the ring consumer bit clear after resource publication, so
+the connected upload/post-draw handoff and enclosing owner/touch traversal
+remain open. A browser URL assignment is not that lifecycle.
 
 ## Reproduction
 

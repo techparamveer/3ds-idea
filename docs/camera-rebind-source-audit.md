@@ -116,3 +116,9 @@ bitset rewrite keying bits by mapping control. Those fragments do not install
 resources or publish ready bits, and live paging remains unchanged. This audit
 narrows stale-readiness and deferred-release behavior without claiming that
 remaining sequence, upload ordering or native visual equivalence is solved.
+
+The later [combined ordering replay](camera-rebind-order-source-audit.md)
+executes those bounded request, tag, descriptor and resource-publication stages
+in one fixture. It also proves that `0x2da6fc`'s resource-ready bit and the ring
+consumer's post-draw ready bit are separate. Enclosing owner/touch traversal,
+upload observation and the connected consumer rewrite remain the live gate.

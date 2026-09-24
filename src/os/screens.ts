@@ -5,6 +5,7 @@ import { getHomeCursorLoopFrame } from './home-cursor-loop';
 import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
+import { getTitle } from './app-registry';
 import { leaveHomeFolder } from './home-navigation';
 import { getHomeFooter, getHomePresentation, type HomePresentation } from './home-presentation';
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices } from './state';
@@ -118,7 +119,17 @@ function arrows(c:Context,state:MenuState){
   const x=right?310:10;c.fillStyle='#91bdb7';c.beginPath();c.moveTo(x+(right?5:-5),131);c.lineTo(x+(right?-3:3),125);c.lineTo(x+(right?-3:3),137);c.fill();c.restore();
  }
 }
-function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false){
+function titleArtwork(c:Context,appId:string|null|undefined,x:number,y:number,width:number,height:number,assets?:FirmwarePresentationAssets){
+ const titleId=getTitle(appId)?.titleId?.toLowerCase(),icon=titleId&&assets?.titleIcons?.get(titleId);
+ if(!icon)return false;
+ c.save();c.imageSmoothingEnabled=false;c.drawImage(icon,x,y,width,height);c.restore();
+ return true;
+}
+function titleIcon(c:Context,appId:string|null|undefined,x:number,y:number,size:number,assets?:FirmwarePresentationAssets){
+ const side=Math.round(size*2/3);
+ return titleArtwork(c,appId,Math.round(x+(size-side)/2),Math.round(y+(size-side)/2),side,side,assets);
+}
+function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false,assets?:FirmwarePresentationAssets){
  const system=state.system,controls=nativeHome?system?.homeControls:null;
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
  for(const tile of view.tiles){
@@ -142,6 +153,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
    if(!(nativeDrawn??chrome.tile(c,x,y,size))){c.save();c.globalAlpha*=alpha;c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
     rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();}
    if(app)artwork(()=>graphics.menuIcon(c,app,x,y,size));
+   else if(appId)artwork(()=>titleIcon(c,appId,x,y,size,assets));
    else if(folderLabel!==null&&!nativeDrawn)artwork(()=>folder(c,x+size/2,y+size/2,size*.78,folderLabel));
   }else if(!nativeHome?.empty(c,x,y,size,view.density)){
    artwork(()=>{const inset=size*.34,side=size-inset*2;
@@ -175,7 +187,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
  }
  if(state.opened&&!nativeHome){c.fillStyle='#737982';c.fillRect(0,33,320,16);text(c,'↶',21,41,15,'white');text(c,state.folders[state.selected]||'',160,41,11,'white','center');}
 }
-function dragGhost(c:Context,view:HomePresentation,graphics:ReturnType<typeof createPortfolioGraphics>,nativeHome?:NativeHome){
+function dragGhost(c:Context,view:HomePresentation,graphics:ReturnType<typeof createPortfolioGraphics>,nativeHome?:NativeHome,assets?:FirmwarePresentationAssets){
  const ghost=view.ghost;if(!ghost)return;
  if(nativeHome&&view.pickup?.scale.appliedFrame===null)return;
  const {x,y,size,item}=ghost,app=item.kind==='app'?getApp(item.id):undefined;
@@ -185,8 +197,10 @@ function dragGhost(c:Context,view:HomePresentation,graphics:ReturnType<typeof cr
   :nativeHome.pickup(c,x,y,size,view.density,item.kind==='folder',item.kind==='folder'?item.label:''));
  if(pickup?.drawn){
   if(app){const rect=pickup.icon;c.globalAlpha=rect.alpha;graphics.menuArtwork(c,app,rect.x,rect.y,rect.width,rect.height);}
+  else if(item.kind==='app'){const rect=pickup.icon;c.globalAlpha=rect.alpha;titleArtwork(c,item.id,rect.x,rect.y,rect.width,rect.height,assets);}
  }else if(item.kind==='folder')folder(c,x,y,size*.78,item.label);
  else if(app){rounded(c,x-size/2,y-size/2,size,size,8,'#f8f9fc','#adb4bf');graphics.menuIcon(c,app,x-size/2,y-size/2,size);}
+ else if(item.kind==='app'){rounded(c,x-size/2,y-size/2,size,size,8,'#f8f9fc','#adb4bf');titleIcon(c,item.id,x-size/2,y-size/2,size,assets);}
  c.restore();
 }
 
@@ -276,7 +290,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground; font?:
    // cursor/effects, arrows and balloon hidden. Never copy the old onscreen footer.
    const root=leaveHomeFolder(state),view=getHomePresentation(root),ctx=captureContext;
    ctx.resetTransform();ctx.clearRect(0,0,320,240);ctx.fillStyle=themes[root.theme].bottom;ctx.fillRect(0,0,320,240);
-   nativeHome.toolbar(ctx,root,true);nativeHome.homePlate(ctx,root);grid(ctx,root,time,reduced,graphics,chrome,view,nativeHome,true);
+   nativeHome.toolbar(ctx,root,true);nativeHome.homePlate(ctx,root);grid(ctx,root,time,reduced,graphics,chrome,view,nativeHome,true,firmwareAssets);
    folderCapture={identity,pixels:{width:320,height:206,data:ctx.getImageData(0,34,320,206).data}};
   }
   nativeHome.folderBackdrop(b,folderCapture.pixels,state,reduced);
@@ -325,7 +339,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground; font?:
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.
   nativeHome?.upperBase(t);if(!nativeHome?.hud(t,date,time))status(t,date,chrome);
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome);panel(b,state,time,reduced,themeSprite,shopSprite);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite);
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date);
   if(firmwareAssets)drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets);
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}

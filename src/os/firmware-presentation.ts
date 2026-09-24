@@ -11,8 +11,8 @@ import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeH
 import type { HomeTilePose } from './home-tile-pose';
 
 type Context=CanvasRenderingContext2D;
-export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;diagnostics:string[];dispose():void};
-type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>};
+export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;diagnostics:string[];dispose():void};
+type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
 const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
@@ -23,6 +23,13 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const json=async <T>(url:string):Promise<T>=>{const response=await fetch(new URL(url,base),{signal:controller.signal});if(!response.ok)throw new Error(`Firmware asset HTTP ${response.status}: ${url}`);return response.json();};
   const manifest=await json<Manifest>(base.href);
   if(manifest.schema!==1||manifest.firmware!=='10.7.0-32E'||!manifest.fonts||!manifest.home)throw new Error('Unsupported firmware presentation manifest');
+  const titleIcons=new Map<string,HTMLImageElement>();
+  await Promise.all(Object.entries(manifest.titles??{}).map(async ([titleId,title])=>{
+   if(typeof Image==='undefined')return;
+   if(!/^[a-f0-9]{16}$/i.test(titleId)||!title.icon||!/^icons\/[a-z0-9-]+\.png$/.test(title.icon))return;
+   const icon=new Image();icon.src=new URL(title.icon,base).href;
+   try{await icon.decode();if(icon.naturalWidth===48&&icon.naturalHeight===48)titleIcons.set(titleId.toLowerCase(),icon);}catch{/* The remaining native presentation can still load. */}
+  }));
   const font=async (url:string)=>{const result=await loadBitmapFont(new URL(url,base).href,controller.signal);fonts.push(result);return result;};
   const packNames=['hud','launcher','messages','banner','common','sleep',...(manifest.home.launch?['launch']:[])];
   const requestedLayouts={...homeLayouts,...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
@@ -50,7 +57,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const renderer=new NativeLayoutRenderer(packs,textures,new Map([['cbf_std.bcfnt',sharedFont as BitmapFont],['Hud.bcfnt',hudFont as BitmapFont]]));
   renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.');
   let disposed=false;
-  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;renderer.dispose();fonts.forEach(f=>f.dispose());}};
+  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
  }catch(error){controller.abort();fonts.forEach(font=>font.dispose());throw error;}
  finally{signal?.removeEventListener('abort',abort);}
 }

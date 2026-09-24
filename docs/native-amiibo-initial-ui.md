@@ -130,12 +130,69 @@ opening-screen reference. Set `FIRMWARE_AMIIBO_CONVERTED` and a private
 The browser attempt was blocked by two IAB webview-attachment timeouts; Chrome
 was unavailable. No browser screenshot or native-reference equivalence is claimed.
 
-Material evidence remains unresolved: 3DSkit names the alpha operators max/min,
-whereas LayoutExporterU exports the same bytes using generic TEV names. Switch
-Toolbox's shader has an early return and TODOs. Those references cannot establish
-the exact native combination/order/projection behavior. Header and PortalBtnSub
-remain strictly unsupported pending independent native image/draw-state evidence.
-Tests establish bounded decoding and composition, not full native equivalence.
+## Material blocker audit (2026-09-24)
+
+The follow-up audit used the same decrypted EUR `10.7.0-32E` title identified
+above and private conversion manifest
+`be336f8ce4feacf356e5420cb34e10ae5d1c50fc3d5284ba49c99bb6e745ced5`.
+It pinned these source layout records:
+
+- `Header.bflyt`
+  (`680775e63bcdd86fe3e9c1c5687744e1904984215ca1fdc8a1c0f8e75043fd59`)
+  names `Gradation16.bflim`, `HeaderBg.bflim`, `IconAmiibo.bflim` and
+  `light_00.bflim`. `P_Header_00` has material flags `106`, texture indices
+  `[0, 3]`, coordinate sources `[0, 1]`, combiner bytes `{color: 1,
+  alpha: 0}`, and a `0.1` S translation on the second texture matrix.
+  Its `400 x 26` pane supplies two UV sets, including
+  `[0, 0, 0.859375, 0, 0.078125, 6.5, 0.9375, 6.5]`.
+  `P_Header_01` also has flags `106`, but uses texture indices `[0, 0]`,
+  identity matrices and combiner bytes `{color: 0, alpha: 0}` on a
+  `400 x 25` pane.
+- `PortalBtnSub.bflyt`
+  (`b03445e1ed98efb3389d2c077b77e6f9996cf84064a64f0e57340d92c9ee47b0`)
+  names the four button textures listed above. Both
+  `W_BtnShade_00C` and `W_BtnShade_00LT` use texture indices `[2, 0]`,
+  coordinate sources `[0, 4]`, and a pane-based projection record with
+  transform `[0, 0, 1, 1]` and option byte `6`. The centre material's first
+  texture scale is `[0, 0]` and its combiner bytes are `{color: 0, alpha:
+  0}`; the frame material uses identity scales and `{color: 1, alpha: 1}`.
+  The source window is `240 x 32`, uses content material `7`, frame material
+  `8`, frame widths `16`, and starts at pane alpha `16`.
+- `PortalSceneCTR.bflyt` places that component at `L_UpdateBtn`, `y = -65`
+  and calls `BtnUpdateFangate`. This establishes placement and message
+  selection, but not the component's pixel result.
+
+These values are no longer merely inferred from converted JSON. The
+real-source test hashes each BFLYT payload, checks the material records, and
+continues to require rejection by the supported-layout gate.
+
+The remaining gap is semantic rather than structural:
+
+- [3DSkit's BFLYT notes](https://github.com/Tyulis/3DSkit/blob/2fb6077654c6aa77348fd0c7c3cd8c108da86a74/doc/BFLYT.md)
+  label the two combiner bytes with `Overwrite`/`Multiply` and `Max`/`Min`,
+  but do not specify the shader inputs or full operation.
+- [LayoutExporterU](https://github.com/aboood40091/LayoutExporterU/blob/8c644cfad606ead47e6ce9eae2d315a5e70afe61/bflyt.py)
+  can decode the fields but exposes the combiner values as generic TEV modes.
+  Its projection option bits explain that `6` selects pane fitting plus
+  projection scale/rotation adjustment, not the coordinate equation.
+- [Switch Toolbox's BFLYT shader](https://github.com/KillzXGaming/Switch-Toolbox/blob/9fe41401d246d31c99fcbfdd0a7fe4253a95b31f/Toolbox/Shader/Layout/Bflyt.frag)
+  is not native evidence: its active path returns before material processing,
+  and the unreachable combiner path retains source-selection TODOs.
+- Static inspection of this title's `code.bin`
+  (`316c8a1cb37c2aab7813a5546f355ab0bdd3f635fe56b606abf91bb191a1d2d9`)
+  did not establish the NintendoWare draw-state function, and the retained
+  evidence has no native opening-screen capture matched to this source.
+
+Consequently, the audit does not establish the combiner input order, the
+alpha operation, the pane-based projected-UV equation, or the exact A8/L8
+texture-channel interaction. Implementing any of those from decoded byte names
+would be a guess. No renderer/converter behavior or public
+`Header`/`PortalBtnSub` resource was changed or published.
+
+The blocker can be closed only with a source-backed NintendoWare implementation
+or a native draw-state trace that establishes those equations and texture
+inputs, followed by a matched native opening-screen capture. A generic Portal
+scene render is not sufficient evidence.
 
 Integration checkpoint (2026-09-24): the original supplied amiibo RomFS was
 retested after merging part composition with the current animation shares and

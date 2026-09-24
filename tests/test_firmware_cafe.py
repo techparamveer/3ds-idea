@@ -148,11 +148,94 @@ class AmiiboResourceTests(unittest.TestCase):
         self.assertEqual((clip['frames'], len(clip['tracks']), clip['groups']), (1, 45, ['G_Btn_00']))
         self.assertTrue(any(t['property'] == 'materialColor.1.0' for t in clip['tracks']))
 
-    def test_header_projection_dependencies_remain_explicit(self):
-        for archive, name in [('Body/Common/Header/Header.arc.cmp', 'Header'), ('Parts/Portal/PortalBtnSub.arc.cmp', 'PortalBtnSub')]:
-            parsed = decode_flyt(self.members(archive)['blyt/'+name+'.bflyt'])
-            with self.assertRaises(ValueError): supported(parsed)
-            self.assertTrue(any(m.get('sourceCombiners') for m in parsed['materials']))
+    def test_opening_material_records_are_pinned_and_remain_unsupported(self):
+        def pane(layout, name):
+            pending = list(layout['roots'])
+            while pending:
+                current = pending.pop()
+                if current['name'].rstrip() == name:
+                    return current
+                pending.extend(current['children'])
+            self.fail(f'missing pane {name}')
+
+        header_raw = self.members('Body/Common/Header/Header.arc.cmp')['blyt/Header.bflyt']
+        self.assertEqual(hashlib.sha256(header_raw).hexdigest(), '680775e63bcdd86fe3e9c1c5687744e1904984215ca1fdc8a1c0f8e75043fd59')
+        header = decode_flyt(header_raw)
+        self.assertEqual(header['textures'], ['Gradation16.bflim', 'HeaderBg.bflim', 'IconAmiibo.bflim', 'light_00.bflim'])
+        materials = {material['name']: material for material in header['materials']}
+        header_00, header_01 = materials['P_Header_00'], materials['P_Header_01']
+        self.assertEqual((header_00['flags'], header_01['flags']), (106, 106))
+        self.assertEqual([entry['texture'] for entry in header_00['textureMaps']], [0, 3])
+        self.assertEqual(header_00['coordinateGenerators'], [
+            {'type': 0, 'source': 0, 'sourceExtra': '000000000000'},
+            {'type': 0, 'source': 1, 'sourceExtra': '000000000000'},
+        ])
+        self.assertEqual(header_00['sourceCombiners'], [{'color': 1, 'alpha': 0, 'reserved': 0}])
+        self.assertEqual(header_00['textureMatrices'], [
+            {'translation': [0.0, 0.0], 'rotation': 0.0, 'scale': [1.0, 1.0]},
+            {'translation': [0.10000000149011612, 0.0], 'rotation': 0.0, 'scale': [1.0, 1.0]},
+        ])
+        self.assertEqual([entry['texture'] for entry in header_01['textureMaps']], [0, 0])
+        self.assertEqual(header_01['coordinateGenerators'], header_00['coordinateGenerators'])
+        self.assertEqual(header_01['sourceCombiners'], [{'color': 0, 'alpha': 0, 'reserved': 0}])
+        self.assertEqual(header_01['textureMatrices'], [{
+            'translation': [0.0, 0.0], 'rotation': 0.0, 'scale': [1.0, 1.0],
+        }] * 2)
+        header_pane_00, header_pane_01 = pane(header, 'P_Header_00'), pane(header, 'P_Header_01')
+        self.assertEqual(header_pane_00['size'], [400.0, 26.0])
+        self.assertEqual(header_pane_00['picture']['uvSets'], [
+            [0.0, 0.0, 25.0, 0.0, 0.0, 0.5, 25.0, 0.5],
+            [0.0, 0.0, 0.859375, 0.0, 0.078125, 6.5, 0.9375, 6.5],
+        ])
+        self.assertEqual(header_pane_01['size'], [400.0, 25.0])
+        self.assertEqual(header_pane_01['picture']['uvSets'], [
+            [-1.25, 0.0, -1.25, 0.0, 0.125, 0.0, 0.125, 0.0],
+            [0.07500000298023224, 0.0, 0.07500000298023224, 0.0, 0.0, 0.0, 0.0, 0.0],
+        ])
+
+        portal_raw = self.members('Parts/Portal/PortalBtnSub.arc.cmp')['blyt/PortalBtnSub.bflyt']
+        self.assertEqual(hashlib.sha256(portal_raw).hexdigest(), 'b03445e1ed98efb3389d2c077b77e6f9996cf84064a64f0e57340d92c9ee47b0')
+        portal = decode_flyt(portal_raw)
+        self.assertEqual(portal['textures'], [
+            'Btn_00wshade.bflim', 'BtnSub_00w.bflim',
+            'BtnSubShade_00w.bflim', 'BtnSubShdw_00w.bflim',
+        ])
+        materials = {material['name'].rstrip(): material for material in portal['materials']}
+        center, frame = materials['W_BtnShade_00C'], materials['W_BtnShade_00LT']
+        self.assertEqual((center['flags'], frame['flags']), (32874, 32874))
+        for material in (center, frame):
+            self.assertEqual([entry['texture'] for entry in material['textureMaps']], [2, 0])
+            self.assertEqual(material['coordinateGenerators'], [
+                {'type': 0, 'source': 0, 'sourceExtra': '000000000000'},
+                {'type': 0, 'source': 4, 'sourceExtra': '000000000000'},
+            ])
+            self.assertEqual(material['sourceProjections'], [{
+                'transform': [0.0, 0.0, 1.0, 1.0], 'option': 6, 'padding': '000000',
+            }])
+            self.assertEqual([issue['kind'] for issue in material['unsupported']], [
+                'flytCoordinateGenerator', 'flytTextureCombiner', 'flytProjection',
+            ])
+        self.assertEqual(center['sourceCombiners'], [{'color': 0, 'alpha': 0, 'reserved': 0}])
+        self.assertEqual(center['textureMatrices'], [
+            {'translation': [0.0, 0.0], 'rotation': 0.0, 'scale': [0.0, 0.0]},
+            {'translation': [0.0, 0.0], 'rotation': 0.0, 'scale': [1.0, 1.0]},
+        ])
+        self.assertEqual(frame['sourceCombiners'], [{'color': 1, 'alpha': 1, 'reserved': 0}])
+        self.assertEqual(frame['textureMatrices'], [{
+            'translation': [0.0, 0.0], 'rotation': 0.0, 'scale': [1.0, 1.0],
+        }] * 2)
+        window = pane(portal, 'W_BtnShade_00')
+        self.assertEqual((window['size'], window['alpha']), ([240.0, 32.0], 16))
+        self.assertEqual(window['window']['frameSize'], [16, 16, 16, 16])
+        self.assertEqual(window['window']['content'], {
+            'colors': [[255, 255, 255, 255]] * 4,
+            'material': 7,
+            'uvSets': [[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0]],
+        })
+        self.assertEqual(window['window']['frames'], [{'material': 8, 'flip': 0}])
+
+        for layout in (header, portal):
+            with self.assertRaisesRegex(ValueError, 'unsupported'): supported(layout)
 
     def test_rectangular_source_texture_identity_and_orientation(self):
         raw = self.members('Body/Common/Header/Header.arc.cmp')['timg/HeaderBg.bflim']

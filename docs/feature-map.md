@@ -53,7 +53,7 @@ the browser by the coordinator.
 | Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
 | Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power announcements corrected | Screen-specific announcements, full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
 | Asset conversion, provenance | Implemented. The `a6b74c8` public audit reports 1,605 resources, 580 layouts and 1,833 animations with zero errors; private-source cross-check was unavailable in this worktree | Keep unsupported fields explicit and rerun after further asset integration | Assets | [Asset architecture](architecture/assets-and-materials.md) |
-| Final acceptance | Open | Verify an isolated Azahar profile before further native sessions, then run a versioned browser/native scenario matrix and requirement audit | Coordinator | [Verification](architecture/verification.md) |
+| Final acceptance | Open | Isolated Azahar profile launch is verified; resolve reliable native touch input, then run a versioned browser/native scenario matrix and requirement audit | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
 
 ## Worktrees on 24 September 2026
 

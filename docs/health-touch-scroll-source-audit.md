@@ -226,6 +226,8 @@ The renders were visually inspected. Text alignment, warning placement, colour
 runs, thumb position and the pressed thumb colours look as the source layouts
 predict.
 
+In the combined scratch checkout based on `2e9ca4d`, the full suite passed 1,315 tests with 21 skips and no failures. The run linked the complete model fixture from the system-disk worker checkout and redirected the Notes source-render test output to `/tmp`, because the SanDisk artifact path cannot accept writes; that temporary test edit was restored afterward. The complete log is preserved at `/Users/paramveer/.codex/artifacts/health-touch-scroll/combined-full-tests.log`.
+
 The coordinator inspected the `localhost:3000` preview after merging the source pose and browser click-edge fix: seven short Down presses visibly moved the article, a drag scrolled its text, a thumb drag moved the scrollbar, and the browser logged no warnings or errors. A quick physical press/release is latched for one update so the browser cannot miss it between VBlanks.
 
 Not claimed: native Azahar frames,

@@ -81,7 +81,7 @@ try{
   ['profile',1,['nickname','birthday','region','ds-profile']],['clock',1,['date','time']],
   ['other',1,['profile','clock','touch']],
  ];
- const subpages=cases.map(([screen,variant,ids])=>({...view,screen,variant,rows:ids.map(id=>({id,label:id}))}));
+ const subpages=cases.map(([screen,variant,ids])=>({...view,screen,variant,rows:ids.map(id=>({id,label:id})),...(screen==='other'?{data:{page:0,selectionActive:false}}:{})}));
  for(const [field,parent,variant]of [['sound','other',1],['language','other',1],['date','clock',1],['time','clock',1],['birthday','profile',1],['nickname','profile',1],['ds-profile','profile',2],['software','data-3ds',4],['extra-data','data-3ds',4]])subpages.push({...view,screen:'detail',variant,rows:[],data:{field,parent},heading:field,text:[]});
  // Explicit renderer specimens, never production preference defaults.
  for(const [field,value]of [['date','2024-02-29'],['time','23:07'],['birthday','02-29']])subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field,parent:field==='birthday'?'profile':'clock',settings:{[field]:value}},verificationId:'supplied-'+field,heading:field,text:[]});
@@ -102,6 +102,11 @@ try{
    assert.deepEqual(call.options?.bindings??[],subpage.variant===2?[{name:name+'_SceneIn_Legacy',frame:40}]:[]);
   }
   const title=calls.find(c=>c.layout==='CommonBG_U_00');
+  if(subpage.screen==='other'){
+   assert.deepEqual(title.options.overrides.Null_Title,{translation:[96,0,0]},'native Other Settings title/icon group is centered');
+   for(const call of calls.filter(c=>['I_User','I_Date','I_Touch'].includes(c.layout)))
+    assert.equal(call.options.bindings[0].frame,0,'native touch-entry rows remain white');
+  }
   if(subpage.variant===2){
    assert.equal(title,undefined,'DS Profile does not use modern title chrome');
    const legacy=calls.find(c=>c.layout==='LsCommonBG_U_00'),menu=calls.find(c=>c.layout==='LsMenu_D_00'),footer=calls.find(c=>c.layout==='LsBase_D_00');

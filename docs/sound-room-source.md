@@ -90,8 +90,11 @@ then draw record/bird/title/footer layers over the room.
   the existing PICA renderer uses the base texture level. Those differences
   remain. The source verifier uses bilinear perspective interpolation and does
   not simulate PICA raster rounding or texture mip levels.
-- The coordinator owns final integrated browser/GPU verification. No browser or
-  native emulator instance was driven from this worktree.
+- The coordinator's later fresh production-browser reload showed the room
+  behind Sound's title, birds and status chrome with the lower Record visible.
+  This checks live publication and layer order. A paired native whole-screen
+  pixel, motion and timing comparison remains open; no native emulator instance
+  was driven from this worktree.
 
 Artifacts are on the home disk per the explicit SSD-space constraint:
 `/Users/paramveer/.codex/artifacts/sound-room-source/render/room-source-native.png`,

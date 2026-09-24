@@ -98,9 +98,11 @@ No guessed behavior was added for these controls:
   UnSelect visuals, D-pad focus, row decisions, held-arrow repeat and groove
   paging remain acceptance gaps.
 
-The coordinator attempted native Settings observation, but the computer-use
-screen-observation pipe failed. No new native interaction result or live-browser
-result is claimed here. Browser and native acceptance remain open.
+The coordinator's later production-browser check opened Settings Language and
+dragged the thumb down to the final four rows and back to the first four. The
+read-only English setting remained unchanged. This confirms the integrated
+browser route and visible motion, but native input and matched pixels remain
+open. The worker's isolated worktree did not run that browser check.
 
 ## Verification
 
@@ -116,8 +118,8 @@ result is claimed here. Browser and native acceptance remain open.
   residual and reduced-motion snap match the settled top=1 lower image exactly.
 - `language-drag--22-bottom.png` and `language-drag-11-bottom.png` were visually
   inspected for continuous list positioning, row masking and thumb alignment.
-- Build and live browser checks remain with integration; this isolated sparse
-  source clone does not contain the preserved model delivery.
+- The coordinator's integration production build and browser check passed; this
+  isolated sparse source clone does not contain the preserved model delivery.
 
 Artifacts: `tests.log`, `typecheck.log`, `source-audit.json`, `render.log`,
 `render/verification.json` and the paired PNGs under the home-disk root above.

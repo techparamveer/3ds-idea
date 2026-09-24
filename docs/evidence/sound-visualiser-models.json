@@ -1,0 +1,2237 @@
+{
+  "embeddedAnimations": 0,
+  "firmware": "10.7.0-32E",
+  "models": [
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [
+        {
+          "aspectRatio": 1.63636,
+          "fovY": 0.759536,
+          "name": "camera1",
+          "projectionType": "Perspective",
+          "target": {
+            "X": 0,
+            "Y": -13,
+            "Z": -125
+          },
+          "translation": {
+            "X": 0,
+            "Y": 5,
+            "Z": 11.5
+          },
+          "twist": 0,
+          "viewType": "Aim",
+          "zFar": 1000,
+          "zNear": 0.01
+        }
+      ],
+      "compressedSha256": "8c7d41fee74034b22bbd39b3a35d24906057f996c9201de51596feb218f504f5",
+      "decompressedSha256": "134099e5050c465200be110ed53258c2d81c6bfc43456496bb60b53d69fd27bd",
+      "decompressedSize": 58624,
+      "entry": "S_Back_U.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [],
+        "pcRelative": [
+          "0x191f10",
+          "0x191f64"
+        ]
+      },
+      "lights": [],
+      "luts": [],
+      "model": "S_Back_U.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 6,
+          "bonesBoundByMeshes": 5,
+          "distinctBindPlacements": 2,
+          "issues": [],
+          "materials": [
+            "lambert1",
+            "lambert2"
+          ],
+          "meshes": 5,
+          "name": "S_Back_U",
+          "notes": [
+            "consumed combiner operands read fragment lighting colors; the resource has no light, so the renderer uses its fixed approximation"
+          ],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "supported",
+          "sharedBindPlacements": [
+            {
+              "bones": [
+                "poly1",
+                "poly2",
+                "poly4",
+                "poly5"
+              ],
+              "translation": [
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "OneMinusSourceAlpha",
+              "SourceAlpha",
+              "Zero"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Replace"
+            ],
+            "culling": [
+              "BackFace"
+            ],
+            "depthFunctions": [
+              "off/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "ETC1",
+              "ETC1A4"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "FragmentPrimaryColor",
+              "Previous",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 896,
+      "size": 26427,
+      "textures": [
+        {
+          "format": "ETC1A4",
+          "height": 128,
+          "name": "S_BG_U_Tx_A",
+          "sha256": "f75709862c0153b16e158a9a72f5df2f55ee78e3fe3c0aca883ae77d52835632",
+          "width": 128
+        },
+        {
+          "format": "ETC1",
+          "height": 128,
+          "name": "S_BG_U_Tx_BC",
+          "sha256": "5dac73facf3c83df29f50326ed3a50082e8134a69175f173793007de1ebd65c7",
+          "width": 256
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [
+        {
+          "aspectRatio": 1.65,
+          "fovY": 0.5934119,
+          "name": "camera1",
+          "projectionType": "Perspective",
+          "target": {
+            "X": 0,
+            "Y": 0.3,
+            "Z": 0
+          },
+          "translation": {
+            "X": 0,
+            "Y": 0.3,
+            "Z": 20
+          },
+          "twist": 0,
+          "viewType": "Aim",
+          "zFar": 1000,
+          "zNear": 0.01
+        }
+      ],
+      "compressedSha256": "c08e58081888cb55a7b7a94f343e07aea11ab4faa4e1a1d439ae9380b8fd1515",
+      "decompressedSha256": "8f0eb8c03217591587a1896aefdc3827d1b9a4e3a6e9e7a11ff0b8c47a8c2889",
+      "decompressedSize": 390272,
+      "entry": "S_Vis_Clock_U.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [],
+        "pcRelative": [
+          "0x2612b4",
+          "0x2612e4",
+          "0x261310"
+        ]
+      },
+      "lights": [
+        {
+          "enabled": true,
+          "name": "pointLight1",
+          "nativeType": "Directional",
+          "type": "Fragment"
+        }
+      ],
+      "luts": [
+        "S_Vis_Clock_U.MaterialLutset"
+      ],
+      "model": "S_Vis_Clock_U.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 24,
+          "bonesBoundByMeshes": 20,
+          "distinctBindPlacements": 20,
+          "issues": [
+            "AsBump bump mapping (cgfx-lighting.ts falls back to the approximation)"
+          ],
+          "materials": [
+            "Mat_BG_S",
+            "Mat_Cage",
+            "Mat_Gauge_1",
+            "Mat_Gauge_2",
+            "Mat_Gauge_3",
+            "Mat_Gauge_4",
+            "Mat_Inco",
+            "Mat_Nambers",
+            "Mat_Needle_H",
+            "Mat_Needle_M",
+            "Mat_Needle_S",
+            "Mat_PlateBase",
+            "Mat_out80"
+          ],
+          "meshes": 20,
+          "name": "S_Vis_Clock_U",
+          "notes": [
+            "consumed combiner operands read fragment lighting colors"
+          ],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "unsupported-or-approximate",
+          "sharedBindPlacements": [],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "OneMinusSourceAlpha",
+              "SourceAlpha",
+              "Zero"
+            ],
+            "bumpModes": [
+              "AsBump",
+              "NotUsed"
+            ],
+            "combiners": [
+              "Add",
+              "Modulate",
+              "MultAdd",
+              "Replace"
+            ],
+            "culling": [
+              "BackFace",
+              "Never"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [
+              "IsBumpRenormalizeEnabled",
+              "IsLUTDist0Enabled"
+            ],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color",
+              "Red"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "FragmentSecondaryColor",
+              "Previous",
+              "PrimaryColor",
+              "Texture0",
+              "Texture1"
+            ],
+            "textureFormats": [
+              "A8",
+              "ETC1",
+              "ETC1A4",
+              "HiLo8",
+              "L4",
+              "L8",
+              "LA8"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "FragmentSecondaryColor",
+              "Previous",
+              "PrimaryColor",
+              "Texture0",
+              "Texture1"
+            ]
+          }
+        }
+      ],
+      "offset": 27392,
+      "size": 92051,
+      "textures": [
+        {
+          "format": "ETC1",
+          "height": 128,
+          "name": "Clock_BG",
+          "sha256": "fd73ef57e0ac55dd894270da28de0c51e93941164f292424eb3bff4e65693f54",
+          "width": 256
+        },
+        {
+          "format": "ETC1A4",
+          "height": 128,
+          "name": "Clock_AlphaMap_BBB",
+          "sha256": "4effade758c0741f5dbc8b58bf3871cfc41485b3a50ad27ba0c78e93c7c62284",
+          "width": 256
+        },
+        {
+          "format": "ETC1A4",
+          "height": 128,
+          "name": "Clock_Gauge",
+          "sha256": "1ea911a9c45e43bbe020487b06fb31455ed7c83f8886429a26686ae278ee3aae",
+          "width": 128
+        },
+        {
+          "format": "ETC1A4",
+          "height": 128,
+          "name": "Clock_Parakeet",
+          "sha256": "ca3e6d82683f0e591ab368540b242b3f7fc235517c39fb5473678e04d87fb9d4",
+          "width": 128
+        },
+        {
+          "format": "L4",
+          "height": 32,
+          "name": "Clock_Nambers",
+          "sha256": "e8d1f35f3c41fbef48f7efb2bf04523c7537ea7dc20e35dcc27b1ae9cc9f4d42",
+          "width": 32
+        },
+        {
+          "format": "LA8",
+          "height": 128,
+          "name": "Clock_Needle_H",
+          "sha256": "099f3bf00f5b14ec9583289f6ca5f7c765407912b5c80f9afc177026c65711a7",
+          "width": 32
+        },
+        {
+          "format": "LA8",
+          "height": 128,
+          "name": "Clock_Needle_M",
+          "sha256": "6fbe34e5eebb48dfdbde5261b4f2fba2b3bf297a0b7fdc7cc9960fd1e6527fe6",
+          "width": 32
+        },
+        {
+          "format": "A8",
+          "height": 128,
+          "name": "Clock_Needle_S",
+          "sha256": "7c9f66601f67584103af17b4bcce2b39506b0938396caa6fa0c2ba924d20275a",
+          "width": 32
+        },
+        {
+          "format": "LA8",
+          "height": 256,
+          "name": "Clock_PlateBase",
+          "sha256": "a96991b95120692a9b89d8e11eb252b32fde708678085d57cbb6d187fdc84893",
+          "width": 128
+        },
+        {
+          "format": "HiLo8",
+          "height": 128,
+          "name": "Clock_NormalMap_BBB",
+          "sha256": "cbaaf19d8a16a828986b8e03a453a5e70b4c397a2c4ad7d84163a8463b43b844",
+          "width": 256
+        },
+        {
+          "format": "L8",
+          "height": 128,
+          "name": "Clock_Needle_H_Mask",
+          "sha256": "d3d657c1b966c45d0d7899b4d40bf0c960bf8ca85deb53331b934c3155048448",
+          "width": 32
+        },
+        {
+          "format": "L8",
+          "height": 128,
+          "name": "Clock_Needle_M_Mask",
+          "sha256": "75140824ec36c5458d2dbb3944aaeb676be5a54e3c89cabdea55a42a92b28b8a",
+          "width": 32
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [],
+      "compressedSha256": "2f260e44683c2e2722244314d9c5661880d82c8dda3a7916e931688b9c74c0db",
+      "decompressedSha256": "57bb90de934be65bfa4f62c0fa2b2a505d6c79af0044848c23622dcf83eb3d9d",
+      "decompressedSize": 345152,
+      "entry": "S_Vis_Clock_U_Cogwheel.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [],
+        "pcRelative": [
+          "0x2610ec"
+        ]
+      },
+      "lights": [],
+      "luts": [
+        "S_Vis_Clock_U_Cogwheel.MaterialLutset"
+      ],
+      "model": "S_Vis_Clock_U_Cogwheel.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 17,
+          "bonesBoundByMeshes": 16,
+          "distinctBindPlacements": 16,
+          "issues": [
+            "AsBump bump mapping (cgfx-lighting.ts falls back to the approximation)"
+          ],
+          "materials": [
+            "Mat_06G",
+            "Mat_08G",
+            "Mat_16G",
+            "Mat_24G",
+            "z_Mat_06G1",
+            "z_Mat_08G1",
+            "z_Mat_08G3",
+            "z_Mat_16G2",
+            "z_Mat_24G1",
+            "z_Mat_24G2",
+            "z_Mat_24G3"
+          ],
+          "meshes": 16,
+          "name": "S_Vis_Clock_U_Cogwheel",
+          "notes": [
+            "consumed combiner operands read fragment lighting colors; the resource has no light, so the renderer uses its fixed approximation"
+          ],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "unsupported-or-approximate",
+          "sharedBindPlacements": [],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "OneMinusSourceAlpha",
+              "SourceAlpha"
+            ],
+            "bumpModes": [
+              "AsBump"
+            ],
+            "combiners": [
+              "Add",
+              "Modulate",
+              "Replace"
+            ],
+            "culling": [
+              "BackFace"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [
+              "IsBumpRenormalizeEnabled",
+              "IsLUTDist0Enabled"
+            ],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "FragmentSecondaryColor",
+              "Previous",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "A8",
+              "HiLo8"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "FragmentSecondaryColor",
+              "Previous",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 119552,
+      "size": 143082,
+      "textures": [
+        {
+          "format": "A8",
+          "height": 64,
+          "name": "Clock_AlphaMap_06G",
+          "sha256": "0cf78278faf284975b3cb31c866bc1734aaaf8faa6013b6a0b51fd80ef2ac17f",
+          "width": 64
+        },
+        {
+          "format": "HiLo8",
+          "height": 64,
+          "name": "Clock_NormalMap_06",
+          "sha256": "bab7cbe9106464d28fdcec20d56837c430710d15520dd6fb466c5a3d260e60c1",
+          "width": 64
+        },
+        {
+          "format": "A8",
+          "height": 64,
+          "name": "Clock_AlphaMap_08G",
+          "sha256": "3e8bccd7c4ce1733f598b3ca68c38e18d4f363797313f30371442c29109620a8",
+          "width": 64
+        },
+        {
+          "format": "HiLo8",
+          "height": 128,
+          "name": "Clock_NormalMap_08",
+          "sha256": "a5ca11e137891aac09a673dce4b855e9a0ab1914399f4938f4096cd9a47700e0",
+          "width": 128
+        },
+        {
+          "format": "A8",
+          "height": 128,
+          "name": "Clock_AlphaMap_16G",
+          "sha256": "07ea14d709ab47db4066fc172e43ec85929914900fb9a133f85890aecf4a708f",
+          "width": 128
+        },
+        {
+          "format": "HiLo8",
+          "height": 256,
+          "name": "Clock_NormalMap_2416",
+          "sha256": "b75e15b8691f844162b227d7d571f2aa33a890133a27575ab039c6649a198fb1",
+          "width": 256
+        },
+        {
+          "format": "A8",
+          "height": 128,
+          "name": "Clock_AlphaMap_24G",
+          "sha256": "d37c66ceb3d3404efb07bbeed175688effdcca9c27214662b7be9a85c242e076",
+          "width": 128
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [
+        {
+          "aspectRatio": 1.49995,
+          "fovY": 0.660608,
+          "name": "camera1",
+          "projectionType": "Perspective",
+          "target": {
+            "X": 0,
+            "Y": 1.8,
+            "Z": 0
+          },
+          "translation": {
+            "X": 0,
+            "Y": 2.8,
+            "Z": 6
+          },
+          "twist": 0,
+          "viewType": "Aim",
+          "zFar": 1000,
+          "zNear": 0.01
+        }
+      ],
+      "compressedSha256": "48c6897cd0141b3b4cf0deac629c6d907864ef1acff02e815fa576b77eaa6171",
+      "decompressedSha256": "fd7e15e432d68f5e530dda354fb9fc708d45292b2e95c39bcc113789b25f7b01",
+      "decompressedSize": 195968,
+      "entry": "S_Vis_ExBike_U.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [],
+        "pcRelative": [
+          "0x256dd0",
+          "0x256e00"
+        ]
+      },
+      "lights": [],
+      "luts": [],
+      "model": "S_Vis_ExBike_U.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 11,
+          "bonesBoundByMeshes": 10,
+          "distinctBindPlacements": 9,
+          "issues": [
+            "ProjectionMap texture coordinates (renderer applies UV mapping only)"
+          ],
+          "materials": [
+            "Obj1_TxAnimUV_a",
+            "Obj2_TxAnimUV_a",
+            "Obj3_TxAnimUV",
+            "Obj4_TxAnimUV",
+            "Obj5_TxAnimUV_a",
+            "lambert6",
+            "z_Mat_BG",
+            "z_Mat_TittleBar"
+          ],
+          "meshes": 10,
+          "name": "S_Vis_ExBike_U",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "unsupported-or-approximate",
+          "sharedBindPlacements": [
+            {
+              "bones": [
+                "bicycle",
+                "cup"
+              ],
+              "translation": [
+                0,
+                0,
+                -1
+              ]
+            }
+          ],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "OneMinusSourceAlpha",
+              "SourceAlpha",
+              "Zero"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Add",
+              "Modulate",
+              "Replace"
+            ],
+            "culling": [
+              "BackFace",
+              "Never"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "ProjectionMap",
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "Texture0",
+              "Texture1"
+            ],
+            "textureFormats": [
+              "ETC1",
+              "ETC1A4",
+              "L8",
+              "RGBA4"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Constant",
+              "Previous",
+              "Texture0",
+              "Texture1"
+            ]
+          }
+        }
+      ],
+      "offset": 262656,
+      "size": 54156,
+      "textures": [
+        {
+          "format": "ETC1A4",
+          "height": 256,
+          "name": "Dot_Obj1_Tx",
+          "sha256": "1cec885248c185be676e911a0a3f5403aea329e5d2ab15e78ef921f0e53e58e7",
+          "width": 256
+        },
+        {
+          "format": "ETC1",
+          "height": 16,
+          "name": "ExBike_BG_D",
+          "sha256": "ed9862779e968b5c2d237b70845b0286465ed28eba2824439eb0c277b9382b89",
+          "width": 16
+        },
+        {
+          "format": "L8",
+          "height": 64,
+          "name": "ExBike_TitleBarBack",
+          "sha256": "2ae67e3b7bd096868928ec420851375ce49e0105e7f6b142b6afecbe503a9c5a",
+          "width": 16
+        },
+        {
+          "format": "ETC1",
+          "height": 32,
+          "name": "ExBike_Sdw",
+          "sha256": "5e9b5a1940281a043fc97c1d2c590c3216e2db461fb2e1ffabb347c4d273c335",
+          "width": 16
+        },
+        {
+          "format": "RGBA4",
+          "height": 128,
+          "name": "ExBike_BG",
+          "sha256": "9721221cb27248e76c39c217253467b4363b089f626dbd6cecb4588ed5a01b95",
+          "width": 256
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [
+        {
+          "aspectRatio": 1.6666666,
+          "fovY": 0.5934119,
+          "name": "cam",
+          "projectionType": "Perspective",
+          "target": {
+            "X": 0,
+            "Y": 3.3,
+            "Z": 0
+          },
+          "translation": {
+            "X": 0,
+            "Y": 4.1308894,
+            "Z": 24.995993
+          },
+          "twist": 0,
+          "viewType": "Aim",
+          "zFar": 50000,
+          "zNear": 0.01
+        }
+      ],
+      "compressedSha256": "0e6f9526fed701c8ae1dd33fd0189427beaf2f6d33791dec96196834ec165a4d",
+      "decompressedSha256": "ea0f9c20a2c846bff7cf3505fe6b8ba90c36900d522593cbefd6a2ac3838cd0d",
+      "decompressedSize": 424064,
+      "entry": "S_Vis_Lifting_U.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [],
+        "pcRelative": [
+          "0x25e200",
+          "0x25e230"
+        ]
+      },
+      "lights": [],
+      "luts": [],
+      "model": "S_Vis_Lifting_U.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 16,
+          "bonesBoundByMeshes": 15,
+          "distinctBindPlacements": 7,
+          "issues": [
+            "ProjectionMap texture coordinates (renderer applies UV mapping only)"
+          ],
+          "materials": [
+            "mBall1",
+            "mBall2",
+            "mBall3",
+            "mBall4",
+            "mGrass",
+            "mMan0",
+            "mMan1",
+            "mManShadow",
+            "mObj",
+            "mScore0",
+            "mScore1",
+            "mScore2",
+            "mScore3",
+            "mScore4",
+            "mScore5",
+            "mScoreBoard",
+            "mScoreBoard1",
+            "mScoreBoard2",
+            "mScoreBoard3",
+            "mScoreBoard4",
+            "mShadow0",
+            "mShadow1",
+            "mShadow2",
+            "mShadow3",
+            "mWood"
+          ],
+          "meshes": 26,
+          "name": "S_Vis_Lifting_U",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "unsupported-or-approximate",
+          "sharedBindPlacements": [
+            {
+              "bones": [
+                "back",
+                "ball2",
+                "man0",
+                "manShadow0",
+                "shadow0",
+                "shadow1",
+                "shadow2",
+                "shadow3"
+              ],
+              "translation": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "bones": [
+                "man1",
+                "manShadow1"
+              ],
+              "translation": [
+                -8,
+                0,
+                -8
+              ]
+            }
+          ],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "OneMinusSourceAlpha",
+              "SourceAlpha",
+              "Zero"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Modulate",
+              "Replace"
+            ],
+            "culling": [
+              "BackFace",
+              "Never"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "ProjectionMap",
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color",
+              "Red"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "PrimaryColor",
+              "Texture0",
+              "Texture1"
+            ],
+            "textureFormats": [
+              "ETC1",
+              "ETC1A4",
+              "L4",
+              "L8",
+              "RGBA8"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Constant",
+              "Previous",
+              "PrimaryColor",
+              "Texture0",
+              "Texture1"
+            ]
+          }
+        },
+        {
+          "billboards": [],
+          "bones": 5,
+          "bonesBoundByMeshes": 4,
+          "distinctBindPlacements": 4,
+          "issues": [],
+          "materials": [
+            "TB_lambert10",
+            "TB_lambert7",
+            "TB_lambert8",
+            "TB_lambert9"
+          ],
+          "meshes": 4,
+          "name": "S_Vis_Lifting_U_TB_A",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "supported",
+          "sharedBindPlacements": [],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "OneMinusSourceAlpha",
+              "SourceAlpha"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Modulate",
+              "Replace"
+            ],
+            "culling": [
+              "BackFace"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "ETC1",
+              "ETC1A4",
+              "L4",
+              "L8",
+              "RGBA8"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Constant",
+              "Previous",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 316928,
+      "size": 54143,
+      "textures": [
+        {
+          "format": "ETC1A4",
+          "height": 64,
+          "name": "Ball",
+          "sha256": "35f88684083852c66b115ac2f9c7479ce909f0538e79d7b26161d0f60ecd817b",
+          "width": 64
+        },
+        {
+          "format": "ETC1",
+          "height": 32,
+          "name": "PlayYan_Sdw",
+          "sha256": "5e9b5a1940281a043fc97c1d2c590c3216e2db461fb2e1ffabb347c4d273c335",
+          "width": 16
+        },
+        {
+          "format": "L8",
+          "height": 16,
+          "name": "Grass",
+          "sha256": "2e7b825b080e2c81101f3bb93c3759f5e1f7ec075b93369d58d2b9b8dbfb297c",
+          "width": 64
+        },
+        {
+          "format": "L4",
+          "height": 32,
+          "name": "Shadow",
+          "sha256": "2b237fb4f183da16101fc7d1e2a86030276fe784d4345bc7971cdd32a5f2ab97",
+          "width": 32
+        },
+        {
+          "format": "RGBA8",
+          "height": 32,
+          "name": "Score",
+          "sha256": "5679453b5611c67ede3bc28777ca6599142e1ee5bedf086b0e5f20fb33f9b80d",
+          "width": 64
+        },
+        {
+          "format": "L4",
+          "height": 512,
+          "name": "Numbers",
+          "sha256": "9da9b86eedcefbe3d587d5bf163050b9e1c3c23e1084172f69c6e5932c889228",
+          "width": 16
+        },
+        {
+          "format": "ETC1",
+          "height": 512,
+          "name": "ScoreBoard",
+          "sha256": "b1f30435702b41c5e3759fdbe442ba2f7a579afb9d9c3c315ecaf7016058ad10",
+          "width": 16
+        },
+        {
+          "format": "L8",
+          "height": 64,
+          "name": "Wood",
+          "sha256": "76e7592719ce36116ee6eddffc5de080b4648a9edc3ed686514d570060eac6f6",
+          "width": 128
+        },
+        {
+          "format": "ETC1A4",
+          "height": 64,
+          "name": "TitleBar_Base",
+          "sha256": "8bca273abd6ec7afde0285304c913582872839057f971ce296fa2d6a1db645b7",
+          "width": 16
+        },
+        {
+          "format": "ETC1A4",
+          "height": 16,
+          "name": "TitleBar_Reflect",
+          "sha256": "c10011208f8f40d4c6f6acabe3019f68a99a2727b81afc09129f9235954e6172",
+          "width": 16
+        },
+        {
+          "format": "ETC1A4",
+          "height": 16,
+          "name": "TitleBar_Bevel",
+          "sha256": "30a16cf7669d99dd15038900f61843790433342e0faa6e07958356e5dac7e94e",
+          "width": 16
+        },
+        {
+          "format": "ETC1A4",
+          "height": 512,
+          "name": "Man",
+          "sha256": "43df3cd60517f129d655e38e5db24229e04714487cd638426da887f32a2ac29b",
+          "width": 512
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [
+        {
+          "aspectRatio": 1.6666666,
+          "fovY": 0.660608,
+          "name": "camera1",
+          "projectionType": "Perspective",
+          "target": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          "translation": {
+            "X": 0,
+            "Y": 0,
+            "Z": 7
+          },
+          "twist": 0,
+          "viewType": "Aim",
+          "zFar": 1000,
+          "zNear": 0.01
+        }
+      ],
+      "compressedSha256": "49858d6463093b2690aba70bc2f376d6d1c5031cb888bb8c47e13b452edada22",
+      "decompressedSha256": "5c21e986518f8988140516eda565ba512e505d100cdd9a15d91cb39db3f025ae",
+      "decompressedSize": 478720,
+      "entry": "S_Vis_PlayYan_U.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [],
+        "pcRelative": [
+          "0x264c44",
+          "0x264c74"
+        ]
+      },
+      "lights": [],
+      "luts": [],
+      "model": "S_Vis_PlayYan_U.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 24,
+          "bonesBoundByMeshes": 23,
+          "distinctBindPlacements": 20,
+          "issues": [],
+          "materials": [
+            "Base",
+            "Door_000",
+            "Door_001",
+            "Icon_000",
+            "Icon_001",
+            "Icon_002",
+            "Icon_003",
+            "Icon_004",
+            "Icon_005",
+            "Icon_006",
+            "Icon_007",
+            "Icon_b_000",
+            "PictMan1",
+            "PictMan1_b",
+            "Propeller_000",
+            "Warp_000",
+            "Warp_001",
+            "mat_Step_obj_00",
+            "mat_Step_obj_01",
+            "mat_Step_obj_02"
+          ],
+          "meshes": 23,
+          "name": "S_Vis_PlayYan_U",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "supported",
+          "sharedBindPlacements": [
+            {
+              "bones": [
+                "Propeller_A",
+                "Propeller_B",
+                "PictMan"
+              ],
+              "translation": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "bones": [
+                "Icon_00",
+                "Icon_b_00"
+              ],
+              "translation": [
+                -4,
+                0,
+                0
+              ]
+            }
+          ],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "OneMinusSourceAlpha",
+              "SourceAlpha"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Modulate",
+              "Replace"
+            ],
+            "culling": [
+              "BackFace",
+              "Never"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "ETC1A4"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Constant",
+              "Previous",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 371072,
+      "size": 30622,
+      "textures": [
+        {
+          "format": "ETC1A4",
+          "height": 512,
+          "name": "S_Vis_Pict_Obj_A",
+          "sha256": "309876d49e8434457f6b53c5294815d1e8f621d59048f924dca0e535631f9d0b",
+          "width": 512
+        },
+        {
+          "format": "ETC1A4",
+          "height": 512,
+          "name": "S_Vis_Pict_Obj_C",
+          "sha256": "ec83ce3156a977df81f7a88ebddfb862789f6feaec9541a91bb50b42b1335968",
+          "width": 256
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [],
+      "compressedSha256": "771cda9d529f15d06e4e5d8632e783b9cf94626d2c9125b6b52ca2ec95fb8543",
+      "decompressedSha256": "b188de9ae69ee4cbf1c51132aee618f4e6b68e5466f65423540011df0d38f58a",
+      "decompressedSize": 69248,
+      "entry": "S_Vis_PlayYan_U_Star1.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [
+          "0x372578"
+        ],
+        "pcRelative": []
+      },
+      "lights": [],
+      "luts": [],
+      "model": "S_Vis_PlayYan_U_Star1.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 16,
+          "bonesBoundByMeshes": 15,
+          "distinctBindPlacements": 15,
+          "issues": [],
+          "materials": [
+            "Star_000",
+            "Star_001",
+            "Star_002",
+            "Star_003",
+            "Star_004",
+            "Star_005",
+            "Star_006",
+            "Star_007",
+            "Star_008",
+            "Star_009",
+            "Star_010",
+            "Star_011",
+            "Star_012",
+            "Star_013",
+            "Star_014"
+          ],
+          "meshes": 15,
+          "name": "S_Vis_PlayYan_U_Star1",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "supported",
+          "sharedBindPlacements": [],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "Zero"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Replace"
+            ],
+            "culling": [
+              "BackFace"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "ETC1A4"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Previous",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 401792,
+      "size": 13545,
+      "textures": [
+        {
+          "format": "ETC1A4",
+          "height": 256,
+          "name": "S_Vis_Pict_Obj_B",
+          "sha256": "a37e56958620a30621a4ebec68ea42ab74ebc478b08cb055eeff5d0308225dd5",
+          "width": 32
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [],
+      "compressedSha256": "771cda9d529f15d06e4e5d8632e783b9cf94626d2c9125b6b52ca2ec95fb8543",
+      "decompressedSha256": "b188de9ae69ee4cbf1c51132aee618f4e6b68e5466f65423540011df0d38f58a",
+      "decompressedSize": 69248,
+      "entry": "S_Vis_PlayYan_U_Star2.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [
+          "0x37257c"
+        ],
+        "pcRelative": []
+      },
+      "lights": [],
+      "luts": [],
+      "model": "S_Vis_PlayYan_U_Star2.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 16,
+          "bonesBoundByMeshes": 15,
+          "distinctBindPlacements": 15,
+          "issues": [],
+          "materials": [
+            "Star_000",
+            "Star_001",
+            "Star_002",
+            "Star_003",
+            "Star_004",
+            "Star_005",
+            "Star_006",
+            "Star_007",
+            "Star_008",
+            "Star_009",
+            "Star_010",
+            "Star_011",
+            "Star_012",
+            "Star_013",
+            "Star_014"
+          ],
+          "meshes": 15,
+          "name": "S_Vis_PlayYan_U_Star1",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "supported",
+          "sharedBindPlacements": [],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "Zero"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Replace"
+            ],
+            "culling": [
+              "BackFace"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "ETC1A4"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Previous",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 415360,
+      "size": 13545,
+      "textures": [
+        {
+          "format": "ETC1A4",
+          "height": 256,
+          "name": "S_Vis_Pict_Obj_B",
+          "sha256": "a37e56958620a30621a4ebec68ea42ab74ebc478b08cb055eeff5d0308225dd5",
+          "width": 32
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [],
+      "compressedSha256": "771cda9d529f15d06e4e5d8632e783b9cf94626d2c9125b6b52ca2ec95fb8543",
+      "decompressedSha256": "b188de9ae69ee4cbf1c51132aee618f4e6b68e5466f65423540011df0d38f58a",
+      "decompressedSize": 69248,
+      "entry": "S_Vis_PlayYan_U_Star3.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [
+          "0x372580"
+        ],
+        "pcRelative": []
+      },
+      "lights": [],
+      "luts": [],
+      "model": "S_Vis_PlayYan_U_Star3.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 16,
+          "bonesBoundByMeshes": 15,
+          "distinctBindPlacements": 15,
+          "issues": [],
+          "materials": [
+            "Star_000",
+            "Star_001",
+            "Star_002",
+            "Star_003",
+            "Star_004",
+            "Star_005",
+            "Star_006",
+            "Star_007",
+            "Star_008",
+            "Star_009",
+            "Star_010",
+            "Star_011",
+            "Star_012",
+            "Star_013",
+            "Star_014"
+          ],
+          "meshes": 15,
+          "name": "S_Vis_PlayYan_U_Star1",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "supported",
+          "sharedBindPlacements": [],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "Zero"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Replace"
+            ],
+            "culling": [
+              "BackFace"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "ETC1A4"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Previous",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 428928,
+      "size": 13545,
+      "textures": [
+        {
+          "format": "ETC1A4",
+          "height": 256,
+          "name": "S_Vis_Pict_Obj_B",
+          "sha256": "a37e56958620a30621a4ebec68ea42ab74ebc478b08cb055eeff5d0308225dd5",
+          "width": 32
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [],
+      "compressedSha256": "f60c802a5629ec0cf089cb6953e286727f7b71554ae15d50423e2f695bdc252b",
+      "decompressedSha256": "57483c25da7237b3d06407277809b88a1fc5b7b0c23556f233f8bf6cca9c68c5",
+      "decompressedSize": 29568,
+      "entry": "S_Vis_PlayYan_U_Star4.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [
+          "0x372584"
+        ],
+        "pcRelative": []
+      },
+      "lights": [],
+      "luts": [],
+      "model": "S_Vis_PlayYan_U_Star4.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 6,
+          "bonesBoundByMeshes": 5,
+          "distinctBindPlacements": 5,
+          "issues": [],
+          "materials": [
+            "Star_045",
+            "Star_046",
+            "Star_047",
+            "Star_048",
+            "Star_049"
+          ],
+          "meshes": 5,
+          "name": "S_Vis_PlayYan_U_Star4",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "supported",
+          "sharedBindPlacements": [],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "Zero"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Replace"
+            ],
+            "culling": [
+              "BackFace"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "ETC1A4"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Previous",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 442496,
+      "size": 7711,
+      "textures": [
+        {
+          "format": "ETC1A4",
+          "height": 256,
+          "name": "S_Vis_Pict_Obj_B",
+          "sha256": "a37e56958620a30621a4ebec68ea42ab74ebc478b08cb055eeff5d0308225dd5",
+          "width": 32
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [
+        {
+          "aspectRatio": 1.5,
+          "fovY": 0.696166,
+          "name": "camera",
+          "projectionType": "Perspective",
+          "target": {
+            "X": 0,
+            "Y": 17,
+            "Z": 0
+          },
+          "translation": {
+            "X": 0,
+            "Y": -30,
+            "Z": 72
+          },
+          "twist": 0,
+          "viewType": "Aim",
+          "zFar": 1000,
+          "zNear": 0.01
+        }
+      ],
+      "compressedSha256": "c9558d7c10d0d6354b63aeb39ca173707cdb927d3344f23e51d5229c4b953244",
+      "decompressedSha256": "ff9ce249149f835ecce97f693e3f2e1cabe3a2cfebb6bcdbb124d36d4005cf23",
+      "decompressedSize": 78208,
+      "entry": "S_Vis_Span_U.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [],
+        "pcRelative": [
+          "0x252bf0",
+          "0x252ccc"
+        ]
+      },
+      "lights": [],
+      "luts": [],
+      "model": "S_Vis_Span_U.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 35,
+          "bonesBoundByMeshes": 34,
+          "distinctBindPlacements": 3,
+          "issues": [],
+          "materials": [
+            "Base",
+            "ColorChange"
+          ],
+          "meshes": 34,
+          "name": "S_Vis_Span_U",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "supported",
+          "sharedBindPlacements": [
+            {
+              "bones": [
+                "LightLine00",
+                "LightLine01",
+                "LightLine02",
+                "LightLine03",
+                "LightLine04",
+                "LightLine05",
+                "LightLine06",
+                "LightLine07",
+                "LightLine08",
+                "LightLine09",
+                "LightLine10",
+                "LightLine11",
+                "LightLine12",
+                "LightLine13",
+                "LightLine14",
+                "LightLine15",
+                "LightLine16",
+                "LightLine17",
+                "LightLine18",
+                "LightLine19",
+                "LightLine20",
+                "LightLine21",
+                "LightLine22",
+                "LightLine23",
+                "LightLine24",
+                "LightLine25",
+                "LightLine26",
+                "LightLine27",
+                "LightLine28",
+                "LightLine29",
+                "LightLine30",
+                "LightLine31"
+              ],
+              "translation": [
+                0,
+                -45,
+                0
+              ]
+            }
+          ],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "OneMinusSourceAlpha",
+              "SourceAlpha",
+              "Zero"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Interpolate",
+              "Replace"
+            ],
+            "culling": [
+              "BackFace"
+            ],
+            "depthFunctions": [
+              "off/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "PrimaryColor",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "ETC1A4"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Constant",
+              "Previous",
+              "PrimaryColor",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 450304,
+      "size": 11260,
+      "textures": [
+        {
+          "format": "ETC1A4",
+          "height": 1024,
+          "name": "BaseColor",
+          "sha256": "d9884dc5a1e4174d2537cf7b6e1b31605480130247fb275d50a7791b25000ab2",
+          "width": 32
+        }
+      ]
+    },
+    {
+      "animations": {
+        "cameraAnimations": 0,
+        "materialAnimations": 0,
+        "skeletalAnimations": 0,
+        "visibilityAnimations": 0
+      },
+      "cameras": [
+        {
+          "aspectRatio": 1.6666666,
+          "fovY": 0.660608,
+          "name": "camera",
+          "projectionType": "Perspective",
+          "target": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          "translation": {
+            "X": 0,
+            "Y": 0,
+            "Z": 8.33333
+          },
+          "twist": 0,
+          "viewType": "Aim",
+          "zFar": 1000,
+          "zNear": 0.01
+        }
+      ],
+      "compressedSha256": "ddcf8d62dfa92cd9129e2f5a3b5b2c8193f0918bcebf3fd8cce7a0f46a19c001",
+      "decompressedSha256": "5e8d135c7c4df011a673f67fb305b4a43abc3a0a9c5da3a3d8e905cd4c412dd3",
+      "decompressedSize": 47744,
+      "entry": "S_Vis_Wave_U.bcmdl.LZ",
+      "executableReferences": {
+        "literalPool": [],
+        "pcRelative": [
+          "0x254438",
+          "0x254510"
+        ]
+      },
+      "lights": [
+        {
+          "enabled": true,
+          "name": "Light1",
+          "nativeType": "Directional",
+          "type": "Fragment"
+        }
+      ],
+      "luts": [],
+      "model": "S_Vis_Wave_U.bcmdl",
+      "models": [
+        {
+          "billboards": [],
+          "bones": 5,
+          "bonesBoundByMeshes": 4,
+          "distinctBindPlacements": 4,
+          "issues": [],
+          "materials": [
+            "GridColor",
+            "StereoTex"
+          ],
+          "meshes": 4,
+          "name": "S_Vis_Wave_U",
+          "notes": [],
+          "primitives": [
+            "Triangles"
+          ],
+          "rendererSupport": "supported",
+          "sharedBindPlacements": [],
+          "skinning": [
+            "None"
+          ],
+          "vocabulary": {
+            "blendFactors": [
+              "One",
+              "OneMinusSourceAlpha",
+              "SourceAlpha",
+              "Zero"
+            ],
+            "bumpModes": [
+              "NotUsed"
+            ],
+            "combiners": [
+              "Modulate",
+              "Replace"
+            ],
+            "culling": [
+              "BackFace"
+            ],
+            "depthFunctions": [
+              "on/Less"
+            ],
+            "fragmentFlags": [],
+            "mappingTypes": [
+              "UvCoordinateMap"
+            ],
+            "operands": [
+              "Alpha",
+              "Color"
+            ],
+            "sources": [
+              "Constant",
+              "FragmentPrimaryColor",
+              "Previous",
+              "PrimaryColor",
+              "Texture0"
+            ],
+            "textureFormats": [
+              "ETC1",
+              "ETC1A4"
+            ],
+            "transformTypes": [
+              "DccMaya"
+            ],
+            "usedSources": [
+              "Constant",
+              "Previous",
+              "PrimaryColor",
+              "Texture0"
+            ]
+          }
+        }
+      ],
+      "offset": 461568,
+      "size": 17088,
+      "textures": [
+        {
+          "format": "ETC1",
+          "height": 512,
+          "name": "Grid",
+          "sha256": "c13e62c9a6d7e72ac210d9519fa8745e5987cd6bf8712fa21ae31794db1e92ae",
+          "width": 64
+        },
+        {
+          "format": "ETC1A4",
+          "height": 128,
+          "name": "Wave_StereoTex",
+          "sha256": "e9498d7ebec2bb4d0a22b3326adad6f27a5f1c81df9937b87bd34d3106e9d6b4",
+          "width": 128
+        }
+      ]
+    }
+  ],
+  "nextGate": [
+    "Trace the Span class (vtable 0x321890; slots 0x252b70, 0x252670, 0x251b2c) for the bar layout and its silent-audio heights before drawing any resting pose.",
+    "Confirm the save-load path keeps byte +0x1090 (visualiser index) or record how it is restored, so the default remains Span for a fresh save.",
+    "Add a stock-screen upper CGFX path (scene-owned renderer, embedded Aim camera, Canvas transfer) before any Sound model is composed; the HOME banner path is hardwired to HOME resources.",
+    "Renderer additions are needed only for Clock (AsBump lighting) and ExBike/Lifting (ProjectionMap coordinates); Span, Wave, PlayYan and the stars are within the current PICA support."
+  ],
+  "restingPose": {
+    "assetDefinedPose": "bind pose only; no skeletal, material, visibility or camera clip exists in any of the 12 resources",
+    "backgroundVisibility": "S_Back_U is not part of playback (see upperBackground)",
+    "defaultBindPose": "not displayable: LightLine00-31 share one bind transform (0,-45,0) and LightLineSide sits at (0,-40,0); the Span class places the bars at runtime",
+    "defaultVisualiser": "S_Vis_Span_U (index 1) on default settings",
+    "runtimeDrivers": "bone transforms are written by the visualiser classes at runtime; audio coupling and the silent placement were not traced",
+    "status": "unproven"
+  },
+  "schema": 1,
+  "sources": {
+    "codeSha256": "3c57f2c4091c1bec6b3834609f1e2a6488712e21775d7548b441c69c60b3e5a9",
+    "converter": {
+      "exporterSha256": "0a450efe7fbdba7a3bda05635c7abe9448080b719f9703e728efd46cc189a7d4",
+      "name": "ctr-cgfx-web",
+      "version": "1.3.0",
+      "wrapperSha256": "76e55cdf027b8a0a8d647f873e8dd89e81dd08478a588bbdaa91a03315b72da6"
+    },
+    "packPath": "romfs/res/S.pack",
+    "packSha256": "05550cfa807aa19cd27347e1b309a60aed7f20cf208be13ea2bab1bc942f161d",
+    "spicaRevision": "bd29a7828595d7839cda2ac61c76bb63f9071250"
+  },
+  "title": "0004001000022500",
+  "upperBackground": {
+    "cameraDistance": 11.5,
+    "cameraSecondConstant": 0.5,
+    "conclusion": "S_Back_U is the StreetPass (S_Cec) upper background; no music playback path enables it",
+    "createdDisabledBy": "0x1c65c8 (app+0x8c)",
+    "enableCondition": "slot-0x70 predicate of the current type-0x372190 object",
+    "loader": "0x191e98",
+    "model": "S_Back_U.bcmdl",
+    "objectConstructor": "0x192030",
+    "toggleSites": [
+      {
+        "load": "0x1c67ac",
+        "operation": "disable",
+        "toggle": "0x1c67b4"
+      },
+      {
+        "load": "0x27202c",
+        "operation": "enable",
+        "toggle": "0x272034"
+      },
+      {
+        "load": "0x2723d4",
+        "operation": "disable",
+        "toggle": "0x2723e0"
+      },
+      {
+        "load": "0x2729b0",
+        "operation": "enable",
+        "toggle": "0x2729b8"
+      },
+      {
+        "load": "0x2729d8",
+        "operation": "disable",
+        "toggle": "0x2729e0"
+      }
+    ],
+    "typeOwners": [
+      {
+        "layouts": [
+          "S_Cec_U-NoList2"
+        ],
+        "predicate": "0x29015c",
+        "vtable": "0x321b80"
+      },
+      {
+        "layouts": [
+          "S_Cec_U-NoList2"
+        ],
+        "predicate": "0x290188",
+        "vtable": "0x321c8c"
+      },
+      {
+        "layouts": [
+          "S_Cec",
+          "S_Cec_U-ArtstRslt",
+          "S_Cec_U-NoList2"
+        ],
+        "predicate": "0x292a90",
+        "vtable": "0x321d34"
+      },
+      {
+        "layouts": [
+          "S_Cec",
+          "S_Cec_U-MtchRcrd"
+        ],
+        "predicate": "0x292a90",
+        "vtable": "0x321ddc"
+      },
+      {
+        "layouts": [
+          "S_Cec",
+          "S_Cec_U-MtchRslt",
+          "S_Cec_U-NoMatch"
+        ],
+        "predicate": "0x292a90",
+        "vtable": "0x321e84"
+      },
+      {
+        "layouts": [
+          "S_Cec",
+          "S_Cec_U-NoList2",
+          "S_Cec_U-SngRslt"
+        ],
+        "predicate": "0x292a90",
+        "vtable": "0x321f2c"
+      },
+      {
+        "layouts": [
+          "S_Cec",
+          "S_Cec_U-MtchRslt"
+        ],
+        "predicate": "0x2901b4",
+        "vtable": "0x321fd4"
+      },
+      {
+        "layouts": [
+          "S_Cec_U-NoMatch"
+        ],
+        "predicate": "0x2901f4",
+        "vtable": "0x32207c"
+      }
+    ],
+    "vtable": "0x31fa58"
+  },
+  "visualiserFactory": {
+    "cases": [
+      {
+        "entry": "0x266900",
+        "index": 0,
+        "kind": "none",
+        "note": "no visualiser object; host+0xcc stays null and the host+0x14c layout stays disabled"
+      },
+      {
+        "entry": "0x266380",
+        "index": 1,
+        "kind": "cgfx-class",
+        "model": "res/S--S_Vis_Span_U.bcmdl",
+        "vtable": "0x321890"
+      },
+      {
+        "entry": "0x266400",
+        "index": 2,
+        "kind": "cgfx-class",
+        "model": "res/S--S_Vis_Wave_U.bcmdl",
+        "vtable": "0x3218b0"
+      },
+      {
+        "entry": "0x266480",
+        "index": 3,
+        "kind": "cgfx-class",
+        "model": "res/S--S_Vis_ExBike_U.bcmdl",
+        "vtable": "0x3218d0"
+      },
+      {
+        "entry": "0x26651c",
+        "index": 4,
+        "kind": "cgfx-class",
+        "model": null,
+        "note": "unidentified: no res/S-- path or layout name in its vtable functions (0x25b90c-0x25bcd8); allocation 0xe2ac bytes",
+        "vtable": "0x3218f0"
+      },
+      {
+        "entry": "0x266818",
+        "index": 5,
+        "kind": "cgfx-class",
+        "model": "res/S--S_Vis_PlayYan_U.bcmdl",
+        "note": "the four PlayYan star paths sit in a literal table at 0x372578",
+        "vtable": "0x321990"
+      },
+      {
+        "entry": "0x26667c",
+        "index": 6,
+        "kind": "cgfx-class",
+        "model": "res/S--S_Vis_Lifting_U.bcmdl",
+        "note": "the case also allocates helper vtables 0x321910 and 0x321924",
+        "vtable": "0x321938"
+      },
+      {
+        "entry": "0x266708",
+        "index": 7,
+        "kind": "cgfx-class",
+        "model": "res/S--S_Vis_Clock_U.bcmdl",
+        "note": "the case also allocates helper vtables 0x321964 and 0x321958; slot function 0x260e8c names S_Vis_Clock_U_Cogwheel",
+        "vtable": "0x321970"
+      },
+      {
+        "entry": "0x2668f0",
+        "index": 8,
+        "kind": "layout",
+        "note": "branches to 0x266140, which enables the layout object at host+0x14c; no CGFX model class"
+      }
+    ],
+    "cycle": {
+      "callers": {
+        "0x1c4f6c (direct factory)": 0,
+        "0x237d44": -1,
+        "0x237d5c": 0
+      },
+      "checkedIndices": [
+        3,
+        6
+      ],
+      "function": "0x1de8c8",
+      "index8Condition": "host+0x260 > 0",
+      "modulo": 9
+    },
+    "function": "0x266300",
+    "indexField": "host+0x148",
+    "indexStorage": {
+      "applicationPointer": "app+0x13c (constructor 0x238cb8)",
+      "caveat": "the saved value may differ once the user has cycled visualisers; the save-load path was not traced",
+      "defaultCase": "S_Vis_Span_U.bcmdl",
+      "defaultValue": 1,
+      "defaultsInitializer": "0x1908e0 through the this+0x24 thunk 0x1908d8 in vtable slot 5 (0x320188)",
+      "offset": "0x10b4",
+      "settingsSingleton": "[0x3771ec] (0x117c bytes, constructor 0x2bbca4, vtable 0x320174)"
+    },
+    "jumpTable": "0x26635c"
+  }
+}

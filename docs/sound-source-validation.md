@@ -114,12 +114,10 @@ texture hashes, pack request, draw order and inert touch points.
   whose `BallPull0` material uses two TEV stages, and its pulled behaviour was not
   traced. The speed/pitch plate (`Graph_D-Plate`, custom class `0x32009c`) and
   the Filter panel alter playback, so they are not composed.
-- Upper-screen visualisers are 12 LZ11-compressed CGFX models in `res/S.pack`
-  (`S_Back_U`, `S_Vis_Clock_U` with its cogwheel, `ExBike`, `Lifting`,
-  `PlayYan` with four stars, `Span`, `Wave`), all named by the executable.
-  The stock-screen path is 2D layout-only, and the repository's CGFX renderer is
-  scene-owned HOME code. The models' animation drivers, including any link to
-  audio levels, were not traced, so no visualiser is shown.
+- Upper-screen visualisers are 12 LZ11-compressed CGFX models in `res/S.pack`.
+  The [visualiser audit](#upper-screen-visualiser-audit) below converts and
+  classifies them and traces their selection; no visualiser is shown because
+  the resting pose is code-driven and unproven.
 - Percussion, the recorder, SD-card status text and the `DefUndBar`
   battery/clock HUD slots are not composed. The source has no SD-card-empty list
   message in this pack, so the empty library stays blank.
@@ -130,3 +128,101 @@ texture hashes, pack request, draw order and inert touch points.
   result on the console has not been re-inspected in this worktree.
 - User songs remain absent until a manifest is supplied; nothing here fakes a
   track.
+
+## Upper-screen visualiser audit
+
+`scripts/firmware/sound_visualiser_audit.py` extracts the twelve LZ11 entries of
+`romfs/res/S.pack` (SHA-256 `05550cfa…`), converts each with the pinned SPICA
+exporter through `scripts/firmware-cgfx/convert.py`, classifies every material
+against the vocabulary `firmware-model.ts` and `cgfx-lighting.ts` accept, and
+checks 88 instruction facts in `code.bin` (`3c57f2c4…`) with Capstone. Nothing is
+emulated or rasterised. The public summary is
+`docs/evidence/sound-visualiser-models.json` (hashes, features and executable
+facts only); the private report, decompressed sources, converted `model.json`
+files and decoded PNG textures go under the stock-UI artifact directory:
+
+```sh
+A=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E
+S=$A/assets/stock-ui
+python3 scripts/firmware/sound_visualiser_audit.py \
+  --code $S/extracted/sound/contents/0000-0000000b/exefs/code.bin \
+  --pack $S/extracted/sound/contents/0000-0000000b/romfs/res/S.pack \
+  --dotnet $A/presentation/dotnet/dotnet --exporter $A/presentation/exporter/Exporter.dll \
+  --output $S/sound-visualiser-audit --report $S/sound-visualiser-audit/sound-visualiser-audit.json \
+  --summary docs/evidence/sound-visualiser-models.json
+```
+
+The summary is byte-identical across two runs into fresh output directories.
+`tests/sound-visualiser-audit.test.mjs` checks the summary against the renderer
+source and confirms the production Sound composition still requests no model
+and that the song manifest is empty.
+
+### Format
+
+All twelve resources decode with the pinned exporter (revision `bd29a782…`).
+Every one is static: **no skeletal, material, visibility or camera clip exists in
+any of them**, so the only asset-defined pose is the bind pose and all motion is
+written by the visualiser classes at runtime. Each resource except the cogwheel
+and the stars embeds one perspective `Aim` camera. Texture formats are ETC1,
+ETC1A4, L4, L8, LA8, A8 and HiLo8 (the clock normal map).
+
+| Model | Meshes / bones | Renderer classification |
+| --- | --- | --- |
+| `S_Back_U` | 5 / 6 | supported; Replace combiners, depth off; `lambert2` alpha reads `FragmentPrimaryColor` with no light in the resource |
+| `S_Vis_Span_U` | 34 / 35 | supported; LightLine00–31 share one bind transform (0,−45,0), LightLineSide sits at (0,−40,0) |
+| `S_Vis_Wave_U` | 4 / 5 | supported; one directional light that no combiner reads |
+| `S_Vis_PlayYan_U` + Star1–4 | 23 / 24 + 15 / 16 ×3 + 5 / 6 | supported; Star1–3 are byte-identical resources |
+| `S_Vis_Clock_U`, `_Cogwheel` | 20 / 24, 16 / 17 | approximate: `AsBump` bump mapping with a Dist0 LUT falls back to the fixed lighting |
+| `S_Vis_ExBike_U` | 10 / 11 | divergent: `ProjectionMap` coordinates; the renderer applies UV mapping only |
+| `S_Vis_Lifting_U` (+`_TB_A`) | 26 / 16, 4 / 5 | divergent: `ProjectionMap` coordinates on the main model |
+
+### Selection
+
+- The visualiser host method `0x266300(host, index)` stores the index at
+  `host+0x148` and dispatches indices 0–8 through the jump table at `0x26635c`.
+  Index 0 creates nothing; 1 Span, 2 Wave, 3 ExBike, 5 PlayYan (star paths in
+  the literal table at `0x372578`), 6 Lifting, 7 Clock (its class also loads the
+  cogwheel) allocate one class each and store its vtable; index 4 allocates a
+  0xe2ac-byte class (vtable `0x3218f0`) that names no model or layout and stays
+  unidentified; index 8 enables the layout object at `host+0x14c` instead.
+- L/R cycling is `0x1de8c8(app, delta)`: the signed index byte wraps modulo 9,
+  index 8 is skipped unless `host+0x260 > 0`, indices 3 and 6 pass an extra
+  check, and the result is applied through `0x266d04 → 0x266300`. The callers
+  at `0x237d44`/`0x237d5c` pass −1 and 0; leaving playback calls the factory
+  with 0 (`0x1c4f6c`).
+- The index byte is `[0x3771ec] + 0x10b4` in the 0x117c-byte settings singleton
+  (constructor `0x2bbca4`, vtable `0x320174`); the application object keeps a
+  pointer to it at `app+0x13c` (`0x238dd4…0x238de0`). Singleton vtable slot 5
+  (`0x320188`) is a `this+0x24` thunk (`0x1908d8`) into the save-block defaults
+  initializer `0x1908e0`, which writes **1** to block `+0x1090` = singleton
+  `+0x10b4` (`0x1909ec`). The same block offsets `+0x92`/`+0x93` are read
+  through `singleton+0x1000+0x24` elsewhere (`0x1ec91c…0x1ec930`), and the two
+  sub-objects the initializer assigns at `+0xc64`/`+0xe78` are the ones the
+  constructor builds at `+0xc88`/`+0xe9c`. **The default visualiser is index 1,
+  `S_Vis_Span_U`.** The save-load path that may restore a user-changed value
+  was not traced.
+- `S_Back_U` is not the playback backdrop. Its object (constructor `0x192030`,
+  vtable `0x31fa58`, loader `0x191e98` with camera constants 11.5 and 0.5) is
+  created disabled at `app+0x8c` by `0x1c65c8`, and all five toggle sites gate
+  on the slot-`0x70` predicate of the current type-`0x372190` object. That type
+  is returned by `0x2903a0`, the `getType` of the eight `S_Cec` StreetPass scene
+  classes (vtables `0x321b80…0x32207c`). No music playback path enables it.
+
+### Conclusion and next gate
+
+There is no source-proven static resting upper-screen pose that can be shown
+without audio: the default Span model's bars all sit at one bind transform and
+are placed by its class at runtime, and none of the resources carries a clip.
+Drawing any bind pose would invent a pose, so nothing is composed. Before a
+visualiser can be shown:
+
+1. Trace the Span class (vtable `0x321890`; slots `0x252b70`, `0x252670`,
+   `0x251b2c`) for its bar layout and silent-audio heights.
+2. Confirm how the save-load path treats block `+0x1090`, so a fresh save is
+   known to start on Span.
+3. Add a stock-screen upper CGFX path (scene-owned renderer fed by the model's
+   embedded `Aim` camera, Canvas transfer) — the HOME banner renderer is
+   hardwired to HOME resources — then publish the converted model through the
+   manifest with `convert.py --manifest`.
+4. Span, Wave, PlayYan and the stars are within the current PICA support; Clock
+   needs bump lighting and ExBike/Lifting need `ProjectionMap` coordinates.

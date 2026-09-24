@@ -8,6 +8,13 @@ background and a system status strip. The capture is on the SSD at
 `reference/native-eshop-2026-09-24/direct-launch-account-information.jpg`.
 No account or network action was taken.
 
+Its blue Internet/status strip matches the one visible in the isolated native
+Settings capture, indicating a shared upper status presentation in these two
+observed title routes. The website's eShop welcome instead shows the HOME
+`Disabled` strip through its transparent top margin. The two eShop screens are
+different route states, so this observation establishes a status mismatch but
+does not identify the exact overlay asset or welcome timing.
+
 This profile-specific entry route is not the published `welcome_U_00` source
 layout shown by the portfolio's eShop view. It therefore cannot validate the
 welcome animation's pixels or activation timing. The website intentionally

@@ -160,6 +160,16 @@ def audit(root, artifacts=None, repository=None):
         for url in title['packs']: reference(url, title['name'])
         font_urls.update(title.get('fonts', {}).values())
         if title.get('icon'): reference(title['icon'], title['name'])
+        if 'longDescription' in title:
+            source = title.get('longDescriptionSource', {})
+            conversion = title.get('longDescriptionConversion', {})
+            check(isinstance(title['longDescription'], str) and len(title['longDescription'].encode('utf-16-le')) <= 254,
+                  f'{title["name"]}: invalid Notes long description')
+            check(source in records.get(title.get('icon'), {}).get('sources', []) and source.get('path') == 'ExeFS/icon',
+                  f'{title["name"]}: long description lacks matching icon provenance')
+            check(conversion.get('name') == 'smdh-notes-english-description' and conversion.get('version') == 1 and
+                  conversion.get('languageIndex') == 1 and conversion.get('fieldOffset') == 0x288 and conversion.get('maxCodeUnits') == 127 and
+                  len(conversion.get('scriptSha256', '')) == 64, f'{title["name"]}: invalid long description conversion record')
     for url in sorted(font_urls):
         if not reference(url, 'font'): continue
         font = json.loads(public_path(root, url).read_text()); dimensions = []

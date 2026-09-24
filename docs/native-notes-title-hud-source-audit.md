@@ -113,3 +113,9 @@ resolves the CSEQ/CWSD sample dependencies and produces repeatable private
 candidate PCM. It also confirms that the validated HOME exporter rejects this
 archive and does not cover Toggle's wave-sound path. Delivery and owner-scoped
 playback remain unimplemented; diagnostic WAVs are not native-accepted cues.
+
+The [metadata/controller follow-up](native-notes-title-controller-followup.md)
+now supplies the original English SMDH long descriptions and resolves animator
+frame/direction semantics and the HUD's `G_Panel_00` binding. Source-specific
+icon expansion, text measurement and live scene scheduling still prevent
+showing the complete title/HUD panel faithfully.

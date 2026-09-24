@@ -44,7 +44,7 @@ the browser by the coordinator.
 | Camera | Implemented as a read-only portfolio folders/photo gallery | Native gallery composition, full navigation pass | Presentation; runtime | [Screen presentation](stock-screen-presentation.md) |
 | Sound | Implemented UI and owner-scoped playback. **Blocked:** track manifest is empty | Real playback check after the user supplies songs | Runtime; presentation | [Screen presentation](stock-screen-presentation.md) |
 | Health and Safety | Implemented. Adaptation: bounded pagination instead of continuous scroll | Remaining document scenarios | Presentation | [Screen presentation](stock-screen-presentation.md) |
-| Game Notes | Implemented grid/editor. **Defect:** the selected-note upper LCD always draws `PanelNoGameIn` ("There is no suspended software.") while another app is suspended | Coordinator supplies the frozen snapshot of the suspended app. Presentation binds it to the source panes and removes the forced capture-hiding. Keep "missing pixels" distinct from "nothing suspended". The source contract is audited in assets commit `b30bcc0` (`docs/native-notes-capture-assets.md`, not yet integrated) | Coordinator + presentation; assets audit done | [Live check](stock-screen-presentation.md) |
+| Game Notes | Implemented grid/editor and source-pane capture of the suspended app (`f9219d7`). Full suite and build pass; live Health → HOME → selected Note check shows frozen Health LCDs | Trace initial Double/Up/Down mode and switch animation; compare the delivered screen to native capture. Standalone canvas verifier still needs its optional module | Coordinator; assets audit integrated | [Capture validation](native-notes-suspended-capture.md), [source contract](native-notes-capture-assets.md) |
 | Friend List, Notifications | Implemented source initial/empty states | Interior fidelity; nonempty states only if brought into scope | Presentation; runtime | [Personal tools](native-personal-tools.md) |
 | Internet Browser, Miiverse | Implemented source chrome. Adaptation: local read-only interiors | Interior fidelity. No remote browsing or keyboard | Presentation; runtime | [Interiors](native-browser-miiverse-interiors.md) |
 | eShop, Nintendo Zone | Implemented source welcome/offline chrome. Adaptation: Zone projection/viewport | Service-screen fidelity | Presentation; assets | [Service assets](native-service-ui-assets.md) |
@@ -62,12 +62,14 @@ this table.
 
 | Role | Worktree | Branch @ head | Not yet integrated |
 | --- | --- | --- | --- |
-| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` @ `b6fb55e` | — |
-| Assets | `3ds-idea-worktrees/assets` | `codex/settings-native-assets` @ `b30bcc0` | `b30bcc0` Notes snapshot audit (docs only) |
+| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `b93976f` | — |
+| Assets | `3ds-idea-worktrees/assets` | `codex/settings-native-assets` @ `b30bcc0` | Service-screen visual fix remains uncommitted/unverified; Notes audit integrated |
 | Presentation | `3ds-idea-worktrees/presentation` | `codex/settings-native-fields` @ `5090b10` | None found (subject match) |
 | Runtime | `3ds-idea-worktrees/runtime` | `codex/parental-flow-audit` @ `057173b` | None found (subject match) |
-| Notes capture | `3ds-idea-worktrees/notes-suspended-capture` | `codex/notes-suspended-capture` @ `b6fb55e` | No commits yet |
-| Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` | This documentation set |
+| Notes capture | `3ds-idea-worktrees/notes-suspended-capture` | `codex/notes-suspended-capture` @ `a6ba824` | Integrated as `f9219d7` |
+| Camera gallery | `3ds-idea-worktrees/camera-native-gallery` | `codex/camera-native-gallery` | Cursor/Grok source-backed gallery work in progress |
+| Sound favourites | `3ds-idea-worktrees/sound-native-favorites` | `codex/sound-native-favorites` | Cursor/Fable source-backed Sound work in progress |
+| Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` @ `91fe40f` | Integrated as `24d7aa6` and `ee036df` |
 | Preserved | Original checkout, `3ds-idea-os`, `.codex/worktrees/b94c` | `uifix`, `codex/3ds-os`, `codex/home-menu-assets` | Keep, don't modify |
 
 Workers stay inside their own worktree and files, as the scope note describes. Only the coordinator

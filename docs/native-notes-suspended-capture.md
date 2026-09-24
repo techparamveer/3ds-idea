@@ -3,7 +3,8 @@
 Defect: with Health and Safety (or any application) suspended, the selected-note
 upper screen said "There is no suspended software." The painter always used
 the empty-state text and hid every capture pane. Resource contract:
-`docs/native-notes-capture-assets.md` in the assets worktree (commit `b30bcc0`).
+[`docs/native-notes-capture-assets.md`](native-notes-capture-assets.md), integrated
+as `b93976f` from assets commit `b30bcc0`.
 No new resource was published; `ImageScreenUp` source SHA-256 is
 `b042e28a08e66c3fc545688ac79e835503819e82ac08261c20cf082efb9b74f3`.
 
@@ -68,9 +69,13 @@ to `(x·H + H−1−y)`. Rasterizing the posed source panes at 400 × 240 and
   real composition with a synthetic quadrant capture and checks orientation at
   eight pane points. It needs the integration canvas module.
 
-In the implementing session, node/npm/Python execution and writes to the SSD
-artifact directory were permission-denied. These tests, typecheck and build
-were written but **not run**. Integration must run them before merging.
+Integrated verification at `f9219d7`: focused Notes/preparation tests 14/14;
+full suite 1,133 passed, 18 skipped, zero failed; typecheck and production
+build passed. In the live browser, Health and Safety was opened, suspended via
+HOME, and Game Notes' selected note displayed the frozen Health LCDs on its
+upper screen. The standalone canvas verifier has not been run because its
+optional canvas module is unavailable in this workspace; the source-raster
+test and browser check cover the visible orientation.
 
 ## Remaining gaps
 
@@ -85,5 +90,5 @@ were written but **not run**. Integration must run them before merging.
 - The capture is the browser canvas composite. Portfolio-app upper frames
   include the HOME status strip that remains visible above their content.
   Stereoscopic right-eye content does not exist.
-- Browser/Azahar comparison of the delivered screen belongs to integration and
-  was not performed here.
+- A matched Azahar/native comparison of the delivered screen has not been
+  performed. The live browser check above verifies only the previous defect.

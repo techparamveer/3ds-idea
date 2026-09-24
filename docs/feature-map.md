@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: integration **`a7a8c8a`** on `codex/firmware-os-10-7`,
+Checkpoint: integration **`934e863`** on `codex/firmware-os-10-7`,
 24 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -28,7 +28,7 @@ the browser by the coordinator.
 
 ## Features
 
-| Feature | Status at `a7a8c8a` | Next action | Owner | Evidence |
+| Feature | Status at `934e863` | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
@@ -47,7 +47,7 @@ the browser by the coordinator.
 | Game Notes | Implemented grid/editor and source-pane capture of the suspended app (`f9219d7`). Double → Up → Down and 0–25 frame Switch clip are integrated. Eight original SMDH descriptions/icons are published; the hidden metadata session binds Notes, application and capture owners (`01105ca`). HOME-again retires Notes (`34ebf75`). Ordered startup/Open/Back are source-traced (`386f351`) and represented by a pure owner-bound scheduler (`a7a8c8a`); the live title panel stays disconnected. Visible Notes over Work has the correct accessible announcement (`b1fedf5`) | Prove exact applied poses and surrounding intro/input/return gates, then connect the title/HUD panel, wave cues and matched native comparison | Coordinator; Notes worker | [Capture validation](native-notes-suspended-capture.md), [switch audit](native-notes-switch-source-audit.md), [metadata lifecycle](notes-metadata-lifecycle.md), [ordered startup](native-notes-ordered-startup-audit.md), [scheduler](notes-panel-scheduler.md), [owner exit](notes-home-owner-exit.md), [audio delivery](native-notes-switch-audio-delivery.md) |
 | Friend List, Notifications | Implemented source initial/empty states | Interior fidelity; nonempty states only if brought into scope | Presentation; runtime | [Personal tools](native-personal-tools.md) |
 | Internet Browser, Miiverse | Implemented source chrome. Adaptation: local read-only interiors | Interior fidelity. No remote browsing or keyboard | Presentation; runtime | [Interiors](native-browser-miiverse-interiors.md) |
-| eShop, Nintendo Zone | Implemented source welcome/offline chrome. Zone status icons use original HUD clips (`410e8b4`); HH:MM text panes and 119-frame colon clip paint live (`fa8b87e`). Its 400×220 target, actual upper camera, 320×240 parent, stereo-zero matrix and entry render-state reset are traced (`e402db8`, `734ac98`, `e4c054e`). eShop's 75-frame idle clip remains static | Resolve Zone HTML root placement, draw-time scissor/depth and shader interpolation before projection correction; eShop idle activation and matched native comparison | Coordinator; assets | [Service HUD trace](native-service-screen-trace.md), [projection audit](native-zone-projection-source-audit.md), [raster state](native-zone-raster-state-audit.md) |
+| eShop, Nintendo Zone | Implemented source welcome/offline chrome. Zone status icons use original HUD clips (`410e8b4`); HH:MM text panes and 119-frame colon clip paint live (`fa8b87e`). Its 400×220 target, actual upper camera, 320×240 parent, stereo-zero matrix, entry render-state reset and viewport/document callback are traced (`e402db8`, `734ac98`, `e4c054e`, `934e863`). eShop's 75-frame idle clip remains static | Resolve Zone actual HTML root inputs, draw-time scissor/depth and shader interpolation before projection correction; eShop idle activation and matched native comparison | Coordinator; assets | [Service HUD trace](native-service-screen-trace.md), [projection audit](native-zone-projection-source-audit.md), [raster state](native-zone-raster-state-audit.md), [placement](native-zone-placement-inputs-audit.md) |
 | NNID | **Source gap:** the unsigned-in body is absent from supplied data. Adaptation: native header plus local notice | Obtain a defensible reference if possible; otherwise keep it labelled | Assets; runtime | [NNID audit](nnid-entry-source-audit.md) |
 | amiibo settings | Source-backed English opening UI and bounded Header/`PortalBtnSub` materials are published and render as internal read-only applet (`aeb54a4`, `b707a5b`); no visible HOME/Settings route exists | Matched native opening comparison, font/motion and entrypoint validation; keep NFC/account/update operations inert | Assets; coordinator for entry/browser | [amiibo opening](native-amiibo-opening.md), [command trace](amiibo-material-command-trace.md) |
 | Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
@@ -62,7 +62,7 @@ this table.
 
 | Role | Worktree | Branch @ head | Not yet integrated |
 | --- | --- | --- | --- |
-| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `ca67998` | — |
+| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `934e863` | — |
 | Assets | `3ds-idea-worktrees/assets` | `codex/settings-native-assets` @ `b30bcc0` | Service-screen visual fix remains uncommitted/unverified; Notes audit integrated |
 | Presentation | `3ds-idea-worktrees/presentation` | `codex/settings-native-fields` @ `5090b10` | None found (subject match) |
 | Runtime | `3ds-idea-worktrees/runtime` | `codex/parental-flow-audit` @ `057173b` | None found (subject match) |
@@ -101,6 +101,7 @@ this table.
 | Health article draw | `3ds-idea-worktrees/health-article-draw-source` | `codex/health-article-draw-source` @ `1908219` | Integrated as `ca67998`; glyph stream/cancellation still gated |
 | Notes metadata and ordered startup | `3ds-idea-worktrees/notes-metadata-owner`, `notes-ordered-startup`, `notes-panel-scheduler` | `codex/notes-metadata-owner` @ `2d6a835`, `codex/notes-ordered-startup` @ `de78835`, `codex/notes-panel-scheduler` @ `74681fa` | Integrated as `01105ca`, `386f351`, `a7a8c8a`; title/HUD paint gated |
 | Zone camera and raster state | `3ds-idea-worktrees/zone-draw-camera`, `zone-raster-state` | `codex/zone-draw-camera` @ `cd81f35`, `codex/zone-raster-state` @ `3c022fb` | Integrated as `734ac98`, `e4c054e`; projection still gated |
+| Zone placement inputs | `3ds-idea-worktrees/zone-final-placement` | `codex/zone-final-placement` @ `22d92ba` | Integrated as `934e863`; actual HTML inputs and final draw state remain open |
 | Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` @ `91fe40f` | Integrated as `24d7aa6` and `ee036df` |
 | Preserved | Original checkout, `3ds-idea-os`, `.codex/worktrees/b94c` | `uifix`, `codex/3ds-os`, `codex/home-menu-assets` | Keep, don't modify |
 

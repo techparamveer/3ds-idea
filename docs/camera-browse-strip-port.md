@@ -14,13 +14,13 @@ Portfolio scope is unchanged: folders, gallery and photo only, no capture.
 
 ## Why live paging stays off
 
-The [feature map](feature-map.md) still requires thumbnail rebind/stale
-completion and combined owner/touch ordering before replacing the six-item
-page. This slice does not close that gate:
+The [feature map](feature-map.md) keeps the live six-item adapter gated. The
+later ordering continuation now bounds rebind/stale completion through the
+second ring draw, but combined owner/touch ordering remains open:
 
 | Required before live | Status here |
 | --- | --- |
-| Request allocation, full-tag writes, descriptor install, ready-bit publication (`0x2d9450`, `0x2dbb50`, `0x2da6fc`) executed with the rebind queue | Bounded replayed in the later [ordering audit](camera-rebind-order-source-audit.md). It exposes separate resource-ready and consumer-ready bitsets; the upload/post-draw handoff remains open |
+| Request allocation, complete tag/resource state, ready publication and two presentation passes (`0x2d9450`, `0x2dbb50`, `0x2da338`, `0x2da6fc`, `0x2cea0c`) | Bounded replayed in the later [ordering audit](camera-rebind-order-source-audit.md). The first ring draw remains unready; its post-draw rewrite permits tag 69 on the second draw. Final property/cell services are recorded leaves, not GPU pixels |
 | Combined owner input/presentation traversal with touch cancellation, ancestry, 12px drag and slider history | Open. Only the key-skip-while-stylus-down gate is modelled |
 | Native wall-clock cadence | Open. `CAMERA_BROWSE_UPDATE_MS` is the host's nominal 60 Hz conversion for tests, not hardware milliseconds |
 | FadeAll blank/folder preview, 3-page ring allocator, CurDefault ownership | Open |
@@ -64,11 +64,14 @@ The same replay runs two presentation fragments that the TypeScript module does
    deliberately stale tags `100+index` yield bits **`0x7f`**. Rewrite is keyed
    by mapping control ID, not tag match.
 
-Allocator identity, descriptor resource installation and ready-bit publication
-are replayed in the later [ordering audit](camera-rebind-order-source-audit.md).
-That fixture leaves the ring consumer bit clear after resource publication, so
-the connected upload/post-draw handoff and enclosing owner/touch traversal
-remain open. A browser URL assignment is not that lifecycle.
+Allocator identity, descriptor resource installation, ready publication and the
+two-pass consumer handoff are replayed in the later
+[ordering audit](camera-rebind-order-source-audit.md). Resource completion alone
+leaves the ring consumer bit clear; the first complete presentation dispatches
+dirty properties, draws unready and only then rewrites the consumer bit. The
+second draw receives ready with full tag 69. Enclosing owner/touch traversal and
+actual GPU/pixel output remain open. A browser URL assignment is not that
+lifecycle.
 
 ## Reproduction
 

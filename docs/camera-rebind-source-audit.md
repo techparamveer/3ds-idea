@@ -107,9 +107,10 @@ The new replay, Python compilation, relative documentation links and
 `git diff --check` pass. No application assets or runtime files changed; no
 browser inspection, source render or application build is claimed.
 
-Next prerequisite: combine **request allocation/full-tag writes, descriptor
-resource installation and ready-bit publication**, then execute those stages
-with owner input/presentation traversal and touch cancellation. A later
+At this checkpoint, the next prerequisite was to combine **request allocation,
+full-tag writes, descriptor resource installation and ready-bit publication**,
+then execute those stages with owner input/presentation traversal and touch
+cancellation. A later
 [strip-port replay](camera-browse-strip-port.md) shows the ring router passing
 a mapped ready bit without comparing the full logical tag, and the post-draw
 bitset rewrite keying bits by mapping control. Those fragments do not install
@@ -118,7 +119,9 @@ narrows stale-readiness and deferred-release behavior without claiming that
 remaining sequence, upload ordering or native visual equivalence is solved.
 
 The later [combined ordering replay](camera-rebind-order-source-audit.md)
-executes those bounded request, tag, descriptor and resource-publication stages
-in one fixture. It also proves that `0x2da6fc`'s resource-ready bit and the ring
-consumer's post-draw ready bit are separate. Enclosing owner/touch traversal,
-upload observation and the connected consumer rewrite remain the live gate.
+now executes those bounded request, complete tag/resource, readiness and
+two-pass presentation stages in one fixture. It proves that `0x2da6fc`'s
+resource-ready bit and the ring consumer's post-draw ready bit are separate,
+and that tag 69 first reaches the cell writer ready on the second draw.
+Enclosing owner/touch traversal and actual GPU/pixel output remain the live
+gate.

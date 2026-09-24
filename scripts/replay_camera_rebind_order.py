@@ -1,8 +1,8 @@
-"""Replay Camera request, collision rebind, descriptor install and publication.
+"""Replay Camera collision rebind through two complete presentation passes.
 
 Requires unicorn==2.1.4 and the hash-pinned private EUR Camera code.bin. The
 fixture uses synthetic objects and explicit service states; it is not a decoder,
-GPU upload, complete scene traversal, renderer or native screen comparison.
+GPU upload, complete owner traversal, renderer or native screen comparison.
 """
 import argparse
 import hashlib
@@ -47,7 +47,8 @@ def replay(code_path):
     )
     stack, sentinel = 0x11FD000, 0x11FF000
 
-    renderer = 0x1000000
+    renderer = 0x1001000
+    scene = renderer - 0x120
     owner = 0x1004000
     mapping = 0x100A000
     items = 0x100B000
@@ -89,6 +90,12 @@ def replay(code_path):
     put(owner + 0x24, order)
     put(owner + 8, photos)
     put(owner + 0x30, photos)
+    put(scene + 0x60, owner)
+    put(scene + 0x11C, owner)
+    put(scene + 0xF4, owner)
+    put(scene + 0x27C, owner)
+    put(scene + 0x70, 11)
+    put(scene + 0x3C, 0)
     put(photos + 0x18, identities)
     put_half(owner + 0x36, 80)
     put_half(owner + 0x2232, 69)
@@ -122,7 +129,12 @@ def replay(code_path):
         identities + 3 * 8: 2,  # current logical 69 binding is still running
     }
     calls = []
+    presented_cells = []
+    presentation_events = []
+    presentation_pass = 0
     instruction_order = []
+    recent_instructions = []
+    presentation_phase = ""
 
     def return_from_leaf(result=None):
         if result is not None:
@@ -130,8 +142,54 @@ def replay(code_path):
         machine.reg_write(UC_ARM_REG_PC, machine.reg_read(UC_ARM_REG_LR))
 
     def hook(current, address, size, data):
-        nonlocal allocator_next, selected_submission_replayed
+        nonlocal allocator_next, selected_submission_replayed, presentation_phase
         del current, size, data
+        recent_instructions.append(address)
+        if len(recent_instructions) > 96:
+            del recent_instructions[0]
+        if mode == "presentation" and address in (
+            0x2CEA0C,
+            0x2CECF8,
+            0x2CED60,
+            0x2CEDB4,
+            0x2CEDE0,
+            0x2CEE30,
+            0x1FDC20,
+            0x2CF018,
+            0x2CF034,
+            0x2D92AC,
+            0x2CF0DC,
+            0x2D6834,
+            0x2D6898,
+            0x26D360,
+            0x21D47C,
+            0x2D69D0,
+            0x2D6928,
+            0x2D6798,
+            0x1FD8E0,
+            0x27098C,
+        ):
+            presentation_phase = hex(address)
+        if mode == "presentation" and address == 0x2CEA0C:
+            presentation_events.append(
+                {"event": "presentation-start", "pass": presentation_pass}
+            )
+        elif mode == "presentation" and address == 0x2CF0DC:
+            presentation_events.append(
+                {
+                    "event": "consumer-rewrite-start",
+                    "pass": presentation_pass,
+                    "consumerReady": bool(word(renderer + 0x80) & (1 << 2)),
+                }
+            )
+        elif mode == "presentation" and address == 0x2CF1BC:
+            presentation_events.append(
+                {
+                    "event": "consumer-rewrite-finished",
+                    "pass": presentation_pass,
+                    "consumerReady": bool(word(renderer + 0x80) & (1 << 2)),
+                }
+            )
         if address in (
             0x2D5740,
             0x2D9450,
@@ -209,13 +267,77 @@ def replay(code_path):
         elif address == 0x21E494:
             calls.append({"call": "resource-ready", "mode": mode})
             return_from_leaf(1)
+        elif mode == "presentation" and address == 0x2D804C:
+            current_stack = machine.reg_read(UC_ARM_REG_SP)
+            slot = len(presented_cells) % 64
+            global_index = (word(scene + 0x70) - 1) * 6 + slot
+            record = mapping + (global_index & 63) * 8
+            control = machine.reg_read(UC_ARM_REG_R2)
+            presented_cells.append(
+                {
+                    "pass": presentation_pass,
+                    "slot": slot,
+                    "globalIndex": global_index,
+                    "fullTag": half(record),
+                    "control": control,
+                    "paddedValid": bool(machine.reg_read(UC_ARM_REG_R3)),
+                    "realItem": bool(word(current_stack)),
+                    "ready": bool(word(current_stack + 4)),
+                    "relativeIndex": word(current_stack + 8),
+                    "resourceReady": bool(
+                        word(renderer + 0x60) & (1 << control)
+                    ),
+                }
+            )
+            if global_index == 69:
+                presentation_events.append(
+                    {
+                        "event": "ring-consumer",
+                        "pass": presentation_pass,
+                        "globalIndex": global_index,
+                        "fullTag": half(record),
+                        "control": control,
+                        "ready": bool(word(current_stack + 4)),
+                    }
+                )
+            return_from_leaf()
+        elif mode == "presentation" and address == 0x1FC78C:
+            calls.append({"call": "presentation-item-context", "mode": mode})
+            return_from_leaf(0)
+        elif mode == "presentation" and address == 0x261588:
+            calls.append({"call": "presentation-render-service", "mode": mode})
+            return_from_leaf(0)
+        elif mode == "presentation" and address == 0x25A618:
+            value = machine.reg_read(UC_ARM_REG_R1)
+            presentation_events.append(
+                {
+                    "event": "presentation-property-publication",
+                    "pass": presentation_pass,
+                    "source": presentation_phase,
+                }
+            )
+            calls.append(
+                {
+                    "call": "presentation-property-publication",
+                    "source": presentation_phase,
+                    "target": machine.reg_read(UC_ARM_REG_R0),
+                    "resource": word(value + 4),
+                    "mode": mode,
+                }
+            )
+            return_from_leaf(1)
+        elif mode == "presentation" and address == 0x2DB8D4:
+            calls.append({"call": "post-ring-layout", "mode": mode})
+            return_from_leaf()
 
     machine.hook_add(UC_HOOK_CODE, hook)
 
     def invalid_memory(current, access, address, size, value, data):
         del current, access, size, value, data
         print(
-            f"unmapped access at {address:#x}, pc={machine.reg_read(UC_ARM_REG_PC):#x}, mode={mode}"
+            f"unmapped access at {address:#x}, pc={machine.reg_read(UC_ARM_REG_PC):#x}, "
+            f"mode={mode}, phase={presentation_phase}, presented={len(presented_cells)}, "
+            f"recent={[hex(value) for value in recent_instructions]}"
         )
         return False
 
@@ -279,19 +401,28 @@ def replay(code_path):
     ] == active_objects
     assert word(retained_pointers + 2 * 4) == staged_objects[0]
 
-    # 0x2da338 publishes the full logical tag before its resource-building
-    # body. Stop at the next instruction; no instruction bytes are patched.
+    # 0x2da338 publishes the full logical tag and executes its complete
+    # resource-building body. No instruction bytes are patched.
     mode = "full-tag"
-    for register, value in zip(
-        (UC_ARM_REG_R0, UC_ARM_REG_R1, UC_ARM_REG_R2, UC_ARM_REG_R3),
-        (renderer, selected_submission["arg1"], 0, 69),
-    ):
-        machine.reg_write(register, value)
-    put(stack, selected_submission["resource"])
-    machine.reg_write(UC_ARM_REG_SP, stack)
-    machine.emu_start(0x2DA338, 0x2DA374, count=100)
-    assert machine.reg_read(UC_ARM_REG_PC) == 0x2DA374
+    call(
+        0x2DA338,
+        renderer,
+        selected_submission["arg1"],
+        0,
+        69,
+        extras=(selected_submission["resource"],),
+    )
     assert half(collision_record) == 69
+    dirty_bitsets_before_completion = {
+        "0x2d6898": [
+            hex(word(renderer + 0x88)),
+            hex(word(renderer + 0x8C)),
+        ],
+        "0x2d69d0": [
+            hex(word(renderer + 0x90)),
+            hex(word(renderer + 0x94)),
+        ],
+    }
 
     # The completed old identity is not consulted after the tag rebind. While
     # the current identity is status 2, 0x2da6fc leaves readiness clear.
@@ -325,6 +456,43 @@ def replay(code_path):
     assert word(renderer + 0x60) & (1 << 2)
     assert not word(renderer + 0x80) & (1 << 2)
     assert byte(renderer + 4 + 0x40 + 2 + 0x94) == 5
+
+    # Exercise the complete presentation function twice on the same object
+    # graph. The first pass consumes the old consumer bit (clear), reaches the
+    # final material setter, draws, then rewrites consumer readiness. The next
+    # pass is the first one whose ring writer can receive ready=1.
+    slider = 0x1050000
+    geometry = 0x1051000
+    controls_for_draw = 0x1053000
+    put(scene + 0x94, slider)
+    put(scene + 0xE0, geometry)
+    for index in range(3):
+        put(scene + 0xA8 + index * 4, controls_for_draw + index * 0x200)
+    put(owner + 0x2500, struct.unpack("<I", struct.pack("<f", 248.0))[0])
+    put(owner + 0x2268, struct.unpack("<I", struct.pack("<f", 228.0))[0])
+    put(owner + 0x226C, struct.unpack("<I", struct.pack("<f", 132.0))[0])
+    put(slider + 0x3C, 14)
+    mode = "presentation"
+    presentation_pass = 1
+    call(0x2CEA0C, scene, count=2000000)
+    assert len(presented_cells) == 64
+    first_selected_cell = presented_cells[9]
+    assert first_selected_cell["globalIndex"] == 69
+    assert first_selected_cell["fullTag"] == 69
+    assert first_selected_cell["control"] == 2
+    assert first_selected_cell["resourceReady"]
+    assert not first_selected_cell["ready"]
+    assert word(renderer + 0x80) & (1 << 2)
+
+    presentation_pass = 2
+    call(0x2CEA0C, scene, count=2000000)
+    assert len(presented_cells) == 128
+    second_selected_cell = presented_cells[64 + 9]
+    assert second_selected_cell["globalIndex"] == 69
+    assert second_selected_cell["fullTag"] == 69
+    assert second_selected_cell["control"] == 2
+    assert second_selected_cell["resourceReady"]
+    assert second_selected_cell["ready"]
 
     return {
         "ok": True,
@@ -369,6 +537,18 @@ def replay(code_path):
             "consumerReadyPublished": False,
             "calls": current_calls,
         },
+        "presentationPublication": {
+            "entry": "0x2cea0c",
+            "dirtyBitsetsBeforeCompletion": dirty_bitsets_before_completion,
+            "propertyPublications": [
+                entry
+                for entry in calls
+                if entry.get("call") == "presentation-property-publication"
+            ],
+            "firstPassSelectedCell": first_selected_cell,
+            "secondPassSelectedCell": second_selected_cell,
+            "events": presentation_events,
+        },
         "instructionOrder": instruction_order,
         "intercepts": [
             "17 non-selected 0x2dbb50 calls during allocation; selected call runs whole in place",
@@ -376,16 +556,23 @@ def replay(code_path):
             "worker status/release services with explicit per-identity states",
             "descriptor owner/control notification leaves 0x1fd230/0x220114",
             "resource query/state/ready leaves 0x2b78e0/0x1fae34/0x21e494",
+            "final property setter 0x25a618 (target/resource recorded; no GPU upload)",
+            "presentation item-context and render-service leaves 0x1fc78c/0x261588",
+            "post-ring layout leaf 0x2db8d4",
+            "final thumbnail cell writer 0x2d804c (arguments recorded)",
             "unrelated owner/resource helper leaves listed in call records",
         ],
         "scope": (
             "One Unicorn fixture and one synthetic object graph. Complete request "
             "allocation with the selected submission, original descriptor swap, original "
-            "full-tag store, and complete ready publisher; complete early touch-cancel "
-            "entry runs first. Non-selected submissions are recorded and intercepted "
-            "to keep the collision isolated. This is not the enclosing parent/child frame "
-            "dispatcher, current touch capture/release, decoder/GPU upload, drawing, "
-            "browser timing or native visual equivalence."
+            "full 0x2da338, complete ready publisher, and two complete 0x2cea0c "
+            "presentation calls including original ring routing and post-draw consumer "
+            "rewrite; complete early touch-cancel entry runs first. Final material/cell "
+            "services and unrelated leaves are recorded intercepts. Non-selected "
+            "submissions are intercepted to keep the collision isolated. This is not the "
+            "enclosing parent/child frame dispatcher, current touch capture/release, "
+            "decoder/GPU upload, rendered pixels, browser timing or native visual "
+            "equivalence."
         ),
     }
 

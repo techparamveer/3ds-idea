@@ -271,6 +271,9 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     });
   }else if(screen==='detail'&&field==='sound'){
     draw(bottom,'layout','Sound_D_00',{overrides:{Null_00:{translation:[0,0,0],alpha:255}},attachments:Object.fromEntries(['surround','stereo','mono'].map((label,i)=>['N_T_OnOff_0'+i,()=>draw(bottom,'button','T_OnOff',{bindings:[{name:value('sound').toLowerCase()===label?'T_OnOff_Decide':'T_OnOff_UnDecide',frame:value('sound').toLowerCase()===label?11:1}],overrides:{TextBox_00:message(label)}})]))});
+    // sound.bin footer kind 2: native Cancel/OK; OK stays read-only.
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_cancel'),TextBoxShdw_00:message('base_2b_cancel'),TextBox_01:message('base_2b_decide'),TextBoxShdw_01:message('base_2b_decide')}});
+    return okay;
   }else if(screen==='detail'&&field==='language'){
     // Refresh 0x1a022c binds row top+slot−2 to each of eight reusable mounts.
     // This read-only viewport leaves the configured English decision unchanged.

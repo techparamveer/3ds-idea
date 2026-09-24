@@ -114,6 +114,13 @@ try{
    const text=calls.find(c=>c.layout===(['nickname','birthday'].includes(subpage.data.field)?'UserInfo_U_00':dataLists[subpage.data.field]?'SMng_U_01':'TextBG_U_00'));
    assert.ok(text.options.overrides.TextBox_00.messageStyle,'identified detail keeps source instruction style');
   }
+  if(subpage.screen==='detail'&&subpage.data.field==='sound'){
+   const footer=calls.find(c=>c.layout==='Base_D_01');assert.ok(footer,'source sound footer kind 2');
+   assert.equal(calls.some(c=>c.layout==='Base_D_00'),false,'Sound has no Back-only footer');
+   for(const pane of ['TextBox_00','TextBoxShdw_00'])assert.equal(footer.options.overrides[pane].text,'Cancel');
+   for(const pane of ['TextBox_01','TextBoxShdw_01'])assert.equal(footer.options.overrides[pane].text,'OK');
+   for(const value of Object.values(footer.options.overrides))assert.ok(value.messageStyle,'native footer message style');
+  }
   const list=subpage.screen==='detail'&&dataLists[subpage.data.field];
   if(list){
    assert.equal(title.options.overrides.TextBoxTitle_00.text,list.title);

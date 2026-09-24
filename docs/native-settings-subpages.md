@@ -106,3 +106,8 @@ layout/clip and its dependencies before writing. The complete delivery audit
 passes with 1,331 resources, 454 layouts and 1,560 animations. Private report:
 `stock-ui/settings-subpages-audit.json` under the established firmware artifact
 directory. Browser verification of the assembled screens remains required.
+
+The [Settings Sound footer correction](settings-sound-footer-validation.md)
+uses the original `sound.bin` footer kind 2 (`Base_D_01`, Cancel/OK), rather
+than the shared Back-only footer described above. Cancel navigates back; OK
+and mode configuration remain read-only.

@@ -260,7 +260,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (id === 'error') text.push(str(state.message, 'An error has occurred.'));
     const healthDocument = id === 'health-safety' && screen === 'document';
     if (healthDocument) { delete data.scroll; delete data.backPress; data.article = healthScrollView(healthScroll(state)); }
-    const left = { label: id === 'system-updater' ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
+    const left = { label: id === 'system-updater' || (id === 'system-settings' && screen === 'detail' && state.field === 'sound') ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
     const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { left, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };

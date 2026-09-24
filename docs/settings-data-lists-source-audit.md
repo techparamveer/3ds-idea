@@ -175,6 +175,11 @@ the coordinator.
 
 ## Unresolved
 
+The later [Open Blocks audit](settings-open-blocks-source-audit.md) traces the
+free-block value to SD filesystem IPC and verifies the orange window's source
+registers. The missing SD allocation value and native material comparison remain
+open; the field stays blank.
+
 - Which clip normal entry uses, `SceneIn_00` or `_01`. The constructor does not
   choose, and both settle to identical poses at frame 20. `TextIn` is applied
   after `SceneIn`, following the load sequence; evaluation order is not proven.

@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const source=compile('stock-native-sound').replace("'./stock-screen-layout'",JSON.stringify(url(compile('stock-screen-layout')))).replace("'./native-layout'",JSON.stringify(url(compile('native-layout'))));
+const source=compile('stock-native-sound').replace("'./stock-screen-layout'",JSON.stringify(url(compile('stock-screen-layout')))).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-sound-record'",JSON.stringify(url(compile('stock-sound-record'))));
 const {drawNativeSoundFrame,soundEntryBlue,soundScreenPacks}=await import(url(source));
 const {stockScreenActionAt:hit}=await import(url(compile('stock-screen-layout')));
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
@@ -14,8 +14,11 @@ const entry={appId:'sound',screen:'main',heading:'Nintendo 3DS Sound',rows:[],se
 test('native entry uses source chrome and complete source-bound labels without changing source packs',()=>{
  const before=JSON.stringify(packs),calls=[],top={},bottom={};
  const drawLayout=(ctx,pack,layout,posed,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,posed,options});return true;};
- assert.equal(drawNativeSoundFrame({packs,drawLayout},top,bottom,entry,{date:new Date(2026,8,24,10,52)}),true);
+ const draw=(ctx,pack,layout,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,options});return true;};
+ assert.equal(drawNativeSoundFrame({packs,drawLayout,draw},top,bottom,entry,{date:new Date(2026,8,24,10,52)}),true);
  const names=calls.map(c=>c.layout);
+ assert.deepEqual(calls.slice(0,4).map(c=>[c.screen,c.layout]),[['top','S_BG'],['bottom','S_BG'],['top','S_BG-Record'],['bottom','S_BG-Record']]);
+ assert.equal(names.filter(n=>n==='S_BG-Record').length,2);
  for(const layout of ['S_Common-BrwCursor','S_Common-IconList','S_Common-Text','S_BG_D-Ctr','C_SldH_L','S_Common-OpLBtn','S_Common-OpRBtn','S_Common-OpenBtn','S_Common-SetBtn','S_Common-BackBtn','S_Inf_U-UnderBar','S_Inf_U-Hour','S_Inf_U-PlayTime'])assert.ok(names.includes(layout),layout);
  assert.equal(names.filter(n=>n==='ParakeetA_U').length,2);assert.equal(names.filter(n=>n==='ParakeetA_D').length,1);
  const options=n=>calls.find(c=>c.layout===n).options;

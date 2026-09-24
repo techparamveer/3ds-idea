@@ -114,3 +114,10 @@ node scripts/verify-sound-record-background.mjs \
 
 The coordinator must verify the integrated entry view in the browser and native
 reference. Strict 1:1 fidelity remains open.
+
+The coordinator subsequently merged the Record selection with the Sound chrome
+selection and validated the combined manifest resource hashes. The resting
+entry now draws the original upper/lower Record poses after both base clears.
+The paired source render and production browser both show the vinyl; see the
+[native entry comparison](sound-native-entry-2026-09-24.md) for bounded pixel
+metrics and remaining room-scene gap.

@@ -74,13 +74,26 @@ same bottom row, but native upper/lower body bounds start roughly six/five pixel
 higher than the selected Wait-frame specimen. No native motion equivalence is
 claimed. The first-run Welcome sequence is not reproduced.
 
-The missing backdrop is separate work: the lower vinyl has now been identified
-as the omitted **2D `S_BG-Record`** layout (another worker owns publication), while
-the upper room/background includes CGFX. The intended paired Record draw slot is
-after both S_BG clears and before title, birds, row, status bar and footer. The earlier claim that all vinyl was
-CGFX was incorrect. Until those layers and remaining differences are resolved,
-this is an entry-chrome improvement, not strict 1:1 acceptance. Browser and
-combined integration checks remain with the coordinator.
+The lower vinyl is the original **2D `S_BG-Record`** layout, now integrated
+below; the upper room is a separate CGFX model. The Record layer draws after
+both S_BG clears and before title, birds, row, status bar and footer. The
+earlier claim that all vinyl was CGFX was incorrect. The upper room and other
+differences still prevent strict 1:1 acceptance.
+
+## Integrated record-layer check
+
+The original `S_BG-Record` layout is now published and drawn on both LCDs in
+the captured settled, empty-track entry state. The combined 57-specimen source
+verifier passed with zero diagnostics, and the production browser showed the
+record arc on both screens, the restored controls, and a working HOME return;
+warning/error logs were empty. Cropping the same raw native screenshot to its
+400×240 and 320×240 LCDs gives full-screen RGB mean absolute differences of
+**18.61** upper and **10.80** lower (0–255), compared with **23.40** upper and
+**75.54** lower before the record layer. On the lower LCD, 86.7% of pixels
+are within 10 levels in every channel. This measures one static source pose;
+the upper room is still missing, and the residual lower differences include
+colour, lettering, checkered background, clock and bird pose. It is not
+whole-screen 1:1 acceptance.
 
 Private reports, source LCDs and cropped comparisons are under
 `/Users/paramveer/.codex/artifacts/sound-entry-comparison-2026-09-25/` in

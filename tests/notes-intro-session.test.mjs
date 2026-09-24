@@ -18,7 +18,9 @@ const metadata = {
   metadata: { selection: { titleId: owner.titleId, description: 'Nintendo 3DS Camera' }, icon: { width: 64, height: 64, data: new Uint8ClampedArray(16384) } },
   capture: { status: 'ready', owner: owner.applicationOwner, generation: owner.captureGeneration },
 };
-const artifactDir = '/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-intro-publication';
+const artifactDir = process.env.FIRMWARE_ARTIFACT_ROOT
+  ? `${process.env.FIRMWARE_ARTIFACT_ROOT}/notes-intro-publication`
+  : '/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-intro-publication';
 function input(overrides = {}) {
   return {
     owner, metadata, assetsReady: true, paused: false, startup: 'nonzero-history',

@@ -4,10 +4,11 @@ import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 import { soundLibraryRows, soundPlaybackMode, soundSeekBar, stockScreenTargets, type SoundPlaybackMode } from './stock-screen-layout';
 import { nativeMessageOverride, poseNativeLayout, type NativeLayout } from './native-layout';
+import { drawNativeSoundRecordBackground, soundRecordLayoutSelection } from './stock-sound-record';
 
 const prefix='packs/sound/contents/0000-0000000b/';
 export const soundScreenPacks:readonly NativeTitlePackRequest[]=[
-  {url:prefix+'lyt-S_BG-arc-LZ.json',alias:'sound-bg',layouts:['S_BG','S_BG_D-Grid','S_BG_D-Ctr'],animations:['S_BG_D-Grid_Default']},
+  {url:prefix+'lyt-S_BG-arc-LZ.json',alias:'sound-bg',layouts:['S_BG','S_BG_D-Grid','S_BG_D-Ctr',...soundRecordLayoutSelection.layouts],animations:['S_BG_D-Grid_Default',...soundRecordLayoutSelection.animations]},
   {url:prefix+'lyt-S_Play_D-arc-LZ.json',alias:'sound-player',layouts:['S_Play_D-CtrPanel3','S_Play_D-Effect'],animations:['S_Play_D-CtrPanel3_Default','S_Play_D-Effect_Default']},
   {url:prefix+'lyt-C-Sld.json',alias:'sound-slider',layouts:['C_SldT','C_SldH_L'],animations:['C_SldT_Default','C_SldT_Rate','C_SldH_L_Default','C_SldH_L_Rate']},
   {url:prefix+'lyt-C-Dlg.json',alias:'sound-dialog',layouts:['C_Dlg','C_Dlg1BtnB','C_DlgTxt'],animations:['C_Dlg1BtnB_Default']},
@@ -67,7 +68,10 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     const smallLabel=(label:string)=>{const value=message('S',label);return {...value,messageStyle:value.messageStyle?{...value.messageStyle,fontScale:value.messageStyle.fontScale.map(v=>v*.8)}:undefined};};
 
     entry(top,'sound-bg','S_BG');entry(bottom,'sound-bg','S_BG');
-    // Paired S_BG-Record underlay belongs here: after both clears, before birds, row, HUD and footer.
+    // The same original Record layout draws on both LCDs in the settled,
+    // SD-absent entry capture, behind the entry chrome.
+    okay=drawNativeSoundRecordBackground(renderer,top,'top')&&okay;
+    okay=drawNativeSoundRecordBackground(renderer,bottom,'bottom')&&okay;
     entry(top,'sound-info','S_Inf_U-TitleBar',{bindings:[{name:'S_Inf_U-TitleBar_TitleLeftIn',frame:5}],overrides:{TitlTxt:{text:message('S','C_T_00').text,translation:[-104,104,0],size:[240,23]}}});
     for(const x of [35,95])entry(top,'sound-bird','ParakeetA_U',{bindings:[{name:'ParakeetA_U_Wait',frame:0}],center:[x,198]});
     entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[20,128]});

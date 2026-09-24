@@ -133,3 +133,11 @@ The remaining gate has three concrete parts:
 Neither the generic default tag processor nor global teardown is a substitute
 for these application-specific paths. Continuous scrolling remains gated on
 those links rather than inferred from otherwise-correct arithmetic.
+
+Follow-up: the [rich-style binding audit](health-glyph-stream-source-audit.md)
+closes parts 1 and 3 of this gate. It identifies and constructs the actual
+per-scene Health tag processor (vtable `0x16c734`), replays its installation into
+txt1 panes (`0x12fce8`), its control-14 glyph-transform scaling
+(`0x155c1c → 0x155824`), and the article-close control unregistration
+(`0x1284a0 → 0x128070`). The generated GPU command stream, final screen
+projection and effective clip/composition boundary remain open.

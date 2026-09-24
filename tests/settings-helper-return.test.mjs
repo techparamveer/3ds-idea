@@ -49,3 +49,40 @@ test('helper route rejects unrelated, suspended, or missing parents',()=>{
  const setting=startApplication(empty,'system-settings',0);assert.equal(startSettingsHelper(setting,'camera',1),setting);
  const home=showRuntimeHome(setting,1);assert.equal(startSettingsHelper(home,'system-updater',2),home);
 });
+
+// The two helper packs independently define a 120×32 lower-left Back control.
+// Exercise that actual touch boundary rather than the action-id shortcut.
+for(const action of ['transfer','update'])for(const exit of ['touch','physical'])test(`${action}: ${exit} Back restores the full parent after HOME and reopen`,()=>{
+ let {state:s,parent}=openHelper(action);s=tickSystem(s,9400);
+ const preserved=structuredClone(s.system.runtime.instances[parent].state);
+ const shared=structuredClone(s.system.runtime.shared);
+ const child=s.system.runtime.active;
+ s=reduceSystem(s,'home',9500);s=reduceSystem(s,'home',9600);
+ assert.equal(s.system.runtime.active,child);
+ // The right edge and the row immediately above the footer are not Back.
+ s=touchSystem(s,120,226,9700);s=touchSystem(s,60,207,9800);
+ assert.equal(s.system.runtime.active,child);
+ s=exit==='touch'?touchSystem(s,119,239,9900):reduceSystem(s,'back',9900);
+ assert.equal(s.system.runtime.active,parent);
+ assert.deepEqual(s.system.runtime.instances[parent].state,preserved);
+ assert.deepEqual(s.system.runtime.shared,shared);
+ assert.deepEqual(Object.keys(s.system.runtime.instances),[parent]);
+ assert.equal(s.system.runtime.effects.some(item=>['storage','capability','music','invoke'].includes(item.effect.type)),false);
+ // A opens the restored selection, then the opposite input can return again.
+ s=reduceSystem(s,'open',10000);s=tickSystem(s,12200);
+ assert.equal(getActiveAppView(s).appId,action==='transfer'?'system-transfer':'system-updater');
+ s=exit==='touch'?reduceSystem(s,'back',12300):touchSystem(s,1,209,12300);
+ assert.equal(s.system.runtime.active,parent);
+ assert.deepEqual(s.system.runtime.instances[parent].state,preserved);
+});
+
+for(const choice of ['3ds','dsi'])test(`Transfer ${choice} detail footer returns locally before restoring Settings`,()=>{
+ let {state:s,parent}=openHelper('transfer');s=tickSystem(s,9400);
+ const preserved=structuredClone(s.system.runtime.instances[parent].state),child=s.system.runtime.active;
+ s=touchSystem(s,160,choice==='3ds'?50:142,9500);
+ assert.equal(getActiveAppView(s).screen,'detail');assert.equal(getActiveAppView(s).data.field,choice);
+ s=touchSystem(s,119,239,9600);
+ assert.equal(s.system.runtime.active,child);assert.equal(getActiveAppView(s).screen,'main');
+ s=touchSystem(s,119,239,9700);
+ assert.equal(s.system.runtime.active,parent);assert.deepEqual(s.system.runtime.instances[parent].state,preserved);
+});

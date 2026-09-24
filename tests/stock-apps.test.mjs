@@ -405,7 +405,9 @@ test('selectors project existing item identity without fabricating media, choosi
  assert.deepEqual(context.shared,before);
 });
 
-test('Settings-launched helper main Back retains the current HOME behavior',()=>{
+test('Helper module main Back delegates navigation to its host',()=>{
+ // The pure module emits home; app-host restores a retained Settings caller.
+ // The integrated parent/page contract is covered in settings-helper-return.test.mjs.
  for(const id of ['nnid-settings','system-updater','system-transfer']){
   const {module,state}=setup(id);assert.deepEqual(action(module,state,'back'),{state,effects:[{type:'home'}]});
  }

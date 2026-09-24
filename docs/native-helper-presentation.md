@@ -88,3 +88,13 @@ Touch regions: main section buttons (24,56.5 + 44*i,272,37); main Close
 (0,212,320,28); document Back (40,212,140,28), matching the source button pane.
 The dedicated verifier now renders the contents screen and all three supplied
 sections, alongside the earlier helpers. All paired images were inspected.
+
+## Transfer and Update return follow-up
+
+[Return verification](settings-transfer-update-return-validation.md) checks both
+helpers' touch/physical Back, HOME/resume, full parent-state preservation and
+reopen behavior. The retained caller already works; this pass adds six focused
+regressions and fresh helper renders without changing runtime or artwork.
+Direct helper launch and retained-parent navigation remain portfolio adapters;
+source scene positions and footer geometry do not prove native cross-title
+lifecycle equivalence.

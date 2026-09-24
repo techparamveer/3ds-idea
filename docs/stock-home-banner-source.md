@@ -31,10 +31,55 @@ format decoding and source identity, not visual fidelity.
 
 The live HOME host currently treats application selections as unsupported and
 the public manifest has no stock CBMD banner models. Presenting System Settings
-requires a title-keyed resource request, native application-banner type4/5
-lifecycle and clip behavior, exact HOME camera/frame composition, and a matched
-browser/native capture. The existing folder/default primary should not be
+requires a title-keyed resource request, native ordinary-application **type 1**
+activation and clip behavior, exact HOME camera/frame composition, and a matched
+browser/native capture. Types 4/5 in the current service are manager states,
+not the Settings target type. The existing folder/default primary should not be
 silently reused for an application title. Texture-only CBMDs need the native
 `Banner2D_LZ.bin` path and its UV/layout rules before they can render. Neither
 path is established by successful SPICA conversion alone; no stock upper HOME
 banner is enabled by this converter change.
+
+## Next implementation contract for System Settings
+
+The converted Settings model is authentic source data, but the present renderer
+throws `Unsupported native billboard mode 1` when it updates the `p_title`
+bone. That bone drives two of the twelve meshes. The pinned SPICA enum has no
+name for raw mode 1; assigning it another mode or turning it off would change
+the source animation. A diagnostic run changing only that field to zero **in
+memory** allowed the current `createFirmwareModel` to update all 12 meshes / 1,454
+vertices at frames 0, 1, 150, 300 and 599. This proves the rest of that CPU
+model path accepts the converted structure; it is not a correct rendering or a
+reason to publish the modified model.
+
+The next bounded pass needs to establish these facts before live wiring:
+
+1. Trace raw CGFX billboard mode 1 through the original HOME renderer, including
+   bone/world/view matrix order and its result at several camera and clip frames.
+   Implement that mode in `cgfx-billboard.ts` with numeric source fixtures. Keep
+   the current mode-5 folder behavior independent.
+2. Trace the ordinary available application path for Settings' title key. The
+   source target mapping in [native banner targets](native-banner-targets.md)
+   yields **type 1**, with the five-count normal gate; it does not establish the
+   title's worker completion, state-3 activation branch, model attachment,
+   visibility update or `COMMON` clip start/loop. Record those observations
+   before extending `home-banner-lifecycle.ts` and `home-banner-host.ts`; today
+   app selections are intentionally unsupported and app motion is `null`.
+3. Register only converted model JSON and five PNGs under a title-specific model
+   key in the public firmware manifest, with the CBMD/title/content hashes and
+   relative `exefs/banner.bin` source path. Never publish CBMD, BCWAV, code,
+   ticket or CIA. Load it with a generation/request-scoped ticket and separate
+   readiness/failure so a pending Settings request cannot draw a former folder
+   or acknowledge another title's resource.
+4. Sample the title's proven motion and `COMMON` skeletal clip independently,
+   then draw its model as the group-2 primary with the authored `BannerFrame`
+   stencil sibling and `BannerCamera`. Preserve the source model bind matrix,
+   texture pixels, native material state and the existing render-state cleanup.
+   Do not assume folder/default scale, yaw, frame rate or material clips apply.
+5. Verify Settings selection and departure in the real browser, including
+   readiness, stale-request cancellation, scene resource disposal and the
+   actual 400×240 upper pixels. Compare matched frames with a native EUR 10.7
+   capture before claiming appearance or timing parity.
+
+The current source-derived camera and Frame can be reused after those gaps are
+closed. They do not by themselves determine the Settings title animation.

@@ -95,6 +95,7 @@
             "BasicTop_D_03",
             "Birthday_D_00",
             "Btn2Text_D_00",
+            "Country_D_00",
             "DateTime_D_00",
             "DateTime_D_01",
             "LanguageA_D_00",
@@ -131,6 +132,8 @@
             "BasicTop_D_03_SpecialIn_00",
             "BasicTop_D_03_Special_00",
             "BasicTop_D_03_Special_01",
+            "Country_D_00_SceneIn_00",
+            "Country_D_00_SceneIn_01",
             "LsMenu_D_00_SceneIn_00",
             "LsMenu_D_00_SceneIn_01",
             "MessageOnly_D_00_SceneIn_00",
@@ -203,13 +206,15 @@
             "R_ArrowR",
             "R_DownLarge",
             "R_DownSmall",
+            "R_SlideBar",
             "R_UpLarge",
             "R_UpSmall",
             "T_OnOff",
             "T_Page01",
             "T_Page02",
             "T_Page03",
-            "T_Page04"
+            "T_Page04",
+            "T_SB"
           ],
           "animations": [
             "B_CnctW1_Decide",
@@ -306,7 +311,8 @@
             "T_OnOff_UnDecide",
             "T_Page01_Decide",
             "T_Page01_Select",
-            "T_Page01_UnDecide"
+            "T_Page01_UnDecide",
+            "T_SB_Decide"
           ],
           "messages": {}
         },

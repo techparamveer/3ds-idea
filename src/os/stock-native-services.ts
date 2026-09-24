@@ -1,5 +1,5 @@
 import type { AppView } from './app-types';
-import { nativeMessageOverride } from './native-layout';
+import { nativeMessageOverride, type AnimationBinding } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
@@ -16,9 +16,17 @@ const zonePrefix='packs/nintendo-zone/';
 export const zoneScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:zonePrefix+'local-html-images.json',alias:'zone-pages',layouts:[],animations:[],textures:['offline','no-content','info-top-frame-0']},
   {url:zonePrefix+'www-included_html-3dbanner_EU-nwcla.json',alias:'zone-banner',layouts:['U_top'],animations:['U_top_Loop_anim']},
-  {url:zonePrefix+'layout-nwcx.json',alias:'zone-chrome',layouts:['Hud_00','bottommenu_l'],animations:['Hud_00_Bar_Appear']},
+  {url:zonePrefix+'layout-nwcx.json',alias:'zone-chrome',layouts:['Hud_00','bottommenu_l'],animations:['Hud_00_Bar_Appear','Hud_00_Battery','Hud_00_Signal']},
   {url:zonePrefix+'messages-and-loose.json',alias:'zone-messages',layouts:[],animations:[]},
 ];
+
+/** Settled Hud_00 bar plus its source status clips. Unbound, P_Bat_00 and
+ * P_NetAtn_00 keep material defaults HudBat_00 (low) and HudNetAtnInt_00
+ * (signal). Grp_Bat frame 3 is HudBat_03, a representative sufficient-charge
+ * state, not a live battery measurement; Grp_NetAtn frame 5 is
+ * HudNetAtnOff_00, matching HOME's disabled wireless. See
+ * native-service-screen-trace.md. */
+export const zoneHudBindings:AnimationBinding[]=[{name:'Hud_00_Bar_Appear',frame:15},{name:'Hud_00_Battery',frame:3},{name:'Hud_00_Signal',frame:5}];
 
 export function nativeServiceView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
   if(view.appId==='eshop'&&(view.screen==='main'||view.screen==='detail'))return {view:'eshop-welcome',titleId:'0004001000022900',packs:eshopScreenPacks};
@@ -57,7 +65,7 @@ function drawZone(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bot
   else okay=renderer.drawBitmap(top,'zone-pages','info-top-frame-0',0,20)&&okay;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['zone-messages'],'mars',label,'');
   okay=renderer.draw(top,'zone-chrome','Hud_00',{
-    bindings:[{name:'Hud_00_Bar_Appear',frame:15}],overrides:{
+    bindings:zoneHudBindings,overrides:{
       T_Title_00:{text:'Nintendo Zone'},T_TimeL_00:{text:''},T_TimeC_00:{text:''},T_TimeR_00:{text:''},
       WHITE_01:{visible:false},P_Debug_Rotate:{visible:false},N_ReadIcon:{visible:false},Timer_Icon:{visible:false},
     },

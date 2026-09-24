@@ -13,7 +13,7 @@ export async function verifyNativeServices(options){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
  }
- const [{createCanvas,loadImage,Image:CanvasImage},{BitmapFont},{loadNativeTitleAssets},{nativeServiceView,drawNativeServiceFrame},{nativeHelperView,drawNativeHelperFrame}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','stock-native-services','stock-native-helpers'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs'))))]);
+ const [{createCanvas,loadImage,Image:CanvasImage},{BitmapFont},{loadNativeTitleAssets},{nativeServiceView,drawNativeServiceFrame,zoneHudBindings},{nativeHelperView,drawNativeHelperFrame},{poseNativeLayout}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','stock-native-services','stock-native-helpers','native-layout'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs'))))]);
  const oldGlobals=Object.fromEntries(['document','window','Image'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)])),oldFetch=globalThis.fetch,oldObjectURL=URL.createObjectURL,oldRevokeURL=URL.revokeObjectURL,blobBytes=new WeakMap();let font,assets;
  try{
   globalThis.document={createElement:()=>createCanvas(1,1)};globalThis.window={location:{href:'https://service-ui.invalid/manifest.json'}};globalThis.Image=CanvasImage;URL.createObjectURL=blob=>'data:image/png;base64,'+blobBytes.get(blob).toString('base64');URL.revokeObjectURL=()=>{};
@@ -29,11 +29,22 @@ export async function verifyNativeServices(options){
    assert.equal((nativeHelperView(view)?drawNativeHelperFrame:drawNativeServiceFrame)(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font}),true,JSON.stringify(assets.renderer.diagnostics));
    assert.equal(JSON.stringify(assets.renderer.packs),source);assert.deepEqual(assets.renderer.diagnostics,view.appId==='nintendo-zone'?[...(view.screen==='main'?['Unverified 3D pane projection: U_top/BG_grid']:[]),'Unverified 3D pane projection: Hud_00/P_Bat_00']:[]);
    assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')&&!assets.renderer.diagnostics.includes(d)),[]);
+   let hud;
+   if(view.appId==='nintendo-zone'){
+    // The same bindings as the painter: Grp_Bat/Grp_NetAtn select source status textures on map 0.
+    const pack=assets.renderer.packs['zone-chrome'],posed=poseNativeLayout(pack.layouts.Hud_00,pack.animations,zoneHudBindings);
+    const pane=(items,name)=>{for(const item of items){const found=item.name===name?item:pane(item.children,name);if(found)return found;}},texture=name=>posed.textures[posed.materials.find(m=>m.name===name).textureMaps[0].texture];
+    hud={battery:texture('P_Bat_00'),wireless:texture('P_NetAtn_00'),barTop:120-pane(posed.roots,'N_Base_00').translation[1]};
+    assert.deepEqual(hud,{battery:'HudBat_03.bclim',wireless:'HudNetAtnOff_00.bclim',barTop:0});
+    // The renderer flags P_Bat_00's X rotation, but whole turns without depth are an exact identity.
+    const battery=pane(posed.roots,'P_Bat_00');assert.deepEqual([battery.rotation[0]%360,battery.rotation[1],battery.rotation[2]%360,battery.translation[2]],[0,0,0,0]);
+    hud.identityProjection=[`Hud_00/P_Bat_00 rotation ${JSON.stringify(battery.rotation)}`];
+   }
    for(const [name,canvas]of [['top',top],['bottom',bottom]])writeFileSync(join(out,view.appId+'-'+view.screen+'-'+name+'.png'),canvas.toBuffer('image/png'));
    const pair=createCanvas(400,480),ctx=pair.getContext('2d');ctx.drawImage(top,0,0);ctx.drawImage(bottom,40,240);writeFileSync(join(out,view.appId+'-'+view.screen+'.png'),pair.toBuffer('image/png'));
-   reports.push({appId:view.appId,screen:view.screen,diagnostics:[...new Set([...assets.diagnostics,...assets.renderer.diagnostics])]});assets.dispose();assets=undefined;
+   reports.push({appId:view.appId,screen:view.screen,diagnostics:[...new Set([...assets.diagnostics,...assets.renderer.diagnostics])],...(hud?{hud}:{})});assets.dispose();assets=undefined;
   }
-  const result={passed:true,reports,gaps:['Source component composition is not matched native LCD verification.','Only bundled local service UI is displayed; remote accounts and catalogs are absent.']};writeFileSync(join(out,'verification.json'),JSON.stringify(result,null,2)+'\n');return result;
+  const result={passed:true,reports,gaps:['Source component composition is not matched native LCD verification.','Only bundled local service UI is displayed; remote accounts and catalogs are absent.','U_top depth panes need the Zone executable projection; the renderer flattens them orthographically.','The Zone HUD clock stays blank until stock screens repaint on clock changes.']};writeFileSync(join(out,'verification.json'),JSON.stringify(result,null,2)+'\n');return result;
  }finally{assets?.dispose();font?.dispose();globalThis.fetch=oldFetch;URL.createObjectURL=oldObjectURL;URL.revokeObjectURL=oldRevokeURL;for(const[key,value]of Object.entries(oldGlobals)){if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];}}
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){

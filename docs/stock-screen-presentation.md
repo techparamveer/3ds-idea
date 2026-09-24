@@ -154,10 +154,15 @@ Both read-only destinations show the bundled no-content page; the search button
 does not invoke wireless. The source footer retains Back; unavailable menu/save
 controls are omitted. This is an intentional portfolio adaptation.
 
-Paired renders are in SSD `reference/service-ui`. Known visual gaps are the
-unverified 212/220-pixel viewport placement, flattened banner grid/battery pane
-projection (reported by the renderer), source HUD status placeholders and native
-reference timing. These are not a claim of 1:1 acceptance.
+Paired renders are in SSD `reference/service-ui`. The
+[service screen trace](native-service-screen-trace.md) proves the lower HTML
+origin from `B_HtmlArea` and the 20 px HUD bar above the 220 px page. It also
+shows that the battery pane's 360° rotation is an exact identity. The HUD now
+binds the source full-battery and wireless-off icon frames in place of material
+defaults. Open gaps: the `U_top` depth scene still needs the executable
+projection; the source clock is blank pending a clock repaint key; the
+211/212-row edge, footer mode and native timing are untraced. These are not a
+claim of 1:1 acceptance.
 Date & Time now uses the scene table's `NetType2_D_00` with two full-size
 `B_L` children and source Date/Time labels. Connection Settings uses the
 table's `Connect_U_00` upper layout with three source empty connection rows,

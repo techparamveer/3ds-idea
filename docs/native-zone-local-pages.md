@@ -17,9 +17,11 @@ HOME-return footer text. Its HTML defines these rectangles:
 
 The companion `offline_mode_top.html` sets a black zero-margin background and
 embeds `nw4c src="nzv:3dbanner"`; the previously delivered EU `U_top` banner is
-the source native upper component. Native shell placement of the 212-pixel HTML
-viewport within the 240-pixel screen remains a browser/reference check; do not
-stretch the bitmap to fill 240 pixels and claim exact source dimensions.
+the source native upper component. `bottommenu_l/B_HtmlArea` places the HTML
+area at lower-screen (0, 0), with size 320 × 211; see
+[the service screen trace](native-service-screen-trace.md). The 211/212-row
+edge remains unresolved. Do not stretch the bitmap to fill 240 pixels and
+claim exact source dimensions.
 
 The bundled Info counterparts are
 `www/included_html/boss_page/BOSS_EU/en/info.html` and `info_top.html`.

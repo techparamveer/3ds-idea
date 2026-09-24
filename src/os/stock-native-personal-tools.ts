@@ -2,6 +2,7 @@ import type { AppView } from './app-types';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
+import type { SuspendedCapture } from './notes-suspended-capture';
 import { nativeMessageOverride, type PaneOverrides } from './native-layout';
 
 const notesPrefix='packs/game-notes/';
@@ -15,8 +16,10 @@ export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
 export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
   ...personalNotesPacks.filter(({alias})=>alias!=='notes-list'&&alias!=='notes-help'),
   {url:notesPrefix+'memo-MemoWriteDown-arc-l.json',alias:'notes-write',layouts:['MemoWriteDown'],animations:['MemoWriteDown_Base','MemoWriteDown_SceneIn']},
-  {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:['ImageScreenUp_PanelNoGameIn']},
+  {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:['ImageScreenUp_PanelNoGameIn','ImageScreenUp_SwitchDouble']},
 ];
+// Dynamic replacements for the 8×8 source slots imgUp400x240L/imgDown320x240.
+const captureUpperTexture='suspended-capture-upper',captureLowerTexture='suspended-capture-lower';
 const personalAllNotePacks:readonly NativeTitlePackRequest[]=[...personalNotesPacks,...personalSelectedNotePacks.filter(({alias})=>!personalNotesPacks.some(pack=>pack.alias===alias))];
 export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn']},
@@ -59,7 +62,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
     return okay;
   }
   if(initialFriendView(view)||(view.appId==='friends'&&view.screen==='profile'))return drawFriendFrame(renderer,top,bottom,view,options);
-  if(view.appId==='game-notes'&&view.screen==='drawing')return drawSelectedNote(renderer,top,bottom,view);
+  if(view.appId==='game-notes'&&view.screen==='drawing')return drawSelectedNote(renderer,top,bottom,view,options.suspendedCapture);
   if(view.appId!=='game-notes'||view.screen!=='main')return false;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['notes-messages'],'message',label,'');
   const selection=Math.max(0,Math.min(15,Math.floor(view.selection))),column=selection%4,row=Math.floor(selection/4);
@@ -113,15 +116,28 @@ function drawFriendFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContex
 }
 
 /** Source selected-note chrome around the existing, immutable legacy stroke data. */
-function drawSelectedNote(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView):boolean{
+function drawSelectedNote(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,capture:SuspendedCapture={status:'none'}):boolean{
   const message=(label:string)=>nativeMessageOverride(renderer.packs['notes-messages'],'message',label,'');
   let okay=renderer.draw(top,'notes-upper','Bg_U_00');
-  okay=renderer.draw(top,'notes-image','ImageScreenUp',{bindings:[{name:'ImageScreenUp_PanelNoGameIn',frame:20}],overrides:{
+  if(capture.status==='none')okay=renderer.draw(top,'notes-image','ImageScreenUp',{bindings:[{name:'ImageScreenUp_PanelNoGameIn',frame:20}],overrides:{
     T_TextList:{...message('9900NoBreakGameMesList'),visible:true,alpha:255},T_TextWrite:{visible:false},
     P_ScreenUpR:{visible:false},P_ScreenUpL:{visible:false},P_ScreenDown:{visible:false},
     P_ScreenShdwUp:{visible:false},P_ScreenShdwDown:{visible:false},W_ScreenShdwUp:{visible:false},W_ScreenShdwDown:{visible:false},
     W_TextPanel:{visible:false},P_IconSwitch:{visible:false},P_Mask:{visible:false},N_BtnMemoUp:{visible:false},
   }})&&okay;
+  else{
+    // Settled SwitchDouble (G_Panel_00/01) places both LCD panes and shadows.
+    // Its choice as the initial mode is untraced; PanelGameIn is the memo-to-upper
+    // transition, so N_BtnMemoUp stays hidden. Only the left-eye pane is exposed.
+    const hidden={visible:false};
+    const textures=capture.status==='ready'?{[captureUpperTexture]:capture.upper,[captureLowerTexture]:capture.lower}:undefined;
+    okay=renderer.draw(top,'notes-image','ImageScreenUp',{bindings:[{name:'ImageScreenUp_SwitchDouble',frame:25}],textures,overrides:{
+      T_TextList:hidden,T_TextWrite:hidden,P_Mask:hidden,N_BtnMemoUp:hidden,W_TextPanel:hidden,P_ScreenUpR:hidden,
+      // Missing pixels are not "no suspended software", and are never invented.
+      ...(textures?{P_ScreenUpL:{textureBindings:{0:captureUpperTexture}},P_ScreenDown:{textureBindings:{0:captureLowerTexture}}}
+        :{P_ScreenUpL:hidden,P_ScreenDown:hidden,P_ScreenShdwUp:hidden,P_ScreenShdwDown:hidden,W_ScreenShdwUp:hidden,W_ScreenShdwDown:hidden}),
+    }})&&okay;
+  }
   okay=renderer.draw(bottom,'notes-lower','Bg_D_00')&&okay;
   okay=renderer.draw(bottom,'notes-write','MemoWriteDown',{bindings:[{name:'MemoWriteDown_Base',frame:0},{name:'MemoWriteDown_SceneIn',frame:20}],overrides:{
     N_ExtendMenu:{visible:false},P_CsrPenSsizeM:{visible:false},

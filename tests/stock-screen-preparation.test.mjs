@@ -118,6 +118,23 @@ test('owned deadline covers missing fonts and hangs, disposes late results, and 
   f.screen.sync(null);assert.equal(ready.disposals,1);t.mock.timers.tick(500);assert.equal(f.screen.getFailure(),null);
  }finally{f.dispose();t.mock.timers.reset();}
 });
+test('only a published application pair is complete, and suspended-capture identity repaints without keying pixels',async()=>{
+ const f=paintFixture();
+ try{
+  assert.equal(f.draw(),false,'source black while loading is not an application frame');
+  await flush();calls[0].resolve(nativeAssets());await flush();
+  let draws=0;globalThis.__nativeTestDraw=(t,b)=>{draws++;t.fillText('native upper');b.fillText('native lower');return true;};
+  assert.equal(f.draw(),true);assert.equal(f.draw(),true);assert.equal(draws,1,'unchanged pairs are republished, not repainted');
+  const pixels={width:1,height:1,data:new Uint8ClampedArray(4)},capture=generation=>({status:'ready',owner:'health-safety:1',generation,upper:pixels,lower:pixels});
+  const draw=value=>f.screen.draw(f.top,f.bottom,f.v,'settings:1',f.font,value);
+  assert.equal(draw(capture(1)),true);assert.equal(draws,2);
+  assert.equal(draw(capture(1)),true);assert.equal(draws,2);
+  assert.equal(draw(capture(2)),true);assert.equal(draws,3,'a new frozen generation repaints');
+  globalThis.__nativeTestDraw=()=>false;
+  assert.equal(draw({status:'missing',owner:'health-safety:1'}),false,'recovery is never reported complete');
+  assert.ok(f.top.marks.some(([,text])=>text==='Website display unavailable'));
+ }finally{f.dispose();}
+});
 test('a new owner cannot display a completed old native frame',async()=>{
  const f=paintFixture();
  try{

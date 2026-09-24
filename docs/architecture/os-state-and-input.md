@@ -31,6 +31,7 @@ See [stock UI runtime](../stock-ui-runtime.md) and
 | `layout.ts` | Native screen geometry and hit regions |
 | `screens.ts` | HOME Menu and system-panel canvas painting |
 | `portfolio-screens.ts` | App icons, banners and application interiors |
+| `notes-suspended-capture.ts` | In-memory last complete LCD pair of the application slot, for Game Notes |
 | `bitmap-font.ts` | Parsed HOME font metrics and glyph drawing |
 | `resources.ts` | Validated optional firmware-derived resource loading |
 | `native-chrome.ts` | Authored/cropped native chrome asset loading |
@@ -107,6 +108,12 @@ fallback for context-constrained browsers.
 
 Firmware resources are optional and provenance-controlled. Do not describe a
 procedural or photograph-constrained reconstruction as firmware-rendered.
+
+Game Notes' suspended-software panes read one presentation-owned snapshot, never
+saved state. `portfolio-screens.ts` copies the application slot's upper/lower
+canvases only after that instance paints a complete foreground pair, before host
+overlays; HOME, applets, loading/recovery and sleep cannot record. Closing or
+replacing the instance frees it. See [suspended capture](../native-notes-suspended-capture.md).
 
 The isolated keyboard sequence controller owns eight logical note slots and
 seventeen wave-slot identities for cues 6/7. It emits ordered prepare, parameter,

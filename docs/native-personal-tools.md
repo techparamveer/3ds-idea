@@ -118,7 +118,10 @@ and the pen cursor are hidden. Toolbar icons are noninteractive except the sourc
 Back target `(0,212,44,28)`. The runtime restores the selected note's grid cell on
 Back and emits no editing or save effects.
 
-ImageScreenUp is held at PanelNoGameIn frame20. Its screenshot/shadow panes,
+With a suspended application, ImageScreenUp instead shows that application's
+last complete LCD pair at settled SwitchDouble; see
+[suspended capture](native-notes-suspended-capture.md). Otherwise it is held at
+PanelNoGameIn frame20. Its screenshot/shadow panes,
 dynamic software-title panel and alternate note-up surface remain hidden because
 there is no suspended-software capture. Source T_TextList explicitly receives the
 complete English `9900NoBreakGameMesList` message and visible/opaque overrides;

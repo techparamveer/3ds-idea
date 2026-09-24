@@ -4,6 +4,7 @@ import { drawNativeServiceFrame, nativeServiceView } from './stock-native-servic
 import type { AppView, JsonValue } from './app-types';
 import type { BitmapFont } from './bitmap-font';
 import type { NativeLayoutRenderer } from './native-renderer';
+import type { SuspendedCapture } from './notes-suspended-capture';
 import { createNativeTitleSession } from './native-title-session';
 import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-settings';
 import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
@@ -16,7 +17,7 @@ import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
-export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean};
+export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture};
 const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const records=(v:JsonValue|undefined):MediaRecord[]=>Array.isArray(v)?v.map(record):[];
 const string=(v:JsonValue|undefined)=>typeof v==='string'?v:'';
@@ -164,7 +165,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
 
 /** One foreground session; asynchronous resources never outlive its owner. */
 export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number}={}){
-  let revision=0,painted='',paintedFont:BitmapFont|undefined;
+  let revision=0,painted='',paintedFont:BitmapFont|undefined,complete=false;
   const changed=()=>{revision++;options.onChange?.();};
   const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:state=>{if(state.status==='ready'||state.status==='error')clearDeadline();changed();}});
   const images=new Map<string,HTMLImageElement>();let owner:string|null=null,disposed=false;
@@ -226,25 +227,30 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   return {
     sync,prepare,status,
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
-    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont){
-      if(disposed)return;
-      const state=prepare(view,nextOwner,font),key=JSON.stringify([nextOwner,view,revision]);
+    /** True only when the published pair is this owner's complete application frame. */
+    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture):boolean{
+      if(disposed)return false;
+      // Pixels stay out of the key; one frozen capture has one generation.
+      const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
+      const state=prepare(view,nextOwner,font),key=JSON.stringify([nextOwner,view,revision,capture]);
       if(painted!==key||paintedFont!==font){
+        complete=false;
         black();
         if(failure)recovery();
         else if(!identity||state.status==='ready'){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity});
-            published=state.status==='ready'?state.assets.renderer:undefined;
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture});
+            published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
           }catch(error){fail(error);recovery();}
         }
         // Only publish after both native surfaces succeed, or after both were
         // replaced with the pending/error pair. Never expose a partial draw.
-        painted=JSON.stringify([nextOwner,view,revision]);paintedFont=font;
+        painted=JSON.stringify([nextOwner,view,revision,capture]);paintedFont=font;
       }
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
       if(failure)recoveryPublished=true;
+      return complete&&!failure;
     },
     getState:session.getState,
     getFailure:()=>failure,

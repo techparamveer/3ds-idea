@@ -57,8 +57,9 @@ message is `9900NoBreakGameMesList`. `9900NoBreakGameMes` starts with a space an
 requires a dynamic subject; do not display it bare as a complete sentence.
 
 The native upper layout contains `P_ScreenUpR/L`, `P_ScreenDown` and shadow
-panes for externally supplied suspended-software images. Those images are not
-available. `PanelNoGameIn` is a 21-frame clip that settles those image/shadow
+panes for externally supplied suspended-software images. The runtime now supplies
+the suspended application's last complete browser LCD pair
+([suspended capture](native-notes-suspended-capture.md)). `PanelNoGameIn` is a 21-frame clip that settles those image/shadow
 alphas to zero, puts `W_TextPanel` at y=-80 with alpha255, and also sets both
 text panes invisible/alpha0. `TextPanelInOut` and `TextPanelStay` retain that
 text visibility state. `SceneIn` alone instead restores screenshot alphas.

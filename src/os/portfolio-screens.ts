@@ -6,6 +6,7 @@ import type { AppView } from './app-types';
 import type { MenuState } from './state';
 import { measureBitmapText, type BitmapFont } from './bitmap-font';
 import { createStockScreenPresentation } from './stock-screen-presentation';
+import { createSuspendedApplicationCapture } from './notes-suspended-capture';
 type C=CanvasRenderingContext2D;
 const nativeFonts=new WeakMap<C,BitmapFont>();
 export function setPortfolioFont(ctx:C,font?:BitmapFont){if(font)nativeFonts.set(ctx,font);else nativeFonts.delete(ctx);}
@@ -21,8 +22,9 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
 export function createPortfolioGraphics(){
- const stockScreens=createStockScreenPresentation();
+ const stockScreens=createStockScreenPresentation(),suspendedCapture=createSuspendedApplicationCapture();
  function syncStockView(state:MenuState,context?:C){
+  if(state.system)suspendedCapture.sync(state.system.runtime);
   const s=state.system,owner=s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog?s.runtime.active:null;
   stockScreens.sync(owner);if(owner&&context){const view=getActiveAppView(state);if(view)stockScreens.prepare(view,owner,nativeFonts.get(context));}
  }
@@ -100,15 +102,18 @@ export function createPortfolioGraphics(){
   if(s.detail&&entry.images&&entry.images.length>1)label(b,`◀ ${s.photo+1}/${entry.images.length} ▶`,157,226,12,'#6b7380','center');
   button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
- function semanticApplication(t:C,b:C,view:AppView,owner:string){
-  stockScreens.draw(t,b,view,owner,nativeFonts.get(t));
+ function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string){
+  const capture=view.appId==='game-notes'&&view.screen==='drawing'?suspendedCapture.read(state.system!.runtime):undefined;
+  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture);
  }
  function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false){
   const s=state.system;if(!s)return;
   if(s.phase==='app'){
-   const view=getActiveAppView(state,time);
-   if(view&&getApp(view.appId)&&currentEntry(state))application(t,b,state,time,reduced);
-   else if(view&&s.runtime.active)semanticApplication(t,b,view,s.runtime.active);
+   const view=getActiveAppView(state,time);let complete=false;
+   if(view&&getApp(view.appId)&&currentEntry(state)){application(t,b,state,time,reduced);complete=true;}
+   else if(view&&s.runtime.active)complete=semanticApplication(t,b,view,state,s.runtime.active);
+   // Retain the application slot's last complete pair, before host overlays.
+   if(complete&&s.runtime.active&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);
   }
   if(s.phase==='launch'&&!nativeSystem){
    t.fillStyle=b.fillStyle='#fff';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
@@ -132,5 +137,5 @@ export function createPortfolioGraphics(){
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

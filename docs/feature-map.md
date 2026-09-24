@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: integration **`2ebf7b3`** on `codex/firmware-os-10-7`,
+Checkpoint: UI continuation **`a20ffa7`** on `codex/health-ui-scratch`,
 24 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -28,7 +28,7 @@ the browser by the coordinator.
 
 ## Features
 
-| Feature | Status at `2ebf7b3` | Next action | Owner | Evidence |
+| Feature | Status at `a20ffa7` | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
@@ -52,8 +52,7 @@ the browser by the coordinator.
 | amiibo settings | Source-backed English opening UI and bounded Header/`PortalBtnSub` materials are published and render as internal read-only applet (`aeb54a4`, `b707a5b`); no visible HOME/Settings route exists | Matched native opening comparison, font/motion and entrypoint validation; keep NFC/account/update operations inert | Assets; coordinator for entry/browser | [amiibo opening](native-amiibo-opening.md), [command trace](amiibo-material-command-trace.md) |
 | Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
 | Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power and foreground applet announcements corrected (`b1fedf5`), including live Notes over suspended Work | Other screen-specific announcements and full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
-| Asset conversion, provenance | Implemented. Latest public-only audit reports 1,648 resources, 590 layouts and 1,851 animations with zero errors; private-source cross-check remains unavailable from this integration worktree | Keep unsupported fields explicit and rerun with the original extraction tree before native acceptance | Health scroll source | `3ds-idea-worktrees/health-live-scroll` | `codex/health-live-scroll` @ `d1313d0` | Glyph/clip/key replay integrated as `2ebf7b3`; native touch/scrollbar still gate live scroll |
-| Assets | [Asset architecture](architecture/assets-and-materials.md) |
+| Asset conversion, provenance | Implemented. The earlier public-only audit reported 1,648 resources, 590 layouts and 1,851 animations with zero errors. The combined Sound selection and Record resource hashes were checked in this continuation | Keep unsupported fields explicit and rerun with the original extraction tree before native acceptance | Assets | [Asset architecture](architecture/assets-and-materials.md), [Sound resource selection](sound-entry-background-source.md) |
 | Final acceptance | Open | Isolated Azahar profile and one mapped Settings touch route are verified; extend reliable native input, then run a versioned browser/native scenario matrix and requirement audit | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
 
 ## Worktrees on 24 September 2026

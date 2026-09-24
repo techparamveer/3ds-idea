@@ -167,10 +167,12 @@ Zone offline/Info screens. eShop uses its native message balloon, bag animation,
 backgrounds and mounted OK button. The eShop reducer owns the source pass clock
 (`stock-eshop-welcome.ts`), and `view.data` carries passes rather than
 milliseconds. The painter derives the in/balloonIn/wait/out poses and the BG
-curtain from that clock. The pair's cache key holds the pose, so settled passes
-do not repaint. OK is inert until pass 12. After a decide, the exit plays and
-then returns HOME; see the
-[welcome lifecycle audit](eshop-welcome-lifecycle-source-audit.md). No
+curtain from that clock. After the welcome it paints Common `info_U_00` (the
+400×20 fill, `N_info_00` hidden) and eShop `HudMenu_00`. The pair's cache key
+holds the pose and the HUD clock, so settled passes do not repaint. OK is inert
+until pass 12. After a decide, the exit plays and then returns HOME; see the
+[welcome lifecycle audit](eshop-welcome-lifecycle-source-audit.md) and the
+[welcome HUD audit](eshop-welcome-hud-source-audit.md). No
 agreement, account or purchase operation exists. Zone uses original English HTML bitmap pixels at
 320×212, without stretching, and the source upper banner or 400×220 MPO frame.
 Source HTML links share their exact button rectangles with touch navigation.

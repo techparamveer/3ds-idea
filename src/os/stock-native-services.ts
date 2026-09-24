@@ -7,9 +7,10 @@ import type { StockScreenPaintOptions } from './stock-screen-presentation';
 
 const eshopPrefix='packs/eshop/contents/0000-0000006b/';
 export const eshopScreenPacks:readonly NativeTitlePackRequest[]=[
-  {url:eshopPrefix+'cad-Common-arc-lz.json',alias:'shop-background',layouts:['BG_U_00','BG_D_00'],animations:['BG_U_00_inOut_00','BG_D_00_inOut_00']},
+  {url:eshopPrefix+'cad-Common-arc-lz.json',alias:'shop-background',layouts:['BG_U_00','BG_D_00','info_U_00'],animations:['BG_U_00_inOut_00','BG_D_00_inOut_00']},
   {url:eshopPrefix+'cad-Boot-arc-lz.json',alias:'shop-welcome',layouts:['welcome_U_00','welcome_D_00'],animations:['welcome_U_00_in_00','welcome_U_00_balloonIn_00','welcome_U_00_wait_00','welcome_U_00_out_00','welcome_U_00_out_01']},
   {url:eshopPrefix+'cad-CommonBtn-arc-lz.json',alias:'shop-buttons',layouts:['OKBtn_D_00'],animations:['OKBtn_D_00_touchOff_00']},
+  {url:eshopPrefix+'cad-Hud-arc-lz.json',alias:'shop-hud',layouts:['HudMenu_00'],animations:['HudMenu_00_NetMode','HudMenu_00_NetAtn','HudMenu_00_Bat']},
   {url:eshopPrefix+'messages-and-loose.json',alias:'shop-messages',layouts:[],animations:[]},
 ];
 
@@ -29,6 +30,21 @@ export const zoneScreenPacks:readonly NativeTitlePackRequest[]=[
  * native-service-screen-trace.md. */
 export const zoneHudBindings:AnimationBinding[]=[{name:'Hud_00_Bar_Appear',frame:15},{name:'Hud_00_Battery',frame:3},{name:'Hud_00_Signal',frame:5}];
 
+/** HUD update 0x36a7fc Disabled branch (r7==7): lau_connect4, NetMode frame 4,
+ * NetAtn frame 9. Bat frame 3 is the HOME/Zone sufficient-charge pose, not a
+ * live PTM reading. Bind NetMode, then NetAtn, then Bat so later animators win
+ * on shared panes, matching that update order. Appear is not started in the
+ * HUD ctor; N_Scene_00 stays at its default alpha 255. */
+export const eshopHudBindings:AnimationBinding[]=[
+  {name:'HudMenu_00_NetMode',frame:4},{name:'HudMenu_00_NetAtn',frame:9},{name:'HudMenu_00_Bat',frame:3},
+];
+const WEEKDAYS=['sun','mon','tue','wed','thu','fri','sat'] as const;
+/** Injected local clock for HudMenu_00 T_Date/T_Time. The pair cache keys these
+ * fields; they are not live 3DS RTC/PTM. */
+export function eshopHudClock(date:Date){
+  return {year:date.getFullYear(),month:date.getMonth()+1,day:date.getDate(),hour:date.getHours(),minute:date.getMinutes()};
+}
+
 export { eshopWelcomePose };
 
 export function nativeServiceView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
@@ -39,26 +55,44 @@ export function nativeServiceView(view:AppView):{view:string;titleId:string;pack
 
 /** The bundled welcome is a read-only screen, without account or purchase operations.
  * Per screen, source draw priorities paint the app BG (0.01), welcome (0.5),
- * the OK button (0.9) and the BG curtain (1.0, the 0x3dfddc instance). */
+ * the OK button (0.9), Common info_U_00 (0.91; N_info_00 hidden, P_bg_01 shown),
+ * HudMenu_00 (~0.911) and the BG curtain (1.0, the 0x3dfddc instance). */
 export function drawNativeServiceFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   if(view.appId==='nintendo-zone')return drawZone(renderer,top,bottom,view,options);
   if(view.appId!=='eshop'||!['main','detail'].includes(view.screen))return false;
-  const message=(label:string)=>nativeMessageOverride(renderer.packs['shop-messages'],'tiger.msbt',label,'');
+  const tiger=(label:string)=>nativeMessageOverride(renderer.packs['shop-messages'],'tiger.msbt',label,'');
+  const hud=(label:string,fallback:string)=>nativeMessageOverride(renderer.packs['shop-messages'],'hud.msbt',label,fallback);
   const pose=eshopWelcomePose(view,options.reducedMotion);
+  const now=options.date??new Date(),clock=eshopHudClock(now);
+  const day=hud(`day_${clock.day}`,String(clock.day).padStart(2,'0')).text??'';
+  const month=hud(`month_${clock.month}`,String(clock.month).padStart(2,'0')).text??'';
+  const weekday=hud(`week_${WEEKDAYS[now.getDay()]}`,'').text??'';
+  const dateText=hud('lau_date','%d/%M (%w)');
+  dateText.text=(dateText.text??'').replace('%d',day).replace('%M',month).replace('%w',weekday);
   let okay=renderer.draw(top,'shop-background','BG_U_00');
   okay=renderer.draw(bottom,'shop-background','BG_D_00')&&okay;
   okay=renderer.draw(top,'shop-welcome','welcome_U_00',{
     bindings:pose.upper,
-    overrides:{T_decide_00:message('BootWelcome_txt01_01')},
+    overrides:{T_decide_00:tiger('BootWelcome_txt01_01')},
   })&&okay;
   okay=renderer.draw(bottom,'shop-welcome','welcome_D_00',{
-    overrides:{T_message_00:message('BootWelcome_txt01_02')},
+    overrides:{T_message_00:tiger('BootWelcome_txt01_02')},
     attachments:{OKBtn_D_00:()=>{
-      const label=message(view.screen==='main'?'CommonBtn_01_02':'CommonBtn_01_01');
+      const label=tiger(view.screen==='main'?'CommonBtn_01_02':'CommonBtn_01_01');
       okay=renderer.draw(bottom,'shop-buttons','OKBtn_D_00',{
         bindings:[{name:'OKBtn_D_00_touchOff_00',frame:1}],overrides:{T_OK_00:label,T_OK_01:label},
       })&&okay;
     }},
+  })&&okay;
+  okay=renderer.draw(top,'shop-background','info_U_00',{overrides:{N_info_00:{visible:false}}})&&okay;
+  okay=renderer.draw(top,'shop-hud','HudMenu_00',{
+    bindings:eshopHudBindings,
+    overrides:{
+      T_NetMode_00:hud('lau_connect4','Disabled'),
+      T_Date_00:dateText,
+      T_TimeL_00:{text:String(clock.hour).padStart(2,'0')},
+      T_TimeR_00:{text:String(clock.minute).padStart(2,'0')},
+    },
   })&&okay;
   if(pose.curtain!==null){
     okay=renderer.draw(top,'shop-background','BG_U_00',{bindings:[{name:'BG_U_00_inOut_00',frame:pose.curtain}]})&&okay;

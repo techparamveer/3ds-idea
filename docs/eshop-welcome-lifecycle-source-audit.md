@@ -137,10 +137,16 @@ During the welcome, each screen paints in this order:
 
 | Priority | Layer | Source | Alpha |
 | --- | --- | --- | --- |
-| 0.01 | App backdrop `BG_U_00` / `BG_D_00` | App init `0x2e514c`; the literal at `0x2e5388` is 0.01 | 255; no clip bound |
+| 0.01 | App backdrop `BG_U_00` / `BG_D_00` | App init `0x2e514c`; the literal at `0x2e5388` is 0.01 | 255; no clip bound. `P_BG_00` covers y 20–240; `P_BG_01` is hidden |
 | 0.5 | `welcome_U_00` / `welcome_D_00` | Welcome constructor | Upper animated as above |
 | 0.9 | `OKBtn_D_00` (lower screen only) | `0x26f298` at `0x2e4634`, mounted at `welcome_D_00`'s `OKBtn_D_00` pane | Layout |
+| 0.91 | Common `info_U_00` | HUD ctor `0x36b0e8` at `0x36b480`; `N_info_00` hidden | `P_bg_01` is the 400×20 fill |
+| ≈0.911 | `HudMenu_00` | Same ctor at `0x36b274`, constructed from app init `0x2e589c` | Default `N_Scene_00` visible; Appear is not started |
 | 1.0 | BG curtain `BG_U_00` / `BG_D_00` | Global `0x3dfddc`, created from app init at `0x2e51f0` through thunk `0x2e60b8` | `inOut_00` on `N_root_00` |
+
+The status strip is eShop-owned. See
+[welcome HUD audit](eshop-welcome-hud-source-audit.md). It is not a system
+applet and not inherited HOME chrome.
 
 The backdrop beneath the welcome is therefore the same BG layout at full alpha,
 which the browser already painted. The curtain is an extra layer over
@@ -218,10 +224,11 @@ pass-12 gate, the exit arithmetic and the tick/decide reductions.
 - **Exit.** A decide records its pass. When the clock reaches s + 20, the
   reducer emits `home` and resets the welcome to pass 0.
 - **Paint.** `drawNativeServiceFrame` paints the backdrop, the welcome, the OK
-  button and then the curtain on each screen. It skips the curtain at frame 4
-  (alpha 0) and when no pass is available. The stock pair's cache key holds the
-  pose (upper bindings plus curtain frame), not the pass, so settled passes do
-  not repaint. Reduced motion shows the settled pose without a curtain and does
+  button, Common `info_U_00` (`N_info_00` hidden), `HudMenu_00`, and then the
+  curtain on each screen. It skips the curtain at frame 4 (alpha 0) and when no
+  pass is available. The stock pair's cache key holds the pose (upper bindings
+  plus curtain frame) and the HUD clock, not the pass, so settled passes do not
+  repaint. Reduced motion shows the settled pose without a curtain and does
   not stop the software timeline.
 
 ## Adaptations and open gaps
@@ -253,6 +260,9 @@ pass-12 gate, the exit arithmetic and the tick/decide reductions.
   (via `0x28c184` with 60) at construction, `0x1000033` for `balloonIn`,
   `0x1000032` for `out_00`, and the OK decide SE `0x100000e`.
 - **Stereo.** Only the mono (3D off) composition is traced.
+- **HUD network/battery.** The welcome-time `0x253384` enum is not reproduced.
+  The painter uses the update function's Disabled branch to match HOME/Zone
+  wireless-off. See [welcome HUD audit](eshop-welcome-hud-source-audit.md).
 - **Fidelity.** A source-rendered frame does not prove strict 1:1 native
   fidelity, and no native welcome capture exists.
 
@@ -288,8 +298,10 @@ pass-12 gate, the exit arithmetic and the tick/decide reductions.
     pass 0 on both LCDs.
 
   It writes the entrance and exit pair PNGs, an upper contact sheet, an exit
-  contact sheet, `verification.json` and a benchmark to
-  SSD `reference/eshop-idle-source/render/`.
+  contact sheet, a 400×20 HUD crop, `verification.json` and a benchmark to
+  SSD `reference/eshop-idle-source/render/`. It also checks that `info_U_00`
+  `P_bg_01` covers the top 20 px, `N_info_00` is hidden, and `HudMenu_00_NetAtn`
+  frame 9 selects `HudNetAtnOff_00`.
 
   ```sh
   node scripts/verify-eshop-welcome.mjs \

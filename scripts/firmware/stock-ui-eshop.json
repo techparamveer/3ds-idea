@@ -2,6 +2,9 @@
   "schema": 1,
   "titles": {
     "0004001000022900": {
+      "fontBindings": {
+        "Hud.bcfnt": "hud"
+      },
       "packs": {
         "packs/eshop/contents/0000-0000006b/cad-Boot-arc-lz.json": {
           "layouts": [
@@ -41,6 +44,7 @@
           "layouts": [
             "BG_D_00",
             "BG_U_00",
+            "info_U_00",
             "message_D_00",
             "message_U_00",
             "position_D_00",
@@ -84,8 +88,28 @@
             "searchTop_D_00_touchOn_00"
           ]
         },
+        "packs/eshop/contents/0000-0000006b/cad-Hud-arc-lz.json": {
+          "layouts": [
+            "HudMenu_00"
+          ],
+          "animations": [
+            "HudMenu_00_Bat",
+            "HudMenu_00_NetAtn",
+            "HudMenu_00_NetMode"
+          ]
+        },
         "packs/eshop/contents/0000-0000006b/messages-and-loose.json": {
           "messages": {
+            "hud.msbt": [
+              "day_1", "day_2", "day_3", "day_4", "day_5", "day_6", "day_7", "day_8", "day_9",
+              "day_10", "day_11", "day_12", "day_13", "day_14", "day_15", "day_16", "day_17",
+              "day_18", "day_19", "day_20", "day_21", "day_22", "day_23", "day_24", "day_25",
+              "day_26", "day_27", "day_28", "day_29", "day_30", "day_31",
+              "lau_connect0", "lau_connect3", "lau_connect4", "lau_date",
+              "month_1", "month_2", "month_3", "month_4", "month_5", "month_6",
+              "month_7", "month_8", "month_9", "month_10", "month_11", "month_12",
+              "week_fri", "week_mon", "week_sat", "week_sun", "week_thu", "week_tue", "week_wed"
+            ],
             "tiger.msbt": [
               "BootWelcome_txt01_01",
               "BootWelcome_txt01_02",

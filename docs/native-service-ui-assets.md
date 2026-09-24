@@ -15,7 +15,7 @@ shared with other titles and therefore are not additive.
 
 | Slug / title ID | Selected components | Resources / bytes |
 | --- | --- | --- |
-| eshop / `0004001000022900` | Boot opening/splash/welcome; Common backgrounds/system menu; Entrance menu position/buttons | 46 / 793,248 |
+| eshop / `0004001000022900` | Boot opening/splash/welcome; Common backgrounds/system menu/`info_U_00`; Entrance menu position/buttons; `cad-Hud-arc-lz` `HudMenu_00` | 46 / 793,248 |
 | system-transfer / `0004001000022a00` | CARDBOARD backgrounds, title, choice buttons and return button | 16 / 154,438 |
 | nintendo-zone / `0004001000022b00` | Help screens, HUD, bottom menu and supplied EU top banner | 103 / 3,462,735 |
 | system-updater / `0004001000022f00` | Base backgrounds, upper text/icon, message/start layouts and B_L | 17 / 164,973 |
@@ -37,10 +37,12 @@ layouts can contain non-English placeholders; replace those from the selected
 English banks or documented portfolio content. A native asset's availability
 does not authorize recreating its original hardware or service behavior.
 
-- **eShop:** `cad-Boot-arc-lz.json`, `cad-Common-arc-lz.json` and
-  `cad-Entrance-arc-lz.json`; bank `tiger.msbt` supplies welcome, navigation,
-  Search, News and Recent Arrivals labels. Remote catalog/promotional content
-  is absent.
+- **eShop:** `cad-Boot-arc-lz.json`, `cad-Common-arc-lz.json`,
+  `cad-Entrance-arc-lz.json` and `cad-Hud-arc-lz.json`; bank `tiger.msbt`
+  supplies welcome, navigation, Search, News and Recent Arrivals labels, and
+  `hud.msbt` supplies the welcome status-strip date/wireless labels. Remote
+  catalog/promotional content is absent. The table count above predates the HUD
+  pack and is not retallied here.
 - **System Transfer:** `CARDBOARD-layout-layout-lz77.json`; bank `cardboard_ctr`
   supplies the title and four original transfer-choice labels.
 - **Nintendo Zone:** `layout-nwcx.json` and

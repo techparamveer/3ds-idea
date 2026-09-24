@@ -1,6 +1,6 @@
 import { drawNativeSelectorFrame, nativeSelectorView } from './stock-native-selectors';
 import { drawNativeHelperFrame, nativeHelperView } from './stock-native-helpers';
-import { drawNativeServiceFrame, eshopWelcomePose, nativeServiceView, zoneClock } from './stock-native-services';
+import { drawNativeServiceFrame, eshopHudClock, eshopWelcomePose, nativeServiceView, zoneClock } from './stock-native-services';
 import type { AppView, JsonValue } from './app-types';
 import type { BitmapFont } from './bitmap-font';
 import type { NativeLayoutRenderer } from './native-renderer';
@@ -236,7 +236,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       // Pixels stay out of the key; one frozen capture has one generation.
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
       const reducedMotion=options.reducedMotion?.()??false;
-      // Native status and animation poses key paired-screen publication.
+      // Native status clocks and animation poses key paired-screen publication.
       const zoneTime=view.appId==='nintendo-zone'?zoneClock(date,elapsedMs):null;
       const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60]:null;
       const state=prepare(view,nextOwner,font);
@@ -244,7 +244,8 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const eshop=nativeServiceView(view)?.view==='eshop-welcome';
       const keyView=eshop?{...view,data:{...view.data,welcomePass:null,welcomeDecidedPass:null}}:view,eshopPaintKey=eshop?eshopWelcomePose(view,reducedMotion):null;
       const settingsPaintKey=view.appId==='system-settings'?[date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes()]:null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,settingsPaintKey]);
+      const eshopHudKey=eshop?eshopHudClock(date):null;
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();

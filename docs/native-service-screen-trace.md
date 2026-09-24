@@ -123,11 +123,17 @@ HOME return after the exit.
 The audit also corrects this section's earlier claim about the backgrounds.
 The application draws `BG_U_00` and `BG_D_00` twice. The first instance is a
 static backdrop at priority 0.01, beneath the welcome. The second is a curtain
-at priority 1.0, above the welcome and the OK button. The splash leaves the
-curtain covered. The welcome constructor then plays `inOut_00` forward, so
-`N_root_00` alpha falls from 255 to 0 over four passes. The browser now paints
-both instances, together with the `out_00`/`out_01` exit, which ends by covering
-the curtain again.
+at priority 1.0, above the welcome, the OK button and the status strip. The
+splash leaves the curtain covered. The welcome constructor then plays
+`inOut_00` forward, so `N_root_00` alpha falls from 255 to 0 over four passes.
+The browser now paints both instances, together with the `out_00`/`out_01`
+exit, which ends by covering the curtain again.
+
+The upper 20 px are eShop-owned: Common `info_U_00` `P_bg_01` plus
+`HudMenu_00`. They are not inherited HOME chrome. The
+[welcome HUD audit](eshop-welcome-hud-source-audit.md) traces construction at
+app init, draw priorities 0.91 / ≈0.911, and the Disabled-branch clip frames
+used as the portfolio wireless-off state.
 
 ## Verification status
 

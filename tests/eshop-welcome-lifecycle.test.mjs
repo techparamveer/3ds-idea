@@ -30,6 +30,10 @@ test('source passes replace in_00, balloonIn_00 and the looping wait_00 on one a
  const packs=Object.fromEntries(services.eshopScreenPacks.map(p=>[p.alias,p.animations]));
  assert.deepEqual(packs['shop-welcome'],['in_00','balloonIn_00','wait_00','out_00','out_01'].map(clip));
  assert.deepEqual(packs['shop-background'],['BG_U_00_inOut_00','BG_D_00_inOut_00']);
+ assert.deepEqual(packs['shop-hud'],['HudMenu_00_NetMode','HudMenu_00_NetAtn','HudMenu_00_Bat']);
+ assert.ok(services.eshopScreenPacks.find(p=>p.alias==='shop-background').layouts.includes('info_U_00'));
+ assert.deepEqual(services.eshopHudBindings,[{name:'HudMenu_00_NetMode',frame:4},{name:'HudMenu_00_NetAtn',frame:9},{name:'HudMenu_00_Bat',frame:3}]);
+ assert.deepEqual(services.eshopHudClock(new Date(2026,8,24,7,44)),{year:2026,month:9,day:24,hour:7,minute:44});
 });
 
 test('the priority-1.0 BG curtain reveals over four passes and covers after out_00',()=>{
@@ -119,7 +123,7 @@ source=source.replace("'./stock-native-helpers'",JSON.stringify(url('export cons
 source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export const nativeSelectorView=()=>null;export const drawNativeSelectorFrame=()=>false;')));
 source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('native-screen-input'))));
 globalThis.__eshopReal=services;
-source=source.replace("'./stock-native-services'",JSON.stringify(url('const r=globalThis.__eshopReal;export const nativeServiceView=r.nativeServiceView,eshopWelcomePose=r.eshopWelcomePose,zoneClock=r.zoneClock;export const drawNativeServiceFrame=(renderer,top,bottom,view,options)=>{globalThis.__eshopPaints.push(r.eshopWelcomePose(view,options.reducedMotion));return true;};')));
+source=source.replace("'./stock-native-services'",JSON.stringify(url('const r=globalThis.__eshopReal;export const nativeServiceView=r.nativeServiceView,eshopWelcomePose=r.eshopWelcomePose,eshopHudClock=r.eshopHudClock,zoneClock=r.zoneClock;export const drawNativeServiceFrame=(renderer,top,bottom,view,options)=>{globalThis.__eshopPaints.push(r.eshopWelcomePose(view,options.reducedMotion));return true;};')));
 const {createStockScreenPresentation}=await import(url(source));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const eshop=(welcomePass,welcomeDecidedPass)=>({appId:'eshop',screen:'main',heading:'Nintendo eShop',rows:[{id:'ok',label:'OK'}],selection:0,footer:{},data:{welcomePass,...(welcomeDecidedPass===undefined?{}:{welcomeDecidedPass})}});

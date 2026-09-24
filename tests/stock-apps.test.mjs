@@ -151,17 +151,17 @@ test('photo and playback left/right still browse media instead of moving row sel
  state=module.reduce(state,{type:'command',command:'left'},ctx).state;assert.equal(state.trackId,'a');
 });
 
-test('Health exposes the native article labels and bounded pagination for every topic',()=>{
+test('Health exposes source article topics and continuous read-only scrolling',()=>{
  const {module}=setup('health-safety');const main=module.create({},null,ctx);
  assert.deepEqual(module.view(main,ctx).rows.map(({id,label})=>[id,label]),[['3d','3D Display Precautions'],['general','General Precautions'],['usage','Usage Precautions']]);
- for(const [topic,count] of [['3d',12],['general',44],['usage',27]]){
-  let state=action(module,main,topic).state;assert.equal(state.page,0);assert.equal(module.view(state,ctx).data.pageCount,count);
-  assert.equal(action(module,state,'previous').state,state);assert.equal(module.view(state,ctx).footer.left.action,'back');
-  state=module.reduce(state,{type:'touch',phase:'up',x:250,y:225},ctx).state;assert.equal(state.page,1);
-  state=module.reduce(state,{type:'command',command:'left'},ctx).state;assert.equal(state.page,0);
-  for(let page=1;page<count;page++){state=module.reduce(state,{type:'command',command:'right'},ctx).state;assert.equal(state.page,page);}
-  assert.equal(action(module,state,'next').state,state);assert.equal(module.view(state,ctx).footer.right.action,'back');assert.equal(module.view(state,ctx).footer.right.label,'Done');
-  state=module.reduce(state,{type:'touch',phase:'up',x:50,y:225},ctx).state;assert.equal(state.page,count-2);
+ for(const topic of ['3d','general','usage']){
+  let state=action(module,main,topic).state;
+  assert.equal(module.view(state,ctx).data.article.paneY,0);
+  assert.equal(module.view(state,ctx).footer.left.action,'back');
+  assert.equal(module.view(state,ctx).footer.right,undefined);
+  state=module.reduce(state,{type:'command',command:'down'},ctx).state;
+  state=module.reduce(state,{type:'tick',elapsedMs:20},ctx).state;
+  assert.equal(module.view(state,ctx).data.article.paneY,4);
   assert.equal(module.reduce(state,{type:'command',command:'back'},ctx).state.screen,'main');
  }
  assert.equal(action(module,main,'privacy').state,main);assert.equal(action(module,main,'next').state,main);

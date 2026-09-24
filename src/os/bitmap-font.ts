@@ -30,7 +30,7 @@ export function nativeCenteredGlyphQuads(manifest:FontManifest,value:string,widt
   }
   return quads;
 }
-type AlphaSurface={width:number;height:number;data:Uint8ClampedArray};
+export type AlphaSurface={width:number;height:number;data:Uint8ClampedArray};
 /** Bilinear font coverage at pixel centres; fractional quad edges are not
  * antialiased. Source includes one unscaled atlas texel around every edge. */
 export function rasterNativeAlphaGlyph(target:AlphaSurface,source:AlphaSurface,quad:NativeGlyphQuad){
@@ -175,7 +175,8 @@ export class BitmapFont {
     });
   }
 
-  private glyphMask(glyph:Glyph):AlphaSurface{
+  /** Padded coverage for rasterNativeAlphaGlyph. */
+  glyphMask(glyph:Glyph):AlphaSurface{
     const cached=this.glyphMasks.get(glyph);if(cached)return cached;
     const canvas=document.createElement('canvas');canvas.width=glyph.width+2;canvas.height=glyph.height+2;
     try{

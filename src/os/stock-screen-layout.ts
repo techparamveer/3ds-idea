@@ -78,6 +78,9 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
   }else if(appId==='nintendo-zone'){
     if(screen==='main')result.push(target('scan',29,30,262,86,0),target('information',29,136,262,36,1));
     result.push(target('back',0,212,106,28));return result;
+  }else if(appId==='health-safety'&&screen==='document'){
+    // BtmBtn_White B_Btn_00: 320×28 bounding pane, origin bottom-centre at (0,−120).
+    return view.footer.left?[target(view.footer.left.action,0,212,320,28)]:[];
   }else if(appId==='health-safety'&&screen==='main'){
     rows.slice(0,3).forEach((row,index)=>result.push(target(row.id,36,21+index*64,248,48,index)));
   }else if(appId==='browser'&&screen==='main'){

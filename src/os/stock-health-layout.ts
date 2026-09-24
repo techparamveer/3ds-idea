@@ -1,8 +1,5 @@
-/** Portfolio document pagination of 10.7.0-32E English safe_msbt_LZ article_1..3.
- * Eight source lines per page fit the lower-screen reading area. This is an
- * explicit UI adapter, not the original application's continuous scroll model.
- * The rendered-source verifier checks these totals against the delivered text.
+/** 10.7.0-32E English safe_msbt_LZ articles and their parser 0x157724 metric rows.
+ * The rendered-source verifier recomputes these from the delivered messages.
  */
-export const healthDocumentLinesPerPage=8;
-export const healthDocumentPageCounts:Readonly<Record<string,number>>={'3d':12,general:44,usage:27};
 export const healthDocumentArticles:Readonly<Record<string,string>>={'3d':'article_1',general:'article_2',usage:'article_3'};
+export const healthDocumentRows:Readonly<Record<string,number>>={'3d':95,general:334,usage:208};

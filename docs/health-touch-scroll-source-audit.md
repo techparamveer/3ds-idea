@@ -1,0 +1,9 @@
+# Health article continuous scroll checkpoint
+
+The portfolio Health article now uses a continuous 21 px row plus residual position rather than page-sized jumps. Its read-only touch drag, inertia, scrollbar thumb/groove, and Up/Down behavior use the original EUR 10.7.0-32E layout geometry and a pure update model. Back still returns to the three-topic list.
+
+`scripts/replay_health_touch_scroll.py` replays the local Health executable (`0004001000022300`, v3077, SHA-256 `74c813cc1f00a67c06ad85e10723b1440949b2d448e2e1f5532d2a61fb57600c`) with the published `SafeText_D_00` and `SlideBar` layouts. It covers the HID sampler, manager order, G_Touch and SlideBar state machines, and scene update with source pane rectangles. The resulting 29 scenarios and 654 update frames regenerated `tests/fixtures/health-scroll-traces.json` byte for byte on 24 September 2026. `tests/health-scroll.test.mjs` compares every frame position and animation selection to those traces.
+
+The browser adds one explicit adaptation: a quick physical button click may press and release between browser updates. Its Down/Up edge is latched for one update, as the touch press already is. Without this, the visible article did not move after repeated clicks despite the pure replay tests passing. The added reducer test covers that press/release sequence; the `localhost:3001` browser preview visibly scrolled after eight short Down clicks and logged no warnings or errors.
+
+This is still not whole-screen 1:1 acceptance. The replay fixes control state and positions, but does not prove native LCD pixels, font sampling in the completed screen, boundary audio, real frame pacing, or the browser's perspective-resampled pixels. The host caps catch-up after long pauses and the Back bar uses a release-on-original-target adapter. Compare aligned native screenshots and validate real hold/drag timing before closing those gaps.

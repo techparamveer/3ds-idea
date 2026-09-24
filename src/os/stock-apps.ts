@@ -1,8 +1,9 @@
-import { objectValue, type AppContext, type AppDescriptor, type AppEffect, type AppModule, type AppReduction, type AppState, type AppView, type AppViewRow, type JsonValue } from './app-types.ts';
+import { objectValue, type AppContext, type AppDescriptor, type AppEffect, type AppEvent, type AppModule, type AppReduction, type AppState, type AppView, type AppViewRow, type JsonValue } from './app-types.ts';
 import { helperSelectorSources, helperTitle, helperView, isHelperTitle } from './stock-helper-views.ts';
 import { browserBack, browserChoices, browserHeading, browserNavigate, browserPageEntry, browserText } from './stock-browser-navigation.ts';
 import { settingsLanguageTick, LANGUAGE_SCROLL_DURATION_MS, settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
-import { healthDocumentPageCounts } from './stock-health-layout.ts';
+import { healthDocumentRows } from './stock-health-layout.ts';
+import { healthScrollAdvance, healthScrollCreate, healthScrollKey, healthScrollKeyTap, healthScrollRelease, healthScrollStylus, healthScrollView, type HealthScrollState } from './stock-health-scroll.ts';
 import { notesCaptureView, notesNextCaptureView, notesSwitchFrame, NOTES_SWITCH_LAST_FRAME, NOTES_SWITCH_DURATION_MS, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
 import { eshopWelcomeData, eshopWelcomeDecide, eshopWelcomeTick } from './stock-eshop-welcome.ts';
@@ -122,10 +123,40 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const target = order[(nextIndex + order.length) % order.length];
     return selectTrack(state, media.tracks[target].id, ended || Boolean(state.playing));
   }
+  const healthScroll = (state: AppState): HealthScrollState => objectValue(state.scroll) && typeof state.scroll.row === 'number'
+    ? state.scroll as unknown as HealthScrollState : healthScrollCreate(healthDocumentRows[str(state.topic)] ?? 0);
+  /** Article input runs through the replayed VBlank model; closing the article discards it, as teardown 0x1575a8 does. */
+  function healthDocumentReduce(state: AppState, event: AppEvent, context: AppContext): AppReduction | null {
+    const scroll = healthScroll(state);
+    const put = (next: HealthScrollState, patch: AppState = {}): AppReduction => ({ state: { ...state, ...patch, scroll: next } });
+    if (event.type === 'tick') return put(healthScrollAdvance(scroll, event.elapsedMs));
+    if (event.type === 'lifecycle') return put(healthScrollRelease(scroll), { backPress: false });
+    if (event.type === 'touch') {
+      if (event.phase === 'cancel') return put(healthScrollRelease(scroll), { backPress: false });
+      if (!Number.isFinite(event.x) || !Number.isFinite(event.y)) return { state };
+      // Adaptation: the Back bar activates on release only when the press began on it (BtmBtn_White is not replayed).
+      const onBack = stockScreenActionAt(view(state, context), event.x, event.y) === 'back';
+      if (event.phase === 'down') return put(healthScrollStylus(scroll, event), { backPress: onBack });
+      if (event.phase === 'move') return put(healthScrollStylus(scroll, event));
+      const lifted = put(healthScrollStylus(scroll, null), { backPress: false });
+      return state.backPress === true && onBack ? activate(lifted.state, 'back', context) : lifted;
+    }
+    if (event.type === 'button' && (event.command === 'up' || event.command === 'down')) {
+      if (event.phase === 'repeat') return { state };
+      const held = healthScrollKey(scroll, event.command, event.phase === 'down');
+      // Browser clicks can press and release between VBlanks. Keep the edge
+      // until one update samples it, as the stylus sampler does below.
+      return put(event.phase === 'down' ? healthScrollKeyTap(held, event.command) : held);
+    }
+    if (event.type === 'command' && (event.command === 'up' || event.command === 'down')) return put(healthScrollKeyTap(scroll, event.command));
+    if ((event.type === 'command' || event.type === 'button') && ['left', 'right', 'open'].includes(event.command)) return { state };
+    return null;
+  }
   function activate(state: AppState, action: string, context: AppContext, value?: JsonValue): AppReduction {
     const screen = str(state.screen, 'main');
     if (action === 'back') {
       if (id === 'sound' && state.mediaError === true) return { state: { ...state, mediaError: false } };
+      if (id === 'health-safety' && screen === 'document') { const { scroll: _scroll, backPress: _press, ...rest } = state; return { state: withScreen(rest, 'main') }; }
       if (screen !== 'main') {
         if ((id === 'game-notes' || id === 'memo') && screen === 'drawing') return { state: withScreen(state, 'main', { selection: bounds(num(state.slot), 15), ...(id === 'game-notes' ? { captureSwitchElapsed: NOTES_SWITCH_DURATION_MS } : {}) }) };
         if (id === 'system-settings') return { state: settingsBack(state) };
@@ -139,11 +170,6 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         return id === 'sound' && state.playing ? music(next, 'pause', { playing: false }) : { state: next };
       }
       return { state, effects: [{ type: descriptor.kind === 'application' ? 'home' : 'close' }] };
-    }
-    if (id === 'health-safety' && screen === 'document' && (action === 'next' || action === 'previous')) {
-      const count = healthDocumentPageCounts[str(state.topic)] ?? 1;
-      const page = bounds(num(state.page) + (action === 'next' ? 1 : -1), count - 1);
-      return page === state.page ? { state } : { state: { ...state, page } };
     }
     if (cameraTitles.has(id)) {
       if (screen === 'main' && action.startsWith('folder:') && media.folders.some(item => item.id === action.slice(7))) return { state: withScreen(state, 'gallery', { folderId: action.slice(7) }) };
@@ -200,7 +226,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return { state: settingsNavigate(state, action) };
     }
     if (id === 'game-notes' || id === 'memo') return { state: withScreen(state, 'drawing', { slot: Number(action), strokes: list(context.shared.notes).find(note => note.slot === Number(action))?.strokes ?? [] }) };
-    if (id === 'health-safety' || id === 'manual') return { state: withScreen(state, 'document', { topic: action, page: 0 }) };
+    if (id === 'health-safety') return { state: withScreen(state, 'document', { topic: action, scroll: healthScrollCreate(healthDocumentRows[action]) }) };
+    if (id === 'manual') return { state: withScreen(state, 'document', { topic: action, page: 0 }) };
     if (id === 'browser') return { state: browserNavigate(state, action) };
     if (id === 'friends') return { state: withScreen(state, action === 'profile' ? 'profile' : 'friend', { friendId: action }) };
     if (id === 'notifications') return { state: withScreen(state, 'notification', { notificationId: action }) };
@@ -232,10 +259,9 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if(helper){text.push(...helper.text);Object.assign(data,helper.data);}
     if (id === 'error') text.push(str(state.message, 'An error has occurred.'));
     const healthDocument = id === 'health-safety' && screen === 'document';
-    const pageCount = healthDocumentPageCounts[str(state.topic)] ?? 1;
-    if (healthDocument) data.pageCount = pageCount;
-    const left = healthDocument && num(state.page) > 0 ? { label: 'Previous', action: 'previous' } : { label: id === 'system-updater' ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
-    const right = healthDocument ? (num(state.page) < pageCount - 1 ? { label: 'Next', action: 'next' } : { label: 'Done', action: 'back' }) : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
+    if (healthDocument) { delete data.scroll; delete data.backPress; data.article = healthScrollView(healthScroll(state)); }
+    const left = { label: id === 'system-updater' ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
+    const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { left, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }
@@ -266,6 +292,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
           return { state: { ...state, captureSwitchElapsed: NOTES_SWITCH_DURATION_MS } };
       }
       if (id === 'eshop' && event.type === 'tick') return eshopWelcomeTick(state, event.elapsedMs);
+      if (id === 'health-safety' && state.screen === 'document') { const health = healthDocumentReduce(state, event, context); if (health) return health; }
       if (event.type === 'lifecycle') return id === 'sound' && track(state) && ['suspend', 'sleep', 'close'].includes(event.phase) ? music(state, 'pause', { playing: false }) : { state };
       if (event.type === 'action') return activate(state, event.id, context, event.value);
       if (event.type === 'touch') {
@@ -283,7 +310,6 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       if (command === 'open') return activate(state, current.footer.right?.action ?? '', context);
       if (command === 'left' || command === 'right') {
         if (id === 'system-settings' && state.screen === 'other') return activate(state, command === 'right' ? 'settings-next' : 'settings-previous', context);
-        if (id === 'health-safety' && state.screen === 'document') return activate(state, command === 'right' ? 'next' : 'previous', context);
         if (cameraTitles.has(id) && state.screen === 'photo' || id === 'sound' && state.screen === 'playback') return activate(state, command === 'right' ? 'next' : 'previous', context);
       }
       if (command === 'left' || command === 'right' || command === 'up' || command === 'down') {

@@ -1,5 +1,9 @@
 # Health and Safety continuous-scroll source audit
 
+The [rich-text continuation](health-richtext-source-audit.md) adds original
+parser/buffer replay with English tokens and pane-switch boundaries. Native font
+measurement, clipping and combined input ownership remain unverified.
+
 This audit does **not** replace the current eight-line pagination adaptation.
 It establishes the native article controller's movement and pane writes, but
 not a complete article/input implementation. Strict 1:1 remains unproven.

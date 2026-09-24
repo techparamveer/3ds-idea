@@ -10,7 +10,7 @@ const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_An
 export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
   {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00']},
-  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00'],animations:['LsMenu_D_00_SceneIn_00','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
+  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00'],animations:['LsMenu_D_00_SceneIn_00','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
   {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
 ];
@@ -67,7 +67,7 @@ export function settingsSceneVariant(view:AppView):1|2|3|4|5{
   const section=view.screen==='detail'?String(view.data?.parent??'other'):view.screen;
   if(section==='internet'||section==='connections')return 3;
   if(section==='data'||section==='data-3ds')return 4;
-  if(section==='parental'||section==='restrictions')return 5;
+  if(section==='parental'||section==='parental-explain'||section==='parental-pin-notice'||section==='restrictions')return 5;
   return 1;
 }
 
@@ -123,7 +123,7 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   const preferences=data.settings&&typeof data.settings==='object'?data.settings as Record<string,unknown>:{};
   const value=(key:string)=>typeof preferences[key]==='string'&&preferences[key]!==''?String(preferences[key]):'Not set';
   const field=String(data.field??'');
-  const section=screen==='detail'?String(data.parent??'other'):screen;
+  const section=screen==='detail'?String(data.parent??'other'):screen==='parental-explain'||screen==='parental-pin-notice'?'parental':screen;
   const sections:Record<string,[string,string,string]>={internet:['IconNet','net_top_title','net_top_comm_u'],connections:['IconNet','net_set_title','net_set_comm_u'],parental:['IconParental','parental_title_u','par_top_comm_u_n'],restrictions:['IconParental','parental_title_u','par_chan_comm_u1'],data:['IconDataMa','dat_title_u','dat_comm_u'],'data-3ds':['IconDataMa','dat_title_u','dat_3ds_comm_u'],profile:['IconUser','user_info_title','user_info_comm_u'],clock:['IconDateTime','date_time_title','datetime_comm_u'],other:['IconBasic','settings_title','settings_comm_u']};
   const detailSections:Record<string,[string,string,string]>={sound:['IconSound','sound_title','sound_comm_u'],language:['IconLang','language','language_comm_u'],date:['IconDateTime','date_time_title','date_comm_u'],time:['IconDateTime','date_time_title','time_comm_u'],birthday:['IconUser','user_info_title','birthday_comm_u'],nickname:['IconUser','user_info_title','user_name_comm_u']};
   const detailSource=screen==='detail'?detailSections[field]:undefined;
@@ -184,6 +184,10 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     // pare_new_set: source instruction-only page and two-control base footer.
     draw(bottom,'layout','MessageOnly_D_00',{bindings:[{name:'MessageOnly_D_00_SceneIn_00',frame:20}],overrides:{TextBoxTitle_00:message('par_top_comm0_n')}});
     draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_set'),TextBoxShdw_01:message('base_2b_set')}});
+    return okay;
+  }else if(screen==='parental-explain'){
+    draw(bottom,'layout','StartChild_D_00',{overrides:{TextBoxTitle_00:message('st_start_comm')}});
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_next'),TextBoxShdw_01:message('base_2b_next')}});
     return okay;
   }else if(screen==='data')menu('SMngTopO_D_00',[
     ['N_B_SMngCTRO_00','B_SMngCTRO','data-3ds'],['N_B_SMngDSiO_00','B_SMngDSiO','data-dsi'],['N_B_M_00','B_M','streetpass','dat_ce'],['N_B_S_00','B_S','blocked-users','dat_blist_reset'],

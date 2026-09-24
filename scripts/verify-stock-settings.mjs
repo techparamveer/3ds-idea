@@ -56,7 +56,7 @@ try{
   ['connections',3,['connection-1','connection-2','connection-3','new-connection']],
   ['data',4,['data-3ds','data-dsi','streetpass','blocked-users']],
   ['data-3ds',4,['software','extra-data','add-on-content','backup']],
-  ['parental',5,['next','back']],['restrictions',5,['rating','browser','shopping','3d']],
+  ['parental',5,['next','back']],['parental-explain',5,['next','back']],['restrictions',5,['rating','browser','shopping','3d']],
   ['profile',1,['nickname','birthday','region','ds-profile']],['clock',1,['date','time']],
   ['other',1,['profile','clock','touch']],
  ];
@@ -87,6 +87,12 @@ try{
    assert.ok(title.options.overrides.TextBoxTitle_00.messageStyle,'identified detail keeps native title style');
    const text=calls.find(c=>c.layout===(['nickname','birthday'].includes(subpage.data.field)?'UserInfo_U_00':'TextBG_U_00'));
    assert.ok(text.options.overrides.TextBox_00.messageStyle,'identified detail keeps source instruction style');
+  }
+  if(subpage.screen==='parental-explain'){
+   const body=calls.find(c=>c.layout==='StartChild_D_00'),footer=calls.find(c=>c.layout==='Base_D_01');assert.ok(body);assert.ok(footer);
+   assert.equal(body.options.overrides.TextBoxTitle_00.text,'If a child will be using this\nsystem, please set it up\nfor them.');
+   assert.ok(body.options.overrides.TextBoxTitle_00.messageStyle);
+   assert.equal(footer.options.overrides.TextBox_00.text,'Back');assert.equal(footer.options.overrides.TextBox_01.text,'Next');
   }
   if(subpage.screen==='parental'){
    const body=calls.find(c=>c.layout==='MessageOnly_D_00'),footer=calls.find(c=>c.layout==='Base_D_01');
@@ -139,5 +145,5 @@ try{
  assert.equal(JSON.stringify(sourcePacks),before,'source packs remain immutable');
  assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
  writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.']},null,2)+'\n');
- console.log('Settings: five main and nineteen subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.');
+ console.log('Settings: five main and twenty subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.');
 }finally{assets.dispose();font.dispose();}

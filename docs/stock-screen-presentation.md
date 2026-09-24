@@ -107,7 +107,9 @@ Internet uses `NetTop_D_01` and its four source child buttons. Parental Controls
 now uses `pare_new_set`'s `MessageOnly_D_00`, complete English introduction
 and `Base_D_01` Back/Set footer. The borrowed two-button card, added backdrop
 and font-size override have been removed. It does not imply saved restrictions
-or a PIN; the subsequent setup flow is still incomplete.
+or a PIN. The following `parental-explain` screen now consumes the exact
+`StartChild_D_00` illustration, `st_start_comm` instruction and Back/Next
+footer. PIN notice composition is audited separately; no keyboard is added.
 
 Data Management, Nintendo 3DS data, Profile, Connection Settings and Other
 Settings mount the original button components in their source layouts. Other

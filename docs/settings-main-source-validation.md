@@ -175,6 +175,26 @@ DS Profile LCDs were visually inspected under `presentation/settings-ds-profile/
 the earlier generic pair remains in `presentation/settings-parental-intro/`.
 Browser and matched native LCD verification remain separate checks.
 
+## Parental explanation after Set
+
+The `parental-explain` screen paints the exact `pare_explain.bin` composition:
+`StartChild_D_00`, `st_start_comm`, state-5 upper Parental chrome and
+`Base_D_01` Back/Next. The source ParentChild picture's bottom origin and the
+instruction pane's top origin place them on either side of the same anchor;
+no position, scale or typography override is added. The English source style
+is preserved. Assets publication `87bdb89` supplies the layout, picture and
+message. The runtime owns the route from Set and stops before keyboard entry.
+
+The footer rectangles remain Back `(0,208,120,32)` and Next
+`(200,208,120,32)`. The renderer uses the screen ID agreed with runtime;
+it does not implement navigation. The following PIN notice requires its
+separately traced source dialog and must not be replaced by the old generic
+restriction list or an authored availability card.
+
+All 25 paired render checks and typecheck pass. Both explanation LCDs were
+rendered, and the lower illustration/instruction/footer composition was
+visually inspected in `presentation/settings-parental-explanation/`.
+
 ## Composition, typography and verification
 
 Main retains source child mounts, the settled `Top_D_02_SceneIn_00` frame 35,

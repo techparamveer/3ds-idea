@@ -113,6 +113,12 @@ class CafeTests(unittest.TestCase):
         self.assertEqual(parsed['tracks'][0]['property'], 'unsupported')
         with self.assertRaisesRegex(ValueError, 'unsupported'): supported(parsed)
 
+    def test_combiner_count_retains_native_third_bit_without_enabling_it(self):
+        material = struct.pack('<28s4B4BI', b'four', 0, 0, 0, 0, 255, 255, 255, 255, 4 << 6)+bytes(16)
+        parsed = decode_flyt(layout([section('mat1', struct.pack('<II', 1, 16)+material)]))
+        self.assertEqual(len(parsed['materials'][0]['sourceCombiners']), 4)
+        with self.assertRaisesRegex(ValueError, 'unsupported'): supported(parsed)
+
 
 @unittest.skipUnless(os.environ.get('FIRMWARE_AMIIBO_ROMFS'), 'Owner-supplied amiibo RomFS not configured')
 class AmiiboResourceTests(unittest.TestCase):
@@ -148,7 +154,7 @@ class AmiiboResourceTests(unittest.TestCase):
         self.assertEqual((clip['frames'], len(clip['tracks']), clip['groups']), (1, 45, ['G_Btn_00']))
         self.assertTrue(any(t['property'] == 'materialColor.1.0' for t in clip['tracks']))
 
-    def test_opening_material_records_are_pinned_and_remain_unsupported(self):
+    def test_opening_material_records_are_pinned_and_bounded(self):
         def pane(layout, name):
             pending = list(layout['roots'])
             while pending:
@@ -212,9 +218,8 @@ class AmiiboResourceTests(unittest.TestCase):
             self.assertEqual(material['sourceProjections'], [{
                 'transform': [0.0, 0.0, 1.0, 1.0], 'option': 6, 'padding': '000000',
             }])
-            self.assertEqual([issue['kind'] for issue in material['unsupported']], [
-                'flytCoordinateGenerator', 'flytTextureCombiner', 'flytProjection',
-            ])
+            self.assertEqual(material['unsupported'], [])
+            self.assertEqual(material['capability'], 'amiibo-two-texture-v1')
         self.assertEqual(center['sourceCombiners'], [{'color': 0, 'alpha': 0, 'reserved': 0}])
         self.assertEqual(center['textureMatrices'], [
             {'translation': [0.0, 0.0], 'rotation': 0.0, 'scale': [0.0, 0.0]},
@@ -235,7 +240,19 @@ class AmiiboResourceTests(unittest.TestCase):
         self.assertEqual(window['window']['frames'], [{'material': 8, 'flip': 0}])
 
         for layout in (header, portal):
-            with self.assertRaisesRegex(ValueError, 'unsupported'): supported(layout)
+            supported(layout)
+        for material in (header_00, header_01):
+            self.assertEqual(material['capability'], 'amiibo-two-texture-v1')
+
+        # Mutate actual source records: unknown combiner modes and projection
+        # options must not acquire the bounded renderer capability.
+        for name, raw, delta in [('P_Header_00', header_raw, 104),
+                                  ('P_Header_00', header_raw, 56),
+                                  ('W_BtnShade_00C', portal_raw, 124)]:
+            offset = raw.index(name.encode()) + delta
+            changed = bytearray(raw); changed[offset] = 3
+            parsed = decode_flyt(bytes(changed))
+            with self.assertRaisesRegex(ValueError, 'unsupported'): supported(parsed)
 
     def test_rectangular_source_texture_identity_and_orientation(self):
         raw = self.members('Body/Common/Header/Header.arc.cmp')['timg/HeaderBg.bflim']

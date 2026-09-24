@@ -27,7 +27,7 @@ from firmware.title_metadata import description_metadata
 from firmware.notes_icon import notes_icon_png, conversion as notes_icon_conversion
 
 FIRMWARE = '10.7.0-32E'
-CONVERTER_VERSION = '1.5.3'
+CONVERTER_VERSION = '1.5.4'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}

@@ -213,3 +213,13 @@ metadata patching, complete later-stage state and projection composition still
 prevent a defensible full renderer implementation. Header and PortalBtnSub
 remain unsupported; the follow-up includes reproducible source ranges, command
 tables, passing focused checks and fresh explicit render-rejection evidence.
+
+### Material resolution follow-up
+
+Converter 1.5.2 and the bounded renderer path now source-render Header and
+PortalBtnSub, including the full five-part original-model portal. The earlier
+unsupported-material result above is historical. The
+[resolved native command trace](amiibo-material-command-trace.md) records texture
+format mapping, post-combiner registers, whole-window projection, tests and
+private renders. Public selection is unchanged in this worker commit. The
+`IGN_Header` English binding and matched native comparison remain unresolved.

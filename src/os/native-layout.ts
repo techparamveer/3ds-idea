@@ -3,7 +3,7 @@ export type NativePicture={material:number;colors:number[][];uvSets:number[][]};
 export type NativeMessageStyle={fontScale:number[];lineSpacing:number;characterSpacing:number;unresolvedWords?:Record<string,number>};
 export type NativeText={callName?:string;font:number;material:number;value:string;size:number[];alignment:number;lineAlignment:number;characterSpacing:number;lineSpacing:number;topColor:number[];bottomColor:number[];messageStyle?:NativeMessageStyle};
 export type NativePane={unsupported?:unknown[];sourceFormat?:string;part?:NativePart;kind:string;name:string;flags:number;origin:number;alpha:number;translation:number[];rotation:number[];scale:number[];size:number[];children:NativePane[];picture?:NativePicture;text?:NativeText;window?:{content:NativePicture;frames:{material:number;flip:number}[];inflation?:number[];frameSize?:number[];flags:number}};
-export type NativeMaterial={sourceFormat?:string;name:string;bufferColor:number[];constantColors:number[][];textureOnly:boolean;textureMaps:{texture:number;wrapS:number;wrapT:number;minFilter:number;magFilter:number}[];textureMatrices:{translation:number[];rotation:number;scale:number[]}[];coordinateGenerators:{type:number;source:number;sourceExtra?:string}[];tevStages:{constantSelectors:number;color:NativeCombiner;alpha:NativeCombiner}[];alphaCompare?:{function:number;reference:number};colorBlend?:{operation:number;sourceFactor:number;destinationFactor:number};unsupported:unknown[]};
+export type NativeMaterial={capability?:string;sourceCombiners?:{color:number;alpha:number;reserved:number}[];sourceProjections?:{transform:number[];option:number;padding:string}[];sourceFormat?:string;name:string;bufferColor:number[];constantColors:number[][];textureOnly:boolean;textureMaps:{texture:number;wrapS:number;wrapT:number;minFilter:number;magFilter:number}[];textureMatrices:{translation:number[];rotation:number;scale:number[]}[];coordinateGenerators:{type:number;source:number;sourceExtra?:string}[];tevStages:{constantSelectors:number;color:NativeCombiner;alpha:NativeCombiner}[];alphaCompare?:{function:number;reference:number};colorBlend?:{operation:number;sourceFactor:number;destinationFactor:number};unsupported:unknown[]};
 export type NativePart={layout:string;magnify:number[];capability?:string;entries:{name:string;usageFlags:number;basicUsageFlags:number;materialUsageFlags:number;property?:NativePane;userDataBytes?:string;basicInfo?:{translation:number[];rotation:number[];scale:number[];size:number[];alpha:number;userData:string;padding:string}}[]};
 export type NativeCombiner={sources:number[];operands:number[];mode:number;scale:number;savePrevious:boolean};
 export type NativeTrack={target:string;contentIndex?:number;binding:string;property:string;index:number;component:number;interpolation:string;keys:{frame:number;value:number;slope?:number}[]};
@@ -224,8 +224,30 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
 
 const clamp=(n:number)=>Math.max(0,Math.min(1,n));
 const white=[1,1,1,1];
+/** Lower the bounded amiibo FLYT material into the existing TEV evaluator.
+ * Native 1cb42c / 1ecdf8: combine textures, interpolate black/white, multiply
+ * vertex color. Native format codes 1/13 map to PICA A8/A4 and replace RGB
+ * with constant white while retaining sampled alpha. See the command audit.
+ */
+function prepareFlytMaterial(material:NativeMaterial,formats:readonly (number|undefined)[]):NativeMaterial {
+ if(material.sourceFormat!=='FLYT')return material;
+ if(material.unsupported.length)throw new Error('Unsupported FLYT material fields');
+ const count=material.textureMaps.length,source=material.sourceCombiners?.[0];
+ if(count<2&&!source&&!formats.some(format=>format===8||format===11))return material;
+ if(count!==1&&(count!==2||material.capability!=='amiibo-two-texture-v1'||material.sourceCombiners?.length!==1||!source||![0,1].includes(source.color)||![0,1].includes(source.alpha)||source.reserved!==0))throw new Error('Unsupported FLYT texture combination');
+ if(material.tevStages.length||material.constantColors.length!==1)throw new Error('Unsupported FLYT register composition');
+ const combiner=(sources:number[],mode:number,operands=[0,0,0],savePrevious=false):NativeCombiner=>({sources,mode,operands,scale:1,savePrevious});
+ const rgba=(sources:number[],mode:number,constantSelectors:number,operands=[0,0,0],savePrevious=false)=>({constantSelectors,color:combiner(sources,mode,operands,savePrevious),alpha:combiner(sources,mode,operands,savePrevious)});
+ const rgb=(index:number)=>formats[index]===8||formats[index]===11?4:index;
+ const stages=[{constantSelectors:0x22,color:combiner([rgb(0),0,0],0),alpha:combiner([0,0,0],0)}];
+ if(count===2)stages.push({constantSelectors:0x22,color:source!.color===0?combiner([rgb(1),6,1],4,[0,0,2]):combiner([rgb(1),6,0],1),alpha:combiner([1,6,0],source!.alpha===1?1:2)});
+ // Save the combined sample before splitting the black/white interpolation.
+ stages.push(rgba([6,4,0],1,0x11,[0,0,0],true),rgba([4,7,6],7,0,[0,1,0]),rgba([6,5,0],1,0));
+ return {...material,constantColors:[...material.constantColors,[255,255,255,255]],tevStages:stages};
+}
 /** Evaluate NintendoWare TEV in normalized channel space, before framebuffer blending. */
-export function evaluateNativeMaterial(material:NativeMaterial, textures:number[][], primary:number[]=white):number[] {
+export function evaluateNativeMaterial(material:NativeMaterial, textures:number[][], primary:number[]=white,textureFormats:readonly (number|undefined)[]=[]):number[] {
+ material=prepareFlytMaterial(material,textureFormats);
  if(material.sourceFormat==='FLYT'&&material.unsupported.length)throw new Error('Unsupported FLYT material fields');
  const constants=material.constantColors.map(c=>c.map(v=>v/255)),baseBuffer=material.bufferColor.map(v=>v/255);let buffer=[...baseBuffer],previous=[...primary];
  if(!material.tevStages.length){
@@ -258,7 +280,7 @@ export function evaluateNativeMaterial(material:NativeMaterial, textures:number[
  if(compare){const a=previous[3],r=compare.reference,pass=[false,a<r,a<=r,a===r,a!==r,a>=r,a>r,true][compare.function];if(!pass)previous[3]=0;}
  return previous;
 }
-export type NativePixels={width:number;height:number;data:Uint8ClampedArray};
+export type NativePixels={width:number;height:number;data:Uint8ClampedArray;picaFormat?:number};
 /** HOME 10.7's 0x202940 first-character outline pass. Input is the decoded
  * 32×32 RGB565 target; output is one decoded RGBA4444 atlas cell. Badge mode
  * uses different tables and is deliberately outside this path.
@@ -293,7 +315,7 @@ export function nativeTextureSamplePixels(pixels:NativePixels,picaFormat?:number
  if(picaFormat!==8&&picaFormat!==11)return pixels;
  const data=new Uint8ClampedArray(pixels.data);
  for(let at=0;at<data.length;at+=4)data[at]=data[at+1]=data[at+2]=0;
- return {...pixels,data};
+ return {...pixels,data,picaFormat};
 }
 const wrapPixel=(n:number,length:number,wrap:number)=>wrap===1?((n%length)+length)%length:wrap===2?((n%(length*2)+length*2)%(length*2)<length?((n%(length*2))+length*2)%(length*2):length*2-1-((n%(length*2)+length*2)%(length*2))):Math.min(length-1,Math.max(0,n));
 /** Sampling addresses texel centres and applies wrapping to each bilinear neighbour. */
@@ -373,6 +395,7 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
  if(!material)throw new Error(`Missing material ${picture.material}`);
  if(material.sourceFormat==='FLYT'&&material.unsupported.length)throw new Error('Unsupported FLYT material fields');
  const sources=material.textureMaps.map(map=>{const name=layout.textures[map.texture],pixels=textures.get(name);if(!pixels)throw new Error(`Missing native texture ${name}`);return pixels;});
+ material=prepareFlytMaterial(material,sources.map(source=>source.picaFormat));
  const data=new Uint8ClampedArray(width*height*4),colors=picture.colors.flat();
  // Empty rasters never evaluate generators or materials in the scalar path.
  if(width<=0||height<=0)return {width,height,data};
@@ -452,6 +475,23 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
  return {width,height,data};
 }
 export type NativeWindowPatch={x:number;y:number;width:number;height:number;picture:NativePicture;material?:NativeMaterial};
+
+/** Source 4 / option 6 with identity projection and projected texture matrix:
+ * 1c8854 builds pane-fit * inverse(pane matrix); 1c993c supplies that same
+ * pane matrix, so the local result is whole-window normalized coordinates.
+ * Restrict this to the observed centred window and immutable derived patches.
+ */
+function projectFlytWindowPatches(pane:NativePane,layout:NativeLayout,patches:NativeWindowPatch[]):NativeWindowPatch[]{
+ return patches.map(patch=>{
+  const material=patch.material??layout.materials[patch.picture.material];
+  if(!material.coordinateGenerators.some(g=>g.source===4))return patch;
+  const projection=material.sourceProjections;
+  if(material.capability!=='amiibo-two-texture-v1'||pane.origin!==4||projection?.length!==1||projection[0].option!==6||projection[0].padding!=='000000'||projection[0].transform.join(',')!=='0,0,1,1'||material.coordinateGenerators.map(g=>g.source).join(',')!=='0,4'||material.textureMatrices[1]?.translation.join(',')!=='0,0'||material.textureMatrices[1]?.scale.join(',')!=='1,1'||material.textureMatrices[1]?.rotation!==0)throw new Error('Unsupported FLYT window projection');
+  const [w,h]=pane.size,u0=patch.x/w,v0=patch.y/h,u1=(patch.x+patch.width)/w,v1=(patch.y+patch.height)/h;
+  const uvSets=[patch.picture.uvSets[0]??unitUV,[u0,v0,u1,v0,u0,v1,u1,v1]];
+  return {...patch,picture:{...patch.picture,uvSets},material:{...material,sourceProjections:[],coordinateGenerators:[material.coordinateGenerators[0],{...material.coordinateGenerators[1],source:1}]}};
+ });
+}
 /** Native around-windows: one mirrored texture or four independently sampled frames. */
 export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures:ReadonlyMap<string,NativePixels>):NativeWindowPatch[] {
  const win=pane.window;if(!win)return [];
@@ -485,7 +525,7 @@ export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures
   strip(1,w-right,0,right,h-bottom,back(right,frames[1].image.width),0,1,ratio(h-bottom,frames[1].image.height));
   strip(3,left,h-bottom,w-left,bottom,back(w-left,frames[3].image.width),back(bottom,frames[3].image.height),1,1);
   strip(2,0,top,left,h-top,0,back(h-top,frames[2].image.height),ratio(left,frames[2].image.width),1);
-  return result;
+  return projectFlytWindowPatches(pane,layout,result);
  }
  const frame=win.frames[0],material=layout.materials[frame.material];
  if(frame.flip!==0)throw new Error(`Unsupported window frame flip ${frame.flip}`);
@@ -500,7 +540,7 @@ export function nativeWindowPatches(pane:NativePane,layout:NativeLayout,textures
   {x:w-tw,y:0,width:tw,height:h-th,picture:picture([1,0,0,0,1,vh,0,vh])},
   {x:tw,y:h-th,width:w-tw,height:th,picture:picture([uw,1,0,1,uw,0,0,0])},
   {x:0,y:th,width:tw,height:h-th,picture:picture([0,vh,1,vh,0,0,1,0])});
- return result;
+ return projectFlytWindowPatches(pane,layout,result);
 }
 
 /** Straight framebuffer channels, as used by the native fixed-function blend unit. */

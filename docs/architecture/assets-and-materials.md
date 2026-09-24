@@ -82,3 +82,12 @@ the renderer consumes that selection. Browser inspection proves one integrated
 scenario. Matched native evidence is still required for visual, motion and audio
 fidelity. See [verification](verification.md) and the
 [progress matrix](../progress-2026-09-24.md).
+
+FLYT amiibo material support is capability-bounded: converter 1.5.2 marks the
+traced two-texture combinations, while runtime preparation lowers them to the
+existing TEV pipeline. A8/A4 sample pixels retain format metadata so FLYT can
+apply its source-defined white RGB selector without altering CLYT semantics.
+Only the audited centered source-4/option-6 window projection is converted into
+per-patch whole-window UVs. Other selected projections remain failures. See the
+[material trace](../amiibo-material-command-trace.md); support does not imply
+public selection or native visual acceptance.

@@ -69,7 +69,7 @@ def _material(data):
         out['coordinateGenerators'].append({'type': kind, 'source': source, 'sourceExtra': extra.hex()})
         if kind != 0 or source > 2 or any(extra):
             out['unsupported'].append({'kind': 'flytCoordinateGenerator', 'type': kind, 'source': source, 'extra': extra.hex()})
-    for _ in range((flags >> 6) & 3):
+    for _ in range((flags >> 6) & 7):
         color, alpha, reserved = r.read('BBH', at); at += 4
         out.setdefault('sourceCombiners', []).append({'color': color, 'alpha': alpha, 'reserved': reserved})
         out['unsupported'].append({'kind': 'flytTextureCombiner', 'color': color, 'alpha': alpha})
@@ -98,6 +98,25 @@ def _material(data):
         out['unsupported'].append({'kind': 'flytShadowBlend'})
     if flags & ~0x3feff: out['unsupported'].append({'kind': 'flytMaterialFlags', 'flags': flags & ~0x3feff})
     if at != len(data): out['unsupported'].append({'kind': 'flytMaterialTail', 'bytes': r.bytes(at, len(data)-at).hex()})
+    # EUR amiibo 0x1cb42c: only the observed two-texture color/alpha 0/1
+    # cases, and source-4 pane-fit identity projection (0x1c85c8).
+    combiners = out.get('sourceCombiners', [])
+    generators = out['coordinateGenerators']
+    projection = out.get('sourceProjections', [])
+    plain = [entry['source'] for entry in generators] == [0, 1] and not projection
+    projected = ([entry['source'] for entry in generators] == [0, 4] and
+                 projection == [{'transform': [0.0, 0.0, 1.0, 1.0], 'option': 6, 'padding': '000000'}] and
+                 out['textureMatrices'][1:] == [{'translation': [0.0, 0.0], 'rotation': 0.0, 'scale': [1.0, 1.0]}])
+    if (flags in (106, 32874) and len(combiners) == 1 and
+            combiners[0]['color'] in (0, 1) and combiners[0]['alpha'] in (0, 1) and
+            combiners[0]['reserved'] == 0 and len(out['textureMaps']) == 2 and
+            len(out['textureMatrices']) == 2 and (plain or projected) and
+            all(matrix['rotation'] == 0 for matrix in out['textureMatrices']) and
+            all(entry['type'] == 0 and entry['sourceExtra'] == '000000000000' for entry in generators)):
+        allowed = {'flytTextureCombiner'} | ({'flytCoordinateGenerator', 'flytProjection'} if projected else set())
+        if all(issue['kind'] in allowed for issue in out['unsupported']):
+            out['capability'] = 'amiibo-two-texture-v1'
+            out['unsupported'] = []
     return out
 
 

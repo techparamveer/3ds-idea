@@ -1,5 +1,9 @@
 # Camera gallery scene reset: browser lifecycle and remaining native evidence
 
+The later [renderer generation audit](camera-scene-generation-source-audit.md)
+executes the embedded constructor/destructor and locates readiness reset in later
+control setup. Complete SceneBrowse replacement and final pixels remain open.
+
 Continuation of the [root traversal audit](camera-rebind-order-source-audit.md),
 based on `966741a`. Question: when a visitor switches away from the read-only
 Camera gallery, is the previous thumbnail-ready state cleared before the next

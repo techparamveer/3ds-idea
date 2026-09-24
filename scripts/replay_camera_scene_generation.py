@@ -213,10 +213,33 @@ def replay(code_path):
                    'beforeReady': before, 'afterReady': readiness(),
                    'releasedPointers': sorted(released),
                    'scope': 'Complete embedded renderer destructor with synthetic descriptors and control graph; no SceneBrowse replacement caller.'}
-    return {'ok': True, 'codeSha256': CODE_SHA, 'scriptVersion': 1,
+    # Exercise the three known stages on one reused address. The caller that
+    # decides to replace SceneBrowse remains outside this fixture, but this
+    # catches the dangerous assumption that construction itself clears a prior
+    # generation's consumer-ready bit.
+    phase = 'synthetic-reuse-constructor'
+    machine.mem_write(base, b'\x00' * 0x200)
+    put(base + 0x60, 1 << control)
+    put(base + 0x80, 1 << control)
+    stale_before = readiness()
+    call(0x2DE648, base, 0)
+    stale_after_constructor = readiness()
+    assert stale_after_constructor == stale_before
+    phase = 'synthetic-reuse-setup-reset'
+    machine.reg_write(UC_ARM_REG_R6, base + 0x44)
+    call(0x2D73BC, end=0x2D73F4)
+    cleared_after_reset = readiness()
+    assert all(value == '0x0' for values in cleared_after_reset.values() for value in values)
+    reuse = {'sequence': ['complete embedded destructor', 'same-address embedded constructor',
+                          'later setup reset fragment'],
+             'staleBeforeConstructor': stale_before,
+             'staleAfterConstructor': stale_after_constructor,
+             'afterReset': cleared_after_reset,
+             'scope': 'Synthetic address reuse; no SceneBrowse replacement caller, complete control setup, worker completion or pixels.'}
+    return {'ok': True, 'codeSha256': CODE_SHA, 'scriptVersion': 2,
             'directCalls': {hex(a): hex(b) for a, b in direct_calls.items()},
             'constructors': constructors, 'setupReset': setup, 'cellPrefix': cells,
-            'destruction': destruction, 'enteredFunctions': entered,
+            'destruction': destruction, 'syntheticReuse': reuse, 'enteredFunctions': entered,
             'allocatorLeaves': ['0x262340 allocate', '0x262338 free'],
             'allocations': allocations, 'releases': releases, 'rendererWrites': writes,
             'liveGate': {'permitted': False,
@@ -236,7 +259,7 @@ def main():
     result = replay(args.code)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + '\n')
-    print(json.dumps({key: result[key] for key in ('ok', 'codeSha256', 'constructors', 'setupReset', 'cellPrefix', 'destruction', 'liveGate')}))
+    print(json.dumps({key: result[key] for key in ('ok', 'codeSha256', 'syntheticReuse', 'liveGate')}))
 
 
 if __name__ == '__main__':

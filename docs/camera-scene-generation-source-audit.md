@@ -29,6 +29,7 @@ They are deliberately not presented as one native scene replacement sequence.
 | Later control setup reset | `0x2d73bc` through `0x2d73f0`, stopping before `0x2d73f4` | Clears both 64-bit readiness bitsets. This is an isolated reset fragment, not execution of the preceding control setup |
 | Cell writer's retained-history prefix | `0x2d804c` through `0x2d8108`, stopping before `0x2d810c` | Both owner flags at `+0x2237` must be nonzero before the old/current pose and ready state advance. Six combinations cover incoming ready 0/1 and either owner disabled |
 | Embedded renderer destructor | Complete `0x2de714 → 0x2cded4 → 0x2d8b94 → 0x2d6b00`, then mapping/vector cleanup | Under a supplied 64-control/descriptor graph, active control 2 is detached, its parent dirty flag clears, active control bitsets clear, retained pointers clear, and the descriptor/pose buffers reach free |
+| Synthetic same-address reuse | Complete embedded destructor, fresh `0x2de648` constructor, then reset stores `0x2d73bc–0x2d73f0` in one Unicorn instance | An explicitly seeded stale control-2 resource/consumer bit survives construction (`0x4`/`0x4`) and clears only at the later reset (`0x0`/`0x0`). This is an ordering probe, not the native SceneBrowse replacement caller |
 
 Destructor controls and descriptors are synthetic. Their direct-detachment route
 is selected explicitly. No image worker, native SceneBrowse, texture upload or
@@ -36,6 +37,10 @@ GPU service is fabricated by those tests. Allocator/free calls are recorded;
 free does not poison or unmap memory. The first constructor trial's allocations
 are not interpreted as a live previous generation. The destructor uses the
 second construction's containers with the explicitly supplied control graph.
+The same-address probe deliberately seeds the stale bit after destruction to
+test a worst-case reused address. It proves the reset's position relative to
+construction for that address. It does not show stale bits surviving native
+destruction, nor that a new SceneBrowse reaches reset before presentation.
 
 ## Where the stages belong
 
@@ -110,3 +115,12 @@ Azahar capture, photo pixel output or visual parity is claimed.
 The SSD was full; the orchestrator explicitly assigned a home-disk clone and
 artifacts for this bounded pass. Report and private disassembly scratch:
 `/Users/paramveer/CodexArtifacts/firmware-10.7.0-32E/camera-live-gate/`.
+
+The 24 September continuation adds the synthetic same-address probe above to
+`scripts/replay_camera_scene_generation.py` and a focused test. With the pinned
+Camera executable, the probe passes and writes
+`synthetic-reuse-replay.json` in the same private artifact directory. It
+narrows a future verifier requirement: prove the real replacement caller runs
+complete control setup, including the reset, before any new-generation request
+or presentation. It does not close the independent photo-pixel gate or license
+live strip wiring. No browser or native LCD comparison was made in this worker.

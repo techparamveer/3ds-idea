@@ -16,7 +16,7 @@ const settingsMenus:Record<string,readonly Choice[]>={
  * Resource files do not establish the executable page order. */
 export const settingsOtherPages:readonly (readonly Choice[])[]=[
   [['profile','Profile'],['clock','Date & Time'],['touch','Touch Screen']],
-  [['sound','Sound'],['mic','Mic Test'],['calibration-3d','3D Calibration']],
+  [['calibration-3d','3D Calibration'],['sound','Sound'],['mic','Mic Test']],
   [['outer-cameras','Outer Cameras'],['circle-pad','Circle Pad'],['transfer','System Transfer']],
   [['language','Language'],['update','System Update'],['format','Format System Memory']],
 ];

@@ -37,7 +37,7 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
       if(page>0)result.push(target('settings-previous',0,65,30,100));
       if(page<3)result.push(target('settings-next',290,65,30,100));
     }
-    if(view.footer.left)result.push(target(view.footer.left.action,0,208,120,32));
+    if(view.footer.left)result.push(target(view.footer.left.action,0,208,screen==='detail'&&view.data?.field==='ds-profile'?320:120,32));
     return result;
   }else if(appId==='eshop'){
     return [target('back',85,193,150,33)];

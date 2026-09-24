@@ -113,3 +113,9 @@ test('Date and Time targets match the original large B_L buttons',()=>{
  assert.equal(hit(clock,28,123),'time');assert.equal(hit(clock,291,188),'time');
  assert.equal(hit(clock,160,189),null);assert.equal(hit(clock,27,60),null);
 });
+
+test('DS Profile uses its full-width legacy Back footer while its read-only rows remain inert',()=>{
+ const v={...view('system-settings','detail',[]),data:{field:'ds-profile'}};
+ for(const x of [0,160,319])assert.equal(hit(v,x,226),'back');
+ assert.equal(hit(v,160,88),null);assert.equal(hit(v,160,148),null);assert.equal(hit(v,160,207),null);
+});

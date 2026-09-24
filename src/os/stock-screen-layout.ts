@@ -12,6 +12,14 @@ export const soundNextPlaybackMode:Record<SoundPlaybackMode,{repeat:string;shuff
  * SwitchDouble→SwitchUp→SwitchDown. See docs/native-notes-switch-source-audit.md.
  */
 export type NotesCaptureView='double'|'up'|'down';
+/** Source Switch clips have frames 0–25. The browser samples at nominal 60 Hz;
+ * this is not a measurement of native wall-clock timing. */
+export const NOTES_SWITCH_LAST_FRAME=25;
+export const NOTES_SWITCH_DURATION_MS=NOTES_SWITCH_LAST_FRAME*1000/60;
+export function notesSwitchFrame(state:Readonly<Record<string,JsonValue|undefined>>):number{
+  const elapsed=state.captureSwitchElapsed;
+  return typeof elapsed==='number'&&Number.isFinite(elapsed)?Math.min(NOTES_SWITCH_LAST_FRAME,Math.max(0,Math.floor(elapsed*60/1000+1e-8))):NOTES_SWITCH_LAST_FRAME;
+}
 export const notesCaptureView=(state:Readonly<Record<string,JsonValue|undefined>>):NotesCaptureView=>state.captureView==='up'||state.captureView==='down'?state.captureView:'double';
 export const notesNextCaptureView:Record<NotesCaptureView,NotesCaptureView>={double:'up',up:'down',down:'double'};
 

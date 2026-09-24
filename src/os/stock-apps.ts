@@ -3,7 +3,7 @@ import { helperSelectorSources, helperTitle, helperView, isHelperTitle } from '.
 import { browserBack, browserChoices, browserHeading, browserNavigate, browserPageEntry, browserText } from './stock-browser-navigation.ts';
 import { settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
 import { healthDocumentPageCounts } from './stock-health-layout.ts';
-import { notesCaptureView, notesNextCaptureView, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
+import { notesCaptureView, notesNextCaptureView, notesSwitchFrame, NOTES_SWITCH_LAST_FRAME, NOTES_SWITCH_DURATION_MS, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
 
 const str = (value: JsonValue | undefined, fallback = '') => typeof value === 'string' ? value : fallback;
@@ -126,7 +126,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (action === 'back') {
       if (id === 'sound' && state.mediaError === true) return { state: { ...state, mediaError: false } };
       if (screen !== 'main') {
-        if ((id === 'game-notes' || id === 'memo') && screen === 'drawing') return { state: withScreen(state, 'main', { selection: bounds(num(state.slot), 15) }) };
+        if ((id === 'game-notes' || id === 'memo') && screen === 'drawing') return { state: withScreen(state, 'main', { selection: bounds(num(state.slot), 15), ...(id === 'game-notes' ? { captureSwitchElapsed: NOTES_SWITCH_DURATION_MS } : {}) }) };
         if (id === 'system-settings') return { state: settingsBack(state) };
         if (id === 'browser') return { state: browserBack(state) };
         if (isHelperTitle(id)) {
@@ -185,7 +185,11 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     // Source B_BtnSwitch cycles the suspended-LCD display Double→Up→Down→Double for the current applet session only.
     // Adaptation: native sets the button Invalid without a suspended title; the pure reducer cannot see the slot, so the
     // hidden mode still cycles there while the painter shows the source Invalid pose and no capture.
-    if (id === 'game-notes' && screen === 'drawing' && action === 'switch') return { state: { ...state, captureView: notesNextCaptureView[notesCaptureView(state)] } };
+    if (id === 'game-notes' && screen === 'drawing' && action === 'switch') {
+      // ImageScreenUp 0x168454 releases MemoWriteDown's switch only when the clip finishes.
+      if (notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME) return { state };
+      return { state: { ...state, captureView: notesNextCaptureView[notesCaptureView(state)], captureSwitchElapsed: 0 } };
+    }
     // Unknown/stale actions cannot open hidden flows or mutate saved data.
     if (!rows(state, context).some(item => item.id === action && !item.disabled)) return { state };
     if (id === 'system-settings') {
@@ -202,6 +206,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   function view(state: AppState, context: AppContext): AppView {
     const screen = str(state.screen, 'main'), options = rows(state, context), selection = bounds(num(state.selection), options.length - 1), text: string[] = [];
     const data: AppState = { ...state, settings: context.shared.settings ?? {} };
+    if (id === 'game-notes' && screen === 'drawing') { data.captureSwitchFrame = notesSwitchFrame(state); delete data.captureSwitchElapsed; }
     if (cameraTitles.has(id)) {
       data.folders = media.folders.map(item => ({ ...item, photos: item.photos.map(photo => ({ ...photo })) }));
       data.photos = (folder(state)?.photos ?? []).map(item => ({ ...item })); data.photo = photo(state) ? { ...photo(state)! } : null;
@@ -236,6 +241,13 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0 } : {}) };
     },
     reduce(state, event, context) {
+      if (id === 'game-notes' && state.screen === 'drawing') {
+        if (event.type === 'tick' && Number.isFinite(event.elapsedMs) && event.elapsedMs > 0 && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)
+          return { state: { ...state, captureSwitchElapsed: Math.min(NOTES_SWITCH_DURATION_MS, num(state.captureSwitchElapsed) + event.elapsedMs) } };
+        // Leave a settled display when the applet resumes; do not let a paused transition hold the control.
+        if (event.type === 'lifecycle' && ['suspend', 'sleep'].includes(event.phase) && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)
+          return { state: { ...state, captureSwitchElapsed: NOTES_SWITCH_DURATION_MS } };
+      }
       if (event.type === 'lifecycle') return id === 'sound' && track(state) && ['suspend', 'sleep', 'close'].includes(event.phase) ? music(state, 'pause', { playing: false }) : { state };
       if (event.type === 'action') return activate(state, event.id, context, event.value);
       if (event.type === 'touch') {

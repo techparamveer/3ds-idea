@@ -17,7 +17,7 @@ import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
-export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture};
+export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean};
 const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const records=(v:JsonValue|undefined):MediaRecord[]=>Array.isArray(v)?v.map(record):[];
 const string=(v:JsonValue|undefined)=>typeof v==='string'?v:'';
@@ -167,7 +167,7 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
 }
 
 /** One foreground session; asynchronous resources never outlive its owner. */
-export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number}={}){
+export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number;reducedMotion?:()=>boolean}={}){
   let revision=0,painted='',paintedFont:BitmapFont|undefined,complete=false;
   const changed=()=>{revision++;options.onChange?.();};
   const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:state=>{if(state.status==='ready'||state.status==='error')clearDeadline();changed();}});
@@ -235,7 +235,8 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       if(disposed)return false;
       // Pixels stay out of the key; one frozen capture has one generation.
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
-      const state=prepare(view,nextOwner,font),key=JSON.stringify([nextOwner,view,revision,capture]);
+      const reducedMotion=options.reducedMotion?.()??false;
+      const state=prepare(view,nextOwner,font),key=JSON.stringify([nextOwner,view,revision,capture,reducedMotion]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();
@@ -243,13 +244,13 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||state.status==='ready'){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
           }catch(error){fail(error);recovery();}
         }
         // Only publish after both native surfaces succeed, or after both were
         // replaced with the pending/error pair. Never expose a partial draw.
-        painted=JSON.stringify([nextOwner,view,revision,capture]);paintedFont=font;
+        painted=JSON.stringify([nextOwner,view,revision,capture,reducedMotion]);paintedFont=font;
       }
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
       if(failure)recoveryPublished=true;

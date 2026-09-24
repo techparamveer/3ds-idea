@@ -4,8 +4,7 @@ Game Notes' selected note shows the suspended application's frozen LCDs
 ([capture validation](native-notes-suspended-capture.md)). The initial mode,
 the `B_BtnSwitch` control and the Up/Down modes were untraced. This audit
 establishes them from the EUR executable and the source layout/animation
-resources, and records the bounded correction built on them. It does not
-animate the transitions, and no firmware was executed.
+resources, and records the bounded correction built on them. The follow-up below animates the source Switch clips; no firmware was executed.
 
 ## Reproducible evidence
 
@@ -105,9 +104,54 @@ Invalid pose; a new launch starts at Double either way.
 
 ## Not established
 
-- The 25-frame slide of each Switch clip, the button `Select`/`Decide`
-  animations and the two switch sounds are not reproduced.
+- The source Switch poses now animate as described below. The button
+  `Select`/`Decide` animations and the two switch sounds are not reproduced.
 - HUD events 7/8 (`HudDoubleInOut`, `HudUpInOut`, `HudDownInOut`) and the
   software-title panel (`W_TextPanel`, `P_ObjIcnUp00/Down00`, `TextPanelInOut`
   /`Stay`) remain hidden; their timing and inputs are untraced.
 - No matched Azahar/native LCD comparison of these modes has been performed.
+
+
+## Switch motion follow-up (24 September 2026)
+
+`stock-apps.ts` now advances an in-memory `captureSwitchElapsed` from zero on
+an accepted switch to source frame 25, using the existing foreground tick path.
+`notesSwitchFrame` quantizes elapsed time at nominal 60 Hz and clamps the last
+frame; this frequency is a browser adaptation, not measured native latency.
+Further switch taps are ignored until completion. The source update branches
+at `0x1684d4` (Up), `0x1684f0` (Down), and `0x168530` (Double) wait on the
+matching clip before sending scene 2 event 2; that establishes the bounded
+release order, not whole-applet scheduler equivalence.
+
+The actual source `ImageScreenUp_Switch*` tracks now supply the intermediate
+pane geometry and visibility. They continue to use the frozen paired capture;
+there is no interpolation invented by the browser painter. Lower note chrome
+and saved strokes remain unchanged. Back, sleep and suspend settle the display
+mode so a reopened note cannot retain a partly played transition; this is an
+explicit browser lifecycle adaptation. The initial mode and the session-persistent
+Double → Up → Down order remain unchanged, and none of this is saved.
+
+Reduced motion flows from `createScreens` through portfolio and stock presentation
+to the painter. It paints frame 25 immediately while preserving the same bounded
+input release time. The presentation cache includes that preference, so changing
+it invalidates the visible pair even when no app state changes.
+
+The HUD and software-title panel remain hidden: the existing static evidence
+lists their clips/events but does not yet establish the input/timing conditions.
+This change does not infer them from clip names.
+
+Verification artifacts live under `reference/notes-switch-motion-render/` in the
+firmware artifact root. The actual painter renders all three source clips at
+frames 0, 6, 12, 18 and 25, checks frame-0 chaining and frame-25 endpoints,
+checks unchanged lower pixels, verifies reduced motion equals the settled target,
+and reports no resource/render diagnostics. These synthetic quadrant sheets
+establish source-pose consumption and orientation, not a native LCD comparison.
+`tests/notes-capture-switch.test.mjs` checks intermediate timing, repeat-tap
+blocking, finite deltas, endpoint stability and lifecycle settling. Browser
+inspection remains the coordinator's integration step; strict 1:1 is unproven.
+
+Worker checks: 11 focused Notes tests pass, the full suite reports 1,165 passes
+and 19 skips with zero failures, TypeScript checking passes, and the production
+build passes. Logs: `reference/notes-switch-motion-{focused,tests,build}.log`.
+The worktree's initial external `node_modules` symlink was rejected by Turbopack;
+the successful build used a local APFS clone of the integration dependencies.

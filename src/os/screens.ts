@@ -253,7 +253,7 @@ export function createScreens(options: { font?: BitmapFont; reducedMotion?: bool
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
  const output=top.getContext('2d')!,t=native.getContext('2d')!,b=bottom.getContext('2d')!;
- const graphics=createPortfolioGraphics();const chrome=createNativeChrome();
+ const graphics=createPortfolioGraphics({reducedMotion:()=>reduced});const chrome=createNativeChrome();
  const sprite=new Image();sprite.src='/os/home-toolbar.png';
  const themeSprite=new Image();themeSprite.src='/os/change-theme.png';
  const shopSprite=new Image();shopSprite.src='/os/theme-shop.png';

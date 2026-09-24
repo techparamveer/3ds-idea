@@ -134,6 +134,12 @@ canvases only after that instance paints a complete foreground pair, before host
 overlays; HOME, applets, loading/recovery and sleep cannot record. Closing or
 replacing the instance frees it. See [suspended capture](../native-notes-suspended-capture.md).
 
+Game Notes' display switch samples the source Switch clips from its foreground
+tick state (nominal browser 60 Hz, not measured native timing), blocks another
+switch until frame 25, and settles on Back/sleep/suspend. Reduced motion is a
+presentation-only endpoint override passed from the screen owner; it participates
+in the paired-screen cache key. See [switch audit](../native-notes-switch-source-audit.md).
+
 Both logical LCDs are painted before publication. Stock screen pairs cache by
 owner, view, revision and font; image completions invalidate the pair. Camera's
 upper photo composition, Health pagination, read-only Browser fields and several

@@ -21,8 +21,8 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
  for(const word of value.split(' ')){const next=row?`${row} ${word}`:word;if((nativeFonts.has(c)?measureBitmapText(nativeFonts.get(c)!.manifest,next,size).width:c.measureText(next).width)>width&&row){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
-export function createPortfolioGraphics(){
- const stockScreens=createStockScreenPresentation(),suspendedCapture=createSuspendedApplicationCapture();
+export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={}){
+ const stockScreens=createStockScreenPresentation({reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture();
  function syncStockView(state:MenuState,context?:C){
   if(state.system)suspendedCapture.sync(state.system.runtime);
   const s=state.system,owner=s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog?s.runtime.active:null;

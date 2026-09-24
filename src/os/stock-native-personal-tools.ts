@@ -4,7 +4,7 @@ import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 import type { SuspendedCapture } from './notes-suspended-capture';
 import { nativeMessageOverride, type PaneOverrides } from './native-layout';
-import { notesCaptureView } from './stock-screen-layout';
+import { notesCaptureView, NOTES_SWITCH_LAST_FRAME } from './stock-screen-layout';
 
 const notesPrefix='packs/game-notes/';
 export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
@@ -63,7 +63,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
     return okay;
   }
   if(initialFriendView(view)||(view.appId==='friends'&&view.screen==='profile'))return drawFriendFrame(renderer,top,bottom,view,options);
-  if(view.appId==='game-notes'&&view.screen==='drawing')return drawSelectedNote(renderer,top,bottom,view,options.suspendedCapture);
+  if(view.appId==='game-notes'&&view.screen==='drawing')return drawSelectedNote(renderer,top,bottom,view,options.suspendedCapture,options.reducedMotion);
   if(view.appId!=='game-notes'||view.screen!=='main')return false;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['notes-messages'],'message',label,'');
   const selection=Math.max(0,Math.min(15,Math.floor(view.selection))),column=selection%4,row=Math.floor(selection/4);
@@ -117,7 +117,7 @@ function drawFriendFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContex
 }
 
 /** Source selected-note chrome around the existing, immutable legacy stroke data. */
-function drawSelectedNote(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,capture:SuspendedCapture={status:'none'}):boolean{
+function drawSelectedNote(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,capture:SuspendedCapture={status:'none'},reducedMotion=false):boolean{
   const message=(label:string)=>nativeMessageOverride(renderer.packs['notes-messages'],'message',label,'');
   let okay=renderer.draw(top,'notes-upper','Bg_U_00');
   if(capture.status==='none')okay=renderer.draw(top,'notes-image','ImageScreenUp',{bindings:[{name:'ImageScreenUp_PanelNoGameIn',frame:20}],overrides:{
@@ -127,14 +127,14 @@ function drawSelectedNote(renderer:NativeLayoutRenderer,top:CanvasRenderingConte
     W_TextPanel:{visible:false},P_IconSwitch:{visible:false},P_Mask:{visible:false},N_BtnMemoUp:{visible:false},
   }})&&okay;
   else{
-    // Settled endpoint (frame 25) of the source Switch clip for the session's mode: the ImageScreenUp
-    // constructor starts at Double and B_BtnSwitch cycles Double→Up→Down (code.bin 0x168880, 0x163754).
-    // The 25-frame slide between modes is not animated. PanelGameIn is the memo-to-upper
+    // Sample the source Switch clip at the reducer's bounded frame; initial/reduced-motion views settle.
+    // ImageScreenUp starts at Double and B_BtnSwitch cycles Double→Up→Down (0x168880, 0x163754).
+    // PanelGameIn is the memo-to-upper
     // transition, so N_BtnMemoUp stays hidden. Only the left-eye pane is exposed.
     const hidden={visible:false};
     const textures=capture.status==='ready'?{[captureUpperTexture]:capture.upper,[captureLowerTexture]:capture.lower}:undefined;
     const clip={double:'ImageScreenUp_SwitchDouble',up:'ImageScreenUp_SwitchUp',down:'ImageScreenUp_SwitchDown'}[notesCaptureView(view.data??{})];
-    okay=renderer.draw(top,'notes-image','ImageScreenUp',{bindings:[{name:clip,frame:25}],textures,overrides:{
+    okay=renderer.draw(top,'notes-image','ImageScreenUp',{bindings:[{name:clip,frame:!reducedMotion&&typeof view.data?.captureSwitchFrame==='number'&&Number.isFinite(view.data.captureSwitchFrame)?Math.max(0,Math.min(NOTES_SWITCH_LAST_FRAME,view.data.captureSwitchFrame)):NOTES_SWITCH_LAST_FRAME}],textures,overrides:{
       T_TextList:hidden,T_TextWrite:hidden,P_Mask:hidden,N_BtnMemoUp:hidden,W_TextPanel:hidden,P_ScreenUpR:hidden,
       // Missing pixels are not "no suspended software", and are never invented.
       ...(textures?{P_ScreenUpL:{textureBindings:{0:captureUpperTexture}},P_ScreenDown:{textureBindings:{0:captureLowerTexture}}}

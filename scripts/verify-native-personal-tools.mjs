@@ -41,7 +41,7 @@ export async function verifyPersonalTools(options){
   // notes-suspended renders the three source Switch modes with a capture, then Double again without suspended software.
   const captureModes=['double','up','down'];
   const views=options.title==='notes-selected'?[base,{...base,data:{slot:15,strokes:[{color:'black',points:[[35,45],[120,130],[205,45]]},{color:'red',points:[[38,150],[200,150]]},{color:'blue',points:[[240,40],[240,180]]},{color:'eraser',points:[[90,140],[90,160]]},{color:'red',points:[[-20,225],[340,225]]}]}}]:options.title==='notes-suspended'?[...captureModes,'double'].map(captureView=>({...base,data:{...base.data,captureView}})):options.title==='friends-profile'?[base,{...base,data:{settings:{nickname:'Ada'},message:'Existing saved message'}}]:options.title==='notes'?[0,1,4,15].map(selection=>({...base,selection})):[base];
-  const sourceJson=JSON.stringify(assets.renderer.packs),viewJson=JSON.stringify(views),reports=[],sheet=createCanvas(400*views.length,480),sheetContext=sheet.getContext('2d');
+  const sourceJson=JSON.stringify(assets.renderer.packs),viewJson=JSON.stringify(views),reports=[],motionReports=[],sheet=createCanvas(400*views.length,480),sheetContext=sheet.getContext('2d');
   const red=[255,0,0],green=[0,255,0],blue=[0,0,255],white=[255,255,255];
   // Settled frame 25 of each source clip; upper LCD coordinates.
   const orientation={
@@ -67,6 +67,25 @@ export async function verifyPersonalTools(options){
   if(options.title==='notes-suspended'){
    assert.equal(new Set(reports.slice(0,3).map(r=>r.topSha256)).size,3,'Double, Up and Down settle to distinct upper LCDs');
    assert.equal(new Set(reports.slice(0,3).map(r=>r.bottomSha256)).size,1,'the mode does not change the lower LCD while software is suspended');
+   // Render source motion samples through the actual painter, including reduced-motion override.
+   for(const [modeIndex,captureView] of captureModes.entries()){
+    const motionSheet=createCanvas(400*5,240),motionContext=motionSheet.getContext('2d'),hashes=[];
+    for(const [index,frame] of [0,6,12,18,25].entries()){
+     const view={...base,data:{...base.data,captureView,captureSwitchFrame:frame}};
+     const top=createCanvas(400,240),bottom=createCanvas(320,240);
+     const draw=reducedMotion=>drawNativePersonalToolFrame(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font,suspendedCapture,reducedMotion});
+     assert.equal(draw(false),true);motionContext.drawImage(top,index*400,0);
+     const hash=()=>createHash('sha256').update(top.getContext('2d').getImageData(0,0,400,240).data).digest('hex');
+     hashes.push(hash());
+     assert.equal(createHash('sha256').update(bottom.getContext('2d').getImageData(0,0,320,240).data).digest('hex'),reports[modeIndex].bottomSha256);
+     assert.equal(draw(true),true);assert.equal(hash(),reports[modeIndex].topSha256,'reduced motion always uses the settled target');
+    }
+    assert.equal(hashes[0],reports[(modeIndex+2)%3].topSha256,'first frame equals the previous display mode');
+    assert.equal(hashes[4],reports[modeIndex].topSha256,'last frame equals the settled target');
+    assert.ok(new Set(hashes).size>2,'intermediate source frames are visible');
+    writeFileSync(join(out,'switch-motion-'+captureView+'.png'),motionSheet.toBuffer('image/png'));
+    motionReports.push({captureView,frames:[0,6,12,18,25],hashes});
+   }
    // Without suspended software the source Invalid clip greys only the switch button (B_BtnSwitch x230-274,y212-240; P_BtnSwitch 46 wide).
    const ready=reports[0].bottomBytes,none=reports[3].bottomBytes;let inside=0,outside=0;
    for(let y=0;y<240;y++)for(let x=0;x<320;x++){const i=(y*320+x)*4;const differs=ready[i]!==none[i]||ready[i+1]!==none[i+1]||ready[i+2]!==none[i+2]||ready[i+3]!==none[i+3];if(!differs)continue;if(x>=228&&x<276&&y>=212)inside++;else outside++;}
@@ -79,7 +98,7 @@ export async function verifyPersonalTools(options){
   assert.deepEqual(assets.renderer.diagnostics,[]);
   assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
   writeFileSync(join(out,'contact-sheet.png'),sheet.toBuffer('image/png'));
-  const report={passed:true,sourceHashes,reports,diagnostics:assets.diagnostics,gaps:['Native components are composed for read-only portfolio navigation; no note editing.',suspendedCapture?'Suspended-screen pixels are a synthetic quadrant pattern, not an application frame. Modes are settled clip endpoints (frame 25); the 25-frame Switch transitions, HUD in/out and switch sounds are not rendered.':'No suspended application capture is supplied in this render.','Source resource renders are not matched native LCD captures.']};
+  const report={passed:true,sourceHashes,reports,motionReports,diagnostics:assets.diagnostics,gaps:['Native components are composed for read-only portfolio navigation; no note editing.',suspendedCapture?'Suspended-screen pixels are a synthetic quadrant pattern, not an application frame. Switch clips are sampled at 0, 6, 12, 18 and 25; HUD in/out and switch sounds are not rendered. Native timing is unverified.':'No suspended application capture is supplied in this render.','Source resource renders are not matched native LCD captures.']};
   writeFileSync(join(out,'verification.json'),JSON.stringify(report,null,2)+'\n');return report;
  }finally{assets?.dispose();font?.dispose();globalThis.fetch=oldFetch;if(previousDocument)Object.defineProperty(globalThis,'document',previousDocument);else delete globalThis.document;}
 }

@@ -53,9 +53,14 @@ It has no own animation clips. Do not invent a list or form on this page.
 The PIN warning says that forgetting both PIN and secret answer requires a
 master key to remove restrictions. The following message says to choose a
 four-digit PIN. These dialog scene records contain **no layout names**;
-`dlg_2b_ok` alone does not establish a two-button layout. Common-dialog resource
-selection requires its own executable trace before a painter can claim native
-composition.
+`dlg_2b_ok` alone does not establish a two-button layout. The subsequent common-dialog trace resolves header byte zero through
+`0x2039e0–0x2039f8` to factory parameter +4. The factory at
+`0x1d1df4–0x1d1df8` indexes pointer table `0x297754`; value one selects
+`Dialog_D_01` (entry `0x297758`, string `0x28c52b`). This is one full-width
+button. It shares `Dialog_D_02_FadeIn`, `FadeOut00/01`, `Select` and `Decide`
+clips and uses `DlgMask_D_00`. Body and label panes are `TextBoxDialog_00`
+and `TextBox_00` / `TextBoxShdw_00`. Upper-mask handling and final native
+layer composition remain presentation validation responsibilities.
 
 At `0x210a1c–0x210a80`, the executable tests bit zero in loaded parental data and
 chooses `pare_change` or `pare_new_set`. `pare_change` uses `PareTop_D_01`,
@@ -159,3 +164,19 @@ write parental settings or start a keyboard/network operation.
 Verification here is static source inspection and successful report generation.
 Native browser verification of any subsequently implemented screen remains a
 separate requirement; this audit is not a visual-fidelity sign-off.
+
+## Implemented navigation boundary
+
+The reducer now uses `parental-explain` rows `next` / `back`, labelled Next /
+Back. `parental-pin-notice` exposes only action `back`, visually labelled OK.
+A/OK and B dismiss the warning to the explanation with Next selected. Back
+from the explanation restores Set on the intro. Left/right select the two
+explanation footer ends; up/down retain selection. This dismissal is the
+explicit portfolio adaptation described above, not the native continuation.
+The old restrictions implementation is retained but no longer reachable from
+Set. No parental values, secrets or other shared data are created or saved.
+
+Runtime delivery requires the matching explanation and PIN notice painters and
+source packs. The reducer tests cover the route, dismissal, forbidden
+configuration actions, selection restoration and lack of shared-data writes.
+They do not establish rendered appearance or touchscreen alignment.

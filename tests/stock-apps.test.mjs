@@ -180,16 +180,25 @@ test('Settings exposes source-labelled Internet/Data/Profile branches and return
   assert.equal(module.view(back,ctx).rows[back.selection].id,path.at(-1));
  }
 });
-test('Parental intro explores restrictions without creating a configured profile or PIN flow',()=>{
- const {module}=setup('system-settings');let state=action(module,module.create({},null,ctx),'parental').state;
- assert.deepEqual(module.view(state,ctx).rows.map(row=>row.id),['next','back']);assert.ok(module.view(state,ctx).text.length);
- state=action(module,state,'next').state;assert.equal(state.screen,'restrictions');assert.equal(module.view(state,ctx).rows.length,11);
- for(const row of module.view(state,ctx).rows){
-  const detail=action(module,state,row.id);assert.deepEqual(detail.effects??[],[]);assert.equal(detail.state.screen,'detail');
-  assert.ok(module.view(detail.state,ctx).text[0]);assert.equal(action(module,detail.state,'back').state.screen,'restrictions');
- }
- assert.equal(action(module,state,'back').state.screen,'parental');
- assert.equal(action(module,state,'change-pin').state,state);assert.deepEqual(module.save(state),{});
+test('Parental Set follows source explanation and PIN notice without entering configuration',()=>{
+ const {module}=setup('system-settings'),before=structuredClone(ctx.shared);
+ let state=action(module,module.create({},null,ctx),'parental').state;
+ assert.deepEqual(module.view(state,ctx).rows.map(row=>[row.id,row.label]),[['next','Set'],['back','Back']]);
+ state=action(module,state,'next').state;assert.equal(state.screen,'parental-explain');
+ assert.deepEqual(module.view(state,ctx).rows.map(row=>[row.id,row.label]),[['next','Next'],['back','Back']]);
+ const explanation=state;
+ state=module.reduce(state,{type:'command',command:'open'},ctx).state;assert.equal(state.screen,'parental-pin-notice');
+ assert.deepEqual(module.view(state,ctx).rows.map(row=>[row.id,row.label]),[['back','OK']]);
+ assert.ok(module.view(state,ctx).text[0].includes('master key'));
+ for(const id of ['next','set','change-pin','restrictions','submit','rating'])assert.deepEqual(action(module,state,id),{state});
+ // A/source OK is a documented portfolio dismissal boundary, never PIN setup.
+ const dismiss=module.reduce(state,{type:'command',command:'open'},ctx);
+ assert.deepEqual(dismiss.effects??[],[]);assert.deepEqual(dismiss.state,explanation);
+ const back=module.reduce(state,{type:'command',command:'back'},ctx);
+ assert.deepEqual(back.state,explanation);assert.deepEqual(back.effects??[],[]);
+ const intro=action(module,explanation,'back').state;
+ assert.equal(intro.screen,'parental');assert.equal(module.view(intro,ctx).rows[intro.selection].label,'Set');
+ assert.deepEqual(module.save(state),{});assert.deepEqual(ctx.shared,before);
 });
 test('Other Settings pages bound directions and preserve page plus selection after leaf Back',()=>{
  const {module}=setup('system-settings');let state=action(module,module.create({},null,ctx),'other').state;
@@ -334,9 +343,11 @@ test('Settings-launched helper main Back retains the current HOME behavior',()=>
  }
 });
 
-test('Parental footer follows its horizontal Back and Set arrangement',()=>{
- const {module}=setup('system-settings');let state=action(module,module.create({},null,ctx),'parental').state;
- assert.equal(module.view(state,ctx).rows[0].label,'Set');
+test('Parental intro and explanation footers follow their horizontal Back and forward arrangement',()=>{
+ for(const screen of ['parental','parental-explain']){
+ const {module}=setup('system-settings');let state={screen,selection:0};
+ assert.equal(module.view(state,ctx).rows[0].label,screen==='parental'?'Set':'Next');
  const move=command=>{state=module.reduce(state,{type:'command',command},ctx).state;return module.view(state,ctx).rows[state.selection].id;};
  assert.equal(move('left'),'back');assert.equal(move('up'),'back');assert.equal(move('right'),'next');assert.equal(move('down'),'next');
+ }
 });

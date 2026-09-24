@@ -79,7 +79,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       const next = current.rows.findIndex(item => item.id === nextId);
       return next < 0 ? selected : next;
     }
-    if (id === 'system-settings' && current.screen === 'parental') {
+    if (id === 'system-settings' && ['parental', 'parental-explain'].includes(current.screen)) {
       const nextId = direction === 'left' ? 'back' : direction === 'right' ? 'next' : undefined;
       const next = current.rows.findIndex(item => item.id === nextId);
       return next < 0 ? selected : next;

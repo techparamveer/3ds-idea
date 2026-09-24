@@ -70,11 +70,14 @@ buttons are drawn but inert. See
 adaptations and open gaps.
 Source animation frames are settled snapshots, not a claim of native scheduling.
 Health consumes the source upper background/title, three precaution buttons,
-reading frame, footer and exact English messages. The menu hit regions match
-the native button bounds. Documents use eight source lines per page with base
-message styles; the shared counts are 12/44/27 pages for 3D/general/usage.
-Verification checks those counts against delivered text. Rich inline message
-runs and native continuous scrolling remain explicit adaptations.
+reading frame, SlideBar, Back bar and exact English messages. The menu hit
+regions match the native button bounds. Articles scroll continuously: a pure
+VBlank model reproduces the replayed touch drag/inertia, SlideBar thumb/groove
+and held keys, and the painter draws the replayed rich glyph layout, warning
+icons and SlideBar in source order. The verifier recomputes rows 95/334/208
+from the delivered messages. See the
+[touch and SlideBar audit](health-touch-scroll-source-audit.md) for adaptations
+and the silent boundary/row-tick sounds.
 Browser assembles the source StartDialog and six button children at their native
 mounts, with matching touch regions and English message labels. Its
 outer dialog frame now uses its original four source textures with horizontal,

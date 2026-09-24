@@ -15,11 +15,12 @@ export const healthScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'btmbtn.json',alias:'health-back',layouts:['BtmBtn_White'],animations:['BtmBtn_White_SceneIn']},
   {url:prefix+'messages-and-loose.json',alias:'health-messages',layouts:[],animations:[]},
 ];
-/** Controller 0x12894c stretches the bar to N_SlideBar_00's 152px; scrollbar 0x155664 sizes the thumb for >45 rows. */
-const slideBarSizes:PaneOverrides={SBBaseWndw:{size:[16,176]},SBBaseLine_00:{size:[8,152]},B_Groove_00:{size:[16,176]},B_Slide_00:{size:[24,22]}};
+/** Controller 0x12894c stretches the bar to N_SlideBar_00's 152px and, past the 8-row viewport,
+ * shows the base line and thumb (0x15504c); scrollbar 0x155664 sizes the thumb for >45 rows. */
+const slideBarSizes:PaneOverrides={SBBaseWndw:{size:[16,176]},SBBaseLine_00:{size:[8,152],visible:true},B_Groove_00:{size:[16,176]}};
 const layouts=new Map<string,HealthArticleLayout>();
-/** TextArea_00 box, top-centre origin at [-10,92] and 284px wide, in the attachment's layout frame. */
-const TEXT_LEFT=160-10-142,TEXT_TOP=120;
+/** TextArea_00 box in its attachment frame: the pane point is the layout centre; top-centre origin, 284px wide. */
+const TEXT_LEFT=160-142,TEXT_TOP=120;
 
 /** Unclipped article glyphs (0x14b3ec emits no scissor), drawn between the text panes and warning icons. */
 function paintArticle(ctx:CanvasRenderingContext2D,font:BitmapFont,glyphs:readonly HealthGlyph[],material:NativeMaterial,alpha:number){
@@ -86,7 +87,7 @@ export function drawNativeHealthFrame(renderer:NativeLayoutRenderer,top:CanvasRe
     draw(bottom,'health-pages','SafeText_D_00',{bindings:[{name:'SafeText_D_00_SceneIn',frame:20}],overrides,attachments:{
       TextArea_00:alpha=>paintArticle(bottom,font,articleGlyphs,material,alpha),
       N_SlideBar_00:()=>draw(bottom,'health-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:article.selectFrame}],
-        overrides:{...slideBarSizes,B_Slide_00:{size:[24,22],translation:[0,article.thumbY,0]},N_Slide_00:{translation:[0,article.thumbY,0]}}}),
+        overrides:{...slideBarSizes,B_Slide_00:{size:[24,22],translation:[0,article.thumbY,0]},N_Slide_00:{visible:true,translation:[0,article.thumbY,0]}}}),
     }});
     draw(bottom,'health-back','BtmBtn_White',{bindings:[{name:'BtmBtn_White_SceneIn',frame:20}],overrides:{T_BtnB_00:message('back'),T_BtnF_00:message('back')}});
   }else return false;

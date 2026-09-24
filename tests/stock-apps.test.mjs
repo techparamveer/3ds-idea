@@ -4,6 +4,7 @@ import { createStockModule,initialSharedData } from '../src/os/stock-apps.ts';
 import { getTitle,stockTitles,getAppModule } from '../src/os/app-registry.ts';
 import { portfolioMedia } from '../src/os/portfolio-media.ts';
 import { apps } from '../src/os/apps.ts';
+import { HEALTH_VBLANK_HZ } from '../src/os/stock-health-scroll.ts';
 import { createAppRuntime,startApplication,dispatchRuntime,showRuntimeHome,resumeRuntimeApplication,closeApplication,activeInstance,setRuntimeSleeping } from '../src/os/app-host.ts';
 const ctx={now:0,shared:initialSharedData()};
 const media={folders:[{id:'test',title:'Test fixture',photos:[{id:'a',title:'A',src:'/fixture/a.jpg'},{id:'b',title:'B',src:'/fixture/b.jpg'}]}],tracks:[{id:'a',title:'A',src:'/fixture/a.mp3',duration:100},{id:'b',title:'B',src:'/fixture/b.mp3',duration:200},{id:'c',title:'C',src:'/fixture/c.mp3',duration:300}]};
@@ -151,19 +152,44 @@ test('photo and playback left/right still browse media instead of moving row sel
  state=module.reduce(state,{type:'command',command:'left'},ctx).state;assert.equal(state.trackId,'a');
 });
 
-test('Health exposes source article topics and continuous read-only scrolling',()=>{
- const {module}=setup('health-safety');const main=module.create({},null,ctx);
+test('Health articles scroll continuously through the replayed VBlank input model',()=>{
+ const {module}=setup('health-safety');const main=module.create({},null,ctx);const frame=1000/HEALTH_VBLANK_HZ;
+ const tick=(state,count=1)=>{for(let i=0;i<count;i++)state=module.reduce(state,{type:'tick',elapsedMs:frame},ctx).state;return state;};
+ const article=state=>module.view(state,ctx).data.article;
+ const touch=(state,phase,x,y)=>module.reduce(state,{type:'touch',phase,x,y},ctx).state;
  assert.deepEqual(module.view(main,ctx).rows.map(({id,label})=>[id,label]),[['3d','3D Display Precautions'],['general','General Precautions'],['usage','Usage Precautions']]);
- for(const topic of ['3d','general','usage']){
-  let state=action(module,main,topic).state;
-  assert.equal(module.view(state,ctx).data.article.paneY,0);
-  assert.equal(module.view(state,ctx).footer.left.action,'back');
-  assert.equal(module.view(state,ctx).footer.right,undefined);
-  state=module.reduce(state,{type:'command',command:'down'},ctx).state;
-  state=module.reduce(state,{type:'tick',elapsedMs:20},ctx).state;
-  assert.equal(module.view(state,ctx).data.article.paneY,4);
-  assert.equal(module.reduce(state,{type:'command',command:'back'},ctx).state.screen,'main');
- }
+ let state=action(module,main,'general').state;
+ assert.deepEqual(article(state),{paneY:0,thumbY:77,selectFrame:0});
+ assert.deepEqual(module.view(state,ctx).footer,{left:{label:'Back',action:'back'}},'no pagination controls remain');
+ assert.equal(module.view(state,ctx).data.scroll,undefined,'the private input model is not part of the view');
+ state=module.reduce(state,{type:'button',command:'down',phase:'down',source:'keyboard:ArrowDown'},ctx).state;
+ state=tick(state,3);assert.equal(article(state).paneY,12,'held Down moves 4px per update from the press update');
+ state=module.reduce(state,{type:'button',command:'down',phase:'repeat',source:'keyboard:ArrowDown'},ctx).state;
+ state=module.reduce(state,{type:'button',command:'down',phase:'up',source:'keyboard:ArrowDown'},ctx).state;
+ state=tick(state,3);assert.equal(article(state).paneY,12,'host repeats are ignored and release stops the key');
+ state=module.reduce(state,{type:'command',command:'down'},ctx).state;state=tick(state,3);assert.equal(article(state).paneY,16,'a discrete command is one update');
+ for(const command of ['left','right','open'])assert.equal(module.reduce(state,{type:'command',command},ctx).state,state);
+ state=touch(state,'down',150,120);state=tick(state,2);
+ for(const y of [110,100,90]){state=touch(state,'move',150,y);state=tick(state);}
+ assert.equal(article(state).paneY,46,'the article follows the stylus 1:1');
+ state=touch(state,'up',150,90);state=tick(state);assert.equal(article(state).paneY,56,'release reapplies the last drag delta');
+ state=tick(state,30);assert.ok(Math.abs(article(state).paneY-(46+111.9746551513672))<1e-3,'inertia coasts as replayed from a 10px release, then stops');
+ assert.equal(tick(state,5).scroll.touch.state,0);
+ state=touch(state,'down',308,Math.round(120-article(state).thumbY));state=tick(state);assert.equal(article(state).selectFrame,0);
+ state=touch(state,'move',308,239);state=tick(state);assert.equal(article(state).selectFrame,1,'SlideBar_Select reaches frame 1 one update after the press');
+ assert.equal(article(state).thumbY,-77);assert.equal(article(state).paneY,6846,'the thumb maps travel to the full extent');
+ state=touch(state,'up',308,239);state=tick(state,3);assert.equal(article(state).selectFrame,0);
+ state=touch(state,'down',150,150);state=tick(state,2);state=touch(state,'move',150,226);state=tick(state);state=touch(state,'up',150,226);
+ assert.equal(state.screen,'document','a drag released over Back does not activate it');
+ state=tick(state,120);const settled=article(state).paneY;
+ state=module.reduce(state,{type:'button',command:'up',phase:'down',source:'dpad'},ctx).state;state=tick(state,2);
+ assert.equal(article(state).paneY,settled-8);
+ state=module.reduce(state,{type:'lifecycle',phase:'suspend'},ctx).state;
+ assert.equal(article(tick(state,10)).paneY,settled-8,'suspension releases the held key');
+ state=touch(state,'down',160,226);state=touch(state,'up',160,226);assert.equal(state.screen,'main','the full-width Back bar returns to the menu');
+ assert.equal(state.scroll,undefined,'closing the article discards its controls');
+ state=action(module,state,'usage').state;assert.deepEqual(article(state),{paneY:0,thumbY:77,selectFrame:0});
+ assert.equal(module.reduce(state,{type:'command',command:'back'},ctx).state.screen,'main');
  assert.equal(action(module,main,'privacy').state,main);assert.equal(action(module,main,'next').state,main);
 });
 

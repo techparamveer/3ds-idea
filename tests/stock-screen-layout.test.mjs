@@ -31,6 +31,12 @@ test('Health touch regions follow the three native precaution buttons and their 
  assert.equal(hit(v,160,45),'3d');assert.equal(hit(v,160,109),'general');assert.equal(hit(v,160,173),'usage');
  assert.equal(hit(v,160,77),null);assert.equal(hit(v,35,109),null);assert.equal(hit(v,284,109),null);
 });
+test('a Health article keeps only the full-width BtmBtn_White Back bar',()=>{
+ const v={...view('health-safety','document',[]),data:{topic:'general'}};
+ assert.deepEqual(targets(v).map(r=>[r.action,r.x,r.y,r.width,r.height]),[['back',0,212,320,28]]);
+ for(const x of [0,160,319])assert.equal(hit(v,x,226),'back');
+ assert.equal(hit(v,160,211),null);assert.equal(hit(v,160,120),null);
+});
 test('music controls follow the source CtrPanel3, mode panel, Back and C_SldT bounds',()=>{
  const v=view('sound','playback',['play','previous','next','mode']);v.footer.right={label:'OK',action:'play'};
  assert.equal(hit(v,160,208),'play');assert.equal(hit(v,114,208),'previous');assert.equal(hit(v,205,208),'next');assert.equal(hit(v,275,224),'mode');assert.equal(hit(v,45,225),'back');

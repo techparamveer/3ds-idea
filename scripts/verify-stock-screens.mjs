@@ -9,11 +9,11 @@ export async function verifyStockScreens(options){
  for(const key of ['artifactDir','assetRoot','canvasModule','fontManifest'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-')),sourceHashes={};
- for(const name of ['native-screen-input','bitmap-font','native-layout','native-png','native-renderer','native-title-assets','native-title-session','stock-screen-layout','stock-native-settings','stock-settings-navigation','app-types','stock-native-sound','stock-native-camera','stock-native-health','stock-health-layout','stock-native-personal-tools','stock-native-web','stock-eshop-welcome','stock-native-services','stock-native-helpers','stock-native-amiibo','stock-native-selectors','stock-screen-presentation']){
+ for(const name of ['native-screen-input','bitmap-font','native-layout','native-png','native-renderer','native-title-assets','native-title-session','stock-screen-layout','stock-native-settings','stock-settings-navigation','app-types','stock-native-sound','stock-native-camera','stock-native-health','stock-health-layout','stock-health-article','stock-health-scroll','stock-native-personal-tools','stock-native-web','stock-eshop-welcome','stock-native-services','stock-native-helpers','stock-native-amiibo','stock-native-selectors','stock-screen-presentation']){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');sourceHashes[name]=createHash('sha256').update(source).digest('hex');
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name.replace(/\.ts$/,'')}.mjs'`));
  }
- const [{createCanvas,loadImage,Image:CanvasImage},{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,settingsDirectButtonClip},{soundScreenPacks},{cameraScreenPacks},{healthScreenPacks},{healthDocumentPageCounts,healthDocumentArticles,healthDocumentLinesPerPage},{browserScreenPacks,miiverseScreenPacks},{drawStockScreenFrame}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','stock-native-settings','stock-native-sound','stock-native-camera','stock-native-health','stock-health-layout','stock-native-web','stock-screen-presentation'].map(n=>import(pathToFileURL(join(compiled,n+'.mjs'))))]);
+ const [{createCanvas,loadImage,Image:CanvasImage},{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,settingsDirectButtonClip},{soundScreenPacks},{cameraScreenPacks},{healthScreenPacks},{healthDocumentRows,healthDocumentArticles},{browserScreenPacks,miiverseScreenPacks},{drawStockScreenFrame},{healthArticleMetrics},health]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','stock-native-settings','stock-native-sound','stock-native-camera','stock-native-health','stock-health-layout','stock-native-web','stock-screen-presentation','stock-health-article','stock-health-scroll'].map(n=>import(pathToFileURL(join(compiled,n+'.mjs'))))]);
  const previousGlobals=Object.fromEntries(['document','window','Image'].map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)])),oldFetch=globalThis.fetch,oldObjectURL=URL.createObjectURL,oldRevokeURL=URL.revokeObjectURL,blobBytes=new WeakMap();let font,assets,soundAssets,cameraAssets,healthAssets,browserAssets,miiverseAssets;
  const rows=ids=>ids.map(([id,label])=>({id,label})),footer={left:{action:'back',label:'Back'},right:{action:'open',label:'Open'}};
  const photos=[1,2,3].map(i=>({id:'building'+i,title:'Building '+i,src:'/portfolio/building'+i+'.jpg'}));
@@ -46,7 +46,16 @@ export async function verifyStockScreens(options){
  const specimenTracks=[1,2,3,4].map(i=>({...playback.data.track,id:'renderer-probe-'+i,title:'Library controls specimen '+i}));
  views.push({appId:'sound',screen:'main',verificationId:'sound-library',heading:'Nintendo 3DS Sound',rows:[{id:'track:renderer-probe',label:'Library controls specimen',value:'Renderer verification'}],selection:0,footer:{left:footer.left,right:{label:'OK',action:'track:renderer-probe'}},data:{tracks:[{...playback.data.track,title:'Library controls specimen'}]}});
  views.push({appId:'sound',screen:'main',verificationId:'sound-library-page2',heading:'Nintendo 3DS Sound',rows:specimenTracks.map(t=>({id:'track:'+t.id,label:t.title,value:'Renderer verification'})),selection:3,footer:{left:footer.left,right:{label:'OK',action:'track:renderer-probe-4'}},data:{tracks:specimenTracks}});
- for(const [topic,page]of [['3d',0],['general',1],['usage',26]])views.push({appId:'health-safety',screen:'document',verificationId:'health-'+topic+'-'+page,heading:'Health and Safety Information',rows:[],selection:0,footer:{left:page?{label:'Previous',action:'previous'}:footer.left,right:page===26&&topic==='usage'?{label:'Done',action:'back'}:{label:'Next',action:'next'}},data:{topic,page}});
+ // Continuous article specimens come from the replay-verified input model, not hand-picked offsets.
+ const healthRun=(topic,inputs)=>{let state=health.healthScrollCreate(healthDocumentRows[topic]);for(const [stylus,keys]of inputs)state=health.healthScrollUpdate(health.healthScrollKey(health.healthScrollStylus(state,stylus),'down',keys));return health.healthScrollView(state);};
+ const hold=(stylus,count,keys=false)=>Array(count).fill([stylus,keys]),idle=(count,keys=false)=>hold(null,count,keys);
+ const healthSpecimens={
+  '3d-top':['3d',[]],'3d-interior':['3d',idle(40,true)],'3d-end':['3d',[...hold({x:308,y:43},2),...hold({x:308,y:239},1),...idle(3)]],
+  'general-thumb-pressed':['general',[...hold({x:308,y:43},2),...hold({x:308,y:120},3)]],'general-thumb-released':['general',[...hold({x:308,y:43},2),...hold({x:308,y:120},3),...idle(3)]],
+  'usage-second-warning':['usage',idle(236,true)],
+  'usage-end':['usage',[...hold({x:308,y:43},2),...hold({x:308,y:239},1),...idle(3)]],
+ };
+ for(const [id,[topic,inputs]]of Object.entries(healthSpecimens))views.push({appId:'health-safety',screen:'document',verificationId:'health-'+id,heading:'Health and Safety Information',rows:[],selection:0,footer:{left:footer.left},data:{topic,article:healthRun(topic,inputs)}});
  views.push({appId:'browser',screen:'main',heading:'Internet Browser',rows:rows([['search','Enter search text'],['bookmarks','Bookmarks'],['add-bookmark','Add'],['settings','Settings'],['page-info','Page Info'],['address','Enter URL']]),selection:1,footer});
  views.push({appId:'miiverse',screen:'main',heading:'Miiverse',rows:rows([['communities','Communities'],['activity','Activity Feed'],['profile','My Menu'],['notifications','Notifications']]),selection:0,footer});
  const browserSettings=rows([['auto-wrap','Text Wrap'],['search-engine','Search Engine'],['delete-cookies','Delete Cookies'],['clear-history','Clear History'],['network','Network'],['proxy','Proxy'],['version','Version'],['reset','Reset']]);
@@ -68,7 +77,8 @@ export async function verifyStockScreens(options){
   browserAssets=await loadNativeTitleAssets('https://stock-ui.invalid/manifest.json','0004003000009d02',browserScreenPacks,new Map());
   miiverseAssets=await loadNativeTitleAssets('https://stock-ui.invalid/manifest.json','000400300000be02',miiverseScreenPacks,new Map());
   const healthMessages=healthAssets.renderer.packs['health-messages'].messages.safe_msbt_LZ;
-  for(const [topic,label]of Object.entries(healthDocumentArticles))assert.equal(Math.ceil(healthMessages.messages[healthMessages.labels[label]].text.split('\n').length/healthDocumentLinesPerPage),healthDocumentPageCounts[topic],'runtime and native document page totals agree');
+  const healthMetrics={};
+  for(const [topic,label]of Object.entries(healthDocumentArticles)){healthMetrics[topic]=healthArticleMetrics(healthMessages.messages[healthMessages.labels[label]].tokens);assert.equal(healthMetrics[topic].rows,healthDocumentRows[topic],'runtime rows equal parser rows of the delivered message');}
   const sourceButtonPack=assets.renderer.packs.button,sourceButtonJson=JSON.stringify(sourceButtonPack),sourceLayoutPack=assets.renderer.packs.layout,sourceLayoutJson=JSON.stringify(sourceLayoutPack);
   const buttonLayout=sourceButtonPack.layouts.I_TopLTs,buttonClip=sourceButtonPack.animations.I_TopLTs_Select;
   assert.deepEqual(settingsDirectButtonClip(buttonLayout,buttonClip).shares,[]);
@@ -77,13 +87,14 @@ export async function verifyStockScreens(options){
   const images=new Map();for(const p of photos)images.set(p.src,await loadImage(join(repo,'public',p.src)));
   const requestedImages=[];
   const image=(ctx,url,x,y,w,h)=>{requestedImages.push(url);const im=images.get(url);if(!im)return false;const scale=Math.min(w/im.width,h/im.height);ctx.drawImage(im,x+(w-im.width*scale)/2,y+(h-im.height*scale)/2,im.width*scale,im.height*scale);return true;};
-  const reports=[],soundBottoms=new Map(),sheet=createCanvas(400*views.length,480),sheetContext=sheet.getContext('2d');
+  const reports=[],soundBottoms=new Map(),healthBottoms=new Map(),sheet=createCanvas(400*views.length,480),sheetContext=sheet.getContext('2d');
   for(const [index,view] of views.entries()){
    const top=createCanvas(400,240),bottom=createCanvas(320,240),id=view.verificationId??view.appId+'-'+view.screen;
    requestedImages.length=0;
    drawStockScreenFrame(top.getContext('2d'),bottom.getContext('2d'),view,{font,image,native:view.appId==='system-settings'?assets.renderer:view.appId==='sound'?soundAssets.renderer:view.appId==='camera'?cameraAssets.renderer:view.appId==='health-safety'?healthAssets.renderer:view.appId==='browser'?browserAssets.renderer:view.appId==='miiverse'?miiverseAssets.renderer:undefined});
    if(id==='sound-playback')assert.deepEqual(requestedImages,[photos[0].src],'Sound loads artwork, never the audio URL, as an image');
    if(view.appId==='sound')soundBottoms.set(id,bottom.getContext('2d').getImageData(0,0,320,240).data);
+   if(view.appId==='health-safety'&&view.screen==='document')healthBottoms.set(id,{pixels:bottom.getContext('2d').getImageData(0,0,320,240).data,article:view.data.article});
    writeFileSync(join(out,id+'-top.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-bottom.png'),bottom.toBuffer('image/png'));
    sheetContext.drawImage(top,index*400,0);sheetContext.drawImage(bottom,index*400+40,240);
    reports.push({id,topSha256:createHash('sha256').update(top.getContext('2d').getImageData(0,0,400,240).data).digest('hex'),bottomSha256:createHash('sha256').update(bottom.getContext('2d').getImageData(0,0,320,240).data).digest('hex')});
@@ -91,6 +102,17 @@ export async function verifyStockScreens(options){
   writeFileSync(join(out,'contact-sheet.png'),sheet.toBuffer('image/png'));
   assert.notEqual(reports.find(r=>r.id==='sound-playback').bottomSha256,reports.find(r=>r.id==='sound-paused').bottomSha256,'native play and pause artwork differ');
   const soundBottom=id=>reports.find(r=>r.id===id).bottomSha256;
+  // Unclipped article text is covered by the later title and BtmBtn_White artwork; SlideBar_Select recolours only the thumb.
+  const healthDiff=(a,b)=>{const out=[];for(let i=0;i<a.length;i+=4)if(a[i]!==b[i]||a[i+1]!==b[i+1]||a[i+2]!==b[i+2])out.push([(i/4)%320,Math.floor(i/1280)]);return out;};
+  for(const [a,b]of [['health-3d-top','health-3d-interior'],['health-3d-top','health-3d-end'],['health-usage-second-warning','health-usage-end']]){
+   const changed=healthDiff(healthBottoms.get(a).pixels,healthBottoms.get(b).pixels);
+   assert.ok(changed.length&&changed.every(([,y])=>y>=28&&y<212),`${a}/${b} scrolling leaves the title and Back bar untouched`);
+  }
+  const pressed=healthBottoms.get('health-general-thumb-pressed'),released=healthBottoms.get('health-general-thumb-released'),thumbCentre=120-pressed.article.thumbY;
+  assert.equal(pressed.article.thumbY,released.article.thumbY);assert.deepEqual([pressed.article.selectFrame,released.article.selectFrame],[1,0]);
+  const thumbChanges=healthDiff(pressed.pixels,released.pixels);
+  assert.ok(thumbChanges.length&&thumbChanges.every(([x,y])=>x>=296&&Math.abs(y-thumbCentre)<=11),'SlideBar_Select changes only the 22px thumb');
+  assert.deepEqual(Object.fromEntries(Object.entries(healthMetrics).map(([k,v])=>[k,v.maxScroll])),{'3d':1827,general:6846,usage:4200});
   assert.equal(new Set(['sound-playback','sound-mode-no-loop','sound-mode-single','sound-mode-random'].map(soundBottom)).size,4,'each supported playback mode paints a distinct source loop icon');
   assert.equal(new Set(['sound-seek-start','sound-playback','sound-seek-end'].map(soundBottom)).size,3,'the source C_SldT handle follows the playback position');
   assert.notEqual(soundBottom('sound-error'),soundBottom('sound-paused'),'the source Could-not-play dialog is visible over the paused player');
@@ -124,7 +146,7 @@ export async function verifyStockScreens(options){
   writeFileSync(join(out,'settings-focus.png'),focusSheet.toBuffer('image/png'));
   const diagnostics=[...assets.diagnostics,...soundAssets.diagnostics,...cameraAssets.diagnostics,...healthAssets.diagnostics,...browserAssets.diagnostics,...miiverseAssets.diagnostics];
   const failures=diagnostics.filter(d=>!d.includes('unrequested converter omissions'));assert.deepEqual(failures,[]);
-  const report={passed:true,sourceHashes,reports,soundEffectPanel:{bounds:effectBounds,opaquePixels:opaque.length,restingPlayback},diagnostics,gaps:['Settings native source assembly is not a matched native LCD capture.','Camera folder upper uses source P_FinderVS_U; gallery/photo replace the native viewfinder framebuffer with portfolio pixels. Settled six-cell centres follow the source; page motion and the Back/Open footer remain adapters.','Sound transport, playback-mode panel, C_SldT slider, resting Effect panel, Open, Back and the Could-not-play dialog sit at source mounts; the Effect buttons are inert, and list row pitch, the mode cycle order and the absent pull cord, speed/pitch plate, filters, percussion and upper-screen visualisers are adaptations.','Health source text is paginated with base styles; rich inline runs and continuous scroll remain adaptations. Remaining stock title layouts are pending.','Browser and Miiverse display local chrome only; website content and remote feeds are not present.','Playback specimen is synthetic validation only; no user track is supplied.']};
+  const report={passed:true,sourceHashes,reports,soundEffectPanel:{bounds:effectBounds,opaquePixels:opaque.length,restingPlayback},diagnostics,gaps:['Settings native source assembly is not a matched native LCD capture.','Camera folder upper uses source P_FinderVS_U; gallery/photo replace the native viewfinder framebuffer with portfolio pixels. Settled six-cell centres follow the source; page motion and the Back/Open footer remain adapters.','Sound transport, playback-mode panel, C_SldT slider, resting Effect panel, Open, Back and the Could-not-play dialog sit at source mounts; the Effect buttons are inert, and list row pitch, the mode cycle order and the absent pull cord, speed/pitch plate, filters, percussion and upper-screen visualisers are adaptations.','Health articles scroll continuously with the replayed glyph layout, warning icons, SlideBar and input model; boundary/row-tick sounds are unpublished and no native frame comparison is claimed. Remaining stock title layouts are pending.','Browser and Miiverse display local chrome only; website content and remote feeds are not present.','Playback specimen is synthetic validation only; no user track is supplied.']};
   writeFileSync(join(out,'verification.json'),JSON.stringify(report,null,2)+'\n');return report;
  }finally{miiverseAssets?.dispose();browserAssets?.dispose();healthAssets?.dispose();cameraAssets?.dispose();soundAssets?.dispose();assets?.dispose();font?.dispose();globalThis.fetch=oldFetch;URL.createObjectURL=oldObjectURL;URL.revokeObjectURL=oldRevokeURL;for(const [name,descriptor]of Object.entries(previousGlobals)){if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name];}}
 }

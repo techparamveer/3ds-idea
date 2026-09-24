@@ -54,6 +54,7 @@ class Scene:
         self.code = code
         attach = pane_tree(safetext)['N_SlideBar_00'][1]
         self.tree = {**pane_tree(safetext), **pane_tree(slidebar, attach)}
+        self.layouts = (safetext, slidebar)
         self.slidebar_names = set(pane_tree(slidebar))
         self.panes, self.events, self.sounds, self.anim = {}, [], [], []
         thunk = 0x1ff1000
@@ -218,12 +219,16 @@ def construction(s):
     assert geometry == {'B_Slide_00': [24, 22], 'SBBtn': [22, 22], 'SBBtnShdw': [22, 22], 'SBBtnFrame': [22, 22],
                         'B_Groove_00': [16, 176], 'SBBaseWndw': [16, 176], 'SBBaseLine_00': [8, 152]}
     assert m.real(b + 0x10) == 154 and m.real(b + 0x14) == 0 and m.real(s.pane('B_Slide_00') + 0x2c) == 77
+    # Controller setup shows the thumb (scrollbar SetVisible 0x15504c) and base line only past the 8-row viewport.
+    visible = lambda scene: [scene.m.byte(scene.pane(n) + 0xb7) & 1 for n in ('N_Slide_00', 'SBBaseLine_00')]
+    assert visible(s) == [1, 1] and visible(Scene(s.code, *s.layouts, 8)) == [0, 0]
     assert m.real(c + 0x8c) == (s.rows - 8) * 21 and m.real(c + 0x24) == 21
     return {'registeredUpdateOrder': order,
             'touchDescriptor': {'dragThreshold': 0.0, 'releaseVelocityScale': 1.0, 'inertiaDecay': descriptor[2], 'inertiaStopSpeed': 4.5,
                                 'scrollToSnapDistance': descriptor[4], 'requireFreeOwner': 0, 'axisX': 0, 'axisY': 1},
                                 'controllerFlags': {'+0x1c': 0, '+0x1d': 1, '+0x1e': 1},
             'boundarySoundId': hex(m.word(c + 0x78)), 'slideBarGeometry': geometry, 'thumbTravel': 154, 'thumbRestY': 77,
+            'visibleBeyondViewport': ['N_Slide_00', 'SBBaseLine_00'],
             'extent': m.real(c + 0x8c)}
 
 

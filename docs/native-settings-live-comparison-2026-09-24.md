@@ -42,6 +42,14 @@ Evidence under the SSD artifact root:
   emulator-window screenshot after the mapped touch.
 - `reference/native-settings-2026-09-24/browser-other-page1-3769074.jpg`:
   browser viewport screenshot of the corresponding portfolio page.
+- `reference/native-settings-2026-09-24/browser-other-page1-touch-unselected.jpg`:
+  corrected browser capture with the same white touch-entry pose.
+
+A later static executable/layout trace found separate logical row 0 and visual
+Select frame 0 state. It also found that page changes and Back from Profile or
+Date & Time use the same inactive cross-scene pose, rather than restoring an
+active child highlight. See the
+[Other Settings focus source audit](settings-other-focus-source-audit.md).
 
 The mapping uses the [Azahar Qt config reader](https://github.com/azahar-emu/azahar/blob/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/citra_qt/configuration/config.cpp)
 and the [graphics API enum](https://github.com/azahar-emu/azahar/blob/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/common/settings.h).

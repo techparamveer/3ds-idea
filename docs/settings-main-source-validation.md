@@ -66,6 +66,11 @@ their appearance. DS Profile alone requests state 2. Other adapted detail
 cards explicitly inherit their parent section's palette; they are not claimed
 to implement the source detail scene.
 
+Other Settings has a separate logical/visual focus split: cross-scene entry,
+page changes, and returns from Profile or Date & Time initialize logical row 0
+while presenting the shared Select clip at frame 0. See the
+[Other Settings focus source audit](settings-other-focus-source-audit.md).
+
 The executable also consumes byte `0x23` at `0x2358dc..0x235920`: state 2
 maps to 0, and the resulting number formats `SceneIn_%2.2d.bclan` for the
 upper scene layout. Consequently `CommonBG_U_00` now uses the exact `_01`,

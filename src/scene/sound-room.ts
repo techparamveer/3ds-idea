@@ -32,7 +32,7 @@ export function createSoundRoom(renderer:THREE.WebGLRenderer,load=loadFirmwareMo
     if(next)void load(SOUND_ROOM_MODEL).then(asset=>{
       if(disposed||ticket!==generation)return;
       try{
-        camera=soundRoomCamera(asset);model=createFirmwareModel(asset);model.update(0,camera);scene.add(model.group);
+        camera=soundRoomCamera(asset);model=createFirmwareModel(asset,{}, {nativeMipmaps:true});model.update(0,camera);scene.add(model.group);
         target=new THREE.WebGLRenderTarget(400,240,{depthBuffer:true,stencilBuffer:false,minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter});target.texture.colorSpace=THREE.NoColorSpace;
         canvas=document.createElement('canvas');canvas.width=400;canvas.height=240;state={status:'ready'};
       }catch(error){release();state={status:'error',error};}

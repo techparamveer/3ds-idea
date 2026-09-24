@@ -105,3 +105,11 @@ into one native-resolution target, then caches opaque LCD RGB. A small injected
 readiness/deadline; the OS never receives scene objects. Leaving main, failure,
 retry and teardown release its generation/resources. This does not enable music
 visualisers or change HOME rendering. See [room evidence](../sound-room-source.md).
+
+Sound room alone opts into `FirmwareModelOptions.nativeMipmaps`. Its published
+CGFX pack contains authored ETC1/ETC1A4 levels, decoded and uploaded without
+regeneration. The loader includes those levels in readiness; missing levels fail
+explicitly. This bounded path validates LinearMipmapNearest/Linear, zero LOD bias
+and minimum LOD, and a contiguous authored chain before GPU allocation. Other
+CGFX consumers retain their existing base-level sampling. See
+[mipmap evidence](../sound-room-mipmap-source.md).

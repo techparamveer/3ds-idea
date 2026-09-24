@@ -43,7 +43,7 @@ static class Exporter {
     return obj;
   }
   public static int Main(string[] args) {
-    if(args.Length!=2) { Console.Error.WriteLine("Exporter input.bcres output-directory");return 2; }
+    if(args.Length!=2 && !(args.Length==3 && args[2]=="--mipmaps")) { Console.Error.WriteLine("Exporter input.bcres output-directory [--mipmaps]");return 2; }
     var source=File.ReadAllBytes(args[0]);
     if(source.Length<20 || System.Text.Encoding.ASCII.GetString(source,0,4)!="CGFX") throw new InvalidDataException("Expected decompressed CGFX");
     var native=LegacyGfxReader.Open(args[0]);
@@ -56,7 +56,27 @@ static class Exporter {
       var rgba=texture.ToRGBA();
       // SPICA DecodeBuffer returns bottom-up RGBA for OpenGL. PNG writer flips rows.
       File.WriteAllBytes(Path.Combine(args[1],$"texture-{i}.rgba"),rgba);
-      textures.Add(new {name=texture.Name,url=$"texture-{i}.png",width=texture.Width,height=texture.Height,format=texture.Format.ToString(),bottomUp=true});
+      if(args.Length==3) {
+        // CGFX stores each authored level contiguously, without the BCH serializer's
+        // 0x80-byte per-image padding. Do not regenerate levels from base RGBA.
+        if(texture.Format!=PICATextureFormat.ETC1 && texture.Format!=PICATextureFormat.ETC1A4) throw new NotSupportedException("Mip export currently requires ETC1/ETC1A4");
+        int count=texture.MipmapSize,offset=0;var mips=new List<object>();
+        if(count<1 || count>12) throw new InvalidDataException("Invalid native mip count");
+        for(int level=0;level<count;level++) {
+          int width=texture.Width>>level,height=texture.Height>>level;
+          if(width<8 || height<8) throw new NotSupportedException("Mip level smaller than native 8px tile");
+          int bytes=width*height*(texture.Format==PICATextureFormat.ETC1A4?8:4)/8;
+          if(offset+bytes>texture.RawBuffer.Length) throw new InvalidDataException("Truncated mip chain");
+          if(level>0) {
+            var encoded=texture.RawBuffer.AsSpan(offset,bytes).ToArray();
+            File.WriteAllBytes(Path.Combine(args[1],$"texture-{i}-mip-{level}.rgba"),TextureConverter.DecodeBuffer(encoded,width,height,texture.Format));
+            mips.Add(new{level,url=$"texture-{i}-mip-{level}.png",width,height,bottomUp=true,sourceOffset=offset,sourceSize=bytes,sourceSha256=Convert.ToHexString(SHA256.HashData(encoded)).ToLowerInvariant()});
+          }
+          offset+=bytes;
+        }
+        if(offset!=texture.RawBuffer.Length) throw new InvalidDataException("Unaccounted native mip bytes");
+        textures.Add(new{name=texture.Name,url=$"texture-{i}.png",width=texture.Width,height=texture.Height,format=texture.Format.ToString(),bottomUp=true,nativeMipCount=count,mipmaps=mips});
+      } else textures.Add(new {name=texture.Name,url=$"texture-{i}.png",width=texture.Width,height=texture.Height,format=texture.Format.ToString(),bottomUp=true});
     }
     var models=new List<object>();
     foreach(var model in scene.Models) {

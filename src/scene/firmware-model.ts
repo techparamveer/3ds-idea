@@ -14,23 +14,24 @@ export type FirmwareStencilState=Readonly<{
  enabled:boolean;function:NativeComparison;reference:number;compareMask:number;writeMask:number;
  fail:NativeStencilOperation;depthFail:NativeStencilOperation;depthPass:NativeStencilOperation;
 }>;
-export type FirmwareModelOptions=Readonly<{overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>}>;
+export type FirmwareModelOptions=Readonly<{nativeMipmaps?:boolean;overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>}>;
 type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};StencilTest?:{Enabled:boolean;Function:NativeComparison;Reference:number;Mask:number;BufferMask:number};StencilOperation?:{FailOp:NativeStencilOperation;ZFailOp:NativeStencilOperation;ZPassOp:NativeStencilOperation};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
-type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string}[]};
+type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string;LODBias?:number;MinLOD?:number}[]};
 type Bone={Name:string;ParentIndex:number;BillboardMode?:string;NativeBillboardMode?:number;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
 type Submesh={indices:number[];bones:number[];skinning:string;primitive:string};
 type Mesh={material:number;node:number;layer:number;priority:number;position:number[][];normal:number[][];color:number[][];uv0:number[][];uv1:number[][];uv2:number[][];joints:number[][];weights:number[][];submeshes:Submesh[]};
 type Clip={Name:string;FramesCount:number;AnimationFlags:string;Elements:{Name:string;TargetType:string;PrimitiveType:string;Content:Record<string,CgfxCurve>}[]};
-export type FirmwareModelData=CgfxLightingData&{schema:1;sourceSha256:string;models:{name:string;transform:Record<string,number>;skeleton:Bone[];materials:Material[];nodes:boolean[];meshes:Mesh[]}[];textures:{name:string;url:string;width:number;height:number}[];skeletalAnimations:Clip[];materialAnimations:Clip[];visibilityAnimations:Clip[]};
-export type FirmwareModelAsset={data:FirmwareModelData;images:Map<string,NativePixels>};
+export type FirmwareModelData=CgfxLightingData&{schema:1;sourceSha256:string;models:{name:string;transform:Record<string,number>;skeleton:Bone[];materials:Material[];nodes:boolean[];meshes:Mesh[]}[];textures:{name:string;url:string;width:number;height:number;nativeMipCount?:number;mipmaps?:{level:number;url:string;width:number;height:number}[]}[];skeletalAnimations:Clip[];materialAnimations:Clip[];visibilityAnimations:Clip[]};
+export type FirmwareModelAsset={data:FirmwareModelData;images:Map<string,NativePixels>;mipmaps?:Map<string,readonly NativePixels[]>};
 export type FirmwareModelPlayback={skeletal?:readonly CgfxClipChoice[];material?:readonly CgfxClipChoice[]};
 export async function loadFirmwareModel(url:string):Promise<FirmwareModelAsset>{
  const response=await fetch(url);if(!response.ok)throw new Error(`Model HTTP ${response.status}`);
  const data=await response.json() as FirmwareModelData;
  if(data.schema!==1||!Array.isArray(data.models)||!Array.isArray(data.textures))throw new Error('Invalid firmware model');
- const images=new Map<string,NativePixels>();
- await Promise.all(data.textures.map(async record=>{const response=await fetch(new URL(record.url,new URL(url,window.location.href)));if(!response.ok)throw new Error(`Model texture HTTP ${response.status}`);images.set(record.name,await decodeNativePng(new Uint8Array(await response.arrayBuffer()),record));}));
- return {data,images};
+ const images=new Map<string,NativePixels>(),mipmaps=new Map<string,readonly NativePixels[]>();
+ await Promise.all(data.textures.map(async record=>{const response=await fetch(new URL(record.url,new URL(url,window.location.href)));if(!response.ok)throw new Error(`Model texture HTTP ${response.status}`);images.set(record.name,await decodeNativePng(new Uint8Array(await response.arrayBuffer()),record));
+ if(record.mipmaps?.length)mipmaps.set(record.name,await Promise.all(record.mipmaps.map(async mip=>{const response=await fetch(new URL(mip.url,new URL(url,window.location.href)));if(!response.ok)throw new Error(`Model mip HTTP ${response.status}`);return decodeNativePng(new Uint8Array(await response.arrayBuffer()),mip);})));}));
+ return {data,images,...(mipmaps.size?{mipmaps}:{})};
 }
 const rgba=(c:Color)=>new THREE.Vector4(c.R/255,c.G/255,c.B/255,c.A/255);
 const glcolor=(c:Color)=>`vec4(${[c.R,c.G,c.B,c.A].map(v=>(v/255).toFixed(8)).join(',')})`;
@@ -124,6 +125,14 @@ function matrix(source:Record<string,number>){return new THREE.Matrix4().set(sou
 
 /** Uses original meshes/combiners/curves and directional LUT lighting; other lighting remains approximate. */
 export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:FirmwareModelPlayback={},options:FirmwareModelOptions={}){
+ // Mip sampling is opt-in for source-audited titles; HOME keeps its existing path.
+ if(options.nativeMipmaps)for(const model of asset.data.models)for(const material of model.materials)for(let i=0;i<3;i++){
+  const name=material[`Texture${i}Name` as 'Texture0Name'];if(!name)continue;
+  const sampler=material.TextureMappers[i],record=asset.data.textures.find(t=>t.name===name),levels=asset.mipmaps?.get(name)??[],count=record?.nativeMipCount??0;
+  if(sampler.MinFilter!=='LinearMipmapNearest'||sampler.MagFilter!=='Linear'||sampler.LODBias!==0||sampler.MinLOD!==0)throw new Error('Unsupported native mip sampler '+name);
+  if(!record||!Number.isInteger(count)||count<1||count>12||levels.length!==count-1||record.mipmaps?.length!==levels.length)throw new Error('Incomplete native mip chain '+name);
+  for(let n=0;n<levels.length;n++){const level=levels[n],source=record.mipmaps![n],width=record.width>>(n+1),height=record.height>>(n+1);if(source.level!==n+1||source.width!==width||source.height!==height||level.width!==width||level.height!==height||level.data.length!==width*height*4)throw new Error('Invalid native mip level '+name);}
+ }
  // Reject unsupported stencil state before allocating any GPU-owned resources.
  const stencilStates=asset.data.models.map(model=>model.materials.map(m=>nativeStencilState(m.MaterialParams,options.runtimeStencil)));
  const group=new THREE.Group(),textures:THREE.Texture[]=[],materials:THREE.ShaderMaterial[]=[],geometries:THREE.BufferGeometry[]=[];
@@ -150,7 +159,9 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
     if(image){
      // PNG rows are top-down; raw GL data starts at the bottom. Preserve RGB
      // under zero alpha while flipping explicitly instead of using a DOM image.
-     const nativeTexture=new THREE.DataTexture(texturePixels(image),image.width,image.height);texture=nativeTexture;texture.colorSpace=THREE.NoColorSpace;texture.wrapS=wrap(m.TextureMappers[i].WrapU);texture.wrapT=wrap(m.TextureMappers[i].WrapV);texture.magFilter=m.TextureMappers[i].MagFilter==='Nearest'?THREE.NearestFilter:THREE.LinearFilter;texture.minFilter=texture.magFilter;texture.generateMipmaps=false;texture.needsUpdate=true;textures.push(texture);
+     const nativeTexture=new THREE.DataTexture(texturePixels(image),image.width,image.height);texture=nativeTexture;texture.colorSpace=THREE.NoColorSpace;texture.wrapS=wrap(m.TextureMappers[i].WrapU);texture.wrapT=wrap(m.TextureMappers[i].WrapV);texture.magFilter=m.TextureMappers[i].MagFilter==='Nearest'?THREE.NearestFilter:THREE.LinearFilter;texture.minFilter=texture.magFilter;texture.generateMipmaps=false;
+     if(options.nativeMipmaps){nativeTexture.minFilter=THREE.LinearMipmapNearestFilter;nativeTexture.mipmaps=[image,...(asset.mipmaps?.get(m[`Texture${i}Name` as 'Texture0Name'])??[])].map(level=>({width:level.width,height:level.height,data:texturePixels(level)}));}
+     texture.needsUpdate=true;textures.push(texture);
      const name=m[`Texture${i}Name` as 'Texture0Name'];textureBindings.set(name,[...(textureBindings.get(name)??[]),nativeTexture]);
     }
     uniforms[`tex${i}`]={value:texture};uniforms[`uvMatrix${i}`]={value:textureMatrix(p.TextureCoords[i])};

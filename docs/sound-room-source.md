@@ -84,17 +84,19 @@ then draw record/bird/title/footer layers over the room.
 - TypeScript validation passes. Production build is recorded in the task handoff.
 - CPU source-triangle specimen and supplied native upper LCD were visually
   inspected side by side. Using the unoccluded strips y34..103 and y113..170,
-  mean absolute RGB error is **5.499/255**, maximum 138. This is evidence of
+  mean absolute RGB error with the original mip levels is **5.331/255**, maximum 138
+  (base-only was 5.499/255). This is evidence of
   source geometry/camera alignment, **not** GPU or strict pixel acceptance.
-- Native minification/mipmap/sampling differs visibly in the window/landscape;
-  the existing PICA renderer uses the base texture level. Those differences
-  remain. The source verifier uses bilinear perspective interpolation and does
-  not simulate PICA raster rounding or texture mip levels.
-- The coordinator's later fresh production-browser reload showed the room
-  behind Sound's title, birds and status chrome with the lower Record visible.
-  This checks live publication and layer order. A paired native whole-screen
-  pixel, motion and timing comparison remains open; no native emulator instance
-  was driven from this worktree.
+- The room now opts into its original authored mip chain and native
+  LinearMipmapNearest sampler; see [mipmap evidence](sound-room-mipmap-source.md).
+  Window/landscape differences remain. The source verifier uses bilinear
+  perspective interpolation and derivative-based mip selection; it does not
+  prove PICA raster/LOD rounding or integrated GPU equivalence.
+- The coordinator's fresh production-browser reload before this mip refinement
+  showed the room behind Sound's title, birds and status chrome with the lower
+  Record visible. This checked publication and layer order. A paired native
+  whole-screen pixel, motion and timing comparison remains open; no native
+  emulator instance was driven from this worktree.
 
 Artifacts are on the home disk per the explicit SSD-space constraint:
 `/Users/paramveer/.codex/artifacts/sound-room-source/render/room-source-native.png`,

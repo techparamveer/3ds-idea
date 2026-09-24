@@ -9,7 +9,7 @@ import * as THREE from 'three';
 const cache=new Map();function moduleUrl(path){if(cache.has(path))return cache.get(path);let s=ts.transpileModule(readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;s=s.replace(/from (['"])([^'"]+)\1/g,(_,q,v)=>'from '+JSON.stringify(v.startsWith('.')?moduleUrl(resolve(dirname(path),v+'.ts')):import.meta.resolve(v)));const u='data:text/javascript;base64,'+Buffer.from(s).toString('base64');cache.set(path,u);return u;}
 const {createSoundRoom,soundRoomCamera}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/sound-room.ts',import.meta.url))));
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url),root=new URL('models/sound-room/',firmware),data=JSON.parse(readFileSync(new URL('model.json',root)));
-const asset=()=>({data:structuredClone(data),images:new Map(data.textures.map(t=>[t.name,{width:t.width,height:t.height,data:new Uint8Array(t.width*t.height*4)}]))});
+const asset=()=>({data:structuredClone(data),mipmaps:new Map(data.textures.map(t=>[t.name,t.mipmaps.map(m=>({width:m.width,height:m.height,data:new Uint8Array(m.width*m.height*4)}))])),images:new Map(data.textures.map(t=>[t.name,{width:t.width,height:t.height,data:new Uint8Array(t.width*t.height*4)}]))});
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 function setup(t){
  const original=globalThis.document,puts=[];globalThis.document={createElement(){return{width:0,height:0,getContext(){return{createImageData(w,h){return{data:new Uint8ClampedArray(w*h*4)};},putImageData(image){puts.push(image.data);}};}};}};t.after(()=>{globalThis.document=original;});
@@ -19,7 +19,7 @@ function setup(t){
 }
 test('room delivery keeps source camera/model/texture closure and texture-only native RGB',()=>{
  const manifest=JSON.parse(readFileSync(new URL('manifest.json',firmware)));assert.equal(manifest.models['sound-room'],'models/sound-room/model.json');
- for(const name of ['model.json',...data.textures.map(t=>t.url)]){const bytes=readFileSync(new URL(name,root)),record=manifest.resources['models/sound-room/'+name];assert.equal(record.sha256,createHash('sha256').update(bytes).digest('hex'));assert.equal(record.size,bytes.length);}
+ for(const name of ['model.json',...data.textures.flatMap(t=>[t.url,...t.mipmaps.map(m=>m.url)])]){const bytes=readFileSync(new URL(name,root)),record=manifest.resources['models/sound-room/'+name];assert.equal(record.sha256,createHash('sha256').update(bytes).digest('hex'));assert.equal(record.size,bytes.length);}
  const camera=soundRoomCamera(asset());assert.deepEqual(camera.position.toArray(),[0,5,11.5]);assert.equal(camera.aspect,1.63636);assert.ok(Math.abs(camera.fov* Math.PI/180-.759536)<1e-12);
  for(const m of data.models[0].materials){const p=m.MaterialParams;assert.equal(p.TexEnvStages[0].Combiner.Color,'Replace');assert.equal(p.TexEnvStages[0].Source.Color[0],'Texture0');assert.ok(p.TexEnvStages.slice(1).every(s=>s.Combiner.Color==='Replace'&&s.Source.Color[0]==='Previous'));assert.equal(p.DepthColorMask.Enabled,false);}
  const replacement=data.models[0].materials.find(m=>m.Name==='lambert2').MaterialParams;assert.deepEqual([replacement.BlendFunction.ColorSrcFunc,replacement.BlendFunction.ColorDstFunc],['One','Zero']);
@@ -45,4 +45,38 @@ test('Sound main inserts the room after the base and before chrome; playback omi
  assert.equal(drawNativeSoundFrame(renderer,top,bottom,view,{soundRoom}),true);
  assert.ok(sequence.indexOf('ROOM')>sequence.indexOf('S_BG'));assert.ok(sequence.indexOf('ROOM')<sequence.indexOf('S_Inf_U-TitleBar'));
  sequence.length=0;drawNativeSoundFrame(renderer,top,bottom,{...view,screen:'playback'},{soundRoom});assert.equal(sequence.includes('ROOM'),false);
+});
+
+test('room opts into authored mip chains while ordinary CGFX keeps its existing sampling',async()=>{
+ const {createFirmwareModel}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/firmware-model.ts',import.meta.url))));
+ const native=createFirmwareModel(asset(),{}, {nativeMipmaps:true}),legacy=createFirmwareModel(asset());
+ const textures=model=>{const set=new Set();model.group.traverse(m=>{if(m.isMesh)set.add(m.material.uniforms.tex0.value);});return [...set];};
+ try{
+  const originals=textures(native);assert.deepEqual(originals.map(t=>t.mipmaps.length).sort(),[4,5]);
+  for(const t of originals){assert.equal(t.minFilter,THREE.LinearMipmapNearestFilter);assert.equal(t.magFilter,THREE.LinearFilter);assert.equal(t.generateMipmaps,false);assert.equal(t.wrapS,THREE.RepeatWrapping);assert.equal(t.wrapT,THREE.RepeatWrapping);for(let i=0;i<t.mipmaps.length;i++){assert.equal(t.mipmaps[i].width,t.image.width>>i);assert.equal(t.mipmaps[i].height,t.image.height>>i);}}
+  for(const t of textures(legacy)){assert.equal(t.minFilter,THREE.LinearFilter);assert.deepEqual(t.mipmaps,[]);}
+ }finally{native.dispose();legacy.dispose();}
+ const missing=asset();missing.mipmaps.delete('S_BG_U_Tx_A');assert.throws(()=>createFirmwareModel(missing,{}, {nativeMipmaps:true}),/Incomplete native mip chain/);
+ const biased=asset();biased.data.models[0].materials[0].TextureMappers[0].LODBias=1;assert.throws(()=>createFirmwareModel(biased,{}, {nativeMipmaps:true}),/Unsupported native mip sampler/);
+});
+
+test('authored room mip metadata covers every native byte with no synthesized levels',()=>{
+ assert.deepEqual(data.textures.map(t=>t.nativeMipCount),[5,4]);
+ for(const [index,t] of data.textures.entries()){
+  let offset=t.width*t.height*(index===0?1:.5);
+  for(const [n,m] of t.mipmaps.entries()){
+   assert.equal(m.level,n+1);assert.equal(m.width,t.width>>(n+1));assert.equal(m.height,t.height>>(n+1));assert.equal(m.sourceOffset,offset);assert.equal(m.sourceSize,m.width*m.height*(index===0?1:.5));assert.match(m.sourceSha256,/^[0-9a-f]{64}$/);offset+=m.sourceSize;
+   assert.equal(createHash('sha256').update(readFileSync(new URL(m.url,root))).digest('hex'),m.sha256);
+  }
+  assert.equal(offset,index===0?21824:21760);
+ }
+});
+
+test('room loader requests every authored level and rejects a missing mip instead of downgrading',async t=>{
+ const {loadFirmwareModel}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/firmware-model.ts',import.meta.url))));
+ const previous={fetch:globalThis.fetch,window:globalThis.window};t.after(()=>{globalThis.fetch=previous.fetch;globalThis.window=previous.window;});
+ const calls=[];let absent='';globalThis.window={location:{href:'https://sound.invalid/'}};
+ globalThis.fetch=async value=>{const name=new URL(value,globalThis.window.location.href).pathname.split('/').at(-1);calls.push(name);return name===absent?new Response('',{status:404}):new Response(readFileSync(new URL(name,root)));};
+ const loaded=await loadFirmwareModel('/model.json');assert.deepEqual([...loaded.mipmaps.values()].map(m=>m.length),[4,3]);assert.equal(calls.length,10);
+ absent='texture-0-mip-2.png';await assert.rejects(loadFirmwareModel('/model.json'),/Model mip HTTP 404/);
 });

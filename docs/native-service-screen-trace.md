@@ -99,20 +99,33 @@ verifier checks whole-turn rotation and zero depth and records it under
 
 ## eShop welcome
 
-The trace found no new settled-frame mismatch. `welcome_U_00_in_00` has 11
-frames and is bound at frame 10. `welcome_U_00_balloonIn_00` has 59 frames and
-is bound at frame 58. Their shared face and mouth tracks settle to the same
-values. `BG_U_00_inOut_00` and `BG_D_00_inOut_00` hold `N_root_00` alpha at 255
-on frame 0, so the unbound backgrounds already show the entered state.
-`welcome_U_00_wait_00` is an authored 75-frame loop with 19 pane tracks,
-including foot/face motion and a closed-eye swap at frames 37–47. Thirteen
-tracks retain keys at or beyond the clip's 75-frame boundary; those records
-must not be mistaken for a longer live playback duration. The current settled
-welcome frame deliberately does not animate. Starting this loop needs its
-source entrance-to-idle activation and a practical cached playback path:
-redrawing the full native welcome layout at nominal 60 Hz would bypass the
-stock pair cache and has not been performance-validated. Source timing and
-whole-screen motion remain reference dependencies.
+The trace found no new settled-frame mismatch in the welcome clips.
+`welcome_U_00_in_00` has 11 frames and settles at frame 10;
+`welcome_U_00_balloonIn_00` has 59 frames and settles at frame 58. Their shared
+face and mouth tracks settle to the same values. `welcome_U_00_wait_00` is a
+75-frame looping clip.
+
+The [welcome lifecycle audit](eshop-welcome-lifecycle-source-audit.md) traces
+the executable's welcome controller, `0x2e4498`. A single upper animator plays
+the three clips in turn, each replacing the last:
+
+| Clip | Passes |
+| --- | --- |
+| `in_00` | 0–10 |
+| `balloonIn_00` | 11–68 |
+| `wait_00` | 69 onward, looping every 75 passes until OK |
+
+The browser now plays this timeline from an owner-bound clock and repaints the
+pair once per source pass. The audit lists the adaptations: the assumed 60 Hz
+pass rate, the epoch and a possible one-pass offset.
+
+The audit also corrects this section's earlier claim about the backgrounds.
+`BG_U_00` and `BG_D_00` are a curtain drawn above the welcome layout (priority
+1.0 against 0.5). The welcome constructor plays `inOut_00` forward, taking
+`N_root_00` alpha from 255 to 0. The settled native welcome therefore shows no
+BG above it. The browser still paints BG beneath the welcome at alpha 255, so
+this composition remains an open gap until the backdrop beneath the welcome is
+traced or captured.
 
 ## Verification status
 

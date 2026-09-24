@@ -1,6 +1,6 @@
 import { drawNativeSelectorFrame, nativeSelectorView } from './stock-native-selectors';
 import { drawNativeHelperFrame, nativeHelperView } from './stock-native-helpers';
-import { drawNativeServiceFrame, nativeServiceView, zoneClock } from './stock-native-services';
+import { drawNativeServiceFrame, eshopWelcomeBindings, eshopWelcomePass, nativeServiceView, zoneClock } from './stock-native-services';
 import type { AppView, JsonValue } from './app-types';
 import type { BitmapFont } from './bitmap-font';
 import type { NativeLayoutRenderer } from './native-renderer';
@@ -17,7 +17,7 @@ import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
-export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number};
+export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;eshopWelcomeMs?:number};
 const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const records=(v:JsonValue|undefined):MediaRecord[]=>Array.isArray(v)?v.map(record):[];
 const string=(v:JsonValue|undefined)=>typeof v==='string'?v:'';
@@ -79,6 +79,8 @@ export function nativeStockView(view:AppView){
 export type NativeScreenStatus='inactive'|'loading'|'ready'|'error';
 /** Browser resource deadline, not a measured Nintendo loading duration. */
 export const NATIVE_SCREEN_DEADLINE_MS=20_000;
+/** Longest host gap credited to the eShop welcome clock; slower tiers paint at 12 Hz. */
+export const ESHOP_WELCOME_STEP_LIMIT_MS=250;
 
 /** Stock-specific 400×240 / 320×240 surfaces. Media is supplied by AppView. */
 export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,options:StockScreenPaintOptions={}):void{
@@ -174,6 +176,8 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   const images=new Map<string,HTMLImageElement>();let owner:string|null=null,disposed=false;
   let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
   let published:NativeLayoutRenderer|undefined;
+  // eShop welcome clock: one owner, credited only while its native pair is published.
+  let welcome:{owner:string;ms:number;last?:number}|null=null;
   const deadlineMs=options.deadlineMs??NATIVE_SCREEN_DEADLINE_MS;
   if(!Number.isFinite(deadlineMs)||deadlineMs<=0)throw new Error('Invalid native preparation deadline');
   const upper=document.createElement('canvas'),lower=document.createElement('canvas');upper.width=400;upper.height=240;lower.width=320;lower.height=240;
@@ -192,7 +196,15 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     if(!im.complete||!im.naturalWidth)return false;
     const scale=Math.min(w/im.naturalWidth,h/im.naturalHeight);ctx.drawImage(im,x+(w-im.naturalWidth*scale)/2,y+(h-im.naturalHeight*scale)/2,im.naturalWidth*scale,im.naturalHeight*scale);return true;
   }
-  function sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;reset();releaseImages();}}
+  function sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;reset();releaseImages();}if(welcome&&welcome.owner!==nextOwner)welcome.last=undefined;}
+  /** Foreground ms since this owner's first published welcome; suspension pauses it. */
+  function welcomeClock(view:AppView,nextOwner:string,ready:boolean,elapsedMs:number,reducedMotion:boolean){
+    if(nativeServiceView(view)?.view!=='eshop-welcome'){if(welcome)welcome.last=undefined;return undefined;}
+    if(welcome?.owner!==nextOwner)welcome={owner:nextOwner,ms:0};
+    if(!ready||reducedMotion||!Number.isFinite(elapsedMs)){welcome.last=undefined;return undefined;}
+    if(welcome.last!==undefined)welcome.ms+=Math.max(0,Math.min(ESHOP_WELCOME_STEP_LIMIT_MS,elapsedMs-welcome.last));
+    welcome.last=elapsedMs;return welcome.ms;
+  }
   function prepare(view:AppView,nextOwner:string,font?:BitmapFont){
     if(disposed)return session.getState();
     sync(nextOwner);
@@ -236,10 +248,14 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       // Pixels stay out of the key; one frozen capture has one generation.
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
       const reducedMotion=options.reducedMotion?.()??false;
-      // Only Zone's native HUD has a live clock in this stock-screen cache.
+      // Zone's HUD clock and eShop's welcome passes are this cache's only live keys.
       const zoneTime=view.appId==='nintendo-zone'?zoneClock(date,elapsedMs):null;
       const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60]:null;
-      const state=prepare(view,nextOwner,font),key=JSON.stringify([nextOwner,view,revision,capture,reducedMotion,zonePaintKey]);
+      const state=prepare(view,nextOwner,font);
+      const eshopWelcomeMs=welcomeClock(view,nextOwner,state.status==='ready'&&!failure,elapsedMs,reducedMotion);
+      // Poses, not milliseconds, key the eShop pair: at most one repaint per source pass.
+      const eshopPaintKey=eshopWelcomeMs===undefined?null:eshopWelcomeBindings(eshopWelcomePass(eshopWelcomeMs));
+      const key=JSON.stringify([nextOwner,view,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();
@@ -247,7 +263,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||state.status==='ready'){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,eshopWelcomeMs});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
           }catch(error){fail(error);recovery();}
         }
@@ -261,6 +277,6 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     },
     getState:session.getState,
     getFailure:()=>failure,
-    dispose(){if(disposed)return;disposed=true;clearDeadline();session.dispose();releaseImages();owner=null;published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
+    dispose(){if(disposed)return;disposed=true;welcome=null;clearDeadline();session.dispose();releaseImages();owner=null;published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
   };
 }

@@ -46,17 +46,15 @@ ownership/reset behavior is not traced here.
 
 ## Evidence still needed before implementation
 
-- Establish who invokes `LytSlider`'s virtual update, how often, and where the
-  shared manager's float at `+0x260` originates. `0x26f9b4` passes this float to
-  `0x21f180`, but output smoothing runs once per controller invocation. Converting
-  the replay's 20 updates into 333ms would assume an unverified 60Hz cadence.
-- Trace physical D-pad input into the internal masks consumed at `0x2ce810`,
-  including the difference between manager `+4` and `+0x10`, repeat delay/rate,
-  and ordering relative to controller update. Trace stylus drag/release into
-  `0x21fd40`'s pending path before reproducing inertia or interruption.
-- Establish partial-page blank-cell and folder-expansion behavior after the
-  candidate reaches `0x1fcb70`. The native helper permits padded-page indices;
-  the website's actual-items-only selection clamp cannot simply be retained.
+- The [input continuation](camera-input-source-audit.md) now establishes raw
+  direction mapping, repeat defaults, root-divider origin, post-child input
+  scheduling, viewport drag dispatch and blank metadata/coordinates. Port that
+  ordering and touch ownership into an isolated browser Camera adapter before
+  connecting the smoother. Converting its 20 updates into 333ms still assumes
+  unverified hardware wall-clock cadence.
+- Trace final blank cursor visibility and preview writers, plus folder-expansion
+  lifecycle. The native helper permits padded-page indices and clears selected
+  photo metadata; the website's actual-items-only clamp cannot be retained.
 - Trace three-page ring reset/rebinding and cursor lifecycle when changing
   folder, opening a photo, returning or suspending.
 - Establish CurDefault animator start/reset/pause ownership and frame cadence.
@@ -111,8 +109,8 @@ The replay executes this original function up to its call to `0x2d1274`.
 `ceil(max(itemCount,1)/itemsPerPage)×itemsPerPage`, not by the actual item count.
 For seven items, index 6 with mask `0x400` produces blank-cell candidate 9,
 which is inside the two padded pages. Index 11 with `0x80` produces 12, which
-is outside. These masks must not be called physical HID bits without tracing
-their producer.
+is outside. The input continuation traces their producer; these remain internal
+Camera masks, distinct from the corresponding raw HID masks.
 
 `0x2cf034–0x2cf058` invokes `0x2d92ac` for 64 potential thumbnail slots. That
 helper derives global index `(currentPage−1)×itemsPerPage + slot`, uses a

@@ -127,3 +127,8 @@ No runtime/public assets changed, so prior LCD source renders remain unchanged;
 no new image is presented as a before/after improvement. No build, native launch
 or browser operation was performed. A visible correction still requires resolved
 inputs/state/shader behavior and matched native/source output.
+
+The [draw-dispatch follow-up](native-zone-draw-dispatch-audit.md) now binds paint
+origin to document scroll, executes the scroll constructor and type-4 callback
+dispatch, and tests the cached scissor emitter and depth save/restore routines.
+It narrows those inputs without promoting the unresolved final DOM/buffer state.

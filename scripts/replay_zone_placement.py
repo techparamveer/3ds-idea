@@ -19,7 +19,8 @@ def replay(code_path):
     from unicorn import Uc, UC_ARCH_ARM, UC_MODE_ARM, UC_HOOK_CODE
     from unicorn.arm_const import (UC_ARM_REG_C1_C0_2, UC_ARM_REG_FPEXC,
         UC_ARM_REG_R0, UC_ARM_REG_R1, UC_ARM_REG_R2, UC_ARM_REG_R3,
-        UC_ARM_REG_SP, UC_ARM_REG_LR, UC_ARM_REG_PC)
+        UC_ARM_REG_SP, UC_ARM_REG_LR, UC_ARM_REG_PC, UC_ARM_REG_R4,
+        UC_ARM_REG_R5, UC_ARM_REG_R7, UC_ARM_REG_R8)
     m = Uc(UC_ARCH_ARM, UC_MODE_ARM)
     m.mem_map(0x100000, 0x300000)
     m.mem_write(0x100000, code)
@@ -40,15 +41,15 @@ def replay(code_path):
 
     m.hook_add(UC_HOOK_CODE, mutex)
 
-    def call(start, args=(), stack=()):
+    def call(start, args=(), stack=(), end=sentinel, stack_pointer=sp):
         for reg, value in zip((UC_ARM_REG_R0, UC_ARM_REG_R1, UC_ARM_REG_R2, UC_ARM_REG_R3), args):
             m.reg_write(reg, value)
         for i, value in enumerate(stack):
-            put(sp+i*4, value)
-        m.reg_write(UC_ARM_REG_SP, sp)
+            put(stack_pointer+i*4, value)
+        m.reg_write(UC_ARM_REG_SP, stack_pointer)
         m.reg_write(UC_ARM_REG_LR, sentinel)
-        m.emu_start(start, sentinel, count=100000)
-        if m.reg_read(UC_ARM_REG_PC) != sentinel:
+        m.emu_start(start, end, count=100000)
+        if m.reg_read(UC_ARM_REG_PC) != end:
             raise AssertionError('Original source routine did not complete')
 
     bounds = 0x1000000
@@ -60,6 +61,14 @@ def replay(code_path):
             'documentDimensions': [rect[2]-rect[0], rect[3]-rect[1]]})
 
     doc, element, paint, archive, layout, root, app, views, view = [0x1001000+i*0x1000 for i in range(9)]
+    call(0x26d720, (doc+0x248,))
+    scroll_initial = {'zoom': floats(doc+0x250, 1)[0],
+        'scroll': floats(doc+0x254, 2), 'flags': words(doc+0x25c, 1)[0]}
+    target, target_buffer = 0x100b000, 0x100c000
+    put(target, target_buffer)
+    put(target_buffer+0x90, 400)
+    put(target_buffer+0x94, 220)
+    call(0x268fe4, (element+0x2ec, 0x23c990, element))
     put(element+4, doc)
     put(element+0x344, archive)
     put(archive+0x24, layout)
@@ -82,17 +91,24 @@ def replay(code_path):
         for i, value in enumerate(case['element']):
             put(element+0x38+i*4, value)
         for i, value in enumerate(case['paintOrigin']):
-            put(paint+0x10+i*4, value)
+            putf(doc+0x254+i*4, value)
+        # Execute the original paint-context setup, using document scroll fields.
+        # The synthetic surface dimensions are 400x220; no DOM layout is run.
+        for reg, value in ((UC_ARM_REG_R4, doc), (UC_ARM_REG_R5, 0),
+                           (UC_ARM_REG_R7, target), (UC_ARM_REG_R8, 0)):
+            m.reg_write(reg, value)
+        call(0x1c12b4, end=0x1c12f8, stack_pointer=paint)
         for i, value in enumerate(case['viewport']):
             put(view+0x80+i*4, value)
         put(doc+0x25c, int(case['zoom'] is not None))
         putf(doc+0x250, case['zoom'] or 1)
-        call(0x23c990, (0, paint, 2, element))
+        call(0x1bab2c, (element+0x2ec, target, paint, 2))
         samples.append({'syntheticInputs': case, 'rootTranslation': floats(root+0x28, 3)})
     return {'codeSha256': CODE_SHA256, 'nativeCapture': False,
         'actualResolvedHtmlInputsProven': False, 'viewports': viewports,
         'viewportCallbackPointer': hex(struct.unpack_from('<I', code, 0x2d5fd8-0x100000)[0]),
         'documentConstructorCall': hex(arm_bl_target(code, 0x225b4c)),
+        'scrollConstructor': scroll_initial, 'paintDispatcher': '0x1bab2c',
         'conditionalRootSamples': samples, 'interceptedFunctions': sorted(set(mutex_calls)),
         'limits': ['Viewport callback constants are source-backed.',
             'DOM/paint/view-buffer/zoom input state is synthetic, not actual final placement.',

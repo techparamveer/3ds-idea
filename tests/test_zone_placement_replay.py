@@ -37,6 +37,11 @@ class SourcePlacementTests(unittest.TestCase):
         self.assertFalse(self.report['actualResolvedHtmlInputsProven'])
         self.assertFalse(self.report['nativeCapture'])
 
+    def test_original_scroll_constructor_and_type_four_dispatch_are_used(self):
+        self.assertEqual(self.report['scrollConstructor'],
+                         {'zoom': 1, 'scroll': [0, 0], 'flags': 0x10})
+        self.assertEqual(self.report['paintDispatcher'], '0x1bab2c')
+
 
 if __name__ == '__main__':
     unittest.main()

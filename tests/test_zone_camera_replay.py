@@ -46,6 +46,21 @@ class SourceCameraTests(unittest.TestCase):
         self.assertFalse(self.report['rasterValidated'])
         self.assertFalse(self.report['nativeCapture'])
 
+    def test_scissor_packet_encodes_disable_include_and_target_clamping(self):
+        samples = self.report['scissorEmitterSamples']
+        self.assertEqual([s['packet'] for s in samples], [
+            ['0x0', '0xf0065', '0x0', '0xf0066', '0xef018f', '0xf0067'],
+            ['0x3', '0xf0065', '0x50014', '0xf0066', '0x360077', '0xf0067'],
+            ['0x3', '0xf0065', '0x0', '0xf0066', '0xef018f', '0xf0067']])
+        self.assertTrue(all(s['syntheticTarget'] == [400, 240] for s in samples))
+
+    def test_original_save_restore_preserves_initial_depth_state(self):
+        self.assertEqual(self.report['depthSaveRestoreSamples'], [
+            {'syntheticInitialDepthTest': False, 'initialBit': 0, 'savedFlag': 0,
+             'duringBit': 0, 'restoredBit': 0},
+            {'syntheticInitialDepthTest': True, 'initialBit': 1, 'savedFlag': 1,
+             'duringBit': 0, 'restoredBit': 1}])
+
 
 if __name__ == '__main__':
     unittest.main()

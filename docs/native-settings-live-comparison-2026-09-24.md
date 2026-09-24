@@ -25,9 +25,9 @@ and a declared portfolio status before publishing a fix.
 
 Evidence under the SSD artifact root:
 
-- `reference/native-settings-2026-09-24/other-page1-opengl.png`: native
+- `reference/native-settings-2026-09-24/other-page1-opengl.jpg`: native
   emulator-window screenshot after the mapped touch.
-- `reference/native-settings-2026-09-24/browser-other-page1-3769074.png`:
+- `reference/native-settings-2026-09-24/browser-other-page1-3769074.jpg`:
   browser viewport screenshot of the corresponding portfolio page.
 
 The mapping uses the [Azahar Qt config reader](https://github.com/azahar-emu/azahar/blob/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/citra_qt/configuration/config.cpp)

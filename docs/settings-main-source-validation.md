@@ -236,3 +236,24 @@ renders were inspected. The production server was restarted with this build
 at localhost:3000. Actual browser verification remains pending: CUA getState
 timed out and reset its kernel. These checks do not establish matched native
 1:1 fidelity or close the wider goal.
+
+### Browser follow-up, 2026-09-24
+
+CUA reconnected to existing IAB tab3 at localhost:3000 after the earlier
+observation timeouts. Reloaded the production build and visually inspected
+Settings main, the complete Parental introduction/footer, DS Profile upper
+and lower LCDs, and Other Settings page2 inside the console at its current
+593×787 viewport. This supersedes the pending browser check for these screens.
+
+Parental Back touch returned to its main tile. Keyboard Down/A opened Other
+Settings; Profile → DS Profile opened the legacy screen. Touching the right
+end of the full-width Back footer returned to Profile with DS Profile selected.
+B then Right showed page2 with 3D Calibration, Sound, Mic Test in that order.
+Browser warn/error logs were empty at this checkpoint.
+
+From Settings, P displayed native power controls; touching Power Off produced
+black LCDs, and P returned through boot to HOME. Camera then opened its existing
+portfolio folders, A opened Renu's folder, and HOME suspended it. Opening Sound
+displayed Close software?, A confirmed, and Sound showed the empty music state.
+No user music is supplied, so this does not verify live track playback. No
+matched emulator capture or transition timing comparison was performed.

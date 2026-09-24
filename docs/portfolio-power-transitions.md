@@ -83,3 +83,19 @@ aggregate CPU time for the 84 comparison frames was 226ms for the original path
 and 5.4ms for the uniform fill on this host; this is not a browser FPS claim and
 does not resolve the separate logo/material rasterization costs.
 Artifacts: `reference/system-ui-fast-fade/` on the designated SSD.
+
+### Live accessibility correction, 2026-09-24
+
+During browser verification the visible Close software? confirmation left the
+live announcement on HOME. Scene announcements now prioritize sleep and
+software-close/switch dialogs, and describe power options, powered-off state,
+boot, shutdown and launch in words instead of internal phase identifiers.
+This changes the hidden accessibility text only, preserving original LCD text.
+
+After type checking and a production build, the reloaded browser was verified:
+Work opened, HOME suspended it, opening Settings announced “Close software?
+A to close and open the selected software. B to cancel.” B cancelled; P
+announced the power controls; B returned to HOME. Build logs are in
+reference/browser-announcement-{typecheck,build}.log under the firmware SSD
+artifact root. Earlier in this same live pass, the Power Off touchscreen
+control produced black LCDs and P completed boot back to HOME.

@@ -12,6 +12,8 @@ exactly when the final cell writer first receives `ready=1`.
 cancel an existing capture, interruption does not clear pass-1 consumer
 readiness, final property/cell writers remain recorded leaves, and no pixel or
 GPU upload is replayed. The six-item live adapter therefore remains unchanged.
+The browser-side scene reset and the exact remaining native evidence are in the
+[gallery scene reset audit](camera-gallery-scene-reset-audit.md).
 
 The source remains EUR Camera `0004001000022400`, content
 `0000-0000001a`, executable base `0x100000`, SHA-256

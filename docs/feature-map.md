@@ -73,6 +73,7 @@ this table.
 | Camera upper LCD | `3ds-idea-worktrees/camera-upper-source` | `codex/camera-upper-source` @ `fd7183a` | Integrated as `ea4cdfe` |
 | Notes switch | `3ds-idea-worktrees/notes-switch-native` | `codex/notes-switch-native` | Cursor/Fable source trace and bounded implementation in progress |
 | Settings Language | `3ds-idea-worktrees/settings-language-source` | `codex/settings-language-source` | Cursor/Opus source trace and read-only page correction in progress |
+| amiibo materials | `3ds-idea-worktrees/amiibo-source-materials` | `codex/amiibo-source-materials` | Cursor/GPT-5.6-Sol source material/renderer audit in progress |
 | Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` @ `91fe40f` | Integrated as `24d7aa6` and `ee036df` |
 | Preserved | Original checkout, `3ds-idea-os`, `.codex/worktrees/b94c` | `uifix`, `codex/3ds-os`, `codex/home-menu-assets` | Keep, don't modify |
 

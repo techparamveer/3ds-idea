@@ -77,6 +77,43 @@ test('raw native mode5 preserves world Y and faces camera direction without view
  assert.ok(new THREE.Vector3().setFromMatrixScale(world).distanceTo(new THREE.Vector3(2,3,4))<1e-10);
  assert.throws(()=>nativeYAxialBone(new THREE.Matrix4(),new THREE.Matrix4().makeScale(0,1,1),camera.matrixWorld),/Degenerate/);
 });
+test('converted Settings p_title mode 1 updates both source meshes through its COMMON clip',()=>{
+ const data=JSON.parse(readFileSync(new URL('./fixtures/settings-billboard-model.json',import.meta.url),'utf8'));
+ assert.equal(data.sourceSha256,'96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d');
+ assert.equal(data.models[0].skeleton[0].Name,'p_title');
+ assert.equal(data.models[0].skeleton[0].NativeBillboardMode,1);
+ assert.deepEqual(data.models[0].meshes.map(mesh=>mesh.submeshes[0].bones),[[0],[0]]);
+ const before=JSON.stringify(data),model=createFirmwareModel({data,images:new Map()},{skeletal:[{name:'COMMON'}],material:[]});
+ const camera=new THREE.PerspectiveCamera(30,5/3,26.5,1000);
+ const check=(frame,y,direction)=>{
+  model.update(frame*1000/60,camera);
+  for(const [index,source] of data.models[0].meshes.entries()){
+   const mesh=model.group.children[0].children[index],actual=new THREE.Vector3().fromBufferAttribute(mesh.geometry.getAttribute('position'),0).applyMatrix4(mesh.matrixWorld);
+   const [sx,sy,sz]=source.position[0],expected=new THREE.Vector3(.94*sx,.94*(direction.z*sy+direction.y*sz)+y,.94*(-direction.y*sy+direction.z*sz));
+   assert.ok(actual.distanceTo(expected)<1e-4,`frame ${frame}, mesh ${index}: ${actual.toArray()} vs ${expected.toArray()}`);
+  }
+ };
+ camera.position.set(0,1,44.786);camera.lookAt(0,1,0);
+ check(0,-7.05967,{y:0,z:1});check(132,-7.08047,{y:0,z:1});check(312,-7.23887,{y:0,z:1});
+ model.group.rotation.y=.4;camera.position.set(0,30,40);camera.lookAt(0,0,0);
+ check(312,-7.23887,{y:.6,z:.8});
+ assert.equal(JSON.stringify(data),before,'source CGFX values must stay unchanged');
+ model.dispose();
+});
+test('full private Settings conversion updates every source mesh without mutation',{skip:!process.env.NATIVE_SETTINGS_MODEL_JSON},()=>{
+ const data=JSON.parse(readFileSync(process.env.NATIVE_SETTINGS_MODEL_JSON,'utf8'));
+ assert.equal(data.sourceSha256,'96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d');
+ const before=JSON.stringify(data),model=createFirmwareModel({data,images:new Map()},{skeletal:[{name:'COMMON'}],material:[]});
+ const camera=new THREE.PerspectiveCamera(30,5/3,26.5,1000);camera.position.set(0,1,44.786);camera.lookAt(0,1,0);
+ for(const frame of [0,1,150,300,599]){
+  model.update(frame*1000/60,camera);
+  const meshes=model.group.children[0].children;
+  assert.equal(meshes.length,12);
+  assert.equal(meshes.reduce((count,mesh)=>count+mesh.geometry.getAttribute('position').count,0),1454);
+  for(const mesh of meshes)for(const value of mesh.geometry.getAttribute('position').array)assert.ok(Number.isFinite(value));
+ }
+ assert.equal(JSON.stringify(data),before);model.dispose();
+});
 test('native text mesh keeps its authored corners, remains visible under parent yaw, and accepts cached RGBA replacement',()=>{
  const data=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/folder/model.json',import.meta.url),'utf8'));
  const pixels={width:256,height:64,data:new Uint8ClampedArray(256*64*4).fill(255)};pixels.data.set([3,7,11,0]);

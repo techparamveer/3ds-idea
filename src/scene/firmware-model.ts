@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { sampleCgfxCurve, selectCgfxClips, cgfxClipFrame, type CgfxCurve, type CgfxClipChoice } from '../os/cgfx-animation';
 import { cgfxLightingShader, decodeCgfxLutWord, type CgfxLightingData } from './cgfx-lighting';
 import { decodeNativePng } from '../os/native-png';
-import { nativeYAxialBone } from './cgfx-billboard';
+import { nativeCameraDirectionBone, nativeYAxialBone } from './cgfx-billboard';
 import type { NativePixels } from '../os/native-layout';
 type Color={R:number;G:number;B:number;A:number};
 type Vec={X:number;Y:number;Z:number;W?:number};
@@ -205,8 +205,8 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
      let transform=sub.skinning==='Smooth'?bones[index].clone().multiply(inverse[index]):bones[index];
      const bone=model.skeleton[index],mode=bone.NativeBillboardMode??((bone.BillboardMode??'Off')==='Off'?0:undefined);
      if(mode!==0&&camera){
-      if(mode!==5||sub.skinning==='Smooth')throw new Error(`Unsupported native billboard mode ${mode}`);
-      transform=nativeYAxialBone(transform,modelGroup.matrixWorld,camera.matrixWorld);
+      if((mode!==1&&mode!==5)||sub.skinning==='Smooth')throw new Error(`Unsupported native billboard mode ${mode}`);
+      transform=mode===1?nativeCameraDirectionBone(transform,modelGroup.matrixWorld,camera.matrixWorld):nativeYAxialBone(transform,modelGroup.matrixWorld,camera.matrixWorld);
      }
      return transform;
     });

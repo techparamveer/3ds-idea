@@ -43,22 +43,19 @@ banner is enabled by this converter change.
 
 ## Next implementation contract for System Settings
 
-The converted Settings model is authentic source data, but the present renderer
-throws `Unsupported native billboard mode 1` when it updates the `p_title`
-bone. That bone drives two of the twelve meshes. The pinned SPICA enum has no
-name for raw mode 1; assigning it another mode or turning it off would change
-the source animation. A diagnostic run changing only that field to zero **in
-memory** allowed the current `createFirmwareModel` to update all 12 meshes / 1,454
-vertices at frames 0, 1, 150, 300 and 599. This proves the rest of that CPU
-model path accepts the converted structure; it is not a correct rendering or a
-reason to publish the modified model.
+The converted Settings model is authentic source data. Its `p_title` bone uses
+raw billboard mode 1 and drives two of the twelve meshes. Native HOME dispatch
+and basis construction have since been traced; `cgfx-billboard.ts` implements
+that numeric mode independently of mode 5. The reduced source fixture and full
+private model update pass all 12 meshes / 1,454 vertices at frames 0, 1, 150,
+300 and 599 without changing the source model. This validates model updates,
+not the upper-screen composition or timing.
 
 The next bounded pass needs to establish these facts before live wiring:
 
-1. Trace raw CGFX billboard mode 1 through the original HOME renderer, including
-   bone/world/view matrix order and its result at several camera and clip frames.
-   Implement that mode in `cgfx-billboard.ts` with numeric source fixtures. Keep
-   the current mode-5 folder behavior independent.
+1. **Completed:** raw CGFX billboard mode 1 was traced through the original
+   HOME renderer and implemented in `cgfx-billboard.ts` with numeric Settings
+   fixtures. The mode-5 folder behavior remains independent.
 2. Apply the [type-1 source lifecycle](native-settings-type1-lifecycle.md):
    Settings traverses state 3, a title-resource worker, state 4, a presentation
    worker, and state 5 before visibility is requested. The static trace also

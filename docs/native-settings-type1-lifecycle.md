@@ -71,8 +71,9 @@ loader locates a skeletal controller through `0x1f8028` (`0x24dfd4..dff4`),
 then calls its virtual `+0x10` at `0x24dfec..dff4`. The model's loop flag is
 source data. A full executed sample of the native controller's first frame,
 600-to-0 wrap and display cadence has **not** been produced here. Do not apply
-folder/default clip or yaw values to the title. The existing renderer's raw
-billboard mode 1 gap remains independently blocking.
+folder/default clip or yaw values to the title. Raw billboard mode 1 has since
+been implemented and verified against the converted Settings model; upper-screen
+hosting remains separate.
 
 On departure, a changed title request again passes state 6, requests hide,
 waits for actual visibility in state 2, and uses state 1's normal gate before

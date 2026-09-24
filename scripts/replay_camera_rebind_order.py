@@ -1,8 +1,8 @@
-"""Replay Camera collision rebind through two complete presentation passes.
+"""Replay Camera root input, collision rebind and presentation ordering.
 
 Requires unicorn==2.1.4 and the hash-pinned private EUR Camera code.bin. The
 fixture uses synthetic objects and explicit service states; it is not a decoder,
-GPU upload, complete owner traversal, renderer or native screen comparison.
+GPU upload, renderer or native screen comparison.
 """
 import argparse
 import hashlib
@@ -24,6 +24,7 @@ def replay(code_path):
         UC_ARM_REG_R1,
         UC_ARM_REG_R2,
         UC_ARM_REG_R3,
+        UC_ARM_REG_S0,
         UC_ARM_REG_SP,
     )
 
@@ -132,6 +133,9 @@ def replay(code_path):
     presented_cells = []
     presentation_events = []
     presentation_pass = 0
+    root_update_phase = ""
+    root_update_events = []
+    slider_writes = []
     instruction_order = []
     recent_instructions = []
     presentation_phase = ""
@@ -191,7 +195,12 @@ def replay(code_path):
                 }
             )
         if address in (
+            0x271FF0,
+            0x270CC4,
+            0x28455C,
             0x2D5740,
+            0x28C358,
+            0x2D425C,
             0x2D9450,
             0x2DBB50,
             0x2CC654,
@@ -201,8 +210,81 @@ def replay(code_path):
             0x2DAB00,
         ):
             instruction_order.append(hex(address))
+        if mode == "root-update" and address in (
+            0x271FF0,
+            0x2752C8,
+            0x270CC4,
+            0x28455C,
+            0x2D5740,
+            0x28C358,
+        ):
+            root_update_events.append(
+                {
+                    "update": root_update_phase,
+                    "entry": hex(address),
+                    "object": machine.reg_read(UC_ARM_REG_R0),
+                }
+            )
+        if mode == "root-update" and address == 0x2D5984:
+            root_update_events.append(
+                {"update": root_update_phase, "event": "capture-accepted"}
+            )
+        elif mode == "root-update" and address == 0x2D5A0C:
+            root_update_events.append(
+                {"update": root_update_phase, "event": "drag-dispatch"}
+            )
+        elif mode == "root-update" and address == 0x2D5A64:
+            root_update_events.append(
+                {"update": root_update_phase, "event": "release"}
+            )
+        elif mode == "root-update" and address == 0x2D5798:
+            root_update_events.append(
+                {"update": root_update_phase, "event": "cancel"}
+            )
 
-        if mode == "allocate" and address == 0x262340:
+        if mode == "root-update" and address in (
+            0x303F64,
+            0x275104,
+            0x286E94,
+            0x285618,
+            0x1FB73C,
+            0x1FBBA4,
+            0x220898,
+        ):
+            calls.append(
+                {
+                    "call": hex(address),
+                    "mode": mode,
+                    "update": root_update_phase,
+                }
+            )
+            return_from_leaf(0)
+        elif mode == "root-update" and address == 0x21FD40:
+            target_bits = machine.reg_read(UC_ARM_REG_S0)
+            target = struct.unpack("<f", struct.pack("<I", target_bits))[0]
+            flag = machine.reg_read(UC_ARM_REG_R1)
+            slider_writes.append(
+                {
+                    "update": root_update_phase,
+                    "target": target,
+                    "flag": flag,
+                }
+            )
+            machine.mem_write(
+                machine.reg_read(UC_ARM_REG_R0) + 0x28,
+                struct.pack("<f", target),
+            )
+            return_from_leaf()
+        elif mode == "root-update" and address == 0x10A0100:
+            root_update_events.append(
+                {
+                    "update": root_update_phase,
+                    "event": "active-owner-released",
+                    "owner": machine.reg_read(UC_ARM_REG_R0),
+                }
+            )
+            return_from_leaf()
+        elif mode == "allocate" and address == 0x262340:
             allocation_size = machine.reg_read(UC_ARM_REG_R0)
             result = allocator_next
             allocator_next = (allocator_next + allocation_size + 15) & ~15
@@ -329,6 +411,17 @@ def replay(code_path):
         elif mode == "presentation" and address == 0x2DB8D4:
             calls.append({"call": "post-ring-layout", "mode": mode})
             return_from_leaf()
+        elif mode == "presentation" and address in (
+            0x2D4BCC,
+            0x2D1010,
+            0x2D4048,
+            0x2D2CA0,
+            0x2D3B60,
+            0x2D36BC,
+            0x2DB460,
+        ):
+            calls.append({"call": hex(address), "mode": mode})
+            return_from_leaf()
 
     machine.hook_add(UC_HOOK_CODE, hook)
 
@@ -355,20 +448,6 @@ def replay(code_path):
         machine.emu_start(address, sentinel, count=count)
         assert machine.reg_read(UC_ARM_REG_PC) == sentinel
         return machine.reg_read(UC_ARM_REG_R0)
-
-    # Native early cancellation runs in BrowseThumbnail's after-child input
-    # handler. This is a complete 0x2d5740 call for the early manager gate.
-    touch_scene = 0x1080000
-    touch_owner = 0x1081000
-    input_manager = 0x1082000
-    put(word(0x2D5AC4), input_manager)
-    put(touch_scene + 0x11C, touch_owner)
-    machine.mem_write(touch_owner + 4, b"\1\xff")
-    machine.mem_write(touch_scene + 0x7C, b"\1\1")
-    mode = "touch-cancel"
-    call(0x2D5740, touch_scene)
-    assert machine.mem_read(touch_scene + 0x7C, 2) == b"\0\0"
-    assert byte(touch_owner + 4) == 2 and byte(touch_owner + 5) == 1
 
     # Rebind logical 69 over logical 5 in slot 5. During complete 0x2d9450
     # request allocation, the selected 0x2dbb50 submission runs whole; the other
@@ -457,10 +536,53 @@ def replay(code_path):
     assert not word(renderer + 0x80) & (1 << 2)
     assert byte(renderer + 4 + 0x40 + 2 + 0x94) == 5
 
-    # Exercise the complete presentation function twice on the same object
-    # graph. The first pass consumes the old consumer bit (clear), reaches the
-    # final material setter, draws, then rewrites consumer readiness. The next
-    # pass is the first one whose ring writer can receive ready=1.
+    # Connect native root sampling to generic owner-before/child/owner-after
+    # traversal. The enclosing SceneBrowse and BrowseThumbnail use their source
+    # vtables. Only unrelated owner services and the sound/slider leaves listed
+    # above are intercepted.
+    root = 0x1080000
+    input_manager = root + 0x40
+    provider = 0x1090000
+    old_active_owner = 0x10A0000
+    new_active_owner = 0x10A1000
+    active_owner_vtable = 0x10A2000
+    scene_owner = 0x10B0000
+    put(root, 0x420AF4)
+    put(scene_owner, 0x41F8B8)
+    put(scene, 0x42044C)
+    put(root + 0x10, root)
+    put(scene_owner + 0x10, root)
+    put(scene + 0x10, scene_owner)
+    put(root + 0x28, scene_owner + 4)
+    put(root + 0x2C, scene_owner + 4)
+    put(scene_owner + 0x28, scene + 4)
+    put(scene_owner + 0x2C, scene + 4)
+    put(scene + 0x28, scene + 0x28)
+    put(scene + 0x2C, scene + 0x28)
+    put(word(0x2D5AC4), input_manager)
+    put(word(0x2752C4), provider)
+    put(word(0x2750F0), provider)
+    machine.mem_write(input_manager + 0x254, b"\1")
+    machine.mem_write(scene_owner + 0x7B9, b"\2")
+    machine.mem_write(scene_owner + 0x3E0, b"\1")
+    machine.mem_write(scene_owner + 0x1237, b"\1")
+    put(scene_owner + 0x44, scene)
+    put(scene_owner + 0x48, scene)
+    put(scene + 0x168, owner)
+    put(scene + 0x11C, owner)
+    put(scene + 0x48, 0)
+    put(scene + 0x2CC, 0)
+    machine.mem_write(scene + 0x80, struct.pack("<f", 0.0))
+    machine.mem_write(scene + 0x84, struct.pack("<f", 0.0))
+    machine.mem_write(scene + 0x8C, struct.pack("<f", 320.0))
+    machine.mem_write(scene + 0x90, struct.pack("<f", 240.0))
+    put(old_active_owner, active_owner_vtable)
+    put(new_active_owner, active_owner_vtable)
+    put(old_active_owner + 0x10, owner)
+    put(new_active_owner + 0x10, owner)
+    put(active_owner_vtable + 0xC, 0x10A0100)
+    call(0x128508, input_manager + 4)
+
     slider = 0x1050000
     geometry = 0x1051000
     controls_for_draw = 0x1053000
@@ -472,9 +594,71 @@ def replay(code_path):
     put(owner + 0x2268, struct.unpack("<I", struct.pack("<f", 228.0))[0])
     put(owner + 0x226C, struct.unpack("<I", struct.pack("<f", 132.0))[0])
     put(slider + 0x3C, 14)
+    machine.mem_write(slider + 0x78, struct.pack("<f", 248.0))
+    put(scene + 0x28C, owner)
+    machine.mem_write(owner + 0x2238, b"\1")
+    put(owner + 0x223C, 0)
+    machine.mem_write(scene + 0x38, struct.pack("<f", 1.0))
+
+    def root_update(label, x, y, held, pending_owner):
+        nonlocal mode, root_update_phase
+        machine.mem_write(
+            provider + 0x58,
+            struct.pack("<HH", x, y | (0x8000 if held else 0)),
+        )
+        put(input_manager + 0x258, pending_owner)
+        mode = "root-update"
+        root_update_phase = label
+        call(0x271FF0, root, count=2000000)
+        return {
+            "update": label,
+            "capture": bool(byte(scene + 0x7C)),
+            "drag": bool(byte(scene + 0x7D)),
+            "browseState": byte(owner + 4),
+            "activeOwner": word(input_manager + 0x25C),
+            "touchDistance": struct.unpack(
+                "<f", machine.mem_read(input_manager + 0x12C, 4)
+            )[0],
+            "sceneOwnerFlags": half(scene_owner + 0x30),
+            "childFlags": half(scene + 0x30),
+            "consumerReady": bool(word(renderer + 0x80) & (1 << 2)),
+        }
+
+    put(input_manager + 0x25C, old_active_owner)
+    touch_updates = [
+        root_update("capture", 100, 100, True, old_active_owner),
+        root_update("owner-replacement-drag", 112, 100, True, new_active_owner),
+        root_update("release", 112, 100, False, new_active_owner),
+    ]
+    machine.mem_write(slider + 0xD9, b"\0")
+    touch_updates.extend(
+        [
+        root_update("recapture", 100, 100, True, new_active_owner),
+        root_update("drag-before-pass-1", 112, 100, True, new_active_owner),
+        ]
+    )
+    assert touch_updates[0]["capture"] and not touch_updates[0]["drag"]
+    assert touch_updates[1]["capture"] and touch_updates[1]["drag"]
+    assert touch_updates[1]["activeOwner"] == new_active_owner
+    assert touch_updates[1]["touchDistance"] == 12.0
+    assert slider_writes[0] == {
+        "update": "owner-replacement-drag",
+        "target": 236.0,
+        "flag": 0,
+    }, slider_writes
+    assert not touch_updates[2]["capture"] and not touch_updates[2]["drag"]
+    assert touch_updates[2]["browseState"] == 2
+    assert touch_updates[3]["capture"] and not touch_updates[3]["drag"]
+    assert touch_updates[4]["capture"] and touch_updates[4]["drag"]
+
+    # Exercise the complete BrowseThumbnail presentation function twice on the
+    # same source owner. The first pass consumes the old consumer bit (clear),
+    # reaches the final material setter, draws, then rewrites consumer
+    # readiness. Before pass 2, an owner replacement plus SceneBrowse mode
+    # interruption runs through the root and cancels the live drag.
     mode = "presentation"
     presentation_pass = 1
-    call(0x2CEA0C, scene, count=2000000)
+    call(0x2D425C, scene, count=4000000)
     assert len(presented_cells) == 64
     first_selected_cell = presented_cells[9]
     assert first_selected_cell["globalIndex"] == 69
@@ -483,9 +667,44 @@ def replay(code_path):
     assert first_selected_cell["resourceReady"]
     assert not first_selected_cell["ready"]
     assert word(renderer + 0x80) & (1 << 2)
+    assert half(scene + 0x30) & 2
 
+    machine.mem_write(input_manager + 0x254, b"\0")
+    interruption_event_start = len(root_update_events)
+    touch_updates.append(
+        root_update(
+            "owner-replacement-interruption-gated",
+            112,
+            100,
+            True,
+            old_active_owner,
+        )
+    )
+    first_interruption_events = root_update_events[interruption_event_start:]
+    assert not any(
+        event.get("entry") == "0x2d5740" for event in first_interruption_events
+    )
+    assert touch_updates[-1]["capture"] and touch_updates[-1]["drag"]
+    assert touch_updates[-1]["childFlags"] == 0, touch_updates[-1]
+    cancel_event_start = len(root_update_events)
+    touch_updates.append(
+        root_update("manager-interruption-cancel", 112, 100, True, old_active_owner)
+    )
+    cancel_events = root_update_events[cancel_event_start:]
+    assert any(event.get("entry") == "0x2d5740" for event in cancel_events)
+    assert any(event.get("event") == "cancel" for event in cancel_events)
+    assert not touch_updates[-1]["capture"] and not touch_updates[-1]["drag"], (
+        touch_updates[-1],
+        root_update_events[-16:],
+    )
+    assert touch_updates[-1]["browseState"] == 2
+    assert touch_updates[-1]["activeOwner"] == old_active_owner
+    assert touch_updates[-1]["consumerReady"]
+
+    machine.mem_write(input_manager + 0x254, b"\1")
     presentation_pass = 2
-    call(0x2CEA0C, scene, count=2000000)
+    mode = "presentation"
+    call(0x2D425C, scene, count=4000000)
     assert len(presented_cells) == 128
     second_selected_cell = presented_cells[64 + 9]
     assert second_selected_cell["globalIndex"] == 69
@@ -497,12 +716,20 @@ def replay(code_path):
     return {
         "ok": True,
         "codeSha256": CODE_SHA,
-        "ownerTouchCancellation": {
-            "entry": "0x2d5740",
-            "previousState": 1,
-            "nextState": 2,
-            "captureCleared": True,
-            "dragCleared": True,
+        "rootOwnerTouchTraversal": {
+            "rootEntry": "0x271ff0",
+            "traversalEntry": "0x270cc4",
+            "ownerBefore": "0x28455c",
+            "childInput": "0x2d5740",
+            "ownerAfter": "0x28c358",
+            "touchUpdates": touch_updates,
+            "sliderWrites": slider_writes,
+            "events": root_update_events,
+            "ownerReplacementDoesNotCancelExistingCapture": True,
+            "managerInterruptionCancelsCaptureAndDrag": True,
+            "pass1DisabledChildForFirstInterruptedUpdate": True,
+            "parentAfterReenabledChildForCancellation": True,
+            "consumerReadySurvivesInputOwnerReplacementAndManagerCancel": True,
         },
         "requestAllocation": {
             "entry": "0x2d9450",
@@ -538,7 +765,10 @@ def replay(code_path):
             "calls": current_calls,
         },
         "presentationPublication": {
-            "entry": "0x2cea0c",
+            "entry": "0x2d425c",
+            "innerPresentation": "0x2cea0c",
+            "sameOwner": owner,
+            "sameSceneOwner": scene_owner,
             "dirtyBitsetsBeforeCompletion": dirty_bitsets_before_completion,
             "propertyPublications": [
                 entry
@@ -560,19 +790,25 @@ def replay(code_path):
             "presentation item-context and render-service leaves 0x1fc78c/0x261588",
             "post-ring layout leaf 0x2db8d4",
             "final thumbnail cell writer 0x2d804c (arguments recorded)",
+            "root clock service 0x303f64 and analog sampler 0x275104",
+            "owner after-child service leaves 0x286e94/0x285618",
+            "browse state/sound/slider leaves 0x1fb73c/0x1fbba4/0x220898/0x21fd40",
+            "non-rebind BrowseThumbnail presentation helpers 0x2d4bcc/0x2d1010/0x2d4048/0x2d2ca0/0x2d3b60/0x2d36bc/0x2db460",
             "unrelated owner/resource helper leaves listed in call records",
         ],
         "scope": (
             "One Unicorn fixture and one synthetic object graph. Complete request "
             "allocation with the selected submission, original descriptor swap, original "
             "full 0x2da338, complete ready publisher, and two complete 0x2cea0c "
-            "presentation calls including original ring routing and post-draw consumer "
-            "rewrite; complete early touch-cancel entry runs first. Final material/cell "
-            "services and unrelated leaves are recorded intercepts. Non-selected "
-            "submissions are intercepted to keep the collision isolated. This is not the "
-            "enclosing parent/child frame dispatcher, current touch capture/release, "
-            "decoder/GPU upload, rendered pixels, browser timing or native visual "
-            "equivalence."
+            "presentation bodies reached through complete 0x2d425c calls, including "
+            "original ring routing and post-draw consumer rewrite. Original 0x271ff0 "
+            "sampling and 0x270cc4 parent-before/child/parent-after traversal execute "
+            "capture, 12px drag, release and interrupted cancellation. Final material/cell "
+            "services and listed unrelated leaves are recorded intercepts. Non-selected "
+            "submissions are intercepted to keep the collision isolated. Input-owner "
+            "replacement is not complete scene-owner teardown, and the fixture has no "
+            "browser generation token. This is not decoder/GPU upload, rendered pixels, "
+            "browser timing or native visual equivalence."
         ),
     }
 

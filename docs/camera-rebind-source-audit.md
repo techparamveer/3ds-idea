@@ -120,8 +120,10 @@ remaining sequence, upload ordering or native visual equivalence is solved.
 
 The later [combined ordering replay](camera-rebind-order-source-audit.md)
 now executes those bounded request, complete tag/resource, readiness and
-two-pass presentation stages in one fixture. It proves that `0x2da6fc`'s
-resource-ready bit and the ring consumer's post-draw ready bit are separate,
-and that tag 69 first reaches the cell writer ready on the second draw.
-Enclosing owner/touch traversal and actual GPU/pixel output remain the live
+two-pass presentation stages plus original root owner/touch traversal in one
+fixture. It proves that `0x2da6fc`'s resource-ready bit and the ring consumer's
+post-draw ready bit are separate, and that tag 69 first reaches the cell writer
+ready on the second draw. It also finds that input-owner replacement and current
+capture cancellation do not clear pass-1 consumer readiness. Complete
+SceneBrowse teardown/replacement and actual GPU/pixel output remain the live
 gate.

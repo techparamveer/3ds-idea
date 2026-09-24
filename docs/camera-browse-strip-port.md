@@ -16,12 +16,15 @@ Portfolio scope is unchanged: folders, gallery and photo only, no capture.
 
 The [feature map](feature-map.md) keeps the live six-item adapter gated. The
 later ordering continuation now bounds rebind/stale completion through the
-second ring draw, but combined owner/touch ordering remains open:
+second ring draw and executes current owner/touch traversal. It returns a
+negative live-gate result:
 
 | Required before live | Status here |
 | --- | --- |
 | Request allocation, complete tag/resource state, ready publication and two presentation passes (`0x2d9450`, `0x2dbb50`, `0x2da338`, `0x2da6fc`, `0x2cea0c`) | Bounded replayed in the later [ordering audit](camera-rebind-order-source-audit.md). The first ring draw remains unready; its post-draw rewrite permits tag 69 on the second draw. Final property/cell services are recorded leaves, not GPU pixels |
-| Combined owner input/presentation traversal with touch cancellation, ancestry, 12px drag and slider history | Open. Only the key-skip-while-stylus-down gate is modelled |
+| Combined owner input/presentation traversal with touch cancellation, ancestry, 12px drag and slider history | Bounded original root/traversal replayed. Input-owner replacement does not cancel an existing capture; manager interruption cancels on the next eligible child update and does not clear pass-1 consumer readiness |
+| Scene-owner generation replacement/teardown and stale consumer retirement | Open. The replay replaces the input manager's active owner, not the enclosing SceneBrowse/renderer |
+| Published lower-LCD pixel behavior | Open. Final property/cell writers remain recorded leaves; no upload or pixel comparison |
 | Native wall-clock cadence | Open. `CAMERA_BROWSE_UPDATE_MS` is the host's nominal 60 Hz conversion for tests, not hardware milliseconds |
 | FadeAll blank/folder preview, 3-page ring allocator, CurDefault ownership | Open |
 
@@ -69,9 +72,10 @@ two-pass consumer handoff are replayed in the later
 [ordering audit](camera-rebind-order-source-audit.md). Resource completion alone
 leaves the ring consumer bit clear; the first complete presentation dispatches
 dirty properties, draws unready and only then rewrites the consumer bit. The
-second draw receives ready with full tag 69. Enclosing owner/touch traversal and
-actual GPU/pixel output remain open. A browser URL assignment is not that
-lifecycle.
+second draw receives ready with full tag 69. The connected root replay shows
+that input-owner replacement and interrupted capture cancellation do not clear
+that pass-1 consumer bit. Complete SceneBrowse replacement/teardown and actual
+GPU/pixel output remain open. A browser URL assignment is not that lifecycle.
 
 ## Reproduction
 

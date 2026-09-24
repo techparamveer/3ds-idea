@@ -83,7 +83,9 @@ until release. The available static fixture does not resolve every retarget race
 inside states 3, 4 and 5 or a failed title-resource/worker path. Those paths
 need executed fixtures before a pure host claims native-equivalent activation.
 
-No application code or public asset is changed by this audit. The current app
-selection remains an explicit unsupported host handoff. In particular,
+The current app selection remains an explicit unsupported host handoff. The
+separate asset pass has published only converted Settings model JSON and five
+textures under `settingsBanner`; this audit itself changes no application code.
+In particular,
 `home-banner-service.ts`'s direct loading-to-active branch is proven for the
 bounded folder/default/clear implementation, not for native type 1.

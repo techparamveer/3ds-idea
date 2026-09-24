@@ -29,8 +29,9 @@ was `0a450efe7fbdba7a3bda05635c7abe9448080b719f9703e728efd46cc189a7d4`;
 the execution used .NET runtime 8.0.31 installed under `/tmp`. This establishes
 format decoding and source identity, not visual fidelity.
 
-The live HOME host currently treats application selections as unsupported and
-the public manifest has no stock CBMD banner models. Presenting System Settings
+The live HOME host currently treats application selections as unsupported. The
+public manifest now records the converted Settings model and five textures under
+`settingsBanner`; raw CBMD and audio remain private. Presenting System Settings
 requires a title-keyed resource request, native ordinary-application **type 1**
 activation and clip behavior, exact HOME camera/frame composition, and a matched
 browser/native capture. Types 4/5 in the current service are manager states,
@@ -65,10 +66,10 @@ The next bounded pass needs to establish these facts before live wiring:
    native worker/controller fixtures and resolve retarget/failure paths before
    extending `home-banner-lifecycle.ts` and `home-banner-host.ts`; today app
    selections are intentionally unsupported and app motion is `null`.
-3. Register only converted model JSON and five PNGs under a title-specific model
-   key in the public firmware manifest, with the CBMD/title/content hashes and
-   relative `exefs/banner.bin` source path. Never publish CBMD, BCWAV, code,
-   ticket or CIA. Load it with a generation/request-scoped ticket and separate
+3. The converted model JSON and five PNGs are registered under the title-specific
+   `settingsBanner` model key in the public firmware manifest, with the CBMD/title
+   hash and relative `exefs/banner.bin` source path. Never publish CBMD, BCWAV,
+   code, ticket or CIA. Load it with a generation/request-scoped ticket and separate
    readiness/failure so a pending Settings request cannot draw a former folder
    or acknowledge another title's resource.
 4. Sample the title's proven motion and `COMMON` skeletal clip independently,

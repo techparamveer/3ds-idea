@@ -106,7 +106,7 @@ Invalid pose; a new launch starts at Double either way.
 
 - The source Switch poses now animate as described below. The button
   `Select`/`Decide` animations and the two switch sounds are not reproduced.
-- HUD events 7/8 (`HudDoubleInOut`, `HudUpInOut`, `HudDownInOut`) and the
+- HUD events 8/9 (`HudDoubleInOut`, `HudUpInOut`, `HudDownInOut`) and the
   software-title panel (`W_TextPanel`, `P_ObjIcnUp00/Down00`, `TextPanelInOut`
   /`Stay`) remain hidden; their timing and inputs are untraced.
 - No matched Azahar/native LCD comparison of these modes has been performed.
@@ -155,3 +155,11 @@ and 19 skips with zero failures, TypeScript checking passes, and the production
 build passes. Logs: `reference/notes-switch-motion-{focused,tests,build}.log`.
 The worktree's initial external `node_modules` symlink was rejected by Turbopack;
 the successful build used a local APFS clone of the integration dependencies.
+
+## Title/HUD and sound follow-up
+
+The [title-panel/HUD source audit](native-notes-title-hud-source-audit.md)
+corrects the HUD event IDs to 8/9, identifies the independent title-panel
+controller and dynamic title/icon inputs, and resolves the two switch sound
+names. It records the metadata, controller and audio-delivery gaps; these
+panes and sounds remain unimplemented.

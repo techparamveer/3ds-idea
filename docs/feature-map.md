@@ -72,6 +72,7 @@ this table.
 | Settings Data lists | `3ds-idea-worktrees/settings-data-source` | `codex/settings-data-source` @ `cd13051` | Integrated as `fa731dc` and `9586990` |
 | Camera upper LCD | `3ds-idea-worktrees/camera-upper-source` | `codex/camera-upper-source` | Cursor/Grok source-backed browse-screen work in progress |
 | Notes switch | `3ds-idea-worktrees/notes-switch-native` | `codex/notes-switch-native` | Cursor/Fable source trace and bounded implementation in progress |
+| Settings Language | `3ds-idea-worktrees/settings-language-source` | `codex/settings-language-source` | Cursor/Opus source trace and read-only page correction in progress |
 | Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` @ `91fe40f` | Integrated as `24d7aa6` and `ee036df` |
 | Preserved | Original checkout, `3ds-idea-os`, `.codex/worktrees/b94c` | `uifix`, `codex/3ds-os`, `codex/home-menu-assets` | Keep, don't modify |
 

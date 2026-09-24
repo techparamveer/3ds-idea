@@ -66,8 +66,9 @@ with integration's physical dependencies and owns live browser QA.
 Only **settled large-mode placement and target bounds** are corrected here.
 The existing six-item page adapter remains: it jumps to the selection's page
 instead of recreating native scrolling/drag physics and adjacent-page buffers.
-Native source has 248px page stride; that does not prove the current page
-transition. Medium/small modes, density switching and folder expansion motion
+Native source has 248px page stride and intermediate column anchors; the
+[paging audit](camera-paging-source-audit.md) traces the geometry/controller
+boundary without guessing a transition. Medium/small modes, density switching and folder expansion motion
 are not implemented. Source texture filenames mentioning `4x5`/`5x7` do not
 supersede the executable's density triples.
 

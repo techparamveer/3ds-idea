@@ -160,6 +160,17 @@ def audit(root, artifacts=None, repository=None):
         for url in title['packs']: reference(url, title['name'])
         font_urls.update(title.get('fonts', {}).values())
         if title.get('icon'): reference(title['icon'], title['name'])
+        if title.get('notesIcon') and reference(title['notesIcon'], title['name']):
+            icon = records[title['notesIcon']]
+            check(icon.get('sources') == records.get(title.get('icon'), {}).get('sources'),
+                  f'{title["name"]}: Notes icon differs from original icon provenance')
+            conversion = title.get('notesIconConversion', {})
+            check(conversion.get('name') == 'notes-smdh-large-icon' and conversion.get('version') == 1 and
+                  conversion.get('width') == conversion.get('height') == 64 and
+                  len(conversion.get('scriptSha256', '')) == len(conversion.get('codeSha256', '')) == 64,
+                  f'{title["name"]}: invalid Notes icon conversion')
+            check(struct.unpack_from('>II', public_path(root, title['notesIcon']).read_bytes(), 16) == (64, 64),
+                  f'{title["name"]}: Notes icon dimensions differ')
         if 'longDescription' in title:
             source = title.get('longDescriptionSource', {})
             conversion = title.get('longDescriptionConversion', {})

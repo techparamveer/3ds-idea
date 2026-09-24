@@ -126,3 +126,8 @@ its synthetic LCD specimen is not native title/HUD acceptance evidence.
 
 No browser, native LCD or audio comparison was performed. No runtime title/HUD
 UI, icon, audio, note editing or keyboard behavior changed.
+
+The [icon/panel validation](native-notes-icon-panel-validation.md) now validates
+and publishes the original large-icon tile mapping, checks real title bounds
+and renders 31 bounded component poses. It resolves the icon-expansion blocker;
+live cross-scene lifecycle ordering and general overflow text remain open.

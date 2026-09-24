@@ -24,9 +24,10 @@ from firmware.cafe import decode_flyt, decode_flan, decode_bflim
 from firmware.cia import cia_metadata, content_directory, content_key, content_provenance
 from firmware.archives import unpack_sarc, unpack_stock_table
 from firmware.title_metadata import description_metadata
+from firmware.notes_icon import notes_icon_png, conversion as notes_icon_conversion
 
 FIRMWARE = '10.7.0-32E'
-CONVERTER_VERSION = '1.5.2'
+CONVERTER_VERSION = '1.5.3'
 HOME = '0004003000009802'
 SHARED = '0004009b00014002'
 HOME_STYLE_PATHS = {'message/EU_English/RI_mstl_LZ.bin', 'message_hud/EU_English/RI_mstl_LZ.bin'}
@@ -152,7 +153,7 @@ def public_path(root, url):
 
 def converter_provenance(ctrtool):
     scripts = ['firmware/build.py', 'firmware/cia.py', 'firmware/native.py', 'firmware/animation_hierarchy.py', 'firmware/texture.py',
-               'firmware/archives.py', 'firmware/title_metadata.py', 'firmware/cafe.py', 'convert_bcfnt.py', 'unpack_home_resources.py']
+               'firmware/archives.py', 'firmware/title_metadata.py', 'firmware/notes_icon.py', 'firmware/cafe.py', 'convert_bcfnt.py', 'unpack_home_resources.py']
     result = subprocess.run([str(ctrtool), '--help'], capture_output=True, text=True, timeout=10)
     # CTRTool prints its identity with help, returning 1 for this invocation.
     match = re.search(r'^CTRTool v([^\s]+)', result.stdout+result.stderr, re.MULTILINE)
@@ -308,6 +309,9 @@ def convert_title(builder, title, metadata, scratch, home):
                 info.update(description_metadata(smdh, {'titleId': title, 'path': 'ExeFS/icon', 'sha256': digest(smdh), **identity}))
                 image = png(48, 48, decode_texture(smdh[0x24c0:0x36c0], 48, 48, 3))
                 info['icon'] = builder.write(f'icons/{slug}.png', image, {'titleId': title, 'path': 'ExeFS/icon', 'sha256': digest(smdh), **identity}, 'title-icon')
+                if title in TITLES and TITLES[title][2] == 'app':
+                    info['notesIcon'] = builder.write(f'icons/notes/{title}.png', notes_icon_png(smdh), {'titleId': title, 'path': 'ExeFS/icon', 'sha256': digest(smdh), **identity}, 'title-icon')
+                    info['notesIconConversion'] = notes_icon_conversion()
         loose = {}
         for p in sorted(romfs.rglob('*')):
             if not p.is_file() or p.suffix.lower() in DENIED_SUFFIXES or p.name.lower() in DENIED_NAMES: continue

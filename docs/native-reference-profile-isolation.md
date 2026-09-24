@@ -31,3 +31,13 @@ stopped cleanly. The computer-use coordinate mapping prevented reliable touch
 navigation beyond that page, so this session contributes an isolation smoke
 check, **not** a matched native page comparison. Do not call the current site
 1:1 on this evidence.
+
+An isolated follow-up tested Azahar's source-supported `touch_from_button`
+keyboard mapping, which can map a key to lower-LCD coordinates without a
+macOS mouse click. The copied process again used only `reference/user/`, and
+the default config timestamp stayed unchanged. However, the computer-use
+window capture went black after the mapped key; no resulting native page or
+Azahar screenshot was available to verify whether the tap landed. The title
+was stopped, Azahar quit, and the isolated config was restored from its
+pre-test backup. This workaround remains **unverified**. Do not use its
+attempted input as native comparison evidence.

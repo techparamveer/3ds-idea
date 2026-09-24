@@ -8,7 +8,7 @@ import { nativeMessageOverride } from './native-layout';
 const prefix='packs/sound/contents/0000-0000000b/';
 export const soundScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'lyt-S_BG-arc-LZ.json',alias:'sound-bg',layouts:['S_BG','S_BG_D-Grid'],animations:['S_BG_D-Grid_Default']},
-  {url:prefix+'lyt-S_Play_D-arc-LZ.json',alias:'sound-player',layouts:['S_Play_D-CtrPanel3'],animations:['S_Play_D-CtrPanel3_Default']},
+  {url:prefix+'lyt-S_Play_D-arc-LZ.json',alias:'sound-player',layouts:['S_Play_D-CtrPanel3','S_Play_D-Effect'],animations:['S_Play_D-CtrPanel3_Default','S_Play_D-Effect_Default']},
   {url:prefix+'lyt-C-Sld.json',alias:'sound-slider',layouts:['C_SldT'],animations:['C_SldT_Default','C_SldT_Rate']},
   {url:prefix+'lyt-C-Dlg.json',alias:'sound-dialog',layouts:['C_Dlg','C_Dlg1BtnB','C_DlgTxt'],animations:['C_Dlg1BtnB_Default']},
   {url:prefix+'lyt-S_Common-arc-LZ.json',alias:'sound-common',layouts:['S_Common-BackBtn','S_Common-OpenBtn','S_Common-BrwCursor'],animations:['S_Common-BackBtn_Default','S_Common-OpenBtn_Default','S_Common-BrwCursor_Default']},
@@ -28,9 +28,10 @@ export const soundSliderRateFrames=280;
 export const soundSliderFrame=(fraction:number)=>Math.round(Math.max(0,Math.min(1,fraction))*soundSliderRateFrames);
 
 /** Original Sound artwork at its source mounts with portfolio track content.
- * Playback uses the native transport, playback-mode panel and C_SldT time slider;
- * the library uses the source list cursor and Open button. Recording, effects,
- * percussion, visualisers and native screen sequencing are outside this view.
+ * Playback uses the native transport, playback-mode panel, C_SldT time slider and
+ * the resting S_Play_D-Effect panel; the library uses the source list cursor and
+ * Open button. The speed/pitch plate, filters, pull cord, recording, percussion,
+ * visualisers and native screen sequencing are outside this view.
  */
 export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   if(view.appId!=='sound')return false;
@@ -62,6 +63,9 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
       IconBig3C_0_P0:{visible:data.playing===true},IconBig3C_1_P0:{visible:data.playing!==true},
       ...Object.fromEntries([0,1,2,3,4,5].map(index=>[`PacIconM_Opt${index}_P0`,{visible:loopIconPane[mode]===index}])),
     }});
+    // Resting playback mode 0: the executable brings Effect in when the speed/pitch plate or
+    // filter closes. Its two buttons open audio-altering surfaces, so they stay inert here.
+    draw(bottom,'sound-player','S_Play_D-Effect',{bindings:[{name:'S_Play_D-Effect_Default',frame:0}]});
   }else{
     const rows=stockScreenTargets(view).filter(r=>r.row!==undefined);
     if(view.rows.length)draw(bottom,'sound-common','S_Common-BrwCursor',{bindings:[{name:'S_Common-BrwCursor_Default',frame:0}],center:[160,120+(view.selection%soundLibraryRows)*39]});

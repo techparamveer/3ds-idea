@@ -63,8 +63,9 @@ native runtime background binding is still unresolved. See
 Sound now consumes the source background/grid, title and
 track panels, parakeet, Back button, list cursor and transport art. Track strings
 and artwork come from AppView. The transport, loop-mode icon, `C_SldT` slider,
-Open ("Play") button, Back width and the "Could not play." dialog sit at their
-source mounts and touch bounds; see
+resting `S_Play_D-Effect` panel, Open ("Play") button, Back width and the "Could
+not play." dialog sit at their source mounts and touch bounds; the Effect
+buttons are drawn but inert. See
 [the Sound source validation](sound-source-validation.md) for the mounts,
 adaptations and open gaps.
 Source animation frames are settled snapshots, not a claim of native scheduling.

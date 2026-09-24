@@ -77,12 +77,13 @@ export async function verifyStockScreens(options){
   const images=new Map();for(const p of photos)images.set(p.src,await loadImage(join(repo,'public',p.src)));
   const requestedImages=[];
   const image=(ctx,url,x,y,w,h)=>{requestedImages.push(url);const im=images.get(url);if(!im)return false;const scale=Math.min(w/im.width,h/im.height);ctx.drawImage(im,x+(w-im.width*scale)/2,y+(h-im.height*scale)/2,im.width*scale,im.height*scale);return true;};
-  const reports=[],sheet=createCanvas(400*views.length,480),sheetContext=sheet.getContext('2d');
+  const reports=[],soundBottoms=new Map(),sheet=createCanvas(400*views.length,480),sheetContext=sheet.getContext('2d');
   for(const [index,view] of views.entries()){
    const top=createCanvas(400,240),bottom=createCanvas(320,240),id=view.verificationId??view.appId+'-'+view.screen;
    requestedImages.length=0;
    drawStockScreenFrame(top.getContext('2d'),bottom.getContext('2d'),view,{font,image,native:view.appId==='system-settings'?assets.renderer:view.appId==='sound'?soundAssets.renderer:view.appId==='camera'?cameraAssets.renderer:view.appId==='health-safety'?healthAssets.renderer:view.appId==='browser'?browserAssets.renderer:view.appId==='miiverse'?miiverseAssets.renderer:undefined});
    if(id==='sound-playback')assert.deepEqual(requestedImages,[photos[0].src],'Sound loads artwork, never the audio URL, as an image');
+   if(view.appId==='sound')soundBottoms.set(id,bottom.getContext('2d').getImageData(0,0,320,240).data);
    writeFileSync(join(out,id+'-top.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-bottom.png'),bottom.toBuffer('image/png'));
    sheetContext.drawImage(top,index*400,0);sheetContext.drawImage(bottom,index*400+40,240);
    reports.push({id,topSha256:createHash('sha256').update(top.getContext('2d').getImageData(0,0,400,240).data).digest('hex'),bottomSha256:createHash('sha256').update(bottom.getContext('2d').getImageData(0,0,320,240).data).digest('hex')});
@@ -96,6 +97,21 @@ export async function verifyStockScreens(options){
   assert.equal(reports.find(r=>r.id==='sound-main').topSha256===reports.find(r=>r.id==='sound-library').topSha256,false,'an empty library shows no track panels');
   assert.notEqual(reports.find(r=>r.id==='camera-main').topSha256,reports.find(r=>r.id==='camera-empty').topSha256,'folder and empty Camera uppers differ');
   assert.notEqual(reports.find(r=>r.id==='camera-gallery').topSha256,reports.find(r=>r.id==='camera-main').topSha256,'gallery Camera upper is not the folder summary');
+  // S_Play_D-Effect -B-EjyP0/-B-EjyP1 sit at (∓54, 27) from the lower-screen centre with 72 × 74 GrpEjy frames.
+  const effect=createCanvas(320,240),effectContext=effect.getContext('2d');
+  assert.ok(soundAssets.renderer.draw(effectContext,'sound-player','S_Play_D-Effect',{bindings:[{name:'S_Play_D-Effect_Default',frame:0}]}),'the source Effect layout renders');
+  const effectPixels=effectContext.getImageData(0,0,320,240).data,effectPanes=[[70,56,142,130],[178,56,250,130]],effectBounds=effectPanes.map(()=>null),opaque=[];
+  for(let y=0;y<240;y++)for(let x=0;x<320;x++){
+   const i=(y*320+x)*4;if(!effectPixels[i+3])continue;
+   const pane=effectPanes.findIndex(([x0,y0,x1,y1])=>x>=x0&&x<x1&&y>=y0&&y<y1);assert.notEqual(pane,-1,`Effect pixel ${x},${y} lies outside its source panes`);
+   const b=effectBounds[pane]??={x0:x,y0:y,x1:x,y1:y};b.x0=Math.min(b.x0,x);b.y0=Math.min(b.y0,y);b.x1=Math.max(b.x1,x);b.y1=Math.max(b.y1,y);
+   if(effectPixels[i+3]===255)opaque.push(i);
+  }
+  assert.ok(effectBounds.every(Boolean)&&effectBounds[0].x0+effectBounds[1].x1===319&&effectBounds[0].y0===effectBounds[1].y0,'both Effect buttons render symmetrically about the screen centre');
+  const restingPlayback=['sound-playback','sound-paused','sound-mode-no-loop','sound-mode-single','sound-mode-random','sound-seek-start','sound-seek-end'];
+  for(const id of restingPlayback){const frame=soundBottoms.get(id);assert.ok(opaque.every(i=>frame[i]===effectPixels[i]&&frame[i+1]===effectPixels[i+1]&&frame[i+2]===effectPixels[i+2]),`${id} shows the resting Effect panel unmodified`);}
+  const libraryBottom=soundBottoms.get('sound-main');assert.ok(opaque.some(i=>libraryBottom[i]!==effectPixels[i]||libraryBottom[i+1]!==effectPixels[i+1]||libraryBottom[i+2]!==effectPixels[i+2]),'the library does not draw the playback Effect panel');
+  writeFileSync(join(out,'sound-effect-panel.png'),effect.toBuffer('image/png'));
   const focusSheet=createCanvas(320*5,240),focusContext=focusSheet.getContext('2d'),focusHashes=[];
   for(let selection=0;selection<5;selection++){
    const top=createCanvas(400,240),bottom=createCanvas(320,240);
@@ -108,7 +124,7 @@ export async function verifyStockScreens(options){
   writeFileSync(join(out,'settings-focus.png'),focusSheet.toBuffer('image/png'));
   const diagnostics=[...assets.diagnostics,...soundAssets.diagnostics,...cameraAssets.diagnostics,...healthAssets.diagnostics,...browserAssets.diagnostics,...miiverseAssets.diagnostics];
   const failures=diagnostics.filter(d=>!d.includes('unrequested converter omissions'));assert.deepEqual(failures,[]);
-  const report={passed:true,sourceHashes,reports,diagnostics,gaps:['Settings native source assembly is not a matched native LCD capture.','Camera folder upper uses source P_FinderVS_U; gallery/photo replace the native viewfinder framebuffer with portfolio pixels. Settled six-cell centres follow the source; page motion and the Back/Open footer remain adapters.','Sound transport, playback-mode panel, C_SldT slider, Open, Back and the Could-not-play dialog sit at source mounts; list row pitch, the mode cycle order and the absent effects/percussion/visualiser surfaces are adaptations.','Health source text is paginated with base styles; rich inline runs and continuous scroll remain adaptations. Remaining stock title layouts are pending.','Browser and Miiverse display local chrome only; website content and remote feeds are not present.','Playback specimen is synthetic validation only; no user track is supplied.']};
+  const report={passed:true,sourceHashes,reports,soundEffectPanel:{bounds:effectBounds,opaquePixels:opaque.length,restingPlayback},diagnostics,gaps:['Settings native source assembly is not a matched native LCD capture.','Camera folder upper uses source P_FinderVS_U; gallery/photo replace the native viewfinder framebuffer with portfolio pixels. Settled six-cell centres follow the source; page motion and the Back/Open footer remain adapters.','Sound transport, playback-mode panel, C_SldT slider, resting Effect panel, Open, Back and the Could-not-play dialog sit at source mounts; the Effect buttons are inert, and list row pitch, the mode cycle order and the absent pull cord, speed/pitch plate, filters, percussion and upper-screen visualisers are adaptations.','Health source text is paginated with base styles; rich inline runs and continuous scroll remain adaptations. Remaining stock title layouts are pending.','Browser and Miiverse display local chrome only; website content and remote feeds are not present.','Playback specimen is synthetic validation only; no user track is supplied.']};
   writeFileSync(join(out,'verification.json'),JSON.stringify(report,null,2)+'\n');return report;
  }finally{miiverseAssets?.dispose();browserAssets?.dispose();healthAssets?.dispose();cameraAssets?.dispose();soundAssets?.dispose();assets?.dispose();font?.dispose();globalThis.fetch=oldFetch;URL.createObjectURL=oldObjectURL;URL.revokeObjectURL=oldRevokeURL;for(const [name,descriptor]of Object.entries(previousGlobals)){if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name];}}
 }

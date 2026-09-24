@@ -20,6 +20,7 @@
         "packs/sound/contents/0000-0000000b/lyt-S_Play_D-arc-LZ.json": {
           "layouts": [
             "S_Play_D-CtrPanel3",
+            "S_Play_D-Effect",
             "S_Play_D-LRBtn"
           ],
           "animations": [
@@ -28,6 +29,10 @@
             "S_Play_D-CtrPanel3_In",
             "S_Play_D-CtrPanel3_Out",
             "S_Play_D-CtrPanel3_Push",
+            "S_Play_D-Effect_Default",
+            "S_Play_D-Effect_In",
+            "S_Play_D-Effect_Out",
+            "S_Play_D-Effect_Push",
             "S_Play_D-LRBtn_Default",
             "S_Play_D-LRBtn_In",
             "S_Play_D-LRBtn_LR_IconL_In",

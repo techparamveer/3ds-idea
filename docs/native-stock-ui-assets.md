@@ -61,7 +61,7 @@ Title `0004001000022500`, URL prefix
 | Pack | Native layouts |
 | --- | --- |
 | `lyt-S_BG-arc-LZ.json` | `S_BG`, `S_BG_D-Ctr`, `S_BG_D-Grid` |
-| `lyt-S_Play_D-arc-LZ.json` | `S_Play_D-CtrPanel3`, `S_Play_D-LRBtn` |
+| `lyt-S_Play_D-arc-LZ.json` | `S_Play_D-CtrPanel3`, `S_Play_D-Effect`, `S_Play_D-LRBtn` |
 | `lyt-S_Common-arc-LZ.json` | `S_Common-BackBtn`, `S_Common-OpenBtn`, `S_Common-BrwCursor`, `S_Common-IconList`, `S_Common-ListScroll` |
 | `lyt-S_Inf_U-arc-LZ.json` | `S_Inf_U-TitleBar`, `S_Inf_U-TrackNameU`, `S_Inf_U-TrackNameD`, `S_Inf_U-PlayTime`, `S_Inf_U-UnderBar` |
 | `lyt-Parakeet-arc-LZ.json` | `ParakeetA_U` with Wait/InL_U/OutL_U only |
@@ -73,7 +73,9 @@ All matching clips are preserved for the selected non-parakeet layouts.
 `S_Play_D-CtrPanel3` contains the native previous/play-pause/next controls:
 Default is a 20-frame loop, In/Out are 9 frames, Push 3, Disable 2. Its
 `PacIconM_Opt0..5_P0` panes are the six loop-mode icons (NoLoop, Folder,
-Random, OneTime, Single, ABLoop). `C_SldT` is the source track slider; its
+Random, OneTime, Single, ABLoop). `S_Play_D-Effect` is the resting upper half
+of the lower playback screen: `-B-EjyP0` (`BtnPlay` + `IconGraph`) and
+`-B-EjyP1` (`BtnPlay` + `IconFilter`) with Default/In/Out/Push clips. `C_SldT` is the source track slider; its
 281-frame `C_SldT_Rate` clip moves the handle across the 280-pixel bar and the
 `AB-` pane is its touch surface. `C_Dlg` with `C_DlgTxt` and `C_Dlg1BtnB` is
 the common one-button dialog that carries the `S_dlg/C_ErrPlay` "Could not
@@ -81,8 +83,9 @@ play." message. The title pane is `TitlTxt`; track panes are
 `TrkNamTxtU0`/`TrkNamTxtU1`; time uses `PlyTimeTxt`. The selected layouts
 borrow `cbf_std.bcfnt`.
 
-This subset is 136 resources and 740,830 bytes including shared dependencies
-(122 resources, 681,315 bytes before the slider/dialog extension). The
+This subset is 139 resources and 763,733 bytes including shared dependencies
+(136 / 740,830 before the Effect panel; 122 / 681,315 before the slider/dialog
+extension). The
 integrity audit passes and HOME/shared manifest entries were preserved. `sound-player-textures.png` was inspected in the
 same private artifact directory; screen composition is still presentation-owned.
 The original English message container is now decoded through the bounded stock

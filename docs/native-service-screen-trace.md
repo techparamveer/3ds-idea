@@ -79,6 +79,10 @@ verifier checks whole-turn rotation and zero depth and records it under
   executable's projection and camera values (fovy, near/far, eye distance) or
   a matched Azahar capture, plus a projective warp for rotated pictures in the
   shared renderer. No perspective values were guessed.
+  The [follow-up executable audit](native-zone-projection-source-audit.md)
+  establishes the bundled descriptor and upper target, and records a 45°
+  camera candidate whose connection to `U_top` is still unproven. Its focused
+  source checks and current LCD renders pass; the projection gap remains open.
 - **HUD clock.** `T_TimeL_00`, `T_TimeC_00` and `T_TimeR_00` use the delivered
   title font `Hud.bcfnt`, which includes 0–9 and `:`. The painter now splits
   the browser's local `HH:MM` across those original panes and binds

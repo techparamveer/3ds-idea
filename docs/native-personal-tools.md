@@ -119,9 +119,11 @@ Back target `(0,212,44,28)`. The runtime restores the selected note's grid cell 
 Back and emits no editing or save effects.
 
 With a suspended application, ImageScreenUp instead shows that application's
-last complete LCD pair at settled SwitchDouble; see
-[suspended capture](native-notes-suspended-capture.md). Otherwise it is held at
-PanelNoGameIn frame20. Its screenshot/shadow panes,
+last complete LCD pair at settled SwitchDouble, or SwitchUp/SwitchDown after
+the source `B_BtnSwitch` target `(230,212,44,28)` cycles the session mode; see
+[suspended capture](native-notes-suspended-capture.md) and the
+[switch source audit](native-notes-switch-source-audit.md). Otherwise it is held at
+PanelNoGameIn frame20 with the lower switch button in its `MemoWriteDown_Invalid` pose. Its screenshot/shadow panes,
 dynamic software-title panel and alternate note-up surface remain hidden because
 there is no suspended-software capture. Source T_TextList explicitly receives the
 complete English `9900NoBreakGameMesList` message and visible/opaque overrides;

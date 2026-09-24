@@ -6,6 +6,15 @@ export const soundPlaybackMode=(state:Readonly<Record<string,JsonValue|undefined
 /** The single mode control cycles the four supported icons; this ordering is a portfolio choice, not a verified native sequence. */
 export const soundNextPlaybackMode:Record<SoundPlaybackMode,{repeat:string;shuffle:boolean}>={'no-loop':{repeat:'all',shuffle:false},folder:{repeat:'one',shuffle:false},single:{repeat:'off',shuffle:true},random:{repeat:'off',shuffle:false}};
 
+/**
+ * Source Game Notes (0004003000009c02) ImageScreenUp display modes. The scene constructor (code.bin 0x168880) starts at
+ * Double (mode 3) and B_BtnSwitch (handler 0x163754) advances the index 0→1→2→0, dispatching events {1,2,3} =
+ * SwitchDouble→SwitchUp→SwitchDown. See docs/native-notes-switch-source-audit.md.
+ */
+export type NotesCaptureView='double'|'up'|'down';
+export const notesCaptureView=(state:Readonly<Record<string,JsonValue|undefined>>):NotesCaptureView=>state.captureView==='up'||state.captureView==='down'?state.captureView:'double';
+export const notesNextCaptureView:Record<NotesCaptureView,NotesCaptureView>={double:'up',up:'down',down:'double'};
+
 /** Logical lower-LCD rectangles shared by presentation and UI navigation. */
 export type StockScreenTarget = {action:string;x:number;y:number;width:number;height:number;row?:number};
 const target=(action:string,x:number,y:number,width:number,height:number,row?:number):StockScreenTarget=>({action,x,y,width,height,...(row===undefined?{}:{row})});
@@ -91,7 +100,8 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     if(view.footer.left)for(const [width,height]of [[110,32],[150,27],[186,22],[214,17],[242,12],[270,6]])result.push(target(view.footer.left.action,(320-width)/2,240-height,width,height));
     return result;
   }else if(appId==='game-notes'&&screen==='drawing'){
-    return [target('back',0,212,44,28)];
+    // MemoWriteDown bounding panes: B_BtnBack origin 6 at (−160,−120) and B_BtnSwitch origin 7 at (92,−120), both 44×28.
+    return [target('back',0,212,44,28),target('switch',230,212,44,28)];
   }else if(appId==='game-notes'&&screen==='main'){
     const start=Math.floor(selection/16)*16;
     rows.slice(start,start+16).forEach((row,i)=>result.push(target(row.id,7+(i%4)*79,8+Math.floor(i/4)*51,70,44,start+i)));

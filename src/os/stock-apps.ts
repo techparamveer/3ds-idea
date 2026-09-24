@@ -3,7 +3,7 @@ import { helperSelectorSources, helperTitle, helperView, isHelperTitle } from '.
 import { browserBack, browserChoices, browserHeading, browserNavigate, browserPageEntry, browserText } from './stock-browser-navigation.ts';
 import { settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
 import { healthDocumentPageCounts } from './stock-health-layout.ts';
-import { soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
+import { notesCaptureView, notesNextCaptureView, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
 
 const str = (value: JsonValue | undefined, fallback = '') => typeof value === 'string' ? value : fallback;
@@ -182,6 +182,10 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'error' && action === 'ok') return { state, effects: [{ type: 'complete' }] };
     if (id === 'system-settings' && screen === 'other' && (action === 'settings-next' || action === 'settings-previous')) return { state: settingsNavigate(state, action) };
+    // Source B_BtnSwitch cycles the suspended-LCD display Double→Up→Down→Double for the current applet session only.
+    // Adaptation: native sets the button Invalid without a suspended title; the pure reducer cannot see the slot, so the
+    // hidden mode still cycles there while the painter shows the source Invalid pose and no capture.
+    if (id === 'game-notes' && screen === 'drawing' && action === 'switch') return { state: { ...state, captureView: notesNextCaptureView[notesCaptureView(state)] } };
     // Unknown/stale actions cannot open hidden flows or mutate saved data.
     if (!rows(state, context).some(item => item.id === action && !item.disabled)) return { state };
     if (id === 'system-settings') {

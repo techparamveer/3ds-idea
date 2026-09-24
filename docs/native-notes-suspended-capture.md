@@ -35,13 +35,15 @@ panes and their shadows; it never substitutes invented pixels.
 
 ## Source presentation
 
-With a suspended application, `drawSelectedNote` binds
-`ImageScreenUp_SwitchDouble` at its settled frame 25 (`G_Panel_00`/`G_Panel_01`
+With a suspended application, `drawSelectedNote` binds the session mode's
+clip — `ImageScreenUp_SwitchDouble` initially, `SwitchUp` or `SwitchDown` after
+`B_BtnSwitch` taps — at its settled frame 25 (`G_Panel_00`/`G_Panel_01`
 filtered by the existing renderer). `P_ScreenUpL` and `P_ScreenDown` receive
 `suspended-capture-upper/lower` through `textures` and
 `PaneOverrides.textureBindings` (slot 0), cloning only their materials.
 `P_ScreenUpR`, `T_TextList`, `T_TextWrite`, `P_Mask`, `W_TextPanel` and
-`N_BtnMemoUp` are hidden. The no-software branch is unchanged.
+`N_BtnMemoUp` are hidden. The no-software branch keeps its text and adds the
+source `MemoWriteDown_Invalid` pose on the lower switch button.
 `T_TextWrite`'s label `9900NoBreakGameMes` is " can only be used when suspended
 software is present." after `P_IconSwitch`. It is a no-software hint for the
 switch control, not capture chrome. SwitchDouble has no material tracks and
@@ -80,11 +82,13 @@ source-raster test and browser check also cover the visible orientation.
 
 ## Remaining gaps
 
-- The initial mode (Double) and Up/Down cycling are untraced. `B_BtnSwitch`
-  input and `SwitchUp`/`SwitchDown` are unimplemented; they need coordinator
-  input geometry and a traced order.
+- Initial Double, the `B_BtnSwitch` cycle Double → Up → Down and the Invalid
+  button pose are now source-traced and implemented at settled endpoints; see
+  the [switch source audit](native-notes-switch-source-audit.md). Tapping the
+  switch without suspended software still advances the hidden mode
+  (adaptation; native disables the button).
 - `SceneIn`, `HudDoubleInOut` and the switch transitions are shown at their
-  endpoints, not animated.
+  endpoints, not animated; the switch sounds are not played.
 - The software-title panel (`W_TextPanel`, `P_Icon_00`, `T_TextTitle`,
   `TextPanelInOut`/`Stay`) stays hidden. Its dynamic title/icon inputs and
   display timing are untraced.

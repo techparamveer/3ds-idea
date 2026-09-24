@@ -50,6 +50,40 @@ test('source ImageScreenUp slots display a bound capture pixel-exactly through t
  assert.equal(JSON.stringify(layout),before,'bindings clone materials; the shared source pack is unchanged');
 });
 
+test('source Switch clips settle Up and Down to single full LCD panes and chain Double→Up→Down→Double',{skip:!existsSync(packPath)},()=>{
+ const pack=JSON.parse(readFileSync(packPath,'utf8')),layout=pack.layouts.ImageScreenUp;
+ const pose=(name,frame)=>{const posed=poseNativeLayout(layout,pack.animations,[{name,frame}],{}),panes=new Map(),visit=p=>{panes.set(p.name,p);p.children.forEach(visit);};posed.roots.forEach(visit);return panes;};
+ const shown=pane=>Boolean(pane.flags&1)&&pane.alpha>0;
+ const settled={
+  double:{upper:[true,190,114,115],lower:[true,152,114,-1]},
+  up:{upper:[true,400,240,120],lower:[false]}, // P_ScreenUpL covers the 400×240 LCD from its top-centre origin
+  down:{upper:[false],lower:[true,320,240,120]}, // P_ScreenDown is a 320×240 slot centred on the upper LCD
+ };
+ const check=(panes,mode)=>{
+  for(const [name,expected] of [['P_ScreenUpL',settled[mode].upper],['P_ScreenDown',settled[mode].lower]]){
+   const pane=panes.get(name);assert.equal(shown(pane),expected[0],`${mode} ${name} shown`);
+   if(expected[0]){assert.equal(pane.origin,1);assert.ok(near(pane.size[0],expected[1])&&near(pane.size[1],expected[2])&&near(pane.translation[1],expected[3]),`${mode} ${name} geometry`);}
+  }
+  assert.equal(shown(panes.get('P_ScreenShdwUp')),settled[mode].upper[0]);assert.equal(shown(panes.get('P_ScreenShdwDown')),settled[mode].lower[0]);
+  assert.equal(shown(panes.get('P_ScreenUpR')),false,'only the left-eye pane is exposed');
+ };
+ const clips={double:'ImageScreenUp_SwitchDouble',up:'ImageScreenUp_SwitchUp',down:'ImageScreenUp_SwitchDown'};
+ for(const mode of Object.keys(clips)){assert.equal(pack.animations[clips[mode]].frames,26);check(pose(clips[mode],25),mode);}
+ // Each clip starts from the previous mode's settled pose: the executable's index cycle 0→1→2→0 (events 1,2,3).
+ check(pose(clips.up,0),'double');check(pose(clips.down,0),'up');check(pose(clips.double,0),'down');
+});
+
+test('MemoWriteDown_Invalid greys only the G_Btn_Switch panes over the settled Base/SceneIn pose',{skip:!existsSync(resolve(resourceRoot,'packs/game-notes/memo-MemoWriteDown-arc-l.json'))},()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/game-notes/memo-MemoWriteDown-arc-l.json'),'utf8')),layout=pack.layouts.MemoWriteDown;
+ const base=[{name:'MemoWriteDown_Base',frame:0},{name:'MemoWriteDown_SceneIn',frame:20}];
+ assert.deepEqual(pack.animations.MemoWriteDown_Invalid.groups,['G_Btn_Switch']);
+ const flat=posed=>{const out={};const visit=p=>{out[p.name]={t:p.translation,s:p.size,v:p.flags&1,a:p.alpha,c:p.picture?.colors??null,m:p.picture?posed.materials[p.picture.material]:null};p.children.forEach(visit);};posed.roots.forEach(visit);return out;};
+ const normal=flat(poseNativeLayout(layout,pack.animations,base,{})),invalid=flat(poseNativeLayout(layout,pack.animations,[...base,{name:'MemoWriteDown_Invalid',frame:1}],{}));
+ const changed=Object.keys(normal).filter(name=>JSON.stringify(normal[name])!==JSON.stringify(invalid[name]));
+ assert.deepEqual(changed.sort(),['P_BtnSwitch','P_GradSwitch','P_MemoSwitchB','P_MemoSwitchF']);
+ assert.deepEqual([normal.P_BtnSwitch.t,normal.P_BtnSwitch.s],[[92,-120,0],[46,28]]);
+});
+
 function fakeSurfaces(){
  const made=[];
  const createSurface=(width,height)=>{

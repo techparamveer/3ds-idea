@@ -4,6 +4,7 @@ import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 import type { SuspendedCapture } from './notes-suspended-capture';
 import { nativeMessageOverride, type PaneOverrides } from './native-layout';
+import { notesCaptureView } from './stock-screen-layout';
 
 const notesPrefix='packs/game-notes/';
 export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
@@ -15,8 +16,8 @@ export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
 ];
 export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
   ...personalNotesPacks.filter(({alias})=>alias!=='notes-list'&&alias!=='notes-help'),
-  {url:notesPrefix+'memo-MemoWriteDown-arc-l.json',alias:'notes-write',layouts:['MemoWriteDown'],animations:['MemoWriteDown_Base','MemoWriteDown_SceneIn']},
-  {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:['ImageScreenUp_PanelNoGameIn','ImageScreenUp_SwitchDouble']},
+  {url:notesPrefix+'memo-MemoWriteDown-arc-l.json',alias:'notes-write',layouts:['MemoWriteDown'],animations:['MemoWriteDown_Base','MemoWriteDown_SceneIn','MemoWriteDown_Invalid']},
+  {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:['ImageScreenUp_PanelNoGameIn','ImageScreenUp_SwitchDouble','ImageScreenUp_SwitchUp','ImageScreenUp_SwitchDown']},
 ];
 // Dynamic replacements for the 8×8 source slots imgUp400x240L/imgDown320x240.
 const captureUpperTexture='suspended-capture-upper',captureLowerTexture='suspended-capture-lower';
@@ -126,12 +127,14 @@ function drawSelectedNote(renderer:NativeLayoutRenderer,top:CanvasRenderingConte
     W_TextPanel:{visible:false},P_IconSwitch:{visible:false},P_Mask:{visible:false},N_BtnMemoUp:{visible:false},
   }})&&okay;
   else{
-    // Settled SwitchDouble (G_Panel_00/01) places both LCD panes and shadows.
-    // Its choice as the initial mode is untraced; PanelGameIn is the memo-to-upper
+    // Settled endpoint (frame 25) of the source Switch clip for the session's mode: the ImageScreenUp
+    // constructor starts at Double and B_BtnSwitch cycles Double→Up→Down (code.bin 0x168880, 0x163754).
+    // The 25-frame slide between modes is not animated. PanelGameIn is the memo-to-upper
     // transition, so N_BtnMemoUp stays hidden. Only the left-eye pane is exposed.
     const hidden={visible:false};
     const textures=capture.status==='ready'?{[captureUpperTexture]:capture.upper,[captureLowerTexture]:capture.lower}:undefined;
-    okay=renderer.draw(top,'notes-image','ImageScreenUp',{bindings:[{name:'ImageScreenUp_SwitchDouble',frame:25}],textures,overrides:{
+    const clip={double:'ImageScreenUp_SwitchDouble',up:'ImageScreenUp_SwitchUp',down:'ImageScreenUp_SwitchDown'}[notesCaptureView(view.data??{})];
+    okay=renderer.draw(top,'notes-image','ImageScreenUp',{bindings:[{name:clip,frame:25}],textures,overrides:{
       T_TextList:hidden,T_TextWrite:hidden,P_Mask:hidden,N_BtnMemoUp:hidden,W_TextPanel:hidden,P_ScreenUpR:hidden,
       // Missing pixels are not "no suspended software", and are never invented.
       ...(textures?{P_ScreenUpL:{textureBindings:{0:captureUpperTexture}},P_ScreenDown:{textureBindings:{0:captureLowerTexture}}}
@@ -139,7 +142,10 @@ function drawSelectedNote(renderer:NativeLayoutRenderer,top:CanvasRenderingConte
     }})&&okay;
   }
   okay=renderer.draw(bottom,'notes-lower','Bg_D_00')&&okay;
-  okay=renderer.draw(bottom,'notes-write','MemoWriteDown',{bindings:[{name:'MemoWriteDown_Base',frame:0},{name:'MemoWriteDown_SceneIn',frame:20}],overrides:{
+  // Scene enter (0x16322c) puts the switch button in state 5 without suspended software; its animator
+  // slot 5 is the G_Btn_Switch-bound Invalid clip (greyed P_BtnSwitch/P_GradSwitch/P_MemoSwitchB/F).
+  const switchState=capture.status==='none'?[{name:'MemoWriteDown_Invalid',frame:1}]:[];
+  okay=renderer.draw(bottom,'notes-write','MemoWriteDown',{bindings:[{name:'MemoWriteDown_Base',frame:0},{name:'MemoWriteDown_SceneIn',frame:20},...switchState],overrides:{
     N_ExtendMenu:{visible:false},P_CsrPenSsizeM:{visible:false},
     P_ShutterFlash:{visible:false},P_ShutterParts:{visible:false},
     P_BtnMemoNext:{visible:false},P_BtnMemoShdwN:{visible:false},

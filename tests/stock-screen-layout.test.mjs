@@ -101,8 +101,8 @@ test('service source buttons and readonly profile footer have no generic row tar
  const profile=view('friends','profile',[]);assert.equal(hit(profile,160,226),'back');assert.equal(hit(profile,160,146),null);
 });
 
-test('selected Notes exposes only its native Back control',()=>{
- const v=view('game-notes','drawing',[]);assert.equal(hit(v,22,226),'back');assert.equal(hit(v,70,226),null);assert.equal(hit(v,160,110),null);
+test('selected Notes exposes only its native Back and Switch controls',()=>{
+ const v=view('game-notes','drawing',[]);assert.equal(hit(v,22,226),'back');assert.equal(hit(v,70,226),null);assert.equal(hit(v,160,110),null);assert.equal(hit(v,252,226),'switch');assert.equal(hit(v,298,226),null);
 });
 
 test('readonly helper entry screens expose only their source Back button',()=>{

@@ -70,7 +70,8 @@ export function settingsText(state:AppState,shared:AppState):string[]{
     spotpass:'View SpotPass settings.', 'ds-connections':'View connections for Nintendo DS software.', 'internet-info':'View internet connection information.',
     'new-connection':'Connection setup is unavailable in this portfolio.', 'data-dsi':'No Nintendo DSiWare data is provided.',
     streetpass:'No StreetPass software data is provided.', 'blocked-users':'Read-only preview. Blocked-user settings are unchanged.',
-    software:'No Nintendo 3DS software data is provided.', 'extra-data':'No extra data is provided.', 'add-on-content':'No add-on content is provided.', backup:'No save data backups are provided.',
+    // mset dat_no_software / dat_no_option: the accessible, empty SD state.
+    software:'There is no accessible software data.', 'extra-data':'There is no extra data.', 'add-on-content':'No add-on content is provided.', backup:'No save data backups are provided.',
     'ds-profile':'No Nintendo DS profile is provided.', format:'Read-only preview. System data is unchanged.',
     touch:'Touch Screen calibration preview.',mic:'Mic Test preview.', 'calibration-3d':'3D Calibration preview.', 'outer-cameras':'Outer Cameras calibration preview.', 'circle-pad':'Circle Pad calibration preview.',
   };

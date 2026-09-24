@@ -202,6 +202,21 @@ test('Settings exposes source-labelled Internet/Data/Profile branches and return
   assert.equal(module.view(back,ctx).rows[back.selection].id,path.at(-1));
  }
 });
+test('Data Management Software and Extra Data are read-only accessible-empty-SD leaves',()=>{
+ const {module}=setup('system-settings'),before=structuredClone(ctx.shared);
+ let menu=module.create({},null,ctx);for(const id of ['data','data-3ds'])menu=action(module,menu,id).state;
+ for(const [id,text] of [['software','There is no accessible software data.'],['extra-data','There is no extra data.']]){
+  const out=action(module,menu,id),view=module.view(out.state,ctx);
+  assert.equal(out.state.screen,'detail');assert.equal(view.data.field,id);assert.equal(view.data.parent,'data-3ds');
+  assert.deepEqual(view.rows,[]);assert.deepEqual(view.text,[text]);assert.equal(view.footer.left.action,'back');
+  const open=module.reduce(out.state,{type:'command',command:'open'},ctx);
+  assert.deepEqual(open.effects??[],[]);assert.deepEqual(open.state,out.state);
+  const back=module.reduce(out.state,{type:'command',command:'back'},ctx);
+  assert.deepEqual(back.effects??[],[]);assert.equal(back.state.screen,'data-3ds');
+  assert.equal(module.view(back.state,ctx).rows[back.state.selection].id,id);
+ }
+ assert.deepEqual(ctx.shared,before);
+});
 test('Parental Set follows source explanation and PIN notice without entering configuration',()=>{
  const {module}=setup('system-settings'),before=structuredClone(ctx.shared);
  let state=action(module,module.create({},null,ctx),'parental').state;

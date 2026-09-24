@@ -42,6 +42,9 @@ A leaf has `screen: detail`, `data.field`, `data.parent`, optional Other page,
 a specific heading and nonempty text. Supplied profile/sound/language/date/time
 values are displayed unchanged; absent values remain explicitly absent.
 Hardware calibration and software/network screens are informational previews.
+Data Management Software and Extra Data use the source empty-list messages for
+an accessible SD card with nothing installed; see the
+[source audit](settings-data-lists-source-audit.md).
 No settings edits, device permission, account, network, format/reset, transfer or
 update operation executes. The existing launch actions only open their read-only
 title UIs. Text/applet/device-result events still cannot mutate shared settings.

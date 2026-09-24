@@ -10,6 +10,13 @@ test('Settings targets follow the native top bar and four tiles regardless of ro
  for(const r of targets(v))assert.equal(hit(v,r.x+r.width/2,r.y+r.height/2),r.action);
  assert.equal(hit(v,160,15),'nnid');assert.equal(hit(v,159,80),null);assert.equal(hit(v,35,230),'back');
 });
+test('Data Management empty lists expose only the Base_D_00 Back control',()=>{
+ for(const field of ['software','extra-data']){
+  const v={...view('system-settings','detail',[]),data:{field,parent:'data-3ds'}};
+  assert.deepEqual(targets(v),[{action:'back',x:0,y:208,width:120,height:32}]);
+  assert.equal(hit(v,160,120),null);assert.equal(hit(v,190,225),null);
+ }
+});
 test('gallery paging uses six visible cells and leaves gaps without accidental activation',()=>{
  const v=view('camera','gallery',Array.from({length:9},(_,i)=>'photo:'+i),7);
  assert.deepEqual(targets(v).filter(r=>r.row!==undefined).map(r=>r.action),['photo:6','photo:7','photo:8']);

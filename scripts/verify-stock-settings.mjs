@@ -14,12 +14,17 @@ for(const name of ['bitmap-font','native-layout','native-png','native-renderer',
  const text=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(text,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
 }
-const [{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,drawNativeSettingsMain,settingsSceneVariant}]=await Promise.all(['bitmap-font','native-title-assets','stock-native-settings'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs')))));
+const [{BitmapFont},{loadNativeTitleAssets},{settingsScreenPacks,drawNativeSettingsMain,settingsSceneVariant},{poseNativeLayout}]=await Promise.all(['bitmap-font','native-title-assets','stock-native-settings','native-layout'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs')))));
 globalThis.document={createElement:()=>createCanvas(1,1)};globalThis.window={location:{href:'https://helper.invalid/manifest.json'}};globalThis.Image=Image;
 const bytesForBlob=new WeakMap();URL.createObjectURL=blob=>'data:image/png;base64,'+bytesForBlob.get(blob).toString('base64');URL.revokeObjectURL=()=>{};
 globalThis.fetch=async value=>{const url=new URL(value);assert.equal(url.origin,'https://helper.invalid');const file=resolve(assetRoot,url.pathname.slice(1));assert.ok(file.startsWith(assetRoot+'/'));const bytes=readFileSync(file),response=new Response(bytes);response.blob=async()=>{const blob=new Blob([bytes]);bytesForBlob.set(blob,bytes);return blob;};return response;};
 const fontPath=values['font-manifest'],manifest=JSON.parse(readFileSync(fontPath,'utf8'));
 const font=new BitmapFont(manifest,await Promise.all(manifest.sheets.map(name=>loadImage(join(dirname(fontPath),name)))));
+// Source mset texts, per docs/settings-data-lists-source-audit.md.
+const dataLists={
+ software:{title:'Software Management',instruction:'Manage Nintendo 3DS download\nsoftware, including save data.',page:'Software',empty:'There is no accessible\nsoftware data.'},
+ 'extra-data':{title:'Extra Data Management',instruction:'Manage extra data for\nNintendo 3DS software.',page:'Extra Data',empty:'There is no extra data.'},
+};
 const view={appId:'system-settings',screen:'main',heading:'System Settings',rows:['internet','parental','data','other','nnid'].map(id=>({id,label:id})),selection:0,footer:{left:{action:'back',label:'Back'}}};
 const assets=await loadNativeTitleAssets('https://helper.invalid/manifest.json','0004001000022000',settingsScreenPacks,new Map([['cbf_std.bcfnt',font]]));
 const renderer=assets.renderer,originalDraw=renderer.draw.bind(renderer),sourcePacks=Object.values(renderer.packs),before=JSON.stringify(sourcePacks),reports=[];
@@ -61,7 +66,7 @@ try{
   ['other',1,['profile','clock','touch']],
  ];
  const subpages=cases.map(([screen,variant,ids])=>({...view,screen,variant,rows:ids.map(id=>({id,label:id}))}));
- for(const [field,parent,variant]of [['sound','other',1],['language','other',1],['date','clock',1],['time','clock',1],['birthday','profile',1],['nickname','profile',1],['ds-profile','profile',2]])subpages.push({...view,screen:'detail',variant,rows:[],data:{field,parent},heading:field,text:[]});
+ for(const [field,parent,variant]of [['sound','other',1],['language','other',1],['date','clock',1],['time','clock',1],['birthday','profile',1],['nickname','profile',1],['ds-profile','profile',2],['software','data-3ds',4],['extra-data','data-3ds',4]])subpages.push({...view,screen:'detail',variant,rows:[],data:{field,parent},heading:field,text:[]});
  // Explicit renderer specimens, never production preference defaults.
  for(const [field,value]of [['date','2024-02-29'],['time','23:07'],['birthday','02-29']])subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field,parent:field==='birthday'?'profile':'clock',settings:{[field]:value}},verificationId:'supplied-'+field,heading:field,text:[]});
  for(const subpage of subpages){
@@ -85,8 +90,31 @@ try{
   }else assert.equal(title.options.bindings[0].name,'CommonBG_U_00_SceneIn_0'+subpage.variant);
   if(subpage.screen==='detail'&&subpage.variant!==2){
    assert.ok(title.options.overrides.TextBoxTitle_00.messageStyle,'identified detail keeps native title style');
-   const text=calls.find(c=>c.layout===(['nickname','birthday'].includes(subpage.data.field)?'UserInfo_U_00':'TextBG_U_00'));
+   const text=calls.find(c=>c.layout===(['nickname','birthday'].includes(subpage.data.field)?'UserInfo_U_00':dataLists[subpage.data.field]?'SMng_U_01':'TextBG_U_00'));
    assert.ok(text.options.overrides.TextBox_00.messageStyle,'identified detail keeps source instruction style');
+  }
+  const list=subpage.screen==='detail'&&dataLists[subpage.data.field];
+  if(list){
+   assert.equal(title.options.overrides.TextBoxTitle_00.text,list.title);
+   const upper=calls.find(c=>c.layout==='SMng_U_01'),lower=calls.find(c=>c.layout==='SMngCTRData_D_00'),footer=calls.find(c=>c.layout==='Base_D_00');
+   assert.ok(upper);assert.ok(lower);assert.ok(footer);
+   assert.equal(calls.some(c=>c.layout==='TextBG_U_00'),false,'source scenes name no TextBG_U_00');
+   assert.deepEqual(upper.options.bindings,[{name:'SMng_U_01_NonSD',frame:1}],'accessible SD selects the final NonSD frame');
+   assert.equal(upper.options.overrides.TextBox_00.text,list.instruction);
+   assert.equal(upper.options.overrides.TextBox_03.text,'SD Card');assert.equal(upper.options.overrides.TextBox_04.text,'Open Blocks');
+   assert.equal(upper.options.overrides.TextBox_05.text,'','free-block count is never invented');
+   assert.deepEqual(lower.options.bindings,[{name:'SMngCTRData_D_00_SceneIn_00',frame:20},{name:'SMngCTRData_D_00_BtnIn',frame:20,groups:['Group_05']},{name:'SMngCTRData_D_00_TextIn',frame:20,groups:['Group_03']}]);
+   const o=lower.options.overrides;
+   assert.equal(o.TextBoxTitle_00.text,list.empty);assert.equal(o.TextBoxTitle_00.visible,true);
+   assert.equal(o.TextPageBox.text,list.page);assert.equal(o.TextBoxTitle_01.text,'Software title list');
+   for(const name of ['TextPageNow','TextPageBar','TextPageAll','Window_00'])assert.equal(o[name].visible,false);
+   for(const name of ['TextBoxTitle_00','TextPageBox','TextBoxTitle_01',...['TextBox_00','TextBox_03','TextBox_04'].map(n=>'upper:'+n)]){
+    const override=name.startsWith('upper:')?upper.options.overrides[name.slice(6)]:o[name];
+    assert.ok(override.messageStyle,name+' keeps its English source style');assert.equal(override.fontSize,undefined);
+   }
+   assert.equal(lower.options.attachments,undefined,'empty list attaches no icon buttons, half tabs, arrows or wait icon');
+   assert.equal(footer.options.overrides.TextBox_00.text,'Back');
+   assert.equal(calls.some(c=>c.layout==='Base_D_01'),false,'footer index 1 is the Back-only Base_D_00');
   }
   if(subpage.screen==='parental-explain'||subpage.screen==='parental-pin-notice'){
    const body=calls.find(c=>c.layout==='StartChild_D_00'),footer=calls.find(c=>c.layout==='Base_D_01');assert.ok(body);assert.ok(footer);
@@ -153,10 +181,19 @@ try{
    reports.push({id,variant:subpage.variant,sha256:createHash('sha256').update(canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data).digest('hex')});
   }
  }
+ // The constructor does not choose the entry clip; both settle identically.
+ const delivered=JSON.parse(readFileSync(join(assetRoot,'packs/settings/contents/0000-0000003d/layout.json'),'utf8'));
+ const settled=name=>JSON.stringify(poseNativeLayout(delivered.layouts.SMngCTRData_D_00,delivered.animations,[{name,frame:20}]).roots);
+ assert.equal(settled('SMngCTRData_D_00_SceneIn_00'),settled('SMngCTRData_D_00_SceneIn_01'),'both source entry clips settle to the same pose');
+ // UpLineWide_03's signed -330 width: the reflected override must draw the rule behind "SD Card".
+ const ruleCoverage=overrides=>{const canvas=createCanvas(400,240),ctx=canvas.getContext('2d');assert.equal(originalDraw(ctx,'up','SMng_U_01',{bindings:[{name:'SMng_U_01_NonSD',frame:1}],overrides:{TextBox_03:{text:''},...overrides}}),true);const row=ctx.getImageData(60,86,320,1).data;let n=0;for(let i=3;i<row.length;i+=4)if(row[i])n++;return n;};
+ assert.equal(ruleCoverage({}),0,'unmirrored signed size leaves the rule undrawn');
+ assert.ok(ruleCoverage({UpLineWide_03:{size:[330,32],scale:[-1,1]}})>=300,'mirrored rule spans the upper panel');
+ for(const lcd of ['top','bottom'])assert.notEqual(reports.find(r=>r.id==='detail-software-'+lcd).sha256,reports.find(r=>r.id==='detail-extra-data-'+lcd).sha256,'the two leaves differ on '+lcd);
  assert.equal(JSON.stringify(sourcePacks),before,'source packs remain immutable');
  assert.equal(reports.find(r=>r.id==='parental-pin-notice-top').sha256,reports.find(r=>r.id==='parental-explain-top').sha256,'notice preserves explanation upper LCD');
  assert.notEqual(reports.find(r=>r.id==='parental-pin-notice-bottom').sha256,reports.find(r=>r.id==='parental-explain-bottom').sha256,'notice changes lower LCD');
  assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
- writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.']},null,2)+'\n');
- console.log('Settings: five main and twenty-one subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.');
+ writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.','Data Management Software/Extra Data present SD state 2 with no titles; Open Blocks is blank and arrow/wait-icon settled states are unattached.']},null,2)+'\n');
+ console.log('Settings: five main and twenty-three subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.');
 }finally{assets.dispose();font.dispose();}

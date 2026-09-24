@@ -9,8 +9,8 @@ const buttons=[...mainButtons,'B_L','B_LBlue','B_SB','B_SMngCTRO','B_SMngDSiO','
 const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_AnalogPad','I_Trans','I_Lang','I_Update','I_Format'];
 export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
-  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00']},
-  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00'],animations:['LsMenu_D_00_SceneIn_00','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
+  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00','SMng_U_01'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00','SMng_U_01_NonSD']},
+  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00','SMngCTRData_D_00'],animations:['LsMenu_D_00_SceneIn_00','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00','SMngCTRData_D_00_SceneIn_00','SMngCTRData_D_00_TextIn','SMngCTRData_D_00_BtnIn']},
   {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
   {url:prefix+'dialog.json',alias:'dialog',layouts:['Dialog_D_01','DlgMask_D_00'],animations:['Dialog_D_02_FadeIn','Dialog_D_02_Select','DlgMask_D_00_FadeIn']},
@@ -115,6 +115,12 @@ function settingsFieldOverrides(layout:NativeLayout,field:string,raw:unknown,mes
 type Child=readonly [mount:string,layout:string,id:string,label?:string];
 const otherButtons:Record<string,[string,string]>={profile:['I_User','user_info'],clock:['I_Date','date_time'],touch:['I_Touch','touch'],sound:['I_Sound','sound'],mic:['I_Mic','mic_test'],'calibration-3d':['I_3DTest','3d_check'],'outer-cameras':['I_Ocam','ocam'],'circle-pad':['I_AnalogPad','analog_pad'],transfer:['I_Trans','trans'],language:['I_Lang','language'],update:['I_Update','update'],format:['I_Format','initialize']};
 const panelMirrors={UpWndwLT_01:{size:[184,80],scale:[-1,1]},UpWndwLT_02:{size:[184,80],scale:[1,-1]},UpWndwLT_03:{size:[184,80],scale:[-1,-1]}};
+/** datamng_ctr_soft / datamng_ctr_data, list kinds 0 and 1 on SD media. The
+ * portfolio presents SD state 2 (accessible) with no titles installed. */
+const dataLists:Record<string,{title:string;instruction:string;page:string;empty:string}>={
+  software:{title:'dat_sof_title_u',instruction:'dat_3ds_comm1_u',page:'dat_soft_page',empty:'dat_no_software'},
+  'extra-data':{title:'dat_opt_title_u',instruction:'dat_3ds_comm2_u',page:'dat_opt_page',empty:'dat_no_option'},
+};
 /** Source menus retain their child mounts. Introductory and read-only detail
  * cards reuse source text panels; they never imply configured device state. */
 function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView):boolean{
@@ -127,7 +133,8 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   const section=screen==='detail'?String(data.parent??'other'):screen==='parental-explain'||screen==='parental-pin-notice'?'parental':screen;
   const sections:Record<string,[string,string,string]>={internet:['IconNet','net_top_title','net_top_comm_u'],connections:['IconNet','net_set_title','net_set_comm_u'],parental:['IconParental','parental_title_u','par_top_comm_u_n'],restrictions:['IconParental','parental_title_u','par_chan_comm_u1'],data:['IconDataMa','dat_title_u','dat_comm_u'],'data-3ds':['IconDataMa','dat_title_u','dat_3ds_comm_u'],profile:['IconUser','user_info_title','user_info_comm_u'],clock:['IconDateTime','date_time_title','datetime_comm_u'],other:['IconBasic','settings_title','settings_comm_u']};
   const detailSections:Record<string,[string,string,string]>={sound:['IconSound','sound_title','sound_comm_u'],language:['IconLang','language','language_comm_u'],date:['IconDateTime','date_time_title','date_comm_u'],time:['IconDateTime','date_time_title','time_comm_u'],birthday:['IconUser','user_info_title','birthday_comm_u'],nickname:['IconUser','user_info_title','user_name_comm_u']};
-  const detailSource=screen==='detail'?detailSections[field]:undefined;
+  const dataList=screen==='detail'&&section==='data-3ds'?dataLists[field]:undefined;
+  const detailSource:[string,string,string]|undefined=dataList?['IconDataMa',dataList.title,dataList.instruction]:screen==='detail'?detailSections[field]:undefined;
   const [icon,title,instruction]=detailSource??sections[section]??sections.other;
   const variant=settingsSceneVariant(view);
   let okay=true;
@@ -153,7 +160,14 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.
-  if(!profileInfo&&screen!=='connections')draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'&&!detailSource?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
+  if(dataList){
+    // 0x218474 selects NonSD's final frame for an accessible SD. Its free-block
+    // count is device data that was not supplied, so TextBox_05 stays blank.
+    draw(top,'up','SMng_U_01',{bindings:[{name:'SMng_U_01_NonSD',frame:1}],overrides:{
+      UpLineWide_03:{size:[330,32],scale:[-1,1]},N_SD:{visible:true},
+      TextBox_00:message(dataList.instruction),TextBox_03:message('dat_sd_u'),TextBox_04:message('dat_block_u'),TextBox_05:{text:''},
+    }});
+  }else if(!profileInfo&&screen!=='connections')draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'&&!detailSource?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
   if(profileInfo){
     const profileValue=(key:string)=>screen==='detail'&&field==='birthday'?(typeof preferences[key]==='string'?String(preferences[key]):''):value(key);
     draw(top,'up','UserInfo_U_00',{bindings:[{name:'UserInfo_U_00_TextFadeIn',frame:20}],overrides:{
@@ -236,6 +250,13 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     draw(bottom,'layout',layout,{overrides:settingsFieldOverrides(source,field,preferences[field],message),attachments});
     draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_cancel'),TextBoxShdw_00:message('base_2b_cancel'),TextBox_01:message('base_2b_decide'),TextBoxShdw_01:message('base_2b_decide')}});
     return okay;
+  }else if(dataList){
+    // Empty-list setter 0x19793c: the message replaces the page counter,
+    // list window and all 20 icon buttons. Half tabs are DSiWare-only.
+    draw(bottom,'layout','SMngCTRData_D_00',{bindings:[{name:'SMngCTRData_D_00_SceneIn_00',frame:20},{name:'SMngCTRData_D_00_BtnIn',frame:20,groups:['Group_05']},{name:'SMngCTRData_D_00_TextIn',frame:20,groups:['Group_03']}],overrides:{
+      TextBoxTitle_00:{...message(dataList.empty),visible:true},TextPageBox:message(dataList.page),TextBoxTitle_01:message('dat_3ds_comm'),
+      TextPageNow:{text:'',visible:false},TextPageBar:{text:'',visible:false},TextPageAll:{text:'',visible:false},Window_00:{visible:false},
+    }});
   }else{
     draw(bottom,'up','TextBG_U_00',{center:[160,104.4],scale:.8,bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}}});
   }

@@ -1,15 +1,10 @@
 # Data Management Software and Extra Data: source audit
 
 2026-09-24. The **Data Management → Nintendo 3DS → Software** and **Extra
-Data** leaves still use the adapted `TextBG_U_00` detail card. They were not
-replaced because the executable's lower layout `SMngCTRData_D_00`, four of its
-clips and eleven English labels are unpublished. Requesting an unpublished
-layout would fail the whole Settings asset load, so this slice changes no
-painter, runtime or input code.
-
-The source evidence is now sufficient for the composition described below. Two
-dependencies remain: publishing the resources, and choosing which native SD
-state the portfolio represents.
+Data** leaves now draw the source scenes `datamng_ctr_soft` and
+`datamng_ctr_data` in the accessible, empty SD state (state 2). They no longer
+use the adapted `TextBG_U_00` card. The sections below record the source trace;
+[Implementation](#implementation) records publication, composition and evidence.
 
 ## Provenance
 
@@ -94,56 +89,101 @@ portfolio claim:
   with the portfolio Camera gallery, whose photos a real console reads from SD.
 - **Accessible, empty SD (state 2)** shows the distinct "There is no accessible
   software data." and "There is no extra data." messages. Its "Open Blocks"
-  window then needs a count; none is supplied, so it would be blank, as the
-  DS Profile values are.
+  window then needs a count; none is supplied, so it stays blank, as the
+  DS Profile values do.
 
-The coordinator should choose one before implementation. Do not substitute
-authored text for either message.
+**Chosen: state 2**, a working SD card with zero installed software and extra
+data, consistent with the read-only Camera gallery. The free-block count is
+never invented. No authored text replaces either message.
 
-## Publication request
+## Implementation
 
-Settings `packs/settings/contents/0000-0000003d/`, English `mset`, retaining
-source styles:
+### Publication
 
-- `layout.json`: `SMngCTRData_D_00`, `SMngCTRData_D_00_SceneIn_00`,
-  `SMngCTRData_D_00_SceneIn_01`, `SMngCTRData_D_00_TextIn` and
-  `SMngCTRData_D_00_BtnIn`, with texture dependencies.
-- Labels `dat_sof_title_u`, `dat_opt_title_u`, `dat_3ds_comm`, `dat_sd_u` and
-  `dat_block_u`, plus state-specific `dat_no_sd` / `dat_no_sd_u`. Include
-  `dat_ng_sd`, `dat_ng_sd_u`, `dat_writeprotect` and `dat_protect_u` only if
-  error states are wanted.
+`scripts/firmware/stock-ui-settings.json` is now the complete cumulative
+Settings plan (it previously lagged the parental dialog publication). It adds
+exactly these resources from converter 1.3.2's private
+`assets/stock-ui/settings-converted/` to `packs/settings/contents/0000-0000003d/`:
 
-`SMng_U_01`, `SMng_U_01_NonSD`, `CommonBG_U_00_SceneIn_04`, `IconDataMa`,
-`Base_D_00`, `dat_3ds_comm1_u`/`2_u`, both page labels and both SD-present
-empty messages are already published. The audit found none of the missing
-resources on any repository branch.
+- `layout.json`: `SMngCTRData_D_00` and its four clips `SceneIn_00`,
+  `SceneIn_01`, `TextIn` and `BtnIn`. Its only texture, `BtnBG.bclim`, was
+  already delivered with an identical hash.
+- `message_EU.json` `mset`: `dat_sof_title_u`, `dat_opt_title_u`,
+  `dat_3ds_comm`, `dat_sd_u` and `dat_block_u` (source indices 698, 782, 702,
+  704 and 706, with their original style indices).
 
-## Private source render comparison
+Each resource keeps its `resourceSources` member path and decoded hash. These
+match the source audit hashes. `SceneIn_01` is unused at runtime. It is
+published so that the verifier can prove from delivered bytes that it settles
+identically to `SceneIn_00`. The SD-error labels `dat_no_sd`, `dat_no_sd_u`,
+`dat_ng_sd`, `dat_ng_sd_u`, `dat_writeprotect` and `dat_protect_u` belong to
+other states and remain unpublished. The publisher preserved HOME, shared fonts
+and all other packs. Only the manifest, `layout.json` and `message_EU.json`
+changed. The manifest's Settings `planSha256` is now `e2900d23…`.
 
-A private, unshipped preview drew both leaves from the complete private
-conversion (`assets/stock-ui/settings-converted/`, schema-identical to
-publication) in both SD states. It composes the resources above, with
-`SceneIn_00` frame 20 and `BtnIn`/`TextIn` frame 20 restricted to their bound
-groups. The page counters and `Window_00` are hidden. Icon buttons, half tabs,
-arrows and wait icon are not attached, and `TextBox_05` is blank. Twelve
-renders had empty diagnostics and left the packs unchanged. The current leaf is
-also visibly defective: its sentence is clipped at both edges of the scaled
-panel ("o Nintendo 3DS software data is provide").
+### Composition
 
-The preview found one renderer gap: `SMng_U_01/UpLineWide_03` has signed size
-−330. It encodes a mirrored rule, as the `TextBG_U_00` corners do, so only the
-32 px cap draws behind "SD Card". Implementation needs a mirror override like
-`panelMirrors`, then paired verification.
+`stock-native-settings.ts` draws both leaves with the Data Management palette
+(state 4) and these components:
+
+- **Upper LCD:** `CommonBG_U_00` shows the record title, with `IconDataMa` in
+  its icon mount. `SMng_U_01` follows, with `NonSD` at its final frame 1 (the
+  accessible-SD panel). It sets `TextBox_00` to `dat_3ds_comm1_u`/`2_u`,
+  `TextBox_03` to "SD Card" and `TextBox_04` to "Open Blocks", and leaves
+  `TextBox_05` blank. `UpLineWide_03`'s signed width is drawn as the absolute
+  size with a reflected X scale. Its origin is left (`origin` 3), so this
+  covers the same span, x −149…181, as the signed size.
+- **Lower LCD:** `SMngCTRData_D_00` binds `SceneIn_00`, `BtnIn` to `Group_05`
+  and `TextIn` to `Group_03`, each at local frame 20. `TextBoxTitle_00` is
+  visible and shows the empty message. `TextPageBox` shows the page label and
+  `TextBoxTitle_01` shows "Software title list". The page counters and
+  `Window_00` are hidden. No child is attached to the icon-button, half-tab,
+  arrow or wait-icon mounts.
+- **Footer and controls:** `Base_D_00` Back. The only touch target is the
+  existing detail Back rectangle, and B, keyboard and touch share the existing
+  Back path. The leaves emit no effects and leave shared data unchanged.
+
+`stock-settings-navigation.ts` uses the two source messages as the leaves'
+view text. That text feeds the fallback card and the view's accessible text.
+
+### Evidence
+
+Artifacts are under `presentation/settings-data-source/` at the firmware SSD
+artifact root:
+
+- **Source audit:** `audit-after.json` reports zero missing dependencies for
+  state 2, plus the six unpublished alternative-state labels.
+  `audit-before.json` reproduces the earlier report exactly.
+- **Delivery audit:** `delivery-audit*.json`, each with a `-baseline` twin.
+  The publication adds no errors. The two public-only errors are
+  converter-script hash drift that the base commit already had. With the
+  verified multi-content extraction, five more private sources pass
+  (2,621 → 2,626) and there are no Settings errors.
+- **Source render comparison:** `comparison/`. Both lower LCDs are
+  pixel-identical to the earlier private source preview. Both upper LCDs differ
+  only in x 51–378, y 73–98, where the reflected rule now draws. The other 52
+  Settings renders are byte-identical to the previous verifier run.
+- **Verifier:** `scripts/verify-stock-settings.mjs` covers five main and 23
+  subpage paired renders. For these leaves it asserts the source calls, labels
+  and styles, blank free-block count, absence of attachments and the Back-only
+  footer. It also asserts that `SceneIn_00` and `SceneIn_01` settle identically
+  and that the rule is undrawn without the reflection and covers the panel with
+  it. Output is in `verifier/`.
+
+Browser inspection and native LCD comparison are still to do; both belong to
+the coordinator.
 
 ## Unresolved
 
-- Whether normal entry uses `SceneIn_00` or `_01` (both settle `NAND_SD` at
-  alpha 255; the constructor does not choose). Both also hold
-  `TextBoxTitle_00` at alpha 0; the preview applies `TextIn` afterwards,
-  following the load sequence, rather than proving evaluation order.
-- Child button class semantics, arrow (`R_Arrow*_Appear`, `ArrowSet`) and wait
-  icon settled states for an empty list.
-- SD global state 0, and native LCD or live browser comparison.
+- Which clip normal entry uses, `SceneIn_00` or `_01`. The constructor does not
+  choose, and both settle to identical poses at frame 20. `TextIn` is applied
+  after `SceneIn`, following the load sequence; evaluation order is not proven.
+- Child button class semantics, and the settled states of the arrows
+  (`R_Arrow*_Appear`, `ArrowSet`) and wait icon for an empty list. These mounts
+  stay unattached.
+- SD global state 0, the `SDWindow` implicit-material fill (drawn as orange by
+  the shared renderer) and native LCD or live browser comparison.
+- Entry and exit motion. Both leaves present settled frames only.
 
 ## Reproduction
 
@@ -151,16 +191,20 @@ The preview found one renderer gap: `SMng_U_01/UpLineWide_03` has signed size
 python3 scripts/audit_settings_data_lists.py --romfs <settings romfs> \
   --code <settings exefs/code.bin> --published <published Settings pack dir> \
   --report <absolute report path>
+python3 -B scripts/firmware/stock_ui.py --source <private settings-converted> \
+  --output <delivery dir> --plan scripts/firmware/stock-ui-settings.json
+node scripts/verify-stock-settings.mjs --artifact-dir <abs> --asset-root <abs delivery> \
+  --canvas-module <abs @napi-rs/canvas> --font-manifest <abs fonts/shared/font.json>
 ```
 
 The audit reads and decompresses resources and decodes PC-relative operands. It
 checks the code and table hashes, and reports records, the footer and
 page-label tables, range hashes, key instruction words, source members, label
 texts and missing publication. It does not execute firmware.
-`tests/test_settings_data_audit.py` covers the operand decoder and record
-parser.
+`tests/test_settings_data_audit.py` covers the operand decoder, record parser
+and state classification. `tests/settings-data-lists-delivery.test.mjs` pins
+the delivered resources to their source member hashes and texts.
 
-Private evidence is under the firmware SSD artifact root in
-`presentation/settings-data-software-audit/`: `source-audit.json`, decoded
-layouts and clips, annotated disassembly (`asm/`), `preview.mjs` and
-`renders/`.
+Earlier private evidence is under `presentation/settings-data-software-audit/`:
+`source-audit.json`, decoded layouts and clips, annotated disassembly (`asm/`),
+`preview.mjs` and `renders/`.

@@ -73,6 +73,11 @@ comparison. A future controller must consume this metadata only for its matching
 Notes/application/capture context and define all unavailable startup branches.
 No settled specimen has been inserted as a substitute for that controller.
 
+The [ordered startup follow-up](native-notes-ordered-startup-audit.md) now
+locates initialization within the manager pass and proves that note-open and
+return dispatch HUD on opposite sides of the scene-3 update. It retains the
+hidden-panel gate until combined scheduling and publication are ported.
+
 ## Verification
 
 Eleven metadata tests validate all eight manifest entries, decode all seven

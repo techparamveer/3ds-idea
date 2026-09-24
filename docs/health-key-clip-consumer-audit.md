@@ -102,3 +102,8 @@ Remaining live prerequisites are the **article-specific rectangle producer and
 projection, full control traversal/cancellation, and rich-text draw equivalence**.
 The per-update repeat cadence and rectangle consumer are now concrete; the
 complete native frame sequence remains unverified.
+
+Follow-up: the [article draw audit](health-article-draw-source-audit.md) traces
+a more direct layout initializer which writes mode0/full-screen rotated bounds.
+It also replays pane order, text-cache dispatch and local transforms. This
+consumer's fixture must not be mistaken for that initializer's article state.

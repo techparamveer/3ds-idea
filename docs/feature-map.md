@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: integration **`9e45873`** on `codex/firmware-os-10-7`,
+Checkpoint: integration **`f91865f`** on `codex/firmware-os-10-7`,
 24 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -28,7 +28,7 @@ the browser by the coordinator.
 
 ## Features
 
-| Feature | Status at `9e45873` | Next action | Owner | Evidence |
+| Feature | Status at `f91865f` | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
@@ -62,7 +62,7 @@ this table.
 
 | Role | Worktree | Branch @ head | Not yet integrated |
 | --- | --- | --- | --- |
-| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `9e45873` | — |
+| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `f91865f` | — |
 | eShop idle source | `3ds-idea-worktrees/eshop-idle-source` | `codex/eshop-idle-source` @ `b447c25` | Entrance/idle, curtain/exit and title-owned HUD integrated through `cd4b534` |
 | Settings status and focus | `3ds-idea-worktrees/settings-native-status` | `codex/settings-native-status` @ `f592e0d` | Status integrated as `b52aeb3`; focus audit integrated as `825b3f8`; Profile/Date & Time Back corrected and inspected |
 | Camera strip controller | `3ds-idea-worktrees/camera-native-paging` | `codex/camera-native-paging` @ `6ed2903` | Integrated as `2d6285d`; disconnected from live paging |

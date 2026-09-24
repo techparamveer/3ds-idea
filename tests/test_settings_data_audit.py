@@ -5,7 +5,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'scripts'))
-from audit_settings_data_lists import pc_relative, scene_record
+from audit_settings_data_lists import classify_missing, pc_relative, scene_record
 
 
 class PcRelativeTest(unittest.TestCase):
@@ -29,6 +29,13 @@ class SceneRecordTest(unittest.TestCase):
         record = scene_record(raw)
         self.assertEqual((record['footer'], record['state']), (1, 4))
         self.assertEqual(record['strings'], ['', '', 'base_2b_back', 'SMngCTRData_D_00DataMng', ''])
+
+
+class ClassifyMissingTest(unittest.TestCase):
+    def test_sd_error_labels_do_not_block_the_accessible_state(self):
+        result = classify_missing(['dat_no_sd_u', 'dat_sd_u', 'layout.json/SMngCTRData_D_00', 'dat_writeprotect'])
+        self.assertEqual(result['missingForSelectedState'], ['dat_sd_u', 'layout.json/SMngCTRData_D_00'])
+        self.assertEqual(result['unpublishedAlternativeStates'], ['dat_no_sd_u', 'dat_writeprotect'])
 
 
 if __name__ == '__main__':

@@ -2,7 +2,8 @@
 
 Reads the original Settings RomFS and code image without executing either, then
 compares the source composition with the published presentation pack. Missing
-publication is reported, not treated as a desirable invariant.
+publication is reported, separated into dependencies of the presented
+accessible-empty-SD state and labels used only by the other SD states.
 """
 import argparse
 import hashlib
@@ -62,6 +63,8 @@ LABELS = ['dat_sof_title_u', 'dat_opt_title_u', 'dat_3ds_comm1_u', 'dat_3ds_comm
           'dat_soft_page', 'dat_opt_page', 'dat_no_software', 'dat_no_option', 'dat_no_sd', 'dat_ng_sd',
           'dat_writeprotect', 'dat_sd_u', 'dat_block_u', 'dat_no_sd_u', 'dat_ng_sd_u', 'dat_protect_u',
           'base_2b_back']
+# SD states 1, 3 and 4. The portfolio presents state 2 (accessible, empty SD).
+ALTERNATIVE_STATE_LABELS = {'dat_no_sd', 'dat_ng_sd', 'dat_writeprotect', 'dat_no_sd_u', 'dat_ng_sd_u', 'dat_protect_u'}
 
 
 def digest(data):
@@ -81,6 +84,12 @@ def pc_relative(word, address):
     rotate, imm8 = (word >> 8) & 0xf, word & 0xff
     imm = ((imm8 >> 2 * rotate) | (imm8 << (32 - 2 * rotate))) & 0xffffffff if rotate else imm8
     return address + 8 + (imm if word & 0x00800000 else -imm)
+
+
+def classify_missing(missing):
+    """Split unpublished dependencies by whether the presented SD state needs them."""
+    return {'missingForSelectedState': sorted(set(missing) - ALTERNATIVE_STATE_LABELS),
+            'unpublishedAlternativeStates': sorted(set(missing) & ALTERNATIVE_STATE_LABELS)}
 
 
 def c_string(code, address):
@@ -130,7 +139,8 @@ def audit(romfs, code, published):
             'footerTable': {'address': hex(FOOTER_TABLE), 'names': footers},
             'pageLabelTable': {'address': hex(PAGE_LABEL_TABLE), 'labels': pages},
             'sites': sites, 'words': words, 'ranges': ranges, 'sourceMembers': source_members,
-            'publishedPack': published_pack, 'labels': labels, 'missingFromPublication': missing}
+            'publishedPack': published_pack, 'labels': labels, 'missingFromPublication': missing,
+            **classify_missing(missing)}
 
 
 def main():
@@ -144,7 +154,8 @@ def main():
     report = audit(args.romfs, args.code.read_bytes(), args.published)
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2, ensure_ascii=False) + '\n')
-    print(f"{len(report['missingFromPublication'])} source dependencies missing from publication")
+    print(f"{len(report['missingForSelectedState'])} accessible-empty-SD dependencies missing; "
+          f"{len(report['unpublishedAlternativeStates'])} alternative SD-state labels unpublished")
 
 
 if __name__ == '__main__':

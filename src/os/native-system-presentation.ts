@@ -4,17 +4,19 @@ import type {FirmwarePresentationAssets} from './firmware-presentation';
 import type {MenuState} from './state';
 import {appLaunchLogoFrame,systemTransitionDuration,systemTransitionFrame} from './system-transitions';
 
+type SystemFadeClip='SceneIn'|'SceneOut'|'SceneOutA'|'SceneOutB'|'SceneOutC';
+
 /** Source HOME power layouts and common black fades. Browser clock is explicit;
  * this does not claim measured hardware cold-boot or title-loading latency. */
 export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,state:MenuState,now:number,reduced:boolean,assets:FirmwarePresentationAssets):boolean{
  const s=state.system;if(!s||s.sleeping||!['boot','launch','power','shutdown'].includes(s.phase))return false;
  const elapsed=Math.max(0,now-s.since),renderer=assets.renderer;
  const message=(key:string,fallback:string)=>nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ',key,fallback);
- const fade=(direction:'SceneIn'|'SceneOut',frame:number)=>{
+ const fade=(clip:SystemFadeClip,frame:number)=>{
   let ok=true;
   for(const [ctx,suffix]of [[top,'U'],[bottom,'D']] as const){
    const name=`CmnFadeNinLogo_${suffix}_00`;
-   ok=(drawNativeSystemFade(ctx,renderer.packs.common,name,`${name}_${direction}`,frame)||renderer.draw(ctx,'common',name,{bindings:[{name:`${name}_${direction}`,frame}]}))&&ok;
+   ok=(drawNativeSystemFade(ctx,renderer.packs.common,name,`${name}_${clip}`,frame)||renderer.draw(ctx,'common',name,{bindings:[{name:`${name}_${clip}`,frame}]}))&&ok;
   }
   return ok;
  };
@@ -24,9 +26,9 @@ export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:Canv
  }
  if(s.phase==='launch'){
   const pose=appLaunchLogoFrame(elapsed,reduced);
-  if(!pose||!renderer.packs.launch)return fade('SceneOut',systemTransitionFrame(elapsed,20,reduced));
-  top.fillStyle=bottom.fillStyle='#000';top.fillRect(0,0,400,240);bottom.fillRect(0,0,320,240);
-  let okay=true;
+  if(!renderer.packs.launch)return fade('SceneOut',systemTransitionFrame(elapsed,20,reduced));
+  // SceneOutA/B/C darken HOME in place with the logo; do not erase HOME first.
+  let okay=fade(`SceneOut${pose.clip}`,pose.frame);
   for(const [ctx,suffix]of [[top,'U'],[bottom,'D']] as const){const name=`NintendoLogo_${suffix}_00`;okay=renderer.draw(ctx,'launch',name,{bindings:[{name:`${name}_SceneOut${pose.clip}`,frame:pose.frame}]})&&okay;}
   return okay;
  }

@@ -8,11 +8,15 @@ their decoded styles. This replaces the generic white Power Options dialog.
 
 The central lower-screen Power Off button starts a separate `shutdown` phase.
 Inputs remain gated during that phase; the native Decide clip is followed by a
-common black fade, then the screens and power indicator switch off. Power-on
+common `CmnFadeNinLogo` SceneOut, then the screens and power indicator switch
+off. Sleep `Slp_*_SceneOut` (61-frame `P_Mask_00` fade) is still unused. Power-on
 starts the existing boot phase and reveals HOME through the common SceneIn
-fade. App opening uses the common SceneOut fade instead of the generic title
-card when native resources are ready, followed by the original two-screen
-Nintendo logo layer extracted from Sound's ExeFS. See
+fade. App opening composites HOME `CmnFadeNinLogo_*` SceneOutA/B/C over the live HOME
+pixels with the matching Nintendo logo SceneOutA/B/C clips. Those source clips
+are 60/30/15 frames and share the same names; SceneOutA finishes darkening HOME
+at frame 20, when the 3 glyph begins. The previous sequential 20-frame SceneOut,
+then opaque black fill, then logo, is removed. Missing launch resources still
+use the 20-frame SceneOut fallback. See
 [native logo provenance](native-app-launch-logo.md). The existing physical
 console opening is preserved.
 
@@ -28,29 +32,28 @@ visual acceptance; this checkpoint is not full firmware equivalence.
 
 ## Verification
 
--25 menu, portfolio lifecycle and shared stock-target tests pass.
--Type checking passes.
--`scripts/verify-native-system-ui.mjs` renders16 upper/lower native-resource
-  checkpoints, checks opaque black endpoints and reports no renderer diagnostics.
-  Supply an absolute SSD output directory and Canvas module path.
--The actual in-app browser was reloaded at `http://localhost:3000/`. The native
-  power screen was visually inspected on the console model. A/Enter reached
-  off, the Power control restarted boot, boot reached HOME, and Open Work reached
-  the existing portfolio content. Frame timing was not captured by those checks.
+Focused transition/state tests and type checking belong with this worker slice.
+`scripts/verify-native-system-ui.mjs` renders the power/boot/launch LCD pairs,
+byte-compares HOME fade SceneIn/Out/A/B/C integer frames against the original
+renderer, checks that launch frame 0 keeps the HOME underlay, and checks opaque
+black endpoints. Supply an absolute SSD output directory and Canvas module path.
+The coordinator owns live browser and Azahar comparison.
 
-Artifacts are under
-`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/system-ui/`;
-state-test output is `reference/system-ui-state-tests.log`. Full combined app
-verification follows the gallery/music and stock-screen integration.
+Artifacts for the parallel launch compositing pass are under
+`reference/system-ui-launch-parallel/` on the designated firmware SSD. Full
+combined app verification follows coordinator integration.
 
 ## Original app-launch logo integration
 
 The optional `home.launch` pack contains native NintendoLogo_U/D layouts and
-SceneOutA/B/C poses. The browser adapter plays a20-frame HOME fade followed by
-60/30/15 source frames at nominal60Hz, with a2100ms total phase. This schedule is
-an explicit browser choice; the B clip is looping in the resource and its actual
-hardware hold depends on software loading. Reduced motion holds a settled logo
-for the existing120ms launch phase. Cold boot still opens HOME directly.
+SceneOutA/B/C poses. HOME common `CmnFadeNinLogo_*` has the same A/B/C wrappers:
+SceneOutA raises the uniform black pane to opaque by frame 20 and holds through
+frame 59; B holds opaque; C holds opaque while the logo fades out. The browser
+adapter plays those 105 source frames together at nominal 60Hz (1750ms). This
+schedule is an explicit browser choice from the clip lengths; the B clip is
+looping in the resource and its actual hardware hold depends on software loading.
+Reduced motion holds a settled logo over the opaque B fade for the existing 120ms
+launch phase. Cold boot still opens HOME directly.
 
 The source logo was visually inspected in24 native-resolution transition renders
 under `reference/system-ui-logo`, with no renderer diagnostics and verified
@@ -74,15 +77,15 @@ a Canvas fill. The regular renderer remains responsible for textures, extra
 panes, altered geometry, fractional edges, and inherited partial opacity. Source
 animation interpolation and frame scheduling are unchanged.
 
-The real-resource verifier compares all 84 upper/lower SceneIn/SceneOut integer
-frames byte for byte with the original renderer, plus 2× LCD scaling. Fractional
-edges, partial parent opacity and changed geometry explicitly decline the fast
-path. Partial parent opacity was found to round differently and is not optimized.
-The same verifier also passes 24 complete transition LCD checkpoints. Recorded
-aggregate CPU time for the 84 comparison frames was 226ms for the original path
-and 5.4ms for the uniform fill on this host; this is not a browser FPS claim and
-does not resolve the separate logo/material rasterization costs.
-Artifacts: `reference/system-ui-fast-fade/` on the designated SSD.
+The real-resource verifier compares upper/lower SceneIn, SceneOut and
+SceneOutA/B/C integer frames byte for byte with the original renderer, plus 2×
+LCD scaling. Fractional edges, partial parent opacity and changed geometry
+explicitly decline the fast path. Partial parent opacity was found to round
+differently and is not optimized. The same verifier also writes the transition
+LCD checkpoints, including launch frame 0 over a HOME-coloured underlay.
+Earlier 84-frame CPU timings are historical; re-run numbers live with the
+expanded clip set. Artifacts: `reference/system-ui-launch-parallel/` on the
+designated SSD.
 
 ### Live accessibility correction, 2026-09-24
 

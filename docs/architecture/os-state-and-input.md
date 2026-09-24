@@ -143,8 +143,10 @@ separate authored fallback when native HOME assets are unavailable.
 
 Power and launch use source common/sleep/logo resources with explicit browser
 durations in `system-transitions.ts`; see [power transitions](../portfolio-power-transitions.md).
-Cold boot currently reveals HOME directly. Source animation poses do not establish
-native startup latency, looping-logo hold or input-to-display timing.
+App opening binds the matching HOME `CmnFadeNinLogo` and logo SceneOutA/B/C clips
+over painted HOME instead of a sequential fade-to-black then logo. Cold boot
+currently reveals HOME directly. Source animation poses do not establish native
+startup latency, looping-logo hold or input-to-display timing.
 
 ## Effects and persistence
 

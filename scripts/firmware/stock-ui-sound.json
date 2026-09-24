@@ -7,14 +7,27 @@
           "layouts": [
             "S_BG",
             "S_BG_D-Ctr",
-            "S_BG_D-Grid"
+            "S_BG_D-Grid",
+            "S_BG-Record"
           ],
           "animations": [
             "S_BG_D-Ctr_Down",
             "S_BG_D-Ctr_Up",
             "S_BG_D-Grid_Default",
             "S_BG_D-Grid_In",
-            "S_BG_D-Grid_Out"
+            "S_BG_D-Grid_Out",
+            "S_BG-Record_Default",
+            "S_BG-Record_In",
+            "S_BG-Record_In_from_U",
+            "S_BG-Record_Out",
+            "S_BG-Record_Out_to_U",
+            "S_BG-Record_U_Default",
+            "S_BG-Record_U_In",
+            "S_BG-Record_U_Out",
+            "S_BG-Record_U_from_Auto",
+            "S_BG-Record_U_from_Play",
+            "S_BG-Record_U_to_Auto",
+            "S_BG-Record_U_to_Play"
           ]
         },
         "packs/sound/contents/0000-0000000b/lyt-S_Play_D-arc-LZ.json": {

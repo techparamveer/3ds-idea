@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "titleId": "0004001000022500",
+  "codeSha256": "3c57f2c4091c1bec6b3834609f1e2a6488712e21775d7548b441c69c60b3e5a9",
+  "constructor": "0x1c3b40",
+  "archive": "S_BG",
+  "layout": "S_BG-Record",
+  "instances": [
+    {
+      "slot": "app+0xbc",
+      "channel": 6,
+      "clip": "U_Default"
+    },
+    {
+      "slot": "app+0xc0",
+      "channel": 8,
+      "clip": "Default"
+    }
+  ],
+  "checkedInstructions": 16,
+  "scope": "construction and initial clip binding; not owner visibility or runtime timing"
+}

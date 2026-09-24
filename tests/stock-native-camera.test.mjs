@@ -1,0 +1,110 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import ts from 'typescript';
+
+const moduleUrl=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
+const transpile=(name,overrides={})=>{
+  const url=new URL(`../src/os/${name}.ts`,import.meta.url);
+  const {outputText}=ts.transpileModule(readFileSync(url,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
+  return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(`${path}.ts`,url).href)+suffix));
+};
+const {cameraScreenPacks,drawNativeCameraLower,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect}=await import(transpile('stock-native-camera',{
+  './stock-screen-layout':transpile('stock-screen-layout'),
+  './native-layout':transpile('native-layout'),
+}));
+const pack=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',import.meta.url),'utf8'));
+const messages=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/msg-EU_English.json',import.meta.url),'utf8'));
+const find=(panes,name)=>{for(const pane of panes){if(pane.name===name)return pane;const child=find(pane.children??[],name);if(child)return child;}};
+const view=(screen,rows=[],data={},selection=0)=>({appId:'camera',screen,heading:'Nintendo 3DS Camera',rows,selection,footer:{left:{action:'back',label:'Back'}},data});
+const ctx=()=>{
+  const log=[];
+  return {log,bottom:{
+    fillStyle:'',strokeStyle:'',font:'',textAlign:'',textBaseline:'',
+    fillText:(...args)=>log.push(['fillText',...args]),
+    fillRect:()=>{},beginPath:()=>{},roundRect:(...args)=>log.push(['roundRect',...args]),
+    fill:()=>{},stroke:()=>{},
+  }};
+};
+function paint(screenView,imageResult=true){
+  const {log,bottom}=ctx(),draws=[];
+  const renderer={
+    packs:{'camera-gallery':pack,'camera-messages':messages},
+    draw(_ctx,_pack,layout,opts){draws.push({layout,opts});return true;},
+  };
+  const images=[];
+  const okay=drawNativeCameraLower(renderer,bottom,screenView,{image:(_c,url,x,y,w,h)=>{images.push([url,x,y,w,h]);return imageResult;}});
+  return {okay,draws,images,log};
+}
+
+test('published browse pack contains the large thumbnail clips the gallery now requests',()=>{
+  const request=cameraScreenPacks[0];
+  for(const name of request.layouts)assert.ok(pack.layouts[name],name);
+  for(const name of request.animations)assert.ok(pack.animations[name],name);
+  assert.deepEqual(pack.animations.P_BrwsFld_PicL.textures,['P_Thmb_Date5x7.bclim','P_Thmb_DatePho2x3.bclim']);
+  assert.deepEqual(pack.animations.P_BrwsPic_PicL.textures,['P_Thmb_Pho2x3_SD.bclim','P_Thmb_Pho5x7.bclim']);
+  assert.equal(pack.layouts.P_BrwsFld.textures[0],'P_Thmb_DatePho5x7.bclim');
+  assert.equal(pack.layouts.P_BrwsPic.textures[1],'P_Thmb_Pho5x7_SD.bclim');
+});
+
+test('photo mount and thumbnail slots match the published centered panes',()=>{
+  const mount=find(pack.layouts.P_BrwsPhoMntBase.roots,'-PhoMntPos');
+  const thumb=find(pack.layouts.P_BrwsPic.roots,'ThmbPic');
+  const mask=find(pack.layouts.P_BrwsPic.roots,'ThmbMask');
+  assert.deepEqual(mount.translation.slice(0,2),[0,13]);
+  assert.deepEqual(mount.size,[256,128]);
+  assert.equal(mount.origin,4);
+  assert.deepEqual(thumb.size,[56,42]);
+  assert.deepEqual(mask.size,[66,52]);
+  assert.deepEqual(cameraPhotoMountRect,nativeLowerPaneRect(mount.translation,mount.size));
+  assert.deepEqual(cameraPhotoMountRect,[32,43,256,128]);
+  assert.deepEqual([...cameraThumbPicSize],[56,42]);
+  assert.deepEqual(cameraThumbPicRect(58,65),[30,44,56,42]);
+});
+
+test('folder cells bind the large PicL frame and keep the count on TxtThmb',()=>{
+  const {okay,draws,images,log}=paint(view('main',[{id:'folder:building',label:'Building Collection'}],{folders:[{id:'building',photos:[{id:'a'},{id:'b'},{id:'c'}]}]}));
+  assert.equal(okay,true);
+  assert.deepEqual(images,[]);
+  const folder=draws.find(d=>d.layout==='P_BrwsFld');
+  assert.deepEqual(folder.opts.bindings.map(b=>b.name),['P_BrwsFld_Default','P_BrwsFld_PicL']);
+  assert.equal(folder.opts.overrides.TxtThmb.text,'3');
+  assert.ok(!log.some(entry=>entry[0]==='fillText'));
+  assert.ok(!draws.some(d=>d.layout==='P_BrwsPic'));
+});
+
+test('gallery photos draw under ThmbMask and use the large PicL clip',()=>{
+  const {okay,draws,images,log}=paint(view('gallery',[{id:'photo:a',label:'Building 1'}],{photos:[{id:'a',src:'/portfolio/building1.jpg'}]}));
+  assert.equal(okay,true);
+  assert.deepEqual(images,[['/portfolio/building1.jpg',30,44,56,42]]);
+  const pic=draws.find(d=>d.layout==='P_BrwsPic');
+  assert.ok(draws.findIndex(d=>d.layout==='P_BrwsPic')>=0);
+  assert.deepEqual(pic.opts.bindings.map(b=>b.name),['P_BrwsPic_Default','P_BrwsPic_PicL']);
+  assert.equal(pic.opts.overrides.ThmbPic.alpha,0);
+  assert.equal(pic.opts.overrides.ThmbPic.visible,undefined);
+  assert.ok(!log.some(entry=>entry[0]==='fillText'));
+  const {images:unloaded,draws:pending}=paint(view('gallery',[{id:'photo:a',label:'Building 1'}],{photos:[{id:'a',src:'/portfolio/building1.jpg'}]}),false);
+  assert.deepEqual(unloaded,[['/portfolio/building1.jpg',30,44,56,42]]);
+  assert.deepEqual(pending.find(d=>d.layout==='P_BrwsPic').opts.overrides,{});
+});
+
+test('photo view uses the source mount rectangle and drops invented arrows',()=>{
+  const {okay,draws,images,log}=paint(view('photo',[],{photo:{id:'a',title:'Building 2',src:'/portfolio/building2.jpg'}}));
+  assert.equal(okay,true);
+  assert.deepEqual(images,[['/portfolio/building2.jpg',32,43,256,128]]);
+  const mount=draws.find(d=>d.layout==='P_BrwsPhoMntBase');
+  assert.equal(mount.opts.overrides['-PhoMntPos'].visible,false);
+  assert.ok(!log.some(entry=>entry[0]==='roundRect'||entry[0]==='fillText'));
+  assert.ok(!draws.some(d=>d.layout==='P_BrwsPic'||d.layout==='P_BrwsFld'));
+});
+
+test('empty gallery uses the source English no-data message and ignores other titles',()=>{
+  const {okay,draws}=paint(view('main',[],{folders:[]}));
+  assert.equal(okay,true);
+  const empty=draws.find(d=>d.layout==='P_BrwsTxt_D');
+  assert.equal(empty.opts.overrides.TxtNoData.text,'There are no saved\nphotos or videos.');
+  const {log,bottom}=ctx();
+  assert.equal(drawNativeCameraLower({packs:{},draw:()=>true},bottom,{...view('main'),appId:'sound'},{}),false);
+  assert.deepEqual(log,[]);
+});

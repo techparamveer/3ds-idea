@@ -40,11 +40,16 @@ directory `presentation/stock-ui-first`, with no renderer diagnostics. The
 Settings assembly, gallery images and player controls were visually inspected.
 
 These are reviewable UI changes, not 1:1 acceptance. Camera consumes the original browser background, folder and photo thumbnails,
-selection frame and album mount. Portfolio image and folder content is composed
-inside those frames. The six-cell placement, upper photo preview and Back/Open
-footer remain portfolio adaptations; native capture and zoom controls are hidden.
-The neutral source transition BG remains visible in place of UserBG's blue
-replacement default; native runtime background binding is still unresolved.
+selection frame and album mount. Folder/photo cells now bind the published
+large PicL clips so the 66×52 frames use their 2×3 textures instead of
+stretched 5×7 placeholders. Portfolio photos draw under `ThmbMask` at the
+source 56×42 slot; the opened photo uses `-PhoMntPos` at `[32, 43, 256, 128]`.
+Invented heading, cell labels and photo-view arrows were removed. The six-cell
+placement, upper photo preview and Back/Open footer remain portfolio
+adaptations; native capture and zoom controls are hidden. The neutral source
+transition BG remains visible in place of UserBG's blue replacement default;
+native runtime background binding is still unresolved. See
+[the gallery comparison](camera-gallery-source-validation.md).
 Sound now consumes the source background/grid, title and
 track panels, parakeet, Back button, list cursor and transport art. Track strings
 and artwork come from AppView. The transport mounts are repositioned to the

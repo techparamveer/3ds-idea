@@ -95,11 +95,13 @@ Title `0004001000022400`, prefix `packs/camera/contents/0000-0000001a/`.
 
 The folder label is `TxtThmb`, photo image pane `ThmbPic` (56 × 42), mask
 `ThmbMask` (66 × 52), cursor `Cursor` and empty label `TxtNoData`. Large,
-medium and small thumbnail clips retain native source sizes. Position repeated
-thumbnail instances around the real portfolio photos. The capture/settings
-menu is deliberately omitted. The English bank supplies Slideshow, empty-gallery,
-photo-count, chronological-order and Back text. HOME navigation is presentation
-behavior.
+medium and small thumbnail clips retain native source sizes. The gallery
+painter now requests `P_BrwsFld_PicL` and `P_BrwsPic_PicL` so those 2×3
+textures load. Position repeated thumbnail instances around the real portfolio
+photos. The capture/settings menu is deliberately omitted. The English bank
+supplies Slideshow, empty-gallery, photo-count, chronological-order and Back
+text. HOME navigation is presentation behavior. See
+[the gallery comparison](camera-gallery-source-validation.md).
 
 The final subset contains 47 resources totalling 198,509 bytes including shared
 dependencies. Its delivery audit passes. `camera-gallery-textures.png` was

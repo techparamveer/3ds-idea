@@ -46,7 +46,16 @@ visually inspected at `/Users/paramveer/.codex/artifacts/notes-lower-intro/`.
 Reproduce with absolute `--artifact-dir`, `--asset-root`, and `--canvas-module`
 (the last points to an installed `@napi-rs/canvas` entry point).
 
-No matched physical-console capture or browser result is claimed. The parent
-integration task owns live browser QA. Native raster differences, the settled
+The worker did not claim a matched physical-console capture or browser result.
+The parent integration task owns live browser QA. Native raster differences, the settled
 lower list's own SceneIn adaptation, and the no-metadata tutorial route remain
 outside this correction. The existing provisional 60 Hz clock is unchanged.
+
+## Integration browser check
+
+After integration, the production build at `http://localhost:3000/` was
+operated through Work → HOME → Game Notes → HOME. The settled Notes lower grid,
+suspended Work upper capture and HOME return were visible; browser warning and
+error logs were empty. The brief lower cover was validated in the source-frame
+render above, not captured at a matched browser animation frame. Native timing
+and whole-screen comparison remain open.

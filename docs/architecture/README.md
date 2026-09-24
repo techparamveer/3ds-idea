@@ -6,10 +6,11 @@ interactive console. There is no application backend or firmware executable in
 the runtime. Native resources are converted offline and interpreted by browser
 renderers around deterministic software state.
 
-This design map was written against integration `1be4133` and still holds at
-**`b6fb55e` (24 September 2026)**. The later parental screens add routes,
-painters and touch targets inside the existing `AppModule`, painter and
-`stock-screen-layout.ts` boundaries. They change no contract here.
+This design map was written against integration `1be4133` and updated through
+the UI continuation on **24 September 2026**. Parental screens remain inside
+the existing `AppModule`, painter and `stock-screen-layout.ts` boundaries.
+The Sound entry room adds a scene-owned static model background with an injected
+prepare/draw contract; it participates in the same paired LCD readiness gate.
 
 Other documents own the rest:
 
@@ -42,6 +43,9 @@ flowchart TD
   LCD --> Scene
   Banner[Native CGFX banner renderer] --> Paint
   Scene --> Banner
+  Room[Source Sound room CGFX] --> Scene
+  Scene --> RoomHook[Owned room prepare/draw]
+  RoomHook --> Paint
 ```
 
 The upper logical surface expands to 800×240 texture storage; the physical

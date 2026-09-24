@@ -1,6 +1,6 @@
 # Runtime composition and ownership
 
-Checkpoint: `1be4133`; [scope](../portfolio-ui-scope.md) limits stock apps to UI
+Checkpoint: `1be4133`, unchanged through `b6fb55e`. [Scope](../portfolio-ui-scope.md) limits stock apps to UI
 and navigation, with Sound playback and read-only Camera media.
 
 ## Startup

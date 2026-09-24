@@ -5,6 +5,8 @@
 > integrated; see [current progress](progress-2026-09-24.md) and
 > [asset architecture](architecture/assets-and-materials.md). Hardware observations
 > retain their stated scope; old OS blockers are not current acceptance dependencies.
+> "Current" and "preceding" below refer to each pass when it was written. The
+> active rig and live GLB are named in the [model validation index](model-validation-index.md).
 
 
 The current [front hinge finish](source-hinge-finish-validation.md) restores a narrower barrel reflection.

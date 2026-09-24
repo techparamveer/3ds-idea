@@ -6,7 +6,8 @@
 > navigation, read-only Camera gallery, supplied-song Sound playback, startup,
 > power-off and app opening. Software Keyboard and the six excluded apps remain
 > out of scope. [Progress and evidence](docs/progress-2026-09-24.md) records the
-> integration checkpoint; strict 1:1 acceptance remains open.
+> integration checkpoint and the [feature map](docs/feature-map.md) its owners.
+> Strict 1:1 acceptance remains open.
 
 Build a personal portfolio website whose entire visible interface is a realistic, interactive **original 2012 Silver + Black Nintendo 3DS XL, model SPR-001**. Reconstruct the console in Blender using Blender MCP, then present it in Next.js and Three.js with VGPU. The console spins left, opens, and lets visitors navigate through its physical buttons and bottom touchscreen. Keep portfolio content plain until the hardware and HOME Menu are faithful.
 

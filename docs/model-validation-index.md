@@ -11,6 +11,16 @@ The recorded closed envelope is **156 × 93 × 22 mm**. The upper opening's
 Those checks do not establish silhouette or lettering accuracy. Hardware
 lettering retains documented capture-resolution limits and is not a verified
 factory font. The headphone-socket internal contacts remain unresolved.
+`silver-audio-contacts.blend` is a preserved, unpromoted candidate
+([study](audio-contact-study.md)). It still needs export validation and web
+verification before it replaces the live model.
+
+[Compact delivery](compact-model-delivery.md) records the live mirror:
+`silver-audio-finish-compact.glb`, served through `DEFAULT_MODEL_URL` in
+`src/scene/model-layout.ts`. It supersedes two older statements in the model
+directory README: that the public GLB mirrors `silver-speakers.glb`, and that
+`silver-hinge-finish` is "current". Hardware refinement has no active worker on
+24 September 2026; see the [feature map](feature-map.md).
 
 Refinement passes form a sequential pipeline. Do not run an earlier script
 against the latest checkpoint indiscriminately. Curved exports use carried

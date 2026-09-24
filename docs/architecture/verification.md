@@ -38,7 +38,8 @@ Write new evidence beneath
 Scripts accept absolute artifact paths. Raw firmware and executables stay private.
 Each checkpoint identifies commit, scenario, commands/results, browser inspection,
 native comparison, artifact paths and remaining differences. The
-[progress matrix](../progress-2026-09-24.md) is the cross-system index.
+[progress matrix](../progress-2026-09-24.md) is the cross-system evidence index.
+The [feature map](../feature-map.md) follows it with owners and next actions.
 
 Development-only `captureScreensAt` and `captureNativeBanner` force explicit
 presentation samples without advancing host state and are absent in production.
@@ -47,4 +48,5 @@ They prove a render pose, not that live input reached it with native timing.
 Before edits or integration, inspect status, branch, worktrees and ancestry.
 Never modify another worker's checkout. Integrate coherent commits sequentially
 and run combined checks afterward. Preserve `uifix`, `codex/home-menu-assets`
-and `codex/3ds-os`; integration is `codex/firmware-os-10-7`.
+and `codex/3ds-os`; integration is `codex/firmware-os-10-7`. The current
+worker worktrees are listed in the [feature map](../feature-map.md#worktrees-on-24-september-2026).

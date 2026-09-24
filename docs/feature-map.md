@@ -1,77 +1,85 @@
 # 3DS portfolio feature map
 
-Checkpoint: 24 September 2026, integration `1be4133` on
-`codex/firmware-os-10-7`. This is a coordination map, not a completion claim.
-Update evidence and commit identifiers when work is integrated. A worker commit
-is not delivered until it is integrated, built and checked in the browser.
+Checkpoint: integration **`b6fb55e`** on `codex/firmware-os-10-7`,
+24 September 2026. This map coordinates **status, owners and next actions**.
+It is not a completion claim and does not hold evidence of its own.
 
-## Reading the status
+- Evidence and its tiers (tested, browser-inspected, native-compared) are
+  recorded in the [progress checkpoint](progress-2026-09-24.md) and the linked
+  validation notes. If this map disagrees with them, they win; correct this map.
+- Scope and exclusions come from [portfolio UI scope](portfolio-ui-scope.md);
+  design contracts from [architecture](architecture/README.md).
+- **Strict 1:1 fidelity is unproven for every row.** No row has a whole-screen
+  matched native comparison of pixels, motion, audio and input timing. Do not
+  turn test counts into a completion percentage.
 
-- **Implemented** means a code path exists; it does not establish visual fidelity.
-- **Browser checked** applies only to the scenarios stated below.
-- **Source backed** means original resources or traced source behavior are used.
-- **Native comparison open** means strict 1:1 acceptance remains unproven.
+A worker commit is delivered only after it is integrated, built and checked in
+the browser by the coordinator.
 
-The current scope is [portfolio UI](portfolio-ui-scope.md). The architecture
-entry point is [architecture/README.md](architecture/README.md). All rows below
-still require matched native comparison unless their linked evidence explicitly
-proves a narrower comparison. Do not convert test counts into a completion percentage.
+## Status words
 
-## Features and evidence
+| Word | Meaning |
+| --- | --- |
+| Implemented | The integration code path exists and the stated tests pass. |
+| Adaptation | Deliberate portfolio behaviour that differs from native; keep it labelled. |
+| Defect | A known visible or behavioural error in the integrated build. |
+| Source gap | Required original content or format support is missing. |
+| Blocked | Waiting on user-supplied input. |
 
-| Feature | Current implementation and verification | Remaining work | Main files / evidence | Owner |
+## Features
+
+| Feature | Status at `b6fb55e` | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
-| Console model and physical controls | Sourced silver XL model, intro and physical controls preserved; visible in live app checks | Hardware fidelity gaps remain in model validation notes | `src/scene/`; [source validation](source-silver-validation.md) | Integration; separate hardware work only when assigned |
-| HOME Menu | Native resource pipeline, selection, folders and software suspension implemented; HOME return exercised live | Complete matched native screen/animation/input comparison | `src/os/system.ts`, native HOME modules; [integration](home-menu-integration.md) | Integration |
-| Eight portfolio apps | Existing content and navigation preserved; Work opened in browser | Full content and mobile navigation acceptance | `src/os/portfolio-screens.ts`, `portfolio-media.ts` | Integration |
-| Power on/off | Source power menu and fades; live shutdown to black LCDs and boot to HOME verified | Hardware timing/cadence comparison | [power transitions](portfolio-power-transitions.md) | Integration |
-| App opening | Source Nintendo logo clips and source fade implemented | Animated rendering cost and matched timing remain open | `native-system-presentation.ts`; [power transitions](portfolio-power-transitions.md) | Integration |
-| Loading and recovery | Native screens publish complete pairs; timeout, retry and input gating implemented; delayed/error asset scenarios exercised | Finish any specifically pending recovery scenarios in evidence notes | `stock-screen-presentation.ts`, `native-screen-input.ts` | Integration/runtime |
-| System Settings main | Source scene, palette, tiles and controls integrated and browser checked | Matched reference comparison | [Settings evidence](settings-main-source-validation.md) | Presentation + integration |
-| Settings submenus | Source Internet, Connections, Data, Profile, Other Settings and Date & Time layouts; page order corrected | Generic leaf screens and remaining controls need source replacement | `stock-native-settings.ts`, `stock-settings-navigation.ts` | Presentation/runtime |
-| DS Profile | Source legacy layouts and full-width Back; browser checked | Original profile data absent; Message/Colour intentionally inert | [Settings evidence](settings-main-source-validation.md) | Presentation + integration |
-| Date/time/birthday | Original arrows, digit textures, EU ordering and Cancel/OK; live screens and Cancel checked | Values absent remain blank; editing intentionally excluded | [native fields](settings-native-fields-validation.md) | Presentation + integration |
-| Parental Controls | Original introduction and Back/Set integrated; source next introduction painter integrated | Connect original explanation/PIN notice together; replace incorrect Set-to-restrictions shortcut | [source flow](settings-parental-source-audit.md) | Runtime + presentation + assets; integration owns touch geometry |
-| Camera | Existing portfolio folders/gallery, read-only; entry and folder navigation checked | Matched native gallery composition and full navigation pass | `stock-native-camera.ts`, `portfolio-media.ts` | Presentation/runtime |
-| Sound | Source music UI and playback effects; empty music screen checked | User song manifest is empty; live favourite-track playback needs supplied media | `stock-native-sound.ts`, `portfolio-media.ts` | Runtime/presentation |
-| Health and Safety | Source screens and document pages; entry and two-page navigation checked | Remaining document/reference scenarios | `stock-native-health.ts`; [screen evidence](stock-screen-presentation.md) | Presentation |
-| Game Notes | Source grid/editor; open and Back/close checked | **Known defect:** editor shows no suspended software while Health is suspended; source snapshot slots need wiring | `stock-native-personal-tools.ts`; [screen evidence](stock-screen-presentation.md) | Integration + assets source audit |
-| Friend List | Source initial screen; entry and Back checked | Profile/supplied-data and interior fidelity gaps | `stock-native-personal-tools.ts` | Presentation/runtime |
-| Notifications | Source empty state; zero counts and right-edge Close checked | Native comparison; nonempty scenarios only if in scope | `stock-native-personal-tools.ts` | Presentation/runtime |
-| Internet Browser | Source chrome; entry checked; local UI routes implemented | Interior/offline fidelity; no remote browsing or keyboard required | `stock-native-web.ts`, `stock-browser-navigation.ts` | Presentation/runtime |
-| eShop / Nintendo Zone / Miiverse | Source-backed UI paths implemented | Service-screen fidelity and full live scenarios remain open; known projection gaps retained | `stock-native-services.ts`, `stock-native-web.ts` | Presentation/assets |
-| NNID | Local native shell/control resources available | **Missing source:** original unsigned-in account-page content; current adaptation is not a native match | [NNID audit](nnid-entry-source-audit.md) | Assets/runtime |
-| amiibo settings | Bounded original-model FLYT parts supported; 13 real-source Python and 14 renderer checks pass | Header/PortalBtnSub material behavior and native reference unresolved | [amiibo evidence](native-amiibo-initial-ui.md) | Assets |
-| Other internal helpers | Updater, transfer, Circle Pad, manual and selectors have source UI paths and parent routing | Per-helper native comparison and remaining adaptations | `stock-native-helpers.ts`, `stock-native-selectors.ts`, `stock-helper-views.ts` | Runtime/presentation |
-| Accessibility | Physical, keyboard, touchscreen paths; software-switch/power announcements corrected and checked live | Further screen-specific announcements and full accessibility pass | `src/scene/console-scene.ts` | Integration |
-| Asset conversion/provenance | Fonts, layouts, animations, images and messages published with provenance; audited resources | Explicit unsupported styles/materials/animations remain; private-source checks are separate from public audit | `scripts/firmware/`, `public/os/firmware/10.7.0-32E/` | Assets |
-| Final acceptance / PR | Integration branch and evidence exist | Full requirement audit, matched native comparisons, final validation, push and PR still outstanding | Original brief; `GOAL.md` | Integration |
+| Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
+| Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
+| HOME Menu | Implemented from native resources: folders, density, pickup, cursor, banners, suspension | Whole-screen motion, input timing, indicators and banner GPU behaviour against native | Coordinator | [HOME comparison](native-home-comparison-2026-09-22.md), [integration](home-menu-integration.md) |
+| HOME audio | Implemented: native sequence and short cues | Input-to-sound timing and music balance against native | Coordinator | [Menu audio](native-menu-audio-integration.md) |
+| Eight portfolio apps | Implemented. Content and navigation preserved | Full content and mobile navigation pass | Coordinator; presentation for painters | [Portfolio OS](portfolio-os-validation.md) |
+| Power on/off, startup | Implemented from source layouts and fades. Adaptation: cold boot reveals HOME directly | Native timing of shutdown and boot | Coordinator | [Power transitions](portfolio-power-transitions.md) |
+| App opening | Implemented: source logo clips and fade | Launch/logo hold timing and animated raster cost | Coordinator | [Power transitions](portfolio-power-transitions.md) |
+| Loading and recovery | Implemented for stock views: paired publication, timeout, retry, input gate | Initial scene startup is not deadline-bounded; broader leak scenarios | Coordinator; runtime | [Readiness](native-screen-readiness.md) |
+| Settings main and subpages | Implemented from source scenes: Internet, Data, Other pages, Connection, Date & Time, Profile, DS Profile. Missing values stay blank; editing is excluded | EU eight-choice Language layout is unverified (read-only value only). Matched native comparison | Presentation; coordinator for browser | [Settings trace](settings-main-source-validation.md), [fields](settings-native-fields-validation.md) |
+| Settings helpers (NNID, Transfer, Updater) | Implemented: helper Back restores the exact Settings page, and HOME suspends the helper (`251f88f` tests) | Browser check of helper return is not recorded. The older "returns to HOME" note in [screen presentation](stock-screen-presentation.md) predates `251f88f` and is superseded | Runtime; coordinator for browser | [Helper return tests](../tests/settings-helper-return.test.mjs) |
+| Parental Controls | Implemented: intro Back/Set → source explanation (Back/Next) → source PIN notice (`Dialog_D_01`, one OK). Adaptation: OK/B return to the explanation with Next selected, but native OK continues to PIN setup. The old restrictions list is unreachable. Touch targets follow source bounds. Integrated live flow was operated, including an inert obscured background | Upper LCD during the notice keeps the explanation page, and the native upper mask and timing are unverified. Matched native comparison remains open | Coordinator (browser, touch geometry); presentation (upper mask) | [Source flow](settings-parental-source-audit.md), [PIN notice](settings-parental-pin-presentation.md), [dialog assets](native-parental-dialog-assets.md) |
+| Camera | Implemented as a read-only portfolio folders/photo gallery | Native gallery composition, full navigation pass | Presentation; runtime | [Screen presentation](stock-screen-presentation.md) |
+| Sound | Implemented UI and owner-scoped playback. **Blocked:** track manifest is empty | Real playback check after the user supplies songs | Runtime; presentation | [Screen presentation](stock-screen-presentation.md) |
+| Health and Safety | Implemented. Adaptation: bounded pagination instead of continuous scroll | Remaining document scenarios | Presentation | [Screen presentation](stock-screen-presentation.md) |
+| Game Notes | Implemented grid/editor. **Defect:** the selected-note upper LCD always draws `PanelNoGameIn` ("There is no suspended software.") while another app is suspended | Coordinator supplies the frozen snapshot of the suspended app. Presentation binds it to the source panes and removes the forced capture-hiding. Keep "missing pixels" distinct from "nothing suspended". The source contract is audited in assets commit `b30bcc0` (`docs/native-notes-capture-assets.md`, not yet integrated) | Coordinator + presentation; assets audit done | [Live check](stock-screen-presentation.md) |
+| Friend List, Notifications | Implemented source initial/empty states | Interior fidelity; nonempty states only if brought into scope | Presentation; runtime | [Personal tools](native-personal-tools.md) |
+| Internet Browser, Miiverse | Implemented source chrome. Adaptation: local read-only interiors | Interior fidelity. No remote browsing or keyboard | Presentation; runtime | [Interiors](native-browser-miiverse-interiors.md) |
+| eShop, Nintendo Zone | Implemented source welcome/offline chrome. Adaptation: Zone projection/viewport | Service-screen fidelity | Presentation; assets | [Service assets](native-service-ui-assets.md) |
+| NNID | **Source gap:** the unsigned-in body is absent from supplied data. Adaptation: native header plus local notice | Obtain a defensible reference if possible; otherwise keep it labelled | Assets; runtime | [NNID audit](nnid-entry-source-audit.md) |
+| amiibo settings | Implemented bounded FLYT parts. **Source gap:** header and `PortalBtnSub` materials unsupported | Support them or omit them explicitly; no accepted opening-screen comparison | Assets | [amiibo limits](native-amiibo-initial-ui.md) |
+| Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
+| Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power announcements corrected | Screen-specific announcements, full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
+| Asset conversion, provenance | Implemented. The `b6fb55e` public audit reports 1,561 resources, 571 layouts and 1,820 animations with zero errors | Keep unsupported fields explicit and rerun after further asset integration | Assets | [Asset architecture](architecture/assets-and-materials.md) |
+| Final acceptance | Open | Versioned browser + Azahar scenario matrix, requirement audit, then push/PR on the user's request | Coordinator | [Verification](architecture/verification.md) |
 
-## Worktree handoff rules
+## Worktrees on 24 September 2026
 
-| Worktree | Responsibility | Coordination boundary |
-| --- | --- | --- |
-| `3ds-idea-worktrees/integration` | Combined behavior, scene, input geometry, browser verification and acceptance | Integrates coherent commits sequentially; owns final delivery |
-| `3ds-idea-worktrees/assets` | Source inspection, converters and selected resources | Supplies exact layout/message/material contracts; no guessed publication |
-| `3ds-idea-worktrees/presentation` | Source screen painters and render verification | Reports matching runtime IDs and touch geometry requirements |
-| `3ds-idea-worktrees/runtime` | UI routes, state/lifecycle and tests | Coordinates painter dependencies before routes are delivered |
-| New progress/system-design worktree | Progress record, feature map, architecture and agent guidance | Documentation ownership; do not change runtime or overwrite active worker edits |
+Branch names change between slices. Run `git worktree list` before relying on
+this table.
 
-Implementation workers use GPT-6 Astra High. Branch names may change between
-slices; inspect `git worktree list` and each task before relying on an old name.
-The original checkout and older OS worktrees must remain preserved.
+| Role | Worktree | Branch @ head | Not yet integrated |
+| --- | --- | --- | --- |
+| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` @ `b6fb55e` | — |
+| Assets | `3ds-idea-worktrees/assets` | `codex/settings-native-assets` @ `b30bcc0` | `b30bcc0` Notes snapshot audit (docs only) |
+| Presentation | `3ds-idea-worktrees/presentation` | `codex/settings-native-fields` @ `5090b10` | None found (subject match) |
+| Runtime | `3ds-idea-worktrees/runtime` | `codex/parental-flow-audit` @ `057173b` | None found (subject match) |
+| Notes capture | `3ds-idea-worktrees/notes-suspended-capture` | `codex/notes-suspended-capture` @ `b6fb55e` | No commits yet |
+| Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` | This documentation set |
+| Preserved | Original checkout, `3ds-idea-os`, `.codex/worktrees/b94c` | `uifix`, `codex/3ds-os`, `codex/home-menu-assets` | Keep, don't modify |
 
-Evidence root:
+Workers stay inside their own worktree and files, as the scope note describes. Only the coordinator
+drives the browser and the Azahar reference session. Store evidence under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`.
-Use links to specific reports, scenario names and commits in future updates.
-Distinguish source-render images from real browser images and matched emulator
-comparisons. Browser verification belongs to the integration task to avoid
-agents interfering with the same session.
+Label each item as a source render, a browser capture or a matched emulator
+comparison, and cite its commit and scenario.
 
 ## Intentionally excluded
 
-Activity Log, Download Play, Mii Maker, StreetPass Mii Plaza, AR Games, Face
-Raiders and the software keyboard. No capture permissions, recording, imports,
-account operations, editable stock profiles or network emulation. Camera is
-read-only; Sound playback is the explicit interactive exception. Excluded
-features are not unfinished backlog items.
+Software Keyboard, Activity Log, Download Play, Mii Maker, StreetPass Mii
+Plaza, AR Games and Face Raiders. No capture permissions, recording, imports,
+text entry, PIN entry, account operations, editable stock profiles or network
+emulation. Camera is read-only. Sound playback is the only interactive
+stock-app exception. Excluded features are not backlog.

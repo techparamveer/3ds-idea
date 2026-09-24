@@ -6,12 +6,22 @@ interactive console. There is no application backend or firmware executable in
 the runtime. Native resources are converted offline and interpreted by browser
 renderers around deterministic software state.
 
-This design map describes integration **`1be4133` (24 September 2026)**. Read
-[GOAL](../../GOAL.md) for acceptance, [current scope](../portfolio-ui-scope.md)
-for exclusions/worker ownership and [progress](../progress-2026-09-24.md) for
-what has actually been verified. Later worker commits are outside this checkpoint.
-Repository instructions live only in [AGENTS.md](../../AGENTS.md); this directory
-explains the design and its tradeoffs.
+This design map was written against integration `1be4133` and still holds at
+**`b6fb55e` (24 September 2026)**. The later parental screens add routes,
+painters and touch targets inside the existing `AppModule`, painter and
+`stock-screen-layout.ts` boundaries. They change no contract here.
+
+Other documents own the rest:
+
+| Topic | Authority |
+| --- | --- |
+| Acceptance | [GOAL](../../GOAL.md) |
+| Exclusions and worker roles | [Current scope](../portfolio-ui-scope.md) |
+| What has been verified | [Progress](../progress-2026-09-24.md) |
+| Owners and next actions | [Feature map](../feature-map.md) |
+| Repository instructions | [AGENTS.md](../../AGENTS.md) only |
+
+This directory explains the design and its tradeoffs.
 
 ## System map
 

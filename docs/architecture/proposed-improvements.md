@@ -1,7 +1,9 @@
 # Proposed architectural improvements
 
-These are follow-ups, not implemented behavior at checkpoint `1be4133`. They
+These are follow-ups, not behaviour implemented at checkpoint `b6fb55e`. They
 preserve the current reducer, `AppModule`, native pack and scene/OS boundaries.
+Feature-level defects and their owners are tracked in the
+[feature map](../feature-map.md). This list covers only architectural changes.
 
 1. Create a versioned scenario catalog for HOME, transitions and each included
    title. Record starting save state, timestamped inputs, owner/screen changes,
@@ -19,9 +21,11 @@ preserve the current reducer, `AppModule`, native pack and scene/OS boundaries.
 5. Add per-view presentation metadata for `native`, `bounded-adapter`,
    `portfolio-content` or `browser-recovery`, with a validation-note link. Use it
    in development reports, not in the product UI.
-6. Fix Notes' suspended snapshot, decide how incomplete amiibo materials are
-   represented and obtain a defensible NNID entry reference before expanding
-   breadth. Supply actual songs before claiming Sound playback acceptance.
+6. Give suspended-application snapshots a scene-owned capture boundary. A
+   frozen LCD pair would be handed to painters, such as the Game Notes upper
+   panes, as a texture binding, and "no suspended app" would stay distinct from
+   "capture missing". Resolve the feature-map gaps (Notes, amiibo, NNID, songs)
+   before expanding breadth.
 7. Capture state counts, presented LCD frames and audio onset on one timeline,
    then compare with native recordings. Keep reduced motion as an explicit web
    adaptation rather than folding it into native timing claims.

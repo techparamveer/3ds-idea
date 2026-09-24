@@ -61,6 +61,11 @@ seed the gallery; the song manifest stays empty until songs are supplied.
   `portfolio-screens.ts` launch/power/boot overlay branches, with associated
   transition modules/tests. Remove legacy HOME folder-name keyboard entrypoints.
   Own browser/Azahar and combined verification.
+- **Documentation:** progress record, feature map, architecture notes,
+  `AGENTS.md` and `CLAUDE.md`. No runtime, asset or model edits.
+
+The [feature map](feature-map.md) records which worktree and branch currently
+hold each role, and each feature's owner.
 
 Workers remain separate visible tasks/worktrees, GPT-6 Astra High. Report
 concrete rendered output and remaining visual differences. Use SSD artifacts.

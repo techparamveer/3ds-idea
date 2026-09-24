@@ -65,6 +65,26 @@ call(0x13b8e0, 0x151cd0, 'scene 9 state 0 starts intro slot 0')
 call(0x13bbec, 0x152508, 'scene 9 intro advances independently')
 word(0x13b93c, 0xe5c01069, 'intro completion directly clears scene 9 draw flag')
 word(0x13bc10, 0x3f800000, 'scene 9 update delta is float 1.0')
+call(0x1674a8, 0x150bb4, 'mode event first checks title InOut busy')
+call(0x1674bc, 0x150bb4, 'mode event next checks title Stay busy')
+word(0x1674cc, 0xe1a03005, 'busy retrigger uses reset 0')
+word(0x1674dc, 0xe58d5000, 'busy retrigger forces forward direction 0')
+word(0x1674f4, 0xe3a03001, 'idle retrigger uses reset 1')
+call(0x1686c0, 0x150bb4, 'phase 0 checks busy before controller advance')
+call(0x1686e8, 0x14efec, 'phase 0 completion starts Stay')
+call(0x16871c, 0x14ee28, 'phase 1 writes InOut frame before reverse start')
+word(0x168868, 0x41f00000, 'title reverse starts at float 30, beyond clip last frame 20')
+word(0x168724, 0xe3a03000, 'reverse start does not reset supplied frame')
+call(0x168738, 0x14efec, 'phase 1 completion starts reverse InOut')
+word(0x168770, 0xe3e00000, 'phase 2 completion writes phase -1')
+call(0x168678, 0x150bb4, 'HUD completion checks selected slot busy before title phase')
+word(0x150c20, 0xe2400001, 'forward busy threshold is frame count minus 1')
+word(0x152560, 0xee308ac0, 'reverse advancement subtracts delta')
+word(0x1525b0, 0x3eb08a68, 'nonloop reverse only clamps lower bound')
+word(0x152624, 0xe2400001, 'nonloop forward clamps to frame count minus 1')
+word(0x14e940, 0xe5c40024, 'slot binding initializes forward direction')
+word(0x14e944, 0xe5c40025, 'slot binding initializes disabled state')
+word(0x179b18, 0, 'animation constructor initial frame is float zero')
 
 ranges = [
  ('manager-state-init',0x1046f4,0x1047ac),('initialize-virtual',0x15e9e4,0x15ea08),
@@ -75,6 +95,10 @@ ranges = [
  ('capture-layout-update',0x1687dc,0x168868),('capture-draw',0x1675dc,0x16766c),
  ('intro-event',0x13b454,0x13b538),('intro-start-and-complete',0x13b860,0x13b964),
  ('intro-step',0x13bbe4,0x13bc14),('write-return',0x165228,0x1652c8),
+ ('title-retrigger',0x167424,0x167518),('controller-busy',0x150bb4,0x150c48),
+ ('controller-advance',0x152508,0x152658),('controller-start',0x14efec,0x14f0c4),
+ ('hud-completion',0x168454,0x168698),
+ ('slot-bind',0x14e894,0x14e954),('animation-constructor',0x179ae8,0x179b20),
 ]
 args.artifact_dir.mkdir(parents=True, exist_ok=True)
 lines = args.listing.read_text().splitlines(True)
@@ -91,6 +115,10 @@ for name, frames in [('TextPanelInOut',21),('TextPanelStay',121),('HudDoubleInOu
     assert clip['frames'] == frames and clip['loop'] is False
     assert clip['groups'] == (['G_Panel_01'] if name.startswith('Text') else ['G_Panel_00','G_Panel_01'])
     checks.append(dict(clip=name, frames=frames, groups=clip['groups']))
+for name in ('SwitchDouble', 'SwitchUp', 'SwitchDown'):
+    clip = pack['animations']['ImageScreenUp_' + name]
+    assert clip['frames'] == 26 and clip['loop'] is False
+    checks.append(dict(clip=name, frames=26))
 report = dict(passed=True, method='static original-byte assertions; no firmware execution or native timing claim',
               assertions=checks, ranges=records)
 (args.artifact_dir / 'source-validation.json').write_text(json.dumps(report,indent=2)+'\n')

@@ -29,7 +29,7 @@ def audit(code, pack):
     return {'ok': True, 'codeSha256': grid['codeSha256'], 'largeSnapLattice': lattice,
             'largeStride': stride, 'largeColumnPitch': pitch, 'largeMargin': margin,
             'cursorIdle': {'frames': 188, 'loop': True, 'property': 'texture.rotation'},
-            'scope': 'Source lattice and clip identity only. Controller tick, easing, input and lifecycle cadence unverified.'}
+            'scope': 'Source lattice and clip identity only. See replay_camera_scroll.py for bounded native controller arithmetic; wall-clock cadence, physical input mapping and lifecycle remain unverified.'}
 
 
 if __name__ == '__main__':

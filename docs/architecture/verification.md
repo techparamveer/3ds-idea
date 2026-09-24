@@ -45,6 +45,12 @@ Development-only `captureScreensAt` and `captureNativeBanner` force explicit
 presentation samples without advancing host state and are absent in production.
 They prove a render pose, not that live input reached it with native timing.
 
+When inspecting a new production build on localhost, restart the running
+`next start` process before reloading the browser tab. A process left running
+across a rebuild served the preceding client bundle during the Notes
+announcement check; restarting it exposed the new code. Record the build
+commit actually loaded, not only the checkout HEAD.
+
 Before edits or integration, inspect status, branch, worktrees and ancestry.
 Never modify another worker's checkout. Integrate coherent commits sequentially
 and run combined checks afterward. Preserve `uifix`, `codex/home-menu-assets`

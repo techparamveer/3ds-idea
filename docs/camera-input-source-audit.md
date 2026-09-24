@@ -1,5 +1,11 @@
 # Camera input, scheduling and blank-selection continuation
 
+The [blank presentation continuation](camera-blank-presentation-source-audit.md)
+now resolves the final steady-state lower cursor writer, corrects the scene
+class names below, and distinguishes padded blanks from the whole-gallery
+`BrwsNoData` pane. Upper preview lifecycle and complete browser ordering remain
+open. The remainder records this earlier checkpoint.
+
 This extends the [paging audit](camera-paging-source-audit.md). Original ARM
 replay now establishes raw direction mapping, repeat arithmetic, touch thresholds,
 and blank-selection metadata/coordinates. It does **not** establish the complete

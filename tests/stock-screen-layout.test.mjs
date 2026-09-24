@@ -20,7 +20,11 @@ test('Data Management empty lists expose only the Base_D_00 Back control',()=>{
 test('gallery paging uses six visible cells and leaves gaps without accidental activation',()=>{
  const v=view('camera','gallery',Array.from({length:9},(_,i)=>'photo:'+i),7);
  assert.deepEqual(targets(v).filter(r=>r.row!==undefined).map(r=>r.action),['photo:6','photo:7','photo:8']);
- assert.equal(hit(v,50,70),'photo:6');assert.equal(hit(v,108,70),null);assert.equal(hit(v,50,170),null);
+ assert.equal(hit(v,84,74),'photo:6');assert.equal(hit(v,120,74),null);assert.equal(hit(v,84,140),null);
+ const cells=targets(v).filter(r=>r.row!==undefined);
+ assert.deepEqual(cells.map(r=>[r.x,r.y,r.width,r.height]),[[53,50,62,48],[129,50,62,48],[205,50,62,48]]);
+ assert.equal(hit(v,52,74),null);assert.equal(hit(v,53,50),'photo:6');assert.equal(hit(v,115,74),null);
+ for(const appId of ['camera','camera-applet'])assert.deepEqual(targets({...v,appId,screen:'main'}),targets(v));
 });
 test('Health touch regions follow the three native precaution buttons and their gaps',()=>{
  const v=view('health-safety','main',['3d','general','usage']);

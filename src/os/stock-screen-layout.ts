@@ -90,7 +90,9 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     return result;
   }else if((appId==='camera'||appId==='camera-applet')&&(screen==='main'||screen==='gallery')){
     const start=Math.floor(selection/6)*6;
-    rows.slice(start,start+6).forEach((row,i)=>result.push(target(row.id,12+(i%3)*102,38+Math.floor(i/3)*80,92,72,start+i)));
+    // Camera 0x2de524 places PicPosRengeL (228×132) in 3×2 at
+    // -PhoMntPos (0,+13); BB-Thmb is 62×48. See camera-grid-source-audit.md.
+    rows.slice(start,start+6).forEach((row,i)=>result.push(target(row.id,53+(i%3)*76,50+Math.floor(i/3)*66,62,48,start+i)));
   }else if((appId==='camera'||appId==='camera-applet')&&screen==='photo'){
     result.push(target('previous',10,85,45,60),target('next',265,85,45,60));
   }else if(appId==='sound'){

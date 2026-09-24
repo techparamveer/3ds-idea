@@ -100,8 +100,9 @@ unposed layouts keep the small 5×7 textures (`P_Thmb_DatePho5x7.bclim`,
 
 ## Remaining gaps
 
-- Six-cell centres still come from `stock-screen-layout.ts`. Native L/M/S
-  placement and paging are not reconstructed.
+- Large-grid centres and touch bounds now follow the executable and data-only
+  layouts; see [grid source audit](camera-grid-source-audit.md). Native paging
+  motion and M/S modes are not reconstructed.
 - Photo-view left/right **hit rectangles** remain in the shared layout
   adapter even though the invented arrows are gone. D-pad/button previous and
   next still work.

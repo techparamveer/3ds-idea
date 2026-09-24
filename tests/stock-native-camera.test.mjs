@@ -69,6 +69,11 @@ test('photo mount and thumbnail slots match the published centered panes',()=>{
   assert.equal(mount.origin,4);
   assert.deepEqual(thumb.size,[56,42]);
   assert.deepEqual(mask.size,[66,52]);
+  for(const name of ['P_BrwsPic','P_BrwsFld']){
+    const hit=find(pack.layouts[name].roots,'BB-Thmb');
+    assert.deepEqual(hit.translation.slice(0,2).map(v=>v+0),[0,0]);
+    assert.deepEqual(hit.size,[62,48]);
+  }
   assert.deepEqual(cameraPhotoMountRect,nativeLowerPaneRect(mount.translation,mount.size));
   assert.deepEqual(cameraPhotoMountRect,[32,43,256,128]);
   assert.deepEqual([...cameraThumbPicSize],[56,42]);
@@ -89,7 +94,7 @@ test('folder cells bind the large PicL frame and keep the count on TxtThmb',()=>
 test('gallery photos draw under ThmbMask and use the large PicL clip',()=>{
   const {okay,draws,images,log}=paint(view('gallery',[{id:'photo:a',label:'Building 1'}],{photos:[{id:'a',src:'/portfolio/building1.jpg'}]}));
   assert.equal(okay,true);
-  assert.deepEqual(images,[['/portfolio/building1.jpg',30,44,56,42]]);
+  assert.deepEqual(images,[['/portfolio/building1.jpg',56,53,56,42]]);
   const pic=draws.find(d=>d.layout==='P_BrwsPic');
   assert.ok(draws.findIndex(d=>d.layout==='P_BrwsPic')>=0);
   assert.deepEqual(pic.opts.bindings.map(b=>b.name),['P_BrwsPic_Default','P_BrwsPic_PicL']);
@@ -97,7 +102,7 @@ test('gallery photos draw under ThmbMask and use the large PicL clip',()=>{
   assert.equal(pic.opts.overrides.ThmbPic.visible,undefined);
   assert.ok(!log.some(entry=>entry[0]==='fillText'));
   const {images:unloaded,draws:pending}=paint(view('gallery',[{id:'photo:a',label:'Building 1'}],{photos:[{id:'a',src:'/portfolio/building1.jpg'}]}),false);
-  assert.deepEqual(unloaded,[['/portfolio/building1.jpg',30,44,56,42]]);
+  assert.deepEqual(unloaded,[['/portfolio/building1.jpg',56,53,56,42]]);
   assert.deepEqual(pending.find(d=>d.layout==='P_BrwsPic').opts.overrides,{});
 });
 
@@ -188,4 +193,16 @@ test('empty upper uses Brws_U_04 and does not invent a title bar',()=>{
   const {log,bottom}=ctx();
   assert.equal(drawNativeCameraFrame({packs:{},draw:()=>true},{fillRect(){}},bottom,{...view('main'),appId:'sound'},{}),false);
   assert.deepEqual(log,[]);
+});
+
+
+test('all six cells and the selection cursor share native settled centres',()=>{
+  const photos=Array.from({length:8},(_,i)=>({id:String(i),src:'/portfolio/'+i+'.jpg'}));
+  const rows=photos.map(p=>({id:'photo:'+p.id,label:p.id}));
+  const first=paint(view('gallery',rows,{photos},5));
+  assert.deepEqual(first.draws.filter(d=>d.layout==='P_BrwsPic').map(d=>d.opts.center),[[84,74],[160,74],[236,74],[84,140],[160,140],[236,140]]);
+  assert.deepEqual(first.draws.find(d=>d.layout==='P_BrwsCursor_D').opts.center,[236,140]);
+  const second=paint(view('gallery',rows,{photos},6));
+  assert.deepEqual(second.draws.filter(d=>d.layout==='P_BrwsPic').map(d=>d.opts.center),[[84,74],[160,74]]);
+  assert.deepEqual(second.images.map(i=>i[0]),['/portfolio/6.jpg','/portfolio/7.jpg']);
 });

@@ -66,7 +66,7 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
     draw('P_BrwsPhoMntBase',{bindings:[{name:'P_BrwsPhoMntBase_PicL',frame:0}],overrides:{'-PhoMntPos':{visible:false}}});
   }else{
     for(const r of stockScreenTargets(view).filter(r=>r.row!==undefined)){
-      const row=view.rows[r.row!],x=r.x+r.width/2,y=r.y+27;
+      const row=view.rows[r.row!],x=r.x+r.width/2,y=r.y+r.height/2;
       if(view.screen==='main'){
         const folder=folders.find(f=>'folder:'+str(f.id)===row.id);
         draw('P_BrwsFld',{center:[x,y],bindings:[{name:'P_BrwsFld_Default',frame:0},{name:'P_BrwsFld_PicL',frame:0}],overrides:{TxtThmb:{text:String(records(folder?.photos).length)}}});

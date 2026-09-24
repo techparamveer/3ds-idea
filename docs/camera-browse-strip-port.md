@@ -24,7 +24,7 @@ negative live-gate result:
 | Request allocation, complete tag/resource state, ready publication and two presentation passes (`0x2d9450`, `0x2dbb50`, `0x2da338`, `0x2da6fc`, `0x2cea0c`) | Bounded replayed in the later [ordering audit](camera-rebind-order-source-audit.md). The first ring draw remains unready; its post-draw rewrite permits tag 69 on the second draw. Final property/cell services are recorded leaves, not GPU pixels |
 | Combined owner input/presentation traversal with touch cancellation, ancestry, 12px drag and slider history | Bounded original root/traversal replayed. Input-owner replacement does not cancel an existing capture; manager interruption cancels on the next eligible child update and does not clear pass-1 consumer readiness |
 | Scene-owner generation replacement/teardown and stale consumer retirement | Open. The later [generation audit](camera-scene-generation-source-audit.md) executes embedded renderer cleanup and locates a later setup reset; it does not execute the full SceneBrowse replacement caller |
-| Published lower-LCD pixel behavior | Open. Final property/cell writers remain recorded leaves; no upload or pixel comparison |
+| Published lower-LCD pixel behavior | Open. A separate [complete cell-writer replay](camera-cell-publication-source-audit.md) now executes retained pane output, with child attachment/layout binding recorded. It is not joined to this request fixture and has no photo upload or pixel comparison |
 | Native wall-clock cadence | Open. `CAMERA_BROWSE_UPDATE_MS` is the host's nominal 60 Hz conversion for tests, not hardware milliseconds |
 | FadeAll blank/folder preview, 3-page ring allocator, CurDefault ownership | Open |
 

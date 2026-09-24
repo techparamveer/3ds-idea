@@ -1,5 +1,9 @@
 # Camera renderer generation boundary
 
+The later [complete cell-writer replay](camera-cell-publication-source-audit.md)
+executes retained node/pane output through return. Layout binding and photo
+pixels remain separate gates; it does not wire live strip paging.
+
 This continues the [gallery reset audit](camera-gallery-scene-reset-audit.md)
 and [root/rebind ordering replay](camera-rebind-order-source-audit.md), based on
 `2e9ca4d`. **Live horizontal scrolling remains disconnected.** The source now

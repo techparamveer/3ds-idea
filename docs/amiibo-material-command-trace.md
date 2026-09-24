@@ -3,9 +3,10 @@
 The bounded Header and PortalBtnSub material path is now supported in converter
 1.5.4 in the combined integration branch and the native renderer. This resolves the material blockers in the
 [initial audit](native-amiibo-initial-ui.md#material-blocker-audit-2026-09-24).
-The resources are privately source-rendered, not published or native-compared.
-The header's `IGN_Header` call-name remains unresolved; its embedded fallback is
-Japanese. No account, update, network or NFC behavior is implemented here.
+The resources were first validated with private source renders. The subsequent
+[English opening publication](native-amiibo-opening.md) resolves `IGN_Header`
+through the native named-pane binding and wires the static live UI. Native
+comparison remains open. No account, update, network or NFC behavior is implemented.
 
 ## Pinned image and reproduction
 

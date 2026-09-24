@@ -1,5 +1,10 @@
 # amiibo initial UI conversion checkpoint
 
+Current follow-up: [English opening UI publication](native-amiibo-opening.md)
+resolves the header binding and publishes/wires the complete static opening
+layout. Earlier unsupported-material and unpublished statements below describe
+their historical checkpoints; native visual acceptance remains open.
+
 The supplied EUR amiibo applet is `000400300000b902`. Its layout archives use
 little-endian FLYT/FLAN/FLIM **7.2.0.0**, not CLYT/CLAN/CLIM. Converter 1.5.1 includes
 an isolated, version-bounded reader in `scripts/firmware/cafe.py`; build dispatch

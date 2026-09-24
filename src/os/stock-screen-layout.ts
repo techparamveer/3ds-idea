@@ -36,6 +36,7 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
   if(appId==='manual')return screen==='main'?[...rows.slice(0,3).map((row,index)=>target(row.id,24,56.5+44*index,272,37,index)),target('back',0,212,320,28)]:[target('back',40,212,140,28)];
   if(appId==='mii-selector')return [target('back',5,215,155,24)];
   if(appId==='photo-selector'||appId==='sound-selector')return [target('back',20,202,88,28)];
+  if(appId==='amiibo-settings')return [target('back',0,212,320,28)];
   if(appId==='nnid-settings')return [target('back',0,212,64,28)];
   if(appId==='system-updater')return [target('back',0,208,120,32)];
   if(appId==='system-transfer'){

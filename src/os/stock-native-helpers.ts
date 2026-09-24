@@ -1,3 +1,4 @@
+import {amiiboScreenPacks,drawNativeAmiibo} from './stock-native-amiibo';
 import type { AppView } from './app-types';
 import { nativeMessageOverride, nativePaneParentPath, nativeTextMetrics, type PaneOverrides, type NativeLayout } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
@@ -35,6 +36,7 @@ export const manualScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/manual/messages-and-loose.json',alias:'helper-messages',layouts:[],animations:[]},
 ];
 export function nativeHelperView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
+  if(view.appId==='amiibo-settings')return {view:'amiibo-opening-read-only',titleId:'000400300000b902',packs:amiiboScreenPacks};
   if(view.appId==='manual')return {view:'manual-portfolio-guide',titleId:'0004003000009b02',packs:manualScreenPacks};
   if(view.appId==='system-transfer')return {view:'transfer-read-only',titleId:'0004001000022a00',packs:transferScreenPacks};
   if(view.appId==='extrapad')return {view:'circle-pad-read-only',titleId:'000400300000cd02',packs:circlePadScreenPacks};
@@ -47,6 +49,7 @@ export function nativeHelperView(view:AppView):{view:string;titleId:string;packs
 export function nativeHelperTargets(view:AppView):StockScreenTarget[]|null{
   if(!nativeHelperView(view))return null;
   const action=view.footer.left?.action??'back';
+  if(view.appId==='amiibo-settings')return [{action,x:0,y:212,width:320,height:28}];
   if(view.appId==='manual'){
     if(view.screen!=='main')return [{action,x:40,y:212,width:140,height:28}];
     return [...view.rows.slice(0,3).map((row,index)=>({action:row.id,x:24,y:56.5+index*44,width:272,height:37,row:index})),{action,x:0,y:212,width:320,height:28}];
@@ -66,6 +69,7 @@ const mirrorPanel:PaneOverrides={UpWndwLT_01:{size:[184,80],scale:[-1,1]},UpWndw
  * inferred: in particular the source “up to date” message is never displayed. */
 export function drawNativeHelperFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,_options?:StockScreenPaintOptions):boolean{
   if(!nativeHelperView(view))return false;
+  if(view.appId==='amiibo-settings')return drawNativeAmiibo(renderer,top,bottom);
   if(view.appId==='manual')return drawManual(renderer,top,bottom,view,_options);
   if(view.appId==='system-transfer')return drawTransfer(renderer,top,bottom,view);
   if(view.appId==='extrapad')return drawCirclePad(renderer,top,bottom,view);

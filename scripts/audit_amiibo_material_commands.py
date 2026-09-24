@@ -24,6 +24,8 @@ RANGES = {
     'affine-multiply': (0x182a64, 0x182e00),
     'window-draw-matrix': (0x1c993c, 0x1c9a00),
     'initial-command-state': (0x152aa4, 0x152ad4),
+    'header-label-dispatch': (0x17dcf4, 0x17df3c),
+    'header-message-binding': (0x17d6e4, 0x17d7cc),
 }
 TEMPLATES = {
     'first-texture': (0x1ed5bc, [0x00030003, 0x804f00c0, 0, 0, 0xffffffff, 0]),
@@ -77,6 +79,14 @@ def audit(code):
     expected_formats = [7, 8, 9, 5, 6, 3, 1, 2, 4, 0, 12, 13, 10, 11]
     for handler, expected in zip(handlers, expected_formats):
         assert struct.unpack('<I', read(handler, 4))[0] == 0xe3a01000 | expected  # mov r1,#format
+    assert read(0x17df2c, 15) == b'amiiboSettings\0'
+    assert struct.unpack('<I', read(0x17dea8, 4))[0] == 0xe28f107c  # add r1,pc,#0x7c
+    assert struct.unpack('<I', read(0x17deac, 4))[0] == 0xeafffe0c  # b 0x17d6e4
+    panes = []
+    for address in (0x212b68, 0x212b6c):
+        pointer = struct.unpack('<I', read(address, 4))[0]
+        panes.append(read(pointer, 17).split(b'\0')[0].decode())
+    assert panes == ['T_HeaderTitle_01', 'T_HeaderTitle_00']
     return {
         'codeSha256': CODE_SHA256,
         'ranges': {name: {'start': hex(a), 'endExclusive': hex(b),
@@ -84,6 +94,8 @@ def audit(code):
                    for name,(a,b) in RANGES.items()},
         'templates': templates,
         'textureFormatMapping': expected_formats,
+        'headerBinding': {'label': 'amiiboSettings', 'labelAddress': '0x17df2c',
+                          'dispatch': '0x17dea8', 'setter': '0x17d6e4', 'panes': panes},
         'alphaOnlyRgbWhite': {'sourceCodes': [1, 13], 'picaFormats': [8, 11],
                              'patchRange': ['0x1cb640', '0x1cb694']},
         'projectionSource4': {'dispatch': '0x1dcc58', 'matrixRoutine': '0x1c85c8',
@@ -93,7 +105,7 @@ def audit(code):
             'Source-backed bounded material equations; native framebuffer quantization is not compared.',
             'Projection support is restricted to centered source-4 option-6 identity-projection windows with identity projected texture matrix.',
             'No native execution, native LCD comparison, network, account or NFC operation.',
-            'Header and PortalBtnSub private source renders only; live publication and header call-name selection are separate work.',
+            'Static opening resources and named-pane English header binding are published; native visual comparison remains open.',
         ],
     }
 

@@ -10,7 +10,7 @@ for(const key of ['artifact-dir','asset-root','canvas-module','font-manifest'])a
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),assetRoot=values['asset-root'],out=values['artifact-dir'];mkdirSync(out,{recursive:true});
 const {createCanvas,loadImage,Image}=await import(pathToFileURL(values['canvas-module']));
 const compiled=mkdtempSync(join(out,'compiled-'));
-for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-helpers']){
+for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-helpers','stock-native-amiibo']){
  const text=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(text,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
 }
@@ -20,7 +20,7 @@ const bytesForBlob=new WeakMap();URL.createObjectURL=blob=>'data:image/png;base6
 globalThis.fetch=async value=>{const url=new URL(value);assert.equal(url.origin,'https://helper.invalid');const file=resolve(assetRoot,url.pathname.slice(1));assert.ok(file.startsWith(assetRoot+'/'));const bytes=readFileSync(file),response=new Response(bytes);response.blob=async()=>{const blob=new Blob([bytes]);bytesForBlob.set(blob,bytes);return blob;};return response;};
 const fontPath=values['font-manifest'],manifest=JSON.parse(readFileSync(fontPath,'utf8'));
 const font=new BitmapFont(manifest,await Promise.all(manifest.sheets.map(name=>loadImage(join(dirname(fontPath),name)))));
-const views=['nnid-settings','system-updater','system-transfer','extrapad'].map(appId=>({appId,screen:'main',heading:appId,rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}}));
+const views=['amiibo-settings','nnid-settings','system-updater','system-transfer','extrapad'].map(appId=>({appId,screen:'main',heading:appId,rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}}));
 views.find(v=>v.appId==='system-transfer').rows=[{id:'3ds',label:'Nintendo 3DS'},{id:'dsi',label:'Nintendo DSi'}];
 views.find(v=>v.appId==='extrapad').rows=[{id:'information',label:'Circle Pad Pro'}];
 views.push({...views.find(v=>v.appId==='system-transfer'),screen:'detail',rows:[],data:{field:'3ds'},text:['No console data is connected.']});
@@ -37,6 +37,12 @@ try{
   const calls=[],draw=assets.renderer.draw.bind(assets.renderer);
   assets.renderer.draw=(ctx,pack,layout,options)=>{calls.push({screen:ctx.canvas===top?'top':'bottom',pack,layout,options});return draw(ctx,pack,layout,options);};
   assert.equal(drawNativeHelperFrame(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font}),true);
+  if(view.appId==='amiibo-settings'){
+   const header=calls.find(c=>c.layout==='Header');assert.ok(header);
+   for(const pane of ['T_HeaderTitle_00','T_HeaderTitle_01'])assert.equal(header.options.overrides[pane].text,'amiibo Settings');
+   const portal=calls.find(c=>c.layout==='PortalSceneCTR');assert.deepEqual(portal.options.parts.PortalBtnSub,{pack:'amiibo-sub',layout:'PortalBtnSub'});assert.equal(portal.options.overrides,undefined,'no source part is hidden');
+   assert.equal(portal.options.textByCallName.SelectMenu,'Please choose the following\noptions to configure your amiibo.');
+  }
   if(view.appId==='system-updater'){
    for(const name of ['Bg_U_00','Bg_D_00'])assert.equal(calls.find(c=>c.layout===name).options.bindings,undefined,'ordinary update state preserves source white background');
    const title=calls.find(c=>c.layout==='CommonBG_U_00');

@@ -18,7 +18,7 @@ export const initialSharedData = (): AppState => ({ settings: { ...settingsDefau
 const cameraTitles = new Set(['camera', 'camera-applet']);
 const selectorSources = helperSelectorSources;
 const serviceRows: Record<string, readonly [string, string][]> = {
-  'amiibo-settings': [['register', 'Register Owner and Nickname'], ['delete-data', 'Delete amiibo Game Data'], ['reset', 'Reset amiibo']],
+  'amiibo-settings': [],
   'nnid-settings': [],
   'system-transfer': [['3ds', 'Transfer from a Nintendo 3DS System'], ['dsi', 'Transfer from a Nintendo DSi System']],
   'system-updater': [],
@@ -228,7 +228,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const healthDocument = id === 'health-safety' && screen === 'document';
     const pageCount = healthDocumentPageCounts[str(state.topic)] ?? 1;
     if (healthDocument) data.pageCount = pageCount;
-    const left = healthDocument && num(state.page) > 0 ? { label: 'Previous', action: 'previous' } : { label: id === 'system-updater' ? 'Cancel' : 'Back', action: 'back' };
+    const left = healthDocument && num(state.page) > 0 ? { label: 'Previous', action: 'previous' } : { label: id === 'system-updater' ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
     const right = healthDocument ? (num(state.page) < pageCount - 1 ? { label: 'Next', action: 'next' } : { label: 'Done', action: 'back' }) : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { left, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };

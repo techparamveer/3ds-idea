@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400300000b902": {
+      "packs": {
+        "packs/amiibo-settings/layout-Body-Common-CommonBg-CommonBg-arc-cmp.json": {
+          "layouts": [
+            "CommonBg"
+          ],
+          "animations": []
+        },
+        "packs/amiibo-settings/layout-Body-Common-CommonBgUp-CommonBgUp-arc-cmp.json": {
+          "layouts": [
+            "CommonBgUp"
+          ],
+          "animations": []
+        },
+        "packs/amiibo-settings/layout-Body-Portal-PortalSceneUp-arc-cmp.json": {
+          "layouts": [
+            "PortalSceneUp"
+          ],
+          "animations": []
+        },
+        "packs/amiibo-settings/layout-Parts-Portal-PortalBtn-arc-cmp.json": {
+          "layouts": [
+            "PortalBtn"
+          ],
+          "animations": [
+            "PortalBtn_Decide",
+            "PortalBtn_Loop",
+            "PortalBtn_Select"
+          ]
+        },
+        "packs/amiibo-settings/layout-Parts-Common-BtnBtm_03-BtnBtm_03-arc-cmp.json": {
+          "layouts": [
+            "BtnBtm_03"
+          ],
+          "animations": [
+            "BtnBtm_03_Decide",
+            "BtnBtm_03_Invalid",
+            "BtnBtm_03_SceneIn",
+            "BtnBtm_03_SceneOut",
+            "BtnBtm_03_Select"
+          ]
+        },
+        "packs/amiibo-settings/messages-and-loose.json": {
+          "messages": {
+            "cabinet": [
+              "BtnSetNicknameOwner",
+              "BtnEraseGameData",
+              "BtnInitializeAmiibo",
+              "BtnUpdateFangate",
+              "Finish",
+              "SelectMenu",
+              "amiiboSettings"
+            ]
+          }
+        },
+        "packs/amiibo-settings/layout-Body-Common-Header-Header-arc-cmp.json": {
+          "layouts": [
+            "Header"
+          ],
+          "animations": []
+        },
+        "packs/amiibo-settings/layout-Body-Portal-PortalSceneCTR-arc-cmp.json": {
+          "layouts": [
+            "PortalSceneCTR"
+          ],
+          "animations": []
+        },
+        "packs/amiibo-settings/layout-Parts-Portal-PortalBtnSub-arc-cmp.json": {
+          "layouts": [
+            "PortalBtnSub"
+          ],
+          "animations": [
+            "PortalBtnSub_Select"
+          ]
+        }
+      },
+      "fontBindings": {
+        "cbf_std.bffnt": "shared"
+      }
+    }
+  }
+}

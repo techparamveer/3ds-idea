@@ -9,7 +9,7 @@ export async function verifyNativeServices(options){
  for(const key of ['artifactDir','assetRoot','canvasModule'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-'));
- for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-services','stock-native-helpers']){
+ for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-services','stock-native-helpers','stock-native-amiibo']){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
  }

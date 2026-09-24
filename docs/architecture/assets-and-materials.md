@@ -91,3 +91,8 @@ Only the audited centered source-4/option-6 window projection is converted into
 per-patch whole-window UVs. Other selected projections remain failures. See the
 [material trace](../amiibo-material-command-trace.md); support does not imply
 public selection or native visual acceptance.
+
+The read-only amiibo opening selection is now published and consumed through
+the existing title session. Its English header uses the executable's named-pane
+message binding; the four device operations are inert and Close uses the common
+Back path. See the [opening UI evidence](../native-amiibo-opening.md).

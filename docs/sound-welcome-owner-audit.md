@@ -1,5 +1,10 @@
 # Sound Welcome: descriptor and controller audit
 
+Later [lifecycle follow-up](sound-welcome-lifecycle-gate.md) resolves the real
+lower body and upper illustration families, source entry/exit clips, and the
+save-backed prerequisite storage. Its remaining gates supersede the broader
+unknowns recorded at this checkpoint.
+
 This follow-up narrows the [earlier Welcome gate](sound-welcome-source-gate.md).
 It establishes the original three-page descriptor and the shared guide controller's
 page/button behavior. It does **not** add a browser Welcome flow: startup selection,

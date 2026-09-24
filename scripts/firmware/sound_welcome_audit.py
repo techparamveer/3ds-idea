@@ -20,7 +20,7 @@ HASHES = {
 }
 
 
-def audit(code, guide, messages):
+def audit(code, guide, messages, dialogs=None):
     for name, data in [('code', code), ('guide', guide), ('messages', messages)]:
         if hashlib.sha256(data).hexdigest() != HASHES[name]:
             raise ValueError(f'unexpected Sound {name} SHA-256')
@@ -128,18 +128,79 @@ def audit(code, guide, messages):
     encoded = bytes.fromhex(token['arguments'])
     assert int.from_bytes(encoded[:2], 'little') == len(encoded[2:])
     assert encoded[2:].decode('utf-16le') == 'S_Guid03_U'
-    return {'schema': 1, 'title': '0004001000022500', 'hashes': HASHES,
+    # Follow-up: real resource names, dialog mode selection and save-backed flags.
+    names = {
+        0x33d080: 'DIO', 0x33d088: 'TxtNumber1', 0x33d08c: 'TxtNumber0',
+        0x33d09c: 'TxtDlg', 0x33d0ac: 'Pict', 0x33d0b0: 'C_Guid_U',
+        0x33d0b4: 'S_Guid_U', 0x33d0c4: 'C_DlgGuid1BtnW',
+        0x33d0cc: 'C_DlgGuid2Btn', 0x33d0d4: 'C_DlgGuid_U',
+    }
+    for address, name in names.items():
+        assert string(struct.unpack_from('<I', code, address - BASE)[0]) == name
+    for address, instruction in [
+        (0x181fbc, 'ldr r0, [sl, #0x1c]'), (0x181fc0, 'ldr r8, [r4, #0x3a0]'),
+        (0x181fc4, 'str r5, [sp, #4]'),
+        (0x1807e8, 'strb sl, [r0, #0xb0]'), (0x205ab4, 'mov r6, #1'),
+        (0x205ac4, 'strb r6, [r0, #0xb0]'), (0x279a40, 'cmp r0, #6'),
+        (0x279a4c, 'addlo r1, r1, r0, lsl #3'), (0x279a58, 'bl #0x20bed8'),
+        (0x279d00, 'add r1, r0, #0xc'), (0x279d0c, 'bl #0x20bed8'),
+        (0x2977f0, 'add r1, pc, #0x160'), (0x297808, 'add r1, pc, #0x150'),
+        (0x297818, 'add r1, pc, #0x14c'), (0x29782c, 'add r1, pc, #0x140'),
+        (0x2c1dfc, 'add r8, r0, #0x8c'), (0x2c1e14, 'mov r2, r8'),
+        (0x2c910c, 'str r6, [r5, #0x20]'), (0x1908d8, 'add r0, r0, #0x24'),
+        (0x190928, 'add r0, r4, #0x68'), (0x19092c, 'bl #0x17fa94'),
+        (0x190934, 'add r0, r4, #0x68'), (0x190938, 'bl #0x17faf4'),
+        (0x1909dc, 'str r6, [r4, #0x14]'), (0x28f6d8, 'add r0, pc, #0x30'),
+        (0x2d8eec, 'ldrne r6, [r0, #8]'), (0x2d8ef8, 'bl #0x205fc4'),
+        (0x2d8f5c, 'add r0, r6, r6, lsl #1'), (0x2d8f64, 'add r0, r7, #0x38'),
+        (0x1e82ac, 'add r6, r0, #0x24'), (0x1e8308, 'ldr r0, [r6, #0x14]'),
+        (0x1e830c, 'cmp r0, #1'), (0x1e8310, 'blt #0x1e832c'),
+        (0x1e8338, 'mov r2, #1'), (0x1e8344, 'bl #0x17fb84'),
+        (0x28f350, 'ldrh r0, [r0, r1]'), (0x28f35c, 'sub r1, r0, #1'),
+        (0x28f364, 'bl #0x28f230'), (0x1c2f04, 'cmp r0, #1'),
+        (0x1c2f0c, 'bleq #0x1825b4'),
+    ]:
+        fact('lifecycle-follow-up', address, instruction)
+    assert code[0x28f710 - BASE:0x28f724 - BASE].decode('utf-16le') == 'SNOTE.BIN\0'
+    assert struct.unpack_from('<I', guide, 0x8 + 8)[0] == 0  # Priority class.
+    assert struct.unpack_from('<8H', guide, 0x8 + 0x10) == (1, 0, 0, 0, 0, 0, 0, 0)
+    clip_names = [string(address) for address in [0x297958, 0x297960, 0x29796c, 0x297974]]
+    assert clip_names == ['Dlg_InU', 'Dlg_OutU', 'Dlg_In', 'Dlg_Out']
+    composition = None
+    if dialogs is not None:
+        resource = json.loads(dialogs)
+        assert resource['sourceSha256'] == '96771724c5f571dc6045ba3dd4ffa8a769428f9c4cf9784f3ea49e7cf52e0e26'
+        def flatten(nodes):
+            return [pane for node in nodes for pane in [node, *flatten(node.get('children', []))]]
+        composition = {}
+        for layout in ['C_DlgGuid1BtnW', 'C_DlgGuid2Btn', 'C_DlgGuid_U']:
+            data = resource['layouts'][layout]
+            assert not data['unsupported']
+            panes = {pane['name']: pane for pane in flatten(data['roots'])}
+            targets = ['Pict'] if layout.endswith('_U') else ['TxtDlg', 'TxtNumber0', 'TxtNumber1']
+            composition[layout] = {target: {key: panes[target][key] for key in ['translation', 'size']} for target in targets}
+            if layout.endswith('_U'):
+                assert panes['Pict']['translation'] == [0, 0, 0]
+            else:
+                assert panes['TxtDlg']['translation'] == [0, 25, 0]
+                assert panes['TxtDlg']['size'] == [280, 152]
+        for name in clip_names:
+            assert resource['animations']['C_NullDlg_' + name]['frames'] == 15
+    return {'schema': 2, 'title': '0004001000022500', 'hashes': HASHES,
             'facts': facts, 'guideRecordCount': len(records), 'welcome': welcome,
             'buttonModes': modes, 'illustration': 'S_Guid03_U',
-            'gate': 'Static descriptor/controller facts only. Launch selection, persisted seen state, upper title/body owner and native rendered transitions remain unresolved.'}
+            'composition': composition, 'dialogClips': clip_names,
+            'gate': 'Launch field writer and host eligibility, save load/commit boundaries, final parent transforms/underlay and page-update timing remain unresolved. No native rendered transitions verified.'}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['code', 'guide', 'messages', 'report']:
         parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--dialogs', type=Path, help='Optional full converted lyt-C-Dlg.json for composition/clip assertions')
     options = parser.parse_args()
-    report = audit(options.code.read_bytes(), options.guide.read_bytes(), options.messages.read_bytes())
+    report = audit(options.code.read_bytes(), options.guide.read_bytes(), options.messages.read_bytes(),
+                   options.dialogs.read_bytes() if options.dialogs else None)
     options.report.parent.mkdir(parents=True, exist_ok=True)
     options.report.write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps({'facts': len(report['facts']), 'guideRecords': report['guideRecordCount'], 'welcome': report['welcome']}))

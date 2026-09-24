@@ -131,6 +131,11 @@ flush have been inspected, but the enclosing render-pass viewport, scissor and
 depth-test/write commands have not been bound to this draw. The exact HTML root
 y offset also remains separate from the `(0,-10)` target-picture placement.
 
+The subsequent [camera replay and raster-state audit](native-zone-raster-state-audit.md)
+executes the zero-stereo matrices and narrows pass-entry state and fullscreen
+semantics. It supersedes the unexecuted-matrix limitation above, but keeps the
+final draw-state and raster gates open.
+
 ## Exact remaining gates before renderer work
 
 1. Execute or independently emulate the now-bound camera/stereo-zero matrix

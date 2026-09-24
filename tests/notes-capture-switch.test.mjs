@@ -82,7 +82,9 @@ test('source switch motion samples 0–25, gates repeated activation, then stops
  assert.equal(module.reduce(state,{type:'action',id:'switch'},context).state,state);
  state=module.reduce(state,{type:'tick',elapsedMs:1000},context).state;
  assert.equal(notesSwitchFrame(state),25);assert.equal(state.captureSwitchElapsed,NOTES_SWITCH_DURATION_MS);
- assert.equal(module.reduce(state,{type:'tick',elapsedMs:1000},context).state,state);
+ const settled=module.reduce(state,{type:'tick',elapsedMs:1000},context).state;
+ assert.equal(notesSwitchFrame(settled),25);assert.equal(settled.captureSwitchElapsed,NOTES_SWITCH_DURATION_MS);
+ assert.equal(settled.notesHostMs,state.notesHostMs+1000);
  state=module.reduce(state,{type:'action',id:'switch'},context).state;
  assert.equal(state.captureView,'down');assert.equal(notesSwitchFrame(state),0);
  for(const phase of ['sleep','suspend'])assert.equal(notesSwitchFrame(module.reduce(state,{type:'lifecycle',phase},context).state),25);

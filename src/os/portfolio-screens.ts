@@ -5,9 +5,12 @@ import { getTitle } from './app-registry';
 import type { AppView } from './app-types';
 import type { MenuState } from './state';
 import { measureBitmapText, type BitmapFont } from './bitmap-font';
-import { createStockScreenPresentation } from './stock-screen-presentation';
+import { createStockScreenPresentation, type NotesIntroPaint } from './stock-screen-presentation';
 import { createSuspendedApplicationCapture } from './notes-suspended-capture';
 import { createNotesMetadataSession } from './notes-metadata-session';
+import { notesIntroSourcesFromPacks } from './notes-intro-publication';
+import { createNotesIntroSession } from './notes-intro-session';
+import type { NativePack } from './native-layout';
 type C=CanvasRenderingContext2D;
 const nativeFonts=new WeakMap<C,BitmapFont>();
 export function setPortfolioFont(ctx:C,font?:BitmapFont){if(font)nativeFonts.set(ctx,font);else nativeFonts.delete(ctx);}
@@ -23,13 +26,37 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
 export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={}){
- const stockScreens=createStockScreenPresentation({reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture(),notesMetadata=createNotesMetadataSession();
+ const stockScreens=createStockScreenPresentation({reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture(),notesMetadata=createNotesMetadataSession(),notesIntro=createNotesIntroSession();
+ function syncNotesIntro(state:MenuState,view:AppView|null|undefined,packs:Record<string,NativePack|undefined>|undefined):NotesIntroPaint|undefined{
+  const s=state.system,meta=notesMetadata.getState(),data=view?.data??{};
+  const sources=packs?notesIntroSourcesFromPacks(packs):undefined;
+  const host=typeof data.notesHostMs==='number'&&Number.isFinite(data.notesHostMs)?data.notesHostMs:0;
+  notesIntro.sync({
+   owner:meta.status==='ready'?{notesOwner:meta.notesOwner,applicationOwner:meta.applicationOwner,captureGeneration:meta.captureGeneration,titleId:meta.titleId}:undefined,
+   metadata:meta,assetsReady:!!sources,
+   paused:!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
+   startup:'nonzero-history',now:host,screen:typeof view?.screen==='string'?view.screen:'main',
+   sources,
+  });
+  if(view?.appId!=='game-notes'||view.screen!=='main'||!sources)return undefined;
+  const composed=notesIntro.compose(sources),session=notesIntro.getState();
+  if(composed&&meta.status==='ready')return {
+   status:'posed',title:composed.title,upper:composed.upper,scene10Draw:composed.scene10Draw,titleUserVisible:composed.titleUserVisible,
+   ticket:session.ticket,steps:session.observation?.steps??0,icon:meta.metadata.icon,description:meta.metadata.selection.description,
+  };
+  return meta.status==='ready'?{status:'pending'}:undefined;
+ }
  function syncStockView(state:MenuState,context?:C){
   if(state.system)suspendedCapture.sync(state.system.runtime);
   const runtime=state.system?.runtime;
   notesMetadata.sync(runtime,runtime?.systemApplet&&runtime.instances[runtime.systemApplet]?.appId==='game-notes'?suspendedCapture.read(runtime):{status:'none'});
   const s=state.system,owner=s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog?s.runtime.active:null;
-  stockScreens.sync(owner);if(owner&&context){const view=getActiveAppView(state);if(view)stockScreens.prepare(view,owner,nativeFonts.get(context));}
+  stockScreens.sync(owner);
+  const view=owner?getActiveAppView(state):undefined;
+  if(owner&&context&&view){
+   const native=stockScreens.prepare(view,owner,nativeFonts.get(context));
+   syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
+  }else syncNotesIntro(state,view,undefined);
  }
  function stockStatus(state:MenuState,context:C){
   syncStockView(state,context);
@@ -106,8 +133,12 @@ export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={})
   button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
  function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number){
-  const capture=view.appId==='game-notes'&&view.screen==='drawing'?suspendedCapture.read(state.system!.runtime):undefined;
-  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time);
+  const runtime=state.system!.runtime;
+  const capture=view.appId==='game-notes'?suspendedCapture.read(runtime):undefined;
+  notesMetadata.sync(runtime,capture??{status:'none'});
+  const native=stockScreens.prepare(view,owner,nativeFonts.get(t));
+  const notesPaint=syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
+  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint);
  }
  function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date()){
   const s=state.system;if(!s)return;
@@ -140,5 +171,5 @@ export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={})
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();notesIntro.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

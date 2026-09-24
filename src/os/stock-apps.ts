@@ -209,7 +209,10 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   function view(state: AppState, context: AppContext): AppView {
     const screen = str(state.screen, 'main'), options = rows(state, context), selection = bounds(num(state.selection), options.length - 1), text: string[] = [];
     const data: AppState = { ...state, settings: context.shared.settings ?? {} };
-    if (id === 'game-notes' && screen === 'drawing') { data.captureSwitchFrame = notesSwitchFrame(state); delete data.captureSwitchElapsed; }
+    if (id === 'game-notes') {
+      data.notesHostMs = num(state.notesHostMs);
+      if (screen === 'drawing') { data.captureSwitchFrame = notesSwitchFrame(state); delete data.captureSwitchElapsed; }
+    }
     if (id === 'eshop') { Object.assign(data, eshopWelcomeData(state)); delete data.welcomeElapsed; }
     if (cameraTitles.has(id)) {
       data.folders = media.folders.map(item => ({ ...item, photos: item.photos.map(photo => ({ ...photo })) }));
@@ -251,11 +254,15 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         // A paused foreground transition settles on resume, as in the Notes adapter.
         if (event.type === 'lifecycle' && ['suspend', 'sleep'].includes(event.phase)) return { state: settingsLanguageTick(state, LANGUAGE_SCROLL_DURATION_MS) };
       }
-      if (id === 'game-notes' && state.screen === 'drawing') {
-        if (event.type === 'tick' && Number.isFinite(event.elapsedMs) && event.elapsedMs > 0 && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)
-          return { state: { ...state, captureSwitchElapsed: Math.min(NOTES_SWITCH_DURATION_MS, num(state.captureSwitchElapsed) + event.elapsedMs) } };
+      if (id === 'game-notes') {
+        if (event.type === 'tick' && Number.isFinite(event.elapsedMs) && event.elapsedMs > 0) {
+          let next: AppState = { ...state, notesHostMs: num(state.notesHostMs) + event.elapsedMs };
+          if (state.screen === 'drawing' && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)
+            next = { ...next, captureSwitchElapsed: Math.min(NOTES_SWITCH_DURATION_MS, num(state.captureSwitchElapsed) + event.elapsedMs) };
+          return { state: next };
+        }
         // Leave a settled display when the applet resumes; do not let a paused transition hold the control.
-        if (event.type === 'lifecycle' && ['suspend', 'sleep'].includes(event.phase) && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)
+        if (state.screen === 'drawing' && event.type === 'lifecycle' && ['suspend', 'sleep'].includes(event.phase) && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)
           return { state: { ...state, captureSwitchElapsed: NOTES_SWITCH_DURATION_MS } };
       }
       if (id === 'eshop' && event.type === 'tick') return eshopWelcomeTick(state, event.elapsedMs);

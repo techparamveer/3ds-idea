@@ -241,6 +241,6 @@ report = dict(passed=True, method='Static original-byte/resource verification; n
                             matrixPublication='draw-time root virtual +5c',
                             firstAppliedTitle='resource defaults plus TextPanelInOut frame 1 after the first scene-3 apply; event 0 does not sample',
                             firstUserVisibleTitle='same manager pass that finds ApltBoot_U SceneIn not busy and clears scene-10 +0x69; Stay frame 1; priority-0 draw no longer covers scene 3',
-                            remaining='browser-to-source update clock and live painter import; window-leaf raster; live paint stays disconnected'))
+                            remaining='window-leaf raster; lower list SceneIn still uses MemoListDown; matched native comparison; no Software Keyboard or editing'))
 (a.artifact_dir / 'source-validation.json').write_text(json.dumps(report,indent=2)+'\n')
 print(f'PASS: {len(checks)} publication/source checks and {len(records)} hashed source ranges')

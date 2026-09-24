@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createNotesIntroComposer } from '../src/os/notes-intro-publication.ts';
+import { createNotesIntroComposer, notesIntroSourcesFromPacks } from '../src/os/notes-intro-publication.ts';
 
 const root = new URL('../public/os/firmware/10.7.0-32E/packs/game-notes/', import.meta.url);
 const titlePack = JSON.parse(readFileSync(new URL('memo-ImageScreenUp-arc-l.json', root)));
@@ -136,11 +136,37 @@ test('owner replacement reseeds title apply and restarts both intro draw flags',
   assert.equal(shown(find(composed.title, 'W_TextPanel')), true);
 });
 
-test('live Notes painter does not import the intro or applied-layout composers', () => {
+test('late asset ready arms intro without inventing a manager pass', () => {
+  const composer = createNotesIntroComposer(), ctx = context();
+  ctx.assetsReady = false;
+  const waiting = composer.sync(ctx);
+  assert.equal(waiting.status, 'waiting');
+  assert.equal(composer.step(waiting.ticket), undefined);
+  ctx.assetsReady = true;
+  const ready = composer.sync(ctx);
+  const first = composer.step(ready.ticket);
+  assert.equal(first.scene10.draw, true);
+  assert.equal(first.scene10.sceneIn.frame, 1);
+  assert.equal(composer.compose(sources()).titleUserVisible, false);
+});
+
+test('compose is idempotent for one observation; live packs require ApltBoot and title clips', () => {
+  const f = fixture();
+  f.step();
+  const first = f.compose(), second = f.compose();
+  assert.equal(first, second);
+  assert.deepEqual(notesIntroSourcesFromPacks({
+    'notes-image': titlePack, 'notes-aplt-u': upperPack, 'notes-aplt-d': lowerPack,
+  })?.title.layout, titlePack.layouts.ImageScreenUp);
+  assert.equal(notesIntroSourcesFromPacks({ 'notes-image': titlePack, 'notes-aplt-u': upperPack }), undefined);
+});
+
+test('live Notes painter samples a precomposed pose and does not import the composers', () => {
   const painter = readFileSync(new URL('../src/os/stock-native-personal-tools.ts', import.meta.url), 'utf8');
   const apps = readFileSync(new URL('../src/os/stock-apps.ts', import.meta.url), 'utf8');
-  assert.doesNotMatch(painter, /notes-intro-publication|createNotesIntroComposer|notes-panel-publication|createNotesPanelPublisher/);
+  assert.doesNotMatch(painter, /notes-intro-publication|createNotesIntroComposer|notes-intro-session|notes-panel-publication|createNotesPanelPublisher/);
   assert.doesNotMatch(apps, /notes-intro-publication|createNotesIntroComposer|notes-panel-publication|createNotesPanelPublisher/);
   assert.match(painter, /MemoTutorialUp/);
+  assert.match(painter, /notesIntro|drawLayout/);
   assert.match(painter, /W_TextPanel:\{visible:false\}/);
 });

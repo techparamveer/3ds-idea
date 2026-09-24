@@ -1,9 +1,9 @@
 import type { AppView } from './app-types';
-import type { NativeLayoutRenderer } from './native-renderer';
+import type { NativeDrawOptions, NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
-import type { StockScreenPaintOptions } from './stock-screen-presentation';
+import type { NotesIntroPaint, StockScreenPaintOptions } from './stock-screen-presentation';
 import type { SuspendedCapture } from './notes-suspended-capture';
-import { nativeMessageOverride, type PaneOverrides } from './native-layout';
+import { nativeMessageOverride, type NativePixels, type PaneOverrides } from './native-layout';
 import { notesCaptureView, NOTES_SWITCH_LAST_FRAME } from './stock-screen-layout';
 
 const notesPrefix='packs/game-notes/';
@@ -12,12 +12,18 @@ export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
   {url:notesPrefix+'memo-Bg_D_00-arc-l.json',alias:'notes-lower',layouts:['Bg_D_00'],animations:[]},
   {url:notesPrefix+'memo-MemoListDown-arc-l.json',alias:'notes-list',layouts:['MemoListDown'],animations:['MemoListDown_Base','MemoListDown_SceneIn']},
   {url:notesPrefix+'memo-MemoTutorialUp-arc-l.json',alias:'notes-help',layouts:['MemoTutorialUp'],animations:['MemoTutorialUp_Base','MemoTutorialUp_SceneIn']},
+  {url:notesPrefix+'memo-ApltBoot_U_00-arc-l.json',alias:'notes-aplt-u',layouts:['ApltBoot_U_00'],animations:['ApltBoot_U_00_SceneIn']},
+  {url:notesPrefix+'memo-ApltBoot_D_00-arc-l.json',alias:'notes-aplt-d',layouts:['ApltBoot_D_00'],animations:['ApltBoot_D_00_SceneIn']},
   {url:notesPrefix+'messages-and-loose.json',alias:'notes-messages',layouts:[],animations:[]},
 ];
 export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
   ...personalNotesPacks.filter(({alias})=>alias!=='notes-list'&&alias!=='notes-help'),
   {url:notesPrefix+'memo-MemoWriteDown-arc-l.json',alias:'notes-write',layouts:['MemoWriteDown'],animations:['MemoWriteDown_Base','MemoWriteDown_SceneIn','MemoWriteDown_Invalid']},
-  {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:['ImageScreenUp_PanelNoGameIn','ImageScreenUp_SwitchDouble','ImageScreenUp_SwitchUp','ImageScreenUp_SwitchDown']},
+  {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:[
+    'ImageScreenUp_PanelNoGameIn','ImageScreenUp_SwitchDouble','ImageScreenUp_SwitchUp','ImageScreenUp_SwitchDown',
+    'ImageScreenUp_TextPanelInOut','ImageScreenUp_TextPanelStay',
+    'ImageScreenUp_HudDoubleInOut','ImageScreenUp_HudUpInOut','ImageScreenUp_HudDownInOut',
+  ]},
 ];
 // Dynamic replacements for the 8×8 source slots imgUp400x240L/imgDown320x240.
 const captureUpperTexture='suspended-capture-upper',captureLowerTexture='suspended-capture-lower';
@@ -72,10 +78,37 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
     N_CsrMemo:{translation:[-118+column*79,90-row*51,0]},
   };
   let okay=renderer.draw(top,'notes-upper','Bg_U_00');
-  okay=renderer.draw(top,'notes-help','MemoTutorialUp',{bindings:[{name:'MemoTutorialUp_Base',frame:1},{name:'MemoTutorialUp_SceneIn',frame:20}],overrides:{T_PartsTxt00b:message('1000Help_WelcomeP1')}})&&okay;
+  okay=drawNotesMainUpper(renderer,top,message,options)&&okay;
   okay=renderer.draw(bottom,'notes-lower','Bg_D_00')&&okay;
   okay=renderer.draw(bottom,'notes-list','MemoListDown',{bindings:[{name:'MemoListDown_Base',frame:0},{name:'MemoListDown_SceneIn',frame:20}],overrides})&&okay;
   return okay;
+}
+
+/** Live list upper: composed title/HUD under ApltBoot while scene-10 draw is
+ * set. The painter only samples a precomposed pose. Drawing still hides the
+ * title. MemoTutorialUp remains the no-metadata fallback. */
+function notesIntroTitleOptions(intro:Extract<NotesIntroPaint,{status:'posed'}>,capture:SuspendedCapture):NativeDrawOptions{
+  const hidden={visible:false},textures:Record<string,NativePixels>={};
+  if(intro.icon)textures['notes-icon']=intro.icon;
+  if(capture.status==='ready'){textures[captureUpperTexture]=capture.upper;textures[captureLowerTexture]=capture.lower;}
+  return {textures,overrides:{
+    T_TextList:hidden,T_TextWrite:hidden,P_Mask:hidden,N_BtnMemoUp:hidden,P_ScreenUpR:hidden,
+    ...(intro.description!==undefined?{T_TextTitle:{text:intro.description}}:{}),
+    ...(intro.icon?{P_Icon_00:{textureBindings:{0:'notes-icon'}}}:{}),
+    ...(capture.status==='ready'
+      ?{P_ScreenUpL:{textureBindings:{0:captureUpperTexture}},P_ScreenDown:{textureBindings:{0:captureLowerTexture}}}
+      :{P_ScreenUpL:hidden,P_ScreenDown:hidden,P_ScreenShdwUp:hidden,P_ScreenShdwDown:hidden,W_ScreenShdwUp:hidden,W_ScreenShdwDown:hidden}),
+  }};
+}
+function drawNotesMainUpper(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,message:(label:string)=>PaneOverrides[string],options:StockScreenPaintOptions):boolean{
+  const intro=options.notesIntro,capture=options.suspendedCapture??{status:'none'};
+  if(intro?.status==='posed'){
+    let okay=renderer.drawLayout(top,'notes-image','ImageScreenUp',intro.title,notesIntroTitleOptions(intro,capture));
+    if(intro.scene10Draw)okay=renderer.drawLayout(top,'notes-aplt-u','ApltBoot_U_00',intro.upper)&&okay;
+    return okay;
+  }
+  if(intro?.status==='pending')return renderer.draw(top,'notes-aplt-u','ApltBoot_U_00');
+  return renderer.draw(top,'notes-help','MemoTutorialUp',{bindings:[{name:'MemoTutorialUp_Base',frame:1},{name:'MemoTutorialUp_SceneIn',frame:20}],overrides:{T_PartsTxt00b:message('1000Help_WelcomeP1')}});
 }
 
 /** Read-only own-card composition; dynamic Mii surfaces are deliberately absent. */

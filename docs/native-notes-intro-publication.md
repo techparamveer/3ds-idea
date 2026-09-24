@@ -6,7 +6,9 @@ provenance rules as ImageScreenUp. A disconnected composer replays their SceneIn
 clocks in draw order with scene 3, using the explicit `nonzero-history` startup.
 The first **user-visible** ImageScreenUp title frame and one Open→Back owner
 cycle that also waits the list MemoDecide/MemoReturn/SceneIn gates are
-reproducible. Live title/HUD paint stays disconnected.
+reproducible. An owner-bound browser remainder clock now steps that composer
+for the live Notes **main** upper painter when the 21-pass cover and Open/Back
+ownership are preserved. Drawing still hides `W_TextPanel`.
 
 ## Published originals
 
@@ -74,25 +76,37 @@ cursor MemoReturn are all not busy (`0x13db50`, `0x13db70`, `0x13db88`).
 A changed command ticket discards retained title/HUD and reseeds both intro
 draw flags from event 0.
 
-## Why the live panel stays disconnected
+## Owner-bound live clock
 
-Source publication, SceneIn clocks, first user-visible title and one
-Open→Back owner cycle are proven only as a disconnected replay. The live
-adapter in `stock-native-personal-tools.ts` still paints `MemoTutorialUp` on
-the list and hides `W_TextPanel`. There is still no browser-to-source update
-clock, so importing the composer now would invent when those 21 manager
-passes occur relative to the current immediate `main`/`drawing` paint.
+`stepNotesIntroClock` is the same provisional 60 Hz remainder policy as HOME
+`stepHomeUpdateClock`. It is **not** a measured native wall-clock. Host `now`
+is the Notes tick accumulator (`notesHostMs`), already capped at 1000 ms per
+`tickRuntime` dispatch. Paint, overlay `lastTick`, and metadata/asset
+completion are not step sources.
 
-Window-leaf / render-helper raster remains a later fidelity question. No
-Software Keyboard, text entry or Notes editing path is added.
+The first ready sample arms `lastNow` with zero updates, so a late metadata
+or pack download cannot consume queued host time. Sleep, owner loss, or
+temporary pack unavailability drop `lastNow`. Each produced update is one
+manager pass: the session applies Open/Back at most once per pass, waits
+MemoDecide/SceneOut idle before Back, and calls `compose()` after every
+caught-up step so skipped paints cannot drop intermediate title/HUD applies.
+
+Browser entry with ready capture and metadata uses the explicit
+`nonzero-history` startup. The zero-history tutorial route is still unported.
+`MemoTutorialUp` remains the no-metadata fallback. Pending ready-but-unstepped
+frames draw resource-default `ApltBoot_U` without inventing a pass.
+
+The painter does not import the composer. It receives a precomposed pose and
+draws that layout (capture/icon/description overrides; `W_TextPanel` is not
+force-hidden). Selected-note drawing is unchanged and still hides the title.
+Software Keyboard, note text entry/editing, and unproven sounds stay absent.
 
 ## Precise next gate
 
-1. Establish a browser-to-source update clock that is independent of metadata
-   download and painting, then import the intro composer in place of
-   `MemoTutorialUp` on the suspended-software list. Keep `W_TextPanel` hidden
-   until that live ownership is proven.
-2. Wave cues and matched native comparison remain outside this slice.
+Wave cues and matched native comparison remain outside this slice.
+Window-leaf / render-helper raster is still a later fidelity question. The
+21-pass cover is proven for the upper painter only; lower list SceneIn stays
+on the existing `MemoListDown` adapter.
 
 ## Verification
 
@@ -102,9 +116,12 @@ and records the first-user-visible contract as the draw-clear pass. This run
 passed **137 original byte/resource checks** and wrote **40 hashed source
 ranges** under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-intro-publication/`.
-Focused tests in `tests/notes-intro-publication.test.mjs` replay pack
-identity, the covered first apply, the 21st-pass reveal, Open→Back list
-gates, owner reseed and the painter disconnect (32 Notes tests with the
-composed, retained-property and scheduler suites). `npm run typecheck` and
-`tests.test_stock_ui` pass, including additive publish. The composer is not
-a live paint path and makes no browser or native-raster claim.
+Focused tests in `tests/notes-intro-publication.test.mjs`,
+`tests/notes-intro-clock.test.mjs` and `tests/notes-intro-session.test.mjs`
+replay pack identity, the remainder clock, late-ready isolation, the 21st-pass
+reveal, Open→Back list gates, ticket reseed and the painter sampling a
+precomposed pose. Combined with the composed, retained-property, scheduler
+and stock-apps suites this run was **84** focused tests. `npm run typecheck`
+passed. `npm run build` could not run in this worktree because Turbopack
+rejects the `node_modules` symlink. The live path makes no browser or
+native-raster claim here; the coordinator owns those inspections.

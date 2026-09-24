@@ -3,6 +3,7 @@ import { drawNativeHelperFrame, nativeHelperView } from './stock-native-helpers'
 import { drawNativeServiceFrame, eshopHudClock, eshopWelcomePose, nativeServiceView, zoneClock } from './stock-native-services';
 import type { AppView, JsonValue } from './app-types';
 import type { BitmapFont } from './bitmap-font';
+import type { NativeLayout, NativePixels } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { SuspendedCapture } from './notes-suspended-capture';
 import { createNativeTitleSession } from './native-title-session';
@@ -17,7 +18,20 @@ import { stockScreenTargets } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
-export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number};
+export type NotesIntroPaint =
+  | { status: 'pending' }
+  | {
+      status: 'posed';
+      title: NativeLayout;
+      upper: NativeLayout;
+      scene10Draw: boolean;
+      titleUserVisible: boolean;
+      ticket: number;
+      steps: number;
+      icon?: NativePixels;
+      description?: string;
+    };
+export type StockScreenPaintOptions={font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
 const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const records=(v:JsonValue|undefined):MediaRecord[]=>Array.isArray(v)?v.map(record):[];
 const string=(v:JsonValue|undefined)=>typeof v==='string'?v:'';
@@ -231,7 +245,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     sync,prepare,status,
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     /** True only when the published pair is this owner's complete application frame. */
-    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0):boolean{
+    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint):boolean{
       if(disposed)return false;
       // Pixels stay out of the key; one frozen capture has one generation.
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
@@ -239,13 +253,17 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       // Native status clocks and animation poses key paired-screen publication.
       const zoneTime=view.appId==='nintendo-zone'?zoneClock(date,elapsedMs):null;
       const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60]:null;
+      // Host remainder time drives Notes but is not itself a paint identity.
+      const data=view.data&&typeof view.data==='object'&&!Array.isArray(view.data)?view.data:{};
+      const notesView=view.appId==='game-notes'?{...view,data:Object.fromEntries(Object.entries(data).filter(([key])=>key!=='notesHostMs'))}:view;
+      const introKey=notesIntro?.status==='posed'?[notesIntro.ticket,notesIntro.steps,notesIntro.scene10Draw,notesIntro.titleUserVisible]:notesIntro?.status??null;
       const state=prepare(view,nextOwner,font);
       // Poses, not passes, key the eShop pair: settled passes do not repaint.
       const eshop=nativeServiceView(view)?.view==='eshop-welcome';
-      const keyView=eshop?{...view,data:{...view.data,welcomePass:null,welcomeDecidedPass:null}}:view,eshopPaintKey=eshop?eshopWelcomePose(view,reducedMotion):null;
+      const keyView=eshop?{...notesView,data:{...notesView.data,welcomePass:null,welcomeDecidedPass:null}}:notesView,eshopPaintKey=eshop?eshopWelcomePose(view,reducedMotion):null;
       const settingsPaintKey=view.appId==='system-settings'?[date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes()]:null;
       const eshopHudKey=eshop?eshopHudClock(date):null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey]);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,introKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();
@@ -253,7 +271,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||state.status==='ready'){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
           }catch(error){fail(error);recovery();}
         }

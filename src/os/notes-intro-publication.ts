@@ -1,4 +1,4 @@
-import { poseNativeLayout, type NativeAnimation, type NativeLayout } from './native-layout.ts';
+import { poseNativeLayout, type NativeAnimation, type NativeLayout, type NativePack } from './native-layout.ts';
 import { createNotesPanelPublisher } from './notes-panel-publication.ts';
 import {
   createNotesPanelScheduler, type NotesPanelCommand, type NotesPanelContext, type NotesPanelObservation,
@@ -50,15 +50,17 @@ export type NotesIntroComposition = Readonly<{
 }>;
 
 /** Priority-0 SceneIn / list-gate composer around the existing title publisher.
- * Not imported by the live painter. Event 0 arms both intros; the first update
- * starts then advances SceneIn. Draw flags clear when SceneIn is not busy.
- * titleUserVisible is scene-10 draw off plus an applied visible W_TextPanel. */
+ * The owner-bound session steps it; the live painter only samples compose().
+ * Event 0 arms both intros; the first update starts then advances SceneIn.
+ * Draw flags clear when SceneIn is not busy. titleUserVisible is scene-10
+ * draw off plus an applied visible W_TextPanel. */
 export function createNotesIntroComposer() {
   const scheduler = createNotesPanelScheduler(), publisher = createNotesPanelPublisher();
-  let ticket = 0, returnFrame5Started = false;
+  let ticket = 0, returnFrame5Started = false, composedKey = '';
   let intro: { lower: Intro; upper: Intro } | undefined, list: List | undefined;
   let lastPanel: NotesPanelObservation | undefined;
   let titleApplied: NativeLayout | undefined, upperApplied: NativeLayout | undefined, lowerApplied: NativeLayout | undefined;
+  let lastComposition: NotesIntroComposition | undefined;
   function reset() {
     intro = {
       lower: { slot: slot(INTRO_LAST), draw: true, state: 0, pending: 1 },
@@ -68,7 +70,7 @@ export function createNotesIntroComposer() {
       sceneOut: slot(INTRO_LAST), memoDecide: slot(DECIDE_LAST),
       memoReturnNote: slot(RETURN_LAST), memoReturnCursor: slot(RETURN_LAST), sceneIn: slot(INTRO_LAST),
     };
-    returnFrame5Started = false; lastPanel = titleApplied = upperApplied = lowerApplied = undefined;
+    returnFrame5Started = false; lastPanel = titleApplied = upperApplied = lowerApplied = lastComposition = undefined; composedKey = '';
   }
   function observe(panel: NotesPanelObservation): NotesIntroObservation {
     const l = list!, i = intro!;
@@ -92,8 +94,8 @@ export function createNotesIntroComposer() {
       if (state.ticket !== ticket) {
         ticket = state.ticket;
         if (state.observation) reset();
-        else { intro = list = undefined; lastPanel = titleApplied = upperApplied = lowerApplied = undefined; }
-      }
+        else { intro = list = undefined; lastPanel = titleApplied = upperApplied = lowerApplied = lastComposition = undefined; composedKey = ''; }
+      } else if (state.observation && !intro) reset();
       return state;
     },
     step(commandTicket: number, command?: NotesPanelCommand) {
@@ -112,6 +114,9 @@ export function createNotesIntroComposer() {
     },
     compose(sources: NotesIntroSources): NotesIntroComposition | undefined {
       if (!lastPanel || !intro) return undefined;
+      const key = JSON.stringify([ticket, lastPanel.steps, intro.upper.draw, intro.upper.slot.frame, intro.lower.slot.frame,
+        lastPanel.title, lastPanel.hud]);
+      if (key === composedKey && lastComposition) return lastComposition;
       titleApplied = publisher.publish(ticket, lastPanel, sources.title.layout, sources.title.animations);
       if (intro.upper.slot.enabled) {
         upperApplied = poseNativeLayout(upperApplied ?? sources.upper.layout, sources.upper.animations, [
@@ -124,15 +129,45 @@ export function createNotesIntroComposer() {
         ]);
       }
       if (!upperApplied || !lowerApplied) return undefined;
-      return Object.freeze({
+      lastComposition = Object.freeze({
         title: titleApplied, upper: upperApplied, lower: lowerApplied,
         titleUserVisible: !intro.upper.draw && visible(find(titleApplied, 'W_TextPanel')),
         scene9Draw: intro.lower.draw, scene10Draw: intro.upper.draw,
       });
+      composedKey = key;
+      return lastComposition;
     },
     dispose() {
       scheduler.dispose(); publisher.dispose();
-      intro = list = undefined; lastPanel = titleApplied = upperApplied = lowerApplied = undefined;
+      intro = list = undefined; lastPanel = titleApplied = upperApplied = lowerApplied = lastComposition = undefined; composedKey = '';
     },
   };
+}
+
+/** Live pack aliases required before the session may start the source clock. */
+export function notesIntroSourcesFromPacks(packs: Record<string, NativePack | undefined>): NotesIntroSources | undefined {
+  const title = packs['notes-image'], upper = packs['notes-aplt-u'], lower = packs['notes-aplt-d'];
+  if (!title?.layouts.ImageScreenUp || !upper?.layouts.ApltBoot_U_00 || !lower?.layouts.ApltBoot_D_00) return undefined;
+  if (!title.animations.ImageScreenUp_TextPanelInOut || !title.animations.ImageScreenUp_TextPanelStay
+    || !upper.animations.ApltBoot_U_00_SceneIn || !lower.animations.ApltBoot_D_00_SceneIn) return undefined;
+  return {
+    title: { layout: title.layouts.ImageScreenUp, animations: title.animations },
+    upper: { layout: upper.layouts.ApltBoot_U_00, animations: upper.animations },
+    lower: { layout: lower.layouts.ApltBoot_D_00, animations: lower.animations },
+  };
+}
+
+export function notesIntroPaneSnapshot(composition: NotesIntroComposition) {
+  const pane = (layout: NativeLayout, name: string) => {
+    const next = find(layout, name);
+    return next ? { flags: next.flags, alpha: next.alpha, translation: [...next.translation] } : null;
+  };
+  return Object.freeze({
+    titleUserVisible: composition.titleUserVisible,
+    scene9Draw: composition.scene9Draw,
+    scene10Draw: composition.scene10Draw,
+    W_TextPanel: pane(composition.title, 'W_TextPanel'),
+    P_Bg_U_00: pane(composition.upper, 'P_Bg_U_00'),
+    P_Bg_D_00: pane(composition.lower, 'P_Bg_D_00'),
+  });
 }

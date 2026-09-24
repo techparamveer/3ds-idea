@@ -73,27 +73,21 @@ additively as `memo-ApltBoot_U_00-arc-l.json` and
 clocks over scene 3 and proves the first user-visible title after scene-10
 draw-disable.
 
-## Why the live panel stays disconnected
+## Live main-upper sample
 
-The current main adapter still paints `MemoTutorialUp` help text on the list.
-Drawing paints settled Switch capture and **hides** `W_TextPanel`. That is the
-visible gap in
-`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/live-smoke-2026-09-24/notes-main-title-gap.jpg`:
-the browser shows the tutorial upper, not capture plus a source title/HUD.
-
-ApltBoot publication no longer blocks the first user-visible pose. Connecting
-the composer now would still invent when those 21 manager passes occur,
-because a browser-to-source update clock is missing. Window-leaf /
-render-helper raster remains a later fidelity question.
+The live main upper now samples the intro composer through an owner-bound
+60 Hz remainder clock when capture, metadata and ApltBoot/title packs are
+ready. Drawing still hides `W_TextPanel`. `MemoTutorialUp` remains only the
+no-metadata fallback. Window-leaf / render-helper raster remains a later
+fidelity question.
 
 No Software Keyboard or editing path is added.
 
 ## Precise next gate
 
-See [intro publication](native-notes-intro-publication.md): establish a
-browser-to-source update clock, then import the intro composer in place of
-`MemoTutorialUp`. Keep `W_TextPanel` hidden until that live ownership is
-proven.
+See [intro publication](native-notes-intro-publication.md): wave cues and
+matched native comparison remain. Lower list SceneIn is still the existing
+`MemoListDown` adapter.
 
 ## Verification
 
@@ -102,5 +96,5 @@ source ranges** under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-composed-publication/`.
 The intro follow-up extends the same verifier and writes
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-intro-publication/`.
-The composer is not a live paint path and makes no browser or native-raster
-claim.
+The live main upper now samples that path through the owner-bound clock. This
+worktree still makes no browser or native-raster claim.

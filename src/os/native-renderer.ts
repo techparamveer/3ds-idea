@@ -154,6 +154,15 @@ export class NativeLayoutRenderer {
  draw(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions={}):boolean {
   return this.drawResolved(ctx,packName,layoutName,options);
  }
+ /** Draw an already-posed layout. Empty bindings keep retained pane values;
+  * overrides (capture/icon/text) apply on that pose, not the shared original. */
+ drawLayout(ctx:Context,packName:string,layoutName:string,layout:NativeLayout,options:NativeDrawOptions={}):boolean {
+  if(this.disposed)return false;
+  if(!this.packs[packName]||!layout){this.report(`Missing layout ${packName}/${layoutName}`);return false;}
+  return this.drawResolved(ctx,packName,layoutName,{...options,bindings:options.bindings??[]},{
+   layout,textures:this.textures[packName],key:JSON.stringify(['posed',packName,layoutName]),depth:0,
+  });
+ }
  private drawResolved(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions,instance?:{layout:NativeLayout;textures:ReadonlyMap<string,NativePixels>;key:string;depth:number}):boolean {
   if(this.disposed)return false;
   const pack=this.packs[packName],original=instance?.layout??pack?.layouts[layoutName];if(!original){this.report(`Missing layout ${packName}/${layoutName}`);return false;}

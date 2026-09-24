@@ -1,9 +1,10 @@
 # Bounded Game Notes title/HUD scheduler
 
 `src/os/notes-panel-scheduler.ts` ports the proven stored-controller subset of
-the [ordered startup trace](native-notes-ordered-startup-audit.md). It is not
-imported by the live renderer. The native title panel remains hidden because
-layout application and the surrounding source scene gates are still incomplete.
+the [ordered startup trace](native-notes-ordered-startup-audit.md). The live
+painter still does not import it. The intro session steps its observations
+from an owner-bound remainder clock and passes a composed pose to the main
+upper painter.
 
 ## Implemented boundary
 
@@ -62,8 +63,8 @@ contract. [Composed publication](native-notes-composed-publication.md) poses
 `afterScene3` observations with constructor group bindings.
 [Intro publication](native-notes-intro-publication.md) now publishes both
 original ApltBoot archives and poses SceneIn over that title. The scheduler
-still exposes controller observations only; live paint stays disconnected
-because a browser-to-source update clock is missing.
+still exposes controller observations only; the intro session is the live
+clock owner.
 
 Scene 3's update tail calls layout virtual +0x34 via `0x14f7cc` or individual
 pane callbacks. Its draw path `0x1675dc` runs the capture visibility callback
@@ -72,12 +73,10 @@ pane callbacks. Its draw path `0x1675dc` runs the capture visibility callback
 that sequence is not yet proven, particularly after event 9 arrives late.
 The scheduler intentionally has no `appliedPose` output or source-panel binding.
 
-Before live connection, resolve those virtual methods and their concrete layout
-objects, port the necessary scene enable/input/intro/return gates, establish the
-browser-to-source update clock, and verify the composed ordered frames. The 31
-existing component specimens prove glyph/icon/isolated-pose behavior; regenerating
-them cannot validate the missing publication order. No new pixel specimens or
-browser fidelity claim are made by this commit.
+The remaining pixel-publication questions are window-leaf / render-helper
+raster, lower list SceneIn ownership, and matched native comparison. The 31
+existing component specimens prove glyph/icon/isolated-pose behavior; they do
+not replace those later checks.
 
 ## Verification
 

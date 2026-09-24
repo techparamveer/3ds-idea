@@ -33,6 +33,7 @@ See [proposed improvements](proposed-improvements.md) for that remaining risk.
 | `system.ts` / `app-host.ts` | Phases, app instances, caller IDs, effects and input state | Pure transitions; close removes caller trees |
 | `screens.ts` | HOME resources/shared fonts, LCD canvases, portfolio graphics | Disposes graphics before HOME assets/fonts |
 | `notes-metadata-session.ts` | One hidden Notes description/icon bound to application capture generation | Notes/application replacement, capture change or graphics disposal; sleep retains context |
+| `notes-intro-session.ts` | Owner-bound 60 Hz remainder clock and intro/title composer for the live Notes main upper | Notes owner/capture/title replacement, pack loss, sleep or graphics disposal; first ready sample does not backfill download time |
 | `stock-screen-presentation.ts` | One foreground native session, image cache, private LCD pair, deadline | Owner replacement, inactivity, retry or teardown |
 | `native-title-assets.ts` | Requested packs, textures, renderer and owned fonts | Idempotent result disposal; borrowed fonts survive |
 | `runtime-effects.ts` | Capability adapter, portfolio music, ordered save queue | Releases owners; closes storage after emitted writes settle |

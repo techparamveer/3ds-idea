@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: integration **`41fd3b7`** on `codex/firmware-os-10-7`,
+Checkpoint: integration **`a94fe9e`** on `codex/firmware-os-10-7`,
 24 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -28,7 +28,7 @@ the browser by the coordinator.
 
 ## Features
 
-| Feature | Status at `41fd3b7` | Next action | Owner | Evidence |
+| Feature | Status at `a94fe9e` | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
@@ -41,10 +41,10 @@ the browser by the coordinator.
 | Settings main and subpages | Implemented from source scenes: Internet, Data, Other pages, Connection, Date & Time, Profile, DS Profile. Software/Extra Data empty lists use original layout and labels (`9586990`); EU Language scrolls read-only through eight rows (`861540b`). Open Blocks is blank because it requires SD filesystem counters (`16b0cef`) | Native Language scroll motion/drag/D-pad focus, Data wait-icon/entry motion and whole-screen comparison remain open | Coordinator | [Settings trace](settings-main-source-validation.md), [Data lists](settings-data-lists-source-audit.md), [Open Blocks](settings-open-blocks-source-audit.md), [Language audit](settings-language-source-audit.md) |
 | Settings helpers (NNID, Transfer, Updater) | Implemented: helper Back restores the exact Settings page, and HOME suspends the helper (`251f88f`). Transfer page 3 and Update page 4 returns were operated live; six regressions and 11 source-render pairs added (`41fd3b7`) | Matched native helper sequencing/composition remains open | Coordinator | [Helper return validation](settings-transfer-update-return-validation.md) |
 | Parental Controls | Implemented: intro Back/Set → source explanation (Back/Next) → source PIN notice (`Dialog_D_01`, one OK). Adaptation: OK/B return to the explanation with Next selected, but native OK continues to PIN setup. The old restrictions list is unreachable. Touch targets follow source bounds. Integrated live flow was operated, including an inert obscured background | Upper LCD during the notice keeps the explanation page, and the native upper mask and timing are unverified. Matched native comparison remains open | Coordinator (browser, touch geometry); presentation (upper mask) | [Source flow](settings-parental-source-audit.md), [PIN notice](settings-parental-pin-presentation.md), [dialog assets](native-parental-dialog-assets.md) |
-| Camera | Read-only gallery uses source lower `PicL` browse and upper `P_FinderVS_U` (`ea4cdfe`); the six-cell centres and hit boxes now follow executable/layout geometry (`c8a84f7`). Live folder → gallery → photo by corrected touch passes | Footer/paging motion remain adapters; gallery/photo upper uses portfolio pixels as viewfinder replacement; matched native comparison remains open | Coordinator | [Camera source validation](camera-gallery-source-validation.md), [grid audit](camera-grid-source-audit.md) |
+| Camera | Read-only gallery uses source lower `PicL` browse and upper `P_FinderVS_U` (`ea4cdfe`); six-cell centres/hit boxes follow executable/layout geometry (`c8a84f7`). Live corrected touch passes. Footer audit (`a94fe9e`) confirms native Shoot/Settings/Slideshow are outside read-only scope, so generic Back/Open is a declared adaptation | Paging motion and viewfinder replacement remain adapters; matched native comparison remains open | Coordinator | [Camera source validation](camera-gallery-source-validation.md), [grid audit](camera-grid-source-audit.md), [footer audit](camera-footer-source-audit.md) |
 | Sound | Source-position transport, seek, loop-mode and error dialog integrated from Sound resources (`5c5709f`); owner-scoped playback remains. Empty state was checked live. The production track manifest is empty | Live favourite-track playback needs supplied songs; native player/visualiser comparison remains open | Runtime; presentation | [Sound source validation](sound-source-validation.md) |
 | Health and Safety | Implemented. Adaptation: bounded pagination instead of continuous scroll | Remaining document scenarios | Presentation | [Screen presentation](stock-screen-presentation.md) |
-| Game Notes | Implemented grid/editor and source-pane capture of the suspended app (`f9219d7`). The Double → Up → Down cycle (`251d988`) and 0–25 frame Switch clip (`e4d52b8`) are integrated; live Double → Up and frozen Health capture were inspected. HUD/title/icon and two sound cues are traced but not delivered (`842fbec`) | Supply source metadata/controller/audio resources with owner-scoped playback, then matched native comparison | Coordinator | [Capture validation](native-notes-suspended-capture.md), [switch audit](native-notes-switch-source-audit.md), [title/HUD/audio audit](native-notes-title-hud-source-audit.md) |
+| Game Notes | Implemented grid/editor and source-pane capture of the suspended app (`f9219d7`). The Double → Up → Down cycle (`251d988`) and 0–25 frame Switch clip (`e4d52b8`) are integrated; live Double → Up and frozen Health capture were inspected. HUD/title/icon and two sound cues are traced but not delivered (`842fbec`, `53a6a5d`) | Supply source metadata/controller, validate wave cue renderer and owner-scoped playback, then matched native comparison | Coordinator | [Capture validation](native-notes-suspended-capture.md), [switch audit](native-notes-switch-source-audit.md), [title/HUD audit](native-notes-title-hud-source-audit.md), [audio delivery](native-notes-switch-audio-delivery.md) |
 | Friend List, Notifications | Implemented source initial/empty states | Interior fidelity; nonempty states only if brought into scope | Presentation; runtime | [Personal tools](native-personal-tools.md) |
 | Internet Browser, Miiverse | Implemented source chrome. Adaptation: local read-only interiors | Interior fidelity. No remote browsing or keyboard | Presentation; runtime | [Interiors](native-browser-miiverse-interiors.md) |
 | eShop, Nintendo Zone | Implemented source welcome/offline chrome. Zone status icons use original HUD clips (`410e8b4`) and were inspected live | Banner depth projection, clock repaint, service-screen native comparison | Presentation; assets | [Service HUD trace](native-service-screen-trace.md) |
@@ -62,7 +62,7 @@ this table.
 
 | Role | Worktree | Branch @ head | Not yet integrated |
 | --- | --- | --- | --- |
-| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `41fd3b7` | — |
+| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `a94fe9e` | — |
 | Assets | `3ds-idea-worktrees/assets` | `codex/settings-native-assets` @ `b30bcc0` | Service-screen visual fix remains uncommitted/unverified; Notes audit integrated |
 | Presentation | `3ds-idea-worktrees/presentation` | `codex/settings-native-fields` @ `5090b10` | None found (subject match) |
 | Runtime | `3ds-idea-worktrees/runtime` | `codex/parental-flow-audit` @ `057173b` | None found (subject match) |
@@ -74,10 +74,12 @@ this table.
 | Settings Data lists | `3ds-idea-worktrees/settings-data-source` | `codex/settings-data-source` @ `cd13051` | Integrated as `fa731dc` and `9586990` |
 | Camera upper LCD | `3ds-idea-worktrees/camera-upper-source` | `codex/camera-upper-source` @ `fd7183a` | Integrated as `ea4cdfe` |
 | Camera grid | `3ds-idea-worktrees/camera-grid-source` | `codex/camera-grid-source` @ `d5257ae` | Integrated as `c8a84f7`; touch test corrected as `827088c` |
+| Camera footer audit | `3ds-idea-worktrees/camera-footer-source` | `codex/camera-footer-source` @ `ea8e29d` | Integrated as `a94fe9e`; no incompatible capture controls added |
 | Settings Language | `3ds-idea-worktrees/settings-language-source` | `codex/settings-language-source` @ `29b60ed` | Integrated as `3be6851`, `0e2309b`, `3797de6`; browser entry/return inspected |
 | Language scroll | `3ds-idea-worktrees/settings-language-scroll` | `codex/settings-language-scroll` @ `8bb2af2` | Integrated as `861540b`; all eight rows operated live |
 | Open Blocks audit | `3ds-idea-worktrees/settings-open-blocks-source` | `codex/settings-open-blocks-source` @ `f0864cb` | Integrated as `16b0cef`; no guessed value |
 | Notes title/HUD audit | `3ds-idea-worktrees/notes-title-source` | `codex/notes-title-source` @ `b60ba3b` | Integrated as `842fbec`; source dependencies recorded |
+| Notes audio audit | `3ds-idea-worktrees/notes-switch-audio` | `codex/notes-switch-audio` @ `ad9f6ae` | Integrated as `53a6a5d`; publication blocked by unvalidated wave path |
 | Settings helper return | `3ds-idea-worktrees/settings-transfer-update-return` | `codex/settings-transfer-update-return` @ `0783f6f` | Integrated as `41fd3b7`; browser returns inspected |
 | amiibo materials | `3ds-idea-worktrees/amiibo-source-materials` | `codex/amiibo-source-materials` @ `fa46764` | Audit integrated as `a6b74c8`; material support still missing |
 | Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` @ `91fe40f` | Integrated as `24d7aa6` and `ee036df` |

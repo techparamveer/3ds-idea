@@ -73,9 +73,10 @@ Integrated verification at `f9219d7`: focused Notes/preparation tests 14/14;
 full suite 1,133 passed, 18 skipped, zero failed; typecheck and production
 build passed. In the live browser, Health and Safety was opened, suspended via
 HOME, and Game Notes' selected note displayed the frozen Health LCDs on its
-upper screen. The standalone canvas verifier has not been run because its
-optional canvas module is unavailable in this workspace; the source-raster
-test and browser check cover the visible orientation.
+upper screen. The standalone source render verifier passed with zero
+diagnostics using the bundled Canvas runtime; its synthetic quadrant render
+is at `reference/notes-suspended-render/` in the SSD artifact root. The
+source-raster test and browser check also cover the visible orientation.
 
 ## Remaining gaps
 

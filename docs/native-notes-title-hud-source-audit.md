@@ -107,3 +107,9 @@ software title/icon metadata, trace the controller argument semantics, and
 render the group-bound title-panel lifecycle with real metadata. HUD input routes
 and owner-scoped sound delivery remain separate open work. Strict 1:1 remains
 unproven; these findings are not a native screen/audio comparison.
+
+The [switch audio delivery follow-up](native-notes-switch-audio-delivery.md)
+resolves the CSEQ/CWSD sample dependencies and produces repeatable private
+candidate PCM. It also confirms that the validated HOME exporter rejects this
+archive and does not cover Toggle's wave-sound path. Delivery and owner-scoped
+playback remain unimplemented; diagnostic WAVs are not native-accepted cues.

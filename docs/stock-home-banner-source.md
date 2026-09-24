@@ -56,7 +56,8 @@ The next bounded pass needs to establish these facts before live wiring:
 1. **Completed:** raw CGFX billboard mode 1 was traced through the original
    HOME renderer and implemented in `cgfx-billboard.ts` with numeric Settings
    fixtures. The mode-5 folder behavior remains independent.
-2. Apply the [type-1 source lifecycle](native-settings-type1-lifecycle.md):
+2. Apply the [type-1 source lifecycle](native-settings-type1-lifecycle.md)
+   and [pose/activation audit](native-settings-banner-pose.md):
    Settings traverses state 3, a title-resource worker, state 4, a presentation
    worker, and state 5 before visibility is requested. The static trace also
    identifies the `COMMON` controller lookup and its source loop flag. Execute

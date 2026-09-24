@@ -48,7 +48,7 @@ installation path. The path has these ordered boundaries:
 | State 3 | `0x24a7d4` checks completion of the first worker; `0x24a7e0..a820` joins/cleans it. The type-1 arm at `0x24a88c..a950` prepares the requested title key, starts worker `0x24c930` through `0x2357ac` at `0x24a924`, and writes state 4 at `0x24a94c` if thread creation succeeds. |
 | Title worker | `0x24c930` reads key words from its argument `+8` and medium byte `+0x10` at `0x24c96c..c978`. On successful archive/resource handling it allocates candidate primary and secondary objects into `M+0x50/+0x54` (`0x24ca28..ca64`), loads resource data into `M+0xcc/+0xd0` (`0x24cb24..cb68`), and sets the worker completion byte `arg[0]` at `0x24cba8`. Failure branches clear that byte or release candidates. The fixture does not execute the archive operations. |
 | State 4 | `0x249c00` checks the title worker. Once complete, `0x249c7c..c8c` passes the candidate primary, resource pointer `M+0xcc`, and literal `COMMON` at `0x3072e0` to `0x24def0`. `0x24dfd4..e018` looks up and starts skeletal/material controllers where present. State 4 then starts another worker, `0x2492d8`, at `0x249d18`; successful creation writes state 5 at `0x249d44`. The branch is conditional on byte `0x34c008` at `0x249c4c..c60`; its false path is separate and is not a fabricated successful title load. |
-| State 5 | `0x24a5f8` checks the presentation worker, then `0x24a654..a6ac` requests visibility on primary and secondary. For the ordinary show branch the call is `0x1f9e64(primary, 1)` at `0x24a68c..a694`; `0x24a6b0` enters state 6. State 5 also has pending-request and ancillary branches, so a new request can alter this path. |
+| State 5 | `0x24a5f8` checks the presentation worker. `0x1f90cc` then checks current-request identity, type, primary eligibility and manager flag. Its true branch requests visibility 1 at `0x24a664..a67c`; its false branch requests visibility 0 at `0x24a68c..a6a8`. Both reach state 6 at `0x24a6b0`, so state 6 alone does not prove a show request. See [pose and activation](native-settings-banner-pose.md). |
 | Common update | After state dispatch, `0x24c23c..c264` invokes loaded primary virtual `+0x14` in that same eligible manager pass. This is the general object update path; it does not prove when pixels are presented. |
 
 The resource worker installs *candidate* objects before the state-5 show call.
@@ -71,7 +71,9 @@ loader locates a skeletal controller through `0x1f8028` (`0x24dfd4..dff4`),
 then calls its virtual `+0x10` at `0x24dfec..dff4`. The model's loop flag is
 source data. A full executed sample of the native controller's first frame,
 600-to-0 wrap and display cadence has **not** been produced here. Do not apply
-folder/default clip or yaw values to the title. Raw billboard mode 1 has since
+folder/default clip values to the title. The source vtable shows that Settings
+uses the generic primary yaw/visibility/outer-pose handler; see the bounded
+[pose audit](native-settings-banner-pose.md). Raw billboard mode 1 has since
 been implemented and verified against the converted Settings model; upper-screen
 hosting remains separate.
 

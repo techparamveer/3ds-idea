@@ -136,3 +136,16 @@ work that cannot be settled in this source-audit worktree:
 Layers 2 and 3 require the coordinator's browser and Azahar reference session.
 Implementing a live continuous painter now would require guessing the clip and
 composition, which the evidence does not support.
+
+Follow-up: the [live-scroll audit](health-live-scroll-source-audit.md) resolves
+all three items with executable evidence:
+
+1. The original emitter draws every article buffer as unclipped glyph quads.
+   There is no wrap, and buffer switching has no pixel effect.
+2. No code can enable scissor or stencil test. The lower pass is full-screen
+   with depth/stencil access off, so text is bounded by the screen edges and by
+   later artwork, in the order background, article, Back bar.
+3. Real controls, the manager and scene updates move the text 4 px per VBlank
+   while a key is held, with no latency, and article close cancels.
+
+Pagination remains, gated on G_Touch release inertia and scrollbar geometry.

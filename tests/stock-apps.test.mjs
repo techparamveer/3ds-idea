@@ -474,3 +474,14 @@ test('Parental intro and explanation footers follow their horizontal Back and fo
  assert.equal(move('left'),'back');assert.equal(move('up'),'back');assert.equal(move('right'),'next');assert.equal(move('down'),'next');
  }
 });
+
+
+test('Sound SD-absent entry is read-only and its disabled Back does not exit',()=>{
+ const {module,state}=setup('sound',{folders:[],tracks:[]});
+ const view=module.view(state,ctx);
+ assert.deepEqual(view.footer,{});
+ assert.match(view.text.join(' '),/display-only/);
+ for(const id of ['record','streetpass','settings','open','add','back']){
+  const result=action(module,state,id);assert.equal(result.state,state);assert.equal(result.effects,undefined);
+ }
+});

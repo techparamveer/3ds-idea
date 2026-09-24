@@ -1,5 +1,7 @@
 # Sound entry-screen comparison gate
 
+Superseded in part by the subsequent [native entry comparison](sound-native-entry-2026-09-24.md): the coordinator supplied the missing settled native capture. The constructor-only cautions below still apply.
+
 Checkpoint: continuation `0bc724d`. This is a bounded source/resource comparison,
 not a matched native capture or a visible UI correction. No runtime or public
 asset changes are made.

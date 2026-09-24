@@ -91,7 +91,7 @@ export async function verifyStockScreens(options){
   for(const [index,view] of views.entries()){
    const top=createCanvas(400,240),bottom=createCanvas(320,240),id=view.verificationId??view.appId+'-'+view.screen;
    requestedImages.length=0;
-   drawStockScreenFrame(top.getContext('2d'),bottom.getContext('2d'),view,{font,image,native:view.appId==='system-settings'?assets.renderer:view.appId==='sound'?soundAssets.renderer:view.appId==='camera'?cameraAssets.renderer:view.appId==='health-safety'?healthAssets.renderer:view.appId==='browser'?browserAssets.renderer:view.appId==='miiverse'?miiverseAssets.renderer:undefined});
+   drawStockScreenFrame(top.getContext('2d'),bottom.getContext('2d'),view,{font,image,...(view.appId==='sound'&&view.screen==='main'?{date:new Date(2026,8,24,10,52)}:{}),native:view.appId==='system-settings'?assets.renderer:view.appId==='sound'?soundAssets.renderer:view.appId==='camera'?cameraAssets.renderer:view.appId==='health-safety'?healthAssets.renderer:view.appId==='browser'?browserAssets.renderer:view.appId==='miiverse'?miiverseAssets.renderer:undefined});
    if(id==='sound-playback')assert.deepEqual(requestedImages,[photos[0].src],'Sound loads artwork, never the audio URL, as an image');
    if(view.appId==='sound')soundBottoms.set(id,bottom.getContext('2d').getImageData(0,0,320,240).data);
    if(view.appId==='health-safety'&&view.screen==='document')healthBottoms.set(id,{pixels:bottom.getContext('2d').getImageData(0,0,320,240).data,article:view.data.article});

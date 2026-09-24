@@ -263,9 +263,10 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       // Poses, not passes, key the eShop pair: settled passes do not repaint.
       const eshop=nativeServiceView(view)?.view==='eshop-welcome';
       const keyView=eshop?{...notesView,data:{...notesView.data,welcomePass:null,welcomeDecidedPass:null}}:notesView,eshopPaintKey=eshop?eshopWelcomePose(view,reducedMotion):null;
+      const soundClockKey=view.appId==='sound'&&view.screen==='main'?[date.getHours(),date.getMinutes()]:null;
       const settingsPaintKey=view.appId==='system-settings'?[date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes()]:null;
       const eshopHudKey=eshop?eshopHudClock(date):null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,introKey]);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,soundClockKey,introKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();

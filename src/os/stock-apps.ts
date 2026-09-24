@@ -156,6 +156,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const screen = str(state.screen, 'main');
     if (action === 'back') {
       if (id === 'sound' && state.mediaError === true) return { state: { ...state, mediaError: false } };
+      if (id === 'sound' && screen === 'main' && !media.tracks.length) return { state }; // Native root Back is disabled; HOME still exits.
       if (id === 'health-safety' && screen === 'document') { const { scroll: _scroll, backPress: _press, ...rest } = state; return { state: withScreen(rest, 'main') }; }
       if (screen !== 'main') {
         if ((id === 'game-notes' || id === 'memo') && screen === 'drawing') return { state: withScreen(state, 'main', { selection: bounds(num(state.slot), 15), ...(id === 'game-notes' ? { captureSwitchElapsed: NOTES_SWITCH_DURATION_MS } : {}) }) };
@@ -248,7 +249,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'sound') {
       data.tracks = media.tracks.map(item => ({ ...item })); data.track = track(state) ? { ...track(state)! } : null;
-      if (!media.tracks.length) text.push('There is no music.');
+      if (!media.tracks.length) text.push('Record & Edit Sounds. Recording, StreetPass and Settings are display-only in this portfolio.');
       if (state.mediaError) text.push('Could not play.'); // Source S_dlg C_ErrPlay
     }
     if (id === 'notifications' && screen === 'notification') text.push(str(list(context.shared.notifications).find(item => item.id === state.notificationId)?.message));
@@ -263,7 +264,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const left = { label: id === 'system-updater' || (id === 'system-settings' && screen === 'detail' && state.field === 'sound') ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
     const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
-      footer: { left, ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
+      footer: { ...(id === 'sound' && screen === 'main' && !media.tracks.length ? {} : { left }), ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }
   return {
     descriptor, view,

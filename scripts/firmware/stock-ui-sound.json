@@ -53,7 +53,11 @@
             "S_Common-OpenBtn",
             "S_Common-BrwCursor",
             "S_Common-IconList",
-            "S_Common-ListScroll"
+            "S_Common-ListScroll",
+            "S_Common-OpLBtn",
+            "S_Common-OpRBtn",
+            "S_Common-SetBtn",
+            "S_Common-Text"
           ],
           "animations": [
             "S_Common-BackBtn_Default",
@@ -73,7 +77,10 @@
             "S_Common-OpenBtn_Disable",
             "S_Common-OpenBtn_In",
             "S_Common-OpenBtn_Out",
-            "S_Common-OpenBtn_Push"
+            "S_Common-OpenBtn_Push",
+            "S_Common-OpLBtn_Default",
+            "S_Common-OpRBtn_Disable",
+            "S_Common-SetBtn_Default"
           ]
         },
         "packs/sound/contents/0000-0000000b/lyt-S_Inf_U-arc-LZ.json": {
@@ -82,7 +89,9 @@
             "S_Inf_U-TrackNameU",
             "S_Inf_U-TrackNameD",
             "S_Inf_U-PlayTime",
-            "S_Inf_U-UnderBar"
+            "S_Inf_U-UnderBar",
+            "S_Inf_U-Hour",
+            "S_Inf_U-Battery"
           ],
           "animations": [
             "S_Inf_U-TitleBar_TitleBevelIn",
@@ -103,22 +112,27 @@
         },
         "packs/sound/contents/0000-0000000b/lyt-Parakeet-arc-LZ.json": {
           "layouts": [
-            "ParakeetA_U"
+            "ParakeetA_U",
+            "ParakeetA_D"
           ],
           "animations": [
             "ParakeetA_U_Wait",
             "ParakeetA_U_InL_U",
-            "ParakeetA_U_OutL_U"
+            "ParakeetA_U_OutL_U",
+            "ParakeetA_D_Wait"
           ]
         },
         "packs/sound/contents/0000-0000000b/lyt-C-Sld.json": {
           "layouts": [
-            "C_SldT"
+            "C_SldT",
+            "C_SldH_L"
           ],
           "animations": [
             "C_SldT_Default",
             "C_SldT_Push",
-            "C_SldT_Rate"
+            "C_SldT_Rate",
+            "C_SldH_L_Default",
+            "C_SldH_L_Rate"
           ]
         },
         "packs/sound/contents/0000-0000000b/lyt-C-Dlg.json": {
@@ -146,13 +160,28 @@
               "P_BR_04",
               "F_N_00",
               "E_00",
-              "E_I_00"
+              "E_I_00",
+              "C_B_03",
+              "C_B_04",
+              "P_BR_00",
+              "P_B_03",
+              "HudTime"
             ],
             "S_dlg": [
               "C_ErrPlay",
               "C_B_ErrPlay"
             ]
           }
+        },
+        "packs/sound/contents/0000-0000000b/lyt-C-Hud.json": {
+          "layouts": [
+            "C_HudBut_B",
+            "C_HudSndB"
+          ],
+          "animations": [
+            "C_HudBut_B_Pattern",
+            "C_HudSndB_Pattern"
+          ]
         }
       }
     }

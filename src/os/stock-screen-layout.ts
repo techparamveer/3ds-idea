@@ -101,6 +101,8 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     // P_BrwsPhoMntBase paints the photo mount with no arrow controls. Keep
     // physical left/right navigation; don't retain invisible arrow hit boxes.
   }else if(appId==='sound'){
+    // The SD-absent entry is read-only: record/StreetPass/settings do not request devices or writes.
+    if(screen==='main'&&Array.isArray(view.data?.tracks)&&view.data.tracks.length===0)return [];
     // Source S_dlg dialog: C_Dlg1BtnB BB-Dlg1BtnB (128×40 at y −84) is the only control while "Could not play." is shown.
     if(view.data?.mediaError===true)return [target('error-ok',96,184,128,40)];
     if(screen==='playback'){

@@ -215,3 +215,20 @@ All native-supported views now hold the source black fade endpoint while
 resources/fonts prepare. Load, timeout and render errors show explicit browser
 recovery; hidden application input is gated until the first native pair is
 published. See [the preparation and recovery contract](native-screen-readiness.md).
+
+### Live app navigation check (2026-09-24)
+
+At localhost:3000 in the existing IAB tab3, Health and Safety main and two
+successive 3D precaution pages were visually inspected; Right advanced the
+source page. HOME suspended Health. Game Notes opened above it, A opened a
+note, B returned to the grid and a second B closed the applet to HOME. Friend
+List opened and B returned. Notifications showed zero counts; touching the
+right end of its full-width Close footer returned HOME. Internet Browser
+opened its source search/bookmarks/settings/URL chrome. These are entry and
+navigation checks, not a matched native fidelity sign-off for all interiors.
+
+A remaining visible defect was identified: Notes' selected-note upper LCD
+always paints the source no-suspended-software message, even when Health is
+suspended. Its source snapshot slots and the presentation boundary need a
+suspension-aware capture; this remains open. Sound's actual user-song playback
+still requires supplied songs, and NNID original body content remains absent.

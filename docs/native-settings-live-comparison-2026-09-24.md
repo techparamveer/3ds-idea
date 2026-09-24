@@ -14,6 +14,17 @@ native lower page labels and arrangement are qualitatively similar, but the
 browser is shown on a perspective-transformed 3D LCD while the reference is an
 emulator window, so these captures do not support a numeric pixel score.
 
+The earlier 400×240/320×240 **source render** of this settled page can be
+aligned numerically with the native emulator-window capture. Using fixed LCD
+rectangles, bilinear downsampling and excluding the upper 17 rows that contain
+the missing status strip, mean absolute RGB channel error is 5.22 on the
+upper LCD and 9.15 on the lower LCD (0–255 scale). Pixel-mean error is at most
+10 for 93.1% and 80.2% of those regions respectively. This is a bounded
+source-render comparison; JPEG capture, scaling, source render age and the
+excluded strip prevent it from proving the current live browser pixels or
+strict 1:1 fidelity. `reference/native-settings-2026-09-24/compare.py` and
+`comparison.json` on the SSD record the boxes, source hashes and method.
+
 The native upper LCD has a blue Internet/status strip, clock and battery along
 its top edge. The browser Settings painter currently draws `Bg_U_00` and
 `CommonBG_U_00`/`TextBG_U_00` (or `TopText_U_00` on main) without a matching

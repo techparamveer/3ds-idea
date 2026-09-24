@@ -136,3 +136,12 @@ Toolbox's shader has an early return and TODOs. Those references cannot establis
 the exact native combination/order/projection behavior. Header and PortalBtnSub
 remain strictly unsupported pending independent native image/draw-state evidence.
 Tests establish bounded decoding and composition, not full native equivalence.
+
+Integration checkpoint (2026-09-24): the original supplied amiibo RomFS was
+retested after merging part composition with the current animation shares and
+inline child attachments. All13 Python converter tests and14 renderer/part
+checks passed, zero skips. Evidence is in SSD firmware root
+`reference/integration-amiibo-real-python.log` and
+`reference/integration-amiibo-real-renderer.log`. This verifies the bounded
+supported resources only; unresolved Header/PortalBtnSub materials and the
+missing matched native reference remain unresolved.

@@ -119,3 +119,11 @@ test('DS Profile uses its full-width legacy Back footer while its read-only rows
  for(const x of [0,160,319])assert.equal(hit(v,x,226),'back');
  assert.equal(hit(v,160,88),null);assert.equal(hit(v,160,148),null);assert.equal(hit(v,160,207),null);
 });
+
+test('read-only native date time and birthday keep Cancel active and editing controls inert',()=>{
+ for(const field of ['date','time','birthday']){
+  const v={...view('system-settings','detail',[]),data:{field}};
+  assert.equal(hit(v,60,224),'back',field);
+  for(const [x,y] of [[260,224],[116,55],[203,55],[116,150],[203,150]])assert.equal(hit(v,x,y),null,field);
+ }
+});

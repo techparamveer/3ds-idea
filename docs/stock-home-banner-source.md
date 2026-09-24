@@ -9,7 +9,7 @@ content. The source root below is private:
 
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/assets`
 
-| Title | Relative source `exefs/banner.bin` parent | CBMD SHA-256 | Selected CGFX SHA-256 | SPICA result |
+| Title | Relative source `exefs/banner.bin` parent | CBMD SHA-256 | Selected CGFX SHA-256 | Selected-slot SPICA result |
 | --- | --- | --- | --- | --- |
 | System Settings `0004001000022000` | `multicontent/verified/extracted/settings/contents/0000-0000003d` | `5804ba5a7768d2ae9b7487e4d277923502646d89768668b19d666e3e4d30fbac` | `96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d` | Model `COMMON`, 12 meshes, five textures, one 600-frame skeletal clip |
 | Camera `0004001000022400` | `stock-ui/extracted/camera/contents/0000-0000001a` | `e4808dcf84e490c73200ee5f9cb2ba72d096c93d6ccdf08d88d733988fd66280` | `21f8723b955b36b9575d0a92b942889bd978f868163c9b75063528f561105ccb` | Two textures, no 3D model |
@@ -36,10 +36,13 @@ requires a title-keyed resource request, native ordinary-application **type 1**
 activation and clip behavior, exact HOME camera/frame composition, and a matched
 browser/native capture. Types 4/5 in the current service are manager states,
 not the Settings target type. The existing folder/default primary should not be
-silently reused for an application title. Texture-only CBMDs need the native
-`Banner2D_LZ.bin` path and its UV/layout rules before they can render. Neither
-path is established by successful SPICA conversion alone; no stock upper HOME
-banner is enabled by this converter change.
+silently reused for an application title. The four apparently texture-only
+Camera, Sound, Health and eShop selections also have common-slot `COMMON`
+models. The [common-slot binding audit](stock-2d-banner-boundary.md) traces
+native type-1 material-name replacement and records their source UVs and EUR
+artwork. Nintendo Zone's common-slot conversion still fails in the pinned
+exporter's animation parser. No stock upper HOME banner is enabled by these
+source audits; native pose and browser composition remain unverified.
 
 ## Next implementation contract for System Settings
 

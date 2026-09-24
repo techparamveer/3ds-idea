@@ -1,50 +1,72 @@
-# Stock texture-only HOME banners: bounded EUR source audit
+# Stock HOME banner CBMD slots: common models and EUR artwork
 
-The owner-supplied decrypted EUR 10.7.0-32E HOME `Banner2D_LZ.bin` decompresses to
-CGFX SHA-256 `0f99a730271b0f16c9a409f63da3d02a88a6b44e5ad39da88119be6a06c2a666`.
-The existing pinned SPICA exporter yields one `Banner2D` model: one 24 × 12
-quad at local Z = 6.5, full 0–1 UV rectangle, a 16 × 16 `Dmy_00` dummy
-texture, and native billboard mode 5. There are no skeletal, material or
-visibility clips. This is a reusable geometry resource, not title artwork.
+The earlier [selected-slot audit](evidence/stock-2d-banner-audit.json) converted
+only the EUR-English CBMD entry of Camera, Sound, Health and Safety, eShop and
+Nintendo Zone. Those selected entries contain textures and no model. That fact
+did **not** mean their full CBMDs were texture-only. Each CBMD has a separate
+common CGFX at offset `0x88`. The new
+[common/selected binding audit](evidence/stock-common-banner-binding.json)
+converts both slots for the first four titles and verifies source hashes and
+the matching material texture names. No application banner is enabled by this
+audit.
 
-The hashed HOME code has a static branch at `0x1f9324`: the type switch subtracts
-3, jump-table index 5 (type 8) reaches `0x1f9474`, which reads resource-table
-entry `0x32ed24`. That entry names `Banner2D`. The branch and table are checked
-by `scripts/firmware-cgfx/audit_stock_2d.py`. This establishes **type 8 →
-Banner2D resource**, but does not yet establish when an ordinary type-1 title
-with a texture-only CBMD is changed to or uses that type-8 model.
+## Native type-1 path
 
-The same audit selects EUR English from each private `exefs/banner.bin` CBMD,
-converts its CGFX with the pinned exporter, checks source and PNG hashes, and
-records alpha occupancy in [the audit fixture](evidence/stock-2d-banner-audit.json).
-All five title CGFX files have zero models:
+In the hashed EUR HOME `code.bin` (SHA-256
+`243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`),
+the ordinary title worker `0x24c930` reads the CBMD common offset at `+8`,
+decompresses that resource into manager `M+0xcc` at `0x24cb10..cb30`, and
+selects the locale offset through `0x244ff8`, decompressing it into `M+0xd0`
+at `0x24cb40..cb64`. State 4 prepares the primary from the common resource at
+`0x249c7c..8c`, prepares the secondary from the selected resource at
+`0x249c98..bc`, then calls `0x24dd2c(primary, secondary)` at `0x249cc8`.
+The `0x24dd2c..24de90` loop compares a common-model material texture name
+with a secondary texture name and calls `0x1fd914` to replace the matching
+texture reference. The offline verifier pins the relevant ARM words. It does
+not execute either worker, prove successful allocation for every title, or
+measure scene timing.
 
-| Title | Selected textures | Observed artwork |
-| --- | --- | --- |
-| Camera | `COMMON1` and `COMMON2`, each 512 × 128 | Opaque black/white title layer and separate translucent accent layer |
-| Sound | `COMMON1` and `COMMON2`, each 512 × 128 | Opaque black/white title layer and separate translucent accent layer |
-| Health and Safety | `COMMON1` 512 × 128, `COMMON2` 128 × 128 | Text and separate safety symbol |
-| eShop | `COMMON1` 512 × 128 | Translucent title artwork |
-| Nintendo Zone | `JPN_JP` 256 × 32 | Every pixel transparent in the selected EUR-English CGFX |
+This establishes a source path for **type-1 common model plus EUR texture
+overrides**. It removes the need to infer a type-1-to-type-8 transition for
+these four titles. The separate type-8 `Banner2D` resource at `0x1f9474`
+still exists, but its dispatch alone does not bind these titles to it.
 
-The second Camera, Sound and Health textures have distinct image content; simply
-replacing `Dmy_00` with the first texture would drop that content. Zone's
-selected image cannot yield a visible banner by itself. The current code does
-not bind any of these images to the live HOME primary.
+| Title | Common `COMMON` model | EUR-English replacements | Common textures retained |
+| --- | --- | --- | --- |
+| Camera | 4 meshes; `mLogoP` uses texture slots `COMMON1` and `COMMON2` | `COMMON1`, `COMMON2` | `COMMON3` photo material |
+| Sound | 4 meshes; `mLogoS` uses texture slots `COMMON1` and `COMMON2` | `COMMON1`, `COMMON2` | `COMMON3` record and `COMMON4` notes |
+| Health and Safety | 2 meshes; text and symbol materials | `COMMON1`, `COMMON2` | None |
+| eShop | 4 meshes; logo, bag and shade materials | `COMMON1` logo | `COMMON2` bag and `COMMON3` shade |
 
-To reproduce the audit, run `scripts/firmware-cgfx/convert.py` once for the HOME
-`Banner2D_LZ.bin` and once for each private title `exefs/banner.bin`, keeping
-intermediates outside the repository. Then pass the six converted directories
-to `audit_stock_2d.py` as `--template`, `--camera`, `--sound`, `--health`,
-`--eshop`, `--zone`, plus the private HOME `--home-code` and `--output`. The
-script embeds only approved source hashes, names and derived measurements; it
-does not copy firmware, sound or executables into the repository.
+The fixture records each mesh's source UV bounds, layer, priority and billboard
+modes. Camera and Sound place both selected layers in distinct texture slots of
+one logo material; a single-image swap would discard one layer. The native
+material combiner, blend and alpha records remain in the converted common
+CGFX. These values are input data for a future renderer pass, not proof of
+final 400 × 240 pixels. Each common model has a looping `COMMON` skeletal
+clip; Sound also has a `COMMON` material clip. Their native controller cadence,
+pose, camera and stencil relationship still need a bounded executed trace and
+matched native/browser capture before a strict visual claim.
 
-Before a renderer can claim source fidelity, the native worker path must show
-how the type-1 title resource uses `Banner2D`, which texture names/layers it
-binds, their UV/layout and alpha rules, and the resulting scale, pose, camera,
-stencil and timeline. Matched native and browser upper-screen captures are still
-needed. The existing type-1 worker trace proves CBMD selection and title
-resource staging, but not these composition facts. The transparent Zone result
-also needs a native selected-title capture or a separate source path before it
-can be presented as a visible stock banner.
+Nintendo Zone remains unresolved. Its selected EUR-English `JPN_JP` texture is
+fully transparent in the prior audit. The pinned exporter aborts on the common
+CGFX while reading a Hermite128 animation (`EndOfStreamException`), so its
+common model, texture-name mapping and visible result have not been verified.
+Do not substitute the `Banner2D` dummy texture or invent a visible Zone logo.
+
+## Reproduction
+
+Use `scripts/firmware-cgfx/convert.py` with the pinned exporter on each
+private CBMD's EUR-English selection and on its decompressed common CGFX at
+offset `0x88`; keep converted source and scratch outside the repository. Run
+`scripts/firmware-cgfx/audit_common_binding.py` with absolute `--home-code`,
+`--common-root`, `--selected-root` and `--output` paths. The common root has
+`TITLE/common.bcres` and `TITLE/converted/model.json`; the selected root has
+`TITLE/model.json`. The audit refuses changed HOME code, CBMD hashes, CGFX
+hashes, missing common geometry and unmatched locale textures. The output
+contains only hashes, source names and derived measurements.
+
+The [earlier Banner2D audit](evidence/stock-2d-banner-audit.json) remains a
+valid record of the selected texture slots and reusable HOME type-8 geometry.
+Its former interpretation as the renderer path for these four ordinary titles
+is superseded by the common-slot evidence above.

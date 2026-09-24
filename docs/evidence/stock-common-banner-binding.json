@@ -1,0 +1,459 @@
+{
+  "firmware": "EUR HOME 10.7.0-32E",
+  "sourcePath": {
+    "codeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "commonLoad": "0x24cb10..0x24cb30",
+    "localeLoad": "0x24cb40..0x24cb64",
+    "primarySecondaryPrepare": "0x249c7c..0x249cc8",
+    "textureNameMatch": "0x24dd2c..0x24de90",
+    "textureReferenceReplacement": "0x1fd914"
+  },
+  "titles": {
+    "camera": {
+      "commonCgfxSha256": "068d2d09cddc0f9c23f9b3e126f7a4942ce52957910102a831298e14fa1b361d",
+      "selectedCgfxSha256": "21f8723b955b36b9575d0a92b942889bd978f868163c9b75063528f561105ccb",
+      "cbmdSha256": "e4808dcf84e490c73200ee5f9cb2ba72d096c93d6ccdf08d88d733988fd66280",
+      "model": "COMMON",
+      "meshCount": 4,
+      "commonTextures": [
+        "COMMON1",
+        "COMMON2",
+        "COMMON3"
+      ],
+      "localeTextureOverrides": [
+        "COMMON1",
+        "COMMON2"
+      ],
+      "materials": [
+        {
+          "name": "mLogoP",
+          "textures": [
+            "COMMON1",
+            "COMMON2",
+            null
+          ],
+          "localeOverrides": [
+            "COMMON1",
+            "COMMON2"
+          ]
+        },
+        {
+          "name": "mPhoto",
+          "textures": [
+            "COMMON3",
+            null,
+            null
+          ],
+          "localeOverrides": []
+        }
+      ],
+      "meshes": [
+        {
+          "material": "mLogoP",
+          "layer": 1,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0,
+              1.00004
+            ],
+            [
+              0,
+              1.00004
+            ]
+          ]
+        },
+        {
+          "material": "mPhoto",
+          "layer": 0,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0.2777058,
+              0.8174719
+            ],
+            [
+              0.26206037,
+              0.99739397
+            ]
+          ]
+        },
+        {
+          "material": "mPhoto",
+          "layer": 0,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0.55217123,
+              0.818626
+            ],
+            [
+              0.26003414,
+              0.7993642
+            ]
+          ]
+        },
+        {
+          "material": "mPhoto",
+          "layer": 0,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0,
+              0.8179457
+            ],
+            [
+              0.26221225,
+              0.997972
+            ]
+          ]
+        }
+      ],
+      "nativeBillboardModes": [
+        0,
+        5,
+        0,
+        0,
+        0
+      ],
+      "skeletalClips": [
+        "COMMON"
+      ],
+      "materialClips": []
+    },
+    "sound": {
+      "commonCgfxSha256": "2364f06f9fa15113969545f2bfc19976a71a0cfb0664b3dae884395b0f4af7c1",
+      "selectedCgfxSha256": "9924a70685eab60a05c669da0cab75c0ffdbd9e21852bc82497cab2bccc862e1",
+      "cbmdSha256": "fb5ee57657e781fadef6d90261f6eebae185996f82428d60ff439a9d568da3f7",
+      "model": "COMMON",
+      "meshCount": 4,
+      "commonTextures": [
+        "COMMON1",
+        "COMMON2",
+        "COMMON3",
+        "COMMON4"
+      ],
+      "localeTextureOverrides": [
+        "COMMON1",
+        "COMMON2"
+      ],
+      "materials": [
+        {
+          "name": "mLogoS",
+          "textures": [
+            "COMMON1",
+            "COMMON2",
+            null
+          ],
+          "localeOverrides": [
+            "COMMON1",
+            "COMMON2"
+          ]
+        },
+        {
+          "name": "mNote0",
+          "textures": [
+            "COMMON4",
+            null,
+            null
+          ],
+          "localeOverrides": []
+        },
+        {
+          "name": "mNote1",
+          "textures": [
+            "COMMON4",
+            null,
+            null
+          ],
+          "localeOverrides": []
+        },
+        {
+          "name": "mRecord",
+          "textures": [
+            "COMMON3",
+            null,
+            null
+          ],
+          "localeOverrides": []
+        }
+      ],
+      "meshes": [
+        {
+          "material": "mLogoS",
+          "layer": 1,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0,
+              1.00004
+            ],
+            [
+              0,
+              1.00004
+            ]
+          ]
+        },
+        {
+          "material": "mNote0",
+          "layer": 1,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0.6509206,
+              0.9955257
+            ],
+            [
+              -0.62539434,
+              1.6209201
+            ]
+          ]
+        },
+        {
+          "material": "mNote1",
+          "layer": 1,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0.24249986,
+              0.62539434
+            ],
+            [
+              -0.62539434,
+              1.6209201
+            ]
+          ]
+        },
+        {
+          "material": "mRecord",
+          "layer": 0,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0.11747255,
+              0.8810441
+            ],
+            [
+              0.11747255,
+              0.8810441
+            ]
+          ]
+        }
+      ],
+      "nativeBillboardModes": [
+        0,
+        5,
+        5,
+        5,
+        0
+      ],
+      "skeletalClips": [
+        "COMMON"
+      ],
+      "materialClips": [
+        "COMMON"
+      ]
+    },
+    "health": {
+      "commonCgfxSha256": "e1560e2ca6dfe8d01932c78eaa81ca5c93389c13852e2e4adcf20cb46d5b8032",
+      "selectedCgfxSha256": "97a1a31d289451077579c641c3826968907c2e16f6bf3855afbbf55f9653ea21",
+      "cbmdSha256": "bb810ecddba00bf196d7f480d8c1c13fc569a707416fded522b78ae5679f0755",
+      "model": "COMMON",
+      "meshCount": 2,
+      "commonTextures": [
+        "COMMON1",
+        "COMMON2"
+      ],
+      "localeTextureOverrides": [
+        "COMMON1",
+        "COMMON2"
+      ],
+      "materials": [
+        {
+          "name": "lambert16",
+          "textures": [
+            "COMMON1",
+            null,
+            null
+          ],
+          "localeOverrides": [
+            "COMMON1"
+          ]
+        },
+        {
+          "name": "mt_iconBack",
+          "textures": [
+            "COMMON2",
+            null,
+            null
+          ],
+          "localeOverrides": [
+            "COMMON2"
+          ]
+        }
+      ],
+      "meshes": [
+        {
+          "material": "lambert16",
+          "layer": 1,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "material": "mt_iconBack",
+          "layer": 1,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        }
+      ],
+      "nativeBillboardModes": [
+        0,
+        5,
+        5
+      ],
+      "skeletalClips": [
+        "COMMON"
+      ],
+      "materialClips": []
+    },
+    "eshop": {
+      "commonCgfxSha256": "0d30668534a6bbf1c7a8403b3b83762d6ccae59996775f6822c8ddf9513c7a94",
+      "selectedCgfxSha256": "9c07477aca53fcafa2f76359fee39640d27228f75924739b44be0960bf88d94b",
+      "cbmdSha256": "c810cc2e10769f26a857bc5edd35acc17cee0372c1f775be02ed407b9e4678de",
+      "model": "COMMON",
+      "meshCount": 4,
+      "commonTextures": [
+        "COMMON1",
+        "COMMON2",
+        "COMMON3"
+      ],
+      "localeTextureOverrides": [
+        "COMMON1"
+      ],
+      "materials": [
+        {
+          "name": "M_Shade_00",
+          "textures": [
+            "COMMON3",
+            null,
+            null
+          ],
+          "localeOverrides": []
+        },
+        {
+          "name": "M_bag_00",
+          "textures": [
+            "COMMON2",
+            null,
+            null
+          ],
+          "localeOverrides": []
+        },
+        {
+          "name": "M_logo_00",
+          "textures": [
+            "COMMON1",
+            null,
+            null
+          ],
+          "localeOverrides": [
+            "COMMON1"
+          ]
+        }
+      ],
+      "meshes": [
+        {
+          "material": "M_bag_00",
+          "layer": 0,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0.0451722,
+              0.972789
+            ],
+            [
+              0.0169396,
+              0.985469
+            ]
+          ]
+        },
+        {
+          "material": "M_bag_00",
+          "layer": 0,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0.0451722,
+              0.972789
+            ],
+            [
+              0.0169396,
+              0.985469
+            ]
+          ]
+        },
+        {
+          "material": "M_logo_00",
+          "layer": 1,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "material": "M_Shade_00",
+          "layer": 1,
+          "priority": 0,
+          "uv0Bounds": [
+            [
+              0,
+              1.95
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        }
+      ],
+      "nativeBillboardModes": [
+        0,
+        0,
+        0,
+        5,
+        0
+      ],
+      "skeletalClips": [
+        "COMMON"
+      ],
+      "materialClips": []
+    }
+  },
+  "scope": "Static common-model/locale-texture binding; no worker execution, GPU pixels or native timing",
+  "zoneStatus": "Common CGFX exporter fails while parsing a Hermite128 animation; unverified"
+}

@@ -164,11 +164,14 @@ matched native LCD comparison remain separate checks.
 
 `stock-native-services.ts` now composes the native eShop welcome and Nintendo
 Zone offline/Info screens. eShop uses its native message balloon, bag animation,
-backgrounds and mounted OK button. Its upper clips follow the source
-in/balloonIn/wait timeline from an owner-bound clock. See the
-[welcome lifecycle audit](eshop-welcome-lifecycle-source-audit.md), which also
-records that native BG is a curtain drawn above the welcome. OK returns HOME; no agreement, account or
-purchase operation exists. Zone uses original English HTML bitmap pixels at
+backgrounds and mounted OK button. The eShop reducer owns the source pass clock
+(`stock-eshop-welcome.ts`), and `view.data` carries passes rather than
+milliseconds. The painter derives the in/balloonIn/wait/out poses and the BG
+curtain from that clock. The pair's cache key holds the pose, so settled passes
+do not repaint. OK is inert until pass 12. After a decide, the exit plays and
+then returns HOME; see the
+[welcome lifecycle audit](eshop-welcome-lifecycle-source-audit.md). No
+agreement, account or purchase operation exists. Zone uses original English HTML bitmap pixels at
 320×212, without stretching, and the source upper banner or 400×220 MPO frame.
 Source HTML links share their exact button rectangles with touch navigation.
 Both read-only destinations show the bundled no-content page; the search button

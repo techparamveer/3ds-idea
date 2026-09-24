@@ -2,12 +2,13 @@ import type { AppView } from './app-types';
 import { nativeMessageOverride, type AnimationBinding } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
+import { eshopWelcomePose } from './stock-eshop-welcome';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 
 const eshopPrefix='packs/eshop/contents/0000-0000006b/';
 export const eshopScreenPacks:readonly NativeTitlePackRequest[]=[
-  {url:eshopPrefix+'cad-Common-arc-lz.json',alias:'shop-background',layouts:['BG_U_00','BG_D_00'],animations:[]},
-  {url:eshopPrefix+'cad-Boot-arc-lz.json',alias:'shop-welcome',layouts:['welcome_U_00','welcome_D_00'],animations:['welcome_U_00_in_00','welcome_U_00_balloonIn_00','welcome_U_00_wait_00']},
+  {url:eshopPrefix+'cad-Common-arc-lz.json',alias:'shop-background',layouts:['BG_U_00','BG_D_00'],animations:['BG_U_00_inOut_00','BG_D_00_inOut_00']},
+  {url:eshopPrefix+'cad-Boot-arc-lz.json',alias:'shop-welcome',layouts:['welcome_U_00','welcome_D_00'],animations:['welcome_U_00_in_00','welcome_U_00_balloonIn_00','welcome_U_00_wait_00','welcome_U_00_out_00','welcome_U_00_out_01']},
   {url:eshopPrefix+'cad-CommonBtn-arc-lz.json',alias:'shop-buttons',layouts:['OKBtn_D_00'],animations:['OKBtn_D_00_touchOff_00']},
   {url:eshopPrefix+'messages-and-loose.json',alias:'shop-messages',layouts:[],animations:[]},
 ];
@@ -28,22 +29,7 @@ export const zoneScreenPacks:readonly NativeTitlePackRequest[]=[
  * native-service-screen-trace.md. */
 export const zoneHudBindings:AnimationBinding[]=[{name:'Hud_00_Bar_Appear',frame:15},{name:'Hud_00_Battery',frame:3},{name:'Hud_00_Signal',frame:5}];
 
-/** eShop welcome controller 0x2e4498 (eshop-welcome-lifecycle-source-audit.md).
- * One welcome_U_00 animator replaces in_00 → balloonIn_00 → wait_00; a
- * replaced clip persists only through its last applied pose. Pass n is one
- * source task pass, assumed 60 Hz, counted from the first published welcome. */
-export const ESHOP_WELCOME_BALLOON_PASS=11,ESHOP_WELCOME_WAIT_PASS=69,ESHOP_WELCOME_WAIT_FRAMES=75;
-export function eshopWelcomePass(foregroundMs:number){return Math.floor(Math.max(0,foregroundMs)*60/1000);}
-/** Without a pass (reduced motion or no clock), hold the settled entrance pose. */
-export function eshopWelcomeBindings(pass?:number):AnimationBinding[]{
-  const entered={name:'welcome_U_00_in_00',frame:10},balloon={name:'welcome_U_00_balloonIn_00',frame:58};
-  if(pass===undefined||!Number.isFinite(pass))return [entered,balloon];
-  const n=Math.max(0,Math.floor(pass));
-  // The pass that starts a clip also ticks it, so balloonIn and wait first show frame 1.
-  if(n<ESHOP_WELCOME_BALLOON_PASS)return [{name:entered.name,frame:n}];
-  if(n<ESHOP_WELCOME_WAIT_PASS)return [entered,{name:balloon.name,frame:n-ESHOP_WELCOME_BALLOON_PASS+1}];
-  return [entered,balloon,{name:'welcome_U_00_wait_00',frame:(n-ESHOP_WELCOME_WAIT_PASS+1)%ESHOP_WELCOME_WAIT_FRAMES}];
-}
+export { eshopWelcomePose };
 
 export function nativeServiceView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
   if(view.appId==='eshop'&&(view.screen==='main'||view.screen==='detail'))return {view:'eshop-welcome',titleId:'0004001000022900',packs:eshopScreenPacks};
@@ -51,15 +37,18 @@ export function nativeServiceView(view:AppView):{view:string;titleId:string;pack
   return null;
 }
 
-/** The bundled welcome is a read-only screen, without account or purchase operations. */
+/** The bundled welcome is a read-only screen, without account or purchase operations.
+ * Per screen, source draw priorities paint the app BG (0.01), welcome (0.5),
+ * the OK button (0.9) and the BG curtain (1.0, the 0x3dfddc instance). */
 export function drawNativeServiceFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   if(view.appId==='nintendo-zone')return drawZone(renderer,top,bottom,view,options);
   if(view.appId!=='eshop'||!['main','detail'].includes(view.screen))return false;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['shop-messages'],'tiger.msbt',label,'');
+  const pose=eshopWelcomePose(view,options.reducedMotion);
   let okay=renderer.draw(top,'shop-background','BG_U_00');
   okay=renderer.draw(bottom,'shop-background','BG_D_00')&&okay;
   okay=renderer.draw(top,'shop-welcome','welcome_U_00',{
-    bindings:eshopWelcomeBindings(options.reducedMotion||options.eshopWelcomeMs===undefined?undefined:eshopWelcomePass(options.eshopWelcomeMs)),
+    bindings:pose.upper,
     overrides:{T_decide_00:message('BootWelcome_txt01_01')},
   })&&okay;
   okay=renderer.draw(bottom,'shop-welcome','welcome_D_00',{
@@ -71,6 +60,10 @@ export function drawNativeServiceFrame(renderer:NativeLayoutRenderer,top:CanvasR
       })&&okay;
     }},
   })&&okay;
+  if(pose.curtain!==null){
+    okay=renderer.draw(top,'shop-background','BG_U_00',{bindings:[{name:'BG_U_00_inOut_00',frame:pose.curtain}]})&&okay;
+    okay=renderer.draw(bottom,'shop-background','BG_D_00',{bindings:[{name:'BG_D_00_inOut_00',frame:pose.curtain}]})&&okay;
+  }
   return okay;
 }
 

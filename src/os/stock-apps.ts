@@ -5,6 +5,7 @@ import { settingsLanguageTick, LANGUAGE_SCROLL_DURATION_MS, settingsBack, settin
 import { healthDocumentPageCounts } from './stock-health-layout.ts';
 import { notesCaptureView, notesNextCaptureView, notesSwitchFrame, NOTES_SWITCH_LAST_FRAME, NOTES_SWITCH_DURATION_MS, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
+import { eshopWelcomeData, eshopWelcomeDecide, eshopWelcomeTick } from './stock-eshop-welcome.ts';
 
 const str = (value: JsonValue | undefined, fallback = '') => typeof value === 'string' ? value : fallback;
 const num = (value: JsonValue | undefined, fallback = 0) => typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -22,7 +23,7 @@ const serviceRows: Record<string, readonly [string, string][]> = {
   'nnid-settings': [],
   'system-transfer': [['3ds', 'Transfer from a Nintendo 3DS System'], ['dsi', 'Transfer from a Nintendo DSi System']],
   'system-updater': [],
-  eshop: [['back', 'OK']], mint: [['information', 'Nintendo eShop']],
+  eshop: [['ok', 'OK']], mint: [['information', 'Nintendo eShop']],
   'nintendo-zone': [['scan', 'Search for Nintendo Zone'], ['information', 'What is Nintendo Zone?']], miiverse: [['communities', 'Communities'], ['activity', 'Activity Feed'], ['profile', 'My Menu'], ['notifications', 'Notifications']],
   'miiverse-post': [['information', 'Post to Miiverse']], extrapad: [['information', 'Circle Pad Pro']],
 };
@@ -181,6 +182,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return { state };
     }
     if (id === 'error' && action === 'ok') return { state, effects: [{ type: 'complete' }] };
+    if (id === 'eshop' && action === 'ok') return { state: eshopWelcomeDecide(state) };
     if (id === 'system-settings' && screen === 'other' && (action === 'settings-next' || action === 'settings-previous')) return { state: settingsNavigate(state, action) };
     if (id === 'system-settings' && screen === 'detail' && state.field === 'language' && (action === 'language-up' || action === 'language-down')) return { state: settingsNavigate(state, action) };
     // Source B_BtnSwitch cycles the suspended-LCD display Double→Up→Down→Double for the current applet session only.
@@ -208,6 +210,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const screen = str(state.screen, 'main'), options = rows(state, context), selection = bounds(num(state.selection), options.length - 1), text: string[] = [];
     const data: AppState = { ...state, settings: context.shared.settings ?? {} };
     if (id === 'game-notes' && screen === 'drawing') { data.captureSwitchFrame = notesSwitchFrame(state); delete data.captureSwitchElapsed; }
+    if (id === 'eshop') { Object.assign(data, eshopWelcomeData(state)); delete data.welcomeElapsed; }
     if (cameraTitles.has(id)) {
       data.folders = media.folders.map(item => ({ ...item, photos: item.photos.map(photo => ({ ...photo })) }));
       data.photos = (folder(state)?.photos ?? []).map(item => ({ ...item })); data.photo = photo(state) ? { ...photo(state)! } : null;
@@ -239,7 +242,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       const restored = objectValue(saved) ? saved : {};
       return { screen: 'main', selection: 0, ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
         ...(id === 'browser' ? { url: str(restored.url) } : {}), ...(id === 'error' ? { message: str(args.message, 'An error has occurred.') } : {}),
-        ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0 } : {}) };
+        ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0 } : {}),
+        ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}) };
     },
     reduce(state, event, context) {
       if (id === 'system-settings') {
@@ -254,6 +258,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         if (event.type === 'lifecycle' && ['suspend', 'sleep'].includes(event.phase) && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)
           return { state: { ...state, captureSwitchElapsed: NOTES_SWITCH_DURATION_MS } };
       }
+      if (id === 'eshop' && event.type === 'tick') return eshopWelcomeTick(state, event.elapsedMs);
       if (event.type === 'lifecycle') return id === 'sound' && track(state) && ['suspend', 'sleep', 'close'].includes(event.phase) ? music(state, 'pause', { playing: false }) : { state };
       if (event.type === 'action') return activate(state, event.id, context, event.value);
       if (event.type === 'touch') {

@@ -74,7 +74,7 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     if(view.footer.left)result.push(target(view.footer.left.action,0,208,screen==='detail'&&view.data?.field==='ds-profile'?320:120,32));
     return result;
   }else if(appId==='eshop'){
-    return [target('back',85,193,150,33)];
+    return [target('ok',85,193,150,33)];
   }else if(appId==='nintendo-zone'){
     if(screen==='main')result.push(target('scan',29,30,262,86,0),target('information',29,136,262,36,1));
     result.push(target('back',0,212,106,28));return result;

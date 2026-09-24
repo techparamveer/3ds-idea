@@ -115,17 +115,19 @@ the three clips in turn, each replacing the last:
 | `balloonIn_00` | 11–68 |
 | `wait_00` | 69 onward, looping every 75 passes until OK |
 
-The browser now plays this timeline from an owner-bound clock and repaints the
-pair once per source pass. The audit lists the adaptations: the assumed 60 Hz
-pass rate, the epoch and a possible one-pass offset.
+The browser plays this timeline at the traced 30 Hz pass rate from the eShop
+reducer's tick clock, and repaints the pair only when the source pose changes.
+The audit lists the adaptations: the epoch, a possible one-pass offset and the
+HOME return after the exit.
 
 The audit also corrects this section's earlier claim about the backgrounds.
-`BG_U_00` and `BG_D_00` are a curtain drawn above the welcome layout (priority
-1.0 against 0.5). The welcome constructor plays `inOut_00` forward, taking
-`N_root_00` alpha from 255 to 0. The settled native welcome therefore shows no
-BG above it. The browser still paints BG beneath the welcome at alpha 255, so
-this composition remains an open gap until the backdrop beneath the welcome is
-traced or captured.
+The application draws `BG_U_00` and `BG_D_00` twice. The first instance is a
+static backdrop at priority 0.01, beneath the welcome. The second is a curtain
+at priority 1.0, above the welcome and the OK button. The splash leaves the
+curtain covered. The welcome constructor then plays `inOut_00` forward, so
+`N_root_00` alpha falls from 255 to 0 over four passes. The browser now paints
+both instances, together with the `out_00`/`out_01` exit, which ends by covering
+the curtain again.
 
 ## Verification status
 

@@ -100,7 +100,7 @@ test('Settings submenus retain native geometry and bounded page arrows',()=>{
 });
 
 test('service source buttons and readonly profile footer have no generic row targets',()=>{
- const shop=view('eshop','main',['back']);assert.equal(hit(shop,160,209),'back');assert.equal(hit(shop,84,209),null);assert.equal(hit(shop,250,226),null);
+ const shop=view('eshop','main',['ok']);assert.equal(hit(shop,160,209),'ok');assert.equal(hit(shop,84,209),null);assert.equal(hit(shop,250,226),null);
  const zone=view('nintendo-zone','main',['scan','information']);assert.equal(hit(zone,160,73),'scan');assert.equal(hit(zone,160,154),'information');assert.equal(hit(zone,160,125),null);assert.equal(hit(zone,50,226),'back');assert.equal(hit(zone,160,226),null);
  const profile=view('friends','profile',[]);assert.equal(hit(profile,160,226),'back');assert.equal(hit(profile,160,146),null);
 });

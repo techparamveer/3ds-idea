@@ -7,6 +7,7 @@ import type { MenuState } from './state';
 import { measureBitmapText, type BitmapFont } from './bitmap-font';
 import { createStockScreenPresentation } from './stock-screen-presentation';
 import { createSuspendedApplicationCapture } from './notes-suspended-capture';
+import { createNotesMetadataSession } from './notes-metadata-session';
 type C=CanvasRenderingContext2D;
 const nativeFonts=new WeakMap<C,BitmapFont>();
 export function setPortfolioFont(ctx:C,font?:BitmapFont){if(font)nativeFonts.set(ctx,font);else nativeFonts.delete(ctx);}
@@ -22,9 +23,11 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
 export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={}){
- const stockScreens=createStockScreenPresentation({reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture();
+ const stockScreens=createStockScreenPresentation({reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture(),notesMetadata=createNotesMetadataSession();
  function syncStockView(state:MenuState,context?:C){
   if(state.system)suspendedCapture.sync(state.system.runtime);
+  const runtime=state.system?.runtime;
+  notesMetadata.sync(runtime,runtime?.systemApplet&&runtime.instances[runtime.systemApplet]?.appId==='game-notes'?suspendedCapture.read(runtime):{status:'none'});
   const s=state.system,owner=s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog?s.runtime.active:null;
   stockScreens.sync(owner);if(owner&&context){const view=getActiveAppView(state);if(view)stockScreens.prepare(view,owner,nativeFonts.get(context));}
  }
@@ -137,5 +140,5 @@ export function createPortfolioGraphics(options:{reducedMotion?:()=>boolean}={})
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

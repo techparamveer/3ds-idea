@@ -137,6 +137,12 @@ canvases only after that instance paints a complete foreground pair, before host
 overlays; HOME, applets, loading/recovery and sleep cannot record. Closing or
 replacing the instance frees it. See [suspended capture](../native-notes-suspended-capture.md).
 
+Game Notes' hidden title metadata is acquired separately for its Notes owner,
+suspended application owner and capture generation. It validates the published
+SMDH description/icon pair and preserves the context through sleep; stale
+completions are discarded. The ordered title/HUD painter remains unconnected.
+See [metadata lifetime](../notes-metadata-lifecycle.md).
+
 Game Notes' display switch samples the source Switch clips from its foreground
 tick state (nominal browser 60 Hz, not measured native timing), blocks another
 switch until frame 25, and settles on Back/sleep/suspend. Reduced motion is a

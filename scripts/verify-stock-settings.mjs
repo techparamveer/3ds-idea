@@ -62,6 +62,8 @@ try{
  ];
  const subpages=cases.map(([screen,variant,ids])=>({...view,screen,variant,rows:ids.map(id=>({id,label:id}))}));
  for(const [field,parent,variant]of [['sound','other',1],['language','other',1],['date','clock',1],['time','clock',1],['birthday','profile',1],['nickname','profile',1],['ds-profile','profile',2]])subpages.push({...view,screen:'detail',variant,rows:[],data:{field,parent},heading:field,text:[]});
+ // Explicit renderer specimens, never production preference defaults.
+ for(const [field,value]of [['date','2024-02-29'],['time','23:07'],['birthday','02-29']])subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field,parent:field==='birthday'?'profile':'clock',settings:{[field]:value}},verificationId:'supplied-'+field,heading:field,text:[]});
  for(const subpage of subpages){
   const top=createCanvas(400,240),bottom=createCanvas(320,240),calls=[];
   renderer.draw=(ctx,pack,layout,options)=>{calls.push({pack,layout,options});return originalDraw(ctx,pack,layout,options);};
@@ -95,6 +97,25 @@ try{
    assert.equal(footer.options.overrides.TextBox_00.text,'Back');assert.equal(footer.options.overrides.TextBox_01.text,'Set');
    assert.equal(calls.some(c=>c.layout==='Btn2Text_D_00'),false);
   }
+  if(subpage.screen==='detail'&&['date','time','birthday'].includes(subpage.data.field)){
+   const field=subpage.data.field,layout=field==='date'?'DateTime_D_00':field==='time'?'DateTime_D_01':'Birthday_D_00';
+   const lower=calls.find(c=>c.layout===layout),footer=calls.find(c=>c.layout==='Base_D_01');assert.ok(lower);assert.ok(footer);
+   assert.equal(Object.keys(lower.options.attachments).length,field==='date'?6:4,'all source arrows stay visible');
+   assert.equal(footer.options.overrides.TextBox_00.text,'Cancel');assert.equal(footer.options.overrides.TextBox_01.text,'OK');
+   assert.equal(calls.some(c=>c.layout.endsWith('_ReadOnly')),false);
+   const indices=field==='date'?[0,1,2,3,5,6,8,9]:[0,1,3,4];
+   const expected=subpage.data.settings?.[field]?.replace(/[-:]/g,'');
+   indices.forEach((index,i)=>{
+    const override=lower.options.overrides['Picture_'+String(index).padStart(2,'0')];
+    if(expected)assert.equal(override.textureBindings[0],'Number'+expected[i]+'.bclim');else assert.equal(override.visible,false,'absent values never expose source sample digits');
+   });
+   for(const name of field==='date'?['TextBox_00','TextBox_01','TextBox_02']:['TextBox_01','TextBox_02']){
+    assert.ok(lower.options.overrides[name].messageStyle);assert.equal(lower.options.overrides[name].fontSize,undefined);
+   }
+   if(field==='date')assert.deepEqual(['TextBox_00','TextBox_01','TextBox_02'].map(name=>lower.options.overrides[name].translation[0]),[84,-27,-111]);
+   if(field!=='time')for(const name of field==='date'?['Picture_04','Picture_07']:['Picture_02'])assert.equal(lower.options.overrides[name].textureBindings[0],'sign_01.bclim');
+   if(field==='birthday')assert.deepEqual(['TextBox_01','TextBox_02'].map(name=>lower.options.overrides[name].translation[0]),[43,-43]);
+  }
   if(subpage.screen==='clock'){
    const lower=calls.find(c=>c.layout==='NetType2_D_00');assert.ok(lower);
    assert.deepEqual(Object.keys(lower.options.attachments),['N_B_L_00','N_B_L_01']);
@@ -110,7 +131,7 @@ try{
    assert.equal(calls.some(c=>c.layout==='TextBG_U_00'),false);
   }
   for(const [name,canvas]of [['top',top],['bottom',bottom]]){
-   const id=subpage.screen+(subpage.data?.field?'-'+subpage.data.field:'')+'-'+name;
+   const id=(subpage.verificationId??subpage.screen+(subpage.data?.field?'-'+subpage.data.field:''))+'-'+name;
    writeFileSync(join(out,id+'.png'),canvas.toBuffer('image/png'));
    reports.push({id,variant:subpage.variant,sha256:createHash('sha256').update(canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data).digest('hex')});
   }
@@ -118,5 +139,5 @@ try{
  assert.equal(JSON.stringify(sourcePacks),before,'source packs remain immutable');
  assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
  writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.']},null,2)+'\n');
- console.log('Settings: five main and sixteen subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.');
+ console.log('Settings: five main and nineteen subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.');
 }finally{assets.dispose();font.dispose();}

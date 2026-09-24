@@ -118,10 +118,12 @@ at its end. Read-only restriction lists use source buttons in four-row pages.
 Details reuse source information panels with existing preferences or explicitly
 absent data. Profile also mounts the source user-name/birthday/region summary.
 Sound uses the source three-option layout with its saved choice marked. Birthday,
-date and time use source numeric boxes and cloned source text panes for read-only
-values; editing arrows and source sample digits are hidden. Missing values show
-dashes, not a fabricated date. A reflowed source information panel preserves
-caption contrast. The exact eight-choice European language layout remains
+date and time now use the original layouts, digit textures, visible inert arrows
+and Cancel/OK footers. The source EU English runtime offsets place date as
+DD/MM/YYYY and birthday as DD/MM. Missing values leave digit panes blank;
+no cloned text or added backdrop remains. See
+[native field validation](settings-native-fields-validation.md).
+The exact eight-choice European language layout remains
 unverified, so Language shows only its existing read-only value.
 
 The source upper panel has three signed-size picture quadrants. The Settings

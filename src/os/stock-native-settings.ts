@@ -11,7 +11,7 @@ export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
   {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00']},
   {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00'],animations:['LsMenu_D_00_SceneIn_00','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
-  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
+  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
 ];
 /** These archive-level shares have neither endpoint in the requested Settings buttons.
@@ -71,24 +71,45 @@ export function settingsSceneVariant(view:AppView):1|2|3|4|5{
   return 1;
 }
 
-const preparedFields=new WeakSet<NativeLayoutRenderer>();
-/** Read-only fields reuse source text/materials and source numeric boxes. The
- * source digit samples and editing arrows are hidden, never treated as data. */
-function prepareReadOnlyFields(renderer:NativeLayoutRenderer){
-  if(preparedFields.has(renderer))return;
-  const pack=renderer.packs.layout,layouts={...pack.layouts};
-  for(const name of ['Birthday_D_00','DateTime_D_00','DateTime_D_01']){
-    const layout=structuredClone(pack.layouts[name]);
-    const parent=nativePaneParentPath(layout,'Null_00')!.at(-1)!;
-    const fields=name==='DateTime_D_00'?['TextBox_00','TextBox_01','TextBox_02']:['TextBox_01','TextBox_02'];
-    for(const field of fields){
-      const template=nativePaneParentPath(layout,field)!.at(-1)!;
-      const pane=structuredClone(template);pane.name=field+'_Value';pane.children=[];pane.origin=4;pane.translation=[template.translation[0],12,0];pane.size=[field==='TextBox_00'?112:62,42];pane.text!.size=[27,32.4];pane.text!.alignment=4;pane.text!.messageStyle=undefined;
-      parent.children.push(pane);
+/** Executable 0x20f8bc selects EU_English (locale 5): DD/MM/YYYY and
+ * DD/MM. Source pane groups move as units; digit textures replace sampler 0. */
+function settingsFieldOverrides(layout:NativeLayout,field:string,raw:unknown,message:(label:string)=>PaneOverrides[string]):PaneOverrides{
+  const overrides:PaneOverrides={Null_00:{translation:[0,0,0],alpha:255},TextBoxTitle_00:message(field+'_comm')};
+  const shift=(names:string[],dx:number)=>names.forEach(name=>{
+    const pane=nativePaneParentPath(layout,name)?.at(-1);if(!pane)throw new Error('Missing Settings field pane '+name);
+    overrides[name]={...overrides[name],translation:[pane.translation[0]+dx,pane.translation[1],pane.translation[2]]};
+  });
+  const group=(pictures:number[],names:string[])=>[...pictures.map(i=>'Picture_'+String(i).padStart(2,'0')),...names];
+  if(field==='date'){
+    shift(group([0,1,2,3],['N_R_UpLarge_00','N_R_DownLarge_00','TextBox_00']),168);
+    shift(group([5,6],['N_R_UpSmall_00','N_R_DownSmall_00','TextBox_01']),-54);
+    shift(group([8,9],['N_R_UpSmall_01','N_R_DownSmall_01','TextBox_02']),-222);
+    shift(['Picture_04','Picture_07'],-54);
+    for(const [name,label]of [['TextBox_00','year'],['TextBox_01','month'],['TextBox_02','day']])overrides[name]={...overrides[name],...message(label)};
+  }else{
+    overrides.TextBox_01=message(field==='time'?'hour':'month');overrides.TextBox_02=message(field==='time'?'minute':'day');
+    if(field==='birthday'){
+      shift(group([0,1],['N_R_UpSmall_00','N_R_DownSmall_00','TextBox_01']),86);
+      shift(group([3,4],['N_R_UpSmall_01','N_R_DownSmall_01','TextBox_02']),-86);
+      overrides.Picture_05={visible:false}; // source EU branch omits the final dot
     }
-    layouts[name+'_ReadOnly']=layout;
   }
-  renderer.packs.layout={...pack,layouts};preparedFields.add(renderer);
+  if(field!=='time'){
+    const sign=nativePaneParentPath(layout,'Sign_01')?.at(-1);
+    const material=sign?.picture&&layout.materials[sign.picture.material];
+    if(!material?.textureMaps[0])throw new Error('Missing Settings source slash');
+    const texture=layout.textures[material.textureMaps[0].texture];
+    for(const name of field==='date'?['Picture_04','Picture_07']:['Picture_02'])overrides[name]={...overrides[name],textureBindings:{0:texture}};
+  }
+  const text=typeof raw==='string'?raw:'';
+  const parts=(field==='date'?/^(\d{4})-(\d{2})-(\d{2})$/:field==='time'?/^(\d{2}):(\d{2})$/:/^(?:\d{4}-)?(\d{2})-(\d{2})$/).exec(text);
+  const digits=parts?parts.slice(1).join(''):'';
+  const indices=field==='date'?[0,1,2,3,5,6,8,9]:[0,1,3,4];
+  indices.forEach((index,i)=>{
+    const name='Picture_'+String(index).padStart(2,'0');
+    overrides[name]={...overrides[name],...(digits?{textureBindings:{0:'Number'+digits[i]+'.bclim'}}:{visible:false})};
+  });
+  return overrides;
 }
 type Child=readonly [mount:string,layout:string,id:string,label?:string];
 const otherButtons:Record<string,[string,string]>={profile:['I_User','user_info'],clock:['I_Date','date_time'],touch:['I_Touch','touch'],sound:['I_Sound','sound'],mic:['I_Mic','mic_test'],'calibration-3d':['I_3DTest','3d_check'],'outer-cameras':['I_Ocam','ocam'],'circle-pad':['I_AnalogPad','analog_pad'],transfer:['I_Trans','trans'],language:['I_Lang','language'],update:['I_Update','update'],format:['I_Format','initialize']};
@@ -133,8 +154,9 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   // and reflected scales preserve each origin; the source pack is immutable.
   if(!profileInfo&&screen!=='connections')draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'&&!detailSource?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
   if(profileInfo){
+    const profileValue=(key:string)=>screen==='detail'&&field==='birthday'?(typeof preferences[key]==='string'?String(preferences[key]):''):value(key);
     draw(top,'up','UserInfo_U_00',{bindings:[{name:'UserInfo_U_00_TextFadeIn',frame:20}],overrides:{
-      IconTop_00:{visible:false},TextBox_01:message('user_name_u'),TextBox_02:{text:value('nickname')},TextBox_03:message('region_u'),TextBox_04:{visible:false},TextBox_05:{visible:false},TextBox_06:{text:value('region')},TextBox_07:message('birthday_u'),TextBox_08:{text:value('birthday')},TextBox_00:message(instruction),
+      IconTop_00:{visible:false},TextBox_01:message('user_name_u'),TextBox_02:{text:profileValue('nickname')},TextBox_03:message('region_u'),TextBox_04:{visible:false},TextBox_05:{visible:false},TextBox_06:{text:profileValue('region')},TextBox_07:message('birthday_u'),TextBox_08:{text:profileValue('birthday')},TextBox_00:message(instruction),
     }});
   }
   if(screen==='connections'){
@@ -191,19 +213,16 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   }else if(screen==='detail'&&field==='sound'){
     draw(bottom,'layout','Sound_D_00',{overrides:{Null_00:{translation:[0,0,0],alpha:255}},attachments:Object.fromEntries(['surround','stereo','mono'].map((label,i)=>['N_T_OnOff_0'+i,()=>draw(bottom,'button','T_OnOff',{bindings:[{name:value('sound').toLowerCase()===label?'T_OnOff_Decide':'T_OnOff_UnDecide',frame:value('sound').toLowerCase()===label?11:1}],overrides:{TextBox_00:message(label)}})]))});
   }else if(screen==='detail'&&['birthday','date','time'].includes(field)){
-    // Reflow the source panel behind read-only fields so captions retain the
-    // source dark text's contrast. This does not expose the editing arrows.
-    draw(bottom,'up','TextBG_U_00',{center:[160,120],bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{TextBox_00:{visible:false},UpWndwLT_00:{size:[154,104],translation:[0,68,0]},UpWndwLT_01:{size:[154,104],translation:[154,68,0],scale:[-1,1]},UpWndwLT_02:{size:[154,104],translation:[0,-36,0],scale:[1,-1]},UpWndwLT_03:{size:[154,104],translation:[154,-36,0],scale:[-1,-1]}}});
-    prepareReadOnlyFields(renderer);
     const layout=field==='birthday'?'Birthday_D_00':field==='date'?'DateTime_D_00':'DateTime_D_01';
-    const raw=value(field),parts=field==='time'?/^(\d{2}):(\d{2})$/.exec(raw):field==='date'?/^(\d{4})-(\d{2})-(\d{2})$/.exec(raw):/^(?:\d{4}-)?(\d{2})-(\d{2})$/.exec(raw);
-    const values=parts?parts.slice(1):field==='date'?['—','—','—']:['—','—'];
-    const labels=field==='time'?['Hour','Minute']:field==='date'?['Year','Month','Day']:['Month','Day'];
-    const fields=field==='date'?['TextBox_00','TextBox_01','TextBox_02']:['TextBox_01','TextBox_02'];
-    const overrides:PaneOverrides={Null_00:{translation:[0,0,0],alpha:255},TextBoxTitle_00:message(field+'_comm')};
-    fields.forEach((name,i)=>{overrides[name]={text:labels[i]};overrides[name+'_Value']={text:values[i]};});
-    const hideSamples=(panes:NativeLayout['roots'])=>panes.forEach(pane=>{if(/^(Picture_|Number_|Sign_|N_R_)/.test(pane.name))overrides[pane.name]={visible:false};hideSamples(pane.children);});hideSamples(renderer.packs.layout.layouts[layout].roots);
-    draw(bottom,'layout',layout+'_ReadOnly',{overrides});
+    const source=renderer.packs.layout.layouts[layout];
+    const attachments:Record<string,()=>void>={};
+    for(const pane of source.roots.flatMap(root=>root.children).flatMap(root=>root.children)){
+      const match=/^N_(R_(?:Up|Down)(?:Large|Small))_\d+$/.exec(pane.name);
+      if(match)attachments[pane.name]=()=>draw(bottom,'button',match[1]);
+    }
+    draw(bottom,'layout',layout,{overrides:settingsFieldOverrides(source,field,preferences[field],message),attachments});
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_cancel'),TextBoxShdw_00:message('base_2b_cancel'),TextBox_01:message('base_2b_decide'),TextBoxShdw_01:message('base_2b_decide')}});
+    return okay;
   }else{
     draw(bottom,'up','TextBG_U_00',{center:[160,104.4],scale:.8,bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}}});
   }

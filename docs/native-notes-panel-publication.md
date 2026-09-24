@@ -1,5 +1,10 @@
 # Game Notes pane application and matrix publication
 
+Follow-up: [material sampling and list gates](native-notes-material-publication.md)
+resolves material +0x20/+0x14, identifies render-leaf +0x68 targets, verifies
+retained properties and traces the three-controller list-return gate. Its
+expanded verifier now runs 96 checks; the counts below describe this earlier pass.
+
 This trace resolves the concrete layout methods behind the two previously
 unidentified virtual calls. It establishes an **update-time pane-property
 application contract**, not a complete raster oracle. The scheduler and metadata

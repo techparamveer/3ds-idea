@@ -72,6 +72,39 @@ word(0x13c88c, 0xe3560000, 'accepted note index must be nonnegative')
 word(0x13c894, 0xe3560010, 'accepted note index below 16')
 word(0x13c8a4, 0xe5c5806a, 'accepted open disables list input flag +6a')
 word(0x13c96c, 0xe3a00003, 'accepted open chooses list state 3')
+call(0x17bde4, 0x1455a4, 'picture constructor constructs original material')
+word(0x145c38, 0x1b784c, 'material constructor vtable literal')
+word(0x1b7860, 0x17c8bc, 'material +14 enabled-link apply traversal')
+word(0x1b786c, 0x17c860, 'material +20 enable/disable method')
+word(0x1b7864, 0x17c858, 'material +18 lookup used by enable method')
+word(0x17c87c, 0x15c0100e, 'material enable only writes link disable flag')
+word(0x17c8d0, 0xe5d4000e, 'material apply tests link disable flag')
+word(0x17c8e8, 0xe592300c, 'material apply dispatches animation +c')
+word(0x1b74d8, 0x179764, 'animation +c material sampler')
+word(0x17980c, 0xed908a04, 'material sampler reads stored animation frame')
+call(0x179838, 0x1463c4, 'material sampler evaluates source key values')
+for name, vt, target in [('pan1',0x1b753c,0x1981e4), ('wnd1',0x1b7634,0x1983c0), ('pic1',0x1b76bc,0x199234), ('txt1',0x1b773c,0x1996b8), ('bnd1',0x1b77c4,0x1981e4)]:
+    word(vt+0x68, target, name+' concrete render leaf')
+word(0x1981e4, 0xe1a00001, 'plain/bounds render leaf returns incoming command pointer')
+word(0x199240, 0xe590213c, 'picture render reads current material pointer')
+call(0x199248, 0x140458, 'picture render emits current material state')
+word(0x199744, 0xe5943100, 'text render reads current material pointer')
+call(0x199754, 0x17a970, 'text render dispatches current text geometry')
+word(0x13bccc, 0xe3a01000, 'nonzero entry initializes list selection')
+word(0x13d9c4, 0xe5900150, 'list entry state checks note-context status +150')
+word(0x13d9cc, 0x05c5606a, 'status zero enables list input')
+word(0x13d9d0, 0x01c791b0, 'status zero chooses list state zero')
+word(0x13db24, 0xe2801103, 'return marker compare first constant operation')
+word(0x13db28, 0xe251160a, 'return marker compare second operation; bits40a00000 means frame5')
+call(0x13db44, 0x1523f8, 'return frame5 starts list controller +f80 slot1')
+call(0x13db50, 0x150bb4, 'return gate waits list +f80 slot1')
+call(0x13db70, 0x150bb4, 'return gate waits selected note slot3')
+call(0x13db88, 0x150bb4, 'return gate waits list +fa0 slot11')
+word(0x13dbcc, 0xe5c5606a, 'all return gates passed: re-enable list input')
+word(0x13dbd0, 0xe1c791b0, 'all return gates passed: list state zero')
+call(0x1654a8, 0x150bb4, 'write scene return separately waits lower slot2')
+call(0x1654c4, 0x151c78, 'write scene queues draw disable after lower return')
+call(0x1654dc, 0x151ca4, 'write scene queues update disable after lower return')
 
 pack = json.loads((a.asset_root / 'packs/game-notes/memo-ImageScreenUp-arc-l.json').read_text())
 layout = pack['layouts']['ImageScreenUp']
@@ -99,6 +132,11 @@ ranges = [
  ('late-hud-start',0x167368,0x1673bc),('scene-draw',0x14e030,0x14e144),
  ('render-traversal',0x198144,0x1981c8),('list-input-gate',0x13d8f4,0x13d9ac),
  ('list-accepted-open',0x13c888,0x13c980),
+ ('material-constructor',0x1455a4,0x1455ec),('material-link-enable',0x17c858,0x17c884),
+ ('material-apply',0x17c8bc,0x17c908),('material-sampling',0x179764,0x179ab4),
+ ('picture-render-leaf',0x199234,0x19944c),('text-render-leaf',0x1996b8,0x19975c),
+ ('window-render-prefix',0x1983c0,0x198590),('list-initial-ready-gate',0x13d9b4,0x13daa0),
+ ('list-return-gate',0x13db0c,0x13dbd8),('write-return-disable',0x1654a0,0x1654ec),
 ]
 a.artifact_dir.mkdir(parents=True, exist_ok=True)
 listing = a.listing.read_text().splitlines(True)
@@ -110,6 +148,7 @@ for name, start, end in ranges:
     records.append(dict(name=name, start=hex(start), endExclusive=hex(end), sha256=hashlib.sha256(b[start-0x100000:end-0x100000]).hexdigest()))
 report = dict(passed=True, method='Static original-byte/resource verification; no firmware execution or raster claim', checks=checks, ranges=records,
               contract=dict(animationApplication='scene3 update tail', lateEvent9='controller reset/enable only; no immediate property sampling',
-                            matrixPublication='draw-time root virtual +5c', remaining='render-leaf +68 audit and composed scene gates/initial property state'))
+                            materialApplication='enabled-link traversal in update; enable only changes link flag',
+                            matrixPublication='draw-time root virtual +5c', remaining='complete render-helper graph and composed scene gates/initial property state'))
 (a.artifact_dir / 'source-validation.json').write_text(json.dumps(report,indent=2)+'\n')
 print(f'PASS: {len(checks)} publication/source checks and {len(records)} hashed source ranges')

@@ -1,5 +1,10 @@
 # Sound Welcome sequence: source identity and native verification gate
 
+Follow-up: the [descriptor/controller audit](sound-welcome-owner-audit.md)
+now resolves the original three-page order, source button modes and shared
+counter/illustration ownership. Startup eligibility, final presentation and
+persistence remain gated. The native attempt below remains unchanged evidence.
+
 ## Evidence established
 
 The coordinator observed “Welcome! 1/3” before the settled native Sound capture.

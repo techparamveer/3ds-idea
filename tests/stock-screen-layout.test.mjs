@@ -26,6 +26,14 @@ test('gallery paging uses six visible cells and leaves gaps without accidental a
  assert.equal(hit(v,52,74),null);assert.equal(hit(v,53,50),'photo:6');assert.equal(hit(v,115,74),null);
  for(const appId of ['camera','camera-applet'])assert.deepEqual(targets({...v,appId,screen:'main'}),targets(v));
 });
+test('opened Camera photo has no invisible previous/next touch controls',()=>{
+ for(const id of ['camera','camera-applet']){
+  const v=view(id,'photo',[]);
+  assert.deepEqual(targets(v).map(r=>r.action),['back']);
+  for(const [x,y] of [[10,85],[32,115],[54,144],[160,115],[265,85],[287,115],[309,144]])assert.equal(hit(v,x,y),null);
+  assert.equal(hit(v,75,227),'back');
+ }
+});
 test('Health touch regions follow the three native precaution buttons and their gaps',()=>{
  const v=view('health-safety','main',['3d','general','usage']);
  assert.equal(hit(v,160,45),'3d');assert.equal(hit(v,160,109),'general');assert.equal(hit(v,160,173),'usage');

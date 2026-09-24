@@ -98,7 +98,8 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     // -PhoMntPos (0,+13); BB-Thmb is 62×48. See camera-grid-source-audit.md.
     rows.slice(start,start+6).forEach((row,i)=>result.push(target(row.id,53+(i%3)*76,50+Math.floor(i/3)*66,62,48,start+i)));
   }else if((appId==='camera'||appId==='camera-applet')&&screen==='photo'){
-    result.push(target('previous',10,85,45,60),target('next',265,85,45,60));
+    // P_BrwsPhoMntBase paints the photo mount with no arrow controls. Keep
+    // physical left/right navigation; don't retain invisible arrow hit boxes.
   }else if(appId==='sound'){
     // Source S_dlg dialog: C_Dlg1BtnB BB-Dlg1BtnB (128×40 at y −84) is the only control while "Could not play." is shown.
     if(view.data?.mediaError===true)return [target('error-ok',96,184,128,40)];

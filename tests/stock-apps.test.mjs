@@ -38,6 +38,19 @@ test('native-layout touch targets open Settings and gallery entries directly',()
  ({module,state}=setup('camera'));state=module.reduce(state,{type:'touch',phase:'up',x:84,y:74},ctx).state;assert.equal(state.folderId,'test');
  state=module.reduce(state,{type:'touch',phase:'up',x:84,y:74},ctx).state;assert.equal(state.photoId,'a');
 });
+test('touching the opened photo cannot activate removed arrows; physical navigation and Back remain',()=>{
+ for(const id of ['camera','camera-applet']){
+  let {module,state}=setup(id);
+  state=action(module,state,'folder:test').state;state=action(module,state,'photo:a').state;
+  for(const [x,y] of [[32,115],[287,115]])for(const phase of ['down','move','up']){
+   const out=module.reduce(state,{type:'touch',phase,x,y},ctx);
+   assert.equal(out.state,state);assert.equal(out.effects,undefined);
+  }
+  state=module.reduce(state,{type:'command',command:'right'},ctx).state;assert.equal(state.photoId,'b');
+  state=module.reduce(state,{type:'command',command:'left'},ctx).state;assert.equal(state.photoId,'a');
+  state=module.reduce(state,{type:'touch',phase:'up',x:75,y:227},ctx).state;assert.equal(state.screen,'gallery');
+ }
+});
 test('all stock screen actions remain navigation only, without text/media/save side effects',()=>{
  const forbidden=new Set(['capability','shared','save','invoke','link']);
  const shared={...initialSharedData(),settings:{nickname:'Ada'},notes:[{slot:0,strokes:[{points:[[1,2]]}]}],notifications:[{id:'n',title:'Old notice',message:'Saved text'}]};

@@ -107,6 +107,9 @@ test('gallery photos draw under ThmbMask and use the large PicL clip',()=>{
 });
 
 test('photo view uses the source mount rectangle and drops invented arrows',()=>{
+  const panes=[];const collect=items=>{for(const pane of items){panes.push(pane);collect(pane.children??[]);}};
+  collect(pack.layouts.P_BrwsPhoMntBase.roots);
+  assert.ok(panes.length>0);assert.ok(panes.every(pane=>pane.kind==='pan1'||pane.kind==='pic1'),'source mount has no button/bounding panes');
   const {okay,draws,images,log}=paint(view('photo',[],{photo:{id:'a',title:'Building 2',src:'/portfolio/building2.jpg'}}));
   assert.equal(okay,true);
   assert.deepEqual(images,[['/portfolio/building2.jpg',32,43,256,128]]);

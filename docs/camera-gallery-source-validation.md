@@ -103,9 +103,14 @@ unposed layouts keep the small 5×7 textures (`P_Thmb_DatePho5x7.bclim`,
 - Large-grid centres and touch bounds now follow the executable and data-only
   layouts; see [grid source audit](camera-grid-source-audit.md). Native paging
   motion and M/S modes are not reconstructed.
-- Photo-view left/right **hit rectangles** remain in the shared layout
-  adapter even though the invented arrows are gone. D-pad/button previous and
-  next still work.
+- Photo-view invisible arrow hit rectangles are now removed from the shared
+  layout adapter. `P_BrwsPhoMntBase` has only one root and nine picture panes,
+  with no bounding/button panes. The earlier arrows were removed visually but
+  left active targets at `[10,85,45,60]` and `[265,85,45,60]`, so touching an
+  unlabelled image edge unexpectedly changed the photo. Both Camera titles now
+  ignore those touches. Visible Back and physical left/right still work. This
+  aligns this read-only portfolio view's input with its displayed controls; it
+  does not claim that all native Camera touch semantics have been reconstructed.
 - Presentation still paints the generic Back/Open footer over the native
   lower screen. [The footer source audit](camera-footer-source-audit.md) confirms
   native browse instead has Shoot/Settings and Slideshow. `P_Tape` is a
@@ -133,3 +138,20 @@ unposed layouts keep the small 5×7 textures (`P_Thmb_DatePho5x7.bclim`,
   SSD `presentation/camera-upper-source/`. Isolated `P_BrwsFld` probes in the
   earlier `presentation/camera-gallery-source/` folder remain lower-cell
   evidence. These are composition checks, not matched native LCDs.
+
+
+## Invisible photo targets regression check
+
+The bounded input repair is tested for `camera` and `camera-applet`: touches
+at(32,115) and(287,115) in the former invisible arrows leave the opened photo
+and effects unchanged through down/move/up; left/right commands still select
+adjacent photos; the visible Back target at(75,227) returns to the gallery.
+The real published mount layout is checked for its picture-only pane tree.
+All78 focused Camera painter/lifecycle, shared target and stock reducer tests
+pass. Type checking and the normal production build also pass. No pixel output changes and no new native timing claim are made.
+
+Browser verification remains with the coordinator: open Camera→a folder→a
+photo; tap both image edges, use the console left/right controls, then tap Back.
+Repeat through the Camera applet entry. The isolated sparse checkout does not
+contain the full asset/model corpus for the full suite; combined suite and
+browser verification are integration handoff checks, not claimed worker results.

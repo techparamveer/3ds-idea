@@ -58,13 +58,13 @@ The next bounded pass needs to establish these facts before live wiring:
    bone/world/view matrix order and its result at several camera and clip frames.
    Implement that mode in `cgfx-billboard.ts` with numeric source fixtures. Keep
    the current mode-5 folder behavior independent.
-2. Trace the ordinary available application path for Settings' title key. The
-   source target mapping in [native banner targets](native-banner-targets.md)
-   yields **type 1**, with the five-count normal gate; it does not establish the
-   title's worker completion, state-3 activation branch, model attachment,
-   visibility update or `COMMON` clip start/loop. Record those observations
-   before extending `home-banner-lifecycle.ts` and `home-banner-host.ts`; today
-   app selections are intentionally unsupported and app motion is `null`.
+2. Apply the [type-1 source lifecycle](native-settings-type1-lifecycle.md):
+   Settings traverses state 3, a title-resource worker, state 4, a presentation
+   worker, and state 5 before visibility is requested. The static trace also
+   identifies the `COMMON` controller lookup and its source loop flag. Execute
+   native worker/controller fixtures and resolve retarget/failure paths before
+   extending `home-banner-lifecycle.ts` and `home-banner-host.ts`; today app
+   selections are intentionally unsupported and app motion is `null`.
 3. Register only converted model JSON and five PNGs under a title-specific model
    key in the public firmware manifest, with the CBMD/title/content hashes and
    relative `exefs/banner.bin` source path. Never publish CBMD, BCWAV, code,

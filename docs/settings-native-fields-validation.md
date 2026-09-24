@@ -79,3 +79,16 @@ Artifacts and bounded code disassembly/scene hashes are in the SSD directory
 the provenance record). Earlier before images remain in
 `presentation/settings-ds-profile/`. These checks do not establish complete
 native application behavior or 1:1 matched LCD fidelity.
+
+## Integrated browser check
+
+On2026-09-24 the coordinator rebuilt and restarted localhost:3000, then used
+the existing IAB tab3 to navigate Other Settings → Date & Time → Today's
+Date/Current Time, and Profile → Date of Birth. All three original layouts
+were visually inspected inside the console. Touching date OK left the
+read-only page unchanged; touching Cancel returned to the Date & Time menu.
+The18 shared target tests passed, including inert arrow/OK and active Cancel
+checks; type checking and production build passed. Logs are in
+reference/native-fields-{input-tests,typecheck,build}.log under the SSD
+firmware root. Missing settings values remain visibly blank as documented;
+the browser check does not prove matching hardware timing or native edit flow.

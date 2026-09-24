@@ -107,8 +107,9 @@ These differences from native are intentional, within the read-only scope:
 
 - OK is drawn but inert. Natively it applies the choice, through
   `dlg_language_set`, which is not implemented.
-- Rows and the slide bar are drawn but not touchable, and the list does not
-  scroll or change selection.
+- Rows and OK remain inert. The slide-bar arrows now scroll the read-only
+  viewport; see the follow-up below. Dragging and language selection remain
+  unsupported.
 - Back keeps its existing target (0, 208, 120, 32) and returns to Other
   Settings page 4 with Language selected.
 
@@ -195,3 +196,60 @@ See also the [Settings main and subpage trace](settings-main-source-validation.m
 [native Settings subpages](native-settings-subpages.md) and the
 [Data Management list audit](settings-data-lists-source-audit.md), whose audit
 helpers this script reuses.
+
+## Follow-up: read-only arrow scrolling
+
+The original page made the two visible arrow buttons inert. The follow-up in
+`codex/settings-language-scroll` connects those buttons to the existing Settings
+navigation reducer, preserving the fixed English configuration and read-only
+rows/OK. It changes no public resource or source pack.
+
+Source traces in the same Settings `code.bin` establish:
+
+- `0x19f044` dispatches arrow 0 only when top is nonzero and arrow 1 only
+  when top differs from `rowCount − visibleCount`. It starts the corresponding
+  scroll controller. The range here is 0–4.
+- `0x1983d4` and `0x198434` wait for the corresponding controller to reach
+  state 2, then decrement/increment top by one. These are settled outcomes;
+  the browser adapter currently applies them on a completed touch.
+- `0x1a022c` refreshes the eight reusable slots with `top + slot − 2` and
+  the configured decided item. English stays decided even while its slot moves
+  outside the four visible rows. The implementation never marks a recycled slot
+  as a different configured language.
+- `0x198484` sends `(top × 44 + animatedOffset) / 176` to `0x1a07b8`.
+  At a settled offset of zero, its 40-pixel thumb travel gives local
+  `N_Slide.y = 20 − 10 × top`; the sibling `B_Slide_00` receives the same
+  position. Untouched entry still uses the original centred layout pose.
+- The source `R_SlideBar` bounds `B_Up_00`/`B_Dw_00` are 24 × 24 at local
+  y ±84. Their settled Country mounts give logical touchscreen rectangles
+  `(292, 5, 24, 24)` and `(292, 173, 24, 24)`.
+
+The state field `languageTop` is transient. Back returns to Other Settings
+page 4 with Language selected, and reopening resets the list. Boundary arrows
+are no-ops. No stock save, shared preference, device operation or language
+confirmation is emitted.
+
+This is a bounded settled-pose adaptation, not a completed native list control.
+Native `_ScrollDw`/`_ScrollUp` motion, pressed-arrow clips, dragging, hold/repeat,
+D-pad row focus, selection and confirmation remain unsupported. No native LCD
+comparison was performed. The original entry thumb and hidden-slot questions
+above are still open.
+
+Verification in the isolated worktree:
+
+- **62 focused tests pass**, including complete touch traversal in both
+  directions, both bounds, no touch-down/move/cancel action, stale actions,
+  inert rows/OK, Back/reopen and shared-data/save immutability.
+- **TypeScript checking passes.**
+- **Source renders pass:** five main and twenty-nine subpage pairs (68 PNGs),
+  zero renderer diagnostics. The added five scrolled poses preserve the upper
+  LCD pixel hash and have distinct lower LCD hashes. Label binding, thumb
+  placement, decided mark and immutable source packs are asserted.
+- Rendered `language-scroll-1-bottom.png` and `language-scroll-4-bottom.png`
+  were visually inspected. The latter exposes Italiano, Nederlands, Português
+  and Русский together. Browser inspection remains the coordinator's task.
+
+Artifacts: `reference/language-scroll/` under the firmware SSD artifact root.
+It contains `source-ranges.json` (full code and traced-range SHA-256 hashes),
+`list-arrow-dispatch.asm`, `list-arrow-update.asm`, `tests.log`,
+`typecheck.log`, `render.log` and `render/verification.json` plus paired PNGs.

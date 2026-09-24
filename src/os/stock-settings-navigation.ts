@@ -48,6 +48,13 @@ export function settingsBack(state:AppState):AppState{
 }
 export function settingsNavigate(state:AppState,action:string):AppState{
   const screen=screenOf(state);
+  if(screen==='detail'&&state.field==='language'&&(action==='language-up'||action==='language-down')){
+    // Source list 0x19f044 / 0x1983d4: arrows move one row within 8−4.
+    // This is viewport navigation only; configured language stays immutable.
+    const top=typeof state.languageTop==='number'&&Number.isFinite(state.languageTop)?Math.max(0,Math.min(4,Math.floor(state.languageTop))):0;
+    const next=Math.max(0,Math.min(4,top+(action==='language-down'?1:-1)));
+    return next===top?state:{...state,languageTop:next};
+  }
   if(screen==='other'&&(action==='settings-next'||action==='settings-previous')){
     const page=Math.max(0,Math.min(settingsOtherPages.length-1,settingsPage(state)+(action==='settings-next'?1:-1)));
     return page===settingsPage(state)?state:menuState('other',page);

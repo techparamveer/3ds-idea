@@ -66,6 +66,10 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
       if(page>0)result.push(target('settings-previous',0,65,30,100));
       if(page<3)result.push(target('settings-next',290,65,30,100));
     }
+    if(screen==='detail'&&view.data?.field==='language'){
+      // R_SlideBar B_Up_00/B_Dw_00: 24×24 at (304,101) ±84.
+      result.push(target('language-up',292,5,24,24),target('language-down',292,173,24,24));
+    }
     if(view.footer.left)result.push(target(view.footer.left.action,0,208,screen==='detail'&&view.data?.field==='ds-profile'?320:120,32));
     return result;
   }else if(appId==='eshop'){

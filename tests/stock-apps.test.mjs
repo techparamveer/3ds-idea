@@ -266,6 +266,25 @@ test('Language is a read-only leaf that passes the configured English value and 
  const back=action(module,leaf,'back').state;assert.equal(back.screen,'other');assert.equal(back.page,3);
  assert.equal(module.view(back,ctx).rows[back.selection].id,'language');assert.deepEqual(ctx.shared,before);
 });
+test('Language arrow touches reveal all eight rows without changing locale and clamp at both ends',()=>{
+ const {module}=setup('system-settings'),before=structuredClone(ctx.shared);
+ let state={screen:'detail',field:'language',parent:'other',page:3,selection:0};
+ assert.equal(action(module,state,'language-up').state,state);
+ for(let top=1;top<=4;top++){
+  const out=module.reduce(state,{type:'touch',phase:'up',x:304,y:185},ctx);
+  assert.equal(out.state.languageTop,top);assert.equal(out.effects,undefined);state=out.state;
+  assert.equal(module.view(state,ctx).data.settings.language,'English');
+ }
+ assert.equal(action(module,state,'language-down').state,state);
+ for(const phase of ['down','move','cancel'])assert.equal(module.reduce(state,{type:'touch',phase,x:304,y:17},ctx).state,state);
+ for(let top=3;top>=0;top--){state=module.reduce(state,{type:'touch',phase:'up',x:304,y:17},ctx).state;assert.equal(state.languageTop,top);}
+ assert.equal(action(module,state,'language-up').state,state);
+ for(const id of ['eu_german','language-select','ok'])assert.equal(action(module,state,id).state,state);
+ const parent=action(module,state,'back').state;assert.equal(parent.screen,'other');assert.equal(parent.page,3);
+ assert.equal(action(module,parent,'language-down').state,parent);
+ const reopened=action(module,parent,'language').state;assert.equal(reopened.languageTop,undefined);
+ assert.deepEqual(module.save(state),{});assert.deepEqual(ctx.shared,before);
+});
 test('Settings leaves expose only supplied values and every reachable detail has readable content',()=>{
  const {module}=setup('system-settings'),context={now:0,shared:{...initialSharedData(),settings:{nickname:'Ada',birthday:'14 March',region:'United Kingdom',language:'English',sound:'Mono'}}},before=structuredClone(context.shared);
  const run=(state,id)=>module.reduce(state,{type:'action',id},context);

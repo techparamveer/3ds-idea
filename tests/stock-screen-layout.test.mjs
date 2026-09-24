@@ -142,10 +142,12 @@ test('DS Profile uses its full-width legacy Back footer while its read-only rows
  assert.equal(hit(v,160,88),null);assert.equal(hit(v,160,148),null);assert.equal(hit(v,160,207),null);
 });
 
-test('Language keeps the Base_D_01 Back target while OK, list rows and slide bar stay inert',()=>{
+test('Language uses source arrow bounds while rows, groove and OK remain read-only',()=>{
  const v={...view('system-settings','detail',[]),data:{field:'language',parent:'other'}};
- assert.deepEqual(targets(v),[{action:'back',x:0,y:208,width:120,height:32}]);
- for(const [x,y] of [[260,224],[144,35],[144,123],[304,20],[304,101],[304,182]])assert.equal(hit(v,x,y),null);
+ assert.deepEqual(targets(v),[{action:'language-up',x:292,y:5,width:24,height:24},{action:'language-down',x:292,y:173,width:24,height:24},{action:'back',x:0,y:208,width:120,height:32}]);
+ assert.equal(hit(v,304,17),'language-up');assert.equal(hit(v,304,185),'language-down');
+ for(const [x,y] of [[260,224],[144,35],[144,123],[304,101],[291,185],[316,185],[304,172],[304,197]])assert.equal(hit(v,x,y),null);
+ const other={...v,data:{field:'sound'}};assert.equal(hit(other,304,185),null);
 });
 
 test('read-only native date time and birthday keep Cancel active and editing controls inert',()=>{

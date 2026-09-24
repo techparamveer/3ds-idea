@@ -182,6 +182,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'error' && action === 'ok') return { state, effects: [{ type: 'complete' }] };
     if (id === 'system-settings' && screen === 'other' && (action === 'settings-next' || action === 'settings-previous')) return { state: settingsNavigate(state, action) };
+    if (id === 'system-settings' && screen === 'detail' && state.field === 'language' && (action === 'language-up' || action === 'language-down')) return { state: settingsNavigate(state, action) };
     // Source B_BtnSwitch cycles the suspended-LCD display Double→Up→Down→Double for the current applet session only.
     // Adaptation: native sets the button Invalid without a suspended title; the pure reducer cannot see the slot, so the
     // hidden mode still cycles there while the painter shows the source Invalid pose and no capture.

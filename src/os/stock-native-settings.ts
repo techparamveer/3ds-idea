@@ -243,14 +243,20 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   }else if(screen==='detail'&&field==='sound'){
     draw(bottom,'layout','Sound_D_00',{overrides:{Null_00:{translation:[0,0,0],alpha:255}},attachments:Object.fromEntries(['surround','stereo','mono'].map((label,i)=>['N_T_OnOff_0'+i,()=>draw(bottom,'button','T_OnOff',{bindings:[{name:value('sound').toLowerCase()===label?'T_OnOff_Decide':'T_OnOff_UnDecide',frame:value('sound').toLowerCase()===label?11:1}],overrides:{TextBox_00:message(label)}})]))});
   }else if(screen==='detail'&&field==='language'){
-    // 0x19f204 starts at top 0 with decided row 0; refresh 0x1a022c hides slots
-    // 0-1 and fills slots 2-7 with rows 0-5. Only CFG English maps to row 0.
+    // Refresh 0x1a022c binds row top+slot−2 to each of eight reusable mounts.
+    // This read-only viewport leaves the configured English decision unchanged.
     const english=value('language')===message('eu_english').text;
+    const scrolled=typeof data.languageTop==='number'&&Number.isFinite(data.languageTop);
+    const listTop=scrolled?Math.max(0,Math.min(4,Math.floor(data.languageTop as number))):0;
     const attachments:Record<string,()=>void>={};
-    for(let slot=2;slot<8;slot++)attachments['N_T_SB_0'+slot]=()=>draw(bottom,'button','T_SB',{bindings:english&&slot===2?[{name:'T_SB_Decide_DirectSettings',frame:11}]:[],overrides:{TextBox_00:message(euLanguages[slot-2])}});
-    // 0x1f37c4 sizes the thumb to 144-24-(8-4)*4; nothing positions it before input.
-    const thumb=[22,104];
-    attachments.R_SlideBar=()=>draw(bottom,'button','R_SlideBar',{overrides:{SBBtnShdw:{size:thumb},SBBtn:{size:thumb},SBBtnFrame:{size:thumb},B_Slide_00:{size:[24,104]}}});
+    for(let slot=0;slot<8;slot++){
+      const row=listTop+slot-2;if(row<0||row>=euLanguages.length)continue;
+      attachments['N_T_SB_0'+slot]=()=>draw(bottom,'button','T_SB',{bindings:english&&row===0?[{name:'T_SB_Decide_DirectSettings',frame:11}]:[],overrides:{TextBox_00:message(euLanguages[row])}});
+    }
+    // 0x1f37c4 sizes the thumb to 144−24−(8−4)*4. After an accepted
+    // arrow, 0x1a07b8 sets y=(144−104)*(0.5−top/4); entry retains y=0.
+    const thumb=[22,104],thumbY=20-listTop*10;
+    attachments.R_SlideBar=()=>draw(bottom,'button','R_SlideBar',{overrides:{SBBtnShdw:{size:thumb},SBBtn:{size:thumb},SBBtnFrame:{size:thumb},B_Slide_00:{size:[24,104],...(scrolled?{translation:[0,thumbY,0]}:{})},...(scrolled?{N_Slide:{translation:[0,thumbY,0]}}:{})}});
     draw(bottom,'layout','Country_D_00',{bindings:[{name:'Country_D_00_SceneIn_00',frame:20}],attachments});
     draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_decide'),TextBoxShdw_01:message('base_2b_decide')}});
     return okay;

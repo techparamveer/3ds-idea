@@ -70,6 +70,7 @@ try{
  // Explicit renderer specimens, never production preference defaults.
  for(const [field,value]of [['date','2024-02-29'],['time','23:07'],['birthday','02-29']])subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field,parent:field==='birthday'?'profile':'clock',settings:{[field]:value}},verificationId:'supplied-'+field,heading:field,text:[]});
  subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field:'language',parent:'other',settings:{language:'English'}},verificationId:'supplied-language',heading:'language',text:[]});
+ for(let top=0;top<=4;top++)subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field:'language',parent:'other',languageTop:top,settings:{language:'English'}},verificationId:'language-scroll-'+top,heading:'language',text:[]});
  for(const subpage of subpages){
   const top=createCanvas(400,240),bottom=createCanvas(320,240),calls=[];
   renderer.draw=(ctx,pack,layout,options)=>{calls.push({pack,layout,options});return originalDraw(ctx,pack,layout,options);};
@@ -166,13 +167,18 @@ try{
    const lower=calls.find(c=>c.layout==='Country_D_00'),bar=calls.find(c=>c.layout==='R_SlideBar'),footer=calls.find(c=>c.layout==='Base_D_01'),rows=calls.filter(c=>c.layout==='T_SB');
    assert.ok(lower);assert.ok(bar);assert.ok(footer);
    assert.deepEqual(lower.options.bindings,[{name:'Country_D_00_SceneIn_00',frame:20}]);
-   assert.deepEqual(Object.keys(lower.options.attachments),['N_T_SB_02','N_T_SB_03','N_T_SB_04','N_T_SB_05','N_T_SB_06','N_T_SB_07','R_SlideBar'],'slots 0-1 have no row at top 0');
-   assert.deepEqual(rows.map(c=>c.options.overrides.TextBox_00.text),['English','Français','Deutsch','Español','Italiano','Nederlands']);
+   const listTop=subpage.data.languageTop??0,scrolled=subpage.data.languageTop!==undefined;
+   const languages=['English','Français','Deutsch','Español','Italiano','Nederlands','Português','Русский'];
+   const slots=Array.from({length:8},(_,slot)=>({slot,row:listTop+slot-2})).filter(({row})=>row>=0&&row<8);
+   assert.deepEqual(Object.keys(lower.options.attachments),[...slots.map(({slot})=>'N_T_SB_0'+slot),'R_SlideBar']);
+   assert.deepEqual(rows.map(c=>c.options.overrides.TextBox_00.text),slots.map(({row})=>languages[row]));
    for(const row of rows){assert.ok(row.options.overrides.TextBox_00.messageStyle);assert.equal(row.options.overrides.TextBox_00.fontSize,undefined);}
    const english=subpage.data.settings?.language==='English';
-   assert.deepEqual(rows.map(c=>c.options.bindings),[english?[{name:'T_SB_Decide_DirectSettings',frame:11}]:[],[],[],[],[],[]],'only configured English is decided');
+   assert.deepEqual(rows.map(c=>c.options.bindings),slots.map(({row})=>english&&row===0?[{name:'T_SB_Decide_DirectSettings',frame:11}]:[]),'only configured English is decided, never a recycled slot');
    for(const name of ['SBBtnShdw','SBBtn','SBBtnFrame'])assert.deepEqual(bar.options.overrides[name].size,[22,104]);
-   assert.deepEqual(bar.options.bindings??[],[],'no slide-bar clip or setPos before input');
+   assert.deepEqual(bar.options.bindings??[],[],'settled viewport does not invent a slide-bar clip');
+   assert.deepEqual(bar.options.overrides.N_Slide,scrolled?{translation:[0,20-listTop*10,0]}:undefined);
+   assert.deepEqual(bar.options.overrides.B_Slide_00,{size:[24,104],...(scrolled?{translation:[0,20-listTop*10,0]}:{})});
    assert.equal(footer.options.overrides.TextBox_00.text,'Back');assert.equal(footer.options.overrides.TextBox_01.text,'OK');
    assert.equal(calls.some(c=>c.layout==='Base_D_00'),false,'footer index 2 is Base_D_01');
    const upper=calls.filter(c=>c.layout==='TextBG_U_00');assert.equal(upper.length,1,'no adapted lower text card');
@@ -207,6 +213,8 @@ try{
  assert.equal(country('Country_D_00_SceneIn_00'),country('Country_D_00_SceneIn_01'),'both Language list entry clips settle to the same pose');
  assert.equal(reports.find(r=>r.id==='supplied-language-top').sha256,reports.find(r=>r.id==='detail-language-top').sha256,'decided row changes only the lower LCD');
  assert.notEqual(reports.find(r=>r.id==='supplied-language-bottom').sha256,reports.find(r=>r.id==='detail-language-bottom').sha256,'configured English marks its row');
+ for(let top=0;top<=4;top++)assert.equal(reports.find(r=>r.id==='language-scroll-'+top+'-top').sha256,reports.find(r=>r.id==='supplied-language-top').sha256,'scroll only changes the lower LCD');
+ assert.equal(new Set(reports.filter(r=>/^language-scroll-\d-bottom$/.test(r.id)).map(r=>r.sha256)).size,5,'five distinct bounded viewport poses');
  // UpLineWide_03's signed -330 width: the reflected override must draw the rule behind "SD Card".
  const ruleCoverage=overrides=>{const canvas=createCanvas(400,240),ctx=canvas.getContext('2d');assert.equal(originalDraw(ctx,'up','SMng_U_01',{bindings:[{name:'SMng_U_01_NonSD',frame:1}],overrides:{TextBox_03:{text:''},...overrides}}),true);const row=ctx.getImageData(60,86,320,1).data;let n=0;for(let i=3;i<row.length;i+=4)if(row[i])n++;return n;};
  assert.equal(ruleCoverage({}),0,'unmirrored signed size leaves the rule undrawn');
@@ -216,6 +224,6 @@ try{
  assert.equal(reports.find(r=>r.id==='parental-pin-notice-top').sha256,reports.find(r=>r.id==='parental-explain-top').sha256,'notice preserves explanation upper LCD');
  assert.notEqual(reports.find(r=>r.id==='parental-pin-notice-bottom').sha256,reports.find(r=>r.id==='parental-explain-bottom').sha256,'notice changes lower LCD');
  assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
- writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.','Data Management Software/Extra Data present SD state 2 with no titles; Open Blocks is blank and arrow/wait-icon settled states are unattached.']},null,2)+'\n');
- console.log('Settings: five main and twenty-four subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.');
+ writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.','Data Management Software/Extra Data present SD state 2 with no titles; Open Blocks is blank and arrow/wait-icon settled states are unattached.','Language arrow scrolling is settled viewport navigation; motion, drag, keyboard selection and language edits remain unsupported.']},null,2)+'\n');
+ console.log(`Settings: five main and ${subpages.length} subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.`);
 }finally{assets.dispose();font.dispose();}

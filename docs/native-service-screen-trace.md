@@ -104,8 +104,15 @@ frames and is bound at frame 10. `welcome_U_00_balloonIn_00` has 59 frames and
 is bound at frame 58. Their shared face and mouth tracks settle to the same
 values. `BG_U_00_inOut_00` and `BG_D_00_inOut_00` hold `N_root_00` alpha at 255
 on frame 0, so the unbound backgrounds already show the entered state.
-`welcome_U_00_wait_00` is an idle loop; source timing remains a reference
-dependency.
+`welcome_U_00_wait_00` is an authored 75-frame loop with 19 pane tracks,
+including foot/face motion and a closed-eye swap at frames 37–47. Thirteen
+tracks retain keys at or beyond the clip's 75-frame boundary; those records
+must not be mistaken for a longer live playback duration. The current settled
+welcome frame deliberately does not animate. Starting this loop needs its
+source entrance-to-idle activation and a practical cached playback path:
+redrawing the full native welcome layout at nominal 60 Hz would bypass the
+stock pair cache and has not been performance-validated. Source timing and
+whole-screen motion remain reference dependencies.
 
 ## Verification status
 

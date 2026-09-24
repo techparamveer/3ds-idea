@@ -7,9 +7,9 @@ import type { StockScreenPaintOptions } from './stock-screen-presentation';
 
 const updaterPrefix='packs/system-updater/',nnidPrefix='packs/nnid-settings/';
 export const updaterScreenPacks:readonly NativeTitlePackRequest[]=[
-  {url:updaterPrefix+'base.json',alias:'helper-base',layouts:['Bg_U_00','Bg_D_00','Base_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
-  {url:updaterPrefix+'up.json',alias:'helper-up',layouts:['CommonBG_U_00','IconUpdate','TextBG_U_00'],animations:['CommonBG_U_00_SceneIn_00','TextBG_U_00_TextFadeIn']},
-  {url:updaterPrefix+'layout.json',alias:'helper-layout',layouts:['MessageOnly_D_00'],animations:['MessageOnly_D_00_SpecialIn_00']},
+  {url:updaterPrefix+'base.json',alias:'helper-base',layouts:['Bg_U_00','Bg_D_00','Base_D_01'],animations:[]},
+  {url:updaterPrefix+'up.json',alias:'helper-up',layouts:['CommonBG_U_00','IconUpdate','TextBG_U_00'],animations:['CommonBG_U_00_SceneIn_01','TextBG_U_00_TextFadeIn']},
+  {url:updaterPrefix+'layout.json',alias:'helper-layout',layouts:['MessageOnly_D_00'],animations:['MessageOnly_D_00_SceneIn_00']},
   {url:updaterPrefix+'message_EU.json',alias:'helper-messages',layouts:[],animations:[]},
 ];
 export const nnidScreenPacks:readonly NativeTitlePackRequest[]=[
@@ -42,8 +42,8 @@ export function nativeHelperView(view:AppView):{view:string;titleId:string;packs
   if(view.appId==='system-updater')return {view:'updater-read-only',titleId:'0004001000022f00',packs:updaterScreenPacks};
   return null;
 }
-/** The initial helpers expose only the native Back control. The runtime must
- * likewise omit account/update action rows rather than leave hidden targets. */
+/** Helpers expose only implemented controls. Updater's source OK is visible
+ * but inert; its Cancel returns through the existing Back action. */
 export function nativeHelperTargets(view:AppView):StockScreenTarget[]|null{
   if(!nativeHelperView(view))return null;
   const action=view.footer.left?.action??'back';
@@ -83,16 +83,17 @@ export function drawNativeHelperFrame(renderer:NativeLayoutRenderer,top:CanvasRe
     return okay;
   }
   const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'mset',label,'');
-  draw(top,'helper-base','Bg_U_00',{bindings:[{name:'Bg_U_00_SceneIn_Legacy',frame:40}]});
-  draw(bottom,'helper-base','Bg_D_00',{bindings:[{name:'Bg_D_00_SceneIn_Legacy',frame:40}]});
-  draw(top,'helper-up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_00',frame:20}],overrides:{TextBoxTitle_00:message('update_title')},attachments:{Icon:()=>draw(top,'helper-up','IconUpdate')}});
+  // update.bin state 1 does not enter the source's 1 -> 2 Legacy transition.
+  draw(top,'helper-base','Bg_U_00');
+  draw(bottom,'helper-base','Bg_D_00');
+  draw(top,'helper-up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_01',frame:20}],overrides:{TextBoxTitle_00:message('update_title')},attachments:{Icon:()=>draw(top,'helper-up','IconUpdate')}});
   // These three source pictures have signed dimensions. Absolute sizes and
   // reflected scales preserve their origins without mutating the title pack.
   draw(top,'helper-up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...mirrorPanel,TextBox_00:message('update_comm_u')}});
-  draw(bottom,'helper-up','TextBG_U_00',{center:[160,104.4],scale:.8,bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...mirrorPanel,TextBox_00:{visible:false}}});
-  const body=(view.text??[]).filter(Boolean).join('\n')||'System updates are unavailable in this portfolio. No update check has been performed.';
-  draw(bottom,'helper-layout','MessageOnly_D_00',{bindings:[{name:'MessageOnly_D_00_SpecialIn_00',frame:1}],overrides:{TextBoxTitle_00:{text:wrap(body,31),translation:[0,70,0],size:[270,140],fontSize:[17,20.4]}}});
-  draw(bottom,'helper-base','Base_D_00',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back')}});
+  // update.bin: original question and Cancel/OK footer. The portfolio never
+  // accepts OK or enters the subsequent EULA/network/update scenes.
+  draw(bottom,'helper-layout','MessageOnly_D_00',{bindings:[{name:'MessageOnly_D_00_SceneIn_00',frame:20}],overrides:{TextBoxTitle_00:message('update_comm')}});
+  draw(bottom,'helper-base','Base_D_01',{overrides:{TextBox_00:message('base_2b_cancel'),TextBoxShdw_00:message('base_2b_cancel'),TextBox_01:message('base_2b_ok'),TextBoxShdw_01:message('base_2b_ok')}});
   return okay;
 }
 

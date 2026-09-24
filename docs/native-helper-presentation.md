@@ -98,3 +98,11 @@ regressions and fresh helper renders without changing runtime or artwork.
 Direct helper launch and retained-parent navigation remain portfolio adapters;
 source scene positions and footer geometry do not prove native cross-title
 lifecycle equivalence.
+
+## System Update source confirmation
+
+The [static entry source audit](updater-entry-source-audit.md) replaces the
+updater's authored notice with `update.bin`'s original question, background
+state, orange title clip and Cancel/OK footer. Cancel returns to the retained
+caller; OK is deliberately inert. The source-backed static composition does not
+claim native entry timing, launch-argument routing or matched LCD pixels.

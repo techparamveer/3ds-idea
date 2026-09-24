@@ -7,7 +7,8 @@
           "layouts": [
             "Bg_U_00",
             "Bg_D_00",
-            "Base_D_00"
+            "Base_D_00",
+            "Base_D_01"
           ],
           "animations": [
             "Bg_D_00_SceneIn_Legacy",
@@ -63,7 +64,8 @@
               "update",
               "update_comm",
               "update_comm_u",
-              "update_title"
+              "update_title",
+              "base_2b_ok"
             ]
           }
         }

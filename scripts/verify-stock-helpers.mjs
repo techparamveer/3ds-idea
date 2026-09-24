@@ -34,7 +34,24 @@ try{
  for(const view of views){
   const spec=nativeHelperView(view),assets=await loadNativeTitleAssets('https://helper.invalid/manifest.json',spec.titleId,spec.packs,new Map([['cbf_std.bcfnt',font]]));
   const originalPacks=Object.values(assets.renderer.packs),before=JSON.stringify(originalPacks),top=createCanvas(400,240),bottom=createCanvas(320,240);
+  const calls=[],draw=assets.renderer.draw.bind(assets.renderer);
+  assets.renderer.draw=(ctx,pack,layout,options)=>{calls.push({screen:ctx.canvas===top?'top':'bottom',pack,layout,options});return draw(ctx,pack,layout,options);};
   assert.equal(drawNativeHelperFrame(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font}),true);
+  if(view.appId==='system-updater'){
+   for(const name of ['Bg_U_00','Bg_D_00'])assert.equal(calls.find(c=>c.layout===name).options.bindings,undefined,'ordinary update state preserves source white background');
+   const title=calls.find(c=>c.layout==='CommonBG_U_00');
+   assert.equal(title.options.bindings[0].name,'CommonBG_U_00_SceneIn_01','source update record uses state 1');
+   const body=calls.find(c=>c.layout==='MessageOnly_D_00');
+   assert.equal(body.options.overrides.TextBoxTitle_00.text,'Connect to the internet\nand update the system?');
+   assert.ok(body.options.overrides.TextBoxTitle_00.messageStyle);
+   assert.equal(body.options.overrides.TextBoxTitle_00.fontSize,undefined);
+   assert.equal(body.options.overrides.TextBoxTitle_00.translation,undefined);
+   assert.equal(body.options.overrides.TextBoxTitle_00.size,undefined);
+   assert.equal(calls.filter(c=>c.screen==='bottom'&&c.layout==='TextBG_U_00').length,0,'no authored upper-panel backdrop on lower LCD');
+   const footer=calls.find(c=>c.layout==='Base_D_01');assert.ok(footer);
+   for(const pane of ['TextBox_00','TextBoxShdw_00'])assert.equal(footer.options.overrides[pane].text,'Cancel');
+   for(const pane of ['TextBox_01','TextBoxShdw_01'])assert.equal(footer.options.overrides[pane].text,'OK');
+  }
   assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
   assert.equal(JSON.stringify(originalPacks),before,'source resources remain immutable');
   const targets=nativeHelperTargets(view);assert.equal(targets.filter(target=>target.action==='back').length,1);

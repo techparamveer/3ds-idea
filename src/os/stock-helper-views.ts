@@ -4,7 +4,7 @@ export const helperSelectorSources:Record<string,string>={'mii-selector':'miis',
 const selectorNames:Record<string,string>={'mii-selector':'Mii characters','photo-selector':'photos','sound-selector':'sounds'};
 const intros:Record<string,readonly string[]>={
   'nnid-settings':['Nintendo Network ID account setup.','Account services are unavailable.'],
-  'system-updater':['System Update information.','No update is checked or installed.'],
+  'system-updater':['Connect to the internet\nand update the system?'],
   'system-transfer':['Choose a source system.','Transfers are unavailable here.'],
   'amiibo-settings':['Choose an amiibo setting.','No amiibo data is connected.'],
   extrapad:['Circle Pad Pro settings.','Accessory input is unavailable here.'],

@@ -1,5 +1,9 @@
 # Health article rich text and overlapping buffers
 
+The [font/clip continuation](health-font-clip-source-audit.md) now executes the
+source style setter, line pitch, warning-prefix measurement and icon writer
+with decoded font metadata. Generic clipping and input ownership remain open.
+
 This continues the [scroll-controller audit](health-scroll-source-audit.md) from
 integration `aa9f242`. Original article parsing, buffer copying and pane switching
 now have executable replay evidence. The live bounded-pagination adaptation is

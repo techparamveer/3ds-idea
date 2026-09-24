@@ -63,7 +63,8 @@ function paintFixture(options={}){
  const screen=createStockScreenPresentation(options),v=view('system-settings');
  globalThis.__nativeTestDraw=(t,b)=>{t.fillText('native upper');b.fillText('native lower');return true;};
  const draw=(owner='settings:1',chosenFont=font)=>screen.draw(top,bottom,v,owner,chosenFont);
- return {screen,v,font,top,bottom,draw,dispose(){screen.dispose();globalThis.document=old;delete globalThis.__nativeTestDraw;}};
+ const drawAt=date=>screen.draw(top,bottom,v,'settings:1',font,undefined,date);
+ return {screen,v,font,top,bottom,draw,drawAt,dispose(){screen.dispose();globalThis.document=old;delete globalThis.__nativeTestDraw;}};
 }
 const nativeAssets=()=>({renderer:{},diagnostics:[],disposals:0,dispose(){this.disposals++;}});
 test('absent font and repeated deferred paints show only source black, then publish both native screens',async()=>{
@@ -133,6 +134,17 @@ test('only a published application pair is complete, and suspended-capture ident
   globalThis.__nativeTestDraw=()=>false;
   assert.equal(draw({status:'missing',owner:'health-safety:1'}),false,'recovery is never reported complete');
   assert.ok(f.top.marks.some(([,text])=>text==='Website display unavailable'));
+ }finally{f.dispose();}
+});
+test('Settings HUD cache repaints by local minute and date, not seconds',async()=>{
+ const f=paintFixture();
+ try{
+  f.draw();await flush();calls[0].resolve(nativeAssets());await flush();
+  let draws=0;globalThis.__nativeTestDraw=()=>{draws++;return true;};
+  f.drawAt(new Date(2026,8,24,6,31,0));assert.equal(draws,1);
+  f.drawAt(new Date(2026,8,24,6,31,59));assert.equal(draws,1);
+  f.drawAt(new Date(2026,8,24,6,32,0));assert.equal(draws,2);
+  f.drawAt(new Date(2027,8,24,6,32,0));assert.equal(draws,3,'weekday-bearing date keys the year');
  }finally{f.dispose();}
 });
 test('a new owner cannot display a completed old native frame',async()=>{

@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {readFileSync} from 'node:fs';
+
+const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+const read=path=>readFileSync(new URL(path,root));
+const P='packs/settings/contents/0000-0000003d/';
+
+test('Settings title-owned HUD and selected clips retain source provenance',()=>{
+ const manifest=JSON.parse(read('manifest.json')),bytes=read(P+'hud.json'),pack=JSON.parse(bytes);
+ assert.equal(createHash('sha256').update(bytes).digest('hex'),manifest.resources[P+'hud.json'].sha256);
+ assert.deepEqual(pack.layouts.HudMset_00.canvas,{height:240,origin:1,width:400});
+ assert.deepEqual(pack.layouts.HudMset_00.fonts,['cbf_std.bcfnt','Hud.bcfnt']);
+ const expected={
+  HudMset_00:'834c8f31e06d5c43bc2e651d59a2754a0c69346997df8e543f6a833200981114',
+  HudMset_00_Bat:'e8c70db4c5f366e5251aba8c93e2a32a7622e595e511d000ac063f567de83729',
+  HudMset_00_NetAtn:'8e1a28d1c8647356acfd92e18c5aa7a778d0a5dc6446d3b723f515044f86d319',
+  HudMset_00_NetMode:'d4bec198755ca3220dc355a46201d109bc3ddf32ddb16023ba4bef4fdac64a70',
+  HudMset_00_WhiteBlack:'cf5b0590bc2a6374a2eec476c7c49372fd70afeddd4e808da650b30942ba77b6',
+ };
+ for(const [name,sha256] of Object.entries(expected)){
+  const source=name==='HudMset_00'?pack.resourceSources.layouts[name]:pack.resourceSources.animations[name];
+  assert.equal(source.sha256,sha256,name);assert.equal(source.titleId,'0004001000022000',name);
+ }
+ for(const texture of Object.values(pack.textures))assert.ok(manifest.resources[texture.url],texture.url);
+});
+
+test('Settings HUD uses the source English status/date labels',()=>{
+ const bank=JSON.parse(read(P+'message_EU.json')).messages.hud;
+ const text=label=>bank.messages[bank.labels[label]].text;
+ assert.equal(text('lau_connect0'),'Internet');assert.equal(text('lau_date'),'%d/%M (%w)');
+ assert.equal(text('day_24'),'24');assert.equal(text('month_9'),'09');assert.equal(text('week_thu'),'Thu');
+ assert.equal(typeof bank.messages[bank.labels.lau_connect0].styleIndex,'number');
+ assert.equal(typeof bank.messages[bank.labels.lau_date].styleIndex,'number');
+});

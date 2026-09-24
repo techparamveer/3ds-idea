@@ -16,7 +16,12 @@ synthetic.
 `stock-screen-layout.ts` supplies the same controls to runtime touch navigation.
 
 Settings consumes source Bg_U/D, TopText_U_00, Top_D_02 and the five I_Top*s child
-layouts, plus English mset message styles. Settled scene frames and each button's
+layouts, plus English mset message styles. Its title-owned `HudMset_00` is the
+final upper layer on main and subpages. The Internet/full-signal and battery
+frames are a fixed state observed in the native reference, not device
+telemetry; date/time uses the source English HUD messages and injected local
+clock. See the [bounded source audit](settings-native-status-source-audit.md).
+Settled scene frames and each button's
 source Select clip paint focus (frame 1 selected, frame 0 inactive). The bounded
 Settings adapter creates derived direct-track clips, omitting only the archive's
 `Button → AS_Picture_00` and `BottunPage01 → AS_Picture_16` share records after
@@ -29,7 +34,8 @@ initial state 0 → scene state 3 rather than forcing Legacy frame 40. See
 Missing/failed native assets retain a per-app fallback. Native
 assets belong to an application instance through `createNativeTitleSession`;
 owner changes, suspension and disposal release them. Completed screens are
-cached until view/font/image/native readiness changes. `prepare(view,owner,font)`
+cached until view/font/image/native readiness changes; Settings also repaints
+when its year/date/hour/minute key changes. `prepare(view,owner,font)`
 starts resource acquisition without drawing. `syncStockView(state,context)`
 primes during launch and app phases, and cancels on HOME, off or suspension;
 the scene passes its font-bearing upper context before painting the launch.

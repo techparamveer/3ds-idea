@@ -15,6 +15,7 @@ export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04','T_SB','R_SlideBar'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide','T_SB_Decide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
   {url:prefix+'dialog.json',alias:'dialog',layouts:['Dialog_D_01','DlgMask_D_00'],animations:['Dialog_D_02_FadeIn','Dialog_D_02_Select','DlgMask_D_00_FadeIn']},
+  {url:prefix+'hud.json',alias:'hud',layouts:['HudMset_00'],animations:['HudMset_00_Bat','HudMset_00_NetAtn','HudMset_00_NetMode','HudMset_00_WhiteBlack']},
 ];
 /** These archive-level shares have neither endpoint in the requested Settings buttons.
  * Keep the resource immutable; the bounded presentation adapter uses direct tracks.
@@ -37,10 +38,37 @@ function prepareSettingsButtons(renderer:NativeLayoutRenderer){
   animations.T_SB_Decide_DirectSettings=settingsDirectButtonClip(source.layouts.T_SB,source.animations.T_SB_Decide);
   renderer.packs.button={...source,animations};prepared.add(renderer);
 }
+const week=['sun','mon','tue','wed','thu','fri','sat'];
+/** The source executable feeds these clips from PTM/AC/Uds services. The
+ * portfolio has no corresponding hardware telemetry, so its declared status
+ * is the state visible in the accepted native reference capture. */
+export const SETTINGS_PORTFOLIO_STATUS={batteryFrame:4,networkAttentionFrame:3,networkModeFrame:0,whiteBlackFrame:0} as const;
+function drawSettingsStatus(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,date:Date):boolean{
+  const message=(label:string)=>nativeMessageOverride(renderer.packs.messages,'hud',label,'');
+  const sourceText=(label:string)=>{const text=message(label).text;if(typeof text!=='string')throw new Error('Missing Settings HUD message '+label);return text;};
+  const day=sourceText('day_'+date.getDate()),month=sourceText('month_'+(date.getMonth()+1)),weekday=sourceText('week_'+week[date.getDay()]);
+  const pattern=message('lau_date');
+  if(typeof pattern.text!=='string')throw new Error('Missing Settings HUD message lau_date');
+  return renderer.draw(top,'hud','HudMset_00',{bindings:[
+    {name:'HudMset_00_Bat',frame:SETTINGS_PORTFOLIO_STATUS.batteryFrame},
+    {name:'HudMset_00_NetAtn',frame:SETTINGS_PORTFOLIO_STATUS.networkAttentionFrame},
+    {name:'HudMset_00_NetMode',frame:SETTINGS_PORTFOLIO_STATUS.networkModeFrame},
+    {name:'HudMset_00_WhiteBlack',frame:SETTINGS_PORTFOLIO_STATUS.whiteBlackFrame},
+  ],overrides:{
+    T_NetMode_00:message('lau_connect0'),
+    T_Date_00:{...pattern,text:pattern.text.replace('%d',day).replace('%M',month).replace('%w',weekday)},
+    T_TimeL_00:{...message('lau_hours'),text:String(date.getHours()).padStart(2,'0')},
+    T_TimeR_00:{...message('lau_minutes'),text:String(date.getMinutes()).padStart(2,'0')},
+  }});
+}
+
 /** Native source layouts and child mounts; this presents a settled menu. */
-export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,reducedMotion=false):boolean{
+export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,reducedMotion=false,date=new Date()):boolean{
   if(view.appId!=='system-settings')return false;
-  if(view.screen!=='main')return drawNativeSettingsSubpage(renderer,top,bottom,view,reducedMotion);
+  if(view.screen!=='main'){
+    const okay=drawNativeSettingsSubpage(renderer,top,bottom,view,reducedMotion);
+    return drawSettingsStatus(renderer,top,date)&&okay;
+  }
   prepareSettingsButtons(renderer);
   let okay=true;
   // top4btn requests background state 3 from initial state 0. The executable
@@ -58,7 +86,7 @@ export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasR
     okay=renderer.draw(bottom,'button',name,{bindings:[{name:name+'_DirectSettings',frame:view.rows[view.selection]?.id===ids[i]?1:0}],overrides:{TextBox_00:message(labels[i])}})&&okay;
   }]));
   okay=renderer.draw(bottom,'layout','Top_D_02',{bindings:[{name:'Top_D_02_SceneIn_00',frame:35}],attachments,overrides:{TextBoxTitle_01:message('top_btm_text')}})&&okay;
-  return okay;
+  return drawSettingsStatus(renderer,top,date)&&okay;
 }
 
 /** Source table byte 0x23 selects both the background transition and title

@@ -28,12 +28,28 @@ const dataLists={
 const view={appId:'system-settings',screen:'main',heading:'System Settings',rows:['internet','parental','data','other','nnid'].map(id=>({id,label:id})),selection:0,footer:{left:{action:'back',label:'Back'}}};
 const assets=await loadNativeTitleAssets('https://helper.invalid/manifest.json','0004001000022000',settingsScreenPacks,new Map([['cbf_std.bcfnt',font]]));
 const renderer=assets.renderer,originalDraw=renderer.draw.bind(renderer),sourcePacks=Object.values(renderer.packs),before=JSON.stringify(sourcePacks),reports=[];
+const referenceDate=new Date(2026,8,24,6,31);
+const assertStatus=calls=>{
+ const status=calls.find(c=>c.layout==='HudMset_00');assert.ok(status,'Settings owns its source HUD');
+ assert.equal(calls.at(-1),status,'HUD is the final upper-LCD layer');
+ assert.deepEqual(status.options.bindings,[
+  {name:'HudMset_00_Bat',frame:4},{name:'HudMset_00_NetAtn',frame:3},
+  {name:'HudMset_00_NetMode',frame:0},{name:'HudMset_00_WhiteBlack',frame:0},
+ ]);
+ assert.equal(status.options.overrides.T_NetMode_00.text,'Internet');
+ assert.equal(status.options.overrides.T_Date_00.text,'24/09 (Thu)');
+ assert.equal(status.options.overrides.T_TimeL_00.text,'06');
+ assert.equal(status.options.overrides.T_TimeR_00.text,'31');
+ assert.ok(status.options.overrides.T_NetMode_00.messageStyle);
+ assert.ok(status.options.overrides.T_Date_00.messageStyle);
+};
 try{
  const focusHashes=[];
  for(let selection=0;selection<5;selection++){
   const top=createCanvas(400,240),bottom=createCanvas(320,240),calls=[];
   renderer.draw=(ctx,pack,layout,options)=>{calls.push({pack,layout,options});return originalDraw(ctx,pack,layout,options);};
-  assert.equal(drawNativeSettingsMain(renderer,top.getContext('2d'),bottom.getContext('2d'),{...view,selection}),true);
+  assert.equal(drawNativeSettingsMain(renderer,top.getContext('2d'),bottom.getContext('2d'),{...view,selection},false,referenceDate),true);
+  assertStatus(calls);
   for(const name of ['Bg_U_00','Bg_D_00']){
    const call=calls.find(c=>c.layout===name);assert.ok(call);
    assert.equal(call.options?.bindings?.length??0,0,'main keeps the source default background');
@@ -53,7 +69,7 @@ try{
   }
   // Compare an unobstructed upper pixel against a separately rendered source BG.
   const source=createCanvas(400,240);originalDraw(source.getContext('2d'),'base','Bg_U_00');
-  assert.deepEqual(top.getContext('2d').getImageData(2,2,1,1).data,source.getContext('2d').getImageData(2,2,1,1).data);
+  assert.deepEqual(top.getContext('2d').getImageData(2,20,1,1).data,source.getContext('2d').getImageData(2,20,1,1).data);
  }
  assert.equal(new Set(focusHashes).size,5,'five distinct source selection states');
  const cases=[
@@ -77,7 +93,8 @@ try{
   const top=createCanvas(400,240),bottom=createCanvas(320,240),calls=[];
   renderer.draw=(ctx,pack,layout,options)=>{calls.push({pack,layout,options});return originalDraw(ctx,pack,layout,options);};
   assert.equal(settingsSceneVariant(subpage),subpage.variant);
-  assert.equal(drawNativeSettingsMain(renderer,top.getContext('2d'),bottom.getContext('2d'),subpage,subpage.reducedMotion),true);
+  assert.equal(drawNativeSettingsMain(renderer,top.getContext('2d'),bottom.getContext('2d'),subpage,subpage.reducedMotion,referenceDate),true);
+  assertStatus(calls);
   for(const name of ['Bg_U_00','Bg_D_00']){
    const call=calls.find(c=>c.layout===name);assert.ok(call);
    assert.deepEqual(call.options?.bindings??[],subpage.variant===2?[{name:name+'_SceneIn_Legacy',frame:40}]:[]);

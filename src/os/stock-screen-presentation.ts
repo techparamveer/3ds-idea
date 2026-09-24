@@ -85,7 +85,7 @@ export const ESHOP_WELCOME_STEP_LIMIT_MS=250;
 /** Stock-specific 400×240 / 320×240 surfaces. Media is supplied by AppView. */
 export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,options:StockScreenPaintOptions={}):void{
   const {font}=options,accent=accents[view.appId]??'#809d8c',data=view.data??{};
-  if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view,options.reducedMotion))return;
+  if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view,options.reducedMotion,options.date))return;
   if(options.native&&drawNativeSoundFrame(options.native,top,bottom,view,options))return;
   if(options.native&&camera(view.appId)){
     if(!drawNativeCameraFrame(options.native,top,bottom,view,options))throw new Error('Native camera composition failed');
@@ -248,14 +248,15 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       // Pixels stay out of the key; one frozen capture has one generation.
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
       const reducedMotion=options.reducedMotion?.()??false;
-      // Zone's HUD clock and eShop's welcome passes are this cache's only live keys.
+      // Native status and animation poses key paired-screen publication.
       const zoneTime=view.appId==='nintendo-zone'?zoneClock(date,elapsedMs):null;
       const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60]:null;
       const state=prepare(view,nextOwner,font);
       const eshopWelcomeMs=welcomeClock(view,nextOwner,state.status==='ready'&&!failure,elapsedMs,reducedMotion);
       // Poses, not milliseconds, key the eShop pair: at most one repaint per source pass.
       const eshopPaintKey=eshopWelcomeMs===undefined?null:eshopWelcomeBindings(eshopWelcomePass(eshopWelcomeMs));
-      const key=JSON.stringify([nextOwner,view,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey]);
+      const settingsPaintKey=view.appId==='system-settings'?[date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes()]:null;
+      const key=JSON.stringify([nextOwner,view,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,settingsPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();

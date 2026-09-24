@@ -26,13 +26,15 @@ strict 1:1 fidelity. `reference/native-settings-2026-09-24/compare.py` and
 `comparison.json` on the SSD record the boxes, source hashes and method.
 
 The native upper LCD has a blue Internet/status strip, clock and battery along
-its top edge. The browser Settings painter currently draws `Bg_U_00` and
-`CommonBG_U_00`/`TextBG_U_00` (or `TopText_U_00` on main) without a matching
-upper system-status composition. That is a visible fidelity gap. The content
-below this strip still needs aligned pixel comparison at native LCD scale,
-including original fonts, color, animation phases and source-defined status
-state. Do not invent network/battery readings; bind the actual source resource
-and a declared portfolio status before publishing a fix.
+its top edge. A later private-source audit proved that this is the
+Settings-owned `HudMset_00`, not inherited HOME chrome. The worker branch now
+draws that source layout last on main and subpages, using a fixed
+reference-observed network/battery state and the injected local clock. Its
+bounded top-17-row source render has RGB MAE 10.9467 against this JPEG capture.
+See the [status-strip source audit](settings-native-status-source-audit.md).
+This has not yet had coordinator browser inspection, and the content below the
+strip still needs aligned native-LCD comparison. Neither result establishes
+whole-screen 1:1 fidelity.
 
 Evidence under the SSD artifact root:
 

@@ -193,7 +193,7 @@ test('Parental intro explores restrictions without creating a configured profile
 });
 test('Other Settings pages bound directions and preserve page plus selection after leaf Back',()=>{
  const {module}=setup('system-settings');let state=action(module,module.create({},null,ctx),'other').state;
- const expected=[['profile','clock','touch'],['sound','mic','calibration-3d'],['outer-cameras','circle-pad','transfer'],['language','update','format']];
+ const expected=[['profile','clock','touch'],['calibration-3d','sound','mic'],['outer-cameras','circle-pad','transfer'],['language','update','format']];
  assert.equal(module.reduce(state,{type:'command',command:'left'},ctx).state,state);
  for(let page=0;page<4;page++){
   const view=module.view(state,ctx);assert.equal(view.data.page,page);assert.equal(view.data.pageCount,4);assert.deepEqual(view.rows.map(row=>row.id),expected[page]);

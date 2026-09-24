@@ -6,6 +6,12 @@ export const soundPlaybackMode=(state:Readonly<Record<string,JsonValue|undefined
 /** The single mode control cycles the four supported icons; this ordering is a portfolio choice, not a verified native sequence. */
 export const soundNextPlaybackMode:Record<SoundPlaybackMode,{repeat:string;shuffle:boolean}>={'no-loop':{repeat:'all',shuffle:false},folder:{repeat:'one',shuffle:false},single:{repeat:'off',shuffle:true},random:{repeat:'off',shuffle:false}};
 
+/** R_SlideBar B_Slide_00 is 24×104 at the source mount (304,101).
+ * The thumb follows local y; Canvas/touch y points downwards. */
+export function stockSettingsLanguageThumbAt(thumbY:number,x:number,y:number):boolean{
+  return Number.isFinite(thumbY)&&Number.isFinite(x)&&Number.isFinite(y)&&x>=292&&x<316&&y>=49-thumbY&&y<153-thumbY;
+}
+
 /**
  * Source Game Notes (0004003000009c02) ImageScreenUp display modes. The scene constructor (code.bin 0x168880) starts at
  * Double (mode 3) and B_BtnSwitch (handler 0x163754) advances the index 0→1→2→0, dispatching events {1,2,3} =

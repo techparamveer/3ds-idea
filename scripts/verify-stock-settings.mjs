@@ -89,6 +89,8 @@ try{
  for(let top=0;top<=4;top++)subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field:'language',parent:'other',languageTop:top,settings:{language:'English'}},verificationId:'language-scroll-'+top,heading:'language',text:[]});
  for(const direction of [-1,1])for(const frame of [0,1,2,3])subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field:'language',parent:'other',languageTop:direction===1?0:1,languageScrollDirection:direction,languageScrollElapsed:frame*1000/60,settings:{language:'English'}},verificationId:'language-motion-'+direction+'-'+frame,heading:'language',text:[]});
  subpages.push({...subpages.at(-1),data:{...subpages.at(-1).data,languageScrollElapsed:0},reducedMotion:true,verificationId:'language-motion-reduced'});
+ for(const offset of [-22,-14,-6,0,11])subpages.push({...view,screen:'detail',variant:1,rows:[],data:{field:'language',parent:'other',languageTop:1,languageDragOffset:offset,settings:{language:'English'}},verificationId:'language-drag-'+offset,heading:'language',text:[]});
+ subpages.push({...subpages.at(-1),data:{...subpages.at(-1).data,languageSnapFrom:11},reducedMotion:true,verificationId:'language-snap-reduced'});
  for(const subpage of subpages){
   const top=createCanvas(400,240),bottom=createCanvas(320,240),calls=[];
   renderer.draw=(ctx,pack,layout,options)=>{calls.push({pack,layout,options});return originalDraw(ctx,pack,layout,options);};
@@ -197,7 +199,8 @@ try{
    assert.deepEqual(lower.options.bindings,[{name:'Country_D_00_SceneIn_00',frame:20},...(clip?[{name:clip,frame,groups:['Group_01']}]:[])]);
    const listTop=(subpage.data.languageTop??0)+(direction&&subpage.reducedMotion?direction:0),scrolled=subpage.data.languageTop!==undefined;
    const sourceTrack=clip?renderer.packs.layout.animations[clip].tracks.find(t=>t.target==='Null_Slideanim'&&t.property==='translation.y'):null;
-   const offset=sourceTrack?sampleNativeTrack(sourceTrack,frame):0,thumbY=20-(listTop*44+offset)*40/176;
+   const offset=sourceTrack?sampleNativeTrack(sourceTrack,frame):subpage.reducedMotion&&subpage.data.languageSnapFrom!==undefined?0:subpage.data.languageDragOffset??0,thumbY=20-(listTop*44+offset)*40/176;
+   assert.deepEqual(lower.options.overrides?.Null_Slideanim,!clip&&offset!==0?{translation:[0,offset,0]}:undefined,'drag residual moves the source parent, not individual rows');
    const languages=['English','Français','Deutsch','Español','Italiano','Nederlands','Português','Русский'];
    const slots=Array.from({length:8},(_,slot)=>({slot,row:listTop+slot-2})).filter(({row})=>row>=0&&row<8);
    assert.deepEqual(Object.keys(lower.options.attachments),[...slots.map(({slot})=>'N_T_SB_0'+slot),'R_SlideBar']);
@@ -261,6 +264,9 @@ try{
  assert.equal(ruleCoverage({}),0,'unmirrored signed size leaves the rule undrawn');
  assert.ok(ruleCoverage({UpLineWide_03:{size:[330,32],scale:[-1,1]}})>=300,'mirrored rule spans the upper panel');
  for(const lcd of ['top','bottom'])assert.notEqual(reports.find(r=>r.id==='detail-software-'+lcd).sha256,reports.find(r=>r.id==='detail-extra-data-'+lcd).sha256,'the two leaves differ on '+lcd);
+ for(const specimen of ['language-drag--22','language-drag--14','language-drag--6','language-drag-0','language-drag-11','language-snap-reduced'])assert.equal(reports.find(r=>r.id===specimen+'-top').sha256,reports.find(r=>r.id==='supplied-language-top').sha256,'drag leaves upper LCD unchanged');
+ assert.equal(new Set(reports.filter(r=>/^language-drag-.*-bottom$/.test(r.id)).map(r=>r.sha256)).size,5,'drag/snap residuals render distinct lower poses');
+ for(const specimen of ['language-drag-0','language-snap-reduced'])assert.equal(reports.find(r=>r.id===specimen+'-bottom').sha256,reports.find(r=>r.id==='language-scroll-1-bottom').sha256,'snap endpoint equals the settled source pose');
  assert.equal(JSON.stringify(sourcePacks),before,'source packs remain immutable');
  assert.equal(reports.find(r=>r.id==='parental-pin-notice-top').sha256,reports.find(r=>r.id==='parental-explain-top').sha256,'notice preserves explanation upper LCD');
  assert.notEqual(reports.find(r=>r.id==='parental-pin-notice-bottom').sha256,reports.find(r=>r.id==='parental-explain-bottom').sha256,'notice changes lower LCD');

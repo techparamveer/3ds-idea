@@ -1,10 +1,10 @@
 import { objectValue, type AppContext, type AppDescriptor, type AppEffect, type AppEvent, type AppModule, type AppReduction, type AppState, type AppView, type AppViewRow, type JsonValue } from './app-types.ts';
 import { helperSelectorSources, helperTitle, helperView, isHelperTitle } from './stock-helper-views.ts';
 import { browserBack, browserChoices, browserHeading, browserNavigate, browserPageEntry, browserText } from './stock-browser-navigation.ts';
-import { settingsLanguageTick, LANGUAGE_SCROLL_DURATION_MS, settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
+import { settingsLanguageTick, settingsLanguageTouch, settingsLanguageThumbY, settingsLanguageSettle, settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
 import { healthDocumentRows } from './stock-health-layout.ts';
 import { healthScrollAdvance, healthScrollCreate, healthScrollKey, healthScrollKeyTap, healthScrollRelease, healthScrollStylus, healthScrollView, type HealthScrollState } from './stock-health-scroll.ts';
-import { notesCaptureView, notesNextCaptureView, notesSwitchFrame, NOTES_SWITCH_LAST_FRAME, NOTES_SWITCH_DURATION_MS, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt } from './stock-screen-layout.ts';
+import { notesCaptureView, notesNextCaptureView, notesSwitchFrame, NOTES_SWITCH_LAST_FRAME, NOTES_SWITCH_DURATION_MS, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt, stockSettingsLanguageThumbAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
 import { eshopWelcomeData, eshopWelcomeDecide, eshopWelcomeTick } from './stock-eshop-welcome.ts';
 
@@ -279,7 +279,11 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       if (id === 'system-settings') {
         if (event.type === 'tick') return { state: settingsLanguageTick(state, event.elapsedMs) };
         // A paused foreground transition settles on resume, as in the Notes adapter.
-        if (event.type === 'lifecycle' && ['suspend', 'sleep'].includes(event.phase)) return { state: settingsLanguageTick(state, LANGUAGE_SCROLL_DURATION_MS) };
+        if (event.type === 'lifecycle' && ['suspend', 'sleep', 'close'].includes(event.phase)) return { state: settingsLanguageSettle(state) };
+        if(event.type==='touch'){
+          const next=settingsLanguageTouch(state,event,stockSettingsLanguageThumbAt(settingsLanguageThumbY(state),event.x,event.y));
+          if(next!==null)return {state:next};
+        }
       }
       if (id === 'game-notes') {
         if (event.type === 'tick' && Number.isFinite(event.elapsedMs) && event.elapsedMs > 0) {

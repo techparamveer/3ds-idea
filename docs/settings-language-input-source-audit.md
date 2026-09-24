@@ -98,3 +98,8 @@ New private evidence lives on the writable home disk at
 source listings plus `verification.json`. This follows the coordinator's
 storage override while the SSD is full; source firmware is read-only on the
 SSD. No Azahar, browser or integration checkout was modified.
+
+The subsequent [thumb input validation](settings-language-input-validation.md)
+closes the callback-identity and numeric-split gates for a bounded browser
+thumb adapter. Native polling/draw cadence, D-pad/held-arrow input and list-body
+drag remain open.

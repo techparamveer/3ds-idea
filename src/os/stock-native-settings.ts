@@ -1,4 +1,4 @@
-import { languageScroll } from './stock-settings-navigation';
+import { languageScroll, settingsLanguageOffset } from './stock-settings-navigation';
 import type { AppView } from './app-types';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
@@ -290,10 +290,11 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     // arrow, 0x1a07b8 sets y=(144−104)*(0.5−top/4); entry retains y=0.
     const clip=scroll&&!reducedMotion?'Country_D_00_Scroll'+(scroll.direction===1?'Up':'Dw'):null;
     const track=clip?renderer.packs.layout.animations[clip].tracks.find(track=>track.target==='Null_Slideanim'&&track.property==='translation.y'):undefined;
-    const offset=track&&scroll?sampleNativeTrack(track,scroll.frame):0;
+    const dragOffset=reducedMotion&&data.languageSnapFrom!==undefined?0:settingsLanguageOffset(data);
+    const offset=track&&scroll?sampleNativeTrack(track,scroll.frame):dragOffset;
     const thumb=[22,104],thumbY=20-(listTop*44+offset)*40/176;
     attachments.R_SlideBar=()=>draw(bottom,'button','R_SlideBar',{overrides:{SBBtnShdw:{size:thumb},SBBtn:{size:thumb},SBBtnFrame:{size:thumb},B_Slide_00:{size:[24,104],...(scrolled?{translation:[0,thumbY,0]}:{})},...(scrolled?{N_Slide:{translation:[0,thumbY,0]}}:{})}});
-    draw(bottom,'layout','Country_D_00',{bindings:[{name:'Country_D_00_SceneIn_00',frame:20},...(clip&&scroll?[{name:clip,frame:scroll.frame,groups:['Group_01']}]:[])],attachments});
+    draw(bottom,'layout','Country_D_00',{bindings:[{name:'Country_D_00_SceneIn_00',frame:20},...(clip&&scroll?[{name:clip,frame:scroll.frame,groups:['Group_01']}]:[])],attachments,...(!clip&&dragOffset!==0?{overrides:{Null_Slideanim:{translation:[0,dragOffset,0]}}}:{})});
     draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_decide'),TextBoxShdw_01:message('base_2b_decide')}});
     return okay;
   }else if(screen==='detail'&&['birthday','date','time'].includes(field)){

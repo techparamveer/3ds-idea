@@ -68,3 +68,8 @@ Private artifacts are under the SSD firmware root
 `render/verification.json` and paired images. Existing source listings are
 `presentation/settings-language-source/asm/list-object.asm` and
 `reference/language-scroll/list-arrow-{dispatch,update}.asm`.
+
+The later [Language thumb input validation](settings-language-input-validation.md)
+adds bounded source-derived thumb dragging and release snapping. It supersedes
+the thumb-drag limitation above; D-pad, groove and held-arrow behavior remain
+open, as does native/live-browser comparison of that follow-up.

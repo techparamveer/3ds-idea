@@ -213,3 +213,12 @@ the delivered resources to their source member hashes and texts.
 Earlier private evidence is under `presentation/settings-data-software-audit/`:
 `source-audit.json`, decoded layouts and clips, annotated disassembly (`asm/`),
 `preview.mjs` and `renders/`.
+
+### Entry/wait follow-up
+
+The [motion source audit](settings-data-motion-source-audit.md) now traces the
+wait constructor, loading dispatch, WIconIn completion gate, subsequent
+BtnIn/TextIn gates and input enable transition. It also pins the entry-name
+table and renders the source poses. The normal entry selector, complete
+controller/lifecycle semantics and browser equivalent of storage completion are
+still unresolved, so the live leaves intentionally retain settled frames.

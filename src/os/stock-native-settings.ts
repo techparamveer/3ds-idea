@@ -13,6 +13,7 @@ export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00'],animations:['LsMenu_D_00_SceneIn_00','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00']},
   {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
+  {url:prefix+'dialog.json',alias:'dialog',layouts:['Dialog_D_01','DlgMask_D_00'],animations:['Dialog_D_02_FadeIn','Dialog_D_02_Select','DlgMask_D_00_FadeIn']},
 ];
 /** These archive-level shares have neither endpoint in the requested Settings buttons.
  * Keep the resource immutable; the bounded presentation adapter uses direct tracks.
@@ -185,9 +186,17 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     draw(bottom,'layout','MessageOnly_D_00',{bindings:[{name:'MessageOnly_D_00_SceneIn_00',frame:20}],overrides:{TextBoxTitle_00:message('par_top_comm0_n')}});
     draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_set'),TextBoxShdw_01:message('base_2b_set')}});
     return okay;
-  }else if(screen==='parental-explain'){
+  }else if(screen==='parental-explain'||screen==='parental-pin-notice'){
     draw(bottom,'layout','StartChild_D_00',{overrides:{TextBoxTitle_00:message('st_start_comm')}});
     draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_next'),TextBoxShdw_01:message('base_2b_next')}});
+    if(screen==='parental-pin-notice'){
+      // pr_dlg_explain selector 1 uses Dialog_D_01 with the shared 02 clips.
+      // Its sole button binds Group_00; the underlying explanation stays put.
+      draw(bottom,'dialog','DlgMask_D_00',{bindings:[{name:'DlgMask_D_00_FadeIn',frame:20}]});
+      draw(bottom,'dialog','Dialog_D_01',{bindings:[{name:'Dialog_D_02_FadeIn',frame:20},{name:'Dialog_D_02_Select',frame:1,groups:['Group_00']}],overrides:{
+        TextBoxDialog_00:message('par_dlg_pin0'),TextBox_00:message('dlg_2b_ok'),TextBoxShdw_00:message('dlg_2b_ok'),
+      }});
+    }
     return okay;
   }else if(screen==='data')menu('SMngTopO_D_00',[
     ['N_B_SMngCTRO_00','B_SMngCTRO','data-3ds'],['N_B_SMngDSiO_00','B_SMngDSiO','data-dsi'],['N_B_M_00','B_M','streetpass','dat_ce'],['N_B_S_00','B_S','blocked-users','dat_blist_reset'],

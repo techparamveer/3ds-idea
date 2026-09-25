@@ -6,7 +6,7 @@ import sharp from 'sharp';
 
 const source = readFileSync(new URL('../src/scene/lcd-capture.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
-const { lcdCaptureEnabled, encodeNativeLcdPair } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
+const { lcdCaptureEnabled, lcdDownloadRequest, lcdDownloadPayload, encodeNativeLcdPair } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
 
 test('production LCD capture requires loopback and explicit opt in', () => {
   const location = (hostname, search) => ({ hostname, search });
@@ -15,6 +15,16 @@ test('production LCD capture requires loopback and explicit opt in', () => {
   assert.equal(lcdCaptureEnabled(location('example.com', '?lcdCapture=1'), false), false);
   assert.equal(lcdCaptureEnabled(location('localhost', ''), false), false);
   assert.equal(lcdCaptureEnabled(location('example.com', ''), true), true);
+});
+
+test('download request fixes presentation time and names a single JSON capture', () => {
+  assert.deepEqual(
+    lcdDownloadRequest('?lcdCapture=1&lcdScenario=settings-other-page1&lcdElapsedMs=8483.333&lcdDate=2026-09-25T10%3A52%3A00Z'),
+    { elapsedMs: 8483.333, isoDate: '2026-09-25T10:52:00.000Z', scenario: 'settings-other-page1' },
+  );
+  assert.throws(() => lcdDownloadRequest('?lcdElapsedMs=0'), /lcdDate/);
+  assert.throws(() => lcdDownloadRequest('?lcdElapsedMs=-1&lcdDate=2026-09-25'), /lcdElapsedMs/);
+  assert.throws(() => lcdDownloadRequest('?lcdScenario=../escape&lcdElapsedMs=0&lcdDate=2026-09-25'), /scenario/);
 });
 
 test('LCD pair encodes native raw canvas pixels without scaling', async () => {
@@ -27,6 +37,11 @@ test('LCD pair encodes native raw canvas pixels without scaling', async () => {
   const top = await canvas(400, 240, [12, 34, 56, 255]);
   const bottom = await canvas(320, 240, [78, 90, 123, 255]);
   const result = encodeNativeLcdPair(top, bottom);
+  const payload = JSON.parse(lcdDownloadPayload('home-idle', { ...result, elapsedMs: 0, date: '2026-09-25T10:52:00.000Z' }));
+  assert.equal(payload.schema, 'browser-native-lcd-capture-v1');
+  assert.equal(payload.scenario, 'home-idle');
+  assert.equal(payload.top, result.top);
+  assert.equal(payload.bottom, result.bottom);
   assert.deepEqual(result.dimensions, { top: { width: 400, height: 240 }, bottom: { width: 320, height: 240 } });
   for (const [encoded, width, height, pixel] of [[result.top, 400, 240, [12, 34, 56, 255]], [result.bottom, 320, 240, [78, 90, 123, 255]]]) {
     const bytes = Buffer.from(encoded.split(',')[1], 'base64');

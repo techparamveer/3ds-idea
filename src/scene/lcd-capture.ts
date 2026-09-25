@@ -5,6 +5,23 @@ export function lcdCaptureEnabled(location: Pick<Location, 'hostname' | 'search'
   return local && new URLSearchParams(location.search).get('lcdCapture') === '1';
 }
 
+export function lcdDownloadRequest(search: string) {
+  const params = new URLSearchParams(search);
+  const elapsedText = params.get('lcdElapsedMs');
+  const dateText = params.get('lcdDate');
+  const scenario = params.get('lcdScenario') ?? 'browser-lcd';
+  const elapsedMs = elapsedText === null || elapsedText.trim() === '' ? NaN : Number(elapsedText);
+  if (!Number.isFinite(elapsedMs) || elapsedMs < 0 || !dateText || !Number.isFinite(new Date(dateText).getTime())) {
+    throw new Error('Set valid lcdElapsedMs and lcdDate query parameters before downloading LCDs');
+  }
+  if (!/^[a-z0-9-]{1,64}$/.test(scenario)) throw new Error('Invalid LCD scenario name');
+  return { elapsedMs, isoDate: new Date(dateText).toISOString(), scenario };
+}
+
+export function lcdDownloadPayload(scenario: string, capture: ReturnType<typeof encodeNativeLcdPair> & Record<string, unknown>) {
+  return JSON.stringify({ schema: 'browser-native-lcd-capture-v1', scenario, ...capture });
+}
+
 type CaptureCanvas = Pick<HTMLCanvasElement, 'width' | 'height' | 'toDataURL'>;
 
 export function encodeNativeLcdPair(top: CaptureCanvas, bottom: CaptureCanvas) {

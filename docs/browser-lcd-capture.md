@@ -6,11 +6,22 @@ an 800×240 texture for the Three.js display plane. `captureScreensAt` encodes
 the two source canvases directly as PNG data URLs. It never reads a resized
 browser/page screenshot or the stretched display texture.
 
-On the coordinator's local production build, open
-`http://localhost:3000/?lcdCapture=1`. The hook is attached to
+On the coordinator's local production build, open a URL such as
+`http://localhost:3000/?lcdCapture=1&lcdScenario=home-idle&lcdElapsedMs=8483.333333333334&lcdDate=2026-09-25T10%3A52%3A00Z`.
+The hook is attached to
 `.console-stage` after scene startup. It is absent on non-loopback production
 hosts and on loopback production without the query parameter. It adds no
 visible controls. In development it remains available without the parameter.
+
+For computer-use tools that cannot read custom DOM properties, press
+**Control–Shift–L** after reaching the state, or activate the accessibility
+button named **Download LCD capture**. The browser downloads one
+`home-idle.json` file (named by `lcdScenario`) containing `schema`, `scenario`,
+`elapsedMs`, `date`, state diagnostics, `dimensions`, and the `top` and `bottom`
+PNG data URLs. `lcdElapsedMs` and `lcdDate` are required for this path; the
+scenario name may contain lowercase letters, digits and hyphens. An invalid
+query reports an accessibility announcement and `data-lcd-capture-error` on
+the console host. The shortcut and button exist only when the hook is enabled.
 
 After using the real site controls to reach a scenario, sample its LCDs:
 
@@ -29,7 +40,8 @@ clock. The result also includes the sampled time, date, HOME update count,
 cursor diagnostic and banner host view. Use exact same entry state and inputs
 on Azahar; this hook alone is only a browser presentation sample.
 
-Save each data URL's base64 payload as a PNG and record its SHA-256. The first
+Extract each data URL's base64 payload from the downloaded JSON as a PNG and
+record its SHA-256. The first
 two target pairs are:
 
 - `.../reference/scenario-matrix/v1/captures/home-idle/browser/upper.png`

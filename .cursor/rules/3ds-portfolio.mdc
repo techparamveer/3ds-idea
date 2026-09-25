@@ -25,6 +25,6 @@ isolated Azahar and integrated production browser, captures native 400×480 PNG
 and raw browser 400×240/320×240 LCD targets, diffs the pair, opens the contact
 sheet, and repeats after fixes. First target HOME idle and Settings → Other
 Settings page 1 in the private `reference/scenario-matrix/v1/captures/` path;
-four latest diagnostic pairs fail; only Settings main has matched input and HOME idle remains unmatched. Tests, source renders and browser inspection alone
+matrix v4 has 11 failing entries; Camera browse chrome and Sound guide packs are delivered but not rendered. Only Settings main has matched input and HOME idle remains unmatched. Tests, source renders and browser inspection alone
 do not establish 1:1 fidelity. Report implemented, tested, browser-inspected
 and native-compared separately, with target pair and remaining differences.

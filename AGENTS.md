@@ -2,7 +2,7 @@
 
 This file is the shared repository instruction file for coding agents.
 `CLAUDE.md` imports it. Current user instructions take precedence. The UI
-continuation checkpoint is `8037468` (25 September 2026); check the actual
+continuation checkpoint is `1b64eb6` (25 September 2026); check the actual
 HEAD and integration history before beginning a slice.
 
 ## Read before working
@@ -115,9 +115,10 @@ and diff regions, then hand off for integration and recapture.
 
 The first required pairs are HOME idle and Settings → Other Settings page 1,
 under `reference/scenario-matrix/v1/captures/` in the private artifact root.
-The latest raw LCD reports cover four failing diagnostics: Settings main,
-Other page 1, HOME with Settings selected and Health entry. Only Settings main
-has matched input; motion/audio are open. HOME idle still lacks a matched pair.
+Matrix v4 has 11 failing entries, including Camera populated browse and
+Sound first-run/settled entry. Only Settings main has matched input;
+motion/audio are open. HOME idle still lacks a matched pair. Published Camera
+browse chrome and Sound guide packs are delivered/tested, not live rendered.
 The old scaled Settings JPEG/source-render pair is not acceptance evidence.
 Never claim a scenario passes from tests, source renders, a browser view or a
 worker's build alone. Matrix entries must

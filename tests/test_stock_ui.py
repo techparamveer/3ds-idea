@@ -44,9 +44,23 @@ class StockUiTests(unittest.TestCase):
         self.assertEqual(merged['resourceSources']['messages']['guide'], source['resourceSources']['messages']['guide'])
         incompatible = copy.deepcopy(incoming); incompatible['sourceSha256'] = 'different'
         with self.assertRaisesRegex(ValueError, 'source identity'): merge_disjoint_pack(old, incompatible)
-        incompatible = copy.deepcopy(incoming); incompatible['messages']['text'] = {'changed': True}
+        incompatible = copy.deepcopy(incoming); incompatible['messages']['text'] = copy.deepcopy(old['messages']['text'])
+        incompatible['messages']['text']['messages'][0]['text'] = 'Changed'
+        incompatible['uiSelection']['sourceMessageIndices']['text'] = old['uiSelection']['sourceMessageIndices']['text']
         incompatible['resourceSources']['messages']['text'] = old['resourceSources']['messages']['text']
-        with self.assertRaisesRegex(ValueError, 'Conflicting existing messages'): merge_disjoint_pack(old, incompatible)
+        with self.assertRaisesRegex(ValueError, 'Conflicting existing message content'): merge_disjoint_pack(old, incompatible)
+
+    def test_merge_existing_message_bank_unions_source_indexes_and_labels(self):
+        source, _ = fixture()
+        source.update(sourceSha256='same-source', contentIndex=0, contentId='0000001a')
+        old, _ = select_pack(source, {'messages': {'text': ['first']}})
+        incoming, _ = select_pack(source, {'messages': {'text': ['second', 'alias']}})
+        merged = merge_disjoint_pack(old, incoming)
+        bank = merged['messages']['text']
+        self.assertEqual(merged['uiSelection']['sourceMessageIndices']['text'], [0, 1])
+        self.assertEqual([message['text'] for message in bank['messages']], ['Unused', 'Selected'])
+        self.assertEqual(bank['labels'], {'alias': 1, 'first': 0, 'second': 1})
+        self.assertEqual(merge_disjoint_pack(merged, incoming), merged)
 
     def test_published_camera_first_run_selection_has_source_closure(self):
         public = ROOT/'public/os/firmware/10.7.0-32E'
@@ -76,6 +90,34 @@ class StockUiTests(unittest.TestCase):
             self.assertIn(label, messages['P_tips']['labels'])
         self.assertEqual(messages['P_tips']['messages'][messages['P_tips']['labels']['D_003_0']]['text'],
                          'Welcome to\nNintendo 3DS Camera!')
+
+    def test_published_camera_browse_chrome_and_entry_preserve_source_identity(self):
+        public = ROOT/'public/os/firmware/10.7.0-32E'
+        manifest = json.loads((public/'manifest.json').read_text())
+        title = manifest['titles']['0004001000022400']
+        prefix = 'packs/camera/contents/0000-0000001a/'
+        browse_url = prefix+'lyt-P_Brws_D-arc-LZ.json'
+        browse = json.loads((public/browse_url).read_text())
+        self.assertIn('P_BrwsBase_D', browse['layouts'])
+        self.assertIn('P_BrwsMenu_D', browse['layouts'])
+        self.assertIn('P_BrwsMenu_D_Brws', browse['animations'])
+        self.assertEqual(browse['resourceSources']['layouts']['P_BrwsMenu_D']['contentId'], '0000001a')
+        shoot_url = prefix+'lyt-P_Shoot_D-arc-LZ.json'
+        self.assertIn(shoot_url, title['packs'])
+        shoot = json.loads((public/shoot_url).read_text())
+        self.assertIn('P_Shoot_D', shoot['layouts'])
+        self.assertIn('P_Shoot_D_Default', shoot['animations'])
+        self.assertEqual(shoot['unsupported'], [])
+        for url in (browse_url, shoot_url):
+            record = manifest['resources'][url]
+            self.assertEqual(record['sha256'], digest((public/url).read_bytes()))
+            self.assertEqual(record['sources'][0]['titleId'], '0004001000022400')
+            self.assertEqual(record['sources'][0]['contentIndex'], 0)
+        bank = json.loads((public/(prefix+'msg-EU_English.json')).read_text())['messages']['P']
+        self.assertEqual(bank['messages'][bank['labels']['Brws_02']]['text'], 'Slideshow')
+        self.assertEqual(bank['messages'][bank['labels']['Brws_03']]['text'], 'Shoot')
+        self.assertEqual(bank['messages'][bank['labels']['Shoot_05']]['text'], 'View Photos/Videos')
+        self.assertEqual(bank['messages'][bank['labels']['setting']]['text'], 'Settings')
 
     def test_dependency_closure_and_message_source_indexes(self):
         pack, selection = fixture(); selected, fonts = select_pack(pack, selection)

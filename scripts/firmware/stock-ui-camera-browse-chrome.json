@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022400": {
+      "packs": {
+        "packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json": {
+          "mergeExisting": true,
+          "layouts": ["P_BrwsMenu_D"],
+          "animations": ["P_BrwsMenu_D_Brws", "P_BrwsMenu_D_BrwsMovGraIn", "P_BrwsMenu_D_BrwsMovGraOut", "P_BrwsMenu_D_BrwsPaintIn", "P_BrwsMenu_D_BrwsPaintOut", "P_BrwsMenu_D_Default", "P_BrwsMenu_D_Disable", "P_BrwsMenu_D_Push"]
+        },
+        "packs/camera/contents/0000-0000001a/lyt-P_Shoot_D-arc-LZ.json": {
+          "layouts": ["P_Shoot_D"],
+          "animations": ["P_Shoot_D_BtnTxtIn", "P_Shoot_D_BtnTxtOut", "P_Shoot_D_Default", "P_Shoot_D_Disable", "P_Shoot_D_Push"]
+        },
+        "packs/camera/contents/0000-0000001a/msg-EU_English.json": {
+          "mergeExisting": true,
+          "messages": {
+            "P": ["Brws_03", "Shoot_00", "Shoot_05", "Shoot_06", "setting"]
+          }
+        }
+      }
+    }
+  }
+}

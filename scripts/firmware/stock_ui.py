@@ -64,24 +64,51 @@ def merge_disjoint_pack(existing, selected):
         if existing.get(key) != selected.get(key):
             raise ValueError('Existing pack source identity differs: '+key)
     merged = copy.deepcopy(existing)
+    old_indices = merged.setdefault('uiSelection', {}).setdefault('sourceMessageIndices', {})
+    new_indices = selected['uiSelection'].get('sourceMessageIndices', {})
     for bucket in CATEGORIES:
         for name, value in selected.get(bucket, {}).items():
             current = merged.setdefault(bucket, {})
             if name in current and current[name] != value:
-                raise ValueError(f'Conflicting existing {bucket} resource: {name}')
+                if bucket != 'messages':
+                    raise ValueError(f'Conflicting existing {bucket} resource: {name}')
+                value, indexes = merge_message_bank(current[name], old_indices[name], value, new_indices[name])
+                old_indices[name] = indexes
             current[name] = copy.deepcopy(value)
             sources = merged.setdefault('resourceSources', {}).setdefault(bucket, {})
             selected_source = selected['resourceSources'][bucket][name]
             if name in sources and sources[name] != selected_source:
                 raise ValueError(f'Conflicting existing {bucket} provenance: {name}')
             sources[name] = copy.deepcopy(selected_source)
-    old_indices = merged.setdefault('uiSelection', {}).setdefault('sourceMessageIndices', {})
-    for bank, indices in selected['uiSelection'].get('sourceMessageIndices', {}).items():
-        if bank in old_indices and old_indices[bank] != indices:
-            raise ValueError('Conflicting existing message indexes: '+bank)
-        old_indices[bank] = copy.deepcopy(indices)
+    for bank, indices in new_indices.items():
+        if bank not in old_indices: old_indices[bank] = copy.deepcopy(indices)
     merged.pop('uiSelectionAdditions', None)
     return merged
+
+
+def merge_message_bank(existing, old_indices, selected, new_indices):
+    """Union two selected views of one MSBT by original source message index."""
+    if {k: v for k, v in existing.items() if k not in ('labels', 'messages')} != \
+       {k: v for k, v in selected.items() if k not in ('labels', 'messages')}:
+        raise ValueError('Conflicting existing message bank metadata')
+    if len(old_indices) != len(existing['messages']) or len(new_indices) != len(selected['messages']):
+        raise ValueError('Selected message source indexes differ')
+    by_source = {}
+    labels = {}
+    for bank, indices in ((existing, old_indices), (selected, new_indices)):
+        for index, message in zip(indices, bank['messages']):
+            if index in by_source and by_source[index] != message:
+                raise ValueError('Conflicting existing message content')
+            by_source[index] = copy.deepcopy(message)
+        for label, local in bank['labels'].items():
+            index = indices[local]
+            if label in labels and labels[label] != index:
+                raise ValueError('Conflicting existing message label: '+label)
+            labels[label] = index
+    ordered = sorted(by_source)
+    mapping = {index: local for local, index in enumerate(ordered)}
+    return {**copy.deepcopy(existing), 'labels': {label: mapping[index] for label, index in sorted(labels.items())},
+            'messages': [by_source[index] for index in ordered]}, ordered
 
 
 def validate_part_links(layouts):
@@ -250,6 +277,7 @@ def publish_additive(source_root, output, plan):
                     updated.update(size=len(merged_bytes), sha256=digest(merged_bytes))
                     records[url] = updated
                     merged_existing.append(url)
+                    for texture in selected['textures'].values(): copied(texture['url'])
                 elif existing[url]['sha256'] != selected_hash:
                     preserved.append(url)
                 continue

@@ -9,6 +9,11 @@ from `0x2d6ce0` through its 64-record loop, readiness reset, first
 post-reset service call and buffer binding in the same synthetic reuse sequence.
 The rest of the setup tail, SceneBrowse replacement caller and pixels remain open.
 
+The later [factory dispatch replay](../scripts/replay_camera_scene_factory.py)
+resolves the missing direct constructor call as an **indirect factory case**.
+It reaches the constructor entry, but not the SceneBrowse replacement caller
+or a new-owner presentation pass.
+
 This continues the [gallery reset audit](camera-gallery-scene-reset-audit.md)
 and [root/rebind ordering replay](camera-rebind-order-source-audit.md), based on
 `2e9ca4d`. **Live horizontal scrolling remains disconnected.** The source now
@@ -67,10 +72,20 @@ executed stages above:
 - The SceneBrowse constructor entry `0x28d23c` stores vtable `0x41f8b8`
   through the literal at `0x28d6e4`. An aligned ARM `BL` target scan of the
   pinned executable finds **no direct call** to that entry, whereas destructor
-  `0x28d7f4` has the expected wrapper call at `0x28d7e8`. This is an exact
-  source gap: the scene factory/indirect constructor dispatch and caller that
-  replaces the active child still need identification and execution. The scan
-  cannot rule out indirect `BLX`, virtual dispatch or a branch thunk.
+  `0x28d7f4` has the expected wrapper call at `0x28d7e8`. The factory branch
+  below resolves the constructor route. The caller that invokes it and
+  replaces the active child remains unexecuted; the direct-call scan alone
+  cannot establish scene lifecycle ordering.
+- App initialization at `0x10f440–0x10f444` installs interface pointer
+  `0x41fdbc` in a four-byte holder at app `+0x308`. That method slot contains
+  `0x311af4`. The original seven-way dispatcher reads its index from `r1`;
+  case **2** enters `0x311b58`, asks allocator `0x260440` for **0x1400** bytes,
+  then tail branches at `0x311b70` to SceneBrowse constructor `0x28d23c`.
+  The hash-pinned replay executes that dispatch through the constructor entry
+  with only the allocator intercepted. This establishes a real construction
+  route and explains the absent direct `BL`; it does **not** establish which
+  caller requests case 2, when the active child is replaced, or when its
+  new cells become consumer-visible.
 - SceneBrowse initialization allocates the thumbnail child and calls
   `0x2d5cac` at `0x28b69c`, stores it at SceneBrowse `+0x48`, and attaches it
   beneath the control at SceneBrowse `+0x44`.
@@ -158,3 +173,13 @@ it still does not show the real SceneBrowse replacement caller, full setup
 return, or a new-owner request and presentation under that setup. The fixture
 has no photo upload or lower-LCD pixel evidence, so live six-item paging
 remains unchanged.
+
+The factory follow-up executed `0x311af4 → 0x311b58 → 0x260440 → 0x311b70`
+and stopped at `0x28d23c`. The pinned report is
+`/Users/paramveer/CodexArtifacts/firmware-10.7.0-32E/camera-live-gate/scene-factory-dispatch.json`.
+Two focused Python tests pass. This narrows the unresolved edge to the caller
+that invokes the registered factory method with index 2 and publishes the
+resulting SceneBrowse child. The separate two-pass rebind fixture demonstrates
+consumer bit publication for a fixed synthetic owner, not for that replacement
+child. The full setup tail, original owner handoff, new-owner request/completion
+and photo pixels remain unlinked; live paging stays disconnected.

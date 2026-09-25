@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Bounded original-HOME Settings COMMON clock and scene-list replay.
 
-The supplied controller is synthetic. The executed instructions are the native
-scene list walker, skeletal controller virtual update, and frame clock. This
-does not execute CGFX binding, pose submission, or actual HOME title scheduling.
+The supplied controller and descriptor are synthetic. The executed instructions
+include the native scene list walker, frame clock and conditional start pose
+callback. This does not execute CGFX binding, a visible pose submission, or
+actual HOME title scheduling.
 """
 
 import argparse
@@ -104,8 +105,8 @@ def run(code):
                  'requestIdentity': 'different-title'})
     assert [row['currentFrame'] for row in rows] == [0, 0, 1, 2, 598, 599, 0, 0, 0]
     return {'homeCodeSha256': CODE_SHA, 'settingsSelectedCgfxSha256': MODEL_SHA,
-            'execution': ['0x10b3d0', '0x24ff10', '0x1bbd94'], 'rows': rows,
-            'scope': 'Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. Native title-driven attachment/hide/retarget, later pose submissions, and pixels are not executed.'}
+            'execution': ['0x10b3d0', '0x24ff10', '0x1bbd94', '0x24fe18', '0x24ff78'], 'rows': rows,
+            'scope': 'Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. A supplied descriptor receives one start pose callback, and two later attached scene passes advance the clock without another pose callback. Native title-driven attachment/hide/retarget, visible pose submission, and pixels are not executed.'}
 
 
 def first_start_submission(code):
@@ -137,7 +138,7 @@ def first_start_submission(code):
                              'submittedFrame': struct.unpack('<f', struct.pack('<I',
                                  uc.reg_read(UC_ARM_REG_S2) & 0xffffffff))[0],
                              'currentFrame': get_float(uc, CONTROLLER + 0xc)})
-            uc.emu_stop()
+            uc.reg_write(UC_ARM_REG_PC, uc.reg_read(UC_ARM_REG_LR))
 
     u.hook_add(UC_HOOK_CODE, hook)
     u.reg_write(UC_ARM_REG_R0, CONTROLLER)
@@ -145,7 +146,21 @@ def first_start_submission(code):
     assert captured == [{'submitAddress': hex(SUBMIT_STUB), 'sourceCall': '0x24ffec',
                          'submittedFrame': 0.0, 'currentFrame': 0.0}], captured
     assert submit_call_reached == [0x24ffec]
-    return captured[0]
+    assert u.reg_read(UC_ARM_REG_PC) == END
+    # The native scene-list virtual update (+0xc) only calls the frame clock.
+    # Keep the descriptor callback installed to check whether these updates
+    # actually submit poses, rather than assuming that a frame is rendered.
+    set_membership(u, True)
+    for _ in range(2):
+        scene_pass(u)
+    assert get_float(u, CONTROLLER + 0xc) == 2.0
+    assert len(captured) == 1, captured
+    set_membership(u, False)
+    scene_pass(u)
+    assert len(captured) == 1, captured
+    return {**captured[0], 'attachedScenePasses': 2,
+            'frameAfterAttachedPasses': get_float(u, CONTROLLER + 0xc),
+            'poseCallbacksAfterAttachedPasses': 0}
 
 
 def main():

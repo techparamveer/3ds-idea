@@ -4,7 +4,9 @@
   "execution": [
     "0x10b3d0",
     "0x24ff10",
-    "0x1bbd94"
+    "0x1bbd94",
+    "0x24fe18",
+    "0x24ff78"
   ],
   "rows": [
     {
@@ -89,11 +91,14 @@
       "mode": 2
     }
   ],
-  "scope": "Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. Native title-driven attachment/hide/retarget, later pose submissions, and pixels are not executed.",
+  "scope": "Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. A supplied descriptor receives one start pose callback, and two later attached scene passes advance the clock without another pose callback. Native title-driven attachment/hide/retarget, visible pose submission, and pixels are not executed.",
   "firstStartSubmission": {
     "submitAddress": "0x833000",
     "sourceCall": "0x24ffec",
     "submittedFrame": 0.0,
-    "currentFrame": 0.0
+    "currentFrame": 0.0,
+    "attachedScenePasses": 2,
+    "frameAfterAttachedPasses": 2.0,
+    "poseCallbacksAfterAttachedPasses": 0
   }
 }

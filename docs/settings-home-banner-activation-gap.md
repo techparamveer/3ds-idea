@@ -18,7 +18,9 @@ the title's states 3, 4 and 5 and that matching state-5 identity can request
 show. It does not establish a complete asynchronous replacement cycle or the
 controller's first frame *at visible attachment* or title-driven scene cadence.
 Conditional start submission and the 599-to-0 controller-clock wrap are
-reproduced below with supplied descriptor and scene membership.
+reproduced below with supplied descriptor and scene membership. The same
+controller instance now proves that two attached scene passes advance the
+clock without another pose submission.
 The browser's material output and 400×240 composition also lack a matched
 native capture. Advancing the current folder/default service directly to
 `active` for Settings would skip the title worker and show boundary.
@@ -53,7 +55,7 @@ model's selected CGFX SHA-256
 `96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d`
 and its 600-frame looping `COMMON` clip before running. The committed
 [fixture](evidence/settings-banner-controller-clock.json) has SHA-256
-`437d1f9651e297df719721641a20e3333a936e3022e5ea3480d6bf59c4338dfa`.
+`cc2ead09dd9d925dfa1eb6cfbc9140e7209902391b3050cce52b5bb5de30c02c`.
 The scene membership and controller fields are supplied synthetic memory;
 `0x25000c` is the source constructor for the controller vtable, but the replay
 does not run that constructor or bind the CGFX.
@@ -69,14 +71,20 @@ covers bounded native hide decisions.
 The replay also executes the original controller start method `0x24fe18` into
 reset/pose method `0x24ff78`. With a supplied matching descriptor type and pose
 callback, the first callback at `0x24ffec` receives **frame 0** while current
-frame is 0. This is a conditional first **start** submission. The descriptor,
-its type result and callback are stubs, so the replay does not prove a real
-Settings model is ready or that its first submission coincides with visible
-scene attachment.
+frame is 0. The callback returns and the same controller completes start.
+Two subsequent attached passes through the original scene walker advance its
+current frame to 2 without calling that pose callback again; detachment adds
+no callback. This follows from the executed scene walker `0x10b3d0` calling
+the controller's virtual `+0xc` (`0x24ff10`), which calls only frame clock
+`0x1bbd94`. The descriptor, its type result and callback are stubs, so the
+replay does not prove a real Settings model is ready or that the first start
+submission coincides with visible scene attachment.
 
-Later pose submissions, whether a retained hidden title remains attached
-during a particular hide transition, and which native outer updates are
-eligible remain unproven. The scene-list membership was set directly. Keep
+The separate path that submits poses after clock updates has not been linked
+to a title-driven render pass. Later pose submissions, whether a retained hidden
+title remains attached during a particular hide transition, and which native
+outer updates are eligible remain unproven. The scene-list membership was set
+directly. Keep
 the Settings live banner gate and focused test TODO in place until the
 title-driven attach/hide path and later pose submission cadence are executed,
 then compare matched native and browser 400×240 captures. No browser or native

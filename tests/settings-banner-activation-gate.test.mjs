@@ -5,6 +5,7 @@ import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView } 
 
 const root = new URL('../public/os/firmware/10.7.0-32E/models/settings-banner/', import.meta.url);
 const model = JSON.parse(readFileSync(new URL('model.json', root), 'utf8'));
+const controller = JSON.parse(readFileSync(new URL('../docs/evidence/settings-banner-controller-clock.json', import.meta.url), 'utf8'));
 
 test('Settings primary has a complete, bound source texture pack before title activation', () => {
   assert.equal(model.sourceSha256, '96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d');
@@ -46,4 +47,14 @@ test('Settings remains unsupported until title-driven visible submission and sce
   assert.equal(host.inputs.resourceReady, null);
 });
 
-test.todo('sample native Settings COMMON controller start, wrap and visible scene cadence in an executed fixture');
+test('bounded original controller replay separates start pose submission from attached clock updates', () => {
+  assert.equal(controller.homeCodeSha256, '243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9');
+  assert.equal(controller.settingsSelectedCgfxSha256, model.sourceSha256);
+  assert.deepEqual(controller.rows.map(row => row.currentFrame), [0, 0, 1, 2, 598, 599, 0, 0, 0]);
+  assert.equal(controller.firstStartSubmission.submittedFrame, 0);
+  assert.equal(controller.firstStartSubmission.attachedScenePasses, 2);
+  assert.equal(controller.firstStartSubmission.frameAfterAttachedPasses, 2);
+  assert.equal(controller.firstStartSubmission.poseCallbacksAfterAttachedPasses, 0);
+});
+
+test.todo('execute title-driven Settings scene attachment and the first visible pose submission');

@@ -14,7 +14,7 @@ The **isolated Azahar profile running the user's EUR 10.7.0-32E firmware** is gr
 
 Use only the copy under `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/`. Never launch `/Applications/Azahar.app` or touch the default profile. Before each launch, verify copied executable SHA-256 `3dfdfbed147cfb420f224385e832191833d07b0951d4b86326ab193e2deb3b21`; no symlinks under isolated `user/`; and `user/config/qt-config.ini` values `use_custom_storage=false`, `graphics_api=1` (OpenGL), both resolution factors 1, `layout_option=0`, `swap_screen=false`, and screenshot path inside the isolated reference. Back up config before edits and version the working config with date/hash. Launch the copied executable directly with `reference/` as working directory. Record original-3DS mode, EUR/English, white HOME theme, clock policy and photo/song population in the scenario matrix. See [profile isolation](../native-reference-profile-isolation.md).
 
-Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`, START=`M`, SELECT=`N`, L=`Q`, R=`W`, D-pad up/down/left/right=`T`/`G`/`F`/`H`; read X/Y/Circle Pad from config. Prefer configured `touch_from_button` keys at 320×240 lower-LCD coordinates. Both `profiles\\1\\use_touch_from_button=true` and `profiles\\1\\use_touch_from_button\\default=false` retain those keys. Edit config only while Azahar is closed. Calibrate any mouse touch from a window screenshot and confirm it landed. Look after **every** input; fix lost focus, dialogs or black frames before continuing. Frame-advance motion at explicit counts. Record audio capture method or leave audio open.
+Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`, START=`M`, SELECT=`N`, L=`Q`, R=`W`, D-pad up/down/left/right=`T`/`G`/`F`/`H`; read X/Y/Circle Pad from config. Prefer configured `touch_from_button` keys at 320×240 lower-LCD coordinates. Both `profiles\\1\\use_touch_from_button=true` and `profiles\\1\\use_touch_from_button\\default=false` retain those keys. Edit config only while Azahar is closed. Calibrate any mouse touch from a window screenshot and confirm it landed. The coordinator recovered native key input with CUA `typeText` using repeated characters; a single press was too brief for the controller poll. Record repetition and resulting state rather than treating one character as one frame. Look after **every** input; fix lost focus, dialogs or black frames before continuing. Frame-advance motion at explicit counts. Record audio capture method or leave audio open.
 
 ## Native capture, browser capture and diff
 
@@ -25,15 +25,15 @@ Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`
 
 Store a versioned `reference/scenario-matrix/v1/matrix.json` under the private artifact root; bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
 
-The first targeted pairs are **HOME idle** and **Settings → Other Settings page 1**, in `reference/scenario-matrix/v1/captures/`. At this documentation checkpoint their native/browser pixel diff does **not** exist. The older 1229×768 JPEG Settings grab against a source render cannot stand in for it.
+The first acceptance targets remain **matched HOME idle** and **Settings → Other Settings page 1**, in `reference/scenario-matrix/v1/captures/`. Three settled diagnostic pairs now exist: `settings-main`, `settings-other-1` and `home-settings-selected`. All three are `fail`, with unmatched native/browser input routes and motion/audio open. The available HOME idle native/browser captures selected different titles and have no matched comparison score. The older 1229×768 JPEG Settings grab against a source render remains non-acceptance evidence. See the [progress record](../progress-2026-09-24.md) for counts and remaining defects.
 
 `captureScreensAt` forces an explicit presentation sample without advancing
 host state. It is available in development and in a production build served on
 loopback with `?lcdCapture=1`; see [browser LCD capture](../browser-lcd-capture.md).
 It exports the 400×240 upper source canvas and 320×240 lower canvas as PNGs,
 before the upper source is stretched to the 800×240 display texture.
-The opt-in local verification route saves the exact JSON payload and both PNGs
-under the private artifact root when `LCD_CAPTURE_OUTPUT_ROOT` is set.
+The opt-in local production verification route has been exercised through a CUA click and saves the exact JSON payload and both PNGs
+under the private artifact root when `LCD_CAPTURE_OUTPUT_ROOT` is set. It is gated to loopback with `?lcdCapture=1`; keep it invisible to visitors.
 `captureNativeBanner` remains development-only. A sampled pose does not prove
 that live input reached it with native timing.
 

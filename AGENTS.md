@@ -112,9 +112,12 @@ and diff regions, then hand off for integration and recapture.
 
 The first required pairs are HOME idle and Settings → Other Settings page 1,
 under `reference/scenario-matrix/v1/captures/` in the private artifact root.
-No pixel diff exists for them yet. The old scaled Settings JPEG/source-render
-pair is not acceptance evidence. Never claim a scenario passes from tests,
-source renders, a browser view or a worker's build alone. Matrix entries must
+Matrix v1 now contains three paired, failing settled diagnostics
+(Settings main, Other page 1 and HOME with Settings selected); motion/audio
+are open and their input paths differ. HOME idle still lacks a matched pair.
+The old scaled Settings JPEG/source-render pair is not acceptance evidence.
+Never claim a scenario passes from tests, source renders, a browser view or a
+worker's build alone. Matrix entries must
 be `pass`, `adaptation`, `source-gap` or `blocked` with evidence; an active
 unexplained mismatch is `fail`.
 

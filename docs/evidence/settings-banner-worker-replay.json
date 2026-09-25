@@ -1,7 +1,43 @@
 {
   "codeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
   "firmware": "EUR HOME 10.7.0-32E",
-  "method": "Original ARM stage-4/stage-5 branch replay and two early title-worker failures with synthetic manager memory. OS readiness/join, resource preparation, visibility requests and worker launch are explicit stubs. Stops before state-5 tail and global scene/GPU execution; no successful resource-worker execution.",
+  "method": "Original ARM title-worker control flow, stage-4/stage-5 branches and common post-state-5 acknowledgement with synthetic manager memory. Archive I/O, allocation, constructors, CBMD read/decode, OS readiness/join, controller preparation, visibility calls and worker launch are explicit stubs. The supplied-resource path verifies two decode call sites and the completion-byte store, not real-resource success. Stage-5 replay stops before its tail; acknowledgement is replayed independently. No presentation-worker body, scene/GPU execution or title clip timing.",
+  "postState5Acknowledgement": {
+    "changedType": {
+      "requestPending": 1,
+      "stop": "0x700000",
+      "visibilityRequests": []
+    },
+    "matchingRequest": {
+      "requestPending": 0,
+      "stop": "0x700000",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          1
+        ],
+        [
+          "0x500200",
+          1
+        ]
+      ]
+    },
+    "missingPrimary": {
+      "requestPending": 0,
+      "stop": "0x700000",
+      "visibilityRequests": [
+        [
+          "0x500200",
+          1
+        ]
+      ]
+    },
+    "retargetedTitle": {
+      "requestPending": 1,
+      "stop": "0x700000",
+      "visibilityRequests": []
+    }
+  },
   "state4": {
     "presentationLaunchFailure": {
       "prepared": true,
@@ -135,5 +171,21 @@
     "archiveReadCalled": true,
     "completionByte": 0,
     "stop": "0x24c988"
+  },
+  "titleWorkerSuppliedResources": {
+    "commonCandidate": "0x500600",
+    "completionByte": 1,
+    "decodeCalls": [
+      [
+        "0x508020",
+        "0x50a000"
+      ],
+      [
+        "0x508040",
+        "0x50c000"
+      ]
+    ],
+    "selectedCandidate": "0x500700",
+    "stop": "0x700000"
   }
 }

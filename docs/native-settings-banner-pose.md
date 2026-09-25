@@ -98,7 +98,46 @@ calling the identity predicate. The replay's deliberately inconsistent
 `M+4=0` plus mismatched key demonstrates why a host must preserve the native
 request-generation invariant; it does **not** establish that such a mismatch is
 reachable through normal input. Resource operations, worker scheduling and
-visibility calls are explicit stubs. The replay stops before the rest of state
-5 and does not execute a successful title-resource worker or the presentation
-worker. It cannot prove recovery, cancellation, eventual visibility, animation
-timing or pixels. These remain gates for live type-1 activation.
+visibility calls are explicit stubs. This state-5 branch replay stops before
+its tail. The supplied-resource branch and acknowledgement helper are covered
+separately below; none proves recovery, cancellation, eventual visibility,
+animation timing or pixels. These remain gates for live type-1 activation.
+
+## Supplied-resource completion and post-state-5 acknowledgement
+
+The same hash-pinned replay now follows original title-worker instructions
+`0x24c930..24cc24` with **supplied** successful archive, allocation, CBMD-read
+and decode results. It observes both calls to `0x220070`: the common offset
+`0x20` is decoded into `M+0xcc`, then the selected offset `0x40` into
+`M+0xd0`. The original worker stores both candidate objects at `M+0x50/+0x54`
+and writes completion byte `1` at `0x24cba8`. These addresses and synthetic
+offsets establish the successful **control-flow branch** only. The replay does
+not decode the four real CBMDs or establish that their models construct and
+prepare successfully in native HOME.
+
+After state 5, the native tail `0x24a730` reaches `0x1f91c0`. A separate
+execution of that original helper with a supplied scene-service return shows
+the acknowledgement predicate: matching current/requested title words,
+medium byte and native type clears pending `M+4` and requests visibility `1`
+on existing primary/secondary objects. A changed title key or type leaves
+`M+4=1` and makes no visibility request in this helper. If the primary pointer
+is null but the secondary is present, it still clears pending and requests
+visibility on the secondary. This is **request acknowledgement**, not an
+actual-visible or drawn-pixel observation. The state-5 branch itself still
+checks current identity before asking the objects to show or hide.
+
+Reproduce with `replay-settings-banner-workers.py --code /absolute/private/home/exefs/code.bin`
+using Unicorn 2.1.4. The script rejects an unexpected executable SHA-256.
+The committed [JSON fixture](evidence/settings-banner-worker-replay.json) has
+SHA-256 `ae0771bb62a3708b597d124decdb67c50acc906eb7fdcd177561fe24228fa921`;
+an identical run and the full test log are retained under the private SSD
+`presentation/type1-worker-completion/` artifact directory.
+
+The replay does not execute the body of presentation worker `0x2492d8`, native
+thread scheduling, a realistic retarget followed by the next state-6/2/1/3
+cycle, or the `COMMON` controller's submitted-frame sequence. The converted
+common clips prove their source durations and loop flags, while the manager
+and scene-pass order proves only an update opportunity. The four title assets
+remain dormant until worker completion and recovery are demonstrated with real
+resources, clip sampling is bounded against native updates, and matched
+native/browser pixels are inspected.

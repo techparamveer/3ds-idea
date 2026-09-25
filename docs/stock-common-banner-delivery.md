@@ -45,8 +45,15 @@ and clip shape, complete common images and exact EUR texture names before
 creating one model and applying every locale replacement with the explicit
 size override. Its console-session/request ticket drops stale asynchronous
 loads and disposes a retargeted model. The HOME screen does not request or draw
-these models yet: the bounded worker replay does not establish successful
-resource/presentation completion, show acknowledgement, retarget recovery or
-native animation cadence. Resource preparation is therefore not a visibility
-gate. The coordinator must verify those source boundaries and inspect matched
-browser/native pixels before enabling this path in `console-scene.ts`.
+these models yet. Resource preparation is not a visibility gate. The
+coordinator must verify native worker, animation and pixel behavior before
+enabling this path in `console-scene.ts`.
+
+The later [type-1 worker replay](native-settings-banner-pose.md) now reaches
+the title worker's completion-byte store after **supplied** successful common
+and selected resource operations, and independently executes the post-state-5
+acknowledgement helper. Matching identity/type clears the pending request and
+requests show; a retarget preserves pending. Neither fixture executes the
+presentation worker body, proves completion with these four real CBMDs, samples
+their `COMMON` clips through native scene updates, or verifies pixels. Those
+remain activation gates.

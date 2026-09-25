@@ -6,7 +6,7 @@ interactive console. There is no application backend or firmware executable in
 the runtime. Native resources are converted offline and interpreted by browser
 renderers around deterministic software state.
 
-This design map follows UI continuation **`d9b4fd4` on
+This design map follows UI continuation **`8e1e31e` on
 25 September 2026**. Parental screens remain inside
 the existing `AppModule`, painter and `stock-screen-layout.ts` boundaries.
 The Sound entry room adds a scene-owned static model background with an injected

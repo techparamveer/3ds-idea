@@ -92,6 +92,14 @@ scenario. Matched native evidence is still required for visual, motion and audio
 fidelity. See [verification](verification.md) and the
 [progress matrix](../progress-2026-09-24.md).
 
+The Sound Span visualizer is a published source model, not yet a browser
+render in the `8e1e31e` checkpoint. `manifest.models.soundSpan` points to
+`models/sound-span/model.json`, with one source texture. Both manifest records
+map to Sound title `0004001000022500`, content index 0, content ID
+`0000000b` and `contents/0000-0000000b/romfs/res/S.pack/S_Vis_Span_U.bcmdl.LZ`
+(source SHA-256 `c9558d7c10d0d6354b63aeb39ca173707cdb927d3344f23e51d5229c4b953244`).
+Scene-owned visible mounting and native LCD comparison are separate gates.
+
 FLYT amiibo material support is capability-bounded: converter 1.5.2 marks the
 traced two-texture combinations, while runtime preparation lowers them to the
 existing TEV pipeline. A8/A4 sample pixels retain format metadata so FLYT can

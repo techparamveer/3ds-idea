@@ -1,5 +1,11 @@
 # Live folder and default banner integration
 
+25 September update: `system-settings` now has a provisional, title-keyed
+source-model primary through the same host clock, Frame and camera. Its
+six-call gate and combined resource acknowledgement adapt the unimplemented
+native title/presentation workers. Other application selections remain
+unsupported. See [Settings activation](settings-home-banner-activation-gap.md).
+
 The console now consumes the pure folder host/service/lifecycle through its
 shared HOME update counter. Its native folder model no longer derives yaw or
 clip phase from the renderer's elapsed time. Folder selection first requests

@@ -16,7 +16,9 @@ export type HomeFolderBannerSelection = Readonly<{
 export type HomeDefaultBannerSelection = Readonly<{ kind: 'default' }>;
 export type HomeClearBannerSelection = Readonly<{ kind: 'clear' }>;
 type RenderSelection = HomeFolderBannerSelection | HomeDefaultBannerSelection;
-type SupportedSelection = RenderSelection | HomeClearBannerSelection;
+export type HomeSettingsBannerSelection = Readonly<{ kind: 'app'; id: string }>;
+type SupportedRenderSelection = RenderSelection | HomeSettingsBannerSelection;
+type SupportedSelection = SupportedRenderSelection | HomeClearBannerSelection;
 export type HomeToolbarBannerSelection = Readonly<{ kind: 'toolbar'; focus: number; category: number }>;
 type UnsupportedSelection = Readonly<{ kind: 'app'; id: string }> | HomeToolbarBannerSelection;
 export type HomeBannerHostSelection = SupportedSelection | UnsupportedSelection;
@@ -26,7 +28,7 @@ export type HomeBannerHostPresentation = Readonly<{
   generation: string; requestEpoch: number; selection: SupportedSelection;
 }>;
 export type HomeBannerHostActivePresentation = Readonly<{
-  generation: string; requestEpoch: number; activationEpoch: number; selection: RenderSelection;
+  generation: string; requestEpoch: number; activationEpoch: number; selection: SupportedRenderSelection;
 }>;
 export type HomeBannerHost = Readonly<{
   /** System session generation and last observed shared counter, including unsupported intervals. */
@@ -151,6 +153,7 @@ function sameFolder(a: HomeFolderBannerSelection, b: HomeFolderBannerSelection):
 }
 function targetFor(selection: SupportedSelection): HomeBannerTarget {
   if (selection.kind === 'folder') return { kind: 'folder', key: selection.key, nativeType: selection.nativeType };
+  if (selection.kind === 'app') return { kind: 'app', key: selection.id, nativeType: 1 };
   return selection.kind === 'default'
     ? { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 }
     : { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };
@@ -218,7 +221,7 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
   }
 
   const selection = boundary.selection === undefined ? host.selection : copySelection(boundary.selection);
-  if (!selection || selection.kind === 'app' || selection.kind === 'toolbar') {
+  if (!selection || selection.kind === 'app' && selection.id !== 'system-settings' || selection.kind === 'toolbar') {
     // Authored unsupported handoff: no guessed type, fade or hidden acknowledgement.
     return { clock: { ...clock }, scope, selection, inputs: retainInputs(boundary.inputs ?? host.inputs, null), service: null, pending: null, active: null };
   }
@@ -245,7 +248,7 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
 /** Sampling never requests, acknowledges resources, or advances either native pass. */
 export function getHomeBannerHostView(host: HomeBannerHost): HomeBannerHostView {
   const { service, selection, active } = host;
-  if (!service || !selection || selection.kind === 'app' || selection.kind === 'toolbar') {
+  if (!service || !selection || selection.kind === 'app' && selection.id !== 'system-settings' || selection.kind === 'toolbar') {
     return { status: 'unsupported', selection: selection?.kind === 'app' || selection?.kind === 'toolbar' ? selection : null, resourceTicket: null };
   }
   const common = { generation: service.clock.generation, selection, resourceTicket: getHomeBannerResourceTicket(service), stage: service.stage, waitUpdates: service.waitUpdates };

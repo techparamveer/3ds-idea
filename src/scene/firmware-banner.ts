@@ -44,8 +44,8 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   target.texture.colorSpace = THREE.NoColorSpace;
   const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 240;
   const context = canvas.getContext('2d')!, pixels = new Uint8Array(400 * 240 * 4), image = context.createImageData(400, 240);
-  let model: ReturnType<typeof createFirmwareModel> | undefined, defaultModel: ReturnType<typeof createFirmwareModel> | undefined, background: ReturnType<typeof createFirmwareModel> | undefined, mask: ReturnType<typeof createFirmwareModel> | undefined;
-  let disposed = false, failure: string | undefined, defaultFailure:string|undefined, backgroundFailure:string|undefined, frameFailure:string|undefined;
+  let model: ReturnType<typeof createFirmwareModel> | undefined, defaultModel: ReturnType<typeof createFirmwareModel> | undefined, settingsModel: ReturnType<typeof createFirmwareModel> | undefined, background: ReturnType<typeof createFirmwareModel> | undefined, mask: ReturnType<typeof createFirmwareModel> | undefined;
+  let disposed = false, failure: string | undefined, defaultFailure:string|undefined, settingsFailure:string|undefined, backgroundFailure:string|undefined, frameFailure:string|undefined;
   const folderReady = loadFirmwareModel('/os/firmware/10.7.0-32E/models/folder/model.json').then(asset => {
     if (disposed) return;
     model = createFirmwareModel(asset,{},primaryOptions);model.group.visible=false;scene.add(model.group);
@@ -56,6 +56,17 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     defaultModel=createFirmwareModel(asset,{skeletal:[{name:defaultSkeletalClip,frame:0}],material:[{name:defaultMaterialClip,frame:0}]},primaryOptions);
     defaultModel.group.visible=false;scene.add(defaultModel.group);
   }).catch(error=>{if(!disposed)defaultFailure=String(error);});
+  const settingsReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/settings-banner/model.json').then(asset=>{
+    if(disposed)return;
+    const common=asset.data.models.find(value=>value.name==='COMMON');
+    const clip=asset.data.skeletalAnimations.find(value=>value.Name==='COMMON');
+    if(asset.data.models.length!==1||!common||common.meshes.length!==12||!clip||clip.FramesCount!==600||!clip.AnimationFlags.includes('IsLooping')||asset.data.materialAnimations.length)throw new Error('Incomplete native Settings COMMON banner');
+    for(const material of common.materials)for(const name of [material.Texture0Name,material.Texture1Name,material.Texture2Name]){
+      if(name&&!asset.images.has(name))throw new Error(`Missing native Settings texture ${name}`);
+    }
+    settingsModel=createFirmwareModel(asset,{skeletal:[{name:'COMMON',frame:0}]},primaryOptions);
+    settingsModel.group.visible=false;scene.add(settingsModel.group);
+  }).catch(error=>{if(!disposed)settingsFailure=String(error);});
   const frameReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-frame/model.json').then(asset=>{
     if(disposed)return;
     // Native register headers preserve the global write mask despite JSON's
@@ -68,7 +79,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     backgroundScene.add(background.group);
   }).catch(error=>{if(!disposed)backgroundFailure=String(error);});
   const cameraReady=loadFirmwareCamera('/os/firmware/10.7.0-32E/models/home-camera/camera.json').then(value=>{if(!disposed)camera=value;}).catch(error=>{if(!disposed){failure=String(error);backgroundFailure=String(error);frameFailure=String(error);}});
-  const ready=Promise.all([folderReady,defaultReady,frameReady,backgroundReady,cameraReady]);
+  const ready=Promise.all([folderReady,defaultReady,settingsReady,frameReady,backgroundReady,cameraReady]);
   function render(ctx:CanvasRenderingContext2D,source:THREE.Scene,overlay=false) {
     if(!camera)return false;
     const previous = renderer.getRenderTarget(), color = renderer.getClearColor(new THREE.Color()), alpha = renderer.getClearAlpha();
@@ -95,6 +106,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   function selectPrimary(primary:ReturnType<typeof createFirmwareModel>){
     if(model)model.group.visible=primary===model;
     if(defaultModel)defaultModel.group.visible=primary===defaultModel;
+    if(settingsModel)settingsModel.group.visible=primary===settingsModel;
   }
   function renderPrimaryFrame(ctx:CanvasRenderingContext2D,primary:ReturnType<typeof createFirmwareModel>,frame:PrimaryBannerRenderFrame,skeletalClip:string,materialClip:string){
     if(!mask||!camera)return false;
@@ -131,10 +143,22 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     try{return renderPrimaryFrame(ctx,defaultModel,frame,defaultSkeletalClip,defaultMaterialClip);}
     catch(error){defaultFailure=String(error);return false;}
   }
+  function drawSettingsFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame){
+    if(disposed||!settingsModel||!mask||!camera||settingsFailure||frameFailure)return false;
+    if(!frame.visible)return true;
+    try{
+      settingsModel.group.rotation.y=frame.yawRadians;settingsModel.group.scale.setScalar(frame.scale);
+      settingsModel.group.position.set(frame.offsetX,frame.nativeDisplacementY+frame.offsetY,0);
+      mask.group.position.set(0,frame.nativeDisplacementY,0);
+      settingsModel.setPlayback({skeletal:[{name:'COMMON',frame:frame.skeletalFrame}]});
+      settingsModel.update(0,camera);mask.update(0,camera);selectPrimary(settingsModel);
+      return render(ctx,scene,true);
+    }catch(error){settingsFailure=String(error);return false;}
+  }
   function drawBackground(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean){
     if(disposed||!background||backgroundFailure)return false;
     try{background.update(reduced?0:elapsedMs,camera);return render(ctx,backgroundScene);}
     catch(error){backgroundFailure=String(error);return false;}
   }
-  return { ready, draw, drawFrame, drawDefaultFrame, drawBackground, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; model?.dispose();defaultModel?.dispose();mask?.dispose();background?.dispose();target.dispose(); } };
+  return { ready, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawBackground, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; model?.dispose();defaultModel?.dispose();settingsModel?.dispose();mask?.dispose();background?.dispose();target.dispose(); } };
 }

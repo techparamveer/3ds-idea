@@ -263,7 +263,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { soundRoom?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { soundRoom?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -303,14 +303,16 @@ export function createScreens(options: { soundRoom?:StockModelBackground; font?:
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
   const view=getHomePresentation(state);
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white')options.drawHomeBackground?.(t,time,reduced);
-  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app')graphics.banner(t,app,time,reduced);
   const hostedBanner=options.getHomeBanner?.();
+  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!(app.id==='system-settings'&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id==='system-settings'))graphics.banner(t,app,time,reduced);
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
    if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&!state.panel&&state.system?.phase==='home'){
     const {selection,motion}=hostedBanner.primary;
     if(selection.kind==='default'){
      if(!options.drawDefaultBannerFrame?.(t,motion)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native default banner unavailable.'))firmwareAssets.diagnostics.push('Native default banner unavailable.');
+    }else if(selection.kind==='app'){
+     if(!options.drawSettingsBannerFrame?.(t,motion)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Settings banner unavailable.'))firmwareAssets.diagnostics.push('Native Settings banner unavailable.');
     }else{
      const label=nativeHome?.folderBannerLabel(selection.label);
      if(!options.drawFolderBannerFrame?.(t,motion,label)){

@@ -1,5 +1,11 @@
 # Decrypted stock HOME banners: source audit
 
+25 September update: System Settings is wired as a provisional live type-1
+primary using the published `COMMON` pack. The worker and first-visible pose
+remain unproved, and no matched browser/native 400×240 comparison is available.
+See [activation decision](settings-home-banner-activation-gap.md). The
+historical unsupported statements below describe the preceding gate audit.
+
 The owner-provided EUR 10.7.0-32E extraction contains clear ExeFS
 `banner.bin` files. These are CBMD containers, which select a common or
 region/language-specific LZ11 CGFX and include separate BCWAV audio. The

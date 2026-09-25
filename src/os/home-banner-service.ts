@@ -23,12 +23,12 @@ export type HomeBannerServiceInputs = Readonly<{
   nativeWorkerReady: boolean;
   /** Ready renderable resources for this request. Never inferred from elapsed updates. */
   resourceReady: HomeBannerResourceTicket | null;
-  /** App/legacy special motion is external. Folder/default motion is owned here. */
+  /** Unsupported app/legacy motion is external. Settings is the bounded title exception. */
   nonFolderPrimary?: Readonly<{ generation: string; activationEpoch: number; visible: boolean }>;
 }>;
 export type HomeBannerService = Readonly<{
   lifecycle: HomeBannerLifecycle;
-  /** Native states1,2,3,6. App-specific loader states4/5 remain an explicit host dependency. */
+  /** Native states1,2,3,6. Settings uses a documented combined-readiness adaptation for states4/5. */
   stage: 'gate' | 'hiding' | 'loading' | 'active';
   waitUpdates: number;
   loadDeferred: boolean;

@@ -59,7 +59,7 @@ See [helper return tests](../../tests/settings-helper-return.test.mjs).
 | `home-folder-identity.ts` | Session-local opaque folder keys, immutable allocation and movement; never persisted |
 | `home-folder-close.ts` | Pure normal-close task/layout phases and per-operation observations |
 | `home-folder-close-system.ts` | Counted System close, root/viewport commit and bounded shared-update timestamps |
-| `home-banner-lifecycle.ts` | Pure folder/default request/activation, explicit clear, shared visibility/yaw and independent source clip clocks |
+| `home-banner-lifecycle.ts` | Pure folder/default/Settings request and activation, explicit clear, shared visibility/yaw and independent source clip clocks; Settings title worker timing is an adaptation |
 | `home-banner-service.ts` | Pure native banner gate and ordered manager/scene passes from a shared update counter |
 | `app-persistence.ts` | Versioned IndexedDB saves, preferences and media |
 | `app-capabilities.ts` | Opt-in browser devices, local capture and resource cleanup |

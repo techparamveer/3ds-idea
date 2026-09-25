@@ -1,4 +1,4 @@
-/** Pure HOME folder/default/clear lifecycle. Inputs are native update counts, never milliseconds.
+/** Pure HOME folder/default/clear lifecycle with a bounded Settings title adaptation. Inputs are native update counts, never milliseconds.
  * Native addresses, integration ordering and unmeasured scheduling are documented
  * in docs/native-banner-lifecycle.md. This does not own the HOME selection reducer.
  */
@@ -63,7 +63,7 @@ export type HomeBannerInstance = Readonly<{
   requestEpoch: number;
   activatedAtManagerUpdate: number;
   activatedAtSceneUpdate: number;
-  /** App/legacy special-target motion remains an explicit external boundary. */
+  /** Unimplemented app/legacy targets keep external motion ownership. */
   motion: HomeBannerMotion | null;
 }>;
 
@@ -182,12 +182,14 @@ export function activateHomeBanner(state: HomeBannerLifecycle, requestEpoch: num
   if (state.requested.target.kind === 'clear') return { ...state, phase: 'active', requestPending: false, active: null };
   const activationEpoch = state.activationEpoch + 1;
   const kind = state.requested.target.kind;
-  const motion: HomeBannerMotion | null = kind !== 'folder' && kind !== 'default' ? null : {
+  const motion: HomeBannerMotion | null = kind !== 'folder' && kind !== 'default' &&
+    !(kind === 'app' && state.requested.target.key === 'system-settings' && state.requested.target.nativeType === 1) ? null : {
     requestedVisible: true, visible: false, visibilityEpoch: 0, visibilityManagerUpdate: state.managerUpdates,
     visibilityCounter: 0, visibilityProgress: 0, scale: 1, yawCounter: 0,
     yawRadians: INITIAL_YAW, yawEpoch: 1, yawResetManagerUpdate: state.managerUpdates,
     skeletal: startClip(clip(kind === 'default' ? 300 : HOME_BANNER_PERIOD, true), state.sceneUpdates),
-    material: startClip(clip(kind === 'default' ? 60 : HOME_BANNER_PERIOD, kind !== 'default'), state.sceneUpdates),
+    material: kind === 'app' ? clip(HOME_BANNER_PERIOD, false) :
+      startClip(clip(kind === 'default' ? 60 : HOME_BANNER_PERIOD, kind !== 'default'), state.sceneUpdates),
   };
   return { ...state, phase: 'active', activationEpoch, requestPending: false, active: {
     target: state.requested.target, activationEpoch, requestEpoch,

@@ -32,20 +32,37 @@ test('Settings primary has a complete, bound source texture pack before title ac
   assert.equal(model.models[0].skeleton.find(bone => bone.Name === 'p_title')?.NativeBillboardMode, 1);
 });
 
-test('Settings remains unsupported until title-driven visible submission and scene cadence are proven', () => {
+test('Settings selection gets its own request and rejects a former folder ticket', () => {
   const clock = { generation: 'settings-gate', updateCount: 0 };
   const inputs = { managerInhibited: false, sceneInhibited: false, loadInhibited: false,
     nativeWorkerReady: true, resourceReady: null };
   let host = createHomeBannerHost(clock, inputs);
   host = crossHomeBannerBoundary(host, clock, { selection: { kind: 'folder', key: 'old-folder', label: 'Old', nativeType: 9 } });
   const formerTicket = getHomeBannerHostView(host).resourceTicket;
-  host = crossHomeBannerBoundary(host, clock, { selection: { kind: 'app', id: 'settings' },
+  host = crossHomeBannerBoundary(host, clock, { selection: { kind: 'app', id: 'system-settings' },
     inputs: { ...inputs, resourceReady: formerTicket } });
-  assert.deepEqual(getHomeBannerHostView(host), {
-    status: 'unsupported', selection: { kind: 'app', id: 'settings' }, resourceTicket: null,
-  });
-  assert.equal(host.service, null);
+  const pending = getHomeBannerHostView(host);
+  assert.equal(pending.status, 'pending');
+  assert.deepEqual(pending.selection, { kind: 'app', id: 'system-settings' });
+  assert.equal(host.service.lifecycle.requested.target.nativeType, 1);
+  assert.equal(host.service.lifecycle.requested.target.key, 'system-settings');
+  assert.notDeepEqual(pending.resourceTicket, formerTicket);
   assert.equal(host.inputs.resourceReady, null);
+  host = crossHomeBannerBoundary(host, { ...clock, updateCount: 15 });
+  assert.equal(getHomeBannerHostView(host).status, 'pending', 'readiness must be explicit');
+  host = crossHomeBannerBoundary(host, host.clock, { inputs: { ...inputs, resourceReady: pending.resourceTicket } });
+  host = crossHomeBannerBoundary(host, { ...clock, updateCount: 16 });
+  const active = getHomeBannerHostView(host);
+  assert.equal(active.status, 'active');
+  assert.equal(active.primary.selection.id, 'system-settings');
+  assert.equal(active.primary.motion.skeletal.frame, 1);
+  assert.equal(active.primary.motion.material.status, 0);
+  host = crossHomeBannerBoundary(host, host.clock, { selection: { kind: 'app', id: 'camera' } });
+  assert.equal(getHomeBannerHostView(host).status, 'unsupported');
+  assert.equal(host.service, null);
+  host = crossHomeBannerBoundary(host, host.clock, { selection: { kind: 'app', id: 'system-settings' }, inputs: { ...inputs, resourceReady: pending.resourceTicket } });
+  assert.equal(getHomeBannerHostView(host).status, 'pending');
+  assert.equal(host.inputs.resourceReady, null, 'old title ticket cannot activate a new scope');
 });
 
 test('bounded original controller replay separates start pose submission from attached clock updates', () => {
@@ -85,4 +102,4 @@ test('real Settings CBMD worker decodes COMMON and constructs generic primaries'
   assert.deepEqual(realWorker.commonBindVisits, ['0x24def0', '0x24ed40', '0x2354a0']);
 });
 
-test.todo('bind real Settings COMMON candidate and submit its first visible pose');
+test.todo('bind real Settings COMMON candidate and compare a matched native/browser 400x240 frame');

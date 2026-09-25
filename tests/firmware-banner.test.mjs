@@ -67,6 +67,31 @@ function snapshot(group){
  return {position:group.position.toArray(),scale:group.scale.toArray(),yaw:group.rotation.y,inner:group.children.map(child=>child.matrix.toArray()),meshes};
 }
 
+test('Settings COMMON draws as the sole group-2 primary with its source frame and shared Frame mask',async t=>{
+ const h=setup(t);await h.banner.ready;
+ assert.equal(h.banner.status().settingsReady,true);
+ assert.equal(h.banner.drawSettingsFrame(h.ctx,{...frame,skeletalFrame:150}),true);
+ const draw=h.draws.at(-1),group=primary(draw.scene);
+ assert.equal(draw.primaries.length,1);
+ assert.equal(group.children[0].children.length,12);
+ assert.equal(group.scale.x,.8);assert.equal(group.rotation.y,.31);
+ assert.ok(mask(draw.scene));
+ assert.deepEqual(draw.camera.position.toArray(),[0,1,44.7859992980957]);
+ const pose=snapshot(group);
+ assert.equal(h.banner.drawSettingsFrame(h.ctx,{...frame,skeletalFrame:150}),true);
+ assert.deepEqual(snapshot(group),pose);
+ assert.equal(h.banner.drawSettingsFrame(h.ctx,{...frame,visible:false}),true);
+ assert.equal(h.draws.length,2,'hidden sample does not draw stale Settings pixels');
+});
+
+test('Settings resource failure is explicit and does not borrow the folder model',async t=>{
+ const h=setup(t,{failure:'/settings-banner/model.json'});await h.banner.ready;
+ assert.equal(h.banner.status().settingsReady,false);
+ assert.match(h.banner.status().settingsFailure,/HTTP 503/);
+ assert.equal(h.banner.drawSettingsFrame(h.ctx,frame),false);
+ assert.equal(h.banner.drawFrame(h.ctx,frame),true);
+});
+
 test('explicit folder paints sample independent frames repeatedly and preserve the inner bind transform',async t=>{
  const h=setup(t,{alterBind:true});
  assert.equal(h.banner.drawFrame(h.ctx,{...frame,visible:false}),false,'not loaded yet');

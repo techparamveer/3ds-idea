@@ -1,6 +1,38 @@
-# Settings selected HOME banner activation gap
+# Settings selected HOME banner activation and remaining comparison gap
 
-The selected System Settings tile currently leaves the upper banner area empty.
+## Provisional live path — 25 September 2026
+
+The selected `system-settings` tile now requests an ordinary type-1, title-keyed
+primary from `home-banner-host.ts`. It has its own service scope and resource
+ticket, so a former folder acknowledgement cannot activate it. The renderer
+loads the manifest-published Settings `COMMON` model and its five textures,
+checks the 600-frame skeletal clip and texture bindings, and draws only after
+model, authored BannerFrame and BannerCamera readiness. It samples the shared
+HOME update counter, group-2 stencil pass and generic primary pose. A failed
+model or texture load leaves the selected title pending with an explicit
+`settingsFailure`; it does not paint the former folder or a reconstructed
+Settings banner. Retargeting to another app releases the scope and invalidates
+the Settings ticket. The real browser path is wired; browser pixels have not
+been inspected in this lane.
+
+**Adaptation:** the browser uses the existing six-call normal gate and a
+combined resource readiness acknowledgement in place of native title worker,
+state 4 presentation worker and state 5 show completion. The generic-primary
+scale/yaw and 600-frame `COMMON` clock are source constrained, but first visible
+pose and later pose submission cadence are not proved. This is a visible
+source-derived adaptation, not a native-match claim. No matched EUR 10.7.0-32E
+400×240 capture was accessible during this pass; the reference volume returned
+I/O errors. Comparison and camera/timing fit remain open.
+
+The source replay was stopped at the previously recorded original OS service
+`0x139008` inside graphics binding. The service needs absent ARM thread-local
+state. Repeating a larger synthetic replay would not prove bound native pixels.
+The exact next source work is to bind the real `COMMON` candidate, execute the
+render owner and compare a matched native/browser frame.
+
+## Earlier gate audit
+
+At the earlier checkpoint, the selected System Settings tile left the upper banner area empty.
 `resolveContentAt` in `src/os/home-banner-host.ts` resolves the title as an app,
 then `crossHomeBannerBoundary` deliberately releases the folder/default service
 and reports `unsupported`. `src/os/screens.ts` paints only active folder and

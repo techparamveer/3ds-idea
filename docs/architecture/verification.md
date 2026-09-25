@@ -52,9 +52,13 @@ native comparison, artifact paths and remaining differences. The
 [progress matrix](../progress-2026-09-24.md) is the cross-system evidence index.
 The [feature map](../feature-map.md) follows it with owners and next actions.
 
-Development-only `captureScreensAt` and `captureNativeBanner` force explicit
-presentation samples without advancing host state and are absent in production.
-They prove a render pose, not that live input reached it with native timing.
+`captureScreensAt` forces an explicit presentation sample without advancing
+host state. It is available in development and in a production build served on
+loopback with `?lcdCapture=1`; see [browser LCD capture](../browser-lcd-capture.md).
+It exports the 400×240 upper source canvas and 320×240 lower canvas as PNGs,
+before the upper source is stretched to the 800×240 display texture.
+`captureNativeBanner` remains development-only. A sampled pose does not prove
+that live input reached it with native timing.
 
 When inspecting a new production build on localhost, restart the running
 `next start` process before reloading the browser tab. A process left running

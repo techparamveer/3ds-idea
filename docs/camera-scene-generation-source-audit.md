@@ -5,9 +5,9 @@ executes retained node/pane output through return. Layout binding and photo
 pixels remain separate gates; it does not wire live strip paging.
 
 The 25 September continuation executes the **original control setup prefix**
-from `0x2d6ce0` through its 64-record loop, readiness reset and first
-post-reset service call in the same synthetic reuse sequence. The rest of the
-setup tail, SceneBrowse replacement caller and pixels remain open.
+from `0x2d6ce0` through its 64-record loop, readiness reset, first
+post-reset service call and buffer binding in the same synthetic reuse sequence.
+The rest of the setup tail, SceneBrowse replacement caller and pixels remain open.
 
 This continues the [gallery reset audit](camera-gallery-scene-reset-audit.md)
 and [root/rebind ordering replay](camera-rebind-order-source-audit.md), based on
@@ -34,13 +34,15 @@ They are deliberately not presented as one native scene replacement sequence.
 | Later control setup reset | `0x2d73bc` through `0x2d73f0`, stopping before `0x2d73f4` | Clears both 64-bit readiness bitsets. This is an isolated reset fragment, not execution of the preceding control setup |
 | Cell writer's retained-history prefix | `0x2d804c` through `0x2d8108`, stopping before `0x2d810c` | Both owner flags at `+0x2237` must be nonzero before the old/current pose and ready state advance. Six combinations cover incoming ready 0/1 and either owner disabled |
 | Embedded renderer destructor | Complete `0x2de714 → 0x2cded4 → 0x2d8b94 → 0x2d6b00`, then mapping/vector cleanup | Under a supplied 64-control/descriptor graph, active control 2 is detached, its parent dirty flag clears, active control bitsets clear, retained pointers clear, and the descriptor/pose buffers reach free |
-| Synthetic same-address reuse | Complete embedded destructor, fresh `0x2de648` constructor, then original `0x2d6ce0` through its 64-record loop, reset stores and first post-reset call, stopping before `0x2d7458`, in one Unicorn instance | An explicitly seeded stale control-2 resource/consumer bit survives construction (`0x4`/`0x4`) and clears after setup reaches the reset (`0x0`/`0x0`). Child attachment `0x25e6d8` is a recorded leaf. This is an ordering probe, not the native SceneBrowse replacement caller or complete setup tail |
+| Synthetic same-address reuse | Complete embedded destructor, fresh `0x2de648` constructor, then original `0x2d6ce0` through its 64-record loop, reset stores, first post-reset call and buffer binding, stopping before `0x2d7490`, in one Unicorn instance | An explicitly seeded stale control-2 resource/consumer bit survives construction (`0x4`/`0x4`) and clears after setup reaches the reset (`0x0`/`0x0`). Child attachment `0x25e6d8` and buffer allocator `0x260458` are recorded leaves. This is an ordering probe, not the native SceneBrowse replacement caller or complete setup tail |
 
 The current reuse replay continues that final stage through the original
-`0x254504` call at `0x2d7404`, with arguments `(renderer+0xd8, 64, 5)`, and
-the following zero stores. It stops before `0x2d7458`, the next owner-dependent
-call. Both readiness words remain zero there. This closes only the first
-post-reset fragment; it does not establish a complete return from `0x2d6ce0`.
+`0x254504` call at `0x2d7404`, with arguments `(renderer+0xd8, 64, 5)`, the
+following zero stores, and `0x2487ac`'s call to allocator `0x260458`.
+The synthetic allocator supplies `0x12008` poisoned bytes; original `0x25cd40`
+returns the buffer at `+8`, stored at control `+0x14`. It stops before
+`0x2d7490`, where resource creation starts. Both readiness words remain zero.
+This does not establish a complete return from `0x2d6ce0`.
 
 Destructor controls and descriptors are synthetic. Their direct-detachment route
 is selected explicitly. No image worker, native SceneBrowse, texture upload or
@@ -62,6 +64,13 @@ executed stages above:
 
 - SceneBrowse vtable `0x41f8b8` names destructor `0x28d7f4`;
   BrowseThumbnail vtable `0x42044c` names destructor `0x2d6420`.
+- The SceneBrowse constructor entry `0x28d23c` stores vtable `0x41f8b8`
+  through the literal at `0x28d6e4`. An aligned ARM `BL` target scan of the
+  pinned executable finds **no direct call** to that entry, whereas destructor
+  `0x28d7f4` has the expected wrapper call at `0x28d7e8`. This is an exact
+  source gap: the scene factory/indirect constructor dispatch and caller that
+  replaces the active child still need identification and execution. The scan
+  cannot rule out indirect `BLX`, virtual dispatch or a branch thunk.
 - SceneBrowse initialization allocates the thumbnail child and calls
   `0x2d5cac` at `0x28b69c`, stores it at SceneBrowse `+0x48`, and attaches it
   beneath the control at SceneBrowse `+0x44`.
@@ -141,9 +150,11 @@ The 25 September continuation replaces that probe's isolated reset fragment
 with original `0x2d6ce0` execution from entry through 64 record iterations
 and the reset, initially stopping before `0x2d73f4`. A further bounded
 continuation runs the first post-reset service call and stops before
-`0x2d7458`; the pinned-source test passes and
-the updated private report is `linked-scene-setup.json` in the home artifact
-directory. This narrows the setup sequence; it still does not show the real
-SceneBrowse replacement caller, full setup return, or a new-owner request and
-presentation under that setup. The fixture has no photo upload or lower-LCD
-pixel evidence, so live six-item paging remains unchanged.
+`0x2d7458`. The current bounded continuation reaches `0x2d7490`, after
+the allocated buffer is bound. The pinned-source test passes; the report is
+`linked-scene-setup-next.json` in the home artifact directory. This narrows
+the setup sequence and identifies the constructor's missing direct caller;
+it still does not show the real SceneBrowse replacement caller, full setup
+return, or a new-owner request and presentation under that setup. The fixture
+has no photo upload or lower-LCD pixel evidence, so live six-item paging
+remains unchanged.

@@ -42,6 +42,22 @@ def replay(code_path):
     for address, target in direct_calls.items():
         assert branch_target(address) == target
     assert source_word(0x41F8B8) == 0x28D7F4
+    assert source_word(0x28D6E4) == 0x41F8B8  # SceneBrowse constructor vtable literal
+    def direct_bl_refs(target):
+        refs = []
+        for offset in range(0, len(code) - 3, 4):
+            instruction = struct.unpack_from('<I', code, offset)[0]
+            if instruction >> 28 == 0xF or instruction & 0x0F000000 != 0x0B000000:
+                continue
+            displacement = instruction & 0xFFFFFF
+            if displacement & 0x800000:
+                displacement -= 0x1000000
+            address = 0x100000 + offset
+            if address + 8 + displacement * 4 == target:
+                refs.append(hex(address))
+        return refs
+    assert direct_bl_refs(0x28D23C) == []
+    assert direct_bl_refs(0x28D7F4) == ['0x28d7e8']
     assert source_word(0x42044C) == 0x2D6420
     assert source_word(0x2D23AC) == 0xE2850F59  # add r0,r5,#0x164
 
@@ -57,6 +73,7 @@ def replay(code_path):
     setup_records = []
     setup_services = []
     setup_tail_calls = []
+    setup_tail_allocations = []
     phase = ''
     word = lambda a: struct.unpack('<I', machine.mem_read(a, 4))[0]
     put = lambda a, n: machine.mem_write(a, struct.pack('<I', n & 0xFFFFFFFF))
@@ -76,6 +93,18 @@ def replay(code_path):
                                      'target': hex(machine.reg_read(UC_ARM_REG_R0)),
                                      'count': machine.reg_read(UC_ARM_REG_R1),
                                      'value': machine.reg_read(UC_ARM_REG_R2)})
+        if phase == 'synthetic-reuse-setup' and address == 0x260458:
+            size = machine.reg_read(UC_ARM_REG_R0)
+            assert size == 0x12008
+            pointer = next_allocation
+            next_allocation += (size + 15) & ~15
+            assert next_allocation < 0x1300000
+            machine.mem_write(pointer, b'\xCC' * size)
+            setup_tail_allocations.append({'address': hex(address), 'bytes': size,
+                                           'pointer': hex(pointer)})
+            machine.reg_write(UC_ARM_REG_R0, pointer)
+            machine.reg_write(UC_ARM_REG_PC, machine.reg_read(UC_ARM_REG_LR))
+            return
         if address in (0x262340, 0x260440):
             size = machine.reg_read(UC_ARM_REG_R0)
             assert 0 < size < 0x100000
@@ -243,29 +272,38 @@ def replay(code_path):
     phase = 'synthetic-reuse-setup'
     put(base + 0x44 + 0x120, current_owner)
     # Continue past the bitset reset through the original 0x254504 call and
-    # subsequent zero stores. The next call (0x2487ac) still needs its native
-    # external owner graph; stopping here is not a complete setup return.
-    call(0x2D6CE0, base + 0x44, 0x1080000, end=0x2D7458)
+    # subsequent zero stores. 0x2487ac delegates to the allocator service;
+    # the next block builds resources using globals outside this fixture.
+    call(0x2D6CE0, base + 0x44, 0x1080000, end=0x2D7490)
     cleared_after_reset = readiness()
     assert all(value == '0x0' for values in cleared_after_reset.values() for value in values)
     assert len(setup_records) == 64
     assert len(setup_services) == 1
     assert setup_tail_calls == [{'address': '0x254504', 'target': hex(base + 0x44 + 0x94),
                                  'count': 64, 'value': 5}]
+    assert len(setup_tail_allocations) == 1
+    buffer_pointer = word(base + 0x44 + 0x14)
+    assert buffer_pointer == int(setup_tail_allocations[0]['pointer'], 16) + 8
     reuse = {'sequence': ['complete embedded destructor', 'same-address embedded constructor',
-                          'control setup through 64-record loop, readiness reset and first post-reset call'],
+                          'control setup through 64-record loop, readiness reset, first post-reset call and buffer allocation'],
              'staleBeforeConstructor': stale_before,
              'staleAfterConstructor': stale_after_constructor,
              'afterReset': cleared_after_reset,
              'setupRecordIterations': len(setup_records),
-             'postResetStopBefore': '0x2d7458', 'postResetCalls': setup_tail_calls,
+             'postResetStopBefore': '0x2d7490', 'postResetCalls': setup_tail_calls,
+             'bufferAllocations': setup_tail_allocations,
+             'boundBuffer': hex(buffer_pointer),
              'setupServiceLeaves': setup_services,
-             'scope': 'Synthetic address reuse and original setup prefix through first post-reset call; no SceneBrowse replacement caller, complete setup tail, worker completion or pixels.'}
-    return {'ok': True, 'codeSha256': CODE_SHA, 'scriptVersion': 4,
+             'scope': 'Synthetic address reuse and original setup prefix through buffer allocation; no SceneBrowse replacement caller, complete setup tail, worker completion or pixels.'}
+    return {'ok': True, 'codeSha256': CODE_SHA, 'scriptVersion': 5,
             'directCalls': {hex(a): hex(b) for a, b in direct_calls.items()},
+            'sceneBrowseStaticRefs': {'constructor': '0x28d23c',
+                                      'constructorVtableLiteral': '0x28d6e4',
+                                      'constructorDirectBL': direct_bl_refs(0x28D23C),
+                                      'destructorDirectBL': direct_bl_refs(0x28D7F4)},
             'constructors': constructors, 'setupReset': setup, 'cellPrefix': cells,
             'destruction': destruction, 'syntheticReuse': reuse, 'enteredFunctions': entered,
-            'allocatorLeaves': ['0x262340/0x260440 allocate', '0x262338 free'],
+            'allocatorLeaves': ['0x262340/0x260440 allocate', '0x260458 setup buffer allocate', '0x262338 free'],
             'allocations': allocations, 'releases': releases, 'rendererWrites': writes,
             'liveGate': {'permitted': False,
                          'missing': ['SceneBrowse retirement/replacement caller and new setup tail',

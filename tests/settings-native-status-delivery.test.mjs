@@ -34,3 +34,15 @@ test('Settings HUD uses the source English status/date labels',()=>{
  assert.equal(typeof bank.messages[bank.labels.lau_connect0].styleIndex,'number');
  assert.equal(typeof bank.messages[bank.labels.lau_date].styleIndex,'number');
 });
+
+test('Settings reference charging glyph uses the native HUD battery frame',()=>{
+ const source=readFileSync(new URL('../src/os/stock-native-settings.ts',import.meta.url),'utf8');
+ const status=/SETTINGS_PORTFOLIO_STATUS=\{batteryFrame:(\d+)/.exec(source);
+ assert.ok(status,'declared Settings status');
+ const pack=JSON.parse(read(P+'hud.json'));
+ const track=pack.animations.HudMset_00_Bat.tracks.find(track=>track.target==='P_Bat_00'&&track.property==='texture.pattern');
+ assert.ok(track,'firmware battery pattern track');
+ const sourceIndex=track.keys.find(key=>key.frame===Number(status[1]))?.value;
+ assert.equal(pack.animations.HudMset_00_Bat.textures[sourceIndex],'HudBat_05.bclim');
+ assert.equal(pack.textures['HudBat_05.bclim'].sourceSha256,pack.resourceSources.textures['HudBat_05.bclim'].sha256);
+});

@@ -42,7 +42,7 @@ const week=['sun','mon','tue','wed','thu','fri','sat'];
 /** The source executable feeds these clips from PTM/AC/Uds services. The
  * portfolio has no corresponding hardware telemetry, so its declared status
  * is the state visible in the accepted native reference capture. */
-export const SETTINGS_PORTFOLIO_STATUS={batteryFrame:4,networkAttentionFrame:3,networkModeFrame:0,whiteBlackFrame:0} as const;
+export const SETTINGS_PORTFOLIO_STATUS={batteryFrame:5,networkAttentionFrame:3,networkModeFrame:0,whiteBlackFrame:0} as const;
 function drawSettingsStatus(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,date:Date):boolean{
   const message=(label:string)=>nativeMessageOverride(renderer.packs.messages,'hud',label,'');
   const sourceText=(label:string)=>{const text=message(label).text;if(typeof text!=='string')throw new Error('Missing Settings HUD message '+label);return text;};

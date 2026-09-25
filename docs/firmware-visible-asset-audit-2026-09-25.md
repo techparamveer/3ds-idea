@@ -14,7 +14,7 @@ title/content source and source hash. The stock selection plans in
 | --- | --- | --- | --- |
 | HOME background, folder/default banners, chrome, tiles, fonts and audio | `models.homeBackground`, `models.folder`, `models.bannerDefault`; `titles.0004003000009802.packs`, `home`, `fonts` | HOME title `0004003000009802`, plus shared-font title | HOME uses source resources; residual fallback paths below remain |
 | Settings main and details | `titles.0004001000022000.packs`, notably `base.json`, `up.json`, `layout.json`, `button.json`, `message_EU.json`, `hud.json` under `packs/settings/contents/0000-0000003d/` | Settings title `0004001000022000`, content `0000003d` | Published and used by stock presentation |
-| Settings selected HOME banner | `models.settingsBanner` → `models/settings-banner/model.json` and five manifest-listed images | Settings `exefs/banner.bin`, SHA-256 `5804ba5a7768d2ae9b7487e4d277923502646d89768668b19d666e3e4d30fbac` | **Delivered but not live**: HOME rejects stock selections as unsupported |
+| Settings selected HOME banner | `models.settingsBanner` → `models/settings-banner/model.json` and five manifest-listed images | Settings `exefs/banner.bin`, SHA-256 `5804ba5a7768d2ae9b7487e4d277923502646d89768668b19d666e3e4d30fbac` | Delivered; `f57ae44` provisionally wires the selected HOME path. Browser/native visuals remain unverified |
 | Health and Safety | `titles.0004001000022300.packs` | Health title `0004001000022300` | Source UI; article scrolling and motion need native comparison |
 | Camera read-only gallery | `titles.0004001000022400.packs` | Camera title `0004001000022400`, content `0000001a` | Portfolio photos replace device capture; footer is an adaptation |
 | Sound and music controls | `titles.0004001000022500.packs`, `models.sound-room` | Sound title `0004001000022500`, content `0000000b` | Published chrome/room; songs await user supply |
@@ -40,9 +40,10 @@ remain dormant. The model JSON delivery hashes are:
 `models.settingsBanner` itself has delivery SHA-256
 `908b4dbe6ef22bbf3c47d37e9ed512ea6a37654afd0f1db611f3d4f68c5e93e1`.
 It has a complete manifest-listed image set. No additional Settings source
-asset is needed to address the blank selected-tile preview: the current
-[activation gap](settings-home-banner-activation-gap.md) is in title worker,
-scene binding, visible pose and composition.
+asset was needed for the selected-tile path: `f57ae44` wires the delivered
+model provisionally. The [activation gap](settings-home-banner-activation-gap.md)
+still records the unresolved native title worker, first visible pose and
+matched composition evidence.
 
 ## Visible non-native or unproven remainder
 
@@ -79,3 +80,11 @@ warning, not a delivered-file hash failure. The audit did not check private
 source bytes. The designated SSD artifact directory refused new writes with
 `Invalid argument` while the volume reported 100% capacity, so the JSON report
 is in `/tmp`. No browser or Azahar comparison was performed in this asset pass.
+
+After this audit, integration `f57ae44` added a Settings-only native model
+render path. Its focused checks passed 51/52 with one TODO; typecheck, build and
+shader checks passed. A later DeveloperStorage EIO blocked native comparison,
+and an admin policy security check blocked production-browser inspection. The
+console GLB was restored locally from a verified internal LFS object for the
+build only. This updates the live-boundary label above; the original asset
+audit remains public-only and no new firmware resource was published.

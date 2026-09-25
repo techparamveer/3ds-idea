@@ -114,6 +114,9 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
       const left=Math.max(x,cameraBrowsePane.x),right=Math.min(x+width,cameraBrowsePane.x+cameraBrowsePane.width);
       if(right>left)result.push(target(row.id,left,y,right-left,height,index));
     });
+    // Native browse chrome shows Slideshow/Shoot/Settings. Those operations
+    // are excluded from the read-only portfolio; B/HOME retain return access.
+    return result;
   }else if((appId==='camera'||appId==='camera-applet')&&screen==='photo'){
     // P_BrwsPhoMntBase paints the photo mount with no arrow controls. Keep
     // physical left/right navigation; don't retain invisible arrow hit boxes.

@@ -104,7 +104,8 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
   if(options.native&&drawNativeSoundFrame(options.native,top,bottom,view,options))return;
   if(options.native&&camera(view.appId)){
     if(!drawNativeCameraFrame(options.native,top,bottom,view,options))throw new Error('Native camera composition failed');
-    footer(bottom,view,font);return;
+    if(view.screen==='photo')footer(bottom,view,font);
+    return;
   }
   if(options.native&&drawNativeHealthFrame(options.native,top,bottom,view,options))return;
   if(options.native&&drawNativePersonalToolFrame(options.native,top,bottom,view,options))return;

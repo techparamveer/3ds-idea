@@ -21,6 +21,8 @@ test('gallery hit boxes follow the source strip offset and leave gaps without ac
  const cells=targets(v).filter(r=>r.row!==undefined);
  assert.deepEqual(cells.map(r=>[r.x,r.y,r.width,r.height]),[[53,50,62,48],[129,50,62,48],[205,50,62,48]]);
  assert.equal(hit(v,52,74),null);assert.equal(hit(v,53,50),'photo:6');assert.equal(hit(v,115,74),null);
+ for(const [x,y] of [[160,15],[85,225],[280,225]])assert.equal(hit(v,x,y),null,'excluded native Camera control must be inert');
+ assert.ok(!targets(v).some(r=>r.action==='back'),'generic footer is absent from browse');
  for(const appId of ['camera','camera-applet'])assert.deepEqual(targets({...v,appId,screen:'main'}),targets(v));
 });
 test('opened Camera photo has no invisible previous/next touch controls',()=>{

@@ -64,6 +64,18 @@ test('published browse pack contains the large thumbnail clips the gallery now r
   assert.equal(bank.messages[bank.labels.Shoot_05].text,'View Photos/Videos');
 });
 
+test('settled browse draws source menu with its three native labels after the gallery',()=>{
+  const menu=pack.layouts.P_BrwsMenu_D;
+  for(const [pane,size] of [['BB-SShow',[320,30]],['BB-Shoot',[226,30]],['BB-Set',[90,30]]])assert.deepEqual(find(menu.roots,pane).size,size);
+  const bank=messages.messages.P;
+  assert.deepEqual(['Brws_02','Brws_03','setting'].map(label=>bank.messages[bank.labels[label]].text),['Slideshow','Shoot','Settings']);
+  const {draws}=paint(view('gallery',[{id:'photo:a',label:'A'}],{photos:[{id:'a',src:'/portfolio/a.jpg'}]}));
+  const chrome=draws.find(draw=>draw.layout==='P_BrwsMenu_D');
+  assert.equal(draws.at(-1),chrome,'source menu overlays the settled browse');
+  assert.deepEqual(chrome.opts.bindings,[{name:'P_BrwsMenu_D_Brws',frame:0}]);
+  assert.deepEqual([chrome.opts.overrides.TxtSShow.text,chrome.opts.overrides.TxtShoot.text,chrome.opts.overrides.TxtSet.text],['Slideshow','Shoot','Settings']);
+});
+
 test('settled browse exposes the native UserBG slot and preserves source materials',()=>{
   const original=pack.layouts.P_BrwsBase_D;
   const source=original.materials.find(material=>material.name==='UserBG');

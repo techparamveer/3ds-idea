@@ -8,7 +8,7 @@ import { nativeMessageOverride, type NativeLayout } from './native-layout';
 
 export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',alias:'camera-gallery',
-  layouts:['P_BrwsBase_D','P_BrwsFld','P_BrwsPic','P_BrwsCursor_D','P_BrwsPhoMntBase','P_BrwsTxt_D'],
+  layouts:['P_BrwsBase_D','P_BrwsFld','P_BrwsPic','P_BrwsCursor_D','P_BrwsPhoMntBase','P_BrwsTxt_D','P_BrwsMenu_D'],
   animations:[
     'P_BrwsBase_D_Brws',
     'P_BrwsBase_D_Default',
@@ -16,6 +16,7 @@ export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
     'P_BrwsPic_Default','P_BrwsPic_PicL',
     'P_BrwsCursor_D_Default','P_BrwsCursor_D_CurDefault','P_BrwsCursor_D_PicL',
     'P_BrwsPhoMntBase_PicL',
+    'P_BrwsMenu_D_Brws',
   ],
 },{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',alias:'camera-finder',
@@ -111,6 +112,13 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
     }
     bottom.restore();
     if(!view.rows.length)draw('P_BrwsTxt_D',{overrides:{TxtNoData:{...nativeMessageOverride(renderer.packs['camera-messages'],'P','Brws_06',''),size:[280,56]}}});
+    // The visible browse controls are the source Slideshow/Shoot/Settings
+    // panes. Capture and settings operations stay inert in this read-only app;
+    // the physical B button remains the explicit return adaptation.
+    const message=(label:string)=>nativeMessageOverride(renderer.packs['camera-messages'],'P',label,'');
+    draw('P_BrwsMenu_D',{bindings:[{name:'P_BrwsMenu_D_Brws',frame:0}],overrides:{
+      TxtSShow:message('Brws_02'),TxtShoot:message('Brws_03'),TxtSet:message('setting'),
+    }});
   }
   return okay;
 }

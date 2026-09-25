@@ -11,7 +11,7 @@ export const soundScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'lyt-S_BG-arc-LZ.json',alias:'sound-bg',layouts:['S_BG','S_BG_D-Grid','S_BG_D-Ctr',...soundRecordLayoutSelection.layouts],animations:['S_BG_D-Grid_Default',...soundRecordLayoutSelection.animations]},
   {url:prefix+'lyt-S_Play_D-arc-LZ.json',alias:'sound-player',layouts:['S_Play_D-CtrPanel3','S_Play_D-Effect'],animations:['S_Play_D-CtrPanel3_Default','S_Play_D-Effect_Default']},
   {url:prefix+'lyt-C-Sld.json',alias:'sound-slider',layouts:['C_SldT','C_SldH_L'],animations:['C_SldT_Default','C_SldT_Rate','C_SldH_L_Default','C_SldH_L_Rate']},
-  {url:prefix+'lyt-C-Dlg.json',alias:'sound-dialog',layouts:['C_Dlg','C_Dlg1BtnB','C_DlgTxt','C_DlgGuid1BtnW','C_DlgGuid2Btn','C_DlgGuid_U'],animations:['C_Dlg1BtnB_Default','C_DlgGuid1BtnW_Default','C_DlgGuid2Btn_Default']},
+  {url:prefix+'lyt-C-Dlg.json',alias:'sound-dialog',layouts:['C_Dlg','C_Dlg1BtnB','C_DlgTxt','C_DlgChA','C_DlgGuid1BtnW','C_DlgGuid2Btn'],animations:['C_Dlg1BtnB_Default','C_DlgGuid1BtnW_Default','C_DlgGuid2Btn_Default']},
   {url:prefix+'lyt-S_Guid_U-arc-LZ.json',alias:'sound-guide-upper',layouts:['S_Guid03_U'],animations:[]},
   {url:prefix+'lyt-S_Common-arc-LZ.json',alias:'sound-common',layouts:['S_Common-BackBtn','S_Common-OpenBtn','S_Common-BrwCursor','S_Common-OpLBtn','S_Common-OpRBtn','S_Common-SetBtn','S_Common-Text','S_Common-IconList'],animations:['S_Common-BackBtn_Default','S_Common-OpenBtn_Default','S_Common-BrwCursor_Default','S_Common-BackBtn_Disable','S_Common-OpLBtn_Default','S_Common-OpRBtn_Disable','S_Common-SetBtn_Default','S_Common-IconList_IconCHG']},
   {url:prefix+'lyt-S_Inf_U-arc-LZ.json',alias:'sound-info',layouts:['S_Inf_U-TitleBar','S_Inf_U-TrackNameU','S_Inf_U-TrackNameD','S_Inf_U-PlayTime','S_Inf_U-UnderBar','S_Inf_U-Hour','S_Inf_U-Battery'],animations:['S_Inf_U-TitleBar_TitleLeftIn','S_Inf_U-TrackNameU_In','S_Inf_U-TrackNameD_In']},
@@ -35,16 +35,6 @@ export const soundSliderFrame=(fraction:number)=>Math.round(Math.max(0,Math.min(
 export function soundEntryBlue(layout:NativeLayout):NativeLayout{
   const posed=structuredClone(layout);
   for(const material of posed.materials)if(material.constantColors[5]?.join(',')==='57,170,213,255')material.constantColors[5]=[42,113,235,255];
-  return posed;
-}
-
-/** Lower guide uses the C_Dlg 320×240 pane geometry with the source guide
- * panel's C_DlgChBase materials. C_DlgGuid_U is authored for the 400px LCD. */
-export function soundGuideLowerPanel(dialog:NativeLayout,guide:NativeLayout):NativeLayout{
-  const posed=structuredClone(dialog);
-  if(dialog.roots[0]?.children.length<2||guide.materials.length<2)throw new Error('Missing Sound guide panel source');
-  posed.materials=structuredClone(guide.materials);
-  posed.textures=[...guide.textures];
   return posed;
 }
 
@@ -124,8 +114,9 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
       // S_tips D_001_0..2 and the two C_Dlg guide button variants belong to
       // the EUR Sound content, as does the volume picture on page three.
       if(page===2)entry(top,'sound-guide-upper','S_Guid03_U');
-      const dialog=renderer.packs['sound-dialog'].layouts.C_Dlg,guidePanel=renderer.packs['sound-dialog'].layouts.C_DlgGuid_U;
-      okay=renderer.drawLayout(bottom,'sound-dialog','C_Dlg',soundGuideLowerPanel(dialog,guidePanel))&&okay;
+      // -L-DlgGuid in the source guide button layout mounts C_DlgChA at the
+      // identity transform. Its own Bird pane supplies the captured parakeet.
+      draw(bottom,'sound-dialog','C_DlgChA');
       // The two native counter panes share their source anchor, but the CLYT
       // writer places the current page on its left and the total on its right.
       // Give each text pane its own bounded raster and mount at the captured
@@ -138,12 +129,6 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
           {...(bodyColor?{TxtDlg:bodyColor}:{}),...(buttonColor?{Guid1TxtW:buttonColor}:{})});
       }
       else entry(bottom,'sound-dialog','C_DlgGuid2Btn',{bindings:[{name:'C_DlgGuid2Btn_Default',frame:0}],overrides:{...common,Guid2TxtB:message('S_tips','Guide_D_BN_Btn0'),Guid2TxtW:message('S_tips',page===2?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')}});
-      // Integer source texels should remain crisp on the 320px LCD. The
-      // captured guide bird occupies roughly 40×52 px at x15,y180.
-      bottom.save();
-      bottom.imageSmoothingEnabled=false;
-      entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[36,203],scale:1.75});
-      bottom.restore();
     }
     return okay;
   }

@@ -6,7 +6,7 @@ const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('b
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const layout=url(compile('stock-screen-layout').replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href)));
 const source=compile('stock-native-sound').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-sound-record'",JSON.stringify(url(compile('stock-sound-record'))));
-const {drawNativeSoundFrame,soundEntryBlue,soundGuideLowerPanel,soundGuideMessageColor,soundScreenPacks}=await import(url(source));
+const {drawNativeSoundFrame,soundEntryBlue,soundGuideMessageColor,soundScreenPacks}=await import(url(source));
 const {stockScreenActionAt:hit}=await import(layout);
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const packs=Object.fromEntries(soundScreenPacks.map(p=>[p.alias,JSON.parse(readFileSync(new URL(p.url,firmware)))]));
@@ -67,9 +67,9 @@ test('three Sound welcome pages bind the published guide art and S_tips messages
  for(const label of ['D_001_0','D_001_1','D_001_2','Guide_D_N_Btn0','Guide_D_BN_Btn0','Guide_D_BN_Btn1','Guide_D_BO_Btn1'])assert.ok(label in bank.labels,label);
  assert.ok(packs['sound-guide-upper'].layouts.S_Guid03_U);
  for(let page=0;page<3;page++){
-  const calls=[],top={},bottom={save(){this.savedSmoothing=this.imageSmoothingEnabled;},restore(){this.imageSmoothingEnabled=this.savedSmoothing;},imageSmoothingEnabled:true};
-  const draw=(ctx,pack,layout,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,options,smoothing:ctx.imageSmoothingEnabled});return true;};
-  const drawLayout=(ctx,pack,layout,posed,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,posed,options,smoothing:ctx.imageSmoothingEnabled});return true;};
+  const calls=[],top={},bottom={};
+  const draw=(ctx,pack,layout,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,options});return true;};
+  const drawLayout=(ctx,pack,layout,posed,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,posed,options});return true;};
   const guide={...entry,screen:'guide',data:{tracks:[],guidePage:page}};
   assert.equal(drawNativeSoundFrame({packs,draw,drawLayout},top,bottom,guide,{date:new Date(2026,8,24,10,52)}),true);
   const panel=calls.findLast(call=>call.layout=== (page===0?'C_DlgGuid1BtnW':'C_DlgGuid2Btn'));
@@ -85,18 +85,19 @@ test('three Sound welcome pages bind the published guide art and S_tips messages
   assert.deepEqual(panel.options.overrides.TxtNumber1.translation,[147,-92,0]);
   assert.deepEqual(panel.options.overrides.TxtNumber1.size,[20,24]);
   assert.equal(calls.some(call=>call.layout==='S_Guid03_U'),page===2);
-  assert.deepEqual(calls.findLast(call=>call.layout==='ParakeetA_D').options.center,[36,203]);
-  assert.equal(calls.findLast(call=>call.layout==='ParakeetA_D').options.scale,1.75);
-  assert.equal(calls.findLast(call=>call.layout==='ParakeetA_D').smoothing,false);
-  assert.equal(bottom.imageSmoothingEnabled,true);
+  const frame=calls.findLast(call=>call.layout==='C_DlgChA');
+  assert.equal(frame.screen,'bottom');
+  assert.equal(calls.indexOf(frame)<calls.indexOf(panel),true);
+  assert.equal(calls.filter(call=>call.layout==='ParakeetA_D').length,1);
  }
 });
 
-test('lower welcome panel reuses native 320px dialog geometry with the published green guide material',()=>{
- const dialog=packs['sound-dialog'].layouts.C_Dlg,guide=packs['sound-dialog'].layouts.C_DlgGuid_U;
- const before=JSON.stringify(dialog),panel=soundGuideLowerPanel(dialog,guide);
- assert.equal(JSON.stringify(dialog),before);
- assert.deepEqual(panel.roots,dialog.roots);
- assert.deepEqual(panel.materials,guide.materials);
- assert.deepEqual(panel.textures,guide.textures);
+test('lower welcome frame includes source window and bird at the guide mount',()=>{
+ const frame=packs['sound-dialog'].layouts.C_DlgChA;
+ assert.deepEqual(frame.canvas,{width:320,height:240,origin:1});
+ assert.deepEqual(frame.roots[0].children.map(pane=>[pane.name,pane.translation,pane.size]),[
+  ['ChAWdwL',[-10,0,0],[288,230]],['ChAWdwR',[144,0,0],[20,230]],['Bird',[-130,-89,0],[44,52]],
+ ]);
+ assert.deepEqual(frame.textures,['C_DlgChBase.bclim','C_DlgChBirdA.bclim','C_DlgChBirdAlph.bclim','C_DlgChLay6.bclim']);
+ assert.equal(packs['sound-dialog'].resourceSources.layouts.C_DlgChA.path,'lyt/C.LZ/Dlg/blyt/C_DlgChA.bclyt');
 });

@@ -12,7 +12,7 @@ import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, type MenuSt
 import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
-import { homeSlotAppId, moveHomeItem, restoreHomeLayout, type FolderLayouts } from './home-layout.ts';
+import { homeSlotAppId, moveHomeItem, restoreHomeLayout, selectHomeLocation, type FolderLayouts } from './home-layout.ts';
 import { cancelHomeGesture, createHomeNavigation, resetHomeNavigation, tickHomeGesture, touchHomeGesture, homeTouchLocation, type HomeNavigation } from './home-gestures.ts';
 import { selectHomeSlot, saveHomeView, restoreHomeView, homeDensityIndex, HOME_DENSITIES, writeHomeNavigation, createHomeGridFocus, createHomeUpdateClock, stepHomeUpdateClock, type HomeUpdateClock } from './home-navigation.ts';
 export { homeSlotAppId, moveHomeItem } from './home-layout.ts';
@@ -58,6 +58,17 @@ export function launch(state:MenuState,id:string,now:number):MenuState {
  if(s.app){const released=releaseSystemInputs(state,now);return {...released,panel:null,system:{...released.system!,runtime:showRuntimeHome(released.system!.runtime,now),pending:id,dialog:'switch'}};}
  const started=syncRuntime(state,startApplication(s.runtime,id,now),'launch');
  return {...started,panel:null,system:{...started.system!,since:now,dialog:null,pending:null,input:createInputLatch()}};
+}
+/** Hidden accessibility title shortcuts should leave HOME focused on the title they opened. */
+export function launchHomeShortcut(state:MenuState,id:string,now:number):MenuState {
+ const system=state.system;if(!system||system.phase!=='home')return state;
+ const root=Object.entries(system.layout).find(([,title])=>title===id);
+ if(root)state=selectHomeLocation(state,{folder:null,slot:Number(root[0])});
+ else for(const [folder,layout] of Object.entries(system.folderLayouts)){
+  const child=Object.entries(layout).find(([,title])=>title===id);
+  if(child){state=selectHomeLocation(state,{folder:Number(folder),slot:Number(child[0])});break;}
+ }
+ return launch(state,id,now);
 }
 export function invokeSystemApplet(state: MenuState, appId: string, now: number, args: AppState = {}): MenuState {
  state=resetHomeNavigation(cancelSystemHomeFolderClose(state));

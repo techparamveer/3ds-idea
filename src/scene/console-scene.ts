@@ -7,7 +7,7 @@ import { getHomeCursorLoopFrame } from '../os/home-cursor-loop';
 import { getHomeCursorSlot } from '../os/home-cursor-visibility';
 import { apps, getApp } from '@/os/apps';
 import { homeTitles, getTitle } from '@/os/app-registry';
-import { currentEntry, getActiveAppView, invokeSystemApplet, launch, selectedTitle } from '@/os/system';
+import { currentEntry, getActiveAppView, invokeSystemApplet, launchHomeShortcut, selectedTitle } from '@/os/system';
 import { createMenuAudio, type Sound } from '@/os/audio';
 import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClockObserved, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
 import { enableHomeControls, reconcileHomeControls } from '@/os/home-controls';
@@ -84,7 +84,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const announcement=document.createElement('p');announcement.setAttribute('aria-live','polite');accessible.appendChild(announcement);
   const addControl=(title:string,action:()=>void)=>{const button=document.createElement('button');button.textContent=title;button.addEventListener('click',action);button.addEventListener('keydown',event=>event.stopPropagation());accessible.appendChild(button);return button;};
   for(const [title,input]of [['Up','up'],['Down','down'],['Left','left'],['Right','right'],['A: Open or visit','open'],['B: Back','back'],['HOME: Suspend or resume','home'],['Power','power'],['Sound and layout','preferences']] as [string,Input][])addControl(title,()=>send(input));
-  for(const app of homeTitles)addControl(`Open ${app.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>launch(current,app.id,now),'open',true);});
+  for(const app of homeTitles)addControl(`Open ${app.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>launchHomeShortcut(current,app.id,now),'open',true);});
   for(const id of ['game-notes','friends','notifications','browser','miiverse'])addControl(`Open ${getTitle(id)!.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>invokeSystemApplet(current,id,now),'open',true);});
   let announced='';
   const topTexture=new THREE.CanvasTexture(screens.top),bottomTexture=new THREE.CanvasTexture(screens.bottom);

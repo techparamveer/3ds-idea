@@ -1,9 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createPortfolioState,tickSystem,reduceSystem,touchSystem,moveApp,restoreSettings,saveSettings,currentEntry} from '../src/os/system.ts';
+import {createPortfolioState,tickSystem,reduceSystem,touchSystem,moveApp,restoreSettings,saveSettings,currentEntry,launchHomeShortcut,selectedTitle} from '../src/os/system.ts';
 import {apps} from '../src/os/apps.ts';
 const home=()=>tickSystem(createPortfolioState(),3001);
 const send=(s,input)=>reduceSystem(s,input,4000);
+test('accessibility title shortcut focuses its HOME tile before software opens',()=>{
+ let s=home(),slot=Number(Object.entries(s.system.layout).find(([,id])=>id==='sound')[0]);
+ s=launchHomeShortcut(s,'sound',4000);
+ assert.equal(s.selected,slot);
+ assert.equal(s.system.phase,'launch');
+ s=tickSystem(s,6500);s=reduceSystem(s,'home',6600);
+ assert.equal(s.system.phase,'home');
+ assert.equal(selectedTitle(s)?.id,'sound');
+});
 test('hardware boot gates input, launches software, and never cold-boots into a logo app',()=>{
  const boot=createPortfolioState();assert.equal(boot.system.phase,'boot');assert.equal(send(boot,'open'),boot);
  let s=send(home(),'open');assert.equal(s.system.phase,'launch');assert.equal(s.system.app,'work');

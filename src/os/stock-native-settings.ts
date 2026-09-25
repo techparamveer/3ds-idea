@@ -189,10 +189,10 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     draw(bottom,'base','LsBase_D_00',{overrides:{TextBox_00:message('ds_base_1b_back'),TextBox_02:message('ds_info_comm')}});
     return okay;
   }
-  // The settled native basic_top1 pose centers the title/icon assembly.
-  // CommonBG_U_00 stores that assembly at its untranslated left position;
-  // the captured Other Settings page places it 96 logical pixels farther right.
-  draw(top,'up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{...(screen==='other'?{Null_Title:{translation:[96,0,0]}}:{}),TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
+  // CommonBG_U_00 stores the title/icon group at its untranslated left pose.
+  // A one-pixel capture fit puts both decoded source children on the native
+  // Other Settings upper LCD; source records do not explain this offset.
+  draw(top,'up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{...(screen==='other'?{Null_Title:{translation:[95,0,0]}}:{}),TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
   const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.

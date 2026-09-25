@@ -119,7 +119,7 @@ try{
   }
   const title=calls.find(c=>c.layout==='CommonBG_U_00');
   if(subpage.screen==='other'){
-   assert.deepEqual(title.options.overrides.Null_Title,{translation:[96,0,0]},'native Other Settings title/icon group is centered');
+   assert.deepEqual(title.options.overrides.Null_Title,{translation:[95,0,0]},'capture-fitted Other Settings title/icon group remains aligned');
    for(const call of calls.filter(c=>['I_User','I_Date','I_Touch'].includes(c.layout)))
     assert.equal(call.options.bindings[0].frame,0,'native touch-entry rows remain white');
   }

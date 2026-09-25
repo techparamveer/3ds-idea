@@ -1,0 +1,44 @@
+{
+  "source": {
+    "codeSha256": "1f9351cd921d3f3d54afbc28de093c2411cf07a38470c14d5ed74e98f54d45b5",
+    "tableSha256": "1df90f560d13eb1fbc46f0a1c33b9f743b2686ad64eb5c0f980ac75224de7794",
+    "top4btnSha256": "fea73c10a5e76b2ca9ff8463acd42f3afbdb70802630a9784d3636636e49e872",
+    "footerKind": 6,
+    "footerTableAddress": "0x2987bc",
+    "footerPointer": "0x28f340",
+    "layoutMember": "base_LZ.bin/blyt/TopBase_D_00.bclyt",
+    "layoutSha256": "21a2935b586913c21017f79967fbed9b1a825ec2a05d9f9069e2e0ce7852b399"
+  },
+  "layout": {
+    "canvas": {
+      "height": 240.0,
+      "origin": 1,
+      "width": 320.0
+    },
+    "bounds": {
+      "translation": [
+        -0.0,
+        -104.0,
+        0.0
+      ],
+      "size": [
+        320.0,
+        32.0
+      ]
+    },
+    "centerTextureSize": [
+      256.0,
+      38.0
+    ],
+    "animation": null
+  },
+  "message": {
+    "label": "top_btm_text",
+    "text": " Close",
+    "styleIndex": 576
+  },
+  "nativeCapture": {
+    "path": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/screenshots/System Settings_25.09.26_13.03.55.629.png",
+    "sha256": "a02c39244e7175da7d0eaa8e0678b6518b3f4b058f9f0c53b014e92c66b53558"
+  }
+}

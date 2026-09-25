@@ -6,7 +6,15 @@ an 800×240 texture for the Three.js display plane. `captureScreensAt` encodes
 the two source canvases directly as PNG data URLs. It never reads a resized
 browser/page screenshot or the stretched display texture.
 
-On the coordinator's local production build, open a URL such as
+Set `LCD_CAPTURE_OUTPUT_ROOT` to the absolute private artifact root when
+starting the local production server, and bind that server to loopback. For
+example, after `npm run build`:
+
+```sh
+LCD_CAPTURE_OUTPUT_ROOT=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E ./node_modules/.bin/next start --hostname 127.0.0.1
+```
+
+Then open a URL such as
 `http://localhost:3000/?lcdCapture=1&lcdScenario=home-idle&lcdElapsedMs=8483.333333333334&lcdDate=2026-09-25T10%3A52%3A00Z`.
 The hook is attached to
 `.console-stage` after scene startup. It is absent on non-loopback production
@@ -15,10 +23,16 @@ visible controls. In development it remains available without the parameter.
 
 For computer-use tools that cannot read custom DOM properties, press
 **Control–Shift–L** after reaching the state, or activate the accessibility
-button named **Download LCD capture**. The browser downloads one
-`home-idle.json` file (named by `lcdScenario`) containing `schema`, `scenario`,
+button named **Download LCD capture**. The page posts the capture to a local
+verification route, which writes `capture.json`, `upper.png` and `lower.png`
+under `reference/scenario-matrix/v1/captures/<scenario>/browser/` inside the
+selected root. `capture.json` contains `schema`, `scenario`,
 `elapsedMs`, `date`, state diagnostics, `dimensions`, and the `top` and `bottom`
-PNG data URLs. `lcdElapsedMs` and `lcdDate` are required for this path; the
+PNG data URLs. The route requires the server environment variable, a loopback
+request URL, matching loopback Origin and the `lcdCapture=1` query. It is
+unavailable on ordinary production hosts. The page announces the saved path
+and sets `data-lcd-capture-status="saved"` and `data-lcd-capture-path` on the
+host; failed writes set `data-lcd-capture-error`. `lcdElapsedMs` and `lcdDate` are required for this path; the
 scenario name may contain lowercase letters, digits and hyphens. An invalid
 query reports an accessibility announcement and `data-lcd-capture-error` on
 the console host. The shortcut and button exist only when the hook is enabled.
@@ -40,8 +54,8 @@ clock. The result also includes the sampled time, date, HOME update count,
 cursor diagnostic and banner host view. Use exact same entry state and inputs
 on Azahar; this hook alone is only a browser presentation sample.
 
-Extract each data URL's base64 payload from the downloaded JSON as a PNG and
-record its SHA-256. The first
+The route preserves the exact JSON payload and extracts the two PNGs from its
+data URLs. Record their SHA-256s. The first
 two target pairs are:
 
 - `.../reference/scenario-matrix/v1/captures/home-idle/browser/upper.png`

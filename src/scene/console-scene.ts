@@ -497,15 +497,19 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   };
     Object.assign(host,{captureScreensAt});
-    const download=()=>{
+    const download=async()=>{
       try{
         const {elapsedMs,isoDate,scenario}=lcdDownloadRequest(window.location.search);
         const payload=lcdDownloadPayload(scenario,captureScreensAt(elapsedMs,isoDate));
-        const url=URL.createObjectURL(new Blob([payload],{type:'application/json'}));
-        const anchor=document.createElement('a');anchor.href=url;anchor.download=`${scenario}.json`;anchor.hidden=true;document.body.appendChild(anchor);anchor.click();anchor.remove();
-        window.setTimeout(()=>URL.revokeObjectURL(url),30000);
+        host.dataset.lcdCaptureStatus='saving';
+        const response=await fetch('/api/verification/lcd-capture?lcdCapture=1',{method:'POST',headers:{'Content-Type':'application/json'},body:payload,cache:'no-store',credentials:'same-origin'});
+        if(!response.ok)throw new Error(`LCD export rejected (${response.status}): ${await response.text()}`);
+        const result=await response.json() as {directory:string};
+        host.dataset.lcdCapturePath=result.directory;
+        host.dataset.lcdCaptureStatus='saved';
+        announcement.textContent=`LCD capture saved to ${result.directory}`;
         Reflect.deleteProperty(host.dataset,'lcdCaptureError');
-      }catch(error){host.dataset.lcdCaptureError=String(error);announcement.textContent=`LCD capture failed: ${String(error)}`;}
+      }catch(error){host.dataset.lcdCaptureStatus='error';host.dataset.lcdCaptureError=String(error);announcement.textContent=`LCD capture failed: ${String(error)}`;}
     };
     addControl('Download LCD capture',download);
     const shortcut=(event:KeyboardEvent)=>{if(event.ctrlKey&&event.shiftKey&&!event.metaKey&&!event.altKey&&event.code==='KeyL'){event.preventDefault();event.stopPropagation();if(!event.repeat)download();}};

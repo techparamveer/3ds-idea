@@ -32,6 +32,8 @@ host state. It is available in development and in a production build served on
 loopback with `?lcdCapture=1`; see [browser LCD capture](../browser-lcd-capture.md).
 It exports the 400×240 upper source canvas and 320×240 lower canvas as PNGs,
 before the upper source is stretched to the 800×240 display texture.
+The opt-in local verification route saves the exact JSON payload and both PNGs
+under the private artifact root when `LCD_CAPTURE_OUTPUT_ROOT` is set.
 `captureNativeBanner` remains development-only. A sampled pose does not prove
 that live input reached it with native timing.
 

@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import ts from 'typescript';
+import sharp from 'sharp';
+
+const source = readFileSync(new URL('../src/scene/lcd-capture-server.ts', import.meta.url), 'utf8');
+const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
+const { localLcdExportAllowed, writeLocalLcdCapture } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
+
+test('LCD export is closed without absolute root, loopback host, opt in and same origin', () => {
+  const request = (url, origin) => new Request(url, { method: 'POST', headers: { origin } });
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  assert.equal(localLcdExportAllowed(request('http://localhost:3000/api/verification/lcd-capture?lcdCapture=1', 'http://localhost:3000'), root), true);
+  assert.equal(localLcdExportAllowed(request('http://localhost:3000/api/verification/lcd-capture?lcdCapture=1', 'http://localhost:3000'), undefined), false);
+  assert.equal(localLcdExportAllowed(request('http://localhost:3000/api/verification/lcd-capture?lcdCapture=1', 'http://localhost:3000'), 'relative'), false);
+  assert.equal(localLcdExportAllowed(request('http://example.com/api/verification/lcd-capture?lcdCapture=1', 'http://example.com'), root), false);
+  assert.equal(localLcdExportAllowed(request('http://localhost:3000/api/verification/lcd-capture', 'http://localhost:3000'), root), false);
+  assert.equal(localLcdExportAllowed(request('http://localhost:3000/api/verification/lcd-capture?lcdCapture=1', 'http://evil.example'), root), false);
+});
+
+test('LCD export writes exact JSON and native PNGs only inside the selected scenario', async () => {
+  const root = await mkdtemp(fileURLToPath(new URL('../.lcd-capture-test-', import.meta.url)));
+  const png = async (width, height, rgba) => {
+    const pixels = Buffer.alloc(width * height * 4);
+    for (let i = 0; i < pixels.length; i += 4) pixels.set(rgba, i);
+    return `data:image/png;base64,${(await sharp(pixels, { raw: { width, height, channels: 4 } }).png().toBuffer()).toString('base64')}`;
+  };
+  try {
+    const capture = {
+      schema: 'browser-native-lcd-capture-v1', scenario: 'home-idle', elapsedMs: 8483.333,
+      dimensions: { top: { width: 400, height: 240 }, bottom: { width: 320, height: 240 } },
+      top: await png(400, 240, [12, 34, 56, 255]), bottom: await png(320, 240, [78, 90, 123, 255]),
+    };
+    const body = JSON.stringify(capture);
+    const result = await writeLocalLcdCapture(root, body);
+    assert.equal(result.directory, join(root, 'reference', 'scenario-matrix', 'v1', 'captures', 'home-idle', 'browser'));
+    assert.equal(await readFile(join(result.directory, 'capture.json'), 'utf8'), body);
+    for (const [name, width, height] of [['upper.png', 400, 240], ['lower.png', 320, 240]]) {
+      const metadata = await sharp(await readFile(join(result.directory, name))).metadata();
+      assert.deepEqual([metadata.width, metadata.height], [width, height]);
+    }
+    await assert.rejects(writeLocalLcdCapture(root, JSON.stringify({ ...capture, scenario: '../escape' })), /identity/);
+    await assert.rejects(writeLocalLcdCapture(root, JSON.stringify({ ...capture, top: capture.bottom })), /native dimensions/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

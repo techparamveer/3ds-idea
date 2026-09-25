@@ -14,6 +14,11 @@ def convert(source, output, scratch, dotnet, exporter, manifest=None, model_key=
     if data[:4]==b'CBMD': decoded,cbmd=extract_cbmd(data,language)
     else: decoded=decompress(data) if data[0] in (16,17) else data
     if decoded[:4]!=b'CGFX': raise ValueError('Not a CGFX resource')
+    if manifest is not None and hashlib.sha256(decoded).hexdigest() in {
+        '3e2b2896e8439ea88a767e71fedf6921936a49aae724065ac0bc3701a8a4b83e',
+        '57b8a0b278379dad8619d6eecc71a9354881b988775404d5dfc8b61485bbb992',
+    }:
+        raise ValueError('Zone common/selected binding is decoded for inspection but playback is not yet verified')
     scratch.mkdir(parents=True,exist_ok=True)
     native=scratch/'input.bcres';native.write_bytes(decoded)
     env={**os.environ,'DOTNET_CLI_TELEMETRY_OPTOUT':'1','DOTNET_SKIP_FIRST_TIME_EXPERIENCE':'1'}

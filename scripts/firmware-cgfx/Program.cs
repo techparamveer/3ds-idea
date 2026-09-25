@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SPICA.Formats.CtrGfx;
+using SPICA.Formats.CtrGfx.Animation;
 using SPICA.Formats.CtrGfx.Model;
 using SPICA.Formats.CtrH3D;
 using SPICA.Formats.CtrH3D.Model.Mesh;
@@ -110,8 +111,12 @@ static class Exporter {
     // ToH3D drops the former and incorrectly ORs the latter into a one-based enum.
     var luts=scene.LUTs.Select(lut=>new{Name=lut.Name,Samplers=lut.Samplers.Select(s=>new{s.Name,Flags=s.Flags.ToString(),s.Table,RawWords=LutWords(native.LUTs.First(l=>l.Name==lut.Name).Samplers.First(n=>n.Name==s.Name))})});
     var lights=scene.Lights.Select(light=>{var clean=(SortedDictionary<string,object>)Clean(light);var original=native.Lights.First(l=>l.Name==light.Name);var type=original.GetType().GetField("Type");if(type!=null)clean["NativeType"]=type.GetValue(original).ToString();return clean;});
-    var result=new{schema=1,sourceSha256=Convert.ToHexString(SHA256.HashData(source)).ToLowerInvariant(),
-      converter="SPICA headless CGFX exporter",animationStatus=zoneStatic?"omitted: unsupported Zone common CGFX curve":"parsed",models,textures,luts,cameras=Clean(scene.Cameras),lights,
+    string sourceSha=Convert.ToHexString(SHA256.HashData(source)).ToLowerInvariant();
+    bool zoneFull=sourceSha==LegacyGfxReader.ZoneCommonSha256 && !zoneStatic;
+    var result=new{schema=1,sourceSha256=sourceSha,
+      converter="SPICA headless CGFX exporter",animationStatus=zoneStatic?"omitted: static Zone source inspection":zoneFull?"parsed segments; native playback unverified":"parsed",
+      sourceCurveGroups=zoneFull?GfxFloatKeyFrameGroup.ZoneGroups.ToArray():Array.Empty<GfxFloatKeyFrameGroup.ZoneGroup>(),
+      models,textures,luts,cameras=Clean(scene.Cameras),lights,
       skeletalAnimations=Clean(scene.SkeletalAnimations),materialAnimations=Clean(scene.MaterialAnimations),visibilityAnimations=Clean(scene.VisibilityAnimations),cameraAnimations=Clean(scene.CameraAnimations)};
     File.WriteAllText(Path.Combine(args[1],"model.json"),JsonSerializer.Serialize(result,Json));
     Console.WriteLine($"Exported {scene.Models.Count} models, {scene.Textures.Count} textures, {scene.SkeletalAnimations.Count} skeletal, {scene.MaterialAnimations.Count} material animations");

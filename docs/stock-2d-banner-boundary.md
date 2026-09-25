@@ -48,17 +48,24 @@ clip; Sound also has a `COMMON` material clip. Their native controller cadence,
 pose, camera and stencil relationship still need a bounded executed trace and
 matched native/browser capture before a strict visual claim.
 
-Nintendo Zone has a [bounded static common-slot fixture](evidence/zone-common-banner-static.json).
+Nintendo Zone has [static](evidence/zone-common-banner-static.json) and
+[full segment](evidence/zone-common-banner-animation.json) common-slot fixtures.
 Its common CGFX contains one `COMMON` model with four meshes, four materials
 and eight textures. The common `JPN_JP` texture is used by a material; the
 separate EUR-English `JPN_JP` replacement is fully transparent. The other
 common textures contain visible pixels, so transparency of the selected entry
-does not imply an empty common model. The normal pinned exporter still aborts
-while reading a Hermite128 animation (`EndOfStreamException`). A hash-gated
-`--zone-static` conversion omits all six animation dictionaries and marks the
-result accordingly. This establishes geometry, materials and texture-name
-binding only. Native pose, animation timing and final LCD pixels remain
-unverified. Do not substitute the `Banner2D` dummy texture or invent a logo.
+does not imply an empty common model. The pinned SPICA reader followed only
+the first pointer in revision-5 curve groups. A 16-byte constant segment at
+that pointer was read as a Hermite128 header, producing the earlier
+`EndOfStreamException`. The hash-gated local reader follows every segment
+pointer, distinguishes constant records from quantized curves, and adds each
+segment's start frame to its local key frames. The source has **37 nonconstant curve
+groups, 159 segments**, one 600-frame skeletal `COMMON` clip and one 600-frame
+material `COMMON` clip. The existing H3D conversion flattens mixed Hermite,
+step and constant segments into one key list, so native pose, interpolation,
+timing and final LCD pixels remain unverified. The Zone common conversion is
+blocked from delivery-manifest registration. Do not substitute the `Banner2D`
+dummy texture or invent a logo.
 
 ## Reproduction
 
@@ -84,6 +91,10 @@ private directory. Run `audit_zone_common.py --common-source ... --common-dir
 ... --selected-dir ... --output ...` with absolute paths. The static flag
 accepts only common CGFX SHA-256
 `3e2b2896e8439ea88a767e71fedf6921936a49aae724065ac0bc3701a8a4b83e`.
-The audit also checks the CBMD and selected CGFX identities, mesh/material
-shape, texture names and transparent selected image. It does not repair the
-Hermite128 parser or license using a static pose as the HOME banner.
+The static audit checks the CBMD and selected CGFX identities, mesh/material
+shape, texture names and transparent selected image. A normal conversion of
+the same common source now retains `sourceCurveGroups`. Run
+`audit_zone_animation.py` with the same private common source, the full
+converted directory and selected directory to reproduce the segment fixture.
+The full decoder is source verification; it does not license using flattened
+animation as the HOME banner.

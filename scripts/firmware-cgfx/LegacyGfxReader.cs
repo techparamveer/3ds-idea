@@ -5,18 +5,20 @@ using System.Buffers.Binary;
 using System.Security.Cryptography;
 using SPICA.Formats.Common;
 using SPICA.Formats.CtrGfx;
+using SPICA.Formats.CtrGfx.Animation;
 using SPICA.Serialization;
 using SPICA.Serialization.Serializer;
 
 static class LegacyGfxReader {
-  const string ZoneCommonSha256="3e2b2896e8439ea88a767e71fedf6921936a49aae724065ac0bc3701a8a4b83e";
+  public const string ZoneCommonSha256="3e2b2896e8439ea88a767e71fedf6921936a49aae724065ac0bc3701a8a4b83e";
   static uint U32(byte[] source,int at) => BinaryPrimitives.ReadUInt32LittleEndian(source.AsSpan(at,4));
   static void Read<T>(BinaryDeserializer reader,GfxDict<T> destination) where T:INamed {
     foreach(var value in reader.Deserialize<GfxDict<T>>()) destination.Add(value);
   }
   public static Gfx Open(string path,bool geometryOnly=false) {
     var source=File.ReadAllBytes(path);
-    if(geometryOnly && Convert.ToHexString(SHA256.HashData(source)).ToLowerInvariant()!=ZoneCommonSha256)
+    bool isZone=Convert.ToHexString(SHA256.HashData(source)).ToLowerInvariant()==ZoneCommonSha256;
+    if(geometryOnly && !isZone)
       throw new NotSupportedException("Animation omission is limited to the verified Nintendo Zone common CGFX");
     // Restrict the adapter to the observed old root shape. Other versions and
     // roots still take the unmodified pinned parser path.
@@ -49,8 +51,12 @@ static class LegacyGfxReader {
       // deserialize the unresolved curve or silently publish animation clips.
       input.Position=0x94;
     } else {
-      Read(reader,scene.SkeletalAnimations);Read(reader,scene.MaterialAnimations);Read(reader,scene.VisibilityAnimations);
-      Read(reader,scene.CameraAnimations);Read(reader,scene.LightAnimations);Read(reader,scene.FogAnimations);
+      GfxFloatKeyFrameGroup.DecodeZoneSegments=isZone;
+      GfxFloatKeyFrameGroup.ZoneGroups.Clear();
+      try {
+        Read(reader,scene.SkeletalAnimations);Read(reader,scene.MaterialAnimations);Read(reader,scene.VisibilityAnimations);
+        Read(reader,scene.CameraAnimations);Read(reader,scene.LightAnimations);Read(reader,scene.FogAnimations);
+      } finally { GfxFloatKeyFrameGroup.DecodeZoneSegments=false; }
     }
     if(input.Position!=0x94)throw new InvalidDataException("Unexpected legacy CGFX root size");
     return scene;

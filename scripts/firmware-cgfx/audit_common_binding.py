@@ -2,7 +2,7 @@
 
 Inputs are private converted CGFX directories and HOME code.bin. Output contains
 only hashes and derived model/material names; it publishes no source bytes.
-The Zone common CGFX has a separate static-only audit; animation is unresolved.
+The Zone common CGFX has separate static and full-segment audits; playback is unresolved.
 """
 
 import argparse
@@ -116,5 +116,5 @@ if __name__ == '__main__':
               'titles': {name: check_title(name, args.common_root / name,
                                            args.selected_root / name) for name in EXPECTED},
               'scope': 'Static common-model/locale-texture binding; no worker execution, GPU pixels or native timing',
-              'zoneStatus': 'Separate hash-gated static common-model audit exists; Hermite128 animation and visible pose remain unverified'}
+              'zoneStatus': 'Separate hash-gated segment decode exists; native playback and visible pose remain unverified'}
     args.output.write_text(json.dumps(report, indent=2) + '\n')

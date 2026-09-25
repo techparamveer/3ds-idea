@@ -4,12 +4,16 @@ The browser model is converted from the owner's decrypted EUR HOME Menu `romfs/3
 
 Build `Exporter.csproj` with `-p:SpicaRoot=/absolute/path/to/SPICA`, then run `convert.py SOURCE OUTPUT --scratch SCRATCH --dotnet /path/to/dotnet --exporter /path/to/Exporter.dll`. Keep build, decompressed input and RGBA intermediates in the configured Sandisk artifacts directory. The wrapper records compressed and decompressed SHA256 plus upstream revision. No executable, encrypted container or keys are published.
 
-The Nintendo Zone common CGFX exposes a curve that the pinned SPICA parser
-currently misreads and ends with `EndOfStreamException` in `ReadHermite128`.
-For source inspection only, `--zone-static` accepts the one hash-pinned common
-CGFX and omits its six animation dictionaries. The JSON labels this omission.
-It is not a playable banner export; see `docs/stock-2d-banner-boundary.md` and
-`scripts/firmware-cgfx/audit_zone_common.py` for the bounded source fixture.
+The Nintendo Zone common CGFX contains revision-5 multi-segment curves. The
+pinned SPICA reader follows only their first pointer and misreads a
+constant segment at that pointer as Hermite128 keys. This adapter replaces that one source
+file with a bounded, hash-gated reader: all segment pointers, quantization
+flags, constant records and local key frames are decoded. The full export
+retains `sourceCurveGroups` with the original segment boundaries and keys.
+`--zone-static` remains available for source geometry inspection and omits
+animation explicitly. Neither mode registers the Zone common CGFX in a
+delivery manifest until mixed-segment playback is verified. See
+`docs/stock-2d-banner-boundary.md` and `audit_zone_animation.py`.
 
 Version 1.4.1 also accepts a **decrypted** ExeFS `banner.bin` CBMD directly.
 `--language eur-en` (the default) selects its EUR-English CGFX entry, or the

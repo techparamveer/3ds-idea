@@ -1,0 +1,283 @@
+{
+  "cbmdSha256": "258aa3167be080eacb396539c5c3d76001d5ca12dc9d8b87955f7a977c4b2ec3",
+  "commonCgfxSha256": "3e2b2896e8439ea88a767e71fedf6921936a49aae724065ac0bc3701a8a4b83e",
+  "selectedCgfxSha256": "57b8a0b278379dad8619d6eecc71a9354881b988775404d5dfc8b61485bbb992",
+  "model": "COMMON",
+  "skeletalClip": "COMMON",
+  "materialClip": "COMMON",
+  "clipFrames": 600,
+  "curveGroups": 37,
+  "segments": 159,
+  "keys": 687,
+  "segmentCountDistribution": {
+    "1": 15,
+    "2": 7,
+    "4": 3,
+    "7": 4,
+    "9": 2,
+    "10": 4,
+    "16": 2
+  },
+  "formatFlagDistribution": {
+    "1": 38,
+    "8": 54,
+    "104": 1,
+    "192": 48,
+    "196": 18
+  },
+  "canonicalSegmentSha256": "c0b23ee596e09dc747e62a80d2a43dc735032aae78854ffae9a67aede54126a6",
+  "groups": [
+    {
+      "offset": "0x4e84",
+      "count": 1,
+      "start": 0,
+      "end": 600
+    },
+    {
+      "offset": "0x5054",
+      "count": 1,
+      "start": 0,
+      "end": 600
+    },
+    {
+      "offset": "0x50a8",
+      "count": 1,
+      "start": 0,
+      "end": 600
+    },
+    {
+      "offset": "0x5100",
+      "count": 1,
+      "start": 0,
+      "end": 600
+    },
+    {
+      "offset": "0x5154",
+      "count": 1,
+      "start": 0,
+      "end": 600
+    },
+    {
+      "offset": "0x51a8",
+      "count": 1,
+      "start": 0,
+      "end": 600
+    },
+    {
+      "offset": "0x5200",
+      "count": 1,
+      "start": 0,
+      "end": 600
+    },
+    {
+      "offset": "0x5258",
+      "count": 10,
+      "start": 0,
+      "end": 599
+    },
+    {
+      "offset": "0x5548",
+      "count": 10,
+      "start": 0,
+      "end": 599
+    },
+    {
+      "offset": "0x5854",
+      "count": 10,
+      "start": 20,
+      "end": 619
+    },
+    {
+      "offset": "0x5b44",
+      "count": 10,
+      "start": 20,
+      "end": 619
+    },
+    {
+      "offset": "0x5e50",
+      "count": 9,
+      "start": 40,
+      "end": 639
+    },
+    {
+      "offset": "0x612c",
+      "count": 9,
+      "start": 40,
+      "end": 639
+    },
+    {
+      "offset": "0x642c",
+      "count": 2,
+      "start": 0,
+      "end": 620
+    },
+    {
+      "offset": "0x6544",
+      "count": 1,
+      "start": 40,
+      "end": 599
+    },
+    {
+      "offset": "0x6610",
+      "count": 1,
+      "start": 0.137,
+      "end": 640
+    },
+    {
+      "offset": "0x671c",
+      "count": 2,
+      "start": 0,
+      "end": 600
+    },
+    {
+      "offset": "0x6828",
+      "count": 1,
+      "start": 20,
+      "end": 579
+    },
+    {
+      "offset": "0x68f4",
+      "count": 1,
+      "start": 0,
+      "end": 559
+    },
+    {
+      "offset": "0x69dc",
+      "count": 2,
+      "start": 80,
+      "end": 600
+    },
+    {
+      "offset": "0x6a44",
+      "count": 4,
+      "start": 80,
+      "end": 600
+    },
+    {
+      "offset": "0x6ae8",
+      "count": 2,
+      "start": 80,
+      "end": 600
+    },
+    {
+      "offset": "0x6b50",
+      "count": 4,
+      "start": 80,
+      "end": 600
+    },
+    {
+      "offset": "0x6bf4",
+      "count": 2,
+      "start": 80,
+      "end": 600
+    },
+    {
+      "offset": "0x6c5c",
+      "count": 4,
+      "start": 80,
+      "end": 600
+    },
+    {
+      "offset": "0x6d08",
+      "count": 2,
+      "start": 100,
+      "end": 620
+    },
+    {
+      "offset": "0x6dc8",
+      "count": 1,
+      "start": 120,
+      "end": 599
+    },
+    {
+      "offset": "0x6e54",
+      "count": 1,
+      "start": 80,
+      "end": 640
+    },
+    {
+      "offset": "0x6f10",
+      "count": 2,
+      "start": 80,
+      "end": 600
+    },
+    {
+      "offset": "0x6fec",
+      "count": 1,
+      "start": 108,
+      "end": 579
+    },
+    {
+      "offset": "0x7078",
+      "count": 1,
+      "start": 39,
+      "end": 559
+    },
+    {
+      "offset": "0x7128",
+      "count": 16,
+      "start": 80,
+      "end": 599
+    },
+    {
+      "offset": "0x7470",
+      "count": 16,
+      "start": 80,
+      "end": 599
+    },
+    {
+      "offset": "0x77d4",
+      "count": 7,
+      "start": 120,
+      "end": 639
+    },
+    {
+      "offset": "0x79bc",
+      "count": 7,
+      "start": 120,
+      "end": 639
+    },
+    {
+      "offset": "0x7bc0",
+      "count": 7,
+      "start": 100,
+      "end": 619
+    },
+    {
+      "offset": "0x7dc0",
+      "count": 7,
+      "start": 100,
+      "end": 619
+    }
+  ],
+  "localFrameAnchor": {
+    "offset": "0x6a44",
+    "segmentFrames": [
+      [
+        80,
+        80
+      ],
+      [
+        80,
+        80
+      ],
+      [
+        80,
+        600
+      ],
+      [
+        600,
+        600
+      ]
+    ],
+    "thirdSegmentKeys": [
+      80,
+      280,
+      480,
+      600
+    ]
+  },
+  "selectedTexture": "JPN_JP",
+  "selectedVisiblePixels": 0,
+  "scope": "Full source segment decode and texture-name identity; H3D flattening does not prove native playback or LCD pixels"
+}

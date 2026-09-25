@@ -1,9 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-import ts from 'typescript';
-const code=ts.transpileModule(readFileSync(new URL('../src/os/stock-screen-layout.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {stockScreenTargets:targets,stockScreenActionAt:hit,stockScreenSeekAt:seek}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+const {stockScreenTargets:targets,stockScreenActionAt:hit,stockScreenSeekAt:seek}=await import('../src/os/stock-screen-layout.ts');
 const view=(appId,screen,ids,selection=0)=>({appId,screen,heading:'',rows:ids.map(id=>({id,label:id})),selection,footer:{left:{label:'Back',action:'back'}}});
 test('Settings targets follow the native top bar and four tiles regardless of row order',()=>{
  const v=view('system-settings','main',['internet','parental','data','other','nnid']);
@@ -17,8 +14,8 @@ test('Data Management empty lists expose only the Base_D_00 Back control',()=>{
   assert.equal(hit(v,160,120),null);assert.equal(hit(v,190,225),null);
  }
 });
-test('gallery paging uses six visible cells and leaves gaps without accidental activation',()=>{
- const v=view('camera','gallery',Array.from({length:9},(_,i)=>'photo:'+i),7);
+test('gallery hit boxes follow the source strip offset and leave gaps without accidental activation',()=>{
+ const v={...view('camera','gallery',Array.from({length:9},(_,i)=>'photo:'+i),7),data:{cameraBrowse:{output:248}}};
  assert.deepEqual(targets(v).filter(r=>r.row!==undefined).map(r=>r.action),['photo:6','photo:7','photo:8']);
  assert.equal(hit(v,84,74),'photo:6');assert.equal(hit(v,120,74),null);assert.equal(hit(v,84,140),null);
  const cells=targets(v).filter(r=>r.row!==undefined);

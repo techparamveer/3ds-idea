@@ -1,4 +1,5 @@
 import type { AppView, JsonValue } from './app-types';
+import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
 
 /** Source S_Play_D loop icons: NoLoop, Folder, Single and Random. OneTime and ABLoop have no portfolio state. */
 export type SoundPlaybackMode='no-loop'|'folder'|'single'|'random';
@@ -37,6 +38,11 @@ export const soundLibraryRows=3;
 export const soundLibraryRowTop=(index:number)=>31.5+index*39;
 /** Source C_SldT time slider mounted by S_Play_D-CtrPanel3 at y −39: AB- bound 280×18, handle S_Rate travels x −140…140. */
 export const soundSeekBar={x:20,y:150,width:280,height:18};
+/** Source PicPosRengeL and PageRengeL: 228 px cell range, 248 px page stride. */
+export const cameraBrowsePane={x:46,y:41,width:228,height:132};
+export function cameraBrowseCellRect(index:number,offset:number):[number,number,number,number]{
+  return [53+(index%3)*76+Math.floor(index/6)*CAMERA_BROWSE_PAGE_WIDTH-offset,50+Math.floor(index%6/3)*66,62,48];
+}
 export function stockScreenTargets(view:AppView):StockScreenTarget[]{
   const {appId,screen,rows,selection}=view, result:StockScreenTarget[]=[];
   if(appId==='manual')return screen==='main'?[...rows.slice(0,3).map((row,index)=>target(row.id,24,56.5+44*index,272,37,index)),target('back',0,212,320,28)]:[target('back',40,212,140,28)];
@@ -99,10 +105,14 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     if(view.footer.left)result.push(target(view.footer.left.action,256,212,64,28));
     return result;
   }else if((appId==='camera'||appId==='camera-applet')&&(screen==='main'||screen==='gallery')){
-    const start=Math.floor(selection/6)*6;
+    const offset=screen==='gallery'?cameraStripOffset(readCameraBrowse(view.data?.cameraBrowse).output):Math.floor(selection/6)*CAMERA_BROWSE_PAGE_WIDTH;
     // Camera 0x2de524 places PicPosRengeL (228×132) in 3×2 at
     // -PhoMntPos (0,+13); BB-Thmb is 62×48. See camera-grid-source-audit.md.
-    rows.slice(start,start+6).forEach((row,i)=>result.push(target(row.id,53+(i%3)*76,50+Math.floor(i/3)*66,62,48,start+i)));
+    rows.forEach((row,index)=>{
+      const [x,y,width,height]=cameraBrowseCellRect(index,offset);
+      const left=Math.max(x,cameraBrowsePane.x),right=Math.min(x+width,cameraBrowsePane.x+cameraBrowsePane.width);
+      if(right>left)result.push(target(row.id,left,y,right-left,height,index));
+    });
   }else if((appId==='camera'||appId==='camera-applet')&&screen==='photo'){
     // P_BrwsPhoMntBase paints the photo mount with no arrow controls. Keep
     // physical left/right navigation; don't retain invisible arrow hit boxes.

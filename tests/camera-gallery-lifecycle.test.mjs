@@ -12,8 +12,9 @@ const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.
 const calls=[];
 globalThis.__cameraLifecycleLoad=()=>{let resolve;const pending=new Promise(r=>{resolve=r;});calls.push({resolve});return pending;};
 const session=url(compile('native-title-session').replace("'./native-title-assets'",JSON.stringify(url('export const loadNativeTitleAssets=(...args)=>globalThis.__cameraLifecycleLoad(...args)'))));
-const layout=url(compile('stock-screen-layout'));
-const camera=url(compile('stock-native-camera').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))));
+const browse=new URL('../src/os/camera-browse.ts',import.meta.url).href;
+const layout=url(compile('stock-screen-layout').replace("'./camera-browse.ts'",JSON.stringify(browse)));
+const camera=url(compile('stock-native-camera').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./camera-browse.ts'",JSON.stringify(browse)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))));
 let source=compile('stock-screen-presentation').replace("'./native-title-session'",JSON.stringify(session)).replace("'./stock-native-camera'",JSON.stringify(camera)).replace("'./stock-screen-layout'",JSON.stringify(layout));
 for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSettingsMain'],['sound','soundScreenPacks','drawNativeSoundFrame'],['health','healthScreenPacks','drawNativeHealthFrame']])source=source.replace(`'./stock-native-${file}'`,JSON.stringify(url(`export const ${packs}=[];export const ${draw}=()=>false;`)));
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url('export const nativePersonalToolView=()=>null;export const drawNativePersonalToolFrame=()=>false;')));
@@ -37,7 +38,7 @@ function load(src){for(const image of images)if(image.url===src&&!image.complete
 function surface(canvas){
  return {canvas,marks:[],fillStyle:'',strokeStyle:'',lineWidth:1,globalAlpha:1,globalCompositeOperation:'source-over',
   resetTransform(){},clearRect(){this.marks=[];},fillRect(){this.marks.push(['fill',this.fillStyle]);},strokeRect(){},fillText(){},
-  beginPath(){},roundRect(){},fill(){},stroke(){},createLinearGradient:()=>({addColorStop(){}}),
+  beginPath(){},roundRect(){},rect(){},clip(){},save(){},restore(){},fill(){},stroke(){},createLinearGradient:()=>({addColorStop(){}}),
   drawImage(image,...rect){if(image instanceof FakeImage)this.marks.push(['photo',image.src,...rect]);else this.marks=structuredClone(image.ctx.marks);}};
 }
 function nativeAssets(){
@@ -147,6 +148,6 @@ test('within one owner, readiness follows the image URL, not the reused cell slo
   assert.deepEqual(cells(frame.lower),['photo','photo','placeholder'],'the same URL keeps its decoded image for the life of the owner');
   assert.deepEqual(photos(frame.lower),[first,second]);
   assert.equal(calls.length,1,'folder scenes share one native session within the owner');
-  assert.deepEqual(Object.keys(h.runtime.instances[h.runtime.active].state).sort(),['folderId','screen','selection'],'reducer state carries no thumbnail readiness');
+  assert.deepEqual(Object.keys(h.runtime.instances[h.runtime.active].state).sort(),['cameraBrowse','folderId','screen','selection'],'reducer state carries strip motion but no thumbnail readiness');
  }finally{h.dispose();}
 });

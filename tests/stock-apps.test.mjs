@@ -5,6 +5,8 @@ import { getTitle,stockTitles,getAppModule } from '../src/os/app-registry.ts';
 import { portfolioMedia } from '../src/os/portfolio-media.ts';
 import { apps } from '../src/os/apps.ts';
 import { HEALTH_VBLANK_HZ } from '../src/os/stock-health-scroll.ts';
+import { CAMERA_BROWSE_UPDATE_MS, cameraStripOffset } from '../src/os/camera-browse.ts';
+import { cameraBrowseCellRect, stockScreenTargets } from '../src/os/stock-screen-layout.ts';
 import { createAppRuntime,startApplication,dispatchRuntime,showRuntimeHome,resumeRuntimeApplication,closeApplication,activeInstance,setRuntimeSleeping } from '../src/os/app-host.ts';
 const ctx={now:0,shared:initialSharedData()};
 const media={folders:[{id:'test',title:'Test fixture',photos:[{id:'a',title:'A',src:'/fixture/a.jpg'},{id:'b',title:'B',src:'/fixture/b.jpg'}]}],tracks:[{id:'a',title:'A',src:'/fixture/a.mp3',duration:100},{id:'b',title:'B',src:'/fixture/b.mp3',duration:200},{id:'c',title:'C',src:'/fixture/c.mp3',duration:300}]};
@@ -42,6 +44,31 @@ test('read-only gallery navigates folders/photos and returns through parent scre
  state=action(module,state,'next').state;assert.equal(state.photoId,'b');state=action(module,state,'next').state;assert.equal(state.photoId,'a');
  state=action(module,state,'previous').state;assert.equal(state.photoId,'b');state=action(module,state,'back').state;assert.equal(state.screen,'gallery');
  state=action(module,state,'back').state;assert.equal(state.screen,'main');assert.deepEqual(action(module,state,'capture'),{state});
+});
+test('Camera gallery advances through padded pages and paints moving source cell positions',()=>{
+ const photos=Array.from({length:7},(_,index)=>({id:String(index),title:String(index),src:`/fixture/${index}.jpg`}));
+ let {module,state}=setup('camera',{folders:[{id:'seven',title:'Seven',photos}],tracks:[]});
+ state=action(module,state,'folder:seven').state;
+ for(let i=0;i<6;i++)state=module.reduce(state,{type:'command',command:'right'},ctx).state;
+ assert.equal(state.selection,6);
+ let view=module.view(state,ctx),targets=stockScreenTargets(view);
+ assert.equal(cameraStripOffset(view.data.cameraBrowse.output),0,'input commits before child slider update');
+ assert.equal(targets.some(item=>item.row===6),false);
+ state=module.reduce(state,{type:'tick',elapsedMs:CAMERA_BROWSE_UPDATE_MS*5},ctx).state;
+ view=module.view(state,ctx);targets=stockScreenTargets(view);
+ const offset=cameraStripOffset(view.data.cameraBrowse.output),cell=cameraBrowseCellRect(6,offset);
+ assert.ok(offset>0&&offset<86);
+ assert.ok(targets.some(item=>item.row===6&&item.x===Math.max(46,cell[0])));
+ const tapped=module.reduce(state,{type:'touch',phase:'up',x:targets.find(item=>item.row===6).x+5,y:74},ctx).state;
+ assert.deepEqual([tapped.screen,tapped.photoId],['photo','6']);
+ state=module.reduce(state,{type:'tick',elapsedMs:CAMERA_BROWSE_UPDATE_MS*25},ctx).state;
+ assert.equal(cameraStripOffset(module.view(state,ctx).data.cameraBrowse.output),86);
+ const held=module.reduce(state,{type:'button',command:'right',phase:'down',source:'pad'},ctx).state;
+ assert.equal(held.selection,7,'the final page has padded blank slots');
+ assert.equal(module.view(held,ctx).footer.right,undefined);
+ assert.equal(module.reduce(held,{type:'action',id:'photo:missing'},ctx).state,held);
+ const cancelled=module.reduce(held,{type:'lifecycle',phase:'suspend'},ctx).state;
+ assert.deepEqual(cancelled.cameraBrowse.held,{});
 });
 test('native-layout touch targets open Settings and gallery entries directly',()=>{
  let {module,state}=setup('system-settings');state=module.reduce(state,{type:'touch',phase:'up',x:200,y:160},ctx).state;assert.equal(state.screen,'other');
@@ -148,10 +175,10 @@ test('empty media and injected saved screens never create hidden playback/captur
  for(const id of ['camera','sound']){const {module}=setup(id,{folders:[],tracks:[]});const state=module.create({screen:'record',playing:true},{screen:'playback',playing:true},ctx);assert.equal(state.screen,'main');assert.equal(module.view(state,ctx).rows.length,0);assert.equal(action(module,state,'play').state,state);}
 });
 
-test('Camera directions follow three columns across pages and bound incomplete rows',()=>{
+test('Camera folder directions follow three columns and bound incomplete rows',()=>{
  const photos=Array.from({length:8},(_,i)=>({id:String(i),title:String(i),src:`/fixture/${i}.jpg`}));
  const folders=photos.map(photo=>({id:photo.id,title:photo.title,photos}));
- for(const id of ['camera','camera-applet'])for(const screen of ['main','gallery']){
+ for(const id of ['camera','camera-applet'])for(const screen of ['main']){
   const {module}=setup(id,{folders,tracks:[]});let state={...module.create({},null,ctx),screen,folderId:'0'};
   const move=command=>{state=module.reduce(state,{type:'command',command},ctx).state;return state.selection;};
   assert.equal(move('left'),0);assert.equal(move('up'),0);assert.equal(move('right'),1);assert.equal(move('right'),2);assert.equal(move('right'),2);

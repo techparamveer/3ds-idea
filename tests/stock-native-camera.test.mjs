@@ -8,7 +8,7 @@ const moduleUrl=source=>'data:text/javascript;base64,'+Buffer.from(source).toStr
 const transpile=(name,overrides={})=>{
   const url=new URL(`../src/os/${name}.ts`,import.meta.url);
   const {outputText}=ts.transpileModule(readFileSync(url,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
-  return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(`${path}.ts`,url).href)+suffix));
+  return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(path.endsWith('.ts')?path:`${path}.ts`,url).href)+suffix));
 };
 const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect}=await import(transpile('stock-native-camera',{
   './stock-screen-layout':transpile('stock-screen-layout'),
@@ -24,7 +24,7 @@ const ctx=()=>{
   return {log,bottom:{
     fillStyle:'',strokeStyle:'',font:'',textAlign:'',textBaseline:'',
     fillText:(...args)=>log.push(['fillText',...args]),
-    fillRect:()=>{},beginPath:()=>{},roundRect:(...args)=>log.push(['roundRect',...args]),
+    fillRect:()=>{},beginPath:()=>{},rect:()=>{},clip:()=>{},save:()=>{},restore:()=>{},roundRect:(...args)=>log.push(['roundRect',...args]),
     fill:()=>{},stroke:()=>{},
   }};
 };
@@ -205,7 +205,10 @@ test('all six cells and the selection cursor share native settled centres',()=>{
   const first=paint(view('gallery',rows,{photos},5));
   assert.deepEqual(first.draws.filter(d=>d.layout==='P_BrwsPic').map(d=>d.opts.center),[[84,74],[160,74],[236,74],[84,140],[160,140],[236,140]]);
   assert.deepEqual(first.draws.find(d=>d.layout==='P_BrwsCursor_D').opts.center,[236,140]);
-  const second=paint(view('gallery',rows,{photos},6));
+  const moving=paint(view('gallery',rows,{photos,cameraBrowse:{output:65}},6));
+  assert.ok(moving.draws.some(d=>d.layout==='P_BrwsPic'&&d.opts.center[0]===267),'next page enters before the strip settles');
+  assert.deepEqual(moving.draws.find(d=>d.layout==='P_BrwsCursor_D').opts.center,[267,74]);
+  const second=paint(view('gallery',rows,{photos,cameraBrowse:{output:248}},6));
   assert.deepEqual(second.draws.filter(d=>d.layout==='P_BrwsPic').map(d=>d.opts.center),[[84,74],[160,74]]);
   assert.deepEqual(second.images.map(i=>i[0]),['/portfolio/6.jpg','/portfolio/7.jpg']);
 });

@@ -5,9 +5,10 @@ import {createHash} from 'node:crypto';
 import ts from 'typescript';
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const source=compile('stock-native-sound').replace("'./stock-screen-layout'",JSON.stringify(url(compile('stock-screen-layout')))).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-sound-record'",JSON.stringify(url(compile('stock-sound-record'))));
+const layout=url(compile('stock-screen-layout').replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href)));
+const source=compile('stock-native-sound').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-sound-record'",JSON.stringify(url(compile('stock-sound-record'))));
 const {soundScreenPacks,drawNativeSoundFrame}=await import(url(source));
-const {stockScreenActionAt:hit}=await import(url(compile('stock-screen-layout')));
+const {stockScreenActionAt:hit}=await import(layout);
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const playPack=JSON.parse(readFileSync(new URL('packs/sound/contents/0000-0000000b/lyt-S_Play_D-arc-LZ.json',firmware),'utf8'));
 

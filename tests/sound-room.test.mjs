@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import ts from 'typescript';
 import * as THREE from 'three';
-const cache=new Map();function moduleUrl(path){if(cache.has(path))return cache.get(path);let s=ts.transpileModule(readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;s=s.replace(/from (['"])([^'"]+)\1/g,(_,q,v)=>'from '+JSON.stringify(v.startsWith('.')?moduleUrl(resolve(dirname(path),v+'.ts')):import.meta.resolve(v)));const u='data:text/javascript;base64,'+Buffer.from(s).toString('base64');cache.set(path,u);return u;}
+const cache=new Map();function moduleUrl(path){if(cache.has(path))return cache.get(path);let s=ts.transpileModule(readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;s=s.replace(/from (['"])([^'"]+)\1/g,(_,q,v)=>'from '+JSON.stringify(v.startsWith('.')?moduleUrl(resolve(dirname(path),v.endsWith('.ts')?v:v+'.ts')):import.meta.resolve(v)));const u='data:text/javascript;base64,'+Buffer.from(s).toString('base64');cache.set(path,u);return u;}
 const {createSoundRoom,soundRoomCamera}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/sound-room.ts',import.meta.url))));
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url),root=new URL('models/sound-room/',firmware),data=JSON.parse(readFileSync(new URL('model.json',root)));
 const asset=()=>({data:structuredClone(data),mipmaps:new Map(data.textures.map(t=>[t.name,t.mipmaps.map(m=>({width:m.width,height:m.height,data:new Uint8Array(m.width*m.height*4)}))])),images:new Map(data.textures.map(t=>[t.name,{width:t.width,height:t.height,data:new Uint8Array(t.width*t.height*4)}]))});

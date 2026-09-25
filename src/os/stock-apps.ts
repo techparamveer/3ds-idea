@@ -7,6 +7,7 @@ import { healthScrollAdvance, healthScrollCreate, healthScrollKey, healthScrollK
 import { notesCaptureView, notesNextCaptureView, notesSwitchFrame, NOTES_SWITCH_LAST_FRAME, NOTES_SWITCH_DURATION_MS, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt, stockSettingsLanguageThumbAt } from './stock-screen-layout.ts';
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
 import { eshopWelcomeData, eshopWelcomeDecide, eshopWelcomeTick } from './stock-eshop-welcome.ts';
+import { cameraBrowseButton, cameraBrowseCancel, cameraBrowseCommand, cameraBrowseInitial, cameraBrowseJson, cameraBrowseTick, cameraBrowseTouch, readCameraBrowse, type CameraBrowseStep, type CameraDirection } from './camera-browse.ts';
 
 const str = (value: JsonValue | undefined, fallback = '') => typeof value === 'string' ? value : fallback;
 const num = (value: JsonValue | undefined, fallback = 0) => typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -37,6 +38,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   const id = descriptor.id;
   const folder = (state: AppState) => media.folders.find(item => item.id === state.folderId);
   const photo = (state: AppState) => folder(state)?.photos.find(item => item.id === state.photoId);
+  const cameraStep=(state:AppState):CameraBrowseStep=>({selection:num(state.selection),browse:readCameraBrowse(state.cameraBrowse)});
+  const cameraPut=(state:AppState,step:CameraBrowseStep):AppState=>step.selection===num(state.selection)&&JSON.stringify(step.browse)===JSON.stringify(readCameraBrowse(state.cameraBrowse))?state:{...state,selection:step.selection,cameraBrowse:cameraBrowseJson(step.browse)};
   const track = (state: AppState) => media.tracks.find(item => item.id === state.trackId);
   // Stable permutation keeps the pure reducer reproducible without a random source.
   const shuffled = media.tracks.map((item, index) => ({ index, hash: [...item.id].reduce((hash, char) => Math.imul(hash ^ char.charCodeAt(0), 16777619) >>> 0, 2166136261) }))
@@ -167,13 +170,13 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
           return { state: withScreen(state,'main',{selection:Math.max(0,index)}) };
         }
         const parent = cameraTitles.has(id) && screen === 'photo' ? 'gallery' : 'main';
-        const next = withScreen(state, parent);
+        const next = withScreen(state, parent, cameraTitles.has(id)&&screen==='photo'?{selection:num(state.selection)}:{});
         return id === 'sound' && state.playing ? music(next, 'pause', { playing: false }) : { state: next };
       }
       return { state, effects: [{ type: descriptor.kind === 'application' ? 'home' : 'close' }] };
     }
     if (cameraTitles.has(id)) {
-      if (screen === 'main' && action.startsWith('folder:') && media.folders.some(item => item.id === action.slice(7))) return { state: withScreen(state, 'gallery', { folderId: action.slice(7) }) };
+      if (screen === 'main' && action.startsWith('folder:') && media.folders.some(item => item.id === action.slice(7))) return { state: withScreen(state, 'gallery', { folderId: action.slice(7), cameraBrowse:cameraBrowseJson(cameraBrowseInitial()) }) };
       if (screen === 'gallery' && action.startsWith('photo:') && folder(state)?.photos.some(item => item.id === action.slice(6))) return { state: withScreen(state, 'photo', { photoId: action.slice(6) }) };
       if (screen === 'photo' && ['previous', 'next'].includes(action)) {
         const photos = folder(state)?.photos ?? [], index = photos.findIndex(item => item.id === state.photoId);
@@ -235,7 +238,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     return { state: withScreen(state, 'detail', { field: action }) };
   }
   function view(state: AppState, context: AppContext): AppView {
-    const screen = str(state.screen, 'main'), options = rows(state, context), selection = bounds(num(state.selection), options.length - 1), text: string[] = [];
+    const screen = str(state.screen, 'main'), options = rows(state, context), selection = cameraTitles.has(id)&&screen==='gallery'?num(state.selection):bounds(num(state.selection), options.length - 1), text: string[] = [];
     const data: AppState = { ...state, settings: context.shared.settings ?? {} };
     if (id === 'game-notes') {
       data.notesHostMs = num(state.notesHostMs);
@@ -243,6 +246,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'eshop') { Object.assign(data, eshopWelcomeData(state)); delete data.welcomeElapsed; }
     if (cameraTitles.has(id)) {
+      data.cameraBrowse=state.cameraBrowse??cameraBrowseJson(cameraBrowseInitial());
       data.folders = media.folders.map(item => ({ ...item, photos: item.photos.map(photo => ({ ...photo })) }));
       data.photos = (folder(state)?.photos ?? []).map(item => ({ ...item })); data.photo = photo(state) ? { ...photo(state)! } : null;
       if (!media.folders.length) text.push('There are no photos.');
@@ -262,7 +266,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const healthDocument = id === 'health-safety' && screen === 'document';
     if (healthDocument) { delete data.scroll; delete data.backPress; data.article = healthScrollView(healthScroll(state)); }
     const left = { label: id === 'system-updater' || (id === 'system-settings' && screen === 'detail' && state.field === 'sound') ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
-    const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options.length ? { label: 'OK', action: options[selection].id } : undefined;
+    const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options[selection] ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { ...(id === 'sound' && screen === 'main' && !media.tracks.length ? {} : { left }), ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }
@@ -276,6 +280,20 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}) };
     },
     reduce(state, event, context) {
+      if(cameraTitles.has(id)&&state.screen==='gallery'){
+        const count=folder(state)?.photos.length??0,step=cameraStep(state);
+        if(event.type==='tick')return {state:cameraPut(state,cameraBrowseTick(step,event.elapsedMs,count))};
+        if(event.type==='lifecycle'&&['suspend','sleep','close'].includes(event.phase))return {state:cameraPut(state,cameraBrowseCancel(step))};
+        if(event.type==='button'&&['left','right','up','down'].includes(event.command))return {state:cameraPut(state,cameraBrowseButton(step,event.source,event.command as CameraDirection,event.phase,count))};
+        if(event.type==='command'&&['left','right','up','down'].includes(event.command))return {state:cameraPut(state,cameraBrowseCommand(step,event.command as CameraDirection,count))};
+        if(event.type==='touch'){
+          const next=cameraPut(state,cameraBrowseTouch(step,event.phase==='down'||event.phase==='move'));
+          if(event.phase!=='up')return {state:next};
+          if(!Number.isFinite(event.x)||!Number.isFinite(event.y))return {state:next};
+          const action=stockScreenActionAt(view(next,context),event.x,event.y);
+          return action?activate(next,action,context):{state:next};
+        }
+      }
       if (id === 'system-settings') {
         if (event.type === 'tick') return { state: settingsLanguageTick(state, event.elapsedMs) };
         // A paused foreground transition settles on resume, as in the Notes adapter.

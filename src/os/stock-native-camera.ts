@@ -2,7 +2,8 @@ import type { AppView, JsonValue } from './app-types';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
-import { stockScreenTargets } from './stock-screen-layout';
+import { cameraBrowseCellRect, cameraBrowsePane, stockScreenTargets } from './stock-screen-layout';
+import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
 import { nativeMessageOverride } from './native-layout';
 
 export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
@@ -65,8 +66,10 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
     image(record(data.photo),x,y,w,h);
     draw('P_BrwsPhoMntBase',{bindings:[{name:'P_BrwsPhoMntBase_PicL',frame:0}],overrides:{'-PhoMntPos':{visible:false}}});
   }else{
+    const offset=view.screen==='gallery'?cameraStripOffset(readCameraBrowse(data.cameraBrowse).output):Math.floor(view.selection/6)*CAMERA_BROWSE_PAGE_WIDTH;
+    bottom.save();bottom.beginPath();bottom.rect(cameraBrowsePane.x,cameraBrowsePane.y,cameraBrowsePane.width,cameraBrowsePane.height);bottom.clip();
     for(const r of stockScreenTargets(view).filter(r=>r.row!==undefined)){
-      const row=view.rows[r.row!],x=r.x+r.width/2,y=r.y+r.height/2;
+      const row=view.rows[r.row!],rect=cameraBrowseCellRect(r.row!,offset),x=rect[0]+rect[2]/2,y=rect[1]+rect[3]/2;
       if(view.screen==='main'){
         const folder=folders.find(f=>'folder:'+str(f.id)===row.id);
         draw('P_BrwsFld',{center:[x,y],bindings:[{name:'P_BrwsFld_Default',frame:0},{name:'P_BrwsFld_PicL',frame:0}],overrides:{TxtThmb:{text:String(records(folder?.photos).length)}}});
@@ -78,6 +81,7 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
       }
       if(r.row===view.selection)draw('P_BrwsCursor_D',{center:[x,y],bindings:[{name:'P_BrwsCursor_D_Default',frame:0},{name:'P_BrwsCursor_D_CurDefault',frame:0},{name:'P_BrwsCursor_D_PicL',frame:0}]});
     }
+    bottom.restore();
     if(!view.rows.length)draw('P_BrwsTxt_D',{overrides:{TxtNoData:{...nativeMessageOverride(renderer.packs['camera-messages'],'P','Brws_06',''),size:[280,56]}}});
   }
   return okay;

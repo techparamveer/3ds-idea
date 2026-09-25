@@ -178,10 +178,9 @@ test('ring router passes the mapped ready bit without comparing the full logical
   });
 });
 
-test('the strip port is not imported by live Camera modules', () => {
-  for (const file of ['stock-apps.ts', 'stock-native-camera.ts', 'stock-screen-layout.ts', 'stock-screen-presentation.ts']) {
+test('live Camera navigation, hit targets and painter share the source strip controller', () => {
+  for (const file of ['stock-apps.ts', 'stock-native-camera.ts', 'stock-screen-layout.ts']) {
     const text = readFileSync(new URL('../src/os/' + file, import.meta.url), 'utf8');
-    assert.equal(text.includes('camera-browse'), false, file);
-    assert.equal(text.includes('cameraBrowseCells'), false, file);
+    assert.equal(text.includes('camera-browse'), true, file);
   }
 });

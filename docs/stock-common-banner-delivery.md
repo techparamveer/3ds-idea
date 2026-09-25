@@ -25,7 +25,16 @@ warnings concern audio delivery and documentation outside these 27 assets.
 
 The registration does not establish the title worker's readiness, native
 material combiner output, pose, animation cadence or matched 400 × 240 pixels.
-Nintendo Zone remains excluded from this pack until its common model and
-selected artwork path are verified. The assets must stay dormant until the
+Nintendo Zone remains excluded from this pack: a bounded static common model
+and selected texture mapping are verified, but its Hermite128 animation cannot
+yet be decoded. The assets must stay dormant until the
 scene host can load the model and selected texture set as one generation-bound
 title request, apply the verified name replacement and cancel stale requests.
+
+The Three.js model renderer now permits an explicit `allowSizeChange` for
+native title texture replacement. This is required because Health and eShop
+common-slot placeholders are 8 × 8 while their EUR artwork is 512 × 128
+(and Health's symbol is 128 × 128). The default replacement path still rejects
+size changes, protecting the folder's fixed-size text upload. Focused tests
+instantiate all four real common models, bind each selected texture name and
+exercise both the fixed-size and resized cases. HOME activation remains gated.

@@ -240,10 +240,13 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
   });
  }
  return {group,setPlayback(next:FirmwareModelPlayback){playback=select(next);},
-  setTexture(name:string,image:NativePixels){
+  setTexture(name:string,image:NativePixels,replacement?:{allowSizeChange?:boolean}){
    const targets=textureBindings.get(name),record=asset.data.textures.find(t=>t.name===name);
    if(!targets?.length||!record)return false;
-   if(image.width!==record.width||image.height!==record.height||image.data.length!==record.width*record.height*4)throw new Error(`Native replacement texture dimensions differ: ${name}`);
+   const sizeChanged=image.width!==record.width||image.height!==record.height;
+   if(sizeChanged&&!replacement?.allowSizeChange)throw new Error(`Native replacement texture dimensions differ: ${name}`);
+   if(!Number.isInteger(image.width)||!Number.isInteger(image.height)||image.width<1||image.height<1||image.data.length!==image.width*image.height*4)throw new Error(`Invalid native replacement pixels: ${name}`);
+   if(sizeChanged&&options.nativeMipmaps)throw new Error(`Native replacement mip chain is required: ${name}`);
    if(replacementPixels.get(name)===image)return true;
    const pixels=texturePixels(image);for(const texture of targets){texture.image={data:pixels,width:image.width,height:image.height};texture.needsUpdate=true;}replacementPixels.set(name,image);return true;
   },

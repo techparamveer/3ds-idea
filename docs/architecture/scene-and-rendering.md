@@ -92,6 +92,14 @@ candidate can be tested through `FIRMWARE_BANNER_DEFAULT_MODEL` before root-owne
 public promotion and browser/native comparison. See the
 [default integration contract](../native-default-banner-integration-contract.md).
 
+Ordinary type-1 title banners can load a common model and replace its named
+textures with the selected EUR CBMD slot. `createFirmwareModel().setTexture`
+accepts an explicit size-change option for this path because Health/eShop
+common placeholders are smaller than their localized artwork. Its default
+fixed-size contract remains for folder labels. The four audited title packs are
+published but not yet requested by the HOME host; see
+[common-banner delivery](../stock-common-banner-delivery.md).
+
 ## Cleanup contract
 
 Every allocated geometry, material, texture, environment target, renderer,

@@ -134,6 +134,24 @@ test('native text mesh keeps its authored corners, remains visible under parent 
  }
  assert.equal(text.geometry.getAttribute('position').count,16);model.dispose();
 });
+test('native type-1 common banners accept larger EUR artwork in matching material slots',()=>{
+ for(const name of ['camera','sound','health','eshop']){
+  const common=JSON.parse(readFileSync(new URL(`../public/os/firmware/10.7.0-32E/models/${name}-banner-common/model.json`,import.meta.url),'utf8'));
+  const selected=JSON.parse(readFileSync(new URL(`../public/os/firmware/10.7.0-32E/models/${name}-banner-eur/model.json`,import.meta.url),'utf8'));
+  const playback={skeletal:common.skeletalAnimations.map(clip=>({name:clip.Name})),material:common.materialAnimations.map(clip=>({name:clip.Name}))};
+  const images=new Map(common.textures.map(texture=>[texture.name,{width:texture.width,height:texture.height,data:new Uint8ClampedArray(texture.width*texture.height*4)}]));
+  const model=createFirmwareModel({data:common,images},playback);
+  for(const record of selected.textures){
+   const source=common.textures.find(texture=>texture.name===record.name);
+   assert.ok(source,`${name}: ${record.name} maps to a common texture`);
+   const image={width:record.width,height:record.height,data:new Uint8ClampedArray(record.width*record.height*4)};
+   const resized=source.width!==record.width||source.height!==record.height;
+   if(resized)assert.throws(()=>model.setTexture(record.name,image),/dimensions differ/);
+   assert.equal(model.setTexture(record.name,image,{allowSizeChange:true}),true,`${name}: ${record.name} bound`);
+  }
+  model.dispose();
+ }
+});
 test('PICA LUT interpolation preserves quantized signed slopes and terminal extrapolation',()=>{
  assert.deepEqual(decodeCgfxLutWord(4095|(2047<<12)|(1<<23)),[1,-1]);
  const words=Array(256).fill(0);words[0]=1024|(100<<12);words[128]=2048|(200<<12)|(1<<23);words[255]=3000|(30<<12);

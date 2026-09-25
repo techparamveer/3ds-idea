@@ -24,6 +24,7 @@ test('native entry uses source chrome and complete source-bound labels without c
  const options=n=>calls.find(c=>c.layout===n).options;
  assert.equal(options('S_Common-OpenBtn').overrides.TxtC.text,'Open');
  assert.equal(options('S_Common-Text').overrides.Null.text,'Record & Edit Sounds');
+ assert.deepEqual(['S_Common-BrwCursor','S_Common-IconList','S_Common-Text'].map(layout=>options(layout).center),[[160,118],[43,47],[56,47]]);
  assert.equal(options('S_Common-OpLBtn').overrides.TxtC.text,'StreetPass');
  assert.equal(options('S_Common-SetBtn').overrides.TxtMiniT_W_P0.text,'Settings');
  assert.equal(options('S_Inf_U-Hour').overrides.TextBox_00.text,'10 52');

@@ -9,6 +9,16 @@
 > integration checkpoint and the [feature map](docs/feature-map.md) its owners.
 > Strict 1:1 acceptance remains open.
 
+> **25 September onboarding clarification:** The pinned EUR 10.7.0-32E dump
+> is the sole source for native screen visuals and native audio. Each visible
+> native element and cue needs manifest/dump provenance. Do not hand-draw or
+> CSS-reconstruct native graphics, use community fonts, or guess sounds.
+> In-scope UI is HOME, Settings/helpers, Health, read-only Camera, Sound,
+> eShop, Zone, Notes, Friends, Notifications, local Browser/Miiverse, amiibo
+> helper, power/app transitions and the eight portfolio apps. The dated
+> [UI scope](docs/portfolio-ui-scope.md) and [AGENTS.md](AGENTS.md) govern
+> current implementation; older full-firmware language below is historical.
+
 Build a personal portfolio website whose entire visible interface is a realistic, interactive **original 2012 Silver + Black Nintendo 3DS XL, model SPR-001**. Reconstruct the console in Blender using Blender MCP, then present it in Next.js and Three.js with VGPU. The console spins left, opens, and lets visitors navigate through its physical buttons and bottom touchscreen. Keep portfolio content plain until the hardware and HOME Menu are faithful.
 
 The user's standard is exact visual resemblance to their reference photographs. The current prototype has been rejected for its smooth surfaces, wrong font, flat-looking back and inaccurate appearance. Treat it as an unfinished starting point. Passing dimensions or interaction tests does not satisfy the visual goal.

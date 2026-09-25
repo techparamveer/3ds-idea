@@ -6,7 +6,7 @@ interactive console. There is no application backend or firmware executable in
 the runtime. Native resources are converted offline and interpreted by browser
 renderers around deterministic software state.
 
-This design map was checked against UI continuation **`05cef1c` on
+This design map was checked against UI continuation **`1bf5178` on
 25 September 2026**. Parental screens remain inside
 the existing `AppModule`, painter and `stock-screen-layout.ts` boundaries.
 The Sound entry room adds a scene-owned static model background with an injected
@@ -17,7 +17,8 @@ Other documents own the rest:
 | Topic | Authority |
 | --- | --- |
 | Acceptance | [GOAL](../../GOAL.md) |
-| Exclusions and worker roles | [Current scope](../portfolio-ui-scope.md) |
+| Exclusions | [Current scope](../portfolio-ui-scope.md) |
+| Long-lived lanes and handoff | [AGENTS.md](../../AGENTS.md), [implementation process](implementation-process.md) |
 | What has been verified | [Progress](../progress-2026-09-24.md) |
 | Owners and next actions | [Feature map](../feature-map.md) |
 | Repository instructions | [AGENTS.md](../../AGENTS.md) only |

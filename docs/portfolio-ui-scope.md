@@ -1,4 +1,4 @@
-# Portfolio UI scope — 23 September 2026
+# Portfolio UI scope — 23 September 2026; clarified 25 September
 
 The user's latest instruction supersedes the earlier complete-firmware behaviour
 brief: **remove the software keyboard; remaining stock apps need their UI only**.
@@ -8,6 +8,18 @@ console model, physical opening, background-only page and eight portfolio apps.
 Activity Log, Download Play, Mii Maker, StreetPass Mii Plaza, AR Games and Face
 Raiders remain excluded. Software Keyboard is now excluded too. Keep the other
 existing title identities; internal helpers need no invented HOME entrypoints.
+
+The complete in-scope set is HOME; Settings and internal helpers; Health and
+Safety; read-only Camera; Sound UI and supplied-song playback; eShop; Nintendo
+Zone; Game Notes; Friends; Notifications; local Internet Browser and Miiverse;
+the amiibo helper; power and app transitions; and the eight portfolio apps.
+Remote browsing, account/network/PIN operations and capture stay excluded.
+
+The pinned firmware dump is the sole source for **native** visuals and audio.
+Every visible native element and native cue requires manifest/dump provenance.
+No hand or CSS graphics, community font substitution, or guessed native sound
+may be promoted as native. Portfolio content and declared read-only/local
+adaptations have their own provenance and must be labelled separately.
 
 ## Deliverable
 
@@ -30,7 +42,7 @@ is historical; it is not an acceptance dependency. Verify delivered screens
 visually in the browser and compare source/reference views. Do not infer visual
 accuracy from converter or unit-test success.
 
-## Shared interface and ownership
+## Shared interface
 
 Reuse `AppDescriptor`, `AppView`, `AppModule`, `NativePack`,
 `loadNativeTitleAssets` and `createNativeTitleSession`. Do not create another
@@ -40,34 +52,9 @@ modules must not emit device, storage or network operations. The Sound module
 may emit owner-scoped music playback effects. Existing portfolio photographs
 seed the gallery; the song manifest stays empty until songs are supplied.
 
-- **Runtime task:** `app-registry.ts`, `stock-apps.ts`, related app-host changes
-  if necessary and their tests. Remove registered keyboard and all keyboard
-  invocation paths, simplify stock apps to UI navigation, preserve portfolio
-  modules and shared saved-data compatibility. Do not edit `system.ts`,
-  `state.ts`, `screens.ts`, `portfolio-screens.ts` or scene files.
-- **Assets task:** select/convert native stock initial-screen resources and
-  messages, publish narrowly required packs with existing manifest/provenance
-  rules, and send exact pack/layout/animation identities to presentation.
-  Prioritize Settings, Camera, Sound, Health and Safety, then toolbar apps and
-  remaining service/helper screens. Preserve verified HOME delivery. No further
-  keyboard/audio behavioural reconstruction.
-- **Presentation task:** new stock-screen presentation modules plus
-  `portfolio-screens.ts` application rendering only. Replace generic four-row
-  placeholders with per-app native UI, consuming asset task's explicit packs.
-  Own async stock-view asset/session handling behind this boundary, using the
-  existing lifecycle helper. Preserve portfolio content. Do not edit the
-  `overlay` function's launch/power/boot branches; coordinator owns those.
-- **Coordinator:** `system.ts`, `state.ts`, `screens.ts`, scene integration and
-  `portfolio-screens.ts` launch/power/boot overlay branches, with associated
-  transition modules/tests. Remove legacy HOME folder-name keyboard entrypoints.
-  Own browser/Azahar and combined verification.
-- **Documentation:** progress record, feature map, architecture notes,
-  `AGENTS.md` and `CLAUDE.md`. No runtime, asset or model edits.
-
-The [feature map](feature-map.md) records which worktree and branch currently
-hold each role, and each feature's owner.
-
-Workers remain separate visible tasks/worktrees, GPT-6 Astra High. Report
-concrete rendered output and remaining visual differences. Use SSD artifacts.
-Commit coherent slices; coordinator integrates sequentially. In-progress
-keyboard work remains safely preserved in worker worktrees and is not merged.
+The five long-lived ownership lanes and current worktrees are in
+[AGENTS.md](../AGENTS.md) and the [feature map](feature-map.md). This section's
+former runtime/assets/presentation task split and model assignment described
+the 23 September handoff; it is superseded. Workers report concrete evidence
+and remaining visual differences, commit coherent slices, and let the
+coordinator integrate sequentially. Preserved keyboard work is not merged.

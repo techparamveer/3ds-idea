@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: UI continuation through **`1dc6757`** on `codex/health-ui-scratch`,
+Checkpoint: UI continuation base **`1bf5178`** on `codex/health-ui-scratch`,
 25 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -57,13 +57,32 @@ worktree handoff and source-to-visible HOME banner gates.
 | Asset conversion, provenance | Implemented. The current public-only audit passes 1,707 resources, 601 layouts and 1,871 animations with zero integrity errors after registering the Settings and four common title banners plus EUR selections and correcting five stale Sound pack hashes/sizes. The converted Settings model and five textures match manifest hashes and CBMD source identity. | Keep unsupported fields explicit and rerun the private-source audit with the current extraction tree before native acceptance | Assets | [Asset architecture](architecture/assets-and-materials.md), [Sound resource selection](sound-entry-background-source.md), [stock banner source](stock-home-banner-source.md) |
 | Final acceptance | Open | Isolated Azahar profile and one mapped Settings touch route are verified; extend reliable native input, then run a versioned browser/native scenario matrix and requirement audit | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
 
+## Five long-lived lanes — 25 September 2026
+
+All five lanes begin at UI integration
+`1bf5178b6bd827b9804e67233cc076309708728b`. These are current ownership
+assignments; feature-row owner labels above reflect earlier integrations and
+do not authorize editing a different lane's worktree.
+
+| Lane | Worktree | Branch | Owned surface |
+| --- | --- | --- | --- |
+| Design | `/Users/paramveer/.codex/worktrees/3ds-lane-design` | `codex/lane-design` | Agent onboarding, scope, progress, feature map, architecture |
+| Assets | `/Users/paramveer/.codex/worktrees/3ds-lane-assets` | `codex/lane-assets` | Firmware conversion, manifest, provenance and native packs |
+| HOME | `/Users/paramveer/.codex/worktrees/3ds-lane-home` | `codex/lane-home` | HOME state, rendering, banners and input |
+| Stock | `/Users/paramveer/.codex/worktrees/3ds-lane-stock` | `codex/lane-stock` | In-scope stock-app screens and navigation |
+| Experience | `/Users/paramveer/.codex/worktrees/3ds-lane-experience` | `codex/lane-experience` | Scene, power/app transitions, portfolio integration |
+
+The coordinator owns integration in `3ds-ui-continuation`, and alone operates
+the production browser and Azahar. Native assets require manifest/dump
+provenance; source fixtures and renders do not establish browser or native
+acceptance. See [AGENTS.md](../AGENTS.md), [scope](portfolio-ui-scope.md) and
+[verification](architecture/verification.md).
+
 ## Current integration on 25 September 2026
 
 The active checkout is `/Users/paramveer/.codex/worktrees/3ds-ui-continuation`,
-branch `codex/health-ui-scratch`, source evidence through `05cef1c`. Its Git object database
-is separate from the original checkout. New continuation worktrees must use it
-as their repository base. The process/design pass uses sibling
-`3ds-home-process-design` on `codex/home-process-design-20260925`.
+branch `codex/health-ui-scratch`, base `1bf5178`. Its Git object database
+is separate from the original checkout. The five lanes above are based here.
 Run `git worktree list` in the integration checkout for the live worker inventory;
 the dated table below is retained history, not a current assignment list.
 

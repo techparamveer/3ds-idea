@@ -41,9 +41,11 @@ The hidden semantic layer is an input adapter, not a second visible interface.
 
 ## Content and authenticity
 
-Portfolio content should remain concise and factual. Native crops, original
-sounds, authored reconstruction and unavailable firmware assets must be labeled
-honestly in provenance documents. Never infer achievements, measurements,
+Portfolio content should remain concise and factual. Every visible native
+screen element and native sound must resolve to the pinned firmware dump through
+the manifest. Hand/CSS graphics, community fonts and guessed sounds cannot
+stand in for native material. Label portfolio media, deliberate adaptations
+and unavailable resources honestly. Never infer achievements, measurements,
 factory fonts or firmware extraction that the evidence does not establish.
 
 ## HOME defects and acceptance scenarios

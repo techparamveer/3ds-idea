@@ -14,6 +14,13 @@ strongest layer actually reached and keep adaptations and gaps visible.
 | Executed source fixture | Hash-pinned original code with recorded inputs/stubs | The exercised branch, ordering or arithmetic | A real title owner, visible frame or native/browser match unless actually linked |
 | Matched native comparison | Native Azahar capture/waveform paired with a named browser or source render | Explicitly aligned region/state/timing fact for that pair | Other entry states, whole-title motion or strict 1:1 acceptance |
 
+The firmware dump is the sole source for native visuals and audio. Delivery
+claims require a manifest identity linked to dump title/region/resource for
+every visible native element and cue. Do not promote hand/CSS graphics,
+community fonts or guessed sounds as native. A native resource can be
+source-identified, delivered and renderable while still unused or wrong in the
+live scene.
+
 Documentation-only work needs reference/link and diff checks, not a rebuild.
 Code, asset, shader, configuration and conversion changes require the relevant
 layers. Run the full suite when integrated changes cross subsystems.

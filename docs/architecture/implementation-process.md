@@ -1,6 +1,6 @@
 # Implementation and integration process
 
-Checked through UI integration `05cef1c`, 25 September 2026. [AGENTS.md](../../AGENTS.md)
+Checked against UI integration `1bf5178`, 25 September 2026. [AGENTS.md](../../AGENTS.md)
 owns project instructions; this document describes how a defect becomes a
 reviewable change and how its evidence enters the design record.
 
@@ -28,15 +28,18 @@ not a blanket claim that decrypted assets are still unavailable.
    `codex/health-ui-scratch`. It has a different Git object database from
    `/Volumes/DeveloperStorage/GitHub/3ds-idea`. Create worktrees from the UI
    checkout when continuing its commits; verify the base commit resolves there.
-2. Assign each slice one worktree, branch, base SHA, owned paths and concrete
-   exit condition. Existing workers retain ownership until handed off. Check
-   dirty files before reuse; never reset another worker or stage unrelated
-   sparse-checkout deletions. Use explicit paths when staging. Creating a
-   worktree does not itself deliver an improvement.
+2. Use the five long-lived lanes listed in [AGENTS.md](../../AGENTS.md):
+   Design, Assets, HOME, Stock and Experience. Their common base for this
+   onboarding pass is `1bf5178b6bd827b9804e67233cc076309708728b`.
+   Assign each slice owned paths and a concrete exit condition. Check dirty
+   files before reuse; never edit or reset another worker's worktree. Stage
+   explicit files only; **never `git add -A`**. Creating a worktree does not
+   itself deliver an improvement.
 3. A handoff contains the commit SHA, changed behavior or source fact, tests,
    skipped/private fixtures, artifact paths, remaining gates and whether runtime
-   changed. The coordinator alone drives browser and Azahar sessions. Source
-   workers may produce fixtures/renders but must label them accordingly.
+   changed. The coordinator alone drives production browser and Azahar
+   sessions. Workers do not drive either session. Source workers may produce
+   fixtures/renders but must label them accordingly.
 4. Integrate coherent commits sequentially into the coordinator checkout and
    inspect their diff/ancestry. Run relevant combined checks. For runtime/assets,
    rebuild, restart the production server and inspect the actual integrated
@@ -48,10 +51,9 @@ not a blanket claim that decrypted assets are still unavailable.
    changes. Preserve earlier checkpoints as history; mark worktree tables by
    date and use Git for current inventory.
 
-The docs slice for this pass is `/Users/paramveer/.codex/worktrees/3ds-home-process-design`,
-branch `codex/home-process-design-20260925`, based on `7ca3b19`. It changes no
-runtime. Older `uifix`, `codex/home-menu-assets` and `codex/3ds-os` work remains
-preserved.
+Earlier `3ds-home-process-design` and many short-lived replay worktrees are
+historical checkpoints, not current assignments. The original checkout and
+older `uifix`, `codex/home-menu-assets` and `codex/3ds-os` work remain preserved.
 
 ## HOME title-banner promotion gates
 
@@ -63,20 +65,21 @@ preserved.
 | Live integration | State-to-host-to-draw path, retarget cancellation, explicit unsupported/failure handling and Frame/camera composition | Only folder/default native primary paths are live |
 | Visible and native acceptance | Operated integrated browser scenario plus matched native/source or native/browser captures explicitly distinguished; timed sequences for motion claims | Blank stock previews remain defects; no stock-title HOME banner has complete acceptance |
 
-Keep the next source experiment narrow: for Settings, continue from OS service
-`0x139008` to bind the real worker candidate/`COMMON` model, then link
-the render owner to the submitted pose.
-A controller clock reaching frame 1 or a scene-list count reaching 1 does not
-show which pixels became visible. See the detailed
-[Settings gate](../settings-home-banner-activation-gap.md). Do not add guessed
+For Settings, the historical next source question was binding the real worker
+candidate/`COMMON` model past OS service `0x139008`, then linking the render
+owner to a submitted pose. This is an open gate, not an instruction to start a
+chain of standalone source replays. A controller clock reaching frame 1 or a
+scene-list count reaching 1 does not show visible pixels. See the detailed
+[Settings gate](../settings-home-banner-activation-gap.md). The HOME lane should
+first name the integrated visible defect and deliver the narrowest linked
+source-to-runtime correction through browser verification. Do not add guessed
 waits, reuse folder activation as title completion or advance animation during
-paint to bypass the missing branch. Conversely, once a contract is evidenced,
-carry it through integration and browser verification rather than stopping at
-another source-only commit.
+paint to bypass the missing branch.
 
 ## Evidence handoff
 
 For each claim record: commit/build, title and entry state, exact input sequence,
+manifest/dump identity for every visible native element or native cue,
 resource/profile identity, clock or frame sampling, evidence tier, artifact
 path/hash, result and residual defect. Use the tiers in
 [verification](verification.md). Report **implemented**, **tested**,

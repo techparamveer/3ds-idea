@@ -28,6 +28,13 @@ dark plastic, rubber, glass, legends, lenses and indicators.
 
 ## Firmware source-to-delivery flow
 
+The pinned EUR 10.7.0-32E dump is the sole source for native UI visuals and
+audio. Every visible native element and cue must resolve to a public manifest
+record with private dump provenance. A converter output without a manifest
+identity cannot be presented as native. Hand-drawn or CSS versions, community
+fonts and guessed sounds are not native substitutes. Label portfolio media
+and deliberate local/read-only adaptations separately.
+
 ```mermaid
 flowchart LR
   CIA[Private decrypted CIAs] --> Verify[Identity, plaintext and hash checks]

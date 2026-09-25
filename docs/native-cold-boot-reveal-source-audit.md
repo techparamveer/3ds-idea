@@ -135,3 +135,9 @@ A separate power-action trace should establish the exact selected shutdown
 route. Until then, the current startup and shutdown timings remain explicit
 browser adaptations; there is no source-complete visible replacement in this
 commit.
+
+The [entry-context follow-up](native-cold-entry-context-source-audit.md) now
+locates the owner-relative `+0x3a89` writers and their shared flag query, and
+records predicate-dependent waits before reveal. It still does not identify
+which flag values constitute an original-hardware cold start or establish
+physical display order or a fixed startup duration.

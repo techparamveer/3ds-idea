@@ -58,6 +58,32 @@ def select_pack(pack, selection):
     return result, fonts
 
 
+def merge_disjoint_pack(existing, selected):
+    """Add selected native resources to an already delivered subset of one pack."""
+    for key in ('titleId', 'sourceSha256', 'contentIndex', 'contentId'):
+        if existing.get(key) != selected.get(key):
+            raise ValueError('Existing pack source identity differs: '+key)
+    merged = copy.deepcopy(existing)
+    for bucket in CATEGORIES:
+        for name, value in selected.get(bucket, {}).items():
+            current = merged.setdefault(bucket, {})
+            if name in current and current[name] != value:
+                raise ValueError(f'Conflicting existing {bucket} resource: {name}')
+            current[name] = copy.deepcopy(value)
+            sources = merged.setdefault('resourceSources', {}).setdefault(bucket, {})
+            selected_source = selected['resourceSources'][bucket][name]
+            if name in sources and sources[name] != selected_source:
+                raise ValueError(f'Conflicting existing {bucket} provenance: {name}')
+            sources[name] = copy.deepcopy(selected_source)
+    old_indices = merged.setdefault('uiSelection', {}).setdefault('sourceMessageIndices', {})
+    for bank, indices in selected['uiSelection'].get('sourceMessageIndices', {}).items():
+        if bank in old_indices and old_indices[bank] != indices:
+            raise ValueError('Conflicting existing message indexes: '+bank)
+        old_indices[bank] = copy.deepcopy(indices)
+    merged.pop('uiSelectionAdditions', None)
+    return merged
+
+
 def validate_part_links(layouts):
     """Selected FLYT parts must have one explicit, acyclic selected dependency."""
     by_name = {}
@@ -178,7 +204,7 @@ def publish_additive(source_root, output, plan):
     protected = {key: copy.deepcopy(manifest.get(key)) for key in ('home', 'fonts', 'audio', 'models', 'converter')}
     old_home_title = copy.deepcopy(manifest['titles'][HOME]); old_home_source = copy.deepcopy(manifest['sources'][HOME])
     existing = copy.deepcopy(manifest['resources']); pending = {}; records = {}
-    added = []; preserved = []
+    added = []; preserved = []; merged_existing = []
     def original(url):
         data = public_path(source_root, url).read_bytes()
         record = source['resources'][url]
@@ -192,6 +218,10 @@ def publish_additive(source_root, output, plan):
         if title in UI_EXCLUDED or title in (HOME, SHARED): raise ValueError('Title outside stock UI scope')
         if title not in manifest['titles']: raise ValueError('Additive publish requires an existing title: '+title)
         info = copy.deepcopy(manifest['titles'][title])
+        source_title = source['titles'][title]
+        for field in ('titleId', 'version', 'sourceSha256'):
+            if info.get(field) != source_title.get(field):
+                raise ValueError(f'Additive source title {field} differs: {title}')
         selected_layouts = []
         for url, selection in requested['packs'].items():
             if url not in source['titles'][title]['packs']: raise ValueError('Unlisted source pack')
@@ -209,7 +239,18 @@ def publish_additive(source_root, output, plan):
             encoded = encode(selected)
             selected_hash = digest(encoded)
             if url in existing:
-                if existing[url]['sha256'] != selected_hash:
+                if selection.get('mergeExisting'):
+                    old_bytes = public_path(output, url).read_bytes()
+                    if digest(old_bytes) != existing[url]['sha256'] or len(old_bytes) != existing[url]['size']:
+                        raise ValueError('Existing pack bytes differ: '+url)
+                    combined = merge_disjoint_pack(json.loads(old_bytes), selected)
+                    merged_bytes = encode(combined)
+                    pending[url] = merged_bytes
+                    updated = copy.deepcopy(existing[url])
+                    updated.update(size=len(merged_bytes), sha256=digest(merged_bytes))
+                    records[url] = updated
+                    merged_existing.append(url)
+                elif existing[url]['sha256'] != selected_hash:
                     preserved.append(url)
                 continue
             record.update(size=len(encoded), sha256=selected_hash)
@@ -235,7 +276,7 @@ def publish_additive(source_root, output, plan):
     for url, data in pending.items():
         target = public_path(output, url); target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
     manifest_path.write_bytes(encode(manifest))
-    return {'titles': list(plan['titles']), 'added': added, 'preservedDivergent': preserved,
+    return {'titles': list(plan['titles']), 'added': added, 'mergedExisting': merged_existing, 'preservedDivergent': preserved,
             'resources': len(pending), 'bytes': sum(map(len, pending.values())),
             'manifestSha256': digest(encode(manifest)), 'homeAndSharedPreserved': True,
             'existingPacksUnchanged': True}

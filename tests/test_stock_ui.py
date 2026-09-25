@@ -9,7 +9,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'scripts'))
 from firmware.build import HOME, SETTINGS, digest, encode
-from firmware.stock_ui import publish, publish_additive, select_pack
+from firmware.stock_ui import publish, publish_additive, select_pack, merge_disjoint_pack
 
 
 def fixture():
@@ -31,6 +31,52 @@ def fixture():
 
 
 class StockUiTests(unittest.TestCase):
+    def test_merge_selected_message_bank_preserves_existing_bank(self):
+        source, _ = fixture()
+        source.update(sourceSha256='same-source', contentIndex=0, contentId='0000001a')
+        old, _ = select_pack(source, {'messages': {'text': ['first']}})
+        source['messages']['guide'] = {'labels': {'welcome': 0}, 'messages': [{'text': 'Original guide'}]}
+        source['resourceSources']['messages']['guide'] = {'titleId': SETTINGS, 'path': 'guide', 'sha256': 'source'}
+        incoming, _ = select_pack(source, {'messages': {'guide': ['welcome']}})
+        merged = merge_disjoint_pack(old, incoming)
+        self.assertEqual(merged['messages']['text'], old['messages']['text'])
+        self.assertEqual(merged['messages']['guide']['messages'][0]['text'], 'Original guide')
+        self.assertEqual(merged['resourceSources']['messages']['guide'], source['resourceSources']['messages']['guide'])
+        incompatible = copy.deepcopy(incoming); incompatible['sourceSha256'] = 'different'
+        with self.assertRaisesRegex(ValueError, 'source identity'): merge_disjoint_pack(old, incompatible)
+        incompatible = copy.deepcopy(incoming); incompatible['messages']['text'] = {'changed': True}
+        incompatible['resourceSources']['messages']['text'] = old['resourceSources']['messages']['text']
+        with self.assertRaisesRegex(ValueError, 'Conflicting existing messages'): merge_disjoint_pack(old, incompatible)
+
+    def test_published_camera_first_run_selection_has_source_closure(self):
+        public = ROOT/'public/os/firmware/10.7.0-32E'
+        manifest = json.loads((public/'manifest.json').read_text())
+        title_id = '0004001000022400'; title = manifest['titles'][title_id]
+        self.assertEqual(title['version'], 4097)
+        prefix = 'packs/camera/contents/0000-0000001a/'
+        for leaf, layouts in [('lyt-C-Dlg.json', ['C_DlgGuid1BtnW', 'C_DlgGuid2Btn', 'C_DlgGuid_U']),
+                              ('lyt-P_Guid_U-arc-LZ.json', ['P_Guid01_U', 'P_Guid05_U']),
+                              ('lyt-Parakeet-arc-LZ.json', ['ParakeetA_D'])]:
+            url = prefix+leaf
+            self.assertIn(url, title['packs'])
+            pack = json.loads((public/url).read_text())
+            self.assertEqual(pack['titleId'], title_id)
+            self.assertEqual(pack['contentIndex'], 0)
+            self.assertEqual(pack['contentId'], '0000001a')
+            self.assertEqual(pack['unsupported'], [])
+            for name in layouts: self.assertIn(name, pack['layouts'])
+            record = manifest['resources'][url]
+            self.assertEqual(record['sha256'], digest((public/url).read_bytes()))
+            self.assertEqual(record['sources'][0]['titleId'], title_id)
+        message_url = prefix+'msg-EU_English.json'
+        messages = json.loads((public/message_url).read_text())['messages']
+        self.assertIn('P', messages) # Existing browse bank survives the merge.
+        self.assertIn('P_tips', messages)
+        for label in ('T_003', 'D_003_0', 'D_003_4', 'Guide_D_N_Btn0'):
+            self.assertIn(label, messages['P_tips']['labels'])
+        self.assertEqual(messages['P_tips']['messages'][messages['P_tips']['labels']['D_003_0']]['text'],
+                         'Welcome to\nNintendo 3DS Camera!')
+
     def test_dependency_closure_and_message_source_indexes(self):
         pack, selection = fixture(); selected, fonts = select_pack(pack, selection)
         self.assertEqual(set(selected['textures']), {'shared', 'selected'})

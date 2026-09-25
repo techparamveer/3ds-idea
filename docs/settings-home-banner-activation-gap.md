@@ -55,7 +55,7 @@ model's selected CGFX SHA-256
 `96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d`
 and its 600-frame looping `COMMON` clip before running. The committed
 [fixture](evidence/settings-banner-controller-clock.json) has SHA-256
-`9d0d0163745868726a457e06fcfab401355d845bd6e59bf6321ca18af8f92e82`.
+`7457e2566a0aef0883d8f57f08ce15c859c9ceaad65535520de72dfa0d125246`.
 The scene membership and controller fields are supplied synthetic memory;
 `0x25000c` is the source constructor for the controller vtable, but the replay
 does not run that constructor or bind the CGFX.
@@ -113,3 +113,26 @@ and later `0x10a324`/`0x10b770` render work. The current controller replay
 proves the walker advances only the frame clock; it does not find a second
 pose submission there. Native visible pixels and subsequent pose cadence
 remain unresolved, so the live Settings gate stays `unsupported`.
+
+## Native scene insertion and global pass replay (25 September 2026)
+
+The follow-up fixture supplies a Settings-labelled candidate at manager
+`M+0x50`, then executes the original visibility setter, generic primary update
+and indirect callback in one emulator instance. This time `0x24f170` executes
+through `0x24f30c -> 0x230710`: the primary's `+4` node is inserted into the
+native global scene list, whose count changes from 0 to 1, and its
+actual-visible byte becomes 1. Two original global `0x103808` passes traverse
+that node through `0x10b3d0` and controller update `0x24ff10`. At the scene-1
+render dispatch entry `0x1038c0`, controller frames are 1 and 2. The fixture
+stops before calling the supplied render owner.
+
+The `M+0x50` candidate is **synthetic**, as are its empty model-child range,
+scene service and 600-frame controller. Resource allocation, scene service and
+unrelated graph operations use recorded stubs. The real title worker's archive
+result and the bound Settings `COMMON` CGFX object are absent. Consequently,
+the actual-visible byte and render dispatch do not establish a submitted
+visible pose or native pixels. The remaining source branch begins with the
+real Settings title worker `0x24c930` creating `M+0x50`, state 4 preparing
+`COMMON` through `0x24def0`, and the scene-1 render owner virtual `+0x14`
+at `0x1038cc`. Those must be linked with the real model and sampled pose
+before a browser Settings primary can be enabled.

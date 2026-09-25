@@ -62,6 +62,14 @@ test('bounded original controller replay separates start pose submission from at
     [[1, 1], [1, 0], [0, 0]]);
   assert.deepEqual(transition.rows.at(-1).events.map(event => event.address),
     ['0x1f7c78', '0x24f170', '0x1f7c78', '0x24f3b0']);
+  const insertion = controller.nativeSceneInsertion;
+  assert.equal(insertion.candidatePointerSource, 'synthetic manager +0x50');
+  assert.equal(insertion.listCount, 1);
+  assert.equal(insertion.actualVisibleByte, 1);
+  assert.deepEqual(insertion.controllerFramesAtRenderDispatch, [1, 2]);
+  assert.deepEqual(insertion.visited.slice(0, 7),
+    ['0x1f9e64', '0x1fa344', '0x1f7c78', '0x24f170', '0x24f30c', '0x230710', '0x24e0c0']);
+  assert.equal(insertion.renderDispatchStop, '0x1038c0');
 });
 
 test.todo('execute native scene insertion and a visible Settings pose submission with the bound COMMON model');

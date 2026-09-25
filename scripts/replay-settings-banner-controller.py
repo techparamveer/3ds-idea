@@ -3,8 +3,8 @@
 
 The supplied controller and descriptor are synthetic. The executed instructions
 include the native scene list walker, frame clock, conditional start pose and
-indirect visibility callback. This does not execute CGFX binding, native scene
-insertion, a visible pose submission, or actual HOME title scheduling.
+indirect visibility callback and scene-list insertion. This does not execute
+CGFX binding, a submitted visible pose, or actual HOME title scheduling.
 """
 
 import argparse
@@ -223,6 +223,90 @@ def visibility_transition(code):
             'scope': 'Native visibility setter 0x1f9e64, generic update 0x1fa344, and indirect callback 0x1f7c78 execute on one synthetic Settings-labeled primary. Native attach 0x24f170 and detach 0x24f3b0 are entered but stubbed; source scene membership, CGFX binding, pose submission, and pixels are unobserved.'}
 
 
+def native_scene_insertion(code):
+    """Run original attach and global scene traversal with supplied title graph.
+
+    The primary at manager +0x50 and its controller are synthetic. The source
+    list insertion and global traversal execute, while unrelated allocators,
+    scene service, render graph and GPU calls are explicit stubs/stops.
+    """
+    u = machine(code)
+    primary = 0x840000
+    u.mem_map(0x344000, 0x1000)  # HOME global scene-list header
+    u.mem_map(primary, 0x9000)
+    put32(u, 0x32ebf4 + 0x50, primary)  # supplied Settings title candidate
+    put32(u, primary + 0x24, primary + 0x1000)  # model owner
+    put32(u, primary + 0x38, 1)  # scene index
+    put32(u, primary + 0x44, primary + 0x500)
+    put32(u, primary + 0x48, primary + 0x500)  # no model children
+    put32(u, 0x344b44, 0)
+    put32(u, 0x344b48, 0x344b48)
+    put32(u, 0x344b4c, 0x344b48)
+    put32(u, 0x32e788, primary + 0x2000)  # supplied scene service
+    put32(u, primary + 0x2000, primary + 0x3000)
+    put32(u, primary + 0x3000 + 0x10, primary + 0x4000)
+    put32(u, 0x32e760, primary + 0x6000)
+    put32(u, 0x32e758, primary + 0x7000)
+    # This primary's controller list is traversed by the real global pass.
+    put32(u, primary + 0x10, CONTROLLER + 0x20)
+    put32(u, CONTROLLER + 0x20, primary + 0x10)
+    put32(u, CONTROLLER + 0x24, primary + 0x10)
+    visited = []
+    external_stubs = {0x236128, 0x235510, 0x1f7360, 0x18ba88,
+                      0x18a6ec, 0x18a6e0, 0x1f7508, primary + 0x4000}
+
+    def hook(uc, address, size, _):
+        if address in (0x1f9e64, 0x1fa344, 0x1f7c78, 0x24f170,
+                       0x24f30c, 0x230710, 0x24e0c0, 0x103808,
+                       0x10b3d0, 0x24ff10, 0x1038c0):
+            visited.append(hex(address))
+        if address in external_stubs:
+            uc.reg_write(UC_ARM_REG_R0, 0)
+            uc.reg_write(UC_ARM_REG_PC, uc.reg_read(UC_ARM_REG_LR))
+        elif address == 0x1f8450:
+            uc.reg_write(UC_ARM_REG_R0, primary + 0x200)
+            uc.reg_write(UC_ARM_REG_PC, uc.reg_read(UC_ARM_REG_LR))
+        elif address == 0x24e0c0:
+            uc.emu_stop()
+        elif address == 0x1038c0:
+            # Scene-1 render dispatch is reached, but no real render owner or
+            # selected Settings model is present to yield visible pixels.
+            uc.emu_stop()
+
+    u.hook_add(UC_HOOK_CODE, hook)
+    u.reg_write(UC_ARM_REG_R0, get32(u, 0x32ebf4 + 0x50))
+    u.reg_write(UC_ARM_REG_R1, 1)
+    u.emu_start(0x1f9e64, END, count=100)
+    assert u.reg_read(UC_ARM_REG_PC) == END
+    u.reg_write(UC_ARM_REG_R0, primary)
+    u.reg_write(UC_ARM_REG_S0, 0x3f800000)
+    u.reg_write(UC_ARM_REG_LR, END)
+    u.emu_start(0x1fa344, END, count=10000)
+    assert u.reg_read(UC_ARM_REG_PC) == 0x24e0c0
+    assert u.mem_read(primary + 0x3c, 1)[0] == 1
+    assert get32(u, 0x344b44) == 1
+    assert get32(u, 0x344b48) == primary + 4
+    assert get32(u, 0x344b4c) == primary + 4
+    frames = []
+    for _ in range(2):
+        u.reg_write(UC_ARM_REG_SP, STACK + 0x800)
+        u.reg_write(UC_ARM_REG_LR, END)
+        u.emu_start(0x103808, END, count=10000)
+        assert u.reg_read(UC_ARM_REG_PC) == 0x1038c0
+        frames.append(get_float(u, CONTROLLER + 0xc))
+    assert frames == [1.0, 2.0]
+    assert visited == ['0x1f9e64', '0x1fa344', '0x1f7c78',
+                       '0x24f170', '0x24f30c', '0x230710', '0x24e0c0',
+                       '0x103808', '0x10b3d0', '0x24ff10', '0x1038c0',
+                       '0x103808', '0x10b3d0', '0x24ff10', '0x1038c0']
+    return {'titleId': '0004001000022000', 'candidatePointerSource':
+            'synthetic manager +0x50', 'sceneIndex': 1, 'listCount': 1,
+            'insertedNode': hex(primary + 4), 'actualVisibleByte': 1,
+            'renderDispatchStop': '0x1038c0',
+            'controllerFramesAtRenderDispatch': frames, 'visited': visited,
+            'scope': 'Original visibility setter, generic update and indirect callback enter original 0x24f170/0x230710, inserting a supplied primary into the global scene list and setting its actual-visible byte. Original 0x103808 reaches it twice, calls 0x10b3d0/0x24ff10, and reaches scene-1 render dispatch. Candidate, model children, scene service and controller are synthetic; external allocators/services are stubbed; CGFX binding, submitted visible pose and pixels are not observed.'}
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--code', type=Path, required=True)
@@ -241,6 +325,7 @@ def main():
     result = run(code)
     result['firstStartSubmission'] = first_start_submission(code)
     result['visibilityTransition'] = visibility_transition(code)
+    result['nativeSceneInsertion'] = native_scene_insertion(code)
     print(json.dumps(result, indent=2) + '\n', end='')
 
 

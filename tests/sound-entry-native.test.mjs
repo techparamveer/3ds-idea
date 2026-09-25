@@ -6,7 +6,7 @@ const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('b
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const layout=url(compile('stock-screen-layout').replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href)));
 const source=compile('stock-native-sound').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-sound-record'",JSON.stringify(url(compile('stock-sound-record'))));
-const {drawNativeSoundFrame,soundEntryBlue,soundGuideLowerPanel,soundScreenPacks}=await import(url(source));
+const {drawNativeSoundFrame,soundEntryBlue,soundGuideLowerPanel,soundGuideMessageColor,soundScreenPacks}=await import(url(source));
 const {stockScreenActionAt:hit}=await import(layout);
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const packs=Object.fromEntries(soundScreenPacks.map(p=>[p.alias,JSON.parse(readFileSync(new URL(p.url,firmware)))]));
@@ -60,16 +60,25 @@ test('entry device controls and disabled Back have no touch targets',()=>{
 
 test('three Sound welcome pages bind the published guide art and S_tips messages',()=>{
  const bank=packs['sound-messages'].messages.S_tips;
+ const styles=packs['sound-messages'].styles[bank.styleTable].styles;
+ const body=bank.messages[bank.labels.D_001_0],next=bank.messages[bank.labels.Guide_D_N_Btn0];
+ assert.deepEqual(soundGuideMessageColor({messageStyle:styles[body.styleIndex]}),[69,64,57,255]);
+ assert.deepEqual(soundGuideMessageColor({messageStyle:styles[next.styleIndex]}),[69,64,57,255]);
  for(const label of ['D_001_0','D_001_1','D_001_2','Guide_D_N_Btn0','Guide_D_BN_Btn0','Guide_D_BN_Btn1','Guide_D_BO_Btn1'])assert.ok(label in bank.labels,label);
  assert.ok(packs['sound-guide-upper'].layouts.S_Guid03_U);
  for(let page=0;page<3;page++){
   const calls=[],top={},bottom={save(){this.savedSmoothing=this.imageSmoothingEnabled;},restore(){this.imageSmoothingEnabled=this.savedSmoothing;},imageSmoothingEnabled:true};
   const draw=(ctx,pack,layout,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,options,smoothing:ctx.imageSmoothingEnabled});return true;};
-  const drawLayout=(ctx,pack,layout,posed,options)=>draw(ctx,pack,layout,options);
+  const drawLayout=(ctx,pack,layout,posed,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,posed,options,smoothing:ctx.imageSmoothingEnabled});return true;};
   const guide={...entry,screen:'guide',data:{tracks:[],guidePage:page}};
   assert.equal(drawNativeSoundFrame({packs,draw,drawLayout},top,bottom,guide,{date:new Date(2026,8,24,10,52)}),true);
   const panel=calls.findLast(call=>call.layout=== (page===0?'C_DlgGuid1BtnW':'C_DlgGuid2Btn'));
   assert.equal(panel.options.overrides.TxtDlg.text,bank.messages[bank.labels[`D_001_${page}`]].text);
+  if(page===0){
+   const pane=(nodes,name)=>{for(const node of nodes){if(node.name===name)return node;const found=pane(node.children,name);if(found)return found;}return null;};
+   assert.deepEqual(pane(panel.posed.roots,'TxtDlg')?.text.topColor,[69,64,57,255]);
+   assert.deepEqual(pane(panel.posed.roots,'Guid1TxtW')?.text.topColor,[69,64,57,255]);
+  }
   assert.equal(panel.options.overrides.TxtNumber0.text,`${page+1} / `);
   assert.deepEqual(panel.options.overrides.TxtNumber0.translation,[107,-92,0]);
   assert.deepEqual(panel.options.overrides.TxtNumber0.size,[35,24]);

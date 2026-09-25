@@ -48,6 +48,13 @@ export function soundGuideLowerPanel(dialog:NativeLayout,guide:NativeLayout):Nat
   return posed;
 }
 
+/** RI.mstl word +8 stores the source message colour as little-endian RGBA. */
+export function soundGuideMessageColor(value:ReturnType<typeof nativeMessageOverride>):number[]|null{
+  const word=value.messageStyle?.unresolvedWords?.['8'];
+  return typeof word==='number'&&Number.isInteger(word)&&word>=0&&word<=0xffffffff
+    ?[word&255,(word>>>8)&255,(word>>>16)&255,(word>>>24)&255]:null;
+}
+
 /** Original Sound artwork at its source mounts with portfolio track content.
  * Playback uses the native transport, playback-mode panel, C_SldT time slider and
  * the resting S_Play_D-Effect panel; the library uses the source list cursor and
@@ -69,10 +76,12 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
   // Add and Settings are presentation-only here; supplied-song views keep their player.
   // The room CGFX and source 2D Record backdrop are separate source layers.
   if(!playback&&!tracks.length){
-    const entry=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{
+    const entry=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={},messageColors:Readonly<Record<string,readonly number[]>>={})=>{
       const source=renderer.packs[pack]?.layouts?.[layout];
       if(!source){draw(ctx,pack,layout,opts);return;}
       const posed=soundEntryBlue(poseNativeLayout(source,renderer.packs[pack].animations,opts.bindings,opts.overrides));
+      const tone=(panes:typeof posed.roots)=>{for(const pane of panes){const color=messageColors[pane.name];if(color&&pane.text){pane.text.topColor=[...color];pane.text.bottomColor=[...color];}tone(pane.children);}};
+      tone(posed.roots);
       okay=renderer.drawLayout(ctx,pack,layout,posed,{...opts,bindings:[]})&&okay;
     };
     // These two full-label source messages contain 80% / restore-100% scale tags.
@@ -122,7 +131,12 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
       // Give each text pane its own bounded raster and mount at the captured
       // lower-LCD positions instead of allowing their glyph runs to overlap.
       const common={TxtDlg:message('S_tips',`D_001_${page}`),TxtNumber0:{text:`${page+1} / `,size:[35,24],translation:[107,-92,0]},TxtNumber1:{text:'3',size:[20,24],translation:[147,-92,0]}};
-      if(first)entry(bottom,'sound-dialog','C_DlgGuid1BtnW',{bindings:[{name:'C_DlgGuid1BtnW_Default',frame:0}],overrides:{...common,Guid1TxtW:message('S_tips','Guide_D_N_Btn0')}});
+      if(first){
+        const button=message('S_tips','Guide_D_N_Btn0');
+        const bodyColor=soundGuideMessageColor(common.TxtDlg),buttonColor=soundGuideMessageColor(button);
+        entry(bottom,'sound-dialog','C_DlgGuid1BtnW',{bindings:[{name:'C_DlgGuid1BtnW_Default',frame:0}],overrides:{...common,Guid1TxtW:button}},
+          {...(bodyColor?{TxtDlg:bodyColor}:{}),...(buttonColor?{Guid1TxtW:buttonColor}:{})});
+      }
       else entry(bottom,'sound-dialog','C_DlgGuid2Btn',{bindings:[{name:'C_DlgGuid2Btn_Default',frame:0}],overrides:{...common,Guid2TxtB:message('S_tips','Guide_D_BN_Btn0'),Guid2TxtW:message('S_tips',page===2?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')}});
       // Integer source texels should remain crisp on the 320px LCD. The
       // captured guide bird occupies roughly 40×52 px at x15,y180.

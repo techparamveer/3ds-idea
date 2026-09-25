@@ -150,6 +150,38 @@ class StockUiTests(unittest.TestCase):
         self.assertEqual(tips['messages'][tips['labels']['D_001_0']]['text'],
                          'Welcome to\nNintendo 3DS Sound!')
 
+    def test_published_sound_welcome_guide_character_panel_provenance(self):
+        public = ROOT/'public/os/firmware/10.7.0-32E'
+        manifest = json.loads((public/'manifest.json').read_text())
+        url = 'packs/sound/contents/0000-0000000b/lyt-C-Dlg.json'
+        pack = json.loads((public/url).read_text())
+        name = 'C_DlgChA'
+        layout = pack['layouts'][name]
+        source = pack['resourceSources']['layouts'][name]
+        self.assertEqual(source, {
+            'titleId': '0004001000022500', 'contentIndex': 0,
+            'contentId': '0000000b', 'path': 'lyt/C.LZ/Dlg/blyt/C_DlgChA.bclyt',
+            'sha256': '4d35e4b38ae75fa7ad8c8f2d2484bd200856b562ee4c493b13adbc765c5eb8d7',
+        })
+        expected = {
+            'C_DlgChBase.bclim': 'a9fa4c68',
+            'C_DlgChLay6.bclim': '9117e20b',
+            'C_DlgChBirdA.bclim': '2292ed3e',
+            'C_DlgChBirdAlph.bclim': 'fc46bed0',
+        }
+        self.assertEqual(set(layout['textures']), set(expected))
+        for name, prefix in expected.items():
+            texture = pack['textures'][name]
+            self.assertIn(texture['url'], manifest['resources'])
+            self.assertEqual(digest((public/texture['url']).read_bytes()),
+                             manifest['resources'][texture['url']]['sha256'])
+            texture_source = pack['resourceSources']['textures'][name]
+            self.assertTrue(texture_source['sha256'].startswith(prefix))
+            self.assertEqual(texture_source['titleId'], source['titleId'])
+            self.assertEqual(texture_source['contentIndex'], source['contentIndex'])
+            self.assertEqual(texture_source['contentId'], source['contentId'])
+        self.assertEqual(manifest['resources'][url]['sha256'], digest((public/url).read_bytes()))
+
     def test_dependency_closure_and_message_source_indexes(self):
         pack, selection = fixture(); selected, fonts = select_pack(pack, selection)
         self.assertEqual(set(selected['textures']), {'shared', 'selected'})

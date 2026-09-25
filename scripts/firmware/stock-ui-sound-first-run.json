@@ -5,7 +5,7 @@
       "packs": {
         "packs/sound/contents/0000-0000000b/lyt-C-Dlg.json": {
           "mergeExisting": true,
-          "layouts": ["C_DlgGuid1BtnW", "C_DlgGuid2Btn", "C_DlgGuid_U", "C_NullDlg"],
+          "layouts": ["C_DlgChA", "C_DlgGuid1BtnW", "C_DlgGuid2Btn", "C_DlgGuid_U", "C_NullDlg"],
           "animations": ["C_DlgGuid1BtnW_Default", "C_DlgGuid1BtnW_Push", "C_DlgGuid2Btn_Default", "C_DlgGuid2Btn_Disable", "C_DlgGuid2Btn_Push", "C_NullDlg_Dlg_In", "C_NullDlg_Dlg_InU", "C_NullDlg_Dlg_Out", "C_NullDlg_Dlg_OutU"]
         },
         "packs/sound/contents/0000-0000000b/lyt-S_Guid_U-arc-LZ.json": {

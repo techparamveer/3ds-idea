@@ -1,4 +1,4 @@
-# Camera browse-strip port — disconnected
+# Camera browse-strip port and live paging adapter
 
 EUR Camera `0004001000022400`, content `0000-0000001a`, SHA-256
 `3a3c4152ebcc74443ed245a0e9840d31219bbd2559295364cc8dab9497e4492c`.
@@ -6,31 +6,43 @@ This continues the [paging](camera-paging-source-audit.md),
 [input](camera-input-source-audit.md),
 [owner](camera-owner-lifecycle-source-audit.md) and
 [rebind](camera-rebind-source-audit.md) audits with a pure TypeScript port of
-the replayed strip arithmetic. **Live Camera still jumps to
-`floor(selection / 6)`.** `stock-apps.ts`, `stock-native-camera.ts` and
-`stock-screen-layout.ts` do not import this module.
+the replayed strip arithmetic. The live read-only gallery now uses that port:
+`stock-apps.ts` advances selection and smoothing through its existing app
+clock, while `stock-screen-layout.ts` and `stock-native-camera.ts` use the
+rounded output for matching touch targets and clipped cell positions
+(`8c85a90`). Folder selection still uses its existing six-item page adapter.
 
 Portfolio scope is unchanged: folders, gallery and photo only, no capture.
 
-## Why live paging stays off
+## Scope of the live adapter
 
-The [feature map](feature-map.md) keeps the live six-item adapter gated. The
-later ordering continuation now bounds rebind/stale completion through the
-second ring draw and executes current owner/touch traversal. It returns a
-negative live-gate result:
+The strip moves visibly across page boundaries. It uses the source 248 px
+page stride, intermediate column anchors, float32 0.3 smoothing, and padded
+selection candidates. A selected padded blank has no Open action. A Camera
+owner's suspension cancels held keys; rendering and touch geometry read the
+same strip output. Focused Camera and neighboring tests passed, as did
+typecheck and a production build in the lane worktree. The coordinator owns
+browser and native inspection; neither is claimed here.
 
-| Required before live | Status here |
+This is a bounded presentation adapter, not the complete native SceneBrowse
+consumer. The later ordering continuation bounds rebind/stale completion
+through the second ring draw and executes current owner/touch traversal. These
+parts remain outside the live path:
+
+| Native behavior outside the adapter | Status here |
 | --- | --- |
 | Request allocation, complete tag/resource state, ready publication and two presentation passes (`0x2d9450`, `0x2dbb50`, `0x2da338`, `0x2da6fc`, `0x2cea0c`) | Bounded replayed in the later [ordering audit](camera-rebind-order-source-audit.md). The first ring draw remains unready; its post-draw rewrite permits tag 69 on the second draw. Final property/cell services are recorded leaves, not GPU pixels |
 | Combined owner input/presentation traversal with touch cancellation, ancestry, 12px drag and slider history | Bounded original root/traversal replayed. Input-owner replacement does not cancel an existing capture; manager interruption cancels on the next eligible child update and does not clear pass-1 consumer readiness |
 | Scene-owner generation replacement/teardown and stale consumer retirement | Open. The later [generation audit](camera-scene-generation-source-audit.md) executes embedded renderer cleanup and locates a later setup reset; it does not execute the full SceneBrowse replacement caller |
 | Published lower-LCD pixel behavior | Open. A separate [complete cell-writer replay](camera-cell-publication-source-audit.md) now executes retained pane output, with child attachment/layout binding recorded. It is not joined to this request fixture and has no photo upload or pixel comparison |
-| Native wall-clock cadence | Open. `CAMERA_BROWSE_UPDATE_MS` is the host's nominal 60 Hz conversion for tests, not hardware milliseconds |
+| Native wall-clock cadence | Open. `CAMERA_BROWSE_UPDATE_MS` converts the live host clock at nominal 60 Hz, not measured hardware milliseconds |
 | FadeAll blank/folder preview, 3-page ring allocator, CurDefault ownership | Open |
 
-A live adapter that drew every current URL in a ±192px window, hid Finder panes
-immediately on a padded blank, or treated HTML `onload` as native ready-bit
-publication would skip source stages that are not yet replayed together.
+The live painter clips visible portfolio cells to `PicPosRengeL`; image URL
+readiness remains owned by the existing native-title session and browser image
+cache. This does not claim the source three-page ring, ready-bit publication,
+FadeAll blank transition or native photo upload behavior. The Finder overlay
+is still the declared read-only portfolio adaptation.
 
 ## Ported, replayed arithmetic
 
@@ -50,7 +62,8 @@ item lookup `0x1fd048`, owner event dispatch, and cell writer `0x2d804c`.
 | `0x2d5740` early path | stylus down skips keys; not ancestry, drag or capture |
 
 Each `cameraBrowseUpdate` is one native update: child slider step, then
-after-child key handling. Browser `repeat` events are ignored.
+after-child key handling. The live adapter advances these updates from the
+host clock at nominal 60 Hz. Browser `repeat` events are ignored.
 
 ## Additional ring/bitset facts (not a live writer)
 
@@ -84,6 +97,8 @@ Private `unicorn==2.1.4`, absolute `--code`, `--output` and optional
 `reference/camera-native-paging/strip-replay.json` under the firmware artifact
 root. Focused Node tests consume only the derived fixture.
 
-No application rebuild, browser inspection or native screen comparison is
-claimed. The six-cell page adapter, generic Back/Open footer and viewfinder
-replacement remain labelled adaptations.
+The integrated adapter passed focused tests, typecheck and a production build.
+No browser inspection or native screen comparison is claimed. The folder
+six-cell page adapter, generic Back/Open footer and viewfinder replacement
+remain labelled adaptations; smooth gallery paging has not been matched to
+native wall-clock timing or pixels.

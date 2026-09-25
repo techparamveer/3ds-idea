@@ -2,13 +2,14 @@ import type { JsonValue } from './app-types.ts';
 
 /**
  * Source-replayed EUR Camera (0004001000022400) large-density browse strip.
- * Deliberately not imported by stock-apps, stock-native-camera or
- * stock-screen-layout: live gallery still jumps to floor(selection / 6).
+ * The live read-only gallery uses this controller for selection, nominal
+ * update ticks and horizontal cell placement. This does not port SceneBrowse's
+ * ring allocator, readiness publication or drag/capture ownership.
  * Replayed by scripts/replay_camera_strip.py; see docs/camera-browse-strip-port.md.
  *
  * One `cameraBrowseUpdate` is one native application update (child slider
  * smoothing, then after-child key handling). Millisecond conversion is a
- * nominal 60 Hz test helper, not measured hardware cadence, and is not live.
+ * nominal 60 Hz live adapter, not measured hardware cadence.
  */
 export type CameraDirection = 'left' | 'right' | 'up' | 'down';
 /** Camera internal masks produced by 0x10e37c from the raw pad bits. */
@@ -23,7 +24,7 @@ const COLUMNS = 3, PITCH = 76, MARGIN = 10;
 const FRACTION = Math.fround(0.3), THRESHOLD = Math.fround(0.1);
 /** 0x128508 key-manager defaults: first repeat after 20 updates, then every 4. */
 const REPEAT_DELAY = 20, REPEAT_INTERVAL = 4;
-/** Test/adapter conversion only. Same nominal 60 Hz as HOME; not hardware proof. */
+/** Live adapter conversion. Same nominal 60 Hz as HOME; not hardware proof. */
 export const CAMERA_BROWSE_UPDATE_MS = 1000 / 60;
 
 export type CameraBrowse = {
@@ -188,7 +189,8 @@ export function cameraBrowseUpdate(step: CameraBrowseStep, count: number): Camer
 
 /**
  * Advance whole nominal updates. Returns the input unchanged when the strip is
- * settled so idle frames would not repaint. Not a live Camera clock.
+ * settled so idle frames would not repaint. The host supplies live elapsed time;
+ * this conversion does not establish native wall-clock cadence.
  */
 export function cameraBrowseTick(step: CameraBrowseStep, elapsedMs: number, count: number): CameraBrowseStep {
   if (!Number.isFinite(elapsedMs) || elapsedMs <= 0) return step;

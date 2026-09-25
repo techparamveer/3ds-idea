@@ -53,9 +53,11 @@ export function createSoundRoom(renderer:THREE.WebGLRenderer,load=loadFirmwareMo
         span=createFirmwareModel(spanAsset,{}, {colorFit:{material:'Base',upperY:106,lowerY:111,upperRgb:[38,104,219],lowerRgb:[21,57,120]}});
         // The model's shared (-45) bind placement is not a displayed idle state.
         // These transform values fit the native Sound guide upper blue line at
-        // y=106..111 of the 400×240 LCD capture. They are an explicit silent
-        // pose adaptation until the Span class's runtime pose is decoded.
-        span.group.position.set(0,34.9,-20);span.group.rotation.x=0.611;span.group.scale.y=0.0068;
+        // y=106..111 of the 400×240 LCD capture. The source bind projects its
+        // lower strip only from x≈41..359; the fitted 1.27 X scale carries
+        // that source silhouette through both native LCD edges. These are
+        // explicit silent-pose adaptations until the Span class is decoded.
+        span.group.position.set(0,35.3,-20);span.group.rotation.x=0.611;span.group.scale.set(1.27,0.0068,1);
         span.update(0,spanCamera);
         // ColorChange has zero vertex alpha in this bind model and does not
         // produce the observed line. Its source constant remains untouched.

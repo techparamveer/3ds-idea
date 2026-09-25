@@ -37,7 +37,7 @@ test('room drops late owner completions and retains one opaque static render per
  room.prepare('sound:2',changed);for(const item of pending.slice(2))item.resolve(loaded(item.url));await flush();assert.equal(changes,1);assert.equal(room.prepare('sound:2',changed).status,'ready');
  assert.equal(room.draw(ctx),true);assert.equal(room.draw(ctx),true);assert.deepEqual(f.counts(),[2,1]);assert.equal(f.nativeViewportSets(),0,'native target viewport must bypass page DPR');assert.equal(f.puts[0][0],93);assert.equal(f.puts[0][239*400*4],72);assert.ok(f.puts[0].every((v,i)=>i%4!==3||v===255));
  assert.deepEqual(f.renderCalls.map(call=>call.camera.position.toArray()),[[0,5,11.5],[0,-30,72]]);
- const spanGroup=f.renderCalls[1].scene.children[0];assert.deepEqual(spanGroup.position.toArray(),[0,34.9,-20]);assert.equal(spanGroup.rotation.x,.611);assert.equal(spanGroup.scale.y,.0068);
+ const spanGroup=f.renderCalls[1].scene.children[0];assert.deepEqual(spanGroup.position.toArray(),[0,35.3,-20]);assert.equal(spanGroup.rotation.x,.611);assert.deepEqual(spanGroup.scale.toArray(),[1.27,.0068,1]);
  const fitted=spanGroup.children[0].children.filter(mesh=>mesh.material.fragmentShader.includes('float lcdY=239.5-gl_FragCoord.y'));
  assert.equal(fitted.length,33,'the source Base material alone receives the measured blue palette');
  assert.ok(fitted.every(mesh=>mesh.material.fragmentShader.includes('0.14901961,0.40784314,0.85882353')));

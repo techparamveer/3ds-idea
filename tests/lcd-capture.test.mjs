@@ -20,8 +20,13 @@ test('production LCD capture requires loopback and explicit opt in', () => {
 test('download request fixes presentation time and names a single JSON capture', () => {
   assert.deepEqual(
     lcdDownloadRequest('?lcdCapture=1&lcdScenario=settings-other-page1&lcdElapsedMs=8483.333&lcdDate=2026-09-25T10%3A52%3A00Z'),
-    { elapsedMs: 8483.333, isoDate: '2026-09-25T10:52:00.000Z', scenario: 'settings-other-page1' },
+    { elapsedMs: 8483.333, isoDate: '2026-09-25T10:52:00.000Z', scenario: 'settings-other-page1', bannerFrame: undefined },
   );
+  assert.deepEqual(lcdDownloadRequest('?lcdScenario=home-settings-frame150&lcdElapsedMs=12000&lcdDate=2026-09-25&lcdBannerFrame=150'),
+    { elapsedMs: 12000, isoDate: '2026-09-25T00:00:00.000Z', scenario: 'home-settings-frame150', bannerFrame: 150 });
+  for (const invalid of ['', '-1', '600', '12.5', 'nan']) {
+    assert.throws(() => lcdDownloadRequest(`?lcdElapsedMs=0&lcdDate=2026-09-25&lcdBannerFrame=${invalid}`), /lcdBannerFrame/);
+  }
   assert.throws(() => lcdDownloadRequest('?lcdElapsedMs=0'), /lcdDate/);
   assert.throws(() => lcdDownloadRequest('?lcdElapsedMs=-1&lcdDate=2026-09-25'), /lcdElapsedMs/);
   assert.throws(() => lcdDownloadRequest('?lcdScenario=../escape&lcdElapsedMs=0&lcdDate=2026-09-25'), /scenario/);

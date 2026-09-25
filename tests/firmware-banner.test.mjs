@@ -17,6 +17,7 @@ function moduleUrl(path){
  const url='data:text/javascript;base64,'+Buffer.from(code).toString('base64');modules.set(path,url);return url;
 }
 const {createFirmwareBanner}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/firmware-banner.ts',import.meta.url))));
+const {settingsBannerPhase}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/banner-verification.ts',import.meta.url))));
 const publicRoot=fileURLToPath(new URL('../public/',import.meta.url));
 const frame=Object.freeze({visible:true,scale:.8,yawRadians:.31,skeletalFrame:0,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});
 function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false,alterDefault,delayDefault,corruptDefaultTexture,defaultFetchObserver,pixelRatio=1}={}){
@@ -90,6 +91,28 @@ test('Settings COMMON draws as the sole group-2 primary with its source frame an
  assert.deepEqual(snapshot(group),pose);
  assert.equal(h.banner.drawSettingsFrame(h.ctx,{...frame,visible:false}),true);
  assert.equal(h.draws.length,2,'hidden sample does not draw stale Settings pixels');
+});
+
+test('verification-only Settings source frames bracket the captured broad and edge-on poses without advancing live motion',async t=>{
+ const h=setup(t);await h.banner.ready;
+ const motion=Object.freeze({yawRadians:-.1466,skeletal:Object.freeze({frame:14})});
+ const sample=number=>{
+  const phase=settingsBannerPhase(motion,false,number);
+  assert.equal(h.banner.drawSettingsFrame(h.ctx,{...frame,scale:1,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame}),true);
+  const draw=h.draws.at(-1),wrench=primary(draw.scene).children[0].children[11];
+  const position=wrench.geometry.attributes.position,point=new THREE.Vector3(),xs=[];
+  wrench.updateWorldMatrix(true,false);draw.camera.updateMatrixWorld(true);
+  for(let i=0;i<position.count;i++)xs.push((point.fromBufferAttribute(position,i).applyMatrix4(wrench.matrixWorld).project(draw.camera).x+1)*200);
+  return {phase,width:Math.max(...xs)-Math.min(...xs)};
+ };
+ const broad=sample(14),edge=sample(150),otherEdge=sample(450);
+ assert.equal(broad.phase.sample.kind,'synthetic-source-pose');
+ assert.ok(broad.width>75,`frame 14 width ${broad.width}`);
+ assert.ok(edge.width<25,`frame 150 width ${edge.width}`);
+ assert.ok(otherEdge.width<25,`frame 450 width ${otherEdge.width}`);
+ assert.deepEqual(motion,{yawRadians:-.1466,skeletal:{frame:14}},'fixture leaves the live host motion unchanged');
+ assert.deepEqual(settingsBannerPhase(motion,false),{yawRadians:-.1466,skeletalFrame:14,sample:null});
+ assert.throws(()=>settingsBannerPhase(motion,false,600),/Invalid diagnostic banner frame/);
 });
 
 test('Settings resource failure is explicit and does not borrow the folder model',async t=>{

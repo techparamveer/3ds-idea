@@ -10,12 +10,17 @@ export function lcdDownloadRequest(search: string) {
   const elapsedText = params.get('lcdElapsedMs');
   const dateText = params.get('lcdDate');
   const scenario = params.get('lcdScenario') ?? 'browser-lcd';
+  const bannerFrameText = params.get('lcdBannerFrame');
   const elapsedMs = elapsedText === null || elapsedText.trim() === '' ? NaN : Number(elapsedText);
   if (!Number.isFinite(elapsedMs) || elapsedMs < 0 || !dateText || !Number.isFinite(new Date(dateText).getTime())) {
     throw new Error('Set valid lcdElapsedMs and lcdDate query parameters before downloading LCDs');
   }
   if (!/^[a-z0-9-]{1,64}$/.test(scenario)) throw new Error('Invalid LCD scenario name');
-  return { elapsedMs, isoDate: new Date(dateText).toISOString(), scenario };
+  const bannerFrame = bannerFrameText === null ? undefined : Number(bannerFrameText);
+  if (bannerFrame !== undefined && (bannerFrameText?.trim() === '' || !Number.isSafeInteger(bannerFrame) || bannerFrame < 0 || bannerFrame >= 600)) {
+    throw new Error('lcdBannerFrame must be an integer from 0 to 599');
+  }
+  return { elapsedMs, isoDate: new Date(dateText).toISOString(), scenario, bannerFrame };
 }
 
 export function lcdDownloadPayload(scenario: string, capture: ReturnType<typeof encodeNativeLcdPair> & Record<string, unknown>) {

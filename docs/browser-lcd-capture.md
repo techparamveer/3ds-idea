@@ -54,6 +54,17 @@ clock. The result also includes the sampled time, date, HOME update count,
 cursor diagnostic and banner host view. Use exact same entry state and inputs
 on Azahar; this hook alone is only a browser presentation sample.
 
+For the selected Settings HOME banner, append `lcdBannerFrame=150` (or another
+integer from 0 through 599) to the opt-in URL and give the sample a distinct
+`lcdScenario`, such as `home-settings-frame150`. The same accessibility button
+or shortcut then saves a **synthetic source-pose sample**. It applies the
+firmware-traced 600-count HOME yaw and the Settings `COMMON` skeletal frame
+only while painting that capture, reports the pose as `bannerSample` in
+`capture.json`, and immediately restores live painting. The setting requires
+an active Settings HOME selection; it does not set or advance the HOME host
+clock. Frame samples are diagnostic brackets, not matched native timing
+evidence. Omit `lcdBannerFrame` for an ordinary live-pose capture.
+
 The route preserves the exact JSON payload and extracts the two PNGs from its
 data URLs. Record their SHA-256s. The first
 two target pairs are:

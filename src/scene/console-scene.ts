@@ -22,6 +22,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createScreens, loadFirmwarePresentationAssets } from '@/os/screens';
 import { rowCount, type MenuState, type Input } from '@/os/state';
 import { createFirmwareBanner, type PrimaryBannerRenderFrame } from './firmware-banner';
+import { settingsBannerPhase } from './banner-verification';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
 import { DEFAULT_MODEL_URL, controlBoundsInBase, controlFromObject, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
@@ -66,6 +67,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   // Restore is complete before the host is created. A later System restore must
   // allocate a new session as well; individual folder scopes are owned by the host.
   const bannerGeneration=`console-session:${++nextBannerSession}`;
+  let verificationBannerFrame:number|undefined;
   const bannerClock=()=>({generation:bannerGeneration,updateCount:state.system!.homeClock.updateCount});
   let bannerHost=createHomeBannerHost(bannerClock(),{managerInhibited:true,sceneInhibited:true,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});
   let bannerLabelFailure=false;
@@ -76,7 +78,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     // Idle-only native translation sample. Reactive +0x90 motion is not yet hosted.
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawDefaultBannerFrame:(ctx,motion)=>folderBanner.drawDefaultFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0}),
-    drawSettingsBannerFrame:(ctx,motion)=>folderBanner.drawSettingsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0}),
+    drawSettingsBannerFrame:(ctx,motion)=>{const phase=settingsBannerPhase(motion,reduced,verificationBannerFrame);return folderBanner.drawSettingsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});},
     drawHomeBackground:folderBanner.drawBackground,runtimeNotice:()=>runtimeNotice});
   await Promise.all([screens.ready,folderBanner.ready]);
   if(diagnostics)host.dataset.banner=JSON.stringify(folderBanner.status());
@@ -487,20 +489,26 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     }finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;canvas.width=canvas.height=0;}
   }});}
   let removeLcdDownload=()=>{};
-  if(lcdCapture){const captureScreensAt=(elapsedMs:number,isoDate?:string)=>{
+  if(lcdCapture){const captureScreensAt=(elapsedMs:number,isoDate?:string,bannerFrame?:number)=>{
     if(disposed||!Number.isFinite(elapsedMs)||elapsedMs<0)throw new Error('Invalid diagnostic capture time');
     const date=isoDate===undefined?new Date():new Date(isoDate);
     if(!Number.isFinite(date.getTime()))throw new Error('Invalid diagnostic capture date');
+    if(bannerFrame!==undefined){
+      const view=getHomeBannerHostView(bannerHost);
+      if(view.status!=='active'||view.primary.selection.kind!=='app'||view.primary.selection.id!=='system-settings')throw new Error('Settings banner frame sampling requires an active Settings HOME selection');
+      settingsBannerPhase(view.primary.motion,reduced,bannerFrame);
+    }
     // Sample presentation only. Inputs, software state, effects and the shared
     // runtime clock continue normally; the next paint restores current time.
-    try{screens.paint(state,date,elapsedMs);return {elapsedMs,date:date.toISOString(),homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),folderBanner:getHomeBannerHostView(bannerHost),...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
-    finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
+    verificationBannerFrame=bannerFrame;
+    try{screens.paint(state,date,elapsedMs);const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),folderBanner:view,bannerSample:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame).sample:null,...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
+    finally{verificationBannerFrame=undefined;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   };
     Object.assign(host,{captureScreensAt});
     const download=async()=>{
       try{
-        const {elapsedMs,isoDate,scenario}=lcdDownloadRequest(window.location.search);
-        const payload=lcdDownloadPayload(scenario,captureScreensAt(elapsedMs,isoDate));
+        const {elapsedMs,isoDate,scenario,bannerFrame}=lcdDownloadRequest(window.location.search);
+        const payload=lcdDownloadPayload(scenario,captureScreensAt(elapsedMs,isoDate,bannerFrame));
         host.dataset.lcdCaptureStatus='saving';
         const response=await fetch('/api/verification/lcd-capture?lcdCapture=1',{method:'POST',headers:{'Content-Type':'application/json'},body:payload,cache:'no-store',credentials:'same-origin'});
         if(!response.ok)throw new Error(`LCD export rejected (${response.status}): ${await response.text()}`);

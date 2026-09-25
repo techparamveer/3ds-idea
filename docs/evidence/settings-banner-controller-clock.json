@@ -1,0 +1,93 @@
+{
+  "homeCodeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "settingsSelectedCgfxSha256": "96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d",
+  "execution": [
+    "0x10b3d0",
+    "0x24ff10",
+    "0x1bbd94"
+  ],
+  "rows": [
+    {
+      "sample": "constructed-before-attachment",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": false,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "detached-pass",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": false,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-1",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 1.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-2",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 2.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-598",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 598.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-599",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 599.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-600",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "hide-detached-pass",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": false,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "retargeted-away",
+      "titleId": "0004001000022000",
+      "requestIdentity": "different-title",
+      "sceneMember": false,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    }
+  ],
+  "scope": "Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. Current-frame clock only: initial skeletal pose submission, native title-driven attachment/hide/retarget, and pixels are not executed."
+}

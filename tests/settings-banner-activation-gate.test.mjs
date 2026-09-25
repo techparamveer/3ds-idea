@@ -30,7 +30,7 @@ test('Settings primary has a complete, bound source texture pack before title ac
   assert.equal(model.models[0].skeleton.find(bone => bone.Name === 'p_title')?.NativeBillboardMode, 1);
 });
 
-test('Settings remains an unsupported title handoff until native controller timing is sampled', () => {
+test('Settings remains unsupported until first submitted pose and title-driven scene cadence are proven', () => {
   const clock = { generation: 'settings-gate', updateCount: 0 };
   const inputs = { managerInhibited: false, sceneInhibited: false, loadInhibited: false,
     nativeWorkerReady: true, resourceReady: null };

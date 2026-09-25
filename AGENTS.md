@@ -2,7 +2,7 @@
 
 This file is the shared repository instruction file for coding agents.
 `CLAUDE.md` imports it. Current user instructions take precedence. The UI
-continuation checkpoint is `92fc4d9` (25 September 2026); check the actual
+continuation checkpoint is `8037468` (25 September 2026); check the actual
 HEAD and integration history before beginning a slice.
 
 ## Read before working
@@ -36,10 +36,13 @@ limitation or declaring it fixed.
   account and PIN operations. Internal helpers need no invented HOME entry.
   Label every intentional portfolio difference from native as an adaptation.
 - The pinned firmware dump is the **sole source for native UI visuals and audio**.
-  Every visible native element and native cue needs a manifest identity and dump
-  provenance. Do not hand-draw or CSS-reconstruct native graphics, substitute
+  Every visible native element and native cue needs an element → manifest
+  key → decrypted dump-source mapping, with title/version, content index,
+  CIA-internal path, SHA-256 and converter version. List still non-native
+  elements and reasons at every handoff. Do not hand-draw or CSS-reconstruct native graphics, substitute
   community fonts, or guess native sounds. Portfolio content and explicitly
-  labelled adaptations remain separate from native assets.
+  labelled user-scoped adaptations remain separate from native assets; those
+  differences do not excuse unrelated native pixel or audio residuals.
 - Preserve provenance and keep unsupported fields explicit. Strict 1:1 fidelity
   remains unproven; extraction, source renders, tests and a browser inspection
   alone cannot establish it.
@@ -112,9 +115,9 @@ and diff regions, then hand off for integration and recapture.
 
 The first required pairs are HOME idle and Settings → Other Settings page 1,
 under `reference/scenario-matrix/v1/captures/` in the private artifact root.
-Matrix v1 now contains three paired, failing settled diagnostics
-(Settings main, Other page 1 and HOME with Settings selected); motion/audio
-are open and their input paths differ. HOME idle still lacks a matched pair.
+The latest raw LCD reports cover four failing diagnostics: Settings main,
+Other page 1, HOME with Settings selected and Health entry. Only Settings main
+has matched input; motion/audio are open. HOME idle still lacks a matched pair.
 The old scaled Settings JPEG/source-render pair is not acceptance evidence.
 Never claim a scenario passes from tests, source renders, a browser view or a
 worker's build alone. Matrix entries must

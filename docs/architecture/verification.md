@@ -25,7 +25,7 @@ Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`
 
 Store a versioned `reference/scenario-matrix/v1/matrix.json` under the private artifact root; bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
 
-The first acceptance targets remain **matched HOME idle** and **Settings → Other Settings page 1**, in `reference/scenario-matrix/v1/captures/`. Three settled diagnostic pairs now exist: `settings-main`, `settings-other-1` and `home-settings-selected`. All three are `fail`, with unmatched native/browser input routes and motion/audio open. The available HOME idle native/browser captures selected different titles and have no matched comparison score. The older 1229×768 JPEG Settings grab against a source render remains non-acceptance evidence. See the [progress record](../progress-2026-09-24.md) for counts and remaining defects.
+The first acceptance targets remain **matched HOME idle** and **Settings → Other Settings page 1**, in `reference/scenario-matrix/v1/captures/`. The latest reports cover four failing diagnostic pairs: `settings-main-matched`, `settings-other-1`, `home-settings-selected` and `health-entry`. Only the first has matched native/browser input. All motion/audio tiers remain open. HOME idle captures selected different titles, so no matched HOME idle score exists. The matrix currently retains older embedded counts for some scenarios; use the report commit and counts in the [progress record](../progress-2026-09-24.md) until the coordinator refreshes the matrix. The old 1229×768 JPEG Settings grab against a source render is not acceptance evidence.
 
 `captureScreensAt` forces an explicit presentation sample without advancing
 host state. It is available in development and in a production build served on
@@ -34,8 +34,9 @@ It exports the 400×240 upper source canvas and 320×240 lower canvas as PNGs,
 before the upper source is stretched to the 800×240 display texture.
 The opt-in local production verification route has been exercised through a CUA click and saves the exact JSON payload and both PNGs
 under the private artifact root when `LCD_CAPTURE_OUTPUT_ROOT` is set. It is gated to loopback with `?lcdCapture=1`; keep it invisible to visitors.
-`captureNativeBanner` remains development-only. A sampled pose does not prove
-that live input reached it with native timing.
+`captureNativeBanner` remains development-only. Source phase samples for the
+HOME Settings balloon show a dynamic pose, but no frame-aligned native motion
+pass. A sampled pose does not prove that live input reached it with native timing.
 
 ## Coverage and pass rule
 
@@ -47,4 +48,4 @@ For each failure, give the owning lane the capture pair, diff regions, likely na
 
 ## Integration record
 
-Record implemented, tested, browser-inspected and native-compared separately, plus build commit, inputs, capture hashes/paths, mask, diff report, cue evidence and residuals in [progress](../progress-2026-09-24.md) and [feature map](../feature-map.md). Source fixtures identify synthetic owners/callbacks. The user's dump is the only native visual/audio source; each delivered element needs manifest key, title/version, content index, CIA-internal path, SHA-256 and converter version. Keep raw CIAs, executables, tickets and Azahar captures private. Documentation edits need link validation and `git diff --check`; runtime/asset edits need relevant tests, typecheck, build, shader and provenance checks. Those checks never change native comparison status.
+Record implemented, tested, browser-inspected and native-compared separately, plus build commit, inputs, capture hashes/paths, mask, diff report, cue evidence and residuals in [progress](../progress-2026-09-24.md) and [feature map](../feature-map.md). Source fixtures identify synthetic owners/callbacks. The user's dump is the only native visual/audio source. Each visible or audible native element needs an element → manifest key → decrypted dump-source mapping, with title/version, content index, CIA-internal path, SHA-256 and converter version. Audit this mapping and list every still non-native element at each handoff. Portfolio tile art/text/photos, the read-only Camera footer, inert actions and local Browser/Miiverse content are user-scoped adaptations; keep their reasons explicit. They do not authorize masking unrelated native pixels or replacing native fonts/sounds. Keep raw CIAs, executables, tickets and Azahar captures private. Documentation edits need link validation and `git diff --check`; runtime/asset edits need relevant tests, typecheck, build, shader and provenance checks. Those checks never change native comparison status.

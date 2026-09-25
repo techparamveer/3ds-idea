@@ -1,5 +1,5 @@
 import type { MenuState } from './state.ts';
-import { getHomePresentation, getNativeFolderBalloon } from './home-presentation.ts';
+import { getHomePresentation, getNativeFolderBalloon, getNativeSettingsTitleBalloon } from './home-presentation.ts';
 
 export type HomeBalloonPresentation = Readonly<{
   visible: boolean;
@@ -11,18 +11,23 @@ export type HomeBalloonPresentation = Readonly<{
   bodyOffsetX: number;
 }>;
 
+const selectedBalloon=(state:MenuState)=>{
+ const view=getHomePresentation(state);
+ return getNativeFolderBalloon(state,view)??getNativeSettingsTitleBalloon(state,view);
+};
+
 /** The source LncBlln_00 clips apply frames 0..5 once per HOME update.
  * Keep the last content and anchor while DisAppear runs. Initial HOME uses
  * the source's static settled pose rather than replaying an entry animation.
  */
 export function createHomeBalloonPresentation(state: MenuState): HomeBalloonPresentation {
-  const target = getNativeFolderBalloon(state, getHomePresentation(state));
+  const target = selectedBalloon(state);
   return Object.freeze({ visible: !!target, desired: !!target, clip: 'Appear', frame: 5,
     label: target?.label ?? '', baseX: target?.baseX ?? 0, bodyOffsetX: target?.bodyOffsetX ?? 0 });
 }
 
 export function advanceHomeBalloonPresentation(current: HomeBalloonPresentation, state: MenuState): HomeBalloonPresentation {
-  const target = getNativeFolderBalloon(state, getHomePresentation(state));
+  const target = selectedBalloon(state);
   if (target) {
     if (!current.desired) return Object.freeze({ visible: true, desired: true, clip: 'Appear', frame: 0,
       label: target.label, baseX: target.baseX, bodyOffsetX: target.bodyOffsetX });

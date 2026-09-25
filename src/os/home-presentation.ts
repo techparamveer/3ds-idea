@@ -2,6 +2,7 @@ import { getHomeGestureView, homeSlotAppId } from './system.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
 import { hasEmptyHomeFolderSelection, isFolder, menuTiles, rowCount, type MenuState } from './state.ts';
 import { getHomeNavigationView, homeGridMetrics, type HomeDensity } from './home-navigation.ts';
+import { getTitle } from './app-registry.ts';
 
 /** CLYT Scale clips consume density, which is distinct from folder row count. */
 export const nativeHomeDensityFrame=(density:number)=>Math.max(0,Math.min(5,density));
@@ -73,6 +74,20 @@ export function getNativeFolderBalloon(state:MenuState,view:HomePresentation){
  const tile=view.tiles.find(tile=>tile.index===state.selected);
  if(tile?.folderLabel===null||tile?.folderLabel===undefined)return null;
  return {label:tile.folderLabel,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
+}
+
+/** The matched EUR HOME capture shows the selected Settings title using the
+ * same LncBlln_00 anchor/layout as folders in the two-row root view. The
+ * descriptor text is checked against the SMDH English description in tests;
+ * publisher text remains absent until it is published with SMDH provenance. */
+export function getNativeSettingsTitleBalloon(state:MenuState,view:HomePresentation){
+ if(state.opened||state.panel||view.gesture||view.currentDensity!==1||view.targetDensity!==1||view.mode===2
+   ||state.system?.phase!=='home'||state.system.homeNavigation.focus.toolbarActive)return null;
+ const tile=view.tiles.find(tile=>tile.index===state.selected);
+ if(!tile||tile.appId!=='system-settings')return null;
+ const title=getTitle(tile.appId);
+ if(title?.titleId!=='0004001000022000')return null;
+ return {label:title.title,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
 }
 
 /** Footer actions follow the runtime's currently selected container. */

@@ -1,0 +1,139 @@
+{
+  "codeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "firmware": "EUR HOME 10.7.0-32E",
+  "method": "Original ARM stage-4/stage-5 branch replay and two early title-worker failures with synthetic manager memory. OS readiness/join, resource preparation, visibility requests and worker launch are explicit stubs. Stops before state-5 tail and global scene/GPU execution; no successful resource-worker execution.",
+  "state4": {
+    "presentationLaunchFailure": {
+      "prepared": true,
+      "presentationWorkerLaunched": true,
+      "requestedType": 1,
+      "state": 4,
+      "stop": "0x249d48"
+    },
+    "resourceFlagClear": {
+      "prepared": false,
+      "presentationWorkerLaunched": false,
+      "requestedType": 1,
+      "state": 6,
+      "stop": "0x249e4c"
+    },
+    "resourceFlagClearAlternative": {
+      "prepared": false,
+      "presentationWorkerLaunched": false,
+      "requestedType": 13,
+      "state": 6,
+      "stop": "0x249e4c"
+    },
+    "resourceReady": {
+      "prepared": true,
+      "presentationWorkerLaunched": true,
+      "requestedType": 1,
+      "state": 5,
+      "stop": "0x249d48"
+    },
+    "retargetBeforePresentation": {
+      "prepared": true,
+      "presentationWorkerLaunched": true,
+      "requestedType": 1,
+      "state": 5,
+      "stop": "0x249d48"
+    },
+    "workerPending": {
+      "prepared": false,
+      "presentationWorkerLaunched": false,
+      "requestedType": 1,
+      "state": 4,
+      "stop": "0x249d48"
+    }
+  },
+  "state5": {
+    "changedType": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          0
+        ],
+        [
+          "0x500200",
+          0
+        ]
+      ]
+    },
+    "ineligiblePrimary": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          0
+        ],
+        [
+          "0x500200",
+          0
+        ]
+      ]
+    },
+    "matchingRequest": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          1
+        ],
+        [
+          "0x500200",
+          1
+        ]
+      ]
+    },
+    "noPendingRequest": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          1
+        ],
+        [
+          "0x500200",
+          1
+        ]
+      ]
+    },
+    "retargetedTitle": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          0
+        ],
+        [
+          "0x500200",
+          0
+        ]
+      ]
+    },
+    "workerPending": {
+      "state": 5,
+      "stop": "0x24a758",
+      "visibilityRequests": []
+    }
+  },
+  "titleId": "0004001000022000",
+  "titleWorkerOpenFailure": {
+    "archiveOpenCalled": true,
+    "archiveReadCalled": false,
+    "completionByte": 0,
+    "stop": "0x24c988"
+  },
+  "titleWorkerReadFailure": {
+    "archiveOpenCalled": true,
+    "archiveReadCalled": true,
+    "completionByte": 0,
+    "stop": "0x24c988"
+  }
+}

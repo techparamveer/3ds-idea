@@ -69,8 +69,8 @@ case: it requests hide rather than showing a stale title. It does not resolve
 how every asynchronous worker handles such a retarget before state 5.
 
 The title worker can clear its completion byte or candidate objects on resource
-failure. The static trace does not execute that worker, the presentation worker,
-their global dependencies, or `0x1f90cc` under all retarget cases. A live host
+failure. The initial pose audit did not execute that worker, the presentation
+worker, their global dependencies, or `0x1f90cc` under all retarget cases. A live host
 must retain the outgoing primary's title identity while hiding and must not
 activate a Settings ticket until the source state-5 predicate requests show,
 resource/model/Frame/camera readiness is current, and actual visibility is
@@ -78,3 +78,27 @@ sampled separately. Failed or stale workers need explicit cancellation/recovery
 semantics. The current host deliberately returns `unsupported` for Settings;
 the focused test protects that handoff from reusing a folder ticket. No live
 Settings banner is enabled by this audit.
+
+## Follow-up worker branch replay
+
+The parameterized [`replay-settings-banner-workers.py`](../scripts/replay-settings-banner-workers.py)
+executes bounded original ARM paths from the same hash-pinned HOME binary. Its
+committed [result](evidence/settings-banner-worker-replay.json) and focused
+test cover these synthetic conditions:
+
+| Stage | Replayed result |
+| --- | --- |
+| Title worker `0x24c930` | Forced archive-open failure at `0x161e14`, or archive-read failure at `0x22bd38`, each reaches `0x24c984` and clears the argument's completion byte. Candidate construction is not reached. |
+| State 4 `0x249bf4` | An unfinished worker leaves state 4. With resource flag `0x34c008=1`, the source prepares the primary and a successful presentation-worker launch enters state 5. A failed launch leaves state 4, even after preparation. |
+| State 4 resource flag clear | `0x34c008=0` skips preparation and launch. A separate global value 0 reaches state 6 with the requested type retained; value 1 clears request fields, sets type 13, then reaches state 6. State 6 is therefore no proof of title readiness. |
+| Retarget at state 4/5 | A synthetic retarget before state 4 does not stop presentation-worker launch. With pending-request byte `M+4=1`, state 5 subsequently asks both candidate objects to hide when the title key, native type or eligible primary disagrees. An unfinished presentation worker stays in state 5 without a visibility request. |
+
+State 5 has a separate `M+4=0` arm that asks both objects to show without
+calling the identity predicate. The replay's deliberately inconsistent
+`M+4=0` plus mismatched key demonstrates why a host must preserve the native
+request-generation invariant; it does **not** establish that such a mismatch is
+reachable through normal input. Resource operations, worker scheduling and
+visibility calls are explicit stubs. The replay stops before the rest of state
+5 and does not execute a successful title-resource worker or the presentation
+worker. It cannot prove recovery, cancellation, eventual visibility, animation
+timing or pixels. These remain gates for live type-1 activation.

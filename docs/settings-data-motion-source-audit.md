@@ -110,3 +110,42 @@ Until those are established, retain the existing settled scene and leave the
 wait mount unattached. Do not introduce a fabricated fixed spinner delay or
 start BtnIn/TextIn simultaneously with SceneIn. A matched native capture is
 still required to establish actual visible ordering and timing.
+
+## Gate follow-up, 25 September 2026
+
+The pinned Settings image was replayed symbolically at the state branches, and
+the public Settings button pack was checked against its publication plan. The
+machine words, path inputs/results, source hash and resource-closure result are
+recorded in the SSD artifact
+`reference/settings-data-motion/gate-followup-2026-09-25.json`. This is a
+branch replay from code, not executed firmware or a measured animation clock.
+
+The state-1 loader has two materially different paths. When parent `+0x64` is
+zero, the local counter at `+0x64` starts at zero and the old value must exceed
+10; this reaches the completion path on the twelfth visit. With parent `+0x64`
+nonzero, the controller reads loader status `0x299c6a`, signed result
+`0x299c6b` and list count `0x299c80`. A status other than 4 with zero count,
+or status 4/result 0 with zero count, returns without advancing on that visit
+(`0x20d66c–0x20d688`, `0x20d844–0x20d850`). Result −10 and −20 route to
+states 12 and 16 (`0x20d854–0x20d860`), not to the ordinary empty-list
+completion. The portfolio has neither this loader nor an established mapping
+from its accessible-empty-SD state to one of these source branches. A fixed
+12-update delay would silently choose the no-worker branch.
+
+The subsequent gates are explicit: copied state 2 holds while WIconIn status
+`+0x14` is 1 or 2; only after it stops does the controller play BtnIn and
+TextIn and request state 3 (`0x20d980–0x20da00`). Copied state 3 similarly
+holds while BtnIn status is 1 or 2, then requests state 4
+(`0x20da50–0x20da78`). The current publication plan and delivered
+`button.json` both omit the source `WaitIcon` layout and its `WIconIn` and
+`WIconLoop` clips. The live Settings loader cannot draw this gate from the
+delivered pack even if the missing timing semantics were resolved.
+
+The builder at `0x235940` is an inner branch that creates a table of entry
+handles, not evidence that Software or Extra Data selects a particular
+SceneIn handle. The selector, virtual play/stop/current-frame semantics,
+update order and cancellation owner remain untraced. Those facts and an
+explicit portfolio completion event are needed before connecting wait or
+entry motion to the live UI. The settled accessible-empty-SD leaves remain
+the source-supported presentation for now. No runtime, public asset, browser
+or Azahar state changed in this follow-up.

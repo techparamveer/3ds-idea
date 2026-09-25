@@ -1,56 +1,31 @@
 # Verification and evidence architecture
 
-No single layer proves the complete experience. Report each claim at the
-strongest layer actually reached and keep adaptations and gaps visible.
+The **isolated Azahar profile running the user's EUR 10.7.0-32E firmware** is ground truth for in-scope software screens. A scenario is accepted only after the coordinator operates Azahar and the integrated production browser with identical inputs, captures both raw LCD outputs, diffs them, inspects the side-by-side sheet and resolves every unexplained difference. Tests, source traces, source renders and browser operation are supporting evidence. Hardware appearance has a separate matched-photograph/browser-model gate.
 
-| Layer | Typical evidence | Establishes | Does not establish |
-| --- | --- | --- | --- |
-| Unit/invariant | `npm test`, focused Node/Python tests | Reducer, format, lifecycle and model invariants | Browser integration or visual fidelity |
-| Static/build | `npm run typecheck`, `npm run build` | Contracts and production bundling | Correct pixels, timing or cleanup |
-| GPU/shader | `npm run check:shader`, GPU readback | WGSL validity and bounded generated output | Hardware material resemblance |
-| Delivery audit | `scripts/firmware/audit.py`, independent compare | Hashes, closure, exclusions and reproducibility | Visible correctness |
-| Real-resource render | `verify-stock-*.mjs`, `verify-native-system-ui.mjs` | Selected public resources render | Live behavior or native match |
-| Browser scenario | Operated homepage plus capture/log | Integrated controls and visible state | Native equivalence beyond that scenario |
-| Executed source fixture | Hash-pinned original code with recorded inputs/stubs | The exercised branch, ordering or arithmetic | A real title owner, visible frame or native/browser match unless actually linked |
-| Matched native comparison | Native Azahar capture/waveform paired with a named browser or source render | Explicitly aligned region/state/timing fact for that pair | Other entry states, whole-title motion or strict 1:1 acceptance |
+| Tier | Establishes | Does not establish |
+| --- | --- | --- |
+| Implemented | The integrated path exists | Visual correctness |
+| Tested | Bounded code, resource or shader contracts | Integrated pixels or timing |
+| Browser-inspected | A named production-browser route was operated and seen | Native equivalence |
+| Source-identified/rendered | A resource or bounded original-code behavior | A live native/browser match |
+| Native-compared | Azahar's own capture or audio directly paired with raw production-browser output at a named state | Other states or whole-title fidelity |
 
-The firmware dump is the sole source for native visuals and audio. Delivery
-claims require a manifest identity linked to dump title/region/resource for
-every visible native element and cue. Do not promote hand/CSS graphics,
-community fonts or guessed sounds as native. A native resource can be
-source-identified, delivered and renderable while still unused or wrong in the
-live scene.
+## Isolated reference
 
-Documentation-only work needs reference/link and diff checks, not a rebuild.
-Code, asset, shader, configuration and conversion changes require the relevant
-layers. Run the full suite when integrated changes cross subsystems.
+Use only the copy under `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/`. Never launch `/Applications/Azahar.app` or touch the default profile. Before each launch, verify copied executable SHA-256 `3dfdfbed147cfb420f224385e832191833d07b0951d4b86326ab193e2deb3b21`; no symlinks under isolated `user/`; and `user/config/qt-config.ini` values `use_custom_storage=false`, `graphics_api=1` (OpenGL), both resolution factors 1, `layout_option=0`, `swap_screen=false`, and screenshot path inside the isolated reference. Back up config before edits and version the working config with date/hash. Launch the copied executable directly with `reference/` as working directory. Record original-3DS mode, EUR/English, white HOME theme, clock policy and photo/song population in the scenario matrix. See [profile isolation](../native-reference-profile-isolation.md).
 
-## Browser and native scenarios
+Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`, START=`M`, SELECT=`N`, L=`Q`, R=`W`, D-pad up/down/left/right=`T`/`G`/`F`/`H`; read X/Y/Circle Pad from config. Prefer configured `touch_from_button` keys at 320×240 lower-LCD coordinates. Both `profiles\\1\\use_touch_from_button=true` and `profiles\\1\\use_touch_from_button\\default=false` retain those keys. Edit config only while Azahar is closed. Calibrate any mouse touch from a window screenshot and confirm it landed. Look after **every** input; fix lost focus, dialogs or black frames before continuing. Frame-advance motion at explicit counts. Record audio capture method or leave audio open.
 
-Exercise load/retry, intro, lid, resize/rotation; keyboard, model, accessible and
-touch controls; HOME folders/density/pickup; launch, suspend/resume/switch/close;
-power/boot/sleep; persistence and corrupt/unavailable storage; native pack
-delay/failure/retry; reduced motion, mobile framing and baked fallback. State
-exactly which app screens and transitions were operated. Empty Sound cannot
-prove playback, and visible source artwork cannot prove native timing/state.
+## Native capture, browser capture and diff
 
-Use the isolated original-3DS EUR 10.7.0-32E Azahar profile, white theme and
-English locale. Keep the coordinator's reference session exclusive. Record the
-initial state, exact inputs, clock/date differences, capture resolution,
-timestamps and hashes. Label phase fitting or executed fixtures explicitly. A native-to-source-render
-comparison must say so; it is not a native-to-live-browser comparison. Record
-synthetic owners, callbacks and service results beside a replay claim. A native
-account/setup screen cannot validate a different welcome screen.
+1. Use Azahar's own Capture Screenshot command for a **400×480 PNG**. Crop upper `(0,0,400,240)` and lower `(40,240,320,240)`, verifying offsets against a known screen. Window grabs and computer-use screenshots guide navigation only.
+2. Run `npm run build`, restart `next start`, and operate that integrated build with the same inputs. Capture raw upper **400×240** and lower **320×240** render targets. A scaled page/console screenshot is not a comparison input. The Experience lane owns a verification-only raw LCD capture hook if needed.
+3. The Assets lane owns `scripts/native-compare/` with a parameterized output root. Each pair/mask yields per-LCD mean/max RGB error, count of pixels with any channel delta greater than 2/255, connected difference regions and bounding boxes, heatmap, side-by-side sheet and JSON with both SHA-256s, commit and scenario ID.
+4. **Open the side-by-side sheet.** Fix unexplained regions and repeat both captures after integration. Masks require named reasons and may cover only intentional clock/battery, portfolio content, read-only Camera footer, inert OK and other [feature-map](../feature-map.md) adaptations. A mask created merely to pass a diff is a defect.
 
-## Evidence and integration
+Store a versioned `reference/scenario-matrix/v1/matrix.json` under the private artifact root; bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
 
-Write new evidence beneath
-`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`.
-Scripts accept absolute artifact paths. Raw firmware and executables stay private.
-Each checkpoint identifies commit, scenario, commands/results, browser inspection,
-native comparison, artifact paths and remaining differences. The
-[progress matrix](../progress-2026-09-24.md) is the cross-system evidence index.
-The [feature map](../feature-map.md) follows it with owners and next actions.
+The first targeted pairs are **HOME idle** and **Settings → Other Settings page 1**, in `reference/scenario-matrix/v1/captures/`. At this documentation checkpoint their native/browser pixel diff does **not** exist. The older 1229×768 JPEG Settings grab against a source render cannot stand in for it.
 
 `captureScreensAt` forces an explicit presentation sample without advancing
 host state. It is available in development and in a production build served on
@@ -60,15 +35,14 @@ before the upper source is stretched to the 800×240 display texture.
 `captureNativeBanner` remains development-only. A sampled pose does not prove
 that live input reached it with native timing.
 
-When inspecting a new production build on localhost, restart the running
-`next start` process before reloading the browser tab. A process left running
-across a rebuild served the preceding client bundle during the Notes
-announcement check; restarting it exposed the new code. Record the build
-commit actually loaded, not only the checkout HEAD.
+## Coverage and pass rule
 
-Before edits or integration, inspect status, branch, worktrees and ancestry.
-The current UI integration checkout is `/Users/paramveer/.codex/worktrees/3ds-ui-continuation`
-on `codex/health-ui-scratch`; the original checkout uses a different Git object
-database. The 24 September worktree table is historical. Follow the
-[implementation process](implementation-process.md) for ownership, sequential
-integration and current evidence handoff; preserve earlier branches/worktrees.
+Cover HOME idle, cursor/rapid retarget, each in-scope selected stock banner, folder open/close, pickup/drop, stock and portfolio launch/return, Settings main/subpages/Language scroll/helpers, Health entry/key/drag, Camera empty and populated gallery/paging, Sound empty/first-run/transport, eShop wait/exit, Zone, Notes, Friends, Notifications, local Browser/Miiverse, amiibo opening, HOME suspend/return and power off/on. Add frame checkpoints for each motion. Excluded keyboard, other stock titles, network/accounts and Camera capture/editing are not matrix work.
+
+A settled or motion frame passes when, after valid masks, **zero pixels** have a channel delta over 2/255, or every remaining connected region has a verified cause and explicit user acceptance. Transition boundaries match within ±1 frame at 60 Hz; identical inputs reach identical screen/selection state; each native cue has the correct identity and onset within ±1 frame. The coordinator inspects the contact sheet. Low mean error with unexplained regions fails. Missing audio capture leaves audio open; the empty song manifest cannot prove playback.
+
+For each failure, give the owning lane the capture pair, diff regions, likely native resource/binding and required pass condition. Review and integrate its commit, rebuild/restart the production server, recapture/re-diff, and rerun previously passing scenarios sharing changed code. Continue until every in-scope matrix entry is `pass` or a reasoned `adaptation`, `source-gap` or `blocked` with evidence. Storage EIO or browser admin-policy blocks must be reported; they do not lower the evidence standard.
+
+## Integration record
+
+Record implemented, tested, browser-inspected and native-compared separately, plus build commit, inputs, capture hashes/paths, mask, diff report, cue evidence and residuals in [progress](../progress-2026-09-24.md) and [feature map](../feature-map.md). Source fixtures identify synthetic owners/callbacks. The user's dump is the only native visual/audio source; each delivered element needs manifest key, title/version, content index, CIA-internal path, SHA-256 and converter version. Keep raw CIAs, executables, tickets and Azahar captures private. Documentation edits need link validation and `git diff --check`; runtime/asset edits need relevant tests, typecheck, build, shader and provenance checks. Those checks never change native comparison status.

@@ -1,9 +1,9 @@
 # Project instructions
 
-This file is the single repository instruction file for all coding agents.
-`CLAUDE.md` imports it. Current user instructions take precedence. This
-onboarding checkpoint starts from UI integration `1bf5178b6bd827b9804e67233cc076309708728b`
-on 25 September 2026; check the actual HEAD before beginning a slice.
+This file is the shared repository instruction file for coding agents.
+`CLAUDE.md` imports it. Current user instructions take precedence. The UI
+continuation checkpoint is `92fc4d9` (25 September 2026); check the actual
+HEAD and integration history before beginning a slice.
 
 ## Read before working
 
@@ -14,6 +14,8 @@ on 25 September 2026; check the actual HEAD before beginning a slice.
 | [Progress](docs/progress-2026-09-24.md) | What is implemented, tested, browser-inspected, native-compared | Evidence record |
 | [Feature map](docs/feature-map.md) | Owners, known defects, next actions, worktrees | Derived from progress; progress wins |
 | [Architecture](docs/architecture/README.md) | Subsystem design; read the matching document | Design contracts |
+| [Verification](docs/architecture/verification.md) | Native/browser acceptance loop | Required evidence path |
+| [Reference isolation](docs/native-reference-profile-isolation.md) | Isolated Azahar profile | Reference safety |
 
 Before hardware edits, also read [research](docs/3ds-xl-research.md) and the
 [model validation index](docs/model-validation-index.md). Dated notes describe
@@ -38,8 +40,9 @@ limitation or declaring it fixed.
   provenance. Do not hand-draw or CSS-reconstruct native graphics, substitute
   community fonts, or guess native sounds. Portfolio content and explicitly
   labelled adaptations remain separate from native assets.
-- Preserve provenance and keep unsupported fields explicit. Extraction, source
-  renders and passing tests do not prove strict 1:1 fidelity. It remains unproven.
+- Preserve provenance and keep unsupported fields explicit. Strict 1:1 fidelity
+  remains unproven; extraction, source renders, tests and a browser inspection
+  alone cannot establish it.
 
 ## Implementation boundaries
 
@@ -67,15 +70,15 @@ limitation or declaring it fixed.
   `codex/health-ui-scratch`. It has a different Git object database from the
   original `/Volumes/DeveloperStorage/GitHub/3ds-idea` checkout. Use the UI
   checkout when creating continuation worktrees; verify the base resolves.
-  The five lanes based at `1bf5178` are:
+  The five owned lanes are:
 
   | Lane | Worktree / branch | Ownership |
   | --- | --- | --- |
   | Design | `3ds-lane-design` / `codex/lane-design` | Agent onboarding, scope, feature map, progress and architecture docs |
-  | Assets | `3ds-lane-assets` / `codex/lane-assets` | Firmware selection, conversion, manifests, provenance and native packs |
+  | Assets | `3ds-lane-assets` / `codex/lane-assets` | Firmware selection, conversion, manifests, provenance, native packs and comparison tooling |
   | HOME | `3ds-lane-home` / `codex/lane-home` | HOME state, rendering, banners and HOME input |
   | Stock | `3ds-lane-stock` / `codex/lane-stock` | In-scope stock-app screens and navigation |
-  | Experience | `3ds-lane-experience` / `codex/lane-experience` | Console scene, power/app transitions and portfolio integration |
+  | Experience | `3ds-lane-experience` / `codex/lane-experience` | Console scene, power/app transitions, portfolio integration and raw browser LCD capture |
 
   These are ownership boundaries, not permission to modify the sibling paths.
   Coordinate a cross-lane interface before editing. The coordinator integrates
@@ -84,9 +87,10 @@ limitation or declaring it fixed.
 - Stage only explicit owned paths. **Never run `git add -A`**, including in a
   sparse checkout. Do not edit, reset, stage or clean another worktree. Old
   `uifix`, `codex/home-menu-assets` and `codex/3ds-os` work is preserved history.
-- Do not start chains of source replays as a substitute for an integrated
-  visible defect fix. A bounded replay is useful only when its result closes a
-  named implementation gate and is handed off with the next live action.
+- Start from a captured visible defect. Allow at most one bounded source-only
+  slice per feature before a visible change. If the original path remains
+  unresolved, fit decoded native resources to the Azahar capture and label the
+  fitted part as an adaptation. Do not publish a guessed screen or banner.
 - Put extraction scratch, logs, screenshots and comparisons under
   `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`.
 - Parameterize scripts with absolute paths.
@@ -94,19 +98,38 @@ limitation or declaring it fixed.
   instructions.
 - Keep firmware packages, executables, tickets and credentials out of `public/`.
 
-## Verification and reporting
+## Required native verification and reporting
 
-The layers are defined in [verification](docs/architecture/verification.md):
+The coordinator follows the [verification loop](docs/architecture/verification.md)
+for **every in-scope scenario**: drive the isolated Azahar executable and the
+integrated production browser through identical inputs; capture Azahar's own
+400×480 PNG and raw browser LCD targets at 400×240 upper and 320×240 lower;
+diff named, SHA-256-tracked pairs with a reasoned mask; open the side-by-side
+sheet; fix unexplained differences; recapture and repeat. Motion, input and
+native-cue timing are part of the comparison. Only the coordinator operates
+Azahar and the shared production browser. Workers target named capture pairs
+and diff regions, then hand off for integration and recapture.
+
+The first required pairs are HOME idle and Settings → Other Settings page 1,
+under `reference/scenario-matrix/v1/captures/` in the private artifact root.
+No pixel diff exists for them yet. The old scaled Settings JPEG/source-render
+pair is not acceptance evidence. Never claim a scenario passes from tests,
+source renders, a browser view or a worker's build alone. Matrix entries must
+be `pass`, `adaptation`, `source-gap` or `blocked` with evidence; an active
+unexplained mismatch is `fail`.
+
+Supporting checks remain required:
 
 - **Code, assets, conversion:** `npm test`, `npm run typecheck` and
   `npm run build`, plus `npm run check:shader` for shader or material changes.
-- **Visual or input changes:** also inspect real browser output.
+- **Visual or input changes:** run the matched native/browser loop after
+  integration and rerun affected previously passing scenarios.
 - **Documentation-only changes:** check relative links and run
   `git diff --check`. No rebuild is needed.
 
 Report source-identified, delivered, implemented, tested, browser-inspected
 and native-compared evidence separately, with commit, scenario, asset identity,
-artifact path and remaining defects. When
+capture pair, mask, diff report, artifact path and remaining defects. When
 something is integrated, update the progress record, the feature map and any
 design note whose contract changed. Continue authorized work without
 unnecessary approval requests, and don't infer deliverables that were never

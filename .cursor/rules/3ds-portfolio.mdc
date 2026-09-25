@@ -1,0 +1,30 @@
+---
+description: 3DS portfolio scope, provenance and native verification
+alwaysApply: true
+---
+
+Read `AGENTS.md`, `GOAL.md`, `docs/portfolio-ui-scope.md`, and the matching
+subsystem document from `docs/architecture/README.md` before editing. Current
+user instructions take precedence. Work only in the assigned worktree and
+owned paths; stage explicit paths, never `git add -A`.
+
+Implement only HOME, Settings/helpers, Health, read-only Camera gallery, Sound
+UI with an empty song manifest until tracks are supplied, eShop, Zone, Notes,
+Friends, Notifications, local Browser/Miiverse, amiibo opening, power/launch,
+and eight portfolio apps. Do not build keyboard, Camera capture/editing,
+network/account operations, PIN entry or other stock titles.
+
+The user's decrypted EUR 10.7.0-32E dump is the only source for native visual
+and audio assets. Record manifest key, title/version, content index, source
+path, SHA-256 and converter version. Do not ship Azahar screenshots, hand/CSS
+native graphics, substitute fonts or guessed sounds. Label portfolio
+adaptations and source gaps.
+
+Follow `docs/architecture/verification.md`: only the coordinator drives the
+isolated Azahar and integrated production browser, captures native 400×480 PNG
+and raw browser 400×240/320×240 LCD targets, diffs the pair, opens the contact
+sheet, and repeats after fixes. First target HOME idle and Settings → Other
+Settings page 1 in the private `reference/scenario-matrix/v1/captures/` path;
+no pixel diff exists yet. Tests, source renders and browser inspection alone
+do not establish 1:1 fidelity. Report implemented, tested, browser-inspected
+and native-compared separately, with target pair and remaining differences.

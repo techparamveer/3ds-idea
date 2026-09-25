@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: UI continuation through **`8c85a90`** on `codex/health-ui-scratch`,
+Checkpoint: UI continuation through **`92fc4d9`** on `codex/health-ui-scratch`,
 25 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -13,8 +13,7 @@ It is not a completion claim and does not hold evidence of its own.
   matched native comparison of pixels, motion, audio and input timing. Do not
   turn test counts into a completion percentage.
 
-Runtime/asset work reaches visual acceptance after integration, combined checks
-and browser inspection by the coordinator. Documentation-only changes need
+Runtime/asset work reaches visual acceptance only after integrated production-browser and isolated Azahar raw LCD capture pairs pass the diff and visual-inspection loop in [verification](architecture/verification.md). Documentation-only changes need
 link/diff checks.
 The [implementation process](architecture/implementation-process.md) defines
 worktree handoff and source-to-visible HOME banner gates.
@@ -62,22 +61,21 @@ for this new path. See the [progress checkpoint](progress-2026-09-24.md).
 | Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
 | Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power and foreground applet announcements corrected (`b1fedf5`), including live Notes over suspended Work | Other screen-specific announcements and full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
 | Asset conversion, provenance | Implemented. The current public-only audit passes 1,707 resources, 601 layouts and 1,871 animations with zero integrity errors. The [visible asset audit](firmware-visible-asset-audit-2026-09-25.md) maps in-scope screen packs and banner keys to dump titles and records non-native fallback risks. It publishes no new resource. The converted Settings model and five textures match manifest hashes and CBMD source identity. | Keep unsupported fields explicit, remove or prove inactive the community/CSS/generic fallback paths, and rerun private-source audit when storage access recovers. Local LFS model hydration enabled build only; it is not a delivery change or visual check | Assets | [Asset audit](firmware-visible-asset-audit-2026-09-25.md), [asset architecture](architecture/assets-and-materials.md), [stock banner source](stock-home-banner-source.md) |
-| Final acceptance | Open | Isolated Azahar profile and one mapped Settings touch route are verified; extend reliable native input, then run a versioned browser/native scenario matrix and requirement audit | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
+| Final acceptance | **Open.** No in-scope scenario has a passing raw native/browser LCD diff. The older Settings JPEG/source-render comparison is not acceptance | Target HOME idle and Settings → Other Settings page 1 pairs under the private `reference/scenario-matrix/v1/captures/`; drive both systems, diff, inspect and then fill the versioned matrix | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
 
 ## Five long-lived lanes — 25 September 2026
 
-All five lanes begin at UI integration
-`1bf5178b6bd827b9804e67233cc076309708728b`. These are current ownership
+The five lanes are assigned from UI integration `92fc4d9`. These are ownership
 assignments; feature-row owner labels above reflect earlier integrations and
 do not authorize editing a different lane's worktree.
 
 | Lane | Worktree | Branch | Owned surface |
 | --- | --- | --- | --- |
 | Design | `/Users/paramveer/.codex/worktrees/3ds-lane-design` | `codex/lane-design` | Agent onboarding, scope, progress, feature map, architecture |
-| Assets | `/Users/paramveer/.codex/worktrees/3ds-lane-assets` | `codex/lane-assets` | Firmware conversion, manifest, provenance and native packs |
+| Assets | `/Users/paramveer/.codex/worktrees/3ds-lane-assets` | `codex/lane-assets` | Firmware conversion, manifest, provenance, native packs and `scripts/native-compare/` |
 | HOME | `/Users/paramveer/.codex/worktrees/3ds-lane-home` | `codex/lane-home` | HOME state, rendering, banners and input |
 | Stock | `/Users/paramveer/.codex/worktrees/3ds-lane-stock` | `codex/lane-stock` | In-scope stock-app screens and navigation |
-| Experience | `/Users/paramveer/.codex/worktrees/3ds-lane-experience` | `codex/lane-experience` | Scene, power/app transitions, portfolio integration |
+| Experience | `/Users/paramveer/.codex/worktrees/3ds-lane-experience` | `codex/lane-experience` | Scene, power/app transitions, portfolio integration and raw browser LCD capture |
 
 The coordinator owns integration in `3ds-ui-continuation`, and alone operates
 the production browser and Azahar. Native assets require manifest/dump
@@ -85,76 +83,18 @@ provenance; source fixtures and renders do not establish browser or native
 acceptance. See [AGENTS.md](../AGENTS.md), [scope](portfolio-ui-scope.md) and
 [verification](architecture/verification.md).
 
-## Current integration on 25 September 2026
+## Current integration and evidence gate — 25 September 2026
 
-The active checkout is `/Users/paramveer/.codex/worktrees/3ds-ui-continuation`,
-branch `codex/health-ui-scratch`, base `1bf5178`. Its Git object database
-is separate from the original checkout. The five lanes above began here; later integration status is in the feature rows and progress record.
-Run `git worktree list` in the integration checkout for the live worker inventory;
-the dated table below is retained history, not a current assignment list.
-
-## Worktrees on 24 September 2026
-
-Branch names change between slices. Run `git worktree list` before relying on
-this table.
-
-| Role | Worktree | Branch @ head | Not yet integrated |
-| --- | --- | --- | --- |
-| Coordinator / integration | `3ds-idea-worktrees/integration` | `codex/firmware-os-10-7` through `2ebf7b3` | — |
-| eShop idle source | `3ds-idea-worktrees/eshop-idle-source` | `codex/eshop-idle-source` @ `b447c25` | Entrance/idle, curtain/exit and title-owned HUD integrated through `cd4b534` |
-| Settings status and focus | `3ds-idea-worktrees/settings-native-status` | `codex/settings-native-status` @ `f592e0d` | Status integrated as `b52aeb3`; focus audit integrated as `825b3f8`; Profile/Date & Time Back corrected and inspected |
-| Camera strip controller | `3ds-idea-worktrees/camera-native-paging` | `codex/camera-native-paging` @ `6ed2903` | Integrated as `2d6285d`; disconnected from live paging |
-| Camera rebind ordering | `3ds-idea-worktrees/camera-rebind-source` | `codex/camera-rebind-source` @ `1bb865c` | Combined replay/root owner audit and browser gallery reset test integrated through `1e694bc`; native/live strip still gated |
-| Health glyph follow-up | `3ds-idea-worktrees/health-glyph-stream-source` | `codex/health-glyph-stream-source` @ `f27bfc6` | Audit integrated as `bbf29d5`; live scroll still gated by raster/composition and cadence |
-| Health scroll source | `3ds-idea-worktrees/health-live-scroll` | `codex/health-live-scroll` @ `d1313d0` | Glyph/clip/key replay integrated as `2ebf7b3`; native touch/scrollbar still gate live scroll |
-| Assets | `3ds-idea-worktrees/assets` | `codex/settings-native-assets` @ `b30bcc0` | Service-screen visual fix remains uncommitted/unverified; Notes audit integrated |
-| Presentation | `3ds-idea-worktrees/presentation` | `codex/settings-native-fields` @ `5090b10` | None found (subject match) |
-| Runtime | `3ds-idea-worktrees/runtime` | `codex/parental-flow-audit` @ `057173b` | None found (subject match) |
-| Notes capture | `3ds-idea-worktrees/notes-suspended-capture` | `codex/notes-suspended-capture` @ `a6ba824` | Integrated as `f9219d7` |
-| Notes switch | `3ds-idea-worktrees/notes-switch-native` | `codex/notes-switch-native` @ `63386a9` | Integrated as `251d988`; browser cycle inspected |
-| Notes motion | `3ds-idea-worktrees/notes-switch-motion` | `codex/notes-switch-motion` @ `3aea14a` | Integrated as `e4d52b8`; live Double → Up inspected |
-| Camera gallery | `3ds-idea-worktrees/camera-native-gallery` | `codex/camera-native-gallery` @ `3bae6ca` | Integrated as `9b50576` |
-| Sound favourites | `3ds-idea-worktrees/sound-native-favorites` | `codex/sound-native-favorites` @ `a783d97` | Transport integrated as `5c5709f`, Effect panel as `549dc85`; Sound Notes metadata preserved in `9e45873` |
-| Settings Data lists | `3ds-idea-worktrees/settings-data-source` | `codex/settings-data-source` @ `cd13051` | Integrated as `fa731dc` and `9586990` |
-| Camera upper LCD | `3ds-idea-worktrees/camera-upper-source` | `codex/camera-upper-source` @ `fd7183a` | Integrated as `ea4cdfe` |
-| Camera grid | `3ds-idea-worktrees/camera-grid-source` | `codex/camera-grid-source` @ `d5257ae` | Integrated as `c8a84f7`; touch test corrected as `827088c` |
-| Camera footer audit | `3ds-idea-worktrees/camera-footer-source` | `codex/camera-footer-source` @ `ea8e29d` | Integrated as `a94fe9e`; no incompatible capture controls added |
-| Camera paging audit | `3ds-idea-worktrees/camera-paging-source` | `codex/camera-paging-source` @ `2032be2` | Integrated as `892a627`; native scroll timing remains open |
-| Camera controller replay | `3ds-idea-worktrees/camera-paging-source` | `codex/camera-paging-source` @ `c935a52` | Integrated as `cc2abe7`; physical input/cadence still open |
-| Camera input/blank/preview audit | `3ds-idea-worktrees/camera-paging-source` | `codex/camera-paging-source` @ `e1edf02` | Integrated through `bbdd67f`; live paging still gated |
-| Settings Language | `3ds-idea-worktrees/settings-language-source` | `codex/settings-language-source` @ `29b60ed` | Integrated as `3be6851`, `0e2309b`, `3797de6`; browser entry/return inspected |
-| Language scroll | `3ds-idea-worktrees/settings-language-scroll` | `codex/settings-language-scroll` @ `8bb2af2` | Integrated as `861540b`; all eight rows operated live |
-| Language arrow motion | `3ds-idea-worktrees/settings-language-arrow-motion` | `codex/settings-language-arrow-motion` @ `70ab621` | Integrated as `672c489`; down/up operated live |
-| Open Blocks audit | `3ds-idea-worktrees/settings-open-blocks-source` | `codex/settings-open-blocks-source` @ `f0864cb` | Integrated as `16b0cef`; no guessed value |
-| Notes title/HUD audit | `3ds-idea-worktrees/notes-title-source` | `codex/notes-title-source` @ `b60ba3b` | Integrated as `842fbec`; source dependencies recorded |
-| Notes title metadata/controller | `3ds-idea-worktrees/settings-language-arrow-motion` | `codex/notes-title-controller` @ `169cdfb` | Integrated as `910908c`; eight long descriptions published, panel still hidden |
-| Notes icon/panel and lifecycle | `3ds-idea-worktrees/settings-language-arrow-motion` | `codex/notes-title-controller` through `0622763` | Integrated as `14cf5b0`, `060dddd`, `962da67`, `7f68cfe`; panel specimens pass, live route gated |
-| Notes audio audit | `3ds-idea-worktrees/notes-switch-audio` | `codex/notes-switch-audio` @ `ad9f6ae` | Integrated as `53a6a5d`; publication blocked by unvalidated wave path |
-| Settings helper return | `3ds-idea-worktrees/settings-transfer-update-return` | `codex/settings-transfer-update-return` @ `0783f6f` | Integrated as `41fd3b7`; browser returns inspected |
-| System Update entry | `3ds-idea-worktrees/updater-first-screen-source` | `codex/updater-first-screen-source` @ `1a49087` | Integrated as `0f652b8`; OK inert and Cancel return inspected |
-| amiibo materials | `3ds-idea-worktrees/amiibo-source-materials` | `codex/amiibo-source-materials` @ `fa46764` | Audit integrated as `a6b74c8`; material support still missing |
-| amiibo native commands | `3ds-idea-worktrees/amiibo-material-semantics` | `codex/amiibo-material-semantics` @ `b0f22fb` | Integrated as `387655d`; material support remains gated |
-| amiibo renderer/opening | `3ds-idea-worktrees/amiibo-material-semantics` | `codex/amiibo-material-semantics` @ `9f83399` | Integrated as `aeb54a4`, `b707a5b`; source render passes, no visible entrypoint |
-| Cold-boot reveal audit | `3ds-idea-worktrees/boot-reveal-source` | `codex/boot-reveal-source` @ `5bb252b` | Integrated as `e745283`; no runtime timing claim |
-| Settings Data motion audit | `3ds-idea-worktrees/settings-data-motion` | `codex/settings-data-motion` @ `6a2356b` | Integrated as `540efa6`; loader/entry gates traced, live motion gated |
-| Health scroll audit | `3ds-idea-worktrees/health-scroll-source` | `codex/health-scroll-source` @ `0a83505` | Integrated as `780efb6`; live scroll gated by rich text and ownership |
-| Camera owner lifecycle | `3ds-idea-worktrees/camera-paging-owner-source` | `codex/camera-paging-owner-source` @ `360cbd1` | Integrated as `5c766e7`; rebind/stale completion still open |
-| Notes accepted entry and owner exit | `3ds-idea-worktrees/notes-accepted-entry`, `notes-home-owner-exit` | `codex/notes-accepted-entry` @ `1cd1ad9`, `codex/notes-home-owner-exit` @ `1a615ca` | Integrated as `649e314`, `34ebf75`; HOME-again exit verified live |
-| Zone projection source | `3ds-idea-worktrees/zone-projection-source` | `codex/zone-projection-source` @ `7856fde` | Integrated as `e402db8`; camera binding still open |
-| Health rich text, font and input | `3ds-idea-worktrees/health-richtext-source`, `health-font-clip-source`, `health-clip-owner-source` | `codex/health-richtext-source` @ `82cfc35`, `codex/health-font-clip-source` @ `a487eef`, `codex/health-clip-owner-source` @ `824f326` | Integrated as `40b0539`, `3c6280a`, `f7e7de1`; live scrolling gated |
-| Health article draw | `3ds-idea-worktrees/health-article-draw-source` | `codex/health-article-draw-source` @ `1908219` | Integrated as `ca67998`; glyph stream/cancellation still gated |
-| Notes metadata and ordered startup | `3ds-idea-worktrees/notes-metadata-owner`, `notes-ordered-startup`, `notes-panel-scheduler` | `codex/notes-metadata-owner` @ `2d6a835`, `codex/notes-ordered-startup` @ `de78835`, `codex/notes-panel-scheduler` @ `74681fa` | Integrated as `01105ca`, `386f351`, `a7a8c8a`; title/HUD paint gated |
-| Notes intro/title publication | `3ds-idea-worktrees/notes-material-publication` | `codex/notes-material-publication` @ `4bddec1` | Applied composer and boot packs integrated as `f91865f`, `e30704d`; owner-bound clock and main upper title are live; Work and Health suspended-title paths passed browser review |
-| Zone camera and raster state | `3ds-idea-worktrees/zone-draw-camera`, `zone-raster-state` | `codex/zone-draw-camera` @ `cd81f35`, `codex/zone-raster-state` @ `3c022fb` | Integrated as `734ac98`, `e4c054e`; projection still gated |
-| Zone placement inputs | `3ds-idea-worktrees/zone-final-placement` | `codex/zone-final-placement` @ `22d92ba` | Integrated as `934e863`; actual HTML inputs and final draw state remain open |
-| Documentation | `.codex/worktrees/b047/3ds-idea` | `codex/system-design-docs` @ `91fe40f` | Integrated as `24d7aa6` and `ee036df` |
-| Preserved | Original checkout, `3ds-idea-os`, `.codex/worktrees/b94c` | `uifix`, `codex/3ds-os`, `codex/home-menu-assets` | Keep, don't modify |
-
-Workers stay inside their own worktree and files, as the scope note describes. Only the coordinator
-drives the browser and the Azahar reference session. Store evidence under
-`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`.
-Label each item as a source render, a browser capture or a matched emulator
-comparison, and cite its commit and scenario.
+The integration checkout is `/Users/paramveer/.codex/worktrees/3ds-ui-continuation`
+on `codex/health-ui-scratch` at `92fc4d9` for this documentation pass. Run
+`git worktree list` for current inventory; the former 24 September worker-head
+table was stale and has been removed. Only the coordinator drives Azahar and
+the production browser. The first targeted capture pairs are HOME idle and
+Settings → Other Settings page 1 under the private
+`reference/scenario-matrix/v1/captures/` directory. The raw LCD pixel diff is
+pending. Every row above remains below full native acceptance until the
+[scenario loop](architecture/verification.md) closes its pixels, motion,
+input and audio or labels a documented adaptation/source gap/block.
 
 ## Intentionally excluded
 

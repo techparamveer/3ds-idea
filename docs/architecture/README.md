@@ -6,7 +6,7 @@ interactive console. There is no application backend or firmware executable in
 the runtime. Native resources are converted offline and interpreted by browser
 renderers around deterministic software state.
 
-This design map was checked against UI continuation **`1bf5178` on
+This design map follows UI continuation **`92fc4d9` on
 25 September 2026**. Parental screens remain inside
 the existing `AppModule`, painter and `stock-screen-layout.ts` boundaries.
 The Sound entry room adds a scene-owned static model background with an injected
@@ -49,9 +49,10 @@ flowchart TD
   RoomHook --> Paint
 ```
 
-The diagram shows the live folder/default banner path. Stock title banner
-resources are a separate, dormant preparation path; the delivered assets do not
-activate selected stock previews. See [HOME banner ownership](runtime-composition.md#home-banner-ownership-and-activation).
+The diagram includes folder/default banners. Settings also has a provisional
+selected-title banner path; other stock banners remain unsupported. No selected
+stock banner has passed the required native/browser LCD comparison. See
+[HOME banner ownership](runtime-composition.md#home-banner-ownership-and-activation).
 
 The upper logical surface expands to 800×240 texture storage; the physical
 panel remains 5:3. Three.js dependencies stay in `src/scene/`. The OS receives
@@ -82,4 +83,5 @@ a decoded resource may remain unsupported, unpublished or unused by a live view.
 
 The progress matrix distinguishes those stages. A source trace establishes only
 the code/resource fact it traces; a screenshot establishes only its captured
-scenario. Neither replaces matched native visual, motion and audio comparisons.
+scenario. Follow [verification](verification.md) for matched native/browser
+pixels, motion, input and audio before accepting software fidelity.

@@ -53,33 +53,22 @@ The live chain is `console-scene.ts` → `home-banner-host.ts` →
 `screens.ts` → injected `firmware-banner.ts` draw callbacks. Selection is
 observed at explicit boundaries in the counted HOME pass. Manager work and
 attached scene-controller work remain separate; painting does not advance them.
-Folder/default readiness is scoped to generation and request epoch. Clear has
-no primary. App selections and unsupported toolbar categories currently release
-that service and return `unsupported`; a previous folder must not remain visible
-as the selected application's banner. Authored portfolio banners use their
-existing separate painter.
+Folder/default readiness is scoped to generation and request epoch. Clear has no primary. Folder/default banners use the native primary path.
+Settings now has a **provisional** selected-title path through the host,
+service and source model renderer (`f57ae44`); other stock selections remain
+unsupported and release the previous primary. Authored portfolio banners use
+their separate painter. The Settings path passes bounded code checks but has
+no production-browser LCD capture or matched Azahar diff, so visible pose,
+materials, retargeting and timing remain open.
 
-`createStockTitleBannerResourceHost` is implemented but **not connected** to
-that chain. A ticket contains console generation, request epoch and title kind.
-Retargeting releases the current model; a late fetch cannot publish into the new
-ticket. A current fetch validates common/EUR source identities, texture names,
-mesh count and clips before creating a model and applying the selected artwork.
-Failure stays explicit in ticket status. This owner has no AbortSignal/deadline
-contract and its `ready` value means prepared GPU resources, not native worker
-completion, show acknowledgement, attachment or a displayed LCD frame.
-
-Settings is not one of those four supported resource kinds. Its delivered model
-and the executed controller/visibility/scene insertion branches remain a
-separate [activation gate](../settings-home-banner-activation-gap.md).
-The scene-list replay reaches render dispatch using a synthetic candidate. The
-later real-resource worker replay (`05cef1c`) decodes original Settings
-`banner.bin`, constructs candidates at `M+0x50/+0x54`, and reaches graphics
-service `0x2354a0` during state-4 `COMMON` binding. It stops there: the model
-and controller are not bound and the first visible pose/pixels remain unproved.
-The subsequent bounded allocator probe executes that service, the native
-graphics-object constructor and virtual initializer, then stops at an OS
-thread-local service during the same bind. The model/controller and visible
-pose remain open.
+`createStockTitleBannerResourceHost` prepares four common title kinds but is
+not yet a visible caller for them. A ticket contains console generation,
+request epoch and title kind. Retargeting releases the current model; a late
+fetch cannot publish into the new ticket. Its `ready` means prepared GPU
+resources, not a displayed LCD frame. Historical Settings executable replays
+stop at OS thread-local service `0x139008`; they are source facts, not proof of
+what the provisional browser renderer draws. See the
+[activation gate](../settings-home-banner-activation-gap.md).
 Do not connect stock titles by reusing folder/default activation or by treating a
 resolved fetch as show completion. The [implementation process](implementation-process.md)
 defines the evidence required for that change.

@@ -89,5 +89,11 @@
       "mode": 2
     }
   ],
-  "scope": "Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. Current-frame clock only: initial skeletal pose submission, native title-driven attachment/hide/retarget, and pixels are not executed."
+  "scope": "Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. Native title-driven attachment/hide/retarget, later pose submissions, and pixels are not executed.",
+  "firstStartSubmission": {
+    "submitAddress": "0x833000",
+    "sourceCall": "0x24ffec",
+    "submittedFrame": 0.0,
+    "currentFrame": 0.0
+  }
 }

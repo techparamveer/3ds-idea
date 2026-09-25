@@ -12,13 +12,15 @@ import json
 import struct
 from pathlib import Path
 
-from unicorn import Uc, UC_ARCH_ARM, UC_MODE_ARM
-from unicorn.arm_const import UC_ARM_REG_FPEXC, UC_ARM_REG_LR, UC_ARM_REG_PC, UC_ARM_REG_R0, UC_ARM_REG_SP
+from unicorn import Uc, UC_ARCH_ARM, UC_HOOK_CODE, UC_MODE_ARM
+from unicorn.arm_const import UC_ARM_REG_FPEXC, UC_ARM_REG_LR, UC_ARM_REG_PC, UC_ARM_REG_R0, UC_ARM_REG_S2, UC_ARM_REG_SP
 
 CODE_SHA = '243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9'
 MODEL_SHA = '96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d'
 BASE, SCENE, CONTROLLER, STACK, END = 0x100000, 0x800000, 0x801000, 0x810000, 0x820000
 VTABLE = 0x321138  # skeletal controller constructed by 0x25000c
+DESCRIPTOR, DESCRIPTOR_VTABLE, TYPE_STUB, SUBMIT_STUB, MODEL = (
+    0x830000, 0x831000, 0x832000, 0x833000, 0x834000)
 
 
 def put32(u, address, value):
@@ -103,7 +105,47 @@ def run(code):
     assert [row['currentFrame'] for row in rows] == [0, 0, 1, 2, 598, 599, 0, 0, 0]
     return {'homeCodeSha256': CODE_SHA, 'settingsSelectedCgfxSha256': MODEL_SHA,
             'execution': ['0x10b3d0', '0x24ff10', '0x1bbd94'], 'rows': rows,
-            'scope': 'Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. Current-frame clock only: initial skeletal pose submission, native title-driven attachment/hide/retarget, and pixels are not executed.'}
+            'scope': 'Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. Native title-driven attachment/hide/retarget, later pose submissions, and pixels are not executed.'}
+
+
+def first_start_submission(code):
+    """Execute the native controller's virtual +0x10 start into its pose callback."""
+    u = machine(code)
+    for address in (DESCRIPTOR, DESCRIPTOR_VTABLE, TYPE_STUB, SUBMIT_STUB, MODEL):
+        u.mem_map(address, 0x1000)
+    put32(u, CONTROLLER + 0x28, MODEL)
+    put32(u, CONTROLLER + 0x2c, DESCRIPTOR)
+    put32(u, DESCRIPTOR, DESCRIPTOR_VTABLE)
+    put32(u, DESCRIPTOR_VTABLE + 8, TYPE_STUB)
+    put32(u, DESCRIPTOR + 0x48, SUBMIT_STUB)
+    put32(u, DESCRIPTOR + 0x4c, 0x835000)
+    put_float(u, DESCRIPTOR + 0x40, 0.0)
+    put_float(u, DESCRIPTOR + 0x44, 600.0)
+    put32(u, MODEL + 0x238, 0xffffffff)  # no model-channel write before callback
+    captured = []
+    submit_call_reached = []
+
+    def hook(uc, address, size, _):
+        if address == 0x24ffec:
+            submit_call_reached.append(address)
+        elif address == TYPE_STUB:
+            uc.reg_write(UC_ARM_REG_R0, 0x33d638)
+            uc.reg_write(UC_ARM_REG_PC, uc.reg_read(UC_ARM_REG_LR))
+        elif address == SUBMIT_STUB:
+            captured.append({'submitAddress': hex(address),
+                             'sourceCall': '0x24ffec',
+                             'submittedFrame': struct.unpack('<f', struct.pack('<I',
+                                 uc.reg_read(UC_ARM_REG_S2) & 0xffffffff))[0],
+                             'currentFrame': get_float(uc, CONTROLLER + 0xc)})
+            uc.emu_stop()
+
+    u.hook_add(UC_HOOK_CODE, hook)
+    u.reg_write(UC_ARM_REG_R0, CONTROLLER)
+    u.emu_start(0x24fe18, END, count=1000)
+    assert captured == [{'submitAddress': hex(SUBMIT_STUB), 'sourceCall': '0x24ffec',
+                         'submittedFrame': 0.0, 'currentFrame': 0.0}], captured
+    assert submit_call_reached == [0x24ffec]
+    return captured[0]
 
 
 def main():
@@ -121,7 +163,9 @@ def main():
             [(clip['Name'], clip['FramesCount'], clip['AnimationFlags'])
              for clip in model['skeletalAnimations']] != [('COMMON', 600, 'IsLooping')]):
         p.error('Settings COMMON model or clip mismatch')
-    print(json.dumps(run(code), indent=2) + '\n', end='')
+    result = run(code)
+    result['firstStartSubmission'] = first_start_submission(code)
+    print(json.dumps(result, indent=2) + '\n', end='')
 
 
 if __name__ == '__main__':

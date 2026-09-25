@@ -16,9 +16,9 @@ zero idle displacement, authored Frame sibling and Aim camera are source-backed
 by `docs/native-settings-banner-pose.md`. The source worker trace establishes
 the title's states 3, 4 and 5 and that matching state-5 identity can request
 show. It does not establish a complete asynchronous replacement cycle or the
-controller's first submitted frame or title-driven visible scene cadence. The
-conditional 599-to-0 controller-clock wrap is reproduced below with supplied
-scene membership.
+controller's first frame *at visible attachment* or title-driven scene cadence.
+Conditional start submission and the 599-to-0 controller-clock wrap are
+reproduced below with supplied descriptor and scene membership.
 The browser's material output and 400×240 composition also lack a matched
 native capture. Advancing the current folder/default service directly to
 `active` for Settings would skip the title worker and show boundary.
@@ -53,7 +53,7 @@ model's selected CGFX SHA-256
 `96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d`
 and its 600-frame looping `COMMON` clip before running. The committed
 [fixture](evidence/settings-banner-controller-clock.json) has SHA-256
-`71324b72f5ff83ae36de0ad575516be71db46bf13387f78232f14debd26c2c68`.
+`437d1f9651e297df719721641a20e3333a936e3022e5ea3480d6bf59c4338dfa`.
 The scene membership and controller fields are supplied synthetic memory;
 `0x25000c` is the source constructor for the controller vtable, but the replay
 does not run that constructor or bind the CGFX.
@@ -66,12 +66,18 @@ request-to-scene attachment and retarget were not executed in this replay;
 the separate [worker replay](native-settings-banner-pose.md#follow-up-worker-branch-replay)
 covers bounded native hide decisions.
 
-This is a **current-frame clock fixture**, not the requested submitted-frame
-fixture. It cannot establish the first skeletal pose submitted on visible
-attachment, whether a retained hidden title remains attached during a
-particular hide transition, or which native outer updates are eligible. The
-scene-list membership was set directly. Keep the Settings live banner gate and
-the focused test TODO in place until the actual controller start/pose submission
-and title-driven attach/hide path are executed, then compare matched native and
-browser 400×240 captures. No browser or native visual comparison was made in
-this bounded replay.
+The replay also executes the original controller start method `0x24fe18` into
+reset/pose method `0x24ff78`. With a supplied matching descriptor type and pose
+callback, the first callback at `0x24ffec` receives **frame 0** while current
+frame is 0. This is a conditional first **start** submission. The descriptor,
+its type result and callback are stubs, so the replay does not prove a real
+Settings model is ready or that its first submission coincides with visible
+scene attachment.
+
+Later pose submissions, whether a retained hidden title remains attached
+during a particular hide transition, and which native outer updates are
+eligible remain unproven. The scene-list membership was set directly. Keep
+the Settings live banner gate and focused test TODO in place until the
+title-driven attach/hide path and later pose submission cadence are executed,
+then compare matched native and browser 400×240 captures. No browser or native
+visual comparison was made in this bounded replay.

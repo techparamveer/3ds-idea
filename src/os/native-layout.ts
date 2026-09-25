@@ -329,8 +329,12 @@ export function sampleNativeTexture(image:NativePixels,u:number,v:number,wrapS=0
 
 export const nativeWhite = [[255,255,255,255],[255,255,255,255],[255,255,255,255],[255,255,255,255]];
 const unitUV=[0,0,1,0,0,1,1,1];
+/** Native panes rasterize as LT-RT-RB and LT-RB-LB triangles. The diagonal
+ * matters for unequal corner colors such as Settings' wrench and icons. */
 export function interpolateNativeQuad(values:number[],u:number,v:number,components=2) {
- return Array.from({length:components},(_,i)=>(values[i]*(1-u)+values[components+i]*u)*(1-v)+(values[components*2+i]*(1-u)+values[components*3+i]*u)*v);
+ return Array.from({length:components},(_,i)=>u>=v
+  ?values[i]*(1-u)+values[components+i]*(u-v)+values[components*3+i]*v
+  :values[i]*(1-v)+values[components*2+i]*(v-u)+values[components*3+i]*u);
 }
 export function transformNativeUV(uv:number[],matrix?:NativeMaterial['textureMatrices'][number]) {
  if(!matrix)return uv;
@@ -417,13 +421,14 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
   for(let x=0;x<width;x++){
    const u=(x+offsetX+.5)/fullWidth;
    for(let i=0;i<4;i++){
-    bank[20+i]=((colors[i]*(1-u)+colors[4+i]*u)*(1-v)+(colors[8+i]*(1-u)+colors[12+i]*u)*v)/255;
+    bank[20+i]=(u>=v?colors[i]*(1-u)+colors[4+i]*(u-v)+colors[12+i]*v
+     :colors[i]*(1-v)+colors[8+i]*(v-u)+colors[12+i]*u)/255;
    }
    bank[23]*=alpha;
    for(let index=0;index<samplers.length;index++){
     const sampler=samplers[index],uv=sampler.uv,matrix=sampler.matrix,image=sampler.image;
-    let tu=(uv[0]*(1-u)+uv[2]*u)*(1-v)+(uv[4]*(1-u)+uv[6]*u)*v;
-    let tv=(uv[1]*(1-u)+uv[3]*u)*(1-v)+(uv[5]*(1-u)+uv[7]*u)*v;
+    let tu=u>=v?uv[0]*(1-u)+uv[2]*(u-v)+uv[6]*v:uv[0]*(1-v)+uv[4]*(v-u)+uv[6]*u;
+    let tv=u>=v?uv[1]*(1-u)+uv[3]*(u-v)+uv[7]*v:uv[1]*(1-v)+uv[5]*(v-u)+uv[7]*u;
     if(matrix){
      const mx=(tu-.5)*matrix.sx+matrix.tx,my=(tv-.5)*matrix.sy+matrix.ty;
      tu=.5+matrix.c*mx-matrix.s*my;tv=.5+matrix.s*mx+matrix.c*my;

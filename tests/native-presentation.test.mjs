@@ -6,11 +6,17 @@ import ts from 'typescript';
 import sharp from 'sharp';
 const source=readFileSync(new URL('../src/os/native-layout.ts',import.meta.url),'utf8');
 const api=await import('data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
-const {sampleNativeTrack,poseNativeLayout,boundAnimationTracks,evaluateNativeMaterial,sampleNativeTexture,rasterNativePicture,nativeWindowPatches,transformNativeUV,nativeWhite}=api;
+const {sampleNativeTrack,poseNativeLayout,boundAnimationTracks,evaluateNativeMaterial,sampleNativeTexture,rasterNativePicture,nativeWindowPatches,transformNativeUV,interpolateNativeQuad,nativeWhite}=api;
 const combiner=(mode=0,sources=[0,0,0],operands=[0,0,0])=>({mode,sources,operands,scale:1,savePrevious:false});
 const material=()=>({name:'test',bufferColor:[0,0,0,0],constantColors:Array.from({length:6},()=>[255,255,255,255]),textureMaps:[],textureMatrices:[],coordinateGenerators:[],tevStages:[],unsupported:[]});
 const pane=(name,children=[])=>({kind:'pan1',name,flags:1,origin:4,alpha:255,translation:[0,0,0],rotation:[0,0,0],scale:[1,1],size:[20,20],children});
 const layout=()=>({canvas:{width:320,height:240,origin:1},roots:[pane('root',[pane('selected',[pane('child')]),pane('unrelated')])],materials:[],textures:[],fonts:[],groups:[{name:'selection',panes:['selected'],children:[]}],unsupported:[]});
+test('native picture corners interpolate across the LT–RB triangle diagonal',()=>{
+ const corners=[10,90,20,30];
+ assert.equal(interpolateNativeQuad(corners,.25,.75,1)[0],20,'lower triangle excludes the bright upper-right corner');
+ assert.equal(interpolateNativeQuad(corners,.75,.25,1)[0],55,'upper triangle includes the bright upper-right corner');
+ assert.equal(interpolateNativeQuad(corners,.5,.5,1)[0],20,'the shared diagonal contains only LT and RB');
+});
 const track=(target,value)=>({target,binding:'pane',property:'translation.x',index:0,component:0,interpolation:'step',keys:[{frame:0,value}]});
 test('native folder glyph compositor retains RGBA4444 coverage, ordered outline distances and hidden RGB',()=>{
  const mask={width:32,height:32,data:new Uint8ClampedArray(4096)};

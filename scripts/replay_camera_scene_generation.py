@@ -56,6 +56,7 @@ def replay(code_path):
     allocations, releases, writes, entered = [], [], [], []
     setup_records = []
     setup_services = []
+    setup_tail_calls = []
     phase = ''
     word = lambda a: struct.unpack('<I', machine.mem_read(a, 4))[0]
     put = lambda a, n: machine.mem_write(a, struct.pack('<I', n & 0xFFFFFFFF))
@@ -70,6 +71,11 @@ def replay(code_path):
             entered.append({'phase': phase, 'address': hex(address)})
         if phase == 'synthetic-reuse-setup' and address == 0x2D7104:
             setup_records.append(word(machine.reg_read(UC_ARM_REG_R6) + 0x108))
+        if phase == 'synthetic-reuse-setup' and address == 0x254504:
+            setup_tail_calls.append({'address': hex(address),
+                                     'target': hex(machine.reg_read(UC_ARM_REG_R0)),
+                                     'count': machine.reg_read(UC_ARM_REG_R1),
+                                     'value': machine.reg_read(UC_ARM_REG_R2)})
         if address in (0x262340, 0x260440):
             size = machine.reg_read(UC_ARM_REG_R0)
             assert 0 < size < 0x100000
@@ -236,20 +242,26 @@ def replay(code_path):
     assert stale_after_constructor == stale_before
     phase = 'synthetic-reuse-setup'
     put(base + 0x44 + 0x120, current_owner)
-    call(0x2D6CE0, base + 0x44, 0x1080000, end=0x2D73F4)
+    # Continue past the bitset reset through the original 0x254504 call and
+    # subsequent zero stores. The next call (0x2487ac) still needs its native
+    # external owner graph; stopping here is not a complete setup return.
+    call(0x2D6CE0, base + 0x44, 0x1080000, end=0x2D7458)
     cleared_after_reset = readiness()
     assert all(value == '0x0' for values in cleared_after_reset.values() for value in values)
     assert len(setup_records) == 64
     assert len(setup_services) == 1
+    assert setup_tail_calls == [{'address': '0x254504', 'target': hex(base + 0x44 + 0x94),
+                                 'count': 64, 'value': 5}]
     reuse = {'sequence': ['complete embedded destructor', 'same-address embedded constructor',
-                          'control setup through 64-record loop and readiness reset'],
+                          'control setup through 64-record loop, readiness reset and first post-reset call'],
              'staleBeforeConstructor': stale_before,
              'staleAfterConstructor': stale_after_constructor,
              'afterReset': cleared_after_reset,
              'setupRecordIterations': len(setup_records),
+             'postResetStopBefore': '0x2d7458', 'postResetCalls': setup_tail_calls,
              'setupServiceLeaves': setup_services,
-             'scope': 'Synthetic address reuse and original setup prefix through reset; no SceneBrowse replacement caller, setup tail, worker completion or pixels.'}
-    return {'ok': True, 'codeSha256': CODE_SHA, 'scriptVersion': 3,
+             'scope': 'Synthetic address reuse and original setup prefix through first post-reset call; no SceneBrowse replacement caller, complete setup tail, worker completion or pixels.'}
+    return {'ok': True, 'codeSha256': CODE_SHA, 'scriptVersion': 4,
             'directCalls': {hex(a): hex(b) for a, b in direct_calls.items()},
             'constructors': constructors, 'setupReset': setup, 'cellPrefix': cells,
             'destruction': destruction, 'syntheticReuse': reuse, 'enteredFunctions': entered,

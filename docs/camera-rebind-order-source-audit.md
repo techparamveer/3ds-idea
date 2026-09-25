@@ -1,5 +1,10 @@
 # Camera root traversal through rebind consumer publication
 
+The later [linked property continuation](camera-linked-property-publication-audit.md)
+runs `0x25a618` through return inside this two-pass fixture with a synthetic
+material lookup. The final cell writer, SceneBrowse replacement and pixels
+remain open. Statements below describe this audit's earlier checkpoint.
+
 Continuation of the [cache/rebind audit](camera-rebind-source-audit.md) and the
 disconnected [browse-strip port](camera-browse-strip-port.md), based on
 `c746b5b`. The hash-pinned fixture now carries one logical-5/logical-69

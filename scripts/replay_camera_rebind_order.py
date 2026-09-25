@@ -132,6 +132,8 @@ def replay(code_path):
     calls = []
     presented_cells = []
     presentation_events = []
+    property_dispatches = []
+    material_leaves = []
     presentation_pass = 0
     root_update_phase = ""
     root_update_events = []
@@ -389,6 +391,22 @@ def replay(code_path):
         elif mode == "presentation" and address == 0x261588:
             calls.append({"call": "presentation-render-service", "mode": mode})
             return_from_leaf(0)
+        elif mode == "presentation" and address == 0x256CA8:
+            presentation_events.append({"event": "original-property-copy", "pass": presentation_pass})
+        elif mode == "presentation" and address == 0x2567CC:
+            retained = machine.reg_read(UC_ARM_REG_R1)
+            property_dispatches.append({
+                "pass": presentation_pass,
+                "storedLength": word(retained + 8),
+                "storedBytes": list(machine.mem_read(retained + 12, min(word(retained + 8), 20) + 1)),
+                "materialResource": machine.reg_read(UC_ARM_REG_R2),
+            })
+        elif mode == "presentation" and address == 0x247ED4:
+            material_leaves.append({"pass": presentation_pass, "service": "0x247ed4 lookup"})
+            return_from_leaf(0x1051000)
+        elif mode == "presentation" and address in (0x131254, 0x247CE4):
+            material_leaves.append({"pass": presentation_pass, "service": hex(address)})
+            return_from_leaf()
         elif mode == "presentation" and address == 0x25A618:
             value = machine.reg_read(UC_ARM_REG_R1)
             presentation_events.append(
@@ -407,7 +425,9 @@ def replay(code_path):
                     "mode": mode,
                 }
             )
-            return_from_leaf(1)
+            # Run the original setter, including its retained copy and material
+            # dispatch. Resource lookup and the later graphics services above
+            # remain explicit synthetic leaves.
         elif mode == "presentation" and address == 0x2DB8D4:
             calls.append({"call": "post-ring-layout", "mode": mode})
             return_from_leaf()
@@ -656,6 +676,7 @@ def replay(code_path):
     # reaches the final material setter, draws, then rewrites consumer
     # readiness. Before pass 2, an owner replacement plus SceneBrowse mode
     # interruption runs through the root and cancels the live drag.
+    put(0x1051000 + 0x34, 0x1052000)  # lookup-returned synthetic material
     mode = "presentation"
     presentation_pass = 1
     call(0x2D425C, scene, count=4000000)
@@ -712,6 +733,16 @@ def replay(code_path):
     assert second_selected_cell["control"] == 2
     assert second_selected_cell["resourceReady"]
     assert second_selected_cell["ready"]
+    assert len(property_dispatches) == 3
+    assert [entry["storedBytes"] for entry in property_dispatches] == [
+        list(b"PicL\0"), list(b"PicL\0"), list(b"PicL_Op\0")
+    ]
+    assert all(entry["pass"] == 1 and entry["materialResource"] == 0
+               for entry in property_dispatches)
+    assert [entry["service"] for entry in material_leaves] == [
+        service for _ in range(3) for service in
+        ("0x247ed4 lookup", "0x131254", "0x247ce4")
+    ]
 
     return {
         "ok": True,
@@ -775,6 +806,8 @@ def replay(code_path):
                 for entry in calls
                 if entry.get("call") == "presentation-property-publication"
             ],
+            "propertyDispatches": property_dispatches,
+            "materialServiceLeaves": material_leaves,
             "firstPassSelectedCell": first_selected_cell,
             "secondPassSelectedCell": second_selected_cell,
             "events": presentation_events,
@@ -786,7 +819,7 @@ def replay(code_path):
             "worker status/release services with explicit per-identity states",
             "descriptor owner/control notification leaves 0x1fd230/0x220114",
             "resource query/state/ready leaves 0x2b78e0/0x1fae34/0x21e494",
-            "final property setter 0x25a618 (target/resource recorded; no GPU upload)",
+            "material lookup 0x247ed4 and services 0x131254/0x247ce4 use synthetic material; no GPU upload",
             "presentation item-context and render-service leaves 0x1fc78c/0x261588",
             "post-ring layout leaf 0x2db8d4",
             "final thumbnail cell writer 0x2d804c (arguments recorded)",
@@ -803,8 +836,10 @@ def replay(code_path):
             "presentation bodies reached through complete 0x2d425c calls, including "
             "original ring routing and post-draw consumer rewrite. Original 0x271ff0 "
             "sampling and 0x270cc4 parent-before/child/parent-after traversal execute "
-            "capture, 12px drag, release and interrupted cancellation. Final material/cell "
-            "services and listed unrelated leaves are recorded intercepts. Non-selected "
+            "capture, 12px drag, release and interrupted cancellation. The original "
+            "property setter and material application branch execute, with synthetic "
+            "material lookup and downstream service leaves. The final cell writer and "
+            "listed unrelated services remain intercepts. Non-selected "
             "submissions are intercepted to keep the collision isolated. Input-owner "
             "replacement is not complete scene-owner teardown, and the fixture has no "
             "browser generation token. This is not decoder/GPU upload, rendered pixels, "

@@ -1,5 +1,9 @@
 # Camera property publication: bounded final setter
 
+The later [linked continuation](camera-linked-property-publication-audit.md)
+runs this setter within the existing two-pass rebind fixture. Material lookup
+remains synthetic and no pixels are produced.
+
 The connected [rebind ordering replay](camera-rebind-order-source-audit.md)
 records the final property setter `0x25a618` as a leaf. This continuation
 executes that complete routine against two synthetic property records. It

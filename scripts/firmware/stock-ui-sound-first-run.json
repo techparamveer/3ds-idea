@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022500": {
+      "packs": {
+        "packs/sound/contents/0000-0000000b/lyt-C-Dlg.json": {
+          "mergeExisting": true,
+          "layouts": ["C_DlgGuid1BtnW", "C_DlgGuid2Btn", "C_DlgGuid_U", "C_NullDlg"],
+          "animations": ["C_DlgGuid1BtnW_Default", "C_DlgGuid1BtnW_Push", "C_DlgGuid2Btn_Default", "C_DlgGuid2Btn_Disable", "C_DlgGuid2Btn_Push", "C_NullDlg_Dlg_In", "C_NullDlg_Dlg_InU", "C_NullDlg_Dlg_Out", "C_NullDlg_Dlg_OutU"]
+        },
+        "packs/sound/contents/0000-0000000b/lyt-S_Guid_U-arc-LZ.json": {
+          "layouts": ["S_Guid03_U"]
+        },
+        "packs/sound/contents/0000-0000000b/lyt-Parakeet-arc-LZ.json": {
+          "mergeExisting": true,
+          "layouts": ["ParakeetA_D", "ParakeetA_U"],
+          "animations": ["ParakeetA_D_Wait", "ParakeetA_D_InL_Short", "ParakeetA_D_InR_Short", "ParakeetA_D_LipSync", "ParakeetA_U_Wait", "ParakeetA_U_InL_U", "ParakeetA_U_InR_U", "ParakeetA_U_LipSync"]
+        },
+        "packs/sound/contents/0000-0000000b/msg-EU_English.json": {
+          "mergeExisting": true,
+          "messages": {
+            "S_tips": ["T_001", "D_001_0", "D_001_1", "D_001_2", "Guide_D_00_00", "Guide_D_00_01", "Guide_D_BN_Btn0", "Guide_D_BN_Btn1", "Guide_D_BO_Btn0", "Guide_D_BO_Btn1", "Guide_D_CN_Btn0", "Guide_D_CN_Btn1", "Guide_D_N_Btn0", "Guide_D_O_Btn0"]
+          }
+        }
+      }
+    }
+  }
+}

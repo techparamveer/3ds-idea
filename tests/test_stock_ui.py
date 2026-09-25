@@ -119,6 +119,37 @@ class StockUiTests(unittest.TestCase):
         self.assertEqual(bank['messages'][bank['labels']['Shoot_05']]['text'], 'View Photos/Videos')
         self.assertEqual(bank['messages'][bank['labels']['setting']]['text'], 'Settings')
 
+    def test_published_sound_welcome_guide_has_native_message_and_image_sources(self):
+        public = ROOT/'public/os/firmware/10.7.0-32E'
+        manifest = json.loads((public/'manifest.json').read_text())
+        title_id = '0004001000022500'; title = manifest['titles'][title_id]
+        self.assertEqual(title['version'], 3088)
+        prefix = 'packs/sound/contents/0000-0000000b/'
+        guide_url = prefix+'lyt-S_Guid_U-arc-LZ.json'
+        self.assertIn(guide_url, title['packs'])
+        for leaf, layout, clip in [('lyt-S_Guid_U-arc-LZ.json', 'S_Guid03_U', None),
+                                   ('lyt-C-Dlg.json', 'C_DlgGuid1BtnW', 'C_NullDlg_Dlg_In'),
+                                   ('lyt-Parakeet-arc-LZ.json', 'ParakeetA_U', 'ParakeetA_U_Wait')]:
+            url = prefix+leaf; pack = json.loads((public/url).read_text())
+            self.assertIn(layout, pack['layouts'])
+            if clip: self.assertIn(clip, pack['animations'])
+            self.assertEqual(pack['contentIndex'], 0)
+            self.assertEqual(pack['contentId'], '0000000b')
+            self.assertEqual(pack['unsupported'], [])
+            self.assertEqual(manifest['resources'][url]['sha256'], digest((public/url).read_bytes()))
+            self.assertEqual(manifest['resources'][url]['sources'][0]['titleId'], title_id)
+            for texture in pack['textures'].values():
+                self.assertIn(texture['url'], manifest['resources'])
+        bank = json.loads((public/(prefix+'msg-EU_English.json')).read_text())['messages']
+        self.assertIn('S', bank) # Initial music screen text remains available.
+        self.assertIn('S_tips', bank)
+        tips = bank['S_tips']
+        for label in ('T_001', 'D_001_0', 'D_001_1', 'D_001_2',
+                      'Guide_D_00_00', 'Guide_D_00_01', 'Guide_D_N_Btn0', 'Guide_D_O_Btn0'):
+            self.assertIn(label, tips['labels'])
+        self.assertEqual(tips['messages'][tips['labels']['D_001_0']]['text'],
+                         'Welcome to\nNintendo 3DS Sound!')
+
     def test_dependency_closure_and_message_source_indexes(self):
         pack, selection = fixture(); selected, fonts = select_pack(pack, selection)
         self.assertEqual(set(selected['textures']), {'shared', 'selected'})

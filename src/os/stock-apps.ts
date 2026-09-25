@@ -249,7 +249,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'sound') {
       data.tracks = media.tracks.map(item => ({ ...item })); data.track = track(state) ? { ...track(state)! } : null;
-      if (!media.tracks.length) text.push('Record & Edit Sounds. Recording, StreetPass and Settings are display-only in this portfolio.');
+      if (!media.tracks.length) text.push('No songs available.');
       if (state.mediaError) text.push('Could not play.'); // Source S_dlg C_ErrPlay
     }
     if (id === 'notifications' && screen === 'notification') text.push(str(list(context.shared.notifications).find(item => item.id === state.notificationId)?.message));

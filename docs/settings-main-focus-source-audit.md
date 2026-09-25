@@ -80,11 +80,11 @@ establish the pose after Back from a child.
 The browser reducer now starts main with `selectionActive:false`; directional
 input activates focus, and A still opens Internet without moving selection.
 The main painter binds all five Select clips to frame 0 in that inactive pose.
-At native resolution, RGB MAE against the isolated lower capture falls from
-**19.56** for the old highlighted-Internet render to **13.98** for the new
-white-button render. The remaining visible difference includes the dark gray
-native Close footer, which is absent from this source render and has a
-separate binding audit. These source renders are under
-`presentation/settings-main-cold-2026-09-25/`.
-In the main button area above y=208, RGB MAE falls from **9.71** to **3.26**;
-the unchanged footer alone has RGB MAE **83.62**.
+At native resolution, RGB MAE against the isolated lower capture fell from
+**19.56** for the old highlighted-Internet render to **13.98** for the white
+buttons before the footer repair. The source footer audit then identified
+`TopBase_D_00`; drawing that original gray bar and binding both English text
+panes lowers the final lower-screen RGB MAE to **2.55/255**. The buttons above
+y=208 have **2.94/255** MAE, and the footer has **0.06/255**. These source
+renders are under `presentation/settings-main-cold-2026-09-25/`. This is one
+settled native comparison, not complete Settings motion or input acceptance.

@@ -9,7 +9,7 @@ const mainButtons=['I_TopLTs','I_TopRTs','I_TopLBs','I_TopRBs','I_TopTs'];
 const buttons=[...mainButtons,'B_L','B_LBlue','B_SB','B_SMngCTRO','B_SMngDSiO','B_CnctW1','B_CnctW2','B_CnctW3','I_User','T_Page01'];
 const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_AnalogPad','I_Trans','I_Lang','I_Update','I_Format'];
 export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
-  {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
+  {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','TopBase_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
   {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00','SMng_U_01'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00','SMng_U_01_NonSD']},
   {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00','SMngCTRData_D_00','Country_D_00'],animations:['LsMenu_D_00_SceneIn_00','Country_D_00_SceneIn_00','Country_D_00_ScrollDw','Country_D_00_ScrollUp','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00','SMngCTRData_D_00_SceneIn_00','SMngCTRData_D_00_TextIn','SMngCTRData_D_00_BtnIn']},
   {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04','T_SB','R_SlideBar'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide','T_SB_Decide']},
@@ -86,6 +86,7 @@ export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasR
     okay=renderer.draw(bottom,'button',name,{bindings:[{name:name+'_DirectSettings',frame:view.data?.selectionActive!==false&&view.rows[view.selection]?.id===ids[i]?1:0}],overrides:{TextBox_00:message(labels[i])}})&&okay;
   }]));
   okay=renderer.draw(bottom,'layout','Top_D_02',{bindings:[{name:'Top_D_02_SceneIn_00',frame:35}],attachments,overrides:{TextBoxTitle_01:message('top_btm_text')}})&&okay;
+  okay=renderer.draw(bottom,'base','TopBase_D_00',{overrides:{TextBox_00:message('top_btm_text'),TextBoxShdw_00:message('top_btm_text')}})&&okay;
   return drawSettingsStatus(renderer,top,date)&&okay;
 }
 

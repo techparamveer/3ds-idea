@@ -47,7 +47,7 @@ edge of the main button composition, as in the native capture. Keep the main
 background's existing default state and the top status draw order. Use the
 source `Bounding_00` rectangle for the Close touch target.
 
-The current painter does not request `TopBase_D_00`; it places `top_btm_text`
+Before integration, the painter did not request `TopBase_D_00`; it placed `top_btm_text`
 only in the 15 px `Top_D_02/TextBoxTitle_01` instruction pane at the bottom.
 That produces the tiny gray glyph/Close on pale yellow seen in the current
 `verify-stock-settings` render. The source footer is an additional layout,
@@ -55,7 +55,17 @@ not a larger font or a recolor of that instruction pane. Binding the same
 message to the source footer avoids inventing alternate wording while the
 underlying pane is occluded.
 
-The next integration check should render the corrected 320×240 main lower LCD
-and compare its footer crop to this native capture. A pixel score should
-account for the capture's 40 px horizontal border and exclude the unobserved
-transition frames. The source audit alone does not validate browser output.
+The integration check renders the corrected 320×240 main lower LCD and
+compares its footer crop to this native capture. The pixel score accounts for
+the capture's 40 px horizontal border and excludes unobserved transition
+frames. The source audit alone does not validate browser output.
+
+## Integrated settled comparison
+
+The integration painter now follows that binding and draw order. The
+`verify-stock-settings.mjs` source render was compared with the 320 × 240
+lower crop of the isolated native screenshot. Footer RGB MAE is **0.064/255**;
+the complete lower LCD is **2.554/255** after the separate white-focus fix.
+The render and native crop are under
+`presentation/settings-main-cold-2026-09-25/`. This compares one settled
+frame; live browser and transition checks remain separate.

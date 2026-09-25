@@ -62,6 +62,10 @@ try{
   assert.ok(title.options.overrides.TextBoxTitle_00.messageStyle,'title keeps the English source style');
   assert.equal(title.options.overrides.TextBoxTitle_00.fontSize,undefined,'no guessed title font override');
   const parent=calls.find(c=>c.layout==='Top_D_02');assert.equal(Object.keys(parent.options.attachments).length,5);
+  const footer=calls.find(c=>c.layout==='TopBase_D_00');
+  assert.ok(footer,'main paints the native full-width Close bar');
+  assert.equal(footer.options.overrides.TextBox_00.text.endsWith(' Close'),true);
+  assert.deepEqual(footer.options.overrides.TextBoxShdw_00,footer.options.overrides.TextBox_00);
   for(const [name,canvas]of [['top',top],['bottom',bottom]]){
    const id='main-'+selection+'-'+name,rgba=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
    const sha256=createHash('sha256').update(rgba).digest('hex');reports.push({id,sha256});if(name==='bottom')focusHashes.push(sha256);

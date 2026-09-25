@@ -70,6 +70,9 @@ Other Settings has a separate logical/visual focus split: cross-scene entry,
 page changes, and returns from Profile or Date & Time initialize logical row 0
 while presenting the shared Select clip at frame 0. See the
 [Other Settings focus source audit](settings-other-focus-source-audit.md).
+The separate [main focus audit](settings-main-focus-source-audit.md) leaves
+`top4btn`'s cold and return Select poses open; Other's white cross-scene pose
+does not establish the main controller's behavior.
 
 The executable also consumes byte `0x23` at `0x2358dc..0x235920`: state 2
 maps to 0, and the resulting number formats `SceneIn_%2.2d.bclan` for the

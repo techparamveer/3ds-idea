@@ -43,10 +43,13 @@ static class Exporter {
     return obj;
   }
   public static int Main(string[] args) {
-    if(args.Length!=2 && !(args.Length==3 && args[2]=="--mipmaps")) { Console.Error.WriteLine("Exporter input.bcres output-directory [--mipmaps]");return 2; }
+    if(args.Length<2 || args.Skip(2).Any(a=>a!="--mipmaps" && a!="--zone-static") || args.Skip(2).Distinct().Count()!=args.Length-2) {
+      Console.Error.WriteLine("Exporter input.bcres output-directory [--mipmaps] [--zone-static]");return 2;
+    }
+    bool mipmaps=args.Contains("--mipmaps"),zoneStatic=args.Contains("--zone-static");
     var source=File.ReadAllBytes(args[0]);
     if(source.Length<20 || System.Text.Encoding.ASCII.GetString(source,0,4)!="CGFX") throw new InvalidDataException("Expected decompressed CGFX");
-    var native=LegacyGfxReader.Open(args[0]);
+    var native=LegacyGfxReader.Open(args[0],zoneStatic);
     var scene=native.ToH3D();
     Directory.CreateDirectory(args[1]);
     var textures=new List<object>();
@@ -56,7 +59,7 @@ static class Exporter {
       var rgba=texture.ToRGBA();
       // SPICA DecodeBuffer returns bottom-up RGBA for OpenGL. PNG writer flips rows.
       File.WriteAllBytes(Path.Combine(args[1],$"texture-{i}.rgba"),rgba);
-      if(args.Length==3) {
+      if(mipmaps) {
         // CGFX stores each authored level contiguously, without the BCH serializer's
         // 0x80-byte per-image padding. Do not regenerate levels from base RGBA.
         if(texture.Format!=PICATextureFormat.ETC1 && texture.Format!=PICATextureFormat.ETC1A4) throw new NotSupportedException("Mip export currently requires ETC1/ETC1A4");
@@ -108,7 +111,7 @@ static class Exporter {
     var luts=scene.LUTs.Select(lut=>new{Name=lut.Name,Samplers=lut.Samplers.Select(s=>new{s.Name,Flags=s.Flags.ToString(),s.Table,RawWords=LutWords(native.LUTs.First(l=>l.Name==lut.Name).Samplers.First(n=>n.Name==s.Name))})});
     var lights=scene.Lights.Select(light=>{var clean=(SortedDictionary<string,object>)Clean(light);var original=native.Lights.First(l=>l.Name==light.Name);var type=original.GetType().GetField("Type");if(type!=null)clean["NativeType"]=type.GetValue(original).ToString();return clean;});
     var result=new{schema=1,sourceSha256=Convert.ToHexString(SHA256.HashData(source)).ToLowerInvariant(),
-      converter="SPICA headless CGFX exporter",models,textures,luts,cameras=Clean(scene.Cameras),lights,
+      converter="SPICA headless CGFX exporter",animationStatus=zoneStatic?"omitted: unsupported Zone common CGFX curve":"parsed",models,textures,luts,cameras=Clean(scene.Cameras),lights,
       skeletalAnimations=Clean(scene.SkeletalAnimations),materialAnimations=Clean(scene.MaterialAnimations),visibilityAnimations=Clean(scene.VisibilityAnimations),cameraAnimations=Clean(scene.CameraAnimations)};
     File.WriteAllText(Path.Combine(args[1],"model.json"),JsonSerializer.Serialize(result,Json));
     Console.WriteLine($"Exported {scene.Models.Count} models, {scene.Textures.Count} textures, {scene.SkeletalAnimations.Count} skeletal, {scene.MaterialAnimations.Count} material animations");

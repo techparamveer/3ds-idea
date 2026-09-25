@@ -4,6 +4,13 @@ The browser model is converted from the owner's decrypted EUR HOME Menu `romfs/3
 
 Build `Exporter.csproj` with `-p:SpicaRoot=/absolute/path/to/SPICA`, then run `convert.py SOURCE OUTPUT --scratch SCRATCH --dotnet /path/to/dotnet --exporter /path/to/Exporter.dll`. Keep build, decompressed input and RGBA intermediates in the configured Sandisk artifacts directory. The wrapper records compressed and decompressed SHA256 plus upstream revision. No executable, encrypted container or keys are published.
 
+The Nintendo Zone common CGFX exposes a curve that the pinned SPICA parser
+currently misreads and ends with `EndOfStreamException` in `ReadHermite128`.
+For source inspection only, `--zone-static` accepts the one hash-pinned common
+CGFX and omits its six animation dictionaries. The JSON labels this omission.
+It is not a playable banner export; see `docs/stock-2d-banner-boundary.md` and
+`scripts/firmware-cgfx/audit_zone_common.py` for the bounded source fixture.
+
 Version 1.4.1 also accepts a **decrypted** ExeFS `banner.bin` CBMD directly.
 `--language eur-en` (the default) selects its EUR-English CGFX entry, or the
 common model when that entry is zero. The source CBMD hash, selected compressed

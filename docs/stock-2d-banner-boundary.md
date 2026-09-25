@@ -48,11 +48,17 @@ clip; Sound also has a `COMMON` material clip. Their native controller cadence,
 pose, camera and stencil relationship still need a bounded executed trace and
 matched native/browser capture before a strict visual claim.
 
-Nintendo Zone remains unresolved. Its selected EUR-English `JPN_JP` texture is
-fully transparent in the prior audit. The pinned exporter aborts on the common
-CGFX while reading a Hermite128 animation (`EndOfStreamException`), so its
-common model, texture-name mapping and visible result have not been verified.
-Do not substitute the `Banner2D` dummy texture or invent a visible Zone logo.
+Nintendo Zone has a [bounded static common-slot fixture](evidence/zone-common-banner-static.json).
+Its common CGFX contains one `COMMON` model with four meshes, four materials
+and eight textures. The common `JPN_JP` texture is used by a material; the
+separate EUR-English `JPN_JP` replacement is fully transparent. The other
+common textures contain visible pixels, so transparency of the selected entry
+does not imply an empty common model. The normal pinned exporter still aborts
+while reading a Hermite128 animation (`EndOfStreamException`). A hash-gated
+`--zone-static` conversion omits all six animation dictionaries and marks the
+result accordingly. This establishes geometry, materials and texture-name
+binding only. Native pose, animation timing and final LCD pixels remain
+unverified. Do not substitute the `Banner2D` dummy texture or invent a logo.
 
 ## Reproduction
 
@@ -70,3 +76,14 @@ The [earlier Banner2D audit](evidence/stock-2d-banner-audit.json) remains a
 valid record of the selected texture slots and reusable HOME type-8 geometry.
 Its former interpretation as the renderer path for these four ordinary titles
 is superseded by the common-slot evidence above.
+
+To reproduce the Zone fixture, extract the CBMD common LZ11 CGFX at offset
+`0x88` to a private `common.bcres`. Run `convert.py` on that file with
+`--zone-static`, and normally convert the CBMD EUR-English entry to a separate
+private directory. Run `audit_zone_common.py --common-source ... --common-dir
+... --selected-dir ... --output ...` with absolute paths. The static flag
+accepts only common CGFX SHA-256
+`3e2b2896e8439ea88a767e71fedf6921936a49aae724065ac0bc3701a8a4b83e`.
+The audit also checks the CBMD and selected CGFX identities, mesh/material
+shape, texture names and transparent selected image. It does not repair the
+Hermite128 parser or license using a static pose as the HOME banner.

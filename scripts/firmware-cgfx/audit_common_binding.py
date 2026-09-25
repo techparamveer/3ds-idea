@@ -2,7 +2,7 @@
 
 Inputs are private converted CGFX directories and HOME code.bin. Output contains
 only hashes and derived model/material names; it publishes no source bytes.
-The Zone common CGFX is intentionally excluded until its animation parses.
+The Zone common CGFX has a separate static-only audit; animation is unresolved.
 """
 
 import argparse
@@ -116,5 +116,5 @@ if __name__ == '__main__':
               'titles': {name: check_title(name, args.common_root / name,
                                            args.selected_root / name) for name in EXPECTED},
               'scope': 'Static common-model/locale-texture binding; no worker execution, GPU pixels or native timing',
-              'zoneStatus': 'Common CGFX exporter fails while parsing a Hermite128 animation; unverified'}
+              'zoneStatus': 'Separate hash-gated static common-model audit exists; Hermite128 animation and visible pose remain unverified'}
     args.output.write_text(json.dumps(report, indent=2) + '\n')

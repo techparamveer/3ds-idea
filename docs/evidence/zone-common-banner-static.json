@@ -1,0 +1,130 @@
+{
+  "cbmdSha256": "258aa3167be080eacb396539c5c3d76001d5ca12dc9d8b87955f7a977c4b2ec3",
+  "commonOffset": "0x88",
+  "selectedOffset": "0x149eb",
+  "selectedEnd": "0x14a95",
+  "commonCgfxSha256": "3e2b2896e8439ea88a767e71fedf6921936a49aae724065ac0bc3701a8a4b83e",
+  "selectedCgfxSha256": "57b8a0b278379dad8619d6eecc71a9354881b988775404d5dfc8b61485bbb992",
+  "selectedCompressedSha256": "7f426a357364ccdbf527126290bb5bf90b293e9a3ca3bcb939b2b6e924b79ffd",
+  "model": "COMMON",
+  "meshes": [
+    {
+      "material": "COMMON3",
+      "layer": 1,
+      "priority": 0,
+      "vertices": 3271,
+      "indices": 5805
+    },
+    {
+      "material": "COMMON4",
+      "layer": 0,
+      "priority": 0,
+      "vertices": 132,
+      "indices": 288
+    },
+    {
+      "material": "COOMON7",
+      "layer": 3,
+      "priority": 2,
+      "vertices": 4,
+      "indices": 6
+    },
+    {
+      "material": "JPN_JP",
+      "layer": 3,
+      "priority": 1,
+      "vertices": 42,
+      "indices": 42
+    }
+  ],
+  "materials": [
+    {
+      "name": "COMMON3",
+      "textureSlots": [
+        "COMMON1",
+        "COMMON3",
+        "COMMON2"
+      ]
+    },
+    {
+      "name": "COMMON4",
+      "textureSlots": [
+        "COMMON4",
+        "COMMON5",
+        null
+      ]
+    },
+    {
+      "name": "COOMON7",
+      "textureSlots": [
+        "COMMON6",
+        "COMMON6",
+        "COMMON6"
+      ]
+    },
+    {
+      "name": "JPN_JP",
+      "textureSlots": [
+        "JPN_JP",
+        "COMMON1",
+        "COMMON7"
+      ]
+    }
+  ],
+  "commonTextures": [
+    {
+      "name": "COMMON1",
+      "sha256": "b9faa0317636b49c19b393c964fff2bf3fddc77f731cb232ee4de62dc6ef29bc",
+      "visiblePixels": 12227
+    },
+    {
+      "name": "COMMON2",
+      "sha256": "e8a42f433e2120bd10348e8f8a2fe0260a1bf5df355f03e6b6a14b92238aedd1",
+      "visiblePixels": 256
+    },
+    {
+      "name": "COMMON3",
+      "sha256": "5302bdcea7eeb8c50392278d8830fef5d85c8131119b5c520c0ebfc57bd4871d",
+      "visiblePixels": 4096
+    },
+    {
+      "name": "COMMON4",
+      "sha256": "19a34e098d8153549aa87382b33cd92b199cd71f259c63d783fe537fa7283973",
+      "visiblePixels": 256
+    },
+    {
+      "name": "COMMON5",
+      "sha256": "4728fc8840918fca74b288691f5908a32171b08633a87ca0cfe000bbd8a1e807",
+      "visiblePixels": 256
+    },
+    {
+      "name": "COMMON6",
+      "sha256": "01c5ba2aeae72125726fcac55fef7ce1b0cf6a770004878b460fef19a921628c",
+      "visiblePixels": 4096
+    },
+    {
+      "name": "COMMON7",
+      "sha256": "e6c334975c02813dd115921c43e84ddf9c64796e087027c245f7c1dc3bd39412",
+      "visiblePixels": 8192
+    },
+    {
+      "name": "JPN_JP",
+      "sha256": "550d29e55fddf45d77b97a5005b3bd5c5175eceaf1ebe6f6105e9875d562648c",
+      "visiblePixels": 3792
+    }
+  ],
+  "selectedTexture": {
+    "name": "JPN_JP",
+    "sha256": "47b65ce15f259641808b2e4bacdd7753864f7f6cbf015095e55fac59362f5c69",
+    "visiblePixels": 0
+  },
+  "nativeBillboardModes": [
+    0,
+    0,
+    0,
+    3,
+    3
+  ],
+  "animation": "Omitted due to unresolved SPICA Hermite128 parse failure; no pose or timing claim",
+  "scope": "Static source geometry and texture-name binding only; no native worker execution or matched LCD pixels"
+}

@@ -9,9 +9,10 @@ import { getHomeGestureView } from './system';
 import { getHomeDensityControls } from './home-density-controls';
 import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
 import type { HomeTilePose } from './home-tile-pose';
+import { selectHomeSettingsBalloonText } from './home-balloon-presentation';
 
 type Context=CanvasRenderingContext2D;
-export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;diagnostics:string[];dispose():void};
+export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;settingsBalloonText:string|null;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
 const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
@@ -23,6 +24,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const json=async <T>(url:string):Promise<T>=>{const response=await fetch(new URL(url,base),{signal:controller.signal});if(!response.ok)throw new Error(`Firmware asset HTTP ${response.status}: ${url}`);return response.json();};
   const manifest=await json<Manifest>(base.href);
   if(manifest.schema!==1||manifest.firmware!=='10.7.0-32E'||!manifest.fonts||!manifest.home)throw new Error('Unsupported firmware presentation manifest');
+  const settingsBalloonText=selectHomeSettingsBalloonText(manifest);
   const titleIcons=new Map<string,HTMLImageElement>();
   await Promise.all(Object.entries(manifest.titles??{}).map(async ([titleId,title])=>{
    if(typeof Image==='undefined')return;
@@ -57,7 +59,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const renderer=new NativeLayoutRenderer(packs,textures,new Map([['cbf_std.bcfnt',sharedFont as BitmapFont],['Hud.bcfnt',hudFont as BitmapFont]]));
   renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.');
   let disposed=false;
-  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
+  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,settingsBalloonText,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
  }catch(error){controller.abort();fonts.forEach(font=>font.dispose());throw error;}
  finally{signal?.removeEventListener('abort',abort);}
 }
@@ -103,9 +105,11 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const retained=state.system?.homeControls?.balloon;
   const label=retained ? retained.visible ? retained : null : getNativeFolderBalloon(state,view);
   if(!label)return false;
+  const titleText=retained?.titleId==='0004001000022000'?assets.settingsBalloonText:null;
+  if(retained?.titleId&&!titleText)return false;
   const clip=retained?.clip??'Appear',frame=retained?.frame??5;
   return renderer.draw(ctx,'launcher','LncBlln_00',{bindings:[binding(`LncBlln_00_${clip}`,frame)],overrides:{
-   N_Base_00:{translation:[label.baseX,0,0]},N_LR_00:{translation:[label.bodyOffsetX,-6,0]},T_Blln_00:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)')
+   N_Base_00:{translation:[label.baseX,0,0]},N_LR_00:{translation:[label.bodyOffsetX,-6,0]},T_Blln_00:titleText?{text:titleText}:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)')
   }});
  }
  function hud(ctx:Context,date:Date,time:number){

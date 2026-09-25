@@ -3,10 +3,20 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createPortfolioState } from '../src/os/system.ts';
 import { selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
-import { createHomeBalloonPresentation, advanceHomeBalloonPresentation } from '../src/os/home-balloon-presentation.ts';
+import { createHomeBalloonPresentation, advanceHomeBalloonPresentation, selectHomeSettingsBalloonText } from '../src/os/home-balloon-presentation.ts';
 import { poseNativeLayout } from '../src/os/native-layout.ts';
 import { getNativeSettingsTitleBalloon, getHomePresentation } from '../src/os/home-presentation.ts';
 import { getTitle } from '../src/os/app-registry.ts';
+import ts from 'typescript';
+
+const sourceUrl = new URL('../src/os/firmware-presentation.ts', import.meta.url);
+const { outputText } = ts.transpileModule(readFileSync(sourceUrl, 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+});
+const stub = 'data:text/javascript;base64,' + Buffer.from('export class NativeLayoutRenderer {}').toString('base64');
+const source = outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g, (_match, prefix, path, suffix) =>
+  prefix + (path === './native-renderer' ? stub : new URL(path.endsWith('.ts') ? path : `${path}.ts`, sourceUrl).href) + suffix);
+const { createFirmwareHome } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 
 const density0 = state => settleHomeNavigation(setHomeDensity(state, 0));
 const home = () => {
@@ -49,7 +59,12 @@ test('selected Settings title uses the native balloon anchor and a manifest-sour
   assert.equal(settings.longDescriptionSource.sha256, '40a78f71c6560dcdae1e69d6186702379f128df97d95ac34bc080eb5558615f1');
   assert.equal(settings.longDescriptionConversion.languageIndex, 1);
   assert.equal(getTitle('system-settings').title, settings.longDescription);
-  assert.equal(settings.publisher, undefined, 'publisher must not be invented before manifest extraction');
+  assert.equal(settings.publisher, 'Nintendo');
+  assert.equal(settings.publisherSource.sha256, settings.longDescriptionSource.sha256);
+  assert.equal(settings.publisherConversion.fieldOffset, 0x388);
+  assert.equal(selectHomeSettingsBalloonText(manifest), 'System Settings\nNintendo');
+  assert.equal(selectHomeSettingsBalloonText({ ...manifest, titles: { ...manifest.titles,
+    '0004001000022000': { ...settings, publisherSource: { ...settings.publisherSource, sha256: '0'.repeat(64) } } } }), null);
   assert.equal(manifest.home.launcher, 'packs/home/launcher.json');
   assert.equal(manifest.resources[manifest.home.launcher].sources[0].sha256,
     '826e92ec59b98aaf20fab4014a5dccc1dbaa634aaa4f95498bcf3d7944795834');
@@ -60,12 +75,38 @@ test('selected Settings title uses the native balloon anchor and a manifest-sour
   assert.deepEqual(getNativeSettingsTitleBalloon(selected, view), { label: settings.longDescription, baseX: 84, bodyOffsetX: -76 });
   assert.deepEqual(createHomeBalloonPresentation(selected), {
     visible: true, desired: true, clip: 'Appear', frame: 5,
-    label: settings.longDescription, baseX: 84, bodyOffsetX: -76,
+    label: settings.longDescription, baseX: 84, bodyOffsetX: -76, titleId: '0004001000022000',
   });
   const departing = advanceHomeBalloonPresentation(createHomeBalloonPresentation(selected), selectHomeSlot(selected, 7));
   assert.deepEqual([departing.visible, departing.desired, departing.clip, departing.frame], [true, false, 'DisAppear', 0]);
   assert.equal(getNativeSettingsTitleBalloon({ ...selected, panel: 'settings' }, view), null);
   assert.equal(getNativeSettingsTitleBalloon(settleHomeNavigation(setHomeDensity(selected, 0)), getHomePresentation(settleHomeNavigation(setHomeDensity(selected, 0)))), null);
+});
+
+test('native HOME balloon painter binds sourced title and publisher without a fallback', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/manifest.json', import.meta.url)));
+  const launcher = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url)));
+  const calls = [];
+  const renderer = { packs: { launcher }, draw(_ctx, bank, layout, options) {
+    calls.push({ bank, layout, options }); return true;
+  } };
+  const state = createPortfolioState();
+  const selected = settleHomeNavigation(selectHomeSlot({ ...state, system: { ...state.system, phase: 'home' } }, 8));
+  const balloon = createHomeBalloonPresentation(selected);
+  const live = { ...selected, system: { ...selected.system, homeControls: { balloon } } };
+  const view = getHomePresentation(live);
+  const text = selectHomeSettingsBalloonText(manifest);
+  const painter = createFirmwareHome({ renderer, settingsBalloonText: text });
+  assert.equal(painter.folderBalloon({}, live, view), true);
+  assert.deepEqual(calls[0], { bank: 'launcher', layout: 'LncBlln_00', options: {
+    bindings: [{ name: 'LncBlln_00_Appear', frame: 5 }], overrides: {
+      N_Base_00: { translation: [84, 0, 0] }, N_LR_00: { translation: [-76, -6, 0] },
+      T_Blln_00: { text: 'System Settings\nNintendo' },
+    },
+  } });
+  const unavailable = createFirmwareHome({ renderer, settingsBalloonText: null });
+  assert.equal(unavailable.folderBalloon({}, live, view), false);
+  assert.equal(calls.length, 1, 'missing publisher never draws a title-only native balloon');
 });
 
 test('retained frames bind the delivered native opacity clips', () => {

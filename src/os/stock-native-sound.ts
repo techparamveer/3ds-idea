@@ -117,11 +117,14 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
       // -L-DlgGuid in the source guide button layout mounts C_DlgChA at the
       // identity transform. Its own Bird pane supplies the captured parakeet.
       draw(bottom,'sound-dialog','C_DlgChA');
-      // The two native counter panes share their source anchor, but the CLYT
-      // writer places the current page on its left and the total on its right.
-      // Give each text pane its own bounded raster and mount at the captured
-      // lower-LCD positions instead of allowing their glyph runs to overlap.
-      const common={TxtDlg:message('S_tips',`D_001_${page}`),TxtNumber0:{text:`${page+1} / `,size:[35,24],translation:[107,-92,0]},TxtNumber1:{text:'3',size:[20,24],translation:[147,-92,0]}};
+      // S_tips Guide_D_00_00 and _01 bracket two registers at the shared
+      // source anchor: / {total} is left-anchored, {page} is right-anchored.
+      // The 1×1 source panes expand to the RI.mstl 48px message width here;
+      // the 24px raster height remains a capture-fit adapter.
+      const total=message('S_tips','Guide_D_00_00'),current=message('S_tips','Guide_D_00_01');
+      const counterWidth=total.messageStyle?.unresolvedWords?.['0'];
+      if(counterWidth!==48||current.messageStyle?.unresolvedWords?.['0']!==48)throw new Error('Missing Sound guide counter width');
+      const common={TxtDlg:message('S_tips',`D_001_${page}`),TxtNumber0:{...total,text:total.text+'3',size:[counterWidth,24]},TxtNumber1:{...current,text:`${page+1}${current.text}`,size:[counterWidth,24]}};
       if(first){
         const button=message('S_tips','Guide_D_N_Btn0');
         const bodyColor=soundGuideMessageColor(common.TxtDlg),buttonColor=soundGuideMessageColor(button);

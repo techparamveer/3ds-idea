@@ -64,7 +64,7 @@ test('three Sound welcome pages bind the published guide art and S_tips messages
  const body=bank.messages[bank.labels.D_001_0],next=bank.messages[bank.labels.Guide_D_N_Btn0];
  assert.deepEqual(soundGuideMessageColor({messageStyle:styles[body.styleIndex]}),[69,64,57,255]);
  assert.deepEqual(soundGuideMessageColor({messageStyle:styles[next.styleIndex]}),[69,64,57,255]);
- for(const label of ['D_001_0','D_001_1','D_001_2','Guide_D_N_Btn0','Guide_D_BN_Btn0','Guide_D_BN_Btn1','Guide_D_BO_Btn1'])assert.ok(label in bank.labels,label);
+ for(const label of ['D_001_0','D_001_1','D_001_2','Guide_D_00_00','Guide_D_00_01','Guide_D_N_Btn0','Guide_D_BN_Btn0','Guide_D_BN_Btn1','Guide_D_BO_Btn1'])assert.ok(label in bank.labels,label);
  assert.ok(packs['sound-guide-upper'].layouts.S_Guid03_U);
  for(let page=0;page<3;page++){
   const calls=[],top={},bottom={};
@@ -79,11 +79,13 @@ test('three Sound welcome pages bind the published guide art and S_tips messages
    assert.deepEqual(pane(panel.posed.roots,'TxtDlg')?.text.topColor,[69,64,57,255]);
    assert.deepEqual(pane(panel.posed.roots,'Guid1TxtW')?.text.topColor,[69,64,57,255]);
   }
-  assert.equal(panel.options.overrides.TxtNumber0.text,`${page+1} / `);
-  assert.deepEqual(panel.options.overrides.TxtNumber0.translation,[107,-92,0]);
-  assert.deepEqual(panel.options.overrides.TxtNumber0.size,[35,24]);
-  assert.deepEqual(panel.options.overrides.TxtNumber1.translation,[147,-92,0]);
-  assert.deepEqual(panel.options.overrides.TxtNumber1.size,[20,24]);
+  assert.equal(panel.options.overrides.TxtNumber0.text,'/ 3');
+  assert.equal(panel.options.overrides.TxtNumber1.text,`${page+1} `);
+  assert.deepEqual(panel.options.overrides.TxtNumber0.size,[48,24]);
+  assert.deepEqual(panel.options.overrides.TxtNumber1.size,[48,24]);
+  assert.deepEqual(panel.options.overrides.TxtNumber0.messageStyle,styles[bank.messages[bank.labels.Guide_D_00_00].styleIndex]);
+  assert.deepEqual(panel.options.overrides.TxtNumber1.messageStyle,styles[bank.messages[bank.labels.Guide_D_00_01].styleIndex]);
+  assert.deepEqual(panel.posed.roots[0].children.filter(p=>p.name.startsWith('TxtNumber')).map(p=>p.translation),[[116,-92,0],[116,-92,0]]);
   assert.equal(calls.some(call=>call.layout==='S_Guid03_U'),page===2);
   const frame=calls.findLast(call=>call.layout==='C_DlgChA');
   assert.equal(frame.screen,'bottom');

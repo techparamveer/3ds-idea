@@ -1,6 +1,6 @@
 # Implementation and integration process
 
-Checked against UI integration `92fc4d9`, 25 September 2026. [AGENTS.md](../../AGENTS.md)
+Checked against UI integration `2d5a7ca`, 25 September 2026. [AGENTS.md](../../AGENTS.md)
 owns project instructions; this document describes how a defect becomes a
 reviewable change and how its evidence enters the design record.
 
@@ -15,8 +15,9 @@ a painter that never requests it.
 The immediate HOME example is stock title selection. Settings has a
 **provisional** selected-banner path, while other stock selections remain
 unsupported/blank. Settings materials, first visible pose and timing still
-need a raw browser LCD capture and matched Azahar diff. Published resources
-alone do not establish visible pixels.
+have failing raw browser/Azahar LCD diagnostic pairs. Their entry input and
+animation phase differ. A same-input, phase-aligned pair is still needed;
+published resources alone do not establish visible fidelity.
 
 ## Worktree ownership and integration
 
@@ -27,8 +28,8 @@ alone do not establish visible pixels.
    `/Volumes/DeveloperStorage/GitHub/3ds-idea`. Create worktrees from the UI
    checkout when continuing its commits; verify the base commit resolves there.
 2. Use the five long-lived lanes listed in [AGENTS.md](../../AGENTS.md):
-   Design, Assets, HOME, Stock and Experience. Their common base for this
-   documentation pass is `92fc4d9`.
+   Design, Assets, HOME, Stock and Experience. Each lane is advanced to the
+   current integration HEAD after its previous commits are confirmed integrated.
    Assign each slice owned paths and a concrete exit condition. Check dirty
    files before reuse; never edit or reset another worker's worktree. Stage
    explicit files only; **never `git add -A`**. Creating a worktree does not
@@ -65,8 +66,9 @@ older `uifix`, `codex/home-menu-assets` and `codex/3ds-os` work remain preserved
 
 The historical Settings source chain stopped at OS service `0x139008`
 before the provisional banner was wired. That history does not prove its current
-pose. The next step is the **HOME with Settings selected** Azahar/browser
-capture pair, then a concrete diff-driven correction. Allow at most one
+pose. The existing **HOME with Settings selected** pair is a failing diagnostic
+with unmatched selection input and animation phase. The next step is a
+same-input, phase-aligned capture, then a concrete diff-driven correction. Allow at most one
 source-only slice before visible change; fit decoded native resources to
 Azahar and label fitted camera/timing if an original path remains unresolved.
 Do not publish a guessed banner. See the
@@ -88,6 +90,6 @@ Store new artifacts under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`.
 Keep private firmware/executables out of public delivery. Begin with HOME
 idle and Settings → Other Settings page 1 native-resolution pairs under the
-private `reference/scenario-matrix/v1/captures/` directory. Their pixel diff
-is pending. Then capture selected stock previews, rapid retargeting,
+private `reference/scenario-matrix/v1/captures/` directory. Existing diagnostic
+pairs fail; HOME idle remains unmatched. Then capture selected stock previews, rapid retargeting,
 launch/return, focus, sleep/wake and cold-power focus at matched states.

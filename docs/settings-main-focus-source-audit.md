@@ -64,3 +64,27 @@ the source/target-scene condition that calls it, then replay cold `top4btn`,
 `net_top` → `top4btn` and `basic_top1` → `top4btn` separately. A coordinator
 native capture of those three settled routes would confirm the pixels and
 timing. Until then, main focus remains a possible 1:1 difference.
+
+## Isolated cold-entry capture — 25 September
+
+The coordinator launched the copied Azahar 2126.1.2 executable from the
+isolated `reference/` profile and directly opened the EUR System Settings
+title. The settled native screenshot is
+`reference/screenshots/System Settings_25.09.26_13.03.55.629.png`, SHA-256
+`a02c39244e7175da7d0eaa8e0678b6518b3f4b058f9f0c53b014e92c66b53558`.
+Its 320 × 240 lower LCD has **all five main buttons white** while Internet
+remains the logical initial row. The earlier source audit could not prove that
+pose, but this direct capture establishes it for cold entry. It does not
+establish the pose after Back from a child.
+
+The browser reducer now starts main with `selectionActive:false`; directional
+input activates focus, and A still opens Internet without moving selection.
+The main painter binds all five Select clips to frame 0 in that inactive pose.
+At native resolution, RGB MAE against the isolated lower capture falls from
+**19.56** for the old highlighted-Internet render to **13.98** for the new
+white-button render. The remaining visible difference includes the dark gray
+native Close footer, which is absent from this source render and has a
+separate binding audit. These source renders are under
+`presentation/settings-main-cold-2026-09-25/`.
+In the main button area above y=208, RGB MAE falls from **9.71** to **3.26**;
+the unchanged footer alone has RGB MAE **83.62**.

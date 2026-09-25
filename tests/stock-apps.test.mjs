@@ -20,6 +20,16 @@ test('Health enters with no highlighted precaution button',()=>{
  assert.equal(module.view(focused,ctx).data.selectionActive,true);
 });
 
+test('Settings cold entry is visually unfocused but A retains the Internet target',()=>{
+ const {module,state}=setup('system-settings');
+ assert.equal(state.selection,0);
+ assert.equal(module.view(state,ctx).data.selectionActive,false);
+ assert.equal(module.reduce(state,{type:'command',command:'open'},ctx).state.screen,'internet');
+ const focused=module.reduce(state,{type:'command',command:'left'},ctx).state;
+ assert.equal(focused.selection,0);
+ assert.equal(module.view(focused,ctx).data.selectionActive,true);
+});
+
 test('production gallery exactly reuses existing unique portfolio images and songs are not invented',()=>{
  const expected=[...new Set(apps.flatMap(app=>app.entries.flatMap(entry=>entry.images??[])))];
  assert.deepEqual(portfolioMedia.folders.flatMap(folder=>folder.photos.map(photo=>photo.src)),expected);

@@ -83,7 +83,7 @@ export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasR
   const ids=['internet','parental','data','other','nnid'];
   const labels=['top_internet','top_parental','top_software','top_settings','top_nnid'];
   const attachments=Object.fromEntries(mainButtons.map((name,i)=>['N_'+name+'_00',()=>{
-    okay=renderer.draw(bottom,'button',name,{bindings:[{name:name+'_DirectSettings',frame:view.rows[view.selection]?.id===ids[i]?1:0}],overrides:{TextBox_00:message(labels[i])}})&&okay;
+    okay=renderer.draw(bottom,'button',name,{bindings:[{name:name+'_DirectSettings',frame:view.data?.selectionActive!==false&&view.rows[view.selection]?.id===ids[i]?1:0}],overrides:{TextBox_00:message(labels[i])}})&&okay;
   }]));
   okay=renderer.draw(bottom,'layout','Top_D_02',{bindings:[{name:'Top_D_02_SceneIn_00',frame:35}],attachments,overrides:{TextBoxTitle_01:message('top_btm_text')}})&&okay;
   return drawSettingsStatus(renderer,top,date)&&okay;

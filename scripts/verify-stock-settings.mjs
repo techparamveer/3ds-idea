@@ -72,6 +72,18 @@ try{
   assert.deepEqual(top.getContext('2d').getImageData(2,20,1,1).data,source.getContext('2d').getImageData(2,20,1,1).data);
  }
  assert.equal(new Set(focusHashes).size,5,'five distinct source selection states');
+ {
+  const top=createCanvas(400,240),bottom=createCanvas(320,240),calls=[];
+  renderer.draw=(ctx,pack,layout,options)=>{calls.push({pack,layout,options});return originalDraw(ctx,pack,layout,options);};
+  assert.equal(drawNativeSettingsMain(renderer,top.getContext('2d'),bottom.getContext('2d'),
+   {...view,data:{selectionActive:false}},false,referenceDate),true);
+  for(const name of ['I_TopLTs','I_TopRTs','I_TopLBs','I_TopRBs','I_TopTs']){
+   const call=calls.find(c=>c.layout===name);
+   assert.equal(call?.options?.bindings?.[0]?.frame,0,`${name} stays white on cold entry`);
+  }
+  writeFileSync(join(out,'main-cold-top.png'),top.toBuffer('image/png'));
+  writeFileSync(join(out,'main-cold-bottom.png'),bottom.toBuffer('image/png'));
+ }
  const cases=[
   ['internet',3,['connections','spotpass','ds-connections','internet-info']],
   ['connections',3,['connection-1','connection-2','connection-3','new-connection']],

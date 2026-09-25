@@ -27,6 +27,10 @@ test('native entry uses source chrome and complete source-bound labels without c
  assert.equal(options('S_Common-OpenBtn').overrides.TxtC.text,'Open');
  assert.equal(options('S_Common-Text').overrides.Null.text,'Record & Edit Sounds');
  assert.deepEqual(['S_Common-BrwCursor','S_Common-IconList','S_Common-Text'].map(layout=>options(layout).center),[[160,118],[43,47],[55,46]]);
+ const cursor=calls.find(c=>c.layout==='S_Common-BrwCursor').posed;
+ assert.equal(cursor.textures[cursor.materials.find(m=>m.name==='IconCurBarO_R').textureMaps[0].texture],'V3_BarCursorIcon09.bclim');
+ const cursorClip=packs['sound-common'].animations['S_Common-BrwCursor_Default'];
+ assert.equal(cursorClip.textures[cursorClip.tracks.find(t=>t.target==='IconCurBarO_R'&&t.property==='texture.pattern').keys.findLast(k=>k.frame<=18).value],'V3_BarCursorIcon09.bclim');
  assert.equal(options('S_Common-OpLBtn').overrides.TxtC.text,'StreetPass');
  assert.equal(options('S_Common-SetBtn').overrides.TxtMiniT_W_P0.text,'Settings');
  assert.equal(options('S_Inf_U-Hour').overrides.TextBox_00.text,'10 52');

@@ -86,7 +86,8 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     entry(top,'sound-info','S_Inf_U-PlayTime',{overrides:{PlyTimeTxt:{text:'0:00:00 / 0:00:00'}}});
     // The settled native SD-absent capture places this row two LCD pixels above
     // the raw layout origin. Move its source cursor, icon and text together.
-    entry(bottom,'sound-common','S_Common-BrwCursor',{center:[160,118],bindings:[{name:'S_Common-BrwCursor_Default',frame:0}]});
+    // Native settled capture samples cursor texture 9 at frame 18.
+    entry(bottom,'sound-common','S_Common-BrwCursor',{center:[160,118],bindings:[{name:'S_Common-BrwCursor_Default',frame:18}]});
     entry(bottom,'sound-common','S_Common-IconList',{center:[43,47],bindings:[{name:'S_Common-IconList_IconCHG',frame:0}]});
     // S_Common-Text is mounted independently of the row artwork. Its native
     // glyph mask is one LCD pixel left/up of the raw layout composition.

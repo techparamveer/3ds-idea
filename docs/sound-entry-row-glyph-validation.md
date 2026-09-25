@@ -38,3 +38,7 @@ regions. Before/after comparison JSON and the 57-pair source renders are under
 The source-screen verifier reported no diagnostics; 12 focused Sound tests,
 typecheck and production build pass. Browser inspection remains the integration
 coordinator's gate under `AGENTS.md`.
+
+The later [cursor-phase and footer comparison](sound-entry-icon-footer-validation.md)
+aligns the original arrow texture to this same settled native frame and
+measures the remaining blue-fill and footer errors separately.

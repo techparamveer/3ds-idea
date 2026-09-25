@@ -19,6 +19,9 @@ SPEC.loader.exec_module(AUDIT)
 FULL_SPEC = importlib.util.spec_from_file_location('audit_zone_animation', SCRIPT.parent / 'audit_zone_animation.py')
 FULL_AUDIT = importlib.util.module_from_spec(FULL_SPEC)
 FULL_SPEC.loader.exec_module(FULL_AUDIT)
+PLAYBACK_SPEC = importlib.util.spec_from_file_location('audit_zone_playback', SCRIPT.parent / 'audit_zone_playback.py')
+PLAYBACK_AUDIT = importlib.util.module_from_spec(PLAYBACK_SPEC)
+PLAYBACK_SPEC.loader.exec_module(PLAYBACK_AUDIT)
 
 
 @unittest.skipUnless(os.environ.get('CGFX_ZONE_PRIVATE'), 'requires private Zone conversion directory')
@@ -39,6 +42,16 @@ class ZoneCommonTests(unittest.TestCase):
         actual = FULL_AUDIT.inspect(self.folder / 'common.bcres', self.folder / 'full-converted', self.folder / 'selected')
         fixture = json.loads((ROOT / 'docs/evidence/zone-common-banner-animation.json').read_text())
         self.assertEqual(actual, fixture)
+
+    def test_raw_segments_expose_browser_playback_gaps(self):
+        actual = PLAYBACK_AUDIT.inspect(self.folder / 'common.bcres', self.folder / 'full-converted/model.json')
+        fixture = json.loads((ROOT / 'docs/evidence/zone-common-banner-playback-boundary.json').read_text())
+        self.assertEqual(actual, fixture)
+        samples = {row['groupOffset']: {sample['frame']: sample for sample in row['samples']}
+                   for row in actual['comparisons']}
+        self.assertAlmostEqual(samples['0x4e84'][300]['difference'], 0, places=5)
+        self.assertEqual(samples['0x5258'][119.5]['difference'], 14.5)
+        self.assertEqual(samples['0x7128'][279.5]['difference'], 72.5)
 
     @unittest.skipUnless(os.environ.get('CGFX_ZONE_DOTNET') and os.environ.get('CGFX_ZONE_EXPORTER'),
                          'requires built pinned exporter')

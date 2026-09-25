@@ -67,6 +67,11 @@ timing and final LCD pixels remain unverified. The Zone common conversion is
 blocked from delivery-manifest registration. Do not substitute the `Banner2D`
 dummy texture or invent a logo.
 
+The [playback boundary audit](native-zone-banner-playback-audit.md) compares
+raw segment keys with the current browser sampler. Mixed step bridges diverge
+after H3D flattening, and four scalar source curves are missing from that
+conversion. These are concrete reasons to keep Zone delivery disabled.
+
 ## Reproduction
 
 Use `scripts/firmware-cgfx/convert.py` with the pinned exporter on each

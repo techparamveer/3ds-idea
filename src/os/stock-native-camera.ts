@@ -67,7 +67,7 @@ export const cameraFolderPicSize=[128,96] as const;
 export const cameraFolderPicRect=nativeLowerPaneRect([-108,0],[128,96],[400,240]);
 
 /** Read-only portfolio gallery composed from native album art. The runtime owns
- * paging and selection; inactive zoom/capture controls are explicitly hidden.
+ * paging and selection; visible source zoom chrome has no capture/zoom action.
  */
 export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   if(!cameraTitle(view.appId))return false;
@@ -81,7 +81,7 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
   if(!base)return false;
   let orange=browseBackgrounds.get(renderer);
   if(!orange){orange=cameraBrowseOrange(base);browseBackgrounds.set(renderer,orange);}
-  okay=renderer.drawLayout(bottom,'camera-gallery','P_BrwsBase_D',orange,{bindings:[{name:'P_BrwsBase_D_Brws',frame:0}],overrides:{UserBG:{visible:true},BG:{visible:false},'-B-ZoomUp':{visible:false},'-B-ZoomBack':{visible:false}}})&&okay;
+  okay=renderer.drawLayout(bottom,'camera-gallery','P_BrwsBase_D',orange,{bindings:[{name:'P_BrwsBase_D_Brws',frame:0}],overrides:{UserBG:{visible:true},BG:{visible:false}}})&&okay;
   if(view.screen==='photo'){
     const [x,y,w,h]=cameraPhotoMountRect;
     image(record(data.photo),x,y,w,h);

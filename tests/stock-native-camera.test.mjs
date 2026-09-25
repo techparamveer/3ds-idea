@@ -87,6 +87,12 @@ test('settled browse exposes the native UserBG slot and preserves source materia
   const hidden=pack.animations.P_BrwsBase_D_Brws.tracks.find(track=>track.target==='BG'&&track.property==='visible');
   assert.equal(hidden.keys[0].value,0);
   const frame=paint(view('gallery',[{id:'photo:a',label:'A'}],{photos:[{id:'a',src:'/portfolio/a.jpg'}]}));
+  const browse=frame.draws.find(draw=>draw.layout==='P_BrwsBase_D');
+  for(const name of ['-B-ZoomUp','-B-ZoomBack']){
+    const pane=find(original.roots,name);
+    assert.equal(pane.flags&1,1,`${name} is source-visible`);
+    assert.equal(browse.opts.overrides[name],undefined,`${name} remains visible but inert`);
+  }
   assert.ok(frame.draws.some(draw=>draw.layout==='P_BrwsPhoMntBase'&&draw.opts.overrides?.['-PhoMntPos']===undefined),'source page mount remains visible in browse');
   const dateSource=pack.layouts.P_BrwsFld.materials.find(material=>material.name==='ThmbBase');
   assert.deepEqual(dateSource.constantColors[5],[120,193,31,255]);

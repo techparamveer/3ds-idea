@@ -57,8 +57,16 @@ limitation or declaring it fixed.
 
 - Work only in your assigned worktree and branch. Run `git status` and
   `git worktree list` first.
-- Integration is `codex/firmware-os-10-7`. `uifix`, `codex/home-menu-assets`
-  and `codex/3ds-os` hold preserved work.
+- The active UI integration checkout is
+  `/Users/paramveer/.codex/worktrees/3ds-ui-continuation` on
+  `codex/health-ui-scratch`. It has a different Git object database from the
+  original `/Volumes/DeveloperStorage/GitHub/3ds-idea` checkout. Create a
+  sibling worktree with `git -C` pointed at the integration checkout; do not
+  assume a commit from it resolves in the original checkout. `uifix`,
+  `codex/home-menu-assets` and `codex/3ds-os` hold preserved work.
+- The integration checkout is sparse. Paths excluded from its working tree
+  appear as deletions in ordinary status output; stage only the explicit files
+  you changed, never `git add -A` from that checkout.
 - The feature map lists current worker worktrees. Don't edit another worker's
   files.
 - Only the coordinator drives the browser and the Azahar reference session.

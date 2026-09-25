@@ -181,6 +181,21 @@ def audit(root, artifacts=None, repository=None):
             check(conversion.get('name') == 'smdh-notes-english-description' and conversion.get('version') == 1 and
                   conversion.get('languageIndex') == 1 and conversion.get('fieldOffset') == 0x288 and conversion.get('maxCodeUnits') == 127 and
                   len(conversion.get('scriptSha256', '')) == 64, f'{title["name"]}: invalid long description conversion record')
+        if 'publisher' in title:
+            source = title.get('publisherSource', {})
+            conversion = title.get('publisherConversion', {})
+            icon_sources = records.get(title.get('icon'), {}).get('sources', [])
+            matching = [{**candidate, 'contentIndex': candidate.get('contentIndex', 0),
+                         'titleVersion': title.get('version')} for candidate in icon_sources]
+            check(isinstance(title['publisher'], str) and bool(title['publisher']) and
+                  len(title['publisher'].encode('utf-16-le')) <= 126,
+                  f'{title["name"]}: invalid English publisher')
+            check(source in matching and source.get('path') == 'ExeFS/icon',
+                  f'{title["name"]}: publisher lacks matching icon provenance')
+            check(conversion.get('name') == 'smdh-english-publisher' and conversion.get('version') == 1 and
+                  conversion.get('languageIndex') == 1 and conversion.get('fieldOffset') == 0x388 and
+                  conversion.get('maxCodeUnits') == 63 and len(conversion.get('scriptSha256', '')) == 64,
+                  f'{title["name"]}: invalid publisher conversion record')
     for url in sorted(font_urls):
         if not reference(url, 'font'): continue
         font = json.loads(public_path(root, url).read_text()); dimensions = []

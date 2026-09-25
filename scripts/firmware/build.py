@@ -23,7 +23,7 @@ from firmware.texture import decode_bclim, decode_texture, png
 from firmware.cafe import decode_flyt, decode_flan, decode_bflim
 from firmware.cia import cia_metadata, content_directory, content_key, content_provenance
 from firmware.archives import unpack_sarc, unpack_stock_table
-from firmware.title_metadata import description_metadata
+from firmware.title_metadata import description_metadata, publisher_metadata
 from firmware.notes_icon import notes_icon_png, conversion as notes_icon_conversion
 
 FIRMWARE = '10.7.0-32E'
@@ -306,7 +306,9 @@ def convert_title(builder, title, metadata, scratch, home):
             if smdh[:4] == b'SMDH' and len(smdh) >= 0x36c0:
                 name = smdh[0x208:0x288].decode('utf-16-le').rstrip('\0')
                 if name.strip() and name != '???': info['name'] = name
-                info.update(description_metadata(smdh, {'titleId': title, 'path': 'ExeFS/icon', 'sha256': digest(smdh), **identity}))
+                icon_source = {'titleId': title, 'path': 'ExeFS/icon', 'sha256': digest(smdh), **identity}
+                info.update(description_metadata(smdh, icon_source))
+                info.update(publisher_metadata(smdh, icon_source, metadata['version']))
                 image = png(48, 48, decode_texture(smdh[0x24c0:0x36c0], 48, 48, 3))
                 info['icon'] = builder.write(f'icons/{slug}.png', image, {'titleId': title, 'path': 'ExeFS/icon', 'sha256': digest(smdh), **identity}, 'title-icon')
                 if title in TITLES and TITLES[title][2] == 'app':

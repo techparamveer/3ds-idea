@@ -57,3 +57,21 @@ test('entry theme changes only source cyan theme slots and leaves shared layouts
 test('entry device controls and disabled Back have no touch targets',()=>{
  for(const [x,y] of [[160,49],[160,159],[45,193],[275,193],[160,208],[45,225],[275,225]])assert.equal(hit(entry,x,y),null);
 });
+
+test('three Sound welcome pages bind the published guide art and S_tips messages',()=>{
+ const bank=packs['sound-messages'].messages.S_tips;
+ for(const label of ['D_001_0','D_001_1','D_001_2','Guide_D_N_Btn0','Guide_D_BN_Btn0','Guide_D_BN_Btn1','Guide_D_BO_Btn1'])assert.ok(label in bank.labels,label);
+ assert.ok(packs['sound-guide-upper'].layouts.S_Guid03_U);
+ for(let page=0;page<3;page++){
+  const calls=[],top={},bottom={};
+  const draw=(ctx,pack,layout,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,options});return true;};
+  const drawLayout=(ctx,pack,layout,posed,options)=>draw(ctx,pack,layout,options);
+  const guide={...entry,screen:'guide',data:{tracks:[],guidePage:page}};
+  assert.equal(drawNativeSoundFrame({packs,draw,drawLayout},top,bottom,guide,{date:new Date(2026,8,24,10,52)}),true);
+  const panel=calls.findLast(call=>call.layout=== (page===0?'C_DlgGuid1BtnW':'C_DlgGuid2Btn'));
+  assert.equal(panel.options.overrides.TxtDlg.text,bank.messages[bank.labels[`D_001_${page}`]].text);
+  assert.equal(panel.options.overrides.TxtNumber0.text,String(page+1));
+  assert.equal(calls.some(call=>call.layout==='S_Guid03_U'),page===2);
+  assert.deepEqual(calls.findLast(call=>call.layout==='ParakeetA_D').options.center,[74,211]);
+ }
+});

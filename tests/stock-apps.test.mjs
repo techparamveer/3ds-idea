@@ -186,7 +186,7 @@ test('the source Could-not-play dialog blocks transport until OK, B or the share
  const resumed=action(module,viaA,'play');assert.equal(resumed.state.mediaError,false);assert.equal(resumed.effects[0].command,'play');
 });
 test('empty media and injected saved screens never create hidden playback/capture state',()=>{
- for(const id of ['camera','sound']){const {module}=setup(id,{folders:[],tracks:[]});const state=module.create({screen:'record',playing:true},{screen:'playback',playing:true},ctx);assert.equal(state.screen,'main');assert.equal(module.view(state,ctx).rows.length,0);assert.equal(action(module,state,'play').state,state);}
+ for(const id of ['camera','sound']){const {module}=setup(id,{folders:[],tracks:[]});const state=module.create({screen:'record',playing:true},{screen:'playback',playing:true},ctx);assert.equal(state.screen,id==='sound'?'guide':'main');assert.equal(module.view(state,ctx).rows.length,0);assert.equal(action(module,state,'play').state,state);}
 });
 
 test('Camera folder directions follow three columns and bound incomplete rows',()=>{
@@ -528,11 +528,25 @@ test('Parental intro and explanation footers follow their horizontal Back and fo
 
 
 test('Sound SD-absent entry is read-only and its disabled Back does not exit',()=>{
- const {module,state}=setup('sound',{folders:[],tracks:[]});
+ const {module,state:created}=setup('sound',{folders:[],tracks:[]});
+ const state={...created,screen:'main'};
  const view=module.view(state,ctx);
  assert.deepEqual(view.footer,{});
  assert.deepEqual(view.text,['No songs available.']);
  for(const id of ['record','streetpass','settings','open','add','back']){
   const result=action(module,state,id);assert.equal(result.state,state);assert.equal(result.effects,undefined);
  }
+});
+
+test('Sound welcome uses three source pages and enters the empty Record & Edit Sounds screen',()=>{
+ const {module,state:initial}=setup('sound',{folders:[],tracks:[]});
+ assert.equal(initial.screen,'guide');assert.equal(initial.guidePage,0);
+ let state=module.reduce(initial,{type:'command',command:'open'},ctx).state;
+ assert.equal(state.guidePage,1);assert.deepEqual(module.view(state,ctx).footer,{left:{label:'Back',action:'back'},right:{label:'Next',action:'guide-next'}});
+ state=module.reduce(state,{type:'command',command:'back'},ctx).state;assert.equal(state.guidePage,0);
+ state=module.reduce(state,{type:'touch',phase:'up',x:200,y:205},ctx).state;assert.equal(state.guidePage,1);
+ state=module.reduce(state,{type:'command',command:'open'},ctx).state;assert.equal(state.guidePage,2);
+ assert.equal(module.view(state,ctx).footer.right.label,'OK');
+ state=module.reduce(state,{type:'command',command:'open'},ctx).state;assert.equal(state.screen,'main');
+ assert.deepEqual(module.view(state,ctx).footer,{});assert.deepEqual(module.view(state,ctx).text,['No songs available.']);
 });

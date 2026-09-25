@@ -11,7 +11,8 @@ export const soundScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'lyt-S_BG-arc-LZ.json',alias:'sound-bg',layouts:['S_BG','S_BG_D-Grid','S_BG_D-Ctr',...soundRecordLayoutSelection.layouts],animations:['S_BG_D-Grid_Default',...soundRecordLayoutSelection.animations]},
   {url:prefix+'lyt-S_Play_D-arc-LZ.json',alias:'sound-player',layouts:['S_Play_D-CtrPanel3','S_Play_D-Effect'],animations:['S_Play_D-CtrPanel3_Default','S_Play_D-Effect_Default']},
   {url:prefix+'lyt-C-Sld.json',alias:'sound-slider',layouts:['C_SldT','C_SldH_L'],animations:['C_SldT_Default','C_SldT_Rate','C_SldH_L_Default','C_SldH_L_Rate']},
-  {url:prefix+'lyt-C-Dlg.json',alias:'sound-dialog',layouts:['C_Dlg','C_Dlg1BtnB','C_DlgTxt'],animations:['C_Dlg1BtnB_Default']},
+  {url:prefix+'lyt-C-Dlg.json',alias:'sound-dialog',layouts:['C_Dlg','C_Dlg1BtnB','C_DlgTxt','C_DlgGuid1BtnW','C_DlgGuid2Btn','C_DlgGuid_U'],animations:['C_Dlg1BtnB_Default','C_DlgGuid1BtnW_Default','C_DlgGuid2Btn_Default']},
+  {url:prefix+'lyt-S_Guid_U-arc-LZ.json',alias:'sound-guide-upper',layouts:['S_Guid03_U'],animations:[]},
   {url:prefix+'lyt-S_Common-arc-LZ.json',alias:'sound-common',layouts:['S_Common-BackBtn','S_Common-OpenBtn','S_Common-BrwCursor','S_Common-OpLBtn','S_Common-OpRBtn','S_Common-SetBtn','S_Common-Text','S_Common-IconList'],animations:['S_Common-BackBtn_Default','S_Common-OpenBtn_Default','S_Common-BrwCursor_Default','S_Common-BackBtn_Disable','S_Common-OpLBtn_Default','S_Common-OpRBtn_Disable','S_Common-SetBtn_Default','S_Common-IconList_IconCHG']},
   {url:prefix+'lyt-S_Inf_U-arc-LZ.json',alias:'sound-info',layouts:['S_Inf_U-TitleBar','S_Inf_U-TrackNameU','S_Inf_U-TrackNameD','S_Inf_U-PlayTime','S_Inf_U-UnderBar','S_Inf_U-Hour','S_Inf_U-Battery'],animations:['S_Inf_U-TitleBar_TitleLeftIn','S_Inf_U-TrackNameU_In','S_Inf_U-TrackNameD_In']},
   {url:prefix+'lyt-Parakeet-arc-LZ.json',alias:'sound-bird',layouts:['ParakeetA_U','ParakeetA_D'],animations:['ParakeetA_U_Wait','ParakeetA_D_Wait']},
@@ -99,6 +100,17 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     entry(bottom,'sound-common','S_Common-OpenBtn',{bindings:[{name:'S_Common-OpenBtn_Default',frame:0}],overrides:{TxtC:message('S','P_B_00')}});
     entry(bottom,'sound-common','S_Common-SetBtn',{bindings:[{name:'S_Common-SetBtn_Default',frame:0}],overrides:{TxtMiniT_W_P0:smallLabel('C_B_03')}});
     entry(bottom,'sound-common','S_Common-BackBtn',{bindings:[{name:'S_Common-BackBtn_Disable',frame:1}],overrides:{TxtC:message('S','C_B_02')}});
+    if(view.screen==='guide'){
+      const page=Math.max(0,Math.min(2,num(data.guidePage))),first=page===0;
+      // S_tips D_001_0..2 and the two C_Dlg guide button variants belong to
+      // the EUR Sound content, as does the volume picture on page three.
+      if(page===2)entry(top,'sound-guide-upper','S_Guid03_U');
+      entry(bottom,'sound-dialog','C_Dlg');
+      const common={TxtDlg:message('S_tips',`D_001_${page}`),TxtNumber0:{text:String(page+1)},TxtNumber1:{text:'3'}};
+      if(first)entry(bottom,'sound-dialog','C_DlgGuid1BtnW',{bindings:[{name:'C_DlgGuid1BtnW_Default',frame:0}],overrides:{...common,Guid1TxtW:message('S_tips','Guide_D_N_Btn0')}});
+      else entry(bottom,'sound-dialog','C_DlgGuid2Btn',{bindings:[{name:'C_DlgGuid2Btn_Default',frame:0}],overrides:{...common,Guid2TxtB:message('S_tips','Guide_D_BN_Btn0'),Guid2TxtW:message('S_tips',page===2?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')}});
+      entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[74,211]});
+    }
     return okay;
   }
   draw(top,'sound-bg','S_BG');draw(bottom,'sound-bg','S_BG_D-Grid',{bindings:[{name:'S_BG_D-Grid_Default',frame:0}]});

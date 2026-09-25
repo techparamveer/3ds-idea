@@ -56,6 +56,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return [];
     }
     if (id === 'sound') {
+      if (screen === 'guide') return [];
       if (screen === 'main') return media.tracks.map(item => row(`track:${item.id}`, item.title, item.artist));
       return [row('play', state.playing ? 'Pause' : 'Play'), row('previous', 'Previous'), row('next', 'Next'), row('mode', 'Playback mode', soundPlaybackMode(state))];
     }
@@ -162,6 +163,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   function activate(state: AppState, action: string, context: AppContext, value?: JsonValue): AppReduction {
     const screen = str(state.screen, 'main');
     if (action === 'back') {
+      if (id === 'sound' && screen === 'guide') return { state: { ...state, guidePage: Math.max(0, num(state.guidePage) - 1) } };
       if (id === 'sound' && state.mediaError === true) return { state: { ...state, mediaError: false } };
       if (id === 'sound' && screen === 'main' && !media.tracks.length) return { state }; // Native root Back is disabled; HOME still exits.
       if (id === 'health-safety' && screen === 'document') { const { scroll: _scroll, backPress: _press, ...rest } = state; return { state: withScreen(rest, 'main') }; }
@@ -189,6 +191,10 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return { state };
     }
     if (id === 'sound') {
+      if (screen === 'guide') {
+        if (action === 'guide-next') return { state: num(state.guidePage) >= 2 ? withScreen(state, 'main', { guidePage: 2 }) : { ...state, guidePage: num(state.guidePage) + 1 } };
+        return { state };
+      }
       if (action.startsWith('music-')) {
         const progress = record(value);
         if (!state.playing || progress.trackId !== state.trackId || progress.revision !== state.revision) return { state };
@@ -270,6 +276,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const healthDocument = id === 'health-safety' && screen === 'document';
     if (healthDocument) { delete data.scroll; delete data.backPress; data.article = healthScrollView(healthScroll(state)); }
     const left = { label: id === 'system-updater' || (id === 'system-settings' && screen === 'detail' && state.field === 'sound') ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
+    if (id === 'sound' && screen === 'guide') return { appId:id, titleId:descriptor.titleId, screen, heading:descriptor.title, text:[], rows:[], selection:0,
+      footer:{...(num(state.guidePage)>0?{left}:{ }),right:{label:num(state.guidePage)>=2?'OK':'Next',action:'guide-next'}},native:{pack:descriptor.assetPack,panes:{}},data };
     const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options[selection]&&options[selection].id!=='camera-date-group' ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { ...(id === 'sound' && screen === 'main' && !media.tracks.length ? {} : { left }), ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
@@ -278,9 +286,9 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     descriptor, view,
     create(args, saved) {
       const restored = objectValue(saved) ? saved : {};
-      return { screen: 'main', selection: 0, ...(['health-safety','system-settings'].includes(id) ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
+      return { screen: id === 'sound' && !media.tracks.length ? 'guide' : 'main', selection: 0, ...(['health-safety','system-settings'].includes(id) ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
         ...(id === 'browser' ? { url: str(restored.url) } : {}), ...(id === 'error' ? { message: str(args.message, 'An error has occurred.') } : {}),
-        ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0 } : {}),
+        ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0, guidePage: 0 } : {}),
         ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}) };
     },
     reduce(state, event, context) {

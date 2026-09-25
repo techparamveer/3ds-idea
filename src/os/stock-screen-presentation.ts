@@ -219,7 +219,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     if(!descriptor||failure)return session.getState();
     const state=session.update(font?{owner:nextOwner,...descriptor,sharedFonts:new Map([['cbf_std.bcfnt',font]])}:null);
     if(state.status==='error'){fail(state.error);return state;}
-    const room=options.soundRoom?.prepare(view.appId==='sound'&&view.screen==='main'?nextOwner:null,changed);
+    const room=options.soundRoom?.prepare(view.appId==='sound'&&(view.screen==='main'||view.screen==='guide')?nextOwner:null,changed);
     roomReady=!room||room.status==='inactive'||room.status==='ready';
     if(room?.status==='error'){fail(room.error);return state;}
     if(state.status==='ready'&&roomReady)clearDeadline();
@@ -268,7 +268,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       // Poses, not passes, key the eShop pair: settled passes do not repaint.
       const eshop=nativeServiceView(view)?.view==='eshop-welcome';
       const keyView=eshop?{...notesView,data:{...notesView.data,welcomePass:null,welcomeDecidedPass:null}}:notesView,eshopPaintKey=eshop?eshopWelcomePose(view,reducedMotion):null;
-      const soundClockKey=view.appId==='sound'&&view.screen==='main'?[date.getHours(),date.getMinutes()]:null;
+      const soundClockKey=view.appId==='sound'&&(view.screen==='main'||view.screen==='guide')?[date.getHours(),date.getMinutes()]:null;
       const settingsPaintKey=view.appId==='system-settings'?[date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes()]:null;
       const eshopHudKey=eshop?eshopHudClock(date):null;
       const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,soundClockKey,introKey]);

@@ -55,6 +55,13 @@ test('bounded original controller replay separates start pose submission from at
   assert.equal(controller.firstStartSubmission.attachedScenePasses, 2);
   assert.equal(controller.firstStartSubmission.frameAfterAttachedPasses, 2);
   assert.equal(controller.firstStartSubmission.poseCallbacksAfterAttachedPasses, 0);
+  const transition = controller.visibilityTransition;
+  assert.equal(transition.titleId, '0004001000022000');
+  assert.equal(transition.sceneIndex, 1);
+  assert.deepEqual(transition.rows.map(row => [row.actualVisible, row.requestedVisible]),
+    [[1, 1], [1, 0], [0, 0]]);
+  assert.deepEqual(transition.rows.at(-1).events.map(event => event.address),
+    ['0x1f7c78', '0x24f170', '0x1f7c78', '0x24f3b0']);
 });
 
-test.todo('execute title-driven Settings scene attachment and the first visible pose submission');
+test.todo('execute native scene insertion and a visible Settings pose submission with the bound COMMON model');

@@ -55,7 +55,7 @@ model's selected CGFX SHA-256
 `96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d`
 and its 600-frame looping `COMMON` clip before running. The committed
 [fixture](evidence/settings-banner-controller-clock.json) has SHA-256
-`cc2ead09dd9d925dfa1eb6cfbc9140e7209902391b3050cce52b5bb5de30c02c`.
+`9d0d0163745868726a457e06fcfab401355d845bd6e59bf6321ca18af8f92e82`.
 The scene membership and controller fields are supplied synthetic memory;
 `0x25000c` is the source constructor for the controller vtable, but the replay
 does not run that constructor or bind the CGFX.
@@ -89,3 +89,27 @@ the Settings live banner gate and focused test TODO in place until the
 title-driven attach/hide path and later pose submission cadence are executed,
 then compare matched native and browser 400×240 captures. No browser or native
 visual comparison was made in this bounded replay.
+
+## Indirect visibility callback replay (25 September 2026)
+
+The same script and hash-pinned fixture now execute the original visibility
+setter `0x1f9e64`, generic primary update `0x1fa344`, and its indirect
+visibility callback `0x1f7c78` on one synthetic Settings-labelled scene-1
+primary. A show request stores desired byte `+0x9c = 1`; the first generic
+update enters native attach helper `0x24f170` through the callback and stores
+actual-visible byte `+0x3c = 1`. A later hide request leaves actual visibility
+set for one update, then enters native detach helper `0x24f3b0` and clears it
+on the second update. This establishes the original callback's show/hide
+branch and the two observed generic-update samples for the supplied object.
+
+The attach/detach helpers are **entered but stubbed**. Their scene graph, real
+title candidate, CGFX descriptor and pose callback are not bound. The previous
+start callback's frame 0 therefore cannot be called the first *visible*
+submitted pose. The exact next executable source branch is native attach
+`0x24f170`, including its `0x230710` scene-list insertion at `0x24f30c`, with
+the title worker's real `M+0x50` candidate and scene/model pointers. Follow it
+through the global `0x103808` pass: that pass calls scene walker `0x10b3d0`
+and later `0x10a324`/`0x10b770` render work. The current controller replay
+proves the walker advances only the frame clock; it does not find a second
+pose submission there. Native visible pixels and subsequent pose cadence
+remain unresolved, so the live Settings gate stays `unsupported`.

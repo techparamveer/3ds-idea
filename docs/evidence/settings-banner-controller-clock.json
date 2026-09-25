@@ -100,5 +100,76 @@
     "attachedScenePasses": 2,
     "frameAfterAttachedPasses": 2.0,
     "poseCallbacksAfterAttachedPasses": 0
+  },
+  "visibilityTransition": {
+    "titleId": "0004001000022000",
+    "sceneIndex": 1,
+    "rows": [
+      {
+        "sample": "first-show-update",
+        "actualVisible": 1,
+        "requestedVisible": 1,
+        "transitionStep": 1,
+        "events": [
+          {
+            "address": "0x1f7c78",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          },
+          {
+            "address": "0x24f170",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          }
+        ]
+      },
+      {
+        "sample": "hide-update-1",
+        "actualVisible": 1,
+        "requestedVisible": 0,
+        "transitionStep": 0,
+        "events": [
+          {
+            "address": "0x1f7c78",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          },
+          {
+            "address": "0x24f170",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          }
+        ]
+      },
+      {
+        "sample": "hide-update-2",
+        "actualVisible": 0,
+        "requestedVisible": 0,
+        "transitionStep": 3,
+        "events": [
+          {
+            "address": "0x1f7c78",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          },
+          {
+            "address": "0x24f170",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          },
+          {
+            "address": "0x1f7c78",
+            "actualVisibleBefore": 1,
+            "requestedVisible": 0
+          },
+          {
+            "address": "0x24f3b0",
+            "actualVisibleBefore": 1,
+            "requestedVisible": 0
+          }
+        ]
+      }
+    ],
+    "scope": "Native visibility setter 0x1f9e64, generic update 0x1fa344, and indirect callback 0x1f7c78 execute on one synthetic Settings-labeled primary. Native attach 0x24f170 and detach 0x24f3b0 are entered but stubbed; source scene membership, CGFX binding, pose submission, and pixels are unobserved."
   }
 }

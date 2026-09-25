@@ -6,7 +6,7 @@ const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('b
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const layout=url(compile('stock-screen-layout').replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href)));
 const source=compile('stock-native-sound').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-sound-record'",JSON.stringify(url(compile('stock-sound-record'))));
-const {drawNativeSoundFrame,soundEntryBlue,soundScreenPacks}=await import(url(source));
+const {drawNativeSoundFrame,soundEntryBlue,soundGuideLowerPanel,soundScreenPacks}=await import(url(source));
 const {stockScreenActionAt:hit}=await import(layout);
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const packs=Object.fromEntries(soundScreenPacks.map(p=>[p.alias,JSON.parse(readFileSync(new URL(p.url,firmware)))]));
@@ -70,8 +70,18 @@ test('three Sound welcome pages bind the published guide art and S_tips messages
   assert.equal(drawNativeSoundFrame({packs,draw,drawLayout},top,bottom,guide,{date:new Date(2026,8,24,10,52)}),true);
   const panel=calls.findLast(call=>call.layout=== (page===0?'C_DlgGuid1BtnW':'C_DlgGuid2Btn'));
   assert.equal(panel.options.overrides.TxtDlg.text,bank.messages[bank.labels[`D_001_${page}`]].text);
-  assert.equal(panel.options.overrides.TxtNumber0.text,String(page+1));
+  assert.equal(panel.options.overrides.TxtNumber0.text,`${page+1} / `);
   assert.equal(calls.some(call=>call.layout==='S_Guid03_U'),page===2);
-  assert.deepEqual(calls.findLast(call=>call.layout==='ParakeetA_D').options.center,[74,211]);
+  assert.deepEqual(calls.findLast(call=>call.layout==='ParakeetA_D').options.center,[30,206]);
+  assert.equal(calls.findLast(call=>call.layout==='ParakeetA_D').options.scale,2);
  }
+});
+
+test('lower welcome panel reuses native 320px dialog geometry with the published green guide material',()=>{
+ const dialog=packs['sound-dialog'].layouts.C_Dlg,guide=packs['sound-dialog'].layouts.C_DlgGuid_U;
+ const before=JSON.stringify(dialog),panel=soundGuideLowerPanel(dialog,guide);
+ assert.equal(JSON.stringify(dialog),before);
+ assert.deepEqual(panel.roots,dialog.roots);
+ assert.deepEqual(panel.materials,guide.materials);
+ assert.deepEqual(panel.textures,guide.textures);
 });

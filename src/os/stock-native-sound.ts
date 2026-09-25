@@ -38,6 +38,16 @@ export function soundEntryBlue(layout:NativeLayout):NativeLayout{
   return posed;
 }
 
+/** Lower guide uses the C_Dlg 320×240 pane geometry with the source guide
+ * panel's C_DlgChBase materials. C_DlgGuid_U is authored for the 400px LCD. */
+export function soundGuideLowerPanel(dialog:NativeLayout,guide:NativeLayout):NativeLayout{
+  const posed=structuredClone(dialog);
+  if(dialog.roots[0]?.children.length<2||guide.materials.length<2)throw new Error('Missing Sound guide panel source');
+  posed.materials=structuredClone(guide.materials);
+  posed.textures=[...guide.textures];
+  return posed;
+}
+
 /** Original Sound artwork at its source mounts with portfolio track content.
  * Playback uses the native transport, playback-mode panel, C_SldT time slider and
  * the resting S_Play_D-Effect panel; the library uses the source list cursor and
@@ -105,11 +115,12 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
       // S_tips D_001_0..2 and the two C_Dlg guide button variants belong to
       // the EUR Sound content, as does the volume picture on page three.
       if(page===2)entry(top,'sound-guide-upper','S_Guid03_U');
-      entry(bottom,'sound-dialog','C_Dlg');
-      const common={TxtDlg:message('S_tips',`D_001_${page}`),TxtNumber0:{text:String(page+1)},TxtNumber1:{text:'3'}};
+      const dialog=renderer.packs['sound-dialog'].layouts.C_Dlg,guidePanel=renderer.packs['sound-dialog'].layouts.C_DlgGuid_U;
+      okay=renderer.drawLayout(bottom,'sound-dialog','C_Dlg',soundGuideLowerPanel(dialog,guidePanel))&&okay;
+      const common={TxtDlg:message('S_tips',`D_001_${page}`),TxtNumber0:{text:`${page+1} / `,size:[42,24]},TxtNumber1:{text:'3',size:[42,24]}};
       if(first)entry(bottom,'sound-dialog','C_DlgGuid1BtnW',{bindings:[{name:'C_DlgGuid1BtnW_Default',frame:0}],overrides:{...common,Guid1TxtW:message('S_tips','Guide_D_N_Btn0')}});
       else entry(bottom,'sound-dialog','C_DlgGuid2Btn',{bindings:[{name:'C_DlgGuid2Btn_Default',frame:0}],overrides:{...common,Guid2TxtB:message('S_tips','Guide_D_BN_Btn0'),Guid2TxtW:message('S_tips',page===2?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')}});
-      entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[74,211]});
+      entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[30,206],scale:2});
     }
     return okay;
   }

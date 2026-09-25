@@ -6,6 +6,7 @@ import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView } 
 const root = new URL('../public/os/firmware/10.7.0-32E/models/settings-banner/', import.meta.url);
 const model = JSON.parse(readFileSync(new URL('model.json', root), 'utf8'));
 const controller = JSON.parse(readFileSync(new URL('../docs/evidence/settings-banner-controller-clock.json', import.meta.url), 'utf8'));
+const realWorker = JSON.parse(readFileSync(new URL('../docs/evidence/settings-banner-real-resource-worker.json', import.meta.url), 'utf8'));
 
 test('Settings primary has a complete, bound source texture pack before title activation', () => {
   assert.equal(model.sourceSha256, '96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d');
@@ -72,4 +73,16 @@ test('bounded original controller replay separates start pose submission from at
   assert.equal(insertion.renderDispatchStop, '0x1038c0');
 });
 
-test.todo('execute native scene insertion and a visible Settings pose submission with the bound COMMON model');
+test('real Settings CBMD worker decodes COMMON and constructs generic primaries', () => {
+  assert.equal(realWorker.settingsBannerSha256, model.cbmd.cbmdSha256);
+  assert.equal(realWorker.selectedCgfxSha256, model.sourceSha256);
+  assert.equal(realWorker.usedCommonFallback, true);
+  assert.equal(realWorker.nativeSizeCalls, 1);
+  assert.equal(realWorker.nativeDecodeCalls, 1);
+  assert.equal(realWorker.completionByte, 1);
+  assert.equal(realWorker.candidateVtable, '0x3210f0');
+  assert.equal(realWorker.nativeConstructorCalls, 2);
+  assert.deepEqual(realWorker.commonBindVisits, ['0x24def0', '0x24ed40', '0x2354a0']);
+});
+
+test.todo('bind real Settings COMMON candidate and submit its first visible pose');

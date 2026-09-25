@@ -136,3 +136,28 @@ real Settings title worker `0x24c930` creating `M+0x50`, state 4 preparing
 `COMMON` through `0x24def0`, and the scene-1 render owner virtual `+0x14`
 at `0x1038cc`. Those must be linked with the real model and sampled pose
 before a browser Settings primary can be enabled.
+
+## Real Settings title-worker resource replay (25 September 2026)
+
+[`replay-settings-banner-real-worker.py`](../scripts/replay-settings-banner-real-worker.py)
+executes original title worker `0x24c930` with the SHA-pinned Settings
+`banner.bin` and checks the published selected `COMMON` model. The committed
+[fixture](evidence/settings-banner-real-resource-worker.json) has SHA-256
+`f4da26396c7bfb92217ddcdbb59810928715724d1ac66a449ad93fc05082bbc8`.
+The Settings CBMD has no separate EUR-English override, so the original worker
+takes common offset `0x88` and calls native size/decode routines `0x2201cc`
+and `0x220070` once. The resulting 137,792-byte CGFX hashes to the selected
+`COMMON` model. With supplied archive and allocation results, the worker
+executes both original `0x1fa0fc` generic-primary constructors, installs
+vtable `0x3210f0`, stores candidates at `M+0x50/+0x54`, and writes completion
+byte 1. The candidates are native constructed base objects, but their backing
+allocation and graphics owner are supplied.
+
+On the same constructed candidate, the replay passes the source state-4
+`COMMON` arguments to `0x24def0`. It enters resource/model binding at
+`0x24ed40` and stops immediately before graphics-object creation service
+`0x2354a0`, whose owner state is unavailable. This is the exact remaining
+boundary; neither the decoded CGFX nor its skeletal controller has been bound
+to the candidate. The first visible Settings pose remains unproved. The live
+host stays `unsupported` pending a bound native candidate, render-owner
+execution and matched native/browser pixels.

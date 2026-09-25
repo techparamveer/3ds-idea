@@ -14,7 +14,7 @@ import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch 
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
 import { homeSlotAppId, moveHomeItem, restoreHomeLayout, type FolderLayouts } from './home-layout.ts';
 import { cancelHomeGesture, createHomeNavigation, resetHomeNavigation, tickHomeGesture, touchHomeGesture, homeTouchLocation, type HomeNavigation } from './home-gestures.ts';
-import { selectHomeSlot, saveHomeView, restoreHomeView, homeDensityIndex, HOME_DENSITIES, writeHomeNavigation, createHomeUpdateClock, stepHomeUpdateClock, type HomeUpdateClock } from './home-navigation.ts';
+import { selectHomeSlot, saveHomeView, restoreHomeView, homeDensityIndex, HOME_DENSITIES, writeHomeNavigation, createHomeGridFocus, createHomeUpdateClock, stepHomeUpdateClock, type HomeUpdateClock } from './home-navigation.ts';
 export { homeSlotAppId, moveHomeItem } from './home-layout.ts';
 export { getHomeGestureView } from './home-gestures.ts';
 export type System = {
@@ -159,7 +159,10 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  s=state.system!;
  const change=(patch:Partial<System>):MenuState=>({...state,system:{...s!,link:null,...patch}});
  if(input==='power'){
-  if(s.phase==='off')return {...state,powered:true,panel:null,system:{...s,phase:'boot',since:now,sleeping:false,app:null,dialog:null,runtime:{...s.runtime,sleeping:false,lastTick:now},input:createInputLatch(),homeCursorLoop:createHomeCursorLoop()}};
+  if(s.phase==='off')return {...state,powered:true,panel:null,system:{...s,phase:'boot',since:now,sleeping:false,app:null,dialog:null,runtime:{...s.runtime,sleeping:false,lastTick:now},input:createInputLatch(),homeCursorLoop:createHomeCursorLoop(),
+   // A cold boot starts on the selected HOME tile, not the toolbar focus left
+   // behind by the previous session. Keep the saved tile/folder view itself.
+   homeNavigation:{...s.homeNavigation,focus:createHomeGridFocus(),gesture:null,motion:null}}};
   if(s.phase==='power'||s.phase==='shutdown')return state;
   state=releaseSystemInputs(state,now);s=state.system!;
   return change({phase:'power',since:now,preferences:false,returnPhase:s.phase==='app'?'app':'home',app:null,runtime:closeApplication(s.runtime,now),dialog:null,input:createInputLatch()});

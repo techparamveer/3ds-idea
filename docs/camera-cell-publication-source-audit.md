@@ -6,6 +6,10 @@ original final cell writer `0x2d804c` now executes through return, including its
 position, clipping, retained-state and native pane-field writes. It is no longer
 only an intercepted leaf or an executed prefix in this **separate** verifier.
 The connected request/rebind replay has not yet adopted this object graph.
+The later [property setter replay](camera-property-publication-source-audit.md)
+executes `0x25a618` through return with synthetic property bytes, while
+recording its downstream material call. It also remains separate from this
+cell fixture and does not produce pixels.
 
 **Live gallery paging and folder/photo transitions remain unchanged.** Complete
 SceneBrowse replacement and final photo pixels are still not demonstrated.

@@ -9,8 +9,20 @@ const maxBodyBytes = 8 * 1024 * 1024;
 export function localLcdExportAllowed(request: Request, root: string | undefined): boolean {
   if (!root || !isAbsolute(root)) return false;
   const url = new URL(request.url);
-  if (!loopback.has(url.hostname) || url.searchParams.get('lcdCapture') !== '1') return false;
-  if (request.headers.get('origin') !== url.origin) return false;
+  if (!loopback.has(url.hostname) || url.pathname !== '/api/verification/lcd-capture' || url.searchParams.get('lcdCapture') !== '1') return false;
+  const originText = request.headers.get('origin');
+  if (!originText) return false;
+  let origin: URL;
+  try { origin = new URL(originText); } catch { return false; }
+  if (origin.origin !== originText || origin.protocol !== url.protocol || !loopback.has(origin.hostname)) return false;
+  // Next may normalize request.url to localhost even when the browser used
+  // 127.0.0.1. Host retains the incoming authority and must match Origin.
+  const host = request.headers.get('host');
+  if (host) {
+    let authority: URL;
+    try { authority = new URL(`${url.protocol}//${host}`); } catch { return false; }
+    if (authority.username || authority.password || authority.pathname !== '/' || authority.search || authority.hash || !loopback.has(authority.hostname) || authority.host !== origin.host) return false;
+  } else if (origin.origin !== url.origin) return false;
   const fetchSite = request.headers.get('sec-fetch-site');
   return fetchSite === null || fetchSite === 'same-origin';
 }

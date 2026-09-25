@@ -251,6 +251,11 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    const pixels=texturePixels(image);for(const texture of targets){texture.image={data:pixels,width:image.width,height:image.height};texture.needsUpdate=true;}replacementPixels.set(name,image);return true;
   },
   setMaterialVisible(name:string,visible:boolean){const meshes=materialMeshes.get(name);meshes?.forEach(mesh=>{mesh.visible=visible;});return !!meshes?.length;},
+  setMaterialConstantColor(name:string,slot:number,color:THREE.Vector4){
+   if(!Number.isInteger(slot)||slot<0||slot>5||![color.x,color.y,color.z,color.w].every(v=>Number.isFinite(v)&&v>=0&&v<=1))throw new Error('Invalid runtime material constant');
+   const meshes=materialMeshes.get(name);if(!meshes?.length)return false;
+   meshes.forEach(mesh=>(mesh.material as THREE.ShaderMaterial).uniforms[`constant${slot}`].value.copy(color));return true;
+  },
   update(elapsedMs:number,camera?:THREE.Camera){group.updateWorldMatrix(true,true);camera?.updateWorldMatrix(true,false);for(const update of updaters)update(elapsedMs*60/1000,camera);},
   dispose(){replacementPixels.clear();textureBindings.clear();materialMeshes.clear();textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());}};
 }

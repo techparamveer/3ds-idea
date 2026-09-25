@@ -5,6 +5,7 @@ import type { StockModelBackground } from '../os/stock-model-background';
 
 type SourceCamera={Name:string;ViewType:string;ProjectionType:string;TransformTranslation:{X:number;Y:number;Z:number};TransformRotation:{X:number;Y:number;Z:number};TransformScale:{X:number;Y:number;Z:number};View:{Target:{X:number;Y:number;Z:number};Twist:number};Projection:{FOVY:number;AspectRatio:number;ZNear:number;ZFar:number}};
 export const SOUND_ROOM_MODEL='/os/firmware/10.7.0-32E/models/sound-room/model.json';
+export const SOUND_SPAN_MODEL='/os/firmware/10.7.0-32E/models/sound-span/model.json';
 /** The source uses camera index 0. Stereo offsets are omitted for the mono LCD. */
 export function soundRoomCamera(asset:FirmwareModelAsset){
   const data=asset.data as FirmwareModelAsset['data']&{cameras?:SourceCamera[]};
@@ -18,21 +19,45 @@ export function soundRoomCamera(asset:FirmwareModelAsset){
   return createFirmwareCamera(source);
 }
 
+/** The delivered default visualiser has no clips; its silent pose is fitted to the native entry capture. */
+export function soundSpanCamera(asset:FirmwareModelAsset){
+  const data=asset.data as FirmwareModelAsset['data']&{cameras?:SourceCamera[]};
+  if(data.sourceSha256!=='ff9ce249149f835ecce97f693e3f2e1cabe3a2cfebb6bcdbb124d36d4005cf23'||data.models.length!==1||data.models[0].name!=='S_Vis_Span_U'||data.models[0].meshes.length!==34||data.models[0].skeleton.length!==35||data.cameras?.length!==1)throw new Error('Invalid native Sound Span');
+  const texture=data.textures.find(t=>t.name==='BaseColor'),pixels=asset.images.get('BaseColor');
+  if(!texture||texture.width!==32||texture.height!==1024||pixels?.width!==32||pixels.height!==1024||pixels.data.length!==32*1024*4)throw new Error('Incomplete native Sound Span texture');
+  const c=data.cameras[0],vec=(v:{X:number;Y:number;Z:number})=>[v.X,v.Y,v.Z];
+  return createFirmwareCamera({schema:1,cameras:[{name:c.Name,position:vec(c.TransformTranslation),rotation:vec(c.TransformRotation),scale:vec(c.TransformScale),viewType:c.ViewType,aimTarget:vec(c.View.Target),aimTwist:c.View.Twist,projectionType:c.ProjectionType,perspectiveFovRadians:c.Projection.FOVY,aspect:c.Projection.AspectRatio,near:c.Projection.ZNear,far:c.Projection.ZFar}]});
+}
+
 /** One foreground owner's lazy static room; no second WebGL context or render loop. */
 export function createSoundRoom(renderer:THREE.WebGLRenderer,load=loadFirmwareModel):StockModelBackground&{dispose():void}{
   let owner:string|null=null,generation=0,disposed=false,state:ReturnType<StockModelBackground['prepare']>={status:'inactive'};
   let model:ReturnType<typeof createFirmwareModel>|undefined,camera:THREE.PerspectiveCamera|undefined,target:THREE.WebGLRenderTarget|undefined;
+  let span:ReturnType<typeof createFirmwareModel>|undefined,spanCamera:THREE.PerspectiveCamera|undefined;
   let canvas:HTMLCanvasElement|undefined,rendered=false;
   const scene=new THREE.Scene();
-  const release=()=>{model?.dispose();if(model)scene.remove(model.group);model=undefined;camera=undefined;target?.dispose();target=undefined;if(canvas)canvas.width=canvas.height=0;canvas=undefined;rendered=false;};
+  const spanScene=new THREE.Scene();
+  const release=()=>{model?.dispose();if(model)scene.remove(model.group);model=undefined;camera=undefined;span?.dispose();if(span)spanScene.remove(span.group);span=undefined;spanCamera=undefined;target?.dispose();target=undefined;if(canvas)canvas.width=canvas.height=0;canvas=undefined;rendered=false;};
   const prepare:StockModelBackground['prepare']=(next,onChange)=>{
     if(disposed)return {status:'inactive'};
     if(next===owner)return state;
     owner=next;const ticket=++generation;release();state={status:next?'loading':'inactive'};
-    if(next)void load(SOUND_ROOM_MODEL).then(asset=>{
+    if(next)void Promise.all([load(SOUND_ROOM_MODEL),load(SOUND_SPAN_MODEL)]).then(([asset,spanAsset])=>{
       if(disposed||ticket!==generation)return;
       try{
         camera=soundRoomCamera(asset);model=createFirmwareModel(asset,{}, {nativeMipmaps:true});model.update(0,camera);scene.add(model.group);
+        spanCamera=soundSpanCamera(spanAsset);span=createFirmwareModel(spanAsset);
+        // The model's shared (-45) bind placement is not a displayed idle state.
+        // These transform values fit the native Sound guide upper blue line at
+        // y=106..111 of the 400×240 LCD capture. They are an explicit silent
+        // pose adaptation until the Span class's runtime pose is decoded.
+        span.group.position.set(0,34.516,-20);span.group.rotation.x=0.611;span.group.scale.y=0.008;
+        span.update(0,spanCamera);
+        // The source bind constant is red, but the captured idle line is blue.
+        // The sampled top-line RGB (38,104,219) is a visible-result fit, not
+        // a decoded runtime palette or a claim of firmware-exact colour logic.
+        if(!span.setMaterialConstantColor('ColorChange',0,new THREE.Vector4(38/255,104/255,219/255,1)))throw new Error('Missing native Sound Span colour material');
+        spanScene.add(span.group);
         target=new THREE.WebGLRenderTarget(400,240,{depthBuffer:true,stencilBuffer:false,minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter});target.texture.colorSpace=THREE.NoColorSpace;
         canvas=document.createElement('canvas');canvas.width=400;canvas.height=240;state={status:'ready'};
       }catch(error){release();state={status:'error',error};}
@@ -41,7 +66,7 @@ export function createSoundRoom(renderer:THREE.WebGLRenderer,load=loadFirmwareMo
     return state;
   };
   function draw(context:CanvasRenderingContext2D){
-    if(disposed||state.status!=='ready'||!camera||!model||!target||!canvas)return false;
+    if(disposed||state.status!=='ready'||!camera||!model||!spanCamera||!span||!target||!canvas)return false;
     if(!rendered){
       const oldTarget=renderer.getRenderTarget(),color=renderer.getClearColor(new THREE.Color()),alpha=renderer.getClearAlpha(),toneMapping=renderer.toneMapping,autoClear=renderer.autoClear;
       const viewport=renderer.getViewport(new THREE.Vector4()),scissor=renderer.getScissor(new THREE.Vector4()),scissorTest=renderer.getScissorTest();
@@ -50,6 +75,7 @@ export function createSoundRoom(renderer:THREE.WebGLRenderer,load=loadFirmwareMo
         // the page DPR even here, so it must not be called while bound.
         renderer.setRenderTarget(target);renderer.setScissorTest(false);renderer.setClearColor(0xffffff,1);renderer.toneMapping=THREE.NoToneMapping;renderer.autoClear=false;renderer.clear(true,true,false);
         renderer.render(scene,camera);
+        renderer.render(spanScene,spanCamera);
         const pixels=new Uint8Array(400*240*4);renderer.readRenderTargetPixels(target,0,0,400,240,pixels);
         const output=canvas.getContext('2d')!,image=output.createImageData(400,240);
         for(let y=0;y<240;y++)for(let x=0;x<400;x++){

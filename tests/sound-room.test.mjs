@@ -7,15 +7,17 @@ import {createHash} from 'node:crypto';
 import ts from 'typescript';
 import * as THREE from 'three';
 const cache=new Map();function moduleUrl(path){if(cache.has(path))return cache.get(path);let s=ts.transpileModule(readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;s=s.replace(/from (['"])([^'"]+)\1/g,(_,q,v)=>'from '+JSON.stringify(v.startsWith('.')?moduleUrl(resolve(dirname(path),v.endsWith('.ts')?v:v+'.ts')):import.meta.resolve(v)));const u='data:text/javascript;base64,'+Buffer.from(s).toString('base64');cache.set(path,u);return u;}
-const {createSoundRoom,soundRoomCamera}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/sound-room.ts',import.meta.url))));
-const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url),root=new URL('models/sound-room/',firmware),data=JSON.parse(readFileSync(new URL('model.json',root)));
+const {createSoundRoom,soundRoomCamera,soundSpanCamera,SOUND_ROOM_MODEL,SOUND_SPAN_MODEL}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/sound-room.ts',import.meta.url))));
+const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url),root=new URL('models/sound-room/',firmware),spanRoot=new URL('models/sound-span/',firmware),data=JSON.parse(readFileSync(new URL('model.json',root))),spanData=JSON.parse(readFileSync(new URL('model.json',spanRoot)));
 const asset=()=>({data:structuredClone(data),mipmaps:new Map(data.textures.map(t=>[t.name,t.mipmaps.map(m=>({width:m.width,height:m.height,data:new Uint8Array(m.width*m.height*4)}))])),images:new Map(data.textures.map(t=>[t.name,{width:t.width,height:t.height,data:new Uint8Array(t.width*t.height*4)}]))});
+const spanAsset=()=>({data:structuredClone(spanData),images:new Map(spanData.textures.map(t=>[t.name,{width:t.width,height:t.height,data:new Uint8Array(t.width*t.height*4)}]))});
+const loaded=url=>url===SOUND_ROOM_MODEL?asset():url===SOUND_SPAN_MODEL?spanAsset():Promise.reject(Error('Unexpected model URL'));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 function setup(t){
  const original=globalThis.document,puts=[];globalThis.document={createElement(){return{width:0,height:0,getContext(){return{createImageData(w,h){return{data:new Uint8ClampedArray(w*h*4)};},putImageData(image){puts.push(image.data);}};}};}};t.after(()=>{globalThis.document=original;});
- const initial={target:{old:true},color:new THREE.Color(.2,.4,.6),alpha:.3,viewport:new THREE.Vector4(1,2,3,4),scissor:new THREE.Vector4(5,6,7,8),scissorTest:true};let current={...initial},renders=0,readbacks=0,fail=false,nativeViewportSets=0;
- const renderer={toneMapping:THREE.ACESFilmicToneMapping,autoClear:true,getRenderTarget:()=>current.target,setRenderTarget:x=>current.target=x,getClearColor:x=>x.copy(current.color),getClearAlpha:()=>current.alpha,setClearColor:(x,a)=>{current.color=new THREE.Color(x);current.alpha=a;},getViewport:x=>x.copy(current.viewport),setViewport:(...v)=>{if(current.target?.width===400)nativeViewportSets++;current.viewport=v.length===1?v[0].clone():new THREE.Vector4(...v);},getScissor:x=>x.copy(current.scissor),setScissor:v=>current.scissor=v.clone(),getScissorTest:()=>current.scissorTest,setScissorTest:v=>current.scissorTest=v,clear(){},render(){renders++;if(fail)throw Error('GPU failed');},readRenderTargetPixels(t,x,y,w,h,pixels){readbacks++;pixels.fill(0);pixels[0]=72;pixels[(h-1)*w*4]=93;}};
- return {renderer,puts,initial,current:()=>current,counts:()=>[renders,readbacks],nativeViewportSets:()=>nativeViewportSets,fail:()=>{fail=true;}};
+ const initial={target:{old:true},color:new THREE.Color(.2,.4,.6),alpha:.3,viewport:new THREE.Vector4(1,2,3,4),scissor:new THREE.Vector4(5,6,7,8),scissorTest:true};let current={...initial},renders=0,readbacks=0,fail=false,nativeViewportSets=0;const renderCalls=[];
+ const renderer={toneMapping:THREE.ACESFilmicToneMapping,autoClear:true,getRenderTarget:()=>current.target,setRenderTarget:x=>current.target=x,getClearColor:x=>x.copy(current.color),getClearAlpha:()=>current.alpha,setClearColor:(x,a)=>{current.color=new THREE.Color(x);current.alpha=a;},getViewport:x=>x.copy(current.viewport),setViewport:(...v)=>{if(current.target?.width===400)nativeViewportSets++;current.viewport=v.length===1?v[0].clone():new THREE.Vector4(...v);},getScissor:x=>x.copy(current.scissor),setScissor:v=>current.scissor=v.clone(),getScissorTest:()=>current.scissorTest,setScissorTest:v=>current.scissorTest=v,clear(){},render(scene,camera){renders++;renderCalls.push({scene,camera});if(fail)throw Error('GPU failed');},readRenderTargetPixels(t,x,y,w,h,pixels){readbacks++;pixels.fill(0);pixels[0]=72;pixels[(h-1)*w*4]=93;}};
+ return {renderer,puts,renderCalls,initial,current:()=>current,counts:()=>[renders,readbacks],nativeViewportSets:()=>nativeViewportSets,fail:()=>{fail=true;}};
 }
 test('room delivery keeps source camera/model/texture closure and texture-only native RGB',()=>{
  const manifest=JSON.parse(readFileSync(new URL('manifest.json',firmware)));assert.equal(manifest.models['sound-room'],'models/sound-room/model.json');
@@ -24,18 +26,25 @@ test('room delivery keeps source camera/model/texture closure and texture-only n
  for(const m of data.models[0].materials){const p=m.MaterialParams;assert.equal(p.TexEnvStages[0].Combiner.Color,'Replace');assert.equal(p.TexEnvStages[0].Source.Color[0],'Texture0');assert.ok(p.TexEnvStages.slice(1).every(s=>s.Combiner.Color==='Replace'&&s.Source.Color[0]==='Previous'));assert.equal(p.DepthColorMask.Enabled,false);}
  const replacement=data.models[0].materials.find(m=>m.Name==='lambert2').MaterialParams;assert.deepEqual([replacement.BlendFunction.ColorSrcFunc,replacement.BlendFunction.ColorDstFunc],['One','Zero']);
  const invalid=asset();invalid.images.delete('S_BG_U_Tx_A');assert.throws(()=>soundRoomCamera(invalid),/Incomplete/);
+ assert.equal(manifest.models.soundSpan,'models/sound-span/model.json');
+ for(const name of ['model.json',...spanData.textures.map(t=>t.url)]){const bytes=readFileSync(new URL(name,spanRoot)),record=manifest.resources['models/sound-span/'+name];assert.equal(record.sha256,createHash('sha256').update(bytes).digest('hex'));assert.equal(record.size,bytes.length);}
+ const spanCamera=soundSpanCamera(spanAsset());assert.deepEqual(spanCamera.position.toArray(),[0,-30,72]);assert.equal(spanCamera.aspect,1.5);
+ const brokenSpan=spanAsset();brokenSpan.images.delete('BaseColor');assert.throws(()=>soundSpanCamera(brokenSpan),/Incomplete/);
 });
 test('room drops late owner completions and retains one opaque static render per owner',async t=>{
- const f=setup(t),pending=[];let changes=0;const room=createSoundRoom(f.renderer,()=>new Promise((resolve,reject)=>pending.push({resolve,reject}))),changed=()=>changes++,ctx={drawImage(){}};
- assert.equal(room.prepare('sound:1',changed).status,'loading');room.prepare(null,changed);pending[0].resolve(asset());await flush();assert.equal(changes,0);assert.equal(room.draw(ctx),false);
- room.prepare('sound:2',changed);pending[1].resolve(asset());await flush();assert.equal(changes,1);assert.equal(room.prepare('sound:2',changed).status,'ready');
- assert.equal(room.draw(ctx),true);assert.equal(room.draw(ctx),true);assert.deepEqual(f.counts(),[1,1]);assert.equal(f.nativeViewportSets(),0,'native target viewport must bypass page DPR');assert.equal(f.puts[0][0],93);assert.equal(f.puts[0][239*400*4],72);assert.ok(f.puts[0].every((v,i)=>i%4!==3||v===255));
+ const f=setup(t),pending=[];let changes=0;const room=createSoundRoom(f.renderer,url=>new Promise((resolve,reject)=>pending.push({url,resolve,reject}))),changed=()=>changes++,ctx={drawImage(){}};
+ assert.equal(room.prepare('sound:1',changed).status,'loading');room.prepare(null,changed);for(const item of pending)item.resolve(loaded(item.url));await flush();assert.equal(changes,0);assert.equal(room.draw(ctx),false);
+ room.prepare('sound:2',changed);for(const item of pending.slice(2))item.resolve(loaded(item.url));await flush();assert.equal(changes,1);assert.equal(room.prepare('sound:2',changed).status,'ready');
+ assert.equal(room.draw(ctx),true);assert.equal(room.draw(ctx),true);assert.deepEqual(f.counts(),[2,1]);assert.equal(f.nativeViewportSets(),0,'native target viewport must bypass page DPR');assert.equal(f.puts[0][0],93);assert.equal(f.puts[0][239*400*4],72);assert.ok(f.puts[0].every((v,i)=>i%4!==3||v===255));
+ assert.deepEqual(f.renderCalls.map(call=>call.camera.position.toArray()),[[0,5,11.5],[0,-30,72]]);
+ const spanGroup=f.renderCalls[1].scene.children[0];assert.deepEqual(spanGroup.position.toArray(),[0,34.516,-20]);assert.equal(spanGroup.rotation.x,.611);assert.equal(spanGroup.scale.y,.008);
+ const colorMesh=spanGroup.children[0].children.find(mesh=>mesh.material.uniforms.constant0.value.x===38/255);assert.ok(colorMesh,'source ColorChange material uses the capture-fitted blue constant');
  assert.deepEqual(f.current(),f.initial);assert.equal(f.renderer.autoClear,true);assert.equal(f.renderer.toneMapping,THREE.ACESFilmicToneMapping);
  room.prepare(null,changed);assert.equal(room.draw(ctx),false);room.dispose();assert.equal(room.prepare('late',changed).status,'inactive');
 });
 test('room failure restores renderer and invalid resources reach an explicit error',async t=>{
- const f=setup(t);const room=createSoundRoom(f.renderer,async()=>asset());room.prepare('sound:1',()=>{});await flush();f.fail();assert.throws(()=>room.draw({drawImage(){}}),/GPU failed/);assert.deepEqual(f.current(),f.initial);room.dispose();
- const broken=createSoundRoom(f.renderer,async()=>{const a=asset();a.data.models[0].name='Wrong';return a;});broken.prepare('sound:1',()=>{});await flush();assert.equal(broken.prepare('sound:1',()=>{}).status,'error');broken.dispose();
+ const f=setup(t);const room=createSoundRoom(f.renderer,async url=>loaded(url));room.prepare('sound:1',()=>{});await flush();f.fail();assert.throws(()=>room.draw({drawImage(){}}),/GPU failed/);assert.deepEqual(f.current(),f.initial);room.dispose();
+ const broken=createSoundRoom(f.renderer,async url=>{const a=loaded(url);if(url===SOUND_SPAN_MODEL)a.data.models[0].name='Wrong';return a;});broken.prepare('sound:1',()=>{});await flush();assert.equal(broken.prepare('sound:1',()=>{}).status,'error');broken.dispose();
 });
 
 test('Sound main inserts the room after the base and before chrome; playback omits it',async()=>{

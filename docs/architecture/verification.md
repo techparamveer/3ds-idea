@@ -11,7 +11,8 @@ strongest layer actually reached and keep adaptations and gaps visible.
 | Delivery audit | `scripts/firmware/audit.py`, independent compare | Hashes, closure, exclusions and reproducibility | Visible correctness |
 | Real-resource render | `verify-stock-*.mjs`, `verify-native-system-ui.mjs` | Selected public resources render | Live behavior or native match |
 | Browser scenario | Operated homepage plus capture/log | Integrated controls and visible state | Native equivalence beyond that scenario |
-| Native comparison | Azahar capture, waveform or executed source fixture | Explicitly aligned region/state/timing fact | Whole-firmware or strict 1:1 acceptance |
+| Executed source fixture | Hash-pinned original code with recorded inputs/stubs | The exercised branch, ordering or arithmetic | A real title owner, visible frame or native/browser match unless actually linked |
+| Matched native comparison | Native Azahar capture/waveform paired with a named browser or source render | Explicitly aligned region/state/timing fact for that pair | Other entry states, whole-title motion or strict 1:1 acceptance |
 
 Documentation-only work needs reference/link and diff checks, not a rebuild.
 Code, asset, shader, configuration and conversion changes require the relevant
@@ -29,7 +30,10 @@ prove playback, and visible source artwork cannot prove native timing/state.
 Use the isolated original-3DS EUR 10.7.0-32E Azahar profile, white theme and
 English locale. Keep the coordinator's reference session exclusive. Record the
 initial state, exact inputs, clock/date differences, capture resolution,
-timestamps and hashes. Label phase fitting or executed fixtures explicitly.
+timestamps and hashes. Label phase fitting or executed fixtures explicitly. A native-to-source-render
+comparison must say so; it is not a native-to-live-browser comparison. Record
+synthetic owners, callbacks and service results beside a replay claim. A native
+account/setup screen cannot validate a different welcome screen.
 
 ## Evidence and integration
 
@@ -52,7 +56,8 @@ announcement check; restarting it exposed the new code. Record the build
 commit actually loaded, not only the checkout HEAD.
 
 Before edits or integration, inspect status, branch, worktrees and ancestry.
-Never modify another worker's checkout. Integrate coherent commits sequentially
-and run combined checks afterward. Preserve `uifix`, `codex/home-menu-assets`
-and `codex/3ds-os`; integration is `codex/firmware-os-10-7`. The current
-worker worktrees are listed in the [feature map](../feature-map.md#worktrees-on-24-september-2026).
+The current UI integration checkout is `/Users/paramveer/.codex/worktrees/3ds-ui-continuation`
+on `codex/health-ui-scratch`; the original checkout uses a different Git object
+database. The 24 September worktree table is historical. Follow the
+[implementation process](implementation-process.md) for ownership, sequential
+integration and current evidence handoff; preserve earlier branches/worktrees.

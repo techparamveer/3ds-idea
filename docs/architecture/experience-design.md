@@ -45,3 +45,20 @@ Portfolio content should remain concise and factual. Native crops, original
 sounds, authored reconstruction and unavailable firmware assets must be labeled
 honestly in provenance documents. Never infer achievements, measurements,
 factory fonts or firmware extraction that the evidence does not establish.
+
+## HOME defects and acceptance scenarios
+
+At `7ca3b19`, the live HOME stock-title banner path is unsupported. Camera and
+Settings upper previews have been observed blank even though their lower tiles
+can be selected and launched. Delivered models and passing source fixtures have
+not fixed that visible defect. Test the selected tile, upper context, A action
+and accessibility announcement together; correct lower artwork alone does not
+complete the selection experience. See the [activation contract](runtime-composition.md#home-banner-ownership-and-activation).
+
+The Miiverse → power off → power on → A stale-toolbar regression was corrected
+and browser-inspected: A opens selected Work. Keep that sequence in HOME
+regression coverage, along with rapid folder → stock → folder retargeting,
+launch → HOME return, sleep/wake and toolbar/grid focus changes. Remaining
+HOME motion, audio timing, indicators and complete native-screen composition
+are unaccepted; use the [feature map](../feature-map.md) for current ownership.
+Do not place engineering status or fidelity notices outside the console.

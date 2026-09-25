@@ -6,8 +6,8 @@ interactive console. There is no application backend or firmware executable in
 the runtime. Native resources are converted offline and interpreted by browser
 renderers around deterministic software state.
 
-This design map was written against integration `1be4133` and updated through
-the UI continuation on **24 September 2026**. Parental screens remain inside
+This design map was checked against UI continuation **`05cef1c` on
+25 September 2026**. Parental screens remain inside
 the existing `AppModule`, painter and `stock-screen-layout.ts` boundaries.
 The Sound entry room adds a scene-owned static model background with an injected
 prepare/draw contract; it participates in the same paired LCD readiness gate.
@@ -48,6 +48,10 @@ flowchart TD
   RoomHook --> Paint
 ```
 
+The diagram shows the live folder/default banner path. Stock title banner
+resources are a separate, dormant preparation path; the delivered assets do not
+activate selected stock previews. See [HOME banner ownership](runtime-composition.md#home-banner-ownership-and-activation).
+
 The upper logical surface expands to 800×240 texture storage; the physical
 panel remains 5:3. Three.js dependencies stay in `src/scene/`. The OS receives
 injected banner drawing callbacks and never navigates scene objects.
@@ -63,6 +67,7 @@ injected banner drawing callbacks and never navigates scene objects.
 | Visual/interaction/accessibility contract | [Experience design](experience-design.md) | `Console.tsx`, screen painters |
 | Quality, cache, loading, failure | [Performance and resilience](performance-and-resilience.md) | quality tiers, native sessions and renderers |
 | Checks and evidence | [Verification](verification.md) | `tests/`, verification scripts, SSD records |
+| Worktree delivery and fidelity gates | [Implementation process](implementation-process.md) | Coordinator integration, defect scenarios and evidence handoff |
 | Future changes with rationale | [Proposed improvements](proposed-improvements.md) | No runtime changes in this documentation task |
 
 ## Boundaries that matter

@@ -97,7 +97,10 @@ textures with the selected EUR CBMD slot. `createFirmwareModel().setTexture`
 accepts an explicit size-change option for this path because Health/eShop
 common placeholders are smaller than their localized artwork. Its default
 fixed-size contract remains for folder labels. The four audited title packs are
-published but not yet requested by the HOME host; see
+published and can be prepared by the dormant `stock-title-banner.ts` resource
+host, but are not requested or drawn by the live HOME scene. Resource readiness
+does not establish native show completion or pose submission; see
+[HOME ownership](runtime-composition.md#home-banner-ownership-and-activation) and
 [common-banner delivery](../stock-common-banner-delivery.md).
 
 ## Cleanup contract

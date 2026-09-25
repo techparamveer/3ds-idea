@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: UI continuation through **`8bdcca0`** on `codex/health-ui-scratch`,
+Checkpoint: UI continuation through **`05cef1c`** on `codex/health-ui-scratch`,
 25 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -13,8 +13,10 @@ It is not a completion claim and does not hold evidence of its own.
   matched native comparison of pixels, motion, audio and input timing. Do not
   turn test counts into a completion percentage.
 
-A worker commit is delivered only after it is integrated, built and checked in
-the browser by the coordinator.
+Runtime/asset work is delivered after integration, combined checks and browser
+inspection by the coordinator. Documentation-only changes need link/diff checks.
+The [implementation process](architecture/implementation-process.md) defines
+worktree handoff and source-to-visible HOME banner gates.
 
 ## Status words
 
@@ -28,7 +30,7 @@ the browser by the coordinator.
 
 ## Features
 
-| Feature | Status at `f65db30` | Next action | Owner | Evidence |
+| Feature | Status at the checkpoint | Next action | Owner | Evidence |
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
@@ -54,6 +56,16 @@ the browser by the coordinator.
 | Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power and foreground applet announcements corrected (`b1fedf5`), including live Notes over suspended Work | Other screen-specific announcements and full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
 | Asset conversion, provenance | Implemented. The current public-only audit passes 1,707 resources, 601 layouts and 1,871 animations with zero integrity errors after registering the Settings and four common title banners plus EUR selections and correcting five stale Sound pack hashes/sizes. The converted Settings model and five textures match manifest hashes and CBMD source identity. | Keep unsupported fields explicit and rerun the private-source audit with the current extraction tree before native acceptance | Assets | [Asset architecture](architecture/assets-and-materials.md), [Sound resource selection](sound-entry-background-source.md), [stock banner source](stock-home-banner-source.md) |
 | Final acceptance | Open | Isolated Azahar profile and one mapped Settings touch route are verified; extend reliable native input, then run a versioned browser/native scenario matrix and requirement audit | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
+
+## Current integration on 25 September 2026
+
+The active checkout is `/Users/paramveer/.codex/worktrees/3ds-ui-continuation`,
+branch `codex/health-ui-scratch`, source evidence through `05cef1c`. Its Git object database
+is separate from the original checkout. New continuation worktrees must use it
+as their repository base. The process/design pass uses sibling
+`3ds-home-process-design` on `codex/home-process-design-20260925`.
+Run `git worktree list` in the integration checkout for the live worker inventory;
+the dated table below is retained history, not a current assignment list.
 
 ## Worktrees on 24 September 2026
 

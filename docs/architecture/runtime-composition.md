@@ -1,6 +1,6 @@
 # Runtime composition and ownership
 
-Checkpoint: `1be4133`, unchanged through `b6fb55e`. [Scope](../portfolio-ui-scope.md) limits stock apps to UI
+Checkpoint: HOME ownership checked through `05cef1c` (25 September 2026). [Scope](../portfolio-ui-scope.md) limits stock apps to UI
 and navigation, with Sound playback and read-only Camera media.
 
 ## Startup
@@ -38,12 +38,47 @@ See [proposed improvements](proposed-improvements.md) for that remaining risk.
 | `native-title-assets.ts` | Requested packs, textures, renderer and owned fonts | Idempotent result disposal; borrowed fonts survive |
 | `runtime-effects.ts` | Capability adapter, portfolio music, ordered save queue | Releases owners; closes storage after emitted writes settle |
 | `audio.ts` | Gesture-unlocked context, cues and persistent HOME music transport | Revision/abort guards; scene disposal closes its context |
-| `firmware-banner.ts` | Native primary/background resources and offscreen targets | Scene disposal; async completion guards |
+| `firmware-banner.ts` | Live folder/default/background resources and offscreen targets | Scene disposal; async completion guards |
+| `stock-title-banner.ts` | Dormant Camera/Sound/Health/eShop common model plus EUR texture replacement | Ticket retarget/release/dispose; not instantiated by the live scene |
 | `app-persistence.ts` | Version-2 IndexedDB connection | Version change or effect-owner disposal |
 
 Capability/media-storage utilities remain for compatibility and tests. Current
 stock modules do not request capture, import, microphone, motion, account or
 network operations. Their existence is not a product requirement.
+
+## HOME banner ownership and activation
+
+The live chain is `console-scene.ts` → `home-banner-host.ts` →
+`home-banner-service.ts` / `home-banner-lifecycle.ts` → immutable host view →
+`screens.ts` → injected `firmware-banner.ts` draw callbacks. Selection is
+observed at explicit boundaries in the counted HOME pass. Manager work and
+attached scene-controller work remain separate; painting does not advance them.
+Folder/default readiness is scoped to generation and request epoch. Clear has
+no primary. App selections and unsupported toolbar categories currently release
+that service and return `unsupported`; a previous folder must not remain visible
+as the selected application's banner. Authored portfolio banners use their
+existing separate painter.
+
+`createStockTitleBannerResourceHost` is implemented but **not connected** to
+that chain. A ticket contains console generation, request epoch and title kind.
+Retargeting releases the current model; a late fetch cannot publish into the new
+ticket. A current fetch validates common/EUR source identities, texture names,
+mesh count and clips before creating a model and applying the selected artwork.
+Failure stays explicit in ticket status. This owner has no AbortSignal/deadline
+contract and its `ready` value means prepared GPU resources, not native worker
+completion, show acknowledgement, attachment or a displayed LCD frame.
+
+Settings is not one of those four supported resource kinds. Its delivered model
+and the executed controller/visibility/scene insertion branches remain a
+separate [activation gate](../settings-home-banner-activation-gap.md).
+The scene-list replay reaches render dispatch using a synthetic candidate. The
+later real-resource worker replay (`05cef1c`) decodes original Settings
+`banner.bin`, constructs candidates at `M+0x50/+0x54`, and reaches graphics
+service `0x2354a0` during state-4 `COMMON` binding. It stops there: the model
+and controller are not bound and the first visible pose/pixels remain unproved.
+Do not connect stock titles by reusing folder/default activation or by treating a
+resolved fetch as show completion. The [implementation process](implementation-process.md)
+defines the evidence required for that change.
 
 ## Foreground native view lifecycle
 

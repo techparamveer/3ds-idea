@@ -28,9 +28,7 @@ be compared to this capture. Existing room model/mipmap evidence is in
 [Sound room source](sound-room-source.md) and
 [Sound room mipmaps](sound-room-mipmap-source.md). The remaining lower error
 includes row glyph/raster colour, record texture sampling, footer edges and
-bird pose. The native bird schedule remains unresolved as documented in
-[Sound bird source](sound-entry-bird-source.md). No new songs or device controls
-were introduced.
+the then-offset bird pose. A later [settled bird placement comparison](sound-entry-bird-source.md#settled-entry-pose-comparison) aligns the three visible Wait sprites in this one capture. The native bird schedule remains unresolved. No new songs or device controls were introduced.
 
 The paired source images and comparison JSONs are in
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/sound-empty-row-2026-09-25/`.

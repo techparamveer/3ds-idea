@@ -21,6 +21,8 @@ test('native entry uses source chrome and complete source-bound labels without c
  assert.equal(names.filter(n=>n==='S_BG-Record').length,2);
  for(const layout of ['S_Common-BrwCursor','S_Common-IconList','S_Common-Text','S_BG_D-Ctr','C_SldH_L','S_Common-OpLBtn','S_Common-OpRBtn','S_Common-OpenBtn','S_Common-SetBtn','S_Common-BackBtn','S_Inf_U-UnderBar','S_Inf_U-Hour','S_Inf_U-PlayTime'])assert.ok(names.includes(layout),layout);
  assert.equal(names.filter(n=>n==='ParakeetA_U').length,2);assert.equal(names.filter(n=>n==='ParakeetA_D').length,1);
+ assert.deepEqual(calls.filter(c=>c.layout==='ParakeetA_U').map(c=>c.options.center),[[35,192],[94,192]]);
+ assert.deepEqual(calls.filter(c=>c.layout==='ParakeetA_D').map(c=>c.options.center),[[21,123]]);
  const options=n=>calls.find(c=>c.layout===n).options;
  assert.equal(options('S_Common-OpenBtn').overrides.TxtC.text,'Open');
  assert.equal(options('S_Common-Text').overrides.Null.text,'Record & Edit Sounds');

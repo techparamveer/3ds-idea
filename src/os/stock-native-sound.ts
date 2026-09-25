@@ -74,8 +74,10 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     okay=drawNativeSoundRecordBackground(renderer,top,'top')&&okay;
     okay=drawNativeSoundRecordBackground(renderer,bottom,'bottom')&&okay;
     entry(top,'sound-info','S_Inf_U-TitleBar',{bindings:[{name:'S_Inf_U-TitleBar_TitleLeftIn',frame:5}],overrides:{TitlTxt:{text:message('S','C_T_00').text,translation:[-104,104,0],size:[240,23]}}});
-    for(const x of [35,95])entry(top,'sound-bird','ParakeetA_U',{bindings:[{name:'ParakeetA_U_Wait',frame:0}],center:[x,198]});
-    entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[20,128]});
+    // The settled native SD-absent capture places the Wait sprites five to six
+    // LCD pixels above the uncorrected source-layout mounts at these x positions.
+    for(const x of [35,94])entry(top,'sound-bird','ParakeetA_U',{bindings:[{name:'ParakeetA_U_Wait',frame:0}],center:[x,192]});
+    entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[21,123]});
     entry(top,'sound-info','S_Inf_U-UnderBar');
     entry(top,'sound-hud','C_HudSndB',{center:[7,228],bindings:[{name:'C_HudSndB_Pattern',frame:0}]});
     entry(top,'sound-hud','C_HudBut_B',{center:[51,228],bindings:[{name:'C_HudBut_B_Pattern',frame:4}]});

@@ -102,3 +102,33 @@ Run the audit with absolute `--code`, `--archive`, `--report`, `--textures` path
 run the pose verifier with absolute `--report`, `--textures`, `--output` paths.
 No browser/emulator session was driven. As this is evidence-only, an application
 build is not required; the preceding live mipmap commit passed its production build.
+
+## Settled entry pose comparison
+
+The single pinned SD-absent native capture can resolve the **placement** of its
+three visible Wait sprites without resolving their idle schedule. The published
+source layout and Wait clips remain in use; the empty-entry painter now centres
+the upper sprites at `(35,192)` and `(94,192)` and the lower sprite at `(21,123)`
+in their respective 400×240 and 320×240 LCDs. The earlier positions were
+`(35,198)`, `(95,198)` and `(20,128)`. No other Sound view was changed.
+
+`scripts/compare-sound-bird-pose.mjs` checks the pinned capture SHA and compares
+vivid green/yellow silhouette pixels in fixed matched LCD crops. This avoids
+judging the upper room, which the source-screen verifier does not compose.
+
+| Bird | Earlier silhouette IoU | Corrected IoU | Earlier / corrected RGB error on native bird pixels |
+| --- | ---: | ---: | ---: |
+| Upper left | 0.576 | 1.000 | 51.342 / 0.762 |
+| Upper right | 0.563 | 1.000 | 52.603 / 0.698 |
+| Lower | 0.594 | 1.000 | 47.990 / 0.027 |
+
+Each native crop has 478 coloured bird pixels; all 478 occur at the same
+coordinates after the correction. The RGB metric is mean absolute difference
+per channel out of 255. These measurements establish one settled screenshot
+pose only. The pose comparison JSON and source-screen renders are under
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/sound-bird-pose-2026-09-25/`.
+The pinned executable/archive audit was rerun there and verified 38 instruction
+facts and 12 original clips. The 57-pair source-screen verifier, focused Sound
+entry test, typecheck and production build pass in the isolated worktree.
+The animation, visibility, third-bird and presentation-clock gates above remain
+open. A live browser inspection remains the integration coordinator's gate.

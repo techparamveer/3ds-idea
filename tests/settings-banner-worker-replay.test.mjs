@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const replay = JSON.parse(readFileSync(new URL('../docs/evidence/settings-banner-worker-replay.json', import.meta.url), 'utf8'));
+const camera = JSON.parse(readFileSync(new URL('../docs/evidence/camera-banner-worker-replay.json', import.meta.url), 'utf8'));
 
 test('Settings source replay retains failure, launch and retarget boundaries', () => {
   assert.equal(replay.codeSha256, '243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9');
@@ -42,4 +43,25 @@ test('Settings source replay retains failure, launch and retarget boundaries', (
   }
   assert.equal(replay.postState5Acknowledgement.missingPrimary.requestPending, 0);
   assert.deepEqual(replay.postState5Acknowledgement.missingPrimary.visibilityRequests.map(([, visible]) => visible), [1]);
+  assert.deepEqual(replay.presentationWorkerEarlyGate.matchingRequest.serviceArguments, ['0x34c020']);
+  assert.deepEqual(replay.presentationWorkerEarlyGate.retargetedTitle.serviceArguments, ['0x0']);
+  assert.equal(replay.retargetState6.requestPending, 0);
+  assert.equal(replay.retargetState6.state, 2);
+  assert.deepEqual(replay.retargetState6.visibilityRequests.map(([, visible]) => visible), [0, 0]);
+  assert.equal(replay.retargetState2.stillVisible.state, 2);
+  assert.equal(replay.retargetState2.hidden.state, 1);
+});
+
+test('pinned Camera CBMD passes native common and EUR LZ11 decode in title worker', () => {
+  const worker = camera.cameraTitleWorker;
+  assert.equal(worker.cbmdSha256, 'e4808dcf84e490c73200ee5f9cb2ba72d096c93d6ccdf08d88d733988fd66280');
+  assert.deepEqual(worker.archiveTitleKey, ['0x22400', '0x40010', 0]);
+  assert.equal(worker.commonOffset, 0x88);
+  assert.equal(worker.selectedOffset, 0x7d82);
+  assert.equal(worker.commonSha256, '068d2d09cddc0f9c23f9b3e126f7a4942ce52957910102a831298e14fa1b361d');
+  assert.equal(worker.selectedSha256, '21f8723b955b36b9575d0a92b942889bd978f868163c9b75063528f561105ccb');
+  assert.equal(worker.nativeSizeCalls, 2);
+  assert.equal(worker.nativeDecodeCalls, 2);
+  assert.equal(worker.completionStoreReached, true);
+  assert.equal(worker.completionByte, 1);
 });

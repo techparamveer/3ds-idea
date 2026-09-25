@@ -53,7 +53,31 @@ The later [type-1 worker replay](native-settings-banner-pose.md) now reaches
 the title worker's completion-byte store after **supplied** successful common
 and selected resource operations, and independently executes the post-state-5
 acknowledgement helper. Matching identity/type clears the pending request and
-requests show; a retarget preserves pending. Neither fixture executes the
-presentation worker body, proves completion with these four real CBMDs, samples
-their `COMMON` clips through native scene updates, or verifies pixels. Those
-remain activation gates.
+requests show; a retarget preserves pending. The fixtures establish these
+manager/worker control branches with supplied resource results, not completion
+with all four real CBMDs, `COMMON` clip timing or visible pixels.
+
+A subsequent hash-pinned [Camera replay](evidence/camera-banner-worker-replay.json)
+loads the private `e4808dcf…66280` CBMD into the original title worker and
+executes HOME's real `0x2201cc` size and `0x220070` LZ11 routines twice. The
+resulting common and EUR CGFX hashes exactly match the independent conversion
+record, and the worker reaches its completion-byte store. Archive I/O,
+allocations and candidate constructors are still supplied; successful native
+model/controller construction and final presentation are unproved. The early
+presentation-worker gate and state-6/2 retarget fragments are replayed, but
+they do not establish a complete replacement cycle or clip cadence. Sound,
+Health and eShop have no equivalent real-CBMD worker execution in this pass.
+The Camera fixture SHA-256 is
+`55d2dc3ad8b77b8a8744f9a7a64a53745ce7f68a58021d2d61ee42325c2a5c45`.
+Reproduce it with `scripts/replay-settings-banner-workers.py --code
+/absolute/private/home/exefs/code.bin --camera-banner
+/absolute/private/camera/exefs/banner.bin`; the script rejects changed HOME or
+Camera hashes. The private replay and test log are on the firmware SSD under
+`presentation/type1-worker-completion/`.
+
+All four published common models declare a looping `COMMON` skeletal clip of
+600 source frames; Sound additionally declares a looping `COMMON` material
+clip of 600 frames. Those are decoded source metadata. This replay has not
+sampled their native controller's first submitted frame, wrap or relationship
+to actual display presentation, so a host must not infer wall-clock timing
+from the frame count.

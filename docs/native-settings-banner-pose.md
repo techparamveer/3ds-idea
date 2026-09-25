@@ -129,13 +129,26 @@ checks current identity before asking the objects to show or hide.
 Reproduce with `replay-settings-banner-workers.py --code /absolute/private/home/exefs/code.bin`
 using Unicorn 2.1.4. The script rejects an unexpected executable SHA-256.
 The committed [JSON fixture](evidence/settings-banner-worker-replay.json) has
-SHA-256 `ae0771bb62a3708b597d124decdb67c50acc906eb7fdcd177561fe24228fa921`;
+SHA-256 `656498c0beec14119920f9a305679feeed56e0d4ce352d2e6fa62cc0e92dd129`;
 an identical run and the full test log are retained under the private SSD
 `presentation/type1-worker-completion/` artifact directory.
 
-The replay does not execute the body of presentation worker `0x2492d8`, native
-thread scheduling, a realistic retarget followed by the next state-6/2/1/3
-cycle, or the `COMMON` controller's submitted-frame sequence. The converted
+The follow-up replay executes the early no-active-effect branch of presentation
+worker `0x2492d8`: with supplied matching current/requested Camera words and a
+nonzero service status, it passes `0x34c020` to `0x1f9e8c`; a changed title
+word passes zero. That worker branch returns, but `0x1f9e8c` is stubbed and
+the native scene/render side of this worker remains unexecuted. A separate
+retarget fragment executes pending state 6 through the native identity
+predicate and hide function: it clears the consumed pending byte, asks both
+candidate objects to hide and moves to state 2. The state-2 fragment waits
+while the old primary's actual-visible byte is set and enters state 1 when it
+clears. These fragments do not form a continuous state-6/2/1/3 recovery run;
+the existing gate fixture establishes the subsequent six eligible state-1
+calls under its separate supplied conditions.
+
+The replay does not execute native thread scheduling, the presentation
+worker's render branch, a continuous retarget replacement cycle, or the
+`COMMON` controller's submitted-frame sequence. The converted
 common clips prove their source durations and loop flags, while the manager
 and scene-pass order proves only an update opportunity. The four title assets
 remain dormant until worker completion and recovery are demonstrated with real

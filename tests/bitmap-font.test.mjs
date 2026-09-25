@@ -49,6 +49,29 @@ test('original shared font follows traced BnrDsTitle and folder-initial centred 
  assert.deepEqual([q.x,q.y,q.width,q.height],[9,0,8,30],'the already matched 32px folder initial keeps its source position');
 });
 
+test('Settings single-line MSBT spacing retains the native centered alpha raster',()=>{
+ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+ const manifest=JSON.parse(fs.readFileSync(new URL('fonts/shared/font.json',root),'utf8'));
+ const pack=JSON.parse(fs.readFileSync(new URL('packs/settings/contents/0000-0000003d/message_EU.json',root),'utf8'));
+ const bank=pack.messages.mset,font=new BitmapFont(manifest,manifest.sheets.map(()=>({naturalWidth:4096,naturalHeight:4096})));
+ font.glyphMask=g=>({width:g.width+2,height:g.height+2,data:new Uint8ClampedArray((g.width+2)*(g.height+2)*4).fill(255)});
+ for(const [label,width,height] of [['top_nnid',236,30],['top_settings',134,42]]){
+  const message=bank.messages[bank.labels[label]],style=pack.styles[bank.styleTable].styles[message.styleIndex];
+  assert.notEqual(style.lineSpacing,0,'the original Settings style exercises this case');
+  assert.equal(message.text.includes('\n'),false);
+  const size=[(manifest.width??manifest.height)*style.fontScale[0],manifest.height*style.fontScale[1]];
+  const render=lineSpacing=>{
+   let result,drawCalls=0;
+   const context={createImageData:(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)}),putImageData:image=>{result=image.data;},drawImage:()=>{drawCalls++;}};
+   font.drawNative(context,message.text,width,height,size,4,style.characterSpacing,lineSpacing,0);
+   assert.equal(drawCalls,0,'alpha glyphs use pixel-centre rasterization');
+   assert.ok(result.some((value,index)=>index%4===3&&value>0));
+   return result;
+  };
+  assert.deepEqual(render(style.lineSpacing),render(0),`${label}: unused line spacing cannot change a single line`);
+ }
+});
+
 test('native alpha glyph raster uses hard pixel-centre coverage and the atlas border for linear filtering',()=>{
  const surface=(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});
  const glyph={width:1,height:1},source=surface(3,3),target=surface(3,3),quad={glyph,x:.4,y:.4,width:1.2,height:1.2};

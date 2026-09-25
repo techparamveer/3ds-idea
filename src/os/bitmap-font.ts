@@ -146,10 +146,11 @@ export class BitmapFont {
     size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     const lines=value.replace(/\r\n?/g,'\n').split('\n').map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
-    if(lines.length===1&&alignment===4&&lineAlignment===0&&spacing===0&&lineSpacing===0){
+    if(lines.length===1&&alignment===4&&lineAlignment===0&&spacing===0){
       // HOME's NW writer flags 0x111: ceil half the measured rectangle before
       // adding FINF ascent and subtracting TGLP baseline (0x2ffc90/0x300340).
-      // Keep fractional advances; only the centered origin is rounded.
+      // Keep fractional advances; only the centered origin is rounded. Line
+      // spacing cannot change a single line, even when an MSBT style sets it.
       const quads=nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
       if(this.manifest.colorMode==='luminance-alpha'){
         for(const q of quads){const g=q.glyph;c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,q.x,q.y,q.width,q.height);}

@@ -163,12 +163,16 @@ export class BitmapFont {
     }
     const lineHeight=(this.manifest.lineFeed??this.manifest.height)*sy+lineSpacing;
     const blockHeight=size[1]+(lines.length-1)*lineHeight;
-    const y0=Math.floor(alignment/3)*(height-blockHeight)/2;
+    const vertical=Math.floor(alignment/3);
+    // The centred NW writer rounds the block and each line's half-width up.
+    // Keeping fractional half-widths shifts some Settings lines by one pixel.
+    const y0=vertical===1?height/2-Math.ceil(blockHeight/2):vertical*(height-blockHeight)/2;
     const widths=lines.map(glyphs=>glyphs.reduce((n,g)=>n+(g?.advance??0)*sx+spacing,0)-(glyphs.length?spacing:0));
     const blockWidth=Math.max(0,...widths);
     lines.forEach((glyphs,row)=>{
       const runWidth=widths[row],horizontal=lineAlignment===0?alignment%3:lineAlignment-1;
-      let x=(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
+      let x=horizontal===1&&alignment%3===1?width/2-Math.ceil(runWidth/2)
+        :(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
       for(const g of glyphs){if(!g)continue;
         if(g.width)c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,x+g.left*sx,y0+row*lineHeight,g.width*sx,g.height*sy);
         x+=g.advance*sx+spacing;

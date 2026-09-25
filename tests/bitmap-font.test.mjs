@@ -72,6 +72,29 @@ test('Settings single-line MSBT spacing retains the native centered alpha raster
  }
 });
 
+test('Settings multiline labels round each centred line and the text block independently',()=>{
+ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+ const manifest=JSON.parse(fs.readFileSync(new URL('fonts/shared/font.json',root),'utf8'));
+ const pack=JSON.parse(fs.readFileSync(new URL('packs/settings/contents/0000-0000003d/message_EU.json',root),'utf8'));
+ const bank=pack.messages.mset,font=new BitmapFont(manifest,manifest.sheets.map(()=>({naturalWidth:4096,naturalHeight:4096})));
+ for(const label of ['top_internet','top_parental','top_software']){
+  const message=bank.messages[bank.labels[label]],style=pack.styles[bank.styleTable].styles[message.styleIndex];
+  const size=[manifest.width*style.fontScale[0],manifest.height*style.fontScale[1]],sx=size[0]/manifest.width;
+  const lines=message.text.split('\n'),calls=[];
+  font.drawNative({drawImage:(...args)=>calls.push(args)},message.text,134,42,size,4,style.characterSpacing,style.lineSpacing,0);
+  const lineHeight=manifest.lineFeed*size[1]/manifest.height+style.lineSpacing;
+  const blockHeight=size[1]+lineHeight;
+  for(const [row,line] of lines.entries()){
+   const first=manifest.glyphs[String(line.codePointAt(0))],runWidth=Array.from(line).reduce((sum,char)=>sum+manifest.glyphs[String(char.codePointAt(0))].advance*sx,0);
+   const expectedX=67-Math.ceil(runWidth/2)+first.left*sx;
+   const expectedY=21-Math.ceil(blockHeight/2)+row*lineHeight;
+   const call=calls.find(args=>args[1]===first.x&&args[2]===first.y&&Math.abs(args[6]-expectedY)<.01);
+   assert.ok(call,`${label} line ${row} glyph exists at centred block row`);
+   assert.ok(Math.abs(call[5]-expectedX)<.01,`${label} line ${row} uses its own rounded width`);
+  }
+ }
+});
+
 test('native alpha glyph raster uses hard pixel-centre coverage and the atlas border for linear filtering',()=>{
  const surface=(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});
  const glyph={width:1,height:1},source=surface(3,3),target=surface(3,3),quad={glyph,x:.4,y:.4,width:1.2,height:1.2};

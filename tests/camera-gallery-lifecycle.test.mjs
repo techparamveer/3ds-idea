@@ -25,6 +25,7 @@ source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export co
 source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('native-screen-input'))));
 const {createStockScreenPresentation}=await import(url(source));
 const messages=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/msg-EU_English.json',import.meta.url),'utf8'));
+const gallery=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',import.meta.url),'utf8'));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 
 const images=[];
@@ -42,7 +43,7 @@ function surface(canvas){
   drawImage(image,...rect){if(image instanceof FakeImage)this.marks.push(['photo',image.src,...rect]);else this.marks=structuredClone(image.ctx.marks);}};
 }
 function nativeAssets(){
- return {diagnostics:[],disposals:0,dispose(){this.disposals++;},renderer:{packs:{'camera-messages':messages},draw(ctx,_pack,name,opts={}){ctx.marks.push(['layout',name,opts.overrides?.ThmbPic?.alpha===0]);return true;}}};
+ return {diagnostics:[],disposals:0,dispose(){this.disposals++;},renderer:{packs:{'camera-messages':messages,'camera-gallery':gallery},draw(ctx,_pack,name,opts={}){ctx.marks.push(['layout',name,opts.overrides?.ThmbPic?.alpha===0]);return true;},drawLayout(ctx,_pack,name){ctx.marks.push(['layout',name,false]);return true;}}};
 }
 const cells=marks=>marks.filter(([kind,name])=>kind==='layout'&&name==='P_BrwsPic').map(([,,shown])=>shown?'photo':'placeholder');
 const photos=marks=>marks.filter(([kind])=>kind==='photo').map(([,src])=>src);

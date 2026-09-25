@@ -4,12 +4,13 @@ import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 import { cameraBrowseCellRect, cameraBrowsePane, stockScreenTargets } from './stock-screen-layout';
 import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
-import { nativeMessageOverride } from './native-layout';
+import { nativeMessageOverride, type NativeLayout } from './native-layout';
 
 export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',alias:'camera-gallery',
   layouts:['P_BrwsBase_D','P_BrwsFld','P_BrwsPic','P_BrwsCursor_D','P_BrwsPhoMntBase','P_BrwsTxt_D'],
   animations:[
+    'P_BrwsBase_D_Brws',
     'P_BrwsBase_D_Default',
     'P_BrwsFld_Default','P_BrwsFld_PicL',
     'P_BrwsPic_Default','P_BrwsPic_PicL',
@@ -25,6 +26,23 @@ const record=(value:JsonValue|undefined):RecordValue=>value&&typeof value==='obj
 const records=(value:JsonValue|undefined)=>Array.isArray(value)?value.map(record):[];
 const str=(value:JsonValue|undefined)=>typeof value==='string'?value:'';
 const cameraTitle=(id:string)=>id==='camera'||id==='camera-applet';
+/** Native populated browse capture, lower LCD background (255,161,0).
+ * The source UserBG material exposes a runtime colour slot, defaulting blue. */
+export const cameraBrowseUserColor=[255,161,0,255] as const;
+export function cameraBrowseOrange(source:NativeLayout):NativeLayout{
+  const posed=structuredClone(source),material=posed.materials.find(item=>item.name==='UserBG');
+  if(!material||material.constantColors[5]?.join(',')!=='0,128,255,255')throw new Error('Missing Camera source UserBG colour slot');
+  material.constantColors[5]=[...cameraBrowseUserColor];
+  return posed;
+}
+const browseBackgrounds=new WeakMap<NativeLayoutRenderer,NativeLayout>();
+export function cameraDateGroupOrange(source:NativeLayout):NativeLayout{
+  const posed=structuredClone(source),material=posed.materials.find(item=>item.name==='ThmbBase');
+  if(!material||material.constantColors[5]?.join(',')!=='120,193,31,255')throw new Error('Missing Camera source date-group colour slot');
+  material.constantColors[5]=[...cameraBrowseUserColor];
+  return posed;
+}
+const browseDateGroups=new WeakMap<NativeLayoutRenderer,NativeLayout>();
 /** Source `P_FinderVS_U` capture/error overlays kept out of the read-only gallery. */
 const cameraUpperHidden={
   Preview:{visible:false},FocusAdj:{visible:false},ImageInfo:{visible:false},ViewInfo:{visible:false},
@@ -58,21 +76,31 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
   };
   let okay=true;
   const draw=(layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(bottom,'camera-gallery',layout,opts)&&okay;};
-  // UserBG carries a blue replacement default. Keep the source neutral BG
-  // visible until the native runtime background binding is available.
-  draw('P_BrwsBase_D',{bindings:[{name:'P_BrwsBase_D_Default',frame:0}],overrides:{UserBG:{visible:false},BG:{visible:true,alpha:255},'-B-ZoomUp':{visible:false},'-B-ZoomBack':{visible:false}}});
+  const base=renderer.packs['camera-gallery']?.layouts?.P_BrwsBase_D;
+  if(!base)return false;
+  let orange=browseBackgrounds.get(renderer);
+  if(!orange){orange=cameraBrowseOrange(base);browseBackgrounds.set(renderer,orange);}
+  okay=renderer.drawLayout(bottom,'camera-gallery','P_BrwsBase_D',orange,{bindings:[{name:'P_BrwsBase_D_Brws',frame:0}],overrides:{UserBG:{visible:true},BG:{visible:false},'-B-ZoomUp':{visible:false},'-B-ZoomBack':{visible:false}}})&&okay;
   if(view.screen==='photo'){
     const [x,y,w,h]=cameraPhotoMountRect;
     image(record(data.photo),x,y,w,h);
     draw('P_BrwsPhoMntBase',{bindings:[{name:'P_BrwsPhoMntBase_PicL',frame:0}],overrides:{'-PhoMntPos':{visible:false}}});
   }else{
+    draw('P_BrwsPhoMntBase',{bindings:[{name:'P_BrwsPhoMntBase_PicL',frame:0}]});
     const offset=view.screen==='gallery'?cameraStripOffset(readCameraBrowse(data.cameraBrowse).output):Math.floor(view.selection/6)*CAMERA_BROWSE_PAGE_WIDTH;
     bottom.save();bottom.beginPath();bottom.rect(cameraBrowsePane.x,cameraBrowsePane.y,cameraBrowsePane.width,cameraBrowsePane.height);bottom.clip();
     for(const r of stockScreenTargets(view).filter(r=>r.row!==undefined)){
       const row=view.rows[r.row!],rect=cameraBrowseCellRect(r.row!,offset),x=rect[0]+rect[2]/2,y=rect[1]+rect[3]/2;
-      if(view.screen==='main'){
+      if(view.screen==='main'||row.id==='camera-date-group'){
         const folder=folders.find(f=>'folder:'+str(f.id)===row.id);
-        draw('P_BrwsFld',{center:[x,y],bindings:[{name:'P_BrwsFld_Default',frame:0},{name:'P_BrwsFld_PicL',frame:0}],overrides:{TxtThmb:{text:String(records(folder?.photos).length)}}});
+        // Native first cell is a photo-date group. Portfolio files provide no
+        // shared capture date, so retain the source cell without fabricated date text.
+        const opts={center:[x,y] as [number,number],bindings:row.id==='camera-date-group'?[{name:'P_BrwsFld_PicL',frame:0}]:[{name:'P_BrwsFld_Default',frame:0},{name:'P_BrwsFld_PicL',frame:0}],overrides:{TxtThmb:{text:row.id==='camera-date-group'?'':String(records(folder?.photos).length)}}};
+        if(row.id==='camera-date-group'){
+          let dateGroup=browseDateGroups.get(renderer);
+          if(!dateGroup){const source=renderer.packs['camera-gallery']?.layouts?.P_BrwsFld;if(!source)return false;dateGroup=cameraDateGroupOrange(source);browseDateGroups.set(renderer,dateGroup);}
+          okay=renderer.drawLayout(bottom,'camera-gallery','P_BrwsFld',dateGroup,opts)&&okay;
+        }else draw('P_BrwsFld',opts);
       }else{
         const shown=image(photos.find(p=>'photo:'+str(p.id)===row.id)??{},...cameraThumbPicRect(x,y));
         // Hide only the load placeholder. ThmbMask is an unflagged child, so it
@@ -95,7 +123,7 @@ export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   const data=view.data??{},folders=records(data.folders),photos=records(data.photos);
   const selected=view.rows[view.selection];
   const folder=folders.find(f=>'folder:'+str(f.id)===selected?.id);
-  const photo=view.screen==='photo'?record(data.photo):view.screen==='gallery'?photos.find(p=>'photo:'+str(p.id)===selected?.id)??{}:records(folder?.photos)[0]??{};
+  const photo=view.screen==='photo'?record(data.photo):view.screen==='gallery'?photos.find(p=>'photo:'+str(p.id)===selected?.id)??photos[0]??{}:records(folder?.photos)[0]??{};
   const empty=view.screen==='main'&&!view.rows.length;
   const folderView=view.screen==='main'&&!empty;
   const count=folderView?records(folder?.photos).length:photos.length;

@@ -10,7 +10,7 @@ const transpile=(name,overrides={})=>{
   const {outputText}=ts.transpileModule(readFileSync(url,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
   return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(path.endsWith('.ts')?path:`${path}.ts`,url).href)+suffix));
 };
-const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect}=await import(transpile('stock-native-camera',{
+const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,cameraBrowseOrange,cameraDateGroupOrange,cameraBrowseUserColor,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect}=await import(transpile('stock-native-camera',{
   './stock-screen-layout':transpile('stock-screen-layout'),
   './native-layout':transpile('native-layout'),
 }));
@@ -33,6 +33,7 @@ function paint(screenView,imageResult=true){
   const renderer={
     packs:{'camera-gallery':pack,'camera-finder':finder,'camera-messages':messages},
     draw(_ctx,_pack,layout,opts){draws.push({layout,opts,pack:_pack});return true;},
+    drawLayout(_ctx,_pack,layout,source,opts){draws.push({layout,opts,pack:_pack,source});return true;},
   };
   const images=[];
   const okay=drawNativeCameraLower(renderer,bottom,screenView,{image:(_c,url,x,y,w,h)=>{images.push([url,x,y,w,h]);return imageResult;}});
@@ -44,6 +45,7 @@ function paintFrame(screenView,imageResult=true){
   const renderer={
     packs:{'camera-gallery':pack,'camera-finder':finder,'camera-messages':messages},
     draw(_ctx,_pack,layout,opts){draws.push({layout,opts,pack:_pack});return true;},
+    drawLayout(_ctx,_pack,layout,source,opts){draws.push({layout,opts,pack:_pack,source});return true;},
   };
   const images=[];
   const okay=drawNativeCameraFrame(renderer,top,bottom,screenView,{image:(_c,url,x,y,w,h)=>{images.push([url,x,y,w,h]);return imageResult;}});
@@ -58,6 +60,26 @@ test('published browse pack contains the large thumbnail clips the gallery now r
   assert.deepEqual(pack.animations.P_BrwsPic_PicL.textures,['P_Thmb_Pho2x3_SD.bclim','P_Thmb_Pho5x7.bclim']);
   assert.equal(pack.layouts.P_BrwsFld.textures[0],'P_Thmb_DatePho5x7.bclim');
   assert.equal(pack.layouts.P_BrwsPic.textures[1],'P_Thmb_Pho5x7_SD.bclim');
+  const bank=messages.messages.P;
+  assert.equal(bank.messages[bank.labels.Shoot_05].text,'View Photos/Videos');
+});
+
+test('settled browse exposes the native UserBG slot and preserves source materials',()=>{
+  const original=pack.layouts.P_BrwsBase_D;
+  const source=original.materials.find(material=>material.name==='UserBG');
+  assert.deepEqual(source.constantColors[5],[0,128,255,255]);
+  assert.deepEqual([...cameraBrowseUserColor],[255,161,0,255]);
+  const posed=cameraBrowseOrange(original);
+  assert.deepEqual(posed.materials.find(material=>material.name==='UserBG').constantColors[5],[255,161,0,255]);
+  assert.deepEqual(source.constantColors[5],[0,128,255,255],'published pack stays immutable');
+  const hidden=pack.animations.P_BrwsBase_D_Brws.tracks.find(track=>track.target==='BG'&&track.property==='visible');
+  assert.equal(hidden.keys[0].value,0);
+  const frame=paint(view('gallery',[{id:'photo:a',label:'A'}],{photos:[{id:'a',src:'/portfolio/a.jpg'}]}));
+  assert.ok(frame.draws.some(draw=>draw.layout==='P_BrwsPhoMntBase'&&draw.opts.overrides?.['-PhoMntPos']===undefined),'source page mount remains visible in browse');
+  const dateSource=pack.layouts.P_BrwsFld.materials.find(material=>material.name==='ThmbBase');
+  assert.deepEqual(dateSource.constantColors[5],[120,193,31,255]);
+  assert.deepEqual(cameraDateGroupOrange(pack.layouts.P_BrwsFld).materials.find(material=>material.name==='ThmbBase').constantColors[5],[255,161,0,255]);
+  assert.deepEqual(dateSource.constantColors[5],[120,193,31,255]);
 });
 
 test('photo mount and thumbnail slots match the published centered panes',()=>{
@@ -104,6 +126,17 @@ test('gallery photos draw under ThmbMask and use the large PicL clip',()=>{
   const {images:unloaded,draws:pending}=paint(view('gallery',[{id:'photo:a',label:'Building 1'}],{photos:[{id:'a',src:'/portfolio/building1.jpg'}]}),false);
   assert.deepEqual(unloaded,[['/portfolio/building1.jpg',56,53,56,42]]);
   assert.deepEqual(pending.find(d=>d.layout==='P_BrwsPic').opts.overrides,{});
+});
+
+test('undated portfolio group and five photos occupy the six source browse cells',()=>{
+  const photos=Array.from({length:5},(_,index)=>({id:String(index),src:`/portfolio/${index}.jpg`}));
+  const rows=[{id:'camera-date-group',label:''},...photos.map(photo=>({id:'photo:'+photo.id,label:photo.id}))];
+  const {draws,images}=paint(view('gallery',rows,{photos},1));
+  assert.deepEqual(draws.filter(draw=>draw.layout==='P_BrwsFld').map(draw=>draw.opts.center),[[84,74]]);
+  assert.equal(draws.find(draw=>draw.layout==='P_BrwsFld').opts.overrides.TxtThmb.text,'');
+  assert.deepEqual(draws.filter(draw=>draw.layout==='P_BrwsPic').map(draw=>draw.opts.center),[[160,74],[236,74],[84,140],[160,140],[236,140]]);
+  assert.deepEqual(images.map(image=>image[0]),photos.map(photo=>photo.src));
+  assert.deepEqual(draws.find(draw=>draw.layout==='P_BrwsCursor_D').opts.center,[160,74]);
 });
 
 test('photo view uses the source mount rectangle and drops invented arrows',()=>{

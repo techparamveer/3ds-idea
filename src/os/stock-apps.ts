@@ -36,7 +36,11 @@ const withScreen = (state: AppState, screen: string, patch: AppState = {}): AppS
  */
 export function createStockModule(descriptor: AppDescriptor, media: PortfolioMedia = portfolioMedia): AppModule {
   const id = descriptor.id;
-  const folder = (state: AppState) => media.folders.find(item => item.id === state.folderId);
+  const cameraAllId='portfolio-camera-all';
+  const allPhotos=media.folders.flatMap(item=>item.photos);
+  const hasCameraAll=media.folders.length>1&&allPhotos.length>0;
+  const cameraAllFolder={id:cameraAllId,title:'View Photos/Videos',photos:allPhotos}; // Camera P/Shoot_05
+  const folder = (state: AppState) => hasCameraAll&&state.folderId===cameraAllId?cameraAllFolder:media.folders.find(item => item.id === state.folderId);
   const photo = (state: AppState) => folder(state)?.photos.find(item => item.id === state.photoId);
   const cameraStep=(state:AppState):CameraBrowseStep=>({selection:num(state.selection),browse:readCameraBrowse(state.cameraBrowse)});
   const cameraPut=(state:AppState,step:CameraBrowseStep):AppState=>step.selection===num(state.selection)&&JSON.stringify(step.browse)===JSON.stringify(readCameraBrowse(state.cameraBrowse))?state:{...state,selection:step.selection,cameraBrowse:cameraBrowseJson(step.browse)};
@@ -47,8 +51,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   function rows(state: AppState, context: AppContext): AppViewRow[] {
     const screen = str(state.screen, 'main'), shared = context.shared;
     if (cameraTitles.has(id)) {
-      if (screen === 'main') return media.folders.map(item => row(`folder:${item.id}`, item.title, String(item.photos.length)));
-      if (screen === 'gallery') return (folder(state)?.photos ?? []).map(item => row(`photo:${item.id}`, item.title));
+      if (screen === 'main') return [...(hasCameraAll?[row(`folder:${cameraAllId}`,cameraAllFolder.title,String(allPhotos.length))]:[]),...media.folders.map(item => row(`folder:${item.id}`, item.title, String(item.photos.length)))];
+      if (screen === 'gallery') return [...(hasCameraAll&&state.folderId===cameraAllId?[row('camera-date-group','')]:[]),...(folder(state)?.photos ?? []).map(item => row(`photo:${item.id}`, item.title))];
       return [];
     }
     if (id === 'sound') {
@@ -176,7 +180,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return { state, effects: [{ type: descriptor.kind === 'application' ? 'home' : 'close' }] };
     }
     if (cameraTitles.has(id)) {
-      if (screen === 'main' && action.startsWith('folder:') && media.folders.some(item => item.id === action.slice(7))) return { state: withScreen(state, 'gallery', { folderId: action.slice(7), cameraBrowse:cameraBrowseJson(cameraBrowseInitial()) }) };
+      if (screen === 'main' && action.startsWith('folder:') && (hasCameraAll&&action.slice(7)===cameraAllId||media.folders.some(item => item.id === action.slice(7)))) return { state: withScreen(state, 'gallery', { folderId: action.slice(7), selection:action.slice(7)===cameraAllId?1:0, cameraBrowse:cameraBrowseJson(cameraBrowseInitial()) }) };
       if (screen === 'gallery' && action.startsWith('photo:') && folder(state)?.photos.some(item => item.id === action.slice(6))) return { state: withScreen(state, 'photo', { photoId: action.slice(6) }) };
       if (screen === 'photo' && ['previous', 'next'].includes(action)) {
         const photos = folder(state)?.photos ?? [], index = photos.findIndex(item => item.id === state.photoId);
@@ -247,7 +251,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (id === 'eshop') { Object.assign(data, eshopWelcomeData(state)); delete data.welcomeElapsed; }
     if (cameraTitles.has(id)) {
       data.cameraBrowse=state.cameraBrowse??cameraBrowseJson(cameraBrowseInitial());
-      data.folders = media.folders.map(item => ({ ...item, photos: item.photos.map(photo => ({ ...photo })) }));
+      data.folders = [...(hasCameraAll?[cameraAllFolder]:[]),...media.folders].map(item => ({ ...item, photos: item.photos.map(photo => ({ ...photo })) }));
       data.photos = (folder(state)?.photos ?? []).map(item => ({ ...item })); data.photo = photo(state) ? { ...photo(state)! } : null;
       if (!media.folders.length) text.push('There are no photos.');
     }
@@ -266,7 +270,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const healthDocument = id === 'health-safety' && screen === 'document';
     if (healthDocument) { delete data.scroll; delete data.backPress; data.article = healthScrollView(healthScroll(state)); }
     const left = { label: id === 'system-updater' || (id === 'system-settings' && screen === 'detail' && state.field === 'sound') ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
-    const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options[selection] ? { label: 'OK', action: options[selection].id } : undefined;
+    const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options[selection]&&options[selection].id!=='camera-date-group' ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { ...(id === 'sound' && screen === 'main' && !media.tracks.length ? {} : { left }), ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }

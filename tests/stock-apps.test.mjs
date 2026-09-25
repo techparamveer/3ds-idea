@@ -38,6 +38,20 @@ test('production gallery exactly reuses existing unique portfolio images and son
  assert.equal(expected.length,5);assert.deepEqual(portfolioMedia.tracks,[]);
  for(const folder of portfolioMedia.folders)assert.ok(apps.some(app=>app.entries.some(entry=>entry.title===folder.title)));
 });
+test('Camera View Photos route presents the five existing portfolio images in one native six-cell page',()=>{
+ for(const id of ['camera','camera-applet']){
+  const {module,state}=setup(id,portfolioMedia);
+  const entry=module.view(state,ctx).rows[0];
+  assert.equal(entry.label,'View Photos/Videos');
+  const gallery=action(module,state,entry.id).state,view=module.view(gallery,ctx);
+  assert.equal(gallery.screen,'gallery');assert.equal(view.rows.length,6);
+  assert.equal(view.rows[0].id,'camera-date-group');assert.equal(view.footer.right?.action,'photo:'+portfolioMedia.folders[0].photos[0].id);
+  assert.deepEqual(view.data.photos.map(photo=>photo.src),portfolioMedia.folders.flatMap(folder=>folder.photos.map(photo=>photo.src)));
+  assert.deepEqual(stockScreenTargets(view).filter(target=>target.row!==undefined).map(target=>target.row),[0,1,2,3,4,5]);
+  assert.equal(action(module,gallery,'camera-date-group').state,gallery,'undated source group is display-only');
+  assert.ok(module.view(action(module,gallery,'back').state,ctx).rows.some(row=>row.id==='folder:buildings'),'project folders remain reachable');
+ }
+});
 test('read-only gallery navigates folders/photos and returns through parent screens',()=>{
  let {module,state}=setup('camera');assert.equal(module.view(state,ctx).rows[0].id,'folder:test');
  state=action(module,state,'folder:test').state;state=action(module,state,'photo:a').state;assert.equal(module.view(state,ctx).data.photo.src,'/fixture/a.jpg');
@@ -182,12 +196,12 @@ test('Camera folder directions follow three columns and bound incomplete rows',(
   const {module}=setup(id,{folders,tracks:[]});let state={...module.create({},null,ctx),screen,folderId:'0'};
   const move=command=>{state=module.reduce(state,{type:'command',command},ctx).state;return state.selection;};
   assert.equal(move('left'),0);assert.equal(move('up'),0);assert.equal(move('right'),1);assert.equal(move('right'),2);assert.equal(move('right'),2);
-  assert.equal(move('down'),5);assert.equal(move('down'),7); // closest cell in the partial third row, on the next page
-  assert.equal(move('down'),7);assert.equal(move('right'),7);assert.equal(move('left'),6);assert.equal(move('left'),6);assert.equal(move('up'),3);assert.equal(move('up'),0);
+  assert.equal(move('down'),5);assert.equal(move('down'),8); // the primary View Photos entry adds a ninth source-grid cell
+  assert.equal(move('down'),8);assert.equal(move('right'),8);assert.equal(move('left'),7);assert.equal(move('left'),6);assert.equal(move('up'),3);assert.equal(move('up'),0);
   state=module.reduce(state,{type:'button',command:'right',phase:'down',source:'pad'},ctx).state;assert.equal(state.selection,1);
   const released=module.reduce(state,{type:'button',command:'right',phase:'up',source:'pad'},ctx).state;assert.equal(released,state);
   const opened=module.reduce(state,{type:'command',command:'open'},ctx).state;
-  assert.equal(opened[screen==='main'?'folderId':'photoId'],'1');
+  assert.equal(opened[screen==='main'?'folderId':'photoId'],'0');
  }
 });
 test('Notes directions follow the displayed four-by-four grid without wrapping edges',()=>{

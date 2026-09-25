@@ -88,7 +88,9 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     // the raw layout origin. Move its source cursor, icon and text together.
     entry(bottom,'sound-common','S_Common-BrwCursor',{center:[160,118],bindings:[{name:'S_Common-BrwCursor_Default',frame:0}]});
     entry(bottom,'sound-common','S_Common-IconList',{center:[43,47],bindings:[{name:'S_Common-IconList_IconCHG',frame:0}]});
-    entry(bottom,'sound-common','S_Common-Text',{center:[56,47],overrides:{Null:{text:message('S','P_BR_00').text,size:[264,30],translation:[132,0,0]}}});
+    // S_Common-Text is mounted independently of the row artwork. Its native
+    // glyph mask is one LCD pixel left/up of the raw layout composition.
+    entry(bottom,'sound-common','S_Common-Text',{center:[55,46],overrides:{Null:{text:message('S','P_BR_00').text,size:[264,30],translation:[132,0,0]}}});
     entry(bottom,'sound-slider','C_SldH_L',{center:[160,159],bindings:[{name:'C_SldH_L_Default',frame:20},{name:'C_SldH_L_Rate',frame:0}]});
     entry(bottom,'sound-bg','S_BG_D-Ctr');
     entry(bottom,'sound-common','S_Common-OpLBtn',{bindings:[{name:'S_Common-OpLBtn_Default',frame:0}],overrides:{TxtC:smallLabel('C_B_04')}});

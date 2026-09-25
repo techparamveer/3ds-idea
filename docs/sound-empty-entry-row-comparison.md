@@ -30,6 +30,10 @@ be compared to this capture. Existing room model/mipmap evidence is in
 includes row glyph/raster colour, record texture sampling, footer edges and
 the then-offset bird pose. A later [settled bird placement comparison](sound-entry-bird-source.md#settled-entry-pose-comparison) aligns the three visible Wait sprites in this one capture. The native bird schedule remains unresolved. No new songs or device controls were introduced.
 
+The later [row glyph comparison](sound-entry-row-glyph-validation.md) measures
+the label separately after the bird correction and aligns its independent
+mount to the pinned native glyph silhouette. Its remaining row error is 3.724.
+
 The paired source images and comparison JSONs are in
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/sound-empty-row-2026-09-25/`.
 `scripts/compare-sound-entry.mjs` records the whole lower LCD and entry row in

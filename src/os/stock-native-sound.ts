@@ -117,10 +117,19 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
       if(page===2)entry(top,'sound-guide-upper','S_Guid03_U');
       const dialog=renderer.packs['sound-dialog'].layouts.C_Dlg,guidePanel=renderer.packs['sound-dialog'].layouts.C_DlgGuid_U;
       okay=renderer.drawLayout(bottom,'sound-dialog','C_Dlg',soundGuideLowerPanel(dialog,guidePanel))&&okay;
-      const common={TxtDlg:message('S_tips',`D_001_${page}`),TxtNumber0:{text:`${page+1} / `,size:[42,24]},TxtNumber1:{text:'3',size:[42,24]}};
+      // The two native counter panes share their source anchor, but the CLYT
+      // writer places the current page on its left and the total on its right.
+      // Give each text pane its own bounded raster and mount at the captured
+      // lower-LCD positions instead of allowing their glyph runs to overlap.
+      const common={TxtDlg:message('S_tips',`D_001_${page}`),TxtNumber0:{text:`${page+1} / `,size:[35,24],translation:[107,-92,0]},TxtNumber1:{text:'3',size:[20,24],translation:[147,-92,0]}};
       if(first)entry(bottom,'sound-dialog','C_DlgGuid1BtnW',{bindings:[{name:'C_DlgGuid1BtnW_Default',frame:0}],overrides:{...common,Guid1TxtW:message('S_tips','Guide_D_N_Btn0')}});
       else entry(bottom,'sound-dialog','C_DlgGuid2Btn',{bindings:[{name:'C_DlgGuid2Btn_Default',frame:0}],overrides:{...common,Guid2TxtB:message('S_tips','Guide_D_BN_Btn0'),Guid2TxtW:message('S_tips',page===2?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')}});
-      entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[30,206],scale:2});
+      // Integer source texels should remain crisp on the 320px LCD. The
+      // captured guide bird occupies roughly 40×52 px at x15,y180.
+      bottom.save();
+      bottom.imageSmoothingEnabled=false;
+      entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[36,203],scale:1.75});
+      bottom.restore();
     }
     return okay;
   }

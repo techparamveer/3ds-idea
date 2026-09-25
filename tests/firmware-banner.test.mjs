@@ -19,7 +19,7 @@ function moduleUrl(path){
 const {createFirmwareBanner}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/firmware-banner.ts',import.meta.url))));
 const publicRoot=fileURLToPath(new URL('../public/',import.meta.url));
 const frame=Object.freeze({visible:true,scale:.8,yawRadians:.31,skeletalFrame:0,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});
-function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false,alterDefault,delayDefault,corruptDefaultTexture,defaultFetchObserver}={}){
+function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false,alterDefault,delayDefault,corruptDefaultTexture,defaultFetchObserver,pixelRatio=1}={}){
  const prior={document:globalThis.document,window:globalThis.window,fetch:globalThis.fetch};
  globalThis.document={createElement(){return {width:0,height:0,getContext(){return {createImageData(w,h){return {data:new Uint8ClampedArray(w*h*4)};},putImageData(){}};}};}};
  globalThis.window={location:{href:'https://firmware.test/'}};
@@ -45,16 +45,16 @@ function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false,alterDef
   }
   return new Response(data);
  };
- const state={target:null,color:new THREE.Color(.2,.3,.4),alpha:.7,viewport:new THREE.Vector4(1,2,3,4),scissor:new THREE.Vector4(5,6,7,8),scissorTest:true,stencilClear:7};
+ const state={target:null,color:new THREE.Color(.2,.3,.4),alpha:.7,viewport:new THREE.Vector4(1,2,3,4),physicalViewport:new THREE.Vector4(1,2,3,4),scissor:new THREE.Vector4(5,6,7,8),scissorTest:true,stencilClear:7};
  const draws=[],events=[],renderer={toneMapping:THREE.ACESFilmicToneMapping,autoClear:false,
-  getRenderTarget:()=>state.target,setRenderTarget(value){state.target=value;events.push(['target',value]);},
+  getRenderTarget:()=>state.target,setRenderTarget(value){state.target=value;state.physicalViewport=value?value.viewport.clone():state.viewport.clone().multiplyScalar(pixelRatio);events.push(['target',value]);},
   getContext:()=>({STENCIL_CLEAR_VALUE:0x0b91,getParameter:()=>state.stencilClear}),
   state:{buffers:{stencil:{setClear(value){state.stencilClear=value;events.push(['stencilClear',value]);}}}},
   getClearColor:value=>value.copy(state.color),getClearAlpha:()=>state.alpha,setClearColor(value,alpha){state.color.set(value);state.alpha=alpha;},
-  getViewport:value=>value.copy(state.viewport),setViewport(...values){values.length===1?state.viewport.copy(values[0]):state.viewport.set(...values);},
+  getViewport:value=>value.copy(state.viewport),setViewport(...values){values.length===1?state.viewport.copy(values[0]):state.viewport.set(...values);state.physicalViewport.copy(state.viewport).multiplyScalar(pixelRatio);events.push(['viewport',state.target]);},
   getScissor:value=>value.copy(state.scissor),setScissor:value=>state.scissor.copy(value),getScissorTest:()=>state.scissorTest,setScissorTest:value=>{state.scissorTest=value;},
   clear(...buffers){events.push(['clear',buffers,state.stencilClear,state.target]);},
-  render(scene,camera){scene.updateMatrixWorld(true);draws.push({scene,camera,primaries:scene.children.filter(group=>group.renderOrder===2&&group.visible)});events.push(['render',scene,renderer.autoClear]);},readRenderTargetPixels(target,x,y,w,h,pixels){pixels.fill(0);events.push(['readback',target]);}
+  render(scene,camera){scene.updateMatrixWorld(true);draws.push({scene,camera,viewport:state.physicalViewport.clone(),primaries:scene.children.filter(group=>group.renderOrder===2&&group.visible)});events.push(['render',scene,renderer.autoClear]);},readRenderTargetPixels(target,x,y,w,h,pixels){pixels.fill(0);events.push(['readback',target]);}
  };
  let paints=0;const ctx={drawImage(){paints++;}},banner=createFirmwareBanner(renderer);
  t.after(()=>{banner.dispose();Object.assign(globalThis,prior);});
@@ -62,6 +62,14 @@ function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false,alterDef
 }
 const primary=scene=>scene.children.find(group=>group.renderOrder===2&&group.visible);
 const mask=scene=>scene.children.find(group=>group.renderOrder===1);
+test('native 400×240 banner target ignores fractional page DPR',async t=>{
+ const h=setup(t,{pixelRatio:1/3});await h.banner.ready;
+ assert.equal(h.banner.drawSettingsFrame(h.ctx,{...frame,skeletalFrame:433}),true);
+ assert.deepEqual(h.draws.at(-1).viewport.toArray(),[0,0,400,240]);
+ assert.equal(h.events.filter(([kind,target])=>kind==='viewport'&&target?.width===400).length,0);
+ assert.equal(h.banner.drawBackground(h.ctx,12000,false),true);
+ assert.deepEqual(h.draws.at(-1).viewport.toArray(),[0,0,400,240]);
+});
 function snapshot(group){
  const meshes=[];group.traverse(node=>{if(node.isMesh)meshes.push({positions:[...node.geometry.attributes.position.array],uniforms:Object.fromEntries(Object.entries(node.material.uniforms).filter(([name])=>name.startsWith('constant')||name.startsWith('uvMatrix')).map(([name,{value}])=>[name,value.toArray()]))});});
  return {position:group.position.toArray(),scale:group.scale.toArray(),yaw:group.rotation.y,inner:group.children.map(child=>child.matrix.toArray()),meshes};
@@ -147,7 +155,7 @@ test('render failures report unavailable and restore the shared renderer state',
 test('one stencil-capable transaction clears zero once, draws siblings, then reads back and restores state',async t=>{
  const h=setup(t);await h.banner.ready;assert.equal(h.banner.status().frameReady,true);
  assert.equal(h.banner.drawFrame(h.ctx,frame),true);
- assert.deepEqual(h.events.map(e=>e[0]),['target','stencilClear','clear','render','readback','target','stencilClear']);
+ assert.deepEqual(h.events.map(e=>e[0]),['target','stencilClear','clear','render','readback','target','viewport','stencilClear']);
  const target=h.events[0][1];assert.equal(target.stencilBuffer,true);assert.equal(target.depthBuffer,true);
  assert.deepEqual(h.events[2].slice(1),[[true,true,true],0,target]);assert.equal(h.events[3][2],false);assert.equal(h.events[4][1],target);
  const {scene,camera}=h.draws[0],folder=primary(scene),producer=mask(scene);
@@ -241,7 +249,7 @@ defaultTest('default readiness requires the actual six textures and selects EUR 
  assert.ok(data.models[0].materials.every(m=>m.Name!=='mt_Text'));assert.ok(data.textures.every(t=>t.name!=='DmyText_00'));
  const producer=mask(h.draws[0].scene);assert.equal(group.parent,producer.parent);
  for(const mesh of meshes){const m=mesh.material;assert.equal(m.stencilWrite,true);assert.equal(m.stencilFunc,THREE.EqualStencilFunc);assert.equal(m.stencilRef,1);assert.equal(m.stencilFuncMask,1);assert.equal(m.stencilWriteMask,255);assert.equal(m.stencilFail,THREE.KeepStencilOp);assert.equal(m.stencilZFail,THREE.KeepStencilOp);assert.equal(m.stencilZPass,THREE.KeepStencilOp);assert.equal(m.depthFunc,THREE.LessDepth);}
- assert.deepEqual(h.events.map(e=>e[0]),['target','stencilClear','clear','render','readback','target','stencilClear']);
+ assert.deepEqual(h.events.map(e=>e[0]),['target','stencilClear','clear','render','readback','target','viewport','stencilClear']);
  assert.equal(h.events[2][2],0);assert.equal(h.events[0][1].stencilBuffer,true);assert.equal(h.events[3][2],false);
  assert.deepEqual(h.draws[0].camera.position.toArray(),[0,1,44.7859992980957]);assert.equal(h.state.stencilClear,7);
 });

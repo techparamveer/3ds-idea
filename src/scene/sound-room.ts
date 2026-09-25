@@ -46,7 +46,9 @@ export function createSoundRoom(renderer:THREE.WebGLRenderer,load=loadFirmwareMo
       const oldTarget=renderer.getRenderTarget(),color=renderer.getClearColor(new THREE.Color()),alpha=renderer.getClearAlpha(),toneMapping=renderer.toneMapping,autoClear=renderer.autoClear;
       const viewport=renderer.getViewport(new THREE.Vector4()),scissor=renderer.getScissor(new THREE.Vector4()),scissorTest=renderer.getScissorTest();
       try{
-        renderer.setRenderTarget(target);renderer.setViewport(0,0,400,240);renderer.setScissorTest(false);renderer.setClearColor(0xffffff,1);renderer.toneMapping=THREE.NoToneMapping;renderer.autoClear=false;renderer.clear(true,true,false);
+        // The target installs its own 400×240 viewport. setViewport applies
+        // the page DPR even here, so it must not be called while bound.
+        renderer.setRenderTarget(target);renderer.setScissorTest(false);renderer.setClearColor(0xffffff,1);renderer.toneMapping=THREE.NoToneMapping;renderer.autoClear=false;renderer.clear(true,true,false);
         renderer.render(scene,camera);
         const pixels=new Uint8Array(400*240*4);renderer.readRenderTargetPixels(target,0,0,400,240,pixels);
         const output=canvas.getContext('2d')!,image=output.createImageData(400,240);

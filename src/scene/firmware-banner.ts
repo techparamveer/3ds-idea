@@ -87,7 +87,10 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     const viewport = renderer.getViewport(new THREE.Vector4()), scissor = renderer.getScissor(new THREE.Vector4()), scissorTest = renderer.getScissorTest();
     const gl=renderer.getContext(),stencilClear=gl.getParameter(gl.STENCIL_CLEAR_VALUE) as number;
     try {
-      renderer.setRenderTarget(target); renderer.setViewport(0, 0, 400, 240); renderer.setScissorTest(false);
+      // setRenderTarget installs target.viewport in physical target pixels.
+      // setViewport would multiply it by the page DPR, shrinking the native
+      // scene into the target's lower-left corner when DPR is below one.
+      renderer.setRenderTarget(target); renderer.setScissorTest(false);
       renderer.setClearColor(0, 0); renderer.autoClear = false; renderer.toneMapping = THREE.NoToneMapping;
       renderer.state.buffers.stencil.setClear(0);renderer.clear(true,true,true);
       // One traversal sorts Frame1 before primary2, including their internal

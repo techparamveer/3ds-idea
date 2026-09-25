@@ -1,0 +1,62 @@
+{
+  "homeCodeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "settingsBannerSha256": "5804ba5a7768d2ae9b7487e4d277923502646d89768668b19d666e3e4d30fbac",
+  "selectedCgfxSha256": "96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d",
+  "selectedLanguage": "eur-en",
+  "usedCommonFallback": true,
+  "commonOffset": "0x88",
+  "eurEnglishOverrideOffset": "0x0",
+  "decodedBytes": 137792,
+  "nativeSizeCalls": 1,
+  "nativeDecodeCalls": 1,
+  "completionByte": 1,
+  "primaryCandidate": "0x500400",
+  "secondaryCandidate": "0x500500",
+  "candidateVtable": "0x3210f0",
+  "nativeConstructorCalls": 2,
+  "commonBindVisits": [
+    "0x24def0",
+    "0x24ed40",
+    "0x2354a0",
+    "0x500b00",
+    "0x22efb4",
+    "0x22efb4",
+    "0x500b00",
+    "0x500b00"
+  ],
+  "allocatorPointer": "0x500900",
+  "allocatorRequests": [
+    [
+      "0x500900",
+      336,
+      4
+    ],
+    [
+      "0x500900",
+      20,
+      4
+    ],
+    [
+      "0x500900",
+      20,
+      4
+    ]
+  ],
+  "graphicsConstructorStop": "0x22efb4",
+  "constructorProbe": {
+    "stop": "0x2354e4"
+  },
+  "factoryProbe": {
+    "stop": "0x24ed94",
+    "objectVtable": "0x31fbd0"
+  },
+  "bindProbe": {
+    "stop": "0x139008",
+    "candidateGraphicsObject": "0x500c00",
+    "graphicsObjectVtable": "0x31fbd0",
+    "serviceR1": "0xffff8001",
+    "serviceR2": "0x916200",
+    "serviceR3": "0x8000"
+  },
+  "scope": "Original title worker and COMMON decode execute on pinned Settings CBMD. Candidate allocator getter and vtable +8 are supplied. Original 0x2354a0 allocates 0x150 bytes and executes original graphics constructor 0x22efb4 plus virtual +0x24 initialization, with two nested 20-byte allocations. Binding continues until OS service 0x139008, which requires absent ARM thread-local state. CGFX model binding has not completed; no visible pose or pixels are observed."
+}

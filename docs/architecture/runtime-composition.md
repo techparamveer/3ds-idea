@@ -76,6 +76,10 @@ later real-resource worker replay (`05cef1c`) decodes original Settings
 `banner.bin`, constructs candidates at `M+0x50/+0x54`, and reaches graphics
 service `0x2354a0` during state-4 `COMMON` binding. It stops there: the model
 and controller are not bound and the first visible pose/pixels remain unproved.
+The subsequent bounded allocator probe executes that service, the native
+graphics-object constructor and virtual initializer, then stops at an OS
+thread-local service during the same bind. The model/controller and visible
+pose remain open.
 Do not connect stock titles by reusing folder/default activation or by treating a
 resolved fetch as show completion. The [implementation process](implementation-process.md)
 defines the evidence required for that change.

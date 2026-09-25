@@ -59,12 +59,12 @@ preserved.
 | --- | --- | --- |
 | Source and delivery | Correct title/region identities, decoded resource closure and named texture replacement | Settings and four common title packs are published; Zone is withheld |
 | Prepared resource | Validated model/material/clip inputs and current generation/request owner; stale completion and disposal checks | Camera/Sound/Health/eShop resource host is dormant; its readiness is preparation only |
-| Native lifecycle | Linked title worker result, presentation completion, identity-matched show/hide, attachment and actual pose submission | Scene insertion reaches render dispatch with a synthetic candidate. Real Settings worker now decodes banner.bin and constructs candidates; state-4 COMMON binding stops at graphics service 0x2354a0 |
+| Native lifecycle | Linked title worker result, presentation completion, identity-matched show/hide, attachment and actual pose submission | Scene insertion reaches render dispatch with a synthetic candidate. The real Settings worker decodes banner.bin and constructs candidates; a supplied allocator lets the native graphics constructor and initializer run, then state-4 binding stops at OS thread-local service 0x139008 |
 | Live integration | State-to-host-to-draw path, retarget cancellation, explicit unsupported/failure handling and Frame/camera composition | Only folder/default native primary paths are live |
 | Visible and native acceptance | Operated integrated browser scenario plus matched native/source or native/browser captures explicitly distinguished; timed sequences for motion claims | Blank stock previews remain defects; no stock-title HOME banner has complete acceptance |
 
-Keep the next source experiment narrow: for Settings, continue from graphics
-service `0x2354a0` to bind the real worker candidate/`COMMON` model, then link
+Keep the next source experiment narrow: for Settings, continue from OS service
+`0x139008` to bind the real worker candidate/`COMMON` model, then link
 the render owner to the submitted pose.
 A controller clock reaching frame 1 or a scene-list count reaching 1 does not
 show which pixels became visible. See the detailed

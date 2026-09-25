@@ -161,3 +161,27 @@ boundary; neither the decoded CGFX nor its skeletal controller has been bound
 to the candidate. The first visible Settings pose remains unproved. The live
 host stays `unsupported` pending a bound native candidate, render-owner
 execution and matched native/browser pixels.
+
+## Graphics-object allocation and initialization probe (25 September 2026)
+
+The follow-up [replay](../scripts/probe-settings-banner-graphics-bind.py) and
+[fixture](evidence/settings-banner-graphics-bind-probe.json) start with the
+same hash-pinned HOME code, Settings CBMD and delivered model. The title worker
+still executes its original archive decode and candidate construction. This
+probe supplies the graphics allocator returned by `0x235500`, including its
+virtual allocation method; each allocation returns a distinct synthetic
+address. Original `0x2354a0` requests 0x150 bytes aligned to four. It then
+executes original graphics-object constructor `0x22efb4` and the constructed
+object's virtual `+0x24` initializer. That initializer requests two further
+20-byte allocations. At `0x24ed94`, candidate `+0x24` holds the constructed
+object at `0x500c00` with native vtable `0x31fbd0`.
+
+Continuing the same candidate's state-4 binding reaches OS service `0x139008`.
+That service reads ARM thread-local state unavailable in this fixture, so the
+replay stops before executing it. The native graphics object now exists in the
+bounded replay, but its `COMMON` CGFX model and controller are not yet shown
+bound. The next source step is to supply or isolate that service's real result
+and follow `0x24ed40` to completion, then connect the candidate to the native
+render owner and compare the first visible pose. The browser host remains
+`unsupported` for Settings; this source result makes no visual acceptance
+claim.

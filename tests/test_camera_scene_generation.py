@@ -26,11 +26,13 @@ class CameraSceneGeneration(unittest.TestCase):
     def test_synthetic_same_address_reuse(self):
         report = module.replay(Path(os.environ['FIRMWARE_CAMERA_CODE']))
         reuse = report['syntheticReuse']
-        self.assertEqual(report['scriptVersion'], 2)
+        self.assertEqual(report['scriptVersion'], 3)
         self.assertEqual(reuse['staleBeforeConstructor'], reuse['staleAfterConstructor'])
         self.assertEqual(reuse['staleBeforeConstructor']['consumer'][0], '0x4')
         self.assertEqual(reuse['afterReset']['consumer'], ['0x0', '0x0'])
         self.assertEqual(reuse['afterReset']['resource'], ['0x0', '0x0'])
+        self.assertEqual(reuse['setupRecordIterations'], 64)
+        self.assertEqual([row['address'] for row in reuse['setupServiceLeaves']], ['0x25e6d8'])
         self.assertFalse(report['liveGate']['permitted'])
 
 

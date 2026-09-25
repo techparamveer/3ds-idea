@@ -54,6 +54,8 @@ def replay(code_path):
     base, stack, sentinel = 0x1001000, 0x13FD000, 0x13FF000
     next_allocation = 0x1100000
     allocations, releases, writes, entered = [], [], [], []
+    setup_records = []
+    setup_services = []
     phase = ''
     word = lambda a: struct.unpack('<I', machine.mem_read(a, 4))[0]
     put = lambda a, n: machine.mem_write(a, struct.pack('<I', n & 0xFFFFFFFF))
@@ -66,7 +68,9 @@ def replay(code_path):
         if address in (0x2DE648, 0x2CDE50, 0x2D659C, 0x2D89E8,
                        0x2DE714, 0x2CDED4, 0x2D8B94, 0x2D6B00, 0x2D666C):
             entered.append({'phase': phase, 'address': hex(address)})
-        if address == 0x262340:
+        if phase == 'synthetic-reuse-setup' and address == 0x2D7104:
+            setup_records.append(word(machine.reg_read(UC_ARM_REG_R6) + 0x108))
+        if address in (0x262340, 0x260440):
             size = machine.reg_read(UC_ARM_REG_R0)
             assert 0 < size < 0x100000
             pointer = next_allocation
@@ -79,6 +83,11 @@ def replay(code_path):
         elif address == 0x262338:
             releases.append({'phase': phase, 'pointer': hex(machine.reg_read(UC_ARM_REG_R0)),
                              'count': machine.reg_read(UC_ARM_REG_R1)})
+            machine.reg_write(UC_ARM_REG_PC, machine.reg_read(UC_ARM_REG_LR))
+        elif phase == 'synthetic-reuse-setup' and address == 0x25E6D8:
+            setup_services.append({'address': hex(address),
+                                   'parent': hex(machine.reg_read(UC_ARM_REG_R0)),
+                                   'child': hex(machine.reg_read(UC_ARM_REG_R1))})
             machine.reg_write(UC_ARM_REG_PC, machine.reg_read(UC_ARM_REG_LR))
 
     def memory_write(current, access, address, size, value, data):
@@ -225,25 +234,29 @@ def replay(code_path):
     call(0x2DE648, base, 0)
     stale_after_constructor = readiness()
     assert stale_after_constructor == stale_before
-    phase = 'synthetic-reuse-setup-reset'
-    machine.reg_write(UC_ARM_REG_R6, base + 0x44)
-    call(0x2D73BC, end=0x2D73F4)
+    phase = 'synthetic-reuse-setup'
+    put(base + 0x44 + 0x120, current_owner)
+    call(0x2D6CE0, base + 0x44, 0x1080000, end=0x2D73F4)
     cleared_after_reset = readiness()
     assert all(value == '0x0' for values in cleared_after_reset.values() for value in values)
+    assert len(setup_records) == 64
+    assert len(setup_services) == 1
     reuse = {'sequence': ['complete embedded destructor', 'same-address embedded constructor',
-                          'later setup reset fragment'],
+                          'control setup through 64-record loop and readiness reset'],
              'staleBeforeConstructor': stale_before,
              'staleAfterConstructor': stale_after_constructor,
              'afterReset': cleared_after_reset,
-             'scope': 'Synthetic address reuse; no SceneBrowse replacement caller, complete control setup, worker completion or pixels.'}
-    return {'ok': True, 'codeSha256': CODE_SHA, 'scriptVersion': 2,
+             'setupRecordIterations': len(setup_records),
+             'setupServiceLeaves': setup_services,
+             'scope': 'Synthetic address reuse and original setup prefix through reset; no SceneBrowse replacement caller, setup tail, worker completion or pixels.'}
+    return {'ok': True, 'codeSha256': CODE_SHA, 'scriptVersion': 3,
             'directCalls': {hex(a): hex(b) for a, b in direct_calls.items()},
             'constructors': constructors, 'setupReset': setup, 'cellPrefix': cells,
             'destruction': destruction, 'syntheticReuse': reuse, 'enteredFunctions': entered,
-            'allocatorLeaves': ['0x262340 allocate', '0x262338 free'],
+            'allocatorLeaves': ['0x262340/0x260440 allocate', '0x262338 free'],
             'allocations': allocations, 'releases': releases, 'rendererWrites': writes,
             'liveGate': {'permitted': False,
-                         'missing': ['SceneBrowse retirement/replacement caller and full new control setup',
+                         'missing': ['SceneBrowse retirement/replacement caller and new setup tail',
                                      'linked request/rebind/two-pass publication under replacement owner',
                                      'remaining cell writer, property upload and lower LCD pixels',
                                      'native/browser re-entry timing comparison']}}

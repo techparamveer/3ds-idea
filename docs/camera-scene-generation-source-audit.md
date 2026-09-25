@@ -4,6 +4,11 @@ The later [complete cell-writer replay](camera-cell-publication-source-audit.md)
 executes retained node/pane output through return. Layout binding and photo
 pixels remain separate gates; it does not wire live strip paging.
 
+The 25 September continuation executes the **original control setup prefix**
+from `0x2d6ce0` through its 64-record loop and readiness reset in the same
+synthetic reuse sequence. The setup tail, SceneBrowse replacement caller and
+pixels remain open.
+
 This continues the [gallery reset audit](camera-gallery-scene-reset-audit.md)
 and [root/rebind ordering replay](camera-rebind-order-source-audit.md), based on
 `2e9ca4d`. **Live horizontal scrolling remains disconnected.** The source now
@@ -29,7 +34,7 @@ They are deliberately not presented as one native scene replacement sequence.
 | Later control setup reset | `0x2d73bc` through `0x2d73f0`, stopping before `0x2d73f4` | Clears both 64-bit readiness bitsets. This is an isolated reset fragment, not execution of the preceding control setup |
 | Cell writer's retained-history prefix | `0x2d804c` through `0x2d8108`, stopping before `0x2d810c` | Both owner flags at `+0x2237` must be nonzero before the old/current pose and ready state advance. Six combinations cover incoming ready 0/1 and either owner disabled |
 | Embedded renderer destructor | Complete `0x2de714 → 0x2cded4 → 0x2d8b94 → 0x2d6b00`, then mapping/vector cleanup | Under a supplied 64-control/descriptor graph, active control 2 is detached, its parent dirty flag clears, active control bitsets clear, retained pointers clear, and the descriptor/pose buffers reach free |
-| Synthetic same-address reuse | Complete embedded destructor, fresh `0x2de648` constructor, then reset stores `0x2d73bc–0x2d73f0` in one Unicorn instance | An explicitly seeded stale control-2 resource/consumer bit survives construction (`0x4`/`0x4`) and clears only at the later reset (`0x0`/`0x0`). This is an ordering probe, not the native SceneBrowse replacement caller |
+| Synthetic same-address reuse | Complete embedded destructor, fresh `0x2de648` constructor, then original `0x2d6ce0` through its 64-record loop and reset stores, stopping before `0x2d73f4`, in one Unicorn instance | An explicitly seeded stale control-2 resource/consumer bit survives construction (`0x4`/`0x4`) and clears after setup reaches the reset (`0x0`/`0x0`). Child attachment `0x25e6d8` is a recorded leaf. This is an ordering probe, not the native SceneBrowse replacement caller or complete setup tail |
 
 Destructor controls and descriptors are synthetic. Their direct-detachment route
 is selected explicitly. No image worker, native SceneBrowse, texture upload or
@@ -39,8 +44,9 @@ are not interpreted as a live previous generation. The destructor uses the
 second construction's containers with the explicitly supplied control graph.
 The same-address probe deliberately seeds the stale bit after destruction to
 test a worst-case reused address. It proves the reset's position relative to
-construction for that address. It does not show stale bits surviving native
-destruction, nor that a new SceneBrowse reaches reset before presentation.
+construction and the executed 64-record setup loop for that address. It does
+not show stale bits surviving native destruction, nor that a new SceneBrowse
+reaches setup before presentation.
 
 ## Where the stages belong
 
@@ -116,7 +122,7 @@ The SSD was full; the orchestrator explicitly assigned a home-disk clone and
 artifacts for this bounded pass. Report and private disassembly scratch:
 `/Users/paramveer/CodexArtifacts/firmware-10.7.0-32E/camera-live-gate/`.
 
-The 24 September continuation adds the synthetic same-address probe above to
+The 24 September continuation added the synthetic same-address probe above to
 `scripts/replay_camera_scene_generation.py` and a focused test. With the pinned
 Camera executable, the probe passes and writes
 `synthetic-reuse-replay.json` in the same private artifact directory. It
@@ -124,3 +130,11 @@ narrows a future verifier requirement: prove the real replacement caller runs
 complete control setup, including the reset, before any new-generation request
 or presentation. It does not close the independent photo-pixel gate or license
 live strip wiring. No browser or native LCD comparison was made in this worker.
+
+The 25 September continuation replaces that probe's isolated reset fragment
+with original `0x2d6ce0` execution from entry through 64 record iterations
+and the reset, stopping before `0x2d73f4`. The pinned-source test passes and
+the updated private report is `linked-scene-setup.json` in the home artifact
+directory. This narrows the setup sequence; it still does not show the real
+SceneBrowse replacement caller, full setup return, or a new-owner request and
+presentation under that setup.

@@ -14,7 +14,8 @@ export type FirmwareStencilState=Readonly<{
  enabled:boolean;function:NativeComparison;reference:number;compareMask:number;writeMask:number;
  fail:NativeStencilOperation;depthFail:NativeStencilOperation;depthPass:NativeStencilOperation;
 }>;
-export type FirmwareModelOptions=Readonly<{nativeMipmaps?:boolean;overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>}>;
+export type FirmwareColorFit=Readonly<{material:string;upperY:number;lowerY:number;upperRgb:readonly [number,number,number];lowerRgb:readonly [number,number,number]}>;
+export type FirmwareModelOptions=Readonly<{nativeMipmaps?:boolean;overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>;colorFit?:FirmwareColorFit}>;
 type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};StencilTest?:{Enabled:boolean;Function:NativeComparison;Reference:number;Mask:number;BufferMask:number};StencilOperation?:{FailOp:NativeStencilOperation;ZFailOp:NativeStencilOperation;ZPassOp:NativeStencilOperation};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
 type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string;LODBias?:number;MinLOD?:number}[]};
 type Bone={Name:string;ParentIndex:number;BillboardMode?:string;NativeBillboardMode?:number;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
@@ -50,7 +51,7 @@ function combine(mode:string,args:string[],alpha:boolean){
  if(!operations[mode]||(alpha&&mode.startsWith('Dot')))throw new Error(`Unsupported PICA combiner ${mode}`);
  return operations[mode];
 }
-export function picaFragmentShader(material:Material,lighting:ReturnType<typeof cgfxLightingShader>=null):string{
+export function picaFragmentShader(material:Material,lighting:ReturnType<typeof cgfxLightingShader>=null,colorFit?:FirmwareColorFit):string{
  const p=material.MaterialParams;
  let stages='';
  p.TexEnvStages.forEach((s,i)=>{
@@ -76,7 +77,7 @@ export function picaFragmentShader(material:Material,lighting:ReturnType<typeof 
  vec4 litPrimary=clamp(${glcolor(p.AmbientColor)}+${glcolor(p.DiffuseColor)}*illumination,0.0,1.0);
  vec4 litSecondary=${glcolor(p.Specular0Color)}*pow(max(dot(normalize(vNormal),normalize(vec3(-0.12,0.22,1.0))),0.0),16.0);`}
  vec4 previous=vColor;vec4 buffer=${glcolor(p.TexEnvBufferColor)};
- ${stages}${test}gl_FragColor=previous;}`;
+ ${stages}${test}${colorFit&&material.Name===colorFit.material?`float lcdY=239.5-gl_FragCoord.y;float fitT=clamp((lcdY-${colorFit.upperY.toFixed(3)})/${(colorFit.lowerY-colorFit.upperY).toFixed(3)},0.0,1.0);previous.rgb=mix(vec3(${colorFit.upperRgb.map(v=>(v/255).toFixed(8)).join(',')}),vec3(${colorFit.lowerRgb.map(v=>(v/255).toFixed(8)).join(',')}),fitT);`:''}gl_FragColor=previous;}`;
 }
 const vertexShader=`attribute vec4 nativeColor;attribute vec2 nativeUv1;attribute vec2 nativeUv2;
  varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;varying vec3 vView;
@@ -125,6 +126,7 @@ function matrix(source:Record<string,number>){return new THREE.Matrix4().set(sou
 
 /** Uses original meshes/combiners/curves and directional LUT lighting; other lighting remains approximate. */
 export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:FirmwareModelPlayback={},options:FirmwareModelOptions={}){
+ if(options.colorFit){const f=options.colorFit;if(!f.material||![f.upperY,f.lowerY,...f.upperRgb,...f.lowerRgb].every(Number.isFinite)||f.lowerY<=f.upperY||![...f.upperRgb,...f.lowerRgb].every(v=>v>=0&&v<=255))throw new Error('Invalid firmware colour fit');}
  // Mip sampling is opt-in for source-audited titles; HOME keeps its existing path.
  if(options.nativeMipmaps)for(const model of asset.data.models)for(const material of model.materials)for(let i=0;i<3;i++){
   const name=material[`Texture${i}Name` as 'Texture0Name'];if(!name)continue;
@@ -168,7 +170,7 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    }
    const blend=p.BlendFunction;
    const stencil=stencilStates[modelIndex][materialIndex];
-   const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m,lighting),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,depthFunc:nativeDepthFunction(p.DepthColorMask.DepthFunc),side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
+   const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m,lighting,options.colorFit),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,depthFunc:nativeDepthFunction(p.DepthColorMask.DepthFunc),side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
    Object.assign(material,stencil);
    // The transparent Canvas bridge needs geometric blend coverage. Preserve
    // native RGB blending, but do not square alpha as native mt_Text's otherwise
@@ -251,11 +253,6 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    const pixels=texturePixels(image);for(const texture of targets){texture.image={data:pixels,width:image.width,height:image.height};texture.needsUpdate=true;}replacementPixels.set(name,image);return true;
   },
   setMaterialVisible(name:string,visible:boolean){const meshes=materialMeshes.get(name);meshes?.forEach(mesh=>{mesh.visible=visible;});return !!meshes?.length;},
-  setMaterialConstantColor(name:string,slot:number,color:THREE.Vector4){
-   if(!Number.isInteger(slot)||slot<0||slot>5||![color.x,color.y,color.z,color.w].every(v=>Number.isFinite(v)&&v>=0&&v<=1))throw new Error('Invalid runtime material constant');
-   const meshes=materialMeshes.get(name);if(!meshes?.length)return false;
-   meshes.forEach(mesh=>(mesh.material as THREE.ShaderMaterial).uniforms[`constant${slot}`].value.copy(color));return true;
-  },
   update(elapsedMs:number,camera?:THREE.Camera){group.updateWorldMatrix(true,true);camera?.updateWorldMatrix(true,false);for(const update of updaters)update(elapsedMs*60/1000,camera);},
   dispose(){replacementPixels.clear();textureBindings.clear();materialMeshes.clear();textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());}};
 }

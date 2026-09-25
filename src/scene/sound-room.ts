@@ -46,17 +46,19 @@ export function createSoundRoom(renderer:THREE.WebGLRenderer,load=loadFirmwareMo
       if(disposed||ticket!==generation)return;
       try{
         camera=soundRoomCamera(asset);model=createFirmwareModel(asset,{}, {nativeMipmaps:true});model.update(0,camera);scene.add(model.group);
-        spanCamera=soundSpanCamera(spanAsset);span=createFirmwareModel(spanAsset);
+        spanCamera=soundSpanCamera(spanAsset);
+        // Base replaces RGB with its grayscale source texture. The native
+        // silent line is blue; these two sampled LCD rows fit that runtime
+        // palette while retaining the source mesh, UV and alpha coverage.
+        span=createFirmwareModel(spanAsset,{}, {colorFit:{material:'Base',upperY:106,lowerY:111,upperRgb:[38,104,219],lowerRgb:[21,57,120]}});
         // The model's shared (-45) bind placement is not a displayed idle state.
         // These transform values fit the native Sound guide upper blue line at
         // y=106..111 of the 400×240 LCD capture. They are an explicit silent
         // pose adaptation until the Span class's runtime pose is decoded.
-        span.group.position.set(0,34.516,-20);span.group.rotation.x=0.611;span.group.scale.y=0.008;
+        span.group.position.set(0,34.9,-20);span.group.rotation.x=0.611;span.group.scale.y=0.0068;
         span.update(0,spanCamera);
-        // The source bind constant is red, but the captured idle line is blue.
-        // The sampled top-line RGB (38,104,219) is a visible-result fit, not
-        // a decoded runtime palette or a claim of firmware-exact colour logic.
-        if(!span.setMaterialConstantColor('ColorChange',0,new THREE.Vector4(38/255,104/255,219/255,1)))throw new Error('Missing native Sound Span colour material');
+        // ColorChange has zero vertex alpha in this bind model and does not
+        // produce the observed line. Its source constant remains untouched.
         spanScene.add(span.group);
         target=new THREE.WebGLRenderTarget(400,240,{depthBuffer:true,stencilBuffer:false,minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter});target.texture.colorSpace=THREE.NoColorSpace;
         canvas=document.createElement('canvas');canvas.width=400;canvas.height=240;state={status:'ready'};

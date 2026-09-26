@@ -2,7 +2,7 @@
 
 This file is the shared repository instruction file for coding agents.
 `CLAUDE.md` imports it. Current user instructions take precedence. The UI
-continuation checkpoint is `1912836` (26 September 2026); check the actual
+continuation checkpoint is `8c0a6d7` (26 September 2026); check the actual
 HEAD and integration history before beginning a slice.
 
 ## Read before working
@@ -132,11 +132,11 @@ and diff regions, then hand off for integration and recapture.
 
 The first required pairs are HOME idle and Settings → Other Settings page 1,
 under `reference/scenario-matrix/v1/captures/` in the private artifact root.
-Matrix v44 has 87 entries, all whole scenarios fail. Health Usage initial and
+Matrix v45 has 90 entries, all whole scenarios fail. Health Usage initial and
 8px-scrolled and Settings Other page 1 now have production two-LCD static pixel
 tier matches (maximum delta 2), but exact input, motion and audio remain open.
-The HOME Settings frame bracket's best sample at 304 still differs by 1,883
-upper and 36,358 lower pixels. Follow the latest progress checkpoint for capture
+The independent HOME Settings yaw304 / COMMON303 diagnostic still differs by
+222 upper and 36,258 lower pixels; it does not establish a live one-frame offset. Follow the latest progress checkpoint for capture
 identities and known adaptations. Sandisk1 ENOSPC blocks new native writes; the
 coordinator's verified internal isolated-copy request is pending. Do not change
 the private matrix while the external drive is unwritable.

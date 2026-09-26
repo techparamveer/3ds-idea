@@ -23,7 +23,7 @@ Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`
 3. The Assets lane owns `scripts/native-compare/` with a parameterized output root. Each pair/mask yields per-LCD mean/max RGB error, count of pixels with any channel delta greater than 2/255, connected difference regions and bounding boxes, heatmap, side-by-side sheet and JSON with both SHA-256s, commit and scenario ID.
 4. **Open the side-by-side sheet.** Fix unexplained regions and repeat both captures after integration. Masks require named reasons and may cover only intentional clock/battery, portfolio content, read-only Camera footer, inert OK and other [feature-map](../feature-map.md) adaptations. A mask created merely to pass a diff is a defect.
 
-Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v44/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
+Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v45/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
 
 The historical `sound-first-run-span-mounted` browser capture JSON was
 overwritten. Matrix v17 marked it unavailable; v25 preserves that repair and links an upper PNG recovered
@@ -32,13 +32,14 @@ reproduced failing diff. This repair cannot replace a complete fresh capture
 pair for acceptance.
 
 The first whole-scenario acceptance targets remain **matched HOME idle** and
-**Settings → Other Settings page 1**. [Matrix v44](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v44/matrix.json)
-has 87 entries (77 native/browser pairs and ten browser-only records), **all
-whole scenarios fail**. Through integration `1912836`, production Health Usage
+**Settings → Other Settings page 1**. [Matrix v45](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v45/matrix.json)
+has 90 entries (80 native/browser pairs and ten browser-only records), **all
+whole scenarios fail**. Through integration `8c0a6d7`, production Health Usage
 initial, Health Usage scrolled 8px and Settings Other page 1 have unmasked static
-two-LCD pixel-tier matches, maximum delta 2. HOME Settings's seven-frame bracket
-has best upper pose at frame 304, still **1,883 upper / 36,358 lower** pixels
-above 2/255. See the [current report and capture links](../progress-2026-09-24.md#integration-1912836-pixel-checkpoints-and-storage-block--26-september-2026).
+two-LCD pixel-tier matches, maximum delta 2. HOME Settings's independent yaw304 / COMMON303
+diagnostic still has **222 upper / 36,258 lower** pixels above 2/255; the coupled
+304 control has 1,883 / 36,358. This static sample does not establish a live
+one-frame clock offset. See the [current report and capture links](../progress-2026-09-24.md#matrix-v45-independent-home-pose-diagnostics--26-september-2026).
 Static matches and explicit phase/calendar samples do not prove identical input,
 a recovered native event clock, ±1-frame motion or audio onset. HOME idle still
 lacks a matched-input acceptance score. The old scaled Settings JPEG/source

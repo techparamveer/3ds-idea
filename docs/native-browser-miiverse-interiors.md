@@ -78,9 +78,9 @@ and must not retain sample source values.
 
 The `cave` bank adds `lau_title_olive`, local OK/cancel labels, connection and
 communication error text, and the source recovery/exit messages. Do not use an
-error message to imply an actual network attempt. A native notice can hold an
-explicitly authored availability explanation, clearly distinguished from
-extracted firmware text. Error codes require an actual supplied error value.
+error message to imply an actual network attempt. The local Miiverse interior remains unpopulated: do not insert an availability
+notice or a hand-authored section heading. Error codes require an actual
+supplied error value. See [the bounded source-gap decision](miiverse-empty-interior-source-gap.md).
 
 ## Typography and verification
 

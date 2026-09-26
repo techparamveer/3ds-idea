@@ -37,7 +37,6 @@ export const browserScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:browserPrefix+'messages-and-loose.json',alias:'web-messages',layouts:[],animations:[]},
 ];
 export const miiverseScreenPacks:readonly NativeTitlePackRequest[]=[
-  ...dialogPacks(miiversePrefix),
   {url:miiversePrefix+'layout-BG.json',alias:'web-bg',layouts:['BG'],animations:[]},
   ...miiverseButtons.map(([,name])=>({url:miiversePrefix+'layout-toolbar-'+name+'.json',alias:name,layouts:[name],animations:[name+'_ActiveOnOff',name+'_FocusedOnOff']})),
   {url:miiversePrefix+'layout-toolbar-OliveBack.json',alias:'web-back',layouts:['OliveBack'],animations:['OliveBack_FocusedOnOff']},
@@ -104,12 +103,9 @@ export function drawNativeWebFrame(renderer:NativeLayoutRenderer,top:CanvasRende
     draw(bottom,'web-exit','ExitButton',{center:[53,226],bindings:[{name:'ExitButton_FocusedOnOff',frame:0}],overrides:{TextBox:close,EmbossTxb:close}});
   }else{
     const active=view.screen==='main'?view.rows[view.selection]?.id:typeof view.data?.field==='string'?view.data.field:'';
-    const names:Record<string,string>={communities:'Communities',activity:'Activity Feed',profile:'My Menu',notifications:'Notifications'};
-    {
-      draw(bottom,'web-dialog-base','DialogBaseNormal',{center:[160,110],overrides:{DialogBaseLPct:{size:[148,196]},DialogBaseRPct:{size:[148,196]},BottomFrameFPct:{visible:false},BottomFrameF2Pct:{visible:false},BottomFrameHPct:{visible:false}}});
-      draw(bottom,'web-notice','DialogNotice',{center:[160,125],overrides:{TextBox:{text:wrapText((view.text??[]).join('\n')||'No content is available in this portfolio.'),size:[264,112],fontSize:[16,19.2]}}});
-    }
-    text(bottom,names[active??'']??'Miiverse',160,40,18);
+    // The delivered cave bank has no empty-feed message. Its connection/error
+    // strings describe states this local UI never enters. Leave the interior
+    // unpopulated instead of inventing a native notice or section heading.
     // Source icon buttons have different authoring-canvas sizes. Explicit mount
     // centers preserve their local geometry in the shared 64-pixel toolbar cells.
     miiverseButtons.forEach(([id,name],i)=>draw(bottom,name,name,{center:[32+i*64,226],bindings:[{name:name+'_ActiveOnOff',frame:active===id?1:0},{name:name+'_FocusedOnOff',frame:0}],overrides:{TextBox_00:{text:''}}}));

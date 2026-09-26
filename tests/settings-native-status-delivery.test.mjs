@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
+import sharp from 'sharp';
 
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const read=path=>readFileSync(new URL(path,root));
@@ -35,7 +36,7 @@ test('Settings HUD uses the source English status/date labels',()=>{
  assert.equal(typeof bank.messages[bank.labels.lau_date].styleIndex,'number');
 });
 
-test('Settings reference charging glyph uses the native HUD battery frame',()=>{
+test('Settings captured orange battery uses its exact native HUD texture',async()=>{
  const source=readFileSync(new URL('../src/os/stock-native-settings.ts',import.meta.url),'utf8');
  const status=/SETTINGS_PORTFOLIO_STATUS=\{batteryFrame:(\d+)/.exec(source);
  assert.ok(status,'declared Settings status');
@@ -43,6 +44,13 @@ test('Settings reference charging glyph uses the native HUD battery frame',()=>{
  const track=pack.animations.HudMset_00_Bat.tracks.find(track=>track.target==='P_Bat_00'&&track.property==='texture.pattern');
  assert.ok(track,'firmware battery pattern track');
  const sourceIndex=track.keys.find(key=>key.frame===Number(status[1]))?.value;
- assert.equal(pack.animations.HudMset_00_Bat.textures[sourceIndex],'HudBat_05.bclim');
- assert.equal(pack.textures['HudBat_05.bclim'].sourceSha256,pack.resourceSources.textures['HudBat_05.bclim'].sha256);
+ assert.equal(pack.animations.HudMset_00_Bat.textures[sourceIndex],'HudBat_04.bclim');
+ assert.equal(pack.textures['HudBat_04.bclim'].sourceSha256,pack.resourceSources.textures['HudBat_04.bclim'].sha256);
+ const texture=await sharp(read(pack.textures['HudBat_04.bclim'].url)).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+ const pixel=(x,y)=>[...texture.data.subarray((y*texture.info.width+x)*4,(y*texture.info.width+x+1)*4)];
+ // Raw native LCD samples at x=380 (pane-local x=12), y=8..10 in the
+ // settings-main-native-recovery-20260926 capture; the source frame matches.
+ assert.deepEqual([pixel(12,8),pixel(12,9),pixel(12,10)],[
+  [221,136,68,255],[204,102,51,255],[221,102,51,255],
+ ]);
 });

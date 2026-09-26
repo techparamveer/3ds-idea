@@ -127,7 +127,8 @@ def convert(data, compact=False):
         if width > cw:
             raise ValueError('Glyph exceeds cell width')
         local = index % (cols * rows)
-        return dict(sheet=index // (cols * rows), x=(local % cols) * (cw + 1) + 1,
+        # Keep native texture identity when compact delivery merges sheets.
+        return dict(sheet=index // (cols * rows), sourceSheet=index // (cols * rows), x=(local % cols) * (cw + 1) + 1,
                     y=(local // cols) * (ch + 1) + 1, width=width, height=ch, left=bearing, advance=step)
 
     manifest = dict(schema=1, sourceSha256=hashlib.sha256(data).hexdigest(), version=version,

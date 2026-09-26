@@ -63,6 +63,12 @@ inputs instead of generating substitutes. Title loaders require manifest
 membership, exact title/pack identity, requested layouts/animations, valid
 texture metadata and exact font bindings.
 
+Compact bitmap-font delivery retains `glyph.sourceSheet` (including fallback)
+as the original BCFNT texture-sheet index. `glyph.sheet` and its x/y rectangle
+still address the delivered PNG atlas. Native text batching can use the original
+identity without undoing atlas compaction; older deliveries omit it and require
+a `sourceSheet ?? sheet` fallback. See the [HUD delivery note](../hud-font-source-sheets.md).
+
 ## Runtime resource boundaries
 
 HOME resources and shared fonts have console-session lifetime. Stock title

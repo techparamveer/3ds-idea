@@ -23,7 +23,7 @@ Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`
 3. The Assets lane owns `scripts/native-compare/` with a parameterized output root. Each pair/mask yields per-LCD mean/max RGB error, count of pixels with any channel delta greater than 2/255, connected difference regions and bounding boxes, heatmap, side-by-side sheet and JSON with both SHA-256s, commit and scenario ID.
 4. **Open the side-by-side sheet.** Fix unexplained regions and repeat both captures after integration. Masks require named reasons and may cover only intentional clock/battery, portfolio content, read-only Camera footer, inert OK and other [feature-map](../feature-map.md) adaptations. A mask created merely to pass a diff is a defect.
 
-Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v48/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
+Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v49/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
 
 The historical `sound-first-run-span-mounted` browser capture JSON was
 overwritten. Matrix v17 marked it unavailable; v25 preserves that repair and links an upper PNG recovered
@@ -32,8 +32,8 @@ reproduced failing diff. This repair cannot replace a complete fresh capture
 pair for acceptance.
 
 The first whole-scenario acceptance targets remain **matched HOME idle** and
-**Settings → Other Settings page 1**. [Matrix v48](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v48/matrix.json)
-has 96 entries (84 native/browser pairs and twelve browser-only records), **all
+**Settings → Other Settings page 1**. [Matrix v49](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v49/matrix.json)
+has 97 entries (85 native/browser pairs and twelve browser-only records), **all
 whole scenarios fail**. Through integration `8c0a6d7`, production Health Usage
 initial, Health Usage scrolled 8px and Settings Other page 1 have unmasked static
 two-LCD pixel-tier matches, maximum delta 2. HOME Settings's independent yaw304 / COMMON303
@@ -68,6 +68,13 @@ The regression is pixel-identical to the previous browser page 1. The CGFX
 slice lowers RGB MAE from 8.2033 to 7.2603 on the lower LCD, but the count
 above 2/255 stays **7,026**. Source 2D shoot controls and their attenuation
 remain unresolved, so the whole scenario still fails.
+
+Matrix v49 adds the source `P_Shoot_D` 2D layout with a documented held clip,
+named theme slots and capture-fitted half-brightness. The page-1 lower
+diagnostic improves from 7,026 to **2,690** pixels over 2/255 (RGB MAE 7.2603
+to **2.6580**); upper remains **1,387**. A missing BtnIOcam top child and
+border/grid residuals are visible in the inspected contact sheet. Native
+input route, motion and audio remain unmatched.
 
 The eight v25 browser-only records cover selected HOME banners, Zone entry and eShop close. Their target native capture, mask and diff fields are null. The latest two at `8f0eb39` show eShop bags/logo/shadow and Camera photo cards after explicit source Color-presence metadata and provisional source-diffuse binding. Earlier blank/missing mesh records remain unchanged. All eight remain `fail`: visible browser correction is not native shader/pixel acceptance. The earlier relaunch stopped at a notification; that input block was subsequently cleared for Settings. See the [browser correction checkpoint](../progress-2026-09-24.md#browser-absent-color-correction-and-native-input-gap--26-september-2026) and [native Settings recovery](../progress-2026-09-24.md#native-settings-input-recovery--26-september-2026).
 

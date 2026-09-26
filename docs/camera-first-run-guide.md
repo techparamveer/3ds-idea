@@ -57,10 +57,12 @@ comes from Finder_Pho_00_00. Capture controls remain inert.
 These gaps remain visible or behaviorally different:
 
 - The source P_Shoot_D CGFX now paints beneath the dialog (`6a0f158`), with
-  source geometry/materials and an explicit 4:3 camera-aspect fit. The native
-  2D shoot controls around the perimeter and their attenuation/compositing
-  remain unbound. The X/Z arrows and analog stick are hidden because their
-  Welcome visibility is unverified.
+  source geometry/materials and an explicit 4:3 camera-aspect fit. The source
+  2D P_Shoot_D layout also paints beneath the dialog (`271ddc9`), using a
+  capture-fitted half-brightness and a held Disable clip. Native attenuation,
+  clip/theme selection and the missing BtnIOcam child remain unbound. The X/Z
+  arrows and analog stick are hidden because their Welcome visibility is
+  unverified.
 - Page 3/4 red inline emphasis now uses the original MSBT colour switches
   (`2765bb0`): RGBA `[255,50,0,255]` for `3D depth slider ` and
   `at least 30cm (12in)\n`, restoring `[69,64,57,255]` afterward. The
@@ -104,6 +106,12 @@ only the lower LCD: against the same native screenshot, pixels over 2/255 stay
 at **7,026**, while lower RGB MAE falls from **8.2033 to 7.2603**. The upper
 remains **1,387** pixels over 2/255. Both pairs and inspected contact sheets
 are recorded in [matrix v48](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v48/matrix.json).
+
+With the 2D source layout in production (`271ddc9`), the page-1 lower
+comparison falls to **2,690** pixels over 2/255 and **2.6580** RGB MAE. The
+upper remains **1,387**. The contact sheet shows a missing top child strip and
+border/grid residuals. This latest pair is in [matrix v49](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v49/matrix.json);
+the whole scenario still fails.
 
 ## Verification
 

@@ -68,16 +68,33 @@ These gaps remain visible or behaviorally different:
 - OK ends in the portfolio folder screen rather than native capture mode.
   This is the authorized read-only scope adaptation.
 
-No native/browser pass is claimed. The coordinator must build integration,
-capture the raw browser LCD pair and compare it to the preserved native page 1;
-pages 2–5 and transitions still need equivalent native/browser scenarios.
+The coordinator built integration commit `69d570a` and opened Camera from the
+production browser HOME shortcut. The raw page-1 capture and empty-mask report
+are under
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v1/captures/camera-guide-page1-69d570a-20260926/`.
+Against preserved `camera-first-run/native/combined.png`, the 400×240 upper
+has **1,387** pixels over 2/255 (RGB MAE 1.3718) and the 320×240 lower has
+**7,026** (RGB MAE 8.2033). The older browser gallery comparison was
+56,078 / 76,604. Both contact sheets were inspected. Upper residuals cluster
+in the capacity glyph and 3D icon; lower residuals include the full perimeter
+behind the guide panel. The entry routes differ (native title list versus
+browser HOME), so this is a diagnostic comparison, not a scenario pass.
+
+The coordinator clicked the production browser's accessible A control through
+pages 1→2→3→4→5, saw each source illustration and page counter, then used B
+to return from page 5 to 4 and A→A to enter the read-only folder screen. This
+checks the browser route only. Pages 2–5 and transitions still need equivalent
+native/browser captures, input timing and audio verification.
 
 ## Verification
 
 The hash-pinned private descriptor audit passes. 76 focused presentation,
-stock reducer, gallery lifecycle and runtime-effect tests pass. Typecheck and
-production build pass. The full suite has 1,365 passes, 40 failures, 23 skips and 1 todo; its 40 failure
-identities match the pre-guide run. It retains unrelated absent model/Blender
-fixtures and the external ENOSPC artifact-write failure; those do not validate
-or invalidate the guide pixels. `git diff --check` passes. Gallery fixtures
-now explicitly traverse Welcome before testing browsing and owner reset.
+stock reducer, gallery lifecycle and runtime-effect tests pass. Integration
+typecheck and production build pass. With `FIRMWARE_ARTIFACT_ROOT` set to the
+internal artifact directory, the integration full suite has **1,458 passes,
+2 failures, 23 skips and 1 todo**. Both failures require absent compact model
+fixtures (`silver-audio-contacts-compact.glb` and its JSON), not Camera code.
+Without that environment override, a third test attempts an external artifact
+write and fails with ENOSPC. These checks do not establish guide pixel fidelity.
+`git diff --check` passes. Gallery fixtures explicitly traverse Welcome before
+testing browsing and owner reset.

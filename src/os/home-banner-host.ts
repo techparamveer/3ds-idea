@@ -221,7 +221,7 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
   }
 
   const selection = boundary.selection === undefined ? host.selection : copySelection(boundary.selection);
-  if (!selection || selection.kind === 'app' && selection.id !== 'system-settings' || selection.kind === 'toolbar') {
+  if (!selection || selection.kind === 'app' && !['system-settings', 'camera'].includes(selection.id) || selection.kind === 'toolbar') {
     // Authored unsupported handoff: no guessed type, fade or hidden acknowledgement.
     return { clock: { ...clock }, scope, selection, inputs: retainInputs(boundary.inputs ?? host.inputs, null), service: null, pending: null, active: null };
   }
@@ -248,7 +248,7 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
 /** Sampling never requests, acknowledges resources, or advances either native pass. */
 export function getHomeBannerHostView(host: HomeBannerHost): HomeBannerHostView {
   const { service, selection, active } = host;
-  if (!service || !selection || selection.kind === 'app' && selection.id !== 'system-settings' || selection.kind === 'toolbar') {
+  if (!service || !selection || selection.kind === 'app' && !['system-settings', 'camera'].includes(selection.id) || selection.kind === 'toolbar') {
     return { status: 'unsupported', selection: selection?.kind === 'app' || selection?.kind === 'toolbar' ? selection : null, resourceTicket: null };
   }
   const common = { generation: service.clock.generation, selection, resourceTicket: getHomeBannerResourceTicket(service), stage: service.stage, waitUpdates: service.waitUpdates };

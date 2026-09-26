@@ -79,6 +79,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawDefaultBannerFrame:(ctx,motion)=>folderBanner.drawDefaultFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0}),
     drawSettingsBannerFrame:(ctx,motion)=>{const phase=settingsBannerPhase(motion,reduced,verificationBannerFrame);return folderBanner.drawSettingsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});},
+    drawCameraBannerFrame:(ctx,motion,ticket)=>folderBanner.drawCameraFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0},{...ticket,kind:'camera'}),
     drawHomeBackground:folderBanner.drawBackground,runtimeNotice:()=>runtimeNotice});
   await Promise.all([screens.ready,folderBanner.ready]);
   if(diagnostics)host.dataset.banner=JSON.stringify(folderBanner.status());
@@ -219,11 +220,16 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:true,resourceReady:bannerHost.inputs.resourceReady};
     bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:selection??(system.homeControls?undefined:resolveHomeBannerHostSelection(state)),inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
+    // Keep an outgoing Camera until its host-owned hide completes; incoming
+    // Camera preparation belongs to its own request, never a folder ticket.
+    const cameraRequest=view.status!=='unsupported'&&view.selection.kind==='app'&&view.selection.id==='camera'?view.resourceTicket:
+      view.status==='active'&&view.primary.selection.kind==='app'&&view.primary.selection.id==='camera'?view.primary:null;
+    folderBanner.syncCamera(cameraRequest?{generation:cameraRequest.generation,requestEpoch:cameraRequest.requestEpoch,kind:'camera'}:null);
     if(view.status!=='unsupported'){
       const status=folderBanner.status(),selection=view.selection;
       const label=selection.kind==='folder'?screens.prepareFolderBannerLabel(selection.label):undefined;
       bannerLabelFailure=selection.kind==='folder'&&!label;
-      const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:selection.kind==='app'&&selection.id==='system-settings'?status.settingsReady&&!status.settingsFailure:false;
+      const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:selection.kind==='app'&&selection.id==='system-settings'?status.settingsReady&&!status.settingsFailure:selection.kind==='app'&&selection.id==='camera'&&view.resourceTicket?folderBanner.cameraStatus({...view.resourceTicket,kind:'camera'}).ready:false;
       const resourceReady=ready?view.resourceTicket:null;
       bannerHost=crossHomeBannerBoundary(bannerHost,clock,{inputs:{...inputs,resourceReady}});
       view=getHomeBannerHostView(bannerHost);

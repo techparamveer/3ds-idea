@@ -399,3 +399,26 @@ defaultTest('default render errors restore shared controls and do not disable th
  assert.deepEqual(h.state,before);assert.equal(h.renderer.autoClear,true);assert.equal(h.renderer.toneMapping,THREE.ACESFilmicToneMapping);assert.equal(h.banner.status().failure,undefined);
  h.renderer.render=original;assert.equal(h.banner.drawFrame(h.ctx,frame),true);assert.equal(h.draws.at(-1).primaries.length,1);
 });
+
+
+test('Camera owns a locale-bound group-2 primary and retarget revokes stale drawing', async t => {
+ const h=setup(t);await h.banner.ready;
+ const ticket={generation:'camera-test',requestEpoch:1,kind:'camera'};
+ await h.banner.syncCamera(ticket);
+ assert.equal(h.banner.cameraStatus(ticket).ready,true);
+ assert.equal(h.banner.drawCameraFrame(h.ctx,{...frame,skeletalFrame:137},ticket),true);
+ assert.equal(h.draws.at(-1).primaries.length,1);
+ const cameraPrimary=h.draws.at(-1).primaries[0], first=snapshot(cameraPrimary);
+ assert.equal(h.banner.drawCameraFrame(h.ctx,{...frame,skeletalFrame:138},ticket),true);
+ assert.notDeepEqual(snapshot(cameraPrimary),first,'source skeletal phase changes the submitted model');
+ assert.equal(h.banner.drawSettingsFrame(h.ctx,frame),true);
+ assert.notEqual(h.draws.at(-1).primaries[0],cameraPrimary);
+ assert.equal(cameraPrimary.visible,false);
+ h.banner.syncCamera(null);
+ assert.equal(cameraPrimary.parent,null);
+ assert.equal(h.banner.cameraStatus(ticket).ready,false);
+ assert.equal(h.banner.drawCameraFrame(h.ctx,frame,ticket),false);
+ await h.banner.syncCamera({...ticket,requestEpoch:2});
+ assert.equal(h.banner.drawCameraFrame(h.ctx,frame,ticket),false,'old request cannot draw replacement');
+ assert.equal(h.banner.cameraStatus({...ticket,requestEpoch:2}).ready,true);
+});

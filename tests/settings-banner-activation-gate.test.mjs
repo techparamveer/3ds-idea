@@ -57,7 +57,7 @@ test('Settings selection gets its own request and rejects a former folder ticket
   assert.equal(active.primary.selection.id, 'system-settings');
   assert.equal(active.primary.motion.skeletal.frame, 1);
   assert.equal(active.primary.motion.material.status, 0);
-  host = crossHomeBannerBoundary(host, host.clock, { selection: { kind: 'app', id: 'camera' } });
+  host = crossHomeBannerBoundary(host, host.clock, { selection: { kind: 'app', id: 'sound' } });
   assert.equal(getHomeBannerHostView(host).status, 'unsupported');
   assert.equal(host.service, null);
   host = crossHomeBannerBoundary(host, host.clock, { selection: { kind: 'app', id: 'system-settings' }, inputs: { ...inputs, resourceReady: pending.resourceTicket } });
@@ -103,3 +103,30 @@ test('real Settings CBMD worker decodes COMMON and constructs generic primaries'
 });
 
 test.todo('bind real Settings COMMON candidate and compare a matched native/browser 400x240 frame');
+
+
+test('Camera uses a title request, waits for readiness and samples its own COMMON clock', () => {
+ const clock={generation:'camera-gate',updateCount:0};
+ const inputs={managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null};
+ let host=createHomeBannerHost(clock,inputs);
+ host=crossHomeBannerBoundary(host,clock,{selection:{kind:'default'}});
+ const previous=getHomeBannerHostView(host).resourceTicket;
+ host=crossHomeBannerBoundary(host,clock,{selection:{kind:'app',id:'camera'},inputs:{...inputs,resourceReady:previous}});
+ const camera=getHomeBannerHostView(host).resourceTicket;
+ assert.notDeepEqual(camera,previous);
+ assert.equal(host.inputs.resourceReady,null);
+ host=crossHomeBannerBoundary(host,{...clock,updateCount:15});
+ assert.equal(getHomeBannerHostView(host).status,'pending');
+ host=crossHomeBannerBoundary(host,host.clock,{inputs:{...inputs,resourceReady:camera}});
+ host=crossHomeBannerBoundary(host,{...clock,updateCount:16});
+ const active=getHomeBannerHostView(host);
+ assert.equal(active.status,'active');
+ assert.equal(active.primary.selection.id,'camera');
+ assert.equal(active.primary.motion.skeletal.frame,1);
+ assert.equal(active.primary.motion.material.status,0);
+ host=crossHomeBannerBoundary(host,host.clock,{selection:{kind:'app',id:'sound'}});
+ assert.equal(getHomeBannerHostView(host).status,'unsupported');
+ host=crossHomeBannerBoundary(host,host.clock,{selection:{kind:'app',id:'camera'},inputs:{...inputs,resourceReady:camera}});
+ assert.equal(host.inputs.resourceReady,null);
+ assert.equal(getHomeBannerHostView(host).status,'pending');
+});

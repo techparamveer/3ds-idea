@@ -183,7 +183,7 @@ export function activateHomeBanner(state: HomeBannerLifecycle, requestEpoch: num
   const activationEpoch = state.activationEpoch + 1;
   const kind = state.requested.target.kind;
   const motion: HomeBannerMotion | null = kind !== 'folder' && kind !== 'default' &&
-    !(kind === 'app' && state.requested.target.key === 'system-settings' && state.requested.target.nativeType === 1) ? null : {
+    !(kind === 'app' && ['system-settings', 'camera'].includes(state.requested.target.key) && state.requested.target.nativeType === 1) ? null : {
     requestedVisible: true, visible: false, visibilityEpoch: 0, visibilityManagerUpdate: state.managerUpdates,
     visibilityCounter: 0, visibilityProgress: 0, scale: 1, yawCounter: 0,
     yawRadians: INITIAL_YAW, yawEpoch: 1, yawResetManagerUpdate: state.managerUpdates,

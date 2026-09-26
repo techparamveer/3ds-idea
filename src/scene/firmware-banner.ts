@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { createStockTitleBannerResourceHost, type StockTitleBannerTicket } from './stock-title-banner';
 import { createFirmwareModel, loadFirmwareModel, type FirmwareModelAsset, type FirmwareModelOptions } from './firmware-model';
 import { homeBannerYaw } from '../os/banner-motion';
 import { loadFirmwareCamera } from './firmware-camera';
@@ -46,6 +47,41 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   const context = canvas.getContext('2d')!, pixels = new Uint8Array(400 * 240 * 4), image = context.createImageData(400, 240);
   let model: ReturnType<typeof createFirmwareModel> | undefined, defaultModel: ReturnType<typeof createFirmwareModel> | undefined, settingsModel: ReturnType<typeof createFirmwareModel> | undefined, background: ReturnType<typeof createFirmwareModel> | undefined, mask: ReturnType<typeof createFirmwareModel> | undefined;
   let disposed = false, failure: string | undefined, defaultFailure:string|undefined, settingsFailure:string|undefined, backgroundFailure:string|undefined, frameFailure:string|undefined;
+  const stockOwner = createStockTitleBannerResourceHost();
+  let stockTicket: StockTitleBannerTicket | null = null;
+  let stockModel: ReturnType<typeof createFirmwareModel> | null = null;
+  let stockDrawFailure: string | null = null;
+  function syncCamera(ticket: StockTitleBannerTicket | null) {
+    if (disposed || ticket && stockTicket?.generation === ticket.generation && stockTicket.requestEpoch === ticket.requestEpoch) return;
+    if (stockModel) scene.remove(stockModel.group);
+    stockModel = null; stockDrawFailure = null; stockTicket = ticket && { ...ticket };
+    stockOwner.release();
+    if (!ticket) return;
+    return stockOwner.request(ticket).then(() => {
+      if (disposed || stockTicket?.generation !== ticket.generation || stockTicket.requestEpoch !== ticket.requestEpoch) return;
+      stockModel = stockOwner.status(ticket).model;
+      if (stockModel) { stockModel.group.visible = false; scene.add(stockModel.group); }
+    });
+  }
+  function cameraStatus(ticket: StockTitleBannerTicket) {
+    const prepared = stockOwner.status(ticket);
+    return { ready: !disposed && prepared.ready && !!mask && !!camera && !frameFailure && !stockDrawFailure,
+      failure: prepared.failure ?? frameFailure ?? stockDrawFailure };
+  }
+  function drawCameraFrame(ctx: CanvasRenderingContext2D, frame: PrimaryBannerRenderFrame, ticket: StockTitleBannerTicket) {
+    const prepared = stockOwner.status(ticket);
+    if (!cameraStatus(ticket).ready || !prepared.model || !camera || !mask) return false;
+    if (!frame.visible) return true;
+    try {
+      const primary = prepared.model;
+      primary.group.rotation.y = frame.yawRadians; primary.group.scale.setScalar(frame.scale);
+      primary.group.position.set(frame.offsetX, frame.nativeDisplacementY + frame.offsetY, 0);
+      mask.group.position.set(0, frame.nativeDisplacementY, 0);
+      primary.setPlayback({ skeletal: [{ name: 'COMMON', frame: frame.skeletalFrame }] });
+      primary.update(0, camera); mask.update(0, camera); selectPrimary(primary);
+      return render(ctx, scene, true);
+    } catch (error) { stockDrawFailure = String(error); return false; }
+  }
   const folderReady = loadFirmwareModel('/os/firmware/10.7.0-32E/models/folder/model.json').then(asset => {
     if (disposed) return;
     model = createFirmwareModel(asset,{},primaryOptions);model.group.visible=false;scene.add(model.group);
@@ -110,6 +146,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     if(model)model.group.visible=primary===model;
     if(defaultModel)defaultModel.group.visible=primary===defaultModel;
     if(settingsModel)settingsModel.group.visible=primary===settingsModel;
+    if(stockModel)stockModel.group.visible=primary===stockModel;
   }
   function renderPrimaryFrame(ctx:CanvasRenderingContext2D,primary:ReturnType<typeof createFirmwareModel>,frame:PrimaryBannerRenderFrame,skeletalClip:string,materialClip:string){
     if(!mask||!camera)return false;
@@ -163,5 +200,5 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     try{background.update(reduced?0:elapsedMs,camera);return render(ctx,backgroundScene);}
     catch(error){backgroundFailure=String(error);return false;}
   }
-  return { ready, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawBackground, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; model?.dispose();defaultModel?.dispose();settingsModel?.dispose();mask?.dispose();background?.dispose();target.dispose(); } };
+  return { ready, syncCamera, cameraStatus, drawCameraFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawBackground, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; if(stockModel)scene.remove(stockModel.group);stockOwner.dispose();stockModel=null;stockTicket=null; model?.dispose();defaultModel?.dispose();settingsModel?.dispose();mask?.dispose();background?.dispose();target.dispose(); } };
 }

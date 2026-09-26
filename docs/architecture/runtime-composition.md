@@ -39,7 +39,7 @@ See [proposed improvements](proposed-improvements.md) for that remaining risk.
 | `runtime-effects.ts` | Capability adapter, portfolio music, ordered save queue | Releases owners; closes storage after emitted writes settle |
 | `audio.ts` | Gesture-unlocked context, cues and persistent HOME music transport | Revision/abort guards; scene disposal closes its context |
 | `firmware-banner.ts` | Live folder/default/background resources and offscreen targets | Scene disposal; async completion guards |
-| `stock-title-banner.ts` | Dormant Camera/Sound/Health/eShop common model plus EUR texture replacement | Ticket retarget/release/dispose; not instantiated by the live scene |
+| `stock-title-banner.ts` | Camera common model plus EUR texture replacement; dormant Sound/Health/eShop support | Ticket retarget/release/dispose; Camera instantiated by firmware-banner.ts |
 | `app-persistence.ts` | Version-2 IndexedDB connection | Version change or effect-owner disposal |
 
 Capability/media-storage utilities remain for compatibility and tests. Current
@@ -54,15 +54,17 @@ The live chain is `console-scene.ts` → `home-banner-host.ts` →
 observed at explicit boundaries in the counted HOME pass. Manager work and
 attached scene-controller work remain separate; painting does not advance them.
 Folder/default readiness is scoped to generation and request epoch. Clear has no primary. Folder/default banners use the native primary path.
-Settings now has a **provisional** selected-title path through the host,
-service and source model renderer (`f57ae44`); other stock selections remain
+Settings and Camera now have **provisional** selected-title paths through the host,
+service and source model renderer; other stock selections remain
 unsupported and release the previous primary. Authored portfolio banners use
 their separate painter. The Settings path passes bounded code checks but has
 no production-browser LCD capture or matched Azahar diff, so visible pose,
 materials, retargeting and timing remain open.
 
-`createStockTitleBannerResourceHost` prepares four common title kinds but is
-not yet a visible caller for them. A ticket contains console generation,
+`createStockTitleBannerResourceHost` prepares four common title kinds. Camera
+has a live caller owned by `firmware-banner.ts`; the others remain dormant.
+See [Camera activation](../camera-home-banner-activation.md) for retention,
+retarget, disposal and the provisional native lifecycle boundary. A ticket contains console generation,
 request epoch and title kind. Retargeting releases the current model; a late
 fetch cannot publish into the new ticket. Its `ready` means prepared GPU
 resources, not a displayed LCD frame. Historical Settings executable replays

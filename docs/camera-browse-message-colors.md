@@ -26,8 +26,24 @@ mount names, but that inspection did not establish the generic text writer.
 The correction relies on the already decoded message-style rule; it is not a
 new executable replay or proof of native enabled/disabled control scheduling.
 
-Validation: 17 Camera presentation tests and typecheck pass. The regression
-checks the delivered records, all three bound top/bottom vertex colours and
-source-pack immutability. Coordinator production build and matched recapture
-remain required. No browser/native pass is claimed. Existing portfolio media,
-orange background fit, timing and inert native controls remain adaptations.
+Validation: 17 Camera presentation tests, typecheck and the production build
+pass. The regression checks the delivered records, all three bound top/bottom
+vertex colours and source-pack immutability.
+
+The coordinator opened Camera → View Photos/Videos in the production browser
+at integration commit `61e2e6f`, captured the raw 400×240 and 320×240 render
+targets, and inspected the native/browser contact sheet. The new capture and
+empty-mask report are under
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v1/captures/camera-browse-message-color-61e2e6f-20260926/`.
+Against the preserved native populated-browse screenshot, lower pixels with a
+channel difference above 2/255 fall from **23,499 to 22,856**; lower RGB MAE
+falls from 24.5402 to 23.8087. The broad Shoot-label rectangle
+`[92,210,88,30]` falls from **475 to 0** differing pixels. The Slideshow
+rectangle `[92,0,138,30]` falls from 983 to 837, and Settings
+`[238,210,82,30]` from 962 to 940. These diagnostic rectangles include
+surrounding chrome; they are not acceptance masks. Upper residuals remain
+large because native stereo photos and browser portfolio JPEGs, selection and
+entry histories differ. The new raw comparison is **95,350 upper / 22,856
+lower** differing pixels; the whole scenario still fails. Existing portfolio
+media, orange background fit, timing and inert native controls remain
+adaptations.

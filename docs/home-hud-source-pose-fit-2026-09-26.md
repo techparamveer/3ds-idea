@@ -115,3 +115,77 @@ Run `node <private-directory>/fit.mjs` to reproduce the white probe; its
 `FIT_BACKDROP` and `FIT_OUT` environment variables select the recorded sensitivity
 runs. This documentation change passes `git diff --check`. No runtime change or
 new browser capture is included; production capture remains the next gate.
+
+## Production-background phase bracket
+
+A subsequent coordinator production capture at `bdf5fc7` supplies the actual
+HOME wallpaper/banner phase beneath the source-pose HUD:
+
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v1/captures/home-settings-hud-source-pose-bdf5fc7-20260926/browser/upper.png`
+
+SHA-256: `9455804f8bdbf1eb7cb4c98244ca2a192a812ef0ecb4dc3f1366f449ca9abedf`.
+Its sibling `capture.json` records WalkCoin 258, other sample fields as above,
+`elapsedMs=5616.666666666667`, and `date=2026-09-26T03:14:35.203Z` (04:14 local).
+The target remains the genuine native screenshot identified above.
+
+Only WalkCoin frames **97, 98, 258, 259** were evaluated. Because this PNG already
+contains the frame-258 HUD, this offline diagnostic recovers the production
+underlay only where the source layers differ. Render each source frame over
+black and white to obtain its premultiplied contribution `C` and background
+transmittance `beta=(white-black)/255`, then compute:
+
+```text
+candidate = C_candidate + (beta_candidate / beta_258) * (production - C_258)
+```
+
+The reference native image is used **only for scoring**, never to reconstruct
+the underlay. Source materials, fonts, clips and geometry are unchanged. Where
+both source renderings are identical, original production bytes are copied.
+Source-difference support is confined to `[142,0,43,20]`; the banner and animated
+wallpaper elsewhere are exactly retained. No support component has zero base
+transmittance or a recovered background outside the byte range. This is an
+inverse-compositing estimate from quantized captured pixels, not a new browser
+render. The unchanged frame258 reproduces the original RGBA pixels; re-encoded
+PNG bytes need not match the original encoding.
+
+Coordinates below are `[x,y,width,height]` in the unscaled 400×240 upper LCD:
+
+| WalkCoin frame | HUD `[0,0,400,28]` pixels over 2 | Coin `[145,0,85,28]` pixels over 2 | Coin max delta | Complete coin `[139,0,61,28]` pixels over 2 |
+| --- | ---: | ---: | ---: | ---: |
+| **97** | **34** | **0** | **1** | **0** |
+| 98 | 311 | 269 | 16 | 277 |
+| 258 (captured baseline) | 215 | 175 | 5 | 181 |
+| 259 | 296 | 256 | 10 | 262 |
+
+Frame97's coin mean RGB delta is 0.082073, versus baseline 0.249580. Its whole
+HUD mean is 0.224792 versus 0.261310. All 34 remaining above-threshold HUD
+pixels are in the clock ROI `[225,0,145,28]`, whose maximum delta remains 188;
+the colon remains visible in the browser and absent natively. Battery
+`[370,0,30,28]` stays at zero for all four frames. Network `[0,0,145,28]` is zero
+for frame97 and six for baseline258; the latter includes six edge pixels of
+the coin at x142–144. These exact rectangles govern the counts, so broader
+coordinator network rectangles may include additional coin pixels.
+
+The contact sheet was inspected. **97 is the next source-pose capture candidate**
+with the other fields unchanged. The result does not establish the native
+animation epoch, live runtime timing or a service binding. Browser rerendering
+is required to confirm the prediction and quantization effects. No production
+default, new mask, renderer change or acceptance status is introduced.
+
+Private evidence directory:
+`/Users/paramveer/.codex/3ds-artifact-overflow/presentation/home-hud-production-phase-fit-20260926/`.
+It contains `fit.mjs`, compiled source snapshots, `report.json`, four 400×240
+`frame-<n>.png` estimates and `contact.png` (native then 97, 98, 258, 259).
+Reproduce with `node <directory>/fit.mjs`.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `report.json` | `ac8a34f10f61cff78e1c3cc79cc39635d3fc11acd6d3c11fe02450dea77a80c1` |
+| `fit.mjs` | `92372036425a47c47e65b5e3f4d6e3bbe2137aad54a0b0d52a8288ae50fbe3eb` |
+| `frame-97.png` | `604ba8ab0cb1159baf972d96090704285c65712766f6d0690d695589908c6a83` |
+| `contact.png` | `41383b3f1e7a64709c33f58747d286b24af6e8070b8a2de11cce9a0b8a5300f3` |
+
+Validation: baseline ROI counts reproduce 215 HUD / 175 coin; all four source
+poses render; no unrecoverable underlay components; contact sheet inspected;
+`git diff --check` passes. Documentation only; browser production confirmation
+is the coordinator's next check.

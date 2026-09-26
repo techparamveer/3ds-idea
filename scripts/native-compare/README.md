@@ -48,3 +48,10 @@ scenario result. Do not mask unexplained residuals.
 ```
 
 Run fixture tests with `node --test scripts/native-compare/compare.test.mjs`.
+
+The source-derived `camera-guide-feed-mask.json` is restricted to settled
+Camera Welcome pages 3–5. It excludes only strictly unobscured live feed and
+preserves partially transparent borders and HUD areas. See
+[`docs/camera-guide-feed-mask.md`](../../docs/camera-guide-feed-mask.md) for
+provenance, regeneration, and the remaining capture residuals. Run its source
+regression with `node --test scripts/native-compare/camera-guide-feed-mask.test.mjs`.

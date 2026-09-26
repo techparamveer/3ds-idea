@@ -10,12 +10,13 @@ const transpile=(name,overrides={})=>{
   const {outputText}=ts.transpileModule(readFileSync(url,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
   return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(path.endsWith('.ts')?path:`${path}.ts`,url).href)+suffix));
 };
-const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,cameraBrowseOrange,cameraDateGroupOrange,cameraBrowseUserColor,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect}=await import(transpile('stock-native-camera',{
+const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,cameraBrowseOrange,cameraDateGroupOrange,cameraBrowseUserColor,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect,cameraBrowseBirdCenter}=await import(transpile('stock-native-camera',{
   './stock-screen-layout':transpile('stock-screen-layout'),
   './native-layout':transpile('native-layout'),
 }));
 const pack=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',import.meta.url),'utf8'));
 const finder=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',import.meta.url),'utf8'));
+const parakeet=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-Parakeet-arc-LZ.json',import.meta.url),'utf8'));
 const messages=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/msg-EU_English.json',import.meta.url),'utf8'));
 const find=(panes,name)=>{for(const pane of panes){if(pane.name===name)return pane;const child=find(pane.children??[],name);if(child)return child;}};
 const view=(screen,rows=[],data={},selection=0)=>({appId:'camera',screen,heading:'Nintendo 3DS Camera',rows,selection,footer:{left:{action:'back',label:'Back'}},data});
@@ -31,7 +32,7 @@ const ctx=()=>{
 function paint(screenView,imageResult=true){
   const {log,bottom}=ctx(),draws=[];
   const renderer={
-    packs:{'camera-gallery':pack,'camera-finder':finder,'camera-messages':messages},
+    packs:{'camera-gallery':pack,'camera-finder':finder,'camera-bird':parakeet,'camera-messages':messages},
     draw(_ctx,_pack,layout,opts){draws.push({layout,opts,pack:_pack});return true;},
     drawLayout(_ctx,_pack,layout,source,opts){draws.push({layout,opts,pack:_pack,source});return true;},
   };
@@ -43,7 +44,7 @@ function paintFrame(screenView,imageResult=true){
   const {log,bottom}=ctx(),draws=[],fills=[];
   const top={fillStyle:'',fillRect:(...args)=>fills.push(args)};
   const renderer={
-    packs:{'camera-gallery':pack,'camera-finder':finder,'camera-messages':messages},
+    packs:{'camera-gallery':pack,'camera-finder':finder,'camera-bird':parakeet,'camera-messages':messages},
     draw(_ctx,_pack,layout,opts){draws.push({layout,opts,pack:_pack});return true;},
     drawLayout(_ctx,_pack,layout,source,opts){draws.push({layout,opts,pack:_pack,source});return true;},
   };
@@ -71,9 +72,27 @@ test('settled browse draws source menu with its three native labels after the ga
   assert.deepEqual(['Brws_02','Brws_03','setting'].map(label=>bank.messages[bank.labels[label]].text),['Slideshow','Shoot','Settings']);
   const {draws}=paint(view('gallery',[{id:'photo:a',label:'A'}],{photos:[{id:'a',src:'/portfolio/a.jpg'}]}));
   const chrome=draws.find(draw=>draw.layout==='P_BrwsMenu_D');
-  assert.equal(draws.at(-1),chrome,'source menu overlays the settled browse');
+  assert.equal(draws.at(-2),chrome,'source menu overlays the gallery before its parakeet');
   assert.deepEqual(chrome.opts.bindings,[{name:'P_BrwsMenu_D_Brws',frame:0}]);
   assert.deepEqual([chrome.opts.overrides.TxtSShow.text,chrome.opts.overrides.TxtShoot.text,chrome.opts.overrides.TxtSet.text],['Slideshow','Shoot','Settings']);
+});
+
+test('browse parakeet uses the published Camera Wait artwork at its source menu anchor',()=>{
+  const request=cameraScreenPacks.find(item=>item.alias==='camera-bird');
+  assert.deepEqual(request?.layouts,['ParakeetA_D']);
+  assert.deepEqual(request?.animations,['ParakeetA_D_Wait']);
+  assert.equal(parakeet.titleId,'0004001000022400');
+  assert.equal(parakeet.contentId,'0000001a');
+  assert.equal(parakeet.sourceSha256,'fcc6138d6a297ef819f449371e055f820e4f9b072b4bd9264eec87c92a4dbd67');
+  assert.deepEqual(parakeet.layouts.ParakeetA_D.textures,['CharaA_Wait_00.bclim']);
+  const mount=find(pack.layouts.P_BrwsMenu_D.roots,'-Navi');
+  assert.deepEqual([...cameraBrowseBirdCenter],[160+mount.translation[0],120-mount.translation[1]]);
+  const gallery=paint(view('gallery',[{id:'photo:a',label:'A'}],{photos:[{id:'a',src:'/portfolio/a.jpg'}]}));
+  assert.deepEqual(gallery.draws.at(-1),{layout:'ParakeetA_D',pack:'camera-bird',opts:{
+    center:[48,158],bindings:[{name:'ParakeetA_D_Wait',frame:0}],
+  }});
+  const main=paint(view('main',[{id:'folder:a',label:'A'}],{folders:[{id:'a',photos:[]}]}));
+  assert.equal(main.draws.some(draw=>draw.pack==='camera-bird'),false);
 });
 
 test('settled browse exposes the native UserBG slot and preserves source materials',()=>{

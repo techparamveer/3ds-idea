@@ -21,6 +21,9 @@ export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
 },{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',alias:'camera-finder',
   layouts:['P_FinderVS_U'],animations:[],
+},{
+  url:'packs/camera/contents/0000-0000001a/lyt-Parakeet-arc-LZ.json',alias:'camera-bird',
+  layouts:['ParakeetA_D'],animations:['ParakeetA_D_Wait'],
 },{url:'packs/camera/contents/0000-0000001a/msg-EU_English.json',alias:'camera-messages',layouts:[],animations:[]}];
 type RecordValue=Record<string,JsonValue>;
 const record=(value:JsonValue|undefined):RecordValue=>value&&typeof value==='object'&&!Array.isArray(value)?value:{};
@@ -65,6 +68,8 @@ export function cameraThumbPicRect(centerX:number,centerY:number):[number,number
 /** Source `P_FinderVS_U/Brws_U_fold`: translation [-108, 0], size 128×96, origin 4. */
 export const cameraFolderPicSize=[128,96] as const;
 export const cameraFolderPicRect=nativeLowerPaneRect([-108,0],[128,96],[400,240]);
+/** P_BrwsMenu_D/-Navi is the native browse parakeet mount. */
+export const cameraBrowseBirdCenter=[48,158] as const;
 
 /** Read-only portfolio gallery composed from native album art. The runtime owns
  * paging and selection; visible source zoom chrome has no capture/zoom action.
@@ -119,6 +124,9 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
     draw('P_BrwsMenu_D',{bindings:[{name:'P_BrwsMenu_D_Brws',frame:0}],overrides:{
       TxtSShow:message('Brws_02'),TxtShoot:message('Brws_03'),TxtSet:message('setting'),
     }});
+    if(view.screen==='gallery')okay=renderer.draw(bottom,'camera-bird','ParakeetA_D',{
+      center:[...cameraBrowseBirdCenter],bindings:[{name:'ParakeetA_D_Wait',frame:0}],
+    })&&okay;
   }
   return okay;
 }

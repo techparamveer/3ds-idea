@@ -18,8 +18,8 @@ link/diff checks.
 The [implementation process](architecture/implementation-process.md) defines
 worktree handoff and source-to-visible HOME banner gates.
 
-The gated local raw-LCD route and [matrix v28](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v28/matrix.json)
-record 48 diagnostic entries (38 native/browser comparisons and ten browser-only records). **All fail overall.** An earlier Settings main pair with matched A input has 192 upper / 37 lower pixels over 2. The recovered native/browser Settings main diagnostic is 102 / 37 after source battery-frame correction. Other Settings page 1 improved from 1,517 / 1,682 to 1,517 / 702 after source tab/adjacent-page mounts; input routes still differ. Fresh-origin selected Settings HOME has 54,709 / 41,778, including a different wrench pose and portfolio neighbors. The older selected Settings HOME pair after the
+The gated local raw-LCD route and [matrix v29](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v29/matrix.json)
+record 49 diagnostic entries (39 native/browser comparisons and ten browser-only records). **All fail overall.** An earlier Settings main pair with matched A input has 192 upper / 37 lower pixels over 2. The recovered native/browser Settings main diagnostic is 102 / 37 after source battery-frame correction. Other Settings page 1 improved from 1,517 / 1,682 to 1,517 / 702 after source tab/adjacent-page mounts. The newest pair repeats the same sustained Other Settings touch from an already-open Settings main in both environments; the prior HOME prefixes still differ. Fresh-origin selected Settings HOME has 54,709 / 41,778, including a different wrench pose and portfolio neighbors. The older selected Settings HOME pair after the
 sourced title balloon has 41,352 / 42,107; Health entry has 7,196 / 0.
 Settings main and an earlier Sound guide page-1 pair have matched entry input.
 Camera's latest mono-source browse pair fails at 95,350 / 23,052

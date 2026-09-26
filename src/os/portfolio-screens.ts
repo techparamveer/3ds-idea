@@ -26,8 +26,8 @@ function paragraph(c:C,value:string,x:number,y:number,width:number,size=14,lineH
  for(const word of value.split(' ')){const next=row?`${row} ${word}`:word;if((nativeFonts.has(c)?measureBitmapText(nativeFonts.get(c)!.manifest,next,size).width:c.measureText(next).width)>width&&row){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);
  lines.forEach((line,i)=>label(c,line,x,y+i*lineHeight,size));return lines.length;
 }
-export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground;reducedMotion?:()=>boolean}={}){
- const stockScreens=createStockScreenPresentation({soundRoom:options.soundRoom,reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture(),notesMetadata=createNotesMetadataSession({
+export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;reducedMotion?:()=>boolean}={}){
+ const stockScreens=createStockScreenPresentation({soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,reducedMotion:options.reducedMotion}),suspendedCapture=createSuspendedApplicationCapture(),notesMetadata=createNotesMetadataSession({
   async loadPortfolio(appId,signal){
    await ready;signal.throwIfAborted();
    const app=getApp(appId);if(!app)throw Error(`Unknown portfolio title ${appId}`);

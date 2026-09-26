@@ -184,7 +184,7 @@ export const cameraWelcomePages=[
   {label:'D_003_3',illustration:'P_Guid01_U'},
   {label:'D_003_4',illustration:'P_Guid02_U'},
 ] as const;
-export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView):boolean{
+export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions={}):boolean{
   const raw=view.data?.guidePage,page=typeof raw==='number'?Math.max(0,Math.min(4,Math.floor(raw))):0;
   const entry=cameraWelcomePages[page],first=page===0;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['camera-messages'],'P_tips',label,'');
@@ -194,6 +194,7 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   // fixture state, not browser storage/device readings. Capture stays disabled.
   top.fillStyle='#000';top.fillRect(0,0,400,240);
   bottom.fillStyle='#000';bottom.fillRect(0,0,320,240);
+  if(options.cameraShoot)okay=options.cameraShoot.draw(bottom)&&okay;
   const capacity=nativeMessageOverride(renderer.packs['camera-messages'],'P','Finder_Pho_00_00','');
   draw(top,'camera-finder','P_Finder_U',{overrides:{
     Grid:{visible:false},ShootInfoDlg:{visible:false},ShootInfo:{visible:false},State_IcamOcam:{visible:false},
@@ -204,7 +205,7 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   draw(top,'camera-icons','C_IconSD',{center:[387,225]});
   if(entry.illustration){draw(top,'camera-dialog','C_DlgGuid_U');draw(top,'camera-guide-upper',entry.illustration);}
   // Both source guide button containers mount this body at identity; the body
-  // includes its own Bird artwork. Entry/exit and underlying shoot scene remain unported.
+  // includes its own Bird artwork. Entry/exit and shoot 2D controls remain unported.
   draw(bottom,'camera-dialog','C_DlgChA');
   const total=message('Guide_D_00_00'),current=message('Guide_D_00_01');
   const width=total.messageStyle?.unresolvedWords?.['0'];
@@ -224,7 +225,7 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
  */
 export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   if(!cameraTitle(view.appId))return false;
-  if(view.appId==='camera'&&view.screen==='guide')return drawNativeCameraGuide(renderer,top,bottom,view);
+  if(view.appId==='camera'&&view.screen==='guide')return drawNativeCameraGuide(renderer,top,bottom,view,options);
   const data=view.data??{},folders=records(data.folders),photos=records(data.photos);
   const selected=view.rows[view.selection];
   const folder=folders.find(f=>'folder:'+str(f.id)===selected?.id);

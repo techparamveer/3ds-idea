@@ -265,12 +265,12 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { soundRoom?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
  const output=top.getContext('2d')!,t=native.getContext('2d')!,b=bottom.getContext('2d')!;
- const graphics=createPortfolioGraphics({soundRoom:options.soundRoom,reducedMotion:()=>reduced});const chrome=createNativeChrome();
+ const graphics=createPortfolioGraphics({soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,reducedMotion:()=>reduced});const chrome=createNativeChrome();
  const sprite=new Image();sprite.src='/os/home-toolbar.png';
  const themeSprite=new Image();themeSprite.src='/os/change-theme.png';
  const shopSprite=new Image();shopSprite.src='/os/theme-shop.png';

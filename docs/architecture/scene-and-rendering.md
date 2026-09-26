@@ -124,3 +124,9 @@ explicitly. This bounded path validates LinearMipmapNearest/Linear, zero LOD bia
 and minimum LOD, and a contiguous authored chain before GPU allocation. Other
 CGFX consumers retain their existing base-level sampling. See
 [mipmap evidence](../sound-room-mipmap-source.md).
+
+Camera Welcome has a second lazy injected model-background owner,
+`camera-shoot-background.ts`. It shares the console renderer and paired LCD
+readiness contract, renders only source P_Shoot_D to a 320×240 target, and is
+released when guide ownership ends. Its lower-LCD aspect fit and unbound native
+state are explicit [adaptation limits](../camera-shoot-underlay-adaptation.md).

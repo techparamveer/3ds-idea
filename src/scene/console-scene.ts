@@ -1,6 +1,7 @@
 import { homeTitleBannerKind } from '@/os/home-title-banner';
 import type { StockTitleBannerTicket } from './stock-title-banner';
 import { createSoundRoom } from './sound-room';
+import { createCameraShootBackground } from './camera-shoot-background';
 import { createNativeScreenInputGate } from '@/os/native-screen-input';
 import { escapeUnreadyNativeScreen, releaseUnreadyNativeInput } from '@/os/native-screen-system';
 import { getMenuActionSound } from '../os/menu-action-sound';
@@ -62,6 +63,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   let legacyPreferences:string|null=null;try{legacyPreferences=localStorage.getItem(STORAGE_KEY);}catch{}
   const folderBanner=createFirmwareBanner(renderer);
   const soundRoom=createSoundRoom(renderer);
+  const cameraShoot=createCameraShootBackground(renderer);
   const nativeAssets=loadFirmwarePresentationAssets().catch(error=>{host.dataset.firmwareFailure=String(error);return undefined;});
   try{storage=await openFirmwareStorage({legacyPreferences});const saved=await storage.load();state=restoreRuntimeData(restoreSettings(state,saved.preferences),saved.shared,saved.saves);if(saved.issues.length)runtimeNotice='Some saved data could not be read.';}
   catch(error){state=restoreSettings(state,legacyPreferences);runtimeNotice='Local saving is unavailable.';host.dataset.storageFailure=String(error);}
@@ -76,7 +78,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   let bannerLabelFailure=false;
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
   const nativePrimaryAvailable=(kind:string)=>{const value=folderBanner.status();return kind==='default'?value.defaultReady&&!value.defaultFailure:kind==='app'?value.settingsReady&&!value.settingsFailure:kind==='clear'||nativeFolderAvailable();};
-  const screens=createScreens({soundRoom,reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
+  const screens=createScreens({soundRoom,cameraShoot,reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
     getHomeBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&view.selection.kind!=='app'&&(!nativePrimaryAvailable(view.selection.kind)||bannerLabelFailure)?undefined:view;},
     // Idle-only native translation sample. Reactive +0x90 motion is not yet hosted.
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
@@ -561,5 +563,5 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     window.addEventListener('keydown',shortcut,true);
     removeLcdDownload=()=>{captureAbort.abort();window.removeEventListener('keydown',shortcut,true);};
   }
-  return ()=>{removeLcdDownload();if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureNativeBanner');}if(lcdCapture)Reflect.deleteProperty(host,'captureScreensAt');state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();soundRoom.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
+  return ()=>{removeLcdDownload();if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureNativeBanner');}if(lcdCapture)Reflect.deleteProperty(host,'captureScreensAt');state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();soundRoom.dispose();cameraShoot.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
 }

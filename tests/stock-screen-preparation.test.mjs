@@ -245,3 +245,21 @@ test('verification Date supplies Settings main and Other pixels without replacin
   }
  }finally{f.dispose();}
 });
+
+test('Camera shoot readiness holds the pair, releases on gallery, and preserves recovery/retry',async()=>{
+ let roomState={status:'loading'},roomOwner=null,notify=()=>{};const prepares=[];
+ const cameraShoot={prepare(owner,onChange){roomOwner=owner;prepares.push(owner);notify=onChange;return owner?roomState:{status:'inactive'};},draw(){return roomState.status==='ready';}};
+ const f=paintFixture({cameraShoot});f.v.appId='camera';f.v.screen='guide';
+ try{
+  f.draw('camera:1');await flush();calls[0].resolve(nativeAssets());await flush();
+  f.draw('camera:1');assert.equal(f.screen.status(f.v,'camera:1',f.font),'loading');
+  assert.deepEqual(f.top.marks,[['fill','#000']]);assert.deepEqual(f.bottom.marks,[['fill','#000']]);
+  roomState={status:'ready'};notify();f.draw('camera:1');assert.equal(f.screen.status(f.v,'camera:1',f.font),'ready');
+  f.v.screen='main';f.draw('camera:1');assert.equal(roomOwner,null);assert.equal(f.screen.status(f.v,'camera:1',f.font),'ready');
+  f.v.screen='guide';roomState={status:'error',error:Error('room texture unavailable')};notify();f.draw('camera:1');
+  assert.equal(f.screen.status(f.v,'camera:1',f.font),'error');assert.match(String(f.screen.getFailure()),/room texture/);
+  assert.equal(f.screen.retry(),true);assert.equal(roomOwner,null);
+  roomState={status:'ready'};f.draw('camera:1');await flush();calls[1].resolve(nativeAssets());await flush();f.draw('camera:1');
+  assert.equal(f.screen.status(f.v,'camera:1',f.font),'ready');f.screen.sync(null);assert.equal(roomOwner,null);
+ }finally{f.dispose();}
+});

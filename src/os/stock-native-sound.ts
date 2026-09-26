@@ -30,11 +30,12 @@ const loopIconPane:Record<SoundPlaybackMode,number>={'no-loop':0,folder:1,random
 export const soundSliderRateFrames=280;
 export const soundSliderFrame=(fraction:number)=>Math.round(Math.max(0,Math.min(1,fraction))*soundSliderRateFrames);
 
-/** Source S_ColConf_D BtnRst reset blue; the captured fresh native profile uses it.
- * Only the six-register theme slot is replaced, on an owned posed layout. */
-export function soundEntryBlue(layout:NativeLayout):NativeLayout{
+/** Source S_ColConf_D BtnRst reset blue is the entry theme adaptation.
+ * The title alone uses a captured RGB fit; native runtime colour binding is unverified.
+ * Only the sixth theme register is replaced, on an owned posed layout. */
+export function soundEntryBlue(layout:NativeLayout,titleBarCaptureFit=false):NativeLayout{
   const posed=structuredClone(layout);
-  for(const material of posed.materials)if(material.constantColors[5]?.join(',')==='57,170,213,255')material.constantColors[5]=[42,113,235,255];
+  for(const material of posed.materials)if(material.constantColors[5]?.join(',')==='57,170,213,255')material.constantColors[5]=titleBarCaptureFit&&['TitBar','TitBarBvlL','TitBarBvlC'].includes(material.name)?[41,113,238,255]:[42,113,235,255];
   return posed;
 }
 
@@ -69,7 +70,7 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     const entry=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={},messageColors:Readonly<Record<string,readonly number[]>>={})=>{
       const source=renderer.packs[pack]?.layouts?.[layout];
       if(!source){draw(ctx,pack,layout,opts);return;}
-      const posed=soundEntryBlue(poseNativeLayout(source,renderer.packs[pack].animations,opts.bindings,opts.overrides));
+      const posed=soundEntryBlue(poseNativeLayout(source,renderer.packs[pack].animations,opts.bindings,opts.overrides),pack==='sound-info'&&layout==='S_Inf_U-TitleBar');
       const tone=(panes:typeof posed.roots)=>{for(const pane of panes){const color=messageColors[pane.name];if(color&&pane.text){pane.text.topColor=[...color];pane.text.bottomColor=[...color];}tone(pane.children);}};
       tone(posed.roots);
       okay=renderer.drawLayout(ctx,pack,layout,posed,{...opts,bindings:[]})&&okay;

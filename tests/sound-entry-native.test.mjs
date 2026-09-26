@@ -54,6 +54,31 @@ test('entry theme changes only source cyan theme slots and leaves shared layouts
  }
 });
 
+test('captured title blue is confined to entry title theme materials and preserves public resources',()=>{
+ const before=JSON.stringify(packs),calls=[];
+ const drawLayout=(ctx,pack,layout,posed)=>{calls.push({pack,layout,posed});return true;};
+ const draw=()=>true;
+ assert.equal(drawNativeSoundFrame({packs,drawLayout,draw},{},{},entry,{}),true);
+ const title=calls.find(c=>c.layout==='S_Inf_U-TitleBar').posed;
+ const original=packs['sound-info'].layouts['S_Inf_U-TitleBar'];
+ for(let i=0;i<original.materials.length;i++){
+  const old=original.materials[i],next=title.materials[i];
+  if(['TitBar','TitBarBvlL','TitBarBvlC'].includes(old.name)){
+   assert.deepEqual(next.constantColors[5],[41,113,238,255]);
+   assert.deepEqual(next.constantColors.slice(0,5),old.constantColors.slice(0,5));
+  }else assert.deepEqual(next,old);
+ }
+ for(const call of calls.filter(c=>c.layout!=='S_Inf_U-TitleBar')){
+  assert.equal(call.posed.materials.some(m=>m.constantColors.some(c=>c.join(',')==='41,113,238,255')),false,call.layout);
+ }
+ assert.equal(JSON.stringify(packs),before);
+ // Supplied-song views retain their existing source title rendering path.
+ const sourceCalls=[];
+ const supplied={...entry,data:{tracks:[{title:'Owner supplied song'}]}};
+ assert.equal(drawNativeSoundFrame({packs,drawLayout,draw:(ctx,pack,layout)=>{sourceCalls.push(layout);return true;}},{},{},supplied,{}),true);
+ assert.ok(sourceCalls.includes('S_Inf_U-TitleBar'));
+});
+
 test('entry device controls and disabled Back have no touch targets',()=>{
  for(const [x,y] of [[160,49],[160,159],[45,193],[275,193],[160,208],[45,225],[275,225]])assert.equal(hit(entry,x,y),null);
 });

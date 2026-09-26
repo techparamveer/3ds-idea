@@ -64,3 +64,18 @@ native upper capture has 252/243/250 distinct R/G/B values, so it is not globall
 RGB565. Applying quantization to the entire LCD is unsupported by this evidence.
 Title text alignment/raster and the remaining room, birds, footer and guide
 residuals need independent fixes and matched input/motion/audio evidence.
+
+## Scoped runtime adaptation
+
+The entry painter now supplies `(41,113,238,255)` only to theme register 5
+of `TitBar`, `TitBarBvlL` and `TitBarBvlC` in the posed
+`S_Inf_U-TitleBar` layout. The shared source pack, title textures and text
+materials remain unchanged. Other entry chrome retains its preceding reset-blue
+adaptation; supplied-song title rendering is unchanged. This is a capture-derived
+fit, not a traced native title register or global RGB565 conversion.
+
+`tests/sound-entry-native.test.mjs` checks the actual entry draw path, source
+immutability, the three title material registers, absence of this fit in other
+entry layouts, and the supplied-song source title path. Production recapture and
+comparison remain the coordinator's acceptance step; this change alone establishes
+no pixel, motion or audio pass.

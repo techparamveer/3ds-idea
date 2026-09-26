@@ -169,7 +169,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const active=new Set(two?['N_BtnW_R_02','N_BtnW_L_03']:['N_BtnW_C_01']);
   const overrides:PaneOverrides={};
   const walk=(panes:NativePack['layouts'][string]['roots'])=>panes.forEach(p=>{if(/^N_Btn[WB]_[LRC]+_\d+$/.test(p.name))overrides[p.name]={visible:active.has(p.name)};if(p.text)overrides[p.name]={text:''};walk(p.children);});walk(renderer.packs.launcher.layouts.LncBtmBtn_02.roots);
-  const label=(action:typeof leftAction|typeof rightAction)=>action===null?{text:''}:message('menu_msbt_LZ',{'close-folder':'lau_2b_close','close-software':'lau_2b_close','folder-settings':'lau_2b_folder_setting',open:'lau_2b_folder_open','create-folder':'lau_1b_make_folder',resume:'lau_2b_restart'}[action],{'close-folder':'Close','close-software':'Close','folder-settings':'Settings',open:'Open','create-folder':'Create Folder',resume:'Resume'}[action]);
+  const label=(action:typeof leftAction|typeof rightAction)=>action===null?{text:''}:message('menu_msbt_LZ',{'close-folder':'lau_2b_close','close-software':'lau_2b_close','folder-settings':'lau_2b_folder_setting',manual:'lau_2b_manual',open:'lau_2b_folder_open','create-folder':'lau_1b_make_folder',resume:'lau_2b_restart'}[action],{'close-folder':'Close','close-software':'Close','folder-settings':'Settings',manual:'Manual',open:'Open','create-folder':'Create Folder',resume:'Resume'}[action]);
   const right=label(rightAction),left=label(leftAction);
   for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]=right;overrides[`${prefix}_R_02`]=right;overrides[`${prefix}_L_03`]=left;}
   const close=sampleSystemHomeFolderClose(state);

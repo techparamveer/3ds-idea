@@ -261,7 +261,12 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  }
  if(isSystemHomeFolderClosing(state))return state;
  if(isHomeFolderBackTouch(state,x,y))return send('back');
- if(!state.panel&&y>=212&&selectedTitle(state)){if(state.opened)return send(x<100?'back':'open');return x<100&&s.app?{...state,system:{...s,dialog:'close'}}:send('open');}
+ if(!state.panel&&y>=212&&selectedTitle(state)){
+  if(state.opened)return send(x<100?'back':'open');
+  if(x<100&&s.app)return {...state,system:{...s,dialog:'close'}};
+  if(x<100&&selectedTitle(state)?.id==='system-settings')return invokeSystemApplet(state,'manual',now,{manualTitleId:'0004001000022000'});
+  return send('open');
+ }
  if(!state.panel&&y>=(state.opened?49:34)&&y<204){
   if(y>=104&&y<158&&(x<20||x>=300))return send(x<20?'left':'right');
   const location=homeTouchLocation(state,x,y);if(!location)return state;

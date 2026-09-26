@@ -131,7 +131,7 @@ export function getHomeFooter(state:MenuState){
  const folder=!state.opened&&isFolder(state.selected,state);
  return {
   two:!!appId||folder,
-  left:state.opened&&appId?'close-folder':folder?'folder-settings':appId&&state.system?.app?'close-software':null,
+  left:state.opened&&appId?'close-folder':folder?'folder-settings':appId&&state.system?.app?'close-software':appId==='system-settings'?'manual':null,
   right:appId?(state.system?.app===appId?'resume':'open'):state.opened?'close-folder':folder?'open':'create-folder'
  } as const;
 }

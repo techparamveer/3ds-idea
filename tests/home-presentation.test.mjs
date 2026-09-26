@@ -100,6 +100,19 @@ test('empty folder selection hides the footer even when another child is occupie
  assert.deepEqual(getHomeFooter(selectHomeSlot(initial,20)),{two:false,left:null,right:'create-folder'});
 });
 
+test('Settings HOME shows native Manual and opens the Settings-owned applet from its left footer',()=>{
+ const initial=home(),slot=Number(Object.entries(initial.system.layout).find(([,id])=>id==='system-settings')[0]);
+ const selected=selectHomeSlot(initial,slot);
+ assert.deepEqual(getHomeFooter(selected),{two:true,left:'manual',right:'open'});
+ const opened=touchSystem(selected,50,226,100),active=opened.system.runtime.instances[opened.system.runtime.active];
+ assert.equal(opened.system.phase,'app');
+ assert.equal(active.appId,'manual');
+ assert.equal(active.state.manualTitleId,'0004001000022000');
+ const down=touch(selected,'down',{x:50,y:226},100),up=touch(down,'up',{x:50,y:226},150);
+ assert.equal(up.system.runtime.instances[up.system.runtime.active].state.manualTitleId,'0004001000022000','live touch phases use the same route');
+ assert.equal(getHomeFooter(selectHomeSlot(initial,0)).left,null,'portfolio slot does not inherit Manual');
+});
+
 test('folder plate and shadow geometry match original ARM fixtures at every density and transition anchor',()=>{
  const fixture=JSON.parse(readFileSync(new URL('./fixtures/native-folder-panel.json',import.meta.url)));
  for(const v of fixture.fixtures){

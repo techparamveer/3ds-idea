@@ -93,8 +93,8 @@ test('Settings Contents loads source chrome, lets Close act, and leaves unfinish
   assert.equal(helpers.APPLICATION_MANUAL_HEADER_CENTRE[1], -22);
 });
 
-test('HOME and other callers do not open an application manual yet', () => {
+test('only the Settings HOME route supplies a manual title argument', () => {
   const files = readdirSync(resolve('src'), { recursive: true }).filter(file => /\.(ts|tsx)$/.test(file));
   const users = files.filter(file => readFileSync(resolve('src', file), 'utf8').includes('manualTitleId')).sort();
-  assert.deepEqual(users, ['os/stock-apps.ts', 'os/stock-helper-views.ts', 'os/stock-native-helpers.ts']);
+  assert.deepEqual(users, ['os/stock-apps.ts', 'os/stock-helper-views.ts', 'os/stock-native-helpers.ts', 'os/system.ts']);
 });

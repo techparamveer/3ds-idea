@@ -98,8 +98,9 @@ Target: the first native Contents screen, capture
 
 **State.** `manual` enters this view only when opened with the explicit applet
 argument `manualTitleId: '0004001000022000'` (for example
-`invokeSystemApplet(state, 'manual', now, { manualTitleId })`). No HOME control,
-footer button or portfolio slot passes it yet. Without it, the Portfolio Guide is
+`invokeSystemApplet(state, 'manual', now, { manualTitleId })`). The Settings
+HOME left footer now supplies it through the source `lau_2b_manual` label;
+portfolio slots do not. Without it, the Portfolio Guide is
 unchanged. An unknown 16-hex title ID is retained and then fails its native load
 explicitly, as no manual pack is listed for it. The view has no rows or guide
 text. X Close and B/HOME close the applet; A, Y Language and directional input

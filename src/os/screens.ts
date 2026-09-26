@@ -109,7 +109,7 @@ function button(c:Context,x:number,y:number,w:number,h:number,label:string,activ
 function footer(c:Context,state:MenuState,chrome:ReturnType<typeof createNativeChrome>){
  const actions=getHomeFooter(state);if(!actions)return;
  c.fillStyle=gradient(c,212,28,'#fff','#c4c5c9');c.fillRect(0,212,320,28);line(c,[[0,212.5],[320,212.5]],'#9c9da4');chrome.draw(c,'home-footer',0,214);
- const {two,left,right}=actions,labels={'close-folder':'Close','close-software':'Close software','folder-settings':'Settings',resume:'Resume',open:'Open','create-folder':'Create Folder'};
+ const {two,left,right}=actions,labels={'close-folder':'Close','close-software':'Close software','folder-settings':'Settings',manual:'Manual',resume:'Resume',open:'Open','create-folder':'Create Folder'};
  if(two){line(c,[[104.5,214],[104.5,240]],'#aaabb2');text(c,left?labels[left]:'',52,226,11,'#494b51','center');text(c,labels[right],212,226,14,'#494b51','center');}
  else{if(state.opened)text(c,'↶',24,226,19);text(c,labels[right],160,226,14,'#494b51','center');}
 }

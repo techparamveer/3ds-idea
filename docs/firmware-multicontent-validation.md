@@ -164,7 +164,8 @@ python3 -B -m unittest discover -s tests -p test_firmware_manual.py
 
 Remaining gaps: a runtime Contents view exists; see [the manual viewer
 note](native-helper-presentation.md#settings-electronic-manual-contents-26-september-2026).
-There is no routing or HOME `LncBtmBtn_02` footer connection. The native choice between the large and small variants,
+The Settings HOME `LncBtmBtn_02` Manual footer now routes to the Contents view.
+The native choice between the large and small variants,
 index-to-page scrolling, the manual applet chrome composition
 (`0004003000009b02` packs; Contents chrome is now delivered, see
 [Manual Contents chrome](native-service-ui-assets.md#manual-contents-chrome))

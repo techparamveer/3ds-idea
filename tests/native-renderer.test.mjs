@@ -311,7 +311,6 @@ test('color spans draw every run against the complete message and reject invalid
  }finally{globalThis.document=previous;}
 });
 
-
 test('Camera source capacity glyph cell overhangs its 16px alignment pane vertically',()=>{
  const font=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/camera/contents/0000-0000001a/HudNOTES-bcfnt/font.json',import.meta.url),'utf8'));
  assert.equal(font.sourceSha256,'7b115deda29adce0faccb352d412a3ef9e10247850be6ded7856ba2714d32932');
@@ -335,6 +334,27 @@ test('Camera vertical backing keeps source alignment dimensions and restores the
   assert.ok(calls.some(call=>JSON.stringify(call)===JSON.stringify(['translate',0,5])));
   assert.ok(calls.some(call=>JSON.stringify(call)===JSON.stringify(['text','\ue01e3000',172,16,172,24])));
   assert.deepEqual(compositions,[[172,24,0,-5,172,24]]);
-  renderer.dispose();
+ renderer.dispose();
  }finally{globalThis.document=prior;}
+});
+
+test('Camera fractional centered text preserves source size only in the opted-in LCD path',()=>{
+ const previous=globalThis.document,calls=[];
+ globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
+ try{
+  const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+  const font={manifest,drawNative(...args){calls.push({width:args[2],height:args[3],phase:args[9],direct:args[10]});}};
+  const text={value:'Next',font:0,material:0,size:[21,25.2],alignment:4,lineAlignment:2,lineSpacing:0,characterSpacing:0,topColor:[255,255,255,255],bottomColor:[255,255,255,255]};
+  const source={...layout,fonts:['shared'],roots:[{...pane,kind:'txt1',size:[120,25.200000762939453],picture:undefined,text}]};
+  const pack={schema:1,layouts:{test:source},animations:{},textures:{},messages:{}};
+  const renderer=new NativeLayoutRenderer({test:pack},{test:new Map()},new Map([['shared',font]]));
+  const ctx=canvas().getContext(),compositions=[];ctx.getTransform=()=>({a:1,b:0,c:0,d:1,e:100,f:191.39999961853027});ctx.drawImage=(image,...args)=>compositions.push([image.width,image.height,...args]);
+  for(const textSampling of [undefined,'lcd','lcd-source-size'])assert.equal(renderer.draw(ctx,'test','test',{textSampling}),true);
+  assert.equal(calls[0].height,26,'default path keeps prior allocation-sized layout');
+  assert.equal(calls.at(-1).height,25.200000762939453,'source pane height reaches the glyph writer without rounding');
+  assert.equal(calls.at(-1).direct,true);assert.deepEqual(calls.at(-1).phase,[0,.39999961853027344]);
+  assert.deepEqual(compositions.at(-1),[120,27,0,-.39999961853027344,120,27],'the raster reaches the LCD without a second rescale');
+  assert.equal(compositions[1][5],25.200000762939453,'existing lcd mode retains its fractional-pane fallback');
+  renderer.dispose();
+ }finally{globalThis.document=previous;}
 });

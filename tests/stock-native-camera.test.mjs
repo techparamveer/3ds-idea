@@ -336,6 +336,7 @@ test('Camera welcome binds five messages, source dialog bodies and message-selec
   const token=bank.messages[bank.labels['D_003_'+page]].tokens.find(t=>t.group===4&&t.type===1);
   assert.equal(token?Buffer.from(token.arguments,'hex').subarray(2).toString('utf16le'):null,expected[page]);
   assert.equal(body.opts.overrides[page===0?'Guid1TxtW':'Guid2TxtW'].text,page===4?'OK':'Next');
+  assert.equal(body.opts.textSampling,'lcd-source-size');
  }
  assert.equal(JSON.stringify(guidePacks),before);
 });

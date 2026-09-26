@@ -270,7 +270,7 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   const overrides=first?{...common,Guid1TxtW:message('Guide_D_N_Btn0')}:{...common,Guid2TxtB:message('Guide_D_BN_Btn0'),Guid2TxtW:message(page===4?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')};
   const source=renderer.packs['camera-dialog']?.layouts?.[layout];
   if(!source)return false;
-  okay=renderer.drawLayout(bottom,'camera-dialog',layout,cameraMessageColors(source,overrides),{bindings:[{name:layout+'_Default',frame:0}],overrides})&&okay;
+  okay=renderer.drawLayout(bottom,'camera-dialog',layout,cameraMessageColors(source,overrides),{textSampling:'lcd-source-size',bindings:[{name:layout+'_Default',frame:0}],overrides})&&okay;
   return okay;
 }
 

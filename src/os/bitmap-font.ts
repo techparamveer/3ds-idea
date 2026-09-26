@@ -181,7 +181,9 @@ export class BitmapFont {
     }).map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
     const nativeAlignedLine=(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0
       ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha';
-    if(lines.length===1&&nativeAlignedLine&&spacing===0){
+    // An explicit centered line uses the same one-line writer origin as automatic
+    // centering. Enable that route only for the caller's direct LCD sampler.
+    if(lines.length===1&&(nativeAlignedLine||lcdBottomEdge&&alignment===4&&lineAlignment===2&&this.manifest.colorMode==='alpha')&&spacing===0){
       // NW writer flags 0x100/0x111: only the centered axis subtracts ceil
       // half the measured rectangle before FINF ascent and TGLP baseline
       // (0x2ffc90/0x300340). Explicit left line alignment is equivalent

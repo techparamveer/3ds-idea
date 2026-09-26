@@ -298,3 +298,19 @@ test('Camera HudNOTES explicit middle-left line retains source ascent and baseli
  assert.deepEqual(calls.map(call=>call[5]),[0,18,31,44,57]);
  assert.ok(calls.every(call=>call[8]===24),'LA glyph source cell height stays intact');
 });
+
+test('Camera guide explicit center alignment uses source glyph quads at the fractional pane size',()=>{
+ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+ const manifest=JSON.parse(fs.readFileSync(new URL('fonts/shared/font.json',root),'utf8'));
+ const pack=JSON.parse(fs.readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-C-Dlg.json',root),'utf8'));
+ const find=(panes,name)=>{for(const pane of panes){if(pane.name===name)return pane;const child=find(pane.children??[],name);if(child)return child;}};
+ const font=new BitmapFont(manifest,manifest.sheets.map(()=>({naturalWidth:4096,naturalHeight:4096})));
+ font.glyphMask=g=>({width:g.width+2,height:g.height+2,data:new Uint8ClampedArray((g.width+2)*(g.height+2)*4).fill(255)});
+ for(const [layout,name,value] of [['C_DlgGuid1BtnW','Guid1TxtW','Next'],['C_DlgGuid2Btn','Guid2TxtB','Back'],['C_DlgGuid2Btn','Guid2TxtW','Next']]){
+  const pane=find(pack.layouts[layout].roots,name),text=pane.text;
+  assert.equal(text.alignment,4);assert.equal(text.lineAlignment,2);
+  const render=lineAlignment=>{let image;const c={createImageData:(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)}),putImageData:x=>{image=x;},drawImage:()=>assert.fail('no Canvas glyph resampling')};
+   font.drawNative(c,value,...pane.size,text.size,text.alignment,0,0,lineAlignment,[0,.4],true);return image;};
+  assert.deepEqual(render(2),render(0),`${layout}/${name}: explicit center and automatic center share the original writer origin`);
+ }
+});

@@ -59,3 +59,8 @@ count from 1,517 to 1,520; the lower stays at 702. It narrows the
 left-aligned origin question but leaves edge sampling and projection open.
 An arbitrary fractional offset is unsupported. Both production diagnostics
 remain `fail`; live HUD status/charging phase, motion and audio are open.
+
+The [HUD phase audit](settings-hud-phase-boundary-2026-09-26.md) tests source
+battery frames 4 and 5 against the raw Settings main and Other page 1 pairs.
+Frame 5 removes the 137-pixel Other battery residual but adds exactly 137
+pixels to Settings main. The native phase selector remains unproven.

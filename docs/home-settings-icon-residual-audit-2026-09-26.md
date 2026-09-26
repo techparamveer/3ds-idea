@@ -148,3 +148,74 @@ raster or native pixel substitution. The visible candidate replaces further
 source-only tracing for this named question. Focused tests verify query bounds,
 local gating, recorded independent frames, live-state immutability and capture
 restoration after successful/failed encoding. Browser evidence is pending.
+
+## Visible yaw304 / COMMON303 result: 222 upper pixels
+
+The coordinator's production `88719fb` capture
+`home-settings-frame304-common303-hud97-88719fb-20260926` was inspected against
+the same genuine native target. The lane was clean and reset to that integration
+commit before this follow-up. Capture metadata confirms yaw frame304
+(−3.183480739593506), COMMON303, `clockRelationship:independent-diagnostic`,
+HUD97, date `2026-09-26T03:14:35.203Z` and elapsed5616.666666666667 ms. The
+browser upper PNG SHA-256 is
+`5cdf4105bd997c5593e56850d68a576674beacf2ec2d24b25121c202ed478704`.
+
+The empty-mask whole-upper comparison has **222 pixels above2/255**, mean RGB
+error0.0983819444 and maximum188. This improves the coupled304 capture's1,883
+and the coordinator's COMMON302 diagnostic1,972. Exact residual ownership is:
+
+| Component | Pixels above2 | Location / maximum error |
+| --- | ---: | --- |
+| HUD colon | 32 | Two4×4 blocks at `(339,6)` and `(339,12)`; maximum188 |
+| Wrench | 3 | `(163,46)`, `(164,63)`, `(171,70)`; maximum54 |
+| Green cards | 105 | Leftmost artwork/plate edges |
+| Blue globe | 1 | `(135,150)`, red channel+3 |
+| Orange NNID | 0 | Within threshold |
+| Pink figure | 0 | Within threshold |
+| Yellow notes | 81 | Rightmost artwork/plate edges |
+| Title, wallpaper remainder, upper footer | 0 | Title/footer maximum2; wallpaper maximum1 |
+
+The banner accounts for **190** residuals:187 icon pixels with maximum8 and
+three wrench pixels. Icon ROI mean RGB error is0.1828903654. The isolated wrench
+pixel `(164,63)` is native `[231,231,237]` versus browser `[214,212,183]`, a
+background/contour disagreement. The other two wrench maxima are3. The
+contact/difference image was inspected; no whole-banner position or palette
+error remains in this diagnostic. None of the remaining pixels is masked.
+Lower LCD differences remain separately reported by the coordinator and do not
+supply evidence for this upper-banner clock decision.
+
+### Why there is no live minus-one fix yet
+
+The visible result supports testing a relative yaw/COMMON phase. It does not
+establish a universal one-update offset. The source
+[controller fixture](evidence/settings-banner-controller-clock.json) records a
+start submission at frame0, advancing current frames1/2 before render dispatch,
+and explicitly states that **submitted visible poses are unobserved**. Native
+title-driven attachment/retarget, scheduling and CGFX pose submission were not
+executed together. The browser's manager yaw and visible-scene clip updates have
+independent owners; one still cannot distinguish activation origin, submission
+order, current-versus-applied frame, or a sampled phase coincidence.
+
+No live-clock offset, shader fit or pixel patch was added. The precise remaining
+clock gap is the visible source COMMON submitted frame relative to manager yaw
+through activation, settled updates, hide/re-show and wrap. A second visible
+native/browser checkpoint with a recorded shared boundary and source submission
+sequence is required before promoting this diagnostic relationship to runtime.
+The existing independent capture override remains available for that comparison.
+This finding does not declare an upper-LCD or motion/input/audio pass.
+
+### Reproduction
+
+The coordinator's original capture and diff are under private
+`captures-20260926/reference/scenario-matrix/v1/captures/home-settings-frame304-common303-hud97-88719fb-20260926/`.
+The analysis lives at
+`/Users/paramveer/.codex/3ds-artifact-overflow/presentation/home-frame-bracket-production-20260926/yaw304-common303/`:
+`report.json`, `diff.png`, `contact.png`, `pixels.mjs` and `pixels.json`.
+The latter lists all222 coordinates and native/browser RGB values.
+
+Report SHA-256: `eed56951e91b10239ada97cf1623f4d39b66c827765d8e13c0f15afa6896f9f7`.
+Pixel list SHA-256: `9c81ecf21f51c23fc4e9cb1ad884a6d6c76920603271685772ac15092ca51fc7`.
+Focused HOME lifecycle, Settings activation and source-contract tests:
+**23 pass, 0 fail, 1 existing TODO** (real-candidate matched-frame comparison).
+`git diff --check` passes. This follow-up is evidence only; no application
+rebuild or runtime modification is needed.

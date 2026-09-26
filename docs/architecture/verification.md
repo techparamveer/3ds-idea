@@ -23,7 +23,7 @@ Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`
 3. The Assets lane owns `scripts/native-compare/` with a parameterized output root. Each pair/mask yields per-LCD mean/max RGB error, count of pixels with any channel delta greater than 2/255, connected difference regions and bounding boxes, heatmap, side-by-side sheet and JSON with both SHA-256s, commit and scenario ID.
 4. **Open the side-by-side sheet.** Fix unexplained regions and repeat both captures after integration. Masks require named reasons and may cover only intentional clock/battery, portfolio content, read-only Camera footer, inert OK and other [feature-map](../feature-map.md) adaptations. A mask created merely to pass a diff is a defect.
 
-Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v62/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
+Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v63/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
 
 The historical `sound-first-run-span-mounted` browser capture JSON was
 overwritten. Matrix v17 marked it unavailable; v25 preserves that repair and links an upper PNG recovered
@@ -162,5 +162,13 @@ lower** pixels above 2/255; page 4 has **169 / 6,702**. Both upper residuals
 are battery/clock phase. The left page arrow dominates both lower residuals,
 and page 4 has a browser-only right page arrow. No mask was used. Both pairs
 remain pixel-tier and whole-scenario failures. See [matrix v62 evidence](../progress-2026-09-24.md#sandisk-other-settings-pages-3-and-4-production-pairs--26-september-2026).
+
+After integrating the source-backed adjacent-page and ScrollBg correction,
+production-browser recaptures with numbered page-tab touches give page 2
+**0/960**, page 3 **169/8**, and page 4 **169/35** upper/lower pixels above
+2/255. All contact sheets were inspected without masks. The page-2 lower
+left-edge overlap remains unresolved; page-3/4 upper differences are battery
+and colon phase, and their lower rows retain small edge differences. All
+pixel and whole-scenario statuses remain `fail` in [matrix v63](../progress-2026-09-24.md#integrated-other-settings-page-edge-recapture--26-september-2026).
 
 Other Settings page1 now has an unmasked **0/0** pixel-threshold checkpoint at `1f7a854`, maximum delta 2, after source-sheet identity/order preservation. Diagnostic date 03:31:10Z at elapsed 12000 aligns the native sampled HUD state; literal screenshot time 03:31:13.302Z instead exposed 169 battery/colon phase pixels. This is pixel-tier acceptance only; navigation/input, motion and audio remain unresolved, so the whole scenario fails. See [v44 evidence](../progress-2026-09-24.md#other-settings-source-sheet-order-two-lcd-checkpoint--26-september-2026).

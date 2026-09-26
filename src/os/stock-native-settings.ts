@@ -12,7 +12,7 @@ export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','TopBase_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
   {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00','SMng_U_01'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00','SMng_U_01_NonSD']},
   {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00','SMngCTRData_D_00','Country_D_00'],animations:['LsMenu_D_00_SceneIn_00','Country_D_00_SceneIn_00','Country_D_00_ScrollDw','Country_D_00_ScrollUp','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00','SMngCTRData_D_00_SceneIn_00','SMngCTRData_D_00_TextIn','SMngCTRData_D_00_BtnIn']},
-  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04','T_SB','R_SlideBar'],animations:[...buttons.map(name=>name+'_Select'),'R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide','T_SB_Decide']},
+  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04','T_SB','R_SlideBar'],animations:[...buttons.map(name=>name+'_Select'),'T_Page01_Decide','R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide','T_SB_Decide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
   {url:prefix+'dialog.json',alias:'dialog',layouts:['Dialog_D_01','DlgMask_D_00'],animations:['Dialog_D_02_FadeIn','Dialog_D_02_Select','DlgMask_D_00_FadeIn']},
   {url:prefix+'hud.json',alias:'hud',layouts:['HudMset_00'],animations:['HudMset_00_Bat','HudMset_00_NetAtn','HudMset_00_NetMode','HudMset_00_WhiteBlack']},
@@ -35,6 +35,7 @@ function prepareSettingsButtons(renderer:NativeLayoutRenderer){
   if(prepared.has(renderer))return;
   const source=renderer.packs.button,animations={...source.animations};
   for(const name of buttons)animations[name+'_DirectSettings']=settingsDirectButtonClip(source.layouts[name],source.animations[name+'_Select']);
+  animations.T_Page01_Decide_DirectSettings=settingsDirectButtonClip(source.layouts.T_Page01,source.animations.T_Page01_Decide);
   animations.T_SB_Decide_DirectSettings=settingsDirectButtonClip(source.layouts.T_SB,source.animations.T_SB_Decide);
   renderer.packs.button={...source,animations};prepared.add(renderer);
 }
@@ -264,7 +265,9 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   else if(screen==='other'){
     const attachments:Record<string,()=>void>={};
     view.rows.slice(0,3).forEach((row,i)=>{const button=otherButtons[row.id];if(button)attachments['N_I_Button_0'+i]=()=>child(button[0],row.id,button[1]);});
-    for(let i=0;i<4;i++)attachments['NN_T_Page0'+(i+1)+'_00']=()=>draw(bottom,'button','T_Page0'+(i+1),{bindings:[{name:'T_Page01_DirectSettings',frame:i===page?1:0}]});
+    // Select's final frame is pressed with no shadow; Decide's final frame
+    // keeps the selected colour but raises the page tab and restores its shadow.
+    for(let i=0;i<4;i++)attachments['NN_T_Page0'+(i+1)+'_00']=()=>draw(bottom,'button','T_Page0'+(i+1),{bindings:[{name:i===page?'T_Page01_Decide_DirectSettings':'T_Page01_DirectSettings',frame:i===page?1:0}]});
     if(page>0)attachments.N_R_ArrowL_00=()=>draw(bottom,'button','R_ArrowL',{bindings:[{name:'R_ArrowL_Appear',frame:0}]});
     if(page<3)attachments.N_R_ArrowR_00=()=>draw(bottom,'button','R_ArrowR',{bindings:[{name:'R_ArrowR_Appear',frame:0}]});
     draw(bottom,'layout','BasicTop_D_00',{bindings:[{name:'BasicTop_D_00_SpecialIn_00',frame:1}],attachments});

@@ -125,10 +125,10 @@ export class NativeLayoutRenderer {
   const text=pane.text!,font=this.fonts.get(layout.fonts[text.font]);if(!font)throw new Error(`Missing native font ${layout.fonts[text.font]}`);
   const [w,h]=pane.size.map(Math.ceil),material=layout.materials[text.material];
   const metrics=nativeTextMetrics(text,font.manifest);
-  // Single-line left-aligned alpha text in unit upright transforms can sample
+  // Single-line left/center-aligned alpha text in unit upright transforms can sample
   // directly on the LCD pixel grid. Other
   // transforms retain their existing path until their projection is traced.
-  const direct=font.manifest.colorMode==='alpha'&&!/[\r\n]/.test(text.value)&&text.alignment===3&&text.lineAlignment===0&&metrics.characterSpacing===0&&pane.size[0]===w&&pane.size[1]===h&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
+  const direct=font.manifest.colorMode==='alpha'&&!/[\r\n]/.test(text.value)&&(text.alignment===3||text.alignment===4)&&text.lineAlignment===0&&metrics.characterSpacing===0&&pane.size[0]===w&&pane.size[1]===h&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
   const phase:readonly [number,number]=direct?[transform.e-Math.floor(transform.e),transform.f-Math.floor(transform.f)]:[0,0];
   const extra=nativeTextRightOverhang(font.manifest,text.value,metrics.size,text.alignment,text.lineAlignment,metrics.characterSpacing),rasterWidth=w+extra+Math.ceil(phase[0]),rasterHeight=h+Math.ceil(phase[1]);
   const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase]);

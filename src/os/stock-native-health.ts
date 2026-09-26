@@ -90,7 +90,7 @@ export function drawNativeHealthFrame(renderer:NativeLayoutRenderer,top:CanvasRe
       N_SlideBar_00:()=>draw(bottom,'health-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:article.selectFrame}],
         overrides:{...slideBarSizes,B_Slide_00:{size:[24,22],translation:[0,article.thumbY,0]},N_Slide_00:{visible:true,translation:[0,article.thumbY,0]}}}),
     }});
-    draw(bottom,'health-back','BtmBtn_White',{bindings:[{name:'BtmBtn_White_SceneIn',frame:20}],overrides:{T_BtnB_00:message('back'),T_BtnF_00:message('back')}});
+    draw(bottom,'health-back','BtmBtn_White',{textSampling:'lcd',bindings:[{name:'BtmBtn_White_SceneIn',frame:20}],overrides:{T_BtnB_00:message('back'),T_BtnF_00:message('back')}});
   }else return false;
   return okay;
 }

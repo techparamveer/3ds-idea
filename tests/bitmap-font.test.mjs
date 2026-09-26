@@ -206,7 +206,7 @@ test('transformed article-style quads preserve caller precision without native w
  assert.equal(after[(1*4+2)*4+3],255,'right column is covered above its centre');
 });
 
-test('fractional LCD phase samples original glyph coverage in two axes',()=>{
+for(const alignment of [3,4])test(`fractional LCD phase samples original glyph coverage for alignment ${alignment}`,()=>{
  const glyph={sheet:0,x:1,y:1,width:2,height:2,left:0,advance:2};
  const manifest={schema:1,sourceSha256:'0'.repeat(64),width:2,height:2,ascent:2,baseline:2,lineFeed:2,colorMode:'alpha',sheets:['sheet-0.png'],glyphs:{65:glyph},fallback:null};
  const font=new BitmapFont(manifest,[{naturalWidth:4,naturalHeight:4}]);
@@ -214,9 +214,9 @@ test('fractional LCD phase samples original glyph coverage in two axes',()=>{
  for(const [x,y] of [[1,1],[2,1],[1,2],[2,2]])mask.data[(y*4+x)*4+3]=255;
  font.glyphMask=()=>mask;
  let result;const ctx={createImageData:(width,height)=>({width,height,data:new Uint8ClampedArray(width*height*4)}),putImageData:image=>{result=image;}};
- font.drawNative(ctx,'A',4,4,[2,2],3,0,0,0,[.25,.25]);
+ font.drawNative(ctx,'A',4,4,[2,2],alignment,0,0,0,[.25,.25]);
  assert.deepEqual([result.width,result.height],[5,5]);
- const alpha=(x,y)=>result.data[(y*result.width+x)*4+3];
+ const alpha=(x,y)=>result.data[(y*result.width+x+(alignment===4?1:0))*4+3];
  assert.equal(alpha(0,1),143,'source bilinear coverage is 255 × .75 × .75');
  assert.equal(alpha(1,1),191);assert.equal(alpha(1,2),255);
  assert.equal(alpha(2,2),0,'right quad coverage remains exclusive of centers beyond its endpoint');

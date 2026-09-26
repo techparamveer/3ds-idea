@@ -39,7 +39,7 @@ import { captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHu
 const RAD = Math.PI / 180;
 let nextBannerSession=0;
 export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MODEL_URL):Promise<()=>void> {
-  const quality=browserRenderQuality(host);const diagnostics=process.env.NODE_ENV==='development';const lcdCapture=lcdCaptureEnabled(window.location,diagnostics);host.dataset.quality=quality.tier;
+  const quality=browserRenderQuality(host);const diagnostics=process.env.NODE_ENV==='development'||lcdCaptureEnabled(window.location,false);const lcdCapture=lcdCaptureEnabled(window.location,diagnostics);host.dataset.quality=quality.tier;
   const renderer=new THREE.WebGLRenderer({antialias:quality.antialias,alpha:true,powerPreference:'high-performance'});
   renderer.setPixelRatio(quality.pixelRatio);renderer.setClearColor(0xeae8e4,1);
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;

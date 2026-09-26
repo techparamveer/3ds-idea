@@ -54,3 +54,17 @@ private firmware artifacts; see [the comparison](native-settings-live-comparison
 The isolated config was restored after the trial; the default profile config
 timestamp remained `1790215510` seconds. This verifies this single touch route,
 not arbitrary coordinate input, native timing or whole-screen fidelity.
+
+On 26 September, after the user freed Sandisk SSD storage, the current
+isolated Camera replay was copied to a growable APFS sparsebundle at
+`/Volumes/Sandisk1/Codex3DS-Isolated.sparsebundle`, mounted as
+`/Volumes/Codex3DSIsolated`. Sandisk itself is ExFAT, so the APFS layer
+preserves the app bundle's links and metadata. `diff -qr` found no file-content
+differences immediately after the copy. Azahar launched from the mounted
+copy, opened the EUR Camera title, and its screenshot directory was changed
+in Azahar Preferences to that mounted copy's `screenshots/` directory. Its
+own Capture Screenshot action wrote a genuine 400×480 PNG there:
+`Nintendo 3DS Camera_26.09.26_20.51.48.104.png`, SHA-256
+`6293cb00c578e5a5e7f8b29784d96a211477b84c8bd4efe88a4f03fa86376feb`.
+The prior DeveloperStorage copy and the user's original reference were left
+intact. Mount the sparsebundle before opening the SSD copy in later sessions.

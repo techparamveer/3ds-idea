@@ -2,7 +2,7 @@
 
 This file is the shared repository instruction file for coding agents.
 `CLAUDE.md` imports it. Current user instructions take precedence. The UI
-continuation checkpoint is `b196bc7` (25 September 2026); check the actual
+continuation checkpoint is `1912836` (26 September 2026); check the actual
 HEAD and integration history before beginning a slice.
 
 ## Read before working
@@ -134,18 +134,14 @@ and diff regions, then hand off for integration and recapture.
 
 The first required pairs are HOME idle and Settings → Other Settings page 1,
 under `reference/scenario-matrix/v1/captures/` in the private artifact root.
-Matrix v17 has 26 failing diagnostic entries, including Camera populated browse
-and Sound first-run/settled entry. The browser now renders Camera's six-cell
-browse and Sound's three-page first-run guide from delivered source resources;
-the latest diagnostic pairs still differ by 95,350 upper / 26,496 lower and
-15,583 upper / 6,267 lower pixels over 2/255 respectively. Camera source
-browse and zoom chrome are visible. Shoot and zoom are inert under the
-read-only scope; content and input remain unmatched. Sound Span is mounted,
-with a capture-derived blue Base material fit recorded as an adaptation, not a native match. Sound has an
-earlier matched selected HOME Sound + A entry pair; its latest Span pair has a
-different navigation prefix. A new Settings HOME boot pair fails at 19,793 upper / 44,041 lower with unmatched
-layout and animation phase. Motion/audio are open. HOME idle still lacks a
-matched pair.
+Matrix v44 has 87 entries, all whole scenarios fail. Health Usage initial and
+8px-scrolled and Settings Other page 1 now have production two-LCD static pixel
+tier matches (maximum delta 2), but exact input, motion and audio remain open.
+The HOME Settings frame bracket's best sample at 304 still differs by 1,883
+upper and 36,358 lower pixels. Follow the latest progress checkpoint for capture
+identities and known adaptations. Sandisk1 ENOSPC blocks new native writes; the
+coordinator's verified internal isolated-copy request is pending. Do not change
+the private matrix while the external drive is unwritable.
 The old scaled Settings JPEG/source-render pair is not acceptance evidence.
 Never claim a scenario passes from tests, source renders, a browser view or a
 worker's build alone. Matrix entries must

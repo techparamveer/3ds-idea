@@ -59,8 +59,9 @@ browser LCD loop](docs/architecture/verification.md). The coordinator drives
 the same inputs, captures 400×240 upper and 320×240 lower targets, diffs and
 visually inspects each scenario, then repeats after fixes. The first required
 capture pairs are HOME idle and Settings → Other Settings page 1 under the
-private `reference/scenario-matrix/v1/captures/` directory. No pair has a
-passing pixel diff yet. Tests and source renders support implementation but
+private `reference/scenario-matrix/v1/captures/` directory. Health Usage
+initial/scrolled and Settings Other page 1 have static two-LCD pixel-threshold
+matches; no whole scenario is accepted. Tests and source renders support implementation but
 cannot establish native visual fidelity. Hardware acceptance uses matched
 photographs and the exported browser model.
 

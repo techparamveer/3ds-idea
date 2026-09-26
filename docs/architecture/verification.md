@@ -31,7 +31,25 @@ pixel-for-pixel from the preserved contact sheet, an unchanged lower PNG and a
 reproduced failing diff. This repair cannot replace a complete fresh capture
 pair for acceptance.
 
-The first acceptance targets remain **matched HOME idle** and **Settings → Other Settings page 1**, with raw captures under `reference/scenario-matrix/v1/captures/`. [Matrix v44](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v44/matrix.json) contains 87 diagnostic entries (77 native/browser comparisons and ten browser-only records); **all are `fail`**. `settings-main-matched` and `sound-first-run-native-panel-matched-a` have identical entry input. Motion and audio tiers remain open. The recovered native Settings main versus production browser is **102 upper / 37 lower pixels over 2/255** after a source battery-frame correction. Source-selected tab and adjacent-page mounts reduce the new Other Settings page 1 diagnostic from **1,517 / 1,682** to **1,517 / 702**. A pair uses the same sustained touch on Other Settings from the already-open Settings main in both environments; its prior HOME-to-Settings prefixes differ, so full-session input parity is still open. A subsequent production capture of the new title raster has **1,520 / 702** residual pixels, including a three-pixel upper glyph regression; the [title glyph audit](../settings-other-title-glyph-audit-2026-09-26.md) finds no source-backed font-only correction. The fresh-origin selected Settings HOME diagnostic has **54,709 / 41,778** residual pixels: default selection position aligns, but surrounding portfolio tiles and wrench pose differ, and native/browser entry histories differ. Untouched legacy defaults now migrate to those positions; an existing-origin reload retained its previous saved placement, whose customization status is unknown. HOME idle still lacks a matched-input score. A zero-pixel lower Health entry is not a whole-scenario pass. The earlier Azahar EUR boot versus browser selected Settings boot remains at **19,793 / 44,041** under its old layout. The [HOME phase audit](../native-settings-banner-selected-boot-audit-2026-09-26.md) does not support a timing change without native frame counters. No accepted pair follows yet.
+The first whole-scenario acceptance targets remain **matched HOME idle** and
+**Settings → Other Settings page 1**. [Matrix v44](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v44/matrix.json)
+has 87 entries (77 native/browser pairs and ten browser-only records), **all
+whole scenarios fail**. Through integration `1912836`, production Health Usage
+initial, Health Usage scrolled 8px and Settings Other page 1 have unmasked static
+two-LCD pixel-tier matches, maximum delta 2. HOME Settings's seven-frame bracket
+has best upper pose at frame 304, still **1,883 upper / 36,358 lower** pixels
+above 2/255. See the [current report and capture links](../progress-2026-09-24.md#integration-1912836-pixel-checkpoints-and-storage-block--26-september-2026).
+Static matches and explicit phase/calendar samples do not prove identical input,
+a recovered native event clock, ±1-frame motion or audio onset. HOME idle still
+lacks a matched-input acceptance score. The old scaled Settings JPEG/source
+render remains non-acceptance evidence.
+
+At this checkpoint Sandisk1 is nearly full and isolated native writes return
+ENOSPC. The coordinator has requested approval for a verified internal isolated
+copy; no such copy or authorization is established here. Preserve existing
+isolation gates and evidence. Do not launch another profile or create/change the
+private matrix while the external drive is unwritable. Repository documentation
+may record existing reports without claiming new native capture.
 
 The isolated native Camera fixture contains two Camera-created photos sourced from the existing Renu image. The browser now renders a six-cell View Photos browse with native `P_BrwsMenu_D` Slideshow/Shoot/Settings and `P_BrwsBase_D` zoom chrome, but the latest populated pair still differs by **95,350 upper / 23,052 lower pixels over 2/255**. It compares two native stereo MPO fixture photos with five mono portfolio JPEGs, different date folder/selection/chrome and unmatched input. `cc4e383` now follows executable mono contain/no-upscale; the preserved stereo fixture has a different native fit branch, so this diagnostic cannot judge mono photo fidelity. Earlier Camera first-run/empty/populated pairs are preserved diagnostics, not gallery acceptance. The exact source `C_SldH_S` slider now renders at the source parent anchor; its browser paging → Rate mapping and static Parakeet phase are adaptations. Shoot and zoom remain inert under the read-only gallery scope. See the [Camera evidence update](../progress-2026-09-24.md#camera-mono-source-diagnostic-and-sound-strip-finding--26-september-2026). The fixture is private verification data and does not add product capture/editing. Nintendo says only photos created with 3DS Camera can be used on the system ([support](https://en-americas-support.nintendo.com/app/answers/detail/a_id/674/p/605)).
 
@@ -49,8 +67,9 @@ No notification screenshot is a Miiverse comparison target. See
 the [Miiverse checkpoint](../progress-2026-09-24.md#miiverse-empty-interior-browser-checkpoint--26-september-2026)
 for capture hashes, provenance and remaining adaptations, and the
 [Settings recovery](../progress-2026-09-24.md#native-settings-input-recovery--26-september-2026).
-Native Settings main and Other Settings page 1 now have fresh diagnostic pairs,
-but neither has matched input, zero residual pixels, or motion/audio acceptance.
+Those historical Settings main and Other Settings page 1 pairs lacked matched
+input and had residual pixels. The later page-1 pixel-tier match above supersedes
+that pixel result; full input and motion/audio acceptance remain open.
 See the [recovered Settings comparison](../progress-2026-09-24.md#recovered-settings-browser-comparisons--26-september-2026).
 
 The browser now renders Sound's three-page first-run guide using delivered source resources. An earlier page-1 pair uses selected HOME Sound + A in both environments and differs by **15,639 upper / 6,579 lower pixels over 2/255**. Source counter messages and shared pane anchors reduced the lower diagnostic to 6,267. After the source Span mount and Base adaptations, `139df79` fits only three title material registers to captured blue `(41,113,238,255)`, removing 8,910 upper over-threshold pixels and yielding the latest **6,627 upper / 6,267 lower** pixels over 2; that pair has different HOME navigation prefixes. The body text is within the pixel threshold; title band, waveform sampling, birds, footer and other residuals remain. The title blue, Base blue, opaque alpha and edge fit are capture-derived visual adaptations, not a native-material claim. The source character frame/bird mount is evidence-best at zero offset. The settled `Record & Edit Sounds` pair still fails at **15,793 / 16,021**. Browser first-run persistence is not firmware-backed. The earlier matched-A pair establishes only that entry input reaches the same page; these counts do not establish complete input, animation or audio parity. The old 1229×768 JPEG Settings grab against a source render is not acceptance evidence.

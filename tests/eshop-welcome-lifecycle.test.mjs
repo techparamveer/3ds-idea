@@ -114,7 +114,7 @@ test('only the active owner advances; HOME suspension pauses the exit',()=>{
 const calls=[];
 globalThis.__eshopLoad=()=>{let resolve;const pending=new Promise(r=>{resolve=r;});calls.push({resolve});return pending;};
 const session=url(compile('native-title-session').replace("'./native-title-assets'",JSON.stringify(url('export const loadNativeTitleAssets=(...args)=>globalThis.__eshopLoad(...args)'))));
-let source=compile('stock-screen-presentation').replace("'./native-title-session'",JSON.stringify(session));
+let source=compile('stock-screen-presentation').replace("'./stock-health-scroll'",JSON.stringify(url(compile('stock-health-scroll')))).replace("'./native-title-session'",JSON.stringify(session));
 for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSettingsMain'],['sound','soundScreenPacks','drawNativeSoundFrame'],['camera','cameraScreenPacks','drawNativeCameraFrame'],['health','healthScreenPacks','drawNativeHealthFrame']])source=source.replace(`'./stock-native-${file}'`,JSON.stringify(url(`export const ${packs}=[];export const ${draw}=()=>false;`)));
 source=source.replace("'./stock-screen-layout'",JSON.stringify(url('export const stockScreenTargets=()=>[];')));
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url('export const nativePersonalToolView=()=>null;export const drawNativePersonalToolFrame=()=>false;')));

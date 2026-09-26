@@ -56,9 +56,11 @@ comes from Finder_Pho_00_00. Capture controls remain inert.
 
 These gaps remain visible or behaviorally different:
 
-- The lower shoot scene behind the guide perimeter is not composed; its surface
-  is cleared to black. This is an explicit missing background, not native black
-  artwork. Background attenuation/compositing remains untraced.
+- The source P_Shoot_D CGFX now paints beneath the dialog (`6a0f158`), with
+  source geometry/materials and an explicit 4:3 camera-aspect fit. The native
+  2D shoot controls around the perimeter and their attenuation/compositing
+  remain unbound. The X/Z arrows and analog stick are hidden because their
+  Welcome visibility is unverified.
 - Page 3/4 red inline emphasis now uses the original MSBT colour switches
   (`2765bb0`): RGBA `[255,50,0,255]` for `3D depth slider ` and
   `at least 30cm (12in)\n`, restoring `[69,64,57,255]` afterward. The
@@ -95,6 +97,13 @@ Both browser-only records are in [matrix v47](/Users/paramveer/.codex/3ds-artifa
 The Camera shortcut was activated through its accessibility DOM for this
 diagnostic, then physical A input advanced the guide. Neither entry route nor
 page timing is a matched Azahar comparison.
+
+The page-1 browser regression at `105e7b3` is pixel-identical to the earlier
+page-1 browser pair on both LCDs. The static CGFX slice at `6a0f158` changes
+only the lower LCD: against the same native screenshot, pixels over 2/255 stay
+at **7,026**, while lower RGB MAE falls from **8.2033 to 7.2603**. The upper
+remains **1,387** pixels over 2/255. Both pairs and inspected contact sheets
+are recorded in [matrix v48](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v48/matrix.json).
 
 ## Verification
 

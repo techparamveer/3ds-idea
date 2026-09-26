@@ -65,7 +65,7 @@ export class NativeLayoutRenderer {
  measureSingleLineText(fontName:string,text:NativeText):number{
   const font=this.fonts.get(fontName);if(!font)throw new Error(`Missing native font ${fontName}`);
   const metrics=nativeTextMetrics(text,font.manifest),f=Math.fround;
-  if(/[\r\n]/.test(text.value)||metrics.characterSpacing!==0)throw new Error('Unsupported native title width measurement');
+  if(/[\r\n]/.test(text.value)||metrics.characterSpacing!==0||text.cursorAdvances?.length)throw new Error('Unsupported native title width measurement');
   const scale=f(metrics.size[0]/(font.manifest.width??font.manifest.height));
   let width=0;for(const char of text.value){const glyph=font.manifest.glyphs[String(char.codePointAt(0))]??font.manifest.fallback;width=f(width+f((glyph?.advance??0)*scale));}
   return width;
@@ -164,7 +164,7 @@ export class NativeLayoutRenderer {
    for(const run of runs){
     if(mask!==canvas)ink.clearRect(0,0,rasterWidth,rasterHeight);
     ink.save();ink.translate(0,above);
-    font.drawNative(ink,text.value,direct&&sourceSize?pane.size[0]:w,direct&&sourceSize?pane.size[1]:h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined);
+    font.drawNative(ink,text.value,direct&&sourceSize?pane.size[0]:w,direct&&sourceSize?pane.size[1]:h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined,text.cursorAdvances);
     ink.restore();
     const image=ink.getImageData(0,0,rasterWidth,rasterHeight);
     for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){

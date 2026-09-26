@@ -314,3 +314,19 @@ test('Camera guide explicit center alignment uses source glyph quads at the frac
   assert.deepEqual(render(2),render(0),`${layout}/${name}: explicit center and automatic center share the original writer origin`);
  }
 });
+
+
+test('Camera width176 and group2 cursor advance retain digit origins while moving only the leading symbol',()=>{
+ const manifest=JSON.parse(fs.readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/camera/contents/0000-0000001a/HudNOTES-bcfnt/font.json',import.meta.url),'utf8'));
+ const calls=[],font=new BitmapFont(manifest,manifest.sheets.map(()=>({naturalWidth:4096,naturalHeight:4096})));
+ const draw=controls=>font.drawNative({drawImage:(...args)=>calls.push(args)},'\ue01e3000',176,16,[23,23],3,0,0,1,[0,0],false,undefined,undefined,controls);
+ draw([{index:1,advance:2},{index:5,advance:2}]);
+ assert.deepEqual(calls.map(call=>call[5]),[0,20,33,46,59]);
+ assert.deepEqual(calls.map(call=>call[5]+3),[3,23,36,49,62],'pane left91−176/2 plus original writer positions');
+ assert.deepEqual(calls.map(call=>call[6]+6),[1,1,1,1,1]);
+ calls.length=0;draw([{index:1,advance:-2}]);assert.deepEqual(calls.map(call=>call[5]),[0,16,29,42,55]);
+ calls.length=0;font.drawNative({drawImage:(...args)=>calls.push(args)},'\ue01e3',176,16,[46,46],3,0,0,1,[0,0],false,undefined,undefined,[{index:1,advance:2}]);
+ assert.deepEqual(calls.map(call=>call[5]),[0,38],'source cursor advance stays2 even when glyph scale doubles');
+ assert.throws(()=>draw([{index:6,advance:2}]),/Invalid native cursor advance/);
+ assert.throws(()=>draw([{index:1,advance:32768}]),/Invalid native cursor advance/);
+});

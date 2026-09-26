@@ -1,5 +1,7 @@
 # Camera capacity symbol: remaining horizontal source gap
 
+> Historical diagnostic. The subsequent [original-ARM consumer replay](camera-capacity-text-source-audit.md) resolves style width and signed cursor-advance semantics and implements their bounded Camera binding.
+
 After the vertical-overhang correction, all **258 upper LCD pixels over 2/255**
 in `camera-guide-page1-glyph-1fda6c7` belong to the Camera symbol. The digits,
 2D cube and SD indicator have no remaining pixels over that threshold in this

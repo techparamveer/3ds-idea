@@ -325,8 +325,9 @@ test('Camera vertical backing keeps source alignment dimensions and restores the
  globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});ctx.translate=(...args)=>calls.push(['translate',...args]);return c;}};
  try{
   const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/camera/contents/0000-0000001a/HudNOTES-bcfnt/font.json',import.meta.url),'utf8'));
-  const font={manifest,drawNative(ctx,value,w,h){calls.push(['text',value,w,h,ctx.canvas.width,ctx.canvas.height]);}};
-  const text={value:'\ue01e3000',font:0,material:0,size:[23,23],alignment:3,lineAlignment:1,lineSpacing:0,characterSpacing:0,topColor:[255,255,255,255],bottomColor:[255,255,255,255]};
+  const controls=[{index:1,advance:2},{index:5,advance:2}];
+  const font={manifest,drawNative(ctx,value,w,h,...rest){assert.deepEqual(rest[9],controls);calls.push(['text',value,w,h,ctx.canvas.width,ctx.canvas.height]);}};
+  const text={cursorAdvances:controls,value:'\ue01e3000',font:0,material:0,size:[23,23],alignment:3,lineAlignment:1,lineSpacing:0,characterSpacing:0,topColor:[255,255,255,255],bottomColor:[255,255,255,255]};
   const source={...layout,fonts:['hud'],roots:[{...pane,kind:'txt1',size:[172,16],picture:undefined,text}]};
   const renderer=new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['hud',font]]));
   const ctx=canvas().getContext(),compositions=[];ctx.drawImage=(image,...args)=>compositions.push([image.width,image.height,...args]);

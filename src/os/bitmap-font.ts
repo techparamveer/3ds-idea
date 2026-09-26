@@ -14,18 +14,23 @@ export type FontManifest = {
   fallback: Glyph | null;
 };
 
+export type NativeCursorAdvance={index:number;advance:number};
 export type NativeGlyphQuad={glyph:Glyph;x:number;y:number;width:number;height:number;right?:number;bottom?:number};
 /** Bounded NW writer flags 0x100 (middle-left) and 0x111 (middle-center):
  * one line, automatic line alignment and no added character spacing. */
-function nativeSingleLineGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[],alignment:3|4):NativeGlyphQuad[]{
+function nativeSingleLineGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[],alignment:3|4,cursorAdvances:readonly NativeCursorAdvance[]=[]):NativeGlyphQuad[]{
   const f=Math.fround,sx=f(size[0]/(manifest.width??manifest.height)),sy=f(size[1]/manifest.height);
-  const glyphs=Array.from(value,char=>manifest.glyphs[String(char.codePointAt(0))]??manifest.fallback);
+  const chars=Array.from(value),glyphs=chars.map(char=>manifest.glyphs[String(char.codePointAt(0))]??manifest.fallback);
   const runWidth=glyphs.reduce((n,g)=>f(n+f((g?.advance??0)*sx)),0);
   const rectHeight=f((manifest.lineFeed??manifest.height)*sy);
   let x=alignment===4?-Math.ceil(f(runWidth*.5)):0;
   const y=f(f(-Math.ceil(f(rectHeight*.5))+f((manifest.ascent??manifest.baseline)*sy))-f(manifest.baseline*sy));
   const quads:NativeGlyphQuad[]=[];
-  for(const glyph of glyphs){if(!glyph)continue;
+  let utf16=0;
+  for(const [index,glyph] of glyphs.entries()){
+    for(const control of cursorAdvances)if(control.index===utf16)x=f(x+control.advance);
+    utf16+=chars[index].length;
+    if(!glyph)continue;
     if(glyph.width){
       const left=f(x+f(glyph.left*sx)),glyphWidth=f(glyph.width*sx),glyphHeight=f(glyph.height*sy),offsetX=alignment===4?width/2:0,offsetY=height/2;
       // The writer emits float32 endpoints before the pane-origin translation.
@@ -41,8 +46,8 @@ function nativeSingleLineGlyphQuads(manifest:FontManifest,value:string,width:num
 export function nativeCenteredGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[]):NativeGlyphQuad[]{
   return nativeSingleLineGlyphQuads(manifest,value,width,height,size,4);
 }
-export function nativeLeftGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[]):NativeGlyphQuad[]{
-  return nativeSingleLineGlyphQuads(manifest,value,width,height,size,3);
+export function nativeLeftGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[],cursorAdvances:readonly NativeCursorAdvance[]=[]):NativeGlyphQuad[]{
+  return nativeSingleLineGlyphQuads(manifest,value,width,height,size,3,cursorAdvances);
 }
 /** Cached NintendoWare text scans source textures in first-use order. */
 function sourceSheetBatches<T extends {glyph:Glyph}>(draws:T[]):T[]{
@@ -172,7 +177,7 @@ export class BitmapFont {
 
   /** CLYT font size is a two-axis native cell size, not a CSS font size. */
   drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
-    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number]) {
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[]) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     let sourceOffset=0;
     const selected:boolean[][]=[];
@@ -181,6 +186,11 @@ export class BitmapFont {
     }).map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
     const nativeAlignedLine=(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0
       ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha';
+    if(cursorAdvances.length){
+      if(lines.length!==1||alignment!==3||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='luminance-alpha')throw new Error('Unsupported native cursor-advance text run');
+      const boundaries=new Set([0]);let offset=0;for(const char of value){offset+=char.length;boundaries.add(offset);}
+      if(cursorAdvances.some(control=>!boundaries.has(control.index)||!Number.isInteger(control.advance)||control.advance < -32768||control.advance > 32767))throw new Error('Invalid native cursor advance');
+    }
     // An explicit centered line uses the same one-line writer origin as automatic
     // centering. Enable that route only for the caller's direct LCD sampler.
     if(lines.length===1&&(nativeAlignedLine||lcdBottomEdge&&alignment===4&&lineAlignment===2&&this.manifest.colorMode==='alpha')&&spacing===0){
@@ -190,7 +200,7 @@ export class BitmapFont {
       // for a single middle-left LA run, including Camera HudNOTES.
       // Keep fractional advances. Line
       // spacing cannot change a single line, even when an MSBT style sets it.
-      const allQuads=alignment===3?nativeLeftGlyphQuads(this.manifest,value,width,height,size):nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
+      const allQuads=alignment===3?nativeLeftGlyphQuads(this.manifest,value,width,height,size,cursorAdvances):nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
       const ink=selected[0].filter((_keep,i)=>lines[0][i]?.width);
       const quads=allQuads.filter((_quad,i)=>ink[i]);
       if(this.manifest.colorMode==='luminance-alpha'){

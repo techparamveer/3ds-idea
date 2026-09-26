@@ -38,7 +38,7 @@ test('Camera invalid resources fail readiness explicitly',async t=>{
 });
 test('Camera guide draws source model before dialog and propagates an unavailable draw',async()=>{
  const {drawNativeCameraGuide}=await import(moduleUrl(fileURLToPath(new URL('../src/os/stock-native-camera.ts',import.meta.url))));
- const packs={'camera-shoot':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-P_Shoot_D-arc-LZ.json',firmware))),'camera-messages':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/msg-EU_English.json',firmware))),'camera-dialog':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-C-Dlg.json',firmware)))};
+ const packs={'camera-finder':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',firmware))),'camera-shoot':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-P_Shoot_D-arc-LZ.json',firmware))),'camera-messages':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/msg-EU_English.json',firmware))),'camera-dialog':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-C-Dlg.json',firmware)))};
  const sequence=[],top={fillRect(){}},bottom={fillRect(){},save(){},restore(){}},renderer={packs,draw(ctx,pack,layout){sequence.push(layout);return true;},drawLayout(ctx,pack,layout){sequence.push(layout);return true;}};
  const view={appId:'camera',screen:'guide',heading:'',rows:[],selection:0,footer:{},data:{guidePage:0}};
  assert.equal(drawNativeCameraGuide(renderer,top,bottom,view,{cameraShoot:{draw(ctx){assert.equal(ctx,bottom);sequence.push('CGFX');return true;}}}),true);
@@ -51,4 +51,22 @@ test('Camera guide draws source model before dialog and propagates an unavailabl
  assert.equal(stateful.filter,'none');
  assert.equal(drawNativeCameraGuide({...renderer,packs:{...packs,'camera-shoot':undefined}},top,bottom,view),false);
 
+});
+
+test('Camera capacity applies original style width and signed source cursor advances around substitution',async()=>{
+ const {cameraCapacityOverride}=await import(moduleUrl(fileURLToPath(new URL('../src/os/stock-native-camera.ts',import.meta.url))));
+ const {poseNativeLayout}=await import(moduleUrl(fileURLToPath(new URL('../src/os/native-layout.ts',import.meta.url))));
+ const pack=JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/msg-EU_English.json',firmware)));
+ const finder=JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',firmware)));
+ const override=cameraCapacityOverride(pack,16,'3000');
+ assert.deepEqual(override.size,[176,16]);assert.equal(override.text,'\ue01e3000');
+ assert.deepEqual(override.cursorAdvances,[{index:1,advance:2},{index:5,advance:2}]);
+ const posed=poseNativeLayout(finder.layouts.P_Finder_U,{},[],{ShootCapa_Pho:override});
+ const walk=panes=>panes.flatMap(p=>[p,...walk(p.children)]);
+ const pane=walk(posed.roots).find(p=>p.name==='ShootCapa_Pho');
+ assert.deepEqual(pane.size,[176,16]);assert.deepEqual(pane.text.cursorAdvances,override.cursorAdvances);
+ const short=cameraCapacityOverride(pack,16,'42');assert.deepEqual(short.cursorAdvances,[{index:1,advance:2},{index:3,advance:2}]);
+ const changed=structuredClone(pack),message=changed.messages.P.messages[changed.messages.P.labels.Finder_Pho_00_00];
+ message.tokens[1].arguments='feff';assert.equal(cameraCapacityOverride(changed,16,'3000').cursorAdvances[0].advance,-2);
+ message.tokens[1].type=9;assert.throws(()=>cameraCapacityOverride(changed,16,'3000'),/Unsupported Camera capacity/);
 });

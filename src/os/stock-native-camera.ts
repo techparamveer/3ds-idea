@@ -4,7 +4,7 @@ import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 import { cameraBrowseCellRect, cameraBrowsePane, stockScreenTargets } from './stock-screen-layout';
 import { cameraAnchorPosition, cameraMaxAnchor, cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
-import { nativeMessageColorSpans, nativeMessageOverride, type NativeLayout } from './native-layout';
+import { nativeMessageColorSpans, nativeMessageOverride, type NativeLayout, type NativePack, type PaneOverrides } from './native-layout';
 
 export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',alias:'camera-gallery',
@@ -235,6 +235,27 @@ export const cameraWelcomePages=[
   {label:'D_003_3',illustration:'P_Guid01_U'},
   {label:'D_003_4',illustration:'P_Guid02_U'},
 ] as const;
+/** Original Camera style setter 0x21f7ec installs width; tag processor
+ * 0x27193c adds signed group2/type0 arguments to cursor X in device units. */
+export function cameraCapacityOverride(pack:NativePack,paneHeight:number,count:string):PaneOverrides[string]{
+  const bank=pack.messages.P,message=bank?.messages[bank.labels.Finder_Pho_00_00];
+  if(!message)throw new Error('Missing Camera capacity message');
+  const override=nativeMessageOverride(pack,'P','Finder_Pho_00_00','');
+  const width=override.messageStyle?.unresolvedWords?.['0'];
+  if(typeof width!=='number'||!Number.isInteger(width)||width<=0)throw new Error('Missing Camera capacity style width');
+  let text='';const cursorAdvances:{index:number;advance:number}[]=[];
+  for(const raw of message.tokens){
+    const token=raw as {text?:string;control?:number;group?:number;type?:number;arguments?:string};
+    if(typeof token.text==='string'){text+=token.text;continue;}
+    if(token.control===14&&token.group===3&&token.type===39&&token.arguments==='0000'){text+=count;continue;}
+    if(token.control===14&&token.group===2&&token.type===0&&/^[0-9a-f]{4}$/i.test(token.arguments??'')){
+      const bytes=token.arguments!,word=parseInt(bytes.slice(0,2),16)|(parseInt(bytes.slice(2),16)<<8);
+      cursorAdvances.push({index:text.length,advance:word>=0x8000?word-0x10000:word});continue;
+    }
+    throw new Error('Unsupported Camera capacity message control');
+  }
+  return {...override,text,cursorAdvances,size:[width,paneHeight]};
+}
 export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions={}):boolean{
   const raw=view.data?.guidePage,page=typeof raw==='number'?Math.max(0,Math.min(4,Math.floor(raw))):0;
   const entry=cameraWelcomePages[page],first=page===0;
@@ -247,13 +268,16 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   bottom.fillStyle='#000';bottom.fillRect(0,0,320,240);
   if(options.cameraShoot)okay=options.cameraShoot.draw(bottom)&&okay;
   okay=drawCameraShootWelcome(renderer,bottom)&&okay;
-  const capacity=nativeMessageOverride(renderer.packs['camera-messages'],'P','Finder_Pho_00_00','');
+  const find=(panes:NativeLayout['roots']):NativeLayout['roots'][number]|undefined=>{for(const pane of panes){if(pane.name==='ShootCapa_Pho')return pane;const child=find(pane.children);if(child)return child;}};
+  const capacityPane=find(renderer.packs['camera-finder']?.layouts.P_Finder_U?.roots??[]);
+  if(!capacityPane)return false;
+  const capacity=cameraCapacityOverride(renderer.packs['camera-messages'],capacityPane.size[1],'3000');
   // The monoscopic reference uses the source 2DView material (100/255 grey),
   // which shares the cube texture with the white 3DView material.
   draw(top,'camera-finder','P_Finder_U',{overrides:{
     Grid:{visible:false},ShootInfoDlg:{visible:false},ShootInfo:{visible:false},State_IcamOcam:{visible:false},
     MovRem:{visible:false},MovInt:{visible:false},RecSign:{visible:false},State_PhoMov:{visible:false},MovFrm:{visible:false},
-    '3DView':{visible:false},'2DView':{visible:true},ShootCapa_Pho:{...capacity,text:capacity.text+'3000'},
+    '3DView':{visible:false},'2DView':{visible:true},ShootCapa_Pho:capacity,
   }});
   // P_Finder_U/Storage/-L-SD has world translation (187,-105).
   draw(top,'camera-icons','C_IconSD',{center:[387,225]});

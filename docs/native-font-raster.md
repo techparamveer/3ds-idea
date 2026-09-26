@@ -98,3 +98,13 @@ Regression tests cover original font metrics, distinct ascent/baseline/line
 feed, fractional quad boundaries, original atlas-border filtering, clipping,
 white-mask color and overlapping coverage. Those tests support the source and
 browser evidence; they do not establish complete HOME fidelity.
+
+
+## Camera capacity cursor advances
+
+The [Camera source replay](camera-capacity-text-source-audit.md) establishes
+style width installation and group2/type0 signed cursor-X advances. Camera's
+capacity adapter retains those controls at UTF-16 positions in `cursorAdvances`;
+the existing middle-left explicit LA single-line writer consumes them before
+the corresponding glyph without scaling the advance. Other writer branches
+reject these controls. Source glyph cells and texture batching remain intact.

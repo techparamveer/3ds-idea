@@ -8,7 +8,7 @@ const settingsUrl=new URL('../src/os/stock-native-settings.ts',import.meta.url);
 const compiled=ts.transpileModule(readFileSync(settingsUrl,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText
  .replace("'./stock-settings-navigation'",JSON.stringify(new URL('../src/os/stock-settings-navigation.ts',import.meta.url).href))
  .replace("'./native-layout'",JSON.stringify(new URL('../src/os/native-layout.ts',import.meta.url).href));
-const {drawNativeSettingsMain,settingsDirectButtonClip}=await import('data:text/javascript;base64,'+Buffer.from(compiled).toString('base64'));
+const {drawNativeSettingsMain,settingsDirectButtonClip,settingsTitleGroupX}=await import('data:text/javascript;base64,'+Buffer.from(compiled).toString('base64'));
 
 const root=new URL('../public/os/firmware/10.7.0-32E/packs/settings/contents/0000-0000003d/',import.meta.url);
 const pack=name=>JSON.parse(readFileSync(new URL(name+'.json',root)));
@@ -27,7 +27,7 @@ test('selected Other Settings page uses the native raised Decide endpoint',()=>{
  assert.equal(panes(pressed.roots,'B_Page')[0].translation[1],-1);
  const packs={base:pack('base'),up:pack('up'),layout:pack('layout'),button,messages:pack('message_EU'),hud:pack('hud')};
  const calls=[];
- const renderer={packs,draw(_ctx,alias,name,options={}){
+ const renderer={packs,measureSingleLineText(){return 149.60000610351562;},draw(_ctx,alias,name,options={}){
   calls.push({alias,name,options});
   for(const attachment of Object.values(options.attachments??{}))attachment();
   return true;
@@ -65,4 +65,12 @@ test('selected Other Settings page uses the native raised Decide endpoint',()=>{
  assert.ok(neighbor.every(call=>call.options.bindings[0].frame===0));
  assert.deepEqual(neighbor.map(call=>call.options.bindings[0].name),
   ['I_3DTest_DirectSettings','I_Sound_DirectSettings','I_Mic_DirectSettings']);
+});
+
+
+test('source title centering uses measured advances rather than an integer placement fit',()=>{
+ const up=pack('up').layouts.CommonBG_U_00;
+ const icon=panes(up.roots,'Icon')[0],title=panes(up.roots,'TextBoxTitle_00')[0],group=panes(up.roots,'Null_Title')[0];
+ assert.equal(settingsTitleGroupX(group.translation[0],icon.translation[0],icon.size[0],title.translation[0],149.60000610351562),95.19999694824219);
+ assert.equal(settingsTitleGroupX(0,-174,32,-150,100),120,'different source title width changes centering');
 });

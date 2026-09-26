@@ -1,6 +1,6 @@
 import { BitmapFont, type FontManifest } from './bitmap-font';
 import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instantiateNativePart, nativeAnimationDiagnostics, nativeMultiplyBlend, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
- type AnimationBinding, type NativeLayout, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
+ type AnimationBinding, type NativeLayout, type NativeText, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
 export type NativeDrawOptions={
@@ -44,6 +44,15 @@ export class NativeLayoutRenderer {
  private parentAlpha=new WeakMap<Context,number>();
  readonly diagnostics:string[]=[];
  constructor(readonly packs:Record<string,NativePack>,private textures:Record<string,Map<string,NativePixels>>,private fonts:ReadonlyMap<string,BitmapFont>,private cacheLimit=8*1024*1024){}
+ /** Source single-line writer width used by Settings' title/icon centering. */
+ measureSingleLineText(fontName:string,text:NativeText):number{
+  const font=this.fonts.get(fontName);if(!font)throw new Error(`Missing native font ${fontName}`);
+  const metrics=nativeTextMetrics(text,font.manifest),f=Math.fround;
+  if(/[\r\n]/.test(text.value)||metrics.characterSpacing!==0)throw new Error('Unsupported native title width measurement');
+  const scale=f(metrics.size[0]/(font.manifest.width??font.manifest.height));
+  let width=0;for(const char of text.value){const glyph=font.manifest.glyphs[String(char.codePointAt(0))]??font.manifest.fallback;width=f(width+f((glyph?.advance??0)*scale));}
+  return width;
+ }
  /** Draw an explicitly loaded bundled bitmap at its original logical size. */
  drawBitmap(ctx:Context,pack:string,name:string,x:number,y:number):boolean{
   if(this.disposed)return false;

@@ -103,6 +103,23 @@ export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasR
   return drawSettingsStatus(renderer,top,date,hud)&&okay;
 }
 
+/** EUR Settings 0x2232b4: center source icon plus measured title advance.
+ * Preserve the float32 instruction order; the pane's original Y/Z stay intact. */
+export function settingsTitleGroupX(groupX:number,iconX:number,iconWidth:number,textX:number,textWidth:number):number{
+ const f=Math.fround;
+ let extent=f(textX-iconX);extent=f(extent-f(iconWidth*.5));
+ extent=f(textWidth+extent);extent=f(iconWidth+extent);extent=f(extent-iconWidth);
+ return f(groupX-f(iconX+f(extent*.5)));
+}
+function otherTitleTranslation(renderer:NativeLayoutRenderer,title:string):[number,number,number]{
+ const layout=renderer.packs.up.layouts.CommonBG_U_00;
+ const flatten=(panes:typeof layout.roots):typeof layout.roots=>panes.flatMap(p=>[p,...flatten(p.children)]);
+ const panes=flatten(layout.roots),group=panes.find(p=>p.name==='Null_Title')!,icon=panes.find(p=>p.name==='Icon')!,pane=panes.find(p=>p.name==='TextBoxTitle_00')!;
+ const message=nativeMessageOverride(renderer.packs.messages,'mset',title,'');
+ const width=renderer.measureSingleLineText(layout.fonts[pane.text!.font],{...pane.text!,value:message.text!,messageStyle:message.messageStyle});
+ return [settingsTitleGroupX(group.translation[0],icon.translation[0],icon.size[0],pane.translation[0],width),group.translation[1],group.translation[2]];
+}
+
 /** Source table byte 0x23 selects both the background transition and title
  * animation. Adapted detail cards inherit their parent section's presentation;
  * only the identified DS Profile route requests Legacy. */
@@ -202,10 +219,8 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     draw(bottom,'base','LsBase_D_00',{overrides:{TextBox_00:message('ds_base_1b_back'),TextBox_02:message('ds_info_comm')}});
     return okay;
   }
-  // CommonBG_U_00 stores the title/icon group at its untranslated left pose.
-  // A one-pixel capture fit puts both decoded source children on the native
-  // Other Settings upper LCD; source records do not explain this offset.
-  draw(top,'up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{...(screen==='other'?{Null_Title:{translation:[95,0,0]}}:{}),TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
+  // The original scene centers the icon and the measured title as a group.
+  draw(top,'up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{...(screen==='other'?{Null_Title:{translation:otherTitleTranslation(renderer,title)}}:{}),TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
   const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.

@@ -224,3 +224,13 @@ test('overhang backing preserves pane alignment arguments and reaches compositio
   renderer.dispose();
  }finally{globalThis.document=previous;}
 });
+
+
+test('native single-line width retains source style and float32 advance accumulation',()=>{
+ const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+ const renderer=new NativeLayoutRenderer({}, {},new Map([['cbf_std.bcfnt',{manifest}]]));
+ const text={value:'Other Settings',size:[21.25,25.5],characterSpacing:0,lineSpacing:0,messageStyle:{fontScale:[0.8500000238418579,0.8500000238418579],characterSpacing:0,lineSpacing:0}};
+ assert.equal(renderer.measureSingleLineText('cbf_std.bcfnt',text),149.60000610351562);
+ assert.equal(renderer.measureSingleLineText('cbf_std.bcfnt',{...text,value:'',messageStyle:undefined}),0);
+ assert.throws(()=>renderer.measureSingleLineText('cbf_std.bcfnt',{...text,value:'two\nlines'}),/Unsupported/);
+});

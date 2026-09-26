@@ -1,3 +1,4 @@
+import { homeTitleBannerKind, hasHomeTitleBanner } from './home-title-banner';
 import type { StockModelBackground } from './stock-model-background';
 import {drawNativeSystemOverlay} from './native-system-presentation';
 import { isSystemHomeFolderClosing } from './home-folder-close-system';
@@ -263,7 +264,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { soundRoom?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawCameraBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { soundRoom?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -304,15 +305,15 @@ export function createScreens(options: { soundRoom?:StockModelBackground; font?:
   const view=getHomePresentation(state);
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white')options.drawHomeBackground?.(t,time,reduced);
   const hostedBanner=options.getHomeBanner?.();
-  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!(['system-settings','camera'].includes(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
+  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
    if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&!state.panel&&state.system?.phase==='home'){
     const {selection,motion}=hostedBanner.primary;
     if(selection.kind==='default'){
      if(!options.drawDefaultBannerFrame?.(t,motion)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native default banner unavailable.'))firmwareAssets.diagnostics.push('Native default banner unavailable.');
-    }else if(selection.kind==='app'&&selection.id==='camera'){
-     if(!options.drawCameraBannerFrame?.(t,motion,hostedBanner.primary)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Camera banner unavailable.'))firmwareAssets.diagnostics.push('Native Camera banner unavailable.');
+    }else if(selection.kind==='app'&&homeTitleBannerKind(selection.id)){
+     if(!options.drawStockTitleBannerFrame?.(t,motion,hostedBanner.primary,homeTitleBannerKind(selection.id)!)&&firmwareAssets&&!firmwareAssets.diagnostics.includes(`Native ${selection.id} banner unavailable.`))firmwareAssets.diagnostics.push(`Native ${selection.id} banner unavailable.`);
     }else if(selection.kind==='app'){
      if(!options.drawSettingsBannerFrame?.(t,motion)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Settings banner unavailable.'))firmwareAssets.diagnostics.push('Native Settings banner unavailable.');
     }else{

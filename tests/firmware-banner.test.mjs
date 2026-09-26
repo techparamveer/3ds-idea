@@ -404,21 +404,50 @@ defaultTest('default render errors restore shared controls and do not disable th
 test('Camera owns a locale-bound group-2 primary and retarget revokes stale drawing', async t => {
  const h=setup(t);await h.banner.ready;
  const ticket={generation:'camera-test',requestEpoch:1,kind:'camera'};
- await h.banner.syncCamera(ticket);
- assert.equal(h.banner.cameraStatus(ticket).ready,true);
- assert.equal(h.banner.drawCameraFrame(h.ctx,{...frame,skeletalFrame:137},ticket),true);
+ await h.banner.syncStockTitles([ticket]);
+ assert.equal(h.banner.stockTitleStatus(ticket).ready,true);
+ assert.equal(h.banner.drawStockTitleFrame(h.ctx,{...frame,skeletalFrame:137},ticket),true);
  assert.equal(h.draws.at(-1).primaries.length,1);
  const cameraPrimary=h.draws.at(-1).primaries[0], first=snapshot(cameraPrimary);
- assert.equal(h.banner.drawCameraFrame(h.ctx,{...frame,skeletalFrame:138},ticket),true);
+ assert.equal(h.banner.drawStockTitleFrame(h.ctx,{...frame,skeletalFrame:138},ticket),true);
  assert.notDeepEqual(snapshot(cameraPrimary),first,'source skeletal phase changes the submitted model');
  assert.equal(h.banner.drawSettingsFrame(h.ctx,frame),true);
  assert.notEqual(h.draws.at(-1).primaries[0],cameraPrimary);
  assert.equal(cameraPrimary.visible,false);
- h.banner.syncCamera(null);
+ h.banner.syncStockTitles([]);
  assert.equal(cameraPrimary.parent,null);
- assert.equal(h.banner.cameraStatus(ticket).ready,false);
- assert.equal(h.banner.drawCameraFrame(h.ctx,frame,ticket),false);
- await h.banner.syncCamera({...ticket,requestEpoch:2});
- assert.equal(h.banner.drawCameraFrame(h.ctx,frame,ticket),false,'old request cannot draw replacement');
- assert.equal(h.banner.cameraStatus({...ticket,requestEpoch:2}).ready,true);
+ assert.equal(h.banner.stockTitleStatus(ticket).ready,false);
+ assert.equal(h.banner.drawStockTitleFrame(h.ctx,frame,ticket),false);
+ await h.banner.syncStockTitles([{...ticket,requestEpoch:2}]);
+ assert.equal(h.banner.drawStockTitleFrame(h.ctx,frame,ticket),false,'old request cannot draw replacement');
+ assert.equal(h.banner.stockTitleStatus({...ticket,requestEpoch:2}).ready,true);
+});
+
+
+test('stock titles retain outgoing resources during preparation and Sound samples material COMMON', async t => {
+ const h=setup(t);await h.banner.ready;
+ const ticket=kind=>({generation:'stock-test',requestEpoch:{camera:1,sound:2,health:3,eshop:4}[kind],kind});
+ const camera=ticket('camera'),sound=ticket('sound');
+ await h.banner.syncStockTitles([camera]);
+ h.banner.drawStockTitleFrame(h.ctx,frame,camera);
+ const cameraGroup=h.draws.at(-1).primaries[0];
+ await h.banner.syncStockTitles([camera,sound]);
+ assert.equal(h.banner.stockTitleStatus(camera).ready,true,'outgoing resource survives incoming preparation');
+ assert.equal(h.banner.drawStockTitleFrame(h.ctx,{...frame,materialFrame:0},sound),true);
+ const soundGroup=h.draws.at(-1).primaries[0],first=snapshot(soundGroup);
+ assert.equal(cameraGroup.visible,false);
+ assert.equal(cameraGroup.parent,h.draws.at(-1).scene);
+ assert.equal(h.banner.drawStockTitleFrame(h.ctx,{...frame,materialFrame:137},sound),true);
+ assert.notDeepEqual(snapshot(soundGroup),first,'Sound source material uniforms sample the material clock');
+ await h.banner.syncStockTitles([sound]);
+ assert.equal(cameraGroup.parent,null);
+ assert.equal(h.banner.stockTitleStatus(camera).ready,false);
+ for(const kind of ['health','eshop']){
+  const current=ticket(kind);await h.banner.syncStockTitles([current]);
+  assert.equal(h.banner.stockTitleStatus(current).ready,true,kind);
+  assert.equal(h.banner.drawStockTitleFrame(h.ctx,{...frame,skeletalFrame:137},current),true,kind);
+  assert.equal(h.draws.at(-1).primaries.length,1);
+ }
+ h.banner.dispose();
+ assert.equal(h.banner.stockTitleStatus(ticket('eshop')).ready,false);
 });

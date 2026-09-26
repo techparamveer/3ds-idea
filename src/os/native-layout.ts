@@ -342,7 +342,10 @@ export function transformNativeUV(uv:number[],matrix?:NativeMaterial['textureMat
  const x=(uv[0]-.5)*matrix.scale[0]+matrix.translation[0],y=(uv[1]-.5)*matrix.scale[1]+matrix.translation[1];
  return [.5+c*x-s*y,.5+s*x+c*y];
 }
-export type NativeRasterRegion={x:number;y:number;fullWidth:number;fullHeight:number};
+export type NativeRasterRegion={x:number;y:number;fullWidth:number;fullHeight:number;
+ /** Inverse destination-to-pane affine transform, applied to raster pixel centres.
+  * When supplied, pixels outside the pane have no fragment coverage. */
+ localTransform?:readonly [number,number,number,number,number,number]};
 /** Keep the original sampling grid when an axis-aligned pane extends beyond the LCD.
  * One neighboring raster pixel preserves Canvas filtering at the visible boundary.
  * Rotated panes retain the existing full-surface path and its raster budget.
@@ -416,10 +419,14 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
  for(let stageIndex=0;stageIndex<stages.length;stageIndex++)for(let i=0;i<4;i++)bank[40+stageIndex*4+i]=stages[stageIndex].constant[i]!;
  const output=stages.length?stages[stages.length-1].output:24;
  const offsetX=sampling?.x??0,offsetY=sampling?.y??0,fullWidth=sampling?.fullWidth??width,fullHeight=sampling?.fullHeight??height;
+ const transform=sampling?.localTransform;
  for(let y=0;y<height;y++){
-  const v=(y+offsetY+.5)/fullHeight;
   for(let x=0;x<width;x++){
-   const u=(x+offsetX+.5)/fullWidth;
+   const px=x+offsetX+.5,py=y+offsetY+.5;
+   const localX=transform?transform[0]*px+transform[2]*py+transform[4]:px;
+   const localY=transform?transform[1]*px+transform[3]*py+transform[5]:py;
+   if(transform&&(localX<0||localY<0||localX>=fullWidth||localY>=fullHeight))continue;
+   const u=localX/fullWidth,v=localY/fullHeight;
    for(let i=0;i<4;i++){
     bank[20+i]=(u>=v?colors[i]*(1-u)+colors[4+i]*(u-v)+colors[12+i]*v
      :colors[i]*(1-v)+colors[8+i]*(v-u)+colors[12+i]*u)/255;

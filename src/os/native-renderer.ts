@@ -29,6 +29,7 @@ export class NativeLayoutRenderer {
  private textureIds=new WeakMap<NativePixels,number>();
  private nextTextureId=1;
  private blendTarget?:HTMLCanvasElement;
+ private projectedTarget?:HTMLCanvasElement;
  private disposed=false;
  private parentAlpha=new WeakMap<Context,number>();
  readonly diagnostics:string[]=[];
@@ -70,6 +71,34 @@ export class NativeLayoutRenderer {
    if(data.data.every((v,i)=>i%4!==3||v===255))this.opaque.add(canvas);
    ctx.putImageData(data,0,0);return canvas;
   });
+ }
+ /** Rotated native pictures sample textures once at LCD pixel centres. A
+  * pane-sized intermediate followed by Canvas rotation filters the edges twice.
+  * Limit direct readback to opaque targets and ordinary source-over blending;
+  * other blend/alpha targets retain the established composition path. */
+ private projectedPicture(ctx:Context,layout:NativeLayout,picture:NativePicture,w:number,h:number,alpha:number,textures:ReadonlyMap<string,NativePixels>):boolean{
+  const m=ctx.getTransform?.(),material=layout.materials[picture.material],blend=material.colorBlend;
+  if(!m||(!m.b&&!m.c)||ctx.globalAlpha!==1||(blend&&!(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)))return false;
+  const det=m.a*m.d-m.b*m.c;if(!det)return false;
+  const corners=[[0,0],[w,0],[0,h],[w,h]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  const x=Math.max(0,Math.floor(Math.min(...corners.map(p=>p[0])))),y=Math.max(0,Math.floor(Math.min(...corners.map(p=>p[1]))));
+  const width=Math.min(ctx.canvas.width,Math.ceil(Math.max(...corners.map(p=>p[0]))))-x,height=Math.min(ctx.canvas.height,Math.ceil(Math.max(...corners.map(p=>p[1]))))-y;
+  if(width<=0||height<=0)return true;
+  const target=ctx.getImageData(x,y,width,height);
+  for(let at=3;at<target.data.length;at+=4)if(target.data[at]!==255)return false;
+  const pixels=rasterNativePicture(layout,picture,width,height,textures,alpha,material,{x,y,fullWidth:w,fullHeight:h,
+   localTransform:[m.d/det,-m.b/det,-m.c/det,m.a/det,(m.c*m.f-m.d*m.e)/det,(m.b*m.e-m.a*m.f)/det]});
+  // The guarded blend is Add(SourceAlpha, OneMinusSourceAlpha). Evaluate
+  // its RGB directly in byte units, without allocating arrays per fragment.
+  for(let at=0;at<pixels.data.length;at+=4){
+   const a=pixels.data[at+3]/255;if(!a)continue;
+   for(let c=0;c<3;c++)target.data[at+c]=pixels.data[at+c]*a+target.data[at+c]*(1-a);
+  }
+  const canvas=this.projectedTarget??=surface(ctx.canvas.width,ctx.canvas.height);
+  if(canvas.width!==ctx.canvas.width||canvas.height!==ctx.canvas.height){canvas.width=ctx.canvas.width;canvas.height=ctx.canvas.height;}
+  canvas.getContext('2d')!.putImageData(target,0,0);
+  ctx.save();try{ctx.resetTransform();ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,0,0,width,height,x,y,width,height);}finally{ctx.restore();}
+  return true;
  }
  private text(layout:NativeLayout,pane:NativePane,alpha:number){
   const text=pane.text!,font=this.fonts.get(layout.fonts[text.font]);if(!font)throw new Error(`Missing native font ${layout.fonts[text.font]}`);
@@ -197,7 +226,7 @@ export class NativeLayoutRenderer {
      if(w>0&&h>0&&alpha>0){
       ctx.save();ctx.translate(x,y);
       try{
-       if(pane.picture){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
+       if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures)){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){ctx.beginPath();ctx.rect(0,0,w,h);ctx.clip();this.composite(ctx,this.text(layout,pane,alpha),0,0,w,h,layout,pane.text.material);}
        if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;
@@ -242,5 +271,5 @@ export class NativeLayoutRenderer {
   finally{ctx.restore();}
  }
  get cacheBytes(){return this.bytes;}
- dispose(){if(this.disposed)return;this.disposed=true;for(const c of this.cache.values())c.width=c.height=0;this.cache.clear();this.poses.clear();this.bytes=0;if(this.blendTarget)this.blendTarget.width=this.blendTarget.height=0;for(const images of Object.values(this.textures))images.clear();}
+ dispose(){if(this.disposed)return;this.disposed=true;for(const c of this.cache.values())c.width=c.height=0;this.cache.clear();this.poses.clear();this.bytes=0;if(this.blendTarget)this.blendTarget.width=this.blendTarget.height=0;if(this.projectedTarget)this.projectedTarget.width=this.projectedTarget.height=0;for(const images of Object.values(this.textures))images.clear();}
 }

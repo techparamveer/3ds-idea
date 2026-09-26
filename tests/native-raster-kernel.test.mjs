@@ -217,3 +217,21 @@ if(process.env.NATIVE_RASTER_BENCHMARK)test('CPU benchmark (local cold-raster ev
  const median=key=>rounds.map(r=>r[key].ms).sort((a,b)=>a-b)[3];
  t.diagnostic(JSON.stringify({node:process.version,platform:process.platform,arch:process.arch,rasters:cases.length,pixels:cases.reduce((n,a)=>n+a[2]*a[3],0),coldPrepared,coldReference,medianPreparedMs:median('prepared'),medianReferenceMs:median('reference'),speedup:median('reference')/median('prepared'),rounds}));
 });
+
+test('affine picture sampling evaluates native texture and TEV at destination pixel centres once',()=>{
+ const {m,l,textures,p}=fixture(1);m.textureMaps[0].magFilter=1;
+ const t=[.8,.6,-.6,.8,2,-1],w=9,h=7,fullWidth=8,fullHeight=6;
+ const actual=rasterNativePicture(l,p,w,h,textures,.73,m,{x:0,y:0,fullWidth,fullHeight,localTransform:t});
+ const expected=new Uint8ClampedArray(w*h*4);let inside=0,outside=0;
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const px=x+.5,py=y+.5,lx=t[0]*px+t[2]*py+t[4],ly=t[1]*px+t[3]*py+t[5];
+  if(lx<0||ly<0||lx>=fullWidth||ly>=fullHeight){outside++;continue;}
+  inside++;
+  const sample=referenceRaster(l,p,1,1,textures,.73,m,{x:lx-.5,y:ly-.5,fullWidth,fullHeight});
+  expected.set(sample.data,(y*w+x)*4);
+ }
+ assert.ok(inside&&outside,'rotated quad exercises coverage and uncovered corners');
+ assert.deepEqual(actual.data,expected,'no pane-sized intermediate or second bilinear filtering');
+ const offset=rasterNativePicture(l,p,4,3,textures,.73,m,{x:2,y:1,fullWidth,fullHeight,localTransform:t});
+ for(let y=0;y<3;y++)for(let x=0;x<4;x++)assert.deepEqual(offset.data.slice((y*4+x)*4,(y*4+x+1)*4),actual.data.slice(((y+1)*w+x+2)*4,((y+1)*w+x+3)*4),'clipped destination rectangle retains sample coordinates');
+});

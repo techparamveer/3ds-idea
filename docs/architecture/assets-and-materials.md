@@ -131,3 +131,13 @@ The read-only amiibo opening selection is now published and consumed through
 the existing title session. Its English header uses the executable's named-pane
 message binding; the four device operations are inert and Close uses the common
 Back path. See the [opening UI evidence](../native-amiibo-opening.md).
+
+### Rotated native LCD pictures
+
+The native CPU renderer samples rotated pictures directly at LCD pixel centres
+when their destination is opaque and uses standard source-over blending. The
+inverse pane transform feeds original texture/TEV evaluation once, avoiding
+Canvas filtering of a pre-rasterized picture. Text, unrotated pictures, other
+blends and nonopaque destinations keep the existing path. The LCD-sized scratch
+surface is reused and disposed with the renderer. See the [Health raster
+comparison and bounded performance evidence](../health-rotated-picture-raster-2026-09-26.md).

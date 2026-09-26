@@ -244,12 +244,16 @@ function prepareApplicationManualRows(renderer:NativeLayoutRenderer){
 }
 function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
   if(preparedApplicationManualCategories.has(renderer))return;
-  const pack=renderer.packs['manual-category'],layout=structuredClone(pack.layouts.HLTxt);
+  const pack=renderer.packs['manual-category'];
   // The applet supplies this register in code. Its green value is measured
   // from the settled 400×480 Azahar capture, while the shape, alpha and
   // NintendoWare material operation remain from HLTxt/CategoryColor00.
-  for(const material of layout.materials)if(material.name==='IndexCategory00'||material.name==='IndexCategory01')material.bufferColor=[154,212,105,0];
-  renderer.packs['manual-category']={...pack,layouts:{...pack.layouts,HLTxt:layout}};
+  const tint=(color:[number,number,number])=>{
+    const layout=structuredClone(pack.layouts.HLTxt);
+    for(const material of layout.materials)if(material.name==='IndexCategory00'||material.name==='IndexCategory01')material.bufferColor=[...color,0];
+    return layout;
+  };
+  renderer.packs['manual-category']={...pack,layouts:{...pack.layouts,HLTxt:tint([154,212,105]),HLTxtBlue:tint([124,186,219])}};
   preparedApplicationManualCategories.add(renderer);
 }
 
@@ -274,13 +278,17 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   draw(top,'manual-scroll','ScrollIndicator',{center:[392,40],bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
   draw(bottom,'manual-IndexBase00','IndexBase00',{center:[160,0]});
   draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,APPLICATION_MANUAL_SLOTS.contentsCentre],overrides:{Contents_Txt:message('ContentsText')}});
-  let y=APPLICATION_MANUAL_SLOTS.firstRow;
+  let y=APPLICATION_MANUAL_SLOTS.firstRow,categoryIndex=0;
   for(const entry of entries){
-    if(y>=APPLICATION_MANUAL_LIST_CLIP[3])break;
     if(entry.kind==='category'){
-      draw(bottom,'manual-category','HLTxt',{center:[160,y+APPLICATION_MANUAL_SLOTS.categoryOffset],clip:APPLICATION_MANUAL_LIST_CLIP,overrides:{IndexCategory01:{size:[160,32],scale:[-1,1]},TextBox_00:{text:entry.title}}});
+      // The second band starts at y205; only its top seven pixels survive the
+      // footer clip in the captured native Contents frame.
+      if(y+APPLICATION_MANUAL_SLOTS.categoryOffset-16>=APPLICATION_MANUAL_LIST_CLIP[3])break;
+      draw(bottom,'manual-category',categoryIndex===1?'HLTxtBlue':'HLTxt',{center:[160,y+APPLICATION_MANUAL_SLOTS.categoryOffset],clip:APPLICATION_MANUAL_LIST_CLIP,overrides:{IndexCategory01:{size:[160,32],scale:[-1,1]},TextBox_00:{text:entry.title}}});
+      categoryIndex++;
       y+=APPLICATION_MANUAL_SLOTS.category;continue;
     }
+    if(y>=APPLICATION_MANUAL_LIST_CLIP[3])break;
     // The native selected row keeps its idle button under the separate
     // CsrHeadLine00 cursor, so every row uses BtnHeadLineTxt_Wait.
     // The applet truncates the first long English heading in its row control.
@@ -292,6 +300,6 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});
   draw(bottom,'manual-footer-shadow','BtnShdw00',{bindings:[{name:'BtnShdw00_SceneIn',frame:20}]});
   draw(bottom,'manual-footer-close','BtnCloseLng00',{bindings:[{name:'BtnCloseLng00_SceneIn',frame:20}],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}});
-  draw(bottom,'manual-footer-language','BtnLngSel00',{bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[37,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[37,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[-12,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[-12,26,0]}}});
+  draw(bottom,'manual-footer-language','BtnLngSel00',{bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[11,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[11,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[-44,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[-44,26,0]}}});
   return okay;
 }

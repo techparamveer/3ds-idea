@@ -131,6 +131,11 @@ The selected cursor is 4px below the first row's layout centre, and the
 first long English page title is shortened to the native visible
 “Using the System Settin...” using a 23-character prefix. These are
 capture-fitted applet behaviours, not verified source-code constants.
+The second category begins at y205, so its top seven pixels use the same
+source `HLTxt` layout before the footer clip. Its RGB register
+`(124,186,219)` is sampled from that native strip. The Language footer's
+glyph and label pane translations are capture-fitted to keep both inside the
+right button. The source animation, messages and text materials remain intact.
 
 The delivered applet `HLTxt`, `CsrHeadLine00`, `ScrollIndicator`,
 `BtnCloseLng00`, `BtnLngSel00` and `BtnShdw00` form the category, cursor,
@@ -145,8 +150,8 @@ unverified. The upper striped grey page base is unidentified. The general title 
 selection/scrolling, opening pages and Language navigation are absent. The
 source-render verifier (`scripts/verify-stock-helpers.mjs`,
 `manual-settings-contents`) checks composition and immutability only. The
-production-browser/native empty-mask pair at the icon change still has
-87,897 upper and 12,951 lower pixels over 2/255; this screen has no fidelity
+production-browser/native empty-mask pair after the band and footer placement
+still has 87,897 upper and 11,771 lower pixels over 2/255; this screen has no fidelity
 pass.
 
 ## Transfer and Update return follow-up

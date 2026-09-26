@@ -22,6 +22,29 @@ Before hardware edits, also read [research](docs/3ds-xl-research.md) and the
 their own checkpoint. Check the source and later evidence before repeating a
 limitation or declaring it fixed.
 
+## Agent model preference — 26 September 2026
+
+For this continuation, the user's latest choice is **GPT-6 Astra, medium
+reasoning, Fast mode** for the coordinator and newly spawned subagents. Where
+the Codex host offers these controls, request `gpt-6-astra` with `medium`
+reasoning and Fast processing (`priority` on this host). Model, reasoning
+effort and service tier are separate settings. The [Astra model guide](https://developers.openai.com/api/docs/models/gpt-6-astra)
+lists `medium` as supported; Codex's [configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
+describes `service_tier` as a preference for new turns; [OpenAI's Fast mode
+guide](https://developers.openai.com/api/docs/guides/fast-mode) explains the
+`priority` alias.
+
+When a delegation tool exposes model and effort, pass `model=gpt-6-astra` and
+`reasoning_effort=medium` explicitly. For this host's subagent tool, an explicit
+override requires a bounded or empty context fork; a full-history fork inherits
+the parent's current settings. The subagent tool has no service-tier argument,
+so use the available host setting rather than inventing one. For a new or
+continued Codex task, pass `model=gpt-6-astra` and `thinking=medium` when exposed.
+An in-flight turn does not switch models because this file changed; confirm
+effective settings on the next turn where the tool reports them. If a control
+rejects this combination, report the unsupported part rather than claiming it
+was applied. This project guidance does not edit global Codex configuration.
+
 ## Product constraints
 
 - The page shows only an original **2012 Silver + Black Nintendo 3DS XL

@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: UI continuation through **`8f0eb39`** on `codex/health-ui-scratch`,
+Checkpoint: UI continuation through **`1c594a5`** on `codex/health-ui-scratch`,
 26 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -39,6 +39,13 @@ Relaunched isolated Azahar can capture screenshots but remains at its
 notification; mapped inputs still do not land. These are not 1:1 acceptance.
 See the [browser checkpoint](progress-2026-09-24.md#browser-home-banners-zone-entry-and-eshop-close--26-september-2026)
 and [banner activation](stock-home-banner-activation.md).
+
+The later [stock-app browser smoke](progress-2026-09-24.md#browser-stock-app-smoke-after-notes-owner-correction--26-september-2026)
+at `1c594a5` checks Notes grid/editor/snapshot/Switch/HOME return, Friend List,
+Notifications and local Browser. Its one saved Notes grid raw LCD pair has no
+native counterpart. The Settings click that did not advance needs a named-input
+reproduction; Miiverse's invented body is pending Stock-lane removal. Matrix
+v25 and native acceptance remain unchanged.
 
 ## Status words
 

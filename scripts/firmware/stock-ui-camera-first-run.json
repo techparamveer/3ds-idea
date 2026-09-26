@@ -4,8 +4,17 @@
     "0004001000022400": {
       "packs": {
         "packs/camera/contents/0000-0000001a/lyt-C-Dlg.json": {
-          "layouts": ["C_DlgGuid1BtnW", "C_DlgGuid2Btn", "C_DlgGuid_U"],
+          "mergeExisting": true,
+          "layouts": ["C_DlgChA", "C_DlgGuid1BtnW", "C_DlgGuid2Btn", "C_DlgGuid_U"],
           "animations": ["C_DlgGuid1BtnW_Default", "C_DlgGuid1BtnW_Push", "C_DlgGuid2Btn_Default", "C_DlgGuid2Btn_Disable", "C_DlgGuid2Btn_Push"]
+        },
+        "packs/camera/contents/0000-0000001a/lyt-C-Icon.json": {
+          "mergeExisting": true,
+          "layouts": ["C_IconSD"]
+        },
+        "packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json": {
+          "mergeExisting": true,
+          "layouts": ["P_Finder_U"]
         },
         "packs/camera/contents/0000-0000001a/lyt-P_Guid_U-arc-LZ.json": {
           "layouts": ["P_Guid01_U", "P_Guid02_U", "P_Guid03_U", "P_Guid04_U", "P_Guid05_U"]
@@ -17,6 +26,7 @@
         "packs/camera/contents/0000-0000001a/msg-EU_English.json": {
           "mergeExisting": true,
           "messages": {
+            "P": ["Finder_Pho_00_00"],
             "P_tips": ["T_003", "D_003_0", "D_003_0_flw", "D_003_1", "D_003_1_flw", "D_003_2", "D_003_2_flw", "D_003_3", "D_003_3_flw", "D_003_4", "D_003_4_flw", "Guide_D_00_00", "Guide_D_00_01", "Guide_D_BN_Btn0", "Guide_D_BN_Btn1", "Guide_D_BO_Btn0", "Guide_D_BO_Btn1", "Guide_D_CN_Btn0", "Guide_D_CN_Btn1", "Guide_D_N_Btn0", "Guide_D_O_Btn0"]
           }
         }

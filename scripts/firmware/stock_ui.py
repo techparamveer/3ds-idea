@@ -258,7 +258,8 @@ def publish_additive(source_root, output, plan):
             selected_layouts.extend(selected['layouts'].items())
             for name in fonts:
                 leaf = name.split('/')[-1]
-                if leaf in ('cbf_std.bcfnt', 'Hud_JP.bcfnt') or leaf in (info.get('fonts') or {}):
+                content_font = f"contents/{pack['contentIndex']:04x}-{pack['contentId']}/{leaf}" if 'contentIndex' in pack and 'contentId' in pack else leaf
+                if leaf in ('cbf_std.bcfnt', 'Hud_JP.bcfnt') or leaf in (info.get('fonts') or {}) or content_font in (info.get('fonts') or {}):
                     continue
                 if leaf in requested.get('fontBindings', {}):
                     continue

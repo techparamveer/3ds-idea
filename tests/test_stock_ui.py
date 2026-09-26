@@ -68,8 +68,10 @@ class StockUiTests(unittest.TestCase):
         title_id = '0004001000022400'; title = manifest['titles'][title_id]
         self.assertEqual(title['version'], 4097)
         prefix = 'packs/camera/contents/0000-0000001a/'
-        for leaf, layouts in [('lyt-C-Dlg.json', ['C_DlgGuid1BtnW', 'C_DlgGuid2Btn', 'C_DlgGuid_U']),
+        for leaf, layouts in [('lyt-C-Dlg.json', ['C_DlgChA', 'C_DlgGuid1BtnW', 'C_DlgGuid2Btn', 'C_DlgGuid_U']),
                               ('lyt-P_Guid_U-arc-LZ.json', ['P_Guid01_U', 'P_Guid05_U']),
+                              ('lyt-P_Finder_U-arc-LZ.json', ['P_Finder_U', 'P_FinderVS_U']),
+                              ('lyt-C-Icon.json', ['C_IconSD']),
                               ('lyt-Parakeet-arc-LZ.json', ['ParakeetA_D'])]:
             url = prefix+leaf
             self.assertIn(url, title['packs'])
@@ -86,6 +88,7 @@ class StockUiTests(unittest.TestCase):
         messages = json.loads((public/message_url).read_text())['messages']
         self.assertIn('P', messages) # Existing browse bank survives the merge.
         self.assertIn('P_tips', messages)
+        self.assertIn('Finder_Pho_00_00', messages['P']['labels'])
         for label in ('T_003', 'D_003_0', 'D_003_4', 'Guide_D_N_Btn0'):
             self.assertIn(label, messages['P_tips']['labels'])
         self.assertEqual(messages['P_tips']['messages'][messages['P_tips']['labels']['D_003_0']]['text'],
@@ -161,6 +164,38 @@ class StockUiTests(unittest.TestCase):
         self.assertEqual(source, {
             'titleId': '0004001000022500', 'contentIndex': 0,
             'contentId': '0000000b', 'path': 'lyt/C.LZ/Dlg/blyt/C_DlgChA.bclyt',
+            'sha256': '4d35e4b38ae75fa7ad8c8f2d2484bd200856b562ee4c493b13adbc765c5eb8d7',
+        })
+        expected = {
+            'C_DlgChBase.bclim': 'a9fa4c68',
+            'C_DlgChLay6.bclim': '9117e20b',
+            'C_DlgChBirdA.bclim': '2292ed3e',
+            'C_DlgChBirdAlph.bclim': 'fc46bed0',
+        }
+        self.assertEqual(set(layout['textures']), set(expected))
+        for name, prefix in expected.items():
+            texture = pack['textures'][name]
+            self.assertIn(texture['url'], manifest['resources'])
+            self.assertEqual(digest((public/texture['url']).read_bytes()),
+                             manifest['resources'][texture['url']]['sha256'])
+            texture_source = pack['resourceSources']['textures'][name]
+            self.assertTrue(texture_source['sha256'].startswith(prefix))
+            self.assertEqual(texture_source['titleId'], source['titleId'])
+            self.assertEqual(texture_source['contentIndex'], source['contentIndex'])
+            self.assertEqual(texture_source['contentId'], source['contentId'])
+        self.assertEqual(manifest['resources'][url]['sha256'], digest((public/url).read_bytes()))
+
+    def test_published_camera_first_run_guide_character_panel_provenance(self):
+        public = ROOT/'public/os/firmware/10.7.0-32E'
+        manifest = json.loads((public/'manifest.json').read_text())
+        url = 'packs/camera/contents/0000-0000001a/lyt-C-Dlg.json'
+        pack = json.loads((public/url).read_text())
+        name = 'C_DlgChA'
+        layout = pack['layouts'][name]
+        source = pack['resourceSources']['layouts'][name]
+        self.assertEqual(source, {
+            'titleId': '0004001000022400', 'contentIndex': 0,
+            'contentId': '0000001a', 'path': 'lyt/C.LZ/Dlg/blyt/C_DlgChA.bclyt',
             'sha256': '4d35e4b38ae75fa7ad8c8f2d2484bd200856b562ee4c493b13adbc765c5eb8d7',
         })
         expected = {
@@ -275,6 +310,8 @@ class StockUiTests(unittest.TestCase):
             source.mkdir(); output.mkdir(); pack, selection = fixture()
             extra = copy.deepcopy(pack)
             extra['layouts']['Extra'] = {'fonts': [], 'textures': [], 'unsupported': [], 'roots': []}
+            extra.update(contentIndex=0, contentId='0000001a')
+            extra['layouts']['Extra']['fonts'] = ['HudNOTES.bcfnt']
             extra['resourceSources']['layouts']['Extra'] = {'titleId': SETTINGS, 'path': 'Extra', 'sha256': 'source'}
             existing_url, added_url = 'packs/settings/main.json', 'packs/settings/extra.json'
             common = {'firmware': '10.7.0-32E', 'locale': 'EU_English', 'resources': {}, 'sources': {}, 'titles': {}}
@@ -292,7 +329,7 @@ class StockUiTests(unittest.TestCase):
             delivery['resources']['font.json']['kind'] = 'font'
             incoming['titles'][SETTINGS] = {'packs': [existing_url, added_url], 'fonts': {}}
             incoming['sources'][SETTINGS] = {'titleId': SETTINGS}
-            delivery['titles'][SETTINGS] = {'packs': [existing_url], 'fonts': {}}
+            delivery['titles'][SETTINGS] = {'packs': [existing_url], 'fonts': {'contents/0000-0000001a/HudNOTES.bcfnt': 'font.json'}}
             delivery['titles'][HOME] = {'packs': ['home.json']}
             delivery['sources'][HOME] = {'titleId': HOME}
             delivery.update(home={'root': 'home.json'}, fonts={'shared': 'font.json'}, converter={'historical': True})

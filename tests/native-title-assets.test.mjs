@@ -363,3 +363,26 @@ test('bundled Zone HTML bitmaps load only the explicit source selection and pres
     await assert.rejects(f.load([{...request,textures:['missing']}],undefined,'0004001000022b00'),/Missing native title texture/);
   });
 });
+
+
+test('Camera first-run character panel loads its exact selected source texture closure', async () => {
+  await fixture(async f => {
+    const request = { url: 'packs/camera/contents/0000-0000001a/lyt-C-Dlg.json', alias: 'camera-dialog', layouts: ['C_DlgChA'], animations: [] };
+    const finder = { url: 'packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json', alias: 'camera-finder', layouts: ['P_Finder_U'], animations: [] };
+    const sd = { url: 'packs/camera/contents/0000-0000001a/lyt-C-Icon.json', alias: 'camera-icons', layouts: ['C_IconSD'], animations: [] };
+    const resources = await f.load([request, finder, sd], undefined, '0004001000022400');
+    try {
+      const pack = resources.renderer.packs['camera-dialog'];
+      assert.deepEqual(Object.keys(pack.layouts), ['C_DlgChA']);
+      assert.deepEqual(resources.diagnostics, []);
+      assert.equal(resources.renderer.textures['camera-dialog'].size, 4);
+      assert.deepEqual(new Set(f.fetched.filter(v => v.path.startsWith('textures/')).map(v => v.path)),
+        new Set([...pack.layouts.C_DlgChA.textures.map(name => pack.textures[name].url),
+          ...resources.renderer.packs['camera-finder'].layouts.P_Finder_U.textures.map(name => resources.renderer.packs['camera-finder'].textures[name].url),
+          ...resources.renderer.packs['camera-icons'].layouts.C_IconSD.textures.map(name => resources.renderer.packs['camera-icons'].textures[name].url)]));
+      for (const texture of resources.renderer.textures['camera-dialog'].values()) {
+        assert.ok(texture.width > 0 && texture.height > 0);
+      }
+    } finally { resources.dispose(); }
+  });
+});

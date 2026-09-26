@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { healthScrollCreate, healthScrollStylus, healthScrollKey, healthScrollUpdate, healthScrollView, healthScrollAdvance, healthScrollRelease, HEALTH_VBLANK_HZ } from '../src/os/stock-health-scroll.ts';
+import { healthScrollCreate, healthScrollStylus, healthScrollKey, healthScrollUpdate, healthScrollView, healthScrollAdvance, healthScrollRelease, HEALTH_VBLANK_HZ, healthTopLoopFrame } from '../src/os/stock-health-scroll.ts';
 import { createStockModule, initialSharedData } from '../src/os/stock-apps.ts';
 import { getTitle } from '../src/os/app-registry.ts';
 
@@ -63,4 +63,15 @@ test('release clears held keys and the stylus, so inertia continues and the key 
   for(const y of [120,120,100,80])state=healthScrollUpdate(healthScrollStylus(state,{x:150,y}));
   state=healthScrollUpdate(healthScrollRelease(state));
   assert.equal(state.touch.state,3,'a cancelled pointer is a stylus lift, which starts inertia');
+});
+
+
+test('Health TopLoop samples source frames deterministically with an explicit fitted origin',()=>{
+ assert.equal(healthTopLoopFrame(12000),15);
+ assert.equal(healthTopLoopFrame(0),18);
+ assert.equal(healthTopLoopFrame(1),18);
+ assert.equal(healthTopLoopFrame(1000/HEALTH_VBLANK_HZ+.001),19);
+ assert.equal(healthTopLoopFrame(720*1000/HEALTH_VBLANK_HZ+.001),18);
+ for(const t of [0,12000,999999])assert.equal(healthTopLoopFrame(t,true),0);
+ for(const t of [-1,NaN,Infinity])assert.equal(healthTopLoopFrame(t),18);
 });

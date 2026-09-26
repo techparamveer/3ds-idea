@@ -11,6 +11,7 @@ import { createNativeTitleSession } from './native-title-session';
 import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-settings';
 import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
 import { drawNativeCameraFrame, cameraScreenPacks } from './stock-native-camera';
+import { healthTopLoopFrame } from './stock-health-scroll';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
 import { drawNativePersonalToolFrame, nativePersonalToolView } from './stock-native-personal-tools';
 import { drawNativeWebFrame, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
@@ -279,7 +280,8 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const soundClockKey=view.appId==='sound'&&(view.screen==='main'||view.screen==='guide')?[date.getHours(),date.getMinutes()]:null;
       const settingsPaintKey=view.appId==='system-settings'?[date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes()]:null;
       const eshopHudKey=eshop?eshopHudClock(date):null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,soundClockKey,introKey]);
+      const healthPaintKey=view.appId==='health-safety'?healthTopLoopFrame(elapsedMs,reducedMotion):null;
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();

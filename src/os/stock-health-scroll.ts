@@ -21,6 +21,14 @@ export type HealthScrollView={paneY:number;thumbY:number;selectFrame:number};
 const f=Math.fround;
 /** 268111856 / 4481136: the LCD refresh the render loop waits on (0x110b40). */
 export const HEALTH_VBLANK_HZ=268111856/4481136;
+/** Source Bg_U_00_TopLoop has 720 frames. The 18-frame origin is a
+ * capture-fitted adaptation: elapsed 12000ms samples source frame 15.
+ * It does not establish native launch timing (see the Health TopLoop audit). */
+export function healthTopLoopFrame(elapsedMs:number,reducedMotion=false):number{
+  if(reducedMotion)return 0;
+  const elapsed=Number.isFinite(elapsedMs)?Math.max(0,elapsedMs):0;
+  return (Math.floor(elapsed*HEALTH_VBLANK_HZ/1000)+18)%720;
+}
 /** Bounded catch-up for one browser tick; longer gaps settle over later ticks. */
 const MAX_UPDATES_PER_ADVANCE=12;
 const PITCH=21,VIEWPORT=8;

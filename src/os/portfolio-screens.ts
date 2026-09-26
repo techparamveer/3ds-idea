@@ -143,20 +143,20 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   if(s.detail&&entry.images&&entry.images.length>1)label(b,`◀ ${s.photo+1}/${entry.images.length} ▶`,157,226,12,'#6b7380','center');
   button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
- function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number){
+ function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number,verification?:{sampleCalendar?:boolean}){
   const runtime=state.system!.runtime;
   const capture=view.appId==='game-notes'?suspendedCapture.read(runtime):undefined;
   notesMetadata.sync(runtime,capture??{status:'none'});
   const native=stockScreens.prepare(view,owner,nativeFonts.get(t));
   const notesPaint=syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
-  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint);
+  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint,verification);
  }
- function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date()){
+ function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date(),verification?:{sampleCalendar?:boolean}){
   const s=state.system;if(!s)return;
   if(s.phase==='app'){
    const view=getActiveAppView(state,time);let complete=false;
    if(view&&getApp(view.appId)&&currentEntry(state)){application(t,b,state,time,reduced);complete=true;}
-   else if(view&&s.runtime.active)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time);
+   else if(view&&s.runtime.active)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification);
    // Retain the application slot's last complete pair, before host overlays.
    if(complete&&s.runtime.active&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);
   }

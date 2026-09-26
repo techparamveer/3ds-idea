@@ -297,7 +297,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground; font?:
   nativeHome.folderBackdrop(b,folderCapture.pixels,state,reduced);
  }
  let reduced=options.reducedMotion??false;
- function paint(state:MenuState,date=new Date(),elapsedMs=0){
+ function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean}){
   if(disposed)return;
   graphics.syncStockView(state,t);
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
@@ -345,7 +345,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground; font?:
   // after the upper 3D traversal. Camera hints stay inside upperBase.
   nativeHome?.upperBase(t);if(!nativeHome?.hud(t,date,time))status(t,date,chrome);
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite);
-  graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date);
+  graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);
   if(firmwareAssets)drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets);
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);

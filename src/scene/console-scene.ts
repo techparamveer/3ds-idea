@@ -515,7 +515,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     // Sample presentation only. Inputs, software state, effects and the shared
     // runtime clock continue normally; the next paint restores current time.
     verificationBannerFrame=bannerFrame;
-    try{screens.paint(state,date,elapsedMs);const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),folderBanner:view,bannerSample:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame).sample:null,...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
+    try{screens.paint(state,date,elapsedMs,{sampleCalendar:isoDate!==undefined});const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),calendarSampling:isoDate===undefined?'live-retained':'verification-settings-local-replay',homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),folderBanner:view,bannerSample:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame).sample:null,...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
     finally{verificationBannerFrame=undefined;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   };
     Object.assign(host,{captureScreensAt});

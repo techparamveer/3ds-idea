@@ -263,7 +263,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     sync,prepare,status,
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     /** True only when the published pair is this owner's complete application frame. */
-    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint):boolean{
+    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean}):boolean{
       if(disposed)return false;
       // Pixels stay out of the key; one frozen capture has one generation.
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
@@ -283,8 +283,12 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const soundClockKey=view.appId==='sound'&&(view.screen==='main'||view.screen==='guide')?[date.getHours(),date.getMinutes()]:null;
       if(settingsHudOwner!==nextOwner){settingsHud=null;settingsHudOwner=nextOwner;}
       const settingsElapsed=data.settingsHudElapsedMs;
-      if(view.appId==='system-settings'&&typeof settingsElapsed==='number')settingsHud=sampleSettingsHud(settingsHud,settingsElapsed,date.getTime());
-      const hud=view.appId==='system-settings'&&typeof settingsElapsed==='number'?settingsHud:undefined;
+      const isSettingsClock=view.appId==='system-settings'&&typeof settingsElapsed==='number';
+      // Verification Date injection reconstructs an isolated sample sequence.
+      // It cannot overwrite the live owner's source-retained HUD state.
+      const capturedHud=isSettingsClock&&verification?.sampleCalendar?sampleSettingsHud(null,settingsElapsed,date.getTime()):undefined;
+      if(isSettingsClock&&!verification?.sampleCalendar)settingsHud=sampleSettingsHud(settingsHud,settingsElapsed,date.getTime());
+      const hud=capturedHud??(isSettingsClock?settingsHud:undefined);
       const hudDate=hud?new Date(hud.dateMs):date;
       const settingsPaintKey=view.appId==='system-settings'?[hudDate.getFullYear(),hudDate.getMonth(),hudDate.getDate(),hudDate.getHours(),hudDate.getMinutes(),hud?.batteryFrame,hud?.colonVisible]:null;
       const eshopHudKey=eshop?eshopHudClock(date):null;

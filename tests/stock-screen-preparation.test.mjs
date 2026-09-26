@@ -8,7 +8,7 @@ const calls=[];
 globalThis.__stockPreparationLoad=(...args)=>{let resolve,reject;const pending=new Promise((r,j)=>{resolve=r;reject=j;});calls.push({args,resolve,reject});return pending;};
 const session=url(compile('native-title-session').replace("'./native-title-assets'",JSON.stringify(url('export const loadNativeTitleAssets=(...args)=>globalThis.__stockPreparationLoad(...args)'))));
 let source=compile('stock-screen-presentation').replace("'./stock-settings-hud'",JSON.stringify(url(compile('stock-settings-hud')))).replace("'./stock-health-scroll'",JSON.stringify(url(compile('stock-health-scroll')))).replace("'./native-title-session'",JSON.stringify(session));
-for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSettingsMain'],['sound','soundScreenPacks','drawNativeSoundFrame'],['camera','cameraScreenPacks','drawNativeCameraFrame'],['health','healthScreenPacks','drawNativeHealthFrame']])source=source.replace(`'./stock-native-${file}'`,JSON.stringify(url(`export const ${packs}=[{url:'${file}.json',alias:'${file}',layouts:[],animations:[]}];export const ${draw}=(renderer,top,bottom,view)=>view.appId==='${file==='settings'?'system-settings':file==='health'?'health-safety':file}'?globalThis.__nativeTestDraw?.(top,bottom)??false:false;`)));
+for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSettingsMain'],['sound','soundScreenPacks','drawNativeSoundFrame'],['camera','cameraScreenPacks','drawNativeCameraFrame'],['health','healthScreenPacks','drawNativeHealthFrame']])source=source.replace(`'./stock-native-${file}'`,JSON.stringify(url(`export const ${packs}=[{url:'${file}.json',alias:'${file}',layouts:[],animations:[]}];export const ${draw}=(renderer,top,bottom,view,...args)=>view.appId==='${file==='settings'?'system-settings':file==='health'?'health-safety':file}'?globalThis.__nativeTestDraw?.(top,bottom,...args)??false:false;`)));
 source=source.replace("'./stock-screen-layout'",JSON.stringify(url('export const stockScreenTargets=()=>[];')));
 const layout=url(compile('stock-screen-layout').replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href)));
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url(compile('stock-native-personal-tools').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-screen-layout'",JSON.stringify(layout)))));
@@ -223,5 +223,25 @@ test('Health source frame keys paired publication and reduced motion freezes it'
   assert.deepEqual(f.top.marks,[['text','health upper']]);assert.deepEqual(f.bottom.marks,[['text','health lower']]);
   reduced=true;drawAt(40);assert.equal(draws,3);
   drawAt(12000);assert.equal(draws,3,'reduced motion keeps source frame zero');
+ }finally{f.dispose();}
+});
+
+
+test('verification Date supplies Settings main and Other pixels without replacing live retained samples',async()=>{
+ const f=paintFixture();
+ try{
+  f.v.data={settingsHudElapsedMs:5000};f.draw();await flush();calls[0].resolve(nativeAssets());await flush();
+  const live=new Date(2026,8,26,4,41,10),requested=new Date(2026,8,26,4,31,10),painted=[];
+  globalThis.__nativeTestDraw=(_top,_bottom,_reduced,_date,hud)=>{painted.push(hud);return true;};
+  // New owner guarantees the live sample begins from the explicit test date.
+  f.screen.draw(f.top,f.bottom,f.v,'settings-clock-test',f.font,undefined,live);await flush();
+  calls.at(-1).resolve(nativeAssets());await flush();
+  const draw=(date,verification)=>f.screen.draw(f.top,f.bottom,f.v,'settings-clock-test',f.font,undefined,date,0,undefined,verification);
+  draw(live);const retained=painted.at(-1);assert.equal(new Date(retained.dateMs).getMinutes(),41);
+  for(const screen of ['main','other']){
+   f.v.screen=screen;draw(requested,{sampleCalendar:true});assert.equal(new Date(painted.at(-1).dateMs).getMinutes(),31);
+   draw(new Date(2026,8,26,4,32,10),{sampleCalendar:true});assert.equal(new Date(painted.at(-1).dateMs).getMinutes(),32);
+   draw(live);assert.deepEqual(painted.at(-1),retained,'capture cannot overwrite retained live counter/calendar/phase');
+  }
  }finally{f.dispose();}
 });

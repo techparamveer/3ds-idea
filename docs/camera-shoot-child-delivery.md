@@ -63,3 +63,40 @@ The runtime still needs to instantiate both child layouts at the native
 anchors, select the appropriate source clips and compare the resulting LCD
 pixels. This publication does not establish visual acceptance or the current
 camera selection. No browser or Azahar instance was driven in this lane.
+
+## Welcome runtime integration (26 September 2026)
+
+The Welcome painter now requests both child layouts and their used source
+clips. Its existing renderer traversal attaches `P_CamBtn` to
+`P_Shoot_D/-L-BtnIOcam`, then `P_CamIcon` to `P_CamBtn/-L-CamIcon`.
+Each instance retains independent pane/material names and inherits the native
+anchor transform, visibility and InfluenceAlpha chain. No replacement
+rectangle, icon, center offset or texture was introduced. Both draws remain
+inside the existing `brightness(0.5)` adaptation and precede the Welcome dialog.
+Child draw failures make the paired guide draw fail.
+
+The button uses `P_CamBtn_Disable` at local frame 0 (source range 60–61), with
+CamBase alpha 128. This is an explicit capture-fitted candidate for the disabled
+Welcome background, not a traced native controller selection. The icon uses
+`P_CamIcon_IconPtrn` local frame 0 (source range 500–502), following the anchor's
+`ANM_IconPtrn=[0]` metadata and selecting the original Icam texture. That authored
+default also remains unverified as the current Welcome camera state. Duplicate
+terminal animation keys remain unchanged in the pack.
+
+Validation: 24 focused Camera tests and the 18 native renderer tests pass;
+`npm run typecheck`, `npm run build` and `git diff --check` pass. Tests check
+published source links, preparation closure, nesting before the dialog,
+selected clips, inherited brightness scope, and child failure propagation.
+Renderer tests cover attachment transforms, inherited alpha and visibility.
+The native first-run capture was inspected as reference only; no Azahar or
+browser session was driven in this lane. Runtime integration is implemented and
+tested, but browser/native acceptance remains pending.
+
+Coordinator comparison target: native
+`reference/scenario-matrix/v1/captures/camera-first-run/native/combined.png`
+against a fresh 320×240 lower browser LCD, with previous browser evidence under
+`camera-guide-page1-shoot-layout-271ddc9`. Inspect especially x≈80–128 in the
+exposed top strip, then guide pages 2–5 for occlusion/order regressions. If its
+shade differs, compare the original Default/Disable source poses; do not replace
+source artwork. The guide brightness mask, original controller camera selection,
+Welcome motion and full-screen pixel agreement remain unresolved.

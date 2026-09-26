@@ -357,3 +357,35 @@ test('Welcome shoot theme changes only the four named source slots before the gu
  assert.equal(draw.opts.overrides.TxtBrws.text,'View Photos/Videos');
  assert.ok(frame.draws.indexOf(draw)<frame.draws.findIndex(d=>d.layout==='C_DlgChA'));
 });
+
+
+test('Welcome mounts the source camera button/icon chain before the dialog and propagates child failure',()=>{
+ const pack=guidePacks['camera-shoot'],request=cameraScreenPacks.find(p=>p.alias==='camera-shoot');
+ for(const name of ['P_CamBtn','P_CamIcon'])assert.ok(request.layouts.includes(name));
+ for(const name of ['P_CamBtn_Disable','P_CamIcon_IconPtrn'])assert.ok(request.animations.includes(name));
+ const mount=find(pack.layouts.P_Shoot_D.roots,'-L-BtnIOcam'),icon=find(pack.layouts.P_CamBtn.roots,'-L-CamIcon');
+ assert.equal(mount.metadata.find(m=>m.name==='LYT').value,'P_Shoot_D/P_CamBtn');
+ assert.deepEqual(mount.translation,[-55,100,0]);
+ assert.equal(icon.metadata.find(m=>m.name==='LYT').value,'P_Shoot_D/P_CamIcon');
+ assert.deepEqual(icon.metadata.find(m=>m.name==='ANM_IconPtrn').value,[0]);
+ for(const failure of [null,'P_CamBtn','P_CamIcon']){
+  const sequence=[],{bottom}=ctx(),top={fillRect(){}};
+  const draw=(ctx,alias,name,opts={})=>{
+   sequence.push({name,opts,filter:ctx.filter});
+   for(const callback of Object.values(opts.attachments??{}))callback(1);
+   return name!==failure;
+  };
+  const renderer={packs:guidePacks,draw,drawLayout:(ctx,alias,name,source,opts)=>draw(ctx,alias,name,opts)};
+  assert.equal(drawNativeCameraFrame(renderer,top,bottom,view('guide',[],{guidePage:0}),{}),failure===null);
+  const names=sequence.map(s=>s.name);
+  assert.ok(names.indexOf('P_Shoot_D')<names.indexOf('P_CamBtn'));
+  assert.ok(names.indexOf('P_CamBtn')<names.indexOf('P_CamIcon'));
+  assert.ok(names.indexOf('P_CamIcon')<names.indexOf('C_DlgChA'));
+  for(const [name,clip] of [['P_CamBtn','P_CamBtn_Disable'],['P_CamIcon','P_CamIcon_IconPtrn']]){
+   const called=sequence.find(s=>s.name===name);
+   assert.deepEqual(called.opts.bindings,[{name:clip,frame:0}]);
+   assert.equal(called.filter,'brightness(0.5)');
+   assert.equal(called.opts.center,undefined);
+  }
+ }
+});

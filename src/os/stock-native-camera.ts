@@ -20,7 +20,8 @@ export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
   ],
 },{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Shoot_D-arc-LZ.json',alias:'camera-shoot',
-  layouts:['P_Shoot_D'],animations:['P_Shoot_D_Disable'],
+  layouts:['P_Shoot_D','P_CamBtn','P_CamIcon'],
+  animations:['P_Shoot_D_Disable','P_CamBtn_Disable','P_CamIcon_IconPtrn'],
 },{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',alias:'camera-finder',
   layouts:['P_FinderVS_U','P_Finder_U'],animations:[],
@@ -202,7 +203,26 @@ function drawCameraShootWelcome(renderer:NativeLayoutRenderer,bottom:CanvasRende
     // Native exposed orange is (127,81,0), near half of (255,161,0).
     // This 2D-only brightness fit is not a replay of the native guide mask.
     bottom.filter='brightness(0.5)';
-    return renderer.drawLayout(bottom,'camera-shoot','P_Shoot_D',layout,{bindings:[{name:'P_Shoot_D_Disable',frame:0}],overrides});
+    let childrenOkay=true;
+    const parentOkay=renderer.drawLayout(bottom,'camera-shoot','P_Shoot_D',layout,{
+      bindings:[{name:'P_Shoot_D_Disable',frame:0}],overrides,
+      attachments:{'-L-BtnIOcam':()=>{
+        // Source LYT links P_Shoot_D/P_CamBtn, then P_Shoot_D/P_CamIcon.
+        // Disable frame 0 is a capture-fitted Welcome candidate: the original
+        // controller selection is unverified. Geometry stays at source anchors.
+        childrenOkay=renderer.draw(bottom,'camera-shoot','P_CamBtn',{
+          bindings:[{name:'P_CamBtn_Disable',frame:0}],
+          attachments:{'-L-CamIcon':()=>{
+            // Source anchor ANM_IconPtrn=[0] selects Icam. This authored default
+            // does not establish the Welcome controller's active camera state.
+            childrenOkay=renderer.draw(bottom,'camera-shoot','P_CamIcon',{
+              bindings:[{name:'P_CamIcon_IconPtrn',frame:0}],
+            })&&childrenOkay;
+          }},
+        })&&childrenOkay;
+      }},
+    });
+    return parentOkay&&childrenOkay;
   }finally{bottom.restore();}
 }
 

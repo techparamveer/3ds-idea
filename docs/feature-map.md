@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: UI continuation through **`255fd30`** (documentation base `a0703b6`) on `codex/health-ui-scratch`,
+Checkpoint: UI continuation through **`9f45242`** on `codex/health-ui-scratch`,
 26 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -18,10 +18,8 @@ link/diff checks.
 The [implementation process](architecture/implementation-process.md) defines
 worktree handoff and source-to-visible HOME banner gates.
 
-The gated local raw-LCD route and [matrix v26](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v26/matrix.json)
-record 42 diagnostic entries (32 native/browser comparisons and ten browser-only records). **All fail overall.** Settings main with matched A
-input has 192 upper / 37 lower pixels over 2; Other Settings page 1 after the
-one-pixel title shift has 1,394 / 1,682; HOME with Settings selected after the
+The gated local raw-LCD route and [matrix v28](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v28/matrix.json)
+record 48 diagnostic entries (38 native/browser comparisons and ten browser-only records). **All fail overall.** An earlier Settings main pair with matched A input has 192 upper / 37 lower pixels over 2. The recovered native/browser Settings main diagnostic is 102 / 37 after source battery-frame correction. Other Settings page 1 improved from 1,517 / 1,682 to 1,517 / 702 after source tab/adjacent-page mounts; input routes still differ. Fresh-origin selected Settings HOME has 54,709 / 41,778, including a different wrench pose and portfolio neighbors. The older selected Settings HOME pair after the
 sourced title balloon has 41,352 / 42,107; Health entry has 7,196 / 0.
 Settings main and an earlier Sound guide page-1 pair have matched entry input.
 Camera's latest mono-source browse pair fails at 95,350 / 23,052
@@ -36,8 +34,9 @@ The latest two preserve Notes grid and Miiverse initial LCDs.
 Camera/Sound/Health banners are visible; the latest eShop capture shows bags,
 logo and shadow, and Camera now shows its photo cards. Earlier blank/missing
 mesh records remain unchanged. Zone entry and eShop close were browser-inspected.
-Relaunched isolated Azahar can capture screenshots but remains at its
-notification; mapped inputs still do not land. These are not 1:1 acceptance.
+The isolated Azahar notification was dismissed and native Settings main and
+Other Settings page 1 were captured. Miiverse and Notes still lack native
+counterparts. None of these is 1:1 acceptance.
 See the [browser checkpoint](progress-2026-09-24.md#browser-home-banners-zone-entry-and-eshop-close--26-september-2026)
 and [banner activation](stock-home-banner-activation.md).
 

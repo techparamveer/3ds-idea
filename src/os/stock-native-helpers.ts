@@ -94,7 +94,7 @@ const mirrorPanel:PaneOverrides={UpWndwLT_01:{size:[184,80],scale:[-1,1]},UpWndw
 export function drawNativeHelperFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,_options?:StockScreenPaintOptions):boolean{
   if(!nativeHelperView(view))return false;
   if(view.appId==='amiibo-settings')return drawNativeAmiibo(renderer,top,bottom);
-  if(view.appId==='manual'&&manualTitle(view))return drawApplicationManual(renderer,top,bottom,view);
+  if(view.appId==='manual'&&manualTitle(view))return drawApplicationManual(renderer,top,bottom,view,_options);
   if(view.appId==='manual')return drawManual(renderer,top,bottom,view,_options);
   if(view.appId==='system-transfer')return drawTransfer(renderer,top,bottom,view);
   if(view.appId==='extrapad')return drawCirclePad(renderer,top,bottom,view);
@@ -256,7 +256,7 @@ function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
 /** Settings (and future application) manual Contents. Rows come only from
  * the application's source Index.bclyt; titles, numbers and order are source
  * data. All visible chrome below is decoded from the Manual applet packs. */
-function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView):boolean{
+function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options?:StockScreenPaintOptions):boolean{
   const titleId=manualTitle(view)!,source=manualSources[titleId],index=renderer.packs['manual-index']?.layouts.Index;
   if(!source||!index)return false;
   prepareApplicationManualCategory(renderer);
@@ -267,9 +267,10 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,options:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,options)&&okay;};
   // Opaque LCD base under the source chrome; the native upper page base is a gap.
   top.fillStyle='#fff';top.fillRect(0,0,400,240);bottom.fillStyle='#fff';bottom.fillRect(0,0,320,240);
-  // P_Icon_00 would show the applet's IconBlank; the SMDH icon binding is a gap.
+  // P_Icon_00 defaults to IconBlank; the applet binds the calling title's SMDH icon.
   draw(top,'manual-index-root','IndexNull',{center:[200,240-262],bindings:[{name:'IndexNull_Wait',frame:1}]});
   draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,overrides:{TextBoxTxt_00:{text:source.heading},P_Icon_00:{visible:false}}});
+  if(titleId==='0004001000022000')options?.image?.(top,'/os/firmware/10.7.0-32E/icons/settings.png',4,4,32,32);
   draw(top,'manual-scroll','ScrollIndicator',{center:[392,40],bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
   draw(bottom,'manual-IndexBase00','IndexBase00',{center:[160,0]});
   draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,APPLICATION_MANUAL_SLOTS.contentsCentre],overrides:{Contents_Txt:message('ContentsText')}});

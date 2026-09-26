@@ -54,9 +54,16 @@ test('renderer support classification matches the PICA combiner vocabulary firmw
     if(model.rendererSupport==='supported')assert.deepEqual(model.issues,[]);
     else for(const issue of model.issues)assert.match(issue,/^(ProjectionMap texture coordinates|AsBump bump mapping)/,issue);
   }
-  // The recorded divergences are silent in the renderer: it has no mapping-type branch and
-  // bump materials drop to the approximate lighting path.
-  assert.ok(modelSource.includes('MappingType:string')&&!/\.MappingType|MappingType\s*[!=]=/.test(modelSource));
+  // Sphere mapping is a Settings-only opt-in. Sound still takes the default UV
+  // path; its recorded ProjectionMap and approximate bump-lighting gaps remain.
+  const bannerSource=readFileSync(new URL('../src/scene/firmware-banner.ts',import.meta.url),'utf8');
+  const soundRoomSource=readFileSync(new URL('../src/scene/sound-room.ts',import.meta.url),'utf8');
+  assert.match(modelSource,/if\(options\.nativeSphereMapping\)for/);
+  assert.match(modelSource,/coord\.MappingType==='CameraSphereEnvMap'&&source===4/);
+  assert.match(modelSource,/else if\(coord\.MappingType!=='UvCoordinateMap'/,'ProjectionMap is not supported by the opt-in path either');
+  assert.match(bannerSource,/settingsModel=createFirmwareModel\([^;]*nativeSphereMapping:true/);
+  assert.equal((bannerSource.match(/nativeSphereMapping:true/g)??[]).length,1);
+  assert.doesNotMatch(soundRoomSource,/nativeSphereMapping/,'Sound must retain default mapping support');
   assert.ok(lightingSource.includes("params.BumpMode!=='NotUsed'"));
   assert.deepEqual(summary.models.filter(r=>r.models.some(m=>m.rendererSupport!=='supported')).map(r=>r.model),['S_Vis_Clock_U.bcmdl','S_Vis_Clock_U_Cogwheel.bcmdl','S_Vis_ExBike_U.bcmdl','S_Vis_Lifting_U.bcmdl']);
 });

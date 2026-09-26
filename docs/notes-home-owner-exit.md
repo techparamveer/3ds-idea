@@ -62,3 +62,49 @@ Artifacts are under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/notes-home-owner-exit/`.
 The coordinator owns live browser verification after integration; this isolated
 worktree did not operate the browser or change integration files.
+
+## Camera route investigation — 26 September 2026
+
+**Decision: no runtime fix.** The coordinator's browser observation at
+`8f0eb39` matches the deliberate second-HOME retirement boundary introduced by
+`34ebf75`; it does not establish a new resume regression. This does not establish
+that the browser's two-press exit placement matches native behavior.
+
+The coordinator observed: open Camera → `h` suspends Camera → Open Game Notes
+shortcut → A opens the editor → touch Switch twice → `h` shows HOME with Camera
+suspended → another `h` leaves HOME and its accessibility text unchanged → A
+resumes Camera. The second `h` changes invisible owner state: it closes Notes,
+clears its `homeReturn` and system-applet slot, and preserves Camera suspended.
+The generic control label, “HOME: Suspend or resume”, does not describe this
+Notes-specific retirement action. That wording is an accessibility limitation;
+it is not evidence that the input was ignored.
+
+A pure state/input reproduction at `661cd4d` used `launchHomeShortcut` for Camera
+and Notes, `dispatchSystemEvent` keyboard down/up phases for A/HOME, and touch
+down/up at `(252, 226)` for Switch. Camera settled after 3000 ms of ticks;
+Switch touches were separated by 500 ms and advanced the capture mode
+Double → Up → Down. Native HOME controls were tested both enabled and disabled.
+Both runs confirmed:
+
+- First HOME after editing suspends Notes and retains it as `homeReturn`.
+- Second HOME retires Notes, leaves Camera suspended and selected, and stays HOME.
+- From that same state, either a third HOME or A resumes the original Camera
+  owner. The third-HOME result is reducer evidence, not an observed browser step.
+
+Existing `notes-home-owner-exit`, `notes-capture-switch` and
+`notes-suspended-capture` tests pass **17/17**. They already cover no-caller Notes
+entry, later HOME resumption, Switch routing and application capture retention;
+no runtime patch or duplicate regression test was added.
+
+The accepted source trace above supports Notes owner destruction after completed
+exit. It does not establish the browser's first-suspend/second-retire input
+placement or native transition timing. Those remain adaptations pending an
+implemented and matched native exit sequence.
+
+The coordinator's private
+`reference/scenario-matrix/v1/captures/notes-grid-browser-smoke-20260926/browser/`
+under the firmware artifact root contains the initial Notes grid only; it is
+not a capture pair for this final HOME state. Later flow observations are
+coordinator-inspected screenshots. No matched native pair, mask or diff report
+is available because native input remains blocked. No native acceptance or
+scenario pass is claimed. L4 did not operate either UI session.

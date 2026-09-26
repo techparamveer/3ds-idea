@@ -28,16 +28,26 @@ For new worker turns, the user's latest choice is **GPT-6 Astra, medium
 reasoning, Fast mode**. This supersedes the earlier Sol preference in the
 historical goal. Model, reasoning effort and service tier are separate settings.
 
+The coordinator set `/Users/paramveer/.codex/config.toml` for future turns to
+`model = "gpt-6-astra"`, `model_reasoning_effort = "medium"` and
+`service_tier = "fast"`, backed up the prior file as
+`config.toml.before-astra-fast-20260926`, and verified that the edited TOML parses.
+The official [Codex Configuration Reference](https://developers.openai.com/codex/config-reference)
+documents top-level `service_tier = "fast"` for new turns; Fast maps to request
+priority. The in-flight coordinator turn cannot switch model or tier through
+this configuration edit.
+
 When a delegation tool exposes model and effort, pass `model=gpt-6-astra` and
 `reasoning_effort=medium` explicitly. For this host's subagent tool, an explicit
 override requires a bounded or empty context fork; a full-history fork inherits
-the parent's current settings. **The current delegation API has no Fast or
-service-tier control**, so the worker dispatch cannot apply or verify Fast mode.
-Do not report it as set. For a new or continued Codex task, pass
-`model=gpt-6-astra` and `thinking=medium` when exposed. An in-flight turn does
-not switch models because this file changed. If a control rejects this
+the parent's current settings. The collaboration spawn API still has no explicit
+service-tier argument. Global configuration is set for future turns, but an
+individual agent's response tier has not been observed; do not claim a verified
+per-agent Fast tier. For a new or continued Codex task, pass
+`model=gpt-6-astra` and `thinking=medium` when exposed. If a control rejects this
 combination, report the unsupported part rather than claiming it was applied.
-This project guidance does not edit global Codex configuration.
+This documentation update records the coordinator's configuration change; it
+does not itself edit global configuration or switch an in-flight turn.
 
 ## Product constraints
 

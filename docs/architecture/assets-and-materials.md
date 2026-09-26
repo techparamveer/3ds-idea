@@ -147,3 +147,9 @@ Canvas filtering of a pre-rasterized picture. Text, unrotated pictures, other
 blends and nonopaque destinations keep the existing path. The LCD-sized scratch
 surface is reused and disposed with the renderer. See the [Health raster
 comparison and bounded performance evidence](../health-rotated-picture-raster-2026-09-26.md).
+
+Camera guide lower composition now uses its executable's warm render-target
+clear and settled black-alpha128 modal pass over the combined CGFX/2D underlay.
+The scene retains opaque target readback ownership; the OS applies the modal
+before the guide. Source replay and remaining clip/projection/pixel gates are
+recorded in [Camera guide modal composition](../camera-guide-modal-composition.md).

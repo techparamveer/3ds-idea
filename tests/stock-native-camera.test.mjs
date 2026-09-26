@@ -10,7 +10,7 @@ const transpile=(name,overrides={})=>{
   const {outputText}=ts.transpileModule(readFileSync(url,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
   return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(path.endsWith('.ts')?path:`${path}.ts`,url).href)+suffix));
 };
-const {cameraScreenPacks,cameraShootWelcomeTheme,drawNativeCameraLower,drawNativeCameraFrame,cameraBrowseOrange,cameraDateGroupOrange,cameraBrowseUserColor,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect,cameraBrowseBirdCenter,cameraBrowseSliderCenter,cameraBrowseSliderFrame}=await import(transpile('stock-native-camera',{
+const {drawCameraGuideModal,cameraScreenPacks,cameraShootWelcomeTheme,drawNativeCameraLower,drawNativeCameraFrame,cameraBrowseOrange,cameraDateGroupOrange,cameraBrowseUserColor,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect,cameraBrowseBirdCenter,cameraBrowseSliderCenter,cameraBrowseSliderFrame}=await import(transpile('stock-native-camera',{
   './stock-screen-layout':transpile('stock-screen-layout'),
   './native-layout':transpile('native-layout'),
 }));
@@ -385,8 +385,21 @@ test('Welcome mounts the source camera button/icon chain before the dialog and p
   for(const [name,clip] of [['P_CamBtn','P_CamBtn_Disable'],['P_CamIcon','P_CamIcon_IconPtrn']]){
    const called=sequence.find(s=>s.name===name);
    assert.deepEqual(called.opts.bindings,[{name:clip,frame:0}]);
-   assert.equal(called.filter,'brightness(0.5)');
+   assert.notEqual(called.filter,'brightness(0.5)','the shared modal pass follows both underlays');
    assert.equal(called.opts.center,undefined);
   }
  }
+});
+
+
+test('Camera settled modal composites source black128 once and restores the caller',()=>{
+ const ctx={filter:'brightness(0.7)',globalCompositeOperation:'copy',globalAlpha:.2,fillStyle:'red'};
+ const initial={...ctx},calls=[];let saved;
+ ctx.save=()=>{saved={...ctx};};ctx.restore=()=>Object.assign(ctx,saved);
+ ctx.fillRect=(...rect)=>calls.push({rect,filter:ctx.filter,operation:ctx.globalCompositeOperation,alpha:ctx.globalAlpha,color:ctx.fillStyle});
+ drawCameraGuideModal(ctx);
+ assert.deepEqual(calls,[{rect:[0,0,320,240],filter:'none',operation:'source-over',alpha:128/255,color:'#000'}]);
+ for(const key of Object.keys(initial))assert.equal(ctx[key],initial[key]);
+ ctx.fillRect=()=>{throw Error('canvas failed');};assert.throws(()=>drawCameraGuideModal(ctx),/canvas failed/);
+ for(const key of Object.keys(initial))assert.equal(ctx[key],initial[key]);
 });

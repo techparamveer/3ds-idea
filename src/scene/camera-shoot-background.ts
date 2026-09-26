@@ -50,9 +50,11 @@ export function createCameraShootBackground(renderer:THREE.WebGLRenderer,load=lo
       const oldTarget=renderer.getRenderTarget(),color=renderer.getClearColor(new THREE.Color()),alpha=renderer.getClearAlpha(),toneMapping=renderer.toneMapping,autoClear=renderer.autoClear;
       const viewport=renderer.getViewport(new THREE.Vector4()),scissor=renderer.getScissor(new THREE.Vector4()),scissorTest=renderer.getScissorTest();
       try{
+        // Source lower render node: 0x2a5e60 writes RGBA (233,224,208,255).
+        // Preserve raw LCD bytes: a hexadecimal THREE.Color would decode sRGB.
         // The target installs its own 320×240 viewport. setViewport applies
         // the page DPR even here, so it must not be called while bound.
-        renderer.setRenderTarget(target);renderer.setScissorTest(false);renderer.setClearColor(0x000000,1);renderer.toneMapping=THREE.NoToneMapping;renderer.autoClear=false;renderer.clear(true,true,false);
+        renderer.setRenderTarget(target);renderer.setScissorTest(false);renderer.setClearColor(new THREE.Color().setRGB(233/255,224/255,208/255,THREE.LinearSRGBColorSpace),1);renderer.toneMapping=THREE.NoToneMapping;renderer.autoClear=false;renderer.clear(true,true,false);
         renderer.render(scene,camera);
         const pixels=new Uint8Array(320*240*4);renderer.readRenderTargetPixels(target,0,0,320,240,pixels);
         const output=canvas.getContext('2d')!,image=output.createImageData(320,240);
@@ -61,7 +63,7 @@ export function createCameraShootBackground(renderer:THREE.WebGLRenderer,load=lo
           image.data[to]=pixels[from];image.data[to+1]=pixels[from+1];image.data[to+2]=pixels[from+2];image.data[to+3]=255;
         }
         // Transfer the already-composited RGB once; source vertex/material alpha
-        // has already blended into the black LCD clear in the GPU target.
+        // has already blended into the source warm LCD clear in the GPU target.
         output.putImageData(image,0,0);rendered=true;
       }finally{
         renderer.setRenderTarget(oldTarget);renderer.setViewport(viewport);renderer.setScissor(scissor);renderer.setScissorTest(scissorTest);renderer.setClearColor(color,alpha);renderer.toneMapping=toneMapping;renderer.autoClear=autoClear;

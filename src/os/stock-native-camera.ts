@@ -200,9 +200,7 @@ function drawCameraShootWelcome(renderer:NativeLayoutRenderer,bottom:CanvasRende
   if(!layout){layout=cameraMessageColors(cameraShootWelcomeTheme(source),overrides);shootWelcomeLayouts.set(renderer,layout);}
   bottom.save();
   try{
-    // Native exposed orange is (127,81,0), near half of (255,161,0).
-    // This 2D-only brightness fit is not a replay of the native guide mask.
-    bottom.filter='brightness(0.5)';
+    // The native modal pass darkens the complete underlay after this draw.
     let childrenOkay=true;
     const parentOkay=renderer.drawLayout(bottom,'camera-shoot','P_Shoot_D',layout,{
       bindings:[{name:'P_Shoot_D_Disable',frame:0}],overrides,
@@ -223,6 +221,17 @@ function drawCameraShootWelcome(renderer:NativeLayoutRenderer,bottom:CanvasRende
       }},
     });
     return parentOkay&&childrenOkay;
+  }finally{bottom.restore();}
+}
+
+/** Initialized RGBA (0,0,0,128), copied into the guide's modal child.
+ * Source 0x31a540 / 0x2736e4; draw 0x300e70 submits this before the dialog.
+ * This is the settled endpoint; opening/closing timing remains unported. */
+export function drawCameraGuideModal(bottom:CanvasRenderingContext2D):void{
+  bottom.save();
+  try{
+    bottom.filter='none';bottom.globalCompositeOperation='source-over';
+    bottom.globalAlpha=128/255;bottom.fillStyle='#000';bottom.fillRect(0,0,320,240);
   }finally{bottom.restore();}
 }
 
@@ -268,6 +277,7 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   bottom.fillStyle='#000';bottom.fillRect(0,0,320,240);
   if(options.cameraShoot)okay=options.cameraShoot.draw(bottom)&&okay;
   okay=drawCameraShootWelcome(renderer,bottom)&&okay;
+  drawCameraGuideModal(bottom);
   const find=(panes:NativeLayout['roots']):NativeLayout['roots'][number]|undefined=>{for(const pane of panes){if(pane.name==='ShootCapa_Pho')return pane;const child=find(pane.children);if(child)return child;}};
   const capacityPane=find(renderer.packs['camera-finder']?.layouts.P_Finder_U?.roots??[]);
   if(!capacityPane)return false;

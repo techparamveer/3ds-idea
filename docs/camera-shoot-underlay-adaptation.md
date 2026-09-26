@@ -118,3 +118,11 @@ The omitted child resources are now [published with source provenance](camera-sh
 The anchor resolves to `P_CamBtn` and then `P_CamIcon` in the same shoot pack.
 This closes the delivery gap; runtime child instantiation and native comparison
 remain separate integration work.
+
+## Source modal/base follow-up
+
+The original warm lower clear and black-alpha128 guide pass are now traced and
+implemented in [Camera guide modal composition](camera-guide-modal-composition.md).
+This supersedes the black CGFX clear and 2D-only brightness fit described above.
+Projection, visible model selection, theme and button-clip limitations remain;
+coordinator LCD comparison is still required for the new composition.

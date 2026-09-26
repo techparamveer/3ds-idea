@@ -10,7 +10,7 @@ for(const key of ['artifact-dir','asset-root','canvas-module','font-manifest'])a
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),assetRoot=values['asset-root'],out=values['artifact-dir'];mkdirSync(out,{recursive:true});
 const {createCanvas,loadImage,Image}=await import(pathToFileURL(values['canvas-module']));
 const compiled=mkdtempSync(join(out,'compiled-'));
-for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-helpers','stock-native-amiibo','stock-manual-index']){
+for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-helpers','stock-native-amiibo','stock-manual-index','stock-screen-layout','camera-browse']){
  const text=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(text,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+?)(\.ts)?['"]/g,(_,name)=>`from '${name}.mjs'`));
 }
@@ -31,6 +31,7 @@ views.push(manual);
 for(const [topic,heading,text] of [['contents','Contents',['Browse the portfolio from HOME.','Select a title to open it.','B returns to the previous screen.']],['controls','Controls',['A: open the selected item.','B: go back.','HOME: return to HOME Menu.','Touch the lower screen to select.']],['support','Support Information',['No application manual was supplied.','This guide covers portfolio controls.']]])views.push({...manual,screen:'document',verificationId:'manual-'+topic,rows:[],heading,text,data:{topic}});
 // Settings electronic manual Contents: applet chrome plus Settings content-1 Index.
 views.push({appId:'manual',screen:'main',heading:'System Settings',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}},text:[],data:{manualTitleId:'0004001000022000'},verificationId:'manual-settings-contents'});
+views.push({appId:'manual',screen:'document',heading:'System Settings',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}},text:[],data:{page:0,manualTitleId:'0004001000022000'},verificationId:'manual-settings-page-1'});
 const reports=[];
 try{
  for(const view of views){
@@ -62,7 +63,7 @@ try{
   }
   assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
   assert.equal(JSON.stringify(originalPacks),before,'source resources remain immutable');
-  if(view.data?.manualTitleId){
+  if(view.data?.manualTitleId&&view.screen==='main'){
    assert.equal(assets.renderer.packs['manual-index'].titleId,'0004001000022000');
    const background=calls.find(c=>c.layout==='AllNull');
    assert.ok(background);assert.equal(background.pack,'manual-all-root');
@@ -73,7 +74,7 @@ try{
    assert.equal(calls.find(c=>c.layout==='SoftTitleHeader').options.overrides.TextBoxTxt_00.text,'System Settings');
   }
   const targets=nativeHelperTargets(view);
-  if(view.data?.manualTitleId)assert.deepEqual(targets,[{action:'back',x:0,y:212,width:160,height:28}],'only the sourced Close button acts');
+  if(view.data?.manualTitleId)assert.deepEqual(targets.map(t=>t.action),view.screen==='main'?['manual-page-0','back']:['manual-close','back']);
   else{
    assert.equal(targets.filter(target=>target.action==='back').length,1);
    if(view.appId==='system-transfer'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['back','3ds','dsi']);

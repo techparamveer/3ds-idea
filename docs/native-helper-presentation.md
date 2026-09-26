@@ -182,3 +182,41 @@ updater's authored notice with `update.bin`'s original question, background
 state, orange title clip and Cancel/OK footer. Cancel returns to the retained
 caller; OK is deliberately inert. The source-backed static composition does not
 claim native entry timing, launch-argument routing or matched LCD pixels.
+
+## Settings Important Information page (27 September 2026)
+
+The first Contents row now opens page 1 via A or a touch release inside its
+source 272×37 `Bounding_00`, mounted at the existing captured row centre y86.
+B and the source Back region return to Contents; X and the icon-only Close
+region close the applet. Other rows, directions and Enlarge remain inert.
+Only Settings receives this path; unknown manual IDs and the Portfolio Guide
+retain their existing behavior. Eight portfolio app positions are untouched.
+
+Reference: genuine native `_27.09.26_00.44.30.298.png`, SHA-256
+`50264d734cdc3a44a1a253f89365ab76a6e97473700a76ec6442935114bf81ed`.
+The coordinator entered with mapped A from selected Important Information.
+Its line breaks identify `Page_000_small_0` rather than the large variant.
+The page spans **both** LCDs. The initial body origin y38 and header centre y20
+are capture-fitted adaptations; no native scroll initialization or timing claim
+is made. Source `PageGroup/BaseN` supplies x−160, resulting in x40 upper and
+x0 lower. The lower viewport ends at the source footer's y212.
+
+Body text, warning artwork and background come unchanged from Settings content1
+`Manual.bcma/EUR_en_small.arc/blyt/Page_000_small_{0,bg}.bclyt`, under manifest
+pack `packs/settings/contents/0001-00000038/manual-EUR_en.json`.
+Header text and number come from its `Index`. The applet's original
+`BtnHeadLineTxt_ChangeWait` supplies number x−145.5/title x−122, matching the
+native page header; existing captured chip RGB is retained as an adaptation.
+`PageShdw00`, `PageGroup`, `BtnClose01` and `BtnTextSize00`, and the original
+`ebird/BtnTextSize_*` messages are published by the additive opt-in plan
+`scripts/firmware/stock-ui-manual-page.json` from `manual-native14`.
+Existing `BtnBack00` retains its source messages and font-width glyph grouping;
+Enlarge uses the same grouping approach. All shapes, fonts and native text are
+firmware resources. No screenshot is delivered.
+
+Remaining gaps: upper striped base, adjacent page preview, scrollbar, page
+scrolling, Enlarge, later-page navigation, native transition/cue timing and
+pixel fidelity. The absent preview is not an invented page. Page entry is a
+settled presentation with existing readiness/loading gates, not an emulated
+native transition. The source-render verifier checks both LCDs, immutable
+resources and bounded targets; production browser/native comparison is pending.

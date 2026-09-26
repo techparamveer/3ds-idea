@@ -164,6 +164,11 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   }
   function activate(state: AppState, action: string, context: AppContext, value?: JsonValue): AppReduction {
     const screen = str(state.screen, 'main');
+    if(id==='manual'&&state.manualTitleId){
+      if(action==='manual-close')return {state,effects:[{type:'close'}]};
+      if(action==='manual-page-0')return state.manualTitleId==='0004001000022000'&&screen==='main'
+        ?{state:withScreen(state,'document',{page:0})}:{state};
+    }
     if (action === 'back') {
       if ((id === 'sound'||id === 'camera') && screen === 'guide') return { state: { ...state, guidePage: Math.max(0, num(state.guidePage) - 1) } };
       if (id === 'sound' && state.mediaError === true) return { state: { ...state, mediaError: false } };
@@ -362,6 +367,10 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       // Text, drawing, device results and old applet results have no editing path.
       const command = event.type === 'command' ? event.command : event.type === 'button' && event.phase !== 'up' && event.activate !== false ? event.command : null;
       if (!command) return { state };
+      if(id==='manual'&&state.manualTitleId){
+        if(command==='x')return activate(state,'manual-close',context);
+        if(command==='open'&&state.screen==='main')return activate(state,'manual-page-0',context);
+      }
       if (command === 'back') return activate(state, 'back', context);
       const current = view(state, context);
       if (command === 'open') return activate(state, current.footer.right?.action ?? '', context);

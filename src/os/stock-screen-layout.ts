@@ -43,11 +43,19 @@ export const cameraBrowsePane={x:46,y:41,width:228,height:132};
 export function cameraBrowseCellRect(index:number,offset:number):[number,number,number,number]{
   return [53+(index%3)*76+Math.floor(index/6)*CAMERA_BROWSE_PAGE_WIDTH-offset,50+Math.floor(index%6/3)*66,62,48];
 }
+/** First Settings Manual row uses the captured Contents mount and source
+ * 272×37 Bounding_00. Page footer bounds come from BtnClose01/BtnBack00. */
+export function applicationManualTargets(view:AppView):StockScreenTarget[]{
+  return view.screen==='document'
+    ?[target('manual-close',0,212,40,28),target('back',40,212,140,28)]
+    :[...(view.data?.manualTitleId==='0004001000022000'?[target('manual-page-0',24,67.5,272,37)]:[]),target('back',0,212,160,28)];
+}
 export function stockScreenTargets(view:AppView):StockScreenTarget[]{
   const {appId,screen,rows,selection}=view, result:StockScreenTarget[]=[];
   // Camera C_DlgGuid BB hit panes: first 128×40 at (160,204), paired 88×40 at (112/208,204).
   if(appId==='camera'&&screen==='guide')return [...(view.footer.left?[target('back',68,184,88,40)]:[]),target('guide-next',view.footer.left?164:96,184,view.footer.left?88:128,40)];
   if(appId==='sound'&&screen==='guide')return [...(view.footer.left?[target('back',67,184,90,44)]:[]),target('guide-next',view.footer.left?163:135,184,view.footer.left?90:130,44)];
+  if(appId==='manual'&&view.data?.manualTitleId)return applicationManualTargets(view);
   if(appId==='manual')return screen==='main'?[...rows.slice(0,3).map((row,index)=>target(row.id,24,56.5+44*index,272,37,index)),target('back',0,212,320,28)]:[target('back',40,212,140,28)];
   if(appId==='mii-selector')return [target('back',5,215,155,24)];
   if(appId==='photo-selector'||appId==='sound-selector')return [target('back',20,202,88,28)];

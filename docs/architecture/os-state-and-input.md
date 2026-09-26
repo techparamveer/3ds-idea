@@ -213,3 +213,15 @@ callers omit it. Any capture integration must keep it within the existing local
 verification gate and record the complete source-pose sample; the renderer does
 not infer telemetry or native timing from it. The [profile-state audit](../home-hud-profile-state-audit-2026-09-26.md#renderer-diagnostic-seam)
 documents provenance, frame domains and the unresolved HOME service mapping.
+
+### Settings Manual first-page boundary
+
+The explicit Settings `manualTitleId` route now accepts `manual-page-0` from
+its first Contents row or A. `stock-apps.ts` owns the document state; B returns
+to Contents and X closes the applet. `applicationManualTargets` in
+`stock-screen-layout.ts` owns shared touch rectangles. Presentation requests
+Settings' small page0 layouts plus Manual applet chrome with their separate
+source title owners. The request changes on entry/return, preserving paired-LCD
+readiness and session disposal. There is no generic manual-page action, scroll
+clock or invented page data. See the first-page evidence in
+[helper presentation](../native-helper-presentation.md).

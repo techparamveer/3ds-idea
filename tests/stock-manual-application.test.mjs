@@ -71,7 +71,7 @@ test('the manual applet enters Settings Contents only through an explicit argume
   assert.equal(view.data.manualTitleId, settings);
   assert.deepEqual(view.rows, []);
   assert.deepEqual(view.text, [], 'no guide text is mixed into the source manual');
-  assert.deepEqual(module.reduce(state, { type: 'command', command: 'open' }, ctx).state, state);
+  assert.equal(module.reduce(state, { type: 'command', command: 'open' }, ctx).state.screen, 'document');
   assert.deepEqual(module.reduce(state, { type: 'action', id: 'back' }, ctx).effects, [{ type: 'close' }]);
   assert.equal(module.create({ manualTitleId: 'not-a-title' }, null, ctx).manualTitleId, undefined);
 });
@@ -87,7 +87,7 @@ test('Settings Contents loads source chrome, lets Close act, and leaves unfinish
   });
   for (const item of request.packs.filter(item => item !== index)) assert.ok(manifest.titles['0004003000009b02'].packs.includes(item.url));
   assert.equal(request.packs.some(item => /BtnClose00|BtnBack00|PageNum|PageBg00/.test(item.url)), false, 'no substitute footer or page chrome');
-  assert.deepEqual(helpers.nativeHelperTargets(view), [{ action: 'back', x: 0, y: 212, width: 160, height: 28 }]);
+  assert.deepEqual(helpers.nativeHelperTargets(view), [{ action: 'manual-page-0', x: 24, y: 67.5, width: 272, height: 37 }, { action: 'back', x: 0, y: 212, width: 160, height: 28 }]);
   const module = createStockModule(getTitle('manual'));
   const state = module.create({ manualTitleId: settings }, null, ctx);
   assert.deepEqual(module.reduce(state, { type: 'action', id: 'back' }, ctx).effects, [{ type: 'close' }]);
@@ -104,5 +104,23 @@ test('Settings Contents loads source chrome, lets Close act, and leaves unfinish
 test('only the Settings HOME route supplies a manual title argument', () => {
   const files = readdirSync(resolve('src'), { recursive: true }).filter(file => /\.(ts|tsx)$/.test(file));
   const users = files.filter(file => readFileSync(resolve('src', file), 'utf8').includes('manualTitleId')).sort();
-  assert.deepEqual(users, ['os/stock-apps.ts', 'os/stock-helper-views.ts', 'os/stock-native-helpers.ts', 'os/system.ts']);
+  assert.deepEqual(users, ['os/stock-apps.ts', 'os/stock-helper-views.ts', 'os/stock-native-helpers.ts', 'os/stock-screen-layout.ts', 'os/system.ts']);
+});
+
+
+test('page 1 opens through A or its row; B returns and X closes from either screen', () => {
+  const module=createStockModule(getTitle('manual')), state=module.create({manualTitleId:settings},null,ctx);
+  const page=module.reduce(state,{type:'command',command:'open'},ctx).state;
+  assert.equal(page.page,0);assert.equal(page.screen,'document');
+  assert.deepEqual(module.reduce(state,{type:'touch',phase:'up',x:160,y:86},ctx).state,page);
+  const back=module.reduce(page,{type:'command',command:'back'},ctx);
+  assert.equal(back.state.screen,'main');assert.equal(back.effects,undefined);
+  for(const s of [state,page])assert.deepEqual(module.reduce(s,{type:'command',command:'x'},ctx).effects,[{type:'close'}]);
+  for(const command of ['left','right','up','down','y'])assert.deepEqual(module.reduce(page,{type:'command',command},ctx).state,page);
+  assert.deepEqual(module.reduce(state,{type:'action',id:'manual-page-1'},ctx).state,state);
+  const requests=helpers.nativeHelperView(module.view(page,ctx)).packs;
+  assert.deepEqual(requests.find(p=>p.alias==='manual-index').layouts,['Index','Page_000_small_0','Page_000_small_bg']);
+  assert.ok(requests.find(p=>p.alias==='manual-row').animations.includes('BtnHeadLineTxt_ChangeWait'));
+  assert.equal(helpers.nativeHelperView(module.view(state,ctx)).packs.find(p=>p.alias==='manual-row').animations.includes('BtnHeadLineTxt_ChangeWait'),false,'page request must not mutate shared contents packs');
+  assert.deepEqual(helpers.nativeHelperTargets(module.view(page,ctx)).map(t=>t.action),['manual-close','back']);
 });

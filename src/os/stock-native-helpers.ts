@@ -3,7 +3,7 @@ import type { AppView } from './app-types';
 import { nativeMessageOverride, nativePaneParentPath, nativeTextMetrics, type PaneOverrides, type NativeLayout } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
-import type { StockScreenTarget } from './stock-screen-layout';
+import { applicationManualTargets, type StockScreenTarget } from './stock-screen-layout';
 import { manualContents, manualSources } from './stock-manual-index';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 
@@ -38,10 +38,10 @@ export const manualScreenPacks:readonly NativeTitlePackRequest[]=[
 ];
 const manualTitle=(view:AppView)=>typeof view.data?.manualTitleId==='string'?view.data.manualTitleId:null;
 /** The applet (0004003000009b02) displays the calling application's own
- * content-1 manual. Only the Contents chrome with delivered layouts is used. */
-function applicationManualPacks(titleId:string):readonly NativeTitlePackRequest[]{
+ * content-1 manual. Page 1 adds only its explicitly delivered chrome. */
+function applicationManualPacks(titleId:string,page=false):readonly NativeTitlePackRequest[]{
   const source=manualSources[titleId];
-  const chrome=manualScreenPacks.filter(pack=>['manual-SoftTitleHeader','manual-IndexBase00','manual-ContentsTxt','manual-row','helper-messages'].includes(pack.alias));
+  const chrome=manualScreenPacks.filter(pack=>['manual-SoftTitleHeader','manual-IndexBase00','manual-ContentsTxt','manual-row','helper-messages'].includes(pack.alias)).map(pack=>({...pack}));
   const contents:NativeTitlePackRequest[]=[
     {url:'packs/manual/layout-AllNull.json',alias:'manual-all-root',layouts:['AllNull'],animations:['AllNull_Wait']},
     {url:'packs/manual/layout-IndexNull.json',alias:'manual-index-root',layouts:['IndexNull'],animations:['IndexNull_Wait']},
@@ -53,12 +53,19 @@ function applicationManualPacks(titleId:string):readonly NativeTitlePackRequest[
     {url:'packs/manual/layout-BtnLngSel00.json',alias:'manual-footer-language',layouts:['BtnLngSel00'],animations:['BtnLngSel00_SceneIn']},
   ];
   // An unknown title has no delivered manual: its absent pack fails the load explicitly.
-  return [...chrome,...contents,{url:source?.url??'packs/manual-unavailable/'+titleId+'.json',alias:'manual-index',layouts:['Index'],animations:[],titleId}];
+  const pageChrome:NativeTitlePackRequest[]=page?[
+    ...manualScreenPacks.filter(pack=>pack.alias==='manual-back'),
+    ...['BtnClose01','BtnTextSize00'].map(name=>({url:`packs/manual/layout-${name}.json`,alias:`manual-${name}`,layouts:[name],animations:[`${name}_SceneIn`]})),
+    {url:'packs/manual/layout-PageShdw00.json',alias:'manual-page-shadow',layouts:['PageShdw00'],animations:[]},
+    {url:'packs/manual/layout-PageGroup.json',alias:'manual-page-group',layouts:['PageGroup'],animations:[]},
+  ]:[];
+  if(page)chrome.find(pack=>pack.alias==='manual-row')!.animations=[...chrome.find(pack=>pack.alias==='manual-row')!.animations,'BtnHeadLineTxt_ChangeWait'];
+  return [...chrome,...contents,...pageChrome,{url:source?.url??'packs/manual-unavailable/'+titleId+'.json',alias:'manual-index',layouts:page?['Index','Page_000_small_0','Page_000_small_bg']:['Index'],animations:[],titleId}];
 }
 export function nativeHelperView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
   if(view.appId==='amiibo-settings')return {view:'amiibo-opening-read-only',titleId:'000400300000b902',packs:amiiboScreenPacks};
   const manual=view.appId==='manual'?manualTitle(view):null;
-  if(manual)return {view:'manual-application-contents',titleId:'0004003000009b02',packs:applicationManualPacks(manual)};
+  if(manual)return {view:view.screen==='document'?'manual-application-page-1':'manual-application-contents',titleId:'0004003000009b02',packs:applicationManualPacks(manual,view.screen==='document')};
   if(view.appId==='manual')return {view:'manual-portfolio-guide',titleId:'0004003000009b02',packs:manualScreenPacks};
   if(view.appId==='system-transfer')return {view:'transfer-read-only',titleId:'0004001000022a00',packs:transferScreenPacks};
   if(view.appId==='extrapad')return {view:'circle-pad-read-only',titleId:'000400300000cd02',packs:circlePadScreenPacks};
@@ -72,9 +79,8 @@ export function nativeHelperTargets(view:AppView):StockScreenTarget[]|null{
   if(!nativeHelperView(view))return null;
   const action=view.footer.left?.action??'back';
   if(view.appId==='amiibo-settings')return [{action,x:0,y:212,width:320,height:28}];
-  // The native left footer closes the applet. Language and row/page navigation
-  // still need their destination layouts and are intentionally inert.
-  if(view.appId==='manual'&&manualTitle(view))return [{action:'back',x:0,y:212,width:160,height:28}];
+  // The first Settings page is delivered; other rows and Language remain inert.
+  if(view.appId==='manual'&&manualTitle(view))return applicationManualTargets(view);
   if(view.appId==='manual'){
     if(view.screen!=='main')return [{action,x:40,y:212,width:140,height:28}];
     return [...view.rows.slice(0,3).map((row,index)=>({action:row.id,x:24,y:56.5+index*44,width:272,height:37,row:index})),{action,x:0,y:212,width:320,height:28}];
@@ -201,15 +207,7 @@ function drawManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,b
     draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,23],overrides:{Contents_Txt:{text:view.heading}}});
     draw(bottom,'manual-ContentsTxt','PortfolioBody',{overrides:{Contents_Txt:{text:wrap((view.text??[]).join('\n'),32)}}});
     draw(top,'manual-PageNum','PageNum',{center:[200,212],overrides:{PageBackNull:{visible:false},PageNumBase02_00:{size:[210,64],scale:[-1,1]},PageAllNum_03:message('PageNum'),PageNum_01:{text:'1'},PageAllNum_02:{text:'1'}}});
-    const backOverrides:PaneOverrides={T_BtnB_Text:message('BtnBack'),T_BtnF_Text:message('BtnBack'),T_BtnB_Pict:message('BtnBack_Picto'),T_BtnF_Pict:message('BtnBack_Picto')};
-    const layout=renderer.packs['manual-back'].layouts.BtnBack00,font=options?.font?.manifest;
-    if(font){
-      // Source glyph/label panes share x0; group them using the selected source
-      // message styles and actual font advances, keeping each vertical baseline.
-      const width=(name:string,value:string)=>{const pane=nativePaneParentPath(layout,name)!.at(-1)!;const metrics=nativeTextMetrics({...pane.text!,messageStyle:backOverrides[name].messageStyle},font),glyphs=Array.from(value,char=>font.glyphs[String(char.codePointAt(0))]??font.fallback);return glyphs.reduce((sum,glyph)=>sum+(glyph?.advance??0)*metrics.size[0]/(font.width??font.height)+metrics.characterSpacing,0)-(glyphs.length?metrics.characterSpacing:0);};
-      const labelWidth=width('T_BtnF_Text',backOverrides.T_BtnF_Text.text!),glyphWidth=width('T_BtnF_Pict',backOverrides.T_BtnF_Pict.text!),gap=width('T_BtnF_Text',' ');
-      for(const [name,override]of Object.entries(backOverrides)){const pane=nativePaneParentPath(layout,name)!.at(-1)!;override.translation=[name.endsWith('Text')?(glyphWidth+gap)/2:-(labelWidth+gap)/2,pane.translation[1],pane.translation[2]];}
-    }else{backOverrides.T_BtnB_Pict={visible:false};backOverrides.T_BtnF_Pict={visible:false};}
+    const backOverrides=manualBackOverrides(renderer,options);
     draw(bottom,'manual-back','BtnBack00',{bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:backOverrides});
   }
   return okay;
@@ -275,6 +273,7 @@ function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
 function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options?:StockScreenPaintOptions):boolean{
   const titleId=manualTitle(view)!,source=manualSources[titleId],index=renderer.packs['manual-index']?.layouts.Index;
   if(!source||!index)return false;
+  if(view.screen==='document')return drawApplicationManualPage(renderer,top,bottom,view,options);
   prepareApplicationManualCategory(renderer);
   prepareApplicationManualRows(renderer);
   const entries=manualContents(index);
@@ -316,5 +315,56 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   draw(bottom,'manual-footer-shadow','BtnShdw00',{bindings:[{name:'BtnShdw00_SceneIn',frame:20}]});
   draw(bottom,'manual-footer-close','BtnCloseLng00',{bindings:[{name:'BtnCloseLng00_SceneIn',frame:20}],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}});
   draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[11,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[11,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,26,0]}}});
+  return okay;
+}
+
+function manualBackOverrides(renderer:NativeLayoutRenderer,options?:StockScreenPaintOptions):PaneOverrides{
+ const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
+    const backOverrides:PaneOverrides={T_BtnB_Text:message('BtnBack'),T_BtnF_Text:message('BtnBack'),T_BtnB_Pict:message('BtnBack_Picto'),T_BtnF_Pict:message('BtnBack_Picto')};
+    const layout=renderer.packs['manual-back'].layouts.BtnBack00,font=options?.font?.manifest;
+    if(font){
+      // Source glyph/label panes share x0; group them using the selected source
+      // message styles and actual font advances, keeping each vertical baseline.
+      const width=(name:string,value:string)=>{const pane=nativePaneParentPath(layout,name)!.at(-1)!;const metrics=nativeTextMetrics({...pane.text!,messageStyle:backOverrides[name].messageStyle},font),glyphs=Array.from(value,char=>font.glyphs[String(char.codePointAt(0))]??font.fallback);return glyphs.reduce((sum,glyph)=>sum+(glyph?.advance??0)*metrics.size[0]/(font.width??font.height)+metrics.characterSpacing,0)-(glyphs.length?metrics.characterSpacing:0);};
+      const labelWidth=width('T_BtnF_Text',backOverrides.T_BtnF_Text.text!),glyphWidth=width('T_BtnF_Pict',backOverrides.T_BtnF_Pict.text!),gap=width('T_BtnF_Text',' ');
+      for(const [name,override]of Object.entries(backOverrides)){const pane=nativePaneParentPath(layout,name)!.at(-1)!;override.translation=[name.endsWith('Text')?(glyphWidth+gap)/2:-(labelWidth+gap)/2,pane.translation[1],pane.translation[2]];}
+    }else{backOverrides.T_BtnB_Pict={visible:false};backOverrides.T_BtnF_Pict={visible:false};}
+
+ return backOverrides;
+}
+
+/** Settled first page only. The small variant is identified by every line break
+ * in native 00:44:30.298. Body origin38 and header centre20 are capture fits;
+ * page geometry, glyphs and all strings remain authored source data. */
+function drawApplicationManualPage(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options?:StockScreenPaintOptions):boolean{
+  if(manualTitle(view)!=='0004001000022000'||view.data?.page!==0)return false;
+  const index=renderer.packs['manual-index'].layouts.Index;
+  const page=manualContents(index).find(entry=>entry.kind==='page'&&entry.page===0);
+  if(!page||page.kind!=='page')return false;
+  prepareApplicationManualRows(renderer);
+  let okay=true;
+  const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,opts)&&okay;};
+  const base=renderer.packs['manual-page-group'].layouts.PageGroup.roots[0]?.children.find(pane=>pane.name==='BaseN');
+  if(!base||base.translation[0]!==-160)return false;
+  for(const [ctx,x,y,width,height] of [[top,200+base.translation[0],38,400,240],[bottom,160+base.translation[0],-202,320,212]] as const){
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,ctx.canvas.height);
+    draw(ctx,'manual-page-shadow','PageShdw00',{center:[x,y+202],clip:[0,0,width,height],overrides:{PageShdw00_01:{size:[30,280],scale:[-1,1]},PageShdw00_03:{size:[30,240],scale:[-1,1]}}});
+    draw(ctx,'manual-index','Page_000_small_bg',{center:[x,y],clip:[0,0,width,height]});
+    draw(ctx,'manual-index','Page_000_small_0',{center:[x,y],clip:[x,0,320,height]});
+  }
+  // ChangeWait supplies x−145.5 for the number chip and x−122 for title text.
+  draw(top,'manual-row','ManualRowImportant',{center:[200,20],bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(page.page+1)},TextBox_Txt:{text:page.title}}});
+  draw(bottom,'manual-BtnClose01','BtnClose01',{bindings:[{name:'BtnClose01_SceneIn',frame:20}]});
+  draw(bottom,'manual-back','BtnBack00',{bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:manualBackOverrides(renderer,options)});
+  const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
+  // Enlarge is visible source chrome but remains inert in this first-page slice.
+  const sizeOverrides:PaneOverrides={BtnMinusIcon00:{visible:false},Plus01__Text:message('BtnTextSize_Big'),Plus02__Text:message('BtnTextSize_Big'),T_BtnB_Pict:message('BtnTextSize_Picto'),T_BtnF_Pict:message('BtnTextSize_Picto')};
+  const sizeLayout=renderer.packs['manual-BtnTextSize00'].layouts.BtnTextSize00,font=options?.font?.manifest;
+  if(font){
+    const width=(name:string,text:string)=>{const pane=nativePaneParentPath(sizeLayout,name)!.at(-1)!,metrics=nativeTextMetrics({...pane.text!,messageStyle:sizeOverrides[name].messageStyle},font);return Array.from(text,char=>font.glyphs[String(char.codePointAt(0))]??font.fallback).reduce((sum,glyph)=>sum+(glyph?.advance??0)*metrics.size[0]/(font.width??font.height)+metrics.characterSpacing,0)-metrics.characterSpacing;};
+    const label=width('Plus02__Text',sizeOverrides.Plus02__Text.text!),glyph=width('T_BtnF_Pict',sizeOverrides.T_BtnF_Pict.text!),gap=width('Plus02__Text',' ');
+    for(const name of ['Plus01__Text','Plus02__Text','T_BtnB_Pict','T_BtnF_Pict']){const pane=nativePaneParentPath(sizeLayout,name)!.at(-1)!;sizeOverrides[name].translation=[name.startsWith('Plus')?(glyph+gap)/2:-(label+gap)/2,pane.translation[1],pane.translation[2]];}
+  }
+  draw(bottom,'manual-BtnTextSize00','BtnTextSize00',{bindings:[{name:'BtnTextSize00_SceneIn',frame:20}],overrides:sizeOverrides});
   return okay;
 }

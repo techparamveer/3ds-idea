@@ -115,6 +115,37 @@ test('verification-only Settings source frames bracket the captured broad and ed
  assert.throws(()=>settingsBannerPhase(motion,false,600),/Invalid diagnostic banner frame/);
 });
 
+test('Settings capture fit compresses the source row without moving the wrench or advancing its phase',async t=>{
+ const h=setup(t);await h.banner.ready;
+ const phase=settingsBannerPhase({yawRadians:0,skeletal:{frame:0}},false,136);
+ const sample=Object.freeze({...frame,scale:1,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame});
+ assert.equal(h.banner.drawSettingsFrame(h.ctx,sample),true);
+ const draw=h.draws.at(-1),group=primary(draw.scene),meshes=group.children[0].children;
+ const bounds=nodes=>{
+  const point=new THREE.Vector3(),xs=[],ys=[];
+  for(const mesh of nodes){mesh.updateWorldMatrix(true,false);const position=mesh.geometry.attributes.position;
+   for(let i=0;i<position.count;i++){point.fromBufferAttribute(position,i).applyMatrix4(mesh.matrixWorld).project(draw.camera);xs.push(200*(point.x+1));ys.push(120*(1-point.y));}}
+  return [Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)];
+ };
+ const fittedRow=bounds(meshes.slice(2,11)),fittedTitle=bounds(meshes.slice(0,2)),wrench=bounds(meshes.slice(11));
+ // Native screenshot landmark extents, not a claim of native pixel parity.
+ assert.ok(Math.abs(fittedRow[0]-150)<3&&Math.abs(fittedRow[2]-310)<3,JSON.stringify(fittedRow));
+ for(const mesh of meshes){mesh.position.set(0,0,0);mesh.rotation.set(0,0,0);}
+ const originalRow=bounds(meshes.slice(2,11)),originalTitle=bounds(meshes.slice(0,2));
+ assert.ok(originalRow[2]-originalRow[0]>270);
+ assert.ok(Math.abs(originalTitle[1]-fittedTitle[1]-11)<.1);
+ assert.deepEqual(bounds(meshes.slice(11)),wrench,'the independent source wrench has no fitted transform');
+ for(const sourceFrame of [0,300,136,136]){
+  assert.equal(h.banner.drawSettingsFrame(h.ctx,{...sample,skeletalFrame:sourceFrame}),true);
+ }
+ assert.deepEqual(bounds(meshes.slice(2,11)),fittedRow,'repeated or intervening samples cannot accumulate the fit');
+ assert.deepEqual(bounds(meshes.slice(11)),wrench,'returning to a source frame restores its original pose');
+ assert.equal(sample.skeletalFrame,136);
+ assert.equal(h.banner.drawFrame(h.ctx,sample),true);
+ primary(h.draws.at(-1).scene).traverse(node=>{if(node.isMesh){assert.deepEqual(node.position.toArray(),[0,0,0]);assert.equal(node.rotation.y,0);}});
+ assert.deepEqual(mask(draw.scene).position.toArray(),[0,0,0]);
+});
+
 test('Settings resource failure is explicit and does not borrow the folder model',async t=>{
  const h=setup(t,{failure:'/settings-banner/model.json'});await h.banner.ready;
  assert.equal(h.banner.status().settingsReady,false);

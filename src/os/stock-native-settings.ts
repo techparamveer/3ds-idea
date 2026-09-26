@@ -291,21 +291,28 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   else if(screen==='other'){
     const attachments:Record<string,()=>void>={};
     view.rows.slice(0,3).forEach((row,i)=>{const button=otherButtons[row.id];if(button)attachments['N_I_Button_0'+i]=()=>child(button[0],row.id,button[1]);});
-    // BasicTop_D_00 keeps the adjacent page at its source +276 x mount.
-    // Its three source button centres are +44, -4 and -52 y from that mount;
-    // the visible left edge remains on the LCD during the settled page pose.
-    if(page<settingsOtherPages.length-1)attachments.Null_RightPage=()=>{
-      settingsOtherPages[page+1].forEach(([id],i)=>{
+    // BasicTop_D_00 retains both adjacent pages at its source ±276 x mounts.
+    // Their three source button centres are +44, -4 and -52 y; the visible
+    // slivers remain on the LCD beside the page arrows in the settled pose.
+    const adjacentPage=(index:number)=>()=>{
+      settingsOtherPages[index].forEach(([id],i)=>{
         const button=otherButtons[id];
         if(button)draw(bottom,'button',button[0],{center:[160,76+i*48],bindings:[{name:button[0]+'_DirectSettings',frame:0}],overrides:{TextBox_00:message(button[1])}});
       });
     };
+    if(page>0)attachments.Null_LeftPage=adjacentPage(page-1);
+    if(page<settingsOtherPages.length-1)attachments.Null_RightPage=adjacentPage(page+1);
     // Select's final frame is pressed with no shadow; Decide's final frame
     // keeps the selected colour but raises the page tab and restores its shadow.
     for(let i=0;i<4;i++)attachments['NN_T_Page0'+(i+1)+'_00']=()=>draw(bottom,'button','T_Page0'+(i+1),{bindings:[{name:i===page?'T_Page01_Decide_DirectSettings':'T_Page01_DirectSettings',frame:i===page?1:0}]});
     if(page>0)attachments.N_R_ArrowL_00=()=>draw(bottom,'button','R_ArrowL',{bindings:[{name:'R_ArrowL_Appear',frame:0}]});
     if(page<3)attachments.N_R_ArrowR_00=()=>draw(bottom,'button','R_ArrowR',{bindings:[{name:'R_ArrowR_Appear',frame:0}]});
-    draw(bottom,'layout','BasicTop_D_00',{bindings:[{name:'BasicTop_D_00_SpecialIn_00',frame:1}],attachments});
+    // Special_00 moves ScrollBg by one source page pitch (276 px). The
+    // captured settled viewports use its source endpoints: 270 on page 1,
+    // -6 on pages 2–3, then -282 on page 4. Reapplying SpecialIn's 270 on
+    // every page exposes an incorrect background strip beside the arrows.
+    const scrollBgX=[270,-6,-6,-282][page];
+    draw(bottom,'layout','BasicTop_D_00',{bindings:[{name:'BasicTop_D_00_SpecialIn_00',frame:1}],overrides:{ScrollBg:{translation:[scrollBgX,5,0]}},attachments});
   }else if(screen==='clock')menu('NetType2_D_00',[['N_B_L_00','B_L','date','date_btn'],['N_B_L_01','B_L','time','time_btn']]);
   else if(screen==='restrictions'){
     const start=Math.floor(view.selection/4)*4;

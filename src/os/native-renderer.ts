@@ -4,6 +4,8 @@ import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instan
 
 type Context=CanvasRenderingContext2D;
 export type NativeDrawOptions={
+ /** Opt in only after native comparison: single-line alpha text on LCD centers. */
+ textSampling?:'lcd';
  /** Explicit source layout links; each prt1 retains its own pane/material scope. */
  parts?:Readonly<Record<string,{pack:string;layout:string}>>;
  partBindings?:Readonly<Record<string,{bindings?:AnimationBinding[];overrides?:PaneOverrides}>>;
@@ -119,25 +121,31 @@ export class NativeLayoutRenderer {
   ctx.save();try{ctx.resetTransform();ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,0,0,width,height,x,y,width,height);}finally{ctx.restore();}
   return true;
  }
- private text(layout:NativeLayout,pane:NativePane,alpha:number){
+ private text(layout:NativeLayout,pane:NativePane,alpha:number,transform?:DOMMatrix){
   const text=pane.text!,font=this.fonts.get(layout.fonts[text.font]);if(!font)throw new Error(`Missing native font ${layout.fonts[text.font]}`);
   const [w,h]=pane.size.map(Math.ceil),material=layout.materials[text.material];
   const metrics=nativeTextMetrics(text,font.manifest);
-  const extra=nativeTextRightOverhang(font.manifest,text.value,metrics.size,text.alignment,text.lineAlignment,metrics.characterSpacing),rasterWidth=w+extra;
-  const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material]);
-  return this.cached(key,()=>{
-   const canvas=surface(rasterWidth,h),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
-   font.drawNative(ctx,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment);
-   const image=ctx.getImageData(0,0,rasterWidth,h);
-   for(let y=0;y<h;y++)for(let x=0;x<rasterWidth;x++){
+  // Single-line left-aligned alpha text in unit upright transforms can sample
+  // directly on the LCD pixel grid. Other
+  // transforms retain their existing path until their projection is traced.
+  const direct=font.manifest.colorMode==='alpha'&&!/[\r\n]/.test(text.value)&&text.alignment===3&&text.lineAlignment===0&&metrics.characterSpacing===0&&pane.size[0]===w&&pane.size[1]===h&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
+  const phase:readonly [number,number]=direct?[transform.e-Math.floor(transform.e),transform.f-Math.floor(transform.f)]:[0,0];
+  const extra=nativeTextRightOverhang(font.manifest,text.value,metrics.size,text.alignment,text.lineAlignment,metrics.characterSpacing),rasterWidth=w+extra+Math.ceil(phase[0]),rasterHeight=h+Math.ceil(phase[1]);
+  const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase]);
+  const canvas=this.cached(key,()=>{
+   const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
+   font.drawNative(ctx,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase);
+   const image=ctx.getImageData(0,0,rasterWidth,rasterHeight);
+   for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){
     const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;
-    const primary=interpolateNativeQuad([...text.topColor,...text.topColor,...text.bottomColor,...text.bottomColor],.5,(y+.5)/h,4).map(v=>v/255);primary[3]*=alpha;
+    const primary=interpolateNativeQuad([...text.topColor,...text.topColor,...text.bottomColor,...text.bottomColor],.5,(y+.5-phase[1])/h,4).map(v=>v/255);primary[3]*=alpha;
     const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
     image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
    }
    if(nativeDarkenBlend(material))for(let i=0;i<image.data.length;i+=4)image.data[i]=image.data[i+1]=image.data[i+2]=0;
    ctx.putImageData(image,0,0);return canvas;
   });
+  return {canvas,phase,extra};
  }
  private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial,allowOpaqueDarken=false){
   const material=override??layout.materials[index],blend=material.colorBlend;
@@ -247,7 +255,10 @@ export class NativeLayoutRenderer {
       ctx.save();ctx.translate(x,y);
       try{
        if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures)){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
-       if(pane.text){const textCanvas=this.text(layout,pane,alpha),inkWidth=w*textCanvas.width/Math.ceil(w);ctx.beginPath();ctx.rect(0,0,inkWidth,h);ctx.clip();this.composite(ctx,textCanvas,0,0,inkWidth,h,layout,pane.text.material);}
+       if(pane.text){const raster=this.text(layout,pane,alpha,options.textSampling==='lcd'?ctx.getTransform?.():undefined),textCanvas=raster.canvas;
+        ctx.beginPath();ctx.rect(0,0,w*(Math.ceil(w)+raster.extra)/Math.ceil(w),h);ctx.clip();
+        this.composite(ctx,textCanvas,0-raster.phase[0],0-raster.phase[1],w*textCanvas.width/Math.ceil(w),h*textCanvas.height/Math.ceil(h),layout,pane.text.material);
+       }
        if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;
         const visible=nativeVisibleRasterRect(patch.x,patch.y,patch.width,patch.height,ctx.getTransform(),ctx.canvas.width,ctx.canvas.height);if(!visible)continue;

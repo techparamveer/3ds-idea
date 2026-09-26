@@ -234,3 +234,24 @@ test('native single-line width retains source style and float32 advance accumula
  assert.equal(renderer.measureSingleLineText('cbf_std.bcfnt',{...text,value:'',messageStyle:undefined}),0);
  assert.throws(()=>renderer.measureSingleLineText('cbf_std.bcfnt',{...text,value:'two\nlines'}),/Unsupported/);
 });
+
+test('LCD text phase participates in cache identity and composes at whole pixels',()=>{
+ const previous=globalThis.document,calls=[];
+ globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
+ try{
+  const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+  const font={manifest,drawNative(...args){calls.push(args.at(-1));}};
+  const text={value:'Other Settings',font:0,material:0,size:[21.25,25.5],alignment:3,lineAlignment:0,lineSpacing:0,characterSpacing:0,topColor:[255,255,255,255],bottomColor:[255,255,255,255]};
+  const source={...layout,fonts:['shared'],roots:[{...pane,kind:'txt1',size:[340,26],picture:undefined,text}]};
+  const pack={schema:1,layouts:{test:source},animations:{},textures:{},messages:{}};
+  const renderer=new NativeLayoutRenderer({test:pack},{test:new Map()},new Map([['shared',font]]));
+  let matrix={a:1,b:0,c:0,d:1,e:10.25,f:20.5};
+  const ctx=canvas().getContext(),compositions=[];ctx.getTransform=()=>matrix;ctx.drawImage=(image,...args)=>compositions.push([image.width,image.height,...args]);
+  const paint=()=>assert.equal(renderer.draw(ctx,'test','test',{textSampling:'lcd'}),true);
+  paint();assert.deepEqual(calls,[[.25,.5]]);assert.deepEqual(compositions[0],[341,27,-.25,-.5,341,27]);
+  matrix={...matrix,e:11.25};paint();assert.equal(calls.length,1,'whole pixel translation reuses identical samples');
+  matrix={...matrix,e:11.5};paint();assert.deepEqual(calls[1],[.5,.5]);
+  matrix={...matrix,a:2};paint();assert.deepEqual(calls[2],[0,0],'scaled panes retain their prior path');
+  renderer.dispose();
+ }finally{globalThis.document=previous;}
+});

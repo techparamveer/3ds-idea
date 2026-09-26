@@ -162,7 +162,7 @@ export class BitmapFont {
 
   /** CLYT font size is a two-axis native cell size, not a CSS font size. */
   drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
-    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0) {
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0]) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     const lines=value.replace(/\r\n?/g,'\n').split('\n').map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
     if(lines.length===1&&(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0&&spacing===0){
@@ -174,8 +174,11 @@ export class BitmapFont {
       if(this.manifest.colorMode==='luminance-alpha'){
         for(const q of quads){const g=q.glyph;c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,q.x,q.y,q.width,q.height);}
       }else{
-        const image=c.createImageData(Math.ceil(width),Math.ceil(height));
-        for(const q of quads)rasterNativeAlphaGlyph(image,this.glyphMask(q.glyph),q);
+        const [dx,dy]=rasterPhase;
+        const image=c.createImageData(Math.ceil(width)+Math.ceil(dx),Math.ceil(height)+Math.ceil(dy));
+        // Sample original atlas coverage at final LCD centers. Moving an
+        // already sampled pane image would perform a second linear filter.
+        for(const q of quads)rasterNativeAlphaGlyph(image,this.glyphMask(q.glyph),{...q,x:q.x+dx,y:q.y+dy,right:q.right===undefined?undefined:q.right+dx,bottom:q.bottom===undefined?undefined:q.bottom+dy});
         c.putImageData(image,0,0);
       }
       return;

@@ -220,7 +220,7 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     return okay;
   }
   // The original scene centers the icon and the measured title as a group.
-  draw(top,'up','CommonBG_U_00',{bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{...(screen==='other'?{Null_Title:{translation:otherTitleTranslation(renderer,title)}}:{}),TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
+  draw(top,'up','CommonBG_U_00',{...(screen==='other'?{textSampling:'lcd' as const}:{}),bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{...(screen==='other'?{Null_Title:{translation:otherTitleTranslation(renderer,title)}}:{}),TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
   const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.

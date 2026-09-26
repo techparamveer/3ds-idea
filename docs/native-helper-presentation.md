@@ -126,6 +126,10 @@ an opaque white base below the source chrome. The category band centre is
 code; this bounded render uses the capture's interior RGB samples
 `(154,212,105)` for the first category and page-2 chip and `(237,136,136)`
 for the page-1 chip. Source shapes and alpha remain unchanged.
+The selected cursor is 4px below the first row's layout centre, and the
+first long English page title is shortened to the native visible
+“Using the System Settin...” using a 23-character prefix. These are
+capture-fitted applet behaviours, not verified source-code constants.
 
 The delivered applet `HLTxt`, `CsrHeadLine00`, `ScrollIndicator`,
 `BtnCloseLng00`, `BtnLngSel00` and `BtnShdw00` form the category, cursor,
@@ -136,8 +140,7 @@ is not delivered, so its touch region and Y command remain inert.
 
 **Remaining gaps.** `P_Icon_00` still hides the applet `IconBlank` because the
 Settings SMDH icon binding is unimplemented. The upper striped grey page base
-is unidentified. The native “Using the System Settin...” truncation rule is
-unknown, so the full source title is drawn. Later category colours, row
+is unidentified. The general title truncation rule is unknown. Later category colours, row
 selection/scrolling, opening pages and Language navigation are absent. The
 source-render verifier (`scripts/verify-stock-helpers.mjs`,
 `manual-settings-contents`) checks composition and immutability only. No

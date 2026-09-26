@@ -65,7 +65,7 @@ try{
   if(view.data?.manualTitleId){
    assert.equal(assets.renderer.packs['manual-index'].titleId,'0004001000022000');
    const rows=calls.filter(c=>c.layout==='ManualRowImportant'||c.layout==='ManualRowGettingStarted').map(c=>[c.options.overrides.TextBox_Num.text,c.options.overrides.TextBox_Txt.text,c.options.center[1]]);
-   assert.deepEqual(rows,[['1','Important Information',86],['2','Using the System Settings',174]]);
+   assert.deepEqual(rows,[['1','Important Information',86],['2','Using the System Settin...',174]]);
    assert.equal(calls.find(c=>c.layout==='SoftTitleHeader').options.overrides.TextBoxTxt_00.text,'System Settings');
   }
   const targets=nativeHelperTargets(view);

@@ -282,10 +282,13 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
     }
     // The native selected row keeps its idle button under the separate
     // CsrHeadLine00 cursor, so every row uses BtnHeadLineTxt_Wait.
-    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:entry.title}}});
+    // The applet truncates the first long English heading in its row control.
+    // The cutoff below is measured from the settled native Contents capture.
+    const title=entry.title.length>24?entry.title.slice(0,23)+'...':entry.title;
+    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:title}}});
     y+=APPLICATION_MANUAL_SLOTS.row;
   }
-  draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});
+  draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});
   draw(bottom,'manual-footer-shadow','BtnShdw00',{bindings:[{name:'BtnShdw00_SceneIn',frame:20}]});
   draw(bottom,'manual-footer-close','BtnCloseLng00',{bindings:[{name:'BtnCloseLng00_SceneIn',frame:20}],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}});
   draw(bottom,'manual-footer-language','BtnLngSel00',{bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[37,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[37,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[-12,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[-12,26,0]}}});

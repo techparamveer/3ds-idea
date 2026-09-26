@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 const module=source=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
 const layoutUrl=module(readFileSync(new URL('../src/os/native-layout.ts',import.meta.url),'utf8'));
-const {NativeLayoutRenderer,nativeTextRightOverhang}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-layout'",JSON.stringify(layoutUrl))));
+const {NativeLayoutRenderer,nativeTextRightOverhang,nativeTextVerticalOverhang}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-layout'",JSON.stringify(layoutUrl))));
 // The target records actual raster bytes from the renderer's Canvas transport.
 // Geometry/compositing fidelity is covered by source/native captures, not this stub.
 function canvas(){
@@ -309,4 +309,32 @@ test('color spans draw every run against the complete message and reject invalid
    renderer=make(bad);assert.equal(renderer.draw(ctx,'test','test'),false);assert.match(renderer.diagnostics.at(-1),/Invalid native text color span/);renderer.dispose();
   }
  }finally{globalThis.document=previous;}
+});
+
+
+test('Camera source capacity glyph cell overhangs its 16px alignment pane vertically',()=>{
+ const font=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/camera/contents/0000-0000001a/HudNOTES-bcfnt/font.json',import.meta.url),'utf8'));
+ assert.equal(font.sourceSha256,'7b115deda29adce0faccb352d412a3ef9e10247850be6ded7856ba2714d32932');
+ assert.deepEqual(nativeTextVerticalOverhang(font,'\ue01e3000',[23,23],16,3,1,0),[5,3]);
+ assert.deepEqual(nativeTextVerticalOverhang(font,'\ue01e3000',[23,23],16,3,0,0),[0,0]);
+ assert.deepEqual(nativeTextVerticalOverhang(font,'two\nlines',[23,23],16,3,1,0),[0,0]);
+});
+
+
+test('Camera vertical backing keeps source alignment dimensions and restores the native origin',()=>{
+ const prior=globalThis.document,calls=[];
+ globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});ctx.translate=(...args)=>calls.push(['translate',...args]);return c;}};
+ try{
+  const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/camera/contents/0000-0000001a/HudNOTES-bcfnt/font.json',import.meta.url),'utf8'));
+  const font={manifest,drawNative(ctx,value,w,h){calls.push(['text',value,w,h,ctx.canvas.width,ctx.canvas.height]);}};
+  const text={value:'\ue01e3000',font:0,material:0,size:[23,23],alignment:3,lineAlignment:1,lineSpacing:0,characterSpacing:0,topColor:[255,255,255,255],bottomColor:[255,255,255,255]};
+  const source={...layout,fonts:['hud'],roots:[{...pane,kind:'txt1',size:[172,16],picture:undefined,text}]};
+  const renderer=new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['hud',font]]));
+  const ctx=canvas().getContext(),compositions=[];ctx.drawImage=(image,...args)=>compositions.push([image.width,image.height,...args]);
+  assert.equal(renderer.draw(ctx,'test','test'),true);
+  assert.ok(calls.some(call=>JSON.stringify(call)===JSON.stringify(['translate',0,5])));
+  assert.ok(calls.some(call=>JSON.stringify(call)===JSON.stringify(['text','\ue01e3000',172,16,172,24])));
+  assert.deepEqual(compositions,[[172,24,0,-5,172,24]]);
+  renderer.dispose();
+ }finally{globalThis.document=prior;}
 });

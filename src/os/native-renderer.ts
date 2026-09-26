@@ -31,6 +31,16 @@ export function nativeTextRightOverhang(font:FontManifest,value:string,size:numb
  for(const g of glyphs){if(!g)continue;right=Math.max(right,x+(g.left+g.width)*scale);x+=g.advance*scale+spacing;}
  return Math.max(0,Math.ceil(right));
 }
+/** Explicit middle-left LA text uses the source writer's glyph rectangle.
+ * Camera's 16px capacity pane positions a 24px glyph; it is not a scissor. */
+export function nativeTextVerticalOverhang(font:FontManifest,value:string,size:number[],height:number,alignment:number,lineAlignment:number,spacing:number):readonly [number,number]{
+ if(font.colorMode!=='luminance-alpha'||alignment!==3||lineAlignment!==1||spacing!==0||/[\r\n]/.test(value))return [0,0];
+ const f=Math.fround,sy=f(size[1]/font.height),rectHeight=f((font.lineFeed??font.height)*sy);
+ const y=height/2+f(f(-Math.ceil(f(rectHeight*.5))+f((font.ascent??font.baseline)*sy))-f(font.baseline*sy));
+ let bottom=height;
+ for(const char of value){const glyph=font.glyphs[String(char.codePointAt(0))]??font.fallback;if(glyph?.width)bottom=Math.max(bottom,y+f(glyph.height*sy));}
+ return [Math.max(0,Math.ceil(-y)),Math.max(0,Math.ceil(bottom-height))];
+}
 const surface=(width:number,height:number)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;return canvas;};
 // On the opaque LCD, Add(Zero, OneMinusSourceAlpha) is D*(1-As).
 // Black source-over has the same visible RGB; retain the evaluated alpha bytes.
@@ -135,7 +145,8 @@ export class NativeLayoutRenderer {
   const direct=font.manifest.colorMode==='alpha'&&!/[\r\n]/.test(text.value)&&(text.alignment===3||text.alignment===4)&&text.lineAlignment===0&&metrics.characterSpacing===0&&pane.size[0]===w&&pane.size[1]===h&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
   const coverage=direct?coverageAdaptation:undefined;
   const phase:readonly [number,number]=direct?[transform.e-Math.floor(transform.e),transform.f-Math.floor(transform.f)]:[0,0];
-  const extra=nativeTextRightOverhang(font.manifest,text.value,metrics.size,text.alignment,text.lineAlignment,metrics.characterSpacing),rasterWidth=w+extra+Math.ceil(phase[0]),rasterHeight=h+Math.ceil(phase[1]);
+  const [above,below]=nativeTextVerticalOverhang(font.manifest,text.value,metrics.size,h,text.alignment,text.lineAlignment,metrics.characterSpacing);
+  const extra=nativeTextRightOverhang(font.manifest,text.value,metrics.size,text.alignment,text.lineAlignment,metrics.characterSpacing),rasterWidth=w+extra+Math.ceil(phase[0]),rasterHeight=h+above+below+Math.ceil(phase[1]);
   const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase,direct,coverage]);
   const canvas=this.cached(key,()=>{
    const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
@@ -151,12 +162,14 @@ export class NativeLayoutRenderer {
    const mask=runs.length>1?surface(rasterWidth,rasterHeight):canvas,ink=mask.getContext('2d')!;
    for(const run of runs){
     if(mask!==canvas)ink.clearRect(0,0,rasterWidth,rasterHeight);
+    ink.save();ink.translate(0,above);
     font.drawNative(ink,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined);
+    ink.restore();
     const image=ink.getImageData(0,0,rasterWidth,rasterHeight);
     for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){
      const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;
      const top=run.color??text.topColor,bottom=run.color??text.bottomColor;
-     const primary=interpolateNativeQuad([...top,...top,...bottom,...bottom],.5,(y+.5-phase[1])/h,4).map(v=>v/255);primary[3]*=alpha;
+     const primary=interpolateNativeQuad([...top,...top,...bottom,...bottom],.5,(y+.5-phase[1]-above)/h,4).map(v=>v/255);primary[3]*=alpha;
      const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
      image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
     }
@@ -166,7 +179,7 @@ export class NativeLayoutRenderer {
    if(mask!==canvas)mask.width=mask.height=0;
    return canvas;
   });
-  return {canvas,phase,extra};
+  return {canvas,phase,extra,above,below};
  }
  private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial,allowOpaqueDarken=false){
   const material=override??layout.materials[index],blend=material.colorBlend;
@@ -277,8 +290,8 @@ export class NativeLayoutRenderer {
       try{
        if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){const raster=this.text(layout,pane,alpha,options.textSampling==='lcd'?ctx.getTransform?.():undefined,options.textCoverageAdaptation),textCanvas=raster.canvas;
-        ctx.beginPath();ctx.rect(0,0,w*(Math.ceil(w)+raster.extra)/Math.ceil(w),h);ctx.clip();
-        this.composite(ctx,textCanvas,0-raster.phase[0],0-raster.phase[1],w*textCanvas.width/Math.ceil(w),h*textCanvas.height/Math.ceil(h),layout,pane.text.material);
+        ctx.beginPath();ctx.rect(0,-raster.above,w*(Math.ceil(w)+raster.extra)/Math.ceil(w),h+raster.above+raster.below);ctx.clip();
+        this.composite(ctx,textCanvas,0-raster.phase[0],0-raster.above-raster.phase[1],w*textCanvas.width/Math.ceil(w),h*textCanvas.height/Math.ceil(h),layout,pane.text.material);
        }
        if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;

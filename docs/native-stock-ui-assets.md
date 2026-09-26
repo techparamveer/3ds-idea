@@ -130,6 +130,20 @@ shared dependencies from this `P_FinderVS_U` selection. Its delivery audit is
 recorded with the source renders. `camera-gallery-textures.png` was inspected
 as earlier texture evidence, not assembled-screen verification.
 
+The browse gallery also delivers `lyt-C-Sld.json` through
+`scripts/firmware/stock-ui-camera-slider.json`. This additive selection contains
+only `C_SldH_S`, `C_SldH_S_Default`, `C_SldH_S_Rate` and their seven referenced
+textures (six new PNGs; `C_SldH_Area.bclim` was already delivered). It is the
+horizontal gallery slider mounted by `P_BrwsBase_D/-L-Sld`; it adds no capture,
+editing or importing UI. The source is EUR Camera title `0004001000022400`,
+content index `0000`, ID `0000001a`, `lyt/C.LZ/Sld` SHA-256
+`8ddab54d40ce8d1c9daee71147f83dc94d9aec42c8169f7f6737ec70429f512f`.
+The pack retains member paths and SHA-256 for its layout, clips and BCLIMs in
+`resourceSources`. Reproduce the selection with `stock_ui.py --additive` using
+the private `stock-ui/camera-ready` converter output, the plan above and public
+`os/firmware/10.7.0-32E` output. Screen fidelity still requires the paired
+native/browser gallery comparison.
+
 CTRTool stopped while extracting Camera's primary RomFS. The bounded read-only
 `scripts/firmware/romfs.py` recovered all 63 primary files and one manual file,
 including an empty file. It follows local Project_CTR `romfs.h`, `ivfc.h` and

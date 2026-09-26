@@ -3,9 +3,35 @@
 The HOME folder label uses the original shared font and `BnrDsTitle_00` layout.
 Its centered origin, glyph rectangles, linear sampler and pixel-centre coverage
 are reproduced independently of screenshot fitting. The current implementation
-is bounded to one centered line with automatic line alignment and zero added
-spacing. Other alignment/control-code paths and the HUD's LA4 font retain their
-existing renderer and are not covered by this acceptance evidence.
+is bounded to one centered or middle-left line with automatic line alignment
+and zero added spacing for the shared alpha font. Other alignment/control-code
+paths and the HUD's LA4 font retain their existing renderer and are not covered
+by this acceptance evidence.
+
+## Settings middle-left title follow-up
+
+The retained writer trace in private
+`runtime/reference/folder-text-alignment/01-pane-writer-setup.asm` and
+`04-writer-alignment.asm` covers CLYT alignment 3 as well as 4. Alignment 3
+sets writer flag `0x100`: the X origin is the pane's left edge, while the Y
+origin subtracts `ceil(lineFeed × sy / 2)`. The same FINF ascent and TGLP
+baseline operations cancel for the delivered shared font. The source font's
+left bearing and float32 advances remain unchanged. Alignment 4 keeps its
+existing `0x111` centered origin. Both use the source A4 alpha sampler and
+pixel-centre raster path already described below.
+
+Settings `CommonBG_U_00/TextBoxTitle_00` is middle-left (alignment 3) with
+automatic line alignment; `settings_title` is one line with zero character
+spacing. The new path uses that source layout, message style and font, without
+a title-specific translation, color or size. The existing 95-pixel group
+translation remains the separately documented capture fit.
+
+The 400×240 Settings source verifier passed all five main and 44 subpage
+paired renders. Against the preserved native Other page-1 crop, its title-text
+rectangle `(150,20)..(305,58)` moved from **993** to **961** pixels over 2/255.
+This is a source-render diagnostic, not an integrated browser recapture. The
+residual is still large; icon edge compositing and native status phase are
+separate gaps. Centered text and multiline paths are unchanged.
 
 ## Original text and sampler behavior
 

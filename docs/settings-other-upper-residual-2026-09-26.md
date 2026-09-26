@@ -47,15 +47,13 @@ The title assets map to the firmware manifest's
 | Upper icon layout | `up_LZ.bin/blyt/IconBasic.bclyt` | `5d9360b36dd40db93ba43c8edefad7df8aedaf9ec567d1b138eab19b642d7c48` |
 | English `mset` message bank | `message_EU_LZ.bin/message_mset/EU_English/mset.msbt` | `fc91dc60b6db7fe7e2eb4d510ca6c63864eacf150bd72dc02d5541444233cbae` |
 
-`TextBoxTitle_00` is a middle-left aligned native pane (alignment 3), not the
-centered-single-line path already traced for the shared font. The existing
-[native font raster note](native-font-raster.md) explicitly limits its
-pixel-centre/rounding proof to centered text; it does not establish the
-left-aligned origin or icon-edge blend for this Settings title. A title-only
-Canvas resampling or capture-color adjustment would be unsupported.
+`TextBoxTitle_00` is a middle-left aligned native pane (alignment 3). A later
+[source font follow-up](native-font-raster.md#settings-middle-left-title-follow-up)
+traced that single-line origin and added its pixel-centre alpha path. Its
+source-render comparison still leaves a large glyph residual; the baseline
+figures in this note describe the earlier production capture.
 
-**Decision:** no runtime change. The unsupported fields are left-aligned
-NintendoWare glyph quad/raster behavior, icon edge compositing, and live HUD
-status/charging phase. Trace or experimentally verify those source behaviors
-before changing the shared renderer or stock presenter. This diagnostic remains
-`fail`; matched motion and audio are also open.
+**Decision at this diagnostic:** no runtime change. The later font follow-up
+narrows the left-aligned origin question. Remaining unsupported fields include
+the residual glyph/icon edge compositing and live HUD status/charging phase.
+This production diagnostic remains `fail`; matched motion and audio are open.

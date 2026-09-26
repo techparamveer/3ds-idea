@@ -5,7 +5,7 @@ import ts from 'typescript';
 
 const source=fs.readFileSync(new URL('../src/os/bitmap-font.ts',import.meta.url),'utf8');
 const compiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;
-const {BitmapFont,nativeCenteredGlyphQuads,rasterNativeAlphaGlyph}=await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
+const {BitmapFont,nativeCenteredGlyphQuads,nativeLeftGlyphQuads,rasterNativeAlphaGlyph}=await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
 
 test('Bitmap text uses signed bearings, advances, fallback, scaling and alignment',()=>{
  const previous=globalThis.document;
@@ -70,6 +70,31 @@ test('Settings single-line MSBT spacing retains the native centered alpha raster
   };
   assert.deepEqual(render(style.lineSpacing),render(0),`${label}: unused line spacing cannot change a single line`);
  }
+});
+
+test('Settings Other title uses the source middle-left single-line glyph origin and alpha raster',()=>{
+ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+ const manifest=JSON.parse(fs.readFileSync(new URL('fonts/shared/font.json',root),'utf8'));
+ const messages=JSON.parse(fs.readFileSync(new URL('packs/settings/contents/0000-0000003d/message_EU.json',root),'utf8'));
+ const layout=JSON.parse(fs.readFileSync(new URL('packs/settings/contents/0000-0000003d/up.json',root),'utf8')).layouts.CommonBG_U_00;
+ const walk=panes=>panes.flatMap(pane=>[pane,...walk(pane.children)]);
+ const title=walk(layout.roots).find(pane=>pane.name==='TextBoxTitle_00');
+ const bank=messages.messages.mset,message=bank.messages[bank.labels.settings_title];
+ const style=messages.styles[bank.styleTable].styles[message.styleIndex];
+ assert.equal(title.text.alignment,3);assert.equal(title.text.lineAlignment,0);
+ assert.equal(message.text,'Other Settings');assert.equal(message.text.includes('\n'),false);
+ assert.equal(style.characterSpacing,0);assert.equal(manifest.colorMode,'alpha');
+ const size=[manifest.width*style.fontScale[0],manifest.height*style.fontScale[1]];
+ const quads=nativeLeftGlyphQuads(manifest,message.text,...title.size,size);
+ const f=Math.fround,first=manifest.glyphs[String(message.text.codePointAt(0))],sx=f(size[0]/manifest.width),sy=f(size[1]/manifest.height);
+ assert.equal(quads[0].x,f(first.left*sx),'left alignment has no half-width subtraction');
+ assert.equal(quads[0].y,title.size[1]/2+f(f(-Math.ceil(f(f(manifest.lineFeed*sy)*.5))+f(manifest.ascent*sy))-f(manifest.baseline*sy)));
+ const font=new BitmapFont(manifest,manifest.sheets.map(()=>({naturalWidth:4096,naturalHeight:4096})));
+ font.glyphMask=g=>({width:g.width+2,height:g.height+2,data:new Uint8ClampedArray((g.width+2)*(g.height+2)*4).fill(255)});
+ let image,drawCalls=0;
+ font.drawNative({createImageData:(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)}),putImageData:value=>{image=value;},drawImage:()=>{drawCalls++;}},message.text,...title.size,size,3,style.characterSpacing,style.lineSpacing,0);
+ assert.equal(drawCalls,0,'source A4 font uses pixel-centre alpha raster');
+ assert.ok(image.data.some((value,index)=>index%4===3&&value>0));
 });
 
 test('Settings multiline labels round each centred line and the text block independently',()=>{

@@ -15,20 +15,27 @@ export type FontManifest = {
 };
 
 export type NativeGlyphQuad={glyph:Glyph;x:number;y:number;width:number;height:number};
-/** Bounded NW writer flags 0x111: one centered line, no added spacing. */
-export function nativeCenteredGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[]):NativeGlyphQuad[]{
+/** Bounded NW writer flags 0x100 (middle-left) and 0x111 (middle-center):
+ * one line, automatic line alignment and no added character spacing. */
+function nativeSingleLineGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[],alignment:3|4):NativeGlyphQuad[]{
   const f=Math.fround,sx=f(size[0]/(manifest.width??manifest.height)),sy=f(size[1]/manifest.height);
   const glyphs=Array.from(value,char=>manifest.glyphs[String(char.codePointAt(0))]??manifest.fallback);
   const runWidth=glyphs.reduce((n,g)=>f(n+f((g?.advance??0)*sx)),0);
   const rectHeight=f((manifest.lineFeed??manifest.height)*sy);
-  let x=-Math.ceil(f(runWidth*.5));
+  let x=alignment===4?-Math.ceil(f(runWidth*.5)):0;
   const y=f(f(-Math.ceil(f(rectHeight*.5))+f((manifest.ascent??manifest.baseline)*sy))-f(manifest.baseline*sy));
   const quads:NativeGlyphQuad[]=[];
   for(const glyph of glyphs){if(!glyph)continue;
-    if(glyph.width)quads.push({glyph,x:width/2+f(x+f(glyph.left*sx)),y:height/2+y,width:f(glyph.width*sx),height:f(glyph.height*sy)});
+    if(glyph.width)quads.push({glyph,x:(alignment===4?width/2:0)+f(x+f(glyph.left*sx)),y:height/2+y,width:f(glyph.width*sx),height:f(glyph.height*sy)});
     x=f(x+f(glyph.advance*sx));
   }
   return quads;
+}
+export function nativeCenteredGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[]):NativeGlyphQuad[]{
+  return nativeSingleLineGlyphQuads(manifest,value,width,height,size,4);
+}
+export function nativeLeftGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[]):NativeGlyphQuad[]{
+  return nativeSingleLineGlyphQuads(manifest,value,width,height,size,3);
 }
 export type AlphaSurface={width:number;height:number;data:Uint8ClampedArray};
 /** Bilinear font coverage at pixel centres; fractional quad edges are not
@@ -146,12 +153,12 @@ export class BitmapFont {
     size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     const lines=value.replace(/\r\n?/g,'\n').split('\n').map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
-    if(lines.length===1&&alignment===4&&lineAlignment===0&&spacing===0){
-      // HOME's NW writer flags 0x111: ceil half the measured rectangle before
-      // adding FINF ascent and subtracting TGLP baseline (0x2ffc90/0x300340).
-      // Keep fractional advances; only the centered origin is rounded. Line
+    if(lines.length===1&&(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0&&spacing===0){
+      // NW writer flags 0x100/0x111: only the centered axis subtracts ceil
+      // half the measured rectangle before FINF ascent and TGLP baseline
+      // (0x2ffc90/0x300340). Keep fractional advances. Line
       // spacing cannot change a single line, even when an MSBT style sets it.
-      const quads=nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
+      const quads=alignment===3?nativeLeftGlyphQuads(this.manifest,value,width,height,size):nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
       if(this.manifest.colorMode==='luminance-alpha'){
         for(const q of quads){const g=q.glyph;c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,q.x,q.y,q.width,q.height);}
       }else{

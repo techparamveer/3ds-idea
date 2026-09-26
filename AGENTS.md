@@ -5,6 +5,12 @@ This file is the shared repository instruction file for coding agents.
 continuation checkpoint is `8c0a6d7` (26 September 2026); check the actual
 HEAD and integration history before beginning a slice.
 
+**Shared Claude/Codex handoff (from 26 September 2026):** Claude Code is
+continuing this goal while Codex is rate-limited. Before resuming, read
+`/Volumes/Sandisk1/3ds-claude-codex-handoff/README.md`, then `STATUS.md` and
+the tail of `LOG.md`. Append your own entries to `LOG.md`. Do not write new
+artifacts to the full DeveloperStorage sparsebundle.
+
 ## Read before working
 
 | Read | For | Authority |

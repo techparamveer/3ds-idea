@@ -55,3 +55,40 @@ values. The opt-in Python test is `tests/test_zone_common_banner.py`.
 `tests/zone-banner-playback.test.mjs` also samples the actual browser
 `sampleCgfxCurve` implementation against those pinned browser values. Set
 `CGFX_ZONE_PRIVATE` to the private conversion directory for either test.
+
+
+## Scalar export repair, 26 September 2026
+
+`Rev5AnimFloat.cs` fixes the Zone-only scalar ownership error: the decoded
+`GfxFloatKeyFrameGroup` is assigned to the object's `_Value` field instead of
+being lost in the upstream scalar overload's local parameter. The path is
+restricted by `DecodeZoneSegments`, which is enabled only for the pinned Zone
+common CGFX. Other source inputs retain their earlier conversion behavior.
+
+A fresh exporter build and full private conversion now retain all four scalar
+curves and eight keys. `audit_zone_scalars.py` independently decodes their raw
+source groups and verifies named material/target bindings, linear interpolation
+and every key field:
+
+| Raw group | Material | Target |
+| --- | --- | --- |
+| `0x5054` | `mainmat` | `MaterialTexCoord1Rot` |
+| `0x50a8` | `wgnmat` | `MaterialTexCoord0Rot` |
+| `0x5154` | `COMMON3` | `MaterialTexCoord1Rot` |
+| `0x51a8` | `COMMON4` | `MaterialTexCoord0Rot` |
+
+Private build, converted output and report are under `delegation/zone-scalar-*`
+in the firmware artifact root. A Camera common conversion with the rebuilt
+exporter matches existing model, texture, skeletal/material animation, camera,
+light and LUT data exactly. The exporter builds with zero errors (upstream
+platform/deprecation warnings remain).
+
+**Zone remains unpublished.** The source segment arrays still need to be bound
+explicitly to the corresponding runtime curves and evaluated per segment.
+Matching flattened keys alone is insufficient: multiple authored groups share
+identical flattened keys. The existing source audit deliberately rejects
+adjacent-segment boundary samples because tie precedence has not been traced;
+that remains necessary before claiming full boundary playback correctness.
+The earlier playback-boundary fixture describes the historical conversion and
+continues to prove its mixed-step defect. This repair establishes scalar export
+only, with no runtime or pixel-fidelity claim.

@@ -6,7 +6,7 @@ import sharp from 'sharp';
 
 const source = readFileSync(new URL('../src/scene/lcd-capture.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
-const { captureAtHealthFrame, lcdCaptureEnabled, lcdDownloadRequest, lcdDownloadPayload, encodeNativeLcdPair } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
+const { lcdHomeHudSample, captureAtHealthFrame, lcdCaptureEnabled, lcdDownloadRequest, lcdDownloadPayload, encodeNativeLcdPair } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
 
 test('production LCD capture requires loopback and explicit opt in', () => {
   const location = (hostname, search) => ({ hostname, search });
@@ -127,4 +127,60 @@ test('phase gate rejects impossible reduced motion phases and allows live frame 
   f.tick(0, 100);
   assert.equal((await pending).healthTopLoopFrame, 0);
   await assert.rejects(captureAtHealthFrame(720, f.options), /Invalid/);
+});
+
+const hudSample = { kind:'source-pose', evidence:'explicit test observation; not telemetry', networkMessage:'lau_connect0', netModeFrame:0, netAtnFrame:3, batteryFrame:4, walkCoinFrame:179.5, coins:42, steps:0 };
+const hudQuery = sample => `?lcdElapsedMs=12000&lcdDate=2026-09-26&lcdHomeHudSample=${encodeURIComponent(JSON.stringify(sample))}`;
+
+test('HOME HUD capture requires explicit complete provenance and loopback; never supplies a profile default', () => {
+  assert.equal(lcdDownloadRequest('?lcdElapsedMs=0&lcdDate=2026-09-26').homeHudSample, undefined);
+  const request = lcdDownloadRequest(hudQuery(hudSample), 'localhost');
+  assert.deepEqual(request.homeHudSample, hudSample);
+  assert.ok(Object.isFrozen(request.homeHudSample));
+  const payload = JSON.parse(lcdDownloadPayload('home-pose', { homeHudSample:request.homeHudSample }));
+  assert.deepEqual(payload.homeHudSample, hudSample);
+  for (const host of [undefined, 'example.com']) assert.throws(() => lcdDownloadRequest(hudQuery(hudSample), host), /localhost/);
+  for (const invalid of [null, [], {}, {...hudSample,evidence:''}, {...hudSample,coins:-1}, {...hudSample,batteryFrame:1.5}, {...hudSample,steps:'0'}, {...hudSample,extra:true}, {...hudSample,networkMessage:'Internet'}]) {
+    assert.throws(() => lcdDownloadRequest(hudQuery(invalid), 'localhost'), /lcdHomeHudSample/);
+  }
+  assert.throws(() => lcdDownloadRequest(`${hudQuery(hudSample)}&lcdHealthFrame=327`, 'localhost'), /combined/);
+  assert.equal(lcdDownloadRequest(`${hudQuery(hudSample)}&lcdBannerFrame=309`, 'localhost').bannerFrame, 309);
+});
+
+test('HOME HUD wiring is capture-only, records its sample, and restores live paint even on encoding failure', () => {
+  const scene = readFileSync(new URL('../src/scene/console-scene.ts', import.meta.url), 'utf8');
+  const block = scene.slice(scene.indexOf('if(lcdCapture){const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
+  assert.match(block, /lcdHomeHudSample\(hudSample,window.location.hostname\)/);
+  assert.match(block, /phase!=='home'/);
+  assert.match(block, /try\{screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample\}\)/);
+  assert.match(block, /homeHudSample:homeHudSample\?\?null/);
+  assert.match(block, /finally\{verificationBannerFrame=undefined;screens.paint\(state,new Date\(\),performance.now\(\)-start\)/);
+});
+
+
+test('capture transaction paints explicit sample once, records it, and restores live HUD after success or failure', () => {
+  const scene = readFileSync(new URL('../src/scene/console-scene.ts', import.meta.url), 'utf8');
+  const code = scene.slice(scene.indexOf('const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
+  const compiled = ts.transpileModule(code, {compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+  for (const fails of [false, true]) {
+    const paints=[];
+    const dependencies={disposed:false,firmwareAssets:{},state:{powered:true,system:{phase:'home',homeClock:{updateCount:1}}},window:{location:{hostname:'localhost'}},lcdHomeHudSample,
+      screens:{paint(...args){paints.push(args);},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>({status:'unsupported'}),bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
+      encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return {top:'png',bottom:'png'};},start:0,topTexture:{},bottomTexture:{}};
+    const capture = new Function(...Object.keys(dependencies), 'let verificationBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(dependencies));
+    if(fails) assert.throws(()=>capture(12000,'2026-09-26',undefined,hudSample),/encoding failed/);
+    else {
+      const result=capture(12000,'2026-09-26',undefined,hudSample);
+      assert.deepEqual(result.homeHudSample,hudSample);
+      assert.equal(result.homeHudSampling,'verification-source-pose');
+    }
+    assert.equal(paints.length,2);
+    assert.deepEqual(paints[0][3],{sampleCalendar:true,homeHudSample:hudSample});
+    assert.equal(paints[1].length,3,'restoration supplies no verification sample');
+    assert.equal(dependencies.topTexture.needsUpdate,true);
+    assert.equal(dependencies.bottomTexture.needsUpdate,true);
+    dependencies.state.system.phase='app';
+    assert.throws(()=>capture(12000,'2026-09-26',undefined,hudSample),/active HOME/);
+    assert.equal(paints.length,2,'rejected captures do not paint');
+  }
 });

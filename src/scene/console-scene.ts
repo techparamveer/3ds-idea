@@ -33,7 +33,7 @@ import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
 import { browserRenderQuality, screenPaintFps } from './render-quality';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
-import { captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
+import { captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHudSample, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
 
 const RAD = Math.PI / 180;
 let nextBannerSession=0;
@@ -503,7 +503,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     }finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;canvas.width=canvas.height=0;}
   }});}
   let removeLcdDownload=()=>{};
-  if(lcdCapture){const captureScreensAt=(elapsedMs:number,isoDate?:string,bannerFrame?:number)=>{
+  if(lcdCapture){const captureScreensAt=(elapsedMs:number,isoDate?:string,bannerFrame?:number,hudSample?:unknown)=>{
     if(disposed||!Number.isFinite(elapsedMs)||elapsedMs<0)throw new Error('Invalid diagnostic capture time');
     const date=isoDate===undefined?new Date():new Date(isoDate);
     if(!Number.isFinite(date.getTime()))throw new Error('Invalid diagnostic capture date');
@@ -512,10 +512,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       if(view.status!=='active'||view.primary.selection.kind!=='app'||view.primary.selection.id!=='system-settings')throw new Error('Settings banner frame sampling requires an active Settings HOME selection');
       settingsBannerPhase(view.primary.motion,reduced,bannerFrame);
     }
+    const homeHudSample=hudSample===undefined?undefined:lcdHomeHudSample(hudSample,window.location.hostname);
+    if(homeHudSample&&(!firmwareAssets||!state.powered||state.system?.phase!=='home'||state.system.sleeping||state.system.dialog||state.panel||state.system.preferences))throw new Error('HOME HUD sampling requires an active HOME Menu');
     // Sample presentation only. Inputs, software state, effects and the shared
     // runtime clock continue normally; the next paint restores current time.
     verificationBannerFrame=bannerFrame;
-    try{screens.paint(state,date,elapsedMs,{sampleCalendar:isoDate!==undefined});const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),calendarSampling:isoDate===undefined?'live-retained':'verification-settings-local-replay',homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),folderBanner:view,bannerSample:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame).sample:null,...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
+    try{screens.paint(state,date,elapsedMs,{sampleCalendar:isoDate!==undefined,homeHudSample});const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),homeHudSample:homeHudSample??null,homeHudSampling:homeHudSample?'verification-source-pose':'live-default',calendarSampling:isoDate===undefined?'live-retained':'verification-settings-local-replay',homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),folderBanner:view,bannerSample:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame).sample:null,...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
     finally{verificationBannerFrame=undefined;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   };
     Object.assign(host,{captureScreensAt});
@@ -525,9 +527,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       if(downloading)return;
       downloading=true;
       try{
-        const {elapsedMs,isoDate,scenario,bannerFrame,healthFrame}=lcdDownloadRequest(window.location.search,window.location.hostname);
+        const {elapsedMs,isoDate,scenario,bannerFrame,healthFrame,homeHudSample}=lcdDownloadRequest(window.location.search,window.location.hostname);
         if(healthFrame!==undefined)host.dataset.lcdCaptureStatus='waiting';
-        const capture=healthFrame===undefined?captureScreensAt(elapsedMs,isoDate,bannerFrame):await captureAtHealthFrame(healthFrame,{
+        const capture=healthFrame===undefined?captureScreensAt(elapsedMs,isoDate,bannerFrame,homeHudSample):await captureAtHealthFrame(healthFrame,{
           signal:captureAbort.signal,
           requestFrame:callback=>requestAnimationFrame(callback),cancelFrame:id=>cancelAnimationFrame(id),
           read:()=>{

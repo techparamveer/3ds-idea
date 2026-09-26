@@ -1,8 +1,27 @@
+import type { DiagnosticHomeHudSample } from '../os/home-hud-sample';
+
 /** Local verification access to the browser's unscaled LCD paint surfaces. */
 export function lcdCaptureEnabled(location: Pick<Location, 'hostname' | 'search'>, development: boolean): boolean {
   if (development) return true;
   const local = ['localhost', '127.0.0.1', '::1', '[::1]'].includes(location.hostname);
   return local && new URLSearchParams(location.search).get('lcdCapture') === '1';
+}
+
+/** Shape validation here; delivered firmware clip bounds are validated by the HUD
+ * painter. Copy only the declared fields so metadata is the exact painted sample. */
+export function lcdHomeHudSample(value: unknown, hostname?: string): DiagnosticHomeHudSample {
+  if (!hostname || !['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname)) throw new Error('lcdHomeHudSample requires localhost');
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid lcdHomeHudSample object');
+  const sample = value as Record<string, unknown>;
+  const keys = ['kind', 'evidence', 'networkMessage', 'netModeFrame', 'netAtnFrame', 'batteryFrame', 'walkCoinFrame', 'coins', 'steps'];
+  if (Object.keys(sample).length !== keys.length || keys.some(key => !Object.hasOwn(sample, key))
+      || sample.kind !== 'source-pose' || typeof sample.evidence !== 'string' || !sample.evidence.trim()
+      || typeof sample.networkMessage !== 'string' || !/^lau_connect[0-4]$/.test(sample.networkMessage)) throw new Error('Invalid lcdHomeHudSample fields or evidence');
+  for (const key of keys.slice(3)) {
+    const n = sample[key];
+    if (typeof n !== 'number' || !Number.isFinite(n) || n < 0 || (key !== 'walkCoinFrame' && !Number.isSafeInteger(n))) throw new Error(`Invalid lcdHomeHudSample ${key}`);
+  }
+  return Object.freeze(Object.fromEntries(keys.map(key => [key, sample[key]]))) as DiagnosticHomeHudSample;
 }
 
 export function lcdDownloadRequest(search: string, hostname?: string) {
@@ -27,7 +46,10 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
     if (!/^[0-9]+$/.test(healthFrameText!) || !Number.isSafeInteger(healthFrame) || healthFrame < 0 || healthFrame > 719) throw new Error('lcdHealthFrame must be an integer from 0 to 719');
     if (bannerFrame !== undefined) throw new Error('lcdHealthFrame cannot be combined with lcdBannerFrame');
   }
-  return { elapsedMs, isoDate: new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }) };
+  const hudText = params.get('lcdHomeHudSample');
+  const homeHudSample = hudText === null ? undefined : lcdHomeHudSample(JSON.parse(hudText), hostname);
+  if (homeHudSample !== undefined && healthFrame !== undefined) throw new Error('lcdHomeHudSample cannot be combined with lcdHealthFrame');
+  return { ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs, isoDate: new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }) };
 }
 
 export function lcdDownloadPayload(scenario: string, capture: ReturnType<typeof encodeNativeLcdPair> & Record<string, unknown>) {

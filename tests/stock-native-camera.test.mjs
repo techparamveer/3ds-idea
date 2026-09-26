@@ -303,3 +303,19 @@ test('all six cells and the selection cursor share native settled centres',()=>{
   assert.deepEqual(second.draws.filter(d=>d.layout==='P_BrwsPic').map(d=>d.opts.center),[[84,74],[160,74]]);
   assert.deepEqual(second.images.map(i=>i[0]),['/portfolio/6.jpg','/portfolio/7.jpg']);
 });
+
+
+test('browse labels bind the original RI.mstl RGBA without mutating public resources',()=>{
+  const before=JSON.stringify(pack);
+  const {draws}=paint(view('gallery',[{id:'photo:a',label:'A'}],{photos:[{id:'a',src:'/portfolio/a.jpg'}]}));
+  const menu=draws.find(draw=>draw.layout==='P_BrwsMenu_D').source;
+  const bank=messages.messages.P,styles=messages.styles[bank.styleTable].styles;
+  for(const [pane,label] of [['TxtSShow','Brws_02'],['TxtShoot','Brws_03'],['TxtSet','setting']]){
+    const word=styles[bank.messages[bank.labels[label]].styleIndex].unresolvedWords['8'];
+    assert.equal(word,0xff394045);
+    assert.deepEqual(find(menu.roots,pane).text.topColor,[69,64,57,255]);
+    assert.deepEqual(find(menu.roots,pane).text.bottomColor,[69,64,57,255]);
+    assert.deepEqual(find(pack.layouts.P_BrwsMenu_D.roots,pane).text.topColor,[0,0,0,255]);
+  }
+  assert.equal(JSON.stringify(pack),before);
+});

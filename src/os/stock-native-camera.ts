@@ -81,6 +81,21 @@ export function cameraBrowseSliderFrame(output:number,count:number):number{
   return max>0?Math.round(Math.max(0,Math.min(1,output/max))*100):0;
 }
 
+/** RI.mstl +8 is the little-endian RGBA word also used by the Sound guide.
+ * Bind only explicitly supplied Camera messages; never recolour other panes. */
+export function cameraMessageColors(source:NativeLayout,messages:Readonly<Record<string,ReturnType<typeof nativeMessageOverride>>>):NativeLayout{
+  const posed=structuredClone(source);
+  const visit=(panes:typeof posed.roots)=>{for(const pane of panes){
+    const word=messages[pane.name]?.messageStyle?.unresolvedWords?.['8'];
+    if(pane.text&&typeof word==='number'&&Number.isInteger(word)&&word>=0&&word<=0xffffffff){
+      const color=[word&255,(word>>>8)&255,(word>>>16)&255,(word>>>24)&255];
+      pane.text.topColor=[...color];pane.text.bottomColor=[...color];
+    }
+    visit(pane.children);
+  }};
+  visit(posed.roots);return posed;
+}
+
 /** Read-only portfolio gallery composed from native album art. The runtime owns
  * paging and selection; visible source zoom chrome has no capture/zoom action.
  */
@@ -138,9 +153,13 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
     // panes. Capture and settings operations stay inert in this read-only app;
     // the physical B button remains the explicit return adaptation.
     const message=(label:string)=>nativeMessageOverride(renderer.packs['camera-messages'],'P',label,'');
-    draw('P_BrwsMenu_D',{bindings:[{name:'P_BrwsMenu_D_Brws',frame:0}],overrides:{
+    const menu=renderer.packs['camera-gallery']?.layouts?.P_BrwsMenu_D;
+    if(!menu)return false;
+    const menuOptions={bindings:[{name:'P_BrwsMenu_D_Brws',frame:0}],overrides:{
       TxtSShow:message('Brws_02'),TxtShoot:message('Brws_03'),TxtSet:message('setting'),
-    }});
+    }};
+    const menuPose=cameraMessageColors(menu,menuOptions.overrides);
+    okay=renderer.drawLayout(bottom,'camera-gallery','P_BrwsMenu_D',menuPose,menuOptions)&&okay;
     if(view.screen==='gallery')okay=renderer.draw(bottom,'camera-bird','ParakeetA_D',{
       center:[...cameraBrowseBirdCenter],bindings:[{name:'ParakeetA_D_Wait',frame:0}],
     })&&okay;

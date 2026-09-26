@@ -20,7 +20,7 @@ type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];
 type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string;LODBias?:number;MinLOD?:number}[]};
 type Bone={Name:string;ParentIndex:number;BillboardMode?:string;NativeBillboardMode?:number;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
 type Submesh={indices:number[];bones:number[];skinning:string;primitive:string};
-type Mesh={material:number;node:number;layer:number;priority:number;position:number[][];normal:number[][];color:number[][];uv0:number[][];uv1:number[][];uv2:number[][];joints:number[][];weights:number[][];submeshes:Submesh[]};
+type Mesh={hasVertexColor?:boolean;material:number;node:number;layer:number;priority:number;position:number[][];normal:number[][];color:number[][];uv0:number[][];uv1:number[][];uv2:number[][];joints:number[][];weights:number[][];submeshes:Submesh[]};
 type Clip={Name:string;FramesCount:number;AnimationFlags:string;Elements:{Name:string;TargetType:string;PrimitiveType:string;Content:Record<string,CgfxCurve>}[]};
 export type FirmwareModelData=CgfxLightingData&{schema:1;sourceSha256:string;models:{name:string;transform:Record<string,number>;skeleton:Bone[];materials:Material[];nodes:boolean[];meshes:Mesh[]}[];textures:{name:string;url:string;width:number;height:number;nativeMipCount?:number;mipmaps?:{level:number;url:string;width:number;height:number}[]}[];skeletalAnimations:Clip[];materialAnimations:Clip[];visibilityAnimations:Clip[]};
 export type FirmwareModelAsset={data:FirmwareModelData;images:Map<string,NativePixels>;mipmaps?:Map<string,readonly NativePixels[]>};
@@ -185,7 +185,14 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
   for(const source of model.meshes)for(const sub of source.submeshes){
    if(sub.primitive!=='Triangles')throw new Error(`Unsupported native primitive ${sub.primitive}`);
    const geometry=new THREE.BufferGeometry();geometries.push(geometry);
-   geometry.setAttribute('position',new THREE.Float32BufferAttribute(source.position.flat(),3));geometry.setAttribute('normal',new THREE.Float32BufferAttribute(source.normal.flat(),3));geometry.setAttribute('nativeColor',new THREE.Float32BufferAttribute(source.color.flat(),4));
+   geometry.setAttribute('position',new THREE.Float32BufferAttribute(source.position.flat(),3));geometry.setAttribute('normal',new THREE.Float32BufferAttribute(source.normal.flat(),3));
+   // An explicitly absent color attribute is not authored transparent black.
+   // The source-material binding follows the reference default vertex shader;
+   // its exact native shader parity remains provisional. Older packs without
+   // the presence metadata and authored zero colors keep their existing data.
+   const diffuse=model.materials[source.material].MaterialParams.DiffuseColor;
+   const colors=source.hasVertexColor===false?source.position.flatMap(()=>[diffuse.R/255,diffuse.G/255,diffuse.B/255,diffuse.A/255]):source.color.flat();
+   geometry.setAttribute('nativeColor',new THREE.Float32BufferAttribute(colors,4));
    for(let i=0;i<3;i++){const sourceIndex=materialCopies[source.material].MaterialParams.TextureSources[i]??0;geometry.setAttribute(i===0?'uv':`nativeUv${i}`,new THREE.Float32BufferAttribute(source[`uv${Math.min(2,sourceIndex)}` as 'uv0'].flat(),2));}
    geometry.setIndex(sub.indices);const mesh=new THREE.Mesh(geometry,mats[source.material]);mesh.frustumCulled=false;mesh.renderOrder=source.layer*100+source.priority;
    // Empty-folder content slots and text are populated by HOME code, not intrinsic banner artwork.

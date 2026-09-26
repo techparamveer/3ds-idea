@@ -309,3 +309,46 @@ test('native draw groups survive every internal Group and Three transparent sort
  assert.deepEqual([...new Set(list.transparent.map(item=>item.groupOrder))],[0,1,2]);
  for(const model of models){model.group.traverse(node=>{if(node.isGroup)assert.equal(node.renderOrder,model.group.renderOrder);});model.dispose();}lists.dispose();
 });
+
+
+test('explicitly absent vertex color uses source material diffuse while authored and legacy zeros remain zero',()=>{
+ const source=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/eshop-banner-common/model.json',import.meta.url),'utf8'));
+ for(const presence of [false,true,undefined]){
+  const data=structuredClone(source);
+  for(const mesh of data.models[0].meshes){
+   if(presence===undefined)delete mesh.hasVertexColor;else mesh.hasVertexColor=presence;
+  }
+  const images=new Map(data.textures.map(texture=>[texture.name,{width:texture.width,height:texture.height,data:new Uint8ClampedArray(texture.width*texture.height*4)}]));
+  const model=createFirmwareModel({data,images},{}),meshes=[];model.group.traverse(node=>{if(node.isMesh)meshes.push(node);});
+  assert.equal(meshes.length,data.models[0].meshes.length);
+  meshes.forEach((mesh,index)=>{
+   const original=data.models[0].meshes[index],diffuse=data.models[0].materials[original.material].MaterialParams.DiffuseColor;
+   const color=mesh.geometry.getAttribute('nativeColor');
+   for(let i=0;i<color.count;i++){
+    const expected=presence===false?[diffuse.R/255,diffuse.G/255,diffuse.B/255,diffuse.A/255]:original.color[i];
+    for(let j=0;j<4;j++)assert.ok(Math.abs(color.array[i*4+j]-expected[j])<1e-7);
+   }
+  });
+  assert.deepEqual(data.models[0].meshes.map(mesh=>mesh.color),source.models[0].meshes.map(mesh=>mesh.color),'source arrays remain unmodified');
+  model.dispose();
+ }
+});
+
+test('delivered Camera photos and eShop meshes retain source attribute presence and visible material alpha',()=>{
+ for(const [kind,presence] of [['camera',[true,false,false,false]],['eshop',[false,false,false,false]]]){
+  const data=JSON.parse(readFileSync(new URL(`../public/os/firmware/10.7.0-32E/models/${kind}-banner-common/model.json`,import.meta.url),'utf8'));
+  assert.deepEqual(data.models[0].meshes.map(mesh=>mesh.hasVertexColor),presence);
+  const images=new Map(data.textures.map(texture=>[texture.name,{width:texture.width,height:texture.height,data:new Uint8ClampedArray(texture.width*texture.height*4)}]));
+  const model=createFirmwareModel({data,images},{}),meshes=[];model.group.traverse(node=>{if(node.isMesh)meshes.push(node);});
+  meshes.forEach((mesh,index)=>{
+   const authored=data.models[0].meshes[index];
+   if(authored.hasVertexColor)return;
+   assert.ok(authored.color.every(value=>value[3]===0),'decoder array retained separately from absent-input binding');
+   const alpha=data.models[0].materials[authored.material].MaterialParams.DiffuseColor.A/255;
+   assert.ok(alpha>0);
+   const colors=mesh.geometry.getAttribute('nativeColor');
+   for(let i=0;i<colors.count;i++)assert.ok(Math.abs(colors.getW(i)-alpha)<1e-7);
+  });
+  model.dispose();
+ }
+});

@@ -58,7 +58,7 @@ never enter public delivery.
 
 The schema-1 manifest at `public/os/firmware/10.7.0-32E/manifest.json` is the
 URL/provenance authority. At this checkpoint it identifies EUR 10.7.0-32E,
-EU English, 25 titles and 1,553 resources. It records exclusions and unsupported
+EU English, 25 titles and 1,783 resources. It records exclusions and unsupported
 inputs instead of generating substitutes. Title loaders require manifest
 membership, exact title/pack identity, requested layouts/animations, valid
 texture metadata and exact font bindings.
@@ -92,13 +92,31 @@ scenario. Matched native evidence is still required for visual, motion and audio
 fidelity. See [verification](verification.md) and the
 [progress matrix](../progress-2026-09-24.md).
 
-The Sound Span visualizer is a published source model, not yet a browser
-render in the `8e1e31e` checkpoint. `manifest.models.soundSpan` points to
+At the `8e1e31e` checkpoint, the Sound Span visualizer was a published source
+model awaiting a browser mount. `manifest.models.soundSpan` points to
 `models/sound-span/model.json`, with one source texture. Both manifest records
 map to Sound title `0004001000022500`, content index 0, content ID
 `0000000b` and `contents/0000-0000000b/romfs/res/S.pack/S_Vis_Span_U.bcmdl.LZ`
 (source SHA-256 `c9558d7c10d0d6354b63aeb39ca173707cdb927d3344f23e51d5229c4b953244`).
 Scene-owned visible mounting and native LCD comparison are separate gates.
+The model is now mounted in the upper Sound room (`1b6c6c8`). Its Base material
+blue (`ccdb686`) and edge/vertical fit (`ca2b3d5`) were fitted from an Azahar
+capture, so those parameters are an **explicit visual adaptation** layered on
+the source mesh and texture. The latest raw LCD comparison still fails at
+15,583 upper / 6,267 lower pixels over 2/255. Source identity and a visible
+model do not establish a native match.
+
+Camera browse controls use source `P_BrwsMenu_D` from
+`packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json`, title
+`0004001000022400`, content index 0, content ID `0000001a`, source
+`lyt/P_Brws_D.arc.LZ` (SHA-256
+`ed22962fa35a3019457302e059ddc19709fa07e36ae1d67b506a58e9d317181a`).
+The visible Slideshow/Shoot/Settings chrome is source-backed (`c814502`), as
+are the restored `P_BrwsBase_D` zoom icons (`b196bc7`) from the same Camera
+archive and manifest pack. Shoot and zoom stay inert for the read-only
+portfolio gallery. That interaction adaptation does not mask the remaining
+gallery pixel and input differences. The latest source-zoom browser/native
+diagnostic still fails at 95,350 upper / 26,496 lower pixels over 2/255.
 
 FLYT amiibo material support is capability-bounded: converter 1.5.2 marks the
 traced two-texture combinations, while runtime preparation lowers them to the

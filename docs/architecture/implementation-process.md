@@ -1,6 +1,6 @@
 # Implementation and integration process
 
-Checked against UI integration `8e1e31e`, 25 September 2026. [AGENTS.md](../../AGENTS.md)
+Checked against UI integration `b196bc7`, 25 September 2026. [AGENTS.md](../../AGENTS.md)
 owns project instructions; this document describes how a defect becomes a
 reviewable change and how its evidence enters the design record.
 

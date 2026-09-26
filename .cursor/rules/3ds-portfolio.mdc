@@ -25,11 +25,12 @@ isolated Azahar and integrated production browser, captures native 400×480 PNG
 and raw browser 400×240/320×240 LCD targets, diffs the pair, opens the contact
 sheet, and repeats after fixes. First target HOME idle and Settings → Other
 Settings page 1 in the private `reference/scenario-matrix/v1/captures/` path;
-matrix v12 has 21 failing diagnostic entries. Camera's six-cell browse and Sound's
+matrix v16 has 26 failing diagnostic entries. Camera's six-cell browse and Sound's
 three-page guide now render from delivered source resources, but their latest
-native/browser pairs still fail at 95,350/44,234 and 15,639/6,267 upper/lower
-pixels over 2/255. Camera input/content differ; an earlier Sound page-1 pair
-matches selected HOME Sound + A entry input. HOME selected Settings boot fails
+native/browser pairs still fail at 95,350/26,496 and 15,583/6,267 upper/lower
+pixels over 2/255. Camera source browse and zoom chrome are visible;
+Shoot and zoom remain inert. Sound Span's blue Base fit is capture-derived and labelled adaptation. Camera
+input/content differ; an earlier Sound page-1 pair matches selected HOME Sound + A entry input. HOME selected Settings boot fails
 at 19,793/44,041 with layout/phase mismatch. HOME idle remains unmatched.
 Motion/audio remain open.
 Tests, source renders and browser inspection alone

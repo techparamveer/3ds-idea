@@ -10,7 +10,8 @@ import { cameraBrowseCellRect, stockScreenTargets } from '../src/os/stock-screen
 import { createAppRuntime,startApplication,dispatchRuntime,showRuntimeHome,resumeRuntimeApplication,closeApplication,activeInstance,setRuntimeSleeping } from '../src/os/app-host.ts';
 const ctx={now:0,shared:initialSharedData()};
 const media={folders:[{id:'test',title:'Test fixture',photos:[{id:'a',title:'A',src:'/fixture/a.jpg'},{id:'b',title:'B',src:'/fixture/b.jpg'}]}],tracks:[{id:'a',title:'A',src:'/fixture/a.mp3',duration:100},{id:'b',title:'B',src:'/fixture/b.mp3',duration:200},{id:'c',title:'C',src:'/fixture/c.mp3',duration:300}]};
-const setup=(id,data=media)=>{const module=createStockModule(getTitle(id),data);return{module,state:module.create({},null,ctx)};};
+// Gallery tests enter after the five-page welcome route. Dedicated tests below cover cold entry.
+const setup=(id,data=media)=>{const module=createStockModule(getTitle(id),data);let state=module.create({},null,ctx);if(id==='camera')for(let page=0;page<5;page++)state=module.reduce(state,{type:'action',id:'guide-next'},ctx).state;return{module,state};};
 const action=(module,state,id,value)=>module.reduce(state,{type:'action',id,value},ctx);
 
 test('Health enters with no highlighted precaution button',()=>{
@@ -186,7 +187,7 @@ test('the source Could-not-play dialog blocks transport until OK, B or the share
  const resumed=action(module,viaA,'play');assert.equal(resumed.state.mediaError,false);assert.equal(resumed.effects[0].command,'play');
 });
 test('empty media and injected saved screens never create hidden playback/capture state',()=>{
- for(const id of ['camera','sound']){const {module}=setup(id,{folders:[],tracks:[]});const state=module.create({screen:'record',playing:true},{screen:'playback',playing:true},ctx);assert.equal(state.screen,id==='sound'?'guide':'main');assert.equal(module.view(state,ctx).rows.length,0);assert.equal(action(module,state,'play').state,state);}
+ for(const id of ['camera','sound']){const {module}=setup(id,{folders:[],tracks:[]});const state=module.create({screen:'record',playing:true},{screen:'playback',playing:true},ctx);assert.equal(state.screen,'guide');assert.equal(module.view(state,ctx).rows.length,0);assert.equal(action(module,state,'play').state,state);}
 });
 
 test('Camera folder directions follow three columns and bound incomplete rows',()=>{
@@ -549,4 +550,29 @@ test('Sound welcome uses three source pages and enters the empty Record & Edit S
  assert.equal(module.view(state,ctx).footer.right.label,'OK');
  state=module.reduce(state,{type:'command',command:'open'},ctx).state;assert.equal(state.screen,'main');
  assert.deepEqual(module.view(state,ctx).footer,{});assert.deepEqual(module.view(state,ctx).text,['No songs available.']);
+});
+
+
+test('Camera welcome follows five source pages before entering read-only folders',()=>{
+ const module=createStockModule(getTitle('camera'),media);
+ let state=module.create({},null,ctx);
+ assert.equal(state.screen,'guide');assert.equal(state.guidePage,0);
+ assert.equal(module.view(state,ctx).footer.left,undefined);
+ assert.equal(module.reduce(state,{type:'command',command:'back'},ctx).state.guidePage,0);
+ state=module.reduce(state,{type:'touch',phase:'up',x:160,y:204},ctx).state;
+ assert.equal(state.guidePage,1);
+ state=module.reduce(state,{type:'touch',phase:'up',x:112,y:204},ctx).state;
+ assert.equal(state.guidePage,0);
+ for(let i=0;i<4;i++)state=module.reduce(state,{type:'command',command:'open'},ctx).state;
+ assert.equal(state.guidePage,4);assert.equal(module.view(state,ctx).footer.right.label,'OK');
+ assert.equal(module.reduce(state,{type:'action',id:'shoot'},ctx).state,state);
+ const sleeping=module.reduce(state,{type:'lifecycle',phase:'sleep'},ctx).state;
+ assert.equal(sleeping.guidePage,4);
+ state=module.reduce(state,{type:'touch',phase:'up',x:208,y:204},ctx).state;
+ assert.equal(state.screen,'main');assert.equal(state.guidePage,undefined);
+ assert.equal(module.view(state,ctx).rows[0].id,'folder:test');
+ assert.deepEqual(module.save(state),{},'native first-run save semantics remain unported');
+ assert.equal(module.create({},module.save(state),ctx).screen,'guide');
+ const applet=createStockModule(getTitle('camera-applet'),media);
+ assert.equal(applet.create({},null,ctx).screen,'main','Camera helper is not the application welcome owner');
 });

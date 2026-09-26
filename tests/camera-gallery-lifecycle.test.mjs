@@ -55,12 +55,14 @@ function harness(){
  globalThis.Image=FakeImage;images.length=0;calls.length=0;
  const screen=createStockScreenPresentation(),top=surface({}),bottom=surface({}),font={draw(){}},loaded=[];
  let runtime=startApplication(createAppRuntime(),'camera',0),now=0;
+ const finishGuide=()=>{for(let page=0;page<5;page++)runtime=dispatchRuntime(runtime,{type:'action',id:'guide-next'},++now);};
+ finishGuide();
  const h={
   get runtime(){return runtime;},loaded,
   act(id){runtime=dispatchRuntime(runtime,{type:'action',id},++now);},
   home(){runtime=showRuntimeHome(runtime,++now);},
   resume(){runtime=resumeRuntimeApplication(runtime,++now);},
-  relaunch(){runtime=startApplication(closeApplication(runtime,++now),'camera',now);},
+  relaunch(){runtime=startApplication(closeApplication(runtime,++now),'camera',now);finishGuide();},
   /** One portfolio-screens frame: sync the foreground owner, then draw it. */
   frame(){
    screen.sync(runtime.active);

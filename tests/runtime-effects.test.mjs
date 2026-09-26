@@ -24,6 +24,7 @@ test('read-only camera gallery and obsolete device actions never request permiss
  let permissions=0,imports=0;const writes=[];
  const f=fixture({storage:{async saveRecord(key){writes.push(key);},async savePreferences(){},dispose(){}},environment:{getUserMedia(){permissions++;throw new Error('Unexpected device access');},pickFile(){imports++;throw new Error('Unexpected import');}}});
  f.launch('camera');
+ for(let page=0;page<5;page++)f.action('guide-next');
  for(const id of ['preview','capture','import','record-start']){f.action(id);f.adapter.drain(true);}
  f.action('folder:buildings');f.action('photo:buildings-1');f.adapter.drain(true);
  assert.equal(f.state.system.runtime.instances[f.state.system.runtime.active].state.screen,'photo');

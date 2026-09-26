@@ -17,6 +17,7 @@ const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,cameraBrows
 const pack=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',import.meta.url),'utf8'));
 const finder=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',import.meta.url),'utf8'));
 const parakeet=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/lyt-Parakeet-arc-LZ.json',import.meta.url),'utf8'));
+const guidePacks=Object.fromEntries(cameraScreenPacks.map(p=>[p.alias,JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/'+p.url,import.meta.url),'utf8'))]));
 const messages=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/msg-EU_English.json',import.meta.url),'utf8'));
 const find=(panes,name)=>{for(const pane of panes){if(pane.name===name)return pane;const child=find(pane.children??[],name);if(child)return child;}};
 const view=(screen,rows=[],data={},selection=0)=>({appId:'camera',screen,heading:'Nintendo 3DS Camera',rows,selection,footer:{left:{action:'back',label:'Back'}},data});
@@ -32,7 +33,7 @@ const ctx=()=>{
 function paint(screenView,imageResult=true){
   const {log,bottom}=ctx(),draws=[];
   const renderer={
-    packs:{'camera-gallery':pack,'camera-finder':finder,'camera-bird':parakeet,'camera-messages':messages},
+    packs:guidePacks,
     draw(_ctx,_pack,layout,opts){draws.push({layout,opts,pack:_pack});return true;},
     drawLayout(_ctx,_pack,layout,source,opts){draws.push({layout,opts,pack:_pack,source});return true;},
   };
@@ -44,7 +45,7 @@ function paintFrame(screenView,imageResult=true){
   const {log,bottom}=ctx(),draws=[],fills=[];
   const top={fillStyle:'',fillRect:(...args)=>fills.push(args)};
   const renderer={
-    packs:{'camera-gallery':pack,'camera-finder':finder,'camera-bird':parakeet,'camera-messages':messages},
+    packs:guidePacks,
     draw(_ctx,_pack,layout,opts){draws.push({layout,opts,pack:_pack});return true;},
     drawLayout(_ctx,_pack,layout,source,opts){draws.push({layout,opts,pack:_pack,source});return true;},
   };
@@ -222,7 +223,7 @@ test('empty gallery uses the source English no-data message and ignores other ti
 
 test('published finder pack is the browse upper layout, not C_Titl_U',()=>{
   const request=cameraScreenPacks.find(p=>p.alias==='camera-finder');
-  assert.deepEqual([...request.layouts],['P_FinderVS_U']);
+  assert.deepEqual([...request.layouts],['P_FinderVS_U','P_Finder_U']);
   assert.deepEqual([...request.animations],[]);
   assert.ok(finder.layouts.P_FinderVS_U);
   assert.equal(finder.layouts.C_Titl_U,undefined);
@@ -318,4 +319,23 @@ test('browse labels bind the original RI.mstl RGBA without mutating public resou
     assert.deepEqual(find(pack.layouts.P_BrwsMenu_D.roots,pane).text.topColor,[0,0,0,255]);
   }
   assert.equal(JSON.stringify(pack),before);
+});
+
+
+test('Camera welcome binds five messages, source dialog bodies and message-selected illustrations',()=>{
+ const bank=messages.messages.P_tips,expected=[null,null,'P_Guid05_U','P_Guid01_U','P_Guid02_U'];
+ const before=JSON.stringify(guidePacks);
+ for(let page=0;page<5;page++){
+  const {draws,okay}=paintFrame(view('guide',[],{guidePage:page}));assert.equal(okay,true);
+  const names=draws.map(d=>d.layout),body=draws.find(d=>d.layout===(page===0?'C_DlgGuid1BtnW':'C_DlgGuid2Btn'));
+  assert.ok(names.includes('C_DlgChA'));assert.ok(names.includes('P_Finder_U'));assert.ok(names.includes('C_IconSD'));
+  assert.equal(body.opts.overrides.TxtDlg.text,bank.messages[bank.labels['D_003_'+page]].text);
+  assert.equal(body.opts.overrides.TxtNumber0.text,'/ 5');assert.equal(body.opts.overrides.TxtNumber1.text,(page+1)+' ');
+  assert.deepEqual(find(body.source.roots,'TxtDlg').text.topColor,[69,64,57,255]);
+  assert.deepEqual(names.filter(n=>n.startsWith('P_Guid')),expected[page]?[expected[page]]:[]);
+  const token=bank.messages[bank.labels['D_003_'+page]].tokens.find(t=>t.group===4&&t.type===1);
+  assert.equal(token?Buffer.from(token.arguments,'hex').subarray(2).toString('utf16le'):null,expected[page]);
+  assert.equal(body.opts.overrides[page===0?'Guid1TxtW':'Guid2TxtW'].text,page===4?'OK':'Next');
+ }
+ assert.equal(JSON.stringify(guidePacks),before);
 });

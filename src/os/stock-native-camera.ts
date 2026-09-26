@@ -20,13 +20,21 @@ export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
   ],
 },{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',alias:'camera-finder',
-  layouts:['P_FinderVS_U'],animations:[],
+  layouts:['P_FinderVS_U','P_Finder_U'],animations:[],
 },{
   url:'packs/camera/contents/0000-0000001a/lyt-Parakeet-arc-LZ.json',alias:'camera-bird',
   layouts:['ParakeetA_D'],animations:['ParakeetA_D_Wait'],
 },{
   url:'packs/camera/contents/0000-0000001a/lyt-C-Sld.json',alias:'camera-slider',
   layouts:['C_SldH_S'],animations:['C_SldH_S_Default','C_SldH_S_Rate'],
+},{
+  url:'packs/camera/contents/0000-0000001a/lyt-C-Dlg.json',alias:'camera-dialog',
+  layouts:['C_DlgChA','C_DlgGuid1BtnW','C_DlgGuid2Btn','C_DlgGuid_U'],animations:['C_DlgGuid1BtnW_Default','C_DlgGuid2Btn_Default'],
+},{
+  url:'packs/camera/contents/0000-0000001a/lyt-P_Guid_U-arc-LZ.json',alias:'camera-guide-upper',
+  layouts:['P_Guid01_U','P_Guid02_U','P_Guid05_U'],animations:[],
+},{
+  url:'packs/camera/contents/0000-0000001a/lyt-C-Icon.json',alias:'camera-icons',layouts:['C_IconSD'],animations:[],
 },{url:'packs/camera/contents/0000-0000001a/msg-EU_English.json',alias:'camera-messages',layouts:[],animations:[]}];
 type RecordValue=Record<string,JsonValue>;
 const record=(value:JsonValue|undefined):RecordValue=>value&&typeof value==='object'&&!Array.isArray(value)?value:{};
@@ -167,11 +175,56 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
   return okay;
 }
 
+/** Original Guide_snk.gbin first GUID: D_003_0..4, modes 2/3/3/3/4.
+ * Illustration names come from each message's group 4/type 1 token. */
+export const cameraWelcomePages=[
+  {label:'D_003_0',illustration:null},
+  {label:'D_003_1',illustration:null},
+  {label:'D_003_2',illustration:'P_Guid05_U'},
+  {label:'D_003_3',illustration:'P_Guid01_U'},
+  {label:'D_003_4',illustration:'P_Guid02_U'},
+] as const;
+export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView):boolean{
+  const raw=view.data?.guidePage,page=typeof raw==='number'?Math.max(0,Math.min(4,Math.floor(raw))):0;
+  const entry=cameraWelcomePages[page],first=page===0;
+  const message=(label:string)=>nativeMessageOverride(renderer.packs['camera-messages'],'P_tips',label,'');
+  let okay=true;
+  const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,opts)&&okay;};
+  // The reference is a black emulated finder. Capacity 3000 and SD are its
+  // fixture state, not browser storage/device readings. Capture stays disabled.
+  top.fillStyle='#000';top.fillRect(0,0,400,240);
+  bottom.fillStyle='#000';bottom.fillRect(0,0,320,240);
+  const capacity=nativeMessageOverride(renderer.packs['camera-messages'],'P','Finder_Pho_00_00','');
+  draw(top,'camera-finder','P_Finder_U',{overrides:{
+    Grid:{visible:false},ShootInfoDlg:{visible:false},ShootInfo:{visible:false},State_IcamOcam:{visible:false},
+    MovRem:{visible:false},MovInt:{visible:false},RecSign:{visible:false},State_PhoMov:{visible:false},MovFrm:{visible:false},
+    '3DView':{visible:true},'2DView':{visible:false},ShootCapa_Pho:{...capacity,text:capacity.text+'3000'},
+  }});
+  // P_Finder_U/Storage/-L-SD has world translation (187,-105).
+  draw(top,'camera-icons','C_IconSD',{center:[387,225]});
+  if(entry.illustration){draw(top,'camera-dialog','C_DlgGuid_U');draw(top,'camera-guide-upper',entry.illustration);}
+  // Both source guide button containers mount this body at identity; the body
+  // includes its own Bird artwork. Entry/exit and underlying shoot scene remain unported.
+  draw(bottom,'camera-dialog','C_DlgChA');
+  const total=message('Guide_D_00_00'),current=message('Guide_D_00_01');
+  const width=total.messageStyle?.unresolvedWords?.['0'];
+  if(width!==48||current.messageStyle?.unresolvedWords?.['0']!==48)return false;
+  // Shared RI.mstl counter width; 24px height follows the documented Sound guide adapter.
+  const common={TxtDlg:message(entry.label),TxtNumber0:{...total,text:total.text+'5',size:[width,24]},TxtNumber1:{...current,text:`${page+1}${current.text}`,size:[width,24]}};
+  const layout=first?'C_DlgGuid1BtnW':'C_DlgGuid2Btn';
+  const overrides=first?{...common,Guid1TxtW:message('Guide_D_N_Btn0')}:{...common,Guid2TxtB:message('Guide_D_BN_Btn0'),Guid2TxtW:message(page===4?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')};
+  const source=renderer.packs['camera-dialog']?.layouts?.[layout];
+  if(!source)return false;
+  okay=renderer.drawLayout(bottom,'camera-dialog',layout,cameraMessageColors(source,overrides),{bindings:[{name:layout+'_Default',frame:0}],overrides})&&okay;
+  return okay;
+}
+
 /** Source `P_FinderVS_U` browse upper with portfolio photos as the 400×240 view
  * replacement. `C_Titl_U` is Settings (`P_Set_U` / `Set_Title`), not this scene.
  */
 export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   if(!cameraTitle(view.appId))return false;
+  if(view.appId==='camera'&&view.screen==='guide')return drawNativeCameraGuide(renderer,top,bottom,view);
   const data=view.data??{},folders=records(data.folders),photos=records(data.photos);
   const selected=view.rows[view.selection];
   const folder=folders.find(f=>'folder:'+str(f.id)===selected?.id);

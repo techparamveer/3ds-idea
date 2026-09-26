@@ -164,7 +164,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   function activate(state: AppState, action: string, context: AppContext, value?: JsonValue): AppReduction {
     const screen = str(state.screen, 'main');
     if (action === 'back') {
-      if (id === 'sound' && screen === 'guide') return { state: { ...state, guidePage: Math.max(0, num(state.guidePage) - 1) } };
+      if ((id === 'sound'||id === 'camera') && screen === 'guide') return { state: { ...state, guidePage: Math.max(0, num(state.guidePage) - 1) } };
       if (id === 'sound' && state.mediaError === true) return { state: { ...state, mediaError: false } };
       if (id === 'sound' && screen === 'main' && !media.tracks.length) return { state }; // Native root Back is disabled; HOME still exits.
       if (id === 'health-safety' && screen === 'document') { const { scroll: _scroll, backPress: _press, ...rest } = state; return { state: withScreen(rest, 'main') }; }
@@ -183,6 +183,12 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return { state, effects: [{ type: descriptor.kind === 'application' ? 'home' : 'close' }] };
     }
     if (cameraTitles.has(id)) {
+      if(id==='camera'&&screen==='guide'){
+        if(action!=='guide-next')return {state};
+        if(num(state.guidePage)<4)return {state:{...state,guidePage:num(state.guidePage)+1}};
+        const {guidePage:_guidePage,...rest}=state;
+        return {state:withScreen(rest,'main')}; // Read-only portfolio destination, no capture mode.
+      }
       if (screen === 'main' && action.startsWith('folder:') && (hasCameraAll&&action.slice(7)===cameraAllId||media.folders.some(item => item.id === action.slice(7)))) return { state: withScreen(state, 'gallery', { folderId: action.slice(7), selection:action.slice(7)===cameraAllId?1:0, cameraBrowse:cameraBrowseJson(cameraBrowseInitial()) }) };
       if (screen === 'gallery' && action.startsWith('photo:') && folder(state)?.photos.some(item => item.id === action.slice(6))) return { state: withScreen(state, 'photo', { photoId: action.slice(6) }) };
       if (screen === 'photo' && ['previous', 'next'].includes(action)) {
@@ -277,8 +283,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const healthDocument = id === 'health-safety' && screen === 'document';
     if (healthDocument) { delete data.scroll; delete data.backPress; data.article = healthScrollView(healthScroll(state)); }
     const left = { label: id === 'system-updater' || (id === 'system-settings' && screen === 'detail' && state.field === 'sound') ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
-    if (id === 'sound' && screen === 'guide') return { appId:id, titleId:descriptor.titleId, screen, heading:descriptor.title, text:[], rows:[], selection:0,
-      footer:{...(num(state.guidePage)>0?{left}:{ }),right:{label:num(state.guidePage)>=2?'OK':'Next',action:'guide-next'}},native:{pack:descriptor.assetPack,panes:{}},data };
+    if ((id === 'sound'||id === 'camera') && screen === 'guide') return { appId:id, titleId:descriptor.titleId, screen, heading:descriptor.title, text:[], rows:[], selection:0,
+      footer:{...(num(state.guidePage)>0?{left}:{ }),right:{label:num(state.guidePage)>=(id==='camera'?4:2)?'OK':'Next',action:'guide-next'}},native:{pack:descriptor.assetPack,panes:{}},data };
     const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options[selection]&&options[selection].id!=='camera-date-group' ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { ...(id === 'sound' && screen === 'main' && !media.tracks.length ? {} : { left }), ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
@@ -287,8 +293,11 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     descriptor, view,
     create(args, saved) {
       const restored = objectValue(saved) ? saved : {};
-      return { screen: id === 'sound' && !media.tracks.length ? 'guide' : 'main', selection: 0, ...(['health-safety','system-settings'].includes(id) ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
+      // Camera repeats Welcome per application creation until native seen-state
+      // storage is traced. No first-run flag or device operation is persisted.
+      return { screen: id==='camera'||id === 'sound' && !media.tracks.length ? 'guide' : 'main', selection: 0, ...(['health-safety','system-settings'].includes(id) ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
         ...(id === 'browser' ? { url: str(restored.url) } : {}), ...(id === 'error' ? { message: str(args.message, 'An error has occurred.') } : {}),
+        ...(id==='camera'?{guidePage:0}:{}),
         ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0, guidePage: 0 } : {}),
         ...(id === 'system-settings' ? { settingsHudElapsedMs: 0 } : {}), ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}), ...(id === 'health-safety' ? { healthElapsedMs: 0 } : {}) };
     },

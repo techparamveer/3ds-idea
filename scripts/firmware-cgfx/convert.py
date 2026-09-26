@@ -28,7 +28,7 @@ def convert(source, output, scratch, dotnet, exporter, manifest=None, model_key=
     model['compressedSourceSha256']=hashlib.sha256(data).hexdigest()
     if cbmd is not None: model['cbmd']=cbmd
     model['spicaRevision']='bd29a7828595d7839cda2ac61c76bb63f9071250'
-    model['converter']={'name':'ctr-cgfx-web','version':'1.4.1',
+    model['converter']={'name':'ctr-cgfx-web','version':'1.4.2',
                         'wrapperSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                         'exporterSha256':hashlib.sha256(exporter.read_bytes()).hexdigest()}
     output.mkdir(parents=True,exist_ok=True)

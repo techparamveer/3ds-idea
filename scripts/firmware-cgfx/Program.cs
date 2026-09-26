@@ -124,6 +124,7 @@ static class Exporter {
           }
         }
         meshes.Add(new {material=mesh.MaterialIndex,node=mesh.NodeIndex,layer=mesh.Layer,priority=mesh.Priority,
+          hasVertexColor=mesh.Attributes.Any(a=>a.Name==PICAAttributeName.Color)||mesh.FixedAttributes.Any(a=>a.Name==PICAAttributeName.Color),
           position=vertices.Select(v=>V(v.Position).Take(3).ToArray()),normal=vertices.Select(v=>V(v.Normal).Take(3).ToArray()),
           color=vertices.Select(v=>V(v.Color)),uv0=vertices.Select(v=>V(v.TexCoord0).Take(2).ToArray()),uv1=vertices.Select(v=>V(v.TexCoord1).Take(2).ToArray()),uv2=vertices.Select(v=>V(v.TexCoord2).Take(2).ToArray()),
           joints=vertices.Select(v=>Enumerable.Range(0,4).Select(i=>v.Indices[i]).ToArray()),weights=vertices.Select(v=>Enumerable.Range(0,4).Select(i=>v.Weights[i]).ToArray()),

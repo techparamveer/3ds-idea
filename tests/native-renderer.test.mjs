@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 const module=source=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
 const layoutUrl=module(readFileSync(new URL('../src/os/native-layout.ts',import.meta.url),'utf8'));
-const {NativeLayoutRenderer}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-layout'",JSON.stringify(layoutUrl))));
+const {NativeLayoutRenderer,nativeTextRightOverhang}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-layout'",JSON.stringify(layoutUrl))));
 // The target records actual raster bytes from the renderer's Canvas transport.
 // Geometry/compositing fidelity is covered by source/native captures, not this stub.
 function canvas(){
@@ -189,4 +189,38 @@ test('part pose cache includes the parent material animation state',()=>{
   const draw=frame=>{assert.equal(renderer.draw(target.getContext('2d'),'parent','parent',{parts:{Button:{pack:'child',layout:'child'}},bindings:[{name:'shade',frame}]}),true);return [...target.image.data];};
   assert.deepEqual(draw(0),[255,255,255,255]);assert.deepEqual(draw(1),[0,255,255,255]);assert.deepEqual(draw(0),[255,255,255,255]);renderer.dispose();
  }finally{globalThis.document=prior;}
+});
+
+
+test('source HUD outlined glyphs retain ink beyond their right-aligned advance rectangle',()=>{
+ const font=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/hud/font.json',import.meta.url),'utf8'));
+ assert.equal(font.sourceSha256,'172b12ad40f2feb04d4422ec67dead3b579a4706ca2a6413f652e1f7de026bb8');
+ for(const [value,last] of [['26/09 (Sat)',')'],['04','4'],['10','0']]){
+  const glyph=font.glyphs[last.charCodeAt(0)];assert.equal(glyph.width-glyph.advance,1);
+  assert.equal(nativeTextRightOverhang(font,value,[16,16],5,0,0),1);
+ }
+ assert.equal(nativeTextRightOverhang(font,'04',[8,8],5,0,0),1,'half a source texel needs one backing pixel');
+ assert.equal(nativeTextRightOverhang(font,'04',[16,16],4,0,0),0,'centered path retains its existing contract');
+ assert.equal(nativeTextRightOverhang(font,'04\n10',[16,16],5,0,0),0,'multiline path is outside this bounded correction');
+ const shared=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+ assert.equal(nativeTextRightOverhang(shared,'Health and Safety',[16,16],5,0,0),0,'shared alpha glyph raster remains unchanged');
+});
+
+test('overhang backing preserves pane alignment arguments and reaches composition',()=>{
+ const previous=globalThis.document,calls=[];
+ globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
+ try{
+  const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/hud/font.json',import.meta.url),'utf8'));
+  const font={manifest,drawNative(ctx,value,w,h){calls.push({value,w,h,backingWidth:ctx.canvas.width});}};
+  const text={value:'04',font:0,material:0,size:[16,16],alignment:5,lineAlignment:0,lineSpacing:0,characterSpacing:0,topColor:[255,255,255,255],bottomColor:[255,255,255,255]};
+  const source={...layout,fonts:['hud'],roots:[{...pane,kind:'txt1',size:[20,20],picture:undefined,text}]};
+  const pack={schema:1,layouts:{test:source},animations:{},textures:{},messages:{}};
+  const renderer=new NativeLayoutRenderer({test:pack},{test:new Map()},new Map([['hud',font]]));
+  const ctx=canvas().getContext(),compositions=[];ctx.drawImage=(image,...args)=>compositions.push([image.width,...args]);
+  assert.equal(renderer.draw(ctx,'test','test'),true);
+  assert.deepEqual(calls,[{value:'04',w:20,h:20,backingWidth:21}]);
+  assert.deepEqual(compositions,[[21,0,0,21,20]],'source overhang survives final composition without stretching the original20 pixels');
+  assert.deepEqual(source.roots[0].size,[20,20],'source alignment pane stays unchanged');
+  renderer.dispose();
+ }finally{globalThis.document=previous;}
 });

@@ -195,3 +195,13 @@ Global page/presentation time cannot select Health's frame. Reduced motion uses
 source frame zero while local time continues. The currently fitted 18-frame
 origin is a source-render adaptation with no measured native launch interval;
 see the [Health phase evidence](../health-toploop-phase-fit-2026-09-26.md).
+
+## HOME HUD diagnostic paint
+
+The optional fourth argument to `screens.paint` is a one-paint
+`DiagnosticHomeHudSample`; it selects delivered HUD messages, clip frames and
+counter text without modifying or persisting menu/system state. Production
+callers omit it. Any capture integration must keep it within the existing local
+verification gate and record the complete source-pose sample; the renderer does
+not infer telemetry or native timing from it. The [profile-state audit](../home-hud-profile-state-audit-2026-09-26.md#renderer-diagnostic-seam)
+documents provenance, frame domains and the unresolved HOME service mapping.

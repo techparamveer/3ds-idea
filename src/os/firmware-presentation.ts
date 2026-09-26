@@ -1,3 +1,4 @@
+import { validateHomeHudSample, type DiagnosticHomeHudSample } from './home-hud-sample';
 import { sampleSystemHomeFolderClose } from './home-folder-close-system';
 import { BitmapFont, loadBitmapFont } from './bitmap-font';
 import { decodeNativePng } from './native-png';
@@ -112,12 +113,13 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    N_Base_00:{translation:[label.baseX,0,0]},N_LR_00:{translation:[label.bodyOffsetX,-6,0]},T_Blln_00:titleText?{text:titleText}:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)')
   }});
  }
- function hud(ctx:Context,date:Date,time:number){
+ function hud(ctx:Context,date:Date,time:number,sample?:DiagnosticHomeHudSample){
+  if(sample)validateHomeHudSample(sample,renderer.packs.hud);
   const table='hud_msbt_LZ',day=message(table,`day_${date.getDate()}`,String(date.getDate()).padStart(2,'0')).text!,month=message(table,`month_${date.getMonth()+1}`,String(date.getMonth()+1).padStart(2,'0')).text!;
   const weekday=message(table,`week_${['sun','mon','tue','wed','thu','fri','sat'][date.getDay()]}`,'').text!;
   const dateText=message(table,'lau_date','%d/%M (%w)');dateText.text=dateText.text!.replace('%d',day).replace('%M',month).replace('%w',weekday);
-  return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',41),binding('HudMenu_00_WhiteBlack',0),binding('HudMenu_00_NetMode',4),binding('HudMenu_00_NetAtn',8),binding('HudMenu_00_Bat',3),binding('HudMenu_00_WalkCoin',time*.06)],overrides:{
-   T_NetMode_00:message(table,'lau_connect4','Disabled'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:'0'},T_Coin_00:{text:'0'}
+  return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',41),binding('HudMenu_00_WhiteBlack',0),binding('HudMenu_00_NetMode',sample?.netModeFrame??4),binding('HudMenu_00_NetAtn',sample?.netAtnFrame??8),binding('HudMenu_00_Bat',sample?.batteryFrame??3),binding('HudMenu_00_WalkCoin',sample?.walkCoinFrame??time*.06)],overrides:{
+   T_NetMode_00:message(table,sample?.networkMessage??'lau_connect4','Disabled'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:String(sample?.steps??0)},T_Coin_00:{text:String(sample?.coins??0)}
   }});
  }
  function toolbar(ctx:Context,state?:MenuState,fullHeight=false){

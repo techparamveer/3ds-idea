@@ -1,3 +1,4 @@
+import type { DiagnosticHomeHudSample } from './home-hud-sample';
 import { homeTitleBannerKind, hasHomeTitleBanner } from './home-title-banner';
 import type { StockModelBackground } from './stock-model-background';
 import {drawNativeSystemOverlay} from './native-system-presentation';
@@ -297,7 +298,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground; font?:
   nativeHome.folderBackdrop(b,folderCapture.pixels,state,reduced);
  }
  let reduced=options.reducedMotion??false;
- function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean}){
+ function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample}){
   if(disposed)return;
   graphics.syncStockView(state,t);
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
@@ -343,7 +344,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground; font?:
   }
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.
-  nativeHome?.upperBase(t);if(!nativeHome?.hud(t,date,time))status(t,date,chrome);
+  nativeHome?.upperBase(t);if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite);
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);
   if(firmwareAssets)drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets);

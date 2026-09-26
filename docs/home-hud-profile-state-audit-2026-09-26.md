@@ -81,3 +81,41 @@ is introduced. This audit does not change the native profile, runtime or assets.
 Validation: profile and local source SHA-256 checked, delivered pack hash checked,
 relative links checked, and `git diff --check`. Documentation-only; application
 tests/build are not required by this change.
+
+## Renderer diagnostic seam
+
+`DiagnosticHomeHudSample` in [home-hud-sample.ts](../src/os/home-hud-sample.ts)
+now permits a **single paint** to select explicit delivered HUD clip poses,
+source network message and coin/step strings. Call
+`screens.paint(state, date, elapsedMs, sample)` or the lower-level
+`createFirmwareHome(...).hud(context, date, elapsedMs, sample)`.
+The sample requires `kind: 'source-pose'`, a nonempty `evidence` description,
+`networkMessage` (`lau_connect0` through `lau_connect4`), `netModeFrame`,
+`netAtnFrame`, `batteryFrame`, `walkCoinFrame`, `coins` and `steps`.
+Discrete frames must be integers in their delivered clip range; WalkCoin allows
+fractional frames inside its cycle. Counters must be nonnegative safe integers.
+
+This seam deliberately accepts the message and frame independently. Native HOME
+service-to-frame bindings and charging/WalkCoin phase are still untraced; no
+mapping is asserted by this API. In the delivered pack the valid ranges are
+NetMode 0–4, NetAtn 0–9, Bat 0–6 and WalkCoin [0,360). The test's Internet/42,
+NetMode 0, NetAtn 3, Bat 4 and WalkCoin 180 are an explicit **synthetic pose
+probe**, not a reconstruction of the 04:14:35 native capture. The 42 counter has
+the private-profile provenance above; the chosen battery, signal and cycle
+frames have no native timing claim. Source artwork/messages are reused and no
+new native graphics are fabricated.
+
+No default fixture, network telemetry, persistence or URL/capture hook was added.
+An ordinary paint still selects Disabled, zero counters, Bat 3 and the existing
+elapsed-time WalkCoin cycle. The diagnostic does not mutate that state. The
+coordinator must gate any caller to the existing local capture surface, record
+the complete sample in its JSON evidence and restore an ordinary paint in
+`finally`; until that integration, this renderer capability has no browser entry
+point. A HOME trace and native consecutive captures remain prerequisites for a
+source-driven profile fixture or runtime change. No pixel or acceptance result
+changes here.
+
+Validation: seven focused HOME HUD/balloon tests pass, including diagnostic then
+ordinary-paint equivalence and rejection of invalid poses. Typecheck and production build pass.
+Browser/native comparison remains a coordinator integration check; these unit
+tests establish binding behavior only.

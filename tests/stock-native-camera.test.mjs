@@ -10,7 +10,7 @@ const transpile=(name,overrides={})=>{
   const {outputText}=ts.transpileModule(readFileSync(url,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
   return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(path.endsWith('.ts')?path:`${path}.ts`,url).href)+suffix));
 };
-const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,cameraBrowseOrange,cameraDateGroupOrange,cameraBrowseUserColor,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect,cameraBrowseBirdCenter,cameraBrowseSliderCenter,cameraBrowseSliderFrame}=await import(transpile('stock-native-camera',{
+const {cameraScreenPacks,cameraShootWelcomeTheme,drawNativeCameraLower,drawNativeCameraFrame,cameraBrowseOrange,cameraDateGroupOrange,cameraBrowseUserColor,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect,cameraBrowseBirdCenter,cameraBrowseSliderCenter,cameraBrowseSliderFrame}=await import(transpile('stock-native-camera',{
   './stock-screen-layout':transpile('stock-screen-layout'),
   './native-layout':transpile('native-layout'),
 }));
@@ -338,4 +338,22 @@ test('Camera welcome binds five messages, source dialog bodies and message-selec
   assert.equal(body.opts.overrides[page===0?'Guid1TxtW':'Guid2TxtW'].text,page===4?'OK':'Next');
  }
  assert.equal(JSON.stringify(guidePacks),before);
+});
+
+
+test('Welcome shoot theme changes only the four named source slots before the guide',()=>{
+ const source=guidePacks['camera-shoot'].layouts.P_Shoot_D,before=JSON.stringify(source),posed=cameraShootWelcomeTheme(source);
+ const changed=['ShootLBase','ShootRBase','Lever1','UserWdw1'];
+ for(let i=0;i<source.materials.length;i++){
+  const expected=structuredClone(source.materials[i]);
+  if(changed.includes(expected.name))expected.constantColors[5]=[255,161,0,255];
+  assert.deepEqual(posed.materials[i],expected);
+ }
+ assert.deepEqual(posed.roots,source.roots);assert.equal(JSON.stringify(source),before);
+ const missing=structuredClone(source);missing.materials=missing.materials.filter(m=>m.name!=='Lever1');
+ assert.throws(()=>cameraShootWelcomeTheme(missing),/Missing Camera shoot colour slot/);
+ const frame=paintFrame(view('guide',[],{guidePage:0})),draw=frame.draws.find(d=>d.layout==='P_Shoot_D');
+ assert.deepEqual(draw.opts.bindings,[{name:'P_Shoot_D_Disable',frame:0}]);
+ assert.equal(draw.opts.overrides.TxtBrws.text,'View Photos/Videos');
+ assert.ok(frame.draws.indexOf(draw)<frame.draws.findIndex(d=>d.layout==='C_DlgChA'));
 });

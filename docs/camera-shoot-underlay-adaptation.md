@@ -68,3 +68,48 @@ Verification on this worktree: the 22 focused Camera/background/readiness tests,
 failures are unavailable private hardware model/report fixtures plus the Notes
 specimen test's hard-coded external-drive write failing with ENOSPC. Camera
 and stock readiness tests pass in that run. The full suite is not claimed green.
+
+## Follow-up: source 2D Welcome perimeter
+
+The live guide now also loads the already delivered
+`packs/camera/contents/0000-0000001a/lyt-P_Shoot_D-arc-LZ.json` and draws its
+`P_Shoot_D` layout after CGFX and before `C_DlgChA`. Its source layout SHA-256
+is `3000aa79b92564e0cf495403adaa1c5d835fc44c1c64449075c369137d23ef5b`.
+The `P_Shoot_D_Disable` clip (source SHA-256
+`a129d382126a52af8f615d4348f80fc9a20425134c1d2c3c789abc8b007fc1a1`)
+is held at local frame 0: it raises PhoBase/MovBase by 8 source units and
+retains the source footer/header geometry. This is a capture-fit choice for
+the inactive controls behind Welcome, not a proven native controller binding.
+Messages follow the layout's `MSG` metadata and retain their RI.mstl colours.
+
+The four named constant slot-5 materials ShootLBase, ShootRBase, Lever1 and
+UserWdw1 receive the existing orange `(255,161,0,255)` user theme. The three
+blue source slots and the turquoise UserWdw1 slot are checked before cloning;
+all other materials, including UserWdw0 and the text-window materials, retain
+their distinct source constants. No source JSON or textures are changed.
+The photo/movie, left/right shoulder and footer graphics all come from this
+layout's delivered firmware textures. They remain inert behind the guide.
+
+Native lower pixels at `(0,0)`, `(40,0)` and `(0,210)` are `(127,81,0)`.
+A Canvas `brightness(0.5)` filter is applied only during the source 2D draw,
+then restored before the guide. This is an explicit capture-fitted attenuation
+adaptation; it does not assert C_BkMask use or native compositing equivalence.
+The expected half theme `(127.5,80.5,0)` motivates this bounded fit. C_BkMask
+is absent from delivered packs, so this implementation does not claim to
+load it. CGFX brightness remains unchanged.
+
+An offline CPU Canvas probe confirmed the source layout/textures draw without
+renderer diagnostics and expose the expected brown shoulder/footer graphics.
+This does not verify browser output. The missing `-L-BtnIOcam` child resource
+leaves the top strip near x80–128 incomplete, and tool child layouts are not
+instantiated (covered by the guide). Native CGFX grid brightness/registration,
+full native attenuation and settled runtime bindings remain unresolved. Pages
+2–5 reuse this static underlay and require their own coordinator comparisons.
+The prior paragraph describing absent 2D composition is superseded by this
+follow-up; its other acceptance limits still apply.
+
+Follow-up verification: 41 focused Camera/background/preparation tests pass,
+including source immutability, draw ordering, missing-pack failure and Canvas
+filter restoration after a thrown source draw. `npm run typecheck`,
+`npm run build` and `git diff --check` pass. No production browser or emulator
+was driven; coordinator raw LCD comparison remains the acceptance gate.

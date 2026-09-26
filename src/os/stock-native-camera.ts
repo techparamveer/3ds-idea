@@ -19,6 +19,9 @@ export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
     'P_BrwsMenu_D_Brws',
   ],
 },{
+  url:'packs/camera/contents/0000-0000001a/lyt-P_Shoot_D-arc-LZ.json',alias:'camera-shoot',
+  layouts:['P_Shoot_D'],animations:['P_Shoot_D_Disable'],
+},{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',alias:'camera-finder',
   layouts:['P_FinderVS_U','P_Finder_U'],animations:[],
 },{
@@ -175,6 +178,34 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
   return okay;
 }
 
+/** Capture-fitted Welcome theme, limited to named source user-colour slots.
+ * Other material constants, texture maps and authored panes remain intact. */
+export function cameraShootWelcomeTheme(source:NativeLayout):NativeLayout{
+  const posed=structuredClone(source);
+  for(const [name,expected] of [['ShootLBase','0,128,255,255'],['ShootRBase','0,128,255,255'],['Lever1','0,128,255,255'],['UserWdw1','145,221,210,255']]){
+    const material=posed.materials.find(item=>item.name===name);
+    if(!material||material.constantColors[5]?.join(',')!==expected)throw new Error('Missing Camera shoot colour slot '+name);
+    material.constantColors[5]=[...cameraBrowseUserColor];
+  }
+  return posed;
+}
+const shootWelcomeLayouts=new WeakMap<NativeLayoutRenderer,NativeLayout>();
+function drawCameraShootWelcome(renderer:NativeLayoutRenderer,bottom:CanvasRenderingContext2D):boolean{
+  const source=renderer.packs['camera-shoot']?.layouts?.P_Shoot_D;
+  if(!source)return false;
+  const message=(label:string)=>nativeMessageOverride(renderer.packs['camera-messages'],'P',label,'');
+  const overrides={TxtBtn:message('Shoot_01'),TxtShootL:message('Shoot_00'),TxtShootR:message('Shoot_00'),TxtBrws:message('Shoot_05'),TxtSet:message('setting')};
+  let layout=shootWelcomeLayouts.get(renderer);
+  if(!layout){layout=cameraMessageColors(cameraShootWelcomeTheme(source),overrides);shootWelcomeLayouts.set(renderer,layout);}
+  bottom.save();
+  try{
+    // Native exposed orange is (127,81,0), near half of (255,161,0).
+    // This 2D-only brightness fit is not a replay of the native guide mask.
+    bottom.filter='brightness(0.5)';
+    return renderer.drawLayout(bottom,'camera-shoot','P_Shoot_D',layout,{bindings:[{name:'P_Shoot_D_Disable',frame:0}],overrides});
+  }finally{bottom.restore();}
+}
+
 /** Original Guide_snk.gbin first GUID: D_003_0..4, modes 2/3/3/3/4.
  * Illustration names come from each message's group 4/type 1 token. */
 export const cameraWelcomePages=[
@@ -195,6 +226,7 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   top.fillStyle='#000';top.fillRect(0,0,400,240);
   bottom.fillStyle='#000';bottom.fillRect(0,0,320,240);
   if(options.cameraShoot)okay=options.cameraShoot.draw(bottom)&&okay;
+  okay=drawCameraShootWelcome(renderer,bottom)&&okay;
   const capacity=nativeMessageOverride(renderer.packs['camera-messages'],'P','Finder_Pho_00_00','');
   draw(top,'camera-finder','P_Finder_U',{overrides:{
     Grid:{visible:false},ShootInfoDlg:{visible:false},ShootInfo:{visible:false},State_IcamOcam:{visible:false},
@@ -205,7 +237,7 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   draw(top,'camera-icons','C_IconSD',{center:[387,225]});
   if(entry.illustration){draw(top,'camera-dialog','C_DlgGuid_U');draw(top,'camera-guide-upper',entry.illustration);}
   // Both source guide button containers mount this body at identity; the body
-  // includes its own Bird artwork. Entry/exit and shoot 2D controls remain unported.
+  // includes its own Bird artwork. Entry/exit animation remains unported.
   draw(bottom,'camera-dialog','C_DlgChA');
   const total=message('Guide_D_00_00'),current=message('Guide_D_00_01');
   const width=total.messageStyle?.unresolvedWords?.['0'];

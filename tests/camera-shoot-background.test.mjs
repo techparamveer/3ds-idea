@@ -38,10 +38,17 @@ test('Camera invalid resources fail readiness explicitly',async t=>{
 });
 test('Camera guide draws source model before dialog and propagates an unavailable draw',async()=>{
  const {drawNativeCameraGuide}=await import(moduleUrl(fileURLToPath(new URL('../src/os/stock-native-camera.ts',import.meta.url))));
- const packs={'camera-messages':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/msg-EU_English.json',firmware))),'camera-dialog':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-C-Dlg.json',firmware)))};
- const sequence=[],top={fillRect(){}},bottom={fillRect(){}},renderer={packs,draw(ctx,pack,layout){sequence.push(layout);return true;},drawLayout(ctx,pack,layout){sequence.push(layout);return true;}};
+ const packs={'camera-shoot':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-P_Shoot_D-arc-LZ.json',firmware))),'camera-messages':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/msg-EU_English.json',firmware))),'camera-dialog':JSON.parse(readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-C-Dlg.json',firmware)))};
+ const sequence=[],top={fillRect(){}},bottom={fillRect(){},save(){},restore(){}},renderer={packs,draw(ctx,pack,layout){sequence.push(layout);return true;},drawLayout(ctx,pack,layout){sequence.push(layout);return true;}};
  const view={appId:'camera',screen:'guide',heading:'',rows:[],selection:0,footer:{},data:{guidePage:0}};
  assert.equal(drawNativeCameraGuide(renderer,top,bottom,view,{cameraShoot:{draw(ctx){assert.equal(ctx,bottom);sequence.push('CGFX');return true;}}}),true);
- assert.ok(sequence.indexOf('CGFX')<sequence.indexOf('C_DlgChA'));
+ assert.ok(sequence.indexOf('CGFX')<sequence.indexOf('P_Shoot_D'));
+ assert.ok(sequence.indexOf('P_Shoot_D')<sequence.indexOf('C_DlgChA'));
  assert.equal(drawNativeCameraGuide(renderer,top,bottom,view,{cameraShoot:{draw(){return false;}}}),false);
+ const stateful={fillRect(){},filter:'none',save(){this.saved=this.filter;},restore(){this.filter=this.saved;}};
+ const throwing={...renderer,drawLayout(ctx,pack,layout){if(layout==='P_Shoot_D'){assert.equal(ctx.filter,'brightness(0.5)');throw new Error('source draw failed');}return true;}};
+ assert.throws(()=>drawNativeCameraGuide(throwing,top,stateful,view),/source draw failed/);
+ assert.equal(stateful.filter,'none');
+ assert.equal(drawNativeCameraGuide({...renderer,packs:{...packs,'camera-shoot':undefined}},top,bottom,view),false);
+
 });

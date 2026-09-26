@@ -28,6 +28,8 @@ namespace SPICA.Formats.CtrGfx.Animation
             public List<ZoneSegment> Segments { get; init; }
         }
 
+        [Ignore] public ZoneGroup SourceGroup;
+
         public static bool DecodeZoneSegments;
         public static readonly List<ZoneGroup> ZoneGroups = new List<ZoneGroup>();
         private float _StartFrame;
@@ -241,7 +243,8 @@ namespace SPICA.Formats.CtrGfx.Animation
             }
             StartFrame = segments[0].StartFrame;
             EndFrame = segments[segments.Count - 1].EndFrame;
-            ZoneGroups.Add(new ZoneGroup { Offset = groupAt, Segments = segments });
+            SourceGroup = new ZoneGroup { Offset = groupAt, Segments = segments };
+            ZoneGroups.Add(SourceGroup);
         }
 
         bool ICustomSerialization.Serialize(BinarySerializer Serializer)

@@ -92,3 +92,22 @@ that remains necessary before claiming full boundary playback correctness.
 The earlier playback-boundary fixture describes the historical conversion and
 continues to prove its mixed-step defect. This repair establishes scalar export
 only, with no runtime or pixel-fidelity claim.
+
+
+## Named segment binding repair
+
+The next exporter pass stores the decoded `SourceGroup` on its owning
+`GfxFloatKeyFrameGroup` object. For the pinned Zone path only, each native
+animation element is passed through SPICA's element conversion independently
+to obtain its runtime name/target. Each source channel then receives
+`SourceGroupOffset` and `SourceSegments` on that exact converted curve.
+Ambiguous element or missing channel mappings fail conversion. No key-value
+matching is used; equal authored curves retain separate pointer identities.
+
+A fresh private conversion under `delegation/zone-binding-converted` passes
+the expanded scalar/binding audit: **37 distinct groups, 159 segments, 687 keys**.
+Every bound segment header, flag and key matches independent raw-byte decoding
+within float serialization precision. Exporter build passes with zero errors.
+This establishes curve ownership and preserves all interpolation flags without
+choosing boundary precedence. The browser still samples flattened keys; Zone
+publication remains disabled pending segment evaluation and a boundary oracle.

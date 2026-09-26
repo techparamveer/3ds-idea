@@ -22,6 +22,34 @@ def inspect(source, converted):
     if model['sourceSha256'] != COMMON_SHA:
         raise ValueError('Unexpected converted source')
     elements = model['materialAnimations'][0]['Elements']
+    bound = []
+    segment_count = key_count = 0
+    for kind in ('skeletalAnimations', 'materialAnimations'):
+        for element in model[kind][0]['Elements']:
+            for channel, curve in element['Content'].items():
+                if not isinstance(curve, dict) or 'SourceSegments' not in curve:
+                    continue
+                offset = curve['SourceGroupOffset']
+                source_segments = raw_group(raw, offset)
+                if len(source_segments) != len(curve['SourceSegments']):
+                    raise ValueError('Bound segment count differs from source')
+                for expected, actual in zip(source_segments, curve['SourceSegments']):
+                    if expected['FormatFlags'] != actual['FormatFlags'] or any(
+                            not math.isclose(expected[k], actual[k], rel_tol=1e-6, abs_tol=1e-5)
+                            for k in ('StartFrame', 'EndFrame')):
+                        raise ValueError('Bound segment header differs from source')
+                    if len(expected['Keys']) != len(actual['Keys']):
+                        raise ValueError('Bound key count differs from source')
+                    for left, right in zip(expected['Keys'], actual['Keys']):
+                        if any(not math.isclose(left[k], right[k], rel_tol=1e-6, abs_tol=1e-5)
+                               for k in ('Frame', 'Value', 'InSlope', 'OutSlope')):
+                            raise ValueError('Bound key differs from source')
+                    segment_count += 1
+                    key_count += len(expected['Keys'])
+                bound.append(offset)
+    if bound and (len(bound) != 37 or len(set(bound)) != 37 or
+                  set(bound) != {g['Offset'] for g in model['sourceCurveGroups']}):
+        raise ValueError('Source group binding is incomplete or duplicated')
     rows = []
     for offset, (name, target) in BINDINGS.items():
         matches = [e for e in elements if e['Name'] == name and e['TargetType'] == target]
@@ -39,6 +67,7 @@ def inspect(source, converted):
                 raise ValueError('Scalar key differs from source')
         rows.append({'offset': hex(offset), 'material': name, 'target': target, 'keys': len(expected)})
     return {'sourceSha256': COMMON_SHA, 'restoredScalars': rows,
+            'boundGroups': len(bound), 'boundSegments': segment_count, 'boundKeys': key_count,
             'scope': 'Scalar source bindings only; mixed segment playback and native pixels remain open'}
 
 if __name__ == '__main__':

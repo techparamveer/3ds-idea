@@ -28,6 +28,35 @@ static class Exporter {
     }
     return words;
   }
+  // Carry source segment ownership through the same native element-to-H3D
+  // conversion used by SPICA. Never infer a binding from equal flattened keys.
+  static object ZoneAnimations(IEnumerable<GfxAnimation> animations) {
+    var output = new List<object>();
+    foreach (var animation in animations) {
+      var clean = (SortedDictionary<string,object>)Clean(animation.ToH3DAnimation());
+      var elements = (List<object>)clean["Elements"];
+      foreach (var original in animation.Elements) {
+        var single = new GfxAnimation { Name = animation.Name, TargetAnimGroupName = animation.TargetAnimGroupName };
+        single.Elements.Add(original);
+        var targets = single.ToH3DAnimation().Elements;
+        foreach (var property in original.Content.GetType().GetProperties(BindingFlags.Public|BindingFlags.Instance)) {
+          if (property.GetValue(original.Content) is not GfxFloatKeyFrameGroup group || group.SourceGroup == null) continue;
+          if (targets.Count != 1) throw new InvalidDataException("Ambiguous Zone source element mapping");
+          var target = targets[0];
+          var matches = elements.Cast<SortedDictionary<string,object>>().Where(e =>
+            (string)e["Name"] == target.Name && (string)e["TargetType"] == target.TargetType.ToString()).ToArray();
+          if (matches.Length != 1) throw new InvalidDataException("Ambiguous Zone target element mapping");
+          var content = (SortedDictionary<string,object>)matches[0]["Content"];
+          if (!content.TryGetValue(property.Name, out var value) || value is not SortedDictionary<string,object> curve)
+            throw new InvalidDataException("Missing Zone source channel mapping");
+          curve["SourceGroupOffset"] = group.SourceGroup.Offset;
+          curve["SourceSegments"] = Clean(group.SourceGroup.Segments);
+        }
+      }
+      output.Add(clean);
+    }
+    return output;
+  }
   static object Clean(object value, int depth=0) {
     if(value==null || depth>24) return null;
     Type t=value.GetType();
@@ -117,7 +146,7 @@ static class Exporter {
       converter="SPICA headless CGFX exporter",animationStatus=zoneStatic?"omitted: static Zone source inspection":zoneFull?"parsed segments; native playback unverified":"parsed",
       sourceCurveGroups=zoneFull?GfxFloatKeyFrameGroup.ZoneGroups.ToArray():Array.Empty<GfxFloatKeyFrameGroup.ZoneGroup>(),
       models,textures,luts,cameras=Clean(scene.Cameras),lights,
-      skeletalAnimations=Clean(scene.SkeletalAnimations),materialAnimations=Clean(scene.MaterialAnimations),visibilityAnimations=Clean(scene.VisibilityAnimations),cameraAnimations=Clean(scene.CameraAnimations)};
+      skeletalAnimations=zoneFull?ZoneAnimations(native.SkeletalAnimations):Clean(scene.SkeletalAnimations),materialAnimations=zoneFull?ZoneAnimations(native.MaterialAnimations):Clean(scene.MaterialAnimations),visibilityAnimations=Clean(scene.VisibilityAnimations),cameraAnimations=Clean(scene.CameraAnimations)};
     File.WriteAllText(Path.Combine(args[1],"model.json"),JsonSerializer.Serialize(result,Json));
     Console.WriteLine($"Exported {scene.Models.Count} models, {scene.Textures.Count} textures, {scene.SkeletalAnimations.Count} skeletal, {scene.MaterialAnimations.Count} material animations");
     return 0;

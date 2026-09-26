@@ -64,12 +64,12 @@ try{
   assert.equal(JSON.stringify(originalPacks),before,'source resources remain immutable');
   if(view.data?.manualTitleId){
    assert.equal(assets.renderer.packs['manual-index'].titleId,'0004001000022000');
-   const rows=calls.filter(c=>c.layout==='BtnHeadLineTxt').map(c=>[c.options.overrides.TextBox_Num.text,c.options.overrides.TextBox_Txt.text,c.options.center[1]]);
+   const rows=calls.filter(c=>c.layout==='ManualRowImportant'||c.layout==='ManualRowGettingStarted').map(c=>[c.options.overrides.TextBox_Num.text,c.options.overrides.TextBox_Txt.text,c.options.center[1]]);
    assert.deepEqual(rows,[['1','Important Information',86],['2','Using the System Settings',174]]);
    assert.equal(calls.find(c=>c.layout==='SoftTitleHeader').options.overrides.TextBoxTxt_00.text,'System Settings');
   }
   const targets=nativeHelperTargets(view);
-  if(view.data?.manualTitleId)assert.deepEqual(targets,[],'no application-manual control is implemented yet');
+  if(view.data?.manualTitleId)assert.deepEqual(targets,[{action:'back',x:0,y:212,width:160,height:28}],'only the sourced Close button acts');
   else{
    assert.equal(targets.filter(target=>target.action==='back').length,1);
    if(view.appId==='system-transfer'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['back','3ds','dsi']);

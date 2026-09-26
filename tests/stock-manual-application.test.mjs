@@ -76,7 +76,7 @@ test('the manual applet enters Settings Contents only through an explicit argume
   assert.equal(module.create({ manualTitleId: 'not-a-title' }, null, ctx).manualTitleId, undefined);
 });
 
-test('Settings Contents loads applet chrome plus the Settings-owned Index and exposes no unimplemented control', () => {
+test('Settings Contents loads source chrome, lets Close act, and leaves unfinished controls inert', () => {
   const view = { appId: 'manual', screen: 'main', heading: 'System Settings', rows: [], selection: 0, footer: { left: { action: 'back', label: 'Back' } }, data: { manualTitleId: settings } };
   const request = helpers.nativeHelperView(view);
   assert.equal(request.titleId, '0004003000009b02');
@@ -84,7 +84,10 @@ test('Settings Contents loads applet chrome plus the Settings-owned Index and ex
   assert.deepEqual(index, { url: source.url, alias: 'manual-index', layouts: ['Index'], animations: [], titleId: settings });
   for (const item of request.packs.filter(item => item !== index)) assert.ok(manifest.titles['0004003000009b02'].packs.includes(item.url));
   assert.equal(request.packs.some(item => /BtnClose00|BtnBack00|PageNum|PageBg00/.test(item.url)), false, 'no substitute footer or page chrome');
-  assert.deepEqual(helpers.nativeHelperTargets(view), []);
+  assert.deepEqual(helpers.nativeHelperTargets(view), [{ action: 'back', x: 0, y: 212, width: 160, height: 28 }]);
+  const module = createStockModule(getTitle('manual'));
+  const state = module.create({ manualTitleId: settings }, null, ctx);
+  assert.deepEqual(module.reduce(state, { type: 'action', id: 'back' }, ctx).effects, [{ type: 'close' }]);
   const unknown = helpers.nativeHelperView({ ...view, data: { manualTitleId: '0004001000022300' } });
   assert.equal(manifest.titles['0004001000022300'].packs.includes(unknown.packs.at(-1).url), false, 'an undelivered manual fails to load');
   assert.equal(helpers.APPLICATION_MANUAL_HEADER_CENTRE[1], -22);

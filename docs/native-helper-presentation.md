@@ -101,8 +101,9 @@ argument `manualTitleId: '0004001000022000'` (for example
 `invokeSystemApplet(state, 'manual', now, { manualTitleId })`). No HOME control,
 footer button or portfolio slot passes it yet. Without it, the Portfolio Guide is
 unchanged. An unknown 16-hex title ID is retained and then fails its native load
-explicitly, as no manual pack is listed for it. The view has no rows, no text and
-no touch targets; A and directional input are inert, and B/HOME close the applet.
+explicitly, as no manual pack is listed for it. The view has no rows or guide
+text. X Close and B/HOME close the applet; A, Y Language and directional input
+are inert.
 
 **Source mapping.**
 
@@ -110,7 +111,7 @@ no touch targets; A and directional input are inert, and B/HOME close the applet
 | --- | --- |
 | Row titles, numbers and order; category bands' order and titles | Settings content 1 `Manual.bcma/EUR_en_index.arc/blyt/Index.bclyt` (`packs/settings/contents/0001-00000038/manual-EUR_en.json`, loaded with owner title `0004001000022000`). `src/os/stock-manual-index.ts` reads `MetaData` `PageNum`/`CategoryNum` and each `Category_nnn` `IsValid`, `CategoryPageNum` and `PageID_nnn`. Category 0 (`IsValid` 0) gives page 1 without a band. Malformed metadata fails. |
 | Upper header text | Settings SMDH English long description (manifest `titles[0004001000022000].longDescription`, `ExeFS/icon` of content `0000003d`), drawn in applet `SoftTitleHeader/TextBoxTxt_00`. |
-| Header position | Applet `IndexNull` `SoftTitleHead` Y+262 in its 400×480 root, also `IndexNull_Wait` (`layout/IndexNull.arc/blyt/IndexNull.bclyt`, SHA-256 `af65d3ac…43c9`; private converted inventory, not a public pack): upper centre y = 240 − 262. |
+| Header position | Delivered applet `IndexNull` `SoftTitleHead` Y+262 in its 400×480 root, also `IndexNull_Wait` (`layout/IndexNull.arc/blyt/IndexNull.bclyt`, SHA-256 `af65d3ac…43c9`): upper centre y = 240 − 262. |
 | Lower card, Contents label, rows | Applet `IndexBase00`, `ContentsTxt` with `ebird/ContentsText`, `BtnHeadLineTxt` with `BtnHeadLineTxt_Wait` frame 1. |
 | List clip | `BtnClose00`/`BtnCloseLng00` `P_Btn_01` (y−120, height 28): y212. |
 
@@ -118,22 +119,29 @@ no touch targets; A and directional input are inert, and B/HOME close the applet
 54px per row and 34px per category band are fitted to the capture, because
 the applet places the list in code under `IndexNull/HeadLineAll`. The source
 render matched the capture's chip and label rows at x80 and x160. The LCDs have
-an opaque white base below the source chrome.
+an opaque white base below the source chrome. The category band centre is
+10px above the next row slot, fitted to the same capture. The applet supplies
+`CategoryColor00` and `PageTitleNumBase` masks but sets their RGB registers in
+code; this bounded render uses the capture's interior RGB samples
+`(154,212,105)` for the first category and page-2 chip and `(237,136,136)`
+for the page-1 chip. Source shapes and alpha remain unchanged.
 
-**Source gaps, omitted rather than drawn.** The following are absent from public
-packs. `HLTxt` category bands (such as the green *Getting Started* band) exist
-only in private inventory; their colour is set in code. So are the
-`CsrHeadLine00` green cursor, the `ScrollIndicator` teal upper bar and the
-`BtnCloseLng00` X Close / Y Language footer. The Language button has no layout
-among the delivered packs. Per-category number-chip colours are code-set, so
-chips render the source default. `P_Icon_00` hides the applet `IconBlank`,
-because the SMDH icon binding is unimplemented. The upper striped grey page
-base is unidentified. The native “Using the System Settin...” truncation rule
-is unknown, so the full source title is drawn. Row selection/scrolling, opening
-pages (only page 0 is converted), Language and Close input are absent. The
+The delivered applet `HLTxt`, `CsrHeadLine00`, `ScrollIndicator`,
+`BtnCloseLng00`, `BtnLngSel00` and `BtnShdw00` form the category, cursor,
+upper bar and two-button footer. Their source animations and original `ebird`
+messages are loaded explicitly. X Close has the source lower-left 160×28 touch
+region and closes the applet. The Language button is visible but its screen
+is not delivered, so its touch region and Y command remain inert.
+
+**Remaining gaps.** `P_Icon_00` still hides the applet `IconBlank` because the
+Settings SMDH icon binding is unimplemented. The upper striped grey page base
+is unidentified. The native “Using the System Settin...” truncation rule is
+unknown, so the full source title is drawn. Later category colours, row
+selection/scrolling, opening pages and Language navigation are absent. The
 source-render verifier (`scripts/verify-stock-helpers.mjs`,
 `manual-settings-contents`) checks composition and immutability only. No
-native/browser diff has been made.
+production-browser/native pair has been captured, so this screen has no
+fidelity pass.
 
 ## Transfer and Update return follow-up
 

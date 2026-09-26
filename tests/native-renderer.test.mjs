@@ -262,3 +262,20 @@ for(const alignment of [3,4])test(`LCD text phase for alignment ${alignment} par
   renderer.dispose();
  }finally{globalThis.document=previous;}
 });
+
+test('opted-in fractional window pictures sample original texture once and honor patch material',()=>{
+ const prior=globalThis.document;globalThis.document={createElement:canvas};
+ try{
+  const linear={...material,textureMaps:[{...material.textureMaps[0],texture:1,minFilter:1,magFilter:1}]};
+  const source={...layout,textures:['unused','gradient'],materials:[material]};
+  const textures=new Map([['unused',pixels([255,0,0])],['gradient',{width:2,height:1,data:new Uint8ClampedArray([0,0,0,255,255,255,255,255])}]]);
+  const renderer=new NativeLayoutRenderer({}, {},new Map()),target=canvas();target.width=3;target.height=2;
+  const ctx=target.getContext();ctx.globalAlpha=1;ctx.getTransform=()=>({a:1,b:0,c:0,d:1,e:.25,f:0});ctx.resetTransform=()=>{};
+  ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(Array.from({length:w*h},()=>[99,99,99,255]).flat())});
+  assert.equal(renderer.projectedPicture(ctx,source,pane.picture,2,1,1,textures),false,'fractional axis-aligned path requires opt-in');
+  assert.equal(renderer.projectedPicture(ctx,source,pane.picture,2,1,1,textures,true,linear),true);
+  assert.deepEqual([...target.image.data],[0,0,0,255,191,191,191,255,99,99,99,255],'LCD centers sample patch material gradient once; uncovered pixel retains destination');
+  ctx.globalAlpha=.5;assert.equal(renderer.projectedPicture(ctx,source,pane.picture,2,1,1,textures,true,linear),false,'unsupported Canvas alpha retains existing path');
+  renderer.dispose();
+ }finally{globalThis.document=prior;}
+});

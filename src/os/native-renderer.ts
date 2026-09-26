@@ -6,6 +6,8 @@ type Context=CanvasRenderingContext2D;
 export type NativeDrawOptions={
  /** Opt in only after native comparison: single-line alpha text on LCD centers. */
  textSampling?:'lcd';
+ /** Source pictures/window patches sampled once at fractional LCD positions. */
+ pictureSampling?:'lcd';
  /** Capture-fitted Health Back/Other title coverage; GPU precision remains unverified. */
  textCoverageAdaptation?:'azahar-12p4-fit';
  /** Explicit source layout links; each prt1 retains its own pane/material scope. */
@@ -95,13 +97,13 @@ export class NativeLayoutRenderer {
    ctx.putImageData(data,0,0);return canvas;
   });
  }
- /** Rotated native pictures sample textures once at LCD pixel centres. A
+ /** Rotated pictures, and explicitly opted-in fractional panes, sample once at LCD centres. A
   * pane-sized intermediate followed by Canvas rotation filters the edges twice.
   * Limit direct readback to opaque targets and ordinary source-over blending;
   * other blend/alpha targets retain the established composition path. */
- private projectedPicture(ctx:Context,layout:NativeLayout,picture:NativePicture,w:number,h:number,alpha:number,textures:ReadonlyMap<string,NativePixels>):boolean{
-  const m=ctx.getTransform?.(),material=layout.materials[picture.material],blend=material.colorBlend;
-  if(!m||(!m.b&&!m.c)||ctx.globalAlpha!==1||(blend&&!(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)))return false;
+ private projectedPicture(ctx:Context,layout:NativeLayout,picture:NativePicture,w:number,h:number,alpha:number,textures:ReadonlyMap<string,NativePixels>,lcd=false,override?:NativeMaterial):boolean{
+  const m=ctx.getTransform?.(),material=override??layout.materials[picture.material],blend=material.colorBlend;
+  if(!m||(!m.b&&!m.c&&(!lcd||Number.isInteger(m.e)&&Number.isInteger(m.f)))||ctx.globalAlpha!==1||(blend&&!(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)))return false;
   const det=m.a*m.d-m.b*m.c;if(!det)return false;
   const corners=[[0,0],[w,0],[0,h],[w,h]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
   const x=Math.max(0,Math.floor(Math.min(...corners.map(p=>p[0])))),y=Math.max(0,Math.floor(Math.min(...corners.map(p=>p[1]))));
@@ -257,13 +259,17 @@ export class NativeLayoutRenderer {
      if(w>0&&h>0&&alpha>0){
       ctx.save();ctx.translate(x,y);
       try{
-       if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures)){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
+       if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){const raster=this.text(layout,pane,alpha,options.textSampling==='lcd'?ctx.getTransform?.():undefined,options.textCoverageAdaptation),textCanvas=raster.canvas;
         ctx.beginPath();ctx.rect(0,0,w*(Math.ceil(w)+raster.extra)/Math.ceil(w),h);ctx.clip();
         this.composite(ctx,textCanvas,0-raster.phase[0],0-raster.phase[1],w*textCanvas.width/Math.ceil(w),h*textCanvas.height/Math.ceil(h),layout,pane.text.material);
        }
        if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;
+        if(options.pictureSampling==='lcd'){
+         ctx.save();let sampled=false;try{ctx.translate(patch.x,patch.y);sampled=this.projectedPicture(ctx,layout,patch.picture,patch.width,patch.height,alpha,textures,true,patch.material);}finally{ctx.restore();}
+         if(sampled)continue;
+        }
         const visible=nativeVisibleRasterRect(patch.x,patch.y,patch.width,patch.height,ctx.getTransform(),ctx.canvas.width,ctx.canvas.height);if(!visible)continue;
         this.composite(ctx,this.picture(packName,layout,patch.picture,visible.rasterWidth,visible.rasterHeight,alpha,textures,patch.material,visible.sampling),visible.x,visible.y,visible.width,visible.height,layout,patch.picture.material,patch.material,allowOpaqueDarken);
        }

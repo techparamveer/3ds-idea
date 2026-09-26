@@ -87,7 +87,7 @@ export function drawNativeHealthFrame(renderer:NativeLayoutRenderer,top:CanvasRe
     for(let i=0;i<5;i++){const icon=layout.warnings[i];overrides['SafeIcon_0'+(i+1)]=icon?{visible:true,translation:[icon.x,icon.y,0]}:{visible:false};}
     draw(bottom,'health-pages','SafeText_D_00',{bindings:[{name:'SafeText_D_00_SceneIn',frame:20}],overrides,attachments:{
       TextArea_00:alpha=>paintArticle(bottom,font,articleGlyphs,material,alpha),
-      N_SlideBar_00:()=>draw(bottom,'health-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:article.selectFrame}],
+      N_SlideBar_00:()=>draw(bottom,'health-slidebar','SlideBar',{pictureSampling:'lcd',bindings:[{name:'SlideBar_Select',frame:article.selectFrame}],
         overrides:{...slideBarSizes,B_Slide_00:{size:[24,22],translation:[0,article.thumbY,0]},N_Slide_00:{visible:true,translation:[0,article.thumbY,0]}}}),
     }});
     draw(bottom,'health-back','BtmBtn_White',{textSampling:'lcd',textCoverageAdaptation:'azahar-12p4-fit',bindings:[{name:'BtmBtn_White_SceneIn',frame:20}],overrides:{T_BtnB_00:message('back'),T_BtnF_00:message('back')}});

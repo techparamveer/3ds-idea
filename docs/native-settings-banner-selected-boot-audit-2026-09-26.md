@@ -138,3 +138,8 @@ Native HOME boot/CUA selection and browser shortcut/Left prefixes are only broad
 ## Later settled native burst and fit revert
 
 The genuine twelve-image burst at 04:14:30.13–04:14:41.277 on 26 September shows a broad icon row around x=65–335 while the wrench rotates. The earlier compressed snapshot therefore does not establish a constant settled projection. The constant fit `cfefa16` regressed live HOME and was removed in `ba0b8d5`. Its restored live diagnostic retains 56,631 upper / 36,088 lower pixels above 2/255, with unmatched input and unknown native frame phase. Profile status and excluded native neighboring titles also differ. See [v36 evidence](progress-2026-09-24.md#settings-hud-and-restored-home-projection--26-september-2026); neither a fixed projection nor a timing offset is accepted.
+
+
+## Synthetic frame 309 after the revert
+
+The [v37 diagnostic](progress-2026-09-24.md#home-settings-synthetic-frame-309--26-september-2026) compares production `ba0b8d5` with `lcdBannerFrame=309` against native 04:14:35.203. It retains 56,409 upper / 36,358 lower pixels above 2/255 and remains fail. Offline silhouette estimates across the native burst are consistent with the existing approximately 600-frame/10-second turn; they supply no observed native counter or shared activation boundary. `captureScreensAt(elapsedMs,date)` does not advance live banner clocks. A closer synthetic wrench pose does not establish native timing, shading or whole-screen acceptance.

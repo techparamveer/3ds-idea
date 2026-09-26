@@ -80,3 +80,10 @@ Azahar's **File → Recent Files** menu and saved
 SHA-256 `68e48e0e742aae834b3e7e600221ed8e80c1b567edf5e4d4ac91d41d8a145d3f`.
 This direct-title launch is recorded separately from a HOME-to-Settings route;
 it does not prove matched launch input or motion.
+
+After a fresh launch from the SSD copy's game list, mapped lower-screen touch
+U opened Other Settings page 1. Azahar saved
+`screenshots/System Settings_26.09.26_21.33.43.361.png` at 400×480,
+SHA-256 `fb1a9fb404082e68fa06928aac77a4604c1340e91ecebf9a06d9e28d9f5470f7`.
+The subsequent production-browser pair matches settled pixels on both LCDs,
+but the native title-list entry still differs from browser HOME entry.

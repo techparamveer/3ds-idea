@@ -91,3 +91,40 @@ delivered as `icons/sound.png` SHA-256
 `963b10e9162a174d625f8bf2fe8b0cbfc17b3e2a1b6f4a6ca106a5a1cd5b1118`.
 The profile's cached Sound SMDH also decodes to a blue note. No Sound icon
 mapping or asset change is justified by the orange native neighbor.
+
+
+## Bounded wrench-only follow-up at `4b75c4a`
+
+The two raw LCD images were inspected again. The icon row and title occupy
+similar positions; the wrench is narrow in native and broad in browser. A
+rectangle `(140,32,110,101)` isolates the wrench area above the icon row and
+excludes HUD, title and lower LCD. It contains **8,201 of 11,110 pixels** with
+any channel delta over 2, mean RGB error **51.44095**, maximum **172**. It still
+includes wallpaper, so it is a diagnostic rectangle, not a geometry-only score
+or an acceptance mask. The inputs are native combined SHA-256
+`e7f04e64fd43af04450254d90c3ad3aac43bac2ea791182c839de406fb7d33fa` and browser
+upper SHA-256 `3ed8501ca2564b1027b94e001591305c8ed66820e0ea6ee5d7467f0e6cedab94`.
+
+**No runtime change:** the current pair cannot distinguish a phase offset from
+a speed, activation-delay or pose-binding defect. Browser capture records
+skeletal frame/yaw counter 276 at HOME update 519; native has no recorded
+counter or matching activation boundary. Seeking an arbitrary narrow pose would
+fit one still while introducing unsupported motion. The source `COMMON` loop
+and generic primary's 600-count yaw remain unchanged. This is an explicit
+native-timing evidence gap, not a passing banner or a missing source model.
+
+The next useful capture needs a shared observable boundary: select another
+native title, return to Settings, and sample the first visible pose plus
+explicit relative frame counts in both environments. Record browser activation,
+yaw and skeletal counters. A second native still without those counts will not
+resolve this gap. Existing `lcdBannerFrame` sampling can bracket geometry only.
+
+Asset mapping remains `models.settingsBanner` → Settings
+`0004001000022000` `exefs/banner.bin`, with the shared HOME `homeCamera` and
+`bannerFrame` resources described above. No native asset or adaptation changed.
+Focused host/lifecycle/Settings checks: **30 pass, 0 fail, 1 existing TODO**;
+typecheck and diff check pass. No UI session was operated by this worker.
+The private numeric record is
+`/Users/paramveer/.codex/3ds-artifact-overflow/settings-wrench-region-20260926.json`.
+The normal private artifact volume returned ENOSPC; no existing evidence was
+removed or overwritten to make room.

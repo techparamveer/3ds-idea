@@ -2,13 +2,13 @@
 
 ## Scope and decision
 
-The live asset remains `public/models/candidates/joshua-xl.glb`, byte-identical
+At the start of this audit, the live asset was `public/models/candidates/joshua-xl.glb`, byte-identical
 to `silver-audio-finish-compact.glb` (SHA-256
 `ca37ec5824f0cd3aa46ca5079b2a339078b203a9afa5f87a1b14b09d1e68454d`).
 This audit did not change the live model. The Design worktree is sparse and does
 not contain the 16 GB model directory; the preserved model and renders were
-read from the original checkout without modifying it. No Blender MCP tool was
-available in this task.
+read from the original checkout without modifying it. Blender MCP was exposed,
+but its addon-status and scene-info calls could not connect to Blender.
 
 The clearest source-supported missing geometry is the headphone socket
 interior. The live rim surrounds a black empty aperture in the
@@ -57,13 +57,18 @@ parts attached to Base and bounded inside the socket, and nondegenerate faces
 with consistent exported frames. `tests/test_web_model.py` passed both checks
 for the candidate WebP pack, including identical decoded RGBA pixels. These
 checks establish export integrity, not photographic identity or browser
-appearance. The candidate has not been compacted with the current delivery
-pipeline or inspected in the production browser, so it must not replace the
-public GLB yet. A subsequent hardware owner should compact it to a separate
-candidate path, inspect the actual front and underside browser views under
-normal and baked materials, check hinge and controls, then compare the same
-socket crop with the original XL photo. If the browser result is acceptable,
-the coordinator can integrate the model and paint mask together.
+appearance. The candidate now has a [separate compact delivery
+copy](source-audio-contacts-delivery-validation.md). A subsequent coordinator
+trial served that copy at an isolated production-browser URL and compared it
+with the earlier live public GLB in a second browser tab. At a matched close
+front view, the new contact is visible inside the bore; the earlier aperture
+is black. Side and closed underside views showed no broad silhouette or
+artwork change. The candidate loaded with VGPU ready and in the development
+`surface=baked` fallback, without browser console errors. Space closed and
+reopened the hinge, A opened Work, and Escape returned to HOME. This supported
+promoting the contact delivery to the public GLB. The paint mask stayed
+byte-identical because the new parts add no painted shell region. A calibrated
+browser-to-photograph socket crop and factory dimensions are still unavailable.
 
 The remaining higher-scale uncertainties are the underside corner roll under
 grazing light, exact lid profile, and hardware lettering at capture-limited

@@ -53,7 +53,9 @@ traced that single-line origin and added its pixel-centre alpha path. Its
 source-render comparison still leaves a large glyph residual; the baseline
 figures in this note describe the earlier production capture.
 
-**Decision at this diagnostic:** no runtime change. The later font follow-up
-narrows the left-aligned origin question. Remaining unsupported fields include
-the residual glyph/icon edge compositing and live HUD status/charging phase.
-This production diagnostic remains `fail`; matched motion and audio are open.
+The [production raster follow-up](settings-other-title-glyph-audit-2026-09-26.md)
+in matrix v30 changes the glyph count from 958 to 961 and the whole upper
+count from 1,517 to 1,520; the lower stays at 702. It narrows the
+left-aligned origin question but leaves edge sampling and projection open.
+An arbitrary fractional offset is unsupported. Both production diagnostics
+remain `fail`; live HUD status/charging phase, motion and audio are open.

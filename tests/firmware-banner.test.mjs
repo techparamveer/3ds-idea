@@ -20,7 +20,7 @@ const {createFirmwareBanner}=await import(moduleUrl(fileURLToPath(new URL('../sr
 const {settingsBannerPhase}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/banner-verification.ts',import.meta.url))));
 const publicRoot=fileURLToPath(new URL('../public/',import.meta.url));
 const frame=Object.freeze({visible:true,scale:.8,yawRadians:.31,skeletalFrame:0,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});
-function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false,alterDefault,delayDefault,corruptDefaultTexture,defaultFetchObserver,pixelRatio=1}={}){
+function setup(t,{failure,alterSettings,alterBind=false,delayFrame,invalidFrame=false,alterDefault,delayDefault,corruptDefaultTexture,defaultFetchObserver,pixelRatio=1}={}){
  const prior={document:globalThis.document,window:globalThis.window,fetch:globalThis.fetch};
  globalThis.document={createElement(){return {width:0,height:0,getContext(){return {createImageData(w,h){return {data:new Uint8ClampedArray(w*h*4)};},putImageData(){}};}};}};
  globalThis.window={location:{href:'https://firmware.test/'}};
@@ -44,6 +44,7 @@ function setup(t,{failure,alterBind=false,delayFrame,invalidFrame=false,alterDef
   if(alterBind&&path.endsWith('/folder/model.json')){
    const model=JSON.parse(data);Object.assign(model.models[0].transform,{M11:1.2,M22:.9,M33:1.1,M41:2,M43:.4});data=JSON.stringify(model);
   }
+  if(alterSettings&&path.endsWith('/settings-banner/model.json')){const asset=JSON.parse(data);alterSettings(asset);data=JSON.stringify(asset);}
   return new Response(data);
  };
  const state={target:null,color:new THREE.Color(.2,.3,.4),alpha:.7,viewport:new THREE.Vector4(1,2,3,4),physicalViewport:new THREE.Vector4(1,2,3,4),scissor:new THREE.Vector4(5,6,7,8),scissorTest:true,stencilClear:7};
@@ -113,6 +114,39 @@ test('verification-only Settings source frames bracket the captured broad and ed
  assert.deepEqual(motion,{yawRadians:-.1466,skeletal:{frame:14}},'fixture leaves the live host motion unchanged');
  assert.deepEqual(settingsBannerPhase(motion,false),{yawRadians:-.1466,skeletalFrame:14,sample:null});
  assert.throws(()=>settingsBannerPhase(motion,false,600),/Invalid diagnostic banner frame/);
+});
+
+test('Settings wrench samples source sphere coordinates while its row/title retain authored UVs',async t=>{
+ const h=setup(t);await h.banner.ready;
+ assert.equal(h.banner.drawSettingsFrame(h.ctx,{...frame,scale:1,yawRadians:-309*Math.PI/300,skeletalFrame:309}),true);
+ const draw=h.draws.at(-1),meshes=primary(draw.scene).children[0].children,wrench=meshes[11];
+ assert.match(wrench.material.vertexShader,/vUv0=normalize\(vNormal\).xy\*0.5\+vec2\(0.5\);/);
+ for(const mesh of meshes.slice(0,11))assert.doesNotMatch(mesh.material.vertexShader,/vUv0=normalize/);
+ // The flat visible back face at source pose309 uses COMMON4's white centre,
+ // selecting Constant0 (native RGB173,173,156), not the old zero-UV black edge.
+ const data=JSON.parse(readFileSync(resolve(publicRoot,'os/firmware/10.7.0-32E/models/settings-banner/model.json')));
+ const index=data.models[0].meshes[11].normal.findIndex(n=>n[0]===0&&n[1]===0&&n[2]===-1);
+ const normal=new THREE.Vector3().fromBufferAttribute(wrench.geometry.attributes.normal,index);
+ wrench.updateWorldMatrix(true,false);
+ normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(new THREE.Matrix4().multiplyMatrices(draw.camera.matrixWorldInverse,wrench.matrixWorld))).normalize();
+ const uv=new THREE.Vector3(normal.x*.5+.5,normal.y*.5+.5,1).applyMatrix3(wrench.material.uniforms.uvMatrix0.value);
+ const image=wrench.material.uniforms.tex0.value.image;
+ const pixel=(u,v)=>{const x=Math.max(0,Math.min(image.width-1,Math.floor(u*image.width))),y=Math.max(0,Math.min(image.height-1,Math.floor(v*image.height)));return [...image.data.slice((y*image.width+x)*4,(y*image.width+x)*4+3)];};
+ assert.deepEqual(pixel(uv.x,uv.y),[255,255,255]);
+ assert.deepEqual(pixel(-.2,0),[0,0,0]);
+ assert.deepEqual(wrench.material.uniforms.constant0.value.toArray().slice(0,3).map(x=>Math.round(x*255)),[173,173,156]);
+ assert.equal(h.banner.drawFrame(h.ctx,frame),true);
+ primary(h.draws.at(-1).scene).traverse(node=>{if(node.isMesh)assert.doesNotMatch(node.material.vertexShader,/vUv0=normalize/);});
+});
+for(const [name,change]of [
+ ['unsupported mapping',p=>p.TextureCoords[0].MappingType='CameraCubeEnvMap'],
+ ['wrong source selector',p=>p.TextureSources[0]=3],
+ ['unsupported mapping flags',p=>p.TextureCoords[0].Flags='1'],
+ ['unbound reference camera',p=>p.TextureCoords[0].ReferenceCameraIndex=1],
+])test(`Settings sphere mapping rejects ${name}`,async t=>{
+ const h=setup(t,{alterSettings:asset=>change(asset.models[0].materials[2].MaterialParams)});await h.banner.ready;
+ assert.equal(h.banner.status().settingsReady,false);assert.match(h.banner.status().settingsFailure,/Unsupported native texture mapping/);
+ assert.equal(h.banner.status().ready,true,'failure stays isolated to Settings');
 });
 
 test('Settings resource failure is explicit and does not borrow the folder model',async t=>{

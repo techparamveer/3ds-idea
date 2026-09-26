@@ -107,7 +107,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     for(const material of common.materials)for(const name of [material.Texture0Name,material.Texture1Name,material.Texture2Name]){
       if(name&&!asset.images.has(name))throw new Error(`Missing native Settings texture ${name}`);
     }
-    settingsModel=createFirmwareModel(asset,{skeletal:[{name:'COMMON',frame:0}]},primaryOptions);
+    settingsModel=createFirmwareModel(asset,{skeletal:[{name:'COMMON',frame:0}]},{...primaryOptions,nativeSphereMapping:true});
     settingsModel.group.visible=false;scene.add(settingsModel.group);
   }).catch(error=>{if(!disposed)settingsFailure=String(error);});
   const frameReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-frame/model.json').then(asset=>{

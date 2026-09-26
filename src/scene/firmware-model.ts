@@ -6,7 +6,7 @@ import { nativeCameraDirectionBone, nativeYAxialBone } from './cgfx-billboard';
 import type { NativePixels } from '../os/native-layout';
 type Color={R:number;G:number;B:number;A:number};
 type Vec={X:number;Y:number;Z:number;W?:number};
-type Coord={MappingType:string;TransformType:string;Scale:Vec;Rotation:number;Translation:Vec};
+type Coord={Flags?:string;MappingType:string;TransformType:string;ReferenceCameraIndex?:number;Scale:Vec;Rotation:number;Translation:Vec};
 type Stage={Source:{Color:string[];Alpha:string[]};Operand:{Color:string[];Alpha:string[]};Combiner:{Color:string;Alpha:string};Scale:{Color:string;Alpha:string};UpdateColorBuffer:boolean;UpdateAlphaBuffer:boolean};
 export type NativeComparison='Never'|'Always'|'Equal'|'NotEqual'|'Less'|'LessOrEqual'|'Greater'|'GreaterOrEqual';
 export type NativeStencilOperation='Keep'|'Zero'|'Replace'|'Increment'|'Decrement'|'Invert'|'IncrementWrap'|'DecrementWrap';
@@ -15,7 +15,7 @@ export type FirmwareStencilState=Readonly<{
  fail:NativeStencilOperation;depthFail:NativeStencilOperation;depthPass:NativeStencilOperation;
 }>;
 export type FirmwareColorFit=Readonly<{material:string;upperY:number;lowerY:number;upperRgb:readonly [number,number,number];lowerRgb:readonly [number,number,number];opaqueAlpha?:boolean}>;
-export type FirmwareModelOptions=Readonly<{nativeMipmaps?:boolean;overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>;colorFit?:FirmwareColorFit}>;
+export type FirmwareModelOptions=Readonly<{nativeMipmaps?:boolean;nativeSphereMapping?:boolean;overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>;colorFit?:FirmwareColorFit}>;
 type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};StencilTest?:{Enabled:boolean;Function:NativeComparison;Reference:number;Mask:number;BufferMask:number};StencilOperation?:{FailOp:NativeStencilOperation;ZFailOp:NativeStencilOperation;ZPassOp:NativeStencilOperation};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
 type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string;LODBias?:number;MinLOD?:number}[]};
 type Bone={Name:string;ParentIndex:number;BillboardMode?:string;NativeBillboardMode?:number;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
@@ -82,6 +82,15 @@ export function picaFragmentShader(material:Material,lighting:ReturnType<typeof 
 const vertexShader=`attribute vec4 nativeColor;attribute vec2 nativeUv1;attribute vec2 nativeUv2;
  varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;varying vec3 vView;
  void main(){vColor=nativeColor;vUv0=uv;vUv1=nativeUv1;vUv2=nativeUv2;vNormal=normalMatrix*normal;vec4 view=modelViewMatrix*vec4(position,1.0);vView=-view.xyz;gl_Position=projectionMatrix*view;}`;
+/** Pinned SPICA bd29a782 DefaultVertexShader.txt, procedures at lines 124–129,
+ * 301–307 and 381–412: source 4 uses normalized view-normal XY * .5 + .5.
+ * Generate this per vertex, before interpolation and the authored UV matrix.
+ * https://github.com/gdkchan/SPICA/blob/bd29a7828595d7839cda2ac61c76bb63f9071250/SPICA.Rendering/Resources/DefaultVertexShader.txt
+ */
+function sphereVertexShader(slots:readonly number[]){
+ if(!slots.length)return vertexShader;
+ return vertexShader.replace('vec4 view=modelViewMatrix',`${slots.map(i=>`vUv${i}=normalize(vNormal).xy*0.5+vec2(0.5);`).join('')}vec4 view=modelViewMatrix`);
+}
 function textureMatrix(coord:Coord){
  const {X:sx,Y:sy}=coord.Scale,{X:tx,Y:ty}=coord.Translation,c=Math.cos(coord.Rotation),s=Math.sin(coord.Rotation);
  let x=sx*((.5*s-.5*c)+.5-tx),y=sy*((-.5*s-.5*c)+.5-ty);
@@ -135,7 +144,17 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
   if(!record||!Number.isInteger(count)||count<1||count>12||levels.length!==count-1||record.mipmaps?.length!==levels.length)throw new Error('Incomplete native mip chain '+name);
   for(let n=0;n<levels.length;n++){const level=levels[n],source=record.mipmaps![n],width=record.width>>(n+1),height=record.height>>(n+1);if(source.level!==n+1||source.width!==width||source.height!==height||level.width!==width||level.height!==height||level.data.length!==width*height*4)throw new Error('Invalid native mip level '+name);}
  }
- // Reject unsupported stencil state before allocating any GPU-owned resources.
+ // Validate opt-in mapping and stencil state before allocating GPU resources.
+ const sphereSlots=asset.data.models.map(model=>model.materials.map(m=>{
+  const slots:number[]=[];
+  if(options.nativeSphereMapping)for(let i=0;i<3;i++){
+   if(!m[`Texture${i}Name` as 'Texture0Name'])continue;
+   const coord=m.MaterialParams.TextureCoords[i],source=m.MaterialParams.TextureSources[i]??0;
+   if(coord.MappingType==='CameraSphereEnvMap'&&source===4&&coord.ReferenceCameraIndex===0&&coord.Flags==='0')slots.push(i);
+   else if(coord.MappingType!=='UvCoordinateMap'||source<0||source>2||!Number.isInteger(source))throw new Error(`Unsupported native texture mapping ${coord.MappingType}/${source}`);
+  }
+  return slots;
+ }));
  const stencilStates=asset.data.models.map(model=>model.materials.map(m=>nativeStencilState(m.MaterialParams,options.runtimeStencil)));
  const group=new THREE.Group(),textures:THREE.Texture[]=[],materials:THREE.ShaderMaterial[]=[],geometries:THREE.BufferGeometry[]=[];
  group.renderOrder=options.drawGroup??0;
@@ -170,7 +189,7 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    }
    const blend=p.BlendFunction;
    const stencil=stencilStates[modelIndex][materialIndex];
-   const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:picaFragmentShader(m,lighting,options.colorFit),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,depthFunc:nativeDepthFunction(p.DepthColorMask.DepthFunc),side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
+   const material=new THREE.ShaderMaterial({uniforms,vertexShader:sphereVertexShader(sphereSlots[modelIndex][materialIndex]),fragmentShader:picaFragmentShader(m,lighting,options.colorFit),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,depthFunc:nativeDepthFunction(p.DepthColorMask.DepthFunc),side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
    Object.assign(material,stencil);
    // The transparent Canvas bridge needs geometric blend coverage. Preserve
    // native RGB blending, but do not square alpha as native mt_Text's otherwise

@@ -83,3 +83,7 @@ could explain the difference, but this bounded trace does not establish its
 ordering. Do not add an epsilon or round screen endpoints merely to fit these
 columns. Two further lower pixels atx76,y191..192 and three icon pixels at
 (20,45),(18,105),(22,110) remain outside this overhang fix.
+
+## Production follow-up
+
+The [production checkpoint](progress-2026-09-24.md#settings-glyph-ink-overhang-and-matched-displayed-minute--26-september-2026) records `87dc835` against a fresh genuine HOME→A Settings capture: 121 upper / 20 lower pixels above 2/255 with a displayed-minute mismatch. Pairing the same browser PNGs with a later native image at the matching displayed minute leaves **2 upper / 20 lower**, using no mask. The upper pixels remain `(304,15)` and `(305,16)`. The coordinator inspected the sheets. This supports the live glyph overhang correction but does not establish frame synchronization, matched input duration, motion/audio or whole-scenario acceptance.

@@ -14,7 +14,7 @@ export type FontManifest = {
   fallback: Glyph | null;
 };
 
-export type NativeGlyphQuad={glyph:Glyph;x:number;y:number;width:number;height:number};
+export type NativeGlyphQuad={glyph:Glyph;x:number;y:number;width:number;height:number;right?:number;bottom?:number};
 /** Bounded NW writer flags 0x100 (middle-left) and 0x111 (middle-center):
  * one line, automatic line alignment and no added character spacing. */
 function nativeSingleLineGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[],alignment:3|4):NativeGlyphQuad[]{
@@ -26,7 +26,14 @@ function nativeSingleLineGlyphQuads(manifest:FontManifest,value:string,width:num
   const y=f(f(-Math.ceil(f(rectHeight*.5))+f((manifest.ascent??manifest.baseline)*sy))-f(manifest.baseline*sy));
   const quads:NativeGlyphQuad[]=[];
   for(const glyph of glyphs){if(!glyph)continue;
-    if(glyph.width)quads.push({glyph,x:(alignment===4?width/2:0)+f(x+f(glyph.left*sx)),y:height/2+y,width:f(glyph.width*sx),height:f(glyph.height*sy)});
+    if(glyph.width){
+      const left=f(x+f(glyph.left*sx)),glyphWidth=f(glyph.width*sx),glyphHeight=f(glyph.height*sy),offsetX=alignment===4?width/2:0,offsetY=height/2;
+      // The writer emits float32 endpoints before the pane-origin translation.
+      // Keep those vertices; screen-space rounding would also affect callers
+      // such as Health whose coordinates already include a transform/scroll.
+      quads.push({glyph,x:offsetX+left,y:offsetY+y,width:glyphWidth,height:glyphHeight,
+        right:offsetX+f(left+glyphWidth),bottom:offsetY+f(y+glyphHeight)});
+    }
     x=f(x+f(glyph.advance*sx));
   }
   return quads;
@@ -45,9 +52,9 @@ export type AlphaSurface={width:number;height:number;data:Uint8ClampedArray};
 export function rasterNativeAlphaGlyph(target:AlphaSurface,source:AlphaSurface,quad:NativeGlyphQuad){
   const {x,y,width,height,glyph}=quad;
   if(width<=0||height<=0||source.width!==glyph.width+2||source.height!==glyph.height+2)throw new Error('Invalid native glyph raster bounds');
-  // Native quad endpoints are emitted as float32 (0x1ac050/0x1ac058).
-  // A double sum can incorrectly exclude a right edge just below a pixel centre.
-  const right=Math.fround(x+width),bottom=Math.fround(y+height);
+  // Only the native writer supplies rounded local endpoints. Other callers
+  // retain their own coordinate arithmetic, including transformed Health text.
+  const right=quad.right??x+width,bottom=quad.bottom??y+height;
   for(let py=Math.max(0,Math.ceil(y-.5));py<Math.min(target.height,Math.ceil(bottom-.5));py++)for(let px=Math.max(0,Math.floor(x-.5)+1);px<Math.min(target.width,Math.floor(right-.5)+1);px++){
     const u=(px+.5-x)/width*glyph.width+.5,v=(py+.5-y)/height*glyph.height+.5,ix=Math.floor(u),iy=Math.floor(v),fx=u-ix,fy=v-iy;
     let alpha=0;

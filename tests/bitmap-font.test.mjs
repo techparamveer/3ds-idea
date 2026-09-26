@@ -164,11 +164,44 @@ test('source Touch Screen glyph retains its float32 right endpoint at the pixel 
  const size=[manifest.width*style.fontScale[0],manifest.height*style.fontScale[1]];
  const quad=nativeCenteredGlyphQuads(manifest,message.text,200,38,size)[1];
  assert.equal(quad.glyph,manifest.glyphs['111']); // original 'o'
+ // Deliberate precondition: recomputing the stored endpoint as a double
+ // would exclude the target column even though the writer includes it.
  assert.equal(quad.x+quad.width,53.499999046325684);
+ assert.equal(quad.right,53.5);
  assert.equal(Math.fround(quad.x+quad.width),53.5);
  const mask={width:quad.glyph.width+2,height:quad.glyph.height+2,data:new Uint8ClampedArray((quad.glyph.width+2)*(quad.glyph.height+2)*4).fill(255)};
  const target={width:200,height:38,data:new Uint8ClampedArray(200*38*4)};
  rasterNativeAlphaGlyph(target,mask,quad);
  assert.equal(target.data[(19*200+53)*4+3],255,'the emitted right vertex owns this pixel centre');
  assert.equal(target.data[(19*200+54)*4+3],0,'the following pixel remains outside');
+});
+
+test('native writer rounds endpoints before the pane translation, on both axes',()=>{
+ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+ const manifest=JSON.parse(fs.readFileSync(new URL('fonts/shared/font.json',root),'utf8'));
+ const f=Math.fround,size=[f(25*.85),f(30*.85)];
+ const [base]=nativeCenteredGlyphQuads(manifest,'o',200,38,size);
+ // Deliberately choose a translation that crosses a pixel centre only if the
+ // renderer incorrectly rounds again after adding the pane origin.
+ const width=200+2*(53.5-base.right)-1e-6;
+ const height=38+2*(29.5-base.bottom)+1e-6;
+ const [q]=nativeCenteredGlyphQuads(manifest,'o',width,height,size);
+ assert.ok(q.right<53.5);assert.equal(f(q.right),53.5);
+ assert.ok(q.bottom>29.5);assert.equal(f(q.bottom),29.5);
+ const mask={width:q.glyph.width+2,height:q.glyph.height+2,data:new Uint8ClampedArray((q.glyph.width+2)*(q.glyph.height+2)*4).fill(255)};
+ const target={width:200,height:38,data:new Uint8ClampedArray(200*38*4)};
+ rasterNativeAlphaGlyph(target,mask,q);
+ assert.equal(target.data[(20*200+53)*4+3],0,'translated right endpoint stays below the centre');
+ assert.equal(target.data[(29*200+50)*4+3],255,'translated bottom endpoint stays above the centre');
+ assert.equal(target.data[(30*200+50)*4+3],0,'following row is outside');
+});
+
+test('transformed article-style quads preserve caller precision without native writer endpoints',()=>{
+ const glyph={width:1,height:1},source={width:3,height:3,data:new Uint8ClampedArray(36).fill(255)};
+ const render=(x,y)=>{const target={width:4,height:4,data:new Uint8ClampedArray(64)};rasterNativeAlphaGlyph(target,source,{glyph,x,y,width:2,height:2});return target.data;};
+ const before=render(.5-1e-8,.5+1e-8),after=render(.5+1e-8,.5-1e-8);
+ assert.equal(before[(2*4+1)*4+3],255,'bottom row survives a transformed edge above its centre');
+ assert.equal(before[(1*4+2)*4+3],0,'right column stays excluded below its centre');
+ assert.equal(after[(2*4+1)*4+3],0,'scrolling the bottom edge below its centre excludes the row');
+ assert.equal(after[(1*4+2)*4+3],255,'right column is covered above its centre');
 });

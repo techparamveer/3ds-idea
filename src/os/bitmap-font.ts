@@ -1,5 +1,5 @@
 /** Bitmap glyphs keep the CFNT bearings and advances instead of tracing to WOFF. */
-export type Glyph = { sheet: number; x: number; y: number; width: number; height: number; left: number; advance: number };
+export type Glyph = { sheet: number; sourceSheet?:number; x: number; y: number; width: number; height: number; left: number; advance: number };
 export type FontManifest = {
   schema: 1;
   sourceSha256: string;
@@ -43,6 +43,12 @@ export function nativeCenteredGlyphQuads(manifest:FontManifest,value:string,widt
 }
 export function nativeLeftGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[]):NativeGlyphQuad[]{
   return nativeSingleLineGlyphQuads(manifest,value,width,height,size,3);
+}
+/** Cached NintendoWare text scans source textures in first-use order. */
+function sourceSheetBatches<T extends {glyph:Glyph}>(draws:T[]):T[]{
+  const groups=new Map<number,T[]>();
+  for(const draw of draws){const key=draw.glyph.sourceSheet??draw.glyph.sheet,group=groups.get(key);if(group)group.push(draw);else groups.set(key,[draw]);}
+  return [...groups.values()].flat();
 }
 export type AlphaSurface={width:number;height:number;data:Uint8ClampedArray};
 /** Bilinear font coverage at pixel centres; fractional quad edges are not
@@ -110,7 +116,7 @@ export function validateBitmapFont(value: unknown, dimensions?: { width: number;
     throw new Error('Invalid CFNT character map');
   if (m.fallback === undefined) throw new Error('Missing fallback declaration');
   for (const glyph of [...entries.map(([, glyph]) => glyph), ...(m.fallback === null ? [] : [m.fallback])]) {
-    if (!glyph || !['sheet', 'x', 'y', 'width', 'height', 'left', 'advance'].every(key => Number.isInteger(glyph[key as keyof Glyph])) ||
+    if (!glyph || (glyph.sourceSheet!==undefined&&(!Number.isInteger(glyph.sourceSheet)||glyph.sourceSheet<0)) || !['sheet', 'x', 'y', 'width', 'height', 'left', 'advance'].every(key => Number.isInteger(glyph[key as keyof Glyph])) ||
         glyph.sheet < 0 || glyph.sheet >= m.sheets.length || glyph.x < 0 || glyph.y < 0 || glyph.width < 0 || glyph.width > 255 ||
         glyph.height < 1 || glyph.height > 255 || glyph.left < -128 || glyph.left > 127 || glyph.advance < 0 || glyph.advance > 255)
       throw new Error('Invalid glyph metrics');
@@ -176,7 +182,7 @@ export class BitmapFont {
       // spacing cannot change a single line, even when an MSBT style sets it.
       const quads=alignment===3?nativeLeftGlyphQuads(this.manifest,value,width,height,size):nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
       if(this.manifest.colorMode==='luminance-alpha'){
-        for(const q of quads){const g=q.glyph;c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,q.x,q.y,q.width,q.height);}
+        for(const q of sourceSheetBatches(quads)){const g=q.glyph;c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,q.x,q.y,q.width,q.height);}
       }else{
         const [dx,dy]=rasterPhase;
         const image=c.createImageData(Math.ceil(width)+Math.ceil(dx),Math.ceil(height)+Math.ceil(dy));
@@ -195,15 +201,19 @@ export class BitmapFont {
     const y0=vertical===1?height/2-Math.ceil(blockHeight/2):vertical*(height-blockHeight)/2;
     const widths=lines.map(glyphs=>glyphs.reduce((n,g)=>n+(g?.advance??0)*sx+spacing,0)-(glyphs.length?spacing:0));
     const blockWidth=Math.max(0,...widths);
+    const draws:{glyph:Glyph;x:number;y:number}[]=[];
     lines.forEach((glyphs,row)=>{
       const runWidth=widths[row],horizontal=lineAlignment===0?alignment%3:lineAlignment-1;
       let x=horizontal===1&&alignment%3===1?width/2-Math.ceil(runWidth/2)
         :(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
       for(const g of glyphs){if(!g)continue;
-        if(g.width)c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,x+g.left*sx,y0+row*lineHeight,g.width*sx,g.height*sy);
+        if(g.width)draws.push({glyph:g,x:x+g.left*sx,y:y0+row*lineHeight});
         x+=g.advance*sx+spacing;
       }
     });
+    // Native cached text batches by source texture in first-use order. Atlas
+    // compaction must not erase that identity for overlapping LA glyphs.
+    for(const {glyph:g,x,y} of this.manifest.colorMode==='luminance-alpha'?sourceSheetBatches(draws):draws)c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,x,y,g.width*sx,g.height*sy);
   }
 
   /** Padded coverage for rasterNativeAlphaGlyph. */

@@ -262,3 +262,15 @@ test('Other title live O right endpoint near tie is included only by explicit co
  assert.equal(original[160*4+3],0);assert.equal(fitted[160*4+3],255);
  assert.deepEqual(original.slice(0,160*4),fitted.slice(0,160*4),'preceding columns retain their samples');
 });
+
+test('cached luminance-alpha text retains first-use source-sheet batches after atlas compaction',()=>{
+ const glyph=(x,sourceSheet)=>({sheet:0,sourceSheet,x,y:0,width:7,height:17,left:0,advance:5});
+ const manifest={schema:1,sourceSha256:'0'.repeat(64),height:16,width:16,baseline:13,lineFeed:16,colorMode:'luminance-alpha',sheets:['sheet-0.png'],glyphs:{65:glyph(10,2),66:glyph(20,0),67:glyph(30,3),68:glyph(40,2),69:glyph(50,0)},fallback:null};
+ const font=new BitmapFont(manifest,[{}]),draws=[],ctx={drawImage:(...args)=>draws.push(args)};
+ font.drawNative(ctx,'ABCDE',30,20,[16,16],5);
+ assert.deepEqual(draws.map(d=>d[1]),[10,40,20,50,30],'first-seen texture batches, not numerical sheet sort or reversed text');
+ assert.deepEqual(draws.map(d=>d[5]),[5,20,10,25,15],'batching preserves each glyph position and overlapping widths');
+ for(const g of Object.values(manifest.glyphs))delete g.sourceSheet;
+ draws.length=0;new BitmapFont(manifest,[{}]).drawNative(ctx,'ABCDE',30,20,[16,16],5);
+ assert.deepEqual(draws.map(d=>d[1]),[10,20,30,40,50],'legacy single-sheet manifests retain previous order');
+});

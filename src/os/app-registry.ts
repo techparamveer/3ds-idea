@@ -54,10 +54,10 @@ export function isPreviousDefaultAppLayout(value: unknown): boolean {
   return Object.keys(layout).length === previousDefaultHomeIds.length
     && previousDefaultHomeIds.every((id, slot) => layout[String(slot)] === id);
 }
-/** The EUR selected-Settings capture places Sound one column left of Settings,
- * both on the lower row. Keep the portfolio titles installed and exchange only
- * their default HOME positions with the two stock titles. Existing saved layouts
- * retain their own positions. */
+/** Put Settings at the right lower position of the EUR selected capture.
+ * The native neighbors there are excluded Activity Log and Download Play;
+ * portfolio NVIDIA and source-correct blue Sound remain visible adaptations.
+ * Existing saved layouts retain their own positions. */
 export function initialAppLayout(): Record<number, string> {
   const layout = Object.fromEntries(homeTitles.map((title, index) => [index, title.id]));
   [layout[7], layout[11]] = [layout[11], layout[7]];

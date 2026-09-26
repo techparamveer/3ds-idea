@@ -64,8 +64,8 @@ tile. It records HOME update **519**, yaw counter and skeletal frame **276**;
 the native screenshot still has no source counter. Its unmasked diagnostic diff
 is **54,709 upper / 41,778 lower** pixels over 2/255. The upper wrench is
 face-on relative to the native thin pose. The lower neighbors also differ:
-portfolio NVIDIA and a blue music icon occupy positions where the native
-capture shows Activity Log and orange Sound. The input prefixes differ, so
+portfolio NVIDIA and the source-correct blue Sound icon occupy positions where
+the native capture shows Activity Log and orange Download Play. The input prefixes differ, so
 these counts cannot be read as a before/after improvement or a banner-phase
 measurement.
 
@@ -77,3 +77,17 @@ selected title; saved Settings at old slot 8 moves to slot 9 with the two-row
 viewport starting at slot 4. A rearranged layout and folder history remain
 unchanged. This fixes the stale-default route only; it does not modify the
 banner clock or resolve the distinct visual differences above.
+
+The orange glyph has wireless waves beside a small console. The isolated
+profile's HOME `CacheD.dat` has an SMDH entry labeled **Download Play** at
+offset 140160 (SHA-256
+`bc09a57e02d8432bb858eefefd3fc392416a42d79290cea527af08f3b72cd25a`),
+whose decoded 48×48 icon matches that glyph. Its Activity Log entry sits at
+offset 126144. Both titles are excluded from the portfolio. The Sound title
+`0004001000022500` instead supplies a blue music-note SMDH: pinned
+`ExeFS/icon` SHA-256
+`100f6180ecdd7716d4928676381d729ebad50b94500350f17d52daa16d5ff494`,
+delivered as `icons/sound.png` SHA-256
+`963b10e9162a174d625f8bf2fe8b0cbfc17b3e2a1b6f4a6ca106a5a1cd5b1118`.
+The profile's cached Sound SMDH also decodes to a blue note. No Sound icon
+mapping or asset change is justified by the orange native neighbor.

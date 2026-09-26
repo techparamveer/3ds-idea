@@ -179,10 +179,14 @@ export class BitmapFont {
     const lines=value.split(/(\r\n|\r|\n)/).filter((line,i)=>{if(i%2){sourceOffset+=line.length;return false;}
       const row:boolean[]=[];for(const char of line){row.push(!inkRange||sourceOffset>=inkRange[0]&&sourceOffset<inkRange[1]);sourceOffset+=char.length;}selected.push(row);return true;
     }).map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
-    if(lines.length===1&&(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0&&spacing===0){
+    const nativeAlignedLine=(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0
+      ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha';
+    if(lines.length===1&&nativeAlignedLine&&spacing===0){
       // NW writer flags 0x100/0x111: only the centered axis subtracts ceil
       // half the measured rectangle before FINF ascent and TGLP baseline
-      // (0x2ffc90/0x300340). Keep fractional advances. Line
+      // (0x2ffc90/0x300340). Explicit left line alignment is equivalent
+      // for a single middle-left LA run, including Camera HudNOTES.
+      // Keep fractional advances. Line
       // spacing cannot change a single line, even when an MSBT style sets it.
       const allQuads=alignment===3?nativeLeftGlyphQuads(this.manifest,value,width,height,size):nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
       const ink=selected[0].filter((_keep,i)=>lines[0][i]?.width);

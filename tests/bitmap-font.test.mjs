@@ -274,3 +274,27 @@ test('cached luminance-alpha text retains first-use source-sheet batches after a
  draws.length=0;new BitmapFont(manifest,[{}]).drawNative(ctx,'ABCDE',30,20,[16,16],5);
  assert.deepEqual(draws.map(d=>d[1]),[10,20,30,40,50],'legacy single-sheet manifests retain previous order');
 });
+
+test('Camera HudNOTES explicit middle-left line retains source ascent and baseline',()=>{
+ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+ const manifest=JSON.parse(fs.readFileSync(new URL('fonts/camera/contents/0000-0000001a/HudNOTES-bcfnt/font.json',root),'utf8'));
+ const layout=JSON.parse(fs.readFileSync(new URL('packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json',root),'utf8')).layouts.P_Finder_U;
+ const messages=JSON.parse(fs.readFileSync(new URL('packs/camera/contents/0000-0000001a/msg-EU_English.json',root),'utf8'));
+ const walk=panes=>panes.flatMap(pane=>[pane,...walk(pane.children)]);
+ const pane=walk(layout.roots).find(pane=>pane.name==='ShootCapa_Pho');
+ const bank=messages.messages.P,message=bank.messages[bank.labels.Finder_Pho_00_00];
+ const style=messages.styles[bank.styleTable].styles[message.styleIndex];
+ assert.equal(layout.fonts[pane.text.font],'HudNOTES.bcfnt');
+ assert.equal(manifest.sourceSha256,'7b115deda29adce0faccb352d412a3ef9e10247850be6ded7856ba2714d32932');
+ assert.deepEqual([manifest.width,manifest.height,manifest.lineFeed,manifest.ascent,manifest.baseline],[23,23,23,19,20]);
+ assert.deepEqual([pane.text.alignment,pane.text.lineAlignment,style.characterSpacing],[3,1,0]);
+ const calls=[],font=new BitmapFont(manifest,manifest.sheets.map(()=>({naturalWidth:4096,naturalHeight:4096})));
+ const size=[manifest.width*style.fontScale[0],manifest.height*style.fontScale[1]];
+ font.drawNative({drawImage:(...args)=>calls.push(args)},message.text+'3000',...pane.size,size,pane.text.alignment,style.characterSpacing,style.lineSpacing,pane.text.lineAlignment);
+ assert.equal(calls.length,5);
+ // 16/2 - ceil(23/2) + FINF ascent19 - TGLP baseline20 = -5.
+ // The previous generic layout returned -4 and lost the final subtraction.
+ assert.deepEqual(calls.map(call=>call[6]),[-5,-5,-5,-5,-5]);
+ assert.deepEqual(calls.map(call=>call[5]),[0,18,31,44,57]);
+ assert.ok(calls.every(call=>call[8]===24),'LA glyph source cell height stays intact');
+});

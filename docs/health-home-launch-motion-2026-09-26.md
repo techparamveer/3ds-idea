@@ -3,10 +3,12 @@
 The coordinator captured four isolated Azahar Tools screenshots during the same
 HOME-launched Health session as the [entry phase sample](health-home-launch-phase-2026-09-26.md).
 Files are under `/Users/paramveer/.codex/3ds-artifact-overflow/reference/screenshots/`,
-with prefix `_26.09.26_` and the timestamps below. Only the complete raw upper
-400×240 LCD was compared, with no mask, rescale or color adjustment. The lower
-screens are excluded: the coordinator observed black lower buffers in samples
-2–3, an unresolved capture/buffer issue rather than an accepted application state.
+with prefix `_26.09.26_` and the timestamps below. The original offline fit
+compared only the complete raw upper 400×240 LCD, with no mask, rescale or color
+adjustment. During capture, the coordinator observed transient black lower
+buffers. Inspection of the four **saved PNGs** for this burst shows valid lower
+LCD pixels in all four; the black-buffer observation does not describe these
+files.
 
 The existing private `health-toploop-fit/native-fresh-fit.mjs` machinery was
 adapted temporarily to compile the current OS renderer and exhaustively sample
@@ -26,12 +28,28 @@ The observed phase increments are 60, 61 and 61 frames. Filename intervals are
 is 182 frames, versus nominal 181.631736. This is consistent with the existing
 animation rate and needs no speed correction.
 
+Production browser follow-up at integration commit `9539e1c` used the browser
+HOME Health shortcut and the loopback-only `lcdHealthFrame` gate to capture
+live observed source frames 144, 204, 265 and 326. Each browser capture, native
+file and empty-mask diff is preserved under
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v1/captures/health-home-burst-frame<frame>-20260926/`.
+The four `capture.json` files report `healthTopLoopFrame` equal to the requested
+frame. The coordinator inspected the upper and lower contact sheets. Both
+LCDs in **every** saved pair have zero pixels with any RGB channel difference
+above 2/255, maximum channel difference 2, and zero masked pixels. Upper
+RGB MAEs are 0.0718472222, 0.0711701389, 0.0704930556 and 0.0707048611;
+lower RGB MAE is 0.0248524306 in all four. These are production browser
+render-target captures, not just offline source renders. The burst is
+supplemental evidence and does not add a whole-scenario pass to the matrix.
+
 These are screenshot pose fits, not shared-event clock measurements. Filename
 creation time is not established as the exact emulated update or buffer-present
 time, and screenshot latency/quantization remain unknown. The loop repeats its
 visible pose after 360 frames, so the half-cycle is ambiguous. This result does
 **not** establish ±1-frame synchronization, the launch origin or browser motion
-acceptance. Production-browser motion still needs paired event/capture timing.
+acceptance. The browser captures deliberately waited for selected source
+frames in separate launches, so they do not verify free-running browser motion
+or ±1-frame synchronization. Paired event/capture timing remains necessary.
 
 Combined screenshot SHA-256 values in table order:
 

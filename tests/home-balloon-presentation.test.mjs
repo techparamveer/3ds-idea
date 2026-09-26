@@ -80,7 +80,15 @@ test('selected Settings title uses the native balloon anchor and a manifest-sour
   const departing = advanceHomeBalloonPresentation(createHomeBalloonPresentation(selected), selectHomeSlot(selected, 7));
   assert.deepEqual([departing.visible, departing.desired, departing.clip, departing.frame], [true, false, 'DisAppear', 0]);
   assert.equal(getNativeSettingsTitleBalloon({ ...selected, panel: 'settings' }, view), null);
-  assert.equal(getNativeSettingsTitleBalloon(settleHomeNavigation(setHomeDensity(selected, 0)), getHomePresentation(settleHomeNavigation(setHomeDensity(selected, 0)))), null);
+  const oneRow = density0(selected);
+  assert.equal(getHomePresentation(oneRow).tiles.find(tile => tile.index === 9).y + 36, 161);
+  assert.deepEqual(getNativeSettingsTitleBalloon(oneRow, getHomePresentation(oneRow)),
+    { label: settings.longDescription, baseX: 84, bodyOffsetX: -76 });
+  assert.equal(createHomeBalloonPresentation(oneRow).visible, true);
+  const changing = setHomeDensity(oneRow, 1);
+  assert.equal(getNativeSettingsTitleBalloon(changing, getHomePresentation(changing)), null);
+  const threeRows = settleHomeNavigation(setHomeDensity(oneRow, 2));
+  assert.equal(getNativeSettingsTitleBalloon(threeRows, getHomePresentation(threeRows)), null);
 });
 
 test('native HOME balloon painter binds sourced title and publisher without a fallback', () => {
@@ -92,8 +100,9 @@ test('native HOME balloon painter binds sourced title and publisher without a fa
   } };
   const state = createPortfolioState();
   const selected = settleHomeNavigation(selectHomeSlot({ ...state, system: { ...state.system, phase: 'home' } }, 9));
-  const balloon = createHomeBalloonPresentation(selected);
-  const live = { ...selected, system: { ...selected.system, homeControls: { balloon } } };
+  const oneRow = density0(selected);
+  const balloon = createHomeBalloonPresentation(oneRow);
+  const live = { ...oneRow, system: { ...oneRow.system, homeControls: { balloon } } };
   const view = getHomePresentation(live);
   const text = selectHomeSettingsBalloonText(manifest);
   const painter = createFirmwareHome({ renderer, settingsBalloonText: text });

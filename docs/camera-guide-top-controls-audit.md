@@ -80,3 +80,56 @@ six-pixel strip, either.
 `git diff --check` passes. This documentation-only audit used existing captures
 and private source reads; it did not drive shared browser, Azahar or server,
 modify other worktrees, or rerun application builds.
+
+## Follow-up: original lower render-target base (`8efe4d4`)
+
+The source now establishes a warm base pair without sampling a screenshot.
+The shoot constructor at `0x2a5e14` calls `0x21587c` to create a 0x188-byte
+render node and retains it in r6. At `0x2a5e60–0x2a5ea8` it writes mask
+`0x4100` to node `+0x40`, little-endian RGBA **(233,224,208,255)** to
+`+0x44`, and dirty byte 1 to `+0x3d`. The bit-packing fully overwrites the
+incoming register bits; the resulting colour is not dependent on prior r5.
+The factory selects mode2 at `0x2158e8`; `0x21e640–0x21e66c` maps that mode
+to **320×240** and pass8. This identifies the lower target, not merely an
+unrelated colour constant.
+
+The node's constructor installs vtable `0x41e0b0`; its `+0x50` callback is
+`0x269730`. On its draw/update branch, `0x269784–0x26978c` passes node
+`+0x40` to `0x25fff8`, then `0x2697b0` traverses its children. The adapter
+passes the exact colour pointer to `0x10d9cc`, with r1=0 and r2=1 from mask
+bit0x100. `0x10da54–0x10da58` copies that word into a graphics command record
+before calling `0x25a760`. The shoot CGFX object is attached to this same r6
+node at `0x2a638c–0x2a6398`, linking the base pair and the CGFX underlay.
+The lower render node is also retained at Camera owner `+0x4f4`.
+
+`scripts/audit_camera_shoot_clear.py` hash-checks the original executable and
+executes the exact colour-packing span with three different incoming register
+values. It then executes `0x25fff8` up to an intercepted `0x10d9cc` boundary,
+asserting RGBA `(233,224,208,255)` and arguments0/1. This is a synthetic-object
+replay of the pair writer and adapter, not the complete constructor, actual GPU
+consumer, render traversal or settled Welcome state. The script passes with
+the private Unicorn environment; its result is retained in the evidence folder
+as `shoot-clear-replay.json`.
+
+The warm source base closes part of the prior provenance gap, but applying
+this bright clear alone would not reproduce the half-bright native modal view.
+The settled guide attenuation and source CGFX registration still need binding.
+The generic dialog path at `0x301014–0x30104c` reads object `+0x181`, constructs
+a version with its high alpha byte zero, and passes both to `0x256584` for the
+retained `+0x188` object. The guide wrapper supplies `+0x181` through its
+`+0x3fc/+0x440` children, but the effective runtime value and final draw are
+still unestablished. The on-disk global's zero value is insufficient evidence
+of the runtime colour. This is the next concrete attenuation path to follow.
+
+For clip selection, Camera owner `+0x418` is used in the constructor at
+`0x2a5d30`, then indexed calls to `0x215d64` set entry state bytes using
+indices1/2,11 and conditionally8 (`0x2a5d70–0x2a5e10`). `0x215d64` resolves
+an entry via a virtual `+0x28` call and updates entry `+4`; those numeric
+indices are **not** established animation indices. The missing link is that
+entry table's identity, its update callback and the mapping from entry state to
+P_Shoot_D groups and nested P_CamBtn Default/Disable. No settled Default
+selection has been proven, so no runtime change is promoted in this follow-up.
+
+Only the bounded source-audit script and documentation changed. Its replay and
+`git diff --check` pass. No browser, emulator, shared server, integration tree,
+application build or public asset was changed.

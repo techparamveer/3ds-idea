@@ -128,3 +128,9 @@ The private numeric record is
 `/Users/paramveer/.codex/3ds-artifact-overflow/settings-wrench-region-20260926.json`.
 The normal private artifact volume returned ENOSPC; no existing evidence was
 removed or overwritten to make room.
+
+## Fresh native view and source-pose probes
+
+[Matrix v35](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v35/matrix.json) adds native `_26.09.26_03.57.26.519.png` against a live browser Settings HOME capture and synthetic source frames 150,450,136. Upper/lower over-threshold counts are 65,074/36,196 live; 64,094/36,480 at 150; 64,076/36,429 at 450; 64,064/36,194 at 136. Native shows a compressed icon row while the browser keeps it evenly spread, even at a narrow wrench pose. This cannot be resolved by choosing a wrench frame alone.
+
+Native HOME boot/CUA selection and browser shortcut/Left prefixes are only broadly recorded; exact input parity and native animation phase remain unknown. The `lcdBannerFrame` probes explicitly remain synthetic diagnostics, not evidence of native frame identity or a justification for a fixed runtime phase offset. No native asset or runtime change follows. Whole-LCD masks remain empty, all entries fail, motion/audio open.

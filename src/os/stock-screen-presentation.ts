@@ -34,7 +34,17 @@ export type NotesIntroPaint =
       icon?: NativePixels;
       description?: string;
     };
-export type StockScreenPaintOptions={soundRoom?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number)=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
+export type StockScreenPaintOptions={soundRoom?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:'contain'|'cover')=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
+/** Portfolio media placement; native UI graphics continue through the layout renderer. */
+export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:'contain'|'cover'='contain'){
+  if(fit==='cover'){
+    const scale=Math.max(w/sourceWidth,h/sourceHeight),sw=w/scale,sh=h/scale;
+    ctx.drawImage(image,(sourceWidth-sw)/2,(sourceHeight-sh)/2,sw,sh,x,y,w,h);
+  }else{
+    const scale=Math.min(w/sourceWidth,h/sourceHeight);
+    ctx.drawImage(image,x+(w-sourceWidth*scale)/2,y+(h-sourceHeight*scale)/2,sourceWidth*scale,sourceHeight*scale);
+  }
+}
 const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const records=(v:JsonValue|undefined):MediaRecord[]=>Array.isArray(v)?v.map(record):[];
 const string=(v:JsonValue|undefined)=>typeof v==='string'?v:'';
@@ -205,11 +215,11 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   }
   function reset(){options.soundRoom?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
   function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();}
-  function image(ctx:Context,url:string,x:number,y:number,w:number,h:number){
+  function image(ctx:Context,url:string,x:number,y:number,w:number,h:number,fit:'contain'|'cover'='contain'){
     let im=images.get(url);
     if(!im){if(images.size>=64){const first=images.keys().next().value!;const stale=images.get(first)!;stale.onload=null;stale.onerror=null;stale.src='';images.delete(first);}im=new Image();images.set(url,im);im.onload=()=>{if(!disposed)changed();};im.onerror=()=>{if(!disposed)changed();};im.src=url;}
     if(!im.complete||!im.naturalWidth)return false;
-    const scale=Math.min(w/im.naturalWidth,h/im.naturalHeight);ctx.drawImage(im,x+(w-im.naturalWidth*scale)/2,y+(h-im.naturalHeight*scale)/2,im.naturalWidth*scale,im.naturalHeight*scale);return true;
+    drawStockMediaImage(ctx,im,im.naturalWidth,im.naturalHeight,x,y,w,h,fit);return true;
   }
   function sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;reset();releaseImages();}}
   function prepare(view:AppView,nextOwner:string,font?:BitmapFont){

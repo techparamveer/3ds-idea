@@ -162,10 +162,11 @@ export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   const count=folderView?records(folder?.photos).length:photos.length;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['camera-messages'],'P',label,'');
   top.fillStyle='#000';top.fillRect(0,0,400,240);
-  // Native browse shows the selected image in the upper viewfinder framebuffer.
+  // P_FinderVS_U supplies the 400×240 frame. Centered cover is the read-only
+  // portfolio adaptation to the populated native capture, not a decoded zoom mode.
   if(view.screen==='gallery'||view.screen==='photo'){
     const url=str(photo.thumbnail)||str(photo.src);
-    if(url)options.image?.(top,url,0,0,400,240);
+    if(url)options.image?.(top,url,0,0,400,240,'cover');
   }
   const upper=renderer.draw(top,'camera-finder','P_FinderVS_U',{overrides:{
     ...cameraUpperHidden,

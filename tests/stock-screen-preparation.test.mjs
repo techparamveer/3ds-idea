@@ -17,7 +17,7 @@ source=source.replace("'./stock-native-services'",JSON.stringify(url('export con
 source=source.replace("'./stock-native-helpers'",JSON.stringify(url('export const nativeHelperView=()=>null;export const drawNativeHelperFrame=()=>false;')));
 source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export const nativeSelectorView=()=>null;export const drawNativeSelectorFrame=()=>false;')));
 source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('native-screen-input'))));
-const {createStockScreenPresentation}=await import(url(source));
+const {createStockScreenPresentation,drawStockMediaImage}=await import(url(source));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const view=appId=>({appId,screen:'main',heading:'',rows:[],selection:0,footer:{}});
 test('launch preparation acquires native assets before any screen is drawn and coalesces the app view',async()=>{
@@ -179,4 +179,15 @@ test('a hanging Sound room keeps the original preparation deadline after layouts
  t.mock.timers.enable({apis:['setTimeout']});const f=paintFixture({deadlineMs:100,soundRoom:{prepare:owner=>({status:owner?'loading':'inactive'}),draw:()=>false}});f.v.appId='sound';
  try{f.draw('sound:1');await flush();calls[0].resolve(nativeAssets());await flush();t.mock.timers.tick(100);f.draw('sound:1');assert.equal(f.screen.status(f.v,'sound:1',f.font),'error');assert.match(String(f.screen.getFailure()),/timed out/);}
  finally{f.dispose();t.mock.timers.reset();}
+});
+
+
+test('Camera cover fills the whole upper LCD with centered aspect-preserving source crop; default media stays contained',()=>{
+ const calls=[],image={},ctx={drawImage:(...args)=>calls.push(args)};
+ drawStockMediaImage(ctx,image,2000,1500,0,0,400,240,'cover');
+ assert.deepEqual(calls.pop(),[image,0,150,2000,1200,0,0,400,240]);
+ drawStockMediaImage(ctx,image,600,1200,0,0,400,240,'cover');
+ assert.deepEqual(calls.pop(),[image,0,420,600,360,0,0,400,240]);
+ drawStockMediaImage(ctx,image,2000,1500,32,43,256,128);
+ assert.deepEqual(calls.pop(),[image,32+(256-2000*(128/1500))/2,43,2000*(128/1500),128]);
 });

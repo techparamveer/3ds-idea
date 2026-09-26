@@ -41,3 +41,14 @@ The renderer change depends on L3 metadata commit `2f53716` (locally tested as
 skip**. Typecheck, production build and shader validation pass. Browser/native
 acceptance is owned by the coordinator; this worker did not operate either UI.
 Logs are private `delegation/astra-absent-color-*.log`.
+
+## Coordinator browser follow-up
+
+Production `8f0eb39` was inspected on the site and in raw upper LCD exports:
+`home-eshop-absent-color-fixed` shows bags/logo/shadow; the corresponding
+`home-camera-absent-color-fixed` shows photo cards behind the logo. Both are
+browser-only records in [matrix v25](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v25/matrix.json), with no target native capture or diff.
+The metadata dependency is integrated as `4e1abfa`. Full integration verification
+passes 1,403 tests (0 fail, 23 skip, 1 TODO; 1,427 total), production build and
+shader checks. The provisional source-material limitation above remains; visible
+browser pixels do not establish the native shader or matching phase.

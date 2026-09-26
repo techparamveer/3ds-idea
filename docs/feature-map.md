@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: UI continuation through **`5ad3bc5`** on `codex/health-ui-scratch`,
+Checkpoint: UI continuation through **`8f0eb39`** on `codex/health-ui-scratch`,
 26 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -18,8 +18,8 @@ link/diff checks.
 The [implementation process](architecture/implementation-process.md) defines
 worktree handoff and source-to-visible HOME banner gates.
 
-The gated local raw-LCD route and [matrix v24](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v24/matrix.json)
-record 38 diagnostic entries (32 native/browser comparisons and six browser-only records). **All fail overall.** Settings main with matched A
+The gated local raw-LCD route and [matrix v25](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v25/matrix.json)
+record 40 diagnostic entries (32 native/browser comparisons and eight browser-only records). **All fail overall.** Settings main with matched A
 input has 192 upper / 37 lower pixels over 2; Other Settings page 1 after the
 one-pixel title shift has 1,394 / 1,682; HOME with Settings selected after the
 sourced title balloon has 41,352 / 42,107; Health entry has 7,196 / 0.
@@ -31,11 +31,12 @@ Motion and audio remain open. The
 [progress checkpoint](progress-2026-09-24.md) names report commits and paths;
 the matrix's embedded counts for some older entries await refresh.
 
-The six new browser-only records have no native captures or diff reports.
-Camera/Sound/Health banners are visible; eShop's upper banner remains blank
-despite an active host. Zone entry and the eShop close route were inspected in
-the production browser. Native capture is currently blocked by inaccessible
-isolated Azahar computer use. These observations are not 1:1 acceptance.
+The eight browser-only records have no target native captures or diff reports.
+Camera/Sound/Health banners are visible; the latest eShop capture shows bags,
+logo and shadow, and Camera now shows its photo cards. Earlier blank/missing
+mesh records remain unchanged. Zone entry and eShop close were browser-inspected.
+Relaunched isolated Azahar can capture screenshots but remains at its
+notification; mapped inputs still do not land. These are not 1:1 acceptance.
 See the [browser checkpoint](progress-2026-09-24.md#browser-home-banners-zone-entry-and-eshop-close--26-september-2026)
 and [banner activation](stock-home-banner-activation.md).
 
@@ -55,7 +56,7 @@ and [banner activation](stock-home-banner-activation.md).
 | --- | --- | --- | --- | --- |
 | Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-finish` delivery | Headphone contacts (preserved unpromoted `silver-audio-contacts` candidate), hardware lettering and local curves. Hardware appearance is not accepted | Coordinator for scene integration. Blender rig refinement has no active worker | [Model index](model-validation-index.md) |
 | Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
-| HOME Menu | Implemented from native resources: folders, density, pickup, cursor, folder/default banners, suspension, and 48×48 SMDH artwork for available stock tiles and pickups. Earlier browser checks confirm the Settings wrench tile and Open Sound shortcut selection. The genuine Settings banner model and five textures are registered under `settingsBanner`; `f57ae44` wires a provisional `system-settings` selected-tile path through the host, service and source model renderer. Its 12 meshes and 600-frame skeletal clip use source-backed billboard mode 1. Camera, Sound and Health source common/EUR banner pairs are activated and browser-inspected (`a53fe45`, `2d6d32a`). eShop activation reports active but its upper banner is blank: a confirmed defect. Zone scalar animation restoration (`5ad3bc5`) is source work, not live banner acceptance. | The selected Settings banner has raw native/browser failing diagnostics. A fresh genuine Azahar EUR boot versus browser selected Settings boot has [19,793 upper / 44,041 lower pixels over 2](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/home-settings-selected-boot/diff/report.json); grid viewport/selected tile coordinates and banner phase differ. L1 identified two existing HOME tile swaps to reach native selection position without code changes. A same-input/phase capture and visual correction remain necessary. Motion, input parity and audio remain open. Camera/Sound/Health now have browser-only banner evidence; eShop is blank despite active host and needs L1 correction. Remaining titles and Zone live activation remain open | HOME lane; coordinator for browser/native acceptance | [HOME comparison](native-home-comparison-2026-09-22.md), [asset mapping](firmware-visible-asset-audit-2026-09-25.md), [activation gate](settings-home-banner-activation-gap.md), [common-banner delivery](stock-common-banner-delivery.md), [integration](home-menu-integration.md) |
+| HOME Menu | Implemented from native resources: folders, density, pickup, cursor, folder/default banners, suspension, and 48×48 SMDH artwork for available stock tiles and pickups. Earlier browser checks confirm the Settings wrench tile and Open Sound shortcut selection. The genuine Settings banner model and five textures are registered under `settingsBanner`; `f57ae44` wires a provisional `system-settings` selected-tile path through the host, service and source model renderer. Its 12 meshes and 600-frame skeletal clip use source-backed billboard mode 1. Camera, Sound and Health source common/EUR banner pairs are activated and browser-inspected (`a53fe45`, `2d6d32a`). eShop bags/logo/shadow and Camera photo cards are now visible at `8f0eb39` after source absent-Color metadata and a provisional diffuse binding; native shader parity remains open. Zone scalar animation restoration (`5ad3bc5`) is source work, not live banner acceptance. | The selected Settings banner has raw native/browser failing diagnostics. A fresh genuine Azahar EUR boot versus browser selected Settings boot has [19,793 upper / 44,041 lower pixels over 2](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/home-settings-selected-boot/diff/report.json); grid viewport/selected tile coordinates and banner phase differ. L1 identified two existing HOME tile swaps to reach native selection position without code changes. A same-input/phase capture and visual correction remain necessary. Motion, input parity and audio remain open. Camera/Sound/Health now have browser-only banner evidence; eShop blank-banner defect and missing Camera cards are corrected in browser evidence at `8f0eb39`; matched native shader/pixel verification remains open. Remaining titles and Zone live activation remain open | HOME lane; coordinator for browser/native acceptance | [HOME comparison](native-home-comparison-2026-09-22.md), [asset mapping](firmware-visible-asset-audit-2026-09-25.md), [activation gate](settings-home-banner-activation-gap.md), [common-banner delivery](stock-common-banner-delivery.md), [integration](home-menu-integration.md) |
 | HOME audio | Implemented: native sequence and short cues | Input-to-sound timing and music balance against native | Coordinator | [Menu audio](native-menu-audio-integration.md) |
 | Eight portfolio apps | Implemented. Content and navigation preserved | Full content and mobile navigation pass | Coordinator; presentation for painters | [Portfolio OS](portfolio-os-validation.md) |
 | Power on/off, startup | Implemented from source layouts and fades. The final 350 ms of the 3 s cold boot fades HOME in; these durations are browser adaptations. Cold power-on now clears stale toolbar focus; the live Miiverse → off → on → A regression opens Work as selected | Native cold-entry caller, timing and physical backlight order | Coordinator | [Power transitions](portfolio-power-transitions.md), [cold-boot trace](native-cold-boot-reveal-source-audit.md), [progress checkpoint](progress-2026-09-24.md) |
@@ -76,10 +77,10 @@ and [banner activation](stock-home-banner-activation.md).
 | Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
 | Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power and foreground applet announcements corrected (`b1fedf5`), including live Notes over suspended Work | Other screen-specific announcements and full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
 | Asset conversion, provenance | Implemented. The current public-only audit passes 1,790 resources with zero integrity errors and `privateSourcesChecked: 0`. The [visible asset audit](firmware-visible-asset-audit-2026-09-25.md) maps in-scope screen packs and banner keys to dump titles and records non-native fallback risks. It publishes no new resource. The converted Settings model and five textures match manifest hashes and CBMD source identity. | At every handoff map each visible/audible native element → manifest key → decrypted dump source and list non-native elements with reasons. Keep portfolio substitutions and scoped read-only/inert adaptations distinct from native pixel defects. Keep unsupported fields explicit, remove or prove inactive community/CSS/generic fallback paths, and rerun private-source audit when storage access recovers. Local LFS model hydration enabled build only; it is not a delivery change or visual check | Assets | [Asset audit](firmware-visible-asset-audit-2026-09-25.md), [asset architecture](architecture/assets-and-materials.md), [stock banner source](stock-home-banner-source.md) |
-| Final acceptance | **Open.** Matrix v24 has 38 entries, all `fail`; no passing raw native/browser LCD diff. Motion/audio remain open; Settings main and one Sound page-1 pair have matched entry input | Correct the measured Settings and HOME banner residuals, then recapture with matched inputs; HOME idle itself still needs a matched selected title | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
+| Final acceptance | **Open.** Matrix v25 has 40 entries, all `fail`; no passing raw native/browser LCD diff. Motion/audio remain open; Settings main and one Sound page-1 pair have matched entry input | Correct the measured Settings and HOME banner residuals, then recapture with matched inputs; HOME idle itself still needs a matched selected title | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
 
 Latest bounded changes and element → manifest → dump identities are in the
-[v24 progress record](progress-2026-09-24.md#browser-home-banners-zone-entry-and-eshop-close--26-september-2026).
+[v25 progress record](progress-2026-09-24.md#browser-absent-color-correction-and-native-input-gap--26-september-2026).
 Camera's exact `C_SldH_S` slider is published and visible; browser paging → Rate
 and static Parakeet phase remain adaptations. Shoot/zoom remain inert. Sound
 Base colour, alpha and placement are capture-derived adaptations; title strip,
@@ -89,8 +90,8 @@ cover; the latest pair compares unmatched mono JPEG/stereo MPO media. The
 [Sound title-strip diagnosis](sound-title-strip-diagnostic-2026-09-26.md)
 (`e46e338`) identified the residual; `139df79` fits only the three title
 materials to captured blue, eliminating 8,910 over-threshold upper pixels.
-This is a capture-derived adaptation with remaining title/room/guide residuals. Integration checks at `2d6d32a`: 1,425 total tests, 1,401 pass,
-0 fail, 23 skip, 1 TODO; production build passes. These checks do not establish pixels.
+This is a capture-derived adaptation with remaining title/room/guide residuals. Integration checks at `8f0eb39`: 1,427 total tests, 1,403 pass,
+0 fail, 23 skip, 1 TODO; production build and shader checks pass. These checks do not establish pixels.
 
 ## Five long-lived lanes — 25 September 2026
 
@@ -115,11 +116,11 @@ acceptance. See [AGENTS.md](../AGENTS.md), [scope](portfolio-ui-scope.md) and
 ## Current integration and evidence gate — 26 September 2026
 
 The integration checkout is `/Users/paramveer/.codex/worktrees/3ds-ui-continuation`
-on `codex/health-ui-scratch` at `5ad3bc5` for this documentation pass. Run
+on `codex/health-ui-scratch` at `8f0eb39` for this documentation pass. Run
 `git worktree list` for current inventory; the former 24 September worker-head
 table was stale and has been removed. Only the coordinator drives Azahar and
 the production browser. The private `reference/scenario-matrix/v1/captures/` directory now holds
-38 failing diagnostic entries in matrix v24, including Camera populated browse
+40 failing diagnostic entries in matrix v25, including Camera populated browse
 and Sound first-run/entry pairs; HOME idle remains unmatched.
 Every row above remains below full native acceptance until the
 [scenario loop](architecture/verification.md) closes its pixels, motion,

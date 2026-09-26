@@ -179,3 +179,43 @@ residual remains a fit. This pass used read-only binary inspection and existing
 capture reports, with no shared browser, emulator or server access.
 `git diff --check` passes; application tests/build were not rerun for this
 additional documentation-only change.
+
+## Nested animation initialization and transfer cleanup (`da35878` follow-up)
+
+A further bounded read identifies the generic Default/Disable selection points,
+but still does not bind a settled Welcome event history to either lower control.
+
+- Static initializer `0x31a340–0x31a358` populates the source string object at
+  `0x47d6f0` with `Default`; the following string objects `0x47d6fc` and
+  `0x47d708` are `Push` and `Disable`.
+- The 0x9c-byte nested controller constructor `0x26f554` explicitly selects
+  `Default` at `0x26f6cc–0x26f6d8` through `0x25a618`, passing argument2=1.
+  The rebinding path `0x21f064–0x21f070` makes the same selection. This proves
+  initialization behavior, not the later Welcome pose.
+- Its event callback `0x26f38c` acts on the local controller only if incoming
+  r2 equals the controller. It indexes the event word at incoming r1+4:
+  events1/3 select `Push`, events2/7/8 select `Default`, and event6 selects
+  `Disable` (`0x26f3fc–0x26f408`). These calls pass argument2=0. Other events
+  do not select a clip on this branch. The callback also propagates the event
+  to the parent at `0x26f4b4–0x26f4d4` when the relevant flag allows it.
+- The parser's controller allocation at `0x26e994–0x26e9e0` calls
+  `0x26f554`, inserts its result through `0x21d3cc`, then invokes virtual
+  `+0x28`. The private source still needs the parser tag and resulting
+  instance identity connected to `P_CamBtn/-O-C-Cam`; resource delivery alone
+  does not prove that this exact controller instance receives no event6.
+
+The adopted-root path is now clearer: `0x20efe8` takes holder+8 and immediately
+zeroes that field. The post-adoption helper `0x20ee50` enumerates animation names
+via `0x26dae0`, compares their suffixes against the source strings **`In`** and
+**`Out`** (pointers `0x440ae4/0x440ae8`), and calls `0x26dc68` for matches.
+It does not select `Default` or clear every animation. Prior Default/Disable
+state therefore cannot be inferred from this cleanup call.
+
+The exact unresolved path is the producer that writes the transfer holder's
++8 field (global owner at `[0x46f5c0]`, holder at owner+0x314), the nested
+controller instance creation for the lower button, and whether event6 is sent
+before/during settled Welcome. The corresponding parent `P_Shoot_D` animation
+binding remains unproven too. A runtime change would still be based on the
+588-pixel screenshot improvement rather than a complete source binding, so
+none is made. Fresh disassembly/literal checks and `git diff --check` pass;
+no application tests or build were needed for this documentation-only result.

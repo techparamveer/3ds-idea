@@ -14,7 +14,7 @@ export type FirmwareStencilState=Readonly<{
  enabled:boolean;function:NativeComparison;reference:number;compareMask:number;writeMask:number;
  fail:NativeStencilOperation;depthFail:NativeStencilOperation;depthPass:NativeStencilOperation;
 }>;
-export type FirmwareColorFit=Readonly<{material:string;upperY:number;lowerY:number;upperRgb:readonly [number,number,number];lowerRgb:readonly [number,number,number]}>;
+export type FirmwareColorFit=Readonly<{material:string;upperY:number;lowerY:number;upperRgb:readonly [number,number,number];lowerRgb:readonly [number,number,number];opaqueAlpha?:boolean}>;
 export type FirmwareModelOptions=Readonly<{nativeMipmaps?:boolean;overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>;colorFit?:FirmwareColorFit}>;
 type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};StencilTest?:{Enabled:boolean;Function:NativeComparison;Reference:number;Mask:number;BufferMask:number};StencilOperation?:{FailOp:NativeStencilOperation;ZFailOp:NativeStencilOperation;ZPassOp:NativeStencilOperation};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
 type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string;LODBias?:number;MinLOD?:number}[]};
@@ -77,7 +77,7 @@ export function picaFragmentShader(material:Material,lighting:ReturnType<typeof 
  vec4 litPrimary=clamp(${glcolor(p.AmbientColor)}+${glcolor(p.DiffuseColor)}*illumination,0.0,1.0);
  vec4 litSecondary=${glcolor(p.Specular0Color)}*pow(max(dot(normalize(vNormal),normalize(vec3(-0.12,0.22,1.0))),0.0),16.0);`}
  vec4 previous=vColor;vec4 buffer=${glcolor(p.TexEnvBufferColor)};
- ${stages}${test}${colorFit&&material.Name===colorFit.material?`float lcdY=239.5-gl_FragCoord.y;float fitT=clamp((lcdY-${colorFit.upperY.toFixed(3)})/${(colorFit.lowerY-colorFit.upperY).toFixed(3)},0.0,1.0);previous.rgb=mix(vec3(${colorFit.upperRgb.map(v=>(v/255).toFixed(8)).join(',')}),vec3(${colorFit.lowerRgb.map(v=>(v/255).toFixed(8)).join(',')}),fitT);`:''}gl_FragColor=previous;}`;
+ ${stages}${test}${colorFit&&material.Name===colorFit.material?`float lcdY=239.5-gl_FragCoord.y;float fitT=clamp((lcdY-${colorFit.upperY.toFixed(3)})/${(colorFit.lowerY-colorFit.upperY).toFixed(3)},0.0,1.0);previous.rgb=mix(vec3(${colorFit.upperRgb.map(v=>(v/255).toFixed(8)).join(',')}),vec3(${colorFit.lowerRgb.map(v=>(v/255).toFixed(8)).join(',')}),fitT);${colorFit.opaqueAlpha?'previous.a=1.0;':''}`:''}gl_FragColor=previous;}`;
 }
 const vertexShader=`attribute vec4 nativeColor;attribute vec2 nativeUv1;attribute vec2 nativeUv2;
  varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;varying vec3 vView;

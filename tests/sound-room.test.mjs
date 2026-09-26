@@ -41,6 +41,7 @@ test('room drops late owner completions and retains one opaque static render per
  const fitted=spanGroup.children[0].children.filter(mesh=>mesh.material.fragmentShader.includes('float lcdY=239.5-gl_FragCoord.y'));
  assert.equal(fitted.length,33,'the source Base material alone receives the measured blue palette');
  assert.ok(fitted.every(mesh=>mesh.material.fragmentShader.includes('0.14901961,0.40784314,0.85882353')));
+ assert.ok(fitted.every(mesh=>mesh.material.fragmentShader.includes('previous.a=1.0;')));
  assert.deepEqual(f.current(),f.initial);assert.equal(f.renderer.autoClear,true);assert.equal(f.renderer.toneMapping,THREE.ACESFilmicToneMapping);
  room.prepare(null,changed);assert.equal(room.draw(ctx),false);room.dispose();assert.equal(room.prepare('late',changed).status,'inactive');
 });

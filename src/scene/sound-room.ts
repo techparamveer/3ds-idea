@@ -49,8 +49,10 @@ export function createSoundRoom(renderer:THREE.WebGLRenderer,load=loadFirmwareMo
         spanCamera=soundSpanCamera(spanAsset);
         // Base replaces RGB with its grayscale source texture. The native
         // silent line is blue; these two sampled LCD rows fit that runtime
-        // palette while retaining the source mesh, UV and alpha coverage.
-        span=createFirmwareModel(spanAsset,{}, {colorFit:{material:'Base',upperY:106,lowerY:111,upperRgb:[38,104,219],lowerRgb:[21,57,120]}});
+        // palette. The native entry capture is opaque across its six blue
+        // rows, while the source bind texture has scattered transparent texels.
+        // Fit alpha for this pose without changing its mesh, UVs or texture.
+        span=createFirmwareModel(spanAsset,{}, {colorFit:{material:'Base',upperY:106,lowerY:111,upperRgb:[38,104,219],lowerRgb:[21,57,120],opaqueAlpha:true}});
         // The model's shared (-45) bind placement is not a displayed idle state.
         // These transform values fit the native Sound guide upper blue line at
         // y=106..111 of the 400×240 LCD capture. The source bind projects its

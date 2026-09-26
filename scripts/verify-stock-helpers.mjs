@@ -10,9 +10,9 @@ for(const key of ['artifact-dir','asset-root','canvas-module','font-manifest'])a
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),assetRoot=values['asset-root'],out=values['artifact-dir'];mkdirSync(out,{recursive:true});
 const {createCanvas,loadImage,Image}=await import(pathToFileURL(values['canvas-module']));
 const compiled=mkdtempSync(join(out,'compiled-'));
-for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-helpers','stock-native-amiibo']){
+for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-helpers','stock-native-amiibo','stock-manual-index']){
  const text=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
- writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(text,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
+ writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(text,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+?)(\.ts)?['"]/g,(_,name)=>`from '${name}.mjs'`));
 }
 const [{BitmapFont},{loadNativeTitleAssets},{nativeHelperView,nativeHelperTargets,drawNativeHelperFrame}]=await Promise.all(['bitmap-font','native-title-assets','stock-native-helpers'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs')))));
 globalThis.document={createElement:()=>createCanvas(1,1)};globalThis.window={location:{href:'https://helper.invalid/manifest.json'}};globalThis.Image=Image;
@@ -29,6 +29,8 @@ views.push({...views.find(v=>v.appId==='system-transfer'&&v.screen==='main'),sel
 const manual={appId:'manual',screen:'main',heading:'Manual',rows:[{id:'contents',label:'Contents'},{id:'controls',label:'Controls'},{id:'support',label:'Support Information'}],selection:1,footer:{left:{action:'back',label:'Back'}},text:['Choose a section of the local guide.']};
 views.push(manual);
 for(const [topic,heading,text] of [['contents','Contents',['Browse the portfolio from HOME.','Select a title to open it.','B returns to the previous screen.']],['controls','Controls',['A: open the selected item.','B: go back.','HOME: return to HOME Menu.','Touch the lower screen to select.']],['support','Support Information',['No application manual was supplied.','This guide covers portfolio controls.']]])views.push({...manual,screen:'document',verificationId:'manual-'+topic,rows:[],heading,text,data:{topic}});
+// Settings electronic manual Contents: applet chrome plus Settings content-1 Index.
+views.push({appId:'manual',screen:'main',heading:'System Settings',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}},text:[],data:{manualTitleId:'0004001000022000'},verificationId:'manual-settings-contents'});
 const reports=[];
 try{
  for(const view of views){
@@ -60,11 +62,21 @@ try{
   }
   assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
   assert.equal(JSON.stringify(originalPacks),before,'source resources remain immutable');
-  const targets=nativeHelperTargets(view);assert.equal(targets.filter(target=>target.action==='back').length,1);
-  if(view.appId==='system-transfer'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['back','3ds','dsi']);
-  else if(view.appId==='extrapad'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['back','information']);
-  else if(view.appId==='manual'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['contents','controls','support','back']);
-  else assert.equal(targets.length,1);
+  if(view.data?.manualTitleId){
+   assert.equal(assets.renderer.packs['manual-index'].titleId,'0004001000022000');
+   const rows=calls.filter(c=>c.layout==='BtnHeadLineTxt').map(c=>[c.options.overrides.TextBox_Num.text,c.options.overrides.TextBox_Txt.text,c.options.center[1]]);
+   assert.deepEqual(rows,[['1','Important Information',86],['2','Using the System Settings',174]]);
+   assert.equal(calls.find(c=>c.layout==='SoftTitleHeader').options.overrides.TextBoxTxt_00.text,'System Settings');
+  }
+  const targets=nativeHelperTargets(view);
+  if(view.data?.manualTitleId)assert.deepEqual(targets,[],'no application-manual control is implemented yet');
+  else{
+   assert.equal(targets.filter(target=>target.action==='back').length,1);
+   if(view.appId==='system-transfer'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['back','3ds','dsi']);
+   else if(view.appId==='extrapad'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['back','information']);
+   else if(view.appId==='manual'&&view.screen==='main')assert.deepEqual(targets.map(target=>target.action),['contents','controls','support','back']);
+   else assert.equal(targets.length,1);
+  }
   for(const target of targets){assert.ok(target.x>=0&&target.y>=0&&target.x+target.width<=320&&target.y+target.height<=240,'targets remain inside lower LCD');}
   for(const [name,canvas]of [['top',top],['bottom',bottom]]){writeFileSync(join(out,(view.verificationId??view.appId+'-'+view.screen)+'-'+name+'.png'),canvas.toBuffer('image/png'));reports.push({id:(view.verificationId??view.appId+'-'+view.screen)+'-'+name,sha256:createHash('sha256').update(canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data).digest('hex')});}
   assets.dispose();

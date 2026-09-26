@@ -386,3 +386,25 @@ test('Camera first-run character panel loads its exact selected source texture c
     } finally { resources.dispose(); }
   });
 });
+
+test('a pack request can name the application title that owns it, as the manual applet reads Settings content 1', async () => {
+  await fixture(async f => {
+    const applet = '0004003000009b02', settings = '0004001000022000';
+    const row = { url: 'packs/manual/layout-BtnHeadLineTxt.json', alias: 'row', layouts: ['BtnHeadLineTxt'], animations: ['BtnHeadLineTxt_Wait'] };
+    const index = { url: 'packs/settings/contents/0001-00000038/manual-EUR_en.json', alias: 'index', layouts: ['Index'], animations: [], titleId: settings };
+    const resources = await f.load([row, index], undefined, applet);
+    assert.deepEqual(Object.keys(resources.renderer.packs), ['row', 'index']);
+    assert.equal(resources.renderer.packs.index.titleId, settings);
+    assert.deepEqual(Object.keys(resources.renderer.packs.index.layouts), ['Index']);
+    // Index text binds the shared system font; no content-owned font is fetched.
+    assert.equal(resources.renderer.fonts.get('cbf_std.bcfnt'), f.shared);
+    assert.equal(f.fonts.length, 0);
+    resources.dispose();
+    // The applet itself does not list the application's manual pack.
+    await assert.rejects(f.load([row, { ...index, titleId: undefined }], undefined, applet), /Unlisted native title pack/);
+    await assert.rejects(f.load([row, { ...index, titleId: 'SETTINGS' }], undefined, applet), /Invalid or duplicate native title pack request/);
+    await assert.rejects(f.load([row, { ...index, titleId: '0004001000022300' }], undefined, applet), /Unlisted native title pack/);
+    f.pack(index.url).titleId = applet;
+    await assert.rejects(f.load([row, index], undefined, applet), /Invalid native title pack/);
+  });
+});

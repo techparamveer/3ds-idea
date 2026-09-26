@@ -72,7 +72,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'notifications') return list(shared.notifications).map(note => row(str(note.id), str(note.title), note.read ? '' : 'New'));
     if (id === 'health-safety') return [row('3d', '3D Display Precautions'), row('general', 'General Precautions'), row('usage', 'Usage Precautions')];
-    if (id === 'manual') return [row('contents', 'Contents'), row('controls', 'Controls'), row('support', 'Support Information')];
+    // An application's electronic manual lists source Index entries at paint time; no guide rows are mixed in.
+    if (id === 'manual') return state.manualTitleId ? [] : [row('contents', 'Contents'), row('controls', 'Controls'), row('support', 'Support Information')];
     return (serviceRows[id] ?? []).map(([action, label]) => row(action, label));
   }
   function directionalSelection(current: AppView, direction: 'left' | 'right' | 'up' | 'down'): number {
@@ -298,6 +299,9 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return { screen: id==='camera'||id === 'sound' && !media.tracks.length ? 'guide' : 'main', selection: 0, ...(['health-safety','system-settings'].includes(id) ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
         ...(id === 'browser' ? { url: str(restored.url) } : {}), ...(id === 'error' ? { message: str(args.message, 'An error has occurred.') } : {}),
         ...(id==='camera'?{guidePage:0}:{}),
+        // Only an explicit applet argument selects an application manual; the
+        // title must still resolve to a delivered manual pack when painted.
+        ...(id === 'manual' && typeof args.manualTitleId === 'string' && /^[0-9a-f]{16}$/i.test(args.manualTitleId) ? { manualTitleId: args.manualTitleId.toLowerCase() } : {}),
         ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0, guidePage: 0 } : {}),
         ...(id === 'system-settings' ? { settingsHudElapsedMs: 0 } : {}), ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}), ...(id === 'health-safety' ? { healthElapsedMs: 0 } : {}) };
     },

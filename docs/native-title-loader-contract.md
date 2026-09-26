@@ -14,6 +14,15 @@ Validate that every requested URL is listed in the selected title's packs,
 every named layout/animation exists, and each decoded pack declares the expected
 title ID/schema. Reject missing/unsupported data explicitly.
 
+A request may name a different owning `titleId` (26 September 2026). The
+Instruction Manual applet displays the calling application's own content-1
+manual, so its Settings Contents view loads applet chrome under
+`0004003000009b02` plus Settings' `manual-EUR_en.json` under
+`0004001000022000`. The owner must exist, must not be excluded and must list the
+URL in its own packs; the decoded pack must declare that owner. Its fonts
+resolve from the owner's title metadata, then the borrowed shared map. The
+applet's own packs never list the application's manual.
+
 The result exposes a NativeLayoutRenderer, diagnostics and idempotent dispose.
 Load only explicitly requested pack JSON and the union of textures referenced
 by the requested layouts/animations. Preserve original PICA format handling and

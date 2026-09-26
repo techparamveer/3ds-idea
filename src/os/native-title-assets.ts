@@ -11,6 +11,10 @@ export type NativeTitlePackRequest = {
   animations: readonly string[];
   /** Explicit original bitmaps used by bundled HTML rather than a CLYT pane. */
   textures?: readonly string[];
+  /** A different title that owns this pack, such as the application whose
+   * content-1 manual the Instruction Manual applet displays. It must list the
+   * pack itself; its fonts resolve from its own metadata. */
+  titleId?: string;
 };
 export type NativeTitleAssets = {
   renderer: NativeLayoutRenderer;
@@ -96,21 +100,30 @@ export async function loadNativeTitleAssets(
     const selected = requests.map(request => {
       if (!request || typeof request.alias !== 'string' || !request.alias || aliases.has(request.alias) ||
           typeof request.url !== 'string' || !request.url || !strings(request.layouts) || !strings(request.animations) ||
-          (request.textures !== undefined && !strings(request.textures)))
+          (request.textures !== undefined && !strings(request.textures)) ||
+          (request.titleId !== undefined && (typeof request.titleId !== 'string' || !/^[a-f0-9]{16}$/.test(request.titleId))))
         throw new Error('Invalid or duplicate native title pack request');
       aliases.add(request.alias);
-      return { ...request, url: url(request.url), layouts: [...new Set(request.layouts)], animations: [...new Set(request.animations)], textures: [...new Set(request.textures??[])] };
+      return { ...request, owner: request.titleId ?? titleId, url: url(request.url), layouts: [...new Set(request.layouts)], animations: [...new Set(request.animations)], textures: [...new Set(request.textures??[])] };
     });
     const borrowed = new Map(sharedFonts);
     const raw = await json(base.href);
     if (!record(raw) || raw.schema !== 1 || !record(raw.titles)) throw new Error('Unsupported native title manifest');
-    const manifest = raw as TitleManifest, title = own(manifest.titles, titleId);
-    if (!title) throw new Error(`Missing native title ${titleId}`);
-    if (manifest.excludedTitles?.includes(titleId)) throw new Error(`Excluded native title ${titleId}`);
-    if (title.titleId !== titleId || !strings(title.packs) || !record(title.fonts) ||
-        Object.values(title.fonts).some(value => typeof value !== 'string' || !value)) throw new Error(`Invalid native title metadata ${titleId}`);
-    const listed = new Set(title.packs.map(url)), packLoads = new Map<string, Promise<unknown>>();
-    for (const request of selected) if (!listed.has(request.url)) throw new Error(`Unlisted native title pack ${request.url}`);
+    const manifest = raw as TitleManifest, owners = new Map<string, { title: TitleMetadata; listed: Set<string> }>();
+    const ownerTitle = (id: string) => {
+      const known = owners.get(id);
+      if (known) return known;
+      const title = own(manifest.titles, id);
+      if (!title) throw new Error(`Missing native title ${id}`);
+      if (manifest.excludedTitles?.includes(id)) throw new Error(`Excluded native title ${id}`);
+      if (title.titleId !== id || !strings(title.packs) || !record(title.fonts) ||
+          Object.values(title.fonts).some(value => typeof value !== 'string' || !value)) throw new Error(`Invalid native title metadata ${id}`);
+      const entry = { title, listed: new Set(title.packs.map(url)) };
+      owners.set(id, entry); return entry;
+    };
+    ownerTitle(titleId);
+    const packLoads = new Map<string, Promise<unknown>>();
+    for (const request of selected) if (!ownerTitle(request.owner).listed.has(request.url)) throw new Error(`Unlisted native title pack ${request.url}`);
     const loaded = await settle(selected.map(request => {
       let job = packLoads.get(request.url);
       if (!job) { job = json(request.url); packLoads.set(request.url, job); }
@@ -122,7 +135,7 @@ export async function loadNativeTitleAssets(
     const diagnostics: string[] = [];
     selected.forEach((request, index) => {
       const value = loaded[index];
-      if (!record(value) || value.schema !== 1 || value.titleId !== titleId || !record(value.layouts) ||
+      if (!record(value) || value.schema !== 1 || value.titleId !== request.owner || !record(value.layouts) ||
           !record(value.animations) || !record(value.textures) || !record(value.messages) || !Array.isArray(value.unsupported))
         throw new Error(`Invalid native title pack ${request.url}`);
       const source = value as TitlePack, namespace = contentNamespace(source);
@@ -166,7 +179,7 @@ export async function loadNativeTitleAssets(
         requiredTextures.push({ alias: request.alias, name, href, format: texture.picaFormat });
       }
       for (const name of neededFonts) {
-        const sourceName = namespace + name, ownedUrl = own(title.fonts, sourceName);
+        const sourceName = namespace + name, ownedUrl = own(ownerTitle(request.owner).title.fonts, sourceName);
         const binding = ownedUrl ? url(ownedUrl) : borrowed.get(name);
         if (!binding) throw new Error(`Missing native title font ${sourceName}`);
         const previous = fontBindings.get(name);

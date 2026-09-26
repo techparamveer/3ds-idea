@@ -1,4 +1,5 @@
 import { objectValue, type AppState, type AppViewRow, type JsonValue } from './app-types.ts';
+import { manualSources } from './stock-manual-index.ts';
 const string=(value:JsonValue|undefined)=>typeof value==='string'?value:'';
 export const helperSelectorSources:Record<string,string>={'mii-selector':'miis','photo-selector':'photos','sound-selector':'sounds'};
 const selectorNames:Record<string,string>={'mii-selector':'Mii characters','photo-selector':'photos','sound-selector':'sounds'};
@@ -29,6 +30,7 @@ const manualPages:Record<string,readonly string[]>={
 };
 export function isHelperTitle(id:string):boolean{return Boolean(intros[id]||helperSelectorSources[id]);}
 export function helperTitle(id:string,state:AppState):string|undefined{
+  if(id==='manual'&&state.manualTitleId)return manualSources[string(state.manualTitleId)]?.heading;
   if(state.screen==='detail')return details[id]?.[string(state.field)]?.[0];
   if(id==='manual'&&state.screen==='document')return {contents:'Contents',controls:'Controls',support:'Support Information'}[string(state.topic)];
   return undefined;
@@ -46,6 +48,7 @@ export function helperView(id:string,state:AppState,shared:AppState,rows:readonl
     return {text:[name||'Saved item','Read-only item information.'],data:{readOnly:true,entry}};
   }
   if(!intros[id])return null;
+  if(id==='manual'&&state.manualTitleId)return {text:[],data:{readOnly:true}};
   if(id==='manual'&&screen==='document')return {text:[...(manualPages[string(state.topic)]??['This guide section is unavailable.'])],data:{readOnly:true}};
   if(screen==='main')return {text:[...intros[id]],data:{readOnly:true}};
   const page=details[id]?.[string(state.field)];

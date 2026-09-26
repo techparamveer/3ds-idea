@@ -4,6 +4,7 @@ import { nativeMessageOverride, nativePaneParentPath, nativeTextMetrics, type Pa
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenTarget } from './stock-screen-layout';
+import { manualContents, manualSources } from './stock-manual-index';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 
 const updaterPrefix='packs/system-updater/',nnidPrefix='packs/nnid-settings/';
@@ -35,8 +36,19 @@ export const manualScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/manual/layout-BtnClose00.json',alias:'manual-close',layouts:['BtnClose00'],animations:['BtnClose00_SceneIn']},
   {url:'packs/manual/messages-and-loose.json',alias:'helper-messages',layouts:[],animations:[]},
 ];
+const manualTitle=(view:AppView)=>typeof view.data?.manualTitleId==='string'?view.data.manualTitleId:null;
+/** The applet (0004003000009b02) displays the calling application's own
+ * content-1 manual. Only the Contents chrome with delivered layouts is used. */
+function applicationManualPacks(titleId:string):readonly NativeTitlePackRequest[]{
+  const source=manualSources[titleId];
+  const chrome=manualScreenPacks.filter(pack=>['manual-SoftTitleHeader','manual-IndexBase00','manual-ContentsTxt','manual-row','helper-messages'].includes(pack.alias));
+  // An unknown title has no delivered manual: its absent pack fails the load explicitly.
+  return [...chrome,{url:source?.url??'packs/manual-unavailable/'+titleId+'.json',alias:'manual-index',layouts:['Index'],animations:[],titleId}];
+}
 export function nativeHelperView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
   if(view.appId==='amiibo-settings')return {view:'amiibo-opening-read-only',titleId:'000400300000b902',packs:amiiboScreenPacks};
+  const manual=view.appId==='manual'?manualTitle(view):null;
+  if(manual)return {view:'manual-application-contents',titleId:'0004003000009b02',packs:applicationManualPacks(manual)};
   if(view.appId==='manual')return {view:'manual-portfolio-guide',titleId:'0004003000009b02',packs:manualScreenPacks};
   if(view.appId==='system-transfer')return {view:'transfer-read-only',titleId:'0004001000022a00',packs:transferScreenPacks};
   if(view.appId==='extrapad')return {view:'circle-pad-read-only',titleId:'000400300000cd02',packs:circlePadScreenPacks};
@@ -50,6 +62,8 @@ export function nativeHelperTargets(view:AppView):StockScreenTarget[]|null{
   if(!nativeHelperView(view))return null;
   const action=view.footer.left?.action??'back';
   if(view.appId==='amiibo-settings')return [{action,x:0,y:212,width:320,height:28}];
+  // No Close/Language footer or row input is delivered for application manuals yet.
+  if(view.appId==='manual'&&manualTitle(view))return [];
   if(view.appId==='manual'){
     if(view.screen!=='main')return [{action,x:40,y:212,width:140,height:28}];
     return [...view.rows.slice(0,3).map((row,index)=>({action:row.id,x:24,y:56.5+index*44,width:272,height:37,row:index})),{action,x:0,y:212,width:320,height:28}];
@@ -70,6 +84,7 @@ const mirrorPanel:PaneOverrides={UpWndwLT_01:{size:[184,80],scale:[-1,1]},UpWndw
 export function drawNativeHelperFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,_options?:StockScreenPaintOptions):boolean{
   if(!nativeHelperView(view))return false;
   if(view.appId==='amiibo-settings')return drawNativeAmiibo(renderer,top,bottom);
+  if(view.appId==='manual'&&manualTitle(view))return drawApplicationManual(renderer,top,bottom,view);
   if(view.appId==='manual')return drawManual(renderer,top,bottom,view,_options);
   if(view.appId==='system-transfer')return drawTransfer(renderer,top,bottom,view);
   if(view.appId==='extrapad')return drawCirclePad(renderer,top,bottom,view);
@@ -185,6 +200,51 @@ function drawManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,b
       for(const [name,override]of Object.entries(backOverrides)){const pane=nativePaneParentPath(layout,name)!.at(-1)!;override.translation=[name.endsWith('Text')?(glyphWidth+gap)/2:-(labelWidth+gap)/2,pane.translation[1],pane.translation[2]];}
     }else{backOverrides.T_BtnB_Pict={visible:false};backOverrides.T_BtnF_Pict={visible:false};}
     draw(bottom,'manual-back','BtnBack00',{bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:backOverrides});
+  }
+  return okay;
+}
+
+/** Capture-fitted placement (adaptation, native capture 23:19:14.606, SHA-256
+ * 2efb7fa7…799b): the applet positions the list in code under IndexNull
+ * HeadLineAll. Values are BtnHeadLineTxt/ContentsTxt draw centres on the lower
+ * LCD. A page row advances 54px and a category band 34px. */
+export const APPLICATION_MANUAL_SLOTS={firstRow:86,row:54,category:34,contentsCentre:42} as const;
+/** Applet `IndexNull` (layout/IndexNull.arc/blyt/IndexNull.bclyt, SHA-256
+ * af65d3ac00782bdd74f2c09ea36a61d739650bab5da39602acca4be9d85443c9; not yet a
+ * public pack) holds `SoftTitleHead` at Y+262 of its 400×480 dual-screen root,
+ * also in `IndexNull_Wait`. The root centre is the LCD seam: upper y = 240-262. */
+export const APPLICATION_MANUAL_HEADER_CENTRE:[number,number]=[200,240-262];
+/** Lower list clip: BtnClose00/BtnCloseLng00 `P_Btn_01` (y-120, height 28)
+ * begins at y212 of the 240px lower canvas. */
+const APPLICATION_MANUAL_LIST_CLIP:[number,number,number,number]=[0,0,320,212];
+
+/** Settings (and future application) manual Contents. Rows come only from
+ * the application's source Index.bclyt; titles, numbers and order are source
+ * data. Source gaps are omitted rather than drawn: the HLTxt category band,
+ * CsrHeadLine00 cursor, ScrollIndicator, BtnCloseLng00 X Close / Y Language
+ * footer, per-category number colours, the SMDH header icon and the upper page
+ * base are not delivered. */
+function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView):boolean{
+  const titleId=manualTitle(view)!,source=manualSources[titleId],index=renderer.packs['manual-index']?.layouts.Index;
+  if(!source||!index)return false;
+  const entries=manualContents(index);
+  const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
+  let okay=true;
+  const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,options:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,options)&&okay;};
+  // Opaque LCD base under the source chrome; the native upper page base is a gap.
+  top.fillStyle='#fff';top.fillRect(0,0,400,240);bottom.fillStyle='#fff';bottom.fillRect(0,0,320,240);
+  // P_Icon_00 would show the applet's IconBlank; the SMDH icon binding is a gap.
+  draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,overrides:{TextBoxTxt_00:{text:source.heading},P_Icon_00:{visible:false}}});
+  draw(bottom,'manual-IndexBase00','IndexBase00',{center:[160,0]});
+  draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,APPLICATION_MANUAL_SLOTS.contentsCentre],overrides:{Contents_Txt:message('ContentsText')}});
+  let y=APPLICATION_MANUAL_SLOTS.firstRow;
+  for(const entry of entries){
+    if(y-APPLICATION_MANUAL_SLOTS.row/2>=APPLICATION_MANUAL_LIST_CLIP[3])break;
+    if(entry.kind==='category'){y+=APPLICATION_MANUAL_SLOTS.category;continue;}
+    // The native selected row keeps its idle button under the separate
+    // CsrHeadLine00 cursor, so every row uses BtnHeadLineTxt_Wait.
+    draw(bottom,'manual-row','BtnHeadLineTxt',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:entry.title}}});
+    y+=APPLICATION_MANUAL_SLOTS.row;
   }
   return okay;
 }

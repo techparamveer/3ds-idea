@@ -235,3 +235,30 @@ test('direct upright LCD glyphs own exact bottom vertical ties once',()=>{
   rasterNativeAlphaGlyph(old,source,q);rasterNativeAlphaGlyph(lcd,source,q,'bottom');assert.deepEqual(alpha(lcd),alpha(old),'non-ties retain the existing coverage');
  }
 });
+
+test('explicit Health coverage adaptation snaps near ties while retaining atlas interpolation',()=>{
+ const glyph={width:1,height:1},source={width:3,height:3,data:new Uint8ClampedArray(36).fill(255)};
+ const render=(delta,adaptation)=>{
+  const target={width:4,height:1,data:new Uint8ClampedArray(16)};
+  rasterNativeAlphaGlyph(target,source,{glyph,x:.5+delta,y:0,width:2,height:1},'bottom',adaptation);
+  return Array.from({length:4},(_,x)=>target.data[x*4+3]);
+ };
+ const fit='azahar-12p4-fit',near=-1.9073486328125e-6;
+ assert.deepEqual(render(near),[255,255,0,0],'default direct-LCD near ties remain untouched');
+ assert.deepEqual(render(near,fit),[0,255,255,0],'Health float32 near tie snaps to exact half');
+ assert.deepEqual(render(-.01,fit),[0,255,255,0]);
+ assert.deepEqual(render(-.04,fit),[255,255,0,0],'edge beyond half of a 1/16 grid step stays distinct');
+ assert.deepEqual(render(.04,fit),[0,255,255,0]);
+ // Nonuniform alpha makes an unintended texture-coordinate snap observable.
+ source.data.fill(0);source.data[16+3]=255;
+ const sample=adaptation=>{const t={width:4,height:1,data:new Uint8ClampedArray(16)};rasterNativeAlphaGlyph(t,source,{glyph,x:.49,y:0,width:2,height:1},'bottom',adaptation);return t.data[7];};
+ assert.equal(sample(fit),sample(undefined),'covered interior sample uses the original quad');
+});
+
+test('Other title live O right endpoint near tie is included only by explicit coverage adaptation',()=>{
+ const source={width:3,height:3,data:new Uint8ClampedArray(36).fill(255)},glyph={width:1,height:1};
+ const render=adaptation=>{const t={width:162,height:1,data:new Uint8ClampedArray(162*4)};rasterNativeAlphaGlyph(t,source,{glyph,x:145.19999694824219,y:0,width:15.30000114440918,height:1,right:160.49999809265137},'bottom',adaptation);return t.data;};
+ const original=render(),fitted=render('azahar-12p4-fit');
+ assert.equal(original[160*4+3],0);assert.equal(fitted[160*4+3],255);
+ assert.deepEqual(original.slice(0,160*4),fitted.slice(0,160*4),'preceding columns retain their samples');
+});

@@ -6,6 +6,8 @@ type Context=CanvasRenderingContext2D;
 export type NativeDrawOptions={
  /** Opt in only after native comparison: single-line alpha text on LCD centers. */
  textSampling?:'lcd';
+ /** Capture-fitted Health Back/Other title coverage; GPU precision remains unverified. */
+ textCoverageAdaptation?:'azahar-12p4-fit';
  /** Explicit source layout links; each prt1 retains its own pane/material scope. */
  parts?:Readonly<Record<string,{pack:string;layout:string}>>;
  partBindings?:Readonly<Record<string,{bindings?:AnimationBinding[];overrides?:PaneOverrides}>>;
@@ -121,7 +123,7 @@ export class NativeLayoutRenderer {
   ctx.save();try{ctx.resetTransform();ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,0,0,width,height,x,y,width,height);}finally{ctx.restore();}
   return true;
  }
- private text(layout:NativeLayout,pane:NativePane,alpha:number,transform?:DOMMatrix){
+ private text(layout:NativeLayout,pane:NativePane,alpha:number,transform?:DOMMatrix,coverageAdaptation?:'azahar-12p4-fit'){
   const text=pane.text!,font=this.fonts.get(layout.fonts[text.font]);if(!font)throw new Error(`Missing native font ${layout.fonts[text.font]}`);
   const [w,h]=pane.size.map(Math.ceil),material=layout.materials[text.material];
   const metrics=nativeTextMetrics(text,font.manifest);
@@ -129,12 +131,13 @@ export class NativeLayoutRenderer {
   // directly on the LCD pixel grid. Other
   // transforms retain their existing path until their projection is traced.
   const direct=font.manifest.colorMode==='alpha'&&!/[\r\n]/.test(text.value)&&(text.alignment===3||text.alignment===4)&&text.lineAlignment===0&&metrics.characterSpacing===0&&pane.size[0]===w&&pane.size[1]===h&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
+  const coverage=direct?coverageAdaptation:undefined;
   const phase:readonly [number,number]=direct?[transform.e-Math.floor(transform.e),transform.f-Math.floor(transform.f)]:[0,0];
   const extra=nativeTextRightOverhang(font.manifest,text.value,metrics.size,text.alignment,text.lineAlignment,metrics.characterSpacing),rasterWidth=w+extra+Math.ceil(phase[0]),rasterHeight=h+Math.ceil(phase[1]);
-  const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase,direct]);
+  const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase,direct,coverage]);
   const canvas=this.cached(key,()=>{
    const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
-   font.drawNative(ctx,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct);
+   font.drawNative(ctx,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage);
    const image=ctx.getImageData(0,0,rasterWidth,rasterHeight);
    for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){
     const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;
@@ -255,7 +258,7 @@ export class NativeLayoutRenderer {
       ctx.save();ctx.translate(x,y);
       try{
        if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures)){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
-       if(pane.text){const raster=this.text(layout,pane,alpha,options.textSampling==='lcd'?ctx.getTransform?.():undefined),textCanvas=raster.canvas;
+       if(pane.text){const raster=this.text(layout,pane,alpha,options.textSampling==='lcd'?ctx.getTransform?.():undefined,options.textCoverageAdaptation),textCanvas=raster.canvas;
         ctx.beginPath();ctx.rect(0,0,w*(Math.ceil(w)+raster.extra)/Math.ceil(w),h);ctx.clip();
         this.composite(ctx,textCanvas,0-raster.phase[0],0-raster.phase[1],w*textCanvas.width/Math.ceil(w),h*textCanvas.height/Math.ceil(h),layout,pane.text.material);
        }

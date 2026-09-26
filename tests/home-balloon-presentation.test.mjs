@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createPortfolioState, homeSlotAppId } from '../src/os/system.ts';
 import { selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
-import { createHomeBalloonPresentation, advanceHomeBalloonPresentation, selectHomeSettingsBalloonText, selectHomeHealthBalloonText } from '../src/os/home-balloon-presentation.ts';
+import { createHomeBalloonPresentation, advanceHomeBalloonPresentation, selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText } from '../src/os/home-balloon-presentation.ts';
 import { poseNativeLayout } from '../src/os/native-layout.ts';
-import { getNativeSettingsTitleBalloon, getHomePresentation } from '../src/os/home-presentation.ts';
+import { getNativeSettingsTitleBalloon, getNativeSoundTitleBalloon, getHomePresentation } from '../src/os/home-presentation.ts';
 import { getTitle } from '../src/os/app-registry.ts';
 import ts from 'typescript';
 
@@ -160,4 +160,42 @@ test('Health one-row balloon uses verified SMDH text and disappears on retarget'
   assert.equal(departing.clip, 'DisAppear');
   assert.equal(departing.titleId, '0004001000022300');
   assert.equal(createHomeBalloonPresentation(settleHomeNavigation(setHomeDensity(selected, 1))).visible, false);
+});
+
+
+test('Sound one-row title balloon binds verified SMDH metadata and source layout only in eligible HOME states', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/manifest.json', import.meta.url)));
+  const text = selectHomeSoundBalloonText(manifest);
+  assert.equal(text, 'Nintendo 3DS Sound\nNintendo');
+  assert.equal(manifest.titles['0004001000022500'].publisherSource.sha256,
+    '100f6180ecdd7716d4928676381d729ebad50b94500350f17d52daa16d5ff494');
+  const corrupt = structuredClone(manifest);
+  corrupt.titles['0004001000022500'].publisherSource.sha256 = '0'.repeat(64);
+  assert.equal(selectHomeSoundBalloonText(corrupt), null);
+  const base = createPortfolioState();
+  const slot = Array.from({ length: 60 }, (_, i) => i).find(i => homeSlotAppId(base, i) === 'sound');
+  const selected = settleHomeNavigation(selectHomeSlot(density0({ ...base, system: { ...base.system, phase: 'home' } }), slot));
+  const balloon = createHomeBalloonPresentation(selected);
+  assert.deepEqual([balloon.visible, balloon.titleId, balloon.frame], [true, '0004001000022500', 5]);
+  const view = getHomePresentation(selected);
+  for (const mode of [2, 4, 14]) assert.equal(getNativeSoundTitleBalloon(selected, { ...view, mode }), null);
+  assert.equal(getNativeSoundTitleBalloon({ ...selected, panel: 'settings' }, view), null);
+  assert.equal(getNativeSoundTitleBalloon({ ...selected, opened: true }, view), null);
+  assert.equal(getNativeSoundTitleBalloon({ ...selected, system: { ...selected.system, phase: 'app' } }, view), null);
+  assert.equal(getNativeSoundTitleBalloon({ ...selected, system: { ...selected.system, homeNavigation: {
+    ...selected.system.homeNavigation, focus: { ...selected.system.homeNavigation.focus, toolbarActive: true },
+  } } }, view), null);
+  assert.equal(createHomeBalloonPresentation(setHomeDensity(selected, 1)).visible, false);
+  assert.equal(createHomeBalloonPresentation(settleHomeNavigation(setHomeDensity(selected, 1))).visible, false);
+  const calls = [];
+  const renderer = { packs: { launcher: JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url))) }, draw(...args) { calls.push(args); return true; } };
+  const live = { ...selected, system: { ...selected.system, homeControls: { balloon } } };
+  assert.equal(createFirmwareHome({ renderer, soundBalloonText: text }).folderBalloon({}, live, view), true);
+  assert.equal(calls[0][2], 'LncBlln_00');
+  assert.deepEqual(calls[0][3].bindings, [{ name: 'LncBlln_00_Appear', frame: 5 }]);
+  assert.equal(calls[0][3].overrides.T_Blln_00.text, text);
+  assert.equal(createFirmwareHome({ renderer, soundBalloonText: null }).folderBalloon({}, live, view), false);
+  assert.equal(calls.length, 1);
+  const departing = advanceHomeBalloonPresentation(balloon, selectHomeSlot(selected, 0));
+  assert.deepEqual([departing.titleId, departing.clip, departing.frame], ['0004001000022500', 'DisAppear', 0]);
 });

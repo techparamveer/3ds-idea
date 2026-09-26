@@ -99,6 +99,18 @@ export function getNativeHealthTitleBalloon(state:MenuState,view:HomePresentatio
  return {label:getTitle(tile.appId)!.title,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
 }
 
+/** Captured native Sound selection, restricted to the source density-zero predicate.
+ * The unresolved external-object gates remain the existing conservative adapter. */
+export function getNativeSoundTitleBalloon(state:MenuState,view:HomePresentation){
+ if(state.opened||state.panel||view.gesture||view.currentDensity!==0||view.targetDensity!==0||[2,4,14].includes(view.mode)
+   ||state.system?.phase!=='home'||state.system.homeNavigation.focus.toolbarActive)return null;
+ const tile=view.tiles.find(tile=>tile.index===state.selected);
+ if(!tile||tile.appId!=='sound')return null;
+ const title=getTitle(tile.appId);
+ if(title?.titleId!=='0004001000022500')return null;
+ return {label:title.title,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
+}
+
 /** Footer actions follow the runtime's currently selected container. */
 export function getHomeFooter(state:MenuState){
  const appId=homeSlotAppId(state,state.opened?state.folderSelected:state.selected);

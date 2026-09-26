@@ -1,5 +1,5 @@
 import type { MenuState } from './state.ts';
-import { getHomePresentation, getNativeFolderBalloon, getNativeSettingsTitleBalloon, getNativeHealthTitleBalloon } from './home-presentation.ts';
+import { getHomePresentation, getNativeFolderBalloon, getNativeSettingsTitleBalloon, getNativeHealthTitleBalloon, getNativeSoundTitleBalloon } from './home-presentation.ts';
 
 export type HomeBalloonPresentation = Readonly<{
   visible: boolean;
@@ -19,16 +19,19 @@ const selectedBalloon=(state:MenuState)=>{
  const title=getNativeSettingsTitleBalloon(state,view);
  if(title)return {...title,titleId:'0004001000022000'};
  const health=getNativeHealthTitleBalloon(state,view);
- return health?{...health,titleId:'0004001000022300'}:null;
+ if(health)return {...health,titleId:'0004001000022300'};
+ const sound=getNativeSoundTitleBalloon(state,view);
+ return sound?{...sound,titleId:'0004001000022500'}:null;
 };
 
 const object=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==='object'&&!Array.isArray(value);
 const source=(value:unknown,titleId:string):value is Record<string,unknown>=>object(value)&&value.titleId===titleId
   &&value.path==='ExeFS/icon'&&typeof value.sha256==='string'&&/^[a-f0-9]{64}$/.test(value.sha256);
 /** Select text only when both English SMDH fields resolve to the manifest's
- * published Settings icon source. No descriptor or guessed publisher fallback. */
+ * published icon source. No descriptor or guessed publisher fallback. */
 export function selectHomeSettingsBalloonText(raw:unknown):string|null{return selectHomeTitleBalloonText(raw,'0004001000022000','icons/settings.png');}
 export function selectHomeHealthBalloonText(raw:unknown):string|null{return selectHomeTitleBalloonText(raw,'0004001000022300','icons/health-and-safety.png');}
+export function selectHomeSoundBalloonText(raw:unknown):string|null{return selectHomeTitleBalloonText(raw,'0004001000022500','icons/sound.png');}
 function selectHomeTitleBalloonText(raw:unknown,titleId:string,iconPath:string):string|null{
  if(!object(raw)||raw.schema!==1||raw.firmware!=='10.7.0-32E'||raw.region!=='EUR'||raw.locale!=='EU_English'
    ||!object(raw.titles)||!object(raw.resources))return null;

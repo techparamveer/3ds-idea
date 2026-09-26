@@ -162,11 +162,11 @@ export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   const count=folderView?records(folder?.photos).length:photos.length;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['camera-messages'],'P',label,'');
   top.fillStyle='#000';top.fillRect(0,0,400,240);
-  // P_FinderVS_U supplies the 400×240 frame. Centered cover is the read-only
-  // portfolio adaptation to the populated native capture, not a decoded zoom mode.
+  // P_FinderVS_U supplies the 400×240 frame. Portfolio JPEGs have no stereo
+  // metadata: use the native mono branch of 0x210230, not MPO framing.
   if(view.screen==='gallery'||view.screen==='photo'){
     const url=str(photo.thumbnail)||str(photo.src);
-    if(url)options.image?.(top,url,0,0,400,240,'cover');
+    if(url)options.image?.(top,url,0,0,400,240,'camera-mono');
   }
   const upper=renderer.draw(top,'camera-finder','P_FinderVS_U',{overrides:{
     ...cameraUpperHidden,

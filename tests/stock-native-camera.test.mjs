@@ -268,11 +268,11 @@ test('folder upper shows P_FinderVS_U browse panes and hides capture overlays',(
 test('gallery and photo uppers draw portfolio pixels as the 400×240 view',()=>{
   const gallery=paintFrame(view('gallery',[{id:'photo:a',label:'Building 1'}],{photos:[{id:'a',src:'/portfolio/building1.jpg'}]}));
   assert.equal(gallery.okay,true);
-  assert.deepEqual(gallery.images[0],['/portfolio/building1.jpg',0,0,400,240,'cover']);
+  assert.deepEqual(gallery.images[0],['/portfolio/building1.jpg',0,0,400,240,'camera-mono']);
   assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.BrwsFolder.visible,false);
   assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.BrwsNoData.visible,false);
   const photo=paintFrame(view('photo',[],{photo:{id:'a',title:'Building 2',src:'/portfolio/building2.jpg'}}));
-  assert.deepEqual(photo.images[0],['/portfolio/building2.jpg',0,0,400,240,'cover']);
+  assert.deepEqual(photo.images[0],['/portfolio/building2.jpg',0,0,400,240,'camera-mono']);
   assert.equal(photo.draws.find(d=>d.layout==='P_BrwsPhoMntBase').opts.overrides['-PhoMntPos'].visible,false);
 });
 

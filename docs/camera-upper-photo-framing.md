@@ -1,6 +1,10 @@
 # Camera upper photo framing — 26 September 2026
 
-This is a provisional portfolio framing correction, **not native Camera visual
+**Superseded:** [native photo-fit source audit](camera-photo-fit-source-audit.md)
+replaces cover with the executable's mono contain/no-upscale branch. The native
+comparison fixture is stereo MPO and has separate capture/parallax processing.
+
+This was a provisional portfolio framing correction, **not native Camera visual
 acceptance**. The preserved populated native/browser pair reports 95,350 upper
 pixels over 2/255 before this change. Coordinator recapture is still required.
 

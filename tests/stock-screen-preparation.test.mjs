@@ -182,12 +182,16 @@ test('a hanging Sound room keeps the original preparation deadline after layouts
 });
 
 
-test('Camera cover fills the whole upper LCD with centered aspect-preserving source crop; default media stays contained',()=>{
+test('Camera mono photos use native contain with no upscaling; other media keeps its existing fit',()=>{
  const calls=[],image={},ctx={drawImage:(...args)=>calls.push(args)};
- drawStockMediaImage(ctx,image,2000,1500,0,0,400,240,'cover');
- assert.deepEqual(calls.pop(),[image,0,150,2000,1200,0,0,400,240]);
- drawStockMediaImage(ctx,image,600,1200,0,0,400,240,'cover');
- assert.deepEqual(calls.pop(),[image,0,420,600,360,0,0,400,240]);
+ drawStockMediaImage(ctx,image,2000,1500,0,0,400,240,'camera-mono');
+ assert.deepEqual(calls.pop(),[image,40,0,320,240]);
+ drawStockMediaImage(ctx,image,600,1200,0,0,400,240,'camera-mono');
+ assert.deepEqual(calls.pop(),[image,140,0,120,240]);
+ drawStockMediaImage(ctx,image,100,60,0,0,400,240,'camera-mono');
+ assert.deepEqual(calls.pop(),[image,150,90,100,60]);
+ drawStockMediaImage(ctx,image,100,60,0,0,400,240);
+ assert.deepEqual(calls.pop(),[image,0,0,400,240]);
  drawStockMediaImage(ctx,image,2000,1500,32,43,256,128);
  assert.deepEqual(calls.pop(),[image,32+(256-2000*(128/1500))/2,43,2000*(128/1500),128]);
 });

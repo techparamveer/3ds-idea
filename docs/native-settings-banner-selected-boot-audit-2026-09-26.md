@@ -54,3 +54,26 @@ The upper HUD still differs in Internet status and battery presentation; the
 lower viewport and selected-tile location in the old pair predate `825b4c5`.
 These are distinct pixel gaps. Motion, cue onset and the remaining full-LCD
 differences remain open until a new same-input native/browser pair is captured.
+
+## Fresh-origin layout and saved-default follow-up
+
+The coordinator's fresh-origin production browser capture at
+`reference/scenario-matrix/v1/captures/home-settings-selected-default-browser-20260926/`
+shows selected Settings at lower LCD **x=244**, aligned with the native selected
+tile. It records HOME update **519**, yaw counter and skeletal frame **276**;
+the native screenshot still has no source counter. Its unmasked diagnostic diff
+is **54,709 upper / 41,778 lower** pixels over 2/255. The upper wrench is
+face-on relative to the native thin pose. The lower neighbors also differ:
+portfolio NVIDIA and a blue music icon occupy positions where the native
+capture shows Activity Log and orange Sound. The input prefixes differ, so
+these counts cannot be read as a before/after improvement or a banner-phase
+measurement.
+
+An existing browser origin retained the pre-`825b4c5` slot map in localStorage,
+which overrides `initialAppLayout()` on restore. The HOME persistence change
+after this audit recognizes only the exact old 14-title default with no folder
+or folder-number history. It adopts the new default positions and remaps the
+selected title; saved Settings at old slot 8 moves to slot 9 with the two-row
+viewport starting at slot 4. A rearranged layout and folder history remain
+unchanged. This fixes the stale-default route only; it does not modify the
+banner clock or resolve the distinct visual differences above.

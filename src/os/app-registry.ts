@@ -43,6 +43,17 @@ export const installedTitles: readonly AppDescriptor[] = [...modules.values()].m
 export const homeTitles = installedTitles.filter(title => title.home);
 export function getTitle(id?: string | null) { return id ? modules.get(id)?.descriptor : undefined; }
 export function getAppModule(id?: string | null) { return id ? modules.get(id) : undefined; }
+/** Exact pre-825b4c5 default save; this snapshot must not follow later registry changes. */
+const previousDefaultHomeIds = [
+  'work', 'projects', 'hobbies', 'life', 'hackuk', 'nvidia', 'about', 'contact',
+  'system-settings', 'health-safety', 'camera', 'sound', 'eshop', 'nintendo-zone',
+] as const;
+export function isPreviousDefaultAppLayout(value: unknown): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const layout = value as Record<string, unknown>;
+  return Object.keys(layout).length === previousDefaultHomeIds.length
+    && previousDefaultHomeIds.every((id, slot) => layout[String(slot)] === id);
+}
 /** The EUR selected-Settings capture places Sound one column left of Settings,
  * both on the lower row. Keep the portfolio titles installed and exchange only
  * their default HOME positions with the two stock titles. Existing saved layouts

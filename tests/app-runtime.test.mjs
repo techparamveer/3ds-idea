@@ -1,14 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { apps } from '../src/os/apps.ts';
-import { installedTitles, getAppModule, initialAppLayout } from '../src/os/app-registry.ts';
+import { installedTitles, getAppModule, initialAppLayout, isPreviousDefaultAppLayout } from '../src/os/app-registry.ts';
 import { createAppRuntime, startApplication, openApplet, dispatchRuntime, activeInstance, runtimeView, showRuntimeHome, resumeRuntimeApplication, closeApplication, deliverCapabilityResult, setRuntimeSleeping, acknowledgeEffects, isRuntimeEffectCurrent } from '../src/os/app-host.ts';
-import { createPortfolioState, tickSystem, reduceSystem, touchSystem, dispatchSystemEvent, getActiveAppView, restoreSettings, setSystemSleeping, releaseSystemInputs, resolveSystemCapability, restoreRuntimeData } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, reduceSystem, touchSystem, dispatchSystemEvent, getActiveAppView, restoreSettings, saveSettings, setSystemSleeping, releaseSystemInputs, resolveSystemCapability, restoreRuntimeData } from '../src/os/system.ts';
 import { createInputLatch, latchInput, repeatInput } from '../src/os/app-input.ts';
 import { getHomeNavigationView, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 const event=(r,id,value)=>dispatchRuntime(r,{type:'action',id,value},1000);
 const home=()=>tickSystem(createPortfolioState(),3001);
 const titleSlot=id=>Number(Object.entries(initialAppLayout()).find(([,title])=>title===id)[0]);
+const previousDefault=()=>Object.fromEntries([
+ 'work','projects','hobbies','life','hackuk','nvidia','about','contact',
+ 'system-settings','health-safety','camera','sound','eshop','nintendo-zone',
+].map((id,slot)=>[slot,id]));
 test('default selected Settings reaches the captured lower-right HOME position',()=>{
  const initial=createPortfolioState(), layout=initial.system.layout;
  assert.equal(layout[7],'sound');assert.equal(layout[9],'system-settings');
@@ -18,6 +22,42 @@ test('default selected Settings reaches the captured lower-right HOME position',
  assert.equal(view.currentLeftSlot,4);
  assert.deepEqual([view.slots[titleSlot('sound')].x,view.slots[titleSlot('sound')].y],[160,166]);
  assert.deepEqual([view.slots[titleSlot('system-settings')].x,view.slots[titleSlot('system-settings')].y],[244,166]);
+});
+test('only the exact previous default migrates its selected Settings viewport and keeps preferences',()=>{
+ const saved=JSON.parse(saveSettings(home()));
+ saved.layout=previousDefault();saved.homeView.rootView={selectedSlot:8,currentLeftSlot:6,targetLeftSlot:6,density:1};
+ saved.theme='blue';saved.volume=.7;
+ assert.equal(isPreviousDefaultAppLayout(saved.layout),true);
+ const migrated=restoreSettings(createPortfolioState(),JSON.stringify(saved));
+ assert.deepEqual(migrated.system.layout,initialAppLayout());
+ assert.deepEqual(migrated.system.homeNavigation.rootView,{selectedSlot:9,currentLeftSlot:4,targetLeftSlot:4,density:1});
+ assert.equal(getHomeNavigationView(migrated).slots[9].x,244);
+ assert.equal(migrated.theme,'blue');assert.equal(migrated.system.volume,.7);
+ assert.equal(saveSettings(restoreSettings(createPortfolioState(),saveSettings(migrated))),saveSettings(migrated));
+});
+test('legacy default selection follows each swapped title identity',()=>{
+ const saved=JSON.parse(saveSettings(home()));saved.layout=previousDefault();
+ for(const [oldSlot,newSlot] of [[7,11],[8,9],[9,8],[11,7]]){
+  saved.homeView.rootView={selectedSlot:oldSlot,currentLeftSlot:6,targetLeftSlot:6,density:1};
+  const restored=restoreSettings(createPortfolioState(),JSON.stringify(saved));
+  assert.equal(restored.system.homeNavigation.rootView.selectedSlot,newSlot);
+  assert.equal(restored.system.layout[newSlot],saved.layout[oldSlot]);
+ }
+});
+test('rearranged titles and folder history keep their saved slots and view',()=>{
+ const base=JSON.parse(saveSettings(home()));base.layout=previousDefault();
+ base.homeView.rootView={selectedSlot:8,currentLeftSlot:6,targetLeftSlot:6,density:1};
+ for(const edit of [
+  value=>{[value.layout[0],value.layout[1]]=[value.layout[1],value.layout[0]];},
+  value=>{value.folders={40:'Saved'};},
+  value=>{value.nextFolderNumber=2;},
+ ]){
+  const saved=structuredClone(base);edit(saved);
+  const restored=restoreSettings(createPortfolioState(),JSON.stringify(saved));
+  assert.deepEqual(restored.system.layout,saved.layout);
+  assert.deepEqual(restored.system.homeNavigation.rootView,saved.homeView.rootView);
+ }
+ assert.equal(isPreviousDefaultAppLayout({...previousDefault(),40:'work'}),false);
 });
 test('button releases, analog dead zone and multiple sources do not duplicate or stick input',()=>{
  let {latch,commands}=latchInput(createInputLatch(),{type:'button',source:'a',command:'right',phase:'down'},0);assert.deepEqual(commands,['right']);

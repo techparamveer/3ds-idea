@@ -72,3 +72,7 @@ model, replay both Settings main and Other page 1 at the matched phase, and
 verify the raw browser LCD. Do not choose frame 5 by page, timestamp, or a
 capture-fitted timeout. The upper HUD residual is not resolved by this audit;
 both matrix entries remain `fail`.
+
+## Odd-second production probe
+
+At `7221619`, `settings-main-odd-second-diagnostic-browser-20260926` produced the same PNG hashes as `settings-main-local-endpoint-regression-browser-20260926` sampled at :00: upper `b11e841952ea512449619a864ac4c8a10f803adb91f2238a233608f694eecbf8`, lower `708211ad94247bc6c87f740c0e1961befea4cec5fdb1e57b4cfc342952e189d0`. This probe establishes no HUD improvement or native phase match; main remains 59 upper/20 lower. It is not added as a separate matrix improvement.

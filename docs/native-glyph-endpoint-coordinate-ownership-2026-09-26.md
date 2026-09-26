@@ -69,3 +69,7 @@ All 59 focused bitmap-font, native-renderer, Health and Other Settings tests,
 TypeScript checking and `git diff --check` pass. No browser/Azahar session was
 operated. Health upper animation remains frozen at frame zero and is a separate
 slice. Strict application fidelity and motion/audio acceptance remain open.
+
+## Integrated production follow-up
+
+The independent review was performed with Opus. Production `7221619` is now recorded in [matrix v33](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v33/matrix.json): Other Settings page 1 **1,477 upper / 0 lower** pixels above 2/255; main regression **59/20**. The coordinator inspected both raw-LCD contact sheets. Other lower retains its unmasked static-frame threshold match; upper, motion/audio and differing HOME input histories prevent whole-scenario acceptance. This is production evidence beyond the offline checks above, not native acceptance for the nine other changed Settings views or Health article scrolling. Integrated full suite: **1,414 pass, 0 fail, 23 skip, 1 TODO (1,438 total)**; typecheck/build/shader pass.

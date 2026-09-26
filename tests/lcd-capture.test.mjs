@@ -6,7 +6,7 @@ import sharp from 'sharp';
 
 const source = readFileSync(new URL('../src/scene/lcd-capture.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
-const { lcdHomeHudSample, captureAtHealthFrame, lcdCaptureEnabled, lcdDownloadRequest, lcdDownloadPayload, encodeNativeLcdPair } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
+const { HEALTH_CAPTURE_TIMEOUT_MS, lcdHomeHudSample, captureAtHealthFrame, lcdCaptureEnabled, lcdDownloadRequest, lcdDownloadPayload, encodeNativeLcdPair } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
 
 test('production LCD capture requires loopback and explicit opt in', () => {
   const location = (hostname, search) => ({ hostname, search });
@@ -183,4 +183,29 @@ test('capture transaction paints explicit sample once, records it, and restores 
     assert.throws(()=>capture(12000,'2026-09-26',undefined,hudSample),/active HOME/);
     assert.equal(paints.length,2,'rejected captures do not paint');
   }
+});
+
+
+test('Health capture retries later live loops after a skipped target, without seeking or substituting equivalent phases', async () => {
+  assert.ok(HEALTH_CAPTURE_TIMEOUT_MS > 38000 && HEALTH_CAPTURE_TIMEOUT_MS < 39000);
+  const f = liveCaptureFixture(326);
+  const pending = captureAtHealthFrame(327, f.options);
+  f.tick(328, 20);
+  f.tick(687, 6000); // Same visible source motif is not the requested frame.
+  f.tick(719, 6500);
+  f.tick(0, 6520);
+  f.tick(326, 12000);
+  assert.equal(f.captures, 0);
+  f.tick(327, 12017);
+  assert.equal((await pending).healthTopLoopFrame, 327);
+  assert.equal(f.captures, 1);
+});
+
+test('Health capture timeout reports missed crossings and last observation', async () => {
+  const f = liveCaptureFixture(326);
+  const pending = captureAtHealthFrame(327, {...f.options,timeoutMs:5});
+  f.tick(328, 20);
+  f.tick(329, 40);
+  await assert.rejects(pending, /live Health frame 327; observed=3, lastFrame=329, lastElapsedMs=.*skippedTargetCrossings=1/);
+  assert.equal(f.captures, 0);
 });

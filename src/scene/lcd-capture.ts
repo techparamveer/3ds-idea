@@ -74,6 +74,10 @@ export function encodeNativeLcdPair(top: CaptureCanvas, bottom: CaptureCanvas) {
   };
 }
 
+// Three complete 720-frame source loops at the Health LCD VBlank rate, plus
+// scheduling grace. A single browser rAF can skip the exact requested frame.
+export const HEALTH_CAPTURE_TIMEOUT_MS = 3 * 720 * 1000 / (268111856 / 4481136) + 2000;
+
 export type HealthCaptureSample = { healthTopLoopFrame: number; healthElapsedMs: number; reducedMotion: boolean };
 
 /** Observe live updates; capture synchronously on the matching rAF, never seek
@@ -90,6 +94,8 @@ export function captureAtHealthFrame<T>(target: number, options: {
     let request: number | undefined;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let done = false;
+    let observed = 0, skippedTargets = 0;
+    let previous: HealthCaptureSample | undefined;
     const finish = (error?: unknown, value?: T) => {
       if (done) return;
       done = true;
@@ -103,6 +109,13 @@ export function captureAtHealthFrame<T>(target: number, options: {
       const sample = options.read();
       if (!Number.isFinite(sample.healthElapsedMs) || sample.healthElapsedMs < 0 || !Number.isInteger(sample.healthTopLoopFrame) || sample.healthTopLoopFrame < 0 || sample.healthTopLoopFrame > 719) throw new Error('Health clock unavailable');
       if (sample.reducedMotion && target !== 0) throw new Error('Requested Health frame unavailable with reduced motion');
+      if (previous && sample.healthElapsedMs >= previous.healthElapsedMs && sample.healthTopLoopFrame !== target) {
+        const advance = (sample.healthTopLoopFrame - previous.healthTopLoopFrame + 720) % 720;
+        const distance = (target - previous.healthTopLoopFrame + 720) % 720;
+        if (distance > 0 && advance > distance) skippedTargets++;
+      }
+      previous = sample;
+      observed++;
       return sample;
     };
     const tick: FrameRequestCallback = timestamp => {
@@ -117,8 +130,9 @@ export function captureAtHealthFrame<T>(target: number, options: {
       if (options.signal.aborted) { abort(); return; }
       read(); // Fail immediately if Health is not active or cannot reach the phase.
       options.signal.addEventListener('abort', abort, { once: true });
-      // 720 source frames at ~59.83 Hz plus two seconds of scheduling grace.
-      timer = setTimeout(() => finish(new Error('Timed out waiting for live Health frame')), options.timeoutMs ?? 14100);
+      // Retry later source loops without seeking either clock or substituting a
+      // visually equivalent phase. Low browser cadence can still miss all three.
+      timer = setTimeout(() => finish(new Error(`Timed out waiting for live Health frame ${target}; observed=${observed}, lastFrame=${previous?.healthTopLoopFrame ?? 'none'}, lastElapsedMs=${previous?.healthElapsedMs ?? 'none'}, skippedTargetCrossings=${skippedTargets}`)), options.timeoutMs ?? HEALTH_CAPTURE_TIMEOUT_MS);
       request = options.requestFrame(tick);
     } catch (error) { finish(error); }
   });

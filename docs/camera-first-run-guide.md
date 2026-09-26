@@ -156,3 +156,12 @@ upper has **93,638** differences because this replay uses a configured Renu
 photo as Azahar's live camera feed while the read-only browser Camera shows
 black. This pair establishes the page and lower-LCD comparison, but the exact
 native input, timing and audio remain open; no whole-scenario pass is claimed.
+
+The source-dimension button glyph and capacity overhang corrections were
+integrated at `1fda6c7`, rebuilt and recaptured in the production browser.
+The inspected empty-mask diffs in [matrix v52](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v52/matrix.json)
+show page 1 at **258 upper / 2,495 lower** and page 2 at **93,563 upper /
+2,495 lower** pixels above 2/255. Page 1 improved by 90 upper and 195 lower
+pixels; page 2's lower improved by 231. The page-2 upper camera-feed mismatch,
+lower backdrop/top-control residuals and open motion/input/audio still fail
+the scenarios.

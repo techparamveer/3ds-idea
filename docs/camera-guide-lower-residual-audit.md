@@ -80,3 +80,43 @@ This lane used an isolated worktree from `8312cfc`, read source data and existin
 captures, and changed documentation only. It did not drive the shared browser
 or Azahar. Direct pixel counts and `git diff --check` pass. Application tests,
 typecheck and build were not repeated because no application files changed.
+
+## Page-2 follow-up at `1b697af`
+
+The native replay screenshot
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/camera-guide-replay-20260926/screenshots/Nintendo 3DS Camera_26.09.26_19.32.20.509.png`
+(SHA-256 `fd4a660ef47879a3535ec6fa9f83fffe1caaa9c1973bd0580ca9cbced4dacc21`)
+and the private `camera-guide-page2/browser/lower.png`
+(SHA-256 `48e1e709376a3e00771c4c7077d1e3b304904a89e7c19eecb5673d14b5e7c3e8`)
+have **2,726** lower pixels over 2/255, RGB MAE **2.5065408**. The existing
+contact sheet was visually inspected; direct crop counting confirms 888 pixels
+in each side strip and 638 in the top rectangle used above. Those browser crops
+are byte-for-byte unchanged from the page-1 diagnostic. Native `(0,80)` remains
+`(115,111,103)` against browser black. Thus 2,414 of 2,726 differing pixels
+are the same persistent underlay areas, independently of the changed guide body.
+
+A further static inspection rechecked the pinned executable SHA-256 and freshly
+decoded the guide wrapper construction with Capstone. `0x273664` creates two
+0x254-byte objects through `0x21c240`, retained at inner owner `+0x3fc` and
+`+0x440`. It assigns masks 6 and 8 to their `+0x33` fields, propagates these
+through `0x25941c`, and registers them under the incoming parents with insertion
+argument 0. Both objects receive the word at `0x44015a` into their `+0x181`
+field (`0x2736e4–0x2736e8`, `0x2737e8–0x2737f0`). That word is zero in the
+on-disk image. These constructor writes do **not** establish a settled mask
+colour or framebuffer clear: the field semantics, subsequent runtime writes
+and draw method still need tracing.
+
+The string `C_BkMask` occurs at `0x4239aa`, with a direct pointer at `0x4407b4`.
+A resource-name pointer is insufficient to bind this resource to the two guide
+objects. This follow-up did not establish that binding, the draw pass beneath
+Grid1, the final viewport, or the source state selecting the top button clips.
+There is therefore no sourced compositing fix to promote. The precise next
+source evidence required is the settled lower render-owner draw path (including
+its clear/base and any modal mask) and the active `P_Shoot_D`, `P_CamBtn` and
+`P_CamIcon` clip/frame selections. Preserving CGFX alpha alone would expose the
+OS painter's current black fill and cannot resolve this missing base.
+
+This follow-up used only the isolated lower-residual worktree and read existing
+captures/source. No browser, emulator or shared server was driven. No runtime
+or asset files changed; `git diff --check` passes and application tests were not
+rerun for this documentation-only result.

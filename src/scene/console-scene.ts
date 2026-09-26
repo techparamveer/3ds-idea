@@ -32,7 +32,8 @@ import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
 import { browserRenderQuality, screenPaintFps } from './render-quality';
-import { encodeNativeLcdPair, lcdCaptureEnabled, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
+import { healthTopLoopFrame } from '@/os/stock-health-scroll';
+import { captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
 
 const RAD = Math.PI / 180;
 let nextBannerSession=0;
@@ -518,10 +519,27 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     finally{verificationBannerFrame=undefined;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   };
     Object.assign(host,{captureScreensAt});
+    const captureAbort=new AbortController();
+    let downloading=false;
     const download=async()=>{
+      if(downloading)return;
+      downloading=true;
       try{
-        const {elapsedMs,isoDate,scenario,bannerFrame}=lcdDownloadRequest(window.location.search);
-        const payload=lcdDownloadPayload(scenario,captureScreensAt(elapsedMs,isoDate,bannerFrame));
+        const {elapsedMs,isoDate,scenario,bannerFrame,healthFrame}=lcdDownloadRequest(window.location.search,window.location.hostname);
+        if(healthFrame!==undefined)host.dataset.lcdCaptureStatus='waiting';
+        const capture=healthFrame===undefined?captureScreensAt(elapsedMs,isoDate,bannerFrame):await captureAtHealthFrame(healthFrame,{
+          signal:captureAbort.signal,
+          requestFrame:callback=>requestAnimationFrame(callback),cancelFrame:id=>cancelAnimationFrame(id),
+          read:()=>{
+            const view=getActiveAppView(state),healthElapsedMs=view?.data?.healthElapsedMs;
+            if(disposed||!state.powered||state.system?.phase!=='app'||state.system.sleeping||state.system.dialog||view?.appId!=='health-safety'||screens.stockStatus(state)!=='ready'||typeof healthElapsedMs!=='number')throw new Error('Active Health LCD unavailable');
+            return {healthTopLoopFrame:healthTopLoopFrame(healthElapsedMs,reduced),healthElapsedMs,reducedMotion:reduced};
+          },
+          // Encode both freshly painted LCDs in this same callback. The supplied
+          // lcdElapsedMs is intentionally ignored: Health uses its live local clock.
+          capture:(sample,timestamp)=>({...captureScreensAt(timestamp-start,isoDate),...sample,requestedHealthFrame:healthFrame}),
+        });
+        const payload=lcdDownloadPayload(scenario,capture);
         host.dataset.lcdCaptureStatus='saving';
         const response=await fetch('/api/verification/lcd-capture?lcdCapture=1',{method:'POST',headers:{'Content-Type':'application/json'},body:payload,cache:'no-store',credentials:'same-origin'});
         if(!response.ok)throw new Error(`LCD export rejected (${response.status}): ${await response.text()}`);
@@ -531,11 +549,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
         announcement.textContent=`LCD capture saved to ${result.directory}`;
         Reflect.deleteProperty(host.dataset,'lcdCaptureError');
       }catch(error){host.dataset.lcdCaptureStatus='error';host.dataset.lcdCaptureError=String(error);announcement.textContent=`LCD capture failed: ${String(error)}`;}
+      finally{downloading=false;}
     };
     addControl('Download LCD capture',download);
     const shortcut=(event:KeyboardEvent)=>{if(event.ctrlKey&&event.shiftKey&&!event.metaKey&&!event.altKey&&event.code==='KeyL'){event.preventDefault();event.stopPropagation();if(!event.repeat)download();}};
     window.addEventListener('keydown',shortcut,true);
-    removeLcdDownload=()=>window.removeEventListener('keydown',shortcut,true);
+    removeLcdDownload=()=>{captureAbort.abort();window.removeEventListener('keydown',shortcut,true);};
   }
   return ()=>{removeLcdDownload();if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureNativeBanner');}if(lcdCapture)Reflect.deleteProperty(host,'captureScreensAt');state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();soundRoom.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
 }

@@ -5,7 +5,7 @@ export function lcdCaptureEnabled(location: Pick<Location, 'hostname' | 'search'
   return local && new URLSearchParams(location.search).get('lcdCapture') === '1';
 }
 
-export function lcdDownloadRequest(search: string) {
+export function lcdDownloadRequest(search: string, hostname?: string) {
   const params = new URLSearchParams(search);
   const elapsedText = params.get('lcdElapsedMs');
   const dateText = params.get('lcdDate');
@@ -20,7 +20,14 @@ export function lcdDownloadRequest(search: string) {
   if (bannerFrame !== undefined && (bannerFrameText?.trim() === '' || !Number.isSafeInteger(bannerFrame) || bannerFrame < 0 || bannerFrame >= 600)) {
     throw new Error('lcdBannerFrame must be an integer from 0 to 599');
   }
-  return { elapsedMs, isoDate: new Date(dateText).toISOString(), scenario, bannerFrame };
+  const healthFrameText = params.get('lcdHealthFrame');
+  const healthFrame = healthFrameText === null ? undefined : Number(healthFrameText);
+  if (healthFrame !== undefined) {
+    if (!hostname || !['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname)) throw new Error('lcdHealthFrame requires localhost');
+    if (!/^[0-9]+$/.test(healthFrameText!) || !Number.isSafeInteger(healthFrame) || healthFrame < 0 || healthFrame > 719) throw new Error('lcdHealthFrame must be an integer from 0 to 719');
+    if (bannerFrame !== undefined) throw new Error('lcdHealthFrame cannot be combined with lcdBannerFrame');
+  }
+  return { elapsedMs, isoDate: new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }) };
 }
 
 export function lcdDownloadPayload(scenario: string, capture: ReturnType<typeof encodeNativeLcdPair> & Record<string, unknown>) {
@@ -43,4 +50,54 @@ export function encodeNativeLcdPair(top: CaptureCanvas, bottom: CaptureCanvas) {
     bottom: lower,
     dimensions: { top: { width: 400, height: 240 }, bottom: { width: 320, height: 240 } },
   };
+}
+
+export type HealthCaptureSample = { healthTopLoopFrame: number; healthElapsedMs: number; reducedMotion: boolean };
+
+/** Observe live updates; capture synchronously on the matching rAF, never seek
+ * the app clock. A wall-clock timeout also bounds waits in a background tab. */
+export function captureAtHealthFrame<T>(target: number, options: {
+  read: () => HealthCaptureSample;
+  capture: (sample: HealthCaptureSample, timestamp: number) => T;
+  requestFrame: (callback: FrameRequestCallback) => number;
+  cancelFrame: (id: number) => void;
+  signal: AbortSignal;
+  timeoutMs?: number;
+}): Promise<T> {
+  return new Promise((resolve, reject) => {
+    let request: number | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let done = false;
+    const finish = (error?: unknown, value?: T) => {
+      if (done) return;
+      done = true;
+      if (request !== undefined) options.cancelFrame(request);
+      if (timer !== undefined) clearTimeout(timer);
+      options.signal.removeEventListener('abort', abort);
+      if (error !== undefined) reject(error); else resolve(value as T);
+    };
+    const abort = () => finish(new Error('Health LCD capture cancelled'));
+    const read = () => {
+      const sample = options.read();
+      if (!Number.isFinite(sample.healthElapsedMs) || sample.healthElapsedMs < 0 || !Number.isInteger(sample.healthTopLoopFrame) || sample.healthTopLoopFrame < 0 || sample.healthTopLoopFrame > 719) throw new Error('Health clock unavailable');
+      if (sample.reducedMotion && target !== 0) throw new Error('Requested Health frame unavailable with reduced motion');
+      return sample;
+    };
+    const tick: FrameRequestCallback = timestamp => {
+      try {
+        const sample = read();
+        if (sample.healthTopLoopFrame === target) finish(undefined, options.capture(sample, timestamp));
+        else request = options.requestFrame(tick);
+      } catch (error) { finish(error); }
+    };
+    try {
+      if (!Number.isInteger(target) || target < 0 || target > 719) throw new Error('Invalid Health capture frame');
+      if (options.signal.aborted) { abort(); return; }
+      read(); // Fail immediately if Health is not active or cannot reach the phase.
+      options.signal.addEventListener('abort', abort, { once: true });
+      // 720 source frames at ~59.83 Hz plus two seconds of scheduling grace.
+      timer = setTimeout(() => finish(new Error('Timed out waiting for live Health frame')), options.timeoutMs ?? 14100);
+      request = options.requestFrame(tick);
+    } catch (error) { finish(error); }
+  });
 }

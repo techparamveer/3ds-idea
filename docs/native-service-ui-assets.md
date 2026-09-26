@@ -21,7 +21,7 @@ shared with other titles and therefore are not additive.
 | system-updater / `0004001000022f00` | Base backgrounds, upper text/icon, message/start layouts and B_L | 17 / 164,973 |
 | nnid-settings / `000400100002c100` | Root, BG, TopButton, AccountHeader, ToolBar, OliveBack and ExitButton | 29 / 164,937 |
 | camera-applet / `0004003000009902` | Flow dialog Dlg_A_D_00/01; no capture layout | 3 / 31,352 |
-| manual / `0004003000009b02` | MainNull, PageBg00, IndexBase00, SoftTitleHeader, back/close/headline buttons, ContentsTxt and PageNum | 27 / 185,392 |
+| manual / `0004003000009b02` | AllNull LCD base, MainNull, PageBg00, IndexBase00, SoftTitleHeader, back/close/headline buttons, ContentsTxt and PageNum | 30 / 196,526 |
 | miiverse-post / `000400300000ba02` | MainNull, MemoWin, CancelBtn and common dialog components | 20 / 156,213 |
 | error / `000400300000c502` | Error background, normal error, bottom button, EULA and dialog button | 27 / 292,582 |
 | circle-pad-pro / `000400300000cd02` | Backgrounds, AnalogPad screens, B_S and TextBG | 13 / 88,754 |
@@ -102,6 +102,7 @@ hashes in `resourceSources`:
 
 | Pack / layout | Selected animations | Source archive SHA-256 | Evidence |
 | --- | --- | --- | --- |
+| `AllNull` | `_Wait` | `45ce5faa…511806a7` | 400×480 applet root; `P_Bg_U_00` is the 410×240 upper base using source `BgLgt.bclim` and tiled `BgLine.bclim`, source vertex colours and TEV stages; `P_Bg_D_00` is the 320×240 lower base |
 | `IndexNull` | `_Change`, `_Wait` | `4919d69f…004911e` | 400×480 Contents root; null slots `BtnGroup/{IndexBase,HeadLineAll,CursorNull}`, `SoftTitleHead` (0,262), `BottomBtnNull/BtnShdw` (0,-120), `ScrollIndicator` (192,0), `Dialog` |
 | `CsrHeadLine00` | `_FadeOut`, `_Push`, `_PushDown`, `_Wait` | `e2805597…afed68b` | Selected-entry cursor; `BtnArrow.bclim` 32×64 |
 | `HLTxt` | none in source | `0116f4c8…ac3258e` | Category band, mirrored `IndexCategory00/01` with `CategoryColor00.bclim` 16×32 and `TextBox_00` |
@@ -127,16 +128,23 @@ the Settings `Manual.bcma` paths, which live under the separate `multicontent`
 root. The full private report is
 `stock-ui/manual-contents-2026-09-26/delivery-audit-stock-ui-root.json`.
 
-Remaining gaps: runtime composition is not included. How native code fills
+The runtime now draws `AllNull` at the source upper-screen origin before the
+header and scrollbar. Against the pinned native Settings Contents capture, the
+unobscured background rectangle `(0,48)..(384,240)` has zero pixels over the
+2/255 threshold and maximum per-channel delta 1. The complete source-render
+upper still has 1,944 pixels over threshold in other chrome. This does not
+replace the required production-browser recapture.
+
+Remaining gaps: How native code fills
 the `IndexNull` slots, stacks `BtnHeadLineTxt` and `HLTxt` entries, positions
 the cursor and colours categories is not source-proved here. In the capture,
 the category bands are green, then blue. The source texture is a single
 `CategoryColor00`; any colour change must come from material or code
 parameters that have not been traced. The binding of the Settings SMDH icon to
 `SoftTitleHeader/P_Icon_00` (32×32, `IconMask`) and its scaling are also
-untraced. The upper-screen page striping, the Language screen and dialogs are
-excluded. No native/browser comparison has been made, so this is delivery
-evidence, not fidelity evidence.
+untraced. The Language screen and dialogs are excluded. No new integrated
+native/browser comparison has been made, so this is source-render and delivery
+evidence, not a whole-scenario fidelity pass.
 
 ## Provenance and verification
 

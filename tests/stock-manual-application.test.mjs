@@ -82,6 +82,9 @@ test('Settings Contents loads source chrome, lets Close act, and leaves unfinish
   assert.equal(request.titleId, '0004003000009b02');
   const index = request.packs.find(item => item.alias === 'manual-index');
   assert.deepEqual(index, { url: source.url, alias: 'manual-index', layouts: ['Index'], animations: [], titleId: settings });
+  assert.deepEqual(request.packs.find(item => item.alias === 'manual-all-root'), {
+    url: 'packs/manual/layout-AllNull.json', alias: 'manual-all-root', layouts: ['AllNull'], animations: ['AllNull_Wait'],
+  });
   for (const item of request.packs.filter(item => item !== index)) assert.ok(manifest.titles['0004003000009b02'].packs.includes(item.url));
   assert.equal(request.packs.some(item => /BtnClose00|BtnBack00|PageNum|PageBg00/.test(item.url)), false, 'no substitute footer or page chrome');
   assert.deepEqual(helpers.nativeHelperTargets(view), [{ action: 'back', x: 0, y: 212, width: 160, height: 28 }]);

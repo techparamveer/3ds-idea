@@ -64,6 +64,10 @@ try{
   assert.equal(JSON.stringify(originalPacks),before,'source resources remain immutable');
   if(view.data?.manualTitleId){
    assert.equal(assets.renderer.packs['manual-index'].titleId,'0004001000022000');
+   const background=calls.find(c=>c.layout==='AllNull');
+   assert.ok(background);assert.equal(background.pack,'manual-all-root');
+   assert.deepEqual(background.options.center,[200,240]);
+   assert.deepEqual(background.options.bindings,[{name:'AllNull_Wait',frame:1}]);
    const rows=calls.filter(c=>c.layout==='ManualRowImportant'||c.layout==='ManualRowGettingStarted').map(c=>[c.options.overrides.TextBox_Num.text,c.options.overrides.TextBox_Txt.text,c.options.center[1]]);
    assert.deepEqual(rows,[['1','Important Information',86],['2','Using the System Settin...',174]]);
    assert.equal(calls.find(c=>c.layout==='SoftTitleHeader').options.overrides.TextBoxTxt_00.text,'System Settings');

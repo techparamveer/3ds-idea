@@ -113,6 +113,7 @@ are inert.
 | Row titles, numbers and order; category bands' order and titles | Settings content 1 `Manual.bcma/EUR_en_index.arc/blyt/Index.bclyt` (`packs/settings/contents/0001-00000038/manual-EUR_en.json`, loaded with owner title `0004001000022000`). `src/os/stock-manual-index.ts` reads `MetaData` `PageNum`/`CategoryNum` and each `Category_nnn` `IsValid`, `CategoryPageNum` and `PageID_nnn`. Category 0 (`IsValid` 0) gives page 1 without a band. Malformed metadata fails. |
 | Upper header text | Settings SMDH English long description (manifest `titles[0004001000022000].longDescription`, `ExeFS/icon` of content `0000003d`), drawn in applet `SoftTitleHeader/TextBoxTxt_00`. |
 | Upper header icon | Manifest `titles[0004001000022000].icon` (`icons/settings.png`, extracted SMDH) drawn at 32×32 in the `SoftTitleHeader/P_Icon_00` slot, replacing the applet's `IconBlank`. |
+| Upper/lower LCD base | Applet `AllNull/P_Bg_U_00` and `P_Bg_D_00` from `layout/AllNull.arc`. The upper pane combines `BgLgt.bclim`, tiled `BgLine.bclim`, source vertex colours and the original TEV stages; it is drawn at the layout's 400×480 upper-screen origin `[200,240]`. |
 | Header position | Delivered applet `IndexNull` `SoftTitleHead` Y+262 in its 400×480 root, also `IndexNull_Wait` (`layout/IndexNull.arc/blyt/IndexNull.bclyt`, SHA-256 `af65d3ac…43c9`): upper centre y = 240 − 262. |
 | Lower card, Contents label, rows | Applet `IndexBase00`, `ContentsTxt` with `ebird/ContentsText`, `BtnHeadLineTxt` with `BtnHeadLineTxt_Wait` frame 1. |
 | List clip | `BtnClose00`/`BtnCloseLng00` `P_Btn_01` (y−120, height 28): y212. |
@@ -146,13 +147,16 @@ is not delivered, so its touch region and Y command remain inert.
 
 **Remaining gaps.** The Settings SMDH icon is drawn through the browser image
 callback at the measured slot; the applet's exact icon mask/filter remains
-unverified. The upper striped grey page base is unidentified. The general title truncation rule is unknown. Later category colours, row
+unverified. The general title truncation rule is unknown. Later category colours, row
 selection/scrolling, opening pages and Language navigation are absent. The
 source-render verifier (`scripts/verify-stock-helpers.mjs`,
 `manual-settings-contents`) checks composition and immutability only. The
 production-browser/native empty-mask pair after the band and footer placement
-still has 87,897 upper and 11,771 lower pixels over 2/255; this screen has no fidelity
-pass.
+still has 87,897 upper and 11,771 lower pixels over 2/255. A later source render
+with `AllNull` reduces the upper count to 1,944; its unobscured background region
+`(0,48)..(384,240)` has zero pixels over 2/255 and a maximum channel delta of 1.
+This is source-render evidence pending an integrated browser recapture, and the
+screen has no whole-scenario fidelity pass.
 
 ## Transfer and Update return follow-up
 

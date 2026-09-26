@@ -150,6 +150,19 @@ class StockUiTests(unittest.TestCase):
                 yield from names(pane.get('children', []))
         self.assertTrue({'IndexBase', 'HeadLineAll', 'CursorNull', 'SoftTitleHead', 'BtnShdw',
                          'ScrollIndicator'} <= set(names(index['roots'])))
+        all_null = json.loads((public/'packs/manual/layout-AllNull.json').read_text())
+        layout = all_null['layouts']['AllNull']
+        self.assertEqual(layout['canvas'], {'width': 400.0, 'height': 480.0, 'origin': 1})
+        panes = {pane['name']: pane for pane in layout['roots'][0]['children']}
+        self.assertEqual(panes['P_Bg_U_00']['size'], [410.0, 240.0])
+        self.assertEqual(panes['P_Bg_U_00']['translation'], [-0.0, 120.0, 0.0])
+        self.assertEqual(layout['textures'], ['BgLgt.bclim', 'BgLine.bclim'])
+        self.assertEqual(all_null['resourceSources']['layouts']['AllNull']['sha256'],
+                         '1f59185d1a51610185a1f59572e415b1c8bc567cdd070a135bb9c953656940e6')
+        self.assertEqual(all_null['resourceSources']['textures']['BgLgt.bclim']['sha256'],
+                         'c0d63a4ee5205e77b89b18b334ffbd13df83a06912ac258119a46160791f983b')
+        self.assertEqual(all_null['resourceSources']['textures']['BgLine.bclim']['sha256'],
+                         'f9d858867fbd4c5db9d3fccb83819b9ed41052e96aeac9bcde0b63ed262134cc')
         bank = json.loads((public/'packs/manual/messages-and-loose.json').read_text())['messages']['ebird']
         text = {label: bank['messages'][index]['text'] for label, index in bank['labels'].items()}
         self.assertEqual(text['BtnCloseLng'], '\ue071 Close')

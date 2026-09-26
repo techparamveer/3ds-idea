@@ -43,6 +43,7 @@ function applicationManualPacks(titleId:string):readonly NativeTitlePackRequest[
   const source=manualSources[titleId];
   const chrome=manualScreenPacks.filter(pack=>['manual-SoftTitleHeader','manual-IndexBase00','manual-ContentsTxt','manual-row','helper-messages'].includes(pack.alias));
   const contents:NativeTitlePackRequest[]=[
+    {url:'packs/manual/layout-AllNull.json',alias:'manual-all-root',layouts:['AllNull'],animations:['AllNull_Wait']},
     {url:'packs/manual/layout-IndexNull.json',alias:'manual-index-root',layouts:['IndexNull'],animations:['IndexNull_Wait']},
     {url:'packs/manual/layout-CsrHeadLine00.json',alias:'manual-cursor',layouts:['CsrHeadLine00'],animations:['CsrHeadLine00_Wait']},
     {url:'packs/manual/layout-HLTxt.json',alias:'manual-category',layouts:['HLTxt'],animations:[]},
@@ -269,8 +270,11 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
   let okay=true;
   const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,options:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,options)&&okay;};
-  // Opaque LCD base under the source chrome; the native upper page base is a gap.
+  // The applet's 400×480 root owns both LCD bases. Centre it at the source
+  // upper-screen origin so P_Bg_U_00 fills this 400×240 target; the browser
+  // publishes the lower LCD separately below.
   top.fillStyle='#fff';top.fillRect(0,0,400,240);bottom.fillStyle='#fff';bottom.fillRect(0,0,320,240);
+  draw(top,'manual-all-root','AllNull',{center:[200,240],bindings:[{name:'AllNull_Wait',frame:1}]});
   // P_Icon_00 defaults to IconBlank; the applet binds the calling title's SMDH icon.
   draw(top,'manual-index-root','IndexNull',{center:[200,240-262],bindings:[{name:'IndexNull_Wait',frame:1}]});
   draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,overrides:{TextBoxTxt_00:{text:source.heading},P_Icon_00:{visible:false}}});

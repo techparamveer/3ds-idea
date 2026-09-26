@@ -3,6 +3,14 @@
   "titles": {
     "0004003000009b02": {
       "packs": {
+        "packs/manual/layout-AllNull.json": {
+          "layouts": [
+            "AllNull"
+          ],
+          "animations": [
+            "AllNull_Wait"
+          ]
+        },
         "packs/manual/layout-IndexNull.json": {
           "layouts": [
             "IndexNull"

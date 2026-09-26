@@ -12,7 +12,7 @@ The **isolated Azahar profile running the user's EUR 10.7.0-32E firmware** is gr
 
 ## Isolated reference
 
-Use only the copy under `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/`. Never launch `/Applications/Azahar.app` or touch the default profile. Before each launch, verify copied executable SHA-256 `3dfdfbed147cfb420f224385e832191833d07b0951d4b86326ab193e2deb3b21`; no symlinks under isolated `user/`; and `user/config/qt-config.ini` values `use_custom_storage=false`, `graphics_api=1` (OpenGL), both resolution factors 1, `layout_option=0`, `swap_screen=false`, and screenshot path inside the isolated reference. Back up config before edits and version the working config with date/hash. Launch the copied executable directly with `reference/` as working directory. Record original-3DS mode, EUR/English, white HOME theme, clock policy and photo/song population in the scenario matrix. See [profile isolation](../native-reference-profile-isolation.md).
+Use the current isolated copy under `/Volumes/Codex3DSIsolated/camera-guide-replay-20260926/` on the Sandisk APFS sparsebundle. The prior DeveloperStorage copy and the user's original reference remain preserved. Never launch `/Applications/Azahar.app` or touch the default profile. Before each launch, verify copied executable SHA-256 `3dfdfbed147cfb420f224385e832191833d07b0951d4b86326ab193e2deb3b21`; no symlinks under isolated `user/`; and `user/config/qt-config.ini` values `use_custom_storage=false`, `graphics_api=1` (OpenGL), both resolution factors 1, `layout_option=0`, `swap_screen=false`, and screenshot path inside the isolated reference. Back up config before edits and version the working config with date/hash. Launch the copied app with its adjacent `user/` profile. Record original-3DS mode, EUR/English, white HOME theme, clock policy and photo/song population in the scenario matrix. See [profile isolation](../native-reference-profile-isolation.md).
 
 Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`, START=`M`, SELECT=`N`, L=`Q`, R=`W`, D-pad up/down/left/right=`T`/`G`/`F`/`H`; read X/Y/Circle Pad from config. Prefer configured `touch_from_button` keys at 320×240 lower-LCD coordinates. Both `profiles\\1\\use_touch_from_button=true` and `profiles\\1\\use_touch_from_button\\default=false` retain those keys. Edit config only while Azahar is closed. Calibrate any mouse touch from a window screenshot and confirm it landed. The coordinator recovered native key input with CUA `typeText` using repeated characters; a single press was too brief for the controller poll. Record repetition and resulting state rather than treating one character as one frame. Look after **every** input; fix lost focus, dialogs or black frames before continuing. Frame-advance motion at explicit counts. Record audio capture method or leave audio open.
 
@@ -23,7 +23,7 @@ Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`
 3. The Assets lane owns `scripts/native-compare/` with a parameterized output root. Each pair/mask yields per-LCD mean/max RGB error, count of pixels with any channel delta greater than 2/255, connected difference regions and bounding boxes, heatmap, side-by-side sheet and JSON with both SHA-256s, commit and scenario ID.
 4. **Open the side-by-side sheet.** Fix unexplained regions and repeat both captures after integration. Masks require named reasons and may cover only intentional clock/battery, portfolio content, read-only Camera footer, inert OK and other [feature-map](../feature-map.md) adaptations. A mask created merely to pass a diff is a defect.
 
-Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v58/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
+Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v62/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
 
 The historical `sound-first-run-span-mounted` browser capture JSON was
 overwritten. Matrix v17 marked it unavailable; v25 preserves that repair and links an upper PNG recovered
@@ -45,14 +45,12 @@ a recovered native event clock, ±1-frame motion or audio onset. HOME idle still
 lacks a matched-input acceptance score. The old scaled Settings JPEG/source
 render remains non-acceptance evidence.
 
-At this checkpoint Sandisk1 is full and isolated native writes return ENOSPC.
-A byte-verified internal copy of the isolated app/profile is prepared but has
-not been launched; approval to deviate from the required external reference
-path is pending. Preserve the original and default profiles. The private matrix
-may advance on the internal artifact disk using preserved native PNGs and new
-production-browser captures, with those entry routes and timing limits stated.
-It must not claim a fresh native capture or a whole-scenario pass from that
-reuse.
+Sandisk1 has space again. A byte-verified copy of the isolated app/profile now
+runs inside a growable APFS sparsebundle on Sandisk1, and Azahar's screenshot
+command writes there. Preserve the original and default profiles. The latest
+Settings page 1 and page 2 pairs use fresh native PNGs from that mounted copy;
+their distinct title-entry and input routes still prevent a whole-scenario
+pass.
 
 The isolated native Camera fixture contains two Camera-created photos sourced from the existing Renu image. The browser now renders a six-cell View Photos browse with native `P_BrwsMenu_D` Slideshow/Shoot/Settings and `P_BrwsBase_D` zoom chrome, but the latest populated pair still differs by **95,350 upper / 23,052 lower pixels over 2/255**. It compares two native stereo MPO fixture photos with five mono portfolio JPEGs, different date folder/selection/chrome and unmatched input. `cc4e383` now follows executable mono contain/no-upscale; the preserved stereo fixture has a different native fit branch, so this diagnostic cannot judge mono photo fidelity. Earlier Camera first-run/empty/populated pairs are preserved diagnostics, not gallery acceptance. The exact source `C_SldH_S` slider now renders at the source parent anchor; its browser paging → Rate mapping and static Parakeet phase are adaptations. Shoot and zoom remain inert under the read-only gallery scope. See the [Camera evidence update](../progress-2026-09-24.md#camera-mono-source-diagnostic-and-sound-strip-finding--26-september-2026). The fixture is private verification data and does not add product capture/editing. Nintendo says only photos created with 3DS Camera can be used on the system ([support](https://en-americas-support.nintendo.com/app/answers/detail/a_id/674/p/605)).
 
@@ -151,5 +149,18 @@ Health Usage initial and 8px-scrolled frames each now have unmasked **0/0** pixe
 Fresh Sandisk-backed System Settings main capture and production browser pair at `ec2c14c` reproduce **0 upper / 20 lower** pixels above 2/255 with an empty mask. The browser was visibly on Settings before capture; an earlier accidental HOME capture was discarded. Azahar used Recent Files while the browser used HOME Settings → A, so input/motion/audio remain unmatched. The 20 lower coordinates reproduce the existing source gap; no unproven edge rounding was shipped. See [matrix v59 evidence](../progress-2026-09-24.md#sandisk-system-settings-main-production-pair--26-september-2026).
 
 A fresh Sandisk Other Settings page 1 pair from the same production build has **0/0** pixels above 2/255, maximum delta 2, with an empty mask and inspected contact sheets. Native Azahar entered Settings from its game list while the browser entered from HOME, so this is static pixel-tier evidence only; the whole scenario remains fail. See [matrix v60 evidence](../progress-2026-09-24.md#sandisk-other-settings-page-1-production-pair--26-september-2026).
+
+The next fresh Sandisk Other Settings page 2 pair has **0 upper / 3,558 lower**
+pixels above 2/255 with an empty mask. The lower residual is concentrated in
+the left page arrow (3,543 pixels); both contact sheets were inspected. This
+pixel tier fails pending a source-supported arrow correction. Native mapped
+touch I selected page 2; the browser used physical Right, so input, motion and
+audio remain open. See [matrix v61 evidence](../progress-2026-09-24.md#sandisk-other-settings-page-2-production-pair--26-september-2026).
+
+Fresh page 3 and 4 pairs extend that finding. Page 3 has **169 upper / 3,247
+lower** pixels above 2/255; page 4 has **169 / 6,702**. Both upper residuals
+are battery/clock phase. The left page arrow dominates both lower residuals,
+and page 4 has a browser-only right page arrow. No mask was used. Both pairs
+remain pixel-tier and whole-scenario failures. See [matrix v62 evidence](../progress-2026-09-24.md#sandisk-other-settings-pages-3-and-4-production-pairs--26-september-2026).
 
 Other Settings page1 now has an unmasked **0/0** pixel-threshold checkpoint at `1f7a854`, maximum delta 2, after source-sheet identity/order preservation. Diagnostic date 03:31:10Z at elapsed 12000 aligns the native sampled HUD state; literal screenshot time 03:31:13.302Z instead exposed 169 battery/colon phase pixels. This is pixel-tier acceptance only; navigation/input, motion and audio remain unresolved, so the whole scenario fails. See [v44 evidence](../progress-2026-09-24.md#other-settings-source-sheet-order-two-lcd-checkpoint--26-september-2026).

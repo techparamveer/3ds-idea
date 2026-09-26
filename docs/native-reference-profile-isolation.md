@@ -87,3 +87,28 @@ U opened Other Settings page 1. Azahar saved
 SHA-256 `fb1a9fb404082e68fa06928aac77a4604c1340e91ecebf9a06d9e28d9f5470f7`.
 The subsequent production-browser pair matches settled pixels on both LCDs,
 but the native title-list entry still differs from browser HOME entry.
+
+For Other Settings page 2, the SSD copy was stopped and closed before adding
+one lower-LCD touch mapping: I (`code:73`) at `(140,20)`. The previous config
+was backed up as `qt-config.before-page2-20260926-213917.ini` (SHA-256
+`9bcc469cfd66ac4c9046c40e3547776b04df66337fb88cc3fc47e92a7df6fef0`);
+the edited config SHA-256 was
+`ae8a9fe21810e1537c6d20ccca5e0847bcb64c740d84b0770eb656606e316619`.
+After relaunch, U opened Other Settings and 24 I key events visibly selected
+page 2. Azahar's own screenshot command saved
+`screenshots/System Settings_26.09.26_21.40.05.978.png` at 400×480, SHA-256
+`f645cedc1dedcd380972114e5d98da5428f8110cbcc253468baf25bbc792da7f`.
+The paired browser lower LCD differs in the left page arrow; see
+[the page-2 comparison](progress-2026-09-24.md#sandisk-other-settings-page-2-production-pair--26-september-2026).
+
+The SSD copy was closed again before J (`code:74`, `(180,20)`) and K
+(`code:75`, `(220,20)`) page-dot mappings were added. The prior config backup
+is `qt-config.before-page34-20260926-214431.ini`, and the edited config
+SHA-256 is `ad23851ebcfd285d8b606ef7568022724e7e41e77fcaaca418116ccc844f3526`.
+After a Recent Files launch, U entered Other Settings; 24 J and K key events
+visibly selected pages 3 and 4. Azahar saved genuine 400×480 screenshots
+`System Settings_26.09.26_21.45.42.533.png` (SHA-256
+`76ff09145c2883225368be33d32986322e3cb3d733556d81bb994292a7b4daac`)
+and `System Settings_26.09.26_21.46.07.466.png` (SHA-256
+`3250974938fec12396178767df9f526d314c524978c962a3584a80a4d92d15d3`).
+See [the page-3/4 comparison](progress-2026-09-24.md#sandisk-other-settings-pages-3-and-4-production-pairs--26-september-2026).

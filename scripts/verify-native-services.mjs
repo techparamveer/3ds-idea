@@ -9,7 +9,7 @@ export async function verifyNativeServices(options){
  for(const key of ['artifactDir','assetRoot','canvasModule'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-'));
- for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-services','stock-native-helpers','stock-native-amiibo']){
+ for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-eshop-welcome','stock-native-services','stock-manual-index','stock-native-helpers','stock-native-amiibo']){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
  }
@@ -20,7 +20,7 @@ export async function verifyNativeServices(options){
   globalThis.fetch=async value=>{const u=new URL(value);assert.equal(u.origin,'https://service-ui.invalid');const file=resolve(options.assetRoot,u.pathname.slice(1));assert.ok(file.startsWith(options.assetRoot+'/'));const bytes=readFileSync(file),response=new Response(bytes);response.blob=async()=>{const blob=new Blob([bytes]);blobBytes.set(blob,bytes);return blob;};return response;};
   const manifest=JSON.parse(readFileSync(join(options.assetRoot,'manifest.json'))),fontPath=join(options.assetRoot,manifest.fonts.shared),fontData=JSON.parse(readFileSync(fontPath));
   font=new BitmapFont(fontData,await Promise.all(fontData.sheets.map(name=>loadImage(join(dirname(fontPath),name)))));
-  const views=[...['nnid-settings','system-updater'].map(appId=>({appId,screen:'main',heading:appId,rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}})),...['main','detail'].map(screen=>({appId:'nintendo-zone',screen,heading:'Nintendo Zone',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}})),{appId:'eshop',screen:'main',heading:'Nintendo eShop',rows:[{id:'back',label:'OK'}],selection:0,footer:{left:{action:'back',label:'Back'}}}];
+  const views=[...['nnid-settings','system-updater'].map(appId=>({appId,screen:'main',heading:appId,rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}})),...['main','detail'].map(screen=>({appId:'nintendo-zone',screen,heading:'Nintendo Zone',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}})),{appId:'eshop',screen:'main',heading:'Nintendo eShop',rows:[{id:'back',label:'OK'}],selection:0,footer:{left:{action:'back',label:'Back'}}},{appId:'manual',screen:'main',heading:'System Settings',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}},data:{manualTitleId:'0004001000022000'}}];
   const reports=[];
   for(const view of views){
    const request=nativeServiceView(view)??nativeHelperView(view);assert.ok(request);assert.equal(nativeServiceView({...view,appId:'work'}),null);
@@ -28,7 +28,9 @@ export async function verifyNativeServices(options){
    const source=JSON.stringify(assets.renderer.packs),top=createCanvas(400,240),bottom=createCanvas(320,240);
    const sampleDate=new Date(2026,8,24,9,5,0);
    assert.equal((nativeHelperView(view)?drawNativeHelperFrame:drawNativeServiceFrame)(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font,date:sampleDate,elapsedMs:0}),true,JSON.stringify(assets.renderer.diagnostics));
-   assert.equal(JSON.stringify(assets.renderer.packs),source);assert.deepEqual(assets.renderer.diagnostics,view.appId==='nintendo-zone'?[...(view.screen==='main'?['Unverified 3D pane projection: U_top/BG_grid']:[]),'Unverified 3D pane projection: Hud_00/P_Bat_00']:[]);
+   if(view.appId!=='manual')assert.equal(JSON.stringify(assets.renderer.packs),source);
+   else assert.equal(JSON.stringify(assets.renderer.packs['manual-index']),JSON.stringify(JSON.parse(source)['manual-index']),'the application-owned Index remains immutable while applet layouts gain derived paint variants');
+   assert.deepEqual(assets.renderer.diagnostics,view.appId==='nintendo-zone'?[...(view.screen==='main'?['Unverified 3D pane projection: U_top/BG_grid']:[]),'Unverified 3D pane projection: Hud_00/P_Bat_00']:[]);
    assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')&&!assets.renderer.diagnostics.includes(d)),[]);
    let hud;
    if(view.appId==='nintendo-zone'){

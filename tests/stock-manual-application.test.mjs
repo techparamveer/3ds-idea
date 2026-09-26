@@ -94,6 +94,11 @@ test('Settings Contents loads source chrome, lets Close act, and leaves unfinish
   const unknown = helpers.nativeHelperView({ ...view, data: { manualTitleId: '0004001000022300' } });
   assert.equal(manifest.titles['0004001000022300'].packs.includes(unknown.packs.at(-1).url), false, 'an undelivered manual fails to load');
   assert.equal(helpers.APPLICATION_MANUAL_HEADER_CENTRE[1], -22);
+  assert.deepEqual(helpers.APPLICATION_MANUAL_LOWER_FIT, {
+    rowBodyY: 2,
+    secondCategoryRegister: [118, 183, 218],
+    languageGlyphX: -38,
+  });
 });
 
 test('only the Settings HOME route supplies a manual title argument', () => {

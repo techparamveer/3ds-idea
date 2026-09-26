@@ -220,6 +220,10 @@ function drawManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,b
  * HeadLineAll. Values are BtnHeadLineTxt/ContentsTxt draw centres on the lower
  * LCD. A page row advances 54px and a category band 34px. */
 export const APPLICATION_MANUAL_SLOTS={firstRow:86,row:54,category:34,categoryOffset:-10,contentsCentre:42} as const;
+/** Component-level capture fit against the same settled native frame. These
+ * values retain the delivered layouts: they position the row body and footer
+ * glyph, and compensate the source blue register for BtnShdw00's later blend. */
+export const APPLICATION_MANUAL_LOWER_FIT={rowBodyY:2,secondCategoryRegister:[118,183,218] as [number,number,number],languageGlyphX:-38} as const;
 /** Applet `IndexNull` (layout/IndexNull.arc/blyt/IndexNull.bclyt, SHA-256
  * af65d3ac00782bdd74f2c09ea36a61d739650bab5da39602acca4be9d85443c9)
  * holds `SoftTitleHead` at Y+262 of its 400×480 dual-screen root,
@@ -237,6 +241,11 @@ function prepareApplicationManualRows(renderer:NativeLayoutRenderer){
     const layout=structuredClone(source),material=layout.materials.find(item=>item.name==='PageTitleNumBase');
     if(!material)throw new Error('Missing Manual page-number material');
     material.bufferColor=[...color,0];
+    // Native row artwork is one raster line above the unparented applet
+    // layout. Keep the source slot/cursor centres and move only its body.
+    const body=layout.roots[0]?.children.find(item=>item.name==='BtnHeadLineBody');
+    if(!body)throw new Error('Missing Manual row body');
+    body.translation=[body.translation[0],APPLICATION_MANUAL_LOWER_FIT.rowBodyY,body.translation[2]];
     return [name,layout] as const;
   };
   renderer.packs['manual-row']={...pack,layouts:{...pack.layouts,
@@ -254,7 +263,9 @@ function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
     for(const material of layout.materials)if(material.name==='IndexCategory00'||material.name==='IndexCategory01')material.bufferColor=[...color,0];
     return layout;
   };
-  renderer.packs['manual-category']={...pack,layouts:{...pack.layouts,HLTxt:tint([154,212,105]),HLTxtBlue:tint([124,186,219])}};
+  // BtnShdw00 is composited after the clipped second band. Its native blend
+  // lifts this register to the capture's visible 124/186/219 blue.
+  renderer.packs['manual-category']={...pack,layouts:{...pack.layouts,HLTxt:tint([154,212,105]),HLTxtBlue:tint(APPLICATION_MANUAL_LOWER_FIT.secondCategoryRegister)}};
   preparedApplicationManualCategories.add(renderer);
 }
 
@@ -281,14 +292,14 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   if(titleId==='0004001000022000')options?.image?.(top,'/os/firmware/10.7.0-32E/icons/settings.png',4,4,32,32);
   draw(top,'manual-scroll','ScrollIndicator',{center:[392,40],bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
   draw(bottom,'manual-IndexBase00','IndexBase00',{center:[160,0]});
-  draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,APPLICATION_MANUAL_SLOTS.contentsCentre],overrides:{Contents_Txt:message('ContentsText')}});
+  draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,APPLICATION_MANUAL_SLOTS.contentsCentre],textSampling:'lcd',overrides:{Contents_Txt:message('ContentsText')}});
   let y=APPLICATION_MANUAL_SLOTS.firstRow,categoryIndex=0;
   for(const entry of entries){
     if(entry.kind==='category'){
       // The second band starts at y205; only its top seven pixels survive the
       // footer clip in the captured native Contents frame.
       if(y+APPLICATION_MANUAL_SLOTS.categoryOffset-16>=APPLICATION_MANUAL_LIST_CLIP[3])break;
-      draw(bottom,'manual-category',categoryIndex===1?'HLTxtBlue':'HLTxt',{center:[160,y+APPLICATION_MANUAL_SLOTS.categoryOffset],clip:APPLICATION_MANUAL_LIST_CLIP,overrides:{IndexCategory01:{size:[160,32],scale:[-1,1]},TextBox_00:{text:entry.title}}});
+      draw(bottom,'manual-category',categoryIndex===1?'HLTxtBlue':'HLTxt',{center:[160,y+APPLICATION_MANUAL_SLOTS.categoryOffset],clip:APPLICATION_MANUAL_LIST_CLIP,pictureSampling:'lcd',textSampling:'lcd',overrides:{IndexCategory01:{size:[160,32],scale:[-1,1]},TextBox_00:{text:entry.title}}});
       categoryIndex++;
       y+=APPLICATION_MANUAL_SLOTS.category;continue;
     }
@@ -298,12 +309,12 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
     // The applet truncates the first long English heading in its row control.
     // The cutoff below is measured from the settled native Contents capture.
     const title=entry.title.length>24?entry.title.slice(0,23)+'...':entry.title;
-    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:title}}});
+    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,pictureSampling:'lcd',textSampling:'lcd',bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:title}}});
     y+=APPLICATION_MANUAL_SLOTS.row;
   }
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});
   draw(bottom,'manual-footer-shadow','BtnShdw00',{bindings:[{name:'BtnShdw00_SceneIn',frame:20}]});
   draw(bottom,'manual-footer-close','BtnCloseLng00',{bindings:[{name:'BtnCloseLng00_SceneIn',frame:20}],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}});
-  draw(bottom,'manual-footer-language','BtnLngSel00',{bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[11,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[11,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[-44,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[-44,26,0]}}});
+  draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[11,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[11,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,26,0]}}});
   return okay;
 }

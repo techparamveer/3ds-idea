@@ -133,10 +133,17 @@ first long English page title is shortened to the native visible
 “Using the System Settin...” using a 23-character prefix. These are
 capture-fitted applet behaviours, not verified source-code constants.
 The second category begins at y205, so its top seven pixels use the same
-source `HLTxt` layout before the footer clip. Its RGB register
-`(124,186,219)` is sampled from that native strip. The Language footer's
-glyph and label pane translations are capture-fitted to keep both inside the
-right button. The source animation, messages and text materials remain intact.
+source `HLTxt` layout before the footer clip. Because source `BtnShdw00` is
+drawn afterward and lifts the visible colour, the fitted pre-shadow register is
+`(118,183,218)`; the settled source render then reaches the native strip's
+`(124,186,219)`. The source row body's Y+3 is fitted to Y+2 while its slot,
+category and cursor centres remain unchanged; this aligns both chips and the
+row shadow edges without moving the already matching cursor. Contents, row,
+category and Language text opt into the renderer's source LCD sampling path.
+The Language glyph is translated from x−44 to x−38 while its label stays at
+x+11, matching the separately delivered glyph and label panes in the native
+footer. These component positions are capture-fitted; source animation,
+messages and text materials remain intact.
 
 The delivered applet `HLTxt`, `CsrHeadLine00`, `ScrollIndicator`,
 `BtnCloseLng00`, `BtnLngSel00` and `BtnShdw00` form the category, cursor,

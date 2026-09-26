@@ -59,8 +59,11 @@ These gaps remain visible or behaviorally different:
 - The lower shoot scene behind the guide perimeter is not composed; its surface
   is cleared to black. This is an explicit missing background, not native black
   artwork. Background attenuation/compositing remains untraced.
-- Page 3/4 red inline emphasis tokens are currently flattened by the shared
-  message renderer. Native mixed-colour text remains unresolved.
+- Page 3/4 red inline emphasis now uses the original MSBT colour switches
+  (`2765bb0`): RGBA `[255,50,0,255]` for `3D depth slider ` and
+  `at least 30cm (12in)\n`, restoring `[69,64,57,255]` afterward. The
+  production browser raw lower LCDs were inspected at `105e7b3`; matching
+  native page captures and pixel comparisons remain open.
 - Counter raster height, fixed capacity/SD fixture and static pose are adapters.
   Entry/exit motion, bird scheduling, audio and input timing remain unverified.
 - Welcome repeats on application creation; no native first-run save flag is
@@ -85,6 +88,13 @@ pages 1→2→3→4→5, saw each source illustration and page counter, then use
 to return from page 5 to 4 and A→A to enter the read-only folder screen. This
 checks the browser route only. Pages 2–5 and transitions still need equivalent
 native/browser captures, input timing and audio verification.
+
+At `105e7b3`, the production browser's page 3 and 4 lower LCDs were captured
+at 320×240 with the source red spans visible. Their paired uppers are 400×240.
+Both browser-only records are in [matrix v47](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v47/matrix.json).
+The Camera shortcut was activated through its accessibility DOM for this
+diagnostic, then physical A input advanced the guide. Neither entry route nor
+page timing is a matched Azahar comparison.
 
 ## Verification
 

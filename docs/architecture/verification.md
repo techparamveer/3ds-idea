@@ -23,7 +23,7 @@ Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`
 3. The Assets lane owns `scripts/native-compare/` with a parameterized output root. Each pair/mask yields per-LCD mean/max RGB error, count of pixels with any channel delta greater than 2/255, connected difference regions and bounding boxes, heatmap, side-by-side sheet and JSON with both SHA-256s, commit and scenario ID.
 4. **Open the side-by-side sheet.** Fix unexplained regions and repeat both captures after integration. Masks require named reasons and may cover only intentional clock/battery, portfolio content, read-only Camera footer, inert OK and other [feature-map](../feature-map.md) adaptations. A mask created merely to pass a diff is a defect.
 
-Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v46/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
+Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v47/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
 
 The historical `sound-first-run-span-mounted` browser capture JSON was
 overwritten. Matrix v17 marked it unavailable; v25 preserves that repair and links an upper PNG recovered
@@ -32,8 +32,8 @@ reproduced failing diff. This repair cannot replace a complete fresh capture
 pair for acceptance.
 
 The first whole-scenario acceptance targets remain **matched HOME idle** and
-**Settings → Other Settings page 1**. [Matrix v46](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v46/matrix.json)
-has 92 entries (82 native/browser pairs and ten browser-only records), **all
+**Settings → Other Settings page 1**. [Matrix v47](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v47/matrix.json)
+has 94 entries (82 native/browser pairs and twelve browser-only records), **all
 whole scenarios fail**. Through integration `8c0a6d7`, production Health Usage
 initial, Health Usage scrolled 8px and Settings Other page 1 have unmasked static
 two-LCD pixel-tier matches, maximum delta 2. HOME Settings's independent yaw304 / COMMON303
@@ -57,6 +57,11 @@ reuse.
 The isolated native Camera fixture contains two Camera-created photos sourced from the existing Renu image. The browser now renders a six-cell View Photos browse with native `P_BrwsMenu_D` Slideshow/Shoot/Settings and `P_BrwsBase_D` zoom chrome, but the latest populated pair still differs by **95,350 upper / 23,052 lower pixels over 2/255**. It compares two native stereo MPO fixture photos with five mono portfolio JPEGs, different date folder/selection/chrome and unmatched input. `cc4e383` now follows executable mono contain/no-upscale; the preserved stereo fixture has a different native fit branch, so this diagnostic cannot judge mono photo fidelity. Earlier Camera first-run/empty/populated pairs are preserved diagnostics, not gallery acceptance. The exact source `C_SldH_S` slider now renders at the source parent anchor; its browser paging → Rate mapping and static Parakeet phase are adaptations. Shoot and zoom remain inert under the read-only gallery scope. See the [Camera evidence update](../progress-2026-09-24.md#camera-mono-source-diagnostic-and-sound-strip-finding--26-september-2026). The fixture is private verification data and does not add product capture/editing. Nintendo says only photos created with 3DS Camera can be used on the system ([support](https://en-americas-support.nintendo.com/app/answers/detail/a_id/674/p/605)).
 
 The later [Camera v46 checkpoint](../progress-2026-09-24.md#camera-source-colours-and-five-page-welcome--26-september-2026) applies original message-style colours to browse labels and renders the five-page Welcome route from published Camera resources. Its populated-browse diagnostic is **95,350/22,856**; page-1 Welcome versus preserved native is **1,387/7,026** raw upper/lower pixels above 2/255 with empty masks. Both still fail whole-scenario acceptance. The guide's underlying shoot scene, upper HUD icon treatment, native input route and later page timing/audio remain unresolved.
+
+Matrix v47 adds browser-only Welcome pages 3 and 4 after the original MSBT red
+text spans were rendered. Their raw 400×240 and 320×240 canvases were inspected;
+no native page-3/4 captures or pixel reports exist. The published source CGFX
+shoot environment is not yet composed under the guide.
 
 The eight v25 browser-only records cover selected HOME banners, Zone entry and eShop close. Their target native capture, mask and diff fields are null. The latest two at `8f0eb39` show eShop bags/logo/shadow and Camera photo cards after explicit source Color-presence metadata and provisional source-diffuse binding. Earlier blank/missing mesh records remain unchanged. All eight remain `fail`: visible browser correction is not native shader/pixel acceptance. The earlier relaunch stopped at a notification; that input block was subsequently cleared for Settings. See the [browser correction checkpoint](../progress-2026-09-24.md#browser-absent-color-correction-and-native-input-gap--26-september-2026) and [native Settings recovery](../progress-2026-09-24.md#native-settings-input-recovery--26-september-2026).
 

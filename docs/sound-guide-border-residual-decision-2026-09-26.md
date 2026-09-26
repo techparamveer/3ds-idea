@@ -46,3 +46,36 @@ an invented native graphic. Resolve the executable's guide compositor and
 recapture a matched-input guide transition before changing this layer. The
 upper Span deformation and bird scheduling remain separate source gaps
 documented in [the upper residual note](sound-upper-residual-diagnostic-2026-09-26.md).
+
+
+## Button recheck at `08b1881`
+
+The same lower contact sheet was reopened for the bounded Stock follow-up.
+The report contains 21 separate regions wholly inside the Next button crop
+`(95,180)..(225,228)`, totalling **195** pixels above threshold; their union
+bounds are `(138,196)..(182,213)`, over the Next glyphs. This is a sum of named
+connected regions, not a new pixel comparison or a claim that the entire button
+crop has only those differences. Body text and the guide bird require no
+placement change from this evidence.
+
+The delivered `C_DlgGuid1BtnW_Default` clip has declared frames 0–20, but all
+five tracks contain one constant key at frame 30: button-group y=0, x-scale=1,
+and button material RGB=(95,75,33). The existing evaluator clamps these constant
+tracks; changing the selected frame cannot alter the button. The layout's
+`Guid1TxtW` text uses a separate material, and the presenter already reads
+(69,64,57,255) from the original Next message's RI.mstl colour word. Therefore
+neither advancing Default nor applying its brown button colour to the glyphs
+is a supported correction. The source animation is
+`lyt/C.LZ/Dlg/anim/C_DlgGuid1BtnW_Default.bclan`, SHA-256
+`272caa8628864ac6c904bf9c27e56ec470dc8c674e30383d7cb64112a1ec2d7f`,
+under the same title/content identity above.
+
+No visible candidate is justified by this resource slice. The perimeter remains
+blocked on the native guide compositor; the 195 localized glyph pixels remain
+an unresolved raster/material difference. Existing capture-fitted title blue,
+background treatment, counter height and settled bird placement remain
+adaptations. No asset, runtime, capture, mask or matrix bytes changed.
+`node --test tests/sound-entry-native.test.mjs` passes all six existing tests;
+`git diff --check` passes. This documentation-only recheck does not require an
+application rebuild and leaves the recorded **6,627 upper / 6,267 lower**
+unmasked result unchanged. No Azahar or production browser was operated.

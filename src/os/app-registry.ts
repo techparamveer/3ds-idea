@@ -43,4 +43,13 @@ export const installedTitles: readonly AppDescriptor[] = [...modules.values()].m
 export const homeTitles = installedTitles.filter(title => title.home);
 export function getTitle(id?: string | null) { return id ? modules.get(id)?.descriptor : undefined; }
 export function getAppModule(id?: string | null) { return id ? modules.get(id) : undefined; }
-export function initialAppLayout(): Record<number, string> { return Object.fromEntries(homeTitles.map((title, index) => [index, title.id])); }
+/** The EUR selected-Settings capture places Sound one column left of Settings,
+ * both on the lower row. Keep the portfolio titles installed and exchange only
+ * their default HOME positions with the two stock titles. Existing saved layouts
+ * retain their own positions. */
+export function initialAppLayout(): Record<number, string> {
+  const layout = Object.fromEntries(homeTitles.map((title, index) => [index, title.id]));
+  [layout[7], layout[11]] = [layout[11], layout[7]];
+  [layout[8], layout[9]] = [layout[9], layout[8]];
+  return layout;
+}

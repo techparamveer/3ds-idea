@@ -69,9 +69,9 @@ test('selected Settings title uses the native balloon anchor and a manifest-sour
   assert.equal(manifest.resources[manifest.home.launcher].sources[0].sha256,
     '826e92ec59b98aaf20fab4014a5dccc1dbaa634aaa4f95498bcf3d7944795834');
   const state = createPortfolioState();
-  const selected = settleHomeNavigation(selectHomeSlot({ ...state, system: { ...state.system, phase: 'home' } }, 8));
+  const selected = settleHomeNavigation(selectHomeSlot({ ...state, system: { ...state.system, phase: 'home' } }, 9));
   const view = getHomePresentation(selected);
-  assert.equal(view.tiles.find(tile => tile.index === 8).y + 36, 82);
+  assert.equal(view.tiles.find(tile => tile.index === 9).y + 36, 166);
   assert.deepEqual(getNativeSettingsTitleBalloon(selected, view), { label: settings.longDescription, baseX: 84, bodyOffsetX: -76 });
   assert.deepEqual(createHomeBalloonPresentation(selected), {
     visible: true, desired: true, clip: 'Appear', frame: 5,
@@ -91,7 +91,7 @@ test('native HOME balloon painter binds sourced title and publisher without a fa
     calls.push({ bank, layout, options }); return true;
   } };
   const state = createPortfolioState();
-  const selected = settleHomeNavigation(selectHomeSlot({ ...state, system: { ...state.system, phase: 'home' } }, 8));
+  const selected = settleHomeNavigation(selectHomeSlot({ ...state, system: { ...state.system, phase: 'home' } }, 9));
   const balloon = createHomeBalloonPresentation(selected);
   const live = { ...selected, system: { ...selected.system, homeControls: { balloon } } };
   const view = getHomePresentation(live);

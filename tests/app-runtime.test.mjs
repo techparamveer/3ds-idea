@@ -5,9 +5,20 @@ import { installedTitles, getAppModule, initialAppLayout } from '../src/os/app-r
 import { createAppRuntime, startApplication, openApplet, dispatchRuntime, activeInstance, runtimeView, showRuntimeHome, resumeRuntimeApplication, closeApplication, deliverCapabilityResult, setRuntimeSleeping, acknowledgeEffects, isRuntimeEffectCurrent } from '../src/os/app-host.ts';
 import { createPortfolioState, tickSystem, reduceSystem, touchSystem, dispatchSystemEvent, getActiveAppView, restoreSettings, setSystemSleeping, releaseSystemInputs, resolveSystemCapability, restoreRuntimeData } from '../src/os/system.ts';
 import { createInputLatch, latchInput, repeatInput } from '../src/os/app-input.ts';
+import { getHomeNavigationView, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 const event=(r,id,value)=>dispatchRuntime(r,{type:'action',id,value},1000);
 const home=()=>tickSystem(createPortfolioState(),3001);
 const titleSlot=id=>Number(Object.entries(initialAppLayout()).find(([,title])=>title===id)[0]);
+test('default selected Settings reaches the captured lower-right HOME position',()=>{
+ const initial=createPortfolioState(), layout=initial.system.layout;
+ assert.equal(layout[7],'sound');assert.equal(layout[9],'system-settings');
+ assert.equal(new Set(Object.values(layout)).size,Object.values(layout).length);
+ const selected=settleHomeNavigation(selectHomeSlot(initial,titleSlot('system-settings')));
+ const view=getHomeNavigationView(selected);
+ assert.equal(view.currentLeftSlot,4);
+ assert.deepEqual([view.slots[titleSlot('sound')].x,view.slots[titleSlot('sound')].y],[160,166]);
+ assert.deepEqual([view.slots[titleSlot('system-settings')].x,view.slots[titleSlot('system-settings')].y],[244,166]);
+});
 test('button releases, analog dead zone and multiple sources do not duplicate or stick input',()=>{
  let {latch,commands}=latchInput(createInputLatch(),{type:'button',source:'a',command:'right',phase:'down'},0);assert.deepEqual(commands,['right']);
  ({latch,commands}=latchInput(latch,{type:'button',source:'b',command:'right',phase:'down'},5));assert.deepEqual(commands,[]);
@@ -39,7 +50,7 @@ test('foreground modules receive raw press, release, repeat and analog without d
  const module=getAppModule('system-settings'),original=module.reduce,seen=[];
  module.reduce=(state,event,context)=>{seen.push(event);return original(state,event,context);};
  try{
-  let s=home();s={...s,selected:8};s=tickSystem(reduceSystem(s,'open',4000),6200);
+  let s=home();s={...s,selected:titleSlot('system-settings')};s=tickSystem(reduceSystem(s,'open',4000),6200);
   s=dispatchSystemEvent(s,{type:'action',id:'other'},6200);
   s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'dpad'},6201);
   s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'keyboard'},6202);
@@ -68,7 +79,8 @@ test('normalized touch keeps one stylus and forwards pointer identity through up
 });
 
 test('registry retains portfolio and remaining title identities and excludes keyboard and removed apps',()=>{
- assert.deepEqual(Object.values(initialAppLayout()).slice(0,8),apps.map(app=>app.id));
+ assert.deepEqual(new Set(Object.values(initialAppLayout()).filter(id=>apps.some(app=>app.id===id))),new Set(apps.map(app=>app.id)));
+ assert.equal(titleSlot('sound'),7);assert.equal(titleSlot('system-settings'),9);
  for(const id of ['face-raiders','ar-games','activity-log','download-play','mii-maker','streetpass','keyboard']) {
   assert.equal(getAppModule(id),undefined); assert.ok(!Object.values(initialAppLayout()).includes(id));
  }
@@ -142,7 +154,7 @@ test('effect acknowledgement consumes only specified effects',()=>{
  assert.ok(after.effects.every(e=>!ids.includes(e.id)));assert.ok(after.effects.some(e=>e.effect.type==='release-capabilities'));
 });
 test('system Settings touches navigate without editing the saved profile',()=>{
- let s={...home(),selected:8};s=tickSystem(reduceSystem(s,'open',4000),6000);
+ let s={...home(),selected:titleSlot('system-settings')};s=tickSystem(reduceSystem(s,'open',4000),6000);
  s=dispatchSystemEvent(s,{type:'action',id:'other'},6001);s=dispatchSystemEvent(s,{type:'action',id:'profile'},6002);s=dispatchSystemEvent(s,{type:'action',id:'nickname'},6003);
  s=dispatchSystemEvent(s,{type:'text',value:'Changed'},6004);s=dispatchSystemEvent(s,{type:'action',id:'submit'},6005);
  assert.equal(getActiveAppView(s).appId,'system-settings');assert.equal(s.system.runtime.shared.settings.nickname,'Player');assert.equal(s.system.runtime.libraryApplet,null);

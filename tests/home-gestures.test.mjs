@@ -24,8 +24,8 @@ const lift=(s,slot=0,now=4000)=>{s=touch(s,'down',...center(s,slot),now);return 
 const allIds=s=>[...Object.values(s.system.layout),...Object.values(s.system.folderLayouts).flatMap(Object.values)].sort();
 const expected=homeTitles.map(t=>t.id).sort();
 const noLoss=s=>{assert.deepEqual(allIds(s),expected);assert.equal(new Set(allIds(s)).size,expected.length);};
-test('default eight portfolio slots stay first and touch press/up shares normal launch path',()=>{
- let s=home();assert.deepEqual(Object.values(s.system.layout).slice(0,8),apps.map(a=>a.id));
+test('default layout retains eight portfolio titles and touch press/up shares normal launch path',()=>{
+ let s=home();assert.deepEqual(new Set(Object.values(s.system.layout).filter(id=>apps.some(a=>a.id===id))),new Set(apps.map(a=>a.id)));
  const point=center(s,2);s=touch(s,'down',...point);assert.deepEqual(getHomeGestureView(s).pressed,root(2));assert.equal(s.selected,0);
  s=touch(s,'up',...point,4100);assert.equal(s.selected,2);assert.equal(s.system.phase,'home');assert.equal(getHomeGestureView(s),null);
  s=touch(s,'down',...center(s,2),4200);s=touch(s,'up',...center(s,2),4250);assert.equal(s.system.phase,'launch');assert.equal(s.system.app,'hobbies');

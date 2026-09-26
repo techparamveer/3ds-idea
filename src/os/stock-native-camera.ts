@@ -248,10 +248,12 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   if(options.cameraShoot)okay=options.cameraShoot.draw(bottom)&&okay;
   okay=drawCameraShootWelcome(renderer,bottom)&&okay;
   const capacity=nativeMessageOverride(renderer.packs['camera-messages'],'P','Finder_Pho_00_00','');
+  // The monoscopic reference uses the source 2DView material (100/255 grey),
+  // which shares the cube texture with the white 3DView material.
   draw(top,'camera-finder','P_Finder_U',{overrides:{
     Grid:{visible:false},ShootInfoDlg:{visible:false},ShootInfo:{visible:false},State_IcamOcam:{visible:false},
     MovRem:{visible:false},MovInt:{visible:false},RecSign:{visible:false},State_PhoMov:{visible:false},MovFrm:{visible:false},
-    '3DView':{visible:true},'2DView':{visible:false},ShootCapa_Pho:{...capacity,text:capacity.text+'3000'},
+    '3DView':{visible:false},'2DView':{visible:true},ShootCapa_Pho:{...capacity,text:capacity.text+'3000'},
   }});
   // P_Finder_U/Storage/-L-SD has world translation (187,-105).
   draw(top,'camera-icons','C_IconSD',{center:[387,225]});

@@ -125,3 +125,17 @@ Without that environment override, a third test attempts an external artifact
 write and fails with ENOSPC. These checks do not establish guide pixel fidelity.
 `git diff --check` passes. Gallery fixtures explicitly traverse Welcome before
 testing browsing and owner reset.
+
+## Monoscopic finder cube — 26 September 2026
+
+The diagnostic upper comparison at `8312cfc` has 823 pixels over 2/255.
+The native cube is grey while the browser selected white `3DView`.
+The source `P_Finder_U.bclyt` (SHA-256
+`49746852aac6835d7666872460b621b028098f14de694ff2af7e9f139d01d71e`)
+provides both `3DView` and `2DView` using the same `P_IconOth_3D.bclim`
+texture and geometry. Their material constant colours are respectively
+`[255,255,255,255]` and `[100,100,100,255]`. Welcome now selects `2DView`
+for its monoscopic reference fixture. No tint value or artwork was invented.
+This selection follows the observed reference state; executable controller
+selection and live stereo switching remain untraced. Production comparison
+after integration remains required. Capacity glyph/raster residuals are open.

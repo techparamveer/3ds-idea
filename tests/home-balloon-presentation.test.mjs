@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createPortfolioState, homeSlotAppId } from '../src/os/system.ts';
 import { selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
-import { createHomeBalloonPresentation, advanceHomeBalloonPresentation, selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText } from '../src/os/home-balloon-presentation.ts';
+import { createHomeBalloonPresentation, advanceHomeBalloonPresentation, selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from '../src/os/home-balloon-presentation.ts';
 import { poseNativeLayout } from '../src/os/native-layout.ts';
-import { getNativeSettingsTitleBalloon, getNativeSoundTitleBalloon, getHomePresentation } from '../src/os/home-presentation.ts';
+import { getNativeSettingsTitleBalloon, getNativeSoundTitleBalloon, getNativeCameraTitleBalloon, getHomePresentation } from '../src/os/home-presentation.ts';
 import { getTitle } from '../src/os/app-registry.ts';
 import ts from 'typescript';
 
@@ -198,4 +198,41 @@ test('Sound one-row title balloon binds verified SMDH metadata and source layout
   assert.equal(calls.length, 1);
   const departing = advanceHomeBalloonPresentation(balloon, selectHomeSlot(selected, 0));
   assert.deepEqual([departing.titleId, departing.clip, departing.frame], ['0004001000022500', 'DisAppear', 0]);
+});
+
+test('Camera one-row title balloon binds verified SMDH metadata and source layout only in eligible HOME states', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/manifest.json', import.meta.url)));
+  const text = selectHomeCameraBalloonText(manifest);
+  assert.equal(text, 'Nintendo 3DS Camera\nNintendo');
+  assert.equal(manifest.titles['0004001000022400'].publisherSource.sha256,
+    '53534942eaf5b9c11d94e5f5118b4fe1a624e40d83765893185fd2f30a2956a1');
+  const corrupt = structuredClone(manifest);
+  corrupt.titles['0004001000022400'].publisherSource.sha256 = '0'.repeat(64);
+  assert.equal(selectHomeCameraBalloonText(corrupt), null);
+  const base = createPortfolioState();
+  const slot = Array.from({ length: 60 }, (_, i) => i).find(i => homeSlotAppId(base, i) === 'camera');
+  const selected = settleHomeNavigation(selectHomeSlot(density0({ ...base, system: { ...base.system, phase: 'home' } }), slot));
+  const balloon = createHomeBalloonPresentation(selected);
+  assert.deepEqual([balloon.visible, balloon.titleId, balloon.frame], [true, '0004001000022400', 5]);
+  const view = getHomePresentation(selected);
+  for (const mode of [2, 4, 14]) assert.equal(getNativeCameraTitleBalloon(selected, { ...view, mode }), null);
+  assert.equal(getNativeCameraTitleBalloon({ ...selected, panel: 'settings' }, view), null);
+  assert.equal(getNativeCameraTitleBalloon({ ...selected, opened: true }, view), null);
+  assert.equal(getNativeCameraTitleBalloon({ ...selected, system: { ...selected.system, phase: 'app' } }, view), null);
+  assert.equal(getNativeCameraTitleBalloon({ ...selected, system: { ...selected.system, homeNavigation: {
+    ...selected.system.homeNavigation, focus: { ...selected.system.homeNavigation.focus, toolbarActive: true },
+  } } }, view), null);
+  assert.equal(createHomeBalloonPresentation(setHomeDensity(selected, 1)).visible, false);
+  assert.equal(createHomeBalloonPresentation(settleHomeNavigation(setHomeDensity(selected, 1))).visible, false);
+  const calls = [];
+  const renderer = { packs: { launcher: JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url))) }, draw(...args) { calls.push(args); return true; } };
+  const live = { ...selected, system: { ...selected.system, homeControls: { balloon } } };
+  assert.equal(createFirmwareHome({ renderer, cameraBalloonText: text }).folderBalloon({}, live, view), true);
+  assert.equal(calls[0][2], 'LncBlln_00');
+  assert.deepEqual(calls[0][3].bindings, [{ name: 'LncBlln_00_Appear', frame: 5 }]);
+  assert.equal(calls[0][3].overrides.T_Blln_00.text, text);
+  assert.equal(createFirmwareHome({ renderer, cameraBalloonText: null }).folderBalloon({}, live, view), false);
+  assert.equal(calls.length, 1);
+  const departing = advanceHomeBalloonPresentation(balloon, selectHomeSlot(selected, 0));
+  assert.deepEqual([departing.titleId, departing.clip, departing.frame], ['0004001000022400', 'DisAppear', 0]);
 });

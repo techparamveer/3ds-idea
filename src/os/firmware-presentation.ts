@@ -10,10 +10,10 @@ import { getHomeGestureView } from './system';
 import { getHomeDensityControls } from './home-density-controls';
 import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
 import type { HomeTilePose } from './home-tile-pose';
-import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText } from './home-balloon-presentation';
+import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from './home-balloon-presentation';
 
 type Context=CanvasRenderingContext2D;
-export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;diagnostics:string[];dispose():void};
+export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
 const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
@@ -28,6 +28,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const settingsBalloonText=selectHomeSettingsBalloonText(manifest);
   const healthBalloonText=selectHomeHealthBalloonText(manifest);
   const soundBalloonText=selectHomeSoundBalloonText(manifest);
+  const cameraBalloonText=selectHomeCameraBalloonText(manifest);
   const titleIcons=new Map<string,HTMLImageElement>();
   await Promise.all(Object.entries(manifest.titles??{}).map(async ([titleId,title])=>{
    if(typeof Image==='undefined')return;
@@ -62,7 +63,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const renderer=new NativeLayoutRenderer(packs,textures,new Map([['cbf_std.bcfnt',sharedFont as BitmapFont],['Hud.bcfnt',hudFont as BitmapFont]]));
   renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.');
   let disposed=false;
-  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,settingsBalloonText,healthBalloonText,soundBalloonText,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
+  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,settingsBalloonText,healthBalloonText,soundBalloonText,cameraBalloonText,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
  }catch(error){controller.abort();fonts.forEach(font=>font.dispose());throw error;}
  finally{signal?.removeEventListener('abort',abort);}
 }
@@ -108,7 +109,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const retained=state.system?.homeControls?.balloon;
   const label=retained ? retained.visible ? retained : null : getNativeFolderBalloon(state,view);
   if(!label)return false;
-  const titleText=retained?.titleId==='0004001000022000'?assets.settingsBalloonText:retained?.titleId==='0004001000022300'?assets.healthBalloonText:retained?.titleId==='0004001000022500'?assets.soundBalloonText:null;
+  const titleText=retained?.titleId==='0004001000022000'?assets.settingsBalloonText:retained?.titleId==='0004001000022300'?assets.healthBalloonText:retained?.titleId==='0004001000022500'?assets.soundBalloonText:retained?.titleId==='0004001000022400'?assets.cameraBalloonText:null;
   if(retained?.titleId&&!titleText)return false;
   const clip=retained?.clip??'Appear',frame=retained?.frame??5;
   return renderer.draw(ctx,'launcher','LncBlln_00',{bindings:[binding(`LncBlln_00_${clip}`,frame)],overrides:{

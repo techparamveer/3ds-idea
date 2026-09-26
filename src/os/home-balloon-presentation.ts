@@ -1,5 +1,5 @@
 import type { MenuState } from './state.ts';
-import { getHomePresentation, getNativeFolderBalloon, getNativeSettingsTitleBalloon, getNativeHealthTitleBalloon, getNativeSoundTitleBalloon } from './home-presentation.ts';
+import { getHomePresentation, getNativeFolderBalloon, getNativeSettingsTitleBalloon, getNativeHealthTitleBalloon, getNativeSoundTitleBalloon, getNativeCameraTitleBalloon } from './home-presentation.ts';
 
 export type HomeBalloonPresentation = Readonly<{
   visible: boolean;
@@ -21,7 +21,9 @@ const selectedBalloon=(state:MenuState)=>{
  const health=getNativeHealthTitleBalloon(state,view);
  if(health)return {...health,titleId:'0004001000022300'};
  const sound=getNativeSoundTitleBalloon(state,view);
- return sound?{...sound,titleId:'0004001000022500'}:null;
+ if(sound)return {...sound,titleId:'0004001000022500'};
+ const camera=getNativeCameraTitleBalloon(state,view);
+ return camera?{...camera,titleId:'0004001000022400'}:null;
 };
 
 const object=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==='object'&&!Array.isArray(value);
@@ -32,6 +34,7 @@ const source=(value:unknown,titleId:string):value is Record<string,unknown>=>obj
 export function selectHomeSettingsBalloonText(raw:unknown):string|null{return selectHomeTitleBalloonText(raw,'0004001000022000','icons/settings.png');}
 export function selectHomeHealthBalloonText(raw:unknown):string|null{return selectHomeTitleBalloonText(raw,'0004001000022300','icons/health-and-safety.png');}
 export function selectHomeSoundBalloonText(raw:unknown):string|null{return selectHomeTitleBalloonText(raw,'0004001000022500','icons/sound.png');}
+export function selectHomeCameraBalloonText(raw:unknown):string|null{return selectHomeTitleBalloonText(raw,'0004001000022400','icons/camera.png');}
 function selectHomeTitleBalloonText(raw:unknown,titleId:string,iconPath:string):string|null{
  if(!object(raw)||raw.schema!==1||raw.firmware!=='10.7.0-32E'||raw.region!=='EUR'||raw.locale!=='EU_English'
    ||!object(raw.titles)||!object(raw.resources))return null;

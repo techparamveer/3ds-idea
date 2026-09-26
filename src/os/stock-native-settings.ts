@@ -1,4 +1,4 @@
-import { languageScroll, settingsLanguageOffset } from './stock-settings-navigation';
+import { languageScroll, settingsLanguageOffset, settingsOtherPages } from './stock-settings-navigation';
 import type { AppView } from './app-types';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
@@ -265,6 +265,15 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   else if(screen==='other'){
     const attachments:Record<string,()=>void>={};
     view.rows.slice(0,3).forEach((row,i)=>{const button=otherButtons[row.id];if(button)attachments['N_I_Button_0'+i]=()=>child(button[0],row.id,button[1]);});
+    // BasicTop_D_00 keeps the adjacent page at its source +276 x mount.
+    // Its three source button centres are +44, -4 and -52 y from that mount;
+    // the visible left edge remains on the LCD during the settled page pose.
+    if(page<settingsOtherPages.length-1)attachments.Null_RightPage=()=>{
+      settingsOtherPages[page+1].forEach(([id],i)=>{
+        const button=otherButtons[id];
+        if(button)draw(bottom,'button',button[0],{center:[160,76+i*48],bindings:[{name:'I_User_DirectSettings',frame:0}],overrides:{TextBox_00:message(button[1])}});
+      });
+    };
     // Select's final frame is pressed with no shadow; Decide's final frame
     // keeps the selected colour but raises the page tab and restores its shadow.
     for(let i=0;i<4;i++)attachments['NN_T_Page0'+(i+1)+'_00']=()=>draw(bottom,'button','T_Page0'+(i+1),{bindings:[{name:i===page?'T_Page01_Decide_DirectSettings':'T_Page01_DirectSettings',frame:i===page?1:0}]});

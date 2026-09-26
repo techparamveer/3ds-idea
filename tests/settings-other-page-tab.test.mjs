@@ -44,4 +44,14 @@ test('selected Other Settings page uses the native raised Decide endpoint',()=>{
   {name:'T_Page01_DirectSettings',frame:0},
   {name:'T_Page01_DirectSettings',frame:0},
  ]);
+ const parent=packs.layout.layouts.BasicTop_D_00;
+ const right=panes(parent.roots,'Null_RightPage')[0];
+ assert.deepEqual(right.translation,[276,0,0]);
+ const rowOffsets=['N_I_Button_00','N_I_Button_01','N_I_Button_02'].map(name=>panes(parent.roots,name)[0].translation[1]);
+ assert.deepEqual(rowOffsets,[44,-4,-52]);
+ const neighbor=calls.filter(call=>['I_3DTest','I_Sound','I_Mic'].includes(call.name));
+ assert.deepEqual(neighbor.map(call=>[call.name,call.options.center]),[
+  ['I_3DTest',[160,76]],['I_Sound',[160,124]],['I_Mic',[160,172]],
+ ]);
+ assert.ok(neighbor.every(call=>call.options.bindings[0].frame===0));
 });

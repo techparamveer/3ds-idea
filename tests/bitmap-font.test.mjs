@@ -135,3 +135,23 @@ test('native alpha glyph raster uses hard pixel-centre coverage and the atlas bo
  const clipped=surface(2,2);rasterNativeAlphaGlyph(clipped,source,{...scaled,x:-1,y:-1,width:1,height:1});
  assert.ok(clipped.data.every(v=>v===0));
 });
+
+
+test('native alpha glyph horizontal boundary ties belong to the right-hand edge',()=>{
+ const surface=(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});
+ const glyph={width:1,height:1},source=surface(3,3);source.data.fill(255);
+ const alpha=target=>Array.from({length:target.width},(_,x)=>target.data[x*4+3]);
+ const tied=surface(4,1);
+ rasterNativeAlphaGlyph(tied,source,{glyph,x:.5,y:0,width:2,height:1});
+ assert.deepEqual(alpha(tied),[0,255,255,0]);
+ // Neighboring quads own the shared centre exactly once, including clipping.
+ const neighbor=surface(4,1);
+ rasterNativeAlphaGlyph(neighbor,source,{glyph,x:-1.5,y:0,width:2,height:1});
+ assert.deepEqual(alpha(neighbor),[255,0,0,0]);
+ // Only exact ties change; an arbitrarily nearby edge retains centre coverage.
+ const before=surface(4,1),after=surface(4,1);
+ rasterNativeAlphaGlyph(before,source,{glyph,x:.5-1e-6,y:0,width:2,height:1});
+ rasterNativeAlphaGlyph(after,source,{glyph,x:.5+1e-6,y:0,width:2,height:1});
+ assert.deepEqual(alpha(before),[255,255,0,0]);
+ assert.deepEqual(alpha(after),[0,255,255,0]);
+});

@@ -113,3 +113,8 @@ including source immutability, draw ordering, missing-pack failure and Canvas
 filter restoration after a thrown source draw. `npm run typecheck`,
 `npm run build` and `git diff --check` pass. No production browser or emulator
 was driven; coordinator raw LCD comparison remains the acceptance gate.
+
+The omitted child resources are now [published with source provenance](camera-shoot-child-delivery.md).
+The anchor resolves to `P_CamBtn` and then `P_CamIcon` in the same shoot pack.
+This closes the delivery gap; runtime child instantiation and native comparison
+remain separate integration work.

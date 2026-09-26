@@ -122,6 +122,31 @@ class StockUiTests(unittest.TestCase):
         self.assertEqual(bank['messages'][bank['labels']['Shoot_05']]['text'], 'View Photos/Videos')
         self.assertEqual(bank['messages'][bank['labels']['setting']]['text'], 'Settings')
 
+    def test_camera_shoot_child_delivery_closes_native_layout_metadata(self):
+        public = ROOT/'public/os/firmware/10.7.0-32E'
+        manifest = json.loads((public/'manifest.json').read_text())
+        url = 'packs/camera/contents/0000-0000001a/lyt-P_Shoot_D-arc-LZ.json'
+        pack = json.loads((public/url).read_text())
+        def panes(nodes):
+            for pane in nodes:
+                yield pane
+                yield from panes(pane.get('children', []))
+        for parent, anchor, child in [('P_Shoot_D', '-L-BtnIOcam', 'P_CamBtn'),
+                                      ('P_CamBtn', '-L-CamIcon', 'P_CamIcon')]:
+            pane = next(p for p in panes(pack['layouts'][parent]['roots']) if p['name'] == anchor)
+            self.assertIn({'name': 'LYT', 'type': 0, 'value': 'P_Shoot_D/'+child}, pane['metadata'])
+            self.assertIn(child, pack['layouts'])
+        for name, sha in [('P_CamBtn', 'af471925343dab648422e7793264b99f1ebd7267cc48bd01cfc644c72acb1e2f'),
+                          ('P_CamIcon', '2e70e74d1d877be77179b5bbed79cf73131101c3fbbc58b105b90b284a524da2')]:
+            self.assertEqual(pack['resourceSources']['layouts'][name], {
+                'contentId': '0000001a', 'contentIndex': 0, 'titleId': '0004001000022400',
+                'path': 'lyt/P_Shoot_D.arc.LZ/blyt/'+name+'.bclyt', 'sha256': sha})
+        for name in ['P_CamBtn_Default', 'P_CamBtn_Disable', 'P_CamBtn_Push', 'P_CamIcon_IconPtrn']:
+            for texture in pack['animations'][name]['textures']:
+                texture_url = pack['textures'][texture]['url']
+                self.assertEqual(manifest['resources'][texture_url]['sha256'], digest((public/texture_url).read_bytes()))
+        self.assertEqual(manifest['resources'][url]['sha256'], digest((public/url).read_bytes()))
+
     def test_published_sound_welcome_guide_has_native_message_and_image_sources(self):
         public = ROOT/'public/os/firmware/10.7.0-32E'
         manifest = json.loads((public/'manifest.json').read_text())

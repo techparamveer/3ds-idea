@@ -34,6 +34,7 @@ Azahar, residual pixels and runtime behavior require coordinator integration.
 
 Validation: seven synthetic converter tests, TypeScript checking, production
 build and `git diff --check` pass. The lane's full JavaScript suite reports
-1,309 pass, 40 fail, 23 skip and one todo; the coordinator identifies the 40
-failures as known absent private/sparse model fixtures (including
-`silver-audio-finish-web.glb`). Full integration validation remains separate.
+1,309 pass, 40 fail, 23 skip and one todo. Failure detail confirms absent
+private/sparse model fixtures (including `silver-audio-finish-web.glb`) and
+one Notes source-render test unable to write its private artifact because the
+SSD reports `ENOSPC`. Full integration validation remains separate.

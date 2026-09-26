@@ -38,3 +38,7 @@ source trace establishes the font quad/UV and linear sampler, but explicitly
 does not establish pixel-identical upper-LCD projection or PICA interpolation
 precision. No font-size, color, offset, or raster code change follows from
 this evidence. Native projection and edge sampling remain open.
+
+## Subsequent production evidence: matrix v31
+
+[Matrix v31](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v31/matrix.json) supersedes the earlier residual counts above. Source sibling row widths reduced Other page 1 lower from 702 to 45, with upper 1,520. The `94463cd` horizontal glyph half-pixel coverage correction then yielded **1,477 upper / 3 lower**; the remaining lower region is `(129,168,1,3)`. Settings main changed from 102/37 to **59/20**; its earlier row-only regression was pixel-identical to the prior main capture. Native font atlases/layouts remain source-derived. Empty masks, unexplained pixels, different HOME entry histories, and open motion/audio keep every pair **fail**. See the [production record](progress-2026-09-24.md#settings-row-width-and-font-boundary-production-checks--26-september-2026).

@@ -63,3 +63,7 @@ correction keeps their layout widths for that state too. A production browser
 recapture against the same native image is still needed to measure the pixel
 effect. The unchanged `702` count above remains the pre-correction baseline;
 adjacent-page components, footer, and upper title/status residuals are separate.
+
+## Subsequent production evidence: matrix v31
+
+[Matrix v31](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v31/matrix.json) supersedes the earlier residual counts above. Source sibling row widths reduced Other page 1 lower from 702 to 45, with upper 1,520. The `94463cd` horizontal glyph half-pixel coverage correction then yielded **1,477 upper / 3 lower**; the remaining lower region is `(129,168,1,3)`. Settings main changed from 102/37 to **59/20**; its earlier row-only regression was pixel-identical to the prior main capture. Native font atlases/layouts remain source-derived. Empty masks, unexplained pixels, different HOME entry histories, and open motion/audio keep every pair **fail**. See the [production record](progress-2026-09-24.md#settings-row-width-and-font-boundary-production-checks--26-september-2026).

@@ -122,6 +122,42 @@ class StockUiTests(unittest.TestCase):
         self.assertEqual(bank['messages'][bank['labels']['Shoot_05']]['text'], 'View Photos/Videos')
         self.assertEqual(bank['messages'][bank['labels']['setting']]['text'], 'Settings')
 
+    def test_manual_contents_chrome_delivery_preserves_source_identity(self):
+        public = ROOT/'public/os/firmware/10.7.0-32E'
+        manifest = json.loads((public/'manifest.json').read_text())
+        title = manifest['titles']['0004003000009b02']
+        plan = json.loads((ROOT/'scripts/firmware/stock-ui-manual-contents.json').read_text())
+        requested = plan['titles']['0004003000009b02']['packs']
+        for url, selection in requested.items():
+            self.assertIn(url, title['packs'])
+            pack = json.loads((public/url).read_text())
+            self.assertEqual(manifest['resources'][url]['sha256'], digest((public/url).read_bytes()))
+            self.assertEqual(pack['titleId'], '0004003000009b02')
+            for bucket in ('layouts', 'animations'):
+                for name in selection.get(bucket, []):
+                    self.assertIn(name, pack[bucket])
+                    self.assertEqual(pack[bucket][name]['unsupported'], [])
+                    source = pack['resourceSources'][bucket][name]
+                    self.assertEqual(source['titleId'], '0004003000009b02')
+                    self.assertTrue(source['path'].startswith('layout/'+name.split('_')[0]+'.arc/'))
+            for texture in pack['textures'].values():
+                self.assertEqual(manifest['resources'][texture['url']]['sha256'],
+                                 digest((public/texture['url']).read_bytes()))
+        index = json.loads((public/'packs/manual/layout-IndexNull.json').read_text())['layouts']['IndexNull']
+        def names(nodes):
+            for pane in nodes:
+                yield pane['name']
+                yield from names(pane.get('children', []))
+        self.assertTrue({'IndexBase', 'HeadLineAll', 'CursorNull', 'SoftTitleHead', 'BtnShdw',
+                         'ScrollIndicator'} <= set(names(index['roots'])))
+        bank = json.loads((public/'packs/manual/messages-and-loose.json').read_text())['messages']['ebird']
+        text = {label: bank['messages'][index]['text'] for label, index in bank['labels'].items()}
+        self.assertEqual(text['BtnCloseLng'], '\ue071 Close')
+        self.assertEqual(text['BtnLngSel'], 'Language')
+        self.assertEqual(text['BtnLngSel_Picto'], '\ue003')
+        self.assertEqual(text['ContentsText'], 'Contents')
+        self.assertEqual(text['BootMsg_Ebird'], 'Instruction Manual')
+
     def test_camera_shoot_child_delivery_closes_native_layout_metadata(self):
         public = ROOT/'public/os/firmware/10.7.0-32E'
         manifest = json.loads((public/'manifest.json').read_text())

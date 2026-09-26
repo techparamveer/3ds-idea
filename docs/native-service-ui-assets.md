@@ -60,7 +60,8 @@ does not authorize recreating its original hardware or service behavior.
   `App_Jump_02_Btn0` and `App_Jump_02_Btn1`.
 - **Manual:** separate `layout-<name>.json` packs and bank `ebird` with
   `BtnBack`, `BtnBack_Picto` and `BtnClose`. This is viewer chrome, not complete
-  per-title manuals.
+  per-title manuals. The Contents screen additions are described in
+  [Manual Contents chrome](#manual-contents-chrome).
 - **Miiverse post:** `cad-Main-arc-lz.json`, `cad-Common-arc-lz.json`; bank
   `message.msbt` has `STR_CANCEL`, `STR_OK`, `STR_ERROR_INIT`, `STR_ERROR_NNID`.
 - **Error:** `erreula.json`; banks `error_msbt_LZ` and `eula_msbt_LZ` supply the
@@ -80,6 +81,62 @@ does not authorize recreating its original hardware or service behavior.
   enable recording or imply a new HOME entrypoint.
 - **Memo:** `Memo_D.json`; bank `memo3ds` has `Button_OK`, `Button_Quit`,
   `MoveSlidebar`, `ReturnCanvas`. Editing remains outside scope.
+
+## Manual Contents chrome
+
+Target capture: the first native Settings Manual Contents screen,
+`/Volumes/Codex3DSIsolated/camera-guide-replay-20260926/screenshots/_26.09.26_23.19.14.606.png`
+(SHA-256 `2efb7fa73192641b7448735f407cfaeebf7b79445ee1b92bf256f39c1566799b`).
+It shows the title header with the Settings icon, a scroll indicator, the
+Contents headline, a green selected-entry cursor, a green category band and a
+two-button footer: X Close at left and Y Language at right.
+
+Plan `scripts/firmware/stock-ui-manual-contents.json` publishes the
+remaining source components with `stock_ui.py --additive` from the private
+`manual-native14/` conversion (source manifest SHA-256
+`644f10a7c3d1d8450db9e3ac0d55ed5cb4f5dbedfd5697eba1c044060522a8c6`, title
+`0004003000009b02` RomFS SHA-256
+`1ad09a3d260fbc7da5c91ab5a6bfa93944459a9b181f3ad92b0560b7eec6e657`). Earlier
+manual packs are unchanged. Each pack records its source archive and member
+hashes in `resourceSources`:
+
+| Pack / layout | Selected animations | Source archive SHA-256 | Evidence |
+| --- | --- | --- | --- |
+| `IndexNull` | `_Change`, `_Wait` | `4919d69f…004911e` | 400×480 Contents root; null slots `BtnGroup/{IndexBase,HeadLineAll,CursorNull}`, `SoftTitleHead` (0,262), `BottomBtnNull/BtnShdw` (0,-120), `ScrollIndicator` (192,0), `Dialog` |
+| `CsrHeadLine00` | `_FadeOut`, `_Push`, `_PushDown`, `_Wait` | `e2805597…afed68b` | Selected-entry cursor; `BtnArrow.bclim` 32×64 |
+| `HLTxt` | none in source | `0116f4c8…ac3258e` | Category band, mirrored `IndexCategory00/01` with `CategoryColor00.bclim` 16×32 and `TextBox_00` |
+| `ScrollIndicator` | `_Limit`, `_Wait` | `158be427…ac3847` | `StartPic`/`EndPic` with `ScrollIndicator.bclim` 8×8 |
+| `BtnCloseLng00` | `_Decide`, `_Invalid`, `_SceneIn`, `_SceneOut`, `_Select` | `e4c80059…9143c6e` | Left footer button `P_Btn_01` (-80,-120), 160×28 |
+| `BtnLngSel00` | same five | `e0c60c2c…3b52187` | Right footer button `P_Btn_02` (80,-120), 160×28 |
+| `BtnShdw00` | same five | `8716c03e…ba9c5` | Footer shadow `P_Shdw_00` 320×9, matching the `IndexNull` `BtnShdw` slot name |
+
+Archives are `layout/<name>.arc` in the manual RomFS. The existing
+`messages-and-loose.json` bank `ebird` is merged with source labels
+`BtnCloseLng` (`\ue071 Close`), `BtnLngSel` (`Language`) and `BtnLngSel_Picto`
+(`\ue003`, the Y glyph); prior labels keep their text. Three textures are new
+(`BtnArrow`, `CategoryColor00`, `ScrollIndicator`); the footer and shadow
+textures were already delivered. The Settings title icon remains the existing
+48×48 `icons/settings.png` (Settings content 0 `ExeFS/icon`, SHA-256
+`40a78f71…8615f1`). No new icon was produced.
+
+Checks: `test_stock_ui.py` (14 tests, including a delivery-closure test for this
+plan) and `test_firmware_manual.py` pass. A second publisher run is byte-identical.
+`audit.py --artifacts <assets>/stock-ui` resolves every `0004003000009b02`
+resource against `stock-ui/extracted/manual`. Its only manual-related errors are
+the Settings `Manual.bcma` paths, which live under the separate `multicontent`
+root. The full private report is
+`stock-ui/manual-contents-2026-09-26/delivery-audit-stock-ui-root.json`.
+
+Remaining gaps: runtime composition is not included. How native code fills
+the `IndexNull` slots, stacks `BtnHeadLineTxt` and `HLTxt` entries, positions
+the cursor and colours categories is not source-proved here. In the capture,
+the category bands are green, then blue. The source texture is a single
+`CategoryColor00`; any colour change must come from material or code
+parameters that have not been traced. The binding of the Settings SMDH icon to
+`SoftTitleHeader/P_Icon_00` (32×32, `IconMask`) and its scaling are also
+untraced. The upper-screen page striping, the Language screen and dialogs are
+excluded. No native/browser comparison has been made, so this is delivery
+evidence, not fidelity evidence.
 
 ## Provenance and verification
 

@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004003000009b02": {
+      "packs": {
+        "packs/manual/layout-IndexNull.json": {
+          "layouts": [
+            "IndexNull"
+          ],
+          "animations": [
+            "IndexNull_Change",
+            "IndexNull_Wait"
+          ]
+        },
+        "packs/manual/layout-CsrHeadLine00.json": {
+          "layouts": [
+            "CsrHeadLine00"
+          ],
+          "animations": [
+            "CsrHeadLine00_FadeOut",
+            "CsrHeadLine00_Push",
+            "CsrHeadLine00_PushDown",
+            "CsrHeadLine00_Wait"
+          ]
+        },
+        "packs/manual/layout-HLTxt.json": {
+          "layouts": [
+            "HLTxt"
+          ],
+          "animations": []
+        },
+        "packs/manual/layout-ScrollIndicator.json": {
+          "layouts": [
+            "ScrollIndicator"
+          ],
+          "animations": [
+            "ScrollIndicator_Limit",
+            "ScrollIndicator_Wait"
+          ]
+        },
+        "packs/manual/layout-BtnCloseLng00.json": {
+          "layouts": [
+            "BtnCloseLng00"
+          ],
+          "animations": [
+            "BtnCloseLng00_Decide",
+            "BtnCloseLng00_Invalid",
+            "BtnCloseLng00_SceneIn",
+            "BtnCloseLng00_SceneOut",
+            "BtnCloseLng00_Select"
+          ]
+        },
+        "packs/manual/layout-BtnLngSel00.json": {
+          "layouts": [
+            "BtnLngSel00"
+          ],
+          "animations": [
+            "BtnLngSel00_Decide",
+            "BtnLngSel00_Invalid",
+            "BtnLngSel00_SceneIn",
+            "BtnLngSel00_SceneOut",
+            "BtnLngSel00_Select"
+          ]
+        },
+        "packs/manual/layout-BtnShdw00.json": {
+          "layouts": [
+            "BtnShdw00"
+          ],
+          "animations": [
+            "BtnShdw00_Decide",
+            "BtnShdw00_Invalid",
+            "BtnShdw00_SceneIn",
+            "BtnShdw00_SceneOut",
+            "BtnShdw00_Select"
+          ]
+        },
+        "packs/manual/messages-and-loose.json": {
+          "mergeExisting": true,
+          "messages": {
+            "ebird": [
+              "BtnCloseLng",
+              "BtnLngSel",
+              "BtnLngSel_Picto"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

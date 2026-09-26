@@ -165,6 +165,8 @@ python3 -B -m unittest discover -s tests -p test_firmware_manual.py
 Remaining gaps: no runtime view, routing or HOME `LncBtmBtn_02` footer
 connection exists. The native choice between the large and small variants,
 index-to-page scrolling, the manual applet chrome composition
-(`0004003000009b02` packs) and pages 1–31 are unconverted or unverified. No
+(`0004003000009b02` packs; Contents chrome is now delivered, see
+[Manual Contents chrome](native-service-ui-assets.md#manual-contents-chrome))
+and pages 1–31 are unconverted or unverified. No
 native/browser comparison has been made. This is conversion evidence, not
 fidelity evidence.

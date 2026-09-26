@@ -23,7 +23,7 @@ Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`
 3. The Assets lane owns `scripts/native-compare/` with a parameterized output root. Each pair/mask yields per-LCD mean/max RGB error, count of pixels with any channel delta greater than 2/255, connected difference regions and bounding boxes, heatmap, side-by-side sheet and JSON with both SHA-256s, commit and scenario ID.
 4. **Open the side-by-side sheet.** Fix unexplained regions and repeat both captures after integration. Masks require named reasons and may cover only intentional clock/battery, portfolio content, read-only Camera footer, inert OK and other [feature-map](../feature-map.md) adaptations. A mask created merely to pass a diff is a defect.
 
-Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v49/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
+Store a versioned scenario matrix under the private artifact root (currently on the home disk at `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v50/matrix.json`); bump the version when entries change. Each entry records ID, title/version, entry state, exact keys/touches/frame counts, clock sampling, native and browser capture paths/hashes, mask, latest diff report and status `pass`, `fail`, `adaptation`, `source-gap` or `blocked`.
 
 The historical `sound-first-run-span-mounted` browser capture JSON was
 overwritten. Matrix v17 marked it unavailable; v25 preserves that repair and links an upper PNG recovered
@@ -32,9 +32,9 @@ reproduced failing diff. This repair cannot replace a complete fresh capture
 pair for acceptance.
 
 The first whole-scenario acceptance targets remain **matched HOME idle** and
-**Settings → Other Settings page 1**. [Matrix v49](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v49/matrix.json)
-has 97 entries (85 native/browser pairs and twelve browser-only records), **all
-whole scenarios fail**. Through integration `8c0a6d7`, production Health Usage
+**Settings → Other Settings page 1**. [Matrix v50](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v50/matrix.json)
+has 99 entries (98 failed and one native-only pending browser capture), **all
+whole scenarios remain unaccepted**. Through integration `8c0a6d7`, production Health Usage
 initial, Health Usage scrolled 8px and Settings Other page 1 have unmasked static
 two-LCD pixel-tier matches, maximum delta 2. HOME Settings's independent yaw304 / COMMON303
 diagnostic still has **222 upper / 36,258 lower** pixels above 2/255; the coupled

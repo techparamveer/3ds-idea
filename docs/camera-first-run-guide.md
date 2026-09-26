@@ -139,3 +139,11 @@ for its monoscopic reference fixture. No tint value or artwork was invented.
 This selection follows the observed reference state; executable controller
 selection and live stereo switching remain untraced. Production comparison
 after integration remains required. Capacity glyph/raster residuals are open.
+
+The integrated child chain, corrected source HUD baseline and source grey
+`2DView` cube reduce the preserved page-1 comparison to **348 upper / 2,690
+lower** pixels above 2/255 (RGB MAE **0.4191 / 2.4887**). [Matrix v50](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v50/matrix.json)
+records the raw browser capture and empty-mask diff. A separate APFS clone of
+the pre-Camera isolated profile reproduced and captured native Welcome pages
+1 and 2; page 2 has no matched browser capture yet. The original active save
+was not reset.

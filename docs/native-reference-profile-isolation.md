@@ -73,3 +73,10 @@ selected Health in one-row density. Azahar saved
 `screenshots/_26.09.26_21.04.22.044.png` at 400×480, SHA-256
 `e4a016bd3b8f89b022cbb0032ae8e03b6b7469f5ef1b9c913907ed49c07c37fc`.
 This is a native reference capture, not a whole-scenario fidelity claim.
+
+The same Sandisk-backed copy launched the EUR System Settings title through
+Azahar's **File → Recent Files** menu and saved
+`screenshots/System Settings_26.09.26_21.15.48.805.png` at 400×480,
+SHA-256 `68e48e0e742aae834b3e7e600221ed8e80c1b567edf5e4d4ac91d41d8a145d3f`.
+This direct-title launch is recorded separately from a HOME-to-Settings route;
+it does not prove matched launch input or motion.

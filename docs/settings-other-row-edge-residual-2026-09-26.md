@@ -41,9 +41,25 @@ edge blend is not resolved by a different mount or clip. For example, at
 native is `(186,179,139)` and browser `(210,203,152)`. Other edge pixels have
 deltas of both signs, so a uniform tint or shift is not supported.
 
-**Decision:** no stock-presenter change. The unsupported field is exact native
-window/frame/shadow raster compositing at the lower row edges, including
-sampling against the backing color. It needs a native material/renderer
-investigation or a controlled source-raster experiment before changing shared
-button code. The adjacent-page right-edge components and upper title/status
-residuals are separate. Nothing here establishes a whole-screen pass.
+## Follow-up source audit
+
+The row edges are **not** three identical source pictures. `I_User_Select`
+contains frame-0 `size.width = 16` keys for `I_User_L_02` and `_03`.
+`stock-native-settings.ts` reused that clip for every Other Settings icon.
+The `I_User` source layout has 16/16 px pictures, but `I_Date` and `I_Touch`
+each have 22/21 px pictures. Their LA8 `I_User_L.bclim` begins drawing at the
+left edge of the widened pane. Reusing the `I_User` width keys reduced those
+panes by six and five logical pixels in the browser. At row-centre `(34,120)`,
+the native/browser RGBs are `(186,179,139)` / `(210,203,152)`; the same
+relative point on the 16 px `I_User` row is `(210,203,152)` / `(211,203,152)`.
+This explains the row-specific left-edge concentration without a global
+translation or tint. The right edge uses the other overridden width.
+
+The bounded presentation correction preserves the sibling layouts' picture
+widths while reusing the clip's other tracks, including source material colour
+and visibility. It applies to current rows and the mounted adjacent page.
+The source records give no sibling-specific selected-frame width keys, so this
+correction keeps their layout widths for that state too. A production browser
+recapture against the same native image is still needed to measure the pixel
+effect. The unchanged `702` count above remains the pre-correction baseline;
+adjacent-page components, footer, and upper title/status residuals are separate.

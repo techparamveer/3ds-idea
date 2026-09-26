@@ -35,6 +35,14 @@ function prepareSettingsButtons(renderer:NativeLayoutRenderer){
   if(prepared.has(renderer))return;
   const source=renderer.packs.button,animations={...source.animations};
   for(const name of buttons)animations[name+'_DirectSettings']=settingsDirectButtonClip(source.layouts[name],source.animations[name+'_Select']);
+  // The sibling Other Settings layouts reuse I_User's colour/visibility clip,
+  // but their source edge pictures are wider (usually 22/21 rather than 16/16).
+  // Its size keys belong to I_User and erase those source-defined row edges.
+  for(const name of otherIcons){
+    const clip=settingsDirectButtonClip(source.layouts[name],source.animations.I_User_Select);
+    animations[name+'_DirectSettings']={...clip,tracks:clip.tracks.filter(track=>
+      !(track.property==='size.width'&&(track.target==='I_User_L_02'||track.target==='I_User_L_03')))};
+  }
   animations.T_Page01_Decide_DirectSettings=settingsDirectButtonClip(source.layouts.T_Page01,source.animations.T_Page01_Decide);
   animations.T_SB_Decide_DirectSettings=settingsDirectButtonClip(source.layouts.T_SB,source.animations.T_SB_Decide);
   renderer.packs.button={...source,animations};prepared.add(renderer);
@@ -223,8 +231,8 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     draw(top,'up','Connect_U_00',{bindings:[{name:'Connect_U_00_TextFadeIn',frame:20}],overrides});
   }
   const child=(layout:string,id:string,label?:string)=>{
-    const clip=layout==='B_S'?'B_SB':layout==='B_M'?'B_L':otherIcons.includes(layout)?'I_User':layout;
-    const bindings=buttons.includes(clip)?[{name:clip+'_DirectSettings',frame:view.rows[view.selection]?.id===id&&!(view.screen==='other'&&view.data?.selectionActive===false)?1:0}]:[];
+    const clip=layout==='B_S'?'B_SB':layout==='B_M'?'B_L':layout;
+    const bindings=buttons.includes(clip)||otherIcons.includes(clip)?[{name:clip+'_DirectSettings',frame:view.rows[view.selection]?.id===id&&!(view.screen==='other'&&view.data?.selectionActive===false)?1:0}]:[];
     const overrides:PaneOverrides=label?{TextBox_00:message(label)}:{};
     if(layout.startsWith('B_CnctW'))overrides.TextBox_00={text:message('net_connect1_u').text!.replace(/ 1$/,''),fontSize:[15,18]};
     draw(bottom,'button',layout,{bindings,overrides});
@@ -271,7 +279,7 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     if(page<settingsOtherPages.length-1)attachments.Null_RightPage=()=>{
       settingsOtherPages[page+1].forEach(([id],i)=>{
         const button=otherButtons[id];
-        if(button)draw(bottom,'button',button[0],{center:[160,76+i*48],bindings:[{name:'I_User_DirectSettings',frame:0}],overrides:{TextBox_00:message(button[1])}});
+        if(button)draw(bottom,'button',button[0],{center:[160,76+i*48],bindings:[{name:button[0]+'_DirectSettings',frame:0}],overrides:{TextBox_00:message(button[1])}});
       });
     };
     // Select's final frame is pressed with no shadow; Decide's final frame

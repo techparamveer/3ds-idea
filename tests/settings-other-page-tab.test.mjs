@@ -36,6 +36,15 @@ test('selected Other Settings page uses the native raised Decide endpoint',()=>{
   {id:'profile',label:'Profile'},{id:'clock',label:'Date & Time'},{id:'touch',label:'Touch Screen'},
  ],selection:0,data:{page:0,selectionActive:false},footer:{left:{action:'back',label:'Back'}}};
  assert.equal(drawNativeSettingsMain(renderer,{}, {},view,false,new Date(2026,8,26,2,22)),true);
+ for(const name of ['I_Date','I_Touch']){
+  const layout=packs.button.layouts[name],clip=packs.button.animations[name+'_DirectSettings'];
+  const posed=poseNativeLayout(layout,{clip},[{name:'clip',frame:0}]);
+  for(const edge of ['I_User_L_02','I_User_L_03']){
+   assert.equal(panes(posed.roots,edge)[0].size[0],panes(layout.roots,edge)[0].size[0],`${name}/${edge} retains its source width`);
+  }
+ }
+ assert.deepEqual(calls.filter(call=>['I_User','I_Date','I_Touch'].includes(call.name)).map(call=>call.options.bindings[0].name),
+  ['I_User_DirectSettings','I_Date_DirectSettings','I_Touch_DirectSettings']);
  const tabs=calls.filter(call=>/^T_Page0[1-4]$/.test(call.name));
  assert.equal(tabs.length,4);
  assert.deepEqual(tabs.map(call=>call.options.bindings[0]),[
@@ -54,4 +63,6 @@ test('selected Other Settings page uses the native raised Decide endpoint',()=>{
   ['I_3DTest',[160,76]],['I_Sound',[160,124]],['I_Mic',[160,172]],
  ]);
  assert.ok(neighbor.every(call=>call.options.bindings[0].frame===0));
+ assert.deepEqual(neighbor.map(call=>call.options.bindings[0].name),
+  ['I_3DTest_DirectSettings','I_Sound_DirectSettings','I_Mic_DirectSettings']);
 });

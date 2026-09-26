@@ -485,3 +485,15 @@ test('stock titles retain outgoing resources during preparation and Sound sample
  h.banner.dispose();
  assert.equal(h.banner.stockTitleStatus(ticket('eshop')).ready,false);
 });
+
+test('independent diagnostic COMMON pose keeps explicit yaw and leaves live clocks untouched',()=>{
+ const motion={yawRadians:-.1466,skeletal:{frame:14}};
+ const before=structuredClone(motion),sample=settingsBannerPhase(motion,false,304,302);
+ assert.equal(sample.yawRadians,settingsBannerPhase(motion,false,304).yawRadians);
+ assert.equal(sample.skeletalFrame,302);
+ assert.deepEqual(sample.sample,{kind:'synthetic-source-pose',frame:304,yawRadians:sample.yawRadians,skeletalFrame:302,clockRelationship:'independent-diagnostic'});
+ assert.deepEqual(motion,before);
+ assert.deepEqual(settingsBannerPhase(motion,false),{yawRadians:-.1466,skeletalFrame:14,sample:null});
+ for(const value of [-1,600,NaN,302.5])assert.throws(()=>settingsBannerPhase(motion,false,304,value),/skeletal frame/);
+ assert.throws(()=>settingsBannerPhase(motion,false,undefined,302),/explicit banner frame/);
+});

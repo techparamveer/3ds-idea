@@ -78,3 +78,14 @@ The artifact root represented by `...` is
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E`.
 The local fixture in `tests/lcd-capture.test.mjs` decodes both returned PNGs,
 checks their dimensions and source pixels, and rejects an 800×240 upper canvas.
+
+For the bounded Settings relative-clock diagnostic, append
+`lcdBannerSkeletalFrame=302` alongside `lcdBannerFrame=304`. The independent
+COMMON sample requires loopback, an active Settings selection and integer
+frames0–599. It is available only through the existing gated capture hook;
+ordinary drawing keeps the live clocks. `bannerSample` records yaw counter304,
+`skeletalFrame:302` and `clockRelationship:"independent-diagnostic"`. Both
+capture overrides are cleared in `finally`, including after failed encoding.
+This diagnostic does not assert a native clock offset. Omit the parameter for
+the original coupled-frame capture. Keep the existing elapsed time, date and
+HUD97 query when comparing against the frame304 control.

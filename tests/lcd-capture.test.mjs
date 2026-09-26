@@ -154,7 +154,7 @@ test('HOME HUD wiring is capture-only, records its sample, and restores live pai
   assert.match(block, /phase!=='home'/);
   assert.match(block, /try\{screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample\}\)/);
   assert.match(block, /homeHudSample:homeHudSample\?\?null/);
-  assert.match(block, /finally\{verificationBannerFrame=undefined;screens.paint\(state,new Date\(\),performance.now\(\)-start\)/);
+  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;screens.paint\(state,new Date\(\),performance.now\(\)-start\)/);
 });
 
 
@@ -167,7 +167,7 @@ test('capture transaction paints explicit sample once, records it, and restores 
     const dependencies={disposed:false,firmwareAssets:{},state:{powered:true,system:{phase:'home',homeClock:{updateCount:1}}},window:{location:{hostname:'localhost'}},lcdHomeHudSample,
       screens:{paint(...args){paints.push(args);},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>({status:'unsupported'}),bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
       encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return {top:'png',bottom:'png'};},start:0,topTexture:{},bottomTexture:{}};
-    const capture = new Function(...Object.keys(dependencies), 'let verificationBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(dependencies));
+    const capture = new Function(...Object.keys(dependencies), 'let verificationBannerFrame,verificationBannerSkeletalFrame;'+compiled+';return captureScreensAt;')(...Object.values(dependencies));
     if(fails) assert.throws(()=>capture(12000,'2026-09-26',undefined,hudSample),/encoding failed/);
     else {
       const result=capture(12000,'2026-09-26',undefined,hudSample);
@@ -208,4 +208,33 @@ test('Health capture timeout reports missed crossings and last observation', asy
   f.tick(329, 40);
   await assert.rejects(pending, /live Health frame 327; observed=3, lastFrame=329, lastElapsedMs=.*skippedTargetCrossings=1/);
   assert.equal(f.captures, 0);
+});
+
+test('independent skeletal capture requires local host and an explicit valid yaw sample',()=>{
+ const query='?lcdElapsedMs=5616.666666666667&lcdDate=2026-09-26T03%3A14%3A35.203Z&lcdBannerFrame=304&lcdBannerSkeletalFrame=302';
+ assert.equal(lcdDownloadRequest(query,'localhost').bannerSkeletalFrame,302);
+ for(const host of ['example.com',undefined])assert.throws(()=>lcdDownloadRequest(query,host),/localhost/);
+ assert.throws(()=>lcdDownloadRequest(query.replace('&lcdBannerFrame=304',''),'localhost'),/requires lcdBannerFrame/);
+ for(const value of ['', '-1', '600', '302.5', 'NaN'])assert.throws(()=>lcdDownloadRequest(query.replace('lcdBannerSkeletalFrame=302','lcdBannerSkeletalFrame='+value),'localhost'),/lcdBannerSkeletalFrame/);
+ assert.throws(()=>lcdDownloadRequest(query+'&lcdHealthFrame=12','localhost'),/combined/);
+});
+
+test('independent skeletal capture overrides are restored after successful and failed encoding',()=>{
+ const scene=readFileSync(new URL('../src/scene/console-scene.ts',import.meta.url),'utf8');
+ const code=scene.slice(scene.indexOf('const captureScreensAt='),scene.indexOf('Object.assign(host,{captureScreensAt})'));
+ const compiled=ts.transpileModule(code,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+ for(const fails of [false,true]){
+  const paints=[];let readOverrides;
+  const view={status:'active',primary:{selection:{kind:'app',id:'system-settings'},motion:{}}};
+  const deps={disposed:false,firmwareAssets:{},state:{powered:true,system:{phase:'home',homeClock:{updateCount:1}}},window:{location:{hostname:'localhost'}},lcdHomeHudSample,
+   screens:{paint(){paints.push(readOverrides());},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>view,bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
+   settingsBannerPhase(_motion,_reduced,frame,skeletalFrame){return{sample:{frame,skeletalFrame}};},
+   encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return{top:'png',bottom:'png'};},start:0,topTexture:{},bottomTexture:{}};
+  const fixture=new Function(...Object.keys(deps),'"use strict";let verificationBannerFrame,verificationBannerSkeletalFrame;'+compiled+';return {capture:captureScreensAt,read:()=>[verificationBannerFrame,verificationBannerSkeletalFrame]};')(...Object.values(deps));
+  readOverrides=fixture.read;
+  if(fails)assert.throws(()=>fixture.capture(5616,'2026-09-26',304,hudSample,302),/encoding failed/);
+  else assert.deepEqual(fixture.capture(5616,'2026-09-26',304,hudSample,302).bannerSample,{frame:304,skeletalFrame:302});
+  assert.deepEqual(paints,[[304,302],[undefined,undefined]]);
+  assert.deepEqual(readOverrides(),[undefined,undefined]);
+ }
 });

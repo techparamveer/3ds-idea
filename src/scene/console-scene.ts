@@ -70,7 +70,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   // Restore is complete before the host is created. A later System restore must
   // allocate a new session as well; individual folder scopes are owned by the host.
   const bannerGeneration=`console-session:${++nextBannerSession}`;
-  let verificationBannerFrame:number|undefined;
+  let verificationBannerFrame:number|undefined,verificationBannerSkeletalFrame:number|undefined;
   const bannerClock=()=>({generation:bannerGeneration,updateCount:state.system!.homeClock.updateCount});
   let bannerHost=createHomeBannerHost(bannerClock(),{managerInhibited:true,sceneInhibited:true,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});
   let bannerLabelFailure=false;
@@ -81,7 +81,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     // Idle-only native translation sample. Reactive +0x90 motion is not yet hosted.
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawDefaultBannerFrame:(ctx,motion)=>folderBanner.drawDefaultFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0}),
-    drawSettingsBannerFrame:(ctx,motion)=>{const phase=settingsBannerPhase(motion,reduced,verificationBannerFrame);return folderBanner.drawSettingsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});},
+    drawSettingsBannerFrame:(ctx,motion)=>{const phase=settingsBannerPhase(motion,reduced,verificationBannerFrame,verificationBannerSkeletalFrame);return folderBanner.drawSettingsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});},
     drawStockTitleBannerFrame:(ctx,motion,ticket,kind)=>folderBanner.drawStockTitleFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},{...ticket,kind}),
     drawHomeBackground:folderBanner.drawBackground,runtimeNotice:()=>runtimeNotice});
   await Promise.all([screens.ready,folderBanner.ready]);
@@ -503,22 +503,25 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     }finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;canvas.width=canvas.height=0;}
   }});}
   let removeLcdDownload=()=>{};
-  if(lcdCapture){const captureScreensAt=(elapsedMs:number,isoDate?:string,bannerFrame?:number,hudSample?:unknown)=>{
+  if(lcdCapture){const captureScreensAt=(elapsedMs:number,isoDate?:string,bannerFrame?:number,hudSample?:unknown,bannerSkeletalFrame?:number)=>{
     if(disposed||!Number.isFinite(elapsedMs)||elapsedMs<0)throw new Error('Invalid diagnostic capture time');
     const date=isoDate===undefined?new Date():new Date(isoDate);
     if(!Number.isFinite(date.getTime()))throw new Error('Invalid diagnostic capture date');
+    if(bannerSkeletalFrame!==undefined){
+      if(!['localhost','127.0.0.1','::1','[::1]'].includes(window.location.hostname)||bannerFrame===undefined)throw new Error('Independent skeletal sampling requires localhost and a banner frame');
+    }
     if(bannerFrame!==undefined){
       const view=getHomeBannerHostView(bannerHost);
       if(view.status!=='active'||view.primary.selection.kind!=='app'||view.primary.selection.id!=='system-settings')throw new Error('Settings banner frame sampling requires an active Settings HOME selection');
-      settingsBannerPhase(view.primary.motion,reduced,bannerFrame);
+      settingsBannerPhase(view.primary.motion,reduced,bannerFrame,bannerSkeletalFrame);
     }
     const homeHudSample=hudSample===undefined?undefined:lcdHomeHudSample(hudSample,window.location.hostname);
     if(homeHudSample&&(!firmwareAssets||!state.powered||state.system?.phase!=='home'||state.system.sleeping||state.system.dialog||state.panel||state.system.preferences))throw new Error('HOME HUD sampling requires an active HOME Menu');
     // Sample presentation only. Inputs, software state, effects and the shared
     // runtime clock continue normally; the next paint restores current time.
-    verificationBannerFrame=bannerFrame;
-    try{screens.paint(state,date,elapsedMs,{sampleCalendar:isoDate!==undefined,homeHudSample});const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),homeHudSample:homeHudSample??null,homeHudSampling:homeHudSample?'verification-source-pose':'live-default',calendarSampling:isoDate===undefined?'live-retained':'verification-settings-local-replay',homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),folderBanner:view,bannerSample:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame).sample:null,...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
-    finally{verificationBannerFrame=undefined;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
+    verificationBannerFrame=bannerFrame;verificationBannerSkeletalFrame=bannerSkeletalFrame;
+    try{screens.paint(state,date,elapsedMs,{sampleCalendar:isoDate!==undefined,homeHudSample});const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),homeHudSample:homeHudSample??null,homeHudSampling:homeHudSample?'verification-source-pose':'live-default',calendarSampling:isoDate===undefined?'live-retained':'verification-settings-local-replay',homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),folderBanner:view,bannerSample:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame,bannerSkeletalFrame).sample:null,...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
+    finally{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   };
     Object.assign(host,{captureScreensAt});
     const captureAbort=new AbortController();
@@ -527,9 +530,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       if(downloading)return;
       downloading=true;
       try{
-        const {elapsedMs,isoDate,scenario,bannerFrame,healthFrame,homeHudSample}=lcdDownloadRequest(window.location.search,window.location.hostname);
+        const {elapsedMs,isoDate,scenario,bannerFrame,healthFrame,homeHudSample,bannerSkeletalFrame}=lcdDownloadRequest(window.location.search,window.location.hostname);
         if(healthFrame!==undefined)host.dataset.lcdCaptureStatus='waiting';
-        const capture=healthFrame===undefined?captureScreensAt(elapsedMs,isoDate,bannerFrame,homeHudSample):await captureAtHealthFrame(healthFrame,{
+        const capture=healthFrame===undefined?captureScreensAt(elapsedMs,isoDate,bannerFrame,homeHudSample,bannerSkeletalFrame):await captureAtHealthFrame(healthFrame,{
           signal:captureAbort.signal,
           requestFrame:callback=>requestAnimationFrame(callback),cancelFrame:id=>cancelAnimationFrame(id),
           read:()=>{

@@ -104,3 +104,47 @@ Frame304 icon report SHA-256:
 All totals reproduce coordinator upper scores; contact/difference images were
 inspected, metadata checked, and `git diff --check` passes. No application
 rebuild is needed for this evidence-only change.
+
+## Source audit correction and visible relative-clock candidate
+
+Assets audit `8257294` disproves lost mip levels and conversion corruption:
+all five original TXOB records have `MipmapSize=1`, buffer lengths contain
+exactly their base level, and original buffers decode byte-for-byte to delivered
+RGBA. The earlier mip hypothesis is closed; changing mip filtering is not a
+supported fix. `mt_pict`'s unlit vertex-RGB/texture-alpha path remains the next
+isolated owner. The renderer's `Mirror` enum alias omission is real but Settings
+plate U remains within0–1, where mirror and clamp sample equivalently; it is
+not introduced as an explanation or fix here.
+
+The coupled-frame sweep almost cancels external yaw with source `l_btn` rotation.
+It therefore cannot test a **relative** clock difference. Holding yaw304 while
+sampling COMMON302 moves the source outer quad centers right by0.906px and
+0.878px. Those directions and magnitudes are consistent with, but do not prove
+the cause of, the measured colored-centroid differences0.779px/1.024px. COMMON's
+title bob also changes, so all three banner ROIs must be checked. Native clock
+origins are unknown; an arbitrary runtime offset is not justified.
+
+A minimal visible **verification candidate** is now wired through the existing
+local LCD capture gate: `lcdBannerFrame=304&lcdBannerSkeletalFrame=302`.
+Keep `lcdElapsedMs=5616.666666666667`, the captured date and HUD97 sample.
+It selects the original source clip without editing geometry, atlas, material,
+filtering, blending or live clock state. Metadata explicitly records independent
+diagnostic clocks. The capture requires an active Settings primary and loopback;
+values are integer0–599, and the separate skeletal frame requires an explicit
+yaw frame. Both overrides restore after success or failure.
+
+The coordinator's next action is to capture this one candidate against the
+coupled304 control and score wrench/icons/title with wallpaper/footer regression
+checks. No pixel improvement is predicted from geometry alone; if the candidate
+does not improve the icon residual, preserve it as a failed diagnostic and retain
+the remaining alpha/texture/interpolation or relative-clock behavior as a source
+gap. Do not promote the independently sampled clocks to live behavior.
+
+Private source projection evidence is
+`presentation/home-source-frame-bracket-20260926/uncoupled-outer-projection.json`
+under the overflow root, reproduced by the adjacent `.mjs`. It contains projected
+quad centers at fixed yaw304 and COMMON298/300/302/304/306/308/310, with no GPU
+raster or native pixel substitution. The visible candidate replaces further
+source-only tracing for this named question. Focused tests verify query bounds,
+local gating, recorded independent frames, live-state immutability and capture
+restoration after successful/failed encoding. Browser evidence is pending.

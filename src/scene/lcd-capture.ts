@@ -46,10 +46,16 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
     if (!/^[0-9]+$/.test(healthFrameText!) || !Number.isSafeInteger(healthFrame) || healthFrame < 0 || healthFrame > 719) throw new Error('lcdHealthFrame must be an integer from 0 to 719');
     if (bannerFrame !== undefined) throw new Error('lcdHealthFrame cannot be combined with lcdBannerFrame');
   }
+  const skeletalText = params.get('lcdBannerSkeletalFrame');
+  const bannerSkeletalFrame = skeletalText === null ? undefined : Number(skeletalText);
+  if (bannerSkeletalFrame !== undefined) {
+    if (!hostname || !['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname)) throw new Error('lcdBannerSkeletalFrame requires localhost');
+    if (bannerFrame === undefined || !skeletalText!.trim() || !Number.isSafeInteger(bannerSkeletalFrame) || bannerSkeletalFrame < 0 || bannerSkeletalFrame > 599) throw new Error('lcdBannerSkeletalFrame requires lcdBannerFrame and an integer from 0 to 599');
+  }
   const hudText = params.get('lcdHomeHudSample');
   const homeHudSample = hudText === null ? undefined : lcdHomeHudSample(JSON.parse(hudText), hostname);
   if (homeHudSample !== undefined && healthFrame !== undefined) throw new Error('lcdHomeHudSample cannot be combined with lcdHealthFrame');
-  return { ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs, isoDate: new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }) };
+  return { ...(bannerSkeletalFrame === undefined ? {} : { bannerSkeletalFrame }), ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs, isoDate: new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }) };
 }
 
 export function lcdDownloadPayload(scenario: string, capture: ReturnType<typeof encodeNativeLcdPair> & Record<string, unknown>) {

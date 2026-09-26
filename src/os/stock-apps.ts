@@ -289,7 +289,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return { screen: id === 'sound' && !media.tracks.length ? 'guide' : 'main', selection: 0, ...(['health-safety','system-settings'].includes(id) ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
         ...(id === 'browser' ? { url: str(restored.url) } : {}), ...(id === 'error' ? { message: str(args.message, 'An error has occurred.') } : {}),
         ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0, guidePage: 0 } : {}),
-        ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}) };
+        ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}), ...(id === 'health-safety' ? { healthElapsedMs: 0 } : {}) };
     },
     reduce(state, event, context) {
       if(cameraTitles.has(id)&&state.screen==='gallery'){
@@ -327,6 +327,11 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
           return { state: { ...state, captureSwitchElapsed: NOTES_SWITCH_DURATION_MS } };
       }
       if (id === 'eshop' && event.type === 'tick') return eshopWelcomeTick(state, event.elapsedMs);
+      if (id === 'health-safety' && event.type === 'tick') {
+        if (!Number.isFinite(event.elapsedMs) || event.elapsedMs <= 0) return { state };
+        const next = { ...state, healthElapsedMs: num(state.healthElapsedMs) + event.elapsedMs };
+        return state.screen === 'document' ? healthDocumentReduce(next, event, context) ?? { state: next } : { state: next };
+      }
       if (id === 'health-safety' && state.screen === 'document') { const health = healthDocumentReduce(state, event, context); if (health) return health; }
       if (event.type === 'lifecycle') return id === 'sound' && track(state) && ['suspend', 'sleep', 'close'].includes(event.phase) ? music(state, 'pause', { playing: false }) : { state };
       if (event.type === 'action') return activate(state, event.id, context, event.value);

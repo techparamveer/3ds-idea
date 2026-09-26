@@ -75,3 +75,23 @@ test('Health TopLoop samples source frames deterministically with an explicit fi
  for(const t of [0,12000,999999])assert.equal(healthTopLoopFrame(t,true),0);
  for(const t of [-1,NaN,Infinity])assert.equal(healthTopLoopFrame(t),18);
 });
+
+
+test('Health owns its elapsed clock across menu/article navigation and resets on reopen',()=>{
+ const module=createStockModule(getTitle('health-safety')),context={now:900000,shared:initialSharedData()};
+ let state=module.create({},null,context);assert.equal(state.healthElapsedMs,0);
+ const tick=ms=>{state=module.reduce(state,{type:'tick',elapsedMs:ms},context).state;};
+ tick(1000);tick(500);assert.equal(state.healthElapsedMs,1500);
+ state=module.reduce(state,{type:'action',id:'3d'},context).state;
+ tick(20);assert.equal(state.healthElapsedMs,1520);assert.equal(module.view(state,context).data.healthElapsedMs,1520);
+ state=module.reduce(state,{type:'action',id:'back'},context).state;
+ assert.equal(state.screen,'main');assert.equal(state.healthElapsedMs,1520);
+ for(const phase of ['suspend','sleep','wake','resume'])state=module.reduce(state,{type:'lifecycle',phase},context).state;
+ assert.equal(state.healthElapsedMs,1520,'lifecycle alone never consumes global time');
+ for(const ms of [0,-1,NaN,Infinity])tick(ms);
+ assert.equal(state.healthElapsedMs,1520);
+ state=module.create({},state,{...context,now:2000000});
+ assert.equal(state.healthElapsedMs,0,'new instance ignores old or saved phase');
+ assert.equal(healthTopLoopFrame(state.healthElapsedMs),18);
+ tick(12000);assert.equal(healthTopLoopFrame(state.healthElapsedMs),15);
+});

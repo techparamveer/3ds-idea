@@ -2,8 +2,8 @@
 
 At `7221619`, Health's upper `Bg_U_00_TopLoop` binding is frozen at frame 0
 and the paired-screen publication key contains no Health animation pose. This
-slice samples the delivered source animation through the existing presentation
-elapsed clock and includes that source frame in the pair cache. It does not
+slice samples the delivered source animation through Health instance-local
+elapsed time and includes that source frame in the pair cache. It does not
 change native assets, title text, lower screens or input.
 
 ## Source and clock adaptation
@@ -22,9 +22,12 @@ The unchanged resource mappings are:
 
 The source clip has 720 frames and loops. Its position, scale, rotation and
 alpha tracks are sampled without altered keys. The browser uses the existing
-Health VBlank rate `268111856 / 4481136` and presentation elapsed milliseconds.
+Health VBlank rate `268111856 / 4481136` and active Health-local milliseconds.
 **The 18-frame origin is a capture-fitted adaptation.** It makes the existing
 12,000 ms comparison sample use source frame 15: `(717 + 18) % 720 = 15`.
+The native screenshot has no measured entry-to-capture interval. The original
+12,000 ms was a global browser harness value; assigning it to Health-local time
+is a synthetic source-render diagnostic, not a matched native elapsed sample.
 This does not recover native launch time or prove animation timing. Reduced
 motion preserves the previous static source frame 0. Invalid or negative host
 time uses the ordinary zero-time pose, frame 18.
@@ -52,7 +55,7 @@ The published production frame-0 pair remains 7,196 upper / 0 lower, while
 the fresh offline baseline is 7,264 upper. These are distinct renderer
 checkpoints and are not presented as identical baseline evidence.
 
-After implementation, the actual Health presenter at 12,000 ms reproduces
+The offline Health presenter with a synthetic **local** 12,000 ms reproduces
 **203 upper / 0 lower** pixels above 2/255. Upper PNG SHA-256:
 `aafc1e19bba13f578cac6da40eef6d9a6b9c0ac7bb3fc5ac4f8c3c8ba5206bc6`.
 Lower PNG SHA-256:
@@ -71,14 +74,41 @@ main and 44 subpage pairs; all 100 Settings PNGs are byte-identical to the
 preceding endpoint-fix source renders. The Health-only runner and its scope
 are described in the [endpoint audit](native-glyph-endpoint-coordinate-ownership-2026-09-26.md).
 
-All 50 focused Health-scroll and paired-publication tests pass, along with
+All 51 focused Health-scroll and paired-publication tests pass, along with
 TypeScript checking and `git diff --check`. New tests cover source-frame
 advancement, loop wrap, reduced motion, invalid input and paired cache
 invalidation; no repaint occurs within an unchanged source frame.
 
-The coordinator should capture the actual browser at 12,000 ms and then at
-multiple explicit source-frame checkpoints, alongside a timed native sequence.
+The coordinator should record Health-local elapsed time and capture multiple
+explicit source-frame checkpoints alongside a timed native sequence. A global
+`captureScreensAt` time does not advance or replace Health instance state.
 The native entry input/history and initial source phase must be recorded to
 replace the fitted origin with a verified clock. No browser or Azahar session
 was operated in this lane. The 203 unexplained pixels, live motion/input/audio
 and all application acceptance remain open.
+
+
+## Clock ownership correction after review
+
+`930a33a` initially consumed global presentation time. The corrected reducer
+initializes `healthElapsedMs` to zero on each Health creation, accumulates valid
+active-app tick durations on both menu and article pages, and preserves it while
+navigating within the same instance. Existing app-host suspend/sleep ownership
+stops active ticks; lifecycle events alone do not advance the local clock.
+Closing and reopening creates a new clock even when saved state is supplied.
+The renderer and cache consume this field, and raw milliseconds are excluded
+from the cache key so only source-frame changes repaint.
+
+Reduced motion freezes the source frame at zero, preserving the prior static
+pose. The active local clock continues, so switching reduced motion off resumes
+its current pose; this is an accessibility adaptation, not native pause timing.
+A regression verifies that changing global page time cannot alter Health's
+frame and that local time within one source frame reuses the paired LCDs.
+
+The repeated offline eight-view render sets local elapsed to 12,000 ms while
+setting global presentation time to 987,654 ms. Every upper/lower result is
+identical to the preceding fitted source render: 203 upper / 0 lower on entry.
+The runner/output are retained under `health-toploop-fit/verify-health-local-clock.mjs`
+and `health-toploop-fit/local-clock/` in the private artifact directory. This
+preserves the source-render improvement only; production/native timing remains
+unverified and the fitted origin cannot be treated as recovered launch phase.

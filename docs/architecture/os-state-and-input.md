@@ -182,3 +182,16 @@ Sound playback and HOME music are separate owners: `portfolio-music.ts` wraps on
 foreground audio element; HOME uses `audio.ts` with a synthesis worker/worklet.
 See [stock runtime](../stock-ui-runtime.md) and
 [live HOME audio](../native-menu-audio-integration.md) for exact lifecycle limits.
+
+
+### Health upper animation ownership
+
+Health's reducer owns `healthElapsedMs`, initialized at each app creation and
+advanced by active app ticks across its menu and article views. The existing
+host lifecycle pauses tick delivery during suspend/sleep; reopening starts a
+new clock. Presentation derives the source TopLoop frame from that local value
+and keys paired LCD publication by the frame, excluding raw elapsed milliseconds.
+Global page/presentation time cannot select Health's frame. Reduced motion uses
+source frame zero while local time continues. The currently fitted 18-frame
+origin is a source-render adaptation with no measured native launch interval;
+see the [Health phase evidence](../health-toploop-phase-fit-2026-09-26.md).

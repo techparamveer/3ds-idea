@@ -269,9 +269,10 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       // Native status clocks and animation poses key paired-screen publication.
       const zoneTime=view.appId==='nintendo-zone'?zoneClock(date,elapsedMs):null;
       const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60]:null;
-      // Host remainder time drives Notes but is not itself a paint identity.
+      // Local host time drives Notes/Health; only the selected pose keys paint.
       const data=view.data&&typeof view.data==='object'&&!Array.isArray(view.data)?view.data:{};
-      const notesView=view.appId==='game-notes'?{...view,data:Object.fromEntries(Object.entries(data).filter(([key])=>key!=='notesHostMs'))}:view;
+      const clockField=view.appId==='game-notes'?'notesHostMs':view.appId==='health-safety'?'healthElapsedMs':null;
+      const notesView=clockField?{...view,data:Object.fromEntries(Object.entries(data).filter(([key])=>key!==clockField))}:view;
       const introKey=notesIntro?.status==='posed'?[notesIntro.ticket,notesIntro.steps,notesIntro.scene9Draw,notesIntro.scene10Draw,notesIntro.titleUserVisible]:notesIntro?.status??null;
       const state=prepare(view,nextOwner,font);
       // Poses, not passes, key the eShop pair: settled passes do not repaint.
@@ -280,7 +281,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const soundClockKey=view.appId==='sound'&&(view.screen==='main'||view.screen==='guide')?[date.getHours(),date.getMinutes()]:null;
       const settingsPaintKey=view.appId==='system-settings'?[date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes()]:null;
       const eshopHudKey=eshop?eshopHudClock(date):null;
-      const healthPaintKey=view.appId==='health-safety'?healthTopLoopFrame(elapsedMs,reducedMotion):null;
+      const healthPaintKey=view.appId==='health-safety'?healthTopLoopFrame(typeof data.healthElapsedMs==='number'?data.healthElapsedMs:0,reducedMotion):null;
       const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;

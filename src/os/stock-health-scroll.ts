@@ -22,7 +22,8 @@ const f=Math.fround;
 /** 268111856 / 4481136: the LCD refresh the render loop waits on (0x110b40). */
 export const HEALTH_VBLANK_HZ=268111856/4481136;
 /** Source Bg_U_00_TopLoop has 720 frames. The 18-frame origin is a
- * capture-fitted adaptation: elapsed 12000ms samples source frame 15.
+ * capture-fitted adaptation: local elapsed 12000ms samples source frame 15.
+ * The capture has no measured entry interval; this is a source-render fit.
  * It does not establish native launch timing (see the Health TopLoop audit). */
 export function healthTopLoopFrame(elapsedMs:number,reducedMotion=false):number{
   if(reducedMotion)return 0;

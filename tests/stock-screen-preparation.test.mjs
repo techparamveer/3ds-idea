@@ -199,12 +199,13 @@ test('Camera mono photos use native contain with no upscaling; other media keeps
 
 test('Health source frame keys paired publication and reduced motion freezes it',async()=>{
  let reduced=false,draws=0;const f=paintFixture({reducedMotion:()=>reduced});
- const v=view('health-safety'),drawAt=ms=>f.screen.draw(f.top,f.bottom,v,'health:1',f.font,undefined,new Date(2026,8,25),ms);
+ const v={...view('health-safety'),data:{healthElapsedMs:0}},drawAt=(ms,globalMs=900000)=>{v.data.healthElapsedMs=ms;return f.screen.draw(f.top,f.bottom,v,'health:1',f.font,undefined,new Date(2026,8,25),globalMs);};
  try{
   globalThis.__nativeTestDraw=(t,b)=>{draws++;t.fillText('health upper');b.fillText('health lower');return true;};
   drawAt(0);await flush();calls[0].resolve(nativeAssets());await flush();
   drawAt(0);assert.equal(draws,1);
   drawAt(1);assert.equal(draws,1,'same source frame reuses complete pair');
+  drawAt(1,1900000);assert.equal(draws,1,'global page clock cannot change Health pose');
   drawAt(20);assert.equal(draws,2,'next source frame republishes both LCDs');
   assert.deepEqual(f.top.marks,[['text','health upper']]);assert.deepEqual(f.bottom.marks,[['text','health lower']]);
   reduced=true;drawAt(40);assert.equal(draws,3);

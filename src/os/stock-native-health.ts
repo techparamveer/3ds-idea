@@ -66,7 +66,7 @@ export function drawNativeHealthFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   const message=(label:string)=>nativeMessageOverride(renderer.packs['health-messages'],'safe_msbt_LZ',label,'');
   let okay=true;
   const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,opts)&&okay;};
-  draw(top,'health-bg','Bg_U_00',{bindings:[{name:'Bg_U_00_TopLoop',frame:healthTopLoopFrame(options.elapsedMs??0,options.reducedMotion)}],overrides:{TextBoxTitle_00:message('title')}});
+  draw(top,'health-bg','Bg_U_00',{bindings:[{name:'Bg_U_00_TopLoop',frame:healthTopLoopFrame(typeof view.data?.healthElapsedMs==='number'?view.data.healthElapsedMs:0,options.reducedMotion)}],overrides:{TextBoxTitle_00:message('title')}});
   draw(bottom,'health-bg','Bg_D_00');
   if(view.screen==='main'){
     const overrides:PaneOverrides={T_Home_00:message('base_1b_menu')};

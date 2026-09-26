@@ -139,16 +139,32 @@ export class NativeLayoutRenderer {
   const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase,direct,coverage]);
   const canvas=this.cached(key,()=>{
    const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
-   font.drawNative(ctx,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage);
-   const image=ctx.getImageData(0,0,rasterWidth,rasterHeight);
-   for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){
-    const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;
-    const primary=interpolateNativeQuad([...text.topColor,...text.topColor,...text.bottomColor,...text.bottomColor],.5,(y+.5-phase[1])/h,4).map(v=>v/255);primary[3]*=alpha;
-    const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
-    image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
+   // Each mask uses the complete message for measurement, centering and advances.
+   // Only ink is selected; spans never become independently positioned strings.
+   const runs:{start:number;end:number;color?:number[]}[]=[];let start=0;
+   for(const span of text.colorSpans??[]){
+    if(!Number.isInteger(span.start)||!Number.isInteger(span.end)||span.start<start||span.end<=span.start||span.end>text.value.length||span.color.length!==4||span.color.some(v=>!Number.isInteger(v)||v<0||v>255))throw new Error('Invalid native text color span');
+    if(span.start>start)runs.push({start,end:span.start});
+    runs.push(span);start=span.end;
    }
-   if(nativeDarkenBlend(material))for(let i=0;i<image.data.length;i+=4)image.data[i]=image.data[i+1]=image.data[i+2]=0;
-   ctx.putImageData(image,0,0);return canvas;
+   if(start<text.value.length||!runs.length)runs.push({start,end:text.value.length});
+   const mask=runs.length>1?surface(rasterWidth,rasterHeight):canvas,ink=mask.getContext('2d')!;
+   for(const run of runs){
+    if(mask!==canvas)ink.clearRect(0,0,rasterWidth,rasterHeight);
+    font.drawNative(ink,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined);
+    const image=ink.getImageData(0,0,rasterWidth,rasterHeight);
+    for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){
+     const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;
+     const top=run.color??text.topColor,bottom=run.color??text.bottomColor;
+     const primary=interpolateNativeQuad([...top,...top,...bottom,...bottom],.5,(y+.5-phase[1])/h,4).map(v=>v/255);primary[3]*=alpha;
+     const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
+     image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
+    }
+    if(nativeDarkenBlend(material))for(let i=0;i<image.data.length;i+=4)image.data[i]=image.data[i+1]=image.data[i+2]=0;
+    ink.putImageData(image,0,0);if(mask!==canvas)ctx.drawImage(mask,0,0);
+   }
+   if(mask!==canvas)mask.width=mask.height=0;
+   return canvas;
   });
   return {canvas,phase,extra};
  }

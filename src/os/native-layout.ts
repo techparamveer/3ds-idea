@@ -1,7 +1,8 @@
 /** Decoded NintendoWare CLYT/CLAN data. Format types contain no renderer state. */
 export type NativePicture={material:number;colors:number[][];uvSets:number[][]};
 export type NativeMessageStyle={fontScale:number[];lineSpacing:number;characterSpacing:number;unresolvedWords?:Record<string,number>};
-export type NativeText={callName?:string;font:number;material:number;value:string;size:number[];alignment:number;lineAlignment:number;characterSpacing:number;lineSpacing:number;topColor:number[];bottomColor:number[];messageStyle?:NativeMessageStyle};
+export type NativeTextColorSpan={start:number;end:number;color:number[]};
+export type NativeText={colorSpans?:NativeTextColorSpan[];callName?:string;font:number;material:number;value:string;size:number[];alignment:number;lineAlignment:number;characterSpacing:number;lineSpacing:number;topColor:number[];bottomColor:number[];messageStyle?:NativeMessageStyle};
 export type NativePane={unsupported?:unknown[];sourceFormat?:string;part?:NativePart;kind:string;name:string;flags:number;origin:number;alpha:number;translation:number[];rotation:number[];scale:number[];size:number[];children:NativePane[];picture?:NativePicture;text?:NativeText;window?:{content:NativePicture;frames:{material:number;flip:number}[];inflation?:number[];frameSize?:number[];flags:number}};
 export type NativeMaterial={capability?:string;sourceCombiners?:{color:number;alpha:number;reserved:number}[];sourceProjections?:{transform:number[];option:number;padding:string}[];sourceFormat?:string;name:string;bufferColor:number[];constantColors:number[][];textureOnly:boolean;textureMaps:{texture:number;wrapS:number;wrapT:number;minFilter:number;magFilter:number}[];textureMatrices:{translation:number[];rotation:number;scale:number[]}[];coordinateGenerators:{type:number;source:number;sourceExtra?:string}[];tevStages:{constantSelectors:number;color:NativeCombiner;alpha:NativeCombiner}[];alphaCompare?:{function:number;reference:number};colorBlend?:{operation:number;sourceFactor:number;destinationFactor:number};unsupported:unknown[]};
 export type NativePart={layout:string;magnify:number[];capability?:string;entries:{name:string;usageFlags:number;basicUsageFlags:number;materialUsageFlags:number;property?:NativePane;userDataBytes?:string;basicInfo?:{translation:number[];rotation:number[];scale:number[];size:number[];alpha:number;userData:string;padding:string}}[]};
@@ -12,7 +13,7 @@ export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:N
 export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
 export type NativeLayout={sourceFormat?:string;canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
 export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number;picaFormat?:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
-export type PaneOverrides=Record<string,{text?:string;lineSpacing?:number;vertexColors?:number[][];messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number;textureBindings?:Record<number,string>}>;
+export type PaneOverrides=Record<string,{colorSpans?:NativeTextColorSpan[];text?:string;lineSpacing?:number;vertexColors?:number[][];messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number;textureBindings?:Record<number,string>}>;
 export type AnimationBinding={name:string;frame:number;groups?:string[];childBinding?:boolean};
 /** HOME RI_mstl changes font metrics and spacing only; unresolved words stay uninterpreted. */
 export function nativeTextMetrics(text:NativeText,font:{width?:number;height:number}){
@@ -27,6 +28,24 @@ export function nativeMessageOverride(pack:NativePack,bank:string,label:string,f
  const style=data.styleTable?pack.styles?.[data.styleTable]?.styles[message.styleIndex]:undefined;
  if(!style)throw new Error(`Missing native message style ${bank}/${label}[${message.styleIndex}]`);
  return {text:message.text,messageStyle:style};
+}
+/** Explicit opt-in for MSBT group 0/type 3 RGBA switches. Offsets are UTF-16. */
+export function nativeMessageColorSpans(pack:NativePack,bank:string,label:string):NativeTextColorSpan[]{
+ const message=pack.messages[bank]?.messages[pack.messages[bank]?.labels[label]];
+ if(!message)return [];
+ const spans:NativeTextColorSpan[]=[];let offset=0,color:number[]|undefined;
+ for(const raw of message.tokens){
+  const token=raw as {text?:string;control?:number;group?:number;type?:number;arguments?:string};
+  if(typeof token.text==='string'){
+   if(color&&token.text.length)spans.push({start:offset,end:offset+token.text.length,color:[...color]});
+   offset+=token.text.length;
+  }else if(token.control===14&&token.group===0&&token.type===3){
+   if(!/^[0-9a-f]{8}$/i.test(token.arguments??''))throw new Error('Invalid native message RGBA token');
+   color=token.arguments!.match(/../g)!.map(byte=>parseInt(byte,16));
+  }
+ }
+ if(offset!==message.text.length)throw new Error('Native message token/text length mismatch');
+ return spans;
 }
 /** Native child layouts inherit the named parent's world transform and only
  * InfluenceAlpha panes contribute to the alpha passed to the child's root.
@@ -202,7 +221,8 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
  }
  for(const [name,value] of Object.entries(overrides)){
   const pane=panes.get(name);if(!pane)continue;
-  if(value.text!==undefined&&pane.text)pane.text.value=value.text;
+  if(value.text!==undefined&&pane.text){pane.text.value=value.text;delete pane.text.colorSpans;}
+  if(value.colorSpans&&pane.text)pane.text.colorSpans=structuredClone(value.colorSpans);
   if(value.lineSpacing!==undefined&&pane.text)pane.text.lineSpacing=value.lineSpacing;
   if(value.vertexColors){const picture=pane.picture??pane.window?.content;if(picture)picture.colors=value.vertexColors.map(color=>[...color]);}
   if(value.messageStyle&&pane.text)pane.text.messageStyle=structuredClone(value.messageStyle);

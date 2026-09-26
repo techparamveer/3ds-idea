@@ -279,3 +279,34 @@ test('opted-in fractional window pictures sample original texture once and honor
   renderer.dispose();
  }finally{globalThis.document=prior;}
 });
+
+test('MSBT RGBA switches become UTF-16 color spans on the delivered Camera guide messages',async()=>{
+ const {nativeMessageColorSpans}=await import(layoutUrl);
+ const pack=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/camera/contents/0000-0000001a/msg-EU_English.json',import.meta.url),'utf8'));
+ const text=label=>pack.messages.P_tips.messages[pack.messages.P_tips.labels[label]].text;
+ assert.deepEqual(nativeMessageColorSpans(pack,'P_tips','D_003_1'),[],'uncoloured pages keep the pane vertex colours');
+ const spans=nativeMessageColorSpans(pack,'P_tips','D_003_3');
+ assert.deepEqual(spans.map(s=>[s.start,s.end,s.color]),[[27,48,[255,50,0,255]],[48,65,[69,64,57,255]]]);
+ assert.equal(text('D_003_3').slice(spans[0].start,spans[0].end),'at least 30cm (12in)\n');
+ assert.deepEqual(nativeMessageColorSpans(pack,'P_tips','missing'),[]);
+});
+
+test('color spans draw every run against the complete message and reject invalid spans',()=>{
+ const previous=globalThis.document,ranges=[];
+ globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.clearRect=()=>{};ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
+ try{
+  const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+  const font={manifest,drawNative(_ctx,value,...args){ranges.push([value,args[10]]);}};
+  const text={value:'abcdef',font:0,material:0,size:[16,16],alignment:4,lineAlignment:0,lineSpacing:0,characterSpacing:0,topColor:[1,2,3,255],bottomColor:[1,2,3,255]};
+  const make=spans=>{const source={...layout,fonts:['shared'],roots:[{...pane,kind:'txt1',size:[40,20],picture:undefined,text:{...text,colorSpans:spans}}]};
+   return new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['shared',font]]));};
+  const ctx=canvas().getContext();ctx.drawImage=()=>{};
+  let renderer=make(undefined);assert.equal(renderer.draw(ctx,'test','test'),true);
+  assert.deepEqual(ranges,[['abcdef',undefined]],'uncoloured text keeps the single-pass path');renderer.dispose();
+  ranges.length=0;renderer=make([{start:2,end:4,color:[255,50,0,255]}]);assert.equal(renderer.draw(ctx,'test','test'),true);
+  assert.deepEqual(ranges,[['abcdef',[0,2]],['abcdef',[2,4]],['abcdef',[4,6]]],'each run measures the whole message');renderer.dispose();
+  for(const bad of [[{start:4,end:2,color:[0,0,0,255]}],[{start:0,end:9,color:[0,0,0,255]}],[{start:0,end:2,color:[0,0,256,255]}]]){
+   renderer=make(bad);assert.equal(renderer.draw(ctx,'test','test'),false);assert.match(renderer.diagnostics.at(-1),/Invalid native text color span/);renderer.dispose();
+  }
+ }finally{globalThis.document=previous;}
+});

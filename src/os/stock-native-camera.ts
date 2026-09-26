@@ -4,7 +4,7 @@ import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 import { cameraBrowseCellRect, cameraBrowsePane, stockScreenTargets } from './stock-screen-layout';
 import { cameraAnchorPosition, cameraMaxAnchor, cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
-import { nativeMessageOverride, type NativeLayout } from './native-layout';
+import { nativeMessageColorSpans, nativeMessageOverride, type NativeLayout } from './native-layout';
 
 export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
   url:'packs/camera/contents/0000-0000001a/lyt-P_Brws_D-arc-LZ.json',alias:'camera-gallery',
@@ -210,7 +210,7 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   const width=total.messageStyle?.unresolvedWords?.['0'];
   if(width!==48||current.messageStyle?.unresolvedWords?.['0']!==48)return false;
   // Shared RI.mstl counter width; 24px height follows the documented Sound guide adapter.
-  const common={TxtDlg:message(entry.label),TxtNumber0:{...total,text:total.text+'5',size:[width,24]},TxtNumber1:{...current,text:`${page+1}${current.text}`,size:[width,24]}};
+  const common={TxtDlg:{...message(entry.label),colorSpans:nativeMessageColorSpans(renderer.packs['camera-messages'],'P_tips',entry.label)},TxtNumber0:{...total,text:total.text+'5',size:[width,24]},TxtNumber1:{...current,text:`${page+1}${current.text}`,size:[width,24]}};
   const layout=first?'C_DlgGuid1BtnW':'C_DlgGuid2Btn';
   const overrides=first?{...common,Guid1TxtW:message('Guide_D_N_Btn0')}:{...common,Guid2TxtB:message('Guide_D_BN_Btn0'),Guid2TxtW:message(page===4?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')};
   const source=renderer.packs['camera-dialog']?.layouts?.[layout];

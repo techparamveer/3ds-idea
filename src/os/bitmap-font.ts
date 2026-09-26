@@ -172,15 +172,21 @@ export class BitmapFont {
 
   /** CLYT font size is a two-axis native cell size, not a CSS font size. */
   drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
-    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit') {
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number]) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
-    const lines=value.replace(/\r\n?/g,'\n').split('\n').map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
+    let sourceOffset=0;
+    const selected:boolean[][]=[];
+    const lines=value.split(/(\r\n|\r|\n)/).filter((line,i)=>{if(i%2){sourceOffset+=line.length;return false;}
+      const row:boolean[]=[];for(const char of line){row.push(!inkRange||sourceOffset>=inkRange[0]&&sourceOffset<inkRange[1]);sourceOffset+=char.length;}selected.push(row);return true;
+    }).map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
     if(lines.length===1&&(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0&&spacing===0){
       // NW writer flags 0x100/0x111: only the centered axis subtracts ceil
       // half the measured rectangle before FINF ascent and TGLP baseline
       // (0x2ffc90/0x300340). Keep fractional advances. Line
       // spacing cannot change a single line, even when an MSBT style sets it.
-      const quads=alignment===3?nativeLeftGlyphQuads(this.manifest,value,width,height,size):nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
+      const allQuads=alignment===3?nativeLeftGlyphQuads(this.manifest,value,width,height,size):nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
+      const ink=selected[0].filter((_keep,i)=>lines[0][i]?.width);
+      const quads=allQuads.filter((_quad,i)=>ink[i]);
       if(this.manifest.colorMode==='luminance-alpha'){
         for(const q of sourceSheetBatches(quads)){const g=q.glyph;c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,q.x,q.y,q.width,q.height);}
       }else{
@@ -206,8 +212,8 @@ export class BitmapFont {
       const runWidth=widths[row],horizontal=lineAlignment===0?alignment%3:lineAlignment-1;
       let x=horizontal===1&&alignment%3===1?width/2-Math.ceil(runWidth/2)
         :(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
-      for(const g of glyphs){if(!g)continue;
-        if(g.width)draws.push({glyph:g,x:x+g.left*sx,y:y0+row*lineHeight});
+      for(const [column,g] of glyphs.entries()){if(!g)continue;
+        if(g.width&&selected[row][column])draws.push({glyph:g,x:x+g.left*sx,y:y0+row*lineHeight});
         x+=g.advance*sx+spacing;
       }
     });

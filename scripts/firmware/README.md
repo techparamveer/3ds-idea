@@ -110,6 +110,11 @@ Animation tracks retain target/binding/tag/index/component/property, step or Her
 
 These are resource conversions, not proof that the website reproduces firmware appearance or behaviour. In particular, material extensions, shader equivalence, text alignment, animation binding and audio/model conversion require runtime verification against Azahar. Package binaries are not executed by this pipeline.
 
+The Settings electronic manual (content 1, nested LZ10 DARCs in
+`Manual.bcma`) is published separately by the opt-in
+`manual_bcma.py`. It publishes only the English index and page 0. See
+[multi-content validation](../../docs/firmware-multicontent-validation.md#settings-manual-english-index-and-page-0).
+
 Run an integrity and provenance audit (reports must be outside the checkout):
 
 ```sh

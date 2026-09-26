@@ -15,6 +15,7 @@ from firmware.build import FIRMWARE, HOME, SHARED, TITLES, SCRIPTS, digest, enco
 from firmware.build import SETTINGS, SYSTEM_UPDATER, SETTINGS_MESSAGE_ARCHIVE, SETTINGS_STYLE_PAIRS, MESSAGE_LOCALE, message_locale
 from firmware.build import unpack_archive, unpack_stock_table, STOCK_TABLE_TITLES, STOCK_TABLE_PATHS
 from firmware.cia import content_record, content_directory
+from firmware.manual_bcma import nested_members
 from unpack_home_resources import unpack_darc
 
 
@@ -83,6 +84,9 @@ def audit(root, artifacts=None, repository=None):
                     if archive_key not in cache:
                         packed = path.read_bytes(); decoded = decode_layers(packed)
                         members = unpack_archive(decoded) if decoded[:4] in (b'darc', b'SARC') else {}
+                        if PurePosixPath(relative).suffix == '.bcma':
+                            # Manual members are LZ10 inner DARCs; resolve outer/inner paths.
+                            members = {**members, **nested_members(members)}
                         if title in STOCK_TABLE_TITLES and relative in STOCK_TABLE_PATHS:
                             members = unpack_stock_table(decoded)
                             for member, data in list(members.items()):

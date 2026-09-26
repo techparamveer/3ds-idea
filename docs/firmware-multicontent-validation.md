@@ -117,6 +117,8 @@ Other gaps stay visible in the conversion/audit reports:
   current outer-path locale filter is insufficient for this archive.
 - The separate Settings manual pack identifies 38 nested compressed `.arc`
   members without decoding them. Its original `Manual.bcma` remains private.
+  The opt-in `scripts/firmware/manual_bcma.py` (26 September 2026) now converts
+  only the English index and page 0; see [the manual section](#settings-manual-english-index-and-page-0).
 - The existing HOME unsupported tables/containers remain unchanged. Settings'
   broken-icon container is also unresolved.
 
@@ -125,3 +127,44 @@ any strict 1:1 title acceptance. System Transfer/Update now have allowlist entri
 their packages have not been converted here. Download Play, Activity Log, Mii
 Maker, StreetPass Mii Plaza, Face Raiders and AR Games remain excluded, while
 Mii Selector remains included.
+
+## Settings manual: English index and page 0
+
+`scripts/firmware/manual_bcma.py` is a separate, opt-in publisher; `build.py`
+still reports the nested members as unconverted. It pins content 1 /
+`00000038`, `Manual.bcma` SHA-256
+`6241c1965c63034e181674699832ee271fd7526b9dac57071aaa8d70b5c8ba9e`, and requires
+a flat outer DARC of `*.arc` members, each LZ10 → inner DARC with only
+`blyt/*.bclyt` or `timg/*.bclim` leaves and no further nesting. Unsafe names,
+other compression, missing selected layouts and missing or ambiguous
+(`EUR_en_texture.arc` and `Common_texture.arc` both holding one) textures fail
+before delivery. Existing public bytes or records that differ are refused;
+reruns are byte-identical.
+
+Delivered pack `packs/settings/contents/0001-00000038/manual-EUR_en.json`
+(listed in `titles[0004001000022000].packs`) holds eight CLYT layouts:
+`BcmaInfo`, `Index` (32 `PageTitle_*` and 7 `Category_*` text panes) and page 0
+in both `large` and `small` variants (`_0`, `_bg`, `_info`). The only referenced
+texture is `Common_texture.arc/timg/exclamation.bclim` (14×20 RGBA4). Text binds
+to `cbf_std.bcfnt`, the delivered shared font. Every layout/texture source path
+has the form `Manual.bcma/<archive>.arc/<inner path>`, with the decoded member hash
+and content identity. `nesting` records each opened archive's compressed and
+decoded SHA-256. `manualSelection` names the 32 omitted archives, including all
+non-English languages, and the converter script hashes. `audit.py` resolves
+these nested paths against private extraction.
+
+Run it, then audit:
+
+```sh
+python3 -B scripts/firmware/manual_bcma.py \
+  --source /Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/assets/multicontent/verified/extracted/settings/contents/0001-00000038/romfs/Manual.bcma \
+  --output public/os/firmware/10.7.0-32E
+python3 -B -m unittest discover -s tests -p test_firmware_manual.py
+```
+
+Remaining gaps: no runtime view, routing or HOME `LncBtmBtn_02` footer
+connection exists. The native choice between the large and small variants,
+index-to-page scrolling, the manual applet chrome composition
+(`0004003000009b02` packs) and pages 1–31 are unconverted or unverified. No
+native/browser comparison has been made. This is conversion evidence, not
+fidelity evidence.

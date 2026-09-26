@@ -103,3 +103,37 @@ capture-fitted 95-pixel translation do not establish native projection or PICA
 interpolation. This audit supplies no source-supported fractional adjustment,
 font replacement or asset change. All scenario acceptance tiers remain as in
 v32; tests or these source arithmetic checks do not make either pair pass.
+
+## Consecutive isolated native HUD samples
+
+The coordinator captured three consecutive raw **400×480** Azahar PNGs in
+`/Users/paramveer/.codex/3ds-artifact-overflow/reference/screenshots/`.
+This follow-up verifies the files and full-frame RGB pixels offline; it did not
+operate Azahar or the browser.
+
+| Native screenshot filename | SHA-256 |
+| --- | --- |
+| `_26.09.26_03.32.25.868.png` | `24e44eace3146ea69d484beff60a4d96870f4e731fe563543e3a8b3f32017884` |
+| `_26.09.26_03.32.26.856.png` | `221ae579cfb1f69fc948b3053e5baf8cf3a70d12b4bdee8c59dfca40013f6111` |
+| `_26.09.26_03.32.27.825.png` | `24e44eace3146ea69d484beff60a4d96870f4e731fe563543e3a8b3f32017884` |
+
+Each adjacent transition (25→26 and 26→27) changes exactly **169 pixels**,
+all above the 2/255 threshold: **32 colon pixels** inside x339–342/y5–14 and
+**137 battery pixels** inside x377–394/y6–13. Every other pixel of both LCDs
+is identical. The 25 and 27 images are byte-identical PNGs and have zero
+full-frame RGB differences.
+
+The odd-sample colon and battery rectangles match the earlier native
+`settings-main-battery04-browser-20260926/native/combined.png` exactly. The
+even-sample rectangles match the earlier native
+`settings-other-1-text-raster-browser-20260926/native/combined.png` exactly.
+Those old comparators remain under the DeveloperStorage private
+`reference/scenario-matrix/v1/captures/` root.
+
+This is **native-only timed evidence** of an alternating HUD state across
+these consecutive samples. Screenshot names record host capture times; they
+are not a dump of the emulated RTC or native HUD counter. The samples constrain
+the visible odd/even alternation and explain the old captures' different HUD
+poses, but do not establish browser timing, transition-frame alignment, audio,
+or full input parity. No browser comparison or matrix pass follows from this
+note. Firmware-derived HUD assets and runtime code are unchanged.

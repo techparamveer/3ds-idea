@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createPortfolioState } from '../src/os/system.ts';
+import { createPortfolioState, homeSlotAppId } from '../src/os/system.ts';
 import { selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
-import { createHomeBalloonPresentation, advanceHomeBalloonPresentation, selectHomeSettingsBalloonText } from '../src/os/home-balloon-presentation.ts';
+import { createHomeBalloonPresentation, advanceHomeBalloonPresentation, selectHomeSettingsBalloonText, selectHomeHealthBalloonText } from '../src/os/home-balloon-presentation.ts';
 import { poseNativeLayout } from '../src/os/native-layout.ts';
 import { getNativeSettingsTitleBalloon, getHomePresentation } from '../src/os/home-presentation.ts';
 import { getTitle } from '../src/os/app-registry.ts';
@@ -120,4 +120,35 @@ test('retained frames bind the delivered native opacity clips', () => {
     });
     assert.deepEqual(alphas, [first, last]);
   }
+});
+
+
+test('Health one-row balloon uses verified SMDH text and disappears on retarget', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/manifest.json', import.meta.url)));
+  const text = selectHomeHealthBalloonText(manifest);
+  assert.equal(text, 'Health and Safety Information\nNintendo');
+  const title = manifest.titles['0004001000022300'];
+  assert.equal(title.publisherSource.sha256, 'ab6cfc9da9089bb7209bee980ff79b365638e84eacb663e1a792fed58e7a9055');
+  const corrupt = structuredClone(manifest);
+  corrupt.titles['0004001000022300'].publisherSource.titleId = '0004001000022000';
+  assert.equal(selectHomeHealthBalloonText(corrupt), null);
+  const base = createPortfolioState();
+  const slot = Array.from({ length: 60 }, (_, i) => i).find(i => homeSlotAppId(base, i) === 'health-safety');
+  const initial = { ...base, system: { ...base.system, phase: 'home' } };
+  const selected = settleHomeNavigation(selectHomeSlot(settleHomeNavigation(setHomeDensity(initial, 0)), slot));
+  const balloon = createHomeBalloonPresentation(selected);
+  assert.equal(balloon.titleId, '0004001000022300');
+  assert.equal(balloon.visible, true);
+  const calls = [];
+  const renderer = { packs: { launcher: JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url))) }, draw(...args) { calls.push(args); return true; } };
+  const painter = createFirmwareHome({ renderer, healthBalloonText: text });
+  const live = { ...selected, system: { ...selected.system, homeControls: { balloon } } };
+  assert.equal(painter.folderBalloon({}, live, getHomePresentation(live)), true);
+  assert.equal(calls[0][2], 'LncBlln_00');
+  assert.equal(calls[0][3].overrides.T_Blln_00.text, text);
+  assert.equal(createFirmwareHome({ renderer, healthBalloonText: null }).folderBalloon({}, live, getHomePresentation(live)), false);
+  const departing = advanceHomeBalloonPresentation(balloon, selectHomeSlot(selected, 0));
+  assert.equal(departing.clip, 'DisAppear');
+  assert.equal(departing.titleId, '0004001000022300');
+  assert.equal(createHomeBalloonPresentation(settleHomeNavigation(setHomeDensity(selected, 1))).visible, false);
 });

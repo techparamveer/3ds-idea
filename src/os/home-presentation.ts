@@ -90,6 +90,15 @@ export function getNativeSettingsTitleBalloon(state:MenuState,view:HomePresentat
  return {label:title.title,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
 }
 
+/** Health's captured native selection uses the one-row HOME balloon. */
+export function getNativeHealthTitleBalloon(state:MenuState,view:HomePresentation){
+ if(state.opened||state.panel||view.gesture||view.currentDensity!==0||view.targetDensity!==0||view.mode===2
+   ||state.system?.phase!=='home'||state.system.homeNavigation.focus.toolbarActive)return null;
+ const tile=view.tiles.find(tile=>tile.index===state.selected);
+ if(!tile||tile.appId!=='health-safety')return null;
+ return {label:getTitle(tile.appId)!.title,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
+}
+
 /** Footer actions follow the runtime's currently selected container. */
 export function getHomeFooter(state:MenuState){
  const appId=homeSlotAppId(state,state.opened?state.folderSelected:state.selected);

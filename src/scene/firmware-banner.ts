@@ -103,7 +103,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     if(disposed)return;
     const common=asset.data.models.find(value=>value.name==='COMMON');
     const clip=asset.data.skeletalAnimations.find(value=>value.Name==='COMMON');
-    if(asset.data.models.length!==1||!common||common.meshes.length!==12||common.meshes.some((mesh,index)=>mesh.submeshes.length!==1||mesh.submeshes[0].bones.length!==1||mesh.submeshes[0].bones[0]!==[0,0,2,2,3,3,4,5,5,6,6,7][index])||!clip||clip.FramesCount!==600||!clip.AnimationFlags.includes('IsLooping')||asset.data.materialAnimations.length)throw new Error('Incomplete native Settings COMMON banner');
+    if(asset.data.models.length!==1||!common||common.meshes.length!==12||!clip||clip.FramesCount!==600||!clip.AnimationFlags.includes('IsLooping')||asset.data.materialAnimations.length)throw new Error('Incomplete native Settings COMMON banner');
     for(const material of common.materials)for(const name of [material.Texture0Name,material.Texture1Name,material.Texture2Name]){
       if(name&&!asset.images.has(name))throw new Error(`Missing native Settings texture ${name}`);
     }
@@ -198,20 +198,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       settingsModel.group.position.set(frame.offsetX,frame.nativeDisplacementY+frame.offsetY,0);
       mask.group.position.set(0,frame.nativeDisplacementY,0);
       settingsModel.setPlayback({skeletal:[{name:'COMMON',frame:frame.skeletalFrame}]});
-      settingsModel.update(0,camera);
-      // Capture-fitted scene adaptation, NOT a recovered firmware transform.
-      // Azahar _26.09.26_03.57.26.519.png: the native row spans ~150–310px;
-      // the unadapted synthetic COMMON frame 136 spans ~63–337px. Its source
-      // l_btn rotation nearly cancels outer yaw. Tilt only that row, preserving
-      // the independent wrench pose, source clip clock, textures and camera.
-      // The title is ~11px low in that pair. Other phases remain unaccepted.
-      const meshes=settingsModel.group.children[0].children;
-      for(let index=0;index<meshes.length;index++){
-        const mesh=meshes[index];
-        mesh.position.y=index<2?1.1:index<11?1.15:0;
-        mesh.rotation.y=index>=2&&index<11?-1.03:0;
-      }
-      mask.update(0,camera);selectPrimary(settingsModel);
+      settingsModel.update(0,camera);mask.update(0,camera);selectPrimary(settingsModel);
       return render(ctx,scene,true);
     }catch(error){settingsFailure=String(error);return false;}
   }

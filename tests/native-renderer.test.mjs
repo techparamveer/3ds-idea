@@ -240,7 +240,7 @@ for(const alignment of [3,4])test(`LCD text phase for alignment ${alignment} par
  globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
  try{
   const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
-  const font={manifest,drawNative(...args){calls.push(args.at(-1));}};
+  const font={manifest,drawNative(...args){calls.push(args[9]);}};
   const text={value:'Other Settings',font:0,material:0,size:[21.25,25.5],alignment,lineAlignment:0,lineSpacing:0,characterSpacing:0,topColor:[255,255,255,255],bottomColor:[255,255,255,255]};
   const source={...layout,fonts:['shared'],roots:[{...pane,kind:'txt1',size:[340,26],picture:undefined,text}]};
   const pack={schema:1,layouts:{test:source},animations:{},textures:{},messages:{}};

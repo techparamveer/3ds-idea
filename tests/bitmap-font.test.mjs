@@ -221,3 +221,17 @@ for(const alignment of [3,4])test(`fractional LCD phase samples original glyph c
  assert.equal(alpha(1,1),191);assert.equal(alpha(1,2),255);
  assert.equal(alpha(2,2),0,'right quad coverage remains exclusive of centers beyond its endpoint');
 });
+
+test('direct upright LCD glyphs own exact bottom vertical ties once',()=>{
+ const surface=(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});
+ const glyph={width:1,height:1},source=surface(3,3);source.data.fill(255);
+ const alpha=t=>Array.from({length:t.height},(_,y)=>t.data[y*4+3]);
+ const tied=surface(1,4),neighbor=surface(1,4);
+ rasterNativeAlphaGlyph(tied,source,{glyph,x:0,y:.5,width:1,height:2},'bottom');
+ rasterNativeAlphaGlyph(neighbor,source,{glyph,x:0,y:-1.5,width:1,height:2},'bottom');
+ assert.deepEqual(alpha(tied),[0,255,255,0]);assert.deepEqual(alpha(neighbor),[255,0,0,0]);
+ for(const delta of [-1e-6,1e-6]){
+  const old=surface(1,4),lcd=surface(1,4),q={glyph,x:0,y:.5+delta,width:1,height:2};
+  rasterNativeAlphaGlyph(old,source,q);rasterNativeAlphaGlyph(lcd,source,q,'bottom');assert.deepEqual(alpha(lcd),alpha(old),'non-ties retain the existing coverage');
+ }
+});

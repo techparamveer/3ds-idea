@@ -49,13 +49,14 @@ export type AlphaSurface={width:number;height:number;data:Uint8ClampedArray};
  * antialiased. In upright LCD coordinates horizontal ties belong to the
  * right edge, not the left (see settings-footer-glyph-edge-2026-09-26.md).
  * Source includes one unscaled atlas texel around every edge. */
-export function rasterNativeAlphaGlyph(target:AlphaSurface,source:AlphaSurface,quad:NativeGlyphQuad){
+export function rasterNativeAlphaGlyph(target:AlphaSurface,source:AlphaSurface,quad:NativeGlyphQuad,verticalEdges:'top'|'bottom'='top'){
   const {x,y,width,height,glyph}=quad;
   if(width<=0||height<=0||source.width!==glyph.width+2||source.height!==glyph.height+2)throw new Error('Invalid native glyph raster bounds');
   // Only the native writer supplies rounded local endpoints. Other callers
   // retain their own coordinate arithmetic, including transformed Health text.
   const right=quad.right??x+width,bottom=quad.bottom??y+height;
-  for(let py=Math.max(0,Math.ceil(y-.5));py<Math.min(target.height,Math.ceil(bottom-.5));py++)for(let px=Math.max(0,Math.floor(x-.5)+1);px<Math.min(target.width,Math.floor(right-.5)+1);px++){
+  const firstY=verticalEdges==='bottom'?Math.floor(y-.5)+1:Math.ceil(y-.5),lastY=verticalEdges==='bottom'?Math.floor(bottom-.5)+1:Math.ceil(bottom-.5);
+  for(let py=Math.max(0,firstY);py<Math.min(target.height,lastY);py++)for(let px=Math.max(0,Math.floor(x-.5)+1);px<Math.min(target.width,Math.floor(right-.5)+1);px++){
     const u=(px+.5-x)/width*glyph.width+.5,v=(py+.5-y)/height*glyph.height+.5,ix=Math.floor(u),iy=Math.floor(v),fx=u-ix,fy=v-iy;
     let alpha=0;
     for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++)alpha+=source.data[((iy+dy)*source.width+ix+dx)*4+3]*(dx?fx:1-fx)*(dy?fy:1-fy);
@@ -162,7 +163,7 @@ export class BitmapFont {
 
   /** CLYT font size is a two-axis native cell size, not a CSS font size. */
   drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
-    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0]) {
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     const lines=value.replace(/\r\n?/g,'\n').split('\n').map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
     if(lines.length===1&&(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0&&spacing===0){
@@ -178,7 +179,7 @@ export class BitmapFont {
         const image=c.createImageData(Math.ceil(width)+Math.ceil(dx),Math.ceil(height)+Math.ceil(dy));
         // Sample original atlas coverage at final LCD centers. Moving an
         // already sampled pane image would perform a second linear filter.
-        for(const q of quads)rasterNativeAlphaGlyph(image,this.glyphMask(q.glyph),{...q,x:q.x+dx,y:q.y+dy,right:q.right===undefined?undefined:q.right+dx,bottom:q.bottom===undefined?undefined:q.bottom+dy});
+        for(const q of quads)rasterNativeAlphaGlyph(image,this.glyphMask(q.glyph),{...q,x:q.x+dx,y:q.y+dy,right:q.right===undefined?undefined:q.right+dx,bottom:q.bottom===undefined?undefined:q.bottom+dy},lcdBottomEdge?'bottom':'top');
         c.putImageData(image,0,0);
       }
       return;

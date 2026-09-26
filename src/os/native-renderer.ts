@@ -131,10 +131,10 @@ export class NativeLayoutRenderer {
   const direct=font.manifest.colorMode==='alpha'&&!/[\r\n]/.test(text.value)&&(text.alignment===3||text.alignment===4)&&text.lineAlignment===0&&metrics.characterSpacing===0&&pane.size[0]===w&&pane.size[1]===h&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
   const phase:readonly [number,number]=direct?[transform.e-Math.floor(transform.e),transform.f-Math.floor(transform.f)]:[0,0];
   const extra=nativeTextRightOverhang(font.manifest,text.value,metrics.size,text.alignment,text.lineAlignment,metrics.characterSpacing),rasterWidth=w+extra+Math.ceil(phase[0]),rasterHeight=h+Math.ceil(phase[1]);
-  const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase]);
+  const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase,direct]);
   const canvas=this.cached(key,()=>{
    const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
-   font.drawNative(ctx,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase);
+   font.drawNative(ctx,text.value,w,h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct);
    const image=ctx.getImageData(0,0,rasterWidth,rasterHeight);
    for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){
     const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;

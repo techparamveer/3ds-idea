@@ -133,3 +133,49 @@ selection has been proven, so no runtime change is promoted in this follow-up.
 Only the bounded source-audit script and documentation changed. Its replay and
 `git diff --check` pass. No browser, emulator, shared server, integration tree,
 application build or public asset was changed.
+
+## Post-modal follow-up: exclude the Finder controller (`0d7bfea`)
+
+The production `camera-guide-page1-modal-0d7bfea` report has 1,401 lower
+pixels over 2/255; 588 of them belong to the two top-control regions at
+Y0–5. The source clear/modal correction does not establish the button pose.
+This bounded source pass rules out a misleading controller candidate from the
+preceding audit, but does not justify changing Default/Disable at runtime.
+
+The original executable hash is unchanged. Fresh instruction and literal reads
+establish the identity of Camera owner `+0x418`:
+
+1. `0x2a7358–0x2a7368` constructs the embedded object at owner `+0x50` with
+   `0x2ff050`, then stores its address at owner `+0x418`.
+2. `0x2ff060–0x2ff06c` installs vtable **`0x420e1c`**. Its `+8` entry is
+   **`0x2fd588`**; its indexed `+0x28` accessor is **`0x2fd864`**.
+3. The generic initializer `0x215494` calls virtual `+8` at `0x21553c`.
+   `0x2fd588` reads the resource name through **`0x4404cc`**, whose pointer
+   is **`0x4236cf` → `P_Finder_U`**. The explicit member string at
+   `0x2fd6c0` is also `P_Finder_U`. It creates that layout at `0x2fd5e8`.
+4. `0x2fd864` indexes 28-byte entries at controller `+0x2c`; the initializer
+   obtains 13 named panes at `0x2fd640–0x2fd68c`. Therefore the entry changes
+   at `0x2a5d70–0x2a5e10` target this **upper Finder controller**, not the
+   lower `P_Shoot_D` / nested `P_CamBtn` clip selection.
+
+The lower layout has a distinct path. `0x2a6090–0x2a60d4` allocates a generic
+0xa8-byte layout and calls `0x220af8` with the two `P_Shoot_D` strings at
+`0x34c939` and `0x34c92f`; it assigns pass8 and joins the lower parent at
+`0x2a5ef8–0x2a5f10`, retaining the layout at Camera owner **`+0x48`**.
+This is a fallback: `0x2a5eac–0x2a5ef4` first takes an existing object through
+`0x20efe8`, type-checks it and calls `0x20ee50` on its `+0x88` subobject.
+The existing-object branch can carry prior state, so the generic constructor
+alone cannot prove the settled Welcome pose.
+
+The next concrete trace is the producer of that adopted object (the global
+owner's `+0x314` holder, selected at `0x2a5a9c–0x2a5aa4`), followed by the
+layout owner `+0x48` and its nested instance animation updates. This must
+establish the effective PhoBase/MovBase transforms and CamBase alpha after
+Welcome entry. The upper Finder controller's entry states and zero reset
+arguments must not be used as evidence for those lower clips.
+
+No runtime fix is promoted: selecting Default because it reduces the capture
+residual remains a fit. This pass used read-only binary inspection and existing
+capture reports, with no shared browser, emulator or server access.
+`git diff --check` passes; application tests/build were not rerun for this
+additional documentation-only change.

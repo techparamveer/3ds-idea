@@ -18,7 +18,7 @@ link/diff checks.
 The [implementation process](architecture/implementation-process.md) defines
 worktree handoff and source-to-visible HOME banner gates.
 
-The gated local raw-LCD route and [matrix v16](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v16/matrix.json)
+The gated local raw-LCD route and [matrix v17](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v17/matrix.json)
 record 26 diagnostic entries. **All fail overall.** Settings main with matched A
 input has 192 upper / 37 lower pixels over 2; Other Settings page 1 after the
 one-pixel title shift has 1,394 / 1,682; HOME with Settings selected after the
@@ -68,7 +68,7 @@ the matrix's embedded counts for some older entries await refresh.
 | Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors) | Per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
 | Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power and foreground applet announcements corrected (`b1fedf5`), including live Notes over suspended Work | Other screen-specific announcements and full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
 | Asset conversion, provenance | Implemented. The current public-only audit passes 1,707 resources, 601 layouts and 1,871 animations with zero integrity errors. The [visible asset audit](firmware-visible-asset-audit-2026-09-25.md) maps in-scope screen packs and banner keys to dump titles and records non-native fallback risks. It publishes no new resource. The converted Settings model and five textures match manifest hashes and CBMD source identity. | At every handoff map each visible/audible native element → manifest key → decrypted dump source and list non-native elements with reasons. Keep portfolio substitutions and scoped read-only/inert adaptations distinct from native pixel defects. Keep unsupported fields explicit, remove or prove inactive community/CSS/generic fallback paths, and rerun private-source audit when storage access recovers. Local LFS model hydration enabled build only; it is not a delivery change or visual check | Assets | [Asset audit](firmware-visible-asset-audit-2026-09-25.md), [asset architecture](architecture/assets-and-materials.md), [stock banner source](stock-home-banner-source.md) |
-| Final acceptance | **Open.** Matrix v16 has 26 entries, all `fail`; no passing raw native/browser LCD diff. Motion/audio remain open; Settings main and one Sound page-1 pair have matched entry input | Correct the measured Settings and HOME banner residuals, then recapture with matched inputs; HOME idle itself still needs a matched selected title | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
+| Final acceptance | **Open.** Matrix v17 has 26 entries, all `fail`; no passing raw native/browser LCD diff. Motion/audio remain open; Settings main and one Sound page-1 pair have matched entry input | Correct the measured Settings and HOME banner residuals, then recapture with matched inputs; HOME idle itself still needs a matched selected title | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
 
 ## Five long-lived lanes — 25 September 2026
 
@@ -97,7 +97,7 @@ on `codex/health-ui-scratch` at `b196bc7` for this documentation pass. Run
 `git worktree list` for current inventory; the former 24 September worker-head
 table was stale and has been removed. Only the coordinator drives Azahar and
 the production browser. The private `reference/scenario-matrix/v1/captures/` directory now holds
-26 failing diagnostic entries in matrix v16, including Camera populated browse
+26 failing diagnostic entries in matrix v17, including Camera populated browse
 and Sound first-run/entry pairs; HOME idle remains unmatched.
 Every row above remains below full native acceptance until the
 [scenario loop](architecture/verification.md) closes its pixels, motion,

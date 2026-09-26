@@ -115,7 +115,7 @@ and diff regions, then hand off for integration and recapture.
 
 The first required pairs are HOME idle and Settings → Other Settings page 1,
 under `reference/scenario-matrix/v1/captures/` in the private artifact root.
-Matrix v16 has 26 failing diagnostic entries, including Camera populated browse
+Matrix v17 has 26 failing diagnostic entries, including Camera populated browse
 and Sound first-run/settled entry. The browser now renders Camera's six-cell
 browse and Sound's three-page first-run guide from delivered source resources;
 the latest diagnostic pairs still differ by 95,350 upper / 26,496 lower and

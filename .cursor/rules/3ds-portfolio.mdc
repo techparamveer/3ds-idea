@@ -25,7 +25,7 @@ isolated Azahar and integrated production browser, captures native 400×480 PNG
 and raw browser 400×240/320×240 LCD targets, diffs the pair, opens the contact
 sheet, and repeats after fixes. First target HOME idle and Settings → Other
 Settings page 1 in the private `reference/scenario-matrix/v1/captures/` path;
-matrix v16 has 26 failing diagnostic entries. Camera's six-cell browse and Sound's
+matrix v17 has 26 failing diagnostic entries. Camera's six-cell browse and Sound's
 three-page guide now render from delivered source resources, but their latest
 native/browser pairs still fail at 95,350/26,496 and 15,583/6,267 upper/lower
 pixels over 2/255. Camera source browse and zoom chrome are visible;

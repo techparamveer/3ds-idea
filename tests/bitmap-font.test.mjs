@@ -155,3 +155,20 @@ test('native alpha glyph horizontal boundary ties belong to the right-hand edge'
  assert.deepEqual(alpha(before),[255,255,0,0]);
  assert.deepEqual(alpha(after),[0,255,255,0]);
 });
+
+test('source Touch Screen glyph retains its float32 right endpoint at the pixel centre',()=>{
+ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+ const manifest=JSON.parse(fs.readFileSync(new URL('fonts/shared/font.json',root),'utf8'));
+ const pack=JSON.parse(fs.readFileSync(new URL('packs/settings/contents/0000-0000003d/message_EU.json',root),'utf8'));
+ const bank=pack.messages.mset,message=bank.messages[bank.labels.touch],style=pack.styles[bank.styleTable].styles[message.styleIndex];
+ const size=[manifest.width*style.fontScale[0],manifest.height*style.fontScale[1]];
+ const quad=nativeCenteredGlyphQuads(manifest,message.text,200,38,size)[1];
+ assert.equal(quad.glyph,manifest.glyphs['111']); // original 'o'
+ assert.equal(quad.x+quad.width,53.499999046325684);
+ assert.equal(Math.fround(quad.x+quad.width),53.5);
+ const mask={width:quad.glyph.width+2,height:quad.glyph.height+2,data:new Uint8ClampedArray((quad.glyph.width+2)*(quad.glyph.height+2)*4).fill(255)};
+ const target={width:200,height:38,data:new Uint8ClampedArray(200*38*4)};
+ rasterNativeAlphaGlyph(target,mask,quad);
+ assert.equal(target.data[(19*200+53)*4+3],255,'the emitted right vertex owns this pixel centre');
+ assert.equal(target.data[(19*200+54)*4+3],0,'the following pixel remains outside');
+});

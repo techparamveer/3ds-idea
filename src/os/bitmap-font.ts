@@ -45,7 +45,10 @@ export type AlphaSurface={width:number;height:number;data:Uint8ClampedArray};
 export function rasterNativeAlphaGlyph(target:AlphaSurface,source:AlphaSurface,quad:NativeGlyphQuad){
   const {x,y,width,height,glyph}=quad;
   if(width<=0||height<=0||source.width!==glyph.width+2||source.height!==glyph.height+2)throw new Error('Invalid native glyph raster bounds');
-  for(let py=Math.max(0,Math.ceil(y-.5));py<Math.min(target.height,Math.ceil(y+height-.5));py++)for(let px=Math.max(0,Math.floor(x-.5)+1);px<Math.min(target.width,Math.floor(x+width-.5)+1);px++){
+  // Native quad endpoints are emitted as float32 (0x1ac050/0x1ac058).
+  // A double sum can incorrectly exclude a right edge just below a pixel centre.
+  const right=Math.fround(x+width),bottom=Math.fround(y+height);
+  for(let py=Math.max(0,Math.ceil(y-.5));py<Math.min(target.height,Math.ceil(bottom-.5));py++)for(let px=Math.max(0,Math.floor(x-.5)+1);px<Math.min(target.width,Math.floor(right-.5)+1);px++){
     const u=(px+.5-x)/width*glyph.width+.5,v=(py+.5-y)/height*glyph.height+.5,ix=Math.floor(u),iy=Math.floor(v),fx=u-ix,fy=v-iy;
     let alpha=0;
     for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++)alpha+=source.data[((iy+dy)*source.width+ix+dx)*4+3]*(dx?fx:1-fx)*(dy?fy:1-fy);

@@ -3,7 +3,7 @@ import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 import { cameraBrowseCellRect, cameraBrowsePane, stockScreenTargets } from './stock-screen-layout';
-import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
+import { cameraAnchorPosition, cameraMaxAnchor, cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
 import { nativeMessageOverride, type NativeLayout } from './native-layout';
 
 export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
@@ -24,6 +24,9 @@ export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
 },{
   url:'packs/camera/contents/0000-0000001a/lyt-Parakeet-arc-LZ.json',alias:'camera-bird',
   layouts:['ParakeetA_D'],animations:['ParakeetA_D_Wait'],
+},{
+  url:'packs/camera/contents/0000-0000001a/lyt-C-Sld.json',alias:'camera-slider',
+  layouts:['C_SldH_S'],animations:['C_SldH_S_Default','C_SldH_S_Rate'],
 },{url:'packs/camera/contents/0000-0000001a/msg-EU_English.json',alias:'camera-messages',layouts:[],animations:[]}];
 type RecordValue=Record<string,JsonValue>;
 const record=(value:JsonValue|undefined):RecordValue=>value&&typeof value==='object'&&!Array.isArray(value)?value:{};
@@ -70,6 +73,13 @@ export const cameraFolderPicSize=[128,96] as const;
 export const cameraFolderPicRect=nativeLowerPaneRect([-108,0],[128,96],[400,240]);
 /** P_BrwsMenu_D/-Navi is the native browse parakeet mount. */
 export const cameraBrowseBirdCenter=[48,158] as const;
+/** P_BrwsBase_D/-L-Sld: native horizontal browse slider mount. */
+export const cameraBrowseSliderCenter=[160,196] as const;
+/** Capture-fitted bridge from the read-only strip output to C_SldH_S_Rate's 0–100 frames. */
+export function cameraBrowseSliderFrame(output:number,count:number):number{
+  const max=cameraAnchorPosition(cameraMaxAnchor(count),count);
+  return max>0?Math.round(Math.max(0,Math.min(1,output/max))*100):0;
+}
 
 /** Read-only portfolio gallery composed from native album art. The runtime owns
  * paging and selection; visible source zoom chrome has no capture/zoom action.
@@ -116,6 +126,13 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
       if(r.row===view.selection)draw('P_BrwsCursor_D',{center:[x,y],bindings:[{name:'P_BrwsCursor_D_Default',frame:0},{name:'P_BrwsCursor_D_CurDefault',frame:0},{name:'P_BrwsCursor_D_PicL',frame:0}]});
     }
     bottom.restore();
+    if(view.screen==='gallery'&&view.rows.length){
+      const output=readCameraBrowse(data.cameraBrowse).output;
+      okay=renderer.draw(bottom,'camera-slider','C_SldH_S',{center:[...cameraBrowseSliderCenter],bindings:[
+        {name:'C_SldH_S_Default',frame:20},
+        {name:'C_SldH_S_Rate',frame:cameraBrowseSliderFrame(output,view.rows.length)},
+      ]})&&okay;
+    }
     if(!view.rows.length)draw('P_BrwsTxt_D',{overrides:{TxtNoData:{...nativeMessageOverride(renderer.packs['camera-messages'],'P','Brws_06',''),size:[280,56]}}});
     // The visible browse controls are the source Slideshow/Shoot/Settings
     // panes. Capture and settings operations stay inert in this read-only app;

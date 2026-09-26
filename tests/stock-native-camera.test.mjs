@@ -10,7 +10,7 @@ const transpile=(name,overrides={})=>{
   const {outputText}=ts.transpileModule(readFileSync(url,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
   return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(path.endsWith('.ts')?path:`${path}.ts`,url).href)+suffix));
 };
-const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,cameraBrowseOrange,cameraDateGroupOrange,cameraBrowseUserColor,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect,cameraBrowseBirdCenter}=await import(transpile('stock-native-camera',{
+const {cameraScreenPacks,drawNativeCameraLower,drawNativeCameraFrame,cameraBrowseOrange,cameraDateGroupOrange,cameraBrowseUserColor,nativeLowerPaneRect,cameraPhotoMountRect,cameraThumbPicSize,cameraThumbPicRect,cameraFolderPicSize,cameraFolderPicRect,cameraBrowseBirdCenter,cameraBrowseSliderCenter,cameraBrowseSliderFrame}=await import(transpile('stock-native-camera',{
   './stock-screen-layout':transpile('stock-screen-layout'),
   './native-layout':transpile('native-layout'),
 }));
@@ -93,6 +93,27 @@ test('browse parakeet uses the published Camera Wait artwork at its source menu 
   }});
   const main=paint(view('main',[{id:'folder:a',label:'A'}],{folders:[{id:'a',photos:[]}]}));
   assert.equal(main.draws.some(draw=>draw.pack==='camera-bird'),false);
+});
+
+test('populated browse mounts the Camera horizontal slider at its source anchor with strip progress',()=>{
+  const request=cameraScreenPacks.find(item=>item.alias==='camera-slider');
+  assert.equal(request?.url,'packs/camera/contents/0000-0000001a/lyt-C-Sld.json');
+  assert.deepEqual(request?.layouts,['C_SldH_S']);
+  assert.deepEqual(request?.animations,['C_SldH_S_Default','C_SldH_S_Rate']);
+  const mount=find(pack.layouts.P_BrwsBase_D.roots,'-L-Sld');
+  assert.deepEqual([...cameraBrowseSliderCenter],[160+mount.translation[0],120-mount.translation[1]]);
+  assert.equal(cameraBrowseSliderFrame(0,6),0);
+  assert.equal(cameraBrowseSliderFrame(124,12),50);
+  assert.equal(cameraBrowseSliderFrame(248,12),100);
+  const rows=Array.from({length:12},(_,index)=>({id:`photo:${index}`,label:String(index)}));
+  const photos=rows.map((row,index)=>({id:String(index),src:'/portfolio/a.jpg'}));
+  const gallery=paint(view('gallery',rows,{photos,cameraBrowse:{output:124}}));
+  const slider=gallery.draws.find(draw=>draw.pack==='camera-slider');
+  assert.deepEqual(slider,{layout:'C_SldH_S',pack:'camera-slider',opts:{center:[160,196],bindings:[
+    {name:'C_SldH_S_Default',frame:20},{name:'C_SldH_S_Rate',frame:50},
+  ]}});
+  const main=paint(view('main',[{id:'folder:a',label:'A'}],{folders:[{id:'a',photos:[]}]}));
+  assert.equal(main.draws.some(draw=>draw.pack==='camera-slider'),false);
 });
 
 test('settled browse exposes the native UserBG slot and preserves source materials',()=>{

@@ -15,6 +15,7 @@ const list = (value: JsonValue | undefined): AppState[] => Array.isArray(value) 
 const record = (value: JsonValue | undefined): AppState => objectValue(value) ? value : {};
 const row = (id: string, label: string, value?: string): AppViewRow => ({ id, label, ...(value === undefined ? {} : { value }) });
 const bounds = (value: number, max: number) => Math.max(0, Math.min(Math.max(0, max), value));
+const retainSettingsClock = (state: AppState, next: AppState): AppState => next === state ? state : ({ ...next, settingsHudElapsedMs: num(state.settingsHudElapsedMs) });
 const settingsDefaults: AppState = { nickname: 'Player', language: 'English', sound: 'Stereo', birthday: '', clock: '', wireless: false };
 // Keep legacy keys intact so existing saves remain readable. Stock screens never write them.
 export const initialSharedData = (): AppState => ({ settings: { ...settingsDefaults }, miis: [], photos: [], sounds: [], notes: [], friends: [], notifications: [], activity: {}, browser: { bookmarks: [], history: [] }, plaza: { greeting: 'Hello!', miiId: null, streetPass: false } });
@@ -169,7 +170,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       if (id === 'health-safety' && screen === 'document') { const { scroll: _scroll, backPress: _press, ...rest } = state; return { state: withScreen(rest, 'main') }; }
       if (screen !== 'main') {
         if ((id === 'game-notes' || id === 'memo') && screen === 'drawing') return { state: withScreen(state, 'main', { selection: bounds(num(state.slot), 15), ...(id === 'game-notes' ? { captureSwitchElapsed: NOTES_SWITCH_DURATION_MS } : {}) }) };
-        if (id === 'system-settings') return { state: settingsBack(state) };
+        if (id === 'system-settings') return { state: retainSettingsClock(state, settingsBack(state)) };
         if (id === 'browser') return { state: browserBack(state) };
         if (isHelperTitle(id)) {
           const index=rows(withScreen(state,'main'),context).findIndex(item=>item.id===(state.field??state.topic));
@@ -223,8 +224,8 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'error' && action === 'ok') return { state, effects: [{ type: 'complete' }] };
     if (id === 'eshop' && action === 'ok') return { state: eshopWelcomeDecide(state) };
-    if (id === 'system-settings' && screen === 'other' && (action === 'settings-next' || action === 'settings-previous')) return { state: settingsNavigate(state, action) };
-    if (id === 'system-settings' && screen === 'detail' && state.field === 'language' && (action === 'language-up' || action === 'language-down')) return { state: settingsNavigate(state, action) };
+    if (id === 'system-settings' && screen === 'other' && (action === 'settings-next' || action === 'settings-previous')) return { state: retainSettingsClock(state, settingsNavigate(state, action)) };
+    if (id === 'system-settings' && screen === 'detail' && state.field === 'language' && (action === 'language-up' || action === 'language-down')) return { state: retainSettingsClock(state, settingsNavigate(state, action)) };
     // Source B_BtnSwitch cycles the suspended-LCD display Double→Up→Down→Double for the current applet session only.
     // Adaptation: native sets the button Invalid without a suspended title; the pure reducer cannot see the slot, so the
     // hidden mode still cycles there while the painter shows the source Invalid pose and no capture.
@@ -237,7 +238,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     if (!rows(state, context).some(item => item.id === action && !item.disabled)) return { state };
     if (id === 'system-settings') {
       if (['nnid', 'transfer', 'update'].includes(action)) return { state: { ...state, selection: rows(state, context).findIndex(item => item.id === action) }, effects: [{ type: 'launch', appId: { nnid: 'nnid-settings', transfer: 'system-transfer', update: 'system-updater' }[action]! }] };
-      return { state: settingsNavigate(state, action) };
+      return { state: retainSettingsClock(state, settingsNavigate(state, action)) };
     }
     if (id === 'game-notes' || id === 'memo') return { state: withScreen(state, 'drawing', { slot: Number(action), strokes: list(context.shared.notes).find(note => note.slot === Number(action))?.strokes ?? [] }) };
     if (id === 'health-safety') return { state: withScreen(state, 'document', { topic: action, scroll: healthScrollCreate(healthDocumentRows[action]) }) };
@@ -289,7 +290,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       return { screen: id === 'sound' && !media.tracks.length ? 'guide' : 'main', selection: 0, ...(['health-safety','system-settings'].includes(id) ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
         ...(id === 'browser' ? { url: str(restored.url) } : {}), ...(id === 'error' ? { message: str(args.message, 'An error has occurred.') } : {}),
         ...(id === 'sound' ? { trackId: '', playing: false, position: 0, duration: 0, repeat: 'off', shuffle: false, revision: 0, guidePage: 0 } : {}),
-        ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}), ...(id === 'health-safety' ? { healthElapsedMs: 0 } : {}) };
+        ...(id === 'system-settings' ? { settingsHudElapsedMs: 0 } : {}), ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}), ...(id === 'health-safety' ? { healthElapsedMs: 0 } : {}) };
     },
     reduce(state, event, context) {
       if(cameraTitles.has(id)&&state.screen==='gallery'){
@@ -307,7 +308,10 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         }
       }
       if (id === 'system-settings') {
-        if (event.type === 'tick') return { state: settingsLanguageTick(state, event.elapsedMs) };
+        if (event.type === 'tick') {
+          const next=settingsLanguageTick(state,event.elapsedMs);
+          return {state:Number.isFinite(event.elapsedMs)&&event.elapsedMs>0?{...next,settingsHudElapsedMs:num(state.settingsHudElapsedMs)+event.elapsedMs}:next};
+        }
         // A paused foreground transition settles on resume, as in the Notes adapter.
         if (event.type === 'lifecycle' && ['suspend', 'sleep', 'close'].includes(event.phase)) return { state: settingsLanguageSettle(state) };
         if(event.type==='touch'){

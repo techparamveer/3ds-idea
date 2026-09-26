@@ -7,7 +7,7 @@ const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.
 const calls=[];
 globalThis.__stockPreparationLoad=(...args)=>{let resolve,reject;const pending=new Promise((r,j)=>{resolve=r;reject=j;});calls.push({args,resolve,reject});return pending;};
 const session=url(compile('native-title-session').replace("'./native-title-assets'",JSON.stringify(url('export const loadNativeTitleAssets=(...args)=>globalThis.__stockPreparationLoad(...args)'))));
-let source=compile('stock-screen-presentation').replace("'./stock-health-scroll'",JSON.stringify(url(compile('stock-health-scroll')))).replace("'./native-title-session'",JSON.stringify(session));
+let source=compile('stock-screen-presentation').replace("'./stock-settings-hud'",JSON.stringify(url(compile('stock-settings-hud')))).replace("'./stock-health-scroll'",JSON.stringify(url(compile('stock-health-scroll')))).replace("'./native-title-session'",JSON.stringify(session));
 for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSettingsMain'],['sound','soundScreenPacks','drawNativeSoundFrame'],['camera','cameraScreenPacks','drawNativeCameraFrame'],['health','healthScreenPacks','drawNativeHealthFrame']])source=source.replace(`'./stock-native-${file}'`,JSON.stringify(url(`export const ${packs}=[{url:'${file}.json',alias:'${file}',layouts:[],animations:[]}];export const ${draw}=(renderer,top,bottom,view)=>view.appId==='${file==='settings'?'system-settings':file==='health'?'health-safety':file}'?globalThis.__nativeTestDraw?.(top,bottom)??false:false;`)));
 source=source.replace("'./stock-screen-layout'",JSON.stringify(url('export const stockScreenTargets=()=>[];')));
 const layout=url(compile('stock-screen-layout').replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href)));
@@ -146,6 +146,19 @@ test('Settings HUD cache repaints by local minute and date, not seconds',async()
   f.drawAt(new Date(2026,8,24,6,31,59));assert.equal(draws,1);
   f.drawAt(new Date(2026,8,24,6,32,0));assert.equal(draws,2);
   f.drawAt(new Date(2027,8,24,6,32,0));assert.equal(draws,3,'weekday-bearing date keys the year');
+ }finally{f.dispose();}
+});
+test('Settings local samples key phase publication and retain phase between source updates',async()=>{
+ const f=paintFixture();
+ try{
+  f.v.data={settingsHudElapsedMs:0};f.draw();await flush();calls[0].resolve(nativeAssets());await flush();
+  let draws=0;globalThis.__nativeTestDraw=()=>{draws++;return true;};
+  const start=new Date(2026,8,26,3,32,20).getTime();
+  for(const elapsed of [5868,6856,7825]){
+   f.v.data.settingsHudElapsedMs=elapsed;f.drawAt(new Date(start+elapsed));
+  }
+  assert.equal(draws,3,'the native observed odd/even/odd phases publish three pairs');
+  f.drawAt(new Date(start+7825+60000));assert.equal(draws,3,'same source update retains sampled calendar despite wall-clock change');
  }finally{f.dispose();}
 });
 test('a new owner cannot display a completed old native frame',async()=>{

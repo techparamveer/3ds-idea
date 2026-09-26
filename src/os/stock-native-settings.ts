@@ -1,3 +1,4 @@
+import type { SettingsHudPose } from './stock-settings-hud';
 import { languageScroll, settingsLanguageOffset, settingsOtherPages } from './stock-settings-navigation';
 import type { AppView } from './app-types';
 import type { NativeLayoutRenderer } from './native-renderer';
@@ -51,20 +52,22 @@ const week=['sun','mon','tue','wed','thu','fri','sat'];
 /** The source executable feeds these clips from PTM/AC/Uds services. The
  * portfolio has no corresponding hardware telemetry. Frame 4 matches the
  * orange battery in the 26 September native Settings main capture; charging
- * phase changes across native captures and remains unimplemented. */
+ * phase is supplied by the owner-scoped source HUD sampler. */
 export const SETTINGS_PORTFOLIO_STATUS={batteryFrame:4,networkAttentionFrame:3,networkModeFrame:0,whiteBlackFrame:0} as const;
-function drawSettingsStatus(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,date:Date):boolean{
+function drawSettingsStatus(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,date:Date,hud?:SettingsHudPose):boolean{
+  if(hud)date=new Date(hud.dateMs);
   const message=(label:string)=>nativeMessageOverride(renderer.packs.messages,'hud',label,'');
   const sourceText=(label:string)=>{const text=message(label).text;if(typeof text!=='string')throw new Error('Missing Settings HUD message '+label);return text;};
   const day=sourceText('day_'+date.getDate()),month=sourceText('month_'+(date.getMonth()+1)),weekday=sourceText('week_'+week[date.getDay()]);
   const pattern=message('lau_date');
   if(typeof pattern.text!=='string')throw new Error('Missing Settings HUD message lau_date');
   return renderer.draw(top,'hud','HudMset_00',{bindings:[
-    {name:'HudMset_00_Bat',frame:SETTINGS_PORTFOLIO_STATUS.batteryFrame},
+    {name:'HudMset_00_Bat',frame:hud?.batteryFrame??SETTINGS_PORTFOLIO_STATUS.batteryFrame},
     {name:'HudMset_00_NetAtn',frame:SETTINGS_PORTFOLIO_STATUS.networkAttentionFrame},
     {name:'HudMset_00_NetMode',frame:SETTINGS_PORTFOLIO_STATUS.networkModeFrame},
     {name:'HudMset_00_WhiteBlack',frame:SETTINGS_PORTFOLIO_STATUS.whiteBlackFrame},
   ],overrides:{
+    ...(hud?{T_TimeC_00:{visible:hud.colonVisible}}:{}),
     T_NetMode_00:message('lau_connect0'),
     T_Date_00:{...pattern,text:pattern.text.replace('%d',day).replace('%M',month).replace('%w',weekday)},
     T_TimeL_00:{...message('lau_hours'),text:String(date.getHours()).padStart(2,'0')},
@@ -73,11 +76,11 @@ function drawSettingsStatus(renderer:NativeLayoutRenderer,top:CanvasRenderingCon
 }
 
 /** Native source layouts and child mounts; this presents a settled menu. */
-export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,reducedMotion=false,date=new Date()):boolean{
+export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,reducedMotion=false,date=new Date(),hud?:SettingsHudPose):boolean{
   if(view.appId!=='system-settings')return false;
   if(view.screen!=='main'){
     const okay=drawNativeSettingsSubpage(renderer,top,bottom,view,reducedMotion);
-    return drawSettingsStatus(renderer,top,date)&&okay;
+    return drawSettingsStatus(renderer,top,date,hud)&&okay;
   }
   prepareSettingsButtons(renderer);
   let okay=true;
@@ -97,7 +100,7 @@ export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasR
   }]));
   okay=renderer.draw(bottom,'layout','Top_D_02',{bindings:[{name:'Top_D_02_SceneIn_00',frame:35}],attachments,overrides:{TextBoxTitle_01:message('top_btm_text')}})&&okay;
   okay=renderer.draw(bottom,'base','TopBase_D_00',{overrides:{TextBox_00:message('top_btm_text'),TextBoxShdw_00:message('top_btm_text')}})&&okay;
-  return drawSettingsStatus(renderer,top,date)&&okay;
+  return drawSettingsStatus(renderer,top,date,hud)&&okay;
 }
 
 /** Source table byte 0x23 selects both the background transition and title

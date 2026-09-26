@@ -39,7 +39,8 @@ test('half-row rounding retains a signed offset and release snaps eight source p
 test('drag ownership excludes other pointers and actions and cannot activate Back at release',()=>{
  let state=touch(leaf(),'down',80);state=touch(state,'move',87.5);
  const before=state;
- for(const event of [{type:'touch',phase:'move',x:304,y:120,pointerId:8},{type:'touch',phase:'up',x:60,y:225,pointerId:8},{type:'action',id:'language-down'},{type:'tick',elapsedMs:1000}])assert.equal(send(state,event).state,before);
+ for(const event of [{type:'touch',phase:'move',x:304,y:120,pointerId:8},{type:'touch',phase:'up',x:60,y:225,pointerId:8},{type:'action',id:'language-down'}])assert.equal(send(state,event).state,before);
+ assert.deepEqual(send(state,{type:'tick',elapsedMs:1000}).state,{...before,settingsHudElapsedMs:1000},'HUD time advances without changing the drag state');
  state=touch(state,'up',225,60);assert.equal(state.screen,'detail');assert.equal(state.languageDragPointer,undefined);
  state=tick(state,50);const back=send(state,{type:'action',id:'back'}).state;
  assert.equal(back.page,3);assert.equal(back.screen,'other');assert.equal(back.languageTop,undefined);

@@ -18,7 +18,7 @@ test('Language commits one row after the source clip and ignores overlapping arr
  state=tick(state,17).state;assert.equal(languageScroll(state).frame,2);assert.equal(state.languageTop,0);
  for(const delta of [NaN,Infinity,-1,0])assert.equal(tick(state,delta).state,state);
  const done=tick(state,16);assert.equal(done.state.languageTop,1);assert.equal(languageScroll(done.state),null);assert.equal(done.effects,undefined);
- assert.equal(tick(done.state,1000).state,done.state);
+ assert.deepEqual(tick(done.state,1000).state,{...done.state,settingsHudElapsedMs:done.state.settingsHudElapsedMs+1000},'settled Language stays still while HUD time advances');
  assert.deepEqual(module.save(done.state),{});assert.deepEqual(context.shared,shared);
  const up=act(done.state,'language-up').state;assert.equal(languageScroll(up).direction,-1);
  assert.equal(tick(up,1000).state.languageTop,0);

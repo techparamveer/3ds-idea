@@ -10,7 +10,7 @@ for(const key of ['artifact-dir','asset-root','canvas-module','font-manifest'])a
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),assetRoot=values['asset-root'],out=values['artifact-dir'];mkdirSync(out,{recursive:true});
 const {createCanvas,loadImage,Image}=await import(pathToFileURL(values['canvas-module']));
 const compiled=mkdtempSync(join(out,'compiled-'));
-for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-settings','stock-settings-navigation','app-types']){
+for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-native-settings','stock-settings-hud','stock-settings-navigation','app-types']){
  const text=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(text,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name.replace(/\.ts$/,'')}.mjs'`));
 }
@@ -44,6 +44,20 @@ const assertStatus=calls=>{
  assert.ok(status.options.overrides.T_Date_00.messageStyle);
 };
 try{
+ const {sampleSettingsHud}=await import(pathToFileURL(join(compiled,'stock-settings-hud.mjs')));
+ const hudStart=new Date(2026,8,26,3,32,20).getTime(),hudFrames=[];let hud=null;
+ for(const elapsed of [5868,6856,7825]){
+  hud=sampleSettingsHud(hud,elapsed,hudStart+elapsed);
+  const top=createCanvas(400,240),bottom=createCanvas(320,240);
+  assert.equal(drawNativeSettingsMain(renderer,top.getContext('2d'),bottom.getContext('2d'),view,false,new Date(hudStart+elapsed),hud),true);
+  hudFrames.push({top:top.getContext('2d').getImageData(0,0,400,240).data,bottom:bottom.toBuffer('image/png')});
+  writeFileSync(join(out,'hud-'+elapsed+'-top.png'),top.toBuffer('image/png'));
+ }
+ const hudDifferences=(a,b)=>{let n=0;for(let i=0;i<a.length;i+=4)if(Math.max(...[0,1,2].map(c=>Math.abs(a[i+c]-b[i+c])))>2)n++;return n;};
+ assert.equal(hudDifferences(hudFrames[0].top,hudFrames[1].top),177,'cold offline shared font renders colon40 + source battery137; native colon is32');
+ assert.equal(hudDifferences(hudFrames[1].top,hudFrames[2].top),177);
+ assert.equal(hudDifferences(hudFrames[0].top,hudFrames[2].top),0,'native odd phases are identical');
+ assert.deepEqual(hudFrames[0].bottom,hudFrames[1].bottom);assert.deepEqual(hudFrames[1].bottom,hudFrames[2].bottom);
  const focusHashes=[];
  for(let selection=0;selection<5;selection++){
   const top=createCanvas(400,240),bottom=createCanvas(320,240),calls=[];

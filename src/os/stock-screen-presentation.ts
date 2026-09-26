@@ -1,3 +1,4 @@
+import { sampleSettingsHud, type SettingsHudPose, type SettingsHudSample } from './stock-settings-hud';
 import type { StockModelBackground } from './stock-model-background';
 import { drawNativeSelectorFrame, nativeSelectorView } from './stock-native-selectors';
 import { drawNativeHelperFrame, nativeHelperView } from './stock-native-helpers';
@@ -35,7 +36,7 @@ export type NotesIntroPaint =
       icon?: NativePixels;
       description?: string;
     };
-export type StockScreenPaintOptions={soundRoom?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:'contain'|'camera-mono')=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
+export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:'contain'|'camera-mono')=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
 /** Portfolio media placement; native UI graphics continue through the layout renderer. */
 export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:'contain'|'camera-mono'='contain'){
   // EUR Camera 0x210230, non-stereo branch: contain within 400×240,
@@ -108,7 +109,7 @@ export const NATIVE_SCREEN_DEADLINE_MS=20_000;
 /** Stock-specific 400×240 / 320×240 surfaces. Media is supplied by AppView. */
 export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,options:StockScreenPaintOptions={}):void{
   const {font}=options,accent=accents[view.appId]??'#809d8c',data=view.data??{};
-  if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view,options.reducedMotion,options.date))return;
+  if(options.native&&drawNativeSettingsMain(options.native,top,bottom,view,options.reducedMotion,options.date,options.settingsHud))return;
   if(options.native&&drawNativeSoundFrame(options.native,top,bottom,view,options))return;
   if(options.native&&camera(view.appId)){
     if(!drawNativeCameraFrame(options.native,top,bottom,view,options))throw new Error('Native camera composition failed');
@@ -201,6 +202,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
   let published:NativeLayoutRenderer|undefined;
   let roomReady=true;
+  let settingsHud:SettingsHudSample|null=null,settingsHudOwner:string|null=null;
   const deadlineMs=options.deadlineMs??NATIVE_SCREEN_DEADLINE_MS;
   if(!Number.isFinite(deadlineMs)||deadlineMs<=0)throw new Error('Invalid native preparation deadline');
   const upper=document.createElement('canvas'),lower=document.createElement('canvas');upper.width=400;upper.height=240;lower.width=320;lower.height=240;
@@ -271,7 +273,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60]:null;
       // Local host time drives Notes/Health; only the selected pose keys paint.
       const data=view.data&&typeof view.data==='object'&&!Array.isArray(view.data)?view.data:{};
-      const clockField=view.appId==='game-notes'?'notesHostMs':view.appId==='health-safety'?'healthElapsedMs':null;
+      const clockField=view.appId==='game-notes'?'notesHostMs':view.appId==='health-safety'?'healthElapsedMs':view.appId==='system-settings'?'settingsHudElapsedMs':null;
       const notesView=clockField?{...view,data:Object.fromEntries(Object.entries(data).filter(([key])=>key!==clockField))}:view;
       const introKey=notesIntro?.status==='posed'?[notesIntro.ticket,notesIntro.steps,notesIntro.scene9Draw,notesIntro.scene10Draw,notesIntro.titleUserVisible]:notesIntro?.status??null;
       const state=prepare(view,nextOwner,font);
@@ -279,7 +281,12 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const eshop=nativeServiceView(view)?.view==='eshop-welcome';
       const keyView=eshop?{...notesView,data:{...notesView.data,welcomePass:null,welcomeDecidedPass:null}}:notesView,eshopPaintKey=eshop?eshopWelcomePose(view,reducedMotion):null;
       const soundClockKey=view.appId==='sound'&&(view.screen==='main'||view.screen==='guide')?[date.getHours(),date.getMinutes()]:null;
-      const settingsPaintKey=view.appId==='system-settings'?[date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes()]:null;
+      if(settingsHudOwner!==nextOwner){settingsHud=null;settingsHudOwner=nextOwner;}
+      const settingsElapsed=data.settingsHudElapsedMs;
+      if(view.appId==='system-settings'&&typeof settingsElapsed==='number')settingsHud=sampleSettingsHud(settingsHud,settingsElapsed,date.getTime());
+      const hud=view.appId==='system-settings'&&typeof settingsElapsed==='number'?settingsHud:undefined;
+      const hudDate=hud?new Date(hud.dateMs):date;
+      const settingsPaintKey=view.appId==='system-settings'?[hudDate.getFullYear(),hudDate.getMonth(),hudDate.getDate(),hudDate.getHours(),hudDate.getMinutes(),hud?.batteryFrame,hud?.colonVisible]:null;
       const eshopHudKey=eshop?eshopHudClock(date):null;
       const healthPaintKey=view.appId==='health-safety'?healthTopLoopFrame(typeof data.healthElapsedMs==='number'?data.healthElapsedMs:0,reducedMotion):null;
       const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
@@ -290,7 +297,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||(state.status==='ready'&&roomReady)){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,soundRoom:options.soundRoom,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,soundRoom:options.soundRoom,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
           }catch(error){fail(error);recovery();}
         }

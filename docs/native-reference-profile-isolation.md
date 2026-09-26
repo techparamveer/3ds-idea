@@ -68,3 +68,8 @@ own Capture Screenshot action wrote a genuine 400×480 PNG there:
 `6293cb00c578e5a5e7f8b29784d96a211477b84c8bd4efe88a4f03fa86376feb`.
 The prior DeveloperStorage copy and the user's original reference were left
 intact. Mount the sparsebundle before opening the SSD copy in later sessions.
+The same mounted copy booted EUR HOME, dismissed a native notification and
+selected Health in one-row density. Azahar saved
+`screenshots/_26.09.26_21.04.22.044.png` at 400×480, SHA-256
+`e4a016bd3b8f89b022cbb0032ae8e03b6b7469f5ef1b9c913907ed49c07c37fc`.
+This is a native reference capture, not a whole-scenario fidelity claim.

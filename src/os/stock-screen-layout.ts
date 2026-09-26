@@ -79,6 +79,8 @@ export function stockScreenTargets(view:AppView):StockScreenTarget[]{
     }else rows.forEach((row,index)=>{const r=rects[index];if(r)result.push(target(row.id,r[0],r[1],r[2],r[3],index));});
     if(screen==='other'){
       const page=typeof view.data?.page==='number'?view.data.page:0;
+      // The four numbered tabs accept direct lower-screen touch in native Settings.
+      for(let index=0;index<4;index++)result.push(target(`settings-page-${index}`,88+index*40,8,24,24));
       if(page>0)result.push(target('settings-previous',0,65,30,100));
       if(page<3)result.push(target('settings-next',290,65,30,100));
     }

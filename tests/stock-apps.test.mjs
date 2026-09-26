@@ -357,6 +357,9 @@ test('Other Settings pages bound directions and restore source focus after Profi
   if(page===3)assert.equal(next,state);else assert.equal(next.page,page+1);state=next;
  }
  state=action(module,state,'settings-previous').state;assert.equal(state.page,2);
+ state=action(module,state,'settings-page-0').state;assert.equal(state.page,0);
+ state=action(module,state,'settings-page-3').state;assert.equal(state.page,3);
+ assert.equal(action(module,state,'settings-page-4').state,state);
  assert.equal(action(module,state,'back').state.screen,'main');
 });
 test('Language is a read-only leaf that passes the configured English value and returns to Other page 4',()=>{

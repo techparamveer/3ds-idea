@@ -230,7 +230,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'error' && action === 'ok') return { state, effects: [{ type: 'complete' }] };
     if (id === 'eshop' && action === 'ok') return { state: eshopWelcomeDecide(state) };
-    if (id === 'system-settings' && screen === 'other' && (action === 'settings-next' || action === 'settings-previous')) return { state: retainSettingsClock(state, settingsNavigate(state, action)) };
+    if (id === 'system-settings' && screen === 'other' && (action === 'settings-next' || action === 'settings-previous' || /^settings-page-[0-3]$/.test(action))) return { state: retainSettingsClock(state, settingsNavigate(state, action)) };
     if (id === 'system-settings' && screen === 'detail' && state.field === 'language' && (action === 'language-up' || action === 'language-down')) return { state: retainSettingsClock(state, settingsNavigate(state, action)) };
     // Source B_BtnSwitch cycles the suspended-LCD display Double→Up→Down→Double for the current applet session only.
     // Adaptation: native sets the button Invalid without a suspended title; the pure reducer cannot see the slot, so the

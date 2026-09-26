@@ -26,6 +26,14 @@ normal lifecycle and keeps its application caller suspended at HOME; see the
 This is bounded portfolio navigation, not a complete native APT implementation.
 See [helper return tests](../../tests/settings-helper-return.test.mjs).
 
+Other Settings' four numbered lower-screen tabs accept direct touch at source
+centres `(100,20)`, `(140,20)`, `(180,20)` and `(220,20)`. The hit layout emits
+bounded `settings-page-0` through `settings-page-3` actions; the Settings
+reducer selects that page and resets the unfocused row pose. Native Azahar
+accepted direct page-dot touch, and the production browser was operated from
+page 1 to pages 2 and 4, then back to page 1 with projected touches. This
+checks input reachability, not motion/audio equivalence.
+
 | Module | Responsibility |
 | --- | --- |
 | `apps.ts` | Portfolio application and entry data |

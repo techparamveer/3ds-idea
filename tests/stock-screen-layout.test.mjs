@@ -109,6 +109,8 @@ test('Settings submenus retain native geometry and bounded page arrows',()=>{
  assert.equal(hit(connections,160,52),'new-connection');assert.equal(hit(connections,58,150),'connection-1');assert.equal(hit(connections,262,150),'connection-3');
  const other=view('system-settings','other',['profile','clock','touch']);other.data={page:0};
  assert.equal(hit(other,160,70),'profile');assert.equal(hit(other,160,119),'clock');assert.equal(hit(other,160,167),'touch');assert.equal(hit(other,306,115),'settings-next');assert.equal(hit(other,14,115),null);
+ for(const [index,x] of [100,140,180,220].entries())assert.equal(hit(other,x,20),`settings-page-${index}`);
+ assert.equal(hit(other,116,20),null);
  other.data.page=3;assert.equal(hit(other,14,115),'settings-previous');assert.equal(hit(other,306,115),null);
  const detail=view('system-settings','detail',[]);assert.equal(hit(detail,80,225),'back');assert.equal(hit(detail,220,225),null);
 });

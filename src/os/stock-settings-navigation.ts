@@ -129,8 +129,9 @@ export function settingsNavigate(state:AppState,action:string):AppState{
     const next=Math.max(0,Math.min(4,top+(action==='language-down'?1:-1)));
     return next===top?state:{...state,languageTop:top,languageScrollDirection:action==='language-down'?1:-1,languageScrollElapsed:0};
   }
-  if(screen==='other'&&(action==='settings-next'||action==='settings-previous')){
-    const page=Math.max(0,Math.min(settingsOtherPages.length-1,settingsPage(state)+(action==='settings-next'?1:-1)));
+  if(screen==='other'&&(action==='settings-next'||action==='settings-previous'||/^settings-page-[0-3]$/.test(action))){
+    const requested=action.startsWith('settings-page-')?Number(action.slice('settings-page-'.length)):settingsPage(state)+(action==='settings-next'?1:-1);
+    const page=Math.max(0,Math.min(settingsOtherPages.length-1,requested));
     return page===settingsPage(state)?state:menuState('other',page);
   }
   if(!settingsChoices(state,{}).some(row=>row.id===action))return state;

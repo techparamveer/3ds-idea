@@ -1,0 +1,117 @@
+# HOME HUD source-pose diagnostic fit
+
+This is an offline field-pose search at `c24d2ce`, not a production browser
+comparison or a service-to-pane trace. The coordinator owns native/browser
+capture and integration. Default product HUD state is unchanged.
+
+## Native target and assets
+
+The inspected genuine Azahar screenshot is
+`/Users/paramveer/.codex/3ds-artifact-overflow/reference/screenshots/_26.09.26_04.14.35.203.png`,
+SHA-256 `4adc0ef0cbba7175b641fbe4107f697f15ff7a4aadd482c746e389ea7abf5bdb`.
+It is 400×480; the native upper LCD is the unscaled `[0,0,400,240]` crop.
+The screenshot shows Internet, three signal bars, 42 coins, orange battery,
+26/09 (Sat) and 04 14 with the colon absent. There is no known native frame
+counter, charging update phase or identical browser input prefix.
+
+The existing EUR 10.7.0-32E HOME title `0004003000009802` supplies all HUD artwork.
+Delivered `packs/home/hud.json` SHA-256 is
+`76df2ed42d3bbe09bef599bc242ac2946b811a3c5ee362a8776483a257b4c775`.
+Its `resourceSources` identifies:
+
+| Resource under `hud_LZ.bin/` | Source SHA-256 |
+| --- | --- |
+| `blyt/HudMenu_00.bclyt` | `c27b927db06ec234601e3fc1bfa3f55f1c9570353ac8016c5ad9812ebaab28de` |
+| `anim/HudMenu_00_NetMode.bclan` | `fa013723747c08701cf202cf9386af96065ce80815264dd5da181b9ef340b1e8` |
+| `anim/HudMenu_00_NetAtn.bclan` | `f9dc8c0981840d949e2ec112a3080877073a28ba1e85bf7153346f5f9cbe3bd2` |
+| `anim/HudMenu_00_Bat.bclan` | `7f2906be6975fa97b14f72f10e0d7f5a3648ec996c43ad5930a0fb3c9b32d046` |
+| `anim/HudMenu_00_WalkCoin.bclan` | `b7db095d0b521d43c24fcdbcbabf2514fb80628f77a74cd71f549882346043b8` |
+
+`hud_msbt_LZ/lau_connect0` supplies Internet. The [profile audit](home-hud-profile-state-audit-2026-09-26.md)
+records the native profile's 42 coins and emulator defaults. Steps are hidden in
+this coin pose and remain an unobserved zero placeholder in the diagnostic.
+
+## Reproducible source-pose sample
+
+```json
+{
+  "kind": "source-pose",
+  "evidence": "Offline white-backdrop fit to _26.09.26_04.14.35.203.png; native service mapping and phase untraced",
+  "networkMessage": "lau_connect0",
+  "netModeFrame": 0,
+  "netAtnFrame": 3,
+  "batteryFrame": 4,
+  "walkCoinFrame": 258,
+  "coins": 42,
+  "steps": 0
+}
+```
+
+This uses the renderer seam from `c24d2ce`. The offline script invokes the same
+native layout renderer and source HUD bindings as `createFirmwareHome().hud`;
+it supplies the captured date/time strings and uses the native bitmap fonts and
+unpremultiplied decoded textures. It makes no color, coordinate or glyph edits.
+Bat 4 selects visible `P_BatF_01` using `HudBatLgt_01.bclim`; the blue fill
+`P_BatF_00` and plug branches `P_BatF_02/03` are hidden. WalkCoin 258 makes
+`P_Coin_00` alpha 103 with hidden `P_Walk_00`; its count inherits the coin fade.
+The source coin fade runs out after frame 247 and reaches zero at 270. Its
+incoming fade from 90 to 112 can produce a similar still-image appearance.
+
+## Method and bounded results
+
+Fixed upper-LCD ROIs are `[x,y,width,height]`: network `[0,0,137,20]`, counter
+`[139,0,61,20]`, battery `[370,0,30,20]`, and complete HUD `[0,0,400,20]`.
+The offline canvas uses an opaque white backdrop, rather than synthesizing the
+animated HOME background or copying reference pixels beneath the candidate.
+No registration, resizing, acceptance mask or native-pixel replacement occurs.
+For each field, rank integer source frames by pixels with any RGB delta above
+2/255, then mean RGB delta. Search NetMode 0–4, NetAtn 0–9, Bat 0–6 and WalkCoin
+0–359 sequentially. This is a bounded field search, not an exhaustive Cartesian
+search or a proof of a global optimum. The message and 42 count come from the
+observed/profile evidence. The test baseline uses Disabled, 0, NetMode 4,
+NetAtn 8, Bat 3 and WalkCoin 180; it is not a captured production frame.
+
+| Fixed ROI | Baseline pixels over 2 | Fitted pixels over 2 | Baseline mean RGB delta | Fitted mean RGB delta |
+| --- | ---: | ---: | ---: | ---: |
+| Network, 2,740 pixels | 2,498 | 601 | 54.108394 | 2.084550 |
+| Counter, 1,220 pixels | 1,212 | 1,119 | 21.305191 | 6.429781 |
+| Battery, 600 pixels | 294 | 104 | 44.746667 | 1.432778 |
+| Complete HUD, 8,000 pixels | 6,196 | 4,016 | 27.575250 | 4.240042 |
+
+NetMode 0 outranks the next frame 4 (601 versus 2,317 network pixels).
+NetAtn 3 outranks 2 (601 versus 661). Bat 4 outranks 0 (104 versus 254).
+WalkCoin 258 outranks 98 (1,119 versus 1,187); opaque coin frame 180 has
+1,210 counter pixels over threshold and mean delta 19.817760.
+
+The unknown animated background contributes to these residuals and biases the
+coin-alpha fit. As a sensitivity probe, repeating the same search over constant
+`#f8f8f8` and `#f0f0f0` backdrops keeps NetMode 0 / NetAtn 3 / Bat 4 but selects
+WalkCoin **97** and **259**, respectively. Those are not alternative accepted
+backgrounds. They demonstrate that the exact coin phase is **not identified**.
+Use 258 only as the recorded white-backdrop diagnostic, and bracket 97/259 if
+production pixels require a phase probe. Do not adopt it as a runtime clock.
+
+The contact sheet was visually inspected: network mode, signal, coin content
+and battery color match the captured state. Background differences remain;
+the current painter still displays the colon that is absent in the native
+capture. Maximum fitted full-strip delta is 188. These are neither a HUD pass
+nor whole-HOME acceptance; no motion, native charging service mapping, steps
+value or input parity is established.
+
+## Private artifacts and verification
+
+All files are private under
+`/Users/paramveer/.codex/3ds-artifact-overflow/presentation/home-hud-pose-fit-20260926/`:
+
+- `fit.mjs`: offline source-render search; compiled dependency snapshots alongside it.
+- `report.json`: all frame scores, ROIs, inputs and image hashes.
+- `contact.png`: native, declared baseline, fitted source HUD strips, in that order.
+- `fit.png` and `baseline.png`: 400×240 offline canvases.
+- `bg248/report.json` and `bg240/report.json`: backdrop sensitivity scores.
+
+`fit.png` SHA-256 is `05af18fe7a0081963ab8fe58753caf7d2162828fb4ba5843ec90be7ce52370e1`;
+`contact.png` is `7262be296a30bd082e8e3344cf813d4809b2a95349c6af2e53b58464b269fa6e`.
+Run `node <private-directory>/fit.mjs` to reproduce the white probe; its
+`FIT_BACKDROP` and `FIT_OUT` environment variables select the recorded sensitivity
+runs. This documentation change passes `git diff --check`. No runtime change or
+new browser capture is included; production capture remains the next gate.

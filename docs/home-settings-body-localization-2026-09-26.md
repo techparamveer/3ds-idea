@@ -85,3 +85,63 @@ rebuild is needed. Production validation remains with the coordinator.
 Report SHA-256: `08e6e984daa1169ee322156e478c18ff112937690683eaec7e34679b96586b3d`.
 Browser PNG SHA-256: `06015f7c7e4b59e52c8edebcea319479466cc250f7fc55173bd81491b156b5bf`.
 Delivered model JSON SHA-256: `908b4dbe6ef22bbf3c47d37e9ed512ea6a37654afd0f1db611f3d4f68c5e93e1`.
+
+## Source geometry bracket around frame309
+
+A subsequent offline check samples the delivered COMMON geometry with the actual
+`createFirmwareModel`, `createFirmwareCamera`, skeletal curve and billboard
+code. It uses scale1, zero offsets/displacement, and the source float32 yaw
+formula, then projects indexed mesh vertices into 400×240 coordinates. It
+samples 307, 308, 308.5, 309, 309.5, 310, 311 and 312. No browser or Azahar was
+operated. The coordinator explicitly retained GPU pixel scoring in its CUA
+capture lane; this analysis does **not** rasterize the shader or predict a
+replacement 3,529-pixel score.
+
+| Coupled yaw/skeletal frame | Title mean Δy from309, pixels | Icon mean Δy, pixels | Wrench maximum vertex displacement, pixels |
+| --- | ---: | ---: | ---: |
+| 307 | +0.03575 | +0.03564 | 0.34651 |
+| 308 | +0.01955 | +0.01949 | 0.17507 |
+| 308.5 | +0.01020 | +0.01017 | 0.08799 |
+| 309 | 0 | 0 | 0 |
+| 309.5 | −0.01106 | −0.01103 | 0.08891 |
+| 310 | −0.02299 | −0.02293 | 0.17875 |
+| 311 | −0.04952 | −0.04937 | 0.36120 |
+| 312 | −0.07966 | −0.07942 | 0.54741 |
+
+The source `p_title.TranslationY` sample is −7.2468363275 at309 and
+−7.2418843142 at311. The parent billboard preserves its screen-facing title
+quad while this curve changes vertical placement. For icons, the source
+`l_btn.RotationY` almost cancels the external yaw: at309 the angles are
++3.2358813653 and −3.2358405590. Across307–312 the full icon envelope changes
+horizontally by less than0.00004px. Thus this small phase bracket can test
+vertical sampling and wrench orientation, but it does not provide a meaningful
+icon-width adjustment. The title quad includes transparent texture space;
+projected vertex bounds are not the visible glyph bounds.
+
+**Recommended production probes: 307, 308, 309, 310, 311**, with the same
+`elapsedMs=5616.666666666667`, date and HUD97 sample as the preserved baseline.
+Score the wrench/icon/title rectangles separately and retain wallpaper/footer
+checks. Frame309 is the existing control. No candidate is declared better
+without these actual pixels. The fractional values are geometry probes only:
+the current capture query accepts integers, and this analysis does not change
+that API or assert a fractional native update. If the best tested integer is
+an endpoint, use its neighboring source frame in a follow-up rather than
+introducing a guessed geometry/material adjustment.
+
+This bracket preserves the source relationships between pose channels. A
+fractional source-pose fit, even if later enabled for diagnostics, would still
+not establish native host clocks or matching animation entry inputs. GPU
+triangle coverage, depth, texture filtering/mip selection and composition are
+not evaluated by projected vertex movement, so these numbers cannot establish
+that any of the current 709/1,925/895 residuals are resolved.
+
+Private artifacts:
+`/Users/paramveer/.codex/3ds-artifact-overflow/presentation/home-source-frame-bracket-20260926/`
+contains `project.mjs`, compiled source snapshots, `report.json` and
+`stdout.json`. The report retains source file hashes, delivered model hash,
+curve samples, projected bounds and vertex-displacement statistics by component
+(title and auxiliary quad are separate). Run `node <directory>/project.mjs`.
+Report SHA-256:
+`6d16e2eb6dffc3f0816b67a47f208fe0d0a978bb05f63c033f20f684b173b2c6`.
+The script completes for every sample and frame309 has zero displacement against
+itself; `git diff --check` passes. No runtime change is justified by this check.

@@ -145,5 +145,14 @@ The integrated child chain, corrected source HUD baseline and source grey
 lower** pixels above 2/255 (RGB MAE **0.4191 / 2.4887**). [Matrix v50](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v50/matrix.json)
 records the raw browser capture and empty-mask diff. A separate APFS clone of
 the pre-Camera isolated profile reproduced and captured native Welcome pages
-1 and 2; page 2 has no matched browser capture yet. The original active save
-was not reset.
+1 and 2. The original active save was not reset.
+
+The production browser was advanced from page 1 by clicking the projected
+touchscreen Next button. Its page-2 raw LCDs were compared with the replay
+native page 2 in [matrix v51](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v51/matrix.json).
+The inspected empty-mask contact sheet shows **2,726 lower** pixels above
+2/255, chiefly the same side strips and top control state as page 1. The
+upper has **93,638** differences because this replay uses a configured Renu
+photo as Azahar's live camera feed while the read-only browser Camera shows
+black. This pair establishes the page and lower-LCD comparison, but the exact
+native input, timing and audio remain open; no whole-scenario pass is claimed.

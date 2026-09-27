@@ -220,8 +220,8 @@ function drawManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,b
 export const APPLICATION_MANUAL_SLOTS={firstRow:86,row:54,category:34,categoryOffset:-10,contentsCentre:42} as const;
 /** Component-level capture fit against the same settled native frame. These
  * values retain the delivered layouts: they position the row body and footer
- * glyph, and compensate the source blue register for BtnShdw00's later blend. */
-export const APPLICATION_MANUAL_LOWER_FIT={rowBodyY:2,secondCategoryRegister:[118,183,218] as [number,number,number],languageGlyphX:-38} as const;
+ * panes, and compensate the source blue register for BtnShdw00's later blend. */
+export const APPLICATION_MANUAL_LOWER_FIT={rowBodyY:2,secondCategoryRegister:[118,183,218] as [number,number,number],languageGlyphX:-43,languageLabelX:13} as const;
 /** Applet `IndexNull` (layout/IndexNull.arc/blyt/IndexNull.bclyt, SHA-256
  * af65d3ac00782bdd74f2c09ea36a61d739650bab5da39602acca4be9d85443c9)
  * holds `SoftTitleHead` at Y+262 of its 400×480 dual-screen root,
@@ -285,6 +285,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   // publishes the lower LCD separately below.
   top.fillStyle='#fff';top.fillRect(0,0,400,240);bottom.fillStyle='#fff';bottom.fillRect(0,0,320,240);
   draw(top,'manual-all-root','AllNull',{center:[200,240],bindings:[{name:'AllNull_Wait',frame:1}]});
+  draw(bottom,'manual-all-root','AllNull',{center:[160,0],bindings:[{name:'AllNull_Wait',frame:1}]});
   // P_Icon_00 defaults to IconBlank; the applet binds the calling title's SMDH icon.
   draw(top,'manual-index-root','IndexNull',{center:[200,240-262],bindings:[{name:'IndexNull_Wait',frame:1}]});
   draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,overrides:{TextBoxTxt_00:{text:source.heading},P_Icon_00:{visible:false}}});
@@ -314,7 +315,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});
   draw(bottom,'manual-footer-shadow','BtnShdw00',{bindings:[{name:'BtnShdw00_SceneIn',frame:20}]});
   draw(bottom,'manual-footer-close','BtnCloseLng00',{bindings:[{name:'BtnCloseLng00_SceneIn',frame:20}],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}});
-  draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[11,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[11,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,26,0]}}});
+  draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageLabelX,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageLabelX,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,26,0]}}});
   return okay;
 }
 

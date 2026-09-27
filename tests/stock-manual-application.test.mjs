@@ -97,7 +97,8 @@ test('Settings Contents loads source chrome, lets Close act, and leaves unfinish
   assert.deepEqual(helpers.APPLICATION_MANUAL_LOWER_FIT, {
     rowBodyY: 2,
     secondCategoryRegister: [118, 183, 218],
-    languageGlyphX: -38,
+    languageGlyphX: -43,
+    languageLabelX: 13,
   });
 });
 

@@ -113,7 +113,7 @@ are inert.
 | Row titles, numbers and order; category bands' order and titles | Settings content 1 `Manual.bcma/EUR_en_index.arc/blyt/Index.bclyt` (`packs/settings/contents/0001-00000038/manual-EUR_en.json`, loaded with owner title `0004001000022000`). `src/os/stock-manual-index.ts` reads `MetaData` `PageNum`/`CategoryNum` and each `Category_nnn` `IsValid`, `CategoryPageNum` and `PageID_nnn`. Category 0 (`IsValid` 0) gives page 1 without a band. Malformed metadata fails. |
 | Upper header text | Settings SMDH English long description (manifest `titles[0004001000022000].longDescription`, `ExeFS/icon` of content `0000003d`), drawn in applet `SoftTitleHeader/TextBoxTxt_00`. |
 | Upper header icon | Manifest `titles[0004001000022000].icon` (`icons/settings.png`, extracted SMDH) drawn at 32×32 in the `SoftTitleHeader/P_Icon_00` slot, replacing the applet's `IconBlank`. |
-| Upper/lower LCD base | Applet `AllNull/P_Bg_U_00` and `P_Bg_D_00` from `layout/AllNull.arc`. The upper pane combines `BgLgt.bclim`, tiled `BgLine.bclim`, source vertex colours and the original TEV stages; it is drawn at the layout's 400×480 upper-screen origin `[200,240]`. |
+| Upper/lower LCD base | Applet `AllNull/P_Bg_U_00` and `P_Bg_D_00` from `layout/AllNull.arc`. Both panes combine `BgLgt.bclim`, tiled `BgLine.bclim`, source vertex colours and the original TEV stages. The paired root is drawn at the upper-screen origin `[200,240]` and, for the separately published lower LCD, at `[160,0]`. |
 | Header position | Delivered applet `IndexNull` `SoftTitleHead` Y+262 in its 400×480 root, also `IndexNull_Wait` (`layout/IndexNull.arc/blyt/IndexNull.bclyt`, SHA-256 `af65d3ac…43c9`): upper centre y = 240 − 262. |
 | Lower card, Contents label, rows | Applet `IndexBase00`, `ContentsTxt` with `ebird/ContentsText`, `BtnHeadLineTxt` with `BtnHeadLineTxt_Wait` frame 1. |
 | List clip | `BtnClose00`/`BtnCloseLng00` `P_Btn_01` (y−120, height 28): y212. |
@@ -140,9 +140,9 @@ drawn afterward and lifts the visible colour, the fitted pre-shadow register is
 category and cursor centres remain unchanged; this aligns both chips and the
 row shadow edges without moving the already matching cursor. Contents, row,
 category and Language text opt into the renderer's source LCD sampling path.
-The Language glyph is translated from x−44 to x−38 while its label stays at
-x+11, matching the separately delivered glyph and label panes in the native
-footer. These component positions are capture-fitted; source animation,
+The Language glyph is translated to x−43 and its label to x+13, matching the
+separately delivered glyph and label panes in the native footer. These
+component positions are capture-fitted; source animation,
 messages and text materials remain intact.
 
 The delivered applet `HLTxt`, `CsrHeadLine00`, `ScrollIndicator`,
@@ -159,10 +159,14 @@ row selection/scrolling and Language navigation are absent. The
 source-render verifier (`scripts/verify-stock-helpers.mjs`,
 `manual-settings-contents`) checks composition and immutability only. The
 integrated production-browser/native empty-mask pair at `15c2abf` has 1,518
-upper and 9,225 lower pixels over 2/255. The unobscured `AllNull` source-render
-background region `(0,48)..(384,240)` has zero pixels over 2/255 and a maximum
-channel delta of 1. The remaining full-screen differences mean the screen has
-no whole-scenario fidelity pass.
+upper and 9,225 lower pixels over 2/255. Adding the delivered lower
+`AllNull/P_Bg_D_00` removes the source render's 6,532-pixel `IndexBase00`
+card/frame region, and the footer pane fit removes the prior 873-pixel Language
+label region. The resulting offline lower diagnostic is 2,102 pixels over
+2/255; the production browser still needs recapture. The unobscured upper
+`AllNull` source-render background region `(0,48)..(384,240)` has zero pixels
+over 2/255 and a maximum channel delta of 1. The remaining full-screen
+differences mean the screen has no whole-scenario fidelity pass.
 
 ## Transfer and Update return follow-up
 

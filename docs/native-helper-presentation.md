@@ -180,6 +180,24 @@ fidelity pass. Hashed images and the comparison report are under
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/manual-text-source-size-20260927/`.
 Capture/browser sampling and remaining source-composition differences stay open.
 
+**Fractional source-spacing follow-up (27 September 2026).** Thirteen of the
+eighteen page body panes carry source `characterSpacing` values between
+`0.1714288592338562` and `0.5`. The prior direct-LCD guard rejected every
+nonzero value, so those panes fell back to a pane-sized Canvas raster and a
+second composition sample. The top-left source path now adds that delivered
+spacing to each float32 glyph advance and remains direct; other alignment modes
+still require zero spacing for this path. Source pane data, text and font assets
+remain unchanged.
+
+Against the same native capture and empty mask, a same-backend before/after
+source render decreases the upper residual from **15,116 to 3,122** pixels over
+2/255 (RGB MAE **3.87116 to 1.03694/255**) and the lower residual from **12,567
+to 2,075** (RGB MAE **4.62979 to 1.27896/255**). The report (SHA-256
+`efa6d709…d870d`) and inspected contact sheets are under
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/manual-page0-character-spacing-20260927/`.
+This remains an offline source-render result; integrated production recapture
+and matched input, motion and audio evidence remain open.
+
 The largest connected production upper residual is still the scrollbar strip
 (x363, y41, 6×145; 858 pixels). Delivered `ScrollIndicator` BCMA provides its
 host, end/start artwork, orientation and Wait/Limit color animation; it contains

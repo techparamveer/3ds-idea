@@ -48,7 +48,7 @@ It has a 16-byte header and 100 fixed 0x70-byte records. Each record contains
 0x30 bytes of metadata and a 0x40-byte UTF-16LE title. Active records sorted by
 the little-endian timestamp at record offset 0x28 give HOME Menu Settings,
 Touching and Sliding, Sleep Mode, HOME Menu Functionality, Using microSD Cards,
-Play Coins, About the `U+E073`HOME Button, New Software via SpotPass and About
+Play Coins, About the `U+E073` HOME Button, New Software via SpotPass and About
 Notifications. Record byte 1 is zero only for HOME Menu Settings; the other
 eight records are unread. This matches the native Unread Notifications count 8,
 the missing blue dot on the first row and the first four visible titles.
@@ -63,6 +63,22 @@ to the existing upper unread and Close layouts. Source fixture rows are inert
 and omit the generic OK action because their bodies/detail view have not been
 verified. Populated saved arrays remain intact with existing behavior. List
 scrolling/animation has not been native compared.
+
+The integrated production capture at `8cbee36` uses a fresh loopback origin so
+the new-profile fixture is observable. The browser was opened from HOME through
+the accessibility `Open Notifications` control and captured at native LCD
+resolution. Against the isolated Vulkan frame above, the empty-mask comparison
+reports **6,200 upper / 21,826 lower** pixels over 2/255, reduced from the
+earlier empty browser state's **6,612 / 53,449**. Both contact sheets were
+inspected. The lower residual is visibly concentrated in the missing source
+information icons and unread dots, row geometry and scrollbar. Shared HUD text
+accounts for much of the upper residual. Native entered from selected
+Notifications with 32 discrete A presses, so input cadence, transitions and
+audio remain unmatched and the scenario remains `fail`.
+
+Raw browser LCDs and the comparison report are under
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-postfix/reference/scenario-matrix/v1/`
+as `notifications-list-postfix-8cbee36-20260927`.
 
 ## Game Notes initial screen
 

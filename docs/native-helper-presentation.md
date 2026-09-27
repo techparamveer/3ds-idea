@@ -302,6 +302,19 @@ error 3.851 / 4.623). Both contact sheets were inspected. The upper count is
 unchanged; the lower count improves by 76 pixels. Pixel, motion and audio
 tiers remain failing/open.
 
+The direct LCD text path now also preserves the nonzero character spacing from
+the delivered source message styles for source-sized, upright, top-left alpha
+text. Other alignment paths keep the zero-spacing guard. The rebuilt production
+capture at `8cbee36` reports **3,054 upper / 2,071 lower** pixels over 2/255
+(mean RGB error **1.0349 / 1.2777**), down from 14,716 / 12,404. Both contact
+sheets were inspected. The unsupported upper scrollbar remains the largest
+coherent upper residual; smaller glyph and footer raster differences remain on
+the lower LCD. The browser route and preserved native route differ, and no
+transition or audio comparison exists, so the whole scenario remains `fail`.
+Evidence is under
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-postfix/reference/scenario-matrix/v1/`
+as `settings-manual-page0-postfix-8cbee36-20260927`.
+
 For this follow-up, `drawManual()` and the Settings page-0 compositor both
 sample only the Back glyphs at final LCD pixel centres. A focused regression
 test executes the Settings page-0 helper compositor and checks that option.

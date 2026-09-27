@@ -99,6 +99,18 @@ See the [resource audit](remaining-home-banner-resource-audit.md),
 [browser capture](</Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-native-vulkan/reference/scenario-matrix/v1/captures/home-notifications-selected-vulkan-reference-20260927/browser>),
 and [diff report](</Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-native-vulkan/reference/scenario-matrix/v1/comparisons/home-notifications-selected-vulkan-reference-20260927/report.json>).
 
+The Notifications applet now opens new browser profiles with the nine exact
+isolated-profile titles in native timestamp order and eight unread flags. It
+uses the delivered news-list and SlideBar layouts, keeps the reference rows
+inert, preserves explicitly saved empty/custom lists, and ships no private
+database. The inspected production/native list pair at `8cbee36` improves from
+the old empty-state **6,612 / 53,449** to **6,200 upper / 21,826 lower** pixels
+over 2/255. Missing information icons/unread dots, row fit, scrollbar, HUD,
+unmatched inputs, motion and audio keep it failed. The post-spacing Settings
+Manual page-0 pair is **3,054 / 2,071**, down from **14,716 / 12,404**, with
+scrollbar and smaller raster differences still open. Both records are in
+[matrix v96](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927/reference/scenario-matrix/v96/matrix.json).
+
 The later [stock-app browser smoke](progress-2026-09-24.md#browser-stock-app-smoke-after-notes-owner-correction--26-september-2026)
 at `1c594a5` checks Notes grid/editor/snapshot/Switch/HOME return, Friend List,
 Notifications and local Browser. Its one saved Notes grid raw LCD pair has no

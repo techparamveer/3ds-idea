@@ -154,16 +154,15 @@ is not delivered, so its touch region and Y command remain inert.
 
 **Remaining gaps.** The Settings SMDH icon is drawn through the browser image
 callback at the measured slot; the applet's exact icon mask/filter remains
-unverified. The general title truncation rule is unknown. Later category colours, row
-selection/scrolling, opening pages and Language navigation are absent. The
+unverified. The general title truncation rule is unknown. Later category colours,
+row selection/scrolling and Language navigation are absent. The
 source-render verifier (`scripts/verify-stock-helpers.mjs`,
 `manual-settings-contents`) checks composition and immutability only. The
-production-browser/native empty-mask pair after the band and footer placement
-still has 87,897 upper and 11,771 lower pixels over 2/255. A later source render
-with `AllNull` reduces the upper count to 1,944; its unobscured background region
-`(0,48)..(384,240)` has zero pixels over 2/255 and a maximum channel delta of 1.
-This is source-render evidence pending an integrated browser recapture, and the
-screen has no whole-scenario fidelity pass.
+integrated production-browser/native empty-mask pair at `15c2abf` has 1,518
+upper and 9,225 lower pixels over 2/255. The unobscured `AllNull` source-render
+background region `(0,48)..(384,240)` has zero pixels over 2/255 and a maximum
+channel delta of 1. The remaining full-screen differences mean the screen has
+no whole-scenario fidelity pass.
 
 ## Transfer and Update return follow-up
 
@@ -214,9 +213,11 @@ Existing `BtnBack00` retains its source messages and font-width glyph grouping;
 Enlarge uses the same grouping approach. All shapes, fonts and native text are
 firmware resources. No screenshot is delivered.
 
-Remaining gaps: upper striped base, adjacent page preview, scrollbar, page
+Remaining gaps: adjacent page preview, scrollbar, page
 scrolling, Enlarge, later-page navigation, native transition/cue timing and
-pixel fidelity. The absent preview is not an invented page. Page entry is a
+pixel fidelity. The shared source `AllNull` base is now active. The absent preview is not an invented page. Page entry is a
 settled presentation with existing readiness/loading gates, not an emulated
 native transition. The source-render verifier checks both LCDs, immutable
-resources and bounded targets; production browser/native comparison is pending.
+resources and bounded targets. The first production/native empty-mask pair at
+`15c2abf` has 31,818 upper and 17,463 lower pixels over 2/255; both contact
+sheets were inspected, so pixel, motion and audio tiers remain failing/open.

@@ -329,8 +329,8 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   }
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});
   draw(bottom,'manual-footer-shadow','BtnShdw00',{bindings:[{name:'BtnShdw00_SceneIn',frame:20}]});
-  draw(bottom,'manual-footer-close','BtnCloseLng00',{bindings:[{name:'BtnCloseLng00_SceneIn',frame:20}],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}});
-  draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageLabelX,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageLabelX,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,26,0]}}});
+  draw(bottom,'manual-footer-close','BtnCloseLng00',{textSampling:'lcd-source-size',bindings:[{name:'BtnCloseLng00_SceneIn',frame:20}],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}});
+  draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd-source-size',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageLabelX,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageLabelX,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,26,0]}}});
   return okay;
 }
 

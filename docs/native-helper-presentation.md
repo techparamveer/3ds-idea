@@ -138,8 +138,10 @@ drawn afterward and lifts the visible colour, the fitted pre-shadow register is
 `(118,183,218)`; the settled source render then reaches the native strip's
 `(124,186,219)`. The source row body's Y+3 is fitted to Y+2 while its slot,
 category and cursor centres remain unchanged; this aligns both chips and the
-row shadow edges without moving the already matching cursor. Contents, row,
-category and Language text opt into the renderer's source LCD sampling path.
+row shadow edges without moving the already matching cursor. Contents, row and
+category text use the renderer's LCD sampling path. Footer Language and Close
+bitmap-font text use its source-size LCD path, rasterizing the delivered
+`cbf_std` glyphs at their composed LCD resolution.
 The Language glyph is translated to x−43 and its label to x+13, matching the
 separately delivered glyph and label panes in the native footer. These
 component positions are capture-fitted; source animation,
@@ -177,6 +179,17 @@ label region. The resulting production lower diagnostic is 1,664 pixels over
 `AllNull` source-render background region `(0,48)..(384,240)` has zero pixels
 over 2/255 and a maximum channel delta of 1. The remaining full-screen
 differences mean the screen has no whole-scenario fidelity pass.
+
+**Lower text follow-up (27 September 2026).** The delivered `BtnLngSel00` and
+`BtnCloseLng00` footer panes retain their original `ebird` messages and layout;
+only their bitmap-font sampling mode changes to source-size LCD. Against the
+same native capture with an empty mask, the offline `verify-stock-helpers.mjs`
+render decreased from **2,102 to 1,899** lower pixels over 2/255. The Language
+glyph region decreased from **275 to 256** pixels. This verifies the source
+renderer output, not a production browser recapture: the captured production
+pair at `0a44f2c` still records 1,664 lower pixels over 2/255 pending
+integration and recapture. Small row/footer text residuals remain, and the
+screen has no whole-scenario fidelity pass.
 
 ## Transfer and Update return follow-up
 

@@ -65,3 +65,9 @@ ownership only; it does not connect either file to `P_Icon_00` or the
 `N_IconNew_00` attachment. The native capture's gray information badge and
 blue unread dot therefore remain unresolved. No visual override is justified
 by this bounded trace.
+
+**Later resolution:** [CIC badge validation](notifications-cic-badge-validation-2026-09-27.md)
+decodes `special.cic` and matches its source-layout first-row icon crop to the
+isolated native capture at zero pixels over 2/255. The badge is delivered and
+bound in the browser source renderer. The unread dot and the executable's icon
+selection rule for other list states remain unresolved.

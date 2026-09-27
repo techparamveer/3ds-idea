@@ -20,6 +20,10 @@ test('LCD export is closed without absolute root, loopback host, opt in and same
   const request = (url, origin, host, fetchSite) => new Request(url, { method: 'POST', headers: { origin, ...(host ? { host } : {}), ...(fetchSite ? { 'sec-fetch-site': fetchSite } : {}) } });
   const root = fileURLToPath(new URL('../', import.meta.url));
   assert.equal(localLcdExportAllowed(request('http://localhost:3000/api/verification/lcd-capture?lcdCapture=1', 'http://localhost:3000'), root), true);
+  assert.equal(localLcdExportAllowed(request('http://0.0.0.0:3000/api/verification/lcd-capture?lcdCapture=1', 'http://127.0.0.1:3000', '127.0.0.1:3000', 'same-origin'), root), true,
+    'Next development wildcard normalization is allowed only with a matching loopback Host and Origin');
+  assert.equal(localLcdExportAllowed(request('http://0.0.0.0:3000/api/verification/lcd-capture?lcdCapture=1', 'http://evil.example', 'evil.example', 'same-origin'), root), false);
+  assert.equal(localLcdExportAllowed(request('http://0.0.0.0:3000/api/verification/lcd-capture?lcdCapture=1', 'http://127.0.0.1:3000', undefined, 'same-origin'), root), false);
   assert.equal(localLcdExportAllowed(request('http://localhost:3000/api/verification/lcd-capture?lcdCapture=1', 'http://127.0.0.1:3000', '127.0.0.1:3000', 'same-origin'), root), true,
     'Next-normalized localhost URL retains the browser’s 127.0.0.1 authority in Host');
   assert.equal(localLcdExportAllowed(request('http://127.0.0.1:3000/api/verification/lcd-capture?lcdCapture=1', 'http://127.0.0.1:3000', '127.0.0.1:3000'), root), true);

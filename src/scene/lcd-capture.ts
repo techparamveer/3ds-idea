@@ -30,10 +30,10 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
   const dateText = params.get('lcdDate');
   const scenario = params.get('lcdScenario') ?? 'browser-lcd';
   const liveHealthHomeClock = params.has('lcdHealthBannerFrame') || params.has('lcdHomeWallpaperFrame');
+  if (liveHealthHomeClock && (elapsedText !== null || dateText !== null)) throw new Error('Health HOME source frames use the live HOME clock; omit lcdElapsedMs and lcdDate');
   const bannerFrameText = params.get('lcdBannerFrame');
   const elapsedMs = elapsedText === null || elapsedText.trim() === '' ? NaN : Number(elapsedText);
-  if ((!liveHealthHomeClock && (!Number.isFinite(elapsedMs) || elapsedMs < 0 || !dateText || !Number.isFinite(new Date(dateText).getTime())))
-    || liveHealthHomeClock && ((elapsedText !== null && (!Number.isFinite(elapsedMs) || elapsedMs < 0)) || (dateText !== null && !Number.isFinite(new Date(dateText).getTime())))) {
+  if (!liveHealthHomeClock && (!Number.isFinite(elapsedMs) || elapsedMs < 0 || !dateText || !Number.isFinite(new Date(dateText).getTime()))) {
     throw new Error('Set valid lcdElapsedMs and lcdDate query parameters before downloading LCDs');
   }
   if (!/^[a-z0-9-]{1,64}$/.test(scenario)) throw new Error('Invalid LCD scenario name');

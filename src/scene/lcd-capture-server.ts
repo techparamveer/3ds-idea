@@ -9,7 +9,11 @@ const maxBodyBytes = 8 * 1024 * 1024;
 export function localLcdExportAllowed(request: Request, root: string | undefined): boolean {
   if (!root || !isAbsolute(root)) return false;
   const url = new URL(request.url);
-  if (!loopback.has(url.hostname) || url.pathname !== '/api/verification/lcd-capture' || url.searchParams.get('lcdCapture') !== '1') return false;
+  // A Next dev server bound to 0.0.0.0 normalizes request.url to that bind
+  // address even when the browser's actual authority is loopback. Accept that
+  // internal form only when the explicit Host and Origin checks below agree.
+  const normalizedWildcard = url.hostname === '0.0.0.0' && !!request.headers.get('host');
+  if ((!loopback.has(url.hostname) && !normalizedWildcard) || url.pathname !== '/api/verification/lcd-capture' || url.searchParams.get('lcdCapture') !== '1') return false;
   const originText = request.headers.get('origin');
   if (!originText) return false;
   let origin: URL;

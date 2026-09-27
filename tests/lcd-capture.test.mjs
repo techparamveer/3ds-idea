@@ -75,7 +75,7 @@ test('Health frame request validates bounds and loopback even in development', (
 });
 
 test('Health HOME source-loop request requires a local host and paired integer frames', () => {
-  const query = '?lcdElapsedMs=0&lcdDate=2026-09-27&lcdHealthBannerFrame=0&lcdHomeWallpaperFrame=599';
+  const query = '?lcdHealthBannerFrame=0&lcdHomeWallpaperFrame=599';
   assert.equal(lcdDownloadRequest(query, 'localhost').healthBannerFrame, 0);
   assert.equal(lcdDownloadRequest(query, 'localhost').homeWallpaperFrame, 599);
   for (const host of ['example.com', undefined]) assert.throws(() => lcdDownloadRequest(query, host), /localhost/);
@@ -84,6 +84,7 @@ test('Health HOME source-loop request requires a local host and paired integer f
   }
   assert.throws(() => lcdDownloadRequest(query.replace('&lcdHomeWallpaperFrame=599',''), 'localhost'), /both be integers/);
   assert.throws(() => lcdDownloadRequest(`${query}&lcdHealthFrame=0`, 'localhost'), /cannot be combined/);
+  assert.throws(() => lcdDownloadRequest('?lcdElapsedMs=0&lcdDate=2026-09-27&lcdHealthBannerFrame=0&lcdHomeWallpaperFrame=0','localhost'),/omit lcdElapsedMs and lcdDate/);
   const live = lcdDownloadRequest('?lcdHealthBannerFrame=327&lcdHomeWallpaperFrame=311', 'localhost');
   assert.equal(live.liveHealthHomeClock,true,'source samples leave the HOME date and elapsed clock live');
   assert.equal(live.isoDate,undefined);
@@ -99,7 +100,7 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   const initial=structuredClone(state);let persistenceWrites=0;
   const view={status:'active',primary:{selection:{kind:'app',id:'health-safety'},motion:{material:{frame:81}}}};
   const deps={disposed:false,firmwareAssets:{},state,window:{location:{hostname:'localhost'}},lcdHomeHudSample,
-    screens:{paint(...args){paints.push(args);},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>view,bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
+    screens:{paint(...args){paints.push(args);return args[3]?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:true,healthBanner:true};},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>view,bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
     settingsBannerPhase(){return{sample:null};},encodeNativeLcdPair(){return{top:'png',bottom:'png'};},start:0,topTexture:{},bottomTexture:{},storage:{async save(){persistenceWrites++;}}};
   const capture=new Function(...Object.keys(deps),'let verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(deps));
   const result=capture(1200,'2026-09-27',undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311});
@@ -112,6 +113,9 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   assert.equal(persistenceWrites,0,'sampling does not persist state');
   view.primary.selection={kind:'app',id:'system-settings'};
   assert.throws(()=>capture(1200,'2026-09-27',undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311}),/active Health HOME selection/);
+  view.primary.selection={kind:'app',id:'health-safety'};
+  deps.screens.paint=(...args)=>{paints.push(args);return {homeWallpaper:false,healthBanner:true};};
+  assert.throws(()=>capture(1200,undefined,undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311}),/could not render both firmware models/);
 });
 
 function liveCaptureFixture(initialFrame = 350) {
@@ -192,7 +196,7 @@ test('HOME HUD wiring is capture-only, records its sample, and restores live pai
   const block = scene.slice(scene.indexOf('if(lcdCapture){const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
   assert.match(block, /lcdHomeHudSample\(hudSample,window.location.hostname\)/);
   assert.match(block, /phase!=='home'/);
-  assert.match(block, /try\{screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
+  assert.match(block, /try\{const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
   assert.match(block, /homeHudSample:homeHudSample\?\?null/);
   assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;screens.paint\(state,new Date\(\),performance.now\(\)-start\)/);
 });

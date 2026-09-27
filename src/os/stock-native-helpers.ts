@@ -210,7 +210,7 @@ function drawManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,b
     draw(bottom,'manual-ContentsTxt','PortfolioBody',{overrides:{Contents_Txt:{text:wrap((view.text??[]).join('\n'),32)}}});
     draw(top,'manual-PageNum','PageNum',{center:[200,212],overrides:{PageBackNull:{visible:false},PageNumBase02_00:{size:[210,64],scale:[-1,1]},PageAllNum_03:message('PageNum'),PageNum_01:{text:'1'},PageAllNum_02:{text:'1'}}});
     const backOverrides=manualBackOverrides(renderer,options);
-    draw(bottom,'manual-back','BtnBack00',{bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:backOverrides});
+    draw(bottom,'manual-back','BtnBack00',{textSampling:'lcd-source-size',bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:backOverrides});
   }
   return okay;
 }
@@ -382,7 +382,7 @@ function drawApplicationManualPage(renderer:NativeLayoutRenderer,top:CanvasRende
   draw(top,'manual-row','ManualRowGettingStarted',{center:[200+neighbor.translation[0],20],bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(next.page+1)},TextBox_Txt:{text:next.title}}});
   draw(top,'manual-row','ManualRowImportant',{center:[200,20],bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(page.page+1)},TextBox_Txt:{text:page.title}}});
   draw(bottom,'manual-BtnClose01','BtnClose01',{bindings:[{name:'BtnClose01_SceneIn',frame:20}]});
-  draw(bottom,'manual-back','BtnBack00',{bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:manualBackOverrides(renderer,options)});
+  draw(bottom,'manual-back','BtnBack00',{textSampling:'lcd-source-size',bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:manualBackOverrides(renderer,options)});
   const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
   // Enlarge is visible source chrome but remains inert in this first-page slice.
   const sizeOverrides:PaneOverrides={BtnMinusIcon00:{visible:false},Plus01__Text:message('BtnTextSize_Big'),Plus02__Text:message('BtnTextSize_Big'),T_BtnB_Pict:message('BtnTextSize_Picto'),T_BtnF_Pict:message('BtnTextSize_Picto')};

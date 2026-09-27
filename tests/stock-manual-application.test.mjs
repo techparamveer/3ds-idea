@@ -18,7 +18,16 @@ const transpile = (name, overrides = {}) => {
   return moduleUrl(outputText.replace(/(from\s*['"])(\.[^'"]+?)(\.ts)?(['"])/g, (_all, prefix, path, _ext, suffix) => prefix + (overrides[path] ?? new URL(`${path}.ts`, url).href) + suffix));
 };
 const empty = moduleUrl('export const drawNativeAmiibo=()=>false;export const amiiboScreenPacks=[];');
-const helpers = await import(transpile('stock-native-helpers', { './stock-native-amiibo': empty, './native-layout': moduleUrl('export const nativeMessageOverride=()=>({});export const nativePaneParentPath=()=>null;export const nativeTextMetrics=()=>null;') }));
+const nativeLayoutStub = moduleUrl(`
+  export const nativeMessageOverride=()=>({});
+  export const nativePaneParentPath=(layout,name)=>{
+    let found=null;
+    const visit=(panes,path=[])=>{for(const pane of panes??[]){const next=[...path,pane];if(pane.name===name){found=next;return;}visit(pane.children,next);if(found)return;}};
+    visit(layout?.roots);return found;
+  };
+  export const nativeTextMetrics=()=>null;
+`);
+const helpers = await import(transpile('stock-native-helpers', { './stock-native-amiibo': empty, './native-layout': nativeLayoutStub }));
 
 test('Settings manual source is the delivered content-1 pack with its SMDH heading', () => {
   const title = manifest.titles[settings];
@@ -136,6 +145,22 @@ test('page 1 opens through A or its row; B returns and X closes from either scre
   assert.ok(requests.find(p=>p.alias==='manual-row').animations.includes('BtnHeadLineTxt_ChangeWait'));
   assert.equal(helpers.nativeHelperView(module.view(state,ctx)).packs.find(p=>p.alias==='manual-row').animations.includes('BtnHeadLineTxt_ChangeWait'),false,'page request must not mutate shared contents packs');
   assert.deepEqual(helpers.nativeHelperTargets(module.view(page,ctx)).map(t=>t.action),['manual-close','back']);
+});
+
+test('Settings Manual page 0 samples its Back glyphs at final LCD pixel centres', () => {
+  const module=createStockModule(getTitle('manual'));
+  const state=module.create({manualTitleId:settings},null,ctx);
+  const page=module.reduce(state,{type:'command',command:'open'},ctx).state;
+  const view=module.view(page,ctx),request=helpers.nativeHelperView(view),calls=[];
+  const renderer={
+    packs:Object.fromEntries(request.packs.map(item=>[item.alias,json(item.url)])),
+    draw(_context,pack,layout,options){calls.push({pack,layout,options});return true;},
+  };
+  assert.equal(helpers.drawNativeHelperFrame(renderer,{}, {},view),true);
+  const back=calls.find(call=>call.pack==='manual-back'&&call.layout==='BtnBack00');
+  assert.equal(back.options.textSampling,'lcd-source-size');
+  assert.ok(back.options.overrides.T_BtnF_Text);
+  assert.ok(back.options.overrides.T_BtnF_Pict);
 });
 
 test('page preview requests source adjacent geometry and only delivered small page 2', () => {

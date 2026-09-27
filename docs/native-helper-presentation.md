@@ -277,8 +277,23 @@ settled presentation with existing readiness/loading gates, not an emulated
 native transition. The source-render verifier checks both LCDs, immutable
 resources and bounded targets. The first production/native empty-mask pair at
 `c3066b5` has **14,716 upper and 12,480 lower** pixels over 2/255, down from
-31,818 / 17,463 before the neighbor and source-size page text were mounted. Both contact sheets were
-inspected, so pixel, motion and audio tiers remain failing/open.
+31,818 / 17,463 before the neighbor and source-size page text were mounted.
+The rebuilt production pair after source-size sampling of the `BtnBack00`
+footer reports **14,716 upper and 12,404 lower** pixels over 2/255 (mean RGB
+error 3.851 / 4.623). Both contact sheets were inspected. The upper count is
+unchanged; the lower count improves by 76 pixels. Pixel, motion and audio
+tiers remain failing/open.
+
+For this follow-up, `drawManual()` and the Settings page-0 compositor both
+sample only the Back glyphs at final LCD pixel centres. A focused regression
+test executes the Settings page-0 helper compositor and checks that option.
+Offline helper pairs pass, as do the focused manual tests, typecheck and
+production build. Rebuilt browser capture and the native comparison are stored
+under `/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-clean-origin/reference/scenario-matrix/v1/captures/settings-manual-page0-source-size-20260927/`
+and `/tmp/manual-page0-rebuilt-compare-20260927/`. Capture route was driven
+through the live Settings applet into Important Information, but the Azahar
+reference is a saved settled frame, so this remains a presentation comparison,
+not a matched route or whole-scenario pass.
 
 
 ## Settings Manual neighboring page (2026-09-27)

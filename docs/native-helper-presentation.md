@@ -165,7 +165,11 @@ source-render verifier (`scripts/verify-stock-helpers.mjs`,
 `manual-settings-contents`) checks composition and immutability only. The
 integrated production-browser/native empty-mask pair at `0a44f2c` has **471
 upper and 1,664 lower** pixels over 2/255. The upper residual is confined to
-the icon slot; title, scrollbar and background align. Adding the delivered lower
+the icon slot; title, scrollbar and background align. A bounded RGB565
+quantization experiment increased the source-render threshold residual from
+467 to 481 pixels, so it was reverted; the remaining sampling/combiner source
+gap is recorded in the [icon audit](manual-icon-sampling-audit-2026-09-27.md).
+Adding the delivered lower
 `AllNull/P_Bg_D_00` removes the source render's 6,532-pixel `IndexBase00`
 card/frame region, and the footer pane fit removes the prior 873-pixel Language
 label region. The resulting production lower diagnostic is 1,664 pixels over

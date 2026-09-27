@@ -28,32 +28,15 @@ Before hardware edits, also read [research](docs/3ds-xl-research.md) and the
 their own checkpoint. Check the source and later evidence before repeating a
 limitation or declaring it fixed.
 
-## Agent model preference — 26 September 2026
+## Agent model preference — 27 September 2026
 
-For new worker turns, the user's latest choice is **GPT-6 Astra, medium
-reasoning, Fast mode**. This supersedes the earlier Sol preference in the
-historical goal. Model, reasoning effort and service tier are separate settings.
-
-The coordinator set `/Users/paramveer/.codex/config.toml` for future turns to
-`model = "gpt-6-astra"`, `model_reasoning_effort = "medium"` and
-`service_tier = "fast"`, backed up the prior file as
-`config.toml.before-astra-fast-20260926`, and verified that the edited TOML parses.
-The official [Codex Configuration Reference](https://developers.openai.com/codex/config-reference)
-documents top-level `service_tier = "fast"` for new turns; Fast maps to request
-priority. The in-flight coordinator turn cannot switch model or tier through
-this configuration edit.
-
-When a delegation tool exposes model and effort, pass `model=gpt-6-astra` and
-`reasoning_effort=medium` explicitly. For this host's subagent tool, an explicit
-override requires a bounded or empty context fork; a full-history fork inherits
-the parent's current settings. The collaboration spawn API still has no explicit
-service-tier argument. Global configuration is set for future turns, but an
-individual agent's response tier has not been observed; do not claim a verified
-per-agent Fast tier. For a new or continued Codex task, pass
-`model=gpt-6-astra` and `thinking=medium` when exposed. If a control rejects this
-combination, report the unsupported part rather than claiming it was applied.
-This documentation update records the coordinator's configuration change; it
-does not itself edit global configuration or switch an in-flight turn.
+The user's latest preference is **GPT-6 Luna, medium reasoning, standard speed
+(no Fast mode)**. This supersedes the earlier Astra Fast and Sol preferences.
+For delegated work, explicitly select `model=gpt-6-luna` and
+`reasoning_effort=medium` on a bounded or empty context fork. The collaboration
+tool does not expose a service-tier argument. Do not claim that the in-flight
+coordinator model or tier changed; it cannot be switched through a subagent
+override. Follow this preference for all new work unless the user updates it.
 
 ## Product constraints
 

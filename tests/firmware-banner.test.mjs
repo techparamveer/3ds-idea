@@ -72,6 +72,16 @@ test('native 400×240 banner target ignores fractional page DPR',async t=>{
  assert.equal(h.banner.drawBackground(h.ctx,12000,false),true);
  assert.deepEqual(h.draws.at(-1).viewport.toArray(),[0,0,400,240]);
 });
+
+test('Health HOME wallpaper samples a bounded BannerBG_Loop frame and normal painting resumes live playback',async t=>{
+ const h=setup(t);await h.banner.ready;
+ assert.equal(h.banner.drawBackgroundFrame(h.ctx,311),true);
+ assert.equal(h.draws.length,1);
+ assert.equal(h.banner.drawBackgroundFrame(h.ctx,600),false);
+ assert.equal(h.draws.length,1,'invalid source frame does not render');
+ assert.equal(h.banner.drawBackground(h.ctx,12000,false),true);
+ assert.equal(h.draws.length,2,'normal wallpaper paint remains available after the synthetic sample');
+});
 function snapshot(group){
  const meshes=[];group.traverse(node=>{if(node.isMesh)meshes.push({positions:[...node.geometry.attributes.position.array],uniforms:Object.fromEntries(Object.entries(node.material.uniforms).filter(([name])=>name.startsWith('constant')||name.startsWith('uvMatrix')).map(([name,{value}])=>[name,value.toArray()]))});});
  return {position:group.position.toArray(),scale:group.scale.toArray(),yaw:group.rotation.y,inner:group.children.map(child=>child.matrix.toArray()),meshes};

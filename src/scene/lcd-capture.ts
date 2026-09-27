@@ -29,9 +29,11 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
   const elapsedText = params.get('lcdElapsedMs');
   const dateText = params.get('lcdDate');
   const scenario = params.get('lcdScenario') ?? 'browser-lcd';
+  const liveHealthHomeClock = params.has('lcdHealthBannerFrame') || params.has('lcdHomeWallpaperFrame');
   const bannerFrameText = params.get('lcdBannerFrame');
   const elapsedMs = elapsedText === null || elapsedText.trim() === '' ? NaN : Number(elapsedText);
-  if (!Number.isFinite(elapsedMs) || elapsedMs < 0 || !dateText || !Number.isFinite(new Date(dateText).getTime())) {
+  if ((!liveHealthHomeClock && (!Number.isFinite(elapsedMs) || elapsedMs < 0 || !dateText || !Number.isFinite(new Date(dateText).getTime())))
+    || liveHealthHomeClock && ((elapsedText !== null && (!Number.isFinite(elapsedMs) || elapsedMs < 0)) || (dateText !== null && !Number.isFinite(new Date(dateText).getTime())))) {
     throw new Error('Set valid lcdElapsedMs and lcdDate query parameters before downloading LCDs');
   }
   if (!/^[a-z0-9-]{1,64}$/.test(scenario)) throw new Error('Invalid LCD scenario name');
@@ -46,6 +48,19 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
     if (!/^[0-9]+$/.test(healthFrameText!) || !Number.isSafeInteger(healthFrame) || healthFrame < 0 || healthFrame > 719) throw new Error('lcdHealthFrame must be an integer from 0 to 719');
     if (bannerFrame !== undefined) throw new Error('lcdHealthFrame cannot be combined with lcdBannerFrame');
   }
+  const healthBannerFrameText = params.get('lcdHealthBannerFrame');
+  const homeWallpaperFrameText = params.get('lcdHomeWallpaperFrame');
+  const healthBannerFrame = healthBannerFrameText === null ? undefined : Number(healthBannerFrameText);
+  const homeWallpaperFrame = homeWallpaperFrameText === null ? undefined : Number(homeWallpaperFrameText);
+  if (healthBannerFrame !== undefined || homeWallpaperFrame !== undefined) {
+    if (!hostname || !['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname)) throw new Error('Health HOME frame sampling requires localhost');
+    if (healthBannerFrameText === null || homeWallpaperFrameText === null
+      || !/^[0-9]+$/.test(healthBannerFrameText) || !/^[0-9]+$/.test(homeWallpaperFrameText)
+      || !Number.isSafeInteger(healthBannerFrame) || healthBannerFrame! < 0 || healthBannerFrame! > 599
+      || !Number.isSafeInteger(homeWallpaperFrame) || homeWallpaperFrame! < 0 || homeWallpaperFrame! > 599) {
+      throw new Error('lcdHealthBannerFrame and lcdHomeWallpaperFrame must both be integers from 0 to 599');
+    }
+  }
   const skeletalText = params.get('lcdBannerSkeletalFrame');
   const bannerSkeletalFrame = skeletalText === null ? undefined : Number(skeletalText);
   if (bannerSkeletalFrame !== undefined) {
@@ -55,7 +70,10 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
   const hudText = params.get('lcdHomeHudSample');
   const homeHudSample = hudText === null ? undefined : lcdHomeHudSample(JSON.parse(hudText), hostname);
   if (homeHudSample !== undefined && healthFrame !== undefined) throw new Error('lcdHomeHudSample cannot be combined with lcdHealthFrame');
-  return { ...(bannerSkeletalFrame === undefined ? {} : { bannerSkeletalFrame }), ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs, isoDate: new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }) };
+  if (healthBannerFrame !== undefined && (bannerFrame !== undefined || healthFrame !== undefined || bannerSkeletalFrame !== undefined || homeHudSample !== undefined)) {
+    throw new Error('Health HOME frames cannot be combined with other sampled banner or HUD frames');
+  }
+  return { ...(bannerSkeletalFrame === undefined ? {} : { bannerSkeletalFrame }), ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs:liveHealthHomeClock?0:elapsedMs, isoDate:dateText===null?undefined:new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }), ...(healthBannerFrame === undefined ? {} : { healthBannerFrame, homeWallpaperFrame }), ...(liveHealthHomeClock?{liveHealthHomeClock:true}:{}) };
 }
 
 export function lcdDownloadPayload(scenario: string, capture: ReturnType<typeof encodeNativeLcdPair> & Record<string, unknown>) {

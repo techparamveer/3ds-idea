@@ -189,7 +189,10 @@ glyph region decreased from **275 to 256** pixels. This verifies the source
 renderer output, not a production browser recapture: the captured production
 pair at `0a44f2c` still records 1,664 lower pixels over 2/255 pending
 integration and recapture. Small row/footer text residuals remain, and the
-screen has no whole-scenario fidelity pass.
+screen has no whole-scenario fidelity pass. The offline diff reports are in
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/manual-lower-text-coverage-20260927/`:
+before SHA-256 `8f88e8b5e2bfafe21e3a0d08f4698c56f3dc5305317cc6ecb98f596713e1de0d`,
+after SHA-256 `d2f3fdc498cf7e390f0ea028a18bcfc2617f2fddfdacdb6e6ae8af328b60a94c`.
 
 ## Transfer and Update return follow-up
 

@@ -99,3 +99,17 @@ has no marker in both images. This local match supports the source artwork,
 attachment and settled colour/position for the captured pose. It is not a
 whole-screen browser comparison; remaining Notifications residuals and native
 motion/input/audio acceptance remain open.
+
+## Integrated production comparison
+
+After integrating the source receive lamp at `f073581`, a fresh production
+browser was driven from HOME through the Notifications toolbar and captured at
+raw 400×240 / 320×240 LCD resolution. It was compared with the same isolated
+Azahar settled list PNG and browser date/elapsed sample used for the neutral
+entry comparison. With an empty mask, upper residual stays **6,239** and
+lower residual falls from **5,860 to 3,876** pixels above 2/255. The three
+large missing-dot regions disappear. Matrix v99 records paths and hashes at
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927/reference/scenario-matrix/v99/matrix.json`.
+
+The remaining lower scrollbar and footer regions, upper HUD, input timing,
+dot pulse timing, motion and audio keep the scenario failing.

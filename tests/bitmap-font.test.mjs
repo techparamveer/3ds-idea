@@ -36,15 +36,16 @@ test('native centered text rounds the measured centre and retains distinct ascen
  ]);
 });
 
-test('source-sized top-left alpha text preserves fractional BCFNT glyph advances',()=>{
+test('source-sized top-left alpha text preserves fractional BCFNT glyph advances and spacing',()=>{
  const first={sheet:0,x:1,y:2,width:2,height:3,left:-1,advance:3};
  const second={sheet:0,x:4,y:2,width:1,height:3,left:0,advance:2};
  const manifest={schema:1,sourceSha256:'0'.repeat(64),width:6,height:6,baseline:5,sheets:['sheet.png'],glyphs:{65:first,66:second},fallback:null};
- const quads=nativeTopLeftGlyphQuads(manifest,'AB',[6,6]);
- const f=Math.fround;
+ const spacing=.4864870309829712,quads=nativeTopLeftGlyphQuads(manifest,'ABB',[6,6],spacing);
+ const f=Math.fround,x1=f(f(3)+spacing),x2=f(x1+f(f(2)+spacing));
  assert.deepEqual(quads.map(({x,y,width,height,right,bottom})=>[x,y,width,height,right,bottom]),[
   [f(-1),0,f(2),f(3),f(1),f(3)],
-  [f(3),0,f(1),f(3),f(4),f(3)],
+  [x1,0,f(1),f(3),f(x1+1),f(3)],
+  [x2,0,f(1),f(3),f(x2+1),f(3)],
  ]);
 });
 

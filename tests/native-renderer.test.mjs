@@ -359,3 +359,21 @@ test('Camera fractional centered text preserves source size only in the opted-in
   renderer.dispose();
  }finally{globalThis.document=previous;}
 });
+
+test('source-sized top-left alpha text keeps fractional spacing in the direct LCD path',()=>{
+ const previous=globalThis.document,calls=[];
+ globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
+ try{
+  const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+  const font={manifest,drawNative(...args){calls.push({spacing:args[6],phase:args[9],direct:args[10],sourceSize:args[14],sourceTopLeft:args[15]});}};
+  const text={value:'Important information about your\n',font:0,material:0,size:[16.66666603088379,20],alignment:0,lineAlignment:0,lineSpacing:0,characterSpacing:.5,topColor:[50,50,50,255],bottomColor:[50,50,50,255]};
+  const source={...layout,fonts:['shared'],roots:[{...pane,kind:'txt1',size:[320,20],picture:undefined,text}]};
+  const renderer=new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['shared',font]]));
+  const ctx=canvas().getContext();ctx.getTransform=()=>({a:1,b:0,c:0,d:1,e:40.666666984558105,f:82});
+  assert.equal(renderer.draw(ctx,'test','test',{textSampling:'lcd-source-size'}),true);
+  assert.equal(renderer.draw(ctx,'test','test',{textSampling:'lcd-source-size-left'}),true);
+  assert.deepEqual(calls.map(call=>[call.spacing,call.direct,call.sourceSize,call.sourceTopLeft]),[[.5,false,true,false],[.5,true,true,true]]);
+  assert.deepEqual(calls[1].phase,[.6666669845581055,0]);
+  renderer.dispose();
+ }finally{globalThis.document=previous;}
+});

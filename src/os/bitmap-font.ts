@@ -50,7 +50,7 @@ export function nativeLeftGlyphQuads(manifest:FontManifest,value:string,width:nu
   return nativeSingleLineGlyphQuads(manifest,value,width,height,size,3,cursorAdvances);
 }
 /** Top-left text panes use the glyph writer's uncentered origin. */
-export function nativeTopLeftGlyphQuads(manifest:FontManifest,value:string,size:number[]):NativeGlyphQuad[]{
+export function nativeTopLeftGlyphQuads(manifest:FontManifest,value:string,size:number[],spacing=0):NativeGlyphQuad[]{
   const f=Math.fround,sx=f(size[0]/(manifest.width??manifest.height)),sy=f(size[1]/manifest.height);
   let x=0;const quads:NativeGlyphQuad[]=[];
   for(const char of value){
@@ -59,7 +59,7 @@ export function nativeTopLeftGlyphQuads(manifest:FontManifest,value:string,size:
       const left=f(x+f(glyph.left*sx)),width=f(glyph.width*sx),height=f(glyph.height*sy);
       quads.push({glyph,x:left,y:0,width,height,right:f(left+width),bottom:height});
     }
-    x=f(x+f((glyph?.advance??0)*sx));
+    x=f(x+f(f((glyph?.advance??0)*sx)+spacing));
   }
   return quads;
 }
@@ -208,14 +208,14 @@ export class BitmapFont {
     // An explicit centered line uses the same one-line writer origin as automatic
     // centering. Enable that route only for the caller's direct LCD sampler.
     const sourceTopLeft=sourceTopLeftSampling&&alignment===0&&lineAlignment===0&&this.manifest.colorMode==='alpha'&&/^(?:[^\r\n]*)(?:\r\n|\r|\n)?$/.test(value);
-    if((lines.length===1&&(nativeAlignedLine||lcdBottomEdge&&alignment===4&&lineAlignment===2&&this.manifest.colorMode==='alpha')||sourceTopLeft)&&spacing===0){
+    if((lines.length===1&&(nativeAlignedLine||lcdBottomEdge&&alignment===4&&lineAlignment===2&&this.manifest.colorMode==='alpha')&&spacing===0)||sourceTopLeft){
       // NW writer flags 0x100/0x111: only the centered axis subtracts ceil
       // half the measured rectangle before FINF ascent and TGLP baseline
       // (0x2ffc90/0x300340). Explicit left line alignment is equivalent
       // for a single middle-left LA run, including Camera HudNOTES.
       // Keep fractional advances. Line
       // spacing cannot change a single line, even when an MSBT style sets it.
-      const allQuads=sourceTopLeft?nativeTopLeftGlyphQuads(this.manifest,value.replace(/(?:\r\n|\r|\n)$/,''),size):alignment===3?nativeLeftGlyphQuads(this.manifest,value,width,height,size,cursorAdvances):nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
+      const allQuads=sourceTopLeft?nativeTopLeftGlyphQuads(this.manifest,value.replace(/(?:\r\n|\r|\n)$/,''),size,spacing):alignment===3?nativeLeftGlyphQuads(this.manifest,value,width,height,size,cursorAdvances):nativeCenteredGlyphQuads(this.manifest,value,width,height,size);
       const ink=selected[0].filter((_keep,i)=>lines[0][i]?.width);
       const quads=allQuads.filter((_quad,i)=>ink[i]);
       if(this.manifest.colorMode==='luminance-alpha'){

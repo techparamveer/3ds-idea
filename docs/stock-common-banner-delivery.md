@@ -47,10 +47,10 @@ exercise both the fixed-size and resized cases. Browser activation is covered
 by the integrated title host; native worker and pixel parity remain gated by
 the missing comparison evidence.
 
-`src/scene/stock-title-banner.ts` now owns a dormant preparation path for these
-four pairs. It checks the published common/selected CGFX hashes, `COMMON` model
-and clip shape, complete common images and exact EUR texture names before
-creating one model and applying every locale replacement with the explicit
+`src/scene/stock-title-banner.ts` owns the validated preparation and render
+path for these four pairs. It checks the published common/selected CGFX hashes,
+`COMMON` model and clip shape, complete common images and exact EUR texture
+names before creating one model and applying every locale replacement with the explicit
 size override. Its console-session/request ticket drops stale asynchronous
 loads and disposes a retargeted model. The live `console-scene.ts` path requests
 and draws eligible title models and acknowledges readiness only after the

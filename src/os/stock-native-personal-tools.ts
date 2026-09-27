@@ -74,7 +74,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
         const index=start+slot,row=view.rows[index];if(!row)break;
         okay=renderer.draw(bottom,'notifications','NewsWndwNews_D_00',{bindings:[
           {name:'NewsWndwNews_D_00_SceneIn',frame:10},
-          {name:'NewsWndwNews_D_00_Select',frame:index===view.selection?1:0},
+          {name:'NewsWndwNews_D_00_Select',frame:view.data?.selectionActive===true&&index===view.selection?1:0},
         ],overrides:{
           N_News_00:{translation:[-150,85-slot*53,-10]},
           P_Icon_00:{textureBindings:{0:'special.cic'}},

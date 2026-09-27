@@ -62,3 +62,23 @@ those pairs, so this is not a controlled improvement measurement. The decoded
 badge's source-render crop result above is the precise local validation.
 The list still fails pixel, motion and audio acceptance. The new live pair
 confirms the HOME-to-list input outcome only; entry timing was not captured.
+
+## Initial row focus correction
+
+The settled native entry shows no tinted selected row. The prior browser
+painted row 0 with `NewsWndwNews_D_00_Select` frame 1 immediately because
+the logical keyboard selection defaults to zero. The source frame 0 is the
+neutral row pose. The browser now enters with `selectionActive=false` and
+plays the selection frame only after directional input activates keyboard
+focus; its logical first-row action remains available.
+
+Using the **same** native PNG, browser date and elapsed sample as the integrated
+pair above, a new production-browser capture in
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-postfix/reference/scenario-matrix/v1/captures/notifications-neutral-entry-trial/browser`
+reduces lower residuals from **17,286 to 5,860** pixels over 2/255; upper
+remains **6,239**. The previous 11,663-pixel first-row region disappears.
+The remaining lower regions are the scrollbar, unread dots and smaller chrome
+differences. This is a settled-pixel improvement, not scenario acceptance;
+directional focus timing and audio still need native/browser comparison.
+Matrix v98 records the trial hashes and full empty-mask report at
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927/reference/scenario-matrix/v98/matrix.json`.

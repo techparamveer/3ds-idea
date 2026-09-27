@@ -319,7 +319,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       const restored = objectValue(saved) ? saved : {};
       // Camera repeats Welcome per application creation until native seen-state
       // storage is traced. No first-run flag or device operation is persisted.
-      return { screen: id==='camera'||id === 'sound' && !media.tracks.length ? 'guide' : 'main', selection: 0, ...(['health-safety','system-settings'].includes(id) ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
+      return { screen: id==='camera'||id === 'sound' && !media.tracks.length ? 'guide' : 'main', selection: 0, ...(['health-safety','system-settings','notifications'].includes(id) ? { selectionActive: false } : {}), ...(id === 'friends' ? { message: str(restored.message), miiId: restored.miiId ?? null } : {}),
         ...(id === 'browser' ? { url: str(restored.url) } : {}), ...(id === 'error' ? { message: str(args.message, 'An error has occurred.') } : {}),
         ...(id==='camera'?{guidePage:0}:{}),
         // Only an explicit applet argument selects an application manual; the
@@ -398,7 +398,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       }
       if (command === 'left' || command === 'right' || command === 'up' || command === 'down') {
         const selection = directionalSelection(current, command);
-        const inactiveEntryFocus=(id === 'system-settings' && (current.screen === 'main' || current.screen === 'other')) || (id === 'health-safety' && current.screen === 'main');
+        const inactiveEntryFocus=(id === 'system-settings' && (current.screen === 'main' || current.screen === 'other')) || ((id === 'health-safety' || id === 'notifications') && current.screen === 'main');
         return selection === current.selection && (!inactiveEntryFocus || state.selectionActive !== false)
           ? { state } : { state: { ...state, selection, ...(inactiveEntryFocus ? { selectionActive: true } : {}) } };
       }

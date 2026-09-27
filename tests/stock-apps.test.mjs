@@ -24,6 +24,9 @@ test('isolated Notifications profile opens with the source order and eight unrea
  ]);
  assert.equal(view.rows.filter(row=>row.value==='New').length,8);
  assert.equal(view.footer.right,undefined);
+ assert.equal(view.data.selectionActive,false,'settled native list enters without a tinted row');
+ const focused=module.reduce(state,{type:'command',command:'down'},{now:0,shared}).state;
+ assert.equal(module.view(focused,{now:0,shared}).data.selectionActive,true);
  assert.deepEqual(module.reduce(state,{type:'action',id:'news053'},{now:0,shared}).state,state);
  assert.deepEqual(shared.notifications,before,'opening remains read-only');
 });

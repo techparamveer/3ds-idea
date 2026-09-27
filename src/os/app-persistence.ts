@@ -40,7 +40,12 @@ export function restoreSharedData(value: unknown): AppState {
   const defaults = initialSharedData();
   if (!objectValue(value) || !jsonValue(value)) return defaults;
   for (const [key, fallback] of Object.entries(defaults)) {
-    if (Array.isArray(fallback) && Array.isArray(value[key])) defaults[key] = (value[key] as JsonValue[]).filter(objectValue).slice(0, 4096);
+    if (Array.isArray(fallback) && Array.isArray(value[key])) {
+      const restored=(value[key] as JsonValue[]).filter(objectValue).slice(0,4096);
+      // An explicit saved empty list is user state, even though new profiles
+      // start with the isolated reference fixture.
+      defaults[key]=restored;
+    }
     else if (objectValue(fallback) && objectValue(value[key])) {
       const incoming = value[key] as AppState;
       defaults[key] = { ...fallback };

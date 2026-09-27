@@ -17,8 +17,26 @@ const row = (id: string, label: string, value?: string): AppViewRow => ({ id, la
 const bounds = (value: number, max: number) => Math.max(0, Math.min(Math.max(0, max), value));
 const retainSettingsClock = (state: AppState, next: AppState): AppState => next === state ? state : ({ ...next, settingsHudElapsedMs: num(state.settingsHudElapsedMs) });
 const settingsDefaults: AppState = { nickname: 'Player', language: 'English', sound: 'Stereo', birthday: '', clock: '', wireless: false };
+/**
+ * Read-only system notification profile captured from the isolated EUR 10.7.0-32E
+ * NAND. The order is the source timestamp order. `read` is the inverse of
+ * news.db record byte 1;
+ * opening the native list cleared it only for record 53, leaving eight unread.
+ * Body/detail presentation stays unsupported until that separate native slice.
+ */
+export const sourceNotificationProfile = [
+  { id: 'news053', title: 'HOME Menu Settings', read: true },
+  { id: 'news007', title: 'Touching and Sliding', read: false },
+  { id: 'news005', title: 'Sleep Mode', read: false },
+  { id: 'news052', title: 'HOME Menu Functionality', read: false },
+  { id: 'news051', title: 'Using microSD Cards', read: false },
+  { id: 'news099', title: 'Play Coins', read: false },
+  { id: 'news050', title: 'About the HOME Button', read: false },
+  { id: 'news001', title: 'New Software via SpotPass', read: false },
+  { id: 'news000', title: 'About Notifications', read: false },
+] as const;
 // Keep legacy keys intact so existing saves remain readable. Stock screens never write them.
-export const initialSharedData = (): AppState => ({ settings: { ...settingsDefaults }, miis: [], photos: [], sounds: [], notes: [], friends: [], notifications: [], activity: {}, browser: { bookmarks: [], history: [] }, plaza: { greeting: 'Hello!', miiId: null, streetPass: false } });
+export const initialSharedData = (): AppState => ({ settings: { ...settingsDefaults }, miis: [], photos: [], sounds: [], notes: [], friends: [], notifications: sourceNotificationProfile.map(item=>({...item})), activity: {}, browser: { bookmarks: [], history: [] }, plaza: { greeting: 'Hello!', miiId: null, streetPass: false } });
 const cameraTitles = new Set(['camera', 'camera-applet']);
 const selectorSources = helperSelectorSources;
 const serviceRows: Record<string, readonly [string, string][]> = {
@@ -70,7 +88,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       if (screen === 'profile') return []; // Native own-card fields are read-only surfaces.
       return [row('profile', 'Your friend card'), ...list(shared.friends).map(friend => row(str(friend.id), str(friend.name, 'Friend')))];
     }
-    if (id === 'notifications') return list(shared.notifications).map(note => row(str(note.id), str(note.title), note.read ? '' : 'New'));
+    if (id === 'notifications') return list(shared.notifications).map(note => ({...row(str(note.id), str(note.title), note.read ? '' : 'New'),disabled:sourceNotificationProfile.some(source=>source.id===note.id)}));
     if (id === 'health-safety') return [row('3d', '3D Display Precautions'), row('general', 'General Precautions'), row('usage', 'Usage Precautions')];
     // An application's electronic manual lists source Index entries at paint time; no guide rows are mixed in.
     if (id === 'manual') return state.manualTitleId ? [] : [row('contents', 'Contents'), row('controls', 'Controls'), row('support', 'Support Information')];
@@ -291,7 +309,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const left = { label: id === 'system-updater' || (id === 'system-settings' && screen === 'detail' && state.field === 'sound') ? 'Cancel' : id === 'amiibo-settings' ? 'Close' : 'Back', action: 'back' };
     if ((id === 'sound'||id === 'camera') && screen === 'guide') return { appId:id, titleId:descriptor.titleId, screen, heading:descriptor.title, text:[], rows:[], selection:0,
       footer:{...(num(state.guidePage)>0?{left}:{ }),right:{label:num(state.guidePage)>=(id==='camera'?4:2)?'OK':'Next',action:'guide-next'}},native:{pack:descriptor.assetPack,panes:{}},data };
-    const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options[selection]&&options[selection].id!=='camera-date-group' ? { label: 'OK', action: options[selection].id } : undefined;
+    const right = healthDocument ? undefined : id === 'error' ? { label: 'OK', action: 'ok' } : id === 'sound' && state.mediaError === true ? { label: 'OK', action: 'error-ok' } : options[selection]&&!options[selection].disabled&&options[selection].id!=='camera-date-group' ? { label: 'OK', action: options[selection].id } : undefined;
     return { appId: id, titleId: descriptor.titleId, screen, heading: id === 'system-settings' ? settingsHeading(state) : id === 'browser' ? browserHeading(state) : helperTitle(id,state) ?? descriptor.title, text, rows: options, selection,
       footer: { ...(id === 'sound' && screen === 'main' && !media.tracks.length ? {} : { left }), ...(right ? { right } : {}) }, native: { pack: descriptor.assetPack, panes: {} }, data };
   }

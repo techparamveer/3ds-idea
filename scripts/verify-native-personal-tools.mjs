@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {parseArgs} from 'node:util';
 import ts from 'typescript';
 export async function verifyPersonalTools(options){
- options.title??='notifications';assert.ok(['notifications','notes','friends','friends-profile','notes-selected','notes-suspended'].includes(options.title));
+ options.title??='notifications';assert.ok(['notifications','notifications-list','notes','friends','friends-profile','notes-selected','notes-suspended'].includes(options.title));
  const selectedNote=options.title==='notes-selected'||options.title==='notes-suspended';
  for(const key of ['artifactDir','assetRoot','canvasModule','interfaceRoot'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
@@ -19,9 +19,9 @@ export async function verifyPersonalTools(options){
  host.readFile=path=>resolve(path)===virtual?source:read(path);host.fileExists=path=>resolve(path)===virtual||exists(path);
  const program=ts.createProgram([virtual],compilerOptions,host),diagnostics=ts.getPreEmitDiagnostics(program);
  assert.equal(diagnostics.length,0,ts.formatDiagnosticsWithColorAndContext(diagnostics,{getCanonicalFileName:p=>p,getCurrentDirectory:()=>options.interfaceRoot,getNewLine:()=> '\n'}));
- for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','notes-suspended-capture','stock-screen-layout',sourceName]){
+ for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','notes-suspended-capture','camera-browse','stock-screen-layout',sourceName]){
   const code=name===sourceName?source:readFileSync(join(options.interfaceRoot,'src/os',name+'.ts'),'utf8');sourceHashes[name]=createHash('sha256').update(code).digest('hex');
-  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(code,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
+  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(code,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,dependency)=>`from '${dependency.replace(/\.ts$/,'')}.mjs'`));
  }
  const [{createCanvas,loadImage},{BitmapFont},{loadNativeTitleAssets},{rotateCaptureForNativeUV},{nativePersonalToolView,drawNativePersonalToolFrame}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','notes-suspended-capture',sourceName].map(n=>import(pathToFileURL(join(compiled,n+'.mjs'))))]);
  // Synthetic upright quadrants (red, green / blue, white): orientation evidence, not an application frame.
@@ -34,7 +34,8 @@ export async function verifyPersonalTools(options){
   const manifest=JSON.parse(readFileSync(join(options.assetRoot,'manifest.json'))),fontPath=join(options.assetRoot,manifest.fonts.shared),fontData=JSON.parse(readFileSync(fontPath));
   font=new BitmapFont(fontData,await Promise.all(fontData.sheets.map(name=>loadImage(join(dirname(fontPath),name)))));
   const notes={appId:'game-notes',screen:'main',heading:'Game Notes',rows:Array.from({length:16},(_,i)=>({id:String(i),label:'Note '+(i+1)})),selection:0,footer:{left:{action:'back',label:'Back'}}};
-  const base=options.title==='notifications'?{...notes,appId:'notifications',heading:'Notifications',rows:[],text:['There are no notifications.']}:options.title.startsWith('friends')?{...notes,appId:'friends',screen:options.title==='friends-profile'?'profile':'main',heading:'Friend List',rows:options.title==='friends-profile'?[]:[{id:'profile',label:'Your friend card'}],data:{settings:{nickname:'Player'},message:''}}:selectedNote?{...notes,screen:'drawing',rows:[],data:{slot:0,strokes:[]}}:notes;
+  const notificationRows=['HOME Menu Settings','Touching and Sliding','Sleep Mode','HOME Menu Functionality','Using microSD Cards','Play Coins','About the HOME Button','New Software via SpotPass','About Notifications'].map((label,index)=>({id:'news'+index,label,value:index?'New':''}));
+  const base=options.title.startsWith('notifications')?{...notes,appId:'notifications',heading:'Notifications',rows:options.title==='notifications-list'?notificationRows:[],text:options.title==='notifications'?['There are no notifications.']:[]}:options.title.startsWith('friends')?{...notes,appId:'friends',screen:options.title==='friends-profile'?'profile':'main',heading:'Friend List',rows:options.title==='friends-profile'?[]:[{id:'profile',label:'Your friend card'}],data:{settings:{nickname:'Player'},message:''}}:selectedNote?{...notes,screen:'drawing',rows:[],data:{slot:0,strokes:[]}}:notes;
   const contract=nativePersonalToolView(base);assert.ok(contract);assert.equal(nativePersonalToolView({...base,screen:'unrecognized'}),null);assert.equal(nativePersonalToolView({...base,appId:'work'}),null);
   assets=await loadNativeTitleAssets('https://personal-tools.invalid/manifest.json',contract.titleId,contract.packs,new Map([['cbf_std.bcfnt',font]]));
   if(options.title==='friends'){assert.equal(nativePersonalToolView({...base,rows:[...base.rows,{id:'saved-friend',label:'Saved'}]}),null);assert.equal(nativePersonalToolView({...base,rows:[]}),null);}

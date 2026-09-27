@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createStockModule,initialSharedData } from '../src/os/stock-apps.ts';
+import { createStockModule,initialSharedData,sourceNotificationProfile } from '../src/os/stock-apps.ts';
 import { getTitle,stockTitles,getAppModule } from '../src/os/app-registry.ts';
 import { portfolioMedia } from '../src/os/portfolio-media.ts';
 import { apps } from '../src/os/apps.ts';
@@ -13,6 +13,20 @@ const media={folders:[{id:'test',title:'Test fixture',photos:[{id:'a',title:'A',
 // Gallery tests enter after the five-page welcome route. Dedicated tests below cover cold entry.
 const setup=(id,data=media)=>{const module=createStockModule(getTitle(id),data);let state=module.create({},null,ctx);if(id==='camera')for(let page=0;page<5;page++)state=module.reduce(state,{type:'action',id:'guide-next'},ctx).state;return{module,state};};
 const action=(module,state,id,value)=>module.reduce(state,{type:'action',id,value},ctx);
+
+test('isolated Notifications profile opens with the source order and eight unread rows',()=>{
+ const shared=initialSharedData(),before=structuredClone(shared.notifications);
+ assert.deepEqual(shared.notifications,sourceNotificationProfile);
+ const module=createStockModule(getTitle('notifications')),state=module.create({},null,{now:0,shared});
+ const view=module.view(state,{now:0,shared});
+ assert.deepEqual(view.rows.slice(0,4).map(({label,value})=>[label,value]),[
+  ['HOME Menu Settings',''],['Touching and Sliding','New'],['Sleep Mode','New'],['HOME Menu Functionality','New'],
+ ]);
+ assert.equal(view.rows.filter(row=>row.value==='New').length,8);
+ assert.equal(view.footer.right,undefined);
+ assert.deepEqual(module.reduce(state,{type:'action',id:'news053'},{now:0,shared}).state,state);
+ assert.deepEqual(shared.notifications,before,'opening remains read-only');
+});
 
 test('Health enters with no highlighted precaution button',()=>{
  const {module,state}=setup('health-safety');

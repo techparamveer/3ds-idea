@@ -5,12 +5,11 @@ existing title-session loader and `drawNativePersonalToolFrame(renderer, top,
 bottom, view, options)` for the coordinator's stock painter. It does not edit
 shared presentation, layout, renderer, runtime or manifest modules.
 
-The first slice covers the empty Notifications main screen. It requests the
+The first slice covered the empty Notifications main screen. It requests the
 original `news.json` layouts `NewsTopUI_U_00`, `NewsTopUI_D_00`,
 `NewsUnread_U_00` and `NewsTopBtn_D_00`, plus the EU English
 `newslist_msbt_LZ` bank and its retained styles. The original unread counter
-uses NumAnim frame 0; SceneIn is held at settled frame 20. Both source
-notification categories show zero unread items. All Japanese source text
+uses NumAnim frame 0 in that empty state; SceneIn is held at settled frame 20. Japanese source text
 placeholders are overridden with supplied English messages. Native Close spans
 the whole lower footer; the coordinator should use a full-width Back target.
 
@@ -18,9 +17,8 @@ The upper background is drawn before the source translucent unread overlay.
 The HUD title uses the shared source bitmap font and native English title;
 the lower empty-state line comes from the existing AppView text. These two text
 placements are portfolio adapters, not claims about native text-task placement.
-Populated notifications, notification detail, populated/detail Friends and non-main Notes views
-return null / false until their own visual slice is verified. Existing fallback UI can handle
-those views. This module never fetches notifications or marks them read.
+Notification detail, populated/detail Friends and non-main Notes views remain
+outside this native painter. This module never fetches notifications or marks them read.
 
 Run `scripts/verify-native-personal-tools.mjs` with `--title notifications`,
 `--artifact-dir`, `--asset-root`, `--canvas-module` and `--interface-root`.
@@ -32,6 +30,39 @@ existing native title loader, checks renderer diagnostics and source immutabilit
 and exports 400 × 240 / 320 × 240 PNGs. Output was visually inspected on the SSD
 under `runtime/personal-tools/notifications` in the existing firmware artifact
 root. The source-based render is not a matched native LCD/browser capture.
+
+## Notifications isolated-profile list
+
+The isolated Vulkan replay establishes that the initial applet is populated,
+superseding the earlier empty-state assumption above. The exact input route was
+HOME Notifications selected, followed by 32 discrete A presses. The resulting
+native PNG is
+`/Volumes/Codex3DSIsolated/native-home-replay-20260927/screenshots/_27.09.26_12.12.20.627.png`
+(SHA-256 `d9bd30ef373ce06bcc1a041ea9b3f15a9ffbf8d0d97798fe1a7d98e11e0d8591`).
+
+The profile database at
+`user/nand/data/00000000000000000000000000000000/sysdata/00010035/00000000/news.db`
+is 11,216 bytes with SHA-256
+`4b9ed183eff258590911d8aa4402f2e523aeb5cfd272873aa8cb2c3bcfbf28dc`.
+It has a 16-byte header and 100 fixed 0x70-byte records. Each record contains
+0x30 bytes of metadata and a 0x40-byte UTF-16LE title. Active records sorted by
+the little-endian timestamp at record offset 0x28 give HOME Menu Settings,
+Touching and Sliding, Sleep Mode, HOME Menu Functionality, Using microSD Cards,
+Play Coins, About the `U+E073`HOME Button, New Software via SpotPass and About
+Notifications. Record byte 1 is zero only for HOME Menu Settings; the other
+eight records are unread. This matches the native Unread Notifications count 8,
+the missing blue dot on the first row and the first four visible titles.
+
+The browser initial shared profile carries only those source titles, order and
+read flags; no private database bytes are delivered. Record 50's exact source
+title contains the private-use glyph U+E073 immediately before HOME. Newly
+created profiles receive this fixture; an explicit persisted empty array stays
+empty. The main renderer reuses
+`NewsWndwNews_D_00`, its SceneIn/Select clips and the source SlideBar in addition
+to the existing upper unread and Close layouts. Source fixture rows are inert
+and omit the generic OK action because their bodies/detail view have not been
+verified. Populated saved arrays remain intact with existing behavior. List
+scrolling/animation has not been native compared.
 
 ## Game Notes initial screen
 

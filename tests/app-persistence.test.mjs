@@ -1,13 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { IDBFactory, IDBObjectStore } from 'fake-indexeddb';
-import { openFirmwareStorage, validateSaveRecord, FirmwareStorageError } from '../src/os/app-persistence.ts';
+import { openFirmwareStorage, validateSaveRecord, FirmwareStorageError, restoreSharedData } from '../src/os/app-persistence.ts';
 import { createPortfolioState, saveSettings } from '../src/os/system.ts';
 const req = request => new Promise((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});
 const txDone = tx => new Promise((resolve,reject)=>{tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error);});
 const media = (id='photo',kind='photo') => ({id,name:'Private capture',kind,createdAt:123});
 const image = text => new Blob([text],{type:'image/png'});
 const rejectsCode = (promise,code) => assert.rejects(promise,error=>error instanceof FirmwareStorageError && error.code===code);
+test('saved empty Notifications state remains empty while populated data survives',()=>{
+ const migrated=restoreSharedData({notifications:[]});
+ assert.deepEqual(migrated.notifications,[]);
+ const custom=[{id:'existing',title:'Existing',read:true}];
+ assert.deepEqual(restoreSharedData({notifications:custom}).notifications,custom);
+});
 async function seed(factory, version, seedFn) {
  const opening=factory.open('test',version);opening.onupgradeneeded=()=>{for(const name of ['saves','meta'])opening.result.createObjectStore(name);};
  const db=await req(opening);const tx=db.transaction(['saves','meta'],'readwrite'),done=txDone(tx);seedFn(tx);await done;return db;

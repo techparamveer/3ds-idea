@@ -29,7 +29,8 @@ export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
 const captureUpperTexture='suspended-capture-upper',captureLowerTexture='suspended-capture-lower';
 const personalAllNotePacks:readonly NativeTitlePackRequest[]=[...personalNotesPacks,...personalSelectedNotePacks.filter(({alias})=>!personalNotesPacks.some(pack=>pack.alias===alias))];
 export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
-  {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn']},
+  {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00','NewsWndwNews_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn','NewsWndwNews_D_00_SceneIn','NewsWndwNews_D_00_Select']},
+  {url:'packs/notifications/slidebar.json',alias:'notification-slidebar',layouts:['SlideBar'],animations:['SlideBar_Select']},
   {url:'packs/notifications/messages-and-loose.json',alias:'notification-messages',layouts:[],animations:[]},
 ];
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
@@ -46,7 +47,7 @@ function initialFriendView(view:AppView):boolean{
   return view.appId==='friends'&&view.screen==='main'&&view.rows.length===1&&view.rows[0].id==='profile';
 }
 export function nativePersonalToolView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
-  if(view.appId==='notifications'&&view.screen==='main'&&view.rows.length===0)return {view:'notifications-empty',titleId:'000400300000a002',packs:personalNotificationPacks};
+  if(view.appId==='notifications'&&view.screen==='main')return {view:view.rows.length?'notifications-list':'notifications-empty',titleId:'000400300000a002',packs:personalNotificationPacks};
   if(view.appId==='game-notes'&&view.screen==='drawing')return {view:'game-notes',titleId:'0004003000009c02',packs:personalAllNotePacks};
   if(view.appId==='game-notes'&&view.screen==='main')return {view:'game-notes',titleId:'0004003000009c02',packs:personalAllNotePacks};
   if(view.appId==='friends'&&view.screen==='profile')return {view:'friends',titleId:'0004003000009f02',packs:personalFriendPacks};
@@ -55,17 +56,36 @@ export function nativePersonalToolView(view:AppView):{view:string;titleId:string
 }
 /** Source notification components for the empty, offline portfolio state. */
 export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
-  if(view.appId==='notifications'&&view.screen==='main'&&view.rows.length===0){
+  if(view.appId==='notifications'&&view.screen==='main'){
     const message=(label:string)=>nativeMessageOverride(renderer.packs['notification-messages'],'newslist_msbt_LZ',label,'');
-    const zero=(label:string)=>{const value=message(label);return {...value,text:value.text?.replace('%d','0')};};
+    const unread=view.rows.filter(row=>row.value==='New').length;
+    const count=(label:string,value:number)=>{const source=message(label);return {...source,text:source.text?.replace('%d',String(value))};};
     let okay=renderer.draw(top,'notifications','NewsTopUI_U_00');
-    okay=renderer.draw(top,'notifications','NewsUnread_U_00',{bindings:[{name:'NewsUnread_U_00_SceneIn',frame:20},{name:'NewsUnread_U_00_NumAnim',frame:0}],overrides:{
-      T_Unread_00:message('new_news_u'),T_Unread_01:message('new_news_u'),T_NewsUnread_00:zero('new_news_u0'),T_News_00:message('new_news_u1'),T_CntUnread_00:zero('new_ce_u0'),T_Cnt_00:message('new_ce_u1'),
+    okay=renderer.draw(top,'notifications','NewsUnread_U_00',{bindings:[{name:'NewsUnread_U_00_SceneIn',frame:20},{name:'NewsUnread_U_00_NumAnim',frame:Math.min(112,unread)}],overrides:{
+      T_Unread_00:message('new_news_u'),T_Unread_01:message('new_news_u'),T_NewsUnread_00:count('new_news_u0',unread),T_News_00:message('new_news_u1'),T_CntUnread_00:count('new_ce_u0',0),T_Cnt_00:message('new_ce_u1'),
     }})&&okay;
     okay=renderer.draw(bottom,'notifications','NewsTopUI_D_00')&&okay;
+    if(view.rows.length){
+      // NewsTopUI_D_00/N_ElemPos_00 is the source first-row parent at
+      // (-160,100). Each native item advances by its 53px source cell height.
+      // Five draws preserve the partially clipped fifth row visible above Close.
+      const start=Math.max(0,Math.min(view.rows.length-1,view.selection)-Math.min(3,Math.max(0,view.selection)));
+      for(let slot=0;slot<5;slot++){
+        const index=start+slot,row=view.rows[index];if(!row)break;
+        okay=renderer.draw(bottom,'notifications','NewsWndwNews_D_00',{bindings:[
+          {name:'NewsWndwNews_D_00_SceneIn',frame:10},
+          {name:'NewsWndwNews_D_00_Select',frame:index===view.selection?1:0},
+        ],overrides:{
+          N_News_00:{translation:[-150,85-slot*53,-10]},
+          T_NewsTitleB_00:{text:row.label},T_NewsTitleF_00:{text:row.label},
+          N_IconNew_00:{visible:row.value==='New'},
+        }})&&okay;
+      }
+      okay=renderer.draw(bottom,'notification-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:0}],overrides:{N_Slider_00:{translation:[141,14,0]},N_Slide_00:{translation:[0,55,0]}}})&&okay;
+    }
     okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20}],overrides:{T_EndB_00:message('new_back'),T_EndF_00:message('new_back')}})&&okay;
     options.font?.draw(top,message('new_title_new').text??view.heading,200,14,14,'#555','center');
-    options.font?.draw(bottom,view.text?.[0]??'',160,110,14,'#666','center');
+    if(!view.rows.length)options.font?.draw(bottom,view.text?.[0]??'',160,110,14,'#666','center');
     return okay;
   }
   if(initialFriendView(view)||(view.appId==='friends'&&view.screen==='profile'))return drawFriendFrame(renderer,top,bottom,view,options);

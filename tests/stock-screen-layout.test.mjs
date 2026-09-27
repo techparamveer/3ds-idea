@@ -72,6 +72,13 @@ test('empty Notifications full-width native Close button returns HOME across its
  for(const x of [0,160,319])assert.equal(hit(view,x,226),'back');
  assert.equal(hit(view,160,211),null);
 });
+test('populated Notifications uses the four visible 53px source list cells and Close footer',()=>{
+ const v=view('notifications','main',['news053','news007','news005','news052','news051']);
+ assert.equal(hit(v,100,53),'news053');assert.equal(hit(v,100,106),'news007');
+ assert.equal(hit(v,100,159),'news005');assert.equal(hit(v,100,211),'news052');
+ assert.equal(hit(v,300,53),null);assert.equal(hit(v,160,226),'back');
+ assert.deepEqual(targets(v).filter(row=>row.row!==undefined).map(row=>row.action),['news053','news007','news005','news052']);
+});
 test('Game Notes uses the source four-by-four grid and a single full-width Close footer',()=>{
  const v=view('game-notes','main',Array.from({length:16},(_,i)=>String(i)));
  v.footer.right={label:'OK',action:'0'};

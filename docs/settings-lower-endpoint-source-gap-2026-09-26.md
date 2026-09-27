@@ -107,12 +107,28 @@ No application build is needed for this documentation-only commit.
 
 ## Next evidence required
 
-Obtain the cached text draw's decoded shader/vertex expansion and its exact
-position/size attributes, model/view/projection uniforms and viewport for this
-Settings pane. Trace their numerical ordering through final clip/screen
-coordinates and edge coverage. Confirm the Settings library path corresponds
-to the retained shared HOME trace before transferring instruction offsets.
-A command-buffer/vertex trace or a verified decoder can resolve this; another
-identical settled screenshot cannot. Then implement that general transform or
-raster rule and regress Other Settings lower0, Health, and the other stock text
-paths. The current2 upper /20 lower native/browser acceptance remains open.
+The Settings executable identity check now finds exact byte-for-byte matches
+for the pinned HOME writer's cache branch, cached glyph expansion, immediate
+endpoint store, and text-cache/sampler setup. With both `code.bin` files mapped
+at `0x100000`, those Settings ranges begin at `0x1eb290`, `0x1eb2d4`,
+`0x1eb35c`, and `0x1ebb3c`. The HOME and Settings `nwfont_TextWriterShader.shbin`
+files are also byte-identical (SHA-256
+`87e9a661a499dfe18818310d6758855eba5d56892fe266c155b18e3e0f4d881e`). The
+read-only probe is [`scripts/audit_settings_cached_writer_identity.py`](../scripts/audit_settings_cached_writer_identity.py);
+it verifies input hashes and unique instruction windows. This establishes
+shared code and shader identity, but does **not** prove the Settings call site
+dispatches this path or supply the live vertex attributes, model/view/projection
+uniforms, viewport, or screen coordinates.
+
+Those values require a captured Settings text draw command buffer from the
+matching Azahar revision, or an instrumented renderer replay that logs shader
+selection, vertex inputs, uniform writes, and viewport at `I_TopRBs/TextBox_00`.
+There is no such capture or usable PICA shader decoder in the current lane, so
+do not infer a transform from the shared HOME trace. Once a source-backed
+general edge rule is established, verify it with a fresh matched HOME → A →
+Settings main capture in isolated Azahar and the production browser, same
+displayed minute and settled animation state, raw 400×480 native and
+400×240/320×240 browser LCDs, empty mask, and the same semantic input prefix.
+Check all 20 existing lower residuals and regress Other Settings page 1 and
+Health before accepting a renderer change. The current 0 upper / 20 lower
+native/browser result remains open.

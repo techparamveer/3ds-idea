@@ -161,6 +161,33 @@ the Manual executable's 64×64 texture branch and assignment are traced in
 Source-size LCD glyph sampling clears the header-title residual, and mounting
 the unchanged scrollbar at y32 clears its eight-pixel vertical offset.
 
+**Important Information text raster follow-up (27 September 2026).** The
+Settings content-1 BCMA `Page_000_small_0` supplies each visible body line as a
+separate source text pane, with its text, shared BCFNT font, fractional pane
+origin and size. For these alpha-font, top-left panes the renderer samples the
+source glyph atlas at final LCD pixel centres, preserving the fractional pane
+translation without a second Canvas resize. This is scoped to the Settings
+page's source layout; the source panes and strings are unchanged.
+
+An offline source-render comparison against native capture
+`_27.09.26_00.44.30.298.png` (SHA-256
+`50264d734cdc3a44a1a253f89365ab76a6e97473700a76ec6442935114bf81ed`), with
+empty mask and the standard channel threshold >2/255, changed upper residuals
+from **17,675 to 15,116** pixels and lower residuals from **17,765 to 12,640**.
+The baseline and updated render use the same offline Canvas backend; this is a
+controlled renderer comparison, not a production-browser recapture or a native
+fidelity pass. Hashed images and the comparison report are under
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/manual-text-source-size-20260927/`.
+Capture/browser sampling and remaining source-composition differences stay open.
+
+The largest connected production upper residual is still the scrollbar strip
+(x363, y41, 6×145; 858 pixels). Delivered `ScrollIndicator` BCMA provides its
+host, end/start artwork, orientation and Wait/Limit color animation; it contains
+no runtime track length or vertical-position calculation. The decoded Manual
+executable evidence currently traces the header icon branch only. Preserve the
+scrollbar length/position calculation as a source gap until executable code or
+native scroll-state observations establish it.
+
 **Remaining gaps.** The general title truncation rule is unknown. Later category colours,
 row selection/scrolling and Language navigation are absent. The
 source-render verifier (`scripts/verify-stock-helpers.mjs`,

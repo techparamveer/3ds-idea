@@ -5,7 +5,7 @@ import ts from 'typescript';
 
 const source=fs.readFileSync(new URL('../src/os/bitmap-font.ts',import.meta.url),'utf8');
 const compiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;
-const {BitmapFont,nativeCenteredGlyphQuads,nativeLeftGlyphQuads,rasterNativeAlphaGlyph}=await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
+const {BitmapFont,nativeCenteredGlyphQuads,nativeLeftGlyphQuads,nativeTopLeftGlyphQuads,rasterNativeAlphaGlyph}=await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
 
 test('Bitmap text uses signed bearings, advances, fallback, scaling and alignment',()=>{
  const previous=globalThis.document;
@@ -33,6 +33,18 @@ test('native centered text rounds the measured centre and retains distinct ascen
  assert.deepEqual(quads.map(q=>[q.x,q.y,q.width,q.height]),[
   [128+f(origin+f(-s)),32+baseline,f(7*s),f(17*s)],
   [128+f(f(origin+f(17*s))+f(-s)),32+baseline,f(7*s),f(17*s)]
+ ]);
+});
+
+test('source-sized top-left alpha text preserves fractional BCFNT glyph advances',()=>{
+ const first={sheet:0,x:1,y:2,width:2,height:3,left:-1,advance:3};
+ const second={sheet:0,x:4,y:2,width:1,height:3,left:0,advance:2};
+ const manifest={schema:1,sourceSha256:'0'.repeat(64),width:6,height:6,baseline:5,sheets:['sheet.png'],glyphs:{65:first,66:second},fallback:null};
+ const quads=nativeTopLeftGlyphQuads(manifest,'AB',[6,6]);
+ const f=Math.fround;
+ assert.deepEqual(quads.map(({x,y,width,height,right,bottom})=>[x,y,width,height,right,bottom]),[
+  [f(-1),0,f(2),f(3),f(1),f(3)],
+  [f(3),0,f(1),f(3),f(4),f(3)],
  ]);
 });
 

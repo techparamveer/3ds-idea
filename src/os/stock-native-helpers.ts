@@ -376,7 +376,7 @@ function drawApplicationManualPage(renderer:NativeLayoutRenderer,top:CanvasRende
     draw(ctx,'manual-neighbor','Page_001_small_0',{center:[right,y],clip:[right,0,320,height]});
     draw(ctx,'manual-page-shadow','PageShdw00',{center:[x,y+202],clip:[0,0,width,height],overrides:{PageShdw00_01:{size:[30,280],scale:[-1,1]},PageShdw00_03:{size:[30,240],scale:[-1,1]}}});
     draw(ctx,'manual-index','Page_000_small_bg',{center:[x,y],clip:[0,0,width,height]});
-    draw(ctx,'manual-index','Page_000_small_0',{center:[x,y],clip:[x,0,320,height]});
+    draw(ctx,'manual-index','Page_000_small_0',{center:[x,y],clip:[x,0,320,height],textSampling:'lcd-source-size-left'});
   }
   // ChangeWait supplies x−145.5 for the number chip and x−122 for title text.
   draw(top,'manual-row','ManualRowGettingStarted',{center:[200+neighbor.translation[0],20],bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(next.page+1)},TextBox_Txt:{text:next.title}}});

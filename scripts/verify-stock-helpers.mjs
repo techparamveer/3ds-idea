@@ -82,6 +82,10 @@ try{
    assert.deepEqual([header.options.textures['IconBlank.bclim'].width,header.options.textures['IconBlank.bclim'].height],[64,64]);
    const scroll=calls.find(c=>c.layout==='ScrollIndicator');assert.deepEqual(scroll.options.center,[392,32]);assert.equal(scroll.options.pictureSampling,'lcd');
   }
+  if(view.data?.manualTitleId&&view.data?.page===0){
+   const body=calls.filter(c=>c.layout==='Page_000_small_0');assert.equal(body.length,2,'page body is published to both LCDs');
+   assert.ok(body.every(call=>call.options.textSampling==='lcd-source-size-left'),'source top-left alpha glyphs retain their direct LCD sampling path');
+  }
   const targets=nativeHelperTargets(view);
   if(view.data?.manualTitleId)assert.deepEqual(targets.map(t=>t.action),view.screen==='main'?['manual-page-0','back']:['manual-close','back']);
   else{

@@ -93,3 +93,15 @@ native capture after each, so a transition can be attributed to one route.
 The successful route must be repeated before using it for a matched scenario.
 Until then, there is no reliable verified CUA route from the current
 Notifications list into a row detail.
+
+## HOME restart probe, 27 September 13:05
+
+Azahar's **Emulation → Restart** menu action completed in the isolated
+`native-home-replay-20260927` process and returned to HOME with Notifications
+selected. This establishes a repeatable way back to a visible HOME state without
+changing the reference profile. The Game Notes helper icon was visible in the
+lower HOME toolbar. A click on that icon briefly changed the top status count
+to the Notes count of 42, but the selected banner and highlight remained
+Notifications after settling. A second click, a short drag on the icon and
+the configured left D-pad key likewise did not establish Notes selection.
+These actions do not qualify as a Notes input route or native grid capture.

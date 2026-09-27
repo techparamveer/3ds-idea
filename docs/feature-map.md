@@ -187,3 +187,8 @@ has 151 records. Frame 5 modestly improves the charging-battery ROI over frame
 4, while total upper residual changes 47,928 → 47,738 and lower residual
 changes 40,497 → 40,993 pixels over 2/255. Native focus/input and lower HOME
 title population still do not match; no renderer change is justified.
+
+A focused native HOME touch-route probe also failed: the proven Settings-page
+U mapping and one direct touchscreen click did not move the HOME selection.
+The isolated Azahar config was restored byte-for-byte; see the latest progress
+checkpoint. HOME input remains unverified.

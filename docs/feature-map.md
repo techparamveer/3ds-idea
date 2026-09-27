@@ -46,6 +46,13 @@ Azahar copy on Codex3DSIsolated after storage was freed. Private matrix v88 has
 161 records and preserves the earlier diagnostics. Earlier measurements below
 are historical unless explicitly identified as the latest checkpoint.
 
+The isolated profile's touch-from-button map selects its configured empty-slot
+coordinate, and the native HOME row's right scroll affordance moved AR Games
+to Download Play. D-pad text keys did not move AR Games, and Camera selection
+is still uncalibrated. A production accessibility shortcut opened Camera's
+Welcome page for browser inspection; it is not paired evidence. See the
+[input calibration record](native-cua-input-calibration-2026-09-27.md).
+
 The ten browser-only records have no target native captures or diff reports.
 The latest two preserve Notes grid and Miiverse initial LCDs.
 Camera/Sound/Health banners are visible; the latest eShop capture shows bags,

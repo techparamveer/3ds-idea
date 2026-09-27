@@ -22,17 +22,18 @@ The earlier [integration checkpoint](progress-2026-09-24.md#matrix-v45-independe
 records matrix v45's 90 entries, all whole scenarios failing. The latest 27
 September HOME Settings-selected native/browser diagnostics are recorded in the
 [latest checkpoint](progress-2026-09-24.md#home-settings-input-calibration-diagnostic--27-september-2026).
-The newest pair also fails: native mapped keys did not change selection,
-browser local time is one hour ahead, and status indicators and neighboring
-titles differ. It does not justify a banner correction. Production Health
+The newest live pair fails: native mapped keys did not change selection,
+status and neighboring titles differ. An explicit source HUD pose reduced the
+upper residual, but the wrench phase and HOME content remain unmatched. It does
+not justify a production banner correction. Production Health
 Usage initial and 8px-scrolled states and Settings Other page 1 each have **0
 upper / 0 lower pixels above 2/255** with empty masks and maximum delta 2.
 These are static pixel-tier matches only. The latest HOME Settings yaw304 / COMMON303 diagnostic has **222 / 36,258**
 residual pixels. Its independent phase sample does not establish a live one-frame
 offset. Exact input,
 motion and audio timing remain open. Native capture now uses the isolated
-Azahar copy on Codex3DSIsolated after storage was freed. Private matrix v81 has
-149 records and preserves the earlier diagnostics. Earlier measurements below
+Azahar copy on Codex3DSIsolated after storage was freed. Private matrix v82 has
+150 records and preserves the earlier diagnostics. Earlier measurements below
 are historical unless explicitly identified as the latest checkpoint.
 
 The ten browser-only records have no target native captures or diff reports.

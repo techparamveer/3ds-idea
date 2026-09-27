@@ -35,6 +35,18 @@ test('Settings manual source is the delivered content-1 pack with its SMDH headi
   assert.equal(title.longDescriptionSource.path, 'ExeFS/icon');
 });
 
+test('Manual header expands the source SMDH large icon into its traced 64x64 texture', () => {
+  const data = new Uint8ClampedArray(48 * 48 * 4);
+  for (let y = 0; y < 48; y++) for (let x = 0; x < 48; x++) data.set([x, y, x ^ y, 255], (y * 48 + x) * 4);
+  const before = data.slice(), icon = helpers.applicationManualIconPixels({ width: 48, height: 48, data });
+  assert.deepEqual({ width: icon.width, height: icon.height, picaFormat: icon.picaFormat }, { width: 64, height: 64, picaFormat: 3 });
+  for (let y = 0; y < 48; y++) for (let x = 0; x < 48; x++)
+    assert.deepEqual([...icon.data.slice((y * 64 + x) * 4, (y * 64 + x + 1) * 4)], [x, y, x ^ y, 255]);
+  assert.ok(icon.data.slice(48 * 4, 64 * 4).every(value => value === 0), 'unread texture padding stays transparent');
+  assert.deepEqual(data, before, 'published SMDH pixels stay immutable');
+  assert.throws(() => helpers.applicationManualIconPixels({ width: 24, height: 24, data: new Uint8ClampedArray(24 * 24 * 4) }), /SMDH large icon/);
+});
+
 test('Contents order, numbers and category bands come from Index user metadata', () => {
   const entries = manualContents(pack.layouts.Index);
   assert.deepEqual(entries.slice(0, 4), [

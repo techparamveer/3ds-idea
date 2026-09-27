@@ -152,14 +152,21 @@ messages are loaded explicitly. X Close has the source lower-left 160×28 touch
 region and closes the applet. The Language button is visible but its screen
 is not delivered, so its touch region and Y command remain inert.
 
-**Remaining gaps.** The Settings SMDH icon is drawn through the browser image
-callback at the measured slot; the applet's exact icon mask/filter remains
-unverified. The general title truncation rule is unknown. Later category colours,
+**Upper detail follow-up.** The Settings SMDH large icon now enters the source
+`P_Icon_00` material through its original `IconMask` and linear texture maps;
+the Manual executable's 64×64 texture branch and assignment are traced in
+[the upper-detail validation](manual-upper-detail-fidelity-2026-09-27.md).
+Source-size LCD glyph sampling clears the header-title residual, and mounting
+the unchanged scrollbar at y32 clears its eight-pixel vertical offset.
+
+**Remaining gaps.** The general title truncation rule is unknown. Later category colours,
 row selection/scrolling and Language navigation are absent. The
 source-render verifier (`scripts/verify-stock-helpers.mjs`,
 `manual-settings-contents`) checks composition and immutability only. The
 integrated production-browser/native empty-mask pair at `15c2abf` has 1,518
-upper and 9,225 lower pixels over 2/255. Adding the delivered lower
+upper and 9,225 lower pixels over 2/255. The new offline source render has 467
+upper pixels over threshold, all inside the icon slot; header and scrollbar
+have zero. Adding the delivered lower
 `AllNull/P_Bg_D_00` removes the source render's 6,532-pixel `IndexBase00`
 card/frame region, and the footer pane fit removes the prior 873-pixel Language
 label region. The resulting offline lower diagnostic is 2,102 pixels over

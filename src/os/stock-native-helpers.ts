@@ -1,6 +1,6 @@
 import {amiiboScreenPacks,drawNativeAmiibo} from './stock-native-amiibo';
 import type { AppView } from './app-types';
-import { nativeMessageOverride, nativePaneParentPath, nativeTextMetrics, type PaneOverrides, type NativeLayout } from './native-layout';
+import { nativeMessageOverride, nativePaneParentPath, nativeTextMetrics, type PaneOverrides, type NativeLayout, type NativePixels } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import { applicationManualTargets, type StockScreenTarget } from './stock-screen-layout';
@@ -234,6 +234,18 @@ export const APPLICATION_MANUAL_HEADER_CENTRE:[number,number]=[200,240-262];
 const APPLICATION_MANUAL_LIST_CLIP:[number,number,number,number]=[0,0,320,212];
 const preparedApplicationManualCategories=new WeakSet<NativeLayoutRenderer>();
 const preparedApplicationManualRows=new WeakSet<NativeLayoutRenderer>();
+/** Manual 0x162314 selects a 64x64 RGB565 texture and the source P_Icon_00
+ * samples UV 0..0.75, the SMDH large icon's exact 48x48 extent. The remaining
+ * storage is intentionally transparent: the source UV never samples it. */
+export function applicationManualIconPixels(source:NativePixels):NativePixels{
+  if(source.width!==48||source.height!==48||source.data.length!==48*48*4)throw new Error('Manual title icon requires the SMDH large icon');
+  const data=new Uint8ClampedArray(64*64*4);
+  for(let y=0;y<48;y++)for(let x=0;x<48;x++){
+    const from=(y*48+x)*4,to=(y*64+x)*4;
+    data.set(source.data.subarray(from,from+4),to);
+  }
+  return {width:64,height:64,data,picaFormat:3};
+}
 function prepareApplicationManualRows(renderer:NativeLayoutRenderer){
   if(preparedApplicationManualRows.has(renderer))return;
   const pack=renderer.packs['manual-row'],source=pack.layouts.BtnHeadLineTxt;
@@ -290,9 +302,10 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   draw(bottom,'manual-all-root','AllNull',{center:[160,0],bindings:[{name:'AllNull_Wait',frame:1}]});
   // P_Icon_00 defaults to IconBlank; the applet binds the calling title's SMDH icon.
   draw(top,'manual-index-root','IndexNull',{center:[200,240-262],bindings:[{name:'IndexNull_Wait',frame:1}]});
-  draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,overrides:{TextBoxTxt_00:{text:source.heading},P_Icon_00:{visible:false}}});
-  if(titleId==='0004001000022000')options?.image?.(top,'/os/firmware/10.7.0-32E/icons/settings.png',4,4,32,32);
-  draw(top,'manual-scroll','ScrollIndicator',{center:[392,40],bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
+  const sourceIcon=titleId==='0004001000022000'?options?.nativeImage?.('/os/firmware/10.7.0-32E/icons/settings.png'):undefined;
+  const icon=sourceIcon&&sourceIcon.width===48&&sourceIcon.height===48?applicationManualIconPixels(sourceIcon):undefined;
+  draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,textSampling:'lcd-source-size',textures:icon?{'IconBlank.bclim':icon}:undefined,overrides:{TextBoxTxt_00:{text:source.heading},...(!icon&&{P_Icon_00:{visible:false}})}});
+  draw(top,'manual-scroll','ScrollIndicator',{center:[392,32],pictureSampling:'lcd',bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
   draw(bottom,'manual-IndexBase00','IndexBase00',{center:[160,0]});
   draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,APPLICATION_MANUAL_SLOTS.contentsCentre],textSampling:'lcd',overrides:{Contents_Txt:message('ContentsText')}});
   let y=APPLICATION_MANUAL_SLOTS.firstRow,categoryIndex=0;

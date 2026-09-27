@@ -36,7 +36,7 @@ export type NotesIntroPaint =
       icon?: NativePixels;
       description?: string;
     };
-export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:'contain'|'camera-mono')=>boolean;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
+export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:'contain'|'camera-mono')=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
 /** Portfolio media placement; native UI graphics continue through the layout renderer. */
 export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:'contain'|'camera-mono'='contain'){
   // EUR Camera 0x210230, non-stereo branch: contain within 400×240,
@@ -198,7 +198,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   let revision=0,painted='',paintedFont:BitmapFont|undefined,complete=false;
   const changed=()=>{revision++;options.onChange?.();};
   const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:state=>{if((state.status==='ready'&&roomReady)||state.status==='error')clearDeadline();changed();}});
-  const images=new Map<string,HTMLImageElement>();let owner:string|null=null,disposed=false;
+  const images=new Map<string,HTMLImageElement>(),nativeImages=new Map<string,NativePixels>();let owner:string|null=null,disposed=false;
   let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
   let published:NativeLayoutRenderer|undefined;
   let roomReady=true;
@@ -214,12 +214,23 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     session.update(null);changed();
   }
   function reset(){options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
-  function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();}
-  function image(ctx:Context,url:string,x:number,y:number,w:number,h:number,fit:'contain'|'camera-mono'='contain'){
+  function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();nativeImages.clear();}
+  function sourceImage(url:string){
     let im=images.get(url);
     if(!im){if(images.size>=64){const first=images.keys().next().value!;const stale=images.get(first)!;stale.onload=null;stale.onerror=null;stale.src='';images.delete(first);}im=new Image();images.set(url,im);im.onload=()=>{if(!disposed)changed();};im.onerror=()=>{if(!disposed)changed();};im.src=url;}
-    if(!im.complete||!im.naturalWidth)return false;
+    return im.complete&&im.naturalWidth?im:undefined;
+  }
+  function image(ctx:Context,url:string,x:number,y:number,w:number,h:number,fit:'contain'|'camera-mono'='contain'){
+    const im=sourceImage(url);if(!im)return false;
     drawStockMediaImage(ctx,im,im.naturalWidth,im.naturalHeight,x,y,w,h,fit);return true;
+  }
+  function nativeImage(url:string):NativePixels|undefined{
+    const previous=nativeImages.get(url);if(previous)return previous;
+    const im=sourceImage(url);if(!im)return undefined;
+    const canvas=document.createElement('canvas');canvas.width=im.naturalWidth;canvas.height=im.naturalHeight;
+    const context=canvas.getContext('2d')!;context.drawImage(im,0,0);
+    const pixels={width:canvas.width,height:canvas.height,data:context.getImageData(0,0,canvas.width,canvas.height).data};
+    nativeImages.set(url,pixels);canvas.width=canvas.height=0;return pixels;
   }
   function sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;reset();releaseImages();}}
   function prepare(view:AppView,nextOwner:string,font?:BitmapFont){
@@ -303,7 +314,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||(state.status==='ready'&&roomReady)){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
           }catch(error){fail(error);recovery();}
         }

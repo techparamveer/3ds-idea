@@ -20,6 +20,12 @@ const bytesForBlob=new WeakMap();URL.createObjectURL=blob=>'data:image/png;base6
 globalThis.fetch=async value=>{const url=new URL(value);assert.equal(url.origin,'https://helper.invalid');const file=resolve(assetRoot,url.pathname.slice(1));assert.ok(file.startsWith(assetRoot+'/'));const bytes=readFileSync(file),response=new Response(bytes);response.blob=async()=>{const blob=new Blob([bytes]);bytesForBlob.set(blob,bytes);return blob;};return response;};
 const fontPath=values['font-manifest'],manifest=JSON.parse(readFileSync(fontPath,'utf8'));
 const font=new BitmapFont(manifest,await Promise.all(manifest.sheets.map(name=>loadImage(join(dirname(fontPath),name)))));
+const nativeImages=new Map();
+const nativeImage=async url=>{
+ const source=await loadImage(resolve(assetRoot,url.replace(/^\/os\/firmware\/10\.7\.0-32E\//,''))),canvas=createCanvas(source.width,source.height),context=canvas.getContext('2d');
+ context.drawImage(source,0,0);const pixels={width:source.width,height:source.height,data:context.getImageData(0,0,source.width,source.height).data};canvas.width=canvas.height=0;return pixels;
+};
+nativeImages.set('/os/firmware/10.7.0-32E/icons/settings.png',await nativeImage('/os/firmware/10.7.0-32E/icons/settings.png'));
 const views=['amiibo-settings','nnid-settings','system-updater','system-transfer','extrapad'].map(appId=>({appId,screen:'main',heading:appId,rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}}));
 views.find(v=>v.appId==='system-transfer').rows=[{id:'3ds',label:'Nintendo 3DS'},{id:'dsi',label:'Nintendo DSi'}];
 views.find(v=>v.appId==='extrapad').rows=[{id:'information',label:'Circle Pad Pro'}];
@@ -39,7 +45,7 @@ try{
   const originalPacks=Object.values(assets.renderer.packs),before=JSON.stringify(originalPacks),top=createCanvas(400,240),bottom=createCanvas(320,240);
   const calls=[],draw=assets.renderer.draw.bind(assets.renderer);
   assets.renderer.draw=(ctx,pack,layout,options)=>{calls.push({screen:ctx.canvas===top?'top':'bottom',pack,layout,options});return draw(ctx,pack,layout,options);};
-  assert.equal(drawNativeHelperFrame(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font}),true);
+  assert.equal(drawNativeHelperFrame(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font,nativeImage:url=>nativeImages.get(url)}),true);
   if(view.appId==='amiibo-settings'){
    const header=calls.find(c=>c.layout==='Header');assert.ok(header);
    for(const pane of ['T_HeaderTitle_00','T_HeaderTitle_01'])assert.equal(header.options.overrides[pane].text,'amiibo Settings');
@@ -70,7 +76,11 @@ try{
    for(const background of backgrounds)assert.deepEqual(background.options.bindings,[{name:'AllNull_Wait',frame:1}]);
    const rows=calls.filter(c=>c.layout==='ManualRowImportant'||c.layout==='ManualRowGettingStarted').map(c=>[c.options.overrides.TextBox_Num.text,c.options.overrides.TextBox_Txt.text,c.options.center[1]]);
    assert.deepEqual(rows,[['1','Important Information',86],['2','Using the System Settin...',174]]);
-   assert.equal(calls.find(c=>c.layout==='SoftTitleHeader').options.overrides.TextBoxTxt_00.text,'System Settings');
+   const header=calls.find(c=>c.layout==='SoftTitleHeader');
+   assert.equal(header.options.overrides.TextBoxTxt_00.text,'System Settings');
+   assert.equal(header.options.overrides.P_Icon_00,undefined);assert.equal(header.options.textSampling,'lcd-source-size');
+   assert.deepEqual([header.options.textures['IconBlank.bclim'].width,header.options.textures['IconBlank.bclim'].height],[64,64]);
+   const scroll=calls.find(c=>c.layout==='ScrollIndicator');assert.deepEqual(scroll.options.center,[392,32]);assert.equal(scroll.options.pictureSampling,'lcd');
   }
   const targets=nativeHelperTargets(view);
   if(view.data?.manualTitleId)assert.deepEqual(targets.map(t=>t.action),view.screen==='main'?['manual-page-0','back']:['manual-close','back']);

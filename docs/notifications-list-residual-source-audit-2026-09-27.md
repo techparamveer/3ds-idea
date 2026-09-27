@@ -75,3 +75,29 @@ selection rule for other list states remain unresolved.
 **Unread-marker follow-up:** [the bounded executable and ROMFS trace](notifications-unread-marker-source-trace-2026-09-27.md)
 confirms a runtime object is attached to the empty `N_IconNew_00` pane, but
 does not identify its artwork or read-state update. It makes no visual change.
+
+## Scrollbar mount follow-up — 27 September 2026
+
+The same private `code.bin` (SHA-256 above, ARM mapped at `0x100000`) narrows
+the list scrollbar mount. The list setup allocates an object into `r7+0x18`
+at `0x17deb0..0x17defc`, then calls `0x17ec58` with that object at
+`0x17df04..0x17df0c`. That routine allocates and initializes a separate
+slidebar layout/control object; at `0x17edcc..0x17edd4` it initializes a
+field with float zero. At `0x17df94..0x17dfa4`, the list setup passes the
+slidebar object's layout pointer (`[r7+0x18]+8`) and the literal
+`N_SlideBar_00` to `0x114cfc`, with the list layout pointer (`[r7+8]`)
+as the first argument. This is the executable attachment link between the
+separate `SlideBar` layout and the list's `N_SlideBar_00` pane. The static
+source pane is at `[141,14,0]`; the slidebar layout's `N_Slider_00` starts at
+zero, `SBBaseWndw` is 16 × 132, and `N_Slide_00` starts at zero.
+
+The trace does **not** establish the final thumb translation. The list
+constructor subsequently supplies the slidebar control's `[r7+0x18]+0x10`
+to another control initializer at `0x17e0cc..0x17e0e8`, alongside list and
+row handles. The resulting controller's update method, count/viewport inputs,
+and its write to `N_Slide_00` still need to be identified. In particular,
+the browser's `N_Slide_00: [0,55,0]` is an unsupported fixed override for the
+captured nine-item list. The `N_Slider_00: [141,14,0]` override approximates
+the proven parent placement, but a standalone draw may differ from native
+parent clipping, opacity, and transforms. A screenshot fit cannot distinguish
+those effects from the thumb rule. No runtime values changed in this pass.

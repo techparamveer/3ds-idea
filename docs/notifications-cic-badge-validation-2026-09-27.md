@@ -44,3 +44,21 @@ Focused verification: `verify-native-personal-tools.mjs --title
 notifications-list` produced both 400×240 and 320×240 source renders with no
 diagnostics. The delivery audit reported `ok: true` with zero errors. This
 source render and icon crop are not a whole-screen browser comparison.
+
+## Integrated production pair
+
+After integration at `5c4782a`, the isolated Azahar HOME screen had
+Notifications selected. The mapped A key opened its settled SpotPass list.
+In a fresh production browser build, touching the Notifications toolbar icon
+opened the corresponding settled list. Azahar's screenshot command saved
+`_27.09.26_13.16.53.105.png`; the browser LCD capture saved raw 400×240
+and 320×240 PNGs. Matrix v97 records both actions, files and hashes at
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927/reference/scenario-matrix/v97/matrix.json`.
+
+The empty-mask whole-screen comparison reports **6,239 upper / 17,286 lower**
+pixels over 2/255. The lower count is smaller than the earlier 8cbee36 pair's
+21,826, although the native clock, HUD phase and input route differ between
+those pairs, so this is not a controlled improvement measurement. The decoded
+badge's source-render crop result above is the precise local validation.
+The list still fails pixel, motion and audio acceptance. The new live pair
+confirms the HOME-to-list input outcome only; entry timing was not captured.

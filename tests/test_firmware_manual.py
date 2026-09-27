@@ -106,6 +106,19 @@ class NestedManualTests(unittest.TestCase):
             self.assertEqual(sorted(p.relative_to(temp).as_posix() for p in Path(temp).rglob('*') if p.is_file()),
                              sorted([url, pack['textures']['tex.bclim']['url']]))
 
+    def test_neighbor_preview_is_separate_and_narrowly_allowlisted(self):
+        raw = manual(**{'EUR_en_small.arc': lz(darc({
+            **{f'blyt/Page_001_small_{part}.bclyt': layout() for part in ('0', 'bg', 'info')},
+            'blyt/Page_002_small_0.bclyt': layout(),
+        }))})
+        with tempfile.TemporaryDirectory() as temp:
+            url, pack = convert(raw, Builder(Path(temp)), expected_sha=None, neighbor_preview=True)
+            self.assertTrue(url.endswith('/manual-EUR_en-neighbor.json'))
+            self.assertEqual(sorted(pack['layouts']), ['Page_001_small_0', 'Page_001_small_bg', 'Page_001_small_info'])
+            self.assertEqual(pack['manualSelection']['pages'], [1])
+            self.assertEqual(pack['manualSelection']['layoutVariants'], ['small'])
+            self.assertEqual(pack['textures'], {})
+
     def test_output_is_byte_deterministic(self):
         raw = manual()
         with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:

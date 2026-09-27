@@ -217,11 +217,51 @@ Existing `BtnBack00` retains its source messages and font-width glyph grouping;
 Enlarge uses the same grouping approach. All shapes, fonts and native text are
 firmware resources. No screenshot is delivered.
 
-Remaining gaps: adjacent page preview, scrollbar, page
+Remaining gaps: scrollbar, page
 scrolling, Enlarge, later-page navigation, native transition/cue timing and
-pixel fidelity. The shared source `AllNull` base is now active. The absent preview is not an invented page. Page entry is a
+pixel fidelity. The shared source `AllNull` base is now active. Page entry is a
 settled presentation with existing readiness/loading gates, not an emulated
 native transition. The source-render verifier checks both LCDs, immutable
 resources and bounded targets. The first production/native empty-mask pair at
 `15c2abf` has 31,818 upper and 17,463 lower pixels over 2/255; both contact
 sheets were inspected, so pixel, motion and audio tiers remain failing/open.
+
+
+## Settings Manual neighboring page (2026-09-27)
+
+Page 1 now composes the applet `AllNull_Wait` background and the adjacent
+page using `MainNull/ContsR` x340 and `PageGroup/BaseN` x−160. Thus the
+neighbor's body starts at upper x380 and lower x340 (outside that LCD).
+The header uses the existing source ChangeWait layout and Settings Index page
+1 title/number. The separate opt-in `manual_bcma.py --neighbor-preview`
+publication selects only `Page_001_small_{0,bg,info}` and its five referenced
+table textures, from the same pinned Settings content-1 BCMA. The original
+page-0 pack remains byte-identical. This is a preview, not page-2 navigation.
+No new input behavior or transition timing is claimed.
+
+Offline source-render comparison to native `_27.09.26_00.44.30.298.png`
+(SHA-256 `50264d734cdc3a44a1a253f89365ab76a6e97473700a76ec6442935114bf81ed`),
+using empty masks and any RGB channel >2/255:
+
+| Region | Before | After |
+| --- | ---: | ---: |
+| Upper 400×240 | 32,235 | 17,675 |
+| Upper neighbor x374–399 | 3,525 | 595 |
+| Lower 320×240 | 17,765 | 17,765 |
+
+These are offline renderer comparisons, not production browser acceptance.
+The existing page origin38/header20 and chip color adaptations remain.
+The source `MainNull/ScrollIndicator` gives horizontal offset166 (upper x366).
+`ScrollIndicator` supplies the rotated StartPic/EndPic artwork and Wait color,
+but its layout has only the default 8+24-pixel span; the Wait/Limit tracks
+contain no runtime length or vertical-position calculation. Native shows a
+longer indicator. That calculation is still an explicit capability gap;
+no guessed thumb or scroll/Enlarge semantics are introduced. Need native
+scroll/Enlarge observations or executable source evidence before behavior.
+
+Verification: 14 offline native helper pairs render without diagnostics or
+resource mutation; focused manual tests and converter tests cover the narrow
+preview selection and title ownership. Production recapture: Settings HOME →
+Manual → A on Important Information; preserve small text and initial scroll,
+compare both LCDs to the native image above. Browser/emulator were not driven
+in this lane.

@@ -57,6 +57,8 @@ function applicationManualPacks(titleId:string,page=false):readonly NativeTitleP
     ...manualScreenPacks.filter(pack=>pack.alias==='manual-back'),
     ...['BtnClose01','BtnTextSize00'].map(name=>({url:`packs/manual/layout-${name}.json`,alias:`manual-${name}`,layouts:[name],animations:[`${name}_SceneIn`]})),
     {url:'packs/manual/layout-PageShdw00.json',alias:'manual-page-shadow',layouts:['PageShdw00'],animations:[]},
+    {url:'packs/manual/layout-MainNull.json',alias:'manual-main-root',layouts:['MainNull'],animations:[]},
+    {url:'packs/settings/contents/0001-00000038/manual-EUR_en-neighbor.json',alias:'manual-neighbor',layouts:['Page_001_small_0','Page_001_small_bg'],animations:[],titleId},
     {url:'packs/manual/layout-PageGroup.json',alias:'manual-page-group',layouts:['PageGroup'],animations:[]},
   ]:[];
   if(page)chrome.find(pack=>pack.alias==='manual-row')!.animations=[...chrome.find(pack=>pack.alias==='manual-row')!.animations,'BtnHeadLineTxt_ChangeWait'];
@@ -347,13 +349,24 @@ function drawApplicationManualPage(renderer:NativeLayoutRenderer,top:CanvasRende
   const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,opts)&&okay;};
   const base=renderer.packs['manual-page-group'].layouts.PageGroup.roots[0]?.children.find(pane=>pane.name==='BaseN');
   if(!base||base.translation[0]!==-160)return false;
+  const main=renderer.packs['manual-main-root'].layouts.MainNull;
+  const neighbor=nativePaneParentPath(main,'ContsR')?.at(-1);
+  const next=manualContents(index).find(entry=>entry.kind==='page'&&entry.page===1);
+  if(!neighbor||!next||next.kind!=='page')return false;
+  draw(top,'manual-all-root','AllNull',{center:[200,240],bindings:[{name:'AllNull_Wait',frame:1}]});
+  draw(bottom,'manual-all-root','AllNull',{center:[160,0],bindings:[{name:'AllNull_Wait',frame:1}]});
   for(const [ctx,x,y,width,height] of [[top,200+base.translation[0],38,400,240],[bottom,160+base.translation[0],-202,320,212]] as const){
-    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,ctx.canvas.height);
+    // ContsR is the authored adjacent-page offset; only its upper-LCD sliver is visible.
+    const right=x+neighbor.translation[0];
+    draw(ctx,'manual-page-shadow','PageShdw00',{center:[right,y+202],clip:[0,0,width,height],overrides:{PageShdw00_01:{size:[30,280],scale:[-1,1]},PageShdw00_03:{size:[30,240],scale:[-1,1]}}});
+    draw(ctx,'manual-neighbor','Page_001_small_bg',{center:[right,y],clip:[0,0,width,height]});
+    draw(ctx,'manual-neighbor','Page_001_small_0',{center:[right,y],clip:[right,0,320,height]});
     draw(ctx,'manual-page-shadow','PageShdw00',{center:[x,y+202],clip:[0,0,width,height],overrides:{PageShdw00_01:{size:[30,280],scale:[-1,1]},PageShdw00_03:{size:[30,240],scale:[-1,1]}}});
     draw(ctx,'manual-index','Page_000_small_bg',{center:[x,y],clip:[0,0,width,height]});
     draw(ctx,'manual-index','Page_000_small_0',{center:[x,y],clip:[x,0,320,height]});
   }
   // ChangeWait supplies x−145.5 for the number chip and x−122 for title text.
+  draw(top,'manual-row','ManualRowGettingStarted',{center:[200+neighbor.translation[0],20],bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(next.page+1)},TextBox_Txt:{text:next.title}}});
   draw(top,'manual-row','ManualRowImportant',{center:[200,20],bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(page.page+1)},TextBox_Txt:{text:page.title}}});
   draw(bottom,'manual-BtnClose01','BtnClose01',{bindings:[{name:'BtnClose01_SceneIn',frame:20}]});
   draw(bottom,'manual-back','BtnBack00',{bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:manualBackOverrides(renderer,options)});

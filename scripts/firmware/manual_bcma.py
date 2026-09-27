@@ -35,6 +35,8 @@ SELECTION = {
     'EUR_en_large.arc': ('blyt/Page_000_large_0.bclyt', 'blyt/Page_000_large_bg.bclyt', 'blyt/Page_000_large_info.bclyt'),
     'EUR_en_small.arc': ('blyt/Page_000_small_0.bclyt', 'blyt/Page_000_small_bg.bclyt', 'blyt/Page_000_small_info.bclyt'),
 }
+NEIGHBOR_SELECTION = {'EUR_en_small.arc': tuple(f'blyt/Page_001_small_{part}.bclyt' for part in ('0', 'bg', 'info'))}
+NEIGHBOR_PACK = 'manual-EUR_en-neighbor'
 TEXTURE_ARCHIVES = ('EUR_en_texture.arc', 'Common_texture.arc')
 OUTER_NAME = re.compile(r'[A-Za-z0-9_]+\.arc')
 INNER_PATH = re.compile(r'(?:blyt/[A-Za-z0-9_-]+\.bclyt|timg/[A-Za-z0-9_-]+\.bclim)')
@@ -77,17 +79,19 @@ def converter():
     return {**CONVERSION, 'scripts': {f'scripts/{name}': digest((SCRIPTS/name).read_bytes()) for name in SCRIPT_NAMES}}
 
 
-def convert(raw, builder, selection=SELECTION, texture_archives=TEXTURE_ARCHIVES, expected_sha=SOURCE_SHA):
+def convert(raw, builder, selection=SELECTION, texture_archives=TEXTURE_ARCHIVES, expected_sha=SOURCE_SHA, neighbor_preview=False):
     """Return (url, pack); textures are written through builder, pack JSON is too."""
     if expected_sha is not None and digest(raw) != expected_sha: raise ValueError('Unexpected Manual.bcma source hash')
+    if neighbor_preview: selection = NEIGHBOR_SELECTION
+    pack_name = NEIGHBOR_PACK if neighbor_preview else PACK_NAME
     members = open_outer(raw)
     identity = {'titleId': SETTINGS, **CONTENT}
-    pack = {'schema': 1, 'name': PACK_NAME, 'titleId': SETTINGS, 'sourceSha256': digest(raw), **CONTENT,
+    pack = {'schema': 1, 'name': pack_name, 'titleId': SETTINGS, 'sourceSha256': digest(raw), **CONTENT,
             'layouts': {}, 'animations': {}, 'textures': {}, 'messages': {}, 'unsupported': [],
             'resourceSources': {'layouts': {}, 'animations': {}, 'textures': {}, 'messages': {}},
             'nesting': {'container': {'path': SOURCE_PATH, 'format': 'darc', 'sha256': digest(raw)}, 'archives': {}},
-            'manualSelection': {'schema': 1, 'region': 'EUR', 'language': 'en', 'pages': [0],
-                                'layoutVariants': ['large', 'small'], 'omittedArchives': [], 'converter': converter()}}
+            'manualSelection': {'schema': 1, 'region': 'EUR', 'language': 'en', 'pages': [1] if neighbor_preview else [0],
+                                'layoutVariants': ['small'] if neighbor_preview else ['large', 'small'], 'omittedArchives': [], 'converter': converter()}}
     opened = {}
     for name in sorted({*selection, *texture_archives}):
         opened[name] = open_inner(members, name)
@@ -112,12 +116,12 @@ def convert(raw, builder, selection=SELECTION, texture_archives=TEXTURE_ARCHIVES
         pack['textures'][texture] = builder.texture(data, source)
         pack['resourceSources']['textures'][texture] = source
     slug = TITLES[SETTINGS][0]
-    url = f'packs/{slug}/contents/{CONTENT["contentIndex"]:04x}-{CONTENT["contentId"]}/{PACK_NAME}.json'
+    url = f'packs/{slug}/contents/{CONTENT["contentIndex"]:04x}-{CONTENT["contentId"]}/{pack_name}.json'
     builder.write(url, encode(pack), {**identity, 'path': SOURCE_PATH, 'sha256': digest(raw)}, 'pack')
     return url, pack
 
 
-def publish(source, output, expected_sha=SOURCE_SHA, selection=SELECTION, texture_archives=TEXTURE_ARCHIVES):
+def publish(source, output, expected_sha=SOURCE_SHA, selection=SELECTION, texture_archives=TEXTURE_ARCHIVES, neighbor_preview=False):
     """Add the manual pack to an existing delivery; refuse any conflicting bytes."""
     raw = Path(source).read_bytes(); output = Path(output)
     manifest_path = output/'manifest.json'
@@ -129,7 +133,7 @@ def publish(source, output, expected_sha=SOURCE_SHA, selection=SELECTION, textur
         raise ValueError('Wrong delivery firmware, Settings version or manual content identity')
     with tempfile.TemporaryDirectory() as staging:
         builder = Builder(Path(staging))
-        url, _ = convert(raw, builder, selection, texture_archives, expected_sha)
+        url, _ = convert(raw, builder, selection, texture_archives, expected_sha, neighbor_preview)
         resources = copy.deepcopy(manifest['resources'])
         for path, record in sorted(builder.records.items()):
             prior = resources.get(path)
@@ -156,6 +160,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, required=True, help='Private extracted content-1 romfs/Manual.bcma')
     parser.add_argument('--output', type=Path, required=True, help='Existing delivery directory containing manifest.json')
+    parser.add_argument('--neighbor-preview', action='store_true', help='Add only page 1 small layouts as a separate preview pack')
     args = parser.parse_args()
-    try: print(json.dumps(publish(args.source, args.output), sort_keys=True))
+    try: print(json.dumps(publish(args.source, args.output, neighbor_preview=args.neighbor_preview), sort_keys=True))
     except (ValueError, OSError, KeyError, UnicodeError) as error: parser.exit(1, f'Manual conversion failed: {error}\n')

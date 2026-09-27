@@ -125,3 +125,18 @@ test('page 1 opens through A or its row; B returns and X closes from either scre
   assert.equal(helpers.nativeHelperView(module.view(state,ctx)).packs.find(p=>p.alias==='manual-row').animations.includes('BtnHeadLineTxt_ChangeWait'),false,'page request must not mutate shared contents packs');
   assert.deepEqual(helpers.nativeHelperTargets(module.view(page,ctx)).map(t=>t.action),['manual-close','back']);
 });
+
+test('page preview requests source adjacent geometry and only delivered small page 2', () => {
+  const module=createStockModule(getTitle('manual')), state=module.create({manualTitleId:settings},null,ctx);
+  const page=module.reduce(state,{type:'command',command:'open'},ctx).state;
+  const requests=helpers.nativeHelperView(module.view(page,ctx)).packs;
+  const neighbor=requests.find(p=>p.alias==='manual-neighbor');
+  assert.equal(neighbor.titleId,settings);
+  assert.deepEqual(neighbor.layouts,['Page_001_small_0','Page_001_small_bg']);
+  assert.ok(manifest.titles[settings].packs.includes(neighbor.url));
+  const converted=json(neighbor.url);
+  assert.deepEqual(converted.manualSelection.pages,[1]);
+  assert.deepEqual(converted.manualSelection.layoutVariants,['small']);
+  assert.equal(converted.sourceSha256,pack.sourceSha256);
+  assert.equal(requests.find(p=>p.alias==='manual-main-root').url,'packs/manual/layout-MainNull.json');
+});

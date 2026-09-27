@@ -20,7 +20,7 @@ worktree handoff and source-to-visible HOME banner gates.
 
 The earlier [integration checkpoint](progress-2026-09-24.md#matrix-v45-independent-home-pose-diagnostics--26-september-2026)
 records matrix v45's 90 entries, all whole scenarios failing. The current
-private matrix v86 has 159 records and preserves the earlier diagnostics. The
+private matrix v88 has 161 records and preserves the earlier diagnostics. The
 latest 27 September HOME Settings-selected native/browser diagnostics are
 recorded in the [latest checkpoint](progress-2026-09-24.md#home-settings-input-calibration-diagnostic--27-september-2026).
 The newest live pair fails: native mapped keys did not change selection,
@@ -30,15 +30,20 @@ not justify a production banner correction. Production Health
 Usage initial and 8px-scrolled states and Settings Other page 1 each have **0
 upper / 0 lower pixels above 2/255** with empty masks and maximum delta 2.
 These are static pixel-tier matches only. Other Settings page 1 v89 has a
-0/0 pixel-tier pass; a fresh clock/status recapture v93 has 169 upper / 0 lower
-residual pixels. Settings main is 0 upper / 20 lower
+0/0 pixel-tier pass; the latest clock/status recapture v93 has 169 upper / 0
+lower residual pixels: 137 battery-frame pixels and 32 clock-colon phase
+pixels. The wireless indicators match. A new v95 capture matches the native
+03:59:21.267 phase at **0 upper / 0 lower** pixels; v94's injected date leaves
+the upper clock one minute behind and has 277 residual pixels. Both remain
+whole-scenario failures because input histories are unmatched and motion/audio
+are open. Settings main is 0 upper / 20 lower
 pixels over 2/255. Its 15 missing text-edge pixels and five glyph/icon pixels
 remain open. The latest HOME Settings yaw304 / COMMON303 diagnostic has **222 / 36,258**
 residual pixels. Its independent phase sample does not establish a live one-frame
 offset. Exact input,
 motion and audio timing remain open. Native capture now uses the isolated
-Azahar copy on Codex3DSIsolated after storage was freed. Private matrix v86 has
-159 records and preserves the earlier diagnostics. Earlier measurements below
+Azahar copy on Codex3DSIsolated after storage was freed. Private matrix v88 has
+161 records and preserves the earlier diagnostics. Earlier measurements below
 are historical unless explicitly identified as the latest checkpoint.
 
 The ten browser-only records have no target native captures or diff reports.

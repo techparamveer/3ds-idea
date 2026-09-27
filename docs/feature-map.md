@@ -79,6 +79,26 @@ counterparts. None of these is 1:1 acceptance.
 See the [browser checkpoint](progress-2026-09-24.md#browser-home-banners-zone-entry-and-eshop-close--26-september-2026)
 and [banner activation](stock-home-banner-activation.md).
 
+The isolated native Notifications-selected HOME capture from 27 September
+(`_27.09.26_11.54.10.78.png`, 400×480, SHA-256
+`09cd793931502d3f7a61e1a1defd740d298f1e5dde43bc6bec813910bca21dee`)
+was compared with the corresponding browser capture in the
+`home-notifications-selected-vulkan-reference-20260927` scenario. Browser
+metadata records `toolbarActive=true`, `currentFocus=3`, selection category 6,
+and `folderBanner` status `unsupported`. The empty-mask pixel report records
+61,757 upper-screen and 44,662 lower-screen pixels above 2/255; the upper
+comparison visibly shows the browser retaining the Work title banner while
+native shows Notifications. Suppressing the ordinary-title fallback would
+remove Work but leave out the native Notifications composition, so that is
+not an evidence-backed fix. The pinned private ExeFS extraction has no
+Notifications banner; the applet screen layouts/messages in `packs/notifications/`
+do not establish the HOME upper banner asset or rendering path. Keep this as
+an explicit toolbar-banner source/activation gap pending exact source evidence.
+See the [resource audit](remaining-home-banner-resource-audit.md),
+[native screenshot](</Volumes/Codex3DSIsolated/native-home-replay-20260927/screenshots/_27.09.26_11.54.10.78.png>),
+[browser capture](</Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-native-vulkan/reference/scenario-matrix/v1/captures/home-notifications-selected-vulkan-reference-20260927/browser>),
+and [diff report](</Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-native-vulkan/reference/scenario-matrix/v1/comparisons/home-notifications-selected-vulkan-reference-20260927/report.json>).
+
 The later [stock-app browser smoke](progress-2026-09-24.md#browser-stock-app-smoke-after-notes-owner-correction--26-september-2026)
 at `1c594a5` checks Notes grid/editor/snapshot/Switch/HOME return, Friend List,
 Notifications and local Browser. Its one saved Notes grid raw LCD pair has no

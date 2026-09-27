@@ -20,7 +20,7 @@ worktree handoff and source-to-visible HOME banner gates.
 
 The earlier [integration checkpoint](progress-2026-09-24.md#matrix-v45-independent-home-pose-diagnostics--26-september-2026)
 records matrix v45's 90 entries, all whole scenarios failing. The current
-private matrix v92 has 165 records, all whole scenarios still failing, and
+private matrix v93 has 165 records, all whole scenarios still failing, and
 preserves the earlier diagnostics. The latest Settings touchscreen replay is
 recorded in the [latest checkpoint](progress-2026-09-24.md#other-settings-page-1-touchscreen-route-replay--27-september-2026):
 the native and browser routes touched the same two targets and their settled
@@ -32,6 +32,11 @@ Back-glyph follow-up reduced the settled lower residual from 12,480 to 12,404
 pixels; upper remained 14,716. The page remains substantially different and
 its capture was compared to a saved native frame, so this is not matched-route
 acceptance. See the [Manual glyph checkpoint](progress-2026-09-24.md#settings-important-information-back-glyph-sampling--27-september-2026).
+The 09:31:11 Settings HUD phase recapture now matches both LCDs at 0/0 pixels
+over 2/255, max channel delta 2. The prior adjacent-second browser sample had
+137 battery and 32 clock-colon pixels on the upper LCD. This is settled-pixel
+evidence; native/browser input sequences still differ, and motion/audio remain
+open. See the [HUD phase recapture](progress-2026-09-24.md#other-settings-page-1-hud-phase-recapture--27-september-2026).
 The latest 27 September HOME Settings-selected native/browser diagnostics are
 recorded in the [latest checkpoint](progress-2026-09-24.md#home-settings-input-calibration-diagnostic--27-september-2026).
 The newest live pair fails: native mapped keys did not change selection,
@@ -41,9 +46,9 @@ not justify a production banner correction. Production Health
 Usage initial and 8px-scrolled states and Settings Other page 1 each have **0
 upper / 0 lower pixels above 2/255** with empty masks and maximum delta 2.
 These are static pixel-tier matches only. Other Settings page 1 v89 has a
-0/0 pixel-tier pass; the latest clock/status recapture v93 has 169 upper / 0
-lower residual pixels: 137 battery-frame pixels and 32 clock-colon phase
-pixels. The wireless indicators match. A new v95 capture matches the native
+0/0 pixel-tier pass; the preceding clock/status capture at 09:31:10 had 169
+upper / 0 lower residual pixels: 137 battery-frame pixels and 32 clock-colon
+phase pixels. The 09:31:11 phase recapture now resolves those pixels. The wireless indicators match. A new v95 capture matches the native
 03:59:21.267 phase at **0 upper / 0 lower** pixels; v94's injected date leaves
 the upper clock one minute behind and has 277 residual pixels. Both remain
 whole-scenario failures because input histories are unmatched and motion/audio

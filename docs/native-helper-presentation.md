@@ -163,14 +163,13 @@ the unchanged scrollbar at y32 clears its eight-pixel vertical offset.
 row selection/scrolling and Language navigation are absent. The
 source-render verifier (`scripts/verify-stock-helpers.mjs`,
 `manual-settings-contents`) checks composition and immutability only. The
-integrated production-browser/native empty-mask pair at `15c2abf` has 1,518
-upper and 9,225 lower pixels over 2/255. The new offline source render has 467
-upper pixels over threshold, all inside the icon slot; header and scrollbar
-have zero. Adding the delivered lower
+integrated production-browser/native empty-mask pair at `0a44f2c` has **471
+upper and 1,664 lower** pixels over 2/255. The upper residual is confined to
+the icon slot; title, scrollbar and background align. Adding the delivered lower
 `AllNull/P_Bg_D_00` removes the source render's 6,532-pixel `IndexBase00`
 card/frame region, and the footer pane fit removes the prior 873-pixel Language
-label region. The resulting offline lower diagnostic is 2,102 pixels over
-2/255; the production browser still needs recapture. The unobscured upper
+label region. The resulting production lower diagnostic is 1,664 pixels over
+2/255. The unobscured upper
 `AllNull` source-render background region `(0,48)..(384,240)` has zero pixels
 over 2/255 and a maximum channel delta of 1. The remaining full-screen
 differences mean the screen has no whole-scenario fidelity pass.
@@ -230,8 +229,9 @@ pixel fidelity. The shared source `AllNull` base is now active. Page entry is a
 settled presentation with existing readiness/loading gates, not an emulated
 native transition. The source-render verifier checks both LCDs, immutable
 resources and bounded targets. The first production/native empty-mask pair at
-`15c2abf` has 31,818 upper and 17,463 lower pixels over 2/255; both contact
-sheets were inspected, so pixel, motion and audio tiers remain failing/open.
+`0a44f2c` has **17,229 upper and 17,463 lower** pixels over 2/255, down from
+31,818 / 17,463 before the neighbor was mounted. Both contact sheets were
+inspected, so pixel, motion and audio tiers remain failing/open.
 
 
 ## Settings Manual neighboring page (2026-09-27)

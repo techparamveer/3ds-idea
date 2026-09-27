@@ -51,3 +51,17 @@ No visual position or icon override is changed in this pass. Source fixture
 rows remain inert and private profile bytes stay outside `public/`. The
 focused source test pins these facts so a later executable trace can target
 the correct runtime attachment points.
+
+## Follow-up: ROMFS icon candidates
+
+The pinned Notifications ROMFS contains `default.cic` and `special.cic`, each
+5,760 bytes. Both have 1,152 leading zero bytes followed by 4,608 nonzero
+bytes, the byte count of a 48 × 48 RGB565 image. These are candidates for
+runtime icon content, not identified row badges: their format, swizzle and
+selection rule have not been proved. The executable contains both filenames
+at mapped addresses `0x1922d4` and `0x1922c8`, with one absolute pointer to
+each at `0x1736e8` and `0x1736e4` respectively. This establishes filename
+ownership only; it does not connect either file to `P_Icon_00` or the
+`N_IconNew_00` attachment. The native capture's gray information badge and
+blue unread dot therefore remain unresolved. No visual override is justified
+by this bounded trace.

@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: UI continuation through **`a05c355`** on `codex/health-ui-scratch`,
+Checkpoint: UI continuation through **`5dfa3e8`** on `codex/health-ui-scratch`,
 27 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -20,7 +20,14 @@ worktree handoff and source-to-visible HOME banner gates.
 
 The earlier [integration checkpoint](progress-2026-09-24.md#matrix-v45-independent-home-pose-diagnostics--26-september-2026)
 records matrix v45's 90 entries, all whole scenarios failing. The current
-private matrix v88 has 161 records and preserves the earlier diagnostics. The
+private matrix v92 has 165 records, all whole scenarios still failing, and
+preserves the earlier diagnostics. The latest Settings touchscreen replay is
+recorded in the [latest checkpoint](progress-2026-09-24.md#other-settings-page-1-touchscreen-route-replay--27-september-2026):
+the native and browser routes touched the same two targets and their settled
+page-1 LCDs have 0 upper / 0 lower pixels above 2/255, maximum delta 2. Native
+required 32 mapped-U events per touch while browser used one projected touch,
+so input cadence, transition timing and audio remain unmatched and the whole
+scenario stays failed. The
 latest 27 September HOME Settings-selected native/browser diagnostics are
 recorded in the [latest checkpoint](progress-2026-09-24.md#home-settings-input-calibration-diagnostic--27-september-2026).
 The newest live pair fails: native mapped keys did not change selection,
@@ -42,9 +49,8 @@ remain open. The latest HOME Settings yaw304 / COMMON303 diagnostic has **222 / 
 residual pixels. Its independent phase sample does not establish a live one-frame
 offset. Exact input,
 motion and audio timing remain open. Native capture now uses the isolated
-Azahar copy on Codex3DSIsolated after storage was freed. Private matrix v88 has
-161 records and preserves the earlier diagnostics. Earlier measurements below
-are historical unless explicitly identified as the latest checkpoint.
+Azahar copy on Codex3DSIsolated after storage was freed. Earlier measurements
+below are historical unless explicitly identified as the latest checkpoint.
 
 The isolated profile's touch-from-button map selects its configured empty-slot
 coordinate, and the native HOME row's right scroll affordance moved AR Games

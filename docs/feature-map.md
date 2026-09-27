@@ -32,8 +32,8 @@ These are static pixel-tier matches only. The latest HOME Settings yaw304 / COMM
 residual pixels. Its independent phase sample does not establish a live one-frame
 offset. Exact input,
 motion and audio timing remain open. Native capture now uses the isolated
-Azahar copy on Codex3DSIsolated after storage was freed. Private matrix v82 has
-150 records and preserves the earlier diagnostics. Earlier measurements below
+Azahar copy on Codex3DSIsolated after storage was freed. Private matrix v83 has
+151 records and preserves the earlier diagnostics. Earlier measurements below
 are historical unless explicitly identified as the latest checkpoint.
 
 The ten browser-only records have no target native captures or diff reports.
@@ -180,3 +180,10 @@ Latest diagnostics give Health Usage footer **0/22**, Other Settings bottom edge
 Health Usage initial and 8px-scrolled frames each now have unmasked **0/0** pixels above 2/255, maximum delta 2; only their pixel tiers pass. Other Settings coverage-fit gives **2/0** and diagnostic HOME coin97 gives **3,563/36,071**. Native held/repeated Down versus two discrete browser clicks remains unmatched, and live frame8 does not resolve the source8/368 ambiguity or absolute timing. All whole scenarios fail. Capture endpoint requires a loopback-bound production start. See [v43 evidence](progress-2026-09-24.md#scrolled-health-two-lcd-threshold-checkpoint--26-september-2026).
 
 Other Settings page1 now has an unmasked **0/0** pixel-threshold checkpoint at `1f7a854`, maximum delta 2, after source-sheet identity/order preservation. Diagnostic date 03:31:10Z at elapsed 12000 aligns the native sampled HUD state; literal screenshot time 03:31:13.302Z instead exposed 169 battery/colon phase pixels. This is pixel-tier acceptance only; navigation/input, motion and audio remain unresolved, so the whole scenario fails. See [v44 evidence](progress-2026-09-24.md#other-settings-source-sheet-order-two-lcd-checkpoint--26-september-2026).
+
+The latest battery-frame probe remains a failed source-pose diagnostic. Private
+[matrix v83](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927/reference/scenario-matrix/v83/matrix.json)
+has 151 records. Frame 5 modestly improves the charging-battery ROI over frame
+4, while total upper residual changes 47,928 → 47,738 and lower residual
+changes 40,497 → 40,993 pixels over 2/255. Native focus/input and lower HOME
+title population still do not match; no renderer change is justified.

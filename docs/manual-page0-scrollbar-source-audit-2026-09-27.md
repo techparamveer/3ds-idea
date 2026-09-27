@@ -34,3 +34,31 @@ position writes with the Settings Manual's decoded page state.
 
 This is a source-only audit. It does not change the 3,054/2,071 production
 residual, nor establish pixel, input, motion or audio fidelity.
+
+## Executable ownership follow-up
+
+The pinned extracted `code.bin` was rechecked against the SHA-256 above and
+disassembled as ARM code loaded at `0x100000`. The direct call chain is now
+slightly narrower:
+
+| Address | Observed operation |
+| --- | --- |
+| `0x159448` | Constructs the 12-byte indicator holder at scene object `+0x18`, passing scene `+0x08` as its second argument. |
+| `0x139e78`–`0x139ed4` | The holder allocates its geometry object at holder `+0x08` and calls `0x139de4` immediately. |
+| `0x159f88`–`0x159fa0` | A later update reads the scene holder at `+0x18` and tail-calls `0x139de4` after `0x13d4b4` on scene `+0x08`. |
+| `0x117bc0`–`0x117bcc` | A virtual scene callback calls that later update with scene `+0x04`. The callback address occurs in the executable's data at `0x1b8f20`. |
+
+These addresses prove both an initial geometry calculation and a subsequent
+update route in the applet. They do **not** yet identify the scene object as
+the Settings Important Information document. The `0x139de4` count comes from
+the separate layout control at holder `+0x04`, created by `0x139cc4` and
+installed by the broader scene constructor at `0x159698`. The record does not
+yet show which entries that vector contains for the first Settings page.
+
+The remaining source links are: resolve the vtable at `0x1b8f20` to the
+page-0 document scene selected from Settings content-1 `Manual.bcma`; decode
+the scene `+0x08` / indicator control `+0x04` vector at page-0 entry; trace
+the initial scroll offset and the nested pane translation written after
+`0x143074`. Only then can the source-derived height and y position be passed
+to the delivered `ScrollIndicator` layout. No renderer dimensions are inferred
+from the capture's 6×145 strip.

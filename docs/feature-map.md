@@ -1,6 +1,6 @@
 # 3DS portfolio feature map
 
-Checkpoint: UI continuation through **`5dfa3e8`** on `codex/health-ui-scratch`,
+Checkpoint: UI continuation through **`4f30bc9`** on `codex/health-ui-scratch`,
 27 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.
 
@@ -27,8 +27,12 @@ the native and browser routes touched the same two targets and their settled
 page-1 LCDs have 0 upper / 0 lower pixels above 2/255, maximum delta 2. Native
 required 32 mapped-U events per touch while browser used one projected touch,
 so input cadence, transition timing and audio remain unmatched and the whole
-scenario stays failed. The
-latest 27 September HOME Settings-selected native/browser diagnostics are
+scenario stays failed. The Settings Important Information page-0 source-size
+Back-glyph follow-up reduced the settled lower residual from 12,480 to 12,404
+pixels; upper remained 14,716. The page remains substantially different and
+its capture was compared to a saved native frame, so this is not matched-route
+acceptance. See the [Manual glyph checkpoint](progress-2026-09-24.md#settings-important-information-back-glyph-sampling--27-september-2026).
+The latest 27 September HOME Settings-selected native/browser diagnostics are
 recorded in the [latest checkpoint](progress-2026-09-24.md#home-settings-input-calibration-diagnostic--27-september-2026).
 The newest live pair fails: native mapped keys did not change selection,
 status and neighboring titles differ. An explicit source HUD pose reduced the

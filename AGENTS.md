@@ -30,13 +30,14 @@ limitation or declaring it fixed.
 
 ## Agent model preference — 27 September 2026
 
-The user's latest preference is **GPT-6 Luna, medium reasoning, standard speed
-(no Fast mode)**. This supersedes the earlier Astra Fast and Sol preferences.
-For delegated work, explicitly select `model=gpt-6-luna` and
-`reasoning_effort=medium` on a bounded or empty context fork. The collaboration
-tool does not expose a service-tier argument. Do not claim that the in-flight
-coordinator model or tier changed; it cannot be switched through a subagent
-override. Follow this preference for all new work unless the user updates it.
+The user's latest preference is **GPT-5.6 Sol, high reasoning**. This
+supersedes the earlier GPT-6 Luna medium preference and previous Astra Fast
+and Sol preferences. For delegated work, explicitly select `model=gpt-5.6-sol`
+and `reasoning_effort=high` on a bounded or empty context fork. The
+collaboration tool does not expose a service-tier argument. Do not claim that
+the in-flight coordinator model changed; it cannot be switched through a
+subagent override. Follow this preference for all new work unless the user
+updates it.
 
 ## Product constraints
 

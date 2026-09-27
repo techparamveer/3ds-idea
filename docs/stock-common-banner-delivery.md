@@ -1,11 +1,16 @@
-# Dormant stock HOME common-banner delivery
+# Stock HOME common-banner delivery and verification gaps
 
 Camera, Sound, Health and Safety, and eShop each have two distinct public
 converted resources: their CBMD common-slot `COMMON` model with its original
-textures, and the EUR-English selected-slot texture set. The
+textures, and the EUR-English selected-slot texture set. The integrated
+production HOME host now requests and renders these title selections through
+generation-bound tickets. Camera, Sound and Health were activated in
+`a53fe45`/`2d6d32a`; eShop became visibly rendered after the absent-Color fix
+in `8f0eb39`. The
 [binding audit](stock-2d-banner-boundary.md) verifies the native type-1 path
 that replaces matching common material texture names with selected textures.
-The browser HOME host still does not render these application selections.
+This is browser-visible source-backed rendering, not verified native shader or
+whole-screen parity.
 
 `scripts/firmware-cgfx/publish_common_banners.py` copies only model JSON and
 PNG files from the private, pinned converter output. It verifies each CGFX
@@ -27,9 +32,10 @@ The registration does not establish the title worker's readiness, native
 material combiner output, pose, animation cadence or matched 400 × 240 pixels.
 Nintendo Zone remains excluded from this pack: a bounded static common model
 and selected texture mapping are verified, but its Hermite128 animation cannot
-yet be decoded. The assets must stay dormant until the
-scene host can load the model and selected texture set as one generation-bound
-title request, apply the verified name replacement and cancel stale requests.
+yet be decoded. The assets are no longer dormant in the integrated browser
+host. Its generation-bound title request loads the model and selected texture
+set, applies the verified name replacement and cancels stale requests. Matched
+Azahar comparison and native animation/render verification remain open.
 
 The Three.js model renderer now permits an explicit `allowSizeChange` for
 native title texture replacement. This is required because Health and eShop
@@ -37,17 +43,19 @@ common-slot placeholders are 8 × 8 while their EUR artwork is 512 × 128
 (and Health's symbol is 128 × 128). The default replacement path still rejects
 size changes, protecting the folder's fixed-size text upload. Focused tests
 instantiate all four real common models, bind each selected texture name and
-exercise both the fixed-size and resized cases. HOME activation remains gated.
+exercise both the fixed-size and resized cases. Browser activation is covered
+by the integrated title host; native worker and pixel parity remain gated by
+the missing comparison evidence.
 
 `src/scene/stock-title-banner.ts` now owns a dormant preparation path for these
 four pairs. It checks the published common/selected CGFX hashes, `COMMON` model
 and clip shape, complete common images and exact EUR texture names before
 creating one model and applying every locale replacement with the explicit
 size override. Its console-session/request ticket drops stale asynchronous
-loads and disposes a retargeted model. The HOME screen does not request or draw
-these models yet. Resource preparation is not a visibility gate. The
-coordinator must verify native worker, animation and pixel behavior before
-enabling this path in `console-scene.ts`.
+loads and disposes a retargeted model. The live `console-scene.ts` path requests
+and draws eligible title models and acknowledges readiness only after the
+matching ticket is ready. This proves a browser path, not native worker,
+animation or pixel behavior.
 
 The later [type-1 worker replay](native-settings-banner-pose.md) now reaches
 the title worker's completion-byte store after **supplied** successful common
@@ -67,6 +75,11 @@ model/controller construction and final presentation are unproved. The early
 presentation-worker gate and state-6/2 retarget fragments are replayed, but
 they do not establish a complete replacement cycle or clip cadence. Sound,
 Health and eShop have no equivalent real-CBMD worker execution in this pass.
+The eShop bags, logo and shadow are visible in the production browser after
+`8f0eb39` used source material diffuse colour when the converted model
+explicitly lacked a vertex `Color` attribute; transparent shadow alpha remains
+51. This is a provisional renderer adaptation, and native shader parity is
+unverified.
 The Camera fixture SHA-256 is
 `55d2dc3ad8b77b8a8744f9a7a64a53745ce7f68a58021d2d61ee42325c2a5c45`.
 Reproduce it with `scripts/replay-settings-banner-workers.py --code

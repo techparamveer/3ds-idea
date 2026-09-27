@@ -30,6 +30,7 @@ const captureUpperTexture='suspended-capture-upper',captureLowerTexture='suspend
 const personalAllNotePacks:readonly NativeTitlePackRequest[]=[...personalNotesPacks,...personalSelectedNotePacks.filter(({alias})=>!personalNotesPacks.some(pack=>pack.alias===alias))];
 export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00','NewsWndwNews_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn','NewsWndwNews_D_00_SceneIn','NewsWndwNews_D_00_Select'],textures:['special.cic']},
+  {url:'packs/notifications/contents/0000-00000012/receivelamp.json',alias:'notification-receivelamp',layouts:['RcvLamp_00'],animations:['RcvLamp_00_ReceiveBlue','RcvLamp_00_SceneIn']},
   {url:'packs/notifications/slidebar.json',alias:'notification-slidebar',layouts:['SlideBar'],animations:['SlideBar_Select']},
   {url:'packs/notifications/messages-and-loose.json',alias:'notification-messages',layouts:[],animations:[]},
 ];
@@ -80,7 +81,11 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
           P_Icon_00:{textureBindings:{0:'special.cic'}},
           T_NewsTitleB_00:{text:row.label},T_NewsTitleF_00:{text:row.label},
           N_IconNew_00:{visible:row.value==='New'},
-        }})&&okay;
+        },attachments:{N_IconNew_00:()=>{
+          okay=renderer.draw(bottom,'notification-receivelamp','RcvLamp_00',{
+            bindings:[{name:'RcvLamp_00_ReceiveBlue',frame:60},{name:'RcvLamp_00_SceneIn',frame:20}],
+          })&&okay;
+        }}})&&okay;
       }
       okay=renderer.draw(bottom,'notification-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:0}],overrides:{N_Slider_00:{translation:[141,14,0]},N_Slide_00:{translation:[0,55,0]}}})&&okay;
     }

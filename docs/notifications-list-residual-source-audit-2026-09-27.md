@@ -73,8 +73,11 @@ bound in the browser source renderer. The unread dot and the executable's icon
 selection rule for other list states remain unresolved.
 
 **Unread-marker follow-up:** [the bounded executable and ROMFS trace](notifications-unread-marker-source-trace-2026-09-27.md)
-confirms a runtime object is attached to the empty `N_IconNew_00` pane, but
-does not identify its artwork or read-state update. It makes no visual change.
+first confirmed a runtime object attached to the empty `N_IconNew_00` pane.
+The subsequent trace resolved it to the pinned `RcvLamp_00` layout and its
+`ReceiveBlue` animation. The delivered source draw matches three native
+unread-dot crops at zero pixels above 2/255. Native pulse timing and the
+executable's read-state update remain open.
 
 ## Scrollbar mount follow-up — 27 September 2026
 

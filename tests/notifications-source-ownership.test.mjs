@@ -11,7 +11,7 @@ const panes = layout => {
   return layout.roots.flatMap(visit);
 };
 
-test('notification row icon has delivered CIC content; unread marker still needs runtime content', () => {
+test('notification row icon and unread receive lamp have delivered source content', () => {
   const row = news.layouts.NewsWndwNews_D_00;
   const byName = Object.fromEntries(panes(row).map(pane => [pane.name, pane]));
   assert.deepEqual(row.textures, [
@@ -22,6 +22,15 @@ test('notification row icon has delivered CIC content; unread marker still needs
   assert.equal(byName.N_IconNew_00.kind, 'pan1');
   assert.deepEqual(byName.N_IconNew_00.children, []);
   assert.deepEqual(byName.N_IconNew_00.size, [16, 16]);
+  const lamp = JSON.parse(readFileSync(new URL('contents/0000-00000012/receivelamp.json', root), 'utf8'));
+  assert.deepEqual(lamp.layouts.RcvLamp_00.textures, ['RL_00.bclim', 'RL_01.bclim']);
+  assert.equal(lamp.layouts.RcvLamp_00.roots[0].children[0].name, 'P_Rcv_00');
+  const blue = lamp.animations.RcvLamp_00_ReceiveBlue;
+  assert.equal(blue.frames, 120);
+  assert.deepEqual(blue.tracks.find(track => track.property === 'materialColor.0.2').keys.map(key => [key.frame, key.value]),
+    [[0, 220], [60, 255], [120, 220]]);
+  const dot = readFileSync(new URL('../public/os/firmware/10.7.0-32E/textures/47a332f4266dfad65c377098a715e0cd5ad118d4aecc810fe21c7def2e700693.png', import.meta.url));
+  assert.equal(createHash('sha256').update(dot).digest('hex'), lamp.textures['RL_00.bclim'].sha256);
   const image = readFileSync(new URL('../public/os/firmware/10.7.0-32E/textures/notifications-special-cic.png', import.meta.url));
   assert.equal(createHash('sha256').update(image).digest('hex'), news.textures['special.cic'].sha256);
   assert.equal(news.resourceSources.textures['special.cic'].sha256,
@@ -34,6 +43,17 @@ test('notification row icon has delivered CIC content; unread marker still needs
     contentId: '00000012', contentIndex: 0, path: 'special.cic',
     sha256: news.resourceSources.textures['special.cic'].sha256,
     titleId: '000400300000a002', titleVersion: 4097,
+  });
+  const lampPath = 'packs/notifications/contents/0000-00000012/receivelamp.json';
+  assert.ok(manifest.titles['000400300000a002'].packs.includes(lampPath));
+  assert.equal(manifest.resources[lampPath].sources[0].sha256,
+    '293255a901abe9b7e312aee4b0c00785c94db85192b150159b7d0ab8a3f98217');
+  assert.equal(manifest.resources[lampPath].sources[0].titleVersion, 4097);
+  assert.equal(manifest.resources[lampPath].conversion.version, '1.5.4');
+  assert.deepEqual(manifest.resources[lamp.textures['RL_00.bclim'].url].sources[0], {
+    titleId: '000400300000a002', titleVersion: 4097, contentId: '00000012', contentIndex: 0,
+    path: 'receivelamp_LZ.bin/timg/RL_00.bclim',
+    sha256: '77811c7e73947c5b5c901d7d0b0a302b85fdf8fff26568da2e87cb25969db1be',
   });
 });
 

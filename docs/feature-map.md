@@ -20,7 +20,7 @@ worktree handoff and source-to-visible HOME banner gates.
 
 The earlier [integration checkpoint](progress-2026-09-24.md#matrix-v45-independent-home-pose-diagnostics--26-september-2026)
 records matrix v45's 90 entries, all whole scenarios failing. The current
-private matrix v93 has 165 records, all whole scenarios still failing, and
+private matrix v94 has 166 records, all whole scenarios still failing, and
 preserves the earlier diagnostics. The latest Settings touchscreen replay is
 recorded in the [latest checkpoint](progress-2026-09-24.md#other-settings-page-1-touchscreen-route-replay--27-september-2026):
 the native and browser routes touched the same two targets and their settled

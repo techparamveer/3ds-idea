@@ -101,3 +101,29 @@ captured nine-item list. The `N_Slider_00: [141,14,0]` override approximates
 the proven parent placement, but a standalone draw may differ from native
 parent clipping, opacity, and transforms. A screenshot fit cannot distinguish
 those effects from the thumb rule. No runtime values changed in this pass.
+
+### Bounded controller follow-up
+
+The object constructed by `0x139080` at `0x17e144` contains the mounted list
+layout, `N_SlideBar_00`, `N_Scroll_00`, `B_Slide_00`, `SBBtn`, `SBBtnShdw`,
+and `SBBtnFrame` names in its input block (`0x17e0c4..0x17e110`). Its
+initializer calls `0x13a160` at `0x139130`. That method is also called from
+list paths `0x179660` and `0x17acec`. The latter passes an integer in `r5`;
+the former rounds a floating scroll displacement divided by the row stride at
+`[r4+0x314]` before passing it as the second argument. This establishes a
+scroll-dependent update path, rather than a fixed `55`-pixel pose.
+
+In `0x13a160`, the `N_SlideBar_00` pane lookup supplies a field at `+0x4c`.
+The controller stores that field and its `0.95` and `0.05` multiples at
+`+0x68`, `+0x6c`, and `+0x70` (`0x1390ec..0x139124`; constants at
+`0x139188` and `0x13918c`). The update subtracts the latter multiple times
+`max(0, second_argument + controller[0x0c] - controller[0x08])` from the
+former, then writes the capped result to field `+0x4c` of `SBBtn`,
+`SBBtnShdw`, `SBBtnFrame`, and `B_Slide_00` (`0x13a180..0x13a22c`).
+This is a source-backed pane-field calculation, but the field semantics and
+subsequent `N_Slide_00` translation write have not been established. The
+list's nine profile rows, a constructor parameter with value six, and the
+current browser five draws do not directly reveal the native
+count used by this method. No renderer correction is safe from this trace
+alone; identify the dynamic thumb translation/write and effective row count
+before replacing the browser override.

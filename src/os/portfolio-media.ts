@@ -15,3 +15,13 @@ for (const app of apps) for (const entry of app.entries) {
 }
 /** User-supplied favourite songs go here when available; no sample tracks. */
 export const portfolioMedia: PortfolioMedia = Object.freeze({ folders: Object.freeze(folders), tracks: Object.freeze([]) });
+
+/** Explicit local comparison fixture. The originals stay in the private SDMC tree. */
+export function cameraVerificationMedia(location: Pick<Location, 'hostname' | 'search'> | undefined): PortfolioMedia | undefined {
+  if (!location || !['localhost', '127.0.0.1', '[::1]'].includes(location.hostname) || new URLSearchParams(location.search).get('cameraFixture') !== 'hni') return;
+  const photos = [1, 2].map(number => Object.freeze({
+    id: `HNI_000${number}`, title: `HNI_000${number}`,
+    src: `/api/verification/camera-photo/${number}?cameraFixture=hni`,
+  }));
+  return Object.freeze({ folders: Object.freeze([Object.freeze({ id: 'hni-reference', title: 'View Photos/Videos', photos: Object.freeze(photos) })]), tracks: portfolioMedia.tracks });
+}

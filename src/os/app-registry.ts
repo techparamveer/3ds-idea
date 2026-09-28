@@ -2,6 +2,7 @@ import { apps } from './apps.ts';
 import type { AppDescriptor, AppModule } from './app-types.ts';
 import { createPortfolioModule } from './portfolio-app.ts';
 import { createStockModule } from './stock-apps.ts';
+import { cameraVerificationMedia } from './portfolio-media.ts';
 
 const firmware = (id: string, title: string, titleId: string, kind: AppDescriptor['kind'] = 'application', home = kind === 'application'): AppDescriptor => ({
   id, title, titleId, kind, home, source: 'firmware', assetPack: titleId, saveVersion: 1,
@@ -38,7 +39,8 @@ export const stockTitles: readonly AppDescriptor[] = [
 export const retiredHomeTitleIds: ReadonlySet<string> = new Set(['activity-log', 'download-play', 'mii-maker', 'streetpass', 'keyboard']);
 const modules = new Map<string, AppModule>();
 for (const app of apps) modules.set(app.id, createPortfolioModule(app));
-for (const descriptor of stockTitles) modules.set(descriptor.id, createStockModule(descriptor));
+const cameraFixture = cameraVerificationMedia(typeof window === 'undefined' ? undefined : window.location);
+for (const descriptor of stockTitles) modules.set(descriptor.id, createStockModule(descriptor, cameraFixture && (descriptor.id === 'camera' || descriptor.id === 'camera-applet') ? cameraFixture : undefined));
 export const installedTitles: readonly AppDescriptor[] = [...modules.values()].map(module => module.descriptor);
 export const homeTitles = installedTitles.filter(title => title.home);
 export function getTitle(id?: string | null) { return id ? modules.get(id)?.descriptor : undefined; }

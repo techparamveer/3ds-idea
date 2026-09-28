@@ -287,8 +287,10 @@ test('gallery and photo uppers draw portfolio pixels as the 400×240 view',()=>{
   assert.deepEqual(gallery.images[0],['/portfolio/building1.jpg',0,0,400,240,'camera-mono']);
   assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.BrwsFolder.visible,false);
   assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.BrwsNoData.visible,false);
-  assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides['2DView'].visible,true);
-  assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.ViewInfo.visible,true);
+  const monoUpper=gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides;
+  assert.equal(monoUpper['2DView'].visible,true);
+  assert.equal(monoUpper.ViewInfo.visible,true);
+  for(const edge of ['Edge0','Edge1','Edge2','Edge3'])assert.equal(monoUpper[edge],undefined);
   const photo=paintFrame(view('photo',[],{photo:{id:'a',title:'Building 2',src:'/portfolio/building2.jpg'}}));
   assert.deepEqual(photo.images[0],['/portfolio/building2.jpg',0,0,400,240,'camera-mono']);
   assert.equal(photo.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.ViewInfo.visible,true);
@@ -299,6 +301,11 @@ test('Camera MPO fixture metadata opts into the source stereo path',()=>{
  const stereo={originalWidth:640,originalHeight:480,parallaxPixels:-44.553070068359375};
  const result=paintFrame(view('gallery',[{id:'photo:a',label:'Fixture'}],{photos:[{id:'a',src:'/private/HNI_0002.JPG',verificationStereo:stereo}]}));
  assert.deepEqual(result.images[0],['/private/HNI_0002.JPG',0,0,400,240,{kind:'camera-stereo',...stereo}]);
+ const upper=result.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides;
+ assert.deepEqual(upper.ViewInfo,{visible:true});
+ assert.deepEqual(upper['3DView'],{visible:true});
+ assert.deepEqual(upper['2DView'],{visible:false});
+ for(const edge of ['Edge0','Edge1','Edge2','Edge3'])assert.deepEqual(upper[edge],{visible:false});
 });
 
 test('empty upper uses Brws_U_04 and does not invent a title bar',()=>{

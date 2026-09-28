@@ -319,26 +319,30 @@ export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   const photo=view.screen==='photo'?record(data.photo):view.screen==='gallery'?photos.find(p=>'photo:'+str(p.id)===selected?.id)??photos[0]??{}:records(folder?.photos)[0]??{};
   const empty=view.screen==='main'&&!view.rows.length;
   const folderView=view.screen==='main'&&!empty;
+  const photoView=view.screen==='gallery'||view.screen==='photo';
+  const stereo=record(photo.verificationStereo);
+  const stereoPhoto=photoView&&Number.isFinite(stereo.originalWidth)&&Number.isFinite(stereo.originalHeight)&&Number.isFinite(stereo.parallaxPixels);
   const count=folderView?records(folder?.photos).length:photos.length;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['camera-messages'],'P',label,'');
   top.fillStyle='#000';top.fillRect(0,0,400,240);
   // P_FinderVS_U supplies the 400×240 frame. Portfolio JPEGs have no stereo
   // metadata: use the native mono branch of 0x210230, not MPO framing.
-  if(view.screen==='gallery'||view.screen==='photo'){
+  if(photoView){
     const url=str(photo.thumbnail)||str(photo.src);
-    const stereo=record(photo.verificationStereo);
-    const fit=Number.isFinite(stereo.originalWidth)&&Number.isFinite(stereo.originalHeight)&&Number.isFinite(stereo.parallaxPixels)
+    const fit=stereoPhoto
       ? {kind:'camera-stereo' as const,originalWidth:Number(stereo.originalWidth),originalHeight:Number(stereo.originalHeight),parallaxPixels:Number(stereo.parallaxPixels)}
       : 'camera-mono' as const;
     if(url)options.image?.(top,url,0,0,400,240,fit);
   }
   const upper=renderer.draw(top,'camera-finder','P_FinderVS_U',{overrides:{
     ...cameraUpperHidden,
-    // The populated native photo browse keeps the finder cube at (183,103).
-    // Empty and folder states lack matching native cube evidence. Portfolio
-    // photos use the executable's mono branch, so select its grey 2D art.
-    ViewInfo:{visible:(view.screen==='gallery'||view.screen==='photo')&&!!(str(photo.thumbnail)||str(photo.src))},
-    '3DView':{visible:false},'2DView':{visible:true},
+    // The native photo browse shows source 3D art for MPO and 2D art for mono.
+    // The four finder vignette pictures are absent from the matched MPO gallery.
+    ViewInfo:{visible:photoView&&!!(str(photo.thumbnail)||str(photo.src))},
+    '3DView':{visible:stereoPhoto},'2DView':{visible:!stereoPhoto},
+    ...(stereoPhoto?{
+      Edge0:{visible:false},Edge1:{visible:false},Edge2:{visible:false},Edge3:{visible:false},
+    }:{}),
     BrwsNoData:{visible:empty},
     BrwsFolder:{visible:folderView},
     Txt_NoData:empty?message('Brws_U_04'):{visible:false},

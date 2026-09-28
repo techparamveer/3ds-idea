@@ -64,6 +64,17 @@ function setup(t,{failure,alterSettings,alterBind=false,delayFrame,invalidFrame=
 }
 const primary=scene=>scene.children.find(group=>group.renderOrder===2&&group.visible);
 const mask=scene=>scene.children.find(group=>group.renderOrder===1);
+test('Internet Browser toolbar uses the converted HOME source model as sole primary',async t=>{
+ const h=setup(t);await h.banner.ready;
+ assert.equal(h.banner.status().webReady,true);
+ assert.equal(h.banner.drawWebFrame(h.ctx,5000,false),true);
+ const scene=h.draws.at(-1).scene;
+ assert.equal(h.draws.at(-1).primaries.length,1);
+ assert.equal(primary(scene).rotation.y,0);
+ assert.ok(mask(scene));
+ assert.equal(h.banner.drawFriendFrame(h.ctx,5000,false),true);
+ assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Browser');
+});
 test('Friend List toolbar uses the converted HOME source model as sole primary',async t=>{
  const h=setup(t);await h.banner.ready;
  assert.equal(h.banner.status().friendReady,true);

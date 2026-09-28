@@ -87,6 +87,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     drawNewsBanner:(ctx,time,isReduced,label)=>folderBanner.drawNewsFrame(ctx,time,isReduced,label),
     drawFriendBanner:(ctx,time,isReduced,label)=>folderBanner.drawFriendFrame(ctx,time,isReduced,label),
     drawMemoBanner:(ctx,time,isReduced,label)=>folderBanner.drawMemoFrame(ctx,time,isReduced,label),
+    drawWebBanner:(ctx,time,isReduced,label)=>folderBanner.drawWebFrame(ctx,time,isReduced,label),
     drawStockTitleBannerFrame:(ctx,motion,ticket,kind)=>folderBanner.drawStockTitleFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:kind==='health'&&verificationHealthBannerFrame!==undefined?verificationHealthBannerFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},{...ticket,kind}),
     drawHomeBackground:(ctx,time,isReduced,frame)=>frame===undefined?folderBanner.drawBackground(ctx,time,isReduced):folderBanner.drawBackgroundFrame(ctx,frame),runtimeNotice:()=>runtimeNotice});
   await Promise.all([screens.ready,folderBanner.ready]);

@@ -64,6 +64,17 @@ function setup(t,{failure,alterSettings,alterBind=false,delayFrame,invalidFrame=
 }
 const primary=scene=>scene.children.find(group=>group.renderOrder===2&&group.visible);
 const mask=scene=>scene.children.find(group=>group.renderOrder===1);
+test('Friend List toolbar uses the converted HOME source model as sole primary',async t=>{
+ const h=setup(t);await h.banner.ready;
+ assert.equal(h.banner.status().friendReady,true);
+ assert.equal(h.banner.drawFriendFrame(h.ctx,5000,false),true);
+ const scene=h.draws.at(-1).scene;
+ assert.equal(h.draws.at(-1).primaries.length,1);
+ assert.equal(primary(scene).rotation.y,0);
+ assert.ok(mask(scene));
+ assert.equal(h.banner.drawNewsFrame(h.ctx,5000,false),true);
+ assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Friend List');
+});
 test('native 400×240 banner target ignores fractional page DPR',async t=>{
  const h=setup(t,{pixelRatio:1/3});await h.banner.ready;
  assert.equal(h.banner.drawSettingsFrame(h.ctx,{...frame,skeletalFrame:433}),true);

@@ -47,6 +47,7 @@ test('unchanged idle and a different vacant slot preserve the accepted default r
 
 test('the eight native toolbar categories never resolve the selected grid app',()=>{
   const state=createPortfolioState(),categories=[2,5,4,6,7,8,2,2];
+  assert.deepEqual(resolveHomeBannerHostObservation(state,observation({focus:2,toolbarActive:true})),{kind:'toolbar',focus:2,category:4},'Game Notes is focus 2');
   for(let focus=0;focus<8;focus++){
     const selection=resolveHomeBannerHostObservation(state,observation({focus,toolbarActive:true}));
     assert.deepEqual(selection,categories[focus]===2?{kind:'default'}:{kind:'toolbar',focus,category:categories[focus]});

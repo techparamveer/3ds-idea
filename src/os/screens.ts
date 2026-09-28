@@ -265,7 +265,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawNewsBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawFriendBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawNewsBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawFriendBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawMemoBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -307,9 +307,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const view=getHomePresentation(state);
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;}
   const hostedBanner=options.getHomeBanner?.();
-  const toolbarNews=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'&&hostedBanner.selection.focus===3;
-  const toolbarFriend=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'&&hostedBanner.selection.focus===1;
-  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!toolbarNews&&!toolbarFriend&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
+  const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;
+  const toolbarNews=toolbarFocus===3,toolbarFriend=toolbarFocus===1,toolbarMemo=toolbarFocus===2;
+  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!toolbarNews&&!toolbarFriend&&!toolbarMemo&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(toolbarFriend&&!state.panel&&state.system?.phase==='home'){
    const label=nativeHome?.folderBannerLabel('Friend List');
    if(!options.drawFriendBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Friend List toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Friend List toolbar banner unavailable.');
@@ -317,6 +317,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(toolbarNews&&!state.panel&&state.system?.phase==='home'){
    const label=nativeHome?.folderBannerLabel('Notifications');
    if(!options.drawNewsBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Notifications toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Notifications toolbar banner unavailable.');
+  }
+  if(toolbarMemo&&!state.panel&&state.system?.phase==='home'){
+   const label=nativeHome?.folderBannerLabel('Game Notes');
+   if(!options.drawMemoBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Game Notes toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Game Notes toolbar banner unavailable.');
   }
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.

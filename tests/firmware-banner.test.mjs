@@ -75,6 +75,16 @@ test('Friend List toolbar uses the converted HOME source model as sole primary',
  assert.equal(h.banner.drawNewsFrame(h.ctx,5000,false),true);
  assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Friend List');
 });
+test('Game Notes source banner draws alone with its frame mask',async t=>{
+ const h=setup(t);await h.banner.ready;
+ assert.equal(h.banner.status().memoReady,true);
+ assert.equal(h.banner.drawMemoFrame(h.ctx,2500,false),true);
+ const draw=h.draws.at(-1),group=primary(draw.scene);
+ assert.equal(draw.primaries.length,1);
+ assert.equal(group.children[0].children.length,3);
+ assert.ok(mask(draw.scene));
+ assert.equal(group.rotation.y,0);
+});
 test('native 400×240 banner target ignores fractional page DPR',async t=>{
  const h=setup(t,{pixelRatio:1/3});await h.banner.ready;
  assert.equal(h.banner.drawSettingsFrame(h.ctx,{...frame,skeletalFrame:433}),true);

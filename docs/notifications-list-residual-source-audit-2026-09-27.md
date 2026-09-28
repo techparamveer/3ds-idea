@@ -130,3 +130,22 @@ current browser five draws do not directly reveal the native
 count used by this method. No renderer correction is safe from this trace
 alone; identify the dynamic thumb translation/write and effective row count
 before replacing the browser override.
+
+### Additional controller inspection — 28 September 2026
+
+The controller at `0x13a160` continues past the thumb sizing described above.
+At `0x13a23c..0x13a2c4`, it looks up the literal pane names
+`SBBaseWndw`, `SBBaseLine_00`, and `B_Groove_00`. It copies the base window's
+two translation fields (`+0x48`, `+0x4c`) to the base line, then adjusts the
+base window and groove translations by the difference between their authored
+translations. This is a source-backed alignment operation for the groove,
+not a position update for `N_Slide_00`.
+
+The same routine later computes a floating displacement at
+`0x13a494..0x13a4c4` from the current list index, a count boundary, and
+the row stride held at controller `+0x24`. That establishes a dependency on
+scroll state but still does not reveal the final thumb translation or its
+native value for the captured nine-row profile. The list setup constructs ten
+row objects (`0x17dfc4..0x17e084`) while marking the first six differently;
+neither number can safely be substituted for the effective item count used
+when the profile is loaded. The fixed browser thumb remains an open residual.

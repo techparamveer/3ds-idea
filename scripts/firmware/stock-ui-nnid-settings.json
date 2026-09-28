@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400100002c100": {
+      "packs": {
+        "packs/nnid-settings/layout-Root.json": {
+          "layouts": [
+            "Root"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-BG.json": {
+          "layouts": [
+            "BG"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-sysinfo-AccountHeader.json": {
+          "layouts": [
+            "AccountHeader"
+          ],
+          "animations": [
+            "AccountHeader_ApltFade",
+            "AccountHeader_TextFade"
+          ]
+        },
+        "packs/nnid-settings/layout-TopButton.json": {
+          "layouts": [
+            "TopButton"
+          ],
+          "animations": [
+            "TopButton_FadeIn",
+            "TopButton_FocusedOnOff",
+            "TopButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/layout-toolbar-ToolBar.json": {
+          "layouts": [
+            "ToolBar"
+          ],
+          "animations": [
+            "ToolBar_BarUpDown",
+            "ToolBar_FadeIn",
+            "ToolBar_FadeOut",
+            "ToolBar_FadeOutDecided",
+            "ToolBar_FadeOutFavoriteGo",
+            "ToolBar_PartBarDown",
+            "ToolBar_PartBarUp"
+          ]
+        },
+        "packs/nnid-settings/layout-toolbar-OliveBack.json": {
+          "layouts": [
+            "OliveBack"
+          ],
+          "animations": [
+            "OliveBack_DecidedOn",
+            "OliveBack_DecidedOnOff",
+            "OliveBack_FocusedOnOff",
+            "OliveBack_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/layout-toolbar-ExitButton.json": {
+          "layouts": [
+            "ExitButton"
+          ],
+          "animations": [
+            "ExitButton_DecidedOn",
+            "ExitButton_FocusedOnOff",
+            "ExitButton_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/messages-and-loose.json": {
+          "messages": {
+            "cave": [
+              "Button_Return",
+              "Dialog_Cancel",
+              "Dialog_NonIconOk",
+              "StartMenu_Close",
+              "StartMenu_End"
+            ]
+          }
+        },
+        "packs/nnid-settings/layout-dialog-DialogBaseNormal.json": {
+          "layouts": [
+            "DialogBaseNormal"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-dialog-DialogNotice.json": {
+          "layouts": [
+            "DialogNotice"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-dialog-DialogNormal.json": {
+          "layouts": [
+            "DialogNormal"
+          ],
+          "animations": []
+        },
+        "packs/nnid-settings/layout-button-ButtonNormal.json": {
+          "layouts": [
+            "ButtonNormal"
+          ],
+          "animations": [
+            "ButtonNormal_DecidedOn",
+            "ButtonNormal_FocusedOnOff",
+            "ButtonNormal_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/layout-dialog-BottomButtonF.json": {
+          "layouts": [
+            "BottomButtonF"
+          ],
+          "animations": [
+            "BottomButtonF_DecidedOn",
+            "BottomButtonF_FocusedOnOff",
+            "BottomButtonF_InvalidatedOnOff"
+          ]
+        },
+        "packs/nnid-settings/layout-dialogheader-DialogHeaderNormal.json": {
+          "layouts": [
+            "DialogHeaderNormal"
+          ],
+          "animations": []
+        }
+      },
+      "fontBindings": {
+        "font.bcfnt": "shared"
+      }
+    }
+  }
+}

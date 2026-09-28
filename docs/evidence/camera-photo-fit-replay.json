@@ -1,0 +1,134 @@
+{
+  "codeSha256": "3a3c4152ebcc74443ed245a0e9840d31219bbd2559295364cc8dab9497e4492c",
+  "function": "0x210230",
+  "stereoMargin": 40,
+  "cases": [
+    {
+      "name": "portfolio-mono",
+      "decoded": [
+        2000,
+        1500
+      ],
+      "original": [
+        2000,
+        1500
+      ],
+      "mode": 2,
+      "stereo": false,
+      "scale": 0.1599999964237213
+    },
+    {
+      "name": "native-jpeg-mono",
+      "decoded": [
+        640,
+        480
+      ],
+      "original": [
+        640,
+        480
+      ],
+      "mode": 2,
+      "stereo": false,
+      "scale": 0.5
+    },
+    {
+      "name": "small-mono",
+      "decoded": [
+        100,
+        60
+      ],
+      "original": [
+        100,
+        60
+      ],
+      "mode": 2,
+      "stereo": false,
+      "scale": 1.0
+    },
+    {
+      "name": "portrait-mono",
+      "decoded": [
+        600,
+        1200
+      ],
+      "original": [
+        600,
+        1200
+      ],
+      "mode": 2,
+      "stereo": false,
+      "scale": 0.20000000298023224
+    },
+    {
+      "name": "stereo-MPO-fixture",
+      "decoded": [
+        640,
+        480
+      ],
+      "original": [
+        640,
+        480
+      ],
+      "mode": 2,
+      "stereo": true,
+      "scale": 0.75
+    },
+    {
+      "name": "stereo-mode-one",
+      "decoded": [
+        640,
+        480
+      ],
+      "original": [
+        640,
+        480
+      ],
+      "mode": 1,
+      "stereo": true,
+      "scale": 0.75
+    },
+    {
+      "name": "stereo-other-mode",
+      "decoded": [
+        640,
+        480
+      ],
+      "original": [
+        640,
+        480
+      ],
+      "mode": 0,
+      "stereo": true,
+      "scale": 0.5
+    },
+    {
+      "name": "stereo-too-wide",
+      "decoded": [
+        1000,
+        480
+      ],
+      "original": [
+        1000,
+        480
+      ],
+      "mode": 2,
+      "stereo": true,
+      "scale": 0.4000000059604645
+    },
+    {
+      "name": "stereo-small-source",
+      "decoded": [
+        320,
+        240
+      ],
+      "original": [
+        320,
+        240
+      ],
+      "mode": 2,
+      "stereo": true,
+      "scale": 1.0
+    }
+  ],
+  "scope": "Unpatched arithmetic only; no external calls intercepted, no image decoder or native pixel acceptance."
+}

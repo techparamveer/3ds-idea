@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "sourceName": "BannerCamera_LZ.bin",
+  "sourceSha256": "19d1009bc472a34626a10ec903d689fbd4b3b6951addc28beaa4f155db9bf897",
+  "converter": "bounded-cgfx-camera-v1",
+  "cameras": [
+    {
+      "name": "BannerCamera",
+      "position": [
+        0.0,
+        1.0,
+        44.7859992980957
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "viewType": "Aim",
+      "aimTarget": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "aimTwist": 0.0,
+      "projectionType": "Perspective",
+      "perspectiveFovRadians": 0.5235987901687622,
+      "aspect": 1.6666666269302368,
+      "near": 26.5,
+      "far": 1000.0,
+      "wScale": 0.0,
+      "sourceOffsets": {
+        "camera": 192,
+        "scale": 240,
+        "rotation": 252,
+        "position": 264,
+        "view": 932,
+        "projection": 956
+      }
+    }
+  ],
+  "compressedSourceSha256": "54df078dfb80a7fe55b391d10993353fe3b9ae2135a87f204b1ad8f641cc4ad9"
+}

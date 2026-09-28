@@ -1,0 +1,437 @@
+{
+  "source": "model/candidates/joshua-xl/silver-audio-contacts-web.glb",
+  "output": "model/candidates/joshua-xl/silver-audio-contacts-compact.glb",
+  "sourceBytes": 110845876,
+  "geometryLossless": false,
+  "geometryMaxError": {
+    "NORMAL": 0.000244140625,
+    "POSITION": 0.00048828125,
+    "TEXCOORD_0": 0.00000762939453125,
+    "TEXCOORD_1": 0.00000762939453125,
+    "TANGENT": 0.00048828125
+  },
+  "textures": [
+    {
+      "name": "Image_2",
+      "beforeBytes": 7062,
+      "afterBytes": 7062,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        4096,
+        4096
+      ],
+      "lossless": true
+    },
+    {
+      "name": "body-legends-specular",
+      "beforeBytes": 9760,
+      "afterBytes": 9760,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        4096,
+        4096
+      ],
+      "lossless": true
+    },
+    {
+      "name": "body-etched-normal",
+      "beforeBytes": 10102984,
+      "afterBytes": 210086,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    },
+    {
+      "name": "abxy-fitted-basecolor",
+      "beforeBytes": 3137140,
+      "afterBytes": 521032,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        4096,
+        4096
+      ],
+      "lossless": false
+    },
+    {
+      "name": "abxy-metallic-roughness",
+      "beforeBytes": 1604522,
+      "afterBytes": 25934,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    },
+    {
+      "name": "abxy-planar-print",
+      "beforeBytes": 98776,
+      "afterBytes": 98776,
+      "before": [
+        1024,
+        1024
+      ],
+      "after": [
+        1024,
+        1024
+      ],
+      "lossless": true
+    },
+    {
+      "name": "body-etched-basecolor",
+      "beforeBytes": 3138432,
+      "afterBytes": 521194,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        4096,
+        4096
+      ],
+      "lossless": false
+    },
+    {
+      "name": "pad-rubber-metallic-roughness",
+      "beforeBytes": 1354094,
+      "afterBytes": 23110,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    },
+    {
+      "name": "body-legends-metallic-roughness",
+      "beforeBytes": 4722234,
+      "afterBytes": 161752,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    },
+    {
+      "name": "lower-clean-specular",
+      "beforeBytes": 11000,
+      "afterBytes": 11000,
+      "before": [
+        1024,
+        1024
+      ],
+      "after": [
+        1024,
+        1024
+      ],
+      "lossless": true
+    },
+    {
+      "name": "lower-clean-normal",
+      "beforeBytes": 109182,
+      "afterBytes": 109182,
+      "before": [
+        1024,
+        1024
+      ],
+      "after": [
+        1024,
+        1024
+      ],
+      "lossless": true
+    },
+    {
+      "name": "lower-clean-basecolor",
+      "beforeBytes": 84858,
+      "afterBytes": 84858,
+      "before": [
+        1024,
+        1024
+      ],
+      "after": [
+        1024,
+        1024
+      ],
+      "lossless": true
+    },
+    {
+      "name": "lower-clean-metallic-roughness",
+      "beforeBytes": 54466,
+      "afterBytes": 54466,
+      "before": [
+        1024,
+        1024
+      ],
+      "after": [
+        1024,
+        1024
+      ],
+      "lossless": true
+    },
+    {
+      "name": "power-rim-normal-crop",
+      "beforeBytes": 91282,
+      "afterBytes": 91282,
+      "before": [
+        831,
+        229
+      ],
+      "after": [
+        831,
+        229
+      ],
+      "lossless": true
+    },
+    {
+      "name": "indicator-blue-emissive",
+      "beforeBytes": 7044,
+      "afterBytes": 7044,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        4096,
+        4096
+      ],
+      "lossless": true
+    },
+    {
+      "name": "dock-contact-basecolor",
+      "beforeBytes": 3135944,
+      "afterBytes": 520728,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        4096,
+        4096
+      ],
+      "lossless": false
+    },
+    {
+      "name": "Image_4",
+      "beforeBytes": 13878,
+      "afterBytes": 13878,
+      "before": [
+        2048,
+        2048
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": true
+    },
+    {
+      "name": "plastic-normal-study-deck",
+      "beforeBytes": 9423218,
+      "afterBytes": 200962,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    },
+    {
+      "name": "body-socket-basecolor",
+      "beforeBytes": 3117572,
+      "afterBytes": 516144,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        4096,
+        4096
+      ],
+      "lossless": false
+    },
+    {
+      "name": "paint-cover-restrained-metallic-roughness",
+      "beforeBytes": 3049104,
+      "afterBytes": 95946,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    },
+    {
+      "name": "upper-cover-colour",
+      "beforeBytes": 778,
+      "afterBytes": 778,
+      "before": [
+        2048,
+        2048
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": true
+    },
+    {
+      "name": "upper-cover-metallic-roughness",
+      "beforeBytes": 768,
+      "afterBytes": 768,
+      "before": [
+        2048,
+        2048
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": true
+    },
+    {
+      "name": "inner-camera-colour",
+      "beforeBytes": 1684,
+      "afterBytes": 1684,
+      "before": [
+        256,
+        256
+      ],
+      "after": [
+        256,
+        256
+      ],
+      "lossless": true
+    },
+    {
+      "name": "inner-camera-roughness",
+      "beforeBytes": 1422,
+      "afterBytes": 1422,
+      "before": [
+        256,
+        256
+      ],
+      "after": [
+        256,
+        256
+      ],
+      "lossless": true
+    },
+    {
+      "name": "lid-face-specular",
+      "beforeBytes": 43460,
+      "afterBytes": 43460,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        4096,
+        4096
+      ],
+      "lossless": true
+    },
+    {
+      "name": "plastic-normal-study-lid",
+      "beforeBytes": 11420600,
+      "afterBytes": 222862,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    },
+    {
+      "name": "body-slider-basecolor",
+      "beforeBytes": 3139456,
+      "afterBytes": 520718,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        4096,
+        4096
+      ],
+      "lossless": false
+    },
+    {
+      "name": "body-hinge-metallic-roughness",
+      "beforeBytes": 4017154,
+      "afterBytes": 108086,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    },
+    {
+      "name": "paint-lid-restrained-normal",
+      "beforeBytes": 8156212,
+      "afterBytes": 189698,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    },
+    {
+      "name": "paint-lid-restrained-metallic-roughness",
+      "beforeBytes": 3887892,
+      "afterBytes": 154292,
+      "before": [
+        4096,
+        4096
+      ],
+      "after": [
+        2048,
+        2048
+      ],
+      "lossless": false
+    }
+  ],
+  "outputBytes": 12415072,
+  "reductionPercent": 88.79969878175712
+}

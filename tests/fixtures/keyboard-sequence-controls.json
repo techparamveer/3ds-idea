@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "codeSha256": "a0b78005b0a99116ca703bc9b7625ce1b0f2d4cc45f66fc6fb9ab8a34244d4f0",
+  "archiveSha256": "2172d8e08d58840b6e1450a6e5a3ee4e8159b4f2f908267ff3d92ecb3dc680a4",
+  "math": {
+    "attackSubset": {
+      "110": 137,
+      "123": 26
+    },
+    "gainAttenuationAddress": 1735900,
+    "gainAttenuationSubset": {
+      "0": -32768,
+      "10": -442,
+      "110": -25,
+      "116": -16,
+      "127": 0,
+      "20": -321,
+      "30": -251,
+      "50": -162,
+      "60": -130,
+      "82": -76
+    },
+    "pitchOriginal1357e0": {
+      "-192": 1062683901,
+      "-384": 1060439283,
+      "256": 1067533592
+    },
+    "strengthAddress": 1735143,
+    "strengthBytes": 724,
+    "strengthSha256": "23f9a4739634a8efaf331affbd056dc0584e315fa26d31541a107529b3224660"
+  },
+  "evidenceSha256": "32d1ddaf177367076eb87354afd8647939d433f689f7c5afe7c0e362af646971",
+  "cases": [
+    {
+      "cue": 6,
+      "stopAfterUpdate": null,
+      "updates": 77,
+      "digests": {
+        "commands": "d03539538621c951e2b0d5e7d198ba3a328eaf3de9e8ac4bddcb78ca26981f33",
+        "controls": "9065dffbf3dff6a11e4cdc8ea6cbdf7d24c975c756bba4c7d66edf8ac7f1002b",
+        "statuses": "0d32309aca35a941458ad8adb9b4ec2e550ec407efbb9caf7fa8023938df4458"
+      },
+      "controlCount": 521,
+      "commandCount": 290,
+      "stopQuanta": [
+        42,
+        42,
+        82,
+        88,
+        122,
+        128,
+        189,
+        220,
+        233,
+        252
+      ]
+    },
+    {
+      "cue": 7,
+      "stopAfterUpdate": null,
+      "updates": 77,
+      "digests": {
+        "commands": "d03539538621c951e2b0d5e7d198ba3a328eaf3de9e8ac4bddcb78ca26981f33",
+        "controls": "9065dffbf3dff6a11e4cdc8ea6cbdf7d24c975c756bba4c7d66edf8ac7f1002b",
+        "statuses": "0d32309aca35a941458ad8adb9b4ec2e550ec407efbb9caf7fa8023938df4458"
+      },
+      "controlCount": 521,
+      "commandCount": 290,
+      "stopQuanta": [
+        42,
+        42,
+        82,
+        88,
+        122,
+        128,
+        189,
+        220,
+        233,
+        252
+      ]
+    },
+    {
+      "cue": 6,
+      "stopAfterUpdate": 0,
+      "updates": 2,
+      "digests": {
+        "commands": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "controls": "c064cb6e750bcef981cc581ecb02811fc337d9ae5e97693f657aefe9d79f160f",
+        "statuses": "7b7bdce181191e286bbd6285797d1e3067b2ef5aa921957d602b3d4fb8249962"
+      },
+      "controlCount": 2,
+      "commandCount": 0,
+      "stopQuanta": []
+    },
+    {
+      "cue": 6,
+      "stopAfterUpdate": 1,
+      "updates": 42,
+      "digests": {
+        "commands": "88ffe796ae1419adea916ff9e0dc9c214dc8b6828bc8185c6df5c51ed2ed4dde",
+        "controls": "e1479583ce3e818d935c9736134d9b641e12ef49915c850afbc5edd9d5136d8f",
+        "statuses": "32836b9ff170baa94e425b88ae693da87a5def12e339f1a4391f682037d5cdc9"
+      },
+      "controlCount": 107,
+      "commandCount": 57,
+      "stopQuanta": [
+        6,
+        6,
+        134
+      ]
+    },
+    {
+      "cue": 6,
+      "stopAfterUpdate": 10,
+      "updates": 58,
+      "digests": {
+        "commands": "5c868d0b598646f68ec78403fb54092c071840ee8e61d083adeae3c610fb2adf",
+        "controls": "189eebf326745d834f34ccfc86ad35389c7601ade08a92cefe34774a5372758c",
+        "statuses": "8171afd512f79ace9ae54111425a2c07b9f4793af0ee161c60d254c3fb95e000"
+      },
+      "controlCount": 226,
+      "commandCount": 89,
+      "stopQuanta": [
+        35,
+        36,
+        187
+      ]
+    },
+    {
+      "cue": 6,
+      "stopAfterUpdate": 20,
+      "updates": 66,
+      "digests": {
+        "commands": "bb29ca1024a7d1b04d2bbb42f9b4bebcd0179c55347960e5614b0de0f6fdfb55",
+        "controls": "12a53164142ede59daf2297c8c9a22f7f71312d23f1c630fb7e944147ac6a568",
+        "statuses": "43f21b0e7cd1cd62a56384baf231c0c229cbfa16c072a8b53f5b915d0b8d016d"
+      },
+      "controlCount": 373,
+      "commandCount": 175,
+      "stopQuanta": [
+        42,
+        42,
+        68,
+        68,
+        189,
+        215
+      ]
+    },
+    {
+      "cue": 6,
+      "stopAfterUpdate": 48,
+      "updates": 77,
+      "digests": {
+        "commands": "4aa243b4460da441164e75ffd344140a338326426e456f78cfe9b326445c9d54",
+        "controls": "4efbeb5efa211250f4f5d5eb5d1641e12f971720f07c6f2b040986b5c496e405",
+        "statuses": "0e49cae3945d266fb274754401d2049d7c0aea5439380f1fb216a98beebf66f5"
+      },
+      "controlCount": 521,
+      "commandCount": 290,
+      "stopQuanta": [
+        42,
+        42,
+        82,
+        88,
+        122,
+        128,
+        189,
+        220,
+        233,
+        251
+      ]
+    },
+    {
+      "cue": 6,
+      "stopAfterUpdate": 60,
+      "updates": 77,
+      "digests": {
+        "commands": "d03539538621c951e2b0d5e7d198ba3a328eaf3de9e8ac4bddcb78ca26981f33",
+        "controls": "9065dffbf3dff6a11e4cdc8ea6cbdf7d24c975c756bba4c7d66edf8ac7f1002b",
+        "statuses": "0d32309aca35a941458ad8adb9b4ec2e550ec407efbb9caf7fa8023938df4458"
+      },
+      "controlCount": 521,
+      "commandCount": 290,
+      "stopQuanta": [
+        42,
+        42,
+        82,
+        88,
+        122,
+        128,
+        189,
+        220,
+        233,
+        252
+      ]
+    }
+  ]
+}

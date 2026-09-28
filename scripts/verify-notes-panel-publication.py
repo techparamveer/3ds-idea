@@ -1,0 +1,246 @@
+#!/usr/bin/env python3
+"""Verify original Notes animation-application vs matrix-publication dispatch."""
+import argparse
+import hashlib
+import json
+import struct
+from pathlib import Path
+
+p = argparse.ArgumentParser(description=__doc__)
+for name in ('code', 'listing', 'asset-root', 'artifact-dir'):
+    p.add_argument('--' + name, type=Path, required=True)
+a = p.parse_args()
+assert all(path.is_absolute() for path in vars(a).values())
+b = a.code.read_bytes()
+assert hashlib.sha256(b).hexdigest() == '8a2feea02c2a6ef62c8a8d3e4cc20faa5639fe5af47d3876f8a5d3ea43064cc6'
+checks = []
+def word(address, expected, meaning):
+    actual = struct.unpack_from('<I', b, address - 0x100000)[0]
+    assert actual == expected, (hex(address), hex(actual), hex(expected))
+    checks.append(dict(address=hex(address), value=hex(expected), meaning=meaning))
+def call(address, expected, meaning):
+    op = struct.unpack_from('<I', b, address - 0x100000)[0]
+    assert op & 0x0f000000 == 0x0b000000
+    delta = op & 0xffffff
+    if delta & 0x800000:
+        delta -= 0x1000000
+    assert address + 8 + delta * 4 == expected
+    checks.append(dict(address=hex(address), target=hex(expected), meaning=meaning))
+
+call(0x168884, 0x14f148, 'scene 3 constructs base layout scene')
+call(0x14f158, 0x17b738, 'base scene constructs wrapper at scene +dc')
+word(0x17b76c, 0x1b75e8, 'concrete wrapper vtable')
+word(0x1b7628, 0x17b58c, 'wrapper virtual +40 pane factory')
+call(0x167770, 0x14f970, 'ImageScreenUp layout parsed into scene wrapper')
+word(0x14fad4, 0xe590c040, 'layout parser dispatches factory +40')
+word(0x14faf8, 0x058b0010, 'first created pane becomes wrapper root +10')
+word(0x17b710, 0x0009f2f9, 'factory pan1 discriminator difference from wnd1')
+assert 0x31646e77 + 0x9f2f9 == int.from_bytes(b'pan1', 'little')
+word(0x17b61c, 0xeaff2987, 'pan1 branch tail-calls constructor 145c40')
+word(0x145d6c, 0x1b753c, 'plain pane constructor vtable')
+word(0x14f7dc, 0xe5922034, 'wrapper update dispatches root +34')
+word(0x14f7f8, 0xe592205c, 'wrapper matrix dispatches root +5c')
+
+for name, vt in [('pan1',0x1b753c), ('wnd1',0x1b7634), ('pic1',0x1b76bc), ('txt1',0x1b773c), ('bnd1',0x1b77c4)]:
+    for offset, target, meaning in [(0x34,0x17a5d4,'recursive animation apply'), (0x38,0x179dec,'local animation apply'), (0x54,0x17a3fc,'link enable/disable'), (0x5c,0x179ec4,'matrix/alpha recursion')]:
+        word(vt + offset, target, name + ' ' + meaning)
+
+word(0x17a5e4, 0xe5902038, 'recursive apply invokes local virtual +38')
+word(0x17a620, 0xe5912034, 'recursive apply visits child virtual +34')
+word(0x179e04, 0xe5d4000e, 'local apply reads animation link disable flag')
+word(0x179e1c, 0xe5923008, 'enabled link invokes animation virtual +8')
+word(0x1b74d4, 0x179488, 'bound animation concrete sampling method')
+word(0x179520, 0xed909a04, 'pane transform sampling reads stored animation frame')
+call(0x17954c, 0x1463c4, 'pane transform evaluates original animation keys')
+word(0x17955c, 0xed800a00, 'sampled value writes pane property')
+word(0x17a428, 0x15c0100e, 'enable helper writes link disabled flag only')
+word(0x14e864, 0xed848a04, 'forward reset writes animation frame zero')
+word(0x14e884, 0xed840a04, 'reverse reset writes animation last frame')
+call(0x1673ac, 0x14efec, 'late event9 only starts/reset-enables selected HUD controller')
+word(0x1673b8, 0xea00007d, 'software event9 exits directly after controller start')
+call(0x1687f0, 0x14f7cc, 'dirty update tail applies root animations')
+call(0x168814, 0x14f7cc, 'active update tail applies root animations')
+word(0x167ba0, 0xe5840358, 'W_TextPanel retained in scene +358')
+word(0x168828, 0xe5940358, 'idle update tail still applies W_TextPanel subtree')
+call(0x14e0d8, 0x14f7e8, 'draw calculates matrices before render submission')
+call(0x179f20, 0x134ee0, 'matrix method combines local/parent matrices')
+word(0x17a190, 0xe5c400b5, 'matrix method publishes derived alpha')
+word(0x17a1ec, 0xe591205c, 'matrix traversal invokes child +5c')
+word(0x198170, 0xe590c068, 'later render traversal invokes leaf +68, distinct from apply')
+call(0x13d948, 0x150e10, 'list update clears input if scene flags disallow it')
+word(0x13c88c, 0xe3560000, 'accepted note index must be nonnegative')
+word(0x13c894, 0xe3560010, 'accepted note index below 16')
+word(0x13c8a4, 0xe5c5806a, 'accepted open disables list input flag +6a')
+word(0x13c96c, 0xe3a00003, 'accepted open chooses list state 3')
+call(0x17bde4, 0x1455a4, 'picture constructor constructs original material')
+word(0x145c38, 0x1b784c, 'material constructor vtable literal')
+word(0x1b7860, 0x17c8bc, 'material +14 enabled-link apply traversal')
+word(0x1b786c, 0x17c860, 'material +20 enable/disable method')
+word(0x1b7864, 0x17c858, 'material +18 lookup used by enable method')
+word(0x17c87c, 0x15c0100e, 'material enable only writes link disable flag')
+word(0x17c8d0, 0xe5d4000e, 'material apply tests link disable flag')
+word(0x17c8e8, 0xe592300c, 'material apply dispatches animation +c')
+word(0x1b74d8, 0x179764, 'animation +c material sampler')
+word(0x17980c, 0xed908a04, 'material sampler reads stored animation frame')
+call(0x179838, 0x1463c4, 'material sampler evaluates source key values')
+for name, vt, target in [('pan1',0x1b753c,0x1981e4), ('wnd1',0x1b7634,0x1983c0), ('pic1',0x1b76bc,0x199234), ('txt1',0x1b773c,0x1996b8), ('bnd1',0x1b77c4,0x1981e4)]:
+    word(vt+0x68, target, name+' concrete render leaf')
+word(0x1981e4, 0xe1a00001, 'plain/bounds render leaf returns incoming command pointer')
+word(0x199240, 0xe590213c, 'picture render reads current material pointer')
+call(0x199248, 0x140458, 'picture render emits current material state')
+word(0x199744, 0xe5943100, 'text render reads current material pointer')
+call(0x199754, 0x17a970, 'text render dispatches current text geometry')
+word(0x13bccc, 0xe3a01000, 'nonzero entry initializes list selection')
+word(0x13d9c4, 0xe5900150, 'list entry state checks note-context status +150')
+word(0x13d9cc, 0x05c5606a, 'status zero enables list input')
+word(0x13d9d0, 0x01c791b0, 'status zero chooses list state zero')
+word(0x13db24, 0xe2801103, 'return marker compare first constant operation')
+word(0x13db28, 0xe251160a, 'return marker compare second operation; bits40a00000 means frame5')
+call(0x13db44, 0x1523f8, 'return frame5 starts list controller +f80 slot1')
+call(0x13db50, 0x150bb4, 'return gate waits list +f80 slot1')
+call(0x13db70, 0x150bb4, 'return gate waits selected note slot3')
+call(0x13db88, 0x150bb4, 'return gate waits list +fa0 slot11')
+word(0x13dbcc, 0xe5c5606a, 'all return gates passed: re-enable list input')
+word(0x13dbd0, 0xe1c791b0, 'all return gates passed: list state zero')
+call(0x1654a8, 0x150bb4, 'write scene return separately waits lower slot2')
+call(0x1654c4, 0x151c78, 'write scene queues draw disable after lower return')
+call(0x1654dc, 0x151ca4, 'write scene queues update disable after lower return')
+
+def cstr(address):
+    return b[address - 0x100000:].split(b'\0', 1)[0]
+def names(table, count):
+    return [cstr(struct.unpack_from('<I', b, table + i * 4 - 0x100000)[0]).decode() for i in range(count)]
+assert names(0x1aa810, 3) == ['MemoListDown_Base.bclan', 'MemoListDown_SceneIn.bclan', 'MemoListDown_SceneOut.bclan']
+assert names(0x1aa81c, 4) == ['MemoListDown_Base.bclan', 'MemoListDown_SceneIn.bclan', 'MemoListDown_SceneOut.bclan', 'MemoListDown_MemoReturn.bclan']
+assert names(0x1aa82c, 3) == ['MemoListDown_Base.bclan', 'MemoListDown_SceneIn.bclan', 'MemoListDown_SceneOut.bclan']
+assert names(0x1aa838, 13) == [
+    'MemoListDown_Base.bclan', 'MemoListDown_CursorUp.bclan', 'MemoListDown_CursorDown.bclan',
+    'MemoListDown_CursorLeft.bclan', 'MemoListDown_CursorRight.bclan', 'MemoListDown_CursorLT.bclan',
+    'MemoListDown_CursorRT.bclan', 'MemoListDown_CursorLB.bclan', 'MemoListDown_CursorRB.bclan',
+    'MemoListDown_Select.bclan', 'MemoListDown_MemoDecide.bclan', 'MemoListDown_MemoReturn.bclan',
+    'MemoListDown_CursorMove.bclan']
+assert names(0x1aa248, 2) == ['ApltBoot_D_00_SceneIn.bclan', 'ApltBoot_D_00_SceneOut.bclan']
+assert names(0x1aa2d8, 2) == ['ApltBoot_U_00_SceneIn.bclan', 'ApltBoot_U_00_SceneOut.bclan']
+checks.append(dict(table=hex(0x1aa810), meaning='list G_Scene_00 Base/SceneIn/SceneOut'))
+checks.append(dict(table=hex(0x1aa81c), meaning='selected-note four slots; slot3 MemoReturn'))
+checks.append(dict(table=hex(0x1aa82c), meaning='list +f80 N_Scene_00; slot1 SceneIn slot2 SceneOut'))
+checks.append(dict(table=hex(0x1aa838), meaning='list +fa0 G_Cursor_00 thirteen slots; slot0 Base slot10 MemoDecide slot11 MemoReturn'))
+word(0x13d09c, 0xe3a02003, 'G_Scene_00 controller registers three slots')
+word(0x13d258, 0xe3a02004, 'each selected-note controller registers four slots')
+word(0x13d2f8, 0xe3a02003, 'N_Scene_00 +f80 registers three slots')
+word(0x13d3c8, 0xe3a0200d, 'G_Cursor_00 +fa0 registers thirteen slots')
+word(0x13d4e0, 0xe355000d, 'cursor slot bind loop stops at 13')
+word(0x13c8c8, 0xe3a07002, 'accepted open uses r7=2 as +f80 slot and start argument')
+word(0x13c8f0, 0xe3a0100a, 'accepted open starts +fa0 slot 10 MemoDecide')
+word(0x13bd70, 0xe3a01003, 'list return event1 starts selected-note slot3 MemoReturn')
+word(0x13bd90, 0xe3a0100b, 'list return event1 starts +fa0 slot 11 MemoReturn')
+word(0x13db38, 0xe1a01003, 'return frame5 start uses r1=r3=1 so +f80 slot1 SceneIn')
+word(0x166fcc, 0xe3520000, 'scene3 event0 tests nonzero history parameter')
+word(0x166fd8, 0xe3a00001, 'nonzero event0 writes scene state 1')
+call(0x1675a8, 0x14efec, 'software nonzero event0 starts title slot0 only')
+word(0x1675b0, 0xe5c403c2, 'software nonzero event0 writes title phase 0')
+word(0x13aae4, 0x13abbc, 'scene factory index 10')
+word(0x13abc0, 0x1b00ad64, 'scene 10 factory conditionally constructs 0x166158')
+word(0x16617c, 0x1b6b04, 'scene 10 constructor vtable literal')
+word(0x1b6b28, 0x16601c, 'scene 10 update is ApltBoot_U state machine')
+word(0x1b6b30, 0x165fd0, 'scene 10 virtual +2c loads ApltBoot_U layout')
+word(0x166018, 0x1aa31c, 'scene 10 layout pointer ApltBoot_U_00.bclyt')
+assert cstr(0x1aa28c) == b'ApltBoot_D_00.bclyt'
+assert cstr(0x1aa31c) == b'ApltBoot_U_00.bclyt'
+word(0x13b93c, 0xe5c01069, 'lower intro completion clears its own draw flag')
+word(0x1660f4, 0xe5c01069, 'upper intro completion clears its own draw flag')
+word(0x1b6b64, 0x165f40, 'scene 10 virtual +60 event')
+word(0x165f74, 0xe5c01069, 'scene 10 event 0 writes draw flag +69')
+word(0x165f78, 0xe3a00001, 'scene 10 event 0 pending state 1')
+word(0x165f80, 0xe1c461b0, 'scene 10 event 0 current state 0')
+call(0x165f68, 0x15e950, 'scene 10 event 0 enables update')
+word(0x162fd4, 0xe3a03000, 'initialization scene 10 event parameter 0')
+word(0x162fd8, 0xe1a02003, 'initialization scene 10 event 0')
+word(0x162fdc, 0xe3a0100a, 'initialization targets scene 10')
+call(0x162fe0, 0x14f78c, 'initialization dispatches scene 10 event immediately')
+call(0x166088, 0x151cd0, 'scene 10 state 0 starts SceneIn slot 0')
+call(0x1660c0, 0x150bb4, 'scene 10 state 1 waits SceneIn busy before draw clear')
+call(0x166134, 0x152508, 'scene 10 always advances after the completion check')
+call(0x166140, 0x14f7cc, 'scene 10 always applies layout after advance')
+
+pack = json.loads((a.asset_root / 'packs/game-notes/memo-ImageScreenUp-arc-l.json').read_text())
+layout = pack['layouts']['ImageScreenUp']
+assert pack['sourceSha256'] == '8001ff24296fc5c1a627c238c1bf8e4682102cb66882411cae32362e2c442d7a'
+assert len(layout['roots']) == 1
+assert (layout['roots'][0]['kind'], layout['roots'][0]['name']) == ('pan1', 'RootPane')
+def walk(pane):
+    yield pane
+    for child in pane['children']:
+        yield from walk(child)
+panes = list(walk(layout['roots'][0]))
+assert set(pane['kind'] for pane in panes) == {'pan1','pic1','txt1','wnd1'}
+panel = next(pane for pane in panes if pane['name'] == 'W_TextPanel')
+assert [pane['name'] for pane in panel['children']] == ['P_Icon_00','T_TextTitle','P_ObjIcn','P_ObjIcnUp00','P_ObjIcnDown00']
+assert panel['flags'] == 2 and panel['alpha'] == 0 and panel['translation'][1] == -90
+inout = pack['animations']['ImageScreenUp_TextPanelInOut']
+visible = next(track['keys'] for track in inout['tracks']
+               if track['property'] == 'visible' and inout['contents'][track['contentIndex']]['target'] == 'W_TextPanel')
+assert [(key['frame'], key['value']) for key in visible] == [(0, 0), (1, 1)]
+upper = json.loads((a.asset_root / 'packs/game-notes/memo-ApltBoot_U_00-arc-l.json').read_text())
+lower = json.loads((a.asset_root / 'packs/game-notes/memo-ApltBoot_D_00-arc-l.json').read_text())
+assert upper['sourceSha256'] == 'b5ce29b07a28ae27bd813c860bae25a5825a06d26aafdc727ee31c4129469e18'
+assert lower['sourceSha256'] == '284c4d476528edbf732599f2066a8af8f573854042b469f1e112d3e19459d4e6'
+assert list(upper['layouts']) == ['ApltBoot_U_00']
+assert list(lower['layouts']) == ['ApltBoot_D_00']
+for pack_name, clip_name, archive in (
+    (upper, 'ApltBoot_U_00_SceneIn', 'U'), (lower, 'ApltBoot_D_00_SceneIn', 'D')):
+    clip = pack_name['animations'][clip_name]
+    assert clip['frames'] == 21 and clip['loop'] is False and clip['unsupported'] == []
+    checks.append(dict(resource='ApltBoot_'+archive, clip=clip_name, frames=21, loop=False))
+u_alpha = next(track['keys'] for track in upper['animations']['ApltBoot_U_00_SceneIn']['tracks']
+               if track['property'] == 'alpha' and track['target'] == 'P_Bg_U_00')
+assert [(key['frame'], key['value']) for key in u_alpha] == [(0.0, 255.0), (20.0, 0.0)]
+assert upper['unsupported'] == [] and lower['unsupported'] == []
+checks.append(dict(resource='ImageScreenUp', root='pan1 RootPane', selectiveTitleRoot='W_TextPanel',
+                   titleDefaults='flags=2 alpha=0 y=-90; InOut visible 0 then 1',
+                   apltBootPacks='published original SceneIn/SceneOut'))
+
+ranges = [
+ ('wrapper-construction',0x14f148,0x14f18c),('wrapper-vtable',0x17b738,0x17b774),
+ ('layout-parser-root',0x14fac8,0x14fb18),('pane-factory',0x17b58c,0x17b718),
+ ('pane-constructor',0x145c40,0x145d78),('wrapper-dispatch',0x14f7cc,0x14f804),
+ ('recursive-apply',0x17a5d4,0x17a640),('local-apply',0x179dec,0x179ea4),
+ ('animation-property-write',0x179488,0x179584),('link-enable',0x17a3fc,0x17a4c4),
+ ('frame-reset',0x14e830,0x14e894),('matrix-alpha-recursion',0x179ec4,0x17a278),
+ ('scene-apply-tail',0x1687dc,0x168868),('title-pane-selection',0x167b84,0x167bcc),
+ ('late-hud-start',0x167368,0x1673bc),('scene-draw',0x14e030,0x14e144),
+ ('render-traversal',0x198144,0x1981c8),('list-input-gate',0x13d8f4,0x13d9ac),
+ ('list-accepted-open',0x13c888,0x13c980),
+ ('material-constructor',0x1455a4,0x1455ec),('material-link-enable',0x17c858,0x17c884),
+ ('material-apply',0x17c8bc,0x17c908),('material-sampling',0x179764,0x179ab4),
+ ('picture-render-leaf',0x199234,0x19944c),('text-render-leaf',0x1996b8,0x19975c),
+ ('window-render-prefix',0x1983c0,0x198590),('list-initial-ready-gate',0x13d9b4,0x13daa0),
+ ('list-return-gate',0x13db0c,0x13dbd8),('write-return-disable',0x1654a0,0x1654ec),
+ ('list-cursor-bind',0x13d3e4,0x13d4e8),('list-open-controllers',0x13c8c0,0x13c920),
+ ('list-return-event',0x13bd5c,0x13bdc4),('list-return-frame5',0x13db20,0x13db58),
+ ('title-event0-branch',0x166fcc,0x166fe8),('title-event0-start',0x167518,0x1675c8),
+ ('apltboot-u-register',0x165fd0,0x166180),
+ ('apltboot-u-event',0x165f40,0x165fb0),('scene10-init-event',0x162fd0,0x163018),
+]
+a.artifact_dir.mkdir(parents=True, exist_ok=True)
+listing = a.listing.read_text().splitlines(True)
+records = []
+for name, start, end in ranges:
+    selected = ''.join(line for line in listing if start <= int(line[:8],16) < end)
+    assert selected
+    (a.artifact_dir / (name + '.txt')).write_text(selected)
+    records.append(dict(name=name, start=hex(start), endExclusive=hex(end), sha256=hashlib.sha256(b[start-0x100000:end-0x100000]).hexdigest()))
+data_ranges = [('list-scene-resources',0x1aa810,0x1aa86c),('scene10-vtable',0x1b6b04,0x1b6b68)]
+for name, start, end in data_ranges:
+    blob = b[start-0x100000:end-0x100000]
+    (a.artifact_dir / (name + '.bin.txt')).write_text(blob.hex() + '\n')
+    records.append(dict(name=name, start=hex(start), endExclusive=hex(end), sha256=hashlib.sha256(blob).hexdigest(), source='code.bin'))
+report = dict(passed=True, method='Static original-byte/resource verification; no firmware execution or raster claim', checks=checks, ranges=records,
+              contract=dict(animationApplication='scene3 update tail', lateEvent9='controller reset/enable only; no immediate property sampling',
+                            materialApplication='enabled-link traversal in update; enable only changes link flag',
+                            matrixPublication='draw-time root virtual +5c',
+                            firstAppliedTitle='resource defaults plus TextPanelInOut frame 1 after the first scene-3 apply; event 0 does not sample',
+                            firstUserVisibleTitle='same manager pass that finds ApltBoot_U SceneIn not busy and clears scene-10 +0x69; Stay frame 1; priority-0 draw no longer covers scene 3',
+                            remaining='window-leaf raster; lower list SceneIn still uses MemoListDown; matched native comparison; no Software Keyboard or editing'))
+(a.artifact_dir / 'source-validation.json').write_text(json.dumps(report,indent=2)+'\n')
+print(f'PASS: {len(checks)} publication/source checks and {len(records)} hashed source ranges')

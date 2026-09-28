@@ -1,0 +1,2105 @@
+{
+  "provenance": {
+    "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "toolbarFixtureSHA256": "00af50c4d548f39e5878f208298dcc48f98110f72652fe559852525316b46e0e",
+    "toolbarResultsSHA256": "05b378c0534019c8ea8d22a966d23ea3bdfd1ac265d8b70d07fc21308f6eaa86",
+    "gateFixtureSHA256": "358b188fe5ba216e0b3c7d055a03951a7c832b4314af6caae2ccf22e81d65c49",
+    "gateResultsSHA256": "5db0ae68e93ef76f90598adf7a7ed8bbd483cdf7ee8458965659208e654a2490",
+    "exportSHA256": "3cf987c3f7185698c57377b3f5ab2476d4a0af48ba69e9794c0a11b558c70bcf",
+    "scope": "Copied numeric original-ARM observations. Initial applied -999 is a synthetic sentinel, not a native initial pose. No TypeScript-generated expectations or executable bytes."
+  },
+  "toolbar": [
+    {
+      "focus": 0,
+      "pane": "N_CPos_Lgt_00",
+      "nativePosition": [
+        -134.0,
+        104.0
+      ],
+      "lcdCenter": [
+        26.0,
+        16.0
+      ],
+      "beforeUpdate": {
+        "current": 10.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "afterUpdate": {
+        "current": 10.0,
+        "applied": 10.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "loopBefore": {
+        "current": 18.25,
+        "applied": 17.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      },
+      "loopAfter": {
+        "current": 19.25,
+        "applied": 18.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      }
+    },
+    {
+      "focus": 1,
+      "pane": "N_CPos_Memo_00",
+      "nativePosition": [
+        -84.0,
+        103.5
+      ],
+      "lcdCenter": [
+        76.0,
+        16.5
+      ],
+      "beforeUpdate": {
+        "current": 11.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "afterUpdate": {
+        "current": 11.0,
+        "applied": 11.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "loopBefore": {
+        "current": 18.25,
+        "applied": 17.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      },
+      "loopAfter": {
+        "current": 19.25,
+        "applied": 18.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      }
+    },
+    {
+      "focus": 2,
+      "pane": "N_CPos_Frd_00",
+      "nativePosition": [
+        -42.0,
+        103.5
+      ],
+      "lcdCenter": [
+        118.0,
+        16.5
+      ],
+      "beforeUpdate": {
+        "current": 11.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "afterUpdate": {
+        "current": 11.0,
+        "applied": 11.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "loopBefore": {
+        "current": 18.25,
+        "applied": 17.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      },
+      "loopAfter": {
+        "current": 19.25,
+        "applied": 18.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      }
+    },
+    {
+      "focus": 3,
+      "pane": "N_CPos_News_00",
+      "nativePosition": [
+        -0.0,
+        103.5
+      ],
+      "lcdCenter": [
+        160.0,
+        16.5
+      ],
+      "beforeUpdate": {
+        "current": 11.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "afterUpdate": {
+        "current": 11.0,
+        "applied": 11.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "loopBefore": {
+        "current": 18.25,
+        "applied": 17.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      },
+      "loopAfter": {
+        "current": 19.25,
+        "applied": 18.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      }
+    },
+    {
+      "focus": 4,
+      "pane": "N_CPos_Web_00",
+      "nativePosition": [
+        42.0,
+        103.5
+      ],
+      "lcdCenter": [
+        202.0,
+        16.5
+      ],
+      "beforeUpdate": {
+        "current": 11.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "afterUpdate": {
+        "current": 11.0,
+        "applied": 11.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "loopBefore": {
+        "current": 18.25,
+        "applied": 17.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      },
+      "loopAfter": {
+        "current": 19.25,
+        "applied": 18.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      }
+    },
+    {
+      "focus": 5,
+      "pane": "N_CPos_Mvs_00",
+      "nativePosition": [
+        84.0,
+        103.5
+      ],
+      "lcdCenter": [
+        244.0,
+        16.5
+      ],
+      "beforeUpdate": {
+        "current": 11.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "afterUpdate": {
+        "current": 11.0,
+        "applied": 11.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "loopBefore": {
+        "current": 18.25,
+        "applied": 17.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      },
+      "loopAfter": {
+        "current": 19.25,
+        "applied": 18.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      }
+    },
+    {
+      "focus": 6,
+      "pane": "N_CPos_Dw_00",
+      "nativePosition": [
+        121.0,
+        104.0
+      ],
+      "lcdCenter": [
+        281.0,
+        16.0
+      ],
+      "beforeUpdate": {
+        "current": 12.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "afterUpdate": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "loopBefore": {
+        "current": 18.25,
+        "applied": 17.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      },
+      "loopAfter": {
+        "current": 19.25,
+        "applied": 18.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      }
+    },
+    {
+      "focus": 7,
+      "pane": "N_CPos_Up_00",
+      "nativePosition": [
+        147.0,
+        104.0
+      ],
+      "lcdCenter": [
+        307.0,
+        16.0
+      ],
+      "beforeUpdate": {
+        "current": 12.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "afterUpdate": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "loopBefore": {
+        "current": 18.25,
+        "applied": 17.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      },
+      "loopAfter": {
+        "current": 19.25,
+        "applied": 18.25,
+        "step": 1.0,
+        "state": 1,
+        "mode": 2
+      }
+    }
+  ],
+  "alternation": [
+    {
+      "indexAfter": 1,
+      "effect0": {
+        "visible": 1,
+        "position": [
+          -134.0,
+          104.0,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 10.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      },
+      "effect1": {
+        "visible": 0,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "slot": 0,
+        "scale": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 0,
+          "mode": 0
+        }
+      }
+    },
+    {
+      "indexAfter": 0,
+      "effect0": {
+        "visible": 1,
+        "position": [
+          -134.0,
+          104.0,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 10.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      },
+      "effect1": {
+        "visible": 1,
+        "position": [
+          -0.0,
+          103.5,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 11.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      }
+    },
+    {
+      "indexAfter": 1,
+      "effect0": {
+        "visible": 1,
+        "position": [
+          121.0,
+          104.0,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 12.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      },
+      "effect1": {
+        "visible": 1,
+        "position": [
+          -0.0,
+          103.5,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 11.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      }
+    },
+    {
+      "indexAfter": 0,
+      "effect0": {
+        "visible": 1,
+        "position": [
+          121.0,
+          104.0,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 12.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      },
+      "effect1": {
+        "visible": 1,
+        "position": [
+          147.0,
+          104.0,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 12.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      }
+    }
+  ],
+  "lifecycle": [
+    {
+      "tick": 0,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 1.0,
+        "applied": 0.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 1,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 2.0,
+        "applied": 1.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 2,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 3.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 3,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 4.0,
+        "applied": 3.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 4,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 5.0,
+        "applied": 4.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 5,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 6.0,
+        "applied": 5.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 6,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 7.0,
+        "applied": 6.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 7,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 8.0,
+        "applied": 7.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 8,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 9.0,
+        "applied": 8.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 9,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 10.0,
+        "applied": 9.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 10,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 11.0,
+        "applied": 10.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 11,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 12.0,
+        "applied": 11.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 12,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 13.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 13,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 14.0,
+        "applied": 13.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 14,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 15.0,
+        "applied": 14.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 15,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 16.0,
+        "applied": 15.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 16,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 17.0,
+        "applied": 16.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 17,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 18.0,
+        "applied": 17.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 18,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 19.0,
+        "applied": 18.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 19,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 20.0,
+        "applied": 19.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 20,
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 20.0,
+        "applied": 20.0,
+        "step": 1.0,
+        "state": 2,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 21,
+      "visible": 0,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 20.0,
+        "applied": 20.0,
+        "step": 1.0,
+        "state": 0,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 22,
+      "visible": 0,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 20.0,
+        "applied": 20.0,
+        "step": 1.0,
+        "state": 0,
+        "mode": 0
+      }
+    },
+    {
+      "tick": 23,
+      "visible": 0,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 20.0,
+        "applied": 20.0,
+        "step": 1.0,
+        "state": 0,
+        "mode": 0
+      }
+    }
+  ],
+  "restart": {
+    "before": {
+      "visible": 1,
+      "position": [
+        -134.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 10.0,
+        "applied": 10.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 10.0,
+        "applied": 9.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    "afterStart": {
+      "visible": 1,
+      "position": [
+        147.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 10.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 0.0,
+        "applied": 9.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    "afterUpdate": {
+      "visible": 1,
+      "position": [
+        147.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": 12.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 1.0,
+        "applied": 0.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    }
+  },
+  "mode3Positions": {
+    "primary": [
+      -54.0,
+      50.0,
+      0.0
+    ],
+    "gridEffect": {
+      "visible": 1,
+      "position": [
+        72.75,
+        61.25,
+        0.0
+      ],
+      "slot": 3,
+      "scale": {
+        "current": 2.0,
+        "applied": -999.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 0.0,
+        "applied": -999.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    },
+    "toolbarEffect": {
+      "visible": 1,
+      "position": [
+        121.0,
+        104.0,
+        0.0
+      ],
+      "slot": -1,
+      "scale": {
+        "current": 12.0,
+        "applied": -999.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "disappear": {
+        "current": 0.0,
+        "applied": -999.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 0
+      }
+    }
+  },
+  "gates": [
+    {
+      "name": "hidden-before",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "hidden-after7",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "active-inhibited-before",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            -134.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 10.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "active-inhibited-after5",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            -134.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 10.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "active-resumed",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            -134.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 10.0,
+            "applied": 10.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 1.0,
+            "applied": 0.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "terminal-before-inhibit",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            -134.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 10.0,
+            "applied": 10.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 20.0,
+            "applied": 20.0,
+            "step": 1.0,
+            "state": 2,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "terminal-hidden-inhibited",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 0,
+          "position": [
+            -134.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 10.0,
+            "applied": 10.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 20.0,
+            "applied": 20.0,
+            "step": 1.0,
+            "state": 2,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "terminal-stays-hidden",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 0,
+          "position": [
+            -134.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 10.0,
+            "applied": 10.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 20.0,
+            "applied": 20.0,
+            "step": 1.0,
+            "state": 2,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "terminal-restarted",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            147.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 12.0,
+            "applied": 10.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": 20.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "terminal-restarted-update",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            147.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 12.0,
+            "applied": 12.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 1.0,
+            "applied": 0.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "running-before-hide",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            -134.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 10.0,
+            "applied": 10.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 5.0,
+            "applied": 4.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "running-hidden-after7",
+      "primary": {
+        "current": 2.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 0,
+          "position": [
+            -134.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 10.0,
+            "applied": 10.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 5.0,
+            "applied": 4.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "primary-inhibited-before",
+      "primary": {
+        "current": 11.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            121.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 12.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "primary-inhibited-after3",
+      "primary": {
+        "current": 11.0,
+        "applied": 2.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            121.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 12.0,
+            "applied": 12.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 3.0,
+            "applied": 2.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "primary-resumed",
+      "primary": {
+        "current": 11.0,
+        "applied": 11.0,
+        "step": 1.0,
+        "state": 1,
+        "mode": 5
+      },
+      "effects": [
+        {
+          "visible": 1,
+          "position": [
+            121.0,
+            104.0,
+            0.0
+          ],
+          "slot": -1,
+          "scale": {
+            "current": 12.0,
+            "applied": 12.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 4.0,
+            "applied": 3.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 0
+          }
+        },
+        {
+          "visible": 0,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "slot": 0,
+          "scale": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 1,
+            "mode": 5
+          },
+          "disappear": {
+            "current": 0.0,
+            "applied": -999.0,
+            "step": 1.0,
+            "state": 0,
+            "mode": 0
+          }
+        }
+      ]
+    }
+  ]
+}

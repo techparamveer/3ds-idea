@@ -1,0 +1,173 @@
+{
+  "provenance": "Derived numeric fixtures from pinned 10.7.0-32E instruction investigation: 0x17eb34 Bezier, 0x1d7b50 interpolation; no firmware asset bytes.",
+  "scroll16": [
+    {
+      "update": 0,
+      "t": 0.0,
+      "weight": 0.0,
+      "scroll0To84": 0
+    },
+    {
+      "update": 1,
+      "t": 0.0625,
+      "weight": 0.01123046875,
+      "scroll0To84": 1
+    },
+    {
+      "update": 2,
+      "t": 0.125,
+      "weight": 0.04296875,
+      "scroll0To84": 4
+    },
+    {
+      "update": 3,
+      "t": 0.1875,
+      "weight": 0.09228515625,
+      "scroll0To84": 8
+    },
+    {
+      "update": 4,
+      "t": 0.25,
+      "weight": 0.15625,
+      "scroll0To84": 14
+    },
+    {
+      "update": 5,
+      "t": 0.3125,
+      "weight": 0.23193359375,
+      "scroll0To84": 20
+    },
+    {
+      "update": 6,
+      "t": 0.375,
+      "weight": 0.31640625,
+      "scroll0To84": 27
+    },
+    {
+      "update": 7,
+      "t": 0.4375,
+      "weight": 0.40673828125,
+      "scroll0To84": 35
+    },
+    {
+      "update": 8,
+      "t": 0.5,
+      "weight": 0.5,
+      "scroll0To84": 42
+    },
+    {
+      "update": 9,
+      "t": 0.5625,
+      "weight": 0.59326171875,
+      "scroll0To84": 50
+    },
+    {
+      "update": 10,
+      "t": 0.625,
+      "weight": 0.68359375,
+      "scroll0To84": 58
+    },
+    {
+      "update": 11,
+      "t": 0.6875,
+      "weight": 0.76806640625,
+      "scroll0To84": 65
+    },
+    {
+      "update": 12,
+      "t": 0.75,
+      "weight": 0.84375,
+      "scroll0To84": 71
+    },
+    {
+      "update": 13,
+      "t": 0.8125,
+      "weight": 0.90771484375,
+      "scroll0To84": 77
+    },
+    {
+      "update": 14,
+      "t": 0.875,
+      "weight": 0.95703125,
+      "scroll0To84": 81
+    },
+    {
+      "update": 15,
+      "t": 0.9375,
+      "weight": 0.98876953125,
+      "scroll0To84": 84
+    },
+    {
+      "update": 16,
+      "t": 1.0,
+      "weight": 1.0,
+      "scroll0To84": 84
+    }
+  ],
+  "density15": [
+    {
+      "update": 0,
+      "weight": 0.0
+    },
+    {
+      "update": 1,
+      "weight": 0.012740743346512318
+    },
+    {
+      "update": 2,
+      "weight": 0.04859260097146034
+    },
+    {
+      "update": 3,
+      "weight": 0.10400000214576721
+    },
+    {
+      "update": 4,
+      "weight": 0.17540742456912994
+    },
+    {
+      "update": 5,
+      "weight": 0.25925925374031067
+    },
+    {
+      "update": 6,
+      "weight": 0.35200002789497375
+    },
+    {
+      "update": 7,
+      "weight": 0.4500740170478821
+    },
+    {
+      "update": 8,
+      "weight": 0.5499259829521179
+    },
+    {
+      "update": 9,
+      "weight": 0.6480000019073486
+    },
+    {
+      "update": 10,
+      "weight": 0.7407407760620117
+    },
+    {
+      "update": 11,
+      "weight": 0.8245925903320312
+    },
+    {
+      "update": 12,
+      "weight": 0.8960000276565552
+    },
+    {
+      "update": 13,
+      "weight": 0.9514074325561523
+    },
+    {
+      "update": 14,
+      "weight": 0.9872592687606812
+    },
+    {
+      "update": 15,
+      "weight": 1.0
+    }
+  ]
+}

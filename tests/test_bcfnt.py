@@ -25,7 +25,7 @@ class FontTests(unittest.TestCase):
     def test_mapping_methods_and_signed_bearings(self):
         for method in range(3):
             manifest, sheets = bcfnt.convert(fixture(method))
-            self.assertEqual(manifest['glyphs']['65'], dict(sheet=0, x=1, y=1, width=2, height=3, left=-1, advance=3))
+            self.assertEqual(manifest['glyphs']['65'], dict(sheet=0, sourceSheet=0, x=1, y=1, width=2, height=3, left=-1, advance=3))
             self.assertEqual('66' in manifest['glyphs'], method == 0)
             self.assertTrue(sheets[0].startswith(b'\x89PNG\r\n\x1a\n'))
             self.assertEqual(len(manifest['sourceSha256']), 64)
@@ -70,6 +70,30 @@ class FontTests(unittest.TestCase):
         self.assertEqual(manifest['glyphs']['65']['sheet'], 1)
         self.assertEqual(manifest['glyphs']['65']['left'], -1)
         self.assertEqual(manifest['glyphs']['66']['x'], 4)
+
+    def test_compaction_preserves_original_sheet_identity_and_pixels(self):
+        data = bytearray(fixture())
+        # Map A/B across the first/second sheet boundary; fallback is on sheet 1.
+        struct.pack_into('<H', data, 68, 2)
+        struct.pack_into('<H', data, 123, 3)
+        struct.pack_into('<H', data, 30, 4)
+        data.extend(bytes([0xff] * 32))
+        struct.pack_into('<I', data, 12, len(data))
+        native, _ = bcfnt.convert(data)
+        packed, sheets = bcfnt.convert(data, compact=True)
+        self.assertEqual(packed['sourceSheetCount'], 2)
+        self.assertEqual(len(sheets), 1)
+        for key, source_sheet in [('65', 0), ('66', 1)]:
+            original, delivered = native['glyphs'][key], packed['glyphs'][key]
+            self.assertEqual(original['sourceSheet'], source_sheet)
+            self.assertEqual(delivered['sourceSheet'], source_sheet)
+            self.assertEqual(delivered, {**original, 'sheet': 0, 'x': original['x'] + 8 * source_sheet})
+        self.assertEqual(packed['fallback'], packed['glyphs']['66'])
+        # Compaction copies whole source sheets, retaining their exact RGBA values.
+        first = bcfnt.decode_sheet(bytes([0xf0] * 32), 8, 8, 11)
+        second = bcfnt.decode_sheet(bytes([0xff] * 32), 8, 8, 11)
+        rgba = b''.join(first[y*32:(y+1)*32] + second[y*32:(y+1)*32] for y in range(8))
+        self.assertEqual(sheets[0], bcfnt.png(16, 8, rgba))
 
     def test_fallback_sentinel_and_unsupported_revision(self):
         data = bytearray(fixture())

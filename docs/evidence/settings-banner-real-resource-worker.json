@@ -1,0 +1,24 @@
+{
+  "homeCodeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "settingsBannerSha256": "5804ba5a7768d2ae9b7487e4d277923502646d89768668b19d666e3e4d30fbac",
+  "selectedCgfxSha256": "96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d",
+  "selectedLanguage": "eur-en",
+  "usedCommonFallback": true,
+  "commonOffset": "0x88",
+  "eurEnglishOverrideOffset": "0x0",
+  "decodedBytes": 137792,
+  "nativeSizeCalls": 1,
+  "nativeDecodeCalls": 1,
+  "completionByte": 1,
+  "primaryCandidate": "0x500400",
+  "secondaryCandidate": "0x500500",
+  "candidateVtable": "0x3210f0",
+  "nativeConstructorCalls": 2,
+  "commonBindVisits": [
+    "0x24def0",
+    "0x24ed40",
+    "0x2354a0"
+  ],
+  "bindServiceStop": "0x2354a0",
+  "scope": "Original title worker 0x24c930 executes on hash-pinned Settings CBMD. Archive I/O and allocation results are supplied. Two original 0x1fa0fc generic-primary constructors execute; native 0x2201cc/0x220070 decode the real common CGFX once. On that same constructed candidate, the source state-4 COMMON call arguments enter 0x24def0/0x24ed40 and stop before unsupplied graphics-object creation service 0x2354a0. The decoded CGFX is not bound; no visible pose or pixels are observed."
+}

@@ -1,0 +1,372 @@
+import type { SettingsHudPose } from './stock-settings-hud';
+import { languageScroll, settingsLanguageOffset, settingsOtherPages } from './stock-settings-navigation';
+import type { AppView } from './app-types';
+import type { NativeLayoutRenderer } from './native-renderer';
+import type { NativeTitlePackRequest } from './native-title-assets';
+import { nativeMessageOverride, nativePaneParentPath, sampleNativeTrack, type NativeAnimation, type NativeLayout, type PaneOverrides } from './native-layout';
+
+const prefix='packs/settings/contents/0000-0000003d/';
+const mainButtons=['I_TopLTs','I_TopRTs','I_TopLBs','I_TopRBs','I_TopTs'];
+const buttons=[...mainButtons,'B_L','B_LBlue','B_SB','B_SMngCTRO','B_SMngDSiO','B_CnctW1','B_CnctW2','B_CnctW3','I_User','T_Page01'];
+const otherIcons=['I_Date','I_Touch','I_Sound','I_Mic','I_3DTest','I_Ocam','I_AnalogPad','I_Trans','I_Lang','I_Update','I_Format'];
+export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
+  {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','TopBase_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
+  {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00','SMng_U_01'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00','SMng_U_01_NonSD']},
+  {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00','SMngCTRData_D_00','Country_D_00'],animations:['LsMenu_D_00_SceneIn_00','Country_D_00_SceneIn_00','Country_D_00_ScrollDw','Country_D_00_ScrollUp','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00','SMngCTRData_D_00_SceneIn_00','SMngCTRData_D_00_TextIn','SMngCTRData_D_00_BtnIn']},
+  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04','T_SB','R_SlideBar'],animations:[...buttons.map(name=>name+'_Select'),'T_Page01_Decide','R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide','T_SB_Decide']},
+  {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
+  {url:prefix+'dialog.json',alias:'dialog',layouts:['Dialog_D_01','DlgMask_D_00'],animations:['Dialog_D_02_FadeIn','Dialog_D_02_Select','DlgMask_D_00_FadeIn']},
+  {url:prefix+'hud.json',alias:'hud',layouts:['HudMset_00'],animations:['HudMset_00_Bat','HudMset_00_NetAtn','HudMset_00_NetMode','HudMset_00_WhiteBlack']},
+];
+/** These archive-level shares have neither endpoint in the requested Settings buttons.
+ * Keep the resource immutable; the bounded presentation adapter uses direct tracks.
+ */
+export function settingsDirectButtonClip(layout:NativeLayout,source:NativeAnimation):NativeAnimation{
+  const panes=new Set<string>(),groups=new Set<string>();
+  const paneNames=(items:NativeLayout['roots'])=>items.forEach(p=>{panes.add(p.name);paneNames(p.children);});paneNames(layout.roots);
+  const groupNames=(items:NativeLayout['groups'])=>items.forEach(g=>{groups.add(g.name);groupNames(g.children);});groupNames(layout.groups);
+  const omitted=new Set(['Button/AS_Picture_00','BottunPage01/AS_Picture_16','BottunUser/AS_Picture_00']);
+  for(const share of source.shares??[]){
+    if(!omitted.has(share.sourcePane+'/'+share.targetGroup)||panes.has(share.sourcePane)||groups.has(share.targetGroup))throw new Error('Settings button share requires an explicit composition');
+  }
+  return {...source,shares:[]};
+}
+const prepared=new WeakSet<NativeLayoutRenderer>();
+function prepareSettingsButtons(renderer:NativeLayoutRenderer){
+  if(prepared.has(renderer))return;
+  const source=renderer.packs.button,animations={...source.animations};
+  for(const name of buttons)animations[name+'_DirectSettings']=settingsDirectButtonClip(source.layouts[name],source.animations[name+'_Select']);
+  // The sibling Other Settings layouts reuse I_User's colour/visibility clip,
+  // but their source edge pictures are wider (usually 22/21 rather than 16/16).
+  // Its size keys belong to I_User and erase those source-defined row edges.
+  for(const name of otherIcons){
+    const clip=settingsDirectButtonClip(source.layouts[name],source.animations.I_User_Select);
+    animations[name+'_DirectSettings']={...clip,tracks:clip.tracks.filter(track=>
+      !(track.property==='size.width'&&(track.target==='I_User_L_02'||track.target==='I_User_L_03')))};
+  }
+  animations.T_Page01_Decide_DirectSettings=settingsDirectButtonClip(source.layouts.T_Page01,source.animations.T_Page01_Decide);
+  animations.T_SB_Decide_DirectSettings=settingsDirectButtonClip(source.layouts.T_SB,source.animations.T_SB_Decide);
+  renderer.packs.button={...source,animations};prepared.add(renderer);
+}
+const week=['sun','mon','tue','wed','thu','fri','sat'];
+/** The source executable feeds these clips from PTM/AC/Uds services. The
+ * portfolio has no corresponding hardware telemetry. Frame 4 matches the
+ * orange battery in the 26 September native Settings main capture; charging
+ * phase is supplied by the owner-scoped source HUD sampler. */
+export const SETTINGS_PORTFOLIO_STATUS={batteryFrame:4,networkAttentionFrame:3,networkModeFrame:0,whiteBlackFrame:0} as const;
+function drawSettingsStatus(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,date:Date,hud?:SettingsHudPose):boolean{
+  if(hud)date=new Date(hud.dateMs);
+  const message=(label:string)=>nativeMessageOverride(renderer.packs.messages,'hud',label,'');
+  const sourceText=(label:string)=>{const text=message(label).text;if(typeof text!=='string')throw new Error('Missing Settings HUD message '+label);return text;};
+  const day=sourceText('day_'+date.getDate()),month=sourceText('month_'+(date.getMonth()+1)),weekday=sourceText('week_'+week[date.getDay()]);
+  const pattern=message('lau_date');
+  if(typeof pattern.text!=='string')throw new Error('Missing Settings HUD message lau_date');
+  return renderer.draw(top,'hud','HudMset_00',{bindings:[
+    {name:'HudMset_00_Bat',frame:hud?.batteryFrame??SETTINGS_PORTFOLIO_STATUS.batteryFrame},
+    {name:'HudMset_00_NetAtn',frame:SETTINGS_PORTFOLIO_STATUS.networkAttentionFrame},
+    {name:'HudMset_00_NetMode',frame:SETTINGS_PORTFOLIO_STATUS.networkModeFrame},
+    {name:'HudMset_00_WhiteBlack',frame:SETTINGS_PORTFOLIO_STATUS.whiteBlackFrame},
+  ],overrides:{
+    ...(hud?{T_TimeC_00:{visible:hud.colonVisible}}:{}),
+    T_NetMode_00:message('lau_connect0'),
+    T_Date_00:{...pattern,text:pattern.text.replace('%d',day).replace('%M',month).replace('%w',weekday)},
+    T_TimeL_00:{...message('lau_hours'),text:String(date.getHours()).padStart(2,'0')},
+    T_TimeR_00:{...message('lau_minutes'),text:String(date.getMinutes()).padStart(2,'0')},
+  }});
+}
+
+/** Native source layouts and child mounts; this presents a settled menu. */
+export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,reducedMotion=false,date=new Date(),hud?:SettingsHudPose):boolean{
+  if(view.appId!=='system-settings')return false;
+  if(view.screen!=='main'){
+    const okay=drawNativeSettingsSubpage(renderer,top,bottom,view,reducedMotion);
+    return drawSettingsStatus(renderer,top,date,hud)&&okay;
+  }
+  prepareSettingsButtons(renderer);
+  let okay=true;
+  // top4btn requests background state 3 from initial state 0. The executable
+  // starts Legacy only for 1→2, so main retains the original white-pane defaults.
+  // See docs/settings-main-source-validation.md; subpages have separate states.
+  okay=renderer.draw(top,'base','Bg_U_00')&&okay;
+  okay=renderer.draw(bottom,'base','Bg_D_00')&&okay;
+  const message=(label:string)=>nativeMessageOverride(renderer.packs.messages,'mset',label,'');
+  okay=renderer.draw(top,'up','TopText_U_00',{bindings:[{name:'TopText_U_00_SceneIn_00',frame:20}],overrides:{
+    TextBoxTitle_00:message('top_sysset_title'),T_ver_00:{text:'Ver. 10.7.0-32E'},
+  }})&&okay;
+  const ids=['internet','parental','data','other','nnid'];
+  const labels=['top_internet','top_parental','top_software','top_settings','top_nnid'];
+  const attachments=Object.fromEntries(mainButtons.map((name,i)=>['N_'+name+'_00',()=>{
+    okay=renderer.draw(bottom,'button',name,{bindings:[{name:name+'_DirectSettings',frame:view.data?.selectionActive!==false&&view.rows[view.selection]?.id===ids[i]?1:0}],overrides:{TextBox_00:message(labels[i])}})&&okay;
+  }]));
+  okay=renderer.draw(bottom,'layout','Top_D_02',{bindings:[{name:'Top_D_02_SceneIn_00',frame:35}],attachments,overrides:{TextBoxTitle_01:message('top_btm_text')}})&&okay;
+  okay=renderer.draw(bottom,'base','TopBase_D_00',{overrides:{TextBox_00:message('top_btm_text'),TextBoxShdw_00:message('top_btm_text')}})&&okay;
+  return drawSettingsStatus(renderer,top,date,hud)&&okay;
+}
+
+/** EUR Settings 0x2232b4: center source icon plus measured title advance.
+ * Preserve the float32 instruction order; the pane's original Y/Z stay intact. */
+export function settingsTitleGroupX(groupX:number,iconX:number,iconWidth:number,textX:number,textWidth:number):number{
+ const f=Math.fround;
+ let extent=f(textX-iconX);extent=f(extent-f(iconWidth*.5));
+ extent=f(textWidth+extent);extent=f(iconWidth+extent);extent=f(extent-iconWidth);
+ return f(groupX-f(iconX+f(extent*.5)));
+}
+function otherTitleTranslation(renderer:NativeLayoutRenderer,title:string):[number,number,number]{
+ const layout=renderer.packs.up.layouts.CommonBG_U_00;
+ const flatten=(panes:typeof layout.roots):typeof layout.roots=>panes.flatMap(p=>[p,...flatten(p.children)]);
+ const panes=flatten(layout.roots),group=panes.find(p=>p.name==='Null_Title')!,icon=panes.find(p=>p.name==='Icon')!,pane=panes.find(p=>p.name==='TextBoxTitle_00')!;
+ const message=nativeMessageOverride(renderer.packs.messages,'mset',title,'');
+ const width=renderer.measureSingleLineText(layout.fonts[pane.text!.font],{...pane.text!,value:message.text!,messageStyle:message.messageStyle});
+ return [settingsTitleGroupX(group.translation[0],icon.translation[0],icon.size[0],pane.translation[0],width),group.translation[1],group.translation[2]];
+}
+
+/** Source table byte 0x23 selects both the background transition and title
+ * animation. Adapted detail cards inherit their parent section's presentation;
+ * only the identified DS Profile route requests Legacy. */
+export function settingsSceneVariant(view:AppView):1|2|3|4|5{
+  if(view.screen==='main')return 3;
+  if(view.screen==='detail'&&view.data?.field==='ds-profile')return 2;
+  const section=view.screen==='detail'?String(view.data?.parent??'other'):view.screen;
+  if(section==='internet'||section==='connections')return 3;
+  if(section==='data'||section==='data-3ds')return 4;
+  if(section==='parental'||section==='parental-explain'||section==='parental-pin-notice'||section==='restrictions')return 5;
+  return 1;
+}
+
+/** Executable 0x20f8bc selects EU_English (locale 5): DD/MM/YYYY and
+ * DD/MM. Source pane groups move as units; digit textures replace sampler 0. */
+function settingsFieldOverrides(layout:NativeLayout,field:string,raw:unknown,message:(label:string)=>PaneOverrides[string]):PaneOverrides{
+  const overrides:PaneOverrides={Null_00:{translation:[0,0,0],alpha:255},TextBoxTitle_00:message(field+'_comm')};
+  const shift=(names:string[],dx:number)=>names.forEach(name=>{
+    const pane=nativePaneParentPath(layout,name)?.at(-1);if(!pane)throw new Error('Missing Settings field pane '+name);
+    overrides[name]={...overrides[name],translation:[pane.translation[0]+dx,pane.translation[1],pane.translation[2]]};
+  });
+  const group=(pictures:number[],names:string[])=>[...pictures.map(i=>'Picture_'+String(i).padStart(2,'0')),...names];
+  if(field==='date'){
+    shift(group([0,1,2,3],['N_R_UpLarge_00','N_R_DownLarge_00','TextBox_00']),168);
+    shift(group([5,6],['N_R_UpSmall_00','N_R_DownSmall_00','TextBox_01']),-54);
+    shift(group([8,9],['N_R_UpSmall_01','N_R_DownSmall_01','TextBox_02']),-222);
+    shift(['Picture_04','Picture_07'],-54);
+    for(const [name,label]of [['TextBox_00','year'],['TextBox_01','month'],['TextBox_02','day']])overrides[name]={...overrides[name],...message(label)};
+  }else{
+    overrides.TextBox_01=message(field==='time'?'hour':'month');overrides.TextBox_02=message(field==='time'?'minute':'day');
+    if(field==='birthday'){
+      shift(group([0,1],['N_R_UpSmall_00','N_R_DownSmall_00','TextBox_01']),86);
+      shift(group([3,4],['N_R_UpSmall_01','N_R_DownSmall_01','TextBox_02']),-86);
+      overrides.Picture_05={visible:false}; // source EU branch omits the final dot
+    }
+  }
+  if(field!=='time'){
+    const sign=nativePaneParentPath(layout,'Sign_01')?.at(-1);
+    const material=sign?.picture&&layout.materials[sign.picture.material];
+    if(!material?.textureMaps[0])throw new Error('Missing Settings source slash');
+    const texture=layout.textures[material.textureMaps[0].texture];
+    for(const name of field==='date'?['Picture_04','Picture_07']:['Picture_02'])overrides[name]={...overrides[name],textureBindings:{0:texture}};
+  }
+  const text=typeof raw==='string'?raw:'';
+  const parts=(field==='date'?/^(\d{4})-(\d{2})-(\d{2})$/:field==='time'?/^(\d{2}):(\d{2})$/:/^(?:\d{4}-)?(\d{2})-(\d{2})$/).exec(text);
+  const digits=parts?parts.slice(1).join(''):'';
+  const indices=field==='date'?[0,1,2,3,5,6,8,9]:[0,1,3,4];
+  indices.forEach((index,i)=>{
+    const name='Picture_'+String(index).padStart(2,'0');
+    overrides[name]={...overrides[name],...(digits?{textureBindings:{0:'Number'+digits[i]+'.bclim'}}:{visible:false})};
+  });
+  return overrides;
+}
+type Child=readonly [mount:string,layout:string,id:string,label?:string];
+const otherButtons:Record<string,[string,string]>={profile:['I_User','user_info'],clock:['I_Date','date_time'],touch:['I_Touch','touch'],sound:['I_Sound','sound'],mic:['I_Mic','mic_test'],'calibration-3d':['I_3DTest','3d_check'],'outer-cameras':['I_Ocam','ocam'],'circle-pad':['I_AnalogPad','analog_pad'],transfer:['I_Trans','trans'],language:['I_Lang','language'],update:['I_Update','update'],format:['I_Format','initialize']};
+const panelMirrors={UpWndwLT_01:{size:[184,80],scale:[-1,1]},UpWndwLT_02:{size:[184,80],scale:[1,-1]},UpWndwLT_03:{size:[184,80],scale:[-1,-1]}};
+/** datamng_ctr_soft / datamng_ctr_data, list kinds 0 and 1 on SD media. The
+ * portfolio presents SD state 2 (accessible) with no titles installed. */
+const dataLists:Record<string,{title:string;instruction:string;page:string;empty:string}>={
+  software:{title:'dat_sof_title_u',instruction:'dat_3ds_comm1_u',page:'dat_soft_page',empty:'dat_no_software'},
+  'extra-data':{title:'dat_opt_title_u',instruction:'dat_3ds_comm2_u',page:'dat_opt_page',empty:'dat_no_option'},
+};
+/** language_eu row order from 0x22c7d0 (CFG codes 1,2,3,5,4,8,9,10). */
+const euLanguages=['eu_english','eu_french','eu_german','eu_spanish','eu_italian','eu_dutch','eu_portuguese','eu_russian'];
+/** Source menus retain their child mounts. Introductory and read-only detail
+ * cards reuse source text panels; they never imply configured device state. */
+function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,reducedMotion=false):boolean{
+  prepareSettingsButtons(renderer);
+  const message=(label:string)=>nativeMessageOverride(renderer.packs.messages,'mset',label,'');
+  const {screen}=view,data=view.data??{},page=typeof data.page==='number'?data.page:0;
+  const preferences=data.settings&&typeof data.settings==='object'?data.settings as Record<string,unknown>:{};
+  const value=(key:string)=>typeof preferences[key]==='string'&&preferences[key]!==''?String(preferences[key]):'Not set';
+  const field=String(data.field??'');
+  const section=screen==='detail'?String(data.parent??'other'):screen==='parental-explain'||screen==='parental-pin-notice'?'parental':screen;
+  const sections:Record<string,[string,string,string]>={internet:['IconNet','net_top_title','net_top_comm_u'],connections:['IconNet','net_set_title','net_set_comm_u'],parental:['IconParental','parental_title_u','par_top_comm_u_n'],restrictions:['IconParental','parental_title_u','par_chan_comm_u1'],data:['IconDataMa','dat_title_u','dat_comm_u'],'data-3ds':['IconDataMa','dat_title_u','dat_3ds_comm_u'],profile:['IconUser','user_info_title','user_info_comm_u'],clock:['IconDateTime','date_time_title','datetime_comm_u'],other:['IconBasic','settings_title','settings_comm_u']};
+  const detailSections:Record<string,[string,string,string]>={sound:['IconSound','sound_title','sound_comm_u'],language:['IconLang','language','language_comm_u'],date:['IconDateTime','date_time_title','date_comm_u'],time:['IconDateTime','date_time_title','time_comm_u'],birthday:['IconUser','user_info_title','birthday_comm_u'],nickname:['IconUser','user_info_title','user_name_comm_u']};
+  const dataList=screen==='detail'&&section==='data-3ds'?dataLists[field]:undefined;
+  const detailSource:[string,string,string]|undefined=dataList?['IconDataMa',dataList.title,dataList.instruction]:screen==='detail'?detailSections[field]:undefined;
+  const [icon,title,instruction]=detailSource??sections[section]??sections.other;
+  const variant=settingsSceneVariant(view);
+  let okay=true;
+  const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,options:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,options)&&okay;};
+  const back=()=>draw(bottom,'base','Base_D_00',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back')}});
+  for(const [ctx,name] of [[top,'Bg_U_00'],[bottom,'Bg_D_00']] as const){
+    draw(ctx,'base',name,variant===2?{bindings:[{name:name+'_SceneIn_Legacy',frame:40}]}:{});
+  }
+  if(screen==='detail'&&field==='ds-profile'){
+    // ds_user_info uses independent Legacy chrome. No stored DS profile was
+    // supplied; clear authored sample values rather than inventing device data.
+    draw(top,'up','LsCommonBG_U_00',{bindings:[{name:'LsCommonBG_U_00_SceneIn_00',frame:20}],overrides:{
+      TextBox_00:{text:''},TextBox_01:{text:''},TextBox_02:message('ds_birthday_u'),TextBox_03:{text:''},TextBoxTitle_01:message('ds_info_comm_u'),
+    }});
+    draw(bottom,'layout','LsMenu_D_00',{bindings:[{name:'LsMenu_D_00_SceneIn_00',frame:20}],attachments:{
+      N_B_LsMenu_00:()=>draw(bottom,'button','B_LsMenu',{overrides:{TextBox_00:message('ds_comment')}}),
+      N_B_LsMenu_01:()=>draw(bottom,'button','B_LsMenu',{overrides:{TextBox_00:message('ds_user_color')}}),
+    }});
+    draw(bottom,'base','LsBase_D_00',{overrides:{TextBox_00:message('ds_base_1b_back'),TextBox_02:message('ds_info_comm')}});
+    return okay;
+  }
+  // The original scene centers the icon and the measured title as a group.
+  draw(top,'up','CommonBG_U_00',{...(screen==='other'?{textSampling:'lcd' as const,textCoverageAdaptation:'azahar-12p4-fit' as const}:{}),bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{...(screen==='other'?{Null_Title:{translation:otherTitleTranslation(renderer,title)}}:{}),TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
+  const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);
+  // Original signed sizes encode mirrored quadrants. Derived absolute sizes
+  // and reflected scales preserve each origin; the source pack is immutable.
+  if(dataList){
+    // 0x218474 selects NonSD's final frame for an accessible SD. Its free-block
+    // count is device data that was not supplied, so TextBox_05 stays blank.
+    draw(top,'up','SMng_U_01',{bindings:[{name:'SMng_U_01_NonSD',frame:1}],overrides:{
+      UpLineWide_03:{size:[330,32],scale:[-1,1]},N_SD:{visible:true},
+      TextBox_00:message(dataList.instruction),TextBox_03:message('dat_sd_u'),TextBox_04:message('dat_block_u'),TextBox_05:{text:''},
+    }});
+  }else if(!profileInfo&&screen!=='connections')draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'&&!detailSource?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
+  if(profileInfo){
+    const profileValue=(key:string)=>screen==='detail'&&field==='birthday'?(typeof preferences[key]==='string'?String(preferences[key]):''):value(key);
+    draw(top,'up','UserInfo_U_00',{bindings:[{name:'UserInfo_U_00_TextFadeIn',frame:20}],overrides:{
+      IconTop_00:{visible:false},TextBox_01:message('user_name_u'),TextBox_02:{text:profileValue('nickname')},TextBox_03:message('region_u'),TextBox_04:{visible:false},TextBox_05:{visible:false},TextBox_06:{text:profileValue('region')},TextBox_07:message('birthday_u'),TextBox_08:{text:profileValue('birthday')},TextBox_00:message(instruction),
+    }});
+  }
+  if(screen==='connections'){
+    const overrides:PaneOverrides={TextBox_00:message('net_set_comm_u')};
+    for(let i=0;i<3;i++){
+      overrides['TextBox_0'+(i*2+1)]=message('net_connect'+(i+1)+'_u');
+      overrides['TextBox_0'+(i*2+2)]=message('net_none_set_u');
+      // This portfolio has no configured console networks or security keys.
+      overrides['NetKeyL_0'+i]={visible:false};
+    }
+    draw(top,'up','Connect_U_00',{bindings:[{name:'Connect_U_00_TextFadeIn',frame:20}],overrides});
+  }
+  const child=(layout:string,id:string,label?:string)=>{
+    const clip=layout==='B_S'?'B_SB':layout==='B_M'?'B_L':layout;
+    const bindings=buttons.includes(clip)||otherIcons.includes(clip)?[{name:clip+'_DirectSettings',frame:view.rows[view.selection]?.id===id&&!(view.screen==='other'&&view.data?.selectionActive===false)?1:0}]:[];
+    const overrides:PaneOverrides=label?{TextBox_00:message(label)}:{};
+    if(layout.startsWith('B_CnctW'))overrides.TextBox_00={text:message('net_connect1_u').text!.replace(/ 1$/,''),fontSize:[15,18]};
+    draw(bottom,'button',layout,{bindings,overrides});
+  };
+  const menu=(layout:string,children:readonly Child[],clip?:string,overrides:PaneOverrides={})=>draw(bottom,'layout',layout,{bindings:clip?[{name:clip,frame:1}]:[],overrides:{Null_00:{translation:[0,0,0],alpha:255,visible:true},...overrides},attachments:Object.fromEntries(children.map(([mount,layout,id,label])=>[mount,()=>child(layout,id,label)]))});
+  if(screen==='internet')menu('NetTop_D_01',[
+    ['N_B_LBlue_00','B_LBlue','connections','net_set'],['N_B_S_00','B_S','spotpass','net_bg24'],['N_B_S_01','B_S','ds-connections','net_ds_card'],['N_B_S_02','B_S','internet-info','net_option'],
+  ],'NetTop_D_01_SpecialIn_00');
+  else if(screen==='parental'){
+    // pare_new_set: source instruction-only page and two-control base footer.
+    draw(bottom,'layout','MessageOnly_D_00',{bindings:[{name:'MessageOnly_D_00_SceneIn_00',frame:20}],overrides:{TextBoxTitle_00:message('par_top_comm0_n')}});
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_set'),TextBoxShdw_01:message('base_2b_set')}});
+    return okay;
+  }else if(screen==='parental-explain'||screen==='parental-pin-notice'){
+    draw(bottom,'layout','StartChild_D_00',{overrides:{TextBoxTitle_00:message('st_start_comm')}});
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_next'),TextBoxShdw_01:message('base_2b_next')}});
+    if(screen==='parental-pin-notice'){
+      // pr_dlg_explain selector 1 uses Dialog_D_01 with the shared 02 clips.
+      // Its sole button binds Group_00; the underlying explanation stays put.
+      draw(bottom,'dialog','DlgMask_D_00',{bindings:[{name:'DlgMask_D_00_FadeIn',frame:20}]});
+      draw(bottom,'dialog','Dialog_D_01',{bindings:[{name:'Dialog_D_02_FadeIn',frame:20},{name:'Dialog_D_02_Select',frame:1,groups:['Group_00']}],overrides:{
+        TextBoxDialog_00:message('par_dlg_pin0'),TextBox_00:message('dlg_2b_ok'),TextBoxShdw_00:message('dlg_2b_ok'),
+      }});
+    }
+    return okay;
+  }else if(screen==='data')menu('SMngTopO_D_00',[
+    ['N_B_SMngCTRO_00','B_SMngCTRO','data-3ds'],['N_B_SMngDSiO_00','B_SMngDSiO','data-dsi'],['N_B_M_00','B_M','streetpass','dat_ce'],['N_B_S_00','B_S','blocked-users','dat_blist_reset'],
+  ],'SMngTopO_D_00_SpecialIn_00');
+  else if(screen==='profile')menu('UserInfo_D_00',[
+    ['N_B_M_00','B_M','nickname','user_name'],['N_B_M_01','B_M','birthday','birthday'],['N_B_M_02','B_M','region','region'],['N_B_S_00','B_S','ds-profile','ds_user_info'],
+  ],undefined,{TextBoxTitle_00:message('user_info_title')});
+  else if(screen==='data-3ds')menu('SMngCTR_D_00',[
+    ['N_B_M_00','B_M','software','dat_software'],['N_B_M_01','B_M','extra-data','dat_option'],['N_B_M_02','B_M','add-on-content','dat_contents'],['N_B_S_00','B_S','backup','dat_backup'],
+  ]);
+  else if(screen==='connections')menu('NetSetTop_D_00',[
+    ['N_B_L_00','B_L','new-connection','net_new_set'],['N_B_CnctW1_00','B_CnctW1','connection-1'],['N_B_CnctW2_00','B_CnctW2','connection-2'],['N_B_CnctW3_00','B_CnctW3','connection-3'],
+  ]);
+  else if(screen==='other'){
+    const attachments:Record<string,()=>void>={};
+    view.rows.slice(0,3).forEach((row,i)=>{const button=otherButtons[row.id];if(button)attachments['N_I_Button_0'+i]=()=>child(button[0],row.id,button[1]);});
+    // BasicTop_D_00 retains both adjacent pages at its source ±276 x mounts.
+    // Their three source button centres are +44, -4 and -52 y; the visible
+    // slivers remain on the LCD beside the page arrows in the settled pose.
+    const adjacentPage=(index:number)=>()=>{
+      settingsOtherPages[index].forEach(([id],i)=>{
+        const button=otherButtons[id];
+        if(button)draw(bottom,'button',button[0],{center:[160,76+i*48],bindings:[{name:button[0]+'_DirectSettings',frame:0}],overrides:{TextBox_00:message(button[1])}});
+      });
+    };
+    if(page>0)attachments.Null_LeftPage=adjacentPage(page-1);
+    if(page<settingsOtherPages.length-1)attachments.Null_RightPage=adjacentPage(page+1);
+    // Select's final frame is pressed with no shadow; Decide's final frame
+    // keeps the selected colour but raises the page tab and restores its shadow.
+    for(let i=0;i<4;i++)attachments['NN_T_Page0'+(i+1)+'_00']=()=>draw(bottom,'button','T_Page0'+(i+1),{bindings:[{name:i===page?'T_Page01_Decide_DirectSettings':'T_Page01_DirectSettings',frame:i===page?1:0}]});
+    if(page>0)attachments.N_R_ArrowL_00=()=>draw(bottom,'button','R_ArrowL',{bindings:[{name:'R_ArrowL_Appear',frame:0}]});
+    if(page<3)attachments.N_R_ArrowR_00=()=>draw(bottom,'button','R_ArrowR',{bindings:[{name:'R_ArrowR_Appear',frame:0}]});
+    // Special_00 moves ScrollBg by one source page pitch (276 px). The
+    // captured settled viewports use its source endpoints: 270 on page 1,
+    // -6 on pages 2–3, then -282 on page 4. Reapplying SpecialIn's 270 on
+    // every page exposes an incorrect background strip beside the arrows.
+    const scrollBgX=[270,-6,-6,-282][page];
+    draw(bottom,'layout','BasicTop_D_00',{bindings:[{name:'BasicTop_D_00_SpecialIn_00',frame:1}],overrides:{ScrollBg:{translation:[scrollBgX,5,0]}},attachments});
+  }else if(screen==='clock')menu('NetType2_D_00',[['N_B_L_00','B_L','date','date_btn'],['N_B_L_01','B_L','time','time_btn']]);
+  else if(screen==='restrictions'){
+    const start=Math.floor(view.selection/4)*4;
+    view.rows.slice(start,start+4).forEach((row,i)=>{
+      draw(bottom,'button','B_M',{center:[160,43+i*44],bindings:[{name:'B_L_DirectSettings',frame:start+i===view.selection?1:0}],overrides:{TextBox_00:{text:row.label,fontSize:[15,18]}}});
+    });
+  }else if(screen==='detail'&&field==='sound'){
+    draw(bottom,'layout','Sound_D_00',{overrides:{Null_00:{translation:[0,0,0],alpha:255}},attachments:Object.fromEntries(['surround','stereo','mono'].map((label,i)=>['N_T_OnOff_0'+i,()=>draw(bottom,'button','T_OnOff',{bindings:[{name:value('sound').toLowerCase()===label?'T_OnOff_Decide':'T_OnOff_UnDecide',frame:value('sound').toLowerCase()===label?11:1}],overrides:{TextBox_00:message(label)}})]))});
+    // sound.bin footer kind 2: native Cancel/OK; OK stays read-only.
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_cancel'),TextBoxShdw_00:message('base_2b_cancel'),TextBox_01:message('base_2b_decide'),TextBoxShdw_01:message('base_2b_decide')}});
+    return okay;
+  }else if(screen==='detail'&&field==='language'){
+    // Refresh 0x1a022c binds row top+slot−2 to each of eight reusable mounts.
+    // This read-only viewport leaves the configured English decision unchanged.
+    const english=value('language')===message('eu_english').text;
+    const scrolled=typeof data.languageTop==='number'&&Number.isFinite(data.languageTop);
+    const scroll=languageScroll({...data,screen});
+    const listTop=scroll?(reducedMotion?scroll.to:scroll.from):scrolled?Math.max(0,Math.min(4,Math.floor(data.languageTop as number))):0;
+    const attachments:Record<string,()=>void>={};
+    for(let slot=0;slot<8;slot++){
+      const row=listTop+slot-2;if(row<0||row>=euLanguages.length)continue;
+      attachments['N_T_SB_0'+slot]=()=>draw(bottom,'button','T_SB',{bindings:english&&row===0?[{name:'T_SB_Decide_DirectSettings',frame:11}]:[],overrides:{TextBox_00:message(euLanguages[row])}});
+    }
+    // 0x1f37c4 sizes the thumb to 144−24−(8−4)*4. After an accepted
+    // arrow, 0x1a07b8 sets y=(144−104)*(0.5−top/4); entry retains y=0.
+    const clip=scroll&&!reducedMotion?'Country_D_00_Scroll'+(scroll.direction===1?'Up':'Dw'):null;
+    const track=clip?renderer.packs.layout.animations[clip].tracks.find(track=>track.target==='Null_Slideanim'&&track.property==='translation.y'):undefined;
+    const dragOffset=reducedMotion&&data.languageSnapFrom!==undefined?0:settingsLanguageOffset(data);
+    const offset=track&&scroll?sampleNativeTrack(track,scroll.frame):dragOffset;
+    const thumb=[22,104],thumbY=20-(listTop*44+offset)*40/176;
+    attachments.R_SlideBar=()=>draw(bottom,'button','R_SlideBar',{overrides:{SBBtnShdw:{size:thumb},SBBtn:{size:thumb},SBBtnFrame:{size:thumb},B_Slide_00:{size:[24,104],...(scrolled?{translation:[0,thumbY,0]}:{})},...(scrolled?{N_Slide:{translation:[0,thumbY,0]}}:{})}});
+    draw(bottom,'layout','Country_D_00',{bindings:[{name:'Country_D_00_SceneIn_00',frame:20},...(clip&&scroll?[{name:clip,frame:scroll.frame,groups:['Group_01']}]:[])],attachments,...(!clip&&dragOffset!==0?{overrides:{Null_Slideanim:{translation:[0,dragOffset,0]}}}:{})});
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_back'),TextBoxShdw_00:message('base_2b_back'),TextBox_01:message('base_2b_decide'),TextBoxShdw_01:message('base_2b_decide')}});
+    return okay;
+  }else if(screen==='detail'&&['birthday','date','time'].includes(field)){
+    const layout=field==='birthday'?'Birthday_D_00':field==='date'?'DateTime_D_00':'DateTime_D_01';
+    const source=renderer.packs.layout.layouts[layout];
+    const attachments:Record<string,()=>void>={};
+    for(const pane of source.roots.flatMap(root=>root.children).flatMap(root=>root.children)){
+      const match=/^N_(R_(?:Up|Down)(?:Large|Small))_\d+$/.exec(pane.name);
+      if(match)attachments[pane.name]=()=>draw(bottom,'button',match[1]);
+    }
+    draw(bottom,'layout',layout,{overrides:settingsFieldOverrides(source,field,preferences[field],message),attachments});
+    draw(bottom,'base','Base_D_01',{overrides:{TextBox_00:message('base_2b_cancel'),TextBoxShdw_00:message('base_2b_cancel'),TextBox_01:message('base_2b_decide'),TextBoxShdw_01:message('base_2b_decide')}});
+    return okay;
+  }else if(dataList){
+    // Empty-list setter 0x19793c: the message replaces the page counter,
+    // list window and all 20 icon buttons. Half tabs are DSiWare-only.
+    draw(bottom,'layout','SMngCTRData_D_00',{bindings:[{name:'SMngCTRData_D_00_SceneIn_00',frame:20},{name:'SMngCTRData_D_00_BtnIn',frame:20,groups:['Group_05']},{name:'SMngCTRData_D_00_TextIn',frame:20,groups:['Group_03']}],overrides:{
+      TextBoxTitle_00:{...message(dataList.empty),visible:true},TextPageBox:message(dataList.page),TextBoxTitle_01:message('dat_3ds_comm'),
+      TextPageNow:{text:'',visible:false},TextPageBar:{text:'',visible:false},TextPageAll:{text:'',visible:false},Window_00:{visible:false},
+    }});
+  }else{
+    draw(bottom,'up','TextBG_U_00',{center:[160,104.4],scale:.8,bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}}});
+  }
+  back();return okay;
+}

@@ -1,0 +1,551 @@
+{
+  "archive": {
+    "path": "romfs/sound/menu.bcsar",
+    "sha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2"
+  },
+  "banks": {
+    "1": {
+      "availablePrograms": [
+        5,
+        6,
+        11,
+        14
+      ],
+      "cbnkSha256": "b6582cabf671dd8f1b204aca84136fe304a53632a5b7f9f9d1c1ac4bf531f89f",
+      "instruments": [
+        [
+          "direct",
+          [
+            "direct",
+            {
+              "attack": 127,
+              "decay": 40,
+              "hold": 0,
+              "ignore_note_off": false,
+              "interp": 0,
+              "org_key": 60,
+              "pan": 64,
+              "pitch": 1.0,
+              "release": 121,
+              "sustain": 0,
+              "volume": 127,
+              "war_slot": 3,
+              "wav_index": 5
+            }
+          ]
+        ],
+        [
+          "direct",
+          [
+            "direct",
+            {
+              "attack": 127,
+              "decay": 64,
+              "hold": 0,
+              "ignore_note_off": false,
+              "interp": 0,
+              "org_key": 74,
+              "pan": 64,
+              "pitch": 1.0,
+              "release": 110,
+              "sustain": 0,
+              "volume": 127,
+              "war_slot": 3,
+              "wav_index": 6
+            }
+          ]
+        ],
+        null,
+        null,
+        null,
+        [
+          "direct",
+          [
+            "direct",
+            {
+              "attack": 127,
+              "decay": 127,
+              "hold": 0,
+              "ignore_note_off": false,
+              "interp": 0,
+              "org_key": 60,
+              "pan": 64,
+              "pitch": 1.0,
+              "release": 127,
+              "sustain": 127,
+              "volume": 127,
+              "war_slot": 3,
+              "wav_index": 0
+            }
+          ]
+        ],
+        [
+          "direct",
+          [
+            "direct",
+            {
+              "attack": 127,
+              "decay": 127,
+              "hold": 0,
+              "ignore_note_off": false,
+              "interp": 0,
+              "org_key": 69,
+              "pan": 64,
+              "pitch": 1.0,
+              "release": 127,
+              "sustain": 127,
+              "volume": 127,
+              "war_slot": 3,
+              "wav_index": 1
+            }
+          ]
+        ],
+        null,
+        null,
+        null,
+        null,
+        [
+          "index",
+          [
+            75,
+            127
+          ],
+          [
+            [
+              "direct",
+              {
+                "attack": 127,
+                "decay": 127,
+                "hold": 0,
+                "ignore_note_off": false,
+                "interp": 0,
+                "org_key": 69,
+                "pan": 64,
+                "pitch": 1.0,
+                "release": 127,
+                "sustain": 127,
+                "volume": 127,
+                "war_slot": 3,
+                "wav_index": 2
+              }
+            ],
+            [
+              "direct",
+              {
+                "attack": 127,
+                "decay": 127,
+                "hold": 0,
+                "ignore_note_off": false,
+                "interp": 0,
+                "org_key": 76,
+                "pan": 64,
+                "pitch": 1.0,
+                "release": 127,
+                "sustain": 127,
+                "volume": 127,
+                "war_slot": 3,
+                "wav_index": 3
+              }
+            ]
+          ]
+        ],
+        null,
+        null,
+        [
+          "direct",
+          [
+            "direct",
+            {
+              "attack": 127,
+              "decay": 127,
+              "hold": 0,
+              "ignore_note_off": false,
+              "interp": 0,
+              "org_key": 69,
+              "pan": 64,
+              "pitch": 1.0,
+              "release": 127,
+              "sustain": 127,
+              "volume": 127,
+              "war_slot": 3,
+              "wav_index": 4
+            }
+          ]
+        ]
+      ],
+      "unavailablePrograms": [
+        0,
+        1
+      ]
+    }
+  },
+  "converter": {
+    "name": "export_home_music",
+    "sha256": "fa807cfb933ef7230fb228487e880c9c7b539ed2ead4573e73f56913fcfcfa68",
+    "version": 1
+  },
+  "entries": {
+    "music": {
+      "banks": [
+        1
+      ],
+      "file": "music.cseq",
+      "options": {
+        "flags": "0x80020107",
+        "panCurve": 0,
+        "panMode": 0,
+        "player": 67108867,
+        "values": {
+          "0": 26,
+          "1": 0,
+          "17": 0,
+          "2": 64,
+          "31": 0,
+          "8": 48
+        },
+        "volume": 96
+      },
+      "priority": 64,
+      "reachableCommands": 13046,
+      "start": 3,
+      "volume": 96
+    },
+    "music-resume": {
+      "banks": [
+        1
+      ],
+      "file": "music-resume.cseq",
+      "options": {
+        "flags": "0x80020107",
+        "panCurve": 0,
+        "panMode": 0,
+        "player": 67108867,
+        "values": {
+          "0": 25,
+          "1": 0,
+          "17": 0,
+          "2": 64,
+          "31": 0,
+          "8": 48
+        },
+        "volume": 96
+      },
+      "priority": 64,
+      "reachableCommands": 8956,
+      "start": 3,
+      "volume": 96
+    }
+  },
+  "frameSamples": 160,
+  "kind": "native-home-music",
+  "limits": [
+    "v8 model equivalence only",
+    "native allocation under voice pressure unverified",
+    "pinned Azahar interpolation model, not hardware DSP parity",
+    "stereo startup runtime assumptions"
+  ],
+  "profile": {
+    "adapterSha256": "7d702c9e5315188a54ccad71360412d0b45ca69b448171ae7c11770c8c287c5d",
+    "archiveVolume": {
+      "fittedGain": false,
+      "model": "Linear float32 raw volume times float32(1/127), floored at zero; separate from track/envelope dB",
+      "playerUpdate": "0x1a6428..0x1a65d4; command8 handler0x14c434",
+      "reader": "0x149168: CSAR entry+8 to SoundInfo+0x10",
+      "sequenceSetup": "0x1a53d4..0x1a53e8",
+      "setter": "0x1a66f4: BasicSound+0xb0",
+      "trackProduct": "0x208a88..0x208ab8"
+    },
+    "captureDsp": {
+      "emulatorRevision": "9e6f523a57fac9564ac0bf8286db3c3702d301ec",
+      "fittedConstants": false,
+      "fractionalBits": 24,
+      "frameSamples": 160,
+      "gainRamp": "Previous to target float32 gain, inclusive 0..159/159; each source/bus product truncates to integer before summation",
+      "hardwareVerified": false,
+      "initialDequeueFrame": true,
+      "interpolation": "Polyphase falls back to Linear in this pinned emulator; two historical samples, saturated difference and integer output",
+      "model": "Pinned Azahar mono source interpolation/history, initial dequeue, float32 gain ramps and per-source/bus integer truncation",
+      "sourceProvenance": {
+        "src/audio_core/hle/source.cpp": {
+          "gitBlob": "4728526b2ce29fa53969281d7f96aeda784daeb8",
+          "sha256": "2c2e450a25a6fc11b3cceb192728e86fabc78f1addf67aa7283b832194ac29c1",
+          "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/hle/source.cpp"
+        },
+        "src/audio_core/hle/source.h": {
+          "gitBlob": "1223f68ea3b9481373add974a1c3b956d1c5da4f",
+          "sha256": "098f0121bd845cf8ead26a879792945c0dc367022938320a66894fc58092af2e",
+          "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/hle/source.h"
+        },
+        "src/audio_core/interpolate.cpp": {
+          "gitBlob": "48a7c85adc394a656c8f28b17f1fb0df5f9ce6b7",
+          "sha256": "e5246de03956bf86252ff3f0531e438803c0ec69fd11272d8374d433e4296dcb",
+          "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/interpolate.cpp"
+        },
+        "src/audio_core/interpolate.h": {
+          "gitBlob": "ba46b5ad78670c61a8a4be98cd7f04dc57f69f82",
+          "sha256": "c258df7a2d839ab2733c8915a529f649fb6301e0a29d97af237cf875d0330925",
+          "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/interpolate.h"
+        }
+      }
+    },
+    "captureSemantics": {
+      "builtInAzaharDump": "DspInterface OutputFrame/OutputSample forwards PCM before host OutputCallback",
+      "hostTimeStretchApplied": false,
+      "hostVolumeSliderApplied": false,
+      "nativePlayerAndDspGainsApplied": true
+    },
+    "clockSha256": "0221c59396f2fbdb0f3d7d5e84adf4f040c983e9c1cc128874723d4279e53a97",
+    "dspSha256": "f1ac787ea636477acbc33682c11e86ca17c8e3666bd6ee3c3839b260f9291e8b",
+    "id": "eur-home-24576-stereo-startup-v8",
+    "mathSha256": "2a315f888178687192f2292dc9b4cf386ee4e65ba8dd1e4db2c73eab4348e50f",
+    "nativeOutputMode": {
+      "name": "stereo",
+      "referenceCfgBlock": "0x00070001",
+      "referenceCfgSaveSha256": "e9caff9ef9b4394499ae857da458c7fb7d3af472be8521357d4bbb56977b0f9e",
+      "referenceEmulator": "Azahar 2126.1.2 (9e6f523a57fac9564ac0bf8286db3c3702d301ec)",
+      "referenceModeVerified": true,
+      "value": 1,
+      "verificationScope": "Saved 3DS CFG block; no per-frame DSP memory capture"
+    },
+    "originalFiles": {
+      "dualrip/engine/ctr/channel.py": "4ee5aa99545538936eac3a201e8a16a7de4f79e7941f360dd2182e7873ba08cb",
+      "dualrip/engine/ctr/render.py": "742cc49e879df7afe0427aba2f51b80fc21c0c0eed78c6674867fb3394c39701",
+      "dualrip/engine/ctr/sequencer.py": "acbc3680446c26dcc8c0cb109380485c4d4b9b7a550dba3be1d1248227d6de26",
+      "dualrip/formats/ctr/cseq.py": "644b6d9feb3707b9381011a7c7fd866d07ca86428880b7ad59c092c6602a3c73"
+    },
+    "patchSha256": "f46df7fa9324b3166f3a8cd2be4619cb3e306e3e7669e710ddcb0af0384a3ed0",
+    "patchedFiles": {
+      "dualrip/engine/ctr/channel.py": "cd0884b7f210ca7ad1719345eff5e7409acb12b57a2f9d8b7e5047c1de8453ef",
+      "dualrip/engine/ctr/home_audio_clock.py": "0221c59396f2fbdb0f3d7d5e84adf4f040c983e9c1cc128874723d4279e53a97",
+      "dualrip/engine/ctr/home_audio_dsp.py": "f1ac787ea636477acbc33682c11e86ca17c8e3666bd6ee3c3839b260f9291e8b",
+      "dualrip/engine/ctr/home_audio_math.py": "2a315f888178687192f2292dc9b4cf386ee4e65ba8dd1e4db2c73eab4348e50f",
+      "dualrip/engine/ctr/home_audio_voice.py": "d2f61ff069ee05a40406137eb9b9b55d2118c40d67bceb15f4643c0263bbf184",
+      "dualrip/engine/ctr/render.py": "f7e3263abe97002c6e4b3fb57ca365295c2309c26d64c4b97079c3088a7f3b9d",
+      "dualrip/engine/ctr/sequencer.py": "826a3ba2e98a5bf0bd9c2d2acdc185e9018f623c4fe6201d3b212b9e5cc93a91",
+      "dualrip/formats/ctr/cseq.py": "42183fbc474a0736dcba45d683d6825ab73665b80e167e765d9f93933f8a18a1"
+    },
+    "profileSha256": "4f87d3112bc3a4cb4198983794cbf6cd875198ac937d25d1bab4e3212ff07eb6",
+    "remainingGaps": [
+      "Runtime player/master gains and later aux state need controlled capture",
+      "Native hardware polyphase/DSP precision is unverified; pinned Azahar capture interpolation, source gain ramps and integer source mixing are modeled; later runtime bus gains and filters remain open",
+      "Full native waveform equivalence and baked-loop waveform continuity remain unverified; no measured normalization, trimming, padding or time stretching is applied"
+    ],
+    "renderTimeline": {
+      "initialFrame": "Native sequence-before-voice order preserved; each new DSP source dequeues its initial buffer without consuming PCM in its first generated frame, with no trim or post-render padding",
+      "loopSelection": "Original first loop start through second bytecode pass; not a steady-state waveform claim",
+      "nativeOnsetVerified": false,
+      "origin": "Sequence player sample zero; preserve every generated frame",
+      "startupTrimSamples": 0
+    },
+    "runtimeAssumptions": {
+      "auxReturnA": 1,
+      "auxReturnB": 1,
+      "dspDelayEnabled": false,
+      "dspReverbEnabled": false,
+      "hostAuxCallback": null,
+      "panScale": 1,
+      "playerPanOffset": 0,
+      "playerSendOffsets": 0,
+      "source": "Static HOME startup paths; later runtime overrides not captured"
+    },
+    "sequenceClock": {
+      "arm11Hz": 268111856,
+      "fittedTimingConstants": false,
+      "frameBudgetCyclesTimes1000": 1310720000,
+      "frameSamples": 160,
+      "model": "Native 160-sample DSP frame with float32 fractional next-tick carry and uint64 truncation",
+      "nativeRate": 32728,
+      "sourceRoutine": "0x1aa174",
+      "tempoRatio": 1
+    },
+    "voiceArithmetic": {
+      "amplitude": "Velocity-squared times linear region, squared track/expression/master product, separate player and envelope gains",
+      "envelope": "Float32 attack/hold/decay/sustain/release; reset -904 table units; native strict thresholds and pre-update expiry",
+      "fittedConstants": false,
+      "frameOrder": "Sequence ticks, live track parameters, voice pitch/pan, sweep/LFO/envelope updates, voice gain",
+      "gate": "Positive gates decrement before parse; nonpositive notes become -1; CWAV loop persists; native FIN forces release and detaches track",
+      "lfo": "Float32 phase/delay with native sine table, pre-update pitch/pan and post-update volume",
+      "nativeTableSha256": {
+        "attack": "3a9d21132f66d969657cf76ea8f5ffb5e4a9df7abba4dd66baaf2d2695ae35c6",
+        "gain": "bbda3f9ee473d0aba17c2c98369d0d5b7b0a9d788b47384bc76d17e0f91d1696",
+        "pitchFraction": "ce9d87899dbdc1e5b59a1cd3b26107334c55d50aef782242944eb83d7c401cc6",
+        "pitchSemitone": "268bc185e52bc0f4973bfc9d4959f605057e1b6a5bc386a8ce8feb4afcb1936d",
+        "sine": "a742b4ef2370e98c41180ed22400a062ced15a1ffb49d17e2b12a2bf0eabdfd6",
+        "sustain": "3315552d46c21be4911d400e3a3a747a36b9866088226f6f7a113ca3f9b01086"
+      },
+      "sourceCodeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+      "sweepPitch": "Float32 semitone sweep and bend; 1/256-semitone quantization; native octave/semitone/fraction tables"
+    },
+    "voiceSha256": "d2f61ff069ee05a40406137eb9b9b55d2118c40d67bceb15f4643c0263bbf184"
+  },
+  "resources": {
+    "music-resume.cseq": {
+      "bytes": 20568,
+      "sha256": "fd8ff1419fe6739ebc2a32dfa9233594372436c71182b3a01029f47c882c25f6",
+      "source": {
+        "cseqSha256": "0a9807fbd770388ee0065dafa2a9546004ccd4561232384bfdb41a5767c03c6b",
+        "fileId": 3,
+        "sound": "BGM_CTR_HOME_NO_INTRO"
+      }
+    },
+    "music.cseq": {
+      "bytes": 28792,
+      "sha256": "3cd5ae01dff17ae0c561a27d0b99d8b808fed745529d2c81eda4fa9ce1300e7b",
+      "source": {
+        "cseqSha256": "4d8289e69e49505a4f014392cb169748ba96373b828cec9f372ad8d1ede0a5e7",
+        "fileId": 4,
+        "sound": "BGM_CTR_HOME"
+      }
+    },
+    "tables.bin": {
+      "bytes": 6761,
+      "sha256": "faf29573a648bef31b96c6d1ccac0ad588d9a9c64291ba61e49a787fa03b731a",
+      "source": {
+        "mathSha256": "2a315f888178687192f2292dc9b4cf386ee4e65ba8dd1e4db2c73eab4348e50f",
+        "method": "exact v8 arithmetic table bytes",
+        "voiceSha256": "d2f61ff069ee05a40406137eb9b9b55d2118c40d67bceb15f4643c0263bbf184"
+      }
+    },
+    "wave-3-0.pcm": {
+      "bytes": 36850,
+      "sha256": "29b7da1a5f0eb8a0c96ded910580c333d35e9c7c4e604b5451c7fb3478e0b1bb",
+      "source": {
+        "cwavSha256": "ef381e484820404e85c63dace222620256d93649b5d272795431899074388678",
+        "wave": 0,
+        "waveArchive": 3
+      }
+    },
+    "wave-3-1.pcm": {
+      "bytes": 37480,
+      "sha256": "e934b400d2251e2d0ba46b113ad18fc86492b843a8dc8c0d2e930620f915b62b",
+      "source": {
+        "cwavSha256": "1f80fa16fcd90d135fafe1564776d90e3a88d5f55cdd79b40dfce36eb0c1efdf",
+        "wave": 1,
+        "waveArchive": 3
+      }
+    },
+    "wave-3-2.pcm": {
+      "bytes": 18558,
+      "sha256": "64fd250acf33b359fe57a1d7ee364599cd12d90111a3ca2385610e165af7f29c",
+      "source": {
+        "cwavSha256": "9bcda3e5af98e233936eac9847bc00843bbbacd46624bebc18e44b0aa7d4ad23",
+        "wave": 2,
+        "waveArchive": 3
+      }
+    },
+    "wave-3-3.pcm": {
+      "bytes": 19786,
+      "sha256": "73a134f67f3444f061dd0b5aea63192a3b62eebacb5143e50ec5e8dee9f15707",
+      "source": {
+        "cwavSha256": "49e8b7b8289c3f00f8ba30f813d5e8567dc02913372b1597b04ec21ebf13f4af",
+        "wave": 3,
+        "waveArchive": 3
+      }
+    },
+    "wave-3-4.pcm": {
+      "bytes": 5124,
+      "sha256": "a547e0eb54e1b17fc31b2c749767254aa11235a4834576fac91c6bfdea9acaeb",
+      "source": {
+        "cwavSha256": "48f30774ae8bf07e25f27396a3ebd0b7a9ed8f24b408e5330973302ebd95de1f",
+        "wave": 4,
+        "waveArchive": 3
+      }
+    }
+  },
+  "sampleRate": 32728,
+  "schema": 1,
+  "tables": {
+    "attack": {
+      "count": 128,
+      "format": "f",
+      "offset": 1028,
+      "sha256": "3a9d21132f66d969657cf76ea8f5ffb5e4a9df7abba4dd66baaf2d2695ae35c6"
+    },
+    "gain": {
+      "count": 965,
+      "format": "f",
+      "offset": 2612,
+      "sha256": "bbda3f9ee473d0aba17c2c98369d0d5b7b0a9d788b47384bc76d17e0f91d1696"
+    },
+    "pan": {
+      "count": 257,
+      "format": "f",
+      "offset": 0,
+      "sha256": "383ea4d362109b74ddccfdaacf46a0bf4b0255f3609cf01f5824e1910e7c7597"
+    },
+    "pitchFraction": {
+      "count": 256,
+      "format": "f",
+      "offset": 1588,
+      "sha256": "ce9d87899dbdc1e5b59a1cd3b26107334c55d50aef782242944eb83d7c401cc6"
+    },
+    "pitchSemitone": {
+      "count": 12,
+      "format": "f",
+      "offset": 1540,
+      "sha256": "268bc185e52bc0f4973bfc9d4959f605057e1b6a5bc386a8ce8feb4afcb1936d"
+    },
+    "sine": {
+      "count": 33,
+      "format": "b",
+      "offset": 6728,
+      "sha256": "a742b4ef2370e98c41180ed22400a062ced15a1ffb49d17e2b12a2bf0eabdfd6"
+    },
+    "sustain": {
+      "count": 128,
+      "format": "h",
+      "offset": 6472,
+      "sha256": "3315552d46c21be4911d400e3a3a747a36b9866088226f6f7a113ca3f9b01086"
+    }
+  },
+  "title": {
+    "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
+    "productCode": "CTR-N-HMMP",
+    "size": 3799296,
+    "sourceSha256": "2863c6c4e7b1c79e4352b63cde72994fa9c3b8bdd8dfd2afd4dd4104636b1898",
+    "titleId": "0004003000009802",
+    "version": 24576
+  },
+  "waves": {
+    "3:0": {
+      "file": "wave-3-0.pcm",
+      "loop": true,
+      "loopEnd": 18425,
+      "loopStart": 5376,
+      "rate": 44100,
+      "samples": 18425
+    },
+    "3:1": {
+      "file": "wave-3-1.pcm",
+      "loop": true,
+      "loopEnd": 18740,
+      "loopStart": 15232,
+      "rate": 44100,
+      "samples": 18740
+    },
+    "3:2": {
+      "file": "wave-3-2.pcm",
+      "loop": true,
+      "loopEnd": 9279,
+      "loopStart": 256,
+      "rate": 44100,
+      "samples": 9279
+    },
+    "3:3": {
+      "file": "wave-3-3.pcm",
+      "loop": true,
+      "loopEnd": 9893,
+      "loopStart": 256,
+      "rate": 44100,
+      "samples": 9893
+    },
+    "3:4": {
+      "file": "wave-3-4.pcm",
+      "loop": true,
+      "loopEnd": 2562,
+      "loopStart": 256,
+      "rate": 44100,
+      "samples": 2562
+    }
+  }
+}

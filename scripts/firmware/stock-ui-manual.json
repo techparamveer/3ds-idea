@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004003000009b02": {
+      "packs": {
+        "packs/manual/layout-MainNull.json": {
+          "layouts": [
+            "MainNull"
+          ],
+          "animations": [
+            "MainNull_Change",
+            "MainNull_ChangeR",
+            "MainNull_Wait"
+          ]
+        },
+        "packs/manual/layout-PageBg00.json": {
+          "layouts": [
+            "PageBg00"
+          ],
+          "animations": []
+        },
+        "packs/manual/layout-IndexBase00.json": {
+          "layouts": [
+            "IndexBase00"
+          ],
+          "animations": []
+        },
+        "packs/manual/layout-SoftTitleHeader.json": {
+          "layouts": [
+            "SoftTitleHeader"
+          ],
+          "animations": []
+        },
+        "packs/manual/layout-BtnBack00.json": {
+          "layouts": [
+            "BtnBack00"
+          ],
+          "animations": [
+            "BtnBack00_Decide",
+            "BtnBack00_Invalid",
+            "BtnBack00_SceneIn",
+            "BtnBack00_SceneOut",
+            "BtnBack00_Select"
+          ]
+        },
+        "packs/manual/layout-BtnClose00.json": {
+          "layouts": [
+            "BtnClose00"
+          ],
+          "animations": [
+            "BtnClose00_Decide",
+            "BtnClose00_Invalid",
+            "BtnClose00_SceneIn",
+            "BtnClose00_SceneOut",
+            "BtnClose00_Select"
+          ]
+        },
+        "packs/manual/layout-BtnHeadLineTxt.json": {
+          "layouts": [
+            "BtnHeadLineTxt"
+          ],
+          "animations": [
+            "BtnHeadLineTxt_Change",
+            "BtnHeadLineTxt_ChangeWait",
+            "BtnHeadLineTxt_Choice",
+            "BtnHeadLineTxt_Push",
+            "BtnHeadLineTxt_PushOff",
+            "BtnHeadLineTxt_Stop",
+            "BtnHeadLineTxt_Wait"
+          ]
+        },
+        "packs/manual/layout-ContentsTxt.json": {
+          "layouts": [
+            "ContentsTxt"
+          ],
+          "animations": []
+        },
+        "packs/manual/layout-PageNum.json": {
+          "layouts": [
+            "PageNum"
+          ],
+          "animations": []
+        },
+        "packs/manual/messages-and-loose.json": {
+          "messages": {
+            "ebird": [
+              "BootMsg_Ebird",
+              "BtnBack",
+              "BtnBack_Picto",
+              "BtnClose",
+              "ContentsText",
+              "PageNum"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

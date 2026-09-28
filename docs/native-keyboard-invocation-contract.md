@@ -1,0 +1,385 @@
+# Native Settings user-name keyboard invocation
+
+This is the existing-profile `user_name_input` path, called nickname by the
+portfolio scaffold. It replaces the earlier synthetic research proposal for
+this target. It is source/fixture evidence, not a complete rendered initial
+frame or visual acceptance. No app implementation changes accompany it.
+
+## Sources and reproduction
+
+Settings title `0004001000022000` v9220, content index0/id`0000003d`:
+
+- CIA SHA256 `876c57b6fe77c57fbcc113f357b6fc31fe1d3a7e31e424e0d34fe41b17d1f37f`
+- NCCH SHA256 `79087e9f7f62c616f27167e2623119ffc8350a1fa1a949f28280df9c789cbac0`
+- Decompressed code SHA256 `1f9351cd921d3f3d54afbc28de093c2411cf07a38470c14d5ed74e98f54d45b5`
+
+Keyboard title `000400300000d002` v4096, code SHA256
+`a0b78005b0a99116ca703bc9b7625ce1b0f2d4cc45f66fc6fb9ab8a34244d4f0`.
+Both page-padded executable images map contiguously from VA0x100000. Original
+executables, extracted resources and configuration bytes remain private.
+
+Evidence root:
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/runtime/keyboard-native/settings-nickname/`.
+Run its `invocation-fixture.py`, `normalize-fixture.py`, and
+`initial-pose-fixture.py`, in that order, using the sibling artifact root's
+`assets/research-venv/bin/python` (Unicorn2.1.4). Its README and JSON record
+execution boundaries; `evidence-index.json` hashes the scripts/results/resources.
+
+## Native caller configuration
+
+Settings0x22d358 selects `user_name_input`;0x22d538 clears its text buffer and
+copies22 bytes from profile buffer0x2ac6ac.0x19b61c initializes defaults;
+0x22d564–0x22d664 applies name-specific fields and launches through0x19b4d4.
+The first-boot `start_name` branch uses a different button count and is excluded.
+
+| Request offset | Existing-profile value |
+| --- | --- |
+| +0x00 | Type0 for the ordinary region branch;4/5/6 selector values choose type3 |
+| +0x04 | 1: two-button layout |
+| +0x08 | Validity2 |
+| +0x0c/+0x10/+0x14 | Password0, parental0, upper darkening0 |
+| +0x18/+0x1c | Filter flags0x0f, save flags0 |
+| +0x20/+0x22/+0x24 | Maximum10, dictionary count0, maximum digits5 |
+| +0x26/+0x48/+0x6a | `Cancel` / empty / `OK` |
+| +0x90 | Empty guide text |
+| +0x112/+0x113/+0x114 | Prediction0, multiline0, fixed-width1 |
+| +0x115/+0x116 | HOME0, reset0 |
+| +0x117 | Caller-dependent power flag; see below |
+| +0x118/+0x119 | 0/0 |
+| +0x11a..+0x11d | 0/0/1/0: right button submits |
+| +0x120 | Initial text at shared-memory offset0 |
+| +0x124/+0x128/+0x12c | -1: no dictionary/status/learning offsets |
+| +0x130 | Shared-memory size0x1000, calculated by original0x1748c4 |
+
+Wrapper0x19b4d4 forces multiline/HOME/reset off and clears restored status and
+learning. At0x19b50c–0x19b52c, power remains enabled only when byte0x2975f9 is0
+and bit0 of word0x2978fc is1. Both outcomes are fixtures; the reference's actual
+caller state remains unobserved. Region selector2 and an English environment
+are explicit fixture inputs, not an execution of platform initialization.
+
+The scene's table names `keyboard_cancel` and `keyboard_decide`. Exact English
+MSBT member `message_mset/EU_English/mset.msbt` has SHA256
+`fc91dc60b6db7fe7e2eb4d510ca6c63864eacf150bd72dc02d5541444233cbae`;
+labels are indices20/19, both style93. Caller code copies their UTF-16 text into
+the request; this does not transfer the Settings message style to the keyboard.
+The fixture provides parsed resource/message lookup endpoints and executes the
+original default initializer, caller, wrapper and string/memory routines.
+
+## Normalization and initial composition
+
+Keyboard0x1015d8 copies/normalizes the0x400-byte request. Fixed-width disables
+multiline and caps maximum at32; the name maximum10 survives. Three original-ARM
+fixtures through0x101b70 leave configuration bytes unchanged and construct
+English default status `[1,0,0,0,2,0,...]` at0x1bd814. There is no restored page,
+Caps or Shift state. Platform and shared-memory endpoints are explicit.
+
+- **Text area:** +0x114=1 selects constructor0x187670 at0x1918fc–0x191938;
+  its vtable0x1ad470 selects `TextArea_02` through0x197c54. Maximum10 means
+  one row and ten cells. Original geometry segment0x186f14–0x187244 sets
+  `N_textAreaMSC` scale to1.5882350206375122 on both axes. First picture local
+  position is[-85.00001525878906,11.96296501159668,0], first text is
+  [-85.00001525878906,8.96296501159668,0]; subsequent cells step17 in X.
+  Picture/text cells11–32 become invisible. Preserve authored parent transforms.
+- **Initial text/cursor:**0x18751c–0x187590 reads shared text, bounded by maximum
+  and multiline rules, calls0x156830, then0x13f190 with cursor=length and
+  clear-selection=1. Empty, `Ada`, and ten-letter fixtures prove cursor and
+  selection anchor at0/3/10 respectively, with selection inactive.
+- **Page:** default status+4=0 reaches QWERTY page0 through0x1937d4–0x193860
+  and0x192be4. Initial submode0 uses `qwerty_keytop` for the45 indexed character
+  groups. No-prediction initialization at0x17e6d0–0x17e704 sets the QWERTY root
+  translation[0,8,0]. At0x1933d8–0x193420 the selector root becomes[0,4,0]
+  and arrow root[0,8,0]. These root writes do not resolve every child state.
+- **Buttons:** +4=1 indexes `Btm2Btn` at0x1916a8–0x191754. Groups0/2 receive
+  caller text through0x191880–0x1918ec.0x191b74 and0x191b8c bind shared clips
+  `Btm3Btn_n0s1.bclan` and `Btm3Btn_i0.bclan` to those groups. Initial selected
+  frame/material state has not been established by these fixtures.
+
+The original cell arithmetic is unchanged under two different font-query
+sentinel pairs: its font-derived size override runs only for maximum<=9.
+That check validates this segment's independence, not glyph rendering.
+The available shared `cbf_std.bcfnt` decoded source identity is
+`95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581`
+from title`0004009b00014002`; keyboard style/pixel acceptance is still pending.
+
+## Bounded lower local composition continuation
+
+The private `settings-nickname/lower-first-paint/` directory adds separate
+fixtures; the accepted invocation, normalization, initial-pose scripts/results
+and parent evidence index remain unchanged. Its README gives endpoints and
+reproduction order. `verification.json` checks every parent-indexed file and
+compares every emitted text-pane field with the frozen consumer checkpoint.
+No application files changed in this research checkpoint.
+
+`text-first-paint.py` executes original constructor0x187670, complete resource
+initializer0x186d48, and text update0x1891c0 including cell update0x186718 for
+empty, `Ada`, and `ABCDEFGHIJ`. It stops before the shared layout pass0x187868;
+a separate original controller update and draw0x1877fc capture local submission
+inputs. Resource/font/text/GPU boundaries are explicit, not a full applet boot.
+
+### Text, decorations and cursor inputs
+
+| Painter input | Original-code result |
+| --- | --- |
+| Cells1–10 | Preserve the geometry above and decoded source styles/materials. Each occupied cell receives one UTF-16 unit. Remaining cells receive one U+0020, not an empty string. |
+| Occupied background vertices | All four vertices use source picture01 colour `[252,255,243,255]`. |
+| Empty background vertices | All four vertices use source picture02 colour `[203,197,179,255]`. |
+| Cells11–32 | Hidden; first text update does not overwrite their authored text. |
+| First text line spacing | `T_textAreaMSC01` becomes -5.03703498840332; other text panes retain authored spacing. |
+| Decoration anchors | `N_decor` and `N_transDecor` both copy first text position `[-85.00001525878906,8.96296501159668,0]`. |
+| Overlay text | Exact pane name is `T_trans`. It receives one U+0020 and keeps its authored local geometry. |
+| Cursor body | `P_decorCursor` hidden; `P_decorCursorMS` visible, size `[1.2592594623565674,23]`. |
+| Cursor parent | `N_decorCursor` Y3/Z0; X0/51/168.11111450195312 for the three cases. |
+| Cursor animation | `DecorCursor_blink`, mode2, original first controller update submits frame0 and advances stored frame to1. |
+
+For plain initial text, cursor X is17 times UTF-16 length through length9. The
+initial full ten-cell buffer adds float32 offset -1.888889193534851 to170,
+producing168.11111450195312. This is the end-of-buffer branch0x186c54–0x186ca0;
+it is not a general cursor/selection implementation. The initializer stops at
+NUL, maximum10, or a disallowed newline. Cell painting stops at a unit below
+0x20 and fills the remainder with spaces. Only the three stated ASCII cases
+are fixture-validated; surrogate/control/filter behavior remains separate.
+
+Original0x115e40/0x115eac attaches child roots to the named parent, appends native
+links and enables root alpha inheritance (flags bit1). Exact resources/order:
+
+- `N_transDecor`: one `DecorArea_cellphone`, four `DecorArea_roman`, four
+  `DecorTrans`, then `DecorCursor`.
+- `N_decor`: four `DecorArea_select`.
+
+The first text update hides every decoration root except the cursor. Do not
+swap `cellphone` and `select` based on guessed object-field roles. Retain the
+source hierarchy and authored pane order, including the two separate anchor
+positions in that hierarchy. Native child attachment is established; native
+world/anchor/bounds evaluation is not established by the synthetic world endpoint.
+
+### English environment correction
+
+The immutable earlier `text-pane-*-frozen` continuation files supplied endpoint
+0x15bcfc=0. Source inspection subsequently established that this routine classifies
+language at0x1b7744; English1 returns family1. Current fixtures execute the
+original query. **Every emitted local pane field in all three text cases is
+exactly equal to the frozen checkpoint**, including text, colours, position,
+scale, size, visibility, parent and spacing.
+
+The correction does change a material branch excluded from those local fields:
+0x1873d0–0x1873f8 gets `T_trans` material0 and writes32-bit0 at material+0x14,
+from table0x1b8464. The current journal records it. The native field's rendering
+meaning remains unverified; blank overlay text is not evidence to discard the
+write. World matrices in the fixture likewise depend on an explicit resource
+translation/scale endpoint and are excluded from the consumer contract.
+
+### QWERTY local initialization and first submission
+
+`qwerty-first-paint.py` executes original0x17ffe0,0x17e5d0 and0x17f40c, including
+widget/submode decisions. Resource target membership comes from presentation's
+`animation-hierarchy/binding-inventory.json`; its `pah1` expansion has separate
+original-ARM evidence. The resource endpoint's per-pane controller state is
+checked against original0x18a91c for all four clips by
+`controller-constructor-check.py`. Named-message/style resolution and font
+queries remain stated resource boundaries. Pane-animation sinks record inputs;
+they do not render pixels or prove global layout traversal.
+
+- Mode0,54 key records,45 character labels:
+  `1234567890-qwertyuiopasdfghjkl'=/zxcvbnm,.?!@`.
+- `T_key_Spc` visible and `T_key_Tra` hidden. The Japanese Backspace icon
+  `P_Key_BspIconJP` has alpha0.
+- Enter is disabled (widget state5). English keeps the dictionary panes visible
+  but disabled (state5); prediction is off. `T_dictionary` receives `English`.
+- English hides `P_romanKey_00..02`, `T_romanKey_00..02` and
+  `B_romanKey_00..02`. Their parent nodes retain source visibility. Internal
+  Roman00 state4 does not make its English panes visible.
+- Caps and Shift are normal (state0). Their picture/icon/text panes receive
+  immediate `Keytop_qwerty_n0s1` frame0 submissions. Hidden Roman00 picture/text
+  receive `Keytop_qwerty_s1t0` frame1. These poses persist after disabling the
+  corresponding animation bindings.
+- The explicit first local controller pass submits `Keytop_qwerty_i0` frame0
+  for Enter picture/icon and dictionary picture/icon/text. Preserve binding
+  scope; do not sample this disabled-state clip onto every character key.
+
+Earlier provisional findings that hid the dictionary and displayed Roman keys
+came from the incorrect language-family endpoint and are withdrawn. Only the
+corrected `qwerty-first-paint.json` and its indexed dependencies are accepted.
+
+### Footer initialization boundary
+
+`footer-first-paint.py` runs original0x1915fc through0x191bec. `T_btn_00` and
+`T_btnB_00` receive `Cancel`; `T_btn_02` and `T_btnB_02` receive `OK` through the
+original caller-string path. Groups `G_btn_00`/`G_btn_02` bind
+`Btm3Btn_n0s1` and `Btm3Btn_i0`; both widgets start in state0, all four controllers
+stopped, with no initial animation submission. Use authored materials at this
+boundary. This is **before** global text-validity reconciliation; it does not
+prove whether OK remains enabled for an empty name at the eventual first frame.
+
+Recorded wrapper priorities are500 for BG/Btm2Btn/TextArea02,3 for Fade_D
+(screen0)/Fade_U(screen1), and9999 for attached decorations. This captures
+construction inputs, not final draw order. SceneIn fade controllers start;
+SceneOut controllers do not. Keep screen identity and pass count explicit.
+
+## Presentation boundary and remaining composition work
+
+Consume immutable `text-pane-contract-frozen.json` for local overrides, together
+with the corrected material-write journal; `qwerty-first-paint.json` for local
+labels/visibility and retained animation submissions; `footer-first-paint.json`
+for its initializer boundary. Preserve decoded materials, textures, font styles,
+source hierarchy and animation binding scope. A painter also needs caller-supplied
+layout/world/bounds policy, retained property state, native update counts and
+root ordering; these fixtures do not replace those inputs.
+
+The following global continuation closes the selected CPU schedule and retained
+composition inputs. It does not turn the local fixtures into native pixel
+acceptance. Upper Settings composition, input/repeat/filter/submit behavior and
+browser pixel acceptance remain separate.
+
+## Global lower first-paint continuation
+
+Private evidence is in the new sibling `global-first-paint/`. Both earlier
+accepted indexes and every file they cover remain unchanged:656 parent entries
+and115 local continuation entries were rehashed. The new directory has its own
+README, contract, original-code journals, assertions and index; provisional
+exploration files are excluded. Executables/resources remain private.
+
+Reproduce using `assets/research-venv/bin/python -B` and pass the private
+`global-first-paint` directory to these committed fixtures:
+
+- `scripts/firmware/keyboard_global_first_paint.py`
+- `scripts/firmware/keyboard_parent_alpha.py`
+
+Then run the new directory's `verify-evidence.py`. Do not run the frozen local
+verification script, which rewrites its index. `global-schedule.json` contains
+the complete journal; `global-first-paint-contract.json` selects exact retained
+submissions/controller states for empty, Ada and ABCDEFGHIJ. These scripts use
+indexed copies of the local resource/font/binding support endpoints.
+
+### Chosen schedule and native execution
+
+The checkpoint assumes immediately ready decoded archives, English1, default
+status, the normalized existing-profile request, no input and an available
+caller lower texture. Pass0 begins after the owner's archive-load request and
+before its initializer. Pass numbers are counts of this fixture's task/root/draw
+sequence, not measured device loading latency or a fixed millisecond duration.
+
+Original0x1054e0 traverses tasks, calling readiness0x109c70 and dispatcher0x109d18.
+The fixture executes owner constructor0x192970 and its **complete** initializer
+0x1915fc, factory0x190f1c, child constructor0x193d34/initializer0x1931c8,
+registration0x15b964 and subsequent task passes. Main0x101e94 places task updates
+before root update0x102e84; lower drawing calls both0x15ba28 halves. No manually
+chosen single local controller pass substitutes for this sequence.
+
+| Pass/checkpoint | Native outcome |
+| --- | --- |
+| 0, initialization display | Owner preparation sees no initialized child; child initializes later in the same task traversal. Ordinary roots update. Lower SceneIn submits0; its captured-applet alpha curve is0. Caller texture still supplies the fade underlay. |
+| 1, preparation/capture | Owner0x191f00 shows live layouts, executes owner0x192060 **twice**, child0x1938e8 **once**, then capture0x17af5c. Capture performs an additional root update and both lower draw halves. |
+| 1, first captured display | Capture descriptor is bound to `P_Aplt_00`; live wrappers hide, Fade_D shows. Ordinary root update submits lower SceneIn1. Lower draw submits only Fade_D. This is the first positive-alpha captured-applet checkpoint. |
+| 2..15 | The same retained texture is used; lower SceneIn progresses to submitted15. Live layout controllers remain hidden from ordinary root updates, apart from independently registered decorations. |
+| 16, first live settled display | Preparation observes completed fade controllers, shows live layouts and hides Fade_D. The following root update/draw is the selected settled checkpoint. Owner task state becomes5; it enters the normal update state on a later pass. |
+
+The fixture records one capture and one descriptor binding through original
+0x17ae04, copying the capture texture into the material's texture descriptor.
+`P_App_00` holds the caller image; `P_Aplt_00` holds the keyboard capture. They
+are distinct. Fade children draw in source order **P_App_00, P_Mask_00,
+P_Aplt_00**. Do not place the live keyboard behind an additional inherited fade
+alpha or recapture it each display frame.
+
+Upper Fade_U advances during capture's two-screen root update and remains part
+of the native completion predicate. Its clock is journaled solely to preserve
+that predicate; no upper Settings image/composition is supplied or accepted.
+
+### Root order and attached decorations
+
+Original0x116e38 sorts priorities descending, retaining insertion order for ties.
+Root update0x102e84 traverses screen0 then1, skips hidden wrappers, and calls
+priority9999 decorations with argument0 before ordinary roots with argument1.
+Those decorations propagate dirty state to their attached parent. They are
+not independent painter roots: draw0x15ba28 excludes priorities **>=9990** and
+splits the remaining list at5000. This fixture has no high-half lower draws.
+
+Capture and settled lower painter order are:
+
+| Order | Layout | Priority |
+| --- | --- | --- |
+| 1 | BG | 500 |
+| 2 | Btm2Btn | 500 |
+| 3 | TextArea_02, including attached decorations in the frozen hierarchy | 500 |
+| 4 | KeytopModeSelect | 500 |
+| 5 | Keytop_qwerty | 500 |
+| 6 | LncArw_00 | 499 |
+| 7 | WaitIcon | 10 |
+
+The full initializer constructs WaitIcon after the earlier footer fixture's
+stop boundary. Its picture has authored alpha0; all three WaitIcon controllers
+remain stopped. Its draw submission therefore must be preserved in evidence
+without inventing a visible spinner. Transition display uses only Fade_D at
+priority3. The lower cursor's local X values remain0,51 and168.11111450195312
+for the three inputs; its parent anchors remain those of the frozen contract.
+
+### Selector, footer and exact retained submissions
+
+The native selector initializer writes `char_type_00..03` to
+`T_ktpMode_00..03`: **ABC / ËαЯ / Symbol / Mobile**. Root position is[0,4,0];
+QWERTY and arrows use[0,8,0]. Selected mode0 has widget state4; the remaining
+three selectors have state0. Only `G_ktpMode_00` receives immediate
+`KeytopModeSelect_n0s1` frame1 (B/P/T panes), then stops. Other selector groups
+keep their authored state. Both arrow groups receive immediate
+`LncArw_00_Appear` frame0 and stop; they do not begin an appearance animation
+for this QWERTY page.
+
+| Subsystem | Captured texture at pass1 | First live settled draw at pass16 |
+| --- | --- | --- |
+| Caps/Shift | Retained n0s1 frame0 on picture/icon/text | Same retained pose |
+| English-hidden Roman00 | Retained s1t0 frame1 on picture/text | Same; source visibility overrides remain hidden |
+| Enter and dictionary | Five per-pane i0 submissions at frame1, after initialization's frame0 | i0 controllers deactivate; retain the already-applied frame1 pose |
+| Selected mode | Retained n0s1 frame1 on group00 | Same |
+| Arrows | Retained Appear frame0 on both groups | Same; parent alpha0 |
+| Cursor | Blink frame1 for empty; frame0 for Ada/full10 | Same submitted frames at this checkpoint; native mode5 holds during opening |
+| Footer, empty | OK state5; G_btn_02 i0 frame0 applied during capture root update | G_btn_02 i0 frame1 is applied on resuming the live root |
+| Footer, Ada/full10 | Cancel and OK state0; no footer animation submission | Same authored footer state |
+
+The nonempty cursor restarts at0x188960 during pass0's text-layout update; empty
+input retains its earlier advance. This is separate from the frozen isolated
+local fixture's mode2/frame0 boundary. Blink changes visibility, not pane alpha;
+frames0/1 are both visible. The exact ordered journal includes source pane/group
+membership, current/submitted frames and controller states; a blanket sample of
+a clip across unrelated panes is not equivalent.
+
+Validity0x18bb78 reads validity2, current length, max10 and the plain UTF-16
+buffer. Empty and all-U+0020/U+3000 text is invalid; a non-space unit is valid
+within this bounded predicate. The executed first-paint cases are empty/Ada/
+ABCDEFGHIJ. Owner0x192568 reconciles only caller-marked submit buttons, leaving
+Cancel enabled and disabling empty OK before capture. This does not claim that
+editing, other filters or submission dispatch have been implemented.
+
+### Parent alpha and explicit remaining boundaries
+
+`parent-alpha.py` executes keyboard0x176584..0x1765b8 for effective alpha and
+0x1765b8..0x1765f8/0x17664c for child-factor propagation. The native code multiplies
+an inherited factor into the pane byte when enabled and a parent exists, then
+converts to an unsigned integer. InfluenceAlpha flag2 controls propagation of
+the pane's own alpha to descendants. Six original-ARM probes include full alpha,
+zero alpha, transparent inherited parents and128×0.5→64.
+
+For the chosen capture/settled compositions, layout roots and ordinary ancestor
+chains have alpha255 and incoming factor1. Each `N_arwL_00`/`N_arwR_00` has
+InfluenceAlpha and its retained Appear0 alpha is0, so its shade/picture/icon
+children receive factor0. WaitIcon's own alpha is0. Native attachment enables
+InfluenceAlpha on decoration roots; their authored ancestors are alpha255.
+The Fade_D root is alpha255. Its three children are siblings; the captured
+keyboard is a texture on P_Aplt, not a child hierarchy under that pane.
+
+The first captured display uses exact **SceneIn frame1**, with source Hermite
+tracks `P_Aplt_00.translation.y` (-48→0), `P_Aplt_00.alpha` (0→255), and
+`P_Mask_00.materialColor.1.3` (0→140), keyed at0/15. The contract includes their
+keys/slopes verbatim as private resource data. Native animation-curve sampling
+and its byte conversion are not replayed here; do not replace the exact frame
+contract with an asserted pixel opacity or round a derived curve value without
+separate evidence.
+
+Resource loading, font/message lookup, animation binding membership/application,
+translation/scale-only world matrices, single-line paragraph cache and GPU calls
+remain explicit endpoints. The fixed-width scroll-helper constructor/update now
+executes, with bnd1 RTTI and missing groups supplied correctly; its hit/bounds
+math still consumes endpoint matrices. Native world/anchor/bounds results,
+clipping/material/TEV pixels, caller screenshot content, asynchronous resource
+latency and browser visual acceptance remain unverified. They are not required
+to establish the ordered CPU submissions and retained composition contract.
+No interaction/edit/repeat or upper Settings work was added. All three schedule
+fixtures and six alpha probes pass; application code was unchanged.

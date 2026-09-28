@@ -1,0 +1,63 @@
+{
+  "bannerSha256": "5804ba5a7768d2ae9b7487e4d277923502646d89768668b19d666e3e4d30fbac",
+  "camera": {
+    "aimTarget": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "aspect": 1.6666666269302368,
+    "far": 1000.0,
+    "name": "BannerCamera",
+    "near": 26.5,
+    "perspectiveFovRadians": 0.5235987901687622,
+    "position": [
+      0.0,
+      1.0,
+      44.7859992980957
+    ]
+  },
+  "cameraSourceSha256": "19d1009bc472a34626a10ec903d689fbd4b3b6951addc28beaa4f155db9bf897",
+  "codeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "commonPoseHandler": "0x24e0c0",
+  "executedShowPredicate": {
+    "ineligible_primary_pointer": 0,
+    "manager_flag_set": 0,
+    "matching_current_request": 1,
+    "retargeted_native_type": 0,
+    "retargeted_title_key": 0
+  },
+  "firmware": "EUR HOME 10.7.0-32E",
+  "genericPrimaryVtable": "0x3210f0",
+  "instructions": {
+    "0x1f90ec": "eor r3, r3, r5",
+    "0x1f9118": "cmp r0, r1",
+    "0x1f9124": "bl #0x1f8fd0",
+    "0x1f9134": "cmp r0, #0",
+    "0x1fa110": "str r1, [r0]",
+    "0x1fa490": "b #0x24e0c0",
+    "0x249c8c": "bl #0x24def0",
+    "0x249d18": "bl #0x2357ac",
+    "0x249d44": "strge r0, [r5, #0xc0]",
+    "0x24a5f8": "bl #0x1f9174",
+    "0x24a654": "bl #0x1f90cc",
+    "0x24a668": "movne r1, #1",
+    "0x24a66c": "blne #0x1f9e64",
+    "0x24a690": "movne r1, #0",
+    "0x24a694": "blne #0x1f9e64",
+    "0x24a6b0": "str r0, [r4, #0xc0]",
+    "0x24c264": "blx r1",
+    "0x24ca24": "bl #0x1fa0fc",
+    "0x24dfdc": "bl #0x1f8028",
+    "0x24e0ec": "cmp r0, #0x258",
+    "0x24e424": "str r0, [r1, #0x5c]",
+    "0x24e42c": "vstr s0, [r1, #0x6c]"
+  },
+  "managerVisibilityHandler": "0x1fa344",
+  "method": "Static ARM instructions, vtable pointers, hashes and converted resource metadata; bounded original ARM execution of 0x1f90cc with synthetic manager/key memory; no worker, GPU or native display execution.",
+  "modelSourceSha256": "96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d",
+  "titleId": "0004001000022000",
+  "titleMaterialClip": null,
+  "titleSkeletalClip": "COMMON",
+  "titleSkeletalFrames": 600
+}

@@ -1,0 +1,546 @@
+{
+  "codeSha256": "a0b78005b0a99116ca703bc9b7625ce1b0f2d4cc45f66fc6fb9ab8a34244d4f0",
+  "layoutSha256": "f3efa2fd457c65b5bf9aefe6ba350fabd8d63edf0edef82a77ae14ed17252569",
+  "clips": [
+    {
+      "file": "Keytop_qwerty_i0.bclan",
+      "sha256": "418c3ecba17934b3c13a0c9dca5a6a980c6b4e4c1ae48e41b1fd325c955c7d17",
+      "sectionOffsets": {
+        "pai1": 400,
+        "pat1": 20,
+        "pah1": 312
+      },
+      "records": [
+        {
+          "sourcePane": "P_key_01",
+          "targetGroup": "G_keyBase"
+        },
+        {
+          "sourcePane": "T_key_00",
+          "targetGroup": "G_keyText"
+        }
+      ],
+      "groupsOverride": null,
+      "childOverride": null,
+      "rootGroupProbe": false,
+      "nativeReturn": 1,
+      "sharedBindings": [
+        ["pane", "P_key_02", 22, "P_key_01"],
+        ["material", "P_key_02", 57, "P_key_01"],
+        ["pane", "P_key_03", 22, "P_key_01"],
+        ["material", "P_key_03", 57, "P_key_01"],
+        ["pane", "P_key_04", 22, "P_key_01"],
+        ["material", "P_key_04", 57, "P_key_01"],
+        ["pane", "P_key_05", 22, "P_key_01"],
+        ["material", "P_key_05", 57, "P_key_01"],
+        ["pane", "P_key_06", 22, "P_key_01"],
+        ["material", "P_key_06", 57, "P_key_01"],
+        ["pane", "P_key_07", 22, "P_key_01"],
+        ["material", "P_key_07", 57, "P_key_01"],
+        ["pane", "P_key_08", 22, "P_key_01"],
+        ["material", "P_key_08", 57, "P_key_01"],
+        ["pane", "P_key_09", 22, "P_key_01"],
+        ["material", "P_key_09", 57, "P_key_01"],
+        ["pane", "P_key_10", 22, "P_key_01"],
+        ["material", "P_key_10", 57, "P_key_01"],
+        ["pane", "P_key_12", 22, "P_key_01"],
+        ["material", "P_key_12", 57, "P_key_01"],
+        ["pane", "P_key_13", 22, "P_key_01"],
+        ["material", "P_key_13", 57, "P_key_01"],
+        ["pane", "P_key_14", 22, "P_key_01"],
+        ["material", "P_key_14", 57, "P_key_01"],
+        ["pane", "P_key_15", 22, "P_key_01"],
+        ["material", "P_key_15", 57, "P_key_01"],
+        ["pane", "P_key_16", 22, "P_key_01"],
+        ["material", "P_key_16", 57, "P_key_01"],
+        ["pane", "P_key_17", 22, "P_key_01"],
+        ["material", "P_key_17", 57, "P_key_01"],
+        ["pane", "P_key_18", 22, "P_key_01"],
+        ["material", "P_key_18", 57, "P_key_01"],
+        ["pane", "P_key_19", 22, "P_key_01"],
+        ["material", "P_key_19", 57, "P_key_01"],
+        ["pane", "P_key_20", 22, "P_key_01"],
+        ["material", "P_key_20", 57, "P_key_01"],
+        ["pane", "P_key_22", 22, "P_key_01"],
+        ["material", "P_key_22", 57, "P_key_01"],
+        ["pane", "P_key_23", 22, "P_key_01"],
+        ["material", "P_key_23", 57, "P_key_01"],
+        ["pane", "P_key_24", 22, "P_key_01"],
+        ["material", "P_key_24", 57, "P_key_01"],
+        ["pane", "P_key_25", 22, "P_key_01"],
+        ["material", "P_key_25", 57, "P_key_01"],
+        ["pane", "P_key_26", 22, "P_key_01"],
+        ["material", "P_key_26", 57, "P_key_01"],
+        ["pane", "P_key_27", 22, "P_key_01"],
+        ["material", "P_key_27", 57, "P_key_01"],
+        ["pane", "P_key_28", 22, "P_key_01"],
+        ["material", "P_key_28", 57, "P_key_01"],
+        ["pane", "P_key_29", 22, "P_key_01"],
+        ["material", "P_key_29", 57, "P_key_01"],
+        ["pane", "P_key_30", 22, "P_key_01"],
+        ["material", "P_key_30", 57, "P_key_01"],
+        ["pane", "P_key_31", 22, "P_key_01"],
+        ["material", "P_key_31", 57, "P_key_01"],
+        ["pane", "P_key_34", 22, "P_key_01"],
+        ["material", "P_key_34", 57, "P_key_01"],
+        ["pane", "P_key_35", 22, "P_key_01"],
+        ["material", "P_key_35", 57, "P_key_01"],
+        ["pane", "P_key_36", 22, "P_key_01"],
+        ["material", "P_key_36", 57, "P_key_01"],
+        ["pane", "P_key_37", 22, "P_key_01"],
+        ["material", "P_key_37", 57, "P_key_01"],
+        ["pane", "P_key_38", 22, "P_key_01"],
+        ["material", "P_key_38", 57, "P_key_01"],
+        ["pane", "P_key_39", 22, "P_key_01"],
+        ["material", "P_key_39", 57, "P_key_01"],
+        ["pane", "P_key_40", 22, "P_key_01"],
+        ["material", "P_key_40", 57, "P_key_01"],
+        ["pane", "P_key_41", 22, "P_key_01"],
+        ["material", "P_key_41", 57, "P_key_01"],
+        ["pane", "P_key_42", 22, "P_key_01"],
+        ["material", "P_key_42", 57, "P_key_01"],
+        ["pane", "P_key_43", 22, "P_key_01"],
+        ["material", "P_key_43", 57, "P_key_01"],
+        ["pane", "T_key_01", 2, "T_key_00"],
+        ["material", "T_key_01", 38, "T_key_00"],
+        ["pane", "T_key_02", 2, "T_key_00"],
+        ["material", "T_key_02", 38, "T_key_00"],
+        ["pane", "T_key_03", 2, "T_key_00"],
+        ["material", "T_key_03", 38, "T_key_00"],
+        ["pane", "T_key_04", 2, "T_key_00"],
+        ["material", "T_key_04", 38, "T_key_00"],
+        ["pane", "T_key_05", 2, "T_key_00"],
+        ["material", "T_key_05", 38, "T_key_00"],
+        ["pane", "T_key_06", 2, "T_key_00"],
+        ["material", "T_key_06", 38, "T_key_00"],
+        ["pane", "T_key_07", 2, "T_key_00"],
+        ["material", "T_key_07", 38, "T_key_00"],
+        ["pane", "T_key_08", 2, "T_key_00"],
+        ["material", "T_key_08", 38, "T_key_00"],
+        ["pane", "T_key_09", 2, "T_key_00"],
+        ["material", "T_key_09", 38, "T_key_00"],
+        ["pane", "T_key_10", 2, "T_key_00"],
+        ["material", "T_key_10", 38, "T_key_00"],
+        ["pane", "T_key_12", 2, "T_key_00"],
+        ["material", "T_key_12", 38, "T_key_00"],
+        ["pane", "T_key_13", 2, "T_key_00"],
+        ["material", "T_key_13", 38, "T_key_00"],
+        ["pane", "T_key_14", 2, "T_key_00"],
+        ["material", "T_key_14", 38, "T_key_00"],
+        ["pane", "T_key_15", 2, "T_key_00"],
+        ["material", "T_key_15", 38, "T_key_00"],
+        ["pane", "T_key_16", 2, "T_key_00"],
+        ["material", "T_key_16", 38, "T_key_00"],
+        ["pane", "T_key_17", 2, "T_key_00"],
+        ["material", "T_key_17", 38, "T_key_00"],
+        ["pane", "T_key_18", 2, "T_key_00"],
+        ["material", "T_key_18", 38, "T_key_00"],
+        ["pane", "T_key_19", 2, "T_key_00"],
+        ["material", "T_key_19", 38, "T_key_00"],
+        ["pane", "T_key_20", 2, "T_key_00"],
+        ["material", "T_key_20", 38, "T_key_00"],
+        ["pane", "T_key_22", 2, "T_key_00"],
+        ["material", "T_key_22", 38, "T_key_00"],
+        ["pane", "T_key_23", 2, "T_key_00"],
+        ["material", "T_key_23", 38, "T_key_00"],
+        ["pane", "T_key_24", 2, "T_key_00"],
+        ["material", "T_key_24", 38, "T_key_00"],
+        ["pane", "T_key_25", 2, "T_key_00"],
+        ["material", "T_key_25", 38, "T_key_00"],
+        ["pane", "T_key_26", 2, "T_key_00"],
+        ["material", "T_key_26", 38, "T_key_00"],
+        ["pane", "T_key_27", 2, "T_key_00"],
+        ["material", "T_key_27", 38, "T_key_00"],
+        ["pane", "T_key_28", 2, "T_key_00"],
+        ["material", "T_key_28", 38, "T_key_00"],
+        ["pane", "T_key_29", 2, "T_key_00"],
+        ["material", "T_key_29", 38, "T_key_00"],
+        ["pane", "T_key_30", 2, "T_key_00"],
+        ["material", "T_key_30", 38, "T_key_00"],
+        ["pane", "T_key_31", 2, "T_key_00"],
+        ["material", "T_key_31", 38, "T_key_00"],
+        ["pane", "T_key_34", 2, "T_key_00"],
+        ["material", "T_key_34", 38, "T_key_00"],
+        ["pane", "T_key_35", 2, "T_key_00"],
+        ["material", "T_key_35", 38, "T_key_00"],
+        ["pane", "T_key_36", 2, "T_key_00"],
+        ["material", "T_key_36", 38, "T_key_00"],
+        ["pane", "T_key_37", 2, "T_key_00"],
+        ["material", "T_key_37", 38, "T_key_00"],
+        ["pane", "T_key_38", 2, "T_key_00"],
+        ["material", "T_key_38", 38, "T_key_00"],
+        ["pane", "T_key_39", 2, "T_key_00"],
+        ["material", "T_key_39", 38, "T_key_00"],
+        ["pane", "T_key_40", 2, "T_key_00"],
+        ["material", "T_key_40", 38, "T_key_00"],
+        ["pane", "T_key_41", 2, "T_key_00"],
+        ["material", "T_key_41", 38, "T_key_00"],
+        ["pane", "T_key_42", 2, "T_key_00"],
+        ["material", "T_key_42", 38, "T_key_00"],
+        ["pane", "T_key_43", 2, "T_key_00"],
+        ["material", "T_key_43", 38, "T_key_00"],
+        ["pane", "T_key_44", 2, "T_key_00"],
+        ["material", "T_key_44", 38, "T_key_00"]
+      ]
+    },
+    {
+      "file": "Keytop_qwerty_n0s1.bclan",
+      "sha256": "a7a2bc7d2140ad81a66dede3edfad14f3bf3ff0918f0fd30541bbf8d8018b625",
+      "sectionOffsets": {
+        "pai1": 484,
+        "pat1": 20,
+        "pah1": 396
+      },
+      "records": [
+        {
+          "sourcePane": "P_key_01",
+          "targetGroup": "G_keyBase"
+        },
+        {
+          "sourcePane": "T_key_00",
+          "targetGroup": "G_keyText"
+        }
+      ],
+      "groupsOverride": null,
+      "childOverride": null,
+      "rootGroupProbe": false,
+      "nativeReturn": 1,
+      "sharedBindings": [
+        ["pane", "P_key_02", 22, "P_key_01"],
+        ["material", "P_key_02", 57, "P_key_01"],
+        ["pane", "P_key_03", 22, "P_key_01"],
+        ["material", "P_key_03", 57, "P_key_01"],
+        ["pane", "P_key_04", 22, "P_key_01"],
+        ["material", "P_key_04", 57, "P_key_01"],
+        ["pane", "P_key_05", 22, "P_key_01"],
+        ["material", "P_key_05", 57, "P_key_01"],
+        ["pane", "P_key_06", 22, "P_key_01"],
+        ["material", "P_key_06", 57, "P_key_01"],
+        ["pane", "P_key_07", 22, "P_key_01"],
+        ["material", "P_key_07", 57, "P_key_01"],
+        ["pane", "P_key_08", 22, "P_key_01"],
+        ["material", "P_key_08", 57, "P_key_01"],
+        ["pane", "P_key_09", 22, "P_key_01"],
+        ["material", "P_key_09", 57, "P_key_01"],
+        ["pane", "P_key_10", 22, "P_key_01"],
+        ["material", "P_key_10", 57, "P_key_01"],
+        ["pane", "P_key_12", 22, "P_key_01"],
+        ["material", "P_key_12", 57, "P_key_01"],
+        ["pane", "P_key_13", 22, "P_key_01"],
+        ["material", "P_key_13", 57, "P_key_01"],
+        ["pane", "P_key_14", 22, "P_key_01"],
+        ["material", "P_key_14", 57, "P_key_01"],
+        ["pane", "P_key_15", 22, "P_key_01"],
+        ["material", "P_key_15", 57, "P_key_01"],
+        ["pane", "P_key_16", 22, "P_key_01"],
+        ["material", "P_key_16", 57, "P_key_01"],
+        ["pane", "P_key_17", 22, "P_key_01"],
+        ["material", "P_key_17", 57, "P_key_01"],
+        ["pane", "P_key_18", 22, "P_key_01"],
+        ["material", "P_key_18", 57, "P_key_01"],
+        ["pane", "P_key_19", 22, "P_key_01"],
+        ["material", "P_key_19", 57, "P_key_01"],
+        ["pane", "P_key_20", 22, "P_key_01"],
+        ["material", "P_key_20", 57, "P_key_01"],
+        ["pane", "P_key_22", 22, "P_key_01"],
+        ["material", "P_key_22", 57, "P_key_01"],
+        ["pane", "P_key_23", 22, "P_key_01"],
+        ["material", "P_key_23", 57, "P_key_01"],
+        ["pane", "P_key_24", 22, "P_key_01"],
+        ["material", "P_key_24", 57, "P_key_01"],
+        ["pane", "P_key_25", 22, "P_key_01"],
+        ["material", "P_key_25", 57, "P_key_01"],
+        ["pane", "P_key_26", 22, "P_key_01"],
+        ["material", "P_key_26", 57, "P_key_01"],
+        ["pane", "P_key_27", 22, "P_key_01"],
+        ["material", "P_key_27", 57, "P_key_01"],
+        ["pane", "P_key_28", 22, "P_key_01"],
+        ["material", "P_key_28", 57, "P_key_01"],
+        ["pane", "P_key_29", 22, "P_key_01"],
+        ["material", "P_key_29", 57, "P_key_01"],
+        ["pane", "P_key_30", 22, "P_key_01"],
+        ["material", "P_key_30", 57, "P_key_01"],
+        ["pane", "P_key_31", 22, "P_key_01"],
+        ["material", "P_key_31", 57, "P_key_01"],
+        ["pane", "P_key_34", 22, "P_key_01"],
+        ["material", "P_key_34", 57, "P_key_01"],
+        ["pane", "P_key_35", 22, "P_key_01"],
+        ["material", "P_key_35", 57, "P_key_01"],
+        ["pane", "P_key_36", 22, "P_key_01"],
+        ["material", "P_key_36", 57, "P_key_01"],
+        ["pane", "P_key_37", 22, "P_key_01"],
+        ["material", "P_key_37", 57, "P_key_01"],
+        ["pane", "P_key_38", 22, "P_key_01"],
+        ["material", "P_key_38", 57, "P_key_01"],
+        ["pane", "P_key_39", 22, "P_key_01"],
+        ["material", "P_key_39", 57, "P_key_01"],
+        ["pane", "P_key_40", 22, "P_key_01"],
+        ["material", "P_key_40", 57, "P_key_01"],
+        ["pane", "P_key_41", 22, "P_key_01"],
+        ["material", "P_key_41", 57, "P_key_01"],
+        ["pane", "P_key_42", 22, "P_key_01"],
+        ["material", "P_key_42", 57, "P_key_01"],
+        ["pane", "P_key_43", 22, "P_key_01"],
+        ["material", "P_key_43", 57, "P_key_01"],
+        ["pane", "T_key_01", 2, "T_key_00"],
+        ["material", "T_key_01", 38, "T_key_00"],
+        ["pane", "T_key_02", 2, "T_key_00"],
+        ["material", "T_key_02", 38, "T_key_00"],
+        ["pane", "T_key_03", 2, "T_key_00"],
+        ["material", "T_key_03", 38, "T_key_00"],
+        ["pane", "T_key_04", 2, "T_key_00"],
+        ["material", "T_key_04", 38, "T_key_00"],
+        ["pane", "T_key_05", 2, "T_key_00"],
+        ["material", "T_key_05", 38, "T_key_00"],
+        ["pane", "T_key_06", 2, "T_key_00"],
+        ["material", "T_key_06", 38, "T_key_00"],
+        ["pane", "T_key_07", 2, "T_key_00"],
+        ["material", "T_key_07", 38, "T_key_00"],
+        ["pane", "T_key_08", 2, "T_key_00"],
+        ["material", "T_key_08", 38, "T_key_00"],
+        ["pane", "T_key_09", 2, "T_key_00"],
+        ["material", "T_key_09", 38, "T_key_00"],
+        ["pane", "T_key_10", 2, "T_key_00"],
+        ["material", "T_key_10", 38, "T_key_00"],
+        ["pane", "T_key_12", 2, "T_key_00"],
+        ["material", "T_key_12", 38, "T_key_00"],
+        ["pane", "T_key_13", 2, "T_key_00"],
+        ["material", "T_key_13", 38, "T_key_00"],
+        ["pane", "T_key_14", 2, "T_key_00"],
+        ["material", "T_key_14", 38, "T_key_00"],
+        ["pane", "T_key_15", 2, "T_key_00"],
+        ["material", "T_key_15", 38, "T_key_00"],
+        ["pane", "T_key_16", 2, "T_key_00"],
+        ["material", "T_key_16", 38, "T_key_00"],
+        ["pane", "T_key_17", 2, "T_key_00"],
+        ["material", "T_key_17", 38, "T_key_00"],
+        ["pane", "T_key_18", 2, "T_key_00"],
+        ["material", "T_key_18", 38, "T_key_00"],
+        ["pane", "T_key_19", 2, "T_key_00"],
+        ["material", "T_key_19", 38, "T_key_00"],
+        ["pane", "T_key_20", 2, "T_key_00"],
+        ["material", "T_key_20", 38, "T_key_00"],
+        ["pane", "T_key_22", 2, "T_key_00"],
+        ["material", "T_key_22", 38, "T_key_00"],
+        ["pane", "T_key_23", 2, "T_key_00"],
+        ["material", "T_key_23", 38, "T_key_00"],
+        ["pane", "T_key_24", 2, "T_key_00"],
+        ["material", "T_key_24", 38, "T_key_00"],
+        ["pane", "T_key_25", 2, "T_key_00"],
+        ["material", "T_key_25", 38, "T_key_00"],
+        ["pane", "T_key_26", 2, "T_key_00"],
+        ["material", "T_key_26", 38, "T_key_00"],
+        ["pane", "T_key_27", 2, "T_key_00"],
+        ["material", "T_key_27", 38, "T_key_00"],
+        ["pane", "T_key_28", 2, "T_key_00"],
+        ["material", "T_key_28", 38, "T_key_00"],
+        ["pane", "T_key_29", 2, "T_key_00"],
+        ["material", "T_key_29", 38, "T_key_00"],
+        ["pane", "T_key_30", 2, "T_key_00"],
+        ["material", "T_key_30", 38, "T_key_00"],
+        ["pane", "T_key_31", 2, "T_key_00"],
+        ["material", "T_key_31", 38, "T_key_00"],
+        ["pane", "T_key_34", 2, "T_key_00"],
+        ["material", "T_key_34", 38, "T_key_00"],
+        ["pane", "T_key_35", 2, "T_key_00"],
+        ["material", "T_key_35", 38, "T_key_00"],
+        ["pane", "T_key_36", 2, "T_key_00"],
+        ["material", "T_key_36", 38, "T_key_00"],
+        ["pane", "T_key_37", 2, "T_key_00"],
+        ["material", "T_key_37", 38, "T_key_00"],
+        ["pane", "T_key_38", 2, "T_key_00"],
+        ["material", "T_key_38", 38, "T_key_00"],
+        ["pane", "T_key_39", 2, "T_key_00"],
+        ["material", "T_key_39", 38, "T_key_00"],
+        ["pane", "T_key_40", 2, "T_key_00"],
+        ["material", "T_key_40", 38, "T_key_00"],
+        ["pane", "T_key_41", 2, "T_key_00"],
+        ["material", "T_key_41", 38, "T_key_00"],
+        ["pane", "T_key_42", 2, "T_key_00"],
+        ["material", "T_key_42", 38, "T_key_00"],
+        ["pane", "T_key_43", 2, "T_key_00"],
+        ["material", "T_key_43", 38, "T_key_00"],
+        ["pane", "T_key_44", 2, "T_key_00"],
+        ["material", "T_key_44", 38, "T_key_00"]
+      ]
+    },
+    {
+      "file": "Keytop_qwerty_s1t0.bclan",
+      "sha256": "96d7aa0762c52e169a670ba30f3fe1d6c769f115529ee2460192a585100c2f68",
+      "sectionOffsets": {
+        "pai1": 204,
+        "pat1": 20,
+        "pah1": 116
+      },
+      "records": [
+        {
+          "sourcePane": "P_key_01",
+          "targetGroup": "G_keyBase"
+        },
+        {
+          "sourcePane": "T_key_00",
+          "targetGroup": "G_keyText"
+        }
+      ],
+      "groupsOverride": null,
+      "childOverride": null,
+      "rootGroupProbe": false,
+      "nativeReturn": 1,
+      "sharedBindings": []
+    },
+    {
+      "file": "Keytop_qwerty_t0s1.bclan",
+      "sha256": "e9e6db4801990a99e9fe356305ed7c8d3be2f63759f50ef098f241ecc5a088ed",
+      "sectionOffsets": {
+        "pai1": 184,
+        "pat1": 20,
+        "pah1": 96
+      },
+      "records": [
+        {
+          "sourcePane": "P_key_01",
+          "targetGroup": "G_keyBase"
+        },
+        {
+          "sourcePane": "T_key_00",
+          "targetGroup": "G_keyText"
+        }
+      ],
+      "groupsOverride": null,
+      "childOverride": null,
+      "rootGroupProbe": false,
+      "nativeReturn": 1,
+      "sharedBindings": []
+    }
+  ],
+  "selectionProbes": [
+    {
+      "file": "Keytop_qwerty_i0.bclan",
+      "sha256": "418c3ecba17934b3c13a0c9dca5a6a980c6b4e4c1ae48e41b1fd325c955c7d17",
+      "sectionOffsets": {
+        "pai1": 400,
+        "pat1": 20,
+        "pah1": 312
+      },
+      "records": [
+        {
+          "sourcePane": "P_key_01",
+          "targetGroup": "G_keyBase"
+        },
+        {
+          "sourcePane": "T_key_00",
+          "targetGroup": "G_keyText"
+        }
+      ],
+      "groupsOverride": [
+        "G_key_02"
+      ],
+      "childOverride": false,
+      "rootGroupProbe": false,
+      "nativeReturn": 1,
+      "sharedBindingCount": 4
+    },
+    {
+      "file": "Keytop_qwerty_i0.bclan",
+      "sha256": "418c3ecba17934b3c13a0c9dca5a6a980c6b4e4c1ae48e41b1fd325c955c7d17",
+      "sectionOffsets": {
+        "pai1": 400,
+        "pat1": 20,
+        "pah1": 312
+      },
+      "records": [
+        {
+          "sourcePane": "P_key_01",
+          "targetGroup": "G_keyBase"
+        },
+        {
+          "sourcePane": "T_key_00",
+          "targetGroup": "G_keyText"
+        }
+      ],
+      "groupsOverride": [
+        "G_key_00"
+      ],
+      "childOverride": false,
+      "rootGroupProbe": false,
+      "nativeReturn": 1,
+      "sharedBindingCount": 0
+    },
+    {
+      "file": "Keytop_qwerty_i0.bclan",
+      "sha256": "418c3ecba17934b3c13a0c9dca5a6a980c6b4e4c1ae48e41b1fd325c955c7d17",
+      "sectionOffsets": {
+        "pai1": 400,
+        "pat1": 20,
+        "pah1": 312
+      },
+      "records": [
+        {
+          "sourcePane": "P_key_01",
+          "targetGroup": "G_keyBase"
+        },
+        {
+          "sourcePane": "T_key_00",
+          "targetGroup": "G_keyText"
+        }
+      ],
+      "groupsOverride": [],
+      "childOverride": false,
+      "rootGroupProbe": false,
+      "nativeReturn": 1,
+      "sharedBindingCount": 156
+    },
+    {
+      "file": "Keytop_qwerty_i0.bclan",
+      "sha256": "418c3ecba17934b3c13a0c9dca5a6a980c6b4e4c1ae48e41b1fd325c955c7d17",
+      "sectionOffsets": {
+        "pai1": 400,
+        "pat1": 20,
+        "pah1": 312
+      },
+      "records": [
+        {
+          "sourcePane": "P_key_01",
+          "targetGroup": "G_keyBase"
+        },
+        {
+          "sourcePane": "T_key_00",
+          "targetGroup": "G_keyText"
+        }
+      ],
+      "groupsOverride": [
+        "RootGroup"
+      ],
+      "childOverride": false,
+      "rootGroupProbe": true,
+      "nativeReturn": 1,
+      "sharedBindingCount": 0
+    },
+    {
+      "file": "Keytop_qwerty_i0.bclan",
+      "sha256": "418c3ecba17934b3c13a0c9dca5a6a980c6b4e4c1ae48e41b1fd325c955c7d17",
+      "sectionOffsets": {
+        "pai1": 400,
+        "pat1": 20,
+        "pah1": 312
+      },
+      "records": [
+        {
+          "sourcePane": "P_key_01",
+          "targetGroup": "G_keyBase"
+        },
+        {
+          "sourcePane": "T_key_00",
+          "targetGroup": "G_keyText"
+        }
+      ],
+      "groupsOverride": [
+        "RootGroup"
+      ],
+      "childOverride": true,
+      "rootGroupProbe": true,
+      "nativeReturn": 1,
+      "sharedBindingCount": 156
+    }
+  ]
+}

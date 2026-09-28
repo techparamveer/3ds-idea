@@ -1,0 +1,383 @@
+{
+  "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "execution": "Original ARM 0x1d5740 and its interpolation, remainder, ceil, floor, and pane setter callees executed without stubs in Unicorn 2.1.4. Original 0x217d20 folder branch writes extent60. Capture layout is invisible to skip unrelated capture controller behavior. Static-initializer XY tables supplied from independently decoded original tables.json; slot endpoints are explicit fixture inputs. Glyph fixtures execute original 0x1d8424 without stubs.",
+  "fixtures": [
+    {
+      "label": "settled-0",
+      "currentDensity": 0,
+      "targetDensity": 0,
+      "density": 0.0,
+      "progress": 0,
+      "currentLeft": 0,
+      "targetLeft": 0,
+      "scrollPixels": 0,
+      "extent": 60,
+      "firstNativeX": -84.0,
+      "lastNativeX": 4872.0,
+      "firstLogicalUnscrolledX": 76.0,
+      "lastLogicalUnscrolledX": 5032.0,
+      "plate": {
+        "x": 2394.0,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 5088.0,
+        "height": 144.0,
+        "logicalLeft": 10.0,
+        "logicalRight": 5098.0,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": 2394.0,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 5108.0,
+        "height": 164.0,
+        "logicalLeft": 0.0,
+        "logicalRight": 5108.0,
+        "dirtyByte": 207
+      }
+    },
+    {
+      "label": "settled-1",
+      "currentDensity": 1,
+      "targetDensity": 1,
+      "density": 1.0,
+      "progress": 0,
+      "currentLeft": 0,
+      "targetLeft": 0,
+      "scrollPixels": 0,
+      "extent": 60,
+      "firstNativeX": -84.0,
+      "lastNativeX": 4872.0,
+      "firstLogicalUnscrolledX": 76.0,
+      "lastLogicalUnscrolledX": 5032.0,
+      "plate": {
+        "x": 2394.0,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 5088.0,
+        "height": 144.0,
+        "logicalLeft": 10.0,
+        "logicalRight": 5098.0,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": 2394.0,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 5108.0,
+        "height": 164.0,
+        "logicalLeft": 0.0,
+        "logicalRight": 5108.0,
+        "dirtyByte": 207
+      }
+    },
+    {
+      "label": "settled-2",
+      "currentDensity": 2,
+      "targetDensity": 2,
+      "density": 2.0,
+      "progress": 0,
+      "currentLeft": 0,
+      "targetLeft": 0,
+      "scrollPixels": 0,
+      "extent": 60,
+      "firstNativeX": -108.0,
+      "lastNativeX": 1458.0,
+      "firstLogicalUnscrolledX": 52.0,
+      "lastLogicalUnscrolledX": 1618.0,
+      "plate": {
+        "x": 675.0,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 1650.0,
+        "height": 144.0,
+        "logicalLeft": 10.0,
+        "logicalRight": 1660.0,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": 675.0,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 1670.0,
+        "height": 164.0,
+        "logicalLeft": 0.0,
+        "logicalRight": 1670.0,
+        "dirtyByte": 207
+      }
+    },
+    {
+      "label": "settled-3",
+      "currentDensity": 3,
+      "targetDensity": 3,
+      "density": 3.0,
+      "progress": 0,
+      "currentLeft": 0,
+      "targetLeft": 0,
+      "scrollPixels": 0,
+      "extent": 60,
+      "firstNativeX": -120.0,
+      "lastNativeX": 640.0,
+      "firstLogicalUnscrolledX": 40.0,
+      "lastLogicalUnscrolledX": 800.0,
+      "plate": {
+        "x": 260.0,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 820.0,
+        "height": 144.0,
+        "logicalLeft": 10.0,
+        "logicalRight": 830.0,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": 260.0,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 840.0,
+        "height": 164.0,
+        "logicalLeft": 0.0,
+        "logicalRight": 840.0,
+        "dirtyByte": 207
+      }
+    },
+    {
+      "label": "settled-4",
+      "currentDensity": 4,
+      "targetDensity": 4,
+      "density": 4.0,
+      "progress": 0,
+      "currentLeft": 0,
+      "targetLeft": 0,
+      "scrollPixels": 0,
+      "extent": 60,
+      "firstNativeX": -128.0,
+      "lastNativeX": 320.0,
+      "firstLogicalUnscrolledX": 32.0,
+      "lastLogicalUnscrolledX": 480.0,
+      "plate": {
+        "x": 96.0,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 492.0,
+        "height": 144.0,
+        "logicalLeft": 10.0,
+        "logicalRight": 502.0,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": 96.0,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 512.0,
+        "height": 164.0,
+        "logicalLeft": 0.0,
+        "logicalRight": 512.0,
+        "dirtyByte": 207
+      }
+    },
+    {
+      "label": "settled-5",
+      "currentDensity": 5,
+      "targetDensity": 5,
+      "density": 5.0,
+      "progress": 0,
+      "currentLeft": 0,
+      "targetLeft": 0,
+      "scrollPixels": 0,
+      "extent": 60,
+      "firstNativeX": -126.0,
+      "lastNativeX": 182.0,
+      "firstLogicalUnscrolledX": 34.0,
+      "lastLogicalUnscrolledX": 342.0,
+      "plate": {
+        "x": 28.0,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 356.0,
+        "height": 144.0,
+        "logicalLeft": 10.0,
+        "logicalRight": 366.0,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": 28.0,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 376.0,
+        "height": 164.0,
+        "logicalLeft": 0.0,
+        "logicalRight": 376.0,
+        "dirtyByte": 207
+      }
+    },
+    {
+      "label": "density2-to3-quarter-scroll",
+      "currentDensity": 2,
+      "targetDensity": 3,
+      "density": 2.25,
+      "progress": 0.25,
+      "currentLeft": 0,
+      "targetLeft": 0,
+      "scrollPixels": 17.25,
+      "extent": 60,
+      "firstNativeX": -111.0,
+      "lastNativeX": 1253.5,
+      "firstLogicalUnscrolledX": 49.0,
+      "lastLogicalUnscrolledX": 1413.5,
+      "plate": {
+        "x": 554.75,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 1444.0,
+        "height": 144.0,
+        "logicalLeft": -7.25,
+        "logicalRight": 1436.75,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": 554.75,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 1464.0,
+        "height": 164.0,
+        "logicalLeft": -17.25,
+        "logicalRight": 1446.75,
+        "dirtyByte": 207
+      }
+    },
+    {
+      "label": "density3-to4-mid-left",
+      "currentDensity": 3,
+      "targetDensity": 4,
+      "density": 3.5,
+      "progress": 0.5,
+      "currentLeft": 0,
+      "targetLeft": 0,
+      "scrollPixels": 13.125,
+      "extent": 60,
+      "firstNativeX": -124.0,
+      "lastNativeX": 480.0,
+      "firstLogicalUnscrolledX": 36.0,
+      "lastLogicalUnscrolledX": 640.0,
+      "plate": {
+        "x": 164.875,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 656.0,
+        "height": 144.0,
+        "logicalLeft": -3.125,
+        "logicalRight": 652.875,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": 164.875,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 676.0,
+        "height": 164.0,
+        "logicalLeft": -13.125,
+        "logicalRight": 662.875,
+        "dirtyByte": 207
+      }
+    },
+    {
+      "label": "density3-to4-mid-right-anchor",
+      "currentDensity": 3,
+      "targetDensity": 4,
+      "density": 3.5,
+      "progress": 0.5,
+      "currentLeft": 39,
+      "targetLeft": 24,
+      "scrollPixels": 321.125,
+      "extent": 60,
+      "firstNativeX": -124.0,
+      "lastNativeX": 480.0,
+      "firstLogicalUnscrolledX": 36.0,
+      "lastLogicalUnscrolledX": 640.0,
+      "plate": {
+        "x": -178.0,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 656.0,
+        "height": 144.0,
+        "logicalLeft": -346.0,
+        "logicalRight": 310.0,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": -178.0,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 676.0,
+        "height": 164.0,
+        "logicalLeft": -356.0,
+        "logicalRight": 320.0,
+        "dirtyByte": 207
+      }
+    },
+    {
+      "label": "same-mid-outside-right-anchor",
+      "currentDensity": 3,
+      "targetDensity": 4,
+      "density": 3.5,
+      "progress": 0.5,
+      "currentLeft": 36,
+      "targetLeft": 24,
+      "scrollPixels": 321.125,
+      "extent": 60,
+      "firstNativeX": -124.0,
+      "lastNativeX": 480.0,
+      "firstLogicalUnscrolledX": 36.0,
+      "lastLogicalUnscrolledX": 640.0,
+      "plate": {
+        "x": -143.125,
+        "y": -16.0,
+        "z": 0.0,
+        "width": 656.0,
+        "height": 144.0,
+        "logicalLeft": -311.125,
+        "logicalRight": 344.875,
+        "dirtyByte": 207
+      },
+      "shadow": {
+        "x": -143.125,
+        "y": -20.0,
+        "z": 0.0,
+        "width": 676.0,
+        "height": 164.0,
+        "logicalLeft": -321.125,
+        "logicalRight": 354.875,
+        "dirtyByte": 207
+      }
+    }
+  ],
+  "glyphInterpolation": [
+    {
+      "density": 1.25,
+      "width": 30.0,
+      "yOffset": -5.25
+    },
+    {
+      "density": 2.25,
+      "width": 23.0,
+      "yOffset": -3.0
+    },
+    {
+      "density": 3.5,
+      "width": 19.0,
+      "yOffset": -2.5
+    },
+    {
+      "density": 4.125,
+      "width": 17.75,
+      "yOffset": -1.875
+    },
+    {
+      "density": 5.0,
+      "width": 16.0,
+      "yOffset": -1.0
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022a00": {
+      "packs": {
+        "packs/system-transfer/CARDBOARD-layout-layout-lz77.json": {
+          "layouts": [
+            "Bg_U_00",
+            "Bg_D_00",
+            "CommonBG_U_00",
+            "title_D_00",
+            "position_D_00",
+            "button_D_00",
+            "button_D_01",
+            "returnBtn_D_00"
+          ],
+          "animations": [
+            "Bg_D_00_color_00",
+            "Bg_U_00_color_00",
+            "Bg_U_00_wipeIn_00",
+            "Bg_U_00_wipeOut_00",
+            "Bg_U_00_wipeWhile_00",
+            "CommonBG_U_00_color_00",
+            "CommonBG_U_00_inOut_00",
+            "CommonBG_U_00_inOut_01",
+            "CommonBG_U_00_in_00",
+            "CommonBG_U_00_plane_00",
+            "button_D_00_inOut_00",
+            "button_D_00_touchOff_00",
+            "button_D_00_touchOn_00",
+            "button_D_01_inOut_00",
+            "button_D_01_touchOff_00",
+            "button_D_01_touchOn_00",
+            "position_D_00_inOut_00",
+            "position_D_00_inOut_01",
+            "position_D_00_inOut_02",
+            "position_D_00_inOut_03",
+            "returnBtn_D_00_change_00",
+            "returnBtn_D_00_touchOff_00",
+            "returnBtn_D_00_touchOff_01",
+            "returnBtn_D_00_touchOn_00"
+          ]
+        },
+        "packs/system-transfer/messages-and-loose.json": {
+          "messages": {
+            "cardboard_ctr": [
+              "Button_CM_00_CTR",
+              "Button_CM_00_TWL",
+              "Button_CM_01_FromCTR",
+              "Button_CM_01_ToCTR",
+              "Button_Return",
+              "Button_ReturnCTRMenu",
+              "Button_ReturnHomeMenu",
+              "CM_00_Header",
+              "Title_Name"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

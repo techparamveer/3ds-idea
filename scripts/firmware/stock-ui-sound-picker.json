@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400300000d402": {
+      "packs": {
+        "packs/sound-picker/lyt-S_ApVoicSele_D-arc-LZ.json": {
+          "layouts": [
+            "Apt_D",
+            "AptTxt"
+          ],
+          "animations": [
+            "AptTxt_Default",
+            "AptTxt_In",
+            "AptTxt_Out",
+            "Apt_D_Default",
+            "Apt_D_Disable",
+            "Apt_D_Push"
+          ]
+        },
+        "packs/sound-picker/lyt-S_ApVoicSele_U-arc-LZ.json": {
+          "layouts": [
+            "S_ApVoicSele_U"
+          ],
+          "animations": []
+        },
+        "packs/sound-picker/lyt-Balloon-arc-LZ.json": {
+          "layouts": [
+            "Balloon-Root",
+            "Balloon-Normal",
+            "Balloon-Cursor"
+          ],
+          "animations": [
+            "Balloon-Cursor_Default",
+            "Balloon-Cursor_In",
+            "Balloon-Cursor_Out",
+            "Balloon-Normal_Default",
+            "Balloon-Normal_Disable",
+            "Balloon-Normal_Drag",
+            "Balloon-Normal_Drop",
+            "Balloon-Normal_In",
+            "Balloon-Normal_Out",
+            "Balloon-Normal_Push",
+            "Balloon-Normal_RecOK",
+            "Balloon-Normal_WaveLoop",
+            "Balloon-Root_Default",
+            "Balloon-Root_In",
+            "Balloon-Root_Out",
+            "Balloon-Root_PartsIn",
+            "Balloon-Root_PartsIn2R",
+            "Balloon-Root_PartsOut",
+            "Balloon-Root_PartsOut2L"
+          ]
+        },
+        "packs/sound-picker/msg-EU_English.json": {
+          "messages": {
+            "S_ap_vsel": [
+              "B_close",
+              "B_confirm",
+              "M_title"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

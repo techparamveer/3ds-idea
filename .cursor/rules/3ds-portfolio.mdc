@@ -1,0 +1,38 @@
+---
+description: 3DS portfolio scope, provenance and native verification
+alwaysApply: true
+---
+
+Read `AGENTS.md`, `GOAL.md`, `docs/portfolio-ui-scope.md`, and the matching
+subsystem document from `docs/architecture/README.md` before editing. Current
+user instructions take precedence. Work only in the assigned worktree and
+owned paths; stage explicit paths, never `git add -A`.
+
+Implement only HOME, Settings/helpers, Health, read-only Camera gallery, Sound
+UI with an empty song manifest until tracks are supplied, eShop, Zone, Notes,
+Friends, Notifications, local Browser/Miiverse, amiibo opening, power/launch,
+and eight portfolio apps. Do not build keyboard, Camera capture/editing,
+network/account operations, PIN entry or other stock titles.
+
+The user's decrypted EUR 10.7.0-32E dump is the only source for native visual
+and audio assets. Record manifest key, title/version, content index, source
+path, SHA-256 and converter version. Do not ship Azahar screenshots, hand/CSS
+native graphics, substitute fonts or guessed sounds. Label portfolio
+adaptations and source gaps.
+
+Follow `docs/architecture/verification.md`: only the coordinator drives the
+isolated Azahar and integrated production browser, captures native 400×480 PNG
+and raw browser 400×240/320×240 LCD targets, diffs the pair, opens the contact
+sheet, and repeats after fixes. First target HOME idle and Settings → Other
+Settings page 1 in the private `reference/scenario-matrix/v1/captures/` path;
+matrix v17 has 26 failing diagnostic entries. Camera's six-cell browse and Sound's
+three-page guide now render from delivered source resources, but their latest
+native/browser pairs still fail at 95,350/26,496 and 15,583/6,267 upper/lower
+pixels over 2/255. Camera source browse and zoom chrome are visible;
+Shoot and zoom remain inert. Sound Span's blue Base fit is capture-derived and labelled adaptation. Camera
+input/content differ; an earlier Sound page-1 pair matches selected HOME Sound + A entry input. HOME selected Settings boot fails
+at 19,793/44,041 with layout/phase mismatch. HOME idle remains unmatched.
+Motion/audio remain open.
+Tests, source renders and browser inspection alone
+do not establish 1:1 fidelity. Report implemented, tested, browser-inspected
+and native-compared separately, with target pair and remaining differences.

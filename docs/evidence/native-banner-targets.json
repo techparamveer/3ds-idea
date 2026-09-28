@@ -1,0 +1,341 @@
+{
+  "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "execution": "Original ARM in Unicorn 2.1.4; isolated fragments with synthetic inputs. No HOME process, GPU, browser, app resource loading or OS worker execution.",
+  "dispatcherEntry": "0x1d726c; prefix key copy reproduced as fixture; stop at request setter 0x1ed6ec",
+  "categoryJumpTable": {
+    "0": "0x1d72a4",
+    "1": "0x1d7498",
+    "2": "0x1d74d8",
+    "3": "0x1d7574",
+    "4": "0x1d75bc",
+    "5": "0x1d7598",
+    "6": "0x1d75e0",
+    "7": "0x1d7604",
+    "8": "0x1d7628",
+    "9": "0x1d764c",
+    "10": "0x1d72b0"
+  },
+  "dispatcherCases": [
+    {
+      "category": 3,
+      "inputKey": [
+        "0x12345678",
+        "0x40000",
+        1
+      ],
+      "themePredicate": false,
+      "nativeType": 13,
+      "requestKey": [
+        "0xffffffff",
+        "0xffffffff",
+        0
+      ],
+      "externalStubs": []
+    },
+    {
+      "category": 0,
+      "inputKey": [
+        "0x12345678",
+        "0x40000",
+        1
+      ],
+      "themePredicate": false,
+      "nativeType": 1,
+      "requestKey": [
+        "0x12345678",
+        "0x40000",
+        1
+      ],
+      "externalStubs": []
+    },
+    {
+      "category": 0,
+      "inputKey": [
+        "0x12345678",
+        "0x40000",
+        0
+      ],
+      "themePredicate": false,
+      "nativeType": 1,
+      "requestKey": [
+        "0x12345678",
+        "0x40000",
+        0
+      ],
+      "externalStubs": []
+    },
+    {
+      "category": 0,
+      "inputKey": [
+        "0x12345678",
+        "0x40000",
+        2
+      ],
+      "themePredicate": false,
+      "nativeType": 2,
+      "requestKey": [
+        "0x12345678",
+        "0x40000",
+        2
+      ],
+      "externalStubs": []
+    },
+    {
+      "category": 0,
+      "inputKey": [
+        "0x12345678",
+        "0x48000",
+        2
+      ],
+      "themePredicate": false,
+      "nativeType": 3,
+      "requestKey": [
+        "0x12345678",
+        "0x48000",
+        2
+      ],
+      "externalStubs": []
+    },
+    {
+      "category": 0,
+      "inputKey": [
+        "0x12345678",
+        "0x48000",
+        0
+      ],
+      "themePredicate": false,
+      "nativeType": 4,
+      "requestKey": [
+        "0x12345678",
+        "0x48000",
+        0
+      ],
+      "externalStubs": []
+    },
+    {
+      "category": 0,
+      "inputKey": [
+        "0x12345678",
+        "0x48000",
+        1
+      ],
+      "themePredicate": false,
+      "nativeType": 1,
+      "requestKey": [
+        "0x12345678",
+        "0x48000",
+        1
+      ],
+      "externalStubs": []
+    },
+    {
+      "category": 2,
+      "inputKey": [
+        "0x12345678",
+        "0x40000",
+        1
+      ],
+      "themePredicate": false,
+      "nativeType": 7,
+      "requestKey": [
+        "0x12345678",
+        "0x40000",
+        1
+      ],
+      "externalStubs": [
+        "0x217a90"
+      ]
+    },
+    {
+      "category": 2,
+      "inputKey": [
+        "0x12345678",
+        "0x40000",
+        1
+      ],
+      "themePredicate": true,
+      "nativeType": 0,
+      "requestKey": [
+        "0x12345678",
+        "0x40000",
+        1
+      ],
+      "externalStubs": [
+        "0x217a90"
+      ]
+    }
+  ],
+  "contextEntry": "0x217ec4; helpers 0x1e89f8, 0x1e6b44, 0x1fec08; caller 0x1e1120; ordinary app metadata gap omitted before final 0x1e1830 block",
+  "contextExternalStubs": [
+    "0x1c212c",
+    "0x21ba3c",
+    "0x21ba70",
+    "0x22645c"
+  ],
+  "contexts": [
+    {
+      "contextID": -1,
+      "slotMapOffset": "0x398fe",
+      "rows": [
+        {
+          "slot": 7,
+          "kind": "ordinaryApp",
+          "recordBit0": 1,
+          "recordBit1": 1,
+          "titleKey": [
+            "0x12345678",
+            "0x40000",
+            1
+          ],
+          "callerCategory": 0
+        },
+        {
+          "slot": 8,
+          "kind": "vacant",
+          "recordBit0": 0,
+          "recordBit1": 0,
+          "titleKey": [
+            "0xffffffff",
+            "0xffffffff",
+            0
+          ],
+          "callerCategory": 2
+        },
+        {
+          "slot": 9,
+          "kind": "presentUnavailable",
+          "recordBit0": 1,
+          "recordBit1": 0,
+          "titleKey": [
+            "0x12345678",
+            "0x40000",
+            1
+          ],
+          "callerCategory": 3
+        }
+      ]
+    },
+    {
+      "contextID": 2,
+      "slotMapOffset": "0x3a174",
+      "rows": [
+        {
+          "slot": 0,
+          "kind": "ordinaryApp",
+          "recordBit0": 1,
+          "recordBit1": 1,
+          "titleKey": [
+            "0x12345678",
+            "0x40000",
+            1
+          ],
+          "callerCategory": 0
+        },
+        {
+          "slot": 1,
+          "kind": "vacant",
+          "recordBit0": 0,
+          "recordBit1": 0,
+          "titleKey": [
+            "0xffffffff",
+            "0xffffffff",
+            0
+          ],
+          "callerCategory": 2
+        },
+        {
+          "slot": 2,
+          "kind": "presentUnavailable",
+          "recordBit0": 1,
+          "recordBit1": 0,
+          "titleKey": [
+            "0x12345678",
+            "0x40000",
+            1
+          ],
+          "callerCategory": 3
+        }
+      ]
+    }
+  ],
+  "vacancyGateClosed": {
+    "initializationGate": 0,
+    "submittedRequest": false,
+    "stop": "0x1e10e0"
+  },
+  "clearedNonCartridgeRecord": {
+    "recordFlags": 0,
+    "key": [
+      "0xffffffff",
+      "0xffffffff",
+      0
+    ]
+  },
+  "defaultPrimary": {
+    "primaryIsDefaultObject": true,
+    "requestedVisible": 1,
+    "currentKey": [
+      "0xffffffff",
+      "0xffffffff",
+      0
+    ],
+    "state": 6,
+    "externalStubs": [
+      "0x1f9324",
+      "fixture virtual reset"
+    ]
+  },
+  "visibilityState2": [
+    {
+      "actualVisible": 1,
+      "stateAfter": 2,
+      "primaryRetained": true
+    },
+    {
+      "actualVisible": 0,
+      "stateAfter": 1,
+      "primaryRetained": true
+    }
+  ],
+  "loadGatePrefix": [
+    {
+      "nativeType": 1,
+      "globalBlockByte": 0,
+      "counterAfter": 1,
+      "reachedWorkerGate": false
+    },
+    {
+      "nativeType": 7,
+      "globalBlockByte": 0,
+      "counterAfter": 1,
+      "reachedWorkerGate": false
+    },
+    {
+      "nativeType": 13,
+      "globalBlockByte": 0,
+      "counterAfter": 0,
+      "reachedWorkerGate": true
+    },
+    {
+      "nativeType": 13,
+      "globalBlockByte": 1,
+      "counterAfter": 0,
+      "reachedWorkerGate": true
+    }
+  ],
+  "blankCompletion": {
+    "currentType": 13,
+    "primary": 0,
+    "currentKey": [
+      "0xffffffff",
+      "0xffffffff",
+      0
+    ],
+    "priorKey": [
+      "0x12345678",
+      "0x40000",
+      1
+    ],
+    "state": 6
+  }
+}

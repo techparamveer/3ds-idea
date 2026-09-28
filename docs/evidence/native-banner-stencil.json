@@ -1,0 +1,294 @@
+{
+  "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "execution": "Original ARM in Unicorn 2.1.4, bounded segments and explicit external stubs; no GPU or HOME process execution.",
+  "sortKeys": [
+    {
+      "builder": "0x2fd728",
+      "group": 0,
+      "key": "00000000007fffff"
+    },
+    {
+      "builder": "0x2fd728",
+      "group": 1,
+      "key": "01000000007fffff"
+    },
+    {
+      "builder": "0x2fd728",
+      "group": 2,
+      "key": "02000000007fffff"
+    },
+    {
+      "builder": "0x2fd670",
+      "group": 0,
+      "key": "00000fffffe00000"
+    },
+    {
+      "builder": "0x2fd670",
+      "group": 1,
+      "key": "01000fffffe00000"
+    },
+    {
+      "builder": "0x2fd670",
+      "group": 2,
+      "key": "02000fffffe00000"
+    }
+  ],
+  "frameTranslations": [
+    {
+      "primaryY": 0,
+      "frameTranslation": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "primaryY": 1,
+      "frameTranslation": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "primaryY": -2.5,
+      "frameTranslation": [
+        0.0,
+        -2.5,
+        0.0
+      ]
+    }
+  ],
+  "frameGeometry": {
+    "vertices": 994,
+    "triangles": 1984,
+    "bounds": [
+      [
+        -18,
+        18
+      ],
+      [
+        -9.5,
+        9.5
+      ],
+      [
+        -18,
+        18
+      ]
+    ],
+    "ellipsoidEquationMaxError": 8.861111111091446e-06,
+    "boneCount": 0,
+    "meshLayer": 0,
+    "meshPriority": 10
+  },
+  "frameSourceSHA256": "9e5399fbe4f2ca16ba20ec4fec91b2e1ceeaef95587a7919504aa47ec6dbc77e",
+  "frameCompressedSHA256": "794bfb7f116c5686e44bc5701b4ea715c32f169e76306a272926d5d979a7e9ba",
+  "rawMaterialOffset": "0x6a0",
+  "stencilTestWord": "0x01010001",
+  "stencilTestHeader": "0x000d0105",
+  "stencilOperationWord": "0x00000222",
+  "defaultGlobalStencilWriteMask": 255,
+  "frameMaterial": {
+    "StencilTest": {
+      "BufferMask": 0,
+      "Enabled": true,
+      "Function": "Never",
+      "Mask": 1,
+      "Reference": 1
+    },
+    "StencilOperation": {
+      "FailOp": "Replace",
+      "ZFailOp": "Replace",
+      "ZPassOp": "Replace"
+    },
+    "DepthColorMask": {
+      "AlphaWrite": true,
+      "BlueWrite": true,
+      "DepthFunc": "Less",
+      "DepthWrite": true,
+      "Enabled": false,
+      "GreenWrite": true,
+      "RedWrite": true
+    },
+    "FaceCulling": "BackFace",
+    "AlphaTest": {
+      "Enabled": false,
+      "Function": "Always",
+      "Reference": 0
+    },
+    "StencilBufferRead": false,
+    "StencilBufferWrite": false
+  },
+  "privateDirectory": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/banner-stencil",
+  "fixtureScript": {
+    "path": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/banner-stencil/execute-contract.py",
+    "sha256": "a2f5e1e3f44071da963721fc40805be4d373c2c6ff5ac8788eb6ac08f4c9bdfe"
+  },
+  "fixtureResults": {
+    "passed": true,
+    "bgMaskArgumentsIgnored": true,
+    "baseModelAttachedScene": 1,
+    "dispatchEyeModes": [
+      0,
+      1
+    ],
+    "outputClearMasks": [
+      "0x4500",
+      "0x100"
+    ],
+    "externalStubs": "See private execute-contract.py and native-contract.json. Sort-key secondary mesh/material fields are null and float-to-integer conversion is stubbed.",
+    "nativeDisplacementIdleAndSyntheticImpulse": true
+  },
+  "runtimeConsumer": {
+    "entry": "0x1fa19c",
+    "folderWrapper": "0x249230",
+    "testWord": "0x01010021",
+    "operationWord": "0x00000000",
+    "decoded": {
+      "enabled": true,
+      "function": "Equal",
+      "reference": 1,
+      "inputMask": 1,
+      "operations": [
+        "Keep",
+        "Keep",
+        "Keep"
+      ]
+    },
+    "fixture": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/banner-default/native-contract.json"
+  },
+  "drawGroups": [
+    {
+      "name": "BannerBG",
+      "group": 0,
+      "setter": "0x24db20"
+    },
+    {
+      "name": "BannerFrame",
+      "group": 1,
+      "setter": "0x24c04c"
+    },
+    {
+      "name": "generic primary including folder",
+      "group": 2,
+      "setter": "0x1fa1f0"
+    }
+  ],
+  "camera": {
+    "scene": 1,
+    "position": [
+      0,
+      1,
+      44.7859992980957
+    ],
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "verticalFov": 0.5235987901687622,
+    "aspect": 1.6666666269302368,
+    "near": 26.5,
+    "far": 1000,
+    "evidence": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/runtime/reference/folder-camera/report.md"
+  },
+  "spicaRevision": "bd29a7828595d7839cda2ac61c76bb63f9071250",
+  "assetOutput": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/presentation/banner-stencil/BannerFrame/model.json",
+  "assetOutputSHA256": "425aa91404ee35192dc9abf25e2b3810fe525ceba5de1dc4d468db8ff4207bcf",
+  "limitations": [
+    "No native process or GPU execution",
+    "No browser or Azahar interaction",
+    "No raster/coverage or stereo verification",
+    "No published asset or renderer changes",
+    "No music first-entry/resume proof",
+    "S0 impulse input meaning/source untraced; current lifecycle lacks native displacement/offset fields"
+  ],
+  "nativeDisplacement": [
+    {
+      "case": "idle",
+      "primaryOffset94": 0.25,
+      "primaryOffset98": 0.75,
+      "samples": [
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.0,
+          "velocity8c": 0.0,
+          "primaryY": 0.25
+        }
+      ]
+    },
+    {
+      "case": "syntheticImpulse",
+      "primaryOffset94": 0.25,
+      "primaryOffset98": 0.75,
+      "samples": [
+        {
+          "inputS0": 12,
+          "native90": 0.025663770735263824,
+          "velocity8c": 0.025663770735263824,
+          "primaryY": 0.2756637632846832
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.07196477055549622,
+          "velocity8c": 0.04630099982023239,
+          "primaryY": 0.3219647705554962
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.1340775191783905,
+          "velocity8c": 0.06211274117231369,
+          "primaryY": 0.3840775191783905
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.20736953616142273,
+          "velocity8c": 0.07329200953245163,
+          "primaryY": 0.45736953616142273
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.28739362955093384,
+          "velocity8c": 0.08002408593893051,
+          "primaryY": 0.5373936295509338
+        },
+        {
+          "inputS0": 0,
+          "native90": 0.3698805272579193,
+          "velocity8c": 0.08248689025640488,
+          "primaryY": 0.6198805570602417
+        }
+      ]
+    }
+  ]
+}

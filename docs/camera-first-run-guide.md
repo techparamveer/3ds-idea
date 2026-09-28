@@ -1,0 +1,167 @@
+# Camera Welcome route
+
+Camera now enters the five-page EUR Welcome guide, then opens the existing
+read-only portfolio folders. The Camera helper keeps its existing entry route.
+The page owns only a guide index inside the existing AppModule; shared physical,
+keyboard and touch dispatch, native readiness and paired LCD publication remain
+in force. No camera, recording, import or persistence effect is enabled.
+
+## Source binding
+
+The private pinned Camera `romfs/res/Guide_snk.gbin`, SHA-256
+`a82c23b20f1638ff6c6f4acf8aa9c26cb012bbb184965281fa1ca69a6fbdc293`,
+contains 110 GUID records. Its first record at offset 8 is T_003 with five
+20-byte page entries after its 48-byte header. Each entry contains the original
+P_tips message label and button mode. `scripts/audit_camera_welcome.py`
+validates the file hash, complete record traversal and this exact descriptor.
+The 48 + 20 × page-count structure is also documented in the separately traced
+[Sound guide owner](sound-welcome-owner-audit.md). The audit does not claim a new
+Camera executable controller replay.
+
+| Page | Message | Mode | Buttons | Upper illustration token |
+| --- | --- | --- | --- | --- |
+| 1 | D_003_0 | 2 | Next | None |
+| 2 | D_003_1 | 3 | Back, Next | None |
+| 3 | D_003_2 | 3 | Back, Next | P_Guid05_U |
+| 4 | D_003_3 | 3 | Back, Next | P_Guid01_U |
+| 5 | D_003_4 | 4 | Back, OK | P_Guid02_U |
+
+Each illustration is selected by the original message group 4/type 1 token,
+not by the page number. The same source descriptor modes and Guide_D button
+message families are used by the decoded shared Sound guide implementation.
+The lower C_DlgGuid1BtnW/C_DlgGuid2Btn mounts C_DlgChA at identity. The latter
+includes the original Bird image. RI.mstl message colour +8 supplies text RGBA.
+The 1×1 counter panes use original 48px message width and the existing Sound
+adapter's 24px raster height, with the original parameter strings and page count.
+The first hit pane is 128×40 centered at (160,204); paired hit panes are 88×40
+centered at (112,204) and (208,204), directly from source BB panes.
+
+All visible art and original messages are selected from the delivered Camera
+pack, title `0004001000022400`, content index 0 / ID `0000001a`. See the
+[additive resource delivery](camera-first-run-character-panel-delivery.md) for
+layout/texture hashes and converter provenance. P_tips source is
+`msg/EU_English.LZ/P_tips.msbt`, SHA-256
+`0fd449e7831698969cd8d0f20a351990c6ddbe89f59df16bbe96ccf9b55bb1e0`.
+The existing source style table is recorded in
+[browse message colours](camera-browse-message-colors.md).
+
+## Captured state and explicit limits
+
+The preserved `camera-first-run/native/combined.png` was inspected: page 1 has
+a black upper finder, photo capacity 3000, 3D and SD icons, and the lower
+character dialog. The adapter uses P_Finder_U and its source Storage/-L-SD
+mount at (387,225), populated with C_IconSD. Capacity 3000 and SD are fixed
+reference-fixture values, not browser device/storage readings. The camera glyph
+comes from Finder_Pho_00_00. Capture controls remain inert.
+
+These gaps remain visible or behaviorally different:
+
+- The source P_Shoot_D CGFX now paints beneath the dialog (`6a0f158`), with
+  source geometry/materials and an explicit 4:3 camera-aspect fit. The source
+  2D P_Shoot_D layout also paints beneath the dialog (`271ddc9`), using a
+  capture-fitted half-brightness and a held Disable clip. Native attenuation,
+  clip/theme selection and the missing BtnIOcam child remain unbound. The X/Z
+  arrows and analog stick are hidden because their Welcome visibility is
+  unverified.
+- Page 3/4 red inline emphasis now uses the original MSBT colour switches
+  (`2765bb0`): RGBA `[255,50,0,255]` for `3D depth slider ` and
+  `at least 30cm (12in)\n`, restoring `[69,64,57,255]` afterward. The
+  production browser raw lower LCDs were inspected at `105e7b3`; matching
+  native page captures and pixel comparisons remain open.
+- Counter raster height, fixed capacity/SD fixture and static pose are adapters.
+  Entry/exit motion, bird scheduling, audio and input timing remain unverified.
+- Welcome repeats on application creation; no native first-run save flag is
+  inferred or written. Suspend/resume retains the active page.
+- OK ends in the portfolio folder screen rather than native capture mode.
+  This is the authorized read-only scope adaptation.
+
+The coordinator built integration commit `69d570a` and opened Camera from the
+production browser HOME shortcut. The raw page-1 capture and empty-mask report
+are under
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v1/captures/camera-guide-page1-69d570a-20260926/`.
+Against preserved `camera-first-run/native/combined.png`, the 400×240 upper
+has **1,387** pixels over 2/255 (RGB MAE 1.3718) and the 320×240 lower has
+**7,026** (RGB MAE 8.2033). The older browser gallery comparison was
+56,078 / 76,604. Both contact sheets were inspected. Upper residuals cluster
+in the capacity glyph and 3D icon; lower residuals include the full perimeter
+behind the guide panel. The entry routes differ (native title list versus
+browser HOME), so this is a diagnostic comparison, not a scenario pass.
+
+The coordinator clicked the production browser's accessible A control through
+pages 1→2→3→4→5, saw each source illustration and page counter, then used B
+to return from page 5 to 4 and A→A to enter the read-only folder screen. This
+checks the browser route only. Pages 2–5 and transitions still need equivalent
+native/browser captures, input timing and audio verification.
+
+At `105e7b3`, the production browser's page 3 and 4 lower LCDs were captured
+at 320×240 with the source red spans visible. Their paired uppers are 400×240.
+Both browser-only records are in [matrix v47](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v47/matrix.json).
+The Camera shortcut was activated through its accessibility DOM for this
+diagnostic, then physical A input advanced the guide. Neither entry route nor
+page timing is a matched Azahar comparison.
+
+The page-1 browser regression at `105e7b3` is pixel-identical to the earlier
+page-1 browser pair on both LCDs. The static CGFX slice at `6a0f158` changes
+only the lower LCD: against the same native screenshot, pixels over 2/255 stay
+at **7,026**, while lower RGB MAE falls from **8.2033 to 7.2603**. The upper
+remains **1,387** pixels over 2/255. Both pairs and inspected contact sheets
+are recorded in [matrix v48](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v48/matrix.json).
+
+With the 2D source layout in production (`271ddc9`), the page-1 lower
+comparison falls to **2,690** pixels over 2/255 and **2.6580** RGB MAE. The
+upper remains **1,387**. The contact sheet shows a missing top child strip and
+border/grid residuals. This latest pair is in [matrix v49](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v49/matrix.json);
+the whole scenario still fails.
+
+## Verification
+
+The hash-pinned private descriptor audit passes. 76 focused presentation,
+stock reducer, gallery lifecycle and runtime-effect tests pass. Integration
+typecheck and production build pass. With `FIRMWARE_ARTIFACT_ROOT` set to the
+internal artifact directory, the integration full suite has **1,458 passes,
+2 failures, 23 skips and 1 todo**. Both failures require absent compact model
+fixtures (`silver-audio-contacts-compact.glb` and its JSON), not Camera code.
+Without that environment override, a third test attempts an external artifact
+write and fails with ENOSPC. These checks do not establish guide pixel fidelity.
+`git diff --check` passes. Gallery fixtures explicitly traverse Welcome before
+testing browsing and owner reset.
+
+## Monoscopic finder cube — 26 September 2026
+
+The diagnostic upper comparison at `8312cfc` has 823 pixels over 2/255.
+The native cube is grey while the browser selected white `3DView`.
+The source `P_Finder_U.bclyt` (SHA-256
+`49746852aac6835d7666872460b621b028098f14de694ff2af7e9f139d01d71e`)
+provides both `3DView` and `2DView` using the same `P_IconOth_3D.bclim`
+texture and geometry. Their material constant colours are respectively
+`[255,255,255,255]` and `[100,100,100,255]`. Welcome now selects `2DView`
+for its monoscopic reference fixture. No tint value or artwork was invented.
+This selection follows the observed reference state; executable controller
+selection and live stereo switching remain untraced. Production comparison
+after integration remains required. Capacity glyph/raster residuals are open.
+
+The integrated child chain, corrected source HUD baseline and source grey
+`2DView` cube reduce the preserved page-1 comparison to **348 upper / 2,690
+lower** pixels above 2/255 (RGB MAE **0.4191 / 2.4887**). [Matrix v50](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v50/matrix.json)
+records the raw browser capture and empty-mask diff. A separate APFS clone of
+the pre-Camera isolated profile reproduced and captured native Welcome pages
+1 and 2. The original active save was not reset.
+
+The production browser was advanced from page 1 by clicking the projected
+touchscreen Next button. Its page-2 raw LCDs were compared with the replay
+native page 2 in [matrix v51](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v51/matrix.json).
+The inspected empty-mask contact sheet shows **2,726 lower** pixels above
+2/255, chiefly the same side strips and top control state as page 1. The
+upper has **93,638** differences because this replay uses a configured Renu
+photo as Azahar's live camera feed while the read-only browser Camera shows
+black. This pair establishes the page and lower-LCD comparison, but the exact
+native input, timing and audio remain open; no whole-scenario pass is claimed.
+
+The source-dimension button glyph and capacity overhang corrections were
+integrated at `1fda6c7`, rebuilt and recaptured in the production browser.
+The inspected empty-mask diffs in [matrix v52](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260926/reference/scenario-matrix/v52/matrix.json)
+show page 1 at **258 upper / 2,495 lower** and page 2 at **93,563 upper /
+2,495 lower** pixels above 2/255. Page 1 improved by 90 upper and 195 lower
+pixels; page 2's lower improved by 231. The page-2 upper camera-feed mismatch,
+lower backdrop/top-control residuals and open motion/input/audio still fail
+the scenarios.

@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004003000009c02": {
+      "packs": {
+        "packs/game-notes/memo-Bg_D_00-arc-l.json": {
+          "layouts": [
+            "Bg_D_00"
+          ],
+          "animations": []
+        },
+        "packs/game-notes/memo-Bg_U_00-arc-l.json": {
+          "layouts": [
+            "Bg_U_00"
+          ],
+          "animations": []
+        },
+        "packs/game-notes/memo-MemoListDown-arc-l.json": {
+          "layouts": [
+            "MemoListDown"
+          ],
+          "animations": [
+            "MemoListDown_Base",
+            "MemoListDown_CursorDown",
+            "MemoListDown_CursorLB",
+            "MemoListDown_CursorLT",
+            "MemoListDown_CursorLeft",
+            "MemoListDown_CursorMove",
+            "MemoListDown_CursorRB",
+            "MemoListDown_CursorRT",
+            "MemoListDown_CursorRight",
+            "MemoListDown_CursorUp",
+            "MemoListDown_Decide",
+            "MemoListDown_Invalid",
+            "MemoListDown_KeyDecide",
+            "MemoListDown_MemoDecide",
+            "MemoListDown_MemoReturn",
+            "MemoListDown_SceneIn",
+            "MemoListDown_SceneOut",
+            "MemoListDown_Select"
+          ]
+        },
+        "packs/game-notes/memo-MemoTutorialDown-arc-l.json": {
+          "layouts": [
+            "MemoTutorialDown"
+          ],
+          "animations": [
+            "MemoTutorialDown_Base",
+            "MemoTutorialDown_Decide",
+            "MemoTutorialDown_KeyDecide",
+            "MemoTutorialDown_SceneIn",
+            "MemoTutorialDown_SceneOut",
+            "MemoTutorialDown_Select"
+          ]
+        },
+        "packs/game-notes/memo-MemoTutorialUp-arc-l.json": {
+          "layouts": [
+            "MemoTutorialUp"
+          ],
+          "animations": [
+            "MemoTutorialUp_Base",
+            "MemoTutorialUp_SceneIn",
+            "MemoTutorialUp_SceneOut"
+          ]
+        },
+        "packs/game-notes/memo-MemoWriteDown-arc-l.json": {
+          "layouts": [
+            "MemoWriteDown"
+          ],
+          "animations": [
+            "MemoWriteDown_Base",
+            "MemoWriteDown_Decide",
+            "MemoWriteDown_EBtnOut",
+            "MemoWriteDown_EDecide",
+            "MemoWriteDown_Invalid",
+            "MemoWriteDown_KeyDecide",
+            "MemoWriteDown_MemoLeftEnd",
+            "MemoWriteDown_MemoLeftMove",
+            "MemoWriteDown_MemoLeftStart",
+            "MemoWriteDown_MemoRightEnd",
+            "MemoWriteDown_MemoRightMove",
+            "MemoWriteDown_MemoRightStart",
+            "MemoWriteDown_PanelIn",
+            "MemoWriteDown_PanelOut",
+            "MemoWriteDown_SceneIn",
+            "MemoWriteDown_SceneOut",
+            "MemoWriteDown_Select",
+            "MemoWriteDown_Shutter",
+            "MemoWriteDown_TDecide",
+            "MemoWriteDown_TSelect",
+            "MemoWriteDown_TglDecide"
+          ]
+        },
+        "packs/game-notes/messages-and-loose.json": {
+          "messages": {
+            "message": [
+              "0100Exitbtn",
+              "0200DescriptionAllClear",
+              "0200DescriptionPhotoSave",
+              "0201Dlog_Ngbtn",
+              "1000Help_WelcomeP1",
+              "9900Help_Donebtn",
+              "9900NoBreakGameMes",
+              "9900NoBreakGameMesList",
+              "lau_title_memo"
+            ]
+          }
+        },
+        "packs/game-notes/memo-ImageScreenUp-arc-l.json": {
+          "layouts": [
+            "ImageScreenUp"
+          ],
+          "animations": [
+            "ImageScreenUp_HudDoubleInOut",
+            "ImageScreenUp_HudDownInOut",
+            "ImageScreenUp_HudUpInOut",
+            "ImageScreenUp_PanelGameIn",
+            "ImageScreenUp_PanelGameOut",
+            "ImageScreenUp_PanelNoGameIn",
+            "ImageScreenUp_PanelNoGameOut",
+            "ImageScreenUp_SceneIn",
+            "ImageScreenUp_SceneOut",
+            "ImageScreenUp_SwitchDouble",
+            "ImageScreenUp_SwitchDown",
+            "ImageScreenUp_SwitchUp",
+            "ImageScreenUp_TextPanelInOut",
+            "ImageScreenUp_TextPanelStay"
+          ]
+        },
+        "packs/game-notes/memo-ApltBoot_D_00-arc-l.json": {
+          "layouts": [
+            "ApltBoot_D_00"
+          ],
+          "animations": [
+            "ApltBoot_D_00_SceneIn",
+            "ApltBoot_D_00_SceneOut"
+          ]
+        },
+        "packs/game-notes/memo-ApltBoot_U_00-arc-l.json": {
+          "layouts": [
+            "ApltBoot_U_00"
+          ],
+          "animations": [
+            "ApltBoot_U_00_SceneIn",
+            "ApltBoot_U_00_SceneOut"
+          ]
+        }
+      }
+    }
+  }
+}

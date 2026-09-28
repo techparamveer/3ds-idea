@@ -1,0 +1,1596 @@
+{
+  "provenance": {
+    "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "cursorFixtureSHA256": "00af50c4d548f39e5878f208298dcc48f98110f72652fe559852525316b46e0e",
+    "cursorResultsSHA256": "05b378c0534019c8ea8d22a966d23ea3bdfd1ac265d8b70d07fc21308f6eaa86",
+    "exportSHA256": "da05044887122fe232e971b0dc65ead592a49d14f8ebea6972f2777df2c42425",
+    "scope": "Copied numeric original-ARM effect observations. Supplied initial root density2/selected3/left0; toolbar saved column=-1. No firmware bytes.",
+    "bannerFixtureSHA256": "7b1be990ca14d0a5b650f8260647d64c4682e02a793f0fb8bbcfa597fb5d6b23",
+    "bannerResultsSHA256": "d686fa7d223fbb9ec505d831d5dbc148d7cb17bbedadfbad248b88afda94cdb4",
+    "bannerScope": "Numeric resolver attempts only; no classification or accepted-request dedup. Host pass indices retained; root-ready and direct overlay boundaries are supplied as documented in the source fixture."
+  },
+  "departures": [
+    {
+      "oldFocus": 0,
+      "key": 16,
+      "newFocus": 1,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -134.0,
+          104.0
+        ],
+        "scaleFrame": 10,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 0,
+      "key": 32,
+      "newFocus": 7,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -134.0,
+          104.0
+        ],
+        "scaleFrame": 10,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 0,
+      "key": 64,
+      "newFocus": -1,
+      "newSlot": 2,
+      "effect": {
+        "position": [
+          -134.0,
+          104.0
+        ],
+        "scaleFrame": 10,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 0,
+      "key": 128,
+      "newFocus": -1,
+      "newSlot": 0,
+      "effect": {
+        "position": [
+          -134.0,
+          104.0
+        ],
+        "scaleFrame": 10,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 1,
+      "key": 16,
+      "newFocus": 2,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -84.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 1,
+      "key": 32,
+      "newFocus": 0,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -84.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 1,
+      "key": 64,
+      "newFocus": -1,
+      "newSlot": 2,
+      "effect": {
+        "position": [
+          -84.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 1,
+      "key": 128,
+      "newFocus": -1,
+      "newSlot": 0,
+      "effect": {
+        "position": [
+          -84.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 2,
+      "key": 16,
+      "newFocus": 3,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -42.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 2,
+      "key": 32,
+      "newFocus": 1,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -42.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 2,
+      "key": 64,
+      "newFocus": -1,
+      "newSlot": 5,
+      "effect": {
+        "position": [
+          -42.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 2,
+      "key": 128,
+      "newFocus": -1,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -42.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 3,
+      "key": 16,
+      "newFocus": 4,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -0.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 3,
+      "key": 32,
+      "newFocus": 2,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -0.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 3,
+      "key": 64,
+      "newFocus": -1,
+      "newSlot": 8,
+      "effect": {
+        "position": [
+          -0.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 3,
+      "key": 128,
+      "newFocus": -1,
+      "newSlot": 6,
+      "effect": {
+        "position": [
+          -0.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 4,
+      "key": 16,
+      "newFocus": 5,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          42.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 4,
+      "key": 32,
+      "newFocus": 3,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          42.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 4,
+      "key": 64,
+      "newFocus": -1,
+      "newSlot": 11,
+      "effect": {
+        "position": [
+          42.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 4,
+      "key": 128,
+      "newFocus": -1,
+      "newSlot": 9,
+      "effect": {
+        "position": [
+          42.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 5,
+      "key": 16,
+      "newFocus": 6,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          84.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 5,
+      "key": 32,
+      "newFocus": 4,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          84.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 5,
+      "key": 64,
+      "newFocus": -1,
+      "newSlot": 14,
+      "effect": {
+        "position": [
+          84.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 5,
+      "key": 128,
+      "newFocus": -1,
+      "newSlot": 12,
+      "effect": {
+        "position": [
+          84.0,
+          103.5
+        ],
+        "scaleFrame": 11,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 6,
+      "key": 16,
+      "newFocus": 7,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          121.0,
+          104.0
+        ],
+        "scaleFrame": 12,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 6,
+      "key": 32,
+      "newFocus": 5,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          121.0,
+          104.0
+        ],
+        "scaleFrame": 12,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 6,
+      "key": 64,
+      "newFocus": -1,
+      "newSlot": 14,
+      "effect": {
+        "position": [
+          121.0,
+          104.0
+        ],
+        "scaleFrame": 12,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 6,
+      "key": 128,
+      "newFocus": -1,
+      "newSlot": 12,
+      "effect": {
+        "position": [
+          121.0,
+          104.0
+        ],
+        "scaleFrame": 12,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 7,
+      "key": 16,
+      "newFocus": 0,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          147.0,
+          104.0
+        ],
+        "scaleFrame": 12,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 7,
+      "key": 32,
+      "newFocus": 6,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          147.0,
+          104.0
+        ],
+        "scaleFrame": 12,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 7,
+      "key": 64,
+      "newFocus": -1,
+      "newSlot": 14,
+      "effect": {
+        "position": [
+          147.0,
+          104.0
+        ],
+        "scaleFrame": 12,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": 7,
+      "key": 128,
+      "newFocus": -1,
+      "newSlot": 12,
+      "effect": {
+        "position": [
+          147.0,
+          104.0
+        ],
+        "scaleFrame": 12,
+        "slot": 4294967295
+      }
+    },
+    {
+      "oldFocus": -1,
+      "key": 16,
+      "newFocus": -1,
+      "newSlot": 6,
+      "effect": {
+        "position": [
+          -54.0,
+          50.0
+        ],
+        "scaleFrame": 2,
+        "slot": 3
+      }
+    },
+    {
+      "oldFocus": -1,
+      "key": 64,
+      "newFocus": 2,
+      "newSlot": 3,
+      "effect": {
+        "position": [
+          -54.0,
+          50.0
+        ],
+        "scaleFrame": 2,
+        "slot": 3
+      }
+    }
+  ],
+  "touch": [
+    {
+      "oldFocus": -1,
+      "newSlot": 8,
+      "effect": {
+        "position": [
+          -54.0,
+          50.0
+        ],
+        "scaleFrame": 2,
+        "slot": 3
+      }
+    }
+  ],
+  "bannerScenarios": [
+    {
+      "kind": "direction",
+      "folder": -1,
+      "event": 4,
+      "selected": 0,
+      "afterInput": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "direction",
+      "folder": -1,
+      "event": 4,
+      "selected": 2,
+      "afterInput": {
+        "selected": 3,
+        "mode": 3,
+        "scrollElapsed": 0,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 3,
+        "mode": 0,
+        "scrollElapsed": 5,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 16.0,
+        "hostPasses": 5,
+        "repeatCounter": 0,
+        "audioCounter": 5
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 4,
+          "folder": -1,
+          "selected": 3,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "direction",
+      "folder": -1,
+      "event": 6,
+      "selected": 0,
+      "afterInput": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "direction",
+      "folder": -1,
+      "event": 6,
+      "selected": 2,
+      "afterInput": {
+        "selected": 3,
+        "mode": 3,
+        "scrollElapsed": 0,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 3,
+        "mode": 0,
+        "scrollElapsed": 5,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 16.0,
+        "hostPasses": 5,
+        "repeatCounter": 0,
+        "audioCounter": 5
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 4,
+          "folder": -1,
+          "selected": 3,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "direction",
+      "folder": 2,
+      "event": 4,
+      "selected": 0,
+      "afterInput": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": 2,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "direction",
+      "folder": 2,
+      "event": 4,
+      "selected": 2,
+      "afterInput": {
+        "selected": 3,
+        "mode": 3,
+        "scrollElapsed": 0,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 3,
+        "mode": 0,
+        "scrollElapsed": 5,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 16.0,
+        "hostPasses": 5,
+        "repeatCounter": 0,
+        "audioCounter": 5
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 4,
+          "folder": 2,
+          "selected": 3,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "direction",
+      "folder": 2,
+      "event": 6,
+      "selected": 0,
+      "afterInput": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": 2,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "direction",
+      "folder": 2,
+      "event": 6,
+      "selected": 2,
+      "afterInput": {
+        "selected": 3,
+        "mode": 3,
+        "scrollElapsed": 0,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 3,
+        "mode": 0,
+        "scrollElapsed": 5,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 16.0,
+        "hostPasses": 5,
+        "repeatCounter": 0,
+        "audioCounter": 5
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 4,
+          "folder": 2,
+          "selected": 3,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "deferred-replay",
+      "final": {
+        "selected": 4,
+        "mode": 3,
+        "scrollElapsed": 0,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 16.0,
+        "hostPasses": 5,
+        "repeatCounter": 0,
+        "audioCounter": 5
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 4,
+          "folder": -1,
+          "selected": 3,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "touch-tile",
+      "selected": 1,
+      "afterInput": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "touch-tile",
+      "selected": 4,
+      "afterInput": {
+        "selected": 4,
+        "mode": 3,
+        "scrollElapsed": 0,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "final": {
+        "selected": 4,
+        "mode": 0,
+        "scrollElapsed": 5,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 16.0,
+        "hostPasses": 5,
+        "repeatCounter": 0,
+        "audioCounter": 5
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 4,
+          "folder": -1,
+          "selected": 4,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "vacancy-dedup",
+      "laterEventsStart": 9,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 20.25,
+        "loopSubmitted": 19.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 14.0,
+        "hostPasses": 3,
+        "repeatCounter": 0,
+        "audioCounter": 3
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 0,
+          "focus": -1,
+          "toolbarActive": false
+        },
+        {
+          "caller": "0x296468",
+          "pass": 1,
+          "folder": -1,
+          "selected": 0,
+          "focus": -1,
+          "toolbarActive": false
+        },
+        {
+          "caller": "0x296468",
+          "pass": 2,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    }
+  ],
+  "bannerTransitions": [
+    {
+      "kind": "root-ready",
+      "restoredSlot": 3,
+      "restoredLeft": 3,
+      "final": {
+        "selected": 3,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 0,
+          "folder": -1,
+          "selected": 3,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "root-ready",
+      "restoredSlot": 2,
+      "restoredLeft": 3,
+      "final": {
+        "selected": 2,
+        "mode": 0,
+        "scrollElapsed": 5,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 35.25,
+        "loopSubmitted": 32.25,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 17.0,
+        "hostPasses": 6,
+        "repeatCounter": 0,
+        "audioCounter": 6
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 5,
+          "folder": -1,
+          "selected": 2,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "root-ready",
+      "restoredSlot": 6,
+      "restoredLeft": 3,
+      "final": {
+        "selected": 6,
+        "mode": 0,
+        "scrollElapsed": 5,
+        "scrollDuration": 5,
+        "scrollCounter": 5,
+        "loopCurrent": 35.25,
+        "loopSubmitted": 32.25,
+        "loopStep": 3.0,
+        "bannerCounter": 0,
+        "clipCurrent": 17.0,
+        "hostPasses": 6,
+        "repeatCounter": 0,
+        "audioCounter": 6
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 5,
+          "folder": -1,
+          "selected": 6,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "motion-completion",
+      "initialMode": 2,
+      "initialElapsed": 0,
+      "final": {
+        "selected": 1,
+        "mode": 2,
+        "scrollElapsed": 1,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": []
+    },
+    {
+      "kind": "motion-completion",
+      "initialMode": 2,
+      "initialElapsed": 9,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 10,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "motion-completion",
+      "initialMode": 5,
+      "initialElapsed": 0,
+      "final": {
+        "selected": 1,
+        "mode": 5,
+        "scrollElapsed": 1,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": []
+    },
+    {
+      "kind": "motion-completion",
+      "initialMode": 5,
+      "initialElapsed": 9,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 10,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "kind": "idle-entry-with-overlay",
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 9,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "resolvers": [
+        {
+          "caller": "0x29a4dc",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    }
+  ],
+  "bannerToolbar": [
+    {
+      "kind": "toolbar-category",
+      "focus": 0,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": 0,
+          "toolbarActive": true
+        }
+      ]
+    },
+    {
+      "kind": "toolbar-category",
+      "focus": 1,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": 1,
+          "toolbarActive": true
+        }
+      ]
+    },
+    {
+      "kind": "toolbar-category",
+      "focus": 2,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": 2,
+          "toolbarActive": true
+        }
+      ]
+    },
+    {
+      "kind": "toolbar-category",
+      "focus": 3,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": 3,
+          "toolbarActive": true
+        }
+      ]
+    },
+    {
+      "kind": "toolbar-category",
+      "focus": 4,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": 4,
+          "toolbarActive": true
+        }
+      ]
+    },
+    {
+      "kind": "toolbar-category",
+      "focus": 5,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": 5,
+          "toolbarActive": true
+        }
+      ]
+    },
+    {
+      "kind": "toolbar-category",
+      "focus": 6,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": 6,
+          "toolbarActive": true
+        }
+      ]
+    },
+    {
+      "kind": "toolbar-category",
+      "focus": 7,
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": 7,
+          "toolbarActive": true
+        }
+      ]
+    }
+  ],
+  "bannerGates": [
+    {
+      "gate": "upper-not-ready",
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "gate": "vacancy-before-init",
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "gate": "manager-uninitialized",
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 18.25,
+        "loopSubmitted": 17.25,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 12.0,
+        "hostPasses": 1,
+        "repeatCounter": 0,
+        "audioCounter": 1
+      },
+      "resolvers": [
+        {
+          "caller": "0x296468",
+          "pass": 0,
+          "folder": -1,
+          "selected": 1,
+          "focus": -1,
+          "toolbarActive": false
+        }
+      ]
+    },
+    {
+      "gate": "idle-overlay",
+      "final": {
+        "selected": 1,
+        "mode": 0,
+        "scrollElapsed": 0,
+        "scrollDuration": 10,
+        "scrollCounter": 5,
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "bannerCounter": 0,
+        "clipCurrent": 11.0,
+        "hostPasses": 0,
+        "repeatCounter": 0,
+        "audioCounter": 0
+      },
+      "resolvers": []
+    }
+  ]
+}

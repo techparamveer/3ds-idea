@@ -1,0 +1,289 @@
+{
+  "name": "camera-guide-pages-3-5-unobscured-live-feed",
+  "scope": "Only settled Welcome pages 3–5; no border-alpha or HUD masking.",
+  "sources": [
+    {
+      "file": "packs/camera/contents/0000-0000001a/lyt-C-Dlg.json",
+      "sha256": "32ef0772e40f2e1802c8f45cda2c7b0c424c488286720b3232ad5a15d58cfd4c"
+    },
+    {
+      "file": "packs/camera/contents/0000-0000001a/lyt-P_Finder_U-arc-LZ.json",
+      "sha256": "49aa8a88e6f01206551cbea5e7ee931c98a4e8c9ff448aee3efeddc8ee661bea"
+    },
+    {
+      "file": "packs/camera/contents/0000-0000001a/lyt-P_Guid_U-arc-LZ.json",
+      "sha256": "b35df349411c3dd51d344dffb9b43e692e7613ea6952b776b201afbcbc838e95"
+    },
+    {
+      "file": "textures/665505a3deb531c280efd484a261ca8132f6b548ac34655a02f45333c0eecebb.png",
+      "sha256": "665505a3deb531c280efd484a261ca8132f6b548ac34655a02f45333c0eecebb"
+    },
+    {
+      "file": "textures/8f0ff3062701d35fb201cd653f73e1ce1560b1447c26e0a0d8173c41abf1af66.png",
+      "sha256": "8f0ff3062701d35fb201cd653f73e1ce1560b1447c26e0a0d8173c41abf1af66"
+    }
+  ],
+  "protectedBounds": [
+    {
+      "name": "P_Guid05_U/DS",
+      "x": 127,
+      "y": 46,
+      "width": 142,
+      "height": 152
+    },
+    {
+      "name": "P_Guid05_U/Btn",
+      "x": 261,
+      "y": 96,
+      "width": 4,
+      "height": 8
+    },
+    {
+      "name": "P_Guid05_U/Ring",
+      "x": 247,
+      "y": 83,
+      "width": 34,
+      "height": 34
+    },
+    {
+      "name": "P_Guid05_U/Arrow",
+      "x": 284,
+      "y": 69,
+      "width": 20,
+      "height": 64
+    },
+    {
+      "name": "P_Guid01_U/CircleApple",
+      "x": 40,
+      "y": 98,
+      "width": 98,
+      "height": 98
+    },
+    {
+      "name": "P_Guid01_U/CircleDs",
+      "x": 279,
+      "y": 46,
+      "width": 80,
+      "height": 80
+    },
+    {
+      "name": "P_Guid01_U/Arrow",
+      "x": 137,
+      "y": 96,
+      "width": 142,
+      "height": 42
+    },
+    {
+      "name": "P_Guid01_U/Ds",
+      "x": 278,
+      "y": 57,
+      "width": 84,
+      "height": 56
+    },
+    {
+      "name": "P_Guid01_U/Apple",
+      "x": 41,
+      "y": 88,
+      "width": 88,
+      "height": 116
+    },
+    {
+      "name": "P_Guid02_U/Ballon",
+      "x": 173,
+      "y": 32,
+      "width": 60,
+      "height": 68
+    },
+    {
+      "name": "P_Guid02_U/Inko",
+      "x": 170,
+      "y": 100,
+      "width": 64,
+      "height": 112
+    },
+    {
+      "name": "P_Guid02_U/Pen",
+      "x": 190,
+      "y": 104,
+      "width": 132,
+      "height": 24
+    },
+    {
+      "name": "P_Guid02_U/Effect_Ballon",
+      "x": 135,
+      "y": 34,
+      "width": 32,
+      "height": 58
+    },
+    {
+      "name": "P_Guid02_U/Effect_Inko",
+      "x": 246,
+      "y": 140,
+      "width": 32,
+      "height": 58
+    },
+    {
+      "name": "P_Finder_U/PhoRem",
+      "x": 0,
+      "y": 0,
+      "width": 177,
+      "height": 24
+    },
+    {
+      "name": "P_Finder_U/Storage",
+      "x": 369,
+      "y": 209,
+      "width": 31,
+      "height": 31
+    },
+    {
+      "name": "P_Finder_U/ViewInfo",
+      "x": 367,
+      "y": 1,
+      "width": 32,
+      "height": 32
+    }
+  ],
+  "regions": [
+    {
+      "screen": "upper",
+      "x": 177,
+      "y": 0,
+      "width": 223,
+      "height": 1,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 177,
+      "y": 1,
+      "width": 190,
+      "height": 5,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 399,
+      "y": 1,
+      "width": 1,
+      "height": 32,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 24,
+      "width": 6,
+      "height": 200,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 394,
+      "y": 33,
+      "width": 6,
+      "height": 176,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 224,
+      "width": 7,
+      "height": 2,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 226,
+      "width": 8,
+      "height": 2,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 228,
+      "width": 9,
+      "height": 1,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 229,
+      "width": 10,
+      "height": 1,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 230,
+      "width": 11,
+      "height": 1,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 231,
+      "width": 12,
+      "height": 1,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 232,
+      "width": 14,
+      "height": 1,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 233,
+      "width": 16,
+      "height": 1,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    },
+    {
+      "screen": "upper",
+      "x": 0,
+      "y": 234,
+      "width": 369,
+      "height": 6,
+      "category": "feature-map-adaptation",
+      "reason": "Strictly zero guide alpha exposes the intentionally replaced live camera feed; guide border, illustrations and HUD bounds remain compared.",
+      "featureMapRef": "docs/camera-guide-feed-mask.md"
+    }
+  ]
+}

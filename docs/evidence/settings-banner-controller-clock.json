@@ -1,0 +1,206 @@
+{
+  "homeCodeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "settingsSelectedCgfxSha256": "96ea28f70671cf2b62aded3e3ef203cdf365929ae9422798255c628499c0910d",
+  "execution": [
+    "0x10b3d0",
+    "0x24ff10",
+    "0x1bbd94",
+    "0x24fe18",
+    "0x24ff78"
+  ],
+  "rows": [
+    {
+      "sample": "constructed-before-attachment",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": false,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "detached-pass",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": false,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-1",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 1.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-2",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 2.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-598",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 598.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-599",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 599.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "attached-pass-600",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": true,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "hide-detached-pass",
+      "titleId": "0004001000022000",
+      "requestIdentity": "0004001000022000:COMMON",
+      "sceneMember": false,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    },
+    {
+      "sample": "retargeted-away",
+      "titleId": "0004001000022000",
+      "requestIdentity": "different-title",
+      "sceneMember": false,
+      "currentFrame": 0.0,
+      "state": 1,
+      "mode": 2
+    }
+  ],
+  "scope": "Synthetic Settings-labeled 600-frame looping controller in original scene-list walker; attachment is supplied directly. A supplied descriptor receives one start pose callback, and two later attached scene passes advance the clock without another pose callback. Native title-driven attachment/hide/retarget, visible pose submission, and pixels are not executed.",
+  "firstStartSubmission": {
+    "submitAddress": "0x833000",
+    "sourceCall": "0x24ffec",
+    "submittedFrame": 0.0,
+    "currentFrame": 0.0,
+    "attachedScenePasses": 2,
+    "frameAfterAttachedPasses": 2.0,
+    "poseCallbacksAfterAttachedPasses": 0
+  },
+  "visibilityTransition": {
+    "titleId": "0004001000022000",
+    "sceneIndex": 1,
+    "rows": [
+      {
+        "sample": "first-show-update",
+        "actualVisible": 1,
+        "requestedVisible": 1,
+        "transitionStep": 1,
+        "events": [
+          {
+            "address": "0x1f7c78",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          },
+          {
+            "address": "0x24f170",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          }
+        ]
+      },
+      {
+        "sample": "hide-update-1",
+        "actualVisible": 1,
+        "requestedVisible": 0,
+        "transitionStep": 0,
+        "events": [
+          {
+            "address": "0x1f7c78",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          },
+          {
+            "address": "0x24f170",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          }
+        ]
+      },
+      {
+        "sample": "hide-update-2",
+        "actualVisible": 0,
+        "requestedVisible": 0,
+        "transitionStep": 3,
+        "events": [
+          {
+            "address": "0x1f7c78",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          },
+          {
+            "address": "0x24f170",
+            "actualVisibleBefore": 0,
+            "requestedVisible": 1
+          },
+          {
+            "address": "0x1f7c78",
+            "actualVisibleBefore": 1,
+            "requestedVisible": 0
+          },
+          {
+            "address": "0x24f3b0",
+            "actualVisibleBefore": 1,
+            "requestedVisible": 0
+          }
+        ]
+      }
+    ],
+    "scope": "Native visibility setter 0x1f9e64, generic update 0x1fa344, and indirect callback 0x1f7c78 execute on one synthetic Settings-labeled primary. Native attach 0x24f170 and detach 0x24f3b0 are entered but stubbed; source scene membership, CGFX binding, pose submission, and pixels are unobserved."
+  },
+  "nativeSceneInsertion": {
+    "titleId": "0004001000022000",
+    "candidatePointerSource": "synthetic manager +0x50",
+    "sceneIndex": 1,
+    "listCount": 1,
+    "insertedNode": "0x840004",
+    "actualVisibleByte": 1,
+    "renderDispatchStop": "0x1038c0",
+    "controllerFramesAtRenderDispatch": [
+      1.0,
+      2.0
+    ],
+    "visited": [
+      "0x1f9e64",
+      "0x1fa344",
+      "0x1f7c78",
+      "0x24f170",
+      "0x24f30c",
+      "0x230710",
+      "0x24e0c0",
+      "0x103808",
+      "0x10b3d0",
+      "0x24ff10",
+      "0x1038c0",
+      "0x103808",
+      "0x10b3d0",
+      "0x24ff10",
+      "0x1038c0"
+    ],
+    "scope": "Original visibility setter, generic update and indirect callback enter original 0x24f170/0x230710, inserting a supplied primary into the global scene list and setting its actual-visible byte. Original 0x103808 reaches it twice, calls 0x10b3d0/0x24ff10, and reaches scene-1 render dispatch. Candidate, model children, scene service and controller are synthetic; external allocators/services are stubbed; CGFX binding, submitted visible pose and pixels are not observed."
+  }
+}

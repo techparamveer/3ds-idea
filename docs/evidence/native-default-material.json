@@ -1,0 +1,977 @@
+{
+  "scope": "Source-only investigation; no scene code, public assets, browser or native process changes",
+  "nativeLightExecution": {
+    "kind": "Original ARM in Unicorn; loader object construction and transform getter stubbed; no GPU or native process",
+    "codeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "resourceSha256": "e5711a422d51e11c7047ebcb415401451335c39c46ecfbf1e3abdbffe8985955",
+    "lightResourceOffset": "0x4f40",
+    "sourceFlags": 1,
+    "sourceType": 0,
+    "sourceLocalTransform": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    "sourceWorldTransform": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    "sourceDirection": [
+      0.0,
+      -0.41036465764045715,
+      -0.911921501159668
+    ],
+    "loader": {
+      "entry": "0x24e638",
+      "stop": "0x24e700",
+      "loadedResourceOffsets": [
+        "0x4f40"
+      ]
+    },
+    "factory": {
+      "entry": "0x184500",
+      "fragmentLightConstructor": "0x1858a4"
+    },
+    "constructorCopy": {
+      "entry": "0x185908",
+      "stop": "0x185934",
+      "sourceDirectionOffset": "0x10c",
+      "objectDirectionOffset": "0x184"
+    },
+    "update": {
+      "entry": "0x18552c",
+      "rows": [
+        {
+          "case": "authored_unparented",
+          "flags": 1,
+          "input": [
+            0.0,
+            -0.41036465764045715,
+            -0.911921501159668
+          ],
+          "output": [
+            0.0,
+            -0.41036465764045715,
+            -0.911921501159668
+          ],
+          "worldMatrixGetterStubbed": false
+        },
+        {
+          "case": "authored_parented",
+          "flags": 1,
+          "input": [
+            0.0,
+            -0.41036465764045715,
+            -0.911921501159668
+          ],
+          "output": [
+            0.0,
+            -0.41036465764045715,
+            -0.911921501159668
+          ],
+          "worldMatrixGetterStubbed": false
+        },
+        {
+          "case": "transform_enabled_identity",
+          "flags": 9,
+          "input": [
+            0.0,
+            -0.41036465764045715,
+            -0.911921501159668
+          ],
+          "output": [
+            0.0,
+            -0.41036465764045715,
+            -0.911921501159668
+          ],
+          "worldMatrixGetterStubbed": true
+        },
+        {
+          "case": "transform_enabled_y90_control",
+          "flags": 9,
+          "input": [
+            0.0,
+            -0.41036465764045715,
+            -0.911921501159668
+          ],
+          "output": [
+            -0.911921501159668,
+            -0.41036465764045715,
+            -0.0
+          ],
+          "worldMatrixGetterStubbed": true
+        }
+      ]
+    },
+    "unresolved": "Direction-to-PICA register installation and native vertex normal convention; no production sign change established."
+  },
+  "tevEvaluation": {
+    "kind": "CPU evaluation of authored TEV at real texture values; representative front normal, no rasterization or native GPU validation",
+    "sourceSha256": "e5711a422d51e11c7047ebcb415401451335c39c46ecfbf1e3abdbffe8985955",
+    "jsonSha256": "e37e57dc6369b68874857ebf5ce0e719987d6301a1cd4dddaf67227848bbaa9d",
+    "webTextureSha256": "0a3c3110b71c59996283deafc164a264e8af0920e7a40521ad9645c0b6ad1715",
+    "material": "mt_04",
+    "authoredDirection": [
+      0,
+      -0.41036466,
+      -0.9119215
+    ],
+    "frontNormal": [
+      0,
+      0,
+      1
+    ],
+    "frontNormals": [
+      [
+        0.097567,
+        -0.0975669,
+        0.990435
+      ],
+      [
+        0.097567,
+        0.0975669,
+        0.990435
+      ],
+      [
+        -0.097567,
+        -0.0975669,
+        0.990435
+      ],
+      [
+        -0.097567,
+        0.0975669,
+        0.990435
+      ]
+    ],
+    "rows": [
+      {
+        "name": "currentSourceDirection",
+        "primary": 0,
+        "secondary": 1,
+        "samples": [
+          {
+            "name": "coloredInk",
+            "input": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "sourceTexelCount": 905,
+            "rgba": [
+              0.5686274509803921,
+              1,
+              1,
+              1
+            ],
+            "rgba255": [
+              145,
+              255,
+              255,
+              255
+            ],
+            "stages": [
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                1
+              ],
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                0.5019607843137255
+              ],
+              [
+                0.5686274509803921,
+                1,
+                1,
+                1
+              ],
+              [
+                0.5686274509803921,
+                1,
+                1,
+                1
+              ],
+              [
+                0.5686274509803921,
+                1,
+                1,
+                1
+              ],
+              [
+                0.5686274509803921,
+                1,
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "name": "whiteGlyphOrBorder",
+            "input": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "sourceTexelCount": 722,
+            "rgba": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "rgba255": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "stages": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                0.5019607843137255
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "name": "cubeSurface",
+            "input": [
+              255,
+              255,
+              255,
+              0
+            ],
+            "sourceTexelCount": 1838,
+            "rgba": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "rgba255": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "stages": [
+              [
+                1,
+                1,
+                1,
+                0.5019607843137255
+              ],
+              [
+                0.5490196078431373,
+                0.5490196078431373,
+                0.5490196078431373,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "name": "negatedDirectionDiagnostic",
+        "primary": 0.9119215107884121,
+        "secondary": 1,
+        "samples": [
+          {
+            "name": "coloredInk",
+            "input": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "sourceTexelCount": 905,
+            "rgba": [
+              0.11087861419248334,
+              0.57754528085915,
+              1,
+              1
+            ],
+            "rgba255": [
+              28,
+              147,
+              255,
+              255
+            ],
+            "stages": [
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                1
+              ],
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                0.5019607843137255
+              ],
+              [
+                0.11087861419248334,
+                0.57754528085915,
+                1,
+                1
+              ],
+              [
+                0.11087861419248334,
+                0.57754528085915,
+                1,
+                1
+              ],
+              [
+                0.11087861419248334,
+                0.57754528085915,
+                1,
+                1
+              ],
+              [
+                0.11087861419248334,
+                0.57754528085915,
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "name": "whiteGlyphOrBorder",
+            "input": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "sourceTexelCount": 722,
+            "rgba": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "rgba255": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "stages": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                0.5019607843137255
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "name": "cubeSurface",
+            "input": [
+              255,
+              255,
+              255,
+              0
+            ],
+            "sourceTexelCount": 1838,
+            "rgba": [
+              0.6370980970547252,
+              0.6370980970547252,
+              0.6370980970547252,
+              0.38646311073790784
+            ],
+            "rgba255": [
+              162,
+              162,
+              162,
+              99
+            ],
+            "stages": [
+              [
+                1,
+                1,
+                1,
+                0.04421194752581667
+              ],
+              [
+                0.5490196078431373,
+                0.5490196078431373,
+                0.5490196078431373,
+                1
+              ],
+              [
+                0.6370980970547252,
+                0.6370980970547252,
+                0.6370980970547252,
+                0.38646311073790784
+              ],
+              [
+                0.6370980970547252,
+                0.6370980970547252,
+                0.6370980970547252,
+                0.38646311073790784
+              ],
+              [
+                0.6370980970547252,
+                0.6370980970547252,
+                0.6370980970547252,
+                0.38646311073790784
+              ],
+              [
+                0.6370980970547252,
+                0.6370980970547252,
+                0.6370980970547252,
+                0.38646311073790784
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "name": "primaryOneControl",
+        "primary": 1,
+        "secondary": 1,
+        "samples": [
+          {
+            "name": "coloredInk",
+            "input": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "sourceTexelCount": 905,
+            "rgba": [
+              0.06666666666666667,
+              0.5333333333333333,
+              0.9686274509803922,
+              1
+            ],
+            "rgba255": [
+              17,
+              136,
+              247,
+              255
+            ],
+            "stages": [
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                1
+              ],
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                0.5019607843137255
+              ],
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                1
+              ],
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                1
+              ],
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                1
+              ],
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                1
+              ]
+            ]
+          },
+          {
+            "name": "whiteGlyphOrBorder",
+            "input": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "sourceTexelCount": 722,
+            "rgba": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "rgba255": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "stages": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                0.5019607843137255
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "name": "cubeSurface",
+            "input": [
+              255,
+              255,
+              255,
+              0
+            ],
+            "sourceTexelCount": 1838,
+            "rgba": [
+              0.5490196078431373,
+              0.5490196078431373,
+              0.5490196078431373,
+              0.2980392156862745
+            ],
+            "rgba255": [
+              140,
+              140,
+              140,
+              76
+            ],
+            "stages": [
+              [
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                0.5490196078431373,
+                0.5490196078431373,
+                0.5490196078431373,
+                1
+              ],
+              [
+                0.5490196078431373,
+                0.5490196078431373,
+                0.5490196078431373,
+                0.2980392156862745
+              ],
+              [
+                0.5490196078431373,
+                0.5490196078431373,
+                0.5490196078431373,
+                0.2980392156862745
+              ],
+              [
+                0.5490196078431373,
+                0.5490196078431373,
+                0.5490196078431373,
+                0.2980392156862745
+              ],
+              [
+                0.5490196078431373,
+                0.5490196078431373,
+                0.5490196078431373,
+                0.2980392156862745
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "name": "zeroSecondaryRejected",
+        "primary": 0,
+        "secondary": 0,
+        "samples": [
+          {
+            "name": "coloredInk",
+            "input": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "sourceTexelCount": 905,
+            "rgba": [
+              0.5686274509803921,
+              1,
+              1,
+              1
+            ],
+            "rgba255": [
+              145,
+              255,
+              255,
+              255
+            ],
+            "stages": [
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                1
+              ],
+              [
+                0.06666666666666667,
+                0.5333333333333333,
+                0.9686274509803922,
+                0.5019607843137255
+              ],
+              [
+                0.5686274509803921,
+                1,
+                1,
+                1
+              ],
+              [
+                0.5686274509803921,
+                1,
+                1,
+                1
+              ],
+              [
+                0.5686274509803921,
+                1,
+                1,
+                1
+              ],
+              [
+                0.5686274509803921,
+                1,
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "name": "whiteGlyphOrBorder",
+            "input": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "sourceTexelCount": 722,
+            "rgba": [
+              0.5019607843137255,
+              0.5019607843137255,
+              0.5019607843137255,
+              1
+            ],
+            "rgba255": [
+              128,
+              128,
+              128,
+              255
+            ],
+            "stages": [
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                0.5019607843137255
+              ],
+              [
+                0.5019607843137255,
+                0.5019607843137255,
+                0.5019607843137255,
+                1
+              ],
+              [
+                0.5019607843137255,
+                0.5019607843137255,
+                0.5019607843137255,
+                1
+              ],
+              [
+                0.5019607843137255,
+                0.5019607843137255,
+                0.5019607843137255,
+                1
+              ],
+              [
+                0.5019607843137255,
+                0.5019607843137255,
+                0.5019607843137255,
+                1
+              ]
+            ]
+          },
+          {
+            "name": "cubeSurface",
+            "input": [
+              255,
+              255,
+              255,
+              0
+            ],
+            "sourceTexelCount": 1838,
+            "rgba": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "rgba255": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "stages": [
+              [
+                0,
+                0,
+                0,
+                0.5019607843137255
+              ],
+              [
+                0.5490196078431373,
+                0.5490196078431373,
+                0.5490196078431373,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "folderGlobalFlipRisk": [
+      {
+        "directionSign": 1,
+        "exampleNormal": [
+          0,
+          0,
+          1
+        ],
+        "exampleView": [
+          0,
+          0,
+          1
+        ],
+        "cosNormalHalf": 0.38268343236508984,
+        "distribution": 0,
+        "secondaryRGBAdd255": 0
+      },
+      {
+        "directionSign": -1,
+        "exampleNormal": [
+          0,
+          0,
+          1
+        ],
+        "exampleView": [
+          0,
+          0,
+          1
+        ],
+        "cosNormalHalf": 0.9238795325112867,
+        "distribution": 0.21497407961342938,
+        "secondaryRGBAdd255": 21.927356120569797
+      }
+    ],
+    "limits": [
+      "Does not establish native PICA installed light vector or vertex normal convention.",
+      "Negated direction is a diagnostic input, not an approved correction.",
+      "Folder values demonstrate source LUT sensitivity for a representative basis, not a matched-frame prediction.",
+      "Float TEV evaluation follows current shader; PICA per-stage byte rounding remains a separate small precision gap."
+    ]
+  },
+  "sources": [
+    {
+      "name": "Azahar fragment generator",
+      "url": "https://github.com/azahar-emu/azahar/blob/b8c29a64c306bac3866a5ed293ebee94ef6dcb00/src/video_core/shader/generator/glsl_fs_shader_gen.cpp"
+    },
+    {
+      "name": "SPICA CGFX buffer decoder",
+      "url": "https://github.com/gdkchan/SPICA/blob/bd29a7828595d7839cda2ac61c76bb63f9071250/SPICA/Formats/CtrGfx/Model/Material/GfxFragShader.cs"
+    },
+    {
+      "name": "SPICA light preview convention",
+      "url": "https://github.com/gdkchan/SPICA/blob/bd29a7828595d7839cda2ac61c76bb63f9071250/SPICA.Rendering/Light.cs"
+    }
+  ],
+  "privateArtifactSHA256": {
+    "evaluate.mjs": "12b6b2d893981e46a353c153e3fc8900b36f4e89721242b89d4fad8f7f5f2be0",
+    "execute-light.py": "d498c1bdef9a43536e6a56e233bfed71838285db1b684d597040cfbdbf456f7c",
+    "evaluated.json": "dd1c217595a7acb2ebebd6cd84df90d35378e9cea37c4c6b077a8612e06b32af",
+    "executed-light.json": "ceb52f1a0d23f9555509633ac5c7ef40312368a0eb9fd923a5ac89da22d43174",
+    "glsl_fs_shader_gen-b8c29a6.cpp": "c6ef6fb7783733463423f26015c9e70cd235af0c026910b09b169ed020436dec"
+  }
+}

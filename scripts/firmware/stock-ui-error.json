@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400300000c502": {
+      "packs": {
+        "packs/error/erreula.json": {
+          "layouts": [
+            "ErrBG_D_00",
+            "ErrNormal_D_00",
+            "ErrBtmBtn_D_00",
+            "ErrEULA_D_00",
+            "ErrDlgBtn_D_00"
+          ],
+          "animations": [
+            "ErrBtmBtn_D_00_Decide",
+            "ErrBtmBtn_D_00_SceneIn",
+            "ErrBtmBtn_D_00_SceneOut",
+            "ErrBtmBtn_D_00_Select",
+            "ErrDlgBtn_D_00_Decide",
+            "ErrDlgBtn_D_00_FadeIn",
+            "ErrDlgBtn_D_00_FadeOut00",
+            "ErrDlgBtn_D_00_FadeOut01",
+            "ErrDlgBtn_D_00_Select",
+            "ErrEULA_D_00_SceneIn",
+            "ErrEULA_D_00_SceneOut",
+            "ErrEULA_D_00_Select",
+            "ErrNormal_D_00_Decide",
+            "ErrNormal_D_00_SceneIn",
+            "ErrNormal_D_00_SceneOut",
+            "ErrNormal_D_00_Select"
+          ]
+        },
+        "packs/error/messages-and-loose.json": {
+          "messages": {
+            "error_msbt_LZ": [
+              "error_title1"
+            ],
+            "eula_msbt_LZ": [
+              "eula_title",
+              "eula_back",
+              "dlg_2b_back"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

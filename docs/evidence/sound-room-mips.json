@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "resource": "S_Back_U.bcmdl.LZ",
+  "compressedSourceSha256": "8c7d41fee74034b22bbd39b3a35d24906057f996c9201de51596feb218f504f5",
+  "rebuildByteIdentical": [
+    "model.json",
+    "texture-0.png",
+    "texture-0-mip-1.png",
+    "texture-0-mip-2.png",
+    "texture-0-mip-3.png",
+    "texture-0-mip-4.png",
+    "texture-1.png",
+    "texture-1-mip-1.png",
+    "texture-1-mip-2.png",
+    "texture-1-mip-3.png"
+  ],
+  "textures": [
+    {
+      "name": "S_BG_U_Tx_A",
+      "nativeMipCount": 5,
+      "mipmaps": [
+        {
+          "level": 1,
+          "url": "texture-0-mip-1.png",
+          "width": 64,
+          "height": 64,
+          "sourceOffset": 16384,
+          "sourceSize": 4096,
+          "sourceSha256": "c7b72ff03593f030a2a0b1aa92f827beb38c690b2364fe4deac3828f96709689",
+          "sha256": "6604436ff2c5832d0f77c952218927c1ea5c1c5f92222a78c2d32b2b03cea31e"
+        },
+        {
+          "level": 2,
+          "url": "texture-0-mip-2.png",
+          "width": 32,
+          "height": 32,
+          "sourceOffset": 20480,
+          "sourceSize": 1024,
+          "sourceSha256": "ce64aeddf764635a93e05b61457e65736acfb50330283db977219faea773246b",
+          "sha256": "d0c61fa6d70bcae72400345563e438df39322557dd282f571d911842c9634329"
+        },
+        {
+          "level": 3,
+          "url": "texture-0-mip-3.png",
+          "width": 16,
+          "height": 16,
+          "sourceOffset": 21504,
+          "sourceSize": 256,
+          "sourceSha256": "686e5a340998dbdf9e2e1909952c7091f656c5b88c7a0c6edf61e2991d1c9466",
+          "sha256": "659df30010b5088030e9663a29a688625bd7258aa4e2e4e1468d64a5703092fa"
+        },
+        {
+          "level": 4,
+          "url": "texture-0-mip-4.png",
+          "width": 8,
+          "height": 8,
+          "sourceOffset": 21760,
+          "sourceSize": 64,
+          "sourceSha256": "c4eb31a71a5c3b014f46be7c637aa39c66dd62e4314a5ef1d0d8947f66f93f78",
+          "sha256": "f15da1acd274f8b3aa054e5cfedf9d3cbaaf7a6164045f5fb7957f95af32160b"
+        }
+      ]
+    },
+    {
+      "name": "S_BG_U_Tx_BC",
+      "nativeMipCount": 4,
+      "mipmaps": [
+        {
+          "level": 1,
+          "url": "texture-1-mip-1.png",
+          "width": 128,
+          "height": 64,
+          "sourceOffset": 16384,
+          "sourceSize": 4096,
+          "sourceSha256": "0b8b75bc4b94eaa783542cf9d0c1f9b50b8b5300dc8b26945e0f3c58d9eab87e",
+          "sha256": "8caae71b5a52ce5d43b81dc70377f4c8fbfc03f79a9fe46ec0a305ffa5f9ca04"
+        },
+        {
+          "level": 2,
+          "url": "texture-1-mip-2.png",
+          "width": 64,
+          "height": 32,
+          "sourceOffset": 20480,
+          "sourceSize": 1024,
+          "sourceSha256": "40c78d8abb54e800a842616f7753899d2de69af14ec460710e7de20e1b46fcc9",
+          "sha256": "cd6d9b1fb5a919306b22f4a79401e1eaf07d7ec4351e0a49a2e8bf5ff6e3f7ab"
+        },
+        {
+          "level": 3,
+          "url": "texture-1-mip-3.png",
+          "width": 32,
+          "height": 16,
+          "sourceOffset": 21504,
+          "sourceSize": 256,
+          "sourceSha256": "480f51332a596f64a902be18be2edcfedf71a3578d104e87609b6d74d665cd7d",
+          "sha256": "80fa7663d42d7ab6a3efefd2010619a05fcb6a2923a104bf96e9975322bc6ffb"
+        }
+      ]
+    }
+  ],
+  "comparison": {
+    "base": {
+      "sampling": "base",
+      "lodCounts": {
+        "0": 190710
+      },
+      "comparison": {
+        "regions": [
+          [
+            0,
+            34,
+            400,
+            70
+          ],
+          [
+            0,
+            113,
+            400,
+            58
+          ]
+        ],
+        "meanAbsoluteRgbError": 5.499140625,
+        "maxAbsoluteRgbError": 138,
+        "method": "CPU bilinear perspective specimen; not GPU or pixel-equivalence acceptance"
+      }
+    },
+    "native": {
+      "sampling": "authored-mips",
+      "lodCounts": {
+        "0": 176758,
+        "1": 13548,
+        "2": 404
+      },
+      "comparison": {
+        "regions": [
+          [
+            0,
+            34,
+            400,
+            70
+          ],
+          [
+            0,
+            113,
+            400,
+            58
+          ]
+        ],
+        "meanAbsoluteRgbError": 5.331022135416666,
+        "maxAbsoluteRgbError": 138,
+        "method": "CPU bilinear perspective specimen; not GPU or pixel-equivalence acceptance"
+      }
+    }
+  }
+}

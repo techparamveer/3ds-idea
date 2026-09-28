@@ -1,3 +1,5 @@
+> UI update: the later `uifix` rebuild, source record, browser evidence and remaining limits are documented in [uifix-audit.md](uifix-audit.md). The Arial/no-bundled-font statements below describe the September 10 integration, not the current branch.
+
 # HOME Menu worktree integration
 
 Integrated `codex/home-menu-assets` through `06e7729` into the hardware/site checkout on 2026-09-10. The separate branch and worktree remain preserved. The completed task was inactive during integration; no active edits were interrupted.

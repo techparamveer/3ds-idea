@@ -1,0 +1,6913 @@
+{
+  "provenance": {
+    "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "pinnedResults": {
+      "audio/native-primary-cursor/verified/checked.json": "d46f07f0b5a0ed2bcf5317d004a2f17da554bf46876b5c463fd46b1ae262a45a",
+      "presentation/native-toolbar-cursor/verified/checked.json": "05b378c0534019c8ea8d22a966d23ea3bdfd1ac265d8b70d07fc21308f6eaa86",
+      "audio/native-primary-footer/checked.json": "8cee2d4e013d808f1dee0c8e5fcda544548a447551199333f83a6f2848f626c8"
+    },
+    "primaryFixtureSHA256": "c1d11e146e3fd3413acce21114474d7e6b18f5e8592171c8cd8c7f5d7b6ac62c",
+    "toolbarFixtureSHA256": "00af50c4d548f39e5878f208298dcc48f98110f72652fe559852525316b46e0e",
+    "footerFixtureSHA256": "1e33ca843116a77485c70b45520305d37131d64bb02102e8f644f4fcd8aa05ae",
+    "exportSHA256": "35eeebeac81a7274687238a811214ba8e9349dec2e482d4e3ced6fb7133e3d53",
+    "scope": "Copied numeric original-ARM mature primary state, current supplied geometry and executed footer/helper metadata. No TypeScript-generated expectations or executable bytes."
+  },
+  "entries": [
+    {
+      "folder": -1,
+      "density": 0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 0.0,
+        "selectedGrid": [
+          84.0,
+          -41.0
+        ],
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "selected": 2,
+        "overlay": false
+      },
+      "afterInput": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 0.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "rows": [
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 9.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 18.25,
+          "loopSubmitted": 17.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 17.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 19.25,
+          "loopSubmitted": 18.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 26.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 20.25,
+          "loopSubmitted": 19.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 34.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 21.25,
+          "loopSubmitted": 20.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 42.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 22.25,
+          "loopSubmitted": 21.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 51.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 23.25,
+          "loopSubmitted": 22.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 59.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 24.25,
+          "loopSubmitted": 23.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 68.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 25.25,
+          "loopSubmitted": 24.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 76.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 26.25,
+          "loopSubmitted": 25.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 0,
+          "scroll": 84.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 27.25,
+          "loopSubmitted": 26.25,
+          "loopStep": 1.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": true,
+            "visibilityWrites": []
+          }
+        }
+      ]
+    },
+    {
+      "folder": -1,
+      "density": 0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 0.0,
+        "selectedGrid": [
+          84.0,
+          -41.0
+        ],
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "selected": 2,
+        "overlay": false
+      },
+      "afterInput": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 0.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "rows": [
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 17.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 20.25,
+          "loopSubmitted": 17.25,
+          "loopStep": 3.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": [
+              true
+            ]
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 34.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 23.25,
+          "loopSubmitted": 20.25,
+          "loopStep": 3.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 51.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 26.25,
+          "loopSubmitted": 23.25,
+          "loopStep": 3.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 68.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 29.25,
+          "loopSubmitted": 26.25,
+          "loopStep": 3.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            84.0,
+            -41.0,
+            0.0
+          ],
+          "mode": 0,
+          "scroll": 84.0,
+          "selectedGrid": [
+            168.0,
+            -41.0
+          ],
+          "loopCurrent": 32.25,
+          "loopSubmitted": 29.25,
+          "loopStep": 3.0,
+          "selected": 3,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": true,
+            "visibilityWrites": []
+          }
+        }
+      ]
+    },
+    {
+      "folder": -1,
+      "density": 2,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          108.0,
+          50.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 0.0,
+        "selectedGrid": [
+          108.0,
+          50.0
+        ],
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "selected": 12,
+        "overlay": false
+      },
+      "afterInput": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          108.0,
+          50.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 0.0,
+        "selectedGrid": [
+          162.0,
+          50.0
+        ],
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 3.0,
+        "selected": 15,
+        "overlay": false
+      },
+      "rows": [
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            108.0,
+            50.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 11.0,
+          "selectedGrid": [
+            162.0,
+            50.0
+          ],
+          "loopCurrent": 20.25,
+          "loopSubmitted": 17.25,
+          "loopStep": 3.0,
+          "selected": 15,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            108.0,
+            50.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 22.0,
+          "selectedGrid": [
+            162.0,
+            50.0
+          ],
+          "loopCurrent": 23.25,
+          "loopSubmitted": 20.25,
+          "loopStep": 3.0,
+          "selected": 15,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            108.0,
+            50.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 33.0,
+          "selectedGrid": [
+            162.0,
+            50.0
+          ],
+          "loopCurrent": 26.25,
+          "loopSubmitted": 23.25,
+          "loopStep": 3.0,
+          "selected": 15,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            108.0,
+            50.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 44.0,
+          "selectedGrid": [
+            162.0,
+            50.0
+          ],
+          "loopCurrent": 29.25,
+          "loopSubmitted": 26.25,
+          "loopStep": 3.0,
+          "selected": 15,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            108.0,
+            50.0,
+            0.0
+          ],
+          "mode": 0,
+          "scroll": 54.0,
+          "selectedGrid": [
+            162.0,
+            50.0
+          ],
+          "loopCurrent": 32.25,
+          "loopSubmitted": 29.25,
+          "loopStep": 3.0,
+          "selected": 15,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": true,
+            "visibilityWrites": []
+          }
+        }
+      ]
+    },
+    {
+      "folder": 2,
+      "density": 2,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          -108.0,
+          11.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 54.0,
+        "selectedGrid": [
+          -54.0,
+          11.0
+        ],
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 1.0,
+        "selected": 2,
+        "overlay": false
+      },
+      "afterInput": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          -108.0,
+          11.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 54.0,
+        "selectedGrid": [
+          -108.0,
+          11.0
+        ],
+        "loopCurrent": 17.25,
+        "loopSubmitted": 0.0,
+        "loopStep": 3.0,
+        "selected": 0,
+        "overlay": false
+      },
+      "rows": [
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            -108.0,
+            11.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 44.0,
+          "selectedGrid": [
+            -108.0,
+            11.0
+          ],
+          "loopCurrent": 20.25,
+          "loopSubmitted": 17.25,
+          "loopStep": 3.0,
+          "selected": 0,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            -108.0,
+            11.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 33.0,
+          "selectedGrid": [
+            -108.0,
+            11.0
+          ],
+          "loopCurrent": 23.25,
+          "loopSubmitted": 20.25,
+          "loopStep": 3.0,
+          "selected": 0,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            -108.0,
+            11.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 22.0,
+          "selectedGrid": [
+            -108.0,
+            11.0
+          ],
+          "loopCurrent": 26.25,
+          "loopSubmitted": 23.25,
+          "loopStep": 3.0,
+          "selected": 0,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            -108.0,
+            11.0,
+            0.0
+          ],
+          "mode": 3,
+          "scroll": 11.0,
+          "selectedGrid": [
+            -108.0,
+            11.0
+          ],
+          "loopCurrent": 29.25,
+          "loopSubmitted": 26.25,
+          "loopStep": 3.0,
+          "selected": 0,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": false,
+            "visibilityWrites": []
+          }
+        },
+        {
+          "request": 0,
+          "shown": 1,
+          "visible": 1,
+          "position": [
+            -108.0,
+            11.0,
+            0.0
+          ],
+          "mode": 0,
+          "scroll": 0.0,
+          "selectedGrid": [
+            -108.0,
+            11.0
+          ],
+          "loopCurrent": 32.25,
+          "loopSubmitted": 29.25,
+          "loopStep": 3.0,
+          "selected": 0,
+          "overlay": false,
+          "calls": {
+            "positionHelper": true,
+            "positionWritten": true,
+            "visibilityWrites": []
+          }
+        }
+      ]
+    }
+  ],
+  "completions": [
+    {
+      "overlayAtCompletion": false,
+      "pendingReplay": false,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 68.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "final": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "idleBeforeReplay": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "calls": {
+        "positionHelper": true,
+        "positionWritten": true,
+        "visibilityWrites": [
+          true
+        ]
+      }
+    },
+    {
+      "overlayAtCompletion": false,
+      "pendingReplay": false,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 68.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "final": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "idleBeforeReplay": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "calls": {
+        "positionHelper": true,
+        "positionWritten": true,
+        "visibilityWrites": []
+      }
+    },
+    {
+      "overlayAtCompletion": false,
+      "pendingReplay": true,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 68.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "final": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 84.0,
+        "selectedGrid": [
+          252.0,
+          -41.0
+        ],
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "selected": 4,
+        "overlay": false
+      },
+      "idleBeforeReplay": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "calls": {
+        "positionHelper": true,
+        "positionWritten": false,
+        "visibilityWrites": [
+          true
+        ]
+      }
+    },
+    {
+      "overlayAtCompletion": false,
+      "pendingReplay": true,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 68.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "final": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 84.0,
+        "selectedGrid": [
+          252.0,
+          -41.0
+        ],
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "selected": 4,
+        "overlay": false
+      },
+      "idleBeforeReplay": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "calls": {
+        "positionHelper": true,
+        "positionWritten": false,
+        "visibilityWrites": []
+      }
+    },
+    {
+      "overlayAtCompletion": true,
+      "pendingReplay": false,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 68.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "final": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": true
+      },
+      "idleBeforeReplay": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": true
+      },
+      "calls": {
+        "positionHelper": false,
+        "positionWritten": false,
+        "visibilityWrites": []
+      }
+    },
+    {
+      "overlayAtCompletion": true,
+      "pendingReplay": false,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 68.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "final": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": true
+      },
+      "idleBeforeReplay": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": true
+      },
+      "calls": {
+        "positionHelper": false,
+        "positionWritten": false,
+        "visibilityWrites": []
+      }
+    },
+    {
+      "overlayAtCompletion": true,
+      "pendingReplay": true,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 68.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "final": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": true
+      },
+      "idleBeforeReplay": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": true
+      },
+      "calls": {
+        "positionHelper": false,
+        "positionWritten": false,
+        "visibilityWrites": []
+      }
+    },
+    {
+      "overlayAtCompletion": true,
+      "pendingReplay": true,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 3,
+        "scroll": 68.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": false
+      },
+      "final": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 32.25,
+        "loopSubmitted": 29.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": true
+      },
+      "idleBeforeReplay": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          84.0,
+          -41.0,
+          0.0
+        ],
+        "mode": 0,
+        "scroll": 84.0,
+        "selectedGrid": [
+          168.0,
+          -41.0
+        ],
+        "loopCurrent": 29.25,
+        "loopSubmitted": 26.25,
+        "loopStep": 3.0,
+        "selected": 3,
+        "overlay": true
+      },
+      "calls": {
+        "positionHelper": false,
+        "positionWritten": false,
+        "visibilityWrites": []
+      }
+    }
+  ],
+  "toolbar": [
+    {
+      "focus": 0,
+      "pane": "N_CPos_Lgt_00",
+      "lcdCenter": [
+        26.0,
+        16.0
+      ]
+    },
+    {
+      "focus": 1,
+      "pane": "N_CPos_Memo_00",
+      "lcdCenter": [
+        76.0,
+        16.5
+      ]
+    },
+    {
+      "focus": 2,
+      "pane": "N_CPos_Frd_00",
+      "lcdCenter": [
+        118.0,
+        16.5
+      ]
+    },
+    {
+      "focus": 3,
+      "pane": "N_CPos_News_00",
+      "lcdCenter": [
+        160.0,
+        16.5
+      ]
+    },
+    {
+      "focus": 4,
+      "pane": "N_CPos_Web_00",
+      "lcdCenter": [
+        202.0,
+        16.5
+      ]
+    },
+    {
+      "focus": 5,
+      "pane": "N_CPos_Mvs_00",
+      "lcdCenter": [
+        244.0,
+        16.5
+      ]
+    },
+    {
+      "focus": 6,
+      "pane": "N_CPos_Dw_00",
+      "lcdCenter": [
+        281.0,
+        16.0
+      ]
+    },
+    {
+      "focus": 7,
+      "pane": "N_CPos_Up_00",
+      "lcdCenter": [
+        307.0,
+        16.0
+      ]
+    }
+  ],
+  "visibility": [
+    {
+      "focus": -1,
+      "request": 0,
+      "previous": 0,
+      "visible": 1
+    },
+    {
+      "focus": -1,
+      "request": 0,
+      "previous": 1,
+      "visible": 1
+    },
+    {
+      "focus": -1,
+      "request": 1,
+      "previous": 0,
+      "visible": 1
+    },
+    {
+      "focus": -1,
+      "request": 1,
+      "previous": 1,
+      "visible": 1
+    },
+    {
+      "focus": -1,
+      "request": 2,
+      "previous": 0,
+      "visible": 0
+    },
+    {
+      "focus": -1,
+      "request": 2,
+      "previous": 1,
+      "visible": 0
+    },
+    {
+      "focus": 0,
+      "request": 0,
+      "previous": 0,
+      "visible": 1
+    },
+    {
+      "focus": 0,
+      "request": 0,
+      "previous": 1,
+      "visible": 1
+    },
+    {
+      "focus": 0,
+      "request": 1,
+      "previous": 0,
+      "visible": 1
+    },
+    {
+      "focus": 0,
+      "request": 1,
+      "previous": 1,
+      "visible": 1
+    },
+    {
+      "focus": 0,
+      "request": 2,
+      "previous": 0,
+      "visible": 0
+    },
+    {
+      "focus": 0,
+      "request": 2,
+      "previous": 1,
+      "visible": 0
+    },
+    {
+      "focus": 6,
+      "request": 0,
+      "previous": 0,
+      "visible": 1
+    },
+    {
+      "focus": 6,
+      "request": 0,
+      "previous": 1,
+      "visible": 1
+    },
+    {
+      "focus": 6,
+      "request": 1,
+      "previous": 0,
+      "visible": 1
+    },
+    {
+      "focus": 6,
+      "request": 1,
+      "previous": 1,
+      "visible": 1
+    },
+    {
+      "focus": 6,
+      "request": 2,
+      "previous": 0,
+      "visible": 0
+    },
+    {
+      "focus": 6,
+      "request": 2,
+      "previous": 1,
+      "visible": 0
+    },
+    {
+      "focus": 7,
+      "request": 0,
+      "previous": 0,
+      "visible": 1
+    },
+    {
+      "focus": 7,
+      "request": 0,
+      "previous": 1,
+      "visible": 1
+    },
+    {
+      "focus": 7,
+      "request": 1,
+      "previous": 0,
+      "visible": 1
+    },
+    {
+      "focus": 7,
+      "request": 1,
+      "previous": 1,
+      "visible": 1
+    },
+    {
+      "focus": 7,
+      "request": 2,
+      "previous": 0,
+      "visible": 0
+    },
+    {
+      "focus": 7,
+      "request": 2,
+      "previous": 1,
+      "visible": 0
+    }
+  ],
+  "footer": [
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          -54.0,
+          50.0,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        },
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          -54.0,
+          50.0,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        },
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          -54.0,
+          50.0,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          -54.0,
+          50.0,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "case": "grid",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        },
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        },
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "case": "mode3-grid",
+      "mode": 3,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          121.0,
+          104.0,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        },
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          121.0,
+          104.0,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        },
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          121.0,
+          104.0,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          121.0,
+          104.0,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "position-helper"
+        }
+      ]
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "case": "mode3-toolbar",
+      "mode": 3,
+      "focus": 6,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 12.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": [
+        {
+          "kind": "visibility-write",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": true,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "secondary-overlay",
+      "mode": 0,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": true,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode185",
+      "mode": 185,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 0,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 1,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 0,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 1,
+        "visible": 0,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    },
+    {
+      "case": "mode186",
+      "mode": 186,
+      "focus": -1,
+      "overlay": false,
+      "secondaryOverlay": false,
+      "selectedGrid": [
+        -54.0,
+        50.0
+      ],
+      "scroll": 0.0,
+      "before": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "after": {
+        "request": 2,
+        "shown": 1,
+        "visible": 1,
+        "position": [
+          13.25,
+          -17.5,
+          0.0
+        ],
+        "loop": {
+          "current": 18.25,
+          "applied": 17.25,
+          "step": 1.0,
+          "state": 1,
+          "mode": 2
+        },
+        "scale": {
+          "current": 2.0,
+          "applied": 2.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        }
+      },
+      "trace": []
+    }
+  ]
+}

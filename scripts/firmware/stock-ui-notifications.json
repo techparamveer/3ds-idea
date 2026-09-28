@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "titles": {
+    "000400300000a002": {
+      "packs": {
+        "packs/notifications/news.json": {
+          "layouts": [
+            "NewsTopUI_U_00",
+            "NewsTopUI_D_00",
+            "NewsTopBtn_D_00",
+            "NewsUnread_U_00",
+            "NewsWndwNews_U_00",
+            "NewsWndwNews_D_00",
+            "NewsDetailUI_00",
+            "NewsElemCnt_00"
+          ],
+          "animations": [
+            "NewsDetailUI_00_Decide",
+            "NewsDetailUI_00_Invalid",
+            "NewsDetailUI_00_Select",
+            "NewsElemCnt_00_Decide",
+            "NewsElemCnt_00_FadeOut",
+            "NewsElemCnt_00_Select",
+            "NewsTopBtn_D_00_Decide",
+            "NewsTopBtn_D_00_SceneIn",
+            "NewsTopBtn_D_00_SceneOut",
+            "NewsTopBtn_D_00_Select",
+            "NewsUnread_U_00_NumAnim",
+            "NewsUnread_U_00_SceneIn",
+            "NewsUnread_U_00_SceneOut",
+            "NewsWndwNews_D_00_Decide",
+            "NewsWndwNews_D_00_SceneIn",
+            "NewsWndwNews_D_00_SceneOut",
+            "NewsWndwNews_D_00_Select",
+            "NewsWndwNews_U_00_Decide",
+            "NewsWndwNews_U_00_SceneIn",
+            "NewsWndwNews_U_00_SceneOut",
+            "NewsWndwNews_U_00_Select"
+          ]
+        },
+        "packs/notifications/slidebar.json": {
+          "layouts": [
+            "SlideBar"
+          ],
+          "animations": [
+            "SlideBar_Invalid",
+            "SlideBar_Select"
+          ]
+        },
+        "packs/notifications/messages-and-loose.json": {
+          "messages": {
+            "newslist_msbt_LZ": [
+              "new_title_new",
+              "new_back",
+              "new_news_u",
+              "new_news_u0",
+              "new_news_u1",
+              "new_ce_u0",
+              "new_ce_u1",
+              "new_close",
+              "new_close_big",
+              "new_no_contents"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

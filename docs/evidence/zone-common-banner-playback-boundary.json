@@ -1,0 +1,196 @@
+{
+  "commonCgfxSha256": "3e2b2896e8439ea88a767e71fedf6921936a49aae724065ac0bc3701a8a4b83e",
+  "scope": "Pinned raw bytes versus decoded segments and current browser curve sampler; no native pose/pixel claim",
+  "comparisons": [
+    {
+      "groupOffset": "0x4e84",
+      "clip": "skeletalAnimations",
+      "element": "COMMON2",
+      "channel": "RotationX",
+      "browserInterpolation": "Hermite",
+      "segments": 1,
+      "samples": [
+        {
+          "frame": 0,
+          "source": -1.5708,
+          "flattenedBrowser": -1.5708,
+          "difference": -0.0
+        },
+        {
+          "frame": 75,
+          "source": -0.7854,
+          "flattenedBrowser": -0.7854,
+          "difference": -0.0
+        },
+        {
+          "frame": 300,
+          "source": 1.570795,
+          "flattenedBrowser": 1.570795,
+          "difference": 0.0
+        },
+        {
+          "frame": 599,
+          "source": 4.701918,
+          "flattenedBrowser": 4.701918,
+          "difference": 0.0
+        }
+      ]
+    },
+    {
+      "groupOffset": "0x5258",
+      "clip": "materialAnimations",
+      "element": "COMMON6",
+      "channel": "X",
+      "browserInterpolation": "Hermite",
+      "segments": 10,
+      "samples": [
+        {
+          "frame": 50.5,
+          "source": 1.485072,
+          "flattenedBrowser": 1.485072,
+          "difference": -0.0
+        },
+        {
+          "frame": 118.5,
+          "source": 1.0,
+          "flattenedBrowser": 1.0,
+          "difference": 0.0
+        },
+        {
+          "frame": 119.5,
+          "source": 1.0,
+          "flattenedBrowser": 15.5,
+          "difference": 14.5
+        },
+        {
+          "frame": 120.5,
+          "source": 28.057722,
+          "flattenedBrowser": 28.057722,
+          "difference": -0.0
+        },
+        {
+          "frame": 239.5,
+          "source": 1.0,
+          "flattenedBrowser": 15.5,
+          "difference": 14.5
+        },
+        {
+          "frame": 359.5,
+          "source": 1.0,
+          "flattenedBrowser": 5.53125,
+          "difference": 4.53125
+        },
+        {
+          "frame": 360.5,
+          "source": 1.0,
+          "flattenedBrowser": 25.46875,
+          "difference": 24.46875
+        },
+        {
+          "frame": 480.5,
+          "source": 28.057722,
+          "flattenedBrowser": 28.057722,
+          "difference": -0.0
+        }
+      ]
+    },
+    {
+      "groupOffset": "0x6a44",
+      "clip": "materialAnimations",
+      "element": "COOMON7",
+      "channel": "Y",
+      "browserInterpolation": "Step",
+      "segments": 4,
+      "samples": [
+        {
+          "frame": 81,
+          "source": 0.094,
+          "flattenedBrowser": 0.094,
+          "difference": 0.0
+        },
+        {
+          "frame": 279,
+          "source": 0.094,
+          "flattenedBrowser": 0.094,
+          "difference": 0.0
+        },
+        {
+          "frame": 280.5,
+          "source": 0.113,
+          "flattenedBrowser": 0.113,
+          "difference": 0.0
+        },
+        {
+          "frame": 480.5,
+          "source": 0.033,
+          "flattenedBrowser": 0.033,
+          "difference": 0.0
+        },
+        {
+          "frame": 599,
+          "source": 0.033,
+          "flattenedBrowser": 0.033,
+          "difference": 0.0
+        }
+      ]
+    },
+    {
+      "groupOffset": "0x7128",
+      "clip": "materialAnimations",
+      "element": "COOMON7",
+      "channel": "X",
+      "browserInterpolation": "Hermite",
+      "segments": 16,
+      "samples": [
+        {
+          "frame": 94.5,
+          "source": 30.9115,
+          "flattenedBrowser": 30.9115,
+          "difference": -0.0
+        },
+        {
+          "frame": 95.5,
+          "source": 29.160262,
+          "flattenedBrowser": 29.160262,
+          "difference": 0.0
+        },
+        {
+          "frame": 279.5,
+          "source": 5.0,
+          "flattenedBrowser": 77.5,
+          "difference": 72.5
+        },
+        {
+          "frame": 280.5,
+          "source": 141.6935,
+          "flattenedBrowser": 141.6935,
+          "difference": -0.0
+        },
+        {
+          "frame": 479.5,
+          "source": 5.0,
+          "flattenedBrowser": 77.5,
+          "difference": 72.5
+        },
+        {
+          "frame": 480.5,
+          "source": 141.6935,
+          "flattenedBrowser": 141.6935,
+          "difference": -0.0
+        },
+        {
+          "frame": 598.5,
+          "source": 5.0,
+          "flattenedBrowser": 5.0,
+          "difference": 0.0
+        }
+      ]
+    }
+  ],
+  "lostScalarGroupOffsets": [
+    "0x5054",
+    "0x50a8",
+    "0x5154",
+    "0x51a8"
+  ]
+}

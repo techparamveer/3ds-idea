@@ -1,4 +1,4 @@
-"""Decode a standalone, decrypted CFNT (A4/A8) to browser bitmap sheets.
+"""Decode a standalone, decrypted CFNT (A4/A8/LA4) to browser bitmap sheets.
 
 No keys, decryption, firmware execution, or external Python dependencies.
 Format references and limitations: docs/firmware-assets.md.
@@ -21,24 +21,25 @@ def png(width, height, rgba):
 
 def decode_sheet(data, width, height, fmt):
     """Unswizzle 8x8 Morton tiles; PNG rows run top to bottom."""
-    if fmt not in (8, 11):
-        raise ValueError(f'Unsupported TGLP format {fmt}: only A8 (8) and A4 (11) are supported')
+    if fmt not in (8, 9, 11):
+        raise ValueError(f'Unsupported TGLP format {fmt}: only A8 (8), LA4 (9) and A4 (11) are supported')
     if any(v < 8 or v > 1024 or v & (v - 1) for v in (width, height)):
         raise ValueError('Expected power-of-two sheet dimensions from 8 to 1024')
-    if len(data) < width * height * (8 if fmt == 8 else 4) // 8:
+    if len(data) < width * height * (4 if fmt == 11 else 8) // 8:
         raise ValueError('Truncated sheet')
     out = bytearray(width * height * 4)
     for y in range(height):
         for x in range(width):
             morton = sum(((x >> bit) & 1) << (bit * 2) | ((y >> bit) & 1) << (bit * 2 + 1) for bit in range(3))
             pixel = ((y // 8) * (width // 8) + x // 8) * 64 + morton
-            alpha = data[pixel] if fmt == 8 else ((data[pixel // 2] >> (4 * (pixel % 2))) & 15) * 17
+            alpha = data[pixel] if fmt == 8 else (data[pixel] & 15) * 17 if fmt == 9 else ((data[pixel // 2] >> (4 * (pixel % 2))) & 15) * 17
+            light = (data[pixel] >> 4) * 17 if fmt == 9 else 255
             at = (y * width + x) * 4
-            out[at:at + 4] = bytes((255, 255, 255, alpha))
+            out[at:at + 4] = bytes((light, light, light, alpha))
     return bytes(out)
 
 
-def convert(data):
+def convert(data, compact=False):
     def read(fmt, at):
         if at < 0 or at + struct.calcsize('<' + fmt) > len(data):
             raise ValueError('Pointer outside font / truncated data')
@@ -60,12 +61,12 @@ def convert(data):
         return at + length
 
     block(20, b'FINF')
-    _, line_feed, alternate, left, glyph_width, advance, encoding, tglp, cwdh, cmap, height, _, ascent, _ = read('BBHbBBBIIIBBBB', 28)
+    _, line_feed, alternate, left, glyph_width, advance, encoding, tglp, cwdh, cmap, height, width, ascent, _ = read('BBHbBBBIIIBBBB', 28)
     if encoding != 1:
         raise ValueError('Only UTF-16 CMAP fonts are supported')
     block(tglp - 8, b'TGLP')
-    cw, ch, baseline, _, sheet_size, count, fmt, cols, rows, sw, sh, sheet_offset = read('BBBBIHHHHHHI', tglp)
-    if not (cw and ch and cols and rows and 0 < count <= 64 and height):
+    cw, ch, baseline, max_width, sheet_size, count, fmt, cols, rows, sw, sh, sheet_offset = read('BBBBIHHHHHHI', tglp)
+    if not (cw and ch and cols and rows and 0 < count <= 16384 and height):
         raise ValueError('Invalid glyph / sheet dimensions')
     if cols * (cw + 1) > sw or rows * (ch + 1) > sh:
         raise ValueError('Cells extend beyond sheet')
@@ -126,15 +127,42 @@ def convert(data):
         if width > cw:
             raise ValueError('Glyph exceeds cell width')
         local = index % (cols * rows)
-        return dict(sheet=index // (cols * rows), x=(local % cols) * (cw + 1) + 1,
+        # Keep native texture identity when compact delivery merges sheets.
+        return dict(sheet=index // (cols * rows), sourceSheet=index // (cols * rows), x=(local % cols) * (cw + 1) + 1,
                     y=(local // cols) * (ch + 1) + 1, width=width, height=ch, left=bearing, advance=step)
 
     manifest = dict(schema=1, sourceSha256=hashlib.sha256(data).hexdigest(), version=version,
-                    height=height, ascent=ascent, baseline=baseline, lineFeed=line_feed,
+                    height=height, width=width, ascent=ascent, baseline=baseline, lineFeed=line_feed,
+                    cellWidth=cw, cellHeight=ch, maxCharWidth=max_width,
+                    textureFormat=fmt, colorMode='luminance-alpha' if fmt == 9 else 'alpha',
                     sheets=[f'sheet-{i}.png' for i in range(count)],
                     glyphs={str(code): glyph(index) for code, index in mappings.items()},
                     fallback=None if alternate == 0xffff else glyph(alternate))
-    sheets = [png(sw, sh, decode_sheet(data[sheet_offset + i * sheet_size:sheet_offset + (i + 1) * sheet_size], sw, sh, fmt)) for i in range(count)]
+    if compact:
+        # The real shared font uses 1,501 short 128x32 sheets. Pack complete
+        # sheets without resampling, retaining exact glyph pixels and metrics.
+        columns, per_atlas = max(1, 1024 // sw), max(1, (1024 // sw) * (1024 // sh))
+        sheets = []
+        for start in range(0, count, per_atlas):
+            used = min(per_atlas, count - start)
+            width, atlas_height = min(columns, used) * sw, ((used + columns - 1) // columns) * sh
+            rgba = bytearray(width * atlas_height * 4)
+            for local in range(used):
+                index = start + local
+                raw = decode_sheet(data[sheet_offset + index * sheet_size:sheet_offset + (index + 1) * sheet_size], sw, sh, fmt)
+                x, y = (local % columns) * sw, (local // columns) * sh
+                for row in range(sh):
+                    dest = ((y + row) * width + x) * 4
+                    rgba[dest:dest + sw * 4] = raw[row * sw * 4:(row + 1) * sw * 4]
+            sheets.append(png(width, atlas_height, rgba))
+        for entry in [*manifest['glyphs'].values(), *([] if manifest['fallback'] is None else [manifest['fallback']])]:
+            original = entry['sheet']
+            entry['sheet'] = original // per_atlas
+            entry['x'] += (original % per_atlas % columns) * sw
+            entry['y'] += (original % per_atlas // columns) * sh
+        manifest.update(sheets=[f'sheet-{i}.png' for i in range(len(sheets))], sourceSheetCount=count)
+    else:
+        sheets = [png(sw, sh, decode_sheet(data[sheet_offset + i * sheet_size:sheet_offset + (i + 1) * sheet_size], sw, sh, fmt)) for i in range(count)]
     return manifest, sheets
 
 
@@ -142,11 +170,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('font', type=Path)
     parser.add_argument('output', type=Path, help='New output directory; never overwritten')
+    parser.add_argument('--compact', action='store_true', help='Pack native sheets into at most 1024px atlases without resampling')
     args = parser.parse_args()
     try:
         if args.font.stat().st_size > 32 * 1024 * 1024:
             raise ValueError('Font exceeds 32 MiB')
-        manifest, sheets = convert(args.font.read_bytes())
+        manifest, sheets = convert(args.font.read_bytes(), compact=args.compact)
         args.output.mkdir(parents=True, exist_ok=False)
         for name, sheet in zip(manifest['sheets'], sheets):
             (args.output / name).write_bytes(sheet)

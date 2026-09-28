@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><EnableDefaultCompileItems>false</EnableDefaultCompileItems><GenerateAssemblyInfo>false</GenerateAssemblyInfo><NoWarn>SYSLIB0050;CS0649;CS0169;CS0414;CS0219</NoWarn></PropertyGroup>
+  <ItemGroup><Compile Include="$(SpicaRoot)/SPICA/**/*.cs" Exclude="$(SpicaRoot)/SPICA/Properties/**;$(SpicaRoot)/SPICA/Formats/CtrGfx/Animation/GfxFloatKeyFrameGroup.cs;$(SpicaRoot)/SPICA/Formats/CtrGfx/Animation/GfxAnimFloat.cs"/><Compile Include="Program.cs"/><Compile Include="LegacyGfxReader.cs"/><Compile Include="Rev5FloatKeyFrameGroup.cs"/><Compile Include="Rev5AnimFloat.cs"/><PackageReference Include="System.Drawing.Common" Version="8.0.0"/></ItemGroup>
+</Project>

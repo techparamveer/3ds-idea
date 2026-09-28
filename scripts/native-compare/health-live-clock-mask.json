@@ -1,0 +1,24 @@
+{
+  "name": "health-home-live-status-strip",
+  "scope": "Health HOME upper-screen banner phase diagnostics; masks only the live clock and battery gauge.",
+  "regions": [
+    {
+      "screen": "upper",
+      "x": 229,
+      "y": 3,
+      "width": 143,
+      "height": 17,
+      "category": "live-clock-battery",
+      "reason": "The Azahar and browser captures use live clocks sampled several minutes apart; network and coin indicators remain compared."
+    },
+    {
+      "screen": "upper",
+      "x": 376,
+      "y": 3,
+      "width": 22,
+      "height": 17,
+      "category": "live-clock-battery",
+      "reason": "The battery charge gauge is live and differs between the Azahar and browser capture environments."
+    }
+  ]
+}

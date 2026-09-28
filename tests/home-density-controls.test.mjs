@@ -1,0 +1,117 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+import {getHomeDensityControls} from '../src/os/home-density-controls.ts';
+import {getHomeNavigationView,setHomeDensity,settleHomeNavigation,enterHomeFolder,advanceHomeNavigation} from '../src/os/home-navigation.ts';
+import {createPortfolioState,tickSystem,dispatchSystemEvent,saveSettings,restoreSettings} from '../src/os/system.ts';
+import {reduceMenu,touchMenu,menuTiles} from '../src/os/state.ts';
+import {poseNativeLayout} from '../src/os/native-layout.ts';
+
+const moduleUrl=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
+const url=new URL('../src/os/firmware-presentation.ts',import.meta.url);
+const js=ts.transpileModule(readFileSync(url,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const {createFirmwareHome}=await import(moduleUrl(js.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>
+ prefix+(path==='./native-renderer'?moduleUrl('export class NativeLayoutRenderer {}'):new URL(path.endsWith('.ts')?path:`${path}.ts`,url).href)+suffix)));
+const pack=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json',import.meta.url)));
+const state=(folder,density)=>{
+ let s=tickSystem(createPortfolioState(),4000);
+ if(folder)s=enterHomeFolder({...s,folders:{...s.folders,42:'Folder'}},42);
+ return settleHomeNavigation(setHomeDensity(s,density));
+};
+const touch=(s,phase,x,y=16)=>dispatchSystemEvent(s,{type:'touch',phase,x,y,pointerId:1},4000);
+const cases=[[false,0,false,true],[false,1,true,true],[false,5,true,false],
+ [true,0,false,true],[true,1,false,true],[true,2,true,true],[true,5,true,false]];
+const snapshot=s=>({selected:s.selected,folderSelected:s.folderSelected,homeView:JSON.parse(saveSettings(s)).homeView,
+ motion:s.system.homeNavigation.motion,revision:s.system.homeNavigation.selectionRevision,layout:s.system.layout,folderLayouts:s.system.folderLayouts});
+function flatten(layout){const result={};const visit=panes=>panes.forEach(p=>{result[p.name]=p;visit(p.children);});visit(layout.roots);return result;}
+function presenter(){
+ const draws=[],renderer={packs:{launcher:pack},draw(_ctx,bank,name,options){
+  draws.push({bank,name,options,pose:poseNativeLayout(pack.layouts[name],pack.animations,options.bindings,options.overrides)});return true;
+ }};
+ return {home:createFirmwareHome({renderer}),draws};
+}
+
+test('density availability uses active context and pending target while preserving state and folder0',()=>{
+ for(const [folder,density,decreaseEnabled,increaseEnabled]of cases){
+  const s=state(folder,density),before=JSON.stringify(s);
+  assert.deepEqual(getHomeDensityControls(s),{decreaseEnabled,increaseEnabled});
+  assert.equal(JSON.stringify(s),before);
+ }
+ for(const [folder,from,to]of [[false,1,0],[false,0,1],[false,4,5],[false,5,4],[true,2,1],[true,1,2],[true,4,5],[true,5,4]]){
+  const s=advanceHomeNavigation(setHomeDensity(state(folder,from),to),7),view=getHomeNavigationView(s);
+  assert.equal(view.currentDensity,from);assert.equal(view.targetDensity,to);
+  assert.ok(view.density>Math.min(from,to)&&view.density<Math.max(from,to));
+  assert.deepEqual(getHomeDensityControls(s),{decreaseEnabled:to>(folder?1:0),increaseEnabled:to<5});
+ }
+});
+
+test('real toolbar resources bind Invalid only to disabled groups and retain palette, clipping and other panes',()=>{
+ const {home,draws}=presenter(),before=JSON.stringify(pack);
+ for(const [folder,density,down,up]of cases){
+  const s=state(folder,density);assert.equal(home.toolbar({},s),true);
+  const draw=draws.at(-1),panes=flatten(draw.pose),groups=[...(!down?['G_Dw_00']:[]),...(!up?['G_Up_00']:[])];
+  assert.deepEqual(draw.options.bindings,[{name:'LncBase_D_01_PaletteOut',frame:12},{name:'LncBase_D_01_MvsToggle',frame:0},
+   ...(groups.length?[{name:'LncBase_D_01_Invalid',frame:0,groups}]:[])]);
+  assert.deepEqual(draw.options.clip,[0,0,320,folder?240:212]);
+  assert.equal(panes.P_Dw_20.alpha,down?255:120);assert.equal(panes.P_Up_20.alpha,up?255:120);
+  assert.equal(panes.P_DwP_20.flags&1,0);assert.equal(panes.P_UpP_20.flags&1,0);
+  const baseline=flatten(poseNativeLayout(pack.layouts.LncBase_D_01,pack.animations,draw.options.bindings.slice(0,2)));
+  for(const [name,pane]of Object.entries(panes))if(!pane.children.length&&!['P_Dw_20','P_Up_20'].includes(name))assert.deepEqual(pane,baseline[name],name);
+ }
+ assert.equal(JSON.stringify(pack),before);
+});
+
+test('disabled density presses omit Select while enabled presses and other toolbar groups remain isolated',()=>{
+ const {home,draws}=presenter();
+ for(const [folder,density,down,up]of cases)for(const [x,group,enabled,picture,press]of [
+  [282,'G_Dw_00',down,'P_Dw_20','P_DwP_20'],[307,'G_Up_00',up,'P_Up_20','P_UpP_20'],
+ ]){
+  const initial=state(folder,density),pressed=touch(initial,'down',x);
+  home.toolbar({},pressed);const draw=draws.at(-1),panes=flatten(draw.pose);
+  const select=draw.options.bindings.filter(b=>b.name==='LncBase_D_01_Select');
+  assert.deepEqual(select,enabled?[{name:'LncBase_D_01_Select',frame:1,groups:[group]}]:[]);
+  assert.equal(panes[picture].alpha,enabled?255:120);assert.equal(panes[press].flags&1,enabled?1:0);
+  const other=group==='G_Dw_00'?'P_UpP_20':'P_DwP_20';assert.equal(panes[other].flags&1,0);
+ }
+ const memo=touch(state(true,1),'down',76);home.toolbar({},memo);
+ const draw=draws.at(-1),panes=flatten(draw.pose);
+ assert.deepEqual(draw.options.bindings.at(-1),{name:'LncBase_D_01_Select',frame:1,groups:['G_Memo_00']});
+ assert.equal(panes.P_Memo_10.translation[1],-2);assert.equal(panes.P_Dw_20.alpha,120);assert.equal(panes.P_DwP_20.flags&1,0);
+ for(const [folder,from,to,x,enabled]of [[false,1,0,282,false],[false,0,1,282,true],
+  [false,4,5,307,false],[false,5,4,307,true],[true,2,1,282,false],[true,1,2,282,true]]){
+  const pending=advanceHomeNavigation(setHomeDensity(state(folder,from),to),7);
+  home.toolbar({},touch(pending,'down',x));const draw=draws.at(-1),p=flatten(draw.pose);
+  assert.equal(p[x===282?'P_Dw_20':'P_Up_20'].alpha,enabled?255:120);
+  assert.equal(draw.options.bindings.some(b=>b.name==='LncBase_D_01_Select'),enabled);
+ }
+});
+
+test('disabled taps preserve records/motion and enabled System down/up retains the existing density transition',()=>{
+ for(const [folder,density,down,up]of cases)for(const [x,enabled,delta]of [[282,down,-1],[307,up,1]]){
+  const initial=state(folder,density),before=snapshot(initial);
+  if(!enabled)assert.equal(touchMenu(initial,x,16),initial);
+  const pressed=touch(initial,'down',x);assert.deepEqual(snapshot(pressed),before);
+  const released=touch(pressed,'up',x);assert.equal(released.system.homeNavigation.gesture,null);
+  if(!enabled)assert.deepEqual(snapshot(released),before);
+  else{
+   const view=getHomeNavigationView(released);assert.equal(view.currentDensity,density);assert.equal(view.targetDensity,density+delta);
+   assert.equal(view.mode,5);assert.equal(released.system.homeNavigation.motion.durationUpdates,15);
+  }
+ }
+ for(const [folder,from,to,x]of [[false,1,0,282],[false,4,5,307],[true,2,1,282],[true,4,5,307]]){
+  const pending=advanceHomeNavigation(setHomeDensity(state(folder,from),to),7),before=snapshot(pending);
+  assert.equal(touchMenu(pending,x,16),pending);assert.deepEqual(snapshot(pending),before);
+  assert.deepEqual(snapshot(touch(touch(pending,'down',x),'up',x)),before);
+ }
+});
+
+test('restored folder0 keeps geometry and compatibility setters/commands can still reach it',()=>{
+ const original=state(true,0),saved=saveSettings(original),restored=restoreSettings(state(false,2),saved);
+ assert.equal(getHomeNavigationView(restored).context,42);assert.equal(getHomeNavigationView(restored).targetDensity,0);
+ assert.deepEqual(menuTiles(restored),menuTiles(original));
+ const view=getHomeNavigationView(restored);assert.equal(view.rows,1);assert.equal(view.baseY,161);assert.equal(view.size,72);
+ assert.equal(touchMenu(restored,282,16),restored);
+ assert.equal(getHomeNavigationView(reduceMenu(state(true,1),'zoom-in')).targetDensity,0);
+ assert.equal(getHomeNavigationView(setHomeDensity(state(true,1),0)).targetDensity,0);
+});

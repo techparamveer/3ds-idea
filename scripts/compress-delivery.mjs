@@ -3,8 +3,8 @@ import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
 import { MeshoptEncoder, MeshoptDecoder } from 'meshoptimizer';
-const input=process.argv[2]??'model/candidates/joshua-xl/silver-audio-finish-web.glb';
-const output=process.argv[3]??'model/candidates/joshua-xl/silver-audio-finish-compact.glb';
+const input=process.argv[2]??'model/candidates/joshua-xl/silver-audio-contacts-web.glb';
+const output=process.argv[3]??'model/candidates/joshua-xl/silver-audio-contacts-compact.glb';
 await Promise.all([MeshoptEncoder.ready,MeshoptDecoder.ready]);
 const source=await fs.readFile(input),jsonLength=source.readUInt32LE(12);
 const doc=JSON.parse(source.subarray(20,20+jsonLength));
@@ -34,12 +34,20 @@ for(let i=0;i<doc.bufferViews.length;i++){
   const stride=v.byteStride??components[a.type]*sizes[a.componentType];
   assert.equal(a.byteOffset??0,0);assert.equal(raw.length,a.count*stride);
   const mode=v.target===34963?'INDICES':'ATTRIBUTES';
-  const semantic=semantics.get(i),bits=['NORMAL','TANGENT'].includes(semantic)?12:18;
+  const semantic=semantics.get(i),initialBits=['NORMAL','TANGENT'].includes(semantic)?12:18;
   const filter=a.componentType===5126?'EXPONENTIAL':undefined;
-  const filtered=filter?MeshoptEncoder.encodeFilterExp(new Float32Array(raw.buffer,raw.byteOffset,raw.length/4),a.count,stride,bits):raw;
-  const compressed=MeshoptEncoder.encodeGltfBuffer(filtered,a.count,stride,mode);
-  const decoded=new Uint8Array(raw.length);MeshoptDecoder.decodeGltfBuffer(decoded,a.count,stride,compressed,mode,filter);
-  if(filter){const before=new Float32Array(raw.buffer,raw.byteOffset,raw.length/4),after=new Float32Array(decoded.buffer);let error=0;for(let k=0;k<before.length;k++)error=Math.max(error,Math.abs(before[k]-after[k]));const limit=semantic==='POSITION'?0.001:semantic?.startsWith('TEXCOORD')?0.00001:0.001;assert.ok(error<=limit,`${semantic} error ${error}`);report.geometryMaxError[semantic]=Math.max(report.geometryMaxError[semantic]??0,error);}else assert.ok(Buffer.from(decoded).equals(raw),`Lossless index view ${i}`);
+  let compressed,decoded,error=0;
+  const limit=semantic==='POSITION'?0.001:semantic?.startsWith('TEXCOORD')?0.00001:0.001;
+  for(const bits of semantic?.startsWith('TEXCOORD')?[initialBits,19,20]:[initialBits]){
+   const filtered=filter?MeshoptEncoder.encodeFilterExp(new Float32Array(raw.buffer,raw.byteOffset,raw.length/4),a.count,stride,bits):raw;
+   compressed=MeshoptEncoder.encodeGltfBuffer(filtered,a.count,stride,mode);
+   decoded=new Uint8Array(raw.length);MeshoptDecoder.decodeGltfBuffer(decoded,a.count,stride,compressed,mode,filter);
+   if(!filter){assert.ok(Buffer.from(decoded).equals(raw),`Lossless index view ${i}`);break;}
+   const before=new Float32Array(raw.buffer,raw.byteOffset,raw.length/4),after=new Float32Array(decoded.buffer);
+   error=0;for(let k=0;k<before.length;k++)error=Math.max(error,Math.abs(before[k]-after[k]));
+   if(error<=limit)break;
+  }
+  if(filter){assert.ok(error<=limit,`${semantic} error ${error}`);report.geometryMaxError[semantic]=Math.max(report.geometryMaxError[semantic]??0,error);}
   if(filter&&(a.min||a.max)){const values=new Float32Array(decoded.buffer),width=components[a.type];a.min=Array(width).fill(Infinity);a.max=Array(width).fill(-Infinity);for(let k=0;k<values.length;k++){const c=k%width;a.min[c]=Math.min(a.min[c],values[k]);a.max[c]=Math.max(a.max[c],values[k]);}}
   v.buffer=1;
   v.extensions={...v.extensions,EXT_meshopt_compression:{buffer:0,byteOffset:append(compressed),byteLength:compressed.length,byteStride:stride,count:a.count,mode,...(filter?{filter}:{})}};

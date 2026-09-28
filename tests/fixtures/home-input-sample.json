@@ -1,0 +1,160 @@
+{
+  "provenance": {
+    "sourceTitle": "0004003000009802",
+    "sourceVersion": 24576,
+    "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "privateEvidenceRoot": "/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/audio",
+    "pinnedFiles": {
+      "native-input-events/check.py": "d08bcaf6ac8cf9c1df1c3b34056695e5fb0e0c0371dbcc62f563cf6a7d9b1f99",
+      "native-input-events/checked.json": "e82ba7aa783c3d8d749a36661e58029e2218e8cec725bfa71f1036fbc63346c9",
+      "native-input-sample-runtime/check.py": "282020c60290d5696e0e89686772e0643a1ccd1c21df0493e7697503910f5e4c",
+      "native-input-sample-runtime/checked.json": "1be5d590dfea653314188e43e6816e9973371a1a65200b3a0ccdb468649afb48"
+    },
+    "exportSHA256": "105dbdca1a237c43de8bacfaadae3d1df35b6088f7653487c42d54ffefd89862",
+    "scope": "Numeric original ARM observations only, no executable bytes. Each case starts with native zero histories. Original threshold rows follow one neutral sample. Original digital raw sequence copied from pinned harness; digital/primary edges and events copied from results. Additional cases supply an OR of adapter digital-source snapshots to the actual native reader; device identities/aggregation are adapter policy. Only recorded channels are asserted. No TS model generates expected values."
+  },
+  "cases": [
+    {"name": "original-threshold-0", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.5, 0], "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []}
+    ]},
+    {"name": "original-threshold-1", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [-0.5, 0], "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []}
+    ]},
+    {"name": "original-threshold-2", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0, 0.5], "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []}
+    ]},
+    {"name": "original-threshold-3", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0, -0.5], "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []}
+    ]},
+    {"name": "original-threshold-4", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 16, "released": 0}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 16}]}
+    ]},
+    {"name": "original-threshold-5", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [-0.6, 0], "primary": {"held": 32, "pressed": 32, "released": 0}, "events": [{"type": 4, "mask": 32}, {"type": 5, "mask": 32}]}
+    ]},
+    {"name": "original-threshold-6", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0, 0.6], "primary": {"held": 64, "pressed": 64, "released": 0}, "events": [{"type": 4, "mask": 64}, {"type": 5, "mask": 64}]}
+    ]},
+    {"name": "original-threshold-7", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0, -0.6], "primary": {"held": 128, "pressed": 128, "released": 0}, "events": [{"type": 4, "mask": 128}, {"type": 5, "mask": 128}]}
+    ]},
+    {"name": "original-threshold-8", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0.6], "primary": {"held": 80, "pressed": 80, "released": 0}, "events": [{"type": 4, "mask": 80}, {"type": 5, "mask": 80}]}
+    ]},
+    {"name": "analogTimeline", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0, 0], "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 16, "released": 0}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 6, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 6, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0, 0], "primary": {"held": 0, "pressed": 0, "released": 16}, "events": [{"type": 7, "mask": 16}]}
+    ]},
+    {"name": "overlappingSources", "rows": [
+      {"digitalSources": {"native-digital": 0}, "primaryAxis": [0, 0], "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {"native-digital": 16}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 16, "released": 0}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 16}, "primaryAxis": [0.6, 0], "primary": {"held": 16, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"native-digital": 16}, "primaryAxis": [0, 0], "primary": {"held": 0, "pressed": 0, "released": 16}, "events": [{"type": 5, "mask": 16}, {"type": 7, "mask": 16}]}
+    ]},
+    {"name": "original-reader-edges", "rows": [
+      {"digitalSources": {"native-reader": 0}, "primaryAxis": [0, 0], "digital": {"held": 0, "pressed": 0, "released": 0}},
+      {"digitalSources": {"native-reader": 16}, "primaryAxis": [0, 0], "digital": {"held": 16, "pressed": 16, "released": 0}},
+      {"digitalSources": {"native-reader": 16}, "primaryAxis": [0, 0], "digital": {"held": 16, "pressed": 0, "released": 0}},
+      {"digitalSources": {"native-reader": 80}, "primaryAxis": [0, 0], "digital": {"held": 80, "pressed": 64, "released": 0}},
+      {"digitalSources": {"native-reader": 64}, "primaryAxis": [0, 0], "digital": {"held": 64, "pressed": 0, "released": 16}},
+      {"digitalSources": {"native-reader": 0}, "primaryAxis": [0, 0], "digital": {"held": 0, "pressed": 0, "released": 64}},
+      {"digitalSources": {"native-reader": 8192}, "primaryAxis": [0, 0], "digital": {"held": 0, "pressed": 0, "released": 0}},
+      {"digitalSources": {"native-reader": 8208}, "primaryAxis": [0, 0], "digital": {"held": 16, "pressed": 16, "released": 0}}
+    ]},
+    {"name": "multiple-digital-sources", "rows": [
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {"keyboard": 16}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 16, "pressed": 16, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {"keyboard": 16, "physical": 16}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 16, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"physical": 16}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 16, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 16}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 7, "mask": 16}]}
+    ]},
+    {"name": "digital-handoff-and-combinations", "rows": [
+      {"digitalSources": {"a": 16}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 16, "pressed": 16, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {"b": 16}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 16, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 16}]},
+      {"digitalSources": {"b": 16, "c": 64}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 80, "pressed": 64, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 4, "mask": 64}, {"type": 5, "mask": 80}]},
+      {"digitalSources": {"c": 64}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 64, "pressed": 0, "released": 16}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 64}, {"type": 7, "mask": 16}]},
+      {"digitalSources": {"c": 64, "d": 32}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 96, "pressed": 32, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 4, "mask": 32}, {"type": 5, "mask": 96}]},
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 96}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 7, "mask": 96}]}
+    ]},
+    {"name": "digital-reader-bit-clear", "rows": [
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {"raw": 8192}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {"raw": 8208}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 16, "pressed": 16, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {"raw": 8192}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 16}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 7, "mask": 16}]},
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []}
+    ]},
+    {"name": "independent-digital-primary-edges", "rows": [
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {"key": 16}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 16, "pressed": 16, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {"key": 16}, "primaryAxis": [0.6, 0], "retainedAxis": [0.6000000238418579, 0.0], "digital": {"held": 16, "pressed": 0, "released": 0}, "primary": {"held": 16, "pressed": 16, "released": 0}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {"key": 16}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 16, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 16}, "events": [{"type": 5, "mask": 16}, {"type": 7, "mask": 16}]},
+      {"digitalSources": {"key": 16}, "primaryAxis": [-0.6, 0.6], "retainedAxis": [-0.6000000238418579, 0.6000000238418579], "digital": {"held": 16, "pressed": 0, "released": 0}, "primary": {"held": 96, "pressed": 96, "released": 0}, "events": [{"type": 4, "mask": 96}, {"type": 5, "mask": 112}]},
+      {"digitalSources": {}, "primaryAxis": [-0.6, 0.6], "retainedAxis": [-0.6000000238418579, 0.6000000238418579], "digital": {"held": 0, "pressed": 0, "released": 16}, "primary": {"held": 96, "pressed": 0, "released": 0}, "events": [{"type": 5, "mask": 96}, {"type": 7, "mask": 16}]},
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 96}, "events": [{"type": 7, "mask": 96}]}
+    ]},
+    {"name": "primary-quadrants-and-equality", "rows": [
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0.6, 0.6], "retainedAxis": [0.6000000238418579, 0.6000000238418579], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 80, "pressed": 80, "released": 0}, "events": [{"type": 4, "mask": 80}, {"type": 5, "mask": 80}]},
+      {"digitalSources": {}, "primaryAxis": [-0.6, 0.6], "retainedAxis": [-0.6000000238418579, 0.6000000238418579], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 96, "pressed": 32, "released": 16}, "events": [{"type": 4, "mask": 32}, {"type": 5, "mask": 96}, {"type": 7, "mask": 16}]},
+      {"digitalSources": {}, "primaryAxis": [-0.6, -0.6], "retainedAxis": [-0.6000000238418579, -0.6000000238418579], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 160, "pressed": 128, "released": 64}, "events": [{"type": 4, "mask": 128}, {"type": 5, "mask": 160}, {"type": 7, "mask": 64}]},
+      {"digitalSources": {}, "primaryAxis": [0.6, -0.6], "retainedAxis": [0.6000000238418579, -0.6000000238418579], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 144, "pressed": 16, "released": 32}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 144}, {"type": 7, "mask": 32}]},
+      {"digitalSources": {}, "primaryAxis": [0.5, -0.5], "retainedAxis": [0.5, -0.5], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 144}, "events": [{"type": 7, "mask": 144}]},
+      {"digitalSources": {}, "primaryAxis": [1, -1], "retainedAxis": [1.0, -1.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 144, "pressed": 144, "released": 0}, "events": [{"type": 4, "mask": 144}, {"type": 5, "mask": 144}]},
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 144}, "events": [{"type": 7, "mask": 144}]}
+    ]},
+    {"name": "float32-threshold-neighbors-0", "rows": [
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0.4999999701976776, 0], "retainedAxis": [0.4999999701976776, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0.5, 0], "retainedAxis": [0.5, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0.5000000074505806, 0], "retainedAxis": [0.5, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0.5000000298023224, 0], "retainedAxis": [0.5, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0.5000000596046448, 0], "retainedAxis": [0.5000000596046448, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 16, "pressed": 16, "released": 0}, "events": [{"type": 4, "mask": 16}, {"type": 5, "mask": 16}]},
+      {"digitalSources": {}, "primaryAxis": [-0.4999999701976776, 0], "retainedAxis": [-0.4999999701976776, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 16}, "events": [{"type": 7, "mask": 16}]},
+      {"digitalSources": {}, "primaryAxis": [-0.5, 0], "retainedAxis": [-0.5, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [-0.5000000074505806, 0], "retainedAxis": [-0.5, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [-0.5000000298023224, 0], "retainedAxis": [-0.5, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [-0.5000000596046448, 0], "retainedAxis": [-0.5000000596046448, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 32, "pressed": 32, "released": 0}, "events": [{"type": 4, "mask": 32}, {"type": 5, "mask": 32}]},
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 32}, "events": [{"type": 7, "mask": 32}]}
+    ]},
+    {"name": "float32-threshold-neighbors-1", "rows": [
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0, 0.4999999701976776], "retainedAxis": [0.0, 0.4999999701976776], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0, 0.5], "retainedAxis": [0.0, 0.5], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0, 0.5000000074505806], "retainedAxis": [0.0, 0.5], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0, 0.5000000298023224], "retainedAxis": [0.0, 0.5], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0, 0.5000000596046448], "retainedAxis": [0.0, 0.5000000596046448], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 64, "pressed": 64, "released": 0}, "events": [{"type": 4, "mask": 64}, {"type": 5, "mask": 64}]},
+      {"digitalSources": {}, "primaryAxis": [0, -0.4999999701976776], "retainedAxis": [0.0, -0.4999999701976776], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 64}, "events": [{"type": 7, "mask": 64}]},
+      {"digitalSources": {}, "primaryAxis": [0, -0.5], "retainedAxis": [0.0, -0.5], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0, -0.5000000074505806], "retainedAxis": [0.0, -0.5], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0, -0.5000000298023224], "retainedAxis": [0.0, -0.5], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 0}, "events": []},
+      {"digitalSources": {}, "primaryAxis": [0, -0.5000000596046448], "retainedAxis": [0.0, -0.5000000596046448], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 128, "pressed": 128, "released": 0}, "events": [{"type": 4, "mask": 128}, {"type": 5, "mask": 128}]},
+      {"digitalSources": {}, "primaryAxis": [0, 0], "retainedAxis": [0.0, 0.0], "digital": {"held": 0, "pressed": 0, "released": 0}, "primary": {"held": 0, "pressed": 0, "released": 128}, "events": [{"type": 7, "mask": 128}]}
+    ]}
+  ]
+}

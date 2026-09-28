@@ -1,0 +1,708 @@
+{
+  "schema": 1,
+  "codeSha256": "3c57f2c4091c1bec6b3834609f1e2a6488712e21775d7548b441c69c60b3e5a9",
+  "archiveSha256": "c9ac5974b02e6b0e1274a0aaeec66f5b701de6915c364efd41282827198cdf05",
+  "instructionFacts": [
+    {
+      "address": "0x231a98",
+      "instruction": "str r0, [r4, #0xf0]"
+    },
+    {
+      "address": "0x231ab4",
+      "instruction": "str r0, [r4, #0xf4]"
+    },
+    {
+      "address": "0x231ac4",
+      "instruction": "bl #0x2484d8"
+    },
+    {
+      "address": "0x2484f4",
+      "instruction": "str r1, [r0, #0xc98]"
+    },
+    {
+      "address": "0x2484f8",
+      "instruction": "str r2, [r0, #0xcdc]"
+    },
+    {
+      "address": "0x248560",
+      "instruction": "orr r1, r1, #0x1e"
+    },
+    {
+      "address": "0x2485bc",
+      "instruction": "orr r1, r1, #0x1e"
+    },
+    {
+      "address": "0x231aec",
+      "instruction": "bl #0x1e052c"
+    },
+    {
+      "address": "0x231af8",
+      "instruction": "str r0, [sb, #0xd8]"
+    },
+    {
+      "address": "0x231b4c",
+      "instruction": "vmla.f32 s0, s1, s16"
+    },
+    {
+      "address": "0x231b94",
+      "instruction": "mov r1, #0xa"
+    },
+    {
+      "address": "0x231b9c",
+      "instruction": "cmp r8, #3"
+    },
+    {
+      "address": "0x1e042c",
+      "instruction": "str r0, [r4, #0xf8]"
+    },
+    {
+      "address": "0x1e0450",
+      "instruction": "strb r6, [r4, #0x108]"
+    },
+    {
+      "address": "0x1e0490",
+      "instruction": "mov r1, #0"
+    },
+    {
+      "address": "0x1e048c",
+      "instruction": "mov r2, #0x14"
+    },
+    {
+      "address": "0x2364b0",
+      "instruction": "vldr s0, [r7, #0x38]"
+    },
+    {
+      "address": "0x2364b8",
+      "instruction": "ldr r0, [r0, #0xd8]"
+    },
+    {
+      "address": "0x2364bc",
+      "instruction": "bl #0x1fc830"
+    },
+    {
+      "address": "0x2364c4",
+      "instruction": "cmp r4, #3"
+    },
+    {
+      "address": "0x1fc84c",
+      "instruction": "vmov.f32 s17, s0"
+    },
+    {
+      "address": "0x1fc938",
+      "instruction": "vsub.f32 s0, s0, s17"
+    },
+    {
+      "address": "0x1fc948",
+      "instruction": "bhs #0x1fc9b4"
+    },
+    {
+      "address": "0x1fc958",
+      "instruction": "mov r2, #6"
+    },
+    {
+      "address": "0x1fc95c",
+      "instruction": "mov r1, #1"
+    },
+    {
+      "address": "0x1fc960",
+      "instruction": "bl #0x1fcf60"
+    },
+    {
+      "address": "0x1fc96c",
+      "instruction": "bl #0x1fcd8c"
+    },
+    {
+      "address": "0x1fcd98",
+      "instruction": "str r1, [r0, #0xf8]"
+    },
+    {
+      "address": "0x1fce1c",
+      "instruction": "bl #0x20bed8"
+    },
+    {
+      "address": "0x1fce44",
+      "instruction": "mov r2, #0x12c"
+    },
+    {
+      "address": "0x1fce48",
+      "instruction": "mov r1, #0x32"
+    },
+    {
+      "address": "0x1fce5c",
+      "instruction": "vstr s0, [r5, #0xfc]"
+    },
+    {
+      "address": "0x1fcf74",
+      "instruction": "add ip, r2, #1"
+    },
+    {
+      "address": "0x1fcfa8",
+      "instruction": "umull r2, r0, r2, ip"
+    },
+    {
+      "address": "0x1fcfac",
+      "instruction": "add r0, r0, r1"
+    },
+    {
+      "address": "0x1fca90",
+      "instruction": "bl #0x1fcf60"
+    },
+    {
+      "address": "0x1fcaf4",
+      "instruction": "vstr s0, [r4, #0xa0]"
+    },
+    {
+      "address": "0x1fcb18",
+      "instruction": "b #0x1fcd8c"
+    }
+  ],
+  "upperExtendedStateTable": [
+    "Wait",
+    "RandomA",
+    "RandomB",
+    "RandomC",
+    "RandomD",
+    "RandomF",
+    "RandomG",
+    "RandomI",
+    "RandomJ",
+    "OutL_U",
+    "InL_U",
+    "Wait",
+    "FlyLoopL"
+  ],
+  "upperExtendedInitialBase": {
+    "x": -157,
+    "stepX": 50,
+    "y": -72,
+    "count": 3,
+    "randomXExtent": 10
+  },
+  "wrapperSha256": "13f16ab8ff7a0a827aac376cd5ba96767763fe625da468569d5f40c18ff55ed5",
+  "childMount": {
+    "kind": "pan1",
+    "name": "-L-ChaA",
+    "flags": 1,
+    "origin": 4,
+    "alpha": 255,
+    "userData": "0000000000000000",
+    "translation": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rotation": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": [
+      1.0,
+      1.0
+    ],
+    "size": [
+      30.0,
+      40.0
+    ],
+    "children": [],
+    "metadata": [
+      {
+        "name": "LYT",
+        "type": 0,
+        "value": "Parakeet/ParakeetA_U"
+      }
+    ]
+  },
+  "clips": {
+    "ParakeetA_U_Wait": {
+      "sha256": "4bfb3266826c859eb318f31fb0f1aeed1cb4bdd71920e4db8f08c4dafb66c07f",
+      "frames": 60,
+      "loop": true,
+      "textures": [
+        "CharaA_Wait_00.bclim",
+        "CharaA_Wait_A_00.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 0
+        },
+        {
+          "frame": 60.0,
+          "value": 1
+        }
+      ]
+    },
+    "ParakeetA_U_RandomA": {
+      "sha256": "6790df83011b1a029dfe951ac08344529a10f7ff884cbaea9dafa00addb1922b",
+      "frames": 61,
+      "loop": false,
+      "textures": [
+        "CharaA_Wait_00.bclim",
+        "CharaA_Wait_A_00.bclim",
+        "CharaA_Wait_A_01.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 1
+        },
+        {
+          "frame": 4.0,
+          "value": 2
+        },
+        {
+          "frame": 56.0,
+          "value": 1
+        },
+        {
+          "frame": 60.0,
+          "value": 0
+        }
+      ]
+    },
+    "ParakeetA_U_RandomB": {
+      "sha256": "608edcdee4f66a886dcf3e1e26aa9f09349e3b406f5054827959a754b20d3ad8",
+      "frames": 61,
+      "loop": false,
+      "textures": [
+        "CharaA_Wait_00.bclim",
+        "CharaA_Wait_B_00.bclim",
+        "CharaA_Wait_B_01.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 1
+        },
+        {
+          "frame": 6.0,
+          "value": 2
+        },
+        {
+          "frame": 54.0,
+          "value": 1
+        },
+        {
+          "frame": 60.0,
+          "value": 0
+        }
+      ]
+    },
+    "ParakeetA_U_RandomC": {
+      "sha256": "70e0a1e9b86b931029d78a7784d8a813a0acd01ce297f4ae68961e8dec757762",
+      "frames": 61,
+      "loop": false,
+      "textures": [
+        "CharaA_Wait_00.bclim",
+        "CharaA_Wait_C_00.bclim",
+        "CharaA_Wait_C_01.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 1
+        },
+        {
+          "frame": 4.0,
+          "value": 2
+        },
+        {
+          "frame": 56.0,
+          "value": 1
+        },
+        {
+          "frame": 60.0,
+          "value": 0
+        }
+      ]
+    },
+    "ParakeetA_U_RandomD": {
+      "sha256": "b5ccfb4998945df70b35a09ce6ffa6e315670d296dcdf3114a3185e4707a34b1",
+      "frames": 61,
+      "loop": false,
+      "textures": [
+        "CharaA_Wait_00.bclim",
+        "CharaA_Wait_D_00.bclim",
+        "CharaA_Wait_D_01.bclim",
+        "CharaA_Wait_D_02.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 1
+        },
+        {
+          "frame": 6.0,
+          "value": 2
+        },
+        {
+          "frame": 12.0,
+          "value": 3
+        },
+        {
+          "frame": 18.0,
+          "value": 2
+        },
+        {
+          "frame": 24.0,
+          "value": 3
+        },
+        {
+          "frame": 30.0,
+          "value": 2
+        },
+        {
+          "frame": 36.0,
+          "value": 3
+        },
+        {
+          "frame": 42.0,
+          "value": 2
+        },
+        {
+          "frame": 48.0,
+          "value": 3
+        },
+        {
+          "frame": 54.0,
+          "value": 1
+        },
+        {
+          "frame": 60.0,
+          "value": 0
+        }
+      ]
+    },
+    "ParakeetA_U_RandomF": {
+      "sha256": "a94a9fec0cbfb1204eee12d8428571cdf7ffe065175fbfb8ef344d5dfe2fc243",
+      "frames": 61,
+      "loop": false,
+      "textures": [
+        "CharaA_Wait_00.bclim",
+        "CharaA_Wait_F_00.bclim",
+        "CharaA_Wait_F_01.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 1
+        },
+        {
+          "frame": 6.0,
+          "value": 2
+        },
+        {
+          "frame": 32.0,
+          "value": 1
+        },
+        {
+          "frame": 38.0,
+          "value": 0
+        }
+      ]
+    },
+    "ParakeetA_U_RandomG": {
+      "sha256": "5155ae09a878324d2961ef7becd48cb69e950b17b77131ec404d1d5098b84091",
+      "frames": 61,
+      "loop": false,
+      "textures": [
+        "CharaA_Wait_00.bclim",
+        "CharaA_Wait_G_00.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 1
+        },
+        {
+          "frame": 6.0,
+          "value": 0
+        },
+        {
+          "frame": 12.0,
+          "value": 1
+        },
+        {
+          "frame": 18.0,
+          "value": 0
+        },
+        {
+          "frame": 24.0,
+          "value": 1
+        },
+        {
+          "frame": 30.0,
+          "value": 0
+        },
+        {
+          "frame": 36.0,
+          "value": 1
+        },
+        {
+          "frame": 42.0,
+          "value": 0
+        }
+      ]
+    },
+    "ParakeetA_U_RandomI": {
+      "sha256": "c47ba83f2cc003d988ee77b9a53266f9a92b7a9ed9c5041cc62d790b3069805d",
+      "frames": 61,
+      "loop": false,
+      "textures": [
+        "CharaA_Wait_00.bclim",
+        "CharaA_Wait_I_00.bclim",
+        "CharaA_Wait_I_01.bclim",
+        "CharaA_Wait_I_02.bclim",
+        "CharaA_Wait_I_03.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 0
+        },
+        {
+          "frame": 1.0,
+          "value": 1
+        },
+        {
+          "frame": 7.0,
+          "value": 2
+        },
+        {
+          "frame": 13.0,
+          "value": 3
+        },
+        {
+          "frame": 19.0,
+          "value": 4
+        },
+        {
+          "frame": 25.0,
+          "value": 1
+        },
+        {
+          "frame": 31.0,
+          "value": 2
+        },
+        {
+          "frame": 37.0,
+          "value": 3
+        },
+        {
+          "frame": 43.0,
+          "value": 4
+        },
+        {
+          "frame": 49.0,
+          "value": 1
+        },
+        {
+          "frame": 55.0,
+          "value": 0
+        }
+      ]
+    },
+    "ParakeetA_U_RandomJ": {
+      "sha256": "c4880ff70779926e99383cfe592032dfbce803a92b6620794c10e201d20abef2",
+      "frames": 61,
+      "loop": false,
+      "textures": [
+        "CharaA_Wait_00.bclim",
+        "CharaA_Wait_J_00.bclim",
+        "CharaA_Wait_J_01.bclim",
+        "CharaA_Wait_J_02.bclim",
+        "CharaA_Wait_J_03.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 0
+        },
+        {
+          "frame": 1.0,
+          "value": 1
+        },
+        {
+          "frame": 7.0,
+          "value": 2
+        },
+        {
+          "frame": 13.0,
+          "value": 3
+        },
+        {
+          "frame": 19.0,
+          "value": 4
+        },
+        {
+          "frame": 25.0,
+          "value": 1
+        },
+        {
+          "frame": 31.0,
+          "value": 2
+        },
+        {
+          "frame": 37.0,
+          "value": 3
+        },
+        {
+          "frame": 43.0,
+          "value": 4
+        },
+        {
+          "frame": 49.0,
+          "value": 1
+        },
+        {
+          "frame": 55.0,
+          "value": 0
+        }
+      ]
+    },
+    "ParakeetA_U_InL_U": {
+      "sha256": "df638fdff93587be99783d8c301569b323196f0faac8899cda7c54985ccd9a2f",
+      "frames": 21,
+      "loop": false,
+      "textures": [
+        "CharaA_Fly_side_00.bclim",
+        "CharaA_Fly_side_01.bclim",
+        "CharaA_Fly_side_02.bclim",
+        "CharaA_Fly_side_03.bclim",
+        "CharaA_Fly_side_04.bclim",
+        "CharaA_Wait_00.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 1
+        },
+        {
+          "frame": 2.0,
+          "value": 0
+        },
+        {
+          "frame": 4.0,
+          "value": 2
+        },
+        {
+          "frame": 6.0,
+          "value": 1
+        },
+        {
+          "frame": 8.0,
+          "value": 0
+        },
+        {
+          "frame": 10.0,
+          "value": 2
+        },
+        {
+          "frame": 12.0,
+          "value": 1
+        },
+        {
+          "frame": 14.0,
+          "value": 0
+        },
+        {
+          "frame": 16.0,
+          "value": 3
+        },
+        {
+          "frame": 18.0,
+          "value": 4
+        },
+        {
+          "frame": 20.0,
+          "value": 5
+        }
+      ]
+    },
+    "ParakeetA_U_OutL_U": {
+      "sha256": "83fc14b5f2f7c6f53aec9fe6a1244362dff4ad1c878ca9610ed8c259aecd1daf",
+      "frames": 21,
+      "loop": false,
+      "textures": [
+        "CharaA_Fly_side_00.bclim",
+        "CharaA_Fly_side_01.bclim",
+        "CharaA_Fly_side_02.bclim",
+        "CharaA_Fly_side_03.bclim",
+        "CharaA_Fly_side_04.bclim",
+        "CharaA_Wait_00.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 5
+        },
+        {
+          "frame": 2.0,
+          "value": 4
+        },
+        {
+          "frame": 4.0,
+          "value": 3
+        },
+        {
+          "frame": 6.0,
+          "value": 0
+        },
+        {
+          "frame": 8.0,
+          "value": 2
+        },
+        {
+          "frame": 10.0,
+          "value": 1
+        },
+        {
+          "frame": 12.0,
+          "value": 0
+        },
+        {
+          "frame": 14.0,
+          "value": 2
+        },
+        {
+          "frame": 16.0,
+          "value": 1
+        },
+        {
+          "frame": 18.0,
+          "value": 0
+        },
+        {
+          "frame": 20.0,
+          "value": 2
+        }
+      ]
+    },
+    "ParakeetA_U_FlyLoopL": {
+      "sha256": "e698a866ebd0263b3c9303b1af7258b2289fea86ee8a32d0ad4319eccfa3cac6",
+      "frames": 3,
+      "loop": true,
+      "textures": [
+        "CharaA_Fly_side_00.bclim",
+        "CharaA_Fly_side_01.bclim",
+        "CharaA_Fly_side_02.bclim"
+      ],
+      "patternKeys": [
+        {
+          "frame": 0.0,
+          "value": 1
+        },
+        {
+          "frame": 2.0,
+          "value": 0
+        },
+        {
+          "frame": 4.0,
+          "value": 2
+        }
+      ]
+    }
+  },
+  "gate": "Live owner activation, app+0x38 delta producer/units, shared RNG consumption, child animation scheduling and third-bird flight/visibility order remain unproven. No live change."
+}

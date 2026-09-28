@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022b00": {
+      "packs": {
+        "packs/nintendo-zone/layout-nwcx.json": {
+          "layouts": [
+            "U_Help",
+            "D_Help",
+            "Hud_00",
+            "bottommenu_l"
+          ],
+          "animations": [
+            "D_Help_A00_Help_Btn",
+            "D_Help_A00_Mask_Clos",
+            "D_Help_A00_Mask_Open",
+            "D_Help_Back_Btn",
+            "D_Help_Btn_Appearing",
+            "D_Help_F_in_Effect",
+            "D_Help_F_loop_Effect",
+            "D_Help_F_out_Effect",
+            "D_Help_Help_Btn",
+            "D_Help_Help_avcontrol",
+            "D_Help_Start_Appearing",
+            "Hud_00_Applet_Cover",
+            "Hud_00_Bar_Appear",
+            "Hud_00_Bar_disappears",
+            "Hud_00_Battery",
+            "Hud_00_Charge_anim",
+            "Hud_00_Debug_Rotate",
+            "Hud_00_Read_inout",
+            "Hud_00_Read_loop",
+            "Hud_00_Signal",
+            "Hud_00_no_Battery",
+            "Hud_00_time_Blinking",
+            "U_Help_BG_Coloer_Out",
+            "U_Help_BG_Coloer_in",
+            "U_Help_Help_Clos",
+            "U_Help_Help_Open",
+            "U_Help_M03_Mask_Clos",
+            "U_Help_M03_Mask_Open",
+            "bottommenu_l_NEW_line_shines",
+            "bottommenu_l_Push_Down",
+            "bottommenu_l_Push_Up",
+            "bottommenu_l_Push_d1",
+            "bottommenu_l_Push_d1_NEW",
+            "bottommenu_l_Push_d2",
+            "bottommenu_l_Push_d3",
+            "bottommenu_l_Push_d4",
+            "bottommenu_l_Push_d5",
+            "bottommenu_l_Push_wb",
+            "bottommenu_l_Seq_AltMenuIn",
+            "bottommenu_l_Seq_AltMenuIn_Memo",
+            "bottommenu_l_Seq_Cancel",
+            "bottommenu_l_Seq_MenuON",
+            "bottommenu_l_Seq_MenuON_3",
+            "bottommenu_l_Seq_MenuOff",
+            "bottommenu_l_Seq_MenuOff_3",
+            "bottommenu_l_Seq_SceneIn"
+          ]
+        },
+        "packs/nintendo-zone/www-included_html-3dbanner_EU-nwcla.json": {
+          "layouts": [
+            "U_top"
+          ],
+          "animations": [
+            "U_top_Loop_anim"
+          ]
+        },
+        "packs/nintendo-zone/messages-and-loose.json": {
+          "messages": {
+            "mars": [
+              "App_Boot_TopHomeButton",
+              "App_Boot_TopWelcome",
+              "App_Button_Back_Dlg3",
+              "App_Button_Close_Dlg3"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

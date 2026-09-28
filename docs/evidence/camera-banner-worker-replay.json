@@ -1,0 +1,251 @@
+{
+  "cameraTitleWorker": {
+    "archiveTitleKey": [
+      "0x22400",
+      "0x40010",
+      0
+    ],
+    "cbmdSha256": "e4808dcf84e490c73200ee5f9cb2ba72d096c93d6ccdf08d88d733988fd66280",
+    "commonCandidate": "0x500600",
+    "commonOffset": 136,
+    "commonSha256": "068d2d09cddc0f9c23f9b3e126f7a4942ce52957910102a831298e14fa1b361d",
+    "commonSize": 154752,
+    "completionByte": 1,
+    "completionStoreReached": true,
+    "nativeDecodeCalls": 2,
+    "nativeSizeCalls": 2,
+    "selectedCandidate": "0x500700",
+    "selectedOffset": 32130,
+    "selectedSha256": "21f8723b955b36b9575d0a92b942889bd978f868163c9b75063528f561105ccb",
+    "selectedSize": 98816,
+    "stop": "0x700000"
+  },
+  "codeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+  "firmware": "EUR HOME 10.7.0-32E",
+  "method": "Original ARM title worker, stage-4/5 branches, post-state-5 acknowledgement, presentation-worker early gate and retarget state-6/2 fragments with supplied manager memory. Archive I/O, allocations, constructors, controller preparation, visibility and thread services are explicit stubs. Optional pinned Camera CBMD runs the original size and LZ11 routines and checks both CGFX output hashes. No full presentation-worker render path, uninterrupted retarget cycle, scene/GPU execution or title clip timing.",
+  "postState5Acknowledgement": {
+    "changedType": {
+      "requestPending": 1,
+      "stop": "0x700000",
+      "visibilityRequests": []
+    },
+    "matchingRequest": {
+      "requestPending": 0,
+      "stop": "0x700000",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          1
+        ],
+        [
+          "0x500200",
+          1
+        ]
+      ]
+    },
+    "missingPrimary": {
+      "requestPending": 0,
+      "stop": "0x700000",
+      "visibilityRequests": [
+        [
+          "0x500200",
+          1
+        ]
+      ]
+    },
+    "retargetedTitle": {
+      "requestPending": 1,
+      "stop": "0x700000",
+      "visibilityRequests": []
+    }
+  },
+  "presentationWorkerEarlyGate": {
+    "matchingRequest": {
+      "serviceArguments": [
+        "0x34c020"
+      ],
+      "stop": "0x700000"
+    },
+    "retargetedTitle": {
+      "serviceArguments": [
+        "0x0"
+      ],
+      "stop": "0x700000"
+    }
+  },
+  "retargetState2": {
+    "hidden": {
+      "state": 1,
+      "stop": "0x24c23c"
+    },
+    "stillVisible": {
+      "state": 2,
+      "stop": "0x24c248"
+    }
+  },
+  "retargetState6": {
+    "requestPending": 0,
+    "state": 2,
+    "stop": "0x24c23c",
+    "visibilityRequests": [
+      [
+        "0x500100",
+        0
+      ],
+      [
+        "0x500200",
+        0
+      ]
+    ]
+  },
+  "state4": {
+    "presentationLaunchFailure": {
+      "prepared": true,
+      "presentationWorkerLaunched": true,
+      "requestedType": 1,
+      "state": 4,
+      "stop": "0x249d48"
+    },
+    "resourceFlagClear": {
+      "prepared": false,
+      "presentationWorkerLaunched": false,
+      "requestedType": 1,
+      "state": 6,
+      "stop": "0x249e4c"
+    },
+    "resourceFlagClearAlternative": {
+      "prepared": false,
+      "presentationWorkerLaunched": false,
+      "requestedType": 13,
+      "state": 6,
+      "stop": "0x249e4c"
+    },
+    "resourceReady": {
+      "prepared": true,
+      "presentationWorkerLaunched": true,
+      "requestedType": 1,
+      "state": 5,
+      "stop": "0x249d48"
+    },
+    "retargetBeforePresentation": {
+      "prepared": true,
+      "presentationWorkerLaunched": true,
+      "requestedType": 1,
+      "state": 5,
+      "stop": "0x249d48"
+    },
+    "workerPending": {
+      "prepared": false,
+      "presentationWorkerLaunched": false,
+      "requestedType": 1,
+      "state": 4,
+      "stop": "0x249d48"
+    }
+  },
+  "state5": {
+    "changedType": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          0
+        ],
+        [
+          "0x500200",
+          0
+        ]
+      ]
+    },
+    "ineligiblePrimary": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          0
+        ],
+        [
+          "0x500200",
+          0
+        ]
+      ]
+    },
+    "matchingRequest": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          1
+        ],
+        [
+          "0x500200",
+          1
+        ]
+      ]
+    },
+    "noPendingRequest": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          1
+        ],
+        [
+          "0x500200",
+          1
+        ]
+      ]
+    },
+    "retargetedTitle": {
+      "state": 6,
+      "stop": "0x24a6b4",
+      "visibilityRequests": [
+        [
+          "0x500100",
+          0
+        ],
+        [
+          "0x500200",
+          0
+        ]
+      ]
+    },
+    "workerPending": {
+      "state": 5,
+      "stop": "0x24a758",
+      "visibilityRequests": []
+    }
+  },
+  "titleId": "0004001000022400",
+  "titleWorkerOpenFailure": {
+    "archiveOpenCalled": true,
+    "archiveReadCalled": false,
+    "completionByte": 0,
+    "stop": "0x24c988"
+  },
+  "titleWorkerReadFailure": {
+    "archiveOpenCalled": true,
+    "archiveReadCalled": true,
+    "completionByte": 0,
+    "stop": "0x24c988"
+  },
+  "titleWorkerSuppliedResources": {
+    "commonCandidate": "0x500600",
+    "completionByte": 1,
+    "decodeCalls": [
+      [
+        "0x508020",
+        "0x50a000"
+      ],
+      [
+        "0x508040",
+        "0x50c000"
+      ]
+    ],
+    "selectedCandidate": "0x500700",
+    "stop": "0x700000"
+  }
+}

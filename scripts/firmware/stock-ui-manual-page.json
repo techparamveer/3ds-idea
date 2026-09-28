@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004003000009b02": {
+      "packs": {
+        "packs/manual/layout-BtnClose01.json": {
+          "layouts": [
+            "BtnClose01"
+          ],
+          "animations": [
+            "BtnClose01_SceneIn"
+          ]
+        },
+        "packs/manual/layout-BtnTextSize00.json": {
+          "layouts": [
+            "BtnTextSize00"
+          ],
+          "animations": [
+            "BtnTextSize00_SceneIn"
+          ]
+        },
+        "packs/manual/layout-PageShdw00.json": {
+          "layouts": [
+            "PageShdw00"
+          ],
+          "animations": []
+        },
+        "packs/manual/layout-PageGroup.json": {
+          "layouts": [
+            "PageGroup"
+          ],
+          "animations": []
+        },
+        "packs/manual/layout-BtnHeadLineTxt.json": {
+          "layouts": [
+            "BtnHeadLineTxt"
+          ],
+          "animations": [
+            "BtnHeadLineTxt_ChangeWait"
+          ],
+          "mergeExisting": true
+        },
+        "packs/manual/messages-and-loose.json": {
+          "messages": {
+            "ebird": [
+              "BtnTextSize_Big",
+              "BtnTextSize_Small",
+              "BtnTextSize_Picto"
+            ]
+          },
+          "mergeExisting": true
+        }
+      }
+    }
+  }
+}

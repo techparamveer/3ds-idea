@@ -1,0 +1,156 @@
+{
+  "provenance": {
+    "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "fixtureSHA256": "00af50c4d548f39e5878f208298dcc48f98110f72652fe559852525316b46e0e",
+    "resultsSHA256": "05b378c0534019c8ea8d22a966d23ea3bdfd1ac265d8b70d07fc21308f6eaa86",
+    "excerpt": {
+      "path": "proof-2a4bb8-2a4d80.asm",
+      "bytesSHA256": "2e6642d1f89c7b55663f44cc9dbacf65ee2a59acbd18c160fadac7448b51e5c4",
+      "textSHA256": "3ac57d7d2352f6170d83bb7ee7bf5c4adc6a3541dad501e45985f3bc8f065d86"
+    },
+    "scope": "Copied numeric results of all five original-ARM accepted-touch fragments. Root density2, selected3, left0, tapped8; stops before viewport correction. No firmware bytes, earlier hit gates or newly executed cases."
+  },
+  "initial": {
+    "density": 2,
+    "selectedSlot": 3,
+    "currentLeftSlot": 0,
+    "targetLeftSlot": 0
+  },
+  "touch": [
+    {
+      "oldFocus": -1,
+      "newSlot": 8,
+      "effect": {
+        "visible": 1,
+        "position": [
+          -54.0,
+          50.0,
+          0.0
+        ],
+        "slot": 3,
+        "scale": {
+          "current": 2.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      }
+    },
+    {
+      "oldFocus": 0,
+      "newSlot": 8,
+      "effect": {
+        "visible": 1,
+        "position": [
+          -134.0,
+          104.0,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 10.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      }
+    },
+    {
+      "oldFocus": 3,
+      "newSlot": 8,
+      "effect": {
+        "visible": 1,
+        "position": [
+          -0.0,
+          103.5,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 11.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      }
+    },
+    {
+      "oldFocus": 6,
+      "newSlot": 8,
+      "effect": {
+        "visible": 1,
+        "position": [
+          121.0,
+          104.0,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 12.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      }
+    },
+    {
+      "oldFocus": 7,
+      "newSlot": 8,
+      "effect": {
+        "visible": 1,
+        "position": [
+          147.0,
+          104.0,
+          0.0
+        ],
+        "slot": -1,
+        "scale": {
+          "current": 12.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 5
+        },
+        "disappear": {
+          "current": 0.0,
+          "applied": -999.0,
+          "step": 1.0,
+          "state": 1,
+          "mode": 0
+        }
+      }
+    }
+  ]
+}

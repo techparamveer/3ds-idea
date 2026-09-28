@@ -1,0 +1,288 @@
+# Bounded HOME audio correction
+
+`../render_firmware_audio.py` version 8 with **voice/DSP profile v8** defaults to
+the ten short cues from the exact owner-supplied EUR HOME archive identified by
+`home_audio_profile.json`. Baked music requires explicit `--pack diagnostic`;
+normal cue packs cannot contain either music WAV. It rejects
+other archive hashes, source records, nonallowlisted sounds, altered sound options,
+unexpected banks and stereo source waves. It does not load neighboring `extData`.
+
+The wrapper exports the pinned DualRip commit through `git archive`, verifies the
+four source-file hashes, applies `home_audio_dualrip.patch` in a disposable copy,
+and adds `home_audio_math.py`, `home_audio_clock.py`, `home_audio_voice.py` and
+`home_audio_dsp.py`.
+The required `--scratch` argument places this
+copy under the caller's SSD artifact root; there is no host temporary-directory
+fallback. It never modifies the renderer checkout. The patch
+is based on DualRip by Tetra_Sky; its MIT notice is in
+`home_audio_DUALRIP_LICENSE.txt`. Firmware code is not executed or distributed.
+
+The profile adds new-note initial-pan capture (ties retain their capture), native
+quantized square-root pan, explicit stereo span handling and linear main/aux sends.
+The 257-entry LUT is generated mathematically with one native rounding correction
+at index 2; its packed float32 SHA-256 is checked against the researched table.
+Version 3 also converts envelope/table units as tenths of a decibel (`/200`
+for amplitude), with bank-region volume as a separate linear gain. See
+`AUDIO_EVIDENCE.md` and `home_audio_GAIN_EVIDENCE.md` for the native evidence.
+Version 4 adds the native 160-sample frame scheduler with float32 next-tick
+fraction, integer cost truncation, strict frame-budget comparison and tempo
+recomputation after each tick. See `home_audio_CLOCK_EVIDENCE.md` for the
+transcription and independent native PCM period measurement. No timing constant
+is fitted, and no samples are inserted or stretched to achieve that period.
+Version 5 preserves the renderer's initial generated frame so PCM and loop
+metadata share the same sample origin. Native onset remains unverified. See
+`home_audio_LOOP_EVIDENCE.md` for that fix and the separate eight-pass analysis
+of voices carried across loop boundaries.
+Version 6 removes archive-entry volume from the sustain-table sum and applies
+its native linear float32 factor separately. The complete native call chain and
+lossless short-cue/music comparison are in
+`home_audio_ENTRY_VOLUME_EVIDENCE.md`. No compensating gain is fitted.
+Profile v7 transcribes the complete traced float32 envelope, sweep/pitch, LFO
+and gain connections, plus native sequence-before-voice ordering, gates and
+track-close semantics. Its 1,522 table entries match native bytes exactly.
+See `home_audio_VOICE_EVIDENCE.md` for source addresses, capture comparisons and
+the unresolved baked-loop defect. Wrapper version 6 remains unchanged.
+The subsequent [input-route and original-volume mixture diagnostic](home_audio_OPEN_ROUTE_EVIDENCE.md)
+rejects COMMON_BUTTON at folder opening and shows that the short confirmation
+cannot explain the remaining early folder-sweep difference. It changes no audio.
+Profile v8 then resolves that early sweep against the pinned Azahar capture by
+modeling initial buffer dequeue, persistent interpolation history and source gain
+ramps. See [DSP evidence](home_audio_DSP_EVIDENCE.md) for the C++ oracle checks,
+36 passing tests, native comparisons and continuing baked-loop blocker. This
+profile requires native 32728 Hz / 160-sample generation and is not a hardware
+polyphase verification.
+Wrapper version 7 explicitly accepts only 32728 Hz in both its API and CLI;
+it does not change native-rate synthesis. The subsequent
+[complete repeat-state audit](home_audio_REPEAT_STATE_EVIDENCE.md) finds no
+certified fixed music cycle and specifies the proposed persistent synthesis
+boundary. This is a contract for review, not an implemented browser engine.
+The subsequent [pure TypeScript music engine](home_audio_ENGINE_EVIDENCE.md)
+implements the agreed music-only boundary with private resource export and
+exact v8 PCM/state conformance. Browser scheduling and public promotion remain
+separate integration work; the offline WAV repeat is still not certified.
+Wrapper version 8 changes delivery selection and metadata only. Its default
+`--pack cues` emits select/open/back/home/power/touch/grab/drop/folder-open/folder-close,
+and `--only` can select a subset. Both API and CLI reject music in that pack.
+See [cue-only delivery evidence](home_audio_CUE_DELIVERY_EVIDENCE.md) for two
+identical reproductions and equality of all ten WAVs with the preserved v8 pack.
+
+Two aux buses remain distinct from main and from each other; each has a transparent
+unity return. This is a **startup runtime-state assumption** supported by the
+inspected initialization. No reverb or delay algorithm is invented. The current
+isolated CFG save and preserved snapshot both select stereo mode 1. Zero external
+send/pan offsets and unit pan scaling remain explicit assumptions. Built-in Azahar
+dumps bypass the host output slider and time stretching; provenance records this.
+No compensating gain is applied. The profile rejects surround mode in its span
+helper instead of silently treating it as stereo.
+
+`audio.json` records its pack mode and each original archive sound ID alongside
+the original source/title/cue metadata, raw sound
+options, pan mode/curve, all 33 validated mono bank-wave references, handled-command
+counts, profile/patch/adapter/math/clock/voice/DSP hashes and before/after source hashes.
+Startup-origin assumptions are recorded in `renderTimeline`. Remaining runtime
+and synthesizer gaps are included in every pack. Zero unapplied commands
+means only that the interpreter has handling for those commands; it does not prove
+native arithmetic, timing, resampling, envelopes or PCM equality.
+
+## Reproduce
+
+Use the existing audio Python environment, or Python 3.12+ with the pinned
+DualRip dependencies installed. Supply local paths; do not put firmware in Git.
+
+```sh
+HOME_AUDIO_SCRATCH=/Volumes/YourSSD/audio-scratch \
+HOME_AUDIO_RENDERER=/path/to/pinned/DualRip \
+HOME_AUDIO_SOURCE=/path/to/romfs/sound/menu.bcsar \
+python scripts/firmware/home_audio_test.py -v
+
+python scripts/render_firmware_audio.py \
+  /path/to/romfs/sound/menu.bcsar /path/to/new/candidate \
+  --renderer /path/to/pinned/DualRip \
+  --scratch /Volumes/YourSSD/audio-scratch \
+  --source-record /path/to/extracted/home/source.json
+```
+
+The output directory must not already exist. Tests use synthetic sequence/PCM data;
+when `HOME_AUDIO_SOURCE` is provided they additionally validate the actual archive
+and check the music loop period against independently measured native PCM.
+Both `HOME_AUDIO_RENDERER` and `HOME_AUDIO_SCRATCH` are required for the full
+test suite; test fixtures also use the SSD scratch root. Absence is an error, not a
+silently skipped correction test. The wrapper always validates the real archive.
+The default command above produces ten WAVs and `audio.json`, with no music
+WAVs. Historical full-pack diagnostics require `--pack diagnostic`; for a
+single diagnostic music render also pass `--only music` or `--only music-resume`.
+Those WAVs remain unsuitable as certified repeating music delivery.
+
+## Version 2 baseline, 2026-09-22
+
+The SSD artifact `assets/audio-candidate-v2` contains all 12 allowlisted cues.
+All reported unapplied-command maps are empty. Every sample count and loop boundary
+matches v1; this is a regression check, not independent native timing verification.
+Two independent renders produced byte-identical WAVs and `audio.json` (13 files);
+manifest source hashes identify its converter checkpoint; the pinned checkout
+remained clean. The v2 pack is preserved when creating v3.
+The 11-test suite passes overlap, new/tied-note capture, final pan clamping, LUT,
+linear 0/30/127 sends, main routing without effects, span and archive/provenance checks.
+
+Against the provisional native Vorbis recording, v2 music side/mid ratios are
+0.559/0.457/0.512/0.459 in the four 12–100 s windows, compared with native
+0.552/0.466/0.535/0.466. Native RMS remains 9.05–9.98 dB higher. At that checkpoint,
+system mode and runtime/master gain were unverified. The later CFG analysis
+confirmed stereo and the native gain trace identified formula mismatches, which
+v3 corrects. No measured normalization boost is applied.
+
+Comparison scripts and measurements are private artifacts in
+`assets/audio-research`: `compare-v2.py`, `candidate-v2-comparison.json`,
+`compare-v2-alignment.py` and `candidate-v2-alignment.json`. Public audio assets
+are deliberately not replaced by this converter checkpoint.
+
+
+## Version 3 PCM comparison, 2026-09-22
+
+`assets/audio-candidate-v3` and `assets/audio-candidate-v3-repro` independently
+produced identical 12 WAVs and `audio.json`. All 13 semantic/guard tests pass,
+all handled/unapplied reports are consistent, and sample counts/loop boundaries
+are unchanged from v2. The pinned renderer and public pack remain unchanged.
+
+The native source is `reference/home-native-lossless.wav`, extracted without
+loss from the 115.165-second Azahar 2126.1.2 built-in PCM dump (signed 16-bit,
+stereo, 32728 Hz). The neutral-input recording has no video packets, so it
+provides audio evidence only. Spectral feature alignment gives onset about
+1.75 seconds and speed effectively 1.0; this is not sample-accurate alignment
+or a precise drift measurement.
+
+| Candidate window | Native minus v3 RMS | Native side/mid | v3 side/mid |
+| --- | ---: | ---: | ---: |
+| 12–25 s | +1.609 dB | 0.551 | 0.553 |
+| 25–50 s | +1.524 dB | 0.464 | 0.470 |
+| 50–75 s | +1.325 dB | 0.533 | 0.514 |
+| 75–100 s | +1.489 dB | 0.464 | 0.467 |
+
+No normalization was applied. The former roughly 9–10 dB discrepancy is largely
+reduced by the native formula correction, while a 1.3–1.6 dB gap remains.
+The capture ends before the first full candidate loop boundary, so it does not
+validate that seam. It also does not exercise the short cues or state transitions.
+Keep native archive-volume routing, runtime bus/master gains, envelope/resampling
+and clipping differences open; do not turn this result into another fixed boost.
+
+Private reproducible evidence: `compare-v3-pcm.py`,
+`candidate-v3-pcm-comparison.json`, `candidate-v3-validation.json`,
+`native-cfg-sound-mode.json`, and `native-gain-checks.json` under
+`assets/audio-research`. The v2 pack and reports remain available as the baseline.
+
+## Version 4 native clock comparison, 2026-09-22
+
+`assets/audio-candidate-v4` and `assets/audio-candidate-v4-repro` independently
+produce byte-identical 12 WAVs and `audio.json`. All 19 focused tests pass.
+Manifest hashes match the converter, profile, patch and helper sources; every
+cue has an empty unapplied-command map and no samples at the int16 clipping
+limits. The pinned renderer, v2/v3 candidates and public assets are preserved.
+
+Music has loop start 314560, end 3829760, and a **3515200-sample** period at
+32728 Hz. This agrees exactly with all three independent waveform period
+measurements in the long native PCM recording. It corrects v3's 558-sample
+shortfall without fitted constants, padding or stretching. See
+`home_audio_CLOCK_EVIDENCE.md` for the source-derived arithmetic.
+
+The long-recording spectral alignment selects speed 1.0 and onset about 1.775 s.
+This is approximate feature alignment, not sample-by-sample PCM equality.
+
+| Candidate window | Native minus v4 RMS | Feature similarity |
+| --- | ---: | ---: |
+| 12–25 s | +0.751 dB | 0.945 |
+| 25–50 s | +0.951 dB | 0.954 |
+| 50–75 s | +0.669 dB | 0.945 |
+| 75–100 s | +0.804 dB | 0.949 |
+| 108–115 s | +0.411 dB | 0.945 |
+| 115–122 s, containing the baked seam | -0.339 dB | 0.889 |
+| 125–150 s, repeated slice | +0.782 dB | 0.950 |
+| 150–180 s, repeated slice | +0.942 dB | 0.948 |
+
+The changed voice-update cadence affects envelopes as well as scheduling.
+Although the level gap shrinks, aggregate first-cycle feature similarity is
+0.9487 versus v3's 0.9533; this is not evidence that every aspect of v4 sounds
+closer. Music peak is 0.155640 in normalized int16 units. No gain normalization
+is applied.
+
+The baked main-loop join jumps by 0.0104065 left / 0.0085144 right, compared with
+v3's 0.0251160 / 0.0152893. The v4 jump is still the largest adjacent-sample
+step in its surrounding 20 ms window (local RMS 0.0146035). These numbers do not
+establish audible seamlessness. Similarity is weaker in the window containing
+the join, and full native voice/envelope state across the loop is unresolved.
+
+The resume cue exports `[0,3515040)`, one frame (160 samples) shorter than the
+main loop. A scheduling-only trace explains the discrepancy: the untrimmed
+resume entry's first two bytecode passes span 1757440 and 1757760 samples,
+totaling 3515200; the existing render startup trim drops the initial silent
+160-sample block while the loop's captured start stays zero. Its third pass
+is 1757600 samples. The native recording does not exercise resume behavior.
+This remains an explicit baked-loop/startup limitation; the scheduler correction
+does not pad it or claim that cue's loop is verified for delivery.
+
+Private evidence under `assets/audio-research`: `compare-v4-long.py`,
+`candidate-v4-long-comparison.json`, `candidate-v4-validation.json`, and
+`candidate-v4-resume-boundary-diagnostic.json`. Public replacement remains held
+for native gain/envelope, startup/loop-state and short-cue review.
+
+## Version 5 startup-origin correction, 2026-09-22
+
+`assets/audio-candidate-v5` and `assets/audio-candidate-v5-repro` are identical
+across all 13 files. All 20 tests pass; provenance matches current sources and
+the pinned renderer remains clean. Every cue now retains its generated silent
+160-sample first frame, with all subsequent PCM identical to v4. Both music
+and resume have a 3515200-sample loop period. Their entire WAVs match prefixes
+of independent untrimmed eight-pass PCM. No native onset is inferred.
+
+The main waveform seam is unchanged by the origin correction. Separate later
+complete-pass candidates eliminate the measured excess seam step and match
+two seconds of continuous converter PCM exactly, while preserving the full
+lead-in. They are larger, and their full passages still differ from later
+continuous passes. Details, state snapshots, limitations and private candidate
+paths are in `home_audio_LOOP_EVIDENCE.md`. Public replacement remains held.
+
+## Version 6 linear archive-entry volume, 2026-09-22
+
+`assets/audio-candidate-v6` and `assets/audio-candidate-v6-repro` independently
+produce identical 12 WAVs and `audio.json`. All 21 focused tests pass, including
+nonunity entry/track-volume separation. Provenance matches current sources;
+the pinned renderer is clean. All sample counts and loop positions match v5,
+and every cue has zero samples at the int16 clipping limits.
+
+The native reader/setup/player/track call chain establishes a linear entry gain
+of `float32(raw * float32(1/127))`, floored at zero. Native music subtraction
+using independently verified sample offsets enables bounded short-cue comparison.
+The first RIGHT select residual moves from +8.421 dB above v5 to -0.031 dB
+relative to v6 (correlation 0.998925). A lower-volume HOME_SELECT hypothesis
+similarly moves from +12.546 to -0.031 dB; folder-close moves from +8.571 to
++0.090 dB (correlation 0.998158). These are measured waveform matches, not
+complete verification of input intent or UI outcomes. Folder opening's early
+waveform remains mismatched despite a closely matching tail.
+
+Main music becomes 2.470456 dB louder than v5 and is now 1.52–1.80 dB above the
+long native recording in four 12–100 s windows. Native bus/player gain and
+synthesis differences remain unresolved; no compensating attenuation is added.
+The exact 3515200-sample period is retained, while the baked waveform seam still
+differs from continuous playback. Full evidence, capture identity, methods,
+before/after gains and private reproducibility paths are in
+`home_audio_ENTRY_VOLUME_EVIDENCE.md`. Public replacement remains held.
+
+The subsequent `home_audio_RUNTIME_FOLLOWUP.md` rules out most of the aux-return
+explanation for music's level gap and traces remaining native frame-order,
+attack and pitch differences. Its private counterfactuals are not converter
+revisions or public delivery candidates.
+
+## Voice profile v7, 2026-09-22
+
+The two fresh v7 packs are identical across all 13 files; all 31 focused tests
+pass, current provenance matches, the pinned renderer stays clean, and no cue
+hits an int16 clipping limit. Both music periods remain 3,515,200 samples.
+Without normalization, the 12–100 s music level gap narrows from v6's
+1.52–1.80 dB to 0.046–0.119 dB. Select remains a close native residual match;
+folder-close is slightly worse and folder-open's early waveform remains poor.
+
+The current first-loop slice still replays sustained intro state. Its v7 main
+boundary step is 0.0538025 left / 0.0202332 right, versus only
+0.00186157 / 0.00079346 in independent continuous playback. Both complete WAVs
+match continuous prefixes, but their repeated slices differ. The original loop
+selection and public audio remain unchanged. Full measurements, limits and
+private reproduction paths are in `home_audio_VOICE_EVIDENCE.md`.

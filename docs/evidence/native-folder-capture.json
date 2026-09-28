@@ -1,0 +1,214 @@
+{
+  "native": {
+    "sourceSHA256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "execution": "Original ARM in Unicorn. Selected branch external stubs named explicitly; pair visibility, position, ordinary hide, scale seek, direct group binding and PicToggle controller execute original instructions. GPU draw is not executed.",
+    "selected": {
+      "externalStubs": [
+        "0x1edb7c",
+        "0x1e801c"
+      ],
+      "managerHalfword": 0,
+      "chosenSceneOffset": "0xb54",
+      "normalVisible": 0,
+      "normalPaneVisible": 0,
+      "pairBVisible": 1,
+      "pairTVisible": 1,
+      "roots": [
+        [
+          -84.0,
+          38.0,
+          0.0
+        ],
+        [
+          -84.0,
+          38.0,
+          0.0
+        ]
+      ],
+      "logicalCenter": [
+        76,
+        82
+      ],
+      "scaleFrames": [
+        1.0,
+        1.0
+      ]
+    },
+    "picToggleDirectBindings": [
+      "N_Color_00",
+      "N_Pic_00",
+      "N_Had_00"
+    ],
+    "picToggleNoImageControllerSteps": [
+      {
+        "appliedFrame": 1.0,
+        "nextFrame": 0.0,
+        "state": 1
+      },
+      {
+        "appliedFrame": 0.0,
+        "nextFrame": 0.0,
+        "state": 2
+      },
+      {
+        "appliedFrame": 0.0,
+        "nextFrame": 0.0,
+        "state": 0
+      },
+      {
+        "appliedFrame": 0.0,
+        "nextFrame": 0.0,
+        "state": 0
+      }
+    ]
+  },
+  "material": {
+    "execution": "Source CLYT/CLAN pose and CPU TEV evaluation at effective integer pane dimensions, not native GPU execution. PicToggle descendant binding explicitly disabled to match original ARM group binding. Hidden RGB preserved by native PNG decoder; A8 preview converted to native zero RGB.",
+    "texturePngSHA256": {
+      "LncFolderIn_11.bclim": "cae9d5c90371e8cbcefc2a293ccda8051a0b6a366d82df17a4a25fd5fe8538f5",
+      "LncFolderShdwLT_10.bclim": "10b3a7a7421f6bd0c2482b16c9d0546297dc4b275e7f0e4c016dca037fe7211b"
+    },
+    "rootCenter": [
+      76,
+      82
+    ],
+    "scaleFrame": 1,
+    "picToggleFrame": 0,
+    "panelTop": 64,
+    "visible": {
+      "N_Color_00": true,
+      "N_Pic_00": false,
+      "P_FolderHad_01": false,
+      "P_BaseShdw_00": true,
+      "P_BaseShdw_01": false
+    },
+    "bounds": {
+      "P_FolderIn_01": [
+        35,
+        54,
+        82,
+        64
+      ],
+      "P_BaseShdw_00": [
+        34,
+        54,
+        84,
+        68
+      ],
+      "B_P_Icon_00": [
+        60,
+        85,
+        32,
+        25
+      ]
+    },
+    "coverage": [
+      {
+        "pane": "P_FolderIn_01",
+        "metric": "output alpha byte",
+        "firstCoveredRow": 55,
+        "lastCoveredRow": 116,
+        "rowsAbovePanel": [
+          {
+            "logicalRow": 55,
+            "pixels": 28,
+            "max": 197
+          },
+          {
+            "logicalRow": 56,
+            "pixels": 30,
+            "max": 255
+          },
+          {
+            "logicalRow": 57,
+            "pixels": 31,
+            "max": 255
+          },
+          {
+            "logicalRow": 58,
+            "pixels": 31,
+            "max": 255
+          },
+          {
+            "logicalRow": 59,
+            "pixels": 70,
+            "max": 255
+          },
+          {
+            "logicalRow": 60,
+            "pixels": 71,
+            "max": 255
+          },
+          {
+            "logicalRow": 61,
+            "pixels": 72,
+            "max": 255
+          },
+          {
+            "logicalRow": 62,
+            "pixels": 72,
+            "max": 255
+          },
+          {
+            "logicalRow": 63,
+            "pixels": 72,
+            "max": 255
+          }
+        ]
+      },
+      {
+        "pane": "P_BaseShdw_00",
+        "metric": "255 minus multiplicative red (effect on white)",
+        "firstCoveredRow": 55,
+        "lastCoveredRow": 120,
+        "rowsAbovePanel": [
+          {
+            "logicalRow": 55,
+            "pixels": 76,
+            "max": 5
+          },
+          {
+            "logicalRow": 56,
+            "pixels": 78,
+            "max": 17
+          },
+          {
+            "logicalRow": 57,
+            "pixels": 80,
+            "max": 30
+          },
+          {
+            "logicalRow": 58,
+            "pixels": 80,
+            "max": 47
+          },
+          {
+            "logicalRow": 59,
+            "pixels": 82,
+            "max": 62
+          },
+          {
+            "logicalRow": 60,
+            "pixels": 82,
+            "max": 71
+          },
+          {
+            "logicalRow": 61,
+            "pixels": 82,
+            "max": 80
+          },
+          {
+            "logicalRow": 62,
+            "pixels": 82,
+            "max": 80
+          },
+          {
+            "logicalRow": 63,
+            "pixels": 82,
+            "max": 80
+          }
+        ]
+      }
+    ]
+  }
+}

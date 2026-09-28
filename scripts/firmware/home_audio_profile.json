@@ -1,0 +1,471 @@
+{
+  "id": "eur-home-24576-stereo-startup-v8",
+  "archiveSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
+  "sourceRecord": {
+    "contentSha256": "c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d",
+    "productCode": "CTR-N-HMMP",
+    "size": 3799296,
+    "sourceSha256": "2863c6c4e7b1c79e4352b63cde72994fa9c3b8bdd8dfd2afd4dd4104636b1898",
+    "titleId": "0004003000009802",
+    "version": 24576
+  },
+  "rendererRevision": "c00e809ad4fcc44056a5b3c11d30f6a698b92be0",
+  "patchedSourceHashes": {
+    "dualrip/engine/ctr/sequencer.py": "acbc3680446c26dcc8c0cb109380485c4d4b9b7a550dba3be1d1248227d6de26",
+    "dualrip/engine/ctr/channel.py": "4ee5aa99545538936eac3a201e8a16a7de4f79e7941f360dd2182e7873ba08cb",
+    "dualrip/engine/ctr/render.py": "742cc49e879df7afe0427aba2f51b80fc21c0c0eed78c6674867fb3394c39701",
+    "dualrip/formats/ctr/cseq.py": "644b6d9feb3707b9381011a7c7fd866d07ca86428880b7ad59c092c6602a3c73"
+  },
+  "soundOptions": {
+    "SE_CTR_HOME_ICON_SCROLL_INVALID": {
+      "flags": "0x80020107",
+      "values": { "0": 46, "1": 0, "2": 64, "8": 48, "17": 1, "31": 0 },
+      "volume": 96,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_SELECT": {
+      "flags": "0x80020107",
+      "values": { "0": 63, "1": 0, "2": 64, "8": 48, "17": 1, "31": 0 },
+      "volume": 30,
+      "player": 67108868
+    },
+    "SE_CTR_COMMON_CANCEL": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 12,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 100,
+      "player": 67108864
+    },
+    "BGM_CTR_HOME_NO_INTRO": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 25,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 96,
+      "player": 67108867
+    },
+    "BGM_CTR_HOME": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 26,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 96,
+      "player": 67108867
+    },
+    "SE_CTR_HOME_HOMEBUTTON": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 27,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 127,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_START": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 30,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 64,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_ICON_TOUCH": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 43,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 30,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_ICON_SELECT": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 44,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 48,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_ICON_GRAB": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 47,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 32,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_ICON_EXCHANGE": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 48,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 64,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_OPEN_FOLDER": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 52,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 44,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_CLOSE_FOLDER": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 53,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 48,
+      "player": 67108868
+    },
+    "SE_CTR_HOME_POPUP_POWER": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 55,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 1,
+        "31": 0
+      },
+      "volume": 40,
+      "player": 67108868
+    }
+  },
+  "bankIds": [
+    0,
+    1,
+    2
+  ],
+  "referencedBankWaves": [
+    {
+      "archive": 2,
+      "wave": 0,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 1,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 2,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 3,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 4,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 5,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 6,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 7,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 8,
+      "channels": 1
+    },
+    {
+      "archive": 2,
+      "wave": 9,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 0,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 1,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 2,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 3,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 4,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 5,
+      "channels": 1
+    },
+    {
+      "archive": 3,
+      "wave": 6,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 0,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 1,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 2,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 3,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 4,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 5,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 6,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 7,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 8,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 9,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 10,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 11,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 12,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 13,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 14,
+      "channels": 1
+    },
+    {
+      "archive": 4,
+      "wave": 15,
+      "channels": 1
+    }
+  ],
+  "note": "Bank resource superset; unused instruments may be included. No additional cue is rendered.",
+  "nativeOutputMode": {
+    "value": 1,
+    "name": "stereo",
+    "referenceModeVerified": true,
+    "verificationScope": "Saved 3DS CFG block; no per-frame DSP memory capture",
+    "referenceCfgSaveSha256": "e9caff9ef9b4394499ae857da458c7fb7d3af472be8521357d4bbb56977b0f9e",
+    "referenceCfgBlock": "0x00070001",
+    "referenceEmulator": "Azahar 2126.1.2 (9e6f523a57fac9564ac0bf8286db3c3702d301ec)"
+  },
+  "runtimeAssumptions": {
+    "dspDelayEnabled": false,
+    "dspReverbEnabled": false,
+    "hostAuxCallback": null,
+    "auxReturnA": 1,
+    "auxReturnB": 1,
+    "playerPanOffset": 0,
+    "playerSendOffsets": 0,
+    "panScale": 1,
+    "source": "Static HOME startup paths; later runtime overrides not captured"
+  },
+  "remainingGaps": [
+    "Runtime player/master gains and later aux state need controlled capture",
+    "Native hardware polyphase/DSP precision is unverified; pinned Azahar capture interpolation, source gain ramps and integer source mixing are modeled; later runtime bus gains and filters remain open",
+    "Full native waveform equivalence and baked-loop waveform continuity remain unverified; no measured normalization, trimming, padding or time stretching is applied"
+  ],
+  "nativePanLutSha256": "383ea4d362109b74ddccfdaacf46a0bf4b0255f3609cf01f5824e1910e7c7597",
+  "captureSemantics": {
+    "builtInAzaharDump": "DspInterface OutputFrame/OutputSample forwards PCM before host OutputCallback",
+    "hostVolumeSliderApplied": false,
+    "hostTimeStretchApplied": false,
+    "nativePlayerAndDspGainsApplied": true
+  },
+  "sequenceClock": {
+    "model": "Native 160-sample DSP frame with float32 fractional next-tick carry and uint64 truncation",
+    "nativeRate": 32728,
+    "frameSamples": 160,
+    "arm11Hz": 268111856,
+    "frameBudgetCyclesTimes1000": 1310720000,
+    "tempoRatio": 1,
+    "sourceRoutine": "0x1aa174",
+    "fittedTimingConstants": false
+  },
+  "renderTimeline": {
+    "origin": "Sequence player sample zero; preserve every generated frame",
+    "startupTrimSamples": 0,
+    "initialFrame": "Native sequence-before-voice order preserved; each new DSP source dequeues its initial buffer without consuming PCM in its first generated frame, with no trim or post-render padding",
+    "nativeOnsetVerified": false,
+    "loopSelection": "Original first loop start through second bytecode pass; not a steady-state waveform claim"
+  },
+  "archiveVolume": {
+    "model": "Linear float32 raw volume times float32(1/127), floored at zero; separate from track/envelope dB",
+    "reader": "0x149168: CSAR entry+8 to SoundInfo+0x10",
+    "sequenceSetup": "0x1a53d4..0x1a53e8",
+    "setter": "0x1a66f4: BasicSound+0xb0",
+    "playerUpdate": "0x1a6428..0x1a65d4; command8 handler0x14c434",
+    "trackProduct": "0x208a88..0x208ab8",
+    "fittedGain": false
+  },
+  "voiceArithmetic": {
+    "sourceCodeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "envelope": "Float32 attack/hold/decay/sustain/release; reset -904 table units; native strict thresholds and pre-update expiry",
+    "sweepPitch": "Float32 semitone sweep and bend; 1/256-semitone quantization; native octave/semitone/fraction tables",
+    "lfo": "Float32 phase/delay with native sine table, pre-update pitch/pan and post-update volume",
+    "amplitude": "Velocity-squared times linear region, squared track/expression/master product, separate player and envelope gains",
+    "frameOrder": "Sequence ticks, live track parameters, voice pitch/pan, sweep/LFO/envelope updates, voice gain",
+    "gate": "Positive gates decrement before parse; nonpositive notes become -1; CWAV loop persists; native FIN forces release and detaches track",
+    "nativeTableSha256": {
+      "attack": "3a9d21132f66d969657cf76ea8f5ffb5e4a9df7abba4dd66baaf2d2695ae35c6",
+      "pitchSemitone": "268bc185e52bc0f4973bfc9d4959f605057e1b6a5bc386a8ce8feb4afcb1936d",
+      "pitchFraction": "ce9d87899dbdc1e5b59a1cd3b26107334c55d50aef782242944eb83d7c401cc6",
+      "gain": "bbda3f9ee473d0aba17c2c98369d0d5b7b0a9d788b47384bc76d17e0f91d1696",
+      "sustain": "3315552d46c21be4911d400e3a3a747a36b9866088226f6f7a113ca3f9b01086",
+      "sine": "a742b4ef2370e98c41180ed22400a062ced15a1ffb49d17e2b12a2bf0eabdfd6"
+    },
+    "fittedConstants": false
+  },
+  "captureDsp": {
+    "model": "Pinned Azahar mono source interpolation/history, initial dequeue, float32 gain ramps and per-source/bus integer truncation",
+    "emulatorRevision": "9e6f523a57fac9564ac0bf8286db3c3702d301ec",
+    "sourceProvenance": {
+      "src/audio_core/interpolate.cpp": {
+        "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/interpolate.cpp",
+        "sha256": "e5246de03956bf86252ff3f0531e438803c0ec69fd11272d8374d433e4296dcb",
+        "gitBlob": "48a7c85adc394a656c8f28b17f1fb0df5f9ce6b7"
+      },
+      "src/audio_core/interpolate.h": {
+        "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/interpolate.h",
+        "sha256": "c258df7a2d839ab2733c8915a529f649fb6301e0a29d97af237cf875d0330925",
+        "gitBlob": "ba46b5ad78670c61a8a4be98cd7f04dc57f69f82"
+      },
+      "src/audio_core/hle/source.cpp": {
+        "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/hle/source.cpp",
+        "sha256": "2c2e450a25a6fc11b3cceb192728e86fabc78f1addf67aa7283b832194ac29c1",
+        "gitBlob": "4728526b2ce29fa53969281d7f96aeda784daeb8"
+      },
+      "src/audio_core/hle/source.h": {
+        "url": "https://raw.githubusercontent.com/azahar-emu/azahar/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/audio_core/hle/source.h",
+        "sha256": "098f0121bd845cf8ead26a879792945c0dc367022938320a66894fc58092af2e",
+        "gitBlob": "1223f68ea3b9481373add974a1c3b956d1c5da4f"
+      }
+    },
+    "frameSamples": 160,
+    "fractionalBits": 24,
+    "interpolation": "Polyphase falls back to Linear in this pinned emulator; two historical samples, saturated difference and integer output",
+    "initialDequeueFrame": true,
+    "gainRamp": "Previous to target float32 gain, inclusive 0..159/159; each source/bus product truncates to integer before summation",
+    "hardwareVerified": false,
+    "fittedConstants": false
+  }
+}

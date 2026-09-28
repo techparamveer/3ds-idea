@@ -1,5 +1,20 @@
 # Firmware asset inspection
 
+> Historical research record: firmware availability statements below describe
+> the original encrypted-archive checkpoint. Supplied decrypted assets are now
+> integrated; see [current progress](progress-2026-09-24.md) and
+> [asset architecture](architecture/assets-and-materials.md). Hardware observations
+> retain their stated scope; old OS blockers are not current acceptance dependencies.
+
+
+> Historical inspection of the earlier encrypted 11.17 archive. Its missing-input
+> statements and initial converter limitations below describe that earlier work.
+> The owner has since supplied decrypted EUR 10.7.0-32E packages. Current extraction,
+> real font conversion and provenance are documented in the
+> [firmware pipeline](../scripts/firmware/README.md), with current native comparisons
+> in [the HOME checkpoint](native-home-comparison-2026-09-22.md). Whole-firmware
+> visual and behavioral acceptance remains incomplete.
+
 Input: `/Users/paramveer/Downloads/11.17.0-50E-NEW.zip`.
 
 The read-only inspector found 137 CIA packages. It parses archive headers and TMD content flags; it does not execute firmware, follow embedded instructions, or copy firmware into the public website.
@@ -78,3 +93,7 @@ Remaining fidelity gaps: original graphics and typography; actual firmware layou
 ## Main-site integration
 
 The prepared worktree code through `06e7729` is now integrated into the main site. See `home-menu-integration.md` for full-suite and browser verification. Original asset extraction and font loading remain pending; the main renderer has not been switched to a Nintendo font.
+
+## uifix web-reference assets (2026-09-16)
+
+The live UI now uses small crops of Nintendo website screenshots and a documented NTLG web-font conversion. These are independently sourced references, not decrypted outputs from this archive. The BCFNT/HUD and HOME Menu resource dependency above remains open. See [the UI audit](uifix-audit.md) and [asset provenance](../public/os/README.md).

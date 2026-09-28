@@ -29,9 +29,10 @@ test('preserved legacy asset keeps its original screen placements', () => {
   assert.deepEqual(layout.screens.bottom.position.toArray(), [0, 13.83, 1]);
 });
 
-test('homepage serves the verified compact silver source with EUR markings and paint grain', async () => {
+test('homepage serves the verified compact contact source with EUR markings and paint grain', async () => {
   const shipped = await readFile(new URL('../public' + DEFAULT_MODEL_URL, import.meta.url));
-  const verified = await readFile(new URL('../model/candidates/joshua-xl/silver-audio-finish-compact.glb', import.meta.url));
+  const verified = await readFile(process.env.SOURCED_MODEL_CANONICAL
+    ?? new URL('../model/candidates/joshua-xl/silver-audio-contacts-compact.glb', import.meta.url));
   assert.ok(shipped.equals(verified), 'default website asset must match the verified silver export');
 });
 

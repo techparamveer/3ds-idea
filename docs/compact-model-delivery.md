@@ -1,19 +1,24 @@
 # Compact model delivery
 
 The homepage serves `public/models/candidates/joshua-xl.glb`, mirrored from
-`model/candidates/joshua-xl/silver-audio-finish-compact.glb`.
-Continue editing **silver-audio-finish.blend**. The full-resolution authoring GLB
-and the previous lossless WebP pack remain preserved.
+`model/candidates/joshua-xl/silver-audio-contacts-compact.glb`. Edit the
+**silver-audio-contacts.blend** checkpoint for the current live model; the
+earlier `silver-audio-finish.blend`, full-resolution authoring GLBs and WebP
+packs remain preserved.
 
 ## Measured size
 
-- Previous delivery: **110,575,868 bytes (110.58 MB)**.
-- Compact delivery: **12,350,048 bytes (12.35 MB)**.
-- Reduction: **88.83%** in model payload per uncached download.
-- SHA-256: `ca37ec5824f0cd3aa46ca5079b2a339078b203a9afa5f87a1b14b09d1e68454d`.
+- Original uncompressed delivery: **110,575,868 bytes (110.58 MB)**.
+- Current compact delivery: **12,415,072 bytes (12.42 MB)** from a
+  **110,845,876-byte** authoring WebP pack.
+- Earlier compact delivery: **12,350,048 bytes**, SHA-256
+  `ca37ec5824f0cd3aa46ca5079b2a339078b203a9afa5f87a1b14b09d1e68454d`.
+- Current reduction: **88.80%** in model payload per uncached download.
+- Current SHA-256: `ca99725a9c3cf3772d6234f10f64cb9c8fb71b6f5d4beb0336eff89c12559b8c`.
 - Embedded texture payload: 73,941,978 → 4,527,964 bytes.
-- All 639,609 triangles remain. Node hierarchy, hinge, material assignments,
-  screen anchors, button parts and both UV channels are retained.
+- All prior meshes remain; the three new socket parts add a recessed housing
+  and two contacts. Node hierarchy, hinge, material assignments, screen
+  anchors, button parts and both UV channels are retained.
 
 This reduces model transfer bandwidth, not every part of the hosting bill.
 The Blender files and historical checkpoints are authoring resources stored in
@@ -28,7 +33,9 @@ The packer removes 300 unreferenced accessors (14,754,300 raw bytes), then uses
 `EXT_meshopt_compression`. Indices are lossless, preserving triangle order.
 Exponential filtering retains Float32 values in the original millimetre units;
 it does not rebase node scales or disrupt the VGPU position-based grain.
-Positions and UVs use 18-bit filter precision; normals/tangents use 12-bit.
+Positions use 18-bit filter precision; UVs start at 18-bit and selectively
+increase to 19 or 20 only when the strict error bound requires it.
+Normals/tangents use 12-bit.
 The largest component errors against the source are:
 
 - Position: 0.00048828125 mm, under one micrometre.
@@ -47,8 +54,8 @@ this is not a measurement of total GPU memory or frame rate.
 ## Rebuild and verify
 
 ```sh
-node scripts/compress-delivery.mjs
-cp model/candidates/joshua-xl/silver-audio-finish-compact.glb public/models/candidates/joshua-xl.glb
+node scripts/compress-delivery.mjs model/candidates/joshua-xl/silver-audio-contacts-web.glb model/candidates/joshua-xl/silver-audio-contacts-compact.glb
+cp model/candidates/joshua-xl/silver-audio-contacts-compact.glb public/models/candidates/joshua-xl.glb
 npm test
 npm run build
 npm run typecheck

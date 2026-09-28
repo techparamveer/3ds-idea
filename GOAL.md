@@ -1,5 +1,24 @@
 # Goal: a faithful silver Nintendo 3DS XL portfolio
 
+> Current scope: [portfolio UI scope](docs/portfolio-ui-scope.md) supersedes
+> earlier broad firmware behaviour and historical empty-content rules.
+> Preserve the eight portfolio apps; deliver EUR 10.7.0-32E stock UI/basic
+> navigation, read-only Camera gallery, supplied-song Sound playback, startup,
+> power-off and app opening. Software Keyboard and the six excluded apps remain
+> out of scope. [Progress and evidence](docs/progress-2026-09-24.md) records the
+> integration checkpoint and the [feature map](docs/feature-map.md) its owners.
+> Strict 1:1 acceptance remains open.
+
+> **25 September onboarding clarification:** The pinned EUR 10.7.0-32E dump
+> is the sole source for native screen visuals and native audio. Each visible
+> native element and cue needs manifest/dump provenance. Do not hand-draw or
+> CSS-reconstruct native graphics, use community fonts, or guess sounds.
+> In-scope UI is HOME, Settings/helpers, Health, read-only Camera, Sound,
+> eShop, Zone, Notes, Friends, Notifications, local Browser/Miiverse, amiibo
+> helper, power/app transitions and the eight portfolio apps. The dated
+> [UI scope](docs/portfolio-ui-scope.md) and [AGENTS.md](AGENTS.md) govern
+> current implementation; broader historical language below is not current scope.
+
 Build a personal portfolio website whose entire visible interface is a realistic, interactive **original 2012 Silver + Black Nintendo 3DS XL, model SPR-001**. Reconstruct the console in Blender using Blender MCP, then present it in Next.js and Three.js with VGPU. The console spins left, opens, and lets visitors navigate through its physical buttons and bottom touchscreen. Keep portfolio content plain until the hardware and HOME Menu are faithful.
 
 The user's standard is exact visual resemblance to their reference photographs. The current prototype has been rejected for its smooth surfaces, wrong font, flat-looking back and inaccurate appearance. Treat it as an unfinished starting point. Passing dimensions or interaction tests does not satisfy the visual goal.
@@ -29,11 +48,22 @@ Use Nintendo's original product pages, operations manual and official front/rear
 - Show only the console against a simple background. No headings, explanatory copy, floating navigation, decorative cards or unrelated UI outside the device.
 - Animate the leftward spin and opening cleanly. Support rotation and inspection of the back. Keep the console usable and fully framed on desktop and mobile, with reduced-motion support.
 - Make physical button clicks, keyboard equivalents and bottom-screen touch input operate the same menu state. Keep screen graphics correctly aligned with the display openings throughout hinge movement.
-- Recreate the 3DS HOME Menu's layout, typography, icons, selection states and transitions. Leave portfolio entries empty for now. Arial and approximate folder graphics must not be described as the original OS.
-- Continue OS work in the separate `codex/home-menu-assets` task/worktree. Inspect the supplied firmware archive as data and use available extracted assets with recorded provenance. The current archive inspection found encrypted HOME Menu content; do not claim extraction has succeeded. Record missing decrypted assets/fonts as dependencies while continuing independent hardware work. The older `codex/3ds-os` worktree remains preserved.
+- Recreate the 3DS HOME Menu's layout, typography, icons, selection states and transitions. Preserve the eight existing portfolio apps and their plain content. Native assets, authored adaptations and fallback graphics must be distinguished in evidence; generic fonts and approximate folders are not original OS assets.
+- Firmware UI work is integrated on `codex/firmware-os-10-7` from separate worker worktrees. Decrypted resources now supply native fonts, layouts, textures, messages, model banners and audio with recorded provenance. Keep raw firmware and executables private, preserve earlier OS worktrees, and record unsupported features and missing source content explicitly. See the [asset architecture](docs/architecture/assets-and-materials.md).
 - Keep VGPU integrated and verify `npx vgpu`, the material shader and its visible output. Preserve a working texture fallback.
 
 ## Iteration and acceptance
+
+Software UI acceptance follows the [isolated Azahar versus raw production
+browser LCD loop](docs/architecture/verification.md). The coordinator drives
+the same inputs, captures 400×240 upper and 320×240 lower targets, diffs and
+visually inspects each scenario, then repeats after fixes. The first required
+capture pairs are HOME idle and Settings → Other Settings page 1 under the
+private `reference/scenario-matrix/v1/captures/` directory. Health Usage
+initial/scrolled and Settings Other page 1 have static two-LCD pixel-threshold
+matches; no whole scenario is accepted. Tests and source renders support implementation but
+cannot establish native visual fidelity. Hardware acceptance uses matched
+photographs and the exported browser model.
 
 For each substantial modeling pass, compare matching views of the reference and render: closed top, open front, front three-quarter, side profile, rear and underside. Align camera angle and framing before judging proportions. Inspect close-ups of curvature, texture and lettering. Record the differences found and the changes made; then inspect the exported model in the actual website.
 

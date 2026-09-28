@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "titles": {
+    "0004001000022900": {
+      "fontBindings": {
+        "Hud.bcfnt": "hud"
+      },
+      "packs": {
+        "packs/eshop/contents/0000-0000006b/cad-Boot-arc-lz.json": {
+          "layouts": [
+            "opening_U_00",
+            "opening_D_00",
+            "splash_U_00",
+            "splash_D_00",
+            "welcome_U_00",
+            "welcome_D_00"
+          ],
+          "animations": [
+            "opening_D_00_in_00",
+            "opening_D_00_opening_00",
+            "opening_U_00_change_00",
+            "opening_U_00_change_01",
+            "opening_U_00_loopIn_00",
+            "opening_U_00_loop_00",
+            "opening_U_00_region_00",
+            "opening_U_00_welcome_00",
+            "splash_D_00_bow_00",
+            "splash_D_00_in_00",
+            "splash_D_00_out_00",
+            "splash_D_00_out_01",
+            "splash_D_00_wait_00",
+            "splash_U_00_in_00",
+            "splash_U_00_out_00",
+            "splash_U_00_out_01",
+            "splash_U_00_region_00",
+            "welcome_U_00_balloonIn_00",
+            "welcome_U_00_in_00",
+            "welcome_U_00_out_00",
+            "welcome_U_00_out_01",
+            "welcome_U_00_wait_00"
+          ]
+        },
+        "packs/eshop/contents/0000-0000006b/cad-Common-arc-lz.json": {
+          "layouts": [
+            "BG_D_00",
+            "BG_U_00",
+            "info_U_00",
+            "message_D_00",
+            "message_U_00",
+            "position_D_00",
+            "sysMenu_D_00",
+            "sysMenu_D_01",
+            "sysMenu_D_02",
+            "sysMenu_U_00"
+          ],
+          "animations": [
+            "BG_D_00_inOut_00",
+            "BG_U_00_inOut_00",
+            "sysMenu_D_00_inOut_00",
+            "sysMenu_D_01_inOut_00",
+            "sysMenu_D_01_touchOff_00",
+            "sysMenu_D_01_touchOn_00",
+            "sysMenu_D_02_inOut_00",
+            "sysMenu_D_02_touchOff_00",
+            "sysMenu_D_02_touchOn_00",
+            "sysMenu_U_00_inOut_00"
+          ]
+        },
+        "packs/eshop/contents/0000-0000006b/cad-Entrance-arc-lz.json": {
+          "layouts": [
+            "menuBtn_D_00",
+            "menuPos_D_00",
+            "newsText_D_00",
+            "positionA_D_00",
+            "position_U_00",
+            "searchBtn_D_00",
+            "searchTop_D_00"
+          ],
+          "animations": [
+            "menuBtn_D_00_inOut_00",
+            "menuBtn_D_00_touchOff_00",
+            "menuBtn_D_00_touchOn_00",
+            "position_U_00_LBmove_00",
+            "position_U_00_RBmove_00",
+            "searchBtn_D_00_touchOff_00",
+            "searchBtn_D_00_touchOn_00",
+            "searchTop_D_00_touchOff_00",
+            "searchTop_D_00_touchOn_00"
+          ]
+        },
+        "packs/eshop/contents/0000-0000006b/cad-Hud-arc-lz.json": {
+          "layouts": [
+            "HudMenu_00"
+          ],
+          "animations": [
+            "HudMenu_00_Bat",
+            "HudMenu_00_NetAtn",
+            "HudMenu_00_NetMode"
+          ]
+        },
+        "packs/eshop/contents/0000-0000006b/messages-and-loose.json": {
+          "messages": {
+            "hud.msbt": [
+              "day_1", "day_2", "day_3", "day_4", "day_5", "day_6", "day_7", "day_8", "day_9",
+              "day_10", "day_11", "day_12", "day_13", "day_14", "day_15", "day_16", "day_17",
+              "day_18", "day_19", "day_20", "day_21", "day_22", "day_23", "day_24", "day_25",
+              "day_26", "day_27", "day_28", "day_29", "day_30", "day_31",
+              "lau_connect0", "lau_connect3", "lau_connect4", "lau_date",
+              "month_1", "month_2", "month_3", "month_4", "month_5", "month_6",
+              "month_7", "month_8", "month_9", "month_10", "month_11", "month_12",
+              "week_fri", "week_mon", "week_sat", "week_sun", "week_thu", "week_tue", "week_wed"
+            ],
+            "tiger.msbt": [
+              "BootWelcome_txt01_01",
+              "BootWelcome_txt01_02",
+              "CommonBtn_01_01",
+              "CommonBtn_01_02",
+              "CommonBtn_01_03",
+              "Entrance_btn01_01",
+              "Entrance_icon01_01",
+              "Entrance_icon01_02"
+            ]
+          }
+        },
+        "packs/eshop/contents/0000-0000006b/cad-CommonBtn-arc-lz.json": {
+          "layouts": [
+            "OKBtn_D_00",
+            "backBtn_D_00",
+            "infoBtn_D_01",
+            "listBtn_D_00",
+            "selectBtn_D_00",
+            "selectBtn_D_01"
+          ],
+          "animations": [
+            "OKBtn_D_00_invalid_00",
+            "OKBtn_D_00_touchOff_00",
+            "OKBtn_D_00_touchOn_00",
+            "backBtn_D_00_touchOff_00",
+            "backBtn_D_00_touchOn_00",
+            "infoBtn_D_01_touchOff_00",
+            "infoBtn_D_01_touchOn_00",
+            "listBtn_D_00_invalid_00",
+            "listBtn_D_00_touchOff_00",
+            "listBtn_D_00_touchOn_00",
+            "selectBtn_D_00_invalid_00",
+            "selectBtn_D_00_touchOff_00",
+            "selectBtn_D_00_touchOn_00",
+            "selectBtn_D_01_invalid_00",
+            "selectBtn_D_01_touchOff_00",
+            "selectBtn_D_01_touchOn_00"
+          ]
+        },
+        "packs/eshop/contents/0000-0000006b/cad-CommonWin-arc-lz.json": {
+          "layouts": [
+            "ErrorDialog_D_00",
+            "dialog_D_00",
+            "dialog_U_00"
+          ],
+          "animations": [
+            "ErrorDialog_D_00_inOut_00",
+            "dialog_D_00_inOut_00",
+            "dialog_U_00_inOut_00"
+          ]
+        }
+      }
+    }
+  }
+}

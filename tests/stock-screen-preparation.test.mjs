@@ -209,6 +209,12 @@ test('Camera mono photos use native contain with no upscaling; other media keeps
  assert.deepEqual(calls.pop(),[image,32+(256-2000*(128/1500))/2,43,2000*(128/1500),128]);
 });
 
+test('explicit MPO verification metadata follows source stereo browse crop',()=>{
+ const calls=[],image={};const ctx={save:()=>calls.push('save'),beginPath:()=>calls.push('path'),rect:(...v)=>calls.push(['rect',...v]),clip:()=>calls.push('clip'),drawImage:(...v)=>calls.push(['image',...v]),restore:()=>calls.push('restore')};
+ drawStockMediaImage(ctx,image,640,480,0,0,400,240,{kind:'camera-stereo',originalWidth:640,originalHeight:480,parallaxPixels:-44.553070068359375});
+ assert.deepEqual(calls,['save','path',['rect',0,0,400,240],'clip',['image',image,-40+44.553070068359375*.75,-60,480,360],'restore']);
+});
+
 
 test('Health source frame keys paired publication and reduced motion freezes it',async()=>{
  let reduced=false,draws=0;const f=paintFixture({reducedMotion:()=>reduced});

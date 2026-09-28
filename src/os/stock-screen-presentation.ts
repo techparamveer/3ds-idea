@@ -36,12 +36,22 @@ export type NotesIntroPaint =
       icon?: NativePixels;
       description?: string;
     };
-export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:'contain'|'camera-mono')=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
+export type CameraStereoFit={kind:'camera-stereo';originalWidth:number;originalHeight:number;parallaxPixels:number};
+type MediaFit='contain'|'camera-mono'|CameraStereoFit;
+export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
 /** Portfolio media placement; native UI graphics continue through the layout renderer. */
-export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:'contain'|'camera-mono'='contain'){
+export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:MediaFit='contain'){
+  if(typeof fit==='object'&&fit.kind==='camera-stereo'&&w===400&&h===240&&sourceWidth>=480&&sourceHeight>=240&&sourceWidth<=2*sourceHeight&&fit.originalWidth>=480&&fit.originalHeight>=240&&Number.isFinite(fit.parallaxPixels)){
+    // EUR Camera browse 0x284b54 -> 0x210230: mode 2, stereo margin 40.
+    // The MPO note's scaled parallax moves the source window before clipping.
+    const scale=Math.max(480/sourceWidth,240/sourceHeight);
+    ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+    ctx.drawImage(image,x+(w-sourceWidth*scale)/2-fit.parallaxPixels*scale,y+(h-sourceHeight*scale)/2,sourceWidth*scale,sourceHeight*scale);
+    ctx.restore();return;
+  }
   // EUR Camera 0x210230, non-stereo branch: contain within 400×240,
   // capped at 1 so small decoded photos are not enlarged.
-  const scale=Math.min(w/sourceWidth,h/sourceHeight,fit==='camera-mono'?1:Infinity);
+  const scale=Math.min(w/sourceWidth,h/sourceHeight,fit==='camera-mono'||typeof fit==='object'?1:Infinity);
   ctx.drawImage(image,x+(w-sourceWidth*scale)/2,y+(h-sourceHeight*scale)/2,sourceWidth*scale,sourceHeight*scale);
 }
 const record=(v:JsonValue|undefined):MediaRecord=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
@@ -220,7 +230,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     if(!im){if(images.size>=64){const first=images.keys().next().value!;const stale=images.get(first)!;stale.onload=null;stale.onerror=null;stale.src='';images.delete(first);}im=new Image();images.set(url,im);im.onload=()=>{if(!disposed)changed();};im.onerror=()=>{if(!disposed)changed();};im.src=url;}
     return im.complete&&im.naturalWidth?im:undefined;
   }
-  function image(ctx:Context,url:string,x:number,y:number,w:number,h:number,fit:'contain'|'camera-mono'='contain'){
+  function image(ctx:Context,url:string,x:number,y:number,w:number,h:number,fit:MediaFit='contain'){
     const im=sourceImage(url);if(!im)return false;
     drawStockMediaImage(ctx,im,im.naturalWidth,im.naturalHeight,x,y,w,h,fit);return true;
   }

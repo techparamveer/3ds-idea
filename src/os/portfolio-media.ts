@@ -1,6 +1,8 @@
 import { apps } from './apps.ts';
 
-export type PortfolioPhoto = { id: string; title: string; src: string; thumbnail?: string; capturedAt?: string };
+export type PortfolioPhoto = { id: string; title: string; src: string; thumbnail?: string; capturedAt?: string;
+  /** Private verification MPO metadata; ordinary portfolio JPEGs omit this. */
+  verificationStereo?: { originalWidth: number; originalHeight: number; parallaxPixels: number } };
 export type PortfolioPhotoFolder = { id: string; title: string; photos: readonly PortfolioPhoto[] };
 export type PortfolioTrack = { id: string; title: string; artist?: string; album?: string; src: string; artwork?: string; duration?: number };
 export type PortfolioMedia = { folders: readonly PortfolioPhotoFolder[]; tracks: readonly PortfolioTrack[] };
@@ -23,6 +25,7 @@ export function cameraVerificationMedia(location: Pick<Location, 'hostname' | 's
     id: `HNI_000${number}`, title: `HNI_000${number}`,
     src: `/api/verification/camera-photo/${number}?cameraFixture=hni`,
     capturedAt: '2026-09-25T22:19:00',
+    verificationStereo: Object.freeze({ originalWidth: 640, originalHeight: 480, parallaxPixels: -44.553070068359375 }),
   }));
   return Object.freeze({ folders: Object.freeze([Object.freeze({ id: 'hni-reference', title: 'View Photos/Videos', photos: Object.freeze(photos) })]), tracks: portfolioMedia.tracks });
 }

@@ -326,7 +326,11 @@ export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   // metadata: use the native mono branch of 0x210230, not MPO framing.
   if(view.screen==='gallery'||view.screen==='photo'){
     const url=str(photo.thumbnail)||str(photo.src);
-    if(url)options.image?.(top,url,0,0,400,240,'camera-mono');
+    const stereo=record(photo.verificationStereo);
+    const fit=Number.isFinite(stereo.originalWidth)&&Number.isFinite(stereo.originalHeight)&&Number.isFinite(stereo.parallaxPixels)
+      ? {kind:'camera-stereo' as const,originalWidth:Number(stereo.originalWidth),originalHeight:Number(stereo.originalHeight),parallaxPixels:Number(stereo.parallaxPixels)}
+      : 'camera-mono' as const;
+    if(url)options.image?.(top,url,0,0,400,240,fit);
   }
   const upper=renderer.draw(top,'camera-finder','P_FinderVS_U',{overrides:{
     ...cameraUpperHidden,

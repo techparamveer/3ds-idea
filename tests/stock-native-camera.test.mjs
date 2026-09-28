@@ -295,6 +295,12 @@ test('gallery and photo uppers draw portfolio pixels as the 400×240 view',()=>{
   assert.equal(photo.draws.find(d=>d.layout==='P_BrwsPhoMntBase').opts.overrides['-PhoMntPos'].visible,false);
 });
 
+test('Camera MPO fixture metadata opts into the source stereo path',()=>{
+ const stereo={originalWidth:640,originalHeight:480,parallaxPixels:-44.553070068359375};
+ const result=paintFrame(view('gallery',[{id:'photo:a',label:'Fixture'}],{photos:[{id:'a',src:'/private/HNI_0002.JPG',verificationStereo:stereo}]}));
+ assert.deepEqual(result.images[0],['/private/HNI_0002.JPG',0,0,400,240,{kind:'camera-stereo',...stereo}]);
+});
+
 test('empty upper uses Brws_U_04 and does not invent a title bar',()=>{
   const {okay,draws,images}=paintFrame(view('main',[],{folders:[]}));
   assert.equal(okay,true);

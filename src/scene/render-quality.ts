@@ -18,6 +18,13 @@ export type RenderCapabilities = {
   height: number;
 };
 
+/** Keep the drawing buffer sharp while bounding its area as the viewport grows. */
+export function pixelRatioForViewport(tier: RenderQuality['tier'], devicePixelRatio: number, width: number, height: number): number {
+  const cap = tier === 'high' ? 2 : tier === 'balanced' ? 1.75 : 1.5;
+  const budget = tier === 'high' ? 8_000_000 : tier === 'balanced' ? 7_000_000 : 6_000_000;
+  return Math.min(devicePixelRatio, cap, Math.sqrt(budget / Math.max(1, width * height)));
+}
+
 /** Short counted transitions may use the scene budget; idle LCD loops retain
  * the lower upload cadence. State still advances independently of painting. */
 export function screenPaintFps(quality: RenderQuality, transitionAdvanced: boolean): number {
@@ -32,7 +39,7 @@ export function chooseRenderQuality(capabilities: RenderCapabilities): RenderQua
     || (capabilities.deviceMemory ?? 8) <= 4
     || pixels > 3_000_000;
   if (constrained) return {
-    tier: 'constrained', pixelRatio: Math.min(capabilities.devicePixelRatio, 1),
+    tier: 'constrained', pixelRatio: pixelRatioForViewport('constrained', capabilities.devicePixelRatio, capabilities.width, capabilities.height),
     shadowMapSize: 512, renderFps: 30, screenFps: 12, surfaceSize: 256,
     useVgpu: false, antialias: false,
   };
@@ -41,7 +48,7 @@ export function chooseRenderQuality(capabilities: RenderCapabilities): RenderQua
     && pixels <= 2_100_000;
   return {
     tier: high ? 'high' : 'balanced',
-    pixelRatio: Math.min(capabilities.devicePixelRatio, high ? 1.5 : 1.25),
+    pixelRatio: pixelRatioForViewport(high ? 'high' : 'balanced', capabilities.devicePixelRatio, capabilities.width, capabilities.height),
     shadowMapSize: 1024,
     renderFps: high ? 60 : 45,
     screenFps: high ? 24 : 18,

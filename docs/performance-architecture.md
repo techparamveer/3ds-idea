@@ -6,11 +6,11 @@ surface generation consume that policy instead of selecting independent values.
 
 ## Tiers
 
-| Tier | DPR cap | Scene FPS | LCD FPS | Shadow map | VGPU surface |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| High | 1.5 | 60 | 24 | 1024² | 512², idle-created |
-| Balanced | 1.25 | 45 | 18 | 1024² | 512², idle-created |
-| Constrained | 1 | 30 | 12 | 512² | baked Blender fallback |
+| Tier | DPR cap | Drawing buffer budget | Scene FPS | LCD FPS | Shadow map | VGPU surface |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| High | 2 | 8 million pixels | 60 | 24 | 1024² | 512², idle-created |
+| Balanced | 1.75 | 7 million pixels | 45 | 18 | 1024² | 512², idle-created |
+| Constrained | 1.5 | 6 million pixels | 30 | 12 | 512² | baked Blender fallback |
 
 An advancing counted folder close temporarily uses the scene FPS budget for LCD
 painting (60/45/30), including the restored-root update. Idle loops retain the
@@ -21,6 +21,10 @@ Constrained mode is selected for data-saving connections, devices reporting at
 most four logical cores or 4 GiB memory, and displays above three million CSS
 pixels. The fallback is the already verified baked surface, not an untextured
 material.
+
+The DPR also follows viewport changes, so enlarging the page does not leave a
+low-resolution drawing buffer stretched across the new area. The pixel budget
+bounds its memory cost without the abrupt 1× drop at the constrained threshold.
 
 The animation state still advances on `requestAnimationFrame`, so input and
 motion timing remain elapsed-time based. Expensive matrix/bounds work and actual

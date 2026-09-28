@@ -33,6 +33,7 @@ import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
 import { browserRenderQuality, pixelRatioForViewport, screenPaintFps } from './render-quality';
+import { createRenderSchedule } from './render-schedule';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
 import { captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHudSample, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
 
@@ -44,6 +45,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   renderer.setPixelRatio(quality.pixelRatio);renderer.setClearColor(0xeae8e4,1);
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
+  // The render schedule requests shadow updates; LCD-only frames reuse the map.
+  renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
   renderer.domElement.setAttribute('aria-hidden','true');host.appendChild(renderer.domElement);
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(33,1,.01,100);
   camera.position.set(.08,2.45,2.65);camera.lookAt(0,.28,-.15);
@@ -53,18 +56,22 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   const rim=new THREE.DirectionalLight(0xfff8eb,1.1);rim.position.set(2,2,-3);scene.add(rim);
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.ShadowMaterial({color:0x625d55,opacity:.16}));floor.rotation.x=-Math.PI/2;floor.position.y=-.15;floor.receiveShadow=true;scene.add(floor);
   const pivot=new THREE.Group();scene.add(pivot);
+  // Firmware presentation assets and native banner models need only the
+  // renderer; fetch and decode them while the console model loads.
+  const firmwareAbort=new AbortController();
+  const folderBanner=createFirmwareBanner(renderer);
+  const nativeAssets=loadFirmwarePresentationAssets(undefined,firmwareAbort.signal).catch(error=>{host.dataset.firmwareFailure=String(error);return undefined;});
   let gltf;
-  try{gltf=await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(modelUrl);}catch(e){renderer.dispose();renderer.domElement.remove();env.dispose();throw e;}
+  try{gltf=await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(modelUrl);}catch(e){firmwareAbort.abort();folderBanner.dispose();renderer.dispose();renderer.domElement.remove();env.dispose();throw e;}
   const model=gltf.scene;model.scale.setScalar(10);pivot.add(model);
   const layout=resolveModelLayout(model);const {hinge}=layout;
   host.dataset.model=modelUrl;host.dataset.layout=layout.source;
-  model.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(o.userData.console_replace_with_display===true)o.visible=false;}});
+  const powerLeds:THREE.Mesh[]=[];
+  model.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(o.userData.console_replace_with_display===true)o.visible=false;if(/Blue.?power.?LED/i.test(o.name))powerLeds.push(o);}});
   let runtimeNotice:string|null=null,storage:FirmwareStorage|undefined,state=createPortfolioState();
   let legacyPreferences:string|null=null;try{legacyPreferences=localStorage.getItem(STORAGE_KEY);}catch{}
-  const folderBanner=createFirmwareBanner(renderer);
   const soundRoom=createSoundRoom(renderer);
   const cameraShoot=createCameraShootBackground(renderer);
-  const nativeAssets=loadFirmwarePresentationAssets().catch(error=>{host.dataset.firmwareFailure=String(error);return undefined;});
   try{storage=await openFirmwareStorage({legacyPreferences});const saved=await storage.load();state=restoreRuntimeData(restoreSettings(state,saved.preferences),saved.shared,saved.saves);if(saved.issues.length)runtimeNotice='Some saved data could not be read.';}
   catch(error){state=restoreSettings(state,legacyPreferences);runtimeNotice='Local saving is unavailable.';host.dataset.storageFailure=String(error);}
   const firmwareAssets=await nativeAssets;
@@ -151,11 +158,13 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     if(surfaceDisposed)return;
     for(const material of silverMaterials){material.roughnessMap=texture;material.roughness=1;material.needsUpdate=true;}
     for(const [material,url] of sourceMaterials)removeSurfaceHooks.push(installSourcePaintSurface(material,texture,masks.get(url)!));
-    host.dataset.vgpu='ready';
+    host.dataset.vgpu='ready';schedule.invalidate();
   }).catch(e=>{if(surfaceDisposed)return;host.dataset.vgpu='webgl-fallback';console.warn('VGPU surface unavailable; using the baked Blender surface.',e);});
   let surfaceSchedule:number|undefined;
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
   const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');let reduced=motionPreference.matches;
+  const schedule=createRenderSchedule();
+  let started=false;
   let frame=0,disposed=false,last=performance.now(),lastRender=0,lastScreenPaint=0,intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1;
   let start=last;
   let homeClockSuspended=document.hidden;
@@ -223,7 +232,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   };
   function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:performance.now()-start});}
   function recordScreenPaint(){if(diagnostics){const close=sampleSystemHomeFolderClose(state);host.dataset.screenPaint=JSON.stringify({at:performance.now(),homeUpdates:state.system!.homeClock.updateCount,cursor:cursorDiagnostic(),closePhase:close?.controller.phase??null,closeFrame:close?.controller.folder.appliedFrame??null});}}
-  function paint(){updateAudio();model.traverse(o=>{if(o instanceof THREE.Mesh&&/Blue.?power.?LED/i.test(o.name)){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}});for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;screens.paint(state,new Date(),performance.now()-start);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;lastScreenPaint=performance.now();writeState();}
+  function paint(){updateAudio();for(const o of powerLeds){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;paintScreens(performance.now());topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;lastScreenPaint=performance.now();writeState();}
+  function paintScreens(now:number){lastScreenPaint=now;screens.paint(state,new Date(),now-start);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();}
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
     const system=state.system!,inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog||system.preferences||!!state.panel||homeClockSuspended;
@@ -418,11 +428,33 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   function visibilityChanged(){if(document.hidden){blur();homeClockSuspended=true;observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
   function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}paint();}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();viewZoom=THREE.MathUtils.clamp(viewZoom-e.deltaY*.001,1,3);}
-  function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setPixelRatio(pixelRatioForViewport(quality.tier,window.devicePixelRatio,w,h));renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=2*Math.atan(Math.tan(33*RAD/2)*Math.max(1,1.04/(w/h)))/RAD;camera.updateProjectionMatrix();}
+  function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;const ratio=pixelRatioForViewport(quality.tier,window.devicePixelRatio,w,h),size=renderer.getSize(new THREE.Vector2());
+    if(size.x===w&&size.y===h&&renderer.getPixelRatio()===ratio)return;
+    // One allocation for size and ratio; setPixelRatio followed by setSize reallocates twice.
+    renderer.setDrawingBufferSize(w,h,ratio);camera.aspect=w/h;camera.fov=2*Math.atan(Math.tan(33*RAD/2)*Math.max(1,1.04/(w/h)))/RAD;camera.updateProjectionMatrix();
+    // Resizing clears the drawing buffer after this frame's animation callback.
+    // Draw now so a blank canvas is never composited between frames.
+    schedule.invalidate();if(started&&!disposed)renderFrame();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
+  // A restored context has lost the presented frame and every upload.
+  const contextRestored=()=>{schedule.invalidate();renderer.shadowMap.needsUpdate=true;};renderer.domElement.addEventListener('webglcontextrestored',contextRestored);
   host.addEventListener('pointerdown',pointerDown);host.addEventListener('pointermove',pointerMove);host.addEventListener('pointerup',pointerUp);host.addEventListener('pointercancel',pointerAbort);host.addEventListener('lostpointercapture',pointerCancel);host.addEventListener('keydown',keydown);host.addEventListener('keyup',keyup);host.addEventListener('blur',blur);host.addEventListener('wheel',wheel,{passive:false});motionPreference.addEventListener('change',motionChanged);document.addEventListener('visibilitychange',visibilityChanged);
   // Enable keyboard play on first load without taking focus from another control.
   if(document.activeElement===document.body)host.focus({preventScroll:true});
+  // Every transform the loop animates. An unchanged sample, with no invalidation,
+  // would reproduce the previous frame exactly.
+  function poseSample(){
+    const sample=[angle,yaw,pitch,scale,camera.zoom,camera.aspect];
+    for(const pad of directional.values())sample.push(pad.motion.vector.x,pad.motion.vector.y);
+    for(const [cap,feedback] of pressed)sample.push(cap.id,feedback.motion.depth);
+    return sample;
+  }
+  function renderFrame(beforeDraw?:()=>void){
+    const sample=poseSample(),plan=schedule.plan(sample);
+    if(plan.shadows)renderer.shadowMap.needsUpdate=true;
+    scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();beforeDraw?.();
+    renderer.render(scene,camera);frame++;schedule.presented(sample);
+  }
   function animate(now:number){
     if(disposed)return;const dt=Math.min((now-last)/1000,.05);last=now;const elapsed=(now-start)/1000;
     if(intro){const pose=sampleIntroPose(elapsed);yaw=pose.yaw;angle=pose.angle;if(pose.done){intro=false;targetYaw=REST_YAW;angle=targetAngle=MAX_LID_DEGREES;}}
@@ -456,14 +488,17 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     // cadence, and a high-refresh monitor cannot paint extra close updates.
     const closeAdvanced=!!closeBeforeTick&&closeBeforeTick.controller.phase!=='complete'&&state.system!.homeClock.updateCount!==updatesBeforeTick;
     const lcdFps=screenPaintFps(quality,closeAdvanced);
-    if(state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps)){lastScreenPaint=now;screens.paint(state,new Date(),now-start);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
+    if(state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps))paintScreens(now);
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     camera.zoom=reduced?viewZoom:THREE.MathUtils.damp(camera.zoom,viewZoom,10,dt);
     const renderDue=quality.renderFps>=60||now-lastRender>=1000/quality.renderFps;
-    if(renderDue){
-     lastRender=now;scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();if(diagnostics)host.dataset.zoom=camera.zoom.toFixed(2);
+    const plan=renderDue?schedule.plan(poseSample()):undefined;
+    if(plan?.render){
+     lastRender=now;if(diagnostics)host.dataset.zoom=camera.zoom.toFixed(2);
      // Project controls into DOM data for repeatable browser QA without fake inputs.
-     if(diagnostics&&!intro&&frame%120===0){
+     // Frames render only on change: project whenever the geometry moved.
+     renderFrame(()=>{
+     if(diagnostics&&!intro&&(plan.shadows||!host.dataset.targets)){
       const targets:Record<string,number[]>={};for(const name of ['Button_A','Button_B','Button_HOME','Button_POWER','Button_Dpad','Display_Touch']){
         const o=model.getObjectByName(name);if(o){const v=new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).project(camera);targets[name]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];}
       }
@@ -480,7 +515,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       }
       host.dataset.targets=JSON.stringify(targets);
      }
-     renderer.render(scene,camera);frame++;
+     });
     }
     request=requestAnimationFrame(animate);
   }
@@ -491,8 +526,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
   scene.updateMatrixWorld(true);
   fitConsole();
   renderer.initTexture(topTexture);renderer.initTexture(bottomTexture);
+  // compileAsync skips invisible objects. The LCD planes appear as the lid opens,
+  // so compile their programs now rather than stalling the opening.
+  topScreen.visible=touchScreen.visible=true;
   await renderer.compileAsync(scene,camera);
-  renderer.render(scene,camera);
+  topScreen.visible=touchScreen.visible=angle>12;
+  renderFrame();started=true;
   start=last=performance.now();
   let request=requestAnimationFrame(animate);writeState();
   if(hasPaintSurface&&quality.useVgpu){
@@ -507,7 +546,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
       const drawn=kind==='default'?folderBanner.drawDefaultFrame(ctx,frame):folderBanner.drawFrame(ctx,frame,label);
       if(!drawn)throw new Error('Native diagnostic banner unavailable');
       return canvas.toDataURL();
-    }finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;canvas.width=canvas.height=0;}
+    }finally{screens.paint(state,new Date(),performance.now()-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();canvas.width=canvas.height=0;}
   }});}
   let removeLcdDownload=()=>{};
   if(lcdCapture){const captureScreensAt=(elapsedMs:number,isoDate?:string,bannerFrame?:number,hudSample?:unknown,bannerSkeletalFrame?:number,healthHomeFrames?:{healthBannerFrame:number;homeWallpaperFrame:number})=>{
@@ -575,5 +614,5 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MO
     window.addEventListener('keydown',shortcut,true);
     removeLcdDownload=()=>{captureAbort.abort();window.removeEventListener('keydown',shortcut,true);};
   }
-  return ()=>{removeLcdDownload();if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureNativeBanner');}if(lcdCapture)Reflect.deleteProperty(host,'captureScreensAt');state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();soundRoom.dispose();cameraShoot.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
+  return ()=>{removeLcdDownload();if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureNativeBanner');}if(lcdCapture)Reflect.deleteProperty(host,'captureScreensAt');state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();soundRoom.dispose();cameraShoot.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();renderer.domElement.removeEventListener('webglcontextrestored',contextRestored);host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
 }

@@ -11,6 +11,25 @@ Constrained devices use 30 FPS scenes, 12 FPS idle LCD paint, DPR at most 1,
 45/60 FPS scenes, 18/24 FPS LCD paint, bounded DPR, 1024 shadows and optional
 VGPU. Counted short transitions may paint LCDs at scene cadence.
 
+## Render scheduling
+
+The cadences above are upper bounds. `render-schedule.ts` skips a console
+render when it would repeat the presented frame: the animated pose (hinge, yaw,
+pitch, scale, zoom, aspect, pad vectors, pressed-cap depths) is unchanged
+within 1e-6 and no LCD texture, material or drawing-buffer change invalidated
+it. Idle HOME therefore renders at the LCD paint cadence, not the scene cadence.
+The shadow map (`autoUpdate=false`) is recomputed only when geometry moves; LCD
+content, LED colour and backlight changes reuse it. Anything new that changes
+the canvas without moving the sampled pose must call `schedule.invalidate()`.
+
+Resize allocates the drawing buffer once (`setDrawingBufferSize`) and renders
+immediately, so a cleared buffer is never composited. Startup compiles the
+hidden LCD display materials before the opening clock starts, and fetches the
+firmware presentation pack and HOME banner models in parallel with the GLB.
+
+Measure with `scripts/perf/benchmark.mjs` (see its README): headed Chromium,
+interleaved builds, three runs per profile, medians.
+
 Degrade in this order: LCD cadence, scene cadence, DPR/shadows, baked materials
 instead of VGPU, then Canvas banner fallback if a secondary WebGL context fails.
 The model, controls and portfolio content remain available.

@@ -45,8 +45,8 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   target.texture.colorSpace = THREE.NoColorSpace;
   const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 240;
   const context = canvas.getContext('2d')!, pixels = new Uint8Array(400 * 240 * 4), image = context.createImageData(400, 240);
-  let model: ReturnType<typeof createFirmwareModel> | undefined, defaultModel: ReturnType<typeof createFirmwareModel> | undefined, settingsModel: ReturnType<typeof createFirmwareModel> | undefined, newsModel: ReturnType<typeof createFirmwareModel> | undefined, friendModel: ReturnType<typeof createFirmwareModel> | undefined, memoModel: ReturnType<typeof createFirmwareModel> | undefined, webModel: ReturnType<typeof createFirmwareModel> | undefined, background: ReturnType<typeof createFirmwareModel> | undefined, mask: ReturnType<typeof createFirmwareModel> | undefined;
-  let disposed = false, failure: string | undefined, defaultFailure:string|undefined, settingsFailure:string|undefined, newsFailure:string|undefined, friendFailure:string|undefined, memoFailure:string|undefined, webFailure:string|undefined, backgroundFailure:string|undefined, frameFailure:string|undefined;
+  let model: ReturnType<typeof createFirmwareModel> | undefined, defaultModel: ReturnType<typeof createFirmwareModel> | undefined, settingsModel: ReturnType<typeof createFirmwareModel> | undefined, newsModel: ReturnType<typeof createFirmwareModel> | undefined, friendModel: ReturnType<typeof createFirmwareModel> | undefined, memoModel: ReturnType<typeof createFirmwareModel> | undefined, webModel: ReturnType<typeof createFirmwareModel> | undefined, miiverseModel: ReturnType<typeof createFirmwareModel> | undefined, background: ReturnType<typeof createFirmwareModel> | undefined, mask: ReturnType<typeof createFirmwareModel> | undefined;
+  let disposed = false, failure: string | undefined, defaultFailure:string|undefined, settingsFailure:string|undefined, newsFailure:string|undefined, friendFailure:string|undefined, memoFailure:string|undefined, webFailure:string|undefined, miiverseFailure:string|undefined, backgroundFailure:string|undefined, frameFailure:string|undefined;
   type StockSlot = { ticket: StockTitleBannerTicket; owner: ReturnType<typeof createStockTitleBannerResourceHost>;
     model: ReturnType<typeof createFirmwareModel> | null; failure: string | null; pending: Promise<void> };
   const stockSlots = new Map<string, StockSlot>();
@@ -134,6 +134,12 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     if(asset.data.sourceSha256!=='0c69aaf1cdb35a8e54519e45af9008ad1b10c8ce28e64460be2d1e3c85a299be'||asset.data.models.length!==1||source.name!=='BannerAppletWeb'||source.meshes.length!==3||asset.data.textures.length!==6||!asset.data.skeletalAnimations.some(clip=>clip.Name==='BannerAppletWeb'&&clip.FramesCount===600)||!asset.data.materialAnimations.some(clip=>clip.Name==='BannerAppletWeb'&&clip.FramesCount===300))throw new Error('Incomplete native HOME Internet Browser banner');
     webModel=createFirmwareModel(asset,{},primaryOptions);webModel.group.visible=false;scene.add(webModel.group);
   }).catch(error=>{if(!disposed)webFailure=String(error);});
+  const miiverseReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-applet-miiverse/model.json').then(asset=>{
+    if(disposed)return;
+    const source=asset.data.models[0];
+    if(asset.data.sourceSha256!=='6ce7a4525fbada9b48f5a3dc846bb7a064f08b40af56f53e46b16e63866f46ea'||asset.data.models.length!==1||source.name!=='BannerAppletMvs'||source.meshes.length!==3||asset.data.textures.length!==6||!asset.data.skeletalAnimations.some(clip=>clip.Name==='BannerAppletMvs'&&clip.FramesCount===600)||!asset.data.materialAnimations.some(clip=>clip.Name==='BannerAppletMvs'&&clip.FramesCount===300))throw new Error('Incomplete native HOME Miiverse banner');
+    miiverseModel=createFirmwareModel(asset,{},primaryOptions);miiverseModel.group.visible=false;scene.add(miiverseModel.group);
+  }).catch(error=>{if(!disposed)miiverseFailure=String(error);});
   const frameReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-frame/model.json').then(asset=>{
     if(disposed)return;
     // Native register headers preserve the global write mask despite JSON's
@@ -146,7 +152,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     backgroundScene.add(background.group);
   }).catch(error=>{if(!disposed)backgroundFailure=String(error);});
   const cameraReady=loadFirmwareCamera('/os/firmware/10.7.0-32E/models/home-camera/camera.json').then(value=>{if(!disposed)camera=value;}).catch(error=>{if(!disposed){failure=String(error);backgroundFailure=String(error);frameFailure=String(error);}});
-  const ready=Promise.all([folderReady,defaultReady,settingsReady,newsReady,friendReady,memoReady,webReady,frameReady,backgroundReady,cameraReady]);
+  const ready=Promise.all([folderReady,defaultReady,settingsReady,newsReady,friendReady,memoReady,webReady,miiverseReady,frameReady,backgroundReady,cameraReady]);
   function render(ctx:CanvasRenderingContext2D,source:THREE.Scene,overlay=false) {
     if(!camera)return false;
     const previous = renderer.getRenderTarget(), color = renderer.getClearColor(new THREE.Color()), alpha = renderer.getClearAlpha();
@@ -181,6 +187,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     if(friendModel)friendModel.group.visible=primary===friendModel;
     if(memoModel)memoModel.group.visible=primary===memoModel;
     if(webModel)webModel.group.visible=primary===webModel;
+    if(miiverseModel)miiverseModel.group.visible=primary===miiverseModel;
     for(const slot of stockSlots.values())if(slot.model)slot.model.group.visible=primary===slot.model;
   }
   function renderPrimaryFrame(ctx:CanvasRenderingContext2D,primary:ReturnType<typeof createFirmwareModel>,frame:PrimaryBannerRenderFrame,skeletalClip:string,materialClip:string){
@@ -284,6 +291,19 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       selectPrimary(webModel);return render(ctx,scene,true);
     }catch(error){webFailure=String(error);return false;}
   }
+  function drawMiiverseFrame(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,label?:NativePixels){
+    if(disposed||!miiverseModel||!mask||!camera||miiverseFailure||frameFailure)return false;
+    try{
+      const labelReady=!!label&&miiverseModel.setTexture('DmyText_00',label);
+      miiverseModel.setMaterialVisible('mt_Text',labelReady);
+      // Source-owned front pose and clips; toolbar host motion is not yet traced.
+      miiverseModel.group.rotation.y=0;
+      miiverseModel.group.scale.setScalar(1);miiverseModel.group.position.set(0,0,0);
+      miiverseModel.setPlayback({skeletal:[{name:'BannerAppletMvs',frame:reduced?0:Math.floor(elapsedMs/16.6667)%600}],material:[{name:'BannerAppletMvs',frame:reduced?0:Math.floor(elapsedMs/16.6667)%300}]});
+      miiverseModel.update(0,camera);mask.group.position.set(0,0,0);mask.update(0,camera);
+      selectPrimary(miiverseModel);return render(ctx,scene,true);
+    }catch(error){miiverseFailure=String(error);return false;}
+  }
   function drawBackground(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean){
     if(disposed||!background||backgroundFailure)return false;
     try{background.update(reduced?0:elapsedMs,camera);return render(ctx,backgroundScene);}
@@ -295,5 +315,5 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     catch(error){backgroundFailure=String(error);return false;}
     finally{background.setPlayback({skeletal:[{name:'BannerBG_SceneIn',frame:20}],material:[{name:'BannerBG_Loop'}]});}
   }
-  return { ready, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawNewsFrame, drawFriendFrame, drawMemoFrame, drawWebFrame, drawBackground, drawBackgroundFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, newsReady:!disposed&&!!newsModel&&!!mask&&!!camera&&!newsFailure&&!frameFailure, newsFailure:newsFailure??frameFailure, friendReady:!disposed&&!!friendModel&&!!mask&&!!camera&&!friendFailure&&!frameFailure, friendFailure:friendFailure??frameFailure, memoReady:!disposed&&!!memoModel&&!!mask&&!!camera&&!memoFailure&&!frameFailure, memoFailure:memoFailure??frameFailure, webReady:!disposed&&!!webModel&&!!mask&&!!camera&&!webFailure&&!frameFailure, webFailure:webFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();newsModel?.dispose();friendModel?.dispose();memoModel?.dispose();webModel?.dispose();mask?.dispose();background?.dispose();target.dispose(); } };
+  return { ready, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawNewsFrame, drawFriendFrame, drawMemoFrame, drawWebFrame, drawMiiverseFrame, drawBackground, drawBackgroundFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, newsReady:!disposed&&!!newsModel&&!!mask&&!!camera&&!newsFailure&&!frameFailure, newsFailure:newsFailure??frameFailure, friendReady:!disposed&&!!friendModel&&!!mask&&!!camera&&!friendFailure&&!frameFailure, friendFailure:friendFailure??frameFailure, memoReady:!disposed&&!!memoModel&&!!mask&&!!camera&&!memoFailure&&!frameFailure, memoFailure:memoFailure??frameFailure, webReady:!disposed&&!!webModel&&!!mask&&!!camera&&!webFailure&&!frameFailure, webFailure:webFailure??frameFailure, miiverseReady:!disposed&&!!miiverseModel&&!!mask&&!!camera&&!miiverseFailure&&!frameFailure, miiverseFailure:miiverseFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();newsModel?.dispose();friendModel?.dispose();memoModel?.dispose();webModel?.dispose();miiverseModel?.dispose();mask?.dispose();background?.dispose();target.dispose(); } };
 }

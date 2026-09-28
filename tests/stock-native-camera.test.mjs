@@ -303,8 +303,8 @@ test('Camera MPO fixture metadata opts into the source stereo path',()=>{
  assert.deepEqual(result.images[0],['/private/HNI_0002.JPG',0,0,400,240,{kind:'camera-stereo',...stereo}]);
  const upper=result.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides;
  assert.deepEqual(upper.ViewInfo,{visible:true});
- assert.deepEqual(upper['3DView'],{visible:true});
- assert.deepEqual(upper['2DView'],{visible:false});
+ assert.deepEqual(upper['3DView'],{visible:false});
+ assert.deepEqual(upper['2DView'],{visible:true});
  for(const edge of ['Edge0','Edge1','Edge2','Edge3'])assert.deepEqual(upper[edge],{visible:false});
 });
 

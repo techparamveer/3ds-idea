@@ -336,10 +336,11 @@ export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   }
   const upper=renderer.draw(top,'camera-finder','P_FinderVS_U',{overrides:{
     ...cameraUpperHidden,
-    // The native photo browse shows source 3D art for MPO and 2D art for mono.
+    // The matched native MPO browse shows the dark source 2D cube even while
+    // the stereo photo path is active (consistent with a disabled 3D slider).
     // The four finder vignette pictures are absent from the matched MPO gallery.
     ViewInfo:{visible:photoView&&!!(str(photo.thumbnail)||str(photo.src))},
-    '3DView':{visible:stereoPhoto},'2DView':{visible:!stereoPhoto},
+    '3DView':{visible:false},'2DView':{visible:true},
     ...(stereoPhoto?{
       Edge0:{visible:false},Edge1:{visible:false},Edge2:{visible:false},Edge3:{visible:false},
     }:{}),

@@ -33,3 +33,37 @@ This is a **fail** diagnostic for pixels, not completion of
 `home-idle-matched`. A matched native/browser input replay and frame or phase
 checkpoints are still required. No runtime code or matrix entry changed in
 this bounded verification.
+
+## Fresh writable replay: Notifications HOME idle
+
+The isolated `native-home-replay-20260927` was cloned with APFS copy-on-write to
+`/Volumes/Codex3DSIsolated/native-home-idle-matched-20260928`. The copied
+Azahar executable retained pinned SHA-256
+`3dfdfbed147cfb420f224385e832191833d07b0951d4b86326ab193e2deb3b21`;
+the cloned `user/` profile has no symlinks. Its screenshot path alone was
+changed to the cloned sibling directory. The original replay remained intact.
+The cloned executable booted EUR HOME, and Azahar's own Capture Screenshot
+command saved a fresh 400×480 PNG at
+`/Volumes/Codex3DSIsolated/native-home-idle-matched-20260928/screenshots/_28.09.26_01.44.53.539.png`
+(SHA-256 `a161d6e1bbcbd6ecc81a3cf27d23a499627a802b84ce32dd622bc93f4c09cbf3`).
+
+In a separate production browser on `127.0.0.1:3013`, Up, Right, Right
+selected Notifications toolbar focus 3; five X presses cycled to one-row
+density. Both captured LCDs show the Notifications toolbar highlight and
+28/09 (Mon) 01:44. The raw browser files and copied native PNG are under
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260928-home-idle/reference/scenario-matrix/v1/captures/home-idle-notifications-native-20260928/`.
+The [unmasked report](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260928-home-idle/reference/scenario-matrix/v1/captures/home-idle-notifications-native-20260928/diff/report.json)
+has SHA-256 `79a78dd4937530ee40a1bd1641441bfea546c19a2836dee1d5e58f591a5b5072`.
+At >2/255 RGB, the pair differs by **57,822 upper** and **20,230 lower**
+pixels; maximum RGB delta is 255 on each LCD. The sibling contact sheets
+were visually inspected.
+
+Azahar's upper LCD displays the green Notifications banner, while the browser
+still displays the orange Work banner even though `capture.json` records
+`folderBanner.selection` as toolbar focus 3. The native lower LCD contains
+installed titles beside a blank tile; the browser lower LCD contains portfolio
+tiles. Network, coin and battery HUDs differ. The native profile resumed
+persisted Notifications focus after HOME boot, whereas the browser navigated
+from its default Work selection. Thus the input histories are not matched,
+and motion/audio were not sampled. This is a fresh **fail** diagnostic, not
+`home-idle-matched` acceptance. No runtime code or matrix entry changed.

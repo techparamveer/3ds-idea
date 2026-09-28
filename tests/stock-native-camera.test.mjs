@@ -255,6 +255,10 @@ test('folder upper shows P_FinderVS_U browse panes and hides capture overlays',(
   assert.equal(upper.opts.overrides.Preview.visible,false);
   assert.equal(upper.opts.overrides.FocusAdj.visible,false);
   assert.equal(upper.opts.overrides.ImageInfo.visible,false);
+  assert.deepEqual(find(finder.layouts.P_FinderVS_U.roots,'ViewInfo').translation,[183,103,0]);
+  assert.equal(upper.opts.overrides.ViewInfo.visible,false);
+  assert.equal(upper.opts.overrides['3DView'].visible,false);
+  assert.equal(upper.opts.overrides['2DView'].visible,true);
   assert.equal(upper.opts.overrides.Fit.visible,false);
   assert.equal(upper.opts.overrides.BrwsError.visible,false);
   assert.equal(upper.opts.overrides.Txt_data2.text,'Photos:');
@@ -272,8 +276,11 @@ test('gallery and photo uppers draw portfolio pixels as the 400×240 view',()=>{
   assert.deepEqual(gallery.images[0],['/portfolio/building1.jpg',0,0,400,240,'camera-mono']);
   assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.BrwsFolder.visible,false);
   assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.BrwsNoData.visible,false);
+  assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides['2DView'].visible,true);
+  assert.equal(gallery.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.ViewInfo.visible,true);
   const photo=paintFrame(view('photo',[],{photo:{id:'a',title:'Building 2',src:'/portfolio/building2.jpg'}}));
   assert.deepEqual(photo.images[0],['/portfolio/building2.jpg',0,0,400,240,'camera-mono']);
+  assert.equal(photo.draws.find(d=>d.layout==='P_FinderVS_U').opts.overrides.ViewInfo.visible,true);
   assert.equal(photo.draws.find(d=>d.layout==='P_BrwsPhoMntBase').opts.overrides['-PhoMntPos'].visible,false);
 });
 
@@ -284,6 +291,7 @@ test('empty upper uses Brws_U_04 and does not invent a title bar',()=>{
   const upper=draws.find(d=>d.layout==='P_FinderVS_U');
   assert.equal(upper.opts.overrides.BrwsNoData.visible,true);
   assert.equal(upper.opts.overrides.BrwsFolder.visible,false);
+  assert.equal(upper.opts.overrides.ViewInfo.visible,false);
   assert.equal(upper.opts.overrides.Txt_NoData.text,'There are no photos or\nvideos to display.');
   const {log,bottom}=ctx();
   assert.equal(drawNativeCameraFrame({packs:{},draw:()=>true},{fillRect(){}},bottom,{...view('main'),appId:'sound'},{}),false);

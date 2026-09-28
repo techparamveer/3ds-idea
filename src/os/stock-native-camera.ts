@@ -64,7 +64,7 @@ export function cameraDateGroupOrange(source:NativeLayout):NativeLayout{
 const browseDateGroups=new WeakMap<NativeLayoutRenderer,NativeLayout>();
 /** Source `P_FinderVS_U` capture/error overlays kept out of the read-only gallery. */
 const cameraUpperHidden={
-  Preview:{visible:false},FocusAdj:{visible:false},ImageInfo:{visible:false},ViewInfo:{visible:false},
+  Preview:{visible:false},FocusAdj:{visible:false},ImageInfo:{visible:false},
   Fit:{visible:false},MovInfo:{visible:false},BrwsError:{visible:false},'Brws_U_fold_Bir':{visible:false},
   Txt_Date:{visible:false},Txt_total:{visible:false},Txt_data4:{visible:false},Txt_data5:{visible:false},
 };
@@ -331,6 +331,11 @@ export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   }
   const upper=renderer.draw(top,'camera-finder','P_FinderVS_U',{overrides:{
     ...cameraUpperHidden,
+    // The populated native photo browse keeps the finder cube at (183,103).
+    // Empty and folder states lack matching native cube evidence. Portfolio
+    // photos use the executable's mono branch, so select its grey 2D art.
+    ViewInfo:{visible:(view.screen==='gallery'||view.screen==='photo')&&!!(str(photo.thumbnail)||str(photo.src))},
+    '3DView':{visible:false},'2DView':{visible:true},
     BrwsNoData:{visible:empty},
     BrwsFolder:{visible:folderView},
     Txt_NoData:empty?message('Brws_U_04'):{visible:false},

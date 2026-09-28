@@ -1,6 +1,6 @@
 import { apps } from './apps.ts';
 
-export type PortfolioPhoto = { id: string; title: string; src: string; thumbnail?: string };
+export type PortfolioPhoto = { id: string; title: string; src: string; thumbnail?: string; capturedAt?: string };
 export type PortfolioPhotoFolder = { id: string; title: string; photos: readonly PortfolioPhoto[] };
 export type PortfolioTrack = { id: string; title: string; artist?: string; album?: string; src: string; artwork?: string; duration?: number };
 export type PortfolioMedia = { folders: readonly PortfolioPhotoFolder[]; tracks: readonly PortfolioTrack[] };
@@ -22,6 +22,7 @@ export function cameraVerificationMedia(location: Pick<Location, 'hostname' | 's
   const photos = [1, 2].map(number => Object.freeze({
     id: `HNI_000${number}`, title: `HNI_000${number}`,
     src: `/api/verification/camera-photo/${number}?cameraFixture=hni`,
+    capturedAt: '2026-09-25T22:19:00',
   }));
   return Object.freeze({ folders: Object.freeze([Object.freeze({ id: 'hni-reference', title: 'View Photos/Videos', photos: Object.freeze(photos) })]), tracks: portfolioMedia.tracks });
 }

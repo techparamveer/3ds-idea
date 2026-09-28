@@ -136,9 +136,8 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
       const row=view.rows[r.row!],rect=cameraBrowseCellRect(r.row!,offset),x=rect[0]+rect[2]/2,y=rect[1]+rect[3]/2;
       if(view.screen==='main'||row.id==='camera-date-group'){
         const folder=folders.find(f=>'folder:'+str(f.id)===row.id);
-        // Native first cell is a photo-date group. Portfolio files provide no
-        // shared capture date, so retain the source cell without fabricated date text.
-        const opts={center:[x,y] as [number,number],bindings:row.id==='camera-date-group'?[{name:'P_BrwsFld_PicL',frame:0}]:[{name:'P_BrwsFld_Default',frame:0},{name:'P_BrwsFld_PicL',frame:0}],overrides:{TxtThmb:{text:row.id==='camera-date-group'?'':String(records(folder?.photos).length)}}};
+        const date=row.id==='camera-date-group'&&/^\d{4}-\d{2}-\d{2}$/.test(row.label)?row.label:undefined;
+        const opts={center:[x,y] as [number,number],bindings:row.id==='camera-date-group'?[{name:'P_BrwsFld_PicL',frame:0}]:[{name:'P_BrwsFld_Default',frame:0},{name:'P_BrwsFld_PicL',frame:0}],overrides:{TxtThmb:date?{text:`${date.slice(8,10)}/${date.slice(5,7)}\n${date.slice(0,4)}`,size:[49.92,40]}:{text:row.id==='camera-date-group'?'':String(records(folder?.photos).length)}}};
         if(row.id==='camera-date-group'){
           let dateGroup=browseDateGroups.get(renderer);
           if(!dateGroup){const source=renderer.packs['camera-gallery']?.layouts?.P_BrwsFld;if(!source)return false;dateGroup=cameraDateGroupOrange(source);browseDateGroups.set(renderer,dateGroup);}

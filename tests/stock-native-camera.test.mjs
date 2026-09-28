@@ -198,6 +198,17 @@ test('undated portfolio group and five photos occupy the six source browse cells
   assert.deepEqual(draws.find(draw=>draw.layout==='P_BrwsCursor_D').opts.center,[160,74]);
 });
 
+test('dated fixture paints date through the source thumbnail text pane',()=>{
+  const rows=[{id:'camera-date-group',label:'2026-09-25'},{id:'photo:HNI_0001',label:'HNI_0001'},{id:'photo:HNI_0002',label:'HNI_0002'}];
+  const photos=[1,2].map(number=>({id:`HNI_000${number}`,src:`/fixture/${number}.jpg`}));
+  const {draws}=paint(view('gallery',rows,{photos},2));
+  const date=draws.find(draw=>draw.layout==='P_BrwsFld');
+  assert.equal(date.opts.overrides.TxtThmb.text,'25/09\n2026');
+  assert.deepEqual(date.opts.overrides.TxtThmb.size,[49.92,40]);
+  assert.deepEqual(draws.find(draw=>draw.layout==='P_BrwsCursor_D').opts.center,[236,74]);
+  assert.deepEqual(pack.layouts.P_BrwsFld.fonts,['cbf_std.bcfnt']);
+});
+
 test('photo view uses the source mount rectangle and drops invented arrows',()=>{
   const panes=[];const collect=items=>{for(const pane of items){panes.push(pane);collect(pane.children??[]);}};
   collect(pack.layouts.P_BrwsPhoMntBase.roots);

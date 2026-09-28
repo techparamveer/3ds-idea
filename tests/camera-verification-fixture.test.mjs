@@ -13,6 +13,7 @@ test('Camera fixture is explicit, local and leaves production portfolio media in
   assert.equal(cameraVerificationMedia(location('example.com', '?cameraFixture=hni')), undefined);
   const fixture = cameraVerificationMedia(location('127.0.0.1', '?cameraFixture=hni'));
   assert.deepEqual(fixture.folders.flatMap(folder => folder.photos.map(photo => photo.id)), ['HNI_0001', 'HNI_0002']);
+  assert.deepEqual(fixture.folders[0].photos.map(photo=>photo.capturedAt),['2026-09-25T22:19:00','2026-09-25T22:19:00']);
   assert.equal(portfolioMedia.folders.flatMap(folder => folder.photos).length, 5);
   assert.ok(portfolioMedia.folders.every(folder => folder.photos.every(photo => photo.src.startsWith('/portfolio/'))));
 });

@@ -14,6 +14,18 @@ const media={folders:[{id:'test',title:'Test fixture',photos:[{id:'a',title:'A',
 const setup=(id,data=media)=>{const module=createStockModule(getTitle(id),data);let state=module.create({},null,ctx);if(id==='camera')for(let page=0;page<5;page++)state=module.reduce(state,{type:'action',id:'guide-next'},ctx).state;return{module,state};};
 const action=(module,state,id,value)=>module.reduce(state,{type:'action',id,value},ctx);
 
+test('dated Camera fixture keeps the native date cell before two selectable photos',()=>{
+ const dated={folders:[{id:'hni',title:'View Photos/Videos',photos:[1,2].map(number=>({id:`HNI_000${number}`,title:`HNI_000${number}`,src:`/fixture/${number}.jpg`,capturedAt:'2026-09-25T22:19:00'}))}],tracks:[]};
+ const {module,state}=setup('camera',dated);
+ const gallery=action(module,state,'folder:hni').state;
+ assert.deepEqual(module.view(gallery,ctx).rows.map(item=>item.id),['camera-date-group','photo:HNI_0001','photo:HNI_0002']);
+ assert.equal(gallery.selection,1);
+ assert.equal(module.view(gallery,ctx).rows[0].label,'2026-09-25');
+ const second=module.reduce(gallery,{type:'command',command:'right'},ctx).state;
+ assert.equal(second.selection,2);
+ assert.equal(action(module,second,'photo:HNI_0002').state.photoId,'HNI_0002');
+});
+
 test('isolated Notifications profile opens with the source order and eight unread rows',()=>{
  const shared=initialSharedData(),before=structuredClone(shared.notifications);
  assert.deepEqual(shared.notifications,sourceNotificationProfile);

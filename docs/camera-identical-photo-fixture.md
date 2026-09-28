@@ -21,6 +21,20 @@ SDMC; no reference image is copied into `public/` or committed. The endpoint
 requires a loopback request from the opted-in page and the explicit absolute
 SDMC root. All other apps and the normal Camera route retain portfolio media.
 
+The opt-in HNI records carry the JPG EXIF capture time `2026:09:25 22:19`.
+The gallery inserts the source orange date-group cell before the two photos,
+prints `25/09` and `2026` through `P_BrwsFld`'s `TxtThmb` pane and bundled
+`cbf_std.bcfnt`, and starts selection on `HNI_0001`. One Right press selects
+`HNI_0002`, matching the populated native capture. Production portfolio
+photos have no capture date and receive no dated cell.
+
+On 28 September the raw 320×240 lower LCD at
+`/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260928/reference/scenario-matrix/v1/captures/camera-identical-hni-date/browser/lower.png`
+had 11,718 pixels differing by more than 2 RGB levels from the native
+`camera-populated-browse-global` lower crop, down from the earlier 13,509.
+The remaining difference includes source button states and date-tile details;
+this is an improvement, not a fidelity acceptance.
+
 The browser's existing `captureScreensAt` hook is available on
 `document.querySelector('[role=application]')` when `lcdCapture=1`. It returns
 raw 400×240 upper and 320×240 lower LCD PNG data URLs; see

@@ -49,3 +49,10 @@ profile (use a `next build --no-mangling` build for readable names).
 
 Medians of each metric across runs are reported per segment: `startup`
 (navigation → scene ready), `opening`, `idle`, `home-nav`, `app`, `resize`.
+
+## Download size
+
+`network.mjs` records every response of one scripted visit (load, opening,
+About and Settings) by phase and type. Options: `--profile desktop|mobile`,
+`--warm` (a returning visitor with a filled HTTP cache), and
+`--throttle DOWN_MBPS:LATENCY_MS` (also reports time to a ready scene).

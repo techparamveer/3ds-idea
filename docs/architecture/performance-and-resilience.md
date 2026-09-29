@@ -27,6 +27,20 @@ immediately, so a cleared buffer is never composited. Startup compiles the
 hidden LCD display materials before the opening clock starts, and fetches the
 firmware presentation pack and HOME banner models in parallel with the GLB.
 
+## Model delivery
+
+The page never loads the sourced `joshua-xl.glb` directly. `scripts/pack-model.mjs`
+derives two content-hashed files, and `src/scene/model-delivery.ts` names them:
+
+- **packed:** repacked geometry, with 8-bit tangents as the only precision loss.
+- **compact:** packed, with textures halved to 2048 px.
+
+`prefersCompactModel` picks compact when the screen's largest possible drawing
+buffer is at most 1700 device px. Both files are served immutable.
+`tests/model-delivery.test.mjs` checks that they match the current source and
+keep its scene contract. Portfolio photos load after the first frame. See the
+[size note](../size-2026-09-29.md).
+
 Measure with `scripts/perf/benchmark.mjs` (see its README): headed Chromium,
 interleaved builds, three runs per profile, medians.
 

@@ -77,8 +77,11 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
  }
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
- const urls=new Set(apps.flatMap(a=>[...(a.icon.startsWith('/')?[a.icon]:[]),...a.entries.flatMap(e=>e.images??[])]));
- const ready=Promise.allSettled([...urls].map(async url=>{const image=new Image();image.src=url;images.set(url,image);await image.decode();})).then(()=>{menuIcons.clear();});
+ // HOME needs the menu icons before its first paint. Entry photos appear only
+ // inside an app, so they download in the background instead of delaying startup.
+ const load=(url:string)=>{if(images.has(url))return;const image=new Image();image.src=url;images.set(url,image);return image.decode();};
+ const ready=Promise.allSettled([...new Set(apps.filter(a=>a.icon.startsWith('/')).map(a=>a.icon))].map(load)).then(()=>{menuIcons.clear();});
+ for(const url of new Set(apps.flatMap(a=>a.entries.flatMap(e=>e.images??[]))))load(url)?.catch(()=>undefined);
  function fit(c:C,url:string,x:number,y:number,w:number,h:number){const im=images.get(url);if(!im?.naturalWidth)return false;const k=Math.min(w/im.naturalWidth,h/im.naturalHeight);c.drawImage(im,x+(w-im.naturalWidth*k)/2,y+(h-im.naturalHeight*k)/2,im.naturalWidth*k,im.naturalHeight*k);return true;}
  function icon(c:C,app:PortfolioApp,x:number,y:number,size:number){
   c.save();c.translate(x,y);c.scale(size/64,size/64);
@@ -126,7 +129,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   const s=state.system!;const app=getApp(s.app)!;const entry=currentEntry(state)!;
   t.fillStyle='#edf0f4';t.fillRect(0,24,400,216);
   const photo=entry.images?.[s.photo];
-  if(photo){t.fillStyle='#25282d';t.fillRect(0,24,400,188);if(!fit(t,photo,0,24,400,188)){icon(t,app,158,65,84);label(t,'Image unavailable',200,175,12,'#e0e4eb','center');}label(t,entry.title,200,226,14,'#454952','center');}
+  if(photo){t.fillStyle='#25282d';t.fillRect(0,24,400,188);if(!fit(t,photo,0,24,400,188)){icon(t,app,158,65,84);if(images.get(photo)?.complete!==false)label(t,'Image unavailable',200,175,12,'#e0e4eb','center');}label(t,entry.title,200,226,14,'#454952','center');}
   else {banner(t,app,time,reduced);box(t,28,185,344,51,9,'#f9fafc');label(t,entry.title,200,200,17,'#454952','center');label(t,entry.subtitle,200,222,11,'#777e88','center');}
   b.fillStyle='#edf0f4';b.fillRect(0,0,320,240);const g=b.createLinearGradient(0,0,0,31);g.addColorStop(0,'#fff');g.addColorStop(1,'#d7dce3');b.fillStyle=g;b.fillRect(0,0,320,31);
   label(b,s.detail?entry.title:app.title,160,16,15,'#454952','center');

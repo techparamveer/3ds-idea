@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import { getTitle } from '../src/os/app-registry.ts';
 import { createStockModule, initialSharedData } from '../src/os/stock-apps.ts';
+import { CAMERA_BROWSE_UPDATE_MS, cameraStripOffset } from '../src/os/camera-browse.ts';
 
 const context = { now: 0, shared: initialSharedData() };
 const photos = Array.from({ length: 8 }, (_, index) => ({
@@ -78,7 +79,40 @@ test('Camera completion route joins Welcome, combined paging and physical photo 
   assert.equal(state.photoId, 'photo-6');
 });
 
-test.todo('Camera photo Back restores the nonzero gallery selection that opened it');
+for (const id of ['camera', 'camera-applet']) for (const row of [1, 6]) {
+  test(`${id} photo Left/Right then B restores gallery row ${row} and its page`, () => {
+    const module = createStockModule(getTitle(id), media);
+    let state = module.create({}, null, context);
+    if (id === 'camera') for (let page = 0; page < 5; page++) state = press(module, state, 'open');
+    state = press(module, state, 'open');
+    for (let step = 1; step < row; step++) state = press(module, state, 'right');
+    state = module.reduce(state, { type: 'tick', elapsedMs: CAMERA_BROWSE_UPDATE_MS * 40 }, context).state;
+    const gallery = structuredClone(state);
+    const action = `photo:photo-${row}`;
+    assert.equal(module.view(state, context).footer.right.action, action);
+    assert.equal(cameraStripOffset(state.cameraBrowse.output), row === 1 ? 0 : 86);
+
+    state = press(module, state, 'open');
+    assert.equal(state.photoId, `photo-${row}`);
+    state = press(module, state, 'left');
+    assert.equal(state.photoId, `photo-${row === 1 ? 8 : row - 1}`);
+    state = press(module, state, 'right');
+    assert.equal(state.photoId, `photo-${row}`);
+    state = press(module, state, 'right');
+    assert.equal(state.photoId, `photo-${row + 1}`);
+    state = press(module, state, 'back');
+
+    const returned = module.view(state, context);
+    assert.equal(returned.screen, 'gallery');
+    assert.equal(state.folderId, gallery.folderId);
+    assert.equal(returned.selection, row);
+    assert.equal(returned.rows[returned.selection].id, action);
+    assert.equal(returned.footer.right.action, action);
+    assert.deepEqual(state.cameraBrowse, gallery.cameraBrowse, 'Back preserves the settled strip and page');
+    state = press(module, state, 'open');
+    assert.equal(state.photoId, `photo-${row}`, 'A reopens the original gallery selection');
+  });
+}
 
 test('Camera empty destination stays read-only after final OK', () => {
   const module = createStockModule(getTitle('camera'), { folders: [], tracks: [] });

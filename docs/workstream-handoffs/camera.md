@@ -1,8 +1,10 @@
 # Camera workstream handoff
 
-Checkpoint: `f5ed204c`, 1 October 2026. Feature IDs: M-CAM-01 through
-M-CAM-06. This bounded slice records route readiness only; it does not add a
-native visual, input-timing, motion or audio acceptance claim.
+Checkpoint: 2 October 2026. Initial route slice `ad4b403a` (base `f5ed204c`)
+was integrated as `bf4e8350`. This M-CAM-04 follow-up starts from
+`ad4b403a16731a4830a28f548952aa33de75fa93` under the coordinator's exclusive
+Camera photo-entry reservation. M-CAM-01 through M-CAM-06 remain the lane scope.
+Native visual, input-timing, motion and audio acceptance remain open.
 
 ## Delivered route contract
 
@@ -11,9 +13,10 @@ journey across all five Welcome pages, final OK, the generated combined
 `View Photos/Videos` folder, a six-cell page boundary, and physical photo
 Left/Right. Two smaller cases cover the post-Welcome empty destination and the
 internal `camera-applet` starting directly at the shared folder route. The
-intended photo-B selection invariant is a TODO because the audit found the
-deterministic reserved-file defect below; no intentionally failing test is
-committed.
+former photo-B TODO is now four passing regressions: Camera and camera-applet,
+each at row 1 and row 6, retain the original selection, settled strip state,
+page position and footer action after physical Left/Right then B. A subsequently
+reopens the originally selected photo even when B left a different photo visible.
 
 The existing tests remain authoritative for detailed strip arithmetic, held-key
 cancellation, touch geometry, production-image uniqueness, direct cell touch,
@@ -25,7 +28,7 @@ read-only portfolio policy, not evidence of the native controls' input, motion
 or visual fidelity. A new Camera application instance still repeats Welcome:
 no firmware-backed seen-state or invented persisted flag was added.
 
-## Deterministic route defect and patch proposal
+## Selection-loss correction
 
 Minimal reducer repro, with any gallery whose selected row is nonzero:
 
@@ -35,10 +38,9 @@ Minimal reducer repro, with any gallery whose selected row is nonzero:
    is correct.
 4. Press B; the gallery returns at row 0 rather than row 6.
 
-Cause: `stock-apps.ts` opens the photo through
+Cause at the previous checkpoint: `stock-apps.ts` opened the photo through
 `withScreen(state, 'photo', { photoId })`; `withScreen` resets selection to 0.
-That file is coordinator-reserved. The narrow proposed hunk is to preserve the
-opening row explicitly:
+The reserved photo-entry hunk now preserves the opening row explicitly:
 
 ```ts
 withScreen(state, 'photo', {
@@ -47,10 +49,40 @@ withScreen(state, 'photo', {
 })
 ```
 
-After integration, replace the TODO with the route assertion: physical
-Left/Right may change `photoId`, and physical B must restore the original
-nonzero gallery selection and its matching `footer.right.action`. This is a
-semantic navigation fix only; it makes no native visual claim.
+All four new regressions failed at the returned row (actual 0 versus expected
+1 or 6) before the one-line correction. The focused command
+`node --test tests/camera-completion-routes.test.mjs tests/stock-apps.test.mjs tests/camera-browse.test.mjs`
+then passed **66 tests, 0 failures, 0 skips, 0 TODOs**. The tests use a synthetic
+eight-photo, two-folder fixture; they load no image pixels. Row 6 settles at
+strip offset 86 before opening, and the full browse state survives the return.
+
+The coordinator visibly reproduced the original defect with production
+portfolio data on muted Sidecar: keyboard-activate Open Camera, focus console,
+A through five Welcome pages, A into the combined folder, A into the first
+photo, Right, B. It reported the red selection frame moving from photo row 1
+before entry to the date-group row 0 after B. Raw upper/lower PNGs and
+`browser/capture.json` are under
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/lifecycle-captures/reference/scenario-matrix/v1/captures/`,
+with these scenario directories:
+
+- `camera-gallery-before-20261002`
+- `camera-photo-first-20261002`
+- `camera-photo-next-20261002`
+- `camera-gallery-return-before-20261002`
+
+Their `browser/capture.json` SHA-256 values, in the same order, are:
+
+```text
+320e85cb0c1b5e461fe0d953de71bd1cd34a7f14d53522d5c86f8adbfa6fa422
+edb6a93d673de763bb2586daf070947997808e38f2f43165ef8b13346c38360b
+2b9c0e7d24a324ac9dcc0f08df8bd6f9448d115bf71341b9f25ee6b1ad8cfdb4
+6d9f5cc2f6e9495b74af9577fee4f29dbc726e8bcfefee58d8c7f846288abe80
+```
+
+This worker read the capture metadata (400×240 upper, 320×240 lower) and ran
+reducer tests. The browser observation belongs to the coordinator; integrated
+post-fix production recapture, full checks and native comparison remain pending.
+No new native resources, masks, diff reports or acceptance claims are supplied.
 
 ## Exact production state
 
@@ -94,11 +126,9 @@ desktop. Record each down/up pair and inspect after every input.
 4. Capture both raw LCDs before opening a photo.
 5. A down/up: open `HNI_0001`.
 6. Right down/up: show `HNI_0002`.
-7. B down/up: the intended contract is return to gallery selection 1, the
-   selection that opened photo view. The current source deterministically
-   returns selection 0; do not mark this scenario route-complete until the
-   reserved-file patch above is integrated and the TODO becomes a passing test.
-   Capture the actual result if replayed before that fix.
+7. B down/up: return to gallery selection 1, the selection that opened photo
+   view. The corrected reducer passes this contract; capture both raw LCDs
+   after integration to confirm the visible result.
 8. Separately touch the visible Shoot/Settings/zoom chrome at coordinates
    derived from the current source panes, confirm no route/state change, and
    record that as the read-only adaptation. Do not guess hit rectangles from
@@ -122,7 +152,7 @@ scenario.
 - Portfolio JPEGs have no native MPO equivalence. The HNI fixture is private
   verification data and is not product content.
 - Paired-LCD native readiness, owner/generation guards and publication remain
-  unchanged by this tests-only slice.
+  unchanged by this photo-entry correction.
 
 ## Workstream policy acknowledgement
 

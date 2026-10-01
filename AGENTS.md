@@ -28,16 +28,18 @@ Before hardware edits, also read [research](docs/3ds-xl-research.md) and the
 their own checkpoint. Check the source and later evidence before repeating a
 limitation or declaring it fixed.
 
-## Agent model preference — 27 September 2026
+## Agent model preference - 1 October 2026
 
-The user's latest preference is **GPT-5.6 Sol, high reasoning**. This
-supersedes the earlier GPT-6 Luna medium preference and previous Astra Fast
-and Sol preferences. For delegated work, explicitly select `model=gpt-5.6-sol`
-and `reasoning_effort=high` on a bounded or empty context fork. The
-collaboration tool does not expose a service-tier argument. Do not claim that
-the in-flight coordinator model changed; it cannot be switched through a
-subagent override. Follow this preference for all new work unless the user
-updates it.
+The user's latest preference is **GPT-6 Astra, high reasoning for each
+workstream chat**, and **GPT-6.1 Sol, medium reasoning for helper subagents**.
+Use `model=gpt-6-astra` and `thinking=high` for the separate Codex chats.
+For helpers explicitly select `model=gpt-6.1-sol` and
+`reasoning_effort=medium` on a bounded or empty context fork. This supersedes
+all earlier model preferences. The user requires **no Fast mode**. Neither
+chat dispatch nor collaboration exposes a Fast-mode/service-tier argument;
+do not claim that setting was disabled or verified through these tools.
+Do not claim that an already in-flight coordinator or worker turn switched
+models. Apply these settings to new dispatches and chat follow-ups.
 
 ## Product constraints
 
@@ -99,6 +101,15 @@ updates it.
   | HOME | `3ds-lane-home` / `codex/lane-home` | HOME state, rendering, banners and HOME input |
   | Stock | `3ds-lane-stock` / `codex/lane-stock` | In-scope stock-app screens and navigation |
   | Experience | `3ds-lane-experience` / `codex/lane-experience` | Console scene, power/app transitions, portfolio integration and raw browser LCD capture |
+
+  **1 October execution update:** the user requested separate Codex chats and
+  worktrees for whole-app completion. The eight assignments and current shared
+  file reservations in `docs/feature-map/workstreams.md` supersede the five-lane
+  task split above. The coordinator works in
+  `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` on
+  `codex/home-fidelity-20261001`; new lanes share the UI continuation object
+  database and use explicit assigned paths, never the chat's original project
+  directory. Read the registry and detailed feature maps before starting.
 
   These are ownership boundaries, not permission to modify the sibling paths.
   Coordinate a cross-lane interface before editing. The coordinator integrates

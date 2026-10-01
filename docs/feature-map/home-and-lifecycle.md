@@ -8,8 +8,8 @@ verification backlog, not an acceptance record. Scope comes from
 
 Every strict whole scenario is still unaccepted. Unit tests prove contracts,
 not pixels, input cadence, motion, or audio. All future visible verification is
-coordinator-only on Sidecar and all 3DS audio remains muted. """Adaptation""" below
-means an intentional browser/portfolio difference; """source gap""" means the
+coordinator-only on Sidecar and all 3DS audio remains muted. "Adaptation" below
+means an intentional browser/portfolio difference; "source gap" means the
 pinned dump has not yet established the required native producer or content.
 Software Keyboard, network/account/PIN operations, capture/recording/import,
 and the six excluded stock titles are not backlog.

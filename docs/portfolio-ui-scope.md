@@ -52,8 +52,9 @@ modules must not emit device, storage or network operations. The Sound module
 may emit owner-scoped music playback effects. Existing portfolio photographs
 seed the gallery; the song manifest stays empty until songs are supplied.
 
-The five long-lived ownership lanes and current worktrees are in
-[AGENTS.md](../AGENTS.md) and the [feature map](feature-map.md). This section's
+The current eight workstreams, separate chats and assigned worktrees are in the
+[workstream registry](feature-map/workstreams.md), with the inherited safety
+rules in [AGENTS.md](../AGENTS.md) and scope in the [feature map](feature-map.md). This section's
 former runtime/assets/presentation task split and model assignment described
 the 23 September handoff; it is superseded. Workers report concrete evidence
 and remaining visual differences, commit coherent slices, and let the

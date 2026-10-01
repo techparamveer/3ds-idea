@@ -1,8 +1,13 @@
-# Pure primary banner host adapter
+# Pure HOME banner host adapter
 
-`src/os/home-banner-host.ts` supports ordinary folders, default type7 BannerDef
-and explicit type13 clear. See [source verification](native-default-banner-runtime.md). It does not change System, scene transactions,
-screens or GPU resources. Background lifecycle remains separate.
+`src/os/home-banner-host.ts` began with ordinary folders, default type7 BannerDef
+and explicit type13 clear. See [source verification](native-default-banner-runtime.md).
+Later selected-title and applet integrations extend that primary contract.
+The [1 October background ownership change](home-background-host-2026-10-01.md)
+also retains a separate background lifecycle in this pure host, with explicit
+frame samples consumed by the scene renderer. It does not own GPU resources or
+introduce a parallel System state model. Primary-specific details below describe
+the original folder/default contract unless a later integration supersedes them.
 
 ## API
 
@@ -97,7 +102,14 @@ no global counter, randomness or wall clock. This handoff is authored degradatio
 it does not reproduce native app transitions. Integration supplies intermediate
 clear requests at explicit event/update boundaries. Same-counter observations
 remain a latest-request latch and do not manufacture intermediate completions.
-Background attachment, mode and clip lifecycle are not initialized by this host.
+Background attachment and the initial nonanimated SceneIn/mode-0 setup now belong
+to the outer System-generation host, independently of the primary service scope.
+`getHomeBannerHostBackgroundFrame` samples its frames and epochs without mutation.
+Eligible completed scene passes advance it; inhibited and skipped passes do not
+catch up later. Selection, unsupported handoff and primary scope replacement do
+not reset it. A new System generation starts SceneIn19 and Loop0 again. AppQuit,
+restart/resume and other application-event mappings remain explicit source gaps;
+see the [current background contract](home-background-host-2026-10-01.md).
 
 ## Verification
 

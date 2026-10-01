@@ -23,7 +23,7 @@ publication and generation tests.
 | M-CAM-01 | `camera/guide`, pages 1-5 | Application cold entry; Next, Back after page 1, and final OK; source dialogs, finder, capacity, SD icon and guide art | Seen-state is not persisted, so every new application instance repeats Welcome; guide motion/audio and original underlay controller pose are unverified |
 | M-CAM-02 | `camera/main` folder grid | `View Photos/Videos` combines all five unique portfolio images; individual source-content folders remain reachable; 3-column physical/touch navigation | Portfolio folders, labels and counts are intentional content adaptations; Slideshow, Shoot, Settings and zoom chrome are visual and inert |
 | M-CAM-03 | `camera/gallery` | Date group when supplied, photo cells, 3-column selection, padded final page, replayed horizontal strip, slider, held-key cancellation and direct touch targets | Date cell is display-only; slider Rate mapping is fitted; native paging, Parakeet phase and dynamic scene replacement remain unverified |
-| M-CAM-04 | `camera/photo` | Selected photo on upper LCD; physical Left/Right wrap through the folder; B returns to the same gallery selection | Invisible touch arrows were removed after source review; photo touch sides are inert; portfolio JPEGs have no native MPO equivalence |
+| M-CAM-04 | `camera/photo` | Selected photo on upper LCD; physical Left/Right wrap through the folder; B returns to gallery | Opening a photo resets selection to 0, so B loses the originating gallery selection; worker `ad4b403a` records the repro/TODO, not an integrated fix. Photo touch sides are inert; portfolio JPEGs have no native MPO equivalence |
 | M-CAM-05 | empty media destination | After Welcome, source no-data presentation has no selectable rows | No capture/import escape hatch is permitted; application Back remains governed by the host route |
 | M-CAM-06 | internal `camera-applet` alias | Starts at folder grid and shares main/gallery/photo navigation | No HOME entry and no Welcome owner; not a second Camera state system |
 
@@ -184,6 +184,23 @@ reset. Native comparison applies only to surrounding HOME/launch/lifecycle
 chrome; portfolio interior differences stay explicitly labelled adaptations.
 
 ## Cross-app dependencies
+
+### Internal media selectors
+
+`M-SEL-01` Photo selector and `M-SEL-02` Sound selector are registered internal
+helpers, never HOME tiles. `stock-native-selectors.ts` selects delivered picker
+packs for `main` and `detail`; existing saved item names/IDs are projected without
+loading media or returning a chosen result. Only Back is a native touch target;
+confirmation, text entry, capture, recording and import are inert. Existing
+`stock-apps.test.mjs` tests cover empty/read-only navigation and saved identity.
+
+The source chrome is delivered, but the reused/stretched dialog bodies, custom
+text placement, hidden sample waveform and photo prompt repaint are explicit
+composition adaptations. No in-scope production caller or matched native route
+is established here. Camera owns Photo selector; Sound owns Sound selector.
+Their next task is a caller/evidence ticket, not an invented HOME entry or media
+operation. Named future scenarios are `photo-selector-readonly-back` and
+`sound-selector-readonly-back`, only after a real caller is identified.
 
 - All groups reuse `AppDescriptor`, `AppView`, `AppModule` and the single app
   host. Physical, keyboard and touch input must continue through that owner.

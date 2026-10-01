@@ -1,334 +1,137 @@
-# 3DS portfolio feature map
+# 3DS App Completion Map
 
-Latest HOME correction: `a578625d` extends hosted native primary motion to
-Notifications type16, with preserved Friend14 identity/readiness and source
-looping600/300 clips. [Production/native evidence](home-news-motion-comparison-2026-10-01.md)
-shows News frames418/448 moving and a byte-identical prior Friend250 upper.
-Six empty-mask pairs still fail; fresh News38346/19167 and Friend19127/19377
-upper/lower >2. Footer694 remains. Integrated1547 tests/typecheck/build/shader
-pass; independent review141/no findings. Silent isolated native saves failed
-under LLE; no live footer bytes. RPC/GDB remain off. Main sessions were on Sidecar;
-three misplaced native dialogs moved/verified there before dismissal. Owned
-native required termination after delayed Quit; browser/server closed. All3DS
-audio stays muted. Next: native epoch/displacement and remaining HOME phases;
-footer bytes need a safely isolated route. Earlier checkpoints below are historical.
+Current plan, 1 October 2026. This is the execution map for the **whole in-scope
+app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
+integration and native/browser acceptance. Each workstream has its own Codex
+chat, Git branch and worktree, recorded in the [workstream registry](feature-map/workstreams.md).
+Workstream chats use GPT-6 Astra/High; helper subagents use GPT-6.1 Sol/Medium.
+The user's no-Fast-mode requirement is recorded, but its app setting cannot be
+changed or verified through the dispatch tools.
 
-Prior HOME correction: `c2cb1158` + `95865ae9` implement Friend-only type14
-hosted motion and explicit pending-resource failure diagnostics. The
-[fresh silent reselection comparison](home-friend-motion-comparison-2026-10-01.md)
-observes moving source frames and full Notifications label after native
-reselection. Five pairs still fail; final37089/19338 upper/lower >2. Phase250
-upper is unchanged across the diagnostic fix, not native-aligned. Footer694
-edge pixels remain;1541 tests/typecheck/build pass. All testing stayed muted on
-Sidecar and owned sessions closed cleanly. Next: native Friend epoch/displacement,
-wallpaper/HUD/cursor phase, Notifications yaw and live footer bytes. Earlier
-entries below are historical; no whole-scenario1:1 or audio acceptance.
+## Scope and Evidence
 
-Latest input evidence: [measured native/browser replay](home-input-comparison-2026-10-01.md)
-reproduces the native Friend launch outcome and the browser's semantic
-Notifications -> Friend -> Open route. Deadline-driven trusted browser events
-measured 36.2ms key/34.6ms touch holds against native 34.188ms; exact sampling
-and motion remain unmatched. Six raw pairs still fail; latest Friend-selected
-pair 50877/19396 upper/lower pixels >2. Footer material residual remains 694,
-Open text 0 above 2. Product code is unchanged, prior 1536 tests/typecheck/build
-pass. Native EOF modal blocked capture/shutdown and required owned-clone
-termination; do not repeat menu work inside an unresolved completion modal.
-Next: native initial-title anomaly, applet yaw/activation clock, matched phases
-and live footer theme bytes. Audio stays muted and whole scenarios remain fail.
+Preserve the original 2012 Silver + Black 3DS XL, spin/opening, physical controls,
+two native-proportion LCDs and all eight portfolio apps. Target EUR 10.7.0-32E,
+original hardware, English. [UI scope](portfolio-ui-scope.md),
+[architecture](architecture/README.md), [progress](progress-2026-09-24.md) and
+[verification](architecture/verification.md) remain authoritative. The previous
+map is retained as [history](feature-map-history-2026-10-01.md), not a live queue.
 
-The earlier [silent CTM replay](home-ctm-live-replay-2026-10-01.md) records
-native PNG/source identities and short macOS `-p` launch. Footer source audit
-`1c38ae47` identifies live theme gate/RGB reads, not a proven residual cause.
+**No whole native scenario is accepted 1:1.** Some individual static frames have
+pixel-threshold matches; those do not prove input, motion or audio. Workstream
+rows separately identify implementation, tests, inspected browser states and
+native evidence. A missing screenshot is an evidence gap, not evidence that the
+feature is absent. Native residuals remain fail until explained and accepted.
 
-Latest HOME footer raster correction: `e59cc4b9` integrates the worktree
-agent's source-derived LCD text sampler. [Production recapture](home-applet-footer-residual-audit-2026-10-01.md)
-on Sidecar confirms 87 glyph residual pixels removed,694 material-edge pixels
-remain. Integrated1534 tests/typecheck/build pass; whole scenarios still fail.
-Next priority is fresh silent CTM native/browser replay, then the untraced
-footer material source and remaining HOME phases. Prior entries are historical.
+All 3DS sessions stay muted. All visible verification runs on the iPad Sidecar
+desktop after fresh geometry checks. Only the coordinator operates Azahar and
+the shared production browser. No default Azahar profile; no new artifacts on
+DeveloperStorage. Private artifacts use the internal disk. No push, merge to a
+shared branch or deployment without authorization.
 
-Latest HOME label correction: `13cdd13b` restores the source upper-message
-style for all five toolbar applets without changing folder labels.
-[Evidence](home-applet-title-style-2026-10-01.md) includes source mapping,
-passing tests/build and Sidecar production comparison against retained native
-PNGs. Tight text residuals: Notes 5, Friend 33; whole scenarios still fail.
-Next: title raster/plate edge residuals, native footer material source, and
-repeatable input/motion comparison. All 3DS sessions remain muted per user;
-audio acceptance is open. Earlier entries below are historical checkpoints.
+## Coverage Index
 
-Input audit integrated as `3938d634` supplies a read-only profile check and
-[coordinator replay procedure](home-native-input-replay-audit-2026-10-01.md).
-Next native run should use a fresh silent isolated profile and bounded CTM
-holds/releases, with initial focus verified. Parallel Azahar is not yet tested.
+| Workstream | Required user-visible coverage | Detailed map |
+| --- | --- | --- |
+| HOME | Upper wallpaper/HUD/selected banners; lower toolbar/grid/icons/labels/footer; selection/cursor; every density; scroll; folders; pickup/drop; HOME settings/manual/suspended controls; keyboard, touch and physical routes | [HOME and lifecycle](feature-map/home-and-lifecycle.md) |
+| App lifecycle | Cold boot; opening/fade/logo/loading; cancellation/failure/retry; HOME suspend/resume; close confirmation; switching apps; nested helper return; lid sleep/wake; power menu/shutdown/restart; readiness/owner cleanup/persistence | [HOME and lifecycle](feature-map/home-and-lifecycle.md) |
+| Settings, Health and helpers | Settings main, Internet/Data/Other pages, Profile/Date/Language/Sound and remaining in-scope menus; Parental notice; NNID/Transfer/Update UI; Manual contents/articles; Health articles/scroll; amiibo; internal helper surfaces | [System apps](feature-map/system-and-online-apps.md) |
+| Camera | First-run guide; gallery folders; empty/populated browse; paging/strip gestures; photo view; read-only menu/chrome; exit and HOME return | [Media/social/portfolio](feature-map/media-social-and-portfolio.md) |
+| Sound | First-run guide; entry room; source menus; empty/populated song library; supplied-song selection and playback transport; return/suspend/close cleanup | [Media/social/portfolio](feature-map/media-social-and-portfolio.md) |
+| Notes, Friends, Notifications | Notes grid/editor/tools/save/return; Friend local screens and source error differences; Notifications empty/populated/read markers/list/scroll/detail policy; applet return to suspended software | [Media/social/portfolio](feature-map/media-social-and-portfolio.md) |
+| Local services | eShop welcome/wait/exit; Zone entry/no-service UI; local Browser navigation/menu/return; Miiverse source chrome/local content and helper return; offline boundaries | [System apps](feature-map/system-and-online-apps.md) |
+| Portfolio and console experience | Work, Side Projects, Hobbies, Life, HackUK, NVIDIA, About, Contact; list/detail/page/photo/cross-app/link actions; actual device controls; startup/retry/teardown; desktop/mobile framing and accessibility | [Media/social/portfolio](feature-map/media-social-and-portfolio.md), [experience contract](architecture/experience-design.md) |
 
-Latest HOME footer correction: `e1de13e1` makes the five applet selections use
-one native Open button, including the whole-footer touch route. The
-[comparison record](home-applet-footer-2026-10-01.md) reduces footer-region
-residuals from 1,573 to 781 pixels. Full tests/typecheck/build pass; whole
-scenarios remain fail. HOME owner next actions: applet-native label metrics,
-remaining footer raster, and reliable native input before matched replay.
+## Shared Completion Matrix
 
-Latest HOME correction, 1 October 2026: `0e71b654` on
-`codex/home-fidelity-20261001` fixes swapped Notes/Friend toolbar banners.
-See the [progress entry](progress-2026-09-24.md#home-toolbar-mapping--1-october-2026)
-and [capture record](home-toolbar-banner-mapping-2026-10-01.md). Full tests,
-typecheck and build pass; both native/browser pairs still fail. HOME owner
-next actions: native applet label sizing/placement, lower footer configuration,
-then matched input/animation/audio replay. The checkpoint below is historical.
+Every app and helper must have an explicit answer for each applicable route.
+Record N/A with a scope reason rather than silently omitting a route.
 
-Checkpoint: UI continuation through **`4f30bc9`** on `codex/health-ui-scratch`,
-27 September 2026. This map coordinates **status, owners and next actions**.
-It is not a completion claim and does not hold evidence of its own.
-
-- Evidence and its tiers (tested, browser-inspected, native-compared) are
-  recorded in the [progress checkpoint](progress-2026-09-24.md) and the linked
-  validation notes. If this map disagrees with them, they win; correct this map.
-- Scope and exclusions come from [portfolio UI scope](portfolio-ui-scope.md);
-  design contracts from [architecture](architecture/README.md).
-- **Strict 1:1 fidelity is unproven for every row.** No row has a whole-screen
-  matched native comparison of pixels, motion, audio and input timing. Do not
-  turn test counts into a completion percentage.
-
-Runtime/asset work reaches visual acceptance only after integrated production-browser and isolated Azahar raw LCD capture pairs pass the diff and visual-inspection loop in [verification](architecture/verification.md). Documentation-only changes need
-link/diff checks.
-The [implementation process](architecture/implementation-process.md) defines
-worktree handoff and source-to-visible HOME banner gates.
-
-The earlier [integration checkpoint](progress-2026-09-24.md#matrix-v45-independent-home-pose-diagnostics--26-september-2026)
-records matrix v45's 90 entries, all whole scenarios failing. The current
-private matrix v94 has 166 records, all whole scenarios still failing, and
-preserves the earlier diagnostics. The latest Settings touchscreen replay is
-recorded in the [latest checkpoint](progress-2026-09-24.md#other-settings-page-1-touchscreen-route-replay--27-september-2026):
-the native and browser routes touched the same two targets and their settled
-page-1 LCDs have 0 upper / 0 lower pixels above 2/255, maximum delta 2. Native
-required 32 mapped-U events per touch while browser used one projected touch,
-so input cadence, transition timing and audio remain unmatched and the whole
-scenario stays failed. The Settings Important Information page-0 source-size
-Back-glyph follow-up reduced the settled lower residual from 12,480 to 12,404
-pixels; upper remained 14,716. The page remains substantially different and
-its capture was compared to a saved native frame, so this is not matched-route
-acceptance. See the [Manual glyph checkpoint](progress-2026-09-24.md#settings-important-information-back-glyph-sampling--27-september-2026).
-The 09:31:11 Settings HUD phase recapture now matches both LCDs at 0/0 pixels
-over 2/255, max channel delta 2. The prior adjacent-second browser sample had
-137 battery and 32 clock-colon pixels on the upper LCD. This is settled-pixel
-evidence; native/browser input sequences still differ, and motion/audio remain
-open. See the [HUD phase recapture](progress-2026-09-24.md#other-settings-page-1-hud-phase-recapture--27-september-2026).
-The latest 27 September HOME Settings-selected native/browser diagnostics are
-recorded in the [latest checkpoint](progress-2026-09-24.md#home-settings-input-calibration-diagnostic--27-september-2026).
-The newest live pair fails: native mapped keys did not change selection,
-status and neighboring titles differ. An explicit source HUD pose reduced the
-upper residual, but the wrench phase and HOME content remain unmatched. It does
-not justify a production banner correction. Production Health
-Usage initial and 8px-scrolled states and Settings Other page 1 each have **0
-upper / 0 lower pixels above 2/255** with empty masks and maximum delta 2.
-These are static pixel-tier matches only. Other Settings page 1 v89 has a
-0/0 pixel-tier pass; the preceding clock/status capture at 09:31:10 had 169
-upper / 0 lower residual pixels: 137 battery-frame pixels and 32 clock-colon
-phase pixels. The 09:31:11 phase recapture now resolves those pixels. The wireless indicators match. A new v95 capture matches the native
-03:59:21.267 phase at **0 upper / 0 lower** pixels; v94's injected date leaves
-the upper clock one minute behind and has 277 residual pixels. Both remain
-whole-scenario failures because input histories are unmatched and motion/audio
-are open. Settings main is 0 upper / 20 lower
-pixels over 2/255. Its 15 missing text-edge pixels and five glyph/icon pixels
-remain open. The latest HOME Settings yaw304 / COMMON303 diagnostic has **222 / 36,258**
-residual pixels. Its independent phase sample does not establish a live one-frame
-offset. Exact input,
-motion and audio timing remain open. Native capture now uses the isolated
-Azahar copy on Codex3DSIsolated after storage was freed. Earlier measurements
-below are historical unless explicitly identified as the latest checkpoint.
-
-The isolated profile's touch-from-button map selects its configured empty-slot
-coordinate, and the native HOME row's right scroll affordance moved AR Games
-to Download Play. D-pad text keys did not move AR Games, and Camera selection
-is still uncalibrated. A production accessibility shortcut opened Camera's
-Welcome page for browser inspection; it is not paired evidence. See the
-[input calibration record](native-cua-input-calibration-2026-09-27.md).
-
-The ten browser-only records have no target native captures or diff reports.
-The latest two preserve Notes grid and Miiverse initial LCDs.
-Camera/Sound/Health banners are visible; the latest eShop capture shows bags,
-logo and shadow, and Camera now shows its photo cards. Earlier blank/missing
-mesh records remain unchanged. Zone entry and eShop close were browser-inspected.
-The isolated Azahar notification was dismissed and native Settings main and
-Other Settings page 1 were captured. Miiverse and Notes still lack native
-counterparts. None of these is 1:1 acceptance.
-See the [browser checkpoint](progress-2026-09-24.md#browser-home-banners-zone-entry-and-eshop-close--26-september-2026)
-and [banner activation](stock-home-banner-activation.md).
-
-The isolated native Notifications-selected HOME capture from 27 September
-(`_27.09.26_11.54.10.78.png`, 400×480, SHA-256
-`09cd793931502d3f7a61e1a1defd740d298f1e5dde43bc6bec813910bca21dee`)
-was compared with the corresponding browser capture in the
-`home-notifications-selected-vulkan-reference-20260927` scenario. Browser
-metadata records `toolbarActive=true`, `currentFocus=3`, selection category 6,
-and `folderBanner` status `unsupported`. The empty-mask pixel report records
-61,757 upper-screen and 44,662 lower-screen pixels above 2/255; the upper
-comparison visibly shows the browser retaining the Work title banner while
-native shows Notifications. Suppressing the ordinary-title fallback would
-remove Work but leave out the native Notifications composition, so that is
-not an evidence-backed fix. The pinned private ExeFS extraction has no
-Notifications banner; the applet screen layouts/messages in `packs/notifications/`
-do not establish the HOME upper banner asset or rendering path. Keep this as
-an explicit toolbar-banner source/activation gap pending exact source evidence.
-See the [resource audit](remaining-home-banner-resource-audit.md),
-[native screenshot](</Volumes/Codex3DSIsolated/native-home-replay-20260927/screenshots/_27.09.26_11.54.10.78.png>),
-[browser capture](</Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-native-vulkan/reference/scenario-matrix/v1/captures/home-notifications-selected-vulkan-reference-20260927/browser>),
-and [diff report](</Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927-native-vulkan/reference/scenario-matrix/v1/comparisons/home-notifications-selected-vulkan-reference-20260927/report.json>).
-
-The Notifications applet now opens new browser profiles with the nine exact
-isolated-profile titles in native timestamp order and eight unread flags. It
-uses the delivered news-list and SlideBar layouts, keeps the reference rows
-inert, preserves explicitly saved empty/custom lists, and ships no private
-database. The inspected production/native list pair at `8cbee36` improves from
-the old empty-state **6,612 / 53,449** to **6,200 upper / 21,826 lower** pixels
-over 2/255. Missing information icons/unread dots, row fit, scrollbar, HUD,
-unmatched inputs, motion and audio keep it failed. The post-spacing Settings
-Manual page-0 pair is **3,054 / 2,071**, down from **14,716 / 12,404**, with
-scrollbar and smaller raster differences still open. Both records are in
-[matrix v96](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927/reference/scenario-matrix/v96/matrix.json).
-
-The later [stock-app browser smoke](progress-2026-09-24.md#browser-stock-app-smoke-after-notes-owner-correction--26-september-2026)
-at `1c594a5` checks Notes grid/editor/snapshot/Switch/HOME return, Friend List,
-Notifications and local Browser. Its one saved Notes grid raw LCD pair has no
-native counterpart. The Settings click that did not advance needs a named-input
-reproduction. Miiverse’s invented body was removed in `255fd30`; the later
-[raw browser checkpoint](progress-2026-09-24.md#miiverse-empty-interior-browser-checkpoint--26-september-2026)
-shows the retained source title/background and toolbar with an unpopulated
-interior. This is an explicit source gap and local adaptation, with no matched
-native capture or 1:1 claim.
-
-## Status words
-
-| Word | Meaning |
+| Gate | Required behavior and evidence |
 | --- | --- |
-| Implemented | The integration code path exists and the stated tests pass. |
-| Adaptation | Deliberate portfolio behaviour that differs from native; keep it labelled. |
-| Defect | A known visible or behavioural error in the integrated build. |
-| Source gap | Required original content or format support is missing. |
-| Blocked | Waiting on user-supplied input. |
+| Entry | Correct HOME identity and selection, source banner, Open action, matching touch/physical/keyboard outcome |
+| Launch | Correct outgoing HOME, logo/fade/upper-lower publication, input gate and measured transition checkpoints |
+| First run | Guide/welcome pages, forward/back/skip/dismiss where actually supplied; repeat-visit policy and saved state |
+| Main screen | All visible labels, icons, panes, native fonts, animations, toolbars, footers and enabled/disabled states |
+| Navigation | Each submenu/page/tab/list/detail, first/last item, scroll limits, touch hit areas, back/cancel and focus restoration |
+| Dialogs | Each reachable confirmation/error/notice, modal input ownership, obscured background behavior, safe Cancel/Back |
+| Content | Empty and populated states, selected content, pagination, missing-resource failure and declared local fixtures |
+| HOME | Suspend, HOME presentation, suspended software indicator, Resume, and persistence of app selection/content |
+| Close | Normal close, confirm/cancel, close-from-HOME and helper-return distinction, correct next HOME selection |
+| Switch | Current app to different app, cancel switch, accepted switch, cleanup of outgoing owners before new publication |
+| Interrupt | Lid sleep/wake, power menu/cancel/off/on, loading interruption, rapid retarget and stale async completion |
+| Persistence | Reload, explicit reset, previous save migration, malformed save, no unintended network/device operations |
+| Cleanup | No leaked renderer/audio/effect owner, no old app frame published, bounded caches, retry works after failure |
+| Verification | Source identity + focused tests + full integrated checks + raw paired LCD evidence + inspected sheets + input/motion/cue timing |
 
-## Features
+## Work Order
 
-| Feature | Status at the checkpoint | Next action | Owner | Evidence |
-| --- | --- | --- | --- | --- |
-| Console model and physical controls | Implemented. Live GLB is the compact `silver-audio-contacts` delivery; its internal socket parts were browser-inspected under VGPU and baked fallback | Photograph-based contact shape, hardware lettering and local curves remain unverified. Hardware appearance is not accepted; the [visual audit](model-visual-audit-2026-09-26.md) records the improvement and limits | Coordinator | [Model index](model-validation-index.md), [contact delivery](source-audio-contacts-delivery-validation.md) |
-| Page, spin, lid, framing | Implemented. Reduced motion is an adaptation | Keep mobile/desktop framing checks with any scene change | Coordinator | [Framing](responsive-framing-validation.md), [experience design](architecture/experience-design.md) |
-| HOME Menu | Implemented from native resources: folders, density, pickup, cursor, folder/default banners, suspension, and 48×48 SMDH artwork for available stock tiles and pickups. Earlier browser checks confirm the Settings wrench tile and Open Sound shortcut selection. The genuine Settings banner model and five textures are registered under `settingsBanner`; `f57ae44` wires a provisional `system-settings` selected-tile path through the host, service and source model renderer. Its 12 meshes and 600-frame skeletal clip use source-backed billboard mode 1. Camera, Sound and Health source common/EUR banner pairs are activated and browser-inspected (`a53fe45`, `2d6d32a`). eShop bags/logo/shadow and Camera photo cards are now visible at `8f0eb39` after source absent-Color metadata and a provisional diffuse binding; native shader parity remains open. Zone scalar animation restoration (`5ad3bc5`) is source work, not live banner acceptance. | The 27 September live HOME Settings-selected diagnostic has 53,820 upper / 40,877 lower residual pixels with an empty mask; native/browser input routes differ, so it remains fail. The paired Health diagnostic at source skeletal frame 120 / wallpaper material frame 0 has 11,892 upper / 47,678 lower residual pixels under the precise clock+battery mask. The warning artwork and title appear at matching scale and placement in the inspected upper crops; decoded EUR textures are the native warning and title images. Native Health phase was not recorded, so remaining edge/material differences do not support a guessed pose, scale or color adjustment; wallpaper, HUD and HOME layout also contribute. See [Health banner residual](health-home-banner-residual-2026-09-27.md). Latest independent yaw304 / COMMON303 diagnostic has 222 upper and 36,258 lower residual pixels: HUD 32, wrench 3, green cards 105, blue globe 1 and yellow notes 81. Coupled304 remains 1,883/36,358. One static pose cannot establish a live minus-one COMMON offset; source submission/activation clock, input, motion and audio remain open. Preserve scoped portfolio neighbors; do not add excluded stock titles to chase a match. See the [bracket audit](home-settings-icon-residual-audit-2026-09-26.md). | HOME lane; coordinator for browser/native acceptance | [HOME comparison](native-home-comparison-2026-09-22.md), [asset mapping](firmware-visible-asset-audit-2026-09-25.md), [activation gate](settings-home-banner-activation-gap.md), [common-banner delivery](stock-common-banner-delivery.md), [integration](home-menu-integration.md) |
-| HOME audio | Implemented: native sequence and short cues | Input-to-sound timing and music balance against native | Coordinator | [Menu audio](native-menu-audio-integration.md) |
-| Eight portfolio apps | Implemented. Content and navigation preserved | Full content and mobile navigation pass | Coordinator; presentation for painters | [Portfolio OS](portfolio-os-validation.md) |
-| Power on/off, startup | Implemented from source layouts and fades. The final 350 ms of the 3 s cold boot fades HOME in; these durations are browser adaptations. Cold power-on now clears stale toolbar focus; the live Miiverse → off → on → A regression opens Work as selected | Native cold-entry caller, timing and physical backlight order | Coordinator | [Power transitions](portfolio-power-transitions.md), [cold-boot trace](native-cold-boot-reveal-source-audit.md), [progress checkpoint](progress-2026-09-24.md) |
-| App opening | Implemented: HOME `SceneOutA/B/C` fade is composited under the source logo (`667a15a`); focused tests and source-frame verifier pass; live Work launch was inspected. `ec12bd7` runs a compiled TEV loop on ≥65536 px logo panes (byte-identical to the generic loop) and prepares `AudioContext` after opening | Matched native launch/logo timing remains open. App long-frame blocking fell 507→64 ms desktop / 218→0 ms iPad in the [1 October headed pair](performance-2026-10-01.md); cadence `readPixels` is unchanged | Coordinator | [Power transitions](portfolio-power-transitions.md), [1 October lag](performance-2026-10-01.md) |
-| Loading and recovery | Implemented for stock views: paired publication, timeout, retry, input gate. State-driven HOME paints now replay the last cadence background instead of a handler `readPixels` | Initial scene startup is not deadline-bounded (`compileAsync` still ~1.4 s). Renderer/tab memory remains ~1.2 GB. Isolated Azahar volume was unmounted on 1 October | Coordinator; runtime | [Readiness](native-screen-readiness.md), [1 October lag](performance-2026-10-01.md) |
-| Settings main and subpages | Implemented from source scenes: Internet, Data, Other pages, Connection, Date & Time, Profile, DS Profile. Software/Extra Data empty lists use original layout and labels (`9586990`); EU Language scrolls read-only through eight rows (`861540b`) with source four-frame arrow motion (`672c489`) and source-derived thumb drag/release snap (`7680800`). Source `HudMset_00` restores the upper status strip on main/subpages (`b52aeb3`), with fixed portfolio battery/network frames. Other page 1 enters white with logical Profile focus; Profile and Date & Time Back now rebuild the same white pose, checked live. Cold Settings main now paints all five buttons white and the source full-width gray Close footer, matching one isolated native settled capture at 1.18/255 lower RGB MAE after correcting single-line native text rasterization (`50a1c6f`); its logical Internet target remains. Open Blocks is blank because it requires SD filesystem counters (`16b0cef`). Data wait/entry gate is traced, but not yet live. Settings Sound now shows the source Cancel/OK footer and returns through Cancel; its modes and OK remain inert (`b7fe578`) | Latest live Settings main has 0 upper / 20 lower pixels over 2/255. The repeated lower residual is 15 Other Settings glyph-edge pixels plus two Data Management glyph pixels and three icon-edge pixels; a static audit confirms the Settings cached writer code windows and shader match HOME, but live vertex/uniform/viewport coverage remains untraced. Other Settings page 1 has a fresh 0/0 pixel-threshold sample at `settings-other-page1-live-v89`, but input replay, motion and audio remain open, so the scenario still fails. Main residuals and other subpage/helper comparisons remain open. See the [27 September evidence](progress-2026-09-24.md#other-settings-page-1-nativebrowser-phase-comparison--27-september-2026) and [cached writer audit](settings-lower-endpoint-source-gap-2026-09-26.md). | Coordinator | [Settings trace](settings-main-source-validation.md), [focus audit](settings-other-focus-source-audit.md), [status audit](settings-native-status-source-audit.md), [Data lists](settings-data-lists-source-audit.md), [Data motion](settings-data-motion-source-audit.md), [Open Blocks](settings-open-blocks-source-audit.md), [Language audit](settings-language-source-audit.md), [motion](settings-language-motion-validation.md), [live native comparison](native-settings-live-comparison-2026-09-24.md), [Sound footer](settings-sound-footer-validation.md), [Language input gate](settings-language-input-source-audit.md), [thumb drag](settings-language-input-validation.md), [text raster](settings-text-raster-validation.md) |
-| Settings helpers (NNID, Transfer, Updater) | Implemented: helper Back restores the exact Settings page, and HOME suspends the helper (`251f88f`). Transfer page 3 and Update page 4 returns were operated live. Updater now presents the original question, orange title, default background and Cancel/OK footer (`0f652b8`); OK is an inert portfolio adaptation | Matched native helper sequencing/composition and entry-branch selection remain open | Coordinator | [Helper return validation](settings-transfer-update-return-validation.md), [Updater entry audit](updater-entry-source-audit.md) |
-| Parental Controls | Implemented: intro Back/Set → source explanation (Back/Next) → source PIN notice (`Dialog_D_01`, one OK). Adaptation: OK/B return to the explanation with Next selected, but native OK continues to PIN setup. The old restrictions list is unreachable. Touch targets follow source bounds. Integrated live flow was operated, including an inert obscured background | Upper LCD during the notice keeps the explanation page, and the native upper mask and timing are unverified. Matched native comparison remains open | Coordinator (browser, touch geometry); presentation (upper mask) | [Source flow](settings-parental-source-audit.md), [PIN notice](settings-parental-pin-presentation.md), [dialog assets](native-parental-dialog-assets.md) |
-| Camera | Read-only gallery uses source lower `PicL` browse and upper `P_FinderVS_U` (`ea4cdfe`); six-cell centres/hit boxes follow executable/layout geometry (`c8a84f7`). Live folder → photo path passes. Source Slideshow/Shoot/Settings browse chrome and zoom icons are now visible; Shoot and zoom are inert under the read-only scope. Source-replayed horizontal strip arithmetic, smoothing and repeats (`2d6285d`) are now connected to the live read-only gallery (`8c85a90`), pending browser and native visual checks | Root capture/12px drag/release and owner interruption are replayed (`9aa0544`): input-owner replacement alone leaves consumer-ready set. Renderer generation replay locates readiness reset in later control setup, not construction (`c807f25`); the complete cell writer now returns across 12 source cases with inclusive ±192 clipping and retained old-owner pose (`9c5b387`), but full native SceneBrowse replacement and final photo pixels remain unproven. The new live strip path passed 124 focused checks, typecheck and build; the full suite had 1,278 passes and 40 environment failures. Two native/browser Camera diagnostics now exist in [matrix v3](progress-2026-09-24.md#camera-fixture-and-battery-regression--25-september-2026): first-run guide versus portfolio folder fails at 56,078/76,604 upper/lower pixels >2, and native empty View Photos versus browser portfolio photo fails at 76,023/71,260. Both compare different states and input routes; neither scores gallery fidelity. At that earlier v3 checkpoint, EUR first-run guide packs were published from the dump (`ba5a8da`) but not yet rendered; the five-page source guide is now live (`69d570a`). The isolated Camera created two recognized photos from the existing Renu image, resolving the fixture gap. The populated native six-cell browse versus browser one-photo Renu folder still fails at 95,350/76,220 upper/lower pixels >2. Camera browse-menu and shoot chrome layouts, messages and referenced textures were published from the EUR dump (`dbc6c71`) and passed focused converter tests. A six-cell browser browse renders (`6cbd223`), source `P_BrwsMenu_D` Slideshow/Shoot/Settings chrome is visible (`c814502`), and source `P_BrwsBase_D` zoom icons are restored (`b196bc7`). The [latest populated diagnostic](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/reference/scenario-matrix/v1/captures/camera-mono-fit-source/diff/report.json) still has 95,350 upper / 23,052 lower pixels over 2. Native has two stereo MPO fixtures; browser has five mono portfolio JPEGs and different date folder, selection and chrome. `cc4e383` follows executable mono contain/no-upscale; the earlier cover adaptation is superseded. This unmatched media pair cannot judge photo fidelity. Native touch mapping also bounced out of browse, so input and paging remain unmatched. Viewfinder replacement and matched native comparison remain open. Invisible previous/next photo touch regions were removed after source-pane review; live empty-side taps were inert and physical Right still changed a photo (`459c63a`). Earlier gallery captures were source/site renders (`12e2267`); the latest populated native/browser pair fails. The v46 production diagnostics now show 95,350/22,856 for populated browse after source message colours and 1,387/7,026 for Welcome page 1 after the source guide; input, motion, audio, underlying shoot scene and whole-scenario parity remain open. Source MSBT red emphasis is now visible on Welcome pages 3/4 (`2765bb0`); v47 has browser-only raw captures for both, without native pairs. The `P_Shoot_D` CGFX resource is delivered (`dbb3eb7`) and its static model now paints beneath Welcome (`6a0f158`) with a labelled 4:3 camera-aspect fit. Its original settled pose remains unbound. The source 2D shoot layout now paints beneath Welcome with capture-fitted half-brightness and a held clip (`271ddc9`); v49 page-1 lower error falls to 2,690 pixels over 2/255 and 2.6580 RGB MAE. Native attenuation, the missing BtnIOcam child, border/grid fit, input, motion and audio remain open. | Coordinator | [Camera source validation](camera-gallery-source-validation.md), [strip port](camera-browse-strip-port.md), [grid audit](camera-grid-source-audit.md), [footer audit](camera-footer-source-audit.md), [owner lifecycle](camera-owner-lifecycle-source-audit.md), [rebind order](camera-rebind-order-source-audit.md), [gallery reset](camera-gallery-scene-reset-audit.md), [generation gate](camera-scene-generation-source-audit.md), [cell publication](camera-cell-publication-source-audit.md), [native capture gap](native-camera-gallery-capture-gap-2026-09-25.md) |
-| Sound | Source-position transport, seek, loop-mode, resting Effect panel and error dialog integrated from Sound resources (`5c5709f`, `549dc85`); owner-scoped playback remains. The empty-track entry now draws native title/status, birds, row, slider, controls, paired Record vinyl and the source upper `S_Back_U` room (`c1f7754`, `459402a`, `4bf5882`, `73b41be`). The room is lazily owned by the scene and gates paired LCD readiness. A fresh production-browser reload showed the room behind the chrome and the lower Record; the production track manifest is empty | Live favourite-track playback needs supplied songs; Effect buttons are inert by scope; pull cord, speed/pitch plate, filters and percussion remain unbuilt; the upper Span visualiser is mounted with a capture-derived colour and fit but remains visually unmatched. The corrected lower source LCD has RGB MAE 3.175/255 versus one native empty-entry capture; the row label and three settled bird silhouettes each have 1.000 glyph/silhouette IoU; the room's unoccluded source projection has RGB MAE 5.50/255 versus the upper capture. The authored mip chain and native minification filter are integrated (`868c8dc`), lowering source-strip MAE 5.499 to 5.331/255; native bird scheduling and whole-browser acceptance remain open. The browser now renders the three-page first-run guide (`5ee5746`) using the delivered welcome-dialog, guide, Parakeet and message packs (`1b64eb6`); source panel composition (`132c219`) and counter/parakeet pose (`2d5a7ca`) followed. Source RI.mstl text colour (`674f047`), the delivered C_DlgChA character panel (`a17bde2`) and its live mount (`d9b4fd4`) reduce the latest [matched-A guide page 1 diagnostic](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/sound-first-run-native-panel-matched-a/diff/report.json) to 15,639 upper / 6,579 lower pixels over 2. Selected HOME Sound + A reaches guide page 1 in both. The frame/bird position is best at zero offset. Source counter messages and pane anchors (`6727966`) lower the latest [guide page-1 diagnostic](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/sound-first-run-source-counter/diff/report.json) to 15,639 upper / 6,267 lower pixels over 2. Its HOME navigation prefix differs from native; body text now measures within threshold, but upper missing line, bird detail and border remain. The original `S_Vis_Span_U.bcmdl.LZ` model was published at `manifest.models.soundSpan` (`8e1e31e`) and mounted in the upper room (`1b6c6c8`). Its Base blue (`ccdb686`) and edge/vertical fit (`ca2b3d5`) are explicitly capture-derived adaptations. The latest [title-blue-fit diagnostic](/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/sound-first-run-title-blue-fit/diff/report.json) still fails at 6,627 upper / 6,267 lower pixels over 2; title band, waveform sampling, birds and footer remain different. No native material or pixel match is claimed. The settled Record & Edit Sounds pair still fails at 15,793/16,021, with text, icon, bar and placement residuals. The guide repeats on each fresh browser launch without firmware-backed first-run persistence | Runtime; presentation | [Sound source validation](sound-source-validation.md), [entry comparison gate](sound-entry-comparison-gate.md), [native entry comparison](sound-native-entry-2026-09-24.md), [record source](sound-entry-background-source.md), [room source](sound-room-source.md), [room mips](sound-room-mipmap-source.md), [Welcome gate](sound-welcome-source-gate.md), [Welcome owner](sound-welcome-owner-audit.md), [Welcome lifecycle](sound-welcome-lifecycle-gate.md), [bird motion gate](sound-entry-bird-source.md), [row glyph comparison](sound-entry-row-glyph-validation.md) |
-| Health and Safety | Continuous read-only article scrolling now uses source-replayed touch drag, inertia, thumb/groove and held-key state, replacing bounded pagination. The browser quick-button edge is latched for one update. Original parser, font/warning, clip-command text/icon draw order and glyph-cache/outer-owner paths have source replays through `334c894`; article rich-style, transform and close cancellation are replayed in `bbf29d5`. The entry lower LCD now paints all three precaution buttons white, as in an Azahar capture | Usage initial (`b5543c4`) and 8px-scrolled (`2f26c96`) production pairs pass the static pixel tier on both LCDs with maximum delta 2. Capture-fit coverage remains labelled; held native input differs from browser discrete Down clicks. General route, later scroll states, input timing, motion and audio remain open; fresh native capture is storage-blocked. | Coordinator | [Screen presentation](stock-screen-presentation.md), [scroll audit](health-scroll-source-audit.md), [rich text](health-richtext-source-audit.md), [font/clip](health-font-clip-source-audit.md), [held input](health-key-clip-consumer-audit.md), [draw order](health-article-draw-source-audit.md), [glyph/owner audit](health-glyph-owner-source-audit.md), [rich-style and cancellation](health-glyph-stream-source-audit.md), [continuous-scroll gate](health-live-scroll-source-audit.md), [touch/scroll checkpoint](health-touch-scroll-source-audit.md), [native entry comparison](native-health-entry-comparison-2026-09-24.md) |
-| Game Notes | Implemented grid/editor and source-pane capture of the suspended app (`f9219d7`). Double → Up → Down and 0–25 frame Switch clip are integrated. Eight original SMDH descriptions/icons are published; the hidden metadata session binds Notes, application and capture owners (`01105ca`). HOME-again retires Notes (`34ebf75`). Ordered startup/Open/Back and pane apply/material publication are source-traced through `1047fa9` and represented by a pure owner-bound scheduler (`a7a8c8a`); the source title/HUD panel now paints live from an owner-bound host clock (`2f2ce8a`). Work uses the same panel with its own title/icon; the browser Work → HOME → Notes → Open → Back sequence visibly passed with no console errors | Original ApltBoot_U/D are published and the first user-visible title after their 21-pass cover, plus Open→Back list gates, are replayed (`c11a8e2`); the host clock uses a provisional 60 Hz cadence; validate native pacing, panel composition, wave cues and matched native screenshots before claiming 1:1 | Coordinator | [Capture validation](native-notes-suspended-capture.md), [switch audit](native-notes-switch-source-audit.md), [metadata lifecycle](notes-metadata-lifecycle.md), [ordered startup](native-notes-ordered-startup-audit.md), [scheduler](notes-panel-scheduler.md), [title lifecycle](native-notes-title-lifecycle-audit.md), [composed publication](native-notes-composed-publication.md), [intro publication](native-notes-intro-publication.md), [lower intro verification](native-notes-lower-intro-validation.md), [owner exit](notes-home-owner-exit.md), [audio delivery](native-notes-switch-audio-delivery.md) |
-| Friend List, Notifications | Implemented source initial/empty states | Interior fidelity; nonempty states only if brought into scope | Presentation; runtime | [Personal tools](native-personal-tools.md) |
-| Internet Browser, Miiverse | Implemented source chrome. Adaptation: local read-only interiors. Miiverse’s invented notice/heading was removed in `255fd30`; raw browser LCDs show source BG/title/toolbar and an unpopulated interior. **Source gap:** no supported native empty/offline state is established | Capture the same Miiverse/Browser state in the now-responsive isolated native profile and compare. Title placement, BG crop, toolbar mounts/bindings and suppressed toolbar text remain adaptations. No remote browsing or keyboard | Presentation; runtime | [Interiors](native-browser-miiverse-interiors.md), [Miiverse source gap](miiverse-empty-interior-source-gap.md), [browser checkpoint](progress-2026-09-24.md#miiverse-empty-interior-browser-checkpoint--26-september-2026) |
-| eShop, Nintendo Zone | Implemented source welcome/offline chrome. Zone status icons use original HUD clips (`410e8b4`); HH:MM text panes and 119-frame colon clip paint live (`fa8b87e`). Its 400×220 target, actual upper camera, 320×240 parent, stereo-zero matrix, entry render-state reset, viewport callback and paint dispatch are traced through `40a21c9`. eShop's source entrance/wait, BG curtain, 30 Hz pass cadence, OK gate, exit and title-owned upper HUD are integrated (`c2b6cbb`, `19db308`, `cd4b534`); welcome → OK → HOME was operated with A and lower-screen touch, and the title HUD was inspected live. Fresh Zone shortcut entry and a controlled eShop welcome/resume/suspend/close route have browser-only captures at `a53fe45`; the close route returns HOME with eShop selected and no running app | Resolve Zone actual HTML root inputs, final clipping and shader interpolation; eShop HUD network/battery telemetry, entrance/exit sound and matched native comparison | Coordinator | [Service HUD trace](native-service-screen-trace.md), [projection audit](native-zone-projection-source-audit.md), [raster state](native-zone-raster-state-audit.md), [placement](native-zone-placement-inputs-audit.md), [paint dispatch](native-zone-draw-dispatch-audit.md), [eShop lifecycle](eshop-welcome-lifecycle-source-audit.md), [eShop title HUD](eshop-welcome-hud-source-audit.md), [native direct route](native-eshop-direct-launch-2026-09-24.md), [close investigation](eshop-close-investigation.md) |
-| NNID | **Source gap:** the unsigned-in body is absent from supplied data. Adaptation: native header plus local notice | Obtain a defensible reference if possible; otherwise keep it labelled | Assets; runtime | [NNID audit](nnid-entry-source-audit.md) |
-| amiibo settings | Source-backed English opening UI and bounded Header/`PortalBtnSub` materials are published and render as internal read-only applet (`aeb54a4`, `b707a5b`); no visible HOME/Settings route exists | Matched native opening comparison, font/motion and entrypoint validation; keep NFC/account/update operations inert | Assets; coordinator for entry/browser | [amiibo opening](native-amiibo-opening.md), [command trace](amiibo-material-command-trace.md) |
-| Other helpers and selectors | Implemented source UI with parent routing (Circle Pad, manual, selectors). Settings Manual draws its source `AllNull` striped/gradient LCD base and supports Contents → page 1 entry/Back/Close; the unobscured source-render background has zero pixels over 2/255 against native | Integrated browser recapture; remaining Manual row/footer details, Enlarge, scrolling, later pages, motion and audio; per-helper native comparison | Runtime; presentation | [Helper presentation](native-helper-presentation.md) |
-| Accessibility | Implemented shared physical, keyboard, touch and accessible controls. Switch/power and foreground applet announcements corrected (`b1fedf5`), including live Notes over suspended Work | Other screen-specific announcements and full accessibility pass | Coordinator | [Experience design](architecture/experience-design.md) |
-| Asset conversion, provenance | Implemented. The current public-only audit passes 1,790 resources with zero integrity errors and `privateSourcesChecked: 0`. The [visible asset audit](firmware-visible-asset-audit-2026-09-25.md) maps in-scope screen packs and banner keys to dump titles and records non-native fallback risks. It publishes no new resource. The converted Settings model and five textures match manifest hashes and CBMD source identity. | At every handoff map each visible/audible native element → manifest key → decrypted dump source and list non-native elements with reasons. Keep portfolio substitutions and scoped read-only/inert adaptations distinct from native pixel defects. Keep unsupported fields explicit, remove or prove inactive community/CSS/generic fallback paths, and rerun private-source audit when storage access recovers. Local LFS model hydration enabled build only; it is not a delivery change or visual check | Assets | [Asset audit](firmware-visible-asset-audit-2026-09-25.md), [asset architecture](architecture/assets-and-materials.md), [stock banner source](stock-home-banner-source.md) |
-| Final acceptance | **Open.** Matrix v44 has 87 entries, all `fail`; no accepted whole scenario; Health frame 198 has an unmasked two-LCD pixel-threshold match. Motion/audio remain open; Settings main and one Sound page-1 pair have matched entry input, and Other page 1 has a matched touch action from an already-open Settings main | Correct the measured Settings and HOME banner residuals, then recapture with matched inputs; HOME idle itself still needs a matched selected title | Coordinator | [Verification](architecture/verification.md), [profile isolation](native-reference-profile-isolation.md) |
+1. **Make navigation complete and safe.** Lifecycle and app workstreams enumerate
+   routes, cover missing tests and fix evidenced broken entry/back/close/switch
+   paths. The coordinator records a smoke route for every app, not only HOME.
+2. **Close missing visible screens and controls.** Finish decoded source-backed
+   menus, notices, empty/populated states and explicit failure states. An inert
+   action needs a scope reason; placeholder native graphics are not an option.
+3. **Run one acceptance queue.** Coordinator captures each workstream's named
+   native/browser scenarios, returns exact residual regions to its chat and
+   integrates fixes sequentially. HOME idle and Settings Other page 1 remain
+   baseline regressions. A browser startup failure does not stop code inventory
+   or other independent workstreams.
+4. **Finish fidelity and integration.** Correct unexplained pixels, input and
+   motion, retest shared consumers, then audio only when the user permits it.
+   Adaptations and source gaps stay visible; no completion percentage hides them.
 
-Latest Miiverse source identities are in the
-[browser checkpoint](progress-2026-09-24.md#miiverse-empty-interior-browser-checkpoint--26-september-2026);
-preceding banner changes are in the
-[v25 progress record](progress-2026-09-24.md#browser-absent-color-correction-and-native-input-gap--26-september-2026).
-Camera's exact `C_SldH_S` slider is published and visible; browser paging → Rate
-and static Parakeet phase remain adaptations. Shoot/zoom remain inert. Sound
-Base colour, alpha and placement are capture-derived adaptations; title strip,
-waveform, birds and footer remain unresolved. The mono contain/no-upscale source correction (`cc4e383`) supersedes provisional
-cover; the latest pair compares unmatched mono JPEG/stereo MPO media. The
-[photo-fit audit](camera-photo-fit-source-audit.md) records executable provenance.
-[Sound title-strip diagnosis](sound-title-strip-diagnostic-2026-09-26.md)
-(`e46e338`) identified the residual; `139df79` fits only the three title
-materials to captured blue, eliminating 8,910 over-threshold upper pixels.
-This is a capture-derived adaptation with remaining title/room/guide residuals. Integration checks at `8f0eb39`: 1,427 total tests, 1,403 pass,
-0 fail, 23 skip, 1 TODO; production build and shader checks pass. These checks do not establish pixels.
+At most one bounded source-only slice per feature before a visible correction
+or a recorded source gap/adaptation. No repeated research loop without a named
+defect, next observable result and stopping condition. A blocked item yields the
+worker to the next ready item; it does not consume the entire coordinator.
 
-## Five long-lived lanes — 25 September 2026
+## Task Protocol
 
-The five lanes are assigned from UI integration `1b64eb6`. These are ownership
-assignments; feature-row owner labels above reflect earlier integrations and
-do not authorize editing a different lane's worktree.
+Each task has a stable feature ID from a detailed map, one owner, explicit
+allowed files, dependencies, captured defect or route repro, exact deliverable,
+focused tests, and coordinator acceptance scenarios. The worker reports its
+commit and unresolved items. The coordinator reviews the diff, integrates only
+coherent commits, runs required checks and updates evidence before marking a
+row accepted. Subagents may help inside a workstream but do not own shared UI.
 
-| Lane | Worktree | Branch | Owned surface |
-| --- | --- | --- | --- |
-| Design | `/Users/paramveer/.codex/worktrees/3ds-lane-design` | `codex/lane-design` | Agent onboarding, scope, progress, feature map, architecture |
-| Assets | `/Users/paramveer/.codex/worktrees/3ds-lane-assets` | `codex/lane-assets` | Firmware conversion, manifest, provenance, native packs and `scripts/native-compare/` |
-| HOME | `/Users/paramveer/.codex/worktrees/3ds-lane-home` | `codex/lane-home` | HOME state, rendering, banners and input |
-| Stock | `/Users/paramveer/.codex/worktrees/3ds-lane-stock` | `codex/lane-stock` | In-scope stock-app screens and navigation |
-| Experience | `/Users/paramveer/.codex/worktrees/3ds-lane-experience` | `codex/lane-experience` | Scene, power/app transitions, portfolio integration and raw browser LCD capture |
+Shared files (`system.ts`, `app-host.ts`, `stock-apps.ts`, `screens.ts`,
+`stock-screen-layout.ts`, `console-scene.ts`, registry and native loaders) need
+a named edit reservation in the registry. Worktrees prevent accidental writes,
+not logical merge conflicts. Workers do not cherry-pick each other's work or
+rebase a branch under another active worker. They never stage all files.
 
-The coordinator owns integration in `3ds-ui-continuation`, and alone operates
-the production browser and Azahar. Native assets require manifest/dump
-provenance; source fixtures and renders do not establish browser or native
-acceptance. See [AGENTS.md](../AGENTS.md), [scope](portfolio-ui-scope.md) and
-[verification](architecture/verification.md).
+Use statuses **queued**, **active**, **review**, **integrated**,
+**verification-needed**, **accepted**, or **blocked** for work. Separately retain
+the native scenario status **fail**, **pass**, **adaptation**, **source-gap**, or
+**blocked**. An integrated task is not automatically accepted. A source gap is
+not a reduction of the user's completion criteria.
 
-## Current integration and evidence gate — 26 September 2026
+## Scope Boundaries
 
-The integration checkout is `/Users/paramveer/.codex/worktrees/3ds-ui-continuation`
-on `codex/health-ui-scratch` at latest captured runtime `1f7a854`, with original glyph source-sheet metadata from `ef3cf94`. Run
-`git worktree list` for current inventory; the former 24 September worker-head
-table was stale and has been removed. Only the coordinator drives Azahar and
-the production browser. The private `reference/scenario-matrix/v1/captures/` directory now holds
-87 failing diagnostic entries in matrix v44, including Camera populated browse
-and Sound first-run/entry pairs; HOME idle remains unmatched.
-Every row above remains below full native acceptance until the
-[scenario loop](architecture/verification.md) closes its pixels, motion,
-input and audio or labels a documented adaptation/source gap/block.
+- Required adaptations: eight portfolio apps/content/tile population; read-only
+  Camera; supplied-song playback; local/offline Browser, Miiverse and service
+  flows. Document exact per-screen differences in the detailed maps.
+- Excluded: Software Keyboard, Activity Log, Download Play, Mii Maker,
+  StreetPass Mii Plaza, AR Games, Face Raiders; remote web/network/account/PIN
+  actions; camera/microphone capture, recording/import and editable stock
+  profiles. Internal helper registration does not invent a HOME entry.
+- Native visuals/fonts/audio come only from the pinned dump with complete
+  element -> manifest -> title/version/content/path/hash/converter provenance.
+  Raw firmware, credentials, executables and private captures never go public.
+- Supplied songs are a user-input dependency; the empty song manifest is not a
+  completed playback demonstration. Silent tests may continue without unmuting.
 
-## Intentionally excluded
+## Coordinator Checkpoint
 
-Software Keyboard, Activity Log, Download Play, Mii Maker, StreetPass Mii
-Plaza, AR Games and Face Raiders. No capture permissions, recording, imports,
-text entry, PIN entry, account operations, editable stock profiles or network
-emulation. Camera is read-only. Sound playback is the only interactive
-stock-app exception. Excluded features are not backlog.
+Working integration is `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`
+on `codex/home-fidelity-20261001`, not the original DeveloperStorage checkout.
+Runtime `f5ed204c` adds host-owned background frames; 1,550 tests, typecheck,
+production build and shader validation pass. Its fresh production recapture is
+still pending after dedicated browser startup failed. No acceptance was added.
+The latest native frame-step run has four private PNGs and clean native exit;
+its pause counters do not establish a shared browser epoch. Prior scenario
+residuals and adaptations remain in the progress/evidence record.
 
-Current Settings residuals at `94463cd`: Other page 1 **1,477 upper / 3 lower**, main **59 / 20**, empty masks, all fail. Source row widths first reduced Other lower 702→45; horizontal glyph half-pixel boundary ownership reduced 45→3. The three lower pixels are at `(129,168,1,3)`. Native/browser HOME prefixes differ; motion/audio remain open. See the [production checkpoint](progress-2026-09-24.md#settings-row-width-and-font-boundary-production-checks--26-september-2026) for all four pairs, hashes, overflow storage and integrated checks.
-
-Latest `600bf6f` static Other Settings lower LCD has zero pixels above 2/255 (maximum delta 2, mean 0.15514323), with no mask; it is not byte-identical. Other upper remains 1,477 and main 59/20, so all scenarios remain fail. Source float32 glyph endpoints resolve the prior three lower pixels; motion/audio and full-session input parity remain open. See [v32 production evidence](progress-2026-09-24.md#settings-float32-endpoint-production-check--26-september-2026).
-
-Production `7221619` preserves Other Settings **1,477/0** and main **59/20** after independent Opus review moved float32 endpoint rounding into writer coordinates before pane translation. Matrix v44 retains the history, empty masks and failing whole-scenario status. The odd-second main probe has identical PNG hashes and is not an improvement. Full suite: **1,414 pass / 0 fail / 23 skip / 1 TODO (1,438 total)**; typecheck/build/shader pass. See the [review and production checkpoint](progress-2026-09-24.md#writer-local-glyph-endpoints-independent-review-and-production-regression--26-september-2026).
-
-Health entry live frame 198 now has **0/0 pixels above 2/255** after the capture gate and one-pass rotated-picture raster, versus 258/0 before. This single static checkpoint is not byte-identical (maximum delta 2) and does not establish matching launch inputs, motion/audio, articles or CUA key-hold/frame parity. Offline mean 4.137→4.872ms, after p95 6.140ms; browser FPS unvalidated. See the [production checkpoint](progress-2026-09-24.md#health-live-frame-198-and-rotated-picture-raster--26-september-2026).
-
-Fresh HOME Settings diagnostics at `692c444` retain unmatched/unrecorded input prefixes and unknown native phase. The live pair is 65,074/36,196; synthetic source frames 150/450/136 yield 64,094/36,480, 64,076/36,429, 64,064/36,194 respectively. The later native burst shows a broad settled icon row; the earlier compressed snapshot does not justify a constant projection fit. These source-pose probes do not establish runtime timing or acceptance; see the [v35 evidence](progress-2026-09-24.md#fresh-home-settings-and-synthetic-source-poses--26-september-2026).
-
-Settings owner-scoped HUD production `f083291` leaves **21 upper / 20 lower** pixels above 2/255. HOME constant projection fit `cfefa16` regressed the settled view and was reverted in `ba0b8d5`; the restored live HOME pair is **56,631 / 36,088**. The genuine twelve-frame native burst retains a broad icon row while the wrench rotates. These empty-mask diagnostics remain `fail`, with unmatched input, unknown phase and open motion/audio. See [v36 evidence](progress-2026-09-24.md#settings-hud-and-restored-home-projection--26-september-2026).
-
-Production `ba0b8d5` with synthetic `lcdBannerFrame=309` gives **56,409 upper / 36,358 lower** pixels above 2/255. Offline native silhouette fits suggest the existing approximately 600-frame/10-second turn, but no native frame counter or matched activation boundary is established. `captureScreensAt(elapsedMs,date)` repaints without advancing live banner clocks. The pose improves orientation only; runtime timing, shading, profile/input and audio acceptance remain open. See [v37 diagnostic](progress-2026-09-24.md#home-settings-synthetic-frame-309--26-september-2026).
-
-Production Settings glyph ink correction `87dc835` leaves **2 upper / 20 lower** pixels above 2/255 when the displayed minute matches. HOME frame309 with view-normal sphere mapping at `03b2d31` leaves **53,454 / 36,360**. Both use empty masks and remain fail; the HOME pose is synthetic and Settings inputs are semantically HOME→A but unsynchronized. See [v38 evidence](progress-2026-09-24.md#settings-sphere-mapping-production-diagnostic--26-september-2026).
-
-Other Settings page 1 at `20ec43e` now has the same semantic **HOME selected Settings → A → Other Settings touch** route in native and browser, with **1,312 upper / 0 lower** pixels above 2/255 and no mask. The lower frame has maximum delta 2, not byte equality. Upper title/icon residuals and two HUD pixels remain; held A timing, ±1-frame motion and audio are unverified. Input tier and whole scenario remain fail. See [v39 route evidence](progress-2026-09-24.md#other-settings-page-1-shared-home-route--26-september-2026).
-
-Health HOME→A launch at live browser frame156 now has **0/0** pixels above 2/255 (maximum 2, empty masks); the semantic launch route matches, but literal selection/hold history and native elapsed/frame alignment do not. Pixel tier passes for this frame only; whole scenario fails. Independent HOME wallpaper 337/wrench 309 sampling gives **6,194/36,419**; Settings source-centering recapture gives **1,312/0** but paints retained 04:41 despite 04:31 metadata, so no centering production outcome is established. See [v40 evidence](progress-2026-09-24.md#health-home-launch-and-independent-phase-diagnostics--26-september-2026).
-
-The `0ad8efd` production calendar replay now paints the requested Other Settings date and gives **17 upper / 0 lower** pixels above 2/255. Health Usage at live frame327 gives **0/146**, with all lower residuals in Back footer; Settings main calendar regression gives **171/20**, including 169 upper HUD phase pixels and two date pixels. All remain whole-scenario fail. Footer patch `734468d` is integrated but has no production recapture in this evidence set. See [v41 diagnostics](progress-2026-09-24.md#calendar-replay-and-health-usage-production-comparisons--26-september-2026).
-
-Latest diagnostics give Health Usage footer **0/22**, Other Settings bottom edge **9/0**, and HOME with an explicit HUD source pose **3,744/36,318** pixels above 2/255. Health scroll input mismatch gives **16,595/13,837** after one browser Down; two Downs align the article at 8px but retain **24,828/73**, with upper animation unphased. All whole scenarios fail. Capture-fitted text adaptation `b5543c4` awaits production recapture. See [v42 evidence](progress-2026-09-24.md#footer-hud-and-scroll-production-diagnostics--26-september-2026).
-
-Health Usage initial and 8px-scrolled frames each now have unmasked **0/0** pixels above 2/255, maximum delta 2; only their pixel tiers pass. Other Settings coverage-fit gives **2/0** and diagnostic HOME coin97 gives **3,563/36,071**. Native held/repeated Down versus two discrete browser clicks remains unmatched, and live frame8 does not resolve the source8/368 ambiguity or absolute timing. All whole scenarios fail. Capture endpoint requires a loopback-bound production start. See [v43 evidence](progress-2026-09-24.md#scrolled-health-two-lcd-threshold-checkpoint--26-september-2026).
-
-Other Settings page1 now has an unmasked **0/0** pixel-threshold checkpoint at `1f7a854`, maximum delta 2, after source-sheet identity/order preservation. Diagnostic date 03:31:10Z at elapsed 12000 aligns the native sampled HUD state; literal screenshot time 03:31:13.302Z instead exposed 169 battery/colon phase pixels. This is pixel-tier acceptance only; navigation/input, motion and audio remain unresolved, so the whole scenario fails. See [v44 evidence](progress-2026-09-24.md#other-settings-source-sheet-order-two-lcd-checkpoint--26-september-2026).
-
-The latest battery-frame probe remains a failed source-pose diagnostic. Private
-[matrix v83](/Users/paramveer/.codex/3ds-artifact-overflow/captures-20260927/reference/scenario-matrix/v83/matrix.json)
-has 151 records. Frame 5 modestly improves the charging-battery ROI over frame
-4, while total upper residual changes 47,928 → 47,738 and lower residual
-changes 40,497 → 40,993 pixels over 2/255. Native focus/input and lower HOME
-title population still do not match; no renderer change is justified.
-
-A focused native HOME touch-route probe also failed: the proven Settings-page
-U mapping and one direct touchscreen click did not move the HOME selection.
-The isolated Azahar config was restored byte-for-byte; see the latest progress
-checkpoint. HOME input remains unverified.
+This map and the chat registry supersede the old five-lane task ordering, not
+the source-of-truth, isolation, ownership or verification rules in AGENTS.md.

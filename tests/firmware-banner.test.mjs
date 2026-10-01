@@ -102,6 +102,13 @@ test('Friend List toolbar uses the converted HOME source model as sole primary',
  assert.equal(h.banner.drawNewsFrame(h.ctx,5000,false),true);
  assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Friend List');
 });
+test('Friend List model rejection settles readiness and remains unavailable before activation',async t=>{
+ const h=setup(t,{failure:'/banner-applet-friend/model.json'});await h.banner.ready;
+ assert.equal(h.banner.status().friendReady,false);
+ assert.match(h.banner.status().friendFailure,/HTTP 503/);
+ assert.equal(h.banner.drawFriendFrame(h.ctx,frame),false);
+ assert.equal(h.draws.length,0);
+});
 test('Game Notes source banner draws alone with its frame mask',async t=>{
  const h=setup(t);await h.banner.ready;
  assert.equal(h.banner.status().memoReady,true);

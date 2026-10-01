@@ -146,14 +146,15 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); },
     cursor(ctx, ...args) { ctx.record('cursor', args); return legacyCursorDrawn; },
   }, { get: (target, key) => key in target ? target[key] : ((ctx, ...args) => { ctx.record(key, args); return true; }) });
-  const screens = createScreens({ ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics: [], dispose() {} } } : {}), ...screenOptions });
+  const diagnostics = [];
+  const screens = createScreens({ ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics, dispose() {} } } : {}), ...screenOptions });
   const paint = (state, elapsed = 1000) => {
     events.length = 0; screens.bottom.getContext('2d').curves.length = 0;
     screens.paint(state, new Date(0), elapsed);
     return events;
   };
   const cursorCalls = () => events.filter(event => nativeCursorNames.has(event.name));
-  try { await screens.ready; await run({ screens, paint, events, cursorCalls }); }
+  try { await screens.ready; await run({ screens, paint, events, cursorCalls, diagnostics }); }
   finally {
     screens.dispose();
     for (const [key, descriptor] of saved) {
@@ -197,17 +198,36 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
   } });
 });
 
-test('pending Friend resources do not fall back to the selected grid banner', async () => {
+test('pending Friend resources stay blank without reporting normal loading as failure', async () => {
   globalThis.__testSelectedApp = { id: 'work' };
   try {
-    await withScreens(({ paint, events }) => {
+    await withScreens(({ paint, events, diagnostics }) => {
       paint(home());
       assert.equal(events.some(event => event.name === 'fallback-banner'), false);
       assert.equal(events.some(event => event.name === 'toolbar-banner'), false);
+      assert.deepEqual(diagnostics, []);
     }, { screenOptions: {
       getHomeBanner: () => ({ status: 'pending', generation: 'friend-test', requestEpoch: 1,
         selection: { kind: 'toolbar', focus: 2, category: 4 },
         resourceTicket: { generation: 'friend-test', requestEpoch: 1 }, stage: 'loading', waitUpdates: 0 }),
+      drawFriendBannerFrame: ctx => { ctx.record('toolbar-banner', ['Friend List']); return true; },
+    } });
+  } finally { delete globalThis.__testSelectedApp; }
+});
+
+test('rejected Friend resource reports unavailable while remaining pending and blank', async () => {
+  globalThis.__testSelectedApp = { id: 'work' };
+  try {
+    await withScreens(({ paint, events, diagnostics }) => {
+      paint(home()); paint(home());
+      assert.equal(events.some(event => event.name === 'fallback-banner'), false);
+      assert.equal(events.some(event => event.name === 'toolbar-banner'), false);
+      assert.deepEqual(diagnostics, ['Native Friend List toolbar banner unavailable.']);
+    }, { screenOptions: {
+      getHomeBanner: () => ({ status: 'pending', generation: 'friend-test', requestEpoch: 1,
+        selection: { kind: 'toolbar', focus: 2, category: 4 },
+        resourceTicket: { generation: 'friend-test', requestEpoch: 1 }, stage: 'loading', waitUpdates: 0 }),
+      getFriendBannerFailure: () => 'Friend model rejected',
       drawFriendBannerFrame: ctx => { ctx.record('toolbar-banner', ['Friend List']); return true; },
     } });
   } finally { delete globalThis.__testSelectedApp; }

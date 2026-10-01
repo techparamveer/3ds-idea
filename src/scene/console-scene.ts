@@ -88,6 +88,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   const nativePrimaryAvailable=(kind:string)=>{const value=folderBanner.status();return kind==='default'?value.defaultReady&&!value.defaultFailure:kind==='app'?value.settingsReady&&!value.settingsFailure:kind==='toolbar'?value.friendReady&&!value.friendFailure:kind==='clear'||nativeFolderAvailable();};
   const screens=createScreens({soundRoom,cameraShoot,reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
     getHomeBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&view.selection.kind!=='app'&&view.selection.kind!=='toolbar'&&(!nativePrimaryAvailable(view.selection.kind)||bannerLabelFailure)?undefined:view;},
+    getFriendBannerFailure:()=>folderBanner.status().friendFailure??null,
     // Idle-only native translation sample. Reactive +0x90 motion is not yet hosted.
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawDefaultBannerFrame:(ctx,motion)=>folderBanner.drawDefaultFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0}),

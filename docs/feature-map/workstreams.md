@@ -151,3 +151,12 @@ Back, reopen and footer Back routes were inspected on muted Sidecar. Four
 browser-before/after sheets were inspected; no native comparison is implied.
 Independent GPT-6.1 Sol/Medium review closed both findings with 17 focused tests
 and 12 extra tick/navigation Camera cases. No Fast-mode verification is implied.
+
+## Model Policy Reapplied - 2 October 2026
+
+All eight registered chats accepted explicit `gpt-6-astra` / `high` follow-up
+overrides. The follow-ups only acknowledge settings; they do not resume completed
+implementation tasks. Future helpers require `gpt-6.1-sol` / `medium` with
+standard, non-Fast service verified before dispatch. No new helper was started.
+The available dispatch tools still cannot toggle or verify Fast mode, so that
+part of the user's requested configuration remains unverified.

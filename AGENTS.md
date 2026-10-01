@@ -38,6 +38,8 @@ For helpers explicitly select `model=gpt-6.1-sol` and
 all earlier model preferences. The user requires **no Fast mode**. Neither
 chat dispatch nor collaboration exposes a Fast-mode/service-tier argument;
 do not claim that setting was disabled or verified through these tools.
+Do not start new helpers through a priority-only service. Verify standard,
+non-Fast service is available and selected before dispatching helpers.
 Do not claim that an already in-flight coordinator or worker turn switched
 models. Apply these settings to new dispatches and chat follow-ups.
 

@@ -27,6 +27,14 @@ immediately, so a cleared buffer is never composited. Startup compiles the
 hidden LCD display materials before the opening clock starts, and fetches the
 firmware presentation pack and HOME banner models in parallel with the GLB.
 
+State-driven LCD paints (keys, pointer, saves, minute) replay the HOME
+background sampled by the latest cadence paint instead of a synchronous
+`readPixels` in the handler; cadence sampling is unchanged. Full-screen native
+rasters (≥ 65536 px, including launch logos) use a structure-specialised TEV
+loop that is tested byte-identical to the generic loop. The `AudioContext` is
+constructed while idle after the opening and adopted by the first gesture
+`unlock()`. See the [1 October lag note](../performance-2026-10-01.md).
+
 ## Model delivery
 
 The page never loads the sourced `joshua-xl.glb` directly. `scripts/pack-model.mjs`

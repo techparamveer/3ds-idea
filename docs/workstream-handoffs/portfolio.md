@@ -45,3 +45,34 @@ entry focus, post-Back focus, live HOME resume, and fresh-instance entry 0.
 For every scenario, compare the resumed live route with a newly closed/reopened
 instance. Native comparison applies only to surrounding HOME, launch and
 lifecycle chrome; retain the portfolio-interior adaptation label in evidence.
+
+## Review correction — 2 October 2026
+
+Follow-up base: `04938361e84475c1806cee3a3a43c12bf03c552d` (initial delivery
+integrated by the coordinator as `75cab5e2`). Independent review found that
+`outbound({ state })` could never observe reducer effects, and `selectedState`
+discarded the effects emitted while moving Down through the list.
+
+The helper now asserts the actual reduction's outbound effects before taking
+its state. The explicit-activation contract checks actual Up/Down/Left/Right
+reductions at every entry, including list bounds and local Done entries. It
+also covers both `link` and `launch` after detail entry and explicit activation,
+including Work → HackUK. Production files and destinations are unchanged.
+
+Validation: `/Users/paramveer/.local/bin/node --test
+tests/portfolio-completion-routes.test.mjs tests/portfolio.test.mjs` passed
+14/14. Two separate process-local negative controls wrapped the registered
+Work module's reducer before importing the completion test. Each wrapper called
+the original reducer, then appended an effect only when `!state.detail`,
+`event.type === 'command'` and `event.command === 'down'`:
+
+- `{ type: 'link', url: 'https://mutation.invalid/' }`
+- `{ type: 'launch', appId: 'hackuk' }`
+
+Both runs exited 1 with 2/4 tests failing at `work list Down from entry 0 is
+inert` and `P-WORK/alora list down is inert`. Each assertion reported the
+injected effect against expected `[]`. The wrappers existed only in their
+Node processes; no production edits, runtime effect adapter or URL opening
+occurred. `git diff --check` passed. Sidecar/native acceptance remains pending
+under the existing checklist. No helper was used, and Fast-mode/service-tier
+settings were not verified.

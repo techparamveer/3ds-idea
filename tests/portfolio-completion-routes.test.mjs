@@ -63,7 +63,11 @@ const outbound = result => (result.effects ?? []).filter(effect => effect.type =
 
 function selectedState(module, index) {
   let state = module.create({}, null, context);
-  for (let item = 0; item < index; item += 1) state = command(module, state, 'down').state;
+  for (let item = 0; item < index; item += 1) {
+    const result = command(module, state, 'down');
+    assert.deepEqual(outbound(result), [], `${module.descriptor.id} list Down from entry ${item} is inert`);
+    state = result.state;
+  }
   return state;
 }
 
@@ -147,22 +151,22 @@ test('every entry opens; every page and photo is reachable and bounded; B resets
   }
 });
 
-test('Work to HackUK is a launch effect, while web and mail effects require explicit detail activation', () => {
-  const work = getAppModule('work');
-  let workState = selectedState(work, 3);
-  workState = command(work, workState, 'open').state;
-  assert.deepEqual(command(work, workState, 'open').effects, [{ type: 'launch', appId: 'hackuk' }]);
-
+test('list navigation and detail entry are inert until explicit link or launch activation', () => {
   for (const expectedApp of graph) {
     const module = getAppModule(expectedApp.id);
     expectedApp.entries.forEach(([entryId, , , action, target], index) => {
-      if (action !== 'link') return;
       const label = `${expectedApp.feature}/${entryId}`;
-      let state = selectedState(module, index);
-      assert.deepEqual(outbound({ state }), [], `${label} selection is inert`);
+      const state = selectedState(module, index);
+      for (const direction of ['up', 'down', 'left', 'right']) {
+        const navigation = command(module, state, direction);
+        assert.deepEqual(outbound(navigation), [], `${label} list ${direction} is inert`);
+      }
       const detail = command(module, state, 'open');
       assert.deepEqual(outbound(detail), [], `${label} detail entry is inert`);
-      assert.deepEqual(command(module, detail.state, 'open').effects, [{ type: 'link', url: target }], `${label} emits only on explicit activation`);
+      if (action === 'link' || action === 'launch') {
+        const effect = { type: action, [action === 'link' ? 'url' : 'appId']: target };
+        assert.deepEqual(command(module, detail.state, 'open').effects, [effect], `${label} emits only on explicit activation`);
+      }
     });
   }
 });

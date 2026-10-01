@@ -39,6 +39,41 @@ const { createFirmwareHome } = await loadPresentation('firmware-presentation', {
 const pack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url)));
 const nativeCursorNames = new Set(['cursor', 'cursorAt', 'cursorEffectAt']);
 
+test('applet label surfaces retain native upper message styles without changing folder labels', () => {
+  const root = new URL('../public/os/firmware/10.7.0-32E/', import.meta.url);
+  const messages = JSON.parse(readFileSync(new URL('packs/home/messages-and-loose.json', root)));
+  const banner = JSON.parse(readFileSync(new URL('packs/home/banner.json', root)));
+  const manifest = JSON.parse(readFileSync(new URL('fonts/shared/font.json', root)));
+  const before = JSON.stringify({ messages, banner }), calls = [], surfaces = [];
+  const saved = Object.getOwnPropertyDescriptor(globalThis, 'document');
+  globalThis.document = { createElement() { const surface = canvas([]); surfaces.push(surface); return surface; } };
+  try {
+    const home = createFirmwareHome({ sharedFont: { manifest }, renderer: {
+      packs: { launcher: pack, messages, banner },
+      draw(_ctx, bank, name, options) { calls.push({ bank, name, options }); return true; },
+    } });
+    for (const [key, title] of [['memo','Game Notes'],['fri','Friend List'],['news','Notifications'],['web','Internet Browser'],['mvs','Miiverse']]) {
+      const pixels = home.appletBannerLabel(key), value = calls.at(-1).options.overrides.T_Title_00;
+      assert.equal(value.text, title);
+      assert.deepEqual(value.messageStyle.fontScale, [Math.fround(.82), Math.fround(.82)]);
+      assert.equal(value.fontSize, undefined, 'no folder-only fit or guessed font size');
+      assert.equal(home.appletBannerLabel(key), pixels, 'cached surface is stable');
+    }
+    const applet = home.appletBannerLabel('memo');
+    const folder = home.folderBannerLabel('Game Notes');
+    assert.notEqual(folder, applet, 'same text does not alias differently styled surfaces');
+    assert.deepEqual(calls.at(-1).options.overrides.T_Title_00.fontSize, [15.5,18.600000381469727]);
+    home.appletBannerLabel('fri');
+    assert.notEqual(home.appletBannerLabel('memo'), applet, 'shared cache remains bounded to two entries');
+    assert.equal(JSON.stringify({ messages, banner }), before);
+    assert.ok(surfaces.every(surface => surface.width === 0 && surface.height === 0));
+    delete messages.messages.menu_msbt_LZ.labels.lau_title_memo_u;
+    assert.throws(() => home.appletBannerLabel('memo'), /Native applet title unavailable/);
+  } finally {
+    if (saved) Object.defineProperty(globalThis, 'document', saved); else delete globalThis.document;
+  }
+});
+
 function freeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
     for (const child of Object.values(value)) freeze(child);
@@ -106,6 +141,7 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     tilePressOffset: (pose, density) => realTilePose ? actual.tilePressOffset(pose, density) : 0,
     toolbar(ctx, ...args) { ctx.record('toolbar', args); return realToolbar ? actual.toolbar(ctx, ...args) : true; },
     folderBannerLabel(text) { events.push({ name: 'banner-label', args: [text] }); },
+    appletBannerLabel(key) { events.push({ name: 'applet-label', args: [key] }); },
     folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); },
     cursor(ctx, ...args) { ctx.record('cursor', args); return legacyCursorDrawn; },
   }, { get: (target, key) => key in target ? target[key] : ((ctx, ...args) => { ctx.record(key, args); return true; }) });
@@ -144,7 +180,8 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
       assert.equal(getHomeToolbarCursorAnchor(focus).pane, pane);
       paint(state);
       assert.deepEqual(events.filter(event => event.name === 'toolbar-banner').map(event => event.args), [[title]]);
-      assert.deepEqual(events.filter(event => event.name === 'banner-label').map(event => event.args), [[title]]);
+      assert.deepEqual(events.filter(event => event.name === 'applet-label').map(event => event.args), [[['memo','fri','news','web','mvs'][focus-1]]]);
+      assert.equal(events.filter(event => event.name === 'banner-label').length, 0);
     }
   }, { screenOptions: {
     getHomeBanner: () => ({ status: 'unsupported', selection, resourceTicket: null }),

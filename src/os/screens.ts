@@ -314,23 +314,23 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const toolbarNews=toolbarFocus===3,toolbarFriend=toolbarFocus===2,toolbarMemo=toolbarFocus===1,toolbarWeb=toolbarFocus===4,toolbarMiiverse=toolbarFocus===5;
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!toolbarNews&&!toolbarFriend&&!toolbarMemo&&!toolbarWeb&&!toolbarMiiverse&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(toolbarMiiverse&&!state.panel&&state.system?.phase==='home'){
-   const label=nativeHome?.folderBannerLabel('Miiverse');
+   const label=nativeHome?.appletBannerLabel('mvs');
    if(!options.drawMiiverseBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Miiverse toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Miiverse toolbar banner unavailable.');
   }
   if(toolbarWeb&&!state.panel&&state.system?.phase==='home'){
-   const label=nativeHome?.folderBannerLabel('Internet Browser');
+   const label=nativeHome?.appletBannerLabel('web');
    if(!options.drawWebBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Internet Browser toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Internet Browser toolbar banner unavailable.');
   }
   if(toolbarFriend&&!state.panel&&state.system?.phase==='home'){
-   const label=nativeHome?.folderBannerLabel('Friend List');
+   const label=nativeHome?.appletBannerLabel('fri');
    if(!options.drawFriendBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Friend List toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Friend List toolbar banner unavailable.');
   }
   if(toolbarNews&&!state.panel&&state.system?.phase==='home'){
-   const label=nativeHome?.folderBannerLabel('Notifications');
+   const label=nativeHome?.appletBannerLabel('news');
    if(!options.drawNewsBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Notifications toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Notifications toolbar banner unavailable.');
   }
   if(toolbarMemo&&!state.panel&&state.system?.phase==='home'){
-   const label=nativeHome?.folderBannerLabel('Game Notes');
+   const label=nativeHome?.appletBannerLabel('memo');
    if(!options.drawMemoBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Game Notes toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Game Notes toolbar banner unavailable.');
   }
   if(hostedBanner&&hostedBanner.status!=='unsupported'){

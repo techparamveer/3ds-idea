@@ -90,14 +90,23 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }finally{canvas.width=canvas.height=0;}
  }
  function folderBannerLabel(name:string):NativePixels|undefined{
-  const cached=bannerLabels.get(name);if(cached){bannerLabels.delete(name);bannerLabels.set(name,cached);return cached;}
+  const text=name||message('menu_msbt_LZ','lau_2b_folder_noname','(No name)').text!;
+  const layout=renderer.packs.banner?.layouts.BnrDsTitle_00;if(!layout)return;
+  return bannerLabel(`folder:${name}`,nativeBannerLabelOverride(layout,assets.sharedFont.manifest,text));
+ }
+ function appletBannerLabel(key:'memo'|'fri'|'news'|'web'|'mvs'):NativePixels|undefined{
+  // Native 0x1e1070 selects the upper message; 0x1f8b0c applies its style.
+  const label=`lau_title_${key}_u`,bank=renderer.packs.messages.messages.menu_msbt_LZ;
+  if(bank?.labels[label]===undefined)throw new Error(`Native applet title unavailable: ${label}`);
+  return bannerLabel(`applet:${key}`,{T_Title_00:message('menu_msbt_LZ',label,'')});
+ }
+ function bannerLabel(key:string,overrides:PaneOverrides):NativePixels|undefined{
+  const cached=bannerLabels.get(key);if(cached){bannerLabels.delete(key);bannerLabels.set(key,cached);return cached;}
   const canvas=document.createElement('canvas');canvas.width=256;canvas.height=64;
   try{
    const ctx=canvas.getContext('2d',{willReadFrequently:true})!;
-   const text=name||message('menu_msbt_LZ','lau_2b_folder_noname','(No name)').text!;
-   const layout=renderer.packs.banner?.layouts.BnrDsTitle_00;if(!layout)return;
-   if(!renderer.draw(ctx,'banner','BnrDsTitle_00',{overrides:nativeBannerLabelOverride(layout,assets.sharedFont.manifest,text)}))return;
-   const pixels={width:256,height:64,data:ctx.getImageData(0,0,256,64).data};if(bannerLabels.size>=2)bannerLabels.delete(bannerLabels.keys().next().value!);bannerLabels.set(name,pixels);return pixels;
+   if(!renderer.draw(ctx,'banner','BnrDsTitle_00',{overrides}))return;
+   const pixels={width:256,height:64,data:ctx.getImageData(0,0,256,64).data};if(bannerLabels.size>=2)bannerLabels.delete(bannerLabels.keys().next().value!);bannerLabels.set(key,pixels);return pixels;
   }finally{canvas.width=canvas.height=0;}
  }
  function upperBase(ctx:Context){
@@ -279,5 +288,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   return pickupBlankAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density));
  }
- return {hud,upperBase,folderBalloon,folderBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

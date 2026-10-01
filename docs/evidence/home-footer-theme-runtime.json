@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "kind": "home-footer-theme-runtime-source-audit",
+  "status": "source-gap",
+  "sources": {
+    "codeSha256": "243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9",
+    "launcherPackSha256": "f251db1a92bed36da178099640fadcc9a6a53ba3e7e5410a7b3ddd7dfc02a044",
+    "titleId": "0004003000009802",
+    "layout": "LncBtmBtn_02",
+    "layoutSourceSha256": "826e92ec59b98aaf20fab4014a5dccc1dbaa634aaa4f95498bcf3d7944795834"
+  },
+  "executable": {
+    "runtimeBase": "0x100000",
+    "sections": {
+      "themeRoute": {
+        "start": "0x1d34f8",
+        "endExclusive": "0x1d35bc",
+        "sha256": "e8a086f8b22a8f170be351ad86d1298660202fd619194b4a5d055e344752845a"
+      },
+      "materialProducer": {
+        "start": "0x2ac9b8",
+        "endExclusive": "0x2aca38",
+        "sha256": "f21fdf598e421aa152d8991097de95188d7a5d02791167b17c74738f461e8caf"
+      },
+      "defaultSnapshot": {
+        "start": "0x2a9080",
+        "endExclusive": "0x2a90f0",
+        "sha256": "8e73122e4af8c728dfd184578ff9edb6e0d1e985ee1c88980118b43618f42136"
+      },
+      "rgbSlotSetter": {
+        "start": "0x1d47d0",
+        "endExclusive": "0x1d4860",
+        "sha256": "1e14b399327b0ff2f506afe7871d0a08ca3567cfc258ad6892095fd59e6b8204"
+      }
+    },
+    "footerControllerOffset": "0xab0",
+    "footerLayoutOffset": "0x8",
+    "paneTable": "0x308a98",
+    "paneNames": [
+      "P_BtnW_C_01",
+      "P_EdgeW_C_01",
+      "P_BtnW_R_02",
+      "P_EdgeW_R_02",
+      "P_BtnW_L_03",
+      "P_EdgeW_L_03",
+      "P_BtnW_R_03",
+      "P_EdgeW_R_03",
+      "P_BtnW_C_03",
+      "P_EdgeW_C_03",
+      "P_BtnW_R_04",
+      "P_EdgeW_R_04",
+      "P_BtnW_C_04",
+      "P_EdgeW_C_04",
+      "P_BtnW_L_04",
+      "P_EdgeW_L_04",
+      "P_BtnW_RC_04",
+      "P_EdgeW_RC_04",
+      "P_BtnW_LL_05",
+      "P_EdgeW_LL_05"
+    ],
+    "producer": {
+      "address": "0x2ac8c4",
+      "directCallSites": [
+        "0x1d3514",
+        "0x1d35b4"
+      ],
+      "inputRgbOffsets": [
+        "+0x4..+0x6",
+        "+0x7..+0x9",
+        "+0xa..+0xc"
+      ],
+      "materialSlots": [
+        0,
+        2,
+        1
+      ],
+      "setterCallSites": [
+        "0x2aca08",
+        "0x2aca18",
+        "0x2aca28"
+      ]
+    },
+    "route": {
+      "managerObjectBase": "0x35f9d8",
+      "activePointerOffset": "+0x14",
+      "defaultPointerOffset": "+0x18",
+      "activeGate": {
+        "offset": "+0x10",
+        "requiredValue": 1
+      },
+      "activeRecordOffset": "+0x74",
+      "defaultRecordOffset": "+0x5c"
+    },
+    "defaultSnapshot": {
+      "function": "0x2a8bf0",
+      "sourcePane": "P_BtnW_C_01",
+      "materialSlots": [
+        0,
+        2,
+        1
+      ],
+      "destinationOffsets": [
+        "+0x60..+0x62",
+        "+0x63..+0x65",
+        "+0x66..+0x68"
+      ]
+    }
+  },
+  "decodedLayout": {
+    "paneMaterialIndexes": {
+      "P_BtnW_C_01": 0,
+      "P_EdgeW_C_01": 3
+    },
+    "materialsEqualExceptName": true,
+    "flags": 1962,
+    "bufferColor": [
+      119,
+      115,
+      111,
+      0
+    ],
+    "constantColors": [
+      [
+        255,
+        254,
+        250,
+        255
+      ],
+      [
+        223,
+        219,
+        215,
+        255
+      ],
+      [
+        255,
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        0,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "defaultProducerRgb": [
+      [
+        255,
+        254,
+        250
+      ],
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        223,
+        219,
+        215
+      ]
+    ]
+  },
+  "sourceGap": {
+    "missing": "settled native active-theme gate and nine runtime RGB bytes",
+    "activeGateAddress": "[*0x35f9ec]+0x10",
+    "activeRgbAddress": "[*0x35f9ec]+0x78..+0x80",
+    "defaultRgbAddress": "[*0x35f9f0]+0x60..+0x68",
+    "conclusion": "No footer color correction is source-supported until the live route and record are captured."
+  }
+}

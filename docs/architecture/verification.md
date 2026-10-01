@@ -22,6 +22,12 @@ remain open. Long `--movie-play` is rejected by this binary's outer parser.
 Native EOF opens a blocking completion modal. Resolve it before further menu
 work, or capture/quit before EOF; a status label is not proof it was dismissed.
 Quitting inside it left one owned clone waiting in `ShutdownGame`.
+The [subsequent reselection run](../home-friend-motion-comparison-2026-10-01.md)
+captured before EOF and exited0. Initial Notifications again rendered only `N`,
+but Left/Right restored its full label. Use that named reselected capture for
+normal label comparisons; do not silently replace the startup anomaly or infer
+its cause. Friend live hosted counters now appear in raw capture metadata;
+matching one browser counter across builds does not establish the native epoch.
 Treat older repeated-host-key methods below as historical diagnostics, not
 evidence that event cadence matches the browser.
 

@@ -1,5 +1,16 @@
 # 3DS portfolio feature map
 
+Latest HOME correction: `c2cb1158` + `95865ae9` implement Friend-only type14
+hosted motion and explicit pending-resource failure diagnostics. The
+[fresh silent reselection comparison](home-friend-motion-comparison-2026-10-01.md)
+observes moving source frames and full Notifications label after native
+reselection. Five pairs still fail; final37089/19338 upper/lower >2. Phase250
+upper is unchanged across the diagnostic fix, not native-aligned. Footer694
+edge pixels remain;1541 tests/typecheck/build pass. All testing stayed muted on
+Sidecar and owned sessions closed cleanly. Next: native Friend epoch/displacement,
+wallpaper/HUD/cursor phase, Notifications yaw and live footer bytes. Earlier
+entries below are historical; no whole-scenario1:1 or audio acceptance.
+
 Latest input evidence: [measured native/browser replay](home-input-comparison-2026-10-01.md)
 reproduces the native Friend launch outcome and the browser's semantic
 Notifications -> Friend -> Open route. Deadline-driven trusted browser events

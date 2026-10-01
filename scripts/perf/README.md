@@ -11,7 +11,9 @@ node scripts/perf/compare.mjs /tmp/3ds-perf/run/baseline/summary.json \
   /tmp/3ds-perf/run/after/summary.json > comparison.md
 ```
 
-`--chromium PATH` (or `CHROMIUM`) selects the browser; the default is the local
+`--chromium PATH` (or `CHROMIUM`) selects the browser and
+`CHROMIUM_WINDOW=x,y,width,height` places headed windows (for example on a
+Sidecar iPad display); the default is the local
 Playwright Chrome for Testing build. `--cpu-profile [segment]` saves a V8 CPU
 profile (use a `next build --no-mangling` build for readable names).
 
@@ -25,7 +27,8 @@ profile (use a `next build --no-mangling` build for readable names).
   in background GPU/CPU load affects both equally.
 - **Profiles.** `desktop`: 1440×900 CSS px at DPR 2. `mobile`: 390×844 at DPR 3,
   touch emulation, 4× CPU throttling, and a 4-core / 4 GB navigator so the
-  scene's own policy selects the constrained tier. GPU is not throttled.
+  scene's own policy selects the constrained tier. `ipad`: 1180×820 at DPR 2
+  with touch metrics and the real navigator. GPU is not throttled.
 - **Scripted timeline** (identical for every run): load → opening intro →
   3 s idle HOME → 11 HOME cursor moves (230 ms apart) ending on About → open
   About, HOME, resume, HOME → 8 viewport resizes (250 ms apart).
@@ -49,3 +52,18 @@ profile (use a `next build --no-mangling` build for readable names).
 
 Medians of each metric across runs are reported per segment: `startup`
 (navigation → scene ready), `opening`, `idle`, `home-nav`, `app`, `resize`.
+
+## Download size
+
+`network.mjs` records every response of one scripted visit (load, opening,
+About and Settings) by phase and type. Options: `--profile desktop|mobile`,
+`--warm` (a returning visitor with a filled HTTP cache), and
+`--throttle DOWN_MBPS:LATENCY_MS` (also reports time to a ready scene).
+
+## Screenshot equivalence
+
+`screenshot-compare.mjs --a URL --b URL --out DIR [--profiles desktop,ipad,mobile]
+[--views home,rotated]` captures both pages in fresh headed profiles with
+reduced motion and a frozen clock, optionally after one scripted
+hover-press-drag-hold-release, and reports differing pixels. Compare a page
+with itself first: it must report 0.

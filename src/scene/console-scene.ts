@@ -27,19 +27,20 @@ import { rowCount, type MenuState, type Input } from '@/os/state';
 import { createFirmwareBanner, type PrimaryBannerRenderFrame } from './firmware-banner';
 import { settingsBannerPhase } from './banner-verification';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
-import { DEFAULT_MODEL_URL, controlBoundsInBase, controlFromObject, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
+import { controlBoundsInBase, controlFromObject, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
 import { browserRenderQuality, pixelRatioForViewport, screenPaintFps } from './render-quality';
+import { PACKED_MODEL_URL } from './model-delivery';
 import { createRenderSchedule } from './render-schedule';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
 import { captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHudSample, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
 
 const RAD = Math.PI / 180;
 let nextBannerSession=0;
-export async function createConsoleScene(host:HTMLDivElement,modelUrl=DEFAULT_MODEL_URL):Promise<()=>void> {
+export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MODEL_URL):Promise<()=>void> {
   const quality=browserRenderQuality(host);const diagnostics=process.env.NODE_ENV==='development'||lcdCaptureEnabled(window.location,false);const lcdCapture=lcdCaptureEnabled(window.location,diagnostics);host.dataset.quality=quality.tier;
   const renderer=new THREE.WebGLRenderer({antialias:quality.antialias,alpha:true,powerPreference:'high-performance'});
   renderer.setPixelRatio(quality.pixelRatio);renderer.setClearColor(0xeae8e4,1);

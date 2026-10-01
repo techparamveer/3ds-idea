@@ -188,7 +188,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(!state.panel&&gesture?.mode==='press'&&gesture.y>=212&&gesture.y<240&&gesture.x>=0&&gesture.x<320){
    const group=two?(gesture.x<100?'G_BtnW_L_03':'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));
   }
-  return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings,overrides,clip:[0,210,320,30]});
+  return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings,overrides,clip:[0,210,320,30],textSampling:'lcd'});
  }
  /** Sample the last actual tile writer, not two possibly disabled controllers.
   * Dist has no density Scale clip: density sizes its child/artwork elsewhere,

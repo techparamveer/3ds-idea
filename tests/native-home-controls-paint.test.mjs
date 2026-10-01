@@ -37,6 +37,7 @@ const { createFirmwareHome } = await loadPresentation('firmware-presentation', {
   './native-renderer': moduleUrl('export class NativeLayoutRenderer {}'),
 });
 const pack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url)));
+const messagesPack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/messages-and-loose.json', import.meta.url)));
 const nativeCursorNames = new Set(['cursor', 'cursorAt', 'cursorEffectAt']);
 
 test('applet label surfaces retain native upper message styles without changing folder labels', () => {
@@ -189,6 +190,26 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
     drawNewsBanner: banner('Notifications'), drawWebBanner: banner('Internet Browser'),
     drawMiiverseBanner: banner('Miiverse'),
   } });
+});
+
+test('HOME footer samples source alpha glyphs directly at LCD centres', () => {
+  const calls = [], renderer = { packs: { launcher: pack, messages: messagesPack },
+    draw(ctx, bank, name, options) { calls.push({ ctx, bank, name, options }); return true; },
+  };
+  const presenter = createFirmwareHome({ renderer }), state = home(), navigation = getHomeNavigation(state);
+  const focused = writeHomeNavigation(state, { ...navigation,
+    focus: { toolbarActive: true, currentFocus: 1, rememberedFocus: -1, savedColumn: 0 },
+  });
+  const ctx = {};
+  assert.equal(presenter.footer(ctx, focused), true);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].ctx, ctx);
+  assert.equal(calls[0].bank, 'launcher');
+  assert.equal(calls[0].name, 'LncBtmBtn_02');
+  assert.equal(calls[0].options.textSampling, 'lcd');
+  assert.equal(calls[0].options.textCoverageAdaptation, undefined);
+  assert.deepEqual(calls[0].options.clip, [0, 210, 320, 30]);
+  assert.equal(calls[0].options.overrides.T_BtnFW_C_01.text, 'Open');
 });
 
 test('retained primary and both effects paint in order outside tile clipping using applied poses', async () => {

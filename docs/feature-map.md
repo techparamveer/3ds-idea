@@ -1,5 +1,13 @@
 # 3DS portfolio feature map
 
+Latest HOME correction, 1 October 2026: `0e71b654` on
+`codex/home-fidelity-20261001` fixes swapped Notes/Friend toolbar banners.
+See the [progress entry](progress-2026-09-24.md#home-toolbar-mapping--1-october-2026)
+and [capture record](home-toolbar-banner-mapping-2026-10-01.md). Full tests,
+typecheck and build pass; both native/browser pairs still fail. HOME owner
+next actions: native applet label sizing/placement, lower footer configuration,
+then matched input/animation/audio replay. The checkpoint below is historical.
+
 Checkpoint: UI continuation through **`4f30bc9`** on `codex/health-ui-scratch`,
 27 September 2026. This map coordinates **status, owners and next actions**.
 It is not a completion claim and does not hold evidence of its own.

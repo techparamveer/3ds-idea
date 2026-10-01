@@ -1,5 +1,10 @@
 # HOME Friend List toolbar banner source and first visual
 
+Correction, 1 October 2026: the focus identification below was wrong. Friend
+List is focus 2/category 4, verified against the native cursor pane and live
+Azahar. See the [mapping correction](home-toolbar-banner-mapping-2026-10-01.md).
+The following measurements remain the historical 28 September record.
+
 The pinned EUR 10.7.0-32E HOME Menu title `0004003000009802`, content index 0
 (`00000082`), contains `romfs/3D/BannerAppletFriend_LZ.bin`. Its compressed
 SHA-256 is `4b99060b220166bdf158a5949ab00d509d29a34fc1701249fa1865c5d141af10`;

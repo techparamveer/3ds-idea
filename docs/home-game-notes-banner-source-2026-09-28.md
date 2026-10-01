@@ -1,5 +1,10 @@
 # HOME Game Notes toolbar banner source and first visual
 
+Correction, 1 October 2026: the focus identification below was wrong. Game
+Notes is focus 1/category 5, verified against the native cursor pane and live
+Azahar. See the [mapping correction](home-toolbar-banner-mapping-2026-10-01.md).
+The following measurements remain the historical 28 September record.
+
 The pinned EUR 10.7.0-32E HOME resource `3D/BannerAppletMemo_LZ.bin`
 (compressed SHA-256 `ac476f4901148b4ca1dbd85db9d8c6780945539f40cddab47e11d3dfe96097e0`)
 decodes to CGFX SHA-256

@@ -85,15 +85,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let bannerHost=createHomeBannerHost(bannerClock(),{managerInhibited:true,sceneInhibited:true,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});
   let bannerLabelFailure=false;
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
-  const nativePrimaryAvailable=(kind:string)=>{const value=folderBanner.status();return kind==='default'?value.defaultReady&&!value.defaultFailure:kind==='app'?value.settingsReady&&!value.settingsFailure:kind==='clear'||nativeFolderAvailable();};
+  const nativePrimaryAvailable=(kind:string)=>{const value=folderBanner.status();return kind==='default'?value.defaultReady&&!value.defaultFailure:kind==='app'?value.settingsReady&&!value.settingsFailure:kind==='toolbar'?value.friendReady&&!value.friendFailure:kind==='clear'||nativeFolderAvailable();};
   const screens=createScreens({soundRoom,cameraShoot,reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
-    getHomeBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&view.selection.kind!=='app'&&(!nativePrimaryAvailable(view.selection.kind)||bannerLabelFailure)?undefined:view;},
+    getHomeBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&view.selection.kind!=='app'&&view.selection.kind!=='toolbar'&&(!nativePrimaryAvailable(view.selection.kind)||bannerLabelFailure)?undefined:view;},
     // Idle-only native translation sample. Reactive +0x90 motion is not yet hosted.
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawDefaultBannerFrame:(ctx,motion)=>folderBanner.drawDefaultFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0}),
     drawSettingsBannerFrame:(ctx,motion)=>{const phase=settingsBannerPhase(motion,reduced,verificationBannerFrame,verificationBannerSkeletalFrame);return folderBanner.drawSettingsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});},
+    drawFriendBannerFrame:(ctx,motion,label)=>folderBanner.drawFriendFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawNewsBanner:(ctx,time,isReduced,label)=>folderBanner.drawNewsFrame(ctx,time,isReduced,label),
-    drawFriendBanner:(ctx,time,isReduced,label)=>folderBanner.drawFriendFrame(ctx,time,isReduced,label),
     drawMemoBanner:(ctx,time,isReduced,label)=>folderBanner.drawMemoFrame(ctx,time,isReduced,label),
     drawWebBanner:(ctx,time,isReduced,label)=>folderBanner.drawWebFrame(ctx,time,isReduced,label),
     drawMiiverseBanner:(ctx,time,isReduced,label)=>folderBanner.drawMiiverseFrame(ctx,time,isReduced,label),
@@ -259,7 +259,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
       const status=folderBanner.status(),selection=view.selection;
       const label=selection.kind==='folder'?screens.prepareFolderBannerLabel(selection.label):undefined;
       bannerLabelFailure=selection.kind==='folder'&&!label;
-      const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:selection.kind==='app'&&selection.id==='system-settings'?status.settingsReady&&!status.settingsFailure:selection.kind==='app'&&homeTitleBannerKind(selection.id)&&view.resourceTicket?folderBanner.stockTitleStatus({...view.resourceTicket,kind:homeTitleBannerKind(selection.id)!}).ready:false;
+      const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:selection.kind==='toolbar'?status.friendReady&&!status.friendFailure:selection.kind==='app'&&selection.id==='system-settings'?status.settingsReady&&!status.settingsFailure:selection.kind==='app'&&homeTitleBannerKind(selection.id)&&view.resourceTicket?folderBanner.stockTitleStatus({...view.resourceTicket,kind:homeTitleBannerKind(selection.id)!}).ready:false;
       const resourceReady=ready?view.resourceTicket:null;
       bannerHost=crossHomeBannerBoundary(bannerHost,clock,{inputs:{...inputs,resourceReady}});
       view=getHomeBannerHostView(bannerHost);

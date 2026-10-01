@@ -1,4 +1,4 @@
-/** Pure HOME folder/default/clear lifecycle with a bounded Settings title adaptation. Inputs are native update counts, never milliseconds.
+/** Pure HOME primary lifecycle with bounded Settings/title and Friend type14 support. Inputs are native update counts, never milliseconds.
  * Native addresses, integration ordering and unmeasured scheduling are documented
  * in docs/native-banner-lifecycle.md. This does not own the HOME selection reducer.
  */
@@ -15,6 +15,7 @@ export type HomeBannerTarget = Readonly<{
   /** Ordinary folders use 9 (empty) or 10 (nonempty), mapped variants 11/12. */
   nativeType: number;
 }> | Readonly<{ kind: 'default'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 7 }>
+  | Readonly<{ kind: 'friend'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 14 }>
   | Readonly<{ kind: 'clear'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 13 }>;
 
 export type HomeBannerRequest = Readonly<{
@@ -63,7 +64,7 @@ export type HomeBannerInstance = Readonly<{
   requestEpoch: number;
   activatedAtManagerUpdate: number;
   activatedAtSceneUpdate: number;
-  /** Unimplemented app/legacy targets keep external motion ownership. */
+  /** Unsupported app/legacy targets keep external motion ownership. */
   motion: HomeBannerMotion | null;
 }>;
 
@@ -138,6 +139,9 @@ export function requestHomeBanner(state: HomeBannerLifecycle, target: HomeBanner
     (target.key !== HOME_BANNER_EMPTY_KEY || target.nativeType !== (target.kind === 'default' ? 7 : 13))) {
     throw new RangeError('Invalid default/clear banner identity');
   }
+  if (target.kind === 'friend' && (target.key !== HOME_BANNER_EMPTY_KEY || target.nativeType !== 14)) {
+    throw new RangeError('Invalid Friend banner identity');
+  }
   const { optionA = 0, optionB = 0, forceReload = false } = options;
   const previous = state.requested;
   if (!forceReload && previous && sameTarget(previous.target, target)
@@ -182,13 +186,13 @@ export function activateHomeBanner(state: HomeBannerLifecycle, requestEpoch: num
   if (state.requested.target.kind === 'clear') return { ...state, phase: 'active', requestPending: false, active: null };
   const activationEpoch = state.activationEpoch + 1;
   const kind = state.requested.target.kind;
-  const motion: HomeBannerMotion | null = kind !== 'folder' && kind !== 'default' &&
+  const motion: HomeBannerMotion | null = kind !== 'folder' && kind !== 'default' && kind !== 'friend' &&
     !(kind === 'app' && ['system-settings', 'camera', 'sound', 'health-safety', 'eshop'].includes(state.requested.target.key) && state.requested.target.nativeType === 1) ? null : {
     requestedVisible: true, visible: false, visibilityEpoch: 0, visibilityManagerUpdate: state.managerUpdates,
     visibilityCounter: 0, visibilityProgress: 0, scale: 1, yawCounter: 0,
     yawRadians: INITIAL_YAW, yawEpoch: 1, yawResetManagerUpdate: state.managerUpdates,
     skeletal: startClip(clip(kind === 'default' ? 300 : HOME_BANNER_PERIOD, true), state.sceneUpdates),
-    material: kind === 'app' && state.requested.target.key === 'sound' ? startClip(clip(HOME_BANNER_PERIOD, true), state.sceneUpdates) : kind === 'app' ? clip(HOME_BANNER_PERIOD, false) :
+    material: kind === 'friend' ? startClip(clip(300, true), state.sceneUpdates) : kind === 'app' && state.requested.target.key === 'sound' ? startClip(clip(HOME_BANNER_PERIOD, true), state.sceneUpdates) : kind === 'app' ? clip(HOME_BANNER_PERIOD, false) :
       startClip(clip(kind === 'default' ? 60 : HOME_BANNER_PERIOD, kind !== 'default'), state.sceneUpdates),
   };
   return { ...state, phase: 'active', activationEpoch, requestPending: false, active: {

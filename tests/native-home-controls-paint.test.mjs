@@ -29,7 +29,7 @@ async function loadPresentation(name, overrides = {}) {
 const overrides = {
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>false;'),
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
-  './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>undefined,syncStockView(){},stockStatus:()=>"inactive",retryStockScreen:()=>false,stockFailure:()=>null,menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
+  './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>globalThis.__testSelectedApp,syncStockView(){},stockStatus:()=>"inactive",retryStockScreen:()=>false,stockFailure:()=>null,banner(ctx){ctx.record("fallback-banner");},menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
   './firmware-presentation': moduleUrl('export const createFirmwareHome=assets=>assets.presenter;export const loadFirmwarePresentationAssets=()=>{throw Error("Unexpected asset load");};'),
 };
 const { createScreens } = await loadPresentation('screens', overrides);
@@ -166,6 +166,8 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
   const state = home();
   let selection;
   const banner = name => ctx => { ctx.record('toolbar-banner', [name]); return true; };
+  const friendMotion = { visible: true, scale: .9, yawRadians: -1.25,
+    skeletal: { frame: 123 }, material: { frame: 77 } };
   await withScreens(({ paint, events }) => {
     for (const [focus, pane, title] of [
       [1, 'N_CPos_Memo_00', 'Game Notes'],
@@ -185,11 +187,30 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
       assert.equal(events.filter(event => event.name === 'banner-label').length, 0);
     }
   }, { screenOptions: {
-    getHomeBanner: () => ({ status: 'unsupported', selection, resourceTicket: null }),
-    drawMemoBanner: banner('Game Notes'), drawFriendBanner: banner('Friend List'),
+    getHomeBanner: () => selection?.focus === 2 ? { status: 'active', selection,
+      generation: 'friend-test', requestEpoch: 1, resourceTicket: { generation: 'friend-test', requestEpoch: 1 }, stage: 'active', waitUpdates: 0,
+      primary: { generation: 'friend-test', requestEpoch: 1, activationEpoch: 1, selection, motion: friendMotion } }
+      : ({ status: 'unsupported', selection, resourceTicket: null }),
+    drawMemoBanner: banner('Game Notes'), drawFriendBannerFrame: banner('Friend List'),
     drawNewsBanner: banner('Notifications'), drawWebBanner: banner('Internet Browser'),
     drawMiiverseBanner: banner('Miiverse'),
   } });
+});
+
+test('pending Friend resources do not fall back to the selected grid banner', async () => {
+  globalThis.__testSelectedApp = { id: 'work' };
+  try {
+    await withScreens(({ paint, events }) => {
+      paint(home());
+      assert.equal(events.some(event => event.name === 'fallback-banner'), false);
+      assert.equal(events.some(event => event.name === 'toolbar-banner'), false);
+    }, { screenOptions: {
+      getHomeBanner: () => ({ status: 'pending', generation: 'friend-test', requestEpoch: 1,
+        selection: { kind: 'toolbar', focus: 2, category: 4 },
+        resourceTicket: { generation: 'friend-test', requestEpoch: 1 }, stage: 'loading', waitUpdates: 0 }),
+      drawFriendBannerFrame: ctx => { ctx.record('toolbar-banner', ['Friend List']); return true; },
+    } });
+  } finally { delete globalThis.__testSelectedApp; }
 });
 
 test('HOME footer samples source alpha glyphs directly at LCD centres', () => {

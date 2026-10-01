@@ -12,11 +12,13 @@ service retains accepted-request deduplication. Repeated idle attempts, includin
 a move between two vacant slots, therefore preserve the existing default request.
 
 The eight toolbar focuses follow the proved categories `[2,5,4,6,7,8,2,2]`.
-Category2 uses the existing default target. The other five return an explicit
-unsupported toolbar selection carrying focus/category, without falsely selecting
-the retained grid application or inventing a native request type. They drop the
-supported service scope using the existing unsupported handoff policy. Dedicated
-toolbar banner loading, rendering and native activation timing remain unfinished.
+Category2 uses the existing default target. Friend focus 2/category 4 uses the
+source-proved type 14 common-primary path with the canonical empty key. The
+other four nondefault applets return an explicit unsupported toolbar selection
+carrying focus/category, without falsely selecting the retained grid application
+or inventing a native request type. They drop the supported service scope using
+the existing unsupported handoff policy. Friend's precise activation and first
+clip phase, plus dedicated hosting for the other applets, remain unfinished.
 
 This is content classification, not the source resolver's service gates. A caller
 must still apply the proved task/readiness/initialization gates. Normal close's

@@ -18,10 +18,17 @@ export type HomeDefaultBannerSelection = Readonly<{ kind: 'default' }>;
 export type HomeClearBannerSelection = Readonly<{ kind: 'clear' }>;
 type RenderSelection = HomeFolderBannerSelection | HomeDefaultBannerSelection;
 export type HomeSettingsBannerSelection = Readonly<{ kind: 'app'; id: string }>;
-type SupportedRenderSelection = RenderSelection | HomeSettingsBannerSelection;
+export type HomeFriendBannerSelection = Readonly<{ kind: 'toolbar'; focus: 2; category: 4 }>;
+type SupportedRenderSelection = RenderSelection | HomeSettingsBannerSelection | HomeFriendBannerSelection;
 type SupportedSelection = SupportedRenderSelection | HomeClearBannerSelection;
-export type HomeToolbarBannerSelection = Readonly<{ kind: 'toolbar'; focus: number; category: number }>;
-type UnsupportedSelection = Readonly<{ kind: 'app'; id: string }> | HomeToolbarBannerSelection;
+export type HomeToolbarBannerSelection =
+  | Readonly<{ kind: 'toolbar'; focus: 1; category: 5 }>
+  | HomeFriendBannerSelection
+  | Readonly<{ kind: 'toolbar'; focus: 3; category: 6 }>
+  | Readonly<{ kind: 'toolbar'; focus: 4; category: 7 }>
+  | Readonly<{ kind: 'toolbar'; focus: 5; category: 8 }>;
+type UnsupportedSelection = Readonly<{ kind: 'app'; id: string }>
+  | Exclude<HomeToolbarBannerSelection, HomeFriendBannerSelection>;
 export type HomeBannerHostSelection = SupportedSelection | UnsupportedSelection;
 export type HomeBannerHostInputs = Pick<HomeBannerServiceInputs,
   'managerInhibited' | 'sceneInhibited' | 'loadInhibited' | 'nativeWorkerReady' | 'resourceReady'>;
@@ -77,7 +84,6 @@ export function resolveHomeBannerHostSelection(state: MenuState): HomeBannerHost
   return resolveContentAt(state, state.opened ? state.selected : null, slot);
 }
 
-const toolbarCategories = [2, 5, 4, 6, 7, 8, 2, 2] as const;
 /** Resolve the actual lower-call snapshot, before completion replay can change
  * the selected slot. Content/identities must be from that same host pass.
  * Native service readiness gates are owned by the caller, not inferred here.
@@ -90,10 +96,16 @@ export function resolveHomeBannerHostObservation(state: MenuState,
     || !Number.isInteger(focus) || focus < -1 || focus > 7 || typeof toolbarActive !== 'boolean'
     || toolbarActive && focus < 0) throw new RangeError('Invalid HOME banner resolver snapshot');
   if (toolbarActive) {
-    const category = toolbarCategories[focus];
     // Category2 follows the existing default-banner path. Other toolbar packs
-    // remain an explicit unsupported handoff, not the selected grid app.
-    return category === 2 ? { kind: 'default' } : { kind: 'toolbar', focus, category };
+    // remain an explicit unsupported handoff except for the proved Friend path.
+    switch (focus) {
+      case 1: return { kind: 'toolbar', focus: 1, category: 5 };
+      case 2: return { kind: 'toolbar', focus: 2, category: 4 };
+      case 3: return { kind: 'toolbar', focus: 3, category: 6 };
+      case 4: return { kind: 'toolbar', focus: 4, category: 7 };
+      case 5: return { kind: 'toolbar', focus: 5, category: 8 };
+      default: return { kind: 'default' };
+    }
   }
   return resolveContentAt(state, context, slot);
 }
@@ -144,17 +156,32 @@ function copySelection(selection: HomeBannerHostSelection): HomeBannerHostSelect
     return { kind: 'folder', key: selection.key, label: selection.label, nativeType: selection.nativeType };
   }
   if (selection.kind === 'app' && selection.id) return { kind: 'app', id: selection.id };
-  if (selection.kind === 'toolbar' && Number.isInteger(selection.focus) && selection.focus >= 1 && selection.focus <= 5
-    && selection.category === toolbarCategories[selection.focus]) return { kind: 'toolbar', focus: selection.focus, category: selection.category };
+  if (selection.kind === 'toolbar') {
+    switch (selection.focus) {
+      case 1: if (selection.category === 5) return { kind: 'toolbar', focus: 1, category: 5 }; break;
+      case 2: if (selection.category === 4) return { kind: 'toolbar', focus: 2, category: 4 }; break;
+      case 3: if (selection.category === 6) return { kind: 'toolbar', focus: 3, category: 6 }; break;
+      case 4: if (selection.category === 7) return { kind: 'toolbar', focus: 4, category: 7 }; break;
+      case 5: if (selection.category === 8) return { kind: 'toolbar', focus: 5, category: 8 }; break;
+    }
+  }
   if (selection.kind === 'default' || selection.kind === 'clear') return { kind: selection.kind };
   throw new RangeError('Unsupported HOME banner host selection');
 }
 function sameFolder(a: HomeFolderBannerSelection, b: HomeFolderBannerSelection): boolean {
   return a.key === b.key && a.nativeType === b.nativeType;
 }
+function isFriendBannerSelection(selection: HomeBannerHostSelection): selection is HomeFriendBannerSelection {
+  return selection.kind === 'toolbar' && selection.focus === 2 && selection.category === 4;
+}
+function isSupportedSelection(selection: HomeBannerHostSelection): selection is SupportedSelection {
+  return selection.kind === 'app' ? hasHomeTitleBanner(selection.id)
+    : selection.kind === 'toolbar' ? isFriendBannerSelection(selection) : true;
+}
 function targetFor(selection: SupportedSelection): HomeBannerTarget {
   if (selection.kind === 'folder') return { kind: 'folder', key: selection.key, nativeType: selection.nativeType };
   if (selection.kind === 'app') return { kind: 'app', key: selection.id, nativeType: 1 };
+  if (selection.kind === 'toolbar') return { kind: 'friend', key: HOME_BANNER_EMPTY_KEY, nativeType: 14 };
   return selection.kind === 'default'
     ? { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 }
     : { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };
@@ -222,7 +249,7 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
   }
 
   const selection = boundary.selection === undefined ? host.selection : copySelection(boundary.selection);
-  if (!selection || selection.kind === 'app' && !hasHomeTitleBanner(selection.id) || selection.kind === 'toolbar') {
+  if (!selection || !isSupportedSelection(selection)) {
     // Authored unsupported handoff: no guessed type, fade or hidden acknowledgement.
     return { clock: { ...clock }, scope, selection, inputs: retainInputs(boundary.inputs ?? host.inputs, null), service: null, pending: null, active: null };
   }
@@ -249,8 +276,8 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
 /** Sampling never requests, acknowledges resources, or advances either native pass. */
 export function getHomeBannerHostView(host: HomeBannerHost): HomeBannerHostView {
   const { service, selection, active } = host;
-  if (!service || !selection || selection.kind === 'app' && !hasHomeTitleBanner(selection.id) || selection.kind === 'toolbar') {
-    return { status: 'unsupported', selection: selection?.kind === 'app' || selection?.kind === 'toolbar' ? selection : null, resourceTicket: null };
+  if (!service || !selection || !isSupportedSelection(selection)) {
+    return { status: 'unsupported', selection: selection && !isSupportedSelection(selection) ? selection : null, resourceTicket: null };
   }
   const common = { generation: service.clock.generation, selection, resourceTicket: getHomeBannerResourceTicket(service), stage: service.stage, waitUpdates: service.waitUpdates };
   const motion = service.lifecycle.active?.motion;

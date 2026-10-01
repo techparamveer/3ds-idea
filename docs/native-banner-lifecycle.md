@@ -1,7 +1,7 @@
 # Native banner lifecycle
 
 `src/os/home-banner-lifecycle.ts` is a pure state adapter for native folder/default
-banners, explicit clear and the upper background's SceneIn, Loop and AppPause controllers. It has
+banners, Friend type 14, explicit clear and the upper background's SceneIn, Loop and AppPause controllers. It has
 no DOM, Three.js, resource loader or HOME selection dependency. Runtime and scene
 integration remain separate: this module does not replace call sites of the old
 `banner-motion.ts` time approximation by itself.
@@ -38,6 +38,11 @@ Default7 uses 300-loop skeletal and 60-nonloop material controllers, separately
 from its 600-update manager yaw. Its visibility/yaw path shares the original
 folder updater. Clear13 completes with no object or activation epoch increment.
 See [default/clear implementation and executed ordering](native-default-banner-runtime.md).
+Friend14 constructs the same generic primary and reaches `0x1fa344` through its
+vtable update slot, so it shares this visibility/scale/yaw producer. Its decoded
+resource supplies looping 600-frame skeletal and 300-frame material clips. The
+precise activation and first submitted clip phase remain unproved; see the
+[Friend source note](home-friend-banner-source-2026-09-28.md).
 
 ## Host integration
 
@@ -52,11 +57,11 @@ milliseconds, assumes 60 Hz, or derives one clock from another.
    explicit forced reload. This does not immediately change the active banner.
 2. Call `beginHomeBannerReplacement(state)` at the host's manager boundary.
    A same-current identity before hiding reuses the active object. A different
-   request asks the active folder/default to hide. Requests during hiding/loading retarget
+   request asks the active primary to hide. Requests during hiding/loading retarget
    the eventual replacement, without reviving an object already being removed.
 3. Feed eligible manager calls through `advanceHomeBannerManager(state, count)`.
    Requested visibility and actual attachment remain distinct. Retained hidden
-   folders continue yaw updates. Passing `enabled=false` inhibits this path.
+   generic primaries continue yaw updates. Passing `enabled=false` inhibits this path.
 4. When the primary can be released **and the host's load gate permits it**, call
    `releaseHomeBanner(state)`. It refuses to release a still-visible folder.
    When the requested resource is ready, call

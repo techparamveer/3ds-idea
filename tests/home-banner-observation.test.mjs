@@ -53,8 +53,10 @@ test('the eight native toolbar categories never resolve the selected grid app',(
     const selection=resolveHomeBannerHostObservation(state,observation({focus,toolbarActive:true}));
     assert.deepEqual(selection,categories[focus]===2?{kind:'default'}:{kind:'toolbar',focus,category:categories[focus]});
     const host=crossHomeBannerBoundary(fresh(),fresh().clock,{selection});
-    assert.equal(getHomeBannerHostView(host).status,categories[focus]===2?'pending':'unsupported');
-    if(categories[focus]!==2)assert.equal(host.service,null);
+    const supported=categories[focus]===2||focus===2;
+    assert.equal(getHomeBannerHostView(host).status,supported?'pending':'unsupported');
+    if(focus===2)assert.deepEqual(host.service.lifecycle.requested.target,{kind:'friend',key:'native:ffffffff:ffffffff:0',nativeType:14});
+    else if(categories[focus]!==2)assert.equal(host.service,null);
   }
   for(const patch of [{focus:-1,toolbarActive:true},{focus:8},{slot:300},{context:40,slot:60},{context:-1}]){
     assert.throws(()=>resolveHomeBannerHostObservation(state,observation(patch)),RangeError);

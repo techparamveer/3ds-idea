@@ -251,17 +251,13 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       selectPrimary(newsModel);return render(ctx,scene,true);
     }catch(error){newsFailure=String(error);return false;}
   }
-  function drawFriendFrame(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,label?:NativePixels){
+  function drawFriendFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
     if(disposed||!friendModel||!mask||!camera||friendFailure||frameFailure)return false;
+    if(!frame.visible)return true;
     try{
       const labelReady=!!label&&friendModel.setTexture('DmyText_00',label);
       friendModel.setMaterialVisible('mt_Text',labelReady);
-      // Source-owned front pose and clips; toolbar host motion is not yet traced.
-      friendModel.group.rotation.y=0;
-      friendModel.group.scale.setScalar(1);friendModel.group.position.set(0,0,0);
-      friendModel.setPlayback({skeletal:[{name:'BannerAppletFriend',frame:reduced?0:Math.floor(elapsedMs/16.6667)%600}],material:[{name:'BannerAppletFriend',frame:reduced?0:Math.floor(elapsedMs/16.6667)%300}]});
-      friendModel.update(0,camera);mask.group.position.set(0,0,0);mask.update(0,camera);
-      selectPrimary(friendModel);return render(ctx,scene,true);
+      return renderPrimaryFrame(ctx,friendModel,frame,'BannerAppletFriend','BannerAppletFriend');
     }catch(error){friendFailure=String(error);return false;}
   }
   function drawMemoFrame(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,label?:NativePixels){

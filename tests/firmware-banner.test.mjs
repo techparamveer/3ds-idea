@@ -83,17 +83,22 @@ test('Internet Browser toolbar uses the converted HOME source model as sole prim
  assert.equal(h.draws.at(-1).primaries.length,1);
  assert.equal(primary(scene).rotation.y,0);
  assert.ok(mask(scene));
- assert.equal(h.banner.drawFriendFrame(h.ctx,5000,false),true);
+ assert.equal(h.banner.drawFriendFrame(h.ctx,frame),true);
  assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Browser');
 });
 test('Friend List toolbar uses the converted HOME source model as sole primary',async t=>{
  const h=setup(t);await h.banner.ready;
  assert.equal(h.banner.status().friendReady,true);
- assert.equal(h.banner.drawFriendFrame(h.ctx,5000,false),true);
+ const friendFrame={...frame,scale:.9,yawRadians:-1.25,skeletalFrame:123,materialFrame:77};
+ assert.equal(h.banner.drawFriendFrame(h.ctx,friendFrame),true);
  const scene=h.draws.at(-1).scene;
  assert.equal(h.draws.at(-1).primaries.length,1);
- assert.equal(primary(scene).rotation.y,0);
+ assert.equal(primary(scene).rotation.y,-1.25);
+ assert.equal(primary(scene).scale.x,.9);
  assert.ok(mask(scene));
+ const sampled=snapshot(primary(scene));
+ assert.equal(h.banner.drawFriendFrame(h.ctx,{...friendFrame,skeletalFrame:124,materialFrame:78}),true);
+ assert.notDeepEqual(snapshot(primary(scene)),sampled,'hosted source frames drive the Friend model');
  assert.equal(h.banner.drawNewsFrame(h.ctx,5000,false),true);
  assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Friend List');
 });

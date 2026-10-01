@@ -12,6 +12,7 @@ import {
 const folder = (key = 'folder:4', nativeType = 9) => ({ kind: 'folder', key, nativeType });
 const defaultBanner = { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 };
 const clear = { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };
+const friend = { kind: 'friend', key: HOME_BANNER_EMPTY_KEY, nativeType: 14 };
 const app = { kind: 'app', key: 'app:notes', nativeType: 1 };
 const motion = state => state.active.motion;
 function activate(state = createHomeBannerLifecycle(), target = folder()) {
@@ -163,6 +164,18 @@ test('folder clip period is 600 even though the skeletal bob curve repeats every
   assert.equal(motion(state).skeletal.frame, 0);
   assert.equal(motion(state).material.frame, 0);
   assert.equal(motion(state).yawCounter, 8);
+});
+
+test('Friend type14 shares generic primary motion with source-owned 600/300 looping clips', () => {
+  let state = activate(createHomeBannerLifecycle(), friend);
+  assert.deepEqual(state.active.target, friend);
+  assert.deepEqual([motion(state).skeletal.duration, motion(state).skeletal.looping], [600, true]);
+  assert.deepEqual([motion(state).material.duration, motion(state).material.looping], [300, true]);
+  state = advanceHomeBannerClips(advanceHomeBannerManager(state), 299);
+  assert.deepEqual([motion(state).yawCounter, motion(state).skeletal.frame, motion(state).material.frame], [1, 299, 299]);
+  state = advanceHomeBannerClips(state);
+  assert.deepEqual([motion(state).skeletal.frame, motion(state).material.frame], [300, 0]);
+  assert.throws(() => requestHomeBanner(state, { ...friend, nativeType: 15 }), /Friend banner identity/);
 });
 
 test('normal child app or default selection, explicit clear and return activate a parent folder afresh', () => {

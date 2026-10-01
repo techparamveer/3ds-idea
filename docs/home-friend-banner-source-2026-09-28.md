@@ -22,6 +22,38 @@ authored front yaw and its source clips advance from the browser clock. The
 native toolbar activation clock and yaw phase have not been traced; this is a
 capture-scoped source rendering, not a lifecycle match.
 
+## Type 14 common-primary correction, 1 October 2026
+
+The pinned HOME `code.bin` SHA-256 is
+`243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`;
+addresses below use its virtual base `0x100000`. Category 4 at
+`0x1d75bc..0x1d75dc` supplies the canonical empty key
+`(-1,-1,medium 0)` and native type 14. Dispatcher `0x1f9324` indexes type 14
+to `0x1f98d0`, whose resource-table entry names `BannerAppletFriend`. That
+branch allocates `0xa4` bytes, calls generic primary constructor `0x1fa0fc`,
+stores the pending object at manager `+0x5c`, then invokes its resource-binding
+virtual method.
+
+The constructor installs vtable `0x3210f0`, whose update slot `+0x14` is
+`0x1fa344`. The active-primary manager path `0x24c23c..0x24c264` gates on the
+resource-ready byte and invokes that slot. `0x1fa344` owns the proved
+quarter-step visibility/scale transition and tail-branches to `0x24e0c0`, which
+increments object yaw counter `+0x70` modulo 600 and writes the common negative
+full-turn yaw. Friend therefore uses the existing generic primary motion
+producer; it is not a source-authored stationary front pose. The runtime now
+hosts only Friend focus 2/category 4 through that producer and uses the decoded
+resource's looping 600-frame skeletal and 300-frame material clips.
+
+This source trace does **not** establish the category-4 activation epoch,
+controller start/attach ordering, first submitted clip frames, or a
+Friend-specific displacement/offset. The renderer therefore passes
+`nativeDisplacementY=0`, `offsetX=0` and `offsetY=0`; those provisional zeros
+are explicit gaps, not native measurements. It does not fit plate Y or add a
+phase offset, and its existing ticket activation is not proof of the native
+category-4 activation phase. The matched native/browser replay must determine
+the remaining visible residual; implementation and tests alone do not establish
+fidelity or a whole-scenario match.
+
 ## Raw LCD comparison
 
 - Genuine native Azahar upper LCD: first 400×240 rows of

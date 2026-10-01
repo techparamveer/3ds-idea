@@ -1,5 +1,12 @@
 # 3DS portfolio feature map
 
+Latest HOME footer correction: `e1de13e1` makes the five applet selections use
+one native Open button, including the whole-footer touch route. The
+[comparison record](home-applet-footer-2026-10-01.md) reduces footer-region
+residuals from 1,573 to 781 pixels. Full tests/typecheck/build pass; whole
+scenarios remain fail. HOME owner next actions: applet-native label metrics,
+remaining footer raster, and reliable native input before matched replay.
+
 Latest HOME correction, 1 October 2026: `0e71b654` on
 `codex/home-fidelity-20261001` fixes swapped Notes/Friend toolbar banners.
 See the [progress entry](progress-2026-09-24.md#home-toolbar-mapping--1-october-2026)

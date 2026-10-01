@@ -48,6 +48,14 @@ network operations. Their existence is not a product requirement.
 
 ## HOME banner ownership and activation
 
+HOME footer selection also follows the active navigation context. For applet
+toolbar focuses 1 through 5, `getHomeFooter` selects the native single Open
+button; `touchSystemAction` routes the entire footer to the same focused
+applet entrypoint used by A/Start before consulting retained grid actions.
+Grid/folder Manual and close actions must not leak into that toolbar context.
+This selection fix does not establish native transition or input timing; see
+the [footer comparison](../home-applet-footer-2026-10-01.md).
+
 The live chain is `console-scene.ts` → `home-banner-host.ts` →
 `home-banner-service.ts` / `home-banner-lifecycle.ts` → immutable host view →
 `screens.ts` → injected `firmware-banner.ts` draw callbacks. Selection is

@@ -120,6 +120,16 @@ updates it.
 
 ## Required native verification and reporting
 
+**User display preference - 1 October 2026:** All visible testing, browser
+verification and computer-use windows must run on the iPad Sidecar desktop,
+not the Mac's main display. Verify the connected display geometry before
+placing windows and confirm their position before interaction. On the current
+layout Sidecar begins at desktop `(1800,367)`; `(1810,380,1150,780)` fits inside
+it. These coordinates are a checkpoint, not a permanent assumption. Use
+`CHROMIUM_WINDOW` for repository headed-browser scripts and native window
+placement for Azahar. If Sidecar is unavailable, do not silently switch testing
+to the main display; continue non-UI work and report the limitation.
+
 The coordinator follows the [verification loop](docs/architecture/verification.md)
 for **every in-scope scenario**: drive the isolated Azahar executable and the
 integrated production browser through identical inputs; capture Azahar's own

@@ -1,0 +1,70 @@
+# HOME background host ownership
+
+This slice connects the existing source-derived `BannerBG` controller to the
+HOME host clock. It addresses the live wallpaper's prior use of console elapsed
+milliseconds. It does not fit a phase offset to a screenshot and does not claim
+that the browser and native restart epochs are aligned.
+
+## Source-backed boundary
+
+The pinned EUR 10.7.0-32E HOME executable is `code.bin`, SHA-256
+`243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
+The existing source trace establishes these independent operations:
+
+- `0x24da64` starts `BannerBG_SceneIn`; nonanimated setup seeks to duration
+  minus one, source frame 19. The controller can advance to authored frame 20.
+- `0x1ed1c4` preserves `BannerBG_Loop` for a repeated mode-0 request. An
+  actual mode change to 0 restarts the loop; mode 1 pauses it and starts
+  `BannerBG_AppPause`.
+- `0x24f300`, `0x24f484`, `0x103850` and `0x10b3d0` establish that attached
+  controllers advance in the separate global 3D scene pass. An inhibited or
+  unexecuted scene pass must not be recovered later from wall time.
+- Primary selection, replacement and activation do not own the background
+  controller and do not reset its clips.
+
+The public source model remains manifest key `models.homeBackground`, HOME
+title `0004003000009802` v24576, content index 0 / `00000082`,
+`3D/BannerBG_LZ.bin`. Its compressed SHA-256 is
+`27d58c2113d2c2d46e3bcc36bb2ae56c35e19d9823488287b6759df998108711`;
+decoded CGFX SHA-256 is
+`092c8682d0cfabf0a1823a8e3a2c12556515c437afba2aa6f6ac7fc4d5e34595`.
+`BannerBG_Loop` is the original 600-frame looping material clip.
+
+## Implemented ownership
+
+`HomeBannerHost` now retains one background lifecycle per System generation.
+Creation attaches the background, performs the nonanimated SceneIn setup and
+enters mode 0. The existing host clock consumes its source frames under the
+same scene-pass eligibility and boundary ordering as primary clips. A skipped
+pass remains skipped; an inhibited interval is consumed without catch-up.
+Unsupported primary selections and supported primary scope replacement leave
+the background owner and loop epoch intact. A new System generation creates a
+fresh background owner at SceneIn frame 19 and Loop frame 0.
+
+Normal scene paint reads the host's explicit SceneIn and Loop frames. Repeated
+paint of the same frame reuses pixels and never advances a controller. The
+existing capture-only wallpaper source-frame override remains a distinct path
+and continues to force settled SceneIn frame 20 plus its requested Loop frame.
+Capture `elapsedMs` still controls the requested presentation time, but no
+longer selects a live wallpaper frame; capture metadata records the host
+background frames and epochs inside `folderBanner.background`.
+Reduced-motion paint retains the earlier static frame-20/frame-0 adaptation;
+the logical controller still follows the native-count host clock.
+
+## Explicit source gaps
+
+The executable also identifies `0x24dc14` as an explicit Loop restart used by
+an AppQuit-completion path and `0x24da2c` as resume-without-restart. Existing
+evidence does not identify the AppQuit, AppRestart, SceneOut, launch, suspended
+HOME or return predicates well enough to map them to this portfolio's
+`System.phase` transitions. This slice therefore does not enter mode 1 and
+does not call restart or resume on app launch, HOME return, power, sleep,
+overlay or selection events.
+
+The 26 September fitted native frame 337 and the later Notifications pairs are
+phase evidence, not a live origin. This implementation adds no constant offset
+and makes no claim about the first native mode-0 epoch, paused intervals,
+subframe sampling, native/browser motion parity or whole-scenario fidelity.
+Coordinator verification must use the matched muted Sidecar replay and inspect
+fresh raw-LCD comparisons under
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/news-motion/`.

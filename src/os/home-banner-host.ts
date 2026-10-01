@@ -4,7 +4,11 @@ import type { HomeScrollObservation } from './home-scroll-consumer.ts';
 import { isSystemHomeFolderClosing, sampleSystemHomeFolderClose } from './home-folder-close-system.ts';
 import { FOLDER_SLOT_COUNT, folderHasItems, homeSlotAppId } from './home-layout.ts';
 import { getHomeFolderIdentity, type HomeFolderIdentity } from './home-folder-identity.ts';
-import { HOME_BANNER_EMPTY_KEY, type HomeBannerMotion, type HomeBannerTarget } from './home-banner-lifecycle.ts';
+import {
+  HOME_BANNER_EMPTY_KEY, advanceHomeBannerClips, createHomeBannerLifecycle,
+  setHomeBannerBackgroundAttached, setHomeBannerBackgroundMode, showHomeBannerBackground,
+  type HomeBannerLifecycle, type HomeBannerMotion, type HomeBannerTarget,
+} from './home-banner-lifecycle.ts';
 import {
   createHomeBannerService, getHomeBannerResourceTicket, requestHomeBannerService, syncHomeBannerService,
   advanceHomeBannerManagerPass, completeHomeBannerScenePass,
@@ -47,10 +51,22 @@ export type HomeBannerHost = Readonly<{
   scope: number;
   selection: HomeBannerHostSelection | null;
   inputs: HomeBannerHostInputs;
+  /** Session-owned background controller; primary scope replacement never resets it. */
+  background: HomeBannerLifecycle;
   service: HomeBannerService | null;
   /** Latest request snapshot, retained even after it activates. */
   pending: HomeBannerHostPresentation | null;
   active: HomeBannerHostActivePresentation | null;
+}>;
+export type HomeBannerHostBackgroundFrame = Readonly<{
+  attached: boolean;
+  mode: 0 | 1 | 2;
+  sceneInFrame: number;
+  loopFrame: number;
+  appPauseFrame: number;
+  sceneInEpoch: number;
+  loopEpoch: number;
+  appPauseEpoch: number;
 }>;
 export type HomeBannerHostBoundary = Readonly<{
   /** Omit to retain selection; panels/eligibility never imply clear or vacancy. */
@@ -196,7 +212,18 @@ function targetFor(selection: SupportedSelection): HomeBannerTarget {
 
 export function createHomeBannerHost(clock: HomeBannerServiceClock, inputs: HomeBannerHostInputs): HomeBannerHost {
   assertClock(clock);
-  return { clock: { ...clock }, scope: 0, selection: null, inputs: retainInputs(inputs, null), service: null, pending: null, active: null };
+  let background = setHomeBannerBackgroundAttached(createHomeBannerLifecycle(), true);
+  background = showHomeBannerBackground(background, false);
+  background = setHomeBannerBackgroundMode(background, 0);
+  return { clock: { ...clock }, scope: 0, selection: null, inputs: retainInputs(inputs, null),
+    background, service: null, pending: null, active: null };
+}
+
+export function getHomeBannerHostBackgroundFrame(host: HomeBannerHost): HomeBannerHostBackgroundFrame {
+  const { attached, mode, sceneIn, loop, appPause } = host.background.background;
+  return { attached, mode, sceneInFrame: sceneIn.frame, loopFrame: loop.frame,
+    appPauseFrame: appPause.frame, sceneInEpoch: sceneIn.epoch,
+    loopEpoch: loop.epoch, appPauseEpoch: appPause.epoch };
 }
 
 function activePresentation(service: HomeBannerService, pending: HomeBannerHostPresentation | null,
@@ -228,7 +255,8 @@ export function stepHomeBannerHost(host: HomeBannerHost, clock: HomeBannerServic
   }
   next = crossHomeBannerBoundary(next, next.clock, boundaries.afterManager);
   const service = next.service && completeHomeBannerScenePass(next.service, next.inputs);
-  return { ...next, clock: { ...clock }, service };
+  const background = next.inputs.sceneInhibited ? next.background : advanceHomeBannerClips(next.background, 1);
+  return { ...next, clock: { ...clock }, background, service };
 }
 
 /** Browser handoff after native input ends the bounded pass. Account for the
@@ -249,6 +277,9 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
   if (clock.generation !== host.clock.generation) host = createHomeBannerHost(clock, boundary.inputs ?? host.inputs);
   else if (clock.updateCount < host.clock.updateCount) throw new RangeError('HOME banner counter reset requires a new System generation');
 
+  const elapsed = clock.updateCount - host.clock.updateCount;
+  const background = host.inputs.sceneInhibited || elapsed === 0
+    ? host.background : advanceHomeBannerClips(host.background, elapsed);
   let { service, pending, active, scope } = host;
   if (service) {
     service = syncHomeBannerService(service, { generation: service.clock.generation, updateCount: clock.updateCount }, host.inputs);
@@ -258,7 +289,8 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
   const selection = boundary.selection === undefined ? host.selection : copySelection(boundary.selection);
   if (!selection || !isSupportedSelection(selection)) {
     // Authored unsupported handoff: no guessed type, fade or hidden acknowledgement.
-    return { clock: { ...clock }, scope, selection, inputs: retainInputs(boundary.inputs ?? host.inputs, null), service: null, pending: null, active: null };
+    return { clock: { ...clock }, scope, selection, inputs: retainInputs(boundary.inputs ?? host.inputs, null),
+      background, service: null, pending: null, active: null };
   }
   if (!service) {
     if (!Number.isSafeInteger(scope + 1)) throw new RangeError('HOME primary scope allocation exhausted');
@@ -277,7 +309,8 @@ export function crossHomeBannerBoundary(host: HomeBannerHost, clock: HomeBannerS
     active = { ...active, selection: { ...active.selection, label: refresh.label } };
     if (pending?.selection.kind === 'folder' && sameFolder(pending.selection, selection)) pending = { ...pending, selection: { ...pending.selection, label: refresh.label } };
   }
-  return { clock: { ...clock }, scope, selection, service, pending, active, inputs: retainInputs(boundary.inputs ?? host.inputs, service, host.inputs) };
+  return { clock: { ...clock }, scope, selection, service, pending, active,
+    inputs: retainInputs(boundary.inputs ?? host.inputs, service, host.inputs), background };
 }
 
 /** Sampling never requests, acknowledges resources, or advances either native pass. */

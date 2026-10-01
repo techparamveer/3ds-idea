@@ -12,6 +12,9 @@ export type PrimaryBannerRenderFrame=Readonly<{
   nativeDisplacementY:number;offsetX:number;offsetY:number;
 }>;
 export type FolderBannerRenderFrame=PrimaryBannerRenderFrame;
+export type HomeBackgroundRenderFrame=Readonly<{
+  attached:boolean;sceneInFrame:number;loopFrame:number;
+}>;
 
 const primaryOptions:FirmwareModelOptions={overlayCoverage:true,drawGroup:2,runtimeStencil:{enabled:true,function:'Equal',reference:1,compareMask:1,writeMask:0xff,fail:'Keep',depthFail:'Keep',depthPass:'Keep'}};
 const defaultSkeletalClip='BannerDef_anim00',defaultMaterialClip='BannerDef';
@@ -298,6 +301,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   // The last rendered background sample. Replaying it goes through the same
   // putImageData/drawImage path, so the output bytes are identical.
   let backgroundSample:{data:Uint8ClampedArray;time:number}|undefined;
+  let backgroundLifecycleSample:{data:Uint8ClampedArray;key:string}|undefined;
   function drawBackground(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,reuseWithinMs?:number){
     if(disposed||!background||backgroundFailure)return false;
     const time=reduced?0:elapsedMs;
@@ -317,5 +321,21 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     catch(error){backgroundFailure=String(error);return false;}
     finally{background.setPlayback({skeletal:[{name:'BannerBG_SceneIn',frame:20}],material:[{name:'BannerBG_Loop'}]});}
   }
-  return { ready, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawNewsFrame, drawFriendFrame, drawMemoFrame, drawWebFrame, drawMiiverseFrame, drawBackground, drawBackgroundFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, newsReady:!disposed&&!!newsModel&&!!mask&&!!camera&&!newsFailure&&!frameFailure, newsFailure:newsFailure??frameFailure, friendReady:!disposed&&!!friendModel&&!!mask&&!!camera&&!friendFailure&&!frameFailure, friendFailure:friendFailure??frameFailure, memoReady:!disposed&&!!memoModel&&!!mask&&!!camera&&!memoFailure&&!frameFailure, memoFailure:memoFailure??frameFailure, webReady:!disposed&&!!webModel&&!!mask&&!!camera&&!webFailure&&!frameFailure, webFailure:webFailure??frameFailure, miiverseReady:!disposed&&!!miiverseModel&&!!mask&&!!camera&&!miiverseFailure&&!frameFailure, miiverseFailure:miiverseFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();newsModel?.dispose();friendModel?.dispose();memoModel?.dispose();webModel?.dispose();miiverseModel?.dispose();mask?.dispose();background?.dispose();target.dispose(); } };
+  function drawBackgroundLifecycleFrame(ctx:CanvasRenderingContext2D,frame:HomeBackgroundRenderFrame){
+    if(disposed||!background||backgroundFailure)return false;
+    if(!frame.attached)return true;
+    if(!Number.isInteger(frame.sceneInFrame)||frame.sceneInFrame<0||frame.sceneInFrame>20||
+      !Number.isInteger(frame.loopFrame)||frame.loopFrame<0||frame.loopFrame>599)return false;
+    const key=`${frame.sceneInFrame}:${frame.loopFrame}`;
+    if(backgroundLifecycleSample?.key===key){
+      image.data.set(backgroundLifecycleSample.data);context.putImageData(image,0,0);ctx.drawImage(canvas,0,0);return true;
+    }
+    try{
+      background.setPlayback({skeletal:[{name:'BannerBG_SceneIn',frame:frame.sceneInFrame}],material:[{name:'BannerBG_Loop',frame:frame.loopFrame}]});
+      background.update(0,camera);const drawn=render(ctx,backgroundScene);
+      if(drawn){backgroundLifecycleSample??={data:new Uint8ClampedArray(image.data.length),key};backgroundLifecycleSample.data.set(image.data);backgroundLifecycleSample.key=key;}
+      return drawn;
+    }catch(error){backgroundLifecycleSample=undefined;backgroundFailure=String(error);return false;}
+  }
+  return { ready, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawNewsFrame, drawFriendFrame, drawMemoFrame, drawWebFrame, drawMiiverseFrame, drawBackground, drawBackgroundFrame, drawBackgroundLifecycleFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, newsReady:!disposed&&!!newsModel&&!!mask&&!!camera&&!newsFailure&&!frameFailure, newsFailure:newsFailure??frameFailure, friendReady:!disposed&&!!friendModel&&!!mask&&!!camera&&!friendFailure&&!frameFailure, friendFailure:friendFailure??frameFailure, memoReady:!disposed&&!!memoModel&&!!mask&&!!camera&&!memoFailure&&!frameFailure, memoFailure:memoFailure??frameFailure, webReady:!disposed&&!!webModel&&!!mask&&!!camera&&!webFailure&&!frameFailure, webFailure:webFailure??frameFailure, miiverseReady:!disposed&&!!miiverseModel&&!!mask&&!!camera&&!miiverseFailure&&!frameFailure, miiverseFailure:miiverseFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();newsModel?.dispose();friendModel?.dispose();memoModel?.dispose();webModel?.dispose();miiverseModel?.dispose();mask?.dispose();background?.dispose();target.dispose(); } };
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostSelection } from '../src/os/home-banner-host.ts';
+import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostBackgroundFrame, getHomeBannerHostView, resolveHomeBannerHostSelection, skipHomeBannerHostPass, stepHomeBannerHost } from '../src/os/home-banner-host.ts';
 import { createPortfolioState } from '../src/os/system.ts';
 import { initialState, reduceMenu, renameFolder } from '../src/os/state.ts';
 import { moveHomeItem, selectHomeLocation } from '../src/os/home-layout.ts';
@@ -17,6 +17,7 @@ const activated = (selection = folder()) => step(started(selection), 7);
 const settled = (selection = folder()) => step(activated(selection), 6);
 const view = getHomeBannerHostView;
 const motion = host => view(host).primary.motion;
+const background = getHomeBannerHostBackgroundFrame;
 function freeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
     Object.freeze(value); for (const child of Object.values(value)) freeze(child);
@@ -270,6 +271,7 @@ test('new System generation clears presentation/readiness and requires selection
   const before = settled(), oldTicket = view(before).resourceTicket;
   const cleared = crossHomeBannerBoundary(freeze(before), { generation: 'session:2', updateCount: 900 });
   assert.equal(view(cleared).status, 'unsupported'); assert.equal(cleared.selection, null); assert.equal(cleared.scope, 0);
+  assert.deepEqual([background(cleared).sceneInFrame, background(cleared).loopFrame, background(cleared).loopEpoch], [19, 0, 1]);
   let host = crossHomeBannerBoundary(before, { generation: 'session:2', updateCount: 900 }, { selection: folder(), inputs: inputs({ resourceReady: oldTicket }) });
   assert.equal(host.scope, 1); assert.equal(host.service.lifecycle.managerUpdates, 0); assert.equal(host.inputs.resourceReady, null);
   host = step(host, 7); assert.equal(view(host).status, 'pending');
@@ -297,6 +299,36 @@ test('sampling and zero-count boundaries leave motion unchanged; background stay
   assert.deepEqual(host, snapshot);
   assert.equal(host.service.lifecycle.background.attached, false);
   assert.equal(host.service.lifecycle.background.loop.frame, 0);
+  assert.deepEqual(background(host), { attached: true, mode: 0, sceneInFrame: 20, loopFrame: 13,
+    appPauseFrame: 0, sceneInEpoch: 1, loopEpoch: 1, appPauseEpoch: 0 });
+});
+
+test('background starts once per System generation and consumes only eligible completed scene passes', () => {
+  let host = fresh();
+  assert.deepEqual(background(host), { attached: true, mode: 0, sceneInFrame: 19, loopFrame: 0,
+    appPauseFrame: 0, sceneInEpoch: 1, loopEpoch: 1, appPauseEpoch: 0 });
+  host = stepHomeBannerHost(host, { ...host.clock, updateCount: 1 });
+  assert.deepEqual([background(host).sceneInFrame, background(host).loopFrame], [20, 1]);
+  const skipped = skipHomeBannerHostPass(host, { ...host.clock, updateCount: 2 });
+  assert.deepEqual(background(skipped), background(host), 'skipped native pass has no global3D update');
+  host = at(skipped, 5, { inputs: inputs({ sceneInhibited: true }) });
+  assert.equal(background(host).loopFrame, 4, 'elapsed passes use the previous eligible input');
+  host = at(host, 20);
+  assert.equal(background(host).loopFrame, 4, 'inhibited passes are consumed without catch-up');
+  host = at(host, 20, { inputs: inputs() });
+  host = at(host, 23);
+  assert.equal(background(host).loopFrame, 7);
+});
+
+test('background ownership survives unsupported and supported primary scopes without selection resets', () => {
+  let host = at(fresh(), 37, { selection: { kind: 'app', id: 'work' } });
+  const epoch = background(host).loopEpoch;
+  assert.equal(view(host).status, 'unsupported'); assert.equal(background(host).loopFrame, 37);
+  host = at(host, 91, { selection: { kind: 'toolbar', focus: 2, category: 4 } });
+  assert.equal(background(host).loopFrame, 91); assert.equal(background(host).loopEpoch, epoch);
+  host = request(host, { kind: 'toolbar', focus: 3, category: 6 });
+  host = request(host, { kind: 'app', id: 'system-settings' });
+  assert.equal(background(host).loopFrame, 91); assert.equal(background(host).loopEpoch, epoch);
 });
 
 test('constant-input batching equals one-tick stepping through replacement and independent passes', () => {

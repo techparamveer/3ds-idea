@@ -160,6 +160,24 @@ test('Health HOME wallpaper samples a bounded BannerBG_Loop frame and normal pai
  assert.equal(h.banner.drawBackground(h.ctx,12000,false),true);
  assert.equal(h.draws.length,2,'normal wallpaper paint remains available after the synthetic sample');
 });
+test('HOME wallpaper consumes explicit hosted SceneIn and Loop frames without advancing on paint',async t=>{
+ const h=setup(t);await h.banner.ready;
+ const hosted={attached:true,sceneInFrame:19,loopFrame:337};
+ assert.equal(h.banner.drawBackgroundLifecycleFrame(h.ctx,hosted),true);
+ const group=h.draws.at(-1).scene.children[0],sampled=snapshot(group),draws=h.draws.length;
+ assert.equal(h.banner.drawBackgroundLifecycleFrame(h.ctx,hosted),true);
+ assert.equal(h.draws.length,draws,'same hosted frame reuses the immutable readback');
+ assert.deepEqual(snapshot(group),sampled,'painting does not advance hosted controllers');
+ assert.equal(h.banner.drawBackgroundFrame(h.ctx,311),true);
+ const afterDiagnostic=h.draws.length,paints=h.paints();
+ assert.equal(h.banner.drawBackgroundLifecycleFrame(h.ctx,hosted),true);
+ assert.equal(h.draws.length,afterDiagnostic,'diagnostic sampling does not detach the cached live owner frame');
+ assert.equal(h.paints(),paints+1,'cached live pixels repaint after diagnostic sampling');
+ assert.equal(h.banner.drawBackgroundLifecycleFrame(h.ctx,{...hosted,sceneInFrame:20,loopFrame:338}),true);
+ assert.notDeepEqual(snapshot(group),sampled,'both explicit source controllers reach the model');
+ assert.equal(h.banner.drawBackgroundLifecycleFrame(h.ctx,{...hosted,loopFrame:600}),false);
+ assert.equal(h.banner.drawBackgroundLifecycleFrame(h.ctx,{...hosted,attached:false}),true);
+});
 function snapshot(group){
  const meshes=[];group.traverse(node=>{if(node.isMesh)meshes.push({positions:[...node.geometry.attributes.position.array],uniforms:Object.fromEntries(Object.entries(node.material.uniforms).filter(([name])=>name.startsWith('constant')||name.startsWith('uvMatrix')).map(([name,{value}])=>[name,value.toArray()]))});});
  return {position:group.position.toArray(),scale:group.scale.toArray(),yaw:group.rotation.y,inner:group.children.map(child=>child.matrix.toArray()),meshes};

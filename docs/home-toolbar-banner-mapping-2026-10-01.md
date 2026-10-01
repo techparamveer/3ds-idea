@@ -43,6 +43,11 @@ Only the cloned screenshot destination was changed. A stalled cloned Vulkan
 pipeline cache was preserved at `R/pipeline-cache-before` and a clean-cache
 restart booted EUR HOME successfully. Original hardware mode and English
 were retained. Native audio was muted; no audio match is claimed.
+After the captures were saved and inspected, the native process exited with
+code 139 (`Unhandled EXC_BAD_ACCESS at pc 0x00000000000000`). The cleanup menu
+request found no live window, and `pgrep -x azahar` confirmed no process.
+The crash does not invalidate the saved image identities, but a fresh native
+launch and stability check are required for the next replay.
 
 Azahar's own 400x480 captures were compared with the rebuilt production
 browser's raw 400x240 upper and 320x240 lower targets. Lower native crop is

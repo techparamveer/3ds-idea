@@ -130,6 +130,12 @@ it. These coordinates are a checkpoint, not a permanent assumption. Use
 placement for Azahar. If Sidecar is unavailable, do not silently switch testing
 to the main display; continue non-UI work and report the limitation.
 
+**User audio preference - 1 October 2026:** Keep every 3DS test session muted
+while the user works. Verify isolated Azahar volume is zero before launch and
+launch dedicated test browsers with audio muted. Do not change system-wide
+volume or unrelated applications. Audio acceptance remains unverified while
+muted; do not unmute for comparison without the user's permission.
+
 The coordinator follows the [verification loop](docs/architecture/verification.md)
 for **every in-scope scenario**: drive the isolated Azahar executable and the
 integrated production browser through identical inputs; capture Azahar's own

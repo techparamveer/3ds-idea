@@ -1,5 +1,19 @@
 # 3DS portfolio feature map
 
+Latest HOME label correction: `13cdd13b` restores the source upper-message
+style for all five toolbar applets without changing folder labels.
+[Evidence](home-applet-title-style-2026-10-01.md) includes source mapping,
+passing tests/build and Sidecar production comparison against retained native
+PNGs. Tight text residuals: Notes 5, Friend 33; whole scenarios still fail.
+Next: title raster/plate edge residuals, native footer material source, and
+repeatable input/motion comparison. All 3DS sessions remain muted per user;
+audio acceptance is open. Earlier entries below are historical checkpoints.
+
+Input audit integrated as `3938d634` supplies a read-only profile check and
+[coordinator replay procedure](home-native-input-replay-audit-2026-10-01.md).
+Next native run should use a fresh silent isolated profile and bounded CTM
+holds/releases, with initial focus verified. Parallel Azahar is not yet tested.
+
 Latest HOME footer correction: `e1de13e1` makes the five applet selections use
 one native Open button, including the whole-footer touch route. The
 [comparison record](home-applet-footer-2026-10-01.md) reduces footer-region

@@ -56,6 +56,13 @@ Grid/folder Manual and close actions must not leak into that toolbar context.
 This selection fix does not establish native transition or input timing; see
 the [footer comparison](../home-applet-footer-2026-10-01.md).
 
+HOME applet banner labels use the native `lau_title_*_u` message and its style
+through `appletBannerLabel`; folder labels retain the authored pane metrics
+and existing width fit. Both render the source `BnrDsTitle_00` surface, but
+their two-entry shared cache uses separate keys to prevent style aliasing.
+Missing selected applet messages fail explicitly. See the
+[source and comparison record](../home-applet-title-style-2026-10-01.md).
+
 The live chain is `console-scene.ts` → `home-banner-host.ts` →
 `home-banner-service.ts` / `home-banner-lifecycle.ts` → immutable host view →
 `screens.ts` → injected `firmware-banner.ts` draw callbacks. Selection is

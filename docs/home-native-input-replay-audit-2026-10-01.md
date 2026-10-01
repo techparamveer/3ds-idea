@@ -79,7 +79,9 @@ creating new plans; do not write new evidence to the DeveloperStorage sparsebund
 For each target, use a fresh copy-on-write clone of the same stopped portable
 profile. Rebase that clone's absolute NAND, SDMC and screenshot paths while it is
 closed, then run the profile auditor. A stale cloned config will be rejected by
-the audit because its paths escape the inferred clone root.
+the audit's issues list because its paths escape the inferred clone root. The
+auditor is read-only and reports findings; its successful exit alone is not an
+isolation approval. Resolve findings and separately check symlinks before launch.
 
 Author one CTM per target from the same initial clone/NAND identity. Use constant
 phases with explicit releases:

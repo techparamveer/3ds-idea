@@ -221,7 +221,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         const folderId=action.slice(7), next={...state,folderId};
         return { state: withScreen(state, 'gallery', { folderId, selection:cameraDate(next)||folderId===cameraAllId?1:0, cameraBrowse:cameraBrowseJson(cameraBrowseInitial()) }) };
       }
-      if (screen === 'gallery' && action.startsWith('photo:') && folder(state)?.photos.some(item => item.id === action.slice(6))) return { state: withScreen(state, 'photo', { photoId: action.slice(6), selection: num(state.selection) }) };
+      if (screen === 'gallery' && action.startsWith('photo:') && folder(state)?.photos.some(item => item.id === action.slice(6))) return { state: withScreen(state, 'photo', { photoId: action.slice(6), selection: rows(state, context).findIndex(item => item.id === action) }) };
       if (screen === 'photo' && ['previous', 'next'].includes(action)) {
         const photos = folder(state)?.photos ?? [], index = photos.findIndex(item => item.id === state.photoId);
         if (photos.length) return { state: { ...state, photoId: photos[(index + (action === 'next' ? 1 : photos.length - 1)) % photos.length].id } };

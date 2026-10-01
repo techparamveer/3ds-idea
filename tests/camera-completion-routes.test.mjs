@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { getTitle } from '../src/os/app-registry.ts';
 import { createStockModule, initialSharedData } from '../src/os/stock-apps.ts';
 import { CAMERA_BROWSE_UPDATE_MS, cameraStripOffset } from '../src/os/camera-browse.ts';
+import { stockScreenTargets } from '../src/os/stock-screen-layout.ts';
 
 const context = { now: 0, shared: initialSharedData() };
 const photos = Array.from({ length: 8 }, (_, index) => ({
@@ -25,6 +26,17 @@ function press(module, state, command, source = 'physical') {
   assert.deepEqual(down.effects ?? [], []);
   assert.deepEqual(up.effects ?? [], []);
   return up.state;
+}
+
+function tap(module, state, target) {
+  assert.ok(target, 'the activated control has an existing touch target');
+  const x = target.x + target.width / 2, y = target.y + target.height / 2;
+  for (const phase of ['down', 'up']) {
+    const result = module.reduce(state, { type: 'touch', phase, x, y }, context);
+    assert.deepEqual(result.effects ?? [], []);
+    state = result.state;
+  }
+  return state;
 }
 
 test('Camera completion route joins Welcome, combined paging and physical photo navigation', () => {
@@ -111,6 +123,48 @@ for (const id of ['camera', 'camera-applet']) for (const row of [1, 6]) {
     assert.deepEqual(state.cameraBrowse, gallery.cameraBrowse, 'Back preserves the settled strip and page');
     state = press(module, state, 'open');
     assert.equal(state.photoId, `photo-${row}`, 'A reopens the original gallery selection');
+  });
+}
+
+const entryFixtures = [
+  ['combined', media],
+  ['dated', { folders: [{ id: 'dated', title: 'Dated', photos: photos.map(photo => ({ ...photo, capturedAt: '2026-09-25T22:19:00' })) }], tracks: [] }],
+  ['undated', { folders: [{ id: 'undated', title: 'Undated', photos }], tracks: [] }],
+];
+for (const id of ['camera', 'camera-applet']) for (const [label, fixture] of entryFixtures) {
+  test(`${id} ${label} gallery returns to the activated photo instead of stale focus`, () => {
+    for (const [focus, activatedRow, offset] of [[1, 4, 0], [7, 6, 162]]) {
+      for (const [entry, back] of [['touch', 'button'], ['touch', 'footer'], ['action', 'button']]) {
+        const module = createStockModule(getTitle(id), fixture);
+        let state = module.create({}, null, context);
+        if (id === 'camera') for (let page = 0; page < 5; page++) state = press(module, state, 'open');
+        state = press(module, state, 'open');
+        while (state.selection < focus) state = press(module, state, 'right');
+        state = module.reduce(state, { type: 'tick', elapsedMs: CAMERA_BROWSE_UPDATE_MS * 40 }, context).state;
+        const gallery = structuredClone(state), view = module.view(state, context);
+        const action = view.rows[activatedRow].id, photoId = action.slice(6);
+        assert.equal(cameraStripOffset(state.cameraBrowse.output), offset);
+        assert.notEqual(state.selection, activatedRow);
+        const cell = stockScreenTargets(view).find(target => target.action === action);
+        assert.ok(cell, 'the unfocused photo is visible on the settled page');
+        assert.deepEqual(module.reduce(state, { type: 'action', id: 'photo:missing' }, context), { state });
+
+        state = entry === 'touch' ? tap(module, state, cell)
+          : module.reduce(state, { type: 'action', id: action }, context).state;
+        assert.deepEqual([state.screen, state.photoId], ['photo', photoId]);
+        state = back === 'button' ? press(module, state, 'back')
+          : tap(module, state, stockScreenTargets(module.view(state, context)).find(target => target.action === 'back'));
+
+        const returned = module.view(state, context);
+        assert.equal(returned.screen, 'gallery');
+        assert.equal(returned.selection, activatedRow, `${entry}/${back}: activated row must replace stale focus`);
+        assert.equal(returned.rows[returned.selection].id, action);
+        assert.equal(returned.footer.right.action, action);
+        assert.equal(state.folderId, gallery.folderId);
+        assert.deepEqual(state.cameraBrowse, gallery.cameraBrowse, 'return preserves the settled page');
+        assert.equal(press(module, state, 'open').photoId, photoId);
+      }
+    }
   });
 }
 

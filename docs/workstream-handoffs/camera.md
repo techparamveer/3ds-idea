@@ -1,10 +1,56 @@
 # Camera workstream handoff
 
 Checkpoint: 2 October 2026. Initial route slice `ad4b403a` (base `f5ed204c`)
-was integrated as `bf4e8350`. This M-CAM-04 follow-up starts from
-`ad4b403a16731a4830a28f548952aa33de75fa93` under the coordinator's exclusive
+was integrated as `bf4e8350`; physical-return fix `b6afb008` was integrated as
+`38bab8b7`. This M-CAM-04 touch follow-up starts from
+`b6afb0087970b3cdc9c500865c987517bc13f081` under the coordinator's exclusive
 Camera photo-entry reservation. M-CAM-01 through M-CAM-06 remain the lane scope.
 Native visual, input-timing, motion and audio acceptance remain open.
+
+## Touch and direct-action return correction
+
+The physical-return fix retained keyboard focus. A touch can activate a
+different photo, so retaining that focus still restored the wrong row. The
+validated Camera photo-entry action now derives its selection with
+`rows(state, context).findIndex(item => item.id === action)`. This uses the
+existing row list, including its optional date-group offset. The existing
+photo-ID validation remains in front of this lookup; no gallery-touch or
+shared input handler change was needed.
+
+Six new regression tests exercise 36 routes across Camera/camera-applet and
+combined, dated single-folder and undated single-folder fixtures. Each checks
+an unfocused row on the initial page and on a settled scrolled page: touch then
+physical B, touch then photo-footer Back, and direct action then physical B.
+They assert the activated photo's return highlight, matching footer action,
+unchanged folder and settled browse state, and successful A reopening. Missing
+photo actions remain inert. The four prior physical Left/Right-return cases
+continue to pass.
+
+All six new tests reproduced stale row 1 instead of tapped row 4 before the
+fix. Afterward,
+`node --test --test-reporter=spec tests/camera-completion-routes.test.mjs tests/stock-apps.test.mjs tests/camera-browse.test.mjs`
+passed **72 tests, 0 failures, 0 skips, 0 TODOs**. No image loading or GUI is
+part of these reducer tests.
+
+Coordinator evidence uses the capture root recorded below. From production
+combined-gallery row 1, tapping lower LCD `(160,137)` (page `(569,395)` at the
+recorded window geometry) opens `buildings-3` at row 4; physical B previously
+returned to row 1. Valid pre-fix `browser/capture.json` identities are:
+
+| Scenario | SHA-256 |
+| --- | --- |
+| `camera-touch-photo-repro-20261002` | `bde374240b16e7872ae368c9e44042e5cf1b2f244c3f4fea349aa572e0f246bd` |
+| `camera-touch-return-repro-20261002` | `81449fe5090a8b5ce683c38f6434b66026acd8bd34033f03eabb753af3041fe8` |
+
+Worker metadata/hash checks confirm these identities and 400×240/320×240
+targets; visible observation was supplied by the coordinator. Exclude
+`camera-touch-photo-before` and `camera-touch-return-before`: the failed
+decimal-coordinate CLI attempt recorded gallery/folders, not photo/Back.
+The coordinator reports the previous physical fix passed integrated checks
+(1,599 pass, 0 fail, 23 skip, 1 TODO; typecheck/build) and visibly restored the
+first photo on keyboard return. This touch correction still requires its own
+integration, full checks and production recapture. No native behavior
+acceptance is established by either portfolio route.
 
 ## Delivered route contract
 
@@ -28,7 +74,7 @@ read-only portfolio policy, not evidence of the native controls' input, motion
 or visual fidelity. A new Camera application instance still repeats Welcome:
 no firmware-backed seen-state or invented persisted flag was added.
 
-## Selection-loss correction
+## Previous physical selection-loss correction (`b6afb008`)
 
 Minimal reducer repro, with any gallery whose selected row is nonzero:
 
@@ -40,7 +86,8 @@ Minimal reducer repro, with any gallery whose selected row is nonzero:
 
 Cause at the previous checkpoint: `stock-apps.ts` opened the photo through
 `withScreen(state, 'photo', { photoId })`; `withScreen` resets selection to 0.
-The reserved photo-entry hunk now preserves the opening row explicitly:
+That delivery preserved the keyboard opening row explicitly (superseded by
+the activated-row lookup above):
 
 ```ts
 withScreen(state, 'photo', {
@@ -80,9 +127,9 @@ edb6a93d673de763bb2586daf070947997808e38f2f43165ef8b13346c38360b
 ```
 
 This worker read the capture metadata (400×240 upper, 320×240 lower) and ran
-reducer tests. The browser observation belongs to the coordinator; integrated
-post-fix production recapture, full checks and native comparison remain pending.
-No new native resources, masks, diff reports or acceptance claims are supplied.
+reducer tests. The subsequent coordinator integration/keyboard observation is
+recorded above. Native comparison remains pending. No new native resources,
+masks, diff reports or acceptance claims are supplied.
 
 ## Exact production state
 

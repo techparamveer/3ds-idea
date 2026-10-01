@@ -1,15 +1,20 @@
 # 3DS portfolio feature map
 
-Latest native input evidence: [silent CTM replay](home-ctm-live-replay-2026-10-01.md)
-observed one Notifications-to-Friend step and footer activation from an isolated
-seed clone on Sidecar. It is not yet repeated or matched in the browser. Initial
-Notifications title is truncated to `N`; do not use it as a visual baseline.
-Use macOS short `-p`, with the direct-executable notice dismissed before boot.
-Footer source audit `1c38ae47` identifies the live theme gate/RGB reads needed
-next, without changing production pixels. Integrated1536 tests/typecheck/build
-pass. Next HOME actions: repeat CTM, resolve native initial-title anomaly,
-match browser inputs/captures, then inspect live footer theme state. Audio stays
-muted and all whole scenarios remain fail.
+Latest input evidence: [measured native/browser replay](home-input-comparison-2026-10-01.md)
+reproduces the native Friend launch outcome and the browser's semantic
+Notifications -> Friend -> Open route. Deadline-driven trusted browser events
+measured 36.2ms key/34.6ms touch holds against native 34.188ms; exact sampling
+and motion remain unmatched. Six raw pairs still fail; latest Friend-selected
+pair 50877/19396 upper/lower pixels >2. Footer material residual remains 694,
+Open text 0 above 2. Product code is unchanged, prior 1536 tests/typecheck/build
+pass. Native EOF modal blocked capture/shutdown and required owned-clone
+termination; do not repeat menu work inside an unresolved completion modal.
+Next: native initial-title anomaly, applet yaw/activation clock, matched phases
+and live footer theme bytes. Audio stays muted and whole scenarios remain fail.
+
+The earlier [silent CTM replay](home-ctm-live-replay-2026-10-01.md) records
+native PNG/source identities and short macOS `-p` launch. Footer source audit
+`1c38ae47` identifies live theme gate/RGB reads, not a proven residual cause.
 
 Latest HOME footer raster correction: `e59cc4b9` integrates the worktree
 agent's source-derived LCD text sampler. [Production recapture](home-applet-footer-residual-audit-2026-10-01.md)

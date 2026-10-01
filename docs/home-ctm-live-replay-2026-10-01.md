@@ -1,5 +1,8 @@
 # HOME CTM live replay - 1 October 2026
 
+Later evidence: [repeat and measured browser comparison](home-input-comparison-2026-10-01.md).
+This note retains the first-run checkpoint and capture identities.
+
 Coordinator native input diagnostic, not a native/browser acceptance pair.
 The production runtime remains at `e59cc4b9`; source-only footer audit
 `df0c0df1` was integrated as `1c38ae47`. All whole HOME scenarios remain

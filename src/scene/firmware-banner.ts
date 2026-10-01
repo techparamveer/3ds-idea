@@ -304,10 +304,21 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       selectPrimary(miiverseModel);return render(ctx,scene,true);
     }catch(error){miiverseFailure=String(error);return false;}
   }
-  function drawBackground(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean){
+  // The last rendered background sample. Replaying it goes through the same
+  // putImageData/drawImage path, so the output bytes are identical.
+  let backgroundSample:{data:Uint8ClampedArray;time:number}|undefined;
+  function drawBackground(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,reuseWithinMs?:number){
     if(disposed||!background||backgroundFailure)return false;
-    try{background.update(reduced?0:elapsedMs,camera);return render(ctx,backgroundScene);}
-    catch(error){backgroundFailure=String(error);return false;}
+    const time=reduced?0:elapsedMs;
+    if(reuseWithinMs!==undefined&&backgroundSample&&time>=backgroundSample.time&&time-backgroundSample.time<=reuseWithinMs){
+      image.data.set(backgroundSample.data);context.putImageData(image,0,0);ctx.drawImage(canvas,0,0);return true;
+    }
+    try{
+      background.update(time,camera);const drawn=render(ctx,backgroundScene);
+      if(drawn){backgroundSample??={data:new Uint8ClampedArray(image.data.length),time};backgroundSample.data.set(image.data);backgroundSample.time=time;}
+      return drawn;
+    }
+    catch(error){backgroundSample=undefined;backgroundFailure=String(error);return false;}
   }
   function drawBackgroundFrame(ctx:CanvasRenderingContext2D,frame:number){
     if(disposed||!background||backgroundFailure||!Number.isInteger(frame)||frame<0||frame>599)return false;

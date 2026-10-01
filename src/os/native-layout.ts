@@ -415,6 +415,155 @@ function prepareRasterStages(material:NativeMaterial,base:number[],constants:num
   return {constant,channels,previous,output,saveColor:stage.color.savePrevious,saveAlpha:stage.alpha.savePrevious};
  });
 }
+/** Specialized pixel loops for rasterNativePicture.
+ *
+ * The generic loop reads every TEV selector, mode and scale from arrays for
+ * every pixel. This module emits one straight-line loop per material
+ * *structure* (sampler filters/wraps/matrices, stage selectors, modes, save
+ * flags, alpha-compare function) with TEV registers held in local variables.
+ * Every value-bearing input (constants, scales, colors, UVs, matrices,
+ * compare reference) is still passed in at run time.
+ *
+ * Exactness: each emitted expression is the generic loop's expression with the
+ * same operands, operators and evaluation order, so every double and every
+ * output byte is identical. tests/native-raster-kernel.test.mjs compares the
+ * result with the independent scalar reference.
+ */
+export type KernelChannel = { a: number; b: number; c: number; mode: number; scale: number };
+export type KernelStage = { channels: readonly KernelChannel[]; previous: number; output: number; saveColor: boolean; saveAlpha: boolean };
+export type KernelSampler = {
+  image: { width: number; height: number; data: ArrayLike<number> };
+  uv: readonly number[]; wrapS: number; wrapT: number; linear: boolean;
+  matrix: { c: number; s: number; sx: number; sy: number; tx: number; ty: number } | null;
+};
+export type KernelInput = {
+  data: Uint8ClampedArray; width: number; height: number;
+  offsetX: number; offsetY: number; fullWidth: number; fullHeight: number;
+  transform: readonly number[] | undefined; colors: readonly number[]; alpha: number;
+  samplers: readonly KernelSampler[]; stages: readonly KernelStage[]; bank: Float64Array;
+  base: readonly number[]; implicit: readonly number[]; output: number;
+  compare: { function: number; reference: number } | null | undefined;
+  wrapPixel: (n: number, length: number, wrap: number) => number;
+};
+type Kernel = (input: KernelInput) => void;
+
+const kernels = new Map<string, Kernel | null>();
+const MAX_KERNELS = 64;
+let generationAvailable = true;
+/** Generating and first-running a kernel costs more than the generic loop on
+ * small, one-off panes (most HOME chrome): measured cold, 269 HOME panes took
+ * 1.8x longer compiled. Full-screen panes (launch logo, 76,800-96,000 px)
+ * amortize it on their first raster. */
+let compiledRasterMinPixels = 65536;
+
+function structureKey(input: KernelInput): string {
+  return JSON.stringify([
+    input.bank.length, input.output, !!input.transform, input.compare?.function ?? null,
+    input.samplers.map(sampler => [sampler.linear, sampler.wrapS, sampler.wrapT, !!sampler.matrix]),
+    input.stages.map(stage => [stage.previous, stage.output, stage.saveColor, stage.saveAlpha, stage.channels.map(channel => [channel.a, channel.b, channel.c, channel.mode])]),
+  ]);
+}
+
+function generate(input: KernelInput): string {
+  const r = (slot: number) => `r${slot}`;
+  const lines: string[] = [];
+  const emit = (line: string) => lines.push(line);
+  const bankSize = input.bank.length;
+  emit('const {data,width,height,offsetX,offsetY,fullWidth,fullHeight,transform,colors,alpha,samplers,stages,bank,base,implicit,compare,wrapPixel}=input;');
+  for (let slot = 0; slot < bankSize; slot++) emit(`let ${r(slot)}=bank[${slot}];`);
+  for (let i = 0; i < 16; i++) emit(`const k${i}=colors[${i}];`);
+  for (let i = 0; i < 4; i++) emit(`const base${i}=base[${i}],implicit${i}=implicit[${i}];`);
+  if (input.transform) emit('const t0=transform[0],t1=transform[1],t2=transform[2],t3=transform[3],t4=transform[4],t5=transform[5];');
+  if (input.compare) emit('const compareReference=compare.reference;');
+  input.samplers.forEach((sampler, index) => {
+    emit(`const s${index}=samplers[${index}],d${index}=s${index}.image.data,w${index}=s${index}.image.width,h${index}=s${index}.image.height,uv${index}=s${index}.uv;`);
+    for (let i = 0; i < 8; i++) emit(`const uv${index}_${i}=uv${index}[${i}];`);
+    if (sampler.matrix) emit(`const mc${index}=s${index}.matrix.c,ms${index}=s${index}.matrix.s,msx${index}=s${index}.matrix.sx,msy${index}=s${index}.matrix.sy,mtx${index}=s${index}.matrix.tx,mty${index}=s${index}.matrix.ty;`);
+  });
+  input.stages.forEach((stage, stageIndex) => stage.channels.forEach((_, i) => emit(`const scale${stageIndex}_${i}=stages[${stageIndex}].channels[${i}].scale;`)));
+  // wrapPixel's clamp branch inline; repeat and mirror call the shared helper.
+  const wrap = (n: string, length: string, mode: number) => mode === 1 || mode === 2 ? `wrapPixel(${n},${length},${mode})` : `Math.min(${length}-1,Math.max(0,${n}))`;
+
+  emit('for(let y=0;y<height;y++){');
+  emit(' for(let x=0;x<width;x++){');
+  emit('  const px=x+offsetX+.5,py=y+offsetY+.5;');
+  if (input.transform) {
+    emit('  const localX=t0*px+t2*py+t4;');
+    emit('  const localY=t1*px+t3*py+t5;');
+    emit('  if(localX<0||localY<0||localX>=fullWidth||localY>=fullHeight)continue;');
+  } else emit('  const localX=px,localY=py;');
+  emit('  const u=localX/fullWidth,v=localY/fullHeight;');
+  for (let i = 0; i < 4; i++) emit(`  ${r(20 + i)}=(u>=v?k${i}*(1-u)+k${4 + i}*(u-v)+k${12 + i}*v:k${i}*(1-v)+k${8 + i}*(v-u)+k${12 + i}*u)/255;`);
+  emit(`  ${r(23)}*=alpha;`);
+  input.samplers.forEach((sampler, index) => {
+    if (index >= 4) return; // Extra samplers never reach the four TEV texture slots.
+    const slot = index * 4;
+    emit('  {');
+    emit(`   let tu=u>=v?uv${index}_0*(1-u)+uv${index}_2*(u-v)+uv${index}_6*v:uv${index}_0*(1-v)+uv${index}_4*(v-u)+uv${index}_6*u;`);
+    emit(`   let tv=u>=v?uv${index}_1*(1-u)+uv${index}_3*(u-v)+uv${index}_7*v:uv${index}_1*(1-v)+uv${index}_5*(v-u)+uv${index}_7*u;`);
+    if (sampler.matrix) {
+      emit(`   const mx=(tu-.5)*msx${index}+mtx${index},my=(tv-.5)*msy${index}+mty${index};`);
+      emit(`   tu=.5+mc${index}*mx-ms${index}*my;tv=.5+ms${index}*mx+mc${index}*my;`);
+    }
+    emit(`   const sx=tu*w${index}-.5,sy=tv*h${index}-.5;`);
+    if (!sampler.linear) {
+      emit(`   const at=(${wrap('Math.floor(sy+.5)', `h${index}`, sampler.wrapT)}*w${index}+${wrap('Math.floor(sx+.5)', `w${index}`, sampler.wrapS)})*4;`);
+      for (let i = 0; i < 4; i++) emit(`   ${r(slot + i)}=d${index}[at+${i}]/255;`);
+    } else {
+      emit('   const x0=Math.floor(sx),y0=Math.floor(sy),tx=sx-x0,ty=sy-y0;');
+      emit(`   const left=${wrap('x0', `w${index}`, sampler.wrapS)},right=${wrap('x0+1', `w${index}`, sampler.wrapS)};`);
+      emit(`   const top=${wrap('y0', `h${index}`, sampler.wrapT)}*w${index},bottom=${wrap('y0+1', `h${index}`, sampler.wrapT)}*w${index};`);
+      emit('   const ia=(top+left)*4,ib=(top+right)*4,ic=(bottom+left)*4,id=(bottom+right)*4;');
+      for (let i = 0; i < 4; i++) emit(`   ${r(slot + i)}=(d${index}[ia+${i}]/255*(1-tx)+d${index}[ib+${i}]/255*tx)*(1-ty)+(d${index}[ic+${i}]/255*(1-tx)+d${index}[id+${i}]/255*tx)*ty;`);
+    }
+    emit('  }');
+  });
+  for (let i = 0; i < 4; i++) emit(`  ${r(28 + i)}=base${i};`);
+  if (!input.stages.length) for (let i = 0; i < 4; i++) emit(`  ${r(24 + i)}=(base${i}+(implicit${i}-base${i})*${r(i)})*${r(20 + i)};`);
+  const operand = (selector: number) => { const value = r(selector >> 1); return selector & 1 ? `(1-${value})` : value; };
+  input.stages.forEach((stage, stageIndex) => {
+    stage.channels.forEach((channel, i) => {
+      const a = operand(channel.a), b = operand(channel.b), c = operand(channel.c);
+      const value = channel.mode === 0 ? a : channel.mode === 1 ? `${a}*${b}` : channel.mode === 2 ? `${a}+${b}` : channel.mode === 3 ? `${a}+${b}-.5`
+        : channel.mode === 4 ? `${a}*${c}+${b}*(1-${c})` : channel.mode === 5 ? `${a}-${b}` : channel.mode === 6 ? `Math.max(0,Math.min(1,${a}+${b}))*${c}` : `${a}*${b}+${c}`;
+      emit(`  {const value=${value};${r(stage.output + i)}=Math.max(0,Math.min(1,value*scale${stageIndex}_${i}));}`);
+    });
+    if (stage.saveColor) emit(`  ${r(28)}=${r(stage.previous)};${r(29)}=${r(stage.previous + 1)};${r(30)}=${r(stage.previous + 2)};`);
+    if (stage.saveAlpha) emit(`  ${r(31)}=${r(stage.previous + 3)};`);
+  });
+  if (input.compare) {
+    const fn = input.compare.function, a = r(input.output + 3);
+    const pass = fn === 1 ? `${a}<compareReference` : fn === 2 ? `${a}<=compareReference` : fn === 3 ? `${a}===compareReference` : fn === 4 ? `${a}!==compareReference`
+      : fn === 5 ? `${a}>=compareReference` : fn === 6 ? `${a}>compareReference` : fn === 7 ? 'true' : 'false';
+    emit(`  if(!(${pass}))${a}=0;`);
+  }
+  emit('  const at=(y*width+x)*4;');
+  for (let i = 0; i < 4; i++) emit(`  data[at+${i}]=Math.round(${r(input.output + i)}*255);`);
+  emit(' }');
+  emit('}');
+  return lines.join('\n');
+}
+
+/** Test hook: force the generic loop (false) or allow specialized loops (true)
+ * for rasters of at least minPixels. */
+export function setCompiledRasterEnabled(enabled: boolean, minPixels = 65536) { generationAvailable = enabled; compiledRasterMinPixels = minPixels; }
+/** Run the specialized loop. Returns false when code generation is unavailable
+ * (for example under a Content-Security-Policy without 'unsafe-eval'); the
+ * caller then runs its generic loop. */
+export function runCompiledRaster(input: KernelInput): boolean {
+  if (!generationAvailable || input.width * input.height < compiledRasterMinPixels) return false;
+  const key = structureKey(input);
+  let kernel = kernels.get(key);
+  if (kernel === undefined) {
+    try { kernel = new Function('input', generate(input)) as Kernel; }
+    catch { generationAvailable = false; return false; }
+    if (kernels.size >= MAX_KERNELS) kernels.delete(kernels.keys().next().value!);
+    kernels.set(key, kernel);
+  } else { kernels.delete(key); kernels.set(key, kernel); }
+  if (!kernel) return false;
+  kernel(input);
+  return true;
+}
 /** Native material sampling is independent of Canvas. Per-raster preparation
  * leaves only scalar arithmetic and reusable scratch in the pixel loop. The
  * exported scalar helpers above remain independent reference implementations.
@@ -441,6 +590,7 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
  const output=stages.length?stages[stages.length-1].output:24;
  const offsetX=sampling?.x??0,offsetY=sampling?.y??0,fullWidth=sampling?.fullWidth??width,fullHeight=sampling?.fullHeight??height;
  const transform=sampling?.localTransform;
+ if(runCompiledRaster({data,width,height,offsetX,offsetY,fullWidth,fullHeight,transform,colors,alpha,samplers,stages,bank,base,implicit,output,compare,wrapPixel}))return {width,height,data};
  for(let y=0;y<height;y++){
   for(let x=0;x<width;x++){
    const px=x+offsetX+.5,py=y+offsetY+.5;

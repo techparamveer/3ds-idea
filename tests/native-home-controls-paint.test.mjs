@@ -5,7 +5,8 @@ import ts from 'typescript';
 import { createPortfolioState } from '../src/os/system.ts';
 import { createHomeInputAdapter } from '../src/os/home-input-adapter.ts';
 import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
-import { createHomeCursorPresentation } from '../src/os/home-cursor-presentation.ts';
+import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src/os/home-cursor-presentation.ts';
+import { resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts';
 import { enterHomeFolder, getHomeNavigation, writeHomeNavigation, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomePresentation } from '../src/os/home-presentation.ts';
@@ -87,7 +88,7 @@ function canvas(events) {
   surface.getContext = () => context;
   return surface;
 }
-async function withScreens(run, { native = true, legacyCursorDrawn = true, realToolbar = false, realTilePose = false, legacyPressOffset = 0 } = {}) {
+async function withScreens(run, { native = true, legacyCursorDrawn = true, realToolbar = false, realTilePose = false, legacyPressOffset = 0, screenOptions = {} } = {}) {
   const saved = new Map(['document', 'Image', 'FontFace'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   const events = [];
   Object.assign(globalThis, {
@@ -104,11 +105,11 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
   const presenter = new Proxy({ pressOffset: legacyPressOffset,
     tilePressOffset: (pose, density) => realTilePose ? actual.tilePressOffset(pose, density) : 0,
     toolbar(ctx, ...args) { ctx.record('toolbar', args); return realToolbar ? actual.toolbar(ctx, ...args) : true; },
-    folderBannerLabel() {},
+    folderBannerLabel(text) { events.push({ name: 'banner-label', args: [text] }); },
     folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); },
     cursor(ctx, ...args) { ctx.record('cursor', args); return legacyCursorDrawn; },
   }, { get: (target, key) => key in target ? target[key] : ((ctx, ...args) => { ctx.record(key, args); return true; }) });
-  const screens = createScreens(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics: [], dispose() {} } } : {});
+  const screens = createScreens({ ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics: [], dispose() {} } } : {}), ...screenOptions });
   const paint = (state, elapsed = 1000) => {
     events.length = 0; screens.bottom.getContext('2d').curves.length = 0;
     screens.paint(state, new Date(0), elapsed);
@@ -123,6 +124,35 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     }
   }
 }
+
+test('toolbar banner artwork and label match the selected native cursor pane', async () => {
+  const state = home();
+  let selection;
+  const banner = name => ctx => { ctx.record('toolbar-banner', [name]); return true; };
+  await withScreens(({ paint, events }) => {
+    for (const [focus, pane, title] of [
+      [1, 'N_CPos_Memo_00', 'Game Notes'],
+      [2, 'N_CPos_Frd_00', 'Friend List'],
+      [3, 'N_CPos_News_00', 'Notifications'],
+      [4, 'N_CPos_Web_00', 'Internet Browser'],
+      [5, 'N_CPos_Mvs_00', 'Miiverse'],
+    ]) {
+      selection = resolveHomeBannerHostObservation(state, {
+        kind: 'banner-resolve', phase: 'lower', reason: 'idle-update', context: null,
+        slot: 0, focus, toolbarActive: true, updateOffset: 0, updateCount: 1,
+      });
+      assert.equal(getHomeToolbarCursorAnchor(focus).pane, pane);
+      paint(state);
+      assert.deepEqual(events.filter(event => event.name === 'toolbar-banner').map(event => event.args), [[title]]);
+      assert.deepEqual(events.filter(event => event.name === 'banner-label').map(event => event.args), [[title]]);
+    }
+  }, { screenOptions: {
+    getHomeBanner: () => ({ status: 'unsupported', selection, resourceTicket: null }),
+    drawMemoBanner: banner('Game Notes'), drawFriendBanner: banner('Friend List'),
+    drawNewsBanner: banner('Notifications'), drawWebBanner: banner('Internet Browser'),
+    drawMiiverseBanner: banner('Miiverse'),
+  } });
+});
 
 test('retained primary and both effects paint in order outside tile clipping using applied poses', async () => {
   await withScreens(({ screens, paint, events, cursorCalls }) => {

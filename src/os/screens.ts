@@ -311,7 +311,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;}
   const hostedBanner=options.getHomeBanner?.();
   const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;
-  const toolbarNews=toolbarFocus===3,toolbarFriend=toolbarFocus===1,toolbarMemo=toolbarFocus===2,toolbarWeb=toolbarFocus===4,toolbarMiiverse=toolbarFocus===5;
+  const toolbarNews=toolbarFocus===3,toolbarFriend=toolbarFocus===2,toolbarMemo=toolbarFocus===1,toolbarWeb=toolbarFocus===4,toolbarMiiverse=toolbarFocus===5;
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!toolbarNews&&!toolbarFriend&&!toolbarMemo&&!toolbarWeb&&!toolbarMiiverse&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(toolbarMiiverse&&!state.panel&&state.system?.phase==='home'){
    const label=nativeHome?.folderBannerLabel('Miiverse');

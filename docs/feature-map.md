@@ -1,5 +1,16 @@
 # 3DS portfolio feature map
 
+Latest native input evidence: [silent CTM replay](home-ctm-live-replay-2026-10-01.md)
+observed one Notifications-to-Friend step and footer activation from an isolated
+seed clone on Sidecar. It is not yet repeated or matched in the browser. Initial
+Notifications title is truncated to `N`; do not use it as a visual baseline.
+Use macOS short `-p`, with the direct-executable notice dismissed before boot.
+Footer source audit `1c38ae47` identifies the live theme gate/RGB reads needed
+next, without changing production pixels. Integrated1536 tests/typecheck/build
+pass. Next HOME actions: repeat CTM, resolve native initial-title anomaly,
+match browser inputs/captures, then inspect live footer theme state. Audio stays
+muted and all whole scenarios remain fail.
+
 Latest HOME footer raster correction: `e59cc4b9` integrates the worktree
 agent's source-derived LCD text sampler. [Production recapture](home-applet-footer-residual-audit-2026-10-01.md)
 on Sidecar confirms 87 glyph residual pixels removed,694 material-edge pixels

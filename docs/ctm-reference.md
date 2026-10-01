@@ -154,16 +154,22 @@ list. The coordinating task encountered this exact blocker for the HOME Menu
 candidate: the dialog recognized the movie but disabled playback because the
 application was absent from its list.
 
-The same release's Qt argument parser also supports `--movie-play` / `-p`:
+The same release's Qt argument parser supports `--movie-play` / `-p`, but
+the pinned macOS executable must use **`-p`**. Its outer meta launcher uses
+BSD `getopt` for compression options before Qt parses its arguments.
+`--movie-play` is misread as a short-option cluster containing compression
+option `o`, then exits with `Invalid option combination provided`. This was
+reproduced on 1 October with the verified executable; the short form reached
+native playback. See the [live replay record](home-ctm-live-replay-2026-10-01.md).
 
 ```sh
-/path/to/azahar-qt --movie-play /path/to/derived.ctm /path/to/intended-title-content.app
+/path/to/azahar-qt -p /path/to/derived.ctm /path/to/intended-title-content.app
 ```
 
 Keep the content path as the **final argument**. The constructor parses that
 path into `game_path` and calls `BootGame` directly, without `MoviePlayDialog`
 or its application-list lookup. This is a source-supported alternate launch
-path, not a native execution performed by this task. It still requires the
+path, subsequently exercised in the linked live replay. It still requires the
 intended isolated profile and content. The CLI route does not verify that the
 supplied title content matches the movie header; independently check the actual
 content's title ID and build before replay. The helper's title check only binds

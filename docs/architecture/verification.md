@@ -12,6 +12,15 @@ The **isolated Azahar profile running the user's EUR 10.7.0-32E firmware** is gr
 
 ## Isolated reference
 
+The [1 October HOME CTM diagnostic](../home-ctm-live-replay-2026-10-01.md)
+adds a coordinator-only replay path: short `-p` on the pinned macOS executable,
+independent stopped seed clones, explicit eight-sample holds/releases, verified
+Sidecar placement and volume0. One native Left and footer-touch launch were
+observed; repeatability, initial-title rendering and production-browser parity
+remain open. Long `--movie-play` is rejected by this binary's outer parser.
+Treat older repeated-host-key methods below as historical diagnostics, not
+evidence that event cadence matches the browser.
+
 Use the current isolated copy under `/Volumes/Codex3DSIsolated/camera-guide-replay-20260926/` on the Sandisk APFS sparsebundle. The prior DeveloperStorage copy and the user's original reference remain preserved. Never launch `/Applications/Azahar.app` or touch the default profile. Before each launch, verify copied executable SHA-256 `3dfdfbed147cfb420f224385e832191833d07b0951d4b86326ab193e2deb3b21`; no symlinks under isolated `user/`; and `user/config/qt-config.ini` values `use_custom_storage=false`, `graphics_api=2` (Vulkan for this Apple build), both resolution factors 1, `layout_option=0`, `swap_screen=false`, and screenshot path inside the isolated reference. Back up config before edits and version the working config with date/hash. Launch the copied app with its adjacent `user/` profile. After boot, verify the actual backend in `user/log/azahar_log.txt`; the 2126.1.2 macOS build rejects `graphics_api=1` and falls back to Vulkan, so a config value alone does not prove the renderer. Record original-3DS mode, EUR/English, white HOME theme, clock policy and photo/song population in the scenario matrix. See [profile isolation](../native-reference-profile-isolation.md).
 
 Click Azahar before keyboard input. The isolated map uses A=`A`, B=`S`, HOME=`B`, START=`M`, SELECT=`N`, L=`Q`, R=`W`, D-pad up/down/left/right=`T`/`G`/`F`/`H`; read X/Y/Circle Pad from config. Prefer configured `touch_from_button` keys at 320×240 lower-LCD coordinates. Both `profiles\\1\\use_touch_from_button=true` and `profiles\\1\\use_touch_from_button\\default=false` retain those keys. Edit config only while Azahar is closed. Calibrate any mouse touch from a window screenshot and confirm it landed. The coordinator recovered native key input with CUA `typeText` using repeated characters; a single press was too brief for the controller poll. Record repetition and resulting state rather than treating one character as one frame. Look after **every** input; fix lost focus, dialogs or black frames before continuing. Frame-advance motion at explicit counts. Record audio capture method or leave audio open.

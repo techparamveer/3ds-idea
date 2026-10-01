@@ -7,6 +7,12 @@ replay. The inspected profile is
 All future visible operation belongs to the coordinator on the iPad Sidecar
 display. The configured 3DS output volume must remain zero.
 
+Subsequent [coordinator live replay](home-ctm-live-replay-2026-10-01.md)
+confirmed one eight-sample Left step from Notifications to Friend List, then
+an eight-sample footer touch opening Friend List. This updates the earlier
+source-only status for that one run, not repeatability or browser parity.
+The pinned macOS binary requires short `-p`, not `--movie-play`.
+
 ## Current profile result
 
 The inspected `user/config/qt-config.ini` has SHA-256
@@ -95,7 +101,7 @@ phases with explicit releases:
    button-touch keyboard map while exercising native HID touch data.
 4. Retain a long neutral tail so the coordinator can inspect/capture before EOF.
    Record the exact sample ranges and do not equate CTM samples with video frames.
-5. Launch the copied bundle's executable with `--movie-play MOVIE.ctm` and the
+5. Launch the copied bundle's executable with `-p MOVIE.ctm` and the
    clone-owned HOME content `.../title/00040030/00009802/content/00000082.app` as
    the final argument. Confirm the status bar says playback, observe every
    intended transition, and capture only after the expected state is visible.

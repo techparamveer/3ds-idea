@@ -1,6 +1,19 @@
 # 3DS portfolio feature map
 
-Latest HOME correction: `c2cb1158` + `95865ae9` implement Friend-only type14
+Latest HOME correction: `a578625d` extends hosted native primary motion to
+Notifications type16, with preserved Friend14 identity/readiness and source
+looping600/300 clips. [Production/native evidence](home-news-motion-comparison-2026-10-01.md)
+shows News frames418/448 moving and a byte-identical prior Friend250 upper.
+Six empty-mask pairs still fail; fresh News38346/19167 and Friend19127/19377
+upper/lower >2. Footer694 remains. Integrated1547 tests/typecheck/build/shader
+pass; independent review141/no findings. Silent isolated native saves failed
+under LLE; no live footer bytes. RPC/GDB remain off. Main sessions were on Sidecar;
+three misplaced native dialogs moved/verified there before dismissal. Owned
+native required termination after delayed Quit; browser/server closed. All3DS
+audio stays muted. Next: native epoch/displacement and remaining HOME phases;
+footer bytes need a safely isolated route. Earlier checkpoints below are historical.
+
+Prior HOME correction: `c2cb1158` + `95865ae9` implement Friend-only type14
 hosted motion and explicit pending-resource failure diagnostics. The
 [fresh silent reselection comparison](home-friend-motion-comparison-2026-10-01.md)
 observes moving source frames and full Notifications label after native

@@ -83,3 +83,39 @@ words, surrounding executable section hashes, direct calls and the 20-name
 table before emitting the evidence object. Documentation links and whitespace
 are checked separately; no build is required because production code is
 unchanged.
+
+## Live diagnostic, 1 October
+
+The coordinator attempted the next runtime read using the pinned executable in
+a separate `native-footer-runtime` clone under
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001`.
+All 467 frozen-seed NAND/SD hashes passed. Paths were rebased only in the clone,
+volume remained zero, and the main window was verified on Sidecar at
+`(1810,397,1153,781)`. Config-before SHA-256:
+`f0c055a74742f179f0f5ad015f86fb522a502c44e94c775894ca89389d7b1409`.
+
+The pinned debugger interfaces are not loopback-only: RPC uses a wildcard UDP
+endpoint on port 45987 and GDB binds `INADDR_ANY`. Both accept memory writes
+without authentication. They remained disabled. See pinned
+[RPC source](https://github.com/azahar-emu/azahar/blob/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/core/rpc/udp_server.cpp)
+and [GDB source](https://github.com/azahar-emu/azahar/blob/9e6f523a57fac9564ac0bf8286db3c3702d301ec/src/core/gdbstub/gdbstub.cpp).
+A local Save State request then failed with the native error
+`Savestates are not supported with LLE modules enabled`. No state file was
+created and no LLE setting was changed. Even an available save state is a
+Zstandard-compressed Boost object archive with process page tables, not a flat
+virtual-address memory dump; arbitrary pointer arithmetic would be unproved.
+
+The run yielded native 400x480 Notifications and Friend PNGs, not live theme
+bytes. Their identities and the limitations are in private
+`footer-runtime/summary.json`; both PNGs were opened. Pause/continue and error
+dialogs mean these are not exact-frame captures. Three save-error dialogs
+appeared on the DELL display; each was moved to Sidecar and independently
+verified before dismissal. Native menu delivery later remained in
+`NSMenuTrackingSession`; Quit was requested before movie EOF but the process
+outlived its window and SIGTERM. Only that owned process was then killed
+(exit 137); samples and logs are retained.
+
+The theme gate/nine RGB bytes remain **source-gap**. No footer color was fitted,
+no renderer behavior changed and no scenario was accepted. Next investigation
+must use a safely isolated read mechanism or a separately declared adaptation,
+not repeat this unsupported save-state route or enable an exposed debugger.

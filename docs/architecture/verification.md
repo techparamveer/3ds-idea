@@ -31,6 +31,15 @@ matching one browser counter across builds does not establish the native epoch.
 Treat older repeated-host-key methods below as historical diagnostics, not
 evidence that event cadence matches the browser.
 
+The [Notifications follow-up](../home-news-motion-comparison-2026-10-01.md)
+adds News hosted counters and a byte-identical Friend counter250 regression;
+native phase remains unaligned. Its footer memory diagnostic could not save
+state with LLE enabled. Pinned RPC/GDB servers bind wildcard addresses and
+expose unauthenticated writes: leave disabled, not an implicit fallback.
+Delayed menu tracking can outlive a Quit request; verify process exit and inspect
+the exact owned process before recovery. Native modal placement can differ from
+the main window: independently verify/move each dialog to Sidecar before input.
+
 Browser replay can reuse the repository CDP client on an already verified
 Sidecar tab. Real key/pointer down/up events and a read-only observer establish
 delivered event timestamps/trust. Schedule releases from dispatch deadlines,

@@ -125,6 +125,8 @@ export function getNativeCameraTitleBalloon(state:MenuState,view:HomePresentatio
 
 /** Footer actions follow the runtime's currently selected container. */
 export function getHomeFooter(state:MenuState){
+ const focus=state.system?.homeNavigation.focus;
+ if(focus?.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5)return {two:false,left:null,right:'open'} as const;
  const appId=homeSlotAppId(state,state.opened?state.folderSelected:state.selected);
  // Native 0x29af68 → 0x1e0cb4 hides both actions for an empty selected child.
  if(hasEmptyHomeFolderSelection(state))return null;

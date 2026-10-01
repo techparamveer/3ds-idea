@@ -260,6 +260,8 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
   if(y<32)return send(x<160?'up':'down');return state;
  }
  if(isSystemHomeFolderClosing(state))return state;
+ const focus=s.homeNavigation.focus;
+ if(!state.panel&&y>=212&&s.homeControls&&focus.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5)return send('open');
  if(isHomeFolderBackTouch(state,x,y))return send('back');
  if(!state.panel&&y>=212&&selectedTitle(state)){
   if(state.opened)return send(x<100?'back':'open');

@@ -12,6 +12,7 @@ import {
   selectHomeSlot, enterHomeFolder,
 } from '../src/os/home-navigation.ts';
 import { reduceMenu } from '../src/os/state.ts';
+import { getHomeFooter } from '../src/os/home-presentation.ts';
 import { consumeSystemHomeFolderCloseInput } from '../src/os/home-folder-close-system.ts';
 
 const T = 4000, FRAME = 1000 / 60;
@@ -185,6 +186,26 @@ test('toolbar A/Start opens the focused applet instead of the old selected appli
     assert.equal(state.system.app, null, 'portfolio Work must not launch');
     assert.ok(Object.values(state.system.runtime.instances).some(instance => instance.appId === 'game-notes'));
     assert.deepEqual(controls(state).input.sources, {});
+  }
+});
+
+test('applet footer is one Open button independent of the retained grid selection', () => {
+  const initial = home(), settings = Number(Object.entries(initial.system.layout).find(([, id]) => id === 'system-settings')[0]);
+  for (const slot of [0, settings, 30]) for (const suspended of [null, 'work']) {
+    const selected = selectHomeSlot(initial, slot);
+    for (const [focus, appId] of [[1, 'game-notes'], [2, 'friends'], [3, 'notifications'], [4, 'browser'], [5, 'miiverse']]) {
+      const focused = writeHomeNavigation({ ...selected, system: { ...selected.system, app: suspended } }, {
+        ...nav(selected), focus: { toolbarActive: true, currentFocus: focus, rememberedFocus: -1, savedColumn: 0 },
+      });
+      assert.deepEqual(getHomeFooter(focused), { two: false, left: null, right: 'open' });
+      for (const x of [20, 160, 300]) {
+        const opened = touchSystem(focused, x, 226, now(focused));
+        assert.equal(opened.system.dialog, null, 'left edge must not close suspended software');
+        assert.equal(opened.system.runtime.instances[opened.system.runtime.active]?.appId, appId);
+        const released = touch(touch(focused, 'down', x, 226), 'up', x, 226);
+        assert.equal(released.system.runtime.instances[released.system.runtime.active]?.appId, appId, 'pointer phases share the route');
+      }
+    }
   }
 });
 

@@ -98,7 +98,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     drawWebBanner:(ctx,time,isReduced,label)=>folderBanner.drawWebFrame(ctx,time,isReduced,label),
     drawMiiverseBanner:(ctx,time,isReduced,label)=>folderBanner.drawMiiverseFrame(ctx,time,isReduced,label),
     drawStockTitleBannerFrame:(ctx,motion,ticket,kind)=>folderBanner.drawStockTitleFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:kind==='health'&&verificationHealthBannerFrame!==undefined?verificationHealthBannerFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},{...ticket,kind}),
-    drawHomeBackground:(ctx,time,isReduced,frame)=>frame===undefined?folderBanner.drawBackground(ctx,time,isReduced):folderBanner.drawBackgroundFrame(ctx,frame),runtimeNotice:()=>runtimeNotice});
+    drawHomeBackground:(ctx,time,isReduced,frame,reuseWithinMs)=>frame===undefined?folderBanner.drawBackground(ctx,time,isReduced,reuseWithinMs):folderBanner.drawBackgroundFrame(ctx,frame),runtimeNotice:()=>runtimeNotice});
   await Promise.all([screens.ready,folderBanner.ready]);
   if(diagnostics)host.dataset.banner=JSON.stringify(folderBanner.status());
   host.dataset.firmware=firmwareAssets?'native-home':'fallback';
@@ -233,8 +233,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   };
   function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:performance.now()-start});}
   function recordScreenPaint(){if(diagnostics){const close=sampleSystemHomeFolderClose(state);host.dataset.screenPaint=JSON.stringify({at:performance.now(),homeUpdates:state.system!.homeClock.updateCount,cursor:cursorDiagnostic(),closePhase:close?.controller.phase??null,closeFrame:close?.controller.folder.appliedFrame??null});}}
-  function paint(){updateAudio();for(const o of powerLeds){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;paintScreens(performance.now());topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;lastScreenPaint=performance.now();writeState();}
-  function paintScreens(now:number){lastScreenPaint=now;screens.paint(state,new Date(),now-start);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();}
+  function paint(){updateAudio();for(const o of powerLeds){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;paintScreens(performance.now(),true);topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;writeState();}
+  // State-driven paints (input, saves, minute) reuse the cadence's HOME background
+  // sample instead of a synchronous GPU readback in the event handler, and leave
+  // the cadence clock alone, so the background is sampled on the same LCD
+  // cadence as without input.
+  function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();}
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
     const system=state.system!,inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog||system.preferences||!!state.panel||homeClockSuspended;
@@ -458,7 +462,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   }
   function animate(now:number){
     if(disposed)return;const dt=Math.min((now-last)/1000,.05);last=now;const elapsed=(now-start)/1000;
-    if(intro){const pose=sampleIntroPose(elapsed);yaw=pose.yaw;angle=pose.angle;if(pose.done){intro=false;targetYaw=REST_YAW;angle=targetAngle=MAX_LID_DEGREES;}}
+    if(intro){const pose=sampleIntroPose(elapsed);yaw=pose.yaw;angle=pose.angle;if(pose.done){intro=false;targetYaw=REST_YAW;angle=targetAngle=MAX_LID_DEGREES;prepareAudioWhenIdle();}}
     else{angle=reduced?targetAngle:THREE.MathUtils.damp(angle,targetAngle,6,dt);yaw=reduced?targetYaw:THREE.MathUtils.damp(yaw,targetYaw,drag?.moved?18:7,dt);}
     angle=THREE.MathUtils.clamp(angle,0,MAX_LID_DEGREES);
     if(Math.abs(angle-targetAngle)<.01)angle=targetAngle;
@@ -534,6 +538,11 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   topScreen.visible=touchScreen.visible=angle>12;
   renderFrame();started=true;
   start=last=performance.now();
+  // Starting the audio device costs ~70-90 ms on the main thread. Do it after
+  // the opening, while idle, rather than inside the first key or pointer event.
+  // Playback still begins only from a user gesture (unlock).
+  function prepareAudioWhenIdle(){const run=()=>{if(!disposed)audio.prepare();};if(window.requestIdleCallback)window.requestIdleCallback(run,{timeout:2000});else setTimeout(run,0);}
+  if(!intro)prepareAudioWhenIdle();
   let request=requestAnimationFrame(animate);writeState();
   if(hasPaintSurface&&quality.useVgpu){
     const idle=window.requestIdleCallback?.bind(window);

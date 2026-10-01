@@ -17,6 +17,8 @@ export type MenuAudioEnvironment = {
 export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/audio.json', environment: MenuAudioEnvironment = {}) {
   const fetchAsset = environment.fetch ?? globalThis.fetch;
   let context: AudioContext | undefined, master: GainNode | undefined, disposed = false;
+  // Constructed ahead of the first gesture by prepare(); adopted only by unlock().
+  let preparedContext: AudioContext | undefined;
   let lastPlayed: Sound | undefined, musicGain: GainNode | undefined;
   let transport: ReturnType<typeof createNativeMusicTransport> | undefined;
   let musicFailure: string | undefined, musicRevision = 0, activeRevision = -1, gainRevision = -1;
@@ -144,12 +146,28 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
       } finally { musicWork = false; }
     })();
   }
+  /** Construct the AudioContext while the page is idle. Creating the first
+   * context starts the audio device (~90 ms on the main thread in Chromium);
+   * doing it here keeps that out of the first key press. Nothing is audible or
+   * scheduled until unlock() adopts it inside a gesture, so playback still
+   * begins only after user input, as before. */
+  function prepare() {
+    if (disposed || context || preparedContext) return;
+    try {
+      const Context = environment.AudioContext ?? globalThis.AudioContext;
+      preparedContext = new Context();
+      // Where autoplay is already allowed the context starts running; hold it
+      // suspended until the gesture, like a context created in unlock().
+      if (preparedContext.state === 'running') void preparedContext.suspend?.().catch(() => undefined);
+    } catch { preparedContext = undefined; }
+  }
   async function unlock() {
     if (disposed) return;
     try {
       if (!context) {
         const Context = environment.AudioContext ?? globalThis.AudioContext;
-        context = new Context(); master = context.createGain(); master.connect(context.destination);
+        context = preparedContext ?? new Context(); preparedContext = undefined;
+        master = context.createGain(); master.connect(context.destination);
         musicGain = context.createGain(); musicGain.gain.value = 0; musicGain.connect(master);
       }
       if (context.state === 'suspended') await context.resume();
@@ -192,8 +210,8 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
     const buffer = buffers.get(name); if (buffer) start(buffer); else void load(name).then(start);
   }
   return {
-    unlock, play, update, stop,
+    prepare, unlock, play, update, stop,
     status() { const native = transport?.status(); return { state: context?.state ?? 'locked', decoded: buffers.size, lastPlayed, music: native?.state === 'playing', active: active.size, failure: failure ?? musicFailure, musicFailure, musicEntry, musicTransport: native }; },
-    dispose() { if (disposed) return; disposed = true; abort.abort(); fetchMusicAbort?.abort(); stopEffects(); transport?.dispose(); buffers.clear(); bytes.clear(); musicGain?.disconnect(); master?.disconnect(); void context?.close(); },
+    dispose() { if (disposed) return; disposed = true; abort.abort(); fetchMusicAbort?.abort(); stopEffects(); transport?.dispose(); buffers.clear(); bytes.clear(); musicGain?.disconnect(); master?.disconnect(); void context?.close(); void preparedContext?.close(); preparedContext = undefined; },
   };
 }

@@ -19,16 +19,18 @@ export type HomeClearBannerSelection = Readonly<{ kind: 'clear' }>;
 type RenderSelection = HomeFolderBannerSelection | HomeDefaultBannerSelection;
 export type HomeSettingsBannerSelection = Readonly<{ kind: 'app'; id: string }>;
 export type HomeFriendBannerSelection = Readonly<{ kind: 'toolbar'; focus: 2; category: 4 }>;
-type SupportedRenderSelection = RenderSelection | HomeSettingsBannerSelection | HomeFriendBannerSelection;
+export type HomeNewsBannerSelection = Readonly<{ kind: 'toolbar'; focus: 3; category: 6 }>;
+type HomeHostedToolbarBannerSelection = HomeFriendBannerSelection | HomeNewsBannerSelection;
+type SupportedRenderSelection = RenderSelection | HomeSettingsBannerSelection | HomeHostedToolbarBannerSelection;
 type SupportedSelection = SupportedRenderSelection | HomeClearBannerSelection;
 export type HomeToolbarBannerSelection =
   | Readonly<{ kind: 'toolbar'; focus: 1; category: 5 }>
   | HomeFriendBannerSelection
-  | Readonly<{ kind: 'toolbar'; focus: 3; category: 6 }>
+  | HomeNewsBannerSelection
   | Readonly<{ kind: 'toolbar'; focus: 4; category: 7 }>
   | Readonly<{ kind: 'toolbar'; focus: 5; category: 8 }>;
 type UnsupportedSelection = Readonly<{ kind: 'app'; id: string }>
-  | Exclude<HomeToolbarBannerSelection, HomeFriendBannerSelection>;
+  | Exclude<HomeToolbarBannerSelection, HomeHostedToolbarBannerSelection>;
 export type HomeBannerHostSelection = SupportedSelection | UnsupportedSelection;
 export type HomeBannerHostInputs = Pick<HomeBannerServiceInputs,
   'managerInhibited' | 'sceneInhibited' | 'loadInhibited' | 'nativeWorkerReady' | 'resourceReady'>;
@@ -97,7 +99,7 @@ export function resolveHomeBannerHostObservation(state: MenuState,
     || toolbarActive && focus < 0) throw new RangeError('Invalid HOME banner resolver snapshot');
   if (toolbarActive) {
     // Category2 follows the existing default-banner path. Other toolbar packs
-    // remain an explicit unsupported handoff except for the proved Friend path.
+    // remain unsupported except for the proved Friend and Notifications paths.
     switch (focus) {
       case 1: return { kind: 'toolbar', focus: 1, category: 5 };
       case 2: return { kind: 'toolbar', focus: 2, category: 4 };
@@ -174,14 +176,19 @@ function sameFolder(a: HomeFolderBannerSelection, b: HomeFolderBannerSelection):
 function isFriendBannerSelection(selection: HomeBannerHostSelection): selection is HomeFriendBannerSelection {
   return selection.kind === 'toolbar' && selection.focus === 2 && selection.category === 4;
 }
+function isNewsBannerSelection(selection: HomeBannerHostSelection): selection is HomeNewsBannerSelection {
+  return selection.kind === 'toolbar' && selection.focus === 3 && selection.category === 6;
+}
 function isSupportedSelection(selection: HomeBannerHostSelection): selection is SupportedSelection {
   return selection.kind === 'app' ? hasHomeTitleBanner(selection.id)
-    : selection.kind === 'toolbar' ? isFriendBannerSelection(selection) : true;
+    : selection.kind === 'toolbar' ? isFriendBannerSelection(selection) || isNewsBannerSelection(selection) : true;
 }
 function targetFor(selection: SupportedSelection): HomeBannerTarget {
   if (selection.kind === 'folder') return { kind: 'folder', key: selection.key, nativeType: selection.nativeType };
   if (selection.kind === 'app') return { kind: 'app', key: selection.id, nativeType: 1 };
-  if (selection.kind === 'toolbar') return { kind: 'friend', key: HOME_BANNER_EMPTY_KEY, nativeType: 14 };
+  if (selection.kind === 'toolbar') return selection.focus === 2
+    ? { kind: 'friend', key: HOME_BANNER_EMPTY_KEY, nativeType: 14 }
+    : { kind: 'news', key: HOME_BANNER_EMPTY_KEY, nativeType: 16 };
   return selection.kind === 'default'
     ? { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 }
     : { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };

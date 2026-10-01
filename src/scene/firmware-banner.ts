@@ -237,18 +237,13 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       return render(ctx,scene,true);
     }catch(error){settingsFailure=String(error);return false;}
   }
-  function drawNewsFrame(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,label?:NativePixels){
+  function drawNewsFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
     if(disposed||!newsModel||!mask||!camera||newsFailure||frameFailure)return false;
+    if(!frame.visible)return true;
     try{
       const labelReady=!!label&&newsModel.setTexture('DmyText_00',label);
       newsModel.setMaterialVisible('mt_Text',labelReady);
-      // This toolbar resource has no traced host yaw clock. Keep its authored
-      // front pose while sampling the two source-owned animation clips.
-      newsModel.group.rotation.y=0;
-      newsModel.group.scale.setScalar(1);newsModel.group.position.set(0,0,0);
-      newsModel.setPlayback({skeletal:[{name:'BannerAppletNews',frame:reduced?0:Math.floor(elapsedMs/16.6667)%600}],material:[{name:'BannerAppletNews',frame:reduced?0:Math.floor(elapsedMs/16.6667)%300}]});
-      newsModel.update(0,camera);mask.group.position.set(0,0,0);mask.update(0,camera);
-      selectPrimary(newsModel);return render(ctx,scene,true);
+      return renderPrimaryFrame(ctx,newsModel,frame,'BannerAppletNews','BannerAppletNews');
     }catch(error){newsFailure=String(error);return false;}
   }
   function drawFriendFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){

@@ -13,6 +13,7 @@ const folder = (key = 'folder:4', nativeType = 9) => ({ kind: 'folder', key, nat
 const defaultBanner = { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 };
 const clear = { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };
 const friend = { kind: 'friend', key: HOME_BANNER_EMPTY_KEY, nativeType: 14 };
+const news = { kind: 'news', key: HOME_BANNER_EMPTY_KEY, nativeType: 16 };
 const app = { kind: 'app', key: 'app:notes', nativeType: 1 };
 const motion = state => state.active.motion;
 function activate(state = createHomeBannerLifecycle(), target = folder()) {
@@ -176,6 +177,18 @@ test('Friend type14 shares generic primary motion with source-owned 600/300 loop
   state = advanceHomeBannerClips(state);
   assert.deepEqual([motion(state).skeletal.frame, motion(state).material.frame], [300, 0]);
   assert.throws(() => requestHomeBanner(state, { ...friend, nativeType: 15 }), /Friend banner identity/);
+});
+
+test('Notifications type16 shares generic primary motion with source-owned 600/300 looping clips', () => {
+  let state = activate(createHomeBannerLifecycle(), news);
+  assert.deepEqual(state.active.target, news);
+  assert.deepEqual([motion(state).skeletal.duration, motion(state).skeletal.looping], [600, true]);
+  assert.deepEqual([motion(state).material.duration, motion(state).material.looping], [300, true]);
+  state = advanceHomeBannerClips(advanceHomeBannerManager(state), 299);
+  assert.deepEqual([motion(state).yawCounter, motion(state).skeletal.frame, motion(state).material.frame], [1, 299, 299]);
+  state = advanceHomeBannerClips(state);
+  assert.deepEqual([motion(state).skeletal.frame, motion(state).material.frame], [300, 0]);
+  assert.throws(() => requestHomeBanner(state, { ...news, nativeType: 14 }), /Notifications banner identity/);
 });
 
 test('normal child app or default selection, explicit clear and return activate a parent folder afresh', () => {

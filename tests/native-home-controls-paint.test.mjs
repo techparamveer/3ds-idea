@@ -167,7 +167,7 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
   const state = home();
   let selection;
   const banner = name => ctx => { ctx.record('toolbar-banner', [name]); return true; };
-  const friendMotion = { visible: true, scale: .9, yawRadians: -1.25,
+  const hostedMotion = { visible: true, scale: .9, yawRadians: -1.25,
     skeletal: { frame: 123 }, material: { frame: 77 } };
   await withScreens(({ paint, events }) => {
     for (const [focus, pane, title] of [
@@ -188,12 +188,12 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
       assert.equal(events.filter(event => event.name === 'banner-label').length, 0);
     }
   }, { screenOptions: {
-    getHomeBanner: () => selection?.focus === 2 ? { status: 'active', selection,
-      generation: 'friend-test', requestEpoch: 1, resourceTicket: { generation: 'friend-test', requestEpoch: 1 }, stage: 'active', waitUpdates: 0,
-      primary: { generation: 'friend-test', requestEpoch: 1, activationEpoch: 1, selection, motion: friendMotion } }
+    getHomeBanner: () => selection?.focus === 2 || selection?.focus === 3 ? { status: 'active', selection,
+      generation: 'toolbar-test', requestEpoch: 1, resourceTicket: { generation: 'toolbar-test', requestEpoch: 1 }, stage: 'active', waitUpdates: 0,
+      primary: { generation: 'toolbar-test', requestEpoch: 1, activationEpoch: 1, selection, motion: hostedMotion } }
       : ({ status: 'unsupported', selection, resourceTicket: null }),
     drawMemoBanner: banner('Game Notes'), drawFriendBannerFrame: banner('Friend List'),
-    drawNewsBanner: banner('Notifications'), drawWebBanner: banner('Internet Browser'),
+    drawNewsBannerFrame: banner('Notifications'), drawWebBanner: banner('Internet Browser'),
     drawMiiverseBanner: banner('Miiverse'),
   } });
 });
@@ -229,6 +229,29 @@ test('rejected Friend resource reports unavailable while remaining pending and b
         resourceTicket: { generation: 'friend-test', requestEpoch: 1 }, stage: 'loading', waitUpdates: 0 }),
       getFriendBannerFailure: () => 'Friend model rejected',
       drawFriendBannerFrame: ctx => { ctx.record('toolbar-banner', ['Friend List']); return true; },
+    } });
+  } finally { delete globalThis.__testSelectedApp; }
+});
+
+test('pending Notifications resources stay blank and report only a known failure', async () => {
+  globalThis.__testSelectedApp = { id: 'work' };
+  let failed = false;
+  try {
+    await withScreens(({ paint, events, diagnostics }) => {
+      paint(home());
+      assert.equal(events.some(event => event.name === 'fallback-banner'), false);
+      assert.equal(events.some(event => event.name === 'toolbar-banner'), false);
+      assert.deepEqual(diagnostics, []);
+      failed = true; paint(home()); paint(home());
+      assert.equal(events.some(event => event.name === 'fallback-banner'), false);
+      assert.equal(events.some(event => event.name === 'toolbar-banner'), false);
+      assert.deepEqual(diagnostics, ['Native Notifications toolbar banner unavailable.']);
+    }, { screenOptions: {
+      getHomeBanner: () => ({ status: 'pending', generation: 'news-test', requestEpoch: 1,
+        selection: { kind: 'toolbar', focus: 3, category: 6 },
+        resourceTicket: { generation: 'news-test', requestEpoch: 1 }, stage: 'loading', waitUpdates: 0 }),
+      getNewsBannerFailure: () => failed ? 'Notifications model rejected' : null,
+      drawNewsBannerFrame: ctx => { ctx.record('toolbar-banner', ['Notifications']); return true; },
     } });
   } finally { delete globalThis.__testSelectedApp; }
 });

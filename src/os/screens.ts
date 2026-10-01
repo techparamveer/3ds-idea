@@ -265,7 +265,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getFriendBannerFailure?:()=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawFriendBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawNewsBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawMemoBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawWebBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawMiiverseBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getFriendBannerFailure?:()=>string|null; getNewsBannerFailure?:()=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawFriendBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawNewsBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawMemoBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawWebBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawMiiverseBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -311,11 +311,14 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;}
   const hostedBanner=options.getHomeBanner?.();
   const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;
-  const hostedFriend=hostedBanner?.status!=='unsupported'&&hostedBanner?.selection.kind==='toolbar';
+  const hostedToolbar=hostedBanner?.status!=='unsupported'&&hostedBanner?.selection.kind==='toolbar'?hostedBanner.selection:null;
   const friendUnavailable='Native Friend List toolbar banner unavailable.';
-  if(hostedFriend&&options.getFriendBannerFailure?.()&&firmwareAssets&&!firmwareAssets.diagnostics.includes(friendUnavailable))firmwareAssets.diagnostics.push(friendUnavailable);
-  const toolbarNews=toolbarFocus===3,toolbarMemo=toolbarFocus===1,toolbarWeb=toolbarFocus===4,toolbarMiiverse=toolbarFocus===5;
-  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!toolbarNews&&!toolbarMemo&&!toolbarWeb&&!toolbarMiiverse&&!hostedFriend&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
+  const newsUnavailable='Native Notifications toolbar banner unavailable.';
+  const toolbarFailure=hostedToolbar?.focus===2?options.getFriendBannerFailure?.():hostedToolbar?.focus===3?options.getNewsBannerFailure?.():null;
+  const toolbarUnavailable=hostedToolbar?.focus===2?friendUnavailable:newsUnavailable;
+  if(hostedToolbar&&toolbarFailure&&firmwareAssets&&!firmwareAssets.diagnostics.includes(toolbarUnavailable))firmwareAssets.diagnostics.push(toolbarUnavailable);
+  const toolbarMemo=toolbarFocus===1,toolbarWeb=toolbarFocus===4,toolbarMiiverse=toolbarFocus===5;
+  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!toolbarMemo&&!toolbarWeb&&!toolbarMiiverse&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(toolbarMiiverse&&!state.panel&&state.system?.phase==='home'){
    const label=nativeHome?.appletBannerLabel('mvs');
    if(!options.drawMiiverseBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Miiverse toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Miiverse toolbar banner unavailable.');
@@ -323,10 +326,6 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(toolbarWeb&&!state.panel&&state.system?.phase==='home'){
    const label=nativeHome?.appletBannerLabel('web');
    if(!options.drawWebBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Internet Browser toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Internet Browser toolbar banner unavailable.');
-  }
-  if(toolbarNews&&!state.panel&&state.system?.phase==='home'){
-   const label=nativeHome?.appletBannerLabel('news');
-   if(!options.drawNewsBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Notifications toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Notifications toolbar banner unavailable.');
   }
   if(toolbarMemo&&!state.panel&&state.system?.phase==='home'){
    const label=nativeHome?.appletBannerLabel('memo');
@@ -339,8 +338,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     if(selection.kind==='default'){
      if(!options.drawDefaultBannerFrame?.(t,motion)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native default banner unavailable.'))firmwareAssets.diagnostics.push('Native default banner unavailable.');
     }else if(selection.kind==='toolbar'){
-     const label=nativeHome?.appletBannerLabel('fri');
-     if(!options.drawFriendBannerFrame?.(t,motion,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes(friendUnavailable))firmwareAssets.diagnostics.push(friendUnavailable);
+     const friend=selection.focus===2,label=nativeHome?.appletBannerLabel(friend?'fri':'news');
+     const drawn=friend?options.drawFriendBannerFrame?.(t,motion,label):options.drawNewsBannerFrame?.(t,motion,label);
+     const unavailable=friend?friendUnavailable:newsUnavailable;
+     if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(unavailable))firmwareAssets.diagnostics.push(unavailable);
     }else if(selection.kind==='app'&&homeTitleBannerKind(selection.id)){
      const drawn=options.drawStockTitleBannerFrame?.(t,motion,hostedBanner.primary,homeTitleBannerKind(selection.id)!);if(verificationPaint&&selection.id==='health-safety')verificationPaint.healthBanner=drawn===true;if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(`Native ${selection.id} banner unavailable.`))firmwareAssets.diagnostics.push(`Native ${selection.id} banner unavailable.`);
     }else if(selection.kind==='app'){

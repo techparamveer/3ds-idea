@@ -86,6 +86,22 @@ test('Internet Browser toolbar uses the converted HOME source model as sole prim
  assert.equal(h.banner.drawFriendFrame(h.ctx,frame),true);
  assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Browser');
 });
+test('Notifications toolbar consumes hosted pose and source-owned clip frames',async t=>{
+ const h=setup(t);await h.banner.ready;
+ assert.equal(h.banner.status().newsReady,true);
+ const newsFrame={...frame,scale:.85,yawRadians:-2.25,skeletalFrame:321,materialFrame:177};
+ assert.equal(h.banner.drawNewsFrame(h.ctx,newsFrame),true);
+ const scene=h.draws.at(-1).scene;
+ assert.equal(h.draws.at(-1).primaries.length,1);
+ assert.equal(primary(scene).rotation.y,-2.25);
+ assert.equal(primary(scene).scale.x,.85);
+ assert.ok(mask(scene));
+ const sampled=snapshot(primary(scene));
+ assert.equal(h.banner.drawNewsFrame(h.ctx,{...newsFrame,skeletalFrame:322,materialFrame:178}),true);
+ assert.notDeepEqual(snapshot(primary(scene)),sampled,'hosted source frames drive the Notifications model');
+ assert.equal(h.banner.drawFriendFrame(h.ctx,frame),true);
+ assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Notifications');
+});
 test('Friend List toolbar uses the converted HOME source model as sole primary',async t=>{
  const h=setup(t);await h.banner.ready;
  assert.equal(h.banner.status().friendReady,true);
@@ -99,8 +115,15 @@ test('Friend List toolbar uses the converted HOME source model as sole primary',
  const sampled=snapshot(primary(scene));
  assert.equal(h.banner.drawFriendFrame(h.ctx,{...friendFrame,skeletalFrame:124,materialFrame:78}),true);
  assert.notDeepEqual(snapshot(primary(scene)),sampled,'hosted source frames drive the Friend model');
- assert.equal(h.banner.drawNewsFrame(h.ctx,5000,false),true);
+ assert.equal(h.banner.drawNewsFrame(h.ctx,frame),true);
  assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Friend List');
+});
+test('Notifications model rejection settles readiness and remains unavailable before activation',async t=>{
+ const h=setup(t,{failure:'/banner-applet-news/model.json'});await h.banner.ready;
+ assert.equal(h.banner.status().newsReady,false);
+ assert.match(h.banner.status().newsFailure,/HTTP 503/);
+ assert.equal(h.banner.drawNewsFrame(h.ctx,frame),false);
+ assert.equal(h.draws.length,0);
 });
 test('Friend List model rejection settles readiness and remains unavailable before activation',async t=>{
  const h=setup(t,{failure:'/banner-applet-friend/model.json'});await h.banner.ready;

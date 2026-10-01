@@ -214,10 +214,42 @@ test('Friend toolbar focus alone uses the ticketed type14 generic primary lifecy
   assert.deepEqual([motion(host).yawCounter, motion(host).skeletal.duration, motion(host).material.duration], [1, 600, 300]);
   for (const selection of [
     { kind: 'toolbar', focus: 1, category: 5 },
-    { kind: 'toolbar', focus: 3, category: 6 },
     { kind: 'toolbar', focus: 4, category: 7 },
     { kind: 'toolbar', focus: 5, category: 8 },
   ]) assert.equal(view(request(fresh(), selection)).status, 'unsupported');
+});
+
+test('Notifications toolbar focus uses the ticketed type16 generic primary lifecycle', () => {
+  const news = { kind: 'toolbar', focus: 3, category: 6 };
+  let host = request(fresh(), news);
+  assert.equal(view(host).status, 'pending');
+  assert.deepEqual(host.service.lifecycle.requested.target, {
+    kind: 'news', key: 'native:ffffffff:ffffffff:0', nativeType: 16,
+  });
+  host = acknowledge(host); host = step(host, 7);
+  assert.equal(view(host).status, 'active');
+  assert.deepEqual(view(host).primary.selection, news);
+  assert.deepEqual([motion(host).yawCounter, motion(host).skeletal.duration, motion(host).material.duration], [1, 600, 300]);
+});
+
+test('Friend to Notifications changes native identity despite the shared key and rejects stale readiness', () => {
+  const friend = { kind: 'toolbar', focus: 2, category: 4 };
+  const news = { kind: 'toolbar', focus: 3, category: 6 };
+  let host = settled(friend), friendTicket = view(host).resourceTicket;
+  host = request(host, news);
+  const newsTicket = view(host).resourceTicket;
+  assert.notDeepEqual(newsTicket, friendTicket);
+  assert.deepEqual(host.service.lifecycle.requested.target, {
+    kind: 'news', key: 'native:ffffffff:ffffffff:0', nativeType: 16,
+  });
+  host = acknowledge(host, friendTicket);
+  assert.equal(host.inputs.resourceReady, null);
+  host = acknowledge(host, newsTicket);
+  assert.deepEqual(host.inputs.resourceReady, newsTicket);
+  host = step(host, 13);
+  assert.equal(view(host).status, 'active');
+  assert.deepEqual(view(host).primary.selection, news);
+  assert.equal(view(host).primary.activationEpoch, 2);
 });
 
 test('folder-scope reentry is deterministic, starts at the current count and invalidates old tickets', () => {

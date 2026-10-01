@@ -25,20 +25,6 @@ export function pixelRatioForViewport(tier: RenderQuality['tier'], devicePixelRa
   return Math.min(devicePixelRatio, cap, Math.sqrt(budget / Math.max(1, width * height)));
 }
 
-/** The largest drawing buffer (device px, longer side) that the compact model
- * serves. It halves only textures above 2048 px; below this size the console
- * never samples their full-resolution level, and matched screenshots differ by
- * at most a few levels. Every phone screen, including 932 px ones at the 1.75
- * DPR cap, stays under it; laptops and tablets exceed it. */
-export const COMPACT_MODEL_MAX_BUFFER = 1700;
-
-/** Choose by the screen, not the current window, so enlarging a window can never
- * reach a drawing buffer larger than the loaded textures were chosen for. */
-export function prefersCompactModel(tier: RenderQuality['tier'], devicePixelRatio: number, screenWidth: number, screenHeight: number): boolean {
-  const ratio = pixelRatioForViewport(tier, devicePixelRatio, screenWidth, screenHeight);
-  return Math.max(screenWidth, screenHeight) * ratio <= COMPACT_MODEL_MAX_BUFFER;
-}
-
 /** Short counted transitions may use the scene budget; idle LCD loops retain
  * the lower upload cadence. State still advances independently of painting. */
 export function screenPaintFps(quality: RenderQuality, transitionAdvanced: boolean): number {

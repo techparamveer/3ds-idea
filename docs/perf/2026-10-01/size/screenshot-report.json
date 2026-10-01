@@ -1,0 +1,73 @@
+{
+ "a": "http://127.0.0.1:3201/source-preview",
+ "b": "http://127.0.0.1:3201/",
+ "frozenClock": "2026-09-28T12:34:00.000Z",
+ "report": [
+  {
+   "profile": "desktop",
+   "view": "home",
+   "width": 2880,
+   "height": 1800,
+   "differing": 221,
+   "differingPercent": 0.0043,
+   "within2": 40,
+   "over32": 0,
+   "maxDelta": 29
+  },
+  {
+   "profile": "desktop",
+   "view": "rotated",
+   "width": 2880,
+   "height": 1800,
+   "differing": 107,
+   "differingPercent": 0.0021,
+   "within2": 51,
+   "over32": 0,
+   "maxDelta": 13
+  },
+  {
+   "profile": "ipad",
+   "view": "home",
+   "width": 2360,
+   "height": 1640,
+   "differing": 193,
+   "differingPercent": 0.005,
+   "within2": 29,
+   "over32": 0,
+   "maxDelta": 15
+  },
+  {
+   "profile": "ipad",
+   "view": "rotated",
+   "width": 2360,
+   "height": 1640,
+   "differing": 64,
+   "differingPercent": 0.0017,
+   "within2": 26,
+   "over32": 0,
+   "maxDelta": 12
+  },
+  {
+   "profile": "mobile",
+   "view": "home",
+   "width": 1170,
+   "height": 2532,
+   "differing": 74,
+   "differingPercent": 0.0025,
+   "within2": 32,
+   "over32": 0,
+   "maxDelta": 16
+  },
+  {
+   "profile": "mobile",
+   "view": "rotated",
+   "width": 1170,
+   "height": 2532,
+   "differing": 4,
+   "differingPercent": 0.0001,
+   "within2": 4,
+   "over32": 0,
+   "maxDelta": 1
+  }
+ ]
+}

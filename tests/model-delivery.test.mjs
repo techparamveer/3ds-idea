@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { DEFAULT_MODEL_URL } from '../src/scene/model-layout.ts';
-import { COMPACT_MODEL_URL, PACKED_MODEL_URL } from '../src/scene/model-delivery.ts';
-import { COMPACT_MODEL_MAX_BUFFER, prefersCompactModel } from '../src/scene/render-quality.ts';
+import { PACKED_MODEL_URL } from '../src/scene/model-delivery.ts';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 
 const publicFile = url => readFileSync(new URL('../public' + url, import.meta.url));
 function parse(bytes) {
@@ -12,7 +12,7 @@ function parse(bytes) {
   const json = JSON.parse(bytes.subarray(20, 20 + jsonLength).toString('utf8'));
   const bin = bytes.subarray(20 + jsonLength + 8);
   const image = index => { const view = json.bufferViews[json.images[index].bufferView]; return bin.subarray(view.byteOffset ?? 0, (view.byteOffset ?? 0) + view.byteLength); };
-  return { json, image };
+  return { json, bin, image };
 }
 // Everything the scene reads from the model, independent of buffer layout.
 function sceneContract({ json }) {
@@ -42,46 +42,84 @@ function sceneContract({ json }) {
 
 const source = parse(publicFile(DEFAULT_MODEL_URL));
 
-test('delivered models are generated from the current sourced export', () => {
+// Decode every primitive to (material, vertex records per triangle). Each vertex
+// record is the exact bytes of all its attributes, so equal sets mean the GPU
+// receives the same triangles with the same values, only in another order.
+await MeshoptDecoder.ready;
+function triangles(model) {
+  const { json, bin } = model;
+  const views = new Map();
+  const view = index => {
+    if (views.has(index)) return views.get(index);
+    const value = json.bufferViews[index], meshopt = value.extensions?.EXT_meshopt_compression;
+    let bytes;
+    if (meshopt) {
+      bytes = new Uint8Array(meshopt.count * meshopt.byteStride);
+      MeshoptDecoder.decodeGltfBuffer(bytes, meshopt.count, meshopt.byteStride, bin.subarray(meshopt.byteOffset ?? 0, (meshopt.byteOffset ?? 0) + meshopt.byteLength), meshopt.mode, meshopt.filter);
+    } else bytes = bin.subarray(value.byteOffset ?? 0, (value.byteOffset ?? 0) + value.byteLength);
+    views.set(index, bytes);
+    return bytes;
+  };
+  const size = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4 }, bytesOf = { 5121: 1, 5123: 2, 5125: 4, 5126: 4 };
+  const element = accessor => {
+    const bytes = view(accessor.bufferView), width = size[accessor.type] * bytesOf[accessor.componentType];
+    const stride = json.bufferViews[accessor.bufferView].byteStride ?? json.bufferViews[accessor.bufferView].extensions?.EXT_meshopt_compression?.byteStride ?? width;
+    return index => Buffer.from(bytes.buffer, bytes.byteOffset + (accessor.byteOffset ?? 0) + index * stride, width);
+  };
+  const byNode = new Map();
+  for (const node of json.nodes) {
+    if (node.mesh === undefined) continue;
+    const list = [];
+    for (const primitive of json.meshes[node.mesh].primitives) {
+      assert.equal(primitive.mode ?? 4, 4);
+      const names = Object.keys(primitive.attributes).sort();
+      const readers = names.map(name => element(json.accessors[primitive.attributes[name]]));
+      const indices = json.accessors[primitive.indices], read = element(indices), wide = indices.componentType === 5125;
+      const vertex = index => Buffer.concat(readers.map(reader => reader(index))).toString('base64');
+      const keys = [];
+      for (let i = 0; i < indices.count; i += 3) {
+        const corners = [0, 1, 2].map(k => { const b = read(i + k); return vertex(wide ? b.readUInt32LE(0) : b.readUInt16LE(0)); });
+        // Rotate to a canonical first corner; winding is preserved.
+        const first = corners.indexOf([...corners].sort()[0]);
+        keys.push(corners.slice(first).concat(corners.slice(0, first)).join('|'));
+      }
+      list.push({ material: json.materials[primitive.material]?.name, attributes: names.join(','), triangles: keys.sort() });
+    }
+    byNode.set(node.name, list);
+  }
+  return byNode;
+}
+
+test('delivered model is generated from the current sourced export', () => {
   const generated = readFileSync(new URL('../src/scene/model-delivery.ts', import.meta.url), 'utf8');
   const recorded = /sha256 ([0-9a-f]{64})/.exec(generated)?.[1];
   assert.equal(recorded, createHash('sha256').update(publicFile(DEFAULT_MODEL_URL)).digest('hex'), 'rerun scripts/pack-model.mjs after re-exporting the model');
-  for (const url of [PACKED_MODEL_URL, COMPACT_MODEL_URL]) {
-    const hash = /\.([0-9a-f]{12})\.(packed|compact)\.glb$/.exec(url)?.[1];
-    assert.equal(hash, createHash('sha256').update(publicFile(url)).digest('hex').slice(0, 12), `${url} name must match its content`);
-  }
+  const hash = /\.([0-9a-f]{12})\.packed\.glb$/.exec(PACKED_MODEL_URL)?.[1];
+  assert.equal(hash, createHash('sha256').update(publicFile(PACKED_MODEL_URL)).digest('hex').slice(0, 12), `${PACKED_MODEL_URL} name must match its content`);
 });
 
-test('packed and compact models keep the hierarchy, transforms, metadata and materials', () => {
-  const expected = sceneContract(source);
-  for (const url of [PACKED_MODEL_URL, COMPACT_MODEL_URL]) assert.deepEqual(sceneContract(parse(publicFile(url))), expected, url);
+test('packed model keeps the hierarchy, transforms, metadata and materials', () => {
+  assert.deepEqual(sceneContract(parse(publicFile(PACKED_MODEL_URL))), sceneContract(source));
 });
 
-test('packed images are byte-identical; compact halves only images above 2048 px', () => {
+test('packed images are byte-identical to the source', () => {
   const byName = model => new Map(model.json.images.map((image, index) => [image.name, model.image(index)]));
-  const original = byName(source), packed = byName(parse(publicFile(PACKED_MODEL_URL))), compact = byName(parse(publicFile(COMPACT_MODEL_URL)));
+  const original = byName(source), packed = byName(parse(publicFile(PACKED_MODEL_URL)));
   assert.deepEqual([...packed.keys()].sort(), [...original.keys()].sort());
-  const width = bytes => {
-    const chunk = bytes.subarray(12, 16).toString('latin1');
-    if (chunk === 'VP8L') { const bits = bytes.readUInt32LE(21); return (bits & 0x3fff) + 1; }
-    if (chunk === 'VP8 ') return bytes.readUInt16LE(26) & 0x3fff;
-    throw new Error(`Unexpected WebP chunk ${chunk}`);
-  };
-  for (const [name, bytes] of original) {
-    assert.ok(packed.get(name).equals(bytes), `${name} must be copied unchanged`);
-    if (width(bytes) <= 2048) assert.ok(compact.get(name).equals(bytes), `${name} is within the limit and must be unchanged`);
-    else assert.equal(width(compact.get(name)), width(bytes) / 2, `${name} is halved once`);
-  }
+  for (const [name, bytes] of original) assert.ok(packed.get(name).equals(bytes), `${name} must be copied unchanged`);
 });
 
-test('phones take the compact model; laptops, desktops and tablets keep full textures', () => {
-  // iPhone Pro Max and large Android at the balanced/constrained caps.
-  assert.equal(prefersCompactModel('balanced', 3, 430, 932), true);
-  assert.equal(prefersCompactModel('constrained', 3, 390, 844), true);
-  assert.equal(prefersCompactModel('balanced', 2.625, 412, 915), true);
-  // Retina laptop, 1080p desktop and iPad Pro screens.
-  assert.equal(prefersCompactModel('high', 2, 1440, 900), false);
-  assert.equal(prefersCompactModel('high', 1, 1920, 1080), false);
-  assert.equal(prefersCompactModel('high', 2, 1024, 1366), false);
-  assert.ok(Math.max(430, 932) * 1.75 <= COMPACT_MODEL_MAX_BUFFER);
+test('packed geometry draws the source triangles with bit-identical vertex values', () => {
+  const expected = triangles(source), actual = triangles(parse(publicFile(PACKED_MODEL_URL)));
+  assert.deepEqual([...actual.keys()].sort(), [...expected.keys()].sort());
+  for (const [name, primitives] of expected) {
+    const packed = actual.get(name);
+    assert.equal(packed.length, primitives.length, name);
+    primitives.forEach((primitive, index) => {
+      assert.equal(packed[index].material, primitive.material, name);
+      assert.equal(packed[index].attributes, primitive.attributes, name);
+      assert.equal(packed[index].triangles.length, primitive.triangles.length, name);
+      assert.ok(packed[index].triangles.every((key, i) => key === primitive.triangles[i]), `${name} primitive ${index} triangles differ`);
+    });
+  }
 });

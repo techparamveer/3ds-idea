@@ -1,0 +1,3130 @@
+{
+  "url": "http://127.0.0.1:3201/",
+  "profile": "desktop",
+  "throttle": null,
+  "readyMs": 1954.6000000000931,
+  "phases": {
+    "startup": {
+      "total": {
+        "requests": 298,
+        "transferMB": 11.888012886047363,
+        "decodedMB": 18.897907257080078
+      },
+      "byType": {
+        "html": {
+          "requests": 1,
+          "transferMB": 0.0022230148315429688,
+          "decodedMB": 0.005401611328125
+        },
+        "css": {
+          "requests": 1,
+          "transferMB": 0.0010232925415039062,
+          "decodedMB": 0.000705718994140625
+        },
+        "javascript": {
+          "requests": 9,
+          "transferMB": 0.4703340530395508,
+          "decodedMB": 1.6282329559326172
+        },
+        "other": {
+          "requests": 38,
+          "transferMB": 0.00027942657470703125,
+          "decodedMB": 1.52691650390625
+        },
+        "json (packs, manifests, models)": {
+          "requests": 22,
+          "transferMB": 0.5657415390014648,
+          "decodedMB": 4.734650611877441
+        },
+        "images/textures": {
+          "requests": 213,
+          "transferMB": 2.7895288467407227,
+          "decodedMB": 1.2061357498168945
+        },
+        "model (glb)": {
+          "requests": 1,
+          "transferMB": 6.839214324951172,
+          "decodedMB": 8.579681396484375
+        },
+        "fonts": {
+          "requests": 1,
+          "transferMB": 0.03369712829589844,
+          "decodedMB": 0.033428192138671875
+        },
+        "audio": {
+          "requests": 12,
+          "transferMB": 1.1859712600708008,
+          "decodedMB": 1.1827545166015625
+        }
+      }
+    },
+    "opening": {
+      "total": {
+        "requests": 3,
+        "transferMB": 0.1686563491821289,
+        "decodedMB": 0.24422168731689453
+      },
+      "byType": {
+        "javascript": {
+          "requests": 2,
+          "transferMB": 0.037792205810546875,
+          "decodedMB": 0.11362743377685547
+        },
+        "images/textures": {
+          "requests": 1,
+          "transferMB": 0.13086414337158203,
+          "decodedMB": 0.13059425354003906
+        }
+      }
+    },
+    "interaction": {
+      "total": {
+        "requests": 18,
+        "transferMB": 0.2252216339111328,
+        "decodedMB": 0.3220033645629883
+      },
+      "byType": {
+        "json (packs, manifests, models)": {
+          "requests": 3,
+          "transferMB": 0.01737499237060547,
+          "decodedMB": 0.1182861328125
+        },
+        "audio": {
+          "requests": 8,
+          "transferMB": 0.16811847686767578,
+          "decodedMB": 0.1658620834350586
+        },
+        "other": {
+          "requests": 1,
+          "transferMB": 0.00027942657470703125,
+          "decodedMB": 0.00000858306884765625
+        },
+        "images/textures": {
+          "requests": 6,
+          "transferMB": 0.03944873809814453,
+          "decodedMB": 0.03784656524658203
+        }
+      }
+    }
+  },
+  "largest": [
+    {
+      "url": "/models/candidates/joshua-xl.b20054a33657.packed.glb",
+      "phase": "startup",
+      "transferKB": 7003,
+      "decodedKB": 8786,
+      "encoding": "gzip"
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/audio/home.wav",
+      "phase": "startup",
+      "transferKB": 422,
+      "decodedKB": 421,
+      "encoding": null
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/audio/open.wav",
+      "phase": "startup",
+      "transferKB": 314,
+      "decodedKB": 314,
+      "encoding": null
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/fonts/shared/sheet-3.png",
+      "phase": "startup",
+      "transferKB": 298,
+      "decodedKB": 0,
+      "encoding": null
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/fonts/shared/sheet-2.png",
+      "phase": "startup",
+      "transferKB": 294,
+      "decodedKB": 0,
+      "encoding": null
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/fonts/shared/sheet-4.png",
+      "phase": "startup",
+      "transferKB": 288,
+      "decodedKB": 0,
+      "encoding": null
+    },
+    {
+      "url": "/_next/static/chunks/42rpjfv_xvywx.js",
+      "phase": "startup",
+      "transferKB": 272,
+      "decodedKB": 949,
+      "encoding": "gzip"
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/fonts/shared/sheet-1.png",
+      "phase": "startup",
+      "transferKB": 270,
+      "decodedKB": 0,
+      "encoding": null
+    },
+    {
+      "url": "/portfolio/building2.jpg",
+      "phase": "startup",
+      "transferKB": 266,
+      "decodedKB": 266,
+      "encoding": null
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/audio/back.wav",
+      "phase": "startup",
+      "transferKB": 265,
+      "decodedKB": 265,
+      "encoding": null
+    },
+    {
+      "url": "/portfolio/building3.jpg",
+      "phase": "startup",
+      "transferKB": 248,
+      "decodedKB": 248,
+      "encoding": null
+    },
+    {
+      "url": "/portfolio/building1.jpg",
+      "phase": "startup",
+      "transferKB": 231,
+      "decodedKB": 230,
+      "encoding": null
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/fonts/shared/sheet-5.png",
+      "phase": "startup",
+      "transferKB": 227,
+      "decodedKB": 0,
+      "encoding": null
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/manifest.json",
+      "phase": "startup",
+      "transferKB": 200,
+      "decodedKB": 865,
+      "encoding": "gzip"
+    },
+    {
+      "url": "/portfolio/renu.jpg",
+      "phase": "startup",
+      "transferKB": 195,
+      "decodedKB": 195,
+      "encoding": null
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/fonts/shared/sheet-0.png",
+      "phase": "startup",
+      "transferKB": 183,
+      "decodedKB": 0,
+      "encoding": null
+    },
+    {
+      "url": "/models/candidates/joshua-xl-eur-paint-mask.png",
+      "phase": "opening",
+      "transferKB": 134,
+      "decodedKB": 134,
+      "encoding": null
+    },
+    {
+      "url": "/portfolio/hackuk-event.webp",
+      "phase": "startup",
+      "transferKB": 115,
+      "decodedKB": 114,
+      "encoding": null
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/packs/home/launcher.json",
+      "phase": "startup",
+      "transferKB": 81,
+      "decodedKB": 1326,
+      "encoding": "gzip"
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/audio/power.wav",
+      "phase": "startup",
+      "transferKB": 75,
+      "decodedKB": 74,
+      "encoding": null
+    },
+    {
+      "url": "/_next/static/chunks/1j_9b-l0n6u-t.js",
+      "phase": "startup",
+      "transferKB": 70,
+      "decodedKB": 224,
+      "encoding": "gzip"
+    },
+    {
+      "url": "/_next/static/chunks/2ztes8amqc1qd.js",
+      "phase": "startup",
+      "transferKB": 70,
+      "decodedKB": 259,
+      "encoding": "gzip"
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/audio/folder-open.wav",
+      "phase": "startup",
+      "transferKB": 69,
+      "decodedKB": 69,
+      "encoding": null
+    },
+    {
+      "url": "/_next/static/chunks/3q5hirtwweuqh.js",
+      "phase": "startup",
+      "transferKB": 46,
+      "decodedKB": 174,
+      "encoding": "gzip"
+    },
+    {
+      "url": "/os/firmware/10.7.0-32E/fonts/shared/font.json",
+      "phase": "startup",
+      "transferKB": 44,
+      "decodedKB": 591,
+      "encoding": "gzip"
+    }
+  ],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:3201/models/candidates/joshua-xl.b20054a33657.packed.glb",
+      "type": "Fetch",
+      "mime": "model/gltf-binary",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 8996448,
+      "transfer": 7171436
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/home.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 431404,
+      "transfer": 431687
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/open.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 321324,
+      "transfer": 321607
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/fonts/shared/sheet-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 0,
+      "transfer": 304744
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/fonts/shared/sheet-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 0,
+      "transfer": 300729
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/fonts/shared/sheet-4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 0,
+      "transfer": 294447
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/42rpjfv_xvywx.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 971581,
+      "transfer": 278680
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/fonts/shared/sheet-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 0,
+      "transfer": 276713
+    },
+    {
+      "url": "http://127.0.0.1:3201/portfolio/building2.jpg",
+      "type": "Image",
+      "mime": "image/jpeg",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 271880,
+      "transfer": 272164
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/back.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 271404,
+      "transfer": 271687
+    },
+    {
+      "url": "http://127.0.0.1:3201/portfolio/building3.jpg",
+      "type": "Image",
+      "mime": "image/jpeg",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 253882,
+      "transfer": 254166
+    },
+    {
+      "url": "http://127.0.0.1:3201/portfolio/building1.jpg",
+      "type": "Image",
+      "mime": "image/jpeg",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 235829,
+      "transfer": 236113
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/fonts/shared/sheet-5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 0,
+      "transfer": 232202
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/manifest.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 885362,
+      "transfer": 204324
+    },
+    {
+      "url": "http://127.0.0.1:3201/portfolio/renu.jpg",
+      "type": "Image",
+      "mime": "image/jpeg",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 199788,
+      "transfer": 200072
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/fonts/shared/sheet-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 0,
+      "transfer": 187169
+    },
+    {
+      "url": "http://127.0.0.1:3201/models/candidates/joshua-xl-eur-paint-mask.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "opening",
+      "encoding": null,
+      "decoded": 136938,
+      "transfer": 137221
+    },
+    {
+      "url": "http://127.0.0.1:3201/portfolio/hackuk-event.webp",
+      "type": "Image",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 117200,
+      "transfer": 117484
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/home/launcher.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 1357328,
+      "transfer": 82975
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/power.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 76204,
+      "transfer": 76486
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/1j_9b-l0n6u-t.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 228922,
+      "transfer": 72016
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/2ztes8amqc1qd.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 264855,
+      "transfer": 71498
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/folder-open.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 70444,
+      "transfer": 70726
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/3q5hirtwweuqh.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 177995,
+      "transfer": 47482
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/fonts/shared/font.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 604698,
+      "transfer": 45430
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/2fpaq4gty7div.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "opening",
+      "encoding": "gzip",
+      "decoded": 117645,
+      "transfer": 38319
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/music/wave-3-1.pcm",
+      "type": "Fetch",
+      "mime": "application/octet-stream",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 37480,
+      "transfer": 37776
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-miiverse/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 248208,
+      "transfer": 37275
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/music/wave-3-0.pcm",
+      "type": "Fetch",
+      "mime": "application/octet-stream",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 36850,
+      "transfer": 37146
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/settings-banner/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 279683,
+      "transfer": 35812
+    },
+    {
+      "url": "http://127.0.0.1:3201/portfolio/hackuk.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 35122,
+      "transfer": 35403
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/home-menu.woff2",
+      "type": "Font",
+      "mime": "font/woff2",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 35052,
+      "transfer": 35334
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 225864,
+      "transfer": 34195
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/folder-close.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 28844,
+      "transfer": 29125
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/music/music.cseq",
+      "type": "Fetch",
+      "mime": "application/octet-stream",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 28792,
+      "transfer": 29088
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/home/messages-and-loose.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 236433,
+      "transfer": 22232
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/music/music-resume.cseq",
+      "type": "Fetch",
+      "mime": "application/octet-stream",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 20568,
+      "transfer": 20864
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/music/wave-3-3.pcm",
+      "type": "Fetch",
+      "mime": "application/octet-stream",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 19786,
+      "transfer": 20082
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/music/wave-3-2.pcm",
+      "type": "Fetch",
+      "mime": "application/octet-stream",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 18558,
+      "transfer": 18854
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-news/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 118037,
+      "transfer": 17882
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-friend/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 104863,
+      "transfer": 15815
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-web/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 117043,
+      "transfer": 15607
+    },
+    {
+      "url": "http://127.0.0.1:3201/portfolio/nvidia.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 15035,
+      "transfer": 15316
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-memo/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 78322,
+      "transfer": 14743
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-frame/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 113413,
+      "transfer": 14321
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/drop.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 13484,
+      "transfer": 13765
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/sound-banner-common/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 12513,
+      "transfer": 12794
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/home/hud.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 185384,
+      "transfer": 12429
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/grab.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 10924,
+      "transfer": 11205
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/sound-banner-common/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "interaction",
+      "encoding": "gzip",
+      "decoded": 103876,
+      "transfer": 11015
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-default/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 178683,
+      "transfer": 8740
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/12aruqaur5huj.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 22139,
+      "transfer": 7743
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/sound-banner-eur/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 6938,
+      "transfer": 7218
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/sound-banner-eur/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 6778,
+      "transfer": 7058
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/music/tables.bin",
+      "type": "Fetch",
+      "mime": "application/octet-stream",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 6761,
+      "transfer": 7056
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/fonts/hud/sheet-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 0,
+      "transfer": 7053
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/2uv3iumq9fksi.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 17554,
+      "transfer": 6914
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/home-toolbar.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 6483,
+      "transfer": 6763
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/touch.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 6444,
+      "transfer": 6724
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/sound-banner-common/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 6398,
+      "transfer": 6678
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/change-theme.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 6222,
+      "transfer": 6502
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/music/music.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "interaction",
+      "encoding": "gzip",
+      "decoded": 18855,
+      "transfer": 6151
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/home/common.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 50829,
+      "transfer": 6083
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/audio.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 22870,
+      "transfer": 6074
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/settings-banner/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 5773,
+      "transfer": 6053
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/sound-banner-common/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 5619,
+      "transfer": 5899
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/home-background/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 43575,
+      "transfer": 5851
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/launch/logo.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 68312,
+      "transfer": 5519
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/music/wave-3-4.pcm",
+      "type": "Fetch",
+      "mime": "application/octet-stream",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 5124,
+      "transfer": 5419
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/tile-frame.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 4192,
+      "transfer": 4472
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/home/sleep.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 35393,
+      "transfer": 4415
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/turbopack-3tz67i07c_pdu.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 9688,
+      "transfer": 4230
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/select.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 3884,
+      "transfer": 4163
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/toolbar-select.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 3884,
+      "transfer": 4163
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/settings-banner/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 3782,
+      "transfer": 4061
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/3fntmmi971322.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 14377,
+      "transfer": 4057
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/settings-banner/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 3354,
+      "transfer": 3633
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/cae9d5c90371e8cbcefc2a293ccda8051a0b6a366d82df17a4a25fd5fe8538f5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 2374,
+      "transfer": 2653
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/icon-tray.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 2136,
+      "transfer": 2415
+    },
+    {
+      "url": "http://127.0.0.1:3201/",
+      "type": "Document",
+      "mime": "text/html",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 5664,
+      "transfer": 2331
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/audio/scroll-invalid.wav",
+      "type": "Fetch",
+      "mime": "audio/wav",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1964,
+      "transfer": 2243
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/c0b965b490228c96c0314efb74766257dc70c72dcf34a4cd0acfd2993fceff80.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1957,
+      "transfer": 2236
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1941,
+      "transfer": 2220
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/home-background/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1831,
+      "transfer": 2110
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/texture-5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1813,
+      "transfer": 2092
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/d02e01c31dacdee7df46d38ffa2f3273e519f39053726f8512f9c233bcdb87d3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1809,
+      "transfer": 2088
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/launch/textures/acdfa2194e2872e84ba80ed29f467b4f85abfaaedb5567c2e1e038e6e96f21d6.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1757,
+      "transfer": 2036
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/ca8c9833f83aa5d12e9f144868cfd496ad4cefe477f5b49faa9aab8d80e5d552.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1679,
+      "transfer": 1958
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/bfb6fcb18eefb9f0626204f6b2615ba9a714396538bf70374e51996ee2f06660.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1571,
+      "transfer": 1850
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/sound.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1561,
+      "transfer": 1840
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/miiverse.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1495,
+      "transfer": 1774
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/settings-banner/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1484,
+      "transfer": 1763
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/8825560b916bd3a523d71c44b61029155396ce06003d5e6f50874eb6607ccb19.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1440,
+      "transfer": 1719
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/sound-banner-common/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 1439,
+      "transfer": 1718
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/e6c7be1ba9594669fd075311b0f0037de1c0812b9b6527473f2f7bddab4f0f02.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1432,
+      "transfer": 1711
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-default/texture-4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1430,
+      "transfer": 1709
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/ec970f43afb9f4df297ad0c9d1dc8bcfd08169020408dbff36c5896000e8718d.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1362,
+      "transfer": 1641
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/settings.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1318,
+      "transfer": 1597
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/theme-shop.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1291,
+      "transfer": 1570
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/internet-status.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1273,
+      "transfer": 1552
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/browser.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1271,
+      "transfer": 1550
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-default/texture-5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1224,
+      "transfer": 1503
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/1e5bea9b19d51806e5d326bac9e1c9655548839a534cd59bccf145c20cc54511.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1202,
+      "transfer": 1481
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/30e00e9104f89f57f6501562d2c710662453d20dff900ecd1d572672d052c726.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1152,
+      "transfer": 1431
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/2ab861844e2f307c7cbbb3101f8ae046065c9e80bdefb79cdee3ee27d8bf7046.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1126,
+      "transfer": 1405
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/system-transfer.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1121,
+      "transfer": 1400
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/camera.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1097,
+      "transfer": 1376
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/4345d7a30526dcf340bbf067f9a2998c7927997d24bb6bb3db3a734f3c2f77b7.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1092,
+      "transfer": 1371
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/b129938af6c76de798959a623495c75bc2da9ca5b230a801e32f0c27ab4599cf.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1074,
+      "transfer": 1353
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/fonts/hud/font.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 6605,
+      "transfer": 1342
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/game-notes.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1061,
+      "transfer": 1340
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/amiibo-settings.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1060,
+      "transfer": 1339
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/b0e5663eefaf8932212a7168ac85bcfe3a5e0a3612a307db4af2c83320bdb3f7.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1047,
+      "transfer": 1326
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/home/banner.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 2704,
+      "transfer": 1317
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/0o2bolnsalix5.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "opening",
+      "encoding": "gzip",
+      "decoded": 1502,
+      "transfer": 1309
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/b4ba40b57b987e42e5f0c2e6a170738ddfd1bca0600ece67bfabd2aab49d57ae.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 1028,
+      "transfer": 1307
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-memo/texture-5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 993,
+      "transfer": 1271
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-news/texture-5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 993,
+      "transfer": 1271
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-friend/texture-5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 993,
+      "transfer": 1271
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 993,
+      "transfer": 1271
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-web/texture-5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 993,
+      "transfer": 1271
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-miiverse/texture-5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 993,
+      "transfer": 1271
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/health-and-safety.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 983,
+      "transfer": 1261
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/home-background/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 973,
+      "transfer": 1251
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 972,
+      "transfer": 1250
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/notifications.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 972,
+      "transfer": 1250
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/home-background/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 934,
+      "transfer": 1212
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/56d324fa1b060a295e38b79a07ba64ea197286ed4ab18dc102444d3920ed096f.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 915,
+      "transfer": 1193
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/c4b6bddfae35b14c6fc5da0526bb18bf571df4cb841282eb07ed6a8c53ae8cf5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 899,
+      "transfer": 1177
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/06515605a503fbf04b60f4bb86277f5715f89cbffed8c9f14bd63eda1b1d63f6.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 895,
+      "transfer": 1173
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-default/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 877,
+      "transfer": 1155
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/friends.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 876,
+      "transfer": 1154
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/6dc5a83d971315b9734fb7714e85714d26476ef37d9abfd2986cb49c3a6d1a78.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 869,
+      "transfer": 1147
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/075ad91f6945cbd8382b84b19336740554dca81acc9624223819ae88d6feebf3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 868,
+      "transfer": 1146
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/home-footer.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 850,
+      "transfer": 1128
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/1ea9d4a3beddba0d8dd6b1800301d0def922b69779b4c03b47f462b0a0aaf034.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 848,
+      "transfer": 1126
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/launch/textures/2b70e10842e22e5d93e001595a55dfd6f5ac64ae5a3adf16e43cc3cec59c25ef.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 813,
+      "transfer": 1091
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/36kywb5ku6qvl.css",
+      "type": "Stylesheet",
+      "mime": "text/css",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 740,
+      "transfer": 1073
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/nnid-settings.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 781,
+      "transfer": 1059
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/sound-banner-eur/model.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "interaction",
+      "encoding": "gzip",
+      "decoded": 1301,
+      "transfer": 1053
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/79bf1e9c1ad316069d9c6400f7a4f01c86eb502d729751e231518cd32f672428.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 753,
+      "transfer": 1031
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/624a545027f81924b4600edac2b4092ea7bd431e300a596c48f38a970b635108.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 746,
+      "transfer": 1024
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/b7481cabef17b3284106cdea691cda68152225e20fd833a5b94d7635c3d5ba02.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 730,
+      "transfer": 1008
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/nintendo-zone.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 710,
+      "transfer": 988
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/0e200026e555b9a9480a08b9d53a95caa48c18f6434c4c635f7f0769f7d37711.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 702,
+      "transfer": 980
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-default/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 701,
+      "transfer": 979
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/e9b78a14b928f3d24e56088943e42a53fd37444a19f4ec872b11648d9cadd34c.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 697,
+      "transfer": 975
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-default/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 684,
+      "transfer": 962
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/7860fa959d24a11d543c9e8083037434c0daa82b37c9feead45731acff3eb9dc.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 684,
+      "transfer": 962
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/launch/textures/1047329cfc4183edd134138f0e0dae2318502855245937cd1d818cc66bc490eb.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 653,
+      "transfer": 931
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/eshop.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 600,
+      "transfer": 878
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/434fea753008262f93a394fd0f38dfadbd7be5e63ee1744ebc1cf1379adf2a8a.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 590,
+      "transfer": 868
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/036b72a32fa39c731ae6044c4dd90acfafb53ee61c8ec195b14278841905980c.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 588,
+      "transfer": 866
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/launch/textures/6c55de3dd7c26bfccee658470ec018ed23d66eb9ac184dfd15819704c8e339e8.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 582,
+      "transfer": 860
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/5f82a1fb4f1e3db22dc4ccda90801e9e84492f1ae57a35d0ed14c3b2149a4675.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 571,
+      "transfer": 849
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/6c54cfb3fb3ff74995a23a9a7a6b7e908d4a97171e82964d2f447893f7d6941b.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 570,
+      "transfer": 848
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/home-camera/camera.json",
+      "type": "Fetch",
+      "mime": "application/json",
+      "phase": "startup",
+      "encoding": "gzip",
+      "decoded": 1032,
+      "transfer": 842
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/miiverse-post.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 552,
+      "transfer": 830
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/51c997177ddc1f0bc5c8d7765c00d43f0f22b91f4d4c859a1f23aebaf2530373.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 536,
+      "transfer": 814
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-default/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 512,
+      "transfer": 790
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/settings-glyph.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 510,
+      "transfer": 788
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/2a7373f6de7990e5e301a482c3385f0e1155829ecdca28dbb71e3085d12b8868.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 494,
+      "transfer": 772
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/9d8a2ea23e101ea5f4b56024581cd49d178ae14e3e24beb4c65221c552382088.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 479,
+      "transfer": 757
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/b7bfe2e1107b8ab6d40b616c2b70b72f5f1ece94831142b312b14406cb07f306.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 457,
+      "transfer": 735
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/d058e1a9dc783583a4caf4f91c46bb63b38a53d67ea4bc17e5082d3f2d39327f.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 457,
+      "transfer": 735
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/2bc3f6fed6d92596868e1336548fa346cf616ee052721681e774d439590fcaab.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 451,
+      "transfer": 729
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/launch/textures/b10ff647711b8dd2ea09326e5741363a1ffb893bb35bdad2a9ac94fcd3a06093.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 451,
+      "transfer": 729
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/bb19bd023e57f6d8acf0b27620bcfa3aad2aa5bad49412b4f3135457c00e7e72.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 427,
+      "transfer": 705
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/92e6df2eeb6184628c1c159ef57a3e34562f5ff796a7658b5fb9af64511de57c.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 420,
+      "transfer": 698
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/a33e2685ccd7012cb6d2a88eb48ece13022f0331b2174cbb8dcb32e20e2b9a0d.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 411,
+      "transfer": 689
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/9dbeb2c4961149a80614dea0267ec4f961402598b4e2b7912f88d55b6d8b7d31.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 407,
+      "transfer": 685
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/534c386d7d5b47d1bbff037ab1e9ea743c15565f6e945684f6e9c502a810ebf6.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 391,
+      "transfer": 669
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-memo/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 385,
+      "transfer": 663
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-news/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 385,
+      "transfer": 663
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-friend/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 385,
+      "transfer": 663
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-web/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 385,
+      "transfer": 663
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-miiverse/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 385,
+      "transfer": 663
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/ffe5c0907d823bf790d7c8fad6042a7b7dc4f9e20b18602aae44156d66b215c3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 385,
+      "transfer": 663
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/6df3002a90be2b823592c3ae3454bc44e5991775e449357a8f06748087a2e9f6.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 379,
+      "transfer": 657
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/108ed16120fc3b6ae3dfc9969a232e524fa2bdc2838e12a01d449c7a8933655a.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 369,
+      "transfer": 647
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/0952247ac1649d8c8cc520133e4f065cf4db341adda722be0fd4edc4b2e21501.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 366,
+      "transfer": 644
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-memo/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 364,
+      "transfer": 642
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-news/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 364,
+      "transfer": 642
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-friend/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 364,
+      "transfer": 642
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-web/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 364,
+      "transfer": 642
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-miiverse/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 364,
+      "transfer": 642
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/1ea45bc4c2a817680b7ae43cd6a11d430a41c2d44a65ed8e450417a680f2c3a0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 357,
+      "transfer": 635
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/ee72ea25b80cbe2b2aa233f8ca26f724730d0d597db1a8fe2c436e65e4b5a4c7.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 339,
+      "transfer": 617
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/4d64730e0c724ac0e1d5d069174398127c2e7fdb1550ef73ebc7902a3f4cbc9b.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 325,
+      "transfer": 603
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/e25e227f1de75a00f4df4a092eae4645aafc1a5226c67539b08a50f8b83726f1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 311,
+      "transfer": 589
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/218f10ed199e1aeed8ce8fe2f614c7bf1fdb949cc36a5944a2b38c4955705007.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 296,
+      "transfer": 574
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/battery-status.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 292,
+      "transfer": 570
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/7a5fc511e142b34276c934026bc844f36a7216f7c2d2b06c6dd0d38656134a2e.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 288,
+      "transfer": 566
+    },
+    {
+      "url": "http://127.0.0.1:3201/_next/static/chunks/0x1mo28l7nzf2.js",
+      "type": "Script",
+      "mime": "application/javascript",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 215,
+      "transfer": 561
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/2608cec960d967a305db77b79169d03dfb9200861147d136ab1af6b67ea9f198.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 283,
+      "transfer": 561
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/1843b4f6da0b3ebc9be8df9a201f6dca5458cd40e763df1224c6fd9c278c644e.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 277,
+      "transfer": 555
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/ba8e4e5136a89a9997931c07ce856fdcd4fa170c70ae089b6eeeb8ffa5cdea2f.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 276,
+      "transfer": 554
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/72268fb41e8f22bb1e5c8ad9637218053d6c170b365972b210599f8607458c0d.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 272,
+      "transfer": 550
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/2ae53f2ffe53708e8a4d2e220c4183f09c32e9f2f5abeb8f11255d737435d330.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 265,
+      "transfer": 543
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/c330c51915b0d097308c78666f5679e1a4559567f52986328196d9833fac71bd.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 261,
+      "transfer": 539
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/texture-6.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 260,
+      "transfer": 538
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/c117e897bd3a52c44b40dcd585da63666e56d035966f3914465ff0dd0af6315d.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 256,
+      "transfer": 534
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/ae102ff0fe18a3d4696c836b27e43d6a9f28889a7001cc6794a299c13e473dc7.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 256,
+      "transfer": 534
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/53515a81ffb29769039fde85593b602f8e4464b11ef7622839ee14ab063b0dc1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 253,
+      "transfer": 530
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/63dbd94243e435f3d045fc48bec1a4325676492c6f5f4c6b7b3d55a2fbcc3f25.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 250,
+      "transfer": 527
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/ec45e602cac0036d6f880935cce59166c47266f1a20387d9dde75811e5a40f6c.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 242,
+      "transfer": 519
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/texture-7.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 239,
+      "transfer": 516
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/68b6763ec1d2484cb3262f845a6a0431f4ca4495a1257e5334fe09dd28b6ae11.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 237,
+      "transfer": 514
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/8242fffcdabdaaa5d5f5166a73e8cd38813591d8f301dde451392f694348ebfc.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 226,
+      "transfer": 503
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/8a9c04fcc4ac59d308f8b334352add35bc82b4fe3b732368a7c3792cc150c7e4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 223,
+      "transfer": 500
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/38ff7d1ce5b0e06d3123d7d6bc6dd64044b496706514e52cfff273f653b355aa.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 222,
+      "transfer": 499
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/1b26c20824b0d4e72ad172c031cc40488e9ee674f6ae3d30eb69396e58d2de7b.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 213,
+      "transfer": 490
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/413a04a002a02564382932cbe31bdde7e38aec2c79f132f64bb62f6164480b34.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 211,
+      "transfer": 488
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-memo/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 207,
+      "transfer": 484
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-news/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 207,
+      "transfer": 484
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-friend/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 207,
+      "transfer": 484
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-web/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 207,
+      "transfer": 484
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-miiverse/texture-1.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 207,
+      "transfer": 484
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/29afe7acb56de02ae7128381cfcdcef8729efe7c14a69d4cf04591c7146cc4a9.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 200,
+      "transfer": 477
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/0c3e4ab0fd74da66c7fd53852a60aaca3ec0d6a451eac3b3f597e5ec4f4c9e18.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 195,
+      "transfer": 472
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/a875bff10df70495c7ba30f39f934307fcd72e70de4102597b6fd10212961b35.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 189,
+      "transfer": 466
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/68363f28cb9b28fc7d4b5f99859db712decd682c0c8a832fc68934c7bb5bf555.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 187,
+      "transfer": 464
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/launch/textures/8499ac1344bba7e8f8cc4040e9386edaffca883cbfb7ae38dc6716ca18cfbd26.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 184,
+      "transfer": 461
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/launch/textures/c59fa2ee4f4e1a0441686e3352ef0015417e2b10923dd64b4bc6aeb9e77dad17.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 175,
+      "transfer": 452
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/6c06355962d8be6e91d0d129d8d2ee408a49ab41df18d3e9c5bf25323aa9e0b3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 170,
+      "transfer": 447
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/82099425a21523a2b481c040fb387f098d9af92e7be60ebc9e13b17697f15973.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 166,
+      "transfer": 443
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/04ccc19bbdfbaf6b0d6e86978cc6ef5d85b7e140a9cdafb64098e8b056980a48.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 162,
+      "transfer": 439
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/d1467406b5b3e10c8ec6a9442cd058b6c72c63335363e3a7a8f6d524e7a7347a.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 158,
+      "transfer": 435
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/d5623c10a4ad41bb238d41623a4cc78bd73c28920f0d67d437158d228ed097bb.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 158,
+      "transfer": 435
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/dafb556a03b015367e88efe9a7764bbc3e357dcaa35b85c6f3f5e53b753e8271.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 154,
+      "transfer": 431
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/2c8ae9727b2acb48336638381aed183d1c6b55857a80120d443eacf1c4a62844.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 154,
+      "transfer": 431
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/83d3fd887d0d440af15c850cdaad68814b484e876d640bfcc357df27ba1d9562.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 151,
+      "transfer": 428
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/c2bb36224478a2ab92cc9d6056f6c564d0994576bb338a430554407a6eed0c4e.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 150,
+      "transfer": 427
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/dd1692bfb28a832e3d6441a582ec67620968cc3601f2e1d6edead71a4ac880af.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 148,
+      "transfer": 425
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/77041e780bb3346d29c4b7494a8901dfdffa6aee5b6a7186b450e78785e3a393.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 147,
+      "transfer": 424
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/c048a9bc6d6ea0d530065081b88d0a86623d1e414c41a90ffe7392b8f92419fd.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 144,
+      "transfer": 421
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/3419350d76e71eafecaa6881d7dadfa88fc3b3ec9ee93ae292e783c2b01e3051.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 142,
+      "transfer": 419
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-memo/texture-4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 141,
+      "transfer": 418
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-news/texture-4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 141,
+      "transfer": 418
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-friend/texture-4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 141,
+      "transfer": 418
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/texture-2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 141,
+      "transfer": 418
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-web/texture-4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 141,
+      "transfer": 418
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-miiverse/texture-4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 141,
+      "transfer": 418
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/10b3a7a7421f6bd0c2482b16c9d0546297dc4b275e7f0e4c016dca037fe7211b.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 141,
+      "transfer": 418
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/c910b63b93ca492ece565c51e0d7c4afce2d8174dc41779b08d231de3516b7bc.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 134,
+      "transfer": 411
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/packs/launch/textures/24d271a8f1567b94c463bfd00e165b0f6f0c4038935d27cd5a2697b8df7e959a.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 129,
+      "transfer": 406
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/06c7438a68a45aea82d0d43477897883d5fef1cb4176d4cda15225770e8dbd4a.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 123,
+      "transfer": 400
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/manual.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 121,
+      "transfer": 398
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/icons/camera-applet.png",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 121,
+      "transfer": 398
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/536de65972ac3960131f68bed22da24690d435cecc0f439e2f3fd6d45989bfff.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 119,
+      "transfer": 396
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/b31cad2feac1b45a2059e0f9741e5ce29a83c694df11795def57e463edd0fc55.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 116,
+      "transfer": 393
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/5de9f75b79cb94a59376c5fe2b482f60e06ddfc6022a1ee3bfc044a2cce731d7.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 113,
+      "transfer": 390
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/9faba96b3b0f96994e0ff2ec7f8df77be91117000e9e7bfcafb568e3c7b8bf6f.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 112,
+      "transfer": 389
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/b571122f11dc86ee55d8590ea6d4e1bb434b752398c0f21450bec5721b6c1543.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 111,
+      "transfer": 388
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/0326cd7efa56f85d5b47b4acd9585109df7c639a2db6e4dbe90a968e863d12ef.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 111,
+      "transfer": 388
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/ef5b8040f5bcf44d769041de5cc2de35bb167e84c450145565ac5261d4c9052a.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 109,
+      "transfer": 386
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/f3d0cb1e91a520ad234b0ffa1469669ce4050646e36b5753288d2decf58321c8.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 108,
+      "transfer": 385
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/6f07978a52132a6fa75bc0954192e56c955c5f299631c8f61fb51d27084e62a5.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 105,
+      "transfer": 382
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/fdd3417a5b77654ee4704dbb5c7b68d2fd2a0fce73bcc5c1b52130381e63ffb3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 101,
+      "transfer": 378
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/deb9fe03a13748075cf0c4e156ebd52b13bae983de59974fb9072854032b9a59.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 100,
+      "transfer": 377
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/932571e19022c89cecd923c616bcc57de9ce5bdb92685cd0affed9a41d0ad91a.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 100,
+      "transfer": 377
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/texture-8.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 99,
+      "transfer": 375
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/782d5d0986a03b8d1dd990add4de9eb04e4b2ac0e6ebc494f72d06f08c1b0315.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 95,
+      "transfer": 371
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/72ffae4ae47ab740c8b5730de230d6872bf7b832dfc62c9b96889054a837d93a.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 94,
+      "transfer": 370
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-memo/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 90,
+      "transfer": 366
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-news/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 90,
+      "transfer": 366
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-friend/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 90,
+      "transfer": 366
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-web/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 90,
+      "transfer": 366
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/banner-applet-miiverse/texture-0.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 90,
+      "transfer": 366
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/7e70108e2891375534dd73086d81c07ec9f4cca3414df61f5a103ff70b24ec51.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 84,
+      "transfer": 360
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/folder/texture-4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 83,
+      "transfer": 359
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/30438f7cfc809b465d56b42afc0a25f8fcb900fd102a6f5e71176671dd14df1f.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 83,
+      "transfer": 359
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/c488fd3a1db8f5460234b964643def49145a70ec95bd43cc01ed9510dd508601.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 83,
+      "transfer": 359
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/5d4ee2aa41034fec89997ba9630f984f35c4fdf740051b97351d557da7bf6bd4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 81,
+      "transfer": 357
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/35fd42f8a1a6ee18ac437a2299b4bd7773085bc6463c6d92939078c96741c251.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 79,
+      "transfer": 355
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/5b7d14e412007e391d3c1b5d23b868b76d81a94136d0d118c91f826c4c6de3e2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 78,
+      "transfer": 354
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/settings-banner/texture-4.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 77,
+      "transfer": 353
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/cc38248ffd9faebae2d5277ca42f835903f6e2ef8ededb8db1aa8be0fdacce48.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 77,
+      "transfer": 353
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/textures/c85d687c4adafe72cc4f60d3eb09c44c44a7bf38614b138649c1ab160c80b1f2.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 77,
+      "transfer": 353
+    },
+    {
+      "url": "http://127.0.0.1:3201/os/firmware/10.7.0-32E/models/home-background/texture-3.png",
+      "type": "Fetch",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 72,
+      "transfer": 348
+    },
+    {
+      "url": "http://127.0.0.1:3201/favicon.ico",
+      "type": "Other",
+      "mime": "text/plain",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 9,
+      "transfer": 293
+    },
+    {
+      "url": "http://127.0.0.1:3201/favicon.ico",
+      "type": "Other",
+      "mime": "text/plain",
+      "phase": "interaction",
+      "encoding": null,
+      "decoded": 9,
+      "transfer": 293
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/9fbcb144-e683-45a7-98a7-8bd98996c7c4",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 6773,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/2178573a-f387-432c-8869-46b827471100",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 186886,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/05aaf113-57c3-446f-9a54-4269122022a4",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 304461,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/2e1c665b-db10-4b33-82c1-7b6d1c968a78",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 276430,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/d42c0b8a-c960-4b98-a468-152106beae67",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 300446,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/1187f788-083a-478f-90a4-26d55886f8d8",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 231919,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/7934cea6-824d-4368-b9ce-3544a1a276d2",
+      "type": "Image",
+      "mime": "image/png",
+      "phase": "startup",
+      "encoding": null,
+      "decoded": 294164,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/1f558d2d-b3cf-4c2e-83df-3c564d2b1ee1",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/2b05123d-4516-45ce-a278-b2ef6231ea24",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/2149fe2e-aad7-4066-ab11-3b361e56ea7d",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/030ee0c3-7e65-4e8c-a25e-f29811168353",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/d7cf7821-9fa9-4779-bb0f-fad7d93631bb",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/7cf8632c-48fa-48dc-9c60-05cb39b1e352",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/7b6c5b77-4ead-4cd5-a9e8-de4d14255ee8",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/d5a25b5d-37e9-4a94-8310-a12c7167a41b",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/46a28e6e-4342-48b0-ad4f-2ce08c5226d3",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/67bcbf63-49c4-4530-adb8-00d9fba8ac40",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/d68fe567-c4ad-4266-af11-e21c74b7e980",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/8c232639-a272-462e-b661-c6443e2d888d",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/20c7e95a-e271-48da-be8d-2530feacd058",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/27dfc7e7-ecf4-469b-9786-83fd2faf3379",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/f2672afe-3960-4eca-b389-1fa4d684d189",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/9377d86c-fbf1-41df-a9b1-49065644688b",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/9b7b7ca8-9ff4-4a64-979c-5ef5ca321cf1",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/d74129b9-2322-4f29-a771-329b00aee639",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/3a1e07ce-474e-435a-b320-9c89a0f3d0db",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/d2aa15f0-4cfb-4155-93ea-ac5ec831b5ed",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/7bf10d7e-c4ea-499a-aa72-d3499c68c6d5",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/094b187b-c3bc-4cd6-828f-f00a4b30dee2",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/c9922505-9353-4b67-ab14-5338c79762b1",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/79fc112b-d78d-4c01-910a-3f819b7f496a",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/fb7d2cb8-7101-408a-8855-29056364cc9a",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/0dea5f1d-f365-4cd2-888b-6943bd3a33b6",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/8f1ff3c7-ff00-4a9a-ab24-5afda3082635",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/610ca411-9982-4b68-ab91-4ac7aa766e63",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/bde20498-3cc4-44f6-a015-c7aaea96c468",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    },
+    {
+      "url": "blob:http://127.0.0.1:3201/322ae075-6bef-4759-8d23-5df0ff571f44",
+      "type": "Fetch",
+      "mime": "image/webp",
+      "phase": "startup",
+      "encoding": null,
+      "transfer": 0
+    }
+  ]
+}

@@ -7,10 +7,14 @@ import { join } from 'node:path';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+// CHROMIUM_WINDOW=x,y,width,height places headed windows, for example on a
+// second display such as an iPad in Sidecar mode.
+const [windowX, windowY, windowWidth, windowHeight] = (process.env.CHROMIUM_WINDOW ?? '0,0,1440,1000').split(',').map(Number);
+
 export async function launchChromium(executable, extraArgs = [], { headless = true } = {}) {
   const profile = await mkdtemp(join(tmpdir(), '3ds-perf-profile-'));
   const args = [
-    ...(headless ? ['--headless=new'] : ['--window-size=1440,1000', '--window-position=0,0']), '--remote-debugging-port=0', `--user-data-dir=${profile}`,
+    ...(headless ? ['--headless=new'] : [`--window-size=${windowWidth},${windowHeight}`, `--window-position=${windowX},${windowY}`]), '--remote-debugging-port=0', `--user-data-dir=${profile}`,
     '--no-first-run', '--no-default-browser-check', '--enable-precise-memory-info',
     '--ignore-gpu-blocklist', '--enable-gpu', '--use-angle=metal',
     '--disable-background-timer-throttling', '--disable-renderer-backgrounding',

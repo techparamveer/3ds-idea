@@ -1,5 +1,12 @@
 # 3DS portfolio feature map
 
+Latest HOME footer raster correction: `e59cc4b9` integrates the worktree
+agent's source-derived LCD text sampler. [Production recapture](home-applet-footer-residual-audit-2026-10-01.md)
+on Sidecar confirms 87 glyph residual pixels removed,694 material-edge pixels
+remain. Integrated1534 tests/typecheck/build pass; whole scenarios still fail.
+Next priority is fresh silent CTM native/browser replay, then the untraced
+footer material source and remaining HOME phases. Prior entries are historical.
+
 Latest HOME label correction: `13cdd13b` restores the source upper-message
 style for all five toolbar applets without changing folder labels.
 [Evidence](home-applet-title-style-2026-10-01.md) includes source mapping,

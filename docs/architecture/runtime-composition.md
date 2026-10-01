@@ -55,6 +55,10 @@ applet entrypoint used by A/Start before consulting retained grid actions.
 Grid/folder Manual and close actions must not leak into that toolbar context.
 This selection fix does not establish native transition or input timing; see
 the [footer comparison](../home-applet-footer-2026-10-01.md).
+Footer text uses the generic source-atlas `textSampling: 'lcd'` path, without
+capture-fitted coverage or material colours. The
+[residual audit](../home-applet-footer-residual-audit-2026-10-01.md) distinguishes
+verified static glyph sampling from still-untraced runtime material edges.
 
 HOME applet banner labels use the native `lau_title_*_u` message and its style
 through `appletBannerLabel`; folder labels retain the authored pane metrics

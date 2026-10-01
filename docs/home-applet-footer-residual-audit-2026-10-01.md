@@ -84,6 +84,45 @@ This is source-render evidence only. The coordinator must recapture the
 integrated production browser on Sidecar, with all 3DS audio muted, before the
 87 captured glyph pixels can be retired.
 
+## Integrated production recapture
+
+Worker commit `122f35df` integrated as `e59cc4b9` after the applet title-style
+fix. Full integrated suite: 1,534 passed, 0 failed, 23 skipped, 1 TODO;
+typecheck and production build pass. Log:
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/integrated-label-footer-tests.log`.
+
+Production raw LCDs were recaptured on iPad Sidecar with browser `--mute-audio`
+and application mute=true. A stale window-placement session rejected the first
+move and the page briefly loaded on the main display; the coordinator corrected
+the placement and verified `(1810,397,1150,780)` before any input/capture. Future
+placement must be verified in a separate call before app navigation. Keyboard
+M, X density cycles, ArrowUp then ArrowRight selected one-row Notes/Friend;
+captures were guarded by mute/rows/focus assertions. These are fresh browser
+captures against retained native PNGs, not synchronized fresh native replays.
+
+Within the same private root, capture scenarios are `notes-footer-lcd-after`
+and `friends-footer-lcd-after`; reports and all four inspected LCD contact
+sheets are in `comparisons/<scenario>/`. They retain the earlier native
+identities, empty mask and threshold 2. Browser lower SHA-256:
+
+- Notes: `73f0ccf6ae8d6930132fae8cf1c3fc1270d9888fb9b0337920ee51be73d1180e`.
+- Friend: `d47f29578917a82938a2e21b29ff716dfe7e952482bea30948fa347ca355ac53`.
+
+Both production footer rectangles `(0,212,320,28)` now have **694** pixels over
+threshold, maximum delta 21, mean RGB error 0.6191964. The text region
+`(130,220,60,20)` has **zero** pixels over threshold, maximum delta 2, mean
+0.1830556. This retires the 87 captured glyph residual pixels for these two
+static references only. It does not retire the 694 material-edge pixels.
+Whole-screen upper/lower counts are 53,417/19,441 Notes and 50,881/19,446
+Friend. Upper PNGs are byte-identical to the preceding title-style captures;
+lower cursor phases are not matched. Both scenarios remain **fail**.
+
+No Azahar instance launched for this recapture, no audio verified, no global
+matrix overwritten. Browser/server closed; isolated Azahar profile remains
+volume zero. Other HOME footer states still require matched replay. Portfolio
+content/population and offline policy remain adaptations; native material,
+phase, input, motion and audio residuals remain separate unresolved work.
+
 ## Remaining work
 
 - Trace the original HOME runtime theme producer and the material-register

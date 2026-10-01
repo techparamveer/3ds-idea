@@ -24,6 +24,12 @@ banner. Native and browser must receive matching applicable inputs for native
 acceptance. The portfolio content itself is an adaptation, not a native app.
 Failure injection is a browser resilience test and has no native visual claim.
 
+2 October browser smoke progress is [recorded separately](../completion-routes-2026-10-02.md):
+Work launch/HOME/close/cancel/confirm and Health HOME/resume have named raw LCDs;
+Camera photo Back now has captured physical and touch defects plus scoped fixes.
+This does not mark any queue row native-complete. H-12 native Health suspension
+is the next window-composition reference, alongside the two baseline regressions.
+
 ## App Coverage Ledger
 
 For every row, track entry/main, every mapped submenu and dialog, Back/Cancel,

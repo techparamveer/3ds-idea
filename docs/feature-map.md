@@ -1,6 +1,6 @@
 # 3DS App Completion Map
 
-Current plan, 1 October 2026. This is the execution map for the **whole in-scope
+Current plan, 2 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
 integration and native/browser acceptance. Each workstream has its own Codex
 chat, Git branch and worktree, recorded in the [workstream registry](feature-map/workstreams.md).
@@ -126,12 +126,19 @@ not a reduction of the user's completion criteria.
 
 Working integration is `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`
 on `codex/home-fidelity-20261001`, not the original DeveloperStorage checkout.
-Runtime `f5ed204c` adds host-owned background frames; 1,550 tests, typecheck,
-production build and shader validation pass. Its fresh production recapture is
-still pending after dedicated browser startup failed. No acceptance was added.
-The latest native frame-step run has four private PNGs and clean native exit;
-its pause counters do not establish a shared browser epoch. Prior scenario
-residuals and adaptations remain in the progress/evidence record.
+All eight first tests/handoff deliveries are integrated. The muted Sidecar
+browser recovered and supplied raw Work launch/HOME/close/cancel/confirm,
+Health launch/HOME/resume and Camera guide/gallery/photo/Back observations.
+The [capture record](completion-routes-2026-10-02.md) separates those from native
+evidence. H-12's missing suspended window is visibly confirmed; its native
+Health activation/frame reference remains pending before renderer work.
+
+Camera physical-selection correction `38bab8b7` is integrated and visibly
+verified; direct-touch correction `dda25e9e` follows the independently reviewed
+and captured stale-focus defect. Portfolio's actual-effect test correction is
+integrated at `54497736`. Final checks/recapture are recorded in progress, not
+inferred from worker success. No native acceptance was added. The latest native
+frame-step PNGs still do not establish a shared browser epoch.
 
 This map and the chat registry supersede the old five-lane task ordering, not
 the source-of-truth, isolation, ownership or verification rules in AGENTS.md.

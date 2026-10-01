@@ -1,6 +1,6 @@
 # Media, social and portfolio feature map
 
-Checkpoint: `f5ed204c`, 1 October 2026. Scope is EUR 10.7.0-32E on the original
+Checkpoint: `dda25e9e`, 2 October 2026. Scope is EUR 10.7.0-32E on the original
 2012 3DS XL, English locale. This inventories reachable source state, not visual
 acceptance. The private matrix has no whole-scenario pass: tests, source renders
 and browser inspection do not close pixels, input, motion or native-cue timing.
@@ -23,7 +23,7 @@ publication and generation tests.
 | M-CAM-01 | `camera/guide`, pages 1-5 | Application cold entry; Next, Back after page 1, and final OK; source dialogs, finder, capacity, SD icon and guide art | Seen-state is not persisted, so every new application instance repeats Welcome; guide motion/audio and original underlay controller pose are unverified |
 | M-CAM-02 | `camera/main` folder grid | `View Photos/Videos` combines all five unique portfolio images; individual source-content folders remain reachable; 3-column physical/touch navigation | Portfolio folders, labels and counts are intentional content adaptations; Slideshow, Shoot, Settings and zoom chrome are visual and inert |
 | M-CAM-03 | `camera/gallery` | Date group when supplied, photo cells, 3-column selection, padded final page, replayed horizontal strip, slider, held-key cancellation and direct touch targets | Date cell is display-only; slider Rate mapping is fitted; native paging, Parakeet phase and dynamic scene replacement remain unverified |
-| M-CAM-04 | `camera/photo` | Selected photo on upper LCD; physical Left/Right wrap through the folder; B returns to gallery | Opening a photo resets selection to 0, so B loses the originating gallery selection; worker `ad4b403a` records the repro/TODO, not an integrated fix. Photo touch sides are inert; portfolio JPEGs have no native MPO equivalence |
+| M-CAM-04 | `camera/photo` | Selected photo on upper LCD; physical Left/Right wrap; B/footer Back restore the activated photo's gallery row and settled page (`38bab8b7`, `dda25e9e`), including a touch on a non-focused cell; both entry paths and reopen/footer Back browser-inspected | Native Back behavior/timing remains unmatched. Photo touch sides are inert; portfolio JPEGs have no native MPO equivalence |
 | M-CAM-05 | empty media destination | After Welcome, source no-data presentation has no selectable rows | No capture/import escape hatch is permitted; application Back remains governed by the host route |
 | M-CAM-06 | internal `camera-applet` alias | Starts at folder grid and shares main/gallery/photo navigation | No HOME entry and no Welcome owner; not a second Camera state system |
 
@@ -33,6 +33,10 @@ residual to 2,690 pixels over 2/255 while upper remained 1,387. Populated
 gallery comparisons use different media and cannot establish photo fidelity.
 The 28 September production QA confirms only the source 2D cube placement
 (0.971 foreground IoU), not whole-screen parity.
+The [2 October route replay](../completion-routes-2026-10-02.md) adds captured
+keyboard and touch selection-loss defects and separately records their fixes.
+It uses portfolio photos, not the private native HNI fixture, and is not a
+native acceptance pair.
 
 Dependency: paired native layouts must be ready before publication; the scene
 owns the shoot background and the app reducer owns only semantic browse state.

@@ -98,14 +98,14 @@ project directory. The assigned path, not the initial project cwd, is mandatory.
 
 | Lane | Codex chat ID | First bounded task | Dispatch state |
 | --- | --- | --- | --- |
-| HOME | `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | H-12/H-10 suspended-window source/owner contract, footer route tests and exact capture ticket | active |
-| Lifecycle | `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | L-06/L-07/L-09 close/switch cancel-confirm and helper-return contracts | active |
-| Settings/helpers | `01a0f9a8-ffa2-7782-9336-915253cf5695` | S-*/G-* menu/leaf/Back coverage, Manual/Health routes and missing caller tickets | active |
-| Camera | `01a0f9a3-24c9-7e41-ad18-64689e20a28a` | M-CAM-* five-page guide, combined gallery/photo/Back and empty/applet routes; `ad4b403a` delivered, photo Back selection bug found | review |
-| Sound | `01a0f9a3-7cd6-7e82-bddb-f6d2d3900dd8` | M-SND-* silent fake-effect transport lifecycle, empty/first-run evidence and user-song dependency | active |
-| Social/applets | `01a0f9a3-bca6-75b1-8981-da3f5b47f12f` | C-* Notes/Friend/Notifications local route contracts and named missing-renderer/scroll tickets | active |
-| Local services | `01a0f9a9-43a4-7ff3-b708-f5af6c0cb954` | O-* offline menu/Back contracts, Zone collapsed-detail and Browser History repro tickets | active |
-| Portfolio | `01a0f9a4-99cd-7b12-8bd2-b9e0028cdb4c` | P-* all eight content/action graphs, page/photo bounds and explicit-link checks | active |
+| HOME | `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | H-12/H-10 contract/tests integrated; Work/Health browser suspension captured, native window gate needed | verification-needed |
+| Lifecycle | `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | L-06/L-07/L-09 route tests integrated; Work close/cancel/confirm browser-inspected | verification-needed |
+| Settings/helpers | `01a0f9a8-ffa2-7782-9336-915253cf5695` | S-*/G-* menu/leaf/Back, Manual/Health route tests integrated; capture tickets ready | verification-needed |
+| Camera | `01a0f9a3-24c9-7e41-ad18-64689e20a28a` | M-CAM-04 keyboard/touch fixes integrated at `38bab8b7`/`dda25e9e`, independently reviewed and browser-inspected; native comparison pending | verification-needed |
+| Sound | `01a0f9a3-7cd6-7e82-bddb-f6d2d3900dd8` | M-SND-* silent transport tests integrated; production song input absent | verification-needed |
+| Social/applets | `01a0f9a3-bca6-75b1-8981-da3f5b47f12f` | C-* route tests integrated; missing-renderer/scroll capture tickets ready | verification-needed |
+| Local services | `01a0f9a9-43a4-7ff3-b708-f5af6c0cb954` | O-* offline route tests integrated; Zone collapsed-detail and History capture tickets ready | verification-needed |
+| Portfolio | `01a0f9a4-99cd-7b12-8bd2-b9e0028cdb4c` | Eight content graphs and actual selection-effect assertions integrated (`54497736`); both negative controls caught | verification-needed |
 
 First-task edits are restricted to each lane's new
 `tests/<lane>-completion-routes.test.mjs` and
@@ -120,3 +120,34 @@ received accepted `gpt-6-astra`/`high` follow-up overrides; Settings and service
 were created directly with those settings. An in-flight old-model turn may
 finish before the override takes effect. All new helpers must use
 `gpt-6.1-sol`/`medium`; no Fast-mode setting is claimed verified.
+
+## First Deliveries - 2 October 2026
+
+All eight initial commits are tests/handoffs, not new native screens. Integrated
+HEAD `75cab5e2` passed 1,595 tests, zero failures, 23 skips and two TODOs;
+typecheck passed. The production bundle used runtime `f5ed204c` for the first
+browser captures. Full route evidence is in the [coordinator capture record](../completion-routes-2026-10-02.md).
+
+| Lane | Worker commit | Integrated commit | Handoff |
+| --- | --- | --- | --- |
+| HOME | `9c459370` | `74771823` | [HOME](../workstream-handoffs/home.md) |
+| Lifecycle | `9ac6faee` | `33981e97` | [Lifecycle](../workstream-handoffs/lifecycle.md) |
+| Settings | `855ebe3f` | `931c6da6` | [Settings](../workstream-handoffs/settings.md) |
+| Camera | `ad4b403a` | `bf4e8350` | [Camera](../workstream-handoffs/camera.md) |
+| Sound | `8780c64a` | `e69ed6b1` | [Sound](../workstream-handoffs/sound.md) |
+| Social | `7c3dadff` | `133ca575` | [Social](../workstream-handoffs/social.md) |
+| Services | `2c6597a8` | `a0aea6dd` | [Services](../workstream-handoffs/services.md) |
+| Portfolio | `04938361` | `75cab5e2` | [Portfolio](../workstream-handoffs/portfolio.md) |
+
+Completed reservations: Camera's first correction `b6afb008` integrated as
+`38bab8b7`, then touch correction `32b8bc60` as `dda25e9e`. The reservation is
+released; `stock-apps.ts` is coordinator-reserved again. Portfolio test correction
+`dc9876b1` integrated as `54497736`. All worker tasks are bounded and complete;
+the verification-needed rows are not still-running chats or accepted scenarios.
+
+Final full checks at `dda25e9e`: 1,605 pass, zero failures, 23 skips and one TODO;
+typecheck/build pass. Camera final production keyboard, direct-touch, physical
+Back, reopen and footer Back routes were inspected on muted Sidecar. Four
+browser-before/after sheets were inspected; no native comparison is implied.
+Independent GPT-6.1 Sol/Medium review closed both findings with 17 focused tests
+and 12 extra tick/navigation Camera cases. No Fast-mode verification is implied.

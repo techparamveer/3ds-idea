@@ -30,20 +30,13 @@ limitation or declaring it fixed.
 
 ## Agent model preference - 2 October 2026
 
-The latest direct user request selects **GPT-6 Astra, high reasoning** for
-workstream chats and **GPT-6.1 Sol** for subagents, all at **normal speed, no
-Fast**. This supersedes earlier model and Fast requests.
-Use `model=gpt-6-astra` and `thinking=high` for separate Codex chats.
-For helpers explicitly select `model=gpt-6.1-sol` and
-`reasoning_effort=high` on a bounded or empty context fork. The collaboration
-catalog advertises only priority service (Fast), so do not start new helpers
-through that route until normal service can be selected. Chat dispatch does
-not expose a service-tier argument. The saved global priority override was
-removed; existing chat speed overrides remain unverified. Computer use refused
-access to Codex's own controls on 2 October; do not bypass that restriction.
-Only report speed as verified when an allowed control supplies readback.
-Do not claim that an already in-flight coordinator or worker turn switched
-models. Apply these settings to new dispatches and chat follow-ups.
+The latest user-supplied repository instructions select **GPT-5.6 Sol, high
+reasoning**, superseding earlier Astra and Sol preferences. Use
+`model=gpt-5.6-sol` and `thinking=high` for separate Codex chats, and
+`model=gpt-5.6-sol` with `reasoning_effort=high` on bounded or empty context
+forks for helpers. The user requests normal speed, no Fast; the tools do not
+expose a service-tier selector, so do not claim speed is verified. Do not
+claim that an in-flight coordinator model changed through a worker override.
 
 ## Product constraints
 
@@ -135,15 +128,11 @@ models. Apply these settings to new dispatches and chat follow-ups.
 
 ## Required native verification and reporting
 
-**User display preference - 1 October 2026:** All visible testing, browser
-verification and computer-use windows must run on the iPad Sidecar desktop,
-not the Mac's main display. Verify the connected display geometry before
-placing windows and confirm their position before interaction. On the current
-layout Sidecar begins at desktop `(1800,367)`; `(1810,380,1150,780)` fits inside
-it. These coordinates are a checkpoint, not a permanent assumption. Use
-`CHROMIUM_WINDOW` for repository headed-browser scripts and native window
-placement for Azahar. If Sidecar is unavailable, do not silently switch testing
-to the main display; continue non-UI work and report the limitation.
+**User display preference - 2 October 2026:** The user has no iPad connected
+and explicitly permits the entire Mac for testing and computer use. This
+supersedes the previous iPad-only requirement. Verify window geometry before
+interaction, keep dedicated test windows separate, and leave unrelated apps
+alone. Only the coordinator operates Azahar and the shared production browser.
 
 **User audio preference - 1 October 2026:** Keep every 3DS test session muted
 while the user works. Verify isolated Azahar volume is zero before launch and

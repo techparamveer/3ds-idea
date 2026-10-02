@@ -13,6 +13,7 @@ import { getHomePresentation } from '../src/os/home-presentation.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
 import { getHomeDensityControls } from '../src/os/home-density-controls.ts';
 import { poseNativeLayout, nativePaneParentPath } from '../src/os/native-layout.ts';
+import {escapeUnreadyNativeScreen} from '../src/os/native-screen-system.ts';
 
 const moduleUrl = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
 async function loadPresentation(name, overrides = {}) {
@@ -28,7 +29,7 @@ async function loadPresentation(name, overrides = {}) {
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
   './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx)=>ctx.record('suspended-window');`),
-  './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,top,bottom,frame)=>{top.record("closing-upper",[frame]);bottom.record("closing-lower",[frame]);};'),
+  './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame]);};'),
   './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>false;'),
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
@@ -52,16 +53,39 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    state.system.homeApplicationTransition.phase=frame===20?'terminal':'closing';
    paint(state);
    assert.equal(screens.stockStatus(state),'ready');
-   assert.deepEqual(events.find(e=>e.name==='closing-upper').args,[frame]);
    assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[frame]);
    assert.ok(events.findIndex(e=>e.name==='closing-lower')>events.findIndex(e=>e.name==='footer'));
-   assert.ok(events.findIndex(e=>e.name==='closing-upper')>events.findIndex(e=>e.name==='hud'));
+   assert.ok(events.findIndex(e=>e.name==='closing-lower')>events.findIndex(e=>e.name==='hud'));
   }
   screens.setReducedMotion(true);paint(closing);
   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20]);
   const switching=structuredClone(closing);switching.system.homeApplicationTransition.intent={kind:'switch',appId:'about'};
   paint(switching);assert.ok(!events.some(e=>e.name.startsWith('closing-')));
   paint(home());assert.ok(!events.some(e=>e.name.startsWith('closing-')));
+ },{screenOptions:{drawSuspendedBackground:()=>true}});
+});
+
+test('closing paint failures recover both LCDs, cancel safely and survive sleep/wake readiness changes',async()=>{
+ await withScreens(({paint,events,screens})=>{
+  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+  const closing=structuredClone(reduceSystem(reduceSystem(suspended,'back',6400),'open',6500));
+  closing.system.homeApplicationTransition.appQuitFrame=10;
+  screens.bottom.getContext('2d').failClosing=true;paint(closing);
+  assert.equal(screens.stockStatus(closing),'error');
+  assert.match(String(screens.stockFailure()),/Closing resource unavailable/);
+  for(const ctx of [screens.nativeTop.getContext('2d'),screens.bottom.getContext('2d')]){
+   assert.ok(events.some(e=>e.context===ctx&&e.name==='fillRect'&&e.args[0]===0&&e.args[1]===0&&e.args[3]===240));
+  }
+  const recovered=escapeUnreadyNativeScreen(closing,6600);paint(recovered);
+  assert.equal(recovered.system.homeApplicationTransition,null);
+  assert.equal(recovered.system.runtime.application,closing.system.runtime.application);
+  assert.equal(screens.stockStatus(recovered),'ready');
+  paint(closing);assert.equal(screens.stockStatus(closing),'error');
+  const asleep=structuredClone(closing);asleep.system.sleeping=true;paint(asleep);
+  assert.equal(screens.stockFailure(),null);
+  screens.bottom.getContext('2d').failClosing=false;paint(closing);
+  assert.equal(screens.stockStatus(closing),'ready');
+  assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[10]);
  },{screenOptions:{drawSuspendedBackground:()=>true}});
 });
 

@@ -9,25 +9,25 @@ const packs=Object.fromEntries(['dialog','dialogmask','messages'].map(key=>[key,
 const renderer=(source=packs)=>({packs:source,calls:[],draw(ctx,pack,name,options){this.calls.push({ctx,pack,name,options});return true;}});
 const pane=(layout,name)=>{const walk=panes=>{for(const item of panes){if(item.name===name)return item;const found=walk(item.children);if(found)return found;}};return walk(layout.roots);};
 
-test('settled close presentation uses the captured buttonless source window, paired masks and exact MSBT text',()=>{
+test('settled close presentation uses the buttonless source window and lower mask without touching upper',()=>{
  const before=JSON.stringify(packs),r=renderer(),top={},bottom={};
  assert.equal(drawHomeSoftwareClosingDialog(r,top,bottom),true);
  assert.deepEqual(r.calls.map(call=>[call.ctx,call.pack,call.name]),[
-  [top,'dialogmask','DlgMask_U_00'],[bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_00'],
+  [bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_00'],
  ]);
- assert.deepEqual(r.calls.slice(0,2).map(call=>call.options.bindings),[
-  [{name:'DlgMask_U_00_FadeIn',frame:20}],[{name:'DlgMask_D_00_FadeIn',frame:20}],
+ assert.deepEqual(r.calls.slice(0,1).map(call=>call.options.bindings),[
+  [{name:'DlgMask_D_00_FadeIn',frame:20}],
  ]);
- const text=r.calls[2].options.overrides.TextBoxDialog;
+ const text=r.calls[1].options.overrides.TextBoxDialog;
  assert.equal(text.text,'Closing software...');assert.ok(text.messageStyle);assert.deepEqual(text.colorSpans,[]);
- assert.equal(r.calls[2].options.textSampling,'lcd');assert.equal(JSON.stringify(packs),before);
+ assert.equal(r.calls[1].options.textSampling,'lcd');assert.equal(JSON.stringify(packs),before);
 });
 
-test('caller can select only authored paired mask poses without inventing dialog motion',()=>{
+test('caller can select only authored lower mask poses without inventing dialog motion',()=>{
  for(const frame of [0,1,9,19,20]){
   const r=renderer();drawHomeSoftwareClosingDialog(r,{}, {},frame);
-  assert.deepEqual(r.calls.slice(0,2).map(call=>call.options.bindings[0].frame),[frame,frame]);
-  assert.equal(r.calls[2].options.bindings,undefined,'Dlg_A_D_00 has no authored animation');
+  assert.deepEqual(r.calls[0].options.bindings[0].frame,frame);
+  assert.equal(r.calls[1].options.bindings,undefined,'Dlg_A_D_00 has no authored animation');
  }
  for(const frame of [-1,21,.5,NaN]){
   const r=renderer();assert.throws(()=>drawHomeSoftwareClosingDialog(r,{}, {},frame),RangeError);assert.equal(r.calls.length,0);
@@ -42,7 +42,7 @@ test('source geometry and provenance match the captured 280 by 200 striped windo
  assert.deepEqual(packs.dialog.resourceSources.layouts[source.dialog.layout],{
   path:'dialog_LZ.bin/blyt/Dlg_A_D_00.bclyt',sha256:'ccee73ad198e6dba3df6498108ceec64dfd38ab8994cea5422db60fdee72534b',titleId:'0004003000009802',
  });
- for(const item of [source.upperMask,source.lowerMask]){
+ for(const item of [source.lowerMask]){
   const animation=packs.dialogmask.animations[item.clip],track=animation.tracks[0];
   assert.deepEqual({frames:animation.frames,loop:animation.loop,groups:animation.groups,range:animation.sourceFrameRange,
    target:track.target,property:track.property,keys:track.keys.map(key=>[key.frame,key.value])},
@@ -64,7 +64,7 @@ test('source geometry and provenance match the captured 280 by 200 striped windo
 
 test('unsupported source gaps fail before drawing and draw failures reject paired publication',()=>{
  for(const remove of [
-  p=>delete p.dialog.layouts.Dlg_A_D_00,p=>delete p.dialogmask.layouts.DlgMask_U_00,
+  p=>delete p.dialog.layouts.Dlg_A_D_00,p=>delete p.dialogmask.layouts.DlgMask_D_00,
   p=>delete p.dialogmask.animations.DlgMask_D_00_FadeIn,p=>delete p.messages.messages.menu_msbt_LZ.labels.lau_dlg_quit4,
  ]){
   const source=structuredClone(packs);remove(source);const r=renderer(source);

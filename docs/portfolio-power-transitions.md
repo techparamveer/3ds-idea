@@ -32,8 +32,12 @@ use the 20-frame SceneOut fallback. See
 console opening is preserved.
 
 Power options close running software; HOME/B returns to HOME. The central touch
-target matches the source button's displayed rectangle; the lower footer
-returns to HOME. The separate stock app keyboard is unregistered. HOME folder renaming no longer opens a keyboard.
+target uses the source `Slp_D_00/B_Btn_01` rectangle at `(66,166)` with size
+`188x36`, centralized in `stock-screen-layout.ts`. The lower footer is a
+non-interactive HOME-key hint. Native direct touch leaves it unchanged; the
+same held-touch method activates Power Off. Physical HOME/B routing remains
+available, but its exact native input cadence is not accepted. The separate
+stock app keyboard is unregistered. HOME folder renaming no longer opens a keyboard.
 
 `system-transitions.ts` explicitly owns browser durations. Source animations
 provide the poses, but cold-boot latency, shutdown scheduling and app-loading

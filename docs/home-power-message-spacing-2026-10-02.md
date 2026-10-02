@@ -1,5 +1,10 @@
 # HOME Power message spacing — 2 October 2026
 
+Integrated as `82d26a8b`. The coordinator's
+[production/native comparison](home-power-menu-2026-10-02.md) supersedes this
+worker-only evidence tier: source spacing is visibly corrected, with remaining
+text raster residuals and no whole-scenario acceptance.
+
 ## Defect and bounded correction
 
 The browser Power upper screen drew the five visible `lau_press_pow_u1` lines

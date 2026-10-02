@@ -278,6 +278,9 @@ separate authored fallback when native HOME assets are unavailable.
 
 Power and launch use source common/sleep/logo resources with explicit browser
 durations in `system-transitions.ts`; see [power transitions](../portfolio-power-transitions.md).
+Power touch routes only through `powerMenuActionAt` in `stock-screen-layout.ts`:
+the sole source `Slp_D_00/B_Btn_01` target activates Power Off. The lower
+HOME text is a physical-key hint, not a second touch target.
 App opening binds the matching HOME `CmnFadeNinLogo` and logo SceneOutA/B/C clips
 over painted HOME instead of a sequential fade-to-black then logo. Cold boot
 fades HOME in during the final 350 ms of the current 3 s host sequence, without

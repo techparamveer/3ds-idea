@@ -1,5 +1,23 @@
 # Workstream Registry
 
+## Power Menu - 2 October 2026
+
+Existing chats used GPT-5.6 Sol/high in dedicated internal trees from
+`ff6ffe24`. No service-tier claim; coordinator alone operated GUI. Trees
+are preserved; both bounded deliveries are committed.
+
+| Chat | Worktree / codex branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-power-ui-20261002` / `home-power-ui-20261002` | Source spacing `25440bec` -> `82d26a8b` |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-power-compare-20261002` / `home-power-compare-20261002` | Baseline `8c03a910` -> `042fb526`; after `3810ee64` -> `7315d36a` |
+
+Coordinator touch-boundary fix `9db08e24`.
+[Verification and residuals](../home-power-menu-2026-10-02.md):1776 tests,
+typecheck/build pass; fresh native and before/after production capture pairs,
+desktop/mobile physical controls inspected. Whole scenarios still fail at
+4334/668 upper/lower pixels above2. Native/browser test sessions stopped;
+temporary native inputs restored, silent fixture preserved.
+
 ## Balloon Density - 2 October 2026
 
 Existing chats used GPT-5.6 Sol/high in separate internal trees from `34d77726`.

@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [balloon density correction](home-balloon-density-2026-10-02.md) at
+Latest [Power menu correction](home-power-menu-2026-10-02.md) at `82d26a8b`
+uses ROM-marked20% spacer advances and the sole native touch boundary. Full1776
+tests/typecheck/build pass; native/browser settled comparison improves upper
+7848 ->4334 pixels above2, lower668 unchanged. Physical Power/HOME and inert
+footer pass on desktop/mobile. L-01 remains partial: text raster, phase timing,
+input and muted audio are open; whole scenarios fail and matrix stays unchanged.
+
+Earlier [balloon density correction](home-balloon-density-2026-10-02.md) at
 `5de1f381` removes the native-inconsistent two-row Settings title balloon and
 preserves one-row behavior. Final1771 tests and runtime typecheck/build pass; production
 before/after and fresh native own-PNGs inspected. Same-anchor Health balloon

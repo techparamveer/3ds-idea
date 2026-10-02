@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+[Power menu verification](../home-power-menu-2026-10-02.md) at `82d26a8b`
+records two fresh native origins and production before/after. Source spacer
+advances correct list geometry; both after pairs remain4334/668 pixels above2
+on empty masks. Native footer no-op has a same-method Power Off positive
+control; desktop/mobile browser physical controls and footer behavior pass.
+Input holds/entry paths and epochs differ, motion/audio remain unaccepted.
+No whole-scenario or matrix pass is inferred from1776 passing tests.
+
 [Closing exit verification](../home-closing-fade-2026-10-02.md) at `229e864c`
 adds97 production motion pairs and two endpoints across seven routes. Actual
 AppQuit and exit-terminal WebGL publication is asserted. Sleep/visibility

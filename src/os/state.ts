@@ -2,6 +2,8 @@ import type { System } from './system';
 import { allocateHomeFolderIdentity, getHomeFolderIdentities, removeHomeFolderIdentity, writeHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { HOME_DENSITIES, getHomeNavigationView, selectHomeSlot, stepHomeDirection, setHomeDensity, enterHomeFolder, leaveHomeFolder, initializeHomeFolderView, deleteHomeFolderView, type HomeNavigation, type HomeDensity } from './home-navigation.ts';
 import { getHomeDensityControls } from './home-density-controls.ts';
+import { clampHomeSettingsScroll, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt } from './stock-screen-layout.ts';
+import { confirmHomeLayoutAction, requestHomeLayoutAction, type HomeLayoutAction, type HomeSavedLayouts } from './home-saved-layouts.ts';
 /** Native HOME Menu coordinates: 320 × 240; icons are ordered by column. */
 export const ROWS = 2;
 export const COLUMNS = 150;
@@ -11,7 +13,7 @@ export const MAX_FOLDERS = 60;
 export const FIRST_FOLDER_NUMBER = 1;
 export const LAST_FOLDER_NUMBER = 99;
 export function slotCount(state: MenuState) { return state.opened ? 60 : SLOT_COUNT; }
-export type Panel = 'settings' | 'themes' | 'folder-settings' | 'delete' | 'notes' | 'friends' | 'notifications' | 'browser' | 'miiverse' | 'theme-shop' | null;
+export type Panel = 'settings' | 'themes' | 'home-layouts' | 'folder-settings' | 'delete' | 'notes' | 'friends' | 'notifications' | 'browser' | 'miiverse' | 'theme-shop' | null;
 export type Theme = 'white' | 'red' | 'blue' | 'yellow' | 'pink' | 'black';
 export type MenuState = {
   system?: System;
@@ -21,6 +23,11 @@ export type MenuState = {
   homeFolderIdentities?: HomeFolderIdentities;
   selected: number; opened: boolean; powered: boolean; brightness: number; columns: number;
   panel: Panel; theme: Theme; powerSaving: boolean; panelChoice: number;
+  panelScroll?: number;
+  homeSavedLayouts?: HomeSavedLayouts;
+  homeLayoutSlot?: number;
+  homeLayoutAction?: HomeLayoutAction | null;
+  homeLayoutConfirm?: boolean;
   folders: Record<number, string>; folderSelected: number; nameDraft: string; nextFolderNumber: number;
 };
 export type Input = 'x' | 'y' | 'l' | 'r' | 'start' | 'select' | 'left' | 'right' | 'up' | 'down' | 'open' | 'back' | 'home' | 'power' | 'brightness' | 'zoom' | 'zoom-in' | 'zoom-out' | 'settings' | 'preferences' | 'mute' | 'volume-up' | 'volume-down' | 'reset-layout';
@@ -72,13 +79,22 @@ export function renameFolder(state: MenuState, name: string): MenuState {
   if (!isFolder(state.selected, state)) return state;
   return writeHomeFolderIdentities({ ...state, panel: null, folders: { ...state.folders, [state.selected]: name.slice(0, 16) } }, getHomeFolderIdentities(state));
 }
+export function setHomeSettingsScroll(state: MenuState, value: number): MenuState {
+  if (state.panel !== 'settings' || !Number.isFinite(value)) return state;
+  const panelScroll = clampHomeSettingsScroll(value);
+  return panelScroll === (state.panelScroll ?? 0) ? state : { ...state, panelScroll };
+}
 function activatePanel(state: MenuState): MenuState {
   if (state.panel === 'themes') return state.panelChoice === 0 ? { ...state, panel: 'theme-shop' } : { ...state, theme: themeChoices[state.panelChoice - 1], panel: 'settings', panelChoice: 0 };
   if (state.panel === 'settings') {
     if (state.panelChoice === 0) return { ...state, panel: 'themes', panelChoice: 0 };
-    if (state.panelChoice === 1) return reduceMenu(state, 'brightness');
-    return { ...state, powerSaving: !state.powerSaving };
+    if (state.panelChoice === 1) return { ...state, panel: 'home-layouts', homeLayoutSlot: 0, homeLayoutAction: null, homeLayoutConfirm: false };
+    if (state.panelChoice === 2) return reduceMenu(state, 'brightness');
+    if (state.panelChoice === 3) return { ...state, powerSaving: !state.powerSaving };
+    return state;
   }
+  if (state.panel === 'home-layouts') return state.homeLayoutAction ? (state.homeLayoutConfirm ? confirmHomeLayoutAction(state) : { ...state, homeLayoutAction: null, homeLayoutConfirm: false })
+    : requestHomeLayoutAction(state, state.homeSavedLayouts?.[state.homeLayoutSlot ?? 0] ? 'load' : 'save');
   if (state.panel === 'folder-settings') return state.panelChoice === 0 ? state : { ...state, panel: 'delete', panelChoice: 0 };
   if (state.panel === 'delete') {
     if (Object.keys(state.system?.folderLayouts?.[state.selected] ?? {}).length) return state;
@@ -94,13 +110,33 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
   if (input === 'power') return { ...state, powered: !state.powered, panel: null };
   if (!state.powered) return state;
   if (input === 'home') return { ...state, panel: null };
-  if (input === 'back') return { ...(state.panel ? state : leaveHomeFolder(state)), panel: state.panel === 'themes' ? 'settings' : state.panel === 'theme-shop' ? 'themes' : null, panelChoice: 0 };
-  if (input === 'settings') return { ...state, panel: 'settings', panelChoice: 0 };
+  if (input === 'back') {
+    if (state.panel === 'home-layouts') return state.homeLayoutAction ? { ...state, homeLayoutAction: null, homeLayoutConfirm: false }
+      : { ...state, panel: 'settings', panelChoice: 1, panelScroll: homeSettingsChoiceScroll(1, state.panelScroll) };
+    return { ...(state.panel ? state : leaveHomeFolder(state)), panel: state.panel === 'themes' ? 'settings' : state.panel === 'theme-shop' ? 'themes' : null, panelChoice: 0,
+      ...(state.panel === 'themes' ? { panelScroll: 0 } : {}) };
+  }
+  if (input === 'settings') return { ...state, panel: 'settings', panelChoice: 0, panelScroll: 0, homeLayoutAction: null };
   if (input === 'brightness') return { ...state, brightness: state.brightness >= .99 ? .2 : Math.round((state.brightness + .2) * 10) / 10 };
   if (state.panel) {
     if (input === 'open') return activatePanel(state);
-    const count = state.panel === 'themes' ? 7 : state.panel === 'settings' ? 3 : state.panel === 'folder-settings' ? 2 : 1;
-    if (input === 'down' || input === 'up') return { ...state, panelChoice: Math.max(0, Math.min(count - 1, state.panelChoice + (input === 'down' ? 1 : -1))) };
+    if (state.panel === 'home-layouts') {
+      if (state.homeLayoutAction) return input === 'left' || input === 'right' ? { ...state, homeLayoutConfirm: input === 'right' } : state;
+      if (input === 'x' || input === 'y') return requestHomeLayoutAction(state, input === 'x' ? 'save' : 'load');
+      const slot = state.homeLayoutSlot ?? 0;
+      if (input === 'left' || input === 'right') return { ...state, homeLayoutSlot: Math.floor(slot / 4) * 4 + Math.max(0, Math.min(3, slot % 4 + (input === 'right' ? 1 : -1))) };
+      if (input === 'up' || input === 'down') return { ...state, homeLayoutSlot: slot % 4 + (input === 'down' ? 4 : 0) };
+      return state;
+    }
+    const count = state.panel === 'themes' ? 7 : state.panel === 'settings' ? 4 : state.panel === 'folder-settings' ? 2 : 1;
+    if (input === 'down' || input === 'up') {
+      const panelChoice = Math.max(0, Math.min(count - 1, state.panelChoice + (input === 'down' ? 1 : -1)));
+      return { ...state, panelChoice, ...(state.panel === 'settings' ? { panelScroll: homeSettingsChoiceScroll(panelChoice, state.panelScroll) } : {}) };
+    }
+    if (state.panel === 'settings' && (input === 'left' || input === 'right')) {
+      if (state.panelChoice === 2) return { ...state, brightness: Math.max(.2, Math.min(1, Math.round((state.brightness + (input === 'right' ? .2 : -.2)) * 10) / 10)) };
+      if (state.panelChoice === 3) return { ...state, powerSaving: input === 'right' };
+    }
     return state;
   }
   if (input === 'zoom' || input === 'zoom-in' || input === 'zoom-out') {
@@ -117,11 +153,23 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
 export function touchMenu(state: MenuState, x: number, y: number): MenuState {
   if (!state.powered || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= 320 || y < 0 || y >= 240) return state;
   if (state.panel) {
-    if ((state.panel !== 'settings' && y >= 214) || (state.panel === 'settings' && x < 30 && y > 206)) return reduceMenu(state, 'back');
+    if (state.panel !== 'settings' && state.panel !== 'home-layouts' && y >= 214) return reduceMenu(state, 'back');
     if (state.panel === 'settings') {
-      if (x >= 42 && x < 256 && y >= 34 && y < 105) return { ...state, panel: 'themes', panelChoice: 0 };
-      if (x >= 50 && x < 250 && y >= 150 && y < 191) return { ...state, brightness: (Math.floor((x - 50) / 40) + 1) / 5 };
-      if (x >= 50 && x < 250 && y >= 220) return { ...state, powerSaving: x >= 150 };
+      const scroll = homeSettingsScrollAt(x, y);
+      if (scroll !== null) return setHomeSettingsScroll(state, scroll);
+      const action = homeSettingsActionAt(state.panelScroll ?? 0, x, y);
+      if (action === 'back') return reduceMenu(state, 'back');
+      if (action === 'themes' || action === 'home-layouts') return activatePanel({ ...state, panelChoice: action === 'themes' ? 0 : 1 });
+      if (action?.startsWith('brightness-')) return { ...state, panelChoice: 2, brightness: Number(action.slice(-1)) / 5 };
+      if (action === 'power-saving-off' || action === 'power-saving-on') return { ...state, panelChoice: 3, powerSaving: action === 'power-saving-on' };
+    }
+    if (state.panel === 'home-layouts') {
+      if (state.homeLayoutAction) return state;
+      const action = homeSavedLayoutActionAt(x, y);
+      if (action === 'back') return reduceMenu(state, 'back');
+      if (action) return requestHomeLayoutAction(state, action);
+      const slot = homeSavedLayoutSlotAt(x, y);
+      return slot === null ? state : { ...state, homeLayoutSlot: slot };
     }
     if (state.panel === 'themes' && x >= 293 && y >= 31 && y < 213) return {...state, panelChoice:Math.min(6,Math.floor((y-31)/182*7))};
     if (state.panel === 'themes' && x >= 8 && x < 288 && y >= 31 && y < 213) return activatePanel({ ...state, panelChoice: Math.max(0,state.panelChoice-2) + Math.floor((y-31)/53) });
@@ -137,7 +185,7 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
       return reduceMenu(state,decrease?'zoom-in':'zoom-out');
     }
     const item = toolbar.find(item => x >= item.x && x < item.x + item.width);
-    return item ? { ...state, panel: item.panel, panelChoice: 0 } : state;
+    return item ? { ...state, panel: item.panel, panelChoice: 0, ...(item.panel === 'settings' ? { panelScroll: 0, homeLayoutAction: null } : {}) } : state;
   }
   if (y >= 212) {
     if (state.opened) return hasEmptyHomeFolderSelection(state) ? state : reduceMenu(state, 'back');
@@ -151,4 +199,3 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
   if (state.opened) return selectHomeSlot(state, tile.index);
   return tile.index === state.selected ? reduceMenu(state, 'open') : selectHomeSlot(state, tile.index);
 }
-

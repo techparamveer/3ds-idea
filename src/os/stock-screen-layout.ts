@@ -1,6 +1,61 @@
 import type { AppView, JsonValue } from './app-types';
 import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
 
+/** Bounded four-row HOME Settings adapter; later native rows are not yet routed. */
+export const HOME_SETTINGS_MAX_SCROLL = 140;
+export const clampHomeSettingsScroll = (value = 0): number => Number.isFinite(value) ? Math.max(0, Math.min(HOME_SETTINGS_MAX_SCROLL, value)) : 0;
+export type HomeSettingsAction = 'back' | 'themes' | 'home-layouts' | 'brightness-1' | 'brightness-2' | 'brightness-3' | 'brightness-4' | 'brightness-5' | 'power-saving-off' | 'power-saving-on';
+export type HomeSettingsTarget = { action: HomeSettingsAction; choice: number; x: number; y: number; width: number; height: number };
+/** home.petit PtDlgCnt_CTR mounts plus each child B_* pane, in lower-LCD coordinates. */
+export function homeSettingsTargets(scroll = 0): HomeSettingsTarget[] {
+  const offset = clampHomeSettingsScroll(scroll);
+  const targets: HomeSettingsTarget[] = [
+    { action: 'back', choice: -1, x: 0, y: 202, width: 44, height: 38 },
+    { action: 'themes', choice: 0, x: 51, y: 43 - offset, width: 202, height: 56 },
+    { action: 'home-layouts', choice: 1, x: 51, y: 149 - offset, width: 202, height: 38 },
+    ...[71, 112, 152, 192, 233].map((x, index) => ({ action: `brightness-${index + 1}` as HomeSettingsAction, choice: 2,
+      x: x - (index === 0 || index === 4 ? 20 : 19), y: 237 - offset, width: index === 0 || index === 4 ? 40 : 38, height: 38 })),
+    { action: 'power-saving-off', choice: 3, x: 51, y: 309 - offset, width: 100, height: 38 },
+    { action: 'power-saving-on', choice: 3, x: 153, y: 309 - offset, width: 100, height: 38 },
+  ];
+  return targets.filter(r => r.y < 240 && r.y + r.height > 0).map(r => ({ ...r, y: Math.max(0, r.y), height: Math.min(240, r.y + r.height) - Math.max(0, r.y) }));
+}
+export function homeSettingsActionAt(scroll: number, x: number, y: number): HomeSettingsAction | null {
+  if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= 320 || y < 0 || y >= 240) return null;
+  return homeSettingsTargets(scroll).find(r => x >= r.x && x < r.x + r.width && y >= r.y && y < r.y + r.height)?.action ?? null;
+}
+/** PtSlideBar/B_Groove_00 is 24x206 at (276,120); track-to-scroll mapping is a browser adapter. */
+export function homeSettingsScrollAt(x: number, y: number): number | null {
+  if (!Number.isFinite(x) || !Number.isFinite(y) || x < 264 || x >= 288 || y < 17 || y > 223) return null;
+  return clampHomeSettingsScroll((y - 17) / 206 * HOME_SETTINGS_MAX_SCROLL);
+}
+/** Keep the selected source row fully visible; motion timing is not native-verified. */
+export function homeSettingsChoiceScroll(choice: number, scroll = 0): number {
+  const offset = clampHomeSettingsScroll(scroll), bounds = [[38, 104], [128, 192], [216, 280], [288, 352]][choice];
+  if (!bounds) return offset;
+  if (choice === 0) return 0;
+  return clampHomeSettingsScroll(bounds[0] < offset ? bounds[0] : bounds[1] > offset + 240 ? bounds[1] - 240 : offset);
+}
+/** MyMenu_D_00/N_Thumb_00..07 plus MyMenuBtn_D_00/B_Thumb_00 (66x82). */
+export function homeSavedLayoutSlotAt(x: number, y: number): number | null {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  for (let slot = 0; slot < 8; slot++) {
+    const left = 13 + slot % 4 * 76, top = 21 + Math.floor(slot / 4) * 92;
+    if (x >= left && x < left + 66 && y >= top && y < top + 82) return slot;
+  }
+  return null;
+}
+/** MyMenuBtmBtn_D_00 native footer labels: Y Load, X Save/Overwrite; top-right deletes. */
+export function homeSavedLayoutActionAt(x: number, y: number): 'back' | 'save' | 'load' | 'delete' | null {
+  if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= 320 || y < 0 || y >= 240) return null;
+  if (x >= 286 && y < 38) return 'delete';
+  if (y < 211 || y >= 239) return null;
+  if (x < 40) return 'back';
+  if (x < 160) return 'load';
+  if (x < 280) return 'save';
+  return null;
+}
+
 /** Source S_Play_D loop icons: NoLoop, Folder, Single and Random. OneTime and ABLoop have no portfolio state. */
 export type SoundPlaybackMode='no-loop'|'folder'|'single'|'random';
 export const soundPlaybackMode=(state:Readonly<Record<string,JsonValue|undefined>>):SoundPlaybackMode=>state.shuffle===true?'random':state.repeat==='all'?'folder':state.repeat==='one'?'single':'no-loop';

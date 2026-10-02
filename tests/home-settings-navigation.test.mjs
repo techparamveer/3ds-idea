@@ -1,0 +1,64 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { initialState, reduceMenu, touchMenu, setHomeSettingsScroll } from '../src/os/state.ts';
+import { createPortfolioState, tickSystem } from '../src/os/system.ts';
+import { HOME_SETTINGS_MAX_SCROLL, homeSettingsActionAt, homeSettingsScrollAt, homeSavedLayoutSlotAt } from '../src/os/stock-screen-layout.ts';
+
+const settings = () => reduceMenu({ ...initialState }, 'settings');
+test('native Save/Load row opens layouts without changing brightness', () => {
+  const state = settings(), touched = touchMenu(state, 152, 168);
+  assert.equal(touched.panel, 'home-layouts');
+  assert.equal(touched.brightness, state.brightness);
+  assert.equal(touched.homeLayoutSlot, 0);
+  assert.equal(reduceMenu(reduceMenu(state, 'down'), 'open').panel, 'home-layouts');
+  assert.equal(homeSettingsActionAt(0, 152, 140), null);
+});
+test('keyboard rows scroll brightness and power fully into view and share touch values', () => {
+  let state = reduceMenu(reduceMenu(settings(), 'down'), 'down');
+  assert.equal(state.panelChoice, 2);
+  assert.equal(state.panelScroll, 40);
+  state = touchMenu(state, 112, 256 - state.panelScroll);
+  assert.equal(state.brightness, .4);
+  assert.equal(reduceMenu(state, 'right').brightness, .6);
+  state = reduceMenu(state, 'down');
+  assert.equal(state.panelChoice, 3);
+  assert.equal(state.panelScroll, 112);
+  state = touchMenu(state, 203, 328 - state.panelScroll);
+  assert.equal(state.powerSaving, true);
+  assert.equal(reduceMenu(state, 'left').powerSaving, false);
+  state = reduceMenu(reduceMenu(reduceMenu(state, 'up'), 'up'), 'up');
+  assert.equal(state.panelChoice, 0);
+  assert.equal(state.panelScroll, 0);
+  assert.equal(homeSettingsActionAt(state.panelScroll, 152, 71 - state.panelScroll), 'themes');
+});
+test('source scrollbar and close overlay are bounded with full-height content', () => {
+  assert.equal(homeSettingsScrollAt(276, 17), 0);
+  assert.equal(homeSettingsScrollAt(276, 223), HOME_SETTINGS_MAX_SCROLL);
+  assert.equal(homeSettingsScrollAt(263, 100), null);
+  assert.equal(homeSettingsActionAt(0, 233, 239), 'brightness-5');
+  assert.equal(homeSettingsActionAt(0, 20, 220), 'back');
+  assert.equal(homeSettingsActionAt(0, 50, 220), null);
+  assert.equal(homeSettingsActionAt(0, 150, 240), null);
+  const state = settings();
+  assert.equal(setHomeSettingsScroll(state, Infinity), state);
+  assert.equal(setHomeSettingsScroll(state, 900).panelScroll, HOME_SETTINGS_MAX_SCROLL);
+  assert.equal(touchMenu(state, 276, 223).panelScroll, HOME_SETTINGS_MAX_SCROLL);
+  assert.equal(touchMenu(state, 20, 220).panel, null);
+});
+test('eight source thumbnail bounds leave gaps and footer actions stay independent', () => {
+  for (let slot = 0; slot < 8; slot++) assert.equal(homeSavedLayoutSlotAt(46 + slot % 4 * 76, 62 + Math.floor(slot / 4) * 92), slot);
+  assert.equal(homeSavedLayoutSlotAt(84, 62), null);
+  assert.equal(homeSavedLayoutSlotAt(46, 210), null);
+  let state = { ...tickSystem(createPortfolioState(), 3001), panel: 'home-layouts', homeLayoutSlot: 0 };
+  state = reduceMenu(reduceMenu(state, 'right'), 'down');
+  assert.equal(state.homeLayoutSlot, 5);
+  state = touchMenu(state, 274, 154);
+  assert.equal(state.homeLayoutSlot, 7);
+  assert.equal(touchMenu(state, 100, 225), state);
+  state = touchMenu(state, 220, 225);
+  assert.equal(state.homeLayoutAction, 'save');
+  assert.equal(state.homeLayoutConfirm, false);
+  assert.equal(reduceMenu(state, 'open').homeLayoutAction, null);
+  assert.equal(reduceMenu(reduceMenu(state, 'right'), 'open').homeSavedLayouts[7].version, 1);
+  assert.equal(reduceMenu(reduceMenu(state, 'back'), 'back').panel, 'settings');
+});

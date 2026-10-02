@@ -28,18 +28,18 @@ Before hardware edits, also read [research](docs/3ds-xl-research.md) and the
 their own checkpoint. Check the source and later evidence before repeating a
 limitation or declaring it fixed.
 
-## Agent model preference - 1 October 2026
+## Agent model preference - 2 October 2026
 
-The user's latest preference is **GPT-6 Astra, high reasoning for each
-workstream chat**, and **GPT-6.1 Sol, medium reasoning for helper subagents**.
-Use `model=gpt-6-astra` and `thinking=high` for the separate Codex chats.
-For helpers explicitly select `model=gpt-6.1-sol` and
-`reasoning_effort=medium` on a bounded or empty context fork. This supersedes
-all earlier model preferences. The user requires **no Fast mode**. Neither
-chat dispatch nor collaboration exposes a Fast-mode/service-tier argument;
-do not claim that setting was disabled or verified through these tools.
-Do not start new helpers through a priority-only service. Verify standard,
-non-Fast service is available and selected before dispatching helpers.
+The supplied repository instructions select **GPT-5.6 Sol, high reasoning**;
+the latest direct speed request enables **Fast for every agent**. These
+supersede earlier Astra preferences and the no-Fast policy for new dispatches.
+Use `model=gpt-5.6-sol` and `thinking=high` for separate Codex chats.
+For helpers explicitly select `model=gpt-5.6-sol` and
+`reasoning_effort=high` on a bounded or empty context fork. The collaboration
+catalog advertises priority service (Fast), which the user now authorizes.
+Chat dispatch does not expose a service-tier argument. Verify existing chat
+speed settings through the UI on the iPad when available; a saved global
+`service_tier = "priority"` does not prove an existing chat override changed.
 Do not claim that an already in-flight coordinator or worker turn switched
 models. Apply these settings to new dispatches and chat follow-ups.
 

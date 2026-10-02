@@ -4,8 +4,8 @@ Current plan, 2 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
 integration and native/browser acceptance. Each workstream has its own Codex
 chat, Git branch and worktree, recorded in the [workstream registry](feature-map/workstreams.md).
-Workstream chats use GPT-6 Astra/High; helper subagents use GPT-6.1 Sol/Medium.
-The user's no-Fast-mode requirement is recorded, but its app setting cannot be
+New dispatches follow the supplied GPT-5.6 Sol/high repository policy with Fast.
+The latest speed request supersedes the no-Fast policy; chat service tier cannot be
 changed or verified through the dispatch tools.
 
 ## Scope and Evidence
@@ -32,8 +32,12 @@ needs its native gate. All owned verification processes are stopped.
 
 The [HOME Settings correction](home-design-native-comparison-2026-10-02.md)
 at `747f840d` replaces unrelated upper icons/hints with the native caption.
-The captured lower panel is missing Save/Load Layout and remains authored.
-Full pair11990/61485 pixels >2 still fails; caption residual121 pixels/max4.
+The later [lower-panel integration](home-settings-integration-2026-10-02.md)
+at `e923487d` replaces authored Settings graphics and adds source Save/Load,
+brightness/power rows, scrolling, local saved layouts and guarded confirmations.
+Retained-reference lower residual is9630 pixels >2 (previous61485); differing
+population/phase/input make this diagnostic only. Whole pair36195/9630 still
+fails. Saved thumbnails/zoom and later Settings rows remain incomplete.
 Settings Other page1 browser regression is exactly unchanged on both LCDs.
 Health APT-debug follow-up still did not establish native HOME return.
 

@@ -1,5 +1,10 @@
 # Verification and evidence architecture
 
+Latest HOME Settings integration `e923487d`: [evidence](../home-settings-integration-2026-10-02.md)
+records actual Sidecar browser captures and a retained-native diagnostic,
+not a fresh matched replay. Whole pair36195/9630 pixels >2 remains fail.
+Settings Other page1 exact browser regression does not establish native acceptance.
+
 The **isolated Azahar profile running the user's EUR 10.7.0-32E firmware** is ground truth for in-scope software screens. A scenario is accepted only after the coordinator operates Azahar and the integrated production browser with identical inputs, captures both raw LCD outputs, diffs them, inspects the side-by-side sheet and resolves every unexplained difference. Tests, source traces, source renders and browser operation are supporting evidence. Hardware appearance has a separate matched-photograph/browser-model gate.
 
 | Tier | Establishes | Does not establish |

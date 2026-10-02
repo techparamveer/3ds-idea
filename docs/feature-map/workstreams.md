@@ -3,10 +3,17 @@
 Coordinator: the Codex chat **Explain the 3DS project**,
 `01a0f8e9-441b-76a2-b3ee-bec359217934`. The user explicitly requested separate
 Codex chats and worktrees, with this chat orchestrating their work and allowing
-bounded subagents inside each lane. Latest model policy: GPT-6 Astra, high for
-workstream chats; GPT-6.1 Sol, medium for helper subagents. No Fast mode. The
-tools can set model/reasoning but cannot toggle or verify Fast mode/service
-tier; that limitation must not be reported as a successful setting change.
+bounded subagents inside each lane. The supplied repository policy selects
+GPT-5.6 Sol/high for new dispatches; the latest speed request enables Fast.
+Existing in-flight Astra helpers were not switched. Chat messaging sets
+model/reasoning but not service tier. The saved global tier is priority (Fast);
+existing chat overrides require UI verification on the iPad display.
+
+HOME Settings delivery: renderer `23f21485` integrated as `6c31e2f6`, state
+`183b4965` as `e4a30ab0`, System tests `eaf4cf20` as `ca326367`, MyMenu painter
+`61cf9509` as `8fd2f4bf`; runtime wiring/review fixes `e923487d`. Workers used
+assigned `3ds-home-design-native-panel-20261002` and `3ds-home-design-state-20261002`
+worktrees without GUI. [Evidence and residuals](../home-settings-integration-2026-10-02.md).
 
 The [completion map](../feature-map.md) defines scope, status and acceptance.
 This file is the dispatch ledger. Feature IDs and route details live in

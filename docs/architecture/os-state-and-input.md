@@ -80,6 +80,14 @@ optional view data; it contains no renderer or browser handles.
 
 ## One input path
 
+HOME Settings/SaveLoad use existing MenuState/System and shared hit geometry.
+`home-saved-layouts.ts` stores eight optional version1 arrangement snapshots
+inside version4 settings, never runtime/audio/renderer handles or live identities.
+`home-native-layouts.ts` composes MyMenu resources. Rail contacts retain ownership;
+destructive dialogs require matching press/release targets. HOME panel failures
+publish paired host recovery through the existing readiness gate.
+See [integration and adaptations](../home-settings-integration-2026-10-02.md).
+
 ```mermaid
 flowchart LR
   K[Keyboard phases] --> Gate[Native readiness gate]

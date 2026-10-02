@@ -101,3 +101,42 @@ mint-halo bottom Y is 160 versus browser 159. Root-held shell/halo bounds match,
 and the folder foreground-panel control remains within maximum delta 1. This
 slice does not alter shell rasterization or claim that residual fixed. Motion,
 exact input timing and audio also remain open.
+
+## Fractional LCD sampling follow-up
+
+The coordinator integrated the first correction at runtime `edc0090e`. Its
+folder-held artwork ROI `(220,108,48,38)` reached zero pixels over delta 2 with
+maximum delta 2, improving from 674 pixels and maximum delta 74. This is
+post-integration evidence that the authored pickup material corrects that
+captured folder-held artwork. It is not a whole-scenario pass.
+
+The same capture loop left a root-held residual at the smaller Scale5 pose:
+the fixed artwork ROI `(48,42,22,20)` retained 236 pixels over delta 2 with
+maximum delta 54 (previously 256 / 103), while the shell retained 501 pixels
+over delta 2 with maximum delta 81. The production pickup centre is
+`(59,49.75)`, so the pane lands at a fractional LCD phase. The production raw
+lower LCD `artwork-desktop/cancel-root-preview/lower.png` has SHA-256
+`d23e11decab05932737a1656a913242e5080ff53b3e744c486465aebdc5a5687`;
+the fresh native own-PNG `_02.10.26_21.13.23.277.png` has SHA-256
+`9f2d8764bad8e6ff099366063873f65783a4ec7e3b98d90a4146de685af9ab78`.
+
+The existing renderer's `pictureSampling: 'lcd'` path evaluates an eligible
+source picture once at destination LCD pixel centres. Without that opt-in, a
+picture is rasterized at pane size and Canvas then shifts the intermediate at
+the fractional phase. The stock pickup call now selects the existing direct
+path; no generic raster implementation or source resource changes.
+
+This selection is draw-wide for `LncIconPickUp_00`, not pane-scoped. It can
+therefore change any picture in that layout whose transform is fractional and
+whose source-over blend and opaque destination satisfy the renderer's guarded
+direct path; ineligible pictures retain the established intermediate path.
+That includes possible shell-edge effects, so the folder-held one-row shell
+residual cannot be called fixed without coordinator comparison. Portfolio
+pickups (no native title ID) and folder-icon pickups do not opt in.
+
+The source layouts define the transforms, samplers, UVs, TEV and blend, but no
+recovered native controller selects this browser transport option. Scoping the
+existing LCD-centre sampler to stock held pickups is therefore a
+**capture-directed native-raster transport adaptation** pending matched
+production recapture. Ordinary tiles and cleared cancel/release states do not
+use the pickup draw and remain unchanged.

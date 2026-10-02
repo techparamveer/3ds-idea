@@ -78,11 +78,12 @@ test('ordinary Scale0–5 preserves separate shell ancestry, direct-root artwork
 test('stock pickup binds each SMDH through the authored pickup material and rejects unsupported resources', () => {
   const firstId = '0004001000022300', secondId = '0004001000022000', first = iconPixels(17), second = iconPixels(31);
   const { home, draws } = presenter({ titleIconPixels: new Map([[firstId, first], [secondId, second]]) });
-  for (const [titleId, pixels, center, frame] of [[firstId.toUpperCase(), first, [137.25, 92.5], 1], [secondId, second, [88.5, 103.25], 2.375]]) {
+  for (const [titleId, pixels, center, frame] of [[firstId.toUpperCase(), first, [137.25, 92.5], 1], [secondId, second, [88.5, 103.25], 2.375], [firstId, first, [59, 49.75], 5]]) {
     const result = home.pickupAt({}, ...center, frame, titleId), draw = draws.at(-1), normalized = titleId.toLowerCase();
     const texture = `runtime:pickup-title-icon:${normalized}`;
     assert.equal(result.drawn, true); assert.deepEqual(draw.options.center, center);
     assert.deepEqual(draw.options.bindings, [{ name: pickup + '_Scale', frame }]);
+    assert.equal(draw.options.pictureSampling, 'lcd');
     assert.equal(draw.options.textures[texture], pixels);
     assert.deepEqual(draw.options.overrides.P_Icon_00, { visible: true, textureBindings: { 0: texture, 1: 'IconMask.bclim' } });
     const posed = pane(draw.pose, 'P_Icon_00'), source = pack.layouts[pickup], sourcePane = source.roots[0].children.find(child => child.name === 'P_Icon_00'), material = source.materials[sourcePane.picture.material];
@@ -174,6 +175,7 @@ test('authored folder pickup preserves glyph installation, folder Scale and dens
       const result = home.pickup({}, 137.25, 92.5, 1, density, true, 'A'), draw = draws.at(-1);
       assert.equal(draw.name, 'LncIconFolderPickUp_00');
       assert.deepEqual(draw.options.bindings, [{ name: 'LncIconFolderPickUp_00_Scale', frame }]);
+      assert.equal(draw.options.pictureSampling, undefined, 'folder pickup keeps its existing raster path');
       assert.deepEqual(draw.options.overrides.P_Icon_00, { visible: true, textureBindings: { 0: 'runtime:folder-first-character', 1: 'IconMask.bclim' } });
       assert.ok(draw.options.textures['runtime:folder-first-character']);
       const icon = pane(draw.pose, 'P_Icon_00');

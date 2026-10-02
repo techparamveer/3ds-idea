@@ -445,7 +445,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const textures=glyph?{[glyphTexture]:glyph}:titleTexture&&titlePixels?{[titleTexture]:titlePixels}:undefined;
   const iconOverride=glyph?{visible:true,textureBindings:{0:glyphTexture,1:'IconMask.bclim'}}
    :titleTexture?{visible:true,textureBindings:{0:titleTexture,1:'IconMask.bclim'}}:{visible:false};
-  const drawn=renderer.draw(ctx,'launcher',name,{center:[x,y],bindings:[binding(name+'_Scale',frame)],textures,overrides:{
+  const drawn=renderer.draw(ctx,'launcher',name,{center:[x,y],bindings:[binding(name+'_Scale',frame)],textures,...(titleId?{pictureSampling:'lcd' as const}:{}),overrides:{
    P_Icon_00:iconOverride,P_IconPrize_00:{visible:false}
   }});
   if(titleId&&!drawn)throw new Error(`Native pickup title icon draw unavailable: ${titleId}`);

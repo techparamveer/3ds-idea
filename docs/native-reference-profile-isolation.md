@@ -1,5 +1,23 @@
 # Azahar reference profile isolation — 24 September 2026
 
+## Exact Binding - 2 October 2026
+
+During the folder replay, a display-name `cua.getApp('Azahar')` lookup
+unexpectedly launched `/Applications/Azahar.app` into its idle game list.
+No title was started there. The coordinator immediately closed that bound
+process and verified PID absence, but the default config mtime changed; do not
+claim the default profile remained untouched or restore it from an older backup.
+Use the exact private bundle path or verified live PID/window for every lookup,
+not the display name. All accepted reference captures used the separately
+verified private process with Static input 2 / Null output 1 / volume 0.
+
+This run also found startup-warning and Quit dialogs omitted from both
+`list_windows` and main-window snapshots. Verify the authorized desktop when
+input is blocked; an empty window inventory is insufficient proof that no modal
+exists. The private Quit/Yes again exited 139, followed by verified PID absence.
+Details and native capture hashes are under the internal
+`home-folder-interaction-20261002/coordinator-run.md` and comparison manifest.
+
 ## Current Silent Reference - 2 October 2026
 
 Use the verified private `native-close-clean-20261002` clone under

@@ -6,6 +6,9 @@ export { createHomeNavigation, type HomeNavigation } from './home-navigation.ts'
 
 /** Authored defaults. No timing or distance below has been measured on firmware 10.7.0-32E. */
 export const HOME_GESTURE_TIMING = { liftMs: 450, slopPixels: 8, folderHoverMs: 500, edgeDelayMs: 350, edgeIntervalMs: 180 } as const;
+/** Reuse the existing adapted folder-hover deadline without adding another
+ * gesture clock. Folder slots are non-negative, so this cannot alias one. */
+const HOME_FOLDER_BACK_HOVER = -1;
 export type HomeGesture = {
   pointerId: number; mode: 'press' | 'scroll' | 'drag'; area: 'grid' | 'chrome' | 'themes';
   x: number; y: number; startX: number; startY: number; startedAt: number; updatedAt: number;
@@ -40,7 +43,8 @@ export const resetHomeNavigation = (state: MenuState) => settleHomeNavigation(ca
 function boundedScroll(state: MenuState, value: number) { return Math.max(0, Math.min(Math.max(0, Math.ceil(getHomeExposedExtent(state) / rowCount(state)) - visibleColumns(state)), value)); }
 function dragTarget(state: MenuState, gesture: HomeGesture, now: number): HomeGesture {
   const target = homeTouchLocation(state, gesture.x, gesture.y);
-  const candidate = target && target.folder === null && homeItemAt(state, target)?.kind === 'folder' && gesture.item?.kind === 'app' && gesture.source && resolveHomeDrop(state, gesture.source, target) ? target.slot : null;
+  const back = state.opened && isHomeFolderBackTouch(state, gesture.x, gesture.y);
+  const candidate = back ? HOME_FOLDER_BACK_HOVER : target && target.folder === null && homeItemAt(state, target)?.kind === 'folder' && gesture.item?.kind === 'app' && gesture.source && resolveHomeDrop(state, gesture.source, target) ? target.slot : null;
   const edge = gesture.y >= (state.opened ? 49 : 34) && gesture.y < 204 ? gesture.x >= 0 && gesture.x < 20 ? -1 : gesture.x >= 300 && gesture.x < 320 ? 1 : 0 : 0;
   return { ...gesture, target, hoverFolder: candidate, hoverSince: candidate === gesture.hoverFolder ? gesture.hoverSince : now, edge, edgeAt: edge === gesture.edge ? gesture.edgeAt : now + HOME_GESTURE_TIMING.edgeDelayMs };
 }
@@ -63,6 +67,12 @@ export function tickHomeGesture(state: MenuState, now: number): MenuState {
   }
   if (gesture.mode === 'drag') {
     if (gesture.hoverFolder !== null && now - gesture.hoverSince >= HOME_GESTURE_TIMING.folderHoverMs) {
+      if (gesture.hoverFolder === HOME_FOLDER_BACK_HOVER) {
+        state = leaveHomeFolder(state);
+        gesture = dragTarget(state, { ...gesture, viewFolder: null, columns: state.columns,
+          scrollPixels: null, target: null, hoverFolder: null, edge: 0, edgeAt: now, updatedAt: now }, now);
+        return setNavigation(state, { ...getHomeNavigation(state), gesture });
+      }
       const folder = gesture.hoverFolder;
       state = enterHomeFolder(state, folder);
       gesture = { ...gesture, viewFolder: folder, columns: state.columns, scrollPixels: null, target: null, hoverFolder: null, edge: 0, updatedAt: now };

@@ -95,9 +95,14 @@ export function reconcileHomeControlGesture(state: MenuState): MenuState {
   const controls = state.system?.homeControls, gesture = state.system?.homeNavigation.gesture;
   if (!controls) return state;
   if (controls.tilePickup) {
-    // The native stationary pickup owns this captured stroke. Context changes,
-    // release/drop and other gesture lifecycles remain explicit browser exits.
-    if (gesture?.mode === 'drag' && controls.tilePickup.source.folder === state.system!.homeNavigation.activeFolderSlot) return state;
+    const source = gesture?.source, pickup = controls.tilePickup.source, activeFolder = state.system!.homeNavigation.activeFolderSlot;
+    const sameSource = source?.folder === pickup.folder && source.slot === pickup.slot;
+    // The native stationary pickup continues owning the same source while the
+    // browser adapter carries a folder child through Back to the retained root.
+    // Root-to-folder hover and unrelated context changes still release it.
+    const sourceContext = pickup.folder === activeFolder
+      || (pickup.folder !== null && activeFolder === null && gesture?.viewFolder === null);
+    if (gesture?.mode === 'drag' && sameSource && sourceContext) return state;
     return put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null, tilePickup: null });
   }
   if (controls.tileTouch.strokeOwned && !gesture && !state.system!.input.touch) {

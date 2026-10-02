@@ -8,6 +8,7 @@ import { menuTiles, pageStart, rowCount, densities, reduceMenu } from '../src/os
 import { createPortfolioState, dispatchSystemEvent, tickSystem, reduceSystem, releaseSystemInputs, setSystemSleeping, launch, invokeSystemApplet, saveSettings, restoreSettings, selectedTitle, homeSlotAppId, moveHomeItem, getHomeGestureView } from '../src/os/system.ts';
 import { HOME_GESTURE_TIMING as T, homeTouchLocation } from '../src/os/home-gestures.ts';
 import { resolveHomeDrop, restoreHomeLayout } from '../src/os/home-layout.ts';
+import { enableHomeControls } from '../src/os/home-controls.ts';
 import { openFirmwareStorage } from '../src/os/app-persistence.ts';
 import {setHomeDensity as setHomeDensityMotion,homeDensityIndex,commitHomeScroll,getHomeNavigationView} from '../src/os/home-navigation.ts';
 const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
@@ -21,6 +22,7 @@ const withFolder=(s,slot=4,name='Folder')=>{
  return {...s,folders:{...s.folders,[slot]:name},system:{...s.system,layout}};
 };
 const lift=(s,slot=0,now=4000)=>{s=touch(s,'down',...center(s,slot),now);return tickSystem(s,now+T.liftMs);};
+const placeInFolder=(source=1,slot=2,now=4000)=>{let s=lift(withFolder(home()),source,now);s=touch(s,'move',...center(s,4),now+500);s=tickSystem(s,now+500+T.folderHoverMs);s=touch(s,'move',...center(s,slot),now+1010);return touch(s,'up',...center(s,slot),now+1020);};
 const allIds=s=>[...Object.values(s.system.layout),...Object.values(s.system.folderLayouts).flatMap(Object.values)].sort();
 const expected=homeTitles.map(t=>t.id).sort();
 const noLoss=s=>{assert.deepEqual(allIds(s),expected);assert.equal(new Set(allIds(s)).size,expected.length);};
@@ -72,6 +74,49 @@ test('folder placement, child launching, and drag back out share one touch strea
  const launched=reduceSystem(s,'open',5100);assert.equal(launched.system.app,'work');
  s=lift(s,3,5200);s=touch(s,'move',20,40,5700);assert.equal(s.opened,false);s=touch(s,'move',5,120,5710);s=tickSystem(s,5710+T.edgeDelayMs);s=touch(s,'move',...center(s,0),6070);s=touch(s,'up',...center(s,0),6080);
  assert.equal(s.system.layout[0],'work');assert.equal(s.system.folderLayouts[4][3],undefined);noLoss(s);
+});
+test('holding a folder child over Back carries the same pickup to retained root and swaps on release',()=>{
+ let s=enableHomeControls(placeInFolder());assert.equal(s.opened,true);assert.equal(s.system.layout[0],'work');assert.equal(s.system.folderLayouts[4][2],'projects');
+ s=lift(s,2,5200);const origin=s.system.homeNavigation.gesture.origin.navigation,source=child(4,2),before=saveSettings(s),back=[59,54];
+ assert.deepEqual(getHomeGestureView(s).dragged.source,source);assert.deepEqual(s.system.homeControls.tilePickup.source,source);
+ s=touch(s,'move',...back,5700);s=tickSystem(s,5700+T.folderHoverMs-1);assert.equal(s.opened,true);
+ s=tickSystem(s,5700+T.folderHoverMs);const held=getHomeGestureView(s);
+ assert.equal(s.opened,false);assert.deepEqual(s.system.homeNavigation.rootView,origin.rootView);assert.deepEqual(held.dragged.source,source);
+ assert.deepEqual([held.pointerId,held.x,held.y],[1,...back]);assert.deepEqual(held.target,root(0));assert.equal(held.canDrop,true);
+ assert.deepEqual(s.system.homeControls.tilePickup.source,source);assert.equal(s.system.homeControls.primary.request,2);
+ assert.equal(Object.values(s.system.homeControls.tileTouch.widgets).some(widget=>widget.capture),true);
+ s=touch(s,'up',...back,5700+T.folderHoverMs+1);
+ assert.equal(s.opened,false);assert.equal(s.system.layout[0],'projects');assert.equal(s.system.folderLayouts[4][2],'work');assert.equal(getHomeGestureView(s),null);noLoss(s);
+ assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileCandidate,null);
+ assert.equal(Object.values(s.system.homeControls.tileTouch.widgets).some(widget=>widget.capture),false);
+ s=tickSystem(s,5700+T.folderHoverMs+20);assert.equal(s.system.homeControls.primary.request,0);assert.equal(s.system.homeControls.primary.shown,true);
+ assert.notEqual(saveSettings(s),before);
+});
+test('Back hover restarts after departure and the last folder child can move to an empty root cell',()=>{
+ let s=enableHomeControls(placeInFolder(0));assert.equal(s.system.layout[0],undefined);assert.deepEqual(s.system.folderLayouts[4],{2:'work'});
+ s=lift(s,2,5200);const back=[59,54];s=touch(s,'move',...back,5700);s=tickSystem(s,5700+T.folderHoverMs-1);assert.equal(s.opened,true);
+ s=touch(s,'move',160,80,5700+T.folderHoverMs-1);s=touch(s,'move',...back,5710+T.folderHoverMs);
+ s=tickSystem(s,5710+2*T.folderHoverMs-1);assert.equal(s.opened,true);
+ s=tickSystem(s,5710+2*T.folderHoverMs);assert.equal(s.opened,false);s=touch(s,'up',...back,5711+2*T.folderHoverMs);
+ assert.equal(s.system.layout[0],'work');assert.equal(s.system.folderLayouts[4][2],undefined);assert.equal(s.folders[4],'Folder');noLoss(s);
+ assert.equal(getHomeGestureView(s),null);assert.equal(s.system.homeControls.tilePickup,null);
+});
+test('cancel and stale-source exits after Back hover restore folder navigation and clear native pickup ownership',()=>{
+ for(const stale of [false,true]){
+  let s=enableHomeControls(placeInFolder()),layout=structuredClone(s.system.layout),folders=structuredClone(s.system.folderLayouts);
+  s=lift(s,2,5200);const origin=s.system.homeNavigation.gesture.origin.navigation,back=[59,54];s=touch(s,'move',...back,5700);s=tickSystem(s,5700+T.folderHoverMs);
+  assert.equal(s.opened,false);assert.ok(s.system.homeControls.tilePickup);
+  if(stale){
+   const rootId=s.system.layout[0],sourceId=s.system.folderLayouts[4][2];
+   s={...s,system:{...s.system,layout:{...s.system.layout,0:sourceId},folderLayouts:{...s.system.folderLayouts,4:{...s.system.folderLayouts[4],2:rootId}}}};
+   s=tickSystem(s,5700+T.folderHoverMs+20);
+  }else s=touch(s,'cancel',...back,5700+T.folderHoverMs+1);
+  assert.equal(s.opened,true);assert.deepEqual(s.system.homeNavigation,origin);assert.equal(getHomeGestureView(s),null);
+  assert.equal(s.system.input.touch,null);assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileCandidate,null);
+  assert.equal(Object.values(s.system.homeControls.tileTouch.widgets).some(widget=>widget.capture||widget.longPressFlag),false);
+  s=tickSystem(s,5700+T.folderHoverMs+40);assert.equal(s.system.homeControls.primary.request,0);assert.equal(s.system.homeControls.primary.shown,true);noLoss(s);
+  if(!stale){assert.deepEqual(s.system.layout,layout);assert.deepEqual(s.system.folderLayouts,folders);}
+ }
 });
 test('apps swap across folders and full or protected placements cannot lose anything',()=>{
  let s=withFolder(withFolder(home(),4),6);s=moveHomeItem(s,root(0),child(4,0));s=moveHomeItem(s,root(1),child(6,0));

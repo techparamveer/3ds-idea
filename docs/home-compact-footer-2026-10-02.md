@@ -1,5 +1,8 @@
 # Compact software-close footer
 
+The later [Open return checkpoint](home-open-return-2026-10-03.md) adds the
+previously missing return stage; the measurements below remain historical.
+
 Runtime `c44e88d7` + `be54ea30`, 2 October 2026, H-10/L-04. Supersedes the
 SceneOut departure in the [earlier checkpoint](home-postmodal-footer-2026-10-02.md).
 Whole native scenarios remain fail; this is a measured regional correction.

@@ -7,7 +7,7 @@ Latest user request refocuses **HOME screen 1:1 fidelity**: suspended backing,
 compact retained icon, footer states, banners and interaction. Close/switch,
 power-on and buttons remain pending; preserve the other existing designs.
 
-Current plan, 2 October 2026. This is the execution map for the **whole in-scope
+Current plan, 3 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
 integration and native/browser acceptance. Each workstream has its own Codex
 chat, Git branch and worktree, recorded in the [workstream registry](feature-map/workstreams.md).
@@ -15,7 +15,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [compact footer correction](home-compact-footer-2026-10-02.md) at
+Latest [Open return](home-open-return-2026-10-03.md), `03500c6c` + `65b758af`
+with publication fix `0172842b`, adds ChangeUp0..8 and selected-banner
+reacquisition. Owner retirement precedes return; quarantine and paired endpoint
+publication continue through8. Reduced replay exposed and then verified the
+fix for synchronous cleanup skipping return0. Full1867 tests/typecheck/build
+pass. Native banner activation/growth, intermediate alpha/epochs and exact
+input/motion/audio remain open; whole scenarios still fail. Preserve this
+implementation and target those measured gaps, then remaining power/buttons.
+
+Earlier [compact footer correction](home-compact-footer-2026-10-02.md) at
 `c44e88d7` + `be54ea30` selects ChangeDw0..6 and black-left Decide5 after
 dialog exit. Native25 Close2590->37 mismatched pixels, Resume unchanged45;
 whole scenarios still fail. Open return/banner reacquisition, intermediate

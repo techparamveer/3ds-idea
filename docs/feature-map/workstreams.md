@@ -1,5 +1,20 @@
 # Workstream Registry
 
+## Open Return - 3 October 2026
+
+Reused source chat/worktree below delivers `c414b12f` -> `03500c6c`;
+coordinator renderer/banner/tests `65b758af`, publication fix `0172842b`.
+Comparator chat owns private before/after reports, no GUI. Read-only helper
+`closing_icon_departure` reviewed132 tests, then diagnosed the live reduced
+publication defect and reviewed the49-test fix. GPT-5.6 Sol/high;
+no service-tier override claimed. Coordinator alone runs the dedicated muted
+Chrome and production preview3021 on the authorized whole Mac. Native evidence
+is reused from the preceding isolated run. [Evidence and remaining gaps](../home-open-return-2026-10-03.md).
+Final desktop/mobile/reduced38/38/47-pair runs pass the implementation checks;
+coordinator opened the final comparison sheet and verified130 hashes. Dedicated
+Chrome95030 exits0 and is absent; production3021 remains running. Native banner
+timing and whole-scenario acceptance remain open, not a completed goal.
+
 ## Compact Footer - 2 October 2026
 
 Reused source chat/tree below: worker `0254c9f4` -> coordinator `c44e88d7`;

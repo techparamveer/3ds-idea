@@ -1,5 +1,19 @@
 # Software state, input and presentation
 
+[Open footer return](../home-open-return-2026-10-03.md) extends close after
+the compact departure: footer6 -> later exact-owner retirement and
+`footer-returning`0 -> `return-terminal`8 -> later controller removal.
+Post-retirement validation requires unchanged generation, close intent, absent
+old instance and empty runtime/app ownership. Input quarantine and paired
+readiness cover the entire return, including recovery after retirement.
+SceneIn15 plus direct-member ChangeUp restores Open without the old Decide
+override. The existing banner host clears at close begin and reacquires the
+selection at return0; resource activation can occur later. These boundaries
+are capture-fitted, not native epoch claims. Required close paints pin the
+synchronous effect drain to the originating commit timestamp: resource release
+must not advance return0 before it is painted. The pin is restored in `finally`;
+later asynchronous effects still use the live clock.
+
 [Post-modal footer departure](../home-postmodal-footer-2026-10-02.md) extends
 close only: `exit-terminal` -> `footer-exiting` at `footerExitFrame:0` ->
 `footer-terminal` at 6 -> later owner retirement. Each boundary stops the

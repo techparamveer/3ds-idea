@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Open-return verification](../home-open-return-2026-10-03.md) also keys on
+`footerReturnFrame`, checks retired app ownership throughout return0..8, and
+captures subsequent banner activation separately. Reduced-motion production
+replay exposed synchronous retirement effects consuming return0 before paint;
+the deterministic runtime regression alone is not a substitute for the fixed
+build's paired capture. Keep failed runs and recapture all viewport modes.
+Banner requests, resource readiness and visible activation are distinct events;
+an Open-footer pixel improvement does not prove upper growth or native timing.
+
 [Post-modal footer verification](../home-postmodal-footer-2026-10-02.md)
 must record `footerExitFrame` in capture keys, otherwise all intermediate
 footer samples collapse into one. Check entry, dialog exit, footer0/footer6

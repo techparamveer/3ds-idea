@@ -12,7 +12,7 @@ import { beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os
 import { getHomePresentation } from '../src/os/home-presentation.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
 import { getHomeDensityControls } from '../src/os/home-density-controls.ts';
-import { poseNativeLayout } from '../src/os/native-layout.ts';
+import { poseNativeLayout, nativePaneParentPath } from '../src/os/native-layout.ts';
 
 const moduleUrl = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
 async function loadPresentation(name, overrides = {}) {
@@ -392,6 +392,26 @@ test('suspended software footer uses the source X Close glyph while folder Close
  assert.equal(calls[0].overrides.N_BtnW_L_03.visible,false);
  assert.equal(calls[0].overrides.N_BtnW_R_02.visible,true);
  assert.notEqual(label,native.messages[native.labels.lau_2b_close].text);
+});
+
+test('valid switch hides source footer and cancel restores it without mutating footer actions',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}};
+ const presenter=createFirmwareHome({renderer});
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000),6500),'home',6600);
+ const switching=launchHomeShortcut(suspended,'camera',6700),before=JSON.stringify(switching);
+ assert.equal(switching.system.dialog,'switch');
+ const scene=options=>nativePaneParentPath(poseNativeLayout(pack.layouts.LncBtmBtn_02,pack.animations,options.bindings,options.overrides),'N_Scene_00').at(-1);
+ for(const reduced of [false,true]){
+  presenter.footer({},switching,reduced);const pose=scene(calls.at(-1));
+  assert.equal(pose.alpha,0);assert.equal(pose.translation[1],-32);
+ }
+ assert.equal(JSON.stringify(switching),before);
+ presenter.footer({},reduceSystem(switching,'back',6800));
+ assert.equal(scene(calls.at(-1)).alpha,255);assert.equal(scene(calls.at(-1)).translation[1],0);
+ assert.equal(calls.at(-1).overrides.T_BtnFW_L_03.text,'Manual');
+ assert.equal(calls.at(-1).overrides.T_BtnFW_R_02.text,'Open');
+ const stale=structuredClone(switching);stale.system.runtime.homeReturn=null;
+ assert.throws(()=>presenter.footer({},stale),/owner unavailable/);
 });
 
 test('retained primary and both effects paint in order outside tile clipping using applied poses', async () => {

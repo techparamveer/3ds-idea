@@ -12,6 +12,8 @@ import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeH
 import type { HomeTilePose } from './home-tile-pose';
 import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from './home-balloon-presentation';
 import { selectNotesMetadata } from './notes-title-metadata';
+import { drawHomeSuspendedIcon } from './home-suspended-window';
+import { homeSoftwareSwitchTitles } from './home-software-dialog';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
@@ -49,7 +51,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const [sharedFont,hudFont,...loaded]=await Promise.all([font(manifest.fonts.shared),font(manifest.fonts.hud),...packNames.map(name=>json<NativePack>(manifest.home[name]))]);
   const packs=Object.fromEntries(packNames.map((name,i)=>[name,loaded[i]])) as Record<string,NativePack>;
   if(!packs.MyMenu?.layouts||!Object.keys(packs.MyMenu.layouts).length)throw new Error('Missing native HOME layout manager pack');
-  const requestedLayouts={...homeLayouts,MyMenu:homeLayoutManagerLayouts,dialog:['Dlg_A_D_02'],dialogmask:['DlgMask_U_00','DlgMask_D_00'],sequence:['LncDlgIcon_D_01'],...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
+  const requestedLayouts={...homeLayouts,launcher:[...homeLayouts.launcher,'LncIconSleep_00'],MyMenu:homeLayoutManagerLayouts,dialog:['Dlg_A_D_02'],dialogmask:['DlgMask_U_00','DlgMask_D_00'],sequence:['LncDlgIcon_D_01'],...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
   // Reject an incomplete style conversion during loading, before a paint can partially fail.
   for(const [bank,data] of Object.entries(packs.messages.messages))for(const label of Object.keys(data.labels))nativeMessageOverride(packs.messages,bank,label,'');
   const textures:Record<string,Map<string,NativePixels>>={};const decoded=new Map<string,Promise<NativePixels>>();
@@ -248,7 +250,8 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]=right;overrides[`${prefix}_R_02`]=right;overrides[`${prefix}_L_03`]=left;}
   for(const prefix of ['T_BtnBB','T_BtnFB','T_BtnPB'])overrides[`${prefix}_L_03`]=left;
   const close=sampleSystemHomeFolderClose(state);
-  const bindings=[!reduced&&close&&close.controller.phase!=='complete'
+  // Captured switch dialogs have no footer; use the source's settled out pose.
+  const bindings=[homeSoftwareSwitchTitles(state)?binding('LncBtmBtn_02_SceneOut',14):!reduced&&close&&close.controller.phase!=='complete'
    ?binding('LncBtmBtn_02_SceneOut',Math.min(14,state.system!.homeClock.updateCount-close.startedAtUpdate))
    :binding('LncBtmBtn_02_SceneIn',15)],gesture=getHomeGestureView(state);
   if(!state.panel&&gesture?.mode==='press'&&gesture.y>=212&&gesture.y<240&&gesture.x>=0&&gesture.x<320){
@@ -293,6 +296,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    }});
   }
   return drawn;
+ }
+ function suspendedIcon(ctx:Context,x:number,y:number,size:number,density:number){
+  drawHomeSuspendedIcon(renderer,ctx,[x+size/2,y+size/2],nativeHomeDensityFrame(density));
  }
  /** Fresh opening capture replaces only the selected ordinary folder instance.
   * Native priority414 T precedes priority412 B; preserve authored pane geometry.
@@ -354,5 +360,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   return pickupBlankAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density));
  }
- return {hud,upperBase,settingsUpper,settingsLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,settingsUpper,settingsLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

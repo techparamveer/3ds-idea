@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {retainedSuspendedApplication,selectedSuspendedApplication,drawHomeSuspendedWindow} from '../src/os/home-suspended-window.ts';
+import {homeSuspendedApplication,retainedSuspendedApplication,selectedSuspendedApplication,drawHomeSuspendedWindow,drawHomeSuspendedIcon} from '../src/os/home-suspended-window.ts';
 import {createPortfolioState,tickSystem,reduceSystem} from '../src/os/system.ts';
 import {escapeUnreadyNativeScreen,releaseUnreadyNativeInput} from '../src/os/native-screen-system.ts';
 import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts';
@@ -11,6 +11,35 @@ const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
 const packs=Object.fromEntries(['launcher','messages'].map(key=>[key,JSON.parse(readFileSync(new URL(manifest.home[key],root)))]));
 const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',4000),6000),'home',6001);
 const metadata=()=>({description:'Health and Safety Information',icon:{width:64,height:64,data:new Uint8ClampedArray(64*64*4)}});
+
+test('lower highlight retains its application owner across selection and toolbar focus, never foreground or retired owners',()=>{
+ const state=suspended(),owner=state.system.runtime.application;
+ const other=settleHomeNavigation(selectHomeSlot(state,1));
+ assert.equal(homeSuspendedApplication(other).id,owner);
+ const toolbar=structuredClone(other);toolbar.system.homeNavigation.focus.toolbarActive=true;
+ assert.equal(homeSuspendedApplication(toolbar).id,owner);assert.equal(retainedSuspendedApplication(toolbar),null);
+ for(const change of [s=>s.powered=false,s=>s.system.sleeping=true,s=>s.system.preferences=true,s=>s.panel='settings',s=>s.system.runtime.active=owner,s=>s.system.runtime.homeReturn=null,s=>s.system.runtime.instances[owner].closing=true]){
+  const copy=structuredClone(state);change(copy);assert.equal(homeSuspendedApplication(copy),null);
+ }
+});
+
+test('lower source highlight samples authored density sizes, tint and settled opacity without mutating the pack',()=>{
+ const before=JSON.stringify(packs);
+ for(const [frame,size] of [[0,94],[1,94],[2,67],[3,50],[4,40],[5,34]]){
+  let options;drawHomeSuspendedIcon({packs,draw(_ctx,_pack,_name,value){options=value;return true;}},{},[76,160],frame);
+  const pose=poseNativeLayout(packs.launcher.layouts.LncIconSleep_00,packs.launcher.animations,options.bindings);
+  assert.deepEqual(options.center,[76,160]);
+  assert.deepEqual(nativePaneParentPath(pose,'P_Sleep_00').at(-1).size,[size,size]);
+  assert.equal(nativePaneParentPath(pose,'N_Sleep_00').at(-1).alpha,140);
+  assert.equal(nativePaneParentPath(pose,'P_Sleep_00').at(-1).alpha,255);
+  assert.deepEqual(pose.textures,['LncIconSleep_02.bclim']);
+ }
+ assert.equal(JSON.stringify(packs),before);
+ for(const remove of [p=>delete p.launcher.layouts.LncIconSleep_00,p=>delete p.launcher.animations.LncIconSleep_00_Sleep]){
+  const source=structuredClone(packs);remove(source);assert.throws(()=>drawHomeSuspendedIcon({packs:source},{},[0,0],1),/unavailable/);
+ }
+ assert.throws(()=>drawHomeSuspendedIcon({packs,draw(){return false;}},{},[0,0],1),/draw failed/);
+});
 
 test('expanded window follows the selected suspended instance, never a live, applet or retired owner',()=>{
  const state=suspended(),owner=state.system.runtime.application;

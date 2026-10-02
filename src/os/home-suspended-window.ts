@@ -3,12 +3,15 @@ import type { MenuState } from './state';
 import { nativeMessageOverride, nativePaneParentPath, type NativePixels } from './native-layout.ts';
 import type { NativeLayoutRenderer } from './native-renderer';
 
-export function retainedSuspendedApplication(state: MenuState) {
+export function homeSuspendedApplication(state: MenuState) {
  const s=state.system;
- if(!s||s.phase!=='home'||s.sleeping||s.preferences||state.panel||s.homeNavigation.focus.toolbarActive)return null;
+ if(!s||!state.powered||s.phase!=='home'||s.sleeping||s.preferences||state.panel)return null;
  const runtime=s.runtime,owner=runtime.application,application=owner?runtime.instances[owner]:undefined;
  if(!application||!application.suspended||application.closing||runtime.active||runtime.homeReturn!==owner)return null;
  return application;
+}
+export function retainedSuspendedApplication(state: MenuState) {
+ return state.system?.homeNavigation.focus.toolbarActive?null:homeSuspendedApplication(state);
 }
 export function selectedSuspendedApplication(state: MenuState) {
  const application=retainedSuspendedApplication(state);
@@ -16,6 +19,16 @@ export function selectedSuspendedApplication(state: MenuState) {
 }
 
 export type SuspendedWindowMetadata={description:string;icon:NativePixels};
+
+/** Settled source highlight. Its native pulse epoch is not yet established. */
+export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,center:readonly[number,number],densityFrame:number){
+ const pack=renderer.packs.launcher,name='LncIconSleep_00';
+ const bindings=[{name:name+'_Appear',frame:20},{name:name+'_Scale',frame:densityFrame},{name:name+'_Sleep',frame:0}];
+ if(!pack?.layouts[name])throw Error('Native suspended icon layout unavailable');
+ for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended icon animation unavailable: ${binding.name}`);
+ if(!Number.isFinite(densityFrame)||densityFrame<0||densityFrame>5||center.some(v=>!Number.isFinite(v)))throw Error('Invalid native suspended icon pose');
+ if(!renderer.draw(ctx,'launcher',name,{center:[...center],bindings,pictureSampling:'lcd'}))throw Error('Native suspended icon draw failed');
+}
 
 /** Source settled poses, not an inferred opening/closing animation. */
 export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded'){

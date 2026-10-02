@@ -15,7 +15,7 @@ import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
 import { createHomeLayoutManager, type HomeLayoutPreview } from './home-native-layouts';
 import {homeSoftwareDialogKey,homeSoftwareSwitchTitles,drawHomeSoftwareDialog} from './home-software-dialog';
-import { retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
+import { homeSuspendedApplication, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { getHomeFolderIdentity } from './home-folder-identity';
 import type { NativePixels } from './native-layout';
@@ -138,6 +138,7 @@ function titleIcon(c:Context,appId:string|null|undefined,x:number,y:number,size:
 }
 function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false,assets?:FirmwarePresentationAssets){
  const system=state.system,controls=nativeHome?system?.homeControls:null;
+ const suspendedApp=capture?null:homeSuspendedApplication(state)?.appId;
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
  for(const tile of view.tiles){
   const {x,size,appId,folderLabel,pressed,source,drop}=tile;
@@ -162,6 +163,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
    if(app)artwork(()=>graphics.menuIcon(c,app,x,y,size));
    else if(appId)artwork(()=>titleIcon(c,appId,x,y,size,assets));
    else if(folderLabel!==null&&!nativeDrawn)artwork(()=>folder(c,x+size/2,y+size/2,size*.78,folderLabel));
+   if(appId&&appId===suspendedApp)artwork(()=>nativeHome?.suspendedIcon(c,x,y,size,view.density));
   }else if(!nativeHome?.empty(c,x,y,size,view.density)){
    artwork(()=>{const inset=size*.34,side=size-inset*2;
    rounded(c,x+inset,y+inset,side,side,2,'#d3d4d766','#c8c9cc');

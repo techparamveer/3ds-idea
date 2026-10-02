@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+The [highlight/pulse comparison](../home-suspended-highlight-2026-10-02.md)
+through `47845dc5` uses two real independent muted Azahar copies on Sidecar,
+18 static and10 pulse browser pairs. Both48x48 icon interiors visibly change;
+that is not proof of native phase or cadence. Latest expanded8242/33756,
+Camera12119/22004 and switch14257/10542 pixels >2 all fail. Translated icon
+and footer-strip diagnostics are explicitly regional, not acceptance masks.
+Copies are stopped after captures, temporary bindings restored; both native
+Quit/Yes exits139 remain abnormal. Workers never drive either reference.
+No matrix change or whole-scenario pass.
+
 The [suspended-background comparison](../home-suspended-background-2026-10-02.md)
 at `fc6e5983` adds nine inspected production pairs and four fresh native PNGs.
 Expanded upper differs at 12,137 pixels >2 (prior 95,276); whole scenarios still

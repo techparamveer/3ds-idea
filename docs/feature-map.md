@@ -15,6 +15,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+The [suspended highlight and pulse](home-suspended-highlight-2026-10-02.md) at
+`7b243793`/`dc6d19f7`/`47845dc5` adds source lower tint, hidden modal footer and
+paired owner-scoped animation. Two new dedicated worktrees delivered commits;
+two independent muted Azahar copies supplied Sidecar references. Full1695 tests
+pass,28 production pairs inspected; all whole native pairs still fail. H-12
+remains partial: timing/HUD/background shades need work. Reviewed close
+controller `43b18bf0` is not yet runtime-integrated; that is the next visible
+delivery before power-on. Earlier checkpoints below describe their own state.
+
 The [suspended HOME backdrop](home-suspended-background-2026-10-02.md) at
 `fc6e5983` now uses the source curved capture, mask and AppPause material.
 Nine browser pairs and four fresh native captures show substantial improvement:

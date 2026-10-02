@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current source checkpoint: `fc6e5983`, 2 October 2026. This is the **ordered
+Current source checkpoint: `47845dc5`, 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing
@@ -16,11 +16,11 @@ modal-button portion of items 1-2/4 is implemented and browser-inspected;
 | Order | Feature IDs / owner | Concrete unfinished UI or interaction | Bounded deliverable and completion check |
 | --- | --- | --- | --- |
 | 1 | L-06 / Lifecycle | Source dialog at `f17a1007`; selected Health direct close and X at `3d5e533c`; closing presentation unfinished | Preserve [source assembly and input guards](../home-software-dialog-2026-10-02.md). [Fresh Health replay](../health-close-native-2026-10-02.md) repeats direct close; establish other-title policy and capture closing frames. Host still removes the app immediately; not complete. |
-| 2 | L-07 / Lifecycle | Source icon header/no-warning Health switch and advancing Camera banner delivered at `0330d13c`/`e3503cc7`; selected footer corrected at `645ae96d` | [Evidence](../home-switch-footer-2026-10-02.md): dialog region109 pixels >2; whole pair fails. Compact icon and source backdrop are now delivered at `17eebbb0`/`fc6e5983`; finish modal footer, sleep highlight and closing motion. Preserve cancel/owner guards. |
+| 2 | L-07 / Lifecycle | Source icon header/no-warning Health switch, advancing Camera banner and selected footer delivered; modal footer hiding at `7b243793` | [Latest evidence](../home-suspended-highlight-2026-10-02.md): footer buttons hidden but backdrop shade differs. Close controller `43b18bf0` reviewed in its own worktree; next integrate visible motion with a painted terminal-frame barrier and fresh owner identity. Preserve cancel/owner guards. |
 | 3 | L-01, L-03 / Lifecycle | Power-on exists but uses a 3000 ms boot, final 350 ms reveal and fitted phase order; shutdown uses 550 ms | Finish source-backed off -> power-on -> paired LCD reveal -> HOME, plus power menu Cancel/Off -> black/off -> restart. Capture backlight/LCD order and input gates; no new decorative boot screen. Preserve existing console opening. |
 | 4 | H-14, L-06, L-07 / Lifecycle + coordinator | Source Bounding_00/01 rectangles and Select press feedback at `f17a1007`; same-button ownership preserved | Tests and muted Sidecar replay pass, including byte-identical dialog crop after cross-drag. Native input/default focus/motion comparison remains open. Physical, keyboard and touch keep the same actions. |
 | 5 | H-03..H-10, H-14 / HOME | Navigation exists; button feedback and edge/cancel behavior need a complete visible interaction pass | Select/open with touch and A; B/Back; HOME/resume; toolbar; density ends; paging; footer variants; folder enter/close; pickup/drop/cancel. Repair captured failures only, preserving existing visual design. Run both physical-model and touchscreen routes. |
-| 6 | H-12, L-05 / HOME + Lifecycle | Expanded window at `81d0b3d8`, compact icon/HOME glyph at `17eebbb0`, source curved/dark backing at `fc6e5983`; pulse/lower tint/motion incomplete | Preserve owner/mode readiness and capture ownership. Finish sleep highlight, HUD and modal footer, then matched suspend/resume/close motion. [Latest evidence and fitted adaptations](../home-suspended-background-2026-10-02.md). |
+| 6 | H-12, L-05 / HOME + Lifecycle | Expanded/compact windows and source curved backing delivered; lower tint and paired pulse at `7b243793`/`47845dc5` | Preserve owner/mode readiness and capture ownership. Native pulse epoch/cadence, HUD, footer background shades and suspend/resume/close motion remain open. [Latest evidence and adaptations](../home-suspended-highlight-2026-10-02.md); no whole scenario passes. |
 
 The [native held-HOME reference](../native-home-return-2026-10-02.md) now
 supplies H-12's suspended-window/first-use notice capture. Health closes without

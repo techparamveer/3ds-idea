@@ -1,5 +1,34 @@
 # Workstream Registry
 
+## Active Parallel HOME Work - 2 October 2026
+
+The user's renewed parallel-work request is dispatched, not merely queued.
+Both existing chats delivered from runtime `7b243793` in new internal worktrees;
+their old worktrees are preserved. New turns use GPT-5.6 Sol/high as required
+by the latest user-supplied instructions. Service tier remains unverified.
+
+| Chat ID | Branch / worktree | Current owned implementation |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `codex/home-sleep-motion-20261002` / `3ds-home-sleep-motion-20261002` | Delivered `366e9342`, integrated as `dc6d19f7` and wired at `47845dc5`; idle after handoff |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `codex/home-transition-motion-20261002` / `3ds-home-transition-motion-20261002` | Delivered `43b18bf0`, reviewed pure close controller; not runtime-integrated, idle after handoff |
+
+Paths are under `/Users/paramveer/.codex/worktrees/`. Shared `system.ts`,
+`screens.ts`, `firmware-presentation.ts`, scene banner/console composition and
+progress/map remain coordinator-reserved. Workers supply integration hunks,
+focused checks and commits; they do not operate GUI or run competing builds.
+Each may use one read-only helper, no nested fan-out.
+
+Coordinator used two separate real Azahar profile copies under the
+internal artifact root: `native-close-clean-20261002` for app suspension/switch
+and `native-home-motion-20261002` for idle HOME reference. Both executables
+match the pinned hash, have independent NAND/config/log/screenshot paths and
+use Static input2 / Null output1 / volume0. Two 630x780 windows were verified
+side by side at 1810,397 and 2460,397 on Sidecar. Both are now stopped after
+capture; profiles preserved. Keep unused sessions paused during later passes;
+concurrent renderer slowdown is not timing acceptance. Only the coordinator
+supplies inputs. [Delivery, evidence and next integration](../home-suspended-highlight-2026-10-02.md)
+keep the close controller's paint barrier and owner guards explicit.
+
 Coordinator: the Codex chat **Explain the 3DS project**,
 `01a0f8e9-441b-76a2-b3ee-bec359217934`. The user explicitly requested separate
 Codex chats and worktrees, with this chat orchestrating their work and allowing

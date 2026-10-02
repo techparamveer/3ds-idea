@@ -1,5 +1,15 @@
 # Software state, input and presentation
 
+[Suspended Sleep presentation](../home-suspended-highlight-2026-10-02.md)
+uses one pure owner-scoped controller local to the paired screen compositor.
+It samples existing HOME updates once per pair, never advances system state,
+resets on owner/clock rollback or leaving suspended HOME, and consumes reduced
+motion updates at frame0. Upper and lower native curves share a frame but not
+an alpha value. Only the retained owner's lower tile receives the overlay;
+pending/other titles and captured roots do not. Missing native layouts fail
+explicitly. Switch footer uses settled source SceneOut14; cancel restores the
+existing footer. Epoch and settled pose are adaptations, not native timing.
+
 [Suspended background ownership](../home-suspended-background-2026-10-02.md)
 reuses the complete application LCD capture with one source BannerBG instance.
 The owner/generation-keyed raster is cleared and its dynamic texture reset when

@@ -26,6 +26,7 @@ Full 1789 tests/typecheck/build/shader pass. Comparison chat uses separate
 `3ds-home-icon-corners-compare-20261002` /
 `codex/home-icon-corners-compare-20261002`, base `da6dfced`, with baseline
 `db2dbe5c` -> `d0ea7f24` and coordinator provenance correction `ef435fe5`.
+Production-after delivery `b8700f1e` integrated as `74237496`; both chats are idle.
 Four actual production-after captures close fringe23 and artwork1 to zero
 pixels above delta 2. The [comparison handoff](../workstream-handoffs/home-icon-corners-compare.md)
 retains controls and whole-LCD failures. Both owned worktrees are preserved;

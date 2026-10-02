@@ -129,9 +129,11 @@ path; no generic raster implementation or source resource changes.
 This selection is draw-wide for `LncIconPickUp_00`, not pane-scoped. It can
 therefore change any picture in that layout whose transform is fractional and
 whose source-over blend and opaque destination satisfy the renderer's guarded
-direct path; ineligible pictures retain the established intermediate path.
-That includes possible shell-edge effects, so the folder-held one-row shell
-residual cannot be called fixed without coordinator comparison. Portfolio
+direct path. At the captured root Scale5 pose that includes artwork
+`P_Icon_00`, shell `P_Btn_00` and shadow `P_BtnShdw_00`; additive
+`P_Btn_01` remains on the established intermediate fallback. Those stock
+shell/shadow changes require separate comparison, so the folder-held one-row
+shell residual cannot be called fixed without coordinator evidence. Portfolio
 pickups (no native title ID) and folder-icon pickups do not opt in.
 
 The source layouts define the transforms, samplers, UVs, TEV and blend, but no

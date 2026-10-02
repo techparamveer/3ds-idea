@@ -34,9 +34,11 @@ retains the full shell/shadow hierarchy and materials. The artwork rectangle
 cache remains bounded to16 entries and stores local resource coordinates.
 Stock-title pickup draws also opt into the renderer's guarded LCD-centre picture
 sampling. That option is layout-call-wide: eligible fractional shell pictures
-can share the direct path, while portfolio and folder-icon pickups retain their
-previous raster path. This transport selection remains a capture-directed
-adaptation rather than a recovered native controller.
+and shadows can share the direct path. At captured root Scale5 these are
+`P_Icon_00`, `P_Btn_00` and `P_BtnShdw_00`; additive `P_Btn_01` retains the
+existing fallback. Portfolio and folder-icon pickups retain their previous
+raster path. This transport selection remains a capture-directed adaptation
+rather than a recovered native controller.
 
 `pickupBlankAt` renders the separate `LncIconPickUpBlank_00` layout, preserving
 its plain blank and effect panes. It does not apply ordinary vacancy opacity.

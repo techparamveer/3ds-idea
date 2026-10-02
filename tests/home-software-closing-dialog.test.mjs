@@ -34,6 +34,17 @@ test('caller can select only authored lower mask poses without inventing dialog 
  }
 });
 
+test('source-backed close exit applies the expanding dialog donor and lower mask exit on one sample',()=>{
+ for(const frame of [0,1,9,15,19,20]){
+  const r=renderer();drawHomeSoftwareClosingDialog(r,{}, {},20,frame);
+  assert.deepEqual(r.calls[0].options.bindings,[{name:'DlgMask_D_00_FadeOut00',frame}]);
+  assert.deepEqual(r.calls[1].options.bindings,[{name:'Dlg_A_D_02_FadeOut00',frame}]);
+ }
+ for(const frame of [-1,21,.5,NaN]){
+  const r=renderer();assert.throws(()=>drawHomeSoftwareClosingDialog(r,{}, {},20,frame),RangeError);assert.equal(r.calls.length,0);
+ }
+});
+
 test('source geometry and provenance match the captured 280 by 200 striped window and full-LCD masks',()=>{
  const source=HOME_SOFTWARE_CLOSING_DIALOG_SOURCE,layout=packs.dialog.layouts[source.dialog.layout];
  assert.deepEqual({root:layout.roots[0].size,shadow:pane(layout,'P_Shdw_00').size,left:pane(layout,'P_WndwL_00').size,
@@ -48,6 +59,20 @@ test('source geometry and provenance match the captured 280 by 200 striped windo
    target:track.target,property:track.property,keys:track.keys.map(key=>[key.frame,key.value])},
   {frames:21,loop:false,groups:['Group_Scene'],range:[-20,0],target:'P_Bg_00',property:'alpha',keys:[[0,0],[20,130]]});
  }
+ const dialogExit=packs.dialog.animations[source.dialog.exitClip],dialogExitTracks=dialogExit.tracks.filter(track=>track.target==='N_Dlg_00');
+ assert.deepEqual({frames:dialogExit.frames,loop:dialogExit.loop,groups:dialogExit.groups,range:dialogExit.sourceFrameRange,
+  tracks:dialogExitTracks.map(track=>({property:track.property,keys:track.keys.map(key=>[key.frame,key.value,key.slope])}))},
+ {frames:21,loop:false,groups:['Group_Scene'],range:[80,100],tracks:[
+  {property:'scale.x',keys:[[0,1,.002499997615814209],[20,1.0499999523162842,0]]},
+  {property:'scale.y',keys:[[0,1,.002499997615814209],[20,1.0499999523162842,0]]},
+  {property:'alpha',keys:[[0,255,-12.75],[20,0,0]]},
+ ]});
+ const maskExit=packs.dialogmask.animations[source.lowerMask.exitClip],maskExitTrack=maskExit.tracks[0];
+ assert.deepEqual({frames:maskExit.frames,loop:maskExit.loop,groups:maskExit.groups,range:maskExit.sourceFrameRange,
+  target:maskExitTrack.target,property:maskExitTrack.property,keys:maskExitTrack.keys.map(key=>[key.frame,key.value,key.slope])},
+ {frames:21,loop:false,groups:['Group_Scene'],range:[80,100],target:'P_Bg_00',property:'alpha',keys:[
+  [0,130,-8.666666984558105],[15,0,0],[40,0,0],[40,110,4.400000095367432],
+ ]});
  for(const [name,size] of [['DlgMask_U_00',[400,240]],['DlgMask_D_00',[320,240]]]){
   const maskPane=pane(packs.dialogmask.layouts[name],'P_Bg_00');
   assert.deepEqual({size:maskPane.size,alpha:maskPane.alpha,colors:maskPane.picture.colors},
@@ -57,6 +82,8 @@ test('source geometry and provenance match the captured 280 by 200 striped windo
  assert.deepEqual(packs.dialogmask.resourceSources.layouts.DlgMask_D_00,{path:'dialogmask_LZ.bin/blyt/DlgMask_D_00.bclyt',sha256:'45ffaa6a0379423844784ffd3e450b5f3e2bf46e1724484a234b40ca73afbc86',titleId:'0004003000009802'});
  assert.deepEqual(packs.dialogmask.resourceSources.animations.DlgMask_U_00_FadeIn,{path:'dialogmask_LZ.bin/anim/DlgMask_U_00_FadeIn.bclan',sha256:'400bd1588c04d175c54104110c004f32dc96dd82d0a7cd9d9f0b8da8b2734fe4',titleId:'0004003000009802'});
  assert.deepEqual(packs.dialogmask.resourceSources.animations.DlgMask_D_00_FadeIn,{path:'dialogmask_LZ.bin/anim/DlgMask_D_00_FadeIn.bclan',sha256:'400bd1588c04d175c54104110c004f32dc96dd82d0a7cd9d9f0b8da8b2734fe4',titleId:'0004003000009802'});
+ assert.deepEqual(packs.dialog.resourceSources.animations.Dlg_A_D_02_FadeOut00,{path:'dialog_LZ.bin/anim/Dlg_A_D_02_FadeOut00.bclan',sha256:'d2ac804d59218030a877cca1aaf59c6ca198534f90436fe31c61c7e929a62c81',titleId:'0004003000009802'});
+ assert.deepEqual(packs.dialogmask.resourceSources.animations.DlgMask_D_00_FadeOut00,{path:'dialogmask_LZ.bin/anim/DlgMask_D_00_FadeOut00.bclan',sha256:'ba904f4847d045d8389e33fdf440af2fa5ddd6886d3d0ef4df2cc799dbbaf50a',titleId:'0004003000009802'});
  const bank=packs.messages.messages.menu_msbt_LZ,index=bank.labels[source.message.label];
  assert.deepEqual(bank.messages[index],{styleIndex:25,text:'Closing software...',tokens:[{text:'Closing software...'}]});
  assert.deepEqual(packs.messages.resourceSources.messages.menu_msbt_LZ,{path:'RomFS/message/EU_English/menu_msbt_LZ.bin',sha256:'1df2193c64e8d08b3b670923617ea1f0461537397b3da671d394304a664b4350',titleId:'0004003000009802'});
@@ -69,6 +96,10 @@ test('unsupported source gaps fail before drawing and draw failures reject paire
  ]){
   const source=structuredClone(packs);remove(source);const r=renderer(source);
   assert.throws(()=>drawHomeSoftwareClosingDialog(r,{},{}),/unavailable/);assert.equal(r.calls.length,0);
+ }
+ for(const remove of [p=>delete p.dialog.animations.Dlg_A_D_02_FadeOut00,p=>delete p.dialogmask.animations.DlgMask_D_00_FadeOut00]){
+  const source=structuredClone(packs);remove(source);const r=renderer(source);
+  assert.throws(()=>drawHomeSoftwareClosingDialog(r,{}, {},20,0),/unavailable/);assert.equal(r.calls.length,0);
  }
  const r=renderer();r.draw=()=>false;assert.throws(()=>drawHomeSoftwareClosingDialog(r,{},{}),/draw failed/);
 });

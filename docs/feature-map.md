@@ -15,14 +15,22 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [close exit icon](home-close-icon-exit-2026-10-02.md), `7d0b4a9f`,
+Latest [closing entry and post-modal footer](home-postmodal-footer-2026-10-02.md),
+`54152a33` + `0bb044d5` + `062a486b`, adds decoded entry FadeIn and close-only SceneOut0..14
+after dialog exit. Owner retirement waits for the footer terminal pair;
+switch remains unchanged. Full1,858 tests/typecheck/build pass; independent
+138-test review finds no actionable regression. Donor/epoch binding remains
+capture-fitted. The first comparison's Resume dimming regression is corrected;
+intermediate footer geometry/alpha still differs. Next: native Close tone, Open return/banner reacquisition,
+exact timing/input/audio, then power-on/buttons. Whole scenarios remain fail.
+
+Earlier [close exit icon](home-close-icon-exit-2026-10-02.md), `7d0b4a9f`,
 selects source DisAppear20 only during close dialog exit, preserving owner,
 switch and earlier close behavior.39 fresh native own-PNGs now capture actual
 entry/exit and return; earlier endpoint-only limitations are superseded.
 Full1856 tests/typecheck/build pass; test follow-up `fcb05a71` covers paired
-failure/recovery. Native old-footer departure before Open and dialog entry
-remain visibly unfinished; exact timing/input/audio and whole1:1 remain open.
-Continue those captured states, then power-on/buttons; no guessed fade.
+failure/recovery. The later entry/footer implementation above supersedes those
+two missing stages; exact timing/input/audio and whole1:1 remain open.
 
 Earlier [folder pulse diagnostic](home-suspended-highlight-2026-10-02.md#folder-pulse-diagnostic---2-october-2026)
 at unchanged `a40d597e` explains the full-icon tint residual through observed

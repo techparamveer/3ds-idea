@@ -1,5 +1,19 @@
 # Software state, input and presentation
 
+[Post-modal footer departure](../home-postmodal-footer-2026-10-02.md) extends
+close only: `exit-terminal` -> `footer-exiting` at `footerExitFrame:0` ->
+`footer-terminal` at 14 -> later owner retirement. Each boundary stops the
+HOME batch and forces paired publication; readiness and sleep still inhibit
+advancement. The pure selector supplies decoded SceneOut only for a validated
+close owner. The icon remains disappeared and the dialog remains at exit20.
+Switch lifetime is unchanged. Entry now borrows compatible FadeIn at the
+existing mask sample; entry donor/epoch and footer start remain explicit
+capture-fitted adaptations, not traced native scheduling.
+Footer departure first establishes settled SceneIn15, then binds SceneOut to
+direct group members only. Otherwise its descendant alpha220 channel dims
+Resume at frame0, contrary to the captured unchanged right button. This
+binding is also an explicit capture fit; native intermediate geometry differs.
+
 [Continuous folder re-entry](../home-folder-reentry-2026-10-02.md) retains the
 existing pickup owner only across validated same-pointer Back/folder-hover
 boundaries. Validate the live departure folder separately from the immutable

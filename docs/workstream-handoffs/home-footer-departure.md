@@ -1,5 +1,13 @@
 # HOME software-close lower departure handoff
 
+Latest coordinator integration: [post-modal departure](../home-postmodal-footer-2026-10-02.md)
+uses a new counted close-only phase after dialog exit, from worker `492d414e`
+integrated as `54152a33` and wired by `0bb044d5`. Fresh native frames25..28
+establish the later visible boundary. This supersedes the later-phase unknown
+below, but not the rejection of immediate AppQuit0 departure. Native clock,
+Close tone and Open return remain unresolved. The original candidate remains
+preserved and unintegrated.
+
 Coordinator integration note: candidate commit `204137c8` remains only on the
 worker branch. Its helper and tests are not in the coordinator checkout.
 Closing-dialog commit `b32a06dc` alone was integrated as `3c06173e`, preserving

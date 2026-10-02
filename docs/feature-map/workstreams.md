@@ -1,5 +1,27 @@
 # Workstream Registry
 
+## Post-modal Footer - 2 October 2026
+
+Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-postmodal-footer-20261002` / `codex/home-postmodal-footer-20261002`,
+based on verified `0d4b5413`. Worker `492d414e` integrates as `54152a33`;
+coordinator wiring/entry/tests are `0bb044d5`, binding follow-up `062a486b`.
+Source tree is clean; no worker
+GUI. Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private
+reference and before/after comparisons. Read-only helper
+`closing_icon_departure` reports no actionable findings, 138 focused tests
+plus 56 in the binding follow-up.
+Delegates use GPT-5.6 Sol/high; no service-tier override is exposed or claimed.
+Coordinator alone runs the muted browser on the authorized whole Mac.
+[Evidence and residuals](../home-postmodal-footer-2026-10-02.md).
+
+Final muted desktop/mobile/reduced captures pass, with28/29/47 close pairs.
+Coordinator inspected comparison sheets and verified190 final hashes after
+correcting the first comparison's Resume-alpha regression. Source worker and
+reviewer are idle; comparator finishes a bounded private handoff. Both owned
+Chrome sessions exit0, no new native process; production3021 remains running.
+Native intermediate footer geometry and tone remain fail, not accepted motion.
+
 ## Folder Re-entry - 2 October 2026
 
 Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in owned

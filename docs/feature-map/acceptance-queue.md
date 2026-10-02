@@ -9,6 +9,14 @@ the 2 October Notes run).
 
 ## First Cross-App Pass
 
+Latest [entry/footer delivery](../home-postmodal-footer-2026-10-02.md) at
+`0bb044d5` adds the captured dialog entry and post-modal old-footer departure.
+Owner retirement follows a new mandatory footer terminal publication; source
+and counted host bindings remain separately documented. Next captured gaps:
+left Close tone before departure, Open return and upper-banner reacquisition.
+No queue row passes; native timing/input/audio remain unverified. Preserve the
+rejected AppQuit0 early-footer candidate as history, not a production option.
+
 Latest [Notes toolbar comparison](../workstream-handoffs/home-notes-toolbar-compare.md)
 at `79597372` resolves the unselected glyph's 201 high pixels in four static
 pairs (maximum 1). Its exact missing-UV default remains a labelled inferred

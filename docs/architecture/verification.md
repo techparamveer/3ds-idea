@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+[Post-modal footer verification](../home-postmodal-footer-2026-10-02.md)
+must record `footerExitFrame` in capture keys, otherwise all intermediate
+footer samples collapse into one. Check entry, dialog exit, footer0/footer14
+and later owner retirement separately. Whole-LCD metrics remain unmasked;
+reasoned dialog/footer ROIs rank structural samples but do not prove epochs.
+Inspect sheets even when tests pass: SceneOut's static child alpha caused a
+captured first-frame Resume regression that required narrower source binding.
+
 [Suspended folder software Close](../home-folder-software-close-2026-10-02.md)
 requires checking semantic action and native resource selection together:
 folder Close and software Close have different white/black panes and messages.

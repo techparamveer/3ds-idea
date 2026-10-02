@@ -1,6 +1,6 @@
 # HOME and cross-app lifecycle feature map
 
-Checkpoint: `e911e475` (2 October 2026), with older per-feature evidence retained. This is an implementation and
+Checkpoint: `062a486b` (2 October 2026), with older per-feature evidence retained. This is an implementation and
 verification backlog, not an acceptance record. Scope comes from
 [portfolio-ui-scope](../portfolio-ui-scope.md); evidence authority remains the
 [progress record](../progress-2026-09-24.md) and the matched-input
@@ -16,6 +16,11 @@ Software Keyboard, network/account/PIN operations, capture/recording/import,
 and the six excluded stock titles are not backlog.
 
 ## First bounded implementation slices
+
+[Closing entry and post-modal footer](../home-postmodal-footer-2026-10-02.md)
+now implement two previously missing close stages. H-10/L-04 remain partial:
+Close tone, intermediate footer geometry/alpha, Open return/banner reacquisition and native timing/input/audio are
+still open. Entry donor and footer start are explicit capture-fit adaptations.
 
 The [design-to-ship queue](design-to-ship.md#work-first) supersedes the earlier
 H-12-first ordering: L-06/L-07 close/switch and modal button ownership first,

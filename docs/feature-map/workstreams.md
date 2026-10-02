@@ -1,5 +1,20 @@
 # Workstream Registry
 
+## Create Folder Footer - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree
+`3ds-home-create-folder-footer-20261002`, branch
+`codex/home-create-folder-footer-20261002`, base9820379c. Its bounded audit/test
+`879fa64f` -> `8272c0b9` and qualification `66e2ee65` -> `fd0e4cf9` are integrated.
+Comparison chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` used new owned tree
+`3ds-home-create-folder-footer-compare-20261002`, matching codex branch and base;
+baseline `da951412` -> `db62bc10`. Both use latest user-supplied Sol5.6/high;
+no speed/coordinator-model claim. Workers operated no GUI. Coordinator alone
+captured eight native/nine browser pairs and ran 1,802 tests, typecheck and build.
+No production visual fix or whole-scenario pass; all previous trees preserved.
+Fresh comparison `aadb103f` -> `9c2fdd3a` is integrated. Both chats are idle;
+dedicated browser and native sessions exited0. Preview3021 remains ready.
+
 ## Empty Folder Delete - 2 October 2026
 
 Both existing Sol5.6/high chats continued from `e6802cfd` in fresh owned

@@ -15,7 +15,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [empty-folder Delete correction](home-folder-delete-native-2026-10-02.md)
+Latest [Create Folder footer audit](home-create-folder-footer-2026-10-02.md)
+at `8272c0b9`/`fd0e4cf9` adds a source-selection regression, not new pixels.
+The stable 799-pixel residual splits spatially into 780 edge-shaped and 19
+ink-intersecting pixels; causal layer ownership remains unproved. No palette
+or glyph fit was introduced. Full 1,802 tests/typecheck/build pass; new native
+and production controls are in the [comparison](workstream-handoffs/home-create-folder-footer-compare.md).
+Do not repeat the source-only audit without new runtime evidence. Runtime
+stays `2f074d64`; next work returns to unresolved folder interaction/press states.
+
+Earlier [empty-folder Delete correction](home-folder-delete-native-2026-10-02.md)
 at `2f074d64` removes the incorrect confirmation: two fresh native runs go
 directly from Folder Settings Delete to root HOME/Create Folder. Desktop touch,
 physical A, reload persistence and mobile touch pass in production, muted and

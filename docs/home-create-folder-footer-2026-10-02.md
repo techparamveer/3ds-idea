@@ -31,7 +31,11 @@ The report is
 `home-create-folder-footer-20261002/comparison/baseline/report.json` under the
 private internal artifact root, SHA-256
 `4643574f9325a78d7484aada1b2b42ce3a8ec6cf81bbcea85e909528a0be7e11`.
-Its inspected 4x footer sheet has SHA-256
+That initial three-pair report was expanded in place to include the fresh
+seven-state workflow; the current report SHA-256 is
+`a0dad32aa9eae50dd32d8991c697ee6b67a121255f0944e4872bc7311ef540f5`.
+The initial report hash above is historical, not the current file identity.
+Its unchanged inspected 4x footer sheet has SHA-256
 `0524f2a5caa799938526e9392e54237870844c2da442fe3a49629b0bb514d4a9`.
 
 ## Residual partition

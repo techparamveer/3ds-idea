@@ -9,6 +9,13 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+The [Create Folder footer source audit](../home-create-folder-footer-2026-10-02.md)
+used its one bounded source-only slice. The 799-pixel stable residual is not
+fixed by source selection; no runtime change was justified. Do not rerun the
+same audit or hide the error under phase/population differences. New native
+runtime evidence or an explicitly measured adaptation is needed. Continue with
+populated-folder behavior or captured pressed/fade interaction states.
+
 The captured [Folder Settings placeholder](../home-folder-settings-native-2026-10-02.md)
 is replaced at `79e77f58` with decoded native frame, rows and message styles.
 The selected-folder upper banner is retained, the underlying HOME footer is

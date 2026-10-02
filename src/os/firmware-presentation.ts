@@ -406,7 +406,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function cursor(ctx:Context,x:number,y:number,size:number,density:number,loopFrame:number,pressed=false){
   return cursorAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density),loopFrame,pressed);
  }
- function arrows(ctx:Context,showLeft:boolean,showRight?:boolean){return renderer.draw(ctx,'launcher','LncArw_00',{bindings:[binding('LncArw_00_Appear',15)],overrides:{N_arwL_00:{visible:showLeft},...(showRight===undefined?{}:{N_arwR_00:{visible:showRight}})},clip:[0,33,320,179]});}
+ function arrows(ctx:Context,showLeft:boolean,showRight:boolean){return renderer.draw(ctx,'launcher','LncArw_00',{bindings:[binding('LncArw_00_Appear',15)],overrides:{N_arwL_00:{visible:showLeft},N_arwR_00:{visible:showRight}},clip:[0,33,320,179]});}
  const pickupSizes=new Map<string,{x:number;y:number;width:number;height:number;alpha:number}>();
  function paintPickupAt(ctx:Context,x:number,y:number,frame:number,folder:boolean,folderName=''){
   const name=folder?'LncIconFolderPickUp_00':'LncIconPickUp_00';

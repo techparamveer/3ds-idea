@@ -484,8 +484,6 @@ test('root tray uses captured extent geometry and both source arrow panes have e
  assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:false},N_arwR_00:{visible:false}});
  presenter.arrows({},true,false);
  assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:true},N_arwR_00:{visible:false}});
- presenter.arrows({},false);
- assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:false}},'folder origin retains the source-authored right pane');
 });
 
 test('actual folder paint retains the authored right arrow after a no-arrow six-row root paint',async()=>{
@@ -496,7 +494,7 @@ test('actual folder paint retains the authored right arrow after a no-arrow six-
   root={...root,folders:{19:'A'}};
   let opened=enterHomeFolder(root,19);
   paint(freeze(opened));
-  assert.deepEqual(events.find(event=>event.name==='arrows').args,[false,undefined]);
+  assert.deepEqual(events.find(event=>event.name==='arrows').args,[false,true]);
   opened=commitHomeScroll(opened,57);
   paint(freeze(opened));
   assert.deepEqual(events.find(event=>event.name==='arrows').args,[true,false],'folder endpoint still hides the right pane explicitly');

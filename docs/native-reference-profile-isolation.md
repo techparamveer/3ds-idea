@@ -9,7 +9,10 @@ Null output1, volume0**, each with `default=false`. Null input1 returned no
 samples and two tested profiles stalled at black HOME LCDs; the synthetic input
 configuration restored HOME and Health. Do not revert to Auto microphone/output
 or change system/Spotify audio. [Recovery evidence](native-silent-reference-2026-10-02.md)
-records hashes, limitations and the still-unresolved native HOME-return input.
+records hashes and limitations. The later [held-HOME replay](native-home-return-2026-10-02.md)
+establishes Health -> suspended HOME with temporary Shift binding; that binding
+was restored to B after the emulator exited. Preserve this distinction when
+replaying the successful measured host gesture.
 Recheck process state, identity, config, paths and Sidecar geometry before use.
 The older locations below are historical, not permission to launch the default
 profile. Static microphone data is a reference adaptation, not captured audio.

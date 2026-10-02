@@ -3,12 +3,19 @@
 Coordinator: the Codex chat **Explain the 3DS project**,
 `01a0f8e9-441b-76a2-b3ee-bec359217934`. The user explicitly requested separate
 Codex chats and worktrees, with this chat orchestrating their work and allowing
-bounded subagents inside each lane. The supplied repository policy selects
-GPT-5.6 Sol/high for new dispatches; the latest speed request is normal, no Fast.
+bounded subagents inside each lane. The latest user request selects
+GPT-6 Astra/high for workstream chats and GPT-6.1 Sol/high for future subagents;
+normal speed, no Fast applies to both.
 Existing in-flight helpers were not claimed switched. Chat messaging sets
 model/reasoning but not service tier. The saved global priority override was
-removed; existing chat overrides require UI verification on the iPad display.
+removed; existing chat speed overrides remain unverified. Computer use refused
+Codex's own controls; do not bypass it or claim the message changed service tier.
 Do not start new helpers through the priority-only collaboration route.
+
+On 2 October, all eight registered workstream chats accepted explicit
+`gpt-6-astra` / `high` follow-ups with the new no-Fast policy. These were
+settings-only acknowledgements, not implementation dispatches. Completed
+subagents remain stopped; their in-flight model was not changed retroactively.
 
 HOME Settings delivery: renderer `23f21485` integrated as `6c31e2f6`, state
 `183b4965` as `e4a30ab0`, System tests `eaf4cf20` as `ca326367`, MyMenu painter
@@ -137,7 +144,7 @@ bounded readiness slices, not claims that missing native UI is complete. Next
 visual implementation requires the coordinator's named capture and a narrow
 file reservation. No lane repeats source-only investigation indefinitely.
 
-The first six chats initially started before the latest model request. All six
+Historical first dispatch (superseded by the policy above): the first six chats initially started before that model request. All six
 received accepted `gpt-6-astra`/`high` follow-up overrides; Settings and services
 were created directly with those settings. An in-flight old-model turn may
 finish before the override takes effect. All new helpers must use

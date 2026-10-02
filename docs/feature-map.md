@@ -11,8 +11,8 @@ Current plan, 2 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
 integration and native/browser acceptance. Each workstream has its own Codex
 chat, Git branch and worktree, recorded in the [workstream registry](feature-map/workstreams.md).
-New dispatches follow the supplied GPT-5.6 Sol/high repository policy at normal
-speed, no Fast. The latest speed request supersedes Fast; chat service tier cannot
+New workstream dispatches use GPT-6 Astra/high; future subagents use GPT-6.1
+Sol/high, at normal speed, no Fast. The latest request supersedes Fast; chat service tier cannot
 be changed or verified through dispatch tools. No new priority-only helpers.
 
 The [close/switch input correction](software-dialog-input-2026-10-02.md)
@@ -22,9 +22,10 @@ unfinished. This is not native acceptance or completion of L-06/L-07.
 
 [Silent reference recovery](native-silent-reference-2026-10-02.md) restores
 native HOME/Health rendering with synthetic input2, Null output1 and volume0.
-It supersedes Null input1, which stalled the reference. Native app -> HOME input
-still needs verification before close/switch artwork can be captured; no new
-transition implementation or scenario pass is claimed.
+It supersedes Null input1, which stalled the reference. The subsequent
+[held-HOME reference](native-home-return-2026-10-02.md) reached suspended HOME
+and captured its upper window, first-use notice and Health close outcome.
+No new transition implementation or scenario pass is claimed.
 
 ## Scope and Evidence
 

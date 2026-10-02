@@ -1,9 +1,16 @@
 # Verification and evidence architecture
 
+The [2 October held-HOME replay](../native-home-return-2026-10-02.md) now
+establishes Health -> suspended HOME with native PNGs and logged APT return.
+Its500ms Shift-modified drag used cua-driver MCP's retained screenshot
+context; separate CLI calls lost that context. EOF interrupted timing, so
+do not call this measured native hold/motion parity. Health Close returned
+HOME without an observed confirmation; other-app close/switch remains open.
+
 The [2 October silent-reference recovery](../native-silent-reference-2026-10-02.md)
 supersedes the earlier Null-microphone recommendation: the clean private clone
 uses synthetic Static input2, Null output1 and volume0. HOME and Health render
-again, but native HOME return and close/switch captures remain unestablished.
+again. That checkpoint preceded the successful HOME return described above.
 Do not repeat black-screen launches with Null input1 or use host microphone/
 output as a workaround. This fixture is not microphone/audio acceptance.
 

@@ -22,6 +22,11 @@ modal-button portion of items 1-2/4 is implemented and browser-inspected;
 | 5 | H-03..H-10, H-14 / HOME | Navigation exists; button feedback and edge/cancel behavior need a complete visible interaction pass | Select/open with touch and A; B/Back; HOME/resume; toolbar; density ends; paging; footer variants; folder enter/close; pickup/drop/cancel. Repair captured failures only, preserving existing visual design. Run both physical-model and touchscreen routes. |
 | 6 | H-12, L-05 / HOME + Lifecycle | Suspended-software upper window is hidden; suspend/resume presentation remains incomplete | Establish a native HOME-return capture, then bind the existing source window/title/icon to the retained owner. Resume restores the same app/page; Close clears the window. Do not repeat unmeasured native key attempts or invent a frame. |
 
+The [native held-HOME reference](../native-home-return-2026-10-02.md) now
+supplies H-12's suspended-window/first-use notice capture. Health closes without
+an observed confirmation; establish other-app close/switch separately rather
+than applying the browser's universal placeholder policy to every title.
+
 The existing browser route evidence already captures the close/switch placeholder
 and suspended-HOME gap: [completion routes](../completion-routes-2026-10-02.md).
 Current code: [placeholder painter](../../src/os/portfolio-screens.ts),

@@ -6,9 +6,15 @@ folder Close and software Close have different white/black panes and messages.
 Capture the retained owner, active folder, selected child and both terminal
 paint phases; verify the endpoint returns to the same folder with Open.
 Count native own-PNG files, not successful screenshot-command dispatches.
-The latest recapture obtained idle/suspended endpoints but no exit frames;
-browser motion cannot fill that native-evidence gap. Preserve failed capture
-logs and exclude runs with incorrect commit metadata from final comparisons.
+The [F9 recapture](../home-close-icon-exit-2026-10-02.md) now obtains39 actual
+entry/hold/exit/return PNGs. Preserve earlier failed menu-capture logs. Separate
+modal entry, stable held dialog, exit, post-modal footer departure and banner
+reacquisition using raw pixels: index8 is still transitional, while10..19 have
+byte-identical lower pixels. A5% run and17.481-second gap are not timing proof.
+Use browser source-phase metadata rather than matching ordinal frame numbers.
+Exercise missing selected icon-exit resources through paired paint recovery,
+not only renderer helper tests; the application owner must survive failure.
+Exclude runs with incorrect commit metadata from final comparisons.
 
 [Folder re-entry](../home-folder-reentry-2026-10-02.md) compares one continuous
 held stroke through Back and the same folder, not a committed root placement.

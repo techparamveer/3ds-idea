@@ -1,13 +1,22 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `a40d597e` (suspended folder software Close action
-and native black footer resource corrected), 2 October 2026. This is the **ordered
+Current runtime checkpoint: `7d0b4a9f` (source suspended-icon disappearance
+endpoint selected during close exit), 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+The [fresh close sequence](../home-close-icon-exit-2026-10-02.md) captures39
+native own-PNGs including modal entry, stable hold, exit, footer departure and
+HOME reacquisition. `7d0b4a9f` removes the blue sleep overlay by dialog exit
+using source DisAppear20 without retiring the owner. Endpoint selection is
+an explicit adaptation; native start/cadence remain unknown. Next captured
+defects are old Close/Resume departure before Open and dialog entry. Preserve
+existing exit curves/barriers, avoid a guessed fade or another broad pose sweep.
+Power-on/buttons remain next. Whole1:1 is not established.
 
 The [folder pulse replay](../home-suspended-highlight-2026-10-02.md#folder-pulse-diagnostic---2-october-2026)
 at unchanged `a40d597e` explains the full selected-icon tint residual through
@@ -121,7 +130,7 @@ modal-button portion of items 1-2/4 is implemented and browser-inspected;
 
 | Order | Feature IDs / owner | Concrete unfinished UI or interaction | Bounded deliverable and completion check |
 | --- | --- | --- | --- |
-| 1 | L-06 / Lifecycle | Source closing dialog, fixed upper panel and decoded exit curves integrated through `229e864c`; folder software Close corrected at `a40d597e` | [Closing-exit evidence](../home-closing-fade-2026-10-02.md) verifies browser terminal publication, sleep/readiness guards and source dialog/mask curves. [Fresh folder replay](../home-folder-software-close-2026-10-02.md) fixes the visible action. Native exit recapture saved endpoints only; exact exit motion, LCD order, timing and retirement remain open. Do not reintroduce a guessed fade. |
+| 1 | L-06 / Lifecycle | Source closing dialog/exit through `229e864c`, folder action `a40d597e`, exit icon endpoint `7d0b4a9f` | [Fresh39-frame native sequence](../home-close-icon-exit-2026-10-02.md) supersedes endpoint-only captures. Finish captured old-footer departure before Open and modal entry; exact exit epoch, LCD order, timing and retirement remain open. Preserve [paired publication and source curves](../home-closing-fade-2026-10-02.md); no guessed fade. |
 | 2 | L-07 / Lifecycle | Confirmed switch retains old owner through AppQuit then launches frozen target; intentionally no ordinary-close exit phase | [Closing-exit contract](../home-closing-fade-2026-10-02.md) preserves switch ownership separately. Existing Work->About browser route passes; native timing and departure/reveal still need matched capture. Preserve cancel/owner guards and change only captured unfinished states. |
 | 3 | L-01, L-03 / Lifecycle | Power-on exists but uses a 3000 ms boot, final 350 ms reveal and fitted phase order; shutdown uses 550 ms | Finish source-backed off -> power-on -> paired LCD reveal -> HOME, plus power menu Cancel/Off -> black/off -> restart. Capture backlight/LCD order and input gates; no new decorative boot screen. Preserve existing console opening. |
 | 4 | H-14, L-06, L-07 / Lifecycle + coordinator | Source Bounding_00/01 rectangles and Select press feedback at `f17a1007`; same-button ownership preserved | Tests and muted Sidecar replay pass, including byte-identical dialog crop after cross-drag. Native input/default focus/motion comparison remains open. Physical, keyboard and touch keep the same actions. |

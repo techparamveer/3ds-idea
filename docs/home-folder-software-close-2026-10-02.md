@@ -1,5 +1,9 @@
 # Suspended Folder Software Close
 
+Later [native39-frame recapture and icon-exit correction](home-close-icon-exit-2026-10-02.md)
+supersedes the failed-exit-capture limitation below. The `a40d597e` action fix
+is preserved; `7d0b4a9f` separately clears the sleep overlay during dialog exit.
+
 Runtime `a40d597e`, 2 October 2026. This corrects a captured action and native
 resource-selection defect, not whole-scenario 1:1 fidelity.
 

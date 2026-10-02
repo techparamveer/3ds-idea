@@ -1,5 +1,10 @@
 # Closing Dialog Exit - 2 October 2026
 
+Later [fresh native sequence and icon-exit correction](home-close-icon-exit-2026-10-02.md)
+at `7d0b4a9f` supersedes this checkpoint's lack of fresh exit intermediates.
+Its39 native PNGs reveal separate modal-entry and post-modal footer gaps;
+the source exit curves and publication barriers below remain unchanged.
+
 Runtime checkpoint `229e864c` in coordinator worktree
 `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch
 `codex/home-fidelity-20261001`. No whole-scenario or strict 1:1 pass.

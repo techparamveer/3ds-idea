@@ -15,7 +15,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [folder pulse diagnostic](home-suspended-highlight-2026-10-02.md#folder-pulse-diagnostic---2-october-2026)
+Latest [close exit icon](home-close-icon-exit-2026-10-02.md), `7d0b4a9f`,
+selects source DisAppear20 only during close dialog exit, preserving owner,
+switch and earlier close behavior.39 fresh native own-PNGs now capture actual
+entry/exit and return; earlier endpoint-only limitations are superseded.
+Full1856 tests/typecheck/build pass; test follow-up `fcb05a71` covers paired
+failure/recovery. Native old-footer departure before Open and dialog entry
+remain visibly unfinished; exact timing/input/audio and whole1:1 remain open.
+Continue those captured states, then power-on/buttons; no guessed fade.
+
+Earlier [folder pulse diagnostic](home-suspended-highlight-2026-10-02.md#folder-pulse-diagnostic---2-october-2026)
 at unchanged `a40d597e` explains the full-icon tint residual through observed
 animation phase: fixed-ROI3,136/max34 becomes8/max4 at the best live pose.
 No palette or runtime change.218 paints cover106/120 modulo residues; native

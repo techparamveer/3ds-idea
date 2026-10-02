@@ -13,6 +13,9 @@ live screen painter now loads the already-converted HOME `common` and `sleep`
 resources along with its usual chrome. Power options use `Slp_U_00` and
 `Slp_D_00`, with the English `lau_press_pow*` and `lau_b_shutdown` messages and
 their decoded styles. This replaces the generic white Power Options dialog.
+The Power upper message's source-scaled spacer lines are handled by the bounded
+[newline-spacing adapter](home-power-message-spacing-2026-10-02.md); other
+messages retain the existing text path.
 
 The central lower-screen Power Off button starts a separate `shutdown` phase.
 Inputs remain gated during that phase; the native Decide clip is followed by a

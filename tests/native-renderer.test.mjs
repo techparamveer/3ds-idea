@@ -311,6 +311,21 @@ test('color spans draw every run against the complete message and reject invalid
  }finally{globalThis.document=previous;}
 });
 
+test('newline advance scales reach the font writer only through the explicit pane override',()=>{
+ const previous=globalThis.document,calls=[];
+ globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.clearRect=()=>{};ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
+ try{
+  const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+  const font={manifest,drawNative(...args){calls.push(args[16]);}};
+  const text={value:'A\n \nA',font:0,material:0,size:[16.25,19.5],alignment:4,lineAlignment:1,lineSpacing:1,characterSpacing:0,topColor:[1,2,3,255],bottomColor:[1,2,3,255]};
+  const source={...layout,fonts:['shared'],roots:[{...pane,name:'copy',kind:'txt1',size:[380,136],picture:undefined,text}]};
+  const renderer=new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['shared',font]])),ctx=canvas().getContext();ctx.drawImage=()=>{};
+  assert.equal(renderer.draw(ctx,'test','test'),true);
+  assert.equal(renderer.draw(ctx,'test','test',{overrides:{copy:{lineAdvanceScales:[.2,1]}}}),true);
+  assert.deepEqual(calls,[undefined,[.2,1]]);renderer.dispose();
+ }finally{globalThis.document=previous;}
+});
+
 test('Camera source capacity glyph cell overhangs its 16px alignment pane vertically',()=>{
  const font=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/camera/contents/0000-0000001a/HudNOTES-bcfnt/font.json',import.meta.url),'utf8'));
  assert.equal(font.sourceSha256,'7b115deda29adce0faccb352d412a3ef9e10247850be6ded7856ba2714d32932');

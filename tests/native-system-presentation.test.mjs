@@ -15,6 +15,7 @@ async function loadOverlay(){
  return import(moduleUrl(resolved));
 }
 const {drawNativeSystemOverlay}=await loadOverlay();
+const homeMessages=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/messages-and-loose.json',import.meta.url),'utf8'));
 
 function mockCtx(width){
  const fills=[];
@@ -28,7 +29,7 @@ function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch
  const draws=[];
  const top=mockCtx(400),bottom=mockCtx(320);
  const assets={renderer:{packs:{messages:{menu_msbt_LZ:{labels:{},messages:[]}},...packs},
-  draw(ctx,bank,name,options){draws.push({bank,name,clip:options.bindings[0].name,frame:options.bindings[0].frame,width:ctx.canvas.width});return true;}}};
+  draw(ctx,bank,name,options){draws.push({bank,name,clip:options.bindings[0].name,frame:options.bindings[0].frame,width:ctx.canvas.width,overrides:options.overrides});return true;}}};
  const ok=drawNativeSystemOverlay(top,bottom,{system:{phase,since:0,sleeping:false,returnPhase:'home'}},elapsed,reduced,assets);
  return {ok,draws,fills:[...top.fills,...bottom.fills]};
 }
@@ -78,4 +79,14 @@ test('launch without the logo pack keeps the 20-frame HOME SceneOut fallback',()
  assert.equal(result.ok,true);
  assert.deepEqual(result.draws.map(d=>d.clip),['CmnFadeNinLogo_U_00_SceneOut','CmnFadeNinLogo_D_00_SceneOut']);
  assert.equal(result.draws[0].frame,0);
+});
+
+test('Power opts only its source main message into decoded newline advance scales',()=>{
+ const before=JSON.stringify(homeMessages),result=overlay(350,false,{common:{},sleep:{},messages:homeMessages},'power');
+ assert.equal(result.ok,true);
+ const upper=result.draws.find(draw=>draw.bank==='sleep'&&draw.name==='Slp_U_00');
+ assert.deepEqual(upper.overrides.T_Main_00.lineAdvanceScales,[1,.2,1,.2,1,1]);
+ assert.equal(upper.overrides.T_Main_00.text,homeMessages.messages.menu_msbt_LZ.messages[homeMessages.messages.menu_msbt_LZ.labels.lau_press_pow_u1].text);
+ for(const pane of ['T_Top_00','T_Btm_00'])assert.equal(upper.overrides[pane].lineAdvanceScales,undefined);
+ assert.equal(JSON.stringify(homeMessages),before);
 });

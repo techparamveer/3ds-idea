@@ -2,7 +2,7 @@
 export type NativePicture={material:number;colors:number[][];uvSets:number[][]};
 export type NativeMessageStyle={fontScale:number[];lineSpacing:number;characterSpacing:number;unresolvedWords?:Record<string,number>};
 export type NativeTextColorSpan={start:number;end:number;color:number[]};
-export type NativeText={cursorAdvances?:{index:number;advance:number}[];colorSpans?:NativeTextColorSpan[];callName?:string;font:number;material:number;value:string;size:number[];alignment:number;lineAlignment:number;characterSpacing:number;lineSpacing:number;topColor:number[];bottomColor:number[];messageStyle?:NativeMessageStyle};
+export type NativeText={cursorAdvances?:{index:number;advance:number}[];colorSpans?:NativeTextColorSpan[];lineAdvanceScales?:number[];callName?:string;font:number;material:number;value:string;size:number[];alignment:number;lineAlignment:number;characterSpacing:number;lineSpacing:number;topColor:number[];bottomColor:number[];messageStyle?:NativeMessageStyle};
 export type NativePane={unsupported?:unknown[];sourceFormat?:string;part?:NativePart;kind:string;name:string;flags:number;origin:number;alpha:number;translation:number[];rotation:number[];scale:number[];size:number[];children:NativePane[];picture?:NativePicture;text?:NativeText;window?:{content:NativePicture;frames:{material:number;flip:number}[];inflation?:number[];frameSize?:number[];flags:number}};
 export type NativeMaterial={capability?:string;sourceCombiners?:{color:number;alpha:number;reserved:number}[];sourceProjections?:{transform:number[];option:number;padding:string}[];sourceFormat?:string;name:string;bufferColor:number[];constantColors:number[][];textureOnly:boolean;textureMaps:{texture:number;wrapS:number;wrapT:number;minFilter:number;magFilter:number}[];textureMatrices:{translation:number[];rotation:number;scale:number[]}[];coordinateGenerators:{type:number;source:number;sourceExtra?:string}[];tevStages:{constantSelectors:number;color:NativeCombiner;alpha:NativeCombiner}[];alphaCompare?:{function:number;reference:number};colorBlend?:{operation:number;sourceFactor:number;destinationFactor:number};unsupported:unknown[]};
 export type NativePart={layout:string;magnify:number[];capability?:string;entries:{name:string;usageFlags:number;basicUsageFlags:number;materialUsageFlags:number;property?:NativePane;userDataBytes?:string;basicInfo?:{translation:number[];rotation:number[];scale:number[];size:number[];alpha:number;userData:string;padding:string}}[]};
@@ -13,7 +13,7 @@ export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:N
 export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
 export type NativeLayout={sourceFormat?:string;canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
 export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number;picaFormat?:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
-export type PaneOverrides=Record<string,{cursorAdvances?:{index:number;advance:number}[];colorSpans?:NativeTextColorSpan[];text?:string;lineSpacing?:number;vertexColors?:number[][];messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number;textureBindings?:Record<number,string>}>;
+export type PaneOverrides=Record<string,{cursorAdvances?:{index:number;advance:number}[];colorSpans?:NativeTextColorSpan[];lineAdvanceScales?:number[];text?:string;lineSpacing?:number;vertexColors?:number[][];messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number;textureBindings?:Record<number,string>}>;
 export type AnimationBinding={name:string;frame:number;groups?:string[];childBinding?:boolean};
 /** HOME RI_mstl changes font metrics and spacing only; unresolved words stay uninterpreted. */
 export function nativeTextMetrics(text:NativeText,font:{width?:number;height:number}){
@@ -28,6 +28,39 @@ export function nativeMessageOverride(pack:NativePack,bank:string,label:string,f
  const style=data.styleTable?pack.styles?.[data.styleTable]?.styles[message.styleIndex]:undefined;
  if(!style)throw new Error(`Missing native message style ${bank}/${label}[${message.styleIndex}]`);
  return {text:message.text,messageStyle:style};
+}
+/** Opt-in MSBT group-1/type-0 font-scale handling for multiline spacer text.
+ * The two-byte little-endian argument is a percentage. A scale active when a
+ * newline is consumed changes that newline's font-derived advance; native line
+ * spacing remains unscaled. Scaled glyphs are outside this bounded path. */
+export function nativeMessageLineAdvanceScales(pack:NativePack,bank:string,label:string):number[]{
+ const data=pack.messages[bank],message=data?.messages[data.labels[label]];
+ if(!message)throw new Error(`Missing native message ${bank}/${label}`);
+ const scales:number[]=[],stack:number[]=[];let scale=1,text='';
+ const lines=(value:string)=>{
+  if(scale!==1&&/\S/u.test(value))throw new Error(`Unsupported native scaled glyph ${bank}/${label}`);
+  text+=value;
+  for(let i=0;i<value.length;i++){
+   if(value[i]==='\r'&&value[i+1]==='\n'){scales.push(scale);i++;}
+   else if(value[i]==='\r'||value[i]==='\n')scales.push(scale);
+  }
+ };
+ for(const raw of message.tokens){
+  const token=raw as {text?:string;control?:number;group?:number;type?:number;arguments?:string};
+  if(typeof token.text==='string'){lines(token.text);continue;}
+  if(token.group!==1||token.type!==0)continue;
+  if(token.control===14){
+   if(!/^[0-9a-f]{4}$/i.test(token.arguments??''))throw new Error(`Invalid native line scale ${bank}/${label}`);
+   const bytes=token.arguments!,percent=parseInt(bytes.slice(2,4)+bytes.slice(0,2),16);
+   if(!Number.isInteger(percent)||percent<=0)throw new Error(`Invalid native line scale ${bank}/${label}`);
+   stack.push(scale);scale=percent/100;
+  }else if(token.control===15){
+   const previous=stack.pop();if(previous===undefined)throw new Error(`Unbalanced native line scale ${bank}/${label}`);scale=previous;
+  }else throw new Error(`Unsupported native line scale control ${bank}/${label}`);
+ }
+ if(text!==message.text)throw new Error(`Native message token/text mismatch ${bank}/${label}`);
+ if(stack.length)throw new Error(`Unbalanced native line scale ${bank}/${label}`);
+ return scales;
 }
 /** Explicit opt-in for MSBT group 0/type 3 RGBA switches. Offsets are UTF-16. */
 export function nativeMessageColorSpans(pack:NativePack,bank:string,label:string):NativeTextColorSpan[]{
@@ -221,9 +254,10 @@ export function poseNativeLayout(layout:NativeLayout, animations:Record<string,N
  }
  for(const [name,value] of Object.entries(overrides)){
   const pane=panes.get(name);if(!pane)continue;
-  if(value.text!==undefined&&pane.text){pane.text.value=value.text;delete pane.text.colorSpans;delete pane.text.cursorAdvances;}
+  if(value.text!==undefined&&pane.text){pane.text.value=value.text;delete pane.text.colorSpans;delete pane.text.cursorAdvances;delete pane.text.lineAdvanceScales;}
   if(value.cursorAdvances&&pane.text)pane.text.cursorAdvances=structuredClone(value.cursorAdvances);
   if(value.colorSpans&&pane.text)pane.text.colorSpans=structuredClone(value.colorSpans);
+  if(value.lineAdvanceScales&&pane.text)pane.text.lineAdvanceScales=[...value.lineAdvanceScales];
   if(value.lineSpacing!==undefined&&pane.text)pane.text.lineSpacing=value.lineSpacing;
   if(value.vertexColors){const picture=pane.picture??pane.window?.content;if(picture)picture.colors=value.vertexColors.map(color=>[...color]);}
   if(value.messageStyle&&pane.text)pane.text.messageStyle=structuredClone(value.messageStyle);

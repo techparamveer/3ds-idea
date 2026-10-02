@@ -191,7 +191,7 @@ export class BitmapFont {
 
   /** CLYT font size is a two-axis native cell size, not a CSS font size. */
   drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
-    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false) {
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false,lineAdvanceScales?:readonly number[]) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     let sourceOffset=0;
     const selected:boolean[][]=[];
@@ -200,6 +200,7 @@ export class BitmapFont {
     }).map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
     const nativeAlignedLine=(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0
       ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha';
+    if(lineAdvanceScales&&(lineAdvanceScales.length!==Math.max(0,lines.length-1)||lineAdvanceScales.some(scale=>!Number.isFinite(scale)||scale<=0)))throw new Error('Invalid native line advance scales');
     if(cursorAdvances.length){
       if(lines.length!==1||alignment!==3||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='luminance-alpha')throw new Error('Unsupported native cursor-advance text run');
       const boundaries=new Set([0]);let offset=0;for(const char of value){offset+=char.length;boundaries.add(offset);}
@@ -231,7 +232,8 @@ export class BitmapFont {
       return;
     }
     const lineHeight=(this.manifest.lineFeed??this.manifest.height)*sy+lineSpacing;
-    const blockHeight=size[1]+(lines.length-1)*lineHeight;
+    const scaledAdvance=(scale:number)=>(this.manifest.lineFeed??this.manifest.height)*sy*scale+lineSpacing;
+    const blockHeight=lineAdvanceScales?size[1]+lineAdvanceScales.reduce((sum,scale)=>sum+scaledAdvance(scale),0):size[1]+(lines.length-1)*lineHeight;
     const vertical=Math.floor(alignment/3);
     // The centred NW writer rounds the block and each line's half-width up.
     // Keeping fractional half-widths shifts some Settings lines by one pixel.
@@ -239,14 +241,16 @@ export class BitmapFont {
     const widths=lines.map(glyphs=>glyphs.reduce((n,g)=>n+(g?.advance??0)*sx+spacing,0)-(glyphs.length?spacing:0));
     const blockWidth=Math.max(0,...widths);
     const draws:{glyph:Glyph;x:number;y:number}[]=[];
+    let lineY=0;
     lines.forEach((glyphs,row)=>{
       const runWidth=widths[row],horizontal=lineAlignment===0?alignment%3:lineAlignment-1;
       let x=horizontal===1&&alignment%3===1?width/2-Math.ceil(runWidth/2)
         :(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
       for(const [column,g] of glyphs.entries()){if(!g)continue;
-        if(g.width&&selected[row][column])draws.push({glyph:g,x:x+g.left*sx,y:y0+row*lineHeight});
+        if(g.width&&selected[row][column])draws.push({glyph:g,x:x+g.left*sx,y:y0+(lineAdvanceScales?lineY:row*lineHeight)});
         x+=g.advance*sx+spacing;
       }
+      if(lineAdvanceScales&&row<lineAdvanceScales.length)lineY+=scaledAdvance(lineAdvanceScales[row]);
     });
     // Native cached text batches by source texture in first-use order. Atlas
     // compaction must not erase that identity for overlapping LA glyphs.

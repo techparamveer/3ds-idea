@@ -209,6 +209,21 @@ test('message style lookup uses the bank full path and leaves null styles untouc
  assert.deepEqual(api.nativeMessageOverride(pack,'hud','missing','fallback'),{text:'fallback'});
  delete pack.styles['message_hud/EU_English/RI_mstl_LZ.bin'];assert.throws(()=>api.nativeMessageOverride(pack,'hud','date',''),/Missing native message style/);
 });
+test('HOME Power newline advances come from the exact group-1/type-0 scale spans',()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/messages-and-loose.json'))),bank=pack.messages.menu_msbt_LZ;
+ const message=bank.messages[bank.labels.lau_press_pow_u1];
+ assert.deepEqual(message.tokens.filter(token=>token.control).map(token=>[token.control,token.group,token.type,token.arguments]),[
+  [14,1,0,'1400'],[15,1,0,undefined],[14,1,0,'1400'],[15,1,0,undefined],
+ ]);
+ assert.deepEqual(api.nativeMessageLineAdvanceScales(pack,'menu_msbt_LZ','lau_press_pow_u1'),[1,.2,1,.2,1,1]);
+
+ const invalid=structuredClone(pack);invalid.messages.menu_msbt_LZ.messages[bank.labels.lau_press_pow_u1].tokens[1].arguments='zzzz';
+ assert.throws(()=>api.nativeMessageLineAdvanceScales(invalid,'menu_msbt_LZ','lau_press_pow_u1'),/Invalid native line scale/);
+ const unbalanced=structuredClone(pack);unbalanced.messages.menu_msbt_LZ.messages[bank.labels.lau_press_pow_u1].tokens.push({control:14,group:1,type:0,arguments:'1400'});
+ assert.throws(()=>api.nativeMessageLineAdvanceScales(unbalanced,'menu_msbt_LZ','lau_press_pow_u1'),/Unbalanced native line scale/);
+ const glyph=structuredClone(pack),scaled=glyph.messages.menu_msbt_LZ.messages[bank.labels.lau_press_pow_u1];scaled.tokens[2].text='\n x';scaled.text=scaled.tokens.map(token=>token.text??'').join('');
+ assert.throws(()=>api.nativeMessageLineAdvanceScales(glyph,'menu_msbt_LZ','lau_press_pow_u1'),/Unsupported native scaled glyph/);
+});
 test('native CLTS bounds skip an unallocated matrix without remapping to matrix zero',()=>{
  const l=layout(),m=material();m.name='animated';m.textureMatrices=[{translation:[.25,.5],rotation:0,scale:[1,1]}];l.materials=[m];
  const animation={frames:1,loop:false,groups:[],textures:[],tracks:[{target:'animated',binding:'material',property:'texture.translation.x',index:1,interpolation:'hermite',keys:[{frame:0,value:0},{frame:1,value:9}]}]};

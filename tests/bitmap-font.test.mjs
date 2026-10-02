@@ -133,6 +133,17 @@ test('Settings multiline labels round each centred line and the text block indep
  }
 });
 
+test('opt-in newline scales compact and recenter the Power spacer rows without changing the default path',()=>{
+ const glyph={sheet:0,x:0,y:0,width:5,height:10,left:0,advance:6};
+ const manifest={schema:1,sourceSha256:'0'.repeat(64),width:25,height:30,baseline:25,lineFeed:30,sheets:['sheet-0.png'],glyphs:{65:glyph},fallback:null};
+ const font=new BitmapFont(manifest,[{naturalWidth:16,naturalHeight:16}]),value='A\nA\n \nA\n \nA\nA',size=[16.25,19.5];
+ const rows=scales=>{const calls=[];font.drawNative({drawImage:(...args)=>calls.push(args)},value,380,136,size,4,0,1,1,[0,0],false,undefined,undefined,[],false,false,scales);return calls.map(args=>args[6]);};
+ assert.deepEqual(rows(undefined),[-4,16.5,57.5,98.5,119]);
+ assert.deepEqual(rows([1,.2,1,.2,1,1]),[12,32.5,57.9,83.3,103.8]);
+ assert.throws(()=>rows([1,.2]),/Invalid native line advance scales/);
+ assert.throws(()=>rows([1,.2,1,0,1,1]),/Invalid native line advance scales/);
+});
+
 test('native alpha glyph raster uses hard pixel-centre coverage and the atlas border for linear filtering',()=>{
  const surface=(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});
  const glyph={width:1,height:1},source=surface(3,3),target=surface(3,3),quad={glyph,x:.4,y:.4,width:1.2,height:1.2};

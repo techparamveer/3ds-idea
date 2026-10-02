@@ -25,12 +25,12 @@ function mockCtx(width){
   save(){},restore(){}};
 }
 
-function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch'){
+function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch',returnPhase='home'){
  const draws=[];
  const top=mockCtx(400),bottom=mockCtx(320);
  const assets={renderer:{packs:{messages:{menu_msbt_LZ:{labels:{},messages:[]}},...packs},
-  draw(ctx,bank,name,options){draws.push({bank,name,clip:options.bindings[0].name,frame:options.bindings[0].frame,width:ctx.canvas.width,overrides:options.overrides,textSampling:options.textSampling,textSamplingPanes:options.textSamplingPanes});return true;}}};
- const ok=drawNativeSystemOverlay(top,bottom,{system:{phase,since:0,sleeping:false,returnPhase:'home'}},elapsed,reduced,assets);
+  draw(ctx,bank,name,options){const bindings=options.bindings.map(binding=>({...binding}));draws.push({bank,name,clip:bindings[0].name,frame:bindings[0].frame,bindings,width:ctx.canvas.width,overrides:options.overrides,textSampling:options.textSampling,textSamplingPanes:options.textSamplingPanes});return true;}}};
+ const ok=drawNativeSystemOverlay(top,bottom,{system:{phase,since:0,sleeping:false,returnPhase}},elapsed,reduced,assets);
  return {ok,draws,fills:[...top.fills,...bottom.fills]};
 }
 
@@ -95,4 +95,51 @@ test('Power scopes decoded multiline writer metrics and LCD sampling to their so
  const lower=result.draws.find(draw=>draw.bank==='sleep'&&draw.name==='Slp_D_00');
  assert.equal(lower.textSampling,'lcd');assert.deepEqual(lower.textSamplingPanes,['T_BtnB_01','T_BtnF_01']);
  assert.equal(JSON.stringify(homeMessages),before);
+});
+
+test('shutdown holds Decide then binds paired sleep SceneOut last without a common fade',()=>{
+ const at=(elapsed,returnPhase='home')=>overlay(elapsed,false,{common:{},sleep:{},messages:homeMessages},'shutdown',returnPhase).draws;
+ const bindings=(draws,name)=>draws.find(draw=>draw.name===name).bindings;
+ assert.deepEqual(bindings(at(0),'Slp_U_00'),[
+  {name:'Slp_U_00_SceneIn',frame:20},
+  {name:'Slp_U_00_SceneOut',frame:0},
+ ]);
+ assert.deepEqual(bindings(at(0),'Slp_D_00'),[
+  {name:'Slp_D_00_SceneIn',frame:20},
+  {name:'Slp_D_00_Decide',frame:0},
+  {name:'Slp_D_00_SceneOut',frame:0},
+ ]);
+ assert.deepEqual(bindings(at(166),'Slp_D_00').slice(1),[
+  {name:'Slp_D_00_Decide',frame:9},
+  {name:'Slp_D_00_SceneOut',frame:0},
+ ]);
+ assert.deepEqual(bindings(at(167),'Slp_D_00').slice(1),[
+  {name:'Slp_D_00_Decide',frame:10},
+  {name:'Slp_D_00_SceneOut',frame:0},
+ ]);
+ assert.deepEqual(bindings(at(184),'Slp_D_00').slice(1),[
+  {name:'Slp_D_00_Decide',frame:10},
+  {name:'Slp_D_00_SceneOut',frame:1},
+ ]);
+ assert.equal(bindings(at(1166),'Slp_U_00').at(-1).frame,59);
+ assert.equal(bindings(at(1167),'Slp_U_00').at(-1).frame,60);
+ assert.equal(bindings(at(1199),'Slp_U_00').at(-1).frame,60);
+ assert.deepEqual(bindings(at(0,'app'),'Slp_D_00').map(binding=>binding.name),[
+  'Slp_D_00_SceneInApp','Slp_D_00_Decide','Slp_D_00_SceneOut',
+ ]);
+ assert.ok(at(230).every(draw=>draw.bank==='sleep'));
+});
+
+test('reduced shutdown publishes and holds the paired terminal source pose',()=>{
+ const draws=overlay(0,true,{common:{},sleep:{},messages:homeMessages},'shutdown').draws;
+ assert.deepEqual(draws.find(draw=>draw.name==='Slp_U_00').bindings,[
+  {name:'Slp_U_00_SceneIn',frame:20},
+  {name:'Slp_U_00_SceneOut',frame:60},
+ ]);
+ assert.deepEqual(draws.find(draw=>draw.name==='Slp_D_00').bindings,[
+  {name:'Slp_D_00_SceneIn',frame:20},
+  {name:'Slp_D_00_Decide',frame:10},
+  {name:'Slp_D_00_SceneOut',frame:60},
+ ]);
+ assert.ok(draws.every(draw=>draw.bank==='sleep'));
 });

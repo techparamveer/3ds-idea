@@ -2,7 +2,7 @@ import {drawNativeSystemFade} from './native-system-fade';
 import {nativeMessageLineAdvanceScales,nativeMessageOverride,type PaneOverrides} from './native-layout';
 import type {FirmwarePresentationAssets} from './firmware-presentation';
 import type {MenuState} from './state';
-import {appLaunchLogoFrame,bootRevealFrame,systemTransitionFrame} from './system-transitions';
+import {appLaunchLogoFrame,bootRevealFrame,shutdownTransitionPose,systemTransitionFrame} from './system-transitions';
 
 type SystemFadeClip='SceneIn'|'SceneOut'|'SceneOutA'|'SceneOutB'|'SceneOutC';
 
@@ -38,9 +38,15 @@ export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:Canv
  const upper:PaneOverrides={T_Top_00:message('lau_press_pow_u0','In Sleep Mode, the system can...'),T_Main_00:{...main,lineAdvanceScales:nativeMessageLineAdvanceScales(renderer.packs.messages,'menu_msbt_LZ','lau_press_pow_u1'),multilineBlockOrigin:'writer-0x110'},T_Btm_00:{...message('lau_press_pow5','Close the system to enter Sleep Mode.'),multilineBlockOrigin:'writer-0x111'}};
  const lower:PaneOverrides={T_Top_00:{...message('lau_press_pow0','Software closed.'),visible:s.returnPhase==='app'},T_Btm_00:message('lau_press_pow1','Return to HOME Menu'),T_BtnB_01:message('lau_b_shutdown','Power Off'),T_BtnF_01:message('lau_b_shutdown','Power Off')};
  const lowerBindings=[{name:`Slp_D_00_${clip}`,frame}];
- if(s.phase==='shutdown')lowerBindings.push({name:'Slp_D_00_Decide',frame:systemTransitionFrame(elapsed,10,reduced)});
- const upperDrawn=renderer.draw(top,'sleep','Slp_U_00',{bindings:[{name:`Slp_U_00_${clip}`,frame}],overrides:upper,textSampling:'lcd',textSamplingPanes:['T_Btm_00']});
+ const upperBindings=[{name:`Slp_U_00_${clip}`,frame}];
+ if(s.phase==='shutdown'){
+  const pose=shutdownTransitionPose(elapsed,reduced);
+  // SceneOut must bind after Decide: Decide owns a constant zero-alpha mask
+  // track, while the captured exit is the paired sleep mask animation.
+  lowerBindings.push({name:'Slp_D_00_Decide',frame:pose.decideFrame},{name:'Slp_D_00_SceneOut',frame:pose.sleepSceneOutFrame});
+  upperBindings.push({name:'Slp_U_00_SceneOut',frame:pose.sleepSceneOutFrame});
+ }
+ const upperDrawn=renderer.draw(top,'sleep','Slp_U_00',{bindings:upperBindings,overrides:upper,textSampling:'lcd',textSamplingPanes:['T_Btm_00']});
  const lowerDrawn=renderer.draw(bottom,'sleep','Slp_D_00',{bindings:lowerBindings,overrides:lower,textSampling:'lcd',textSamplingPanes:['T_BtnB_01','T_BtnF_01']});
- if(s.phase==='shutdown')return fade('SceneOut',systemTransitionFrame(elapsed-180,20,reduced))&&upperDrawn&&lowerDrawn;
  return upperDrawn&&lowerDrawn;
 }

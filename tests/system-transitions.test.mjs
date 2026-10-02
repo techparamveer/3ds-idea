@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {appLaunchLogoFrame,bootRevealFrame,systemTransitionDuration} from '../src/os/system-transitions.ts';
+import {appLaunchLogoFrame,bootRevealFrame,shutdownTransitionPose,systemTransitionDuration} from '../src/os/system-transitions.ts';
 import {createPortfolioState,tickSystem,launch,reduceSystem,touchSystem,selectedTitle} from '../src/os/system.ts';
 import {enableHomeControls} from '../src/os/home-controls.ts';
 import {powerMenuActionAt} from '../src/os/stock-screen-layout.ts';
@@ -50,6 +50,24 @@ test('boot reveal gives all 21 SceneIn poses a slot before the browser boot dead
  assert.equal(bootRevealFrame(299,true),20);
  assert.equal(systemTransitionDuration('boot',true),300);
 });
+test('shutdown maps Decide then sleep SceneOut and exposes the terminal pose before off',()=>{
+ assert.deepEqual(shutdownTransitionPose(0),{decideFrame:0,sleepSceneOutFrame:0});
+ assert.deepEqual(shutdownTransitionPose(166),{decideFrame:9,sleepSceneOutFrame:0});
+ assert.deepEqual(shutdownTransitionPose(167),{decideFrame:10,sleepSceneOutFrame:0});
+ assert.deepEqual(shutdownTransitionPose(183),{decideFrame:10,sleepSceneOutFrame:0});
+ assert.deepEqual(shutdownTransitionPose(184),{decideFrame:10,sleepSceneOutFrame:1});
+ assert.deepEqual(shutdownTransitionPose(1166),{decideFrame:10,sleepSceneOutFrame:59});
+ assert.deepEqual(shutdownTransitionPose(1167),{decideFrame:10,sleepSceneOutFrame:60});
+ assert.deepEqual(shutdownTransitionPose(1199),{decideFrame:10,sleepSceneOutFrame:60});
+ assert.equal(systemTransitionDuration('shutdown'),1200);
+ assert.deepEqual(shutdownTransitionPose(0,true),{decideFrame:10,sleepSceneOutFrame:60});
+ assert.deepEqual(shutdownTransitionPose(119,true),{decideFrame:10,sleepSceneOutFrame:60});
+ assert.equal(systemTransitionDuration('shutdown',true),120);
+
+ let state=reduceSystem(reduceSystem(tickSystem(createPortfolioState(),3000),'power',3100),'open',3200);
+ assert.equal(tickSystem(state,4399).system.phase,'shutdown');
+ assert.equal(tickSystem(state,4400).system.phase,'off');
+});
 test('cold power-on clears stale toolbar focus before opening the selected HOME tile',()=>{
  let state=enableHomeControls(tickSystem(createPortfolioState(),3000));
  assert.equal(selectedTitle(state)?.id,'work');
@@ -57,7 +75,7 @@ test('cold power-on clears stale toolbar focus before opening the selected HOME 
   focus:{toolbarActive:true,currentFocus:4,rememberedFocus:4,savedColumn:0}}}};
  state=reduceSystem(state,'power',3100);
  state=reduceSystem(state,'open',3200);
- state=tickSystem(state,3750);
+ state=tickSystem(state,4400);
  assert.equal(state.system.phase,'off');
  state=reduceSystem(state,'power',3800);
  assert.equal(state.system.homeNavigation.focus.toolbarActive,false);

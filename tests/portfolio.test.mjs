@@ -38,7 +38,7 @@ test('HOME suspends and resumes exact position; switching requires confirmation'
 test('power requires confirmation, off is inert, sleep preserves application',()=>{
  let s=send(home(),'power');assert.equal(s.system.phase,'power');assert.equal(s.powered,true);
  assert.equal(send(s,'back').system.phase,'home');s=send(s,'open');assert.equal(s.system.phase,'shutdown');assert.equal(s.powered,true);assert.equal(send(s,'open'),s);
- s=tickSystem(s,4550);assert.equal(s.powered,false);assert.equal(s.system.phase,'off');
+ s=tickSystem(s,5199);assert.equal(s.system.phase,'shutdown');s=tickSystem(s,5200);assert.equal(s.powered,false);assert.equal(s.system.phase,'off');
  s=send(s,'power');assert.equal(s.system.phase,'boot');assert.equal(s.powered,true);
  s={...home(),system:{...home().system,sleeping:true}};assert.equal(send(s,'open'),s);assert.equal(touchSystem(s,200,225,6200),s);
 });

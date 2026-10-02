@@ -12,6 +12,10 @@ test('scene input quarantine survives the pre-mutation retirement update', () =>
   state = tickSystem(state, 6500);
   state = tickSystem(state, 7500);
   assert.equal(state.system.homeApplicationTransition.phase, 'terminal');
+  state = tickSystem(state, 8500);
+  assert.equal(state.system.homeApplicationTransition.phase, 'exiting');
+  state = tickSystem(state, 9500);
+  assert.equal(state.system.homeApplicationTransition.phase, 'exit-terminal');
   const before = state, now = state.system.homeClock.lastNow + 1000 / 60;
   for (const input of ['open', 'home', 'right', 'touch', 'analog', 'back', 'x']) {
     const allowed = applicationCloseAllowsInput(before.system.homeApplicationTransition, input);

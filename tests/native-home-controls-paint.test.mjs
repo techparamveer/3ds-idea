@@ -30,7 +30,7 @@ async function loadPresentation(name, overrides = {}) {
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
   './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx,_meta,_mode,_sleep,opacity)=>ctx.record('suspended-window',[opacity]);`),
-  './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame]);};'),
+  './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame,exitFrame)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame,exitFrame]);};'),
   './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>false;'),
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
@@ -54,14 +54,26 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    state.system.homeApplicationTransition.phase=frame===20?'terminal':'closing';
    paint(state);
    assert.equal(screens.stockStatus(state),'ready');
-   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[frame]);
+   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[frame,undefined]);
    assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[homeCloseWindowOpacity(frame)]);
    assert.ok(events.findIndex(e=>e.name==='closing-lower')>events.findIndex(e=>e.name==='footer'));
    assert.ok(events.findIndex(e=>e.name==='closing-lower')>events.findIndex(e=>e.name==='hud'));
   }
   screens.setReducedMotion(true);paint(closing);
-  assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20]);
+  assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,undefined]);
   assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[0]);
+  screens.setReducedMotion(false);
+  for(const frame of [0,10,20]){
+   const exiting=structuredClone(closing);
+   Object.assign(exiting.system.homeApplicationTransition,{phase:frame===20?'exit-terminal':'exiting',appQuitFrame:20,dialogExitFrame:frame});
+   paint(exiting);
+   assert.equal(screens.stockStatus(exiting),'ready');
+   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,frame]);
+   assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[0]);
+   screens.setReducedMotion(true);paint(exiting);
+   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,20]);
+   screens.setReducedMotion(false);
+  }
   const switching=structuredClone(closing);switching.system.homeApplicationTransition.intent={kind:'switch',appId:'about'};
   paint(switching);assert.ok(!events.some(e=>e.name.startsWith('closing-')));
   assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[undefined]);
@@ -89,7 +101,7 @@ test('closing paint failures recover both LCDs, cancel safely and survive sleep/
   assert.equal(screens.stockFailure(),null);
   screens.bottom.getContext('2d').failClosing=false;paint(closing);
   assert.equal(screens.stockStatus(closing),'ready');
-  assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[10]);
+  assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[10,undefined]);
  },{screenOptions:{drawSuspendedBackground:()=>true}});
 });
 

@@ -5,7 +5,7 @@ import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts'
 const home=()=>tickSystem(createPortfolioState(),3001);
 const suspended=(title='health-safety')=>reduceSystem(tickSystem(launchHomeShortcut(home(),title,4000),6500),'home',6600);
 const closeActions={command:s=>reduceSystem(s,'back',6700),touch:s=>touchSystem(s,50,225,6700),physical:s=>dispatchSystemEvent(s,{type:'button',source:'physical:X',phase:'down',command:'x'},6700),keyboard:s=>dispatchSystemEvent(s,{type:'button',source:'keyboard:KeyX',phase:'down',command:'x'},6700)};
-const finish=(state,now=6700)=>{state=tickSystem(state,now);state=tickSystem(state,now+1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
+const finish=(state,now=6700)=>{for(let i=0;i<4;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
 for(const [name,close] of Object.entries(closeActions))test(`Health HOME ${name} close retains its owner through terminal then removes it without confirmation`,()=>{
  const before=suspended(),owner=before.system.runtime.application,closing=close(before);

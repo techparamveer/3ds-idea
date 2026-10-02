@@ -484,9 +484,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   }
   if(homeSoftwareClosingDialogKey(state)){
    if(!firmwareAssets)throw Error('Native software-closing resources unavailable');
-   // Source masks share the existing adapted close clock; native start timing
-   // and the buttonless window's parent fade remain untraced.
-   drawHomeSoftwareClosingDialog(firmwareAssets.renderer,t,b,reduced?20:applicationTransition!.appQuitFrame);
+   // The source-selected exit clips use the adapted close clock; their native
+   // start epoch and host cadence still need matched motion verification.
+   const exitFrame=applicationTransition!.dialogExitFrame;
+   drawHomeSoftwareClosingDialog(firmwareAssets.renderer,t,b,reduced?20:applicationTransition!.appQuitFrame,
+    exitFrame===null?undefined:reduced?20:exitFrame);
   }
   if(firmwareAssets)drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets);
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}

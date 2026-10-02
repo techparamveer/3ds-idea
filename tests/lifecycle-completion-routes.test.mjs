@@ -19,6 +19,8 @@ const act = (state, id, now) => dispatchSystemEvent(state, { type: 'action', id 
 const finishClose = (state, now) => {
   state = tickSystem(state, now);
   state = tickSystem(state, now + 1000);
+  state = tickSystem(state, now + 2000);
+  state = tickSystem(state, now + 3000);
   return tickSystem(state, state.system.homeClock.lastNow + 1000 / 60);
 };
 

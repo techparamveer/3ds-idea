@@ -15,7 +15,22 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [footer backing](home-footer-backing-2026-10-02.md), `8e2a29a1`,
+Latest [page boundary](home-page-boundary-2026-10-02.md), `ddea6d53`, fixes
+the persistent right arrow, open-ended tray and keyboard/gesture escape beyond
+the captured root slot59. Source geometry/input use60 exposed slots while
+preserving300 stored slots through labelled high-slot compatibility. Six native
+right-edge regions now have zero pixels above delta2, maximum2; the settled
+footer edge also meets tolerance. Desktop/mobile/reduced endpoint sequences
+match59 ->53 ->59 ->59. Final1,827 tests/build/typecheck pass. The exposed
+first-root footer ROI also improves41 ->0 above2/max1. A suspected missing
+folder arrow was a visual misread, disproved by exact regional bytes; candidate
+47915d8b is reverted by e83d55de. Runtime remains equivalent to ddea6d53.
+Whole LCDs, exact
+input/motion/audio, native growth rules, population/epochs and shade/text remain
+open. Next: matched remaining footer/text or cursor states, not another arrow
+or tray-boundary audit. Preserve other designs.
+
+Earlier [footer backing](home-footer-backing-2026-10-02.md), `8e2a29a1`,
 restores the decoded native stripe band beneath the separate footer. Fixed raw
 native/browser ROI improves from 8,960 to41 pixels above delta2 without a mask
 or fit. Keep the remaining top-right edge, settled footer shade and whole-screen
@@ -23,8 +38,9 @@ differences open. Full1,820 tests/build/typecheck pass; desktop/mobile pointer
 replays and seven unchanged stock LCD targets support the change. The slowed
 native capture establishes pixels only, not cadence. Preserve other designs.
 Folder Settings backing also improves6,814 ->31 above2 against existing native
-own-PNG controls. Next: captured top-right backing edge and remaining footer
-text/shade, without reopening the resolved full-base composition decision.
+own-PNG controls. The subsequent boundary correction above resolves its settled
+top-right edge; footer text/shade remains open. Do not reopen the resolved
+full-base composition decision.
 
 Earlier [folder footer return](home-folder-footer-return-2026-10-02.md),
 9371c576, restores staged Settings/Open entry after root selection returns.

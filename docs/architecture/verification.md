@@ -1,5 +1,20 @@
 # Verification and evidence architecture
 
+[Page boundary](../home-page-boundary-2026-10-02.md) distinguishes stored
+capacity from captured exposed slots. Verify six-row no-arrow/no-scroll state,
+five-row centered/origin/endpoint poses, density restoration and keyboard
+last-column rejection with the same real inputs. High-slot save compatibility
+is a labelled adaptation, not proof of native allocation. All six fixed
+right-edge regions now meet delta2, without masks or fits; unmatched population
+and cursor/banner/HUD epochs still prevent whole-screen acceptance. Compare
+the footer edge separately from arrow art: its y212..213 strip is outside the
+arrow clip and was affected by the incorrectly extended tray/shadow.
+First-root motion comparison also closes that footer ROI to maximum1. A
+small-image visual suspicion of a missing folder arrow was disproved by
+byte-identical fixed arrow crops and identical source poses; do not infer a
+missing control from full-frame cursor/backdrop differences. Candidate47915d8b
+is reverted at e83d55de, retaining an actual folder-painter routing regression.
+
 [Footer backing](../home-footer-backing-2026-10-02.md) compares native own-PNG
 pixels with actual production first-root LCDs in the fixed x0/y212/320x28 ROI,
 without fitting or masking. The source base is the complete320x240 layout;
@@ -7,8 +22,8 @@ the footer is a later overlay. Test settled root/Create Folder controls as well
 as the revealed transition because the clip correction applies to every root
 paint. A temporary10% native frame limit can expose an intermediate pixel
 state but cannot validate timing. Restore the isolated configuration, verify it
-byte-for-byte, and capture normal-speed controls separately. The remaining41
-edge pixels and whole-screen residual are failures, not accepted exclusions.
+byte-for-byte, and capture normal-speed controls separately. The later boundary
+correction above closes the41 edge pixels; whole-screen residuals remain fail.
 
 [Folder footer return](../home-folder-footer-return-2026-10-02.md) separates
 desktop diagnostic motion from native own-PNG pixel evidence. The recorder's

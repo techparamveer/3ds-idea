@@ -1,5 +1,30 @@
 # Workstream Registry
 
+## Page Boundary - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree
+`3ds-home-page-boundary-20261002`, matching `codex/` branch, base64d78005.
+Sourcefc92e897 -> integratedddea6d53; docs97ce942d ->18752e25. Comparator
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` wrote private reports/sheets only.
+Both Sol5.6/high. Independent Sol5.6/high subagent reviewed input, motion and
+persistence, finding no remaining defect after draft fixes;216 density cases,
+high-slot round trips and88 focused tests passed. No worker GUI; old trees intact.
+
+Final full1,827 pass/0 fail/23 skip/1 TODO, build/typecheck pass. Native
+and actual production desktop/mobile/reduced endpoint behavior match; six
+fixed right-edge ROIs have0 above2/max2, settled footer edge0/max1. Whole
+LCDs and exact motion/input/audio remain fail/unverified. Captured60-slot
+exposure preserves300-slot data through a labelled adaptation. Workers are
+idle. Candidate904d5567 ->47915d8b addressed a coordinator visual misread, not
+a real missing folder arrow;9ed4461d ->e83d55de removes it. Exact arrow pixels
+and posed layouts were always unchanged. Final src/public equal ddea6d53,
+with one extra actual painter regression. Motion footer ROI41 ->0 above2/max1;
+seven static stock LCD targets remain exact. No speculative backdrop policy.
+Final controls run at e83d55de completes five pairs, muted/no errors; arrow
+regions remain byte-identical. Native and owned Chrome exited0; preview3021
+session18144 is ready. All workers are idle and previous worktrees preserved.
+[Source and evidence](../home-page-boundary-2026-10-02.md).
+
 ## Footer Backing - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree

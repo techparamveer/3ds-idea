@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { createPortfolioState } from '../src/os/system.ts';
+import { createPortfolioState, launchHomeShortcut, tickSystem, reduceSystem } from '../src/os/system.ts';
 import { createHomeInputAdapter } from '../src/os/home-input-adapter.ts';
 import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
 import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src/os/home-cursor-presentation.ts';
@@ -376,6 +376,18 @@ test('HOME footer samples source alpha glyphs directly at LCD centres', () => {
   assert.equal(calls[0].options.textCoverageAdaptation, undefined);
   assert.deepEqual(calls[0].options.clip, [0, 210, 320, 30]);
   assert.equal(calls[0].options.overrides.T_BtnFW_C_01.text, 'Open');
+});
+
+test('suspended software footer uses the source X Close glyph while folder Close stays separate',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(ctx,bank,name,options){calls.push(options);return true;}};
+ const presenter=createFirmwareHome({renderer});
+ const state=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000),6500),'home',6600);
+ presenter.footer({},state);
+ const native=messagesPack.messages.menu_msbt_LZ;
+ const label=native.messages[native.labels.lau_3b_quit].text;
+ assert.equal(label,'\ue071 Close');
+ for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW'])assert.equal(calls[0].overrides[`${prefix}_L_03`].text,label);
+ assert.notEqual(label,native.messages[native.labels.lau_2b_close].text);
 });
 
 test('retained primary and both effects paint in order outside tile clipping using applied poses', async () => {

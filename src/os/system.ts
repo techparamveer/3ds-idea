@@ -72,6 +72,16 @@ export function launchHomeShortcut(state:MenuState,id:string,now:number):MenuSta
  }
  return launch(state,id,now);
 }
+function requestApplicationClose(state:MenuState,now:number):MenuState {
+ const s=state.system!;
+ const owner=s.runtime.application?s.runtime.instances[s.runtime.application]:undefined;
+ // Observed Health HOME Close returns directly; do not generalize its policy to other titles or switching.
+ if(s.phase==='home'&&s.app==='health-safety'&&owner?.appId===s.app&&selectedTitle(state)?.id===owner.appId&&owner.suspended&&!owner.closing&&s.runtime.active===null&&s.runtime.homeReturn===owner.id){
+  const closed=syncRuntime(state,closeApplication(s.runtime,now),'home');
+  return {...closed,system:{...closed.system!,dialog:null,pending:null,input:createInputLatch()}};
+ }
+ return {...state,system:{...s,dialog:'close',input:createInputLatch()}};
+}
 export function invokeSystemApplet(state: MenuState, appId: string, now: number, args: AppState = {}): MenuState {
  state=resetHomeNavigation(cancelSystemHomeFolderClose(state));
  const s=state.system;if(!s||getTitle(appId)?.kind==='application')return state;
@@ -233,7 +243,7 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
   return touchSystem(state,anchor.x,anchor.y,now);
  }
  if(input==='open'&&!state.panel){const title=selectedTitle(state);if(title)return launch(state,title.id,now);}
- if(input==='back'&&!state.panel&&!state.opened&&s.app)return change({dialog:'close',input:createInputLatch()});
+ if((input==='back'||input==='x'&&selectedTitle(state)?.id===s.app)&&!state.panel&&!state.opened&&s.app)return requestApplicationClose(state,now);
  return reduceMenu(state,state.panel==='home-layouts'&&(input==='x'||input==='y')?input:input==='x'?'zoom':input==='y'?'brightness':input==='select'?'zoom':input==='l'?'left':input==='r'?'right':input);
 }
 const toolbarApps:Record<string,string>={notes:'game-notes',friends:'friends',notifications:'notifications',browser:'browser',miiverse:'miiverse'};
@@ -267,7 +277,7 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  if(isHomeFolderBackTouch(state,x,y))return send('back');
  if(!state.panel&&y>=212&&selectedTitle(state)){
   if(state.opened)return send(x<100?'back':'open');
-  if(x<100&&s.app)return {...state,system:{...s,dialog:'close',input:createInputLatch()}};
+  if(x<100&&s.app)return requestApplicationClose(state,now);
   if(x<100&&selectedTitle(state)?.id==='system-settings')return invokeSystemApplet(state,'manual',now,{manualTitleId:'0004001000022000'});
   return send('open');
  }

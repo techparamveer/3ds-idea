@@ -15,6 +15,13 @@ New workstream dispatches use GPT-6 Astra/high; future subagents use GPT-6.1
 Sol/high, at normal speed, no Fast. The latest request supersedes Fast; chat service tier cannot
 be changed or verified through dispatch tools. No new priority-only helpers.
 
+The [Health Close correction](health-close-native-2026-10-02.md) at `3d5e533c`
+delivers selected Health direct close and source X Close glyph/input. Fresh
+native and eleven browser pairs support that bounded outcome, not motion or
+whole-scenario parity. Native Health-to-Camera switch now supplies the next
+defect: icon header/no unsaved warning, correct Camera upper presentation.
+Suspended/closed/switch diagnostics all fail; L-06/L-07 remain partial.
+
 The [source close/switch dialog](home-software-dialog-2026-10-02.md) at
 `f17a1007` replaces the authored frame/glyphs and touch bounds, preserving
 same-button ownership and paired failure recovery. Eleven browser pairs and

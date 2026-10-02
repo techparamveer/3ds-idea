@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+The [Health Close replay](../health-close-native-2026-10-02.md) at `3d5e533c`
+adds five fresh native captures and eleven inspected production pairs. Native
+Health closes directly; its Camera switch uses an icon header without the
+generic unsaved warning. Empty-mask suspended/closed/switch diagnostics remain
+95284/51196,35123/47525,96000/24433. Input/timing/population differ, all audio
+is muted, no matrix acceptance. Startup modal dismissal and disabling mapped
+touch both preceded recovered native input; do not claim an isolated cause.
+
 The [source close/switch dialog](../home-software-dialog-2026-10-02.md) at
 `f17a1007` has eleven inspected production pairs, source-bounded touch checks
 and full1668 passing tests. Native menu boot supplied a fresh HOME capture,

@@ -25,6 +25,12 @@ worktrees without GUI. [Evidence and residuals](../home-settings-integration-202
 
 The [completion map](../feature-map.md) defines scope, status and acceptance.
 
+Coordinator `3d5e533c` adds selected Health direct close and source X Close;
+[fresh native/browser evidence](../health-close-native-2026-10-02.md) still
+fails whole-scenario acceptance. Next reserved coordinator slice: native
+Health-to-Camera icon-header dialog and upper-screen publication, then closing
+motion. No new worker dispatch; normal/noFast remains unverified by tools.
+
 Coordinator close/switch delivery `f17a1007` replaces authored modal art with
 source dialog/masks/messages, source button bounds and paired readiness.
 [Eleven-pair browser evidence](../home-software-dialog-2026-10-02.md) verifies

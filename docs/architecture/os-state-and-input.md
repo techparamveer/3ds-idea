@@ -1,5 +1,12 @@
 # Software state, input and presentation
 
+[Selected Health close](../health-close-native-2026-10-02.md), runtime `3d5e533c`,
+uses existing host cleanup without confirmation only for the selected,
+suspended, nonclosing retained Health owner with matching HOME return and no
+active instance. X, footer touch and compatibility Back share this gate.
+Other titles, unselected-owner compatibility close and switching retain the
+existing confirmation policy. Native closing timing remains unimplemented.
+
 Software close/switch presentation now uses [source dialog assembly](../home-software-dialog-2026-10-02.md).
 `homeSoftwareDialogKey` identifies kind, retained owner and pending title for
 paired readiness even when another HOME title is selected. Recovery cancels

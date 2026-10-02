@@ -13,7 +13,7 @@ import { homeTitles, getTitle } from '@/os/app-registry';
 import { currentEntry, getActiveAppView, invokeSystemApplet, launchHomeShortcut, selectedTitle } from '@/os/system';
 import { createMenuAudio, type Sound } from '@/os/audio';
 import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClockObserved, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
-import { enableHomeControls, reconcileHomeControls } from '@/os/home-controls';
+import { enableHomeControls, reconcileHomeControls, isHomeSwitchPresentationActive } from '@/os/home-controls';
 import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
 import { createRuntimeEffects } from '@/os/runtime-effects';
 import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, getHomeBannerCloseReadyUpdate, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
@@ -249,9 +249,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();}
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
-    const system=state.system!,inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog||system.preferences||!!state.panel||homeClockSuspended;
+    const system=state.system!,switchPresentation=isHomeSwitchPresentationActive(state),inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog&&!switchPresentation||system.preferences||!!state.panel||homeClockSuspended;
     const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:true,resourceReady:bannerHost.inputs.resourceReady};
-    bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:selection??(system.homeControls?undefined:resolveHomeBannerHostSelection(state)),inputs});
+    bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:selection??(switchPresentation?{kind:'app',id:system.pending!}:system.homeControls?undefined:resolveHomeBannerHostSelection(state)),inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
     // Retain both outgoing and incoming requests until the manager retires
     // the old primary. Each title has its own resource owner and ticket.

@@ -2,7 +2,7 @@ import {systemTransitionDuration} from './system-transitions.ts';
 import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { createHomeCursorLoop, advanceHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
-import { cancelHomeControls, cancelHomeControlTouch, isHomeControlsActive, queueHomeControlEvent, queueHomeControlTouch, reconcileHomeControlGesture, reconcileHomeControls, selectHomeControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
+import { cancelHomeControls, cancelHomeControlTouch, isHomeControlsActive, isHomeSwitchPresentationActive, queueHomeControlEvent, queueHomeControlTouch, reconcileHomeControlGesture, reconcileHomeControls, selectHomeControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
 import { getHomeToolbarCursorAnchor } from './home-cursor-presentation.ts';
 export { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHomeFolderCloseRecord, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { getApp } from './apps.ts';
@@ -98,7 +98,7 @@ export function tickHomeNavigationClockObserved(state: MenuState, now: number, r
  state=reconcileSystemHomeFolderClose(state);
  const s=state.system;if(!s||!Number.isFinite(now))return {state,passes:[]};
  const active=isHomeControlsActive(state);
- const stepped=stepHomeUpdateClock(s.homeClock,now,active);
+ const stepped=stepHomeUpdateClock(s.homeClock,now,active||isHomeSwitchPresentationActive(state));
  if(active&&s.homeControls){
   const passes:HomeControlPass[]=[];
   if(stepped.updates===0&&stepped.clock!==s.homeClock)state={...state,system:{...s,homeClock:stepped.clock}};

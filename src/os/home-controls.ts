@@ -48,6 +48,11 @@ export function isHomeControlsActive(state: MenuState): boolean {
   const s = state.system;
   return !!s && state.powered && s.phase === 'home' && !s.sleeping && !s.dialog && !s.preferences && !state.panel;
 }
+/** Native switch confirmation leaves the upper banner running, not the HOME input tasks. */
+export function isHomeSwitchPresentationActive(state: MenuState): boolean {
+  const s=state.system;
+  return !!s&&state.powered&&s.phase==='home'&&!s.sleeping&&!s.preferences&&!state.panel&&s.dialog==='switch'&&!!s.pending;
+}
 function put(state: MenuState, controls: HomeControls): MenuState {
   return { ...state, system: { ...state.system!, homeControls: Object.freeze({ ...controls,
     tilePoses: homeTileTouchPoses(controls.tileTouch, controls.tilePoses) }) } };

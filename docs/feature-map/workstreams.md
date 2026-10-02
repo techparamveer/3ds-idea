@@ -17,6 +17,9 @@ pass; whole-scenario fidelity remains fail. Prior trees are preserved; no
 service-tier or coordinator-model change is claimed. The source chat and
 reviewer are idle. Comparison results are recorded in the
 [owned handoff](../workstream-handoffs/home-folder-delete-compare.md).
+Final comparison `e32ad877` integrated as `8c4f6294`; the comparison chat is
+also idle. Both fixed-coordinate sheets were inspected by the coordinator.
+Dedicated Chrome and isolated Azahar exited 0; preview 3021 remains ready.
 
 ## Folder Settings - 2 October 2026
 

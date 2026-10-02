@@ -17,6 +17,7 @@ import { createHomeLayoutManager, type HomeLayoutPreview } from './home-native-l
 import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareSwitchTitles,drawHomeSoftwareDialog} from './home-software-dialog';
 import {drawHomeSoftwareClosingDialog} from './home-software-closing-dialog';
 import { homeSuspendedApplication, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
+import { homeCloseWindowOpacity } from './home-close-window-fit';
 import { createHomeSuspendedPresentation, getHomeSuspendedSleepFrame, syncHomeSuspendedPresentation } from './home-suspended-presentation';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { getHomeFolderIdentity } from './home-folder-identity';
@@ -451,7 +452,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     }else throw Error('Unsupported suspended title');
     suspendedMetadata={owner:suspended.id,metadata:{description,icon:{width:64,height:64,data:ctx.getImageData(0,0,64,64).data}}};
    }
-   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',suspendedSleepFrame);
+   const closeOpacity=homeSoftwareClosingDialogKey(state)?homeCloseWindowOpacity(reduced?20:applicationTransition!.appQuitFrame):undefined;
+   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',suspendedSleepFrame,closeOpacity);
   }
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.

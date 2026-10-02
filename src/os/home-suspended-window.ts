@@ -35,16 +35,17 @@ export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRe
  if(!renderer.draw(ctx,'launcher',name,{center:[...center],bindings,pictureSampling:'lcd'}))throw Error('Native suspended icon draw failed');
 }
 
-/** Source settled geometry plus its Sleep loop; opening/closing motion stays out of scope. */
-export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0){
+/** Source geometry and Sleep loop. Close opacity is an explicit capture-fit input. */
+export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number){
  const pack=renderer.packs.launcher,bank=renderer.packs.messages?.messages.menu_msbt_LZ;
  validateSleepFrame(sleepFrame);
+ if(closeOpacity!==undefined&&(!Number.isFinite(closeOpacity)||closeOpacity<0||closeOpacity>1))throw new RangeError('Invalid suspended close opacity');
  const bindings=[
   {name:'LncBase_U_00_SceneIn',frame:40},
   {name:'LncBase_U_00_Appear',frame:10},
   {name:'LncBase_U_00_ScaleUpDown',frame:mode==='expanded'?15:0},
   {name:'LncBase_U_00_Sleep',frame:sleepFrame},
-  {name:'LncBase_U_00_WhiteBlack',frame:1},
+  {name:'LncBase_U_00_WhiteBlack',frame:closeOpacity===undefined?1:0},
  ];
  if(!pack?.layouts.LncBase_U_00)throw Error('Native suspended window layout unavailable');
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended window animation unavailable: ${binding.name}`);
@@ -60,6 +61,7 @@ export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:Canvas
  const centerOffset=mode==='expanded'?125-width/2:0;
  if(!renderer.draw(ctx,'launcher','LncBase_U_00',{bindings,textSampling:'lcd',pictureSampling:'lcd',
   textures:{'runtime:suspended-icon':metadata.icon},overrides:{
+   ...(closeOpacity===undefined?{}:{N_Wndw_00:{alpha:Math.round(255*closeOpacity)}}),
    T_TextTop_00:message('lau_pose_title_u'),T_AppTitle_00:{text:metadata.description,visible:mode==='expanded'},
    T_TextBtmR_00:resume,N_TestCenter_00:{translation:[centerOffset,0,0]},P_Icon_00:{textureBindings:{0:'runtime:suspended-icon'}},
   },

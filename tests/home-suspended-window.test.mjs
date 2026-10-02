@@ -125,3 +125,20 @@ test('unavailable window sources and metadata fail explicitly instead of drawing
  assert.throws(()=>drawHomeSuspendedWindow({packs,draw(){return true;}},{},{...metadata(),description:''}),/metadata unavailable/);
  assert.throws(()=>drawHomeSuspendedWindow({packs,measureSingleLineText(){return 222;},draw(){return false;}},{},metadata()),/draw failed/);
 });
+
+test('close opacity changes only the fixed window group and selects native light camera hints',()=>{
+ const before=JSON.stringify(packs);
+ for(const mode of ['expanded','compact'])for(const opacity of [1,.5,0]){
+  let options;const renderer={packs,measureSingleLineText(){return 222;},draw(_ctx,_pack,_name,value){options=value;return true;}};
+  drawHomeSuspendedWindow(renderer,{},metadata(),mode,0,opacity);
+  const pose=poseNativeLayout(packs.launcher.layouts.LncBase_U_00,packs.launcher.animations,options.bindings,options.overrides);
+  const pane=name=>nativePaneParentPath(pose,name).at(-1);
+  assert.equal(pane('N_Wndw_00').alpha,Math.round(255*opacity));
+  assert.deepEqual(pane('N_Root_00').scale,[1,1]);
+  assert.deepEqual(pane('N_WndwScale_00').translation,mode==='expanded'?[0,2,3]:[-176,78,0]);
+  assert.equal(options.bindings.find(b=>b.name.endsWith('_WhiteBlack')).frame,0);
+  assert.ok(!options.bindings.some(b=>b.name.endsWith('_SceneOut')));
+ }
+ assert.equal(JSON.stringify(packs),before);
+ for(const opacity of [-1,1.01,NaN,Infinity])assert.throws(()=>drawHomeSuspendedWindow({packs},{},metadata(),'expanded',0,opacity),RangeError);
+});

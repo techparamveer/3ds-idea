@@ -164,7 +164,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     backgroundScene.add(background.group);
     try {
       suspendedPlaceholder = asset.images.get('BG_DmyApp_00');
-      suspendedBackground = createFirmwareModel(suspendedBackgroundAsset(asset), suspendedBackgroundPlayback(), { drawGroup: 0 });
+      suspendedBackground = createFirmwareModel(suspendedBackgroundAsset(asset), suspendedBackgroundPlayback(), { drawGroup: 0, nativeBorderSampling: true });
       suspendedScene.add(suspendedBackground.group);
     } catch (error) { suspendedBackgroundFailure = String(error); }
   }).catch(error=>{if(!disposed)backgroundFailure=String(error);});

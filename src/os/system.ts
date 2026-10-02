@@ -13,7 +13,8 @@ import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout, isPreviousDefaultAppLayout } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, setHomeSettingsScroll, type MenuState, type Input } from './state.ts';
-import { homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt, softwareDialogActionAt } from './stock-screen-layout.ts';
+import { HOME_FOOTER_TOUCH_GEOMETRY, homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt, softwareDialogActionAt } from './stock-screen-layout.ts';
+import { homeFooterHit, ownedHomeFooterContact } from './home-footer-touch.ts';
 import { serializeHomeSavedLayouts, restoreHomeSavedLayouts } from './home-saved-layouts.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
@@ -387,9 +388,13 @@ function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number)
   }
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&!s.sleeping){
    const native=queueHomeControlTouch(state,event);
+   const contact=native.state.system?.homeNavigation.gesture;
+   const footerRelease=event.phase==='up'?homeFooterHit(native.state,HOME_FOOTER_TOUCH_GEOMETRY,event.x,event.y):null;
+   const footerOwner=event.phase==='up'?ownedHomeFooterContact(native.state,HOME_FOOTER_TOUCH_GEOMETRY,contact,event.x,event.y):null;
    const result=touchHomeGesture(native.state,event,now);
    const next=result.nonTapGesture?cancelHomeControlTouch(result.state):reconcileHomeControlGesture(result.state);
-   return result.tap&&!native.handled?touchSystem(next,event.x,event.y,now):next;
+   if(!result.tap||native.handled)return next;
+   return footerRelease&&!footerOwner?next:touchSystem(next,event.x,event.y,now);
   }
  }
  if(event.type==='button'||event.type==='analog'||event.type==='command'){

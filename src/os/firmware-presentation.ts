@@ -14,6 +14,8 @@ import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeS
 import { selectNotesMetadata } from './notes-title-metadata';
 import { drawHomeSuspendedIcon } from './home-suspended-window';
 import { homeSoftwareSwitchTitles } from './home-software-dialog';
+import { ownedHomeFooterContact } from './home-footer-touch';
+import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
@@ -253,9 +255,10 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   // Captured switch dialogs have no footer; use the source's settled out pose.
   const bindings=[homeSoftwareSwitchTitles(state)?binding('LncBtmBtn_02_SceneOut',14):!reduced&&close&&close.controller.phase!=='complete'
    ?binding('LncBtmBtn_02_SceneOut',Math.min(14,state.system!.homeClock.updateCount-close.startedAtUpdate))
-   :binding('LncBtmBtn_02_SceneIn',15)],gesture=getHomeGestureView(state);
-  if(!state.panel&&gesture?.mode==='press'&&gesture.y>=212&&gesture.y<240&&gesture.x>=0&&gesture.x<320){
-   const group=two?(gesture.x<100?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));
+   :binding('LncBtmBtn_02_SceneIn',15)];
+  const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);
+  if(pressed){
+   const group=two?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));
   }
   return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings,overrides,clip:[0,210,320,30],textSampling:'lcd'});
  }

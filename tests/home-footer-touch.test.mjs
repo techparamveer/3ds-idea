@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {homeFooterHit,ownedHomeFooterContact} from '../src/os/home-footer-touch.ts';
 import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts';
 import {createPortfolioState,dispatchSystemEvent,tickSystem} from '../src/os/system.ts';
+import {HOME_FOOTER_TOUCH_GEOMETRY as geometry} from '../src/os/stock-screen-layout.ts';
 
-const geometry={x:0,y:212,width:320,height:28,leftWidth:100};
 const booted=()=>tickSystem(createPortfolioState(),3001);
 const selected=(state,id)=>settleHomeNavigation(selectHomeSlot(state,Number(Object.entries(state.system.layout).find(([,value])=>value===id)[0])));
 const down=(state,x,y)=>dispatchSystemEvent(state,{type:'touch',phase:'down',pointerId:7,x,y},4000);
@@ -53,4 +53,22 @@ test('single source button owns the full footer only when the press also began t
  }
  const gap=down(work,160,210);
  assert.equal(ownedHomeFooterContact(gap,geometry,gesture(gap),160,214),null);
+});
+
+test('live HOME release cannot acquire a footer button across the split or from the gap',()=>{
+ for(const [start,end] of [[[98,226],[102,226]],[[102,226],[98,226]],[[160,210],[160,214]],[[160,214],[160,210]]]){
+  let state=down(selected(booted(),'system-settings'),...start);
+  state=dispatchSystemEvent(state,{type:'touch',phase:'move',pointerId:7,x:end[0],y:end[1]},4050);
+  state=dispatchSystemEvent(state,{type:'touch',phase:'up',pointerId:7,x:end[0],y:end[1]},4100);
+  assert.equal(state.system.phase,'home');assert.equal(state.system.app,null);assert.equal(state.system.applet,undefined);
+ }
+});
+
+test('live HOME release preserves same-button Open and rejects cancelled or scrolling contacts',()=>{
+ for(const [end,phase,opens] of [[[164,226],'up',true],[[180,226],'up',false],[[164,226],'cancel',false]]){
+  let state=down(selected(booted(),'work'),160,226);
+  state=dispatchSystemEvent(state,{type:'touch',phase:'move',pointerId:7,x:end[0],y:end[1]},4050);
+  state=dispatchSystemEvent(state,{type:'touch',phase,pointerId:7,x:end[0],y:end[1]},4100);
+  assert.equal(state.system.phase,opens?'launch':'home');
+ }
 });

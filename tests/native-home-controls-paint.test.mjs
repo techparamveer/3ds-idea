@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { createPortfolioState, launchHomeShortcut, tickSystem, reduceSystem } from '../src/os/system.ts';
+import { createPortfolioState, dispatchSystemEvent, launchHomeShortcut, tickSystem, reduceSystem } from '../src/os/system.ts';
 import { createHomeInputAdapter } from '../src/os/home-input-adapter.ts';
 import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
 import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src/os/home-cursor-presentation.ts';
@@ -392,6 +392,17 @@ test('suspended software footer uses the source X Close glyph while folder Close
  assert.equal(calls[0].overrides.N_BtnW_L_03.visible,false);
  assert.equal(calls[0].overrides.N_BtnW_R_02.visible,true);
  assert.notEqual(label,native.messages[native.labels.lau_2b_close].text);
+});
+
+test('footer Select artwork follows the same down-owner rule as release activation',()=>{
+ const calls=[],presenter=createFirmwareHome({renderer:{packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}}});
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6500),'home',6600);
+ for(const [start,end,pressed]of [[[98,226],[102,226],false],[[102,226],[98,226],false],[[160,210],[160,214],false],[[160,226],[164,226],true]]){
+  let state=dispatchSystemEvent(suspended,{type:'touch',phase:'down',pointerId:7,x:start[0],y:start[1]},6700);
+  state=dispatchSystemEvent(state,{type:'touch',phase:'move',pointerId:7,x:end[0],y:end[1]},6750);
+  presenter.footer({},state);
+  assert.equal(calls.at(-1).bindings.some(b=>b.name==='LncBtmBtn_02_Select'),pressed);
+ }
 });
 
 test('valid switch hides source footer and cancel restores it without mutating footer actions',()=>{

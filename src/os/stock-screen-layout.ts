@@ -1,6 +1,9 @@
 import type { AppView, JsonValue } from './app-types';
 import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
 
+/** LncBtmBtn_02 live HOME hit bounds and its asymmetric two-button split. */
+export const HOME_FOOTER_TOUCH_GEOMETRY={x:0,y:212,width:320,height:28,leftWidth:100} as const;
+
 /** home.dialog/Dlg_A_D_02 Bounding_00/01 at the settled source pose. */
 export const SOFTWARE_DIALOG_BUTTONS = [
   {action: 'back', x: 20, y: 180, width: 139, height: 40},

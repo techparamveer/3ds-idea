@@ -7,7 +7,7 @@ import { createHomePrimaryCursor, setHomePrimaryCursorRequest, updateHomePrimary
 import { createHomeCursorPresentation, consumeHomeCursorObservation, advanceHomeCursorPresentation,
   updateHomeCursorEffectPositions, type HomeCursorPresentation } from './home-cursor-presentation.ts';
 import { advanceHomeCursorLoop } from './home-cursor-loop.ts';
-import { activeHomeRecord, sampleHomeGrid, writeHomeNavigation, type HomeNavigation } from './home-navigation.ts';
+import { activeHomeRecord, getHomeExposedExtent, sampleHomeGrid, writeHomeNavigation, type HomeNavigation } from './home-navigation.ts';
 import { consumeHomeGridKeyEvent, selectHomeTouchSlot, type HomeScrollObservation, type HomeScrollState } from './home-scroll-consumer.ts';
 import { advanceSystemHomeFolderCloseNative, consumeSystemHomeFolderCloseInput,
   isSystemHomeFolderClosing, sampleSystemHomeFolderClose } from './home-folder-close-system.ts';
@@ -62,6 +62,9 @@ function writeScroll(state: MenuState, scroll: HomeScrollState): MenuState {
   return scroll.cursorLoop === state.system!.homeCursorLoop ? state
     : { ...state, system: { ...state.system!, homeCursorLoop: scroll.cursorLoop } };
 }
+const homeScrollState=(state:MenuState,navigation=state.system!.homeNavigation):HomeScrollState=>({
+  navigation,cursorLoop:state.system!.homeCursorLoop,extent:getHomeExposedExtent(state),
+});
 function selectedCenter(navigation: HomeNavigation) {
   const grid = sampleHomeGrid(navigation), slot = grid.slots[activeHomeRecord(navigation).selectedSlot];
   return { x: slot.x - grid.scrollPixels, y: slot.y };
@@ -132,7 +135,7 @@ export function cancelHomeControls(state: MenuState): MenuState {
   if (!controls) return state;
   const close = sampleSystemHomeFolderClose(state), event = { type: 7 as const, mask: 0x30 };
   if (close && isSystemHomeFolderClosing(state)) state = consumeSystemHomeFolderCloseInput(state, close.controller.identity, event).state;
-  else state = writeScroll(state, consumeHomeGridKeyEvent({ navigation: state.system!.homeNavigation, cursorLoop: state.system!.homeCursorLoop }, event).state);
+  else state = writeScroll(state, consumeHomeGridKeyEvent(homeScrollState(state), event).state);
   return put(state, { ...controls, input: createHomeInputAdapter(), producer: createHomeInputProducer(),
     tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null, tilePickup: null });
 }
@@ -152,7 +155,7 @@ function observe(controls: HomeControls, observations: readonly HomeScrollObserv
 export function selectHomeControlTouch(state: MenuState, slot: number): MenuState | null {
   const controls = state.system?.homeControls;
   if (!controls || !isHomeControlsActive(state)) return null;
-  const result = selectHomeTouchSlot({ navigation: state.system!.homeNavigation, cursorLoop: state.system!.homeCursorLoop }, slot);
+  const result = selectHomeTouchSlot(homeScrollState(state), slot);
   if (result.disposition === 'unsupported') return null;
   return put(writeScroll(state, result.state), observe({ ...controls, tileCandidate: null }, result.observations));
 }
@@ -234,7 +237,7 @@ export function stepHomeControls(state: MenuState): HomeControlPass {
     }
     if (event.value !== 1) continue;
     const nav = state.system!.homeNavigation, oldSlot = activeHomeRecord(nav).selectedSlot, oldToolbar = nav.focus.toolbarActive;
-    const accepted = selectHomeTouchSlot({ navigation: nav, cursorLoop: state.system!.homeCursorLoop }, event.slot);
+    const accepted = selectHomeTouchSlot(homeScrollState(state,nav), event.slot);
     if (accepted.disposition === 'unsupported') { unsupportedInput = true; continue; }
     state = writeScroll(state, accepted.state); controls = observe(controls, accepted.observations);
     observations.push(...accepted.observations.map(observation => ({ phase: 'input' as const, observation })));
@@ -262,7 +265,7 @@ export function stepHomeControls(state: MenuState): HomeControlPass {
       }
       continue;
     }
-    const consumed = consumeHomeGridKeyEvent({ navigation: state.system!.homeNavigation, cursorLoop: state.system!.homeCursorLoop }, event);
+    const consumed = consumeHomeGridKeyEvent(homeScrollState(state), event);
     if (consumed.disposition === 'unsupported') { unsupportedInput = true; continue; }
     state = writeScroll(state, consumed.state);
     controls = observe(controls, consumed.observations);

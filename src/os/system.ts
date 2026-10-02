@@ -20,7 +20,8 @@ import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch 
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
 import { homeSlotAppId, moveHomeItem, restoreHomeLayout, selectHomeLocation, type FolderLayouts } from './home-layout.ts';
 import { cancelHomeGesture, createHomeNavigation, resetHomeNavigation, tickHomeGesture, touchHomeGesture, homeTouchLocation, type HomeNavigation } from './home-gestures.ts';
-import { selectHomeSlot, settleHomeNavigation, getHomeNavigation, saveHomeView, restoreHomeView, homeDensityIndex, HOME_DENSITIES, writeHomeNavigation, createHomeGridFocus, createHomeUpdateClock, stepHomeUpdateClock, type HomeUpdateClock } from './home-navigation.ts';
+import { selectHomeSlot, settleHomeNavigation, getHomeNavigation, getHomeExposedExtent, saveHomeView, restoreHomeView, homeDensityIndex, HOME_DENSITIES, writeHomeNavigation, createHomeGridFocus, createHomeUpdateClock, stepHomeUpdateClock, type HomeUpdateClock } from './home-navigation.ts';
+import { pageHomeViewport } from './home-scroll-consumer.ts';
 export { homeSlotAppId, moveHomeItem } from './home-layout.ts';
 export { getHomeGestureView } from './home-gestures.ts';
 export type System = {
@@ -288,6 +289,13 @@ const toolbarApps:Record<string,string>={notes:'game-notes',friends:'friends',no
 export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuState {
  return reconcileHomeControls(state,touchSystemAction(state,x,y,now));
 }
+function pageSystemHomeViewport(state:MenuState,direction:'left'|'right'){
+ const s=state.system;if(!s)return state;
+ const result=pageHomeViewport({navigation:s.homeNavigation,cursorLoop:s.homeCursorLoop,extent:getHomeExposedExtent(state)},direction,1);
+ if(result.state.navigation===s.homeNavigation&&result.state.cursorLoop===s.homeCursorLoop)return state;
+ state=writeHomeNavigation(state,result.state.navigation);
+ return result.state.cursorLoop===s.homeCursorLoop?state:{...state,system:{...state.system!,homeCursorLoop:result.state.cursorLoop}};
+}
 function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuState {
  if(!Number.isFinite(now)||!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>=320||y<0||y>=240)return state;
  state=reconcileSystemHomeApplicationTransition(state);
@@ -325,7 +333,7 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
   return send('open');
  }
  if(!state.panel&&y>=(state.opened?49:34)&&y<204){
-  if(y>=104&&y<158&&(x<20||x>=300))return send(x<20?'left':'right');
+  if(y>=104&&y<158&&(x<20||x>=300))return pageSystemHomeViewport(state,x<20?'left':'right');
   const location=homeTouchLocation(state,x,y);if(!location)return state;
   if(s.homeControls&&!s.homeNavigation.motion){
    // Compatibility one-shot touches use the same sampled widget route.

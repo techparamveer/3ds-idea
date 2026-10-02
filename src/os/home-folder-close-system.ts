@@ -1,7 +1,7 @@
 import type { MenuState } from './state.ts';
 import type { HomeNavigation } from './home-navigation.ts';
 import {
-  getHomeNavigation, isHomeRootSelectionVisible,
+  getHomeExposedExtent, getHomeNavigation, isHomeRootSelectionVisible,
   leaveHomeFolder, settleHomeNavigation, writeHomeNavigation,
 } from './home-navigation.ts';
 import { beginHomeFolderClose, stepHomeFolderClose, resolveHomeFolderCloseRestoration, type HomeFolderClose, type HomeFolderCloseIdentity } from './home-folder-close.ts';
@@ -71,7 +71,7 @@ export function consumeSystemHomeFolderCloseInput(state: MenuState, identity: Ho
     || current.controller.identity.generation !== identity.generation || current.controller.identity.transitionId !== identity.transitionId) {
     return Object.freeze({ state, observations: Object.freeze([]), disposition: 'unsupported' });
   }
-  const consumed = consumeHomeGridKeyEvent({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop }, event);
+  const consumed = consumeHomeGridKeyEvent({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop, extent:getHomeExposedExtent(state) }, event);
   state = writeScroll(state, consumed);
   state = write(state, { ...state.system!.homeFolderClose, navigation: getHomeNavigation(state) });
   return Object.freeze({ state, observations: consumed.observations, disposition: consumed.disposition });
@@ -111,7 +111,7 @@ function advanced(state: MenuState, observations: HomeScrollObservation[] = []):
 }
 function advanceOrdinaryNavigation(state: MenuState, updates: number, reduced: boolean): SystemHomeFolderCloseAdvance {
   if (reduced || state.system!.homeNavigation.gesture) return advanced(reduced ? settleHomeNavigation(state) : state);
-  const result = advanceHomeScroll({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop }, updates);
+  const result = advanceHomeScroll({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop, extent:getHomeExposedExtent(state) }, updates);
   return advanced(writeScroll(state, result), [...result.observations]);
 }
 /** Called only for an active shared-clock batch, after its final count is stored.
@@ -141,13 +141,13 @@ export function advanceSystemHomeFolderCloseNative(state: MenuState, updates: nu
       state = leaveHomeFolder(state);
       // Native ordinary correction is one column. Keep farther damaged history
       // repair explicit at this compatibility boundary.
-      const correction = restoreHomeRootViewport({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop }, { repairFarHistory: true });
+      const correction = restoreHomeRootViewport({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop, extent:getHomeExposedExtent(state) }, { repairFarHistory: true });
       state = writeScroll(state, correction);
       observations.push(...correction.observations.map(observation => Object.freeze({ ...observation, updateOffset: i })));
       restoredAtUpdate = update;
     } else if (record.controller.phase === 'viewport') {
       // Native mode3 geometry advances on each counted viewport task pass.
-      const viewport = advanceHomeScroll({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop }, 1);
+      const viewport = advanceHomeScroll({ navigation: getHomeNavigation(state), cursorLoop: state.system!.homeCursorLoop, extent:getHomeExposedExtent(state) }, 1);
       state = writeScroll(state, viewport);
       observations.push(...viewport.observations.map(observation => Object.freeze({ ...observation, updateOffset: i })));
     }

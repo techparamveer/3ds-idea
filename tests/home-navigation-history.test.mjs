@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createPortfolioState, tickSystem, reduceSystem, launch, saveSettings, restoreSettings, releaseSystemInputs, setSystemSleeping } from '../src/os/system.ts';
 import { reduceMenu, menuTiles } from '../src/os/state.ts';
 import { moveHomeItem, selectHomeLocation } from '../src/os/home-layout.ts';
-import { getHomeNavigation, getHomeNavigationView, setHomeDensity as setHomeDensityMotion, selectHomeSlot as selectHomeSlotMotion, enterHomeFolder, leaveHomeFolder, maxHomeLeftSlot } from '../src/os/home-navigation.ts';
+import { getHomeExposedExtent, getHomeNavigation, getHomeNavigationView, setHomeDensity as setHomeDensityMotion, selectHomeSlot as selectHomeSlotMotion, enterHomeFolder, leaveHomeFolder, maxHomeLeftSlot } from '../src/os/home-navigation.ts';
 const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
 const selectHomeSlot=(state,slot)=>settleHomeNavigation(selectHomeSlotMotion(state,slot));
 const home = () => tickSystem(createPortfolioState(), 3001);
@@ -89,4 +89,13 @@ test('invalid v4 view records reset independently without discarding layout or v
   }
   const value = structuredClone(saved); value.homeView.activeFolderSlot = 99; value.homeView.folderViews[99] = value.homeView.folderViews[40];
   const restored = restoreSettings(home(),JSON.stringify(value)); assert.equal(restored.opened,false); assert.equal(getHomeNavigation(restored).folderViews[99],undefined);
+});
+test('compatibility exposure preserves an existing high-slot occupant and selection across v4 persistence',()=>{
+ let state=home(),layout={...state.system.layout};layout[299]=layout[0];delete layout[0];
+ state={...state,system:{...state.system,layout}};state=selectHomeSlot(state,299);
+ assert.equal(getHomeExposedExtent(state),300);assert.equal(getHomeNavigation(state).rootView.selectedSlot,299);
+ const raw=saveSettings(state),restored=restoreSettings(home(),raw);
+ assert.equal(restored.system.layout[299],layout[299]);assert.equal(restored.system.layout[0],undefined);
+ assert.equal(getHomeNavigation(restored).rootView.selectedSlot,299);assert.equal(getHomeExposedExtent(restored),300);
+ assert.equal(saveSettings(restored),raw);
 });

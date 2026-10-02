@@ -155,6 +155,31 @@ test('94 native page-arrow boundary cases preserve mode2/16 and never increment 
     assert.deepEqual(result.observations,[]);
   }
 });
+test('captured60 root exposure pages to the five-row endpoint and closes at six rows',()=>{
+ let six=setup(false,5,{selected:33,left:0,target:0});
+ let result=pageHomeViewport({...six,extent:60},'right',1);
+ assert.equal(result.state.navigation,six.navigation);assert.equal(result.state.navigation.motion,null);
+ const five=setup(false,4,{selected:33,left:10,target:10});
+ result=pageHomeViewport({...five,extent:60},'right',1);
+ assertState(result.state,{selected:38,left:10,target:15,mode:2,duration:16,elapsed:0});
+ const endpoint=setup(false,4,{selected:38,left:15,target:15});
+ result=pageHomeViewport({...endpoint,extent:60},'right',1);
+ assert.equal(result.state.navigation,endpoint.navigation);
+ result=pageHomeViewport({...endpoint,extent:60},'left',1);
+ assertState(result.state,{selected:23,left:15,target:0,mode:2,duration:16,elapsed:0});
+});
+test('captured60 root exposure clamps keyboard navigation at slot59 without growing storage',()=>{
+ let state=setup(false,5,{selected:59,left:0,target:0});
+ let result=consumeHomeGridKeyEvent({...state,extent:60},{type:4,mask:0x20});
+ assertState(result.state,{selected:53,left:0,target:0,mode:0});
+ result=consumeHomeGridKeyEvent({...result.state,extent:60},{type:4,mask:0x10});
+ assertState(result.state,{selected:59,left:0,target:0,mode:0});
+ result=consumeHomeGridKeyEvent({...result.state,extent:60},{type:4,mask:0x10});
+ assertState(result.state,{selected:59,left:0,target:0,mode:0});
+ assert.equal(result.observations.some(o=>o.kind==='cursor-select'),false);
+ assert.equal(result.observations.some(o=>o.kind==='cue'&&o.cue==='invalid'),true);
+ assert.equal(result.state.navigation.rootView.selectedSlot,59);
+});
 test('native root-return correction moves one column; far-history repair is explicit', () => {
   for(const row of oracle.folderReturn){const result=restoreHomeRootViewport(setup(false,0,{selected:row.selected,left:row.left,target:row.left,counter:5}));assertState(result.state,row.after);}
   const far=setup(false,0,{selected:100});

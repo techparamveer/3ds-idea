@@ -1,7 +1,7 @@
 import { getHomeGestureView, homeSlotAppId } from './system.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
 import { hasEmptyHomeFolderSelection, isFolder, menuTiles, rowCount, type MenuState } from './state.ts';
-import { getHomeNavigationView, homeGridMetrics, type HomeDensity } from './home-navigation.ts';
+import { getHomeExposedExtent, getHomeNavigationView, homeGridMetrics, type HomeDensity } from './home-navigation.ts';
 import { getTitle } from './app-registry.ts';
 
 /** CLYT Scale clips consume density, which is distinct from folder row count. */
@@ -27,10 +27,14 @@ export function nativeHomePanelGeometry(input:HomePanelInput,folder:boolean,exte
 }
 export const nativeFolderPanelGeometry=(input:HomePanelInput)=>nativeHomePanelGeometry(input,true,60);
 export function getNativeHomePanel(state:MenuState){
- const view=getHomeNavigationView(state);
- return nativeHomePanelGeometry({...view,firstNativeX:Math.fround(view.unscrolledSlots[0].x-160),lastNativeX:Math.fround(view.unscrolledSlots[view.capacity-1].x-160)},state.opened,view.capacity);
+ const view=getHomeNavigationView(state),extent=getHomeExposedExtent(state);
+ return nativeHomePanelGeometry({...view,firstNativeX:Math.fround(view.unscrolledSlots[0].x-160),lastNativeX:Math.fround(view.unscrolledSlots[extent-1].x-160)},false,extent);
 }
-export const getNativeFolderPanel=(state:MenuState)=>state.opened?getNativeHomePanel(state):null;
+export function getNativeFolderPanel(state:MenuState){
+ if(!state.opened)return null;
+ const view=getHomeNavigationView(state);
+ return nativeFolderPanelGeometry({...view,firstNativeX:Math.fround(view.unscrolledSlots[0].x-160),lastNativeX:Math.fround(view.unscrolledSlots[view.capacity-1].x-160)});
+}
 
 
 /** A derived view, never a second recognizer or a speculative mutation of icon maps. */

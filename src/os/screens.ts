@@ -8,7 +8,7 @@ import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
 import { getTitle } from './app-registry';
-import { leaveHomeFolder, saveHomeView } from './home-navigation';
+import { getHomePageBoundary, leaveHomeFolder, saveHomeView } from './home-navigation';
 import { getHomeFooter, getHomePresentation, type HomePresentation } from './home-presentation';
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices } from './state';
 import { type BitmapFont } from './bitmap-font';
@@ -126,8 +126,9 @@ function footer(c:Context,state:MenuState,chrome:ReturnType<typeof createNativeC
  else{if(state.opened)text(c,'↶',24,226,19);text(c,labels[right],160,226,14,'#494b51','center');}
 }
 function arrows(c:Context,state:MenuState){
- for(const right of [false,true]){
-  if(!right&&pageStart(state)===0)continue;
+ const boundary=getHomePageBoundary(state);
+ for(const [right,visible] of [[false,boundary.left],[true,boundary.right]] as const){
+  if(!visible)continue;
   c.save();c.beginPath();c.rect(0,33,320,177);c.clip();
   c.fillStyle=gradient(c,101,60,'#fff','#e6e7e8');c.strokeStyle='#bebfc6';c.lineWidth=1;c.beginPath();c.ellipse(right?325:-5,131,20,29,0,0,Math.PI*2);c.fill();c.stroke();
   const x=right?310:10;c.fillStyle='#91bdb7';c.beginPath();c.moveTo(x+(right?5:-5),131);c.lineTo(x+(right?-3:3),125);c.lineTo(x+(right?-3:3),137);c.fill();c.restore();
@@ -196,7 +197,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
    nativeHome.cursorEffectAt(c,effect.center.x,effect.center.y,effect.scale.appliedFrame,effect.disappear.appliedFrame);
   }
  }
- if(!capture&&!nativeHome?.arrows(c,pageStart(state)>0))arrows(c,state);
+ if(!capture){const boundary=getHomePageBoundary(state);if(!nativeHome?.arrows(c,boundary.left,boundary.right))arrows(c,state);}
  // Native idle HOME has no track above the footer. Keep the old fallback's
  // scroll indicator separate from the decoded native chrome.
  if(!nativeHome){

@@ -38,9 +38,18 @@ export function homeGridMetrics(folder: boolean, density: HomeDensity) {
     pitchX: [84, 84, 54, 40, 32, 28][density], pitchY: [82, 84, 54, 40, 32, 28][density],
     size: [72, 72, 50, 36, 28, 24][density], capacity: folder ? 60 : 300 };
 }
-export function maxHomeLeftSlot(folder: boolean, density: HomeDensity) {
+/** The captured profile currently exposes slots 0..59 at root. Storage remains
+ * 300 slots; the browser-only expansion below preserves already-addressed data
+ * without claiming the native menu's still-untraced growth policy. */
+export const CAPTURED_HOME_ROOT_EXTENT = 60;
+export function maxHomeLeftSlotForExtent(folder: boolean, density: HomeDensity, extent: number) {
   const { rows, columns, capacity } = homeGridMetrics(folder, density);
-  return Math.max(0, (Math.floor((capacity - 1) / rows) - columns + 1) * rows);
+  if (!Number.isInteger(extent) || extent < 1 || extent > capacity) throw new RangeError('Invalid HOME exposed extent');
+  return Math.max(0, (Math.floor((extent - 1) / rows) - columns + 1) * rows);
+}
+export function maxHomeLeftSlot(folder: boolean, density: HomeDensity) {
+  const { capacity } = homeGridMetrics(folder, density);
+  return maxHomeLeftSlotForExtent(folder, density, capacity);
 }
 /** System-less menu callers get the same records, seeded once from their legacy fields. */
 export function getHomeNavigation(state: MenuState): HomeNavigation {
@@ -113,6 +122,25 @@ export function getHomeNavigationView(state: MenuState) {
   const nav = getHomeNavigation(state), cached = homeViewCache.get(nav); if (cached) return cached;
   const view = deriveHomeNavigationView(state); homeViewCache.set(nav, view); return view;
 }
+/** Current captured root exposure plus a lossless browser-compatibility floor.
+ * Existing occupants, selection and restored viewport remain reachable; this is
+ * not a native allocation/growth algorithm and is deliberately not persisted. */
+export function getHomeExposedExtent(state: MenuState) {
+  if (state.opened) return homeGridMetrics(true, getHomeNavigationView(state).currentDensity).capacity;
+  const nav = getHomeNavigation(state), root = nav.rootView;
+  const current = homeGridMetrics(false, root.density), targetDensity = nav.motion?.targetDensity ?? root.density;
+  const target = homeGridMetrics(false, targetDensity);
+  const keys = [...Object.keys(state.system?.layout ?? {}), ...Object.keys(state.folders)]
+    .map(Number).filter(key => Number.isInteger(key) && key >= 0);
+  const addressed = keys.length ? Math.max(...keys) + 1 : 0;
+  return Math.min(current.capacity, Math.max(CAPTURED_HOME_ROOT_EXTENT, addressed, root.selectedSlot + 1,
+    root.currentLeftSlot + current.rows * current.columns, root.targetLeftSlot + target.rows * target.columns));
+}
+export function getHomePageBoundary(state: MenuState) {
+  const view = getHomeNavigationView(state), folder = view.context !== null, extent = getHomeExposedExtent(state);
+  const maxLeftSlot = maxHomeLeftSlotForExtent(folder, view.currentDensity, extent);
+  return Object.freeze({ extent, maxLeftSlot, left: view.currentLeftSlot > 0, right: view.currentLeftSlot < maxLeftSlot });
+}
 function startHomeMotion(state: MenuState, target: HomeViewRecord, mode: 2 | 5, changed = false): MenuState {
   const nav = getHomeNavigation(state), current = activeHomeRecord(nav);
   const motion: HomeMotion = { mode, elapsedUpdates: 0, durationUpdates: mode === 2 ? 16 : 15,
@@ -146,10 +174,11 @@ export function selectHomeSlot(state: MenuState, slot: number): MenuState {
 }
 export function stepHomeDirection(state: MenuState, direction: 'left' | 'right' | 'up' | 'down'): MenuState {
   const current = getHomeNavigationView(state), view = { ...current, ...homeGridMetrics(current.context !== null, current.targetDensity) };
+  const extent=getHomeExposedExtent(state);
   const row = view.selectedSlot % view.rows, col = Math.floor(view.selectedSlot / view.rows);
-  const nextCol = direction === 'left' ? Math.max(0, col - 1) : direction === 'right' ? Math.min(Math.ceil(view.capacity / view.rows) - 1, col + 1) : col;
+  const nextCol = direction === 'left' ? Math.max(0, col - 1) : direction === 'right' ? Math.min(Math.ceil(extent / view.rows) - 1, col + 1) : col;
   const nextRow = direction === 'up' ? Math.max(0, row - 1) : direction === 'down' ? Math.min(view.rows - 1, row + 1) : row;
-  return selectHomeSlot(state, Math.min(view.capacity - 1, nextCol * view.rows + nextRow));
+  return selectHomeSlot(state, Math.min(extent - 1, nextCol * view.rows + nextRow));
 }
 /** Native density touch chooses the earliest left slot nearest the previous selected X (float32). */
 export function setHomeDensity(state: MenuState, density: HomeDensity): MenuState {
@@ -157,7 +186,7 @@ export function setHomeDensity(state: MenuState, density: HomeDensity): MenuStat
   if (density === (nav.motion?.targetDensity ?? record.density)) return state;
   const oldX = Math.fround(getHomeNavigationView(state).selectedAnchorX), folder = nav.activeFolderSlot !== null;
   const { rows, columns, baseX, pitchX } = homeGridMetrics(folder, density), top = record.selectedSlot - record.selectedSlot % rows;
-  const first = Math.max(0, top - (columns - 1) * rows), last = Math.min(maxHomeLeftSlot(folder, density), top + (columns - 1) * rows);
+  const first = Math.max(0, top - (columns - 1) * rows), last = Math.min(maxHomeLeftSlotForExtent(folder,density,getHomeExposedExtent(state)), top + (columns - 1) * rows);
   let left = first, distance = Infinity;
   for (let candidate = first; candidate <= last; candidate += rows) {
     const x = Math.fround(baseX + Math.fround((top - candidate) / rows * pitchX)), delta = Math.fround(x - oldX), squared = Math.fround(delta * delta);
@@ -195,7 +224,7 @@ export function restoreHomeFolderRoot(state: MenuState, duration: 5 | 10): MenuS
   if (isHomeRootSelectionVisible(state)) return state;
   const nav = getHomeNavigation(state), root = nav.rootView;
   const { rows, columns } = homeGridMetrics(false, root.density), column = Math.floor(root.selectedSlot / rows);
-  const targetLeftSlot = Math.max(0, Math.min(maxHomeLeftSlot(false, root.density),
+  const targetLeftSlot = Math.max(0, Math.min(maxHomeLeftSlotForExtent(false,root.density,getHomeExposedExtent(state)),
     (root.selectedSlot < root.currentLeftSlot ? column : column - columns + 1) * rows));
   return writeHomeNavigation(state, { ...nav, rootView: { ...root, targetLeftSlot }, motion: {
     mode: 3, elapsedUpdates: 0, durationUpdates: duration, currentDensity: root.density, targetDensity: root.density,
@@ -222,8 +251,8 @@ export function remapHomeFolderViews(state: MenuState, from: number, to: number,
 export function commitHomeScroll(state: MenuState, column: number): MenuState {
   state = settleHomeNavigation(state);
   const nav = getHomeNavigation(state), record = activeHomeRecord(nav), folder = nav.activeFolderSlot !== null;
-  const { rows, columns, capacity } = homeGridMetrics(folder, record.density);
-  const left = Math.max(0, Math.min(maxHomeLeftSlot(folder, record.density), Math.round(column) * rows));
+  const { rows, columns } = homeGridMetrics(folder, record.density),capacity=getHomeExposedExtent(state);
+  const left = Math.max(0, Math.min(maxHomeLeftSlotForExtent(folder,record.density,capacity), Math.round(column) * rows));
   const col = Math.max(left / rows, Math.min(left / rows + columns - 1, Math.floor(record.selectedSlot / rows)));
   const selectedSlot = Math.min(capacity - 1, col * rows + record.selectedSlot % rows);
   return withActiveRecord(state, { ...record, selectedSlot, currentLeftSlot: left, targetLeftSlot: left }, selectedSlot !== record.selectedSlot);

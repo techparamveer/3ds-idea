@@ -1,7 +1,7 @@
-import { columnPitch, menuTiles, pageStart, rowCount, slotCount, visibleColumns, isHomeFolderBackTouch, type MenuState } from './state.ts';
+import { columnPitch, menuTiles, pageStart, rowCount, visibleColumns, isHomeFolderBackTouch, type MenuState } from './state.ts';
 import { homeContainer, homeItemAt, moveHomeItem, resolveHomeDrop, sameHomeLocation, type HomeItem, type HomeLocation } from './home-layout.ts';
 import type { AppEvent } from './app-types.ts';
-import { getHomeNavigation, settleHomeNavigation, writeHomeNavigation, enterHomeFolder, leaveHomeFolder, commitHomeScroll, type HomeNavigation } from './home-navigation.ts';
+import { getHomeExposedExtent, getHomeNavigation, settleHomeNavigation, writeHomeNavigation, enterHomeFolder, leaveHomeFolder, commitHomeScroll, type HomeNavigation } from './home-navigation.ts';
 export { createHomeNavigation, type HomeNavigation } from './home-navigation.ts';
 
 /** Authored defaults. No timing or distance below has been measured on firmware 10.7.0-32E. */
@@ -37,7 +37,7 @@ export function cancelHomeGesture(state: MenuState): MenuState {
 /** Lifecycle callers release transient input without discarding context histories. */
 export const resetHomeNavigation = (state: MenuState) => settleHomeNavigation(cancelHomeGesture(state));
 
-function boundedScroll(state: MenuState, value: number) { return Math.max(0, Math.min(Math.max(0, Math.ceil(slotCount(state) / rowCount(state)) - visibleColumns(state)), value)); }
+function boundedScroll(state: MenuState, value: number) { return Math.max(0, Math.min(Math.max(0, Math.ceil(getHomeExposedExtent(state) / rowCount(state)) - visibleColumns(state)), value)); }
 function dragTarget(state: MenuState, gesture: HomeGesture, now: number): HomeGesture {
   const target = homeTouchLocation(state, gesture.x, gesture.y);
   const candidate = target && target.folder === null && homeItemAt(state, target)?.kind === 'folder' && gesture.item?.kind === 'app' && gesture.source && resolveHomeDrop(state, gesture.source, target) ? target.slot : null;

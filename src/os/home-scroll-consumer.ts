@@ -1,11 +1,15 @@
 import type { HomeKeyEvent } from './home-input-producer.ts';
 import { setHomeCursorLoopStep, type HomeCursorLoop } from './home-cursor-loop.ts';
 import {
-  activeHomeRecord, gridSnapshot, sampleHomeGrid, homeGridMetrics, maxHomeLeftSlot,
-  type HomeNavigation, type HomeViewRecord, type HomeMotion,
+  activeHomeRecord, gridSnapshot, sampleHomeGrid, homeGridMetrics, maxHomeLeftSlotForExtent,
+  type HomeDensity, type HomeNavigation, type HomeViewRecord, type HomeMotion,
 } from './home-navigation.ts';
 
-export type HomeScrollState = Readonly<{ navigation: HomeNavigation; cursorLoop: HomeCursorLoop }>;
+export type HomeScrollState = Readonly<{
+  navigation: HomeNavigation; cursorLoop: HomeCursorLoop;
+  /** Optional host-supplied exposure. Omission retains source-fixture capacity. */
+  extent?: number;
+}>;
 export type HomeCursorEffectTarget = Readonly<{ kind: 'toolbar'; focus: number; scaleFrame: number }>
   | Readonly<{ kind: 'grid'; slot: number; scaleFrame: number;
     /** Effect-call grid coordinates before scroll subtraction. Keep slot-bound during later motion. */
@@ -31,6 +35,11 @@ export type HomeDirectionGates = Readonly<{ overlayActive: boolean; managerPrese
 /** Apply S+3fd0 at the lower idle-update call site, independently of input handling. */
 export type HomeScrollAdvanceOptions = Readonly<{ idleOverlayActive?: boolean }>;
 const ordinaryGates: HomeDirectionGates = Object.freeze({ overlayActive: false, managerPresent: true, managerInhibited: false, sceneInhibited: false });
+function exposedExtent(state:HomeScrollState,folder:boolean,density:HomeDensity){
+  const capacity=homeGridMetrics(folder,density).capacity,extent=state.extent??capacity;
+  if(!Number.isInteger(extent)||extent<1||extent>capacity)throw new RangeError('Invalid HOME exposed extent');
+  return extent;
+}
 const toolbarScale = (focus: number) => focus === 0 ? 10 : focus >= 6 ? 12 : 11;
 // Numeric mappings at root314e74/folder314eec and root314f64/folder315024.
 // Root/folder values are identical; these are navigation indices, not labels.
@@ -96,8 +105,9 @@ export function enterHomeMode3(state: HomeScrollState, targetLeftSlot: number,
   validate(state);
   const view = activeHomeRecord(state.navigation), folder = state.navigation.activeFolderSlot !== null;
   const { rows } = homeGridMetrics(folder, view.density);
+  const extent=exposedExtent(state,folder,view.density);
   if (!Number.isInteger(targetLeftSlot) || targetLeftSlot < 0 || targetLeftSlot % rows
-    || targetLeftSlot > maxHomeLeftSlot(folder, view.density)) throw new RangeError('Invalid HOME viewport target');
+    || targetLeftSlot > maxHomeLeftSlotForExtent(folder, view.density,extent)) throw new RangeError('Invalid HOME viewport target');
   const count = state.navigation.mode3.entryCount, durationUpdates = count < 5 ? 10 : 5;
   state = mode3(state, { entryCount: Math.min(5, count + 1) });
   if (count >= 5 && state.cursorLoop.step === 1) state = { ...state, cursorLoop: setHomeCursorLoopStep(state.cursorLoop, 3) };
@@ -133,7 +143,8 @@ export function consumeHomeGridKeyEvent(state: HomeScrollState, event: HomeKeyEv
   if (nav.motion) {
     return result(event.mask === 0x10 || event.mask === 0x20 ? mode3(state, { pendingMask: nav.mode3.pendingMask | event.mask }) : state);
   }
-  const view = activeHomeRecord(nav), { rows, columns, capacity } = homeGridMetrics(nav.activeFolderSlot !== null, view.density);
+  const view = activeHomeRecord(nav),folder=nav.activeFolderSlot !== null,{ rows, columns } = homeGridMetrics(folder, view.density);
+  const capacity=exposedExtent(state,folder,view.density);
   const observations: HomeScrollObservation[] = [];
   const setFocus = (change: Partial<HomeNavigation['focus']>) => {
     state = { ...state, navigation: { ...state.navigation, focus: Object.freeze({ ...state.navigation.focus, ...change }) } };
@@ -247,7 +258,8 @@ export function advanceHomeScroll(state: HomeScrollState, updates: number, optio
 export function selectHomeTouchSlot(state: HomeScrollState, slot: number): HomeScrollResult {
   validate(state);
   if (state.navigation.motion || state.navigation.gesture) return result(state, [], 'unsupported');
-  const nav = state.navigation, view = activeHomeRecord(nav), { rows, columns, capacity } = homeGridMetrics(nav.activeFolderSlot !== null, view.density);
+  const nav = state.navigation, view = activeHomeRecord(nav),folder=nav.activeFolderSlot !== null,{ rows, columns } = homeGridMetrics(folder, view.density);
+  const capacity=exposedExtent(state,folder,view.density);
   if (!Number.isInteger(slot) || slot < 0 || slot >= capacity) throw new RangeError('Invalid HOME tile slot');
   const oldFocus = nav.focus.toolbarActive ? nav.focus.currentFocus : -1;
   if (nav.focus.toolbarActive && (!Number.isInteger(oldFocus) || oldFocus < 0 || oldFocus > 7)) throw new RangeError('Invalid HOME toolbar focus');
@@ -278,9 +290,10 @@ export function pageHomeViewport(state: HomeScrollState, direction: 'left' | 'ri
   if (selectionStatus === 0 || state.navigation.motion || state.navigation.gesture || state.navigation.focus.toolbarActive) return result(state, [], 'unsupported');
   const nav = state.navigation, view = activeHomeRecord(nav), folder = nav.activeFolderSlot !== null;
   const { rows, columns, capacity } = homeGridMetrics(folder, view.density), page = rows * columns;
-  if (direction === 'left' ? view.currentLeftSlot < rows : view.currentLeftSlot + page >= capacity) return result(state);
-  const targetLeftSlot = Math.min(maxHomeLeftSlot(folder, view.density), Math.max(0, view.targetLeftSlot + (direction === 'right' ? page : -page)));
-  const selectedSlot = Math.min(capacity - 1, Math.max(0, view.selectedSlot + targetLeftSlot - view.currentLeftSlot));
+  const extent = state.extent ?? capacity, maxLeftSlot = maxHomeLeftSlotForExtent(folder, view.density, extent);
+  if (direction === 'left' ? view.currentLeftSlot < rows : view.currentLeftSlot >= maxLeftSlot) return result(state);
+  const targetLeftSlot = Math.min(maxLeftSlot, Math.max(0, view.targetLeftSlot + (direction === 'right' ? page : -page)));
+  const selectedSlot = Math.min(extent - 1, Math.max(0, view.selectedSlot + targetLeftSlot - view.currentLeftSlot));
   return result(startMotion(state, { ...view, selectedSlot, targetLeftSlot }, 2, 16));
 }
 

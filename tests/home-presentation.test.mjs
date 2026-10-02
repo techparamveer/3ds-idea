@@ -3,7 +3,7 @@ import {setHomeDensity as setHomeDensityMotion,selectHomeSlot,enterHomeFolder,ho
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame,nativeHomeDensityMetric,nativeFolderPanelGeometry,getNativeFolderPanel,nativeFolderBalloonPosition} from '../src/os/home-presentation.ts';
+import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame,nativeHomeDensityMetric,nativeFolderPanelGeometry,getNativeFolderPanel,getNativeHomePanel,nativeFolderBalloonPosition} from '../src/os/home-presentation.ts';
 import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem,sampleSystemHomeFolderClose,launchHomeShortcut,reduceSystem} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
 import {homeTouchLocation} from '../src/os/home-gestures.ts';
@@ -159,4 +159,18 @@ test('folder plate and shadow geometry match original ARM fixtures at every dens
   assert.equal(JSON.stringify(state),before);
  }
  assert.equal(getNativeFolderPanel(home()),null);
+});
+test('captured root extent drives source plate geometry without shrinking 300-slot storage',()=>{
+ let state=selectHomeSlot(setHomeDensity(home(),5),33),nav=state.system.homeNavigation;
+ nav={...nav,rootView:{...nav.rootView,currentLeftSlot:0,targetLeftSlot:0}};state={...state,system:{...state.system,homeNavigation:nav}};
+ assert.deepEqual(getNativeHomePanel(state),{x:0,width:300,shadowWidth:320},'six rows fit the captured60 extent');
+ state=setHomeDensity(state,4);nav=state.system.homeNavigation;
+ nav={...nav,motion:null,rootView:{...nav.rootView,density:4,currentLeftSlot:0,targetLeftSlot:0}};state={...state,columns:10,system:{...state.system,homeNavigation:nav}};
+ assert.deepEqual(getNativeHomePanel(state),{x:48,width:396,shadowWidth:416},'five-row origin extends beyond the right LCD');
+ nav={...nav,rootView:{...nav.rootView,currentLeftSlot:15,targetLeftSlot:15}};state={...state,system:{...state.system,homeNavigation:nav}};
+ assert.deepEqual(getNativeHomePanel(state),{x:-48,width:396,shadowWidth:416},'five-row endpoint closes at the right edge');
+ const layout={...state.system.layout,299:'compatibility-record'};
+ state={...state,system:{...state.system,layout}};
+ assert.ok(getNativeHomePanel(state).width>396,'an existing high slot remains exposed by the labelled browser adaptation');
+ assert.equal(Object.hasOwn(state.system.layout,299),true);
 });

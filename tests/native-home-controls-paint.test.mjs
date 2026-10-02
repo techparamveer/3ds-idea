@@ -474,6 +474,17 @@ test('HOME footer samples source alpha glyphs directly at LCD centres', () => {
   assert.equal(presenter.footer(ctx,legacy),true);
   assert.deepEqual(calls.at(-1).options.bindings,[{name:'LncBtmBtn_02_SceneIn',frame:15}]);
 });
+test('root tray uses captured extent geometry and both source arrow panes have explicit visibility',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};
+ const presenter=createFirmwareHome({renderer});let state=settleHomeNavigation(setHomeDensity(selectHomeSlot(home(),33),5));
+ presenter.homePlate({},state);
+ assert.equal(calls.at(-1).name,'LncPlt_00');
+ assert.deepEqual(calls.at(-1).options.overrides,{W_Plt_00:{translation:[0,-92,0],size:[300,175]},W_Shdw_00:{translation:[0,-102,0],size:[320,193]}});
+ presenter.arrows({},false,false);
+ assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:false},N_arwR_00:{visible:false}});
+ presenter.arrows({},true,false);
+ assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:true},N_arwR_00:{visible:false}});
+});
 
 test('vacant-root footer retains the decoded Create Folder message and unfitted source sampler',()=>{
  const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};

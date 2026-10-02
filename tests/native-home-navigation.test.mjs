@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createPortfolioState,tickSystem,reduceSystem,touchSystem as touchSystemMotion,dispatchSystemEvent} from '../src/os/system.ts';
 import {densities,menuTiles,pageStart,rowCount,visibleColumns} from '../src/os/state.ts';
-import {setHomeDensity as setHomeDensityMotion,homeDensityIndex} from '../src/os/home-navigation.ts';
+import {getHomeNavigation,getHomePageBoundary,selectHomeSlot,setHomeDensity as setHomeDensityMotion,homeDensityIndex} from '../src/os/home-navigation.ts';
 const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
 const touchSystem=(...args)=>settleHomeNavigation(touchSystemMotion(...args));
 const home=columns=>setHomeDensity(tickSystem(createPortfolioState(),3001),homeDensityIndex(columns));
@@ -44,4 +44,23 @@ test('native top-level grid tables share painted/touch geometry at every density
   state=dispatchSystemEvent(state,{type:'touch',phase:'down',pointerId:2,...point},9000);
   assert.equal(state.system.homeNavigation.gesture.source.slot,state.selected);
  }
+});
+test('captured root arrows share the60-slot endpoint with raw edge touch while preserving storage',()=>{
+ let state=settleHomeNavigation(selectHomeSlot(home(12),33));
+ assert.deepEqual(getHomePageBoundary(state),{extent:60,maxLeftSlot:0,left:false,right:false});
+ assert.equal(menuTiles(state).some(tile=>tile.index===60),false,'the first unexposed blank column is not painted or hit-testable');
+ const denseBefore=getHomeNavigation(state).rootView;
+ state=touchSystem(state,307,137,10000);
+ assert.deepEqual(getHomeNavigation(state).rootView,denseBefore,'hidden six-row arrow has no input route');
+ state=setHomeDensity(state,4);
+ assert.equal(pageStart(state),2);assert.deepEqual(getHomePageBoundary(state),{extent:60,maxLeftSlot:15,left:true,right:true});
+ state=touchSystem(state,307,137,10100);
+ assert.equal(state.selected,38);assert.equal(pageStart(state),3);
+ assert.deepEqual(getHomePageBoundary(state),{extent:60,maxLeftSlot:15,left:true,right:false});
+ state=touchSystem(state,10,137,10200);
+ assert.equal(state.selected,23);assert.equal(pageStart(state),0);
+ assert.deepEqual(getHomePageBoundary(state),{extent:60,maxLeftSlot:15,left:false,right:true});
+ const layout={...state.system.layout,299:'preserved-high-slot'};
+ state={...state,system:{...state.system,layout}};
+ assert.equal(getHomePageBoundary(state).extent,300);assert.equal(state.system.layout[299],'preserved-high-slot');
 });

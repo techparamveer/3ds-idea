@@ -1,6 +1,6 @@
 import type { System } from './system';
 import { allocateHomeFolderIdentity, getHomeFolderIdentities, removeHomeFolderIdentity, writeHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
-import { HOME_DENSITIES, getHomeNavigationView, selectHomeSlot, stepHomeDirection, setHomeDensity, enterHomeFolder, leaveHomeFolder, initializeHomeFolderView, deleteHomeFolderView, type HomeNavigation, type HomeDensity } from './home-navigation.ts';
+import { HOME_DENSITIES, getHomeExposedExtent, getHomeNavigationView, selectHomeSlot, stepHomeDirection, setHomeDensity, enterHomeFolder, leaveHomeFolder, initializeHomeFolderView, deleteHomeFolderView, type HomeNavigation, type HomeDensity } from './home-navigation.ts';
 import { getHomeDensityControls } from './home-density-controls.ts';
 import { clampHomeSettingsScroll, homeFolderNoticeActionAt, homeFolderSettingsActionAt, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
 import { confirmHomeLayoutAction, requestHomeLayoutAction, type HomeLayoutAction, type HomeSavedLayouts } from './home-saved-layouts.ts';
@@ -66,7 +66,7 @@ export function visibleColumns(state: MenuState) { return getHomeNavigationView(
 export function columnPitch(state: MenuState) { return getHomeNavigationView(state).pitchX; }
 export function pageStart(state: MenuState) { const view = getHomeNavigationView(state); return view.scrollPixels / view.pitchX; }
 export function menuTiles(state: MenuState) {
-  return getHomeNavigationView(state).slots.map(slot => ({ ...slot, x: slot.x - slot.size / 2, y: slot.y - slot.size / 2 }))
+  return getHomeNavigationView(state).slots.slice(0,getHomeExposedExtent(state)).map(slot => ({ ...slot, x: slot.x - slot.size / 2, y: slot.y - slot.size / 2 }))
     .filter(tile => tile.x < 320 && tile.x + tile.size > 0);
 }
 export const toolbar = [

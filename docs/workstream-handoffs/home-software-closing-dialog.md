@@ -1,5 +1,14 @@
 # HOME software-closing dialog handoff
 
+Coordinator correction `cf38daf8`: production comparison rejected the worker's
+upper-mask fit. Only `DlgMask_D_00` and `Dlg_A_D_00` are delivered. The upper
+mask's white vertex colors do not describe its composited appearance: its
+source material darkens the upper LCD, unlike the native closing sequence.
+The source table retains that rejected candidate's identity for audit only.
+`homeSoftwareClosingDialogKey` now validates owner/generation and separates
+readiness/recovery; Back/HOME cancels a failed visual close, preserving the
+suspended owner. Lower mask timing still uses the adapted AppQuit clock.
+
 Base: `100f2a94d046efe7b2b7a8d9ee4540e2e4f6fb05`
 
 Branch: `codex/home-footer-departure-20261002`
@@ -34,22 +43,17 @@ Later own-PNGs `_02.10.26_07.59.19.743.png` (SHA-256
 `b69fc2ffebdc16b78f08090c068ff532a04e61fb416b673e7c7bb0280aa10d09`)
 and `_02.10.26_07.59.31.222.png` (SHA-256
 `40c7d890b09144b5d4cfef7eb3238167c2b748c316447ab922714b5902cc2259`)
-confirm that the upper wallpaper remains visible through a pale treatment
-rather than a dark cover. The delivered upper mask is
-exactly a white 400x240 pane whose authored alpha reaches 130 and is the fitted
-source match for that composition. The lower mask is the corresponding white
-320x240 pane; its alpha over the lower artwork produces the captured subdued
-backing. The exact native upper-mask caller is not traced, so this binding is a
-capture fit, not a native call-site claim.
+show ordinary bright upper wallpaper rather than a dark cover. The worker
+initially inferred a white mask from vertex colors, but the production draw
+darkened it and increased upper residuals. That binding is removed. The lower
+mask is retained; its source material produces the captured subdued backing.
 
 ## Delivered renderer helper
 
 `home-software-closing-dialog.ts` draws only the observed settled assembly:
 
-1. `DlgMask_U_00` at a caller-selected authored
-   `DlgMask_U_00_FadeIn` frame 0..20;
-2. `DlgMask_D_00` at that same authored `DlgMask_D_00_FadeIn` frame; and
-3. buttonless `Dlg_A_D_00`, overriding only `TextBoxDialog` with the exact
+1. `DlgMask_D_00` at caller-selected `DlgMask_D_00_FadeIn` frame 0..20; and
+2. buttonless `Dlg_A_D_00`, overriding only `TextBoxDialog` with the exact
    `menu_msbt_LZ/lau_dlg_quit4` message and its converted style metadata.
 
 The helper defaults the mask frame to the captured settled endpoint 20. It
@@ -151,9 +155,9 @@ converter `ctr-native-web` 1.2.0 / CTRTool 1.3.0.
 
 ## Verification boundary and remaining gaps
 
-Dedicated tests verify the exact three-draw assembly, LCD ownership, every
-valid authored paired mask pose, invalid-frame rejection, source message/style,
-window geometry, white mask geometry/colors, textures, member hashes, pack
+Coordinator tests now verify the exact two-draw lower assembly, untouched
+upper LCD, every valid authored lower mask pose, invalid-frame rejection,
+source message/style, window geometry, textures, member hashes, pack
 immutability and explicit source/draw failures. Focused transition tests,
 typecheck and `git diff --check` remain required before handoff.
 

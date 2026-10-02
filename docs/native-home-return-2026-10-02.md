@@ -1,5 +1,12 @@
 # Native HOME Return - 2 October 2026
 
+Latest [software-closing verification](home-software-closing-2026-10-02.md)
+repeats native Health -> HOME using held Shift-modified drag500ms with temporary
+HOME QtShift16777248. Held Open500ms and Close1000ms produced37 closing PNGs
+at diagnostic5% speed. Native stopped with100% speed and input bindings
+restored, still muted. This supersedes intervening HOME-return failure notes;
+exact normal-speed input and motion acceptance remain open.
+
 Reference-only progress at runtime `7dd76afa`, following `f668e13a`.
 Native Health -> suspended HOME is now observed. No website code changed;
 no browser pair, mask/diff, motion acceptance or scenario pass is claimed.

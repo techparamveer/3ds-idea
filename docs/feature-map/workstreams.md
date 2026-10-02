@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## Software Closing - 2 October 2026
+
+Existing chats ran GPT-5.6 Sol/high from `100f2a94`, with separate internal
+worktrees under `/Users/paramveer/.codex/worktrees/`. No service-tier claim.
+
+| Chat ID | Worktree / codex branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-panel-departure-20261002` / `home-panel-departure-20261002` | `69b2b39e` candidate and `9dfec708` audit; code not integrated; idle |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-footer-departure-20261002` / `home-footer-departure-20261002` | `204137c8` footer candidate not integrated; closing renderer `b32a06dc` -> `3c06173e`; idle |
+
+Coordinator identity/wiring/repair `9c109091`/`794539b4`/`cf38daf8`.
+One read-only Sol/high subagent reviewed integration. No worker GUI/build.
+Coordinator alone operated muted Sidecar sessions; only primary native profile
+ran and is now stopped/restored. Both profiles and all worktrees preserved.
+[Delivery and open native residuals](../home-software-closing-2026-10-02.md).
+
 ## Footer Contact and Native Border - 2 October 2026
 
 Both existing chats ran GPT-5.6 Sol/high from `9c72c168`; no service-tier claim.

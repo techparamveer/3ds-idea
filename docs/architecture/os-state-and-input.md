@@ -1,5 +1,15 @@
 # Software state, input and presentation
 
+The [software-closing display](../home-software-closing-2026-10-02.md) uses
+the validated close identity for readiness, paints source `Dlg_A_D_00` and
+`lau_dlg_quit4` over the lower `DlgMask_D_00`, and retains the existing footer.
+Only explicit close receives it, not switch or confirmation. It uses the
+existing adapted AppQuit frame for the lower mask and no new timer. Reduced
+motion selects the endpoint. Failure rejects the paired display; recovery
+cancels only the transition and preserves the suspended owner. No upper mask
+is bound: a production comparison disproved that proposed assembly. Native
+parent fade, upper composition departure and exact epochs remain unresolved.
+
 [HOME close motion](../home-close-motion-2026-10-02.md) now retains its runtime
 owner through source AppQuit20 using the existing monotonic HOME allocator.
 The outer clock batch stops/rebases at terminal; a later eligible update retires

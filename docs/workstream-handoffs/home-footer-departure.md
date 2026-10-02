@@ -1,5 +1,10 @@
 # HOME software-close lower departure handoff
 
+Coordinator integration note: candidate commit `204137c8` remains only on the
+worker branch. Its helper and tests are not in the coordinator checkout.
+Closing-dialog commit `b32a06dc` alone was integrated as `3c06173e`, preserving
+this revised handoff as evidence against immediate footer departure.
+
 Base: `100f2a94d046efe7b2b7a8d9ee4540e2e4f6fb05`
 
 Branch: `codex/home-footer-departure-20261002`

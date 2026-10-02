@@ -7,7 +7,17 @@ production-browser sessions. All sessions remain muted on verified Sidecar.
 
 ## First Cross-App Pass
 
-Latest [power and close pass](../home-power-reveal-2026-10-02.md) provides four
+Latest [software-closing pass](../home-software-closing-2026-10-02.md) supersedes
+earlier HOME-input/first-close-frame blockers below: held Shift returns native
+Health to HOME,37 own-PNGs expose closing, and the lower source dialog is now
+delivered through `cf38daf8`. Seven browser routes/98 pairs were inspected.
+No queue row is accepted: whole comparisons fail, despite zero lower-dialog
+interior pixels above2. Next trace fixed-bounds upper departure and dialog
+parent fade, then match ordinary-speed input/motion/audio. Do not wire the
+scale-coupled SceneOut or early footer candidate; fresh native evidence rejects
+those bindings. Existing baseline and power checks remain required.
+
+Earlier [power and close pass](../home-power-reveal-2026-10-02.md) provides four
 browser power routes with observed terminal fade publication and seven close
 regressions. Native startup observation failed; no queue row is accepted.
 L-01 still needs native cold-entry/timing evidence. The close-mask source-only

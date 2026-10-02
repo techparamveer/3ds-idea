@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [button/border delivery](home-buttons-border-2026-10-02.md) through
+Latest [software-closing delivery](home-software-closing-2026-10-02.md) through
+`cf38daf8` adds the source lower closing window/text/scrim and guarded recovery.
+Held Shift now reliably returns native Health to HOME;37 own-PNGs informed the
+correction. Two separate chats/worktrees used; unsupported upper/footer
+departure candidates remain unwired. Full1747 tests/typecheck/build pass;
+seven production routes/98 pairs inspected. Local lower dialog interior has
+zero pixels above2, but whole comparisons fail. H-10/H-12/L-04 remain partial:
+upper fixed-bounds departure, parent fade, exact cadence and audio are next.
+Private matrix unchanged. See the registry for current worker status.
+
+Earlier [button/border delivery](home-buttons-border-2026-10-02.md) through
 `25d4f367` fixes footer touch transfers and the close-start backing disappearance.
 Two separate worktrees/chats delivered; full1738 tests/typecheck/build/shader
 pass, final pointer routes and seven close flows inspected. Native Health launch

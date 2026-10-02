@@ -152,7 +152,57 @@ must not be overwritten or promoted as the final after state. The source lane
 is correcting the panel guard and the coordinator will write final captures to
 a distinct `browser-final/` directory.
 
-## Intermediate artifacts and pending evidence
+## Corrected final capture
+
+Source follow-up `4ea72347` suppresses the HOME footer while the populated
+notice is active; the coordinator integrated it as runtime `43b8be55`. The
+corrected browser-final notice visibly contains only the native one-button
+panel over the dimmed HOME backing. The Settings/Open labels from the
+intermediate capture are gone.
+
+The final script's last persistence assertion double-activated an already
+selected folder after reload, opening the folder and then Health. That is a
+test-harness failure, not observed data loss. No `result.json` or final-script
+exit-0 claim is used here. The named notice, touch-OK, physical-A, mobile,
+B/HOME recovery, cross-target and empty-delete captures completed earlier and
+are validated independently by file hash. The separate supplement remains the
+appropriate place to close persistence behavior. That supplement subsequently
+exited 0 with no errors and confirmed reload restores the folder view with
+Health still at child slot 2. Its result SHA-256 is
+`b942060ad469ab2da12e94d6869d84d267aca560eb35eb08febb6950d45e61c1`;
+the validated reload lower SHA-256 is
+`025ed667eb17ea6305fe98631a902015b5abd785730af9c73545d6740c58306e`.
+An earlier supplement incorrectly waited for root HOME and timed out; the
+successful record accepts the actual restored folder state.
+
+The corrected fixed-coordinate comparison is:
+
+| Region | Pixels >2 | Maximum | MAE | RMSE | Interpretation |
+| --- | ---: | ---: | ---: | ---: | --- |
+| upper 400x240 | 49,352 | 220 | 6.935872 | 20.526341 | unmatched folder/banner, wallpaper and HUD epochs/population |
+| lower 320x240 | 12,601 | 115 | 1.110720 | 4.855748 | full unmasked control |
+| top toolbar `x0/y0/320x20` | 0 | 2 | 0.082135 | 0.287500 | static pixel tier |
+| notice panel `x20/y20/280x200` | 98 | 8 | 0.058780 | 0.272740 | symmetric bottom rounded corners only |
+| left outside panel | 3,346 | 115 | 11.026417 | 19.588804 | underlying root population/scroll |
+| right outside panel | 2,759 | 36 | 4.144917 | 6.201754 | underlying root population/scroll |
+| y220..239 backing band | 6,398 | 11 | 3.250104 | 4.282705 | labels removed; remaining low-amplitude backing residual has unproven cause |
+
+The five regions partition all 12,601 final lower residual pixels. All 98
+panel pixels remain in x20..299/y212..219. Row counts are
+6, 6, 8, 10, 12, 14, 18 and 24; the panel text, OK label, horizontal rules and
+all non-corner window pixels are at the static tier. This is the same rounded
+bottom-corner residual family already observed for Folder Settings. Because
+the alpha edge composites over an independently mismatched backing, the mask
+does not establish a panel-local texture, geometry or sampling correction.
+No screenshot-fitted adjustment is justified.
+
+The y220..239 count remains broad because native and browser dimmed backing
+pixels differ by more than 2, but the maximum falls from 78 to 11 and MAE from
+9.386458 to 3.250104 after the visible footer labels are removed. Pixel count
+alone would therefore misdescribe the fix; the frozen intermediate and final
+sheets preserve the visual distinction.
+
+## Artifact identities and remaining evidence
 
 The private analyzer SHA-256 is
 `79836a4d137d8ebad471458f4c8193cd58f4c4885d0f987e34d7f143340e9222`.
@@ -165,16 +215,25 @@ Inspected sheet SHA-256 values are:
 - browser-before upper/lower: `249c439c3d210da939cb1a8c86a540079f7fd38c03fea4f8ae802cdc46329aae` / `ddc12ec5f8bd1764cbdb73cf7e9c34134d7ff4ecdf8980a10d5e176bb974f6ca`;
 - intermediate browser-after upper/lower: `b1c1356a0142bf39fee11b67cca43d5db02a0dec26057a190f1db9ec91c5e2e0` / `ed950e60f3c95fbfc11c9a3dc06d3c7beb3fdca6a2c86ff07b9f7fdd8db7789d`.
 
-Still required before final comparison:
+Those manifest/analyzer/report identities are historical intermediate
+versions. The in-place `native-baseline/report.json` is frozen at intermediate
+report SHA `4b9f8634...`; the corrected run writes to the distinct
+`comparison/final/` directory instead of overwriting it.
 
-- final production capture after suppressing the leaked footer, written to a
-  distinct directory;
-- final full-LCD and fixed-panel comparison without overwriting intermediate
-  identities;
-- separate input, motion and audio reporting.
+Current final evidence identities are:
+
+- manifest SHA-256 `e3dd31c0739812d11fff617a8f4973eb4a03c462db9ba6114bba9e661c4a0865`;
+- analyzer SHA-256 `2d66ae283842025bfe3d60bd7ddca7181664b4013e2e0214bea2010c5cc45866`;
+- final report SHA-256 `44688e146e5d7d7ba2c42dbc26721ae36b9e29b9b6e310bc23705b1c65c6519c`;
+- inspected final upper sheet SHA-256 `f6112f58744bd6c9e847d03a99fa951918a7bef71dffada1cf5fbc6d512d4d34`;
+- inspected final lower sheet SHA-256 `8e68e0f3d85d860af6786b417c11e9cbd349a7f046bf1a9dba735ca8dc118406`.
+
+Still required for whole-scenario acceptance: exact matched input cadence,
+motion and audio reporting.
 
 The coordinator reports integrated checks of 1,808 passing, zero failing, 23
 skipped and one TODO, plus typecheck/build pass and independent focused review
 74/74. Those checks do not close visual acceptance. The populated-folder
 scenario remains `fail/unverified`; exact motion, input cadence and audio are
-still unmatched.
+still unmatched. The notice implementation is delivered and browser-inspected,
+but strict 1:1 fidelity and whole-scenario acceptance are not established.

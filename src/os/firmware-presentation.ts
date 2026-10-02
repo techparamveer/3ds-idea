@@ -297,8 +297,8 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }
   return drawn;
  }
- function suspendedIcon(ctx:Context,x:number,y:number,size:number,density:number){
-  drawHomeSuspendedIcon(renderer,ctx,[x+size/2,y+size/2],nativeHomeDensityFrame(density));
+ function suspendedIcon(ctx:Context,x:number,y:number,size:number,density:number,sleepFrame:number){
+  drawHomeSuspendedIcon(renderer,ctx,[x+size/2,y+size/2],nativeHomeDensityFrame(density),sleepFrame);
  }
  /** Fresh opening capture replaces only the selected ordinary folder instance.
   * Native priority414 T precedes priority412 B; preserve authored pane geometry.

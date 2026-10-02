@@ -191,7 +191,7 @@ export class BitmapFont {
 
   /** CLYT font size is a two-axis native cell size, not a CSS font size. */
   drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
-    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false,lineAdvanceScales?:readonly number[],multilineBlockOrigin?:'writer-0x110') {
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false,lineAdvanceScales?:readonly number[],multilineBlockOrigin?:'writer-0x110'|'writer-0x111') {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     let sourceOffset=0;
     const selected:boolean[][]=[];
@@ -201,8 +201,11 @@ export class BitmapFont {
     const nativeAlignedLine=(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0
       ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha';
     if(lineAdvanceScales&&(lineAdvanceScales.length!==Math.max(0,lines.length-1)||lineAdvanceScales.some(scale=>!Number.isFinite(scale)||scale<=0)))throw new Error('Invalid native line advance scales');
-    const writer0110=multilineBlockOrigin==='writer-0x110';
-    if(multilineBlockOrigin!==undefined&&(!writer0110||lines.length<2||alignment!==4||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='alpha'))throw new Error('Unsupported native multiline block origin');
+    const writer0110=multilineBlockOrigin==='writer-0x110',writer0111=multilineBlockOrigin==='writer-0x111';
+    if(multilineBlockOrigin!==undefined&&(
+      writer0110&&(lines.length<2||alignment!==4||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='alpha')||
+      writer0111&&(lines.length<2||alignment!==4||lineAlignment!==0||spacing!==0||lineSpacing!==0||lineAdvanceScales!==undefined||this.manifest.colorMode!=='alpha')||
+      !writer0110&&!writer0111))throw new Error('Unsupported native multiline block origin');
     if(cursorAdvances.length){
       if(lines.length!==1||alignment!==3||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='luminance-alpha')throw new Error('Unsupported native cursor-advance text run');
       const boundaries=new Set([0]);let offset=0;for(const char of value){offset+=char.length;boundaries.add(offset);}
@@ -242,38 +245,56 @@ export class BitmapFont {
     const y0=vertical===1?height/2-Math.ceil(blockHeight/2):vertical*(height-blockHeight)/2;
     const widths=lines.map(glyphs=>glyphs.reduce((n,g)=>n+(g?.advance??0)*sx+spacing,0)-(glyphs.length?spacing:0));
     const blockWidth=Math.max(0,...widths);
-    let writer0110Origin=0,writer0110Scale=0;
-    if(writer0110){
-      // HOME writer flags 0x110 centre the complete measured rectangle, then
-      // leave each line left-aligned. Measurement includes CWDH bearings,
-      // glyph widths and the final advance, with VFP float32 arithmetic.
-      const f=Math.fround;writer0110Scale=f(size[0]/(this.manifest.width??this.manifest.height));
+    const exactWriter=writer0110||writer0111;
+    let writerOrigin=0,writerScaleX=0,writerScaleY=0,writerBlockHalf=0,writerY0=0;
+    const writerLineWidths:number[]=[],writerLineYs:number[]=[];
+    if(exactWriter){
+      // HOME writer flags 0x110/0x111 centre the complete measured rectangle.
+      // 0x110 leaves each line left-aligned; 0x111 applies the separately
+      // measured line width. CWDH bearings, glyph widths and final advances
+      // retain the source VFP float32 order.
+      const f=Math.fround;writerScaleX=f(size[0]/(this.manifest.width??this.manifest.height));writerScaleY=f(size[1]/this.manifest.height);
       let blockLeft=0,blockRight=0;
       for(const glyphs of lines){
         let cursor=0,lineLeft=0,lineRight=0;
         for(const glyph of glyphs){if(!glyph)continue;
-          if(glyph.width){const left=f(cursor+f(glyph.left*writer0110Scale)),right=f(left+f(glyph.width*writer0110Scale));lineLeft=Math.min(lineLeft,left);lineRight=Math.max(lineRight,right);}
-          cursor=f(cursor+f(glyph.advance*writer0110Scale));lineLeft=Math.min(lineLeft,cursor);lineRight=Math.max(lineRight,cursor);
+          if(glyph.width){const left=f(cursor+f(glyph.left*writerScaleX)),right=f(left+f(glyph.width*writerScaleX));lineLeft=Math.min(lineLeft,left);lineRight=Math.max(lineRight,right);}
+          cursor=f(cursor+f(glyph.advance*writerScaleX));lineLeft=Math.min(lineLeft,cursor);lineRight=Math.max(lineRight,cursor);
         }
+        writerLineWidths.push(f(lineRight-lineLeft));
         blockLeft=Math.min(blockLeft,lineLeft);blockRight=Math.max(blockRight,lineRight);
       }
-      writer0110Origin=width/2-Math.ceil(f(f(blockLeft+blockRight)*f(.5)));
+      writerBlockHalf=Math.ceil(f(f(blockLeft+blockRight)*f(.5)));writerOrigin=width/2-writerBlockHalf;
+      if(writer0111){
+        const advance=f((this.manifest.lineFeed??this.manifest.height)*writerScaleY);
+        let lineY=0,blockHeight=advance;for(let row=1;row<lines.length;row++)blockHeight=f(blockHeight+advance);
+        writerY0=height/2-Math.ceil(f(blockHeight*f(.5)));
+        for(let row=0;row<lines.length;row++){writerLineYs.push(lineY);lineY=f(lineY+advance);}
+      }
     }
     const draws:{glyph:Glyph;x:number;y:number}[]=[];
     let lineY=0;
     lines.forEach((glyphs,row)=>{
       const runWidth=widths[row],horizontal=lineAlignment===0?alignment%3:lineAlignment-1;
-      let x=writer0110?writer0110Origin:horizontal===1&&alignment%3===1?width/2-Math.ceil(runWidth/2)
+      let x=writer0110?writerOrigin:writer0111?writerOrigin+writerBlockHalf-Math.ceil(Math.fround(writerLineWidths[row]*Math.fround(.5))):horizontal===1&&alignment%3===1?width/2-Math.ceil(runWidth/2)
         :(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
       for(const [column,g] of glyphs.entries()){if(!g)continue;
-        if(g.width&&selected[row][column])draws.push({glyph:g,x:writer0110?Math.fround(x+Math.fround(g.left*writer0110Scale)):x+g.left*sx,y:y0+(lineAdvanceScales?lineY:row*lineHeight)});
-        x=writer0110?Math.fround(x+Math.fround(g.advance*writer0110Scale)):x+g.advance*sx+spacing;
+        if(g.width&&selected[row][column])draws.push({glyph:g,x:exactWriter?Math.fround(x+Math.fround(g.left*writerScaleX)):x+g.left*sx,y:writer0111?Math.fround(writerY0+writerLineYs[row]):y0+(lineAdvanceScales?lineY:row*lineHeight)});
+        x=exactWriter?Math.fround(x+Math.fround(g.advance*writerScaleX)):x+g.advance*sx+spacing;
       }
       if(lineAdvanceScales&&row<lineAdvanceScales.length)lineY+=scaledAdvance(lineAdvanceScales[row]);
     });
+    if(writer0111&&lcdBottomEdge){
+      const f=Math.fround,[dx,dy]=rasterPhase,image=c.createImageData(Math.ceil(width)+Math.ceil(dx),Math.ceil(height)+Math.ceil(dy));
+      // The source 0x111 writer emits float32 endpoints before the upright
+      // LCD's established right-edge/bottom-edge pixel-centre ownership.
+      for(const {glyph:g,x,y} of draws){const glyphWidth=f(g.width*writerScaleX),glyphHeight=f(g.height*writerScaleY);
+        rasterNativeAlphaGlyph(image,this.glyphMask(g),{glyph:g,x:x+dx,y:y+dy,width:glyphWidth,height:glyphHeight,right:f(x+glyphWidth)+dx,bottom:f(y+glyphHeight)+dy},'bottom',coverageAdaptation);}
+      c.putImageData(image,0,0);return;
+    }
     // Native cached text batches by source texture in first-use order. Atlas
     // compaction must not erase that identity for overlapping LA glyphs.
-    for(const {glyph:g,x,y} of this.manifest.colorMode==='luminance-alpha'?sourceSheetBatches(draws):draws)c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,x,y,writer0110?Math.fround(g.width*writer0110Scale):g.width*sx,g.height*sy);
+    for(const {glyph:g,x,y} of this.manifest.colorMode==='luminance-alpha'?sourceSheetBatches(draws):draws)c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,x,y,exactWriter?Math.fround(g.width*writerScaleX):g.width*sx,writer0111?Math.fround(g.height*writerScaleY):g.height*sy);
   }
 
   /** Padded coverage for rasterNativeAlphaGlyph. */

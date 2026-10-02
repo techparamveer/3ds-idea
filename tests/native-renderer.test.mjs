@@ -327,6 +327,21 @@ test('Power multiline metrics reach the font writer only through explicit pane o
  }finally{globalThis.document=previous;}
 });
 
+test('Power footer writer 0x111 samples only its selected multiline pane at LCD centres',()=>{
+ const previous=globalThis.document,calls=[];
+ globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.clearRect=()=>{};ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
+ try{
+  const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+  const font={manifest,drawNative(...args){calls.push({value:args[1],phase:args[9],lcd:args[10],origin:args[17]});}};
+  const text={value:'A\nB',font:0,material:0,size:[17.5,21],alignment:4,lineAlignment:0,lineSpacing:0,characterSpacing:0,topColor:[1,2,3,255],bottomColor:[1,2,3,255]};
+  const source={...layout,canvas:{width:400,height:240,origin:1},fonts:['shared'],roots:[{...pane,name:'footer',kind:'txt1',size:[380,63],picture:undefined,text},{...pane,name:'sibling',kind:'txt1',size:[380,63],picture:undefined,text:{...text,value:'C\nD'}}]};
+  const renderer=new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['shared',font]])),ctx=canvas().getContext();
+  ctx.getTransform=()=>({a:1,b:0,c:0,d:1,e:10.25,f:20.5});ctx.drawImage=()=>{};
+  assert.equal(renderer.draw(ctx,'test','test',{overrides:{footer:{multilineBlockOrigin:'writer-0x111'}},textSampling:'lcd',textSamplingPanes:['footer']}),true);
+  assert.deepEqual(calls,[{value:'A\nB',phase:[.25,.5],lcd:true,origin:'writer-0x111'},{value:'C\nD',phase:[0,0],lcd:false,origin:undefined}]);renderer.dispose();
+ }finally{globalThis.document=previous;}
+});
+
 test('pane-scoped LCD sampling reaches selected single-line text without changing sibling text',()=>{
  const previous=globalThis.document,calls=[];
  globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.clearRect=()=>{};ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};

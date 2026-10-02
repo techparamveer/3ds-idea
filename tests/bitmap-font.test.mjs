@@ -171,6 +171,30 @@ test('Power opts into the source writer 0x110 float32 multiline block origin',()
  assert.throws(()=>font.drawNative({drawImage(){}},message.text,380,136,size,4,0,1,0,[0,0],false,undefined,undefined,[],false,false,scales,'writer-0x110'),/Unsupported native multiline block origin/);
 });
 
+test('Power footer writer 0x111 preserves the source float32 s right-edge tie',()=>{
+ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+ const manifest=JSON.parse(fs.readFileSync(new URL('fonts/shared/font.json',root),'utf8'));
+ const pack=JSON.parse(fs.readFileSync(new URL('packs/home/messages-and-loose.json',root),'utf8'));
+ const bank=pack.messages.menu_msbt_LZ,message=bank.messages[bank.labels.lau_press_pow5],style=pack.styles[bank.styleTable].styles[message.styleIndex];
+ const size=[manifest.width*style.fontScale[0],manifest.height*style.fontScale[1]],font=new BitmapFont(manifest,manifest.sheets.map(()=>({naturalWidth:1024,naturalHeight:1024})));
+ assert.equal(message.styleIndex,503);assert.equal(message.text,'Close the system to enter Sleep Mode.\nThe HOME Menu will appear when\nyou resume use.');
+ assert.deepEqual(style.fontScale,[.699999988079071,.699999988079071]);assert.equal(style.characterSpacing,0);assert.equal(style.lineSpacing,0);assert.deepEqual(size,[17.499999701976776,20.99999964237213]);
+ const calls=[];font.drawNative({drawImage:(...args)=>calls.push(args)},message.text,380,63,size,4,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,'writer-0x111');
+ const finalS=calls.find(args=>args[1]===76&&args[2]===65&&args[5]>120&&args[6]===-.5);
+ assert.deepEqual([finalS[5],finalS[6],finalS[7],finalS[8]],[128.10000610351562,-.5,8.399999618530273,21]);
+ assert.equal(Math.fround(finalS[5]+finalS[7]),136.5,'the source endpoint owns local LCD pixel 136');
+ assert.equal(Math.fround(10+Math.fround(finalS[5]+finalS[7])),146.5,'the pane translation places the right-edge tie at screen x=146.5');
+ const defaultCalls=[];font.drawNative({drawImage:(...args)=>defaultCalls.push(args)},message.text,380,63,size,4,0,0,0);
+ const defaultS=defaultCalls.find(args=>args[1]===76&&args[2]===65&&args[5]>120&&args[5]<140&&args[6]===-.5);
+ assert.deepEqual([defaultS[5],defaultS[7],defaultS[5]+defaultS[7]],[128.09999817609787,8.399999856948853,136.49999803304672],'the unflagged generic path remains unchanged');
+ font.glyphMask=glyph=>{const image={width:glyph.width+2,height:glyph.height+2,data:new Uint8ClampedArray((glyph.width+2)*(glyph.height+2)*4)};
+  for(let y=1;y<=glyph.height;y++)for(let x=1;x<=glyph.width;x++){const at=(y*image.width+x)*4;image.data.set([255,255,255,255],at);}return image;};
+ let image,draws=0;const firstLine=message.text.split('\n')[0],target=firstLine.lastIndexOf('s');
+ font.drawNative({createImageData:(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)}),putImageData:value=>{image=value;},drawImage(){draws++;}},message.text,380,63,size,4,0,0,0,[0,0],true,undefined,[target,target+1],[],false,false,undefined,'writer-0x111');
+ assert.equal(draws,0);assert.ok(image.data[(14*image.width+136)*4+3]>0);assert.equal(image.data[(14*image.width+137)*4+3],0);
+ assert.throws(()=>font.drawNative({drawImage(){}},message.text,380,63,size,4,0,1,0,[0,0],false,undefined,undefined,[],false,false,undefined,'writer-0x111'),/Unsupported native multiline block origin/);
+});
+
 test('native alpha glyph raster uses hard pixel-centre coverage and the atlas border for linear filtering',()=>{
  const surface=(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});
  const glyph={width:1,height:1},source=surface(3,3),target=surface(3,3),quad={glyph,x:.4,y:.4,width:1.2,height:1.2};

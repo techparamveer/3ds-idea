@@ -81,15 +81,17 @@ test('launch without the logo pack keeps the 20-frame HOME SceneOut fallback',()
  assert.equal(result.draws[0].frame,0);
 });
 
-test('Power opts only its source main message into decoded multiline writer metrics',()=>{
+test('Power scopes decoded multiline writer metrics and LCD sampling to their source panes',()=>{
  const before=JSON.stringify(homeMessages),result=overlay(350,false,{common:{},sleep:{},messages:homeMessages},'power');
  assert.equal(result.ok,true);
  const upper=result.draws.find(draw=>draw.bank==='sleep'&&draw.name==='Slp_U_00');
  assert.deepEqual(upper.overrides.T_Main_00.lineAdvanceScales,[1,.2,1,.2,1,1]);
  assert.equal(upper.overrides.T_Main_00.multilineBlockOrigin,'writer-0x110');
+ assert.equal(upper.overrides.T_Btm_00.multilineBlockOrigin,'writer-0x111');
  assert.equal(upper.overrides.T_Main_00.text,homeMessages.messages.menu_msbt_LZ.messages[homeMessages.messages.menu_msbt_LZ.labels.lau_press_pow_u1].text);
- for(const pane of ['T_Top_00','T_Btm_00']){assert.equal(upper.overrides[pane].lineAdvanceScales,undefined);assert.equal(upper.overrides[pane].multilineBlockOrigin,undefined);}
- assert.equal(upper.textSampling,undefined);assert.equal(upper.textSamplingPanes,undefined);
+ for(const pane of ['T_Top_00','T_Btm_00'])assert.equal(upper.overrides[pane].lineAdvanceScales,undefined);
+ assert.equal(upper.overrides.T_Top_00.multilineBlockOrigin,undefined);
+ assert.equal(upper.textSampling,'lcd');assert.deepEqual(upper.textSamplingPanes,['T_Btm_00']);
  const lower=result.draws.find(draw=>draw.bank==='sleep'&&draw.name==='Slp_D_00');
  assert.equal(lower.textSampling,'lcd');assert.deepEqual(lower.textSamplingPanes,['T_BtnB_01','T_BtnF_01']);
  assert.equal(JSON.stringify(homeMessages),before);

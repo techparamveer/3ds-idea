@@ -1,5 +1,16 @@
 # Software state, input and presentation
 
+[Continuous folder re-entry](../home-folder-reentry-2026-10-02.md) retains the
+existing pickup owner only across validated same-pointer Back/folder-hover
+boundaries. Validate the live departure folder separately from the immutable
+original source, including root-origin and other-folder visits. Reset departed
+widgets/input/poses, retarget moving Scale/anchor, and retain original blank
+geometry. Both the counted reducer and scene's outer reconciliation must
+preserve this contract; generic context replacements still cancel. The pickup's
+capture-fitted `suppressUpperBanner` latch records a confirmed Back visit to
+root and survives re-entry; release/cancel clear it with the owner. Initial
+folder-held title paint and banner host/readiness remain unchanged.
+
 The [closing exit](../home-closing-fade-2026-10-02.md) supersedes the earlier
 parent-fade source gap below: donor selection is traced. The existing close
 controller adds nullable `dialogExitFrame` and `exiting`/`exit-terminal` phases

@@ -15,7 +15,18 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [held stock artwork](home-held-title-artwork-2026-10-02.md),
+Latest [continuous folder re-entry](home-folder-reentry-2026-10-02.md),
+`d58bc92a` / `95989614` / `7727fa35`, keeps the native pickup/stroke across
+root-folder hover, preserves observed title suppression, and handles Back out
+of a visited folder with immutable source ownership. Fresh native comparison
+reduces re-entry lower mismatch 37,137 -> 5,284 pixels above delta 2.
+Desktop phase-paced/mobile/reduced eight-pair runs and old seven-pair Back
+regression pass; full 1,848 tests/typecheck/build pass. Whole pixel states,
+native cadence/motion/audio and existing source/sampling gaps still fail/open.
+Next: a new captured interaction or unfinished lifecycle transition; preserve
+this correction and do not repeat the bounded small-icon/footer source audits.
+
+Earlier [held stock artwork](home-held-title-artwork-2026-10-02.md),
 `e911e475`, retains the authored material binding from `edc0090e`. Folder-held
 art now reaches static delta-2 tolerance; root-held art improves but remains
 236 pixels above delta 2, maximum 54. The direct-LCD experiment regressed root

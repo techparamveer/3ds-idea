@@ -1,5 +1,23 @@
 # Workstream Registry
 
+## Folder Re-entry - 2 October 2026
+
+Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in owned
+`3ds-home-folder-drag-out-20261002` delivers `6f299639` -> `d58bc92a`,
+`7aa079b6` -> `95989614`, `33fb1c96` -> `7727fa35`. Independent reviewer
+`pickup_retarget_review` identified the follow-on visited-folder Back gap and
+verified its final correction; no remaining actionable finding. Comparator
+chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence only.
+GPT-5.6 Sol/high; no service-tier override is exposed or claimed.
+
+Coordinator alone ran fresh muted native CTM and production GUI on the now
+authorized whole Mac. Desktop phase-paced/mobile/reduced eight-pair runs and
+legacy seven-pair Back regression pass. The final sheet was opened and all
+140 manifest hashes independently verified. [Evidence](../home-folder-reentry-2026-10-02.md).
+Source tree is clean at `33fb1c96`; source, reviewer and comparator are idle.
+Both dedicated apps exit 0, production preview 3021 stays running. Whole
+scenario remains fail; original trees, private matrix and system audio intact.
+
 ## Held Artwork - 2 October 2026
 
 Existing source chat/worktree delivered `931ec40e` -> `edc0090e`, then sampling

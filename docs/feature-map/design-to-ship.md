@@ -1,7 +1,7 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `e911e475` (verified held-title material retained;
-direct-LCD sampling experiment withdrawn), 2 October 2026. This is the **ordered
+Current runtime checkpoint: `7727fa35` (continuous folder re-entry ownership,
+visibility and visited-folder Back corrected), 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing
@@ -9,7 +9,16 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
-The latest [held-artwork comparison](../home-held-title-artwork-2026-10-02.md)
+The latest [folder re-entry comparison](../home-folder-reentry-2026-10-02.md)
+fixes a visible loss of the lifted tile, dimmed toolbar and hidden footer when
+one held stroke returns from root to a folder. Upper-title suppression follows
+the observed history; Back also works from a visited folder or root-origin
+pickup. Three eight-pair production variants and legacy Back regression pass.
+Whole lower improves 37,137 -> 5,284 pixels above delta 2, not a scenario pass.
+Preserve these fixes; continue a new captured interaction or the unfinished
+lifecycle priorities below. Do not repeat source-only artwork/footer audits.
+
+The earlier [held-artwork comparison](../home-held-title-artwork-2026-10-02.md)
 closes the folder artwork's static delta-2 region, not the whole scenario.
 Root-held artwork, the folder shell edge and held footer/gutter still fail.
 The bounded genuine SMDH24 diagnostic is mixed and not integrated; do not

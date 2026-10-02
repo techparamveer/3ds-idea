@@ -1,5 +1,16 @@
 # Verification and evidence architecture
 
+[Folder re-entry](../home-folder-reentry-2026-10-02.md) compares one continuous
+held stroke through Back and the same folder, not a committed root placement.
+Match folder coordinates with reversible real-input fixture preparation;
+verify exact layout/children restoration. Capture both owner/latch state and
+raw pixels: a surviving fallback ghost can conceal native pickup ownership
+loss while its lift, backing and footer are wrong. Check repeated visits,
+different-folder/root-source Back, counted clock remainders and outside cancel.
+Keep initial held, root held, re-entered held and released pairs distinct;
+missed native phases cannot be inferred from browser captures. A shortened
+settled replay and a nominal phase-paced replay are not exact native epochs.
+
 [Held artwork](../home-held-title-artwork-2026-10-02.md) distinguishes authored
 material binding from its picture transport. Compare small/root and large/folder
 poses separately, including artwork, shell and shadow; a draw-wide sampler can

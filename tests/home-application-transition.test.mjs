@@ -7,6 +7,7 @@ import {
   advanceHomeApplicationTransition,
   beginHomeApplicationTransition,
   cancelHomeApplicationTransition,
+  homeApplicationTransitionFooterExit,
   homeApplicationTransitionPresentation,
   sampleHomeApplicationTransition,
 } from '../src/os/home-application-transition.ts';
@@ -53,6 +54,18 @@ test('close presentation names and bounds match the delivered HOME sources', () 
   const mask = JSON.parse(readFileSync(maskUrl)).animations.DlgMask_D_00_FadeOut00;
   assert.equal(mask.frames - 1, HOME_APPLICATION_TRANSITION_SOURCE.closingDialog.lastFrame);
   assert.equal(mask.loop, false);
+
+  const launcherUrl = new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url);
+  const footerExit = JSON.parse(readFileSync(launcherUrl)).animations[HOME_APPLICATION_TRANSITION_SOURCE.postModalFooterExit.clip];
+  assert.ok(footerExit);
+  assert.equal(footerExit.frames - 1, HOME_APPLICATION_TRANSITION_SOURCE.postModalFooterExit.lastFrame);
+  assert.equal(footerExit.loop, false);
+  assert.deepEqual(footerExit.groups, ['G_Scene_00']);
+  const footerSceneTracks = footerExit.tracks.filter(track => track.target === 'N_Scene_00');
+  assert.deepEqual(footerSceneTracks.map(track => [track.property, track.keys.map(key => [key.frame, key.value])]), [
+    ['translation.y', [[0, 0], [14, -32]]],
+    ['alpha', [[0, 255], [14, 0]]],
+  ]);
 });
 
 test('begin is immutable, idempotent for one identity, and replaces only on an explicit fresh identity', () => {
@@ -60,7 +73,8 @@ test('begin is immutable, idempotent for one identity, and replaces only on an e
   assert.equal(first.processedUpdates, 0);
   assert.deepEqual(first.observations.map(item => item.kind), ['started']);
   assert.deepEqual(first.state, {
-    identity: identity(), intent: { kind: 'close' }, phase: 'closing', appQuitFrame: 0, dialogExitFrame: null,
+    identity: identity(), intent: { kind: 'close' }, phase: 'closing', appQuitFrame: 0,
+    dialogExitFrame: null, footerExitFrame: null,
   });
   assert.equal(Object.isFrozen(first.state), true);
   assert.equal(beginHomeApplicationTransition(first.state, identity(), { kind: 'switch', appId: 'camera' }).state, first.state);
@@ -70,9 +84,10 @@ test('begin is immutable, idempotent for one identity, and replaces only on an e
   assert.deepEqual(replacement.state.intent, { kind: 'switch', appId: 'about' });
   assert.equal(replacement.state.appQuitFrame, 0);
   assert.equal(replacement.state.dialogExitFrame, null);
+  assert.equal(replacement.state.footerExitFrame, null);
 });
 
-test('close stops at AppQuit, exit-start and exit-terminal paint barriers before commit', () => {
+test('close stops at AppQuit, dialog-exit and post-modal footer paint barriers before commit', () => {
   const started = beginHomeApplicationTransition(null, identity(), { kind: 'close' }).state;
   const first = advanceHomeApplicationTransition(started, identity(), 19, { eligible: true });
   assert.equal(first.state.phase, 'closing');
@@ -98,7 +113,22 @@ test('close stops at AppQuit, exit-start and exit-terminal paint barriers before
   assert.equal(exitTerminal.processedUpdates, 20, 'remaining batch updates cannot skip the exit terminal boundary');
   assert.deepEqual(exitTerminal.observations.map(item => [item.kind, item.stepOffset]), [['exitTerminalPresented', 19]]);
 
-  const commit = advanceHomeApplicationTransition(exitTerminal.state, identity(), 50, { eligible: true });
+  const footerStart = advanceHomeApplicationTransition(exitTerminal.state, identity(), 50, { eligible: true });
+  assert.equal(footerStart.state.phase, 'footer-exiting');
+  assert.equal(footerStart.state.footerExitFrame, 0);
+  assert.equal(footerStart.processedUpdates, 1, 'footer frame 0 cannot be skipped by a large batch');
+  assert.deepEqual(footerStart.observations.map(item => [item.kind, item.stepOffset]), [['footerExitStarted', 0]]);
+  assert.deepEqual(homeApplicationTransitionFooterExit(footerStart.state), {
+    clip: 'LncBtmBtn_02_SceneOut', frame: 0,
+  });
+
+  const footerTerminal = advanceHomeApplicationTransition(footerStart.state, identity(), 50, { eligible: true });
+  assert.equal(footerTerminal.state.phase, 'footer-terminal');
+  assert.equal(footerTerminal.state.footerExitFrame, 14);
+  assert.equal(footerTerminal.processedUpdates, 14, 'remaining batch updates cannot skip the footer terminal boundary');
+  assert.deepEqual(footerTerminal.observations.map(item => [item.kind, item.stepOffset]), [['footerExitTerminalPresented', 13]]);
+
+  const commit = advanceHomeApplicationTransition(footerTerminal.state, identity(), 50, { eligible: true });
   assert.equal(commit.state.phase, 'complete');
   assert.equal(commit.processedUpdates, 1);
   assert.deepEqual(commit.observations.map(item => [item.kind, item.stepOffset]), [['commitOwnerClose', 0]]);
@@ -113,10 +143,12 @@ test('switch retains the original AppQuit terminal-to-commit lifecycle', () => {
   assert.equal(terminal.processedUpdates, 20);
   assert.deepEqual(terminal.observations[0].intent, { kind: 'switch', appId: 'camera' });
   assert.equal(terminal.state.dialogExitFrame, null);
+  assert.equal(terminal.state.footerExitFrame, null);
 
   const commit = advanceHomeApplicationTransition(terminal.state, identity(), 100, { eligible: true });
   assert.equal(commit.state.phase, 'complete');
   assert.equal(commit.state.dialogExitFrame, null);
+  assert.equal(commit.state.footerExitFrame, null);
   assert.equal(commit.processedUpdates, 1);
   assert.deepEqual(commit.observations.map(item => [item.kind, item.stepOffset]), [['commitOwnerClose', 0]]);
 });
@@ -142,12 +174,22 @@ test('inhibited updates are consumed without catch-up and stale owners cannot ad
   assert.equal(cancelHomeApplicationTransition(exiting, stale).state, exiting);
   assert.equal(cancelHomeApplicationTransition(exiting, identity()).state, null);
 
+  const exitTerminal = advanceHomeApplicationTransition(exiting, identity(), 20, { eligible: true }).state;
+  const footerExiting = advanceHomeApplicationTransition(exitTerminal, identity(), 1, { eligible: true }).state;
+  const pausedFooter = advanceHomeApplicationTransition(footerExiting, identity(), 30, { eligible: false });
+  assert.equal(pausedFooter.state, footerExiting);
+  assert.equal(pausedFooter.state.footerExitFrame, 0);
+  assert.equal(pausedFooter.processedUpdates, 30);
+  assert.equal(advanceHomeApplicationTransition(footerExiting, stale, 10, { eligible: true }).state, footerExiting);
+  assert.equal(cancelHomeApplicationTransition(footerExiting, stale).state, footerExiting);
+
   const replacement = beginHomeApplicationTransition(exiting, identity(2, 'camera:2'),
     { kind: 'switch', appId: 'about' }).state;
   assert.deepEqual(replacement.identity, identity(2, 'camera:2'));
   assert.deepEqual(replacement.intent, { kind: 'switch', appId: 'about' });
   assert.equal(replacement.phase, 'closing');
   assert.equal(replacement.dialogExitFrame, null);
+  assert.equal(replacement.footerExitFrame, null);
 });
 
 test('presentation layers AppQuit over the settled suspended source pose', () => {
@@ -161,6 +203,15 @@ test('presentation layers AppQuit over the settled suspended source pose', () =>
     ],
   });
   assert.equal(homeApplicationTransitionPresentation(state, true).material[1].frame, 20);
+  assert.equal(homeApplicationTransitionFooterExit(state), null);
+
+  state = advanceHomeApplicationTransition(state, identity(), 13, { eligible: true }).state;
+  state = advanceHomeApplicationTransition(state, identity(), 1, { eligible: true }).state;
+  state = advanceHomeApplicationTransition(state, identity(), 20, { eligible: true }).state;
+  state = advanceHomeApplicationTransition(state, identity(), 1, { eligible: true }).state;
+  assert.equal(state.phase, 'footer-exiting');
+  assert.deepEqual(homeApplicationTransitionFooterExit(state), { clip: 'LncBtmBtn_02_SceneOut', frame: 0 });
+  assert.deepEqual(homeApplicationTransitionFooterExit(state, true), { clip: 'LncBtmBtn_02_SceneOut', frame: 14 });
   assert.equal(cancelHomeApplicationTransition(state, identity()).state, null);
 });
 

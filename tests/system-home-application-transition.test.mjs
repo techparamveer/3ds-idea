@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { homeApplicationTransitionPresentation } from '../src/os/home-application-transition.ts';
+import { homeApplicationTransitionFooterExit, homeApplicationTransitionPresentation } from '../src/os/home-application-transition.ts';
 import { selectHomeLocation } from '../src/os/home-layout.ts';
 import { enableHomeControls } from '../src/os/home-controls.ts';
 import { getHomeFooter } from '../src/os/home-presentation.ts';
@@ -42,7 +42,7 @@ test('folder Health Close release retires software without departing its folder'
     assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'closing');
     assert.equal(sampleSystemHomeFolderClose(state), null);
     assert.equal(state.system.runtime.application, owner);
-    state = closeExitTerminal(state);
+    state = closeFooterTerminal(state);
     state = tickSystem(state, state.system.homeClock.lastNow + FRAME);
     assert.equal(state.system.app, null);
     assert.equal(state.system.runtime.application, null);
@@ -143,7 +143,22 @@ function closeExitTerminal(state, now = 6500) {
   return state;
 }
 
-test('confirmed close retains owner through both paintable terminal frames', () => {
+function closeFooterTerminal(state, now = 6500) {
+  state = closeExitTerminal(state, now);
+  state = tickSystem(state, state.system.homeClock.lastNow + FRAME);
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'footer-exiting');
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.footerExitFrame, 0,
+    'a later host update publishes the post-modal footer exit start');
+  const startCount = state.system.homeClock.updateCount;
+  state = tickSystem(state, state.system.homeClock.lastNow + 40 * FRAME);
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'footer-terminal');
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.footerExitFrame, 14);
+  assert.equal(state.system.homeClock.updateCount, startCount + 14,
+    'outer batch stops at the post-modal footer terminal frame');
+  return state;
+}
+
+test('confirmed close retains owner through AppQuit, dialog-exit and footer terminal frames', () => {
   let state = confirmClose(suspended());
   const owner = state.system.runtime.application;
   const transition = sampleSystemHomeApplicationTransition(state);
@@ -152,13 +167,13 @@ test('confirmed close retains owner through both paintable terminal frames', () 
   assert.equal(transition.identity.transitionId, 1);
   assert.equal(state.system.homeFolderClose.nextTransitionId, 2, 'one shared monotonic HOME allocator owns begin');
 
-  state = closeExitTerminal(state);
+  state = closeFooterTerminal(state);
   assert.equal(state.system.runtime.application, owner);
   assert.equal(state.system.runtime.homeReturn, owner);
   assert.equal(state.system.runtime.instances[owner].suspended, true);
 
   const sameTimestamp = tickSystem(state, state.system.homeClock.lastNow);
-  assert.equal(sampleSystemHomeApplicationTransition(sameTimestamp)?.phase, 'exit-terminal');
+  assert.equal(sampleSystemHomeApplicationTransition(sameTimestamp)?.phase, 'footer-terminal');
   state = tickSystem(sameTimestamp, state.system.homeClock.lastNow + FRAME);
   assert.equal(state.system.homeApplicationTransition, null);
   assert.equal(state.system.runtime.application, null);
@@ -263,6 +278,25 @@ test('lid sleep pauses the dialog exit clock without replaying hidden elapsed ti
   assert.equal(state.system.homeApplicationTransition.dialogExitFrame, transition.dialogExitFrame + 1);
 });
 
+test('lid sleep pauses the post-modal footer exit without replaying hidden elapsed time', () => {
+  let state = confirmClose(suspended());
+  state = closeExitTerminal(state);
+  state = tickSystem(state, state.system.homeClock.lastNow + FRAME);
+  state = tickSystem(state, state.system.homeClock.lastNow + 5 * FRAME);
+  const transition = state.system.homeApplicationTransition, owner = state.system.runtime.application;
+  assert.equal(transition.phase, 'footer-exiting');
+  assert.equal(transition.footerExitFrame, 5);
+
+  state = setSystemSleeping(state, true, state.system.homeClock.lastNow);
+  state = tickSystem(state, 90000);
+  assert.equal(state.system.homeApplicationTransition.footerExitFrame, transition.footerExitFrame);
+  assert.equal(state.system.runtime.application, owner);
+  state = setSystemSleeping(state, false, 90000);
+  state = tickSystem(state, 90000);
+  state = tickSystem(state, 90000 + FRAME);
+  assert.equal(state.system.homeApplicationTransition.footerExitFrame, transition.footerExitFrame + 1);
+});
+
 test('reduced presentation samples the endpoint without skipping logical owner retention', () => {
   let state = confirmClose(suspended()), transition = sampleSystemHomeApplicationTransition(state);
   assert.equal(transition.appQuitFrame, 0);
@@ -272,6 +306,14 @@ test('reduced presentation samples the endpoint without skipping logical owner r
   transition = sampleSystemHomeApplicationTransition(state);
   assert.equal(transition.phase, 'terminal');
   assert.ok(state.system.runtime.application);
+
+  state = closeExitTerminal(confirmClose(suspended()), 6500);
+  state = tickSystem(state, state.system.homeClock.lastNow + FRAME, true);
+  transition = sampleSystemHomeApplicationTransition(state);
+  assert.equal(transition.phase, 'footer-exiting');
+  assert.deepEqual(homeApplicationTransitionFooterExit(transition), { clip: 'LncBtmBtn_02_SceneOut', frame: 0 });
+  assert.deepEqual(homeApplicationTransitionFooterExit(transition, true), { clip: 'LncBtmBtn_02_SceneOut', frame: 14 });
+  assert.ok(state.system.runtime.application, 'reduced presentation cannot retire the owner before logical terminal');
 });
 
 test('switch confirmation from an opened folder starts the same retained-owner transition', () => {

@@ -1,16 +1,19 @@
 /**
  * Pure HOME suspended-application close controller.
  *
- * The pinned BannerBG supplies a 20-frame AppQuit material clip, and the
- * delivered lower dialog supplies a 20-frame FadeOut00 clip. The host maps one
- * eligible HOME update to one source frame as an explicit scheduling
- * adaptation; no millisecond, native APT epoch or native phase gap is inferred.
+ * The pinned BannerBG supplies a 20-frame AppQuit material clip, the delivered
+ * lower dialog supplies a 20-frame FadeOut00 clip, and the HOME footer supplies
+ * a frame-14 SceneOut endpoint after that dialog is gone. The
+ * host maps one eligible HOME update to one source frame as an explicit
+ * scheduling adaptation; no millisecond, native APT epoch or native phase gap
+ * is inferred.
  */
 export const HOME_APPLICATION_TRANSITION_SOURCE = Object.freeze({
   sceneIn: Object.freeze({ clip: 'BannerBG_SceneIn', settledFrame: 20 }),
   appPause: Object.freeze({ clip: 'BannerBG_AppPause', settledFrame: 20 }),
   appQuit: Object.freeze({ clip: 'BannerBG_AppQuit', lastFrame: 20 }),
   closingDialog: Object.freeze({ clip: 'Dlg_A_D_02_FadeOut00', lastFrame: 20 }),
+  postModalFooterExit: Object.freeze({ clip: 'LncBtmBtn_02_SceneOut', lastFrame: 14 }),
   /** Present in the source pack, but not mapped to the observed close route. */
   appRestart: Object.freeze({ clip: 'BannerBG_AppRestart', lastFrame: 40 }),
   /** Present in the source pack, but its live close predicate is untraced. */
@@ -29,9 +32,16 @@ export type HomeApplicationTransitionIntent = Readonly<{ kind: 'close' }>
 export type HomeApplicationTransition = Readonly<{
   identity: HomeApplicationTransitionIdentity;
   intent: HomeApplicationTransitionIntent;
-  phase: 'closing' | 'terminal' | 'exiting' | 'exit-terminal' | 'complete';
+  phase: 'closing' | 'terminal' | 'exiting' | 'exit-terminal'
+    | 'footer-exiting' | 'footer-terminal' | 'complete';
   appQuitFrame: number;
   dialogExitFrame: number | null;
+  footerExitFrame: number | null;
+}>;
+
+export type HomeApplicationTransitionFooterExit = Readonly<{
+  clip: 'LncBtmBtn_02_SceneOut';
+  frame: number;
 }>;
 
 export type HomeApplicationTransitionPresentation = Readonly<{
@@ -49,7 +59,8 @@ export type HomeApplicationTransitionObservation = Readonly<{
   kind: 'started';
   stepOffset: null;
 }> | Readonly<{
-  kind: 'terminalPresented' | 'exitStarted' | 'exitTerminalPresented' | 'commitOwnerClose';
+  kind: 'terminalPresented' | 'exitStarted' | 'exitTerminalPresented'
+    | 'footerExitStarted' | 'footerExitTerminalPresented' | 'commitOwnerClose';
   stepOffset: number;
 }>);
 
@@ -117,6 +128,7 @@ export function beginHomeApplicationTransition(current: HomeApplicationTransitio
     phase: 'closing',
     appQuitFrame: 0,
     dialogExitFrame: null,
+    footerExitFrame: null,
   });
   return result(state, [Object.freeze({ kind: 'started', identity: state.identity, intent: state.intent, stepOffset: null })]);
 }
@@ -125,8 +137,11 @@ export function beginHomeApplicationTransition(current: HomeApplicationTransitio
  * Advances source frames only on eligible HOME updates. Reaching either source
  * frame 20 stops the batch at a terminal-presentation barrier. Switch commits
  * after the AppQuit barrier as before. Close publishes dialog exit frame 0 on
- * the next eligible host call, advances through its own barrier, then commits
- * on a later call so both endpoints can be painted before owner retirement.
+ * the next eligible host call and advances through its own barrier. It then
+ * publishes post-modal footer SceneOut frame 0, advances through frame 14 and
+ * commits only on a later call so every endpoint can be painted before owner
+ * retirement. This source-clock start binding is capture-fitted, not proof of
+ * the native controller epoch.
  */
 export function advanceHomeApplicationTransition(state: HomeApplicationTransition | null,
   identity: HomeApplicationTransitionIdentity, updates: number,
@@ -137,12 +152,34 @@ export function advanceHomeApplicationTransition(state: HomeApplicationTransitio
   if (!state || !sameIdentity(state, identity) || state.phase === 'complete' || updates === 0) return result(state);
   if (!input.eligible) return result(state, [], updates);
 
-  if (state.phase === 'exit-terminal'
+  if (state.phase === 'footer-terminal'
     || (state.phase === 'terminal' && state.intent.kind === 'switch')) {
     const complete = Object.freeze({ ...state, phase: 'complete' as const });
     return result(complete, [Object.freeze({
       kind: 'commitOwnerClose', identity: complete.identity, intent: complete.intent, stepOffset: 0,
     })], 1);
+  }
+
+  if (state.phase === 'exit-terminal') {
+    const departing = Object.freeze({ ...state, phase: 'footer-exiting' as const, footerExitFrame: 0 });
+    return result(departing, [Object.freeze({
+      kind: 'footerExitStarted', identity: departing.identity, intent: departing.intent, stepOffset: 0,
+    })], 1);
+  }
+
+  if (state.phase === 'footer-exiting') {
+    let next = state;
+    for (let stepOffset = 0; stepOffset < updates; stepOffset += 1) {
+      const footerExitFrame = Math.min(HOME_APPLICATION_TRANSITION_SOURCE.postModalFooterExit.lastFrame,
+        next.footerExitFrame! + 1);
+      const terminal = footerExitFrame === HOME_APPLICATION_TRANSITION_SOURCE.postModalFooterExit.lastFrame;
+      next = Object.freeze({ ...next, footerExitFrame,
+        phase: terminal ? 'footer-terminal' as const : 'footer-exiting' as const });
+      if (terminal) return result(next, [Object.freeze({
+        kind: 'footerExitTerminalPresented', identity: next.identity, intent: next.intent, stepOffset,
+      })], stepOffset + 1);
+    }
+    return result(next, [], updates);
   }
 
   if (state.phase === 'terminal') {
@@ -189,6 +226,18 @@ export function cancelHomeApplicationTransition(state: HomeApplicationTransition
 /** Immutable logical sample; painting and repeated reads never advance it. */
 export function sampleHomeApplicationTransition(state: HomeApplicationTransition | null): HomeApplicationTransition | null {
   return state;
+}
+
+/**
+ * Pure source-pose selector for the observed post-modal old-footer departure.
+ * Reduced motion selects the authored endpoint without advancing logical state.
+ */
+export function homeApplicationTransitionFooterExit(state: HomeApplicationTransition | null,
+  reduced = false): HomeApplicationTransitionFooterExit | null {
+  if (!state || state.intent.kind !== 'close'
+    || (state.phase !== 'footer-exiting' && state.phase !== 'footer-terminal')) return null;
+  return Object.freeze({ clip: HOME_APPLICATION_TRANSITION_SOURCE.postModalFooterExit.clip,
+    frame: reduced ? HOME_APPLICATION_TRANSITION_SOURCE.postModalFooterExit.lastFrame : state.footerExitFrame! });
 }
 
 /**

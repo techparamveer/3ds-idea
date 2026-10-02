@@ -17,7 +17,8 @@ import { createHomeTileTouch, queueHomeTileTouch, resetHomeTileTouch, sampleHome
   advanceHomeTileTouch2D, homeTileTouchPoses, type HomeTileTouch } from './home-tile-touch.ts';
 import { homeTouchLocation, beginHomePickupGesture, type HomeGesture } from './home-gestures.ts';
 import { homeItemAt, type HomeItem, type HomeLocation } from './home-layout.ts';
-import { createHomeTilePickup, positionHomeTilePickup, advanceHomeTilePickup2D, type HomeTilePickup } from './home-tile-pickup.ts';
+import { createHomeTilePickup, fittedHomePickupAnchor, positionHomeTilePickup, retargetHomeTilePickup,
+  advanceHomeTilePickup2D, type HomeTilePickup } from './home-tile-pickup.ts';
 import { advanceHomeBalloonPresentation, createHomeBalloonPresentation, type HomeBalloonPresentation } from './home-balloon-presentation.ts';
 
 export type HomeControls = Readonly<{
@@ -209,10 +210,12 @@ export function reconcileHomeControls(before: MenuState, state: MenuState): Menu
     const gesture = state.system!.homeNavigation.gesture;
     if (carriesFolderPickupToRoot(before, state, controls, gesture)) {
       const nav = state.system!.homeNavigation;
+      const pickup = retargetHomeTilePickup(controls.tilePickup!, sampleHomeGrid(nav).densityValue,
+        { x: gesture!.x, y: gesture!.y }, fittedHomePickupAnchor(sampleHomeGrid(nav).densityValue));
       return put(state, { ...controls, input: createHomeInputAdapter(), producer: createHomeInputProducer(),
         primary: createHomePrimaryCursor({ request: 2, shown: false, layoutVisible: false, center: selectedCenter(nav) }),
         presentation: createHomeCursorPresentation(sampleHomeGrid(nav).densityValue),
-        tileTouch: carryHomeTileTouch(controls.tileTouch), tileCandidate: null });
+        tileTouch: carryHomeTileTouch(controls.tileTouch), tileCandidate: null, tilePickup: pickup });
     }
     state = cancelHomeControls(state); controls = state.system!.homeControls!;
     const nav = state.system!.homeNavigation;
@@ -264,10 +267,10 @@ export function stepHomeControls(state: MenuState): HomeControlPass {
           ...(nav.activeFolderSlot === null ? { rootView: record } : { folderViews: { ...nav.folderViews, [nav.activeFolderSlot]: record } }) });
         state = beginHomePickupGesture(state, ordinaryGesture); ordinaryGesture = null;
         controls = { ...controls, primary: setHomePrimaryCursorRequest(controls.primary, 2),
-          // Retain the existing browser's zero anchor until its native initializer
-          // is traced. Content is the portfolio icon supplied to native layouts.
+          // The host supplies the capture-fitted anchor; unsupported density
+          // frames retain the named zero-anchor adaptation.
           tilePickup: createHomeTilePickup(candidate, grid.densityValue,
-            { x: source.x - grid.scrollPixels, y: source.y }, touch.point, { x: 0, y: 0 }) };
+            { x: source.x - grid.scrollPixels, y: source.y }, touch.point, fittedHomePickupAnchor(grid.densityValue)) };
         sounds.push('grab');
       } else if (homeItemAt(state, { folder: nav.activeFolderSlot, slot: event.slot })?.kind === 'folder' || nav.focus.toolbarActive) {
         // Folder-icon/toolbar pickup has not been traced. Release this native

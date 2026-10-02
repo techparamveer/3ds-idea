@@ -4,6 +4,8 @@ import { createPortfolioState, tickSystem, dispatchSystemEvent, reduceSystem, to
   tickHomeNavigationClockObserved, releaseSystemInputs, setSystemSleeping } from '../src/os/system.ts';
 import { enableHomeControls, queueHomeControlTouch, cancelHomeControlTouch } from '../src/os/home-controls.ts';
 import { resetHomeTileTouch } from '../src/os/home-tile-touch.ts';
+import { advanceHomeTilePickup2D, createHomeTilePickup, fittedHomePickupAnchor,
+  retargetHomeTilePickup } from '../src/os/home-tile-pickup.ts';
 import { createHomeNavigation, writeHomeNavigation, activeHomeRecord, sampleHomeGrid, enterHomeFolder } from '../src/os/home-navigation.ts';
 import { reduceMenu } from '../src/os/state.ts';
 import { createHomeBannerHost, crossHomeBannerBoundary, skipHomeBannerHostPass } from '../src/os/home-banner-host.ts';
@@ -13,6 +15,31 @@ const at = (state, count) => tickHomeNavigationClockObserved(state, T + count * 
 const nav = s => s.system.homeNavigation;
 const ctl = s => s.system.homeControls;
 const selected = s => activeHomeRecord(nav(s)).selectedSlot;
+
+test('pickup retarget submits destination Scale while retaining source blank geometry', () => {
+  const source = Object.freeze({ folder: 40, slot: 2 });
+  const entered = advanceHomeTilePickup2D(createHomeTilePickup(source, 1,
+    { x: 244, y: 137 }, { x: 244, y: 137 }, fittedHomePickupAnchor(1)));
+  assert.deepEqual(entered.center, { x: 244, y: 123 });
+  const rootAnchor = fittedHomePickupAnchor(5);
+  const retargeted = retargetHomeTilePickup(entered, 5, { x: 59, y: 54 }, rootAnchor);
+  assert.deepEqual(retargeted.source, source);
+  assert.deepEqual(retargeted.center, { x: 59, y: 48.75 });
+  assert.deepEqual(retargeted.anchor, { x: 0, y: -5.25 });
+  assert.deepEqual(retargeted.scale, { currentFrame: 5, appliedFrame: 5 });
+  assert.deepEqual(retargeted.blankCenter, entered.blankCenter);
+  assert.deepEqual(retargeted.blankScale, { currentFrame: 1, appliedFrame: 1 });
+  assert.equal(retargetHomeTilePickup(retargeted, 5, { x: 59, y: 54 }, rootAnchor), retargeted);
+  assert.throws(() => retargetHomeTilePickup(retargeted, 6, { x: 0, y: 0 }, { x: 0, y: 0 }), /density/);
+});
+
+test('pickup lift fit names only measured Scale1 and Scale5 while retaining zero gaps', () => {
+  assert.deepEqual(fittedHomePickupAnchor(1), { x: 0, y: -14 });
+  assert.deepEqual(fittedHomePickupAnchor(5), { x: 0, y: -5.25 });
+  for (const density of [0, 2, 2.5, 3, 4]) assert.deepEqual(fittedHomePickupAnchor(density), { x: 0, y: 0 });
+  assert.throws(() => fittedHomePickupAnchor(-1), /density/);
+});
+
 function home(slot = 0, folder = false) {
   let s = tickSystem(createPortfolioState(), 3001);
   if (folder) s = enterHomeFolder(reduceMenu(writeHomeNavigation(s, { ...createHomeNavigation(), rootView: { ...createHomeNavigation().rootView, selectedSlot: 40 } }), 'open'), 40);

@@ -10,7 +10,7 @@ import { HOME_GESTURE_TIMING as T, homeTouchLocation } from '../src/os/home-gest
 import { resolveHomeDrop, restoreHomeLayout } from '../src/os/home-layout.ts';
 import { enableHomeControls, reconcileHomeControls } from '../src/os/home-controls.ts';
 import { openFirmwareStorage } from '../src/os/app-persistence.ts';
-import {setHomeDensity as setHomeDensityMotion,homeDensityIndex,commitHomeScroll,getHomeNavigationView} from '../src/os/home-navigation.ts';
+import {setHomeDensity as setHomeDensityMotion,homeDensityIndex,commitHomeScroll,getHomeNavigationView,writeHomeNavigation} from '../src/os/home-navigation.ts';
 const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
 const home=()=>tickSystem(createPortfolioState(),3001);
 const root=slot=>({folder:null,slot});
@@ -93,19 +93,26 @@ test('holding a folder child over Back carries the same pickup to retained root 
  assert.notEqual(saveSettings(s),before);
 });
 test('the production context wrapper retains pickup while rebasing departed folder controls',()=>{
- let s=enableHomeControls(placeInFolder());s=lift(s,2,5200);const source=child(4,2),back=[59,54];
+ let s=placeInFolder();s=writeHomeNavigation(s,{...s.system.homeNavigation,rootView:{...s.system.homeNavigation.rootView,density:5}});
+ s=enableHomeControls(s);s=lift(s,2,5200);const source=child(4,2),back=[59,54];
+ assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:1,appliedFrame:1});
+ assert.deepEqual(s.system.homeControls.tilePickup.blankScale,{currentFrame:1,appliedFrame:1});
  s=touch(s,'move',...back,5700);const before=s;
  s=reconcileHomeControls(before,tickSystem(s,5700+T.folderHoverMs));
  assert.equal(s.opened,false);assert.deepEqual(getHomeGestureView(s).dragged.source,source);
  assert.deepEqual(s.system.homeControls.tilePickup.source,source);assert.equal(s.system.homeControls.tileTouch.strokeOwned,true);
+ assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
+ assert.deepEqual(s.system.homeControls.tilePickup.blankScale,{currentFrame:1,appliedFrame:1});
+ assert.deepEqual(s.system.homeControls.tilePickup.anchor,{x:0,y:-5.25});
+ assert.deepEqual(s.system.homeControls.tilePickup.center,{x:back[0],y:back[1]-5.25});
  assert.deepEqual(s.system.homeControls.tileTouch.latest,{x:back[0],y:back[1],down:true});
  assert.deepEqual(s.system.homeControls.tileTouch.widgets,{});assert.deepEqual(s.system.homeControls.tilePoses,{});
  const selectedPoint=center(s,s.selected);
  assert.deepEqual(s.system.homeControls.primary,{request:2,shown:false,layoutVisible:false,center:{x:selectedPoint[0],y:selectedPoint[1]}});
  for(const now of [5700+T.folderHoverMs+100,5700+T.folderHoverMs+300])s=reconcileHomeControls(s,tickSystem(s,now));
  assert.deepEqual(s.system.homeControls.tilePickup.source,source);assert.equal(s.system.homeControls.tileTouch.latest.down,true);
- s=touch(s,'up',...back,5700+T.folderHoverMs+301);
- assert.equal(s.system.layout[0],'projects');assert.equal(s.system.folderLayouts[4][2],'work');assert.equal(s.system.homeControls.tilePickup,null);noLoss(s);
+ s=touch(s,'cancel',...back,5700+T.folderHoverMs+301);
+ assert.equal(s.system.layout[0],'work');assert.equal(s.system.folderLayouts[4][2],'projects');assert.equal(s.system.homeControls.tilePickup,null);noLoss(s);
 });
 test('the pre-existing immediate folder-band exit keeps its generic control reset',()=>{
  let s=enableHomeControls(placeInFolder());s=lift(s,2,5200);assert.ok(s.system.homeControls.tilePickup);

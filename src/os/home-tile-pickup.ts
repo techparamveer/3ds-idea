@@ -20,9 +20,17 @@ const point = (p: Point): Point => {
   return Object.freeze({ x: Math.fround(p.x), y: Math.fround(p.y) });
 };
 
+/** Own-PNG fitted pointer-to-pickup lifts. Only source folder Scale1 and
+ * restored-root Scale5 have matched held captures; all other frames retain the
+ * preceding zero-anchor adaptation rather than inventing interpolation. */
+export function fittedHomePickupAnchor(density: number): Point {
+  if (!Number.isFinite(density) || density < 0 || density > 5) throw new RangeError('Invalid HOME pickup density');
+  return point({ x: 0, y: density === 1 ? -14 : density === 5 ? -5.25 : 0 });
+}
+
 /** Native mode5 starts/seeks now; neither layout has submitted Scale yet.
- * Anchor is deliberately required: its initialization is not established by
- * the stationary entry trace. Browser callers must name their supplied policy. */
+ * Anchor is deliberately required: browser callers must name their supplied
+ * measured or gap policy instead of deriving it in presentation. */
 export function createHomeTilePickup(source: HomeLocation, density: number, blankCenter: Point,
   touch: Point, anchor: Point): HomeTilePickup {
   if (!Number.isInteger(source.slot) || source.slot < 0
@@ -40,6 +48,21 @@ export function createHomeTilePickup(source: HomeLocation, density: number, blan
 export function positionHomeTilePickup(state: HomeTilePickup, touch: Point): HomeTilePickup {
   const center = point({ x: Math.fround(touch.x) + state.anchor.x, y: Math.fround(touch.y) + state.anchor.y });
   return center.x === state.center.x && center.y === state.center.y ? state : Object.freeze({ ...state, center });
+}
+
+/** Rebind the moving pickup to a destination grid while retaining the source
+ * placeholder's geometry. A context boundary has already submitted this Scale,
+ * so the first destination paint must not expose the departed container frame. */
+export function retargetHomeTilePickup(state: HomeTilePickup, density: number, touch: Point,
+  anchor: Point): HomeTilePickup {
+  if (!Number.isFinite(density) || density < 0 || density > 5) throw new RangeError('Invalid HOME pickup density');
+  const currentFrame = Math.fround(density), offset = point(anchor);
+  const center = point({ x: Math.fround(touch.x) + offset.x, y: Math.fround(touch.y) + offset.y });
+  if (state.scale.currentFrame === currentFrame && state.scale.appliedFrame === currentFrame
+    && state.anchor.x === offset.x && state.anchor.y === offset.y
+    && state.center.x === center.x && state.center.y === center.y) return state;
+  return Object.freeze({ ...state, anchor: offset, center,
+    scale: Object.freeze({ currentFrame, appliedFrame: currentFrame }) });
 }
 
 /** Mode5 submits the seek frame on each eligible layout pass, without advancing. */

@@ -114,12 +114,61 @@ Immutable v2 identities:
 - inspected native lower/footer sheet SHA-256
   `8c6de457e27a7038ac02efcb23044defad5553c27bdcac7f64fdc8a500a06495`.
 
+## Fresh production-before comparison
+
+The fresh production-before run used runtime `43b8be55` at coordinator HEAD
+`d33d67a9`. Actual pointer input created empty folder 8 at root slot 34,
+opened it, returned and deleted it; then it selected existing folder 6 at root
+slot 19 and captured the occupied/vacant/occupied child sequence. No state was
+injected. Result SHA-256
+`3829d1cfcfbbac17ef7b611961cda84a4ece4ad5ecdbd4ee7772cbdfe89d29b6`
+reports exit 0 and no errors.
+
+Empty-mask, no-fit results are:
+
+| State | Upper >2 | Lower >2 | Footer >2 | Footer maximum | Footer MAE | Interpretation |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| empty folder, vacant child 0 | 59,168 | 7,538 | 2,135 | 35 | 1.157708 | native has no button; browser incorrectly shows Close/Open |
+| populated folder, Health child 2 | 59,520 | 8,667 | 1,754 | 152 | 9.236528 | native full-width Open versus browser Close/Open |
+| populated folder, vacant child 0 | 59,774 | 9,704 | 2,135 | 35 | 1.157708 | native has no button; browser incorrectly retains Close/Open |
+| populated folder, Health child 2 repeat | 22,475 | 7,629 | 1,754 | 152 | 9.236528 | repeated full-width Open versus Close/Open defect |
+
+The two browser occupied-child footer crops are byte-identical, as are their
+two native targets. The two browser vacant-child mismatch signatures are also
+identical. The occupied footer signature exactly repeats the historical v1
+signature: 1,754 pixels above delta 2, maximum 152 and absolute-RGB difference
+SHA-256 `02a0559035c60a08b61ec100b575b2b0ba166d7d4c1ec8759c162e4c58d398f0`.
+
+A 50ms tap at lower `50,226` then activates the browser's left `Close` half
+and returns to root HOME, while the same native tap opens Health. The resulting
+screens differ at 95,353 upper and 76,019 lower pixels above delta 2. This is
+a same-input, non-equivalent-result diagnostic, not a valid pixel-improvement
+baseline. The browser-only successful empty-folder deletion capture is retained
+as a regression control without a fresh native pair.
+
+Browser and native folder labels, root population and upper epochs differ;
+child centers align semantically. Those differences explain why the full LCDs
+remain controls, but they do not explain or excuse the fixed footer defects.
+
+Immutable v3 identities:
+
+- pair analyzer SHA-256
+  `ddbf7e5ebc151f49b62410bd2be4f7627f67c4a34e4064ce02088e3dfafba729`;
+- v3 manifest SHA-256
+  `df0c768aebd5274780260122b5b99d7ef98042a33fe78798fe4043f60cadb0f1`;
+- v3 report SHA-256
+  `914ae7c638d50ec602653a9c391ead682bd99f33015e556e897d9d2225931601`;
+- inspected upper/lower/footer sheets SHA-256
+  `1f8b69eb13000bb8301cdce5e3b42ccf9182425096de72ca533c4e98e298ffb0`,
+  `f2ec2fb3413b05225fc7ba508d083a592842cbe87e36a81f90396dbb2844bf50`
+  and `92b35ca3347d2235c94f33418a9ebb363553b3186a57ea2d057c24915381e28a`.
+
 ## Pending coordinator evidence
 
-Fresh production before/after captures remain coordinator-owned and are not
-yet present in this record. The source worker is separately establishing the
-occupied-state footer binding. Those inputs will be frozen into new version
-directories; the v1 and v2 reports above will remain unchanged.
+Fresh production-after captures remain coordinator-owned and are not yet
+present in this record. The source worker is separately establishing the
+occupied-state footer binding. Those inputs will be frozen into a new version
+directory; the v1, v2 and v3 reports above will remain unchanged.
 
 Exact input cadence, transition motion and audio are not compared. The open
 folder scenario remains `fail/unverified`; this historical static comparison

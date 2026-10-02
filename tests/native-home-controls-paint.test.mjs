@@ -675,14 +675,17 @@ test('software close retains footer labels through dialog exit then samples the 
   Object.assign(state.system.homeApplicationTransition,{phase,appQuitFrame:20,dialogExitFrame:20,footerExitFrame:frame});
   presenter.footer({},state);
   const options=calls.at(-1);
-  assert.deepEqual(options.bindings[0],{name:frame===null?'LncBtmBtn_02_SceneIn':'LncBtmBtn_02_SceneOut',frame:frame??15});
+  assert.deepEqual(options.bindings[0],{name:'LncBtmBtn_02_SceneIn',frame:15});
+  if(frame!==null)assert.deepEqual(options.bindings[1],{name:'LncBtmBtn_02_SceneOut',frame,childBinding:false});
+  const pose=poseNativeLayout(pack.layouts.LncBtmBtn_02,pack.animations,options.bindings);
+  assert.equal(nativePaneParentPath(pose,'N_BtnW_R_02').at(-1).alpha,255,'departure retains Resume child state');
   assert.equal(options.overrides.N_BtnB_L_03.visible,true);
   assert.equal(options.overrides.N_BtnW_R_02.visible,true);
   assert.equal(options.overrides.T_BtnBB_L_03.text,'\ue071 Close');
   assert.equal(options.overrides.T_BtnBW_R_02.text,'\ue073 Resume');
   assert.equal(state.system.runtime.application,owner);
   presenter.footer({},state,true);
-  assert.equal(calls.at(-1).bindings[0].frame,frame===null?15:14);
+  assert.equal(calls.at(-1).bindings.at(-1).frame,frame===null?15:14);
  }
  const stale=structuredClone(closing);
  Object.assign(stale.system.homeApplicationTransition,{phase:'footer-exiting',footerExitFrame:7});

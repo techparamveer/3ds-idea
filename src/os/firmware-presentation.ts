@@ -312,7 +312,11 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
    :applicationFooterExit??selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
   if(applicationFooterExit&&!renderer.packs.launcher.animations[applicationFooterExit.clip])throw Error('Native software-close footer exit unavailable');
-  const bindings=[binding(footerPose.clip,footerPose.frame)];
+  // Capture-fit direct binding preserves the pre-departure button alpha;
+  // SceneOut's unrelated descendant channels would dim Resume immediately.
+  const bindings=applicationFooterExit
+   ?[binding('LncBtmBtn_02_SceneIn',15),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
+   :[binding(footerPose.clip,footerPose.frame)];
   const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);
   if(pressed){
    const group=two?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));

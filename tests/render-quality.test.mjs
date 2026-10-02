@@ -50,6 +50,9 @@ test('application close publishes terminal and retirement pairs independent of c
   const footerStart={phase:'footer-exiting',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:0};
   const footerMiddle={...footerStart,footerExitFrame:3};
   const footerTerminal={...footerStart,phase:'footer-terminal',footerExitFrame:6};
+  const returnStart={...footerTerminal,phase:'footer-returning',footerReturnFrame:0};
+  const returnMiddle={...returnStart,footerReturnFrame:4};
+  const returnTerminal={...returnStart,phase:'return-terminal',footerReturnFrame:8};
   assert.equal(applicationCloseNeedsPaint(null,null,false),false);
   assert.equal(applicationCloseNeedsPaint(closing,closing,false),false);
   assert.equal(applicationCloseNeedsPaint(closing,{...closing,appQuitFrame:18},false),false);
@@ -61,6 +64,13 @@ test('application close publishes terminal and retirement pairs independent of c
   assert.equal(applicationCloseNeedsPaint(footerStart,footerMiddle,false),false);
   assert.equal(applicationCloseNeedsPaint(footerMiddle,footerTerminal,false),true);
   assert.equal(applicationCloseNeedsPaint(footerTerminal,null,false),true);
+  assert.equal(applicationCloseNeedsPaint(footerTerminal,returnStart,false),true);
+  assert.equal(applicationCloseNeedsPaint(returnStart,returnMiddle,false),false);
+  assert.equal(applicationCloseNeedsPaint(returnMiddle,returnTerminal,false),true);
+  assert.equal(applicationCloseNeedsPaint(returnTerminal,null,false),true);
+  assert.equal(applicationCloseNeedsPaint(returnStart,returnStart,false,true),true);
+  assert.equal(applicationCloseNeedsPaint(returnTerminal,returnTerminal,false,true),true);
+  assert.equal(applicationCloseNeedsPaint(returnMiddle,returnMiddle,false,true),false);
   assert.equal(applicationCloseNeedsPaint(footerStart,footerStart,false,true),true);
   assert.equal(applicationCloseNeedsPaint(footerTerminal,footerTerminal,false,true),true);
   assert.equal(applicationCloseNeedsPaint(footerMiddle,footerMiddle,false,true),false);
@@ -86,13 +96,16 @@ test('terminal upload bypasses both 30fps and 45fps gates between 60Hz updates',
       [5000/60,{phase:'footer-exiting',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:0}],
       [6000/60,{phase:'footer-exiting',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:5}],
       [7000/60,{phase:'footer-terminal',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:6}],
-      [8000/60,null],
+      [8000/60,{phase:'footer-returning',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:6,footerReturnFrame:0}],
+      [9000/60,{phase:'footer-returning',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:6,footerReturnFrame:7}],
+      [10000/60,{phase:'return-terminal',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:6,footerReturnFrame:8}],
+      [11000/60,null],
     ]){
       const forced=applicationCloseNeedsPaint(previous,current,false);
       if(forced||now-lastRender>=1000/fps){rendered.push(current?.phase??'retired');lastRender=now;}
       previous=current;
     }
-    assert.deepEqual(rendered,['terminal','exiting','exit-terminal','footer-exiting','footer-terminal','retired']);
+    assert.deepEqual(rendered,['terminal','exiting','exit-terminal','footer-exiting','footer-terminal','footer-returning','return-terminal','retired']);
   }
 });
 

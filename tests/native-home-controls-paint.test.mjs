@@ -47,6 +47,42 @@ const pack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/p
 const messagesPack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/messages-and-loose.json', import.meta.url)));
 const nativeCursorNames = new Set(['cursor', 'cursorAt', 'cursorEffectAt']);
 
+function closeFooterReturn(){
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+ let state=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
+ for(let i=0;i<12&&state.system.homeApplicationTransition?.phase!=='footer-returning';i++)state=tickSystem(state,7000+i*500);
+ assert.equal(state.system.homeApplicationTransition?.phase,'footer-returning');
+ assert.equal(state.system.runtime.application,null);
+ return state;
+}
+
+test('retired-owner footer return paints HOME without suspended capture or closing dialog',async()=>{
+ await withScreens(({paint,events,screens})=>{
+  const returning=closeFooterReturn();
+  for(const [phase,frame] of [['footer-returning',0],['footer-returning',4],['return-terminal',8]]){
+   const state=structuredClone(returning);Object.assign(state.system.homeApplicationTransition,{phase,footerReturnFrame:frame});
+   paint(state);
+   assert.equal(screens.stockStatus(state),'ready');
+   assert.ok(events.some(e=>e.name==='footer'));
+   assert.ok(!events.some(e=>e.name==='suspendedIcon'||e.name==='suspended-window'||e.name==='closing-lower'));
+   assert.equal(state.system.runtime.application,null);
+  }
+ },{screenOptions:{drawSuspendedBackground:(_ctx,capture,presentation)=>{assert.equal(capture.status,'none');assert.equal(presentation,null);return true;}}});
+});
+
+test('footer-return source failure retains paired recovery after application retirement',async()=>{
+ await withScreens(({paint,events,screens})=>{
+  const state=closeFooterReturn();paint(state);
+  assert.equal(screens.stockStatus(state),'error');
+  assert.match(String(screens.stockFailure()),/ChangeUp unavailable/);
+  for(const ctx of [screens.nativeTop.getContext('2d'),screens.bottom.getContext('2d')])assert.ok(events.some(e=>e.context===ctx&&e.name==='fillRect'&&e.args[0]===0&&e.args[1]===0&&e.args[3]===240));
+  const recovered=escapeUnreadyNativeScreen(state,12000);paint(recovered);
+  assert.equal(recovered.system.homeApplicationTransition,null);
+  assert.equal(recovered.system.runtime.application,null);
+  assert.equal(screens.stockStatus(recovered),'inactive');
+ },{presenterPatch:{footer(ctx,state){if(state.system.homeApplicationTransition?.phase==='footer-returning')throw Error('ChangeUp unavailable');ctx.record('footer');return true;}}});
+});
+
 test('software-closing layers follow HOME/footer on both LCDs through terminal and clear on retirement',async()=>{
  await withScreens(({paint,events,screens})=>{
   const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
@@ -698,6 +734,30 @@ test('software close retains footer labels through dialog exit then samples the 
  const missing=createFirmwareHome({renderer:{...renderer,packs:{...renderer.packs,launcher:unavailable}}});
  const departing=structuredClone(closing);Object.assign(departing.system.homeApplicationTransition,{phase:'footer-exiting',footerExitFrame:0});
  assert.throws(()=>missing.footer({},departing),/footer exit unavailable/);
+ assert.equal(JSON.stringify(pack),source);
+});
+
+test('software close returns the new Open footer through direct-member ChangeUp without old Decide tone',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}};
+ const presenter=createFirmwareHome({renderer}),returning=closeFooterReturn(),source=JSON.stringify(pack);
+ for(const [phase,frame] of [['footer-returning',0],['footer-returning',4],['return-terminal',8]]){
+  const state=structuredClone(returning);Object.assign(state.system.homeApplicationTransition,{phase,footerReturnFrame:frame});
+  presenter.footer({},state);
+  const options=calls.at(-1);
+  assert.deepEqual(options.bindings,[{name:'LncBtmBtn_02_SceneIn',frame:15},{name:'LncBtmBtn_02_ChangeUp',frame,childBinding:false}]);
+  const pose=poseNativeLayout(pack.layouts.LncBtmBtn_02,pack.animations,options.bindings);
+  assert.equal(nativePaneParentPath(pose,'N_BtnW_C_01').at(-1).alpha,255);
+  assert.equal(options.overrides.N_BtnW_C_01.visible,true);
+  assert.equal(options.overrides.N_BtnB_L_03.visible,false);
+  assert.equal(options.overrides.N_BtnW_R_02.visible,false);
+  assert.equal(options.overrides.T_BtnBW_C_01.text,'Open');
+  const scene=nativePaneParentPath(pose,'N_Scene_00').at(-1);
+  if(frame===0){assert.equal(scene.alpha,0);assert.equal(scene.translation[1],-4);}
+  if(frame===8){assert.equal(scene.alpha,255);assert.equal(scene.translation[1],0);}
+  presenter.footer({},state,true);assert.equal(calls.at(-1).bindings.at(-1).frame,8);
+ }
+ const unavailable=structuredClone(pack);delete unavailable.animations.LncBtmBtn_02_ChangeUp;
+ assert.throws(()=>createFirmwareHome({renderer:{...renderer,packs:{...renderer.packs,launcher:unavailable}}}).footer({},returning),/footer return unavailable/);
  assert.equal(JSON.stringify(pack),source);
 });
 

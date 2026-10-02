@@ -16,7 +16,7 @@ import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClock
 import { enableHomeControls, reconcileHomeControls, isHomeSwitchPresentationActive } from '@/os/home-controls';
 import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
 import { createRuntimeEffects } from '@/os/runtime-effects';
-import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, getHomeBannerCloseReadyUpdate, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
+import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
 import type { AppCommand, AppEvent } from '@/os/app-types';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -328,7 +328,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const allowInput=applicationCloseAllowsInput(previous.system!.homeApplicationTransition,input,screens.stockStatus(previous));
     advanceBeforeMutation(now);const readiness=screens.stockStatus(state);if(readiness==='loading'||readiness==='error')nativeScreenInput.cancelHeld(state.system!.input);state=releaseUnreadyNativeInput(state,readiness,now);const beforeAction=state;state=reconcileHomeControls(beforeAction,allowInput?reduce(state,now):state);
     const close=sampleSystemHomeFolderClose(state),previousClose=sampleSystemHomeFolderClose(beforeAction);
-    observeFolderBanner(bannerClock(),close&&close.controller.phase!=='complete'&&close.controller.identity.transitionId!==previousClose?.controller.identity.transitionId?{kind:'clear'}:undefined);
+    observeFolderBanner(bannerClock(),close&&close.controller.phase!=='complete'&&close.controller.identity.transitionId!==previousClose?.controller.identity.transitionId?{kind:'clear'}:homeApplicationBannerBoundary(previous,state));
     const before=previous.system!,after=state.system!;
     const resumedApplicationClose=previous.system!.sleeping&&!after.sleeping||input==='visibility'&&!document.hidden;
     const mustPaintApplicationClose=applicationCloseNeedsPaint(before.homeApplicationTransition,after.homeApplicationTransition,reduced,resumedApplicationClose);

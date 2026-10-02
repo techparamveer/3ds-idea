@@ -2,6 +2,7 @@ import { hasHomeTitleBanner } from './home-title-banner.ts';
 import { SLOT_COUNT, type MenuState } from './state.ts';
 import type { HomeScrollObservation } from './home-scroll-consumer.ts';
 import { isSystemHomeFolderClosing, sampleSystemHomeFolderClose } from './home-folder-close-system.ts';
+import { sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
 import { FOLDER_SLOT_COUNT, folderHasItems, homeSlotAppId } from './home-layout.ts';
 import { getHomeFolderIdentity, type HomeFolderIdentity } from './home-folder-identity.ts';
 import {
@@ -98,6 +99,8 @@ export type HomeBannerHostView =
 /** Resolve content only. Overlays, power, suspension and pass eligibility are host inputs. */
 export function resolveHomeBannerHostSelection(state: MenuState): HomeBannerHostSelection {
   if (isSystemHomeFolderClosing(state)) return { kind: 'clear' };
+  const applicationClose=sampleSystemHomeApplicationTransition(state);
+  if(applicationClose?.intent.kind==='close'&&applicationClose.footerReturnFrame===null)return {kind:'clear'};
   const slot = state.opened ? state.folderSelected : state.selected;
   return resolveContentAt(state, state.opened ? state.selected : null, slot);
 }
@@ -149,6 +152,23 @@ export function getHomeBannerCloseReadyUpdate(before: MenuState, after: MenuStat
   const ready = next.selectionReadyAtUpdate;
   return previous.selectionReadyAtUpdate === null && ready !== null
     && ready > before.system!.homeClock.updateCount && ready <= after.system!.homeClock.updateCount ? ready : null;
+}
+
+/** Capture-fitted software-close boundaries reuse the native banner service.
+ * Called after elapsed passes, at the current counter; never replays a pass.
+ */
+export function homeApplicationBannerBoundary(before: MenuState, after: MenuState): HomeBannerHostSelection | undefined {
+  const previous=sampleSystemHomeApplicationTransition(before),next=sampleSystemHomeApplicationTransition(after);
+  const same=!!previous&&!!next&&previous.identity.generation===next.identity.generation
+    &&previous.identity.transitionId===next.identity.transitionId&&previous.identity.owner===next.identity.owner;
+  if(next?.intent.kind==='close'&&!same&&next.footerReturnFrame===null)return {kind:'clear'};
+  if(same&&next?.intent.kind==='close'&&next.phase==='footer-returning'&&next.footerReturnFrame===0
+    &&previous!.phase==='footer-terminal')return resolveHomeBannerHostSelection(after);
+  const s=after.system;
+  if(previous?.intent.kind==='close'&&!next&&!s?.homeApplicationTransition&&previous.phase!=='return-terminal'
+    &&after.powered&&s?.phase==='home'&&s.homeFolderClose.generation===before.system?.homeFolderClose.generation
+    &&(s.runtime.application===null||s.runtime.application===previous.identity.owner))return resolveHomeBannerHostSelection(after);
+  return undefined;
 }
 
 function assertClock(clock: HomeBannerServiceClock): void {

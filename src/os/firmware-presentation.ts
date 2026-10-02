@@ -17,7 +17,7 @@ import { homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
 import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
 import { selectHomeFolderFooterPose } from './home-folder-footer-return';
-import { homeApplicationTransitionFooterExit } from './home-application-transition';
+import { homeApplicationTransitionFooterExit, homeApplicationTransitionFooterReturn } from './home-application-transition';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 
 type Context=CanvasRenderingContext2D;
@@ -306,17 +306,22 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]=right;overrides[`${prefix}_R_02`]=right;overrides[`${prefix}_L_03`]=left;}
   for(const prefix of ['T_BtnBB','T_BtnFB','T_BtnPB'])overrides[`${prefix}_L_03`]=left;
   const close=sampleSystemHomeFolderClose(state);
-  const applicationFooterExit=homeApplicationTransitionFooterExit(sampleSystemHomeApplicationTransition(state),reduced);
+  const applicationTransition=sampleSystemHomeApplicationTransition(state);
+  const applicationFooterExit=homeApplicationTransitionFooterExit(applicationTransition,reduced);
+  const applicationFooterReturn=homeApplicationTransitionFooterReturn(applicationTransition,reduced);
   // Captured switch dialogs have no footer; use the source's settled out pose.
   const footerPose=homeSoftwareSwitchTitles(state)
    ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
-   :applicationFooterExit??selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
+   :applicationFooterExit??applicationFooterReturn??selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
   if(applicationFooterExit&&!renderer.packs.launcher.animations[applicationFooterExit.clip])throw Error('Native software-close footer exit unavailable');
+  if(applicationFooterReturn&&!renderer.packs.launcher.animations[applicationFooterReturn.clip])throw Error('Native software-close footer return unavailable');
   // Capture-fit direct binding keeps the compact ChangeDw departure on its
   // authored scene member, preserving the separately settled button channels.
   const bindings=applicationFooterExit
    ?[binding('LncBtmBtn_02_SceneIn',15),binding('LncBtmBtn_02_Decide',5,['G_BtnB_L_03']),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
-   :[binding(footerPose.clip,footerPose.frame)];
+   :applicationFooterReturn
+    ?[binding('LncBtmBtn_02_SceneIn',15),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
+    :[binding(footerPose.clip,footerPose.frame)];
   const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);
   if(pressed){
    const group=two?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));

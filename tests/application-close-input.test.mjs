@@ -24,7 +24,8 @@ test('scene input quarantine survives the pre-mutation retirement update', () =>
   for (const input of ['open', 'home', 'right', 'touch', 'analog', 'back', 'x']) {
     const allowed = applicationCloseAllowsInput(before.system.homeApplicationTransition, input);
     let after = tickSystem(before, now);
-    assert.equal(after.system.homeApplicationTransition, null);
+    assert.equal(after.system.homeApplicationTransition.phase, 'footer-returning');
+    assert.equal(after.system.homeApplicationTransition.footerReturnFrame, 0);
     if (allowed) after = reduceSystem(after, input, now);
     assert.equal(allowed, false);
     assert.equal(after.system.runtime.application, null);
@@ -34,7 +35,7 @@ test('scene input quarantine survives the pre-mutation retirement update', () =>
 });
 
 test('quarantine keeps clock, sleep, release and global controls available', () => {
- for (const phase of ['terminal','exiting','exit-terminal','footer-exiting','footer-terminal']) {
+ for (const phase of ['terminal','exiting','exit-terminal','footer-exiting','footer-terminal','footer-returning','return-terminal']) {
   const terminal = { phase, intent: { kind: 'close' } };
   for (const input of ['tick', 'hinge', 'blur', 'visibility', 'power', 'mute', 'volume-up', 'volume-down']) {
     assert.equal(applicationCloseAllowsInput(terminal, input), true, input);
@@ -45,7 +46,7 @@ test('quarantine keeps clock, sleep, release and global controls available', () 
 
 test('unavailable close paint freezes ticks while admitting only native recovery controls', () => {
   const switching = { phase: 'terminal', intent: { kind: 'switch', appId: 'about' } };
- for (const phase of ['exiting','exit-terminal','footer-exiting','footer-terminal']) {
+ for (const phase of ['exiting','exit-terminal','footer-exiting','footer-terminal','footer-returning','return-terminal']) {
   const close = { phase, intent: { kind: 'close' } };
   for (const status of ['loading', 'error']) {
     assert.equal(applicationCloseNeedsReadyScreen(close, status), true, status);

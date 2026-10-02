@@ -23,7 +23,7 @@ function valid(state: MenuState, transition: HomeApplicationTransition): boolean
   const instance = s?.runtime.instances[owner];
   if (!s || !state.powered || s.phase !== 'home' || transition.identity.generation !== generation(state)) return false;
   if (transition.phase === 'footer-returning' || transition.phase === 'return-terminal') {
-    return !instance && s.runtime.application === null && s.runtime.active === null
+    return transition.intent.kind === 'close' && !instance && s.runtime.application === null && s.runtime.active === null
       && s.runtime.homeReturn === null && s.app === null;
   }
   return s.runtime.application === owner && s.runtime.active === null && s.runtime.homeReturn === owner

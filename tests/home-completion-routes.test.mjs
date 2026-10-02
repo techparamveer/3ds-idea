@@ -20,6 +20,8 @@ const finishClose = (state, now) => {
   if (closing) {
     state = tickSystem(state, now + 4000);
     state = tickSystem(state, now + 5000);
+    state = tickSystem(state, now + 6000);
+    state = tickSystem(state, now + 7000);
   }
   return tickSystem(state, state.system.homeClock.lastNow + 1000 / 60);
 };

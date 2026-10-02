@@ -18,6 +18,7 @@ import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareSwitchTit
 import {drawHomeSoftwareClosingDialog} from './home-software-closing-dialog';
 import { homeSuspendedApplication, homeSuspendedIconDisappeared, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { homeCloseWindowOpacity } from './home-close-window-fit';
+import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 import { createHomeSuspendedPresentation, getHomeSuspendedSleepFrame, syncHomeSuspendedPresentation } from './home-suspended-presentation';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { getHomeFolderIdentity } from './home-folder-identity';
@@ -25,7 +26,7 @@ import type { NativePixels } from './native-layout';
 import type { SuspendedCapture } from './notes-suspended-capture';
 import type { HomeBannerHostView } from './home-banner-host';
 import type { HomeBannerMotion } from './home-banner-lifecycle';
-import { homeApplicationTransitionPresentation, type HomeApplicationTransition, type HomeApplicationTransitionPresentation } from './home-application-transition';
+import { homeApplicationTransitionFooterReturn, homeApplicationTransitionPresentation, type HomeApplicationTransition, type HomeApplicationTransitionPresentation } from './home-application-transition';
 export { loadFirmwarePresentationAssets, type FirmwarePresentationAssets } from './firmware-presentation';
 type Context = CanvasRenderingContext2D;
 type SystemWithHomeApplicationTransition = NonNullable<MenuState['system']> & {
@@ -356,6 +357,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   suspendedPresentation=syncHomeSuspendedPresentation(suspendedPresentation,state,reduced);
   const suspendedSleepFrame=getHomeSuspendedSleepFrame(suspendedPresentation);
   const applicationTransition=(state.system as SystemWithHomeApplicationTransition|undefined)?.homeApplicationTransition??null;
+  const applicationFooterReturn=homeApplicationTransitionFooterReturn(sampleSystemHomeApplicationTransition(state),reduced);
   const applicationTransitionPresentation=homeApplicationTransitionPresentation(state.system?.sleeping?null:applicationTransition,reduced);
   const verificationPaint=verification?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:false,healthBanner:false};
   graphics.syncStockView(state,t);
@@ -366,7 +368,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const layoutPreview=currentLayoutPreview(state,time);
   const suspended=retainedSuspendedApplication(state),expanded=!!selectedSuspendedApplication(state);
   const suspendedCapture:SuspendedCapture=suspended?graphics.readSuspendedCapture(state.system!.runtime):{status:'none'};
-  if(!applicationTransition)applicationTransitionCapture=undefined;
+  if(!applicationTransition||applicationFooterReturn)applicationTransitionCapture=undefined;
   else if(!state.system?.sleeping){
    const captureOwner=suspendedCapture.status==='none'?null:suspendedCapture.owner;
    if(!suspended||captureOwner!==applicationTransition.identity.owner)throw Error('Stale HOME application-transition capture owner');
@@ -496,7 +498,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(!firmwareAssets)throw Error('Native software dialog resources unavailable');
    drawHomeSoftwareDialog(firmwareAssets.renderer,t,b,state,switchIcons?.icons);
   }
-  if(homeSoftwareClosingDialogKey(state)){
+  if(homeSoftwareClosingDialogKey(state)&&!applicationFooterReturn){
    if(!firmwareAssets)throw Error('Native software-closing resources unavailable');
    // The source-selected exit clips use the adapted close clock; their native
    // start epoch and host cadence still need matched motion verification.

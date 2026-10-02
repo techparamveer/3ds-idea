@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPortfolioState, tickSystem, tickHomeNavigationClock, reduceSystem, restoreSettings, saveSettings } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, tickHomeNavigationClock, reduceSystem, restoreSettings, saveSettings, launchHomeShortcut } from '../src/os/system.ts';
 import { reduceMenu } from '../src/os/state.ts';
 import { enterHomeFolder, selectHomeSlot, writeHomeNavigation, getHomeNavigation } from '../src/os/home-navigation.ts';
-import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostSelection, getHomeBannerCloseReadyUpdate } from '../src/os/home-banner-host.ts';
+import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostSelection, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary } from '../src/os/home-banner-host.ts';
 
 const T=4000,F=1000/60;
 const at=(host,count,boundary={})=>crossHomeBannerBoundary(host,{...host.clock,updateCount:count},boundary);
@@ -42,4 +42,35 @@ test('settings replacement cannot consume a cancelled transition boundary',()=>{
  const old=setup(),completed=advance(old,40).state,replaced=restoreSettings(completed,saveSettings(completed));
  assert.equal(getHomeBannerCloseReadyUpdate(old.state,replaced),null);
  assert.notEqual(resolveHomeBannerHostSelection(replaced).kind,'clear');
+});
+
+test('software close clears the old banner then requests native reacquisition at return0 only',()=>{
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+ const closing=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
+ assert.deepEqual(homeApplicationBannerBoundary(suspended,closing),{kind:'clear'});
+ assert.deepEqual(resolveHomeBannerHostSelection(closing),{kind:'clear'});
+ assert.equal(homeApplicationBannerBoundary(closing,closing),undefined);
+ let state=closing,retirement;
+ for(let i=0;i<12&&state.system.homeApplicationTransition?.phase!=='footer-returning';i++){
+  const before=state;state=tickSystem(state,7000+i*500);
+  if(state.system.homeApplicationTransition?.phase==='footer-returning')retirement=before;
+  else assert.equal(homeApplicationBannerBoundary(before,state),undefined);
+ }
+ assert.ok(retirement);
+ assert.deepEqual(homeApplicationBannerBoundary(retirement,state),resolveHomeBannerHostSelection(state));
+ assert.equal(homeApplicationBannerBoundary(state,state),undefined);
+ let next=tickSystem(state,state.system.homeClock.lastNow+1000);
+ assert.equal(next.system.homeApplicationTransition.phase,'return-terminal');
+ assert.equal(homeApplicationBannerBoundary(state,next),undefined);
+ const complete=tickSystem(next,next.system.homeClock.lastNow+1000);
+ assert.equal(complete.system.homeApplicationTransition,null);
+ assert.equal(homeApplicationBannerBoundary(next,complete),undefined);
+ const cancelled={...closing,system:{...closing.system,homeApplicationTransition:null}};
+ assert.deepEqual(homeApplicationBannerBoundary(closing,cancelled),resolveHomeBannerHostSelection(cancelled));
+ const replaced=restoreSettings(cancelled,saveSettings(cancelled));
+ assert.equal(homeApplicationBannerBoundary(closing,replaced),undefined);
+ const invalid=structuredClone(state);invalid.system.homeApplicationTransition.intent={kind:'switch',appId:'about'};
+ assert.equal(homeApplicationBannerBoundary(retirement,invalid),undefined);
+ const switching=structuredClone(closing);switching.system.homeApplicationTransition.intent={kind:'switch',appId:'about'};
+ assert.equal(homeApplicationBannerBoundary(suspended,switching),undefined);
 });

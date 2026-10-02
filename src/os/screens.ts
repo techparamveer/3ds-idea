@@ -233,6 +233,10 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   if(!nativeHome?.folderSettingsLower(c,state))throw new Error('Native HOME Folder Settings lower panel unavailable.');
   return;
  }
+ if(state.panel==='folder-not-empty'){
+  if(!nativeHome?.folderNotEmptyLower(c,state))throw new Error('Native HOME populated-folder notice lower panel unavailable.');
+  return;
+ }
  c.fillStyle='#171a2b66';c.fillRect(0,0,320,240);
  if(state.panel==='themes'){
   rounded(c,0,0,320,240,0,'#e8e9eb');
@@ -255,8 +259,6 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   rounded(c,25,8,242,19,10,'#fff');text(c,'Purchase themes here.',146,18,13,'#21b5dc','center');
   rounded(c,295,8,18,134,3,gradient(c,8,134,'#fff','#d4d5d7'),'#b7b9bc');line(c,[[299,74],[309,74]],'#989ba0',2);line(c,[[299,79],[309,79]],'#989ba0',2);
   c.fillStyle=gradient(c,214,26,'#fff','#c6c8ce');c.fillRect(0,214,320,26);text(c,'Ⓑ Cancel',160,228,17,'#4a4d55','center');
- }else if(state.panel==='delete'){
-  rounded(c,20,44,280,164,9,'#f5f5f7','#adb0b8');text(c,'Delete this folder?',160,97,15,'#44464b','center');button(c,28,165,126,35,'Cancel');button(c,166,165,126,35,'Delete');
  }else{
   const titles={notes:'Game Notes',friends:'Friend List',notifications:'Notifications',browser:'Internet Browser',miiverse:'Miiverse','theme-shop':'Theme Shop'};
   rounded(c,0,0,320,240,0,'#eff0f4');c.fillStyle=gradient(c,0,31,'#fff','#d7dae0');c.fillRect(0,0,320,31);text(c,titles[state.panel],160,16,15,'#454b58','center');
@@ -284,7 +286,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let applicationTransitionCapture:{generation:string;transitionId:number;owner:string;captureGeneration:number}|undefined;
  let switchIcons:{key:string;icons:readonly[NativePixels,NativePixels]}|undefined;
  let panelFailure:Error|undefined,panelPublished:string|null=null;
- const panelKey=(state:MenuState)=>homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings')
+ const panelKey=(state:MenuState)=>homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings'||state.panel==='folder-not-empty')
   ?JSON.stringify([state.panel,state.panelChoice,state.panelScroll??0,state.homeLayoutSlot??0,state.homeLayoutAction??null,state.homeLayoutConfirm??false]):retainedSuspendedApplication(state)?JSON.stringify([retainedSuspendedApplication(state)!.id,!!selectedSuspendedApplication(state)]):null);
  function stockStatus(state:MenuState){const key=panelKey(state);return key?(panelPublished!==key?'loading':panelFailure?'error':'ready'):graphics.stockStatus(state,t);}
  function retryStockScreen(){if(panelFailure){panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
@@ -400,7 +402,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   }
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
-   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&(!state.panel||(state.panel==='folder-settings'&&hostedBanner.primary.selection.kind==='folder'))&&state.system?.phase==='home'){
+   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&state.system?.phase==='home'){
     const {selection,motion}=hostedBanner.primary;
     if(selection.kind==='default'){
      if(!options.drawDefaultBannerFrame?.(t,motion)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native default banner unavailable.'))firmwareAssets.diagnostics.push('Native default banner unavailable.');
@@ -421,7 +423,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      }
     }
    }
-  }else if(!hostedBanner&&!state.opened&&isFolder(state.selected,state)&&(!state.panel||state.panel==='folder-settings')){
+  }else if(!hostedBanner&&!state.opened&&isFolder(state.selected,state)&&(!state.panel||state.panel==='folder-settings'||state.panel==='folder-not-empty')){
    const name=state.folders[state.selected],label=nativeHome?.folderBannerLabel(name),nativeDrawn=options.drawFolderBanner?.(t,time,reduced,label);
    if(!nativeDrawn){
    t.save();t.shadowColor='#626d8a50';t.shadowBlur=12;t.shadowOffsetY=10;
@@ -429,7 +431,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(firmwareAssets&&!firmwareAssets.diagnostics.includes('Native folder model unavailable; drawing reconstructed fallback.'))firmwareAssets.diagnostics.push('Native folder model unavailable; drawing reconstructed fallback.');}
    if(name&&(!nativeDrawn||!label)){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,name,200,196,16,palette.ink,'center');}
   }
-  if(state.panel&&state.panel!=='settings'&&state.panel!=='home-layouts'&&state.panel!=='folder-settings'){
+  if(state.panel&&state.panel!=='settings'&&state.panel!=='home-layouts'&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
    const panels=['notes','friends','notifications','browser','miiverse'];
    const index=panels.indexOf(state.panel);const chosen=index<0?1:index;
    for(let i=0;i<5;i++){

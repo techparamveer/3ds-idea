@@ -60,7 +60,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const [sharedFont,hudFont,...loaded]=await Promise.all([font(manifest.fonts.shared),font(manifest.fonts.hud),...packNames.map(name=>json<NativePack>(manifest.home[name]))]);
   const packs=Object.fromEntries(packNames.map((name,i)=>[name,loaded[i]])) as Record<string,NativePack>;
   if(!packs.MyMenu?.layouts||!Object.keys(packs.MyMenu.layouts).length)throw new Error('Missing native HOME layout manager pack');
-  const requestedLayouts={...homeLayouts,launcher:[...homeLayouts.launcher,'LncIconSleep_00'],MyMenu:homeLayoutManagerLayouts,dialog:['Dlg_A_D_00','Dlg_A_D_02','Dlg_B_D_01'],dialogmask:['DlgMask_U_00','DlgMask_D_00'],sequence:['LncDlgIcon_D_01','DlgBtn02_00'],...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
+  const requestedLayouts={...homeLayouts,launcher:[...homeLayouts.launcher,'LncIconSleep_00'],MyMenu:homeLayoutManagerLayouts,dialog:['Dlg_A_D_00','Dlg_A_D_01','Dlg_A_D_02','Dlg_B_D_01'],dialogmask:['DlgMask_U_00','DlgMask_D_00'],sequence:['LncDlgIcon_D_01','DlgBtn02_00'],...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
   // Reject an incomplete style conversion during loading, before a paint can partially fail.
   for(const [bank,data] of Object.entries(packs.messages.messages))for(const label of Object.keys(data.labels))nativeMessageOverride(packs.messages,bank,label,'');
   const textures:Record<string,Map<string,NativePixels>>={};const decoded=new Map<string,Promise<NativePixels>>();
@@ -206,6 +206,24 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   okay=renderer.draw(ctx,'dialog','Dlg_B_D_01',{bindings:[binding('Dlg_B_D_01_FadeIn',20)],textSampling:'lcd',overrides:{TextBox_00:cancel,TextBox_01:cancel}})&&okay;
   okay=renderer.draw(ctx,'sequence','DlgBtn02_00',{textSampling:'lcd',overrides:{T_Top_00:title,T_BtnB_00:rename,T_BtnF_00:rename,T_BtnB_01:remove,T_BtnF_01:remove}})&&okay;
   if(!okay)throw new Error('Native HOME Folder Settings lower layout unavailable');
+  return true;
+ }
+ function folderNotEmptyLower(ctx:Context,_state:MenuState){
+  const bank=renderer.packs.messages.messages.menu_msbt_LZ;
+  const requiredMessage=(label:string)=>{
+   if(bank?.labels[label]===undefined)throw new Error(`Native HOME populated-folder notice message unavailable: ${label}`);
+   return message('menu_msbt_LZ',label,'');
+  };
+  // Native 0x1db0a8 loads folder_delete_02, followed at 0x1db0bc by
+  // lau_dlg_1b_ok. The settled capture identifies the Dlg_A_D_01 host.
+  const notice=requiredMessage('lau_dlg_folder_delete_02'),okay=requiredMessage('lau_dlg_1b_ok');
+  const mask=renderer.packs.dialogmask,dialog=renderer.packs.dialog;
+  if(!mask?.layouts.DlgMask_D_00||!mask.animations.DlgMask_D_00_FadeIn)throw new Error('Native HOME populated-folder notice backing mask unavailable');
+  if(!dialog?.layouts.Dlg_A_D_01)throw new Error('Native HOME populated-folder notice frame unavailable');
+  let drawn=true;
+  drawn=renderer.draw(ctx,'dialogmask','DlgMask_D_00',{bindings:[binding('DlgMask_D_00_FadeIn',20)]})&&drawn;
+  drawn=renderer.draw(ctx,'dialog','Dlg_A_D_01',{textSampling:'lcd',overrides:{TextBoxDialog:notice,TextBox_00:okay,TextBox_01:okay}})&&drawn;
+  if(!drawn)throw new Error('Native HOME populated-folder notice lower layout unavailable');
   return true;
  }
  function folderBalloon(ctx:Context,state:MenuState,view:HomePresentation){
@@ -412,5 +430,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   return pickupBlankAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density));
  }
- return {hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

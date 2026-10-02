@@ -7,7 +7,7 @@ import { reduceMenu } from '../src/os/state.ts';
 import { selectHomeLocation } from '../src/os/home-layout.ts';
 import { getHomeFolderIdentity } from '../src/os/home-folder-identity.ts';
 import { getHomeNavigation } from '../src/os/home-navigation.ts';
-import { HOME_FOLDER_SETTINGS_TARGETS, homeFolderSettingsActionAt } from '../src/os/stock-screen-layout.ts';
+import { HOME_FOLDER_NOTICE_TARGET, HOME_FOLDER_SETTINGS_TARGETS, homeFolderNoticeActionAt, homeFolderSettingsActionAt } from '../src/os/stock-screen-layout.ts';
 import { nativeMessageOverride } from '../src/os/native-layout.ts';
 import { escapeUnreadyNativeScreen, releaseUnreadyNativeInput } from '../src/os/native-screen-system.ts';
 
@@ -80,6 +80,38 @@ test('Folder Settings rejects missing source resources and renderer failures exp
   assert.throws(() => home.folderSettingsLower({}, { panel: 'folder-settings' }), /lower layout unavailable/);
 });
 
+test('populated-folder notice uses the captured one-button layout and exact source message bindings', () => {
+  const before = JSON.stringify(packs), { home, draws } = presenter();
+  assert.equal(home.folderNotEmptyLower({}, { panel: 'folder-not-empty' }), true);
+  assert.deepEqual(draws.map(({ bank, name }) => [bank, name]), [
+    ['dialogmask', 'DlgMask_D_00'],
+    ['dialog', 'Dlg_A_D_01'],
+  ]);
+  assert.deepEqual(draws[0].options.bindings, [{ name: 'DlgMask_D_00_FadeIn', frame: 20 }]);
+  assert.equal(draws[1].options.textSampling, 'lcd');
+  assert.deepEqual(draws[1].options.overrides.TextBoxDialog,
+    nativeMessageOverride(packs.messages, 'menu_msbt_LZ', 'lau_dlg_folder_delete_02', ''));
+  for (const pane of ['TextBox_00', 'TextBox_01']) assert.deepEqual(draws[1].options.overrides[pane],
+    nativeMessageOverride(packs.messages, 'menu_msbt_LZ', 'lau_dlg_1b_ok', ''));
+  assert.equal(draws[1].options.overrides.TextBoxDialog.text, 'Folders containing data\ncannot be deleted.');
+  assert.equal(draws[1].options.overrides.TextBoxDialog.messageStyle.fontScale[0], packs.messages.styles['message/EU_English/RI_mstl_LZ.bin'].styles[34].fontScale[0]);
+  assert.equal(JSON.stringify(packs), before);
+});
+
+test('populated-folder notice fails explicitly when any selected native resource is unavailable', () => {
+  for (const [remove, error] of [
+    [source => delete source.messages.messages.menu_msbt_LZ.labels.lau_dlg_folder_delete_02, /message unavailable: lau_dlg_folder_delete_02/],
+    [source => delete source.messages.messages.menu_msbt_LZ.labels.lau_dlg_1b_ok, /message unavailable: lau_dlg_1b_ok/],
+    [source => delete source.dialogmask.animations.DlgMask_D_00_FadeIn, /backing mask unavailable/],
+    [source => delete source.dialog.layouts.Dlg_A_D_01, /frame unavailable/],
+  ]) {
+    const source = structuredClone(packs); remove(source);
+    assert.throws(() => presenter(source).home.folderNotEmptyLower({}, { panel: 'folder-not-empty' }), error);
+  }
+  const { home, renderer } = presenter(); renderer.failed = 'Dlg_A_D_01';
+  assert.throws(() => home.folderNotEmptyLower({}, { panel: 'folder-not-empty' }), /lower layout unavailable/);
+});
+
 test('Folder Settings source touch bounds are half-open and leave the native gaps inert', () => {
   assert.deepEqual(HOME_FOLDER_SETTINGS_TARGETS, [
     { action: 'rename', x: 20, y: 49, width: 280, height: 70 },
@@ -91,6 +123,14 @@ test('Folder Settings source touch bounds are half-open and leave the native gap
     [[299, 190], 'delete'], [[160, 191], null], [[20, 192], 'back'], [[299, 219], 'back'],
     [[19, 80], null], [[300, 80], null], [[160, 220], null],
   ]) assert.equal(homeFolderSettingsActionAt(...point), action, point.join(','));
+});
+
+test('populated-folder notice touch uses Dlg_A_D_01 Bounding_00 exactly', () => {
+  assert.deepEqual(HOME_FOLDER_NOTICE_TARGET, { action: 'open', x: 20, y: 180, width: 280, height: 40 });
+  for (const [point, action] of [
+    [[20, 180], 'open'], [[299, 219], 'open'], [[19, 180], null], [[300, 219], null],
+    [[160, 179], null], [[160, 220], null],
+  ]) assert.equal(homeFolderNoticeActionAt(...point), action, point.join(','));
 });
 
 const panel = () => {
@@ -117,17 +157,44 @@ test('Folder Settings touch keeps Rename inert, deletes an empty folder directly
   assert.equal(tap(initial, 10, 219).panel, 'folder-settings', 'old full-width footer route is gone');
 });
 
-test('Folder Settings physical activation shares direct empty deletion while populated folders retain the pending adapter', () => {
+test('Folder Settings physical activation shares direct empty deletion and opens the populated native notice', () => {
   const empty = reduceMenu(panel(), 'down');
   const deleted = reduceMenu(empty, 'open');
   assert.equal(deleted.panel, null);
   assert.equal(deleted.folders[40], undefined);
   const populated = moveHomeItem(panel(), { folder: null, slot: 0 }, { folder: 40, slot: 0 });
   const pending = tap(populated, 160, 150);
-  assert.equal(pending.panel, 'delete');
+  assert.equal(pending.panel, 'folder-not-empty');
   assert.equal(pending.folders[40], populated.folders[40]);
   assert.deepEqual(pending.system.folderLayouts[40], { 0: 'work' });
-  assert.equal(reduceMenu({ ...populated, panelChoice: 1 }, 'open').panel, 'delete');
+  assert.equal(reduceMenu({ ...populated, panelChoice: 1 }, 'open').panel, 'folder-not-empty');
+});
+
+test('notice OK requires same-target release and returns to root with folder contents intact', () => {
+  const populated = moveHomeItem(panel(), { folder: null, slot: 0 }, { folder: 40, slot: 2 });
+  const notice = tap(populated, 160, 150), before = notice.system.folderLayouts[40];
+  let state = touch(notice, 'down', 160, 200, 5000);
+  state = touch(state, 'up', 10, 200, 5001);
+  assert.equal(state.panel, 'folder-not-empty');
+  state = touch(touch(state, 'down', 160, 200, 5010), 'cancel', 160, 200, 5011);
+  assert.equal(state.panel, 'folder-not-empty');
+  state = tap(state, 160, 200);
+  assert.equal(state.panel, null); assert.equal(state.opened, false); assert.equal(state.selected, 40);
+  assert.equal(state.folders[40], populated.folders[40]); assert.deepEqual(state.system.folderLayouts[40], before);
+  assert.equal(state.system.input.touch, null);
+});
+
+test('physical A dismisses the notice; B and HOME are explicit browser recovery adaptations', () => {
+  const populated = moveHomeItem(panel(), { folder: null, slot: 0 }, { folder: 40, slot: 2 });
+  const notice = reduceMenu({ ...populated, panelChoice: 1 }, 'open'), before = notice.system.folderLayouts[40];
+  for (const command of ['open', 'back', 'home']) {
+    const source = `test:${command}`;
+    let dismissed = dispatchSystemEvent(notice, { type: 'button', command, phase: 'down', source }, 5200);
+    dismissed = dispatchSystemEvent(dismissed, { type: 'button', command, phase: 'up', source }, 5201);
+    assert.equal(dismissed.panel, null); assert.equal(dismissed.opened, false); assert.equal(dismissed.selected, 40);
+    assert.equal(dismissed.folders[40], populated.folders[40]); assert.deepEqual(dismissed.system.folderLayouts[40], before);
+    assert.deepEqual(dismissed.system.input.held, {});
+  }
 });
 
 test('Folder Settings phased touch requires release on the originally owned source target', () => {
@@ -145,11 +212,11 @@ test('Folder Settings phased touch requires release on the originally owned sour
 });
 
 test('Folder Settings loading/error recovery releases input and lets B or HOME return to HOME', () => {
-  for (const status of ['loading', 'error']) {
-    let state = touch(panel(), 'down', 160, 150);
+  for (const [status, initial, point] of [['loading', panel(), [160, 150]], ['error', reduceMenu({ ...moveHomeItem(panel(), { folder: null, slot: 0 }, { folder: 40, slot: 2 }), panelChoice: 1 }, 'open'), [160, 200]]]) {
+    let state = touch(initial, 'down', ...point);
     assert.ok(state.system.input.touch);
     state = releaseUnreadyNativeInput(state, status, 4100);
-    assert.equal(state.panel, 'folder-settings');
+    assert.equal(state.panel, initial.panel);
     assert.equal(state.system.input.touch, null);
     state = escapeUnreadyNativeScreen(state, 4101);
     assert.equal(state.panel, null);

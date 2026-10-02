@@ -165,6 +165,21 @@ test('Folder Settings owns the lower modal and retains the selected-folder upper
   }, { screenOptions: { drawFolderBanner(ctx) { ctx.record('folder-banner'); return true; } } });
 });
 
+test('populated-folder notice publishes a native lower pair and retains the selected-folder upper banner', async () => {
+  await withScreens(({ screens, paint, events }) => {
+    const base = home(), layout = { ...base.system.layout }; delete layout[0];
+    const state = { ...base, folders: { 0: 'Work' }, panel: 'folder-not-empty', panelChoice: 0,
+      system: { ...base.system, layout, folderLayouts: { 0: { 2: 'work' } } } };
+    assert.equal(screens.stockStatus(state), 'loading');
+    paint(state);
+    assert.equal(screens.stockStatus(state), 'ready');
+    assert.equal(events.filter(event => event.name === 'folderNotEmptyLower').length, 1);
+    assert.equal(events.filter(event => event.name === 'folder-banner').length, 1);
+    assert.equal(screens.nativeTop.getContext('2d').curves.length, 0, 'no generic toolbar-symbol plates replace the folder banner');
+    assert.ok(events.findIndex(event => event.name === 'folderNotEmptyLower') > events.findIndex(event => event.name === 'footer'));
+  }, { screenOptions: { drawFolderBanner(ctx) { ctx.record('folder-banner'); return true; } } });
+});
+
 test('native HOME panels publish paired host recovery and gate input when resources are absent', async () => {
   await withScreens(({ screens, paint, events }) => {
     const state = { ...home(), panel: 'settings', panelChoice: 0 };

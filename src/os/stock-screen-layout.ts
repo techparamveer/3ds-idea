@@ -39,6 +39,14 @@ export function homeFolderSettingsActionAt(x: number, y: number): HomeFolderSett
   return HOME_FOLDER_SETTINGS_TARGETS.find(r => x >= r.x && x < r.x + r.width && y >= r.y && y < r.y + r.height)?.action ?? null;
 }
 
+/** home.dialog/Dlg_A_D_01 Bounding_00 at its settled source pose. */
+export const HOME_FOLDER_NOTICE_TARGET = { action: 'open', x: 20, y: 180, width: 280, height: 40 } as const;
+export function homeFolderNoticeActionAt(x: number, y: number): 'open' | null {
+  const r = HOME_FOLDER_NOTICE_TARGET;
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return x >= r.x && x < r.x + r.width && y >= r.y && y < r.y + r.height ? r.action : null;
+}
+
 /** Bounded four-row HOME Settings adapter; later native rows are not yet routed. */
 export const HOME_SETTINGS_MAX_SCROLL = 140;
 /** home.dialog/Dlg_A_D_02 Bounding_00/01 at the settled source pose. */

@@ -85,9 +85,10 @@ test('folder icons carry labels and children through moves/swaps and cannot nest
  s=moveHomeItem(s,root(4),root(6));assert.equal(s.folders[6],'One');assert.equal(s.system.folderLayouts[6][0],'work');assert.equal(s.folders[4],'Two');noLoss(s);
  s=moveHomeItem(s,root(6),root(2));assert.equal(s.folders[2],'One');assert.equal(s.system.layout[6],'hobbies');assert.equal(s.system.folderLayouts[2][0],'work');assert.equal(s.system.folderLayouts[6],undefined);noLoss(s);
 });
-test('nonempty folder deletion is refused and empty folder cleanup preserves software',()=>{
- let s=withFolder(home());s=moveHomeItem(s,root(0),child(4,0));s={...s,panel:'delete',selected:4};assert.equal(reduceMenu(s,'open'),s);
- s=moveHomeItem(s,child(4,0),root(0));s={...s,panel:'delete',selected:4};s=reduceMenu(s,'open');assert.equal(s.folders[4],undefined);assert.equal(s.system.folderLayouts[4],undefined);noLoss(s);
+test('populated folder deletion presents and dismisses a notice while empty cleanup preserves software',()=>{
+ let s=withFolder(home());s=moveHomeItem(s,root(0),child(4,0));s={...s,panel:'folder-settings',panelChoice:1,selected:4};s=reduceMenu(s,'open');
+ assert.equal(s.panel,'folder-not-empty');const dismissed=reduceMenu(s,'open');assert.equal(dismissed.panel,null);assert.equal(dismissed.folders[4],'Folder');assert.equal(dismissed.system.folderLayouts[4][0],'work');
+ s=moveHomeItem(dismissed,child(4,0),root(0));s={...s,panel:'folder-settings',panelChoice:1,selected:4};s=reduceMenu(s,'open');assert.equal(s.folders[4],undefined);assert.equal(s.system.folderLayouts[4],undefined);noLoss(s);
 });
 test('edge scrolling advances on clock deadlines, stays bounded and never persists preview data',()=>{
  let s=lift(home()),before=saveSettings(s);s=touch(s,'move',315,120,4500);s=tickSystem(s,4500+T.edgeDelayMs-1);assert.equal(pageStart(s),0);s=tickSystem(s,4500+T.edgeDelayMs);assert.equal(pageStart(s),1);

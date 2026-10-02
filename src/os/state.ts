@@ -2,7 +2,7 @@ import type { System } from './system';
 import { allocateHomeFolderIdentity, getHomeFolderIdentities, removeHomeFolderIdentity, writeHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { HOME_DENSITIES, getHomeNavigationView, selectHomeSlot, stepHomeDirection, setHomeDensity, enterHomeFolder, leaveHomeFolder, initializeHomeFolderView, deleteHomeFolderView, type HomeNavigation, type HomeDensity } from './home-navigation.ts';
 import { getHomeDensityControls } from './home-density-controls.ts';
-import { clampHomeSettingsScroll, homeFolderSettingsActionAt, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
+import { clampHomeSettingsScroll, homeFolderNoticeActionAt, homeFolderSettingsActionAt, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
 import { confirmHomeLayoutAction, requestHomeLayoutAction, type HomeLayoutAction, type HomeSavedLayouts } from './home-saved-layouts.ts';
 /** Native HOME Menu coordinates: 320 × 240; icons are ordered by column. */
 export const ROWS = 2;
@@ -13,7 +13,7 @@ export const MAX_FOLDERS = 60;
 export const FIRST_FOLDER_NUMBER = 1;
 export const LAST_FOLDER_NUMBER = 99;
 export function slotCount(state: MenuState) { return state.opened ? 60 : SLOT_COUNT; }
-export type Panel = 'settings' | 'themes' | 'home-layouts' | 'folder-settings' | 'delete' | 'notes' | 'friends' | 'notifications' | 'browser' | 'miiverse' | 'theme-shop' | null;
+export type Panel = 'settings' | 'themes' | 'home-layouts' | 'folder-settings' | 'folder-not-empty' | 'notes' | 'friends' | 'notifications' | 'browser' | 'miiverse' | 'theme-shop' | null;
 export type Theme = 'white' | 'red' | 'blue' | 'yellow' | 'pink' | 'black';
 export type MenuState = {
   system?: System;
@@ -97,13 +97,10 @@ function activatePanel(state: MenuState): MenuState {
     : requestHomeLayoutAction(state, state.homeSavedLayouts?.[state.homeLayoutSlot ?? 0] ? 'load' : 'save');
   if (state.panel === 'folder-settings') {
     if (state.panelChoice === 0) return state;
-    if (Object.keys(state.system?.folderLayouts?.[state.selected] ?? {}).length) return { ...state, panel: 'delete', panelChoice: 0 };
+    if (Object.keys(state.system?.folderLayouts?.[state.selected] ?? {}).length) return { ...leaveHomeFolder(state), panel: 'folder-not-empty', panelChoice: 0 };
     return deleteSelectedFolder(state);
   }
-  if (state.panel === 'delete') {
-    if (Object.keys(state.system?.folderLayouts?.[state.selected] ?? {}).length) return state;
-    return deleteSelectedFolder(state);
-  }
+  if (state.panel === 'folder-not-empty') return { ...leaveHomeFolder(state), panel: null, panelChoice: 0 };
   return state;
 }
 function deleteSelectedFolder(state: MenuState): MenuState {
@@ -161,7 +158,7 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
 export function touchMenu(state: MenuState, x: number, y: number): MenuState {
   if (!state.powered || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= 320 || y < 0 || y >= 240) return state;
   if (state.panel) {
-    if (state.panel !== 'settings' && state.panel !== 'home-layouts' && state.panel !== 'folder-settings' && y >= 214) return reduceMenu(state, 'back');
+    if (state.panel !== 'settings' && state.panel !== 'home-layouts' && state.panel !== 'folder-settings' && state.panel !== 'folder-not-empty' && y >= 214) return reduceMenu(state, 'back');
     if (state.panel === 'settings') {
       const scroll = homeSettingsScrollAt(x, y);
       if (scroll !== null) return setHomeSettingsScroll(state, scroll);
@@ -191,8 +188,7 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
       // Rename remains intentionally inert while software-keyboard input is out of scope.
       return state;
     }
-    if (state.panel === 'delete' && y >= 165 && y < 205 && x >= 166 && x < 292) return activatePanel(state);
-    if (state.panel === 'delete' && y >= 165 && y < 205 && x >= 28 && x < 154) return reduceMenu(state, 'back');
+    if (state.panel === 'folder-not-empty' && homeFolderNoticeActionAt(x, y)) return activatePanel(state);
     return state;
   }
   if (y < 32) {

@@ -162,7 +162,7 @@ test('move retains identity; delete/recreate preserves the outgoing label rather
   host = request(host, resolveHomeBannerHostSelection(menu));
   assert.deepEqual(view(host).resourceTicket, ticket); assert.equal(view(host).primary.activationEpoch, active.activationEpoch);
   assert.equal(view(host).primary.motion, active.motion); assert.equal(view(host).primary.selection.label, 'Original');
-  menu = reduceMenu({ ...menu, panel: 'delete' }, 'open');
+  menu = reduceMenu({ ...menu, panel: 'folder-settings', panelChoice: 1 }, 'open');
   menu = createFolder(menu, 42, 'Replacement');
   host = step(acknowledge(request(host, resolveHomeBannerHostSelection(menu))));
   assert.equal(view(host).primary.selection.label, 'Original');

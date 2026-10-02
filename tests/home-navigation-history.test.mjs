@@ -49,7 +49,7 @@ test('moving/swapping folders carries views and deleting/recreating discards the
   assert.deepEqual(record(state).folderViews[41],one); assert.deepEqual(record(state).folderViews[40],two); assert.equal(record(state).activeFolderSlot,40);
   state = moveHomeItem(state,{folder:null,slot:41},{folder:null,slot:42});
   assert.deepEqual(record(state).folderViews[42],one); assert.equal(record(state).folderViews[41],undefined);
-  state = reduceMenu({...selectHomeLocation(state,{folder:null,slot:42}),panel:'delete'},'open'); assert.equal(record(state).folderViews[42],undefined);
+  state = reduceMenu({...selectHomeLocation(state,{folder:null,slot:42}),panel:'folder-settings',panelChoice:1},'open'); assert.equal(record(state).folderViews[42],undefined);
   state = create(state,42); assert.deepEqual(record(state).folderViews[42],{selectedSlot:0,currentLeftSlot:0,targetLeftSlot:0,density:1});
 });
 test('launch and HOME return retain active folder, and overlays/release/sleep keep histories', () => {

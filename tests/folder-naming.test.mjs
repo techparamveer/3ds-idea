@@ -8,7 +8,7 @@ import { openFirmwareStorage } from '../src/os/app-persistence.ts';
 import {selectHomeLocation} from '../src/os/home-layout.ts';
 const home = () => tickSystem(createPortfolioState(), 3001);
 const create = (state, slot) => reduceMenu({ ...selectHomeLocation(state, {folder: null, slot}), panel: null }, 'open');
-const remove = (state, slot) => reduceMenu({ ...selectHomeLocation(state, {folder: null, slot}), panel: 'delete' }, 'open');
+const remove = (state, slot) => reduceMenu({ ...selectHomeLocation(state, {folder: null, slot}), panel: 'folder-settings', panelChoice: 1 }, 'open');
 const root = slot => ({ folder: null, slot });
 const child = (folder, slot) => ({ folder, slot });
 

@@ -9,7 +9,7 @@ const home = () => tickSystem(createPortfolioState(), 3001);
 const root = slot => ({ folder: null, slot });
 const child = (folder, slot) => ({ folder, slot });
 const create = (state, slot) => reduceMenu({ ...selectHomeLocation(state, root(slot)), panel: null }, 'open');
-const remove = (state, slot) => reduceMenu({ ...selectHomeLocation(state, root(slot)), panel: 'delete' }, 'open');
+const remove = (state, slot) => reduceMenu({ ...selectHomeLocation(state, root(slot)), panel: 'folder-settings', panelChoice: 1 }, 'open');
 const key = getHomeFolderIdentity;
 function freeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {

@@ -99,6 +99,22 @@ const appFrame=seed=>({upper:frame(400,240,seed),lower:frame(320,240,seed)});
 const record=(capture,s,owner,pair)=>capture.record(s.system.runtime,owner,pair.upper,pair.lower);
 const openHealth=(s,now)=>tickSystem(launch(s,'health-safety',now),now+2200);
 
+test('HOME borrows the upright frozen upper surface without readback and cannot show a retired capture',()=>{
+ const surfaces=fakeSurfaces(),capture=createSuspendedApplicationCapture({createSurface:surfaces.createSurface}),draws=[];
+ const target={drawImage(...args){draws.push(args);}};
+ let s=openHealth(tickSystem(createPortfolioState(),3001),4000);
+ record(capture,s,s.system.runtime.active,appFrame(1));
+ assert.equal(capture.drawUpper(s.system.runtime,target),false);
+ s=reduceSystem(s,'home',6300);
+ assert.equal(capture.drawUpper(s.system.runtime,target),true);
+ assert.deepEqual(draws[0],[surfaces.made[0],0,24,400,188,0,24,400,188]);
+ assert.equal(surfaces.made[0].reads,undefined);
+ s=reduceSystem(reduceSystem(s,'back',6400),'open',6500);
+ assert.equal(capture.drawUpper(s.system.runtime,target),false);
+ assert.equal(surfaces.made[0].width,0);capture.dispose();
+ assert.equal(capture.drawUpper(s.system.runtime,target),false);
+});
+
 test('capture ownership follows the application instance through HOME, applets, resume, sleep and close',()=>{
  const surfaces=fakeSurfaces(),capture=createSuspendedApplicationCapture({createSurface:surfaces.createSurface});
  let s=tickSystem(createPortfolioState(),3001);

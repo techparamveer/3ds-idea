@@ -48,6 +48,17 @@ export function createSuspendedApplicationCapture(options: { createSurface?: (wi
   }
   return {
     sync,
+    /** HOME borrows the same owned frozen frame without another readback or copy.
+     * Flat presentation is an adaptation until the native capture warp is decoded. */
+    drawUpper(runtime: AppRuntime, target: CanvasRenderingContext2D): boolean {
+      if(disposed)return false;
+      sync(runtime);
+      const application=runtime.application,instance=application?runtime.instances[application]:undefined;
+      if(!instance||!instance.suspended||instance.closing||runtime.active===application||owner!==application||!surfaces)return false;
+      // HOME owns the HUD and camera hints; never retain the app's old clock.
+      target.drawImage(surfaces.upper as CanvasImageSource,0,24,400,188,0,24,400,188);
+      return true;
+    },
     /** Call only after a complete application pair has been painted. */
     record(runtime: AppRuntime, instance: string, upper: Source, lower: Source): boolean {
       if (disposed) return false;

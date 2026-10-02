@@ -11,9 +11,10 @@ import { getHomeDensityControls } from './home-density-controls';
 import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
 import type { HomeTilePose } from './home-tile-pose';
 import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from './home-balloon-presentation';
+import { selectNotesMetadata } from './notes-title-metadata';
 
 type Context=CanvasRenderingContext2D;
-export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
+export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
 const homeSettingsLayouts=['PtDlgBg_U_00','PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00'];
 const homeLayoutManagerLayouts=['MyMenuBtmBtn_D_00','MyMenuBtn_D_00','MyMenuCsr_00','MyMenuDlg_00','MyMenuDlg_01','MyMenuRandom','MyMenu_D_00','MyMenu_U_00'];
@@ -32,6 +33,11 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const soundBalloonText=selectHomeSoundBalloonText(manifest);
   const cameraBalloonText=selectHomeCameraBalloonText(manifest);
   const titleIcons=new Map<string,HTMLImageElement>();
+  const titleDescriptions=new Map<string,string>();
+  for(const titleId of Object.keys(manifest.titles??{})){
+   const metadata=selectNotesMetadata(manifest,titleId);
+   if(!('status' in metadata))titleDescriptions.set(titleId,metadata.description);
+  }
   await Promise.all(Object.entries(manifest.titles??{}).map(async ([titleId,title])=>{
    if(typeof Image==='undefined')return;
    if(!/^[a-f0-9]{16}$/i.test(titleId)||!title.icon||!/^icons\/[a-z0-9-]+\.png$/.test(title.icon))return;
@@ -66,7 +72,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const renderer=new NativeLayoutRenderer(packs,textures,new Map([['cbf_std.bcfnt',sharedFont as BitmapFont],['Hud.bcfnt',hudFont as BitmapFont]]));
   renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.','HOME Settings uses source layouts with capture-fitted scrollbar geometry, a bounded four-row scroll range and settled cursor/button bindings; these are adaptations pending native runtime comparison.');
   let disposed=false;
-  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,settingsBalloonText,healthBalloonText,soundBalloonText,cameraBalloonText,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
+  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,titleDescriptions,settingsBalloonText,healthBalloonText,soundBalloonText,cameraBalloonText,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();titleDescriptions.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
  }catch(error){controller.abort();fonts.forEach(font=>font.dispose());throw error;}
  finally{signal?.removeEventListener('abort',abort);}
 }

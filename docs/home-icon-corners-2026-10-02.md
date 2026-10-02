@@ -1,4 +1,4 @@
-# HOME ordinary title-icon corner source gap
+# HOME ordinary title-icon material correction
 
 Date: 2 October 2026
 
@@ -6,7 +6,7 @@ Branch: `codex/home-icon-corners-20261002`
 
 Base: `5da749daf554465fe6c89017586fdfdedb74bc79`
 
-Status: **authored icon material implemented; production recapture pending**.
+Status: **integrated as `3bb6c6f3`; production corner comparison meets static delta-2 tolerance; whole HOME remains fail**.
 
 The unselected Camera icon retained a stable four-corner mismatch while its
 44×44 artwork core was already effectively exact. A first bounded replay used
@@ -165,6 +165,14 @@ UVs.
   capture; not a production-browser recapture and not whole-scenario
   acceptance.
 
-The coordinator must integrate and recapture the production browser before any
-scenario status changes. HOME idle therefore remains `fail`; plate963 and
-footer694 are unchanged, and input, motion and audio remain open.
+The worker evidence above is supplemented by the coordinator's actual
+production recapture at `3bb6c6f3`, not another source replay. Four named states
+reach zero pixels above delta 2 for the fringe and core, maximum 1. See the
+[production comparison](workstream-handoffs/home-icon-corners-compare.md) for
+capture hashes, masks, reports and sheets. Full 1789 tests/typecheck/build/shader
+pass. Notes, unselected plate and footer controls are unchanged; static
+Health/Settings and both Power origins preserve their before/after pixels.
+Six desktop density states render and respond. The mobile density-increase
+tap fails before and after; Notes touch/HOME return passes on both viewports.
+HOME idle remains `fail`; plate963, footer694, exact input, motion and audio
+remain open. No private matrix entry was changed.

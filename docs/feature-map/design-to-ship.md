@@ -1,12 +1,22 @@
 # Remaining UI Design and Shipping Map
 
-Current source checkpoint: `47845dc5`, 2 October 2026. This is the **ordered
+Current runtime checkpoint: `3bb6c6f3`, 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+Latest bounded HOME result: [ordinary icon corners](../home-icon-corners-2026-10-02.md)
+now meet the delta-2 static pixel tier in four native/production captures.
+The next captured interaction failure is the mobile density-increase tap:
+both baseline and current production remain at one row after the attempted
+tap, while all six desktop densities work. First distinguish projection/test
+target error from touch routing before changing behavior. Preserve the
+existing design and source graphics. The [progress record](../progress-2026-09-24.md)
+supersedes older checkpoint details in the queue below; whole scenarios remain
+unaccepted and the user's lifecycle priorities are unchanged.
 
 Bounded HOME follow-up `5de1f381` corrects Settings' two-row title balloon;
 [native/production evidence](../home-balloon-density-2026-10-02.md). One-row

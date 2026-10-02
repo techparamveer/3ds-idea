@@ -13,16 +13,25 @@ captured plate and were rejected. Comparison chat
 `ee133aa8`. Its 963-pixel plate baseline repeats exactly; the separate icon
 fringe has 23 high pixels. Comparison chat is idle; no runtime change.
 
-Source chat is now assigned `3ds-home-icon-corners-20261002` /
+Source chat completed `3ds-home-icon-corners-20261002` /
 `codex/home-icon-corners-20261002`, created at `5da749da`, GPT-5.6 Sol/high.
 It owns the narrow stock-grid artwork path in `src/os/screens.ts`, the
 necessary native presenter method in `src/os/firmware-presentation.ts`,
 focused tests and its source note. The captured target is the rounded native
 icon fringe versus the browser's plain image draw. Reuse decoded
 `LncIconDist_01/P_Icon_00` and `IconMask.bclim`; no CSS reconstruction,
-new colors/positions or re-audit of the plate/footer gap. Candidate and
-production-after comparison are pending. Coordinator alone owns muted GUI,
-production builds, integration and acceptance, now on the full Mac.
+new colors/positions or re-audit of the plate/footer gap. Source `01fb8e4a`
+integrated as `3bb6c6f3` after independent Sol5.6/high subagent review.
+Full 1789 tests/typecheck/build/shader pass. Comparison chat uses separate
+`3ds-home-icon-corners-compare-20261002` /
+`codex/home-icon-corners-compare-20261002`, base `da6dfced`, with baseline
+`db2dbe5c` -> `d0ea7f24` and coordinator provenance correction `ef435fe5`.
+Four actual production-after captures close fringe23 and artwork1 to zero
+pixels above delta 2. The [comparison handoff](../workstream-handoffs/home-icon-corners-compare.md)
+retains controls and whole-LCD failures. Both owned worktrees are preserved;
+coordinator alone operated muted GUI, built, integrated and compared on the
+full Mac. The next captured input target is the mobile density-increase tap,
+which fails in both before and after. No whole-scenario pass.
 
 ## Notes Toolbar - 2 October 2026
 

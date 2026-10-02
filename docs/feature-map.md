@@ -15,14 +15,25 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Current [ordinary Camera plate baseline](workstream-handoffs/home-ordinary-plate-compare.md)
+Latest [ordinary icon correction](home-icon-corners-2026-10-02.md) at
+`3bb6c6f3` uses the firmware's authored icon mask. Four production-after/native
+pairs improve the Camera fringe 23 -> 0 pixels above delta 2, maximum 1;
+the artwork edge improves 1 -> 0. Notes, plate and footer controls are unchanged.
+Full 1789 tests/typecheck/build/shader pass. Six desktop densities, Notes
+desktop/mobile touch and HOME return work; static Health/Settings and both
+Power origins remain exact before/after. Mobile density increase fails both
+before and after and is the next captured input target. Whole scenarios remain
+fail for the remaining visual, input, motion and audio gaps. See the
+[comparison](workstream-handoffs/home-icon-corners-compare.md).
+
+The [ordinary Camera plate baseline](workstream-handoffs/home-ordinary-plate-compare.md)
 at `ee133aa8` repeats 963 high-delta plate pixels across three fresh browser
-and preserved native pairs: shadow 415, rim/body 548. Separate icon fringe
-23 and artwork-core 1 remain. The bounded
+and preserved native pairs: shadow 415, rim/body 548. Its separate icon defects
+are resolved by the later correction above. The bounded
 [source replay](home-ordinary-plate-2026-10-02.md) at `476f05be` worsened the
 plate mismatch and was rejected; target orientation/clear/precision remain a
-source gap. Next inspect the separate icon-corner mask path. No runtime or
-scenario pass is inferred. GUI testing may use the full Mac, with 3DS audio muted.
+source gap. No plate or scenario pass is inferred. GUI testing may use the full
+Mac, with 3DS audio muted.
 
 Latest [Notes toolbar comparison](workstream-handoffs/home-notes-toolbar-compare.md)
 at runtime `79597372` resolves the captured H-09 glyph residual: 201 -> 0

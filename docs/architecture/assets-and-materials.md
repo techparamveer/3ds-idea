@@ -4,6 +4,17 @@ Editable sources, private extraction, converted delivery and runtime ownership
 are separate layers. A resource can decode successfully without being published,
 supported by the renderer, used by a live screen or visually accepted.
 
+HOME ordinary stock grid icons retain DOM images for existing consumers and
+also load 48x48 `NativePixels`. `ordinaryTitleIcon` binds only sampler 0 of
+`LncIconDist_01/P_Icon_00`; authored mask/dummy samplers, UVs, material and
+rounded destination footprint remain unchanged. The exact material hierarchy
+is validated once per presenter. Missing visible icon pixels, bad dimensions
+or unsupported material fail explicitly; there is no plain-square fallback.
+Pixel identity isolates cached title bindings; abort propagates and disposal
+clears the raw map. Other artwork consumers are unchanged. This recovers the
+captured corner pixels, not proof of the original native setter. See the
+[source contract](../home-icon-corners-2026-10-02.md).
+
 HOME `LncBase_D_01/P_Memo_10` omits the UV1 attribute selected by its third
 sampler. Runtime `79597372` gates an inferred all-zero sampling adaptation by
 the exact material, sampler, UV count, generator pattern and texture names.

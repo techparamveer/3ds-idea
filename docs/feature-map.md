@@ -15,7 +15,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Power menu correction](home-power-menu-2026-10-02.md) at `82d26a8b`
+Latest [Power text raster correction](home-power-raster-2026-10-02.md) at
+`766888a2` resolves lower-label668 ->0 pixels above2, maximum2, both origins.
+The ineffective upper experiment was removed. HOME upper4334 and app upper6512
+remain; the app variance repeats even with the lower sampler disabled.
+The restored-build app repeat returns to4334; upper stability remains open.
+Full1777 tests/typecheck/build pass, final controls and73 browser motion pairs inspected.
+L-01 remains partial: upper text, exact input/motion/shutdown and muted audio
+are open. Whole scenarios still fail; no matrix or1:1 pass.
+
+Earlier [Power menu correction](home-power-menu-2026-10-02.md) at `82d26a8b`
 uses ROM-marked20% spacer advances and the sole native touch boundary. Full1776
 tests/typecheck/build pass; native/browser settled comparison improves upper
 7848 ->4334 pixels above2, lower668 unchanged. Physical Power/HOME and inert

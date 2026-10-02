@@ -1,5 +1,16 @@
 # Verification and evidence architecture
 
+[Power text-raster verification](../home-power-raster-2026-10-02.md) at
+`766888a2` records fresh native repeats and immutable before/candidate/final
+production pairs. Both lower LCDs have0 pixels above2, maximum2 with no mask;
+the upper experiment was rejected. HOME upper remains4334, app upper6512.
+A build with only the lower opt-in disabled reproduces the app upper variance
+and restores the lower mismatch. Do not infer an upper cause or hide the first
+discrepancy. Browser captures at120000ms clamp presentation, not native epochs;
+the restored-build app repeat returns to baseline4334 with unchanged lower.
+73 final browser motion pairs and1777 passing tests do not establish native
+input/motion/audio. Both whole scenarios remain fail.
+
 [Power menu verification](../home-power-menu-2026-10-02.md) at `82d26a8b`
 records two fresh native origins and production before/after. Source spacer
 advances correct list geometry; both after pairs remain4334/668 pixels above2

@@ -1,5 +1,22 @@
 # Workstream Registry
 
+## Power Text Raster - 2 October 2026
+
+The two existing chats used GPT-5.6 Sol/high and separate internal worktrees
+from `97c954db`; no service-tier claim. Only the coordinator operated GUI.
+
+| Chat | Worktree / codex branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-power-raster-20261002` / `home-power-raster-20261002` | Candidate `e1836ae2` -> `459d623f`; measured cleanup `60289548` -> `766888a2` |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-power-raster-compare-20261002` / `home-power-raster-compare-20261002` | Diagnostic/candidate `ab13f48e` -> `8bfe8607`; final `1dbc6761` -> `31f4220b` |
+
+[Verification and residuals](../home-power-raster-2026-10-02.md): lower668 ->0
+above2; rejected upper experiment removed. HOME upper4334/app6512 remain;
+disabled-lower-sampler control reproduces upper variance. Full1777 tests,
+typecheck/build pass; final controls and73 browser motion pairs inspected.
+Native stopped, temporary inputs restored, muted fixture preserved. Whole
+scenarios remain fail. Both bounded deliveries complete; trees preserved.
+
 ## Power Menu - 2 October 2026
 
 Existing chats used GPT-5.6 Sol/high in dedicated internal trees from

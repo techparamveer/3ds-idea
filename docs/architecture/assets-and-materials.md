@@ -71,6 +71,14 @@ a `sourceSheet ?? sheet` fallback. See the [HUD delivery note](../hud-font-sourc
 
 ## Runtime resource boundaries
 
+Power's lower label opts into existing final-LCD alpha glyph sampling through
+an explicit `textSamplingPanes` allowlist. Missing, duplicate or invalid selected
+pane names fail the draw; sibling text and other call sites retain their prior
+path. No new font, offset or coverage fit is introduced. The attempted upper
+multiline sampler was removed after production comparison failed to improve it.
+See [Power text sampling](../home-power-glyph-sampling-2026-10-02.md) for the
+source scope and [production evidence](../home-power-raster-2026-10-02.md).
+
 HOME resources and shared fonts have console-session lifetime. Stock title
 packs are lazy and scoped to one foreground owner/view through
 `createNativeTitleSession`. Requests are snapshotted and generation-fenced;

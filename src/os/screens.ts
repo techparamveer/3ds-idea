@@ -295,7 +295,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    // the existing capture path (no cursor, footer actions or panel chrome).
    const ctx=captureContext;
    ctx.resetTransform();ctx.clearRect(0,0,320,240);ctx.fillStyle=themes[root.theme].bottom;ctx.fillRect(0,0,320,240);
-   nativeHome.toolbar(ctx,root,true);nativeHome.homePlate(ctx,root);grid(ctx,root,time,reduced,graphics,chrome,getHomePresentation(root),nativeHome,true,firmwareAssets);
+   if(!nativeHome.toolbar(ctx,root,true)||!nativeHome.homePlate(ctx,root))throw new Error('Native HOME layout preview tray unavailable');
+   grid(ctx,root,time,reduced,graphics,chrome,getHomePresentation(root),nativeHome,true,firmwareAssets);
    layoutCapture={identity,preview:{upper:{width:400,height:240,data:t.getImageData(0,0,400,240).data},lower:{width:320,height:240,data:ctx.getImageData(0,0,320,240).data}}};
   }
   return layoutCapture.preview;
@@ -333,7 +334,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
   const view=getHomePresentation(state);
-  const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;}
+  const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
   const layoutPreview=currentLayoutPreview(state,time);
   const hostedBanner=options.getHomeBanner?.();
   const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;

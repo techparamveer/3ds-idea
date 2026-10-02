@@ -61,7 +61,7 @@ export function createHomeLayoutManager(renderer:NativeLayoutRenderer){
    attachments:preview?{N_Thumb:()=>paint(top,'MyMenuBtn_D_00',{
     center:[200,120],bindings:[binding('MyMenuBtn_D_00_MyMenuIn',30)],
     textures:{currentUpper:preview.upper,currentLower:preview.lower},
-    overrides:{N_Icon_Random:{visible:false},Thumb_U_00:{texture:'currentUpper'},Thumb_D_00:{texture:'currentLower'}},
+    overrides:{N_Icon_Random:{visible:false},Thumb_U_00:{textureBindings:{0:'currentUpper'}},Thumb_D_00:{textureBindings:{0:'currentLower'}}},
    })}:undefined});
   const attachments:Record<string,()=>void>={};
   for(let slot=0;slot<8;slot++)attachments[`N_Thumb_0${slot}`]=()=>paint(bottom,'MyMenuBtn_D_00',{

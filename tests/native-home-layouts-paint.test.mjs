@@ -38,8 +38,11 @@ test('current preview uses the source upper mount and MyMenuIn scale with indepe
  const pane=walk(current.pose.roots).find(pane=>pane.name==='Thumb_00');
  assert.ok(Math.abs(pane.scale[0]-.3)<1e-7);
  assert.deepEqual(current.options.textures,{currentUpper:pixels.upper,currentLower:pixels.lower});
- assert.equal(current.options.overrides.Thumb_U_00.texture,'currentUpper');
- assert.equal(current.options.overrides.Thumb_D_00.texture,'currentLower');
+ for(const [name,texture] of [['Thumb_U_00','currentUpper'],['Thumb_D_00','currentLower']]){
+  const pane=walk(current.pose.roots).find(pane=>pane.name===name);
+  const material=current.pose.materials[pane.picture.material];
+  assert.equal(current.pose.textures[material.textureMaps[0].texture],texture);
+ }
  assert.ok(current.visible.includes('Shadow_U_00'));
  assert.ok(!current.visible.includes('ThumbBaseSdw_01'));
  assert.equal(byName(draws,'MyMenuBtn_D_00').filter(draw=>draw.ctx===bottom).length,8);

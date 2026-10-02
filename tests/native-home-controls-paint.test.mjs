@@ -64,6 +64,15 @@ test('current-layout capture precedes upper chrome, stays bounded and refreshes 
  });
 });
 
+test('unavailable native wallpaper cannot become a current-layout preview',async()=>{
+ await withScreens(({screens,paint,events})=>{
+  const state={...home(),panel:'home-layouts'};paint(state);
+  assert.equal(screens.stockStatus(state),'error');
+  assert.match(String(screens.stockFailure()),/preview wallpaper unavailable/);
+  assert.equal(events.filter(e=>e.name==='layout-manager-upper'||e.name==='capture-read').length,0);
+ },{screenOptions:{drawHomeBackground:()=>false}});
+});
+
 test('HOME Settings uses its source caption and does not publish unrelated upper controls', async () => {
   await withScreens(({ screens, paint, events }) => {
     paint({ ...home(), panel: 'settings', panelChoice: 0 });
@@ -240,7 +249,7 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     cursor(ctx, ...args) { ctx.record('cursor', args); return legacyCursorDrawn; },
   }, { get: (target, key) => key in target ? target[key] : ((ctx, ...args) => { ctx.record(key, args); return true; }) });
   const diagnostics = [];
-  const screens = createScreens({ ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics, dispose() {} } } : {}), ...screenOptions });
+  const screens = createScreens({ drawHomeBackground:()=>true, ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics, dispose() {} } } : {}), ...screenOptions });
   const paint = (state, elapsed = 1000) => {
     events.length = 0; screens.bottom.getContext('2d').curves.length = 0;
     screens.paint(state, new Date(0), elapsed);

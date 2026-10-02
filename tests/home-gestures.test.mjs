@@ -107,6 +107,13 @@ test('the production context wrapper retains pickup while rebasing departed fold
  s=touch(s,'up',...back,5700+T.folderHoverMs+301);
  assert.equal(s.system.layout[0],'projects');assert.equal(s.system.folderLayouts[4][2],'work');assert.equal(s.system.homeControls.tilePickup,null);noLoss(s);
 });
+test('the pre-existing immediate folder-band exit keeps its generic control reset',()=>{
+ let s=enableHomeControls(placeInFolder());s=lift(s,2,5200);assert.ok(s.system.homeControls.tilePickup);
+ s=touch(s,'move',59,40,5700);
+ assert.equal(s.opened,false);assert.deepEqual(getHomeGestureView(s).dragged.source,child(4,2));
+ assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileTouch.strokeOwned,false);
+ assert.equal(s.system.homeControls.primary.request,0);noLoss(s);
+});
 test('Back hover restarts after departure and the last folder child can move to an empty root cell',()=>{
  let s=enableHomeControls(placeInFolder(0));assert.equal(s.system.layout[0],undefined);assert.deepEqual(s.system.folderLayouts[4],{2:'work'});
  s=lift(s,2,5200);const back=[59,54];s=touch(s,'move',...back,5700);s=tickSystem(s,5700+T.folderHoverMs-1);assert.equal(s.opened,true);

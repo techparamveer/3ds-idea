@@ -501,7 +501,7 @@ test('actual folder paint retains the authored right arrow after a no-arrow six-
  });
 });
 
-test('vacant-root footer retains the decoded Create Folder message and unfitted source sampler',()=>{
+test('vacant-root footer retains the decoded Create Folder message with its bounded fitted coverage',()=>{
  const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};
  const presenter=createFirmwareHome({renderer}),state=selectHomeSlot(home(),20);
  presenter.footer({},state);
@@ -513,7 +513,7 @@ test('vacant-root footer retains the decoded Create Folder message and unfitted 
  for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW'])assert.deepEqual(options.overrides[`${prefix}_C_01`],{text:source.text,messageStyle:style});
  assert.equal(options.overrides.N_BtnW_C_01.visible,true);
  assert.equal(options.bindings.some(binding=>binding.name==='LncBtmBtn_02_SceneIn'&&binding.frame===15),true);
- assert.equal(options.textSampling,'lcd');assert.equal(options.textCoverageAdaptation,undefined);
+ assert.equal(options.textSampling,'lcd');assert.equal(options.textCoverageAdaptation,'azahar-12p4-fit');
 });
 
 test('captured occupied folder uses the decoded centre Open control with no Close segment',()=>{
@@ -527,6 +527,7 @@ test('captured occupied folder uses the decoded centre Open control with no Clos
  assert.equal(options.overrides.N_BtnW_C_01.visible,true);
  assert.equal(options.overrides.N_BtnW_L_03.visible,false);assert.equal(options.overrides.N_BtnW_R_02.visible,false);
  for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW'])assert.equal(options.overrides[`${prefix}_C_01`].text,'Open');
+ assert.equal(options.textCoverageAdaptation,undefined,'non-Create Folder centre labels retain source coverage');
 });
 
 test('folder-close footer reenters from the counted root-selection boundary',()=>{

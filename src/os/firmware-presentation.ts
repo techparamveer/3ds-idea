@@ -309,7 +309,11 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(pressed){
    const group=two?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));
   }
-  return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings,overrides,clip:[0,210,320,30],textSampling:'lcd'});
+  // Bounded capture fit for the remaining Create Folder glyph-edge columns.
+  // This is not a recovered native GPU raster rule; other footer labels retain
+  // the source direct-LCD sampler without coverage snapping.
+  const textCoverageAdaptation=!two&&rightAction==='create-folder'?'azahar-12p4-fit' as const:undefined;
+  return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings,overrides,clip:[0,210,320,30],textSampling:'lcd',textCoverageAdaptation});
  }
  /** Sample the last actual tile writer, not two possibly disabled controllers.
   * Dist has no density Scale clip: density sizes its child/artwork elsewhere,

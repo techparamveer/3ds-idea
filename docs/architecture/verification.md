@@ -3,7 +3,8 @@
 [Ordinary icon verification](../workstream-handoffs/home-icon-corners-compare.md)
 at `3bb6c6f3` uses four fresh native own-PNGs and actual production raw LCDs,
 not a source replay. Fringe 23 -> 0 and artwork core 1 -> 0 pixels above 2,
-maximum 1; Notes, unselected plate and footer controls are unchanged. Whole
+maximum 2 for fringe and 1 for core; Notes, unselected plate and footer controls
+are unchanged. Whole
 LCDs still fail with unmatched input/epochs/population/motion/audio. The
 preserved y=138 replay is an invalid-coordinate experiment; actual y=137 is
 byte-proven. Six desktop grid densities work; mobile density increase fails

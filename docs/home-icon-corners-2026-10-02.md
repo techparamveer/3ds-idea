@@ -167,7 +167,9 @@ UVs.
 
 The worker evidence above is supplemented by the coordinator's actual
 production recapture at `3bb6c6f3`, not another source replay. Four named states
-reach zero pixels above delta 2 for the fringe and core, maximum 1. See the
+reach zero pixels above delta 2 for the fringe and core, maximum 2 and 1
+respectively. The production fringe differs slightly from the source replay's
+maximum 1; do not conflate these evidence tiers. See the
 [production comparison](workstream-handoffs/home-icon-corners-compare.md) for
 capture hashes, masks, reports and sheets. Full 1789 tests/typecheck/build/shader
 pass. Notes, unselected plate and footer controls are unchanged; static

@@ -17,8 +17,9 @@ tier is not exposed or verified by the collaboration tool.
 
 Latest [ordinary icon correction](home-icon-corners-2026-10-02.md) at
 `3bb6c6f3` uses the firmware's authored icon mask. Four production-after/native
-pairs improve the Camera fringe 23 -> 0 pixels above delta 2, maximum 1;
-the artwork edge improves 1 -> 0. Notes, plate and footer controls are unchanged.
+pairs improve the Camera fringe 23 -> 0 pixels above delta 2, maximum 2;
+the artwork edge improves 1 -> 0. Notes, unselected plate and footer controls
+are unchanged; selected cursor epochs remain unmatched.
 Full 1789 tests/typecheck/build/shader pass. Six desktop densities, Notes
 desktop/mobile touch and HOME return work; static Health/Settings and both
 Power origins remain exact before/after. Mobile density increase fails both

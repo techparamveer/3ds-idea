@@ -76,22 +76,28 @@ function sameHomeItem(left: HomeItem | null, right: HomeItem | null) {
     : left.kind === 'folder' && right.kind === 'folder' && left.label === right.label;
 }
 /** The scene wraps tick reducers in the broader context reconciler. Preserve
- * only the validated folder source that the Back-hover adapter carried to root. */
+ * only a validated Back-hover departure from the gesture's live folder. The
+ * pickup source remains its original container across every admitted visit. */
 function carriesFolderPickupToRoot(before: MenuState, state: MenuState, controls: HomeControls, gesture: HomeGesture | null | undefined) {
   const pickup = controls.tilePickup?.source, source = gesture?.source;
-  const prior = before.system?.homeNavigation.gesture;
-  return !!pickup && pickup.folder !== null
-    && before.system?.homeNavigation.activeFolderSlot === pickup.folder
+  const prior = before.system?.homeNavigation.gesture, priorTouch = before.system?.input.touch, touch = state.system!.input.touch;
+  const departingFolder = before.system?.homeNavigation.activeFolderSlot;
+  return !!pickup && departingFolder !== null && departingFolder !== undefined
+    && prior?.viewFolder === departingFolder
     && state.system!.homeNavigation.activeFolderSlot === null
-    && gesture?.mode === 'drag' && gesture.viewFolder === null
+    && gesture?.mode === 'drag' && gesture.item?.kind === 'app' && gesture.viewFolder === null
     // The timed Back path crosses the context boundary on a later tick with
     // an unchanged pointer and an armed hover. Immediate band exit happens
     // during the move event itself and must retain its earlier generic reset.
     && prior?.mode === 'drag' && prior.pointerId === gesture.pointerId
     && prior.x === gesture.x && prior.y === gesture.y && prior.hoverFolder !== null
     && prior.y >= 49 && isHomeFolderBackTouch(before, prior.x, prior.y)
+    && priorTouch?.pointerId === gesture.pointerId && touch?.pointerId === gesture.pointerId
+    && priorTouch.x === gesture.x && priorTouch.y === gesture.y && touch.x === gesture.x && touch.y === gesture.y
+    && controls.tileTouch.strokeOwned && controls.tileTouch.latest.down
     && source?.folder === pickup.folder && source.slot === pickup.slot
-    && sameHomeItem(homeItemAt(state, source), gesture.item);
+    && prior.source?.folder === pickup.folder && prior.source.slot === pickup.slot
+    && sameHomeItem(prior.item, gesture.item) && sameHomeItem(homeItemAt(state, source), gesture.item);
 }
 /** Preserve only the folder-hover transition reached by the same live app
  * stroke. The resolved destination proves this is an eligible folder target,

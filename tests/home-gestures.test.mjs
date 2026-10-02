@@ -170,6 +170,37 @@ test('same-stroke hover can enter another eligible folder without retargeting th
  assert.equal(s.opened,true);assert.equal(s.selected,6);assert.equal(s.system.folderLayouts[4][2],undefined);assert.equal(s.system.folderLayouts[6][0],'projects');
  assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileTouch.strokeOwned,false);noLoss(s);
 });
+test('a folder-source pickup leaves a different visited folder through Back without changing its original blank',()=>{
+ let s=withFolder(placeInFolder(),6,'Other');s=writeHomeNavigation(s,{...s.system.homeNavigation,rootView:{...s.system.homeNavigation.rootView,density:5}});
+ s=enableHomeControls(s);const unchanged=saveSettings(s);s=lift(s,2,5200);const source=child(4,2),back=[59,54];
+ const sourceBlank={center:s.system.homeControls.tilePickup.blankCenter,scale:s.system.homeControls.tilePickup.blankScale};
+ s=touch(s,'move',...back,5700);s=reconcileHomeControls(s,tickSystem(s,5700+T.folderHoverMs));
+ assert.equal(s.opened,false);assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
+ const destination=center(s,6);s=touch(s,'move',...destination,6300);s=reconcileHomeControls(s,tickSystem(s,6300+T.folderHoverMs));
+ assert.equal(s.opened,true);assert.equal(s.selected,6);assert.deepEqual(getHomeGestureView(s).dragged.source,source);
+ s=touch(s,'move',...back,6900);s=reconcileHomeControls(s,tickSystem(s,6900+T.folderHoverMs));
+ assert.equal(s.opened,false);assert.deepEqual(getHomeGestureView(s).dragged.source,source);
+ assert.deepEqual(s.system.homeControls.tilePickup.source,source);assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
+ assert.deepEqual(s.system.homeControls.tilePickup.blankCenter,sourceBlank.center);assert.deepEqual(s.system.homeControls.tilePickup.blankScale,sourceBlank.scale);
+ assert.equal(s.system.homeControls.tileTouch.strokeOwned,true);
+ s=touch(s,'cancel',...back,6900+T.folderHoverMs+1);
+ assert.equal(s.opened,true);assert.equal(s.selected,4);assert.equal(saveSettings(s),unchanged);assert.equal(getHomeGestureView(s),null);
+ assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileTouch.strokeOwned,false);noLoss(s);
+});
+test('a root-source pickup leaves its visited folder through Back and releases with the original source',()=>{
+ let s=setHomeDensity(withFolder(home()),5);s=enableHomeControls(s);const unchanged=saveSettings(s),source=root(0);
+ s=lift(s,0,4000);const sourceBlank={center:s.system.homeControls.tilePickup.blankCenter,scale:s.system.homeControls.tilePickup.blankScale};
+ const folderPoint=center(s,4);s=touch(s,'move',...folderPoint,4500);s=reconcileHomeControls(s,tickSystem(s,4500+T.folderHoverMs));
+ assert.equal(s.opened,true);assert.equal(s.selected,4);assert.deepEqual(getHomeGestureView(s).dragged.source,source);
+ const back=[59,54];s=touch(s,'move',...back,5100);s=reconcileHomeControls(s,tickSystem(s,5100+T.folderHoverMs));
+ assert.equal(s.opened,false);assert.deepEqual(getHomeGestureView(s).dragged.source,source);
+ assert.deepEqual(s.system.homeControls.tilePickup.source,source);assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
+ assert.deepEqual(s.system.homeControls.tilePickup.blankCenter,sourceBlank.center);assert.deepEqual(s.system.homeControls.tilePickup.blankScale,sourceBlank.scale);
+ assert.equal(s.system.homeControls.tileTouch.strokeOwned,true);
+ const target=center(s,2);s=touch(s,'move',...target,5100+T.folderHoverMs+1);s=touch(s,'up',...target,5100+T.folderHoverMs+2);
+ assert.equal(s.opened,false);assert.equal(s.system.layout[2],'work');assert.equal(s.system.layout[0],'hobbies');assert.notEqual(saveSettings(s),unchanged);
+ assert.equal(getHomeGestureView(s),null);assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileTouch.strokeOwned,false);noLoss(s);
+});
 test('an unrelated root-to-folder context replacement still clears pickup ownership',()=>{
  let s=enableHomeControls(placeInFolder());s=lift(s,2,5200);const back=[59,54];
  s=touch(s,'move',...back,5700);s=reconcileHomeControls(s,tickSystem(s,5700+T.folderHoverMs));

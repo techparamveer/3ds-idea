@@ -15,7 +15,7 @@ const pngUrl=asModule(readFileSync(new URL('../src/os/native-png.ts',import.meta
 const billboardUrl=asModule(readFileSync(new URL('../src/scene/cgfx-billboard.ts',import.meta.url),'utf8').replace("'three'",JSON.stringify(import.meta.resolve('three'))));
 const {nativeYAxialBone}=await import(billboardUrl);
 const modelSource=readFileSync(new URL('../src/scene/firmware-model.ts',import.meta.url),'utf8').replace("'three'",JSON.stringify(import.meta.resolve('three'))).replace("'../os/cgfx-animation'",JSON.stringify(animationUrl)).replace("'./cgfx-lighting'",JSON.stringify(asModule(lightingSource))).replace("'../os/native-png'",JSON.stringify(pngUrl)).replace("'./cgfx-billboard'",JSON.stringify(billboardUrl));
-const {createFirmwareModel}=await import(asModule(modelSource));
+const {createFirmwareModel,picaFragmentShader}=await import(asModule(modelSource));
 // Evaluate only the emitted direction expression in Node. Expected vectors come
 // from original ARM execution, not this shader; GPU compilation is a separate check.
 function generatedLightDirection(code,viewMatrix){
@@ -228,6 +228,65 @@ test('model raw texture upload preserves hidden RGB and reverses PNG rows explic
  const texture=model.group.children[0].children[0].material.uniforms.tex0.value;
  assert.deepEqual([...texture.image.data],[40,50,60,255,10,20,30,0]);
  assert.equal(texture.flipY,false);assert.deepEqual([...pixels.data],[10,20,30,0,40,50,60,255]);model.dispose();
+});
+
+test('native border sampling is opt-in and preserves the legacy shader when disabled',()=>{
+ const data=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/home-background/model.json',import.meta.url),'utf8'));
+ const material=data.models[0].materials[0],legacy=picaFragmentShader(material);
+ assert.equal(legacy,picaFragmentShader(material,null,undefined,false));
+ assert.match(legacy,/vec4 t0=texture2D\(tex0,\(uvMatrix0\*vec3\(vUv0,1\.0\)\)\.xy\);/);
+ assert.doesNotMatch(legacy,/nativeBorder|nativeCoord/);
+ const opted=picaFragmentShader(material,null,undefined,true);
+ assert.match(opted,/uniform vec4 nativeBorder0;/);
+ assert.match(opted,/nativeCoord0\.x<0\.0\|\|nativeCoord0\.x>1\.0\|\|nativeCoord0\.y<0\.0\|\|nativeCoord0\.y>1\.0/);
+ assert.doesNotMatch(opted,/nativeCoord0\.[xy]<=0\.0|nativeCoord0\.[xy]>=1\.0/,'coordinates exactly on zero or one still sample the texture');
+});
+
+test('native border sampling follows authored U and V axes independently',()=>{
+ const data=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/home-background/model.json',import.meta.url),'utf8'));
+ const material=data.models[0].materials[0],mapper=material.TextureMappers[0];
+ for(const [u,v,component,absent] of [['ClampToBorder','Repeat','x','y'],['Repeat','ClampToBorder','y','x']]){
+  mapper.WrapU=u;mapper.WrapV=v;
+  const sample=picaFragmentShader(material,null,undefined,true).match(/vec2 nativeCoord0=.*?;vec4 t0=.*?;/s)?.[0];
+  assert.ok(sample);assert.match(sample,new RegExp(`nativeCoord0\\.${component}<0\\.0`));assert.doesNotMatch(sample,new RegExp(`nativeCoord0\\.${absent}`));
+ }
+});
+
+test('native border uniforms retain authored RGBA, filters, and dynamic replacement state',()=>{
+ for(const [filter,expected] of [['Nearest',THREE.NearestFilter],['Linear',THREE.LinearFilter]]){
+  const data=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/home-background/model.json',import.meta.url),'utf8'));
+  const record=data.textures.find(texture=>texture.name==='BG_DmyApp_00'),mapper=data.models[0].materials[0].TextureMappers[0];
+  record.width=1;record.height=2;mapper.WrapV='Mirror';mapper.MagFilter=filter;mapper.BorderColor={R:17,G:34,B:51,A:68};
+  const first={width:1,height:2,data:new Uint8ClampedArray([1,2,3,4,5,6,7,8])};
+  const model=createFirmwareModel({data,images:new Map([[record.name,first]])},{skeletal:[],material:[]},{nativeBorderSampling:true});
+  const material=model.group.children[0].children[0].material,texture=material.uniforms.tex0.value,border=material.uniforms.nativeBorder0.value,shader=material.fragmentShader;
+  assert.deepEqual(border.toArray(),[17/255,34/255,51/255,68/255]);
+  assert.equal(texture.wrapS,THREE.ClampToEdgeWrapping);assert.equal(texture.wrapT,THREE.MirroredRepeatWrapping);
+  assert.match(shader,/nativeCoord0\.x<0\.0/);assert.doesNotMatch(shader,/nativeCoord0\.y/);
+  assert.equal(texture.magFilter,expected);assert.equal(texture.minFilter,expected);
+  const sameSize={width:1,height:2,data:new Uint8ClampedArray([9,10,11,12,13,14,15,16])};
+  assert.equal(model.setTexture(record.name,sameSize),true);assert.equal(material.uniforms.tex0.value,texture);assert.equal(material.uniforms.nativeBorder0.value,border);assert.equal(material.fragmentShader,shader);
+  assert.deepEqual([...texture.image.data],[13,14,15,16,9,10,11,12]);
+  const resized={width:2,height:1,data:new Uint8ClampedArray([21,22,23,24,25,26,27,28])};
+  assert.equal(model.setTexture(record.name,resized,{allowSizeChange:true}),true);assert.equal(material.uniforms.tex0.value,texture);assert.equal(material.uniforms.nativeBorder0.value,border);assert.equal(material.fragmentShader,shader);
+  assert.deepEqual({width:texture.image.width,height:texture.image.height,data:[...texture.image.data]},{width:2,height:1,data:[21,22,23,24,25,26,27,28]});
+  model.dispose();
+ }
+});
+
+test('native border opt-in rejects unsupported sampler state before model allocation',()=>{
+ const source=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/home-background/model.json',import.meta.url),'utf8'));
+ for(const mutate of [
+  mapper=>{mapper.WrapU='Bogus';},
+  mapper=>{mapper.MagFilter='Bogus';},
+  mapper=>{mapper.BorderColor={R:-1,G:0,B:0,A:255};},
+  mapper=>{mapper.BorderColor={R:0.5,G:0,B:0,A:255};},
+ ]){
+  const data=structuredClone(source),mapper=data.models[0].materials[0].TextureMappers[0];mutate(mapper);
+  assert.throws(()=>createFirmwareModel({data,images:new Map()},{skeletal:[],material:[]},{nativeBorderSampling:true}),/native border/);
+ }
+ const legacy=structuredClone(source);legacy.models[0].materials[0].TextureMappers[0].WrapU='Bogus';
+ const model=createFirmwareModel({data:legacy,images:new Map()},{skeletal:[],material:[]});model.dispose();
 });
 
 // These real resources previously fell through to Three's LessEqual default.

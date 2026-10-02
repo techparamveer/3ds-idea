@@ -15,9 +15,10 @@ export type FirmwareStencilState=Readonly<{
  fail:NativeStencilOperation;depthFail:NativeStencilOperation;depthPass:NativeStencilOperation;
 }>;
 export type FirmwareColorFit=Readonly<{material:string;upperY:number;lowerY:number;upperRgb:readonly [number,number,number];lowerRgb:readonly [number,number,number];opaqueAlpha?:boolean}>;
-export type FirmwareModelOptions=Readonly<{nativeMipmaps?:boolean;nativeSphereMapping?:boolean;overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>;colorFit?:FirmwareColorFit}>;
+export type FirmwareModelOptions=Readonly<{nativeMipmaps?:boolean;nativeSphereMapping?:boolean;nativeBorderSampling?:boolean;overlayCoverage?:boolean;drawGroup?:number;runtimeStencil?:Partial<FirmwareStencilState>;colorFit?:FirmwareColorFit}>;
 type Params={TexEnvStages:Stage[];TexEnvBufferColor:Color;TextureCoords:Coord[];TextureSources:number[];FaceCulling:string;AmbientColor:Color;DiffuseColor:Color;Specular0Color:Color;AlphaTest:{Enabled:boolean;Function:string;Reference:number};DepthColorMask:{Enabled:boolean;DepthWrite:boolean;DepthFunc:string};StencilTest?:{Enabled:boolean;Function:NativeComparison;Reference:number;Mask:number;BufferMask:number};StencilOperation?:{FailOp:NativeStencilOperation;ZFailOp:NativeStencilOperation;ZPassOp:NativeStencilOperation};BlendFunction:{ColorSrcFunc:string;ColorDstFunc:string;AlphaSrcFunc:string;AlphaDstFunc:string};[key:string]:unknown};
-type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:{WrapU:string;WrapV:string;MagFilter:string;MinFilter:string;LODBias?:number;MinLOD?:number}[]};
+type TextureMapper={BorderColor:Color;WrapU:string;WrapV:string;MagFilter:string;MinFilter:string;LODBias?:number;MinLOD?:number};
+type Material={Name:string;MaterialParams:Params;ConstantAssignments:number[];Texture0Name:string;Texture1Name:string;Texture2Name:string;TextureMappers:TextureMapper[]};
 type Bone={Name:string;ParentIndex:number;BillboardMode?:string;NativeBillboardMode?:number;Scale:Vec;Rotation:Vec;Translation:Vec;InverseTransform:Record<string,number>};
 type Submesh={indices:number[];bones:number[];skinning:string;primitive:string};
 type Mesh={hasVertexColor?:boolean;material:number;node:number;layer:number;priority:number;position:number[][];normal:number[][];color:number[][];uv0:number[][];uv1:number[][];uv2:number[][];joints:number[][];weights:number[][];submeshes:Submesh[]};
@@ -51,8 +52,23 @@ function combine(mode:string,args:string[],alpha:boolean){
  if(!operations[mode]||(alpha&&mode.startsWith('Dot')))throw new Error(`Unsupported PICA combiner ${mode}`);
  return operations[mode];
 }
-export function picaFragmentShader(material:Material,lighting:ReturnType<typeof cgfxLightingShader>=null,colorFit?:FirmwareColorFit):string{
+// Pinned Azahar 3dfdfbed's generated sampler helpers test each authored
+// ClampToBorder axis strictly outside [0,1], then return the full border RGBA.
+function nativeTextureSamples(material:Material,enabled=false){
+ const declarations:string[]=[],samples:string[]=[];
+ for(let i=0;i<3;i++){
+  const sampler=material.TextureMappers[i],coord=`(uvMatrix${i}*vec3(vUv${i},1.0)).xy`;
+  const border=enabled&&sampler&&(sampler.WrapU==='ClampToBorder'||sampler.WrapV==='ClampToBorder');
+  if(!border){samples.push(`vec4 t${i}=texture2D(tex${i},${coord});`);continue;}
+  const outside=[sampler.WrapU==='ClampToBorder'?`nativeCoord${i}.x<0.0||nativeCoord${i}.x>1.0`:'',sampler.WrapV==='ClampToBorder'?`nativeCoord${i}.y<0.0||nativeCoord${i}.y>1.0`:''].filter(Boolean).join('||');
+  declarations.push(`uniform vec4 nativeBorder${i};`);
+  samples.push(`vec2 nativeCoord${i}=${coord};vec4 t${i}=(${outside})?nativeBorder${i}:texture2D(tex${i},nativeCoord${i});`);
+ }
+ return {declarations:declarations.join(''),samples:samples.join('')};
+}
+export function picaFragmentShader(material:Material,lighting:ReturnType<typeof cgfxLightingShader>=null,colorFit?:FirmwareColorFit,nativeBorderSampling=false):string{
  const p=material.MaterialParams;
+ const textureSamples=nativeTextureSamples(material,nativeBorderSampling);
  let stages='';
  p.TexEnvStages.forEach((s,i)=>{
   const constant=material.ConstantAssignments?.[i]??i;
@@ -68,11 +84,11 @@ export function picaFragmentShader(material:Material,lighting:ReturnType<typeof 
  const alpha=p.AlphaTest;const op=comparison[alpha.Function]??'>';
  const test=alpha.Enabled?`if(!(${op==='true'||op==='false'?op:`previous.a ${op} ${(alpha.Reference/255).toFixed(8)}`}))discard;`:'';
  return `varying vec4 vColor;varying vec2 vUv0;varying vec2 vUv1;varying vec2 vUv2;varying vec3 vNormal;varying vec3 vView;\n
- uniform sampler2D tex0;uniform sampler2D tex1;uniform sampler2D tex2;uniform mat3 uvMatrix0;uniform mat3 uvMatrix1;uniform mat3 uvMatrix2;
+ uniform sampler2D tex0;uniform sampler2D tex1;uniform sampler2D tex2;uniform mat3 uvMatrix0;uniform mat3 uvMatrix1;uniform mat3 uvMatrix2;${textureSamples.declarations}
  uniform vec4 constant0;uniform vec4 constant1;uniform vec4 constant2;uniform vec4 constant3;uniform vec4 constant4;uniform vec4 constant5;
  ${lighting?.declarations??''}
  void main(){
- vec4 t0=texture2D(tex0,(uvMatrix0*vec3(vUv0,1.0)).xy);vec4 t1=texture2D(tex1,(uvMatrix1*vec3(vUv1,1.0)).xy);vec4 t2=texture2D(tex2,(uvMatrix2*vec3(vUv2,1.0)).xy);
+ ${textureSamples.samples}
  ${lighting?.code??`float illumination=max(dot(normalize(vNormal),normalize(vec3(-0.25,0.45,1.0))),0.0);
  vec4 litPrimary=clamp(${glcolor(p.AmbientColor)}+${glcolor(p.DiffuseColor)}*illumination,0.0,1.0);
  vec4 litSecondary=${glcolor(p.Specular0Color)}*pow(max(dot(normalize(vNormal),normalize(vec3(-0.12,0.22,1.0))),0.0),16.0);`}
@@ -124,7 +140,7 @@ function nativeStencilState(params:Params,override:FirmwareModelOptions['runtime
  const authored=stencilMaterialState(source);
  return override?stencilMaterialState({...source,...override}):authored;
 }
-const wrap=(value:string)=>value==='Repeat'?THREE.RepeatWrapping:value==='MirroredRepeat'?THREE.MirroredRepeatWrapping:THREE.ClampToEdgeWrapping;
+const wrap=(value:string,nativeSampler=false)=>value==='Repeat'?THREE.RepeatWrapping:value==='MirroredRepeat'||(nativeSampler&&value==='Mirror')?THREE.MirroredRepeatWrapping:THREE.ClampToEdgeWrapping;
 function texturePixels(image:NativePixels){
  const pixels=new Uint8Array(image.data.length),stride=image.width*4;
  for(let row=0;row<image.height;row++)pixels.set(image.data.subarray(row*stride,(row+1)*stride),(image.height-1-row)*stride);
@@ -143,6 +159,14 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
   if(sampler.MinFilter!=='LinearMipmapNearest'||sampler.MagFilter!=='Linear'||sampler.LODBias!==0||sampler.MinLOD!==0)throw new Error('Unsupported native mip sampler '+name);
   if(!record||!Number.isInteger(count)||count<1||count>12||levels.length!==count-1||record.mipmaps?.length!==levels.length)throw new Error('Incomplete native mip chain '+name);
   for(let n=0;n<levels.length;n++){const level=levels[n],source=record.mipmaps![n],width=record.width>>(n+1),height=record.height>>(n+1);if(source.level!==n+1||source.width!==width||source.height!==height||level.width!==width||level.height!==height||level.data.length!==width*height*4)throw new Error('Invalid native mip level '+name);}
+ }
+ if(options.nativeBorderSampling)for(const model of asset.data.models)for(const material of model.materials)for(let i=0;i<3;i++){
+  const name=material[`Texture${i}Name` as 'Texture0Name']||`${material.Name}[${i}]`,sampler=material.TextureMappers[i],wraps=[sampler?.WrapU,sampler?.WrapV];
+  if(!sampler||!wraps.every(value=>['ClampToEdge','ClampToBorder','Repeat','Mirror','MirroredRepeat'].includes(value))||!['Nearest','Linear'].includes(sampler.MagFilter))throw new Error('Unsupported native border sampler '+name);
+  if(wraps.includes('ClampToBorder')){
+   const color=sampler.BorderColor;
+   if(!color||![color.R,color.G,color.B,color.A].every(value=>Number.isInteger(value)&&value>=0&&value<=255))throw new Error('Invalid native border colour '+name);
+  }
  }
  // Validate opt-in mapping and stencil state before allocating GPU resources.
  const sphereSlots=asset.data.models.map(model=>model.materials.map(m=>{
@@ -176,11 +200,12 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    }
    for(let i=0;i<6;i++)uniforms[`constant${i}`]={value:rgba(p[`Constant${i}Color`] as Color)};
    for(let i=0;i<3;i++){
+    const sampler=m.TextureMappers[i];if(options.nativeBorderSampling&&(sampler.WrapU==='ClampToBorder'||sampler.WrapV==='ClampToBorder'))uniforms[`nativeBorder${i}`]={value:rgba(sampler.BorderColor)};
     const image=asset.images.get(m[`Texture${i}Name` as 'Texture0Name']);let texture:THREE.Texture=white;
     if(image){
      // PNG rows are top-down; raw GL data starts at the bottom. Preserve RGB
      // under zero alpha while flipping explicitly instead of using a DOM image.
-     const nativeTexture=new THREE.DataTexture(texturePixels(image),image.width,image.height);texture=nativeTexture;texture.colorSpace=THREE.NoColorSpace;texture.wrapS=wrap(m.TextureMappers[i].WrapU);texture.wrapT=wrap(m.TextureMappers[i].WrapV);texture.magFilter=m.TextureMappers[i].MagFilter==='Nearest'?THREE.NearestFilter:THREE.LinearFilter;texture.minFilter=texture.magFilter;texture.generateMipmaps=false;
+     const nativeTexture=new THREE.DataTexture(texturePixels(image),image.width,image.height);texture=nativeTexture;texture.colorSpace=THREE.NoColorSpace;texture.wrapS=wrap(m.TextureMappers[i].WrapU,options.nativeBorderSampling);texture.wrapT=wrap(m.TextureMappers[i].WrapV,options.nativeBorderSampling);texture.magFilter=m.TextureMappers[i].MagFilter==='Nearest'?THREE.NearestFilter:THREE.LinearFilter;texture.minFilter=texture.magFilter;texture.generateMipmaps=false;
      if(options.nativeMipmaps){nativeTexture.minFilter=THREE.LinearMipmapNearestFilter;nativeTexture.mipmaps=[image,...(asset.mipmaps?.get(m[`Texture${i}Name` as 'Texture0Name'])??[])].map(level=>({width:level.width,height:level.height,data:texturePixels(level)}));}
      texture.needsUpdate=true;textures.push(texture);
      const name=m[`Texture${i}Name` as 'Texture0Name'];textureBindings.set(name,[...(textureBindings.get(name)??[]),nativeTexture]);
@@ -189,7 +214,7 @@ export function createFirmwareModel(asset:FirmwareModelAsset,initialPlayback:Fir
    }
    const blend=p.BlendFunction;
    const stencil=stencilStates[modelIndex][materialIndex];
-   const material=new THREE.ShaderMaterial({uniforms,vertexShader:sphereVertexShader(sphereSlots[modelIndex][materialIndex]),fragmentShader:picaFragmentShader(m,lighting,options.colorFit),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,depthFunc:nativeDepthFunction(p.DepthColorMask.DepthFunc),side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
+   const material=new THREE.ShaderMaterial({uniforms,vertexShader:sphereVertexShader(sphereSlots[modelIndex][materialIndex]),fragmentShader:picaFragmentShader(m,lighting,options.colorFit,options.nativeBorderSampling),transparent:true,depthTest:p.DepthColorMask.Enabled,depthWrite:p.DepthColorMask.DepthWrite,depthFunc:nativeDepthFunction(p.DepthColorMask.DepthFunc),side:p.FaceCulling==='BackFace'?THREE.FrontSide:p.FaceCulling==='FrontFace'?THREE.BackSide:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:(factor[blend.ColorSrcFunc]??THREE.SrcAlphaFactor) as THREE.BlendingSrcFactor,blendDst:factor[blend.ColorDstFunc]??THREE.OneMinusSrcAlphaFactor,blendSrcAlpha:(factor[blend.AlphaSrcFunc]??THREE.OneFactor) as THREE.BlendingSrcFactor,blendDstAlpha:factor[blend.AlphaDstFunc]??THREE.OneMinusSrcAlphaFactor,toneMapped:false});
    Object.assign(material,stencil);
    // The transparent Canvas bridge needs geometric blend coverage. Preserve
    // native RGB blending, but do not square alpha as native mt_Text's otherwise

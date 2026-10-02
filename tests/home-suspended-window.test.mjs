@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {selectedSuspendedApplication,drawHomeSuspendedWindow} from '../src/os/home-suspended-window.ts';
+import {retainedSuspendedApplication,selectedSuspendedApplication,drawHomeSuspendedWindow} from '../src/os/home-suspended-window.ts';
 import {createPortfolioState,tickSystem,reduceSystem} from '../src/os/system.ts';
 import {escapeUnreadyNativeScreen,releaseUnreadyNativeInput} from '../src/os/native-screen-system.ts';
 import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts';
@@ -17,12 +17,28 @@ test('expanded window follows the selected suspended instance, never a live, app
  assert.equal(selectedSuspendedApplication(state).id,owner);
  assert.equal(selectedSuspendedApplication(reduceSystem(state,'home',6100)),null);
  assert.equal(selectedSuspendedApplication(settleHomeNavigation(selectHomeSlot(state,1))),null);
+ assert.equal(retainedSuspendedApplication(settleHomeNavigation(selectHomeSlot(state,1))).id,owner);
  for(const change of [s=>s.system.sleeping=true,s=>s.system.preferences=true,s=>s.panel='settings',s=>s.system.runtime.active='other',s=>s.system.runtime.homeReturn=null,s=>s.system.runtime.instances[owner].closing=true,s=>s.system.homeNavigation.focus.toolbarActive=true]){
-  const copy=structuredClone(state);change(copy);assert.equal(selectedSuspendedApplication(copy),null);
+  const copy=structuredClone(state);change(copy);assert.equal(selectedSuspendedApplication(copy),null);assert.equal(retainedSuspendedApplication(copy),null);
  }
  const dialog=reduceSystem(state,'back',6200);
  assert.equal(dialog.system.dialog,'close');assert.equal(selectedSuspendedApplication(dialog).id,owner);
  assert.equal(selectedSuspendedApplication(reduceSystem(dialog,'open',6300)),null);
+});
+
+test('source compact pose retains the small masked icon and HOME glyph without title or expanded frame',()=>{
+ const calls=[],meta=metadata(),renderer={packs,measureSingleLineText(){return 222;},draw(ctx,pack,name,options){calls.push(options);return true;}};
+ drawHomeSuspendedWindow(renderer,{},meta,'compact');
+ const options=calls[0],pose=poseNativeLayout(packs.launcher.layouts.LncBase_U_00,packs.launcher.animations,options.bindings,options.overrides);
+ const pane=name=>nativePaneParentPath(pose,name).at(-1);
+ assert.deepEqual(pane('N_WndwScale_00').translation,[-176,78,0]);
+ assert.deepEqual(pane('N_IconWrp_00').scale,[Math.fround(.67),Math.fround(.67)]);
+ assert.equal(pane('W_Wndw_00').flags&1,0);assert.equal(pane('T_AppTitle_00').flags&1,0);
+ assert.equal(pane('T_TextBtmR_00').flags&1,0);assert.ok(pane('P_Home_00').flags&1);
+ assert.deepEqual(pane('N_TestCenter_00').translation,[0,0,0]);
+ assert.deepEqual(pane('N_TextBtm_00').translation,[0,-27,0]);
+ const material=pose.materials[pane('P_Icon_00').picture.material];
+ assert.equal(material.textureMaps.length,2);assert.equal(pose.textures[material.textureMaps[0].texture],'runtime:suspended-icon');
 });
 
 test('unready window can escape to the retained app or cancel an overlaid dialog without closing it',()=>{

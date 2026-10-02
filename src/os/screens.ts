@@ -15,7 +15,7 @@ import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
 import { createHomeLayoutManager, type HomeLayoutPreview } from './home-native-layouts';
 import {homeSoftwareDialogKey,homeSoftwareSwitchTitles,drawHomeSoftwareDialog} from './home-software-dialog';
-import { selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
+import { retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { getHomeFolderIdentity } from './home-folder-identity';
 import type { NativePixels } from './native-layout';
@@ -270,7 +270,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let switchIcons:{key:string;icons:readonly[NativePixels,NativePixels]}|undefined;
  let panelFailure:Error|undefined,panelPublished:string|null=null;
  const panelKey=(state:MenuState)=>homeSoftwareDialogKey(state)??(state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts')
-  ?JSON.stringify([state.panel,state.panelChoice,state.panelScroll??0,state.homeLayoutSlot??0,state.homeLayoutAction??null,state.homeLayoutConfirm??false]):selectedSuspendedApplication(state)?.id??null);
+  ?JSON.stringify([state.panel,state.panelChoice,state.panelScroll??0,state.homeLayoutSlot??0,state.homeLayoutAction??null,state.homeLayoutConfirm??false]):retainedSuspendedApplication(state)?JSON.stringify([retainedSuspendedApplication(state)!.id,!!selectedSuspendedApplication(state)]):null);
  function stockStatus(state:MenuState){const key=panelKey(state);return key?(panelPublished!==key?'loading':panelFailure?'error':'ready'):graphics.stockStatus(state,t);}
  function retryStockScreen(){if(panelFailure){panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
  function panelRecovery(){
@@ -340,9 +340,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const view=getHomePresentation(state);
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
   const layoutPreview=currentLayoutPreview(state,time);
-  const suspended=selectedSuspendedApplication(state);
+  const suspended=retainedSuspendedApplication(state),expanded=!!selectedSuspendedApplication(state);
   if(!suspended)suspendedMetadata=undefined;
-  if(!suspended){
+  if(!expanded){
   const hostedBanner=options.getHomeBanner?.();
   const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;
   const hostedToolbar=hostedBanner?.status!=='unsupported'&&hostedBanner?.selection.kind==='toolbar'?hostedBanner.selection:null;
@@ -407,7 +407,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   }
   }
   if(suspended){
-   if(!firmwareAssets||!graphics.drawSuspendedUpper(state.system!.runtime,t))throw Error('Suspended application frame unavailable');
+   if(!firmwareAssets||(expanded&&!graphics.drawSuspendedUpper(state.system!.runtime,t)))throw Error('Suspended application frame unavailable');
    if(suspendedMetadata?.owner!==suspended.id){
     const title=getTitle(suspended.appId),portfolio=getApp(suspended.appId),ctx=captureContext;
     ctx.resetTransform();ctx.clearRect(0,0,64,64);
@@ -422,7 +422,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     }else throw Error('Unsupported suspended title');
     suspendedMetadata={owner:suspended.id,metadata:{description,icon:{width:64,height:64,data:ctx.getImageData(0,0,64,64).data}}};
    }
-   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata);
+   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact');
   }
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.

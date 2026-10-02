@@ -3,25 +3,27 @@ import type { MenuState } from './state';
 import { nativeMessageOverride, nativePaneParentPath, type NativePixels } from './native-layout.ts';
 import type { NativeLayoutRenderer } from './native-renderer';
 
-/** Only the selected retained application has a captured expanded-window reference.
- * The compact window for another selection remains a separate native source gap. */
-export function selectedSuspendedApplication(state: MenuState) {
+export function retainedSuspendedApplication(state: MenuState) {
  const s=state.system;
  if(!s||s.phase!=='home'||s.sleeping||s.preferences||state.panel||s.homeNavigation.focus.toolbarActive)return null;
  const runtime=s.runtime,owner=runtime.application,application=owner?runtime.instances[owner]:undefined;
  if(!application||!application.suspended||application.closing||runtime.active||runtime.homeReturn!==owner)return null;
- return homeSlotAppId(state,state.opened?state.folderSelected:state.selected)===application.appId?application:null;
+ return application;
+}
+export function selectedSuspendedApplication(state: MenuState) {
+ const application=retainedSuspendedApplication(state);
+ return application&&homeSlotAppId(state,state.opened?state.folderSelected:state.selected)===application.appId?application:null;
 }
 
 export type SuspendedWindowMetadata={description:string;icon:NativePixels};
 
-/** Source settled expanded pose, not an inferred opening/closing animation. */
-export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata){
+/** Source settled poses, not an inferred opening/closing animation. */
+export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded'){
  const pack=renderer.packs.launcher,bank=renderer.packs.messages?.messages.menu_msbt_LZ;
  const bindings=[
   {name:'LncBase_U_00_SceneIn',frame:40},
   {name:'LncBase_U_00_Appear',frame:10},
-  {name:'LncBase_U_00_ScaleUpDown',frame:15},
+  {name:'LncBase_U_00_ScaleUpDown',frame:mode==='expanded'?15:0},
   {name:'LncBase_U_00_Sleep',frame:0},
   {name:'LncBase_U_00_WhiteBlack',frame:1},
  ];
@@ -36,10 +38,10 @@ export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:Canvas
  const width=renderer.measureSingleLineText(layout.fonts[text.font],{...text,value:resume.text!,messageStyle:resume.messageStyle});
  // Capture-fitted assembly: center the source glyph + gap + measured caption.
  // The original host's N_TestCenter writer has not yet been traced.
- const centerOffset=125-width/2;
+ const centerOffset=mode==='expanded'?125-width/2:0;
  if(!renderer.draw(ctx,'launcher','LncBase_U_00',{bindings,textSampling:'lcd',pictureSampling:'lcd',
   textures:{'runtime:suspended-icon':metadata.icon},overrides:{
-   T_TextTop_00:message('lau_pose_title_u'),T_AppTitle_00:{text:metadata.description},
+   T_TextTop_00:message('lau_pose_title_u'),T_AppTitle_00:{text:metadata.description,visible:mode==='expanded'},
    T_TextBtmR_00:resume,N_TestCenter_00:{translation:[centerOffset,0,0]},P_Icon_00:{textureBindings:{0:'runtime:suspended-icon'}},
   },
  }))throw Error('Native suspended window draw failed');

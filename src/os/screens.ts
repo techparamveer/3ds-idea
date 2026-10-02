@@ -211,13 +211,15 @@ function dragGhost(c:Context,view:HomePresentation,graphics:ReturnType<typeof cr
  const ghost=view.ghost;if(!ghost)return;
  if(nativeHome&&view.pickup?.scale.appliedFrame===null)return;
  const {x,y,size,item}=ghost,app=item.kind==='app'?getApp(item.id):undefined;
+ const titleId=item.kind==='app'&&!app?getTitle(item.id)?.titleId:undefined;
+ if(nativeHome&&item.kind==='app'&&!app&&!titleId)throw new Error(`Native HOME pickup title unavailable: ${item.id}`);
  c.save();c.beginPath();c.rect(0,0,320,240);c.clip();
  const pickup=nativeHome&&(view.pickup
-  ?nativeHome.pickupAt(c,x,y,view.pickup.scale.appliedFrame!)
-  :nativeHome.pickup(c,x,y,size,view.density,item.kind==='folder',item.kind==='folder'?item.label:''));
+  ?nativeHome.pickupAt(c,x,y,view.pickup.scale.appliedFrame!,titleId)
+  :nativeHome.pickup(c,x,y,size,view.density,item.kind==='folder',item.kind==='folder'?item.label:'',titleId));
  if(pickup?.drawn){
   if(app){const rect=pickup.icon;c.globalAlpha=rect.alpha;graphics.menuArtwork(c,app,rect.x,rect.y,rect.width,rect.height);}
-  else if(item.kind==='app'){const rect=pickup.icon;c.globalAlpha=rect.alpha;titleArtwork(c,item.id,rect.x,rect.y,rect.width,rect.height,assets);}
+  else if(item.kind==='app'&&!titleId){const rect=pickup.icon;c.globalAlpha=rect.alpha;titleArtwork(c,item.id,rect.x,rect.y,rect.width,rect.height,assets);}
  }else if(item.kind==='folder')folder(c,x,y,size*.78,item.label);
  else if(app){rounded(c,x-size/2,y-size/2,size,size,8,'#f8f9fc','#adb4bf');graphics.menuIcon(c,app,x-size/2,y-size/2,size);}
  else if(item.kind==='app'){rounded(c,x-size/2,y-size/2,size,size,8,'#f8f9fc','#adb4bf');titleIcon(c,item.id,x-size/2,y-size/2,size,assets);}

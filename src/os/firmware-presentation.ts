@@ -92,7 +92,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
 /** HOME assembly chooses groups and discrete firmware clip frames explicitly. */
 export function createFirmwareHome(assets:FirmwarePresentationAssets){
  const renderer=assets.renderer;
- let ordinaryTitleMaterialValidated=false;
+ let ordinaryTitleMaterialValidated=false,pickupTitleMaterialValidated=false;
  const message=(table:string,key:string,fallback:string)=>nativeMessageOverride(renderer.packs.messages,table,key,fallback);
  const binding=(name:string,frame:number,groups?:string[]):AnimationBinding=>({name,frame,...(groups?{groups}:{})});
  const pressTrack=renderer.packs.launcher.animations.LncCsr_00_Select.tracks.find(track=>track.target==='N_Scene_00'&&track.property==='translation.y');
@@ -416,12 +416,39 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  }
  function arrows(ctx:Context,showLeft:boolean,showRight:boolean){return renderer.draw(ctx,'launcher','LncArw_00',{bindings:[binding('LncArw_00_Appear',15)],overrides:{N_arwL_00:{visible:showLeft},N_arwR_00:{visible:showRight}},clip:[0,33,320,179]});}
  const pickupSizes=new Map<string,{x:number;y:number;width:number;height:number;alpha:number}>();
- function paintPickupAt(ctx:Context,x:number,y:number,frame:number,folder:boolean,folderName=''){
+ function paintPickupAt(ctx:Context,x:number,y:number,frame:number,folder:boolean,folderName='',titleId?:string){
   const name=folder?'LncIconFolderPickUp_00':'LncIconPickUp_00';
   const glyph=folder&&folderGlyph(folderName);
-  const drawn=renderer.draw(ctx,'launcher',name,{center:[x,y],bindings:[binding(name+'_Scale',frame)],textures:glyph?{[glyphTexture]:glyph}:undefined,overrides:{
-   P_Icon_00:glyph?{visible:true,textureBindings:{0:glyphTexture,1:'IconMask.bclim'}}:{visible:false},P_IconPrize_00:{visible:false}
+  if(folder&&titleId)throw new Error('Unsupported native folder pickup title icon');
+  let titleTexture:string|undefined,titlePixels:NativePixels|undefined;
+  if(titleId){
+   if(!pickupTitleMaterialValidated){
+    const layout=renderer.packs.launcher?.layouts.LncIconPickUp_00,path=layout&&nativePaneParentPath(layout,'P_Icon_00'),pane=path?.at(-1),material=pane?.picture&&layout!.materials[pane.picture.material];
+    const contract=JSON.stringify(layout?.textures)==='["IconDmy.bclim","IconMask.bclim","LncIcon_11.bclim","LncIconBtnShdwLT_01.bclim"]'
+     &&JSON.stringify(path?.map(item=>item.name))==='["RootPane","P_Icon_00"]'
+     &&JSON.stringify(pane?.size)==='[52,52]'&&pane?.alpha===235
+     &&JSON.stringify(pane?.picture?.uvSets)==='[[0,0,1,0,0,1,1,1],[0.25,0.25,1.75,0.25,0.25,1.75,1.75,1.75]]'
+     &&material?.name==='P_Icon_00'
+     &&JSON.stringify(material.textureMaps)==='[{"magFilter":1,"minFilter":1,"texture":0,"wrapS":0,"wrapT":0},{"magFilter":1,"minFilter":1,"texture":1,"wrapS":2,"wrapT":2}]'
+     &&JSON.stringify(material.coordinateGenerators)==='[{"reserved":0,"source":0,"type":0},{"reserved":0,"source":1,"type":0}]'
+     &&JSON.stringify(material.colorBlend)==='{"destinationFactor":5,"logic":0,"operation":1,"sourceFactor":4}'
+     &&JSON.stringify(material.tevStages.map(stage=>[stage.constantSelectors,stage.color.mode,stage.color.sources,stage.alpha.mode,stage.alpha.sources]))
+       ==='[[17,0,[0,4,4],1,[0,1,4]],[17,4,[4,7,6],4,[4,7,6]],[17,1,[5,6,6],1,[5,6,6]]]';
+    if(!contract)throw new Error('Unsupported native pickup title icon material identity');
+    pickupTitleMaterialValidated=true;
+   }
+   const normalized=titleId.toLowerCase();titlePixels=assets.titleIconPixels?.get(normalized);
+   if(!titlePixels)throw new Error(`Native pickup title icon unavailable: ${titleId}`);
+   if(titlePixels.width!==48||titlePixels.height!==48)throw new Error('Unsupported native pickup title icon dimensions');
+   titleTexture=`runtime:pickup-title-icon:${normalized}`;
+  }
+  const textures=glyph?{[glyphTexture]:glyph}:titleTexture&&titlePixels?{[titleTexture]:titlePixels}:undefined;
+  const iconOverride=glyph?{visible:true,textureBindings:{0:glyphTexture,1:'IconMask.bclim'}}
+   :titleTexture?{visible:true,textureBindings:{0:titleTexture,1:'IconMask.bclim'}}:{visible:false};
+  const drawn=renderer.draw(ctx,'launcher',name,{center:[x,y],bindings:[binding(name+'_Scale',frame)],textures,overrides:{
+   P_Icon_00:iconOverride,P_IconPrize_00:{visible:false}
   }});
+  if(titleId&&!drawn)throw new Error(`Native pickup title icon draw unavailable: ${titleId}`);
   // Native P_Icon is a direct child of RootPane; retain its sampled bounds for portfolio artwork.
   const key=`${name}:${frame}`;let rect=pickupSizes.get(key);
   if(!rect){const pack=renderer.packs.launcher,posed=poseNativeLayout(pack.layouts[name],pack.animations,[binding(name+'_Scale',frame)]),pane=posed.roots[0].children.find(p=>p.name==='P_Icon_00')!;
@@ -431,14 +458,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  /** Ordinary entry consumes an applied Scale and LCD center. The caller omits
   * null submissions and owns visibility, anchor, source hiding and artwork.
   */
- function pickupAt(ctx:Context,centerX:number,centerY:number,appliedScaleFrame:number){
-  return paintPickupAt(ctx,centerX,centerY,appliedScaleFrame,false);
+ function pickupAt(ctx:Context,centerX:number,centerY:number,appliedScaleFrame:number,titleId?:string){
+  return paintPickupAt(ctx,centerX,centerY,appliedScaleFrame,false,'',titleId);
  }
  function pickupBlankAt(ctx:Context,centerX:number,centerY:number,appliedScaleFrame:number){
   const name='LncIconPickUpBlank_00';return renderer.draw(ctx,'launcher',name,{center:[centerX,centerY],bindings:[binding(name+'_Scale',appliedScaleFrame)]});
  }
- function pickup(ctx:Context,x:number,y:number,size:number,density:number,folder:boolean,folderName=''){
-  return paintPickupAt(ctx,x,y,nativeHomeDensityFrame(density),folder,folderName);
+ function pickup(ctx:Context,x:number,y:number,size:number,density:number,folder:boolean,folderName='',titleId?:string){
+  return paintPickupAt(ctx,x,y,nativeHomeDensityFrame(density),folder,folderName,titleId);
  }
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   return pickupBlankAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density));

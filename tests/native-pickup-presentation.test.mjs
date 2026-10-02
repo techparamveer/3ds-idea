@@ -24,15 +24,16 @@ const pack = JSON.parse(readFileSync(resolve(resourceRoot, 'packs/home/launcher.
 const pickup = 'LncIconPickUp_00', blank = 'LncIconPickUpBlank_00';
 const pane = (layout, name) => nativePaneParentPath(layout, name).at(-1);
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-5, `${actual} != ${expected}`);
-function presenter() {
-  const draws = [], renderer = { packs: { launcher: pack }, result: true,
+function presenter({ titleIconPixels = new Map(), launcher = pack } = {}) {
+  const draws = [], renderer = { packs: { launcher }, result: true,
     draw(ctx, bank, name, options) {
-      draws.push({ ctx, bank, name, options, pose: poseNativeLayout(pack.layouts[name], pack.animations, options.bindings, options.overrides) });
+      draws.push({ ctx, bank, name, options, pose: poseNativeLayout(launcher.layouts[name], launcher.animations, options.bindings, options.overrides) });
       return this.result;
     },
   };
-  return { home: createFirmwareHome({ renderer }), renderer, draws };
+  return { home: createFirmwareHome({ renderer, titleIconPixels }), renderer, draws };
 }
+const iconPixels = value => ({ width: 48, height: 48, data: new Uint8ClampedArray(48 * 48 * 4).fill(value) });
 
 test('pickup passes the applied Scale and LCD center unchanged, including fractions and out-of-density frames', () => {
   const { home, draws } = presenter(), ctx = Object.freeze({});
@@ -72,6 +73,35 @@ test('ordinary Scale0–5 preserves separate shell ancestry, direct-root artwork
     }
     assert.equal(artworkPath[0].alpha, 255);
   }
+});
+
+test('stock pickup binds each SMDH through the authored pickup material and rejects unsupported resources', () => {
+  const firstId = '0004001000022300', secondId = '0004001000022000', first = iconPixels(17), second = iconPixels(31);
+  const { home, draws } = presenter({ titleIconPixels: new Map([[firstId, first], [secondId, second]]) });
+  for (const [titleId, pixels, center, frame] of [[firstId.toUpperCase(), first, [137.25, 92.5], 1], [secondId, second, [88.5, 103.25], 2.375]]) {
+    const result = home.pickupAt({}, ...center, frame, titleId), draw = draws.at(-1), normalized = titleId.toLowerCase();
+    const texture = `runtime:pickup-title-icon:${normalized}`;
+    assert.equal(result.drawn, true); assert.deepEqual(draw.options.center, center);
+    assert.deepEqual(draw.options.bindings, [{ name: pickup + '_Scale', frame }]);
+    assert.equal(draw.options.textures[texture], pixels);
+    assert.deepEqual(draw.options.overrides.P_Icon_00, { visible: true, textureBindings: { 0: texture, 1: 'IconMask.bclim' } });
+    const posed = pane(draw.pose, 'P_Icon_00'), source = pack.layouts[pickup], sourcePane = source.roots[0].children.find(child => child.name === 'P_Icon_00'), material = source.materials[sourcePane.picture.material];
+    assert.equal(posed.flags & 1, 1); assert.equal(posed.alpha, 235); assert.deepEqual(posed.size, [result.icon.width, result.icon.height]);
+    assert.deepEqual(sourcePane.size, [52, 52]);
+    assert.equal(draw.pose.materials.find(entry => entry.name === 'P_Icon_00').textureMaps.length, 2);
+    assert.notDeepEqual(material.textureMaps, pack.layouts.LncIconDist_01.materials.find(entry => entry.name === 'P_Icon_00').textureMaps,
+      'held artwork must not reuse the ordinary grid material');
+  }
+  assert.notEqual(draws[0].options.textures, draws[1].options.textures);
+
+  assert.throws(() => presenter().home.pickupAt({}, 0, 0, 1, firstId), /Native pickup title icon unavailable/);
+  assert.throws(() => presenter({ titleIconPixels: new Map([[firstId, { ...first, width: 47 }]]) }).home.pickupAt({}, 0, 0, 1, firstId),
+    /Unsupported native pickup title icon dimensions/);
+  const failed = presenter({ titleIconPixels: new Map([[firstId, first]]) }); failed.renderer.result = false;
+  assert.throws(() => failed.home.pickupAt({}, 0, 0, 1, firstId), /Native pickup title icon draw unavailable/);
+  const drifted = structuredClone(pack); drifted.layouts[pickup].roots[0].children.find(child => child.name === 'P_Icon_00').alpha = 234;
+  assert.throws(() => presenter({ titleIconPixels: new Map([[firstId, first]]), launcher: drifted }).home.pickupAt({}, 0, 0, 1, firstId),
+    /Unsupported native pickup title icon material identity/);
 });
 
 test('Scale texture patterns and hidden picture-branch matrices retain original materials and blend modes', () => {

@@ -10,7 +10,8 @@ import { resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts'
 import { commitHomeScroll, enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { advanceSystemHomeFolderCloseNative, beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomeFooter, getHomePresentation } from '../src/os/home-presentation.ts';
-import { createHomeTilePickup } from '../src/os/home-tile-pickup.ts';
+import { advanceHomeTilePickup2D, createHomeTilePickup } from '../src/os/home-tile-pickup.ts';
+import { getTitle } from '../src/os/app-registry.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
 import { getHomeDensityControls } from '../src/os/home-density-controls.ts';
 import { blendNativePixel, evaluateNativeMaterial, poseNativeLayout, nativePaneParentPath } from '../src/os/native-layout.ts';
@@ -857,25 +858,39 @@ test('retained tile writer moves assembled app artwork and plate together, indep
   }, { realTilePose: true, legacyPressOffset: 99 });
 });
 
-test('ordinary stock artwork uses the native material only in the grid, including a lifted source', async () => {
+test('stock artwork uses its grid and pickup materials once, while clearing pickup ownership removes the ghost', async () => {
   await withScreens(({ paint, events }) => {
-    const initial=home(),state={...initial,system:{...initial.system,homeControls:null}},view = getHomePresentation(state), portfolio = new Set(['work','projects','hobbies','life','hackuk','nvidia','about','contact']);
+    const root=home(),portfolio = new Set(['work','projects','hobbies','life','hackuk','nvidia','about','contact']);
+    const rootStock=getHomePresentation(root).tiles.find(tile=>tile.appId&&!portfolio.has(tile.appId)),layout={...root.system.layout};delete layout[rootStock.index];
+    const initial=selectHomeSlot(enterHomeFolder({...root,folders:{20:'A'},system:{...root.system,layout,folderLayouts:{20:{2:rootStock.appId}}}},20),2);
+    const state={...initial,system:{...initial.system,homeControls:null}},view = getHomePresentation(state);
     const stock = view.tiles.filter(tile => tile.appId && !portfolio.has(tile.appId));
     assert.equal(stock.length,1);
+    paint(root);assert.equal(events.filter(event => event.name === 'menuIcon').length,7,'portfolio artwork remains on its separate path');
     paint(state);
     const baseline = events.filter(event => event.name === 'ordinaryTitleIcon');
     assert.equal(baseline.length, stock.length);
     assert.deepEqual(baseline.map(event => event.args.slice(1)), stock.map(tile => [tile.x,tile.y,tile.size]));
-    assert.equal(events.filter(event => event.name === 'menuIcon').length,7,'portfolio artwork remains on its separate path');
 
     const source = stock[0], point = { x: source.x+1, y: source.y + source.size / 2 };
-    let dragged = dispatchSystemEvent(state,{type:'touch',phase:'down',...point,pointerId:9},100);
-    dragged = tickSystem(dragged,550);
-    assert.equal(getHomePresentation(dragged).ghost.item.id,source.appId);
+    let gestureDragged=dispatchSystemEvent(state,{type:'touch',phase:'down',...point,pointerId:9},100);
+    gestureDragged=tickSystem(gestureDragged,550);const gestureView=getHomePresentation(gestureDragged);
+    const pickup=advanceHomeTilePickup2D(createHomeTilePickup(gestureView.gesture.dragged.source,view.density,
+      {x:source.x+source.size/2,y:source.y+source.size/2},point,{x:0,y:0}));
+    const dragged={...gestureDragged,system:{...gestureDragged.system,homeControls:{...initial.system.homeControls,tilePickup:pickup}}};
+    const held = getHomePresentation(dragged); assert.equal(held.ghost.item.id,source.appId);
     paint(dragged);
     assert.equal(events.filter(event => event.name === 'ordinaryTitleIcon').length,stock.length-1,
-      'lifted grid source is omitted and its direct pickup artwork does not enter the grid material path');
-  });
+      'lifted grid source is omitted and its pickup artwork does not re-enter the grid material path');
+    const pickupEvent = events.find(event => event.name === 'pickupAt'); assert.ok(pickupEvent);
+    assert.deepEqual(pickupEvent.args, [held.ghost.x,held.ghost.y,held.pickup.scale.appliedFrame,getTitle(source.appId).titleId]);
+
+    for(const phase of ['cancel','up']){
+      const cleared=dispatchSystemEvent(gestureDragged,{type:'touch',phase,x:point.x,y:point.y,pointerId:9},551);
+      assert.equal(getHomePresentation(cleared).ghost,null);paint(cleared);
+      assert.equal(events.some(event=>event.name==='pickupAt'),false);
+    }
+  },{presenterPatch:{pickupAt(ctx,...args){ctx.record('pickupAt',args);return {drawn:true,icon:{x:0,y:0,width:52,height:52,alpha:235/255}};}}});
 });
 
 test('missing selected grid title pixels fail explicitly without a raw-image substitution', async () => {
@@ -883,6 +898,19 @@ test('missing selected grid title pixels fail explicitly without a raw-image sub
     assert.throws(()=>paint(home()),/Native ordinary title icon unavailable/);
     assert.equal(events.some(event=>event.name==='ordinaryTitleIcon'),false);
   },{presenterPatch:{ordinaryTitleIcon(){throw new Error('Native ordinary title icon unavailable: fixture');}}});
+});
+
+test('missing held title pixels fail explicitly without a raw-image pickup substitution', async () => {
+  await withScreens(({paint})=>{
+    const initial=home(),state={...initial,system:{...initial.system,homeControls:null}},portfolio=new Set(['work','projects','hobbies','life','hackuk','nvidia','about','contact']);
+    const view=getHomePresentation(state),source=view.tiles.find(tile=>tile.appId&&!portfolio.has(tile.appId)),point={x:source.x+1,y:source.y+source.size/2};
+    let gestureDragged=dispatchSystemEvent(state,{type:'touch',phase:'down',...point,pointerId:12},100);
+    gestureDragged=tickSystem(gestureDragged,550);const gestureView=getHomePresentation(gestureDragged);
+    const pickup=advanceHomeTilePickup2D(createHomeTilePickup(gestureView.gesture.dragged.source,view.density,
+      {x:source.x+source.size/2,y:source.y+source.size/2},point,{x:0,y:0}));
+    const dragged={...gestureDragged,system:{...gestureDragged.system,homeControls:{...initial.system.homeControls,tilePickup:pickup}}};
+    assert.throws(()=>paint(dragged),/Native pickup title icon unavailable/);
+  },{presenterPatch:{pickupAt(){throw new Error('Native pickup title icon unavailable: fixture');}}});
 });
 
 test('retained slot poses move folder and vacant assemblies without moving neighboring tiles', async () => {

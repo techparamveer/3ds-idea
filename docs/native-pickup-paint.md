@@ -7,7 +7,7 @@ The caller owns retained pickup state, source hiding, visibility and draw order.
 `createFirmwareHome` exposes:
 
 ```ts
-pickupAt(ctx, centerX, centerY, appliedScaleFrame)
+pickupAt(ctx, centerX, centerY, appliedScaleFrame, titleId?)
   // -> { drawn, icon: { x, y, width, height, alpha } }
 pickupBlankAt(ctx, centerX, centerY, appliedScaleFrame)
   // -> boolean
@@ -21,9 +21,13 @@ density clamping, rounding, timing, tile-size heuristics or anchor/lift offsets.
 The shared resource sampler still applies its normal nonlooping clip bounds.
 Painting neither advances nor changes a retained controller.
 
-Ordinary pickup renders `LncIconPickUp_00` with its Scale binding and hides
-`P_Icon_00` for the caller's intentional portfolio artwork. Its return value
-preserves the resource's artwork rectangle and alpha235/255. The verified
+Ordinary pickup renders `LncIconPickUp_00` with its Scale binding. Omitting
+`titleId` hides `P_Icon_00` for the caller's intentional portfolio artwork;
+supplying a stock `titleId` binds its 48×48 SMDH pixels to sampler 0 of the
+verified pickup material while retaining the authored mask, UVs, sampling,
+TEV, blend and alpha. The source-backed extension and evidence are recorded in
+[the held title artwork note](home-held-title-artwork-2026-10-02.md). Its return
+value preserves the resource's artwork rectangle and alpha235/255. The verified
 artwork pane is an unrotated, unit-scale, centered direct child of an identity
 RootPane; it does not inherit the shell's two nested scales. The native renderer
 retains the full shell/shadow hierarchy and materials. The artwork rectangle

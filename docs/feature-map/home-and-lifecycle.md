@@ -1,6 +1,6 @@
 # HOME and cross-app lifecycle feature map
 
-Checkpoint: `4e18d7c9` (2 October 2026), with older per-feature evidence retained. This is an implementation and
+Checkpoint: `e911e475` (2 October 2026), with older per-feature evidence retained. This is an implementation and
 verification backlog, not an acceptance record. Scope comes from
 [portfolio-ui-scope](../portfolio-ui-scope.md); evidence authority remains the
 [progress record](../progress-2026-09-24.md) and the matched-input
@@ -32,6 +32,11 @@ visibility policy, retaining folder-held titles and release/cancel restoration.
 [Held backing](../home-folder-held-dimming-2026-10-02.md), `4e18d7c9`, now
 selects the decoded pickup dimming endpoint. Residual backing raster, artwork
 color/height, other density anchors, exact cadence/motion and audio remain open.
+[Held artwork](../home-held-title-artwork-2026-10-02.md) now uses the authored
+pickup material; folder art reaches delta-2 tolerance, root art remains fail.
+The direct LCD-sampling experiment was withdrawn after a root regression.
+Current source matches the verified material-binding stage; shell/footer,
+other densities and exact motion/input/audio still need native comparison.
 
 ### H-01 - HOME two-LCD composition and wallpaper
 **Code/tests/evidence:** [screens.ts](../../src/os/screens.ts), [home-presentation.ts](../../src/os/home-presentation.ts), [home-banner-host.ts](../../src/os/home-banner-host.ts), [host tests](../../tests/home-banner-host.test.mjs), [background owner note](../home-background-host-2026-10-01.md).

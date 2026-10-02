@@ -1,5 +1,19 @@
 # Workstream Registry
 
+## Held Artwork - 2 October 2026
+
+Existing source chat/worktree delivered `931ec40e` -> `edc0090e`, then sampling
+experiment `eb649e7e` -> `5d8cb1bb` and scope note `7a82f8b8` -> `a94ba504`.
+Coordinator `e911e475` withdrew the sampling opt-in after measured root-held
+regression; material binding remains. Worker history is preserved. Independent
+review found no code defect; production comparison determined rejection.
+The same private comparator records both stages with unchanged native inputs;
+only the coordinator operated the muted Mac browser. No new native launch.
+[Evidence and next defects](../home-held-title-artwork-2026-10-02.md).
+Final restored desktop lower LCDs match the material-only baseline byte-for-byte.
+All three workers are idle; dedicated Chrome exited normally, preview 3021 stays
+running. Whole scenarios remain fail, despite the fixed folder artwork region.
+
 ## Held Backing - 2 October 2026
 
 Same owned source worktree/chat: `5f621a49` -> `4e18d7c9` selects the decoded

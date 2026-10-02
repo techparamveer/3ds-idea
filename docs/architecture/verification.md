@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+[Held artwork](../home-held-title-artwork-2026-10-02.md) distinguishes authored
+material binding from its picture transport. Compare small/root and large/folder
+poses separately, including artwork, shell and shadow; a draw-wide sampler can
+improve one while regressing another. Preserve rejected experiment reports and
+verify restored source/captures instead of keeping a change because tests pass.
+Do not claim a phase or small-icon-source explanation without evidence.
+
 [Folder-held backing](../home-folder-held-dimming-2026-10-02.md) uses a fresh
 isolated CTM repeat: byte-identical lower pixels do not imply identical upper
 epochs. Verify the decoded material endpoint separately from its adapted

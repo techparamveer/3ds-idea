@@ -4,6 +4,17 @@ Editable sources, private extraction, converted delivery and runtime ownership
 are separate layers. A resource can decode successfully without being published,
 supported by the renderer, used by a live screen or visually accepted.
 
+HOME held stock icons bind 48x48 `NativePixels` to sampler 0 of the distinct
+`LncIconPickUp_00/P_Icon_00` material in one pickup-layout draw. Preserve its
+52x52 base pane, authored mask, alpha, UVs, TEV and blend; do not substitute
+the ordinary-grid material or a nearest-neighbour bitmap overlay. Validate the
+pickup identity and fail explicitly for missing/bad-size pixels or rejected
+draws. Per-title texture keys keep dynamic bindings isolated. A stock-pickup
+LCD-centre sampling experiment affected artwork, shell and shadow together;
+it regressed the root-held capture and was withdrawn. All pickups retain the
+existing picture transport, with the native material binding kept. Portfolio
+and folder paths are unchanged. [Source and measured stages](../home-held-title-artwork-2026-10-02.md).
+
 HOME ordinary stock grid icons retain DOM images for existing consumers and
 also load 48x48 `NativePixels`. `ordinaryTitleIcon` binds only sampler 0 of
 `LncIconDist_01/P_Icon_00`; authored mask/dummy samplers, UVs, material and

@@ -2,6 +2,11 @@
 
 ## Outcome
 
+The native material binding is retained. The later direct LCD-sampling opt-in
+described below was tested and withdrawn after it regressed root-held artwork;
+it is not the current rendering policy. Source geometry and fitted anchors
+remain unchanged.
+
 Held stock-title artwork now enters the decoded `LncIconPickUp_00/P_Icon_00`
 picture in the same native-layout draw as its pickup shell. The existing 48×48
 SMDH pixels replace only sampler 0; sampler 1 remains the decoded
@@ -102,7 +107,7 @@ and the folder foreground-panel control remains within maximum delta 1. This
 slice does not alter shell rasterization or claim that residual fixed. Motion,
 exact input timing and audio also remain open.
 
-## Fractional LCD sampling follow-up
+## Rejected LCD Sampling Experiment
 
 The coordinator integrated the first correction at runtime `edc0090e`. Its
 folder-held artwork ROI `(220,108,48,38)` reached zero pixels over delta 2 with
@@ -123,8 +128,9 @@ the fresh native own-PNG `_02.10.26_21.13.23.277.png` has SHA-256
 The existing renderer's `pictureSampling: 'lcd'` path evaluates an eligible
 source picture once at destination LCD pixel centres. Without that opt-in, a
 picture is rasterized at pane size and Canvas then shifts the intermediate at
-the fractional phase. The stock pickup call now selects the existing direct
-path; no generic raster implementation or source resource changes.
+the fractional phase. Experimental runtime `5d8cb1bb` selected the direct
+path; `e911e475` withdrew it after comparison. No generic raster implementation
+or source resource changed.
 
 This selection is draw-wide for `LncIconPickUp_00`, not pane-scoped. It can
 therefore change any picture in that layout whose transform is fractional and
@@ -138,7 +144,116 @@ pickups (no native title ID) and folder-icon pickups do not opt in.
 
 The source layouts define the transforms, samplers, UVs, TEV and blend, but no
 recovered native controller selects this browser transport option. Scoping the
-existing LCD-centre sampler to stock held pickups is therefore a
-**capture-directed native-raster transport adaptation** pending matched
-production recapture. Ordinary tiles and cleared cancel/release states do not
-use the pickup draw and remain unchanged.
+existing LCD-centre sampler to stock held pickups was a
+**capture-directed native-raster transport adaptation**, not accepted after
+production recapture. Ordinary tiles and cleared cancel/release states did not
+use the pickup draw and remained unchanged.
+
+## Coordinator Integration
+
+Material source `931ec40e` integrates as `edc0090e`; LCD sampling source
+`eb649e7e` integrates as `5d8cb1bb`, with scope note `7a82f8b8` integrated as
+`a94ba504`. Independent reviews found no actionable issues in either stage.
+The final sampling review explicitly covers its authorized stock-pickup-wide
+scope, not an artwork-only claim.
+
+Each integrated runtime passes the full suite: 1,842 pass, 0 fail, 23 skip,
+1 TODO (1,866 tests). Both production builds, typechecks and shader validation
+pass. Private logs are `artwork-{tests,build,typecheck,shader}.log` and
+`artwork-lcd-{tests,build,typecheck,shader}.log` under the held-pickup root above.
+Neither stage changes delivered assets, native material data or the generic
+renderer. Shader validation is supporting evidence, not native pixel proof.
+
+The comparison reuses the four preserved native own-PNGs from
+`native-held-dimming-20261002`, captured in the preceding coordinator run.
+There is no fresh native launch in this slice. Input/configuration history is
+preserved in `dimming-native-input-record.md`; the native held lower LCD had
+repeated byte-for-byte. Production replays use projected pointer input and raw
+paired LCD capture, with no state injection. The wall-time phase schedule does
+not establish a shared native render/HID epoch.
+
+The first runtime's desktop, mobile and reduced-motion runs each complete
+seven paired captures under `artwork-{desktop,mobile,reduced}`; its phase run
+completes five under `artwork-phases`. Retention, carried source identity,
+atomic swap/no item loss, reverse preference restoration and outside-release
+cancellation pass without page errors. All sessions remain muted. The
+coordinator opened the mobile console image and the held lower LCD.
+
+At `edc0090e`, fixed unmasked folder artwork improves from 674 pixels above
+delta 2 / maximum 74 to zero / maximum 2, with native ink bounds and count.
+Root artwork improves from 256 / maximum 103 to 236 / maximum 54 and remains
+fail. Folder shell improves from 1,197 / maximum 74 to 430 / maximum 9, with
+its one-row residual still open at that stage. Neutral artwork remains zero /
+maximum 1. Toolbar/footer/panel control regions are unchanged before/after.
+The second sampling stage and its comparison are recorded separately below.
+
+### Experiment and Restoration
+
+The second runtime completed the same three seven-pair variants and five-pair
+phase replay under `artwork-lcd-*`, with functional restoration/no page errors.
+Against the same fixed native references, folder art reached zero above delta
+2 / maximum 1 and its shell improved to 266 / maximum 9. Root art regressed
+from 236 / maximum 54 to 251 / maximum 65; its shell regressed from 501 to 523
+above delta 2 with maximum 81 unchanged. Neither a phase shift nor a different
+small-icon source has been established. No fitted coordinate or guessed source
+was introduced to hide the regression.
+
+A bounded offline decoded-resource diagnostic reproduced the sampled browser's
+100-pixel yellow feature at Y49.75. Sweeping Y47.75..51.75 in 1/64-pixel steps
+did not resolve the 16-pixel versus native 14-pixel width; full-RGB results did
+not justify an anchor change. This is diagnostic evidence only, recorded in
+the shared LOG, not another production capture or proof of a small-icon source.
+Keep anchor -4.25 and investigate the remaining source/sampling gap separately.
+
+Commit `e911e475` removes only the stock LCD-sampling opt-in and records the
+regression in the focused test. `git diff edc0090e -- src` is empty after this
+restoration: the retained runtime is exactly the first material-binding code.
+The final full suite again passes 1,842 tests, with 23 skips and 1 TODO;
+typecheck, build and shader validation pass. Logs use `artwork-restored-*`.
+The source worker's experimental commits remain preserved, not reset.
+
+The coordinator opened both comparison sheets. Fixed artwork and shell regions
+use raw LCD coordinates, without shifts, masks or colour fits. Enlarged sheet
+cells are nearest-neighbour visualizations only. Reports under `comparison/`:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `held-artwork-final-report-edc0090e.json` | `239db154cc24e83350292a6c667c4a8965202d3adb0837a856940f6dec9c15b8` |
+| `held-artwork-final-manifest-edc0090e.json` | `870efc77fb644894a5fc3050f9111cb42eb27452f7986886be51c7f47a0612a8` |
+| `held-artwork-final-before-native-after-edc0090e.png` | `67adda93b5bf4a1542df758a825207bcdd2352f5e202e3d710f2a02fd6aaeaec` |
+| `held-artwork-final-report-5d8cb1bb.json` | `2fee2f61cfc4ee7bb6d1fd680b3166248780f9a4f85087a79b370ee4e34097d0` |
+| `held-artwork-final-manifest-5d8cb1bb.json` | `c1ba6cc4fc0132a7420e8f4603bcef7e5d2a58c5ad9e923ce7b1dd1ccfcc7d69` |
+| `held-artwork-final-before-native-after-5d8cb1bb.png` | `08c2331544afbd6a2772afe6cc54f5b892a1be513a4d5f1f2748739c36523e44` |
+
+Whole scenarios remain `fail`. At the retained material stage, folder-held
+whole lower has 5,929 pixels above delta 2 (maximum 168), root-held 9,046
+(maximum 255), and upper captures have unmatched clock/wallpaper/banner epochs.
+Native input cadence, motion and muted audio are not accepted. Remaining
+non-native content/policies include portfolio content, fitted anchors,
+hover/drop/edge/lifecycle/coverage/high-slot and held visibility/backing
+adaptations documented in the preceding notes. No private matrix was rewritten.
+
+Final restored runtime `e911e475` completed another seven-pair desktop input
+replay under `artwork-restored-desktop`, including outside cancellation and
+byte-identical preference restoration with no page errors. Its lower held LCD
+was opened. The dedicated muted Chrome PID 98415/window 11763/session 45621
+closed normally with exit 0 and no remaining windows. No Azahar was launched
+in this slice; unrelated apps/audio were untouched. Production preview remains
+at `http://127.0.0.1:3021/`.
+
+The restoration report confirms byte-identical lower LCDs and every requested
+fixed ROI between `edc0090e` and `e911e475` desktop held captures. Final native
+folder-held art remains zero above delta 2 / maximum 2, shell 430 / maximum 9,
+toolbar zero / maximum 2, footer 1,576 / maximum 4 and panel zero / maximum 1.
+Root-held art remains 236 / maximum 54, shell 501 / maximum 81 and footer zero /
+maximum 1. Final desktop whole lower counts are 5,951 folder / 9,046 root;
+the phase replay's 5,929 folder count above belongs to its separately tracked
+pose. Both remain fail, not a global static match.
+
+- `comparison/held-artwork-restoration-report-e911e475.json`: SHA-256
+  `11328d2e26d3788e613c8f0d133aeb08b36585f767a5fe5c692795c20c0837db`.
+- `comparison/held-artwork-restoration-manifest-e911e475.json`: SHA-256
+  `8bf6279aea2ec551b364dbcd163a24239727691f8d364f4c82d1db438cb1e957`.
+
+All 23 restoration manifest records verify; both earlier reports and sheets
+retain their recorded hashes. Source worker, reviewer and comparator are idle.

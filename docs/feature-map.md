@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [folder-held backing](home-folder-held-dimming-2026-10-02.md),
+Latest [held stock artwork](home-held-title-artwork-2026-10-02.md),
+`e911e475`, retains the authored material binding from `edc0090e`. Folder-held
+art now reaches static delta-2 tolerance; root-held art improves but remains
+236 pixels above delta 2, maximum 54. The direct-LCD experiment regressed root
+art and was withdrawn. Full 1,842 tests/typecheck/build/shader pass. Next are
+the unresolved small held artwork source/sampling, shell edge, and footer/gutter
+raster, without guessed colours or another unmeasured transport change. The
+bounded fractional-Y sweep did not explain root width; retain its current
+anchor instead of repeating an anchor fit.
+
+Earlier [folder-held backing](home-folder-held-dimming-2026-10-02.md),
 `4e18d7c9`, selects the decoded native pickup dimming endpoint before the
 folder foreground. Full1,840 tests/typecheck/build and three production
 interaction variants pass. A fresh CTM native lower capture repeats exactly;

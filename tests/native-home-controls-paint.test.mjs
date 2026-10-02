@@ -31,7 +31,7 @@ async function loadPresentation(name, overrides = {}) {
 // Execute the real screen painter. Resource transport and unrelated artwork
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
-  './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx,_meta,_mode,_sleep,opacity)=>ctx.record('suspended-window',[opacity]);`),
+  './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,homeSuspendedIconDisappeared,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx,_meta,_mode,_sleep,opacity)=>ctx.record('suspended-window',[opacity]);`),
   './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame,exitFrame)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame,exitFrame]);};'),
   './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>false;'),
@@ -58,6 +58,7 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    assert.equal(screens.stockStatus(state),'ready');
    assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[frame,undefined]);
    assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[homeCloseWindowOpacity(frame)]);
+   assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),false);
    assert.ok(events.findIndex(e=>e.name==='closing-lower')>events.findIndex(e=>e.name==='footer'));
    assert.ok(events.findIndex(e=>e.name==='closing-lower')>events.findIndex(e=>e.name==='hud'));
   }
@@ -72,15 +73,41 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    assert.equal(screens.stockStatus(exiting),'ready');
    assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,frame]);
    assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[0]);
+   assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),true);
+   assert.ok(events.findIndex(e=>e.name==='menuIcon')<events.findIndex(e=>e.name==='suspendedIcon'));
    screens.setReducedMotion(true);paint(exiting);
    assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,20]);
+   assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),true);
    screens.setReducedMotion(false);
   }
   const switching=structuredClone(closing);switching.system.homeApplicationTransition.intent={kind:'switch',appId:'about'};
   paint(switching);assert.ok(!events.some(e=>e.name.startsWith('closing-')));
+  assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),false);
   assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[undefined]);
   paint(home());assert.ok(!events.some(e=>e.name.startsWith('closing-')));
  },{screenOptions:{drawSuspendedBackground:()=>true}});
+});
+
+test('missing close-exit icon source fails the paired paint without retiring the owner',async()=>{
+ await withScreens(({paint,events,screens})=>{
+  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+  const state=structuredClone(reduceSystem(reduceSystem(suspended,'back',6400),'open',6500));
+  const owner=state.system.runtime.application;
+  paint(state);assert.equal(screens.stockStatus(state),'ready');
+  Object.assign(state.system.homeApplicationTransition,{phase:'exiting',appQuitFrame:20,dialogExitFrame:0});
+  paint(state);assert.equal(screens.stockStatus(state),'error');
+  assert.match(String(screens.stockFailure()),/DisAppear unavailable/);
+  assert.equal(state.system.runtime.application,owner);
+  for(const ctx of [screens.nativeTop.getContext('2d'),screens.bottom.getContext('2d')]){
+   assert.ok(events.some(e=>e.context===ctx&&e.name==='fillRect'&&e.args[0]===0&&e.args[1]===0&&e.args[3]===240));
+  }
+  const recovered=escapeUnreadyNativeScreen(state,6600);paint(recovered);
+  assert.equal(recovered.system.runtime.application,owner);
+  assert.equal(recovered.system.homeApplicationTransition,null);
+  assert.equal(screens.stockStatus(recovered),'ready');
+ },{screenOptions:{drawSuspendedBackground:()=>true},presenterPatch:{
+  suspendedIcon(ctx,...args){if(args.at(-1))throw Error('DisAppear unavailable');ctx.record('suspendedIcon',args);},
+ }});
 });
 
 test('closing paint failures recover both LCDs, cancel safely and survive sleep/wake readiness changes',async()=>{

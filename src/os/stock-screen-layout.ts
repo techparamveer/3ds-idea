@@ -4,6 +4,14 @@ import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from '.
 /** LncBtmBtn_02 live HOME hit bounds and its asymmetric two-button split. */
 export const HOME_FOOTER_TOUCH_GEOMETRY={x:0,y:212,width:320,height:28,leftWidth:100} as const;
 
+/** home.sleep/Slp_D_00 B_Btn_01 is the only touch boundary; T_Btm_00 is a HOME-key hint. */
+export const POWER_OFF_TOUCH_GEOMETRY = {x:66,y:166,width:188,height:36} as const;
+export function powerMenuActionAt(x: number, y: number): 'open' | null {
+  const r = POWER_OFF_TOUCH_GEOMETRY;
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return x >= r.x && x < r.x + r.width && y >= r.y && y < r.y + r.height ? 'open' : null;
+}
+
 /** home.dialog/Dlg_A_D_02 Bounding_00/01 at the settled source pose. */
 export const SOFTWARE_DIALOG_BUTTONS = [
   {action: 'back', x: 20, y: 180, width: 139, height: 40},

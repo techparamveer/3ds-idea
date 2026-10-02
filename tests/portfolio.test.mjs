@@ -46,7 +46,8 @@ test('power menu uses the native central power-off button and leaves HOME return
  const s=reduceSystem(home(),'power',5000);assert.equal(s.system.since,5000);
  assert.equal(touchSystem(s,20,180,5001),s);
  assert.equal(touchSystem(s,160,185,5001).system.phase,'shutdown');
- assert.equal(touchSystem(s,160,228,5001).system.phase,'home');
+ assert.equal(touchSystem(s,160,228,5001),s);
+ assert.equal(reduceSystem(s,'home',5001).system.phase,'home');
  const shutdown=touchSystem(s,160,185,5001);
  assert.equal(tickSystem(shutdown,5120,true).system.phase,'shutdown');
  assert.equal(tickSystem(shutdown,5121,true).system.phase,'off');

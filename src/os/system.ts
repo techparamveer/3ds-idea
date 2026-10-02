@@ -13,7 +13,7 @@ import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout, isPreviousDefaultAppLayout } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, setHomeSettingsScroll, type MenuState, type Input } from './state.ts';
-import { HOME_FOOTER_TOUCH_GEOMETRY, homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt, softwareDialogActionAt } from './stock-screen-layout.ts';
+import { HOME_FOOTER_TOUCH_GEOMETRY, homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt, softwareDialogActionAt, powerMenuActionAt } from './stock-screen-layout.ts';
 import { homeFooterHit, ownedHomeFooterContact } from './home-footer-touch.ts';
 import { serializeHomeSavedLayouts, restoreHomeSavedLayouts } from './home-saved-layouts.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
@@ -299,7 +299,7 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  if(s.sleeping||s.phase==='off'||s.phase==='shutdown'||s.phase==='boot'||s.phase==='launch')return state;
  const send=(input:Input)=>reduceSystem(state,input,now);
  if(s.preferences){if(y>=212)return send('back');if(y>=53&&y<92)return send('mute');if(y>=106&&y<147)return send(x<160?'volume-down':'volume-up');if(y>=165&&y<204)return send('reset-layout');return state;}
- if(s.phase==='power')return y>=214?send('back'):x>=66&&x<=254&&y>=166&&y<=202?send('open'):state;
+ if(s.phase==='power'){const action=powerMenuActionAt(x,y);return action?send(action):state;}
  if(s.dialog){const action=softwareDialogActionAt(x,y);return action?send(action):state;}
  if(s.phase==='app'){
   const active=activeInstance(s.runtime);

@@ -1,8 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {appLaunchLogoFrame,bootRevealFrame,systemTransitionDuration} from '../src/os/system-transitions.ts';
-import {createPortfolioState,tickSystem,launch,reduceSystem,selectedTitle} from '../src/os/system.ts';
+import {createPortfolioState,tickSystem,launch,reduceSystem,touchSystem,selectedTitle} from '../src/os/system.ts';
 import {enableHomeControls} from '../src/os/home-controls.ts';
+import {powerMenuActionAt} from '../src/os/stock-screen-layout.ts';
+
+test('Power touch uses only the source B_Btn_01 boundary, not the HOME-key hint',()=>{
+ for(const [x,y] of [[66,166],[160,182],[253.999,201.999]])assert.equal(powerMenuActionAt(x,y),'open');
+ for(const [x,y] of [[65.999,182],[254,182],[160,165.999],[160,202],[160,228],[0,239],[319,239],[NaN,182],[160,Infinity]])assert.equal(powerMenuActionAt(x,y),null);
+ for(const app of [null,'health-safety']){
+  let state=tickSystem(createPortfolioState(),4000);
+  if(app)state=tickSystem(launch(state,app,4100),6100);
+  const power=reduceSystem(state,'power',6200);
+  assert.equal(power.system.phase,'power');
+  assert.equal(touchSystem(power,160,228,6201).system.phase,'power');
+  assert.equal(touchSystem(power,160,182,6201).system.phase,'shutdown');
+  assert.equal(reduceSystem(power,'home',6201).system.phase,'home');
+  assert.equal(reduceSystem(power,'back',6201).system.phase,'home');
+ }
+});
 test('app launch maps the paired 60/30/15 HOME fade and logo clips',()=>{
  assert.deepEqual(appLaunchLogoFrame(0),{clip:'A',frame:0});
  assert.deepEqual(appLaunchLogoFrame(333),{clip:'A',frame:19});

@@ -33,6 +33,9 @@ export function homeFooterHit(state:MenuState,geometry:HomeFooterGeometry,x:numb
  * selection or toolbar changes from transferring an in-flight contact. */
 export function ownedHomeFooterContact(state:MenuState,geometry:HomeFooterGeometry,contact:HomeFooterContact|null|undefined,endX=contact?.x,endY=contact?.y):HomeFooterHit|null{
  if(!contact||contact.mode!=='press'||endX===undefined||endY===undefined)return null;
+ const current=state.system?.homeNavigation,origin=contact.origin.navigation;
+ if(!current||current.selectionRevision!==origin.selectionRevision||current.activeFolderSlot!==origin.activeFolderSlot
+  ||current.focus.toolbarActive!==origin.focus.toolbarActive||current.focus.currentFocus!==origin.focus.currentFocus)return null;
  const originNavigation={...contact.origin.navigation,gesture:null};
  const originState=writeHomeNavigation({...state,panel:contact.panel,panelChoice:contact.origin.panelChoice},originNavigation);
  const start=homeFooterHit(originState,geometry,contact.startX,contact.startY);

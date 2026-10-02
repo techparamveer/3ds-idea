@@ -2,7 +2,7 @@ import {drawNativeSystemFade} from './native-system-fade';
 import {nativeMessageOverride,type PaneOverrides} from './native-layout';
 import type {FirmwarePresentationAssets} from './firmware-presentation';
 import type {MenuState} from './state';
-import {appLaunchLogoFrame,systemTransitionDuration,systemTransitionFrame} from './system-transitions';
+import {appLaunchLogoFrame,bootRevealFrame,systemTransitionFrame} from './system-transitions';
 
 type SystemFadeClip='SceneIn'|'SceneOut'|'SceneOutA'|'SceneOutB'|'SceneOutC';
 
@@ -21,8 +21,7 @@ export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:Canv
   return ok;
  };
  if(s.phase==='boot'){
-  const duration=systemTransitionDuration('boot',reduced),fadeMs=reduced?120:350;
-  return fade('SceneIn',Math.max(0,Math.min(20,Math.floor((elapsed-(duration-fadeMs))*20/fadeMs))));
+  return fade('SceneIn',bootRevealFrame(elapsed,reduced));
  }
  if(s.phase==='launch'){
   const pose=appLaunchLogoFrame(elapsed,reduced);

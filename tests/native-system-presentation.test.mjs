@@ -24,12 +24,12 @@ function mockCtx(width){
   save(){},restore(){}};
 }
 
-function overlay(elapsed,reduced=false,packs={launch:{},common:{}}){
+function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch'){
  const draws=[];
  const top=mockCtx(400),bottom=mockCtx(320);
  const assets={renderer:{packs:{messages:{menu_msbt_LZ:{labels:{},messages:[]}},...packs},
   draw(ctx,bank,name,options){draws.push({bank,name,clip:options.bindings[0].name,frame:options.bindings[0].frame,width:ctx.canvas.width});return true;}}};
- const ok=drawNativeSystemOverlay(top,bottom,{system:{phase:'launch',since:0,sleeping:false,returnPhase:'home'}},elapsed,reduced,assets);
+ const ok=drawNativeSystemOverlay(top,bottom,{system:{phase,since:0,sleeping:false,returnPhase:'home'}},elapsed,reduced,assets);
  return {ok,draws,fills:[...top.fills,...bottom.fills]};
 }
 
@@ -54,6 +54,23 @@ test('launch composites matching HOME SceneOutA/B/C fades under the logo without
  const reduced=overlay(0,true);
  assert.ok(reduced.draws.every(d=>d.clip.endsWith('SceneOutB')&&d.frame===15));
  assert.deepEqual(reduced.fills,[]);
+});
+
+test('boot exposes the paired transparent SceneIn endpoint before its phase deadline',()=>{
+ const before=overlay(2983,false,{common:{}},'boot');
+ assert.deepEqual(before.draws.map(d=>({clip:d.clip,frame:d.frame})),[
+  {clip:'CmnFadeNinLogo_U_00_SceneIn',frame:19},
+  {clip:'CmnFadeNinLogo_D_00_SceneIn',frame:19},
+ ]);
+ const terminal=overlay(2999,false,{common:{}},'boot');
+ assert.deepEqual(terminal.draws.map(d=>({clip:d.clip,frame:d.frame})),[
+  {clip:'CmnFadeNinLogo_U_00_SceneIn',frame:20},
+  {clip:'CmnFadeNinLogo_D_00_SceneIn',frame:20},
+ ]);
+ assert.deepEqual(terminal.fills,[]);
+
+ const reduced=overlay(299,true,{common:{}},'boot');
+ assert.ok(reduced.draws.every(d=>d.clip.endsWith('SceneIn')&&d.frame===20));
 });
 
 test('launch without the logo pack keeps the 20-frame HOME SceneOut fallback',()=>{

@@ -11,6 +11,21 @@ export function systemTransitionFrame(elapsedMs:number,lastFrame:number,reduced=
  return reduced?lastFrame:Math.max(0,Math.min(lastFrame,Math.floor(Math.max(0,elapsedMs)*60/1000)));
 }
 
+const BOOT_REVEAL_LAST_FRAME=20;
+const BOOT_REVEAL_MS=350;
+const REDUCED_BOOT_REVEAL_MS=120;
+
+/** Schedule every authored SceneIn pose inside the browser boot window. The
+ * normal 350ms window is exactly 21 source poses at 60Hz, including a final
+ * transparent-pose dwell; neither this clock nor the reduced clock is native
+ * cold-boot timing evidence. */
+export function bootRevealFrame(elapsedMs:number,reduced=false):number{
+ const duration=systemTransitionDuration('boot',reduced);
+ const revealMs=reduced?REDUCED_BOOT_REVEAL_MS:BOOT_REVEAL_MS;
+ const revealElapsed=Math.max(0,elapsedMs-(duration-revealMs));
+ return Math.min(BOOT_REVEAL_LAST_FRAME,Math.floor(revealElapsed*(BOOT_REVEAL_LAST_FRAME+1)/revealMs));
+}
+
 /** HOME `CmnFadeNinLogo` SceneOutA/B/C (60/30/15) run with the matching logo clips.
  * 105 source frames at nominal 60Hz are 1750ms; not measured title-load latency. */
 export function appLaunchLogoFrame(elapsedMs:number,reduced=false):{clip:'A'|'B'|'C';frame:number}{

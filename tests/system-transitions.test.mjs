@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {appLaunchLogoFrame,systemTransitionDuration} from '../src/os/system-transitions.ts';
+import {appLaunchLogoFrame,bootRevealFrame,systemTransitionDuration} from '../src/os/system-transitions.ts';
 import {createPortfolioState,tickSystem,launch,reduceSystem,selectedTitle} from '../src/os/system.ts';
 import {enableHomeControls} from '../src/os/home-controls.ts';
 test('app launch maps the paired 60/30/15 HOME fade and logo clips',()=>{
@@ -14,6 +14,25 @@ test('app launch maps the paired 60/30/15 HOME fade and logo clips',()=>{
  let state=launch(tickSystem(createPortfolioState(),4000),'work',4000);
  assert.equal(tickSystem(state,5749).system.phase,'launch');assert.equal(tickSystem(state,5750).system.phase,'app');
  assert.deepEqual(appLaunchLogoFrame(0,true),{clip:'B',frame:15});assert.equal(systemTransitionDuration('launch',true),120);
+});
+test('boot reveal gives all 21 SceneIn poses a slot before the browser boot deadline',()=>{
+ assert.equal(bootRevealFrame(0),0);
+ assert.equal(bootRevealFrame(2649),0);
+ assert.equal(bootRevealFrame(2650),0);
+ assert.equal(bootRevealFrame(2666),0);
+ assert.equal(bootRevealFrame(2667),1);
+ assert.equal(bootRevealFrame(2983),19);
+ assert.equal(bootRevealFrame(2984),20);
+ assert.equal(bootRevealFrame(2999),20);
+ assert.equal(bootRevealFrame(3000),20);
+ assert.equal(systemTransitionDuration('boot'),3000);
+
+ assert.equal(bootRevealFrame(179,true),0);
+ assert.equal(bootRevealFrame(180,true),0);
+ assert.equal(bootRevealFrame(294,true),19);
+ assert.equal(bootRevealFrame(295,true),20);
+ assert.equal(bootRevealFrame(299,true),20);
+ assert.equal(systemTransitionDuration('boot',true),300);
 });
 test('cold power-on clears stale toolbar focus before opening the selected HOME tile',()=>{
  let state=enableHomeControls(tickSystem(createPortfolioState(),3000));

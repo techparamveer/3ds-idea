@@ -7,7 +7,7 @@ import { createHomeInputAdapter } from '../src/os/home-input-adapter.ts';
 import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
 import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src/os/home-cursor-presentation.ts';
 import { resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts';
-import { enterHomeFolder, getHomeNavigation, writeHomeNavigation, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
+import { enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomePresentation } from '../src/os/home-presentation.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
@@ -455,6 +455,21 @@ test('HOME footer samples source alpha glyphs directly at LCD centres', () => {
   assert.equal(calls[0].options.textCoverageAdaptation, undefined);
   assert.deepEqual(calls[0].options.clip, [0, 210, 320, 30]);
   assert.equal(calls[0].options.overrides.T_BtnFW_C_01.text, 'Open');
+});
+
+test('vacant-root footer retains the decoded Create Folder message and unfitted source sampler',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};
+ const presenter=createFirmwareHome({renderer}),state=selectHomeSlot(home(),20);
+ presenter.footer({},state);
+ assert.equal(calls.length,1);assert.equal(calls[0].bank,'launcher');assert.equal(calls[0].name,'LncBtmBtn_02');
+ const options=calls[0].options,bank=messagesPack.messages.menu_msbt_LZ;
+ const source=bank.messages[bank.labels.lau_1b_make_folder],style=messagesPack.styles[bank.styleTable].styles[source.styleIndex];
+ assert.equal(source.text,'Create Folder');assert.equal(source.styleIndex,182);
+ assert.deepEqual(style.fontScale,[Math.fround(.7),Math.fround(.7)]);assert.equal(style.characterSpacing,0);assert.equal(style.lineSpacing,0);
+ for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW'])assert.deepEqual(options.overrides[`${prefix}_C_01`],{text:source.text,messageStyle:style});
+ assert.equal(options.overrides.N_BtnW_C_01.visible,true);
+ assert.equal(options.bindings.some(binding=>binding.name==='LncBtmBtn_02_SceneIn'&&binding.frame===15),true);
+ assert.equal(options.textSampling,'lcd');assert.equal(options.textCoverageAdaptation,undefined);
 });
 
 test('suspended software footer uses the source X Close glyph while folder Close stays separate',()=>{

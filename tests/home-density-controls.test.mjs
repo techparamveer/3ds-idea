@@ -46,20 +46,33 @@ test('density availability uses active context and pending target while preservi
  }
 });
 
-test('real toolbar resources bind Invalid only to disabled groups and retain palette, clipping and other panes',()=>{
+test('real toolbar resources bind Invalid only to disabled groups and retain the full source base and other panes',()=>{
  const {home,draws}=presenter(),before=JSON.stringify(pack);
  for(const [folder,density,down,up]of cases){
   const s=state(folder,density);assert.equal(home.toolbar({},s),true);
   const draw=draws.at(-1),panes=flatten(draw.pose),groups=[...(!down?['G_Dw_00']:[]),...(!up?['G_Up_00']:[])];
   assert.deepEqual(draw.options.bindings,[{name:'LncBase_D_01_PaletteOut',frame:12},{name:'LncBase_D_01_MvsToggle',frame:0},
    ...(groups.length?[{name:'LncBase_D_01_Invalid',frame:0,groups}]:[])]);
-  assert.deepEqual(draw.options.clip,[0,0,320,folder?240:212]);
+  assert.deepEqual(draw.options.clip,[0,0,320,240]);
   assert.equal(panes.P_Dw_20.alpha,down?255:120);assert.equal(panes.P_Up_20.alpha,up?255:120);
   assert.equal(panes.P_DwP_20.flags&1,0);assert.equal(panes.P_UpP_20.flags&1,0);
   const baseline=flatten(poseNativeLayout(pack.layouts.LncBase_D_01,pack.animations,draw.options.bindings.slice(0,2)));
   for(const [name,pane]of Object.entries(panes))if(!pane.children.length&&!['P_Dw_20','P_Up_20'].includes(name))assert.deepEqual(pane,baseline[name],name);
  }
  assert.equal(JSON.stringify(pack),before);
+});
+
+test('decoded lower base owns the striped footer backing rather than a host palette fill',()=>{
+ const layout=pack.layouts.LncBase_D_01,panes=flatten(layout),pane=panes.P_BgBtm_00;
+ assert.deepEqual(layout.canvas,{height:240,origin:1,width:320});
+ assert.deepEqual(pane.size,[320,32]);assert.deepEqual(pane.translation.map(value=>value||0),[0,-120,0]);
+ assert.deepEqual(pane.picture.uvSets[0],[0,0,1,0,0,4,1,4]);
+ assert.deepEqual(pane.picture.uvSets[1],[0,1,2,1,0,.0625,2,.0625]);
+ const material=layout.materials[pane.picture.material];
+ assert.equal(material.name,'P_BgBtm_00');assert.deepEqual(material.textureMaps.map(map=>layout.textures[map.texture]),['BgLine.bclim','BgLgt.bclim']);
+ assert.deepEqual(material.unsupported,[]);
+ assert.equal(pack.textures['BgLine.bclim'].sourceSha256,'5c1ff31e996b2367dd8ed15973e4fa9e1863c2d08927eda513c0a97e00699836');
+ assert.equal(pack.textures['BgLgt.bclim'].sourceSha256,'c0d63a4ee5205e77b89b18b334ffbd13df83a06912ac258119a46160791f983b');
 });
 
 test('disabled density presses omit Select while enabled presses and other toolbar groups remain isolated',()=>{

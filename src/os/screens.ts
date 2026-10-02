@@ -316,7 +316,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    // the existing capture path (no cursor, footer actions or panel chrome).
    const ctx=captureContext;
    ctx.resetTransform();ctx.clearRect(0,0,320,240);ctx.fillStyle=themes[root.theme].bottom;ctx.fillRect(0,0,320,240);
-   if(!nativeHome.toolbar(ctx,root,true)||!nativeHome.homePlate(ctx,root))throw new Error('Native HOME layout preview tray unavailable');
+   if(!nativeHome.toolbar(ctx,root)||!nativeHome.homePlate(ctx,root))throw new Error('Native HOME layout preview tray unavailable');
    grid(ctx,root,time,reduced,graphics,chrome,getHomePresentation(root),nativeHome,true,firmwareAssets);
    layoutCapture={identity,preview:{upper:{width:400,height:240,data:t.getImageData(0,0,400,240).data},lower:{width:320,height:240,data:ctx.getImageData(0,0,320,240).data}}};
   }
@@ -331,7 +331,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    // cursor/effects, arrows and balloon hidden. Never copy the old onscreen footer.
    const root=leaveHomeFolder(state),view=getHomePresentation(root),ctx=captureContext;
    ctx.resetTransform();ctx.clearRect(0,0,320,240);ctx.fillStyle=themes[root.theme].bottom;ctx.fillRect(0,0,320,240);
-   nativeHome.toolbar(ctx,root,true);nativeHome.homePlate(ctx,root);grid(ctx,root,time,reduced,graphics,chrome,view,nativeHome,true,firmwareAssets);
+   nativeHome.toolbar(ctx,root);nativeHome.homePlate(ctx,root);grid(ctx,root,time,reduced,graphics,chrome,view,nativeHome,true,firmwareAssets);
    folderCapture={identity,pixels:{width:320,height:206,data:ctx.getImageData(0,34,320,206).data}};
   }
   nativeHome.folderBackdrop(b,folderCapture.pixels,state,reduced);

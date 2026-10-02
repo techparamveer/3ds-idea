@@ -247,7 +247,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    T_NetMode_00:message(table,sample?.networkMessage??'lau_connect4','Disabled'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:String(sample?.steps??0)},T_Coin_00:{text:String(sample?.coins??0)}
   }});
  }
- function toolbar(ctx:Context,state?:MenuState,fullHeight=false){
+ function toolbar(ctx:Context,state?:MenuState){
   const gesture=state&&getHomeGestureView(state),bindings=[binding('LncBase_D_01_PaletteOut',12),binding('LncBase_D_01_MvsToggle',0)];
   const controls=state&&getHomeDensityControls(state),disabled:string[]=[];
   if(controls&&!controls.decreaseEnabled)disabled.push('G_Dw_00');
@@ -258,7 +258,10 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    const group=index>=0?['G_Light_00','G_Memo_00','G_Friend_00','G_News_00','G_Web_00','G_Mvs_00'][index]:gesture.x<294?'G_Dw_00':'G_Up_00';
    if(!disabled.includes(group))bindings.push(binding('LncBase_D_01_Select',1,[group]));
   }
-  return renderer.draw(ctx,'launcher','LncBase_D_01',{bindings,clip:[0,0,320,state?.opened||fullHeight?240:212]});
+  // LncBase_D_01 is the complete 320x240 lower base. Its authored
+  // P_BgBtm_00 pane backs the separate footer layout while that layout is
+  // absent, moving, or partially transparent.
+  return renderer.draw(ctx,'launcher','LncBase_D_01',{bindings,clip:[0,0,320,240]});
  }
  function homePlate(ctx:Context,state:MenuState){
   if(state.opened)return false;

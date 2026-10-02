@@ -115,7 +115,7 @@ test('current-layout capture precedes upper chrome, stays bounded and refreshes 
   assert.ok(events.findIndex(e=>e.name==='capture-read')<events.findIndex(e=>e.name==='upperBase'));
   const capture=events.find(e=>e.name==='capture-read'&&e.context!==screens.nativeTop.getContext('2d')).context;
   const captured=events.filter(e=>e.context===capture);
-  assert.equal(captured.find(e=>e.name==='toolbar').args[1],true);
+  assert.equal(captured.find(e=>e.name==='toolbar').args.length,1);
   assert.ok(!captured.some(e=>nativeCursorNames.has(e.name)||['footer','settingsLower'].includes(e.name)));
   paint({...state,homeLayoutSlot:3},2000);
   assert.equal(events.filter(e=>e.name==='capture-read').length,0);
@@ -595,6 +595,16 @@ test('retained primary and both effects paint in order outside tile clipping usi
     assert.ok(names.indexOf('footer') < names.indexOf('overlay'));
     assert.equal(JSON.stringify(state), before);
   });
+});
+
+test('live HOME paints the complete decoded base before the separate footer layout', async () => {
+  await withScreens(({ screens, paint, events }) => {
+    paint(freeze(home()));
+    const lower = screens.bottom.getContext('2d');
+    const base = events.find(event => event.name === 'toolbar-layout' && event.context === lower);
+    assert.ok(base);assert.equal(base.args[1], 'LncBase_D_01');assert.deepEqual(base.args[2].clip, [0,0,320,240]);
+    assert.ok(events.indexOf(base) < events.findIndex(event => event.name === 'footer' && event.context === lower));
+  }, { realToolbar: true });
 });
 
 test('culled selected tiles cannot suppress a retained toolbar primary or offscreen departing effects', async () => {

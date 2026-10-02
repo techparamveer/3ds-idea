@@ -152,8 +152,8 @@ function closeFooterTerminal(state, now = 6500) {
   const startCount = state.system.homeClock.updateCount;
   state = tickSystem(state, state.system.homeClock.lastNow + 40 * FRAME);
   assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'footer-terminal');
-  assert.equal(sampleSystemHomeApplicationTransition(state)?.footerExitFrame, 14);
-  assert.equal(state.system.homeClock.updateCount, startCount + 14,
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.footerExitFrame, 6);
+  assert.equal(state.system.homeClock.updateCount, startCount + 6,
     'outer batch stops at the post-modal footer terminal frame');
   return state;
 }
@@ -311,8 +311,8 @@ test('reduced presentation samples the endpoint without skipping logical owner r
   state = tickSystem(state, state.system.homeClock.lastNow + FRAME, true);
   transition = sampleSystemHomeApplicationTransition(state);
   assert.equal(transition.phase, 'footer-exiting');
-  assert.deepEqual(homeApplicationTransitionFooterExit(transition), { clip: 'LncBtmBtn_02_SceneOut', frame: 0 });
-  assert.deepEqual(homeApplicationTransitionFooterExit(transition, true), { clip: 'LncBtmBtn_02_SceneOut', frame: 14 });
+  assert.deepEqual(homeApplicationTransitionFooterExit(transition), { clip: 'LncBtmBtn_02_ChangeDw', frame: 0 });
+  assert.deepEqual(homeApplicationTransitionFooterExit(transition, true), { clip: 'LncBtmBtn_02_ChangeDw', frame: 6 });
   assert.ok(state.system.runtime.application, 'reduced presentation cannot retire the owner before logical terminal');
 });
 

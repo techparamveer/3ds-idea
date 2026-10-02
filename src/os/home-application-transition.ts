@@ -3,7 +3,7 @@
  *
  * The pinned BannerBG supplies a 20-frame AppQuit material clip, the delivered
  * lower dialog supplies a 20-frame FadeOut00 clip, and the HOME footer supplies
- * a frame-14 SceneOut endpoint after that dialog is gone. The
+ * a frame-6 ChangeDw endpoint after that dialog is gone. The
  * host maps one eligible HOME update to one source frame as an explicit
  * scheduling adaptation; no millisecond, native APT epoch or native phase gap
  * is inferred.
@@ -13,7 +13,7 @@ export const HOME_APPLICATION_TRANSITION_SOURCE = Object.freeze({
   appPause: Object.freeze({ clip: 'BannerBG_AppPause', settledFrame: 20 }),
   appQuit: Object.freeze({ clip: 'BannerBG_AppQuit', lastFrame: 20 }),
   closingDialog: Object.freeze({ clip: 'Dlg_A_D_02_FadeOut00', lastFrame: 20 }),
-  postModalFooterExit: Object.freeze({ clip: 'LncBtmBtn_02_SceneOut', lastFrame: 14 }),
+  postModalFooterExit: Object.freeze({ clip: 'LncBtmBtn_02_ChangeDw', lastFrame: 6 }),
   /** Present in the source pack, but not mapped to the observed close route. */
   appRestart: Object.freeze({ clip: 'BannerBG_AppRestart', lastFrame: 40 }),
   /** Present in the source pack, but its live close predicate is untraced. */
@@ -40,7 +40,7 @@ export type HomeApplicationTransition = Readonly<{
 }>;
 
 export type HomeApplicationTransitionFooterExit = Readonly<{
-  clip: 'LncBtmBtn_02_SceneOut';
+  clip: 'LncBtmBtn_02_ChangeDw';
   frame: number;
 }>;
 
@@ -138,7 +138,7 @@ export function beginHomeApplicationTransition(current: HomeApplicationTransitio
  * frame 20 stops the batch at a terminal-presentation barrier. Switch commits
  * after the AppQuit barrier as before. Close publishes dialog exit frame 0 on
  * the next eligible host call and advances through its own barrier. It then
- * publishes post-modal footer SceneOut frame 0, advances through frame 14 and
+ * publishes post-modal footer ChangeDw frame 0, advances through frame 6 and
  * commits only on a later call so every endpoint can be painted before owner
  * retirement. This source-clock start binding is capture-fitted, not proof of
  * the native controller epoch.

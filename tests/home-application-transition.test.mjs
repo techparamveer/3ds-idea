@@ -63,8 +63,8 @@ test('close presentation names and bounds match the delivered HOME sources', () 
   assert.deepEqual(footerExit.groups, ['G_Scene_00']);
   const footerSceneTracks = footerExit.tracks.filter(track => track.target === 'N_Scene_00');
   assert.deepEqual(footerSceneTracks.map(track => [track.property, track.keys.map(key => [key.frame, key.value])]), [
-    ['translation.y', [[0, 0], [14, -32]]],
-    ['alpha', [[0, 255], [14, 0]]],
+    ['translation.y', [[0, 0], [6, -4]]],
+    ['alpha', [[0, 255], [6, 0]]],
   ]);
 });
 
@@ -119,14 +119,14 @@ test('close stops at AppQuit, dialog-exit and post-modal footer paint barriers b
   assert.equal(footerStart.processedUpdates, 1, 'footer frame 0 cannot be skipped by a large batch');
   assert.deepEqual(footerStart.observations.map(item => [item.kind, item.stepOffset]), [['footerExitStarted', 0]]);
   assert.deepEqual(homeApplicationTransitionFooterExit(footerStart.state), {
-    clip: 'LncBtmBtn_02_SceneOut', frame: 0,
+    clip: 'LncBtmBtn_02_ChangeDw', frame: 0,
   });
 
   const footerTerminal = advanceHomeApplicationTransition(footerStart.state, identity(), 50, { eligible: true });
   assert.equal(footerTerminal.state.phase, 'footer-terminal');
-  assert.equal(footerTerminal.state.footerExitFrame, 14);
-  assert.equal(footerTerminal.processedUpdates, 14, 'remaining batch updates cannot skip the footer terminal boundary');
-  assert.deepEqual(footerTerminal.observations.map(item => [item.kind, item.stepOffset]), [['footerExitTerminalPresented', 13]]);
+  assert.equal(footerTerminal.state.footerExitFrame, 6);
+  assert.equal(footerTerminal.processedUpdates, 6, 'remaining batch updates cannot skip the footer terminal boundary');
+  assert.deepEqual(footerTerminal.observations.map(item => [item.kind, item.stepOffset]), [['footerExitTerminalPresented', 5]]);
 
   const commit = advanceHomeApplicationTransition(footerTerminal.state, identity(), 50, { eligible: true });
   assert.equal(commit.state.phase, 'complete');
@@ -210,8 +210,8 @@ test('presentation layers AppQuit over the settled suspended source pose', () =>
   state = advanceHomeApplicationTransition(state, identity(), 20, { eligible: true }).state;
   state = advanceHomeApplicationTransition(state, identity(), 1, { eligible: true }).state;
   assert.equal(state.phase, 'footer-exiting');
-  assert.deepEqual(homeApplicationTransitionFooterExit(state), { clip: 'LncBtmBtn_02_SceneOut', frame: 0 });
-  assert.deepEqual(homeApplicationTransitionFooterExit(state, true), { clip: 'LncBtmBtn_02_SceneOut', frame: 14 });
+  assert.deepEqual(homeApplicationTransitionFooterExit(state), { clip: 'LncBtmBtn_02_ChangeDw', frame: 0 });
+  assert.deepEqual(homeApplicationTransitionFooterExit(state, true), { clip: 'LncBtmBtn_02_ChangeDw', frame: 6 });
   assert.equal(cancelHomeApplicationTransition(state, identity()).state, null);
 });
 

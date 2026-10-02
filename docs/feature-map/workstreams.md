@@ -21,6 +21,12 @@ is not integrated; root-held selection remains a source gap. Source/reviewer
 are idle. The existing comparator chat now owns one bounded held-footer
 residual diagnosis from preserved raw captures, without GUI or runtime edits.
 
+That comparator diagnosis is complete: shared-content held transition controls
+stay within delta2, while the footer retains the existing row-structured
+precision gap. No runtime correction. Coordinator opened its sheet and verified
+11 manifest records; all three workers are idle. Next work requires a new
+matched visible interaction, not another source-only pass over these residuals.
+
 ## Held Backing - 2 October 2026
 
 Same owned source worktree/chat: `5f621a49` -> `4e18d7c9` selects the decoded

@@ -14,9 +14,10 @@ closes the folder artwork's static delta-2 region, not the whole scenario.
 Root-held artwork, the folder shell edge and held footer/gutter still fail.
 The bounded genuine SMDH24 diagnostic is mixed and not integrated; do not
 repeat source-only small-icon, anchor or sampling experiments without new
-native evidence. Check whether the held-footer residual propagates the
-already-recorded capture precision gap, then continue a new matched visible
-interaction such as root-to-folder hover or edge continuation. Preserve the
+native evidence. The bounded held-footer check finds no new dimming error;
+its remaining stripe residual is consistent with the existing capture
+precision gap. Continue a new matched visible interaction such as
+root-to-folder hover or edge continuation. Preserve the
 completed Back-exit, ownership, material and backing corrections. The older
 entries below retain their own checkpoint context; current progress wins.
 

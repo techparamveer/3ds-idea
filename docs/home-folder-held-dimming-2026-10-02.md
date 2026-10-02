@@ -164,3 +164,45 @@ one-row folder bright-shell height, and exposed footer/gutter raster (maximum
 hover/drop/edge/lifecycle/coverage/high-slot/anchor adaptations remain; decoded
 native graphics do not establish the original controller, motion, input or
 audio timing. No firmware assets changed and no private matrix was rewritten.
+
+## Held Footer Residual Check
+
+A bounded diagnostic at unchanged runtime `e911e475` compares the preserved
+native neutral/held own-PNGs above with production
+`artwork-restored-desktop/folder-before` and `cancel-folder-held`. No new
+native/browser launch or timing acceptance is implied. Fixed raw coordinates
+use no masks, shifts, colour fits or exclusions within each named ROI.
+
+The held footer `(0,212,320,28)` retains 1,576 pixels above delta 2, maximum 4.
+Mean signed browser-minus-native RGB error is `(+0.973,+0.281,+0.025)`.
+Rows 233 and 237-239 contain 1,206 of those pixels (76.523%): this is a
+row/stripe pattern, not evidence for a uniform dimming adjustment. The neutral
+footer contains Open while held exposes the backing, so subtracting those
+footer states would not isolate the held material.
+
+The unobscured left gutter has neutral 816 / maximum 4 and held 582 / maximum
+4 mismatches. Its browser-versus-native held-minus-neutral change has zero
+pixels above delta 2, maximum 2. The known capture divider remains 840 /
+maximum 4 in each state, with transition residual maximum 1. Toolbar change
+also has zero above delta 2 / maximum 1; held toolbar stays maximum 2 and the
+foreground panel control maximum 1. These controls reveal no additional
+held-material error and are consistent with the existing retained-capture
+precision source gap, not proof of its exact native format or rounding.
+
+Private evidence lives under `comparison/held-footer-diagnostic/` in the
+held-pickup artifact root above. The coordinator opened the side-by-side sheet;
+all 11 manifest entries verify.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `report-e911e475.json` | `b2c99eefd37a152a1bd5bda5a7047d5d56a3a0dcdc6aee43e2d82e484a26aec0` |
+| `manifest-e911e475.json` | `816ae2b6c160574fd59ad2491b3535249d7cfaaa31d94cadb0d64ef5473ff1ee` |
+| `footer-gutter-side-by-side-e911e475.png` | `481a623d73ece9207f91ef8a625eb14e595b0ab5cba91a05a5e34e840083d589` |
+
+No runtime correction is justified. Footer/gutter pixels and whole scenarios
+remain `fail`; framebuffer format/rounding remain a source gap. Do not add
+RGB565 emulation, overlays or fitted material rules on this evidence, or
+repeat this source-only diagnosis without new native evidence. Continue with
+a new matched visible interaction such as root-to-folder hover or edge
+continuation. Source resources, adaptations and open timing/audio gates stay
+unchanged.

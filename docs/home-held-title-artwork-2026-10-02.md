@@ -257,3 +257,43 @@ pose. Both remain fail, not a global static match.
 
 All 23 restoration manifest records verify; both earlier reports and sheets
 retain their recorded hashes. Source worker, reviewer and comparator are idle.
+
+## Bounded Small-Icon Check
+
+At unchanged coordinator `aad1e26c`, the source worker decoded the same pinned
+Health `ExeFS/icon` file's 24x24 RGB565 plane at offset `0x2040`, length 1,152.
+The PNG SHA-256 is
+`4353c7e059b0f5fc44d9273baead3120e3616f6603305a1f277389897a807a1d`.
+The existing `scripts/firmware/texture.py` decoder has SHA-256
+`399be43d43fc6d92363386c0a5347135e875ec35edca8d1a1e36145366aed38f`.
+Its 48x48 control decode at `0x24c0`, length 4,608, reproduces the delivered
+large PNG byte-for-byte. Title/content/source provenance remains the Health
+identity recorded above; no new production manifest entry was published.
+
+An offline diagnostic substitutes each unchanged plane into the authored
+Scale5 pickup material at the retained centre `(59,49.75)`. It reconstructs
+the browser underlay from the large-icon overlay, then composites the small
+overlay. The large control reproduces the browser ROI exactly, but that
+calibration does not independently establish the recovered underlay or native
+controller. This is not a new production capture or native acceptance pair.
+
+In fixed raw lower ROI `(48,42,22,20)`, small-source yellow bounds match native
+`x52..65/y47..56`, versus current `x51..66/y46..56`. Yellow-mask symmetric
+difference improves 8 to 6 pixels. Maximum RGB delta improves 54 to 31 and
+mean absolute channel error 6.403 to 4.030, but pixels above delta 2 worsen
+236 to 253. The result is mixed and still outside tolerance: do not select
+the small plane by an invented density, pane-size or title-specific rule.
+
+Private evidence is under `small-icon-source/` in the held-pickup artifact
+root above: `decoded-source.json`, both source PNGs,
+`compare-small-icon.mjs`, and `small-icon-comparison.json` (SHA-256
+`ce3353585cf732cb9b4e78f2d2c7cfbbf24693474283573801884326ec0cba24`).
+No masks, padding, UV, filter, anchor, colour, runtime or public asset changed.
+Independent review verified source/decoder identity but did not establish
+native selection. The source worker incorporated restoration `e911e475` as
+`ca802d23`; experimental history is preserved.
+
+The root-held artwork remains `fail`, with source selection a recorded gap.
+This exhausts the bounded source-only check for this feature; do not repeat
+sampling, anchor or small-icon experiments without new discriminating native
+evidence. No new build, tests, GUI, motion or audio acceptance is claimed.

@@ -25,6 +25,12 @@ raster, without guessed colours or another unmeasured transport change. The
 bounded fractional-Y sweep did not explain root width; retain its current
 anchor instead of repeating an anchor fit.
 
+Bounded small-icon follow-up: the genuine Health SMDH24 plane matches native
+ink bounds but its offline substitution worsens the above-delta2 count
+236 -> 253 (maximum improves54 ->31). No asset/runtime selection is shipped.
+Treat root-held source selection as a recorded gap and its pixels as fail;
+no further source-only iteration without discriminating native evidence.
+
 Earlier [folder-held backing](home-folder-held-dimming-2026-10-02.md),
 `4e18d7c9`, selects the decoded native pickup dimming endpoint before the
 folder foreground. Full1,840 tests/typecheck/build and three production

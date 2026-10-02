@@ -14,6 +14,13 @@ Final restored desktop lower LCDs match the material-only baseline byte-for-byte
 All three workers are idle; dedicated Chrome exited normally, preview 3021 stays
 running. Whole scenarios remain fail, despite the fixed folder artwork region.
 
+The same source chat then completed one read-only SMDH24 diagnostic, restoring
+its own branch with `e911e475` -> `ca802d23`. Independent
+`pickup_retarget_review` verified decoder/provenance identity. The mixed result
+is not integrated; root-held selection remains a source gap. Source/reviewer
+are idle. The existing comparator chat now owns one bounded held-footer
+residual diagnosis from preserved raw captures, without GUI or runtime edits.
+
 ## Held Backing - 2 October 2026
 
 Same owned source worktree/chat: `5f621a49` -> `4e18d7c9` selects the decoded

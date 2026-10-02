@@ -1,5 +1,25 @@
 # Workstream Registry
 
+## Folder Gutter Diagnosis - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree
+`3ds-home-folder-gutter-20261002`, branch `codex/home-folder-gutter-20261002`,
+base c1caf7cf. Its source/provenance note32561bd7 ->fee9facf is integrated.
+Comparison chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` used new owned tree
+`3ds-home-folder-gutter-compare-20261002`, matching branch/base. Both Sol5.6/high;
+no worker GUI. Prior trees remain intact. Coordinator captured five native PNGs
+and two eleven-pair production runs, plus stock controls and desktop/mobile.
+
+This is a viewport diagnosis, not a runtime fix. Actual root-zero input removes
+the icon strip at unchanged5b82c896; source does not justify a guessed mask.
+Gutter still has816 pixels above2/max4 of unexplained backing shade. Whole
+scenarios remain fail. Source worker is idle; documentation checks replace a
+needless unchanged-code rebuild. Exact native and muted Chrome sessions exited0;
+production preview3021 remains ready. Next target is native pressed/fade states.
+Comparison38ae1c1d ->e948e5cc is integrated; both workers are idle. Immutable
+v4 report `e92c2bf9...` and inspected lower/gutter/no-code sheets document
+the no-code result. No claim of a new test/build pass or whole-scenario pass.
+
 ## Open Folder Footer - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree

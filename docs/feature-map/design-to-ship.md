@@ -9,12 +9,18 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+The latest folder-gutter replay found unmatched root scroll, not proof of a
+missing clipping layer. Aligning root scroll zero through actual input removes
+the strip with unchanged runtime. Preserve the retained native root capture;
+do not cover it with a guessed mask. Next bounded work is matched native
+pressed/fade states. Backing shade remains separate from this resolved diagnosis.
+
 The [open-folder footer](../home-open-folder-footer-2026-10-02.md) now uses
 one full-width Open control for occupied children without suspended software.
 The same left-side touch launches Health in native and production; empty/vacant
 children remain button-free. Desktop/mobile, reload and static stock regression
 checks pass. Suspended-folder policy was not captured and is not claimed native.
-Continue with the captured root-icon gutter or press/fade states; preserve this
+Continue with captured press/fade states; preserve this
 source-backed action correction and keep remaining shade differences explicit.
 
 The [populated-folder notice](../home-populated-folder-2026-10-02.md) now uses
@@ -22,7 +28,7 @@ the captured native one-button frame/message and returns to root without data
 loss. Its leaked HOME footer was corrected after production inspection.
 Desktop/mobile touch, A, cross-target release, empty-delete and persistence
 checks pass. Full native acceptance remains open; B/HOME are recovery
-adaptations. Continue with captured press/fade states or the root-icon gutter,
+adaptations. Continue with captured press/fade states,
 not another populated-delete confirmation redesign.
 
 The [Create Folder footer source audit](../home-create-folder-footer-2026-10-02.md)
@@ -30,7 +36,7 @@ used its one bounded source-only slice. The 799-pixel stable residual is not
 fixed by source selection; no runtime change was justified. Do not rerun the
 same audit or hide the error under phase/population differences. New native
 runtime evidence or an explicitly measured adaptation is needed. Continue with
-captured pressed/fade interaction states or the open-folder root-icon gutter.
+captured pressed/fade interaction states.
 
 The captured [Folder Settings placeholder](../home-folder-settings-native-2026-10-02.md)
 is replaced at `79e77f58` with decoded native frame, rows and message styles.
@@ -43,7 +49,7 @@ two fresh native runs; the former confirmation was incorrect, not a native
 screen to redesign. [Correction and evidence](../home-folder-delete-native-2026-10-02.md).
 Populated-folder Delete now uses the native notice at `43b8be55`. Next bounded
 folder work is captured pressed/fade states, not another redesign of creation/open/close.
-Rename/text input stays excluded. The open-folder left-gutter discrepancy,
+Rename/text input stays excluded. Remaining backing shade,
 native keyboard delivery, exact timing/motion/audio and whole scenarios remain
 open; retain these as separate defects.
 
@@ -115,7 +121,7 @@ These labels describe implementation, not native acceptance.
 | H-01, H-02, H-13 | Preserve | Wallpaper, HUD, native banners, scoped tiles and empty slots. Correct named pixel/motion residuals only; do not redesign the HOME composition or add excluded apps. | HOME |
 | H-03..H-06, H-14 | Finish | Input/pressed/selected/released states, long-press pickup, move/drop/cancel, folder-hover and edge-scroll behavior. Existing motion timings partly adapted; unsupported native modes stay explicit. | HOME |
 | H-07, H-08 | Preserve | Folder creation, entry, contents, close and layout restoration; verify first/last slots and all densities. Text entry stays excluded. | HOME |
-| H-07, H-08, H-14 | Finish/replace | Folder Settings settled native composition delivered at `79e77f58`; populated Delete notice at `43b8be55`, empty Delete direct at `2f074d64`. Press/fade timing and native keyboard selection remain unverified. Open-folder left gutter exposes root icons unlike native. | HOME |
+| H-07, H-08, H-14 | Finish/replace | Folder Settings settled native composition delivered at `79e77f58`; populated Delete notice at `43b8be55`, empty Delete direct at `2f074d64`. Press/fade timing and native keyboard selection remain unverified. Gutter icon-strip diagnosis resolved by aligning retained root scroll; backing shade remains separate. | HOME |
 | H-09, H-10 | Finish | Every toolbar/footer enabled, disabled, selected and suspended variant; Manual/Open/Resume/Close/Close Folder/Create Folder routes and button-edge behavior. | HOME |
 | H-11 | Finish, deferred | Source HOME Settings and Save/Load now exist. Saved-slot LCD thumbnails, preview Zoom, first-use preparation and later Settings rows remain missing. Current-layout paired preview is implemented at `5232b9c5`; do not rebuild it. | HOME |
 | H-11 | Replace, deferred | Theme picker remains authored. Replace native portions only from source; portfolio theme choices/preferences and reset stay labelled adaptations. | HOME |

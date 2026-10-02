@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+Folder-gutter comparisons must align the retained **root viewport**, not only
+the selected folder's screen position. Different folder slots can coincide at
+x90 while the first root column differs x6 versus x34. The 2 October root-zero
+replay removes the apparent icon strip through input alone at runtime5b82c896.
+An unmatched-scroll ROI cannot justify masking or hiding the root capture.
+Keep backing shade, population differences and native input/motion/audio gates
+separate. Native contents restored on this cold boot; earlier failure to persist
+must not be generalized to every launch.
+
 [Open-folder footer](../home-open-folder-footer-2026-10-02.md) at `5b82c896`
 separates selected-child action policy from surrounding population. Native
 occupied children show full-width Open; vacant children show no footer, even

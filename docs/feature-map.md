@@ -15,15 +15,25 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [open-folder footer](home-open-folder-footer-2026-10-02.md) at
+Latest folder-gutter replay corrects the defect diagnosis: the browser retained
+a root viewport shifted28px from native. Actual left paging to root-zero removes
+the exposed icon strip with unchanged runtime `5b82c896`. Do not mask or hide
+retained root content. Five fresh native captures and two eleven-pair production
+runs support this distinction; exact timing/audio and whole-screen fidelity
+remain open. Next: matched pressed/fade states, preserving delivered designs.
+The aligned gutter retains816 pixels above delta2, maximum4; keep that backing
+shade residual open. [Audit](home-folder-gutter-2026-10-02.md) and
+[comparison](workstream-handoffs/home-folder-gutter-compare.md).
+
+Earlier [open-folder footer](home-open-folder-footer-2026-10-02.md) at
 `5b82c896` replaces occupied Close/Open with native full-width Open. Fresh
 native left-footer touch and production desktop/mobile routes launch Health;
 vacant children remain button-free and inert. Full1,813 tests/typecheck/build
 pass, with static stock regression LCDs unchanged. Test follow-up21079a0d
 retains true Back/B close coverage. [Comparison](workstream-handoffs/home-open-folder-footer-compare.md).
-Footer shade, root-icon gutter, suspended-folder variants and exact input,
-motion/audio remain open. Next bounded visible work is the gutter or captured
-pressed/fade states, not another footer source-selection audit.
+Footer shade, suspended-folder variants and exact input/motion/audio remain
+open. The root-icon gutter attribution is superseded by the root-zero replay
+above. Next is captured pressed/fade states, not another footer audit.
 
 Earlier [populated-folder Delete notice](home-populated-folder-2026-10-02.md)
 at `2ee79ae3`/`43b8be55` replaces the authored confirmation with the captured

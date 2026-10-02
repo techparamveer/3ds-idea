@@ -44,20 +44,25 @@ test('settings replacement cannot consume a cancelled transition boundary',()=>{
  assert.notEqual(resolveHomeBannerHostSelection(replaced).kind,'clear');
 });
 
-test('software close clears the old banner then requests native reacquisition at return0 only',()=>{
+test('software close requests reacquisition once at footer departure before owner retirement',()=>{
  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
  const closing=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
  assert.deepEqual(homeApplicationBannerBoundary(suspended,closing),{kind:'clear'});
  assert.deepEqual(resolveHomeBannerHostSelection(closing),{kind:'clear'});
  assert.equal(homeApplicationBannerBoundary(closing,closing),undefined);
- let state=closing,retirement;
+ let state=closing,retirement,departure;
  for(let i=0;i<12&&state.system.homeApplicationTransition?.phase!=='footer-returning';i++){
   const before=state;state=tickSystem(state,7000+i*500);
   if(state.system.homeApplicationTransition?.phase==='footer-returning')retirement=before;
-  else assert.equal(homeApplicationBannerBoundary(before,state),undefined);
+  if(state.system.homeApplicationTransition?.phase==='footer-exiting'&&state.system.homeApplicationTransition.footerExitFrame===0){
+   departure=state;
+   assert.deepEqual(homeApplicationBannerBoundary(before,state),resolveHomeBannerHostSelection(state));
+   assert.equal(state.system.runtime.application,closing.system.runtime.application);
+  }else assert.equal(homeApplicationBannerBoundary(before,state),undefined);
  }
  assert.ok(retirement);
- assert.deepEqual(homeApplicationBannerBoundary(retirement,state),resolveHomeBannerHostSelection(state));
+ assert.ok(departure);
+ assert.equal(homeApplicationBannerBoundary(retirement,state),undefined);
  assert.equal(homeApplicationBannerBoundary(state,state),undefined);
  let next=tickSystem(state,state.system.homeClock.lastNow+1000);
  assert.equal(next.system.homeApplicationTransition.phase,'return-terminal');

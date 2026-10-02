@@ -71,11 +71,11 @@ test('Settings drawer changes brightness and theme without changing the underlyi
  s=touchMenu(s,100,160);assert.equal(s.theme,'blue');assert.equal(s.panel,'settings');
  s=reduceMenu(s,'back');assert.equal(s.panel,null);assert.equal(s.selected,0);
 });
-test('folder rename cannot open a keyboard and deletion still requires confirmation',()=>{
+test('folder rename stays inert and empty-folder Delete returns directly to root',()=>{
  let s=touchMenu(initialState,50,226);assert.equal(s.panel,'folder-settings');
  assert.equal(touchMenu(s,100,90),s);assert.equal(reduceMenu(s,'open'),s);
- s=touchMenu(s,100,150);assert.equal(s.panel,'delete');assert.equal(isFolder(0,s),true);
- s=touchMenu(s,200,180);assert.equal(isFolder(0,s),false);assert.equal(isFolder(0,initialState),true);
+ s=touchMenu(s,100,150);assert.equal(s.panel,null);assert.equal(isFolder(0,s),false);assert.equal(s.panelChoice,0);
+ assert.equal(isFolder(0,initialState),true);
 });
 test('All toolbar applets can be entered and closed without launching a folder',()=>{
  for(const [x,panel]of [[60,'notes'],[105,'friends'],[145,'notifications'],[190,'browser'],[235,'miiverse']]){

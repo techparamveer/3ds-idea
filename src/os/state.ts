@@ -95,16 +95,24 @@ function activatePanel(state: MenuState): MenuState {
   }
   if (state.panel === 'home-layouts') return state.homeLayoutAction ? (state.homeLayoutConfirm ? confirmHomeLayoutAction(state) : { ...state, homeLayoutAction: null, homeLayoutConfirm: false })
     : requestHomeLayoutAction(state, state.homeSavedLayouts?.[state.homeLayoutSlot ?? 0] ? 'load' : 'save');
-  if (state.panel === 'folder-settings') return state.panelChoice === 0 ? state : { ...state, panel: 'delete', panelChoice: 0 };
+  if (state.panel === 'folder-settings') {
+    if (state.panelChoice === 0) return state;
+    if (Object.keys(state.system?.folderLayouts?.[state.selected] ?? {}).length) return { ...state, panel: 'delete', panelChoice: 0 };
+    return deleteSelectedFolder(state);
+  }
   if (state.panel === 'delete') {
     if (Object.keys(state.system?.folderLayouts?.[state.selected] ?? {}).length) return state;
-    const folders = { ...state.folders }; delete folders[state.selected];
-    const system = state.system ? { ...state.system, folderLayouts: { ...state.system.folderLayouts } } : undefined;
-    if (system) delete system.folderLayouts[state.selected];
-    const identities = removeHomeFolderIdentity(getHomeFolderIdentities(state), state.selected);
-    return deleteHomeFolderView(writeHomeFolderIdentities({ ...state, ...(system ? { system } : {}), folders, panel: null }, identities), state.selected);
+    return deleteSelectedFolder(state);
   }
   return state;
+}
+function deleteSelectedFolder(state: MenuState): MenuState {
+  if (!isFolder(state.selected, state)) return state;
+  const folders = { ...state.folders }; delete folders[state.selected];
+  const system = state.system ? { ...state.system, folderLayouts: { ...state.system.folderLayouts } } : undefined;
+  if (system) delete system.folderLayouts[state.selected];
+  const identities = removeHomeFolderIdentity(getHomeFolderIdentities(state), state.selected);
+  return deleteHomeFolderView(writeHomeFolderIdentities({ ...state, ...(system ? { system } : {}), folders, panel: null, panelChoice: 0 }, identities), state.selected);
 }
 export function reduceMenu(state: MenuState, input: Input): MenuState {
   if (input === 'power') return { ...state, powered: !state.powered, panel: null };
@@ -179,7 +187,7 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
     if (state.panel === 'folder-settings') {
       const action = homeFolderSettingsActionAt(x, y);
       if (action === 'back') return reduceMenu(state, 'back');
-      if (action === 'delete') return { ...state, panel: 'delete', panelChoice: 0 };
+      if (action === 'delete') return activatePanel({ ...state, panelChoice: 1 });
       // Rename remains intentionally inert while software-keyboard input is out of scope.
       return state;
     }

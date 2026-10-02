@@ -2,7 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { createPortfolioState, dispatchSystemEvent, tickSystem, touchSystem } from '../src/os/system.ts';
+import { createPortfolioState, dispatchSystemEvent, tickSystem, touchSystem, moveHomeItem } from '../src/os/system.ts';
+import { reduceMenu } from '../src/os/state.ts';
+import { selectHomeLocation } from '../src/os/home-layout.ts';
+import { getHomeFolderIdentity } from '../src/os/home-folder-identity.ts';
+import { getHomeNavigation } from '../src/os/home-navigation.ts';
 import { HOME_FOLDER_SETTINGS_TARGETS, homeFolderSettingsActionAt } from '../src/os/stock-screen-layout.ts';
 import { nativeMessageOverride } from '../src/os/native-layout.ts';
 import { escapeUnreadyNativeScreen, releaseUnreadyNativeInput } from '../src/os/native-screen-system.ts';
@@ -89,17 +93,41 @@ test('Folder Settings source touch bounds are half-open and leave the native gap
   ]) assert.equal(homeFolderSettingsActionAt(...point), action, point.join(','));
 });
 
-const panel = () => ({ ...tickSystem(createPortfolioState(), 3001), panel: 'folder-settings', panelChoice: 0 });
+const panel = () => {
+  let state = tickSystem(createPortfolioState(), 3001);
+  state = reduceMenu(selectHomeLocation(state, { folder: null, slot: 40 }), 'open');
+  return { ...state, panel: 'folder-settings', panelChoice: 0 };
+};
 const touch = (state, phase, x, y, now = 4000) => dispatchSystemEvent(state, { type: 'touch', phase, pointerId: 7, x, y }, now);
 const tap = (state, x, y) => touch(touch(state, 'down', x, y), 'up', x, y, 4001);
 
-test('Folder Settings touch keeps Rename inert and routes Delete and native Cancel only', () => {
+test('Folder Settings touch keeps Rename inert, deletes an empty folder directly and routes native Cancel', () => {
   const initial = panel();
   assert.equal(touchSystem(initial, 160, 80, 4000), initial, 'legacy Rename path does not invent a keyboard');
   assert.equal(tap(initial, 160, 80).panel, 'folder-settings');
-  assert.equal(tap(initial, 160, 150).panel, 'delete');
+  const deleted = tap(initial, 160, 150);
+  assert.equal(deleted.panel, null);
+  assert.equal(deleted.panelChoice, 0);
+  assert.equal(deleted.folders[40], undefined);
+  assert.equal(deleted.system.folderLayouts[40], undefined);
+  assert.equal(deleted.system.input.touch, null);
+  assert.equal(getHomeFolderIdentity(deleted, 40), undefined);
+  assert.equal(getHomeNavigation(deleted).folderViews[40], undefined);
   assert.equal(tap(initial, 160, 205).panel, null);
   assert.equal(tap(initial, 10, 219).panel, 'folder-settings', 'old full-width footer route is gone');
+});
+
+test('Folder Settings physical activation shares direct empty deletion while populated folders retain the pending adapter', () => {
+  const empty = reduceMenu(panel(), 'down');
+  const deleted = reduceMenu(empty, 'open');
+  assert.equal(deleted.panel, null);
+  assert.equal(deleted.folders[40], undefined);
+  const populated = moveHomeItem(panel(), { folder: null, slot: 0 }, { folder: 40, slot: 0 });
+  const pending = tap(populated, 160, 150);
+  assert.equal(pending.panel, 'delete');
+  assert.equal(pending.folders[40], populated.folders[40]);
+  assert.deepEqual(pending.system.folderLayouts[40], { 0: 'work' });
+  assert.equal(reduceMenu({ ...populated, panelChoice: 1 }, 'open').panel, 'delete');
 });
 
 test('Folder Settings phased touch requires release on the originally owned source target', () => {

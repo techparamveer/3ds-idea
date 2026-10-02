@@ -1,5 +1,21 @@
 # Azahar reference profile isolation — 24 September 2026
 
+## Current Silent Reference - 2 October 2026
+
+Use the verified private `native-close-clean-20261002` clone under
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/` for the
+next HOME reference continuation. Its working audio fixture is **Static input2,
+Null output1, volume0**, each with `default=false`. Null input1 returned no
+samples and two tested profiles stalled at black HOME LCDs; the synthetic input
+configuration restored HOME and Health. Do not revert to Auto microphone/output
+or change system/Spotify audio. [Recovery evidence](native-silent-reference-2026-10-02.md)
+records hashes, limitations and the still-unresolved native HOME-return input.
+Recheck process state, identity, config, paths and Sidecar geometry before use.
+The older locations below are historical, not permission to launch the default
+profile. Static microphone data is a reference adaptation, not captured audio.
+
+## Isolation Contract
+
 Native comparison must use the versioned artifact profile, not the machine's
 default Azahar profile. The pinned Azahar 2126.1.2 macOS frontend changes its
 working directory to the parent of its `.app` bundle before it discovers

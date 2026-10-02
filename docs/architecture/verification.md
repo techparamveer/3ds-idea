@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+The [2 October silent-reference recovery](../native-silent-reference-2026-10-02.md)
+supersedes the earlier Null-microphone recommendation: the clean private clone
+uses synthetic Static input2, Null output1 and volume0. HOME and Health render
+again, but native HOME return and close/switch captures remain unestablished.
+Do not repeat black-screen launches with Null input1 or use host microphone/
+output as a workaround. This fixture is not microphone/audio acceptance.
+
 The [fresh Save/Load native route](../home-layout-native-comparison-2026-10-02.md)
 at `72fa1865` has two semantically corresponding touches, but not matched timing,
 population or initial selection. The empty-slot comparison improves lower36454

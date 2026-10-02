@@ -20,6 +20,12 @@ at `7dd76afa` is implemented, tested and browser-inspected: bounded same-button
 touch and press feedback. Native dialog artwork and closing motion remain
 unfinished. This is not native acceptance or completion of L-06/L-07.
 
+[Silent reference recovery](native-silent-reference-2026-10-02.md) restores
+native HOME/Health rendering with synthetic input2, Null output1 and volume0.
+It supersedes Null input1, which stalled the reference. Native app -> HOME input
+still needs verification before close/switch artwork can be captured; no new
+transition implementation or scenario pass is claimed.
+
 ## Scope and Evidence
 
 Preserve the original 2012 Silver + Black 3DS XL, spin/opening, physical controls,

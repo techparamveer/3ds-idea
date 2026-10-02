@@ -357,7 +357,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  }
  /** Caller supplies applied controller frames; toolbar Scale10–12 is not density. */
  function cursorAt(ctx:Context,centerX:number,centerY:number,scaleFrame:number,loopFrame:number,pressed=false){
-  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[centerX,centerY],bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',scaleFrame),binding('LncCsr_00_Loop',loopFrame)]});
+  return renderer.draw(ctx,'launcher','LncCsr_00',{center:[centerX,centerY],pictureSampling:'lcd',bindings:[binding('LncCsr_00_Select',pressed?5:0),binding('LncCsr_00_Scale',scaleFrame),binding('LncCsr_00_Loop',loopFrame)]});
  }
  function cursorEffectAt(ctx:Context,centerX:number,centerY:number,scaleFrame:number,disappearFrame:number){
   return renderer.draw(ctx,'launcher','LncCsrEfct_00',{center:[centerX,centerY],bindings:[binding('LncCsrEfct_00_Scale',scaleFrame),binding('LncCsrEfct_00_DisAppear',disappearFrame)]});

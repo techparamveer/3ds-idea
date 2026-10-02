@@ -41,6 +41,7 @@ test('native cursor submits the exact Loop frame while fractional Scale reaches 
   assert.equal(home.cursor(ctx,10,20,40,2.5,loopFrame,pressed),true);
   const draw=draws.at(-1),frames=Object.fromEntries(draw.options.bindings.map(binding=>[binding.name,binding.frame]));
   assert.equal(draw.ctx,ctx);assert.equal(draw.bank,'launcher');assert.equal(draw.name,'LncCsr_00');
+  assert.equal(draw.options.pictureSampling,'lcd');
   assert.deepEqual(draw.options.center,[30,40]);
   assert.equal(frames.LncCsr_00_Loop,loopFrame);
   assert.equal(frames.LncCsr_00_Scale,2.5);
@@ -68,7 +69,7 @@ test('center cursor preserves native toolbar Scale discontinuities, fractional f
   assert.equal(home.cursorAt(ctx,x,y,scaleFrame,loopFrame,pressed),true);
   const draw=draws.at(-1),panes=Object.fromEntries(walk(draw.pose.roots).map(p=>[p.name,p]));
   assert.equal(draw.ctx,ctx);assert.equal(draw.bank,'launcher');assert.equal(draw.name,'LncCsr_00');
-  assert.deepEqual(draw.options,{center:[x,y],bindings:[
+  assert.deepEqual(draw.options,{center:[x,y],pictureSampling:'lcd',bindings:[
    {name:'LncCsr_00_Select',frame:pressed?5:0},{name:'LncCsr_00_Scale',frame:scaleFrame},{name:'LncCsr_00_Loop',frame:loopFrame},
   ]});
   assert.deepEqual(panes.W_CsrF_00.size,geometry[scaleFrame][0]);
@@ -96,6 +97,7 @@ test('effect painter uses exact applied Scale and DisAppear frames with native a
   assert.deepEqual(draw.options,{center:[281,16.5],bindings:[
    {name:'LncCsrEfct_00_Scale',frame:scaleFrame},{name:'LncCsrEfct_00_DisAppear',frame:disappearFrame},
   ]});
+  assert.equal(draw.options.pictureSampling,undefined,'cursor effects retain their established sampling path');
   assert.equal(pane.alpha,alpha);
   if(scaleFrame>=10){
    assert.deepEqual(pane.size,scaleFrame===12?[66,66]:[72,69]);

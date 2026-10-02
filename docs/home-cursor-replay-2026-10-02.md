@@ -165,3 +165,35 @@ smooth and partly symmetric. PNG capture latency, emulator cadence, host
 refresh, title population, and unrelated cursor effects must remain explicit.
 Do not use this experiment to reopen the known plate/footer gaps, fit geometry,
 or claim whole-screen, exact-input, motion, audio, or strict 1:1 acceptance.
+
+## Direct LCD sampling candidate
+
+The coordinator's exhaustive phase comparison is recorded at
+`comparison/fresh-phase/report.json` beneath the internal cursor-phase artifact
+root, SHA-256
+`98f3b3ac44dc25b5cbe4bdf7ca1fbb0205f2fcd096061b45d265150cb0f6c88b`.
+After source-center normalization, every density retains differences at its
+best of all 60 browser phases. The best supported-pixel counts range from
+291/324 above delta 2 at rows 6 to 1,008/1,144 at rows 1. This comparison is a
+phase and raster diagnostic, not an acceptance mask or a native-frame label.
+
+`LncCsr_00` contains two authored `wnd1` panes, `W_CsrF_00` and
+`W_CsrLgt_00`. Scale animation applies fractional pane transforms at several
+densities. The established window path expands each pane through
+`nativeWindowPatches`; without an LCD opt-in it rasterizes each patch on the
+unscaled pane grid and then lets Canvas transform that intermediate. The
+renderer already supports `pictureSampling: 'lcd'`, which sends compatible
+source-over picture/window patches through `projectedPicture` and samples once
+at destination LCD pixel centers. Both cursor frame materials use the guarded
+`SourceAlpha` / `OneMinusSourceAlpha` blend required by that path. No material,
+texture, geometry, animation, color, or clock value needs to be invented.
+
+The bounded candidate therefore adds only `pictureSampling: 'lcd'` to the
+`LncCsr_00` draw in `cursorAt`. `LncCsrEfct_00`, other HOME surfaces, and the
+general renderer are unchanged. Focused presenter coverage requires the option
+on both `cursorAt` and its density wrapper while proving the cursor effect keeps
+its previous route. This is source-backed transport selection, not a verified
+visual improvement. Coordinator production capture must repeat all 60 phases
+at all six densities and compare before/after against the same native inputs;
+reject the candidate if the fixed support does not improve without new edge or
+background regressions.

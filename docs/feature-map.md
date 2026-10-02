@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [resize correction](home-touch-projection-2026-10-02.md) at `a751b2dd`
+Latest [cursor replay](home-cursor-replay-2026-10-02.md) establishes 60 phases
+at each of six densities. The LCD-sampling candidate `68c69bcf` is rejected;
+`b8773a90` restores the prior transport. Small best-fit corner improvements do
+not clear the four-row full-ROI regression or unexplained outside-ROI changes.
+No shipped visual fix, native epoch, matrix or whole-scenario pass follows.
+Production input/responsive and static stock-app regression checks pass.
+Next: native-visible pressed/toolbar/folder interactions, preserving the
+existing source graphics and documented adaptations. See the
+[comparison handoff](workstream-handoffs/home-cursor-compare.md).
+
+Latest accepted [resize correction](home-touch-projection-2026-10-02.md) at `a751b2dd`
 resolves the previous mobile density diagnosis: the QA projection retained a
 desktop point outside the resized viewport; actual raycast input already worked.
 Production resize/same-aspect resize, desktop all-density/boundary controls and

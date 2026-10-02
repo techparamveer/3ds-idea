@@ -1,6 +1,7 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `a751b2dd`, 2 October 2026. This is the **ordered
+Current runtime checkpoint: `b8773a90` (cursor candidate rejected; transport
+restored to `a751b2dd` behavior), 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing
@@ -16,9 +17,12 @@ raycast input. The projection fix and actual resized taps pass. Fresh native
 captures extend toolbar/density static tolerance across all six row counts;
 longer-press repeat cadence remains unresolved and needs native input evidence
 before reducer changes. Preserve the existing design and source graphics.
-Next bounded visual check is selected-cursor frame alignment, using the
-existing decoded `LncCsr_00` source and new density captures. No stable cursor
-geometry defect is established by unmatched animation phases.
+The [cursor replay](../home-cursor-replay-2026-10-02.md) now covers all 60
+phases at six densities. No geometry/clock correction is justified. A narrow
+LCD-sampling candidate failed the clean full-ROI/control gate and is reverted;
+do not repeat that experiment or claim a delivered raster fix. Next bounded
+visible check is native pressed/toolbar/folder interaction against the existing
+browser design, with exact capture preconditions and source-backed assets.
 The [progress record](../progress-2026-09-24.md)
 supersedes older checkpoint details in the queue below; whole scenarios remain
 unaccepted and the user's lifecycle priorities are unchanged.

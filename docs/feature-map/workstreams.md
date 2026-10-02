@@ -1,5 +1,25 @@
 # Workstream Registry
 
+## Cursor Replay - 2 October 2026
+
+The same two Sol5.6/high chats continued from `7404afd2` in separate worktrees.
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used
+`3ds-home-touch-projection-20261002` / `codex/home-cursor-replay-20261002`:
+source notes `5af177f1`/`b4fa7aca` -> `0961d207`/`d6aa95e2`, candidate
+`425ffa83` -> `68c69bcf`. Comparison chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` used
+`3ds-home-density-compare-20261002` / `codex/home-cursor-compare-20261002`:
+baseline `b9ed8f27` -> `2199fb3d`, owning its handoff and private artifacts.
+Independent read-only Sol5.6/high subagent reviewed capture identity, candidate
+scope and comparison controls; it caught the selected-title mismatch before
+acceptance. Coordinator recaptured aligned Health, rejected the mixed candidate
+result and restored transport at `b8773a90`. Workers did not drive GUI.
+Full checks, native capture, production phase families and actual-input tests
+are coordinator evidence; whole scenarios remain fail. Worktrees are preserved.
+Final comparison `a22737ec` -> `5ddc4ee7` is integrated; both chats and the
+read-only subagent are idle. Restored runtime passes full checks and inspected
+production preview. No service-tier or coordinator-model change is claimed.
+
 ## Touch Projection And Density - 2 October 2026
 
 Two existing Sol5.6/high chats use dedicated branches/worktrees at `6e1a2252`.

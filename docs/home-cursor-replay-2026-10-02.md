@@ -2,9 +2,9 @@
 
 ## Scope and result
 
-This is a source-only audit from coordinator checkpoint `7404afd2`. It does
-not change runtime code, assets, clocks, input, or capture behavior, and it does
-not operate Azahar or a browser.
+This note began as a source-only audit from coordinator checkpoint `7404afd2`.
+The later sampling candidate and coordinator verification are recorded below;
+the initial audit did not change runtime code or operate Azahar or a browser.
 
 The lower-screen paint diagnostic already identifies the exact primary cursor
 Loop frame that was drawn. `screenPaint.cursor.sampledFrame` is not a nearby
@@ -14,11 +14,10 @@ Conversely, the more general `data-home-cursor` diagnostic is updated on HOME
 ticks even when the idle LCD paint is throttled, so it must not be used to
 label pixels already present in `screenCanvases.bottom`.
 
-There is no captured, stable cursor defect yet. The coordinator has now
-completed the named production-browser phase replay at runtime commit
-`a751b2dd`; no capture API or runtime change is needed. The next safe step is
-to compare those named browser cursor ROIs with native captures, not to adjust
-geometry or materials first.
+At that initial checkpoint no stable cursor defect was established. The
+coordinator completed the production-browser phase replay at runtime commit
+`a751b2dd` without a capture API change. The later exhaustive comparison leaves
+a raster residual at every density but does not prove a geometry or clock bug.
 
 ## Exact frame path
 
@@ -197,3 +196,31 @@ visual improvement. Coordinator production capture must repeat all 60 phases
 at all six densities and compare before/after against the same native inputs;
 reject the candidate if the fixed support does not improve without new edge or
 background regressions.
+
+Independent review found no confirmed blocker in the per-draw opt-in, but
+`cursorAt` also serves toolbar Scale 10-12, pressed, fractional-transition,
+folder and scrolling states. Settled grid captures alone do not clear those
+states. The projected sampler retains its existing integer-translation guard,
+even for nonunit scales, so some panes still use the previous raster path.
+Compatible patches incur destination readback and CPU rasterization; no native
+performance equivalence follows from tests or phase collection duration.
+
+## Candidate rejected
+
+Source candidate `425ffa83` was integrated as `68c69bcf`, tested and captured
+in production, then rejected. After correcting selected-title and scroll-anchor
+setup, all 360 `browser-candidate-health-aligned` pairs match the baseline's
+Health slot 8, center and Scale frame. Frozen-support best-of-60 counts improve
+by 4-64 pixels, but the full authored cursor ROI at four rows worsens from
+3,251 to 3,289 high pixels. Raw lower controls also contain 1,980-4,801 changed
+pixels outside the cursor ROI, with unresolved attribution. This is not proof
+that the candidate caused those unrelated changes, but it fails the required
+clean-regression gate. The previous runtime transport is restored; no sampling
+fix or native acceptance is delivered. See the
+[comparison handoff](workstream-handoffs/home-cursor-compare.md).
+
+The first candidate atlas selected Settings slot 9 and is excluded from runtime
+acceptance. The intermediate Health retry rejected an unmatched x=244 scroll
+anchor before recording accepted pairs. Neither was silently normalized into
+a before/after control. The final aligned run uses real navigation and exact
+baseline assertions, with native phase fitting still explicitly diagnostic.

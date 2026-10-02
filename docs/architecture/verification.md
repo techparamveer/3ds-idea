@@ -330,6 +330,14 @@ host state. It is available in development and in a production build served on
 loopback with `?lcdCapture=1`; see [browser LCD capture](../browser-lcd-capture.md).
 It exports the 400×240 upper source canvas and 320×240 lower canvas as PNGs,
 before the upper source is stretched to the 800×240 display texture.
+For the retained HOME cursor, use the capture result's own
+`homeCursor.sampledFrame`, not the earlier live `state.screenPaint` diagnostic.
+The [cursor replay audit](../home-cursor-replay-2026-10-02.md) verifies the
+synchronous draw/diagnostic/PNG contract. The 24 fps idle LCD paint can lag the
+60-update retained cursor; this is not proof of a native clock defect. Capture
+can repaint canvases and populate caches without advancing application state.
+Exhaustive phase fitting and source-center normalization remain diagnostics,
+not shared native epochs or acceptance masks.
 The opt-in local production verification route has been exercised through a CUA click and saves the exact JSON payload and both PNGs
 under the private artifact root when `LCD_CAPTURE_OUTPUT_ROOT` is set. It is gated to loopback with `?lcdCapture=1`; keep it invisible to visitors.
 `captureNativeBanner` remains development-only. Source phase samples for the

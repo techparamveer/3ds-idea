@@ -41,7 +41,7 @@ test('native cursor submits the exact Loop frame while fractional Scale reaches 
   assert.equal(home.cursor(ctx,10,20,40,2.5,loopFrame,pressed),true);
   const draw=draws.at(-1),frames=Object.fromEntries(draw.options.bindings.map(binding=>[binding.name,binding.frame]));
   assert.equal(draw.ctx,ctx);assert.equal(draw.bank,'launcher');assert.equal(draw.name,'LncCsr_00');
-  assert.equal(draw.options.pictureSampling,'lcd');
+  assert.equal(draw.options.pictureSampling,undefined,'primary cursor retains the verified transport baseline');
   assert.deepEqual(draw.options.center,[30,40]);
   assert.equal(frames.LncCsr_00_Loop,loopFrame);
   assert.equal(frames.LncCsr_00_Scale,2.5);
@@ -69,7 +69,7 @@ test('center cursor preserves native toolbar Scale discontinuities, fractional f
   assert.equal(home.cursorAt(ctx,x,y,scaleFrame,loopFrame,pressed),true);
   const draw=draws.at(-1),panes=Object.fromEntries(walk(draw.pose.roots).map(p=>[p.name,p]));
   assert.equal(draw.ctx,ctx);assert.equal(draw.bank,'launcher');assert.equal(draw.name,'LncCsr_00');
-  assert.deepEqual(draw.options,{center:[x,y],pictureSampling:'lcd',bindings:[
+  assert.deepEqual(draw.options,{center:[x,y],bindings:[
    {name:'LncCsr_00_Select',frame:pressed?5:0},{name:'LncCsr_00_Scale',frame:scaleFrame},{name:'LncCsr_00_Loop',frame:loopFrame},
   ]});
   assert.deepEqual(panes.W_CsrF_00.size,geometry[scaleFrame][0]);

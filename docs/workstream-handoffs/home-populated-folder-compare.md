@@ -23,7 +23,8 @@ a pixel baseline.
 
 Private evidence is under
 `home-populated-folder-20261002/comparison/`. The initial manifest SHA-256 is
-`3ed6f0a05bac04be20194f548aeddd8e8fa9872ac612eeac411b6e27e4355cac`.
+superseded by the current intermediate manifest SHA-256
+`eedaf2400c4202e1c7ec7f4117913adfe4c0fb22aa6fa2fe0fa7053cd551fd04`.
 
 ## First native observation
 
@@ -52,6 +53,23 @@ Azahar packs the lower LCD at `(40,240,320,240)` in each 400x480 own-PNG.
 The native notice-panel raw-RGB SHA-256 is
 `cf3296ea6e9bdbb430697415f9ee60f89cd1534231179e24de16b94b55eadd55`.
 
+## Independent native repeat
+
+The independent repeat used touch OK and added three own-PNGs:
+
+| State | Native own-PNG | SHA-256 |
+| --- | --- | --- |
+| repeat populated Delete notice | `_02.10.26_17.37.52.607.png` | `de17a0d78c5481ecbe2d33b845c4f1654b0f041449e1c5a01119170c8b5327c3` |
+| touch OK return, folder selected | `_02.10.26_17.38.14.191.png` | `f2e561be21ada648993dced115e204751f1c31cea3988f234d39987389fc706f` |
+| reopened folder, Health still child 2 | `_02.10.26_17.38.27.82.png` | `f9e0b43462afde32935fe82e689a5345f0f94a7adf08034636fda7394665b20e` |
+
+The two native notice lower LCDs are byte-identical: zero pixels differ above
+delta 2 and the maximum channel delta is zero. Their fixed 280x200 panels are
+also byte-identical. The upper LCD differs at 51,657 pixels above delta 2,
+maximum 255, because its banner/wallpaper/HUD epoch is not matched. The repeat
+therefore freezes a stable native lower target without claiming an upper
+animation match. Native B behavior was not tested.
+
 ## Source identification boundary
 
 The pinned source is EUR HOME `0004003000009802` v24576, content index 0 /
@@ -74,27 +92,89 @@ The archive SHA-256 is
 `65675c4a6ecada83a0d7256ea20c36692190be10349bf87c32e6068376409704`;
 the delivered pack SHA-256 is
 `8a7b72cd0e69601da7938503f648c18286fb4bcb2bf27fc0c33839dd4e0dca17`.
-These are source candidates until the implementation lane establishes the
-exact composition and runtime bindings; this comparison does not infer them
-from visual resemblance alone.
+Source commit `b33064aa` establishes the exact composition and runtime
+bindings, including `home.dialogmask/DlgMask_D_00` and its settled FadeIn
+animation. The coordinator integrated it as `2ee79ae3`. This comparison does
+not infer additional ownership from visual resemblance.
 
-## Initial artifacts and pending evidence
+## Production-before diagnostic
+
+Production-before at `40a5d090427d05449bbda98b507f365f1e78e7aa`
+successfully created folder 6, moved Health to child slot 2 with actual pointer
+input, returned to root, opened Folder Settings and activated Delete. Its
+generic two-button “Delete this folder?” confirmation has different content
+and policy from native. It remains a same-action diagnostic, not an
+equivalent-state visual pair. Escape returned to root and reopening proved the
+Health child was preserved.
+
+The browser result SHA-256 is
+`24500a83f12afd649424b4951d63c43e4e8905e33f5c2549066b38a379f19ffa`;
+it reports no errors. Against the native notice, the non-equivalent generic
+screen differs by 75,555 lower pixels above delta 2 and 54,773 of 56,000 fixed
+panel pixels. These numbers diagnose replacement scope only and are not a
+valid before/after same-state improvement claim.
+
+Native folder 1 and browser folder 6, root population, root scroll, epochs and
+exact drag/input cadence differ. The folder contents and selected child center
+match semantically, not by global slot number.
+
+## First integrated after — preserved intermediate
+
+The first integrated production capture at `2ee79ae3` uses the native notice
+message and one-button panel. Touch OK returns to root, reopening preserves
+Health at child slot 2, and separate physical-A and mobile controls complete
+the same browser behavior. Result SHA-256
+`c76ad1976b0d9969f12c292491874927ba12d2932ed1d260e34a6fa0b7814e24`
+reports no errors.
+
+The current notice comparison uses empty masks and no fitting:
+
+| Region | Pixels >2 | Maximum | MAE | RMSE | Interpretation |
+| --- | ---: | ---: | ---: | ---: | --- |
+| upper 400x240 | 49,336 | 220 | 6.935868 | 20.526182 | unmatched folder/banner, wallpaper and HUD epochs/population |
+| lower 320x240 | 12,596 | 115 | 1.634045 | 6.625087 | full unmasked control |
+| top toolbar `x0/y0/320x20` | 0 | 2 | 0.082135 | 0.287500 | static pixel tier |
+| notice panel `x20/y20/280x200` | 96 | 17 | 0.061601 | 0.324322 | symmetric bottom rounded corners only |
+| left outside panel | 3,346 | 115 | 11.121500 | 19.631794 | underlying root population/scroll |
+| right outside panel | 2,759 | 36 | 4.240000 | 6.336232 | underlying root population/scroll |
+| y220..239 footer band | 6,395 | 78 | 9.386458 | 16.116028 | leaked Settings/Open footer; native has none |
+
+The five fixed rectangles partition all 12,596 lower residual pixels. The 96
+panel pixels occupy only x20..299/y212..219, with per-row counts
+6, 6, 8, 10, 12, 14, 18 and 22. That topology matches the already documented
+rounded bottom-corner residual family; it does not by itself prove a local
+panel cause because those alpha edges composite over the independently
+mismatched substrate.
+
+The leaked y220..239 footer is a distinct implementation defect outside the
+280x200 source panel. This capture is preserved as intermediate evidence; it
+must not be overwritten or promoted as the final after state. The source lane
+is correcting the panel guard and the coordinator will write final captures to
+a distinct `browser-final/` directory.
+
+## Intermediate artifacts and pending evidence
 
 The private analyzer SHA-256 is
-`407a0a697e20977986061a0f26a5b373a1a67bdaa4f532b696a3340cf90acb65`.
-Its native-only baseline report SHA-256 is
-`223794bdb6ceaaa0d7d837a39680246bee58d6cf065059b8a964183b6389e0be`.
-The inspected five-state upper/lower sheet SHA-256 is
-`3fee1059827df2e7e52400dc5e12656aa2be6660e18b4393b6aac513b28a55bb`.
+`79836a4d137d8ebad471458f4c8193cd58f4c4885d0f987e34d7f143340e9222`.
+Its intermediate report SHA-256 is
+`4b9f8634a2c1f61763f2c9543895f6aa9fd341f4a3cd7fe2f972cad2c74fe94d`.
+Inspected sheet SHA-256 values are:
+
+- first native upper/lower: `3fee1059827df2e7e52400dc5e12656aa2be6660e18b4393b6aac513b28a55bb`;
+- native repeat upper/lower: `36a4051a8422cbda7bb46cb4d34cb550d63f14f14d4ca4e3042078f21856f08c`;
+- browser-before upper/lower: `249c439c3d210da939cb1a8c86a540079f7fd38c03fea4f8ae802cdc46329aae` / `ddc12ec5f8bd1764cbdb73cf7e9c34134d7ff4ecdf8980a10d5e176bb974f6ca`;
+- intermediate browser-after upper/lower: `b1c1356a0142bf39fee11b67cca43d5db02a0dec26057a190f1db9ec91c5e2e0` / `ed950e60f3c95fbfc11c9a3dc06d3c7beb3fdca6a2c86ff07b9f7fdd8db7789d`.
 
 Still required before final comparison:
 
-- an independent native repeat of notice and OK return;
-- production browser-before same-action diagnostic, explicitly unpaired where
-  its generic confirmation semantics differ;
-- production browser-after same-state notice and OK return;
-- fixed full-LCD and 280x200 notice-panel diffs with empty masks;
+- final production capture after suppressing the leaked footer, written to a
+  distinct directory;
+- final full-LCD and fixed-panel comparison without overwriting intermediate
+  identities;
 - separate input, motion and audio reporting.
 
-The populated-folder scenario remains `fail/unverified`. The first native run
-is behavioral and visual reference evidence, not whole-scenario acceptance.
+The coordinator reports integrated checks of 1,808 passing, zero failing, 23
+skipped and one TODO, plus typecheck/build pass and independent focused review
+74/74. Those checks do not close visual acceptance. The populated-folder
+scenario remains `fail/unverified`; exact motion, input cadence and audio are
+still unmatched.

@@ -227,7 +227,7 @@ Those checks do not supply matched native HID, event epoch, motion, shutdown
 timing, backlight ordering or audio. The lower static pixel tier passes; both
 whole scenarios and the upper pixel tier remain fail.
 
-## Handoff
+## Candidate disposition
 
 The integrated candidate is supported for the lower Power Off label by an
 empty-mask 668 -> 0 result with no `Software closed.` regression. It does not
@@ -236,3 +236,122 @@ mean error slightly regresses, and the three-block fractional signature is
 unchanged. No coordinate offset or broader raster rule is proposed from this
 comparison. The source owner should retain the lower evidence and reconsider
 or separately justify the upper opt-in before treating this slice as complete.
+
+## Final lower-only recapture
+
+The source follow-up `60289548`, integrated as runtime `766888a2`, removes the
+new multiline path and upper opt-in while retaining the measured lower sampler
+and pane allowlist. The original candidate captures and reports above remain
+immutable evidence. The coordinator then recorded final HOME/app routes plus a
+fresh app-only repeat at the same 120,000 ms settled presentation sample.
+
+### HOME route: expected composition
+
+HOME final restores the upper baseline byte-for-byte and retains the successful
+candidate lower byte-for-byte:
+
+| Final HOME artifact | SHA-256 |
+| --- | --- |
+| Upper PNG, identical to settled before | `735ffe942e43b7b8f641a99b9ef483f4254cf8fa61b9776a10c7f46a4acb134a` |
+| Lower PNG, identical to candidate | `d24251c858fd8a637dce868fa1a39e12ff691fba3c43fe535e8ab30598dc0488` |
+| Capture JSON | `6d80218455a93b795acc23bbdd887d3fec6598f060d9aa7b9dc96619614109ae` |
+| Empty-mask report | `c050365b00d4dda5b5e057ce1567d8c0c88321892c0338036d23623757ba9949` |
+| Regional/raster report | `1f3734d4ee6926878514e58824d0e6e26d77977ea1ee78e1712cdce73f06b959` |
+
+The HOME upper therefore returns exactly to the before metrics: 4,334 pixels
+above 2, mean 1.748302, maximum 211. Its before/final direct comparison is
+96,000/96,000 RGB-exact. The lower retains zero pixels above threshold, mean
+0.006411 and maximum 2. Its Power Off label remains zero pixels above threshold,
+mean 0.085193 and maximum 2.
+
+The inspected HOME upper/lower sheets are
+`77411db94109150c359d19550476d60b040c4af7a4fc4cc2c60f018460ab9d67`
+and `3cfdaeb0cc1921e5d00b782f9bf4f78315abb6a8434512c8ee388dc7ed252f5c`.
+
+### App route: preserved, repeatable upper discrepancy
+
+The first final app capture does **not** restore the upper baseline hash. A
+fresh app-only repeat, without a preceding HOME Power route, reproduces its raw
+upper and lower PNGs exactly. Both samples are retained; neither is replaced by
+the HOME output:
+
+| Final app artifact | First route | Fresh app-only repeat |
+| --- | --- | --- |
+| Upper PNG | `03cc65909ec87c4cc5e54643a4b06f2f40723bd53ed8d283d34fc7074ff81dad` | same |
+| Lower PNG | `fb54121829e4dc45bf46a4be5ad41a020326cd9edf970d55f523e57781aa1dd1` | same |
+| Capture JSON | `bb5eb3d854bf487b98ec2bb3bfe2048b390f702af456d894a83082ca98603c39` | `918c44504d18e297396342b91dec90e310de7157d77b5e007feede3ef8474da4` |
+| Empty-mask report | `9891e9704d4f730e5c4558d9b323b06537e0c8e74034355f3a772716650a0765` | `fe3f3fbeea2bb0bbb5459508f427620a76f18fdda782b1581035270118ab4ddb` |
+| Regional/raster report | `712fbe5bd6e9b838bc1b1dd16f3a826677d2eee9c667176f5adb007c6aad6336` | `ab54c386c8d22da065d45a31a2c59b63430b8c717f6f1779b6a10c630932aea8` |
+
+Against settled app-before, the repeated final upper has 4,084 pixels above
+threshold, mean RGB delta 0.272115 and maximum 20. The difference contains
+2,021 pixels in the main-list region and 2,063 in the footer; the heading,
+quiet background and divider are byte-identical. Against native, the final app
+upper has 6,512 pixels above threshold, mean 1.970861 and maximum 211, versus
+the stable before/native result 4,334 / 1.748302 / 211. Its main list is
+4,466 high pixels and footer 2,046. This is a preserved discrepant same-code
+sample, not the restored output substituted below.
+
+The upper source code was restored, HOME final is byte-identical to baseline,
+and the app discrepancy repeats under fresh app-only navigation. This evidence
+does not identify the cause; it may not be attributed to encoding, a one-off
+capture, or a specific cache/raster mechanism without a separate source trace.
+No additional runtime correction is proposed in this comparison lane.
+
+The app lower is conclusive and matches the candidate: zero pixels above
+threshold, mean 0.006411 and maximum 2. `Software closed.` remains exactly
+12,000/12,000 RGB pixels equal. The first and repeated app sheets are also
+byte-identical: upper
+`aad97f49041c8b34b4f11e68267a5639390faa68af0a64d60c421e288fbb0f2a`,
+lower `e0941fa9d315cfde69a844a36fca054fa78fb1f16a248cd556dce18605fea692`.
+Both were opened and visually inspected.
+
+### Lower-sampler control and exact restoration
+
+The coordinator then ran one controlled temporary build from `766888a2` with
+only the lower `textSampling` / pane-allowlist call options disabled. No control
+commit was created; its capture metadata labels the build
+`766888a2+lower-sampler-disabled`. After the capture, the exact source line was
+restored, the source diff was verified empty, and the production build was
+rebuilt before one final app-only replay.
+
+| Controlled app output | Upper SHA-256 | Lower SHA-256 | Capture JSON SHA-256 |
+| --- | --- | --- | --- |
+| Lower sampler disabled | `03cc65909ec87c4cc5e54643a4b06f2f40723bd53ed8d283d34fc7074ff81dad` | `90e4243f64914d5b044f8ef9fcdc7c34cedcdbdb58c664454cf78ee66ce6736b` | `9d6cfe06750ab43fdf2d72694b898ad571535b7e9e0d8e4b73ed6a52532fc8b7` |
+| Exact `766888a2` restored | `735ffe942e43b7b8f641a99b9ef483f4254cf8fa61b9776a10c7f46a4acb134a` | `fb54121829e4dc45bf46a4be5ad41a020326cd9edf970d55f523e57781aa1dd1` | `bf89894742939e16a85f94e07181697a05d8131c0ab21836e02599120228b790` |
+
+The disabled-control upper is byte-identical to both discrepant app captures,
+while its lower is byte-identical to the old baseline. The restored lower is
+byte-identical to the candidate/final lower, establishing that the retained
+lower opt-in is necessary for the measured lower correction. The upper
+discrepancy persists without that opt-in, so the lower sampler is not necessary
+for the discrepant upper output and no causal claim against it is supported.
+
+The restored build's upper is byte-identical to the settled baseline, but this
+does not erase the two same-code discrepant outputs. Across fresh rebuilt runs,
+the app upper output is not stable in this evidence set. No encoding difference
+or source/font/pack change explains it, and the comparison does not attribute a
+cache, route or raster cause.
+
+The restored app empty-mask report is
+`280902c140909c9570a3534f9f15819661f054655c0fe34bd4ddc4b639b9fa5c`;
+its regional/raster report is
+`217bd4fab575307827bd02207da968cfdaca9c319c67d42828ee93cb7c8cf0c6`.
+It returns to 4,334 / 1.748302 / 211 upper and retains 0 / 0.006411 / 2
+lower. `Software closed.` is still exact. Its inspected sheets are the expected
+baseline/candidate hashes: upper
+`77411db94109150c359d19550476d60b040c4af7a4fc4cc2c60f018460ab9d67`
+and lower `e0941fa9d315cfde69a844a36fca054fa78fb1f16a248cd556dce18605fea692`.
+
+### Final handoff
+
+The lower-only source path is supported across HOME, the first/repeated app
+captures, and the restored control: lower 668 -> 0, maximum 2, with no
+app-message or footer regression. HOME and the final restored app upper match
+their baseline exactly, but two same-code app captures preserve unexplained
+upper variance; therefore no deterministic all-runs upper claim is made. Upper
+still has 4,334 unexplained native pixels even in the restored sample, so both
+whole scenarios remain fail. The coordinator reports final 1,777 tests pass /
+0 fail / 23 skip / 1 TODO, plus typecheck/build pass and successful muted
+functional routes; those checks do not close native HID/epoch, motion, shutdown
+timing, backlight or audio.

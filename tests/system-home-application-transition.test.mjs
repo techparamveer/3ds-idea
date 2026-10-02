@@ -56,7 +56,21 @@ function commitTerminal(state, now = 6500) {
   return tickSystem(sameTimestamp, state.system.homeClock.lastNow + FRAME);
 }
 
-test('confirmed close retains owner and capture eligibility through a paintable terminal frame', () => {
+function closeExitTerminal(state, now = 6500) {
+  state = terminal(state, now);
+  state = tickSystem(state, state.system.homeClock.lastNow + FRAME);
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'exiting');
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.dialogExitFrame, 0,
+    'a later host update publishes the exit start');
+  const startCount = state.system.homeClock.updateCount;
+  state = tickSystem(state, state.system.homeClock.lastNow + 40 * FRAME);
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'exit-terminal');
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.dialogExitFrame, 20);
+  assert.equal(state.system.homeClock.updateCount, startCount + 20, 'outer batch stops at the exit terminal frame');
+  return state;
+}
+
+test('confirmed close retains owner through both paintable terminal frames', () => {
   let state = confirmClose(suspended());
   const owner = state.system.runtime.application;
   const transition = sampleSystemHomeApplicationTransition(state);
@@ -65,12 +79,14 @@ test('confirmed close retains owner and capture eligibility through a paintable 
   assert.equal(transition.identity.transitionId, 1);
   assert.equal(state.system.homeFolderClose.nextTransitionId, 2, 'one shared monotonic HOME allocator owns begin');
 
-  state = terminal(state);
+  state = closeExitTerminal(state);
   assert.equal(state.system.runtime.application, owner);
   assert.equal(state.system.runtime.homeReturn, owner);
   assert.equal(state.system.runtime.instances[owner].suspended, true);
 
-  state = tickSystem(state, state.system.homeClock.lastNow + FRAME);
+  const sameTimestamp = tickSystem(state, state.system.homeClock.lastNow);
+  assert.equal(sampleSystemHomeApplicationTransition(sameTimestamp)?.phase, 'exit-terminal');
+  state = tickSystem(sameTimestamp, state.system.homeClock.lastNow + FRAME);
   assert.equal(state.system.homeApplicationTransition, null);
   assert.equal(state.system.runtime.application, null);
   assert.equal(state.system.app, null);
@@ -153,6 +169,25 @@ test('lid sleep retains the close owner and resumes without counting sleep time'
   state = tickSystem(state, 90000);
   state = tickSystem(state, 90000 + FRAME);
   assert.equal(state.system.homeApplicationTransition.appQuitFrame, transition.appQuitFrame + 1);
+});
+
+test('lid sleep pauses the dialog exit clock without replaying hidden elapsed time', () => {
+  let state = confirmClose(suspended());
+  state = terminal(state);
+  state = tickSystem(state, state.system.homeClock.lastNow + FRAME);
+  state = tickSystem(state, state.system.homeClock.lastNow + 5 * FRAME);
+  const transition = state.system.homeApplicationTransition, owner = state.system.runtime.application;
+  assert.equal(transition.phase, 'exiting');
+  assert.equal(transition.dialogExitFrame, 5);
+
+  state = setSystemSleeping(state, true, state.system.homeClock.lastNow);
+  state = tickSystem(state, 90000);
+  assert.equal(state.system.homeApplicationTransition.dialogExitFrame, transition.dialogExitFrame);
+  assert.equal(state.system.runtime.application, owner);
+  state = setSystemSleeping(state, false, 90000);
+  state = tickSystem(state, 90000);
+  state = tickSystem(state, 90000 + FRAME);
+  assert.equal(state.system.homeApplicationTransition.dialogExitFrame, transition.dialogExitFrame + 1);
 });
 
 test('reduced presentation samples the endpoint without skipping logical owner retention', () => {

@@ -42,12 +42,19 @@ test('counted transitions use the scene budget without changing idle or constrai
 });
 
 test('application close publishes terminal and retirement pairs independent of cadence',()=>{
-  const closing={phase:'closing',appQuitFrame:19},terminal={phase:'terminal',appQuitFrame:20};
+  const closing={phase:'closing',appQuitFrame:19,dialogExitFrame:null};
+  const terminal={phase:'terminal',appQuitFrame:20,dialogExitFrame:null};
+  const exitStart={phase:'exiting',appQuitFrame:20,dialogExitFrame:0};
+  const exitMiddle={phase:'exiting',appQuitFrame:20,dialogExitFrame:12};
+  const exitTerminal={phase:'exit-terminal',appQuitFrame:20,dialogExitFrame:20};
   assert.equal(applicationCloseNeedsPaint(null,null,false),false);
   assert.equal(applicationCloseNeedsPaint(closing,closing,false),false);
   assert.equal(applicationCloseNeedsPaint(closing,{...closing,appQuitFrame:18},false),false);
   assert.equal(applicationCloseNeedsPaint(closing,terminal,false),true);
-  assert.equal(applicationCloseNeedsPaint(terminal,null,false),true);
+  assert.equal(applicationCloseNeedsPaint(terminal,exitStart,false),true);
+  assert.equal(applicationCloseNeedsPaint(exitStart,exitMiddle,false),false);
+  assert.equal(applicationCloseNeedsPaint(exitMiddle,exitTerminal,false),true);
+  assert.equal(applicationCloseNeedsPaint(exitTerminal,null,false),true);
   assert.equal(applicationCloseNeedsPaint(null,closing,true),true);
   assert.equal(applicationCloseNeedsPaint(closing,{...closing},true),true);
   assert.equal(applicationCloseNeedsPaint(closing,closing,true),false);
@@ -55,14 +62,20 @@ test('application close publishes terminal and retirement pairs independent of c
 
 test('terminal upload bypasses both 30fps and 45fps gates between 60Hz updates',()=>{
   for(const fps of [30,45]){
-    let lastRender=0,previous={phase:'closing',appQuitFrame:19};
+    let lastRender=0,previous={phase:'closing',appQuitFrame:19,dialogExitFrame:null};
     const rendered=[];
-    for(const [now,current] of [[1000/60,{phase:'terminal',appQuitFrame:20}],[2000/60,null]]){
+    for(const [now,current] of [
+      [1000/60,{phase:'terminal',appQuitFrame:20,dialogExitFrame:null}],
+      [2000/60,{phase:'exiting',appQuitFrame:20,dialogExitFrame:0}],
+      [3000/60,{phase:'exiting',appQuitFrame:20,dialogExitFrame:19}],
+      [4000/60,{phase:'exit-terminal',appQuitFrame:20,dialogExitFrame:20}],
+      [5000/60,null],
+    ]){
       const forced=applicationCloseNeedsPaint(previous,current,false);
-      if(forced||now-lastRender>=1000/fps){rendered.push(current?.appQuitFrame??'retired');lastRender=now;}
+      if(forced||now-lastRender>=1000/fps){rendered.push(current?.phase??'retired');lastRender=now;}
       previous=current;
     }
-    assert.deepEqual(rendered,[20,'retired']);
+    assert.deepEqual(rendered,['terminal','exiting','exit-terminal','retired']);
   }
 });
 

@@ -5,7 +5,7 @@ import fs from 'node:fs';
 
 const source=fs.readFileSync(new URL('../src/scene/render-quality.ts',import.meta.url),'utf8');
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {applicationCloseNeedsPaint,chooseRenderQuality,pixelRatioForViewport,screenPaintFps}=await import(`data:text/javascript,${encodeURIComponent(js)}`);
+const {applicationCloseNeedsPaint,bootRevealNeedsPaint,chooseRenderQuality,pixelRatioForViewport,screenPaintFps}=await import(`data:text/javascript,${encodeURIComponent(js)}`);
 
 test('render quality bounds fill-rate and disables VGPU on constrained devices',()=>{
   const quality=chooseRenderQuality({devicePixelRatio:3,hardwareConcurrency:4,deviceMemory:4,saveData:false,width:1440,height:900});
@@ -64,4 +64,15 @@ test('terminal upload bypasses both 30fps and 45fps gates between 60Hz updates',
     }
     assert.deepEqual(rendered,[20,'retired']);
   }
+});
+
+test('boot paints reduced source poses and low-cadence endpoints without repainting idle poses',()=>{
+  assert.equal(bootRevealNeedsPaint(null,null,true),false);
+  assert.equal(bootRevealNeedsPaint(0,0,true),false);
+  assert.equal(bootRevealNeedsPaint(10,0,true),true);
+  assert.equal(bootRevealNeedsPaint(10,10,true),false);
+  assert.equal(bootRevealNeedsPaint(19,18,false),false);
+  assert.equal(bootRevealNeedsPaint(20,18,false),true);
+  assert.equal(bootRevealNeedsPaint(20,20,false),false);
+  assert.equal(bootRevealNeedsPaint(null,20,false),false);
 });

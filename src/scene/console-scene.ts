@@ -32,7 +32,8 @@ import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
-import { applicationCloseNeedsPaint, browserRenderQuality, pixelRatioForViewport, screenPaintFps } from './render-quality';
+import { applicationCloseNeedsPaint, bootRevealNeedsPaint, browserRenderQuality, pixelRatioForViewport, screenPaintFps } from './render-quality';
+import { bootRevealFrame } from '@/os/system-transitions';
 import { applicationCloseAllowsInput } from './application-close-input';
 import { PACKED_MODEL_URL } from './model-delivery';
 import { createRenderSchedule } from './render-schedule';
@@ -242,13 +243,17 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     host.dataset.audio=JSON.stringify(audio.status());host.dataset.preferences=String(state.system?.preferences??false);host.dataset.photo=String(state.system?.photo??0);host.dataset.page=String(state.system?.page??0);host.dataset.muted=String(state.system?.muted??false);host.dataset.ready='true';host.dataset.menu=state.panel??(state.system?.phase==='home'?(state.opened?'folder':'home'):state.system?.phase??'home');host.dataset.app=state.system?.app??'';host.dataset.item=String(state.system?.item??0);host.dataset.detail=String(state.system?.detail??false);host.dataset.sleeping=String(state.system?.sleeping??false);host.dataset.dialog=state.system?.dialog??'';host.dataset.rows=String(rowCount(state));host.dataset.theme=state.theme;host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
   function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:performance.now()-start});}
-  function recordScreenPaint(){if(diagnostics){const close=sampleSystemHomeFolderClose(state);host.dataset.screenPaint=JSON.stringify({at:performance.now(),homeUpdates:state.system!.homeClock.updateCount,cursor:cursorDiagnostic(),applicationClose:state.system!.homeApplicationTransition,closePhase:close?.controller.phase??null,closeFrame:close?.controller.folder.appliedFrame??null});}}
+  let lastBootPaintFrame:number|null=null;
+  function recordScreenPaint(elapsedMs:number){
+    const system=state.system!;lastBootPaintFrame=system.phase==='boot'?bootRevealFrame(elapsedMs-system.since,reduced):null;
+    if(diagnostics){const close=sampleSystemHomeFolderClose(state);host.dataset.screenPaint=JSON.stringify({at:performance.now(),phase:system.phase,phaseElapsedMs:elapsedMs-system.since,bootRevealFrame:lastBootPaintFrame,homeUpdates:system.homeClock.updateCount,cursor:cursorDiagnostic(),applicationClose:system.homeApplicationTransition,closePhase:close?.controller.phase??null,closeFrame:close?.controller.folder.appliedFrame??null});}
+  }
   function paint(){updateAudio();for(const o of powerLeds){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;paintScreens(performance.now(),true);topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;writeState();}
   // State-driven paints (input, saves, minute) reuse the cadence's HOME background
   // sample instead of a synchronous GPU readback in the event handler, and leave
   // the cadence clock alone, so the background is sampled on the same LCD
   // cadence as without input.
-  function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint();topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();}
+  function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint(now-start);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();}
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
     const system=state.system!,switchPresentation=isHomeSwitchPresentationActive(state),inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog&&!switchPresentation||system.preferences||!!state.panel||homeClockSuspended;
@@ -511,10 +516,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // cadence, and a high-refresh monitor cannot paint extra close updates.
     const closeAdvanced=(!!applicationCloseBeforeTick||!!closeBeforeTick&&closeBeforeTick.controller.phase!=='complete')&&state.system!.homeClock.updateCount!==updatesBeforeTick;
     const lcdFps=screenPaintFps(quality,closeAdvanced);
-    if(state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps))paintScreens(now);
+    const bootFrame=state.system!.phase==='boot'?bootRevealFrame(now-start-state.system!.since,reduced):null;
+    const bootPaintDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(bootFrame,lastBootPaintFrame,reduced);
+    if(bootPaintDue||state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps))paintScreens(now);
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     camera.zoom=reduced?viewZoom:THREE.MathUtils.damp(camera.zoom,viewZoom,10,dt);
-    const renderDue=quality.renderFps>=60||now-lastRender>=1000/quality.renderFps;
+    const renderDue=bootPaintDue||quality.renderFps>=60||now-lastRender>=1000/quality.renderFps;
     const plan=renderDue?schedule.plan(poseSample()):undefined;
     if(plan?.render){
      lastRender=now;if(diagnostics)host.dataset.zoom=camera.zoom.toFixed(2);

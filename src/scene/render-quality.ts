@@ -39,6 +39,12 @@ export function applicationCloseNeedsPaint(before: HomeApplicationTransition | n
   return before !== after && (reduced || after === null || after.phase === 'terminal');
 }
 
+/** Reduced motion still presents the configured short source fade. Its endpoint
+ * must also bypass idle LCD throttling on normal low-quality renders. */
+export function bootRevealNeedsPaint(frame: number | null, lastPainted: number | null, reduced: boolean): boolean {
+  return frame !== null && frame !== lastPainted && (reduced || frame === 20);
+}
+
 /** One policy owns expensive renderer choices so the scene cannot drift. */
 export function chooseRenderQuality(capabilities: RenderCapabilities): RenderQuality {
   const pixels = capabilities.width * capabilities.height;

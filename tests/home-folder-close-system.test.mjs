@@ -129,14 +129,13 @@ test('one large tick equals stepped close work and retains a mid-batch boundary'
   }
 });
 
-test('physical, keyboard, command, Back tab and occupied footer share the deferred path', () => {
+test('physical, keyboard, command and Back tab share the deferred path', () => {
   const occupied = moveHomeItem(folder(), { folder: null, slot: 0 }, { folder: 40, slot: 2 });
   const routes = [s => close(s),
     s => dispatchSystemEvent(s, { type: 'button', phase: 'down', source: 'model:B', command: 'back' }, T),
     s => dispatchSystemEvent(s, { type: 'button', phase: 'down', source: 'keyboard:Escape', command: 'back' }, T),
     s => dispatchSystemEvent(s, { type: 'command', command: 'back' }, T),
-    s => touchSystem(s, 59, 54, T), s => touch(touch(s, 'down', 59, 54), 'up', 59, 54),
-    s => touchSystem(s, 59, 226, T), s => touch(touch(s, 'down', 59, 226), 'up', 59, 226)];
+    s => touchSystem(s, 59, 54, T), s => touch(touch(s, 'down', 59, 54), 'up', 59, 54)];
   for (const route of routes) {
     const started = route(occupied);
     assert.equal(started.opened, true);
@@ -145,6 +144,16 @@ test('physical, keyboard, command, Back tab and occupied footer share the deferr
     assert.equal(started.system.homeNavigation.gesture, null);
     assert.equal(at(started, 18).opened, false);
   }
+});
+
+test('occupied full-width footer launches its child without starting folder close',()=>{
+ const occupied=moveHomeItem(folder(),{folder:null,slot:0},{folder:40,slot:2}),child=occupied.system.folderLayouts[40][2];
+ for(const route of [s=>touchSystem(s,59,226,T),s=>touch(touch(s,'down',59,226),'up',59,226)]){
+  const launched=route(occupied);
+  assert.equal(launched.opened,true);assert.equal(launched.system.phase,'launch');assert.equal(launched.system.app,child);
+  assert.equal(record(launched),null);assert.equal(isSystemHomeFolderClosing(launched),false);
+  assert.equal(launched.system.homeNavigation.gesture,null);
+ }
 });
 
 test('ordinary actions and contacts cannot mutate closing or viewport state or queue repeats', () => {

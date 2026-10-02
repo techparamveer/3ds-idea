@@ -159,6 +159,21 @@ test('occupied Save/Load dialogs use source Cancel and Confirm touch targets wit
   assert.equal(state.theme, 'red');
 });
 
+test('a confirmation release cannot cross from Cancel or its gap into Confirm', () => {
+  const saved = savedViaFooter();
+  const pending = touchSystem(saved, 306, 19, 4050);
+  assert.equal(pending.homeLayoutAction, 'delete');
+  for (const start of [158, 160]) {
+    const next = touch(touch(pending, 'down', start, 200, 4060), 'up', 162, 200, 4061);
+    assert.equal(next.homeLayoutAction, 'delete');
+    assert.ok(next.homeSavedLayouts[1]);
+    assert.equal(next.system.input.touch, null);
+  }
+  const cancelled = touch(touch(pending, 'down', 230, 200, 4070), 'cancel', 230, 200, 4071);
+  assert.equal(cancelled.homeLayoutAction, 'delete');
+  assert.ok(cancelled.homeSavedLayouts[1]);
+});
+
 test('settings close and theme return clear the overlay without launching or opening preferences', () => {
   for (const close of [state => touchSystem(state, 20, 220, 4010), state => tap(state, 20, 220), state => reduceSystem(state, 'back', 4010)]) {
     const state = close(settings());

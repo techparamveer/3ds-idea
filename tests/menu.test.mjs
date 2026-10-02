@@ -64,7 +64,9 @@ test('Zoom-in and zoom-out are separate bounded controls, preserving selected so
 });
 test('Settings drawer changes brightness and theme without changing the underlying selection',()=>{
  let s=touchMenu(initialState,20,15);assert.equal(s.panel,'settings');
- s=touchMenu(s,70,170);assert.equal(s.brightness,.2);
+ s=reduceMenu(reduceMenu(s,'down'),'down');
+ s=touchMenu(s,70,256-s.panelScroll);assert.equal(s.brightness,.2);
+ s=reduceMenu(reduceMenu(s,'up'),'up');
  s=touchMenu(s,150,65);assert.equal(s.panel,'themes');
  s=touchMenu(s,100,160);assert.equal(s.theme,'blue');assert.equal(s.panel,'settings');
  s=reduceMenu(s,'back');assert.equal(s.panel,null);assert.equal(s.selected,0);

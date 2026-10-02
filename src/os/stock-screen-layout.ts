@@ -3,6 +3,11 @@ import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from '.
 
 /** Bounded four-row HOME Settings adapter; later native rows are not yet routed. */
 export const HOME_SETTINGS_MAX_SCROLL = 140;
+/** home.dialog/Dlg_A_D_02 Bounding_00/01 at the settled source pose. */
+export function homeLayoutConfirmationAt(x: number, y: number): 'cancel' | 'confirm' | null {
+  if (!Number.isFinite(x) || !Number.isFinite(y) || y < 180 || y >= 220) return null;
+  return x >= 20 && x < 159 ? 'cancel' : x >= 161 && x < 300 ? 'confirm' : null;
+}
 export const clampHomeSettingsScroll = (value = 0): number => Number.isFinite(value) ? Math.max(0, Math.min(HOME_SETTINGS_MAX_SCROLL, value)) : 0;
 export type HomeSettingsAction = 'back' | 'themes' | 'home-layouts' | 'brightness-1' | 'brightness-2' | 'brightness-3' | 'brightness-4' | 'brightness-5' | 'power-saving-off' | 'power-saving-on';
 export type HomeSettingsTarget = { action: HomeSettingsAction; choice: number; x: number; y: number; width: number; height: number };

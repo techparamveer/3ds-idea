@@ -13,7 +13,7 @@ async function loadPresentation(overrides={}){
 const {createFirmwareHome}=await loadPresentation({'./native-renderer':moduleUrl('export class NativeLayoutRenderer {}')});
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
-const packs=Object.fromEntries(['launcher','petit','messages','MyMenu'].map(name=>[name,JSON.parse(readFileSync(new URL(manifest.home[name],root)))]));
+const packs=Object.fromEntries(['launcher','petit','messages','MyMenu','dialogmask'].map(name=>[name,JSON.parse(readFileSync(new URL(manifest.home[name],root)))]));
 const walk=panes=>panes.flatMap(pane=>[pane,...walk(pane.children)]);
 
 // Model the renderer's source hierarchy and attachment-center cancellation.

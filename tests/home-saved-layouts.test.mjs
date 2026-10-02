@@ -90,9 +90,11 @@ test('save, overwrite, load and delete requests require a selected valid slot an
   assert.equal(requestHomeLayoutAction(empty, 'load'), empty);
   let state = requestHomeLayoutAction(empty, 'save');
   assert.equal(state.homeLayoutConfirm, false);
-  assert.equal(reduceMenu(state, 'back').homeSavedLayouts, undefined);
-  state = confirmHomeLayoutAction(state);
+  assert.equal(state.homeLayoutAction, null, 'empty save does not display an overwrite confirmation');
   assert.ok(state.homeSavedLayouts[2]);
+  const overwrite = requestHomeLayoutAction(state, 'save');
+  assert.equal(overwrite.homeLayoutAction, 'save');
+  assert.equal(reduceMenu(overwrite, 'back').homeSavedLayouts, state.homeSavedLayouts);
   const loaded = reduceMenu({ ...state, homeLayoutAction: null }, 'y');
   assert.equal(loaded.homeLayoutAction, 'load');
   state = confirmHomeLayoutAction(requestHomeLayoutAction({ ...state, theme: 'red' }, 'save'));

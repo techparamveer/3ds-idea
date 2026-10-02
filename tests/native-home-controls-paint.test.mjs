@@ -27,6 +27,7 @@ async function loadPresentation(name, overrides = {}) {
 // Execute the real screen painter. Resource transport and unrelated artwork
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
+  './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud){top.record("layout-manager-upper");bottom.record("layout-manager-lower");hud?.();return true;}});'),
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>false;'),
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
   './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>globalThis.__testSelectedApp,syncStockView(){},stockStatus:()=>"inactive",retryStockScreen:()=>false,stockFailure:()=>null,banner(ctx){ctx.record("fallback-banner");},menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
@@ -44,12 +45,44 @@ test('HOME Settings uses its source caption and does not publish unrelated upper
   await withScreens(({ screens, paint, events }) => {
     paint({ ...home(), panel: 'settings', panelChoice: 0 });
     assert.equal(events.filter(event => event.name === 'settingsUpper').length, 1);
+    assert.equal(events.filter(event => event.name === 'settingsLower').length, 1);
     assert.equal(events.filter(event => event.name === 'upperBase').length, 0);
     assert.equal(screens.nativeTop.getContext('2d').curves.length, 0, 'no authored helper icon plates');
     assert.ok(events.findIndex(event => event.name === 'settingsUpper') < events.findIndex(event => event.name === 'hud'));
     paint(home());
     assert.equal(events.filter(event => event.name === 'settingsUpper').length, 0);
     assert.equal(events.filter(event => event.name === 'upperBase').length, 1, 'closing restores ordinary HOME chrome');
+  });
+});
+
+test('native HOME panels publish paired host recovery and gate input when resources are absent', async () => {
+  await withScreens(({ screens, paint, events }) => {
+    const state = { ...home(), panel: 'settings', panelChoice: 0 };
+    assert.equal(screens.stockStatus(state), 'loading');
+    assert.doesNotThrow(() => paint(state));
+    assert.equal(screens.stockStatus(state), 'error');
+    assert.match(String(screens.stockFailure()), /Settings lower panel unavailable/);
+    for (const ctx of [screens.nativeTop.getContext('2d'), screens.bottom.getContext('2d')]) {
+      assert.ok(events.some(e => e.name === 'fillRect' && e.context === ctx && e.args[0] === 0 && e.args[1] === 0 && e.args[2] === ctx.canvas.width && e.args[3] === 240));
+    }
+    assert.equal(screens.retryStockScreen(), true);
+    assert.equal(screens.stockStatus(state), 'loading');
+    paint(state);
+    assert.equal(screens.stockStatus(state), 'error');
+    paint(home());
+    assert.equal(screens.stockFailure(), null);
+    assert.equal(screens.stockStatus(home()), 'inactive');
+  }, { native: false });
+});
+
+test('Save/Load replaces both LCDs and places HUD after its native upper background', async () => {
+  await withScreens(({ screens, paint, events }) => {
+    const state = { ...home(), panel: 'home-layouts', homeLayoutSlot: 0 };
+    paint(state);
+    assert.equal(screens.stockStatus(state), 'ready');
+    assert.equal(events.filter(e => e.name === 'layout-manager-upper').length, 1);
+    assert.equal(events.filter(e => e.name === 'layout-manager-lower').length, 1);
+    assert.ok(events.findLastIndex(e => e.name === 'hud') > events.findIndex(e => e.name === 'layout-manager-upper'));
   });
 });
 
@@ -151,6 +184,7 @@ function canvas(events) {
     },
     beginPath() { path = []; }, rect(...args) { path.push(args); }, clip() { clips.push(...structuredClone(path)); },
     createLinearGradient: () => ({ addColorStop() {} }),
+    fillRect(...args) { context.record('fillRect', args); },
     quadraticCurveTo(...args) { context.curves.push(args); },
     getImageData(_x, _y, width, height) {
       context.record('capture-read');

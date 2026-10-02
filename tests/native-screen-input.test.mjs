@@ -42,3 +42,17 @@ test('recovery escape during helper launch preserves caller and its exact Settin
  s=reduceSystem(s,'home',7100);assert.equal(s.system.runtime.active,child);
  s=reduceSystem(s,'back',7200);assert.equal(s.system.runtime.active,parent);assert.equal(getActiveAppView(s).appId,'system-settings');assert.equal(getActiveAppView(s).selection,4);
 });
+
+test('HOME panel recovery blocks destructive input and escapes without resuming suspended software',()=>{
+ let s=tickSystem(launch(tickSystem(createPortfolioState(),3001),'work',4000),6200);
+ s=reduceSystem(s,'home',6300);
+ s={...s,panel:'home-layouts',homeLayoutAction:'delete'};
+ const runtime=s.system.runtime,gate=createNativeScreenInputGate();
+ assert.equal(gate(button('x'),'error'),'block');
+ assert.equal(gate({type:'command',command:'open'},'error'),'retry');
+ assert.equal(gate(button('back'),'error'),'home');
+ const escaped=escapeUnreadyNativeScreen(s,6400);
+ assert.equal(escaped.panel,null);
+ assert.equal(escaped.system.phase,'home');
+ assert.equal(escaped.system.runtime,runtime);
+});

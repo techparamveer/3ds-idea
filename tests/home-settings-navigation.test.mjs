@@ -56,6 +56,9 @@ test('eight source thumbnail bounds leave gaps and footer actions stay independe
   assert.equal(state.homeLayoutSlot, 7);
   assert.equal(touchMenu(state, 100, 225), state);
   state = touchMenu(state, 220, 225);
+  assert.equal(state.homeLayoutAction, null);
+  assert.equal(state.homeSavedLayouts[7].version, 1);
+  state = touchMenu(state, 220, 225);
   assert.equal(state.homeLayoutAction, 'save');
   assert.equal(state.homeLayoutConfirm, false);
   assert.equal(reduceMenu(state, 'open').homeLayoutAction, null);

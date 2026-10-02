@@ -71,6 +71,7 @@ export function loadHomeLayoutSlot(state: MenuState, slot: number): MenuState {
 export function requestHomeLayoutAction(state: MenuState, action: HomeLayoutAction): MenuState {
   const slot = state.homeLayoutSlot ?? 0;
   if (state.panel !== 'home-layouts' || !validSlot(slot) || !state.system || (action !== 'save' && !readSnapshot(state.homeSavedLayouts?.[slot]))) return state;
+  if (action === 'save' && !readSnapshot(state.homeSavedLayouts?.[slot])) return { ...saveHomeLayoutSlot(state, slot), homeLayoutAction: null, homeLayoutConfirm: false };
   return { ...state, homeLayoutAction: action, homeLayoutConfirm: false };
 }
 export function confirmHomeLayoutAction(state: MenuState): MenuState {

@@ -2,7 +2,7 @@ import type { System } from './system';
 import { allocateHomeFolderIdentity, getHomeFolderIdentities, removeHomeFolderIdentity, writeHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { HOME_DENSITIES, getHomeNavigationView, selectHomeSlot, stepHomeDirection, setHomeDensity, enterHomeFolder, leaveHomeFolder, initializeHomeFolderView, deleteHomeFolderView, type HomeNavigation, type HomeDensity } from './home-navigation.ts';
 import { getHomeDensityControls } from './home-density-controls.ts';
-import { clampHomeSettingsScroll, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt } from './stock-screen-layout.ts';
+import { clampHomeSettingsScroll, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
 import { confirmHomeLayoutAction, requestHomeLayoutAction, type HomeLayoutAction, type HomeSavedLayouts } from './home-saved-layouts.ts';
 /** Native HOME Menu coordinates: 320 × 240; icons are ordered by column. */
 export const ROWS = 2;
@@ -164,7 +164,10 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
       if (action === 'power-saving-off' || action === 'power-saving-on') return { ...state, panelChoice: 3, powerSaving: action === 'power-saving-on' };
     }
     if (state.panel === 'home-layouts') {
-      if (state.homeLayoutAction) return state;
+      if (state.homeLayoutAction) {
+        const action = homeLayoutConfirmationAt(x, y);
+        return action === 'cancel' ? reduceMenu(state, 'back') : action === 'confirm' ? confirmHomeLayoutAction(state) : state;
+      }
       const action = homeSavedLayoutActionAt(x, y);
       if (action === 'back') return reduceMenu(state, 'back');
       if (action) return requestHomeLayoutAction(state, action);

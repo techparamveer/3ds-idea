@@ -16,7 +16,7 @@ const binding=(name:string,frame:number,groups?:string[]):AnimationBinding=>({na
  * source sample images are never presented as previews of those arrangements. */
 export function createHomeLayoutManager(renderer:NativeLayoutRenderer){
  const note=(message:string)=>{if(!renderer.diagnostics.includes(message))renderer.diagnostics.push(message);};
- function draw(top:Context,bottom:Context,state:LayoutState):boolean{
+ function draw(top:Context,bottom:Context,state:LayoutState,drawHud?:()=>void):boolean{
   const action=state.homeLayoutAction??null;
   if(action!==null&&!['save','load','delete'].includes(action))throw new RangeError('Invalid HOME layout action');
   if(action===null&&state.homeLayoutConfirm)throw new Error('Native HOME layout confirmation has no action');
@@ -67,6 +67,7 @@ export function createHomeLayoutManager(renderer:NativeLayoutRenderer){
   paint(bottom,'MyMenu_D_00',{clip:[0,0,320,240],bindings:[binding('MyMenu_D_00_MyMenuIn',30)],attachments});
   const disabled=['G_Btn_03',...(!occupied(selected)?['G_Btn_01','G_Btn_04']:[])];
   paint(bottom,'MyMenuBtmBtn_D_00',{clip:[0,0,320,240],textSampling:'lcd',bindings:[binding('MyMenuBtmBtn_D_00_BtnIn',20),binding('MyMenuBtmBtn_D_00_BtnIn2',10),binding('MyMenuBtmBtn_D_00_Invalid',1,disabled)],overrides:footerOverrides});
+  drawHud?.();
   if(confirmation){
    paint(top,'DlgMask_U_00',{bindings:[binding('DlgMask_U_00_FadeIn',20)]},'dialogmask');
    paint(bottom,'DlgMask_D_00',{bindings:[binding('DlgMask_D_00_FadeIn',20)]},'dialogmask');

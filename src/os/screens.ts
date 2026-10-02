@@ -13,6 +13,8 @@ import { getHomeFooter, getHomePresentation, type HomePresentation } from './hom
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices } from './state';
 import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
+import { createHomeLayoutManager } from './home-native-layouts';
+import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { getHomeFolderIdentity } from './home-folder-identity';
 import type { NativePixels } from './native-layout';
 import type { HomeBannerHostView } from './home-banner-host';
@@ -206,30 +208,14 @@ function dragGhost(c:Context,view:HomePresentation,graphics:ReturnType<typeof cr
  c.restore();
 }
 
-function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite:HTMLImageElement,shopSprite:HTMLImageElement){
- if(!state.panel)return;
- c.fillStyle='#171a2b66';c.fillRect(0,0,320,240);
+function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite:HTMLImageElement,shopSprite:HTMLImageElement,nativeHome?:NativeHome){
+ if(!state.panel||state.panel==='home-layouts')return;
  if(state.panel==='settings'){
-  c.save();c.shadowColor='#3338';c.shadowBlur=8;c.shadowOffsetX=2;rounded(c,26,-7,268,264,3,'#eeeff2');c.restore();
-  for(let y=0;y<240;y+=3){c.fillStyle='#b5b8c318';c.fillRect(27,y,265,1);}
-  text(c,'⌂ HOME Menu Design',48,25,14);
-  button(c,42,38,214,62,'');
-  if(themeSprite.complete&&themeSprite.naturalWidth)c.drawImage(themeSprite,53,45);else text(c,'Change Theme',149,68,14,'#44464b','center');
-  text(c,'Screen Brightness',63,137,14);text(c,'☀',47,137,16,'#70747c');
-  c.save();c.shadowColor='#5558';c.shadowBlur=3;c.shadowOffsetY=2;
-  rounded(c,49,152,204,39,7,gradient(c,152,39,'#f9f9f9','#cfd0d1'),'#96999c');c.restore();
-  for(let i=0;i<5;i++){
-   const x=51+i*40;if(Math.round(state.brightness*5)===i+1){rounded(c,x,154,40,35,i===4?5:1,gradient(c,154,35,'#b6ffbf','#8cf5a5'));c.fillStyle='#a9fab8';c.beginPath();c.moveTo(x+13,152);c.lineTo(x+20,159);c.lineTo(x+27,152);c.fill();}
-   if(i)line(c,[[x,154],[x,189]],'#999c9e');text(c,String(i+1),x+20,172,17,'#484b4e','center');
-  }
-  text(c,'Power-Saving Mode',63,208,14);button(c,50,220,100,34,'OFF',!state.powerSaving);button(c,150,220,100,34,'ON',state.powerSaving);
-  rounded(c,267,20,19,106,4,gradient(c,20,106,'#fff','#d0d1d5'),'#b9bac0');line(c,[[272,71],[281,71]],'#aaa',2);line(c,[[272,76],[281,76]],'#aaa',2);
-  if(state.system){button(c,267,149,20,45,state.system.muted?'×':'♪');}
-  if(state.panelChoice===0){rounded(c,37,32,225,78,12,'#0000','#dfb991');cursor(c,48,42,202,53,time,reduced);}
-  else if(state.panelChoice===1)cursor(c,50,152,200,39,time,reduced);
-  else cursor(c,50,220,200,34,time,reduced);
-  rounded(c,-13,207,47,45,12,'#666b73');text(c,'×',15,224,30,'white','center');
- }else if(state.panel==='themes'){
+  if(!nativeHome?.settingsLower(c,state))throw new Error('Native HOME Settings lower panel unavailable.');
+  return;
+ }
+ c.fillStyle='#171a2b66';c.fillRect(0,0,320,240);
+ if(state.panel==='themes'){
   rounded(c,0,0,320,240,0,'#e8e9eb');
   for(let y=0;y<214;y+=3){c.fillStyle='#b9bcc425';c.fillRect(0,y,320,1);}
   const start=Math.max(0,state.panelChoice-2);
@@ -275,11 +261,26 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  const themeSprite=new Image();themeSprite.src='/os/change-theme.png';
  const shopSprite=new Image();shopSprite.src='/os/theme-shop.png';
  const fontReady=loadSystemFont();
- let firmwareAssets:FirmwarePresentationAssets|undefined,nativeHome:NativeHome|undefined,disposed=false;
+ let firmwareAssets:FirmwarePresentationAssets|undefined,nativeHome:NativeHome|undefined,layoutManager:ReturnType<typeof createHomeLayoutManager>|undefined,disposed=false;
  let folderCapture:{identity:string;pixels:NativePixels}|undefined;
+ let panelFailure:Error|undefined,panelPublished:string|null=null;
+ const panelKey=(state:MenuState)=>state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts')
+  ?JSON.stringify([state.panel,state.panelChoice,state.panelScroll??0,state.homeLayoutSlot??0,state.homeLayoutAction??null,state.homeLayoutConfirm??false]):null;
+ function stockStatus(state:MenuState){const key=panelKey(state);return key?(panelPublished!==key?'loading':panelFailure?'error':'ready'):graphics.stockStatus(state,t);}
+ function retryStockScreen(){if(panelFailure){panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
+ function panelRecovery(){
+  // Authored host recovery, never substituted as a native firmware screen.
+  for(const ctx of [t,b]){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.fillStyle='#000';ctx.fillRect(0,0,ctx.canvas.width,240);}
+  text(t,'Website display unavailable',200,92,16,'#fff','center');
+  text(t,'The HOME panel could not be loaded.',200,121,13,'#ddd','center');
+  text(b,'A: Retry',160,92,16,'#fff','center');
+  text(b,'B / HOME: Return to HOME Menu',160,121,13,'#ddd','center');
+  for(const item of NATIVE_RECOVERY_TARGETS){b.strokeStyle='#aaa';b.lineWidth=1;b.strokeRect(item.x,item.y,item.width,item.height);text(b,item.action==='retry'?'Retry':'HOME',item.x+item.width/2,item.y+item.height/2,14,'#fff','center');}
+  output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
+ }
  const useFont=(font:BitmapFont)=>{for(const ctx of [t,b]){fonts.set(ctx,font);setPortfolioFont(ctx,font);}};
  if(options.font)useFont(options.font);
- function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);folderCapture=undefined;useFont(assets.sharedFont);}
+ function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
  if(options.firmwareAssets)setFirmwareAssets(options.firmwareAssets);
  const captureCanvas=document.createElement('canvas');captureCanvas.width=320;captureCanvas.height=240;
  const captureContext=captureCanvas.getContext('2d',{willReadFrequently:true})!;
@@ -302,6 +303,14 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   * background sampled by the latest cadence paint, if it is at most this old.
   * The background then advances only on the LCD cadence, as without the paint. */
  function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;reuseHomeBackgroundMs?:number}){
+  if(disposed)return;
+  const key=panelKey(state);
+  if(key!==panelPublished)panelFailure=undefined;
+  if(key&&panelFailure){panelRecovery();return;}
+  try{const result=paintPair(state,date,elapsedMs,verification);panelPublished=key;return result;}
+  catch(error){if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery();panelPublished=key;}
+ }
+ function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;reuseHomeBackgroundMs?:number}){
   if(disposed)return;
   const verificationPaint=verification?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:false,healthBanner:false};
   graphics.syncStockView(state,t);
@@ -362,7 +371,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(firmwareAssets&&!firmwareAssets.diagnostics.includes('Native folder model unavailable; drawing reconstructed fallback.'))firmwareAssets.diagnostics.push('Native folder model unavailable; drawing reconstructed fallback.');}
    if(name&&(!nativeDrawn||!label)){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,name,200,196,16,palette.ink,'center');}
   }
-  if(state.panel&&state.panel!=='settings'){
+  if(state.panel&&state.panel!=='settings'&&state.panel!=='home-layouts'){
    const panels=['notes','friends','notifications','browser','miiverse'];
    const index=panels.indexOf(state.panel);const chosen=index<0?1:index;
    for(let i=0;i<5;i++){
@@ -375,12 +384,13 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // after the upper 3D traversal. Camera hints stay inside upperBase.
   if(state.panel==='settings')nativeHome?.settingsUpper(t);else nativeHome?.upperBase(t);
   if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
+  if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);}))throw new Error('Native HOME layout manager unavailable.');
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);
   if(firmwareAssets)drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets);
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
   return verificationPaint;
  }
- return {top,nativeTop:native,bottom,paint,stockStatus:(state:MenuState)=>graphics.stockStatus(state,t),retryStockScreen:graphics.retryStockScreen,stockFailure:graphics.stockFailure,setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;folderCapture=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

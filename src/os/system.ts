@@ -8,7 +8,9 @@ export { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHome
 import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout, isPreviousDefaultAppLayout } from './app-registry.ts';
-import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, type MenuState, type Input } from './state.ts';
+import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, setHomeSettingsScroll, type MenuState, type Input } from './state.ts';
+import { homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
+import { serializeHomeSavedLayouts, restoreHomeSavedLayouts } from './home-saved-layouts.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
@@ -232,7 +234,7 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  }
  if(input==='open'&&!state.panel){const title=selectedTitle(state);if(title)return launch(state,title.id,now);}
  if(input==='back'&&!state.panel&&!state.opened&&s.app)return change({dialog:'close'});
- return reduceMenu(state,input==='x'?'zoom':input==='y'?'brightness':input==='select'?'zoom':input==='l'?'left':input==='r'?'right':input);
+ return reduceMenu(state,state.panel==='home-layouts'&&(input==='x'||input==='y')?input:input==='x'?'zoom':input==='y'?'brightness':input==='select'?'zoom':input==='l'?'left':input==='r'?'right':input);
 }
 const toolbarApps:Record<string,string>={notes:'game-notes',friends:'friends',notifications:'notifications',browser:'browser',miiverse:'miiverse'};
 export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuState {
@@ -281,7 +283,6 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
   return location.slot===selected&&!s.homeNavigation.focus.toolbarActive&&(!state.opened||homeSlotAppId(state,location.slot))?send('open')
    :selectHomeControlTouch(state,location.slot)??selectHomeSlot(state,location.slot);
  }
- if(state.panel==='settings'&&x>=265&&y>=145&&y<201)return send('preferences');
  const next=touchMenu(state,x,y);const target=next.panel&&toolbarApps[next.panel];
  return target?invokeSystemApplet({...next,panel:null},target,now):next;
 }
@@ -294,10 +295,26 @@ function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number)
  if(event.type==='analog'){if(!Number.isFinite(event.x)||!Number.isFinite(event.y))return state;event={...event,x:Math.max(-1,Math.min(1,event.x)),y:Math.max(-1,Math.min(1,event.y))};}
  if((s.sleeping||s.phase==='off'||s.phase==='shutdown'||s.phase==='boot'||s.phase==='launch')&&!(event.type==='button'&&event.command==='power')&&!(event.type==='command'&&event.command==='power'))return state;
  if(event.type==='touch'){
+  const previousTouch=s.input.touch;
   const touched=latchTouch(s.input,event);if(!touched.accepted)return state;
   state=tickHomeNavigationClock(state,now);s=state.system!;
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&isSystemHomeFolderClosing(state))return state;
   state={...state,system:{...s,input:touched.latch}};s=state.system!;
+  if(s.phase==='home'&&!s.preferences&&!s.dialog&&state.panel==='home-layouts'&&state.homeLayoutAction){
+   const contact=previousTouch??touched.latch.touch;
+   const action=contact&&homeLayoutConfirmationAt(contact.startX,contact.startY);
+   return event.phase==='up'&&action&&action===homeLayoutConfirmationAt(event.x,event.y)?touchSystem(state,event.x,event.y,now):state;
+  }
+  if(s.phase==='home'&&!s.preferences&&!s.dialog&&state.panel==='settings'){
+   const contact=previousTouch??touched.latch.touch;
+   if(contact&&homeSettingsScrollAt(contact.startX,contact.startY)!==null){
+    if(event.phase==='cancel')return state;
+    // A rail contact retains ownership outside its hit rectangle until release.
+    return setHomeSettingsScroll(state,homeSettingsScrollAt(contact.startX,Math.max(17,Math.min(223,event.y)))!);
+   }
+   const startAction=contact&&homeSettingsActionAt(state.panelScroll??0,contact.startX,contact.startY);
+   return event.phase==='up'&&startAction&&startAction===homeSettingsActionAt(state.panelScroll??0,event.x,event.y)?touchSystem(state,event.x,event.y,now):state;
+  }
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&!s.sleeping){
    const native=queueHomeControlTouch(state,event);
    const result=touchHomeGesture(native.state,event,now);
@@ -351,7 +368,7 @@ export function moveApp(state:MenuState,from:number,to:number):MenuState {
  return state.system?.layout[from]?moveHomeItem(state,{folder:null,slot:from},{folder:null,slot:to}):state;
 }
 export const STORAGE_KEY='paramveer-3ds-v1';
-export function saveSettings(state:MenuState){const s=state.system!,homeView=saveHomeView(state);return JSON.stringify({version:4,homeView,theme:state.theme,brightness:state.brightness,columns:HOME_DENSITIES[homeView.rootView.density],powerSaving:state.powerSaving,folders:state.folders,nextFolderNumber:state.nextFolderNumber,layout:s.layout,folderLayouts:s.folderLayouts,muted:s.muted,volume:s.volume});}
+export function saveSettings(state:MenuState){const s=state.system!,homeView=saveHomeView(state);return JSON.stringify({version:4,homeView,homeSavedLayouts:serializeHomeSavedLayouts(state),theme:state.theme,brightness:state.brightness,columns:HOME_DENSITIES[homeView.rootView.density],powerSaving:state.powerSaving,folders:state.folders,nextFolderNumber:state.nextFolderNumber,layout:s.layout,folderLayouts:s.folderLayouts,muted:s.muted,volume:s.volume});}
 export function restoreSettings(state:MenuState,raw:string|null):MenuState {
  if(!raw||!state.system)return state;
  try{const v=JSON.parse(raw),home=restoreHomeLayout(v);if(!home)return state;
@@ -373,6 +390,6 @@ export function restoreSettings(state:MenuState,raw:string|null):MenuState {
    if(before===8&&root.density===1)result=writeHomeNavigation(result,{...nav,rootView:{...root,currentLeftSlot:4,targetLeftSlot:4}});
   }
  }
- return result;
+ return restoreHomeSavedLayouts(result,v.homeSavedLayouts);
  }catch{return state;}
 }

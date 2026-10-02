@@ -4,9 +4,9 @@ Current plan, 2 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
 integration and native/browser acceptance. Each workstream has its own Codex
 chat, Git branch and worktree, recorded in the [workstream registry](feature-map/workstreams.md).
-New dispatches follow the supplied GPT-5.6 Sol/high repository policy with Fast.
-The latest speed request supersedes the no-Fast policy; chat service tier cannot be
-changed or verified through the dispatch tools.
+New dispatches follow the supplied GPT-5.6 Sol/high repository policy at normal
+speed, no Fast. The latest speed request supersedes Fast; chat service tier cannot
+be changed or verified through dispatch tools. No new priority-only helpers.
 
 ## Scope and Evidence
 
@@ -40,6 +40,12 @@ population/phase/input make this diagnostic only. Whole pair36195/9630 still
 fails. Saved thumbnails/zoom and later Settings rows remain incomplete.
 Settings Other page1 browser regression is exactly unchanged on both LCDs.
 Health APT-debug follow-up still did not establish native HOME return.
+
+The [fresh Save/Load comparison](home-layout-native-comparison-2026-10-02.md)
+at `72fa1865` restores native grey empty-slot plates and hides Delete for empty
+selection. Lower residual36454 ->4115; upper21259 still lacks the current-layout
+preview. Native first-use preparation is now observed and missing in-browser.
+Footer shading/cursor/timing remain fail. Full1644 tests, typecheck/build pass.
 
 All 3DS sessions stay muted. All visible verification runs on the iPad Sidecar
 desktop after fresh geometry checks. Only the coordinator operates Azahar and

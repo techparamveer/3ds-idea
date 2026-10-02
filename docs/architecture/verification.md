@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+The [fresh Save/Load native route](../home-layout-native-comparison-2026-10-02.md)
+at `72fa1865` has two semantically corresponding touches, but not matched timing,
+population or initial selection. The empty-slot comparison improves lower36454
+to4115; upper21259 remains fail. Native first-use preparation is window-observed
+only. Keep the initial occupied-browser diagnostic separate from empty-slot
+before/after captures; do not reuse its total as a controlled baseline.
+
 Latest HOME Settings integration `e923487d`: [evidence](../home-settings-integration-2026-10-02.md)
 records actual Sidecar browser captures and a retained-native diagnostic,
 not a fresh matched replay. Whole pair36195/9630 pixels >2 remains fail.

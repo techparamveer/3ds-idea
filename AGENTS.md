@@ -31,15 +31,16 @@ limitation or declaring it fixed.
 ## Agent model preference - 2 October 2026
 
 The supplied repository instructions select **GPT-5.6 Sol, high reasoning**;
-the latest direct speed request enables **Fast for every agent**. These
-supersede earlier Astra preferences and the no-Fast policy for new dispatches.
+the latest direct speed request selects **normal speed, no Fast**. These
+supersede earlier Astra preferences and the previous Fast request.
 Use `model=gpt-5.6-sol` and `thinking=high` for separate Codex chats.
 For helpers explicitly select `model=gpt-5.6-sol` and
 `reasoning_effort=high` on a bounded or empty context fork. The collaboration
-catalog advertises priority service (Fast), which the user now authorizes.
-Chat dispatch does not expose a service-tier argument. Verify existing chat
-speed settings through the UI on the iPad when available; a saved global
-`service_tier = "priority"` does not prove an existing chat override changed.
+catalog advertises only priority service (Fast), so do not start new helpers
+through that route until normal service can be selected. Chat dispatch does
+not expose a service-tier argument. The saved global priority override was
+removed; existing chat speed overrides remain unverified. Verify them through
+the UI on the iPad when available, not by claiming the config changed live turns.
 Do not claim that an already in-flight coordinator or worker turn switched
 models. Apply these settings to new dispatches and chat follow-ups.
 

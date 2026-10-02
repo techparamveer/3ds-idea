@@ -15,7 +15,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Power block-centering correction](home-power-centering-2026-10-02.md)
+Latest [Power footer correction](home-power-footer-raster-2026-10-02.md) at
+`d4c96f26` resolves the last three high-delta footer pixels. Both HOME/app
+Power routes now have zero pixels above delta 2 on both LCDs, maximum 2,
+empty masks. Lower before/after and app repeat are byte-identical. Full 1780
+tests/typecheck/build pass; desktop/mobile controls and 65 browser motion pairs
+inspected. L-01 remains partial for exact input, native motion/shutdown/audio
+and earlier app-output variance; no whole-scenario or matrix pass. Next work
+returns to captured HOME interaction/visual defects, not this resolved footer.
+
+Earlier [Power block-centering correction](home-power-centering-2026-10-02.md)
 at `57c4c824` uses the decrypted multiline writer rule. Upper mismatch falls
 4334 -> 3 on both origins; list 4331 -> 0, lower remains 0 above 2 and exact
 before/after. App-only repeat is identical. Full 1778 tests/typecheck/build

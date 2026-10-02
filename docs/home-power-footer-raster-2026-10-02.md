@@ -4,8 +4,8 @@
 
 This bounded source slice addresses only the upper-screen Power footer pane
 `Slp_U_00/T_Btm_00`. The preceding integrated slice already resolved the main
-Power list with writer mode `0x110`, and the lower screen remains an exact
-static pixel-tier match. Neither path is changed here.
+Power list with writer mode `0x110`, and the lower screen remains within the
+static pixel tolerance. Neither path is changed here.
 
 The native reference is
 `native-close-clean-20261002/screenshots/_02.10.26_11.56.52.015.png`
@@ -89,10 +89,10 @@ change.
 ## Bounded implementation
 
 `writer-0x111` is an explicit opt-in accepted only for multiline alpha text
-with alignment 4, line alignment 0, zero spacing, no row scales, color spans,
+with alignment 4, line alignment 0, zero spacing, no row scales
 or cursor controls. It reproduces the traced float32 block, per-line, vertical
-advance, glyph advance, and endpoint order. Direct LCD sampling remains
-restricted to upright unit-scale, integer-sized pane transforms. The Power
+advance, glyph advance, and endpoint order. Direct LCD sampling additionally
+excludes color spans and requires upright unit-scale, integer-sized pane transforms. The Power
 presentation opts in only `T_Btm_00`; `T_Main_00` stays on `writer-0x110`, and
 the lower screen's two existing button sampling panes are unchanged.
 
@@ -109,3 +109,46 @@ browser inspection, Azahar, audio checks, or modify the private scenario
 matrix. The coordinator must integrate the commit and perform the matched
 native/browser recapture. Until that comparison exists, this is a
 source-proven implementation, not a scenario pass or 1:1 fidelity claim.
+
+## Coordinator integration and recapture
+
+Source `bc37da53` is integrated as `d4c96f26`; comparison `ec6325a0` is
+integrated as `a8b8dda7`. The [comparison handoff](workstream-handoffs/home-power-footer-compare.md)
+records every source identity, named capture, mask and report hash. Private
+artifacts are under
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/power-footer-20261002/`.
+
+Fresh native own-PNGs for HOME and app Power are byte-identical to their prior
+references. Both production upper LCDs improve from 3 pixels above delta 2
+(maximum 50) to zero (maximum 2). Both lower LCDs remain byte-identical to
+their baselines and also have zero pixels above 2. All masks are empty.
+The three defect pixels now equal native RGB exactly; whole-upper mean error
+rises slightly from 0.048521 to 0.049517 because other footer coverage changes
+remain below threshold. This is a static tolerance match, not RGB identity.
+The app-only repeat reproduces both LCDs exactly. All four comparison sheets
+were opened and inspected by the coordinator.
+
+Full tests: 1780 pass, 0 fail, 23 skip, 1 TODO; typecheck and production build
+pass. No shader/material changed. Browser HOME/app Power, inert footer,
+physical HOME return, central Off and reboot passed muted without page errors.
+Desktop 1150x690 and mobile 390x700 controls and framing were inspected.
+Five regression lower and two Settings upper LCDs are byte-exact. Animated
+Health main/Usage/scrolled upper differences remain 241/2034/14281 pixels
+above 2, maximum 7/35/43, with unmatched local phases.
+
+Browser-only motion replay completed 32 HOME-origin and 33 app-origin paired
+samples through Power, shutdown and off; both sheets were opened, with no
+page errors. Neither this replay nor the settled 120000 ms presentation sample
+matches native event epochs or establishes native timing.
+
+Sidecar geometry and test-window placement were reverified. The native
+process exited and temporary Power/touch bindings were restored after exit;
+Static input 2, Null output 1 and volume 0 stayed intact. The production
+preview remains at port 3021. Spotify, system audio and microphone were not
+changed; no new artifacts went to DeveloperStorage.
+
+Both whole scenarios remain fail. Exact input/HID epoch, motion, shutdown and
+LCD/backlight/indicator timing, muted audio and earlier unexplained app-output
+variance are open. Host lifecycle assembly and documented HOME/close fits,
+portfolio content and local/read-only adaptations remain explicitly non-native
+or unproven. No private matrix status or global 1:1 claim changes.

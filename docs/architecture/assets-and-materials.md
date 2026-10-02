@@ -4,6 +4,13 @@ Editable sources, private extraction, converted delivery and runtime ownership
 are separate layers. A resource can decode successfully without being published,
 supported by the renderer, used by a live screen or visually accepted.
 
+Power `Slp_U_00/T_Btm_00` explicitly selects writer `0x111`: float32 measured
+block and per-line centering, glyph advance and endpoints. Only this pane opts
+into direct LCD alpha sampling, requiring upright unit-scale integer-sized
+transforms and no color spans. The exact right-edge tie resolves the captured
+footer cluster without a fitted offset or replacement graphic. See the
+[source and recapture contract](../home-power-footer-raster-2026-10-02.md).
+
 Power `Slp_U_00/T_Main_00` explicitly selects the decoded multiline writer
 flags `0x110` origin through `multilineBlockOrigin`. It measures CWDH glyph
 bounds and advances with float32 arithmetic before ceil-centering the complete

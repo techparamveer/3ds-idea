@@ -1,5 +1,23 @@
 # Workstream Registry
 
+## Power Footer Raster - 2 October 2026
+
+Two existing Sol5.6/high chats used dedicated worktrees based on `34be5b98`;
+both are complete and idle. Coordinator alone operated native/browser sessions.
+Worktree names below are under `/Users/paramveer/.codex/worktrees/`, branches
+use the `codex/` prefix.
+
+| Chat | Worktree / branch | Integrated result |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-power-footer-raster-20261002` / `home-power-footer-raster-20261002` | Source `bc37da53` -> `d4c96f26` |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-power-footer-compare-20261002` / `home-power-footer-compare-20261002` | `ec6325a0` -> `a8b8dda7`; [handoff](../workstream-handoffs/home-power-footer-compare.md) |
+
+[Evidence](../home-power-footer-raster-2026-10-02.md): both complete LCD pairs
+meet static delta-2 tolerance with empty masks. Full 1780 tests/typecheck/build
+pass; 65 browser motion pairs and desktop/mobile controls inspected. Whole
+scenarios still fail for exact input, native motion/shutdown/audio and prior
+unexplained app variance. No matrix or global 1:1 change; no push/merge/deploy.
+
 ## Power Block Centering - 2 October 2026
 
 Two existing GPT-5.6 Sol/high chats used separate internal worktrees from

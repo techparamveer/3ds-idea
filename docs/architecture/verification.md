@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Power footer verification](../home-power-footer-raster-2026-10-02.md) at
+`d4c96f26` closes the captured three-pixel defect. Both HOME/app Power origins
+have zero pixels above delta 2 across both complete LCDs with empty masks;
+maximum is 2, not RGB identity. Lower before/after and app repeat are exact.
+All four sheets and 65 browser-only motion pairs were inspected. Full 1780
+tests/typecheck/build pass. Native event epochs, exact input, shutdown and
+LCD/backlight timing, muted audio and older app variance remain unproven;
+both whole scenarios remain fail. No matrix or global 1:1 acceptance follows.
+
 [Power block-centering verification](../home-power-centering-2026-10-02.md)
 at `57c4c824` compares fresh native own-PNG repeats and immutable production
 before/after pairs. Both upper LCDs improve 4334 -> 3 pixels above 2; the

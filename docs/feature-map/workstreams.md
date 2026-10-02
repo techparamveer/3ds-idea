@@ -14,6 +14,7 @@ Comparison chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` uses
 owning only its density handoff and private comparison artifacts. Coordinator
 alone captured native/production pairs, verified resized controls, integrated
 and ran full 1793 tests/typecheck/build/shader. All worktrees are preserved.
+Comparison `2a04f177` integrated as `e1b0441c`; both chats are now idle.
 Native long-hold behavior and whole-LCD residuals remain open; no scenario pass.
 
 ## Ordinary Plate And Icon Corners - 2 October 2026

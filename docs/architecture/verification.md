@@ -230,6 +230,14 @@ not native initialization. Full LCDs, exact input, motion and muted audio
 remain unaccepted. Desktop/mobile Notes touch/HOME return and unchanged
 Power/Settings/static Health regressions are supporting evidence only.
 
+[Shutdown verification](../home-shutdown-fade-2026-10-03.md) at `cdc2926f`
+compares actual production frames against 14 retained native own PNGs. Native
+Decide and partial sleep SceneOut are available; native black/off is not.
+Pose-fitted comparisons must not be reported as matched input epochs or native
+timing. Desktop/mobile/app/reduced production runs exercise Off/restart with
+audio muted; source terminal eligibility and observed GPU publication remain
+separate, with no stall guarantee. Whole scenarios remain fail.
+
 [Power footer verification](../home-power-footer-raster-2026-10-02.md) at
 `d4c96f26` closes the captured three-pixel defect. Both HOME/app Power origins
 have zero pixels above delta 2 across both complete LCDs with empty masks;

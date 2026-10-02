@@ -15,13 +15,21 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [banner return](home-banner-return-2026-10-03.md), `78fa7325` + `c01e1219`,
+Latest [shutdown fade](home-shutdown-fade-2026-10-03.md), `cdc2926f`, uses
+delivered paired sleep SceneOut after Decide, replacing the wrong generic
+fade. Browser 1200/120 ms timing remains an adaptation. Full 1872 tests,
+typecheck/build and four production modes pass implementation checks. Native
+partial fade is captured; native black/off, exact epochs/input/audio and
+terminal publication under stalls remain open. Continue those lifecycle/button
+gaps; preserve the previously implemented close/return and settled Power UI.
+
+Earlier [banner return](home-banner-return-2026-10-03.md), `78fa7325` + `c01e1219`,
 requests selected content at guarded footer departure0 while retaining all
 readiness gates. Clean desktop/reduced show growth from return2 and mobile
 from return4, before Open completes. Full1869 tests/typecheck/build pass;
 load-sensitive initial desktop is preserved, not hidden. Exact native epochs,
 input/motion/audio and whole scenarios remain fail/open.
-Next target is measured relative banner/footer pose and load variability,
+Its remaining target is measured relative banner/footer pose and load variability,
 without treating sparse first-captured native onset as an exact scheduling
 boundary; power/buttons acceptance also remains open.
 

@@ -1,5 +1,15 @@
 # Software state, input and presentation
 
+[Shutdown composition](../home-shutdown-fade-2026-10-03.md) preserves the
+terminal Power opening layout. Lower bindings are opening, Decide, then
+Slp SceneOut; upper bindings are opening then Slp SceneOut. Order matters:
+Decide's constant zero-alpha mask must not overwrite the exit mask. No common
+fade is overlaid. `shutdownTransitionPose` maps normal nominal-60Hz source
+clock to Decide 0..10 then sleep 0..60, with adapted off at 1200 ms; reduced
+holds both terminals until off at 120 ms. Terminal selection is not a scene
+publication barrier. Boot/launch, app-origin Power and owner handling are
+unchanged. Native partial fade identifies the source family, not this clock.
+
 [Open footer return](../home-open-return-2026-10-03.md) extends close after
 the compact departure: footer6 -> later exact-owner retirement and
 `footer-returning`0 -> `return-terminal`8 -> later controller removal.

@@ -1,5 +1,15 @@
 # Workstream Registry
 
+## Shutdown Fade - 3 October 2026
+
+Reused source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in
+`3ds-home-postmodal-footer-20261002` / `codex/home-postmodal-footer-20261002`:
+worker `a21f1e4a` -> coordinator `cdc2926f`. Comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private reports only. Helper
+`closing_icon_departure` reviews 94 tests with no findings. GPT-5.6 Sol/high;
+no service-tier override claimed. Coordinator alone uses the authorized Mac,
+muted native reference and production Chrome. [Evidence and gaps](../home-shutdown-fade-2026-10-03.md).
+
 ## Banner Return - 3 October 2026
 
 Reused source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` and owned

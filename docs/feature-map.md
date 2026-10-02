@@ -18,9 +18,11 @@ tier is not exposed or verified by the collaboration tool.
 Current [ordinary Camera plate baseline](workstream-handoffs/home-ordinary-plate-compare.md)
 at `ee133aa8` repeats 963 high-delta plate pixels across three fresh browser
 and preserved native pairs: shadow 415, rim/body 548. Separate icon fringe
-23 and artwork-core 1 remain. Source-texture/sampling work is bounded to one
-replay in its own worktree; candidate-after is pending. No runtime or scenario
-pass is inferred. GUI testing may use the full Mac, with 3DS audio muted.
+23 and artwork-core 1 remain. The bounded
+[source replay](home-ordinary-plate-2026-10-02.md) at `476f05be` worsened the
+plate mismatch and was rejected; target orientation/clear/precision remain a
+source gap. Next inspect the separate icon-corner mask path. No runtime or
+scenario pass is inferred. GUI testing may use the full Mac, with 3DS audio muted.
 
 Latest [Notes toolbar comparison](workstream-handoffs/home-notes-toolbar-compare.md)
 at runtime `79597372` resolves the captured H-09 glyph residual: 201 -> 0

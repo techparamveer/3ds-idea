@@ -8,7 +8,13 @@ Fresh browser runtime: `1e5fb200` (same integrated Notes source as
 `79597372`)
 
 Status: **the unselected Camera plate is a byte-repeatable fixed raster
-residual; candidate-after remains pending**.
+residual; both subsequent source replays were rejected, with no runtime change**.
+
+Coordinator follow-up: [source gap](../home-ordinary-plate-2026-10-02.md)
+integrated at `476f05be`. One-pass sampling and literal render-target replay
+worsen the 963-pixel baseline to 1213 and 1614 respectively. The pending
+candidate descriptions below record the baseline handoff, not a current
+accepted candidate. Further plate work requires new target-state evidence.
 
 ## Bounded finding
 

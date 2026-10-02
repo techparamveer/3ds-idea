@@ -8,6 +8,12 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+Bounded HOME follow-up `5de1f381` corrects Settings' two-row title balloon;
+[native/production evidence](../home-balloon-density-2026-10-02.md). One-row
+behavior remains; no general Settings redesign or shipping-gate reduction.
+Health anchor audit found no positioning defect. Lifecycle priorities below
+remain unchanged.
+
 Order is the user's: **quit/close/switch transitions, power-on, then buttons
 and HOME interactions**. Further HOME Settings polishing is deferred. The
 modal-button portion of items 1-2/4 is implemented and browser-inspected;

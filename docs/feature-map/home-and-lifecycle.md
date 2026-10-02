@@ -80,6 +80,12 @@ deferred at the user's request; preserve all already-designed surfaces.
 **Next/acceptance:** Deferred behind close/switch, power-on and HOME interactions. Later finish saved previews and source-established rows/first-use states, then compare white-theme Settings, theme selection, brightness/power, layout save/load/delete and cancel. Preserve selected tile/suspended owner; match motion/input separately from settled composition.
 
 ### H-12 - Cursor, balloons, selected-title window, and suspended-software upper
+**2 October balloon follow-up:** `5de1f381` corrects Settings' root two-row
+visibility gate; one-row balloon body/text/pointer are byte-identical before
+and after. Same-anchor Health body/text/tail positioning needs no correction.
+[Raw-pair diagnostics and remaining native limits](../home-balloon-density-2026-10-02.md).
+H-04/H-12 remain partial; whole scenario timing/input/audio is not accepted.
+
 **Code/tests/evidence:** [home-primary-cursor.ts](../../src/os/home-primary-cursor.ts), [home-cursor-loop.ts](../../src/os/home-cursor-loop.ts), [home-balloon-presentation.ts](../../src/os/home-balloon-presentation.ts), [balloon tests](../../tests/home-balloon-presentation.test.mjs), [upper composition audit](../native-upper-composition.md).
 **Now/gap/dependency:** Existing cursor/balloon routes are preserved. The [source window](../home-suspended-window-2026-10-02.md) at `81d0b3d8` now presents the selected retained owner with original panel/messages/icon, frozen upper frame and paired failure recovery. Health and Work suspension/resume/close/reselection are browser-inspected. Retained-native diagnostic95286/51107 still fails; flat capture, settled poses and fitted caption centering are adaptations. Compact window, native warp/tint, first-use notice, lower tint and motion remain missing.
 **Next/acceptance:** Capture the compact other-selection state and close/switch motion, then finish those source-backed presentations. Repeat native/browser inputs with the same selected tile, density, population and phase; require no stale owner/frame. The earlier failed native attempt below is superseded by the successful [held-HOME reference](../native-home-return-2026-10-02.md), not proof of timing parity.

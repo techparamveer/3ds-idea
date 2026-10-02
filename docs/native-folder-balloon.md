@@ -1,5 +1,14 @@
 # Native lower folder balloon
 
+## 2 October density verification
+
+Settings root-title balloons now follow both source density-index checks:
+current0 and target0 only (`5de1f381`). Fresh native two-row Settings has no
+balloon; one-row retains it. The previous two-row exception was incorrect.
+[Production/native evidence and remaining limits](home-balloon-density-2026-10-02.md).
+The same-anchor Health comparison supports the existing body clamp and tail
+positioning, not a new offset. Root density and folder density remain distinct.
+
 The settled folder balloon now uses the native HOME position routine and the
 source `LncBlln_00` pane hierarchy. This replaces the earlier screen-space body
 clamp and separate pointer offsets. Visibility during transitions remains a

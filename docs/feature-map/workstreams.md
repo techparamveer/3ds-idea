@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Balloon Density - 2 October 2026
+
+Existing chats used GPT-5.6 Sol/high in separate internal trees from `34d77726`.
+No service-tier claim; coordinator alone operated GUI. Trees preserved.
+
+| Chat | Worktree / codex branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-balloon-source-20261002` / `home-balloon-source-20261002` | Audit `5c554650` -> `e0b31b17`; fix `f90c0c2f` -> `5de1f381` |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-balloon-compare-20261002` / `home-balloon-compare-20261002` | Health `3c3f0708` -> `008fb964`; Settings `52e4021b` -> `bce9dc83` |
+
+[Verification and residuals](../home-balloon-density-2026-10-02.md).
+Both workers completed their bounded deliveries and are idle.
+
 ## Closing Exit - 2 October 2026
 
 Existing chats ran GPT-5.6 Sol/high in dedicated internal trees from `a79ce550`.

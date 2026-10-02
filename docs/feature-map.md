@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [closing exit delivery](home-closing-fade-2026-10-02.md) at `229e864c`
+Latest [balloon density correction](home-balloon-density-2026-10-02.md) at
+`5de1f381` removes the native-inconsistent two-row Settings title balloon and
+preserves one-row behavior. Final1771 tests and runtime typecheck/build pass; production
+before/after and fresh native own-PNGs inspected. Same-anchor Health balloon
+needs no offset. H-04/H-12 remain partial: whole LCDs/input/motion/audio still
+unmatched, no matrix pass. Worktrees and muted Sidecar discipline preserved.
+
+Earlier [closing exit delivery](home-closing-fade-2026-10-02.md) at `229e864c`
 uses the ROM-selected dialog donor and mask FadeOut00 clips. Two worker chats/
 trees and one clock subagent delivered; owner retention, readiness recovery and
 resume publication are guarded. Full1765 tests/typecheck/build pass; seven

@@ -45,11 +45,11 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
    try{await icon.decode();if(icon.naturalWidth===48&&icon.naturalHeight===48)titleIcons.set(titleId.toLowerCase(),icon);}catch{/* The remaining native presentation can still load. */}
   }));
   const font=async (url:string)=>{const result=await loadBitmapFont(new URL(url,base).href,controller.signal);fonts.push(result);return result;};
-  const packNames=['hud','launcher','messages','banner','common','sleep','petit','MyMenu','dialog','dialogmask',...(manifest.home.launch?['launch']:[])];
+  const packNames=['hud','launcher','messages','banner','common','sleep','petit','MyMenu','dialog','dialogmask','sequence',...(manifest.home.launch?['launch']:[])];
   const [sharedFont,hudFont,...loaded]=await Promise.all([font(manifest.fonts.shared),font(manifest.fonts.hud),...packNames.map(name=>json<NativePack>(manifest.home[name]))]);
   const packs=Object.fromEntries(packNames.map((name,i)=>[name,loaded[i]])) as Record<string,NativePack>;
   if(!packs.MyMenu?.layouts||!Object.keys(packs.MyMenu.layouts).length)throw new Error('Missing native HOME layout manager pack');
-  const requestedLayouts={...homeLayouts,MyMenu:homeLayoutManagerLayouts,dialog:['Dlg_A_D_02'],dialogmask:['DlgMask_U_00','DlgMask_D_00'],...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
+  const requestedLayouts={...homeLayouts,MyMenu:homeLayoutManagerLayouts,dialog:['Dlg_A_D_02'],dialogmask:['DlgMask_U_00','DlgMask_D_00'],sequence:['LncDlgIcon_D_01'],...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
   // Reject an incomplete style conversion during loading, before a paint can partially fail.
   for(const [bank,data] of Object.entries(packs.messages.messages))for(const label of Object.keys(data.labels))nativeMessageOverride(packs.messages,bank,label,'');
   const textures:Record<string,Map<string,NativePixels>>={};const decoded=new Map<string,Promise<NativePixels>>();

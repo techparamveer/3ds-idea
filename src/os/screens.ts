@@ -14,7 +14,7 @@ import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, t
 import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
 import { createHomeLayoutManager, type HomeLayoutPreview } from './home-native-layouts';
-import {homeSoftwareDialogKey,drawHomeSoftwareDialog} from './home-software-dialog';
+import {homeSoftwareDialogKey,homeSoftwareSwitchTitles,drawHomeSoftwareDialog} from './home-software-dialog';
 import { selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { getHomeFolderIdentity } from './home-folder-identity';
@@ -267,6 +267,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let folderCapture:{identity:string;pixels:NativePixels}|undefined;
  let layoutCapture:{identity:string;preview:HomeLayoutPreview}|undefined;
  let suspendedMetadata:{owner:string;metadata:SuspendedWindowMetadata}|undefined;
+ let switchIcons:{key:string;icons:readonly[NativePixels,NativePixels]}|undefined;
  let panelFailure:Error|undefined,panelPublished:string|null=null;
  const panelKey=(state:MenuState)=>homeSoftwareDialogKey(state)??(state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts')
   ?JSON.stringify([state.panel,state.panelChoice,state.panelScroll??0,state.homeLayoutSlot??0,state.homeLayoutAction??null,state.homeLayoutConfirm??false]):selectedSuspendedApplication(state)?.id??null);
@@ -284,7 +285,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  }
  const useFont=(font:BitmapFont)=>{for(const ctx of [t,b]){fonts.set(ctx,font);setPortfolioFont(ctx,font);}};
  if(options.font)useFont(options.font);
- function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
+ function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;switchIcons=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
  if(options.firmwareAssets)setFirmwareAssets(options.firmwareAssets);
  const captureCanvas=document.createElement('canvas');captureCanvas.width=320;captureCanvas.height=240;
  const captureContext=captureCanvas.getContext('2d',{willReadFrequently:true})!;
@@ -430,14 +431,30 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
   if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);},layoutPreview))throw new Error('Native HOME layout manager unavailable.');
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);
+  const dialogKey=homeSoftwareDialogKey(state),switchTitles=homeSoftwareSwitchTitles(state);
+  if(!switchTitles)switchIcons=undefined;
+  if(switchTitles&&switchIcons?.key!==dialogKey){
+   const icons=switchTitles.map(id=>{
+    const title=getTitle(id),portfolio=getApp(id),ctx=captureContext;
+    ctx.resetTransform();ctx.clearRect(0,0,48,48);
+    if(title?.source==='firmware'&&title.titleId){
+     const icon=firmwareAssets?.titleIcons.get(title.titleId);
+     if(!icon)throw Error(`Native software switch icon unavailable: ${id}`);
+     ctx.drawImage(icon,0,0);
+    }else if(title?.source==='portfolio'&&portfolio)graphics.menuArtwork(ctx,portfolio,0,0,48,48);
+    else throw Error(`Unsupported software switch icon: ${id}`);
+    return {width:48,height:48,data:ctx.getImageData(0,0,48,48).data};
+   });
+   switchIcons={key:dialogKey!,icons:[icons[0],icons[1]]};
+  }
   if(homeSoftwareDialogKey(state)){
    if(!firmwareAssets)throw Error('Native software dialog resources unavailable');
-   drawHomeSoftwareDialog(firmwareAssets.renderer,t,b,state);
+   drawHomeSoftwareDialog(firmwareAssets.renderer,t,b,state,switchIcons?.icons);
   }
   if(firmwareAssets)drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets);
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
   return verificationPaint;
  }
- return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;switchIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

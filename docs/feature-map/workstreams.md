@@ -1,5 +1,29 @@
 # Workstream Registry
 
+## Ordinary Plate And Icon Corners - 2 October 2026
+
+Both ordinary-plate workers completed from base `1e5fb200`; their worktrees
+remain preserved and clean. Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13`
+used `3ds-home-ordinary-plate-20261002` / `codex/home-ordinary-plate-20261002`,
+delivering `14489f83` -> `476f05be`: both sampling replays regressed the
+captured plate and were rejected. Comparison chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` used
+`3ds-home-ordinary-plate-compare-20261002` /
+`codex/home-ordinary-plate-compare-20261002`, delivering `6d703ef7` ->
+`ee133aa8`. Its 963-pixel plate baseline repeats exactly; the separate icon
+fringe has 23 high pixels. Comparison chat is idle; no runtime change.
+
+Source chat is now assigned `3ds-home-icon-corners-20261002` /
+`codex/home-icon-corners-20261002`, created at `5da749da`, GPT-5.6 Sol/high.
+It owns the narrow stock-grid artwork path in `src/os/screens.ts`, the
+necessary native presenter method in `src/os/firmware-presentation.ts`,
+focused tests and its source note. The captured target is the rounded native
+icon fringe versus the browser's plain image draw. Reuse decoded
+`LncIconDist_01/P_Icon_00` and `IconMask.bclim`; no CSS reconstruction,
+new colors/positions or re-audit of the plate/footer gap. Candidate and
+production-after comparison are pending. Coordinator alone owns muted GUI,
+production builds, integration and acceptance, now on the full Mac.
+
 ## Notes Toolbar - 2 October 2026
 
 The source chat/tree below delivered `1329ddd1` and `5d1239b3`, integrated

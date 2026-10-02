@@ -16,7 +16,7 @@ import type { HomeTilePose } from './home-tile-pose.ts';
 import { createHomeTileTouch, queueHomeTileTouch, resetHomeTileTouch, sampleHomeTileTouch,
   advanceHomeTileTouch2D, homeTileTouchPoses, type HomeTileTouch } from './home-tile-touch.ts';
 import { homeTouchLocation, beginHomePickupGesture, type HomeGesture } from './home-gestures.ts';
-import { homeItemAt, type HomeItem, type HomeLocation } from './home-layout.ts';
+import { homeItemAt, resolveHomeDrop, type HomeItem, type HomeLocation } from './home-layout.ts';
 import { createHomeTilePickup, fittedHomePickupAnchor, positionHomeTilePickup, retargetHomeTilePickup,
   advanceHomeTilePickup2D, type HomeTilePickup } from './home-tile-pickup.ts';
 import { advanceHomeBalloonPresentation, createHomeBalloonPresentation, type HomeBalloonPresentation } from './home-balloon-presentation.ts';
@@ -93,6 +93,29 @@ function carriesFolderPickupToRoot(before: MenuState, state: MenuState, controls
     && source?.folder === pickup.folder && source.slot === pickup.slot
     && sameHomeItem(homeItemAt(state, source), gesture.item);
 }
+/** Preserve only the folder-hover transition reached by the same live app
+ * stroke. The resolved destination proves this is an eligible folder target,
+ * rather than a generic navigation/context replacement. */
+function carriesPickupIntoFolder(before: MenuState, state: MenuState, controls: HomeControls, gesture: HomeGesture | null | undefined) {
+  const pickup = controls.tilePickup?.source, source = gesture?.source;
+  const prior = before.system?.homeNavigation.gesture, priorTouch = before.system?.input.touch, touch = state.system!.input.touch;
+  const destination = state.system!.homeNavigation.activeFolderSlot, target = prior?.target;
+  const resolved = pickup && target ? resolveHomeDrop(before, pickup, target) : null;
+  return !!pickup && destination !== null
+    && before.system?.homeNavigation.activeFolderSlot === null
+    && gesture?.mode === 'drag' && gesture.item?.kind === 'app' && gesture.viewFolder === destination
+    && gesture.target === null && gesture.hoverFolder === null
+    && prior?.mode === 'drag' && prior.viewFolder === null
+    && prior.pointerId === gesture.pointerId && prior.x === gesture.x && prior.y === gesture.y
+    && target?.folder === null && target.slot === destination && prior.hoverFolder === destination
+    && homeItemAt(before, target)?.kind === 'folder' && resolved?.folder === destination
+    && priorTouch?.pointerId === gesture.pointerId && touch?.pointerId === gesture.pointerId
+    && priorTouch.x === gesture.x && priorTouch.y === gesture.y && touch.x === gesture.x && touch.y === gesture.y
+    && controls.tileTouch.strokeOwned && controls.tileTouch.latest.down
+    && source?.folder === pickup.folder && source.slot === pickup.slot
+    && prior.source?.folder === pickup.folder && prior.source.slot === pickup.slot
+    && sameHomeItem(prior.item, gesture.item) && sameHomeItem(homeItemAt(state, source), gesture.item);
+}
 /** Replace departed container widgets without ending the browser-owned stroke.
  * The independent pickup controller continues to follow this retained point. */
 function carryHomeTileTouch(touch: HomeTileTouch): HomeTileTouch {
@@ -128,10 +151,11 @@ export function reconcileHomeControlGesture(state: MenuState): MenuState {
     const source = gesture?.source, pickup = controls.tilePickup.source, activeFolder = state.system!.homeNavigation.activeFolderSlot;
     const sameSource = source?.folder === pickup.folder && source.slot === pickup.slot;
     // The native stationary pickup continues owning the same source while the
-    // browser adapter carries a folder child through Back to the retained root.
-    // Root-to-folder hover and unrelated context changes still release it.
+    // browser adapter carries it through a validated Back/folder-hover path.
+    // The outer context reconciler admits that path; unrelated changes never
+    // update the gesture's retained view and still release this owner.
     const sourceContext = pickup.folder === activeFolder
-      || (pickup.folder !== null && activeFolder === null && gesture?.viewFolder === null);
+      || gesture?.viewFolder === activeFolder;
     if (gesture?.mode === 'drag' && sameSource && sourceContext) return state;
     return put(state, { ...controls, tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null, tilePickup: null });
   }
@@ -208,7 +232,8 @@ export function reconcileHomeControls(before: MenuState, state: MenuState): Menu
   }
   if (before.system?.homeNavigation.activeFolderSlot !== state.system!.homeNavigation.activeFolderSlot) {
     const gesture = state.system!.homeNavigation.gesture;
-    if (carriesFolderPickupToRoot(before, state, controls, gesture)) {
+    if (carriesFolderPickupToRoot(before, state, controls, gesture)
+      || carriesPickupIntoFolder(before, state, controls, gesture)) {
       const nav = state.system!.homeNavigation;
       const pickup = retargetHomeTilePickup(controls.tilePickup!, sampleHomeGrid(nav).densityValue,
         { x: gesture!.x, y: gesture!.y }, fittedHomePickupAnchor(sampleHomeGrid(nav).densityValue));

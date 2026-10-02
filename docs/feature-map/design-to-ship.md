@@ -9,6 +9,13 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+The [folder pulse replay](../home-suspended-highlight-2026-10-02.md#folder-pulse-diagnostic---2-october-2026)
+at unchanged `a40d597e` explains the full selected-icon tint residual through
+phase: best observed ROI3,136/max34 ->8/max4, with no palette/runtime change.
+This is not a native epoch match. Preserve the decoded colours; next needs
+native activation/cadence or a different captured interaction, not another
+best-pose sweep. Closing/switch/power priorities below remain unchanged.
+
 The latest [folder software Close](../home-folder-software-close-2026-10-02.md)
 fixes the captured white Close/Resume button and wrong Back action. Suspended
 Health now closes inside its folder using the existing native transition and

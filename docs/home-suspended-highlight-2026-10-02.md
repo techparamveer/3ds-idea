@@ -1,5 +1,59 @@
 # Suspended HOME Highlight and Parallel Work
 
+## Folder Pulse Diagnostic - 2 October 2026
+
+Later checkpoint `dd3e3404`, unchanged runtime `a40d597e`. The fresh suspended
+folder comparison in [software Close](home-folder-software-close-2026-10-02.md)
+left all 3,136 selected-child pixels above delta 2. A live production pulse
+replay now establishes that this full-region tint mismatch is strongly
+phase-dependent; it does not justify changing the source colours or alpha.
+
+The coordinator used actual pointer input to prepare folder13/child2 Health,
+launch, HOME-return and observe 218 paired LCD paints over ten seconds,
+HOME updates902..1500. Only 106 of 120 update-modulo residues were observed;
+these are not recovered native phases. Close then captured25 phase pairs,
+retired Health and restored the original saved layout maps without errors.
+All captures are muted, upper400x240/lower320x240, with no state injection.
+The dedicated whole-Mac browser closed normally; no new Azahar launch occurred.
+
+Reference is the preceding own400x480 PNG `_02.10.26_22.42.07.478.png`, SHA256
+`1df634ceffeedde1b59da5fdd7a5f91dab24627cfa60ccf01ece56e1edb37d02`.
+Empty-mask, unshifted lower selected-child ROI `(216,109,56,56)`:
+
+| Observed browser pose | Pixels above delta2 | Maximum | Mean channel error |
+| --- | ---: | ---: | ---: |
+| Current single frame, update898 | 3,136 | 34 | 14.921344 |
+| Best count, pulse-006 / update918 | 8 | 4 | 0.340136 |
+
+The best pose was selected after comparison, not independently synchronized
+with native. Across observed paints counts range8..3136, maximum error4..46.
+The lowest mean0.234269 occurs at a different pose, pulse-110/update1205.
+Toolbar and footer remain byte-exact across all218 paints; native footer still
+has73 pixels above delta2. Outside the selected ROI also changes, so this ROI
+does not define the complete animation footprint. No source-defined upper-icon
+ROI was available for this check; none was invented. Whole scenario and this
+best regional result still fail strict tolerance. Exact native epoch, cadence,
+paired upper/lower phase relationship, input and audio remain open.
+
+Private root `P`:
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-folder-sleep-phase-20261002/`.
+Named pairs and every PNG/metadata hash are retained in `P/comparison/`:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `pulse-diagnostic-report.json` | `31e330ce7543c336279e9566c9e2af21a986c01ac929127f03fd4fab84368df2` |
+| `pulse-diagnostic-manifest.json` | `28ed6cf12a493c09d8f56afc9edef21cca90d458a2676e022c49a300cdea61c8` |
+| `pulse-native-current-best.png` | `84b949c207d59e7caa39c04b405a5a669e3ad5d4c659834bbdca81833d5b7a09` |
+| `generate_pulse_diagnostic.py` | `dd639251882859038098b27af79ab874c8d38a1d7c638df123e0dc4f118f3d55` |
+
+Coordinator inspected the raw best frame and comparison sheet and independently
+verified all662 manifest records. Source resources/provenance below are
+unchanged. No implementation, tests, build or new native timing pass is claimed
+for this documentation/evidence-only slice. Existing source graphics are
+preserved; owner-relative activation and120-update cadence remain adaptations.
+Next is independently matched native activation/cadence or a different captured
+interaction, not another palette fit or repeat of this best-pose sweep.
+
 ## Delivered
 
 Runtime `7b243793` draws the source lower suspended-software highlight on the

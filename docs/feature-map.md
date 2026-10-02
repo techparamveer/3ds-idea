@@ -15,7 +15,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [suspended folder software Close](home-folder-software-close-2026-10-02.md),
+Latest [folder pulse diagnostic](home-suspended-highlight-2026-10-02.md#folder-pulse-diagnostic---2-october-2026)
+at unchanged `a40d597e` explains the full-icon tint residual through observed
+animation phase: fixed-ROI3,136/max34 becomes8/max4 at the best live pose.
+No palette or runtime change.218 paints cover106/120 modulo residues; native
+epoch/cadence remain unknown and the result still fails strict tolerance.
+Do not repeat a tint fit or the same best-pose sweep; target native activation
+timing or another captured interaction. Whole scenarios remain unaccepted.
+
+Earlier [suspended folder software Close](home-folder-software-close-2026-10-02.md),
 `a40d597e`, corrects both the white folder-action resource and its wrong Back
 route. Selected suspended Health now uses native black X Close, runs the
 existing close transition, and returns to the same folder/child with Open.

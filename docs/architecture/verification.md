@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[Footer backing](../home-footer-backing-2026-10-02.md) compares native own-PNG
+pixels with actual production first-root LCDs in the fixed x0/y212/320x28 ROI,
+without fitting or masking. The source base is the complete320x240 layout;
+the footer is a later overlay. Test settled root/Create Folder controls as well
+as the revealed transition because the clip correction applies to every root
+paint. A temporary10% native frame limit can expose an intermediate pixel
+state but cannot validate timing. Restore the isolated configuration, verify it
+byte-for-byte, and capture normal-speed controls separately. The remaining41
+edge pixels and whole-screen residual are failures, not accepted exclusions.
+
 [Folder footer return](../home-folder-footer-return-2026-10-02.md) separates
 desktop diagnostic motion from native own-PNG pixel evidence. The recorder's
 pointer/badge obscures held Back and must never become a firmware asset or an
@@ -8,7 +18,8 @@ actual production raw LCDs establish the old instant footer and the corrected
 staged SceneIn. Compare counted HOME updates, not host hold durations alone.
 The selection-ready-to-SceneIn binding remains a fitted adaptation until an
 exact native call-site/input/pose mapping is captured. Empty-mask settled pairs
-still fail, and the exposed backing during re-entry remains unexplained.
+still fail. The subsequent backing correction above supersedes the missing
+stripe diagnosis, not the remaining shade/edge or timing residuals.
 
 Folder-gutter comparisons must align the retained **root viewport**, not only
 the selected folder's screen position. Different folder slots can coincide at

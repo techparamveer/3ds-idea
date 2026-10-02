@@ -15,7 +15,18 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [folder footer return](home-folder-footer-return-2026-10-02.md),
+Latest [footer backing](home-footer-backing-2026-10-02.md), `8e2a29a1`,
+restores the decoded native stripe band beneath the separate footer. Fixed raw
+native/browser ROI improves from 8,960 to41 pixels above delta2 without a mask
+or fit. Keep the remaining top-right edge, settled footer shade and whole-screen
+differences open. Full1,820 tests/build/typecheck pass; desktop/mobile pointer
+replays and seven unchanged stock LCD targets support the change. The slowed
+native capture establishes pixels only, not cadence. Preserve other designs.
+Folder Settings backing also improves6,814 ->31 above2 against existing native
+own-PNG controls. Next: captured top-right backing edge and remaining footer
+text/shade, without reopening the resolved full-base composition decision.
+
+Earlier [folder footer return](home-folder-footer-return-2026-10-02.md),
 9371c576, restores staged Settings/Open entry after root selection returns.
 Before, the first root paint already contained the settled footer; after,
 production motion samples show SceneIn0,3,6,8,11,14,15. Native desktop video

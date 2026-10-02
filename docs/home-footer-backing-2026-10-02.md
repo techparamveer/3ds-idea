@@ -93,3 +93,57 @@ recapture the same folder-close trajectory, then compare the first
 root/footer-entry frames and settled HOME. Until that matched native
 own-PNG/browser evidence exists, the source-backed composition correction is
 not native acceptance and the whole HOME scenario remains fail.
+
+## Integrated evidence
+
+Source `e32e2a6f` was integrated as `8e2a29a1`. Full tests pass1,820 with
+zero failures,23 skips and one TODO; production build and post-build typecheck
+pass. Native assets and footer clocks are unchanged.
+
+Private artifact root:
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-footer-backing-20261002/`.
+The immutable `comparison/native-browser-after/after-report.json` SHA-256 is
+`78493ecf101fdaaef4fd1703ef8f3073c042c36aa1e09193d4f4cfb8f2307a17`.
+The coordinator opened its native/before/after sheet, SHA-256
+`ed1c5244a3370c769467ed0405e6ffbeffd0b8ba6fb30fe8ff2d97af02c7b494`,
+and the root-control and all-control sheets.
+
+The native primary is the own-PNG18.48.58.698 identified above. Browser
+`browser-before/motion-009/lower.png` SHA-256
+`03e754310f56db3541f2f142448fc7b90fe87b9c7ed3513fc5582e146e55a9ea`
+and `browser-after/motion-010/lower.png` SHA-256
+`3ccc29316813eceef398c32f6224091b368c8dee4640261710ee47b5eac4173f`
+are actual first-root frames. Native lower extraction is x40/y240/320x240;
+the fixed comparison ROI is lower x0/y212/320x28. Mask is empty; no fit.
+Pixels above delta2 fall8,960 ->41, maximum30 ->13, meanRGB7.308 ->0.105.
+The residual is lower x299..319/y212..213. Full lower11,073 above2 still fails.
+
+Normal100% native root-folder18.54.27.938 (`498decca...`) and
+Create Folder18.54.50.057 (`4cc1f8fe...`) control ROIs improve709 ->56 and
+713 ->60 respectively; both still fail, with maximum34 and66. Full hashes
+and paths are in the report. Browser vacant-child lower is byte-exact and
+occupied-child footer ROI is byte-exact. Cursor/banner epochs remain unmatched.
+Folder Settings changes only in the exposed bottom band; its native check is
+recorded separately rather than hidden as an unchanged control.
+
+Actual pointer hold/outside/cancel/release replays pass on desktop24 and
+mobile22 motion pairs, plus reduced-motion6. Reduced motion keeps the first
+root footer settled. All runs have zero page errors and muted audio. Five
+stock lower LCDs and both Settings upper LCDs are byte-exact; Health upper
+epochs differ and do not establish regression acceptance. Desktop/mobile
+views were opened. Both native runs and owned muted Chrome exited0. The
+native config is byte-identical to its pre-diagnostic copy after restoring100%.
+Production preview remains on3021; no private matrix change or whole-scenario
+pass is claimed. Existing lifecycle fits, portfolio population, shade/edge,
+cursor/banner/HUD epochs and exact native input/motion/audio remain open.
+
+The immutable `comparison/native-browser-after/after-supplement-v2.json`,
+SHA-256 `e04aa7ef4bb8c0b081e963b6ca708140212e2a0f13cb2253cad7903435a0de44`,
+supersedes the core report's missing Folder Settings control. Existing native
+own-PNG16.35.34.415 (`055e408e...`) and three corroborating captures have
+byte-identical lower LCDs. Against that reference, the fixed backing ROI
+improves6,814 ->31 pixels above2, maximum15 ->8. Full lower9,424 ->2,641
+remains fail. Coordinator inspected the modal comparison sheet, SHA-256
+`ea47e03d4927c87831f96c329b3009af961d5ce1df80aed82be3cddea474965a`.
+The supplement also confirms mobile first-root41 and reduced settled56
+regional residuals. No reference mask or sampling offset was introduced.

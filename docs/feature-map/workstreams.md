@@ -1,5 +1,26 @@
 # Workstream Registry
 
+## Footer Backing - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree
+`3ds-home-footer-backing-20261002`, branch `codex/home-footer-backing-20261002`,
+base03753aa9. Sourcee32e2a6f is integrated as8e2a29a1. Comparison chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` wrote private reports/crops only.
+Both Sol5.6/high, no worker GUI; previous worktrees remain intact.
+
+Coordinator captures directly establish the native striped band; production
+after now draws it from the complete decoded lower base. Source tests54/54;
+integrated full1,820 pass/0 fail/23 skip/1 TODO, build/typecheck pass. Regional
+residual8,960 ->41 above2; full lower11,073 remains fail. Native10% capture
+is explicitly pixel-only, followed by a byte-identical configuration restore
+and normal100% settled controls. No new native matrix acceptance.
+[Source and evidence](../home-footer-backing-2026-10-02.md).
+Core comparison report `78493ecf...` and supplement `e04aa7ef...` are private,
+immutable artifacts. Folder Settings ROI6,814 ->31, root footer709 ->56 and
+Create Folder713 ->60 all improve but remain fail. Desktop24/mobile22/reduced6
+motion pairs and controls complete; native/Chrome exited0, workers idle.
+Preview3021/session89495 remains available. No service-tier/model-switch claim.
+
 ## Folder Footer Return - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13`, Sol5.6/high, used new

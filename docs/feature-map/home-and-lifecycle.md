@@ -65,6 +65,11 @@ deferred at the user's request; preserve all already-designed surfaces.
 **Next/acceptance:** Open settings for empty and nonempty folders, activate Rename, cancel, and attempt Delete/confirm. Verify no keyboard/editor state appears, no content is lost, and the visible disabled/adaptation treatment is compared to native before publication.
 
 ### H-09 - Toolbar groups and five system applets
+**Latest diagnostic:** [Health idle comparison](../workstream-handoffs/home-idle-next-compare.md)
+at `bdefbf59` isolates 201/598 pixels above 2 (maximum 25) in unselected Notes
+`P_Memo_10`. Position fits best at zero. Source tracing and a repeated native/
+browser state are next; no renderer correction or scenario pass exists yet.
+
 **Code/tests/evidence:** [state.ts](../../src/os/state.ts), [system.ts](../../src/os/system.ts), [home-cursor-presentation.ts](../../src/os/home-cursor-presentation.ts), [toolbar touch tests](../../tests/home-accepted-toolbar-touch.test.mjs), [footer evidence](../home-applet-footer-2026-10-01.md).
 **Now/gap/dependency:** Settings/Home Design, Notes, Friends, Notifications, Browser, Miiverse, and two density groups have native focus geometry. Focuses 1..5 invoke system applets and use one full-width Open footer; applet interiors may be source-gap/adaptations per their own maps.
 **Next/acceptance:** From the same grid selection, traverse and open all five applets via D-pad+A and footer touch, close each, and confirm the grid selection never launches instead. Compare toolbar cursor, label, banner, footer, and transition frames.

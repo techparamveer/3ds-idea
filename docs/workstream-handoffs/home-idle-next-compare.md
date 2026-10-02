@@ -10,7 +10,7 @@ The next bounded visible HOME-idle target is the **unselected yellow Game
 Notes toolbar glyph**, not the Health balloon, selected Health icon, Open
 footer, Camera artwork, wallpaper, or upper Health banner.
 
-In the fixed lower-LCD rectangle `x=64..89, y=3..25` (half-open), the current
+In the fixed lower-LCD rectangle `[64,90) x [3,26)` (half-open), the current
 native/browser pair has **201 / 598 pixels above 2/255**, mean absolute RGB
 channel error `1.942029`, RMSE `5.077438`, and maximum channel delta `25`.
 The visible differing component is bounded by `x=65..88, y=4..23`.
@@ -77,7 +77,7 @@ All rectangles below are half-open LCD coordinates. Counts use the same
 | Health balloon tail | `(66,105,20,21)` | 0 / 420, max 2 | Pixel tier. |
 | Selected Health icon | `(55,141,42,43)` | 0 / 1,806, max 1 | Pixel tier. The larger selected-tile count belongs to the unmatched mint cursor loop. |
 | Selected icon + cursor | `(36,122,80,82)` | 2,040 / 6,560, max 46 | Pose-dependent cursor loop (`appliedFrame=27`); not an icon defect. |
-| Camera artwork | `(221,140,44,44)` | 1 / 1,936, max 16 | Effectively pixel tier; `(0,0)` is the best translation. |
+| Camera artwork | `(221,140,44,44)` | 1 / 1,936, max 16 | One residual pixel, not a pixel-tier pass; `(0,0)` is the best translation. |
 | Camera ordinary plate, excluding the icon interior | `(202,122,82,82)` minus `(218,137,50,50)` | 963 / 4,224, max 26 | Reproduces the previously documented `LncIconSetSrc_00` theme/filtering plate residual; `(0,0)` is best. Do not move the tile or artwork. |
 | Native vacancy / browser Settings | `(118,122,80,82)` | 6,167 / 6,560, max 175 | Intentional population adaptation. |
 | Left / right paging edges | `(0,106,24,78)` / `(296,106,24,78)` | 1,868 / 1,872 and 667 / 1,872 | Different installed population/page context; not a geometry conclusion. |

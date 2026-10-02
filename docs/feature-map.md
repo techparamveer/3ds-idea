@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Power footer correction](home-power-footer-raster-2026-10-02.md) at
+Latest [idle-HOME classification](workstream-handoffs/home-idle-next-compare.md)
+at `bdefbf59` identifies unselected Notes toolbar `P_Memo_10` as the next
+bounded H-09 visual target: 201/598 pixels above 2, maximum 25, no translation
+supported. Whole unmatched pairs remain 51727 upper / 16060 lower. Repeat
+native/browser state before accepting a source correction; do not reopen the
+resolved balloon or convert banner-phase fits into guessed transforms.
+
+Latest runtime [Power footer correction](home-power-footer-raster-2026-10-02.md) at
 `d4c96f26` resolves the last three high-delta footer pixels. Both HOME/app
 Power routes now have zero pixels above delta 2 on both LCDs, maximum 2,
 empty masks. Lower before/after and app repeat are byte-identical. Full 1780

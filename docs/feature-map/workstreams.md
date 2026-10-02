@@ -5,10 +5,18 @@
 Following integration checkpoint `88319a91`, comparison chat
 `01a0f9a7-3b9c-7640-b7f6-3528982b4929` continues in
 `3ds-home-idle-next-compare-20261002` / `codex/home-idle-next-compare-20261002`.
-It owns only `docs/workstream-handoffs/home-idle-next-compare.md` and private
-internal comparison artifacts. Task: classify the named Health idle pair and
-identify one actionable visible HOME residual; no runtime or GUI authority.
-The completed Power source chat stays idle.
+It completed `b83b1274` -> `bdefbf59`, owning only
+`docs/workstream-handoffs/home-idle-next-compare.md` and internal artifacts.
+The unselected Notes toolbar glyph has 201/598 high pixels, maximum 25;
+matched-state repetition remains required. Comparison chat is idle.
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` continues with Sol5.6/high in
+`3ds-home-notes-toolbar-raster-20261002` /
+`codex/home-notes-toolbar-raster-20261002`, base `a9da4ef7`. It owns a bounded
+`P_Memo_10` source/rendering candidate, focused tests and
+`docs/home-notes-toolbar-raster-2026-10-02.md`, if justified. No guessed color
+or position; no GUI/build/matrix/shared-doc authority. Any source-only result
+remains pending coordinator repeat, integration and native/browser recapture.
 
 Two existing Sol5.6/high chats used dedicated worktrees based on `34be5b98`;
 both are complete and idle. Coordinator alone operated native/browser sessions.

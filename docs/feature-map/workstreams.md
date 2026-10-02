@@ -1,5 +1,23 @@
 # Workstream Registry
 
+## Close Motion Integration - 2 October 2026
+
+The same two user-owned chats delivered a second parallel implementation slice,
+both based on `cd6400fb` in new internal worktrees with `codex/` branches:
+
+| Chat ID | Worktree / branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-close-presentation-20261002` / `home-close-presentation-20261002` | `ec0da207` -> `990e9fe0`; idle |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-close-runtime-20261002` / `home-close-runtime-20261002` | `d165c95a` -> `5cd0daef`; idle |
+
+Explicit bounded renderer/runtime ownership was released for these deliveries;
+coordinator alone integrated, wired and repaired shared boundaries through
+`f8334ec2`. Earlier controller `43b18bf0` is now integrated as `cd6400fb`.
+GPT-5.6 Sol/high, no service-tier claim. One read-only helper reviewed integration.
+No worker GUI. Both muted private Azahar copies reused sequentially on Sidecar;
+fresh native close input failed and both copies are now stopped. Profiles and
+all worker trees remain preserved. [Evidence and residuals](../home-close-motion-2026-10-02.md).
+
 ## Active Parallel HOME Work - 2 October 2026
 
 The user's renewed parallel-work request is dispatched, not merely queued.

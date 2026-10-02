@@ -1,5 +1,16 @@
 # Software state, input and presentation
 
+[HOME close motion](../home-close-motion-2026-10-02.md) now retains its runtime
+owner through source AppQuit20 using the existing monotonic HOME allocator.
+The outer clock batch stops/rebases at terminal; a later eligible update retires
+once and launches only the frozen switch intent. Scene input quarantine samples
+before clock advancement, so retirement cannot admit that same ordinary input.
+The compositor pins capture generation separately from System generation and
+suppresses presentation checks while asleep without discarding the pin.
+Terminal/retirement force paired paint and actual WebGL publication when awake
+and visible. Frame0 mask binding, native epoch/window/footer departure remain
+unverified; these host scheduling choices are adaptations, not exact timing.
+
 [Suspended Sleep presentation](../home-suspended-highlight-2026-10-02.md)
 uses one pure owner-scoped controller local to the paired screen compositor.
 It samples existing HOME updates once per pair, never advances system state,

@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[Close motion verification](../home-close-motion-2026-10-02.md) at `f8334ec2`
+records93 raw production pairs from seven muted Sidecar flows. Actual
+`renderer.render` terminal publication is observed, including30fps and reduced
+motion; offscreen LCD paint alone is insufficient evidence. Mid-close lid
+pause/resume is covered, boundary hide/sleep publication is not. Two independent
+native profile retries failed launch input; no new native motion match.
+Retained before/after diagnostic pairs10260/33902 and55126/27533 still fail.
+Abrupt AppQuit mask backing and stationary window/footer until retirement remain
+visible gaps. All native copies stopped; no matrix or whole-scenario acceptance.
+
 The [highlight/pulse comparison](../home-suspended-highlight-2026-10-02.md)
 through `47845dc5` uses two real independent muted Azahar copies on Sidecar,
 18 static and10 pulse browser pairs. Both48x48 icon interiors visibly change;

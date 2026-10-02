@@ -15,7 +15,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-The [suspended highlight and pulse](home-suspended-highlight-2026-10-02.md) at
+The [close-motion delivery](home-close-motion-2026-10-02.md) through `f8334ec2`
+integrates two dedicated worktrees plus the pure controller. Retained-owner
+AppQuit, terminal GPU publication, sleep pause and input quarantine are live.
+Full1721 tests/typecheck/build/shader pass; seven browser flows and93 pairs
+inspected. Both private Azahar retries failed launch input; retained before/after
+diagnostics still fail. L-06/L-07/H-12 remain partial: abrupt initial mask backing,
+window/footer departure and native timing are unresolved. Workers idle, trees
+preserved. Next visible gaps remain close departure, power-on and buttons.
+
+Earlier [suspended highlight and pulse](home-suspended-highlight-2026-10-02.md) at
 `7b243793`/`dc6d19f7`/`47845dc5` adds source lower tint, hidden modal footer and
 paired owner-scoped animation. Two new dedicated worktrees delivered commits;
 two independent muted Azahar copies supplied Sidecar references. Full1695 tests

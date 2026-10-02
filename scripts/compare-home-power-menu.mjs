@@ -7,9 +7,10 @@ import {parseArgs} from 'node:util';
 import sharp from 'sharp';
 
 const {values: options} = parseArgs({options: {
-  native: {type: 'string'}, browser: {type: 'string'}, out: {type: 'string'},
+  native: {type: 'string'}, browser: {type: 'string'}, baseline: {type: 'string'}, out: {type: 'string'},
 }});
 for (const key of ['native', 'browser', 'out']) assert.ok(isAbsolute(options[key] ?? ''), `--${key} must be absolute`);
+if (options.baseline) assert.ok(isAbsolute(options.baseline), '--baseline must be absolute');
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const round = value => Number(value.toFixed(6));
@@ -89,6 +90,11 @@ const browserFiles = {upper: join(options.browser, 'upper.png'), lower: join(opt
 const [nativeUpper, nativeLower, browserUpper, browserLower] = await Promise.all([
   decode(nativeFile, 'upper'), decode(nativeFile, 'lower'), decode(browserFiles.upper, 'upper'), decode(browserFiles.lower, 'lower'),
 ]);
+const baselineFiles = options.baseline && {upper: join(options.baseline, 'upper.png'), lower: join(options.baseline, 'lower.png')};
+const baseline = baselineFiles && {
+  upper: await decode(baselineFiles.upper, 'upper'),
+  lower: await decode(baselineFiles.lower, 'lower'),
+};
 
 const inputs = {upper: [nativeUpper, browserUpper], lower: [nativeLower, browserLower]};
 const regions = {
@@ -101,6 +107,7 @@ const regions = {
   },
   lower: {
     background: [[0, 0, 320, 160]],
+    softwareClosed: [[40, 86, 240, 50]],
     buttonArtwork: [[64, 162, 192, 40]],
     buttonLabel: [[104, 170, 112, 24]],
     divider: [[0, 209, 320, 8]],
@@ -112,6 +119,15 @@ for (const [screen, entries] of Object.entries(regions)) {
   const [native, browser] = inputs[screen];
   regionMetrics[screen] = Object.fromEntries(Object.entries(entries).map(([name, rects]) =>
     [name, compareRects(native.pixels, browser.pixels, native.width, native.height, rects)]));
+}
+const beforeAfter = baseline && {};
+if (baseline) for (const screen of ['upper', 'lower']) {
+  const before = baseline[screen], after = screen === 'upper' ? browserUpper : browserLower;
+  beforeAfter[screen] = {
+    whole: compareRects(before.pixels, after.pixels, before.width, before.height, [[0, 0, before.width, before.height]]),
+    regions: Object.fromEntries(Object.entries(regions[screen]).map(([name, rects]) =>
+      [name, compareRects(before.pixels, after.pixels, before.width, before.height, rects)])),
+  };
 }
 
 const rgbTranslationFits = {
@@ -136,8 +152,12 @@ const report = {
       upper: {file: browserFiles.upper, fileSha256: browserUpper.fileSha256, rgbSha256: browserUpper.rgbSha256},
       lower: {file: browserFiles.lower, fileSha256: browserLower.fileSha256, rgbSha256: browserLower.rgbSha256},
     },
+    ...(baseline && {baseline: {
+      upper: {file: baselineFiles.upper, fileSha256: baseline.upper.fileSha256, rgbSha256: baseline.upper.rgbSha256},
+      lower: {file: baselineFiles.lower, fileSha256: baseline.lower.fileSha256, rgbSha256: baseline.lower.rgbSha256},
+    }}),
   },
-  regions: regionMetrics, rgbTranslationFits, maskTranslationFits,
+  regions: regionMetrics, ...(baseline && {beforeAfter}), rgbTranslationFits, maskTranslationFits,
   limitations: ['Settled semantic path matches; input cadence and phase do not.', 'No mask is applied.', 'Translation fits identify residual shape/placement only and do not authorize a runtime offset.'],
 };
 await mkdir(options.out, {recursive: true});

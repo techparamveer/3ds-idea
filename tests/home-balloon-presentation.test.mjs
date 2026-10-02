@@ -72,21 +72,24 @@ test('selected Settings title uses the native balloon anchor and a manifest-sour
   const selected = settleHomeNavigation(selectHomeSlot({ ...state, system: { ...state.system, phase: 'home' } }, 9));
   const view = getHomePresentation(selected);
   assert.equal(view.tiles.find(tile => tile.index === 9).y + 36, 166);
-  assert.deepEqual(getNativeSettingsTitleBalloon(selected, view), { label: settings.longDescription, baseX: 84, bodyOffsetX: -76 });
-  assert.deepEqual(createHomeBalloonPresentation(selected), {
-    visible: true, desired: true, clip: 'Appear', frame: 5,
-    label: settings.longDescription, baseX: 84, bodyOffsetX: -76, titleId: '0004001000022000',
-  });
-  const departing = advanceHomeBalloonPresentation(createHomeBalloonPresentation(selected), selectHomeSlot(selected, 7));
-  assert.deepEqual([departing.visible, departing.desired, departing.clip, departing.frame], [true, false, 'DisAppear', 0]);
+  assert.deepEqual([view.currentDensity, view.targetDensity, view.rows], [1, 1, 2]);
+  assert.equal(getNativeSettingsTitleBalloon(selected, view), null, 'settled two-row Settings has no title balloon');
+  assert.equal(createHomeBalloonPresentation(selected).visible, false);
   assert.equal(getNativeSettingsTitleBalloon({ ...selected, panel: 'settings' }, view), null);
   const oneRow = density0(selected);
   assert.equal(getHomePresentation(oneRow).tiles.find(tile => tile.index === 9).y + 36, 161);
   assert.deepEqual(getNativeSettingsTitleBalloon(oneRow, getHomePresentation(oneRow)),
     { label: settings.longDescription, baseX: 84, bodyOffsetX: -76 });
-  assert.equal(createHomeBalloonPresentation(oneRow).visible, true);
+  assert.deepEqual(createHomeBalloonPresentation(oneRow), {
+    visible: true, desired: true, clip: 'Appear', frame: 5,
+    label: settings.longDescription, baseX: 84, bodyOffsetX: -76, titleId: '0004001000022000',
+  });
+  const departing = advanceHomeBalloonPresentation(createHomeBalloonPresentation(oneRow), selectHomeSlot(oneRow, 0));
+  assert.deepEqual([departing.visible, departing.desired, departing.clip, departing.frame], [true, false, 'DisAppear', 0]);
   const changing = setHomeDensity(oneRow, 1);
   assert.equal(getNativeSettingsTitleBalloon(changing, getHomePresentation(changing)), null);
+  const returning = setHomeDensity(selected, 0);
+  assert.equal(getNativeSettingsTitleBalloon(returning, getHomePresentation(returning)), null);
   const threeRows = settleHomeNavigation(setHomeDensity(oneRow, 2));
   assert.equal(getNativeSettingsTitleBalloon(threeRows, getHomePresentation(threeRows)), null);
 });

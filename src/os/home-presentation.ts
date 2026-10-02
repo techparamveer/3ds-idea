@@ -76,12 +76,12 @@ export function getNativeFolderBalloon(state:MenuState,view:HomePresentation){
  return {label:tile.folderLabel,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
 }
 
-/** The source balloon predicate (0x2eb804) and the native one-row Settings
- * capture require density zero. Retain the existing two-row presentation while
- * admitting that source-backed state; changing density suppresses the balloon.
+/** The source balloon predicate (0x2eb804) and native Settings captures require
+ * both density indices to be zero. Changing or settled two-row density suppresses
+ * the balloon.
  * The painter requires verified SMDH title and publisher metadata. */
 export function getNativeSettingsTitleBalloon(state:MenuState,view:HomePresentation){
- if(state.opened||state.panel||view.gesture||view.currentDensity>1||view.targetDensity!==view.currentDensity||view.mode===2
+ if(state.opened||state.panel||view.gesture||view.currentDensity!==0||view.targetDensity!==0||view.mode===2
    ||state.system?.phase!=='home'||state.system.homeNavigation.focus.toolbarActive)return null;
  const tile=view.tiles.find(tile=>tile.index===state.selected);
  if(!tile||tile.appId!=='system-settings')return null;

@@ -15,12 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [idle-HOME classification](workstream-handoffs/home-idle-next-compare.md)
-at `bdefbf59` identifies unselected Notes toolbar `P_Memo_10` as the next
-bounded H-09 visual target: 201/598 pixels above 2, maximum 25, no translation
-supported. Whole unmatched pairs remain 51727 upper / 16060 lower. Repeat
-native/browser state before accepting a source correction; do not reopen the
-resolved balloon or convert banner-phase fits into guessed transforms.
+Latest [Notes toolbar comparison](workstream-handoffs/home-notes-toolbar-compare.md)
+at runtime `79597372` resolves the captured H-09 glyph residual: 201 -> 0
+pixels above delta 2, maximum 25 -> 1, across four native/production pairs.
+The missing-UV rule is a narrowly guarded, labelled sampling adaptation, not
+proven native initialization. Full 1782 tests/typecheck/build/shader pass;
+desktop/mobile Notes touch and HOME return pass. Power and static Settings/
+Health regression LCDs remain unchanged. Whole HOME scenarios still fail for
+remaining visual gaps, population, epochs and exact input/motion/audio.
 
 Latest runtime [Power footer correction](home-power-footer-raster-2026-10-02.md) at
 `d4c96f26` resolves the last three high-delta footer pixels. Both HOME/app

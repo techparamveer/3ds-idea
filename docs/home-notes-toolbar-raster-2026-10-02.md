@@ -109,3 +109,20 @@ This worker did not run a production build, browser, Azahar, audio, or private
 matrix update. The coordinator must integrate and capture the production after
 image. Until that after comparison exists, the predicted 0/max-1 ROI is not
 native acceptance, and the HOME idle scenario remains fail.
+
+## Coordinator production result
+
+Integrated source `1329ddd1` -> `6cbe378d`, guard `5d1239b3` -> `79597372`.
+The subsequent [four-pair production comparison](workstream-handoffs/home-notes-toolbar-compare.md)
+confirms 201 -> 0 pixels above delta 2 and maximum 25 -> 1 in the Notes ROI.
+This supersedes the pending after-capture status above, not the initialization
+or whole-scenario limitation. All four after crops are identical; the native
+crop repeats across four fresh and four preserved captures. Footer/Camera
+controls remain unchanged; the adjacent Notes fringe changes by at most 2.
+
+Full suite after explicit synthetic-fixture UV correction `58205d29`: 1782
+pass, 0 fail, 23 skipped, 1 TODO. Typecheck, build and shader validation pass.
+Both Power origins/off LCD pairs, five lower Health/Settings captures and two
+Settings uppers are unchanged. Desktop/mobile Notes touch and physical HOME
+return pass with muted audio and no page errors. Native/browser exact input,
+epochs and audio remain unmatched. No private-matrix or whole-HOME pass.

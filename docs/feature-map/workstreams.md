@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Notes Toolbar - 2 October 2026
+
+The source chat/tree below delivered `1329ddd1` and `5d1239b3`, integrated
+as `6cbe378d` and `79597372`. Independent Sol5.6/high read-only subagent review
+required an exact-shape guard and honest sampling-adaptation label before
+integration. Coordinator fixture follow-up is `58205d29`; full 1782 tests,
+typecheck/build/shader pass. The comparison chat owns the new
+[Notes handoff](../workstream-handoffs/home-notes-toolbar-compare.md) in its
+existing tree, delivered `89d325b8` -> `ef9e891a`. Four production-after/native ROIs reach 0 pixels above 2,
+maximum 1; no whole scenario passes. Coordinator alone operated muted GUI
+sessions, on the Mac after explicit user authorization. The earlier idle/
+pending Notes status below is historical, not the current verification state.
+
 ## Power Footer Raster - 2 October 2026
 
 Following integration checkpoint `88319a91`, comparison chat

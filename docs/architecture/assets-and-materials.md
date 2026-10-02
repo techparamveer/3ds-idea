@@ -4,6 +4,14 @@ Editable sources, private extraction, converted delivery and runtime ownership
 are separate layers. A resource can decode successfully without being published,
 supported by the renderer, used by a live screen or visually accepted.
 
+HOME `LncBase_D_01/P_Memo_10` omits the UV1 attribute selected by its third
+sampler. Runtime `79597372` gates an inferred all-zero sampling adaptation by
+the exact material, sampler, UV count, generator pattern and texture names.
+Authored UVs are unchanged; every other missing selected UV fails explicitly.
+The dump establishes the omission, not native initialization. Decrypted
+textures, palette and TEV remain unchanged. See the
+[source and sampling contract](../home-notes-toolbar-raster-2026-10-02.md).
+
 Power `Slp_U_00/T_Btm_00` explicitly selects writer `0x111`: float32 measured
 block and per-line centering, glyph advance and endpoints. Only this pane opts
 into direct LCD alpha sampling, requiring upright unit-scale integer-sized

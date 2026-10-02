@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Notes toolbar verification](../workstream-handoffs/home-notes-toolbar-compare.md)
+at `79597372` records four fresh native own-PNG and production before/after
+pairs. The 26x23 unselected Notes ROI improves 201 -> 0 pixels above delta 2,
+maximum 25 -> 1, without a mask. Native and after ROIs each repeat exactly.
+This validates a labelled, narrowly guarded missing-UV sampling adaptation,
+not native initialization. Full LCDs, exact input, motion and muted audio
+remain unaccepted. Desktop/mobile Notes touch/HOME return and unchanged
+Power/Settings/static Health regressions are supporting evidence only.
+
 [Power footer verification](../home-power-footer-raster-2026-10-02.md) at
 `d4c96f26` closes the captured three-pixel defect. Both HOME/app Power origins
 have zero pixels above delta 2 across both complete LCDs with empty masks;

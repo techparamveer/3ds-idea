@@ -3,9 +3,19 @@
 This is a work queue, not a replacement for the private evidence matrix and not
 a claim that these scenarios pass. Use the [completion map](../feature-map.md)
 and detailed lane feature IDs. The coordinator alone operates the native and
-production-browser sessions. All sessions remain muted on verified Sidecar.
+production-browser sessions. All sessions remain muted; use verified Sidecar
+unless the user authorizes another display (the entire Mac was authorized for
+the 2 October Notes run).
 
 ## First Cross-App Pass
+
+Latest [Notes toolbar comparison](../workstream-handoffs/home-notes-toolbar-compare.md)
+at `79597372` resolves the unselected glyph's 201 high pixels in four static
+pairs (maximum 1). Its exact missing-UV default remains a labelled inferred
+adaptation. Whole HOME entries remain fail: HUD/population/epochs and exact
+input/motion/audio are unmatched. Desktop/mobile Notes touch/HOME return and
+unchanged Power/Settings/static Health regression LCDs do not close those
+tiers. Do not repeat the resolved unselected Notes color investigation.
 
 Latest [Power static recapture](../home-power-footer-raster-2026-10-02.md) at
 `d4c96f26` resolves both complete settled LCD pairs within delta 2, empty masks.

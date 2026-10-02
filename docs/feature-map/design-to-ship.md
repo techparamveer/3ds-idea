@@ -1,13 +1,24 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `5b82c896` (native occupied-folder Open footer; rejected cursor
-candidate remains restored to `a751b2dd` behavior), 2 October 2026. This is the **ordered
+Current runtime checkpoint: `e911e475` (verified held-title material retained;
+direct-LCD sampling experiment withdrawn), 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+The latest [held-artwork comparison](../home-held-title-artwork-2026-10-02.md)
+closes the folder artwork's static delta-2 region, not the whole scenario.
+Root-held artwork, the folder shell edge and held footer/gutter still fail.
+The bounded genuine SMDH24 diagnostic is mixed and not integrated; do not
+repeat source-only small-icon, anchor or sampling experiments without new
+native evidence. Check whether the held-footer residual propagates the
+already-recorded capture precision gap, then continue a new matched visible
+interaction such as root-to-folder hover or edge continuation. Preserve the
+completed Back-exit, ownership, material and backing corrections. The older
+entries below retain their own checkpoint context; current progress wins.
 
 The latest folder-gutter replay found unmatched root scroll, not proof of a
 missing clipping layer. Aligning root scroll zero through actual input removes

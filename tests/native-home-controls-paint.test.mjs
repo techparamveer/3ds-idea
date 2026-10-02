@@ -8,7 +8,7 @@ import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
 import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src/os/home-cursor-presentation.ts';
 import { resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts';
 import { enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
-import { beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
+import { advanceSystemHomeFolderCloseNative, beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomePresentation } from '../src/os/home-presentation.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
 import { getHomeDensityControls } from '../src/os/home-density-controls.ts';
@@ -470,6 +470,9 @@ test('HOME footer samples source alpha glyphs directly at LCD centres', () => {
   assert.equal(calls[0].options.textCoverageAdaptation, undefined);
   assert.deepEqual(calls[0].options.clip, [0, 210, 320, 30]);
   assert.equal(calls[0].options.overrides.T_BtnFW_C_01.text, 'Open');
+  const legacy={...state,system:undefined};
+  assert.equal(presenter.footer(ctx,legacy),true);
+  assert.deepEqual(calls.at(-1).options.bindings,[{name:'LncBtmBtn_02_SceneIn',frame:15}]);
 });
 
 test('vacant-root footer retains the decoded Create Folder message and unfitted source sampler',()=>{
@@ -498,6 +501,26 @@ test('captured occupied folder uses the decoded centre Open control with no Clos
  assert.equal(options.overrides.N_BtnW_C_01.visible,true);
  assert.equal(options.overrides.N_BtnW_L_03.visible,false);assert.equal(options.overrides.N_BtnW_R_02.visible,false);
  for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW'])assert.equal(options.overrides[`${prefix}_C_01`].text,'Open');
+});
+
+test('folder-close footer reenters from the counted root-selection boundary',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}};
+ const presenter=createFirmwareHome({renderer}),initial=home();
+ let state=beginSystemHomeFolderClose(enterHomeFolder({...initial,folders:{20:'A'},system:{...initial.system,
+  folderLayouts:{20:{0:initial.system.layout[0]}}}},20));
+ const advance=updates=>{
+  state={...state,system:{...state.system,homeClock:{...state.system.homeClock,updateCount:state.system.homeClock.updateCount+updates}}};
+  state=advanceSystemHomeFolderCloseNative(state,updates).state;
+ };
+ const scene=()=>calls.at(-1).bindings.find(binding=>binding.name.startsWith('LncBtmBtn_02_Scene'));
+ presenter.footer({},state);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneOut',frame:0});
+ advance(17);presenter.footer({},state);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneOut',frame:14});
+ advance(1);presenter.footer({},state);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:0});
+ advance(7);presenter.footer({},state);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:7});
+ advance(8);presenter.footer({},state);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:15});
+ presenter.footer({},state,true);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:15});
+ state=writeHomeNavigation(state,{...getHomeNavigation(state)});
+ presenter.footer({},state);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:15});
 });
 
 test('suspended software footer uses the source X Close glyph while folder Close stays separate',()=>{

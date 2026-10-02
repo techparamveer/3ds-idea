@@ -16,6 +16,7 @@ import { drawHomeSuspendedIcon } from './home-suspended-window';
 import { homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
 import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
+import { selectHomeFolderFooterPose } from './home-folder-footer-return';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleIconPixels:Map<string,NativePixels>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
@@ -297,9 +298,10 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   for(const prefix of ['T_BtnBB','T_BtnFB','T_BtnPB'])overrides[`${prefix}_L_03`]=left;
   const close=sampleSystemHomeFolderClose(state);
   // Captured switch dialogs have no footer; use the source's settled out pose.
-  const bindings=[homeSoftwareSwitchTitles(state)?binding('LncBtmBtn_02_SceneOut',14):!reduced&&close&&close.controller.phase!=='complete'
-   ?binding('LncBtmBtn_02_SceneOut',Math.min(14,state.system!.homeClock.updateCount-close.startedAtUpdate))
-   :binding('LncBtmBtn_02_SceneIn',15)];
+  const footerPose=homeSoftwareSwitchTitles(state)
+   ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
+   :selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
+  const bindings=[binding(footerPose.clip,footerPose.frame)];
   const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);
   if(pressed){
    const group=two?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));

@@ -312,10 +312,10 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
    :applicationFooterExit??selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
   if(applicationFooterExit&&!renderer.packs.launcher.animations[applicationFooterExit.clip])throw Error('Native software-close footer exit unavailable');
-  // Capture-fit direct binding preserves the pre-departure button alpha;
-  // SceneOut's unrelated descendant channels would dim Resume immediately.
+  // Capture-fit direct binding keeps the compact ChangeDw departure on its
+  // authored scene member, preserving the separately settled button channels.
   const bindings=applicationFooterExit
-   ?[binding('LncBtmBtn_02_SceneIn',15),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
+   ?[binding('LncBtmBtn_02_SceneIn',15),binding('LncBtmBtn_02_Decide',5,['G_BtnB_L_03']),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
    :[binding(footerPose.clip,footerPose.frame)];
   const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);
   if(pressed){

@@ -48,8 +48,8 @@ test('application close publishes terminal and retirement pairs independent of c
   const exitMiddle={phase:'exiting',appQuitFrame:20,dialogExitFrame:12};
   const exitTerminal={phase:'exit-terminal',appQuitFrame:20,dialogExitFrame:20};
   const footerStart={phase:'footer-exiting',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:0};
-  const footerMiddle={...footerStart,footerExitFrame:7};
-  const footerTerminal={...footerStart,phase:'footer-terminal',footerExitFrame:14};
+  const footerMiddle={...footerStart,footerExitFrame:3};
+  const footerTerminal={...footerStart,phase:'footer-terminal',footerExitFrame:6};
   assert.equal(applicationCloseNeedsPaint(null,null,false),false);
   assert.equal(applicationCloseNeedsPaint(closing,closing,false),false);
   assert.equal(applicationCloseNeedsPaint(closing,{...closing,appQuitFrame:18},false),false);
@@ -84,8 +84,8 @@ test('terminal upload bypasses both 30fps and 45fps gates between 60Hz updates',
       [3000/60,{phase:'exiting',appQuitFrame:20,dialogExitFrame:19}],
       [4000/60,{phase:'exit-terminal',appQuitFrame:20,dialogExitFrame:20}],
       [5000/60,{phase:'footer-exiting',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:0}],
-      [6000/60,{phase:'footer-exiting',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:13}],
-      [7000/60,{phase:'footer-terminal',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:14}],
+      [6000/60,{phase:'footer-exiting',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:5}],
+      [7000/60,{phase:'footer-terminal',appQuitFrame:20,dialogExitFrame:20,footerExitFrame:6}],
       [8000/60,null],
     ]){
       const forced=applicationCloseNeedsPaint(previous,current,false);

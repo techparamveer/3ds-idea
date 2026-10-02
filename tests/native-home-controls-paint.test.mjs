@@ -80,7 +80,7 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),true);
    screens.setReducedMotion(false);
   }
-  for(const [phase,footerExitFrame] of [['footer-exiting',0],['footer-exiting',7],['footer-terminal',14]]){
+  for(const [phase,footerExitFrame] of [['footer-exiting',0],['footer-exiting',3],['footer-terminal',6]]){
    const departing=structuredClone(closing);
    Object.assign(departing.system.homeApplicationTransition,{phase,appQuitFrame:20,dialogExitFrame:20,footerExitFrame});
    paint(departing);
@@ -670,13 +670,16 @@ test('software close retains footer labels through dialog exit then samples the 
  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
  const closing=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
  const source=JSON.stringify(pack),owner=closing.system.runtime.application;
- for(const [phase,frame] of [['exiting',null],['exit-terminal',null],['footer-exiting',0],['footer-exiting',7],['footer-terminal',14]]){
+ for(const [phase,frame] of [['exiting',null],['exit-terminal',null],['footer-exiting',0],['footer-exiting',3],['footer-terminal',6]]){
   const state=structuredClone(closing);
   Object.assign(state.system.homeApplicationTransition,{phase,appQuitFrame:20,dialogExitFrame:20,footerExitFrame:frame});
   presenter.footer({},state);
   const options=calls.at(-1);
   assert.deepEqual(options.bindings[0],{name:'LncBtmBtn_02_SceneIn',frame:15});
-  if(frame!==null)assert.deepEqual(options.bindings[1],{name:'LncBtmBtn_02_SceneOut',frame,childBinding:false});
+  if(frame!==null){
+   assert.deepEqual(options.bindings[1],{name:'LncBtmBtn_02_Decide',frame:5,groups:['G_BtnB_L_03']});
+   assert.deepEqual(options.bindings[2],{name:'LncBtmBtn_02_ChangeDw',frame,childBinding:false});
+  }
   const pose=poseNativeLayout(pack.layouts.LncBtmBtn_02,pack.animations,options.bindings);
   assert.equal(nativePaneParentPath(pose,'N_BtnW_R_02').at(-1).alpha,255,'departure retains Resume child state');
   assert.equal(options.overrides.N_BtnB_L_03.visible,true);
@@ -685,13 +688,13 @@ test('software close retains footer labels through dialog exit then samples the 
   assert.equal(options.overrides.T_BtnBW_R_02.text,'\ue073 Resume');
   assert.equal(state.system.runtime.application,owner);
   presenter.footer({},state,true);
-  assert.equal(calls.at(-1).bindings.at(-1).frame,frame===null?15:14);
+  assert.equal(calls.at(-1).bindings.at(-1).frame,frame===null?15:6);
  }
  const stale=structuredClone(closing);
- Object.assign(stale.system.homeApplicationTransition,{phase:'footer-exiting',footerExitFrame:7});
+ Object.assign(stale.system.homeApplicationTransition,{phase:'footer-exiting',footerExitFrame:3});
  stale.system.homeApplicationTransition.identity.owner='stale';
  presenter.footer({},stale);assert.deepEqual(calls.at(-1).bindings[0],{name:'LncBtmBtn_02_SceneIn',frame:15});
- const unavailable=structuredClone(pack);delete unavailable.animations.LncBtmBtn_02_SceneOut;
+ const unavailable=structuredClone(pack);delete unavailable.animations.LncBtmBtn_02_ChangeDw;
  const missing=createFirmwareHome({renderer:{...renderer,packs:{...renderer.packs,launcher:unavailable}}});
  const departing=structuredClone(closing);Object.assign(departing.system.homeApplicationTransition,{phase:'footer-exiting',footerExitFrame:0});
  assert.throws(()=>missing.footer({},departing),/footer exit unavailable/);

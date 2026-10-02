@@ -1,13 +1,61 @@
 import type { NativePixels } from '../os/native-layout';
-import type { FirmwareModelAsset } from './firmware-model';
+import type { HomeApplicationTransitionPresentation } from '../os/home-application-transition';
+import type { FirmwareModelAsset, FirmwareModelPlayback } from './firmware-model';
+
+const SCENE_IN = 'BannerBG_SceneIn';
+const APP_PAUSE = 'BannerBG_AppPause';
+const APP_QUIT = 'BannerBG_AppQuit';
+
+function nativeClip(asset: FirmwareModelAsset, kind: 'skeletalAnimations' | 'materialAnimations', name: string) {
+  return asset.data[kind].find(clip => clip.Name === name);
+}
+
+function hasSourceCurve(clip: ReturnType<typeof nativeClip>, target: string, primitive: string, channel: string,
+  interpolation: string, keyFrames: readonly (readonly [number, number])[]) {
+  const curve = clip?.Elements.find(element => element.Name === 'mt_BG'
+    && element.TargetType === target && element.PrimitiveType === primitive)?.Content[channel];
+  return !!curve && curve.StartFrame === 0 && curve.EndFrame === 20
+    && curve.InterpolationType === interpolation && curve.PreRepeat === 'None' && curve.PostRepeat === 'None'
+    && curve.KeyFrames.length === keyFrames.length
+    && curve.KeyFrames.every((key, index) => key.Frame === keyFrames[index][0]
+      && key.Value === keyFrames[index][1] && key.InSlope === 0 && key.OutSlope === 0);
+}
+
+/** Maps the pure HOME controller sample to the ordered source animation stack. */
+export function suspendedBackgroundPlayback(presentation: HomeApplicationTransitionPresentation | null = null): FirmwareModelPlayback {
+  if (!presentation) return {
+    skeletal: [{ name: SCENE_IN, frame: 20 }],
+    material: [{ name: APP_PAUSE, frame: 20 }],
+  };
+  const sceneIn = presentation.skeletal[0], appPause = presentation.material[0], appQuit = presentation.material[1];
+  if (presentation.skeletal.length !== 1 || presentation.material.length !== 2
+    || sceneIn?.clip !== SCENE_IN || sceneIn.frame !== 20
+    || appPause?.clip !== APP_PAUSE || appPause.frame !== 20
+    || appQuit?.clip !== APP_QUIT || !Number.isInteger(appQuit.frame) || appQuit.frame < 0 || appQuit.frame > 20) {
+    throw new Error('Unsupported native suspended presentation');
+  }
+  // Order is significant: AppQuit is authored as an override of AppPause.
+  return {
+    skeletal: [{ name: sceneIn.clip, frame: sceneIn.frame }],
+    material: [{ name: appPause.clip, frame: appPause.frame }, { name: appQuit.clip, frame: appQuit.frame }],
+  };
+}
 
 /** Capture-slot assembly is an explicit host adaptation; geometry, mask,
  * combiners and the settled AppPause pose remain from the pinned BannerBG. */
 export function suspendedBackgroundAsset(asset: FirmwareModelAsset): FirmwareModelAsset {
   const data = structuredClone(asset.data), model = data.models[0];
+  const sceneIn = nativeClip(asset, 'skeletalAnimations', SCENE_IN);
+  const appPause = nativeClip(asset, 'materialAnimations', APP_PAUSE);
+  const appQuit = nativeClip(asset, 'materialAnimations', APP_QUIT);
   if (data.sourceSha256 !== '092c8682d0cfabf0a1823a8e3a2c12556515c437afba2aa6f6ac7fc4d5e34595'
     || data.models.length !== 1 || model.name !== 'BannerBG' || model.materials.length !== 1
-    || !data.materialAnimations.some(clip => clip.Name === 'BannerBG_AppPause' && clip.FramesCount === 20)) {
+    || sceneIn?.FramesCount !== 20 || sceneIn.AnimationFlags !== '0'
+    || appPause?.FramesCount !== 20 || appPause.AnimationFlags !== '0'
+    || appQuit?.FramesCount !== 20 || appQuit.AnimationFlags !== '0'
+    || !hasSourceCurve(appQuit, 'MaterialConstant4', 'RGBA', 'A', 'Hermite', [[0, 0], [20, 1]])
+    || !hasSourceCurve(appQuit, 'MaterialTexCoord0Scale', 'Vector2D', 'X', 'Step', [[0, .87], [20, 1]])
+    || !hasSourceCurve(appQuit, 'MaterialTexCoord0Scale', 'Vector2D', 'Y', 'Step', [[0, .87], [20, 1]])) {
     throw new Error('Unsupported native suspended background');
   }
   for (const [name, width, height] of [['BG_DmyApp_00', 8, 8], ['BG_CapMask_00', 256, 512], ['BG_64_00', 64, 64]] as const) {

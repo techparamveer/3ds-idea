@@ -20,7 +20,7 @@ const {createFirmwareBanner}=await import(moduleUrl(fileURLToPath(new URL('../sr
 const {settingsBannerPhase}=await import(moduleUrl(fileURLToPath(new URL('../src/scene/banner-verification.ts',import.meta.url))));
 const publicRoot=fileURLToPath(new URL('../public/',import.meta.url));
 const frame=Object.freeze({visible:true,scale:.8,yawRadians:.31,skeletalFrame:0,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});
-function setup(t,{failure,alterSettings,alterBind=false,delayFrame,invalidFrame=false,alterDefault,delayDefault,corruptDefaultTexture,defaultFetchObserver,pixelRatio=1}={}){
+function setup(t,{failure,alterSettings,alterBackground,alterBind=false,delayFrame,invalidFrame=false,alterDefault,delayDefault,corruptDefaultTexture,defaultFetchObserver,pixelRatio=1}={}){
  const prior={document:globalThis.document,window:globalThis.window,fetch:globalThis.fetch};
  globalThis.document={createElement(){return {width:0,height:0,getContext(){return {createImageData(w,h){return {data:new Uint8ClampedArray(w*h*4)};},putImageData(){}};}};}};
  globalThis.window={location:{href:'https://firmware.test/'}};
@@ -41,6 +41,7 @@ function setup(t,{failure,alterSettings,alterBind=false,delayFrame,invalidFrame=
    return new Response(JSON.stringify(data));
   }
   let data=readFileSync(resolve(publicRoot,'.'+path));
+  if(alterBackground&&path.endsWith('/home-background/model.json')){const asset=JSON.parse(data);alterBackground(asset);data=JSON.stringify(asset);}
   if(alterBind&&path.endsWith('/folder/model.json')){
    const model=JSON.parse(data);Object.assign(model.models[0].transform,{M11:1.2,M22:.9,M33:1.1,M41:2,M43:.4});data=JSON.stringify(model);
   }
@@ -177,6 +178,55 @@ test('HOME wallpaper consumes explicit hosted SceneIn and Loop frames without ad
  assert.notDeepEqual(snapshot(group),sampled,'both explicit source controllers reach the model');
  assert.equal(h.banner.drawBackgroundLifecycleFrame(h.ctx,{...hosted,loopFrame:600}),false);
  assert.equal(h.banner.drawBackgroundLifecycleFrame(h.ctx,{...hosted,attached:false}),true);
+});
+const suspendedCapture=(generation=1,owner='health:1')=>({status:'ready',owner,generation,
+ upper:{width:240,height:400,data:new Uint8ClampedArray(240*400*4)},
+ lower:{width:240,height:320,data:new Uint8ClampedArray(240*320*4)}});
+const closePresentation=frame=>({
+ skeletal:[{clip:'BannerBG_SceneIn',frame:20}],
+ material:[{clip:'BannerBG_AppPause',frame:20},{clip:'BannerBG_AppQuit',frame}],
+});
+function suspendedCaptureTexture(group){
+ let image;group.traverse(node=>{if(node.isMesh&&node.material.uniforms.tex0?.value?.image?.width===256&&node.material.uniforms.tex0.value.image.height===512)image=node.material.uniforms.tex0.value.image;});
+ assert.ok(image,'suspended capture texture is bound');return image;
+}
+test('suspended background cache keys source motion without reallocating its capture texture',async t=>{
+ const h=setup(t);await h.banner.ready;const capture=suspendedCapture();
+ assert.equal(h.banner.status().suspendedBackgroundReady,true);
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,null),true);
+ const group=h.draws.at(-1).scene.children[0],settled=snapshot(group),texture=suspendedCaptureTexture(group);
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,closePresentation(0)),true);
+ const frame0=snapshot(group),draws=h.draws.length;
+ assert.notDeepEqual(frame0,settled,'AppQuit overrides the settled AppPause source state');
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,closePresentation(0)),true);
+ assert.equal(h.draws.length,draws,'same owner, generation, and source frame reuses raster bytes');
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,closePresentation(10)),true);
+ assert.equal(h.draws.length,draws+1,'AppQuit frame is part of the raster cache key');
+ assert.notDeepEqual(snapshot(group),frame0,'AppQuit source channels reach the model');
+ assert.equal(suspendedCaptureTexture(group),texture,'frame-only changes retain the padded capture texture');
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,null),true);
+ assert.deepEqual(snapshot(group),settled,'returning to settled suspension restores AppPause-only playback');
+});
+test('suspended background reset and capture generation replace only the owned texture binding',async t=>{
+ const h=setup(t);await h.banner.ready;const first=suspendedCapture();
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,first,closePresentation(7)),true);
+ const group=h.draws.at(-1).scene.children[0],firstTexture=suspendedCaptureTexture(group);
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,{status:'none'}),false);
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,first,closePresentation(7)),true);
+ const afterReset=suspendedCaptureTexture(group);assert.notEqual(afterReset,firstTexture);
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,suspendedCapture(2),closePresentation(7)),true);
+ assert.notEqual(suspendedCaptureTexture(group),afterReset,'new complete pair replaces the bound capture');
+});
+test('invalid suspended close resources and presentations fail explicitly',async t=>{
+ const missing=setup(t,{alterBackground:data=>{data.materialAnimations=data.materialAnimations.filter(clip=>clip.Name!=='BannerBG_AppQuit');}});await missing.banner.ready;
+ assert.equal(missing.banner.status().backgroundReady,true,'ordinary HOME background remains available');
+ assert.equal(missing.banner.status().suspendedBackgroundReady,false);
+ assert.match(missing.banner.status().suspendedBackgroundFailure,/Unsupported native suspended background/);
+ assert.equal(missing.banner.drawSuspendedBackground(missing.ctx,suspendedCapture(),closePresentation(0)),false);
+ const invalid=setup(t);await invalid.banner.ready;
+ const presentation=closePresentation(0);presentation.material.reverse();
+ assert.equal(invalid.banner.drawSuspendedBackground(invalid.ctx,suspendedCapture(),presentation),false);
+ assert.match(invalid.banner.status().suspendedBackgroundFailure,/Unsupported native suspended presentation/);
 });
 function snapshot(group){
  const meshes=[];group.traverse(node=>{if(node.isMesh)meshes.push({positions:[...node.geometry.attributes.position.array],uniforms:Object.fromEntries(Object.entries(node.material.uniforms).filter(([name])=>name.startsWith('constant')||name.startsWith('uvMatrix')).map(([name,{value}])=>[name,value.toArray()]))});});

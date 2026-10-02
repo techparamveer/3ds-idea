@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { suspendedBackgroundAsset, paddedHomeCapture } from '../src/scene/home-suspended-background.ts';
+import { suspendedBackgroundAsset, suspendedBackgroundPlayback, paddedHomeCapture } from '../src/scene/home-suspended-background.ts';
 
 const data = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/home-background/model.json', import.meta.url)));
 const asset = () => ({ data: structuredClone(data), images: new Map(data.textures.map(t => [t.name, { width: t.width, height: t.height, data: new Uint8ClampedArray(t.width * t.height * 4) }])) });
@@ -27,6 +27,45 @@ test('missing or unsupported suspended assets fail explicitly', () => {
   }
   const changed = asset(); changed.data.sourceSha256 = 'unknown';
   assert.throws(() => suspendedBackgroundAsset(changed), /Unsupported native/);
+  const missingQuit = asset(); missingQuit.data.materialAnimations = missingQuit.data.materialAnimations.filter(clip => clip.Name !== 'BannerBG_AppQuit');
+  assert.throws(() => suspendedBackgroundAsset(missingQuit), /Unsupported native/);
+  const changedAlpha = asset();
+  changedAlpha.data.materialAnimations.find(clip => clip.Name === 'BannerBG_AppQuit').Elements
+    .find(element => element.TargetType === 'MaterialConstant4').Content.A.KeyFrames.at(-1).Value = .5;
+  assert.throws(() => suspendedBackgroundAsset(changedAlpha), /Unsupported native/);
+});
+
+test('suspended close playback preserves the source override order and bounded frame', () => {
+  assert.deepEqual(suspendedBackgroundPlayback(), {
+    skeletal: [{ name: 'BannerBG_SceneIn', frame: 20 }],
+    material: [{ name: 'BannerBG_AppPause', frame: 20 }],
+  });
+  const presentation = {
+    skeletal: [{ clip: 'BannerBG_SceneIn', frame: 20 }],
+    material: [{ clip: 'BannerBG_AppPause', frame: 20 }, { clip: 'BannerBG_AppQuit', frame: 13 }],
+  };
+  assert.deepEqual(suspendedBackgroundPlayback(presentation), {
+    skeletal: [{ name: 'BannerBG_SceneIn', frame: 20 }],
+    material: [{ name: 'BannerBG_AppPause', frame: 20 }, { name: 'BannerBG_AppQuit', frame: 13 }],
+  });
+  for (const frame of [-1, 21, 1.5]) assert.throws(() => suspendedBackgroundPlayback({
+    ...presentation, material: [presentation.material[0], { ...presentation.material[1], frame }],
+  }), /Unsupported native suspended presentation/);
+  assert.throws(() => suspendedBackgroundPlayback({
+    ...presentation, material: [...presentation.material].reverse(),
+  }), /Unsupported native suspended presentation/);
+});
+
+test('pinned AppQuit source channels are the alpha reveal and step-scale override', () => {
+  const quit = data.materialAnimations.find(clip => clip.Name === 'BannerBG_AppQuit');
+  const alpha = quit.Elements.find(element => element.TargetType === 'MaterialConstant4').Content.A;
+  const scale = quit.Elements.find(element => element.TargetType === 'MaterialTexCoord0Scale');
+  assert.deepEqual(alpha.KeyFrames.map(({ Frame, Value }) => [Frame, Value]), [[0, 0], [20, 1]]);
+  assert.equal(alpha.InterpolationType, 'Hermite');
+  for (const channel of ['X', 'Y']) {
+    assert.deepEqual(scale.Content[channel].KeyFrames.map(({ Frame, Value }) => [Frame, Value]), [[0, .87], [20, 1]]);
+    assert.equal(scale.Content[channel].InterpolationType, 'Step');
+  }
 });
 
 test('capture padding preserves every rotated LCD byte in the source mask extent', () => {

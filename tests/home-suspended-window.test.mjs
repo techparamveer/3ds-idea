@@ -11,6 +11,7 @@ const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
 const packs=Object.fromEntries(['launcher','messages'].map(key=>[key,JSON.parse(readFileSync(new URL(manifest.home[key],root)))]));
 const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',4000),6000),'home',6001);
 const metadata=()=>({description:'Health and Safety Information',icon:{width:64,height:64,data:new Uint8ClampedArray(64*64*4)}});
+const finishClose=(state,now)=>{state=tickSystem(state,now);state=tickSystem(state,now+1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
 test('lower highlight retains its application owner across selection and toolbar focus, never foreground or retired owners',()=>{
  const state=suspended(),owner=state.system.runtime.application;
@@ -68,7 +69,8 @@ test('expanded window follows the selected suspended instance, never a live, app
  }
  const dialog=reduceSystem(state,'back',6200);
  assert.equal(dialog.system.dialog,'close');assert.equal(selectedSuspendedApplication(dialog).id,owner);
- assert.equal(selectedSuspendedApplication(reduceSystem(dialog,'open',6300)),null);
+ const closing=reduceSystem(dialog,'open',6300);assert.equal(selectedSuspendedApplication(closing).id,owner);
+ assert.equal(selectedSuspendedApplication(finishClose(closing,6300)),null);
 });
 
 test('source compact pose retains the small masked icon and HOME glyph without title or expanded frame',()=>{

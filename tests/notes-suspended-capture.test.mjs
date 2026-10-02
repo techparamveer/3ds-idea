@@ -98,6 +98,7 @@ function fakeSurfaces(){
 const appFrame=seed=>({upper:frame(400,240,seed),lower:frame(320,240,seed)});
 const record=(capture,s,owner,pair)=>capture.record(s.system.runtime,owner,pair.upper,pair.lower);
 const openHealth=(s,now)=>tickSystem(launch(s,'health-safety',now),now+2200);
+const finishClose=(state,now)=>{state=tickSystem(state,now);state=tickSystem(state,now+1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
 test('HOME borrows the upright frozen upper surface without readback and cannot show a retired capture',()=>{
  const surfaces=fakeSurfaces(),capture=createSuspendedApplicationCapture({createSurface:surfaces.createSurface}),draws=[];
@@ -110,6 +111,8 @@ test('HOME borrows the upright frozen upper surface without readback and cannot 
  assert.deepEqual(draws[0],[surfaces.made[0],0,24,400,188,0,24,400,188]);
  assert.equal(surfaces.made[0].reads,undefined);
  s=reduceSystem(reduceSystem(s,'back',6400),'open',6500);
+ assert.equal(capture.drawUpper(s.system.runtime,target),true,'terminal owner remains capture-eligible while close starts');
+ s=finishClose(s,6500);
  assert.equal(capture.drawUpper(s.system.runtime,target),false);
  assert.equal(surfaces.made[0].width,0);capture.dispose();
  assert.equal(capture.drawUpper(s.system.runtime,target),false);
@@ -158,7 +161,7 @@ test('a resumed application replaces its frame, and a new instance never sees an
  assert.equal(resumed.status,'ready');assert.ok(resumed.generation>first.generation);assert.notEqual(resumed.upper,first.upper);
  assert.ok(same(resumed.upper.data,rotateCaptureForNativeUV(400,240,second.upper.data).data));
  // Close from HOME, relaunch: the new instance has no complete frame yet.
- s=reduceSystem(reduceSystem(s,'back',6600),'open',6700);assert.equal(s.system.runtime.application,null);
+ s=reduceSystem(reduceSystem(s,'back',6600),'open',6700);s=finishClose(s,6700);assert.equal(s.system.runtime.application,null);
  s=openHealth(s,7000);const relaunched=s.system.runtime.active;assert.notEqual(relaunched,health);
  s=reduceSystem(s,'home',9300);
  assert.deepEqual(capture.read(s.system.runtime),{status:'missing',owner:relaunched},'missing pixels are distinct from no suspended software');

@@ -1,4 +1,6 @@
 import {systemTransitionDuration} from './system-transitions.ts';
+import type { HomeApplicationTransition, HomeApplicationTransitionIntent } from './home-application-transition.ts';
+import { advanceSystemHomeApplicationTransition, beginSystemHomeApplicationTransition, cancelSystemHomeApplicationTransition, isSystemHomeApplicationTransitionActive, reconcileSystemHomeApplicationTransition, sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
 import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { createHomeCursorLoop, advanceHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
@@ -6,6 +8,7 @@ import { getHomeFooter } from './home-presentation.ts';
 import { cancelHomeControls, cancelHomeControlTouch, isHomeControlsActive, isHomeSwitchPresentationActive, queueHomeControlEvent, queueHomeControlTouch, reconcileHomeControlGesture, reconcileHomeControls, selectHomeControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
 import { getHomeToolbarCursorAnchor } from './home-cursor-presentation.ts';
 export { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHomeFolderCloseRecord, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
+export { sampleSystemHomeApplicationTransition, isSystemHomeApplicationTransitionActive } from './system-home-application-transition.ts';
 import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout, isPreviousDefaultAppLayout } from './app-registry.ts';
@@ -25,9 +28,9 @@ export type System = {
  app:string|null; pending:string|null; item:number; detail:boolean; page:number; photo:number;
  layout:Record<number,string>; muted:boolean; volume:number; dialog:'switch'|'close'|null;
  returnPhase:'home'|'app'; link:string|null; preferences:boolean; preferenceChoice:number;
- runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation; homeClock: HomeUpdateClock; homeFolderIdentities: HomeFolderIdentities; homeFolderClose: SystemHomeFolderCloseSession; homeCursorLoop: HomeCursorLoop; homeControls: HomeControls | null;
+ runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation; homeClock: HomeUpdateClock; homeFolderIdentities: HomeFolderIdentities; homeFolderClose: SystemHomeFolderCloseSession; homeApplicationTransition: HomeApplicationTransition | null; homeCursorLoop: HomeCursorLoop; homeControls: HomeControls | null;
 };
-export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(),homeFolderClose:createSystemHomeFolderClose(),homeCursorLoop:createHomeCursorLoop(),homeControls:null}};}
+export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(),homeFolderClose:createSystemHomeFolderClose(),homeApplicationTransition:null,homeCursorLoop:createHomeCursorLoop(),homeControls:null}};}
 /** Kept for portfolio artwork compatibility; use selectedTitle for every installed title. */
 export function selectedApp(state:MenuState){return getApp(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
 export function selectedTitle(state:MenuState){return getTitle(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
@@ -54,6 +57,8 @@ function commitRuntime(state: MenuState, runtime: AppRuntime, now: number): Menu
  return next;
 }
 export function launch(state:MenuState,id:string,now:number):MenuState {
+ state=reconcileSystemHomeApplicationTransition(state);
+ if(isSystemHomeApplicationTransitionActive(state))return state;
  state=resetHomeNavigation(cancelSystemHomeFolderClose(state));
  const s=state.system!, title=getTitle(id);if(!title)return state;
  if(title.kind!=='application')return invokeSystemApplet(state,id,now);
@@ -64,7 +69,8 @@ export function launch(state:MenuState,id:string,now:number):MenuState {
 }
 /** Hidden accessibility title shortcuts should leave HOME focused on the title they opened. */
 export function launchHomeShortcut(state:MenuState,id:string,now:number):MenuState {
- const system=state.system;if(!system||system.phase!=='home')return state;
+ state=reconcileSystemHomeApplicationTransition(state);
+ const system=state.system;if(!system||system.phase!=='home'||isSystemHomeApplicationTransitionActive(state))return state;
  const root=Object.entries(system.layout).find(([,title])=>title===id);
  if(root)state=selectHomeLocation(state,{folder:null,slot:Number(root[0])});
  else for(const [folder,layout] of Object.entries(system.folderLayouts)){
@@ -78,12 +84,13 @@ function requestApplicationClose(state:MenuState,now:number):MenuState {
  const owner=s.runtime.application?s.runtime.instances[s.runtime.application]:undefined;
  // Observed Health HOME Close returns directly; do not generalize its policy to other titles or switching.
  if(s.phase==='home'&&s.app==='health-safety'&&owner?.appId===s.app&&selectedTitle(state)?.id===owner.appId&&owner.suspended&&!owner.closing&&s.runtime.active===null&&s.runtime.homeReturn===owner.id){
-  const closed=syncRuntime(state,closeApplication(s.runtime,now),'home');
-  return {...closed,system:{...closed.system!,dialog:null,pending:null,input:createInputLatch()}};
+  return beginSystemHomeApplicationTransition({...state,system:{...s,dialog:null,pending:null,input:createInputLatch()}},{kind:'close'});
  }
  return {...state,system:{...s,dialog:'close',input:createInputLatch()}};
 }
 export function invokeSystemApplet(state: MenuState, appId: string, now: number, args: AppState = {}): MenuState {
+ state=reconcileSystemHomeApplicationTransition(state);
+ if(isSystemHomeApplicationTransitionActive(state))return state;
  state=resetHomeNavigation(cancelSystemHomeFolderClose(state));
  const s=state.system;if(!s||getTitle(appId)?.kind==='application')return state;
  const next=syncRuntime(state,openApplet(s.runtime,appId,`home:${appId}`,args,now));
@@ -96,10 +103,31 @@ export function tickHomeNavigationClock(state: MenuState, now: number, reduced =
 /** Scene consumes journals once; nested action reducers see the same timestamp
  * and therefore cannot replay their input, cue or banner observations. */
 export function tickHomeNavigationClockObserved(state: MenuState, now: number, reduced = false): {state:MenuState;passes:readonly HomeControlPass[]} {
- state=reconcileSystemHomeFolderClose(state);
+ state=reconcileSystemHomeApplicationTransition(reconcileSystemHomeFolderClose(state));
  const s=state.system;if(!s||!Number.isFinite(now))return {state,passes:[]};
- const active=isHomeControlsActive(state);
- const stepped=stepHomeUpdateClock(s.homeClock,now,active||isHomeSwitchPresentationActive(state));
+ const applicationTransition=isSystemHomeApplicationTransitionActive(state);
+ const applicationTransitionEligible=applicationTransition&&state.powered&&s.phase==='home'&&!s.sleeping&&!s.dialog&&!s.preferences&&!state.panel;
+ const active=isHomeControlsActive(state)&&!applicationTransition;
+ const stepped=stepHomeUpdateClock(s.homeClock,now,active||isHomeSwitchPresentationActive(state)||applicationTransitionEligible);
+ if(applicationTransition){
+  const advanced=advanceSystemHomeApplicationTransition(state,stepped.updates,applicationTransitionEligible);
+  state=advanced.state;
+  const processed=advanced.processedUpdates;
+  const clock=processed<stepped.updates
+   ?{lastNow:now,remainderMs:0,updateCount:s.homeClock.updateCount+processed}
+   :stepped.clock;
+  if(state.system!.homeClock!==clock)state={...state,system:{...state.system!,homeClock:clock}};
+  if(advanced.commit){
+   const transition=state.system!.homeApplicationTransition;
+   if(transition&&transition.identity.owner===advanced.commit.identity.owner){
+    const intent:HomeApplicationTransitionIntent=advanced.commit.intent;
+    const closed=syncRuntime(state,closeApplication(state.system!.runtime,now),'home');
+    state={...closed,system:{...closed.system!,homeApplicationTransition:null,dialog:null,pending:null,input:createInputLatch()}};
+    if(intent.kind==='switch')state=launch(state,intent.appId,now);
+   }
+  }
+  return {state,passes:[]};
+ }
  if(active&&s.homeControls){
   const passes:HomeControlPass[]=[];
   if(stepped.updates===0&&stepped.clock!==s.homeClock)state={...state,system:{...s,homeClock:stepped.clock}};
@@ -156,9 +184,14 @@ function advanceHomePresentationClocks(state:MenuState,updates:number,reduced:bo
 }
 export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return state;
+ state=reconcileSystemHomeApplicationTransition(state);s=state.system!;
+ const applicationTransition=isSystemHomeApplicationTransitionActive(state);
  state=tickHomeNavigationClock(state,now,reduced);s=state.system!;
  if(s.sleeping!==s.runtime.sleeping){state={...state,system:{...s,runtime:setRuntimeSleeping(s.runtime,s.sleeping,now),input:createInputLatch()}};s=state.system!;}
  if(s.sleeping)return cancelHomeGesture(state);
+ // One outer host tick owns one close-controller batch. In particular, the
+ // terminal frame cannot fall through to repeats/runtime work before painting.
+ if(applicationTransition)return state;
  state=isSystemHomeFolderClosing(state)?cancelHomeGesture(state):tickHomeGesture(state,now);s=state.system!;
  const duration=systemTransitionDuration(s.phase,reduced);
  if(s.phase==='shutdown'&&now-s.since>=duration)return {...state,powered:false,panel:null,system:{...s,phase:'off',since:now}};
@@ -174,7 +207,10 @@ export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
 }
 function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return !s?reduceMenu(state,input):state;
+ state=reconcileSystemHomeApplicationTransition(state);
+ const applicationTransition=isSystemHomeApplicationTransitionActive(state);
  state=tickHomeNavigationClock(state,now);
+ if(applicationTransition&&!['power','mute','volume-up','volume-down'].includes(input))return state;
  if(['left','right','up','down'].includes(input)){
   const queued=queueHomeControlEvent(state,{type:'command',command:input as 'left'|'right'|'up'|'down'});if(queued)return queued;
  }
@@ -188,6 +224,7 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
    // behind by the previous session. Keep the saved tile/folder view itself.
    homeNavigation:{...s.homeNavigation,focus:createHomeGridFocus(),gesture:null,motion:null}}};
   if(s.phase==='power'||s.phase==='shutdown')return state;
+  state=cancelSystemHomeApplicationTransition(state);s=state.system!;
   state=releaseSystemInputs(state,now);s=state.system!;
   return change({phase:'power',since:now,preferences:false,returnPhase:s.phase==='app'?'app':'home',app:null,runtime:closeApplication(s.runtime,now),dialog:null,input:createInputLatch()});
  }
@@ -213,8 +250,8 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  if(s.dialog){
   if(input==='back')return change({dialog:null,pending:null,input:createInputLatch(),runtime:s.phase==='app'?resumeRuntimeApplication(s.runtime,now):s.runtime});
   if(input==='open'){
-   const closing=syncRuntime(state,closeApplication(s.runtime,now),'home');const closed={...closing,system:{...closing.system!,dialog:null,pending:null}};
-   return s.pending?launch(closed,s.pending,now):closed;
+   const intent:HomeApplicationTransitionIntent=s.pending?{kind:'switch',appId:s.pending}:{kind:'close'};
+   return beginSystemHomeApplicationTransition({...state,system:{...s,dialog:null,pending:null,input:createInputLatch()}},intent);
   }return state;
  }
  if(input==='home'){
@@ -253,8 +290,11 @@ export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuSt
 }
 function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuState {
  if(!Number.isFinite(now)||!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>=320||y<0||y>=240)return state;
+ state=reconcileSystemHomeApplicationTransition(state);
+ const applicationTransition=isSystemHomeApplicationTransitionActive(state);
  state=cancelHomeGesture(tickHomeNavigationClock(state,now));
  const s=state.system;if(!s)return touchMenu(state,x,y);
+ if(applicationTransition)return state;
  if(s.sleeping||s.phase==='off'||s.phase==='shutdown'||s.phase==='boot'||s.phase==='launch')return state;
  const send=(input:Input)=>reduceSystem(state,input,now);
  if(s.preferences){if(y>=212)return send('back');if(y>=53&&y<92)return send('mute');if(y>=106&&y<147)return send(x<160?'volume-down':'volume-up');if(y>=165&&y<204)return send('reset-layout');return state;}
@@ -304,8 +344,21 @@ export function dispatchSystemEvent(state: MenuState,event: AppEvent,now: number
 }
 function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number): MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return state;
+ state=reconcileSystemHomeApplicationTransition(state);s=state.system!;
+ const applicationTransition=isSystemHomeApplicationTransitionActive(state);
  if(event.type==='analog'){if(!Number.isFinite(event.x)||!Number.isFinite(event.y))return state;event={...event,x:Math.max(-1,Math.min(1,event.x)),y:Math.max(-1,Math.min(1,event.y))};}
  if((s.sleeping||s.phase==='off'||s.phase==='shutdown'||s.phase==='boot'||s.phase==='launch')&&!(event.type==='button'&&event.command==='power')&&!(event.type==='command'&&event.command==='power'))return state;
+ if(applicationTransition){
+  state=tickHomeNavigationClock(state,now);
+  if(event.type==='command'&&['power','mute','volume-up','volume-down'].includes(event.command))return reduceSystem(state,event.command,now);
+  if(event.type==='button'&&['power','mute','volume-up','volume-down'].includes(event.command)){
+   const current=state.system!,latched=latchInput(current.input,event,now);
+   let next:MenuState={...state,system:{...current,input:latched.latch}};
+   for(const command of latched.commands)next=reduceSystem(next,command,now);
+   return next;
+  }
+  return state;
+ }
  if(event.type==='touch'){
   const previousTouch=s.input.touch;
   const touched=latchTouch(s.input,event);if(!touched.accepted)return state;
@@ -380,7 +433,8 @@ export function releaseSystemInputs(state:MenuState,now=state.system?.runtime.la
 }
 /** Legacy root-only entry point; scene input should use the phase protocol instead. */
 export function moveApp(state:MenuState,from:number,to:number):MenuState {
- if(isSystemHomeFolderClosing(state))return state;
+ state=reconcileSystemHomeApplicationTransition(state);
+ if(isSystemHomeApplicationTransitionActive(state)||isSystemHomeFolderClosing(state))return state;
  state=resetHomeNavigation(state);
  return state.system?.layout[from]?moveHomeItem(state,{folder:null,slot:from},{folder:null,slot:to}):state;
 }
@@ -394,7 +448,7 @@ export function restoreSettings(state:MenuState,raw:string|null):MenuState {
  const migrateDefault=isPreviousDefaultAppLayout(v.layout)&&!Object.keys(folders).length
    &&!Object.keys(folderLayouts).length&&nextFolderNumber===1;
  const layout=migrateDefault?initialAppLayout():home.layout;
- const restored = {...state,folders,nextFolderNumber,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system,layout,folderLayouts,homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(folders),homeFolderClose:createSystemHomeFolderClose(state.system.homeFolderClose),muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
+ const restored = {...state,folders,nextFolderNumber,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system,layout,folderLayouts,homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(folders),homeFolderClose:createSystemHomeFolderClose(state.system.homeFolderClose),homeApplicationTransition:null,muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
  let result=restoreHomeView(restored,v.version===4?v.homeView:null,homeDensityIndex(restored.columns));
  if(migrateDefault){
   const before=getHomeNavigation(result).rootView.selectedSlot;

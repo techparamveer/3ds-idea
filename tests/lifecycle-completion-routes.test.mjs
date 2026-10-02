@@ -16,6 +16,11 @@ const titleSlot = id => Number(Object.entries(initialAppLayout()).find(([, title
 const bootHome = () => tickSystem(createPortfolioState(), 3001);
 const settleLaunch = (state, id, now) => tickSystem(launch(state, id, now), now + 2200);
 const act = (state, id, now) => dispatchSystemEvent(state, { type: 'action', id }, now);
+const finishClose = (state, now) => {
+  state = tickSystem(state, now);
+  state = tickSystem(state, now + 1000);
+  return tickSystem(state, state.system.homeClock.lastNow + 1000 / 60);
+};
 
 function assertOnlyOwner(state, owner, appId, { active, homeReturn, suspended }) {
   const runtime = state.system.runtime;
@@ -50,6 +55,8 @@ test('life-close-cancel-confirm preserves suspended Work until confirmation and 
 
   state = reduceSystem(state, 'back', 6600);
   state = reduceSystem(state, 'open', 6700);
+  assertOnlyOwner(state, owner, 'work', { active: false, homeReturn: true, suspended: true });
+  state = finishClose(state, 6700);
   assert.equal(state.system.phase, 'home');
   assert.equal(state.system.app, null);
   assert.equal(state.system.dialog, null);
@@ -96,6 +103,8 @@ test('life-switch-cancel-confirm keeps Work through cancel and creates About onl
   assertOnlyOwner(state, workOwner, 'work', { active: false, homeReturn: true, suspended: true });
 
   state = reduceSystem(state, 'open', 6900);
+  assertOnlyOwner(state, workOwner, 'work', { active: false, homeReturn: true, suspended: true });
+  state = finishClose(state, 6900);
   const aboutOwner = state.system.runtime.application;
   assert.ok(aboutOwner);
   assert.notEqual(aboutOwner, workOwner);
@@ -107,7 +116,7 @@ test('life-switch-cancel-confirm keeps Work through cancel and creates About onl
   assert.equal(state.system.runtime.instances[workOwner], undefined);
   assertOnlyOwner(state, aboutOwner, 'about', { active: true, homeReturn: false, suspended: false });
 
-  state = tickSystem(state, 9100);
+  state = tickSystem(state, state.system.since + 2200);
   assert.equal(state.system.phase, 'app');
   assert.equal(getActiveAppView(state)?.appId, 'about');
   assertOnlyOwner(state, aboutOwner, 'about', { active: true, homeReturn: false, suspended: false });

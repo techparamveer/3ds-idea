@@ -4,6 +4,7 @@ import {createPortfolioState,tickSystem,reduceSystem,touchSystem,moveApp,restore
 import {apps} from '../src/os/apps.ts';
 const home=()=>tickSystem(createPortfolioState(),3001);
 const send=(s,input)=>reduceSystem(s,input,4000);
+const finishClose=s=>{s=tickSystem(s,4000);s=tickSystem(s,5000);return tickSystem(s,s.system.homeClock.lastNow+1000/60);};
 test('accessibility title shortcut focuses its HOME tile before software opens',()=>{
  let s=home(),slot=Number(Object.entries(s.system.layout).find(([,id])=>id==='sound')[0]);
  s=launchHomeShortcut(s,'sound',4000);
@@ -32,7 +33,7 @@ test('HOME suspends and resumes exact position; switching requires confirmation'
  assert.equal(s.system.phase,'home');assert.equal(s.system.item,1);assert.equal(s.system.detail,true);
  const resumed=send(s,'home');assert.equal(resumed.system.phase,'app');assert.equal(resumed.system.item,1);
  s=send({...s,selected:5},'open');assert.equal(s.system.dialog,'switch');assert.equal(s.system.app,'work');
- assert.equal(send(s,'back').system.app,'work');s=send(s,'open');assert.equal(s.system.app,'nvidia');assert.equal(s.system.phase,'launch');
+ assert.equal(send(s,'back').system.app,'work');s=send(s,'open');assert.equal(s.system.app,'work');s=finishClose(s);assert.equal(s.system.app,'nvidia');assert.equal(s.system.phase,'launch');
 });
 test('power requires confirmation, off is inert, sleep preserves application',()=>{
  let s=send(home(),'power');assert.equal(s.system.phase,'power');assert.equal(s.powered,true);

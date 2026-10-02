@@ -11,6 +11,11 @@ const booted = () => tickSystem(createPortfolioState(), 3001);
 const runningWork = () => tickSystem(reduceSystem(booted(), 'open', 4000), 6000);
 const suspendedWork = () => reduceSystem(runningWork(), 'home', 6001);
 const selectTitle = (state, id) => settleHomeNavigation(selectHomeSlot(state, titleSlot(id)));
+const finishClose = (state, now) => {
+  state = tickSystem(state, now);
+  state = tickSystem(state, now + 1000);
+  return tickSystem(state, state.system.homeClock.lastNow + 1000 / 60);
+};
 
 function assertSuspendedOwner(state, owner, appId = 'work') {
   const runtime = state.system.runtime;
@@ -66,7 +71,9 @@ test('Close software removes the suspended owner before no-software HOME regains
   assert.equal(dialog.system.dialog, 'close');
   assertSuspendedOwner(dialog, owner);
 
-  const closed = reduceSystem(dialog, 'open', 6003);
+  const closing = reduceSystem(dialog, 'open', 6003);
+  assertSuspendedOwner(closing, owner);
+  const closed = finishClose(closing, 6003);
   assert.equal(closed.system.phase, 'home');
   assert.equal(closed.system.app, null);
   assert.equal(closed.system.runtime.application, null);
@@ -99,14 +106,17 @@ test('switch cancel retains Work while switch confirmation retires it before the
   assert.deepEqual(getHomeFooter(cancelled), { two: false, left: null, right: 'open' });
 
   switching = reduceSystem(cancelled, 'open', 6004);
-  const launched = reduceSystem(switching, 'open', 6005);
+  const closing = reduceSystem(switching, 'open', 6005);
+  assertSuspendedOwner(closing, workOwner);
+  const launched = finishClose(closing, 6005);
   const aboutOwner = launched.system.runtime.application;
   assert.equal(launched.system.phase, 'launch');
   assert.equal(launched.system.app, 'about');
   assert.equal(launched.system.runtime.instances[workOwner], undefined);
   assert.notEqual(aboutOwner, workOwner);
 
-  const aboutHome = reduceSystem(tickSystem(launched, 8000), 'home', 8001);
+  const settled = tickSystem(launched, launched.system.since + 2200);
+  const aboutHome = reduceSystem(settled, 'home', launched.system.since + 2201);
   assertSuspendedOwner(aboutHome, aboutOwner, 'about');
   assert.deepEqual(getHomeFooter(aboutHome), { two: true, left: 'close-software', right: 'resume' });
 });

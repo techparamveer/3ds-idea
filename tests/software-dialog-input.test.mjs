@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createPortfolioState,tickSystem,reduceSystem,dispatchSystemEvent,touchSystem,launchHomeShortcut,releaseSystemInputs,setSystemSleeping} from '../src/os/system.ts';
+import {createPortfolioState,tickSystem,reduceSystem,dispatchSystemEvent,touchSystem,launchHomeShortcut,releaseSystemInputs,setSystemSleeping,sampleSystemHomeApplicationTransition} from '../src/os/system.ts';
 import {SOFTWARE_DIALOG_BUTTONS,softwareDialogActionAt,softwareDialogPressed} from '../src/os/stock-screen-layout.ts';
 
 function suspended(){
@@ -11,6 +11,7 @@ function suspended(){
 const dialog=kind=>kind==='close'?reduceSystem(suspended(),'back',6400):launchHomeShortcut(suspended(),'about',6400);
 const touch=(state,phase,x,y,pointerId=1)=>dispatchSystemEvent(state,{type:'touch',phase,x,y,pointerId},6500);
 const tap=(state,x,y)=>touch(touch(state,'down',x,y),'up',x,y);
+const finishClose=(state,now=6500)=>{state=tickSystem(state,now);state=tickSystem(state,now+1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
 test('paint and touch share bounded button rectangles and owned pressed feedback',()=>{
  for(const r of SOFTWARE_DIALOG_BUTTONS){
@@ -51,10 +52,16 @@ for(const kind of ['close','switch']){
   assert.equal(cancelled.system.pending,null);
   const confirmed=touch(down,'up',233,188);
   assert.equal(confirmed.system.dialog,null);
-  assert.equal(confirmed.system.app,kind==='close'?null:'about');
-  assert.equal(confirmed.system.phase,kind==='close'?'home':'launch');
+  assert.deepEqual(sampleSystemHomeApplicationTransition(confirmed).intent,kind==='close'?{kind:'close'}:{kind:'switch',appId:'about'});
+  assert.equal(confirmed.system.app,'work');
+  assert.equal(confirmed.system.phase,'home');
   assert.equal(confirmed.system.input.touch,null);
-  assert.equal(touch(confirmed,'up',233,188),confirmed);
+  const duplicate=touch(confirmed,'up',233,188);
+  assert.equal(duplicate.system.runtime,confirmed.system.runtime);
+  assert.equal(sampleSystemHomeApplicationTransition(duplicate),sampleSystemHomeApplicationTransition(confirmed));
+  const completed=finishClose(confirmed);
+  assert.equal(completed.system.app,kind==='close'?null:'about');
+  assert.equal(completed.system.phase,kind==='close'?'home':'launch');
  });
  test(`${kind}: cancellation and a second pointer cannot release the owner's button`,()=>{
   const initial=dialog(kind),down=touch(initial,'down',233,188);

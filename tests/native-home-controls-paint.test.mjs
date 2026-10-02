@@ -387,6 +387,10 @@ test('suspended software footer uses the source X Close glyph while folder Close
  const label=native.messages[native.labels.lau_3b_quit].text;
  assert.equal(label,'\ue071 Close');
  for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW'])assert.equal(calls[0].overrides[`${prefix}_L_03`].text,label);
+ for(const prefix of ['T_BtnBB','T_BtnFB','T_BtnPB'])assert.equal(calls[0].overrides[`${prefix}_L_03`].text,label);
+ assert.equal(calls[0].overrides.N_BtnB_L_03.visible,true);
+ assert.equal(calls[0].overrides.N_BtnW_L_03.visible,false);
+ assert.equal(calls[0].overrides.N_BtnW_R_02.visible,true);
  assert.notEqual(label,native.messages[native.labels.lau_2b_close].text);
 });
 

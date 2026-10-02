@@ -73,7 +73,7 @@ test('Close software removes the suspended owner before no-software HOME regains
   assert.equal(closed.system.runtime.active, null);
   assert.equal(closed.system.runtime.homeReturn, null);
   assert.equal(closed.system.runtime.instances[owner], undefined);
-  assert.deepEqual(getHomeFooter(closed), { two: true, left: null, right: 'open' });
+  assert.deepEqual(getHomeFooter(closed), { two: false, left: null, right: 'open' });
 
   const relaunched = reduceSystem(closed, 'open', 6004);
   assert.equal(relaunched.system.phase, 'launch');
@@ -85,7 +85,7 @@ test('switch cancel retains Work while switch confirmation retires it before the
   const suspended = selectTitle(suspendedWork(), 'about');
   const workOwner = suspended.system.runtime.homeReturn;
   assertSuspendedOwner(suspended, workOwner);
-  assert.deepEqual(getHomeFooter(suspended), { two: true, left: 'close-software', right: 'open' });
+  assert.deepEqual(getHomeFooter(suspended), { two: false, left: null, right: 'open' });
 
   let switching = reduceSystem(suspended, 'open', 6002);
   assert.equal(switching.system.dialog, 'switch');
@@ -96,7 +96,7 @@ test('switch cancel retains Work while switch confirmation retires it before the
   assert.equal(cancelled.system.dialog, null);
   assert.equal(cancelled.system.pending, null);
   assertSuspendedOwner(cancelled, workOwner);
-  assert.deepEqual(getHomeFooter(cancelled), { two: true, left: 'close-software', right: 'open' });
+  assert.deepEqual(getHomeFooter(cancelled), { two: false, left: null, right: 'open' });
 
   switching = reduceSystem(cancelled, 'open', 6004);
   const launched = reduceSystem(switching, 'open', 6005);

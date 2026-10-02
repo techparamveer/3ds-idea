@@ -22,8 +22,10 @@ for(const [name,close] of Object.entries(closeActions))test(`Health HOME ${name}
 test('an unselected Health owner does not inherit the selected-title direct-close policy',()=>{
  const state=suspended(),other=settleHomeNavigation(selectHomeSlot(state,0));
  assert.equal(other.system.layout[other.selected],'work');
- const next=touchSystem(other,50,225,6700);
+ const next=reduceSystem(other,'back',6700);
  assert.equal(next.system.dialog,'close');assert.equal(next.system.runtime.application,state.system.runtime.application);
+ const opened=touchSystem(other,50,225,6700);
+ assert.equal(opened.system.dialog,'switch');assert.equal(opened.system.pending,'work');
 });
 
 test('other applications and Health switching retain their existing confirmation policy',()=>{

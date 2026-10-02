@@ -4,7 +4,7 @@ import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensityFrame,nativeHomeDensityMetric,nativeFolderPanelGeometry,getNativeFolderPanel,nativeFolderBalloonPosition} from '../src/os/home-presentation.ts';
-import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem,sampleSystemHomeFolderClose} from '../src/os/system.ts';
+import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem,sampleSystemHomeFolderClose,launchHomeShortcut,reduceSystem} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
 import {homeTouchLocation} from '../src/os/home-gestures.ts';
 const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
@@ -111,6 +111,28 @@ test('Settings HOME shows native Manual and opens the Settings-owned applet from
  const down=touch(selected,'down',{x:50,y:226},100),up=touch(down,'up',{x:50,y:226},150);
  assert.equal(up.system.runtime.instances[up.system.runtime.active].state.manualTitleId,'0004001000022000','live touch phases use the same route');
  assert.equal(getHomeFooter(selectHomeSlot(initial,0)).left,null,'portfolio slot does not inherit Manual');
+});
+
+test('Health and Camera HOME footers follow the selected title, not an unrelated retained owner',()=>{
+ const initial=tickSystem(createPortfolioState(),3001);
+ const selected=(state,id)=>settleHomeNavigation(selectHomeSlot(state,Number(Object.entries(state.system.layout).find(([,value])=>value===id)[0])));
+ const idle=selected(initial,'health-safety');
+ assert.deepEqual(getHomeFooter(idle),{two:false,left:null,right:'open'});
+ assert.equal(touchSystem(idle,50,226,4000).system.app,'health-safety','left of centered Open launches');
+ const health=reduceSystem(tickSystem(launchHomeShortcut(initial,'health-safety',4000),6500),'home',6600);
+ assert.deepEqual(getHomeFooter(health),{two:true,left:'close-software',right:'resume'});
+ const camera=selected(health,'camera');
+ assert.deepEqual(getHomeFooter(camera),{two:true,left:'manual',right:'open'});
+ for(const input of [s=>touchSystem(s,50,226,6700),s=>touch(touch(s,'down',{x:50,y:226},6700),'up',{x:50,y:226},6900)]){
+  const opened=input(camera),runtime=opened.system.runtime;
+  assert.equal(opened.system.dialog,null);
+  assert.equal(runtime.application,health.system.runtime.application);
+  assert.equal(runtime.instances[runtime.active].appId,'manual');
+  assert.equal(runtime.instances[runtime.active].state.manualTitleId,'0004001000022400');
+  assert.ok(!runtime.instances[runtime.application].closing);
+ }
+ const switched=touchSystem(camera,210,226,6700);
+ assert.equal(switched.system.dialog,'switch');assert.equal(switched.system.pending,'camera');
 });
 
 test('folder plate and shadow geometry match original ARM fixtures at every density and transition anchor',()=>{

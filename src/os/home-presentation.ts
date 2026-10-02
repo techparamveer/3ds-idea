@@ -131,9 +131,10 @@ export function getHomeFooter(state:MenuState){
  // Native 0x29af68 → 0x1e0cb4 hides both actions for an empty selected child.
  if(hasEmptyHomeFolderSelection(state))return null;
  const folder=!state.opened&&isFolder(state.selected,state);
+ const left=state.opened&&appId?'close-folder':folder?'folder-settings':appId&&state.system?.app===appId?'close-software':appId==='system-settings'||appId==='camera'?'manual':null;
  return {
-  two:!!appId||folder,
-  left:state.opened&&appId?'close-folder':folder?'folder-settings':appId&&state.system?.app?'close-software':appId==='system-settings'?'manual':null,
+  two:left!==null,
+  left,
   right:appId?(state.system?.app===appId?'resume':'open'):state.opened?'close-folder':folder?'open':'create-folder'
  } as const;
 }

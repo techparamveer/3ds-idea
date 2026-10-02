@@ -1,4 +1,4 @@
-# HOME Camera icon-corner baseline
+# HOME Camera icon-corner baseline and production-after comparison
 
 Comparison branch: `codex/home-icon-corners-compare-20261002`
 
@@ -6,8 +6,9 @@ Comparison base: `da6dfcedf678f782c369b20d1594dcac7f7abe45`
 
 Browser-before runtime: `1e5fb200` (the accepted Notes runtime)
 
-Status: **the Camera icon fringe is a four-corner, byte-repeatable target;
-candidate-after and production-after evidence are pending**.
+Status: **production runtime `3bb6c6f3` closes the complete Camera icon target
+to the static delta-2 pixel tier in four repeated states; whole HOME scenarios
+remain fail**.
 
 ## Bounded finding
 
@@ -16,7 +17,7 @@ captures, native and browser each repeat the complete 50x50 Camera icon
 interior byte for byte. The fixed `iconInterior minus artwork` fringe has
 **23 / 564 pixels above 2/255, maximum channel delta 246**. Those pixels are
 confined to four 3x3 corner boxes: 6 top-left, 6 top-right, 5 bottom-left and
-6 bottom-right. The remainder of the fringe has 0 / 541 pixels above 2 and
+6 bottom-right. The remainder of the fringe has 0 / 532 pixels above 2 and
 maximum 1.
 
 The 44x44 artwork core has **1 / 1,936 pixels above 2, maximum 16**. Its
@@ -78,8 +79,8 @@ The Camera tile is `[202,284) x [122,204)`. The 50x50 icon interior is
 | --- | ---: | ---: | --- |
 | Icon fringe | **23 / 564** | **246** | Target: four corner components only. |
 | Top-left / top-right corner | 6 / 9; 6 / 9 | 246; 246 | Target. |
-| Bottom-left / bottom-right corner | 5 / 9; 6 / 9 | 246; 246 | Target. |
-| Fringe remainder | **0 / 541** | **1** | Preserve. |
+| Bottom-left / bottom-right corner | 5 / 5; 6 / 9 | 246; 246 | Target. The bottom-left mask has five fringe pixels because the other four belong to the artwork edge. |
+| Fringe remainder | **0 / 532** | **1** | Preserve. |
 | Artwork core | **1 / 1,936** | **16** | Existing edge pixel; preserve or improve. |
 | Artwork 42x42 interior | **0 / 1,764** | **1** | Preserve. |
 | Notes control `[64,90) x [3,26)` | **0 / 598** | **1** | Accepted static pixel tier; preserve. |
@@ -124,25 +125,98 @@ At browser-before runtime `1e5fb200`, the stock-grid path calls
 `titleIcon` -> `titleArtwork` -> `c.drawImage` after the separate plate render. It
 does not route the Camera artwork through the authored
 `LncIconDist_01/P_Icon_00` material's second `IconMask.bclim` sampler. This is
-the bounded fidelity gap. The source worker's candidate is pending and is not
-accepted by this document.
+the bounded browser-before fidelity gap. Source commit `01fb8e4a` replaces
+only ordinary stock-grid title artwork with the existing guarded authored
+material path; pickup, header, suspended, folder and portfolio artwork paths
+remain unchanged. Production runtime `3bb6c6f3` is measured below.
 
-## Acceptance gate
+## Production-after inputs
 
-Candidate-after is intentionally absent. After the source worker supplies a
-bounded candidate, the coordinator must integrate it and recapture the same
-four states. Acceptance requires:
+The coordinator integrated source commit `01fb8e4a` as production runtime
+`3bb6c6f3` and captured the same semantic Health -> Camera -> Health route.
+The browser inputs below are actual raw production captures, not source-replay
+predictions.
 
-- the 23 fringe pixels to improve through the authored native material path;
-- the 541-pixel fringe remainder, 42x42 artwork interior and Notes control to
-  retain their current static pixel tier;
-- the single artwork-edge pixel not to worsen without a source explanation;
-- no new ordinary-plate or footer claim; and
-- direct production-before versus production-after evidence, plus the
-  empty-mask whole-LCD control.
+| State | Upper SHA-256 | Lower SHA-256 | Capture metadata SHA-256 | HOME updates / selected |
+| --- | --- | --- | --- | --- |
+| Health initial | `dbd026e1330939d2b5815fb968332bf1dbd0fe80132b1c523f189046119ff7b1` | `005adf8fb0818eee4eba4211f47dfed81c6424b8dd3ab0a873aaf431feec9d0f` | `7205d8cf3a83775f3089ff6cdb3fd633eaf5084f38f47c887e304f3527695c1e` | 49 / 8 |
+| Camera selected | `98b074467580b3dac97419998ef235ce70511e87b2302142319301edb7f3af6d` | `a0db3c076123c503fb1b92b84c1547cea7fb7c2f6dbf38dccb97a7511661d53c` | `dec9e800860890c96109b18bf325077d34e7aa8d84ea46acfbb483b89af0350b` | 117 / 10 |
+| Health reselected | `4dc47423bc39708716a40df5f4beb83439bacefd9f05e6413bce8eacd7846e69` | `b22fd23b349193ea4e7fc89cf78b958e28a0e382b9e4b79208e53289c14324f1` | `1c196998dbe3d134cd298ca603e175ad89ff8a54737269637ae0fc82c3325e1b` | 185 / 8 |
+| Health repeat | `a18257df65802384a353c31f873b6dbf2800d25c863f9d18431f2742adc102ba` | `aa1bd4fd5246f2f1799183d2f6acb9160bfe82166432bb108655f1909db772c2` | `482de478bba683231195e2b10e82d617ec37bb8a527746e19936f5707d78fd89` | 356 / 8 |
 
-This baseline does not establish exact input, motion, audio, whole-scenario or
-strict 1:1 fidelity.
+`browser-after/result.json` records runtime `3bb6c6f3`, the two 200 ms touch
+steps, muted state and no browser errors; its SHA-256 is
+`ae6cfbbf7bdd07c67c70a8fb5f10d35866de70da6eed2b5f66bab5fcd6a626d8`.
+Each capture still records `inputMatched=false` and `epochMatched=false`.
+
+## Production-after regional result
+
+Every target and control measurement below repeats exactly across all four
+production-after states except the selected-cursor plate control.
+
+| Region | Browser-before vs native | Production-after vs native | Direct before -> after | Result |
+| --- | ---: | ---: | ---: | --- |
+| Complete icon interior | 24 / 2,500, max 246 | **0 / 2,500, max 2** | 24 / 2,500 changed above 2, max 245 | Static pixel tier. |
+| Icon fringe | 23 / 564, max 246 | **0 / 564, max 2** | 23 / 564 changed above 2, max 245 | All four corner components closed. |
+| Fringe remainder | 0 / 532, max 1 | **0 / 532, max 1** | RGB byte-identical | Preserved. |
+| Artwork core | 1 / 1,936, max 16 | **0 / 1,936, max 1** | 1 / 1,936 changed above 2, max 16 | Existing edge pixel closed. |
+| Artwork 42x42 interior | 0 / 1,764, max 1 | **0 / 1,764, max 1** | RGB byte-identical | Preserved. |
+| Notes control | 0 / 598, max 1 | **0 / 598, max 1** | RGB byte-identical | Preserved. |
+| Footer control | 694 / 8,960, max 30 | **694 / 8,960, max 30** | RGB byte-identical | Separate source gap unchanged. |
+
+The production-after icon-interior RGB-channel mean absolute delta is
+`0.125867`, RMSE `0.356277`; the fringe is `0.338652` / `0.585987`; and the
+artwork core is `0.063877` / `0.252740`. The after icon, fringe and artwork
+hashes each have one unique value across the four states. The 6x sheet shows
+native, before and production-after in its first three columns, a nearly black
+native/after difference in the fourth, and the corrected corners plus single
+artwork-edge pixel in the direct before/after fifth column.
+
+The three unselected Health plate controls are RGB byte-identical before and
+after and remain 963 / 4,224 above 2, maximum 26 against native. The
+Camera-selected after plate is 2,335 / 4,224, maximum 153 against native and
+changes 1,624 pixels above 2, maximum 32 from browser-before. That state has a
+different selected-cursor phase (updates 117 versus 121); it is not attributed
+to the title-icon material change and is not an acceptance target.
+
+## Production-after whole-LCD controls
+
+All four empty-mask whole-LCD comparisons remain
+`unexplained-differences`:
+
+| State | Upper pixels >2 / mean / max | Lower pixels >2 / mean / max | Report SHA-256 |
+| --- | --- | --- | --- |
+| Health initial | 49,182 / 11.068017 / 215 | 15,673 / 5.109570 / 245 | `aa430d04fe01757a0ed08acc1cb28fbe6b28c23794f8af133c35ecc0e89cc521` |
+| Camera selected | 53,545 / 9.671799 / 215 | 16,117 / 5.483793 / 245 | `991d750aca3259ce744aa540a71e6d69a71c7c0b3987e3dcc09f70416328cd6e` |
+| Health reselected | 44,951 / 8.052733 / 215 | 16,127 / 5.503268 / 245 | `bedd652f15e695d5b17f26e9e10df71c04733dce95acdff69efb57034d2daf44` |
+| Health repeat | 43,907 / 8.015660 / 255 | 15,101 / 5.200968 / 245 | `914ae25df4e7f1a587d64fd07c9384026411c4b21433f647c6073d973763b1d8` |
+
+Direct whole browser-before/after comparisons change 1,852 / 1,164,
+4,201 / 1,922, 4,553 / 1,086 and 4,582 / 2,126 upper/lower pixels above 2
+for the four states respectively. Those counts include unmatched HUD, banner,
+cursor and presentation epochs; they are not evidence that the icon candidate
+changed those regions. The opened whole-LCD sheets retain the known
+population, HUD, banner, cursor, plate and footer differences. No whole
+scenario passes.
+
+## Evidence classification and remaining limits
+
+- Source-identified and delivered: the pinned HOME layout, authored mask,
+  material state and Camera icon listed above.
+- Implemented: source commit `01fb8e4a`; ordinary stock-grid titles only, with
+  explicit material/resource guards and no fitted coordinate, UV, colour or
+  replacement asset.
+- Tested: the coordinator reports 1,789 passed, 0 failed, 23 skipped and one
+  TODO, plus typecheck, build and shader checks passing for runtime
+  `3bb6c6f3`. This comparison worker did not rerun the build or tests.
+- Browser-inspected and native-compared: four actual production raw LCD pairs,
+  the target sheet and representative whole-LCD sheets were opened at original
+  resolution.
+- Remaining: the original native title-texture setter/extent/UV and GPU
+  precision are still not source-proven. Exact native input, boot prefix,
+  population, epochs, motion and audio remain unmatched. Plate and footer
+  source gaps remain. Strict 1:1 fidelity and whole-scenario acceptance remain
+  unproven.
 
 ## Artifacts
 
@@ -159,10 +233,24 @@ Private root:
   `baseline/camera-icon-native-baseline-diff6x-sheet.png`, SHA-256
   `ef1e498e2c7b21c950d37bddffc9771226fcc9e3d100d0000863d3870601e20a`;
 - whole-LCD reports and contact sheets:
-  `baseline/whole-lcd/{health-initial,camera-selected,health-reselected,health-repeat}/`.
+  `baseline/whole-lcd/{health-initial,camera-selected,health-reselected,health-repeat}/`;
+- production-after regional report: `after/report.json`, SHA-256
+  `5f1ce4210603276d26f6eb680f6ccafbd02f215e8497234c50dc5802bcde6e01`;
+- 6x native/before/production-after/native-after-difference/direct-difference
+  sheet: `after/camera-icon-native-after-diff6x-sheet.png`, SHA-256
+  `cdfbcf79565d5e7f600b76c282be76fd592f96f46c397869f2e0c3d8e4694de7`;
+- production-after whole-LCD reports and sheets:
+  `after/whole-lcd/{health-initial,camera-selected,health-reselected,health-repeat}/`;
+- direct browser-before/after whole-LCD reports, in state order above:
+  `after/direct-before-after/.../report.json`, SHA-256
+  `85a228d854afd62234d218bc0429aa0ef2d0957fbf75badca4880b7624634dc4`,
+  `983aa5dd255cdc984892d2abc5c86aca72f56f3e8ec3efeaefa3c6c278e9c923`,
+  `7d37393e15df190e3e139313d41fa19c5608dd8d922f765671abef91025fcd19`
+  and `20d2343988642615c824994bbd5986a7ca8119fa4ae8e61e01015aff6a021d41`.
 
-The target sheet and representative upper/lower whole-LCD sheets were opened
-and inspected at original resolution. The report parses as JSON. This worker
+The baseline and production-after target sheets and representative after
+upper/lower whole-LCD sheets were opened and inspected at original resolution.
+Both regional reports and all whole-LCD reports parse as JSON. This worker
 changed no runtime, asset, shared project document, matrix, GUI, native,
 browser, audio or build state. Documentation-only verification is
 `git diff --check`.

@@ -1,6 +1,6 @@
 # HOME and cross-app lifecycle feature map
 
-Checkpoint: `5232b9c5` (2 October 2026), with older per-feature evidence retained. This is an implementation and
+Checkpoint: `bcc3dcb6` (2 October 2026), with older per-feature evidence retained. This is an implementation and
 verification backlog, not an acceptance record. Scope comes from
 [portfolio-ui-scope](../portfolio-ui-scope.md); evidence authority remains the
 [progress record](../progress-2026-09-24.md) and the matched-input
@@ -8,7 +8,8 @@ verification backlog, not an acceptance record. Scope comes from
 
 Every strict whole scenario is still unaccepted. Unit tests prove contracts,
 not pixels, input cadence, motion, or audio. All future visible verification is
-coordinator-only on Sidecar and all 3DS audio remains muted. "Adaptation" below
+coordinator-only; the user now authorizes the entire Mac without an iPad. All
+3DS audio remains muted. "Adaptation" below
 means an intentional browser/portfolio difference; "source gap" means the
 pinned dump has not yet established the required native producer or content.
 Software Keyboard, network/account/PIN operations, capture/recording/import,
@@ -23,6 +24,11 @@ missing state but is gated on native return evidence. HOME Settings polish is
 deferred at the user's request; preserve all already-designed surfaces.
 
 ## HOME
+
+[Held pickup](../home-held-pickup-2026-10-02.md) now has genuine native CTM-held
+frames. Lift/size and counted-pass folder-boundary corrections are implemented;
+held footer, root-held banner, toolbar dimming and artwork color remain captured
+defects. Other density anchors, exact cadence/motion and audio remain open.
 
 ### H-01 - HOME two-LCD composition and wallpaper
 **Code/tests/evidence:** [screens.ts](../../src/os/screens.ts), [home-presentation.ts](../../src/os/home-presentation.ts), [home-banner-host.ts](../../src/os/home-banner-host.ts), [host tests](../../tests/home-banner-host.test.mjs), [background owner note](../home-background-host-2026-10-01.md).

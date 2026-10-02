@@ -1,5 +1,22 @@
 # Workstream Registry
 
+## Held Pickup - 2 October 2026
+
+The same source chat and owned folder-drag-out worktree continued the captured
+held-state defect. Source9794f8c2 integrates as652520ee plus1d682a85 (restored
+release/swap regression); source note8570a49f as8b2751de; counted-clock fix
+8b564fc2 as a751722b; measured root lift50abeb0d as bcc3dcb6. The comparator
+chat retains immutable private raw pairs/reports. Independent subagent
+`pickup_retarget_review` reproduced a phase-dependent transition failure,
+then verified the counted-pass correction. It retracted its earlier universal
+failure wording because the raw-time path already worked. No service-tier
+claim; delegates GPT-5.6 Sol/high, coordinator alone GUI on the authorized Mac.
+
+Native CTM playback supplies genuine held PNGs; production pickup now uses
+observed density fits and destination moving Scale with source blank retained.
+See [evidence](../home-held-pickup-2026-10-02.md). Footer/banner/dimming/color,
+other anchors and motion/audio remain open. Old worktrees/history are preserved.
+
 ## Folder Drag-Out - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used owned worktree

@@ -1,5 +1,16 @@
 # Verification and evidence architecture
 
+[Genuine held pickup evidence](../home-held-pickup-2026-10-02.md) uses long
+constant-touch CTM phases so Tools > Capture Screenshot can write native PNGs
+without a live host drag. Preserve the stopped seed/profile and CTM/config
+hashes. Native screenshot capture pauses/resumes internally; pad-derived
+counters and nominal HID durations are not exact rendered-frame identities.
+Browser wall-time replay of the same phase plan still has no common native
+boot/frame epoch. Keep the earlier short-hold pairs separately labelled.
+Exercise scene order: counted clock advance, raw-time reducer, outer control
+reconciliation. Vary clock remainder so both transition owners are covered;
+a successful browser sample does not rule out a phase-dependent boundary bug.
+
 [Folder Back drag-out](../home-folder-drag-out-2026-10-02.md) separates a
 functional endpoint correction from native timing and pixel acceptance. Match
 the same child-to-Back path, retain the source owner through the root preview,

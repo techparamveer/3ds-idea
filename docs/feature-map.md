@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [folder drag-out](home-folder-drag-out-2026-10-02.md), `dd73c4ee` with
+Latest [held pickup comparison](home-held-pickup-2026-10-02.md) obtains genuine
+native held PNGs through CTM playback. `652520ee` corrects fitted lift and held
+tile size after Back; `a751722b` fixes a counted-clock boundary missed by the
+initial successful browser replay. `bcc3dcb6` refines the measured root lift;
+1,836 tests/build/typecheck and all three production interaction variants pass.
+Native resources remain unchanged. Next
+captured defects: held footer visibility, root-held upper title, folder toolbar
+dimming and composited artwork color; other density anchors and exact timing/
+audio remain open. Do not repeat the resolved size diagnosis or claim1:1.
+
+Earlier [folder drag-out](home-folder-drag-out-2026-10-02.md), `dd73c4ee` with
 production ownership/scope fixes `35846d2e` and `1089c78c`,
 fixes a fresh native/browser semantic mismatch: dragging a folder child over
 Back now reaches root HOME instead of remaining in the folder. Desktop/mobile/

@@ -1,5 +1,9 @@
 # Closing entry and post-modal footer
 
+Historical checkpoint: [compact footer follow-up](home-compact-footer-2026-10-02.md)
+at `be54ea30` supersedes SceneOut0..14 below with ChangeDw0..6 and scoped
+Decide5 Close tone. Earlier captures remain preserved evidence.
+
 Runtime `54152a33` + `0bb044d5` + `062a486b`, 2 October 2026. Features H-10/L-04.
 This corrects two visible omissions in the fresh [39-frame native close
 sequence](home-close-icon-exit-2026-10-02.md), not whole-scenario fidelity.

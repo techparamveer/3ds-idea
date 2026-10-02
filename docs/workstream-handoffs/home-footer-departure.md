@@ -1,5 +1,10 @@
 # HOME software-close lower departure handoff
 
+Latest [compact correction](../home-compact-footer-2026-10-02.md), `be54ea30`,
+uses ChangeDw0..6 and scoped black-left Decide5 after dialog exit. The earlier
+SceneOut candidate below is historical, not current production. Close tone is
+regionally improved; native epochs and Open return remain unaccepted.
+
 Latest coordinator integration: [post-modal departure](../home-postmodal-footer-2026-10-02.md)
 uses a new counted close-only phase after dialog exit, from worker `492d414e`
 integrated as `54152a33` and wired by `0bb044d5`. Fresh native frames25..28

@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [closing entry and post-modal footer](home-postmodal-footer-2026-10-02.md),
+Latest [compact footer correction](home-compact-footer-2026-10-02.md) at
+`c44e88d7` + `be54ea30` selects ChangeDw0..6 and black-left Decide5 after
+dialog exit. Native25 Close2590->37 mismatched pixels, Resume unchanged45;
+whole scenarios still fail. Open return/banner reacquisition, intermediate
+alpha/epochs and input/motion/audio remain open. Fresh46 native frames and
+desktop/mobile/reduced actual-input replays are recorded in the progress note.
+
+Earlier [closing entry and post-modal footer](home-postmodal-footer-2026-10-02.md),
 `54152a33` + `0bb044d5` + `062a486b`, adds decoded entry FadeIn and close-only SceneOut0..14
 after dialog exit. Owner retirement waits for the footer terminal pair;
 switch remains unchanged. Full1,858 tests/typecheck/build pass; independent

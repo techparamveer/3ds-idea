@@ -2,11 +2,14 @@
 
 [Post-modal footer verification](../home-postmodal-footer-2026-10-02.md)
 must record `footerExitFrame` in capture keys, otherwise all intermediate
-footer samples collapse into one. Check entry, dialog exit, footer0/footer14
+footer samples collapse into one. Check entry, dialog exit, footer0/footer6
 and later owner retirement separately. Whole-LCD metrics remain unmasked;
 reasoned dialog/footer ROIs rank structural samples but do not prove epochs.
 Inspect sheets even when tests pass: SceneOut's static child alpha caused a
 captured first-frame Resume regression that required narrower source binding.
+The [compact departure](../home-compact-footer-2026-10-02.md) uses ChangeDw,
+not SceneOut; compare left Close and right Resume separately. Decoded source
+curves and nearest structural samples do not establish native frame timing.
 
 [Suspended folder software Close](../home-folder-software-close-2026-10-02.md)
 requires checking semantic action and native resource selection together:

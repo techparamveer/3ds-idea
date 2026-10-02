@@ -1,5 +1,14 @@
 # Workstream Registry
 
+## Compact Footer - 2 October 2026
+
+Reused source chat/tree below: worker `0254c9f4` -> coordinator `c44e88d7`;
+presenter/tests `be54ea30`. Comparator owns private fixed/fresh native evidence;
+read-only helper `closing_icon_departure` passes96 tests without findings.
+GPT-5.6 Sol/high; no service-tier override claimed. Coordinator alone operated
+native71644 and muted Chrome75728; both stopped, native settings restored.
+Production3021 remains running. [Evidence and gaps](../home-compact-footer-2026-10-02.md).
+
 ## Post-modal Footer - 2 October 2026
 
 Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

@@ -9,6 +9,11 @@ the 2 October Notes run).
 
 ## First Cross-App Pass
 
+[Compact footer](../home-compact-footer-2026-10-02.md), `be54ea30`, supersedes
+SceneOut with ChangeDw0..6 and resolves most left Close tone error using scoped
+Decide5. Do not repeat the tone/source audit. Next: intermediate alpha/epochs,
+decoded Open return and upper-banner reacquisition; no queue row passes.
+
 Latest [entry/footer delivery](../home-postmodal-footer-2026-10-02.md) at
 `0bb044d5` adds the captured dialog entry and post-modal old-footer departure.
 Owner retirement follows a new mandatory footer terminal publication; source

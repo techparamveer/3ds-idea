@@ -23,6 +23,13 @@ rows separately identify implementation, tests, inspected browser states and
 native evidence. A missing screenshot is an evidence gap, not evidence that the
 feature is absent. Native residuals remain fail until explained and accepted.
 
+The [2 October live evidence](home-live-verification-2026-10-02.md) verifies
+selection-independent background progression and repeated-paint stability.
+A retained-native wallpaper-margin diagnostic matches within 1/255, but the full
+pair still fails at 4940/19125 upper/lower pixels above 2. Native Health launched;
+bounded HOME attempts did not return to HOME, so H-12 window composition still
+needs its native gate. All owned verification processes are stopped.
+
 All 3DS sessions stay muted. All visible verification runs on the iPad Sidecar
 desktop after fresh geometry checks. Only the coordinator operates Azahar and
 the shared production browser. No default Azahar profile; no new artifacts on

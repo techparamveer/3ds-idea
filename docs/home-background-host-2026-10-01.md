@@ -72,3 +72,13 @@ subframe sampling, native/browser motion parity or whole-scenario fidelity.
 Coordinator verification must use the matched muted Sidecar replay and inspect
 fresh raw-LCD comparisons under
 `/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/background-host/`.
+
+## Live verification - 2 October
+
+The [five-capture follow-up](home-live-verification-2026-10-02.md) now verifies
+selection-independent Loop progression, stable repeated paint, and unchanged
+upper pixels when capture elapsed time changes without a host update. The
+retained-native phase 210 wallpaper margins match within 1/255, but the full
+empty-mask pair still fails at 4940 upper / 19125 lower pixels above 2. This does not
+prove a native epoch or close the lifecycle mapping gaps above. No runtime or
+source asset changed in that evidence checkpoint.

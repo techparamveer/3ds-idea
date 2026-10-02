@@ -17,7 +17,7 @@ production-browser sessions. All sessions remain muted on verified Sidecar.
 | 6 | `life-helper-return` | Settings page3 -> Transfer -> Back; page4 -> Update -> Cancel; exact calling page/focus restored | Settings + Lifecycle |
 | 7 | `life-loading-failure-retry-return` | Controlled missing selected resource -> explicit failure -> Retry or HOME; paired LCD publication, no substitute screen | Lifecycle |
 | 8 | `life-sleep-power-cycle` | Lid sleep/wake; power menu Cancel; Off -> On; startup selection/focus and no stale app owners | Lifecycle + Portfolio |
-| 9 | `home-background-live-phase` | Newly integrated host clock, selection-independent phase, repeat capture without advancing; raw native comparison pending | HOME |
+| 9 | `home-background-live-phase` | Live selection-independent phase and repeat capture verified; retained-native margin diagnostic within1/255, full pair4940/19125 fail; matched activation/pause/resume still required | HOME |
 
 These routes cover global correctness before repeatedly polishing one isolated
 banner. Native and browser must receive matching applicable inputs for native
@@ -29,6 +29,10 @@ Work launch/HOME/close/cancel/confirm and Health HOME/resume have named raw LCDs
 Camera photo Back now has captured physical and touch defects plus scoped fixes.
 This does not mark any queue row native-complete. H-12 native Health suspension
 is the next window-composition reference, alongside the two baseline regressions.
+The [native attempt and background evidence](../home-live-verification-2026-10-02.md)
+now confirm Health entry but not HOME return after bounded host-key retries.
+EOF is resolved and the native process exited0; it is not a pending popup or
+live wait. H-12 needs reliable native HOME input, not another guessed window.
 
 ## App Coverage Ledger
 

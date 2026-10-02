@@ -82,7 +82,8 @@ for `home.messages`.
   source target. Cancelled, cross-target and stale releases are inert.
 - Touch OK and physical A return directly to root HOME with the same selected
   folder, identity and contents. The selected-folder upper banner remains
-  present while the notice is shown.
+  present while the notice is shown, while the underlying Settings/Open lower
+  footer is suppressed as in the native capture.
 - Native B behavior was not captured. The browser lets B close the notice to
   root as an explicit recovery adaptation; HOME does the same through the
   existing global HOME-panel escape. Loading/error recovery releases held

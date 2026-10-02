@@ -174,9 +174,9 @@ test('populated-folder notice publishes a native lower pair and retains the sele
     paint(state);
     assert.equal(screens.stockStatus(state), 'ready');
     assert.equal(events.filter(event => event.name === 'folderNotEmptyLower').length, 1);
+    assert.equal(events.filter(event => event.name === 'footer').length, 0, 'notice hides the underlying Settings/Open footer');
     assert.equal(events.filter(event => event.name === 'folder-banner').length, 1);
     assert.equal(screens.nativeTop.getContext('2d').curves.length, 0, 'no generic toolbar-symbol plates replace the folder banner');
-    assert.ok(events.findIndex(event => event.name === 'folderNotEmptyLower') > events.findIndex(event => event.name === 'footer'));
   }, { screenOptions: { drawFolderBanner(ctx) { ctx.record('folder-banner'); return true; } } });
 });
 

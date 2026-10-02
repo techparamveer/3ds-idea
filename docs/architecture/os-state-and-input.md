@@ -1,5 +1,15 @@
 # Software state, input and presentation
 
+The [closing exit](../home-closing-fade-2026-10-02.md) supersedes the earlier
+parent-fade source gap below: donor selection is traced. The existing close
+controller adds nullable `dialogExitFrame` and `exiting`/`exit-terminal` phases
+after AppQuit terminal; it retains the owner until a later eligible update.
+Switch skips this close-only phase. Source donor and mask use the same sample,
+but their curves differ. The scene freezes/rebases the HOME clock if close
+presentation is loading/error, admits B/HOME recovery through quarantine, and
+forces retained endpoint publication on wake/show. No resource error may
+silently retire an owner. Host cadence, exit epoch and APT wait remain adapted.
+
 The [upper close fit](../home-upper-close-2026-10-02.md) receives the existing
 validated close identity and AppQuit frame. It changes only `N_Wndw_00` alpha
 and selects WhiteBlack0 for source light camera hints; no scale/translation,

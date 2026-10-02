@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Closing Exit - 2 October 2026
+
+Existing chats ran GPT-5.6 Sol/high in dedicated internal trees from `a79ce550`.
+No service-tier claim. All workers idle, trees preserved; no worker GUI.
+
+| Chat / subagent | Worktree / codex branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-closing-fade-source-20261002` / `home-closing-fade-source-20261002` | `e285cb59` -> `374ac94b` |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-closing-fade-fit-20261002` / `home-closing-fade-fit-20261002` | `1daac05c` -> `66992054` |
+| `/root/closing_fade_clock` | `3ds-home-closing-fade-clock-20261002` / `home-closing-fade-clock-20261002` | `92ab4123` -> `1d52d671`; review fix `ce35a0fe` -> `229e864c` |
+
+Coordinator wiring `3530bec2`; [verification and remaining adaptations](../home-closing-fade-2026-10-02.md).
+
 ## Upper Close - 2 October 2026
 
 Existing chats used GPT-5.6 Sol/high, new dedicated internal trees from

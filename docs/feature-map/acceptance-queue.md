@@ -7,7 +7,14 @@ production-browser sessions. All sessions remain muted on verified Sidecar.
 
 ## First Cross-App Pass
 
-Latest [upper-close correction](../home-upper-close-2026-10-02.md) at `1fbfd6be`
+Latest [closing exit delivery](../home-closing-fade-2026-10-02.md) at `229e864c`
+resolves the source donor/mask clips and makes exit visible. Seven production
+routes/99 pairs inspected; native best-pose diagnostic remains fail. Do not
+repeat the donor audit. Next match ordinary-speed start/retirement and APT wait,
+input and audio, then baseline HOME and Settings regressions. Preserve source
+graphics and label host timing adaptations; power remains independently open.
+
+Earlier [upper-close correction](../home-upper-close-2026-10-02.md) at `1fbfd6be`
 removes the stationary upper panel during close, using corrected fixed-edge
 capture-fit alpha and native WhiteBlack0. Seven fresh100%-speed native PNGs and
 seven production routes/95 pairs were inspected. Whole comparisons still fail;

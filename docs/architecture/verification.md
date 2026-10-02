@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Closing exit verification](../home-closing-fade-2026-10-02.md) at `229e864c`
+adds97 production motion pairs and two endpoints across seven routes. Actual
+AppQuit and exit-terminal WebGL publication is asserted. Sleep/visibility
+boundary recovery has focused policy tests; the browser lid replay covers
+mid-close pause, not exhaustive boundary interleavings. All seven sheets and
+desktop/mobile views were opened. Native best-pose exit diagnostic improves
+mean RGB but remains fail; no native epoch or exact input/audio match. Source
+selection is resolved, host start/retirement scheduling remains an adaptation.
+
 [Power reveal verification](../home-power-reveal-2026-10-02.md) through
 `2c992dd7` separates boot LCD paint from actual render acknowledgment. Reduced
 motion requests changed-pose paints; pose 20 requests a paint in every mode,

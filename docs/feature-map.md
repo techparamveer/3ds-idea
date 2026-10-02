@@ -15,7 +15,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [upper-close delivery](home-upper-close-2026-10-02.md) at `1fbfd6be`
+Latest [closing exit delivery](home-closing-fade-2026-10-02.md) at `229e864c`
+uses the ROM-selected dialog donor and mask FadeOut00 clips. Two worker chats/
+trees and one clock subagent delivered; owner retention, readiness recovery and
+resume publication are guarded. Full1765 tests/typecheck/build pass; seven
+production routes/99 pairs inspected. Preserved native intermediate comparison
+improves lower mean RGB51.984 ->18.735, but best-pose selection is diagnostic,
+not epoch matching. H-10/H-12/L-04 remain partial. Exact timing/input/audio and
+HOME residuals remain; no matrix update or whole-scenario pass.
+
+Earlier [upper-close delivery](home-upper-close-2026-10-02.md) at `1fbfd6be`
 adds fixed-bounds panel departure and source light camera hints. Two separate
 worker trees/chats supplied a source audit and corrected edge fit; the panel
 alpha is explicitly adapted, not a traced native writer. Full1755 tests,

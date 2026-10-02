@@ -15,7 +15,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Power text raster correction](home-power-raster-2026-10-02.md) at
+Latest [Power block-centering correction](home-power-centering-2026-10-02.md)
+at `57c4c824` uses the decrypted multiline writer rule. Upper mismatch falls
+4334 -> 3 on both origins; list 4331 -> 0, lower remains 0 above 2 and exact
+before/after. App-only repeat is identical. Full 1778 tests/typecheck/build
+pass; desktop/mobile controls and 64 browser motion pairs inspected. L-01
+remains partial: three footer pixels, native input/motion/shutdown/audio and
+prior upper variance remain open. No whole-scenario or matrix pass.
+
+Earlier [Power text raster correction](home-power-raster-2026-10-02.md) at
 `766888a2` resolves lower-label668 ->0 pixels above2, maximum2, both origins.
 The ineffective upper experiment was removed. HOME upper4334 and app upper6512
 remain; the app variance repeats even with the lower sampler disabled.

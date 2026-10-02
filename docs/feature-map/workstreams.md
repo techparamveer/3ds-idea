@@ -1,5 +1,23 @@
 # Workstream Registry
 
+## Power Block Centering - 2 October 2026
+
+Two existing GPT-5.6 Sol/high chats used separate internal worktrees from
+`b51e2818`; no service-tier claim. Only the coordinator operated GUI.
+
+| Chat | Worktree / codex branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-power-centering-20261002` / `home-power-centering-20261002` | Source `294dfb0c` -> `57c4c824` |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-power-centering-compare-20261002` / `home-power-centering-compare-20261002` | `bf0c0376` -> `74fc7d5f`; [handoff](../workstream-handoffs/home-power-centering-compare.md) |
+
+[Evidence](../home-power-centering-2026-10-02.md): upper 4334 -> 3, changed
+list 4331 -> 0, lower static pixel tier preserved. Full 1778 tests/typecheck/
+build pass; repeated app capture identical, controls and 64 browser motion
+pairs inspected. Three footer pixels and exact input/motion/audio remain open.
+Native stopped/restored/muted; temporary server/browser stopped, 3021 refreshed.
+Both whole scenarios fail. Both workers completed their bounded deliveries;
+worktrees are clean and preserved.
+
 ## Power Text Raster - 2 October 2026
 
 The two existing chats used GPT-5.6 Sol/high and separate internal worktrees

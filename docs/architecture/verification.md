@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[Power block-centering verification](../home-power-centering-2026-10-02.md)
+at `57c4c824` compares fresh native own-PNG repeats and immutable production
+before/after pairs. Both upper LCDs improve 4334 -> 3 pixels above 2; the
+changed list has zero, maximum 2. Both lower LCDs remain byte-identical to
+their baselines. App-only repeat is identical, but prior run variance remains
+unexplained. All four contact sheets, desktop/mobile controls and 64 browser
+motion pairs were inspected. Presentation sampling at 120000 ms is not native
+event synchronization. Three footer pixels and input/motion/audio still fail
+whole-scenario acceptance; no mask, matrix pass or global 1:1 claim.
+
 [Power text-raster verification](../home-power-raster-2026-10-02.md) at
 `766888a2` records fresh native repeats and immutable before/candidate/final
 production pairs. Both lower LCDs have0 pixels above2, maximum2 with no mask;

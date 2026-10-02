@@ -1,5 +1,12 @@
 # HOME Power Multiline Block Centering - 2 October 2026
 
+Coordinator follow-up: integrated as `57c4c824` and
+[production/native compared](home-power-centering-2026-10-02.md). Upper list
+4331 -> 0 pixels above 2, whole upper 4334 -> 3; lower pixel tier preserved.
+The remaining footer cluster and input/motion/audio gates are still open.
+The source-worker acceptance boundary below describes its pre-integration
+handoff, not the later comparison result.
+
 This bounded source trace resolves the horizontal origin for the upper Power
 message `Slp_U_00/T_Main_00`. It does not add the rejected multiline LCD
 sampler, a fitted offset, a font, an atlas, or a coverage curve.

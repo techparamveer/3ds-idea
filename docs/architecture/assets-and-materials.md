@@ -4,6 +4,15 @@ Editable sources, private extraction, converted delivery and runtime ownership
 are separate layers. A resource can decode successfully without being published,
 supported by the renderer, used by a live screen or visually accepted.
 
+Power `Slp_U_00/T_Main_00` explicitly selects the decoded multiline writer
+flags `0x110` origin through `multilineBlockOrigin`. It measures CWDH glyph
+bounds and advances with float32 arithmetic before ceil-centering the complete
+block; it does not center each row or encode a fitted offset. Default text
+callers and the lower LCD sampler remain unchanged. The text descriptor is
+part of the raster cache key, and invalid selected shapes fail. See the
+[source contract](../home-power-block-centering-2026-10-02.md) and
+[production comparison](../home-power-centering-2026-10-02.md).
+
 ## Hardware pipeline
 
 ```text

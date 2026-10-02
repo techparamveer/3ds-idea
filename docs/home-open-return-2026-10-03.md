@@ -1,5 +1,9 @@
 # HOME Open Footer Return - 3 October 2026
 
+Historical checkpoint: the [banner-return follow-up](home-banner-return-2026-10-03.md)
+supersedes the return0 request boundary below with an earlier guarded departure0
+request. Other return-controller and publication contracts remain unchanged.
+
 ## Captured Defect
 
 The fresh native sequence recorded with the [compact footer correction](home-compact-footer-2026-10-02.md)

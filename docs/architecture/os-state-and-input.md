@@ -7,8 +7,13 @@ Post-retirement validation requires unchanged generation, close intent, absent
 old instance and empty runtime/app ownership. Input quarantine and paired
 readiness cover the entire return, including recovery after retirement.
 SceneIn15 plus direct-member ChangeUp restores Open without the old Decide
-override. The existing banner host clears at close begin and reacquires the
-selection at return0; resource activation can occur later. These boundaries
+override. The existing banner host clears at close begin and, after the
+[banner-return follow-up](../home-banner-return-2026-10-03.md), requests the
+selection at exact same-owner footer departure0, with no second request at
+return0. The fallback resolver retains that selection during departure.
+Unchanged readiness/service gates keep the incoming primary absent through
+return1 even with immediate resource readiness; async activation can be later.
+These boundaries
 are capture-fitted, not native epoch claims. Required close paints pin the
 synchronous effect drain to the originating commit timestamp: resource release
 must not advance return0 before it is painted. The pin is restored in `finally`;

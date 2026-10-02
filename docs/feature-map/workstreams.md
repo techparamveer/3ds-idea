@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Banner Return - 3 October 2026
+
+Reused source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` and owned
+`3ds-home-postmodal-footer-20261002` / `codex/home-postmodal-footer-20261002`:
+worker71ebad00 -> integration78fa7325; coordinator boundary testsc01e1219.
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private reports,
+not GUI. Helper `closing_icon_departure` reviewed185 tests and the initial
+desktop's asynchronous activation metadata. GPT-5.6 Sol/high, no service-tier
+override claimed. Coordinator alone used muted native22843 and Chrome32915
+on the authorized Mac; native exited and its exact config was restored.
+Final actual-input desktop/mobile/reduced46/44/54 pairs pass implementation
+checks. [Evidence and remaining gaps](../home-banner-return-2026-10-03.md).
+
 ## Open Return - 3 October 2026
 
 Reused source chat/worktree below delivers `c414b12f` -> `03500c6c`;

@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+[Banner-return verification](../home-banner-return-2026-10-03.md) distinguishes
+request, readiness, activation metadata and the first retained visible PNG.
+Close phase/frame-only capture keys can omit a second asynchronous paint of
+the same terminal state; do not infer absence for that whole update from its
+first pending paint. Keep loaded initial runs and clean sole-tab recaptures
+separate. Compare native pixel order without inferring common frame epochs.
+
 [Open-return verification](../home-open-return-2026-10-03.md) also keys on
 `footerReturnFrame`, checks retired app ownership throughout return0..8, and
 captures subsequent banner activation separately. Reduced-motion production

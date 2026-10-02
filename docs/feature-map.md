@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Open return](home-open-return-2026-10-03.md), `03500c6c` + `65b758af`
+Latest [banner return](home-banner-return-2026-10-03.md), `78fa7325` + `c01e1219`,
+requests selected content at guarded footer departure0 while retaining all
+readiness gates. Clean desktop/reduced show growth from return2 and mobile
+from return4, before Open completes. Full1869 tests/typecheck/build pass;
+load-sensitive initial desktop is preserved, not hidden. Exact native epochs,
+input/motion/audio and whole scenarios remain fail/open.
+Next target is measured relative banner/footer pose and load variability,
+without treating sparse first-captured native onset as an exact scheduling
+boundary; power/buttons acceptance also remains open.
+
+Earlier [Open return](home-open-return-2026-10-03.md), `03500c6c` + `65b758af`
 with publication fix `0172842b`, adds ChangeUp0..8 and selected-banner
 reacquisition. Owner retirement precedes return; quarantine and paired endpoint
 publication continue through8. Reduced replay exposed and then verified the

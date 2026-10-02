@@ -69,19 +69,25 @@ frames 0–5 change the two window panes' authored sizes/scales. Source pose
 evaluation gives the following maximum pane spans before a two-pixel sampling
 margin:
 
-| Rows | Scale frame | Maximum span | Health center `(x,y)` | Browser lower ROI `(x,y,w,h)` | Native 400×480 ROI |
-| ---: | ---: | ---: | --- | --- | --- |
-| 1 | 0 | 117.00 | `(76,161)` | `(15,101,122,122)` | `(55,341,122,122)` |
-| 2 | 1 | 117.00 | `(76,82)` | `(15,22,122,122)` | `(55,262,122,122)` |
-| 3 | 2 | 85.84 | `(52,178)` | `(7,133,90,90)` | `(47,373,90,90)` |
-| 4 | 3 | 68.68 | `(40,64)` | `(3,27,74,74)` | `(43,267,74,74)` |
-| 5 | 4 | 57.62 | `(32,156)` | `(1,125,62,62)` | `(41,365,62,62)` |
-| 6 | 5 | 49.58 | `(34,110)` | `(7,83,54,54)` | `(47,323,54,54)` |
+| Rows | Scale frame | Maximum span | Browser Health center `(x,y)` | Browser lower ROI `(x,y,w,h)` |
+| ---: | ---: | ---: | --- | --- |
+| 1 | 0 | 117.00 | `(76,161)` | `(15,101,122,122)` |
+| 2 | 1 | 117.00 | `(76,82)` | `(15,22,122,122)` |
+| 3 | 2 | 85.84 | `(52,178)` | `(7,133,90,90)` |
+| 4 | 3 | 68.68 | `(40,64)` | `(3,27,74,74)` |
+| 5 | 4 | 57.62 | `(32,156)` | `(1,125,62,62)` |
+| 6 | 5 | 49.58 | `(34,110)` | `(7,83,54,54)` |
 
-The centers are the integrated Health-slot diagnostics from the six descending
-density captures. The native coordinates add the raw own-PNG lower-LCD offset
-`(+40,+240)`. Each experiment must assert the live center and applied Scale
-frame instead of silently trusting this table. These rectangles intentionally
+The centers are browser Health-slot diagnostics from the six descending
+density captures. Adding the raw own-PNG lower-LCD offset `(+40,+240)` would
+only express these same **browser** rectangles in a 400×480 packing; it does
+not produce native Health cursor coordinates. Native and browser title
+populations differ, so their selected Health slot can occupy different cells.
+For example, the fresh native rows-6 cursor center is `(34,54)`, while this
+browser atlas uses `(34,110)`. Derive the native center independently from each
+native input and use center-normalized comparison when the placements differ.
+Each experiment must assert its source's live center and applied Scale frame
+instead of silently trusting this table. These browser rectangles intentionally
 enclose the full authored light pane; the earlier density comparator's smaller
 selected-neighborhood rectangles remain useful historical controls but can cut
 off the outer halo.
@@ -120,12 +126,17 @@ the atomic `captureScreensAt` return contract.
 
 ## Recommended native comparison
 
-Compare coordinator-captured native ROIs against all 60 named browser phases
-for the same density, using the full row-specific rectangles above, an empty
-mask, and threshold 2. Report every minimum and tie, inspect a
-source/browser/native contact sheet, and repeat on at least one second native
-still. A closest phase is a fitted phase, not proof of a shared epoch. Only a
-repeatable same-phase residual is a candidate renderer defect.
+First derive the cursor center independently in each native still. If native
+and browser have the same selected center and comparable background, compare
+the full row-specific rectangle with an empty mask and threshold 2. Otherwise,
+crop the full authored extent around each source's own center and use a
+center-aligned pair only as a placement-normalized phase diagnostic; it is not
+an acceptance mask or a same-coordinate comparison. Compare every native crop
+against all 60 named browser phases for the same density, report every minimum
+and tie, inspect a source/browser/native contact sheet, and repeat on at least
+one second native still. A closest phase is a fitted phase, not proof of a
+shared epoch. Only a repeatable same-phase residual is a candidate renderer
+defect.
 
 The high-quality runtime paints idle LCDs at 24 fps while the retained HOME
 clock advances at 60 updates per second. Consequently `data-screen-paint`

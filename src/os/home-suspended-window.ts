@@ -2,6 +2,7 @@ import { homeSlotAppId } from './system.ts';
 import type { MenuState } from './state';
 import { nativeMessageOverride, nativePaneParentPath, type NativePixels } from './native-layout.ts';
 import type { NativeLayoutRenderer } from './native-renderer';
+import { sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
 
 export function homeSuspendedApplication(state: MenuState) {
  const s=state.system;
@@ -18,6 +19,13 @@ export function selectedSuspendedApplication(state: MenuState) {
  return application&&homeSlotAppId(state,state.opened?state.folderSelected:state.selected)===application.appId?application:null;
 }
 
+/** Capture-fitted exit policy; the native disappearance start epoch is untraced. */
+export function homeSuspendedIconDisappeared(state: MenuState): boolean {
+ const close=sampleSystemHomeApplicationTransition(state);
+ return !!homeSuspendedApplication(state)&&close?.intent.kind==='close'
+  &&(close.phase==='exiting'||close.phase==='exit-terminal');
+}
+
 export type SuspendedWindowMetadata={description:string;icon:NativePixels};
 
 function validateSleepFrame(frame:number){
@@ -25,10 +33,11 @@ function validateSleepFrame(frame:number){
 }
 
 /** Source highlight. Its host-owned pulse epoch is not a traced native epoch. */
-export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,center:readonly[number,number],densityFrame:number,sleepFrame=0){
+export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,center:readonly[number,number],densityFrame:number,sleepFrame=0,disappeared=false){
  const pack=renderer.packs.launcher,name='LncIconSleep_00';
  validateSleepFrame(sleepFrame);
  const bindings=[{name:name+'_Appear',frame:20},{name:name+'_Scale',frame:densityFrame},{name:name+'_Sleep',frame:sleepFrame}];
+ if(disappeared)bindings.push({name:name+'_DisAppear',frame:20});
  if(!pack?.layouts[name])throw Error('Native suspended icon layout unavailable');
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended icon animation unavailable: ${binding.name}`);
  if(!Number.isFinite(densityFrame)||densityFrame<0||densityFrame>5||center.some(v=>!Number.isFinite(v)))throw Error('Invalid native suspended icon pose');

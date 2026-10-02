@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {homeSuspendedApplication,retainedSuspendedApplication,selectedSuspendedApplication,drawHomeSuspendedWindow,drawHomeSuspendedIcon} from '../src/os/home-suspended-window.ts';
+import {homeSuspendedApplication,homeSuspendedIconDisappeared,retainedSuspendedApplication,selectedSuspendedApplication,drawHomeSuspendedWindow,drawHomeSuspendedIcon} from '../src/os/home-suspended-window.ts';
+import {beginSystemHomeApplicationTransition} from '../src/os/system-home-application-transition.ts';
 import {createPortfolioState,tickSystem,reduceSystem} from '../src/os/system.ts';
 import {escapeUnreadyNativeScreen,releaseUnreadyNativeInput} from '../src/os/native-screen-system.ts';
 import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts';
@@ -56,6 +57,40 @@ test('upper and lower suspended presentations sample the same authored Sleep loo
   assert.throws(()=>drawHomeSuspendedIcon({packs},{},[0,0],0,frame),RangeError);
   assert.throws(()=>drawHomeSuspendedWindow({packs},{},metadata(),'expanded',frame),RangeError);
  }
+});
+
+test('close exit clears only the source sleep overlay while retaining its live owner',()=>{
+ const base=beginSystemHomeApplicationTransition(suspended(),{kind:'close'});
+ const owner=base.system.runtime.application;
+ assert.ok(base.system.homeApplicationTransition);
+ assert.equal(homeSuspendedIconDisappeared(suspended()),false);
+ for(const intent of [{kind:'close'},{kind:'switch',appId:'camera'}]){
+  for(const phase of ['closing','terminal','exiting','exit-terminal','complete']){
+   const state=structuredClone(base);
+   Object.assign(state.system.homeApplicationTransition,{intent,phase,appQuitFrame:20,dialogExitFrame:20});
+   assert.equal(homeSuspendedIconDisappeared(state),intent.kind==='close'&&['exiting','exit-terminal'].includes(phase));
+   assert.equal(homeSuspendedApplication(state).id,owner);
+   assert.equal(state.system.runtime.application,owner);
+  }
+ }
+ for(const change of [s=>s.powered=false,s=>s.system.sleeping=true,s=>s.system.preferences=true,s=>s.panel='settings',s=>s.system.runtime.application=null,s=>s.system.homeApplicationTransition.identity.owner='stale',s=>s.system.homeApplicationTransition.identity.generation='stale']){
+  const state=structuredClone(base);state.system.homeApplicationTransition.phase='exiting';change(state);
+  assert.equal(homeSuspendedIconDisappeared(state),false);
+ }
+});
+
+test('close disappearance uses the delivered endpoint and fails explicitly when selected source is missing',()=>{
+ const before=JSON.stringify(packs);
+ for(const density of [0,1,2,3,4,5])for(const sleep of [0,60,119]){
+  let options;drawHomeSuspendedIcon({packs,draw(_ctx,_pack,_name,value){options=value;return true;}},{},[244,137],density,sleep,true);
+  assert.deepEqual(options.bindings.at(-1),{name:'LncIconSleep_00_DisAppear',frame:20});
+  const pose=poseNativeLayout(packs.launcher.layouts.LncIconSleep_00,packs.launcher.animations,options.bindings);
+  assert.equal(nativePaneParentPath(pose,'P_Sleep_00').at(-1).alpha,0);
+ }
+ assert.equal(JSON.stringify(packs),before);
+ const source=structuredClone(packs);delete source.launcher.animations.LncIconSleep_00_DisAppear;
+ assert.throws(()=>drawHomeSuspendedIcon({packs:source},{},[244,137],1,0,true),/animation unavailable/);
+ assert.doesNotThrow(()=>drawHomeSuspendedIcon({packs:source,draw(){return true;}},{},[244,137],1,0));
 });
 
 test('expanded window follows the selected suspended instance, never a live, applet or retired owner',()=>{

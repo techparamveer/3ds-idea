@@ -16,7 +16,7 @@ import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-
 import { createHomeLayoutManager, type HomeLayoutPreview } from './home-native-layouts';
 import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareSwitchTitles,drawHomeSoftwareDialog} from './home-software-dialog';
 import {drawHomeSoftwareClosingDialog} from './home-software-closing-dialog';
-import { homeSuspendedApplication, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
+import { homeSuspendedApplication, homeSuspendedIconDisappeared, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { homeCloseWindowOpacity } from './home-close-window-fit';
 import { createHomeSuspendedPresentation, getHomeSuspendedSleepFrame, syncHomeSuspendedPresentation } from './home-suspended-presentation';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
@@ -174,7 +174,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
     else titleIcon(c,appId,x,y,size,assets);
    });
    else if(folderLabel!==null&&!nativeDrawn)artwork(()=>folder(c,x+size/2,y+size/2,size*.78,folderLabel));
-   if(appId&&appId===suspendedApp)artwork(()=>nativeHome?.suspendedIcon(c,x,y,size,view.density,suspendedSleepFrame));
+   if(appId&&appId===suspendedApp)artwork(()=>nativeHome?.suspendedIcon(c,x,y,size,view.density,suspendedSleepFrame,homeSuspendedIconDisappeared(state)));
   }else if(!nativeHome?.empty(c,x,y,size,view.density)){
    artwork(()=>{const inset=size*.34,side=size-inset*2;
    rounded(c,x+inset,y+inset,side,side,2,'#d3d4d766','#c8c9cc');

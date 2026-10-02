@@ -144,6 +144,17 @@ test('opt-in newline scales compact and recenter the Power spacer rows without c
  assert.throws(()=>rows([1,.2,1,0,1,1]),/Invalid native line advance scales/);
 });
 
+test('opt-in multiline alpha text samples decoded spacer geometry directly at LCD centres',()=>{
+ const glyph={sheet:0,x:1,y:1,width:1,height:1,left:0,advance:2};
+ const manifest={schema:1,sourceSha256:'0'.repeat(64),width:2,height:2,baseline:2,lineFeed:2,colorMode:'alpha',sheets:['sheet-0.png'],glyphs:{65:glyph,32:{...glyph,width:0}},fallback:null};
+ const font=new BitmapFont(manifest,[{naturalWidth:4,naturalHeight:4}]);
+ font.glyphMask=()=>({width:3,height:3,data:new Uint8ClampedArray(36).fill(255)});
+ let image,drawCalls=0;const ctx={createImageData:(width,height)=>({width,height,data:new Uint8ClampedArray(width*height*4)}),putImageData:value=>{image=value;},drawImage:()=>{drawCalls++;}};
+ font.drawNative(ctx,'A\n \nA',8,8,[2,2],4,0,0,1,[.25,.5],true,undefined,undefined,[],false,false,[.2,1]);
+ assert.equal(drawCalls,0);assert.deepEqual([image.width,image.height],[9,9]);
+ assert.ok(image.data.some((value,index)=>index%4===3&&value>0),'source alpha masks reach the direct LCD surface');
+});
+
 test('native alpha glyph raster uses hard pixel-centre coverage and the atlas border for linear filtering',()=>{
  const surface=(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});
  const glyph={width:1,height:1},source=surface(3,3),target=surface(3,3),quad={glyph,x:.4,y:.4,width:1.2,height:1.2};

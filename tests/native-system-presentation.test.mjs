@@ -29,7 +29,7 @@ function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch
  const draws=[];
  const top=mockCtx(400),bottom=mockCtx(320);
  const assets={renderer:{packs:{messages:{menu_msbt_LZ:{labels:{},messages:[]}},...packs},
-  draw(ctx,bank,name,options){draws.push({bank,name,clip:options.bindings[0].name,frame:options.bindings[0].frame,width:ctx.canvas.width,overrides:options.overrides});return true;}}};
+  draw(ctx,bank,name,options){draws.push({bank,name,clip:options.bindings[0].name,frame:options.bindings[0].frame,width:ctx.canvas.width,overrides:options.overrides,textSampling:options.textSampling,textSamplingPanes:options.textSamplingPanes});return true;}}};
  const ok=drawNativeSystemOverlay(top,bottom,{system:{phase,since:0,sleeping:false,returnPhase:'home'}},elapsed,reduced,assets);
  return {ok,draws,fills:[...top.fills,...bottom.fills]};
 }
@@ -88,5 +88,8 @@ test('Power opts only its source main message into decoded newline advance scale
  assert.deepEqual(upper.overrides.T_Main_00.lineAdvanceScales,[1,.2,1,.2,1,1]);
  assert.equal(upper.overrides.T_Main_00.text,homeMessages.messages.menu_msbt_LZ.messages[homeMessages.messages.menu_msbt_LZ.labels.lau_press_pow_u1].text);
  for(const pane of ['T_Top_00','T_Btm_00'])assert.equal(upper.overrides[pane].lineAdvanceScales,undefined);
+ assert.equal(upper.textSampling,'lcd-spacer-lines');assert.deepEqual(upper.textSamplingPanes,['T_Main_00']);
+ const lower=result.draws.find(draw=>draw.bank==='sleep'&&draw.name==='Slp_D_00');
+ assert.equal(lower.textSampling,'lcd');assert.deepEqual(lower.textSamplingPanes,['T_BtnB_01','T_BtnF_01']);
  assert.equal(JSON.stringify(homeMessages),before);
 });

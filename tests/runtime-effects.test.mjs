@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { IDBFactory } from 'fake-indexeddb';
 import { openFirmwareStorage } from '../src/os/app-persistence.ts';
 import { createRuntimeEffects } from '../src/os/runtime-effects.ts';
-import { createPortfolioState, launch, tickSystem, dispatchSystemEvent, reduceSystem } from '../src/os/system.ts';
+import { createPortfolioState, launch, launchHomeShortcut, tickSystem, tickHomeNavigationClockObserved, dispatchSystemEvent, reduceSystem } from '../src/os/system.ts';
 
 const deferred=()=>{let resolve;const promise=new Promise(r=>{resolve=r;});return{promise,resolve};};
 function fixture(extra={}){
@@ -75,6 +75,34 @@ test('effect acknowledgements read the state after the host mutation boundary',(
  f.adapter.drain(false);
  assert.equal(calls,1);assert.equal(f.state.system.homeClock.updateCount,17);
  assert.equal(f.state.system.runtime.effects.length,0);assert.deepEqual(f.sounds,['select']);f.adapter.dispose();
+});
+
+test('retirement cleanup preserves return zero with the publication clock and later updates resume',async()=>{
+ for(const pinned of [false,true]){
+  let state=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000),6200),'home',6300);
+  state=reduceSystem(state,'back',6400);
+  for(let now=6500;now<20000&&state.system.homeApplicationTransition?.footerReturnFrame!==0;now+=1000)state=tickSystem(state,now);
+  assert.equal(state.system.homeApplicationTransition.footerReturnFrame,0);
+  assert.equal(state.system.runtime.application,null);
+  assert.ok(state.system.runtime.effects.some(item=>item.effect.type==='release-capabilities'));
+  const publicationNow=state.system.homeClock.lastNow;
+  let effectNow=pinned?publicationNow:null;
+  const adapter=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;},
+   now:()=>effectNow??publicationNow+25,beforeMutation:now=>{state=tickHomeNavigationClockObserved(state,now,true).state;},
+   storage:{async saveRecord(){},async savePreferences(){},dispose(){}},onChange(){},onFailure(error){throw error;},onSound(){},onLink(){}});
+  adapter.drain(false);
+  assert.equal(state.system.homeApplicationTransition.footerReturnFrame,pinned?0:1);
+  assert.equal(state.system.runtime.effects.length,0);
+  assert.equal(state.system.runtime.application,null);
+  if(pinned){
+   effectNow=null;
+   const runtime=state.system.runtime,id=runtime.effectSequence+1;
+   state={...state,system:{...state.system,runtime:{...runtime,effectSequence:id,effects:[{id,owner:'test',effect:{type:'sound',name:'select'}}]}}};
+   adapter.drain(false);
+   assert.equal(state.system.homeApplicationTransition.footerReturnFrame,1);
+  }
+  await adapter.settled();adapter.dispose();
+ }
 });
 test('asynchronous capability results preserve state flushed at their arrival boundary',async()=>{
  const gate=deferred();let calls=0,changedLabel;

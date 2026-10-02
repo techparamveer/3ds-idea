@@ -315,7 +315,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(!state.system!.homeControls&&readyAt!==null)observeFolderBanner({...bannerClock(),updateCount:readyAt});
     bannerHost=crossHomeBannerBoundary(bannerHost,bannerClock());
   }
-  const effects=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;observeFolderBanner();},now:()=>performance.now()-start,beforeMutation:advanceBeforeMutation,storage,
+  let closePublicationEffectNow:number|null=null;
+  const effects=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;observeFolderBanner();},now:()=>closePublicationEffectNow??performance.now()-start,beforeMutation:advanceBeforeMutation,storage,
     onChange:()=>{if(!disposed)paint();},
     onFailure:error=>{runtimeNotice='Your changes could not be saved locally.';host.dataset.storageFailure=String(error);if(!disposed)paint();},
     onSound:name=>{if(soundNames.has(name))audio.play(name as Sound,state.system!.muted,state.system!.volume);},
@@ -339,7 +340,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     lastInput=input;updateAudio();
     const sound=getMenuActionSound(beforeAction,state,input);
     if(sound&&!after.runtime.effects.some(item=>item.effect.type==='sound'))audio.play(sound,after.muted,after.volume);
-    effects.drain(userGesture);
+    // Retirement cleanup must not consume the endpoint before its first paint.
+    const previousEffectNow=closePublicationEffectNow;
+    if(mustPaintApplicationClose)closePublicationEffectNow=now;
+    try{effects.drain(userGesture);}finally{closePublicationEffectNow=previousEffectNow;}
     // Ordinary clock updates keep the quality cadence; terminal close pairs must publish.
     const reducedChanged=reduced&&(previousBanner!==reducedBannerKey()||before.homeNavigation!==after.homeNavigation
       ||before.homeControls?.tilePoses!==after.homeControls?.tilePoses||before.homeControls?.tilePickup!==after.homeControls?.tilePickup);

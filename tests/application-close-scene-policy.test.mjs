@@ -18,3 +18,11 @@ test('scene rebases before hiding and forces resumed close endpoints to the rend
   assert.match(source, /applicationCloseNeedsPaint\(before\.homeApplicationTransition,after\.homeApplicationTransition,reduced,resumedApplicationClose\)/);
   assert.match(source, /if\(mustPaintApplicationClose\)\{paint\(\);if\(started&&!document\.hidden&&!after\.sleeping\)renderFrame\(\);\}/);
 });
+
+test('required close publication pins synchronous effect clocks until cleanup ends', () => {
+  assert.match(source, /now:\(\)=>closePublicationEffectNow\?\?performance\.now\(\)-start/);
+  const pin = source.indexOf('if(mustPaintApplicationClose)closePublicationEffectNow=now;');
+  const drain = source.indexOf('try{effects.drain(userGesture);}finally{closePublicationEffectNow=previousEffectNow;}');
+  const paint = source.indexOf("if(input!=='tick'||mustPaintApplicationClose", drain);
+  assert.ok(pin >= 0 && drain > pin && paint > drain);
+});

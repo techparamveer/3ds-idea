@@ -168,7 +168,10 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
    if(!(nativeDrawn??chrome.tile(c,x,y,size))){c.save();c.globalAlpha*=alpha;c.shadowColor='#96969c';c.shadowOffsetY=2;c.shadowBlur=3;
     rounded(c,x,y,size,size,Math.min(12,size*.16),gradient(c,y,size,'#fff','#efeff1'),'#bfc0c5');c.restore();}
    if(app)artwork(()=>graphics.menuIcon(c,app,x,y,size));
-   else if(appId)artwork(()=>titleIcon(c,appId,x,y,size,assets));
+   else if(appId)artwork(()=>{const titleId=getTitle(appId)?.titleId;
+    if(nativeHome){if(!titleId)throw new Error(`Native HOME title unavailable: ${appId}`);nativeHome.ordinaryTitleIcon(c,titleId,x,y,size);}
+    else titleIcon(c,appId,x,y,size,assets);
+   });
    else if(folderLabel!==null&&!nativeDrawn)artwork(()=>folder(c,x+size/2,y+size/2,size*.78,folderLabel));
    if(appId&&appId===suspendedApp)artwork(()=>nativeHome?.suspendedIcon(c,x,y,size,view.density,suspendedSleepFrame));
   }else if(!nativeHome?.empty(c,x,y,size,view.density)){

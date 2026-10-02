@@ -6,13 +6,14 @@ Branch: `codex/home-icon-corners-20261002`
 
 Base: `5da749daf554465fe6c89017586fdfdedb74bc79`
 
-Status: **bounded source gap; candidate rejected; no runtime change**.
+Status: **authored icon material implemented; production recapture pending**.
 
-The unselected Camera icon retains a stable four-corner mismatch while its
-44×44 artwork core is already effectively exact. The delivered HOME layout
-does prove an authored mask/material path, but the bounded replay shows that
-installing the current 48×48 delivery image into that material is not a safe
-correction without the still-missing runtime title-texture and UV setup.
+The unselected Camera icon retained a stable four-corner mismatch while its
+44×44 artwork core was already effectively exact. A first bounded replay used
+an incorrect y=138 diagnostic coordinate and was rejected. The production
+artwork is byte-proven at `[220,137)–[268,185)`. Replaying the delivered HOME
+material at that unchanged footprint removes every above-threshold icon pixel,
+so no fitted mask UV, coordinate adjustment or artwork edit is needed.
 
 ## Captured defect and fresh native stability
 
@@ -61,16 +62,24 @@ the delivered PNG SHA-256 is
 `06c7438a68a45aea82d0d43477897883d5fef1cb4176d4cda15225770e8dbd4a`.
 The converter is `ctr-native-web` 1.2.0 with CTRTool 1.3.0.
 
-The bounded candidate replaced sampler 0 only. It deliberately left sampler 1
+The implementation replaces sampler 0 only. It deliberately leaves sampler 1
 and sampler 2 authored, matching the repository's proven dynamic-picture
-binding convention. It also preserved the existing rounded destination
-footprint at every density: a 72-pixel tile remains `[220,138)–[268,186)`;
-fractional/odd density destinations retain the old `Math.round` top-left rule.
+binding convention. It also preserves the existing rounded destination
+footprint at every density: the visible 72-pixel tile at `[208,125)` retains
+its icon at `[220,137)–[268,185)`; fractional/odd density destinations retain
+the old `Math.round` top-left rule.
 Pickup, header, suspended, folder and portfolio artwork paths were not changed.
 
-## Rejected bounded replay
+## Corrected authored-material replay
 
-The candidate replay feeds the published Camera image
+The first replay assumed that the visible plate-body y=126 was the caller's
+tile origin and placed the icon at y=138. That assumption was wrong: comparing
+all 48×48 published Camera RGB bytes against the production lower LCD proves
+an exact match only at x=220, y=137. The original replay report, sheet and
+script are retained unchanged as an invalid-coordinate experiment; they are
+not evidence about the runtime artwork footprint.
+
+The corrected replay feeds the published Camera image
 `icons/camera.png` (48×48, SHA-256
 `eef80be1e6961951cb776306165fd141016760327e1c96f865a68ccb88a92f01`)
 through the exact delivered `P_Icon_00` material. The material changes alpha at
@@ -80,34 +89,49 @@ baseline; newly exposed background comes from the bounded direct SetSrc source
 replay. This prevents the known 963-pixel ordinary-plate gap from being folded
 into the candidate.
 
-| Region | Baseline pixels >2 | Candidate pixels >2 | Baseline → candidate RMSE | Baseline → candidate max |
+| Region | Baseline pixels >2 | Corrected replay pixels >2 | Baseline → replay RMSE | Baseline → replay max |
 | --- | ---: | ---: | ---: | ---: |
-| Icon fringe | 23 / 564 | 33 / 564 | 19.835851 → 17.626510 | 246 → 205 |
-| Artwork core | 1 / 1,936 | 1 / 1,936 | 0.344676 → 0.344676 | 16 → 16 |
+| Icon fringe | 23 / 564 | 0 / 564 | 19.835851 → 0.574785 | 246 → 1 |
+| Artwork core | 1 / 1,936 | 0 / 1,936 | 0.344676 → 0.252740 | 16 → 1 |
 
-Although the fringe RMSE and maximum improve and the core remains unchanged,
-the acceptance-threshold count regresses by ten pixels. That mixed result does
-not support shipping the candidate. The runtime edits and focused candidate
-tests were reverted; `src/os/firmware-presentation.ts`, `src/os/screens.ts` and
-the renderer remain unchanged.
+The corrected result improves all measured icon metrics and creates no new
+above-threshold region. The runtime now decodes the unmodified 48×48 title PNG
+to `NativePixels`, verifies the delivered `LncIconDist_01/P_Icon_00` pane,
+UV-set and sampler identity once per presenter, and draws it only for ordinary
+stock grid artwork. Missing selected icon pixels, unexpected dimensions,
+material drift and renderer failure remain explicit failures. The renderer's
+existing pixel-identity cache isolates different title images that share the
+same runtime binding name. Disposal clears the raw icon map, abort propagates,
+and a non-abort failure remains isolated until that title is selected.
 
-The replay report is
+The invalid y=138 replay report remains
 `home-icon-corners-20261002/source/camera-icon-material-replay.json`, SHA-256
 `172252d822b12ba3fad986c155536da3770f37ee74e3761e04f63e745df3acdc`.
-The opened four-column sheet (native, browser baseline, source-material replay,
-6× difference) is `camera-icon-material-replay.png`, SHA-256
+Its four-column sheet is `camera-icon-material-replay.png`, SHA-256
 `f3670835b11339f600503d9e1c1eed0d36659c8ab82e5b8468f44381560592be`.
-The replay script SHA-256 is
+The preserved base replay script SHA-256 is
 `4bca0f131e56847fd6e49bf05b21407aa7d6c61ab4e240b1b527052dcbdf1a85`.
-All live under:
+
+The corrected report is
+`camera-icon-material-replay-corrected.json`, SHA-256
+`a0287d58f2bb089dda9b755a61becc21498f2137bb969dd42f439239360f9613`.
+Its opened four-column sheet is `camera-icon-material-replay-corrected.png`,
+SHA-256
+`757e538d9708032083f3de51160bf3bbfcf22b07fc043eda53bfb4d68fecd66f`.
+The corrected lower-LCD candidate SHA-256 is
+`d898af085a0508c721f5d32b1fbc1afbccce6c28c84485e8ee6effeb78611f99`;
+the coordinate-correction wrapper SHA-256 is
+`778b8a007d2ab3919b6bc10238939eb1f2b3e3697bcb56b3d7599e7d02bd2208`.
+All private artifacts live under:
 
 `/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-icon-corners-20261002/source/`
 
 ## Precise remaining gap
 
-The layout proves the material, but this slice did not establish the ordinary
-stock-title runtime call that installs the SMDH image and its UV rectangle. In
-particular, source evidence is still required for:
+The runtime texture descriptor and ordinary-title setter/UV contract remain
+unproven. This implementation therefore binds only the repository's decoded,
+pinned icon to the already-proven authored material convention; it does not
+claim recovery of the original setter. Source evidence is still required for:
 
 - the runtime texture extent and padding around the 48×48 SMDH large icon;
 - which material sampler descriptors the ordinary-title setter replaces;
@@ -117,10 +141,11 @@ particular, source evidence is still required for:
   authored mask;
 - PICA filtering/blend precision at the four antialiased corners.
 
-The next safe source slice is the ordinary stock-title resource setter and its
-`0x206484`/`0x206458` caller, not another mask, offset or color fit. Do not infer
-the title texture contract from the folder-glyph, Manual-header or screenshot
-paths: those consumers use different texture extents, panes or UVs.
+No uniform mask fit was attempted because the zero-offset authored material at
+the actual footprint already explains the stable 24-corner pixel set. Do not
+infer the original title texture contract from the folder-glyph, Manual-header
+or screenshot paths: those consumers use different texture extents, panes or
+UVs.
 
 ## Evidence classification
 
@@ -128,13 +153,18 @@ paths: those consumers use different texture extents, panes or UVs.
   and UV sets, `IconMask`, TEV constants/stages, filtering and blend state.
 - Delivered: unchanged launcher pack, Camera SMDH PNG and mask PNG; no new
   public asset.
-- Implemented: documentation and private replay only; **no runtime change**.
-- Tested: the focused candidate tests passed before the candidate was reverted;
-  final documentation/link/diff checks are recorded in the handoff.
+- Implemented: raw title-icon loading/disposal plus the exact guarded authored
+  material path for ordinary stock grid icons; no mask fit or asset edit.
+- Tested: 47 focused tests pass across real raster output, all density
+  footprints, grid-only routing, negative material/resource scope, cache
+  identity, load, non-abort failure, abort and disposal; typecheck and
+  `git diff --check` pass.
 - Browser-inspected: not performed in this worker; the captured production
   baseline was consumed read-only.
-- Native-compared: bounded replay against the named fresh native capture; not
-  a production-browser recapture and not whole-scenario acceptance.
+- Native-compared: corrected bounded replay against the named fresh native
+  capture; not a production-browser recapture and not whole-scenario
+  acceptance.
 
-The HOME idle scenario remains `fail`. Plate963 and footer694 are unchanged;
-input, motion and audio remain open.
+The coordinator must integrate and recapture the production browser before any
+scenario status changes. HOME idle therefore remains `fail`; plate963 and
+footer694 are unchanged, and input, motion and audio remain open.

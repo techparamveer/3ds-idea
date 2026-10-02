@@ -290,7 +290,7 @@ function canvas(events) {
   surface.getContext = () => context;
   return surface;
 }
-async function withScreens(run, { native = true, legacyCursorDrawn = true, realToolbar = false, realTilePose = false, legacyPressOffset = 0, screenOptions = {} } = {}) {
+async function withScreens(run, { native = true, legacyCursorDrawn = true, realToolbar = false, realTilePose = false, legacyPressOffset = 0, presenterPatch = {}, screenOptions = {} } = {}) {
   const saved = new Map(['document', 'Image', 'FontFace'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   const events = [];
   Object.assign(globalThis, {
@@ -311,6 +311,7 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     appletBannerLabel(key) { events.push({ name: 'applet-label', args: [key] }); },
     folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); },
     cursor(ctx, ...args) { ctx.record('cursor', args); return legacyCursorDrawn; },
+    ...presenterPatch,
   }, { get: (target, key) => key in target ? target[key] : ((ctx, ...args) => { ctx.record(key, args); return true; }) });
   const diagnostics = [];
   const screens = createScreens({ drawHomeBackground:()=>true, ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics, dispose() {} } } : {}), ...screenOptions });
@@ -678,6 +679,34 @@ test('retained tile writer moves assembled app artwork and plate together, indep
       }
     }
   }, { realTilePose: true, legacyPressOffset: 99 });
+});
+
+test('ordinary stock artwork uses the native material only in the grid, including a lifted source', async () => {
+  await withScreens(({ paint, events }) => {
+    const initial=home(),state={...initial,system:{...initial.system,homeControls:null}},view = getHomePresentation(state), portfolio = new Set(['work','projects','hobbies','life','hackuk','nvidia','about','contact']);
+    const stock = view.tiles.filter(tile => tile.appId && !portfolio.has(tile.appId));
+    assert.equal(stock.length,1);
+    paint(state);
+    const baseline = events.filter(event => event.name === 'ordinaryTitleIcon');
+    assert.equal(baseline.length, stock.length);
+    assert.deepEqual(baseline.map(event => event.args.slice(1)), stock.map(tile => [tile.x,tile.y,tile.size]));
+    assert.equal(events.filter(event => event.name === 'menuIcon').length,7,'portfolio artwork remains on its separate path');
+
+    const source = stock[0], point = { x: source.x+1, y: source.y + source.size / 2 };
+    let dragged = dispatchSystemEvent(state,{type:'touch',phase:'down',...point,pointerId:9},100);
+    dragged = tickSystem(dragged,550);
+    assert.equal(getHomePresentation(dragged).ghost.item.id,source.appId);
+    paint(dragged);
+    assert.equal(events.filter(event => event.name === 'ordinaryTitleIcon').length,stock.length-1,
+      'lifted grid source is omitted and its direct pickup artwork does not enter the grid material path');
+  });
+});
+
+test('missing selected grid title pixels fail explicitly without a raw-image substitution', async () => {
+  await withScreens(({paint,events})=>{
+    assert.throws(()=>paint(home()),/Native ordinary title icon unavailable/);
+    assert.equal(events.some(event=>event.name==='ordinaryTitleIcon'),false);
+  },{presenterPatch:{ordinaryTitleIcon(){throw new Error('Native ordinary title icon unavailable: fixture');}}});
 });
 
 test('retained slot poses move folder and vacant assemblies without moving neighboring tiles', async () => {

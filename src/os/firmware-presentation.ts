@@ -18,7 +18,7 @@ import { ownedHomeFooterContact } from './home-footer-touch';
 import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
 
 type Context=CanvasRenderingContext2D;
-export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
+export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleIconPixels:Map<string,NativePixels>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
 const homeSettingsLayouts=['PtDlgBg_U_00','PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00'];
 const homeLayoutManagerLayouts=['MyMenuBtmBtn_D_00','MyMenuBtn_D_00','MyMenuCsr_00','MyMenuDlg_00','MyMenuDlg_01','MyMenuRandom','MyMenu_D_00','MyMenu_U_00'];
@@ -37,14 +37,21 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const soundBalloonText=selectHomeSoundBalloonText(manifest);
   const cameraBalloonText=selectHomeCameraBalloonText(manifest);
   const titleIcons=new Map<string,HTMLImageElement>();
+  const titleIconPixels=new Map<string,NativePixels>();
   const titleDescriptions=new Map<string,string>();
   for(const titleId of Object.keys(manifest.titles??{})){
    const metadata=selectNotesMetadata(manifest,titleId);
    if(!('status' in metadata))titleDescriptions.set(titleId,metadata.description);
   }
   await Promise.all(Object.entries(manifest.titles??{}).map(async ([titleId,title])=>{
-   if(typeof Image==='undefined')return;
    if(!/^[a-f0-9]{16}$/i.test(titleId)||!title.icon||!/^icons\/[a-z0-9-]+\.png$/.test(title.icon))return;
+   try{
+    const response=await fetch(new URL(title.icon,base),{signal:controller.signal});
+    if(!response.ok)throw new Error(`Firmware icon HTTP ${response.status}: ${title.icon}`);
+    const pixels=await decodeNativePng(new Uint8Array(await response.arrayBuffer()),{width:48,height:48},controller.signal);
+    titleIconPixels.set(titleId.toLowerCase(),pixels);
+   }catch(error){if(controller.signal.aborted)throw error;/* Other native presentation remains independently usable. */}
+   if(typeof Image==='undefined')return;
    const icon=new Image();icon.src=new URL(title.icon,base).href;
    try{await icon.decode();if(icon.naturalWidth===48&&icon.naturalHeight===48)titleIcons.set(titleId.toLowerCase(),icon);}catch{/* The remaining native presentation can still load. */}
   }));
@@ -76,7 +83,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const renderer=new NativeLayoutRenderer(packs,textures,new Map([['cbf_std.bcfnt',sharedFont as BitmapFont],['Hud.bcfnt',hudFont as BitmapFont]]));
   renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.','HOME Settings uses source layouts with capture-fitted scrollbar geometry, a bounded four-row scroll range and settled cursor/button bindings; these are adaptations pending native runtime comparison.');
   let disposed=false;
-  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,titleDescriptions,settingsBalloonText,healthBalloonText,soundBalloonText,cameraBalloonText,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();titleDescriptions.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
+  return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,titleIconPixels,titleDescriptions,settingsBalloonText,healthBalloonText,soundBalloonText,cameraBalloonText,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();titleIconPixels.clear();titleDescriptions.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
  }catch(error){controller.abort();fonts.forEach(font=>font.dispose());throw error;}
  finally{signal?.removeEventListener('abort',abort);}
 }
@@ -84,6 +91,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
 /** HOME assembly chooses groups and discrete firmware clip frames explicitly. */
 export function createFirmwareHome(assets:FirmwarePresentationAssets){
  const renderer=assets.renderer;
+ let ordinaryTitleMaterialValidated=false;
  const message=(table:string,key:string,fallback:string)=>nativeMessageOverride(renderer.packs.messages,table,key,fallback);
  const binding=(name:string,frame:number,groups?:string[]):AnimationBinding=>({name,frame,...(groups?{groups}:{})});
  const pressTrack=renderer.packs.launcher.animations.LncCsr_00_Select.tracks.find(track=>track.target==='N_Scene_00'&&track.property==='translation.y');
@@ -300,6 +308,29 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }
   return drawn;
  }
+ function ordinaryTitleIcon(ctx:Context,titleId:string,x:number,y:number,size:number){
+  if(!ordinaryTitleMaterialValidated){
+   const layout=renderer.packs.launcher?.layouts.LncIconDist_01,path=layout&&nativePaneParentPath(layout,'P_Icon_00'),pane=path?.at(-1),material=pane?.picture&&layout!.materials[pane.picture.material];
+   const contract=layout?.textures.length===2&&layout.textures[0]==='IconDmy.bclim'&&layout.textures[1]==='IconMask.bclim'
+    &&JSON.stringify(path?.map(item=>item.name))==='["RootPane","P_IconBtnDmy_00","P_Icon_00"]'
+    &&JSON.stringify(pane?.size)==='[48,48]'&&JSON.stringify(pane?.picture?.uvSets)==='[[0,0,1,0,0,1,1,1],[0.25,0.25,1.75,0.25,0.25,1.75,1.75,1.75],[0,0,1,0,0,1,1,1]]'
+    &&material?.name==='P_Icon_00'&&JSON.stringify(material.textureMaps)==='[{"magFilter":1,"minFilter":1,"texture":0,"wrapS":0,"wrapT":0},{"magFilter":1,"minFilter":1,"texture":1,"wrapS":2,"wrapT":2},{"magFilter":1,"minFilter":1,"texture":0,"wrapS":0,"wrapT":0}]'
+    &&JSON.stringify(material.coordinateGenerators)==='[{"reserved":0,"source":0,"type":0},{"reserved":0,"source":1,"type":0},{"reserved":0,"source":2,"type":0}]';
+   if(!contract)throw new Error('Unsupported ordinary title icon material identity');
+   ordinaryTitleMaterialValidated=true;
+  }
+  const pixels=assets.titleIconPixels?.get(titleId.toLowerCase());
+  if(!pixels)throw new Error(`Native ordinary title icon unavailable: ${titleId}`);
+  if(pixels.width!==48||pixels.height!==48)throw new Error('Unsupported ordinary title icon dimensions');
+  const width=Math.round(size*2/3),left=Math.round(x+(size-width)/2),top=Math.round(y+(size-width)/2),texture='runtime:ordinary-title-icon';
+  const drawn=renderer.draw(ctx,'launcher','LncIconDist_01',{center:[left+width/2,top+width/2],textures:{[texture]:pixels},overrides:{
+   // Only the dynamic SMDH sampler is rebound. IconMask and the third authored
+   // IconDmy sample retain the decoded layout's UVs, descriptors and matrices.
+   P_IconBtnDmy_00:{size:[0,0]},P_Icon_00:{size:[width,width],textureBindings:{0:texture}}
+  }});
+  if(!drawn)throw new Error(`Native ordinary title icon draw unavailable: ${titleId}`);
+  return true;
+ }
  function suspendedIcon(ctx:Context,x:number,y:number,size:number,density:number,sleepFrame:number){
   drawHomeSuspendedIcon(renderer,ctx,[x+size/2,y+size/2],nativeHomeDensityFrame(density),sleepFrame);
  }
@@ -363,5 +394,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   return pickupBlankAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density));
  }
- return {hud,upperBase,settingsUpper,settingsLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,settingsUpper,settingsLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

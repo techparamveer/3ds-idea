@@ -15,7 +15,9 @@ import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeS
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
-const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],petit:['PtDlgBg_U_00'],launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
+const homeSettingsLayouts=['PtDlgBg_U_00','PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00'];
+const homeLayoutManagerLayouts=['MyMenuBtmBtn_D_00','MyMenuBtn_D_00','MyMenuCsr_00','MyMenuDlg_00','MyMenuDlg_01','MyMenuRandom','MyMenu_D_00','MyMenu_U_00'];
+const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],petit:homeSettingsLayouts,launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
  const base=new URL(manifestUrl,window.location.href),controller=new AbortController();
@@ -37,10 +39,11 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
    try{await icon.decode();if(icon.naturalWidth===48&&icon.naturalHeight===48)titleIcons.set(titleId.toLowerCase(),icon);}catch{/* The remaining native presentation can still load. */}
   }));
   const font=async (url:string)=>{const result=await loadBitmapFont(new URL(url,base).href,controller.signal);fonts.push(result);return result;};
-  const packNames=['hud','launcher','messages','banner','common','sleep','petit',...(manifest.home.launch?['launch']:[])];
-  const requestedLayouts={...homeLayouts,...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
+  const packNames=['hud','launcher','messages','banner','common','sleep','petit','MyMenu',...(manifest.home.launch?['launch']:[])];
   const [sharedFont,hudFont,...loaded]=await Promise.all([font(manifest.fonts.shared),font(manifest.fonts.hud),...packNames.map(name=>json<NativePack>(manifest.home[name]))]);
   const packs=Object.fromEntries(packNames.map((name,i)=>[name,loaded[i]])) as Record<string,NativePack>;
+  if(!packs.MyMenu?.layouts||!Object.keys(packs.MyMenu.layouts).length)throw new Error('Missing native HOME layout manager pack');
+  const requestedLayouts={...homeLayouts,MyMenu:homeLayoutManagerLayouts,...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
   // Reject an incomplete style conversion during loading, before a paint can partially fail.
   for(const [bank,data] of Object.entries(packs.messages.messages))for(const label of Object.keys(data.labels))nativeMessageOverride(packs.messages,bank,label,'');
   const textures:Record<string,Map<string,NativePixels>>={};const decoded=new Map<string,Promise<NativePixels>>();
@@ -61,7 +64,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   }));
   controller.signal.throwIfAborted();
   const renderer=new NativeLayoutRenderer(packs,textures,new Map([['cbf_std.bcfnt',sharedFont as BitmapFont],['Hud.bcfnt',hudFont as BitmapFont]]));
-  renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.');
+  renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.','HOME Settings uses source layouts with capture-fitted scrollbar geometry, a bounded four-row scroll range and settled cursor/button bindings; these are adaptations pending native runtime comparison.');
   let disposed=false;
   return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,settingsBalloonText,healthBalloonText,soundBalloonText,cameraBalloonText,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
  }catch(error){controller.abort();fonts.forEach(font=>font.dispose());throw error;}
@@ -119,6 +122,51 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   // Settled source pose observed in the native Design capture. Opening/closing
   // epochs remain unverified; do not derive them from the presentation clock.
   if(!renderer.draw(ctx,'petit','PtDlgBg_U_00',{bindings:[binding('PtDlgBg_U_00_FadeIn',20)],overrides:{T_Text_00:message('menu_msbt_LZ','ptt_title_u','')}}))throw new Error('Native HOME Settings upper layout unavailable');
+ }
+ function settingsLower(ctx:Context,state:MenuState&{panelScroll?:number}){
+  const pack=renderer.packs.petit,bank=renderer.packs.messages.messages.menu_msbt_LZ;
+  const requiredMessage=(label:string)=>{
+   if(bank?.labels[label]===undefined)throw new Error(`Native HOME Settings message unavailable: ${label}`);
+   return message('menu_msbt_LZ',label,'');
+  };
+  const labels=Object.fromEntries(['ptt_menu_design','ptt_theme','ptt_menu_mhm','ptt_mhm','ptt_light_bright','ptt_light_eco','ptt_light_on','ptt_light_off'].map(label=>[label,requiredMessage(label)]));
+  for(const name of homeSettingsLayouts)if(!pack?.layouts[name])throw new Error(`Native HOME Settings layout unavailable: ${name}`);
+  const scroll=Number.isFinite(state.panelScroll)?Math.max(0,Math.min(140,state.panelScroll!)):0;
+  const level=Math.max(1,Math.min(5,Math.round(state.brightness*5))),choice=state.panelChoice;
+  let okay=true;
+  const draw=(layout:string,options:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{
+   for(const clip of options.bindings??[])if(!pack.animations[clip.name])throw new Error(`Native HOME Settings animation unavailable: ${clip.name}`);
+   okay=renderer.draw(ctx,'petit',layout,options)&&okay;
+  };
+  const cursor=(layout:string,anchor:string)=>()=>{
+   const pane=nativePaneParentPath(pack.layouts[layout],anchor)?.at(-1);
+   if(!pane)throw new Error(`Native HOME Settings cursor anchor unavailable: ${layout}/${anchor}`);
+   // Copy source cursor-anchor dimensions without inheriting its scale twice.
+   draw('PtCsr_00',{center:[160+pane.translation[0],120-pane.translation[1]],bindings:[binding('PtCsr_00_Loop',0)],overrides:{W_CsrF_00:{size:pane.size},W_CsrLgt_00:{size:pane.size}}});
+  };
+  const button=(layout:string,overrides:PaneOverrides,selected:boolean,anchor='N_CPos_Btn_00',bindings:AnimationBinding[]=[])=>draw(layout,{overrides,bindings,textSampling:'lcd',attachments:selected?{RootPane:cursor(layout,anchor)}:undefined});
+  // home.petit / PtDlgCnt_CTR: Theme on; Prize, Cbnt and Info off. Binding
+  // native groups preserves the nested 0,72,0,56,64 wrapper translations.
+  const contents=()=>draw('PtDlgCnt_CTR',{
+   bindings:[binding('PtDlgCnt_CTR_Theme',1),binding('PtDlgCnt_CTR_Prize',0),binding('PtDlgCnt_CTR_Cbnt',0),binding('PtDlgCnt_CTR_Info',0)],
+   overrides:{N_Wrp_00:{translation:[0,120+scroll,0]}},attachments:{
+    N_BtnTheme_00:()=>button('PtBtnL_Thm_00',{T_Base_00:labels.ptt_menu_design,T_Btn_00:labels.ptt_theme,T_Btn_01:labels.ptt_theme},choice===0,'N_CPos_Btn_00',[binding('PtBtnL_Thm_00_Select',0)]),
+    N_BtnMyMenu_00:()=>button('PtBtnM_Mym_00',{T_Base_00:labels.ptt_menu_mhm,T_Btn_00:labels.ptt_mhm,T_Btn_01:labels.ptt_mhm},choice===1),
+    N_BtnLgt_00:()=>button('PtBtnT_Lgt_00',{T_Base_00:labels.ptt_light_bright},choice===2,`N_CPos_Lv${level}_00`,[binding('PtBtnT_Lgt_01_UnDecide',1,Array.from({length:5},(_,i)=>`G_Lv${i+1}_00`)),binding('PtBtnT_Lgt_01_Decide',1,[`G_Lv${level}_00`])]),
+    N_BtnAbl_00:()=>button('PtBtnT_Abl_00',{T_Base_00:labels.ptt_light_eco,T_Off_00:labels.ptt_light_off,T_Off_01:labels.ptt_light_off,T_On_00:labels.ptt_light_on,T_On_01:labels.ptt_light_on},choice===3,`N_CPos_${state.powerSaving?'On':'Off'}_00`,[binding('PtBtnT_Lgt_01_UnDecide',1,['G_Off_00','G_On_00']),binding('PtBtnT_Lgt_01_Decide',1,[state.powerSaving?'G_On_00':'G_Off_00'])]),
+    N_Line_00:()=>draw('PtLine_00'),N_Line_01:()=>draw('PtLine_00'),
+   },
+  });
+  // The capture's 88px thumb starts at y18. The runtime range/length writer is
+  // not recovered: retain the source artwork and label this geometry as a fit.
+  const thumbY=58-scroll/140*116;
+  draw('PtDlgBg_D_00',{clip:[0,0,320,240],bindings:[binding('PtDlgBg_D_00_FadeIn',20)],attachments:{
+   N_Wrp_00:contents,
+   N_SlideBar_00:()=>draw('PtSlideBar',{bindings:[binding('PtSlideBar_Select',0)],overrides:{N_Slide_00:{translation:[0,thumbY,0]},SBBtnShdw:{size:[22,88]},SBBtn:{size:[22,88]},SBBtnFrame:{size:[22,88]},B_Slide_00:{translation:[0,thumbY,0],size:[24,88]}}}),
+   N_PetitBtn_00:()=>draw('PtClose_00',{bindings:[binding('PtClose_00_Select',0)]}),
+  }});
+  if(!okay)throw new Error('Native HOME Settings lower layout unavailable');
+  return true;
  }
  function folderBalloon(ctx:Context,state:MenuState,view:HomePresentation){
   const retained=state.system?.homeControls?.balloon;
@@ -294,5 +342,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   return pickupBlankAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density));
  }
- return {hud,upperBase,settingsUpper,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ return {hud,upperBase,settingsUpper,settingsLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,captureFolder,empty,cursor,cursorAt,cursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

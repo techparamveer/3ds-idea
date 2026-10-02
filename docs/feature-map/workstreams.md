@@ -25,11 +25,15 @@ worktrees without GUI. [Evidence and residuals](../home-settings-integration-202
 
 The [completion map](../feature-map.md) defines scope, status and acceptance.
 
+Coordinator `17eebbb0` delivers [compact retained HOME presentation](../home-compact-window-2026-10-02.md).
+Next reserved slice: source suspended dark backing/warp and sleep presentation,
+then modal footer visibility and matched phase replay. No new worker dispatch.
+
 Coordinator `0330d13c`/`e3503cc7`/`645ae96d` adds source switch icon header,
 advancing pending banner and selected-title/dark Close footer. [Evidence](../home-switch-footer-2026-10-02.md)
 still fails whole-scenario acceptance. Newest user priority is HOME 1:1;
-next reserved coordinator slice is suspended backing/compact icon and modal
-footer visibility, then matched phase replay. No new worker dispatch.
+the compact icon was subsequently delivered above. Backing and modal footer
+visibility remain. No new worker dispatch.
 
 Coordinator close/switch delivery `f17a1007` replaces authored modal art with
 source dialog/masks/messages, source button bounds and paired readiness.

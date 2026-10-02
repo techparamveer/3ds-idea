@@ -1,5 +1,12 @@
 # Software state, input and presentation
 
+[Compact retained presentation](../home-compact-window-2026-10-02.md) separates
+valid suspended ownership from selected-title expansion. Both modes share one
+metadata raster, original icon mask and paired recovery. Readiness keys include
+owner and mode; another title keeps its live banner under the compact icon.
+The source endpoint/host title visibility are assembly choices, not recovered
+transition timing. Sleep highlight remains a static source-frame sample.
+
 [HOME switch/footer](../home-switch-footer-2026-10-02.md) keeps the shared
 presentation clock running during switch without enabling HOME input/cursor.
 The banner host selects the pending title, retaining generation/ticket guards.

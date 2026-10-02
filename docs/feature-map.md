@@ -15,6 +15,12 @@ New workstream dispatches use GPT-6 Astra/high; future subagents use GPT-6.1
 Sol/high, at normal speed, no Fast. The latest request supersedes Fast; chat service tier cannot
 be changed or verified through dispatch tools. No new priority-only helpers.
 
+The [compact HOME window](home-compact-window-2026-10-02.md) at `17eebbb0`
+restores the source retained icon/HOME glyph beside another selected title.
+Four fresh native captures and nine browser pairs verify this bounded delivery,
+not exact tint/pulse/motion. H-12 remains partial; next is suspended dark
+backing/warp and sleep presentation. No whole scenario passes.
+
 The [HOME switch/footer correction](home-switch-footer-2026-10-02.md) at
 `0330d13c`/`e3503cc7`/`645ae96d` delivers source icon header, moving pending
 banner, dark selected X Close and correct Health/Camera footer actions.

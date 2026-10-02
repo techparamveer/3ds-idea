@@ -1,5 +1,11 @@
 # Verification and evidence architecture
 
+The [compact HOME comparison](../home-compact-window-2026-10-02.md) at `17eebbb0`
+adds four fresh native captures and nine inspected browser pairs. Its compact
+pose is visible, but icon tint/pulse, backing and all full pairs still fail.
+Native input/phase/density differ from browser; no matched acceptance or matrix
+update. Private Azahar exited0 and temporary bindings were restored.
+
 The [HOME switch/footer comparison](../home-switch-footer-2026-10-02.md)
 records source/modal-clock/footer corrections through `645ae96d`,19 inspected
 production pairs, four fresh native captures and retained Health references.

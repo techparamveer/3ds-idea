@@ -144,9 +144,101 @@ or acceptance pass.
 
 ## Status
 
-The source worker is replacing only the Folder Settings modal with decoded
-native resources, including suppression of the lower footer and preservation
-of the upper selected-folder context. A production-after capture and
-same-coordinate before/after comparison are pending. No conclusion about
-input, motion, audio or whole-scenario acceptance may be drawn from this
-baseline; its status remains unmatched whole-scenario fail.
+The source worker replaced only the Folder Settings modal with decoded native
+resources, including suppression of the lower footer and preservation of the
+upper selected-folder context. The production-after runtime is `79e77f58`,
+integrated as `238319b6`. Full integration checks report 1,800 tests passed,
+zero failed, 23 skipped and one TODO; typecheck and build pass.
+
+The complete production-after `result.json` has SHA-256
+`e6766b5981145e87e582e7339ce618f1fde256ec9aa07e685f1e359e4dedb5e0`.
+The settings upper and lower PNGs have SHA-256
+`a23c7b926f8473b98a316e49aa7ca778cfa52c340643108317771adb0c040564`
+and `9859a03ed60111cb9550722112071835b8f6c409a02aff5e45084bdf0c131613`.
+The browser script exited zero with no page errors. Desktop and mobile Folder
+Settings were inspected, and browser touch Cancel, Escape and physical B all
+returned to HOME. Those browser routes are tested but are not matched native
+input or native-epoch evidence.
+
+## Production-after raw results
+
+The fixed-coordinate after comparator is `comparison/compare-after.mjs`,
+SHA-256
+`9c0addd8efb4a1db0f5a92fe7dfdf108f8253972072cd75db074d5b20d4ac12f`.
+The report is `comparison/after/report.json`, SHA-256
+`ed993a37d7b13f3e261788a3c405a21229c0b679f05ff39505cf305109e12076`.
+It rehashes the same native manifest and baseline inputs, asserts the exact
+browser states and evidence flags, and uses the frozen baseline geometry with
+empty masks. No shift, scale or fit was introduced.
+
+| Pair | After upper pixels >2 | Max | MAE | After lower pixels >2 | Max | MAE |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| created | 52,806 | 255 | 9.435319 | 15,213 | 255 | 7.056259 |
+| opened | 36,260 | 255 | 7.605059 | 8,206 | 189 | 1.477539 |
+| closed | 48,336 | 215 | 8.875656 | 15,219 | 255 | 7.054961 |
+| settings | 51,800 | 255 | 7.748719 | 12,610 | 115 | 1.221667 |
+| cancelled | 17,962 | 255 | 5.001715 | 15,191 | 255 | 7.043034 |
+
+The settings five-column sheets were opened at original resolution. Their
+columns are native, baseline, native-baseline heatmap, production-after and
+native-after heatmap:
+
+- `comparison/after/settings-native-before-after-upper.png`, SHA-256
+  `7379bdefc58b924f3c204f8a1fb8e666e4fd71eff52bde81768d7882463ca8e5`
+- `comparison/after/settings-native-before-after-lower.png`, SHA-256
+  `9dc3ee8dd13e14ff89ec88e4e58a5f3833961223d626d8e90c21391161c1d2c6`
+
+### Folder Settings improvement and residuals
+
+The fixed 280x200 modal region improves from 55,945 to 107 pixels above delta
+2; MAE falls from 41.191685 to 0.210935 and maximum delta from 246 to 89.
+The residual is fully isolated:
+
+| Fixed native region | Baseline pixels >2 | After pixels >2 | After max | After MAE | After difference bounds |
+| --- | ---: | ---: | ---: | ---: | --- |
+| header, `x20..299/y20..48` | 8,120 | 0 | 2 | 0.119048 | none |
+| Rename, `x20..299/y49..120` | 20,126 | 11 | 89 | 0.260351 | `x157/y82..92` |
+| Delete, `x20..299/y121..193` | 20,421 | 0 | 2 | 0.225734 | none |
+| Cancel, `x20..299/y194..219` | 7,278 | 96 | 8 | 0.135027 | `x20..299/y212..219` |
+
+The Rename residual is one pixel wide: exactly x157 for y82 through y92. The
+Cancel residual is 96 low-amplitude pixels confined to the two symmetric
+rounded bottom corners: 6, 6, 8, 10, 12, 14, 18 and 22 pixels on rows y212
+through y219. Header and Delete are within the static pixel tier. These are
+frozen raw coordinates, not a fitted interpretation.
+
+Across the full settings lower LCD, 12,503 of the 12,610 residual pixels lie
+outside the modal. The lower toolbar and the former root-selection region each
+have zero pixels above delta 2, maximum delta 2. The remaining outside-modal
+difference includes the unmatched root title population/background. The old
+underlying Settings/Open footer is no longer visible; the fixed footer strip
+still overlaps the native Cancel frame and population-dependent background, so
+its 6,892 residual pixels are not evidence of footer leakage.
+
+The upper settings comparison improves from 63,787 to 51,800 pixels above
+delta 2 and now retains the folder banner/name rather than falling back to the
+generic HOME presentation. Its title population, folder-banner pose/epoch and
+HUD remain unmatched, so this is source-backed context restoration rather than
+an upper-screen pass.
+
+### Unchanged workflow control
+
+The production-after created, opened, closed and Escape-cancelled lower images
+differ from their baseline captures only inside the already-authored cursor
+ROIs. Direct baseline-to-after counts are 604, 2,140, 598 and 415 pixels above
+delta 2 respectively; the corresponding raw difference bounds are
+`x128/y148/36x36`, `x32/y94/88x88`, `x128/y148/36x36` and
+`x129/y149/34x34`. Every pixel outside the fixed full cursor ROI is byte-exact
+in all four controls: zero differing pixels, maximum delta zero and MAE zero.
+These are unmatched cursor phases, not a non-modal renderer change.
+
+The independent stock regression report
+`home-folder-interaction-20261002/regression-results-after.json`, SHA-256
+`631fe2cd7922f7195d586f03f0876b17831b83c38e4ce504a1ad52145f37ad84`,
+shows all five stock lower captures and both Settings upper captures byte-exact
+before/after. The three Health upper captures are motion-epoch unmatched and
+are not regression conclusions.
+
+The source worker is triaging only the 107 fixed modal residual pixels. No
+conclusion about exact input, motion, audio or whole-scenario acceptance may be
+drawn from this checkpoint; status remains unmatched whole-scenario fail.

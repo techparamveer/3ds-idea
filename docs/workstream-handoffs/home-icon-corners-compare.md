@@ -114,14 +114,14 @@ plate and footer differences. No whole scenario passes from this baseline.
 | HOME launcher | `manifest.home.launcher` -> `packs/home/launcher.json` | HOME `0004003000009802` v24576, content index 0 / ID `00000082`, `romfs/launcher_LZ.bin` | archive `826e92ec59b98aaf20fab4014a5dccc1dbaa634aaa4f95498bcf3d7944795834`; delivered pack `f251db1a92bed36da178099640fadcc9a6a53ba3e7e5410a7b3ddd7dfc02a044` |
 | Icon layout/material | `layouts.LncIconDist_01`, pane `P_Icon_00` | `romfs/launcher_LZ.bin/blyt/LncIconDist_01.bclyt` | `125fd2772c35f967f596b0fbd8692a7d13d78a425eaccc72e85d46528507f76d` |
 | Rounded mask | launcher texture `IconMask.bclim`, A4 | `romfs/launcher_LZ.bin/timg/IconMask.bclim` | source `de8c6815059f79db23984571fb864f56792a738b3391a3800e3d6bc47ab59983`; delivered PNG `06c7438a68a45aea82d0d43477897883d5fef1cb4176d4cda15225770e8dbd4a` |
-| Camera artwork | `resources["icons/camera.png"]` | Camera `0004001000022400`, content index 0 / ID `0000001a`, `ExeFS/icon` | source `53534942eaf5b9c11d94e5f5118b4fe1a624e40d83765893185fd2f30a2956a1`; delivered `eef80be1e6961951cb776306165fd141016760327e1c96f865a68ccb88a92f01` |
+| Camera artwork | `resources["icons/camera.png"]` | Camera `0004001000022400` v4097, content index 0 / ID `0000001a`, `ExeFS/icon` | source `53534942eaf5b9c11d94e5f5118b4fe1a624e40d83765893185fd2f30a2956a1`; delivered `eef80be1e6961951cb776306165fd141016760327e1c96f865a68ccb88a92f01` |
 
 The HOME launcher's pinned CIA SHA-256 is
 `2863c6c4e7b1c79e4352b63cde72994fa9c3b8bdd8dfd2afd4dd4104636b1898`.
 Conversion is `ctr-native-web` 1.2.0 with CTRTool 1.3.0.
 
-At browser-before runtime `1e5fb200`, the stock-grid path still calls
-`graphics.menuArtwork` directly after the separate ordinary plate render. It
+At browser-before runtime `1e5fb200`, the stock-grid path calls
+`titleIcon` -> `titleArtwork` -> `c.drawImage` after the separate plate render. It
 does not route the Camera artwork through the authored
 `LncIconDist_01/P_Icon_00` material's second `IconMask.bclim` sampler. This is
 the bounded fidelity gap. The source worker's candidate is pending and is not

@@ -147,6 +147,9 @@ test('asset loader includes the existing cursor effect layout and shared texture
  try{
   const assets=await loadFirmwarePresentationAssets();
   try{
+   assert.ok(assets.renderer.packs.petit.layouts.PtDlgBg_U_00);
+   for(const name of assets.renderer.packs.petit.layouts.PtDlgBg_U_00.textures)
+    assert.ok(assets.renderer.textures.petit.get(name), 'HOME Settings upper texture is decoded before publication');
    const pack=assets.renderer.packs.launcher;
    assert.deepEqual(pack.layouts.LncCsrEfct_00,resourcePack.layouts.LncCsrEfct_00);
    for(const name of ['Scale','DisAppear'])assert.deepEqual(pack.animations[`LncCsrEfct_00_${name}`],resourcePack.animations[`LncCsrEfct_00_${name}`]);

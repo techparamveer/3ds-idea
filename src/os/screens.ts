@@ -362,7 +362,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(firmwareAssets&&!firmwareAssets.diagnostics.includes('Native folder model unavailable; drawing reconstructed fallback.'))firmwareAssets.diagnostics.push('Native folder model unavailable; drawing reconstructed fallback.');}
    if(name&&(!nativeDrawn||!label)){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,name,200,196,16,palette.ink,'center');}
   }
-  if(state.panel){
+  if(state.panel&&state.panel!=='settings'){
    const panels=['notes','friends','notifications','browser','miiverse'];
    const index=panels.indexOf(state.panel);const chosen=index<0?1:index;
    for(let i=0;i<5;i++){
@@ -373,7 +373,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   }
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.
-  nativeHome?.upperBase(t);if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);
+  if(state.panel==='settings')nativeHome?.settingsUpper(t);else nativeHome?.upperBase(t);
+  if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite);
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);
   if(firmwareAssets)drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets);

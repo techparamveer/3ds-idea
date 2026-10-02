@@ -40,6 +40,42 @@ const pack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/p
 const messagesPack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/messages-and-loose.json', import.meta.url)));
 const nativeCursorNames = new Set(['cursor', 'cursorAt', 'cursorEffectAt']);
 
+test('HOME Settings uses its source caption and does not publish unrelated upper controls', async () => {
+  await withScreens(({ screens, paint, events }) => {
+    paint({ ...home(), panel: 'settings', panelChoice: 0 });
+    assert.equal(events.filter(event => event.name === 'settingsUpper').length, 1);
+    assert.equal(events.filter(event => event.name === 'upperBase').length, 0);
+    assert.equal(screens.nativeTop.getContext('2d').curves.length, 0, 'no authored helper icon plates');
+    assert.ok(events.findIndex(event => event.name === 'settingsUpper') < events.findIndex(event => event.name === 'hud'));
+    paint(home());
+    assert.equal(events.filter(event => event.name === 'settingsUpper').length, 0);
+    assert.equal(events.filter(event => event.name === 'upperBase').length, 1, 'closing restores ordinary HOME chrome');
+  });
+});
+
+test('HOME Settings upper binds the native English message and fails explicitly without it', () => {
+  const messages = structuredClone(messagesPack), draws = [];
+  const before = JSON.stringify(messages);
+  let available = true;
+  const presenter = createFirmwareHome({ renderer: {
+    packs: { launcher: pack, messages },
+    draw(_ctx, bank, name, options) { draws.push({ bank, name, options }); return available; },
+  } });
+  presenter.settingsUpper({});
+  assert.equal(draws[0].bank, 'petit');
+  assert.equal(draws[0].name, 'PtDlgBg_U_00');
+  assert.deepEqual(draws[0].options.bindings, [{ name: 'PtDlgBg_U_00_FadeIn', frame: 20 }]);
+  const override = draws[0].options.overrides.T_Text_00;
+  assert.equal(override.text, 'HOME Menu Settings');
+  assert.ok(override.messageStyle, 'retain the source MSBT style');
+  assert.equal(override.fontSize, undefined, 'no authored title sizing');
+  assert.equal(JSON.stringify(messages), before);
+  available = false;
+  assert.throws(() => presenter.settingsUpper({}), /upper layout unavailable/);
+  delete messages.messages.menu_msbt_LZ.labels.ptt_title_u;
+  assert.throws(() => presenter.settingsUpper({}), /title unavailable/);
+});
+
 test('applet label surfaces retain native upper message styles without changing folder labels', () => {
   const root = new URL('../public/os/firmware/10.7.0-32E/', import.meta.url);
   const messages = JSON.parse(readFileSync(new URL('packs/home/messages-and-loose.json', root)));

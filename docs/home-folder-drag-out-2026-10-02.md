@@ -56,9 +56,13 @@ candidate and starts a fresh deadline on re-entry. The earlier immediate
 drag-out route outside the folder content band remains unchanged.
 
 `home-controls.ts` narrowly retains native stationary-pickup ownership when
-that exact source is carried from a non-null folder to the root view. It still
-releases the owner for root-to-folder hover, unrelated context changes,
-cancel, stale source and completed drop. Gesture state remains in the existing
+that exact, still-current source is carried from a non-null folder to the root
+view. This guard also covers the scene's outer context reconciler, which runs
+around tick reducers and would otherwise apply the ordinary container reset.
+On that one transition, departed folder input, cursor presentation, widgets and
+tile poses are rebased to root while the live stroke point and independent
+pickup controller continue. Other context changes, cancel, stale source and
+completed drop still release the owner. Gesture state remains in the existing
 HOME navigation model; no parallel app state or renderer recognizer was added.
 
 ## Source mapping
@@ -95,10 +99,13 @@ animation, cadence or audio.
 
 The focused HOME run covers gesture, tile-touch System, folder input and
 identity, presentation, pickup presentation, cursor-loop and saved-layout
-suites: 94 tests, 93 passed, 0 failed and one optional Canvas test skipped.
+suites: 95 tests, 94 passed, 0 failed and one optional Canvas test skipped.
 New assertions cover deadline/reset behavior, retained pointer/source/viewport
 and pickup owner, occupied-root swap, empty-root move, app conservation, cancel,
-stale source and capture cleanup. `npm run typecheck` also passes.
+stale source and capture cleanup. They also exercise the production context
+wrapper across the exit deadline and additional held ticks, checking that the
+pickup survives while departed folder widgets and poses do not. `npm run
+typecheck` also passes.
 
 This worker made no browser or native capture. Coordinator integration must
 repeat the identical drag path, record held and released browser states, compare

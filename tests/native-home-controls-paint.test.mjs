@@ -13,7 +13,7 @@ import { getHomeFooter, getHomePresentation } from '../src/os/home-presentation.
 import { createHomeTilePickup } from '../src/os/home-tile-pickup.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
 import { getHomeDensityControls } from '../src/os/home-density-controls.ts';
-import { poseNativeLayout, nativePaneParentPath } from '../src/os/native-layout.ts';
+import { blendNativePixel, evaluateNativeMaterial, poseNativeLayout, nativePaneParentPath } from '../src/os/native-layout.ts';
 import {escapeUnreadyNativeScreen} from '../src/os/native-screen-system.ts';
 import {homeCloseWindowOpacity} from '../src/os/home-close-window-fit.ts';
 
@@ -514,6 +514,35 @@ test('root tray uses captured extent geometry and both source arrow panes have e
  assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:false},N_arwR_00:{visible:false}});
  presenter.arrows({},true,false);
  assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:true},N_arwR_00:{visible:false}});
+});
+
+test('folder-held pickup selects the decoded full-LCD PicUp multiply endpoint and clearing ownership restores frame zero',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};
+ const presenter=createFirmwareHome({renderer}),initial=home(),child=initial.system.layout[0];
+ const opened=enterHomeFolder({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{0:child}}}},20);
+ const capture={width:320,height:206,data:new Uint8ClampedArray(320*206*4)};
+ const frame=()=>calls.at(-1).options.bindings.find(binding=>binding.name==='LncFolderCapture_00_PicUp').frame;
+ presenter.folderBackdrop({},capture,opened);assert.equal(frame(),0);
+ const held=controls(opened,{tilePickup:createHomeTilePickup({folder:20,slot:0},1,{x:244,y:137},{x:244,y:137},{x:0,y:-14})});
+ presenter.folderBackdrop({},capture,held);assert.equal(frame(),10);
+ presenter.folderBackdrop({},capture,held,true);assert.equal(frame(),10,'reduced motion retains the held material endpoint');
+ presenter.folderBackdrop({},capture,controls(held,{tilePickup:null}));assert.equal(frame(),0);
+ presenter.folderBackdrop({},capture,{...held,opened:false});assert.equal(frame(),0,'root-held HOME does not acquire the folder-only shade');
+
+ const shade=picUpFrame=>{
+  const layout=poseNativeLayout(pack.layouts.LncFolderCapture_00,pack.animations,[
+   {name:'LncFolderCapture_00_Fade',frame:8},{name:'LncFolderCapture_00_PicUp',frame:picUpFrame},
+  ]),pane=nativePaneParentPath(layout,'P_Capture_01').at(-1),material=layout.materials[pane.picture.material];
+  const source=evaluateNativeMaterial(material,[],[1,1,1,1]);
+  return blendNativePixel(source,[200/255,210/255,220/255,1],material.colorBlend).map(value=>Math.round(value*255));
+ };
+ assert.deepEqual(shade(0),[200,210,220,255]);
+ assert.deepEqual(shade(10),[167,177,193,255]);
+ const missing=structuredClone(pack);delete missing.animations.LncFolderCapture_00_PicUp;
+ const unavailable=createFirmwareHome({renderer:{packs:{launcher:missing},draw(_ctx,_bank,name,options){
+  poseNativeLayout(missing.layouts[name],missing.animations,options.bindings,options.overrides);return true;
+ }}});
+ assert.throws(()=>unavailable.folderBackdrop({},capture,held),/Missing native animation LncFolderCapture_00_PicUp/);
 });
 
 test('actual folder paint retains the authored right arrow after a no-arrow six-row root paint',async()=>{

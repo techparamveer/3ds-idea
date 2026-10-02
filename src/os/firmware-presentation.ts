@@ -270,10 +270,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  }
  function folderBackdrop(ctx:Context,capture:NativePixels,state:MenuState,reduced=false){
   const close=sampleSystemHomeFolderClose(state),frame=!reduced&&close?.controller.phase==='closing'?close.controller.capture.appliedFrame??8:8;
+  // PicUp's authored endpoint applies P_Capture_01's full-LCD multiply material.
+  // The controller call site remains unresolved, so select that decoded endpoint
+  // only for the independently owned, capture-observed folder-held phase.
+  const pickupFrame=state.opened&&state.system?.homeControls?.tilePickup?10:0;
   // The host supplies canonical rows34..239 of the fresh pre-folder render.
   // This replaces the native rotated framebuffer plus its UV0 crop; UV1 and TEV stay original.
   const texture='runtime:folder-background';
-  return renderer.draw(ctx,'launcher','LncFolderCapture_00',{bindings:[binding('LncFolderCapture_00_Fade',frame),binding('LncFolderCapture_00_PicUp',0)],textures:{[texture]:capture},overrides:{P_Capture_00:{textureBindings:{0:texture}}}});
+  return renderer.draw(ctx,'launcher','LncFolderCapture_00',{bindings:[binding('LncFolderCapture_00_Fade',frame),binding('LncFolderCapture_00_PicUp',pickupFrame)],textures:{[texture]:capture},overrides:{P_Capture_00:{textureBindings:{0:texture}}}});
  }
  function folderChrome(ctx:Context,state:MenuState,reduced=false){
   const panel=getNativeFolderPanel(state);if(!panel)return false;

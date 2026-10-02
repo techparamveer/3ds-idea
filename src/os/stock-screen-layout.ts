@@ -27,6 +27,18 @@ export function softwareDialogPressed(touch: {startX: number; startY: number; x:
   return action === softwareDialogActionAt(touch.x, touch.y) ? action : null;
 }
 
+export type HomeFolderSettingsAction = 'rename' | 'delete' | 'back';
+/** home.sequence/DlgBtn02_00 B_Btn_00/01 and home.dialog/Dlg_B_D_01 Bounding_00. */
+export const HOME_FOLDER_SETTINGS_TARGETS = [
+  {action: 'rename', x: 20, y: 49, width: 280, height: 70},
+  {action: 'delete', x: 20, y: 121, width: 280, height: 70},
+  {action: 'back', x: 20, y: 192, width: 280, height: 28},
+] as const;
+export function homeFolderSettingsActionAt(x: number, y: number): HomeFolderSettingsAction | null {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return HOME_FOLDER_SETTINGS_TARGETS.find(r => x >= r.x && x < r.x + r.width && y >= r.y && y < r.y + r.height)?.action ?? null;
+}
+
 /** Bounded four-row HOME Settings adapter; later native rows are not yet routed. */
 export const HOME_SETTINGS_MAX_SCROLL = 140;
 /** home.dialog/Dlg_A_D_02 Bounding_00/01 at the settled source pose. */

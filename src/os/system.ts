@@ -13,7 +13,7 @@ import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout, isPreviousDefaultAppLayout } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, setHomeSettingsScroll, type MenuState, type Input } from './state.ts';
-import { HOME_FOOTER_TOUCH_GEOMETRY, homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt, softwareDialogActionAt, powerMenuActionAt } from './stock-screen-layout.ts';
+import { HOME_FOOTER_TOUCH_GEOMETRY, homeFolderSettingsActionAt, homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt, softwareDialogActionAt, powerMenuActionAt } from './stock-screen-layout.ts';
 import { homeFooterHit, ownedHomeFooterContact } from './home-footer-touch.ts';
 import { serializeHomeSavedLayouts, restoreHomeSavedLayouts } from './home-saved-layouts.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
@@ -385,6 +385,11 @@ function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number)
    }
    const startAction=contact&&homeSettingsActionAt(state.panelScroll??0,contact.startX,contact.startY);
    return event.phase==='up'&&startAction&&startAction===homeSettingsActionAt(state.panelScroll??0,event.x,event.y)?touchSystem(state,event.x,event.y,now):state;
+  }
+  if(s.phase==='home'&&!s.preferences&&!s.dialog&&state.panel==='folder-settings'){
+   const contact=previousTouch??touched.latch.touch;
+   const startAction=contact&&homeFolderSettingsActionAt(contact.startX,contact.startY);
+   return event.phase==='up'&&startAction&&startAction===homeFolderSettingsActionAt(event.x,event.y)?touchSystem(state,event.x,event.y,now):state;
   }
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&!s.sleeping){
    const native=queueHomeControlTouch(state,event);

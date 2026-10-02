@@ -2,7 +2,7 @@ import type { System } from './system';
 import { allocateHomeFolderIdentity, getHomeFolderIdentities, removeHomeFolderIdentity, writeHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { HOME_DENSITIES, getHomeNavigationView, selectHomeSlot, stepHomeDirection, setHomeDensity, enterHomeFolder, leaveHomeFolder, initializeHomeFolderView, deleteHomeFolderView, type HomeNavigation, type HomeDensity } from './home-navigation.ts';
 import { getHomeDensityControls } from './home-density-controls.ts';
-import { clampHomeSettingsScroll, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
+import { clampHomeSettingsScroll, homeFolderSettingsActionAt, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
 import { confirmHomeLayoutAction, requestHomeLayoutAction, type HomeLayoutAction, type HomeSavedLayouts } from './home-saved-layouts.ts';
 /** Native HOME Menu coordinates: 320 × 240; icons are ordered by column. */
 export const ROWS = 2;
@@ -153,7 +153,7 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
 export function touchMenu(state: MenuState, x: number, y: number): MenuState {
   if (!state.powered || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x >= 320 || y < 0 || y >= 240) return state;
   if (state.panel) {
-    if (state.panel !== 'settings' && state.panel !== 'home-layouts' && y >= 214) return reduceMenu(state, 'back');
+    if (state.panel !== 'settings' && state.panel !== 'home-layouts' && state.panel !== 'folder-settings' && y >= 214) return reduceMenu(state, 'back');
     if (state.panel === 'settings') {
       const scroll = homeSettingsScrollAt(x, y);
       if (scroll !== null) return setHomeSettingsScroll(state, scroll);
@@ -176,7 +176,13 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
     }
     if (state.panel === 'themes' && x >= 293 && y >= 31 && y < 213) return {...state, panelChoice:Math.min(6,Math.floor((y-31)/182*7))};
     if (state.panel === 'themes' && x >= 8 && x < 288 && y >= 31 && y < 213) return activatePanel({ ...state, panelChoice: Math.max(0,state.panelChoice-2) + Math.floor((y-31)/53) });
-    if (state.panel === 'folder-settings' && x > 30 && x < 290 && y >= 68 && y < 188) return y < 128 ? state : { ...state, panel: 'delete', panelChoice: 0 };
+    if (state.panel === 'folder-settings') {
+      const action = homeFolderSettingsActionAt(x, y);
+      if (action === 'back') return reduceMenu(state, 'back');
+      if (action === 'delete') return { ...state, panel: 'delete', panelChoice: 0 };
+      // Rename remains intentionally inert while software-keyboard input is out of scope.
+      return state;
+    }
     if (state.panel === 'delete' && y >= 165 && y < 205 && x >= 166 && x < 292) return activatePanel(state);
     if (state.panel === 'delete' && y >= 165 && y < 205 && x >= 28 && x < 154) return reduceMenu(state, 'back');
     return state;

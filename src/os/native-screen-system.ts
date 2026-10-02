@@ -20,7 +20,7 @@ export function escapeUnreadyNativeScreen(state:MenuState,now:number):MenuState{
  if(homeSoftwareClosingDialogKey(state))return cancelSystemHomeApplicationTransition(releaseSystemInputs(state,now));
  if(homeSoftwareDialogKey(state))return reduceSystem(releaseSystemInputs(state,now),'back',now);
  if(selectedSuspendedApplication(state))return reduceSystem(releaseSystemInputs(state,now),s?.dialog?'back':'home',now);
- if(s?.phase==='home'&&(state.panel==='settings'||state.panel==='home-layouts')&&!s.sleeping&&!s.preferences&&!s.dialog)return reduceMenu(releaseSystemInputs(state,now),'home');
+ if(s?.phase==='home'&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings')&&!s.sleeping&&!s.preferences&&!s.dialog)return reduceMenu(releaseSystemInputs(state,now),'home');
  if(!s||s.sleeping||s.preferences||s.dialog||!['launch','app'].includes(s.phase))return state;
   const released=releaseSystemInputs(state,now);
   return reduceSystem({...released,system:{...released.system!,phase:'app'}},'home',now);

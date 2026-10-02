@@ -13,7 +13,7 @@ async function loadPresentation(overrides={}){
 const {createFirmwareHome}=await loadPresentation({'./native-renderer':moduleUrl('export class NativeLayoutRenderer {}')});
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
-const packs=Object.fromEntries(['launcher','petit','messages','MyMenu','dialogmask'].map(name=>[name,JSON.parse(readFileSync(new URL(manifest.home[name],root)))]));
+const packs=Object.fromEntries(['launcher','petit','messages','MyMenu','dialog','dialogmask','sequence'].map(name=>[name,JSON.parse(readFileSync(new URL(manifest.home[name],root)))]));
 const walk=panes=>panes.flatMap(pane=>[pane,...walk(pane.children)]);
 
 // Model the renderer's source hierarchy and attachment-center cancellation.
@@ -116,7 +116,7 @@ test('asset readiness decodes every Settings and MyMenu texture before publicati
  try{
   const assets=await loadFirmwarePresentationAssets();
   try{
-   for(const [pack,names] of [['petit',['PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00']],['MyMenu',Object.keys(packs.MyMenu.layouts)]]){
+   for(const [pack,names] of [['petit',['PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00']],['MyMenu',Object.keys(packs.MyMenu.layouts)],['dialog',['Dlg_B_D_01']],['dialogmask',['DlgMask_D_00']],['sequence',['DlgBtn02_00']]]){
     for(const name of names)for(const texture of packs[pack].layouts[name].textures){
      const record=packs[pack].textures[texture],pixels=assets.renderer.textures[pack].get(texture);
      assert.deepEqual([pixels.width,pixels.height],[record.width,record.height],`${pack}/${name}/${texture}`);
@@ -125,7 +125,7 @@ test('asset readiness decodes every Settings and MyMenu texture before publicati
    }
    assert.ok(assets.diagnostics.some(message=>message.includes('adaptations')));
   }finally{assets.dispose();}
-  for(const [bank,layout] of [['petit','PtBtnM_Mym_00'],['petit','PtCsr_00'],['MyMenu','MyMenu_D_00']]){
+  for(const [bank,layout] of [['petit','PtBtnM_Mym_00'],['petit','PtCsr_00'],['MyMenu','MyMenu_D_00'],['dialog','Dlg_B_D_01'],['dialogmask','DlgMask_D_00'],['sequence','DlgBtn02_00']]){
    missing=[bank,layout];await assert.rejects(loadFirmwarePresentationAssets(),new RegExp(`Missing native layout ${layout}`));
   }
  }finally{for(const [key,descriptor] of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}

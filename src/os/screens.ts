@@ -229,6 +229,10 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   if(!nativeHome?.settingsLower(c,state))throw new Error('Native HOME Settings lower panel unavailable.');
   return;
  }
+ if(state.panel==='folder-settings'){
+  if(!nativeHome?.folderSettingsLower(c,state))throw new Error('Native HOME Folder Settings lower panel unavailable.');
+  return;
+ }
  c.fillStyle='#171a2b66';c.fillRect(0,0,320,240);
  if(state.panel==='themes'){
   rounded(c,0,0,320,240,0,'#e8e9eb');
@@ -251,10 +255,6 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   rounded(c,25,8,242,19,10,'#fff');text(c,'Purchase themes here.',146,18,13,'#21b5dc','center');
   rounded(c,295,8,18,134,3,gradient(c,8,134,'#fff','#d4d5d7'),'#b7b9bc');line(c,[[299,74],[309,74]],'#989ba0',2);line(c,[[299,79],[309,79]],'#989ba0',2);
   c.fillStyle=gradient(c,214,26,'#fff','#c6c8ce');c.fillRect(0,214,320,26);text(c,'Ⓑ Cancel',160,228,17,'#4a4d55','center');
- }else if(state.panel==='folder-settings'){
-  rounded(c,28,35,264,176,9,gradient(c,35,176,'#fff','#d9dbe0'),'#979ba5');text(c,'Folder Settings',160,50,14,'#484b53','center');
-  button(c,34,68,252,57,'Rename');button(c,34,129,252,57,'Delete');cursor(c,34,state.panelChoice===0?68:129,252,57,time,reduced);
-  text(c,'Ⓑ Cancel',160,200,13,'#484b53','center');
  }else if(state.panel==='delete'){
   rounded(c,20,44,280,164,9,'#f5f5f7','#adb0b8');text(c,'Delete this folder?',160,97,15,'#44464b','center');button(c,28,165,126,35,'Cancel');button(c,166,165,126,35,'Delete');
  }else{
@@ -284,7 +284,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let applicationTransitionCapture:{generation:string;transitionId:number;owner:string;captureGeneration:number}|undefined;
  let switchIcons:{key:string;icons:readonly[NativePixels,NativePixels]}|undefined;
  let panelFailure:Error|undefined,panelPublished:string|null=null;
- const panelKey=(state:MenuState)=>homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts')
+ const panelKey=(state:MenuState)=>homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings')
   ?JSON.stringify([state.panel,state.panelChoice,state.panelScroll??0,state.homeLayoutSlot??0,state.homeLayoutAction??null,state.homeLayoutConfirm??false]):retainedSuspendedApplication(state)?JSON.stringify([retainedSuspendedApplication(state)!.id,!!selectedSuspendedApplication(state)]):null);
  function stockStatus(state:MenuState){const key=panelKey(state);return key?(panelPublished!==key?'loading':panelFailure?'error':'ready'):graphics.stockStatus(state,t);}
  function retryStockScreen(){if(panelFailure){panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
@@ -400,7 +400,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   }
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
-   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&!state.panel&&state.system?.phase==='home'){
+   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&(!state.panel||(state.panel==='folder-settings'&&hostedBanner.primary.selection.kind==='folder'))&&state.system?.phase==='home'){
     const {selection,motion}=hostedBanner.primary;
     if(selection.kind==='default'){
      if(!options.drawDefaultBannerFrame?.(t,motion)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native default banner unavailable.'))firmwareAssets.diagnostics.push('Native default banner unavailable.');
@@ -421,7 +421,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      }
     }
    }
-  }else if(!hostedBanner&&!state.opened&&isFolder(state.selected,state)&&!state.panel){
+  }else if(!hostedBanner&&!state.opened&&isFolder(state.selected,state)&&(!state.panel||state.panel==='folder-settings')){
    const name=state.folders[state.selected],label=nativeHome?.folderBannerLabel(name),nativeDrawn=options.drawFolderBanner?.(t,time,reduced,label);
    if(!nativeDrawn){
    t.save();t.shadowColor='#626d8a50';t.shadowBlur=12;t.shadowOffsetY=10;
@@ -429,7 +429,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(firmwareAssets&&!firmwareAssets.diagnostics.includes('Native folder model unavailable; drawing reconstructed fallback.'))firmwareAssets.diagnostics.push('Native folder model unavailable; drawing reconstructed fallback.');}
    if(name&&(!nativeDrawn||!label)){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,name,200,196,16,palette.ink,'center');}
   }
-  if(state.panel&&state.panel!=='settings'&&state.panel!=='home-layouts'){
+  if(state.panel&&state.panel!=='settings'&&state.panel!=='home-layouts'&&state.panel!=='folder-settings'){
    const panels=['notes','friends','notifications','browser','miiverse'];
    const index=panels.indexOf(state.panel);const chosen=index<0?1:index;
    for(let i=0;i<5;i++){
@@ -462,7 +462,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // after the upper 3D traversal. Camera hints stay inside upperBase.
   if(state.panel==='settings')nativeHome?.settingsUpper(t);else if(!suspended)nativeHome?.upperBase(t);
   if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame);nativeHome?.folderBalloon(b,state,view);if(state.panel!=='folder-settings'&&!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
   if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);},layoutPreview))throw new Error('Native HOME layout manager unavailable.');
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);
   const dialogKey=homeSoftwareDialogKey(state),switchTitles=homeSoftwareSwitchTitles(state);

@@ -78,17 +78,24 @@ test('folder child selection is distinct from its parent HOME slot',()=>{
  const initial=home(),childId=initial.system.layout[1],state=selectHomeSlot(enterHomeFolder({...initial,folders:{4:'A'},system:{...initial.system,folderLayouts:{4:{1:childId}}}},4),1);
  const view=getHomePresentation(state);assert.equal(view.tiles.find(t=>t.index===1).appId,childId);assert.deepEqual(view.tiles.filter(t=>t.cursor).map(t=>t.index),[1]);
 });
-test('occupied folder footer closes the folder even when software is suspended',()=>{
+test('captured occupied folder without suspended software exposes one full-width Open action',()=>{
  const initial=home(),childId=initial.system.layout[1];
- for(const active of [null,childId]){
+ const state=selectHomeSlot(enterHomeFolder({...initial,folders:{4:'A'},system:{...initial.system,app:null,folderLayouts:{4:{1:childId}}}},4),1);
+ assert.deepEqual(getHomeFooter(state),{two:false,left:null,right:'open'});
+ for(const x of [0,50,99,100,160,319]){
+  const launched=touchSystem(state,x,226,100);
+  assert.equal(launched.system.phase,'launch');assert.equal(launched.system.app,childId);assert.equal(launched.opened,true);
+ }
+});
+
+test('uncaptured suspended-software folder variants retain their existing Close-folder split',()=>{
+ const initial=home(),childId=initial.system.layout[1];
+ for(const active of [childId,initial.system.layout[2]]){
   const state=selectHomeSlot(enterHomeFolder({...initial,folders:{4:'A'},system:{...initial.system,app:active,folderLayouts:{4:{1:childId}}}},4),1);
-  assert.deepEqual(getHomeFooter(state),{two:true,left:'close-folder',right:active?'resume':'open'});
+  assert.deepEqual(getHomeFooter(state),{two:true,left:'close-folder',right:active===childId?'resume':'open'});
   const closing=touchSystem(state,50,226,100);
   assert.equal(closing.opened,true);assert.equal(sampleSystemHomeFolderClose(closing).controller.phase,'closing');
   assert.equal(closing.system.app,active);assert.equal(closing.system.dialog,null);
-  const closed=tickSystem(closing,400);
-  assert.equal(closed.opened,false);assert.equal(sampleSystemHomeFolderClose(closed).selectionReadyAtUpdate,18);
-  assert.equal(closed.system.app,active);assert.equal(closed.system.dialog,null);
  }
 });
 

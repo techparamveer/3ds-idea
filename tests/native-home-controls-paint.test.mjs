@@ -487,6 +487,19 @@ test('vacant-root footer retains the decoded Create Folder message and unfitted 
  assert.equal(options.textSampling,'lcd');assert.equal(options.textCoverageAdaptation,undefined);
 });
 
+test('captured occupied folder uses the decoded centre Open control with no Close segment',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};
+ const presenter=createFirmwareHome({renderer}),initial=home(),child=initial.system.layout[0];
+ const state=selectHomeSlot(enterHomeFolder({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{2:child}}}},20),2);
+ presenter.footer({},state);
+ assert.equal(calls.length,1);assert.equal(calls[0].name,'LncBtmBtn_02');
+ const options=calls[0].options,bank=messagesPack.messages.menu_msbt_LZ,source=bank.messages[bank.labels.lau_2b_folder_open];
+ assert.equal(source.text,'Open');assert.equal(source.styleIndex,193);
+ assert.equal(options.overrides.N_BtnW_C_01.visible,true);
+ assert.equal(options.overrides.N_BtnW_L_03.visible,false);assert.equal(options.overrides.N_BtnW_R_02.visible,false);
+ for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW'])assert.equal(options.overrides[`${prefix}_C_01`].text,'Open');
+});
+
 test('suspended software footer uses the source X Close glyph while folder Close stays separate',()=>{
  const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(ctx,bank,name,options){calls.push(options);return true;}};
  const presenter=createFirmwareHome({renderer});

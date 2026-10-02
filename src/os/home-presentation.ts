@@ -131,7 +131,10 @@ export function getHomeFooter(state:MenuState){
  // Native 0x29af68 → 0x1e0cb4 hides both actions for an empty selected child.
  if(hasEmptyHomeFolderSelection(state))return null;
  const folder=!state.opened&&isFolder(state.selected,state);
- const left=state.opened&&appId?'close-folder':folder?'folder-settings':appId&&state.system?.app===appId?'close-software':appId==='system-settings'||appId==='camera'?'manual':null;
+ // The captured occupied-folder/no-owner state uses the centre Open control.
+ // Suspended-software folder variants remain on their existing unverified route.
+ const idleOccupiedFolder=state.opened&&!!appId&&!state.system?.app;
+ const left=idleOccupiedFolder?null:state.opened&&appId?'close-folder':folder?'folder-settings':appId&&state.system?.app===appId?'close-software':appId==='system-settings'||appId==='camera'?'manual':null;
  return {
   two:left!==null,
   left,

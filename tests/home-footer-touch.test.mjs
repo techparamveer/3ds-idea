@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {homeFooterHit,ownedHomeFooterContact} from '../src/os/home-footer-touch.ts';
-import {selectHomeSlot,settleHomeNavigation,writeHomeNavigation} from '../src/os/home-navigation.ts';
+import {enterHomeFolder,selectHomeSlot,settleHomeNavigation,writeHomeNavigation} from '../src/os/home-navigation.ts';
 import {enableHomeControls} from '../src/os/home-controls.ts';
 import {createPortfolioState,dispatchSystemEvent,tickSystem} from '../src/os/system.ts';
 import {HOME_FOOTER_TOUCH_GEOMETRY as geometry} from '../src/os/stock-screen-layout.ts';
@@ -10,6 +10,10 @@ const booted=()=>tickSystem(createPortfolioState(),3001);
 const selected=(state,id)=>settleHomeNavigation(selectHomeSlot(state,Number(Object.entries(state.system.layout).find(([,value])=>value===id)[0])));
 const down=(state,x,y)=>dispatchSystemEvent(state,{type:'touch',phase:'down',pointerId:7,x,y},4000);
 const gesture=state=>state.system.homeNavigation.gesture;
+const openedFolder=()=>{
+ const state=booted(),child=state.system.layout[0];
+ return settleHomeNavigation(selectHomeSlot(enterHomeFolder({...state,folders:{20:'A'},system:{...state.system,folderLayouts:{20:{2:child}}}},20),2));
+};
 
 test('HOME footer hit projection keeps the source bounds and asymmetric two-button split',()=>{
  const state=selected(booted(),'system-settings');
@@ -54,6 +58,15 @@ test('single source button owns the full footer only when the press also began t
  }
  const gap=down(work,160,210);
  assert.equal(ownedHomeFooterContact(gap,geometry,gesture(gap),160,214),null);
+});
+
+test('occupied open-folder Open owns the full footer and never falls back to Close',()=>{
+ const state=openedFolder();
+ for(const x of [0,99,100,319])assert.deepEqual(homeFooterHit(state,geometry,x,226),{action:'open',side:'right'});
+ const pressed=down(state,10,226);
+ assert.deepEqual(ownedHomeFooterContact(pressed,geometry,gesture(pressed),319,226),{action:'open',side:'right'});
+ let launched=dispatchSystemEvent(pressed,{type:'touch',phase:'up',pointerId:7,x:10,y:226},4100);
+ assert.equal(launched.system.phase,'launch');assert.equal(launched.system.app,state.system.folderLayouts[20][2]);
 });
 
 test('live HOME release cannot acquire a footer button across the split or from the gap',()=>{

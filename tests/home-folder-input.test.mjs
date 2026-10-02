@@ -5,6 +5,7 @@ import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSy
 import { selectHomeLocation, moveHomeItem } from '../src/os/home-layout.ts';
 import { getHomeNavigation, enterHomeFolder, leaveHomeFolder, setHomeDensity, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { homeTouchLocation, HOME_GESTURE_TIMING } from '../src/os/home-gestures.ts';
+import { getHomeFooter } from '../src/os/home-presentation.ts';
 
 const home = () => tickSystem(createPortfolioState(), 3001);
 const folder = () => enterHomeFolder(reduceMenu(selectHomeLocation(home(), { folder: null, slot: 40 }), 'open'), 40);
@@ -104,4 +105,17 @@ test('blank root slots retain Create Folder and opening the new folder has no Cl
   const opened=touchSystem(created,160,226,4010);
   assert.equal(opened.opened,true);assert.equal(hasEmptyHomeFolderSelection(opened),true);
   assert.equal(touchSystem(opened,160,226,4020).opened,true);
+});
+
+test('occupied folder uses full-width Open while header Back and physical B still close it',()=>{
+ const populated=moveHomeItem(folder(),{folder:null,slot:0},{folder:40,slot:2});
+ const state=settleHomeNavigation(selectHomeSlot(populated,2)),child=state.system.folderLayouts[40][2];
+ assert.deepEqual(getHomeFooter(state),{two:false,left:null,right:'open'});
+ assert.equal(touchMenu(state,50,226),state,'pure menu fallback must not reinterpret Open as Close');
+ for(const x of [0,59,99,100,160,319]){
+  const launched=touchSystem(state,x,226,4100);
+  assert.equal(launched.system.phase,'launch');assert.equal(launched.system.app,child);assert.equal(launched.opened,true);
+ }
+ assert.equal(completed(touchSystem(state,59,54,4200)).opened,false,'header Back remains available');
+ assert.equal(completed(reduceSystem(state,'back',4200)).opened,false,'physical B remains available');
 });

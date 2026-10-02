@@ -201,7 +201,9 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
     return item ? { ...state, panel: item.panel, panelChoice: 0, ...(item.panel === 'settings' ? { panelScroll: 0, homeLayoutAction: null } : {}) } : state;
   }
   if (y >= 212) {
-    if (state.opened) return hasEmptyHomeFolderSelection(state) ? state : reduceMenu(state, 'back');
+    // The no-owner occupied-folder footer is full-width Open. This pure menu
+    // layer cannot launch software, but it must not retain the old Close fallback.
+    if (state.opened) return hasEmptyHomeFolderSelection(state) || !state.system?.app ? state : reduceMenu(state, 'back');
     if (isFolder(state.selected, state) && x < 104) return { ...state, panel: 'folder-settings', panelChoice: 0 };
     return reduceMenu(state, 'open');
   }

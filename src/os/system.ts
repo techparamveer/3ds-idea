@@ -4,7 +4,6 @@ import { advanceSystemHomeApplicationTransition, beginSystemHomeApplicationTrans
 import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { createHomeCursorLoop, advanceHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
-import { getHomeFooter } from './home-presentation.ts';
 import { cancelHomeControls, cancelHomeControlTouch, isHomeControlsActive, isHomeSwitchPresentationActive, queueHomeControlEvent, queueHomeControlTouch, reconcileHomeControlGesture, reconcileHomeControls, selectHomeControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
 import { getHomeToolbarCursorAnchor } from './home-cursor-presentation.ts';
 export { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHomeFolderCloseRecord, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
@@ -318,10 +317,11 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  if(!state.panel&&y>=212&&s.homeControls&&focus.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5)return send('open');
  if(isHomeFolderBackTouch(state,x,y))return send('back');
  if(!state.panel&&y>=212&&selectedTitle(state)){
-  if(state.opened)return send(x<100?'back':'open');
-  const footer=getHomeFooter(state);
-  if(x<100&&footer?.left==='close-software')return requestApplicationClose(state,now);
-  if(x<100&&footer?.left==='manual')return invokeSystemApplet(state,'manual',now,{manualTitleId:selectedTitle(state)!.titleId!});
+  const hit=homeFooterHit(state,HOME_FOOTER_TOUCH_GEOMETRY,x,y);
+  if(!hit)return state;
+  if(hit.action==='close-folder')return send('back');
+  if(hit.action==='close-software')return requestApplicationClose(state,now);
+  if(hit.action==='manual')return invokeSystemApplet(state,'manual',now,{manualTitleId:selectedTitle(state)!.titleId!});
   return send('open');
  }
  if(!state.panel&&y>=(state.opened?49:34)&&y<204){

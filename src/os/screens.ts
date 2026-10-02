@@ -197,7 +197,13 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
    nativeHome.cursorEffectAt(c,effect.center.x,effect.center.y,effect.scale.appliedFrame,effect.disappear.appliedFrame);
   }
  }
- if(!capture){const boundary=getHomePageBoundary(state);if(!nativeHome?.arrows(c,boundary.left,boundary.right))arrows(c,state);}
+ if(!capture){
+  const boundary=getHomePageBoundary(state);
+  // A visible folder-right arrow is the authored LncArw_00 state used before
+  // root extent overrides. Root and every hidden endpoint stay explicit.
+  const nativeRight=state.opened&&boundary.right?undefined:boundary.right;
+  if(!nativeHome?.arrows(c,boundary.left,nativeRight))arrows(c,state);
+ }
  // Native idle HOME has no track above the footer. Keep the old fallback's
  // scroll indicator separate from the decoded native chrome.
  if(!nativeHome){

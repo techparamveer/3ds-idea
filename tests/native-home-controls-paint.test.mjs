@@ -7,7 +7,7 @@ import { createHomeInputAdapter } from '../src/os/home-input-adapter.ts';
 import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
 import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src/os/home-cursor-presentation.ts';
 import { resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts';
-import { enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
+import { commitHomeScroll, enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { advanceSystemHomeFolderCloseNative, beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomePresentation } from '../src/os/home-presentation.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
@@ -484,6 +484,23 @@ test('root tray uses captured extent geometry and both source arrow panes have e
  assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:false},N_arwR_00:{visible:false}});
  presenter.arrows({},true,false);
  assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:true},N_arwR_00:{visible:false}});
+ presenter.arrows({},false);
+ assert.deepEqual(calls.at(-1).options.overrides,{N_arwL_00:{visible:false}},'folder origin retains the source-authored right pane');
+});
+
+test('actual folder paint retains the authored right arrow after a no-arrow six-row root paint',async()=>{
+ await withScreens(({paint,events})=>{
+  let root=settleHomeNavigation(setHomeDensity(selectHomeSlot(home(),33),5));
+  paint(freeze(root));
+  assert.deepEqual(events.find(event=>event.name==='arrows').args,[false,false]);
+  root={...root,folders:{19:'A'}};
+  let opened=enterHomeFolder(root,19);
+  paint(freeze(opened));
+  assert.deepEqual(events.find(event=>event.name==='arrows').args,[false,undefined]);
+  opened=commitHomeScroll(opened,57);
+  paint(freeze(opened));
+  assert.deepEqual(events.find(event=>event.name==='arrows').args,[true,false],'folder endpoint still hides the right pane explicitly');
+ });
 });
 
 test('vacant-root footer retains the decoded Create Folder message and unfitted source sampler',()=>{

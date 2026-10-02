@@ -20,24 +20,30 @@ export function selectedSuspendedApplication(state: MenuState) {
 
 export type SuspendedWindowMetadata={description:string;icon:NativePixels};
 
-/** Settled source highlight. Its native pulse epoch is not yet established. */
-export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,center:readonly[number,number],densityFrame:number){
+function validateSleepFrame(frame:number){
+ if(!Number.isSafeInteger(frame)||frame<0||frame>=120)throw new RangeError('Invalid native suspended sleep frame');
+}
+
+/** Source highlight. Its host-owned pulse epoch is not a traced native epoch. */
+export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,center:readonly[number,number],densityFrame:number,sleepFrame=0){
  const pack=renderer.packs.launcher,name='LncIconSleep_00';
- const bindings=[{name:name+'_Appear',frame:20},{name:name+'_Scale',frame:densityFrame},{name:name+'_Sleep',frame:0}];
+ validateSleepFrame(sleepFrame);
+ const bindings=[{name:name+'_Appear',frame:20},{name:name+'_Scale',frame:densityFrame},{name:name+'_Sleep',frame:sleepFrame}];
  if(!pack?.layouts[name])throw Error('Native suspended icon layout unavailable');
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended icon animation unavailable: ${binding.name}`);
  if(!Number.isFinite(densityFrame)||densityFrame<0||densityFrame>5||center.some(v=>!Number.isFinite(v)))throw Error('Invalid native suspended icon pose');
  if(!renderer.draw(ctx,'launcher',name,{center:[...center],bindings,pictureSampling:'lcd'}))throw Error('Native suspended icon draw failed');
 }
 
-/** Source settled poses, not an inferred opening/closing animation. */
-export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded'){
+/** Source settled geometry plus its Sleep loop; opening/closing motion stays out of scope. */
+export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0){
  const pack=renderer.packs.launcher,bank=renderer.packs.messages?.messages.menu_msbt_LZ;
+ validateSleepFrame(sleepFrame);
  const bindings=[
   {name:'LncBase_U_00_SceneIn',frame:40},
   {name:'LncBase_U_00_Appear',frame:10},
   {name:'LncBase_U_00_ScaleUpDown',frame:mode==='expanded'?15:0},
-  {name:'LncBase_U_00_Sleep',frame:0},
+  {name:'LncBase_U_00_Sleep',frame:sleepFrame},
   {name:'LncBase_U_00_WhiteBlack',frame:1},
  ];
  if(!pack?.layouts.LncBase_U_00)throw Error('Native suspended window layout unavailable');

@@ -41,6 +41,22 @@ test('lower source highlight samples authored density sizes, tint and settled op
  assert.throws(()=>drawHomeSuspendedIcon({packs,draw(){return false;}},{},[0,0],1),/draw failed/);
 });
 
+test('upper and lower suspended presentations sample the same authored Sleep loop frame',()=>{
+ let iconOptions,windowOptions;
+ drawHomeSuspendedIcon({packs,draw(_ctx,_pack,_name,value){iconOptions=value;return true;}},{},[76,160],0,60);
+ drawHomeSuspendedWindow({packs,measureSingleLineText(){return 222;},draw(_ctx,_pack,_name,value){windowOptions=value;return true;}},{},metadata(),'expanded',60);
+ const icon=poseNativeLayout(packs.launcher.layouts.LncIconSleep_00,packs.launcher.animations,iconOptions.bindings);
+ const window=poseNativeLayout(packs.launcher.layouts.LncBase_U_00,packs.launcher.animations,windowOptions.bindings,windowOptions.overrides);
+ assert.equal(nativePaneParentPath(icon,'N_Sleep_00').at(-1).alpha,255);
+ assert.equal(nativePaneParentPath(window,'P_Sleep_00').at(-1).alpha,240);
+ assert.equal(iconOptions.bindings.find(binding=>binding.name==='LncIconSleep_00_Sleep').frame,60);
+ assert.equal(windowOptions.bindings.find(binding=>binding.name==='LncBase_U_00_Sleep').frame,60);
+ for(const frame of [-1,.5,120,NaN,Infinity]){
+  assert.throws(()=>drawHomeSuspendedIcon({packs},{},[0,0],0,frame),RangeError);
+  assert.throws(()=>drawHomeSuspendedWindow({packs},{},metadata(),'expanded',frame),RangeError);
+ }
+});
+
 test('expanded window follows the selected suspended instance, never a live, applet or retired owner',()=>{
  const state=suspended(),owner=state.system.runtime.application;
  assert.equal(selectedSuspendedApplication(state).id,owner);

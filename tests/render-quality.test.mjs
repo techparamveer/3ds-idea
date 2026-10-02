@@ -52,3 +52,16 @@ test('application close publishes terminal and retirement pairs independent of c
   assert.equal(applicationCloseNeedsPaint(closing,{...closing},true),true);
   assert.equal(applicationCloseNeedsPaint(closing,closing,true),false);
 });
+
+test('terminal upload bypasses both 30fps and 45fps gates between 60Hz updates',()=>{
+  for(const fps of [30,45]){
+    let lastRender=0,previous={phase:'closing',appQuitFrame:19};
+    const rendered=[];
+    for(const [now,current] of [[1000/60,{phase:'terminal',appQuitFrame:20}],[2000/60,null]]){
+      const forced=applicationCloseNeedsPaint(previous,current,false);
+      if(forced||now-lastRender>=1000/fps){rendered.push(current?.appQuitFrame??'retired');lastRender=now;}
+      previous=current;
+    }
+    assert.deepEqual(rendered,[20,'retired']);
+  }
+});

@@ -346,7 +346,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   suspendedPresentation=syncHomeSuspendedPresentation(suspendedPresentation,state,reduced);
   const suspendedSleepFrame=getHomeSuspendedSleepFrame(suspendedPresentation);
   const applicationTransition=(state.system as SystemWithHomeApplicationTransition|undefined)?.homeApplicationTransition??null;
-  const applicationTransitionPresentation=homeApplicationTransitionPresentation(applicationTransition,reduced);
+  const applicationTransitionPresentation=homeApplicationTransitionPresentation(state.system?.sleeping?null:applicationTransition,reduced);
   const verificationPaint=verification?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:false,healthBanner:false};
   graphics.syncStockView(state,t);
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
@@ -357,7 +357,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const suspended=retainedSuspendedApplication(state),expanded=!!selectedSuspendedApplication(state);
   const suspendedCapture:SuspendedCapture=suspended?graphics.readSuspendedCapture(state.system!.runtime):{status:'none'};
   if(!applicationTransition)applicationTransitionCapture=undefined;
-  else {
+  else if(!state.system?.sleeping){
    const captureOwner=suspendedCapture.status==='none'?null:suspendedCapture.owner;
    if(!suspended||captureOwner!==applicationTransition.identity.owner)throw Error('Stale HOME application-transition capture owner');
    if(suspendedCapture.status==='ready'){

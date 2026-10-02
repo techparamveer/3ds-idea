@@ -33,6 +33,7 @@ import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
 import { applicationCloseNeedsPaint, browserRenderQuality, pixelRatioForViewport, screenPaintFps } from './render-quality';
+import { applicationCloseAllowsInput } from './application-close-input';
 import { PACKED_MODEL_URL } from './model-delivery';
 import { createRenderSchedule } from './render-schedule';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
@@ -317,7 +318,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   function reducedBannerKey(){const view=getHomeBannerHostView(bannerHost);return view.status==='active'?JSON.stringify([view.status,view.primary.generation,view.primary.activationEpoch,view.primary.selection.kind,view.primary.selection.kind==='folder'?view.primary.selection.label:null,view.primary.motion.visible]):view.status;}
   const nativeScreenInput=createNativeScreenInputGate();
   function commit(reduce:(current:MenuState,now:number)=>MenuState,input:string,userGesture=false,now=performance.now()-start){
-    const previous=state,previousBanner=reduced?reducedBannerKey():undefined;advanceBeforeMutation(now);const readiness=screens.stockStatus(state);if(readiness==='loading'||readiness==='error')nativeScreenInput.cancelHeld(state.system!.input);state=releaseUnreadyNativeInput(state,readiness,now);const beforeAction=state;state=reconcileHomeControls(beforeAction,reduce(state,now));
+    const previous=state,previousBanner=reduced?reducedBannerKey():undefined;
+    const allowInput=applicationCloseAllowsInput(previous.system!.homeApplicationTransition,input);
+    advanceBeforeMutation(now);const readiness=screens.stockStatus(state);if(readiness==='loading'||readiness==='error')nativeScreenInput.cancelHeld(state.system!.input);state=releaseUnreadyNativeInput(state,readiness,now);const beforeAction=state;state=reconcileHomeControls(beforeAction,allowInput?reduce(state,now):state);
     const close=sampleSystemHomeFolderClose(state),previousClose=sampleSystemHomeFolderClose(beforeAction);
     observeFolderBanner(bannerClock(),close&&close.controller.phase!=='complete'&&close.controller.identity.transitionId!==previousClose?.controller.identity.transitionId?{kind:'clear'}:undefined);
     if(state===previous)return;lastInput=input;
@@ -331,6 +334,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const reducedChanged=reduced&&(previousBanner!==reducedBannerKey()||before.homeNavigation!==after.homeNavigation
       ||before.homeControls?.tilePoses!==after.homeControls?.tilePoses||before.homeControls?.tilePickup!==after.homeControls?.tilePickup);
     if(input!=='tick'||mustPaintApplicationClose||reducedChanged||before.phase!==after.phase||previous.powered!==state.powered||previous.panel!==state.panel)paint();else writeState();
+    // Upload the terminal pair now, before another update can retire its owner.
+    // Offscreen painting alone cannot cross the outer 30/45fps render gate.
+    if(mustPaintApplicationClose&&started&&!document.hidden&&!after.sleeping)renderFrame();
   }
   function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit((current,now)=>{
     const decision=nativeScreenInput(event,screens.stockStatus(current));
@@ -469,6 +475,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(plan.shadows)renderer.shadowMap.needsUpdate=true;
     scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();beforeDraw?.();
     renderer.render(scene,camera);frame++;schedule.presented(sample);
+    if(diagnostics)host.dataset.screenPresented=JSON.stringify({at:performance.now(),frame,paint:JSON.parse(host.dataset.screenPaint??'null')});
   }
   function animate(now:number){
     if(disposed)return;const dt=Math.min((now-last)/1000,.05);last=now;const elapsed=(now-start)/1000;

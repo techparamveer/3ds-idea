@@ -10,6 +10,7 @@ import {
   reduceSystem,
   releaseSystemInputs,
   sampleSystemHomeApplicationTransition,
+  setSystemSleeping,
   tickHomeNavigationClockObserved,
   tickSystem,
   touchSystem,
@@ -137,6 +138,21 @@ test('hidden-clock release preserves close progress without replaying hidden ela
   assert.equal(sampleSystemHomeApplicationTransition(state)?.appQuitFrame, 5);
   state = tickSystem(state, 90000 + FRAME);
   assert.equal(sampleSystemHomeApplicationTransition(state)?.appQuitFrame, 6);
+});
+
+test('lid sleep retains the close owner and resumes without counting sleep time', () => {
+  let state = confirmClose(suspended());
+  state = tickSystem(state, 6500);
+  state = tickSystem(state, 6500 + 5 * FRAME);
+  const transition = state.system.homeApplicationTransition, owner = state.system.runtime.application;
+  state = setSystemSleeping(state, true, 6500 + 5 * FRAME);
+  state = tickSystem(state, 90000);
+  assert.equal(state.system.homeApplicationTransition.appQuitFrame, transition.appQuitFrame);
+  assert.equal(state.system.runtime.application, owner);
+  state = setSystemSleeping(state, false, 90000);
+  state = tickSystem(state, 90000);
+  state = tickSystem(state, 90000 + FRAME);
+  assert.equal(state.system.homeApplicationTransition.appQuitFrame, transition.appQuitFrame + 1);
 });
 
 test('reduced presentation samples the endpoint without skipping logical owner retention', () => {

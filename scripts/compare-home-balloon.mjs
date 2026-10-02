@@ -237,7 +237,7 @@ export async function analyzeHomeBalloon({nativePath,historicalNativePath,browse
  return report;
 }
 
-if(import.meta.url===pathToFileURL(process.argv[1]).href){
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  const args=parseArguments(process.argv.slice(2));
  const report=await analyzeHomeBalloon({nativePath:args.native,historicalNativePath:args['historical-native'],browserPath:args.browser,sameAnchorBrowserPath:args['same-anchor-browser'],browserUpperPath:args['browser-upper'],capturePath:args.capture,outputPath:args.output});
  process.stdout.write(`${JSON.stringify({output:args.output,artifacts:report.artifacts,emptyMaskFullLcd:report.emptyMaskFullLcd,historicalNativeStability:report.historicalNativeStability,differentAnchorComparison:report.differentAnchorComparison,sameAnchorComparison:report.sameAnchorComparison},null,2)}\n`);

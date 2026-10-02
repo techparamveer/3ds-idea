@@ -382,11 +382,16 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const hostedBanner=options.getHomeBanner?.();
   const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;
   const hostedToolbar=hostedBanner?.status!=='unsupported'&&hostedBanner?.selection.kind==='toolbar'?hostedBanner.selection:null;
+  // Captured root-held HOME has no title/banner while folder-held HOME keeps
+  // it. This fitted paint gate deliberately leaves the retained banner host,
+  // resource ticket and motion clocks untouched for cancel/release restore.
+  const hideHeldRootBanner=!!view.pickup&&!state.opened;
   const friendUnavailable='Native Friend List toolbar banner unavailable.';
   const newsUnavailable='Native Notifications toolbar banner unavailable.';
   const toolbarFailure=hostedToolbar?.focus===2?options.getFriendBannerFailure?.():hostedToolbar?.focus===3?options.getNewsBannerFailure?.():null;
   const toolbarUnavailable=hostedToolbar?.focus===2?friendUnavailable:newsUnavailable;
   if(hostedToolbar&&toolbarFailure&&firmwareAssets&&!firmwareAssets.diagnostics.includes(toolbarUnavailable))firmwareAssets.diagnostics.push(toolbarUnavailable);
+  if(!hideHeldRootBanner){
   const toolbarMemo=toolbarFocus===1,toolbarWeb=toolbarFocus===4,toolbarMiiverse=toolbarFocus===5;
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!toolbarMemo&&!toolbarWeb&&!toolbarMiiverse&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(toolbarMiiverse&&!state.panel&&state.system?.phase==='home'){
@@ -431,6 +436,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    folder(t,200,115+Math.sin(time/800)*2,91,state.folders[state.selected],Math.sin(time/1500)*.32);t.restore();
    if(firmwareAssets&&!firmwareAssets.diagnostics.includes('Native folder model unavailable; drawing reconstructed fallback.'))firmwareAssets.diagnostics.push('Native folder model unavailable; drawing reconstructed fallback.');}
    if(name&&(!nativeDrawn||!label)){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,name,200,196,16,palette.ink,'center');}
+  }
   }
   if(state.panel&&state.panel!=='settings'&&state.panel!=='home-layouts'&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
    const panels=['notes','friends','notifications','browser','miiverse'];

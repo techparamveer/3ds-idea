@@ -7,6 +7,7 @@ import { homeTitles } from '../src/os/app-registry.ts';
 import { menuTiles, pageStart, rowCount, densities, reduceMenu } from '../src/os/state.ts';
 import { createPortfolioState, dispatchSystemEvent, tickSystem, tickHomeNavigationClockObserved, reduceSystem, releaseSystemInputs, setSystemSleeping, launch, invokeSystemApplet, saveSettings, restoreSettings, selectedTitle, homeSlotAppId, moveHomeItem, getHomeGestureView } from '../src/os/system.ts';
 import { HOME_GESTURE_TIMING as T, homeTouchLocation } from '../src/os/home-gestures.ts';
+import { getHomeFooter } from '../src/os/home-presentation.ts';
 import { resolveHomeDrop, restoreHomeLayout } from '../src/os/home-layout.ts';
 import { enableHomeControls, reconcileHomeControls } from '../src/os/home-controls.ts';
 import { openFirmwareStorage } from '../src/os/app-persistence.ts';
@@ -79,15 +80,18 @@ test('holding a folder child over Back carries the same pickup to retained root 
  let s=enableHomeControls(placeInFolder());assert.equal(s.opened,true);assert.equal(s.system.layout[0],'work');assert.equal(s.system.folderLayouts[4][2],'projects');
  s=lift(s,2,5200);const origin=s.system.homeNavigation.gesture.origin.navigation,source=child(4,2),before=saveSettings(s),back=[59,54];
  assert.deepEqual(getHomeGestureView(s).dragged.source,source);assert.deepEqual(s.system.homeControls.tilePickup.source,source);
+ assert.equal(getHomeFooter(s),null);
  s=touch(s,'move',...back,5700);s=tickSystem(s,5700+T.folderHoverMs-1);assert.equal(s.opened,true);
  s=tickSystem(s,5700+T.folderHoverMs);const held=getHomeGestureView(s);
  assert.equal(s.opened,false);assert.deepEqual(s.system.homeNavigation.rootView,origin.rootView);assert.deepEqual(held.dragged.source,source);
  assert.deepEqual([held.pointerId,held.x,held.y],[1,...back]);assert.deepEqual(held.target,root(0));assert.equal(held.canDrop,true);
  assert.deepEqual(s.system.homeControls.tilePickup.source,source);assert.equal(s.system.homeControls.primary.request,2);
  assert.equal(s.system.homeControls.tileTouch.strokeOwned,true);assert.deepEqual(s.system.homeControls.tileTouch.widgets,{});
+ assert.equal(getHomeFooter(s),null);
  s=touch(s,'up',...back,5700+T.folderHoverMs+1);
  assert.equal(s.opened,false);assert.equal(s.system.layout[0],'projects');assert.equal(s.system.folderLayouts[4][2],'work');assert.equal(getHomeGestureView(s),null);noLoss(s);
  assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileCandidate,null);
+ assert.equal(getHomeFooter(s).right,'open');
  assert.equal(Object.values(s.system.homeControls.tileTouch.widgets).some(widget=>widget.capture),false);
  s=tickSystem(s,5700+T.folderHoverMs+20);assert.equal(s.system.homeControls.primary.request,0);assert.equal(s.system.homeControls.primary.shown,true);
  assert.notEqual(saveSettings(s),before);
@@ -125,6 +129,7 @@ test('timed Back carry submits restored root Scale5 and fitted lift without reta
  assert.deepEqual(s.system.homeControls.tilePickup.center,{x:back[0],y:back[1]-4.25});
  s=touch(s,'cancel',...back,5700+T.folderHoverMs+301);
  assert.equal(s.system.layout[0],'work');assert.equal(s.system.folderLayouts[4][2],'projects');assert.equal(s.system.homeControls.tilePickup,null);noLoss(s);
+ assert.equal(getHomeFooter(s).right,'open');
 });
 test('scene advance-before-mutation retargets when a counted pass crosses the Back deadline',()=>{
  let s=placeInFolder();s=writeHomeNavigation(s,{...s.system.homeNavigation,rootView:{...s.system.homeNavigation.rootView,density:5}});

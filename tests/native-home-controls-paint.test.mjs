@@ -9,7 +9,8 @@ import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src
 import { resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts';
 import { commitHomeScroll, enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { advanceSystemHomeFolderCloseNative, beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
-import { getHomePresentation } from '../src/os/home-presentation.ts';
+import { getHomeFooter, getHomePresentation } from '../src/os/home-presentation.ts';
+import { createHomeTilePickup } from '../src/os/home-tile-pickup.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
 import { getHomeDensityControls } from '../src/os/home-density-controls.ts';
 import { poseNativeLayout, nativePaneParentPath } from '../src/os/native-layout.ts';
@@ -392,6 +393,35 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
     drawNewsBannerFrame: banner('Notifications'), drawWebBanner: banner('Internet Browser'),
     drawMiiverseBanner: banner('Miiverse'),
   } });
+});
+
+test('held pickup hides both footers while only the retained root suppresses its upper banner',async()=>{
+ const selection={kind:'app',id:'health-safety'},motion={visible:true,scale:1,yawRadians:0,
+  skeletal:{frame:123},material:{frame:0}};
+ const hosted={status:'active',selection,generation:'held-test',requestEpoch:1,
+  resourceTicket:{generation:'held-test',requestEpoch:1},stage:'active',waitUpdates:0,
+  primary:{generation:'held-test',requestEpoch:1,activationEpoch:1,selection,motion}};
+ const pickup=(source,density,center)=>createHomeTilePickup(source,density,center,{x:244,y:137},{x:0,y:0});
+ await withScreens(({paint,events})=>{
+  const initial=home(),rootHeld=freeze(controls(initial,{tilePickup:pickup({folder:20,slot:1},5,{x:59,y:54})}));
+  paint(rootHeld);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,0);assert.equal(events.filter(e=>e.name==='footer').length,0);
+  paint(freeze(controls(rootHeld,{tilePickup:null})));assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,1);
+  const childId=initial.system.layout[1];
+  let folder=selectHomeSlot(enterHomeFolder({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{1:childId}}}},20),1);
+  folder=freeze(controls(folder,{tilePickup:pickup({folder:20,slot:1},1,{x:244,y:137})}));
+  paint(folder);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,0);
+  paint(freeze(controls(folder,{tilePickup:null})));assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,1);
+ },{presenterPatch:{footer(ctx,state){if(getHomeFooter(state))ctx.record('footer');return true;}},screenOptions:{
+  getHomeBanner:()=>hosted,drawStockTitleBannerFrame:ctx=>{ctx.record('stock-title-banner');return true;},
+ }});
+});
+
+test('held root banner suppression does not conceal an unrelated native lower readiness failure',async()=>{
+ await withScreens(({paint})=>{
+  const initial=home(),held=controls(initial,{tilePickup:createHomeTilePickup({folder:null,slot:0},5,
+   {x:59,y:54},{x:76,y:137},{x:0,y:-4.25})});
+  assert.throws(()=>paint(held),/Native ordinary title icon unavailable/);
+ },{presenterPatch:{ordinaryTitleIcon(){throw new Error('Native ordinary title icon unavailable: held fixture');}}});
 });
 
 test('pending Friend resources stay blank without reporting normal loading as failure', async () => {

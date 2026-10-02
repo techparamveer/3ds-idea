@@ -7,6 +7,8 @@ import {getHomeFooter,getHomePresentation,getNativeFolderBalloon,nativeHomeDensi
 import {createPortfolioState,dispatchSystemEvent,tickSystem,releaseSystemInputs,touchSystem,sampleSystemHomeFolderClose,launchHomeShortcut,reduceSystem} from '../src/os/system.ts';
 import {menuTiles} from '../src/os/state.ts';
 import {homeTouchLocation} from '../src/os/home-gestures.ts';
+import {createHomeTilePickup} from '../src/os/home-tile-pickup.ts';
+import {enableHomeControls} from '../src/os/home-controls.ts';
 const setHomeDensity=(state,density)=>settleHomeNavigation(setHomeDensityMotion(state,density));
 const home=()=>{const state=createPortfolioState();return {...state,system:{...state.system,phase:'home'}};};
 const point=(state,index)=>{const tile=menuTiles(state).find(t=>t.index===index);return {x:tile.x+tile.size/2,y:tile.y+tile.size/2};};
@@ -105,6 +107,20 @@ test('empty folder selection hides the footer even when another child is occupie
  for(const index of [0,2])assert.equal(getHomeFooter(selectHomeSlot(opened,index)),null);
  assert.equal(getHomeFooter(selectHomeSlot(opened,1)).right,'open');
  assert.deepEqual(getHomeFooter(selectHomeSlot(initial,20)),{two:false,left:null,right:'create-folder'});
+});
+
+test('held pickup owns no footer action in either container and clearing it restores the prior action',()=>{
+ const initial=enableHomeControls(home()),pickup=(source,density)=>createHomeTilePickup(source,density,{x:59,y:54},{x:244,y:137},{x:0,y:0});
+ const rootHeld={...initial,system:{...initial.system,homeControls:{...initial.system.homeControls,tilePickup:pickup({folder:null,slot:0},0)}}};
+ assert.equal(getHomeFooter(rootHeld),null);
+ const rootRestored={...rootHeld,system:{...rootHeld.system,homeControls:{...rootHeld.system.homeControls,tilePickup:null}}};
+ assert.equal(getHomeFooter(rootRestored).right,'open');
+ const childId=initial.system.layout[1];
+ let folder=selectHomeSlot(enterHomeFolder({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{1:childId}}}},20),1);
+ folder={...folder,system:{...folder.system,homeControls:{...folder.system.homeControls,tilePickup:pickup({folder:20,slot:1},1)}}};
+ assert.equal(getHomeFooter(folder),null);
+ const folderRestored={...folder,system:{...folder.system,homeControls:{...folder.system.homeControls,tilePickup:null}}};
+ assert.equal(getHomeFooter(folderRestored).right,'open');
 });
 
 test('Settings HOME shows native Manual and opens the Settings-owned applet from its left footer',()=>{

@@ -131,6 +131,10 @@ export function getNativeCameraTitleBalloon(state:MenuState,view:HomePresentatio
 export function getHomeFooter(state:MenuState){
  const focus=state.system?.homeNavigation.focus;
  if(focus?.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5)return {two:false,left:null,right:'open'} as const;
+ // Native held captures hide the complete footer in both containers. The
+ // exact mode-14 footer controller remains unresolved, so this is a bounded
+ // capture-fitted policy keyed to the independent pickup owner.
+ if(state.system?.homeControls?.tilePickup)return null;
  const appId=homeSlotAppId(state,state.opened?state.folderSelected:state.selected);
  // Native 0x29af68 → 0x1e0cb4 hides both actions for an empty selected child.
  if(hasEmptyHomeFolderSelection(state))return null;

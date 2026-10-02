@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [page boundary](home-page-boundary-2026-10-02.md), `ddea6d53`, fixes
+Latest [Create Folder footer text](home-footer-text-2026-10-02.md), `f031cca9`,
+reduces the fixed whole-footer residual19 ->0 above delta2/max2 against three
+preserved native captures. Desktop/mobile/reduced agree; four non-target
+footer ROIs are byte-identical. The coverage fit is a labelled adaptation in
+all Create Folder poses, with settled-only native proof. Browser hold/cancel
+passes; full1,827 tests/build/typecheck pass. Whole HOME, remaining text/shade,
+cursor/banner/HUD epochs and exact motion/input/audio stay open. Next: capture
+and fix the next unmatched control/cursor state, not another resolved footer
+backing or page-boundary audit. Preserve other designs.
+
+Earlier [page boundary](home-page-boundary-2026-10-02.md), `ddea6d53`, fixes
 the persistent right arrow, open-ended tray and keyboard/gesture escape beyond
 the captured root slot59. Source geometry/input use60 exposed slots while
 preserving300 stored slots through labelled high-slot compatibility. Six native

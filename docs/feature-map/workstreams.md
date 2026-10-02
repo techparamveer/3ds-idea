@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## Footer Text - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used owned tree
+`/Users/paramveer/.codex/worktrees/3ds-home-footer-text-20261002`, branch
+`codex/home-footer-text-20261002`, base `f60de078`. Source `39deef8c` ->
+`f031cca9`; source note `5f38ecb9` -> `f68df54e`. Comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` wrote private comparisons only.
+Both GPT-5.6 Sol/high, now idle; no worker GUI or edits to sibling worktrees.
+Coordinator operated production browser; native captures from the preceding
+isolated run were reused. Full1,827 tests/build/typecheck pass, settled footer
+19 ->0 above2/max2; other four footer ROIs byte-identical. Browser hold/cancel
+passes. This all-pose coverage adaptation has settled-only native evidence;
+whole HOME remains fail. Owned Chrome session62279 exited0; preview3021
+session7958 returns HTTP200 and remains available. Previous worktrees intact.
+[Evidence and source mapping](../home-footer-text-2026-10-02.md).
+
 ## Page Boundary - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree

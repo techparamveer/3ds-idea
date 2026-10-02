@@ -4,19 +4,21 @@
 
 Runtime commit `39deef8cc2f55aab75960f0523ad76be47d1e7bb`, integrated as
 `f031cca9336ca0ed6f7a2e1f6b3697ca911f5491`, applies the existing
-`azahar-12p4-fit` glyph-coverage mode only when the settled one-button HOME
-footer action is `Create Folder`. The `Open` centre label and all two-button
+`azahar-12p4-fit` glyph-coverage mode whenever the one-button HOME
+footer action is `Create Folder`, including its pressed and transition poses.
+Native pixel evidence below is settled-only. The `Open` centre label and all two-button
 footer labels retain the direct LCD sampler without coverage snapping. No
-glyph position, advance, atlas interpolation, layout, material, colour or
+logical glyph position, advance, atlas interpolation, layout, material, colour or
 shared renderer rule changed.
 
-The immutable pre-change comparison under
+The pre-change captures and finalized baseline comparison under
 `/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-footer-text-20261002/`
 uses the lower-LCD ROI `(0,210,320,30)`, threshold 2, empty masks and no
 image-space fit or offset. Three independent native/browser pairs have the
 same 19-pixel residual: six pixels at `x174, y227..232` and thirteen at
 `x188, y221..233`, with maximum channel delta 66. Its `report.json` SHA-256 is
-`ac10e30b4f053c946a4508919a0da05667da6de71d4851e0a62e7f972e8643e1`;
+`8335077f38ba27b203137334d34ee41aedf9bd636c29a6a31ce778ea7587cdf3`
+(superseding the preliminary report identity `ac10e30b...`);
 the inspected 4x sheet SHA-256 is
 `72a460995f5da25db716f5244257ce4cb92f5af76448627f8c90df6e128c0b37`.
 
@@ -24,8 +26,27 @@ The coordinator's production replay at the integrated commit reduces that
 same fixed ROI against native own-PNG `19.03.27.675` from 19 pixels above
 threshold / maximum 66 to zero pixels above threshold / maximum 2. This is a
 static pixel-tier match at the declared tolerance, not byte identity or whole
-HOME acceptance. The coordinator owns the final production capture, report
-and sheet identities and will append them to the integrated evidence record.
+HOME acceptance. All three preserved native references meet this tier against
+desktop, mobile and reduced-motion production captures. No fresh native boot
+occurred in this slice: native own-PNGs and input records are reused from the
+preceding isolated coordinator run, not presented as new live comparisons.
+
+Final evidence is in `comparison-after-f031cca9/` under the private root above:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `report.json` | `cebd01226e13b0c6c81c5fbdeea73cc22458eaaa8b28c35dfa0bc281cbd51faf` |
+| `native-before-after-paired-lcd.png` | `dfb7ed617afa4be9324f80daca8c98c51c114a1726ea62211789077d86e4349d` |
+| `native-before-after-footer-4x.png` | `1bbc1bd5bd86c87c9903a4213ed1b0ebe13d359f8c9e06ab5fa7294faaf34c66` |
+| `native-desktop-mobile-reduced-footer-4x.png` | `a90fe8c7bde52e88320237e3a65a4319bc130e7ef0166b078ccf682e26bbf453` |
+
+The coordinator opened all three sheets. Capture identities, empty masks and
+per-pair metrics are in the report. Four non-target footer ROIs (root folder,
+Folder Settings, vacant child and occupied child) are byte-identical before
+and after. Actual pointer hold and drag-out cancellation complete without
+errors under `press-after/`; the pressed label and restored idle state were
+visually inspected. These are browser checks, not native pressed-pose or
+cadence acceptance. All captures remained muted.
 
 ## Native source mapping
 

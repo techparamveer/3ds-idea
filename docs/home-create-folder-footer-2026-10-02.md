@@ -1,5 +1,10 @@
 # HOME Create Folder footer source audit — 2 October 2026
 
+Historical audit: later backing/page-boundary fixes remove the edge residuals;
+the remaining 19 text pixels are addressed by the explicitly fitted
+[footer coverage adaptation](home-footer-text-2026-10-02.md). Preserve the
+original measurements below as the source-audit checkpoint, not current status.
+
 Base `9820379ce85b861ae824533219d8093080446551`, branch
 `codex/home-create-folder-footer-20261002`. This is the one bounded source-only
 slice allowed for the stable Create Folder footer residual. It makes no runtime

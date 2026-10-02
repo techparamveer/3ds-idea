@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Create Folder footer text](../home-footer-text-2026-10-02.md) now meets the
+static delta2 tier across desktop/mobile/reduced captures against three
+preserved native own-PNGs. The 1/16 coverage fit is a labelled adaptation, not
+a recovered native raster rule. It applies to every Create Folder action pose;
+settled-only native evidence cannot validate pressed/transition pixels or
+cadence. Browser hold/drag-out cancellation and four unchanged control ROIs
+are supporting checks only. No fresh native boot or whole-scenario pass is
+claimed; capture epochs and other full-screen residuals remain unresolved.
+
 [Page boundary](../home-page-boundary-2026-10-02.md) distinguishes stored
 capacity from captured exposed slots. Verify six-row no-arrow/no-scroll state,
 five-row centered/origin/endpoint poses, density restoration and keyboard

@@ -85,6 +85,94 @@ function bestMaskTranslation(reference, candidate, width, height, rect, xRange, 
   return best;
 }
 
+function coverageDiagnostics(reference, candidate, width, rect, selected, threshold = 2) {
+  const groups = {
+    sharedInk: {pixels: 0, pixelsAboveThreshold: 0},
+    referenceOnlyInk: {pixels: 0, pixelsAboveThreshold: 0},
+    candidateOnlyInk: {pixels: 0, pixelsAboveThreshold: 0},
+    bothBelowInkThreshold: {pixels: 0, pixelsAboveThreshold: 0},
+  };
+  let referenceInkPixels = 0, candidateInkPixels = 0;
+  const [left, top, regionWidth, regionHeight] = rect;
+  for (let y = top; y < top + regionHeight; y++) for (let x = left; x < left + regionWidth; x++) {
+    const index = (y * width + x) * 3;
+    const referenceInk = selected(reference, index), candidateInk = selected(candidate, index);
+    const group = referenceInk
+      ? candidateInk ? groups.sharedInk : groups.referenceOnlyInk
+      : candidateInk ? groups.candidateOnlyInk : groups.bothBelowInkThreshold;
+    const maximumDifference = Math.max(...[0, 1, 2].map(channel => Math.abs(reference[index + channel] - candidate[index + channel])));
+    group.pixels++;
+    group.pixelsAboveThreshold += Number(maximumDifference > threshold);
+    referenceInkPixels += Number(referenceInk);
+    candidateInkPixels += Number(candidateInk);
+  }
+  const intersection = groups.sharedInk.pixels;
+  const union = intersection + groups.referenceOnlyInk.pixels + groups.candidateOnlyInk.pixels;
+  return {rect: [rect], threshold, referenceInkPixels, candidateInkPixels, intersection, union,
+    iou: round(intersection / union), groups};
+}
+
+function textSupport(reference, candidate, width, height, rect, selected) {
+  const [left, top, regionWidth, regionHeight] = rect;
+  const union = new Uint8Array(width * height), support = new Uint8Array(width * height);
+  for (let y = top; y < top + regionHeight; y++) for (let x = left; x < left + regionWidth; x++) {
+    const index = (y * width + x) * 3;
+    union[y * width + x] = Number(selected(reference, index) || selected(candidate, index));
+  }
+  for (let y = top; y < top + regionHeight; y++) for (let x = left; x < left + regionWidth; x++) {
+    for (let neighborY = Math.max(top, y - 1); neighborY <= Math.min(top + regionHeight - 1, y + 1); neighborY++) {
+      for (let neighborX = Math.max(left, x - 1); neighborX <= Math.min(left + regionWidth - 1, x + 1); neighborX++) {
+        if (union[neighborY * width + neighborX]) support[y * width + x] = 1;
+      }
+    }
+  }
+  return support;
+}
+
+function bilinearCandidateFit(reference, candidate, width, height, rect, support, dx, dy) {
+  const [left, top, regionWidth, regionHeight] = rect;
+  let absolute = 0, squared = 0, pixels = 0;
+  for (let y = top; y < top + regionHeight; y++) for (let x = left; x < left + regionWidth; x++) {
+    if (!support[y * width + x]) continue;
+    const sampleX = x + dx, sampleY = y + dy;
+    const x0 = Math.floor(sampleX), y0 = Math.floor(sampleY), fractionX = sampleX - x0, fractionY = sampleY - y0;
+    if (x0 < 0 || x0 + 1 >= width || y0 < 0 || y0 + 1 >= height) continue;
+    const referenceIndex = (y * width + x) * 3;
+    for (let channel = 0; channel < 3; channel++) {
+      const topSample = candidate[(y0 * width + x0) * 3 + channel] * (1 - fractionX) +
+        candidate[(y0 * width + x0 + 1) * 3 + channel] * fractionX;
+      const bottomSample = candidate[((y0 + 1) * width + x0) * 3 + channel] * (1 - fractionX) +
+        candidate[((y0 + 1) * width + x0 + 1) * 3 + channel] * fractionX;
+      const difference = Math.abs(reference[referenceIndex + channel] -
+        (topSample * (1 - fractionY) + bottomSample * fractionY));
+      absolute += difference;
+      squared += difference * difference;
+    }
+    pixels++;
+  }
+  assert.ok(pixels > 0);
+  return {candidateSampleOffset: [round(dx), round(dy)], pixelCount: pixels,
+    meanAbsoluteRgbDifference: round(absolute / (pixels * 3)),
+    rmseRgbDifference: round(Math.sqrt(squared / (pixels * 3)))};
+}
+
+function fractionalSamplingDiagnostic(reference, candidate, width, height, rect, selected) {
+  const support = textSupport(reference, candidate, width, height, rect, selected);
+  const zero = bilinearCandidateFit(reference, candidate, width, height, rect, support, 0, 0);
+  let best = zero;
+  for (let yStep = -8; yStep <= 8; yStep++) for (let xStep = -8; xStep <= 8; xStep++) {
+    const result = bilinearCandidateFit(reference, candidate, width, height, rect, support, xStep / 16, yStep / 16);
+    const resultDistance = Math.abs(xStep) + Math.abs(yStep);
+    const bestDistance = Math.abs(best.candidateSampleOffset[0] * 16) + Math.abs(best.candidateSampleOffset[1] * 16);
+    if (result.rmseRgbDifference < best.rmseRgbDifference ||
+      result.rmseRgbDifference === best.rmseRgbDifference && result.meanAbsoluteRgbDifference < best.meanAbsoluteRgbDifference ||
+      result.rmseRgbDifference === best.rmseRgbDifference && result.meanAbsoluteRgbDifference === best.meanAbsoluteRgbDifference && resultDistance < bestDistance) best = result;
+  }
+  return {rect: [rect], support: 'one-pixel dilation of the zero-offset ink-mask union',
+    search: {minimum: -0.5, maximum: 0.5, step: 0.0625, interpolation: 'bilinear candidate sampling'},
+    zero, best, rmseImprovementFraction: round((zero.rmseRgbDifference - best.rmseRgbDifference) / zero.rmseRgbDifference)};
+}
+
 const nativeFile = options.native;
 const browserFiles = {upper: join(options.browser, 'upper.png'), lower: join(options.browser, 'lower.png')};
 const [nativeUpper, nativeLower, browserUpper, browserLower] = await Promise.all([
@@ -143,6 +231,17 @@ const maskTranslationFits = {
   upperThirdListBlock: bestMaskTranslation(nativeUpper.pixels, browserUpper.pixels, 400, 240, [88, 118, 224, 40], [-3, 3], [-20, 20], lightText),
   lowerButtonLabel: bestMaskTranslation(nativeLower.pixels, browserLower.pixels, 320, 240, [104, 170, 112, 24], [-4, 4], [-4, 4], darkButtonText),
 };
+const rasterCases = {
+  upperFirstListBlock: {reference: nativeUpper, candidate: browserUpper, rect: [88, 48, 224, 38], selected: lightText},
+  upperSecondListBlock: {reference: nativeUpper, candidate: browserUpper, rect: [88, 92, 224, 18], selected: lightText},
+  upperThirdListBlock: {reference: nativeUpper, candidate: browserUpper, rect: [88, 118, 224, 40], selected: lightText},
+  lowerButtonLabel: {reference: nativeLower, candidate: browserLower, rect: [104, 170, 112, 24], selected: darkButtonText},
+};
+const rasterDiagnostics = Object.fromEntries(Object.entries(rasterCases).map(([name, entry]) => [name, {
+  coverageAtZero: coverageDiagnostics(entry.reference.pixels, entry.candidate.pixels, entry.reference.width, entry.rect, entry.selected),
+  fractionalCandidateSampling: fractionalSamplingDiagnostic(entry.reference.pixels, entry.candidate.pixels,
+    entry.reference.width, entry.reference.height, entry.rect, entry.selected),
+}]));
 
 const report = {
   scenario: 'home-power-menu-settled', threshold: 2, comparison: 'Empty-mask source-pane regions; translations are diagnostics, not correction proposals.',
@@ -157,8 +256,8 @@ const report = {
       lower: {file: baselineFiles.lower, fileSha256: baseline.lower.fileSha256, rgbSha256: baseline.lower.rgbSha256},
     }}),
   },
-  regions: regionMetrics, ...(baseline && {beforeAfter}), rgbTranslationFits, maskTranslationFits,
-  limitations: ['Settled semantic path matches; input cadence and phase do not.', 'No mask is applied.', 'Translation fits identify residual shape/placement only and do not authorize a runtime offset.'],
+  regions: regionMetrics, ...(baseline && {beforeAfter}), rgbTranslationFits, maskTranslationFits, rasterDiagnostics,
+  limitations: ['Settled semantic path matches; input cadence and phase do not.', 'No mask is applied.', 'Translation fits identify residual shape/placement only and do not authorize a runtime offset.', 'Bilinear candidate sampling can reduce coverage error without proving a source coordinate or runtime correction.'],
 };
 await mkdir(options.out, {recursive: true});
 const output = join(options.out, 'power-regions.json');

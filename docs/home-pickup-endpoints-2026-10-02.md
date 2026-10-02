@@ -56,6 +56,10 @@ browser variants. At `(100,37)`, native RGB is `(214,219,222)` versus browser
 `(108,114,122)`. These are real non-epoch mismatches. Native backdrop format
 and raster precision remain unproved; a keyboard-specific RGB565 descriptor
 does not establish HOME's format. Do not apply a guessed color transform.
+The [bounded source-gap note](home-pickup-substrate-2026-10-02.md), source
+`12475670` integrated as `b6b1edce`, records the decoded composite boundary
+and independently hashed root-control calculation. Root divider pixels already
+meet tolerance and its footer-top line is byte-exact before folder composition.
 
 Whole desktop lower residuals are6,328 /5,420 /5,674 pixels above2; upper
 24,153 /52,039 /17,321. All whole scenarios remain `fail`. Cursor phases,

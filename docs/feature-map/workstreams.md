@@ -11,6 +11,8 @@ Fresh native and desktop/mobile/reduced folder moves agree2 ->1 ->2, with
 artwork/blank cores at delta2. No pickup ownership defect or runtime change.
 Repeated backing strips remain fail; one bounded source diagnosis leaves HOME
 capture format/raster precision unproved. [Evidence](../home-pickup-endpoints-2026-10-02.md).
+Source-gap note `12475670` -> `b6b1edce` includes reproducible root-control
+identities and calculation. Both workers are now idle; no runtime change.
 Native session67760 and owned Chrome98768 exited0. All browser capture sessions
 complete, muted/no errors; preview3021/session7958 remains HTTP200. Prior
 worktrees preserved, no matrix/push/deploy changes. Remaining held/drop/hover/

@@ -1,6 +1,6 @@
 # HOME and cross-app lifecycle feature map
 
-Checkpoint: `eeea99e7` (2 October 2026), with older per-feature evidence retained. This is an implementation and
+Checkpoint: `4e18d7c9` (2 October 2026), with older per-feature evidence retained. This is an implementation and
 verification backlog, not an acceptance record. Scope comes from
 [portfolio-ui-scope](../portfolio-ui-scope.md); evidence authority remains the
 [progress record](../progress-2026-09-24.md) and the matched-input
@@ -29,8 +29,9 @@ deferred at the user's request; preserve all already-designed surfaces.
 frames. Lift/size and counted-pass folder-boundary corrections are implemented.
 `eeea99e7` hides the held footer and root-held banner through a capture-fitted
 visibility policy, retaining folder-held titles and release/cancel restoration.
-Toolbar dimming and artwork color remain captured defects. Other density
-anchors, exact cadence/motion and audio remain open.
+[Held backing](../home-folder-held-dimming-2026-10-02.md), `4e18d7c9`, now
+selects the decoded pickup dimming endpoint. Residual backing raster, artwork
+color/height, other density anchors, exact cadence/motion and audio remain open.
 
 ### H-01 - HOME two-LCD composition and wallpaper
 **Code/tests/evidence:** [screens.ts](../../src/os/screens.ts), [home-presentation.ts](../../src/os/home-presentation.ts), [home-banner-host.ts](../../src/os/home-banner-host.ts), [host tests](../../tests/home-banner-host.test.mjs), [background owner note](../home-background-host-2026-10-01.md).

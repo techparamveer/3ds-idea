@@ -15,13 +15,23 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [held pickup comparison](home-held-pickup-2026-10-02.md) obtains genuine
+Latest [folder-held backing](home-folder-held-dimming-2026-10-02.md),
+`4e18d7c9`, selects the decoded native pickup dimming endpoint before the
+folder foreground. Full1,840 tests/typecheck/build and three production
+interaction variants pass. A fresh CTM native lower capture repeats exactly;
+controller timing remains adapted. Toolbar now reaches delta-2 static tolerance
+(0 mismatching pixels, maximum 2); footer improves to 1,576 pixels above delta
+2, maximum 4. Whole lower still differs at 6,696 pixels; scenario remains fail.
+Keep residual backing raster, pickup
+artwork/height, other anchors and exact motion/input/audio open.
+
+Earlier [held pickup comparison](home-held-pickup-2026-10-02.md) obtains genuine
 native held PNGs through CTM playback. `652520ee` corrects fitted lift and held
 tile size after Back; `a751722b` fixes a counted-clock boundary missed by the
 initial successful browser replay. `bcc3dcb6` refines the measured root lift;
 1,836 tests/build/typecheck and all three production interaction variants pass.
-Native resources remain unchanged. Next
-captured defects: folder toolbar dimming and composited artwork color; other
+Native resources remain unchanged. Then-captured
+defects: folder toolbar dimming and composited artwork color; other
 density anchors and exact timing/audio remain open. Visibility follow-up
 `eeea99e7` now hides held footers and the root-held upper title through an
 explicit capture-fitted policy; 1,839 tests/build/typecheck pass. See the
@@ -29,8 +39,8 @@ linked evidence for production comparison. Do not repeat the resolved size
 diagnosis or claim1:1.
 Production desktop/mobile/reduced and the nominal phase replay pass. Reused
 native CTM references show root footer at delta2 tolerance (max1), while the
-folder's newly exposed band remains too bright (max30). Keep that band and
-toolbar dimming as the next captured defects; whole LCDs still fail.
+folder's newly exposed band remained too bright (max30). The backing follow-up
+above addresses that source selection; whole LCDs still fail.
 
 Earlier [folder drag-out](home-folder-drag-out-2026-10-02.md), `dd73c4ee` with
 production ownership/scope fixes `35846d2e` and `1089c78c`,

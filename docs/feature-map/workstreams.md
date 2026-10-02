@@ -1,5 +1,20 @@
 # Workstream Registry
 
+## Held Backing - 2 October 2026
+
+Same owned source worktree/chat: `5f621a49` -> `4e18d7c9` selects the decoded
+PicUp10 material endpoint for folder-held backing. Independent read-only
+`pickup_retarget_review` found no actionable issue; private comparator owns
+the new held-dimming evidence. Coordinator alone operates the muted Mac GUI.
+Fresh isolated CTM replay repeats the prior complete lower held LCD exactly;
+all four native phases captured, normal exit0. Source selection is adapted,
+not proof of the native controller's timing. [Evidence](../home-folder-held-dimming-2026-10-02.md).
+
+Source worker, independent reviewer and comparator are now idle. Coordinator
+opened the final sheet: toolbar maximum delta 2, footer maximum 4, whole lower
+6,696 pixels above delta 2. Whole scenario remains fail. Native and owned Chrome
+closed normally; the integrated production preview remains on port 3021.
+
 ## Held Pickup - 2 October 2026
 
 The same source worker delivered held visibility `4aad40ec` -> `eeea99e7`,

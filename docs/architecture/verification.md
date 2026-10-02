@@ -1,5 +1,11 @@
 # Verification and evidence architecture
 
+[Folder-held backing](../home-folder-held-dimming-2026-10-02.md) uses a fresh
+isolated CTM repeat: byte-identical lower pixels do not imply identical upper
+epochs. Verify the decoded material endpoint separately from its adapted
+selection/timing, and retain ordinary/root-held/release/cancel controls to
+show that the held-only change does not alter other composition states.
+
 Held-visibility verification reuses the named genuine CTM PNGs as immutable
 references and recaptures the changed production build. Keep this distinct
 from a fresh native run or exact timing replay. Test footer painting and hit

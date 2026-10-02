@@ -1,5 +1,16 @@
 # Verification and evidence architecture
 
+[Folder Settings verification](../home-folder-settings-native-2026-10-02.md)
+at `79e77f58` uses fresh native own-PNG and production before/after captures.
+The fixed modal ROI improves 55,945 -> 107 pixels above delta 2 with empty
+masks; header/Delete row meet the static tier, but Rename and corner residuals
+remain. Full pair 51,800/12,610 still fails. Actual touch Cancel, physical B,
+Escape and desktop/mobile controls plus unchanged static stock LCDs are
+supporting evidence, not native motion/input/audio acceptance. The newly
+native panel participates in paired-LCD loading/failure publication and must
+allow B/HOME escape from either state. Default display-name Azahar binding is
+unsafe; see the updated [isolation contract](../native-reference-profile-isolation.md).
+
 [Resize verification](../home-touch-projection-2026-10-02.md) at `a751b2dd`
 corrects the former mobile-density failure diagnosis: a stale diagnostic
 desktop target survived the resize and lay outside the mobile viewport.

@@ -1,13 +1,25 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `b8773a90` (cursor candidate rejected; transport
-restored to `a751b2dd` behavior), 2 October 2026. This is the **ordered
+Current runtime checkpoint: `79e77f58` (native Folder Settings; rejected cursor
+candidate remains restored to `a751b2dd` behavior), 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+The captured [Folder Settings placeholder](../home-folder-settings-native-2026-10-02.md)
+is replaced at `79e77f58` with decoded native frame, rows and message styles.
+The selected-folder upper banner is retained, the underlying HOME footer is
+hidden, and source-bounded touch Cancel plus physical B/Escape work on desktop
+and mobile. The [comparison](../workstream-handoffs/home-folder-interaction-compare.md)
+separates regional static evidence from full-screen population/epoch residuals.
+Next bounded folder work is its still-authored Delete confirmation or captured
+pressed/fade states, not another redesign of folder creation/open/close.
+Rename/text input stays excluded. The open-folder left-gutter discrepancy,
+native keyboard delivery, exact timing/motion/audio and whole scenarios remain
+open; retain these as separate defects.
 
 Latest bounded HOME result: [ordinary icon corners](../home-icon-corners-2026-10-02.md)
 now meet the delta-2 static pixel tier in four native/production captures.
@@ -77,6 +89,7 @@ These labels describe implementation, not native acceptance.
 | H-01, H-02, H-13 | Preserve | Wallpaper, HUD, native banners, scoped tiles and empty slots. Correct named pixel/motion residuals only; do not redesign the HOME composition or add excluded apps. | HOME |
 | H-03..H-06, H-14 | Finish | Input/pressed/selected/released states, long-press pickup, move/drop/cancel, folder-hover and edge-scroll behavior. Existing motion timings partly adapted; unsupported native modes stay explicit. | HOME |
 | H-07, H-08 | Preserve | Folder creation, entry, contents, close and layout restoration; verify first/last slots and all densities. Text entry stays excluded. | HOME |
+| H-07, H-08, H-14 | Finish/replace | Folder Settings settled native composition delivered at `79e77f58`; press/fade timing and keyboard selection remain unverified. Delete confirmation is still authored and requires its own capture/source replacement. Open-folder left gutter exposes root icons unlike native. | HOME |
 | H-09, H-10 | Finish | Every toolbar/footer enabled, disabled, selected and suspended variant; Manual/Open/Resume/Close/Close Folder/Create Folder routes and button-edge behavior. | HOME |
 | H-11 | Finish, deferred | Source HOME Settings and Save/Load now exist. Saved-slot LCD thumbnails, preview Zoom, first-use preparation and later Settings rows remain missing. Current-layout paired preview is implemented at `5232b9c5`; do not rebuild it. | HOME |
 | H-11 | Replace, deferred | Theme picker remains authored. Replace native portions only from source; portfolio theme choices/preferences and reset stay labelled adaptations. | HOME |

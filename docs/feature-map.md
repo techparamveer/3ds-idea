@@ -15,7 +15,18 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [cursor replay](home-cursor-replay-2026-10-02.md) establishes 60 phases
+Latest [Folder Settings replacement](home-folder-settings-native-2026-10-02.md)
+at `79e77f58` removes the captured generic modal, restores the folder banner
+and delivers source-derived touch Cancel with loading/error escape. Fixed
+modal mismatch improves 55,945 -> 107 pixels above delta 2; header/Delete row
+meet static tolerance, but Rename/corners, outside backing and upper epochs
+remain. Full 1,800 tests/typecheck/build, desktop/mobile Cancel routes and
+static stock regressions pass. [Comparison](workstream-handoffs/home-folder-interaction-compare.md).
+Whole scenarios remain fail; pressed/fade states, Delete confirmation and
+opened-folder root-icon gutter are the next bounded folder gaps. Preserve
+existing creation/open/close designs and the excluded text-entry boundary.
+
+Earlier [cursor replay](home-cursor-replay-2026-10-02.md) establishes 60 phases
 at each of six densities. The LCD-sampling candidate `68c69bcf` is rejected;
 `b8773a90` restores the prior transport. Small best-fit corner improvements do
 not clear the four-row full-ROI regression or unexplained outside-ROI changes.

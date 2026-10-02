@@ -1,5 +1,27 @@
 # Workstream Registry
 
+## Folder Settings - 2 October 2026
+
+The two Sol5.6/high chats continued at `5fd6a99c` in fresh worktrees, preserving
+the earlier cursor trees. Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13`
+used `3ds-home-toolbar-interaction-20261002` /
+`codex/home-toolbar-interaction-20261002`: toolbar audit `268feb10`/`553b176e`
+integrated as `7fc88634`/`1fb41a02`, then native Folder Settings `238319b6`
+as `79e77f58`. Comparison chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929`
+used `3ds-home-folder-interaction-compare-20261002` /
+`codex/home-folder-interaction-compare-20261002`; baseline `224427cc` integrated
+as `91eb20b1`. Independent read-only subagent caught the newly gated panel's
+B/HOME recovery trap; it was fixed and tested before integration. Workers did
+not drive GUI. Coordinator alone captured muted native/production workflows
+on the authorized full Mac, integrated and ran full checks. Worktrees remain
+preserved; no service-tier/coordinator-model claim.
+Final comparison `87e195b3` -> `9efb2a53` and bounded source-gap note
+`8e200c60` -> `29cc7ea3` are integrated. Both chats and the review subagent are
+idle. Full 1,800 tests/typecheck/build and muted desktop/mobile folder Cancel
+checks pass. The 107 modal pixels remain explicit; no guessed sampler patch
+or whole-scenario acceptance follows. Dedicated Chrome closed cleanly;
+production preview 3021 remains available.
+
 ## Cursor Replay - 2 October 2026
 
 The same two Sol5.6/high chats continued from `7404afd2` in separate worktrees.

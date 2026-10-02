@@ -8,12 +8,12 @@ import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
 import { getTitle } from './app-registry';
-import { leaveHomeFolder } from './home-navigation';
+import { leaveHomeFolder, saveHomeView } from './home-navigation';
 import { getHomeFooter, getHomePresentation, type HomePresentation } from './home-presentation';
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices } from './state';
 import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
-import { createHomeLayoutManager } from './home-native-layouts';
+import { createHomeLayoutManager, type HomeLayoutPreview } from './home-native-layouts';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { getHomeFolderIdentity } from './home-folder-identity';
 import type { NativePixels } from './native-layout';
@@ -263,6 +263,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  const fontReady=loadSystemFont();
  let firmwareAssets:FirmwarePresentationAssets|undefined,nativeHome:NativeHome|undefined,layoutManager:ReturnType<typeof createHomeLayoutManager>|undefined,disposed=false;
  let folderCapture:{identity:string;pixels:NativePixels}|undefined;
+ let layoutCapture:{identity:string;preview:HomeLayoutPreview}|undefined;
  let panelFailure:Error|undefined,panelPublished:string|null=null;
  const panelKey=(state:MenuState)=>state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts')
   ?JSON.stringify([state.panel,state.panelChoice,state.panelScroll??0,state.homeLayoutSlot??0,state.homeLayoutAction??null,state.homeLayoutConfirm??false]):null;
@@ -280,10 +281,25 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  }
  const useFont=(font:BitmapFont)=>{for(const ctx of [t,b]){fonts.set(ctx,font);setPortfolioFont(ctx,font);}};
  if(options.font)useFont(options.font);
- function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
+ function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;layoutCapture=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
  if(options.firmwareAssets)setFirmwareAssets(options.firmwareAssets);
  const captureCanvas=document.createElement('canvas');captureCanvas.width=320;captureCanvas.height=240;
  const captureContext=captureCanvas.getContext('2d',{willReadFrequently:true})!;
+ function currentLayoutPreview(state:MenuState,time:number){
+  if(state.panel!=='home-layouts'){layoutCapture=undefined;return;}
+  if(!nativeHome)throw new Error('Native HOME layout preview unavailable');
+  const root=leaveHomeFolder(state);
+  const identity=JSON.stringify([root.theme,root.system?.layout,root.folders,root.system?.folderLayouts,saveHomeView(root)]);
+  if(layoutCapture?.identity!==identity){
+   // Capture before upper HUD/panel composition, and redraw the lower root with
+   // the existing capture path (no cursor, footer actions or panel chrome).
+   const ctx=captureContext;
+   ctx.resetTransform();ctx.clearRect(0,0,320,240);ctx.fillStyle=themes[root.theme].bottom;ctx.fillRect(0,0,320,240);
+   nativeHome.toolbar(ctx,root,true);nativeHome.homePlate(ctx,root);grid(ctx,root,time,reduced,graphics,chrome,getHomePresentation(root),nativeHome,true,firmwareAssets);
+   layoutCapture={identity,preview:{upper:{width:400,height:240,data:t.getImageData(0,0,400,240).data},lower:{width:320,height:240,data:ctx.getImageData(0,0,320,240).data}}};
+  }
+  return layoutCapture.preview;
+ }
  function folderBackdrop(state:MenuState,time:number){
   if(!state.opened){folderCapture=undefined;return;}
   if(!nativeHome)return;
@@ -318,6 +334,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
   const view=getHomePresentation(state);
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;}
+  const layoutPreview=currentLayoutPreview(state,time);
   const hostedBanner=options.getHomeBanner?.();
   const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;
   const hostedToolbar=hostedBanner?.status!=='unsupported'&&hostedBanner?.selection.kind==='toolbar'?hostedBanner.selection:null;
@@ -385,12 +402,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(state.panel==='settings')nativeHome?.settingsUpper(t);else nativeHome?.upperBase(t);
   if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets);nativeHome?.folderBalloon(b,state,view);if(!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
-  if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);}))throw new Error('Native HOME layout manager unavailable.');
+  if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);},layoutPreview))throw new Error('Native HOME layout manager unavailable.');
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);
   if(firmwareAssets)drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets);
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
   return verificationPaint;
  }
- return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

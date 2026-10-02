@@ -27,6 +27,34 @@ function fixture(source=packs){
  return {manager:createHomeLayoutManager(renderer),renderer,top,bottom,draws};
 }
 const byName=(draws,name)=>draws.filter(draw=>draw.name===name);
+const preview=()=>({upper:{width:400,height:240,data:new Uint8ClampedArray(400*240*4)},lower:{width:320,height:240,data:new Uint8ClampedArray(320*240*4)}});
+
+test('current preview uses the source upper mount and MyMenuIn scale with independent paired textures',()=>{
+ const before=JSON.stringify(packs),{manager,top,bottom,draws}=fixture(),pixels=preview();
+ manager.draw(top,bottom,{},undefined,pixels);
+ const current=byName(draws,'MyMenuBtn_D_00').find(draw=>draw.ctx===top);
+ assert.deepEqual(current.center,[286,112]);
+ assert.deepEqual(current.options.bindings,[{name:'MyMenuBtn_D_00_MyMenuIn',frame:30}]);
+ const pane=walk(current.pose.roots).find(pane=>pane.name==='Thumb_00');
+ assert.ok(Math.abs(pane.scale[0]-.3)<1e-7);
+ assert.deepEqual(current.options.textures,{currentUpper:pixels.upper,currentLower:pixels.lower});
+ assert.equal(current.options.overrides.Thumb_U_00.texture,'currentUpper');
+ assert.equal(current.options.overrides.Thumb_D_00.texture,'currentLower');
+ assert.ok(current.visible.includes('Shadow_U_00'));
+ assert.ok(!current.visible.includes('ThumbBaseSdw_01'));
+ assert.equal(byName(draws,'MyMenuBtn_D_00').filter(draw=>draw.ctx===bottom).length,8);
+ assert.equal(JSON.stringify(packs),before);
+});
+
+test('invalid paired previews and missing source animation fail before drawing',()=>{
+ for(const mutate of [p=>p.upper.width=320,p=>p.lower.height=239,p=>p.lower.data=new Uint8ClampedArray(1)]){
+  const {manager,top,bottom,draws}=fixture(),pixels=preview();mutate(pixels);
+  assert.throws(()=>manager.draw(top,bottom,{},undefined,pixels),/preview dimensions/);assert.equal(draws.length,0);
+ }
+ const source=structuredClone(packs);delete source.MyMenu.animations.MyMenuBtn_D_00_MyMenuIn;
+ const {manager,top,bottom,draws}=fixture(source);
+ assert.throws(()=>manager.draw(top,bottom,{},undefined,preview()),/animation unavailable/);assert.equal(draws.length,0);
+});
 
 test('layout manager paints all eight source mounts, one source cursor and English upper/footer captions',()=>{
  const before=JSON.stringify(packs),{manager,top,bottom,draws}=fixture();

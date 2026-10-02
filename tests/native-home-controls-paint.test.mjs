@@ -27,7 +27,7 @@ async function loadPresentation(name, overrides = {}) {
 // Execute the real screen painter. Resource transport and unrelated artwork
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
-  './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud){top.record("layout-manager-upper");bottom.record("layout-manager-lower");hud?.();return true;}});'),
+  './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>false;'),
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
   './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>globalThis.__testSelectedApp,syncStockView(){},stockStatus:()=>"inactive",retryStockScreen:()=>false,stockFailure:()=>null,banner(ctx){ctx.record("fallback-banner");},menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
@@ -40,6 +40,29 @@ const { createFirmwareHome } = await loadPresentation('firmware-presentation', {
 const pack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url)));
 const messagesPack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/messages-and-loose.json', import.meta.url)));
 const nativeCursorNames = new Set(['cursor', 'cursorAt', 'cursorEffectAt']);
+
+test('current-layout capture precedes upper chrome, stays bounded and refreshes after layout changes or reentry',async()=>{
+ await withScreens(({screens,paint,events})=>{
+  const state={...home(),panel:'home-layouts'};
+  paint(state);
+  const first=events.find(e=>e.name==='layout-manager-upper').args[0];
+  assert.equal(first.upper.width,400);assert.equal(first.lower.width,320);
+  assert.equal(events.filter(e=>e.name==='capture-read').length,2);
+  assert.ok(events.findIndex(e=>e.name==='capture-read')<events.findIndex(e=>e.name==='upperBase'));
+  const capture=events.find(e=>e.name==='capture-read'&&e.context!==screens.nativeTop.getContext('2d')).context;
+  const captured=events.filter(e=>e.context===capture);
+  assert.equal(captured.find(e=>e.name==='toolbar').args[1],true);
+  assert.ok(!captured.some(e=>nativeCursorNames.has(e.name)||['footer','settingsLower'].includes(e.name)));
+  paint({...state,homeLayoutSlot:3},2000);
+  assert.equal(events.filter(e=>e.name==='capture-read').length,0);
+  assert.equal(events.find(e=>e.name==='layout-manager-upper').args[0],first);
+  paint({...state,theme:'blue'});
+  assert.equal(events.filter(e=>e.name==='capture-read').length,2);
+  assert.notEqual(events.find(e=>e.name==='layout-manager-upper').args[0],first);
+  paint(home());paint(state);
+  assert.equal(events.filter(e=>e.name==='capture-read').length,2);
+ });
+});
 
 test('HOME Settings uses its source caption and does not publish unrelated upper controls', async () => {
   await withScreens(({ screens, paint, events }) => {

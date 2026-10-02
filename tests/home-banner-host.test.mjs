@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostBackgroundFrame, getHomeBannerHostView, resolveHomeBannerHostSelection, skipHomeBannerHostPass, stepHomeBannerHost } from '../src/os/home-banner-host.ts';
-import { createPortfolioState } from '../src/os/system.ts';
+import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostBackgroundFrame, getHomeBannerHostView,
+  homeApplicationBannerBoundary, resolveHomeBannerHostSelection, skipHomeBannerHostPass,
+  stepHomeBannerHost } from '../src/os/home-banner-host.ts';
+import { createPortfolioState, launchHomeShortcut, reduceSystem, tickSystem } from '../src/os/system.ts';
 import { initialState, reduceMenu, renameFolder } from '../src/os/state.ts';
 import { moveHomeItem, selectHomeLocation } from '../src/os/home-layout.ts';
 
@@ -27,6 +29,21 @@ function freeze(value) {
 const root = slot => ({ folder: null, slot });
 const createFolder = (state, slot, label) => renameFolder(reduceMenu({ ...selectHomeLocation(state, root(slot)), panel: null }, 'open'), label);
 
+function healthCloseAtFooterExitStart() {
+  const home = tickSystem(createPortfolioState(), 3001);
+  const launched = tickSystem(launchHomeShortcut(home, 'health-safety', 4000), 6200);
+  const suspended = reduceSystem(launched, 'home', 6300);
+  let state = reduceSystem(suspended, 'back', 6400), before = suspended;
+  for (let i = 0; i < 8 && state.system.homeApplicationTransition?.phase !== 'footer-exiting'; i += 1) {
+    before = state;
+    state = tickSystem(state, state.system.homeClock.lastNow + 1000);
+  }
+  assert.equal(before.system.homeApplicationTransition?.phase, 'exit-terminal');
+  assert.equal(state.system.homeApplicationTransition?.phase, 'footer-exiting');
+  assert.equal(state.system.homeApplicationTransition?.footerExitFrame, 0);
+  return { suspended, before, state };
+}
+
 test('first selection establishes a current-count baseline without replay or implicit readiness', () => {
   let host = at(fresh(), 900, { selection: folder() });
   assert.equal(view(host).status, 'pending'); assert.equal(host.service.lifecycle.managerUpdates, 0);
@@ -38,6 +55,59 @@ test('first selection establishes a current-count baseline without replay or imp
   host = step(host);
   assert.equal(view(host).status, 'active'); assert.equal(motion(host).yawCounter, 1);
   assert.equal(motion(host).skeletal.frame, 1); assert.equal(motion(host).material.frame, 1);
+});
+
+test('software close requests selected content at the exact departure-frame0 barrier only', () => {
+  const { suspended, before, state } = healthCloseAtFooterExitStart();
+  assert.deepEqual(homeApplicationBannerBoundary(suspended, reduceSystem(suspended, 'back', 6400)), { kind: 'clear' });
+  assert.deepEqual(resolveHomeBannerHostSelection(before), { kind: 'clear' });
+  assert.deepEqual(homeApplicationBannerBoundary(before, state), { kind: 'app', id: 'health-safety' });
+  assert.deepEqual(resolveHomeBannerHostSelection(state), { kind: 'app', id: 'health-safety' },
+    'the no-controls fallback must retain the early request');
+  assert.equal(homeApplicationBannerBoundary(state, state), undefined);
+
+  const footerTerminal = tickSystem(state, state.system.homeClock.lastNow + 1000);
+  assert.equal(footerTerminal.system.homeApplicationTransition?.phase, 'footer-terminal');
+  assert.equal(homeApplicationBannerBoundary(state, footerTerminal), undefined);
+  assert.deepEqual(resolveHomeBannerHostSelection(footerTerminal), { kind: 'app', id: 'health-safety' });
+  const returnStart = tickSystem(footerTerminal, footerTerminal.system.homeClock.lastNow + 1000 / 60);
+  assert.equal(returnStart.system.homeApplicationTransition?.phase, 'footer-returning');
+  assert.equal(returnStart.system.homeApplicationTransition?.footerReturnFrame, 0);
+  assert.equal(homeApplicationBannerBoundary(footerTerminal, returnStart), undefined,
+    'return0 must not create a duplicate request epoch');
+
+  const cancelled = { ...state, system: { ...state.system, homeApplicationTransition: null } };
+  assert.deepEqual(homeApplicationBannerBoundary(state, cancelled), { kind: 'app', id: 'health-safety' });
+  const changed = structuredClone(state);
+  changed.system.homeFolderClose.generation += 1;
+  changed.system.homeApplicationTransition.identity.generation = `home-application:${changed.system.homeFolderClose.generation}`;
+  assert.notDeepEqual(homeApplicationBannerBoundary(before, changed), { kind: 'app', id: 'health-safety' },
+    'a replacement generation cannot consume the early reacquisition boundary');
+});
+
+test('departure-frame0 head start preserves service gates and cannot show a primary before return2', () => {
+  let host = request(fresh(), { kind: 'clear' });
+  host = step(host, 2);
+  assert.equal(view(host).status, 'cleared');
+  host = acknowledge(request(host, { kind: 'app', id: 'health-safety' }));
+
+  const stages = [];
+  for (let update = 1; update <= 8; update += 1) {
+    host = step(host);
+    const current = view(host);
+    stages.push([current.stage, current.waitUpdates]);
+    assert.equal(current.status, 'pending');
+    assert.equal(current.primary, null);
+  }
+  assert.deepEqual(stages, [
+    ['hiding', 0], ['gate', 0], ['gate', 1], ['gate', 2], ['gate', 3], ['gate', 4],
+    ['gate', 5], ['loading', 5],
+  ]);
+  host = step(host);
+  assert.equal(view(host).status, 'active');
+  assert.deepEqual(view(host).primary.selection, { kind: 'app', id: 'health-safety' });
+  assert.equal(motion(host).visibilityCounter, 1);
+  assert.equal(motion(host).scale, Math.fround(.8));
 });
 
 test('a new selection at a later boundary cannot retroactively replace the old request', () => {

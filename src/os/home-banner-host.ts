@@ -96,13 +96,20 @@ export type HomeBannerHostView =
     primary: HomeBannerHostActivePresentation & Readonly<{ motion: HomeBannerMotion }>;
   }>);
 
+function resolveSelectedHomeBannerContent(state: MenuState): HomeBannerHostSelection {
+  const slot = state.opened ? state.folderSelected : state.selected;
+  return resolveContentAt(state, state.opened ? state.selected : null, slot);
+}
+
 /** Resolve content only. Overlays, power, suspension and pass eligibility are host inputs. */
 export function resolveHomeBannerHostSelection(state: MenuState): HomeBannerHostSelection {
   if (isSystemHomeFolderClosing(state)) return { kind: 'clear' };
   const applicationClose=sampleSystemHomeApplicationTransition(state);
-  if(applicationClose?.intent.kind==='close'&&applicationClose.footerReturnFrame===null)return {kind:'clear'};
-  const slot = state.opened ? state.folderSelected : state.selected;
-  return resolveContentAt(state, state.opened ? state.selected : null, slot);
+  // The capture-fitted request begins at compact footer departure frame0. In
+  // no-controls mode this resolver runs every update, so it must retain that
+  // request instead of restoring the earlier clear selection before return0.
+  if(applicationClose?.intent.kind==='close'&&applicationClose.footerExitFrame===null)return {kind:'clear'};
+  return resolveSelectedHomeBannerContent(state);
 }
 
 /** Resolve the actual lower-call snapshot, before completion replay can change
@@ -162,8 +169,13 @@ export function homeApplicationBannerBoundary(before: MenuState, after: MenuStat
   const same=!!previous&&!!next&&previous.identity.generation===next.identity.generation
     &&previous.identity.transitionId===next.identity.transitionId&&previous.identity.owner===next.identity.owner;
   if(next?.intent.kind==='close'&&!same&&next.footerReturnFrame===null)return {kind:'clear'};
-  if(same&&next?.intent.kind==='close'&&next.phase==='footer-returning'&&next.footerReturnFrame===0
-    &&previous!.phase==='footer-terminal')return resolveHomeBannerHostSelection(after);
+  // Native frame40 keeps the upper blank, while frame41 reacquires the banner
+  // before Open finishes. Request after the upper manager at the forced
+  // departure-frame0 barrier: the unchanged service gates make return0 wait5,
+  // return1 loading and return2 the earliest ready activation. This boundary
+  // is a capture fit, not a recovered native request call or shared epoch.
+  if(same&&next?.intent.kind==='close'&&next.phase==='footer-exiting'&&next.footerExitFrame===0
+    &&previous!.phase==='exit-terminal')return resolveSelectedHomeBannerContent(after);
   const s=after.system;
   if(previous?.intent.kind==='close'&&!next&&!s?.homeApplicationTransition&&previous.phase!=='return-terminal'
     &&after.powered&&s?.phase==='home'&&s.homeFolderClose.generation===before.system?.homeFolderClose.generation

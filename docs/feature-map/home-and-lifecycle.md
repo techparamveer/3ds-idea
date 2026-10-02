@@ -74,13 +74,17 @@ and the six excluded stock titles are not backlog.
 
 ### H-11 - HOME Design, themes, brightness, power-saving, and preferences
 **Code/tests/evidence:** [state.ts](../../src/os/state.ts), [screens.ts](../../src/os/screens.ts), [system.ts](../../src/os/system.ts), [menu tests](../../tests/menu.test.mjs), [portfolio validation](../portfolio-os-validation.md).
-**Now/gap/dependency:** Navigation, six local themes, five brightness levels, power-saving, mute/volume, and reset-layout work. Their panel painters are largely authored Canvas reconstruction; Theme Shop/offline messaging and reset layout are portfolio adaptations, not native fidelity.
-**Next/acceptance:** Inventory each visible pane against manifest keys, remove any unlabelled fallback claim, then compare white-theme Design open, theme list scroll/select, brightness, power-saving, preferences mute/volume, cancel, and reset. Preserve the selected tile and suspended owner throughout.
+**Now/gap/dependency:** Navigation, six local themes, five brightness levels, power-saving, mute/volume, and reset-layout work. The [native Design comparison](../home-design-native-comparison-2026-10-02.md) proves the lower panel omits HOME Menu Layout / Save/Load Layout. `747f840d` replaces incorrect upper icons/hints with the source caption;121 caption pixels/max4 remain, and the full pair still fails. The lower panel remains authored Canvas reconstruction; Theme Shop/offline messaging and reset layout are portfolio adaptations, not native fidelity.
+**Next/acceptance:** Replace the captured lower panel using `home.petit` original-hardware `PtDlgCnt_CTR`, native child controls, messages, close and scrollbar; implement the missing layout route without reconstructing graphics. Compare white-theme Design open, theme list scroll/select, brightness, power-saving, preferences mute/volume, cancel, and reset. Preserve selected tile/suspended owner. Match opening/closing epochs separately from the currently settled source upper pose.
 
 ### H-12 - Cursor, balloons, selected-title window, and suspended-software upper
 **Code/tests/evidence:** [home-primary-cursor.ts](../../src/os/home-primary-cursor.ts), [home-cursor-loop.ts](../../src/os/home-cursor-loop.ts), [home-balloon-presentation.ts](../../src/os/home-balloon-presentation.ts), [balloon tests](../../tests/home-balloon-presentation.test.mjs), [upper composition audit](../native-upper-composition.md).
 **Now/gap/dependency:** Primary cursor visibility/position, loop phase, folder balloon, and Settings/Health/Sound/Camera title balloons have bounded native routes. The source `LncBase_U_00` suspended-software window/title/icon subtree is still hidden, so HOME-with-software-suspended is visibly incomplete. The [Health native attempt](../home-live-verification-2026-10-02.md) reached Health main but not suspended HOME after bounded input retries; no native window pose/gate was captured.
 **Next/acceptance:** Establish native HOME return with measured delivered HOME input before implementing the first bounded slice above. Then capture Work active -> HOME and no-software HOME at identical selected tile/phase. Require correct window gate, title/icon metadata, cursor/balloon coexistence, and no stale capture after close/switch. Do not repeat unmeasured short-key attempts as timing evidence.
+
+The [APT-debug follow-up](../home-design-native-comparison-2026-10-02.md#health-home-return-diagnostic)
+adds two unchanged Health lower captures and no logged APT inquiry/jump. It does
+not distinguish host-delivery failure from the native notification boundary.
 
 ### H-13 - Selected banner host, readiness, motion, and failure
 **Code/tests/evidence:** [home-banner-host.ts](../../src/os/home-banner-host.ts), [home-banner-service.ts](../../src/os/home-banner-service.ts), [firmware-banner.ts](../../src/scene/firmware-banner.ts), [host tests](../../tests/home-banner-host.test.mjs), [News comparison](../home-news-motion-comparison-2026-10-01.md).

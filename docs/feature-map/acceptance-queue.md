@@ -34,6 +34,12 @@ now confirm Health entry but not HOME return after bounded host-key retries.
 EOF is resolved and the native process exited0; it is not a pending popup or
 live wait. H-12 needs reliable native HOME input, not another guessed window.
 
+H-11 now has a [genuine Design capture and production correction](../home-design-native-comparison-2026-10-02.md):
+the source upper caption is integrated at `747f840d`, but lower Save/Load Layout
+and scrolling are missing. Correct that captured panel next; do not spend another
+turn repeating unmeasured H-12 keys. Settings Other page1 browser-only regression
+is exact on both LCDs; the old native mount was absent, so no native pass was added.
+
 ## App Coverage Ledger
 
 For every row, track entry/main, every mapped submenu and dialog, Back/Cancel,

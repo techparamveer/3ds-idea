@@ -30,6 +30,13 @@ pair still fails at 4940/19125 upper/lower pixels above 2. Native Health launche
 bounded HOME attempts did not return to HOME, so H-12 window composition still
 needs its native gate. All owned verification processes are stopped.
 
+The [HOME Settings correction](home-design-native-comparison-2026-10-02.md)
+at `747f840d` replaces unrelated upper icons/hints with the native caption.
+The captured lower panel is missing Save/Load Layout and remains authored.
+Full pair11990/61485 pixels >2 still fails; caption residual121 pixels/max4.
+Settings Other page1 browser regression is exactly unchanged on both LCDs.
+Health APT-debug follow-up still did not establish native HOME return.
+
 All 3DS sessions stay muted. All visible verification runs on the iPad Sidecar
 desktop after fresh geometry checks. Only the coordinator operates Azahar and
 the shared production browser. No default Azahar profile; no new artifacts on

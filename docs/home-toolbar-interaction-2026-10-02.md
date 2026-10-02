@@ -159,6 +159,22 @@ Coordinator capture should therefore separate two questions:
    boundary. Those captures decide whether the current touch-only Select
    binding and missing keyboard Decide presentation are defects.
 
+## Coordinator capture handoff
+
+The coordinator subsequently reported that native keyboard `T` / Up did not
+deliver semantic toolbar focus after the startup warning was dismissed. That
+attempt supplies **no native keyboard conclusion**: it neither validates nor
+refutes the executable-derived route above. Native 50 ms touch delivery did
+work, so no keyboard-result substitution or runtime fix should be inferred.
+
+The same session captured a visible six-row folder workflow instead: an empty
+slot near raw `(136,160)`, native Create Folder, then footer activation created
+numbered Folder 1 with Settings/Open. The coordinator-owned native own-PNGs are
+`native-close-clean-20261002/screenshots/16.33.36.263` (empty) and
+`16.33.47.71` (created). This worker did not inspect or compare those images.
+They are inputs for the coordinator's next empty/open/close comparison, not
+evidence for toolbar keyboard behavior or a scenario pass.
+
 ## Evidence boundary
 
 The native executable fixtures already cover 144 three-action root/folder

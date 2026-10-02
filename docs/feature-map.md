@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest folder-gutter replay corrects the defect diagnosis: the browser retained
+Latest [folder footer return](home-folder-footer-return-2026-10-02.md),
+9371c576, restores staged Settings/Open entry after root selection returns.
+Before, the first root paint already contained the settled footer; after,
+production motion samples show SceneIn0,3,6,8,11,14,15. Native desktop video
+supports the ordering, not exact raw-pixel timing. The clock binding remains a
+labelled adaptation, and held Back pixels are obscured by a recorder overlay.
+Full1818 tests/typecheck/build pass. Exposed footer backing, native cadence,
+press pixels and audio remain open; do not repeat the already-fixed instant
+footer defect. Other user-designed screens remain unchanged.
+
+Earlier folder-gutter replay corrects the defect diagnosis: the browser retained
 a root viewport shifted28px from native. Actual left paging to root-zero removes
 the exposed icon strip with unchanged runtime `5b82c896`. Do not mask or hide
 retained root content. Five fresh native captures and two eleven-pair production

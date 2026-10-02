@@ -22,9 +22,10 @@ During `closing` and the defensive `viewport` phase, the existing SceneOut
 sampling remains unchanged. Software-switch hiding still has precedence.
 Reduced motion still selects the settled SceneIn frame immediately.
 
-`sampleSystemHomeFolderClose` remains the ownership gate. A lifecycle or
-navigation replacement makes a retained record unsampleable and therefore
-falls back to the ordinary settled footer. A sampled `complete` record without
+`sampleSystemHomeFolderClose` remains the ownership gate. Incomplete records
+require their owned navigation reference; completed records intentionally remain
+sampleable in root HOME until a new close or lifecycle reset. An unsampleable
+record falls back to the ordinary settled footer. A sampled `complete` record without
 its required selection-ready boundary is rejected rather than assigned a
 guessed epoch.
 
@@ -68,3 +69,44 @@ identity; source track endpoints; and presenter integration against the real
 counted close adapter. The coordinator must integrate and run the matched
 native/browser motion loop before changing any scenario status. Exact input,
 motion and audio fidelity remain open; no acceptance matrix entry is changed.
+
+## Integrated production verification
+
+Source `172342f2` is integrated as `9371c576`. Full tests:1818 pass,0 fail,
+23 skip,1 TODO; typecheck and production build pass. Independent review passed
+51 focused tests and found no remaining runtime issue. No-System callers were
+regression-tested before integration. No asset, shader or audio change.
+
+The coordinator drove actual lower-LCD pointer events in the muted production
+browser: idle, two-second Back hold, outside cancellation, and on-target release.
+Before produced24 raw motion pairs; after produced22 desktop,24 mobile and6
+reduced-motion pairs. All final runs exited0 without page errors. The first
+reduced run's normal-motion minimum-frame assertion was a harness error;
+its incomplete output is preserved and excluded. An earlier setup double-tap
+correctly launched Health and was also excluded before the corrected replay.
+
+Before first-root footer ROI0,210,320,30 was byte-identical to settled. After
+first-root differs in6838 pixels above2 and samples SceneIn0,3,6,8,11,14,15,
+visibly restoring the missing entry. Mobile stages the same clip; reduced
+motion has the settled footer at first root. Five settled control footer ROIs,
+five stock lower LCDs and both Settings upper LCDs remain byte-identical.
+Three Health upper epochs are unmatched, not regression or pass evidence.
+
+The native own-PNG idle/released lower comparisons still fail at5714/13202
+pixels above2, maximum191/255, empty masks and no fit. Native folder1/slot13
+and browserfolder6/slot19 differ in population and animated epochs. Native
+diagnostic motion and corrected browser motion share root-before-footer
+ordering, not proven exact cadence. Native exposed backing is striped whereas
+browser backing is flatter; held Back is obscured by the recorder overlay.
+These remain open alongside prior shade, cursor/banner/HUD, fitted sampling
+and lifecycle adapters, portfolio content and muted native-cue timing.
+
+Private evidence root:
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-folder-press-20261002/`.
+Immutable `comparison/v2-after/report.json` SHA-256:
+`f0b0a31fce448e301ded5842db440b07e4a3cc3d30aaa1d85b822f648f6ccb86`.
+Inspected native/before/after sheet SHA-256:
+`bdbcb22d73dc9a99fd8cdeb77fe26453b8e9f4c760d63a4cd86d33b8e767ba92`.
+The baseline report remains `fc21fc883269392793a6485f3e0e8fbaad0cf1cc9ab6012235a900385f655355`.
+Reports track native own-PNG, browser LCD and diagnostic video identities.
+Native and owned Chrome exited0; production preview3021 remains available.

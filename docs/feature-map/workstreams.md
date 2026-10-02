@@ -1,5 +1,27 @@
 # Workstream Registry
 
+## Folder Footer Return - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13`, Sol5.6/high, used new
+owned tree `3ds-home-folder-footer-return-20261002` and matching `codex/`
+branch from685d9a8a. Source172342f2 is integrated as9371c576. Comparison chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929`, Sol5.6/high, wrote only private
+diagnostic frames/reports; previous worktrees are preserved. Read-only
+Sol5.6/high review found no remaining runtime defect after fixing the no-System
+caller regression, with51 focused tests passing. No worker GUI operation.
+
+Coordinator captured native held/released/cancel behavior and production
+before/after LCD motion. The old first-root footer was already settled;
+9371c576 returns it through the ROM SceneIn clip. The clock binding is a
+documented fitted adaptation, not exact native timing acceptance. Full suite
+1818 pass/0 fail/23 skip/1 TODO, build and typecheck pass in the integrated tree.
+Worker sparse-fixture full-suite failures are not integrated runtime failures.
+See the [source and evidence note](../home-folder-footer-return-2026-10-02.md).
+Final v2 comparison `f0b0a31f...` verifies desktop/mobile staged entry and
+reduced-motion settled entry; seven static stock LCD targets are byte-exact.
+Native and owned Chrome exited0; preview3021/session60976 remains available.
+Workers are finished; remaining backing/press/cadence/audio gaps stay open.
+
 ## Folder Gutter Diagnosis - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree

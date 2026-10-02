@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[Folder footer return](../home-folder-footer-return-2026-10-02.md) separates
+desktop diagnostic motion from native own-PNG pixel evidence. The recorder's
+pointer/badge obscures held Back and must never become a firmware asset or an
+acceptance mask. Native video establishes root-before-footer temporal ordering;
+actual production raw LCDs establish the old instant footer and the corrected
+staged SceneIn. Compare counted HOME updates, not host hold durations alone.
+The selection-ready-to-SceneIn binding remains a fitted adaptation until an
+exact native call-site/input/pose mapping is captured. Empty-mask settled pairs
+still fail, and the exposed backing during re-entry remains unexplained.
+
 Folder-gutter comparisons must align the retained **root viewport**, not only
 the selected folder's screen position. Different folder slots can coincide at
 x90 while the first root column differs x6 versus x34. The 2 October root-zero

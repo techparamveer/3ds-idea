@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Power reveal verification](../home-power-reveal-2026-10-02.md) through
+`2c992dd7` separates boot LCD paint from actual render acknowledgment. Reduced
+motion requests changed-pose paints; pose 20 requests a paint in every mode,
+and pending publication can bypass the ordinary render-rate gate. No native
+phase-completion barrier or hold was added. Four browser runs publish pose 20;
+stalls, native cold timing and compositor timing remain unproven. Seven close
+regressions preserve terminal render publication. Native startup AX/screenshot
+failure prevented new comparison; no whole scenario or matrix status changed.
+
 [Close motion verification](../home-close-motion-2026-10-02.md) at `f8334ec2`
 records93 raw production pairs from seven muted Sidecar flows. Actual
 `renderer.render` terminal publication is observed, including30fps and reduced

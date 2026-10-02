@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## Power Reveal and Close Mask - 2 October 2026
+
+Both existing chats worked concurrently from `513a8fcd` in new internal trees:
+
+| Chat ID | Worktree / branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-close-mask-20261002` / `home-close-mask-20261002` | Source-gap audit `7e95180a` -> `6066c315`; no runtime change; idle |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-power-reveal-20261002` / `home-power-reveal-20261002` | Runtime `10b97058` -> `72f73270`; idle |
+
+Coordinator fixes `e96d25b6`/`2c992dd7` implement reduced-motion paint and
+actual-render acknowledgment. GPT-5.6 Sol/high, no service-tier claim; one
+read-only helper reviewed integration. No worker GUI/build. Only primary
+Azahar was retried this slice; startup observation failed and it is stopped,
+config unchanged/muted. Both independent profiles and all trees remain
+preserved. [Browser checks, source identities and limitations](../home-power-reveal-2026-10-02.md).
+
 ## Close Motion Integration - 2 October 2026
 
 The same two user-owned chats delivered a second parallel implementation slice,

@@ -1,5 +1,13 @@
 # Portfolio power and opening UI
 
+The [2 October reveal correction](home-power-reveal-2026-10-02.md) gives all
+21 SceneIn poses slots within the unchanged browser reveal interval, making
+pose 20 eligible before phase exit. Reduced motion paints changed poses instead
+of waiting for the usual one-second screen cadence. Scene scheduling tracks
+painted and actually rendered boot poses separately; a pending final/reduced
+pose bypasses the throttled render gate. This is not a phase-completion hold or
+native timing claim. Existing source provenance and timing adaptations remain.
+
 The current UI-only scope includes power-on, power-off and app opening. The
 live screen painter now loads the already-converted HOME `common` and `sleep`
 resources along with its usual chrome. Power options use `Slp_U_00` and

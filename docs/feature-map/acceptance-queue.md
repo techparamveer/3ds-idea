@@ -7,6 +7,14 @@ production-browser sessions. All sessions remain muted on verified Sidecar.
 
 ## First Cross-App Pass
 
+Latest [power and close pass](../home-power-reveal-2026-10-02.md) provides four
+browser power routes with observed terminal fade publication and seven close
+regressions. Native startup observation failed; no queue row is accepted.
+L-01 still needs native cold-entry/timing evidence. The close-mask source-only
+budget is spent: obtain the first native close frame or live descriptor trace
+before changing that binding. Keep close window/footer departure and HOME
+button/input residuals queued independently.
+
 | Order | Named scenario | Required observation | Owner of correction |
 | --- | --- | --- | --- |
 | 1 | `baseline-home-idle` | Reproducible HOME entry, both LCDs, selection/density/theme/clock/population explicitly recorded | HOME |

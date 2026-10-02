@@ -15,6 +15,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+Latest [power-reveal delivery](home-power-reveal-2026-10-02.md) through
+`2c992dd7` fixes endpoint eligibility, reduced-motion fade painting and actual
+render acknowledgment. Full 1725 tests/typecheck/build pass; four power routes
+and seven close regressions are browser-inspected. Native startup observation
+failed, so L-01 remains partial, with adapted timing and no native motion pass.
+Parallel close-mask audit `6066c315` identifies a sampler conflict but leaves
+the unproven native binding unchanged. Its next gate is native frame/descriptor
+evidence, not another source-only audit. Both new worktrees are preserved.
+
 The [close-motion delivery](home-close-motion-2026-10-02.md) through `f8334ec2`
 integrates two dedicated worktrees plus the pure controller. Retained-owner
 AppQuit, terminal GPU publication, sleep pause and input quarantine are live.

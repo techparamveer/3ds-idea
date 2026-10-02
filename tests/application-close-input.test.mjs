@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { applicationCloseAllowsInput } from '../src/scene/application-close-input.ts';
+import { applicationCloseAllowsInput, applicationCloseNeedsReadyScreen } from '../src/scene/application-close-input.ts';
 import { createPortfolioState, tickSystem, reduceSystem, launchHomeShortcut } from '../src/os/system.ts';
 
 test('scene input quarantine survives the pre-mutation retirement update', () => {
@@ -30,9 +30,29 @@ test('scene input quarantine survives the pre-mutation retirement update', () =>
 });
 
 test('quarantine keeps clock, sleep, release and global controls available', () => {
-  const terminal = { phase: 'terminal' };
+  const terminal = { phase: 'terminal', intent: { kind: 'close' } };
   for (const input of ['tick', 'hinge', 'blur', 'visibility', 'power', 'mute', 'volume-up', 'volume-down']) {
     assert.equal(applicationCloseAllowsInput(terminal, input), true, input);
   }
   assert.equal(applicationCloseAllowsInput(null, 'open'), true);
+});
+
+test('unavailable close paint freezes ticks while admitting only native recovery controls', () => {
+  const close = { phase: 'exiting', intent: { kind: 'close' } };
+  const switching = { phase: 'terminal', intent: { kind: 'switch', appId: 'about' } };
+  for (const status of ['loading', 'error']) {
+    assert.equal(applicationCloseNeedsReadyScreen(close, status), true, status);
+    assert.equal(applicationCloseAllowsInput(close, 'tick', status), false, status);
+    assert.equal(applicationCloseAllowsInput(close, 'back', status), true, status);
+    assert.equal(applicationCloseAllowsInput(close, 'home', status), true, status);
+    assert.equal(applicationCloseAllowsInput(close, 'right', status), false, status);
+  }
+  assert.equal(applicationCloseAllowsInput(close, 'open', 'loading'), false);
+  assert.equal(applicationCloseAllowsInput(close, 'touch', 'loading'), false);
+  assert.equal(applicationCloseAllowsInput(close, 'open', 'error'), false);
+  assert.equal(applicationCloseAllowsInput(close, 'touch', 'error'), false);
+  assert.equal(applicationCloseNeedsReadyScreen(close, 'ready'), false);
+  assert.equal(applicationCloseNeedsReadyScreen(switching, 'error'), false);
+  assert.equal(applicationCloseAllowsInput(switching, 'tick', 'error'), true);
+  assert.equal(applicationCloseAllowsInput(switching, 'back', 'error'), false);
 });

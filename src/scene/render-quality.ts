@@ -35,10 +35,12 @@ export function screenPaintFps(quality: RenderQuality, transitionAdvanced: boole
 
 /** Transition endpoints and retirement cannot be skipped by the ordinary LCD cadence. */
 export function applicationCloseNeedsPaint(before: HomeApplicationTransition | null,
-  after: HomeApplicationTransition | null, reduced: boolean): boolean {
-  return before !== after && (reduced || after === null || after.phase === 'terminal'
+  after: HomeApplicationTransition | null, reduced: boolean, resumed = false): boolean {
+  if (!after) return before !== after;
+  const endpoint = reduced || after.phase === 'terminal'
     || (after.phase === 'exiting' && after.dialogExitFrame === 0)
-    || after.phase === 'exit-terminal');
+    || after.phase === 'exit-terminal';
+  return endpoint && (before !== after || resumed);
 }
 
 /** Reduced motion still presents the configured short source fade. Its endpoint

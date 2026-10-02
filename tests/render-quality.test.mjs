@@ -55,6 +55,11 @@ test('application close publishes terminal and retirement pairs independent of c
   assert.equal(applicationCloseNeedsPaint(exitStart,exitMiddle,false),false);
   assert.equal(applicationCloseNeedsPaint(exitMiddle,exitTerminal,false),true);
   assert.equal(applicationCloseNeedsPaint(exitTerminal,null,false),true);
+  assert.equal(applicationCloseNeedsPaint(terminal,terminal,false,true),true);
+  assert.equal(applicationCloseNeedsPaint(exitStart,exitStart,false,true),true);
+  assert.equal(applicationCloseNeedsPaint(exitTerminal,exitTerminal,false,true),true);
+  assert.equal(applicationCloseNeedsPaint(exitMiddle,exitMiddle,false,true),false);
+  assert.equal(applicationCloseNeedsPaint(exitMiddle,exitMiddle,true,true),true);
   assert.equal(applicationCloseNeedsPaint(null,closing,true),true);
   assert.equal(applicationCloseNeedsPaint(closing,{...closing},true),true);
   assert.equal(applicationCloseNeedsPaint(closing,closing,true),false);

@@ -34,7 +34,7 @@ import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
 import { applicationCloseNeedsPaint, bootRevealNeedsPaint, browserRenderQuality, pixelRatioForViewport, screenPaintFps } from './render-quality';
 import { bootRevealFrame } from '@/os/system-transitions';
-import { applicationCloseAllowsInput } from './application-close-input';
+import { applicationCloseAllowsInput, applicationCloseNeedsReadyScreen } from './application-close-input';
 import { PACKED_MODEL_URL } from './model-delivery';
 import { createRenderSchedule } from './render-schedule';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
@@ -285,7 +285,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   }
   function advanceBeforeMutation(now:number){
     const previous=state;
-    if(homeClockSuspended){const system=state.system!;if(system.homeClock.lastNow!==null||system.homeClock.remainderMs!==0)state={...state,system:{...system,homeClock:{...system.homeClock,lastNow:null,remainderMs:0}}};}
+    const closeNeedsReadyScreen=applicationCloseNeedsReadyScreen(state.system!.homeApplicationTransition,screens.stockStatus(state));
+    if(homeClockSuspended||closeNeedsReadyScreen){const system=state.system!;if(system.homeClock.lastNow!==null||system.homeClock.remainderMs!==0)state={...state,system:{...system,homeClock:{...system.homeClock,lastNow:null,remainderMs:0}}};}
     else {
       const advanced=tickHomeNavigationClockObserved(state,now,reduced);
       for(const pass of advanced.passes){
@@ -324,18 +325,22 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   const nativeScreenInput=createNativeScreenInputGate();
   function commit(reduce:(current:MenuState,now:number)=>MenuState,input:string,userGesture=false,now=performance.now()-start){
     const previous=state,previousBanner=reduced?reducedBannerKey():undefined;
-    const allowInput=applicationCloseAllowsInput(previous.system!.homeApplicationTransition,input);
+    const allowInput=applicationCloseAllowsInput(previous.system!.homeApplicationTransition,input,screens.stockStatus(previous));
     advanceBeforeMutation(now);const readiness=screens.stockStatus(state);if(readiness==='loading'||readiness==='error')nativeScreenInput.cancelHeld(state.system!.input);state=releaseUnreadyNativeInput(state,readiness,now);const beforeAction=state;state=reconcileHomeControls(beforeAction,allowInput?reduce(state,now):state);
     const close=sampleSystemHomeFolderClose(state),previousClose=sampleSystemHomeFolderClose(beforeAction);
     observeFolderBanner(bannerClock(),close&&close.controller.phase!=='complete'&&close.controller.identity.transitionId!==previousClose?.controller.identity.transitionId?{kind:'clear'}:undefined);
-    if(state===previous)return;lastInput=input;
-    updateAudio();
     const before=previous.system!,after=state.system!;
+    const resumedApplicationClose=previous.system!.sleeping&&!after.sleeping||input==='visibility'&&!document.hidden;
+    const mustPaintApplicationClose=applicationCloseNeedsPaint(before.homeApplicationTransition,after.homeApplicationTransition,reduced,resumedApplicationClose);
+    if(state===previous){
+      if(mustPaintApplicationClose){paint();if(started&&!document.hidden&&!after.sleeping)renderFrame();}
+      return;
+    }
+    lastInput=input;updateAudio();
     const sound=getMenuActionSound(beforeAction,state,input);
     if(sound&&!after.runtime.effects.some(item=>item.effect.type==='sound'))audio.play(sound,after.muted,after.volume);
     effects.drain(userGesture);
     // Ordinary clock updates keep the quality cadence; terminal close pairs must publish.
-    const mustPaintApplicationClose=applicationCloseNeedsPaint(before.homeApplicationTransition,after.homeApplicationTransition,reduced);
     const reducedChanged=reduced&&(previousBanner!==reducedBannerKey()||before.homeNavigation!==after.homeNavigation
       ||before.homeControls?.tilePoses!==after.homeControls?.tilePoses||before.homeControls?.tilePickup!==after.homeControls?.tilePickup);
     if(input!=='tick'||mustPaintApplicationClose||reducedChanged||before.phase!==after.phase||previous.powered!==state.powered||previous.panel!==state.panel)paint();else writeState();
@@ -451,7 +456,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   }
   function keyup(e:KeyboardEvent){release(`key:${e.code}`);const command=heldKeys.get(e.code);heldKeys.delete(e.code);if(command)button(command,'up',`key:${e.code}`,true);}
   function blur(){touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit((current,now)=>releaseSystemInputs(current,now),'blur');}
-  function visibilityChanged(){if(document.hidden){blur();homeClockSuspended=true;observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
+  function visibilityChanged(){if(document.hidden){homeClockSuspended=true;blur();observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
   function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}paint();}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();viewZoom=THREE.MathUtils.clamp(viewZoom-e.deltaY*.001,1,3);}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;const ratio=pixelRatioForViewport(quality.tier,window.devicePixelRatio,w,h),size=renderer.getSize(new THREE.Vector2());

@@ -1,6 +1,6 @@
 # HOME and cross-app lifecycle feature map
 
-Checkpoint: `f5ed204c` (1 October 2026). This is an implementation and
+Checkpoint: `5232b9c5` (2 October 2026), with older per-feature evidence retained. This is an implementation and
 verification backlog, not an acceptance record. Scope comes from
 [portfolio-ui-scope](../portfolio-ui-scope.md); evidence authority remains the
 [progress record](../progress-2026-09-24.md) and the matched-input
@@ -16,9 +16,11 @@ and the six excluded stock titles are not backlog.
 
 ## First bounded implementation slices
 
-1. **H-12 suspended-software upper window:** target a named HOME-with-Work-suspended capture, then bind the already delivered `LncBase_U_00` window/title/icon subtree to the existing suspended owner and SMDH metadata. Keep any still-unproved activation predicate labelled as a fitted adaptation; do not invent another runtime owner.
-2. **L-06/L-07 dialog ownership:** split the current shared authored close/switch painter into owner-aware close and pending-launch presentations without changing reducer semantics. Use one retained application, one selected replacement, and explicit cancel/confirm regressions; source assets or a capture-labelled fit are required before visual publication.
-3. **H-06 pickup continuation:** preserve the proved callback-3 stationary pickup, but isolate the authored 450/500/350/180 ms movement, folder-hover, and edge-scroll policy as an explicit adaptation with diagnostics. Do not spend another source-only slice before a native/browser long-press capture exposes the visible delta.
+The [design-to-ship queue](design-to-ship.md#work-first) supersedes the earlier
+H-12-first ordering: L-06/L-07 close/switch and modal button ownership first,
+then L-01 power-on, then HOME controls/interactions. H-12 remains an explicit
+missing state but is gated on native return evidence. HOME Settings polish is
+deferred at the user's request; preserve all already-designed surfaces.
 
 ## HOME
 
@@ -74,8 +76,8 @@ and the six excluded stock titles are not backlog.
 
 ### H-11 - HOME Design, themes, brightness, power-saving, and preferences
 **Code/tests/evidence:** [state.ts](../../src/os/state.ts), [screens.ts](../../src/os/screens.ts), [system.ts](../../src/os/system.ts), [menu tests](../../tests/menu.test.mjs), [portfolio validation](../portfolio-os-validation.md).
-**Now/gap/dependency:** Navigation, six local themes, five brightness levels, power-saving, mute/volume, and reset-layout work. The [native Design comparison](../home-design-native-comparison-2026-10-02.md) proves the lower panel omits HOME Menu Layout / Save/Load Layout. `747f840d` replaces incorrect upper icons/hints with the source caption;121 caption pixels/max4 remain, and the full pair still fails. The lower panel remains authored Canvas reconstruction; Theme Shop/offline messaging and reset layout are portfolio adaptations, not native fidelity.
-**Next/acceptance:** Replace the captured lower panel using `home.petit` original-hardware `PtDlgCnt_CTR`, native child controls, messages, close and scrollbar; implement the missing layout route without reconstructing graphics. Compare white-theme Design open, theme list scroll/select, brightness, power-saving, preferences mute/volume, cancel, and reset. Preserve selected tile/suspended owner. Match opening/closing epochs separately from the currently settled source upper pose.
+**Now/gap/dependency:** Source lower Settings, Save/Load, brightness/power, scrolling and eight local saved arrangements are implemented at `e923487d`. Empty plates/Delete/footer and current paired preview follow through `5232b9c5`; see [latest comparison](../home-layout-native-comparison-2026-10-02.md). Saved thumbnails/Zoom, first-use preparation and later Settings rows remain missing. Theme picker is authored; preferences/reset and local persistence are adaptations. No whole native match.
+**Next/acceptance:** Deferred behind close/switch, power-on and HOME interactions. Later finish saved previews and source-established rows/first-use states, then compare white-theme Settings, theme selection, brightness/power, layout save/load/delete and cancel. Preserve selected tile/suspended owner; match motion/input separately from settled composition.
 
 ### H-12 - Cursor, balloons, selected-title window, and suspended-software upper
 **Code/tests/evidence:** [home-primary-cursor.ts](../../src/os/home-primary-cursor.ts), [home-cursor-loop.ts](../../src/os/home-cursor-loop.ts), [home-balloon-presentation.ts](../../src/os/home-balloon-presentation.ts), [balloon tests](../../tests/home-balloon-presentation.test.mjs), [upper composition audit](../native-upper-composition.md).

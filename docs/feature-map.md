@@ -1,5 +1,12 @@
 # 3DS App Completion Map
 
+**Start with the [remaining UI design and shipping map](feature-map/design-to-ship.md).**
+It separates missing/placeholder UI from existing designs and verification,
+covers every in-scope app/menu/helper, and assigns work to the existing lanes.
+Latest user order: **close/switch transitions -> power-on -> buttons and HOME
+interactions**. Other designed screens are preserved; HOME Settings polish is
+deferred. This order supersedes older task suggestions in the detailed maps.
+
 Current plan, 2 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
 integration and native/browser acceptance. Each workstream has its own Codex
@@ -42,10 +49,12 @@ Settings Other page1 browser regression is exactly unchanged on both LCDs.
 Health APT-debug follow-up still did not establish native HOME return.
 
 The [fresh Save/Load comparison](home-layout-native-comparison-2026-10-02.md)
-at `72fa1865` restores native grey empty-slot plates and hides Delete for empty
-selection. Lower residual36454 ->4115; upper21259 still lacks the current-layout
-preview. Native first-use preparation is now observed and missing in-browser.
-Footer shading/cursor/timing remain fail. Full1644 tests, typecheck/build pass.
+now includes `18bc33c0`, `6c24da03` and `5232b9c5`: empty-slot plates/Delete,
+footer correction and current-layout paired preview are implemented. Against
+the retained native frame, the final diagnostic is7899/1122 upper/lower pixels
+above2; a fresh native frame gives8383/1217. Timing/population differ, so neither
+is acceptance. Saved thumbnails/Zoom, first-use preparation and exact motion/
+input/audio remain open. Full1648 tests, typecheck/build pass.
 
 All 3DS sessions stay muted. All visible verification runs on the iPad Sidecar
 desktop after fresh geometry checks. Only the coordinator operates Azahar and
@@ -90,18 +99,19 @@ Record N/A with a scope reason rather than silently omitting a route.
 
 ## Work Order
 
-1. **Make navigation complete and safe.** Lifecycle and app workstreams enumerate
-   routes, cover missing tests and fix evidenced broken entry/back/close/switch
-   paths. The coordinator records a smoke route for every app, not only HOME.
-2. **Close missing visible screens and controls.** Finish decoded source-backed
-   menus, notices, empty/populated states and explicit failure states. An inert
-   action needs a scope reason; placeholder native graphics are not an option.
-3. **Run one acceptance queue.** Coordinator captures each workstream's named
+1. **Close and switch software.** Replace the captured authored dialogs, finish
+   closing/next-app presentation and correct modal button press/release bounds.
+2. **Power-on, then HOME interactions.** Complete source-backed power/LCD
+   sequencing; fix captured physical/touch/keyboard feedback and navigation
+   defects. Preserve the existing model, HOME layout and app designs.
+3. **Finish remaining missing UI.** Use the ordered design map's Finish/Replace
+   rows; gated source/caller/content work must not monopolize the coordinator.
+4. **Run one acceptance queue.** Coordinator captures each workstream's named
    native/browser scenarios, returns exact residual regions to its chat and
    integrates fixes sequentially. HOME idle and Settings Other page 1 remain
    baseline regressions. A browser startup failure does not stop code inventory
    or other independent workstreams.
-4. **Finish fidelity and integration.** Correct unexplained pixels, input and
+5. **Finish fidelity and integration.** Correct unexplained pixels, input and
    motion, retest shared consumers, then audio only when the user permits it.
    Adaptations and source gaps stay visible; no completion percentage hides them.
 

@@ -99,3 +99,69 @@ audio. The earlier local persistence, disabled Zoom, source-dialog assembly,
 bounded Settings scrolling/mask fit, authored Theme/close-switch, portfolio
 population and offline adaptations remain as documented in the
 [integration record](home-settings-integration-2026-10-02.md). No1:1 claim.
+
+## Current Preview Follow Up
+
+Runtime `18bc33c0` removes the incorrect local footer mirror. `6c24da03`
+adds current-layout paired LCD preview; `5232b9c5` fixes its dynamic sampler
+bindings and adds native wallpaper readiness checks. The first preview commit
+alone displayed grey panes and is not the final delivery. The manager reuses
+native `MyMenu_U_00` / `MyMenuBtn_D_00` mounts, shadow and MyMenuIn pose with
+validated 400x240/320x240 input. Screen composition caches one current pair,
+invalidates it on layout/context changes and clears it on leave/dispose.
+Saved-slot images remain missing; Zoom stays disabled.
+
+Source mapping remains `home.MyMenu`, HOME `0004003000009802` v24576,
+content0/`00000082`, `romfs/MyMenu_LZ.bin`, converter `ctr-native-web`1.2.0.
+No source asset changed. Existing source records above and private `summary.json`
+remain authoritative. Preview sampling/freeze epoch is an adaptation, not a
+proved native screenshot writer. Key resource hashes:
+
+| Resource inside archive | SHA-256 |
+| --- | --- |
+| `blyt/MyMenu_U_00.bclyt` | `8f70b2b8d654c27ec1f49bd3f1bca22c01f6c909b9effcf18314151d3176f0c8` |
+| `blyt/MyMenuBtn_D_00.bclyt` | `dddbb754ef0491af58a0622fb0c3e57feaaeb3a6363d07e13d6f81d628e5e549` |
+| `anim/MyMenuBtn_D_00_MyMenuIn.bclan` | `971a9e11eaba62a99c6e7a460ae5e4f33b4639a3f9075ae074ed8c5d1ea02aba` |
+
+Final browser pair:
+`R/home-design-lower/reference/scenario-matrix/v1/captures/layouts-native-replay-20261002-current-preview-final/browser/`.
+Upper SHA `6b9f721a5d85d6b07481a870a8040e06ccce56bb16d54817cc475c9aa303b7fa`;
+lower SHA `e137e183abb9bf16ff1fe679a3ad5c732f9c198cb8ecec50ee9f628126b68911`.
+Fresh own 400x480 native capture is
+`R/native-home-design-20261002/screenshots/_02.10.26_04.15.48.166.png`,
+SHA `5427e5501f212306cc6a9a94f7d7bc6559c176639b8269fdc7e9d0cb7db117a6`.
+
+| Report under `R/home-layout-native/` | Upper/lower >2 | Report SHA-256 |
+| --- | --- | --- |
+| `compare-footer-source/report.json` | 21259 / 1122 | Per-file hashes retained by report |
+| `compare-current-preview-final/report.json` (retained native) | 7899 / 1122 | `2cd902bad2a30dcedddf1fc11c1da04cb553a4e7459362ecf1863585ff4f568b` |
+| `compare-current-preview-fresh/report.json` (fresh native) | 8383 / 1217 | `7463b4f1dd2aea47d33e3ac3d38254d1573ab481d3bfde1055c4048ebad75a33` |
+
+All use the same empty mask above. Both fresh contact sheets and retained
+final upper sheet were inspected; lower final pixels match the inspected
+footer correction. HUD, population/density, text and cursor/footer residuals
+remain. CTM logical touches match the requested browser coordinates but holds,
+epoch and initial population do not: these remain diagnostics, not acceptance.
+The intermediate `compare-current-preview` report preserves the grey-pane bug.
+
+Browser save-slot0/Delete visibility and Escape to Settings/HOME were inspected
+with mute true; raw saved state is `layouts-save-current-preview-final/browser/`.
+Full **1648 pass / 0 fail / 23 skip / 1 TODO**, focused45/45, typecheck/build pass.
+No shader change. Historical matrix unchanged.
+
+The user reported interference with Spotify despite volume0. With isolated
+Azahar closed, its input/output were both changed from Auto to Null (`1`);
+volume remains0. Fresh native log confirms both values1 and no Cubeb stream
+start. This changes only the isolated clone, not system or Spotify audio.
+Launch snapshot `preview-null-audio.launch.ini` SHA
+`be004271552b398fa23fbf4b8dd5d04a74459728af64b5532b8d62a69688f35d`;
+log preserved as `preview-native-final.log`. Native exited normally; browser
+closed through CDP. The preview server remains on3021. All visible work used
+verified Sidecar bounds; audio acceptance remains open.
+
+Further Settings/layout polish is deferred per the user. Next work is the
+[ordered close/switch, power-on and HOME interaction queue](feature-map/design-to-ship.md).
+Remaining adaptations: local layout persistence, preview sampling, generic
+source-dialog assembly, Settings mask/scroll fit, authored Theme/close-switch,
+portfolio population and offline content. Saved previews/Zoom, first-use
+preparation, later Settings rows and strict native input/motion/audio remain open.

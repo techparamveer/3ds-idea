@@ -23,6 +23,12 @@ and [media/social/portfolio](media-social-and-portfolio.md).
 
 ## Ownership
 
+Current queued deliverables are in the [design-to-ship map](design-to-ship.md):
+Lifecycle close/switch plus modal buttons, then power-on; HOME interaction fixes;
+other lanes preserve existing design and take only captured Finish/Replace gaps.
+These assignments do not mean a worker is running. No new chat or agent was
+dispatched for this mapping update, and no new shared-file reservation is taken.
+
 | Lane | Branch | Worktree under `/Users/paramveer/.codex/worktrees/` | Ownership |
 | --- | --- | --- | --- |
 | HOME | `codex/complete-home-ui-20261001` | `3ds-complete-home-ui-20261001` | HOME layout, toolbar, density, cursor, folders, drag, selected-title banners |
@@ -160,7 +166,10 @@ browser-before/after sheets were inspected; no native comparison is implied.
 Independent GPT-6.1 Sol/Medium review closed both findings with 17 focused tests
 and 12 extra tick/navigation Camera cases. No Fast-mode verification is implied.
 
-## Model Policy Reapplied - 2 October 2026
+## Historical Model Override - 2 October 2026
+
+Historical receipt only; superseded by the supplied repository preference and
+normal-speed policy at the top of this file. It is not a new dispatch instruction.
 
 All eight registered chats accepted explicit `gpt-6-astra` / `high` follow-up
 overrides. The follow-ups only acknowledge settings; they do not resume completed

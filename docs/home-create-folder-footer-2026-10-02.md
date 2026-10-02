@@ -46,10 +46,12 @@ The threshold mask contains exactly three 8-connected components:
 - 6 pixels at `x174, y227..232`, maximum delta 66.
 
 The latter two single-column components intersect the `Create Folder` ink.
-They total 19 pixels; the other 780 form a material-shaped button/edge
-component. Its shape and colour are consistent with the previously traced
-theme/material candidate route, but the captures do not establish that route
-as the cause.
+They total 19 pixels; this spatial classification does not prove that the font
+raster, rather than composition beneath or around the ink, caused them. The
+other 780 form a material-shaped button/edge component. “Material-shaped” is a
+description of the mask topology, not layer ownership. Its shape and colour are
+consistent with the previously traced theme/material candidate route, but the
+captures do not establish that route as active or causal.
 
 ## Source trace
 

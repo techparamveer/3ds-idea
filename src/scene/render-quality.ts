@@ -39,7 +39,9 @@ export function applicationCloseNeedsPaint(before: HomeApplicationTransition | n
   if (!after) return before !== after;
   const endpoint = reduced || after.phase === 'terminal'
     || (after.phase === 'exiting' && after.dialogExitFrame === 0)
-    || after.phase === 'exit-terminal';
+    || after.phase === 'exit-terminal'
+    || (after.phase === 'footer-exiting' && after.footerExitFrame === 0)
+    || after.phase === 'footer-terminal';
   return endpoint && (before !== after || resumed);
 }
 

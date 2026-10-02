@@ -11,7 +11,7 @@ function suspended(){
 const dialog=kind=>kind==='close'?reduceSystem(suspended(),'back',6400):launchHomeShortcut(suspended(),'about',6400);
 const touch=(state,phase,x,y,pointerId=1)=>dispatchSystemEvent(state,{type:'touch',phase,x,y,pointerId},6500);
 const tap=(state,x,y)=>touch(touch(state,'down',x,y),'up',x,y);
-const finishClose=(state,now=6500)=>{const ticks=sampleSystemHomeApplicationTransition(state).intent.kind==='close'?4:2;for(let i=0;i<ticks;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
+const finishClose=(state,now=6500)=>{const ticks=sampleSystemHomeApplicationTransition(state).intent.kind==='close'?6:2;for(let i=0;i<ticks;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
 test('paint and touch share bounded button rectangles and owned pressed feedback',()=>{
  for(const r of SOFTWARE_DIALOG_BUTTONS){

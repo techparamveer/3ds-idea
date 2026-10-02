@@ -23,7 +23,7 @@ export function selectedSuspendedApplication(state: MenuState) {
 export function homeSuspendedIconDisappeared(state: MenuState): boolean {
  const close=sampleSystemHomeApplicationTransition(state);
  return !!homeSuspendedApplication(state)&&close?.intent.kind==='close'
-  &&(close.phase==='exiting'||close.phase==='exit-terminal');
+  &&(close.phase==='exiting'||close.phase==='exit-terminal'||close.phase==='footer-exiting'||close.phase==='footer-terminal');
 }
 
 export type SuspendedWindowMetadata={description:string;icon:NativePixels};

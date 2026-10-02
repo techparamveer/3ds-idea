@@ -17,10 +17,15 @@ const bootHome = () => tickSystem(createPortfolioState(), 3001);
 const settleLaunch = (state, id, now) => tickSystem(launch(state, id, now), now + 2200);
 const act = (state, id, now) => dispatchSystemEvent(state, { type: 'action', id }, now);
 const finishClose = (state, now) => {
+  const closing = state.system.homeApplicationTransition.intent.kind === 'close';
   state = tickSystem(state, now);
   state = tickSystem(state, now + 1000);
   state = tickSystem(state, now + 2000);
   state = tickSystem(state, now + 3000);
+  if (closing) {
+    state = tickSystem(state, now + 4000);
+    state = tickSystem(state, now + 5000);
+  }
   return tickSystem(state, state.system.homeClock.lastNow + 1000 / 60);
 };
 

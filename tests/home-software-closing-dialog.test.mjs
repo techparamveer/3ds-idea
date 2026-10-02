@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {HOME_SOFTWARE_CLOSING_DIALOG_SOURCE,drawHomeSoftwareClosingDialog} from '../src/os/home-software-closing-dialog.ts';
+import {poseNativeLayout,nativePaneParentPath} from '../src/os/native-layout.ts';
 
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
@@ -23,11 +24,15 @@ test('settled close presentation uses the buttonless source window and lower mas
  assert.equal(r.calls[1].options.textSampling,'lcd');assert.equal(JSON.stringify(packs),before);
 });
 
-test('caller can select only authored lower mask poses without inventing dialog motion',()=>{
+test('captured entry fade uses compatible decoded donor poses at the existing mask sample',()=>{
  for(const frame of [0,1,9,19,20]){
   const r=renderer();drawHomeSoftwareClosingDialog(r,{}, {},frame);
   assert.deepEqual(r.calls[0].options.bindings[0].frame,frame);
-  assert.equal(r.calls[1].options.bindings,undefined,'Dlg_A_D_00 has no authored animation');
+  assert.deepEqual(r.calls[1].options.bindings,[{name:'Dlg_A_D_02_FadeIn',frame}]);
+  const pose=poseNativeLayout(packs.dialog.layouts.Dlg_A_D_00,packs.dialog.animations,r.calls[1].options.bindings);
+  const group=nativePaneParentPath(pose,'N_Dlg_00').at(-1);
+  if(frame===0){assert.equal(group.alpha,0);assert.deepEqual(group.scale,[Math.fround(.95),Math.fround(.95)]);}
+  if(frame===20){assert.equal(group.alpha,255);assert.deepEqual(group.scale,[1,1]);}
  }
  for(const frame of [-1,21,.5,NaN]){
   const r=renderer();assert.throws(()=>drawHomeSoftwareClosingDialog(r,{}, {},frame),RangeError);assert.equal(r.calls.length,0);
@@ -60,6 +65,12 @@ test('source geometry and provenance match the captured 280 by 200 striped windo
   {frames:21,loop:false,groups:['Group_Scene'],range:[-20,0],target:'P_Bg_00',property:'alpha',keys:[[0,0],[20,130]]});
  }
  const dialogExit=packs.dialog.animations[source.dialog.exitClip],dialogExitTracks=dialogExit.tracks.filter(track=>track.target==='N_Dlg_00');
+ const entry=packs.dialog.animations[source.dialog.entryClip];
+ assert.deepEqual({frames:entry.frames,loop:entry.loop,groups:entry.groups,range:entry.sourceFrameRange},
+  {frames:21,loop:false,groups:['Group_Scene'],range:[-20,0]});
+ assert.deepEqual(packs.dialog.resourceSources.animations[source.dialog.entryClip],{
+  path:'dialog_LZ.bin/anim/Dlg_A_D_02_FadeIn.bclan',sha256:'e4dc8547f621e137ac1678823deee1b9817a2b97ff4741520aa04499023745c2',titleId:'0004003000009802',
+ });
  assert.deepEqual({frames:dialogExit.frames,loop:dialogExit.loop,groups:dialogExit.groups,range:dialogExit.sourceFrameRange,
   tracks:dialogExitTracks.map(track=>({property:track.property,keys:track.keys.map(key=>[key.frame,key.value,key.slope])}))},
  {frames:21,loop:false,groups:['Group_Scene'],range:[80,100],tracks:[
@@ -92,7 +103,8 @@ test('source geometry and provenance match the captured 280 by 200 striped windo
 test('unsupported source gaps fail before drawing and draw failures reject paired publication',()=>{
  for(const remove of [
   p=>delete p.dialog.layouts.Dlg_A_D_00,p=>delete p.dialogmask.layouts.DlgMask_D_00,
-  p=>delete p.dialogmask.animations.DlgMask_D_00_FadeIn,p=>delete p.messages.messages.menu_msbt_LZ.labels.lau_dlg_quit4,
+  p=>delete p.dialogmask.animations.DlgMask_D_00_FadeIn,p=>delete p.dialog.animations.Dlg_A_D_02_FadeIn,
+  p=>delete p.messages.messages.menu_msbt_LZ.labels.lau_dlg_quit4,
  ]){
   const source=structuredClone(packs);remove(source);const r=renderer(source);
   assert.throws(()=>drawHomeSoftwareClosingDialog(r,{},{}),/unavailable/);assert.equal(r.calls.length,0);

@@ -98,7 +98,7 @@ function fakeSurfaces(){
 const appFrame=seed=>({upper:frame(400,240,seed),lower:frame(320,240,seed)});
 const record=(capture,s,owner,pair)=>capture.record(s.system.runtime,owner,pair.upper,pair.lower);
 const openHealth=(s,now)=>tickSystem(launch(s,'health-safety',now),now+2200);
-const finishClose=(state,now)=>{for(let i=0;i<4;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
+const finishClose=(state,now)=>{for(let i=0;i<6;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
 test('HOME borrows the upright frozen upper surface without readback and cannot show a retired capture',()=>{
  const surfaces=fakeSurfaces(),capture=createSuspendedApplicationCapture({createSurface:surfaces.createSurface}),draws=[];

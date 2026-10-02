@@ -12,7 +12,7 @@ const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
 const packs=Object.fromEntries(['launcher','messages'].map(key=>[key,JSON.parse(readFileSync(new URL(manifest.home[key],root)))]));
 const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',4000),6000),'home',6001);
 const metadata=()=>({description:'Health and Safety Information',icon:{width:64,height:64,data:new Uint8ClampedArray(64*64*4)}});
-const finishClose=(state,now)=>{for(let i=0;i<4;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
+const finishClose=(state,now)=>{for(let i=0;i<6;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
 test('lower highlight retains its application owner across selection and toolbar focus, never foreground or retired owners',()=>{
  const state=suspended(),owner=state.system.runtime.application;
@@ -65,10 +65,10 @@ test('close exit clears only the source sleep overlay while retaining its live o
  assert.ok(base.system.homeApplicationTransition);
  assert.equal(homeSuspendedIconDisappeared(suspended()),false);
  for(const intent of [{kind:'close'},{kind:'switch',appId:'camera'}]){
-  for(const phase of ['closing','terminal','exiting','exit-terminal','complete']){
+  for(const phase of ['closing','terminal','exiting','exit-terminal','footer-exiting','footer-terminal','complete']){
    const state=structuredClone(base);
    Object.assign(state.system.homeApplicationTransition,{intent,phase,appQuitFrame:20,dialogExitFrame:20});
-   assert.equal(homeSuspendedIconDisappeared(state),intent.kind==='close'&&['exiting','exit-terminal'].includes(phase));
+   assert.equal(homeSuspendedIconDisappeared(state),intent.kind==='close'&&['exiting','exit-terminal','footer-exiting','footer-terminal'].includes(phase));
    assert.equal(homeSuspendedApplication(state).id,owner);
    assert.equal(state.system.runtime.application,owner);
   }

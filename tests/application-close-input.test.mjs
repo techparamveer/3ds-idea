@@ -16,6 +16,10 @@ test('scene input quarantine survives the pre-mutation retirement update', () =>
   assert.equal(state.system.homeApplicationTransition.phase, 'exiting');
   state = tickSystem(state, 9500);
   assert.equal(state.system.homeApplicationTransition.phase, 'exit-terminal');
+  state = tickSystem(state, 10500);
+  assert.equal(state.system.homeApplicationTransition.phase, 'footer-exiting');
+  state = tickSystem(state, 11500);
+  assert.equal(state.system.homeApplicationTransition.phase, 'footer-terminal');
   const before = state, now = state.system.homeClock.lastNow + 1000 / 60;
   for (const input of ['open', 'home', 'right', 'touch', 'analog', 'back', 'x']) {
     const allowed = applicationCloseAllowsInput(before.system.homeApplicationTransition, input);
@@ -30,16 +34,19 @@ test('scene input quarantine survives the pre-mutation retirement update', () =>
 });
 
 test('quarantine keeps clock, sleep, release and global controls available', () => {
-  const terminal = { phase: 'terminal', intent: { kind: 'close' } };
+ for (const phase of ['terminal','exiting','exit-terminal','footer-exiting','footer-terminal']) {
+  const terminal = { phase, intent: { kind: 'close' } };
   for (const input of ['tick', 'hinge', 'blur', 'visibility', 'power', 'mute', 'volume-up', 'volume-down']) {
     assert.equal(applicationCloseAllowsInput(terminal, input), true, input);
   }
+ }
   assert.equal(applicationCloseAllowsInput(null, 'open'), true);
 });
 
 test('unavailable close paint freezes ticks while admitting only native recovery controls', () => {
-  const close = { phase: 'exiting', intent: { kind: 'close' } };
   const switching = { phase: 'terminal', intent: { kind: 'switch', appId: 'about' } };
+ for (const phase of ['exiting','exit-terminal','footer-exiting','footer-terminal']) {
+  const close = { phase, intent: { kind: 'close' } };
   for (const status of ['loading', 'error']) {
     assert.equal(applicationCloseNeedsReadyScreen(close, status), true, status);
     assert.equal(applicationCloseAllowsInput(close, 'tick', status), false, status);
@@ -52,6 +59,7 @@ test('unavailable close paint freezes ticks while admitting only native recovery
   assert.equal(applicationCloseAllowsInput(close, 'open', 'error'), false);
   assert.equal(applicationCloseAllowsInput(close, 'touch', 'error'), false);
   assert.equal(applicationCloseNeedsReadyScreen(close, 'ready'), false);
+ }
   assert.equal(applicationCloseNeedsReadyScreen(switching, 'error'), false);
   assert.equal(applicationCloseAllowsInput(switching, 'tick', 'error'), true);
   assert.equal(applicationCloseAllowsInput(switching, 'back', 'error'), false);

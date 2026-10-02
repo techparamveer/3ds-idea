@@ -17,6 +17,8 @@ import { homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
 import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
 import { selectHomeFolderFooterPose } from './home-folder-footer-return';
+import { homeApplicationTransitionFooterExit } from './home-application-transition';
+import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleIconPixels:Map<string,NativePixels>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
@@ -304,10 +306,12 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]=right;overrides[`${prefix}_R_02`]=right;overrides[`${prefix}_L_03`]=left;}
   for(const prefix of ['T_BtnBB','T_BtnFB','T_BtnPB'])overrides[`${prefix}_L_03`]=left;
   const close=sampleSystemHomeFolderClose(state);
+  const applicationFooterExit=homeApplicationTransitionFooterExit(sampleSystemHomeApplicationTransition(state),reduced);
   // Captured switch dialogs have no footer; use the source's settled out pose.
   const footerPose=homeSoftwareSwitchTitles(state)
    ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
-   :selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
+   :applicationFooterExit??selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
+  if(applicationFooterExit&&!renderer.packs.launcher.animations[applicationFooterExit.clip])throw Error('Native software-close footer exit unavailable');
   const bindings=[binding(footerPose.clip,footerPose.frame)];
   const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);
   if(pressed){

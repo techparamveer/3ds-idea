@@ -12,10 +12,15 @@ const runningWork = () => tickSystem(reduceSystem(booted(), 'open', 4000), 6000)
 const suspendedWork = () => reduceSystem(runningWork(), 'home', 6001);
 const selectTitle = (state, id) => settleHomeNavigation(selectHomeSlot(state, titleSlot(id)));
 const finishClose = (state, now) => {
+  const closing = state.system.homeApplicationTransition.intent.kind === 'close';
   state = tickSystem(state, now);
   state = tickSystem(state, now + 1000);
   state = tickSystem(state, now + 2000);
   state = tickSystem(state, now + 3000);
+  if (closing) {
+    state = tickSystem(state, now + 4000);
+    state = tickSystem(state, now + 5000);
+  }
   return tickSystem(state, state.system.homeClock.lastNow + 1000 / 60);
 };
 

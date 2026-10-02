@@ -3,7 +3,8 @@ import type {NativeLayoutRenderer} from './native-renderer.ts';
 
 export const HOME_SOFTWARE_CLOSING_DIALOG_SOURCE=Object.freeze({
  message:Object.freeze({pack:'messages',bank:'menu_msbt_LZ',label:'lau_dlg_quit4'}),
- dialog:Object.freeze({pack:'dialog',layout:'Dlg_A_D_00',exitClip:'Dlg_A_D_02_FadeOut00',exitLastFrame:20}),
+ dialog:Object.freeze({pack:'dialog',layout:'Dlg_A_D_00',entryClip:'Dlg_A_D_02_FadeIn',entryLastFrame:20,
+  exitClip:'Dlg_A_D_02_FadeOut00',exitLastFrame:20}),
  lowerMask:Object.freeze({pack:'dialogmask',layout:'DlgMask_D_00',clip:'DlgMask_D_00_FadeIn',lastFrame:20,
   exitClip:'DlgMask_D_00_FadeOut00',exitLastFrame:20,exitZeroFrame:15}),
 } as const);
@@ -13,6 +14,8 @@ export const HOME_SOFTWARE_CLOSING_DIALOG_SOURCE=Object.freeze({
  * native lower LCD. When supplied, exitFrame samples the native 0..20 dialog
  * and mask exit clips. The caller owns the close predicate, epoch, and owner
  * retirement; this helper intentionally does not infer them from a host clock.
+ * Entry borrows the compatible donor FadeIn at the existing mask sample as a
+ * capture-fitted adaptation; only the exit donor has a traced native caller.
  */
 export function drawHomeSoftwareClosingDialog(renderer:NativeLayoutRenderer,
  _top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,maskFrame=20,exitFrame?:number):true{
@@ -29,6 +32,8 @@ export function drawHomeSoftwareClosingDialog(renderer:NativeLayoutRenderer,
  if(exitFrame!==undefined){
   if(!dialog.animations[source.dialog.exitClip])throw Error(`Native software-closing animation unavailable: ${source.dialog.exitClip}`);
   if(!mask.animations[source.lowerMask.exitClip])throw Error(`Native software-closing animation unavailable: ${source.lowerMask.exitClip}`);
+ }else{
+  if(!dialog.animations[source.dialog.entryClip])throw Error(`Native software-closing animation unavailable: ${source.dialog.entryClip}`);
  }
  const text={...nativeMessageOverride(renderer.packs.messages,source.message.bank,source.message.label,''),
   colorSpans:nativeMessageColorSpans(renderer.packs.messages,source.message.bank,source.message.label)};
@@ -36,7 +41,8 @@ export function drawHomeSoftwareClosingDialog(renderer:NativeLayoutRenderer,
  // The native close leaves HUD and upper wallpaper unmasked. The source
  // dialog mask darkens that LCD despite white vertex colors; do not bind it.
  const lowerBinding:AnimationBinding=exitFrame===undefined?binding(source.lowerMask):{name:source.lowerMask.exitClip,frame:exitFrame};
- const windowBinding:AnimationBinding[]|undefined=exitFrame===undefined?undefined:[{name:source.dialog.exitClip,frame:exitFrame}];
+ const windowBinding:AnimationBinding[]=[exitFrame===undefined
+  ?{name:source.dialog.entryClip,frame:maskFrame}:{name:source.dialog.exitClip,frame:exitFrame}];
  const lower=renderer.draw(bottom,source.lowerMask.pack,source.lowerMask.layout,{bindings:[lowerBinding]});
  const window=renderer.draw(bottom,source.dialog.pack,source.dialog.layout,{textSampling:'lcd',bindings:windowBinding,overrides:{TextBoxDialog:text}});
  if(!lower||!window)throw Error('Native software-closing dialog draw failed');

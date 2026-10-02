@@ -87,6 +87,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
   const nativePrimaryAvailable=(selection:HomeBannerHostSelection)=>{const value=folderBanner.status();return selection.kind==='default'?value.defaultReady&&!value.defaultFailure:selection.kind==='app'?value.settingsReady&&!value.settingsFailure:selection.kind==='toolbar'?selection.focus===2?value.friendReady&&!value.friendFailure:selection.focus===3&&value.newsReady&&!value.newsFailure:selection.kind==='clear'||nativeFolderAvailable();};
   const screens=createScreens({soundRoom,cameraShoot,reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
+    drawSuspendedBackground:(ctx,capture)=>folderBanner.drawSuspendedBackground(ctx,capture),
     getHomeBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&view.selection.kind!=='app'&&view.selection.kind!=='toolbar'&&(!nativePrimaryAvailable(view.selection)||bannerLabelFailure)?undefined:view;},
     getFriendBannerFailure:()=>folderBanner.status().friendFailure??null,
     getNewsBannerFailure:()=>folderBanner.status().newsFailure??null,

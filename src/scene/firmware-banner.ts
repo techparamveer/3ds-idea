@@ -5,6 +5,8 @@ import { homeBannerYaw } from '../os/banner-motion';
 import { loadFirmwareCamera } from './firmware-camera';
 import type { NativePixels } from '../os/native-layout';
 import { copyNativeOverlay } from './native-overlay';
+import { paddedHomeCapture, suspendedBackgroundAsset } from './home-suspended-background';
+import type { SuspendedCapture } from '../os/notes-suspended-capture';
 
 /** A sampled lifecycle state; painting never advances these source-frame clocks. */
 export type PrimaryBannerRenderFrame=Readonly<{
@@ -50,6 +52,11 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   const context = canvas.getContext('2d')!, pixels = new Uint8Array(400 * 240 * 4), image = context.createImageData(400, 240);
   let model: ReturnType<typeof createFirmwareModel> | undefined, defaultModel: ReturnType<typeof createFirmwareModel> | undefined, settingsModel: ReturnType<typeof createFirmwareModel> | undefined, newsModel: ReturnType<typeof createFirmwareModel> | undefined, friendModel: ReturnType<typeof createFirmwareModel> | undefined, memoModel: ReturnType<typeof createFirmwareModel> | undefined, webModel: ReturnType<typeof createFirmwareModel> | undefined, miiverseModel: ReturnType<typeof createFirmwareModel> | undefined, background: ReturnType<typeof createFirmwareModel> | undefined, mask: ReturnType<typeof createFirmwareModel> | undefined;
   let disposed = false, failure: string | undefined, defaultFailure:string|undefined, settingsFailure:string|undefined, newsFailure:string|undefined, friendFailure:string|undefined, memoFailure:string|undefined, webFailure:string|undefined, miiverseFailure:string|undefined, backgroundFailure:string|undefined, frameFailure:string|undefined;
+  let suspendedBackground: ReturnType<typeof createFirmwareModel> | undefined;
+  let suspendedBackgroundFailure: string | undefined;
+  let suspendedPlaceholder: NativePixels | undefined;
+  const suspendedScene = new THREE.Scene();
+  let suspendedSample: { owner: string; generation: number; data: Uint8ClampedArray } | undefined;
   type StockSlot = { ticket: StockTitleBannerTicket; owner: ReturnType<typeof createStockTitleBannerResourceHost>;
     model: ReturnType<typeof createFirmwareModel> | null; failure: string | null; pending: Promise<void> };
   const stockSlots = new Map<string, StockSlot>();
@@ -153,6 +160,13 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     if(disposed)return;
     background=createFirmwareModel(asset,{skeletal:[{name:'BannerBG_SceneIn',frame:20}],material:[{name:'BannerBG_Loop'}]},{drawGroup:0});
     backgroundScene.add(background.group);
+    try {
+      suspendedPlaceholder = asset.images.get('BG_DmyApp_00');
+      suspendedBackground = createFirmwareModel(suspendedBackgroundAsset(asset), {
+        skeletal: [{ name: 'BannerBG_SceneIn', frame: 20 }], material: [{ name: 'BannerBG_AppPause', frame: 20 }],
+      }, { drawGroup: 0 });
+      suspendedScene.add(suspendedBackground.group);
+    } catch (error) { suspendedBackgroundFailure = String(error); }
   }).catch(error=>{if(!disposed)backgroundFailure=String(error);});
   const cameraReady=loadFirmwareCamera('/os/firmware/10.7.0-32E/models/home-camera/camera.json').then(value=>{if(!disposed)camera=value;}).catch(error=>{if(!disposed){failure=String(error);backgroundFailure=String(error);frameFailure=String(error);}});
   const ready=Promise.all([folderReady,defaultReady,settingsReady,newsReady,friendReady,memoReady,webReady,miiverseReady,frameReady,backgroundReady,cameraReady]);
@@ -302,6 +316,23 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   // putImageData/drawImage path, so the output bytes are identical.
   let backgroundSample:{data:Uint8ClampedArray;time:number}|undefined;
   let backgroundLifecycleSample:{data:Uint8ClampedArray;key:string}|undefined;
+  function drawSuspendedBackground(ctx: CanvasRenderingContext2D, capture: SuspendedCapture) {
+    if (capture.status !== 'ready') {
+      if (suspendedSample && suspendedPlaceholder) suspendedBackground?.setTexture('BG_DmyApp_00', suspendedPlaceholder, { allowSizeChange: true });
+      suspendedSample = undefined; return false;
+    }
+    if (disposed || !suspendedBackground || suspendedBackgroundFailure || !camera) return false;
+    if (suspendedSample?.owner === capture.owner && suspendedSample.generation === capture.generation) {
+      image.data.set(suspendedSample.data); context.putImageData(image, 0, 0); ctx.drawImage(canvas, 0, 0); return true;
+    }
+    try {
+      suspendedBackground.setTexture('BG_DmyApp_00', paddedHomeCapture(capture.upper), { allowSizeChange: true });
+      suspendedBackground.update(0, camera);
+      const drawn = render(ctx, suspendedScene);
+      if (drawn) suspendedSample = { owner: capture.owner, generation: capture.generation, data: image.data.slice() };
+      return drawn;
+    } catch (error) { suspendedSample = undefined; suspendedBackgroundFailure = String(error); return false; }
+  }
   function drawBackground(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,reuseWithinMs?:number){
     if(disposed||!background||backgroundFailure)return false;
     const time=reduced?0:elapsedMs;
@@ -337,5 +368,5 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       return drawn;
     }catch(error){backgroundLifecycleSample=undefined;backgroundFailure=String(error);return false;}
   }
-  return { ready, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawNewsFrame, drawFriendFrame, drawMemoFrame, drawWebFrame, drawMiiverseFrame, drawBackground, drawBackgroundFrame, drawBackgroundLifecycleFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, newsReady:!disposed&&!!newsModel&&!!mask&&!!camera&&!newsFailure&&!frameFailure, newsFailure:newsFailure??frameFailure, friendReady:!disposed&&!!friendModel&&!!mask&&!!camera&&!friendFailure&&!frameFailure, friendFailure:friendFailure??frameFailure, memoReady:!disposed&&!!memoModel&&!!mask&&!!camera&&!memoFailure&&!frameFailure, memoFailure:memoFailure??frameFailure, webReady:!disposed&&!!webModel&&!!mask&&!!camera&&!webFailure&&!frameFailure, webFailure:webFailure??frameFailure, miiverseReady:!disposed&&!!miiverseModel&&!!mask&&!!camera&&!miiverseFailure&&!frameFailure, miiverseFailure:miiverseFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();newsModel?.dispose();friendModel?.dispose();memoModel?.dispose();webModel?.dispose();miiverseModel?.dispose();mask?.dispose();background?.dispose();target.dispose(); } };
+  return { ready, drawSuspendedBackground, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawNewsFrame, drawFriendFrame, drawMemoFrame, drawWebFrame, drawMiiverseFrame, drawBackground, drawBackgroundFrame, drawBackgroundLifecycleFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, newsReady:!disposed&&!!newsModel&&!!mask&&!!camera&&!newsFailure&&!frameFailure, newsFailure:newsFailure??frameFailure, friendReady:!disposed&&!!friendModel&&!!mask&&!!camera&&!friendFailure&&!frameFailure, friendFailure:friendFailure??frameFailure, memoReady:!disposed&&!!memoModel&&!!mask&&!!camera&&!memoFailure&&!frameFailure, memoFailure:memoFailure??frameFailure, webReady:!disposed&&!!webModel&&!!mask&&!!camera&&!webFailure&&!frameFailure, webFailure:webFailure??frameFailure, miiverseReady:!disposed&&!!miiverseModel&&!!mask&&!!camera&&!miiverseFailure&&!frameFailure, miiverseFailure:miiverseFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();newsModel?.dispose();friendModel?.dispose();memoModel?.dispose();webModel?.dispose();miiverseModel?.dispose();mask?.dispose();background?.dispose();suspendedBackground?.dispose();suspendedSample=undefined;target.dispose(); } };
 }

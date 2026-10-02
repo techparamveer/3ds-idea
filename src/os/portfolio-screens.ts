@@ -185,5 +185,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,drawSuspendedUpper:suspendedCapture.drawUpper,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();notesIntro.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();notesIntro.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

@@ -19,6 +19,7 @@ import { retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSus
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { getHomeFolderIdentity } from './home-folder-identity';
 import type { NativePixels } from './native-layout';
+import type { SuspendedCapture } from './notes-suspended-capture';
 import type { HomeBannerHostView } from './home-banner-host';
 import type { HomeBannerMotion } from './home-banner-lifecycle';
 export { loadFirmwarePresentationAssets, type FirmwarePresentationAssets } from './firmware-presentation';
@@ -253,7 +254,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getFriendBannerFailure?:()=>string|null; getNewsBannerFailure?:()=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawFriendBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawNewsBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawMemoBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawWebBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawMiiverseBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getFriendBannerFailure?:()=>string|null; getNewsBannerFailure?:()=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawFriendBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawNewsBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawMemoBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawWebBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawMiiverseBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; drawSuspendedBackground?:(ctx:Context,capture:SuspendedCapture)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -342,6 +343,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const layoutPreview=currentLayoutPreview(state,time);
   const suspended=retainedSuspendedApplication(state),expanded=!!selectedSuspendedApplication(state);
   if(!suspended)suspendedMetadata=undefined;
+  if(!suspended)options.drawSuspendedBackground?.(t,{status:'none'});
+  if(suspended&&!options.drawSuspendedBackground?.(t,graphics.readSuspendedCapture(state.system!.runtime)))throw Error('Native suspended application background unavailable');
   if(!expanded){
   const hostedBanner=options.getHomeBanner?.();
   const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;
@@ -407,7 +410,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   }
   }
   if(suspended){
-   if(!firmwareAssets||(expanded&&!graphics.drawSuspendedUpper(state.system!.runtime,t)))throw Error('Suspended application frame unavailable');
+   if(!firmwareAssets)throw Error('Suspended application frame unavailable');
    if(suspendedMetadata?.owner!==suspended.id){
     const title=getTitle(suspended.appId),portfolio=getApp(suspended.appId),ctx=captureContext;
     ctx.resetTransform();ctx.clearRect(0,0,64,64);

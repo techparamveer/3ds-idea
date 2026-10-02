@@ -1,10 +1,10 @@
 import type { AppView, JsonValue } from './app-types';
 import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
 
-/** Existing authored close/switch geometry; not a native dialog measurement. */
+/** home.dialog/Dlg_A_D_02 Bounding_00/01 at the settled source pose. */
 export const SOFTWARE_DIALOG_BUTTONS = [
-  {action: 'back', x: 23, y: 173, width: 128, height: 29},
-  {action: 'open', x: 169, y: 173, width: 128, height: 29},
+  {action: 'back', x: 20, y: 180, width: 139, height: 40},
+  {action: 'open', x: 161, y: 180, width: 139, height: 40},
 ] as const;
 export function softwareDialogActionAt(x: number, y: number): 'back' | 'open' | null {
   if (!Number.isFinite(x) || !Number.isFinite(y)) return null;

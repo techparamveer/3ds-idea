@@ -28,7 +28,7 @@ test('paint and touch share bounded button rectangles and owned pressed feedback
 
 for(const kind of ['close','switch']){
  test(`${kind}: blank margins, gutter and underlying footer never confirm or cancel`,()=>{
-  for(const [x,y] of [[0,188],[22,188],[151,188],[160,188],[168,188],[297,188],[319,188],[232,172],[232,202],[232,225]]){
+  for(const [x,y] of [[0,188],[19,188],[159,188],[160,188],[300,188],[319,188],[232,179],[232,220],[232,225]]){
    const initial=dialog(kind);
    for(const next of [touchSystem(initial,x,y,6500),tap(initial,x,y)]){
     assert.equal(next.system.dialog,kind,`${x},${y}`);

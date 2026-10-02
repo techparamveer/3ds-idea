@@ -12,7 +12,6 @@ import { createNotesMetadataSession } from './notes-metadata-session';
 import { notesIntroSourcesFromPacks } from './notes-intro-publication';
 import { createNotesIntroSession } from './notes-intro-session';
 import type { NativePack } from './native-layout';
-import { SOFTWARE_DIALOG_BUTTONS, softwareDialogPressed } from './stock-screen-layout';
 type C=CanvasRenderingContext2D;
 const nativeFonts=new WeakMap<C,BitmapFont>();
 export function setPortfolioFont(ctx:C,font?:BitmapFont){if(font)nativeFonts.set(ctx,font);else nativeFonts.delete(ctx);}
@@ -175,12 +174,11 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    button(b,20,53,280,39,s.muted?'Sound: OFF':'Sound: ON',s.preferenceChoice===0);button(b,20,106,80,39,'−',s.preferenceChoice===1);label(b,`${Math.round(s.volume*100)}%`,160,126,18,'#454952','center');button(b,220,106,80,39,'+',s.preferenceChoice===1);
    button(b,20,165,280,39,'Reset HOME icon layout',s.preferenceChoice===2);button(b,3,214,314,24,'Ⓑ Back');
   }
-  if((s.phase==='power'&&!nativeSystem)||s.dialog){
+  if(s.phase==='power'&&!nativeSystem){
    b.fillStyle='#17243777';b.fillRect(0,0,320,240);box(b,12,42,296,167,9,'#f5f7fa','#a0a9b7');
-   const power=s.phase==='power';label(b,power?'Power Options':'Close software?',160,65,17,'#454952','center');
-   paragraph(b,power?'To take a break, close the system to enter Sleep Mode.':s.pending?'Close the current app and start the selected software?':'Close the current app and return to the HOME Menu?',30,98,260,13,20);
-   const pressed=!power?softwareDialogPressed(s.input.touch):null;
-   for(const target of SOFTWARE_DIALOG_BUTTONS)button(b,target.x,target.y,target.width,target.height,target.action==='back'?'Ⓑ Cancel':power?'Ⓐ Power Off':'Ⓐ Close',pressed===target.action);
+   label(b,'Power Options',160,65,17,'#454952','center');
+   paragraph(b,'To take a break, close the system to enter Sleep Mode.',30,98,260,13,20);
+   button(b,23,173,128,29,'Ⓑ Cancel');button(b,169,173,128,29,'Ⓐ Power Off');
   }
   if((s.phase==='boot'&&!nativeSystem)||s.phase==='shutdown'&&!nativeSystem||s.sleeping||s.phase==='off'){
    const alpha=s.phase==='boot'&&!s.sleeping?Math.max(0,Math.min(1,1-(time-s.since-2100)/900)):1;

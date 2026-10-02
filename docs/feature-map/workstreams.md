@@ -2,6 +2,13 @@
 
 ## Held Pickup - 2 October 2026
 
+The same source worker delivered held visibility `4aad40ec` -> `eeea99e7`,
+with independent read-only review by `pickup_retarget_review`. Coordinator
+alone captures production on the authorized Mac; comparator retains private
+before/native/after evidence. Native CTM PNGs are reused as fixed references,
+not recaptured or newly timing-matched. Footer/banner controller selection
+remains a capture-fitted adaptation. All existing worktrees are preserved.
+
 The same source chat and owned folder-drag-out worktree continued the captured
 held-state defect. Source9794f8c2 integrates as652520ee plus1d682a85 (restored
 release/swap regression); source note8570a49f as8b2751de; counted-clock fix
@@ -14,8 +21,9 @@ claim; delegates GPT-5.6 Sol/high, coordinator alone GUI on the authorized Mac.
 
 Native CTM playback supplies genuine held PNGs; production pickup now uses
 observed density fits and destination moving Scale with source blank retained.
-See [evidence](../home-held-pickup-2026-10-02.md). Footer/banner/dimming/color,
-other anchors and motion/audio remain open. Old worktrees/history are preserved.
+See [evidence](../home-held-pickup-2026-10-02.md). The visibility follow-up
+above addresses footer/banner presence; dimming/color, other anchors and
+motion/audio remain open. Old worktrees/history are preserved.
 
 ## Folder Drag-Out - 2 October 2026
 

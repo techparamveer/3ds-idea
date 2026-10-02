@@ -88,7 +88,7 @@ hashes and converter provenance remain exactly those in the
 [folder drag-out mapping](home-folder-drag-out-2026-10-02.md). No new assets,
 font substitution, reconstructed shell or guessed native cue were added.
 
-Still open: native hides the footer during both held phases and hides the upper
+At `bcc3dcb6`, native hides the footer during both held phases and hides the upper
 title during root-held preview; production still shows them. Folder-held
 toolbar dimming, composited icon color/contrast, one-pixel folder shell height,
 other density anchors, native anchor initialization, exact hover/cadence/motion
@@ -97,7 +97,68 @@ edge timing and previously recorded lifecycle/coverage/high-slot adaptations
 remain explicit. Empty-mask whole LCD comparisons remain fail; no scenario
 matrix acceptance or strict1:1 claim.
 
-## Final Verification
+## Held Visibility Follow-Up
+
+Source `4aad40ec` integrates as `eeea99e7`. During an owned tile pickup,
+`getHomeFooter` returns no actions in either container, so native/fallback
+painting and footer hit testing agree. Root-held upper composition skips the
+title/banner routes; folder-held retains them. The retained banner host,
+resource ticket, motion clocks and paired-LCD readiness stay unchanged.
+Release/cancel clears the existing pickup owner and restores normal painting.
+
+These are capture-fitted visibility adaptations. The bounded source trace
+did not establish the exact mode-14 native visibility controller or its
+transition timing. No new graphics, opacity correction, assets or sounds were
+introduced; the dump mappings above remain authoritative. Toolbar dimming,
+composited artwork color, the folder height row and other density anchors
+remain open.
+
+Integrated checks: 1,839 pass, 0 fail, 23 skip, 1 TODO; production build and
+typecheck pass. Logs are `H/visibility-tests.log`, `visibility-build.log` and
+`visibility-typecheck.log`. Independent read-only review found no actionable
+runtime issue; its three focused suites passed 93/93. No shader/material edits.
+
+Browser-inspected: `H/visibility-desktop`, `visibility-mobile` and
+`visibility-reduced` each complete seven raw LCD pairs, with retained held
+source/scale/anchor, atomic swap, no item loss, reverse restoration and
+outside-release cancellation. No page errors, audio muted throughout. The
+mobile console image and raw held LCDs were opened. `visibility-phases`
+repeats the nominal CTM plan at 30053/60042/90017ms and restores the fixture;
+there is no common native epoch or exact HID/motion alignment.
+
+Native-compared: the genuine folder-held/root-held CTM PNGs listed above are
+reused as fixed references, not freshly captured. Coordinator opened
+`H/comparison/held-visibility-before-native-after-eeea99e7.png`. Empty masks,
+no shifts, fits or excluded pixels. Pixels above delta2, before -> after:
+
+| Region | Folder held | Root held |
+| --- | --- | --- |
+| Whole upper | 58666 -> 58692 | 59403 -> 56576 |
+| Whole lower | 33504 -> 33504 | 17666 -> 9068 |
+| Footer x0,y212,320x28 | 8960 -> 8960 | 8598 -> 0 |
+| Upper title x55,y96,290x70 | 13799 -> 13830 | 14804 -> 11917 |
+
+The root footer meets static tolerance with maximum delta1, not RGB identity.
+Folder footer controls are removed, but the exposed native band is darker:
+its mean absolute channel error improves72.51 ->23.95 and maximum140 ->30,
+while every pixel remains outside tolerance. Root title presence is corrected;
+wallpaper/HUD/content, folder dimming and pickup raster residuals remain.
+Both whole states remain fail; exact motion/input/audio and the private matrix
+are unchanged. Retain existing portfolio/hover/drop/lifecycle/coverage/high-slot
+adaptations alongside this newly explicit visibility fit.
+
+Report `held-visibility-report-eeea99e7.json` SHA256
+`e700629dc71df69bfe76be389f1b82cabec95b4b4f8ec157dc503ff29695d853`;
+manifest `held-visibility-manifest-eeea99e7.json`
+`51ecd11ee8d70a1e8a7474e97ffd6f322f4bbff0a2789e1ea9b6120e4e4f0d24`;
+sheet `f7ac7cb49bb56228d70204d6b4b7fd99d682fec05e46871086fee2f23dfefd79`.
+The manifest references the immutable earlier note blob rather than hashing
+this mutable follow-up. Dedicated Chrome PID41272/window11678/session72271
+closed normally with exit0 and no windows remaining. No native process was
+launched this slice. Preview3021/session87779 remains available; no system
+audio, default profile, original firmware, push or deployment changes.
+
+## Prior Pickup Geometry Verification
 
 Implemented and delivered at `bcc3dcb6`: fitted Scale1/5 anchor, destination
 moving Scale and counted-pass context reconciliation. No new native assets;

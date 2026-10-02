@@ -21,9 +21,16 @@ tile size after Back; `a751722b` fixes a counted-clock boundary missed by the
 initial successful browser replay. `bcc3dcb6` refines the measured root lift;
 1,836 tests/build/typecheck and all three production interaction variants pass.
 Native resources remain unchanged. Next
-captured defects: held footer visibility, root-held upper title, folder toolbar
-dimming and composited artwork color; other density anchors and exact timing/
-audio remain open. Do not repeat the resolved size diagnosis or claim1:1.
+captured defects: folder toolbar dimming and composited artwork color; other
+density anchors and exact timing/audio remain open. Visibility follow-up
+`eeea99e7` now hides held footers and the root-held upper title through an
+explicit capture-fitted policy; 1,839 tests/build/typecheck pass. See the
+linked evidence for production comparison. Do not repeat the resolved size
+diagnosis or claim1:1.
+Production desktop/mobile/reduced and the nominal phase replay pass. Reused
+native CTM references show root footer at delta2 tolerance (max1), while the
+folder's newly exposed band remains too bright (max30). Keep that band and
+toolbar dimming as the next captured defects; whole LCDs still fail.
 
 Earlier [folder drag-out](home-folder-drag-out-2026-10-02.md), `dd73c4ee` with
 production ownership/scope fixes `35846d2e` and `1089c78c`,

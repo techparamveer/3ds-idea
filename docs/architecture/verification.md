@@ -1,5 +1,11 @@
 # Verification and evidence architecture
 
+Held-visibility verification reuses the named genuine CTM PNGs as immutable
+references and recaptures the changed production build. Keep this distinct
+from a fresh native run or exact timing replay. Test footer painting and hit
+testing together, preserve banner readiness/ownership while paint is hidden,
+and verify release/cancel restoration through actual gesture paths.
+
 [Genuine held pickup evidence](../home-held-pickup-2026-10-02.md) uses long
 constant-touch CTM phases so Tools > Capture Screenshot can write native PNGs
 without a live host drag. Preserve the stopped seed/profile and CTM/config

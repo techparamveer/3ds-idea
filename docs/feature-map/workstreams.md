@@ -1,5 +1,23 @@
 # Workstream Registry
 
+## Empty Folder Delete - 2 October 2026
+
+Both existing Sol5.6/high chats continued from `e6802cfd` in fresh owned
+worktrees. Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used
+`3ds-home-folder-delete-20261002` / `codex/home-folder-delete-20261002`;
+`7d6cdbf2` integrated as `2f074d64`. Comparison chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` used
+`3ds-home-folder-delete-compare-20261002` /
+`codex/home-folder-delete-compare-20261002`; baseline `668db401` -> `e870043c`
+and browser baseline `04beba19` -> `c34c3926`. An independent read-only
+Sol5.6/high subagent found no concrete runtime issue. Workers did not drive GUI.
+Coordinator captured two native empty-delete runs, production before/after,
+touch/A/reload/mobile and stock regressions. Full 1,801 tests/typecheck/build
+pass; whole-scenario fidelity remains fail. Prior trees are preserved; no
+service-tier or coordinator-model change is claimed. The source chat and
+reviewer are idle. Comparison results are recorded in the
+[owned handoff](../workstream-handoffs/home-folder-delete-compare.md).
+
 ## Folder Settings - 2 October 2026
 
 The two Sol5.6/high chats continued at `5fd6a99c` in fresh worktrees, preserving

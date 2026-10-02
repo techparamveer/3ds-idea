@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `79e77f58` (native Folder Settings; rejected cursor
+Current runtime checkpoint: `2f074d64` (native empty-folder Delete; rejected cursor
 candidate remains restored to `a751b2dd` behavior), 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -15,7 +15,10 @@ The selected-folder upper banner is retained, the underlying HOME footer is
 hidden, and source-bounded touch Cancel plus physical B/Escape work on desktop
 and mobile. The [comparison](../workstream-handoffs/home-folder-interaction-compare.md)
 separates regional static evidence from full-screen population/epoch residuals.
-Next bounded folder work is its still-authored Delete confirmation or captured
+Empty-folder Delete now returns directly to root HOME at `2f074d64`, matching
+two fresh native runs; the former confirmation was incorrect, not a native
+screen to redesign. [Correction and evidence](../home-folder-delete-native-2026-10-02.md).
+Next bounded folder work is native populated-folder behavior or captured
 pressed/fade states, not another redesign of folder creation/open/close.
 Rename/text input stays excluded. The open-folder left-gutter discrepancy,
 native keyboard delivery, exact timing/motion/audio and whole scenarios remain

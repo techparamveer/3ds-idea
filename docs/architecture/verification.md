@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Empty-folder Delete](../home-folder-delete-native-2026-10-02.md) at `2f074d64`
+is a behavior correction established by two fresh native before/after runs.
+One Delete activation returns to root HOME/Create Folder without confirmation.
+The old browser generic confirmation is an unpaired semantic mismatch, not
+an equivalent-state pixel baseline. Compare after root to native root and
+retain unchanged Folder Settings controls separately. Actual touch, physical A,
+reload and mobile browser checks pass; exact native timing/input/audio remain
+open. Failed attempts to populate the native folder cannot establish its policy.
+
 [Folder Settings verification](../home-folder-settings-native-2026-10-02.md)
 at `79e77f58` uses fresh native own-PNG and production before/after captures.
 The fixed modal ROI improves 55,945 -> 107 pixels above delta 2 with empty

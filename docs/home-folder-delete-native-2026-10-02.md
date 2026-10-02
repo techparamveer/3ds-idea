@@ -86,3 +86,24 @@ full sparse-worktree suite reaches 1,716 passing, 23 skipped and one todo; its
 files (three delivery assertions and 33 source-model modules fail with
 `ENOENT`). The coordinator's full integration checkout contains those sourced
 model files and must rerun the complete suite after integration.
+
+## Integrated production verification
+
+Source `7d6cdbf2` integrated as `2f074d64`. The coordinator's full checkout
+passes 1,801 tests with zero failures, 23 skips and one TODO; typecheck and
+production build pass. Independent read-only review found no concrete defect.
+Production actual touch Delete, keyboard choice plus console A, reload
+persistence and mobile Delete all return to root HOME with the same vacancy
+selected. Recreated folders advance numbering; no generic confirmation appears.
+The dedicated browser stayed muted and reported no page errors. Both raw LCDs
+and desktop/mobile views were inspected.
+
+Artifacts are under
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-folder-delete-20261002/`:
+`browser-before/`, `browser-after/`, `regression-before/`, `regression-after/`
+and `regression-results-after.json`. All five stock lower and both Settings
+upper regression LCDs are byte-identical. Health main upper epochs are
+unmatched; no native motion regression conclusion follows from that pair.
+The [comparison handoff](workstream-handoffs/home-folder-delete-compare.md)
+records named hashes, empty-mask native comparisons and remaining full-screen
+differences. Whole scenarios remain fail; this is not 1:1 acceptance.

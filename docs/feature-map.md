@@ -15,14 +15,26 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Folder Settings replacement](home-folder-settings-native-2026-10-02.md)
+Latest [empty-folder Delete correction](home-folder-delete-native-2026-10-02.md)
+at `2f074d64` removes the incorrect confirmation: two fresh native runs go
+directly from Folder Settings Delete to root HOME/Create Folder. Desktop touch,
+physical A, reload persistence and mobile touch pass in production, muted and
+without page errors. Full 1,801 tests/typecheck/build and static stock regressions
+pass. Populated-folder deletion remains an explicitly non-native adapter;
+failed native population attempts establish no behavior. Exact motion/input/
+audio and whole-screen fidelity remain open. [Comparison](workstream-handoffs/home-folder-delete-compare.md).
+Post-delete Create Folder footer retains 799 pixels above delta 2 in both
+native repeats (maximum 66); it is a bounded visible follow-up, separate from
+population/scroll and cursor/banner epoch differences.
+
+Earlier [Folder Settings replacement](home-folder-settings-native-2026-10-02.md)
 at `79e77f58` removes the captured generic modal, restores the folder banner
 and delivers source-derived touch Cancel with loading/error escape. Fixed
 modal mismatch improves 55,945 -> 107 pixels above delta 2; header/Delete row
 meet static tolerance, but Rename/corners, outside backing and upper epochs
 remain. Full 1,800 tests/typecheck/build, desktop/mobile Cancel routes and
 static stock regressions pass. [Comparison](workstream-handoffs/home-folder-interaction-compare.md).
-Whole scenarios remain fail; pressed/fade states, Delete confirmation and
+Whole scenarios remain fail; pressed/fade states, populated-folder Delete and
 opened-folder root-icon gutter are the next bounded folder gaps. Preserve
 existing creation/open/close designs and the excluded text-entry boundary.
 

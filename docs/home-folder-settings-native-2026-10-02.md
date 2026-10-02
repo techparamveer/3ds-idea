@@ -1,5 +1,10 @@
 # HOME Folder Settings native-resource replacement
 
+Later [empty-folder Delete evidence](home-folder-delete-native-2026-10-02.md)
+supersedes this checkpoint's generic Delete-confirmation route for empty folders:
+runtime `2f074d64` deletes directly, as observed twice in native HOME. Populated
+folders retain the unverified adapter; the other contracts below are unchanged.
+
 Date: 2 October 2026. Implementation base: coordinator `5fd6a99c`; this
 worktree already contained the two toolbar audit commits `268feb10` and
 `553b176e`. This is a bounded source implementation and focused-test handoff.

@@ -30,6 +30,12 @@ change cursor centers, density Scale geometry or the retained Loop clock from
 this evidence. Any source-proven renderer change requires another production
 60-frame family and the same native comparison.
 
+A follow-up direct-LCD sampling candidate at runtime `68c69bcf` is rejected.
+Its best-of-60 frozen-support score is lower at every density, but the result is
+not uniform at the same named browser frames, the full authored ROI regresses
+at row 4, and full-LCD controls do not establish an outside-ROI-safe change.
+Do not integrate it from this evidence.
+
 No whole scenario or matrix entry passes from this diagnostic.
 
 ## Comparison boundary
@@ -94,9 +100,12 @@ setup issue, not a HOME reducer or native density-input defect.
 | 5 | `_02.10.26_16.04.00.348.png` | `85bd6bb0392046af30a4649f69c52fe89ae9d3e0391f8ed922a4cc6125438366` |
 | 6 | `_02.10.26_16.04.10.306.png` | `4b0c9735d6e3874fa24a13ecc60b19359ec88068f4be7d99c614c4545cd08359` |
 
+The fresh primary sequence is recorded by
+`home-cursor-phase-20261002/coordinator/native-run.json`, SHA-256
+`465efc6089027d52550c36a9bd7d9ff20d83b6ec97482fe4680bedb0c7df1f7c`.
 The preserved descending sequence remains in the report as six independent
-replications. It retains its original hashes and `coordinator/native-run.json`
-identity
+replications. It retains its original hashes and the separately labelled
+`home-touch-projection-20261002/coordinator/native-run.json` identity
 `6b626a8c135fc254412d433fa2280d0d783260c10cfc2b9364ef1a954600e095`.
 The report also scores native initial rows 1, first-increase rows 5, three fresh
 live one-row captures and an uncontrolled pause/frame-attempt holdout.
@@ -193,6 +202,52 @@ geometry separately from RGB phase ranking. The geometry evidence supports the
 existing centers/Scale route; the residual floor points to the window/material
 raster path, subject to source audit.
 
+## Direct-LCD sampling candidate: rejected
+
+The coordinator replayed the source worker's bounded
+`pictureSampling: 'lcd'` candidate for the two `LncCsr_00` cursor windows only.
+The first 360-frame replay selected Settings in slot 9 and is excluded: the
+baseline selects Health in slot 8, so its different composited background does
+not isolate the candidate. A second attempted Health replay retained a
+different scroll anchor and was also excluded before comparison.
+
+The definitive `browser-candidate-health-aligned` replay contains all 60 actual
+sampled/applied frames at all six densities. Every frame identifies Health as
+selected and visible slot 8 and matches the baseline center, Scale, mode,
+render-active effect state and white theme. The comparator also rehashes each
+baseline lower PNG and capture JSON against the frozen baseline report before
+using it. Invisible effects retain different stale target/disappear histories;
+those states do not draw and are not treated as render-active differences.
+
+The table uses the exact existing native inputs and exact frozen mint supports;
+it does not recompute support from candidate output. Ranking is pixels above
+delta 2, then RMSE. Rows are reported six through one.
+
+| Rows | Baseline best frame | Baseline `>2` / RMSE / max | Candidate best frame | Candidate `>2` / RMSE / max | Same-frame improved / worsened |
+| ---: | ---: | --- | ---: | --- | --- |
+| 6 | 32 | 291 / 20.024214 / 175 | 31 | 277 / 19.953238 / 175 | 9 / 51 |
+| 5 | 40 | 338 / 12.514054 / 161 | 35 | 326 / 11.996679 / 160 | 26 / 34 |
+| 4 | 0 | 467 / 8.757800 / 34 | 1 | 463 / 8.462834 / 35 | 9 / 51 |
+| 3 | 2 | 646 / 11.105495 / 40 | 8 | 632 / 8.069809 / 21 | 20 / 40 |
+| 2 | 3 | 860 / 9.913525 / 30 | 8 | 856 / 7.992001 / 23 | 20 / 40 |
+| 1 | 32 | 1,008 / 6.483213 / 19 | 30 | 944 / 4.819649 / 19 | 14 / 46 |
+
+These minima are a modest best-fit improvement, not a native phase match. Most
+same-numbered browser frames worsen at every density. In the separate full
+authored cursor ROI, which includes the halo, title interior and background,
+row 4 worsens from 3,251 to 3,289 pixels above delta 2; the other rows are
+mixed in metric magnitude and all remain far from the static tier.
+
+The raw same-frame controls are not clean acceptance evidence. Every density
+has lower-LCD differences outside the two full source cursor ROIs and upper-LCD
+differences even though the candidate source edit is lower-cursor-only. The
+maximum outside-ROI lower counts above delta 2 are 66, 98, 248, 127, 197 and 63
+for rows 6 through 1. This proves the two capture families do not provide an
+isolated full-LCD before/after control; it does not identify the cause of those
+unexplained residuals. The candidate therefore fails the required
+improvement-without-new-edge/background-regression gate and is rejected. The
+coordinator restored the prior transport at `b8773a90`.
+
 ## Next verification action
 
 1. Trace the existing renderer's `W_CsrLgt_00LT` and `W_CsrF_00LT` window
@@ -209,6 +264,10 @@ raster path, subject to source audit.
 4. Whole-LCD empty-mask comparison, exact input, motion, cue timing, shutdown
    and muted audio remain separate required gates. Never use these cursor-only
    supports as reasoned masks in the scenario matrix.
+5. Do not carry the rejected direct-LCD sampling candidate forward. A future
+   transport experiment needs deterministic non-cursor visual epochs or an
+   otherwise isolated same-background replay before it can clear the
+   outside-ROI safety gate.
 
 ## Artifacts and verification boundary
 
@@ -216,16 +275,31 @@ Private root:
 `/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-cursor-phase-20261002/`.
 
 - comparator: `comparison/compare-cursor-phases.mjs`, SHA-256
-  `455158993ceac1abf20c7b1b2e87c6513e96d97196e5aa757465ad8c3701dc1e`;
+  `753cfaffa42cdcb4480379719776539fc6c91e86c099acf69d49af115d2e2964`;
 - fresh native manifest: `comparison/fresh-native-primary.json`, SHA-256
   `f8aec44203625b8e48162ff572dd14586bcffa76dbb45be032dce59e5d0bae88`;
 - repeat/holdout manifest: `comparison/extra-native.json`, SHA-256
   `b7c6962e52ada351d29bedeee98672ff6078ad69dfec25cd95625c7a08731187`;
 - report: `comparison/fresh-phase/report.json`, SHA-256
-  `a92a71837b70099bd5ef5742c5c13899e8ffc5d6b41f9fb75ce7605fef83abdb`;
+  `98f3b3ac44dc25b5cbe4bdf7ca1fbb0205f2fcd096061b45d265150cb0f6c88b`;
 - opened five-column sheet:
   `comparison/fresh-phase/cursor-phase-primary-sheet.png`, SHA-256
   `092a74bbbdfdea9fae469b76096b8d7712b804263b4149413b1a20f6fd572ec4`.
+- candidate comparator: `comparison/compare-candidate.mjs`, SHA-256
+  `f266fad9fe5dc57b70ce41a1ddd7369b2f309af2520497b4ebac5c6f66322be1`;
+- aligned candidate result: `browser-candidate-health-aligned/result.json`,
+  SHA-256
+  `329925d7702108872923cc0de63f8a391783b437c06683f05b9ce87f9414bd0b`;
+- aligned candidate report:
+  `comparison/candidate-health-aligned/report.json`, SHA-256
+  `e1acfc9309d9d5cb38f80ca0ad7222d79fe659a8bcecaba2ab18c5fa66021d0b`;
+- inspected candidate sheet:
+  `comparison/candidate-health-aligned/cursor-candidate-primary-sheet.png`,
+  SHA-256
+  `47cc79c8c804c0ec9e0e41e6d29c2b8994cb125e2825af017f38a6b9f72a9192`;
+- excluded slot-9 diagnostic:
+  `comparison/candidate-invalid-selection/report.json`, SHA-256
+  `83c5bbba5e81d9e17baf3131896adef8e52f182664a0f7297a56eb8b6bdfc198`.
 
 The report hashes every native input, all 360 browser lower PNGs and capture
 metadata files, the support runs, phase metrics and output sheet. The comparator

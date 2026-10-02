@@ -52,6 +52,7 @@ deferred at the user's request; preserve all already-designed surfaces.
 ### H-06 - Long-press pickup, reorder, folder hover, and edge scroll
 **Code/tests/evidence:** [home-tile-pickup.ts](../../src/os/home-tile-pickup.ts), [home-gestures.ts](../../src/os/home-gestures.ts), [home-layout.ts](../../src/os/home-layout.ts), [gesture tests](../../tests/home-gestures.test.mjs), [pickup contract](../home-pickup-entry-contract.md).
 **Now/gap/dependency:** The callback-3 stationary mode-14 pickup and atomic swaps are source-backed. Movement, drop, folder hover, drag-out, and edge timings are working browser adaptations explicitly marked authored; folder-icon/toolbar pickup remains untraced.
+**2 October endpoint evidence:** [Fresh folder replay](../home-pickup-endpoints-2026-10-02.md) matches Health child2 ->1 ->2 with desktop/mobile/reduced production. Artwork and vacated blank cores meet delta2; native held poses, precise input/release motion/audio remain open. Stable divider/footer shade fails separately; do not change pickup semantics to address it.
 **Next/acceptance:** Hold one portfolio tile, drag across a vacant slot, into/out of a folder, and against each edge, including cancel. Record callback frame and authored deadlines, compare visible ghost/source blanking and final layout, and classify each differing continuation as adaptation or source-gap.
 
 ### H-07 - Folder create, enter, close, and retained histories

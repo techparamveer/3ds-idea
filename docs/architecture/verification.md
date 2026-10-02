@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+[Pickup endpoint comparison](../home-pickup-endpoints-2026-10-02.md) separates
+semantic placement, selected/blank artwork, stable chrome and cursor epochs.
+Matched child2 ->1 ->2 placement and static artwork tolerance do not establish
+held animation, release motion or exact native sample cadence. Browser held
+frames without native counterparts must remain excluded from native pixel
+acceptance. Repeated divider/footer shade errors remain fail even when small;
+do not infer HOME framebuffer format from another title's descriptor.
+
 [Create Folder footer text](../home-footer-text-2026-10-02.md) now meets the
 static delta2 tier across desktop/mobile/reduced captures against three
 preserved native own-PNGs. The 1/16 coverage fit is a labelled adaptation, not

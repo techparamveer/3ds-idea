@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## Pickup Endpoints - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree
+`/Users/paramveer/.codex/worktrees/3ds-home-pickup-visible-20261002`, branch
+`codex/home-pickup-visible-20261002`, base `28083c79`. Comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` produced private reports only.
+Both GPT-5.6 Sol/high; only coordinator operated native/production GUI.
+Fresh native and desktop/mobile/reduced folder moves agree2 ->1 ->2, with
+artwork/blank cores at delta2. No pickup ownership defect or runtime change.
+Repeated backing strips remain fail; one bounded source diagnosis leaves HOME
+capture format/raster precision unproved. [Evidence](../home-pickup-endpoints-2026-10-02.md).
+Native session67760 and owned Chrome98768 exited0. All browser capture sessions
+complete, muted/no errors; preview3021/session7958 remains HTTP200. Prior
+worktrees preserved, no matrix/push/deploy changes. Remaining held/drop/hover/
+edge timing and backing evidence are explicit, not a whole-scenario pass.
+
 ## Footer Text - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used owned tree

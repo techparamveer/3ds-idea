@@ -15,7 +15,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Create Folder footer text](home-footer-text-2026-10-02.md), `f031cca9`,
+Latest [pickup endpoint comparison](home-pickup-endpoints-2026-10-02.md) at
+unchanged `28083c79` verifies native folder child2 ->1 ->2 placement against
+desktop/mobile/reduced. Selected artwork and vacated blank cores meet delta2;
+held animation/timing remain unverified. Divider and footer-edge shade remain
+repeatable failures, with HOME capture format/raster precision unproved. No
+speculative runtime correction. Next: unverified held/drop/hover/edge scenarios
+or a source-supported backing correction, not another settled-endpoint audit.
+
+Earlier [Create Folder footer text](home-footer-text-2026-10-02.md), `f031cca9`,
 reduces the fixed whole-footer residual19 ->0 above delta2/max2 against three
 preserved native captures. Desktop/mobile/reduced agree; four non-target
 footer ROIs are byte-identical. The coverage fit is a labelled adaptation in

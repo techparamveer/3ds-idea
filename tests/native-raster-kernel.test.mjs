@@ -9,6 +9,17 @@ import {
 } from '../src/os/native-layout.ts';
 import { decodeNativePng } from '../src/os/native-png.ts';
 
+const unitUV=[0,0,1,0,0,1,1,1],zeroUV=[0,0,0,0,0,0,0,0];
+function referenceSamplerUV(layout,picture,material,index,generator){
+ const source=generator?.source??index,uv=picture.uvSets[source];if(uv)return uv;
+ const notesMissingUv=index===2&&source===1&&picture.uvSets.length===1&&material.name==='P_Memo_10'&&
+  material.textureMaps.length===3&&material.coordinateGenerators.length===3&&
+  material.coordinateGenerators.map(value=>`${value.type}/${value.source}`).join(',')==='0/0,0/0,0/1'&&
+  material.textureMaps.map(map=>layout.textures[map.texture]).join(',')==='IcnCherry_10.bclim,IcnCherry_11.bclim,IcnGrw_8_00.bclim';
+ if(notesMissingUv)return zeroUV;
+ throw new Error(`Unsupported missing native UV ${material.name}/${index}/source${source}`);
+}
+
 // Compose the preserved scalar helpers, independently of prepared selectors,
 // scratch registers and raster internals. This is the d30da2e raster algorithm.
 export function referenceRaster(layout,picture,width,height,textures,alpha=1,material=layout.materials[picture.material],sampling){
@@ -24,7 +35,7 @@ export function referenceRaster(layout,picture,width,height,textures,alpha=1,mat
   const samples=material.textureMaps.map((map,index)=>{
    const generator=material.coordinateGenerators[index];
    if(generator&&(generator.type!==0||generator.source>2))throw new Error(`Unsupported coordinate generator ${generator.type}/${generator.source}`);
-   const uv=transformNativeUV(interpolateNativeQuad(picture.uvSets[generator?.source??index]??[0,0,0,0,0,0,0,0],u,v),material.textureMatrices[index]);
+   const uv=transformNativeUV(interpolateNativeQuad(referenceSamplerUV(layout,picture,material,index,generator),u,v),material.textureMatrices[index]);
    return sampleNativeTexture(sources[index],uv[0],uv[1],map.wrapS,map.wrapT,map.magFilter!==0);
   });
   data.set(evaluateNativeMaterial(material,samples,primary).map(c=>Math.round(c*255)),(y*width+x)*4);
@@ -41,12 +52,12 @@ const stage=(color=combiner(),alpha=combiner(),constantSelectors=0x21)=>({color,
 const material=()=>({name:'test',bufferColor:[33,199,57,129],constantColors:[[209,127,15,240],[76,101,244,83],[151,62,189,137],[12,249,77,3],[128,0,255,171],[255,49,126,44]],textureOnly:false,textureMaps:[],textureMatrices:[],coordinateGenerators:[],tevStages:[],unsupported:[]});
 const picture=()=>({material:0,colors:[[17,129,255,64],[254,89,91,222],[111,200,23,143],[77,231,198,255]],uvSets:[]});
 function fixture(count=4){
- const m=material(),l={materials:[m],textures:[],roots:[],groups:[],fonts:[],unsupported:[],canvas:{width:320,height:240,origin:1}},textures=new Map();
+ const m=material(),p=picture(),l={materials:[m],textures:[],roots:[],groups:[],fonts:[],unsupported:[],canvas:{width:320,height:240,origin:1}},textures=new Map();
  for(let i=0;i<count;i++){
   const name=`texture${i}`,width=3+i,height=2+i,data=Uint8ClampedArray.from({length:width*height*4},(_,k)=>(k*73+i*47+(k%4===3?51:0))%256);
-  l.textures.push(name);textures.set(name,{width,height,data});m.textureMaps.push({texture:i,wrapS:i%3,wrapT:(i+1)%3,minFilter:0,magFilter:i%2});
+  l.textures.push(name);textures.set(name,{width,height,data});m.textureMaps.push({texture:i,wrapS:i%3,wrapT:(i+1)%3,minFilter:0,magFilter:i%2});p.uvSets.push(unitUV);
  }
- return {m,l,textures,p:picture()};
+ return {m,l,textures,p};
 }
 
 test('all TEV modes, sources, RGB/alpha operands, complements and scales match scalar byte results',()=>{
@@ -126,7 +137,7 @@ test('adversarial seeded multistage rasters preserve constant/buffer state acros
  for(let run=0;run<250;run++){
   const {m,l,textures,p}=fixture(int(5));
   m.bufferColor=Array.from({length:4},()=>int(256));m.constantColors=Array.from({length:6},()=>Array.from({length:4},()=>int(256)));
-  p.colors=Array.from({length:4},()=>Array.from({length:4},()=>random()*255));p.uvSets=Array.from({length:3},()=>Array.from({length:8},()=>random()*6-3));
+  p.colors=Array.from({length:4},()=>Array.from({length:4},()=>random()*255));p.uvSets=m.textureMaps.map(()=>Array.from({length:8},()=>random()*6-3));
   m.textureMatrices=m.textureMaps.map(()=>({translation:[random()-1,random()+1],scale:[random()*3-2,random()*3-2],rotation:random()*720-360}));
   const c=alpha=>combiner(int(8),Array.from({length:3},()=>int(8)),Array.from({length:3},()=>int(alpha?8:10)),[.5,1,2,4][int(4)],!!int(2));
   m.tevStages=Array.from({length:1+int(6)},()=>stage(c(false),c(true),int(7)|(int(7)<<4)));
@@ -152,6 +163,15 @@ test('unsupported material inputs still fail explicitly, including unused TEV ar
  identical([l,p,3,2,textures]);identical([l,p,0,0,textures]);
  assert.throws(()=>rasterNativePicture(l,{...p,material:99},1,1,textures),/Missing material/);
  assert.throws(()=>rasterNativePicture(l,p,1,1,new Map()),/Missing native texture/);
+});
+
+test('missing selected UVs outside the exact Notes adaptation fail explicitly',()=>{
+ const {m,l,textures,p}=fixture(1);p.uvSets=[];
+ assert.throws(()=>rasterNativePicture(l,p,1,1,textures),/Unsupported missing native UV test\/0\/source0/);
+ assert.throws(()=>referenceRaster(l,p,1,1,textures),/Unsupported missing native UV test\/0\/source0/);
+ p.uvSets=[unitUV];m.coordinateGenerators=[{type:0,source:1}];
+ assert.throws(()=>rasterNativePicture(l,p,1,1,textures),/Unsupported missing native UV test\/0\/source1/);
+ assert.throws(()=>referenceRaster(l,p,1,1,textures),/Unsupported missing native UV test\/0\/source1/);
 });
 
 const resourceRoot=process.env.FIRMWARE_PRESENTATION_ASSETS??resolve('public/os/firmware/10.7.0-32E');

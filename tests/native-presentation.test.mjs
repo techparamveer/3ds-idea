@@ -287,7 +287,7 @@ test('real HOME ordinary source and arrow retain rounded alpha and native green'
  assert.ok(Array.from({length:256},(_,i)=>i*4).some(i=>ink.data[i+3]>250&&ink.data[i+1]>ink.data[i]+20&&ink.data[i+2]>ink.data[i]+15),'native arrow tint must remain green rather than saturate to white');
 });
 
-test('Game Notes missing second UV attribute uses zero instead of a fabricated unit quad',{skip:!available},async()=>{
+test('Game Notes fitted missing-UV adaptation is scoped and preserves full-raster alpha',{skip:!available},async()=>{
  const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/launcher.json'))),name='LncBase_D_01';
  const l=poseNativeLayout(pack.layouts[name],pack.animations,[{name:name+'_PaletteOut',frame:12},{name:name+'_MvsToggle',frame:0}]);
  const panes=[];const walk=ps=>ps.forEach(p=>{panes.push(p);walk(p.children);});walk(l.roots);
@@ -296,8 +296,12 @@ test('Game Notes missing second UV attribute uses zero instead of a fabricated u
  const pixels=new Map();for(const map of m.textureMaps){const texture=l.textures[map.texture],record=pack.textures[texture],{data,info}=await sharp(resolve(resourceRoot,record.url)).ensureAlpha().raw().toBuffer({resolveWithObject:true});pixels.set(texture,api.nativeTextureSamplePixels({width:info.width,height:info.height,data:new Uint8ClampedArray(data)},record.picaFormat));}
  const source=rasterNativePicture(l,memo.picture,36,36,pixels),at=(4*36+20)*4;
  assert.deepEqual([...source.data.slice(at,at+4)],[225,190,0,255]);
- const unit={...memo.picture,uvSets:[...memo.picture.uvSets,[0,0,1,0,0,1,1,1]]},fabricated=rasterNativePicture(l,unit,36,36,pixels);
- assert.deepEqual([...fabricated.data.slice(at,at+4)],[235,193,0,255]);
+ const unit={...memo.picture,uvSets:[...memo.picture.uvSets,[0,0,1,0,0,1,1,1]]},explicit=rasterNativePicture(l,unit,36,36,pixels);
+ assert.deepEqual([...explicit.data.slice(at,at+4)],[235,193,0,255]);
+ assert.deepEqual(Array.from({length:36*36},(_,i)=>source.data[i*4+3]),Array.from({length:36*36},(_,i)=>explicit.data[i*4+3]));
+ assert.ok(Array.from({length:36*36},(_,i)=>i*4).some(i=>source.data[i]!==explicit.data[i]||source.data[i+1]!==explicit.data[i+1]||source.data[i+2]!==explicit.data[i+2]));
+ const near={...m,name:'P_Memo_10_copy'};
+ assert.throws(()=>rasterNativePicture(l,memo.picture,36,36,pixels,1,near),/Unsupported missing native UV P_Memo_10_copy\/2\/source1/);
  assert.equal(memo.picture.uvSets.length,1,'sampling does not mutate the decoded source');
 });
 

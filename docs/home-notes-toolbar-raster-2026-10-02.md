@@ -19,9 +19,12 @@ SHA-256 `a11de07c94ef874fe51835a9d0974df182e5433a5101c44942971e575c7f7480`;
 the inspected toolbar native/browser/difference sheet is SHA-256
 `8ba8b62948d86d0aa8475cdf4f78b193816a6f34fca814b1690230d1e7dd876b`.
 
-That pair has unmatched input, clock, population and animation epochs. It is
-evidence for a bounded source/rendering investigation, not a whole-scenario or
-repeatability pass.
+The coordinator subsequently saved four native Notes ROIs across the fresh
+Health/Camera route; those four ROIs are byte-identical. A fresh production-
+before Health → Camera → Health 200 ms route also reproduces 201 pixels over
+delta 2 and maximum delta 25. The native input in that launch did not select
+Camera, so this establishes repeatability of the bounded Notes residual, not
+an exact-input native/browser pair or a whole-scenario pass.
 
 ## Native resource mapping
 
@@ -62,14 +65,14 @@ the third coordinate generator, for `IcnGrw_8_00`, selects source UV attribute
 previously replaced every absent UV attribute with a fabricated unit quad
 `[0,0, 1,0, 0,1, 1,1]`, sweeping the 8×8 A8 grow texture across the 36×36
 pane. That quad is not data present in the decoded picture. The bounded
-candidate instead keeps the absent attribute at a neutral all-zero value.
+candidate samples the absent attribute as an all-zero value.
 
 An inventory of every delivered firmware layout finds this exact missing-UV
 shape only once: `LncBase_D_01/P_Memo_10`, sampler 2, source 1, with one UV
 set. Explicit UV sets and all other delivered panes therefore keep their
 existing sampling.
 
-The source-zero sample retains the authored six-stage TEV material and palette
+The fitted-zero sample retains the authored six-stage TEV material and palette
 constants. At local pane pixel `(20,4)` it yields `[225,190,0,255]`; the
 fabricated unit quad yields `[235,193,0,255]`. Across the captured 26×23 ROI,
 all 201 original differences occur on fully opaque material pixels. Replacing
@@ -77,28 +80,32 @@ only the absent attribute's invented unit quad with zero predicts 0 pixels
 over delta 2 and maximum delta 1. The output alpha is byte-identical before
 and after, so the correction does not change edge coverage or compositing.
 
-This is a decoded-source-preserving candidate, not a fitted color, texture,
-offset, or theme adaptation. The resource shape plus exact pixel prediction
-strongly support it, but this single unmatched-state pair does not by itself
-prove native attribute initialization or repeatability.
+The decoded resource proves that UV attribute 1 is absent; it does not prove
+how native hardware initializes or reads that absent attribute. The exact
+all-zero sampling rule is therefore an inferred, capture-fitted adaptation
+until native initialization is traced. It is not a fitted color, texture,
+offset, or theme value. The repeated residual and exact pixel prediction
+support the bounded rule without turning it into source-proven behavior.
 
 ## Implementation and verification boundary
 
-`rasterNativePicture` now uses an all-zero quad only when a material selects a
-UV attribute absent from the picture. Its independent scalar reference uses
-the same rule. A real-resource regression pins the one-UV/three-sampler source
-shape, the source-zero material byte result, the old fabricated result, and
-source immutability. Existing density/toolbar tests ensure the presentation
-bindings and pane positions are unchanged.
+`rasterNativePicture` now permits the fitted all-zero UV only for the exact
+delivered Notes shape: material `P_Memo_10`, sampler 2, source 1, one picture
+UV set, the authored three-generator pattern, and the three named textures.
+Any other missing selected UV fails explicitly. Authored UV sets retain their
+existing path. The independent scalar reference applies the same test-only
+contract. Regressions cover generic and near-Notes rejection, explicit UV
+sampling, the fitted material byte result, source immutability, and alpha-byte
+preservation across the complete 36×36 raster. Existing density/toolbar tests
+ensure presentation bindings and pane positions are unchanged.
 
 Worker checks passed:
 
 - `git diff --check`;
-- `node --test tests/native-presentation.test.mjs tests/native-raster-kernel.test.mjs tests/home-density-controls.test.mjs` — 48/48;
+- `node --test tests/native-presentation.test.mjs tests/native-raster-kernel.test.mjs tests/home-density-controls.test.mjs` — 49/49;
 - `npm run typecheck`.
 
 This worker did not run a production build, browser, Azahar, audio, or private
-matrix update. The coordinator must integrate, repeat a settled native capture
-to establish state stability, and capture the production after image. Until
-that repeat and after comparison exist, the predicted 0/max-1 ROI is not
+matrix update. The coordinator must integrate and capture the production after
+image. Until that after comparison exists, the predicted 0/max-1 ROI is not
 native acceptance, and the HOME idle scenario remains fail.

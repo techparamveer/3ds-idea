@@ -385,6 +385,19 @@ export function sampleNativeTexture(image:NativePixels,u:number,v:number,wrapS=0
 
 export const nativeWhite = [[255,255,255,255],[255,255,255,255],[255,255,255,255],[255,255,255,255]];
 const unitUV=[0,0,1,0,0,1,1,1],zeroUV=[0,0,0,0,0,0,0,0];
+/** The decoded Notes picture omits UV1 while its third sampler selects UV1.
+ * Zero is a capture-fitted adaptation, not a proven native initialization
+ * rule, so keep it limited to the exact delivered material/sampler shape.
+ */
+function nativeSamplerUV(layout:NativeLayout,picture:NativePicture,material:NativeMaterial,index:number,generator:NativeMaterial['coordinateGenerators'][number]|undefined){
+ const source=generator?.source??index,uv=picture.uvSets[source];if(uv)return uv;
+ const notesMissingUv=index===2&&source===1&&picture.uvSets.length===1&&material.name==='P_Memo_10'&&
+  material.textureMaps.length===3&&material.coordinateGenerators.length===3&&
+  material.coordinateGenerators.map(value=>`${value.type}/${value.source}`).join(',')==='0/0,0/0,0/1'&&
+  material.textureMaps.map(map=>layout.textures[map.texture]).join(',')==='IcnCherry_10.bclim,IcnCherry_11.bclim,IcnGrw_8_00.bclim';
+ if(notesMissingUv)return zeroUV;
+ throw new Error(`Unsupported missing native UV ${material.name}/${index}/source${source}`);
+}
 /** Native panes rasterize as LT-RT-RB and LT-RB-LB triangles. The diagonal
  * matters for unequal corner colors such as Settings' wrench and icons. */
 export function interpolateNativeQuad(values:number[],u:number,v:number,components=2) {
@@ -614,10 +627,7 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
  const samplers=material.textureMaps.map((map,index)=>{
   const generator=material.coordinateGenerators[index];if(generator&&(generator.type!==0||generator.source>2))throw new Error(`Unsupported coordinate generator ${generator.type}/${generator.source}`);
   const matrix=material.textureMatrices[index],angle=matrix?matrix.rotation*Math.PI/180:0;
-  // A source generator can address a UV attribute absent from the picture's
-  // vertex payload. Keep that absent attribute at its neutral zero value; a
-  // fabricated unit quad animates HOME P_Memo_10 texture 2 across the pane.
-  return {image:sources[index],uv:picture.uvSets[generator?.source??index]??zeroUV,wrapS:map.wrapS,wrapT:map.wrapT,linear:map.magFilter!==0,
+  return {image:sources[index],uv:nativeSamplerUV(layout,picture,material,index,generator),wrapS:map.wrapS,wrapT:map.wrapT,linear:map.magFilter!==0,
    matrix:matrix?{c:Math.cos(angle),s:Math.sin(angle),sx:matrix.scale[0],sy:matrix.scale[1],tx:matrix.translation[0],ty:matrix.translation[1]}:null};
  });
  const base=material.bufferColor.map(v=>v/255),constants=material.constantColors.map(c=>c.map(v=>v/255)),implicit=constants[0]??white;

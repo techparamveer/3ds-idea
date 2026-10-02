@@ -135,7 +135,9 @@ export function tickHomeNavigationClockObserved(state: MenuState, now: number, r
   for(let i=1;i<=stepped.updates;i++){
    state={...state,system:{...state.system!,homeClock:{...stepped.clock,updateCount:s.homeClock.updateCount+i}}};
    const passNow=now-stepped.clock.remainderMs-(stepped.updates-i)*1000/60;
-   state=reconcileHomeControlGesture(tickHomeGesture(state,passNow));
+   const beforeGesture=state,afterGesture=tickHomeGesture(state,passNow);
+   state=beforeGesture.system!.homeNavigation.activeFolderSlot!==afterGesture.system!.homeNavigation.activeFolderSlot
+    ?reconcileHomeControls(beforeGesture,afterGesture):reconcileHomeControlGesture(afterGesture);
    const pass=stepHomeControls(state);state=pass.state;
    if(pass.handoff){
     // The audited open call ends the native input pass. Existing application

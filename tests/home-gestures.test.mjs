@@ -5,7 +5,7 @@ import { IDBFactory } from 'fake-indexeddb';
 import { apps } from '../src/os/apps.ts';
 import { homeTitles } from '../src/os/app-registry.ts';
 import { menuTiles, pageStart, rowCount, densities, reduceMenu } from '../src/os/state.ts';
-import { createPortfolioState, dispatchSystemEvent, tickSystem, reduceSystem, releaseSystemInputs, setSystemSleeping, launch, invokeSystemApplet, saveSettings, restoreSettings, selectedTitle, homeSlotAppId, moveHomeItem, getHomeGestureView } from '../src/os/system.ts';
+import { createPortfolioState, dispatchSystemEvent, tickSystem, tickHomeNavigationClockObserved, reduceSystem, releaseSystemInputs, setSystemSleeping, launch, invokeSystemApplet, saveSettings, restoreSettings, selectedTitle, homeSlotAppId, moveHomeItem, getHomeGestureView } from '../src/os/system.ts';
 import { HOME_GESTURE_TIMING as T, homeTouchLocation } from '../src/os/home-gestures.ts';
 import { resolveHomeDrop, restoreHomeLayout } from '../src/os/home-layout.ts';
 import { enableHomeControls, reconcileHomeControls } from '../src/os/home-controls.ts';
@@ -84,7 +84,7 @@ test('holding a folder child over Back carries the same pickup to retained root 
  assert.equal(s.opened,false);assert.deepEqual(s.system.homeNavigation.rootView,origin.rootView);assert.deepEqual(held.dragged.source,source);
  assert.deepEqual([held.pointerId,held.x,held.y],[1,...back]);assert.deepEqual(held.target,root(0));assert.equal(held.canDrop,true);
  assert.deepEqual(s.system.homeControls.tilePickup.source,source);assert.equal(s.system.homeControls.primary.request,2);
- assert.equal(Object.values(s.system.homeControls.tileTouch.widgets).some(widget=>widget.capture),true);
+ assert.equal(s.system.homeControls.tileTouch.strokeOwned,true);assert.deepEqual(s.system.homeControls.tileTouch.widgets,{});
  s=touch(s,'up',...back,5700+T.folderHoverMs+1);
  assert.equal(s.opened,false);assert.equal(s.system.layout[0],'projects');assert.equal(s.system.folderLayouts[4][2],'work');assert.equal(getHomeGestureView(s),null);noLoss(s);
  assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileCandidate,null);
@@ -125,6 +125,22 @@ test('timed Back carry submits restored root Scale5 and fitted lift without reta
  assert.deepEqual(s.system.homeControls.tilePickup.center,{x:back[0],y:back[1]-5.25});
  s=touch(s,'cancel',...back,5700+T.folderHoverMs+301);
  assert.equal(s.system.layout[0],'work');assert.equal(s.system.folderLayouts[4][2],'projects');assert.equal(s.system.homeControls.tilePickup,null);noLoss(s);
+});
+test('scene advance-before-mutation retargets when a counted pass crosses the Back deadline',()=>{
+ let s=placeInFolder();s=writeHomeNavigation(s,{...s.system.homeNavigation,rootView:{...s.system.homeNavigation.rootView,density:5}});
+ s=enableHomeControls(s);s=lift(s,2,5200);const source=child(4,2),back=[59,54],deadline=5700+T.folderHoverMs+1,frame=1000/60;
+ s=touch(s,'move',...back,5700);
+ s={...s,system:{...s.system,homeClock:{...s.system.homeClock,lastNow:deadline-frame,remainderMs:0}}};
+ const advanced=tickHomeNavigationClockObserved(s,deadline);assert.equal(advanced.passes.length,1);s=advanced.state;
+ assert.equal(s.opened,false);assert.deepEqual(getHomeGestureView(s).dragged.source,source);
+ assert.deepEqual(s.system.homeControls.tilePickup.source,source);
+ assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
+ assert.deepEqual(s.system.homeControls.tilePickup.blankScale,{currentFrame:1,appliedFrame:1});
+ assert.deepEqual(s.system.homeControls.tilePickup.anchor,{x:0,y:-5.25});
+ const beforeAction=s;s=reconcileHomeControls(beforeAction,tickSystem(beforeAction,deadline));
+ assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
+ assert.deepEqual(s.system.homeControls.tilePickup.source,source);
+ assert.equal(s.system.homeControls.tileTouch.strokeOwned,true);
 });
 test('the pre-existing immediate folder-band exit keeps its generic control reset',()=>{
  let s=enableHomeControls(placeInFolder());s=lift(s,2,5200);assert.ok(s.system.homeControls.tilePickup);

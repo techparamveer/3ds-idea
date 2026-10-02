@@ -47,13 +47,35 @@ conversion is required: the presentation audit verified originals, current
 public decodes and all14 distinct texture dependencies on SSD in
 `presentation/pickup-entry/`.
 
-The browser adapter currently supplies zero anchor, retaining its existing
-pointer-centered placement. The native anchor initializer is unresolved; the
-continuation executes position = supplied touch + supplied anchor. Resource
-installation, PicToggle/material mutations and native icon-content setup remain
-supplied endpoints. Movement, hover, drop/release, folder-icon and toolbar pickup
-still use explicit authored bridges. Do not call this a complete native drag
-lifecycle or a matched pickup pixel result.
+The browser adapter supplies an explicitly capture-fitted anchor and the
+continuation executes `position = supplied touch + supplied anchor`. Only two
+Scale endpoints have held native observations: folder Scale1 uses `(0,-14)`;
+restored-root Scale5 uses the provisional proportional `(0,-5.25)` derived from
+the observed approximately 0.375 pickup-size ratio. Scale0/2/3/4 and fractional
+frames retain the earlier zero-anchor adaptation; interpolation is not invented.
+The 500 ms Back-hover deadline remains an unmeasured browser adaptation. The
+held captures establish endpoint state, not the native transition deadline.
+
+The native inputs are Azahar own 400×480 PNGs from the same CTM-held run:
+
+| State | Capture | SHA-256 |
+| --- | --- | --- |
+| Folder density1, touch `(244,137)` | `native-held-ctm-20261002/screenshots/_02.10.26_20.33.56.197.png` | `48a18cabbc26a3eacc41926a97dc95f2b75fd7743a6d6c4e953d5adf87750607` |
+| Root density5 after held Back | `native-held-ctm-20261002/screenshots/_02.10.26_20.34.26.428.png` | `83c6db6ad50711219e688ee6505c5ad846017520fc141986ff0240e2a8ddab7d` |
+
+The first capture places the native bright pickup at y86..154 versus the prior
+browser y100..167, supporting the -14 vertical fit. The root capture establishes
+that Back immediately switches the held pickup to root Scale5; it does not by
+itself validate the proportional lift. Coordinator browser capture at integrated
+commit `652520ee` confirms the adapter submits Scale5, anchor `(0,-5.25)`, retained
+folder source 19/2 and Blank Scale1 after Back
+(`retarget-first-browser/cancel-root-preview/capture.json`, SHA-256
+`a65b9522bcf149ade5e89d20703eb60b7d35aaa37ee4138240648e16c44c29b9`).
+That is state-path evidence, not a matched pixel fit. Resource installation,
+PicToggle/material mutations and native icon-content setup remain supplied
+endpoints. Movement, hover, drop/release, folder-icon and toolbar pickup still
+use explicit authored bridges. Do not call this a complete native drag lifecycle
+or a matched pickup pixel result.
 
 Root's host checks cover root/child × same/different ordinary entry, H20 release,
 vacant hold/callback4, one stationary held pass, grab once, hidden controller

@@ -1,5 +1,11 @@
 # Verification and evidence architecture
 
+The [source suspended-window delivery](../home-suspended-window-2026-10-02.md)
+at `81d0b3d8` has nine final raw production pairs and an inspected retained-native
+diagnostic (95286/51107 upper/lower pixels >2, empty mask). Different input,
+population/density and flat backing remain explicit failures. Fresh native
+replay did not boot; no new native pair or matrix acceptance is inferred.
+
 The [2 October held-HOME replay](../native-home-return-2026-10-02.md) now
 establishes Health -> suspended HOME with native PNGs and logged APT return.
 Its500ms Shift-modified drag used cua-driver MCP's retained screenshot

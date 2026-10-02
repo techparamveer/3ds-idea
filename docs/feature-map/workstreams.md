@@ -54,6 +54,12 @@ require coordinator review and regression coverage across consuming apps.
 
 ## Shared File Reservations
 
+- Coordinator completed the selected-owner suspended-window slice at `81d0b3d8`
+  in its assigned checkout. `home-suspended-window.ts`, firmware metadata,
+  screens, portfolio capture access and native recovery changed together; no
+  worker edited those interfaces concurrently. Reservation released after full
+  checks and muted Sidecar recapture. [Evidence](../home-suspended-window-2026-10-02.md).
+
 - Coordinator completed the bounded L-06/L-07 modal-input slice at `7dd76afa` in
   its assigned
   `3ds-home-fidelity-20261001` worktree: `system.ts`, `stock-screen-layout.ts`,

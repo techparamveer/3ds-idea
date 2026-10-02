@@ -25,7 +25,11 @@ native HOME/Health rendering with synthetic input2, Null output1 and volume0.
 It supersedes Null input1, which stalled the reference. The subsequent
 [held-HOME reference](native-home-return-2026-10-02.md) reached suspended HOME
 and captured its upper window, first-use notice and Health close outcome.
-No new transition implementation or scenario pass is claimed.
+The subsequent [source-window delivery](home-suspended-window-2026-10-02.md)
+at `81d0b3d8` restores its expanded panel and owned frozen frame. Tests/build
+and nine browser pairs pass their supporting checks; retained-native diagnostic
+95286/51107 still fails. Flat backing, compact window, tint and motion remain
+open. This is partial H-12 delivery, not completed close/switch or a scenario pass.
 
 ## Scope and Evidence
 

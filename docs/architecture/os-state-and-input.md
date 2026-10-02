@@ -42,7 +42,7 @@ checks input reachability, not motion/audio equivalence.
 | `layout.ts` | Native screen geometry and hit regions |
 | `screens.ts` | HOME Menu and system-panel canvas painting |
 | `portfolio-screens.ts` | App icons, banners and application interiors |
-| `notes-suspended-capture.ts` | In-memory last complete LCD pair of the application slot, for Game Notes |
+| `notes-suspended-capture.ts` | In-memory last complete LCD pair of the application slot, shared by Game Notes and HOME's suspended upper window |
 | `bitmap-font.ts` | Parsed HOME font metrics and glyph drawing |
 | `resources.ts` | Validated optional firmware-derived resource loading |
 | `native-chrome.ts` | Authored/cropped native chrome asset loading |
@@ -154,6 +154,13 @@ Stock-specific adapters select explicit layouts, child mounts, messages and clip
 `native-layout.ts` evaluates format data and poses; `NativeLayoutRenderer` owns
 Canvas raster/pose caches. The native PNG path retains independent RGB/alpha
 before material evaluation. Three.js CGFX banner rendering is injected separately.
+
+HOME's selected suspended-software panel borrows this same snapshot through
+`drawUpper`, without a second readback or retained canvas. Its selected owner
+and metadata are presentation-only; missing resources join the existing paired
+HOME recovery/readiness gate. Recovery resumes that owner or cancels a dialog,
+never closes it. The current flat backing and settled source pose are explicit
+[adaptations](../home-suspended-window-2026-10-02.md), not native motion parity.
 
 Game Notes' suspended-software panes read one presentation-owned snapshot, never
 saved state. `portfolio-screens.ts` copies the application slot's upper/lower

@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 
 import { homeApplicationTransitionPresentation } from '../src/os/home-application-transition.ts';
 import { selectHomeLocation } from '../src/os/home-layout.ts';
+import { enableHomeControls } from '../src/os/home-controls.ts';
+import { getHomeFooter } from '../src/os/home-presentation.ts';
+import { enterHomeFolder, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import {
   createPortfolioState,
   dispatchSystemEvent,
@@ -10,6 +13,7 @@ import {
   reduceSystem,
   releaseSystemInputs,
   sampleSystemHomeApplicationTransition,
+  sampleSystemHomeFolderClose,
   setSystemSleeping,
   tickHomeNavigationClockObserved,
   tickSystem,
@@ -19,6 +23,75 @@ import {
 const FRAME = 1000 / 60;
 const bootHome = () => tickSystem(createPortfolioState(), 3001);
 const suspended = (appId = 'work') => reduceSystem(tickSystem(launchHomeShortcut(bootHome(), appId, 4000), 6200), 'home', 6300);
+
+function suspendedFolder(native, appId = 'health-safety') {
+  const state = bootHome(), layout = Object.fromEntries(Object.entries(state.system.layout).filter(([, id]) => id !== appId));
+  const opened = settleHomeNavigation(selectHomeSlot(enterHomeFolder({ ...state, folders: { 20: 'A' },
+    system: { ...state.system, layout, folderLayouts: { 20: { 2: appId } } } }, 20), 2));
+  const folder = reduceSystem(tickSystem(touchSystem(opened, 160, 226, 4000), 6200), 'home', 6300);
+  return native ? enableHomeControls(folder) : folder;
+}
+
+test('folder Health Close release retires software without departing its folder', () => {
+  for (const native of [false, true]) {
+    let state = suspendedFolder(native);
+    const owner = state.system.runtime.application;
+    state = dispatchSystemEvent(state, { type: 'touch', phase: 'down', pointerId: 7, x: 52, y: 226 }, 6400);
+    state = dispatchSystemEvent(state, { type: 'touch', phase: 'up', pointerId: 7, x: 52, y: 226 }, 6500);
+    assert.equal(state.system.dialog, null);
+    assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'closing');
+    assert.equal(sampleSystemHomeFolderClose(state), null);
+    assert.equal(state.system.runtime.application, owner);
+    state = closeExitTerminal(state);
+    state = tickSystem(state, state.system.homeClock.lastNow + FRAME);
+    assert.equal(state.system.app, null);
+    assert.equal(state.system.runtime.application, null);
+    assert.equal(state.system.runtime.homeReturn, null);
+    assert.equal(state.opened, true);
+    assert.equal(state.system.homeNavigation.activeFolderSlot, 20);
+    assert.equal(state.folderSelected, 2);
+    assert.equal(state.system.folderLayouts[20][2], 'health-safety');
+    assert.deepEqual(getHomeFooter(state), { two: false, left: null, right: 'open' });
+  }
+});
+
+test('non-Health folder software Close retains its confirmation policy', () => {
+  for (const native of [false, true]) {
+    const state = suspendedFolder(native, 'work'), owner = state.system.runtime.application;
+    const closing = touchSystem(state, 52, 226, 6500);
+    assert.equal(closing.system.dialog, 'close');
+    assert.equal(closing.system.homeApplicationTransition, null);
+    assert.equal(closing.system.runtime.application, owner);
+    assert.equal(closing.opened, true);
+  }
+});
+
+test('folder suspended footer cannot transfer a release across Close and Resume', () => {
+  for (const native of [false, true]) for (const [start, end, phase] of [[52, 160, 'up'], [160, 52, 'up'], [52, 52, 'cancel']]) {
+    let state = suspendedFolder(native);
+    const owner = state.system.runtime.application;
+    state = dispatchSystemEvent(state, { type: 'touch', phase: 'down', pointerId: 7, x: start, y: 226 }, 6400);
+    state = dispatchSystemEvent(state, { type: 'touch', phase, pointerId: 7, x: end, y: 226 }, 6500);
+    assert.equal(state.system.homeApplicationTransition, null);
+    assert.equal(state.system.runtime.application, owner);
+    assert.equal(state.system.phase, 'home');
+    assert.equal(state.opened, true);
+  }
+});
+
+test('folder suspended Resume and top Back keep their distinct actions', () => {
+  for (const native of [false, true]) {
+    const state = suspendedFolder(native), owner = state.system.runtime.application;
+    const resumed = touchSystem(state, 160, 226, 6500);
+    assert.equal(resumed.system.phase, 'app');
+    assert.equal(resumed.system.runtime.application, owner);
+    const back = touchSystem(state, 59, 54, 6500);
+    assert.equal(back.system.homeApplicationTransition, null);
+    assert.equal(back.system.runtime.application, owner);
+    assert.equal(back.system.app, 'health-safety');
+    assert.equal(sampleSystemHomeFolderClose(back).controller.phase, 'closing');
+  }
+});
 
 function confirmClose(state, now = 6500) {
   state = reduceSystem(state, 'back', now - 100);

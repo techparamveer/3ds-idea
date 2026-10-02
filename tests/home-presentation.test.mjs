@@ -90,9 +90,18 @@ test('captured occupied folder without suspended software exposes one full-width
  }
 });
 
-test('uncaptured suspended-software folder variants retain their existing Close-folder split',()=>{
+test('selected suspended folder child exposes software Close instead of folder Back',()=>{
  const initial=home(),childId=initial.system.layout[1];
- for(const active of [childId,initial.system.layout[2]]){
+ const state=selectHomeSlot(enterHomeFolder({...initial,folders:{4:'A'},system:{...initial.system,app:childId,folderLayouts:{4:{1:childId}}}},4),1);
+ assert.deepEqual(getHomeFooter(state),{two:true,left:'close-software',right:'resume'});
+ const closing=touchSystem(state,50,226,100);
+ assert.equal(closing.opened,true);assert.equal(closing.system.dialog,'close');
+ assert.equal(closing.system.app,childId);
+});
+
+test('uncaptured other suspended-software folder selection retains its existing Close-folder split',()=>{
+ const initial=home(),childId=initial.system.layout[1];
+ for(const active of [initial.system.layout[2]]){
   const state=selectHomeSlot(enterHomeFolder({...initial,folders:{4:'A'},system:{...initial.system,app:active,folderLayouts:{4:{1:childId}}}},4),1);
   assert.deepEqual(getHomeFooter(state),{two:true,left:'close-folder',right:active===childId?'resume':'open'});
   const closing=touchSystem(state,50,226,100);

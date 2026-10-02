@@ -61,7 +61,7 @@ test('saved slots enable Load/Delete and use native Overwrite text while sample 
  assert.equal(JSON.stringify(state),before);
 });
 
-test('empty selection disables native Load/Delete/Zoom and retains signed footer separators as reflections',()=>{
+test('empty selection disables native Load/Delete/Zoom without reinterpreting signed source extents',()=>{
  const {manager,top,bottom,draws}=fixture();manager.draw(top,bottom,{homeLayoutSlot:7});
  assert.deepEqual(byName(draws,'MyMenuCsr_00')[0].center,[274,154]);
  const footer=byName(draws,'MyMenuBtmBtn_D_00')[0];
@@ -70,7 +70,8 @@ test('empty selection disables native Load/Delete/Zoom and retains signed footer
  assert.ok(!footer.visible.includes('N_Btn_04'));
  for(const name of ['P_BtnLineR_00','P_BtnLineR_01']){
   const pane=walk(footer.pose.roots).find(pane=>pane.name===name);
-  assert.deepEqual(pane.size,[60,28]);assert.deepEqual(pane.scale,[-1,1]);
+  assert.deepEqual(pane.size,[-60,28]);assert.deepEqual(pane.scale,[1,1]);
+  assert.equal(footer.options.overrides[name],undefined);
  }
 });
 

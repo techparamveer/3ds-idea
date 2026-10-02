@@ -50,14 +50,7 @@ export function createHomeLayoutManager(renderer:NativeLayoutRenderer){
   note('HOME layout manager current/saved LCD previews are unavailable; native sample thumbnails are hidden. Local layout persistence and disabled preview zoom are adaptations.');
   let okay=true;
   const paint=(ctx:Context,name:string,options:NativeDrawOptions={},bank='MyMenu')=>{okay=renderer.draw(ctx,bank,name,options)&&okay;};
-  // Signed source footer widths encode reflection. Preserve the source origin
-  // and UVs while presenting positive raster dimensions to the renderer.
   const footerOverrides:PaneOverrides={T_BtnB_00:load,T_BtnF_00:load,T_BtnB_01:save,T_BtnF_01:save};
-  const mirror=(panes:typeof pack.layouts.MyMenuBtmBtn_D_00.roots)=>panes.forEach(pane=>{
-   if(pane.size[0]<0||pane.size[1]<0)footerOverrides[pane.name]={size:pane.size.map(Math.abs),scale:pane.scale.map((value,i)=>value*(pane.size[i]<0?-1:1))};
-   mirror(pane.children);
-  });
-  mirror(pack.layouts.MyMenuBtmBtn_D_00.roots);
   paint(top,'MyMenu_U_00',{clip:[0,0,400,240],textSampling:'lcd',bindings:[binding('MyMenu_U_00_MyMenuIn',30)],overrides:{TextBox_00:current,TextBox_01:title,N_Thumb:{visible:false},N_Thumb_All:{visible:false},N_Thumb_08:{visible:false}}});
   const attachments:Record<string,()=>void>={};
   for(let slot=0;slot<8;slot++)attachments[`N_Thumb_0${slot}`]=()=>paint(bottom,'MyMenuBtn_D_00',{

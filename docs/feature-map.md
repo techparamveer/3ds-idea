@@ -15,7 +15,18 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [pickup endpoint comparison](home-pickup-endpoints-2026-10-02.md) at
+Latest [folder drag-out](home-folder-drag-out-2026-10-02.md), `dd73c4ee` with
+production ownership/scope fixes `35846d2e` and `1089c78c`,
+fixes a fresh native/browser semantic mismatch: dragging a folder child over
+Back now reaches root HOME instead of remaining in the folder. Desktop/mobile/
+reduced-motion pointer replays verify the occupied-root swap, item conservation,
+reverse restoration and outside-LCD cancellation. Final full1,832 tests and
+typecheck/build pass. The 500ms deadline remains an explicit adaptation;
+whole-LCD, native held animation, exact cadence and audio remain fail/open.
+Next: matched root-to-folder/edge continuation or the specific backing source
+gap, not another audit of the fixed Back-exit endpoint.
+
+Earlier [pickup endpoint comparison](home-pickup-endpoints-2026-10-02.md) at
 unchanged `28083c79` verifies native folder child2 ->1 ->2 placement against
 desktop/mobile/reduced. Selected artwork and vacated blank cores meet delta2;
 held animation/timing remain unverified. Divider and footer-edge shade remain

@@ -1,5 +1,12 @@
 # Ordinary stationary pickup entry
 
+The [2 October Back-hover continuation](home-folder-drag-out-2026-10-02.md)
+retains the exact folder source and native pickup owner while the existing
+gesture adapter returns to root HOME. Release/cancel/stale-source cleanup still
+ends ownership. The source-backed stationary entry below is unchanged; the
+500ms hover deadline and cross-container continuation remain adaptations with
+a native-compared settled drag-out endpoint, not native held-motion proof.
+
 Root owns the `HomeControls.tilePickup` state and its transition from widget
 callback3. The threshold widget is integrated at `4cb429d`; retained candidates
 at `a8a8fdd`. [GRID_PICKUP_ENTRY_EVIDENCE.md](../scripts/firmware/GRID_PICKUP_ENTRY_EVIDENCE.md),

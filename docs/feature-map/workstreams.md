@@ -1,5 +1,39 @@
 # Workstream Registry
 
+## Folder Drag-Out - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used owned worktree
+`/Users/paramveer/.codex/worktrees/3ds-home-folder-drag-out-20261002`, branch
+`codex/home-folder-drag-out-20261002`, base `d8f6cd7d`. Runtime `08664d94`
+integrates as `dd73c4ee`; source note `592a7e21` as `6b94a374`. Comparator
+chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private comparisons only.
+Independent subagent `folder_back_review` found no concrete regression. All
+delegates use GPT-5.6 Sol/high; only coordinator operated GUI. Old trees remain.
+Production inspection caught a missed outer context reset: source `377b0c05`
+-> `35846d2e`, then review scope correction `daf2f32c` -> `1089c78c` preserve
+the timed Back pickup without changing the immediate band exit. Source-note
+updates `ed838fc6`/`e71051ca` integrate as `43297617`/`59874884`.
+
+Fresh native capture exposed the missing Back-hover exit. Production now
+reaches HOME while retaining the folder source and pickup owner, then commits
+through the existing atomic move/swap. Desktop/mobile/reduced each complete
+six raw pairs, reverse restoration and outside-LCD cancel, with no item loss
+or page errors and audio muted. Within-folder2 ->1 ->2 replay also completes
+five pairs. Final full1,832 tests pass,23 skip/1 TODO, build/typecheck pass. Exact
+native hover timing, held/release motion and audio remain open; the500ms
+deadline is adapted. [Final comparison and mapping](../home-folder-drag-out-2026-10-02.md).
+
+Final `1089c78c` desktop/mobile/reduced each complete seven pairs, now asserting
+the live native pickup source and touch latch in the root preview, followed by
+cleanup and restored primary cursor after cancellation. Initial `dd73c4ee`
+root previews had cleared pickup; they remain distinct historical evidence.
+Owned native PID24636/window11465/session34433 and both Chrome runs (PID34281/
+window11494/session5774; PID57847/window11536/session46933) closed and exited0.
+All capture sessions complete. Production preview3021/session42740 remains
+available. No default profile, system audio,
+Spotify, microphone, private matrix, DeveloperStorage artifact, push or deploy
+change. Whole scenario remains fail; no service-tier or coordinator-model claim.
+
 ## Pickup Endpoints - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree

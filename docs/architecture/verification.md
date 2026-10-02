@@ -1,5 +1,19 @@
 # Verification and evidence architecture
 
+[Folder Back drag-out](../home-folder-drag-out-2026-10-02.md) separates a
+functional endpoint correction from native timing and pixel acceptance. Match
+the same child-to-Back path, retain the source owner through the root preview,
+and verify committed item conservation, reverse placement and cancellation.
+Browser occupied-root swap is an explicit portfolio-content adaptation when
+the native target is vacant. Do not label queued-after-release native PNGs as
+held captures, or infer the browser's adapted500ms deadline from a settled
+native endpoint. All whole-screen differences remain in empty-mask reports.
+Test the scene's outer `reconcileHomeControls` wrapper as well as direct
+`tickSystem`: the original direct-only test missed a context reset that cleared
+pickup in production. Assert the held source and touch latch in a captured
+root preview, then cleanup after cancel. Keep the old immediate band exit's
+control-reset policy distinct from the timed Back transition.
+
 [Pickup endpoint comparison](../home-pickup-endpoints-2026-10-02.md) separates
 semantic placement, selected/blank artwork, stable chrome and cursor epochs.
 Matched child2 ->1 ->2 placement and static artwork tolerance do not establish

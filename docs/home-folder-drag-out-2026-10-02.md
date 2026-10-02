@@ -112,7 +112,9 @@ pickup survives while departed folder widgets and poses do not. A separate
 regression proves the pre-existing immediate folder-band exit still uses the
 generic control reset. `npm run typecheck` also passes.
 
-This worker made no browser or native capture. Coordinator integration must
+At the worker checkpoint, no browser or native capture was made. The following
+pending checks are superseded by the coordinator integration evidence below:
+coordinator integration must
 repeat the identical drag path, record held and released browser states, compare
 the settled native/browser endpoints, and rerun affected HOME scenarios. Until
 that recapture, the whole scenario remains `fail`; native held animation,
@@ -120,3 +122,90 @@ exact exit timing, release motion and audio parity remain open. The portfolio
 root contains all eight apps while the native reference has a vacant compared
 slot, so that population difference remains an explicit adaptation and does not
 excuse any unrelated native residual.
+
+## Coordinator integration
+
+Runtime `08664d94` integrated as `dd73c4ee`. Production then exposed a real
+gap missed by the direct reducer test: `console-scene` wraps ticks in the
+broader context reconciler, which cleared pickup on folder exit. Source
+`377b0c05` -> `35846d2e` retains that owner while rebasing departed controls.
+Independent review found the guard also covered the older immediate band exit;
+`daf2f32c` -> `1089c78c` restricts it to the unchanged armed Back hover and
+tests the old reset policy. That finding is resolved. Source-note integrations
+are `6b94a374`, `43297617` and `59874884`; no new native assets were delivered.
+
+The private artifact root for this slice is
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-pickup-held-20261002/`.
+The name reflects an initial experiment, not proof of native held pixels.
+`native-input-record.md` identifies the exact muted private executable, inputs,
+own-PNGs and normal exit. Native screenshot requests during a held drag were
+queued until release, so those PNGs are settled-only. A later attempted native
+reverse drag selected the root folder without moving Health: the private
+profile ends with Health at root6 and the folder empty, not restored.
+
+Initial `dd73c4ee` desktop/mobile/reduced runs each completed six raw pairs.
+The semantic exit/root placement, no-loss occupied-target swap, pointer-only
+reverse restoration and outside-LCD cancellation pass. All before/restored
+preference files are byte-identical. Root-preview native pickup was null,
+however; those captures do not prove retained native ownership.
+
+| Immutable initial evidence | SHA-256 |
+| --- | --- |
+| `comparison/after-report-dd73c4ee.json` | `6272e6ceec0d5002afde7e8ad86481eadab1c5879e01c7acbeef2fe4006104c0` |
+| `comparison/after-manifest-dd73c4ee.json` | `0febb414d6a814e58c513278fa75b425c51e87c0308637933588923da893f8bb` |
+| `comparison/folder-regression-report-dd73c4ee.json` | `8426e982de2a5beb6156a697b9eaed2da7b35705d3900817cd951217c629e931` |
+
+Coordinator inspected the settled native/browser sheet, transition sequence,
+mobile console view and regression artwork/blank sheet. Initial desktop after
+release still has59,714 upper and9,317 lower pixels above delta2; mobile has
+59,912/9,317 and reduced58,045/9,317. Empty masks, no offsets or pixel fitting.
+The browser contains eight portfolio apps and an occupied root6, while native
+root6 was vacant. This is a labelled content adaptation, not native swap proof.
+
+The affected within-folder2 ->1 ->2 regression completes five pairs. Selected
+Health artwork and vacated blank cores retain0 pixels above delta2/max1.
+The stable divider840/max4, broader footer464/max6 and footer-top276/max3
+residuals remain unchanged. Held motion, cursor phase and whole LCDs still fail
+or remain unproved; the bounded backing source gap has not been re-audited.
+
+Final runtime `1089c78c`: full1,832 pass,0 fail,23 skips/1 TODO; build and
+typecheck pass. An intermediate typecheck overlapped a build removing generated
+`.next/types` files; the retained failure log is followed by successful
+post-build and final checks. No source type error was found. No shader/material
+change, so shader validation was not required. Final browser ownership evidence
+is distinct from native held-pose acceptance: the source asset shell is visible,
+but native size, intermediate motion, exact input cadence and audio remain open.
+
+### Final production evidence
+
+`final-desktop`, `final-mobile` and `final-reduced` each contain seven paired
+LCD captures at `1089c78c`. All scripts finish without page errors and with mute
+enabled. Both the folder-held and root-preview captures retain pickup source
+`{folder:19,slot:2}` and `latest.down:true`; the primary cursor is hidden with
+request2. Outside release restores the original folder and selected child,
+clears pickup/touch and returns primary request0/shown. Atomic swap, no item
+loss and byte-identical reverse-restored preferences pass in all variants.
+
+| Final private evidence | SHA-256 |
+| --- | --- |
+| `comparison/final-owner-report-1089c78c.json` | `2a46b4c9ba28923fbf66af32191096553440d21b39927b54125b65c2343caeb1` |
+| `comparison/final-owner-manifest-1089c78c.json` | `d04063ff9cc76f26d9127b22cb6ab6736b78210f5e453741e0c4b2866f755110` |
+| Old/final root-held sheet | `f7f3155ef710ddc6c3c68ec4dbb9333eca5928dd4a0a5e66933cfaed760bfe86` |
+| Three-variant ownership sheet | `80dfdaec6aa597441e08eb112e6dd2c286d38627921c2f6ed478aad8ad1f410d` |
+| Final settled native/browser sheet | `b9c5b4930ea60703d0fc7e7f1c40659b943f7ca44eaaa6874a789d56ef4709c9` |
+
+The coordinator opened all three final sheets. Empty-mask after-release totals
+remain59,717 upper/9,317 lower above delta2 on desktop,59,990/9,317 mobile and
+58,045/9,317 reduced. The matching menu/placement endpoint and preserved native
+asset controller do not establish whole-screen fidelity. Native held pixels,
+hover threshold, shell resizing on root entry, motion and audio remain open.
+Existing pointer-centred anchor, authored movement/drop/edge clocks, portfolio
+artwork/population, lifecycle/coverage fits and high-slot compatibility remain
+labelled non-native boundaries; none excuses unrelated native pixel residuals.
+
+Owned native session34433 and browser sessions5774/46933 exited0; their PIDs
+are absent. Production preview3021/session42740 is retained and returns200.
+No default Azahar profile, Spotify/system audio/microphone, private matrix,
+DeveloperStorage artifact, push or deployment change. The HOME goal remains
+active. Next: obtain native-held/entry/edge continuation evidence or resolve
+the specific folder-capture source gap, not another Back-exit endpoint audit.

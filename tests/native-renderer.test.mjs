@@ -326,22 +326,22 @@ test('newline advance scales reach the font writer only through the explicit pan
  }finally{globalThis.document=previous;}
 });
 
-test('pane-scoped compact-spacer sampling reaches final LCD centres without changing sibling text',()=>{
+test('pane-scoped LCD sampling reaches selected single-line text without changing sibling text',()=>{
  const previous=globalThis.document,calls=[];
  globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.clearRect=()=>{};ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
  try{
   const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
   const font={manifest,drawNative(...args){calls.push({value:args[1],phase:args[9],lcd:args[10],scales:args[16]});}};
-  const power={value:'A\nA\n \nA',font:0,material:0,size:[16.25,19.5],alignment:4,lineAlignment:1,lineSpacing:1,characterSpacing:0,lineAdvanceScales:[1,.2,1],topColor:[1,2,3,255],bottomColor:[1,2,3,255]};
-  const exact={...power,value:'Software closed.',alignment:4,lineAlignment:0,lineSpacing:0,lineAdvanceScales:undefined};
-  const source={...layout,canvas:{width:400,height:240,origin:1},fonts:['shared'],roots:[{...pane,name:'main',kind:'txt1',size:[380,136],picture:undefined,text:power},{...pane,name:'exact',kind:'txt1',size:[312,60],picture:undefined,text:exact}]};
+  const power={value:'Power Off',font:0,material:0,size:[16.25,19.5],alignment:4,lineAlignment:0,lineSpacing:0,characterSpacing:0,topColor:[1,2,3,255],bottomColor:[1,2,3,255]};
+  const exact={...power,value:'Software closed.',size:[25,30]};
+  const source={...layout,canvas:{width:320,height:240,origin:1},fonts:['shared'],roots:[{...pane,name:'button',kind:'txt1',size:[236,27],picture:undefined,text:power},{...pane,name:'exact',kind:'txt1',size:[312,60],picture:undefined,text:exact}]};
   const renderer=new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['shared',font]])),ctx=canvas().getContext();
   ctx.getTransform=()=>({a:1,b:0,c:0,d:1,e:10.25,f:20.5});ctx.drawImage=()=>{};
-  assert.equal(renderer.draw(ctx,'test','test',{textSampling:'lcd-spacer-lines',textSamplingPanes:['main']}),true);
-  assert.deepEqual(calls,[{value:'A\nA\n \nA',phase:[.25,.5],lcd:true,scales:[1,.2,1]},{value:'Software closed.',phase:[0,0],lcd:false,scales:undefined}]);
-  assert.equal(renderer.draw(ctx,'test','test',{textSampling:'lcd-spacer-lines',textSamplingPanes:['main','main']}),false);
+  assert.equal(renderer.draw(ctx,'test','test',{textSampling:'lcd',textSamplingPanes:['button']}),true);
+  assert.deepEqual(calls,[{value:'Power Off',phase:[.25,.5],lcd:true,scales:undefined},{value:'Software closed.',phase:[0,0],lcd:false,scales:undefined}]);
+  assert.equal(renderer.draw(ctx,'test','test',{textSampling:'lcd',textSamplingPanes:['button','button']}),false);
   assert.match(renderer.diagnostics.at(-1),/sampling pane allowlist/);
-  assert.equal(renderer.draw(ctx,'test','test',{textSampling:'lcd-spacer-lines',textSamplingPanes:['missing']}),false);
+  assert.equal(renderer.draw(ctx,'test','test',{textSampling:'lcd',textSamplingPanes:['missing']}),false);
   assert.match(renderer.diagnostics.at(-1),/Missing native text sampling pane missing/);renderer.dispose();
  }finally{globalThis.document=previous;}
 });

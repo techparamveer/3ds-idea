@@ -5,7 +5,7 @@ import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instan
 type Context=CanvasRenderingContext2D;
 export type NativeDrawOptions={
  /** Direct alpha glyph sampling for explicitly traced source-layout text. */
- textSampling?:'lcd'|'lcd-source-size'|'lcd-source-size-left'|'lcd-spacer-lines';
+ textSampling?:'lcd'|'lcd-source-size'|'lcd-source-size-left';
  /** Optional pane-name allowlist for a bounded direct-text sampling call. */
  textSamplingPanes?:readonly string[];
  /** Source pictures/window patches sampled once at fractional LCD positions. */
@@ -137,19 +137,14 @@ export class NativeLayoutRenderer {
   ctx.save();try{ctx.resetTransform();ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,0,0,width,height,x,y,width,height);}finally{ctx.restore();}
   return true;
  }
- private text(layout:NativeLayout,pane:NativePane,alpha:number,transform?:DOMMatrix,coverageAdaptation?:'azahar-12p4-fit',sourceSize=false,sourceTopLeftSampling=false,spacerLineSampling=false){
+ private text(layout:NativeLayout,pane:NativePane,alpha:number,transform?:DOMMatrix,coverageAdaptation?:'azahar-12p4-fit',sourceSize=false,sourceTopLeftSampling=false){
   const text=pane.text!,font=this.fonts.get(layout.fonts[text.font]);if(!font)throw new Error(`Missing native font ${layout.fonts[text.font]}`);
   const [w,h]=pane.size.map(Math.ceil),material=layout.materials[text.material];
   const metrics=nativeTextMetrics(text,font.manifest);
   // Direct alpha glyph sampling is limited to traced alignments and upright LCD
   // transforms; other projections keep the pane-raster path.
   const sourceTopLeft=sourceTopLeftSampling&&font.manifest.colorMode==='alpha'&&text.alignment===0&&text.lineAlignment===0&&/^(?:[^\r\n]*)(?:\r\n|\r|\n)?$/.test(text.value);
-  const lines=text.value.replace(/\r\n?/g,'\n').split('\n'),scales=text.lineAdvanceScales;
-  // The only multiline direct path is an explicitly decoded compact-spacer
-  // message: every reduced advance must lead into a whitespace-only row.
-  const sourceSpacerLines=!!(spacerLineSampling&&lines.length>1&&text.alignment===4&&text.lineAlignment===1&&metrics.characterSpacing===0&&!text.colorSpans?.length&&!text.cursorAdvances?.length&&
-   scales?.length===lines.length-1&&scales.some(scale=>scale<1)&&scales.every((scale,index)=>Number.isFinite(scale)&&scale>0&&scale<=1&&(scale===1||/^\s*$/.test(lines[index+1]))));
-  const direct=font.manifest.colorMode==='alpha'&&((!/[\r\n]/.test(text.value)&&(text.alignment===3||text.alignment===4)&&(text.lineAlignment===0||sourceSize&&text.alignment===4&&text.lineAlignment===2)&&metrics.characterSpacing===0)||sourceTopLeft||sourceSpacerLines)&&(sourceSize||pane.size[0]===w&&pane.size[1]===h)&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
+  const direct=font.manifest.colorMode==='alpha'&&((!/[\r\n]/.test(text.value)&&(text.alignment===3||text.alignment===4)&&(text.lineAlignment===0||sourceSize&&text.alignment===4&&text.lineAlignment===2)&&metrics.characterSpacing===0)||sourceTopLeft)&&(sourceSize||pane.size[0]===w&&pane.size[1]===h)&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
   const coverage=direct?coverageAdaptation:undefined;
   const phase:readonly [number,number]=direct?[transform.e-Math.floor(transform.e),transform.f-Math.floor(transform.f)]:[0,0];
   const [above,below]=nativeTextVerticalOverhang(font.manifest,text.value,metrics.size,h,text.alignment,text.lineAlignment,metrics.characterSpacing);
@@ -302,7 +297,7 @@ export class NativeLayoutRenderer {
       try{
        if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){const textSampling=!textSamplingPanes||textSamplingPanes.has(pane.name)?options.textSampling:undefined;
-        const raster=this.text(layout,pane,alpha,textSampling?ctx.getTransform?.():undefined,options.textCoverageAdaptation,textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left',textSampling==='lcd-source-size-left',textSampling==='lcd-spacer-lines'),textCanvas=raster.canvas;
+        const raster=this.text(layout,pane,alpha,textSampling?ctx.getTransform?.():undefined,options.textCoverageAdaptation,textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left',textSampling==='lcd-source-size-left'),textCanvas=raster.canvas;
         ctx.beginPath();ctx.rect(0,-raster.above,w*(Math.ceil(w)+raster.extra)/Math.ceil(w),h+raster.above+raster.below);ctx.clip();
         const sourceSize=textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left';
         this.composite(ctx,textCanvas,0-raster.phase[0],0-raster.above-raster.phase[1],raster.direct&&sourceSize?textCanvas.width:w*textCanvas.width/Math.ceil(w),raster.direct&&sourceSize?textCanvas.height:h*textCanvas.height/Math.ceil(h),layout,pane.text.material);

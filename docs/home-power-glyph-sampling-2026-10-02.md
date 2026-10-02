@@ -1,6 +1,6 @@
 # HOME Power glyph sampling — 2 October 2026
 
-## Bounded source contract
+## Measured result and retained source contract
 
 Runtime `82d26a8b` left 4,331 upper-list and 668 lower-label pixels above
 threshold 2, all at a best translation of `(0,0)`. The app-origin lower
@@ -8,7 +8,7 @@ threshold 2, all at a best translation of `(0,0)`. The app-origin lower
 results are from the coordinator's empty-mask reports and inspected contact
 sheets under private root
 `power-native-20261002/compare/{home-after,app-after}/`; they support a glyph
-coverage correction, not another layout offset.
+coverage experiment, not another layout offset.
 
 The lower `T_BtnB_01` and `T_BtnF_01` panes are source single-line,
 middle-centred text (`alignment 4`, `lineAlignment 0`, zero character spacing,
@@ -23,23 +23,38 @@ pane matrices `[1,0,0,1,42,169.5]` for `T_BtnB_01` and
 therefore eligible and preserves the source half-pixel vertical phase instead
 of resampling an already painted pane image.
 
-Upper `T_Main_00` is the source 380x136, middle-centred multiline pane
-(`alignment 4`, `lineAlignment 1`, zero character spacing). English message
-`lau_press_pow_u1` uses RI style 504 at `.65/.65`, one-pixel line spacing and
-the already decoded newline advances `[1,.2,1,.2,1,1]`. Its two reduced
-advances lead only into whitespace spacer rows. A new explicit
-`lcd-spacer-lines` mode accepts only that bounded shape: an upright integer
-pane, alpha font, centred multiline text, no color spans or cursor advances,
-at least one reduced advance, and every reduced advance leading into a
-whitespace-only line. The Power call allowlists only `T_Main_00`.
-Its settled matrix is the upright unit transform `[1,0,0,1,10,33]`.
+Production runtime `459d623f` measured this lower opt-in in both HOME- and
+app-origin Power. Lower pixels above threshold 2 fell from 668 to zero, with
+maximum RGB delta 2 and mean RGB error `0.006410590277777778`. The button-label
+region likewise has zero pixels above 2 and maximum delta 2. App-origin
+`Software closed.` remains exactly matched across all 12,000 region pixels.
+This supports retaining only the pane-scoped lower sampler.
 
-The bitmap writer retains the existing source-derived multiline block and
-per-line positions, then samples each original shared-font A4 glyph mask at
-final LCD pixel centres with the existing bilinear atlas sampler. This change
-adds no font, offset, color, source-size change or capture-fitted coverage
-curve. Default and non-eligible paths are unchanged; malformed pane allowlists
-and invalid newline-scale arrays fail explicitly.
+The same candidate tried direct final-LCD sampling for upper `T_Main_00`.
+That source pane is 380x136, middle-centred multiline text with settled matrix
+`[1,0,0,1,10,33]`; its decoded newline advances remain
+`[1,.2,1,.2,1,1]`. Despite that eligibility, the result did not explain the
+residual: upper pixels above 2 changed only from 4,334 to 4,329, while mean RGB
+error worsened from `1.748302` to `1.7498888888888888` and maximum delta stayed
+211. The list region changed from 4,331 to 4,326 high pixels and its mean
+absolute RGB difference worsened from `5.304089` to `5.309017`. The direct
+before/after upper comparison changed only five pixels above threshold.
+
+Consequently the `lcd-spacer-lines` renderer mode, multiline bitmap branch,
+upper opt-in and their specific tests were removed. Upper `T_Main_00` keeps its
+previous multiline raster path and remains an open source question. The
+retained change adds no font, offset, color, source-size change or
+capture-fitted coverage curve. Default and non-allowlisted paths remain
+unchanged; malformed or missing pane allowlists fail explicitly.
+
+The comparison report's bilinear diagnostic selects candidate sample offset
+`(+0.375,0)` for every upper list block. That is not a decoded source
+coordinate and does not authorize a fitted runtime offset. It does identify a
+bounded trace target: the current generic multiline path uses
+`(width-blockWidth)/2` for this `alignment 4` / `lineAlignment 1` block,
+whereas traced centred writer paths apply ceil-half rounding. Whether native
+block centring uses analogous rounding remains unproven and is the next upper
+source question, outside this cleanup.
 
 ## Source identity and evidence limit
 
@@ -56,11 +71,21 @@ RI style table is
 and shared `cbf_std.bcfnt.lz` is
 `95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581`.
 
-Focused bitmap-font, renderer and system-presentation tests pass 51/51, and
-TypeScript checking passes. This worker did not operate Azahar or the shared
-production browser and did not run a production build. Therefore improved or
-exact native coverage is not yet claimed: the coordinator must integrate,
-capture both HOME- and app-origin Power pairs, inspect empty-mask diffs and
-rerun the exact `Software closed.` regression. Unsupported RI style words,
-input cadence, motion, shutdown fade, LCD/backlight ordering and audio remain
-open; both whole scenarios remain fail until new evidence says otherwise.
+The measured HOME report and regional report have SHA-256
+`add9c6406c9d7f0b2d2499d4293cb7896d4d4a2fbff7843cd991743f86634878`
+and `ac0ea183f379d5745482247507e9b0a173809850467941956a1ed555acdc9419`;
+the app equivalents are
+`acb3069b86eab66a2a56eed3f195b82903c47cd1d383fda02055d0cd35a65dde`
+and `7e4ca080f6af480eeaba3ef3330db723f0dfe0a95a0c87f81e531702d60e0cb0`.
+They are under private root `power-raster-20261002/compare-after/{home,app}/`.
+
+After removing the ineffective upper path, focused bitmap-font, renderer and
+system-presentation tests pass 50/50, TypeScript checking passes and the diff
+whitespace check passes.
+
+This worker did not operate Azahar or the shared production browser and does
+not claim whole-scenario acceptance. The coordinator must integrate this
+cleanup, rebuild and recapture to confirm that the lower improvement remains
+while the ineffective upper change disappears. Unsupported upper coverage,
+RI style words, input cadence, motion, shutdown fade, LCD/backlight ordering
+and audio remain open; both whole scenarios remain fail.

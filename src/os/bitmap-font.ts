@@ -252,13 +252,6 @@ export class BitmapFont {
       }
       if(lineAdvanceScales&&row<lineAdvanceScales.length)lineY+=scaledAdvance(lineAdvanceScales[row]);
     });
-    if(this.manifest.colorMode==='alpha'&&lcdBottomEdge){
-      const [dx,dy]=rasterPhase,image=c.createImageData(Math.ceil(width)+Math.ceil(dx),Math.ceil(height)+Math.ceil(dy));
-      // The source-authored multiline geometry above is unchanged. This opt-in
-      // only samples its original A4 atlas coverage at final LCD pixel centres.
-      for(const {glyph:g,x,y} of draws)rasterNativeAlphaGlyph(image,this.glyphMask(g),{glyph:g,x:x+dx,y:y+dy,width:g.width*sx,height:g.height*sy},'bottom',coverageAdaptation);
-      c.putImageData(image,0,0);return;
-    }
     // Native cached text batches by source texture in first-use order. Atlas
     // compaction must not erase that identity for overlapping LA glyphs.
     for(const {glyph:g,x,y} of this.manifest.colorMode==='luminance-alpha'?sourceSheetBatches(draws):draws)c.drawImage(this.sheets[g.sheet],g.x,g.y,g.width,g.height,x,y,g.width*sx,g.height*sy);

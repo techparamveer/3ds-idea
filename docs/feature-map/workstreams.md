@@ -3,14 +3,14 @@
 Coordinator: the Codex chat **Explain the 3DS project**,
 `01a0f8e9-441b-76a2-b3ee-bec359217934`. The user explicitly requested separate
 Codex chats and worktrees, with this chat orchestrating their work and allowing
-bounded subagents inside each lane. The latest user request selects
-GPT-6 Astra/high for workstream chats and GPT-6.1 Sol/high for future subagents;
-normal speed, no Fast applies to both.
+bounded subagents inside each lane. The latest user-supplied repository
+instructions select GPT-5.6 Sol/high for new delegated work.
 Existing in-flight helpers were not claimed switched. Chat messaging sets
 model/reasoning but not service tier. The saved global priority override was
 removed; existing chat speed overrides remain unverified. Computer use refused
 Codex's own controls; do not bypass it or claim the message changed service tier.
-Do not start new helpers through the priority-only collaboration route.
+The collaboration route exposes no service-tier control; do not claim a
+normal/Fast setting was applied through its model override.
 
 On 2 October, all eight registered workstream chats accepted explicit
 `gpt-6-astra` / `high` follow-ups with the new no-Fast policy. These were
@@ -25,9 +25,12 @@ worktrees without GUI. [Evidence and residuals](../home-settings-integration-202
 
 The [completion map](../feature-map.md) defines scope, status and acceptance.
 
-Coordinator `17eebbb0` delivers [compact retained HOME presentation](../home-compact-window-2026-10-02.md).
-Next reserved slice: source suspended dark backing/warp and sleep presentation,
-then modal footer visibility and matched phase replay. No new worker dispatch.
+Coordinator `fc6e5983` delivers the [source suspended backdrop](../home-suspended-background-2026-10-02.md)
+after compact retained presentation at `17eebbb0`. One read-only GPT-5.6 Sol/high
+source-audit helper confirmed mask/TEV evidence and bounded the unresolved
+runtime binding contract; no worker code or GUI changes.
+Next reserved slice: upper/lower sleep highlight, modal footer, HUD residuals
+and matched transition replay.
 
 Coordinator `0330d13c`/`e3503cc7`/`645ae96d` adds source switch icon header,
 advancing pending banner and selected-title/dark Close footer. [Evidence](../home-switch-footer-2026-10-02.md)

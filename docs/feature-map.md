@@ -11,9 +11,17 @@ Current plan, 2 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
 integration and native/browser acceptance. Each workstream has its own Codex
 chat, Git branch and worktree, recorded in the [workstream registry](feature-map/workstreams.md).
-New workstream dispatches use GPT-6 Astra/high; future subagents use GPT-6.1
-Sol/high, at normal speed, no Fast. The latest request supersedes Fast; chat service tier cannot
-be changed or verified through dispatch tools. No new priority-only helpers.
+The latest user-supplied repository instructions select GPT-5.6 Sol/high for
+new delegated work. Model overrides do not switch the coordinator; service
+tier is not exposed or verified by the collaboration tool.
+
+The [suspended HOME backdrop](home-suspended-background-2026-10-02.md) at
+`fc6e5983` now uses the source curved capture, mask and AppPause material.
+Nine browser pairs and four fresh native captures show substantial improvement:
+expanded upper 95,276 -> 12,137 differing pixels, unoccluded strip 8,544 -> 46.
+H-12 remains partial: binding/padding/sampler/settled pose are fitted adaptations;
+sleep pulse, lower icon tint, modal footer, HUD and exact motion remain open.
+No whole scenario passes.
 
 The [compact HOME window](home-compact-window-2026-10-02.md) at `17eebbb0`
 restores the source retained icon/HOME glyph beside another selected title.

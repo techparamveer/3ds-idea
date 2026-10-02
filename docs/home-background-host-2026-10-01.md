@@ -57,6 +57,12 @@ the logical controller still follows the native-count host clock.
 
 ## Explicit source gaps
 
+The [2 October suspended-backdrop delivery](home-suspended-background-2026-10-02.md)
+now renders a separate source BannerBG capture instance at settled
+SceneIn20/AppPause20 while HOME retains an application. It is a fitted host
+adapter, not a change to this background lifecycle clock or proof of the
+native transition predicate. The lifecycle gaps below still apply.
+
 The executable also identifies `0x24dc14` as an explicit Loop restart used by
 an AppQuit-completion path and `0x24da2c` as resume-without-restart. Existing
 evidence does not identify the AppQuit, AppRestart, SceneOut, launch, suspended

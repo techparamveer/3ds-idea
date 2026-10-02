@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+The [suspended-background comparison](../home-suspended-background-2026-10-02.md)
+at `fc6e5983` adds nine inspected production pairs and four fresh native PNGs.
+Expanded upper differs at 12,137 pixels >2 (prior 95,276); whole scenarios still
+fail with unmatched input/population/density/phases. Original source backdrop
+is delivered through a fitted binding/padding/sampler adapter. Native Quit/Yes
+exited 139; absence and stopped-profile restoration verified, not a clean exit.
+All audio muted; no matrix acceptance.
+
 The [compact HOME comparison](../home-compact-window-2026-10-02.md) at `17eebbb0`
 adds four fresh native captures and nine inspected browser pairs. Its compact
 pose is visible, but icon tint/pulse, backing and all full pairs still fail.

@@ -1,5 +1,13 @@
 # Software state, input and presentation
 
+[Suspended background ownership](../home-suspended-background-2026-10-02.md)
+reuses the complete application LCD capture with one source BannerBG instance.
+The owner/generation-keyed raster is cleared and its dynamic texture reset when
+leaving suspended HOME. Both compact and expanded modes draw it before the
+selected banner/window; missing resources fail paired publication. Source
+geometry/combiners are preserved, while bindings/padding/sampler and settled
+AppPause20 remain explicitly fitted host choices.
+
 [Compact retained presentation](../home-compact-window-2026-10-02.md) separates
 valid suspended ownership from selected-title expansion. Both modes share one
 metadata raster, original icon mask and paired recovery. Readiness keys include

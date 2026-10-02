@@ -83,7 +83,7 @@ test('stock pickup binds each SMDH through the authored pickup material and reje
     const texture = `runtime:pickup-title-icon:${normalized}`;
     assert.equal(result.drawn, true); assert.deepEqual(draw.options.center, center);
     assert.deepEqual(draw.options.bindings, [{ name: pickup + '_Scale', frame }]);
-    assert.equal(draw.options.pictureSampling, 'lcd');
+    assert.equal(draw.options.pictureSampling, undefined, 'keep the verified material path; direct LCD sampling regressed the root-held capture');
     assert.equal(draw.options.textures[texture], pixels);
     assert.deepEqual(draw.options.overrides.P_Icon_00, { visible: true, textureBindings: { 0: texture, 1: 'IconMask.bclim' } });
     const posed = pane(draw.pose, 'P_Icon_00'), source = pack.layouts[pickup], sourcePane = source.roots[0].children.find(child => child.name === 'P_Icon_00'), material = source.materials[sourcePane.picture.material];

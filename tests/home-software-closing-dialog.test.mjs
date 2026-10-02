@@ -1,0 +1,74 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {HOME_SOFTWARE_CLOSING_DIALOG_SOURCE,drawHomeSoftwareClosingDialog} from '../src/os/home-software-closing-dialog.ts';
+
+const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
+const packs=Object.fromEntries(['dialog','dialogmask','messages'].map(key=>[key,JSON.parse(readFileSync(new URL(manifest.home[key],root)))]));
+const renderer=(source=packs)=>({packs:source,calls:[],draw(ctx,pack,name,options){this.calls.push({ctx,pack,name,options});return true;}});
+const pane=(layout,name)=>{const walk=panes=>{for(const item of panes){if(item.name===name)return item;const found=walk(item.children);if(found)return found;}};return walk(layout.roots);};
+
+test('settled close presentation uses the captured buttonless source window, paired masks and exact MSBT text',()=>{
+ const before=JSON.stringify(packs),r=renderer(),top={},bottom={};
+ assert.equal(drawHomeSoftwareClosingDialog(r,top,bottom),true);
+ assert.deepEqual(r.calls.map(call=>[call.ctx,call.pack,call.name]),[
+  [top,'dialogmask','DlgMask_U_00'],[bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_00'],
+ ]);
+ assert.deepEqual(r.calls.slice(0,2).map(call=>call.options.bindings),[
+  [{name:'DlgMask_U_00_FadeIn',frame:20}],[{name:'DlgMask_D_00_FadeIn',frame:20}],
+ ]);
+ const text=r.calls[2].options.overrides.TextBoxDialog;
+ assert.equal(text.text,'Closing software...');assert.ok(text.messageStyle);assert.deepEqual(text.colorSpans,[]);
+ assert.equal(r.calls[2].options.textSampling,'lcd');assert.equal(JSON.stringify(packs),before);
+});
+
+test('caller can select only authored paired mask poses without inventing dialog motion',()=>{
+ for(const frame of [0,1,9,19,20]){
+  const r=renderer();drawHomeSoftwareClosingDialog(r,{}, {},frame);
+  assert.deepEqual(r.calls.slice(0,2).map(call=>call.options.bindings[0].frame),[frame,frame]);
+  assert.equal(r.calls[2].options.bindings,undefined,'Dlg_A_D_00 has no authored animation');
+ }
+ for(const frame of [-1,21,.5,NaN]){
+  const r=renderer();assert.throws(()=>drawHomeSoftwareClosingDialog(r,{}, {},frame),RangeError);assert.equal(r.calls.length,0);
+ }
+});
+
+test('source geometry and provenance match the captured 280 by 200 striped window and full-LCD masks',()=>{
+ const source=HOME_SOFTWARE_CLOSING_DIALOG_SOURCE,layout=packs.dialog.layouts[source.dialog.layout];
+ assert.deepEqual({root:layout.roots[0].size,shadow:pane(layout,'P_Shdw_00').size,left:pane(layout,'P_WndwL_00').size,
+  right:pane(layout,'P_WndwR_00').size,text:pane(layout,'TextBoxDialog').size,textures:layout.textures},
+ {root:[320,240],shadow:[312,232],left:[140,200],right:[140,200],text:[264,184],textures:['DlgWndw_00.bclim','DlgWndwLine_8.bclim']});
+ assert.deepEqual(packs.dialog.resourceSources.layouts[source.dialog.layout],{
+  path:'dialog_LZ.bin/blyt/Dlg_A_D_00.bclyt',sha256:'ccee73ad198e6dba3df6498108ceec64dfd38ab8994cea5422db60fdee72534b',titleId:'0004003000009802',
+ });
+ for(const item of [source.upperMask,source.lowerMask]){
+  const animation=packs.dialogmask.animations[item.clip],track=animation.tracks[0];
+  assert.deepEqual({frames:animation.frames,loop:animation.loop,groups:animation.groups,range:animation.sourceFrameRange,
+   target:track.target,property:track.property,keys:track.keys.map(key=>[key.frame,key.value])},
+  {frames:21,loop:false,groups:['Group_Scene'],range:[-20,0],target:'P_Bg_00',property:'alpha',keys:[[0,0],[20,130]]});
+ }
+ for(const [name,size] of [['DlgMask_U_00',[400,240]],['DlgMask_D_00',[320,240]]]){
+  const maskPane=pane(packs.dialogmask.layouts[name],'P_Bg_00');
+  assert.deepEqual({size:maskPane.size,alpha:maskPane.alpha,colors:maskPane.picture.colors},
+   {size,alpha:130,colors:Array.from({length:4},()=>[255,255,255,255])});
+ }
+ assert.deepEqual(packs.dialogmask.resourceSources.layouts.DlgMask_U_00,{path:'dialogmask_LZ.bin/blyt/DlgMask_U_00.bclyt',sha256:'e51db3f8fb8f5d4c8860607cd43aac0d36d8992daa55e4fd8a8b7d4e998236db',titleId:'0004003000009802'});
+ assert.deepEqual(packs.dialogmask.resourceSources.layouts.DlgMask_D_00,{path:'dialogmask_LZ.bin/blyt/DlgMask_D_00.bclyt',sha256:'45ffaa6a0379423844784ffd3e450b5f3e2bf46e1724484a234b40ca73afbc86',titleId:'0004003000009802'});
+ assert.deepEqual(packs.dialogmask.resourceSources.animations.DlgMask_U_00_FadeIn,{path:'dialogmask_LZ.bin/anim/DlgMask_U_00_FadeIn.bclan',sha256:'400bd1588c04d175c54104110c004f32dc96dd82d0a7cd9d9f0b8da8b2734fe4',titleId:'0004003000009802'});
+ assert.deepEqual(packs.dialogmask.resourceSources.animations.DlgMask_D_00_FadeIn,{path:'dialogmask_LZ.bin/anim/DlgMask_D_00_FadeIn.bclan',sha256:'400bd1588c04d175c54104110c004f32dc96dd82d0a7cd9d9f0b8da8b2734fe4',titleId:'0004003000009802'});
+ const bank=packs.messages.messages.menu_msbt_LZ,index=bank.labels[source.message.label];
+ assert.deepEqual(bank.messages[index],{styleIndex:25,text:'Closing software...',tokens:[{text:'Closing software...'}]});
+ assert.deepEqual(packs.messages.resourceSources.messages.menu_msbt_LZ,{path:'RomFS/message/EU_English/menu_msbt_LZ.bin',sha256:'1df2193c64e8d08b3b670923617ea1f0461537397b3da671d394304a664b4350',titleId:'0004003000009802'});
+});
+
+test('unsupported source gaps fail before drawing and draw failures reject paired publication',()=>{
+ for(const remove of [
+  p=>delete p.dialog.layouts.Dlg_A_D_00,p=>delete p.dialogmask.layouts.DlgMask_U_00,
+  p=>delete p.dialogmask.animations.DlgMask_D_00_FadeIn,p=>delete p.messages.messages.menu_msbt_LZ.labels.lau_dlg_quit4,
+ ]){
+  const source=structuredClone(packs);remove(source);const r=renderer(source);
+  assert.throws(()=>drawHomeSoftwareClosingDialog(r,{},{}),/unavailable/);assert.equal(r.calls.length,0);
+ }
+ const r=renderer();r.draw=()=>false;assert.throws(()=>drawHomeSoftwareClosingDialog(r,{},{}),/draw failed/);
+});

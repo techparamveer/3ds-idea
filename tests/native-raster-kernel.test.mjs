@@ -24,7 +24,7 @@ export function referenceRaster(layout,picture,width,height,textures,alpha=1,mat
   const samples=material.textureMaps.map((map,index)=>{
    const generator=material.coordinateGenerators[index];
    if(generator&&(generator.type!==0||generator.source>2))throw new Error(`Unsupported coordinate generator ${generator.type}/${generator.source}`);
-   const uv=transformNativeUV(interpolateNativeQuad(picture.uvSets[generator?.source??index]??[0,0,1,0,0,1,1,1],u,v),material.textureMatrices[index]);
+   const uv=transformNativeUV(interpolateNativeQuad(picture.uvSets[generator?.source??index]??[0,0,0,0,0,0,0,0],u,v),material.textureMatrices[index]);
    return sampleNativeTexture(sources[index],uv[0],uv[1],map.wrapS,map.wrapT,map.magFilter!==0);
   });
   data.set(evaluateNativeMaterial(material,samples,primary).map(c=>Math.round(c*255)),(y*width+x)*4);

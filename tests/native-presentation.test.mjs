@@ -287,6 +287,20 @@ test('real HOME ordinary source and arrow retain rounded alpha and native green'
  assert.ok(Array.from({length:256},(_,i)=>i*4).some(i=>ink.data[i+3]>250&&ink.data[i+1]>ink.data[i]+20&&ink.data[i+2]>ink.data[i]+15),'native arrow tint must remain green rather than saturate to white');
 });
 
+test('Game Notes missing second UV attribute uses zero instead of a fabricated unit quad',{skip:!available},async()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/launcher.json'))),name='LncBase_D_01';
+ const l=poseNativeLayout(pack.layouts[name],pack.animations,[{name:name+'_PaletteOut',frame:12},{name:name+'_MvsToggle',frame:0}]);
+ const panes=[];const walk=ps=>ps.forEach(p=>{panes.push(p);walk(p.children);});walk(l.roots);
+ const memo=panes.find(p=>p.name==='P_Memo_10'),m=l.materials[memo.picture.material];
+ assert.equal(m.coordinateGenerators[2].source,1);assert.equal(memo.picture.uvSets.length,1);
+ const pixels=new Map();for(const map of m.textureMaps){const texture=l.textures[map.texture],record=pack.textures[texture],{data,info}=await sharp(resolve(resourceRoot,record.url)).ensureAlpha().raw().toBuffer({resolveWithObject:true});pixels.set(texture,api.nativeTextureSamplePixels({width:info.width,height:info.height,data:new Uint8ClampedArray(data)},record.picaFormat));}
+ const source=rasterNativePicture(l,memo.picture,36,36,pixels),at=(4*36+20)*4;
+ assert.deepEqual([...source.data.slice(at,at+4)],[225,190,0,255]);
+ const unit={...memo.picture,uvSets:[...memo.picture.uvSets,[0,0,1,0,0,1,1,1]]},fabricated=rasterNativePicture(l,unit,36,36,pixels);
+ assert.deepEqual([...fabricated.data.slice(at,at+4)],[235,193,0,255]);
+ assert.equal(memo.picture.uvSets.length,1,'sampling does not mutate the decoded source');
+});
+
 test('native A8/A4 sampling projects preview RGB to zero without changing PNG bytes, alpha or luminance-alpha formats',()=>{
  const original={width:2,height:1,data:new Uint8ClampedArray([255,255,255,0,255,255,255,153])};
  for(const format of [8,11]){

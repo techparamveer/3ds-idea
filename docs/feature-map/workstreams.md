@@ -2,6 +2,14 @@
 
 ## Power Footer Raster - 2 October 2026
 
+Following integration checkpoint `88319a91`, comparison chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` continues in
+`3ds-home-idle-next-compare-20261002` / `codex/home-idle-next-compare-20261002`.
+It owns only `docs/workstream-handoffs/home-idle-next-compare.md` and private
+internal comparison artifacts. Task: classify the named Health idle pair and
+identify one actionable visible HOME residual; no runtime or GUI authority.
+The completed Power source chat stays idle.
+
 Two existing Sol5.6/high chats used dedicated worktrees based on `34be5b98`;
 both are complete and idle. Coordinator alone operated native/browser sessions.
 Worktree names below are under `/Users/paramveer/.codex/worktrees/`, branches

@@ -7,7 +7,15 @@ production-browser sessions. All sessions remain muted on verified Sidecar.
 
 ## First Cross-App Pass
 
-Latest [closing exit delivery](../home-closing-fade-2026-10-02.md) at `229e864c`
+Latest [Power static recapture](../home-power-footer-raster-2026-10-02.md) at
+`d4c96f26` resolves both complete settled LCD pairs within delta 2, empty masks.
+Native motion/input/shutdown/audio remain open, so no queue row passes. Resume
+the idle-HOME baseline and remaining controls with named native/browser pairs;
+do not reopen resolved Power glyph geometry. A dedicated comparison worktree
+is classifying Health-selected native 12.10.02.428 against production reboot
+HOME, explicitly accounting for unmatched population and animation epochs.
+
+Earlier [closing exit delivery](../home-closing-fade-2026-10-02.md) at `229e864c`
 resolves the source donor/mask clips and makes exit visible. Seven production
 routes/99 pairs inspected; native best-pose diagnostic remains fail. Do not
 repeat the donor audit. Next match ordinary-speed start/retirement and APT wait,

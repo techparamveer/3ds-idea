@@ -15,8 +15,8 @@ import type { HomeNavigationPassObservation } from './home-navigation-pass.ts';
 import type { HomeTilePose } from './home-tile-pose.ts';
 import { createHomeTileTouch, queueHomeTileTouch, resetHomeTileTouch, sampleHomeTileTouch,
   advanceHomeTileTouch2D, homeTileTouchPoses, type HomeTileTouch } from './home-tile-touch.ts';
-import { homeTouchLocation, beginHomePickupGesture } from './home-gestures.ts';
-import { homeItemAt, type HomeLocation } from './home-layout.ts';
+import { homeTouchLocation, beginHomePickupGesture, type HomeGesture } from './home-gestures.ts';
+import { homeItemAt, type HomeItem, type HomeLocation } from './home-layout.ts';
 import { createHomeTilePickup, positionHomeTilePickup, advanceHomeTilePickup2D, type HomeTilePickup } from './home-tile-pickup.ts';
 import { advanceHomeBalloonPresentation, createHomeBalloonPresentation, type HomeBalloonPresentation } from './home-balloon-presentation.ts';
 
@@ -68,6 +68,28 @@ const homeScrollState=(state:MenuState,navigation=state.system!.homeNavigation):
 function selectedCenter(navigation: HomeNavigation) {
   const grid = sampleHomeGrid(navigation), slot = grid.slots[activeHomeRecord(navigation).selectedSlot];
   return { x: slot.x - grid.scrollPixels, y: slot.y };
+}
+function sameHomeItem(left: HomeItem | null, right: HomeItem | null) {
+  if (!left || !right || left.kind !== right.kind) return false;
+  return left.kind === 'app' && right.kind === 'app' ? left.id === right.id
+    : left.kind === 'folder' && right.kind === 'folder' && left.label === right.label;
+}
+/** The scene wraps tick reducers in the broader context reconciler. Preserve
+ * only the validated folder source that the Back-hover adapter carried to root. */
+function carriesFolderPickupToRoot(before: MenuState, state: MenuState, controls: HomeControls, gesture: HomeGesture | null | undefined) {
+  const pickup = controls.tilePickup?.source, source = gesture?.source;
+  return !!pickup && pickup.folder !== null
+    && before.system?.homeNavigation.activeFolderSlot === pickup.folder
+    && state.system!.homeNavigation.activeFolderSlot === null
+    && gesture?.mode === 'drag' && gesture.viewFolder === null
+    && source?.folder === pickup.folder && source.slot === pickup.slot
+    && sameHomeItem(homeItemAt(state, source), gesture.item);
+}
+/** Replace departed container widgets without ending the browser-owned stroke.
+ * The independent pickup controller continues to follow this retained point. */
+function carryHomeTileTouch(touch: HomeTileTouch): HomeTileTouch {
+  return Object.freeze({ ...createHomeTileTouch(), latest: touch.latest, pending: touch.pending,
+    previous: touch.previous, strokeOwned: touch.strokeOwned });
 }
 /** Browser initialization from restored mature HOME state, not a native boot trace. */
 export function enableHomeControls(state: MenuState): MenuState {
@@ -177,6 +199,14 @@ export function reconcileHomeControls(before: MenuState, state: MenuState): Menu
     return put(state, { ...controls, primary, tileTouch: resetHomeTileTouch(controls.tileTouch), tileCandidate: null, tilePickup: null });
   }
   if (before.system?.homeNavigation.activeFolderSlot !== state.system!.homeNavigation.activeFolderSlot) {
+    const gesture = state.system!.homeNavigation.gesture;
+    if (carriesFolderPickupToRoot(before, state, controls, gesture)) {
+      const nav = state.system!.homeNavigation;
+      return put(state, { ...controls, input: createHomeInputAdapter(), producer: createHomeInputProducer(),
+        primary: createHomePrimaryCursor({ request: 2, shown: false, layoutVisible: false, center: selectedCenter(nav) }),
+        presentation: createHomeCursorPresentation(sampleHomeGrid(nav).densityValue),
+        tileTouch: carryHomeTileTouch(controls.tileTouch), tileCandidate: null });
+    }
     state = cancelHomeControls(state); controls = state.system!.homeControls!;
     const nav = state.system!.homeNavigation;
     // Context replacement is an explicit browser policy until full open/drag

@@ -125,3 +125,42 @@ diff the matched pair with a reasoned mask, inspect motion/input/cue timing and
 record the result. Opening/fade timing, pressed-row animation and the existing
 Delete confirmation remain unverified/non-native; the known opened-folder
 side/root gutter residual is outside this slice and unchanged.
+
+## Integrated residual triage
+
+The coordinator integrated this slice as runtime `79e77f58` and captured the
+production Folder Settings lower LCD. The fixed 280x200 modal comparison in
+`home-folder-interaction-20261002/comparison/after/report.json` has 107 pixels
+above delta 2. Header and Delete have zero pixels above delta 2 and maximum
+delta 2. The residual is confined to:
+
+- Rename: 11 pixels at x157/y82..92, maximum delta 89;
+- Cancel: 96 pixels in the symmetric rounded bottom corners at
+  x20..299/y212..219, maximum delta 8.
+
+The source `DlgBtn02_00` panes place `T_BtnF_00` at y36 with source text size
+17.5x21. The English `Rename` run has source width 67.9; its `n` glyph projects
+from x149.1 through the exact right boundary x157.5. The native capture owns
+coverage at browser column x157 while the existing LCD text path samples the
+transparent atlas boundary there. All neighboring pixels are within delta 2.
+No existing per-pane option changes that endpoint without changing the shared
+font sampler or applying a capture-fitted translation/coverage override.
+Neither is justified by the decoded layout, so the 11 pixels remain an explicit
+source gap rather than a guessed panel correction.
+
+The Cancel residual follows the source `P_WndwL_00`/`P_WndwR_00` rounded alpha
+edge symmetrically. Those pictures already use their exact integer source pose
+and extent. Their low-amplitude difference is composited over the independently
+mismatched HOME substrate outside the modal; it does not identify a panel-local
+geometry, texture or sampling correction. It must be reassessed only after the
+underlying lower background is matched, without attributing that separate
+scenario defect to this modal.
+
+The report SHA-256 is
+`ed993a37d7b13f3e261788a3c405a21229c0b679f05ff39505cf305109e12076`;
+the inspected lower sheet is
+`9dc3ee8dd13e14ff89ec88e4e58a5f3833961223d626d8e90c21391161c1d2c6`;
+and the production lower capture is
+`9859a03ed60111cb9550722112071835b8f6c409a02aff5e45084bdf0c131613`.
+This bounded follow-up changed no runtime, assets or private evidence. No GUI,
+build, browser or native session was run.

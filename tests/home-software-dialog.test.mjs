@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {homeSoftwareDialogKey,homeSoftwareSwitchTitles,drawHomeSoftwareDialog as paintDialog} from '../src/os/home-software-dialog.ts';
+import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareSwitchTitles,drawHomeSoftwareDialog as paintDialog} from '../src/os/home-software-dialog.ts';
 import {createPortfolioState,tickSystem,reduceSystem,launchHomeShortcut,dispatchSystemEvent} from '../src/os/system.ts';
 import {escapeUnreadyNativeScreen} from '../src/os/native-screen-system.ts';
 import {poseNativeLayout,nativePaneParentPath} from '../src/os/native-layout.ts';
@@ -15,6 +15,43 @@ const dialogCall=r=>r.calls.find(c=>c.name==='Dlg_A_D_02');
 function suspended(){return reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',4000),6200),'home',6300);}
 const dialog=kind=>kind==='close'?reduceSystem(suspended(),'back',6400):launchHomeShortcut(suspended(),'about',6400);
 const renderer=(source=packs)=>({packs:source,diagnostics:[],calls:[],draw(ctx,pack,name,options){this.calls.push({ctx,pack,name,options});return true;}});
+
+test('closing display keeps one identity through terminal, excludes switch and clears on retirement',()=>{
+ const state=reduceSystem(dialog('close'),'open',6500),key=homeSoftwareClosingDialogKey(state);
+ assert.ok(key);assert.equal(homeSoftwareDialogKey(state),null);
+ for(const frame of [0,1,10,20]){
+  const next=structuredClone(state);next.system.homeApplicationTransition.appQuitFrame=frame;
+  next.system.homeApplicationTransition.phase=frame===20?'terminal':'closing';
+  assert.equal(homeSoftwareClosingDialogKey(next),key);
+ }
+ const completed=structuredClone(state);completed.system.homeApplicationTransition.phase='complete';
+ assert.equal(homeSoftwareClosingDialogKey(completed),null);
+ assert.equal(homeSoftwareClosingDialogKey(reduceSystem(dialog('switch'),'open',6500)),null);
+ assert.equal(homeSoftwareClosingDialogKey(suspended()),null);
+ assert.equal(homeSoftwareClosingDialogKey(dialog('close')),null);
+});
+
+test('closing display rejects stale owners, generations and obscuring surfaces',()=>{
+ const state=reduceSystem(dialog('close'),'open',6500);
+ for(const change of [s=>s.powered=false,s=>s.system.phase='app',s=>s.system.sleeping=true,
+  s=>s.system.preferences=true,s=>s.system.dialog='close',s=>s.panel='settings',
+  s=>s.system.runtime.homeReturn=null,s=>s.system.runtime.application=null,
+  s=>s.system.homeFolderClose.generation++,s=>s.system.runtime.active=s.system.runtime.application,
+  s=>s.system.runtime.instances[s.system.runtime.application].closing=true]){
+  const copy=structuredClone(state);change(copy);assert.equal(homeSoftwareClosingDialogKey(copy),null);
+ }
+});
+
+test('failed closing display recovery cancels only the close and preserves its suspended owner',()=>{
+ const state=reduceSystem(dialog('close'),'open',6500),owner=state.system.runtime.application;
+ const escaped=escapeUnreadyNativeScreen(state,6600);
+ assert.equal(homeSoftwareClosingDialogKey(escaped),null);
+ assert.equal(escaped.system.homeApplicationTransition,null);
+ assert.equal(escaped.system.runtime.application,owner);
+ assert.equal(escaped.system.runtime.homeReturn,owner);
+ assert.equal(escaped.system.runtime.instances[owner].suspended,true);
+ assert.equal(escaped.system.phase,'home');
+});
 
 for(const kind of ['close','switch'])test(`${kind} uses original dialog/masks and MSBT glyphs without changing packs`,()=>{
  const before=JSON.stringify(packs),r=renderer(),state=dialog(kind),top={},bottom={};

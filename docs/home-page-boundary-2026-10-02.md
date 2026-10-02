@@ -4,9 +4,11 @@
 
 This bounded slice separates the captured root exposure from the browser's
 300-slot storage capacity. The isolated native profile exposes slots `0..59`:
-six rows fit one page with no arrows; five rows have a one-column endpoint at
-left slot `15`, with both arrows before that endpoint and only the left arrow
-at it. Keyboard navigation also stops at slot `59`.
+six rows fit one page with no arrows. At five rows, the full origin-to-end
+traversal is three columns / 15 slots, ending at left slot `15`; the final
+settled step into that endpoint is one column. Both arrows appear before the
+endpoint and only the left arrow appears at it. Keyboard navigation also stops
+at slot `59`.
 
 The browser therefore keeps all 300 stored slots but uses an exposed extent of
 60 for painting, hit testing, drag scrolling, keyboard input, page-arrow input,
@@ -31,16 +33,15 @@ All native captures are Azahar's own 400×480 PNGs from the isolated profile:
 | keyboard slot 53 → 59 | `8f67a5bc341e9c07eceb668ad6309f0afa907ed0035aa014b0fb8c2fe2068787` | last captured root slot is reachable |
 | keyboard right at slot 59 | `93378f5dc438bf47f7d9e596969f8c811867161664aa66d95b26f9880feb336a` | selection remains at 59 |
 
-The pre-change browser lower captures are under
-`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-page-boundary-20261002/browser-before/`.
-Notable SHA-256 values are six-row root
-`9f29d2bba3ec11f5f8cee3736ba760039e46d59912b815e8e1af069112979087`,
-six-row right attempt
-`b88636c6a06deae7e7ace0efc13d5974d62122dc62a1ab36ed292f527049bc1a`,
-five-row root
-`dee453d02a689243fc70c0884709728782cadaf68c445d3c993d4a1a95d16d61`,
-and five-row right attempt
-`df1fb44fff6cebb74f8c5f54af5353c077a9d2850c0bf94fc8969a7f7bb75261`.
+The immutable pre-change browser baseline is the ten-pair `browser-before-v3`
+set under
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-page-boundary-20261002/browser-before-v3/`.
+It contains `dense-root`, `dense-right-attempt`, `dense-restored`,
+`five-row-root`, `five-row-right`, `five-row-left`, `edge-left`, `edge-last`,
+`edge-beyond` and `edge-return`; its `result.json` SHA-256 is
+`32e665dc5c55290dc6d815b04c56274196cde3ac106b3d117f5836a96aea53f1`.
+The earlier six-pair `browser-before` directory is exploratory evidence, not
+the immutable comparison baseline.
 
 ## Native resource mapping
 

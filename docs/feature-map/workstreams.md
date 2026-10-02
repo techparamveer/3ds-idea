@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## Touch Projection And Density - 2 October 2026
+
+Two existing Sol5.6/high chats use dedicated branches/worktrees at `6e1a2252`.
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used
+`3ds-home-touch-projection-20261002` / `codex/home-touch-projection-20261002`,
+delivering `43cbf493` -> `a751b2dd`. It owns only scene QA projection,
+focused tests and its source note. Independent Sol5.6/high read-only subagent
+found no confirmed issue. Real raycasting/UV input and reducers are unchanged.
+
+Comparison chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` uses
+`3ds-home-density-compare-20261002` / `codex/home-density-compare-20261002`,
+owning only its density handoff and private comparison artifacts. Coordinator
+alone captured native/production pairs, verified resized controls, integrated
+and ran full 1793 tests/typecheck/build/shader. All worktrees are preserved.
+Native long-hold behavior and whole-LCD residuals remain open; no scenario pass.
+
 ## Ordinary Plate And Icon Corners - 2 October 2026
 
 Both ordinary-plate workers completed from base `1e5fb200`; their worktrees

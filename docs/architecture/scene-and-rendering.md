@@ -33,6 +33,13 @@ small polygon offset to prevent oblique z-fighting.
 - Keyboard, physical pointer hits and lower-screen touches all dispatch the
   same OS inputs.
 
+Diagnostic `data-targets` coordinates are published from `renderFrame` after
+world matrices, console fitting and camera projection update. Geometry motion,
+changed host CSS dimensions (including same-aspect resize), or a missing
+dataset triggers refresh; unchanged LCD-only draws skip the projection work.
+The intro and diagnostics gates remain. These points support real pointer
+replay, not alternate input dispatch. See the [resize correction](../home-touch-projection-2026-10-02.md).
+
 Hardware animation is elapsed-time based. Native HOME folder motion samples
 the shared integer OS update counter through an immutable host view; see
 [folder integration](../home-banner-integration.md). Render throttling must

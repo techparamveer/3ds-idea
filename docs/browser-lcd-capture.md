@@ -1,5 +1,13 @@
 # Browser LCD capture for matched firmware scenarios
 
+For projected physical/touch replay, read `data-targets` after the actual
+viewport has rendered. Runtime `a751b2dd` refreshes these coordinates on resize,
+including same-aspect size changes. Earlier captures that reused a desktop
+target after mobile resize can contain out-of-viewport input; a nonblank LCD
+does not make that input valid. Validate target bounds and resulting state.
+The [resize investigation](home-touch-projection-2026-10-02.md) separates this
+diagnostic bug from unchanged real raycast/UV input.
+
 The console scene paints the upper LCD into a **400×240** source canvas and
 the lower LCD into a **320×240** canvas. The upper source is then stretched to
 an 800×240 texture for the Three.js display plane. `captureScreensAt` encodes

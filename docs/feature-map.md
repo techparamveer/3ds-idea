@@ -15,6 +15,19 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+Latest [resize correction](home-touch-projection-2026-10-02.md) at `a751b2dd`
+resolves the previous mobile density diagnosis: the QA projection retained a
+desktop point outside the resized viewport; actual raycast input already worked.
+Production resize/same-aspect resize, desktop all-density/boundary controls and
+Notes desktop/mobile touch/HOME checks pass. Full 1793 tests/typecheck/build/
+shader pass. Fresh native comparison extends toolbar/density-control static
+pixel tolerance to all six densities, with unchanged before/after controls.
+Whole scenarios still fail; native longer-press repeat, exact timing, motion,
+audio and remaining visual gaps stay open. No app redesign or new native asset.
+The [density comparison](workstream-handoffs/home-density-compare.md) identifies
+selected cursor phase as the next bounded replay target; establish matched
+frames before any geometry or timing correction.
+
 Latest [ordinary icon correction](home-icon-corners-2026-10-02.md) at
 `3bb6c6f3` uses the firmware's authored icon mask. Four production-after/native
 pairs improve the Camera fringe 23 -> 0 pixels above delta 2, maximum 2;
@@ -23,7 +36,8 @@ are unchanged; selected cursor epochs remain unmatched.
 Full 1789 tests/typecheck/build/shader pass. Six desktop densities, Notes
 desktop/mobile touch and HOME return work; static Health/Settings and both
 Power origins remain exact before/after. Mobile density increase fails both
-before and after and is the next captured input target. Whole scenarios remain
+before and after at this historical checkpoint; the later resize diagnosis
+above supersedes that open-target label. Whole scenarios remain
 fail for the remaining visual, input, motion and audio gaps. See the
 [comparison](workstream-handoffs/home-icon-corners-compare.md).
 

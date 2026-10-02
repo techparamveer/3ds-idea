@@ -49,3 +49,47 @@ size, and preservation of the real raycast/UV touch route. The coordinator owns
 production replay at both viewport sizes and all native/browser acceptance
 work. This slice does not establish exact input, motion, audio, or strict 1:1
 fidelity.
+
+## Integrated production verification
+
+Source `43cbf493` integrated as `a751b2dd`. Independent read-only review found
+no confirmed regression; the four new tests are structural source assertions,
+not behavioral resize tests. Coordinator full checks pass: 1793 tests,
+0 failures, 23 skipped, 1 TODO; typecheck, build and shader checks pass.
+
+Actual production replay now republishes `[268.58369,366.70629]` after the
+1150x690 -> 390x700 resize, and the same real 200 ms pointer tap changes rows
+1 -> 2. A subsequent reload correctly preserves two rows and its tap reaches
+three; it is not an independent one-row initialization. The former mobile
+failure was an out-of-viewport QA replay, not a broken touchscreen button.
+
+Five consecutive viewport checks (1150x690, 920x552, 390x700, 312x560 and back
+to 1150x690) each use real 50 ms pointer holds to change rows 1 -> 2 -> 1.
+All targets stay inside their hosts, all screenshots are nonblank, audio stays
+muted and no page errors occur. This includes both same-aspect resizes. The
+desktop density sequence also reaches every row count 1 -> 6 -> 1 and keeps
+both boundary taps at the valid limit, before and after the change.
+
+Eight new Azahar own-PNGs cover initial one row, a longer-press repeat to five,
+six rows, then five 50 ms decreases back to one. Immediate and settled states
+after the first 200 ms native hold differ (two versus five rows). This is an
+unresolved native input/repeat timing observation, not proof of exact HID
+matching or a browser reducer defect. The profile remains isolated and muted;
+Quit/Yes exits 139 this run and PID absence is verified. That differs from the
+previous turn's clean exit. No default-profile or system/Spotify audio change.
+
+Private artifacts, scripts and check logs are under the same root as the
+baseline: `browser-after/`, `resize-controls-after/`, `density-before/`,
+`density-after/`, and `coordinator/`. `coordinator/native-run.json` records all
+native paths, input holds, isolation, and shutdown. No firmware asset, native
+material, OS state or touch geometry changed. Original title-setter, Notes UV,
+previous close fits/host clocks, plate/footer, population, banner/cursor epoch,
+input/motion/audio and portfolio/local adaptations remain open as previously
+recorded. No whole-scenario or private-matrix acceptance changes.
+
+The [six-density comparison](workstream-handoffs/home-density-compare.md)
+records all named pairs, source identities, empty masks, regional controls and
+report/sheet hashes. Toolbar/density controls stay within delta 2 across every
+row; Notes maximum is 1. Direct lower changes are confined to the selected
+cursor neighborhood, whose source frame differs. That cursor needs a named
+frame replay next, not a guessed geometry fit.

@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[Resize verification](../home-touch-projection-2026-10-02.md) at `a751b2dd`
+corrects the former mobile-density failure diagnosis: a stale diagnostic
+desktop target survived the resize and lay outside the mobile viewport.
+Actual raycast/UV input is unchanged. Check target bounds plus resulting state;
+five resized viewport runs, including same-aspect pairs, now pass 1 -> 2 -> 1.
+Fresh six-density native comparisons retain toolbar/density-control static
+tolerance and unchanged production control pixels. Native 200 ms repeat differs
+from browser behavior; host hold duration does not establish matched HID or
+emulated update cadence. Whole scenarios remain fail.
+
 [Ordinary icon verification](../workstream-handoffs/home-icon-corners-compare.md)
 at `3bb6c6f3` uses four fresh native own-PNGs and actual production raw LCDs,
 not a source replay. Fringe 23 -> 0 and artwork core 1 -> 0 pixels above 2,

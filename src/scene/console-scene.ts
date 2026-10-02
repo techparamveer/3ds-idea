@@ -480,10 +480,31 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     for(const [cap,feedback] of pressed)sample.push(cap.id,feedback.motion.depth);
     return sample;
   }
-  function renderFrame(beforeDraw?:()=>void){
+  let projectedTargetWidth=0,projectedTargetHeight=0;
+  function publishProjectedTargets(geometryMoved:boolean){
+    if(!diagnostics||intro)return;
+    const width=host.clientWidth,height=host.clientHeight;
+    if(!geometryMoved&&host.dataset.targets&&width===projectedTargetWidth&&height===projectedTargetHeight)return;
+    const targets:Record<string,number[]>={};for(const name of ['Button_A','Button_B','Button_HOME','Button_POWER','Button_Dpad','Display_Touch']){
+      const o=model.getObjectByName(name);if(o){const v=new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).project(camera);targets[name]=[(v.x+1)*width/2,(1-v.y)*height/2];}
+    }
+    for(const name of ['DPAD','CIRCLE'] as const){
+      const control=layout.controls.get(name);if(!control)continue;
+      for(const [direction,offset]of Object.entries(DIRECTION_VECTOR)){
+        const v=layout.base.localToWorld(control.centerInBase.clone().add(new THREE.Vector3(offset.x*6,2,offset.y*6))).project(camera);
+        targets[`${name}_${direction}`]=[(v.x+1)*width/2,(1-v.y)*height/2];
+      }
+    }
+    for(const [x,y]of [[59,54],[76,137],[160,137],[20,16],[70,16],[105,16],[145,16],[190,16],[235,16],[277,16],[307,16],[52,76],[136,76],[52,160],[136,160],[50,226],[210,226],[150,65],[70,170],[230,170],[100,110],[100,90],[100,150],[200,180],[160,226]]){
+      const v=touchScreen.localToWorld(new THREE.Vector3((x/320-.5)*layout.screens.bottom.widthMm,(.5-y/240)*layout.screens.bottom.heightMm,0)).project(camera);
+      targets[`Touch_${x}_${y}`]=[(v.x+1)*width/2,(1-v.y)*height/2];
+    }
+    host.dataset.targets=JSON.stringify(targets);projectedTargetWidth=width;projectedTargetHeight=height;
+  }
+  function renderFrame(){
     const sample=poseSample(),plan=schedule.plan(sample);
     if(plan.shadows)renderer.shadowMap.needsUpdate=true;
-    scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();beforeDraw?.();
+    scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();publishProjectedTargets(plan.shadows);
     renderer.render(scene,camera);frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
     if(diagnostics)host.dataset.screenPresented=JSON.stringify({at:performance.now(),frame,paint:JSON.parse(host.dataset.screenPaint??'null')});
   }
@@ -531,27 +552,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const plan=renderDue?schedule.plan(poseSample()):undefined;
     if(plan?.render){
      lastRender=now;if(diagnostics)host.dataset.zoom=camera.zoom.toFixed(2);
-     // Project controls into DOM data for repeatable browser QA without fake inputs.
-     // Frames render only on change: project whenever the geometry moved.
-     renderFrame(()=>{
-     if(diagnostics&&!intro&&(plan.shadows||!host.dataset.targets)){
-      const targets:Record<string,number[]>={};for(const name of ['Button_A','Button_B','Button_HOME','Button_POWER','Button_Dpad','Display_Touch']){
-        const o=model.getObjectByName(name);if(o){const v=new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).project(camera);targets[name]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];}
-      }
-      for(const name of ['DPAD','CIRCLE'] as const){
-        const control=layout.controls.get(name);if(!control)continue;
-        for(const [direction,offset]of Object.entries(DIRECTION_VECTOR)){
-          const v=layout.base.localToWorld(control.centerInBase.clone().add(new THREE.Vector3(offset.x*6,2,offset.y*6))).project(camera);
-          targets[`${name}_${direction}`]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];
-        }
-      }
-      for(const [x,y]of [[59,54],[76,137],[160,137],[20,16],[70,16],[105,16],[145,16],[190,16],[235,16],[277,16],[307,16],[52,76],[136,76],[52,160],[136,160],[50,226],[210,226],[150,65],[70,170],[230,170],[100,110],[100,90],[100,150],[200,180],[160,226]]){
-        const v=touchScreen.localToWorld(new THREE.Vector3((x/320-.5)*layout.screens.bottom.widthMm,(.5-y/240)*layout.screens.bottom.heightMm,0)).project(camera);
-        targets[`Touch_${x}_${y}`]=[(v.x+1)*host.clientWidth/2,(1-v.y)*host.clientHeight/2];
-      }
-      host.dataset.targets=JSON.stringify(targets);
-     }
-     });
+     // Publish repeatable browser-QA coordinates from the exact frame being drawn.
+     renderFrame();
     }
     request=requestAnimationFrame(animate);
   }

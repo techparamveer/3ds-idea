@@ -15,6 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+Current [ordinary Camera plate baseline](workstream-handoffs/home-ordinary-plate-compare.md)
+at `ee133aa8` repeats 963 high-delta plate pixels across three fresh browser
+and preserved native pairs: shadow 415, rim/body 548. Separate icon fringe
+23 and artwork-core 1 remain. Source-texture/sampling work is bounded to one
+replay in its own worktree; candidate-after is pending. No runtime or scenario
+pass is inferred. GUI testing may use the full Mac, with 3DS audio muted.
+
 Latest [Notes toolbar comparison](workstream-handoffs/home-notes-toolbar-compare.md)
 at runtime `79597372` resolves the captured H-09 glyph residual: 201 -> 0
 pixels above delta 2, maximum 25 -> 1, across four native/production pairs.

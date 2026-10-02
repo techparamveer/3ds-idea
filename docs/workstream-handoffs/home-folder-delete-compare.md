@@ -69,12 +69,40 @@ will hash and validate:
 Fixed lower regions remain the existing source-backed coordinates: toolbar
 `x0/y0/320x34`, root body `x0/y34/320x176`, footer
 `x0/y210/320x30`, six-row cursor ROI `x119/y139/54x54`, and Folder Settings
-modal `x20/y20/280x200`. Browser capture paths and numeric comparison results
-are pending coordinator delivery.
+modal `x20/y20/280x200`.
+
+## Browser baseline capture
+
+The coordinator completed browser session 54050 at baseline runtime
+`79e77f58`. The browser process was PID 30014, window 10821, at frame
+`(20,50,1150,780)`. The script exited zero with no page errors. Its root is
+`home-folder-delete-20261002/browser-before`; `result.json` has SHA-256
+`1ef42e3c6b3893c8869736ca2fbc2be0879e25a9071be128865d74965544ec33`.
+
+All captures record six rows, selected global slot 34, selected source center
+`(146,166)`, `inputMatched:false` and `nativeEpochMatched:false`:
+
+| Browser capture | State after action | Capture JSON SHA-256 | Upper SHA-256 | Lower SHA-256 |
+| --- | --- | --- | --- | --- |
+| `folder` | `home`, created empty folder selected | `d638c2b650a237c1673bc95962c824f8abf3087fa04838718ef36910ed1d3a58` | `f298ae4ad82020a4fd05490eb5e2a33d737a35e08bbbe526b95ad16c93d293e6` | `e13c5c0a38c7a77589cd3b2a804372841d7e3bbcef8f49de65805c250dc91775` |
+| `settings` | `folder-settings` | `6de519527957ffe75599d6711de0b6bcaab0bf329e13be484f0e6d7001c889c9` | `3d2251d7405875b7b6685a7edaa8c5dd8c0389ef06e2e1e506ec2dbcc902399f` | `9859a03ed60111cb9550722112071835b8f6c409a02aff5e45084bdf0c131613` |
+| `delete-result` | reconstructed `delete` confirmation after one Delete touch | `bdc83f3c417144e7052773ec8a182ea1d72535afbfc6b3d3d925bbe3e1a79380` | `cbd864dc0e440ea4d1a3a43cc32f5546fb5f4af8a27f1ddc8d460c2d6c286f75` | `d6bf6b45c970035b2f9116e4d382bce1d931aa1fc421f390d924eb0d15f557c2` |
+
+The action history is vacancy touch -> Folder Settings touch -> one Delete-row
+touch at browser target `Touch_100_150`, each held for 50 ms. After the third
+action the browser remains in `menu=delete`; native is already at root HOME.
+The two states are therefore a semantic mismatch and must not be treated as an
+equivalent-state pixel pair. The baseline confirmation images are retained and
+hashed as evidence of the source gap only.
+
+The native reference process PID 2591 used the isolated silent profile and
+this time exited normally through Quit/Yes with status zero. PID absence was
+verified and the muted configuration was retained.
 
 ## Acceptance boundary
 
-This mapping is source-identified and native-observed only. It does not prove
-exact input, motion, audio, a populated-folder path or whole-scenario fidelity.
-The scenario remains fail/unverified until the integrated direct-delete route
-is captured and compared.
+This mapping is source-identified, native-observed and browser-captured. It
+does not prove exact input, motion, audio, a populated-folder path or
+whole-scenario fidelity. The baseline has a definite semantic failure. The
+scenario remains fail/unverified until the integrated direct-delete route is
+captured and compared.

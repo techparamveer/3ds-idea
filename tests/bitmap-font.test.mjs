@@ -144,6 +144,33 @@ test('opt-in newline scales compact and recenter the Power spacer rows without c
  assert.throws(()=>rows([1,.2,1,0,1,1]),/Invalid native line advance scales/);
 });
 
+test('Power opts into the source writer 0x110 float32 multiline block origin',()=>{
+ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
+ const manifest=JSON.parse(fs.readFileSync(new URL('fonts/shared/font.json',root),'utf8'));
+ const pack=JSON.parse(fs.readFileSync(new URL('packs/home/messages-and-loose.json',root),'utf8'));
+ const bank=pack.messages.menu_msbt_LZ,message=bank.messages[bank.labels.lau_press_pow_u1],style=pack.styles[bank.styleTable].styles[message.styleIndex];
+ const size=[manifest.width*style.fontScale[0],manifest.height*style.fontScale[1]],font=new BitmapFont(manifest,manifest.sheets.map(()=>({})));
+ const f=Math.fround,sx=f(size[0]/manifest.width),bounds=message.text.split('\n').map(line=>{
+  let cursor=0,left=0,right=0;
+  for(const char of line){const glyph=manifest.glyphs[String(char.codePointAt(0))]??manifest.fallback;if(!glyph)continue;
+   if(glyph.width){const glyphLeft=f(cursor+f(glyph.left*sx)),glyphRight=f(glyphLeft+f(glyph.width*sx));left=Math.min(left,glyphLeft);right=Math.max(right,glyphRight);}
+   cursor=f(cursor+f(glyph.advance*sx));left=Math.min(left,cursor);right=Math.max(right,cursor);
+  }
+  return [left,right,cursor];
+ });
+ assert.deepEqual(bounds,[[0,193.04998779296875,193.04998779296875],[0,164.44998168945312,164.44998168945312],[0,116.9999771118164,116.9999771118164],[0,142.99998474121094,142.99998474121094],[0,116.9999771118164,116.9999771118164],[0,211.25001525878906,211.25001525878906],[0,122.84998321533203,122.84998321533203]]);
+ const scales=[1,.2,1,.2,1,1],render=origin=>{const calls=[];font.drawNative({drawImage:(...args)=>calls.push(args)},message.text,380,136,size,4,style.characterSpacing,style.lineSpacing,1,[0,0],false,undefined,undefined,[],false,false,scales,origin);return calls;};
+ const defaults=render(undefined),native=render('writer-0x110'),firstByRow=calls=>{const rows=new Map;for(const call of calls)if(!rows.has(call[6]))rows.set(call[6],call);return [...rows.values()];};
+ const defaultRows=firstByRow(defaults),nativeRows=firstByRow(native),blockRight=Math.max(...bounds.map(([,right])=>right));
+ assert.equal(190-Math.ceil(f(f(blockRight)*f(.5))),84,'0x110 centres the complete measured rectangle with native ceil');
+ assert.equal(defaultRows[0][5],90.87500363588333,'the unchanged generic path retains its fractional block origin');
+ assert.equal(nativeRows[0][5],90.5,'the source origin 84 plus the bullet bearing is used');
+ assert.ok(Math.abs(defaultRows[0][5]-nativeRows[0][5]-.3750036358833313)<1e-12);
+ assert.deepEqual(nativeRows.filter(call=>call[1]===385&&call[2]===641).map(call=>call[5]),[90.5,90.5,90.5],'explicit-left rows share the block origin');
+ assert.deepEqual(native.map(call=>call[6]),defaults.map(call=>call[6]),'the horizontal opt-in leaves decoded row advances unchanged');
+ assert.throws(()=>font.drawNative({drawImage(){}},message.text,380,136,size,4,0,1,0,[0,0],false,undefined,undefined,[],false,false,scales,'writer-0x110'),/Unsupported native multiline block origin/);
+});
+
 test('native alpha glyph raster uses hard pixel-centre coverage and the atlas border for linear filtering',()=>{
  const surface=(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});
  const glyph={width:1,height:1},source=surface(3,3),target=surface(3,3),quad={glyph,x:.4,y:.4,width:1.2,height:1.2};

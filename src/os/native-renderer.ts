@@ -165,7 +165,7 @@ export class NativeLayoutRenderer {
    for(const run of runs){
     if(mask!==canvas)ink.clearRect(0,0,rasterWidth,rasterHeight);
     ink.save();ink.translate(0,above);
-    font.drawNative(ink,text.value,direct&&sourceSize?pane.size[0]:w,direct&&sourceSize?pane.size[1]:h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined,text.cursorAdvances,sourceSize,sourceTopLeftSampling,text.lineAdvanceScales);
+    font.drawNative(ink,text.value,direct&&sourceSize?pane.size[0]:w,direct&&sourceSize?pane.size[1]:h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined,text.cursorAdvances,sourceSize,sourceTopLeftSampling,text.lineAdvanceScales,text.multilineBlockOrigin);
     ink.restore();
     const image=ink.getImageData(0,0,rasterWidth,rasterHeight);
     for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){

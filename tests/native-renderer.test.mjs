@@ -311,18 +311,19 @@ test('color spans draw every run against the complete message and reject invalid
  }finally{globalThis.document=previous;}
 });
 
-test('newline advance scales reach the font writer only through the explicit pane override',()=>{
+test('Power multiline metrics reach the font writer only through explicit pane overrides',()=>{
  const previous=globalThis.document,calls=[];
  globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.clearRect=()=>{};ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
  try{
   const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
-  const font={manifest,drawNative(...args){calls.push(args[16]);}};
+  const font={manifest,drawNative(...args){calls.push({scales:args[16],origin:args[17]});}};
   const text={value:'A\n \nA',font:0,material:0,size:[16.25,19.5],alignment:4,lineAlignment:1,lineSpacing:1,characterSpacing:0,topColor:[1,2,3,255],bottomColor:[1,2,3,255]};
   const source={...layout,fonts:['shared'],roots:[{...pane,name:'copy',kind:'txt1',size:[380,136],picture:undefined,text}]};
   const renderer=new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['shared',font]])),ctx=canvas().getContext();ctx.drawImage=()=>{};
   assert.equal(renderer.draw(ctx,'test','test'),true);
   assert.equal(renderer.draw(ctx,'test','test',{overrides:{copy:{lineAdvanceScales:[.2,1]}}}),true);
-  assert.deepEqual(calls,[undefined,[.2,1]]);renderer.dispose();
+  assert.equal(renderer.draw(ctx,'test','test',{overrides:{copy:{lineAdvanceScales:[.2,1],multilineBlockOrigin:'writer-0x110'}}}),true);
+  assert.deepEqual(calls,[{scales:undefined,origin:undefined},{scales:[.2,1],origin:undefined},{scales:[.2,1],origin:'writer-0x110'}]);renderer.dispose();
  }finally{globalThis.document=previous;}
 });
 

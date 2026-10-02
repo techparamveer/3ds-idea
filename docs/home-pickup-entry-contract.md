@@ -50,9 +50,9 @@ public decodes and all14 distinct texture dependencies on SSD in
 The browser adapter supplies an explicitly capture-fitted anchor and the
 continuation executes `position = supplied touch + supplied anchor`. Only two
 Scale endpoints have held native observations: folder Scale1 uses `(0,-14)`;
-restored-root Scale5 uses the provisional proportional `(0,-5.25)` derived from
-the observed approximately 0.375 pickup-size ratio. Scale0/2/3/4 and fractional
-frames retain the earlier zero-anchor adaptation; interpolation is not invented.
+restored-root Scale5 uses the direct capture fit `(0,-4.25)`. Scale0/2/3/4 and
+fractional frames retain the earlier zero-anchor adaptation; interpolation is
+not invented.
 The 500 ms Back-hover deadline remains an unmeasured browser adaptation. The
 held captures establish endpoint state, not the native transition deadline.
 
@@ -65,13 +65,20 @@ The native inputs are Azahar own 400×480 PNGs from the same CTM-held run:
 
 The first capture places the native bright pickup at y86..154 versus the prior
 browser y100..167, supporting the -14 vertical fit. The root capture establishes
-that Back immediately switches the held pickup to root Scale5; it does not by
-itself validate the proportional lift. Coordinator browser capture at integrated
-commit `652520ee` confirms the adapter submits Scale5, anchor `(0,-5.25)`, retained
-folder source 19/2 and Blank Scale1 after Back
+that Back immediately switches the held pickup to root Scale5. Coordinator
+browser capture at integrated commit `652520ee` confirms the adapter submits
+Scale5, retains folder source 19/2 and keeps Blank Scale1 after Back
 (`retarget-first-browser/cancel-root-preview/capture.json`, SHA-256
 `a65b9522bcf149ade5e89d20703eb60b7d35aaa37ee4138240648e16c44c29b9`).
-That is state-path evidence, not a matched pixel fit. Resource installation,
+Its earlier `(0,-5.25)` anchor placed the 28×26 browser bright shell at centre
+`(58.5,47.5)` versus native `(58.5,48.5)`. The one-pixel vertical residual
+directly yields `(0,-4.25)`; post-change browser recapture remains required.
+The native folder shell is 74×69 against browser 74×68, so Scale1 retains its
+observed -14 lift but still has a one-pixel height residual. These measurements
+are recorded with no mask, fit or offset in
+`comparison/native-held-retarget-short-report-652520ee.json` (SHA-256
+`638c7607c5604c2a05b9ebd9c4eefe01f52640a54d51f31e081f674bff54b036`).
+Resource installation,
 PicToggle/material mutations and native icon-content setup remain supplied
 endpoints. Movement, hover, drop/release, folder-icon and toolbar pickup still
 use explicit authored bridges. Do not call this a complete native drag lifecycle

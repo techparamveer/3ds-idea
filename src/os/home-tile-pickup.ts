@@ -25,7 +25,7 @@ const point = (p: Point): Point => {
  * preceding zero-anchor adaptation rather than inventing interpolation. */
 export function fittedHomePickupAnchor(density: number): Point {
   if (!Number.isFinite(density) || density < 0 || density > 5) throw new RangeError('Invalid HOME pickup density');
-  return point({ x: 0, y: density === 1 ? -14 : density === 5 ? -5.25 : 0 });
+  return point({ x: 0, y: density === 1 ? -14 : density === 5 ? -4.25 : 0 });
 }
 
 /** Native mode5 starts/seeks now; neither layout has submitted Scale yet.

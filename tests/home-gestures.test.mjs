@@ -118,11 +118,11 @@ test('timed Back carry submits restored root Scale5 and fitted lift without reta
  assert.deepEqual(s.system.homeControls.tilePickup.source,source);assert.equal(s.system.homeControls.tileTouch.strokeOwned,true);
  assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
  assert.deepEqual(s.system.homeControls.tilePickup.blankScale,{currentFrame:1,appliedFrame:1});
- assert.deepEqual(s.system.homeControls.tilePickup.anchor,{x:0,y:-5.25});
- assert.deepEqual(s.system.homeControls.tilePickup.center,{x:back[0],y:back[1]-5.25});
+ assert.deepEqual(s.system.homeControls.tilePickup.anchor,{x:0,y:-4.25});
+ assert.deepEqual(s.system.homeControls.tilePickup.center,{x:back[0],y:back[1]-4.25});
  for(const now of [5700+T.folderHoverMs+100,5700+T.folderHoverMs+300])s=reconcileHomeControls(s,tickSystem(s,now));
  assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
- assert.deepEqual(s.system.homeControls.tilePickup.center,{x:back[0],y:back[1]-5.25});
+ assert.deepEqual(s.system.homeControls.tilePickup.center,{x:back[0],y:back[1]-4.25});
  s=touch(s,'cancel',...back,5700+T.folderHoverMs+301);
  assert.equal(s.system.layout[0],'work');assert.equal(s.system.folderLayouts[4][2],'projects');assert.equal(s.system.homeControls.tilePickup,null);noLoss(s);
 });
@@ -136,7 +136,7 @@ test('scene advance-before-mutation retargets when a counted pass crosses the Ba
  assert.deepEqual(s.system.homeControls.tilePickup.source,source);
  assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
  assert.deepEqual(s.system.homeControls.tilePickup.blankScale,{currentFrame:1,appliedFrame:1});
- assert.deepEqual(s.system.homeControls.tilePickup.anchor,{x:0,y:-5.25});
+ assert.deepEqual(s.system.homeControls.tilePickup.anchor,{x:0,y:-4.25});
  const beforeAction=s;s=reconcileHomeControls(beforeAction,tickSystem(beforeAction,deadline));
  assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
  assert.deepEqual(s.system.homeControls.tilePickup.source,source);

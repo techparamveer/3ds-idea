@@ -24,8 +24,8 @@ test('pickup retarget submits destination Scale while retaining source blank geo
   const rootAnchor = fittedHomePickupAnchor(5);
   const retargeted = retargetHomeTilePickup(entered, 5, { x: 59, y: 54 }, rootAnchor);
   assert.deepEqual(retargeted.source, source);
-  assert.deepEqual(retargeted.center, { x: 59, y: 48.75 });
-  assert.deepEqual(retargeted.anchor, { x: 0, y: -5.25 });
+  assert.deepEqual(retargeted.center, { x: 59, y: 49.75 });
+  assert.deepEqual(retargeted.anchor, { x: 0, y: -4.25 });
   assert.deepEqual(retargeted.scale, { currentFrame: 5, appliedFrame: 5 });
   assert.deepEqual(retargeted.blankCenter, entered.blankCenter);
   assert.deepEqual(retargeted.blankScale, { currentFrame: 1, appliedFrame: 1 });
@@ -35,7 +35,7 @@ test('pickup retarget submits destination Scale while retaining source blank geo
 
 test('pickup lift fit names only measured Scale1 and Scale5 while retaining zero gaps', () => {
   assert.deepEqual(fittedHomePickupAnchor(1), { x: 0, y: -14 });
-  assert.deepEqual(fittedHomePickupAnchor(5), { x: 0, y: -5.25 });
+  assert.deepEqual(fittedHomePickupAnchor(5), { x: 0, y: -4.25 });
   for (const density of [0, 2, 2.5, 3, 4]) assert.deepEqual(fittedHomePickupAnchor(density), { x: 0, y: 0 });
   assert.throws(() => fittedHomePickupAnchor(-1), /density/);
 });

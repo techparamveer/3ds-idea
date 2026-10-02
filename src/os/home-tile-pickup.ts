@@ -21,7 +21,7 @@ const point = (p: Point): Point => {
 };
 
 /** Own-PNG fitted pointer-to-pickup lifts. Only source folder Scale1 and
- * restored-root Scale5 have matched held captures; all other frames retain the
+ * restored-root Scale5 have observed held captures; all other frames retain the
  * preceding zero-anchor adaptation rather than inventing interpolation. */
 export function fittedHomePickupAnchor(density: number): Point {
   if (!Number.isFinite(density) || density < 0 || density > 5) throw new RangeError('Invalid HOME pickup density');

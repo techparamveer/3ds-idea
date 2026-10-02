@@ -243,7 +243,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     host.dataset.audio=JSON.stringify(audio.status());host.dataset.preferences=String(state.system?.preferences??false);host.dataset.photo=String(state.system?.photo??0);host.dataset.page=String(state.system?.page??0);host.dataset.muted=String(state.system?.muted??false);host.dataset.ready='true';host.dataset.menu=state.panel??(state.system?.phase==='home'?(state.opened?'folder':'home'):state.system?.phase??'home');host.dataset.app=state.system?.app??'';host.dataset.item=String(state.system?.item??0);host.dataset.detail=String(state.system?.detail??false);host.dataset.sleeping=String(state.system?.sleeping??false);host.dataset.dialog=state.system?.dialog??'';host.dataset.rows=String(rowCount(state));host.dataset.theme=state.theme;host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
   function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:performance.now()-start});}
-  let lastBootPaintFrame:number|null=null;
+  let lastBootPaintFrame:number|null=null,lastBootPresentedFrame:number|null=null;
   function recordScreenPaint(elapsedMs:number){
     const system=state.system!;lastBootPaintFrame=system.phase==='boot'?bootRevealFrame(elapsedMs-system.since,reduced):null;
     if(diagnostics){const close=sampleSystemHomeFolderClose(state);host.dataset.screenPaint=JSON.stringify({at:performance.now(),phase:system.phase,phaseElapsedMs:elapsedMs-system.since,bootRevealFrame:lastBootPaintFrame,homeUpdates:system.homeClock.updateCount,cursor:cursorDiagnostic(),applicationClose:system.homeApplicationTransition,closePhase:close?.controller.phase??null,closeFrame:close?.controller.folder.appliedFrame??null});}
@@ -479,7 +479,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const sample=poseSample(),plan=schedule.plan(sample);
     if(plan.shadows)renderer.shadowMap.needsUpdate=true;
     scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();beforeDraw?.();
-    renderer.render(scene,camera);frame++;schedule.presented(sample);
+    renderer.render(scene,camera);frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
     if(diagnostics)host.dataset.screenPresented=JSON.stringify({at:performance.now(),frame,paint:JSON.parse(host.dataset.screenPaint??'null')});
   }
   function animate(now:number){
@@ -521,7 +521,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(bootPaintDue||state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps))paintScreens(now);
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     camera.zoom=reduced?viewZoom:THREE.MathUtils.damp(camera.zoom,viewZoom,10,dt);
-    const renderDue=bootPaintDue||quality.renderFps>=60||now-lastRender>=1000/quality.renderFps;
+    const bootPublishDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(lastBootPaintFrame,lastBootPresentedFrame,reduced);
+    const renderDue=bootPublishDue||quality.renderFps>=60||now-lastRender>=1000/quality.renderFps;
     const plan=renderDue?schedule.plan(poseSample()):undefined;
     if(plan?.render){
      lastRender=now;if(diagnostics)host.dataset.zoom=camera.zoom.toFixed(2);

@@ -76,3 +76,12 @@ test('boot paints reduced source poses and low-cadence endpoints without repaint
   assert.equal(bootRevealNeedsPaint(20,20,false),false);
   assert.equal(bootRevealNeedsPaint(null,20,false),false);
 });
+
+test('a state-driven boot paint cannot acknowledge an unpresented terminal pose',()=>{
+  let painted=19,presented=19;
+  painted=20;
+  assert.equal(bootRevealNeedsPaint(20,painted,false),false,'no duplicate LCD composition');
+  assert.equal(bootRevealNeedsPaint(painted,presented,false),true,'force the closed 30fps render gate');
+  presented=painted;
+  assert.equal(bootRevealNeedsPaint(painted,presented,false),false,'only actual render acknowledges publication');
+});

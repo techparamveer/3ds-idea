@@ -128,14 +128,23 @@ Empty-mask, no-fit results are:
 
 | State | Upper >2 | Lower >2 | Footer >2 | Footer maximum | Footer MAE | Interpretation |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| empty folder, vacant child 0 | 59,168 | 7,538 | 2,135 | 35 | 1.157708 | native has no button; browser incorrectly shows Close/Open |
+| empty folder, vacant child 0 | 59,168 | 7,538 | 2,135 | 35 | 1.157708 | both have no button; backing shade differs |
 | populated folder, Health child 2 | 59,520 | 8,667 | 1,754 | 152 | 9.236528 | native full-width Open versus browser Close/Open |
-| populated folder, vacant child 0 | 59,774 | 9,704 | 2,135 | 35 | 1.157708 | native has no button; browser incorrectly retains Close/Open |
+| populated folder, vacant child 0 | 59,774 | 9,704 | 2,135 | 35 | 1.157708 | both have no button; backing shade differs |
 | populated folder, Health child 2 repeat | 22,475 | 7,629 | 1,754 | 152 | 9.236528 | repeated full-width Open versus Close/Open defect |
 
+Coordinator visual inspection corrected the initial interpretation after the
+v3 artifacts were frozen: the browser empty-folder and vacant-child images
+already contain no footer buttons. Their 2,135-pixel residual is the striped
+backing/substrate shade, not absent, hidden or extra controls. The earlier v3
+manifest's `split Close/Open footer` descriptions for those two browser states
+are therefore wrong and are superseded by this inspected record. The immutable
+manifest/report identities remain preserved; their measured pixels are still
+valid.
+
 The two browser occupied-child footer crops are byte-identical, as are their
-two native targets. The two browser vacant-child mismatch signatures are also
-identical. The occupied footer signature exactly repeats the historical v1
+two native targets. The two vacant-child backing-shade mismatch signatures are
+also identical. The occupied footer signature exactly repeats the historical v1
 signature: 1,754 pixels above delta 2, maximum 152 and absolute-RGB difference
 SHA-256 `02a0559035c60a08b61ec100b575b2b0ba166d7d4c1ec8759c162e4c58d398f0`.
 
@@ -163,13 +172,130 @@ Immutable v3 identities:
   `f2ec2fb3413b05225fc7ba508d083a592842cbe87e36a81f90396dbb2844bf50`
   and `92b35ca3347d2235c94f33418a9ebb363553b3186a57ea2d057c24915381e28a`.
 
-## Pending coordinator evidence
+## Source-bound correction
 
-Fresh production-after captures remain coordinator-owned and are not yet
-present in this record. The source worker is separately establishing the
-occupied-state footer binding. Those inputs will be frozen into a new version
-directory; the v1, v2 and v3 reports above will remain unchanged.
+Source commit `54e0757b` and regression follow-up `9c46c86d` implement the
+captured no-suspended-software contract. The coordinator integrated them into
+runtime `5b82c896`.
 
-Exact input cadence, transition motion and audio are not compared. The open
-folder scenario remains `fail/unverified`; this historical static comparison
-does not establish strict 1:1 fidelity.
+The correction reuses the existing decoded one-button hierarchy
+`home.launcher/layouts.LncBtmBtn_02` and settled
+`LncBtmBtn_02_SceneIn` frame 15. It binds exact message
+`menu_msbt_LZ/lau_2b_folder_open`, index 423 / style 193 / text `Open`,
+and keeps direct LCD text sampling. No new asset, geometry, palette, font,
+raster mode or screenshot fit was added.
+
+The occupied idle-folder state now derives `{ two: false, left: null,
+right: 'open' }`; a vacant selected child derives no footer. The full source
+button rectangle is `x0..319/y212..239`, with same-action down/up ownership.
+Header Back and physical/keyboard B still use the folder-close controller.
+Open-folder states involving suspended software were not captured and retain
+their previous split policy as an explicit evidence boundary.
+
+Pinned source identity is EUR HOME `0004003000009802` v24576, content index 0
+/ ID `00000082`; CIA SHA-256
+`2863c6c4e7b1c79e4352b63cde72994fa9c3b8bdd8dfd2afd4dd4104636b1898`
+and decrypted `code.bin` SHA-256
+`243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
+Conversion remains `ctr-native-web` 1.2.0 with CTRTool 1.3.0.
+
+Visible native element mappings are:
+
+| Element | Manifest/member | SHA-256 |
+| --- | --- | --- |
+| footer archive | `home.launcher` → `RomFS/launcher_LZ.bin` | `826e92ec59b98aaf20fab4014a5dccc1dbaa634aaa4f95498bcf3d7944795834` |
+| one-button layout | `layouts.LncBtmBtn_02` → `blyt/LncBtmBtn_02.bclyt` | `1be988eda6f3d2374d8445d0773688fa1c6dd118590cb986d526c0dc4f326a44` |
+| settled pose | `animations.LncBtmBtn_02_SceneIn` → `anim/LncBtmBtn_02_SceneIn.bclan` | `9b19c054cbb84c89a4b0c8669a2c05566f386dc7fd681410864065b8dee44a4e` |
+| press feedback | `animations.LncBtmBtn_02_Select` → `anim/LncBtmBtn_02_Select.bclan` | `b039ae54719725321c32b904f142d684d3980122e11a164191b2740d86542b20` |
+| Open text | `home.messages/menu_msbt_LZ/lau_2b_folder_open` → `message/EU_English/menu_msbt_LZ.bin` | `1df2193c64e8d08b3b670923617ea1f0461537397b3da671d394304a664b4350` |
+| style 193 | `styles[message/EU_English/RI_mstl_LZ.bin][193]` | `224aec428f67f35e0a23b3e7de464b2b4fe1d18dd1cf07fa9b0b53d5ad3db555` |
+| shared font | `manifest.fonts.shared` → `cbf_std.bcfnt.lz` | `95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581` |
+
+Delivered launcher and message pack SHA-256 values are
+`f251db1a92bed36da178099640fadcc9a6a53ba3e7e5410a7b3ddd7dfc02a044`
+and `3df11ee9ad6b57e4c043da636c4b606f52e41fbf0a57022cc2696f8b895817d2`.
+The source worker reports focused action, touch, folder-input, route, menu and
+presentation suites passing 92/92, plus typecheck and whitespace checks.
+
+## Integrated production-after comparison
+
+The final run contains exactly 12 named raw upper/lower pairs. Runtime
+`5b82c896`, mode `after`, result SHA-256
+`60ceb361d6554538b2e2926ec859c1dd03544cdc6aa92784f6db5de8412ac5e1`
+reports exit 0 and no errors. No state was injected.
+
+Primary empty-mask, no-fit comparisons are:
+
+| State | Upper >2 | Lower >2 | Footer >2 | Footer maximum | Footer MAE | Interpretation |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| empty folder, vacant child 0 | 59,210 | 7,566 | 2,135 | 35 | 1.157708 | both have no button; unchanged backing-shade residual |
+| populated folder, Health child 2 | 40,014 | 7,359 | 470 | 35 | 0.424896 | full-width Open delivered; residual confined to y210..219 |
+| populated folder, vacant child 0 | 42,469 | 9,884 | 2,135 | 35 | 1.157708 | both have no button; unchanged backing-shade residual |
+| populated folder, Health child 2 repeat | 57,856 | 7,091 | 470 | 35 | 0.424896 | repeated full-width Open result |
+
+For each occupied capture, the footer improves from 1,754 pixels above delta 2
+/ maximum 152 / MAE 9.236528 / RMSE 30.668430 to 470 / maximum 35 /
+MAE 0.424896 / RMSE 1.596035. The remaining 470 pixels occupy only
+`y210..219`, with row counts 320, 44, 38, 33, 12, 9, 8, 0, 4 and 2. The
+visible `Open` label and button body no longer carry the split-control defect,
+but the top-edge/backing residual remains unexplained and is not masked or fit.
+
+The empty and vacant browser footer crops are byte-identical before versus
+after. Their 2,135-pixel residual was not changed by this correction because
+they already had no buttons. It spans the backing band and remains a separate
+source gap; pixel counts must not be used to infer hidden controls.
+
+The matched native/browser 50ms touch at lower `50,226` now reaches Health
+main in both environments. The lower Health screen is at the static pixel tier:
+zero pixels above delta 2, maximum 2. Its upper differs at 17,101 pixels above
+delta 2 because the animated upper epoch is not aligned. Mobile physical A also
+launches Health and produces the same lower pixels, but native physical-A input
+was not captured and is not called an input match.
+
+Additional final controls confirm:
+
+- touches in empty and vacant footer regions remain inert, with footer bytes
+  unchanged before/after the touches;
+- desktop and mobile occupied/vacant footer crops are byte-identical;
+- occupied footer bytes survive reload with Health still selected;
+- empty-folder deletion still succeeds as a browser-only regression control.
+
+Immutable v4 identities:
+
+- final analyzer SHA-256
+  `b652113304e53aa5ca731332a0b1688b743b121f6915f42cc1c7a8e4183d1aa7`;
+- v4 manifest SHA-256
+  `fe8d937558f9d9408d55d7b200763fe4d7f3a802c34be3944efd5d683c1c100e`;
+- v4 report SHA-256
+  `c4cc3edf330171f8d0370e9a72ebba01d59df215ec75d81799547f248869f40b`;
+- inspected primary upper/lower/footer sheet SHA-256
+  `5836c9beced4c3ce55a768b50f964e668ac720ed533a471369d3121c7dd04050`,
+  `ecd131da0f8f6a876271f047a3fe74cbe9347a6b12da3d69284799b6db062885`
+  and `014edc06d7398712bc256901e503fdbb3c18f89057f59c87cd16d0a9a06f59e6`;
+- inspected action upper/lower sheet SHA-256
+  `d7d156e7482bd4871b8d57161c5bf5682d8a0e2f174fb1e25624ae67c083e322`
+  and `79985ccdf7938ec2c5d69b45857b4f5d103a806d1af42eef62c85dd31ef2206b`;
+- inspected all-coverage lower sheet SHA-256
+  `c81ab7648a1457d013e0c27a4cce4acfc659299f62149b2a6bf269baba7cb664`.
+
+## Status and remaining evidence
+
+The occupied idle-folder footer semantics are source-bound, implemented,
+tested, browser-inspected and native-compared. The visible split Close/Open
+defect is removed and the matched left-side touch now launches Health.
+
+The whole scenario remains `fail/unverified`. The occupied footer retains 470
+unexplained top-edge/backing pixels, while the vacant backing retains 2,135.
+Folder label/population, panel/gutter, upper epochs, exact press animation,
+transition timing and audio are unmatched. Suspended-software open-folder
+states lack a native reference. Native folder contents also did not persist
+across the coordinator's cold boot, so its recreation and 12000ms drag are
+setup only. No mask or screenshot-fitted correction was used, and strict 1:1
+fidelity is not established.
+
+Coordinator verification reports 1,813 passing tests, zero failures, 23
+skipped and one TODO, plus build and post-build typecheck pass. Five stock
+lower-LCD regressions and both Settings upper-LCD regressions are byte-exact.
+The dedicated muted Chrome process and exact private native process each exited
+0; preview 3021 remains ready. These checks support implementation stability
+but do not close the visual, motion or audio gaps above.

@@ -80,6 +80,14 @@ optional view data; it contains no renderer or browser handles.
 
 ## One input path
 
+Close/switch dialog button rectangles are shared by painting and hit testing
+through `stock-screen-layout.ts`. The phased route requires the same pointer's
+down/up in the same visible button. Cancel/blur/sleep and cross-button releases
+are inert; opening the dialog clears older contacts. Press feedback derives
+from the input latch, not another UI state owner. These existing authored
+rectangles remain provisional until source-native dialog replacement; see
+[evidence and scope](../software-dialog-input-2026-10-02.md).
+
 HOME Settings/SaveLoad use existing MenuState/System and shared hit geometry.
 `home-saved-layouts.ts` stores eight optional version1 arrangement snapshots
 inside version4 settings, never runtime/audio/renderer handles or live identities.

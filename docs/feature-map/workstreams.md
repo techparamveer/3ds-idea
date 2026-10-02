@@ -47,6 +47,14 @@ require coordinator review and regression coverage across consuming apps.
 
 ## Shared File Reservations
 
+- Coordinator completed the bounded L-06/L-07 modal-input slice at `7dd76afa` in
+  its assigned
+  `3ds-home-fidelity-20261001` worktree: `system.ts`, `stock-screen-layout.ts`,
+  `portfolio-screens.ts` and dedicated dialog tests. No worker is dispatched
+  or editing those paths for this slice. Reservation released after tests/build
+  and muted Sidecar replay. Native replacement remains separate and first in
+  the queue; [evidence](../software-dialog-input-2026-10-02.md).
+
 - Lifecycle owns changes to `src/os/system.ts`, `app-host.ts`, `app-input.ts`,
   `app-types.ts`, `system-transitions.ts`, `runtime-effects.ts` for its assigned
   lifecycle tasks. Other lanes submit a narrow required contract change first.

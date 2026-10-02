@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current source checkpoint: `5232b9c5`, 2 October 2026. This is the **ordered
+Current source checkpoint: `7dd76afa`, 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing
@@ -9,15 +9,16 @@ native acceptance is not permission to redesign an implemented screen.
 ## Work First
 
 Order is the user's: **quit/close/switch transitions, power-on, then buttons
-and HOME interactions**. Further HOME Settings polishing is deferred. No new
-runtime work is claimed by this documentation checkpoint.
+and HOME interactions**. Further HOME Settings polishing is deferred. The
+modal-button portion of items 1-2/4 is implemented and browser-inspected;
+[evidence and remaining design](../software-dialog-input-2026-10-02.md).
 
 | Order | Feature IDs / owner | Concrete unfinished UI or interaction | Bounded deliverable and completion check |
 | --- | --- | --- | --- |
 | 1 | L-06 / Lifecycle | Close-software confirmation is still authored; confirmation immediately removes the app with no closing presentation | Replace the captured placeholder with dump-backed dialog/masks/messages and a source-established closing sequence. Work -> HOME -> Close -> Cancel retains Work; repeat -> Confirm returns HOME once, with no stale frame or owner. Record native closing frames; fitted composition must be labelled adaptation. |
 | 2 | L-07 / Lifecycle | Switching uses the same placeholder; distinct pending-app wording, transition and press states are unfinished | Work -> HOME -> About -> Cancel retains Work; repeat -> Confirm closes Work once, then runs existing About launch. Show source-established switch/closing states, block repeat confirmation and preserve pending identity until handoff. Reuse item 1's dialog renderer. |
 | 3 | L-01, L-03 / Lifecycle | Power-on exists but uses a 3000 ms boot, final 350 ms reveal and fitted phase order; shutdown uses 550 ms | Finish source-backed off -> power-on -> paired LCD reveal -> HOME, plus power menu Cancel/Off -> black/off -> restart. Capture backlight/LCD order and input gates; no new decorative boot screen. Preserve existing console opening. |
-| 4 | H-14, L-06, L-07 / Lifecycle + coordinator | Dialog touch accepts any `y >= 170`, split only at x160; no captured-button press/release ownership | Put actual button rectangles in shared geometry; down/up must belong to the same enabled button. Outside taps, Cancel-to-Confirm drags, blur/lid interruption and repeated input must not confirm. Physical, keyboard and touch use the same actions. |
+| 4 | H-14, L-06, L-07 / Lifecycle + coordinator | Implemented at `7dd76afa`: shared visible rectangles, same-button ownership and pressed feedback; native bounds await replacement design | Tests and muted Sidecar replay pass. Keep native comparison open; replace authored geometry with source-established bounds in items 1-2. Physical, keyboard and touch keep the same actions. |
 | 5 | H-03..H-10, H-14 / HOME | Navigation exists; button feedback and edge/cancel behavior need a complete visible interaction pass | Select/open with touch and A; B/Back; HOME/resume; toolbar; density ends; paging; footer variants; folder enter/close; pickup/drop/cancel. Repair captured failures only, preserving existing visual design. Run both physical-model and touchscreen routes. |
 | 6 | H-12, L-05 / HOME + Lifecycle | Suspended-software upper window is hidden; suspend/resume presentation remains incomplete | Establish a native HOME-return capture, then bind the existing source window/title/icon to the retained owner. Resume restores the same app/page; Close clears the window. Do not repeat unmeasured native key attempts or invent a frame. |
 

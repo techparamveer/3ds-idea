@@ -15,6 +15,11 @@ New dispatches follow the supplied GPT-5.6 Sol/high repository policy at normal
 speed, no Fast. The latest speed request supersedes Fast; chat service tier cannot
 be changed or verified through dispatch tools. No new priority-only helpers.
 
+The [close/switch input correction](software-dialog-input-2026-10-02.md)
+at `7dd76afa` is implemented, tested and browser-inspected: bounded same-button
+touch and press feedback. Native dialog artwork and closing motion remain
+unfinished. This is not native acceptance or completion of L-06/L-07.
+
 ## Scope and Evidence
 
 Preserve the original 2012 Silver + Black 3DS XL, spin/opening, physical controls,

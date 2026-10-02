@@ -136,6 +136,12 @@ not distinguish host-delivery failure from the native notification boundary.
 **Next/acceptance:** For Work, Settings, eShop, and Notes-with-Work-caller, run launch -> HOME -> resume -> HOME -> close. Require exact owner graph, retained page, first resumed LCD pair, Notes retirement semantics, and no stale resource generation.
 
 ### L-06 - Close-software dialog
+
+Update `7dd76afa`: visible button bounds, same-pointer same-button release and
+pressed feedback are implemented/tested/browser-inspected for close and switch.
+[Evidence](../software-dialog-input-2026-10-02.md). Native graphics and closing
+presentation below remain unfinished; no native comparison was added.
+
 **Code/tests/evidence:** [system.ts](../../src/os/system.ts), [portfolio-screens.ts](../../src/os/portfolio-screens.ts), [portfolio tests](../../tests/portfolio.test.mjs), [power note](../portfolio-power-transitions.md).
 **Now/gap/dependency:** B on root HOME with suspended software opens `dialog:'close'`; B cancels/resumes and A closes the owner. The visible dialog is a shared authored painter and is not a source-mapped native composition.
 **Next/acceptance:** Work -> HOME -> B, capture, cancel, reopen, confirm. Require correct frozen/suspended background, owner preservation/removal, selection, dialog text/buttons, touch bounds, and native/browser raw pairs.

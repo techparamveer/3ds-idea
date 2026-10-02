@@ -95,14 +95,114 @@ The two states are therefore a semantic mismatch and must not be treated as an
 equivalent-state pixel pair. The baseline confirmation images are retained and
 hashed as evidence of the source gap only.
 
-The native reference process PID 2591 used the isolated silent profile and
-this time exited normally through Quit/Yes with status zero. PID absence was
+The isolated native process was PID 23620 in window 10753. Its exec session
+2591 exited normally through Quit/Yes with status zero. PID absence was
 verified and the muted configuration was retained.
+
+## Production-after behavior
+
+Production-after runtime `2f074d64` removes the reconstructed confirmation.
+Its complete `result.json` has SHA-256
+`739b35fe4318049d7fa648b214b4970befc32f0c59b58c03c01c9aa1e0d31f49`.
+The script exited zero, remained muted and recorded no page errors.
+
+One 50 ms touch on the Delete row now goes directly from `folder-settings` to
+`home`. Physical A after moving the panel choice to Delete, a persistence
+reload after deletion, and mobile touch deletion all finish in the same
+observable state: six rows, selected and visible global slot 34, source center
+`(146,166)`. The selected former vacancy exposes Create Folder. The route
+identities are:
+
+| Route | Capture JSON SHA-256 | Upper SHA-256 | Lower SHA-256 |
+| --- | --- | --- | --- |
+| touch Delete | `c17b97ab6fa7ec4d8d4baba42399464675f6923b3826cb6b6486ce7c21f11e9c` | `e2d57d62f442b5d19e6d4728ffac4754f7a4d64bd403a3a41ab7b4002998e008` | `9a66b858c08e53f32ef551c7a0ac078aabf29cbc295da2400a1cbcf1561c3034` |
+| physical A Delete | `9b8dd065fdad2f876fca106b12a4e62dd68222e263f9bedfd5108b690be2faa7` | `9e66ca21ab83d31b00c40b02e23ad93a4fd6358f040fb49893f4daa8a29ea97a` | `eb307e8a3ce23fecae7ee41f869c9c1de9176c5175955c0dc68b45c1e0955e35` |
+| persistence reload | `e8c442348c38ab579884fbe074a8baa8b1b3b6325761662870ebc172bd8e29a5` | `bcb0072cbc0d72733d9ec569e1c67812ffccf9078982518d63806b4df2c75fa1` | `029dc38ac73deb4e7f2f904e453c661f483a32633f748683a64f40017e9e1dc3` |
+| mobile touch Delete | `9a401c60d6bfeda583ae621a4bf47cb37cc1911acfe66c9ed573861009e2781c` | `29e8ebae7b2aeb44e528aaffa35544fd9fa7a351c05f936cb8e4d5f6f03ed341` | `2890dfc8946f0ad51f92dffe3f35de7cf18173fbdc9bff28d4dcbe13dfbd4d93` |
+
+The dedicated Chrome PID 30014 was closed with `Browser.close`; launcher 7807
+exited zero.
+
+## Fixed same-state comparison
+
+The private comparator is `home-folder-delete-20261002/comparison/compare.mjs`,
+SHA-256
+`89ce9e7fd6e6a1661492dbc45b0de477fbb31b088797a4e2cd2ef922f637656e`.
+The report is `comparison/final/report.json`, SHA-256
+`6e72b9d53af3b58126cfe3d0751dd153f2e37f6fb848237ad2d7ab27ed214ab9`.
+It validates every native, baseline and after hash and state. It uses empty
+masks, threshold 2 and the frozen regions above with no translation, scale,
+geometry or phase fitting.
+
+Only equivalent states are compared: Folder Settings against Folder Settings,
+and immediate root HOME after deletion against immediate root HOME after
+deletion. The baseline generic confirmation remains explicitly unpaired and
+has no pixel metrics against native.
+
+| Same state | Native reference | Upper pixels >2 / max / MAE | Lower pixels >2 / max / MAE |
+| --- | --- | --- | --- |
+| Folder Settings | Folder 1 primary | 54,555 / 220 / 8.697316 | 12,610 / 115 / 1.221667 |
+| Folder Settings | Folder 2 repeat | 52,732 / 255 / 6.410170 | 12,610 / 115 / 1.221667 |
+| post-delete HOME | Folder 1 primary | 51,269 / 239 / 7.988594 | 14,968 / 255 / 7.017131 |
+| post-delete HOME | Folder 2 repeat | 47,950 / 241 / 8.024361 | 15,108 / 255 / 7.046072 |
+
+The upper differences remain dominated by unmatched title population, HUD,
+folder/default-banner pose and animation epoch. The post-delete lower body is
+also population-mismatched; the browser and native grids contain different
+titles. These values do not establish visual acceptance.
+
+The source-bounded lower regions are more specific:
+
+| State / fixed region | Primary pixels >2 / max / MAE | Repeat pixels >2 / max / MAE |
+| --- | --- | --- |
+| Settings toolbar | 0 / 2 / 0.070741 | 0 / 2 / 0.070741 |
+| Settings modal 280x200 | 107 / 89 / 0.210935 | 107 / 89 / 0.210935 |
+| Settings header | 0 / 2 / 0.119048 | 0 / 2 / 0.119048 |
+| Settings Rename | 11 / 89 / 0.260351 | 11 / 89 / 0.260351 |
+| Settings Delete | 0 / 2 / 0.225734 | 0 / 2 / 0.225734 |
+| Settings Cancel | 96 / 8 / 0.135027 | 96 / 8 / 0.135027 |
+| post-delete toolbar | 0 / 2 / 0.179810 | 0 / 2 / 0.179810 |
+| post-delete root body | 14,169 / 255 / 9.380996 | 14,309 / 255 / 9.420460 |
+| post-delete Create Folder footer | 799 / 66 / 0.898090 | 799 / 66 / 0.898090 |
+| post-delete selection ROI | 364 / 27 / 0.579332 | 504 / 47 / 1.341564 |
+
+The two native Folder Settings lower frames are byte-identical. The two native
+post-delete lower frames differ by 452 pixels, all inside the fixed selection
+ROI; toolbar and footer are byte-identical. This establishes native cursor
+phase variation in the post-delete repeats without fitting the browser to
+either phase.
+
+The baseline and production-after Folder Settings lower PNGs are byte-identical.
+Their upper PNGs differ in 7,201 pixels above delta 2, maximum 13 and MAE
+0.696899 because the folder/HUD epochs are unmatched. The behavioral change is
+therefore isolated from the already-delivered lower panel presentation.
+
+The inspected five-column sheets use rows Folder Settings/post-delete and
+columns primary native, production-after, primary heatmap, repeat native and
+repeat heatmap:
+
+- `comparison/final/delete-same-state-upper.png`, SHA-256
+  `0f839f90899cde1dafba336a52f2a6e2e32b8a5419ffa98828b0519d066caa27`
+- `comparison/final/delete-same-state-lower.png`, SHA-256
+  `0c1c14c5af12c05087bce384e8e99f02a0d829b56fc6a044996333430af55f5b`
+
+## Supporting regression evidence
+
+The independent stock regression report has SHA-256
+`146fac36e390fa06144b1249a24f69d99df8591c562bdb1586b1b6e033a23eb5`.
+All five stock lower captures, both Settings upper captures and both Usage
+upper captures are byte-exact before/after. Health main upper differs by 689
+pixels above delta 2, maximum 14, with input and epoch explicitly unmatched.
+
+The integrated suite reports 1,801 tests passed, zero failed, 23 skipped and
+one TODO; typecheck and build pass. Baseline comparison commit `04beba19` was
+integrated as coordinator commit `c34c3926` before this final comparison.
 
 ## Acceptance boundary
 
-This mapping is source-identified, native-observed and browser-captured. It
-does not prove exact input, motion, audio, a populated-folder path or
-whole-scenario fidelity. The baseline has a definite semantic failure. The
-scenario remains fail/unverified until the integrated direct-delete route is
-captured and compared.
+The empty-folder semantic discrepancy is resolved in production: both native
+repeats and every tested browser route delete directly with no confirmation.
+This does not prove exact input cadence, native epoch, motion, audio, a
+populated-folder path or whole-scenario visual fidelity. Because the same-state
+raw images retain population/phase residuals, the whole scenario remains
+fail/unverified rather than pass.

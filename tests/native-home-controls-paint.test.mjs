@@ -10,7 +10,7 @@ import { resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts'
 import { commitHomeScroll, enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { advanceSystemHomeFolderCloseNative, beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomeFooter, getHomePresentation } from '../src/os/home-presentation.ts';
-import { advanceHomeTilePickup2D, createHomeTilePickup } from '../src/os/home-tile-pickup.ts';
+import { advanceHomeTilePickup2D, createHomeTilePickup, markHomeTilePickupRootVisit } from '../src/os/home-tile-pickup.ts';
 import { getTitle } from '../src/os/app-registry.ts';
 import { touchHomeGesture } from '../src/os/home-gestures.ts';
 import { getHomeDensityControls } from '../src/os/home-density-controls.ts';
@@ -396,7 +396,7 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
   } });
 });
 
-test('held pickup hides both footers while only the retained root suppresses its upper banner',async()=>{
+test('held pickup hides both footers while root visibility history suppresses its upper banner after re-entry',async()=>{
  const selection={kind:'app',id:'health-safety'},motion={visible:true,scale:1,yawRadians:0,
   skeletal:{frame:123},material:{frame:0}};
  const hosted={status:'active',selection,generation:'held-test',requestEpoch:1,
@@ -411,6 +411,8 @@ test('held pickup hides both footers while only the retained root suppresses its
   let folder=selectHomeSlot(enterHomeFolder({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{1:childId}}}},20),1);
   folder=freeze(controls(folder,{tilePickup:pickup({folder:20,slot:1},1,{x:244,y:137})}));
   paint(folder);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,0);
+  const reentered=freeze(controls(folder,{tilePickup:markHomeTilePickupRootVisit(folder.system.homeControls.tilePickup)}));
+  paint(reentered);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,0);assert.equal(events.filter(e=>e.name==='footer').length,0);
   paint(freeze(controls(folder,{tilePickup:null})));assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,1);
  },{presenterPatch:{footer(ctx,state){if(getHomeFooter(state))ctx.record('footer');return true;}},screenOptions:{
   getHomeBanner:()=>hosted,drawStockTitleBannerFrame:ctx=>{ctx.record('stock-title-banner');return true;},

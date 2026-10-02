@@ -17,7 +17,7 @@ import { createHomeTileTouch, queueHomeTileTouch, resetHomeTileTouch, sampleHome
   advanceHomeTileTouch2D, homeTileTouchPoses, type HomeTileTouch } from './home-tile-touch.ts';
 import { homeTouchLocation, beginHomePickupGesture, type HomeGesture } from './home-gestures.ts';
 import { homeItemAt, resolveHomeDrop, type HomeItem, type HomeLocation } from './home-layout.ts';
-import { createHomeTilePickup, fittedHomePickupAnchor, positionHomeTilePickup, retargetHomeTilePickup,
+import { createHomeTilePickup, fittedHomePickupAnchor, markHomeTilePickupRootVisit, positionHomeTilePickup, retargetHomeTilePickup,
   advanceHomeTilePickup2D, type HomeTilePickup } from './home-tile-pickup.ts';
 import { advanceHomeBalloonPresentation, createHomeBalloonPresentation, type HomeBalloonPresentation } from './home-balloon-presentation.ts';
 
@@ -232,11 +232,12 @@ export function reconcileHomeControls(before: MenuState, state: MenuState): Menu
   }
   if (before.system?.homeNavigation.activeFolderSlot !== state.system!.homeNavigation.activeFolderSlot) {
     const gesture = state.system!.homeNavigation.gesture;
-    if (carriesFolderPickupToRoot(before, state, controls, gesture)
-      || carriesPickupIntoFolder(before, state, controls, gesture)) {
+    const carriesToRoot = carriesFolderPickupToRoot(before, state, controls, gesture);
+    if (carriesToRoot || carriesPickupIntoFolder(before, state, controls, gesture)) {
       const nav = state.system!.homeNavigation;
-      const pickup = retargetHomeTilePickup(controls.tilePickup!, sampleHomeGrid(nav).densityValue,
+      let pickup = retargetHomeTilePickup(controls.tilePickup!, sampleHomeGrid(nav).densityValue,
         { x: gesture!.x, y: gesture!.y }, fittedHomePickupAnchor(sampleHomeGrid(nav).densityValue));
+      if (carriesToRoot) pickup = markHomeTilePickupRootVisit(pickup);
       return put(state, { ...controls, input: createHomeInputAdapter(), producer: createHomeInputProducer(),
         primary: createHomePrimaryCursor({ request: 2, shown: false, layoutVisible: false, center: selectedCenter(nav) }),
         presentation: createHomeCursorPresentation(sampleHomeGrid(nav).densityValue),

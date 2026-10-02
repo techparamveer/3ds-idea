@@ -384,10 +384,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const hostedBanner=options.getHomeBanner?.();
   const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;
   const hostedToolbar=hostedBanner?.status!=='unsupported'&&hostedBanner?.selection.kind==='toolbar'?hostedBanner.selection:null;
-  // Captured root-held HOME has no title/banner while folder-held HOME keeps
-  // it. This fitted paint gate deliberately leaves the retained banner host,
-  // resource ticket and motion clocks untouched for cancel/release restore.
-  const hideHeldRootBanner=!!view.pickup&&!state.opened;
+  // Captured root-held HOME has no title/banner. A confirmed continuous stroke
+  // retains that capture-fitted visibility history after folder re-entry; this
+  // is not a recovered native controller. Initial folder-held HOME keeps it.
+  const hideHeldRootBanner=!!view.pickup&&(!state.opened||view.pickup.suppressUpperBanner);
   const friendUnavailable='Native Friend List toolbar banner unavailable.';
   const newsUnavailable='Native Notifications toolbar banner unavailable.';
   const toolbarFailure=hostedToolbar?.focus===2?options.getFriendBannerFailure?.():hostedToolbar?.focus===3?options.getNewsBannerFailure?.():null;

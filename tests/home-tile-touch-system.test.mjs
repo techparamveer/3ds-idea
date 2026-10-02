@@ -5,7 +5,7 @@ import { createPortfolioState, tickSystem, dispatchSystemEvent, reduceSystem, to
 import { enableHomeControls, queueHomeControlTouch, cancelHomeControlTouch } from '../src/os/home-controls.ts';
 import { resetHomeTileTouch } from '../src/os/home-tile-touch.ts';
 import { advanceHomeTilePickup2D, createHomeTilePickup, fittedHomePickupAnchor,
-  retargetHomeTilePickup } from '../src/os/home-tile-pickup.ts';
+  markHomeTilePickupRootVisit, positionHomeTilePickup, retargetHomeTilePickup } from '../src/os/home-tile-pickup.ts';
 import { createHomeNavigation, writeHomeNavigation, activeHomeRecord, sampleHomeGrid, enterHomeFolder } from '../src/os/home-navigation.ts';
 import { reduceMenu } from '../src/os/state.ts';
 import { createHomeBannerHost, crossHomeBannerBoundary, skipHomeBannerHostPass } from '../src/os/home-banner-host.ts';
@@ -21,14 +21,20 @@ test('pickup retarget submits destination Scale while retaining source blank geo
   const entered = advanceHomeTilePickup2D(createHomeTilePickup(source, 1,
     { x: 244, y: 137 }, { x: 244, y: 137 }, fittedHomePickupAnchor(1)));
   assert.deepEqual(entered.center, { x: 244, y: 123 });
+  assert.equal(entered.suppressUpperBanner, false);
+  const marked = markHomeTilePickupRootVisit(entered);
+  assert.notEqual(marked, entered); assert.equal(entered.suppressUpperBanner, false); assert.equal(marked.suppressUpperBanner, true);
+  assert.equal(markHomeTilePickupRootVisit(marked), marked); assert.ok(Object.isFrozen(marked));
   const rootAnchor = fittedHomePickupAnchor(5);
-  const retargeted = retargetHomeTilePickup(entered, 5, { x: 59, y: 54 }, rootAnchor);
+  const retargeted = retargetHomeTilePickup(marked, 5, { x: 59, y: 54 }, rootAnchor);
   assert.deepEqual(retargeted.source, source);
   assert.deepEqual(retargeted.center, { x: 59, y: 49.75 });
   assert.deepEqual(retargeted.anchor, { x: 0, y: -4.25 });
   assert.deepEqual(retargeted.scale, { currentFrame: 5, appliedFrame: 5 });
   assert.deepEqual(retargeted.blankCenter, entered.blankCenter);
   assert.deepEqual(retargeted.blankScale, { currentFrame: 1, appliedFrame: 1 });
+  assert.equal(retargeted.suppressUpperBanner, true);
+  assert.equal(positionHomeTilePickup(retargeted,{x:60,y:55}).suppressUpperBanner,true);
   assert.equal(retargetHomeTilePickup(retargeted, 5, { x: 59, y: 54 }, rootAnchor), retargeted);
   assert.throws(() => retargetHomeTilePickup(retargeted, 6, { x: 0, y: 0 }, { x: 0, y: 0 }), /density/);
 });

@@ -115,8 +115,10 @@ test('same-stroke hover re-enters the source folder with pickup ownership and or
  let s=placeInFolder();s=writeHomeNavigation(s,{...s.system.homeNavigation,rootView:{...s.system.homeNavigation.rootView,density:5}});
  s=enableHomeControls(s);const unchanged=saveSettings(s);s=lift(s,2,5200);const source=child(4,2),back=[59,54];
  const sourceBlank={center:s.system.homeControls.tilePickup.blankCenter,scale:s.system.homeControls.tilePickup.blankScale};
+ assert.equal(s.system.homeControls.tilePickup.suppressUpperBanner,false);
  s=touch(s,'move',...back,5700);s=reconcileHomeControls(s,tickSystem(s,5700+T.folderHoverMs));
  assert.equal(s.opened,false);assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:5,appliedFrame:5});
+ assert.equal(s.system.homeControls.tilePickup.suppressUpperBanner,true);
  const folderPoint=center(s,4);s=touch(s,'move',...folderPoint,6300);const before=s;
  s=reconcileHomeControls(before,tickSystem(s,6300+T.folderHoverMs));
  assert.equal(s.opened,true);assert.equal(s.selected,4);assert.deepEqual(getHomeGestureView(s).dragged.source,source);
@@ -125,8 +127,13 @@ test('same-stroke hover re-enters the source folder with pickup ownership and or
  assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:1,appliedFrame:1});
  assert.deepEqual(s.system.homeControls.tilePickup.blankCenter,sourceBlank.center);
  assert.deepEqual(s.system.homeControls.tilePickup.blankScale,sourceBlank.scale);
+ assert.equal(s.system.homeControls.tilePickup.suppressUpperBanner,true);
  assert.deepEqual(s.system.homeControls.tileTouch.widgets,{});assert.deepEqual(s.system.homeControls.tilePoses,{});
- s=touch(s,'move',...center(s,2),6300+T.folderHoverMs+1);s=touch(s,'up',...center(s,2),6300+T.folderHoverMs+2);
+ s=touch(s,'move',...back,6900);s=reconcileHomeControls(s,tickSystem(s,6900+T.folderHoverMs));
+ assert.equal(s.opened,false);assert.equal(s.system.homeControls.tilePickup.suppressUpperBanner,true);
+ const repeatedFolderPoint=center(s,4);s=touch(s,'move',...repeatedFolderPoint,7500);s=reconcileHomeControls(s,tickSystem(s,7500+T.folderHoverMs));
+ assert.equal(s.opened,true);assert.equal(s.system.homeControls.tilePickup.suppressUpperBanner,true);
+ s=touch(s,'move',...center(s,2),7500+T.folderHoverMs+1);s=touch(s,'up',...center(s,2),7500+T.folderHoverMs+2);
  assert.equal(s.opened,true);assert.equal(saveSettings(s),unchanged);assert.equal(getHomeGestureView(s),null);
  assert.equal(s.system.input.touch,null);assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileTouch.strokeOwned,false);noLoss(s);
 });
@@ -144,6 +151,7 @@ test('source-folder re-entry survives exact and retained-remainder counted bound
   assert.deepEqual(s.system.homeControls.tilePickup.source,source);assert.equal(s.system.homeControls.tileTouch.strokeOwned,true);
   assert.deepEqual(s.system.homeControls.tilePickup.scale,{currentFrame:1,appliedFrame:1});
   assert.deepEqual(s.system.homeControls.tilePickup.blankScale,{currentFrame:1,appliedFrame:1});
+  assert.equal(s.system.homeControls.tilePickup.suppressUpperBanner,true);
   s=touch(s,'cancel',...folderPoint,now+1);
   assert.equal(s.opened,true);assert.equal(s.selected,4);assert.equal(saveSettings(s),unchanged);
   assert.equal(s.system.input.touch,null);assert.equal(s.system.homeControls.tilePickup,null);assert.equal(s.system.homeControls.tileTouch.strokeOwned,false);noLoss(s);

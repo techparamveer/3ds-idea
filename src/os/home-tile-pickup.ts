@@ -11,6 +11,8 @@ export type HomeTilePickup = Readonly<{
   anchor: Point;
   scale: Scale;
   blankScale: Scale;
+  /** Capture-fitted visibility history, not a recovered native controller. */
+  suppressUpperBanner: boolean;
   priority: 375;
   rootScale: 1;
 }>;
@@ -40,7 +42,14 @@ export function createHomeTilePickup(source: HomeLocation, density: number, blan
   const scale = (): Scale => Object.freeze({ currentFrame, appliedFrame: null });
   return Object.freeze({ source: Object.freeze({ ...source }), anchor: offset,
     center: point({ x: Math.fround(touch.x) + offset.x, y: Math.fround(touch.y) + offset.y }),
-    blankCenter: point(blankCenter), scale: scale(), blankScale: scale(), priority: 375, rootScale: 1 });
+    blankCenter: point(blankCenter), scale: scale(), blankScale: scale(), suppressUpperBanner: false,
+    priority: 375, rootScale: 1 });
+}
+
+/** The confirmed folder-to-root continuous stroke keeps its upper-title
+ * suppression if that same owner later re-enters a folder. */
+export function markHomeTilePickupRootVisit(state: HomeTilePickup): HomeTilePickup {
+  return state.suppressUpperBanner ? state : Object.freeze({ ...state, suppressUpperBanner: true });
 }
 
 /** Position writer in the grid footer. These are renderer LCD coordinates;

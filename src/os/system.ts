@@ -9,7 +9,7 @@ import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout, isPreviousDefaultAppLayout } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, setHomeSettingsScroll, type MenuState, type Input } from './state.ts';
-import { homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
+import { homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt, softwareDialogActionAt } from './stock-screen-layout.ts';
 import { serializeHomeSavedLayouts, restoreHomeSavedLayouts } from './home-saved-layouts.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
@@ -233,7 +233,7 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
   return touchSystem(state,anchor.x,anchor.y,now);
  }
  if(input==='open'&&!state.panel){const title=selectedTitle(state);if(title)return launch(state,title.id,now);}
- if(input==='back'&&!state.panel&&!state.opened&&s.app)return change({dialog:'close'});
+ if(input==='back'&&!state.panel&&!state.opened&&s.app)return change({dialog:'close',input:createInputLatch()});
  return reduceMenu(state,state.panel==='home-layouts'&&(input==='x'||input==='y')?input:input==='x'?'zoom':input==='y'?'brightness':input==='select'?'zoom':input==='l'?'left':input==='r'?'right':input);
 }
 const toolbarApps:Record<string,string>={notes:'game-notes',friends:'friends',notifications:'notifications',browser:'browser',miiverse:'miiverse'};
@@ -248,7 +248,7 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  const send=(input:Input)=>reduceSystem(state,input,now);
  if(s.preferences){if(y>=212)return send('back');if(y>=53&&y<92)return send('mute');if(y>=106&&y<147)return send(x<160?'volume-down':'volume-up');if(y>=165&&y<204)return send('reset-layout');return state;}
  if(s.phase==='power')return y>=214?send('back'):x>=66&&x<=254&&y>=166&&y<=202?send('open'):state;
- if(s.dialog)return y>=170?send(x<160?'back':'open'):state;
+ if(s.dialog){const action=softwareDialogActionAt(x,y);return action?send(action):state;}
  if(s.phase==='app'){
   const active=activeInstance(s.runtime);
   if(active&&getTitle(active.appId)?.source==='firmware')return commitRuntime(state,dispatchRuntime(s.runtime,{type:'touch',phase:'up',x,y},now),now);
@@ -267,7 +267,7 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  if(isHomeFolderBackTouch(state,x,y))return send('back');
  if(!state.panel&&y>=212&&selectedTitle(state)){
   if(state.opened)return send(x<100?'back':'open');
-  if(x<100&&s.app)return {...state,system:{...s,dialog:'close'}};
+  if(x<100&&s.app)return {...state,system:{...s,dialog:'close',input:createInputLatch()}};
   if(x<100&&selectedTitle(state)?.id==='system-settings')return invokeSystemApplet(state,'manual',now,{manualTitleId:'0004001000022000'});
   return send('open');
  }
@@ -300,6 +300,11 @@ function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number)
   state=tickHomeNavigationClock(state,now);s=state.system!;
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&isSystemHomeFolderClosing(state))return state;
   state={...state,system:{...s,input:touched.latch}};s=state.system!;
+  if(s.dialog&&!s.preferences&&s.phase!=='power'){
+   const contact=previousTouch??touched.latch.touch;
+   const action=contact&&softwareDialogActionAt(contact.startX,contact.startY);
+   return event.phase==='up'&&action&&action===softwareDialogActionAt(event.x,event.y)?touchSystem(state,event.x,event.y,now):state;
+  }
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&state.panel==='home-layouts'&&state.homeLayoutAction){
    const contact=previousTouch??touched.latch.touch;
    const action=contact&&homeLayoutConfirmationAt(contact.startX,contact.startY);

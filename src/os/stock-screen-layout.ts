@@ -1,6 +1,21 @@
 import type { AppView, JsonValue } from './app-types';
 import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
 
+/** Existing authored close/switch geometry; not a native dialog measurement. */
+export const SOFTWARE_DIALOG_BUTTONS = [
+  {action: 'back', x: 23, y: 173, width: 128, height: 29},
+  {action: 'open', x: 169, y: 173, width: 128, height: 29},
+] as const;
+export function softwareDialogActionAt(x: number, y: number): 'back' | 'open' | null {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return SOFTWARE_DIALOG_BUTTONS.find(r => x >= r.x && x < r.x + r.width && y >= r.y && y < r.y + r.height)?.action ?? null;
+}
+export function softwareDialogPressed(touch: {startX: number; startY: number; x: number; y: number} | null): 'back' | 'open' | null {
+  if (!touch) return null;
+  const action = softwareDialogActionAt(touch.startX, touch.startY);
+  return action === softwareDialogActionAt(touch.x, touch.y) ? action : null;
+}
+
 /** Bounded four-row HOME Settings adapter; later native rows are not yet routed. */
 export const HOME_SETTINGS_MAX_SCROLL = 140;
 /** home.dialog/Dlg_A_D_02 Bounding_00/01 at the settled source pose. */

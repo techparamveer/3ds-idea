@@ -61,7 +61,8 @@ export function createHomeLayoutManager(renderer:NativeLayoutRenderer){
   const attachments:Record<string,()=>void>={};
   for(let slot=0;slot<8;slot++)attachments[`N_Thumb_0${slot}`]=()=>paint(bottom,'MyMenuBtn_D_00',{
    bindings:[binding(occupied(slot)?'MyMenuBtn_D_00_Valid':'MyMenuBtn_D_00_Invalid',1)],
-   overrides:{Thumb_00:{visible:false},N_Icon_Random:{visible:false}},
+   // Empty slots use the source PlateGray panes, not saved-image samples.
+   overrides:{...(occupied(slot)?{Thumb_00:{visible:false}}:{}),N_Icon_Random:{visible:false}},
    attachments:slot===selected?{RootPane:()=>paint(bottom,'MyMenuCsr_00',{bindings:[binding('MyMenuCsr_00_Loop',0)]})}:undefined,
   });
   paint(bottom,'MyMenu_D_00',{clip:[0,0,320,240],bindings:[binding('MyMenu_D_00_MyMenuIn',30)],attachments});

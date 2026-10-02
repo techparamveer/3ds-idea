@@ -46,7 +46,11 @@ test('saved slots enable Load/Delete and use native Overwrite text while sample 
  const slots=byName(draws,'MyMenuBtn_D_00');
  assert.deepEqual(slots.map(draw=>draw.options.bindings[0].name),Array.from({length:8},(_,i)=>`MyMenuBtn_D_00_${i===6?'Valid':'Invalid'}`));
  assert.deepEqual(byName(draws,'MyMenuCsr_00')[0].center,[198,154]);
- for(const draw of slots)assert.ok(!draw.visible.some(name=>/^Thumb_[UD]_0[01]$/.test(name)));
+ assert.ok(!slots[6].visible.some(name=>/^Thumb_[UD]_0[01]$/.test(name)));
+ for(const [index,draw] of slots.entries())if(index!==6){
+  assert.ok(draw.visible.includes('Thumb_U_00'));
+  assert.ok(draw.visible.includes('Thumb_D_00'));
+ }
  const upper=byName(draws,'MyMenu_U_00')[0];assert.ok(!upper.visible.includes('N_Thumb'));
  const footer=byName(draws,'MyMenuBtmBtn_D_00')[0];
  assert.deepEqual(footer.options.bindings.at(-1).groups,['G_Btn_03']);
@@ -64,6 +68,20 @@ test('empty selection disables native Load/Delete/Zoom and retains signed footer
  for(const name of ['P_BtnLineR_00','P_BtnLineR_01']){
   const pane=walk(footer.pose.roots).find(pane=>pane.name===name);
   assert.deepEqual(pane.size,[60,28]);assert.deepEqual(pane.scale,[-1,1]);
+ }
+});
+
+test('empty slots retain the original grey LCD plates without displaying saved-image placeholders',()=>{
+ const {manager,top,bottom,draws}=fixture();manager.draw(top,bottom,{});
+ for(const slot of byName(draws,'MyMenuBtn_D_00')){
+  for(const name of ['Thumb_U_00','Thumb_D_00']){
+   assert.ok(slot.visible.includes(name));
+   const pane=walk(slot.pose.roots).find(pane=>pane.name===name);
+   const material=slot.pose.materials[pane.picture.material];
+   assert.equal(slot.pose.textures[material.textureMaps[0].texture],'PlateGray.bclim');
+  }
+  assert.ok(!slot.visible.includes('Thumb_U_01'));
+  assert.ok(!slot.visible.includes('Thumb_D_01'));
  }
 });
 

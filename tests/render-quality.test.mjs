@@ -5,7 +5,7 @@ import fs from 'node:fs';
 
 const source=fs.readFileSync(new URL('../src/scene/render-quality.ts',import.meta.url),'utf8');
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {chooseRenderQuality,pixelRatioForViewport,screenPaintFps}=await import(`data:text/javascript,${encodeURIComponent(js)}`);
+const {applicationCloseNeedsPaint,chooseRenderQuality,pixelRatioForViewport,screenPaintFps}=await import(`data:text/javascript,${encodeURIComponent(js)}`);
 
 test('render quality bounds fill-rate and disables VGPU on constrained devices',()=>{
   const quality=chooseRenderQuality({devicePixelRatio:3,hardwareConcurrency:4,deviceMemory:4,saveData:false,width:1440,height:900});
@@ -39,4 +39,16 @@ test('counted transitions use the scene budget without changing idle or constrai
     assert.deepEqual([screenPaintFps(quality,false),screenPaintFps(quality,true)],expected);
     assert.equal(screenPaintFps(quality,false),quality.screenFps,'one transition does not mutate the policy');
   }
+});
+
+test('application close publishes terminal and retirement pairs independent of cadence',()=>{
+  const closing={phase:'closing',appQuitFrame:19},terminal={phase:'terminal',appQuitFrame:20};
+  assert.equal(applicationCloseNeedsPaint(null,null,false),false);
+  assert.equal(applicationCloseNeedsPaint(closing,closing,false),false);
+  assert.equal(applicationCloseNeedsPaint(closing,{...closing,appQuitFrame:18},false),false);
+  assert.equal(applicationCloseNeedsPaint(closing,terminal,false),true);
+  assert.equal(applicationCloseNeedsPaint(terminal,null,false),true);
+  assert.equal(applicationCloseNeedsPaint(null,closing,true),true);
+  assert.equal(applicationCloseNeedsPaint(closing,{...closing},true),true);
+  assert.equal(applicationCloseNeedsPaint(closing,closing,true),false);
 });

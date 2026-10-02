@@ -1,3 +1,5 @@
+import type { HomeApplicationTransition } from '../os/home-application-transition';
+
 export type RenderQuality = {
   tier: 'high' | 'balanced' | 'constrained';
   pixelRatio: number;
@@ -29,6 +31,12 @@ export function pixelRatioForViewport(tier: RenderQuality['tier'], devicePixelRa
  * the lower upload cadence. State still advances independently of painting. */
 export function screenPaintFps(quality: RenderQuality, transitionAdvanced: boolean): number {
   return transitionAdvanced ? quality.renderFps : quality.screenFps;
+}
+
+/** Terminal/retirement pairs cannot be skipped by the ordinary LCD cadence. */
+export function applicationCloseNeedsPaint(before: HomeApplicationTransition | null,
+  after: HomeApplicationTransition | null, reduced: boolean): boolean {
+  return before !== after && (reduced || after === null || after.phase === 'terminal');
 }
 
 /** One policy owns expensive renderer choices so the scene cannot drift. */

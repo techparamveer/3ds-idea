@@ -15,10 +15,16 @@ New workstream dispatches use GPT-6 Astra/high; future subagents use GPT-6.1
 Sol/high, at normal speed, no Fast. The latest request supersedes Fast; chat service tier cannot
 be changed or verified through dispatch tools. No new priority-only helpers.
 
+The [source close/switch dialog](home-software-dialog-2026-10-02.md) at
+`f17a1007` replaces the authored frame/glyphs and touch bounds, preserving
+same-button ownership and paired failure recovery. Eleven browser pairs and
+full1668 tests pass supporting checks; native dialog composition, inline text
+size, per-title policy and closing motion remain open. L-06/L-07 are partial.
+
 The [close/switch input correction](software-dialog-input-2026-10-02.md)
 at `7dd76afa` is implemented, tested and browser-inspected: bounded same-button
-touch and press feedback. Native dialog artwork and closing motion remain
-unfinished. This is not native acceptance or completion of L-06/L-07.
+touch and press feedback. Its authored artwork was superseded by the source
+assembly above; native acceptance and closing motion remain unfinished.
 
 [Silent reference recovery](native-silent-reference-2026-10-02.md) restores
 native HOME/Health rendering with synthetic input2, Null output1 and volume0.

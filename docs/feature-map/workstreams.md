@@ -24,6 +24,12 @@ assigned `3ds-home-design-native-panel-20261002` and `3ds-home-design-state-2026
 worktrees without GUI. [Evidence and residuals](../home-settings-integration-2026-10-02.md).
 
 The [completion map](../feature-map.md) defines scope, status and acceptance.
+
+Coordinator close/switch delivery `f17a1007` replaces authored modal art with
+source dialog/masks/messages, source button bounds and paired readiness.
+[Eleven-pair browser evidence](../home-software-dialog-2026-10-02.md) verifies
+cancel/confirm and cross-drag behavior. Native caller/policy, inline size and
+closing motion remain open. This was coordinator work, not a worker dispatch.
 This file is the dispatch ledger. Feature IDs and route details live in
 [HOME/lifecycle](home-and-lifecycle.md), [system/services](system-and-online-apps.md)
 and [media/social/portfolio](media-social-and-portfolio.md).

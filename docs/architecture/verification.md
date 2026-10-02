@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+The [source close/switch dialog](../home-software-dialog-2026-10-02.md) at
+`f17a1007` has eleven inspected production pairs, source-bounded touch checks
+and full1668 passing tests. Native menu boot supplied a fresh HOME capture,
+but held launch attempts left HOME unchanged. Its53673/47561 empty-mask HOME
+diagnostic is not a native dialog comparison. Generic assembly, inline size,
+per-title policy and motion remain open; no scenario acceptance is inferred.
+
 The [source suspended-window delivery](../home-suspended-window-2026-10-02.md)
 at `81d0b3d8` has nine final raw production pairs and an inspected retained-native
 diagnostic (95286/51107 upper/lower pixels >2, empty mask). Different input,

@@ -1,5 +1,13 @@
 # Software state, input and presentation
 
+Software close/switch presentation now uses [source dialog assembly](../home-software-dialog-2026-10-02.md).
+`homeSoftwareDialogKey` identifies kind, retained owner and pending title for
+paired readiness even when another HOME title is selected. Recovery cancels
+the dialog without destroying its owner. `SOFTWARE_DIALOG_BUTTONS` matches
+source Bounding_00/01; input retains same-button down/up ownership, and source
+Select feedback follows that same contact. Per-title policy/closing timing
+remain separate unfinished reducer work; source assembly is not native parity.
+
 The current [UI scope](../portfolio-ui-scope.md) preserves eight portfolio apps
 and native stock UI/basic navigation. Software Keyboard and six excluded apps
 are unregistered. Camera is a read-only portfolio gallery; Sound is an

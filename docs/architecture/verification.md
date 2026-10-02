@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[Populated-folder Delete](../home-populated-folder-2026-10-02.md) at `43b8be55`
+uses two fresh native touch-OK cycles and byte-identical native lower notice
+captures. Compare its source-backed one-button panel separately from surrounding
+HOME population/scroll/animation differences. The former generic confirmation
+is a same-action semantic diagnostic, not an equivalent-state pixel baseline.
+Preserve intermediate captures: production inspection found a footer ownership
+omission and the final correction suppresses that footer. Actual touch/A,
+cross-target rejection, mobile, reload and empty-delete controls support behavior;
+B/HOME recovery is adapted, exact native input/motion/audio remains unverified.
+
 [Empty-folder Delete](../home-folder-delete-native-2026-10-02.md) at `2f074d64`
 is a behavior correction established by two fresh native before/after runs.
 One Delete activation returns to root HOME/Create Folder without confirmation.

@@ -1,5 +1,24 @@
 # Workstream Registry
 
+## Populated Folder Notice - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree
+`3ds-home-populated-folder-20261002`, matching `codex/` branch, base40a5d090.
+Source `b33064aa` -> `2ee79ae3` and footer correction `4ea72347` -> `43b8be55`
+are integrated. Comparison chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` used
+`3ds-home-populated-folder-compare-20261002`, matching branch/base;
+native baseline `198f795e` -> `07351924`, intermediate `52eb30a2` -> `aae9145d`.
+Both use Sol5.6/high. A separate read-only Sol5.6/high reviewer found no
+actionable issues in either runtime commit. Workers did not operate GUI.
+Coordinator captured native repeats and actual desktop/mobile production routes,
+ran full checks, inspected pixels and corrected the visibly leaked footer.
+All earlier worktrees are preserved; no service-tier/coordinator-model claim.
+Final comparison `b26d39fb` -> `e15072f8` is integrated. Coordinator opened both
+final sheets: panel98 above2/max8, full49,352/12,601 remains fail. Source and
+review workers are idle. Native and dedicated Chrome exited0; preview3021
+remains ready. The separately corrected persistence harness and immutable
+intermediate/final capture distinction are recorded in the handoff.
+
 ## Create Folder Footer - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree

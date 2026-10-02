@@ -104,3 +104,23 @@ The coordinator completed the independent native repeat and still owns the
 integrated browser capture, raw two-LCD comparison, regression captures and
 build. Until those comparisons exist, the whole scenario remains `fail`, not a
 1:1 fidelity pass.
+
+## Coordinator integration
+
+Source `b33064aa` integrated as `2ee79ae3`; visible footer ownership correction
+`4ea72347` as `43b8be55`. Full integrated1,808 tests, typecheck and production
+build pass, superseding the worker's missing-model fixture failures. Actual
+desktop/mobile touchOK, physicalA, cross-target rejection, adapted B/HOME,
+empty-delete and reload-content controls are recorded in the
+[comparison handoff](workstream-handoffs/home-populated-folder-compare.md).
+The final harness's last persistence double-activation and HOME-only retry
+were corrected in a separate successful persistence supplement, not concealed.
+
+The inspected native/production final notice has98 panel pixels above delta2,
+max8, all at symmetric bottom corners. Text/button interior meets tolerance.
+Full upper49,352/lower12,601 remains fail. Removing the leaked footer lowers
+its band's maximum error78 ->11, but6398 pixels remain above2; its background
+shade is an unresolved source gap, not explained by root population/scroll.
+No speculative palette, glyph or alpha correction is introduced. Exact
+press/fade/input/audio and native B/HOME remain unverified. Five lower stock
+controls and both Settings upper controls remain byte-identical.

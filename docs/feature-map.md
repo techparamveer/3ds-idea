@@ -15,7 +15,21 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Create Folder footer audit](home-create-folder-footer-2026-10-02.md)
+Latest [populated-folder Delete notice](home-populated-folder-2026-10-02.md)
+at `2ee79ae3`/`43b8be55` replaces the authored confirmation with the captured
+native one-button message, retaining the upper folder banner and contents.
+Two native touch-OK runs return to root; production desktop/mobile OK, physical
+A, cross-target rejection, empty-delete and reload checks pass. B/HOME recovery
+remains an adaptation. Full 1,808 tests/typecheck/build pass. A visible leaked
+HOME footer was corrected after the first after capture. [Comparison](workstream-handoffs/home-populated-folder-compare.md).
+Final modal retains98 corner pixels above delta2, max8; full pair49,352/12,601
+remains fail, with unexplained backing shade and unmatched root/upper state.
+Whole scenarios and exact motion/input/audio remain open.
+Next: captured pressed/fade states or the open-folder root-icon gutter and
+incorrect Close/Open footer (native Open-only); preserve
+the delivered create/open/close design and excluded Rename boundary.
+
+Earlier [Create Folder footer audit](home-create-folder-footer-2026-10-02.md)
 at `8272c0b9`/`fd0e4cf9` adds a source-selection regression, not new pixels.
 The stable 799-pixel residual splits spatially into 780 edge-shaped and 19
 ink-intersecting pixels; causal layer ownership remains unproved. No palette

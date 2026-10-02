@@ -17,7 +17,7 @@ function canvas(){
 const pixels=rgb=>({width:1,height:1,data:new Uint8ClampedArray([...rgb,255])});
 const white=Array.from({length:4},()=>[255,255,255,255]);
 const material={name:'picture',bufferColor:[0,0,0,0],constantColors:[[255,255,255,255]],textureMaps:[{texture:0,wrapS:0,wrapT:0,minFilter:0,magFilter:0}],textureMatrices:[],coordinateGenerators:[],tevStages:[],unsupported:[]};
-const pane={kind:'pic1',name:'picture',flags:1,origin:4,alpha:255,translation:[0,0,0],rotation:[0,0,0],scale:[1,1],size:[1,1],children:[],picture:{material:0,colors:white,uvSets:[]}};
+const pane={kind:'pic1',name:'picture',flags:1,origin:4,alpha:255,translation:[0,0,0],rotation:[0,0,0],scale:[1,1],size:[1,1],children:[],picture:{material:0,colors:white,uvSets:[[0,0,1,0,0,1,1,1]]}};
 const layout={canvas:{width:1,height:1,origin:1},roots:[pane],materials:[material],textures:['dynamic'],fonts:[],groups:[],unsupported:[]};
 
 test('per-draw native texture bindings isolate glyphs and renames, restore the source, and reuse cached raster snapshots',()=>{

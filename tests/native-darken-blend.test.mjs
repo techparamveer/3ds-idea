@@ -16,7 +16,7 @@ const pixels=(alpha=173)=>({width:1,height:1,data:new Uint8ClampedArray([79,137,
 const material=()=>({name:'arbitrary-name',bufferColor:[0,0,0,0],constantColors:[[255,255,255,255]],textureOnly:false,
  textureMaps:[{texture:0,wrapS:0,wrapT:0,minFilter:0,magFilter:0}],textureMatrices:[],coordinateGenerators:[],tevStages:[],
  alphaCompare:{function:7,reference:0},colorBlend:{...blend},unsupported:[]});
-const picture={material:0,colors:white,uvSets:[]};
+const picture={material:0,colors:white,uvSets:[[0,0,1,0,0,1,1,1]]};
 function fixture(m=material(),size=[1,1]){
  const pane={kind:'pic1',name:'picture',flags:1,origin:0,alpha:255,translation:[0,0,0],rotation:[0,0,0],scale:[1,1],size,children:[],picture};
  const layout={canvas:{width:16,height:12,origin:1},roots:[pane],materials:[m],textures:['dynamic'],fonts:[],groups:[],unsupported:[]};

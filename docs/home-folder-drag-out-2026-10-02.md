@@ -59,11 +59,15 @@ drag-out route outside the folder content band remains unchanged.
 that exact, still-current source is carried from a non-null folder to the root
 view. This guard also covers the scene's outer context reconciler, which runs
 around tick reducers and would otherwise apply the ordinary container reset.
-On that one transition, departed folder input, cursor presentation, widgets and
-tile poses are rebased to root while the live stroke point and independent
-pickup controller continue. Other context changes, cancel, stale source and
-completed drop still release the owner. Gesture state remains in the existing
-HOME navigation model; no parallel app state or renderer recognizer was added.
+The guard requires the prior drag to have an armed Back hover, an unchanged
+pointer identity/position, and a position inside Back and the folder content
+band. On that one later-tick transition, departed folder input, cursor
+presentation, widgets and tile poses are rebased to root while the live stroke
+point and independent pickup controller continue. The older immediate exit
+outside the folder content band retains its generic reset. Other context
+changes, cancel, stale source and completed drop still release the owner.
+Gesture state remains in the existing HOME navigation model; no parallel app
+state or renderer recognizer was added.
 
 ## Source mapping
 
@@ -99,13 +103,14 @@ animation, cadence or audio.
 
 The focused HOME run covers gesture, tile-touch System, folder input and
 identity, presentation, pickup presentation, cursor-loop and saved-layout
-suites: 95 tests, 94 passed, 0 failed and one optional Canvas test skipped.
+suites: 96 tests, 95 passed, 0 failed and one optional Canvas test skipped.
 New assertions cover deadline/reset behavior, retained pointer/source/viewport
 and pickup owner, occupied-root swap, empty-root move, app conservation, cancel,
 stale source and capture cleanup. They also exercise the production context
 wrapper across the exit deadline and additional held ticks, checking that the
-pickup survives while departed folder widgets and poses do not. `npm run
-typecheck` also passes.
+pickup survives while departed folder widgets and poses do not. A separate
+regression proves the pre-existing immediate folder-band exit still uses the
+generic control reset. `npm run typecheck` also passes.
 
 This worker made no browser or native capture. Coordinator integration must
 repeat the identical drag path, record held and released browser states, compare

@@ -120,10 +120,13 @@ export function tickHomeNavigationClockObserved(state: MenuState, now: number, r
   if(state.system!.homeClock!==clock)state={...state,system:{...state.system!,homeClock:clock}};
   if(advanced.commit){
    const transition=state.system!.homeApplicationTransition;
-   if(transition&&transition.identity.owner===advanced.commit.identity.owner){
+   const runtime=state.system!.runtime,owner=advanced.commit.identity.owner,instance=runtime.instances[owner];
+   if(transition&&transition.identity.owner===owner&&runtime.application===owner&&runtime.active===null
+    &&runtime.homeReturn===owner&&instance?.suspended&&!instance.closing){
     const intent:HomeApplicationTransitionIntent=advanced.commit.intent;
-    const closed=syncRuntime(state,closeApplication(state.system!.runtime,now),'home');
-    state={...closed,system:{...closed.system!,homeApplicationTransition:null,dialog:null,pending:null,input:createInputLatch()}};
+    const closed=syncRuntime(state,closeApplication(runtime,now),'home');
+    state={...closed,system:{...closed.system!,homeApplicationTransition:intent.kind==='close'?transition:null,
+     dialog:null,pending:null,input:createInputLatch()}};
     if(intent.kind==='switch')state=launch(state,intent.appId,now);
    }
   }

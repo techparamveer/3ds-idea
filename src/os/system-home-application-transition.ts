@@ -21,9 +21,12 @@ function generation(state: MenuState): string | null {
 function valid(state: MenuState, transition: HomeApplicationTransition): boolean {
   const s = state.system, owner = transition.identity.owner;
   const instance = s?.runtime.instances[owner];
-  return !!s && state.powered && s.phase === 'home'
-    && transition.identity.generation === generation(state)
-    && s.runtime.application === owner && s.runtime.active === null && s.runtime.homeReturn === owner
+  if (!s || !state.powered || s.phase !== 'home' || transition.identity.generation !== generation(state)) return false;
+  if (transition.phase === 'footer-returning' || transition.phase === 'return-terminal') {
+    return !instance && s.runtime.application === null && s.runtime.active === null
+      && s.runtime.homeReturn === null && s.app === null;
+  }
+  return s.runtime.application === owner && s.runtime.active === null && s.runtime.homeReturn === owner
     && s.app === instance?.appId && !!instance?.suspended && !instance.closing;
 }
 
@@ -86,7 +89,7 @@ export function advanceSystemHomeApplicationTransition(state: MenuState, updates
   const transition = sampleSystemHomeApplicationTransition(state);
   if (!transition) return Object.freeze({ state, processedUpdates: 0, commit: null });
   const result = advanceHomeApplicationTransition(transition, transition.identity, updates, { eligible });
-  state = write(state, result.state);
   const commit = result.observations.find(observation => observation.kind === 'commitOwnerClose') ?? null;
+  state = write(state, result.state?.phase === 'complete' && !commit ? null : result.state);
   return Object.freeze({ state, processedUpdates: result.processedUpdates, commit });
 }

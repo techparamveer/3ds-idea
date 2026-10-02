@@ -1,13 +1,21 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `7727fa35` (continuous folder re-entry ownership,
-visibility and visited-folder Back corrected), 2 October 2026. This is the **ordered
+Current runtime checkpoint: `a40d597e` (suspended folder software Close action
+and native black footer resource corrected), 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+The latest [folder software Close](../home-folder-software-close-2026-10-02.md)
+fixes the captured white Close/Resume button and wrong Back action. Suspended
+Health now closes inside its folder using the existing native transition and
+returns to Open. Full tests/typecheck/build pass. Native idle/suspended PNGs
+were captured, but exit frames were not; close motion and timing remain open.
+Preserve the source-backed black X Close selection. The older queue's missing
+dialog/abrupt-exit wording is superseded by `229e864c` and its source record.
 
 The latest [folder re-entry comparison](../home-folder-reentry-2026-10-02.md)
 fixes a visible loss of the lifted tile, dimmed toolbar and hidden footer when
@@ -40,7 +48,8 @@ The [open-folder footer](../home-open-folder-footer-2026-10-02.md) now uses
 one full-width Open control for occupied children without suspended software.
 The same left-side touch launches Health in native and production; empty/vacant
 children remain button-free. Desktop/mobile, reload and static stock regression
-checks pass. Suspended-folder policy was not captured and is not claimed native.
+checks pass. Selected suspended Health's Close/Resume policy is now captured
+and corrected at `a40d597e`; unrelated suspended-child selections remain unverified.
 Continue with captured press/fade states; preserve this
 source-backed action correction and keep remaining shade differences explicit.
 
@@ -105,8 +114,8 @@ modal-button portion of items 1-2/4 is implemented and browser-inspected;
 
 | Order | Feature IDs / owner | Concrete unfinished UI or interaction | Bounded deliverable and completion check |
 | --- | --- | --- | --- |
-| 1 | L-06 / Lifecycle | Source dialog/direct Health Close preserved; retained-owner AppQuit live through `f8334ec2` | [Seven-flow evidence](../home-close-motion-2026-10-02.md) verifies terminal WebGL publication, sleep pause and input quarantine. Initial mask backing is abrupt; window/footer departure and native epoch remain unresolved. Native close capture blocked; do not replace native gaps with guessed animation. |
-| 2 | L-07 / Lifecycle | Confirmed switch retains old owner through AppQuit then launches frozen target; two dedicated worktrees integrated | [Latest evidence](../home-close-motion-2026-10-02.md): Work->About browser route passes; source motion native timing/mask binding still unverified. Preserve cancel/owner guards and replace only captured unfinished departure/reveal states. |
+| 1 | L-06 / Lifecycle | Source closing dialog, fixed upper panel and decoded exit curves integrated through `229e864c`; folder software Close corrected at `a40d597e` | [Closing-exit evidence](../home-closing-fade-2026-10-02.md) verifies browser terminal publication, sleep/readiness guards and source dialog/mask curves. [Fresh folder replay](../home-folder-software-close-2026-10-02.md) fixes the visible action. Native exit recapture saved endpoints only; exact exit motion, LCD order, timing and retirement remain open. Do not reintroduce a guessed fade. |
+| 2 | L-07 / Lifecycle | Confirmed switch retains old owner through AppQuit then launches frozen target; intentionally no ordinary-close exit phase | [Closing-exit contract](../home-closing-fade-2026-10-02.md) preserves switch ownership separately. Existing Work->About browser route passes; native timing and departure/reveal still need matched capture. Preserve cancel/owner guards and change only captured unfinished states. |
 | 3 | L-01, L-03 / Lifecycle | Power-on exists but uses a 3000 ms boot, final 350 ms reveal and fitted phase order; shutdown uses 550 ms | Finish source-backed off -> power-on -> paired LCD reveal -> HOME, plus power menu Cancel/Off -> black/off -> restart. Capture backlight/LCD order and input gates; no new decorative boot screen. Preserve existing console opening. |
 | 4 | H-14, L-06, L-07 / Lifecycle + coordinator | Source Bounding_00/01 rectangles and Select press feedback at `f17a1007`; same-button ownership preserved | Tests and muted Sidecar replay pass, including byte-identical dialog crop after cross-drag. Native input/default focus/motion comparison remains open. Physical, keyboard and touch keep the same actions. |
 | 5 | H-03..H-10, H-14 / HOME | Navigation exists; button feedback and edge/cancel behavior need a complete visible interaction pass | Select/open with touch and A; B/Back; HOME/resume; toolbar; density ends; paging; footer variants; folder enter/close; pickup/drop/cancel. Repair captured failures only, preserving existing visual design. Run both physical-model and touchscreen routes. |

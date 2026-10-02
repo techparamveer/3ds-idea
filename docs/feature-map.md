@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [continuous folder re-entry](home-folder-reentry-2026-10-02.md),
+Latest [suspended folder software Close](home-folder-software-close-2026-10-02.md),
+`a40d597e`, corrects both the white folder-action resource and its wrong Back
+route. Selected suspended Health now uses native black X Close, runs the
+existing close transition, and returns to the same folder/child with Open.
+Full 1,853 tests, typecheck/build pass. Fresh native idle/suspended endpoint
+captures are available; exit capture failed, so exact motion/timing and whole
+scenario acceptance remain open. No guessed fade or renderer change.
+Same-native footer mismatch improves 2,895 -> 73 pixels above delta 2;
+desktop/mobile/reduced close and fixture-restoration routes pass.
+
+Earlier [continuous folder re-entry](home-folder-reentry-2026-10-02.md),
 `d58bc92a` / `95989614` / `7727fa35`, keeps the native pickup/stroke across
 root-folder hover, preserves observed title suppression, and handles Back out
 of a visited folder with immutable source ownership. Fresh native comparison

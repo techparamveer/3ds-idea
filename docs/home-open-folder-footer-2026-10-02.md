@@ -1,5 +1,11 @@
 # HOME open-folder footer — native evidence and bounded correction
 
+Later checkpoint: [selected suspended Health inside a folder](home-folder-software-close-2026-10-02.md)
+is now captured and corrected at `a40d597e`: native black X Close/Resume,
+software retirement, same-folder return. The uncaptured-policy statements
+below describe this note's earlier checkpoint; unrelated suspended-child
+selections remain unverified.
+
 This slice corrects the captured occupied-folder/no-suspended-software state.
 Native HOME shows one full-width **Open** button for the selected Health child;
 the browser previously showed **Close / Open**. A native tap at the left side of

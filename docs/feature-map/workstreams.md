@@ -1,5 +1,27 @@
 # Workstream Registry
 
+## Open Folder Footer - 2 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree
+`3ds-home-open-folder-footer-20261002`, matching `codex/` branch, base d33d67a9.
+Source54e0757b ->5b82c896 and test follow-up9c46c86d ->21079a0d are integrated.
+Comparison chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` used new owned tree
+`3ds-home-open-folder-footer-compare-20261002`, matching branch/base.
+Baseline bbde3c40 ->34a5f95a, native contract60c77122 ->2408fb5c and before
+6430eca9 ->2b92aeba are integrated. Both chats use Sol5.6/high. Read-only
+Sol5.6/high reviewer found no issue and passed76/76 focused tests. No worker GUI.
+Coordinator captured five fresh native PNGs, six before and twelve after raw
+pairs, inspected desktop/mobile and comparison sheets, and ran full checks.
+Occupied footer/action is corrected, remaining shade/gutter/timing/audio gaps
+are not accepted. The empty/vacant v3 prose attribution was caught during
+coordinator inspection and superseded; report hashes remain immutable.
+Full1,813 tests, build and post-build typecheck pass; static stock regressions
+are unchanged. Native and dedicated Chrome exited0; preview3021 remains ready.
+All previous trees are preserved; no service-tier/coordinator-model claim.
+Final comparison `ddae96b1` -> `6324a313` is integrated. Source, comparison
+and review workers are idle. Report SHA256 `c4cc3edf...`; occupied footer
+1,754 ->470 above delta2, with470 top-edge/backing pixels still unexplained.
+
 ## Populated Folder Notice - 2 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` used new owned tree

@@ -104,8 +104,21 @@ coordinator's build or full suite. The coordinator owns integration, fresh
 production capture, the raw fixed-coordinate comparison and regression
 captures.
 
-The change is implemented and source-bound, with native settled and activation
-evidence. It is not yet browser-inspected or native-compared after integration.
-Exact press animation, launch timing and audio remain unverified; the whole
-scenario remains `fail`, not a strict 1:1 pass. The existing footer palette
-source gap and open-folder gutter are outside this slice.
+The worker result above was integrated as `5b82c896`. The coordinator then
+captured twelve production-after raw pairs, inspected desktop/mobile views and
+the fixed-coordinate native comparison sheets. Actual left-footer touch and
+mobile physical A launch Health; vacant footer taps remain inert. Header Back,
+empty deletion and reload contents are checked. No injected state was used.
+
+The occupied footer improves 1,754 -> 470 pixels above delta2, maximum152
+->35. Empty/vacant bands remain unchanged at2,135 above2; both were already
+button-free before this change. Full occupied pair remains40,014/7,359 above2,
+and launch-result Health lower has zero above2 while upper animation epochs
+remain unmatched. [Comparison and identities](workstream-handoffs/home-open-folder-footer-compare.md).
+
+Test-only follow-up `21079a0d` corrects the old footer-close expectation while
+retaining the true Back/B routes. Full suite:1,813 pass, zero fail,23 skipped,
+one TODO; production build and post-build typecheck pass. Five stock lower and
+both Settings upper regression LCDs are byte-identical. Exact press animation,
+launch timing and muted audio remain unverified; whole scenario remains `fail`,
+not strict1:1. Footer palette, backing shade and gutter gaps remain explicit.

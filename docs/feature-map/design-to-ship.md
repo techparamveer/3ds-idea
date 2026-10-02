@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `43b8be55` (native populated-folder notice; rejected cursor
+Current runtime checkpoint: `5b82c896` (native occupied-folder Open footer; rejected cursor
 candidate remains restored to `a751b2dd` behavior), 2 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -9,13 +9,20 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+The [open-folder footer](../home-open-folder-footer-2026-10-02.md) now uses
+one full-width Open control for occupied children without suspended software.
+The same left-side touch launches Health in native and production; empty/vacant
+children remain button-free. Desktop/mobile, reload and static stock regression
+checks pass. Suspended-folder policy was not captured and is not claimed native.
+Continue with the captured root-icon gutter or press/fade states; preserve this
+source-backed action correction and keep remaining shade differences explicit.
+
 The [populated-folder notice](../home-populated-folder-2026-10-02.md) now uses
 the captured native one-button frame/message and returns to root without data
 loss. Its leaked HOME footer was corrected after production inspection.
 Desktop/mobile touch, A, cross-target release, empty-delete and persistence
 checks pass. Full native acceptance remains open; B/HOME are recovery
-adaptations. Continue with captured press/fade states, the root-icon gutter or
-the captured open-folder Close/Open footer mismatch (native Open-only),
+adaptations. Continue with captured press/fade states or the root-icon gutter,
 not another populated-delete confirmation redesign.
 
 The [Create Folder footer source audit](../home-create-folder-footer-2026-10-02.md)

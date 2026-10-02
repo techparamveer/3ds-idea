@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[Open-folder footer](../home-open-folder-footer-2026-10-02.md) at `5b82c896`
+separates selected-child action policy from surrounding population. Native
+occupied children show full-width Open; vacant children show no footer, even
+in a populated folder. A left-side touch launches Health. Compare occupied
+before/after fixed footer crops separately from already-button-free controls;
+do not interpret backing-shade pixels as leaked controls. The before left tap
+returns root, so its result is a semantic diagnostic, not an equivalent-state
+pixel baseline. Suspended-folder variants, native press/launch timing and audio
+remain unverified. Browser tests and regional pixels do not pass the scenario.
+
 [Populated-folder Delete](../home-populated-folder-2026-10-02.md) at `43b8be55`
 uses two fresh native touch-OK cycles and byte-identical native lower notice
 captures. Compare its source-backed one-button panel separately from surrounding

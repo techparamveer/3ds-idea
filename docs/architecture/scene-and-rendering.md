@@ -130,3 +130,11 @@ Camera Welcome has a second lazy injected model-background owner,
 readiness contract, renders only source P_Shoot_D to a 320×240 target, and is
 released when guide ownership ends. Its lower-LCD aspect fit and unbound native
 state are explicit [adaptation limits](../camera-shoot-underlay-adaptation.md).
+
+The suspended HOME BannerBG alone opts into `nativeBorderSampling`. Its shader
+tests each authored ClampToBorder axis strictly outside [0,1] and returns the
+decoded RGBA border; exact edges and other axes retain texture sampling.
+Validation occurs before allocation; replacement texture identity, cache and
+disposal remain unchanged. Other CGFX callers retain legacy behavior. The
+source-backed border rule does not prove the fitted capture/mask binding or
+native close timing; see [evidence](../home-buttons-border-2026-10-02.md).

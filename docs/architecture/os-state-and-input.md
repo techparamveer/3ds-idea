@@ -308,3 +308,13 @@ source title owners. The request changes on entry/return, preserving paired-LCD
 readiness and session disposal. There is no generic manual-page action, scroll
 clock or invented page data. See the first-page evidence in
 [helper presentation](../native-helper-presentation.md).
+
+### HOME Footer Contact Ownership
+
+`HOME_FOOTER_TOUCH_GEOMETRY` owns footer bounds and the x100 split.
+`ownedHomeFooterContact` is shared by source Select painting and reducer release
+gating. Both endpoints must resolve to the same semantic button; selection
+revision, folder context and toolbar focus must still match the immutable
+gesture origin. It does not introduce a second gesture recognizer or change
+native-control queuing, slop or timing. See the
+[button/border delivery](../home-buttons-border-2026-10-02.md).

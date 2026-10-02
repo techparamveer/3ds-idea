@@ -41,7 +41,10 @@ to slot1 and copies slot0's sampler to slot1. Original mesh, vertex colours,
 TEV and animation curves are untouched. **Binding/padding/sampler choices are
 source-backed fitted host adaptations, not a traced native transfer contract.**
 In particular, authored slot1 wraps Repeat, whereas the copied slot0 specifies
-ClampToBorder; the existing renderer maps that to ClampToEdge.
+ClampToBorder. At this checkpoint the renderer mapped it to ClampToEdge;
+`46254ee7` later enables authored border sampling only for this consumer.
+The copied sampler/binding itself remains a fitted adaptation, as recorded in
+the [button/border delivery](home-buttons-border-2026-10-02.md).
 
 SceneIn20/AppPause20 is a settled presentation adaptation. The executable proves
 mode1 pauses Loop and starts AppPause, but this patch does not establish its

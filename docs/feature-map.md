@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [power-reveal delivery](home-power-reveal-2026-10-02.md) through
+Latest [button/border delivery](home-buttons-border-2026-10-02.md) through
+`25d4f367` fixes footer touch transfers and the close-start backing disappearance.
+Two separate worktrees/chats delivered; full1738 tests/typecheck/build/shader
+pass, final pointer routes and seven close flows inspected. Native Health launch
+recovered, HOME return did not. Retained close-start upper diagnostic improves
+74145 ->10769 pixels above2; all whole scenarios still fail. H-10/H-12/L-06/L-07
+remain partial: panel/footer departure, native cadence/audio and residuals open.
+The sampler slice has a visible correction; next is departure motion, not
+another binding audit. Worktrees preserved, workers idle, muted preview updated.
+
+Earlier [power-reveal delivery](home-power-reveal-2026-10-02.md) through
 `2c992dd7` fixes endpoint eligibility, reduced-motion fade painting and actual
 render acknowledgment. Full 1725 tests/typecheck/build pass; four power routes
 and seven close regressions are browser-inspected. Native startup observation

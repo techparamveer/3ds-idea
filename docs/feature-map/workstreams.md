@@ -1,5 +1,20 @@
 # Workstream Registry
 
+## Footer Contact and Native Border - 2 October 2026
+
+Both existing chats ran GPT-5.6 Sol/high from `9c72c168`; no service-tier claim.
+New internal worktrees under `/Users/paramveer/.codex/worktrees/`:
+
+| Chat ID | Worktree / codex branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-native-border-20261002` / `home-native-border-20261002` | `e5f0d09d` -> `eb97635f`; idle |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-footer-contact-20261002` / `home-footer-contact-20261002` | `e519cf69` -> `a3c67599`; idle |
+
+Coordinator wiring `46254ee7`, review repair `25d4f367`. No worker GUI/build;
+coordinator alone used muted Sidecar native/browser. Both native profiles and
+all trees preserved; only primary was launched in this slice. Source mappings,
+checks and explicit limitations: [delivery record](../home-buttons-border-2026-10-02.md).
+
 ## Power Reveal and Close Mask - 2 October 2026
 
 Both existing chats worked concurrently from `513a8fcd` in new internal trees:

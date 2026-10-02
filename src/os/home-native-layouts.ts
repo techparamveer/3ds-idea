@@ -43,7 +43,8 @@ export function createHomeLayoutManager(renderer:NativeLayoutRenderer){
    }
    note('HOME layout confirmations reuse native Dlg_A_D_02 and dialog masks as a source-layout assembly adaptation; the original MyMenu dialog composition and thumbnails remain unverified.');
   }
-  const requiredClips=['MyMenu_U_00_MyMenuIn','MyMenu_D_00_MyMenuIn','MyMenuBtn_D_00_Invalid','MyMenuBtn_D_00_Valid','MyMenuBtmBtn_D_00_BtnIn','MyMenuBtmBtn_D_00_BtnIn2','MyMenuBtmBtn_D_00_Invalid','MyMenuCsr_00_Loop'];
+  const deleteClip=occupied(selected)?'MyMenuBtmBtn_D_00_BtnIn2':'MyMenuBtmBtn_D_00_BtnOut2';
+  const requiredClips=['MyMenu_U_00_MyMenuIn','MyMenu_D_00_MyMenuIn','MyMenuBtn_D_00_Invalid','MyMenuBtn_D_00_Valid','MyMenuBtmBtn_D_00_BtnIn',deleteClip,'MyMenuBtmBtn_D_00_Invalid','MyMenuCsr_00_Loop'];
   for(const name of requiredClips)if(!pack.animations[name])throw new Error(`Native HOME layout manager animation unavailable: ${name}`);
   note('HOME layout manager uses settled native source poses; opening, cursor epoch, input, motion and native comparison remain unverified.');
   note('HOME layout manager current/saved LCD previews are unavailable; native sample thumbnails are hidden. Local layout persistence and disabled preview zoom are adaptations.');
@@ -67,7 +68,7 @@ export function createHomeLayoutManager(renderer:NativeLayoutRenderer){
   });
   paint(bottom,'MyMenu_D_00',{clip:[0,0,320,240],bindings:[binding('MyMenu_D_00_MyMenuIn',30)],attachments});
   const disabled=['G_Btn_03',...(!occupied(selected)?['G_Btn_01','G_Btn_04']:[])];
-  paint(bottom,'MyMenuBtmBtn_D_00',{clip:[0,0,320,240],textSampling:'lcd',bindings:[binding('MyMenuBtmBtn_D_00_BtnIn',20),binding('MyMenuBtmBtn_D_00_BtnIn2',10),binding('MyMenuBtmBtn_D_00_Invalid',1,disabled)],overrides:footerOverrides});
+  paint(bottom,'MyMenuBtmBtn_D_00',{clip:[0,0,320,240],textSampling:'lcd',bindings:[binding('MyMenuBtmBtn_D_00_BtnIn',20),binding(deleteClip,10),binding('MyMenuBtmBtn_D_00_Invalid',1,disabled)],overrides:footerOverrides});
   drawHud?.();
   if(confirmation){
    paint(top,'DlgMask_U_00',{bindings:[binding('DlgMask_U_00_FadeIn',20)]},'dialogmask');

@@ -54,6 +54,7 @@ test('saved slots enable Load/Delete and use native Overwrite text while sample 
  const upper=byName(draws,'MyMenu_U_00')[0];assert.ok(!upper.visible.includes('N_Thumb'));
  const footer=byName(draws,'MyMenuBtmBtn_D_00')[0];
  assert.deepEqual(footer.options.bindings.at(-1).groups,['G_Btn_03']);
+ assert.ok(footer.visible.includes('N_Btn_04'));
  assert.deepEqual(footer.options.overrides.T_BtnF_01,nativeMessageOverride(packs.messages,'menu_msbt_LZ','mhm_overwrite_4b',''));
  assert.ok(renderer.diagnostics.some(message=>message.includes('sample thumbnails are hidden')));
  manager.draw(top,bottom,state);assert.equal(renderer.diagnostics.length,2,'repainting does not grow the diagnostic list');
@@ -65,6 +66,8 @@ test('empty selection disables native Load/Delete/Zoom and retains signed footer
  assert.deepEqual(byName(draws,'MyMenuCsr_00')[0].center,[274,154]);
  const footer=byName(draws,'MyMenuBtmBtn_D_00')[0];
  assert.deepEqual(footer.options.bindings.at(-1).groups,['G_Btn_03','G_Btn_01','G_Btn_04']);
+ assert.equal(footer.options.bindings[1].name,'MyMenuBtmBtn_D_00_BtnOut2');
+ assert.ok(!footer.visible.includes('N_Btn_04'));
  for(const name of ['P_BtnLineR_00','P_BtnLineR_01']){
   const pane=walk(footer.pose.roots).find(pane=>pane.name===name);
   assert.deepEqual(pane.size,[60,28]);assert.deepEqual(pane.scale,[-1,1]);
@@ -89,6 +92,7 @@ test('missing selected resources and child draw failure stop the manager explici
  for(const [remove,expected] of [
   [source=>delete source.MyMenu.layouts.MyMenuBtn_D_00,/layout unavailable: MyMenuBtn_D_00/],
   [source=>delete source.MyMenu.animations.MyMenuCsr_00_Loop,/animation unavailable: MyMenuCsr_00_Loop/],
+  [source=>delete source.MyMenu.animations.MyMenuBtmBtn_D_00_BtnOut2,/animation unavailable: MyMenuBtmBtn_D_00_BtnOut2/],
   [source=>delete source.messages.messages.menu_msbt_LZ.labels.mhm_title_u,/message unavailable: mhm_title_u/],
  ]){
   const source=structuredClone(packs);remove(source);const {manager,top,bottom,draws}=fixture(source);

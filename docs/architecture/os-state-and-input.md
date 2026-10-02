@@ -1,5 +1,14 @@
 # Software state, input and presentation
 
+[HOME switch/footer](../home-switch-footer-2026-10-02.md) keeps the shared
+presentation clock running during switch without enabling HOME input/cursor.
+The banner host selects the pending title, retaining generation/ticket guards.
+Source header icons are bounded and keyed to retained owner/pending identity;
+missing native icons fail paired publication. `getHomeFooter` is shared by
+painting and touch: Close only for selected retained software, Manual for
+Settings/Camera, centered Open when no left action. Camera's undelivered manual
+uses explicit missing-pack recovery through the existing applet, not invented UI.
+
 [Selected Health close](../health-close-native-2026-10-02.md), runtime `3d5e533c`,
 uses existing host cleanup without confirmation only for the selected,
 suspended, nonclosing retained Health owner with matching HOME return and no

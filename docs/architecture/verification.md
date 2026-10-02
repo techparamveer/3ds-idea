@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+The [HOME switch/footer comparison](../home-switch-footer-2026-10-02.md)
+records source/modal-clock/footer corrections through `645ae96d`,19 inspected
+production pairs, four fresh native captures and retained Health references.
+Dialog/footer region improvements are not whole-LCD passes; all full pairs fail.
+The native run isolated hidden startup-warning dismissal as the input recovery
+step without changing config between attempts. Preflight must list all windows
+and dismiss that warning explicitly. Quit/Yes exited139; absence, not clean exit,
+was verified. Audio stays muted and the historical matrix remains unchanged.
+
 The [Health Close replay](../health-close-native-2026-10-02.md) at `3d5e533c`
 adds five fresh native captures and eleven inspected production pairs. Native
 Health closes directly; its Camera switch uses an icon header without the

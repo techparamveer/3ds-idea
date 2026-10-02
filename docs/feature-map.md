@@ -3,9 +3,9 @@
 **Start with the [remaining UI design and shipping map](feature-map/design-to-ship.md).**
 It separates missing/placeholder UI from existing designs and verification,
 covers every in-scope app/menu/helper, and assigns work to the existing lanes.
-Latest user order: **close/switch transitions -> power-on -> buttons and HOME
-interactions**. Other designed screens are preserved; HOME Settings polish is
-deferred. This order supersedes older task suggestions in the detailed maps.
+Latest user request refocuses **HOME screen 1:1 fidelity**: suspended backing,
+compact retained icon, footer states, banners and interaction. Close/switch,
+power-on and buttons remain pending; preserve the other existing designs.
 
 Current plan, 2 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
@@ -14,6 +14,13 @@ chat, Git branch and worktree, recorded in the [workstream registry](feature-map
 New workstream dispatches use GPT-6 Astra/high; future subagents use GPT-6.1
 Sol/high, at normal speed, no Fast. The latest request supersedes Fast; chat service tier cannot
 be changed or verified through dispatch tools. No new priority-only helpers.
+
+The [HOME switch/footer correction](home-switch-footer-2026-10-02.md) at
+`0330d13c`/`e3503cc7`/`645ae96d` delivers source icon header, moving pending
+banner, dark selected X Close and correct Health/Camera footer actions.
+Nineteen inspected browser pairs and native comparisons support local progress;
+no whole scenario passes. Next: suspended tint/warp, compact icon and modal
+footer hiding. Camera Manual content is an explicit source gap.
 
 The [Health Close correction](health-close-native-2026-10-02.md) at `3d5e533c`
 delivers selected Health direct close and source X Close glyph/input. Fresh

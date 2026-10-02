@@ -14,6 +14,11 @@ establishes Health -> suspended HOME with temporary Shift binding; that binding
 was restored to B after the emulator exited. Preserve this distinction when
 replaying the successful measured host gesture.
 Recheck process state, identity, config, paths and Sidecar geometry before use.
+List all windows, including hidden startup warnings, before driving HOME. In
+the [switch replay](home-switch-footer-2026-10-02.md), unchanged held Open input
+worked immediately after dismissing the direct-executable warning. An animated
+main window does not prove input is unblocked. Quit/Yes may still exit139;
+verify PID absence before restoring temporary bindings and report the exit code.
 The older locations below are historical, not permission to launch the default
 profile. Static microphone data is a reference adaptation, not captured audio.
 

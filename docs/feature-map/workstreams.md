@@ -1,5 +1,20 @@
 # Workstream Registry
 
+## Upper Close - 2 October 2026
+
+Existing chats used GPT-5.6 Sol/high, new dedicated internal trees from
+`4f44e500`. No service-tier claim. Both are idle; trees are preserved.
+
+| Chat ID | Worktree / codex branch suffix | Delivery |
+| --- | --- | --- |
+| `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` | `3ds-home-upper-close-owner-20261002` / `home-upper-close-owner-20261002` | Source `beff2738` -> `ed7bf6f3` |
+| `01a0f9a7-3b9c-7640-b7f6-3528982b4929` | `3ds-home-close-fit-20261002` / `home-close-fit-20261002` | Corrected fit `3138dbaa` -> `28b1d8ef` |
+
+Coordinator runtime `1fbfd6be`; read-only Sol/high subagent review found no
+actionable issues. No worker GUI. Coordinator alone used muted Sidecar native
+and production browser. Native is stopped/restored; secondary profile unused.
+[Evidence, fit correction and residuals](../home-upper-close-2026-10-02.md).
+
 ## Software Closing - 2 October 2026
 
 Existing chats ran GPT-5.6 Sol/high from `100f2a94`, with separate internal

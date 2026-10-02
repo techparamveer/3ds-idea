@@ -15,7 +15,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [software-closing delivery](home-software-closing-2026-10-02.md) through
+Latest [upper-close delivery](home-upper-close-2026-10-02.md) at `1fbfd6be`
+adds fixed-bounds panel departure and source light camera hints. Two separate
+worker trees/chats supplied a source audit and corrected edge fit; the panel
+alpha is explicitly adapted, not a traced native writer. Full1755 tests,
+typecheck/build pass; seven production routes/95 pairs inspected. Seven fresh
+100%-speed native PNGs; upper mean RGB difference51.596 ->4.978, whole pair
+still fails. H-10/H-12/L-04 remain partial: closing-dialog parent fade-out,
+matched epochs/input/audio and existing HOME residuals are next. Matrix unchanged.
+
+Earlier [software-closing delivery](home-software-closing-2026-10-02.md) through
 `cf38daf8` adds the source lower closing window/text/scrim and guarded recovery.
 Held Shift now reliably returns native Health to HOME;37 own-PNGs informed the
 correction. Two separate chats/worktrees used; unsupported upper/footer

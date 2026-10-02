@@ -7,7 +7,15 @@ production-browser sessions. All sessions remain muted on verified Sidecar.
 
 ## First Cross-App Pass
 
-Latest [software-closing pass](../home-software-closing-2026-10-02.md) supersedes
+Latest [upper-close correction](../home-upper-close-2026-10-02.md) at `1fbfd6be`
+removes the stationary upper panel during close, using corrected fixed-edge
+capture-fit alpha and native WhiteBlack0. Seven fresh100%-speed native PNGs and
+seven production routes/95 pairs were inspected. Whole comparisons still fail;
+the panel writer and exact epochs remain unproven. Next visible target is the
+closing-dialog parent fade-out; preserve switch and do not bind SceneOut or an
+upper mask. Then match ordinary input/motion/audio and rerun both baselines.
+
+Earlier [software-closing pass](../home-software-closing-2026-10-02.md) supersedes
 earlier HOME-input/first-close-frame blockers below: held Shift returns native
 Health to HOME,37 own-PNGs expose closing, and the lower source dialog is now
 delivered through `cf38daf8`. Seven browser routes/98 pairs were inspected.

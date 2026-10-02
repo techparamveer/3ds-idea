@@ -1,5 +1,13 @@
 # Software state, input and presentation
 
+The [upper close fit](../home-upper-close-2026-10-02.md) receives the existing
+validated close identity and AppQuit frame. It changes only `N_Wndw_00` alpha
+and selects WhiteBlack0 for source light camera hints; no scale/translation,
+new clock or state owner. Reduced motion uses the endpoint. Switch receives no
+override. The normalized fixed-edge contrast fit and its noise-tail clamp are
+explicit adaptations, not a traced native pane writer. The source audit proves
+AppQuit start and WhiteBlack mode selection, not shared framebuffer opacity.
+
 The [software-closing display](../home-software-closing-2026-10-02.md) uses
 the validated close identity for readiness, paints source `Dlg_A_D_00` and
 `lau_dlg_quit4` over the lower `DlgMask_D_00`, and retains the existing footer.
@@ -8,7 +16,8 @@ existing adapted AppQuit frame for the lower mask and no new timer. Reduced
 motion selects the endpoint. Failure rejects the paired display; recovery
 cancels only the transition and preserves the suspended owner. No upper mask
 is bound: a production comparison disproved that proposed assembly. Native
-parent fade, upper composition departure and exact epochs remain unresolved.
+parent fade and exact epochs remain unresolved. Upper fixed-bounds departure
+now uses the explicit capture-fit adaptation above.
 
 [HOME close motion](../home-close-motion-2026-10-02.md) now retains its runtime
 owner through source AppQuit20 using the existing monotonic HOME allocator.

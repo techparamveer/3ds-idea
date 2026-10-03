@@ -287,7 +287,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getMemoBannerFailure?:()=>string|null; getFriendBannerFailure?:()=>string|null; getNewsBannerFailure?:()=>string|null; getWebBannerFailure?:()=>string|null; getMiiverseBannerFailure?:()=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawFriendBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawNewsBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawMemoBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawWebBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawMiiverseBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; drawSuspendedBackground?:(ctx:Context,capture:SuspendedCapture,presentation?:HomeApplicationTransitionPresentation|null)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getMemoBannerFailure?:()=>string|null; getFriendBannerFailure?:()=>string|null; getNewsBannerFailure?:()=>string|null; getWebBannerFailure?:()=>string|null; getMiiverseBannerFailure?:()=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawMemoBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawFriendBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawNewsBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawWebBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawMiiverseBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; drawSuspendedBackground?:(ctx:Context,capture:SuspendedCapture,presentation?:HomeApplicationTransitionPresentation|null)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -444,14 +444,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     }else if(selection.kind==='toolbar'){
      const key=selection.focus===1?'memo':selection.focus===2?'fri':selection.focus===3?'news':selection.focus===4?'web':'mvs';
      const label=nativeHome?.appletBannerLabel(key);
-     // Memo/Web/Miiverse now share host-owned visibility, replacement and
-     // resource tickets, but retain their documented front-pose/browser-clock
-     // render adaptation until those three native motion phases are traced.
-     const drawn=selection.focus===1?options.drawMemoBanner?.(t,time,reduced,label)
+     const drawn=selection.focus===1?options.drawMemoBannerFrame?.(t,motion,label)
       :selection.focus===2?options.drawFriendBannerFrame?.(t,motion,label)
       :selection.focus===3?options.drawNewsBannerFrame?.(t,motion,label)
-      :selection.focus===4?options.drawWebBanner?.(t,time,reduced,label)
-      :options.drawMiiverseBanner?.(t,time,reduced,label);
+      :selection.focus===4?options.drawWebBannerFrame?.(t,motion,label)
+      :options.drawMiiverseBannerFrame?.(t,motion,label);
      homeEntryBannerDrawn=drawn===true;
      const unavailable=toolbarUnavailableByFocus[selection.focus];
      if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(unavailable))firmwareAssets.diagnostics.push(unavailable);

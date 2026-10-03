@@ -25,6 +25,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createScreens, loadFirmwarePresentationAssets } from '@/os/screens';
 import { rowCount, type MenuState, type Input } from '@/os/state';
 import { createFirmwareBanner, type PrimaryBannerRenderFrame } from './firmware-banner';
+import type { HomeBannerMotion } from '@/os/home-banner-lifecycle';
 import { settingsBannerPhase } from './banner-verification';
 import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
 import { controlBoundsInBase, controlFromObject, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
@@ -89,6 +90,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let bannerLabelFailure=false;
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
   const nativePrimaryAvailable=(selection:HomeBannerHostSelection)=>{const value=folderBanner.status();return selection.kind==='default'?value.defaultReady&&!value.defaultFailure:selection.kind==='app'?value.settingsReady&&!value.settingsFailure:selection.kind==='toolbar'?selection.focus===1?value.memoReady&&!value.memoFailure:selection.focus===2?value.friendReady&&!value.friendFailure:selection.focus===3?value.newsReady&&!value.newsFailure:selection.focus===4?value.webReady&&!value.webFailure:value.miiverseReady&&!value.miiverseFailure:selection.kind==='clear'||nativeFolderAvailable();};
+  const hostedPrimaryFrame=(motion:HomeBannerMotion):PrimaryBannerRenderFrame=>({visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0});
   const screens=createScreens({soundRoom,cameraShoot,reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
     drawSuspendedBackground:(ctx,capture,presentation)=>folderBanner.drawSuspendedBackground(ctx,capture,presentation),
     getHomeBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&view.selection.kind!=='app'&&view.selection.kind!=='toolbar'&&(!nativePrimaryAvailable(view.selection)||bannerLabelFailure)?undefined:view;},
@@ -101,11 +103,11 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawDefaultBannerFrame:(ctx,motion)=>folderBanner.drawDefaultFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0}),
     drawSettingsBannerFrame:(ctx,motion)=>{const phase=settingsBannerPhase(motion,reduced,verificationBannerFrame,verificationBannerSkeletalFrame);return folderBanner.drawSettingsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});},
-    drawFriendBannerFrame:(ctx,motion,label)=>folderBanner.drawFriendFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
-    drawNewsBannerFrame:(ctx,motion,label)=>folderBanner.drawNewsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
-    drawMemoBanner:(ctx,time,isReduced,label)=>folderBanner.drawMemoFrame(ctx,time,isReduced,label),
-    drawWebBanner:(ctx,time,isReduced,label)=>folderBanner.drawWebFrame(ctx,time,isReduced,label),
-    drawMiiverseBanner:(ctx,time,isReduced,label)=>folderBanner.drawMiiverseFrame(ctx,time,isReduced,label),
+    drawMemoBannerFrame:(ctx,motion,label)=>folderBanner.drawMemoFrame(ctx,hostedPrimaryFrame(motion),label),
+    drawFriendBannerFrame:(ctx,motion,label)=>folderBanner.drawFriendFrame(ctx,hostedPrimaryFrame(motion),label),
+    drawNewsBannerFrame:(ctx,motion,label)=>folderBanner.drawNewsFrame(ctx,hostedPrimaryFrame(motion),label),
+    drawWebBannerFrame:(ctx,motion,label)=>folderBanner.drawWebFrame(ctx,hostedPrimaryFrame(motion),label),
+    drawMiiverseBannerFrame:(ctx,motion,label)=>folderBanner.drawMiiverseFrame(ctx,hostedPrimaryFrame(motion),label),
     drawStockTitleBannerFrame:(ctx,motion,ticket,kind)=>folderBanner.drawStockTitleFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:kind==='health'&&verificationHealthBannerFrame!==undefined?verificationHealthBannerFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},{...ticket,kind}),
     drawHomeBackground:(ctx,_time,isReduced,frame)=>{
       if(frame!==undefined)return folderBanner.drawBackgroundFrame(ctx,frame);

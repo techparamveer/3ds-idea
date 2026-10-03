@@ -272,44 +272,31 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       return renderPrimaryFrame(ctx,friendModel,frame,'BannerAppletFriend','BannerAppletFriend');
     }catch(error){friendFailure=String(error);return false;}
   }
-  function drawMemoFrame(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,label?:NativePixels){
+  function drawMemoFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
     if(disposed||!memoModel||!mask||!camera||memoFailure||frameFailure)return false;
+    if(!frame.visible)return true;
     try{
       const labelReady=!!label&&memoModel.setTexture('DmyText_00',label);
       memoModel.setMaterialVisible('mt_Text',labelReady);
-      // The captured native Notes pose is edge-on; its source phase is unknown.
-      // Keep the authored front yaw and advance only the decoded source clips.
-      memoModel.group.rotation.y=0;
-      memoModel.group.scale.setScalar(1);memoModel.group.position.set(0,0,0);
-      memoModel.setPlayback({skeletal:[{name:'BannerAppletMemo',frame:reduced?0:Math.floor(elapsedMs/16.6667)%600}],material:[{name:'BannerAppletMemo',frame:reduced?0:Math.floor(elapsedMs/16.6667)%300}]});
-      memoModel.update(0,camera);mask.group.position.set(0,0,0);mask.update(0,camera);
-      selectPrimary(memoModel);return render(ctx,scene,true);
+      return renderPrimaryFrame(ctx,memoModel,frame,'BannerAppletMemo','BannerAppletMemo');
     }catch(error){memoFailure=String(error);return false;}
   }
-  function drawWebFrame(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,label?:NativePixels){
+  function drawWebFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
     if(disposed||!webModel||!mask||!camera||webFailure||frameFailure)return false;
+    if(!frame.visible)return true;
     try{
       const labelReady=!!label&&webModel.setTexture('DmyText_00',label);
       webModel.setMaterialVisible('mt_Text',labelReady);
-      // Source-owned front pose and clips; toolbar host motion is not yet traced.
-      webModel.group.rotation.y=0;
-      webModel.group.scale.setScalar(1);webModel.group.position.set(0,0,0);
-      webModel.setPlayback({skeletal:[{name:'BannerAppletWeb',frame:reduced?0:Math.floor(elapsedMs/16.6667)%600}],material:[{name:'BannerAppletWeb',frame:reduced?0:Math.floor(elapsedMs/16.6667)%300}]});
-      webModel.update(0,camera);mask.group.position.set(0,0,0);mask.update(0,camera);
-      selectPrimary(webModel);return render(ctx,scene,true);
+      return renderPrimaryFrame(ctx,webModel,frame,'BannerAppletWeb','BannerAppletWeb');
     }catch(error){webFailure=String(error);return false;}
   }
-  function drawMiiverseFrame(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,label?:NativePixels){
+  function drawMiiverseFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
     if(disposed||!miiverseModel||!mask||!camera||miiverseFailure||frameFailure)return false;
+    if(!frame.visible)return true;
     try{
       const labelReady=!!label&&miiverseModel.setTexture('DmyText_00',label);
       miiverseModel.setMaterialVisible('mt_Text',labelReady);
-      // Source-owned front pose and clips; toolbar host motion is not yet traced.
-      miiverseModel.group.rotation.y=0;
-      miiverseModel.group.scale.setScalar(1);miiverseModel.group.position.set(0,0,0);
-      miiverseModel.setPlayback({skeletal:[{name:'BannerAppletMvs',frame:reduced?0:Math.floor(elapsedMs/16.6667)%600}],material:[{name:'BannerAppletMvs',frame:reduced?0:Math.floor(elapsedMs/16.6667)%300}]});
-      miiverseModel.update(0,camera);mask.group.position.set(0,0,0);mask.update(0,camera);
-      selectPrimary(miiverseModel);return render(ctx,scene,true);
+      return renderPrimaryFrame(ctx,miiverseModel,frame,'BannerAppletMvs','BannerAppletMvs');
     }catch(error){miiverseFailure=String(error);return false;}
   }
   // The last rendered background sample. Replaying it goes through the same

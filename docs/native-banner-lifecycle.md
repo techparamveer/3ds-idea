@@ -1,7 +1,7 @@
 # Native banner lifecycle
 
 `src/os/home-banner-lifecycle.ts` is a pure state adapter for native folder/default
-banners, Friend type 14, Notifications type 16, explicit clear and the upper
+banners, toolbar types 14 through 18, explicit clear and the upper
 background's SceneIn, Loop and AppPause controllers. It has
 no DOM, Three.js, resource loader or HOME selection dependency. Runtime and scene
 integration remain separate: this module does not replace call sites of the old
@@ -50,6 +50,14 @@ Friend14 and News16 the same target: kind and native type participate in
 identity, and replacement readiness remains request-ticket scoped. Its native
 activation/clip phase and displacement are also unproved; see the
 [Notifications source note](home-news-motion-source-2026-10-01.md).
+Notes15, Browser17 and Miiverse18 also allocate `0xa4`-byte primaries through
+the same constructor `0x1fa0fc`, then bind their respective Memo, Web and Mvs
+resources. They therefore share this outer visibility/scale/yaw producer while
+retaining their own looping 600/300 source clips. Exact branch and resource-slot
+evidence is retained in the
+[toolbar generic-primary trace](home-toolbar-motion-source-2026-10-03.md).
+Their precise activation/clip phases, native displacement and capture epochs
+remain unproved.
 
 ## Host integration
 

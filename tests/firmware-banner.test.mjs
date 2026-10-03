@@ -65,27 +65,39 @@ function setup(t,{failure,alterSettings,alterBackground,alterBind=false,delayFra
 }
 const primary=scene=>scene.children.find(group=>group.renderOrder===2&&group.visible);
 const mask=scene=>scene.children.find(group=>group.renderOrder===1);
-test('Miiverse toolbar uses the converted HOME source model as sole primary',async t=>{
+test('Notes, Browser and Miiverse consume hosted pose, source frames and native labels',async t=>{
  const h=setup(t);await h.banner.ready;
- assert.equal(h.banner.status().miiverseReady,true);
- assert.equal(h.banner.drawMiiverseFrame(h.ctx,5000,false),true);
- const scene=h.draws.at(-1).scene;
- assert.equal(h.draws.at(-1).primaries.length,1);
- assert.equal(primary(scene).rotation.y,0);
- assert.ok(mask(scene));
- assert.equal(h.banner.drawWebFrame(h.ctx,5000,false),true);
- assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Miiverse');
-});
-test('Internet Browser toolbar uses the converted HOME source model as sole primary',async t=>{
- const h=setup(t);await h.banner.ready;
- assert.equal(h.banner.status().webReady,true);
- assert.equal(h.banner.drawWebFrame(h.ctx,5000,false),true);
- const scene=h.draws.at(-1).scene;
- assert.equal(h.draws.at(-1).primaries.length,1);
- assert.equal(primary(scene).rotation.y,0);
- assert.ok(mask(scene));
- assert.equal(h.banner.drawFriendFrame(h.ctx,frame),true);
- assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources hides Browser');
+ const label={width:256,height:64,data:new Uint8ClampedArray(256*64*4).fill(127)};
+ for(const [ready,method,name,seed] of [
+  ['memoReady','drawMemoFrame','Game Notes',111],
+  ['webReady','drawWebFrame','Internet Browser',222],
+  ['miiverseReady','drawMiiverseFrame','Miiverse',333],
+ ]){
+  assert.equal(h.banner.status()[ready],true,`${name} resource is ready`);
+  const hosted={...frame,scale:.71,yawRadians:-1.37,skeletalFrame:seed,materialFrame:seed%300,nativeDisplacementY:2,offsetX:3,offsetY:4};
+  const before=h.draws.length;
+  assert.equal(h.banner[method](h.ctx,{...hosted,visible:false},label),true);
+  assert.equal(h.draws.length,before,`${name} hidden frame does not paint`);
+  assert.equal(h.banner[method](h.ctx,hosted,label),true);
+  const scene=h.draws.at(-1).scene,group=primary(scene);
+  assert.equal(h.draws.at(-1).primaries.length,1);
+  assert.equal(group.rotation.y,-1.37);assert.equal(group.scale.x,.71);
+  assert.deepEqual(group.position.toArray(),[3,6,0]);assert.equal(mask(scene).position.y,2);
+  const textMesh=group.children[0].children.find(mesh=>mesh.visible&&mesh.material.uniforms.tex0?.value?.image?.width===256);
+  assert.ok(textMesh,`${name} binds its supplied native label`);
+  assert.equal(textMesh.material.uniforms.tex0.value.image.data[0],127);
+  const sampled=snapshot(group);
+  assert.equal(h.banner[method](h.ctx,{...hosted,skeletalFrame:seed+1,materialFrame:(seed+1)%300},label),true);
+  assert.notDeepEqual(snapshot(group),sampled,`${name} consumes explicit hosted source frames`);
+  const painted=snapshot(group),paintCount=h.draws.length,labelVersion=textMesh.material.uniforms.tex0.value.version;
+  const replacementLabel={...label,data:new Uint8ClampedArray(label.data.length).fill(255)};
+  assert.equal(h.banner[method](h.ctx,{...hosted,visible:false,scale:.2,yawRadians:2.4,skeletalFrame:0,materialFrame:0},replacementLabel),true);
+  assert.equal(h.draws.length,paintCount,`${name} hidden update does not paint`);
+  assert.deepEqual(snapshot(group),painted,`${name} hidden update retains the last visible sample`);
+  assert.equal(textMesh.material.uniforms.tex0.value.version,labelVersion,`${name} hidden update does not replace its label`);
+  assert.equal(textMesh.material.uniforms.tex0.value.image.data[0],127);
+ }
+ assert.equal(h.draws.at(-1).primaries.length,1,'switching toolbar resources retains one primary');
 });
 test('Notifications toolbar consumes hosted pose and source-owned clip frames',async t=>{
  const h=setup(t);await h.banner.ready;
@@ -133,15 +145,16 @@ test('Friend List model rejection settles readiness and remains unavailable befo
  assert.equal(h.banner.drawFriendFrame(h.ctx,frame),false);
  assert.equal(h.draws.length,0);
 });
-test('Game Notes source banner draws alone with its frame mask',async t=>{
- const h=setup(t);await h.banner.ready;
- assert.equal(h.banner.status().memoReady,true);
- assert.equal(h.banner.drawMemoFrame(h.ctx,2500,false),true);
- const draw=h.draws.at(-1),group=primary(draw.scene);
- assert.equal(draw.primaries.length,1);
- assert.equal(group.children[0].children.length,3);
- assert.ok(mask(draw.scene));
- assert.equal(group.rotation.y,0);
+test('Notes, Browser and Miiverse resource rejection stays explicit',async t=>{
+ for(const [path,ready,failure,method] of [
+  ['/banner-applet-memo/model.json','memoReady','memoFailure','drawMemoFrame'],
+  ['/banner-applet-web/model.json','webReady','webFailure','drawWebFrame'],
+  ['/banner-applet-miiverse/model.json','miiverseReady','miiverseFailure','drawMiiverseFrame'],
+ ])await t.test(path,async t=>{
+  const h=setup(t,{failure:path});await h.banner.ready;
+  assert.equal(h.banner.status()[ready],false);assert.match(h.banner.status()[failure],/HTTP 503/);
+  assert.equal(h.banner[method](h.ctx,frame),false);assert.equal(h.draws.length,0);
+ });
 });
 test('native 400×240 banner target ignores fractional page DPR',async t=>{
  const h=setup(t,{pixelRatio:1/3});await h.banner.ready;

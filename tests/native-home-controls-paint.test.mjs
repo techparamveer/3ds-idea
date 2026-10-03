@@ -824,9 +824,9 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
 test('toolbar banner artwork and label match the selected native cursor pane', async () => {
   const state = home();
   let selection;
-  const banner = name => ctx => { ctx.record('toolbar-banner', [name]); return true; };
   const hostedMotion = { visible: true, scale: .9, yawRadians: -1.25,
     skeletal: { frame: 123 }, material: { frame: 77 } };
+  const banner = name => (ctx, motion) => { assert.equal(motion, hostedMotion); ctx.record('toolbar-banner', [name]); return true; };
   await withScreens(({ paint, events }) => {
     for (const [focus, pane, title] of [
       [1, 'N_CPos_Memo_00', 'Game Notes'],
@@ -850,9 +850,9 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
       generation: 'toolbar-test', requestEpoch: 1, resourceTicket: { generation: 'toolbar-test', requestEpoch: 1 }, stage: 'active', waitUpdates: 0,
       primary: { generation: 'toolbar-test', requestEpoch: 1, activationEpoch: 1, selection, motion: hostedMotion } }
     ),
-    drawMemoBanner: banner('Game Notes'), drawFriendBannerFrame: banner('Friend List'),
-    drawNewsBannerFrame: banner('Notifications'), drawWebBanner: banner('Internet Browser'),
-    drawMiiverseBanner: banner('Miiverse'),
+    drawMemoBannerFrame: banner('Game Notes'), drawFriendBannerFrame: banner('Friend List'),
+    drawNewsBannerFrame: banner('Notifications'), drawWebBannerFrame: banner('Internet Browser'),
+    drawMiiverseBannerFrame: banner('Miiverse'),
   } });
 });
 
@@ -860,11 +860,11 @@ test('all five hosted toolbar resources stay blank while pending and report only
   globalThis.__testSelectedApp = { id: 'work' };
   try {
     for (const [focus, category, failureKey, drawKey, unavailable] of [
-      [1, 5, 'getMemoBannerFailure', 'drawMemoBanner', 'Native Game Notes toolbar banner unavailable.'],
+      [1, 5, 'getMemoBannerFailure', 'drawMemoBannerFrame', 'Native Game Notes toolbar banner unavailable.'],
       [2, 4, 'getFriendBannerFailure', 'drawFriendBannerFrame', 'Native Friend List toolbar banner unavailable.'],
       [3, 6, 'getNewsBannerFailure', 'drawNewsBannerFrame', 'Native Notifications toolbar banner unavailable.'],
-      [4, 7, 'getWebBannerFailure', 'drawWebBanner', 'Native Internet Browser toolbar banner unavailable.'],
-      [5, 8, 'getMiiverseBannerFailure', 'drawMiiverseBanner', 'Native Miiverse toolbar banner unavailable.'],
+      [4, 7, 'getWebBannerFailure', 'drawWebBannerFrame', 'Native Internet Browser toolbar banner unavailable.'],
+      [5, 8, 'getMiiverseBannerFailure', 'drawMiiverseBannerFrame', 'Native Miiverse toolbar banner unavailable.'],
     ]) {
       let failed = false;
       const selection = { kind: 'toolbar', focus, category };

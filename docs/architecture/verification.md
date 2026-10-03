@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+[Launch publication verification](../home-launch-publication-2026-10-03.md)
+separates the already-black normal C14 endpoint from a main-thread stall that
+skips it. Require a successful paired native draw plus visible, live-context
+outer render before app retirement; raw lost-context paints are not receipts.
+Keep missing native exit intervals explicit. Chronological logo/first-app
+comparisons, reduced B15 and host stalls do not establish native launch timing.
+
 [Entry recovery verification](../home-entry-recovery-2026-10-03.md) records
 actual context lost/restored events and context-live state. Select the first
 matching presented HOME paint after restoration, then the first new active

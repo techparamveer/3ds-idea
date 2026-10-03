@@ -1,5 +1,11 @@
 # Remaining UI Design and Shipping Map
 
+[App-launch publication](../home-launch-publication-2026-10-03.md) now protects
+the existing C14 terminal pair from host-stall skips (`27a85a4a`, test follow-up
+`60ecf08f`). This closes a robustness defect, not the native timing/pixel task.
+Keep exact logo-exit/reveal onset, per-title scheduling and audio/input in the
+lifecycle queue; normal1750ms and reduced120ms remain explicit adaptations.
+
 Current runtime checkpoint: `15630913` (toolbar hosted motion),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;

@@ -15,7 +15,19 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest runtime [toolbar motion](home-toolbar-motion-source-2026-10-03.md),
+Latest runtime [launch publication](home-launch-publication-2026-10-03.md),
+`27a85a4a` with test follow-up `60ecf08f`, preserves terminal C14 presentation
+before app entry under a host stall. Paired launch failure recovery and target
+loading/error escape are guarded by owner/context identity. Normal/reduced
+1750/120ms clocks remain adaptations. Full1973 tests, build/typecheck and
+independent review pass. Exact native logo-exit/reveal capture, input, timing,
+audio and whole pixels remain open; this is not normal-speed pixel improvement.
+Desktop/narrow/reduced/stall/context and four power controls complete with mute
+and fixture restoration. All24 native/browser paired diagnostics still fail;
+10 lower LCDs meet delta2 only. Next: capture the missing native logo-exit/reveal
+interval and address a visible mismatch, with no additional source-only slice.
+
+Earlier runtime [toolbar motion](home-toolbar-motion-source-2026-10-03.md),
 `15630913`, replaces the Notes/Browser/Miiverse front-pose/browser-time
 override with hosted visibility, scale, yaw and decoded clip frames. All five
 toolbar types share the source-identified generic-primary class. Native

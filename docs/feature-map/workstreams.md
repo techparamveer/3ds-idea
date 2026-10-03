@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## App Launch Publication - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-launch-publication-20261003` / `codex/home-launch-publication-20261003`.
+Worker `03de6c52` integrates as `27a85a4a`; coordinator test follow-up `60ecf08f`.
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private
+`home-launch-motion-20261003/comparison/`. Helpers `toolbar_reentry_prepare`
+and `toolbar_reentry_review` prepare offline collectors and review source.
+GPT-5.6 Sol/high; service tier not exposed. Coordinator alone operates the
+authorized whole Mac, isolated muted reference and production browser.
+[Evidence and adaptations](../home-launch-publication-2026-10-03.md).
+
 ## Toolbar Hosted Motion - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

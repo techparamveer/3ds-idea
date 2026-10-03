@@ -9,6 +9,13 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+[Folder fixture alignment](../home-folder-alignment-2026-10-03.md) supplies a
+fresh native idle endpoint and UI-only matching density/Health placement.
+The apparent size/position defect was fixture state. Retained-capture precision
+remains a source gap; the bounded shadow audit does not justify a patch.
+Continue a newly captured interaction or proven rendering defect, not another
+source-only shadow/quantization audit. Whole1:1 remains open.
+
 [Folder Back re-entry](../home-folder-back-reentry-2026-10-03.md) now restores
 the original pressed contact after an excursion and closes to root on release.
 Preserve pointer/navigation ownership, non-transfer guards, physical B and the

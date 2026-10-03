@@ -1,5 +1,16 @@
 # Workstream Registry
 
+## Folder Fixture Alignment - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` audits the UI-only setup,
+then clean `3ds-home-folder-shadow-20261003` / `codex/home-folder-shadow-20261003`
+at `168e04f3`. No proven shadow correction and no worker commit. Comparator
+chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private
+`home-folder-alignment-20261003/comparison/`; helper `toolbar_reentry_prepare`
+prepares the fresh silent native clone. GPT-5.6 Sol/high; coordinator alone
+operates GUI and verifies restored desktop/narrow browser fixtures.
+[Evidence and residuals](../home-folder-alignment-2026-10-03.md).
+
 ## Folder Back Re-entry - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

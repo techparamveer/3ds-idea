@@ -15,6 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+Latest evidence [folder fixture alignment](home-folder-alignment-2026-10-03.md)
+at unchanged `e3b4f061` matches folder density, Health slot and viewport through
+real controls. Fresh native idle replaces the missing neutral endpoint.
+Panel interior and Health artwork meet delta2 diagnostically; whole pixels,
+cursor phase, parent content and retained-capture precision remain unresolved.
+The bounded shadow audit found no justified renderer change. Do not repeat
+the density mismatch as a geometry defect or guess a shadow correction.
+
 Latest runtime [folder Back re-entry correction](home-folder-back-reentry-2026-10-03.md),
 `e3b4f061`, restores pressed Back on same-owner return and closes the folder on
 release. Pointer/navigation guards prevent activation transfer. Existing

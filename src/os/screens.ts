@@ -33,6 +33,7 @@ type SystemWithHomeApplicationTransition = NonNullable<MenuState['system']> & {
  homeApplicationTransition?:HomeApplicationTransition|null;
 };
 type NativeHome=ReturnType<typeof createFirmwareHome>;
+type ScreenPaintResult={homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true};
 const fonts = new WeakMap<Context, BitmapFont>();
 let systemFont: Promise<void> | undefined;
 function loadSystemFont() {
@@ -290,7 +291,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let applicationTransitionCapture:{generation:string;transitionId:number;owner:string;captureGeneration:number}|undefined;
  let switchIcons:{key:string;icons:readonly[NativePixels,NativePixels]}|undefined;
  let panelFailure:Error|undefined,panelPublished:string|null=null;
- const panelKey=(state:MenuState)=>homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings'||state.panel==='folder-not-empty')
+ const panelKey=(state:MenuState)=>homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system&&!state.system.sleeping&&['power','shutdown'].includes(state.system.phase)
+  ?JSON.stringify(['system',state.system.phase,state.system.since,state.system.returnPhase])
+  :state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings'||state.panel==='folder-not-empty')
   ?JSON.stringify([state.panel,state.panelChoice,state.panelScroll??0,state.homeLayoutSlot??0,state.homeLayoutAction??null,state.homeLayoutConfirm??false]):retainedSuspendedApplication(state)?JSON.stringify([retainedSuspendedApplication(state)!.id,!!selectedSuspendedApplication(state)]):null);
  function stockStatus(state:MenuState){const key=panelKey(state);return key?(panelPublished!==key?'loading':panelFailure?'error':'ready'):graphics.stockStatus(state,t);}
  function retryStockScreen(){if(panelFailure){panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
@@ -344,7 +347,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  /** reuseHomeBackgroundMs: an input-driven paint may recompose over the HOME
   * background sampled by the latest cadence paint, if it is at most this old.
   * The background then advances only on the LCD cadence, as without the paint. */
- function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;reuseHomeBackgroundMs?:number}){
+ function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
   const key=panelKey(state);
   if(key!==panelPublished)panelFailure=undefined;
@@ -352,7 +355,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   try{const result=paintPair(state,date,elapsedMs,verification);panelPublished=key;return result;}
   catch(error){if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery();panelPublished=key;}
  }
- function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;reuseHomeBackgroundMs?:number}){
+ function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
   suspendedPresentation=syncHomeSuspendedPresentation(suspendedPresentation,state,reduced);
   const suspendedSleepFrame=getHomeSuspendedSleepFrame(suspendedPresentation);
@@ -506,10 +509,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    drawHomeSoftwareClosingDialog(firmwareAssets.renderer,t,b,reduced?20:applicationTransition!.appQuitFrame,
     exitFrame===null?undefined:reduced?20:exitFrame);
   }
-  if(firmwareAssets)drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets);
+  const requiresNativeSystem=state.system&&!state.system.sleeping&&['power','shutdown'].includes(state.system.phase);
+  const nativeSystem=firmwareAssets?drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets):false;
+  if(requiresNativeSystem&&!nativeSystem)throw Error(`Native ${state.system!.phase} screen unavailable`);
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
-  return verificationPaint;
+  return nativeSystem?{...(verificationPaint??{}),nativeSystem:true}:verificationPaint;
  }
  return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;applicationTransitionCapture=undefined;switchIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

@@ -34,7 +34,7 @@ const overrides = {
   './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,homeSuspendedIconDisappeared,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx,_meta,_mode,_sleep,opacity)=>ctx.record('suspended-window',[opacity]);`),
   './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame,exitFrame)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame,exitFrame]);};'),
   './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
- './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>false;'),
+ './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>globalThis.__testNativeSystemOverlayDrawn??false;'),
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
   './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>globalThis.__testSelectedApp,syncStockView(){},readSuspendedCapture(runtime){return {status:"ready",owner:runtime.application,generation:1};},stockStatus:()=>"inactive",retryStockScreen:()=>false,stockFailure:()=>null,banner(ctx){ctx.record("fallback-banner");},menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
   './firmware-presentation': moduleUrl('export const createFirmwareHome=assets=>assets.presenter;export const loadFirmwarePresentationAssets=()=>{throw Error("Unexpected asset load");};'),
@@ -68,6 +68,28 @@ test('retired-owner footer return paints HOME without suspended capture or closi
    assert.equal(state.system.runtime.application,null);
   }
  },{screenOptions:{drawSuspendedBackground:(_ctx,capture,presentation)=>{assert.equal(capture.status,'none');assert.equal(presentation,null);return true;}}});
+});
+
+test('system screen publication reports only a successful native power or shutdown pair',async()=>{
+ await withScreens(async({screens})=>{
+  const initial=createPortfolioState();
+  const shutdown={...initial,powered:true,system:{...initial.system,phase:'shutdown',since:100,returnPhase:'home'}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=false;
+   assert.equal(screens.paint(shutdown,new Date(0),1300),undefined);
+   assert.equal(screens.stockStatus(shutdown),'error');
+   assert.match(String(screens.stockFailure()),/Native shutdown screen unavailable/);
+   assert.equal(screens.retryStockScreen(),true);
+
+   const sleeping={...shutdown,system:{...shutdown.system,sleeping:true}};
+   assert.equal(screens.paint(sleeping,new Date(0),1300),undefined);
+   assert.equal(screens.stockStatus(sleeping),'inactive');
+
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   assert.deepEqual(screens.paint(shutdown,new Date(0),1300),{nativeSystem:true});
+   assert.equal(screens.stockStatus(shutdown),'ready');
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ });
 });
 
 test('footer-return source failure retains paired recovery after application retirement',async()=>{

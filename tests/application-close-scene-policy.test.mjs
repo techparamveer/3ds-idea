@@ -26,3 +26,30 @@ test('required close publication pins synchronous effect clocks until cleanup en
   const paint = source.indexOf("if(input!=='tick'||mustPaintApplicationClose", drain);
   assert.ok(pin >= 0 && drain > pin && paint > drain);
 });
+
+test('shutdown cannot retire until its native paired terminal was rendered in an earlier animation frame', () => {
+  const deadline = source.indexOf('const animationElapsedMs=now-start;');
+  const pending = source.indexOf('const shutdownPublicationPending=shutdownTerminalPublicationPending', deadline);
+  const paint = source.indexOf('try{paintScreens(now);renderFrame();', pending);
+  const tick = source.indexOf("if(!homeClockSuspended&&!shutdownPublicationPending)commit", paint);
+  assert.ok(deadline >= 0 && pending > deadline && paint > pending && tick > paint);
+  assert.match(source, /lastShutdownPaintIdentity=nativeSystem\?shutdownTerminalIdentity/);
+  assert.match(source, /lastShutdownPresentedIdentity=!document\.hidden&&state\.powered&&!state\.system!\.sleeping&&angle>12&&topScreen\.visible&&touchScreen\.visible&&!renderer\.getContext\(\)\.isContextLost\(\)\?lastShutdownPaintIdentity:null/);
+  assert.match(source, /if\(plan\?\.render&&!shutdownPublicationPending\)/,
+    'the forced publication callback must not perform another scene render or retire Off');
+});
+
+test('shutdown publication is invalidated across WebGL loss and restoration', () => {
+  assert.match(source, /const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetShutdownPublication\(\);schedule\.invalidate\(\);\}/);
+  assert.match(source, /const contextRestored=\(\)=>\{resetShutdownPublication\(\);schedule\.invalidate\(\);renderer\.shadowMap\.needsUpdate=true;\}/);
+  assert.match(source, /addEventListener\('webglcontextlost',contextLost\)/);
+  assert.match(source, /removeEventListener\('webglcontextlost',contextLost\)/);
+  assert.match(source, /shutdownBeforeTick\.sleeping&&!renderer\.getContext\(\)\.isContextLost\(\)/);
+});
+
+test('power and shutdown paint success requires the selected native system overlay', () => {
+  const screens = readFileSync(new URL('../src/os/screens.ts', import.meta.url), 'utf8');
+  assert.match(screens, /state\.system&&!state\.system\.sleeping&&\['power','shutdown'\]\.includes\(state\.system\.phase\)/);
+  assert.match(screens, /if\(requiresNativeSystem&&!nativeSystem\)throw Error/);
+  assert.match(screens, /nativeSystem\?\{\.\.\.\(verificationPaint\?\?\{\}\),nativeSystem:true\}:verificationPaint/);
+});

@@ -5,7 +5,9 @@ import fs from 'node:fs';
 
 const source=fs.readFileSync(new URL('../src/scene/render-quality.ts',import.meta.url),'utf8');
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {applicationCloseNeedsPaint,bootRevealNeedsPaint,chooseRenderQuality,pixelRatioForViewport,screenPaintFps}=await import(`data:text/javascript,${encodeURIComponent(js)}`);
+const systemTransitionsUrl=new URL('../src/os/system-transitions.ts',import.meta.url).href;
+const resolved=js.replace(/(['"]\.\.\/os\/system-transitions['"])/g,`'${systemTransitionsUrl}'`);
+const {applicationCloseNeedsPaint,bootRevealNeedsPaint,chooseRenderQuality,pixelRatioForViewport,sameShutdownTerminalIdentity,screenPaintFps,shutdownTerminalDeadlineReached,shutdownTerminalIdentity,shutdownTerminalPublicationPending}=await import(`data:text/javascript,${encodeURIComponent(resolved)}`);
 
 test('render quality bounds fill-rate and disables VGPU on constrained devices',()=>{
   const quality=chooseRenderQuality({devicePixelRatio:3,hardwareConcurrency:4,deviceMemory:4,saveData:false,width:1440,height:900});
@@ -127,4 +129,40 @@ test('a state-driven boot paint cannot acknowledge an unpresented terminal pose'
   assert.equal(bootRevealNeedsPaint(painted,presented,false),true,'force the closed 30fps render gate');
   presented=painted;
   assert.equal(bootRevealNeedsPaint(painted,presented,false),false,'only actual render acknowledges publication');
+});
+
+test('shutdown terminal identity is selected at the source endpoint and scoped to its owner and context',()=>{
+  const home={phase:'shutdown',since:100,returnPhase:'home'};
+  assert.equal(shutdownTerminalIdentity(home,1266,false,4),null);
+  assert.deepEqual(shutdownTerminalIdentity(home,1267,false,4),{since:100,returnPhase:'home',contextGeneration:4});
+  assert.equal(shutdownTerminalDeadlineReached(home,1299,false),false);
+  assert.equal(shutdownTerminalDeadlineReached(home,1300,false),true);
+  assert.deepEqual(shutdownTerminalIdentity(home,100,true,4),{since:100,returnPhase:'home',contextGeneration:4});
+  assert.equal(shutdownTerminalDeadlineReached(home,219,true),false);
+  assert.equal(shutdownTerminalDeadlineReached(home,220,true),true);
+  assert.equal(shutdownTerminalIdentity({...home,phase:'off'},1300,false,4),null);
+
+  const identity=shutdownTerminalIdentity(home,1300,false,4);
+  assert.equal(sameShutdownTerminalIdentity(identity,{...identity}),true);
+  assert.equal(sameShutdownTerminalIdentity(identity,{...identity,since:101}),false);
+  assert.equal(sameShutdownTerminalIdentity(identity,{...identity,returnPhase:'app'}),false);
+  assert.equal(sameShutdownTerminalIdentity(identity,{...identity,contextGeneration:5}),false);
+  assert.equal(sameShutdownTerminalIdentity(identity,null),false);
+});
+
+test('a deadline-frame forced shutdown publication remains selected until the next animation frame',()=>{
+  const system={phase:'shutdown',since:100,returnPhase:'home'};
+  const now=1300,contextGeneration=4;
+  let presented=null;
+  assert.equal(shutdownTerminalPublicationPending(system,now,false,contextGeneration,presented),true,
+    'the first deadline callback must hold shutdown and force publication');
+  presented=shutdownTerminalIdentity(system,now,false,contextGeneration);
+  assert.equal(shutdownTerminalPublicationPending(system,now,false,contextGeneration,presented),false,
+    'the following callback may advance even when its timestamp is unchanged');
+  assert.equal(shutdownTerminalPublicationPending(system,now,false,contextGeneration+1,presented),true,
+    'a restored context must republish');
+  assert.equal(shutdownTerminalPublicationPending({...system,since:99},now,false,contextGeneration,presented),true,
+    'a stale transition owner cannot release a new shutdown');
+  assert.equal(shutdownTerminalPublicationPending({...system,returnPhase:'app'},now,false,contextGeneration,presented),true,
+    'a stale return owner cannot release a new shutdown');
 });

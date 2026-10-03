@@ -1,4 +1,5 @@
 import type { HomeApplicationTransition } from '../os/home-application-transition';
+import { shutdownTransitionPose, systemTransitionDuration } from '../os/system-transitions';
 
 export type RenderQuality = {
   tier: 'high' | 'balanced' | 'constrained';
@@ -51,6 +52,44 @@ export function applicationCloseNeedsPaint(before: HomeApplicationTransition | n
  * must also bypass idle LCD throttling on normal low-quality renders. */
 export function bootRevealNeedsPaint(frame: number | null, lastPainted: number | null, reduced: boolean): boolean {
   return frame !== null && frame !== lastPainted && (reduced || frame === 20);
+}
+
+export type ShutdownTerminalIdentity = Readonly<{
+  since: number;
+  returnPhase: 'home' | 'app';
+  contextGeneration: number;
+}>;
+
+type ShutdownSystem = Readonly<{
+  phase: string;
+  since: number;
+  returnPhase: 'home' | 'app';
+}>;
+
+/** Identity for the selected paired terminal shutdown pose. It is scoped to
+ * both the transition owner and WebGL context that can actually present it. */
+export function shutdownTerminalIdentity(system: ShutdownSystem, elapsedMs: number, reduced: boolean,
+  contextGeneration: number): ShutdownTerminalIdentity | null {
+  if (system.phase !== 'shutdown'
+    || shutdownTransitionPose(elapsedMs - system.since, reduced).sleepSceneOutFrame !== 60) return null;
+  return { since: system.since, returnPhase: system.returnPhase, contextGeneration };
+}
+
+export function sameShutdownTerminalIdentity(a: ShutdownTerminalIdentity | null,
+  b: ShutdownTerminalIdentity | null): boolean {
+  return !!a && !!b && a.since === b.since && a.returnPhase === b.returnPhase
+    && a.contextGeneration === b.contextGeneration;
+}
+
+export function shutdownTerminalDeadlineReached(system: ShutdownSystem, elapsedMs: number, reduced: boolean): boolean {
+  return system.phase === 'shutdown' && elapsedMs - system.since >= systemTransitionDuration('shutdown', reduced);
+}
+
+export function shutdownTerminalPublicationPending(system: ShutdownSystem, elapsedMs: number, reduced: boolean,
+  contextGeneration: number, presented: ShutdownTerminalIdentity | null): boolean {
+  if (!shutdownTerminalDeadlineReached(system, elapsedMs, reduced)) return false;
+  return !sameShutdownTerminalIdentity(
+    shutdownTerminalIdentity(system, elapsedMs, reduced, contextGeneration), presented);
 }
 
 /** One policy owns expensive renderer choices so the scene cannot drift. */

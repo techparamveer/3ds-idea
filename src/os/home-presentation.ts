@@ -3,6 +3,7 @@ import { getHomeCursorSlot } from './home-cursor-visibility.ts';
 import { hasEmptyHomeFolderSelection, isFolder, menuTiles, rowCount, type MenuState } from './state.ts';
 import { getHomeExposedExtent, getHomeNavigationView, homeGridMetrics, type HomeDensity } from './home-navigation.ts';
 import { getTitle } from './app-registry.ts';
+import { systemTransitionFrame } from './system-transitions.ts';
 
 /** CLYT Scale clips consume density, which is distinct from folder row count. */
 export const nativeHomeDensityFrame=(density:number)=>Math.max(0,Math.min(5,density));
@@ -129,6 +130,19 @@ export function getNativeCameraTitleBalloon(state:MenuState,view:HomePresentatio
 
 export type HomeFooterAction='close-folder'|'close-software'|'folder-settings'|'manual'|'open'|'create-folder'|'resume';
 export type HomeFooter=Readonly<{two:boolean;left:HomeFooterAction|null;middle?:HomeFooterAction;right:HomeFooterAction}>;
+export type HomeLaunchPresentation=Readonly<{appId:string;owner:string;footerSceneOutFrame:number}>;
+
+/** Retain the exact selected HOME owner underneath the source launch fade.
+ * LncBtmBtn_02_SceneOut is source-authored; aligning its frame0 to the browser
+ * launch clock is a bounded adaptation because the native dispatch is untraced. */
+export function getHomeLaunchPresentation(state:MenuState,elapsedMs:number,reduced=false):HomeLaunchPresentation|null{
+ const system=state.system,owner=system?.runtime.application;
+ if(!state.powered||!system||system.phase!=='launch'||system.sleeping||system.preferences||system.dialog||state.panel
+   ||!system.app||!owner||system.runtime.active!==owner)return null;
+ const instance=system.runtime.instances[owner],selected=homeSlotAppId(state,state.opened?state.folderSelected:state.selected);
+ if(!instance||instance.appId!==system.app||instance.suspended||instance.closing||selected!==system.app)return null;
+ return {appId:system.app,owner,footerSceneOutFrame:systemTransitionFrame(elapsedMs-system.since,14,reduced)};
+}
 
 /** Footer actions follow the runtime's currently selected container. */
 export function getHomeFooter(state:MenuState):HomeFooter|null{
@@ -141,18 +155,22 @@ export function getHomeFooter(state:MenuState):HomeFooter|null{
  // capture-fitted policy keyed to the independent pickup owner.
  if(state.system?.homeControls?.tilePickup)return null;
  const appId=homeSlotAppId(state,state.opened?state.folderSelected:state.selected);
+ // startApplication installs the new owner before HOME finishes departing.
+ // Keep the pre-launch footer actions until the paired launch presentation ends.
+ const applicationApp=state.system?.phase==='launch'&&getHomeLaunchPresentation(state,state.system.since)!==null
+  ?null:state.system?.app;
  // Native 0x29af68 → 0x1e0cb4 hides both actions for an empty selected child.
  if(hasEmptyHomeFolderSelection(state))return null;
  const folder=!state.opened&&isFolder(state.selected,state);
  // The captured occupied-folder/no-owner state uses the centre Open control.
  // A selected suspended child uses software Close, as on the root HOME grid.
  // Other suspended-software folder selections retain their unverified route.
- const idleOccupiedFolder=state.opened&&!!appId&&!state.system?.app;
- const left=idleOccupiedFolder?null:appId&&state.system?.app===appId?'close-software':state.opened&&appId?'close-folder':folder?'folder-settings':appId==='system-settings'||appId==='camera'?'manual':null;
+ const idleOccupiedFolder=state.opened&&!!appId&&!applicationApp;
+ const left=idleOccupiedFolder?null:appId&&applicationApp===appId?'close-software':state.opened&&appId?'close-folder':folder?'folder-settings':appId==='system-settings'||appId==='camera'?'manual':null;
  if(left==='close-software'&&appId==='camera')return {two:true,left,middle:'manual',right:'resume'};
  return {
   two:left!==null,
   left,
-  right:appId?(state.system?.app===appId?'resume':'open'):state.opened?'close-folder':folder?'open':'create-folder'
+  right:appId?(applicationApp===appId?'resume':'open'):state.opened?'close-folder':folder?'open':'create-folder'
  } as const;
 }

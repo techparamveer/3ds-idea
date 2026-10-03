@@ -198,7 +198,83 @@ test('system screen publication reports only a successful native boot, launch, p
    assert.deepEqual(screens.paint(shutdown,new Date(0),1300),{nativeSystem:true});
    assert.equal(screens.stockStatus(shutdown),'ready');
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;delete globalThis.__testGraphicsStockStatus;delete globalThis.__testGraphicsStockFailure;}
- });
+ },{screenOptions:{
+  getHomeBanner:()=>({status:'active',selection:{kind:'app',id:'health-safety'},resourceTicket:{generation:'g',requestEpoch:1},stage:'active',waitUpdates:0,
+   primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id:'health-safety'},motion:{visible:true,scale:1,yawRadians:0,skeletal:{frame:17},material:{frame:23}}}}),
+  drawStockTitleBannerFrame:()=>true,
+ }});
+});
+
+test('first Health launch pair retains its owner-matched banner and Open footer through source SceneOut',async()=>{
+ const motion={visible:true,scale:1,yawRadians:0,skeletal:{frame:17},material:{frame:23}};
+ const active=id=>({status:'active',selection:{kind:'app',id},resourceTicket:{generation:'g',requestEpoch:1},stage:'active',waitUpdates:0,
+  primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id},motion}});
+ await withScreens(({screens,paint,events})=>{
+  const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000);
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   assert.deepEqual(screens.paint(state,new Date(0),4000),{nativeSystem:true});
+   const banner=events.find(event=>event.name==='launch-banner'),footer=events.find(event=>event.name==='launch-footer');
+   assert.deepEqual(banner.args,['health-safety','health']);
+   assert.deepEqual(footer.args,[{two:false,left:null,right:'open'},false,undefined,0]);
+   paint(state,4100);
+   assert.equal(events.find(event=>event.name==='launch-footer').args[3],6);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+  getHomeBanner:()=>active('health-safety'),
+  drawStockTitleBannerFrame(ctx,_motion,ticket,kind){ctx.record('launch-banner',[ticket.selection.id,kind]);return true;},
+ }});
+});
+
+test('launch banner draw failure publishes paired recovery and preserves the application owner',async()=>{
+ const motion={visible:true,scale:1,yawRadians:0,skeletal:{frame:17},material:{frame:23}};
+ await withScreens(({screens})=>{
+  const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000),owner=state.system.runtime.application;
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   const result=screens.paint(state,new Date(0),4000);
+   assert.equal(result,undefined);assert.equal(screens.stockStatus(state),'error');
+   assert.match(String(screens.stockFailure()),/Native health-safety launch banner unavailable/);
+   assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.active,owner);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{screenOptions:{getHomeBanner:()=>({status:'active',selection:{kind:'app',id:'health-safety'},resourceTicket:{generation:'g',requestEpoch:1},stage:'active',waitUpdates:0,
+  primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id:'health-safety'},motion}}),drawStockTitleBannerFrame:()=>false}});
+});
+
+test('Settings launch cannot publish a pair without its matching retained native banner',async()=>{
+ const id='system-settings',motion={visible:true,scale:1,yawRadians:0,skeletal:{frame:17},material:{frame:23}};
+ await withScreens(({screens})=>{
+  const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),id,4000),owner=state.system.runtime.application;
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   assert.equal(screens.paint(state,new Date(0),4000),undefined);
+   assert.equal(screens.stockStatus(state),'error');assert.match(String(screens.stockFailure()),/Native system-settings launch banner unavailable/);
+   assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.active,owner);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{screenOptions:{getHomeBanner:()=>({status:'active',selection:{kind:'app',id},resourceTicket:{generation:'g',requestEpoch:1},stage:'active',waitUpdates:0,
+  primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id},motion}}),drawSettingsBannerFrame:()=>false}});
+});
+
+test('replacement launch owner rejects a stale banner and reduced motion holds the footer endpoint',async()=>{
+ const motion={visible:true,scale:1,yawRadians:0,skeletal:{frame:17},material:{frame:23}};
+ let bannerId='camera';
+ await withScreens(({screens,events})=>{
+  const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000);
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   assert.equal(screens.paint(state,new Date(0),4000),undefined);
+   assert.equal(screens.stockStatus(state),'error');
+   assert.match(String(screens.stockFailure()),/launch banner owner unavailable/);
+   assert.equal(screens.retryStockScreen(),true);
+   bannerId='health-safety';screens.setReducedMotion(true);
+   assert.deepEqual(screens.paint(state,new Date(0),4000),{nativeSystem:true});
+   assert.equal(events.find(event=>event.name==='launch-footer').args[3],14);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+  getHomeBanner:()=>({status:'active',selection:{kind:'app',id:bannerId},resourceTicket:{generation:'g',requestEpoch:1},stage:'active',waitUpdates:0,
+   primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id:bannerId},motion}}),
+  drawStockTitleBannerFrame:()=>true,
+ }});
 });
 
 test('cold boot publishes only the captured HOME base layers beneath the paired fade',async()=>{
@@ -1140,6 +1216,25 @@ test('HOME entry footer uses decoded SceneIn frames without overriding specializ
  presenter.footer({},switching,false,7);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneOut',frame:14});
 
  for(const frame of [-1,14.5,15,NaN])assert.throws(()=>presenter.footer({},root,false,frame),/Invalid HOME footer SceneIn frame/);
+});
+
+test('HOME launch footer binds the decoded SceneOut source and fails explicitly when unavailable',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}};
+ const presenter=createFirmwareHome({renderer});
+ const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000);
+ presenter.footer({},state,false,undefined,6);
+ assert.deepEqual(calls.at(-1).bindings[0],{name:'LncBtmBtn_02_SceneOut',frame:6});
+ assert.deepEqual(getHomeFooter(state),{two:false,left:null,right:'open'});
+ assert.deepEqual(pack.resourceSources.animations.LncBtmBtn_02_SceneOut,{path:'launcher_LZ.bin/anim/LncBtmBtn_02_SceneOut.bclan',sha256:'df95bfcc74135a116fe14b39604cdd1300197e48b2c864989d3b40d35f13cf1d',titleId:'0004003000009802'});
+ assert.deepEqual(pack.animations.LncBtmBtn_02_SceneOut.sourceFrameRange,[200,214]);
+ assert.equal(pack.animations.LncBtmBtn_02_SceneOut.frames,15);
+ assert.equal(pack.animations.LncBtmBtn_02_SceneOut.loop,false);
+ assert.deepEqual(pack.animations.LncBtmBtn_02_SceneOut.groups,['G_Scene_00']);
+
+ const unavailable=structuredClone(pack);delete unavailable.animations.LncBtmBtn_02_SceneOut;
+ const missing=createFirmwareHome({renderer:{...renderer,packs:{launcher:unavailable,messages:messagesPack}}});
+ assert.throws(()=>missing.footer({},state,false,undefined,6),/Native HOME launch footer exit unavailable/);
+ for(const frame of [-1,14.5,15,NaN])assert.throws(()=>presenter.footer({},state,false,undefined,frame),/Invalid HOME launch footer SceneOut frame/);
 });
 
 test('captured occupied folder uses the decoded centre Open control with no Close segment',()=>{

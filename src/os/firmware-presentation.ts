@@ -298,8 +298,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const frame=close.controller.folder.appliedFrame??16;
   if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw))draw(1);
  }
- function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number){
+ function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number){
   if(entrySceneInFrame!==undefined&&(!Number.isInteger(entrySceneInFrame)||entrySceneInFrame<0||entrySceneInFrame>HOME_ENTRY_FOOTER_LAST_FRAME))throw new RangeError('Invalid HOME footer SceneIn frame');
+  if(launchSceneOutFrame!==undefined&&(!Number.isInteger(launchSceneOutFrame)||launchSceneOutFrame<0||launchSceneOutFrame>14))throw new RangeError('Invalid HOME launch footer SceneOut frame');
   const actions=getHomeFooter(state);if(!actions)return true;
   const {two,left:leftAction,right:rightAction}=actions,middleAction=actions.middle??null,three=middleAction!==null;
   const leftTone=leftAction==='close-software'?'B':'W';
@@ -328,9 +329,11 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
    :applicationFooterExit??applicationFooterReturn??(ordinaryEntry
     ?{clip:'LncBtmBtn_02_SceneIn' as const,frame:entrySceneInFrame}
+    :launchSceneOutFrame!==undefined?{clip:'LncBtmBtn_02_SceneOut' as const,frame:launchSceneOutFrame}
     :selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced));
   if(applicationFooterExit&&!renderer.packs.launcher.animations[applicationFooterExit.clip])throw Error('Native software-close footer exit unavailable');
   if(applicationFooterReturn&&!renderer.packs.launcher.animations[applicationFooterReturn.clip])throw Error('Native software-close footer return unavailable');
+  if(launchSceneOutFrame!==undefined&&!renderer.packs.launcher.animations.LncBtmBtn_02_SceneOut)throw Error('Native HOME launch footer exit unavailable');
   if(retainedCloseDecide&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native software-close footer Decide unavailable');
   // Capture-fit direct binding keeps the compact ChangeDw departure on its
   // authored scene member, preserving the separately settled button channels.

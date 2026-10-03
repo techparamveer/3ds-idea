@@ -9,7 +9,7 @@ import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
 import { getTitle } from './app-registry';
 import { getHomePageBoundary, leaveHomeFolder, saveHomeView } from './home-navigation';
-import { getHomeFooter, getHomePresentation, type HomePresentation } from './home-presentation';
+import { getHomeFooter, getHomeLaunchPresentation, getHomePresentation, type HomePresentation } from './home-presentation';
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices } from './state';
 import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
@@ -409,6 +409,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
   const view=getHomePresentation(state);
+  const launchPresentation=getHomeLaunchPresentation(state,elapsedMs,reduced);
+  if(state.system?.phase==='launch'&&!state.system.sleeping&&!launchPresentation)throw Error('Stale HOME launch presentation owner');
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
   const layoutPreview=currentLayoutPreview(state,time);
   const suspended=retainedSuspendedApplication(state),expanded=!!selectedSuspendedApplication(state);
@@ -439,11 +441,14 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const toolbarFailure=hostedToolbar?.focus===1?options.getMemoBannerFailure?.():hostedToolbar?.focus===2?options.getFriendBannerFailure?.():hostedToolbar?.focus===3?options.getNewsBannerFailure?.():hostedToolbar?.focus===4?options.getWebBannerFailure?.():hostedToolbar?.focus===5?options.getMiiverseBannerFailure?.():null;
   const toolbarUnavailable=hostedToolbar&&toolbarUnavailableByFocus[hostedToolbar.focus];
   if(hostedToolbar&&toolbarFailure&&toolbarUnavailable&&firmwareAssets&&!firmwareAssets.diagnostics.includes(toolbarUnavailable))firmwareAssets.diagnostics.push(toolbarUnavailable);
+  if(launchPresentation&&hasHomeTitleBanner(launchPresentation.appId)
+   &&(hostedBanner?.status!=='active'||!hostedBanner.primary.motion.visible||hostedBanner.primary.selection.kind!=='app'
+    ||hostedBanner.primary.selection.id!==launchPresentation.appId))throw Error('Native HOME launch banner owner unavailable');
   if(!hideHeldRootBanner){
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
-   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&state.system?.phase==='home'){
+   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&(state.system?.phase==='home'||launchPresentation!==null)){
     const {selection,motion}=hostedBanner.primary;
     homeEntryDrawnBannerIdentity=homeEntryBannerIdentity(hostedBanner);
     if(selection.kind==='default'){
@@ -461,9 +466,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      const unavailable=toolbarUnavailableByFocus[selection.focus];
      if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(unavailable))firmwareAssets.diagnostics.push(unavailable);
     }else if(selection.kind==='app'&&homeTitleBannerKind(selection.id)){
-     const drawn=options.drawStockTitleBannerFrame?.(t,motion,hostedBanner.primary,homeTitleBannerKind(selection.id)!);homeEntryBannerDrawn=drawn===true;if(verificationPaint&&selection.id==='health-safety')verificationPaint.healthBanner=drawn===true;if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(`Native ${selection.id} banner unavailable.`))firmwareAssets.diagnostics.push(`Native ${selection.id} banner unavailable.`);
+     const drawn=options.drawStockTitleBannerFrame?.(t,motion,hostedBanner.primary,homeTitleBannerKind(selection.id)!);homeEntryBannerDrawn=drawn===true;if(verificationPaint&&selection.id==='health-safety')verificationPaint.healthBanner=drawn===true;if(!drawn&&launchPresentation)throw Error(`Native ${selection.id} launch banner unavailable.`);if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(`Native ${selection.id} banner unavailable.`))firmwareAssets.diagnostics.push(`Native ${selection.id} banner unavailable.`);
     }else if(selection.kind==='app'){
      const drawn=options.drawSettingsBannerFrame?.(t,motion)===true;homeEntryBannerDrawn=drawn;
+     if(!drawn&&launchPresentation)throw Error(`Native ${selection.id} launch banner unavailable.`);
      if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Settings banner unavailable.'))firmwareAssets.diagnostics.push('Native Settings banner unavailable.');
     }else{
      const label=nativeHome?.folderBannerLabel(selection.label);
@@ -526,7 +532,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!bootBaseOnly&&!nativeHome?.hud(t,date,time,verification?.homeHudSample,homeEntry.hudSceneInFrame??undefined))status(t,date,chrome);
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame);nativeHome?.folderBalloon(b,state,view);
   if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
-   const nativeFooterDrawn=nativeHome?.footer(b,state,reduced,homeEntry.footerSceneInFrame??undefined)===true;
+   const nativeFooterDrawn=nativeHome?.footer(b,state,reduced,homeEntry.footerSceneInFrame??undefined,launchPresentation?.footerSceneOutFrame)===true;
    if(!nativeFooterDrawn)footer(b,state,chrome);
    homeEntryFooterTerminalDrawn=nativeFooterDrawn&&getHomeFooter(state)!==null
     &&homeEntry.footerSceneInFrame===HOME_ENTRY_FOOTER_LAST_FRAME;

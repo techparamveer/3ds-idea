@@ -4,6 +4,10 @@ import test from 'node:test';
 
 const source=readFileSync(new URL('../src/scene/console-scene.ts',import.meta.url),'utf8');
 
+test('boot failure announces Retry only while other native recovery wording stays unchanged',()=>{
+ assert.match(source,/nativeStatus==='error'\?\(s\.phase==='boot'\?'Website display unavailable\. A to retry\.':'Website display unavailable\. A to retry\. B or HOME to return to HOME Menu\.'\)/);
+});
+
 test('boot cannot hand off until its native terminal pair was rendered in an earlier callback',()=>{
  const deadline=source.indexOf('const animationElapsedMs=now-start;');
  const pending=source.indexOf('const bootPublicationPending=bootTerminalPublicationPending',deadline);

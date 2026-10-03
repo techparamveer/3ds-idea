@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPortfolioState } from '../src/os/system.ts';
 import {
+  acknowledgeHomeEntryBannerPresentation,
   acknowledgeHomeEntryFooterTerminal,
+  bypassHomeEntryBannerPresentation,
   createHomeEntryPresentation,
   getHomeEntryFooterReadiness,
   sampleHomeEntryPresentation,
@@ -15,10 +17,10 @@ const atCount = (state, updateCount) => withSystem(state, { homeClock: { ...stat
 const boot = (since = 100, updateCount = 77) => atCount(withSystem(createPortfolioState(), { since }), updateCount);
 const home = state => withSystem(state, { phase: 'home' });
 
-test('boot-owned HOME entry follows counted source frames and holds the footer terminal until paint receipt', () => {
+test('boot-owned HOME entry holds footer14 and HUD zero-alpha until their visible receipts', () => {
   const armed = sampleHomeEntryPresentation(createHomeEntryPresentation(), boot()).presentation;
   for (const [elapsed, footer, hud] of [
-    [0, 0, 0], [7, 7, 7], [14, 14, 14], [15, 14, 15], [20, 14, 20], [40, 14, 40], [41, 14, null],
+    [0, 0, 0], [7, 7, 7], [14, 14, 14], [15, 14, 15], [20, 14, 20], [40, 14, 20], [75, 14, 20],
   ]) {
     const state = atCount(home(boot()), 77 + elapsed);
     const first = sampleHomeEntryPresentation(armed, state);
@@ -26,22 +28,53 @@ test('boot-owned HOME entry follows counted source frames and holds the footer t
     assert.deepEqual([first.footerSceneInFrame, first.hudSceneInFrame], [footer, hud]);
     assert.deepEqual(repaint, first);
   }
-  const terminalState = atCount(home(boot()), 97);
+  const terminalState = atCount(home(boot()), 91);
   const terminal = sampleHomeEntryPresentation(armed, terminalState);
   const acknowledged = acknowledgeHomeEntryFooterTerminal(terminal, terminalState);
-  assert.deepEqual(getHomeEntryFooterReadiness(acknowledged), { bootSince: 100, terminalAtUpdate: 97 });
-  assert.deepEqual(sampleHomeEntryPresentation(acknowledged, terminalState), {
-    presentation: acknowledged, footerSceneInFrame: null, hudSceneInFrame: 20,
+  assert.deepEqual(getHomeEntryFooterReadiness(acknowledged), { bootSince: 100, terminalAtUpdate: 91 });
+  const bannerState = atCount(home(boot()), 94);
+  const bannerSample = sampleHomeEntryPresentation(acknowledged, bannerState);
+  const released = acknowledgeHomeEntryBannerPresentation(bannerSample, bannerState);
+  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 97)), {
+    presentation: released, footerSceneInFrame: null, hudSceneInFrame: 20,
   });
-  assert.deepEqual(sampleHomeEntryPresentation(acknowledged, atCount(home(boot()), 118)), {
-    presentation: acknowledged, footerSceneInFrame: null, hudSceneInFrame: null,
+  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 117)), {
+    presentation: released, footerSceneInFrame: null, hudSceneInFrame: 40,
   });
+  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 118)), {
+    presentation: released, footerSceneInFrame: null, hudSceneInFrame: null,
+  });
+});
+
+test('delayed banner receipt replays authored HUD20 through40 from the retained HOME clock', () => {
+  const base = boot(), armed = sampleHomeEntryPresentation(createHomeEntryPresentation(), base).presentation;
+  const footerState = atCount(home(base), 152);
+  const footer = acknowledgeHomeEntryFooterTerminal(sampleHomeEntryPresentation(armed, footerState), footerState);
+  assert.equal(sampleHomeEntryPresentation(footer, footerState).hudSceneInFrame, 20);
+  const bannerState = atCount(home(base), 155);
+  const banner = acknowledgeHomeEntryBannerPresentation(sampleHomeEntryPresentation(footer, bannerState), bannerState);
+  for (const [count, frame] of [[155,20],[156,21],[175,40]]) {
+    assert.equal(sampleHomeEntryPresentation(banner, atCount(home(base), count)).hudSceneInFrame, frame);
+  }
+  assert.equal(sampleHomeEntryPresentation(banner, atCount(home(base), 176)).hudSceneInFrame, null);
+});
+
+test('no-dependent-native-banner bypass keeps the original HUD epoch', () => {
+  const base = boot(), armed = sampleHomeEntryPresentation(createHomeEntryPresentation(), base).presentation;
+  const footerState = atCount(home(base), 91);
+  const footer = acknowledgeHomeEntryFooterTerminal(sampleHomeEntryPresentation(armed, footerState), footerState);
+  const bypassState = atCount(home(base), 94);
+  const bypassed = bypassHomeEntryBannerPresentation(sampleHomeEntryPresentation(footer, bypassState), bypassState);
+  assert.equal(bypassed.bannerBypassed, true);
+  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 117)).hudSceneInFrame, 40);
+  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 118)).hudSceneInFrame, null);
 });
 
 test('warm boot identity owns its current shared-clock origin and replaces stale boot ownership', () => {
   const first = sampleHomeEntryPresentation(createHomeEntryPresentation(), boot(100, 77)).presentation;
   const replacement = sampleHomeEntryPresentation(first, boot(900, 932)).presentation;
-  assert.deepEqual(replacement, { bootSince: 900, startedAtUpdate: 932, footerTerminalAtUpdate: null });
+  assert.deepEqual(replacement, { bootSince: 900, startedAtUpdate: 932,
+    footerTerminalAtUpdate: null, bannerPresentedAtUpdate: null, bannerBypassed: false });
   assert.deepEqual(sampleHomeEntryPresentation(replacement, home(boot(900, 932))), {
     presentation: replacement, footerSceneInFrame: 0, hudSceneInFrame: 0,
   });
@@ -106,4 +139,10 @@ test('footer terminal receipts require the matching ordinary live entry sample',
   assert.throws(() => acknowledgeHomeEntryFooterTerminal({ ...terminal, footerSceneInFrame: 13 }, entered), /Invalid HOME entry/);
   const receipt = acknowledgeHomeEntryFooterTerminal(terminal, entered);
   assert.equal(acknowledgeHomeEntryFooterTerminal({ ...terminal, presentation: receipt }, entered), receipt);
+  assert.throws(() => acknowledgeHomeEntryBannerPresentation(terminal, entered), /Invalid HOME entry banner/);
+  assert.throws(() => bypassHomeEntryBannerPresentation(terminal, entered), /Invalid HOME entry banner bypass/);
+  assert.throws(() => acknowledgeHomeEntryBannerPresentation(
+    { ...terminal, presentation: receipt }, withSystem(entered, { sleeping: true })), /Invalid HOME entry banner/);
+  const banner = acknowledgeHomeEntryBannerPresentation({ ...terminal, presentation: receipt }, entered);
+  assert.equal(acknowledgeHomeEntryBannerPresentation({ ...terminal, presentation: banner }, entered), banner);
 });

@@ -33,8 +33,9 @@ test('the restarted primary uses the paired-screen footer receipt at the existin
     'scene policy must consume the shared owner receipt rather than inventing a delay or frame clock');
 });
 
-test('only a visible context-live render promotes the footer terminal candidate', () => {
-  assert.match(source, /if\(validPublication\)screens\.presentHomeEntryFooterTerminal\(\);else screens\.revokeHomeEntryFooterCandidate\(\);/);
-  assert.match(source, /const revokeTerminalPublications=\(\)=>\{[^}]*screens\.revokeHomeEntryFooterCandidate\(\);\};/);
+test('only a visible context-live render promotes entry candidates', () => {
+  assert.match(source, /if\(validPublication\)\{screens\.presentHomeEntryFooterTerminal\(\);screens\.presentHomeEntryBanner\(\);screens\.presentHomeEntryWithoutNativeBanner\(\);\}/);
+  assert.match(source, /else\{screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\}/);
+  assert.match(source, /const revokeTerminalPublications=\(\)=>\{[^}]*screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\};/);
   assert.match(source, /const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);/);
 });

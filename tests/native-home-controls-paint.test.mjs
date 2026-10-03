@@ -187,7 +187,7 @@ test('cold boot publishes only the captured HOME base layers beneath the paired 
  });
 });
 
-test('boot-owned paired screens paint counted entry frames and settle after terminal presentation',async()=>{
+test('boot-owned paired screens hold HUD zero-alpha after footer receipt while banner is absent',async()=>{
  await withScreens(({screens,paint,events})=>{
   const initial=createPortfolioState();
   const boot={...initial,system:{...initial.system,since:100,homeClock:{...initial.system.homeClock,updateCount:77}}};
@@ -195,7 +195,7 @@ test('boot-owned paired screens paint counted entry frames and settle after term
    globalThis.__testNativeSystemOverlayDrawn=true;
    paint(boot);
    const entered={...boot,system:{...boot.system,phase:'home'}};
-   for(const [elapsed,footerFrame,hudFrame] of [[0,0,0],[0,0,0],[14,14,14],[15,undefined,15],[40,undefined,40],[41,undefined,undefined]]){
+   for(const [elapsed,footerFrame,hudFrame] of [[0,0,0],[0,0,0],[14,14,14],[15,undefined,15],[40,undefined,20],[41,undefined,20]]){
     const state={...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount:77+elapsed}}};
     paint(state);
     assert.equal(events.find(event=>event.name==='footer').args[2],footerFrame);
@@ -204,6 +204,107 @@ test('boot-owned paired screens paint counted entry frames and settle after term
    }
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  });
+});
+
+test('context recovery publishes a real banner before replaying HUD20 through40',async()=>{
+ const motion={visible:true,scale:.8,yawRadians:0,skeletal:{frame:1},material:{frame:1}};
+ const selection={kind:'app',id:'camera'},ticket={generation:'entry-recovery',requestEpoch:1};
+ const active={status:'active',selection,...ticket,resourceTicket:ticket,stage:'active',waitUpdates:5,
+  primary:{...ticket,activationEpoch:1,selection,motion}};
+ let bannerActive=false,bannerDrawn=false;
+ await withScreens(({screens,paint,events})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:103,homeClock:{...initial.system.homeClock,updateCount:77}}};
+  const at=updateCount=>({...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount}}});
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);paint(at(90));
+   assert.equal(events.find(event=>event.name==='hud').args[3],13);
+   screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();
+
+   paint(at(152));
+   assert.equal(events.find(event=>event.name==='footer').args[2],14);
+   assert.equal(events.find(event=>event.name==='hud').args[3],20);
+   assert.equal(screens.presentHomeEntryFooterTerminal(),true);
+   assert.equal(screens.presentHomeEntryBanner(),false);
+
+   bannerActive=true;paint(at(155));
+   assert.equal(events.find(event=>event.name==='entry-banner'),undefined,'failed native draw cannot fabricate receipt');
+   assert.equal(events.find(event=>event.name==='hud').args[3],20);
+   assert.equal(screens.presentHomeEntryBanner(),false);
+
+   bannerDrawn=true;paint(at(155));
+   assert.ok(events.some(event=>event.name==='entry-banner'));
+   screens.paint(at(155),new Date(0),1000,{sampleCalendar:true});
+   assert.equal(screens.presentHomeEntryBanner(),false,'diagnostic replacement revokes the live banner candidate');
+   paint(at(155));assert.equal(screens.presentHomeEntryBanner(),true);
+   for(const [count,frame] of [[155,20],[156,21],[175,40]]){
+    paint(at(count));assert.equal(events.find(event=>event.name==='hud').args[3],frame);
+   }
+   paint(at(176));assert.equal(events.find(event=>event.name==='hud').args[3],undefined);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{screenOptions:{getHomeBanner:()=>bannerActive?active:undefined,
+  drawStockTitleBannerFrame:ctx=>{if(!bannerDrawn)return false;ctx.record('entry-banner');return true;}}});
+});
+
+test('unsupported portfolio and clear selections resolve without a fabricated native banner receipt',async()=>{
+ const cases=[
+  {name:'portfolio',view:{status:'unsupported',selection:{kind:'app',id:'work'},resourceTicket:null},portfolio:true},
+  {name:'clear',view:{status:'cleared',selection:{kind:'clear'},generation:'entry-clear',resourceTicket:null,
+   stage:'active',waitUpdates:0,primary:null},portfolio:false},
+ ];
+ for(const scenario of cases){
+  let hostedView=scenario.view;
+  globalThis.__testSelectedApp=scenario.portfolio?{id:'work'}:undefined;
+  try{await withScreens(({screens,paint,events})=>{
+   const initial=createPortfolioState();
+   const boot={...initial,system:{...initial.system,since:104,homeClock:{...initial.system.homeClock,updateCount:50}}};
+   const at=updateCount=>({...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount}}});
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
+   for(const count of [50,57]){
+    paint(at(count));
+    assert.equal(screens.presentHomeEntryFooterTerminal(),false);
+    assert.equal(screens.presentHomeEntryBanner(),false);
+    assert.equal(screens.presentHomeEntryWithoutNativeBanner(),false,'early selection cannot bypass the footer owner');
+   }
+   paint(at(64));assert.equal(screens.presentHomeEntryFooterTerminal(),true);
+   assert.equal(screens.presentHomeEntryWithoutNativeBanner(),false,'footer publication wins the shared owner first');
+   paint(at(65));
+   if(scenario.portfolio)assert.ok(events.some(event=>event.name==='fallback-banner'),'authored portfolio banner remains visible');
+   assert.equal(screens.presentHomeEntryBanner(),false,'no native draw receipt was fabricated');
+   hostedView=scenario.portfolio?{status:'unsupported',selection:{kind:'app',id:'about'},resourceTicket:null}
+    :{...scenario.view,generation:'stale-clear'};
+   assert.equal(screens.presentHomeEntryWithoutNativeBanner(),false,'retargeted no-banner view revokes the painted bypass');
+   hostedView=scenario.view;paint(at(65));
+   assert.equal(screens.presentHomeEntryWithoutNativeBanner(),true,scenario.name);
+  },{screenOptions:{getHomeBanner:()=>hostedView}});}
+  finally{delete globalThis.__testNativeSystemOverlayDrawn;delete globalThis.__testSelectedApp;}
+ }
+});
+
+test('an early native banner cannot publish ahead of the matching footer owner',async()=>{
+ const motion={visible:true,scale:.8,yawRadians:0,skeletal:{frame:1},material:{frame:1}};
+ const selection={kind:'app',id:'camera'},ticket={generation:'entry-early-banner',requestEpoch:1};
+ const active={status:'active',selection,...ticket,resourceTicket:ticket,stage:'active',waitUpdates:5,
+  primary:{...ticket,activationEpoch:1,selection,motion}};
+ let hosted=active;
+ await withScreens(({screens,paint})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:105,homeClock:{...initial.system.homeClock,updateCount:50}}};
+  const at=updateCount=>({...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount}}});
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
+   for(const count of [50,57]){
+    paint(at(count));assert.equal(screens.presentHomeEntryFooterTerminal(),false);
+    assert.equal(screens.presentHomeEntryBanner(),false,'early native pixels cannot precede the footer receipt');
+    assert.equal(screens.presentHomeEntryWithoutNativeBanner(),false);
+   }
+   paint(at(64));assert.equal(screens.presentHomeEntryFooterTerminal(),true);
+   assert.equal(screens.presentHomeEntryBanner(),false,'same-paint banner candidate is stale after footer promotion');
+   paint(at(65));hosted={...active,primary:{...active.primary,activationEpoch:2}};
+   assert.equal(screens.presentHomeEntryBanner(),false,'retargeted active tuple revokes the painted banner');
+   hosted=active;paint(at(65));assert.equal(screens.presentHomeEntryBanner(),true);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{screenOptions:{getHomeBanner:()=>hosted,drawStockTitleBannerFrame:()=>true}});
 });
 
 test('live paired footer terminal receipt survives skipped updates and diagnostic paints cannot publish it',async()=>{

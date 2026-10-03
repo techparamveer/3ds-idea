@@ -1,12 +1,15 @@
 import type { MenuState } from './state.ts';
 
 export const HOME_ENTRY_FOOTER_LAST_FRAME = 14 as const;
+export const HOME_ENTRY_HUD_ZERO_ALPHA_FRAME = 20 as const;
 export const HOME_ENTRY_HUD_LAST_FRAME = 40 as const;
 
 export type HomeEntryPresentation = Readonly<{
   bootSince: number | null;
   startedAtUpdate: number | null;
   footerTerminalAtUpdate: number | null;
+  bannerPresentedAtUpdate: number | null;
+  bannerBypassed: boolean;
 }>;
 
 export type HomeEntrySample = Readonly<{
@@ -22,6 +25,7 @@ export type HomeEntryFooterReadiness = Readonly<{
 
 const EMPTY: HomeEntryPresentation = Object.freeze({
   bootSince: null, startedAtUpdate: null, footerTerminalAtUpdate: null,
+  bannerPresentedAtUpdate: null, bannerBypassed: false,
 });
 const emptySample = (presentation: HomeEntryPresentation = EMPTY): HomeEntrySample => Object.freeze({
   presentation, footerSceneInFrame: null, hudSceneInFrame: null,
@@ -67,7 +71,8 @@ export function sampleHomeEntryPresentation(
       return emptySample(current);
     }
     return emptySample(Object.freeze({
-      bootSince: system.since, startedAtUpdate: updateCount, footerTerminalAtUpdate: null,
+      bootSince: system.since, startedAtUpdate: updateCount,
+      footerTerminalAtUpdate: null, bannerPresentedAtUpdate: null, bannerBypassed: false,
     }));
   }
 
@@ -76,14 +81,23 @@ export function sampleHomeEntryPresentation(
 
   const elapsed = updateCount - current.startedAtUpdate;
   if (elapsed < 0) throw new RangeError('HOME entry update clock moved backwards');
-  if (elapsed > HOME_ENTRY_HUD_LAST_FRAME && current.footerTerminalAtUpdate !== null) return emptySample(current);
+  const bannerPending = current.bannerPresentedAtUpdate === null && !current.bannerBypassed;
+  const hudStartAtUpdate = bannerPending ? null : current.bannerBypassed
+    ? current.startedAtUpdate + HOME_ENTRY_HUD_ZERO_ALPHA_FRAME
+    : Math.max(current.startedAtUpdate + HOME_ENTRY_HUD_ZERO_ALPHA_FRAME, current.bannerPresentedAtUpdate!);
+  if (current.footerTerminalAtUpdate !== null && !bannerPending
+    && (reduced ? elapsed > HOME_ENTRY_HUD_LAST_FRAME
+      : updateCount > hudStartAtUpdate! + HOME_ENTRY_HUD_LAST_FRAME - HOME_ENTRY_HUD_ZERO_ALPHA_FRAME)) {
+    return emptySample(current);
+  }
   return Object.freeze({
     presentation: current,
     footerSceneInFrame: reduced ? HOME_ENTRY_FOOTER_LAST_FRAME
       : elapsed <= HOME_ENTRY_FOOTER_LAST_FRAME ? elapsed
       : current.footerTerminalAtUpdate === null ? HOME_ENTRY_FOOTER_LAST_FRAME : null,
     hudSceneInFrame: reduced ? HOME_ENTRY_HUD_LAST_FRAME
-      : elapsed <= HOME_ENTRY_HUD_LAST_FRAME ? elapsed : null,
+      : bannerPending ? Math.min(elapsed, HOME_ENTRY_HUD_ZERO_ALPHA_FRAME)
+      : HOME_ENTRY_HUD_ZERO_ALPHA_FRAME + updateCount - hudStartAtUpdate!,
   });
 }
 
@@ -108,4 +122,40 @@ export function acknowledgeHomeEntryFooterTerminal(
 
 export function getHomeEntryFooterReadiness(current: HomeEntryPresentation): HomeEntryFooterReadiness {
   return Object.freeze({ bootSince: current.bootSince, terminalAtUpdate: current.footerTerminalAtUpdate });
+}
+
+/** Release the HUD only after the matching native banner pixels have been
+ * drawn into a live paired screen and that screen has been visibly presented. */
+export function acknowledgeHomeEntryBannerPresentation(
+  sample: HomeEntrySample,
+  state: MenuState,
+): HomeEntryPresentation {
+  const system = state.system, current = sample.presentation;
+  if (!system || system.sleeping || !isOrdinaryRootHome(state)
+    || current.bootSince !== system.since || current.startedAtUpdate === null
+    || current.footerTerminalAtUpdate === null) {
+    throw new Error('Invalid HOME entry banner receipt');
+  }
+  const updateCount = validUpdateCount(system.homeClock.updateCount);
+  if (updateCount < current.footerTerminalAtUpdate) throw new RangeError('HOME entry banner preceded footer terminal');
+  if (current.bannerPresentedAtUpdate !== null || current.bannerBypassed) return current;
+  return Object.freeze({ ...current, bannerPresentedAtUpdate: updateCount });
+}
+
+/** Resolve an entry whose selected content has no dependent native banner.
+ * This is distinct from a draw receipt and keeps the original HUD epoch. */
+export function bypassHomeEntryBannerPresentation(
+  sample: HomeEntrySample,
+  state: MenuState,
+): HomeEntryPresentation {
+  const system = state.system, current = sample.presentation;
+  if (!system || system.sleeping || !isOrdinaryRootHome(state)
+    || current.bootSince !== system.since || current.startedAtUpdate === null
+    || current.footerTerminalAtUpdate === null) {
+    throw new Error('Invalid HOME entry banner bypass');
+  }
+  const updateCount = validUpdateCount(system.homeClock.updateCount);
+  if (updateCount < current.footerTerminalAtUpdate) throw new RangeError('HOME entry banner bypass preceded footer terminal');
+  if (current.bannerPresentedAtUpdate !== null || current.bannerBypassed) return current;
+  return Object.freeze({ ...current, bannerBypassed: true });
 }

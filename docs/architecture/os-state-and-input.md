@@ -482,3 +482,14 @@ cross-region contact cannot acquire ownership. Grid-drag Back hover, physical B
 and counted footer transitions are unchanged. This is a capture-fit input
 adaptation, not a recovered native caller; see
 [folder Back re-entry](../home-folder-back-reentry-2026-10-03.md).
+
+## HOME Launch Retention
+
+`getHomeLaunchPresentation` identifies a selected/runtime-owner candidate;
+it is not mandatory for every launch. The painter additionally requires a
+settled visible hosted primary with matching selection, generation and request
+epoch. Only this eligible path retains the banner and pre-launch footer with
+native SceneOut. Helper, shortcut, switch and pending/stale-host paths cannot
+be rejected merely for lacking it. Eligible native banner/footer failures
+recover both LCDs and preserve the owner for retry. See the
+[launch onset evidence](../home-launch-onset-2026-10-03.md).

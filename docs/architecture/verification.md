@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+[HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
+native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
+feedback from footer SceneOut, and last pre-fade banner from disappearance.
+Use the first confirmed presented browser launch receipt as well as raw
+paint zero; no closest-phase selection. Retained banner/Open corrections do
+not prove native press timing, cursor effects or logo overlap. Test helpers,
+shortcuts, pending real hosts and eligible paired failure/retry separately.
+
 [Health launch reveal verification](../home-launch-exit-2026-10-03.md) now
 captures native exit/black/upper-only reveal and the visible correction at
 `c6c567d7`. Keep semantic stage comparison separate from native epoch proof.

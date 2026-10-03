@@ -11,7 +11,12 @@ now uses the decoded upper-only fade with a successful paired-draw origin.
 Normal/late/mobile/reduced captures verify the visible change; exact native
 dispatch and whole acceptance remain open. Preserve the other Health designs.
 
-Current runtime checkpoint: `c6c567d7` (Health first-entry reveal),
+[HOME launch onset](../home-launch-onset-2026-10-03.md), `b4077380`, now
+retains the settled banner and departing native Open footer. The captured
+logo/HOME overlap, missing cursor effect and pressed/release timing remain
+the next visible launch residuals. Do not repeat generic publication work.
+
+Current runtime checkpoint: `b4077380` (HOME launch onset),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.

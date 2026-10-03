@@ -1,5 +1,15 @@
 # Workstream Registry
 
+## HOME Launch Onset - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-launch-onset-20261003` / `codex/home-launch-onset-20261003`,
+base `d17eb8be`. Worker `bef3f8bc` / `2f03a179` integrate as `b1ca54d5` /
+`b4077380`. Exact final review is clean. Helpers `toolbar_reentry_prepare`
+and `toolbar_reentry_review` own private capture comparison and review only.
+GPT-5.6 Sol/high; coordinator alone uses the authorized Mac and muted GUI.
+[Delivered correction and remaining gaps](../home-launch-onset-2026-10-03.md).
+
 ## Health Launch Reveal - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` now owns

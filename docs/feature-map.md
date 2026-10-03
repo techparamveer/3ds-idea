@@ -15,7 +15,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [launch exit capture](home-launch-exit-2026-10-03.md) closes the missing
+Latest [HOME launch onset](home-launch-onset-2026-10-03.md), `b4077380`,
+retains the settled selected banner and native Open footer during launch.
+150 native PNGs expose the prior missing-banner/Close-Resume flash;
+128 final desktop/mobile/reduced pairs verify the targeted correction.
+Optional exact-host eligibility preserves helper and fast-launch paths.
+Full 1991 tests, build/typecheck and exact review pass. Logo overlap, cursor
+retention, native pressed/release timing and whole 1:1 remain open.
+
+Earlier [launch exit capture](home-launch-exit-2026-10-03.md) closes the missing
 exit/reveal evidence interval and identifies Health's absent upper-only reveal.
 The source chat's `codex/health-launch-reveal-20261003` now integrates as
 `fbb194fa` / `c6c567d7`: decoded upper fade, readiness-safe paired origin and

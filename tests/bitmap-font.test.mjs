@@ -405,3 +405,20 @@ test('Camera width176 and group2 cursor advance retain digit origins while movin
  assert.throws(()=>draw([{index:6,advance:2}]),/Invalid native cursor advance/);
  assert.throws(()=>draw([{index:1,advance:32768}]),/Invalid native cursor advance/);
 });
+
+test('opt-in UTF-16 glyph-size runs scale mixed lines, measurement and source newline advance together',()=>{
+ const glyph={sheet:0,x:1,y:1,width:5,height:8,left:1,advance:6};
+ const manifest={schema:1,sourceSha256:'0'.repeat(64),width:10,height:10,baseline:8,lineFeed:10,colorMode:'alpha',sheets:['sheet-0.png'],glyphs:{65:glyph,66:glyph},fallback:glyph};
+ const font=new BitmapFont(manifest,[{}]),calls=[],context={drawImage:(...args)=>calls.push(args)};
+ const draw=range=>font.drawNative(context,'AA\nBB',100,40,[10,10],4,0,2,0,[0,0],false,undefined,range,[],false,false,undefined,undefined,[{start:3,end:5,scale:.5}]);
+ draw();
+ assert.deepEqual(calls.map(call=>call.slice(5)),[
+  [45,11,5,8],[51,11,5,8],[47.5,23,2.5,4],[50.5,23,2.5,4],
+ ]);
+ calls.length=0;draw([3,5]);
+ assert.deepEqual(calls.map(call=>call.slice(5)),[[47.5,23,2.5,4],[50.5,23,2.5,4]],'colour-mask ink selection retains full-message centering and advances');
+
+ assert.doesNotThrow(()=>font.drawNative(context,'A😀\r\nB',100,40,[10,10],4,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,[{start:1,end:5,scale:.5}]));
+ assert.throws(()=>font.drawNative(context,'A😀\r\nB',100,40,[10,10],4,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,[{start:2,end:5,scale:.5}]),/Invalid native text scale span/,'span cannot split a surrogate pair');
+ assert.throws(()=>font.drawNative(context,'A😀\r\nB',100,40,[10,10],4,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,[{start:1,end:4,scale:.5}]),/Invalid native text scale span/,'span cannot split CRLF');
+});

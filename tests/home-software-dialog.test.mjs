@@ -68,6 +68,7 @@ for(const kind of ['close','switch'])test(`${kind} uses original dialog/masks an
  const options=dialogCall(r).options,body=r.calls.at(-1).options.overrides.TextBoxDialog;
  assert.match(body.text,kind==='close'?/^Would you like to close/:/^Close the suspended software/);
  assert.ok(body.messageStyle);assert.ok(body.colorSpans.length);
+ assert.deepEqual(body.glyphScaleSpans,kind==='close'?[{start:39,end:71,scale:.85}]:[{start:50,end:82,scale:.85}]);
  assert.equal(options.overrides.TextBoxDialog.text,'');
  assert.equal(options.overrides.TextBox_00.text,'\ue001 Cancel');assert.equal(options.overrides.TextBox_02.text,'\ue000 OK');
  assert.equal(JSON.stringify(packs),before);
@@ -76,7 +77,7 @@ for(const kind of ['close','switch'])test(`${kind} uses original dialog/masks an
   const p=nativePaneParentPath(pose,`Bounding_0${index}`).at(-1);
   assert.deepEqual([160+p.translation[0]-p.size[0]*(p.origin%3)/2,120-p.translation[1]-p.size[1]*Math.floor(p.origin/3)/2,...p.size],[target.x,target.y,target.width,target.height]);
  }
- assert.match(r.diagnostics[0],/inline MSBT size controls/);
+ assert.match(r.diagnostics[0],/block positioning remains an adaptation/);
 });
 
 test('ordinary Camera close uses the decoded single-icon header at authored source geometry',()=>{
@@ -116,6 +117,7 @@ test('Health-to-Camera uses source no-warning body and ordered icon bindings',()
  drawHomeSoftwareDialog(r,{}, {},state);
  const header=r.calls.at(-1).options;
  assert.equal(header.overrides.TextBoxDialog.text,'Close the suspended software\nand launch this one?');
+ assert.deepEqual(header.overrides.TextBoxDialog.glyphScaleSpans,[]);
  assert.equal(dialogCall(r).options.overrides.TextBoxDialog.text,'');
  assert.equal(header.textures['runtime:switch-from'],icons[0]);assert.equal(header.textures['runtime:switch-to'],icons[1]);
  assert.deepEqual(header.overrides.P_Icon_00.textureBindings,{0:'runtime:switch-from'});
@@ -154,6 +156,16 @@ test('source gaps fail before any draw; draw failures fail the paired publicatio
   assert.throws(()=>drawHomeSoftwareDialog(r,{}, {},dialog('close')),/unavailable/);assert.equal(r.calls.length,0);
  }
  const r=renderer();r.draw=()=>false;assert.throws(()=>drawHomeSoftwareDialog(r,{}, {},dialog('close')),/draw failed/);
+});
+
+test('malformed selected HOME glyph-size controls fail before drawing and recovery preserves the owner',()=>{
+ const source=structuredClone(packs),bank=source.messages.messages.menu_msbt_LZ,message=bank.messages[bank.labels.lau_dlg_quit0];
+ message.tokens.find(token=>token.group===1&&token.type===0&&token.control===14).arguments='zzzz';
+ const state=dialog('close'),owner=state.system.runtime.application,r=renderer(source);
+ assert.throws(()=>drawHomeSoftwareDialog(r,{}, {},state),/Invalid native glyph scale/);assert.equal(r.calls.length,0);
+ const escaped=escapeUnreadyNativeScreen(state,6500);
+ assert.equal(escaped.system.dialog,null);assert.equal(escaped.system.runtime.application,owner);
+ assert.equal(escaped.system.runtime.homeReturn,owner);assert.equal(escaped.system.runtime.instances[owner].suspended,true);
 });
 
 test('dialog readiness applies to unselected retained owners and recovery only cancels',()=>{

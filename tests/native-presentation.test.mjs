@@ -190,12 +190,13 @@ test('real HOME toolbar presses bind only the selected control', {skip:!availabl
 });
 
 test('message styles replace font metrics and spacing without interpreting unresolved words',()=>{
- const l=layout(),text={font:0,material:0,value:'original',size:[17,21],alignment:4,lineAlignment:0,characterSpacing:2,lineSpacing:3,topColor:[1,2,3,255],bottomColor:[4,5,6,255]};
+ const l=layout(),text={font:0,material:0,value:'original',size:[17,21],alignment:4,lineAlignment:0,characterSpacing:2,lineSpacing:3,topColor:[1,2,3,255],bottomColor:[4,5,6,255],glyphScaleSpans:[{start:0,end:8,scale:.5}]};
  l.roots[0].children[0].text=text;
  const style={fontScale:[.6,.8],characterSpacing:4,lineSpacing:-5,unresolvedWords:{0:999,12:2}};
  const posed=poseNativeLayout(l,{},[],{selected:{text:'styled',messageStyle:style}}),result=posed.roots[0].children[0].text;
  assert.deepEqual(api.nativeTextMetrics(result,{width:20,height:30}),{size:[12,24],characterSpacing:4,lineSpacing:-5});
  assert.equal(result.alignment,4);assert.equal(result.lineAlignment,0);assert.deepEqual(result.topColor,text.topColor);assert.equal(result.font,0);
+ assert.equal(result.glyphScaleSpans,undefined,'replacing source text clears stale inline-size controls unless the caller opts in');
  assert.equal(l.roots[0].children[0].text.value,'original');assert.equal(l.roots[0].children[0].text.messageStyle,undefined);
  result.messageStyle.fontScale[0]=9;assert.equal(style.fontScale[0],.6);
  assert.deepEqual(api.nativeTextMetrics(text,{width:20,height:30}),{size:[17,21],characterSpacing:2,lineSpacing:3});
@@ -223,6 +224,25 @@ test('HOME Power newline advances come from the exact group-1/type-0 scale spans
  assert.throws(()=>api.nativeMessageLineAdvanceScales(unbalanced,'menu_msbt_LZ','lau_press_pow_u1'),/Unbalanced native line scale/);
  const glyph=structuredClone(pack),scaled=glyph.messages.menu_msbt_LZ.messages[bank.labels.lau_press_pow_u1];scaled.tokens[2].text='\n x';scaled.text=scaled.tokens.map(token=>token.text??'').join('');
  assert.throws(()=>api.nativeMessageLineAdvanceScales(glyph,'menu_msbt_LZ','lau_press_pow_u1'),/Unsupported native scaled glyph/);
+});
+test('HOME dialog font controls decode balanced UTF-16 glyph-scale spans without consuming colour controls',()=>{
+ const pack=JSON.parse(readFileSync(resolve(resourceRoot,'packs/home/messages-and-loose.json'))),bank=pack.messages.menu_msbt_LZ;
+ assert.equal(bank.messages[bank.labels.lau_dlg_quit0].styleIndex,243);
+ assert.equal(bank.messages[bank.labels.lau_dlg_quit1].styleIndex,244);
+ assert.deepEqual(api.nativeMessageGlyphScaleSpans(pack,'menu_msbt_LZ','lau_dlg_quit0'),[{start:39,end:71,scale:.85}]);
+ assert.deepEqual(api.nativeMessageGlyphScaleSpans(pack,'menu_msbt_LZ','lau_dlg_quit1'),[{start:50,end:82,scale:.85}]);
+ assert.deepEqual(api.nativeMessageGlyphScaleSpans(pack,'menu_msbt_LZ','lau_dlg_quit8'),[]);
+
+ const nested={messages:{test:{labels:{mixed:0},messages:[{text:'A😀\r\nBCD',tokens:[
+  {text:'A😀\r\n'},{control:14,group:1,type:0,arguments:'3200'},{text:'B'},
+  {control:14,group:1,type:0,arguments:'5000'},{text:'C'},{control:15,group:1,type:0},
+  {text:'D'},{control:15,group:1,type:0},
+ ]}]}}};
+ assert.deepEqual(api.nativeMessageGlyphScaleSpans(nested,'test','mixed'),[{start:5,end:6,scale:.5},{start:6,end:7,scale:.8},{start:7,end:8,scale:.5}], 'nested controls restore the previous absolute size at UTF-16 token boundaries');
+ const invalid=structuredClone(nested);invalid.messages.test.messages[0].tokens[1].arguments='xx00';
+ assert.throws(()=>api.nativeMessageGlyphScaleSpans(invalid,'test','mixed'),/Invalid native glyph scale/);
+ const unbalanced=structuredClone(nested);unbalanced.messages.test.messages[0].tokens.pop();
+ assert.throws(()=>api.nativeMessageGlyphScaleSpans(unbalanced,'test','mixed'),/Unbalanced native glyph scale/);
 });
 test('native CLTS bounds skip an unallocated matrix without remapping to matrix zero',()=>{
  const l=layout(),m=material();m.name='animated';m.textureMatrices=[{translation:[.25,.5],rotation:0,scale:[1,1]}];l.materials=[m];

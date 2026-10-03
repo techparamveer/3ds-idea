@@ -32,7 +32,7 @@ async function loadPresentation(name, overrides = {}) {
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
   './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,homeSuspendedIconDisappeared,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx,_meta,_mode,_sleep,opacity)=>ctx.record('suspended-window',[opacity]);`),
-  './home-software-dialog':moduleUrl(`export {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles} from '${new URL('../src/os/home-software-dialog.ts',import.meta.url).href}';export const drawHomeSoftwareDialog=(_r,_top,bottom,state,icons)=>{if(globalThis.__testSoftwareDialogFailure)throw Error(globalThis.__testSoftwareDialogFailure);bottom.record('software-dialog',[state.system.dialog,icons]);return true;};`),
+  './home-software-dialog':moduleUrl(`import {drawHomeSoftwareDialog as actual} from '${new URL('../src/os/home-software-dialog.ts',import.meta.url).href}';export {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles} from '${new URL('../src/os/home-software-dialog.ts',import.meta.url).href}';export const drawHomeSoftwareDialog=(r,top,bottom,state,icons)=>{if(r?.packs?.messages)return actual(r,top,bottom,state,icons);if(globalThis.__testSoftwareDialogFailure)throw Error(globalThis.__testSoftwareDialogFailure);bottom.record('software-dialog',[state.system.dialog,icons]);return true;};`),
   './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame,exitFrame,intent)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame,exitFrame,intent]);};'),
   './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>globalThis.__testNativeSystemOverlayDrawn??false;'),
@@ -93,6 +93,22 @@ test('Camera close missing owner icon enters paired recovery without retiring th
   assert.equal(recovered.system.dialog,null);assert.equal(recovered.system.runtime.application,owner);
   assert.equal(recovered.system.runtime.instances[owner].suspended,true);assert.equal(screens.stockStatus(recovered),'ready');
  },{firmwarePatch:{renderer:{},titleIcons,titleDescriptions},screenOptions:{drawSuspendedBackground:()=>true}});
+});
+
+test('malformed selected Camera warning control fails paired publication and recovery preserves the owner',async()=>{
+ const source=Object.fromEntries(['dialog','dialogmask','messages','sequence'].map(key=>[key,JSON.parse(readFileSync(new URL(`../public/os/firmware/10.7.0-32E/packs/home/${key==='messages'?'messages-and-loose':key}.json`,import.meta.url)))]));
+ const bank=source.messages.messages.menu_msbt_LZ,message=bank.messages[bank.labels.lau_dlg_quit0];
+ message.tokens.find(token=>token.group===1&&token.type===0&&token.control===14).arguments='zzzz';
+ const titleId='0004001000022400',titleIcons=new Map([[titleId,{}]]),titleDescriptions=new Map([[titleId,'Nintendo 3DS Camera']]);
+ await withScreens(({paint,screens})=>{
+  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+  const state=reduceSystem(camera,'back',6400),owner=state.system.runtime.application;
+  paint(state);assert.equal(screens.stockStatus(state),'error');assert.match(String(screens.stockFailure()),/Invalid native glyph scale/);
+  assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.instances[owner].suspended,true);
+  const recovered=escapeUnreadyNativeScreen(state,6500);paint(recovered);
+  assert.equal(recovered.system.dialog,null);assert.equal(recovered.system.runtime.application,owner);
+  assert.equal(recovered.system.runtime.instances[owner].suspended,true);assert.equal(screens.stockStatus(recovered),'ready');
+ },{firmwarePatch:{renderer:{packs:source,diagnostics:[],draw:()=>true},titleIcons,titleDescriptions},screenOptions:{drawSuspendedBackground:()=>true}});
 });
 
 test('retired-owner footer return paints HOME without suspended capture or closing dialog',async()=>{

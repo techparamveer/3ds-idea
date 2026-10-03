@@ -15,6 +15,7 @@ export type FontManifest = {
 };
 
 export type NativeCursorAdvance={index:number;advance:number};
+export type NativeTextScaleSpan={start:number;end:number;scale:number};
 export type NativeGlyphQuad={glyph:Glyph;x:number;y:number;width:number;height:number;right?:number;bottom?:number};
 /** Bounded NW writer flags 0x100 (middle-left) and 0x111 (middle-center):
  * one line, automatic line alignment and no added character spacing. */
@@ -191,8 +192,53 @@ export class BitmapFont {
 
   /** CLYT font size is a two-axis native cell size, not a CSS font size. */
   drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
-    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false,lineAdvanceScales?:readonly number[],multilineBlockOrigin?:'writer-0x110'|'writer-0x111') {
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false,lineAdvanceScales?:readonly number[],multilineBlockOrigin?:'writer-0x110'|'writer-0x111',glyphScaleSpans?:readonly NativeTextScaleSpan[]) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
+    if(glyphScaleSpans?.length){
+      if(cursorAdvances.length||sourceSize||sourceTopLeftSampling||lineAdvanceScales||multilineBlockOrigin||lcdBottomEdge||rasterPhase[0]!==0||rasterPhase[1]!==0)throw new Error('Unsupported native scaled glyph writer combination');
+      const boundaries=new Set([0]);
+      for(let at=0;at<value.length;){
+        if(value[at]==='\r'&&value[at+1]==='\n')at+=2;
+        else at+=String.fromCodePoint(value.codePointAt(at)!).length;
+        boundaries.add(at);
+      }
+      let previousEnd=0;
+      for(const span of glyphScaleSpans){
+        if(!Number.isInteger(span.start)||!Number.isInteger(span.end)||span.start<previousEnd||span.end<=span.start||span.end>value.length||!boundaries.has(span.start)||!boundaries.has(span.end)||!Number.isFinite(span.scale)||span.scale<=0)throw new Error('Invalid native text scale span');
+        previousEnd=span.end;
+      }
+      const scaleAt=(index:number)=>glyphScaleSpans.find(span=>index>=span.start&&index<span.end)?.scale??1;
+      type ScaledGlyph={glyph:Glyph|null;index:number;scale:number};
+      const lines:ScaledGlyph[][]=[],lineStarts:number[]=[],newlineScales:number[]=[];let line:ScaledGlyph[]=[],at=0;
+      lineStarts.push(0);
+      while(at<value.length){
+        if(value[at]==='\r'||value[at]==='\n'){
+          const length=value[at]==='\r'&&value[at+1]==='\n'?2:1;
+          lines.push(line);line=[];newlineScales.push(scaleAt(at));at+=length;lineStarts.push(at);continue;
+        }
+        const char=String.fromCodePoint(value.codePointAt(at)!),scale=scaleAt(at);
+        line.push({glyph:this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback,index:at,scale});at+=char.length;
+      }
+      lines.push(line);
+      const lineCellScales=lines.map((glyphs,row)=>Math.max(scaleAt(lineStarts[row]),...glyphs.map(entry=>entry.scale)));
+      const advances=newlineScales.map(scale=>(this.manifest.lineFeed??this.manifest.height)*sy*scale+lineSpacing);
+      const blockHeight=advances.reduce((sum,advance)=>sum+advance,size[1]*lineCellScales.at(-1)!);
+      const vertical=Math.floor(alignment/3),y0=vertical===1?height/2-Math.ceil(blockHeight/2):vertical*(height-blockHeight)/2;
+      const widths=lines.map(glyphs=>glyphs.reduce((sum,entry)=>sum+(entry.glyph?.advance??0)*sx*entry.scale+spacing,0)-(glyphs.length?spacing:0));
+      const blockWidth=Math.max(0,...widths),draws:{glyph:Glyph;x:number;y:number;width:number;height:number}[]=[];
+      let lineY=0;
+      lines.forEach((glyphs,row)=>{
+        const runWidth=widths[row],horizontal=lineAlignment===0?alignment%3:lineAlignment-1;
+        let x=horizontal===1&&alignment%3===1?width/2-Math.ceil(runWidth/2):(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
+        for(const entry of glyphs){const glyph=entry.glyph;
+          if(glyph?.width&&(!inkRange||entry.index>=inkRange[0]&&entry.index<inkRange[1]))draws.push({glyph,x:x+glyph.left*sx*entry.scale,y:y0+lineY,width:glyph.width*sx*entry.scale,height:glyph.height*sy*entry.scale});
+          x+=(glyph?.advance??0)*sx*entry.scale+spacing;
+        }
+        lineY+=advances[row]??0;
+      });
+      for(const draw of this.manifest.colorMode==='luminance-alpha'?sourceSheetBatches(draws):draws){const glyph=draw.glyph;c.drawImage(this.sheets[glyph.sheet],glyph.x,glyph.y,glyph.width,glyph.height,draw.x,draw.y,draw.width,draw.height);}
+      return;
+    }
     let sourceOffset=0;
     const selected:boolean[][]=[];
     const lines=value.split(/(\r\n|\r|\n)/).filter((line,i)=>{if(i%2){sourceOffset+=line.length;return false;}

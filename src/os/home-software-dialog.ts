@@ -1,4 +1,4 @@
-import {nativeMessageOverride,nativeMessageColorSpans,type AnimationBinding,type NativePixels,type PaneOverrides} from './native-layout.ts';
+import {nativeMessageOverride,nativeMessageColorSpans,nativeMessageGlyphScaleSpans,type AnimationBinding,type NativePixels,type PaneOverrides} from './native-layout.ts';
 import type {NativeLayoutRenderer} from './native-renderer.ts';
 import type {MenuState} from './state.ts';
 import {softwareDialogPressed} from './stock-screen-layout.ts';
@@ -49,7 +49,8 @@ export function drawHomeSoftwareDialog(renderer:NativeLayoutRenderer,top:CanvasR
  };
  const titles=homeSoftwareDialogTitles(state)!,switching=titles.length===2;
  // Only this native pair has a captured no-warning policy; other switches retain their warning.
- const body=text(switching&&titles[0]==='health-safety'&&titles[1]==='camera'?'lau_dlg_quit8':switching?'lau_dlg_quit1':'lau_dlg_quit0');
+ const bodyLabel=switching&&titles[0]==='health-safety'&&titles[1]==='camera'?'lau_dlg_quit8':switching?'lau_dlg_quit1':'lau_dlg_quit0';
+ const body={...text(bodyLabel),glyphScaleSpans:nativeMessageGlyphScaleSpans(renderer.packs.messages,'menu_msbt_LZ',bodyLabel)};
  const headerName=switching?'LncDlgIcon_D_01':'LncDlgIcon_D_00';
  if(!renderer.packs.sequence?.layouts[headerName])throw Error(`Native software dialog header unavailable: ${headerName}`);
  if(!icons||icons.length!==titles.length||icons.some(icon=>!icon||icon.width!==48||icon.height!==48||icon.data.length!==48*48*4))throw Error('Native software dialog icons unavailable');
@@ -58,7 +59,7 @@ export function drawHomeSoftwareDialog(renderer:NativeLayoutRenderer,top:CanvasR
   if(!renderer.packs[pack]?.layouts[name])throw Error(`Native software dialog layout unavailable: ${pack}/${name}`);
   for(const clip of clips)if(!renderer.packs[pack].animations[`${name}_${clip}`])throw Error(`Native software dialog animation unavailable: ${name}_${clip}`);
  }
- const note='Software close/switch uses source Dlg_A_D_02 and LncDlgIcon_D_00/01 assemblies at settled poses. Camera close and Health-to-Camera are captured; other title headers are adaptations pending comparison. Per-title policy, inline MSBT size controls, native input, motion and audio remain unverified.';
+ const note='Software close/switch uses source Dlg_A_D_02 and LncDlgIcon_D_00/01 assemblies at settled poses. HOME dialog warning glyph size is decoded from MSBT controls; block positioning remains an adaptation pending recapture. Camera close and Health-to-Camera are captured; other title headers are adaptations pending comparison. Per-title policy, native input, motion and audio remain unverified.';
  if(!renderer.diagnostics.includes(note))renderer.diagnostics.push(note);
  const bindings:AnimationBinding[]=[{name:'Dlg_A_D_02_FadeIn',frame:20},{name:'Dlg_A_D_02_Select',frame:0}];
  const pressed=softwareDialogPressed(s.input.touch);

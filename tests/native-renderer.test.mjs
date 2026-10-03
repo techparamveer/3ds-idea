@@ -311,6 +311,29 @@ test('color spans draw every run against the complete message and reject invalid
  }finally{globalThis.document=previous;}
 });
 
+test('glyph scale spans share full-message color masks, isolate cache keys and reject malformed ranges',()=>{
+ const previous=globalThis.document,calls=[];
+ globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.clearRect=()=>{};ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};
+ try{
+  const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+  const font={manifest,drawNative(_ctx,value,...args){const scales=args[16];if(scales?.some(span=>span.end>value.length))throw Error('Invalid native text scale span');calls.push({value,range:args[10],scales});}};
+  const text={value:'A\nBC',font:0,material:0,size:[16,16],alignment:4,lineAlignment:0,lineSpacing:0,characterSpacing:0,topColor:[1,2,3,255],bottomColor:[1,2,3,255]};
+  const source={...layout,fonts:['shared'],roots:[{...pane,name:'copy',kind:'txt1',size:[40,40],picture:undefined,text}]};
+  const renderer=new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['shared',font]])),ctx=canvas().getContext();ctx.drawImage=()=>{};
+  const spans=[{start:2,end:4,scale:.85}],colours=[{start:2,end:4,color:[60,60,60,255]}];
+  assert.equal(renderer.draw(ctx,'test','test',{overrides:{copy:{glyphScaleSpans:spans,colorSpans:colours}}}),true);
+  assert.deepEqual(calls,[{value:'A\nBC',range:[0,2],scales:spans},{value:'A\nBC',range:[2,4],scales:spans}]);
+  calls.length=0;
+  assert.equal(renderer.draw(ctx,'test','test',{overrides:{copy:{glyphScaleSpans:spans,colorSpans:colours}}}),true);
+  assert.deepEqual(calls,[],'identical scaled text reuses its cached raster');
+  assert.equal(renderer.draw(ctx,'test','test',{overrides:{copy:{colorSpans:colours}}}),true);
+  assert.deepEqual(calls,[{value:'A\nBC',range:[0,2],scales:undefined},{value:'A\nBC',range:[2,4],scales:undefined}]);
+  assert.equal(renderer.draw(ctx,'test','test',{overrides:{copy:{glyphScaleSpans:[{start:2,end:5,scale:.85}]}}}),false);
+  assert.match(renderer.diagnostics.at(-1),/Invalid native text scale span/);
+  renderer.dispose();
+ }finally{globalThis.document=previous;}
+});
+
 test('Power multiline metrics reach the font writer only through explicit pane overrides',()=>{
  const previous=globalThis.document,calls=[];
  globalThis.document={createElement(){const c=canvas(),ctx=c.getContext();ctx.clearRect=()=>{};ctx.getImageData=(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)});return c;}};

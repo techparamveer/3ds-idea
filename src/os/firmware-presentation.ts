@@ -310,6 +310,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const applicationFooterExit=homeApplicationTransitionFooterExit(applicationTransition,reduced);
   const applicationFooterReturn=homeApplicationTransitionFooterReturn(applicationTransition,reduced);
   const ordinaryCloseDialog=!!homeSoftwareDialogKey(state)&&state.system?.dialog==='close';
+  const ordinaryCloseTransition=!!homeSoftwareClosingDialogKey(state)
+   &&applicationTransition?.intent.kind==='close'&&!applicationFooterReturn;
+  const retainedCloseDecide=ordinaryCloseDialog||ordinaryCloseTransition;
   // Captured switch dialogs have no footer; use the source's settled out pose.
   const closingSwitch=homeSoftwareClosingDialogKey(state)&&sampleSystemHomeApplicationTransition(state)?.intent.kind==='switch';
   const footerPose=homeSoftwareSwitchTitles(state)||closingSwitch
@@ -317,14 +320,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    :applicationFooterExit??applicationFooterReturn??selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
   if(applicationFooterExit&&!renderer.packs.launcher.animations[applicationFooterExit.clip])throw Error('Native software-close footer exit unavailable');
   if(applicationFooterReturn&&!renderer.packs.launcher.animations[applicationFooterReturn.clip])throw Error('Native software-close footer return unavailable');
-  if((ordinaryCloseDialog||applicationFooterExit)&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native software-close footer Decide unavailable');
+  if(retainedCloseDecide&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native software-close footer Decide unavailable');
   // Capture-fit direct binding keeps the compact ChangeDw departure on its
   // authored scene member, preserving the separately settled button channels.
   const bindings=applicationFooterExit
    ?[binding('LncBtmBtn_02_SceneIn',15),binding('LncBtmBtn_02_Decide',5,['G_BtnB_L_03']),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
    :applicationFooterReturn
     ?[binding('LncBtmBtn_02_SceneIn',15),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
-    :ordinaryCloseDialog
+    :retainedCloseDecide
      ?[binding(footerPose.clip,footerPose.frame),binding('LncBtmBtn_02_Decide',5,['G_BtnB_L_03'])]
      :[binding(footerPose.clip,footerPose.frame)];
   const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);

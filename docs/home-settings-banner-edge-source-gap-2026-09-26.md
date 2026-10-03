@@ -86,3 +86,56 @@ operated. No new browser comparison is requested for this unchanged runtime.
 Any later visible candidate must first repeat the exact named diagnostic pair
 with an empty mask, then compare another recorded native phase before claiming
 general improvement. All 190 banner differences remain unexplained.
+
+## Compositing A/B rejection - 3 October 2026
+
+At runtime `d53cbe32` / documentation base `bb6ea378`, the coordinator rendered
+the current `createFirmwareBanner` in a private headed-browser fixture, with
+the existing independent yaw304 / COMMON303 pose and background Loop337.
+The baseline body rectangle `(0,28,400,184)` is byte-identical to the preserved
+production capture above. This reproduces all 190 banner residuals without
+new phase fitting, geometry changes or reference-pixel substitution.
+
+One private candidate renders the decoded background immediately before
+Frame/primary into the same GPU target, without an intervening clear or
+readback, then transfers that result without overlay unpremultiplication.
+All source resources, poses, materials and stencil settings remain unchanged.
+This is an isolated source-render experiment, not a production modification.
+
+| Fixed region | Baseline pixels above 2 | Candidate pixels above 2 |
+| --- | ---: | ---: |
+| Wrench `(140,32,110,101)` | 3 | 3 |
+| Icons `(60,133,280,43)` | 187 | 189 |
+| Title `(80,176,245,36)` | 0 | 0 |
+| Body `(0,28,400,184)` | 190 | 192 |
+
+Candidate-versus-baseline maximum channel change is 1 throughout the body.
+The proposed transfer change therefore does not explain the icon maximum8
+or wrench maximum54 residuals and is **rejected as a fix**. Do not repeat this
+candidate or promote it to runtime without materially new evidence. The
+remaining gap is still fragment/interpolation/raster coverage or native pose
+precision; no particular cause or correction is established.
+
+The coordinator inspected the raw renders and native/baseline/candidate/diff
+sheet. HUD/footer are deliberately absent from this source fixture, not
+masked away from a whole-scenario claim. No fresh Azahar session, paired lower
+LCD, input, timing or audio acceptance was performed; the native target is
+the unchanged PNG identified above. Native whole-scenario status remains fail.
+All native assets and existing adaptations remain unchanged.
+
+Private artifact directory:
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/banner-composition-20261003/`.
+`serve.mjs` records exact consumed source/resource hashes in `inputs.json`;
+`compare.mjs` records both PNG identities, empty-mask fixed-ROI statistics and
+limits in `report.json`. Report SHA-256
+`ceaedec58d8b1cf3de98735de0fd08839488bc62786c5e85ba7ae4326f8fe067`;
+sheet SHA-256
+`aead11d433cd7b8ac74623b141acff2f7b0ab087a75e713cbfe8d5c48a4acecc`.
+Candidate source SHA-256
+`3d5dc97e8c235ca9e09968b19ce2f16a29e6003cf7c9bb45c5d5b5ddc407880b`.
+Independent GPT-5.6 Sol/high review verifies the one-statement injection,
+byte-identical baseline body and fully opaque outputs. The experiment uses
+two ordered render calls, not one globally sorted scene traversal; it isolates
+the intermediate transfer, not every possible native depth/order difference.
+Only documentation is integrated. Tests/build/shader checks are not rerun for
+this rejected private experiment; relative links and diff whitespace are checked.

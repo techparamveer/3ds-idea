@@ -15,6 +15,12 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+Latest diagnostic [Settings banner compositing A/B](home-settings-banner-edge-source-gap-2026-09-26.md#compositing-ab-rejection---3-october-2026)
+rejects combining background and primary into one GPU target as a residual fix:
+the current fixed-pose body exactly reproduces preserved production, while
+native residuals change190->192. Runtime remains `d53cbe32`; do not repeat this
+experiment or infer a timing/whole-scenario pass. No native assets changed.
+
 Latest runtime [density re-entry correction](home-density-reentry-2026-10-03.md),
 `d53cbe32`, restores the native-captured same-button press and release after
 an excursion. Original eligibility and layout ownership prevent transfer;

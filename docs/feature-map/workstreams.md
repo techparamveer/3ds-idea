@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Switch Closing - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in new owned
+`3ds-home-switch-closing-dialog-20261003` / `codex/home-switch-closing-dialog-20261003`
+at base `31d6f94e`: worker `423f8f37` -> integration `65d75466`. Reserved
+HOME dialog selection/composition/footer and focused tests only; no assets,
+duration, controller or audio changes. Existing comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence only. Helper
+`switch_closing_review` independently passes116 focused tests with no findings.
+All delegated work uses GPT-5.6 Sol/high, no service-tier claim. Coordinator
+alone operates isolated muted Azahar and production Chrome on the authorized
+whole Mac. [Source identities, evidence and residuals](../home-switch-closing-2026-10-03.md).
+
 ## Open Footer Residual - 3 October 2026
 
 Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses new same-database

@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [settled Open footer investigation](home-open-footer-residual-2026-10-03.md)
+Latest [switch closing correction](home-switch-closing-2026-10-03.md),
+`65d75466`, restores the missing decoded lower closing dialog/mask after
+Health-to-Camera confirmation, hides the footer, and preserves the compact
+suspended Health window. Switch still skips ordinary-close exit/return stages.
+Lower terminal residual improves76,304 ->91 pixels above delta2; full1884
+tests/typecheck/build pass. Source timing and whole-scenario fidelity remain
+unaccepted. Preserve the implemented state and owner guards; next is the
+missing dark retained upper backing during confirmed switch, then Camera's
+ordinary-close confirmation header.
+
+Earlier [settled Open footer investigation](home-open-footer-residual-2026-10-03.md)
 confirms54 edge pixels above delta2/max5 at unchanged `ea6265de`. A retained
 capture candidate is rejected because maximum error and MAE worsen; no runtime
 change. Stop this palette/filter path pending discriminating capture evidence,

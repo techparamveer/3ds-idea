@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `ea6265de` (guarded shutdown terminal publication),
+Current runtime checkpoint: `65d75466` (native switch-closing presentation),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,15 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Switch closing](../home-switch-closing-2026-10-03.md) now keeps the source
+lower dialog/mask visible after confirmation, hides the footer and preserves
+the suspended upper window. Fresh native capture identified this missing state;
+no controller duration or ordinary-close tail was changed. Next captured
+defect is the missing dark retained upper backing during confirmed switch,
+then the icon header on Camera's ordinary-close confirmation, followed by
+remaining switch/reveal timing and power-on. Do not repeat completed footer
+palette research or redesign existing app screens.
 
 [Shutdown publication](../home-shutdown-publication-2026-10-03.md) now preserves
 the native black endpoint under stalls, suspension and context restoration.
@@ -142,7 +151,7 @@ modal-button portion of items 1-2/4 is implemented and browser-inspected;
 | Order | Feature IDs / owner | Concrete unfinished UI or interaction | Bounded deliverable and completion check |
 | --- | --- | --- | --- |
 | 1 | L-06 / Lifecycle | Source close entry, footer departure, Open return and banner reacquisition implemented through `c01e1219` | [Banner-return comparison](../home-banner-return-2026-10-03.md) records load-sensitive onset and remaining relative pose/epoch gaps. Correct measured footer pixels and exact input/motion/audio; preserve owner/publication barriers and completed stages. |
-| 2 | L-07 / Lifecycle | Confirmed switch retains old owner through AppQuit then launches frozen target; intentionally no ordinary-close exit phase | [Closing-exit contract](../home-closing-fade-2026-10-02.md) preserves switch ownership separately. Existing Work->About browser route passes; native timing and departure/reveal still need matched capture. Preserve cancel/owner guards and change only captured unfinished states. |
+| 2 | L-07 / Lifecycle | Confirmed switch now shows decoded closing dialog/mask through AppQuit, retains old owner then launches frozen target; intentionally no ordinary-close exit phase | [Switch-closing correction](../home-switch-closing-2026-10-03.md) replaces the captured missing lower state. Next fix the missing dark retained upper backing, then Camera ordinary-close icon header. Preserve cancel/owner guards and compact icon. Exact native timing and departure/reveal remain open. |
 | 3 | L-01, L-03 / Lifecycle | Power-on uses adapted 3000 ms boot/final 350 ms reveal; shutdown uses source poses with guarded terminal publication through `ea6265de` | Native black and Power contact/re-entry endpoints are compared. Next off -> power-on -> paired LCD reveal -> HOME, exact epochs, backlight/LCD order and input gates. Preserve verified ownership and terminal publication; no decorative boot screen. |
 | 4 | H-14, L-06, L-07 / Lifecycle + coordinator | Source Bounding_00/01 rectangles and Select press feedback at `f17a1007`; same-button ownership preserved | Tests and muted Sidecar replay pass, including byte-identical dialog crop after cross-drag. Native input/default focus/motion comparison remains open. Physical, keyboard and touch keep the same actions. |
 | 5 | H-03..H-10, H-14 / HOME | Navigation exists; button feedback and edge/cancel behavior need a complete visible interaction pass | Select/open with touch and A; B/Back; HOME/resume; toolbar; density ends; paging; footer variants; folder enter/close; pickup/drop/cancel. Repair captured failures only, preserving existing visual design. Run both physical-model and touchscreen routes. |

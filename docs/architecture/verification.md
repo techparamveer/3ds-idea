@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Switch-closing verification](../home-switch-closing-2026-10-03.md) separates
+confirmation, Cancel/repeat and confirmed closing. Compare a predeclared
+AppQuit20 sample with native closing without claiming shared epochs; retain
+compact-owner and ordinary-close controls. Native Camera Close requires an
+extra confirmation, so distinguish a harness cleanup timeout from a runtime
+switch failure. Switch uses its own source message and skips ordinary-close
+exit/return phases; widened dialog readiness must not apply ordinary-close
+upper opacity to the retained switch window.
+
 [Banner-return verification](../home-banner-return-2026-10-03.md) distinguishes
 request, readiness, activation metadata and the first retained visible PNG.
 Close phase/frame-only capture keys can omit a second asynchronous paint of

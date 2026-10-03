@@ -15,7 +15,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest runtime [footer re-entry correction](home-footer-reentry-2026-10-03.md),
+Latest runtime [density re-entry correction](home-density-reentry-2026-10-03.md),
+`d53cbe32`, restores the native-captured same-button press and release after
+an excursion. Original eligibility and layout ownership prevent transfer;
+no asset, timing or other app design change. Full 1,949 tests, build and
+sequential typecheck pass. Outside-native pixels and whole fidelity remain open.
+Desktop/mobile after pairs restore Select and release at five rows; all eight
+density ROIs meet delta2, while every whole pair remains fail. Independent143
+checks and the completed17-pair browser regression replay pass.
+
+Earlier [footer re-entry correction](home-footer-reentry-2026-10-03.md),
 `632646d2`, fixes the fresh CTM-captured Manual -> Open -> Manual -> release
 mismatch. The original button regains held feedback and opens on release;
 cross-button/outside/cancelled contacts remain blocked. Full1944 tests and

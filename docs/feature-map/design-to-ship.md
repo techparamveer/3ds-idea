@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `632646d2` (HOME footer re-entry),
+Current runtime checkpoint: `d53cbe32` (HOME density re-entry),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,13 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Density re-entry](../home-density-reentry-2026-10-03.md) now preserves the
+captured held -> outside -> same-button return -> release outcome. Native
+initial held, returned held and released endpoints are captured; outside
+was missed and remains unpaired. Preserve the original-eligibility and
+non-transfer guards. This is distinct from the earlier stationary-hold
+non-repeat result. Native input/motion/audio and whole HOME pixels remain open.
 
 [Footer re-entry](../home-footer-reentry-2026-10-03.md) now has genuine native
 CTM held/outside/re-entered/released evidence. Manual reacquires its press

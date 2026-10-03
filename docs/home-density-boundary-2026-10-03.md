@@ -1,5 +1,10 @@
 # HOME Density Press Boundary - 3 October 2026
 
+Later [density re-entry evidence](home-density-reentry-2026-10-03.md) captures
+native initial/returned held states through CTM and corrects cancellation at
+`d53cbe32`. The held-state limitation below describes this earlier run only;
+exact cadence and whole-scenario acceptance remain open.
+
 ## Correction
 
 Runtime `f85e1396` integrates source worker `8bb6b249` from `a7826743`.

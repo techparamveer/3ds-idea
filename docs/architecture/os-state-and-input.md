@@ -445,3 +445,11 @@ slop and native-control queuing/timing are unchanged. This is a captured-input
 adaptation, not a second recognizer or recovered native controller. See
 [button/border delivery](../home-buttons-border-2026-10-02.md) and the later
 [native re-entry correction](../home-footer-reentry-2026-10-03.md).
+
+At `d53cbe32`, density-origin contacts likewise retain a `density` area across
+travel. `ownedHomeDensityContact` is shared by Select and release gating;
+the same action must be enabled in both the captured origin and current state,
+with matching panel, columns, container, context and target density. Retention
+does not authorize another toolbar, footer or grid target. Other chrome keeps
+its original slop cancellation. This is a separately native-observed input
+adaptation; see [density re-entry](../home-density-reentry-2026-10-03.md).

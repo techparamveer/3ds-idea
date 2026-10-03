@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Density Re-entry - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-density-reentry-20261003` / `codex/home-density-reentry-20261003`,
+base `165624e2`. Worker `08acf423` integrates as `d53cbe32`.
+Scope: density-origin contact ownership, shared Select/release guards and
+focused regression tests. Comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns only private
+`home-density-reentry-20261003/comparison/`; `density_reentry_review` supplies
+read-only independent review. All delegates use GPT-5.6 Sol/high; only the
+coordinator operates muted native/browser sessions.
+[Evidence and limits](../home-density-reentry-2026-10-03.md).
+
 ## Footer Re-entry - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

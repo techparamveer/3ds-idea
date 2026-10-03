@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `a655e4ed` (post-boot HUD/footer entry staging),
+Current runtime checkpoint: `e069925c` (fresh HOME primary after power cycle),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,12 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Banner restart](../home-entry-banner-2026-10-03.md) removes the retained
+pre-Off primary and passes repeated restart/cancel/sleep controls. Preserve it.
+Next captured defect is relative footer/banner timing: normal first new banner
+still appears while footer is entering, unlike native's settled footer. Source
+caller/epoch is untraced; no arbitrary delay or phase-fit acceptance.
 
 [HOME entry staging](../home-entry-staging-2026-10-03.md) now uses the delivered
 footer/HUD SceneIn tracks with a boot-relative HOME counter. Preserve the

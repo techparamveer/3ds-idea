@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+[Banner restart verification](../home-entry-banner-2026-10-03.md) first waits
+for an actually visible, settled selected primary before Off/On. Capture first
+HOME0, first chronological positive delta<=5 and first different active identity
+tuple `(generation, requestEpoch, activationEpoch)`; epoch alone can reset.
+Retain variable pre-Off fixtures as diagnostics, not interchangeable baselines.
+Empty masks and fixed native targets expose the still-failing footer completion
+at first banner. Repeat cancel/sleep/two restarts and ordinary close controls.
+
 [HOME entry verification](../home-entry-staging-2026-10-03.md) freezes the native
 first partial footer/HUD samples before corrected browser capture. Select the
 first actual HOME paint at relative update0, first in(0,14] and first in(20,40]

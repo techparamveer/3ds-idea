@@ -26,6 +26,13 @@ See [proposed improvements](proposed-improvements.md) for that remaining risk.
 
 ## State and resource owners
 
+An observed awake Off-to-boot boundary retires the HOME primary service,
+pending/active primary and readiness once per boot identity. Selection,
+global clock, wallpaper and monotonic scope survive; the next boundary creates
+a fresh scope, rejecting old tickets. Cancel/sleep/ordinary close do not reset.
+This capture-supported restart boundary does not establish native relative
+footer/banner timing. See [banner restart evidence](../home-entry-banner-2026-10-03.md).
+
 Boot composition withholds HUD/footer until HOME while retaining decoded
 base/chrome/grid/fade. This is a capture-supported phase adaptation; the native
 entry caller remains untraced. Terminal publication belongs to the scene,

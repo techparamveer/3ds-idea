@@ -1,5 +1,16 @@
 # Workstream Registry
 
+## Banner Restart - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-entry-banner-20261003` / `codex/home-entry-banner-20261003`,
+base `3543dcc9`. Worker `4d411790` integrates as `e069925c` in coordinator
+`3ds-home-fidelity-20261001`. Scope: primary reset, scene boot observation and
+focused tests. Helper `boot_staging_review` clears exact commit; comparator
+chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private frozen evidence.
+All delegates GPT-5.6 Sol/high. Coordinator alone operates muted GUI on the
+authorized Mac. [Evidence and remaining timing defect](../home-entry-banner-2026-10-03.md).
+
 ## HOME Entry Staging - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

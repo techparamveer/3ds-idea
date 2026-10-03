@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME entry staging](home-entry-staging-2026-10-03.md), `a655e4ed`,
+Latest [banner restart correction](home-entry-banner-2026-10-03.md), `e069925c`,
+removes the stale selected primary across Off/On. Fresh primary scope and
+existing loading/entrance now replay; global clock/background remain intact.
+Full1926 tests, build/typecheck and21 live functional controls pass. Normal
+banner still enters before footer completion; native ordering and all whole
+scenarios remain fail. Continue this captured timing gap, not another reset.
+
+Earlier [HOME entry staging](home-entry-staging-2026-10-03.md), `a655e4ed`,
 plays the decoded footer and delayed HUD SceneIn clips after boot instead of
 showing both settled immediately. Boot-relative ownership and live preemption
 are tested; native epoch/cadence and reduced endpoints remain adaptations.

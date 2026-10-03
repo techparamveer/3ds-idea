@@ -6,6 +6,7 @@ export const HOME_ENTRY_HUD_LAST_FRAME = 40 as const;
 export type HomeEntryPresentation = Readonly<{
   bootSince: number | null;
   startedAtUpdate: number | null;
+  footerTerminalAtUpdate: number | null;
 }>;
 
 export type HomeEntrySample = Readonly<{
@@ -14,7 +15,14 @@ export type HomeEntrySample = Readonly<{
   hudSceneInFrame: number | null;
 }>;
 
-const EMPTY: HomeEntryPresentation = Object.freeze({ bootSince: null, startedAtUpdate: null });
+export type HomeEntryFooterReadiness = Readonly<{
+  bootSince: number | null;
+  terminalAtUpdate: number | null;
+}>;
+
+const EMPTY: HomeEntryPresentation = Object.freeze({
+  bootSince: null, startedAtUpdate: null, footerTerminalAtUpdate: null,
+});
 const emptySample = (presentation: HomeEntryPresentation = EMPTY): HomeEntrySample => Object.freeze({
   presentation, footerSceneInFrame: null, hudSceneInFrame: null,
 });
@@ -58,7 +66,9 @@ export function sampleHomeEntryPresentation(
       if (updateCount < current.startedAtUpdate) throw new RangeError('HOME entry update clock moved backwards');
       return emptySample(current);
     }
-    return emptySample(Object.freeze({ bootSince: system.since, startedAtUpdate: updateCount }));
+    return emptySample(Object.freeze({
+      bootSince: system.since, startedAtUpdate: updateCount, footerTerminalAtUpdate: null,
+    }));
   }
 
   if (!isOrdinaryRootHome(state)) return emptySample();
@@ -66,11 +76,36 @@ export function sampleHomeEntryPresentation(
 
   const elapsed = updateCount - current.startedAtUpdate;
   if (elapsed < 0) throw new RangeError('HOME entry update clock moved backwards');
-  if (elapsed > HOME_ENTRY_HUD_LAST_FRAME) return emptySample();
+  if (elapsed > HOME_ENTRY_HUD_LAST_FRAME && current.footerTerminalAtUpdate !== null) return emptySample(current);
   return Object.freeze({
     presentation: current,
     footerSceneInFrame: reduced ? HOME_ENTRY_FOOTER_LAST_FRAME
-      : elapsed <= HOME_ENTRY_FOOTER_LAST_FRAME ? elapsed : null,
-    hudSceneInFrame: reduced ? HOME_ENTRY_HUD_LAST_FRAME : elapsed,
+      : elapsed <= HOME_ENTRY_FOOTER_LAST_FRAME ? elapsed
+      : current.footerTerminalAtUpdate === null ? HOME_ENTRY_FOOTER_LAST_FRAME : null,
+    hudSceneInFrame: reduced ? HOME_ENTRY_HUD_LAST_FRAME
+      : elapsed <= HOME_ENTRY_HUD_LAST_FRAME ? elapsed : null,
   });
+}
+
+/** Record only a successful live paired-screen draw of the source footer
+ * terminal. A skipped clock interval therefore cannot release a dependent
+ * banner before frame 14 has actually been painted. */
+export function acknowledgeHomeEntryFooterTerminal(
+  sample: HomeEntrySample,
+  state: MenuState,
+): HomeEntryPresentation {
+  const system = state.system, current = sample.presentation;
+  if (!system || system.sleeping || !isOrdinaryRootHome(state)
+    || current.bootSince !== system.since || current.startedAtUpdate === null
+    || sample.footerSceneInFrame !== HOME_ENTRY_FOOTER_LAST_FRAME) {
+    throw new Error('Invalid HOME entry footer terminal receipt');
+  }
+  const updateCount = validUpdateCount(system.homeClock.updateCount);
+  if (updateCount < current.startedAtUpdate) throw new RangeError('HOME entry update clock moved backwards');
+  if (current.footerTerminalAtUpdate !== null) return current;
+  return Object.freeze({ ...current, footerTerminalAtUpdate: updateCount });
+}
+
+export function getHomeEntryFooterReadiness(current: HomeEntryPresentation): HomeEntryFooterReadiness {
+  return Object.freeze({ bootSince: current.bootSince, terminalAtUpdate: current.footerTerminalAtUpdate });
 }

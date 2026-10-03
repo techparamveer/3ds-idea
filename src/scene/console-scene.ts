@@ -85,7 +85,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let verificationBannerFrame:number|undefined,verificationBannerSkeletalFrame:number|undefined,verificationHealthBannerFrame:number|undefined;
   const bannerClock=()=>({generation:bannerGeneration,updateCount:state.system!.homeClock.updateCount});
   let bannerHost=createHomeBannerHost(bannerClock(),{managerInhibited:true,sceneInhibited:true,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});
-  let bannerObservedPhase=state.system!.phase,lastBannerRestartBootSince:number|null=null;
+  let bannerObservedPhase=state.system!.phase,lastBannerRestartBootSince:number|null=null,bannerEntryFooterBootSince:number|null=null;
   let bannerLabelFailure=false;
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
   const nativePrimaryAvailable=(selection:HomeBannerHostSelection)=>{const value=folderBanner.status();return selection.kind==='default'?value.defaultReady&&!value.defaultFailure:selection.kind==='app'?value.settingsReady&&!value.settingsFailure:selection.kind==='toolbar'?selection.focus===2?value.friendReady&&!value.friendFailure:selection.focus===3&&value.newsReady&&!value.newsFailure:selection.kind==='clear'||nativeFolderAvailable();};
@@ -248,7 +248,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let lastBootPaintFrame:number|null=null,lastBootPresentedFrame:number|null=null;
   let lastBootPaintIdentity:BootTerminalIdentity|null=null,lastBootPresentedIdentity:BootTerminalIdentity|null=null;
   let lastShutdownPaintIdentity:ShutdownTerminalIdentity|null=null,lastShutdownPresentedIdentity:ShutdownTerminalIdentity|null=null;
-  const revokeTerminalPublications=()=>{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;};
+  const revokeTerminalPublications=()=>{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens.revokeHomeEntryFooterCandidate();};
   function recordScreenPaint(elapsedMs:number,nativeSystem=false){
     const system=state.system!;lastBootPaintFrame=system.phase==='boot'?bootRevealFrame(elapsedMs-system.since,reduced):null;
     lastBootPaintIdentity=nativeSystem?bootTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
@@ -270,8 +270,11 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // boundary and intentionally does not apply to Power cancel or sleep.
     const restartPrimary=bannerObservedPhase==='off'&&system.phase==='boot'&&!system.sleeping&&system.since!==lastBannerRestartBootSince;
     bannerObservedPhase=system.phase;
-    if(restartPrimary){bannerHost=resetHomeBannerPrimary(bannerHost);lastBannerRestartBootSince=system.since;}
-    const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:true,resourceReady:bannerHost.inputs.resourceReady};
+    if(restartPrimary){bannerHost=resetHomeBannerPrimary(bannerHost);lastBannerRestartBootSince=system.since;bannerEntryFooterBootSince=system.since;}
+    const entryFooter=screens.homeEntryFooterReadiness();
+    if(bannerEntryFooterBootSince!==null&&(entryFooter.bootSince===bannerEntryFooterBootSince&&entryFooter.terminalAtUpdate!==null
+      ||system.phase!=='boot'&&entryFooter.bootSince!==bannerEntryFooterBootSince))bannerEntryFooterBootSince=null;
+    const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:bannerEntryFooterBootSince!==null,nativeWorkerReady:true,resourceReady:bannerHost.inputs.resourceReady};
     bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:selection??(switchPresentation?{kind:'app',id:system.pending!}:system.homeControls?undefined:resolveHomeBannerHostSelection(state)),inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
     // Retain both outgoing and incoming requests until the manager retires
@@ -529,6 +532,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();publishProjectedTargets(plan.shadows);
     renderer.render(scene,camera);frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
     const validPublication=!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost();
+    if(validPublication)screens.presentHomeEntryFooterTerminal();else screens.revokeHomeEntryFooterCandidate();
     lastBootPresentedIdentity=validPublication?lastBootPaintIdentity:null;
     lastShutdownPresentedIdentity=validPublication?lastShutdownPaintIdentity:null;
     if(diagnostics)host.dataset.screenPresented=JSON.stringify({at:performance.now(),frame,paint:JSON.parse(host.dataset.screenPaint??'null')});

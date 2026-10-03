@@ -5,7 +5,7 @@ import test from 'node:test';
 const source = readFileSync(new URL('../src/scene/console-scene.ts', import.meta.url), 'utf8');
 
 test('only an observed Off to awake boot restarts the retained HOME primary once per boot identity', () => {
-  assert.match(source, /let bannerObservedPhase=state\.system!\.phase,lastBannerRestartBootSince:number\|null=null;/);
+  assert.match(source, /let bannerObservedPhase=state\.system!\.phase,lastBannerRestartBootSince:number\|null=null,bannerEntryFooterBootSince:number\|null=null;/);
   assert.match(source, /const restartPrimary=bannerObservedPhase==='off'&&system\.phase==='boot'&&!system\.sleeping&&system\.since!==lastBannerRestartBootSince;/);
   const decision = source.indexOf("const restartPrimary=bannerObservedPhase==='off'");
   const observe = source.indexOf('bannerObservedPhase=system.phase;', decision);
@@ -21,4 +21,20 @@ test('warm boot reset preserves the existing host generation and never recreates
   assert.match(observer, /resetHomeBannerPrimary\(bannerHost\)/);
   assert.doesNotMatch(observer, /createHomeBannerHost/);
   assert.doesNotMatch(observer, /bannerGeneration=/);
+});
+
+test('the restarted primary uses the paired-screen footer receipt as its existing load gate', () => {
+  const observer = source.slice(source.indexOf('function observeFolderBanner'), source.indexOf('function advanceBeforeMutation'));
+  assert.match(observer, /bannerEntryFooterBootSince=system\.since/);
+  assert.match(observer, /const entryFooter=screens\.homeEntryFooterReadiness\(\)/);
+  assert.match(observer, /entryFooter\.bootSince===bannerEntryFooterBootSince&&entryFooter\.terminalAtUpdate!==null/);
+  assert.match(observer, /loadInhibited:bannerEntryFooterBootSince!==null/);
+  assert.doesNotMatch(observer, /setTimeout|performance\.now|HOME_ENTRY_FOOTER_LAST_FRAME/,
+    'scene policy must consume the shared owner receipt rather than inventing a delay or frame clock');
+});
+
+test('only a visible context-live render promotes the footer terminal candidate', () => {
+  assert.match(source, /if\(validPublication\)screens\.presentHomeEntryFooterTerminal\(\);else screens\.revokeHomeEntryFooterCandidate\(\);/);
+  assert.match(source, /const revokeTerminalPublications=\(\)=>\{[^}]*screens\.revokeHomeEntryFooterCandidate\(\);\};/);
+  assert.match(source, /const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);/);
 });

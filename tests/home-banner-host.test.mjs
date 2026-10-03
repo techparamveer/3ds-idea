@@ -361,6 +361,12 @@ test('entry reset retires only the primary and reacquires with a noncolliding sc
   assert.equal(restarted.clock.updateCount, before.clock.updateCount);
   assert.deepEqual(background(restarted), previousBackground);
 
+  restarted = at(restarted, restarted.clock.updateCount, { inputs: inputs({
+    loadInhibited: true, resourceReady: replacement.resourceTicket,
+  }) });
+  restarted = step(restarted, 20);
+  assert.equal(view(restarted).status, 'pending'); assert.equal(view(restarted).stage, 'gate');
+  assert.equal(view(restarted).waitUpdates, 0, 'entry receipt gate freezes the existing native wait counter');
   restarted = at(restarted, restarted.clock.updateCount, { inputs: inputs({ resourceReady: replacement.resourceTicket }) });
   restarted = step(restarted, 7);
   assert.equal(view(restarted).status, 'active');

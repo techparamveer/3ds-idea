@@ -55,7 +55,7 @@ test('shutdown publication is revoked across hidden and sleeping suspension boun
   const observe = source.indexOf('observeFolderBanner();', revoke);
   assert.ok(hidden >= 0 && blur > hidden && revoke > blur && observe > revoke,
     'hide must finish input cancellation, then revoke both paint and presentation receipts');
-  assert.match(source, /const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;\};/);
+  assert.match(source, /const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens\.revokeHomeEntryFooterCandidate\(\);\};/);
 });
 
 test('boot, power and shutdown paint success requires the selected native system overlay', () => {

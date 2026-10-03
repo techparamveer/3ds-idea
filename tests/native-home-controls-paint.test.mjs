@@ -187,8 +187,8 @@ test('cold boot publishes only the captured HOME base layers beneath the paired 
  });
 });
 
-test('boot-owned paired screens paint counted footer and HUD entry frames without repaint advancement',async()=>{
- await withScreens(({paint,events})=>{
+test('boot-owned paired screens paint counted entry frames and settle after terminal presentation',async()=>{
+ await withScreens(({screens,paint,events})=>{
   const initial=createPortfolioState();
   const boot={...initial,system:{...initial.system,since:100,homeClock:{...initial.system.homeClock,updateCount:77}}};
   try{
@@ -200,7 +200,62 @@ test('boot-owned paired screens paint counted footer and HUD entry frames withou
     paint(state);
     assert.equal(events.find(event=>event.name==='footer').args[2],footerFrame);
     assert.equal(events.find(event=>event.name==='hud').args[3],hudFrame);
+    if(elapsed===14)assert.equal(screens.presentHomeEntryFooterTerminal(),true);
    }
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ });
+});
+
+test('live paired footer terminal receipt survives skipped updates and diagnostic paints cannot publish it',async()=>{
+ await withScreens(({screens,paint,events})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:100,homeClock:{...initial.system.homeClock,updateCount:77}}};
+  const entered={...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount:97}}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:null});
+
+   screens.paint(entered,new Date(0),1000,{sampleCalendar:true});
+   assert.equal(events.find(event=>event.name==='footer').args[2],14,'skipped source interval clamps to its terminal');
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:null},'diagnostic paint cannot publish');
+
+   paint(entered);
+   assert.equal(events.find(event=>event.name==='footer').args[2],14);
+   screens.paint(entered,new Date(0),1000,{sampleCalendar:true});
+   assert.equal(screens.presentHomeEntryFooterTerminal(),false,'diagnostic repaint revokes the replaced live candidate');
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:null},'diagnostic repaint preserves the live owner');
+   paint(entered);
+   assert.equal(screens.presentHomeEntryFooterTerminal(),true);
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:97});
+   paint(entered);
+   assert.equal(events.find(event=>event.name==='footer').args[2],undefined,'settled source pose resumes after receipt');
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:97});
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ });
+});
+
+test('failed native terminal draw and revoked candidates cannot acknowledge entry readiness',async()=>{
+ await withScreens(({screens,paint})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:100,homeClock:{...initial.system.homeClock,updateCount:77}}};
+  const entered={...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount:91}}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
+   assert.throws(()=>paint(entered),/terminal draw failed/);
+   assert.equal(screens.presentHomeEntryFooterTerminal(),false);
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:null});
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{presenterPatch:{footer(_ctx,_state,_reduced,frame){if(frame===14)throw Error('terminal draw failed');return true;}}});
+
+ await withScreens(({screens,paint})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:101,homeClock:{...initial.system.homeClock,updateCount:20}}};
+  const entered={...boot,system:{...boot.system,phase:'home'}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);paint(entered);
+   screens.revokeHomeEntryFooterCandidate();
+   assert.equal(screens.presentHomeEntryFooterTerminal(),false);
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:101,terminalAtUpdate:null});
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  });
 });
@@ -237,6 +292,7 @@ test('reuse-only live paint retires HOME entry across immediate Power to B retur
    assert.equal(events.find(event=>event.name==='hud').args[3],0);
    const power=reduceSystem(entered,'power',100);
    screens.paint(power,new Date(0),1000,{reuseHomeBackgroundMs:1000/30});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:null,terminalAtUpdate:null});
    const returned=reduceSystem(power,'back',100);
    paint(returned);
    assert.equal(events.find(event=>event.name==='hud').args[3],undefined);
@@ -253,6 +309,7 @@ test('firmware owner replacement resets HOME entry and disposed screens stay ine
   try{
    globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
    screens.setFirmwareAssets({presenter,sharedFont:{draw(){}},diagnostics:[],dispose(){}});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:null,terminalAtUpdate:null});
    paint(entered);
    assert.equal(events.find(event=>event.name==='hud').args[3],undefined);
    assert.equal(events.find(event=>event.name==='footer').args[2],undefined);

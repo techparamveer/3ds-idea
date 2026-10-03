@@ -38,5 +38,5 @@ test('boot and shutdown receipts share visibility, sleep and context invalidatio
  assert.ok(hidden>=0&&blur>hidden&&revoke>blur);
  assert.match(source,/const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);schedule\.invalidate\(\);\}/);
  assert.match(source,/const contextRestored=\(\)=>\{resetTerminalPublications\(\);schedule\.invalidate\(\);renderer\.shadowMap\.needsUpdate=true;\}/);
- assert.match(source,/const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;\};/);
+ assert.match(source,/const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens\.revokeHomeEntryFooterCandidate\(\);\};/);
 });

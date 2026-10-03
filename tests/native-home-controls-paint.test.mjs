@@ -252,9 +252,26 @@ test('eligible retained launch keeps the selected native cursor beneath the fade
     assert.equal(!!cursor,expected);
     // The retained cursor samples the HOME controls primary; effect motion during launch is untraced.
     if(expected)assert.deepEqual(cursor.args.slice(0,2),[state.system.homeControls.primary.center.x,state.system.homeControls.primary.center.y]);
+    const ring=events.find(event=>event.name==='launchCursorEffectAt');
+    assert.equal(!!ring,expected);
+    if(expected)assert.deepEqual(ring.args,[state.system.homeControls.primary.center.x,state.system.homeControls.primary.center.y,state.system.homeControls.presentation.primaryScale.appliedFrame,0]);
    }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
   },{screenOptions:{getHomeBanner:()=>hosted,drawStockTitleBannerFrame:()=>true}});
  }
+});
+
+test('a failed retained launch ring draw enters paired recovery instead of skipping the native effect',async()=>{
+ const hosted=realAppBannerView('health-safety',{active:true});
+ await withScreens(({screens})=>{
+  const launched=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000);
+  const state={...launched,system:{...launched.system,homeControls:home().system.homeControls}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   screens.paint(state,new Date(0),4000);
+   assert.equal(screens.stockStatus(state),'error');
+   assert.match(String(screens.stockFailure()),/launch cursor effect unavailable/);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{presenterPatch:{launchCursorEffectAt(ctx,...args){ctx.record('launchCursorEffectAt',args);return false;}},screenOptions:{getHomeBanner:()=>hosted,drawStockTitleBannerFrame:()=>true}});
 });
 
 test('a fast Health shortcut with a real pending banner host keeps the prior launch flow without sticky recovery',async()=>{

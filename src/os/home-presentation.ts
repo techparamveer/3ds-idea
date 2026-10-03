@@ -130,7 +130,7 @@ export function getNativeCameraTitleBalloon(state:MenuState,view:HomePresentatio
 
 export type HomeFooterAction='close-folder'|'close-software'|'folder-settings'|'manual'|'open'|'create-folder'|'resume';
 export type HomeFooter=Readonly<{two:boolean;left:HomeFooterAction|null;middle?:HomeFooterAction;right:HomeFooterAction}>;
-export type HomeLaunchPresentation=Readonly<{appId:string;owner:string;footerSceneOutFrame:number}>;
+export type HomeLaunchPresentation=Readonly<{appId:string;owner:string;footerSceneOutFrame:number;cursorEffectFrame:number}>;
 
 /** State-side candidate for retaining the exact selected HOME owner underneath
  * the source launch fade. The screen painter must additionally match a settled
@@ -143,7 +143,10 @@ export function getHomeLaunchPresentation(state:MenuState,elapsedMs:number,reduc
    ||!system.app||!owner||system.runtime.active!==owner)return null;
  const instance=system.runtime.instances[owner],selected=homeSlotAppId(state,state.opened?state.folderSelected:state.selected);
  if(!instance||instance.appId!==system.app||instance.suspended||instance.closing||selected!==system.app)return null;
- return {appId:system.app,owner,footerSceneOutFrame:systemTransitionFrame(elapsedMs-system.since,14,reduced)};
+ // LncCsrEfct_01_DisAppear (61 frames) starts with the launch fade: fitted to
+ // native N074..N082, not a traced dispatch. Reduced motion takes its empty end.
+ return {appId:system.app,owner,footerSceneOutFrame:systemTransitionFrame(elapsedMs-system.since,14,reduced),
+  cursorEffectFrame:systemTransitionFrame(elapsedMs-system.since,60,reduced)};
 }
 
 /** Footer actions follow the runtime's currently selected container. */

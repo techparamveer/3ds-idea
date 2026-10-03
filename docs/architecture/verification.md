@@ -230,6 +230,15 @@ not native initialization. Full LCDs, exact input, motion and muted audio
 remain unaccepted. Desktop/mobile Notes touch/HOME return and unchanged
 Power/Settings/static Health regressions are supporting evidence only.
 
+[Power input verification](../home-power-input-2026-10-03.md) at `b0814dd4`
+uses three byte-identical native settled/cross-boundary controls and a fresh
+held-to-black sequence. Corrected desktop settled, both release outcomes,
+held and black shutdown endpoints meet maximum2 on unmasked raw pairs.
+Browser input assertions also pass on mobile/reduced/app-origin routes;
+continuous re-entry has no native capture. Exact timing, whole motion/audio
+and physical backlight order remain open. A separate presented-attribute
+observer avoids assuming every GPU publication causes a new LCD paint.
+
 [Shutdown verification](../home-shutdown-fade-2026-10-03.md) at `cdc2926f`
 compares actual production frames against 14 retained native own PNGs. Native
 Decide and partial sleep SceneOut are available; native black/off is not.

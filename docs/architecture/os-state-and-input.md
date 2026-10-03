@@ -1,5 +1,16 @@
 # Software state, input and presentation
 
+[Power touch ownership](../home-power-input-2026-10-03.md) requires a latched
+same-pointer stroke beginning and ending inside `powerMenuActionAt`'s
+half-open source rectangle `[66,254) x [166,202)`. Outside-origin drags,
+outside release, unmatched up and wrong pointers cannot activate Off.
+`powerMenuPressed` derives feedback from the owned origin and current target;
+leaving removes feedback and returning restores it. Native re-entry is not yet
+captured. The Power presenter binds opening, Select 0, then owned Select 1 to
+`G_Btn_01`; missing Select fails before either LCD draws. Shutdown keeps its
+separate Decide/SceneOut order. Legacy one-shot touch and keyboard paths stay
+unchanged; no parallel input state is introduced.
+
 [Shutdown composition](../home-shutdown-fade-2026-10-03.md) preserves the
 terminal Power opening layout. Lower bindings are opening, Decide, then
 Slp SceneOut; upper bindings are opening then Slp SceneOut. Order matters:

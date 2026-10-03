@@ -15,11 +15,21 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [shutdown fade](home-shutdown-fade-2026-10-03.md), `cdc2926f`, uses
+Latest [Power input](home-power-input-2026-10-03.md), `b0814dd4`, fixes
+outside-origin release activation and missing source held-button feedback.
+Fresh native controls confirm both cross-boundary releases stay in Power;
+held ROI6708->0 pixels above delta2 and five desktop endpoint pairs reach
+maximum2, including exact black shutdown. Full1874 tests/typecheck/build and
+four browser modes pass implementation checks. Continuous native re-entry,
+exact input/motion/audio, physical backlight and restart timing remain open.
+Preserve settled Power and completed close/return; next lifecycle acceptance
+targets those specific gaps, not another reconstruction of the same screen.
+
+Earlier [shutdown fade](home-shutdown-fade-2026-10-03.md), `cdc2926f`, uses
 delivered paired sleep SceneOut after Decide, replacing the wrong generic
 fade. Browser 1200/120 ms timing remains an adaptation. Full 1872 tests,
 typecheck/build and four production modes pass implementation checks. Native
-partial fade is captured; native black/off, exact epochs/input/audio and
+partial fade is captured; exact epochs/input/audio, physical off/backlight and
 terminal publication under stalls remain open. Continue those lifecycle/button
 gaps; preserve the previously implemented close/return and settled Power UI.
 

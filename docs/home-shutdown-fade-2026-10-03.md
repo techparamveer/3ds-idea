@@ -3,6 +3,11 @@
 Runtime `cdc2926f3395815982c604ddf1658ef6bbb06dc7`, worker `a21f1e4a`.
 This is a visible L-01 correction, not whole-scenario or timing acceptance.
 
+Later [Power input evidence](home-power-input-2026-10-03.md) adds a fresh
+native held-to-black sequence and corrects touch ownership/held feedback.
+It supersedes this checkpoint's missing black endpoint and held-feedback
+limitations, not its historical captures or unresolved exact timing.
+
 ## Delivered
 
 The old shutdown used lower Decide, then an early 21-pose common fade and

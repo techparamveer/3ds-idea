@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Power Input - 3 October 2026
+
+Reused source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` and owned
+`3ds-home-postmodal-footer-20261002` / `codex/home-postmodal-footer-20261002`:
+worker `6a181250` -> integration `b0814dd4`. Source edits reserved to System,
+stock touch geometry, native presenter and their two tests. Comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence only; helper
+`closing_icon_departure` independently reviews93 tests with no findings.
+GPT-5.6 Sol/high, no service-tier claim. Coordinator alone operates the muted
+native copy and production browser on the authorized whole Mac.
+[Implementation, source identities and evidence](../home-power-input-2026-10-03.md).
+
 ## Shutdown Fade - 3 October 2026
 
 Reused source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in

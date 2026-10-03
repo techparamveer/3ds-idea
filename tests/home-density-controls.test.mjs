@@ -4,10 +4,11 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import {getHomeDensityControls} from '../src/os/home-density-controls.ts';
 import {getHomeNavigationView,setHomeDensity,settleHomeNavigation,enterHomeFolder,advanceHomeNavigation} from '../src/os/home-navigation.ts';
-import {createPortfolioState,tickSystem,dispatchSystemEvent,saveSettings,restoreSettings} from '../src/os/system.ts';
+import {createPortfolioState,tickSystem,dispatchSystemEvent,reduceSystem,saveSettings,restoreSettings} from '../src/os/system.ts';
 import {reduceMenu,touchMenu,menuTiles} from '../src/os/state.ts';
 import {poseNativeLayout} from '../src/os/native-layout.ts';
 import {HOME_DENSITY_TOUCH_GEOMETRY,homeDensityActionAt} from '../src/os/stock-screen-layout.ts';
+import {ownedHomeDensityContact} from '../src/os/home-gestures.ts';
 
 const moduleUrl=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const url=new URL('../src/os/firmware-presentation.ts',import.meta.url);
@@ -122,6 +123,80 @@ test('density press and release retain one owner below, at and above x293',()=>{
   const released=touch(pressed,'up',x,16.5),view=getHomeNavigationView(released);
   assert.equal(view.currentDensity,2);assert.equal(view.targetDensity,2+delta);
  }
+});
+
+test('density-origin contact restores the same held owner after leaving downward and releases once',()=>{
+ const {home,draws}=presenter();let live=touch(state(false,2),'down',280,12);
+ const gesture=()=>live.system.homeNavigation.gesture;
+ const select=()=>draws.at(-1).options.bindings.filter(binding=>binding.name==='LncBase_D_01_Select');
+ assert.equal(gesture().area,'density');assert.equal(gesture().mode,'press');
+ assert.equal(ownedHomeDensityContact(live,gesture()),'decrease');
+ home.toolbar({},live);assert.deepEqual(select(),[{name:'LncBase_D_01_Select',frame:1,groups:['G_Dw_00']}]);
+
+ live=touch(live,'move',280,60);assert.equal(gesture().mode,'press');
+ assert.equal(ownedHomeDensityContact(live,gesture()),null);
+ home.toolbar({},live);assert.deepEqual(select(),[]);
+
+ live=touch(live,'move',280,12);assert.equal(gesture().mode,'press');
+ assert.equal(ownedHomeDensityContact(live,gesture()),'decrease');
+ home.toolbar({},live);assert.deepEqual(select(),[{name:'LncBase_D_01_Select',frame:1,groups:['G_Dw_00']}]);
+
+ live=touch(live,'up',280,12);const view=getHomeNavigationView(live);
+ assert.equal(live.system.homeNavigation.gesture,null);
+ assert.equal(view.currentDensity,2);assert.equal(view.targetDensity,1);
+});
+
+test('density-origin contact cannot transfer to the other density half, toolbar, footer, grid or outside',()=>{
+ for(const [x,y]of [[307,12],[76,16],[160,226],[160,100],[280,60],[-1,12]]){
+  const initial=state(false,2),before=snapshot(initial);let live=touch(initial,'down',280,12);
+  live=touch(live,'move',x,y);assert.equal(live.system.homeNavigation.gesture.mode,'press');
+  assert.equal(ownedHomeDensityContact(live,live.system.homeNavigation.gesture),null);
+  live=touch(live,'up',x,y);assert.deepEqual(snapshot(live),before);
+  assert.equal(live.panel,null);assert.equal(live.system.homeNavigation.gesture,null);
+ }
+ let cancelled=touch(state(false,2),'down',280,12);
+ cancelled=touch(cancelled,'move',280,60);cancelled=touch(cancelled,'move',280,12);
+ cancelled=touch(cancelled,'cancel',280,12);assert.equal(cancelled.system.homeNavigation.gesture,null);
+ const stale=touch(cancelled,'up',280,12);assert.equal(stale,cancelled);
+});
+
+test('disabled density origins can leave and re-enter but never recover Select or activate',()=>{
+ const {home,draws}=presenter();
+ for(const [density,x]of [[0,280],[5,307]]){
+  const initial=state(false,density),before=snapshot(initial);let live=touch(initial,'down',x,12);
+  assert.equal(live.system.homeNavigation.gesture.area,'density');
+  live=touch(live,'move',x,60);live=touch(live,'move',x,12);
+  assert.equal(ownedHomeDensityContact(live,live.system.homeNavigation.gesture),null);
+  home.toolbar({},live);
+  assert.ok(!draws.at(-1).options.bindings.some(binding=>binding.name==='LncBase_D_01_Select'));
+  live=touch(live,'up',x,12);assert.deepEqual(snapshot(live),before);
+ }
+});
+
+test('density ownership cannot be acquired after disabled origin or survive density and HOME lifecycle replacement',()=>{
+ let disabled=touch(state(false,0),'down',280,12);
+ const disabledContact=disabled.system.homeNavigation.gesture;
+ assert.equal(disabledContact.area,'density');
+ disabled=reduceSystem(disabled,'zoom-out',4001);
+ assert.equal(disabled.system.homeNavigation.gesture,null);
+ assert.equal(getHomeNavigationView(disabled).targetDensity,1);
+ assert.equal(getHomeDensityControls(disabled).decreaseEnabled,true);
+ assert.equal(ownedHomeDensityContact(disabled,disabledContact),null);
+
+ let changed=touch(state(false,2),'down',280,12);
+ const changedContact=changed.system.homeNavigation.gesture;
+ changed=reduceSystem(changed,'zoom-in',4001);
+ assert.equal(changed.system.homeNavigation.gesture,null);
+ assert.equal(getHomeNavigationView(changed).targetDensity,1);
+ assert.equal(ownedHomeDensityContact(changed,changedContact),null);
+
+ const panel=reduceSystem(touch(state(false,2),'down',280,12),'settings',4001);
+ assert.equal(panel.panel,'settings');assert.equal(panel.system.homeNavigation.gesture,null);
+
+ let folder=touch({...state(false,2),folders:{42:'Folder'}},'down',280,12);
+ folder=enterHomeFolder(folder,42);
+ assert.equal(folder.system.homeNavigation.gesture.area,'density');
+ assert.equal(ownedHomeDensityContact(folder,folder.system.homeNavigation.gesture),null);
 });
 
 test('shared density boundary preserves disabled and enabled owners at both ends',()=>{

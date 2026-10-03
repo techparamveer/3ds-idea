@@ -7,6 +7,7 @@ import { NativeLayoutRenderer } from './native-renderer';
 import { boundAnimationTracks, nativeFolderGlyphPixels, nativeMessageOverride, nativePaneParentPath, nativeTextureSamplePixels, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { isHomeFolderBackTouch, rowCount, toolbar as toolbarRegions, type MenuState } from './state';
 import { getHomeDensityControls } from './home-density-controls';
+import { ownedHomeDensityContact } from './home-gestures';
 import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
 import type { HomeTilePose } from './home-tile-pose';
 import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from './home-balloon-presentation';
@@ -14,7 +15,7 @@ import { selectNotesMetadata } from './notes-title-metadata';
 import { drawHomeSuspendedIcon } from './home-suspended-window';
 import { homeSoftwareClosingDialogKey, homeSoftwareDialogKey, homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
-import { HOME_FOOTER_TOUCH_GEOMETRY, homeDensityActionAt } from './stock-screen-layout';
+import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
 import { selectHomeFolderFooterPose } from './home-folder-footer-return';
 import { HOME_ENTRY_FOOTER_LAST_FRAME, HOME_ENTRY_HUD_LAST_FRAME } from './home-entry-presentation';
 import { homeApplicationTransitionFooterExit, homeApplicationTransitionFooterReturn } from './home-application-transition';
@@ -256,10 +257,10 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(controls&&!controls.decreaseEnabled)disabled.push('G_Dw_00');
   if(controls&&!controls.increaseEnabled)disabled.push('G_Up_00');
   if(disabled.length)bindings.push(binding('LncBase_D_01_Invalid',0,disabled));
-  if(!state?.panel&&gesture?.mode==='press'&&gesture.area==='chrome'){
-   const toolbarPressed=gesture.y>=0&&gesture.y<33&&gesture.x>=0&&gesture.x<320;
+  if(state&&!state.panel&&gesture?.mode==='press'&&(gesture.area==='chrome'||gesture.area==='density')){
+   const toolbarPressed=gesture.area==='chrome'&&gesture.y>=0&&gesture.y<33&&gesture.x>=0&&gesture.x<320;
    const index=toolbarPressed?toolbarRegions.findIndex(region=>gesture.x>=region.x&&gesture.x<region.x+region.width):-1;
-   const densityAction=homeDensityActionAt(gesture.x,gesture.y);
+   const densityAction=gesture.area==='density'?ownedHomeDensityContact(state,gesture):null;
    const group=index>=0?['G_Light_00','G_Memo_00','G_Friend_00','G_News_00','G_Web_00','G_Mvs_00'][index]
     :densityAction==='decrease'?'G_Dw_00':densityAction==='increase'?'G_Up_00':null;
    if(group&&!disabled.includes(group))bindings.push(binding('LncBase_D_01_Select',1,[group]));

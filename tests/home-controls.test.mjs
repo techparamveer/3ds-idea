@@ -386,8 +386,8 @@ test('blur cancellation cannot resurrect acceleration from a gesture origin', ()
   assert.deepEqual(tickHomeNavigationClockObserved(state, T + 60000).passes, []);
 });
 
-test('chrome and ordinary grid contact preserve primary visibility and Loop', () => {
-  for (const [x, y, area] of [[307, 16, 'chrome'], [76, 161, 'grid']]) {
+test('density and ordinary grid contact preserve primary visibility and Loop', () => {
+  for (const [x, y, area] of [[307, 16, 'density'], [76, 161, 'grid']]) {
     let state = home(), loop = state.system.homeCursorLoop;
     state = touch(state, 'down', x, y);
     state = at(state, 1).state;

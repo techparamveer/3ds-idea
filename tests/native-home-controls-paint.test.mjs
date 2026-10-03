@@ -1596,7 +1596,7 @@ for (const moved of [false, true]) {
   });
 }
 
-test('disabled density chrome presses preserve real toolbar poses and all retained cursor calls', async () => {
+test('disabled density-origin presses preserve real toolbar poses and all retained cursor calls', async () => {
   await withScreens(({ screens, paint, events, cursorCalls }) => {
     for (const [folder, density, x, availability] of [[false, 0, 282, 'decreaseEnabled'],
       [true, 1, 282, 'decreaseEnabled'], [false, 5, 307, 'increaseEnabled']]) {
@@ -1609,7 +1609,7 @@ test('disabled density chrome presses preserve real toolbar poses and all retain
       const baselineToolbar = structuredClone(toolbarDraw()), baselineCursors = cursorCalls().map(({ name, args }) => [name, ...args]);
       const pressed = freeze(touchHomeGesture(state, { type: 'touch', phase: 'down', x, y: 16, pointerId: 4 }, 0).state);
       const before = JSON.stringify(pressed);
-      assert.equal(pressed.system.homeNavigation.gesture.area, 'chrome');
+      assert.equal(pressed.system.homeNavigation.gesture.area, 'density');
       paint(pressed);
       assert.deepEqual(toolbarDraw(), baselineToolbar);
       assert.ok(!toolbarDraw()[2].bindings.some(binding => binding.name === 'LncBase_D_01_Select'));
@@ -1619,7 +1619,7 @@ test('disabled density chrome presses preserve real toolbar poses and all retain
   }, { realToolbar: true });
 });
 
-test('enabled density chrome press changes its real toolbar Select binding without hiding retained controls', async () => {
+test('enabled density-origin press changes its real toolbar Select binding without hiding retained controls', async () => {
   await withScreens(({ screens, paint, events, cursorCalls }) => {
     const state = settleHomeNavigation(setHomeDensity(home(), 1));
     assert.deepEqual(getHomeDensityControls(state), { decreaseEnabled: true, increaseEnabled: true });
@@ -1634,6 +1634,26 @@ test('enabled density chrome press changes its real toolbar Select binding witho
       assert.notDeepEqual(toolbarDraw()[3], baselineToolbar[3]);
       assert.deepEqual(cursorCalls().map(({ name, args }) => [name, ...args]), baselineCursors);
     }
+  }, { realToolbar: true });
+});
+
+test('density-origin capture clears Select outside and restores only its original group on re-entry', async () => {
+  await withScreens(({ screens, paint, events }) => {
+    let state = settleHomeNavigation(setHomeDensity(home(), 2));
+    const toolbar = () => events.find(event => event.name === 'toolbar-layout' && event.context === screens.bottom.getContext('2d')).args;
+    state = touchHomeGesture(state, { type: 'touch', phase: 'down', x: 280, y: 12, pointerId: 4 }, 0).state;
+    assert.equal(state.system.homeNavigation.gesture.area, 'density');
+    paint(freeze(state));
+    assert.deepEqual(toolbar()[2].bindings.at(-1), { name: 'LncBase_D_01_Select', frame: 1, groups: ['G_Dw_00'] });
+
+    state = touchHomeGesture(state, { type: 'touch', phase: 'move', x: 280, y: 60, pointerId: 4 }, 1).state;
+    assert.equal(state.system.homeNavigation.gesture.mode, 'press');
+    paint(freeze(state));
+    assert.ok(!toolbar()[2].bindings.some(binding => binding.name === 'LncBase_D_01_Select'));
+
+    state = touchHomeGesture(state, { type: 'touch', phase: 'move', x: 280, y: 12, pointerId: 4 }, 2).state;
+    paint(freeze(state));
+    assert.deepEqual(toolbar()[2].bindings.at(-1), { name: 'LncBase_D_01_Select', frame: 1, groups: ['G_Dw_00'] });
   }, { realToolbar: true });
 });
 

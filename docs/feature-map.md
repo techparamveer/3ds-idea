@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Camera confirmation upper-mask correction](home-camera-close-upper-mask-2026-10-03.md),
+Latest [power-on staging and publication](home-power-on-staging-2026-10-03.md),
+`ce493657` / `ee38f862`, hides premature HUD/footer during paired reveal and
+holds a stalled boot until its native terminal pair is visibly rendered.
+Through `cbfaa053`, unavailable boot resources expose Retry-only host recovery
+with matching accessible wording. Fixed pose10 HUD3747 ->6 and footer8598 ->0
+above delta2 support the staging correction, not whole-scenario acceptance.
+Native startup ordering is observed, but exact entry clips, timing/input/audio
+and whole pixels remain fail. Preserve the corrected base layers and banner
+ownership; do not repeat this staging fix or call it physical boot acceptance.
+
+Earlier [Camera confirmation upper-mask correction](home-camera-close-upper-mask-2026-10-03.md),
 runtime `f0143f1f`, removes the extra upper dimming for Camera Close only.
 Switch remains lower-only; other ordinary titles retain their existing policy,
 and post-OK closing is unchanged. Full 1,903 tests, build and typecheck pass.

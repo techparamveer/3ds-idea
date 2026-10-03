@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `f0143f1f` (Camera confirmation upper mask),
+Current runtime checkpoint: `cbfaa053` (power-on staging, publication and recovery),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,11 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Power-on staging](../home-power-on-staging-2026-10-03.md) now keeps HUD/footer
+out of the paired base reveal and preserves its terminal through normal/reduced
+host stalls. Exact native HUD/footer entry and timing remain open; this is not
+physical cold-boot acceptance. Keep the existing other app designs.
 
 [Camera confirmation upper mask](../home-camera-close-upper-mask-2026-10-03.md)
 now preserves the upper LCD when Close opens. This correction is distinct
@@ -172,7 +177,7 @@ modal-button portion of items 1-2/4 is implemented and browser-inspected;
 | --- | --- | --- | --- |
 | 1 | L-06 / Lifecycle | Source close entry, footer departure, Open return and banner reacquisition implemented through `c01e1219` | [Banner-return comparison](../home-banner-return-2026-10-03.md) records load-sensitive onset and remaining relative pose/epoch gaps. Correct measured footer pixels and exact input/motion/audio; preserve owner/publication barriers and completed stages. |
 | 2 | L-07 / Lifecycle | Confirmed switch shows decoded closing dialog/mask and retained dark backing through its close barrier, then launches frozen target; intentionally no ordinary-close exit phase | [Switch-backing correction](../home-switch-backing-2026-10-03.md) resolves the captured missing upper surface. Camera header, warning and three-button footer are now corrected through `0e59c1a0`; preserve cancel/owner guards and compact icon. Exact native timing and departure/reveal remain open. |
-| 3 | L-01, L-03 / Lifecycle | Power-on uses adapted 3000 ms boot/final 350 ms reveal; shutdown uses source poses with guarded terminal publication through `ea6265de` | Native black and Power contact/re-entry endpoints are compared. Next off -> power-on -> paired LCD reveal -> HOME, exact epochs, backlight/LCD order and input gates. Preserve verified ownership and terminal publication; no decorative boot screen. |
+| 3 | L-01, L-03 / Lifecycle | Power-on base staging and guarded terminal publication through `ee38f862`; adapted 3000 ms boot/final 350 ms reveal remains. Shutdown terminal protection retained | Native startup ordering is captured; exact HUD/footer SceneIn onset, epochs, backlight/LCD order and input gates remain. Preserve verified ownership and terminal publication; no decorative boot screen. |
 | 4 | H-14, L-06, L-07 / Lifecycle + coordinator | Source Bounding_00/01 rectangles and Select press feedback at `f17a1007`; same-button ownership preserved | Tests and muted Sidecar replay pass, including byte-identical dialog crop after cross-drag. Native input/default focus/motion comparison remains open. Physical, keyboard and touch keep the same actions. |
 | 5 | H-03..H-10, H-14 / HOME | Navigation exists; button feedback and edge/cancel behavior need a complete visible interaction pass | Select/open with touch and A; B/Back; HOME/resume; toolbar; density ends; paging; footer variants; folder enter/close; pickup/drop/cancel. Repair captured failures only, preserving existing visual design. Run both physical-model and touchscreen routes. |
 | 6 | H-12, L-05 / HOME + Lifecycle | Expanded/compact windows and source curved backing delivered; lower tint and paired pulse at `7b243793`/`47845dc5` | Preserve owner/mode readiness and capture ownership. Native pulse epoch/cadence, HUD, footer background shades and suspend/resume/close motion remain open. [Latest evidence and adaptations](../home-suspended-highlight-2026-10-02.md); no whole scenario passes. |

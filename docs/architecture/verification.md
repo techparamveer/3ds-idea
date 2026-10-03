@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Power-on staging verification](../home-power-on-staging-2026-10-03.md) separates
+native HOME-title initialization ordering from browser warm Off/On restart.
+Use fixed declared midfade/bright native samples, empty whole-LCD masks and
+named HUD/footer diagnostic regions; do not search for a matching epoch.
+Check normal/reduced host stalls separately: terminal source pose20 must be
+successfully paired, visibly rendered and retained until a later callback
+before HOME. Context/hide/sleep invalidate receipts. This robustness evidence
+does not establish native cadence, physical boot or whole-scenario acceptance.
+
 [Camera confirmation upper-mask verification](../home-camera-close-upper-mask-2026-10-03.md)
 compares suspended-to-Close preservation separately from native/browser
 absolute pixels. Use fixed unoccluded/title/chrome diagnostic regions with

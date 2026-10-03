@@ -26,6 +26,19 @@ See [proposed improvements](proposed-improvements.md) for that remaining risk.
 
 ## State and resource owners
 
+Boot composition withholds HUD/footer until HOME while retaining decoded
+base/chrome/grid/fade. This is a capture-supported phase adaptation; the native
+entry caller remains untraced. Terminal publication belongs to the scene,
+keyed by boot `since` and graphics-context generation. Only a successful native
+LCD pair followed by a visible, awake, context-live render can acknowledge it.
+At the deadline, a missing receipt holds boot through the current callback;
+hide/sleep/context changes revoke it. Diagnostic paints cannot acknowledge it.
+Reducer timing stays pure. See [power-on evidence](../home-power-on-staging-2026-10-03.md).
+Missing awake native boot composition selects explicit paired authored host
+recovery, never a native success receipt. Its visible/accessibility text offers
+Retry only; sleeping is inactive and ordinary boot input cannot bypass the
+publication barrier.
+
 Close and switch confirmation resolve icon identity from the validated retained
 application owner, not HOME selection. The shared presenter selects decoded
 single-title `LncDlgIcon_D_00` or two-title `LncDlgIcon_D_01`; its bounded cache

@@ -1,5 +1,22 @@
 # Workstream Registry
 
+## Power-On Staging And Publication - 3 October 2026
+
+Coordinator remains `3ds-home-fidelity-20261001` / `codex/home-fidelity-20261001`.
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-power-on-20261003` / `codex/home-power-on-20261003`;
+worker `06ddbb89` integrates as `ce493657` (OS staging).
+Helper `switch_closing_review` owns `3ds-home-boot-publication-20261003` /
+`codex/home-boot-publication-20261003`; worker `54f6dd35` integrates as
+`ee38f862` (scene terminal publication). Independent helper
+`boot_staging_review` reviews both. Comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private comparison artifacts.
+All delegated work uses GPT-5.6 Sol/high; only coordinator drives GUI.
+Follow-ups: worker `6ecc051c` integrates as `1b0655be` (required native boot
+and Retry-only paired host recovery); worker `3037ccc6` integrates as
+`cbfaa053` (matching accessible announcement). Both retain original ownership.
+[Evidence and remaining native limits](../home-power-on-staging-2026-10-03.md).
+
 ## Camera Close Upper Mask - 3 October 2026
 
 The source chat and owned capture-boundary worktree below continue with

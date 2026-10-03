@@ -1,5 +1,9 @@
 # Camera Capture Boundary
 
+The separate confirmation-mask defect identified here is subsequently
+[corrected and compared](home-camera-close-upper-mask-2026-10-03.md).
+The foreground Camera content boundary remains unresolved.
+
 3 October 2026, unchanged runtime `0e59c1a0`, evidence base `0f3a248e`.
 This bounded fault-isolation replay changes the next action, not the UI.
 The preceding [Camera close comparison](home-camera-manual-footer-2026-10-03.md)

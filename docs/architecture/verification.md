@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+[Camera confirmation upper-mask verification](../home-camera-close-upper-mask-2026-10-03.md)
+compares suspended-to-Close preservation separately from native/browser
+absolute pixels. Use fixed unoccluded/title/chrome diagnostic regions with
+empty whole-LCD masks, retain the independent Camera content mismatch, and
+rerun ordinary-title and switch controls. A Camera-only capture-supported
+policy does not establish other titles' mask selection or post-OK timing.
+
 [Camera capture fault isolation](../home-camera-capture-boundary-2026-10-03.md)
 compares the actual foreground LCD before blaming its retained HOME transfer.
 A black browser finder and static-image native finder are different fixtures,

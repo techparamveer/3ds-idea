@@ -1,5 +1,15 @@
 # Workstream Registry
 
+## Camera Close Upper Mask - 3 October 2026
+
+The source chat and owned capture-boundary worktree below continue with
+worker `3a8e5859` -> coordinator `f0143f1f`. Ownership is limited to
+`home-software-dialog.ts` and its focused tests. Comparator chat below owns
+the private upper-mask bundle; helper `switch_closing_review` finds no
+actionable issue. GPT-5.6 Sol/high. Coordinator alone operates the muted
+production browser on the authorized Mac; native captures are retained.
+[Source, adaptation and evidence](../home-camera-close-upper-mask-2026-10-03.md).
+
 ## Camera Capture Boundary - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses clean

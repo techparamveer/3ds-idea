@@ -99,6 +99,14 @@ override. The normalized fixed-edge contrast fit and its noise-tail clamp are
 explicit adaptations, not a traced native pane writer. The source audit proves
 AppQuit start and WhiteBlack mode selection, not shared framebuffer opacity.
 
+[Camera ordinary confirmation](../home-camera-close-upper-mask-2026-10-03.md)
+leaves the upper LCD unobscured, as do existing switch confirmations. This is
+a capture-supported per-title adaptation, not a traced native caller policy.
+Other ordinary titles retain their existing upper mask. Readiness requires
+only selected resources: Camera and switch ignore an unused upper mask, but
+missing lower/dialog/header/message/icon resources still fail before drawing.
+The following post-OK closing path is separate and unchanged by that policy.
+
 The [software-closing display](../home-software-closing-2026-10-02.md) uses
 the validated close identity for readiness, paints source `Dlg_A_D_00` and
 `lau_dlg_quit4` over the lower `DlgMask_D_00`, and retains the existing footer.

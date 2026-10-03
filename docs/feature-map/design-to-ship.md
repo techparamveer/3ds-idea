@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `0e59c1a0` (Camera Manual/footer and Close tone),
+Current runtime checkpoint: `f0143f1f` (Camera confirmation upper mask),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,11 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Camera confirmation upper mask](../home-camera-close-upper-mask-2026-10-03.md)
+now preserves the upper LCD when Close opens. This correction is distinct
+from Camera's different input fixture, and does not establish whole fidelity.
+Keep it while continuing native reveal/power-on and the lifecycle/input queue.
 
 [Camera capture isolation](../home-camera-capture-boundary-2026-10-03.md)
 finds different foreground fixtures, not evidence for another HOME shading

@@ -15,11 +15,18 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Camera capture boundary](home-camera-capture-boundary-2026-10-03.md)
+Latest [Camera confirmation upper-mask correction](home-camera-close-upper-mask-2026-10-03.md),
+runtime `f0143f1f`, removes the extra upper dimming for Camera Close only.
+Switch remains lower-only; other ordinary titles retain their existing policy,
+and post-OK closing is unchanged. Full 1,903 tests, build and typecheck pass.
+The per-title selection is capture-supported, not a traced native caller.
+Whole scenarios remain fail; Camera content and exact input/motion/audio stay open.
+
+Earlier [Camera capture boundary](home-camera-capture-boundary-2026-10-03.md)
 at unchanged `0e59c1a0` finds the black finder already in the foreground app,
 with its graphics retained by HOME. Native's different static-image feed
-prevents assigning the whole upper residual to the HOME compositor. No patch,
-mask or pass follows. Next backing comparison needs matched read-only content
+prevents assigning the whole upper residual to the HOME compositor. No backing
+patch or pass follows. Next backing comparison needs matched read-only content
 or deterministic Health; do not repeat this source audit or fit HOME shading
 to unrelated app pixels. Continue native lifecycle reveal/power-on evidence.
 

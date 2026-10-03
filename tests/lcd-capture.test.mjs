@@ -95,15 +95,15 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   const scene = readFileSync(new URL('../src/scene/console-scene.ts', import.meta.url), 'utf8');
   const code = scene.slice(scene.indexOf('const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
   const compiled = ts.transpileModule(code,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
-  const paints=[];
+  const paints=[],receipts=[];
   const state={powered:true,theme:'white',panel:null,system:{phase:'home',sleeping:false,dialog:null,preferences:null,homeClock:{updateCount:19}}};
   const initial=structuredClone(state);let persistenceWrites=0;
   const view={status:'active',primary:{selection:{kind:'app',id:'health-safety'},motion:{material:{frame:81}}}};
   const background={attached:true,mode:0,sceneInFrame:20,loopFrame:19,appPauseFrame:0,sceneInEpoch:1,loopEpoch:1,appPauseEpoch:0};
   const deps={disposed:false,firmwareAssets:{},state,window:{location:{hostname:'localhost'}},lcdHomeHudSample,
     screens:{paint(...args){paints.push(args);return args[3]?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:true,healthBanner:true};},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>view,getHomeBannerHostBackgroundFrame:()=>background,bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
-    settingsBannerPhase(){return{sample:null};},encodeNativeLcdPair(){return{top:'png',bottom:'png'};},start:0,topTexture:{},bottomTexture:{},storage:{async save(){persistenceWrites++;}}};
-  const capture=new Function(...Object.keys(deps),'let verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(deps));
+    settingsBannerPhase(){return{sample:null};},encodeNativeLcdPair(){return{top:'png',bottom:'png'};},recordScreenPaint(...args){receipts.push(args);},start:0,topTexture:{},bottomTexture:{},storage:{async save(){persistenceWrites++;}}};
+  const capture=new Function(...Object.keys(deps),'let lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(deps));
   const result=capture(1200,'2026-09-27',undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311});
   assert.equal(result.selectedTitle,'health-safety');
   assert.deepEqual(result.forcedFrames,{healthBannerSkeletalFrame:327,homeWallpaperSceneInSkeletalFrame:20,homeWallpaperMaterialFrame:311});
@@ -111,6 +111,9 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   assert.equal(result.synthetic,true);
   assert.deepEqual(paints[0][3],{sampleCalendar:true,homeHudSample:undefined,homeWallpaperFrame:311});
   assert.equal(paints.length,2,'live paint is restored after capture');
+  assert.equal(receipts.length,1,'restored live paint replaces the provisional shutdown receipt');
+  assert.equal(receipts[0][1],false,'a restored HOME pair cannot acknowledge shutdown publication');
+  assert.ok(Number.isFinite(receipts[0][0]));
   assert.deepEqual(state,initial,'sampling does not alter the runtime state');
   assert.equal(persistenceWrites,0,'sampling does not persist state');
   view.primary.selection={kind:'app',id:'system-settings'};
@@ -118,6 +121,7 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   view.primary.selection={kind:'app',id:'health-safety'};
   deps.screens.paint=(...args)=>{paints.push(args);return {homeWallpaper:false,healthBanner:true};};
   assert.throws(()=>capture(1200,undefined,undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311}),/could not render both firmware models/);
+  assert.equal(receipts.length,2,'failed diagnostic sampling still records its restored live pair');
 });
 
 function liveCaptureFixture(initialFrame = 350) {
@@ -198,9 +202,9 @@ test('HOME HUD wiring is capture-only, records its sample, and restores live pai
   const block = scene.slice(scene.indexOf('if(lcdCapture){const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
   assert.match(block, /lcdHomeHudSample\(hudSample,window.location.hostname\)/);
   assert.match(block, /phase!=='home'/);
-  assert.match(block, /try\{const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
+  assert.match(block, /try\{lastShutdownPaintIdentity=null;const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
   assert.match(block, /homeHudSample:homeHudSample\?\?null/);
-  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;screens.paint\(state,new Date\(\),performance.now\(\)-start\)/);
+  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true\)/);
 });
 
 
@@ -209,11 +213,11 @@ test('capture transaction paints explicit sample once, records it, and restores 
   const code = scene.slice(scene.indexOf('const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
   const compiled = ts.transpileModule(code, {compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
   for (const fails of [false, true]) {
-    const paints=[];
+    const paints=[],receipts=[];
     const dependencies={disposed:false,firmwareAssets:{},state:{powered:true,system:{phase:'home',homeClock:{updateCount:1}}},window:{location:{hostname:'localhost'}},lcdHomeHudSample,
       screens:{paint(...args){paints.push(args);},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>({status:'unsupported'}),getHomeBannerHostBackgroundFrame:()=>({}),bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
-      encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return {top:'png',bottom:'png'};},start:0,topTexture:{},bottomTexture:{}};
-    const capture = new Function(...Object.keys(dependencies), 'let verificationBannerFrame,verificationBannerSkeletalFrame;'+compiled+';return captureScreensAt;')(...Object.values(dependencies));
+      encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return {top:'png',bottom:'png'};},recordScreenPaint(...args){receipts.push(args);},start:0,topTexture:{},bottomTexture:{}};
+    const capture = new Function(...Object.keys(dependencies), 'let lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(dependencies));
     if(fails) assert.throws(()=>capture(12000,'2026-09-26',undefined,hudSample),/encoding failed/);
     else {
       const result=capture(12000,'2026-09-26',undefined,hudSample);
@@ -223,6 +227,9 @@ test('capture transaction paints explicit sample once, records it, and restores 
     assert.equal(paints.length,2);
     assert.deepEqual(paints[0][3],{sampleCalendar:true,homeHudSample:hudSample});
     assert.equal(paints[1].length,3,'restoration supplies no verification sample');
+    assert.equal(receipts.length,1,'success and failure both acknowledge the restored live paint transaction');
+    assert.equal(receipts[0][1],false,'HOME restoration clears rather than acknowledges a shutdown terminal');
+    assert.ok(Number.isFinite(receipts[0][0]));
     assert.equal(dependencies.topTexture.needsUpdate,true);
     assert.equal(dependencies.bottomTexture.needsUpdate,true);
     dependencies.state.system.phase='app';
@@ -270,17 +277,20 @@ test('independent skeletal capture overrides are restored after successful and f
  const code=scene.slice(scene.indexOf('const captureScreensAt='),scene.indexOf('Object.assign(host,{captureScreensAt})'));
  const compiled=ts.transpileModule(code,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
  for(const fails of [false,true]){
-  const paints=[];let readOverrides;
+  const paints=[],receipts=[];let readOverrides;
   const view={status:'active',primary:{selection:{kind:'app',id:'system-settings'},motion:{}}};
   const deps={disposed:false,firmwareAssets:{},state:{powered:true,system:{phase:'home',homeClock:{updateCount:1}}},window:{location:{hostname:'localhost'}},lcdHomeHudSample,
    screens:{paint(){paints.push(readOverrides());},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>view,getHomeBannerHostBackgroundFrame:()=>({}),bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
    settingsBannerPhase(_motion,_reduced,frame,skeletalFrame){return{sample:{frame,skeletalFrame}};},
-   encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return{top:'png',bottom:'png'};},start:0,topTexture:{},bottomTexture:{}};
-  const fixture=new Function(...Object.keys(deps),'"use strict";let verificationBannerFrame,verificationBannerSkeletalFrame;'+compiled+';return {capture:captureScreensAt,read:()=>[verificationBannerFrame,verificationBannerSkeletalFrame]};')(...Object.values(deps));
+   encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return{top:'png',bottom:'png'};},recordScreenPaint(...args){receipts.push(args);},start:0,topTexture:{},bottomTexture:{}};
+  const fixture=new Function(...Object.keys(deps),'"use strict";let lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return {capture:captureScreensAt,read:()=>[verificationBannerFrame,verificationBannerSkeletalFrame]};')(...Object.values(deps));
   readOverrides=fixture.read;
   if(fails)assert.throws(()=>fixture.capture(5616,'2026-09-26',304,hudSample,302),/encoding failed/);
   else assert.deepEqual(fixture.capture(5616,'2026-09-26',304,hudSample,302).bannerSample,{frame:304,skeletalFrame:302});
   assert.deepEqual(paints,[[304,302],[undefined,undefined]]);
+  assert.equal(receipts.length,1);
+  assert.equal(receipts[0][1],false,'restoring the live Settings HOME pair clears a stale shutdown receipt');
+  assert.ok(Number.isFinite(receipts[0][0]));
   assert.deepEqual(readOverrides(),[undefined,undefined]);
  }
 });

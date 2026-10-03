@@ -160,7 +160,7 @@ function titleIcon(c:Context,appId:string|null|undefined,x:number,y:number,size:
  const side=Math.round(size*2/3);
  return titleArtwork(c,appId,Math.round(x+(size-side)/2),Math.round(y+(size-side)/2),side,side,assets);
 }
-function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false,assets?:FirmwarePresentationAssets,suspendedSleepFrame=0){
+function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false,assets?:FirmwarePresentationAssets,suspendedSleepFrame=0,launchRetained=false){
  const system=state.system,controls=nativeHome?system?.homeControls:null;
  const suspendedApp=capture?null:homeSuspendedApplication(state)?.appId;
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
@@ -204,7 +204,9 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
  // Paint after the tile clip, before the existing arrows; the host owns close
  // visibility and controller updates. Rendering only samples applied poses.
  // Only authored grid scroll/drag suppress this group; ordinary press does not.
- if(nativeHome&&controls&&!capture&&state.powered&&system?.phase==='home'
+ // An eligible retained launch keeps the selected cursor beneath the source
+ // fade: native shows its brackets until HOME reaches black.
+ if(nativeHome&&controls&&!capture&&state.powered&&(system?.phase==='home'||(launchRetained&&system?.phase==='launch'))
   &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel
   &&!(system.homeNavigation.gesture?.area==='grid'&&system.homeNavigation.gesture.mode!=='press')){
   const {primary,presentation}=controls;
@@ -533,7 +535,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // settled poses appearing beneath CmnFadeNinLogo while boot is still active.
   const bootBaseOnly=state.system?.phase==='boot';
   if(!bootBaseOnly&&!nativeHome?.hud(t,date,time,verification?.homeHudSample,homeEntry.hudSceneInFrame??undefined))status(t,date,chrome);
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame);nativeHome?.folderBalloon(b,state,view);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame,!!launchPresentation);nativeHome?.folderBalloon(b,state,view);
   if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
    const nativeFooterDrawn=nativeHome?.footer(b,state,reduced,homeEntry.footerSceneInFrame??undefined,launchPresentation?.footerSceneOutFrame)===true;
    if(launchPresentation&&!nativeFooterDrawn)throw Error('Native HOME launch footer unavailable');

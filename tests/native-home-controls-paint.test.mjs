@@ -239,6 +239,22 @@ test('first Health launch pair retains its owner-matched banner and Open footer 
  }});
 });
 
+test('eligible retained launch keeps the selected native cursor beneath the fade; a pending host does not',async()=>{
+ const withControls=state=>({...state,system:{...state.system,homeControls:home().system.homeControls}});
+ for(const [active,expected] of [[true,true],[false,false]]){
+  const hosted=realAppBannerView('health-safety',{active});
+  await withScreens(({paint,events})=>{
+   const state=withControls(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000));
+   try{
+    globalThis.__testNativeSystemOverlayDrawn=true;
+    paint(state,4000);
+    assert.equal(events.some(event=>event.name==='cursorAt'),expected);
+    assert.equal(events.some(event=>event.name==='cursorEffectAt'),expected);
+   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+  },{screenOptions:{getHomeBanner:()=>hosted,drawStockTitleBannerFrame:()=>true}});
+ }
+});
+
 test('a fast Health shortcut with a real pending banner host keeps the prior launch flow without sticky recovery',async()=>{
  const hosted=realAppBannerView('health-safety');
  await withScreens(({screens,events})=>{

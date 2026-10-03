@@ -51,3 +51,16 @@ test('sample rejects out-of-pack poses and missing diagnostic provenance', () =>
   ])assert.throws(()=>validateHomeHudSample({...sample,...replacement},hud),/Invalid HOME HUD diagnostic/);
   assert.doesNotThrow(()=>validateHomeHudSample({...sample,walkCoinFrame:179.5},hud));
 });
+
+test('HOME entry selects only the decoded HUD SceneIn frame', () => {
+  const calls=[];
+  const renderer={packs:{hud,launcher:pack('launcher'),messages:pack('messages-and-loose')},draw(_ctx,_bank,_layout,options){calls.push(options);return true;}};
+  const painter=createFirmwareHome({renderer}),date=new Date(2026,9,3,4,23,53);
+  for(const frame of [0,20,40])painter.hud({},date,1000,undefined,frame);
+  assert.deepEqual(calls.map(call=>call.bindings[0]),[0,20,40].map(frame=>({name:'HudMenu_00_SceneIn',frame})));
+  assert.ok(calls.slice(1).every(call=>assert.deepEqual(call.bindings.slice(1),calls[0].bindings.slice(1))===undefined));
+  assert.deepEqual(hud.animations.HudMenu_00_SceneIn.sourceFrameRange,[-20,20]);
+  assert.equal(hud.animations.HudMenu_00_SceneIn.frames,41);
+  assert.equal(hud.resourceSources.animations.HudMenu_00_SceneIn.sha256,'dd44a8b153374128fa7737e1663aafe52fb2d8c45f0bc9f8526e8b48b0c0c7f2');
+  for(const frame of [-1,40.5,41,NaN])assert.throws(()=>painter.hud({},date,1000,undefined,frame),/Invalid HOME HUD SceneIn frame/);
+});

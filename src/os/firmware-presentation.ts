@@ -17,6 +17,7 @@ import { homeSoftwareClosingDialogKey, homeSoftwareDialogKey, homeSoftwareSwitch
 import { ownedHomeFooterContact } from './home-footer-touch';
 import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
 import { selectHomeFolderFooterPose } from './home-folder-footer-return';
+import { HOME_ENTRY_FOOTER_LAST_FRAME, HOME_ENTRY_HUD_LAST_FRAME } from './home-entry-presentation';
 import { homeApplicationTransitionFooterExit, homeApplicationTransitionFooterReturn } from './home-application-transition';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 
@@ -240,12 +241,13 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    N_Base_00:{translation:[label.baseX,0,0]},N_LR_00:{translation:[label.bodyOffsetX,-6,0]},T_Blln_00:titleText?{text:titleText}:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)')
   }});
  }
- function hud(ctx:Context,date:Date,time:number,sample?:DiagnosticHomeHudSample){
+ function hud(ctx:Context,date:Date,time:number,sample?:DiagnosticHomeHudSample,sceneInFrame?:number){
   if(sample)validateHomeHudSample(sample,renderer.packs.hud);
+  if(sceneInFrame!==undefined&&(!Number.isInteger(sceneInFrame)||sceneInFrame<0||sceneInFrame>HOME_ENTRY_HUD_LAST_FRAME))throw new RangeError('Invalid HOME HUD SceneIn frame');
   const table='hud_msbt_LZ',day=message(table,`day_${date.getDate()}`,String(date.getDate()).padStart(2,'0')).text!,month=message(table,`month_${date.getMonth()+1}`,String(date.getMonth()+1).padStart(2,'0')).text!;
   const weekday=message(table,`week_${['sun','mon','tue','wed','thu','fri','sat'][date.getDay()]}`,'').text!;
   const dateText=message(table,'lau_date','%d/%M (%w)');dateText.text=dateText.text!.replace('%d',day).replace('%M',month).replace('%w',weekday);
-  return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',41),binding('HudMenu_00_WhiteBlack',0),binding('HudMenu_00_NetMode',sample?.netModeFrame??4),binding('HudMenu_00_NetAtn',sample?.netAtnFrame??8),binding('HudMenu_00_Bat',sample?.batteryFrame??3),binding('HudMenu_00_WalkCoin',sample?.walkCoinFrame??time*.06)],overrides:{
+  return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',sceneInFrame??41),binding('HudMenu_00_WhiteBlack',0),binding('HudMenu_00_NetMode',sample?.netModeFrame??4),binding('HudMenu_00_NetAtn',sample?.netAtnFrame??8),binding('HudMenu_00_Bat',sample?.batteryFrame??3),binding('HudMenu_00_WalkCoin',sample?.walkCoinFrame??time*.06)],overrides:{
    T_NetMode_00:message(table,sample?.networkMessage??'lau_connect4','Disabled'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:String(sample?.steps??0)},T_Coin_00:{text:String(sample?.coins??0)}
   }});
  }
@@ -294,7 +296,8 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const frame=close.controller.folder.appliedFrame??16;
   if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw))draw(1);
  }
- function footer(ctx:Context,state:MenuState,reduced=false){
+ function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number){
+  if(entrySceneInFrame!==undefined&&(!Number.isInteger(entrySceneInFrame)||entrySceneInFrame<0||entrySceneInFrame>HOME_ENTRY_FOOTER_LAST_FRAME))throw new RangeError('Invalid HOME footer SceneIn frame');
   const actions=getHomeFooter(state);if(!actions)return true;
   const {two,left:leftAction,right:rightAction}=actions,middleAction=actions.middle??null,three=middleAction!==null;
   const leftTone=leftAction==='close-software'?'B':'W';
@@ -315,9 +318,15 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const retainedCloseDecide=ordinaryCloseDialog||ordinaryCloseTransition;
   // Captured switch dialogs have no footer; use the source's settled out pose.
   const closingSwitch=homeSoftwareClosingDialogKey(state)&&sampleSystemHomeApplicationTransition(state)?.intent.kind==='switch';
+  const system=state.system;
+  const ordinaryEntry=entrySceneInFrame!==undefined&&!!system&&state.powered&&system.phase==='home'&&!system.sleeping
+   &&!state.opened&&!state.panel&&!system.preferences&&!system.dialog&&system.app===null&&system.pending===null
+   &&system.runtime.application===null&&system.homeApplicationTransition===null&&close===null;
   const footerPose=homeSoftwareSwitchTitles(state)||closingSwitch
    ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
-   :applicationFooterExit??applicationFooterReturn??selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
+   :applicationFooterExit??applicationFooterReturn??(ordinaryEntry
+    ?{clip:'LncBtmBtn_02_SceneIn' as const,frame:entrySceneInFrame}
+    :selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced));
   if(applicationFooterExit&&!renderer.packs.launcher.animations[applicationFooterExit.clip])throw Error('Native software-close footer exit unavailable');
   if(applicationFooterReturn&&!renderer.packs.launcher.animations[applicationFooterReturn.clip])throw Error('Native software-close footer return unavailable');
   if(retainedCloseDecide&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native software-close footer Decide unavailable');

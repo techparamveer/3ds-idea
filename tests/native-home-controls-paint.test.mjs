@@ -187,6 +187,82 @@ test('cold boot publishes only the captured HOME base layers beneath the paired 
  });
 });
 
+test('boot-owned paired screens paint counted footer and HUD entry frames without repaint advancement',async()=>{
+ await withScreens(({paint,events})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:100,homeClock:{...initial.system.homeClock,updateCount:77}}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   paint(boot);
+   const entered={...boot,system:{...boot.system,phase:'home'}};
+   for(const [elapsed,footerFrame,hudFrame] of [[0,0,0],[0,0,0],[14,14,14],[15,undefined,15],[40,undefined,40],[41,undefined,undefined]]){
+    const state={...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount:77+elapsed}}};
+    paint(state);
+    assert.equal(events.find(event=>event.name==='footer').args[2],footerFrame);
+    assert.equal(events.find(event=>event.name==='hud').args[3],hudFrame);
+   }
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ });
+});
+
+test('synthetic paints cannot acquire or revoke the live HOME entry owner',async()=>{
+ await withScreens(({screens,paint,events})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:25,homeClock:{...initial.system.homeClock,updateCount:90}}};
+  const entered={...boot,system:{...boot.system,phase:'home'}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   screens.paint(boot,new Date(0),1000,{sampleCalendar:true});
+   paint(entered);
+   assert.equal(events.find(event=>event.name==='hud').args[3],undefined,'diagnostic boot did not arm');
+   assert.equal(events.find(event=>event.name==='footer').args[2],undefined);
+
+   paint(boot);
+   const diagnosticPower={...boot,system:{...boot.system,phase:'power'}};
+   screens.paint(diagnosticPower,new Date(0),1000,{sampleCalendar:true});
+   paint(entered);
+   assert.equal(events.find(event=>event.name==='hud').args[3],0,'diagnostic preemption did not revoke');
+   assert.equal(events.find(event=>event.name==='footer').args[2],0);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ });
+});
+
+test('reuse-only live paint retires HOME entry across immediate Power to B return',async()=>{
+ await withScreens(({screens,paint,events})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:25,homeClock:{...initial.system.homeClock,updateCount:90}}};
+  const entered={...boot,system:{...boot.system,phase:'home'}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);paint(entered);
+   assert.equal(events.find(event=>event.name==='hud').args[3],0);
+   const power=reduceSystem(entered,'power',100);
+   screens.paint(power,new Date(0),1000,{reuseHomeBackgroundMs:1000/30});
+   const returned=reduceSystem(power,'back',100);
+   paint(returned);
+   assert.equal(events.find(event=>event.name==='hud').args[3],undefined);
+   assert.equal(events.find(event=>event.name==='footer').args[2],undefined);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ });
+});
+
+test('firmware owner replacement resets HOME entry and disposed screens stay inert',async()=>{
+ await withScreens(({screens,paint,events,presenter})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:10,homeClock:{...initial.system.homeClock,updateCount:12}}};
+  const entered={...boot,system:{...boot.system,phase:'home'}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
+   screens.setFirmwareAssets({presenter,sharedFont:{draw(){}},diagnostics:[],dispose(){}});
+   paint(entered);
+   assert.equal(events.find(event=>event.name==='hud').args[3],undefined);
+   assert.equal(events.find(event=>event.name==='footer').args[2],undefined);
+   screens.dispose();events.length=0;
+   assert.equal(screens.paint(entered,new Date(0),1000),undefined);
+   assert.equal(events.length,0);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ });
+});
+
 test('footer-return source failure retains paired recovery after application retirement',async()=>{
  await withScreens(({paint,events,screens})=>{
   const state=closeFooterReturn();paint(state);
@@ -555,7 +631,7 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     return events;
   };
   const cursorCalls = () => events.filter(event => nativeCursorNames.has(event.name));
-  try { await screens.ready; await run({ screens, paint, events, cursorCalls, diagnostics }); }
+  try { await screens.ready; await run({ screens, paint, events, cursorCalls, diagnostics, presenter }); }
   finally {
     screens.dispose();
     for (const [key, descriptor] of saved) {
@@ -779,6 +855,30 @@ test('vacant-root footer retains the decoded Create Folder message with its boun
  assert.equal(options.overrides.N_BtnW_C_01.visible,true);
  assert.equal(options.bindings.some(binding=>binding.name==='LncBtmBtn_02_SceneIn'&&binding.frame===15),true);
  assert.equal(options.textSampling,'lcd');assert.equal(options.textCoverageAdaptation,'azahar-12p4-fit');
+});
+
+test('HOME entry footer uses decoded SceneIn frames without overriding specialized owners',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}};
+ const presenter=createFirmwareHome({renderer}),scene=()=>calls.at(-1).bindings.find(binding=>binding.name.startsWith('LncBtmBtn_02_Scene'));
+ const root=home();
+ presenter.footer({},root,false,0);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:0});
+ presenter.footer({},root,false,14);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:14});
+ assert.deepEqual(pack.resourceSources.animations.LncBtmBtn_02_SceneIn,{path:'launcher_LZ.bin/anim/LncBtmBtn_02_SceneIn.bclan',sha256:'9b19c054cbb84c89a4b0c8669a2c05566f386dc7fd681410864065b8dee44a4e',titleId:'0004003000009802'});
+ assert.deepEqual(pack.animations.LncBtmBtn_02_SceneIn.sourceFrameRange,[-14,0]);
+ assert.equal(pack.animations.LncBtmBtn_02_SceneIn.frames,15);
+
+ const child=root.system.layout[0];
+ const opened=selectHomeSlot(enterHomeFolder({...root,folders:{20:'A'},system:{...root.system,folderLayouts:{20:{2:child}}}},20),2);
+ presenter.footer({},opened,false,7);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:15});
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+ presenter.footer({},camera,false,7);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:15});
+ const closing=reduceSystem(camera,'back',6400);
+ presenter.footer({},closing,false,7);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:15});
+ assert.ok(calls.at(-1).bindings.some(binding=>binding.name==='LncBtmBtn_02_Decide'));
+ const switching=launchHomeShortcut(camera,'health-safety',6500);
+ presenter.footer({},switching,false,7);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneOut',frame:14});
+
+ for(const frame of [-1,14.5,15,NaN])assert.throws(()=>presenter.footer({},root,false,frame),/Invalid HOME footer SceneIn frame/);
 });
 
 test('captured occupied folder uses the decoded centre Open control with no Close segment',()=>{

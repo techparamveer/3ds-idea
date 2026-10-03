@@ -149,7 +149,8 @@ not distinguish host-delivery failure from the native notification boundary.
 ### L-01 - Cold boot, Power menu, shutdown, and off
 **Code/tests/evidence:** [system.ts](../../src/os/system.ts), [native-system-presentation.ts](../../src/os/native-system-presentation.ts), [system-transitions.ts](../../src/os/system-transitions.ts), [transition tests](../../tests/system-transitions.test.mjs), [power note](../portfolio-power-transitions.md).
 **Now/gap/dependency:** Boot/home/power/shutdown/off phases, sourced fades and Power panes exist. [Power footer recapture](../home-power-footer-raster-2026-10-02.md) at `d4c96f26` closes the settled text-raster residuals: both HOME/app origins have zero pixels above delta 2 on both LCDs, maximum 2, empty masks. The source spacer lines and inert footer are retained. [Shutdown correction](../home-shutdown-fade-2026-10-03.md) at `cdc2926f` replaces the generic fade with lower Decide then paired Slp SceneOut; 14 native own PNGs identify the partial fade, not its terminal. The 3000/1200 ms boot/shutdown durations, final 350 ms reveal and reduced policies are browser adaptations. Whole scenarios remain fail for exact input/epochs, motion/audio, terminal publication under stalls and physical backlight/order.
-**Next/acceptance:** From running software and from HOME, press Power, cancel with B/HOME, confirm off, then cold boot. Match phase gates, LCD/backlight frames, selected HOME context, and ignored inputs during boot/shutdown.
+**Superseding evidence:** [Shutdown publication](../home-shutdown-publication-2026-10-03.md) through `ea6265de` closes the host-stall terminal skip with paired paint/render receipts and suspension/context invalidation; six production terminal pairs are native byte-black. [Power input](../home-power-input-2026-10-03.md) fixes outside-origin activation and held feedback. [Continuous re-entry](../home-power-reentry-2026-10-03.md) confirms native clears feedback outside and restores it inside before accepted release; four primary paired endpoints meet delta2. These supersede the terminal-publication and re-entry gaps above, not exact motion/audio or whole-scenario failure.
+**Next/acceptance:** Match native cold boot, LCD/backlight order and exact input/motion timing from HOME and running software. Preserve verified Power ownership and terminal publication; do not repeat those settled endpoint audits as missing implementation.
 
 ### L-02 - Lid close, sleep, wake, and document visibility
 **Code/tests/evidence:** [console-scene.ts](../../src/scene/console-scene.ts), [app-host.ts](../../src/os/app-host.ts), [home-navigation-motion tests](../../tests/home-navigation-motion.test.mjs), [runtime tests](../../tests/app-runtime.test.mjs).
@@ -175,16 +176,16 @@ not distinguish host-delivery failure from the native notification boundary.
 
 Update `7dd76afa`: visible button bounds, same-pointer same-button release and
 pressed feedback are implemented/tested/browser-inspected for close and switch.
-[Evidence](../software-dialog-input-2026-10-02.md). Native graphics and closing
-presentation below remain unfinished; no native comparison was added.
+[Evidence](../software-dialog-input-2026-10-02.md). That checkpoint added no
+native comparison. The later evidence below supersedes its authored-painter limitation.
 
 **Code/tests/evidence:** [system.ts](../../src/os/system.ts), [portfolio-screens.ts](../../src/os/portfolio-screens.ts), [portfolio tests](../../tests/portfolio.test.mjs), [power note](../portfolio-power-transitions.md).
-**Now/gap/dependency:** B on root HOME with suspended software opens `dialog:'close'`; B cancels/resumes and A closes the owner. The visible dialog is a shared authored painter and is not a source-mapped native composition.
+**Now/gap/dependency:** B on root HOME with suspended software opens `dialog:'close'`; B cancels/resumes and A closes the owner. The [source close dialog](../home-software-closing-2026-10-02.md), [closing exit](../home-closing-fade-2026-10-02.md), [entry/footer departure](../home-postmodal-footer-2026-10-02.md), [Open return](../home-open-return-2026-10-03.md) and [banner return](../home-banner-return-2026-10-03.md) are implemented through `c01e1219`. Owner retirement and paired-publication gates are retained. Decoded source art replaces the old authored painter; capture-fitted bindings, exact native epochs/input/motion/audio and residual pixels remain unaccepted.
 **Next/acceptance:** Work -> HOME -> B, capture, cancel, reopen, confirm. Require correct frozen/suspended background, owner preservation/removal, selection, dialog text/buttons, touch bounds, and native/browser raw pairs.
 
 ### L-07 - Switch-software confirmation and pending launch
 **Code/tests/evidence:** [system.ts](../../src/os/system.ts), [app-host.ts](../../src/os/app-host.ts), [portfolio tests](../../tests/portfolio.test.mjs), [performance record](../performance-2026-10-01.md).
-**Now/gap/dependency:** Selecting a different application while one is suspended stores `pending`, opens `dialog:'switch'`, cancels back to the old owner, or closes then launches the pending title. The current painter is visually shared with L-06 and does not establish native switch wording/composition.
+**Now/gap/dependency:** Selecting a different application while one is suspended stores `pending`, opens `dialog:'switch'`, cancels back to the old owner, or closes then launches the pending title. [Source dialog and input delivery](../software-dialog-input-2026-10-02.md) replaces the authored modal; [closing-exit ownership](../home-closing-fade-2026-10-02.md) deliberately keeps switch separate from ordinary-close departure. Native switch timing and departure/reveal still require matched capture; implemented source composition alone is not acceptance.
 **Next/acceptance:** Work -> HOME -> select About -> A, capture, cancel and resume Work; repeat and confirm About. Require no premature close/start, one fresh owner after confirm, correct pending cleanup, and distinct source/capture-backed switch presentation.
 
 ### L-08 - System/library applet invoke, result, cancel, and nesting

@@ -3,11 +3,17 @@
 This is a work queue, not a replacement for the private evidence matrix and not
 a claim that these scenarios pass. Use the [completion map](../feature-map.md)
 and detailed lane feature IDs. The coordinator alone operates the native and
-production-browser sessions. All sessions remain muted; use verified Sidecar
-unless the user authorizes another display (the entire Mac was authorized for
-the 2 October Notes run).
+production-browser sessions. All sessions remain muted; the user now authorizes
+the entire Mac. Verify current display geometry before GUI input.
 
 ## First Cross-App Pass
+
+Current runtime `ea6265de`: [Open/banner return](../home-banner-return-2026-10-03.md),
+[shutdown publication](../home-shutdown-publication-2026-10-03.md) and
+[Power re-entry](../home-power-reentry-2026-10-03.md) supersede the historical
+missing-stage and endpoint gaps below. Preserve those implementations and
+bounded comparisons. Exact native epochs/input/motion/audio, physical cold
+boot/backlight and measured HOME residuals remain open; no queue row passes.
 
 [Compact footer](../home-compact-footer-2026-10-02.md), `be54ea30`, supersedes
 SceneOut with ChangeDw0..6 and resolves most left Close tone error using scoped

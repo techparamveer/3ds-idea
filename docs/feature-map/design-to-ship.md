@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `cdc2926f` (source paired sleep shutdown fade),
+Current runtime checkpoint: `ea6265de` (guarded shutdown terminal publication),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -9,14 +9,16 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
-The [shutdown fade](../home-shutdown-fade-2026-10-03.md) now follows the
-captured source family: lower Decide, then paired Slp SceneOut. Normal 1200 ms
-and reduced 120 ms are browser adaptations; exact native terminal/order and
-input/audio still need acceptance. Preserve settled Power's static pixel match.
+[Shutdown publication](../home-shutdown-publication-2026-10-03.md) now preserves
+the native black endpoint under stalls, suspension and context restoration.
+[Power input](../home-power-input-2026-10-03.md) and [continuous re-entry](../home-power-reentry-2026-10-03.md)
+cover held feedback and contact ownership, with bounded native pixel matches.
+Normal1200ms/reduced120ms shutdown durations remain adaptations; exact native
+epochs/motion/audio, physical backlight order and cold boot remain open.
 Close entry/departure, Open return and earlier banner request are implemented
-through `78fa7325` / `c01e1219`; the historical missing-stage descriptions below
-are superseded. Next: native terminal capture and Power/button interaction,
-not another redesign of finished stock screens. Whole scenarios still fail.
+through `78fa7325` / `c01e1219`. Preserve those stages and target measured
+residuals or a newly captured interaction, not their historical placeholders.
+Whole scenarios still fail.
 
 The [fresh close sequence](../home-close-icon-exit-2026-10-02.md) captures39
 native own-PNGs including modal entry, stable hold, exit, footer departure and
@@ -139,9 +141,9 @@ modal-button portion of items 1-2/4 is implemented and browser-inspected;
 
 | Order | Feature IDs / owner | Concrete unfinished UI or interaction | Bounded deliverable and completion check |
 | --- | --- | --- | --- |
-| 1 | L-06 / Lifecycle | Source closing dialog/exit through `229e864c`, folder action `a40d597e`, exit icon endpoint `7d0b4a9f` | [Fresh39-frame native sequence](../home-close-icon-exit-2026-10-02.md) supersedes endpoint-only captures. Finish captured old-footer departure before Open and modal entry; exact exit epoch, LCD order, timing and retirement remain open. Preserve [paired publication and source curves](../home-closing-fade-2026-10-02.md); no guessed fade. |
+| 1 | L-06 / Lifecycle | Source close entry, footer departure, Open return and banner reacquisition implemented through `c01e1219` | [Banner-return comparison](../home-banner-return-2026-10-03.md) records load-sensitive onset and remaining relative pose/epoch gaps. Correct measured footer pixels and exact input/motion/audio; preserve owner/publication barriers and completed stages. |
 | 2 | L-07 / Lifecycle | Confirmed switch retains old owner through AppQuit then launches frozen target; intentionally no ordinary-close exit phase | [Closing-exit contract](../home-closing-fade-2026-10-02.md) preserves switch ownership separately. Existing Work->About browser route passes; native timing and departure/reveal still need matched capture. Preserve cancel/owner guards and change only captured unfinished states. |
-| 3 | L-01, L-03 / Lifecycle | Power-on uses adapted 3000 ms boot/final 350 ms reveal; shutdown now binds source Decide then sleep SceneOut over adapted 1200 ms (reduced 120 ms) | Finish native terminal/off comparison and exact Power input, then off -> power-on -> paired LCD reveal -> HOME. Capture backlight/LCD order and input gates; no decorative boot screen. Preserve existing console opening and settled Power match. |
+| 3 | L-01, L-03 / Lifecycle | Power-on uses adapted 3000 ms boot/final 350 ms reveal; shutdown uses source poses with guarded terminal publication through `ea6265de` | Native black and Power contact/re-entry endpoints are compared. Next off -> power-on -> paired LCD reveal -> HOME, exact epochs, backlight/LCD order and input gates. Preserve verified ownership and terminal publication; no decorative boot screen. |
 | 4 | H-14, L-06, L-07 / Lifecycle + coordinator | Source Bounding_00/01 rectangles and Select press feedback at `f17a1007`; same-button ownership preserved | Tests and muted Sidecar replay pass, including byte-identical dialog crop after cross-drag. Native input/default focus/motion comparison remains open. Physical, keyboard and touch keep the same actions. |
 | 5 | H-03..H-10, H-14 / HOME | Navigation exists; button feedback and edge/cancel behavior need a complete visible interaction pass | Select/open with touch and A; B/Back; HOME/resume; toolbar; density ends; paging; footer variants; folder enter/close; pickup/drop/cancel. Repair captured failures only, preserving existing visual design. Run both physical-model and touchscreen routes. |
 | 6 | H-12, L-05 / HOME + Lifecycle | Expanded/compact windows and source curved backing delivered; lower tint and paired pulse at `7b243793`/`47845dc5` | Preserve owner/mode readiness and capture ownership. Native pulse epoch/cadence, HUD, footer background shades and suspend/resume/close motion remain open. [Latest evidence and adaptations](../home-suspended-highlight-2026-10-02.md); no whole scenario passes. |

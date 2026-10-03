@@ -1,5 +1,16 @@
 # Workstream Registry
 
+## Open Footer Residual - 3 October 2026
+
+Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses new same-database
+`3ds-home-open-footer-material-20261003` / `codex/home-open-footer-material-20261003`
+at exact `f04f35f5`. HOME-local footer/backing candidate only; no shared sampler
+or runtime change is delivered. Existing comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence. Both use GPT-5.6
+Sol/high; service tier is not exposed. Coordinator alone runs muted native and
+production GUI on the authorized full Mac. [Rejected candidate and remaining gap](../home-open-footer-residual-2026-10-03.md).
+Source work is bounded and finished; do not schedule another identical sweep.
+
 ## Power Re-entry - 3 October 2026
 
 Coordinator alone operates the muted isolated reference and production browser

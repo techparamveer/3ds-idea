@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Power re-entry comparison](home-power-reentry-2026-10-03.md) confirms
+Latest [settled Open footer investigation](home-open-footer-residual-2026-10-03.md)
+confirms54 edge pixels above delta2/max5 at unchanged `ea6265de`. A retained
+capture candidate is rejected because maximum error and MAE worsen; no runtime
+change. Stop this palette/filter path pending discriminating capture evidence,
+and take the next captured HOME/lifecycle defect. Whole scenarios still fail.
+
+Earlier [Power re-entry comparison](home-power-reentry-2026-10-03.md) confirms
 the existing continuous-contact behavior at unchanged runtime `ea6265de`:
 native clears held feedback outside, restores it inside, and shuts down on
 inside release. Four primary unmasked two-LCD pairs meet maximum delta2;
@@ -554,8 +560,8 @@ above2; a fresh native frame gives8383/1217. Timing/population differ, so neithe
 is acceptance. Saved thumbnails/Zoom, first-use preparation and exact motion/
 input/audio remain open. Full1648 tests, typecheck/build pass.
 
-All 3DS sessions stay muted. All visible verification runs on the iPad Sidecar
-desktop after fresh geometry checks. Only the coordinator operates Azahar and
+All 3DS sessions stay muted. The user now permits the entire Mac for visible
+verification; check current display geometry before input. Only the coordinator operates Azahar and
 the shared production browser. No default Azahar profile; no new artifacts on
 DeveloperStorage. Private artifacts use the internal disk. No push, merge to a
 shared branch or deployment without authorization.

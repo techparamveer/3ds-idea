@@ -14,8 +14,13 @@ function folderHealth(){
 
 test('fresh root launch retains its selected owner and source footer exit frames',()=>{
  const state=launch(home()),owner=state.system.runtime.application;
- assert.deepEqual(getHomeLaunchPresentation(state,4000),{appId:'health-safety',owner,footerSceneOutFrame:0,cursorEffectFrame:0});
- assert.equal(getHomeLaunchPresentation(state,4100).footerSceneOutFrame,6);
+ assert.deepEqual(getHomeLaunchPresentation(state,4000),{appId:'health-safety',owner,footerDecideFrame:0,footerSceneOutFrame:0,cursorEffectFrame:0});
+ // Decide0..5 holds Open in place for 100ms before SceneOut begins.
+ assert.equal(getHomeLaunchPresentation(state,4050).footerDecideFrame,3);
+ assert.equal(getHomeLaunchPresentation(state,4050).footerSceneOutFrame,0);
+ assert.equal(getHomeLaunchPresentation(state,4084).footerDecideFrame,5);
+ assert.equal(getHomeLaunchPresentation(state,4100).footerSceneOutFrame,0);
+ assert.equal(getHomeLaunchPresentation(state,4200).footerSceneOutFrame,6);
  assert.equal(getHomeLaunchPresentation(state,5000).footerSceneOutFrame,14);
  assert.equal(getHomeLaunchPresentation(state,4100).cursorEffectFrame,6);
  assert.equal(getHomeLaunchPresentation(state,5000).cursorEffectFrame,60);
@@ -26,13 +31,13 @@ test('fresh root launch retains its selected owner and source footer exit frames
 test('folder launch retains the full-width Open footer instead of adopting suspended-software actions',()=>{
  const state=launch(folderHealth()),owner=state.system.runtime.application;
  assert.equal(state.opened,true);assert.equal(state.folderSelected,2);
- assert.deepEqual(getHomeLaunchPresentation(state,4000),{appId:'health-safety',owner,footerSceneOutFrame:0,cursorEffectFrame:0});
+ assert.deepEqual(getHomeLaunchPresentation(state,4000),{appId:'health-safety',owner,footerDecideFrame:0,footerSceneOutFrame:0,cursorEffectFrame:0});
  assert.deepEqual(getHomeFooter(state,true),{two:false,left:null,right:'open'});
 });
 
 test('reduced launch selects the authored footer endpoint without changing ownership',()=>{
  const state=launch(home()),owner=state.system.runtime.application;
- assert.deepEqual(getHomeLaunchPresentation(state,4000,true),{appId:'health-safety',owner,footerSceneOutFrame:14,cursorEffectFrame:60});
+ assert.deepEqual(getHomeLaunchPresentation(state,4000,true),{appId:'health-safety',owner,footerDecideFrame:5,footerSceneOutFrame:14,cursorEffectFrame:60});
 });
 
 test('stale, replaced and mismatched launch owners cannot retain HOME composition',()=>{

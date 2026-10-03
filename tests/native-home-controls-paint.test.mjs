@@ -229,11 +229,11 @@ test('first Health launch pair retains its owner-matched banner and Open footer 
    assert.deepEqual(screens.paint(state,new Date(0),4000),{nativeSystem:true});
    const banner=events.find(event=>event.name==='launch-banner'),footer=events.find(event=>event.name==='launch-footer');
    assert.deepEqual(banner.args,['health-safety','health']);
-   assert.deepEqual(footer.args,[{two:false,left:null,right:'open'},false,undefined,0]);
-   paint(state,4100);
-   assert.equal(events.find(event=>event.name==='launch-footer').args[3],6);
+   assert.deepEqual(footer.args,[{two:false,left:null,right:'open'},false,undefined,0,0]);
+   paint(state,4200);
+   assert.deepEqual(events.find(event=>event.name==='launch-footer').args.slice(3),[6,5]);
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
- },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame,decideFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame,decideFrame]);return true;}},screenOptions:{
   getHomeBanner:()=>hosted,
   drawStockTitleBannerFrame(ctx,_motion,ticket,kind){ctx.record('launch-banner',[ticket.selection.id,kind]);return true;},
  }});
@@ -284,10 +284,10 @@ test('a fast Health shortcut with a real pending banner host keeps the prior lau
    assert.notEqual(screens.stockStatus(state),'error');assert.equal(screens.stockFailure(),null);
    assert.equal(events.some(event=>event.name==='launch-banner'),false);
    const footer=events.find(event=>event.name==='launch-footer');
-   assert.deepEqual(footer.args,[{two:true,left:'close-software',right:'resume'},false,undefined,undefined]);
+   assert.deepEqual(footer.args,[{two:true,left:'close-software',right:'resume'},false,undefined,undefined,undefined]);
    assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.active,owner);
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
- },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame,decideFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame,decideFrame]);return true;}},screenOptions:{
   getHomeBanner:()=>hosted,drawStockTitleBannerFrame:ctx=>{ctx.record('launch-banner');return true;},
  }});
 });
@@ -311,7 +311,7 @@ test('Settings helper launches ignore the settled parent banner and preserve ord
     assert.equal(events.find(event=>event.name==='launch-footer').args[3],undefined);
    }
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
- },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame,decideFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame,decideFrame]);return true;}},screenOptions:{
   getHomeBanner:()=>hosted,drawSettingsBannerFrame:ctx=>{ctx.record('settings-banner');return true;},
  }});
 });
@@ -330,7 +330,7 @@ test('ordinary suspended-HOME switch with a pending target banner keeps the esta
    assert.equal(events.some(event=>event.name==='launch-banner'),false);
    assert.equal(events.find(event=>event.name==='launch-footer').args[3],undefined);
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
- },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame,decideFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame,decideFrame]);return true;}},screenOptions:{
   getHomeBanner:()=>hosted,drawStockTitleBannerFrame:ctx=>{ctx.record('launch-banner');return true;},
  }});
 });
@@ -394,7 +394,7 @@ test('stale launch banner preserves the prior flow until a matching host enables
    assert.deepEqual(screens.paint(state,new Date(0),4000),{nativeSystem:true});
    assert.equal(events.filter(event=>event.name==='launch-footer').at(-1).args[3],14);
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
- },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame,decideFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame,decideFrame]);return true;}},screenOptions:{
   getHomeBanner:()=>({status:'active',selection:{kind:'app',id:bannerId},resourceTicket:{generation:'g',requestEpoch:1},stage:'active',waitUpdates:0,
    primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id:bannerId},motion}}),
   drawStockTitleBannerFrame:()=>true,
@@ -1459,6 +1459,22 @@ test('suspended Camera footer paints decoded Close, Manual and Resume panes bene
  const unavailable=structuredClone(pack);delete unavailable.animations.LncBtmBtn_02_Decide;
  const missing=createFirmwareHome({renderer:{...renderer,packs:{...renderer.packs,launcher:unavailable}}});
  assert.throws(()=>missing.footer({},closing),/footer Decide unavailable/);
+});
+
+test('launching Open binds source Decide on its own button group before and during SceneOut',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}};
+ const presenter=createFirmwareHome({renderer});
+ const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000);
+ for(const [sceneOut,decide] of [[0,0],[0,4],[0,5],[6,5]]){
+  assert.equal(presenter.footer({},state,false,undefined,sceneOut,decide),true);
+  assert.deepEqual(calls.at(-1).bindings,[{name:'LncBtmBtn_02_SceneOut',frame:sceneOut},{name:'LncBtmBtn_02_Decide',frame:decide,groups:['G_BtnW_C_01']}]);
+ }
+ presenter.footer({},state,false,undefined,3);
+ assert.deepEqual(calls.at(-1).bindings,[{name:'LncBtmBtn_02_SceneOut',frame:3}],'callers without a Decide frame keep the prior binding');
+ assert.throws(()=>presenter.footer({},state,false,undefined,undefined,2),/Decide frame/);
+ assert.throws(()=>presenter.footer({},state,false,undefined,0,6),/Decide frame/);
+ const unavailable=structuredClone(pack);delete unavailable.animations.LncBtmBtn_02_Decide;
+ assert.throws(()=>createFirmwareHome({renderer:{...renderer,packs:{...renderer.packs,launcher:unavailable}}}).footer({},state,false,undefined,0,0),/launch footer Decide unavailable/);
 });
 
 test('suspended Camera Select feedback follows each three-button owner and never either source gap',()=>{

@@ -540,7 +540,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!bootBaseOnly&&!nativeHome?.hud(t,date,time,verification?.homeHudSample,homeEntry.hudSceneInFrame??undefined))status(t,date,chrome);
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame,launchPresentation);nativeHome?.folderBalloon(b,state,view);
   if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
-   const nativeFooterDrawn=nativeHome?.footer(b,state,reduced,homeEntry.footerSceneInFrame??undefined,launchPresentation?.footerSceneOutFrame)===true;
+   const nativeFooterDrawn=nativeHome?.footer(b,state,reduced,homeEntry.footerSceneInFrame??undefined,launchPresentation?.footerSceneOutFrame,launchPresentation?.footerDecideFrame)===true;
    if(launchPresentation&&!nativeFooterDrawn)throw Error('Native HOME launch footer unavailable');
    if(!nativeFooterDrawn)footer(b,state,chrome);
    homeEntryFooterTerminalDrawn=nativeFooterDrawn&&getHomeFooter(state)!==null

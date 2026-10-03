@@ -298,9 +298,10 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const frame=close.controller.folder.appliedFrame??16;
   if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw))draw(1);
  }
- function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number){
+ function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number){
   if(entrySceneInFrame!==undefined&&(!Number.isInteger(entrySceneInFrame)||entrySceneInFrame<0||entrySceneInFrame>HOME_ENTRY_FOOTER_LAST_FRAME))throw new RangeError('Invalid HOME footer SceneIn frame');
   if(launchSceneOutFrame!==undefined&&(!Number.isInteger(launchSceneOutFrame)||launchSceneOutFrame<0||launchSceneOutFrame>14))throw new RangeError('Invalid HOME launch footer SceneOut frame');
+  if(launchDecideFrame!==undefined&&(launchSceneOutFrame===undefined||!Number.isInteger(launchDecideFrame)||launchDecideFrame<0||launchDecideFrame>5))throw new RangeError('Invalid HOME launch footer Decide frame');
   const actions=getHomeFooter(state,launchSceneOutFrame!==undefined);if(!actions)return true;
   const {two,left:leftAction,right:rightAction}=actions,middleAction=actions.middle??null,three=middleAction!==null;
   const leftTone=leftAction==='close-software'?'B':'W';
@@ -334,6 +335,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(applicationFooterExit&&!renderer.packs.launcher.animations[applicationFooterExit.clip])throw Error('Native software-close footer exit unavailable');
   if(applicationFooterReturn&&!renderer.packs.launcher.animations[applicationFooterReturn.clip])throw Error('Native software-close footer return unavailable');
   if(launchSceneOutFrame!==undefined&&!renderer.packs.launcher.animations.LncBtmBtn_02_SceneOut)throw Error('Native HOME launch footer exit unavailable');
+  if(launchDecideFrame!==undefined&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native HOME launch footer Decide unavailable');
   if(retainedCloseDecide&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native software-close footer Decide unavailable');
   // Capture-fit direct binding keeps the compact ChangeDw departure on its
   // authored scene member, preserving the separately settled button channels.
@@ -343,7 +345,11 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
     ?[binding('LncBtmBtn_02_SceneIn',15),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
     :retainedCloseDecide
      ?[binding(footerPose.clip,footerPose.frame),binding('LncBtmBtn_02_Decide',5,['G_BtnB_L_03'])]
-     :[binding(footerPose.clip,footerPose.frame)];
+     :launchDecideFrame!==undefined
+      // The launching Open action: pressed through Decide4, released with the
+      // authored highlight at Decide5 (native N065 dark, N070 white).
+      ?[binding(footerPose.clip,footerPose.frame),binding('LncBtmBtn_02_Decide',launchDecideFrame,[three?'G_BtnW_R_03':two?'G_BtnW_R_02':'G_BtnW_C_01'])]
+      :[binding(footerPose.clip,footerPose.frame)];
   const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);
   if(pressed){
    const group=three?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:pressed.side==='middle'?'G_BtnW_C_03':'G_BtnW_R_03'):two?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));

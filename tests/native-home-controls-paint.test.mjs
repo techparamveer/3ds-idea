@@ -801,23 +801,27 @@ test('suspended Camera footer paints decoded Close, Manual and Resume panes bene
   {label:'lau_2b_manual',index:12,text:'Manual',styleIndex:185},
   {label:'lau_2b_restart',index:42,text:'\ue073 Resume',styleIndex:193},
  ]);
- for(const state of [camera,closing]){
+ for(const [state,expectedBindings] of [[camera,[{name:'LncBtmBtn_02_SceneIn',frame:15}]],[closing,[{name:'LncBtmBtn_02_SceneIn',frame:15},{name:'LncBtmBtn_02_Decide',frame:5,groups:['G_BtnB_L_03']}]]]){
   presenter.footer({},state);const {overrides,bindings}=calls.at(-1).options;
   assert.equal(overrides.N_BtnB_L_03.visible,true);assert.equal(overrides.N_BtnW_C_03.visible,true);assert.equal(overrides.N_BtnW_R_03.visible,true);
   assert.equal(overrides.N_BtnW_R_02.visible,false);assert.equal(overrides.N_BtnW_L_03.visible,false);assert.equal(overrides.N_BtnW_C_01.visible,false);
   assert.equal(overrides.T_BtnBB_L_03.text,'\ue071 Close');
   assert.equal(overrides.T_BtnFW_C_03.text,'Manual');
   assert.equal(overrides.T_BtnFW_R_03.text,'\ue073 Resume');
-  assert.deepEqual(bindings,[{name:'LncBtmBtn_02_SceneIn',frame:15}]);
+  assert.deepEqual(bindings,expectedBindings);
  }
  const source=pack.resourceSources;
  assert.deepEqual(source.layouts.LncBtmBtn_02,{path:'launcher_LZ.bin/blyt/LncBtmBtn_02.bclyt',sha256:'1be988eda6f3d2374d8445d0773688fa1c6dd118590cb986d526c0dc4f326a44',titleId:'0004003000009802'});
+ assert.deepEqual(source.animations.LncBtmBtn_02_Decide,{path:'launcher_LZ.bin/anim/LncBtmBtn_02_Decide.bclan',sha256:'65eb55af8110e51cf8efdc9bafb70d681fdbf528a211a0df5d9ca172546de4bc',titleId:'0004003000009802'});
  const panes=new Map();const walk=items=>items.forEach(pane=>{panes.set(pane.name,pane);walk(pane.children??[]);});walk(pack.layouts.LncBtmBtn_02.roots);
  assert.deepEqual(['B_BtnB_L_03','B_BtnW_C_03','B_BtnW_R_03'].map(name=>({name,translation:panes.get(name).translation,size:panes.get(name).size,origin:panes.get(name).origin})),[
   {name:'B_BtnB_L_03',translation:[-160,-120,0],size:[105,28],origin:6},
   {name:'B_BtnW_C_03',translation:[-0,-120,0],size:[106,28],origin:7},
   {name:'B_BtnW_R_03',translation:[160,-120,0],size:[105,28],origin:8},
  ]);
+ const unavailable=structuredClone(pack);delete unavailable.animations.LncBtmBtn_02_Decide;
+ const missing=createFirmwareHome({renderer:{...renderer,packs:{...renderer.packs,launcher:unavailable}}});
+ assert.throws(()=>missing.footer({},closing),/footer Decide unavailable/);
 });
 
 test('suspended Camera Select feedback follows each three-button owner and never either source gap',()=>{

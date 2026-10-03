@@ -39,6 +39,14 @@ recovery, never a native success receipt. Its visible/accessibility text offers
 Retry only; sleeping is inactive and ordinary boot input cannot bypass the
 publication barrier.
 
+Post-boot HUD/footer entry belongs to the paired screen owner, keyed by an
+observed awake boot identity and relative shared HOME update origin. It never
+resets the global clock or advances on repaint. Sleep retains the owner;
+nonordinary HOME contexts, resource replacement and disposal retire it.
+Diagnostic sample paints are non-mutating, but reuse-only live input paints
+must revoke immediately. Source SceneIn frame scheduling remains an
+adaptation, not a traced native caller. See [HOME entry evidence](../home-entry-staging-2026-10-03.md).
+
 Close and switch confirmation resolve icon identity from the validated retained
 application owner, not HOME selection. The shared presenter selects decoded
 single-title `LncDlgIcon_D_00` or two-title `LncDlgIcon_D_01`; its bounded cache

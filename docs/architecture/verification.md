@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+[HOME entry verification](../home-entry-staging-2026-10-03.md) freezes the native
+first partial footer/HUD samples before corrected browser capture. Select the
+first actual HOME paint at relative update0, first in(0,14] and first in(20,40]
+chronologically; record differing deltas rather than searching for a best
+match. Whole-LCD masks stay empty. Check warm restart, live input preemption,
+repaint/diagnostic ownership and reduced endpoints separately. Ordering and
+source clips do not prove the native epoch, duration, input or audio.
+
 [Power-on staging verification](../home-power-on-staging-2026-10-03.md) separates
 native HOME-title initialization ordering from browser warm Off/On restart.
 Use fixed declared midfade/bright native samples, empty whole-LCD masks and

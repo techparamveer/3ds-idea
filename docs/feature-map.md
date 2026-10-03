@@ -15,7 +15,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [power-on staging and publication](home-power-on-staging-2026-10-03.md),
+Latest [HOME entry staging](home-entry-staging-2026-10-03.md), `a655e4ed`,
+plays the decoded footer and delayed HUD SceneIn clips after boot instead of
+showing both settled immediately. Boot-relative ownership and live preemption
+are tested; native epoch/cadence and reduced endpoints remain adaptations.
+Preserve this change. Next visible entry gap is the selected Camera banner's
+early appearance relative to native footer entry; whole HOME/input/motion/audio
+remain fail. Do not repeat HUD/footer source extraction or redesign other apps.
+
+Earlier [power-on staging and publication](home-power-on-staging-2026-10-03.md),
 `ce493657` / `ee38f862`, hides premature HUD/footer during paired reveal and
 holds a stalled boot until its native terminal pair is visibly rendered.
 Through `cbfaa053`, unavailable boot resources expose Retry-only host recovery

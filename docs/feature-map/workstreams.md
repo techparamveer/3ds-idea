@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## HOME Entry Staging - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-entry-staging-20261003` / `codex/home-entry-staging-20261003`,
+base `0c20c334`. Worker `d3c15fbb` integrates as `a655e4ed` in coordinator
+`3ds-home-fidelity-20261001`. Scope is paired HOME entry ownership, existing
+HUD/footer source bindings and focused tests. Helper `boot_staging_review`
+reviews; comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns the private
+inventory/comparison bundle. All delegates GPT-5.6 Sol/high. Only coordinator
+drives native/browser on the authorized Mac; all 3DS sessions remain muted.
+[Source and evidence](../home-entry-staging-2026-10-03.md).
+
 ## Power-On Staging And Publication - 3 October 2026
 
 Coordinator remains `3ds-home-fidelity-20261001` / `codex/home-fidelity-20261001`.

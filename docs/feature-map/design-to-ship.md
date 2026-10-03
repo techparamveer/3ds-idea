@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `cbfaa053` (power-on staging, publication and recovery),
+Current runtime checkpoint: `a655e4ed` (post-boot HUD/footer entry staging),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,13 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[HOME entry staging](../home-entry-staging-2026-10-03.md) now uses the delivered
+footer/HUD SceneIn tracks with a boot-relative HOME counter. Preserve the
+normal/reduced and preemption behavior. Native caller timing remains untraced;
+the next captured entry defect is the selected Camera banner appearing before
+native's footer-first boundary. Whole pixel/input/motion/audio acceptance is
+still fail; do not use source clips or browser checks as proof of native timing.
 
 [Power-on staging](../home-power-on-staging-2026-10-03.md) now keeps HUD/footer
 out of the paired base reveal and preserves its terminal through normal/reduced

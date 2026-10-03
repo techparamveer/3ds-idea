@@ -379,7 +379,12 @@ function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number)
   state=tickHomeNavigationClock(state,now);s=state.system!;
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&isSystemHomeFolderClosing(state))return state;
   state={...state,system:{...s,input:touched.latch}};s=state.system!;
-  if(s.dialog&&!s.preferences&&s.phase!=='power'){
+  if(s.phase==='power'){
+   const contact=previousTouch??touched.latch.touch;
+   const action=contact&&powerMenuActionAt(contact.startX,contact.startY);
+   return event.phase==='up'&&action&&action===powerMenuActionAt(event.x,event.y)?touchSystem(state,event.x,event.y,now):state;
+  }
+  if(s.dialog&&!s.preferences){
    const contact=previousTouch??touched.latch.touch;
    const action=contact&&softwareDialogActionAt(contact.startX,contact.startY);
    return event.phase==='up'&&action&&action===softwareDialogActionAt(event.x,event.y)?touchSystem(state,event.x,event.y,now):state;

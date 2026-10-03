@@ -25,12 +25,12 @@ function mockCtx(width){
   save(){},restore(){}};
 }
 
-function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch',returnPhase='home'){
+function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch',returnPhase='home',touch=null){
  const draws=[];
  const top=mockCtx(400),bottom=mockCtx(320);
  const assets={renderer:{packs:{messages:{menu_msbt_LZ:{labels:{},messages:[]}},...packs},
   draw(ctx,bank,name,options){const bindings=options.bindings.map(binding=>({...binding}));draws.push({bank,name,clip:bindings[0].name,frame:bindings[0].frame,bindings,width:ctx.canvas.width,overrides:options.overrides,textSampling:options.textSampling,textSamplingPanes:options.textSamplingPanes});return true;}}};
- const ok=drawNativeSystemOverlay(top,bottom,{system:{phase,since:0,sleeping:false,returnPhase}},elapsed,reduced,assets);
+ const ok=drawNativeSystemOverlay(top,bottom,{system:{phase,since:0,sleeping:false,returnPhase,input:{held:{},analog:{},touch}}},elapsed,reduced,assets);
  return {ok,draws,fills:[...top.fills,...bottom.fills]};
 }
 
@@ -82,7 +82,7 @@ test('launch without the logo pack keeps the 20-frame HOME SceneOut fallback',()
 });
 
 test('Power scopes decoded multiline writer metrics and LCD sampling to their source panes',()=>{
- const before=JSON.stringify(homeMessages),result=overlay(350,false,{common:{},sleep:{},messages:homeMessages},'power');
+ const before=JSON.stringify(homeMessages),result=overlay(350,false,{common:{},sleep:{animations:{Slp_D_00_Select:{}}},messages:homeMessages},'power');
  assert.equal(result.ok,true);
  const upper=result.draws.find(draw=>draw.bank==='sleep'&&draw.name==='Slp_U_00');
  assert.deepEqual(upper.overrides.T_Main_00.lineAdvanceScales,[1,.2,1,.2,1,1]);
@@ -94,7 +94,28 @@ test('Power scopes decoded multiline writer metrics and LCD sampling to their so
  assert.equal(upper.textSampling,'lcd');assert.deepEqual(upper.textSamplingPanes,['T_Btm_00']);
  const lower=result.draws.find(draw=>draw.bank==='sleep'&&draw.name==='Slp_D_00');
  assert.equal(lower.textSampling,'lcd');assert.deepEqual(lower.textSamplingPanes,['T_BtnB_01','T_BtnF_01']);
+ assert.deepEqual(lower.bindings,[
+  {name:'Slp_D_00_SceneIn',frame:20},
+  {name:'Slp_D_00_Select',frame:0},
+ ]);
  assert.equal(JSON.stringify(homeMessages),before);
+});
+
+test('Power binds Select1 only for the owned in-button contact and fails without its source clip',()=>{
+ const packs={common:{},sleep:{animations:{Slp_D_00_Select:{}}},messages:homeMessages};
+ const bindings=touch=>overlay(350,false,packs,'power','home',touch).draws.find(draw=>draw.name==='Slp_D_00').bindings;
+ const inside={pointerId:7,startX:66,startY:166,x:253.999,y:201.999};
+ assert.deepEqual(bindings(inside),[
+  {name:'Slp_D_00_SceneIn',frame:20},
+  {name:'Slp_D_00_Select',frame:0},
+  {name:'Slp_D_00_Select',frame:1,groups:['G_Btn_01']},
+ ]);
+ for(const touch of [
+  {...inside,x:254},
+  {...inside,startX:65.999,x:160,y:182},
+  null,
+ ])assert.deepEqual(bindings(touch).slice(1),[{name:'Slp_D_00_Select',frame:0}]);
+ assert.throws(()=>overlay(350,false,{common:{},sleep:{animations:{}},messages:homeMessages},'power'),/Native Power selection animation unavailable/);
 });
 
 test('shutdown holds Decide then binds paired sleep SceneOut last without a common fade',()=>{

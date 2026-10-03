@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {appLaunchLogoFrame,bootRevealFrame,shutdownTransitionPose,systemTransitionDuration} from '../src/os/system-transitions.ts';
-import {createPortfolioState,tickSystem,launch,reduceSystem,touchSystem,selectedTitle} from '../src/os/system.ts';
+import {createPortfolioState,tickSystem,launch,reduceSystem,touchSystem,dispatchSystemEvent,selectedTitle} from '../src/os/system.ts';
 import {enableHomeControls} from '../src/os/home-controls.ts';
-import {powerMenuActionAt} from '../src/os/stock-screen-layout.ts';
+import {powerMenuActionAt,powerMenuPressed} from '../src/os/stock-screen-layout.ts';
 
 test('Power touch uses only the source B_Btn_01 boundary, not the HOME-key hint',()=>{
  for(const [x,y] of [[66,166],[160,182],[253.999,201.999]])assert.equal(powerMenuActionAt(x,y),'open');
@@ -18,6 +18,44 @@ test('Power touch uses only the source B_Btn_01 boundary, not the HOME-key hint'
   assert.equal(reduceSystem(power,'home',6201).system.phase,'home');
   assert.equal(reduceSystem(power,'back',6201).system.phase,'home');
  }
+});
+test('Power phased touch requires the same owned target at start and release',()=>{
+ const event=(phase,x,y,pointerId=7)=>({type:'touch',phase,x,y,pointerId});
+ const initial=reduceSystem(tickSystem(createPortfolioState(),4000),'power',4100);
+ const inside=[160,182],outside=[160,107];
+ assert.equal(powerMenuPressed({startX:66,startY:166,x:253.999,y:201.999}),'open');
+ for(const touch of [null,
+  {startX:65.999,startY:182,x:160,y:182},
+  {startX:160,startY:165.999,x:160,y:182},
+  {startX:160,startY:182,x:254,y:182},
+  {startX:160,startY:182,x:160,y:202},
+ ])assert.equal(powerMenuPressed(touch),null);
+
+ let held=dispatchSystemEvent(initial,event('down',...inside),4200);
+ assert.equal(held.system.phase,'power');assert.equal(powerMenuPressed(held.system.input.touch),'open');
+ assert.equal(dispatchSystemEvent(held,event('up',...inside,8),4201),held,'another pointer cannot release the owner');
+ let declined=dispatchSystemEvent(held,event('move',...outside),4202);
+ assert.equal(declined.system.phase,'power');assert.equal(powerMenuPressed(declined.system.input.touch),null);
+ declined=dispatchSystemEvent(declined,event('up',...outside),4203);
+ assert.equal(declined.system.phase,'power');assert.equal(declined.system.input.touch,null);
+
+ let outsideOrigin=dispatchSystemEvent(initial,event('down',...outside),4300);
+ outsideOrigin=dispatchSystemEvent(outsideOrigin,event('move',...inside),4301);
+ assert.equal(powerMenuPressed(outsideOrigin.system.input.touch),null);
+ outsideOrigin=dispatchSystemEvent(outsideOrigin,event('up',...inside),4302);
+ assert.equal(outsideOrigin.system.phase,'power');assert.equal(outsideOrigin.system.input.touch,null);
+
+ let reentry=dispatchSystemEvent(initial,event('down',...inside),4400);
+ reentry=dispatchSystemEvent(reentry,event('move',...outside),4401);
+ reentry=dispatchSystemEvent(reentry,event('move',...inside),4402);
+ assert.equal(powerMenuPressed(reentry.system.input.touch),'open');
+ reentry=dispatchSystemEvent(reentry,event('up',...inside),4403);
+ assert.equal(reentry.system.phase,'shutdown');assert.equal(reentry.system.input.touch,null);
+
+ const down=dispatchSystemEvent(initial,event('down',...inside),4500);
+ const cancelled=dispatchSystemEvent(down,event('cancel',NaN,NaN),4501);
+ assert.equal(cancelled.system.phase,'power');assert.equal(cancelled.system.input.touch,null);
+ assert.equal(dispatchSystemEvent(cancelled,event('up',...inside),4502),cancelled);
 });
 test('app launch maps the paired 60/30/15 HOME fade and logo clips',()=>{
  assert.deepEqual(appLaunchLogoFrame(0),{clip:'A',frame:0});

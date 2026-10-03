@@ -11,6 +11,11 @@ export function powerMenuActionAt(x: number, y: number): 'open' | null {
   if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
   return x >= r.x && x < r.x + r.width && y >= r.y && y < r.y + r.height ? 'open' : null;
 }
+export function powerMenuPressed(touch: {startX: number; startY: number; x: number; y: number} | null): 'open' | null {
+  if (!touch) return null;
+  const action = powerMenuActionAt(touch.startX, touch.startY);
+  return action === powerMenuActionAt(touch.x, touch.y) ? action : null;
+}
 
 /** home.dialog/Dlg_A_D_02 Bounding_00/01 at the settled source pose. */
 export const SOFTWARE_DIALOG_BUTTONS = [

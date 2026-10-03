@@ -1,5 +1,16 @@
 # Workstream Registry
 
+## Density Boundary - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-density-boundary-20261003` / `codex/home-density-boundary-20261003`,
+base `a7826743`. Worker `8bb6b249` integrates as `f85e1396`.
+Scope: shared density hit geometry, HOME reducer/presenter and focused tests.
+Helper `boot_staging_review` reviews; comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private comparison evidence.
+All delegates GPT-5.6 Sol/high. Coordinator alone drives muted Azahar/browser
+on the authorized Mac. [Evidence](../home-density-boundary-2026-10-03.md).
+
 ## Entry Recovery - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

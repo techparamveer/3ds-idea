@@ -1,5 +1,16 @@
 # Native density toolbar availability
 
+## Boundary Follow-Up - 3 October 2026
+
+`f85e1396` makes pressed presentation and release share the half-open density
+geometry in `stock-screen-layout.ts`, including x293 owned by increase.
+This corrects a captured browser decrease-highlight/increase-action mismatch
+without changing disabled availability or source assets. Six applet buttons
+retain their previous geometry. [Captures and limits](home-density-boundary-2026-10-03.md)
+separate native endpoint behavior from still-unverified native held pixels.
+
+## Original Availability Implementation
+
 2026-09-23. The native toolbar now uses the source-proven availability rule
 for both appearance and touch activation: decrease is enabled above target
 density0 at root or target density1 in a folder; increase is enabled below5.

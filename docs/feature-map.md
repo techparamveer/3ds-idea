@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [entry recovery](home-entry-recovery-2026-10-03.md), `650daa79`,
+Latest [density boundary correction](home-density-boundary-2026-10-03.md),
+`f85e1396`, aligns native-source pressed feedback with the existing release
+action at x293. Full1940 tests/build/typecheck and independent103-test review
+pass. Native cross-footer cancellations and density release are observed;
+native held-frame/input-cadence/audio and whole1:1 remain open. Preserve the
+other app designs and continue named HOME visual/input residuals.
+
+Earlier [entry recovery](home-entry-recovery-2026-10-03.md), `650daa79`,
 corrects the captured HUD-before-banner restoration defect: normal HUD waits
 for an identity-validated visible banner, then plays its remaining source
 clip on the existing clock. Normal footer/banner/HUD order, reduced endpoints and

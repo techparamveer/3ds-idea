@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `650daa79` (HOME graphics-recovery entry ordering),
+Current runtime checkpoint: `f85e1396` (HOME density press boundary),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,15 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Density boundary feedback](../home-density-boundary-2026-10-03.md) now shares
+the existing release split x293, so pressing that edge highlights increase
+instead of decrease. Native release and both cross-footer cancellation
+endpoints are captured; native held pixels/cadence are still open. Preserve
+this correction and the entry-order work below. Next interaction evidence
+should cover footer out-and-back re-entry and native pressed feedback, or
+return to a named banner residual. Do not infer sticky cancellation without
+native observation or redesign existing screens.
 
 [Entry recovery](../home-entry-recovery-2026-10-03.md) now preserves the
 footer/banner/HUD sequence after graphics restoration and plays the remaining

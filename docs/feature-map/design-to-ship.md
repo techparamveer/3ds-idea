@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `eacae23c` (HOME toolbar re-entry),
+Current runtime checkpoint: `e3b4f061` (HOME folder Back re-entry),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,13 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Folder Back re-entry](../home-folder-back-reentry-2026-10-03.md) now restores
+the original pressed contact after an excursion and closes to root on release.
+Preserve pointer/navigation ownership, non-transfer guards, physical B and the
+existing counted footer transitions. Native idle/outside PNGs were missed;
+whole pixels, exact native caller, cadence, motion and audio remain open.
+Continue captured residuals without redesigning the existing app screens.
 
 [Toolbar re-entry](../home-toolbar-reentry-2026-10-03.md) now restores the
 captured Notifications press and selects its banner/cursor/Open on first

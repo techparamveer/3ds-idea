@@ -463,3 +463,13 @@ existing retained focus/cursor consumer, then activate on a repeated selected
 touch through the existing system route. Settings remains direct-action.
 This is a Notifications-capture-fit adaptation, not a recovered native touch
 callsite or per-applet acceptance; see [toolbar re-entry](../home-toolbar-reentry-2026-10-03.md).
+
+At `e3b4f061`, folder Back captures a distinct `folder-back` origin. Shared
+`ownedHomeFolderBackContact` gates decoded Select and release using pointer
+and start identity, original/current Back geometry, selection revision,
+folder/context, focus, columns and density. Leaving clears Select; returning
+restores it and permits the existing folder-close route. An outside origin or
+cross-region contact cannot acquire ownership. Grid-drag Back hover, physical B
+and counted footer transitions are unchanged. This is a capture-fit input
+adaptation, not a recovered native caller; see
+[folder Back re-entry](../home-folder-back-reentry-2026-10-03.md).

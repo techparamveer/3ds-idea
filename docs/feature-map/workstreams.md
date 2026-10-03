@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Folder Back Re-entry - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-folder-back-reentry-20261003` / `codex/home-folder-back-reentry-20261003`,
+base `dc65d0a7`. Worker `bd422b3e` integrates as `e3b4f061`.
+Scope: folder Back exact contact ownership, shared Select/release and tests.
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns only private
+`home-folder-back-reentry-20261003/comparison/`. Existing helpers
+`toolbar_reentry_prepare` and `toolbar_reentry_review` prepare the isolated
+reference and independently review the new slice. GPT-5.6 Sol/high delegates;
+coordinator alone operates muted native/browser sessions on the authorized Mac.
+[Evidence and limits](../home-folder-back-reentry-2026-10-03.md).
+
 ## Toolbar Re-entry - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

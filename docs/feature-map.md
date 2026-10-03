@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest runtime [toolbar re-entry correction](home-toolbar-reentry-2026-10-03.md),
+Latest runtime [folder Back re-entry correction](home-folder-back-reentry-2026-10-03.md),
+`e3b4f061`, restores pressed Back on same-owner return and closes the folder on
+release. Pointer/navigation guards prevent activation transfer. Existing
+physical B, grid-drag hover and counted footer transitions are unchanged.
+Full1956 tests, build/typecheck and independent118-test review pass. Exact
+native caller, cadence/motion/audio and whole HOME fidelity remain open.
+Desktop/narrow re-entry closes to root;15 browser control pairs preserve
+non-transfer and physical B. Back re-entry ROI improves2002->714 above2,
+not a pixel match; all12 after whole-LCD comparisons remain fail.
+
+Earlier runtime [toolbar re-entry correction](home-toolbar-reentry-2026-10-03.md),
 `eacae23c`, restores Select and first-touch applet selection after a captured
 out-and-back contact. Repeated selected touch activates; Settings stays direct.
 Exact-owner guards preserve footer, density and grid behavior. Full1954 tests,

@@ -413,10 +413,10 @@ test('opt-in UTF-16 glyph-size runs scale mixed lines, measurement and source ne
  const draw=range=>font.drawNative(context,'AA\nBB',100,40,[10,10],4,0,2,0,[0,0],false,undefined,range,[],false,false,undefined,undefined,[{start:3,end:5,scale:.5}]);
  draw();
  assert.deepEqual(calls.map(call=>call.slice(5)),[
-  [45,11,5,8],[51,11,5,8],[47.5,23,2.5,4],[50.5,23,2.5,4],
+  [45,11,5,8],[51,11,5,8],[47.5,27,2.5,4],[50.5,27,2.5,4],
  ]);
  calls.length=0;draw([3,5]);
- assert.deepEqual(calls.map(call=>call.slice(5)),[[47.5,23,2.5,4],[50.5,23,2.5,4]],'colour-mask ink selection retains full-message centering and advances');
+ assert.deepEqual(calls.map(call=>call.slice(5)),[[47.5,27,2.5,4],[50.5,27,2.5,4]],'colour-mask ink selection retains full-message centering and advances');
 
  assert.doesNotThrow(()=>font.drawNative(context,'A😀\r\nB',100,40,[10,10],4,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,[{start:1,end:5,scale:.5}]));
  assert.throws(()=>font.drawNative(context,'A😀\r\nB',100,40,[10,10],4,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,[{start:2,end:5,scale:.5}]),/Invalid native text scale span/,'span cannot split a surrogate pair');

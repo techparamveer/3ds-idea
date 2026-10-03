@@ -77,7 +77,7 @@ for(const kind of ['close','switch'])test(`${kind} uses original dialog/masks an
   const p=nativePaneParentPath(pose,`Bounding_0${index}`).at(-1);
   assert.deepEqual([160+p.translation[0]-p.size[0]*(p.origin%3)/2,120-p.translation[1]-p.size[1]*Math.floor(p.origin/3)/2,...p.size],[target.x,target.y,target.width,target.height]);
  }
- assert.match(r.diagnostics[0],/block positioning remains an adaptation/);
+ assert.match(r.diagnostics[0],/source-baseline anchoring is a capture-supported adaptation/);
 });
 
 test('ordinary Camera close uses the decoded single-icon header at authored source geometry',()=>{

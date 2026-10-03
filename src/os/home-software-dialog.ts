@@ -59,7 +59,7 @@ export function drawHomeSoftwareDialog(renderer:NativeLayoutRenderer,top:CanvasR
   if(!renderer.packs[pack]?.layouts[name])throw Error(`Native software dialog layout unavailable: ${pack}/${name}`);
   for(const clip of clips)if(!renderer.packs[pack].animations[`${name}_${clip}`])throw Error(`Native software dialog animation unavailable: ${name}_${clip}`);
  }
- const note='Software close/switch uses source Dlg_A_D_02 and LncDlgIcon_D_00/01 assemblies at settled poses. HOME dialog warning glyph size is decoded from MSBT controls; block positioning remains an adaptation pending recapture. Camera close and Health-to-Camera are captured; other title headers are adaptations pending comparison. Per-title policy, native input, motion and audio remain unverified.';
+ const note='Software close/switch uses source Dlg_A_D_02 and LncDlgIcon_D_00/01 assemblies at settled poses. HOME dialog warning glyph size is decoded from MSBT controls; source-baseline anchoring is a capture-supported adaptation because the native call site remains untraced. Camera close and Health-to-Camera are captured; other title headers are adaptations pending comparison. Per-title policy, native input, motion and audio remain unverified.';
  if(!renderer.diagnostics.includes(note))renderer.diagnostics.push(note);
  const bindings:AnimationBinding[]=[{name:'Dlg_A_D_02_FadeIn',frame:20},{name:'Dlg_A_D_02_Select',frame:0}];
  const pressed=softwareDialogPressed(s.input.touch);

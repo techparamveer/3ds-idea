@@ -226,12 +226,17 @@ export class BitmapFont {
       const vertical=Math.floor(alignment/3),y0=vertical===1?height/2-Math.ceil(blockHeight/2):vertical*(height-blockHeight)/2;
       const widths=lines.map(glyphs=>glyphs.reduce((sum,entry)=>sum+(entry.glyph?.advance??0)*sx*entry.scale+spacing,0)-(glyphs.length?spacing:0));
       const blockWidth=Math.max(0,...widths),draws:{glyph:Glyph;x:number;y:number;width:number;height:number}[]=[];
+      const baseline=(this.manifest.baseline??this.manifest.height)*sy;
       let lineY=0;
       lines.forEach((glyphs,row)=>{
         const runWidth=widths[row],horizontal=lineAlignment===0?alignment%3:lineAlignment-1;
         let x=horizontal===1&&alignment%3===1?width/2-Math.ceil(runWidth/2):(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
         for(const entry of glyphs){const glyph=entry.glyph;
-          if(glyph?.width&&(!inkRange||entry.index>=inkRange[0]&&entry.index<inkRange[1]))draws.push({glyph,x:x+glyph.left*sx*entry.scale,y:y0+lineY,width:glyph.width*sx*entry.scale,height:glyph.height*sy*entry.scale});
+          // MSBT size changes scale the glyph cell around the current writer
+          // baseline. Keep the source baseline fixed instead of top-aligning a
+          // smaller cell; Camera Close captures corroborate this fractional
+          // font-derived offset, while the native call site remains untraced.
+          if(glyph?.width&&(!inkRange||entry.index>=inkRange[0]&&entry.index<inkRange[1]))draws.push({glyph,x:x+glyph.left*sx*entry.scale,y:y0+lineY+baseline*(1-entry.scale),width:glyph.width*sx*entry.scale,height:glyph.height*sy*entry.scale});
           x+=(glyph?.advance??0)*sx*entry.scale+spacing;
         }
         lineY+=advances[row]??0;

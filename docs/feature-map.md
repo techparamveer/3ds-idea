@@ -15,7 +15,12 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME launch logo order](home-launch-logo-order-2026-10-03.md), `01cc3224`,
+Latest [HOME launch cursor](home-launch-cursor-2026-10-03.md), `4cefc716`, keeps
+the selected icon's native brackets beneath the launch fade, as captured.
+N065/B000 selected-icon MAE 1.7971 -> 0.7135. Native icon glow during the fade
+and Open pressed/release tone are the next visible launch residuals.
+
+Earlier [HOME launch logo order](home-launch-logo-order-2026-10-03.md), `01cc3224`,
 fades HOME to source black before the Nintendo logo instead of drawing the
 logo over it. The desktop A-input recapture against the frozen 150-PNG native
 run shows HOME, then black, then the faint logo, matching native order.

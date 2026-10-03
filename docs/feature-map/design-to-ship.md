@@ -14,11 +14,13 @@ dispatch and whole acceptance remain open. Preserve the other Health designs.
 [HOME launch onset](../home-launch-onset-2026-10-03.md), `b4077380`, now
 retains the settled banner and departing native Open footer.
 [Logo order](../home-launch-logo-order-2026-10-03.md), `01cc3224`, fades HOME
-to source black before the logo, removing the captured overlap. The missing
-cursor effect, pressed/release timing and native black dwell remain the next
-visible launch residuals. Do not repeat generic publication work.
+to source black before the logo, removing the captured overlap.
+[Launch cursor](../home-launch-cursor-2026-10-03.md), `4cefc716`, keeps the
+selected brackets under the fade. Native icon glow during the fade, Open
+pressed/release tone and native black dwell remain the next visible launch
+residuals. Do not repeat generic publication work.
 
-Current runtime checkpoint: `01cc3224` (HOME launch logo order),
+Current runtime checkpoint: `4cefc716` (HOME launch cursor),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.

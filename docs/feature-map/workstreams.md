@@ -1,5 +1,12 @@
 # Workstream Registry
 
+## HOME Launch Cursor - 3 October 2026
+
+Claude Code coordinator owns `3ds-home-launch-cursor-20261003` /
+`codex/home-launch-cursor-20261003`, base `f0fc9bd8`. Worker `b74240ec` and
+review follow-up `aa57262d` integrate as `4cefc716` / `eabdc91e`.
+[Delivered correction and remaining gaps](../home-launch-cursor-2026-10-03.md).
+
 ## HOME Launch Logo Order - 3 October 2026
 
 Claude Code (coordinator while Codex is rate-limited) owns

@@ -109,17 +109,7 @@ export function tickHomeNavigationClockObserved(state: MenuState, now: number, r
  const applicationTransition=isSystemHomeApplicationTransitionActive(state);
  const applicationTransitionEligible=applicationTransition&&state.powered&&s.phase==='home'&&!s.sleeping&&!s.dialog&&!s.preferences&&!state.panel;
  const active=isHomeControlsActive(state)&&!applicationTransition;
- // A launch retains HOME's selected cursor beneath the source fade; native
- // keeps its LncCsr_00_Loop light pulsing (N065..N082). Only that loop
- // advances: HOME input passes and the shared update count stay frozen.
- const launchCursor=!active&&!applicationTransition&&state.powered&&s.phase==='launch'&&!s.sleeping
-  &&!s.dialog&&!s.preferences&&!state.panel&&!!s.homeControls;
- const stepped=stepHomeUpdateClock(s.homeClock,now,active||isHomeSwitchPresentationActive(state)||applicationTransitionEligible||launchCursor);
- if(launchCursor){
-  const homeCursorLoop=advanceHomeCursorLoop(s.homeCursorLoop,stepped.updates,s.homeControls!.primary.layoutVisible);
-  const homeClock={...stepped.clock,updateCount:s.homeClock.updateCount};
-  return {state:{...state,system:{...s,homeClock,homeCursorLoop}},passes:[]};
- }
+ const stepped=stepHomeUpdateClock(s.homeClock,now,active||isHomeSwitchPresentationActive(state)||applicationTransitionEligible);
  if(applicationTransition){
   const advanced=advanceSystemHomeApplicationTransition(state,stepped.updates,applicationTransitionEligible);
   state=advanced.state;

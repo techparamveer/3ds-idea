@@ -1,5 +1,19 @@
 # Workstream Registry
 
+## Close Warning - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses owned
+`3ds-home-close-warning-20261003` / `codex/home-close-warning-20261003`,
+base `ef531e6b`. Worker `31e99d55` -> runtime `8634178b`; after the first
+visible comparison, worker `8cfc426d` -> runtime `03d01e2b` refines baseline
+anchoring. Reserved native layout/renderer/bitmap writer, HOME body caller
+and focused tests; opt-in only, no assets/controller/audio changes.
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence;
+helper `switch_closing_review` independently passes 161 tests/typecheck at
+each commit with no findings. GPT-5.6 Sol/high, no service-tier claim.
+Coordinator alone operates the dedicated muted browser on the authorized Mac.
+[Sources, measured stages and adaptation limits](../home-close-warning-2026-10-03.md).
+
 ## Camera Close Header - 3 October 2026
 
 Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses owned

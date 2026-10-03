@@ -15,12 +15,22 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Camera close header](home-camera-close-dialog-2026-10-03.md),
+Latest [close warning correction](home-close-warning-2026-10-03.md),
+`8634178b` then `03d01e2b`, implements the source 85% size control and a
+font-derived baseline adaptation only for HOME close/switch body text.
+Body/modal residual improves 5,168 -> 1,611 -> 7 above delta 2; final seven
+pixels occupy one glyph-raster column at x188/y163..169, maximum 86. Icon and
+no-warning switch controls remain unchanged. Both runtimes pass 1,893 tests,
+typecheck/build; independent 161-test review finds no issues. Whole scenarios
+still fail. Next captured target is Camera's missing middle Manual footer
+button; retain the text-edge, upper, input/motion/audio and adaptation gaps.
+
+Earlier [Camera close header](home-camera-close-dialog-2026-10-03.md),
 `10be5b69`, restores the source single-icon header and body placement. Desktop
 icon residual improves 2,278 -> 0 above delta 2 (maximum 1); modal 9,584 ->
 5,168. Full 1,888 tests and production build pass; independent 123-test review
-has no findings. Warning typography and Camera's middle Manual footer button
-are separate remaining defects. Native epochs/input/motion/audio and whole
+has no findings. Warning typography is refined above; Camera's middle Manual
+footer button remains a separate defect. Native epochs/input/motion/audio and whole
 scenarios remain unaccepted; other title headers are unverified adaptations.
 
 Earlier [switch backing correction](home-switch-backing-2026-10-03.md),

@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `10be5b69` (Camera close title header),
+Current runtime checkpoint: `03d01e2b` (source warning size and baseline),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -16,8 +16,10 @@ no controller duration or ordinary-close tail was changed. The subsequent
 [switch-backing correction](../home-switch-backing-2026-10-03.md) retains the
 dark upper surface without applying ordinary-close AppQuit. The
 [Camera close header](../home-camera-close-dialog-2026-10-03.md) now restores
-the decoded single-title icon/separator/body assembly. Next captured defects
-are the smaller inline warning and Camera's missing middle Manual button;
+the decoded single-title icon/separator/body assembly. The
+[warning correction](../home-close-warning-2026-10-03.md) reads the source 85%
+size and anchors the scaled cells to the font baseline; seven text-edge pixels
+remain unaccepted. Next is Camera's missing middle Manual button;
 remaining switch/reveal timing and power-on follow. Do not repeat completed footer
 palette research or redesign existing app screens.
 

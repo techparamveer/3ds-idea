@@ -1,5 +1,14 @@
 # Verification and evidence architecture
 
+[Warning-size verification](../home-close-warning-2026-10-03.md) retains the
+original baseline, first source-size implementation and baseline refinement
+as distinct runtimes/capture directories. The predeclared body ROI ranks
+typography separately from icon and footer; retrospective ink extents explain
+the residual but do not replace the unmasked primary comparison. Preserve
+byte controls for no-warning switch and switch terminal, and test scaled
+portfolio close/switch plus malformed-token paired recovery. Source-derived
+metrics with an untraced baseline rule remain a stated adaptation.
+
 [Camera close verification](../home-camera-close-dialog-2026-10-03.md) keeps
 the captured single-icon header separate from warning typography and the
 three-button suspended footer. Compare initial/repeated/cross-drag lower

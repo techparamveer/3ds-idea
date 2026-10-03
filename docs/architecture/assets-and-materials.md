@@ -4,6 +4,14 @@ Editable sources, private extraction, converted delivery and runtime ownership
 are separate layers. A resource can decode successfully without being published,
 supported by the renderer, used by a live screen or visually accepted.
 
+HOME close/switch warning bodies alone opt into decoded UTF-16 glyph-size
+spans. Full-message measurement and color-mask placement share the same
+scaled glyph/advance data; invalid spans fail, text replacement clears them,
+and raster cache identity includes them. Absent spans retain the old writer.
+Scaled cells use a source-font baseline anchor, explicitly a capture-supported
+adaptation while the native call site remains untraced. Do not activate this
+globally from message decoding. See [source and comparisons](../home-close-warning-2026-10-03.md).
+
 HOME held stock icons bind 48x48 `NativePixels` to sampler 0 of the distinct
 `LncIconPickUp_00/P_Icon_00` material in one pickup-layout draw. Preserve its
 52x52 base pane, authored mask, alpha, UVs, TEV and blend; do not substitute

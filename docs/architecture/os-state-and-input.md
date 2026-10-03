@@ -440,7 +440,7 @@ gesture origin. At `632646d2`, a genuine footer-origin contact has a `footer`
 area in the existing gesture recognizer and remains press-owned beyond generic
 slop, allowing out-and-back Select restoration and release on the original
 button. Release outside footer geometry cannot become another chrome action;
-toolbar Select only consumes chrome-origin gestures. Grid/theme/other-chrome
+toolbar Select cannot consume footer-origin gestures. Grid/theme/other-chrome
 slop and native-control queuing/timing are unchanged. This is a captured-input
 adaptation, not a second recognizer or recovered native controller. See
 [button/border delivery](../home-buttons-border-2026-10-02.md) and the later
@@ -453,3 +453,13 @@ with matching panel, columns, container, context and target density. Retention
 does not authorize another toolbar, footer or grid target. Other chrome keeps
 its original slop cancellation. This is a separately native-observed input
 adaptation; see [density re-entry](../home-density-reentry-2026-10-03.md).
+
+At `eacae23c`, toolbar-origin contacts retain a `toolbar` area. Shared
+`ownedHomeToolbarContact` gates Select and release against the original exact
+action, live pointer/start identity, selection revision, focus and layout.
+Excursions restore feedback only on the original button; another button or
+region cannot inherit activation. Applet focuses1..5 first select through the
+existing retained focus/cursor consumer, then activate on a repeated selected
+touch through the existing system route. Settings remains direct-action.
+This is a Notifications-capture-fit adaptation, not a recovered native touch
+callsite or per-applet acceptance; see [toolbar re-entry](../home-toolbar-reentry-2026-10-03.md).

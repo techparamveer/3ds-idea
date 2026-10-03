@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `d53cbe32` (HOME density re-entry),
+Current runtime checkpoint: `eacae23c` (HOME toolbar re-entry),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,14 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Toolbar re-entry](../home-toolbar-reentry-2026-10-03.md) now restores the
+captured Notifications press and selects its banner/cursor/Open on first
+release. A repeated selected touch activates. Preserve exact-owner guards,
+Settings direct-action and existing density/footer behavior. Native caller,
+other applet-specific acceptance, cadence/motion/audio and whole HOME pixels
+remain open. Continue named capture-backed residuals; do not repeat this fix
+or redesign already implemented app screens.
 
 [Density re-entry](../home-density-reentry-2026-10-03.md) now preserves the
 captured held -> outside -> same-button return -> release outcome. Native

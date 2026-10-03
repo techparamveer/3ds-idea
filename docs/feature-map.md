@@ -15,13 +15,24 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest diagnostic [Settings banner compositing A/B](home-settings-banner-edge-source-gap-2026-09-26.md#compositing-ab-rejection---3-october-2026)
+Latest runtime [toolbar re-entry correction](home-toolbar-reentry-2026-10-03.md),
+`eacae23c`, restores Select and first-touch applet selection after a captured
+out-and-back contact. Repeated selected touch activates; Settings stays direct.
+Exact-owner guards preserve footer, density and grid behavior. Full1954 tests,
+build/typecheck and independent185-test review pass. Native touch caller,
+cadence/motion/audio and whole HOME fidelity remain open. Preserve existing designs.
+Desktop/mobile re-entry toolbar improves666->0 pixels above2; held/outside
+also meet delta2. Release selection is correct but cursor-region pixels still
+fail (498/514), and all whole pairs remain fail. Completed21-pair controls
+retain density/footer behavior, errors[] and mute.
+
+Earlier diagnostic [Settings banner compositing A/B](home-settings-banner-edge-source-gap-2026-09-26.md#compositing-ab-rejection---3-october-2026)
 rejects combining background and primary into one GPU target as a residual fix:
 the current fixed-pose body exactly reproduces preserved production, while
-native residuals change190->192. Runtime remains `d53cbe32`; do not repeat this
+native residuals change190->192. Diagnostic runtime was `d53cbe32`; do not repeat this
 experiment or infer a timing/whole-scenario pass. No native assets changed.
 
-Latest runtime [density re-entry correction](home-density-reentry-2026-10-03.md),
+Earlier runtime [density re-entry correction](home-density-reentry-2026-10-03.md),
 `d53cbe32`, restores the native-captured same-button press and release after
 an excursion. Original eligibility and layout ownership prevent transfer;
 no asset, timing or other app design change. Full 1,949 tests, build and

@@ -1,5 +1,19 @@
 # Workstream Registry
 
+## Toolbar Re-entry - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-toolbar-reentry-20261003` / `codex/home-toolbar-reentry-20261003`,
+base `896a12b9`. Worker `86715adf` integrates as `eacae23c`.
+Scope: toolbar-origin contact, shared Select/release ownership, retained
+first-touch focus and focused tests. Comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns only private
+`home-toolbar-reentry-20261003/comparison/`. Helpers
+`toolbar_reentry_prepare` and `toolbar_reentry_review` prepare the isolated
+reference and independently review code. GPT-5.6 Sol/high delegates; only the
+coordinator operates the muted native/browser sessions on the authorized Mac.
+[Evidence and limits](../home-toolbar-reentry-2026-10-03.md).
+
 ## Density Re-entry - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

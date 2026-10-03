@@ -132,7 +132,9 @@ export type HomeFooterAction='close-folder'|'close-software'|'folder-settings'|'
 export type HomeFooter=Readonly<{two:boolean;left:HomeFooterAction|null;middle?:HomeFooterAction;right:HomeFooterAction}>;
 export type HomeLaunchPresentation=Readonly<{appId:string;owner:string;footerSceneOutFrame:number}>;
 
-/** Retain the exact selected HOME owner underneath the source launch fade.
+/** State-side candidate for retaining the exact selected HOME owner underneath
+ * the source launch fade. The screen painter must additionally match a settled
+ * visible banner primary and its current resource ticket before opting in.
  * LncBtmBtn_02_SceneOut is source-authored; aligning its frame0 to the browser
  * launch clock is a bounded adaptation because the native dispatch is untraced. */
 export function getHomeLaunchPresentation(state:MenuState,elapsedMs:number,reduced=false):HomeLaunchPresentation|null{
@@ -145,7 +147,7 @@ export function getHomeLaunchPresentation(state:MenuState,elapsedMs:number,reduc
 }
 
 /** Footer actions follow the runtime's currently selected container. */
-export function getHomeFooter(state:MenuState):HomeFooter|null{
+export function getHomeFooter(state:MenuState,retainLaunchApplication=false):HomeFooter|null{
  const focus=state.system?.homeNavigation.focus;
  if(focus?.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5)return focus.currentFocus===4
   ?{two:true,left:'manual',right:'open'} as const
@@ -157,7 +159,7 @@ export function getHomeFooter(state:MenuState):HomeFooter|null{
  const appId=homeSlotAppId(state,state.opened?state.folderSelected:state.selected);
  // startApplication installs the new owner before HOME finishes departing.
  // Keep the pre-launch footer actions until the paired launch presentation ends.
- const applicationApp=state.system?.phase==='launch'&&getHomeLaunchPresentation(state,state.system.since)!==null
+ const applicationApp=retainLaunchApplication&&state.system?.phase==='launch'&&getHomeLaunchPresentation(state,state.system.since)!==null
   ?null:state.system?.app;
  // Native 0x29af68 → 0x1e0cb4 hides both actions for an empty selected child.
  if(hasEmptyHomeFolderSelection(state))return null;

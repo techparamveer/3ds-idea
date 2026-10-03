@@ -17,14 +17,15 @@ test('fresh root launch retains its selected owner and source footer exit frames
  assert.deepEqual(getHomeLaunchPresentation(state,4000),{appId:'health-safety',owner,footerSceneOutFrame:0});
  assert.equal(getHomeLaunchPresentation(state,4100).footerSceneOutFrame,6);
  assert.equal(getHomeLaunchPresentation(state,5000).footerSceneOutFrame,14);
- assert.deepEqual(getHomeFooter(state),{two:false,left:null,right:'open'});
+ assert.deepEqual(getHomeFooter(state,true),{two:false,left:null,right:'open'});
+ assert.deepEqual(getHomeFooter(state),{two:true,left:'close-software',right:'resume'},'without settled banner eligibility launch keeps its prior footer policy');
 });
 
 test('folder launch retains the full-width Open footer instead of adopting suspended-software actions',()=>{
  const state=launch(folderHealth()),owner=state.system.runtime.application;
  assert.equal(state.opened,true);assert.equal(state.folderSelected,2);
  assert.deepEqual(getHomeLaunchPresentation(state,4000),{appId:'health-safety',owner,footerSceneOutFrame:0});
- assert.deepEqual(getHomeFooter(state),{two:false,left:null,right:'open'});
+ assert.deepEqual(getHomeFooter(state,true),{two:false,left:null,right:'open'});
 });
 
 test('reduced launch selects the authored footer endpoint without changing ownership',()=>{

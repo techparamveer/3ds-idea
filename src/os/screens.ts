@@ -409,8 +409,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
   const view=getHomePresentation(state);
-  const launchPresentation=getHomeLaunchPresentation(state,elapsedMs,reduced);
-  if(state.system?.phase==='launch'&&!state.system.sleeping&&!launchPresentation)throw Error('Stale HOME launch presentation owner');
+  const launchCandidate=getHomeLaunchPresentation(state,elapsedMs,reduced);
   const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
   const layoutPreview=currentLayoutPreview(state,time);
   const suspended=retainedSuspendedApplication(state),expanded=!!selectedSuspendedApplication(state);
@@ -429,8 +428,15 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!suspended)suspendedMetadata=undefined;
   if(!suspended)options.drawSuspendedBackground?.(t,suspendedCapture,applicationTransitionPresentation);
   if(suspended&&!options.drawSuspendedBackground?.(t,suspendedCapture,applicationTransitionPresentation))throw Error('Native suspended application background unavailable');
-  if(!expanded){
   const hostedBanner=options.getHomeBanner?.();
+  const launchPresentation=!expanded&&launchCandidate&&hostedBanner?.status==='active'&&hostedBanner.stage==='active'
+   &&hostedBanner.selection.kind==='app'&&hostedBanner.selection.id===launchCandidate.appId
+   &&hostedBanner.primary.motion.visible&&hostedBanner.primary.selection.kind==='app'
+   &&hostedBanner.primary.selection.id===launchCandidate.appId
+   &&hostedBanner.resourceTicket?.generation===hostedBanner.primary.generation
+   &&hostedBanner.resourceTicket.requestEpoch===hostedBanner.primary.requestEpoch
+   ?launchCandidate:null;
+  if(!expanded){
   homeEntryDrawnNoBannerIdentity=homeEntryNoBannerIdentity(hostedBanner);
   const hostedToolbar=hostedBanner?.status!=='unsupported'&&hostedBanner?.selection.kind==='toolbar'?hostedBanner.selection:null;
   // Captured root-held HOME has no title/banner. A confirmed continuous stroke
@@ -441,9 +447,6 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const toolbarFailure=hostedToolbar?.focus===1?options.getMemoBannerFailure?.():hostedToolbar?.focus===2?options.getFriendBannerFailure?.():hostedToolbar?.focus===3?options.getNewsBannerFailure?.():hostedToolbar?.focus===4?options.getWebBannerFailure?.():hostedToolbar?.focus===5?options.getMiiverseBannerFailure?.():null;
   const toolbarUnavailable=hostedToolbar&&toolbarUnavailableByFocus[hostedToolbar.focus];
   if(hostedToolbar&&toolbarFailure&&toolbarUnavailable&&firmwareAssets&&!firmwareAssets.diagnostics.includes(toolbarUnavailable))firmwareAssets.diagnostics.push(toolbarUnavailable);
-  if(launchPresentation&&hasHomeTitleBanner(launchPresentation.appId)
-   &&(hostedBanner?.status!=='active'||!hostedBanner.primary.motion.visible||hostedBanner.primary.selection.kind!=='app'
-    ||hostedBanner.primary.selection.id!==launchPresentation.appId))throw Error('Native HOME launch banner owner unavailable');
   if(!hideHeldRootBanner){
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
@@ -533,6 +536,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame);nativeHome?.folderBalloon(b,state,view);
   if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
    const nativeFooterDrawn=nativeHome?.footer(b,state,reduced,homeEntry.footerSceneInFrame??undefined,launchPresentation?.footerSceneOutFrame)===true;
+   if(launchPresentation&&!nativeFooterDrawn)throw Error('Native HOME launch footer unavailable');
    if(!nativeFooterDrawn)footer(b,state,chrome);
    homeEntryFooterTerminalDrawn=nativeFooterDrawn&&getHomeFooter(state)!==null
     &&homeEntry.footerSceneInFrame===HOME_ENTRY_FOOTER_LAST_FRAME;

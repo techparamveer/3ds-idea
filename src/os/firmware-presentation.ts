@@ -301,7 +301,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number){
   if(entrySceneInFrame!==undefined&&(!Number.isInteger(entrySceneInFrame)||entrySceneInFrame<0||entrySceneInFrame>HOME_ENTRY_FOOTER_LAST_FRAME))throw new RangeError('Invalid HOME footer SceneIn frame');
   if(launchSceneOutFrame!==undefined&&(!Number.isInteger(launchSceneOutFrame)||launchSceneOutFrame<0||launchSceneOutFrame>14))throw new RangeError('Invalid HOME launch footer SceneOut frame');
-  const actions=getHomeFooter(state);if(!actions)return true;
+  const actions=getHomeFooter(state,launchSceneOutFrame!==undefined);if(!actions)return true;
   const {two,left:leftAction,right:rightAction}=actions,middleAction=actions.middle??null,three=middleAction!==null;
   const leftTone=leftAction==='close-software'?'B':'W';
   const active=new Set(three?[`N_Btn${leftTone}_L_03`,'N_BtnW_C_03','N_BtnW_R_03']:two?['N_BtnW_R_02',`N_Btn${leftTone}_L_03`]:['N_BtnW_C_01']);

@@ -6,7 +6,7 @@ import { createPortfolioState, dispatchSystemEvent, launchHomeShortcut, tickSyst
 import { createHomeInputAdapter } from '../src/os/home-input-adapter.ts';
 import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
 import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src/os/home-cursor-presentation.ts';
-import { resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts';
+import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts';
 import { commitHomeScroll, enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { advanceSystemHomeFolderCloseNative, beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomeFooter, getHomePresentation } from '../src/os/home-presentation.ts';
@@ -48,6 +48,21 @@ const { createFirmwareHome } = await loadPresentation('firmware-presentation', {
 const pack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url)));
 const messagesPack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/messages-and-loose.json', import.meta.url)));
 const nativeCursorNames = new Set(['cursor', 'cursorAt', 'cursorEffectAt']);
+
+function realAppBannerView(id,{active=false}={}){
+ const inputs={managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null};
+ let host=createHomeBannerHost({generation:`launch-${id}`,updateCount:0},inputs);
+ host=crossHomeBannerBoundary(host,host.clock,{selection:{kind:'app',id}});
+ const ticket=getHomeBannerHostView(host).resourceTicket;
+ host=crossHomeBannerBoundary(host,host.clock,{inputs:{...inputs,resourceReady:ticket}});
+ const lastUpdate=active?20:6;
+ for(let updateCount=1;updateCount<=lastUpdate&&getHomeBannerHostView(host).status!=='active';updateCount++){
+  host=crossHomeBannerBoundary(host,{...host.clock,updateCount});
+ }
+ const view=getHomeBannerHostView(host);
+ if(active)assert.equal(view.status,'active');else{assert.equal(view.status,'pending');assert.equal(view.stage,'loading');}
+ return view;
+}
 
 function closeFooterReturn(){
  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
@@ -206,9 +221,7 @@ test('system screen publication reports only a successful native boot, launch, p
 });
 
 test('first Health launch pair retains its owner-matched banner and Open footer through source SceneOut',async()=>{
- const motion={visible:true,scale:1,yawRadians:0,skeletal:{frame:17},material:{frame:23}};
- const active=id=>({status:'active',selection:{kind:'app',id},resourceTicket:{generation:'g',requestEpoch:1},stage:'active',waitUpdates:0,
-  primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id},motion}});
+ const hosted=realAppBannerView('health-safety',{active:true});
  await withScreens(({screens,paint,events})=>{
   const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000);
   try{
@@ -220,9 +233,70 @@ test('first Health launch pair retains its owner-matched banner and Open footer 
    paint(state,4100);
    assert.equal(events.find(event=>event.name==='launch-footer').args[3],6);
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
- },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
-  getHomeBanner:()=>active('health-safety'),
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+  getHomeBanner:()=>hosted,
   drawStockTitleBannerFrame(ctx,_motion,ticket,kind){ctx.record('launch-banner',[ticket.selection.id,kind]);return true;},
+ }});
+});
+
+test('a fast Health shortcut with a real pending banner host keeps the prior launch flow without sticky recovery',async()=>{
+ const hosted=realAppBannerView('health-safety');
+ await withScreens(({screens,events})=>{
+  const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000),owner=state.system.runtime.application;
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   assert.deepEqual(screens.paint(state,new Date(0),4000),{nativeSystem:true});
+   assert.notEqual(screens.stockStatus(state),'error');assert.equal(screens.stockFailure(),null);
+   assert.equal(events.some(event=>event.name==='launch-banner'),false);
+   const footer=events.find(event=>event.name==='launch-footer');
+   assert.deepEqual(footer.args,[{two:true,left:'close-software',right:'resume'},false,undefined,undefined]);
+   assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.active,owner);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+  getHomeBanner:()=>hosted,drawStockTitleBannerFrame:ctx=>{ctx.record('launch-banner');return true;},
+ }});
+});
+
+test('Settings helper launches ignore the settled parent banner and preserve ordinary helper publication',async()=>{
+ const hosted=realAppBannerView('system-settings',{active:true});
+ await withScreens(({screens,events})=>{
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   for(const [action,target,page] of [['nnid','nnid-settings',0],['transfer','system-transfer',2],['update','system-updater',3]]){
+    let state=tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'system-settings',4000),6200);
+    if(action!=='nnid'){
+     state=dispatchSystemEvent(state,{type:'action',id:'other'},7000);
+     for(let i=0;i<page;i++)state=dispatchSystemEvent(state,{type:'action',id:'settings-next'},7050+i*50);
+    }
+    state=dispatchSystemEvent(state,{type:'action',id:action},7200);events.length=0;
+    assert.equal(state.system.phase,'launch');assert.equal(state.system.app,target);assert.equal(state.selected,9);
+    assert.deepEqual(screens.paint(state,new Date(0),7200),{nativeSystem:true});
+    assert.notEqual(screens.stockStatus(state),'error');assert.equal(screens.stockFailure(),null);
+    assert.equal(events.some(event=>event.name==='settings-banner'),false);
+    assert.equal(events.find(event=>event.name==='launch-footer').args[3],undefined);
+   }
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+  getHomeBanner:()=>hosted,drawSettingsBannerFrame:ctx=>{ctx.record('settings-banner');return true;},
+ }});
+});
+
+test('ordinary suspended-HOME switch with a pending target banner keeps the established launch path',async()=>{
+ const hosted=realAppBannerView('health-safety');
+ await withScreens(({screens,events})=>{
+  let state=tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200);
+  state=reduceSystem(state,'home',6300);state=launchHomeShortcut(state,'health-safety',6400);state=reduceSystem(state,'open',6500);
+  for(let i=0;i<6&&state.system.phase!=='launch';i++)state=tickSystem(state,6500+i*1000);
+  assert.equal(state.system.phase,'launch');assert.equal(state.system.app,'health-safety');assert.equal(state.selected,8);
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   assert.deepEqual(screens.paint(state,new Date(0),state.system.since),{nativeSystem:true});
+   assert.notEqual(screens.stockStatus(state),'error');assert.equal(screens.stockFailure(),null);
+   assert.equal(events.some(event=>event.name==='launch-banner'),false);
+   assert.equal(events.find(event=>event.name==='launch-footer').args[3],undefined);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+  getHomeBanner:()=>hosted,drawStockTitleBannerFrame:ctx=>{ctx.record('launch-banner');return true;},
  }});
 });
 
@@ -241,6 +315,22 @@ test('launch banner draw failure publishes paired recovery and preserves the app
   primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id:'health-safety'},motion}}),drawStockTitleBannerFrame:()=>false}});
 });
 
+test('eligible retained launch footer draw failure enters paired recovery and retry keeps the owner',async()=>{
+ const hosted=realAppBannerView('health-safety',{active:true});let footerReady=false;
+ await withScreens(({screens})=>{
+  const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000),owner=state.system.runtime.application;
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   assert.equal(screens.paint(state,new Date(0),4000),undefined);assert.equal(screens.stockStatus(state),'error');
+   assert.match(String(screens.stockFailure()),/Native HOME launch footer unavailable/);
+   assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.active,owner);
+   assert.equal(screens.retryStockScreen(),true);footerReady=true;
+   assert.deepEqual(screens.paint(state,new Date(0),4000),{nativeSystem:true});assert.notEqual(screens.stockStatus(state),'error');assert.equal(screens.stockFailure(),null);
+   assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.active,owner);
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{presenterPatch:{footer(){return footerReady;}},screenOptions:{getHomeBanner:()=>hosted,drawStockTitleBannerFrame:()=>true}});
+});
+
 test('Settings launch cannot publish a pair without its matching retained native banner',async()=>{
  const id='system-settings',motion={visible:true,scale:1,yawRadians:0,skeletal:{frame:17},material:{frame:23}};
  await withScreens(({screens})=>{
@@ -255,22 +345,21 @@ test('Settings launch cannot publish a pair without its matching retained native
   primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id},motion}}),drawSettingsBannerFrame:()=>false}});
 });
 
-test('replacement launch owner rejects a stale banner and reduced motion holds the footer endpoint',async()=>{
+test('stale launch banner preserves the prior flow until a matching host enables the reduced footer endpoint',async()=>{
  const motion={visible:true,scale:1,yawRadians:0,skeletal:{frame:17},material:{frame:23}};
  let bannerId='camera';
  await withScreens(({screens,events})=>{
   const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000);
   try{
    globalThis.__testNativeSystemOverlayDrawn=true;
-   assert.equal(screens.paint(state,new Date(0),4000),undefined);
-   assert.equal(screens.stockStatus(state),'error');
-   assert.match(String(screens.stockFailure()),/launch banner owner unavailable/);
-   assert.equal(screens.retryStockScreen(),true);
+   assert.deepEqual(screens.paint(state,new Date(0),4000),{nativeSystem:true});
+   assert.notEqual(screens.stockStatus(state),'error');assert.equal(screens.stockFailure(),null);
+   assert.equal(events.find(event=>event.name==='launch-footer').args[3],undefined);
    bannerId='health-safety';screens.setReducedMotion(true);
    assert.deepEqual(screens.paint(state,new Date(0),4000),{nativeSystem:true});
-   assert.equal(events.find(event=>event.name==='launch-footer').args[3],14);
+   assert.equal(events.filter(event=>event.name==='launch-footer').at(-1).args[3],14);
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
- },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
+ },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame]);return true;}},screenOptions:{
   getHomeBanner:()=>({status:'active',selection:{kind:'app',id:bannerId},resourceTicket:{generation:'g',requestEpoch:1},stage:'active',waitUpdates:0,
    primary:{generation:'g',requestEpoch:1,activationEpoch:2,selection:{kind:'app',id:bannerId},motion}}),
   drawStockTitleBannerFrame:()=>true,
@@ -1224,7 +1313,7 @@ test('HOME launch footer binds the decoded SceneOut source and fails explicitly 
  const state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000);
  presenter.footer({},state,false,undefined,6);
  assert.deepEqual(calls.at(-1).bindings[0],{name:'LncBtmBtn_02_SceneOut',frame:6});
- assert.deepEqual(getHomeFooter(state),{two:false,left:null,right:'open'});
+ assert.deepEqual(getHomeFooter(state,true),{two:false,left:null,right:'open'});
  assert.deepEqual(pack.resourceSources.animations.LncBtmBtn_02_SceneOut,{path:'launcher_LZ.bin/anim/LncBtmBtn_02_SceneOut.bclan',sha256:'df95bfcc74135a116fe14b39604cdd1300197e48b2c864989d3b40d35f13cf1d',titleId:'0004003000009802'});
  assert.deepEqual(pack.animations.LncBtmBtn_02_SceneOut.sourceFrameRange,[200,214]);
  assert.equal(pack.animations.LncBtmBtn_02_SceneOut.frames,15);

@@ -2,7 +2,7 @@ import type { System } from './system';
 import { allocateHomeFolderIdentity, getHomeFolderIdentities, removeHomeFolderIdentity, writeHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { HOME_DENSITIES, getHomeExposedExtent, getHomeNavigationView, selectHomeSlot, stepHomeDirection, setHomeDensity, enterHomeFolder, leaveHomeFolder, initializeHomeFolderView, deleteHomeFolderView, type HomeNavigation, type HomeDensity } from './home-navigation.ts';
 import { getHomeDensityControls } from './home-density-controls.ts';
-import { clampHomeSettingsScroll, homeFolderNoticeActionAt, homeFolderSettingsActionAt, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
+import { clampHomeSettingsScroll, homeDensityActionAt, homeFolderNoticeActionAt, homeFolderSettingsActionAt, homeSettingsActionAt, homeSettingsChoiceScroll, homeSettingsScrollAt, homeSavedLayoutSlotAt, homeSavedLayoutActionAt, homeLayoutConfirmationAt } from './stock-screen-layout.ts';
 import { confirmHomeLayoutAction, requestHomeLayoutAction, type HomeLayoutAction, type HomeSavedLayouts } from './home-saved-layouts.ts';
 /** Native HOME Menu coordinates: 320 × 240; icons are ordered by column. */
 export const ROWS = 2;
@@ -191,12 +191,13 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
     if (state.panel === 'folder-not-empty' && homeFolderNoticeActionAt(x, y)) return activatePanel(state);
     return state;
   }
+  const densityAction=homeDensityActionAt(x,y);
+  if (densityAction) {
+    const controls=getHomeDensityControls(state),decrease=densityAction==='decrease';
+    if (!(decrease?controls.decreaseEnabled:controls.increaseEnabled)) return state;
+    return reduceMenu(state,decrease?'zoom-in':'zoom-out');
+  }
   if (y < 32) {
-    if (x >= 266) {
-      const controls=getHomeDensityControls(state),decrease=x<293;
-      if (!(decrease?controls.decreaseEnabled:controls.increaseEnabled)) return state;
-      return reduceMenu(state,decrease?'zoom-in':'zoom-out');
-    }
     const item = toolbar.find(item => x >= item.x && x < item.x + item.width);
     return item ? { ...state, panel: item.panel, panelChoice: 0, ...(item.panel === 'settings' ? { panelScroll: 0, homeLayoutAction: null } : {}) } : state;
   }

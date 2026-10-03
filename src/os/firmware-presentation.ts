@@ -15,7 +15,7 @@ import { selectNotesMetadata } from './notes-title-metadata';
 import { drawHomeSuspendedIcon } from './home-suspended-window';
 import { homeSoftwareClosingDialogKey, homeSoftwareDialogKey, homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
-import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
+import { HOME_FOOTER_TOUCH_GEOMETRY, homeDensityActionAt } from './stock-screen-layout';
 import { selectHomeFolderFooterPose } from './home-folder-footer-return';
 import { HOME_ENTRY_FOOTER_LAST_FRAME, HOME_ENTRY_HUD_LAST_FRAME } from './home-entry-presentation';
 import { homeApplicationTransitionFooterExit, homeApplicationTransitionFooterReturn } from './home-application-transition';
@@ -257,10 +257,13 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(controls&&!controls.decreaseEnabled)disabled.push('G_Dw_00');
   if(controls&&!controls.increaseEnabled)disabled.push('G_Up_00');
   if(disabled.length)bindings.push(binding('LncBase_D_01_Invalid',0,disabled));
-  if(!state?.panel&&gesture?.mode==='press'&&gesture.y>=0&&gesture.y<33&&gesture.x>=0&&gesture.x<320){
-   const index=toolbarRegions.findIndex(region=>gesture.x>=region.x&&gesture.x<region.x+region.width);
-   const group=index>=0?['G_Light_00','G_Memo_00','G_Friend_00','G_News_00','G_Web_00','G_Mvs_00'][index]:gesture.x<294?'G_Dw_00':'G_Up_00';
-   if(!disabled.includes(group))bindings.push(binding('LncBase_D_01_Select',1,[group]));
+  if(!state?.panel&&gesture?.mode==='press'){
+   const toolbarPressed=gesture.y>=0&&gesture.y<33&&gesture.x>=0&&gesture.x<320;
+   const index=toolbarPressed?toolbarRegions.findIndex(region=>gesture.x>=region.x&&gesture.x<region.x+region.width):-1;
+   const densityAction=homeDensityActionAt(gesture.x,gesture.y);
+   const group=index>=0?['G_Light_00','G_Memo_00','G_Friend_00','G_News_00','G_Web_00','G_Mvs_00'][index]
+    :densityAction==='decrease'?'G_Dw_00':densityAction==='increase'?'G_Up_00':null;
+   if(group&&!disabled.includes(group))bindings.push(binding('LncBase_D_01_Select',1,[group]));
   }
   // LncBase_D_01 is the complete 320x240 lower base. Its authored
   // P_BgBtm_00 pane backs the separate footer layout while that layout is

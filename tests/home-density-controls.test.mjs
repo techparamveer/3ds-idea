@@ -7,6 +7,7 @@ import {getHomeNavigationView,setHomeDensity,settleHomeNavigation,enterHomeFolde
 import {createPortfolioState,tickSystem,dispatchSystemEvent,saveSettings,restoreSettings} from '../src/os/system.ts';
 import {reduceMenu,touchMenu,menuTiles} from '../src/os/state.ts';
 import {poseNativeLayout} from '../src/os/native-layout.ts';
+import {HOME_DENSITY_TOUCH_GEOMETRY,homeDensityActionAt} from '../src/os/stock-screen-layout.ts';
 
 const moduleUrl=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const url=new URL('../src/os/firmware-presentation.ts',import.meta.url);
@@ -97,6 +98,44 @@ test('disabled density presses omit Select while enabled presses and other toolb
   home.toolbar({},touch(pending,'down',x));const draw=draws.at(-1),p=flatten(draw.pose);
   assert.equal(p[x===282?'P_Dw_20':'P_Up_20'].alpha,enabled?255:120);
   assert.equal(draw.options.bindings.some(b=>b.name==='LncBase_D_01_Select'),enabled);
+ }
+});
+
+test('shared density geometry assigns the x293 boundary to increase',()=>{
+ assert.deepEqual(HOME_DENSITY_TOUCH_GEOMETRY,{x:266,y:0,width:54,height:32,splitX:293});
+ for(const [x,action]of [[292.999,'decrease'],[293,'increase'],[293.001,'increase']]){
+  assert.equal(homeDensityActionAt(x,16.5),action);
+ }
+ for(const [x,y]of [[265.999,16.5],[320,16.5],[293,-.001],[293,32],[NaN,16.5],[293,Infinity]]){
+  assert.equal(homeDensityActionAt(x,y),null);
+ }
+ assert.equal(homeDensityActionAt(266,0),'decrease');
+ assert.equal(homeDensityActionAt(319.999,31.999),'increase');
+});
+
+test('density press and release retain one owner below, at and above x293',()=>{
+ const {home,draws}=presenter();
+ for(const [x,group,delta]of [[292.999,'G_Dw_00',-1],[293,'G_Up_00',1],[293.001,'G_Up_00',1]]){
+  const initial=state(false,2),pressed=touch(initial,'down',x,16.5);
+  home.toolbar({},pressed);
+  assert.deepEqual(draws.at(-1).options.bindings.at(-1),{name:'LncBase_D_01_Select',frame:1,groups:[group]});
+  const released=touch(pressed,'up',x,16.5),view=getHomeNavigationView(released);
+  assert.equal(view.currentDensity,2);assert.equal(view.targetDensity,2+delta);
+ }
+});
+
+test('shared density boundary preserves disabled and enabled owners at both ends',()=>{
+ const {home,draws}=presenter();
+ for(const [density,x,group,enabled,target]of [
+  [0,292.999,'G_Dw_00',false,0],[0,293,'G_Up_00',true,1],
+  [5,292.999,'G_Dw_00',true,4],[5,293,'G_Up_00',false,5],
+ ]){
+  const initial=state(false,density),pressed=touch(initial,'down',x,16.5);
+  home.toolbar({},pressed);
+  const select=draws.at(-1).options.bindings.filter(binding=>binding.name==='LncBase_D_01_Select');
+  assert.deepEqual(select,enabled?[{name:'LncBase_D_01_Select',frame:1,groups:[group]}]:[]);
+  const released=touch(pressed,'up',x,16.5),view=getHomeNavigationView(released);
+  assert.equal(view.currentDensity,density);assert.equal(view.targetDensity,target);
  }
 });
 

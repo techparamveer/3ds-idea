@@ -7,6 +7,16 @@ export const HOME_FOOTER_TOUCH_GEOMETRY={x:0,y:212,width:320,height:28,leftWidth
  left:{offset:0,width:105},middle:{offset:107,width:106},right:{offset:215,width:105},
 }} as const;
 
+/** LncBase_D_01 density controls occupy the remaining toolbar width after
+ * Miiverse. The existing native-input split assigns x=293 to increase. */
+export const HOME_DENSITY_TOUCH_GEOMETRY={x:266,y:0,width:54,height:32,splitX:293} as const;
+export type HomeDensityTouchAction='decrease'|'increase';
+export function homeDensityActionAt(x:number,y:number):HomeDensityTouchAction|null{
+ const r=HOME_DENSITY_TOUCH_GEOMETRY;
+ if(!Number.isFinite(x)||!Number.isFinite(y)||x<r.x||x>=r.x+r.width||y<r.y||y>=r.y+r.height)return null;
+ return x<r.splitX?'decrease':'increase';
+}
+
 /** home.sleep/Slp_D_00 B_Btn_01 is the only touch boundary; T_Btm_00 is a HOME-key hint. */
 export const POWER_OFF_TOUCH_GEOMETRY = {x:66,y:166,width:188,height:36} as const;
 export function powerMenuActionAt(x: number, y: number): 'open' | null {

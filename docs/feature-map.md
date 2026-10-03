@@ -15,6 +15,11 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+Latest [launch exit capture](home-launch-exit-2026-10-03.md) closes the missing
+exit/reveal evidence interval and identifies Health's absent upper-only reveal.
+The source chat owns `codex/health-launch-reveal-20261003` for that bounded
+source-backed correction; integration/recapture remain pending. Whole1:1 stays open.
+
 Latest runtime [launch publication](home-launch-publication-2026-10-03.md),
 `27a85a4a` with test follow-up `60ecf08f`, preserves terminal C14 presentation
 before app entry under a host stall. Paired launch failure recovery and target
@@ -24,8 +29,8 @@ independent review pass. Exact native logo-exit/reveal capture, input, timing,
 audio and whole pixels remain open; this is not normal-speed pixel improvement.
 Desktop/narrow/reduced/stall/context and four power controls complete with mute
 and fixture restoration. All24 native/browser paired diagnostics still fail;
-10 lower LCDs meet delta2 only. Next: capture the missing native logo-exit/reveal
-interval and address a visible mismatch, with no additional source-only slice.
+10 lower LCDs meet delta2 only. The newer capture above supplies the next visible
+Health reveal mismatch; no additional generic launch source-only audit is needed.
 
 Earlier runtime [toolbar motion](home-toolbar-motion-source-2026-10-03.md),
 `15630913`, replaces the Notes/Browser/Miiverse front-pose/browser-time

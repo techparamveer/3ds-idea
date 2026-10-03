@@ -168,14 +168,17 @@ test('close stops at AppQuit, dialog-exit, footer departure and Open-return pain
   assert.deepEqual(complete.observations, []);
 });
 
-test('switch retains the original AppQuit terminal-to-commit lifecycle', () => {
+test('switch retains its close barrier while keeping the settled suspended-background presentation', () => {
   const started = beginHomeApplicationTransition(null, identity(), { kind: 'switch', appId: 'camera' }).state;
+  assert.equal(homeApplicationTransitionPresentation(started), null);
+  assert.equal(homeApplicationTransitionPresentation(started, true), null);
   const terminal = advanceHomeApplicationTransition(started, identity(), 100, { eligible: true });
   assert.equal(terminal.state.phase, 'terminal');
   assert.equal(terminal.processedUpdates, 20);
   assert.deepEqual(terminal.observations[0].intent, { kind: 'switch', appId: 'camera' });
   assert.equal(terminal.state.dialogExitFrame, null);
   assert.equal(terminal.state.footerExitFrame, null);
+  assert.equal(homeApplicationTransitionPresentation(terminal.state), null);
 
   const commit = advanceHomeApplicationTransition(terminal.state, identity(), 100, { eligible: true });
   assert.equal(commit.state.phase, 'complete');

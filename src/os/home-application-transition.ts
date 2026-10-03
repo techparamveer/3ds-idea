@@ -292,12 +292,15 @@ export function homeApplicationTransitionFooterReturn(state: HomeApplicationTran
 }
 
 /**
- * Renderer contract for the one mapped close clip. Reduced motion selects the
- * same source endpoint while leaving logical ownership/timing to the host.
+ * Renderer contract for the one mapped ordinary-close clip. A software switch
+ * retains the settled AppPause backing while its independent close barrier
+ * advances. Reduced motion selects the same close endpoint while leaving
+ * logical ownership/timing to the host.
  */
 export function homeApplicationTransitionPresentation(state: HomeApplicationTransition | null,
   reduced = false): HomeApplicationTransitionPresentation | null {
-  if (!state || state.phase === 'footer-returning' || state.phase === 'return-terminal' || state.phase === 'complete') return null;
+  if (!state || state.intent.kind !== 'close' || state.phase === 'footer-returning'
+    || state.phase === 'return-terminal' || state.phase === 'complete') return null;
   const quitFrame = reduced ? HOME_APPLICATION_TRANSITION_SOURCE.appQuit.lastFrame : state.appQuitFrame;
   const skeletal = Object.freeze([
     Object.freeze({ clip: HOME_APPLICATION_TRANSITION_SOURCE.sceneIn.clip, frame: 20 as const }),

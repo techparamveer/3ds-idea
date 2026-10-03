@@ -106,6 +106,7 @@ test('footer-return source failure retains paired recovery after application ret
 });
 
 test('software-closing layers follow HOME/footer on both LCDs through terminal and clear on retirement',async()=>{
+ const backgroundSamples=[];
  await withScreens(({paint,events,screens})=>{
   const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
   const closing=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
@@ -115,6 +116,7 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    paint(state);
    assert.equal(screens.stockStatus(state),'ready');
    assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[frame,undefined,'close']);
+   assert.equal(backgroundSamples.at(-1).presentation.material[1].frame,frame);
    assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[homeCloseWindowOpacity(frame)]);
    assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),false);
    assert.ok(events.findIndex(e=>e.name==='closing-lower')>events.findIndex(e=>e.name==='footer'));
@@ -153,12 +155,17 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    switching.system.homeApplicationTransition.phase=frame===20?'terminal':'closing';
    paint(switching);
    assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[frame,undefined,'switch']);
+   assert.equal(backgroundSamples.at(-1).capture.owner,switching.system.runtime.application);
+   assert.equal(backgroundSamples.at(-1).capture.generation,1);
+   assert.equal(backgroundSamples.at(-1).presentation,null,'switch retains settled SceneIn20/AppPause20 backing');
    assert.equal(events.filter(e=>e.name==='footer').length,1,'source footer is drawn once in its hidden switch pose');
    assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[undefined]);
    assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),false);
   }
   paint(home());assert.ok(!events.some(e=>e.name.startsWith('closing-')));
- },{screenOptions:{drawSuspendedBackground:()=>true}});
+ },{screenOptions:{drawSuspendedBackground:(_ctx,capture,presentation)=>{
+  backgroundSamples.push({capture,presentation});return true;
+ }}});
 });
 
 test('missing close-exit icon source fails the paired paint without retiring the owner',async()=>{

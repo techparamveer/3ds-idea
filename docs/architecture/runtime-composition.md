@@ -26,6 +26,13 @@ See [proposed improvements](proposed-improvements.md) for that remaining risk.
 
 ## State and resource owners
 
+Confirmed software switches retain the existing decoded suspended backing
+through their close barrier. A null transition *presentation* selects settled
+SceneIn20/AppPause20; it does not remove the live transition or skip compositor
+capture-owner/generation validation. Ordinary Close still applies AppQuit.
+This capture-supported intent choice and its remaining native limitations are
+recorded in the [switch backing comparison](../home-switch-backing-2026-10-03.md).
+
 | Owner | Owns | Lifetime / release |
 | --- | --- | --- |
 | `Console.tsx` | Attempt, failure state, scene teardown | React effect cleanup or Retry |

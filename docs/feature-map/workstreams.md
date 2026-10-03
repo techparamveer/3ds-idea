@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Switch Backing - 3 October 2026
+
+Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in new owned
+`3ds-home-switch-backing-20261003` / `codex/home-switch-backing-20261003`
+at base9769fb74: worker79603dd9 -> integratione231163d. Three-file pure
+presentation-selector/test slice; no controller, scene, asset or audio edit.
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` reuses private evidence
+tooling; helper `switch_closing_review` independently passes177 tests with no
+findings. GPT-5.6 Sol/high; no service-tier claim. Coordinator alone operates
+muted production Chrome on the authorized Mac, reusing the preceding genuine
+native PNG. [Source and evidence](../home-switch-backing-2026-10-03.md).
+
 ## Switch Closing - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in new owned

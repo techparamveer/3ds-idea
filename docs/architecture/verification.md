@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+[Switch-backing verification](../home-switch-backing-2026-10-03.md) compares
+the retained upper composition independently from the logical AppQuit counter.
+Keep native closing and browser terminal20 identities explicit; no common
+epoch is inferred. Require byte-identical lower control after a backing-only
+change, and rerun ordinary Close to preserve its distinct fade/return path.
+Null transition presentation must still retain owner/capture validation.
+
 [Switch-closing verification](../home-switch-closing-2026-10-03.md) separates
 confirmation, Cancel/repeat and confirmed closing. Compare a predeclared
 AppQuit20 sample with native closing without claiming shared epochs; retain

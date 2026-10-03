@@ -18,7 +18,14 @@ Decide's constant zero-alpha mask must not overwrite the exit mask. No common
 fade is overlaid. `shutdownTransitionPose` maps normal nominal-60Hz source
 clock to Decide 0..10 then sleep 0..60, with adapted off at 1200 ms; reduced
 holds both terminals until off at 120 ms. Terminal selection is not a scene
-publication barrier. Boot/launch, app-origin Power and owner handling are
+publication barrier by itself. The [scene publication guard](../home-shutdown-publication-2026-10-03.md)
+now defers the deadline's off tick until the source terminal pair has a
+successful visible WebGL acknowledgment. A forced publication keeps shutdown
+selected for that animation callback; only a later callback may enter off.
+Start/return-phase/context identity rejects stale acknowledgments; hiding,
+sleep, context loss and context restoration revoke them. Failed/recovery native
+paints cannot acknowledge. Pure reducer durations and pose mapping stay intact.
+Boot/launch, app-origin Power and owner handling are
 unchanged. Native partial fade identifies the source family, not this clock.
 
 [Open footer return](../home-open-return-2026-10-03.md) extends close after

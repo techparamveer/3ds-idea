@@ -230,6 +230,15 @@ not native initialization. Full LCDs, exact input, motion and muted audio
 remain unaccepted. Desktop/mobile Notes touch/HOME return and unchanged
 Power/Settings/static Health regressions are supporting evidence only.
 
+[Shutdown publication verification](../home-shutdown-publication-2026-10-03.md)
+uses a documented1400ms host stall and separately tracked actual WebGL
+loss/restoration. Require an unmasked native-black paired LCD target with a
+matching presented paint before off, and a live context after restoration.
+Do not treat `data-screen-presented` alone during context loss as successful
+GPU publication. A forced render and off in the same callback is insufficient.
+Keep original no-stall/reduced controls and distinguish native reused endpoint
+pixels from this unmatched keyboard/stall experiment or real hardware timing.
+
 [Power input verification](../home-power-input-2026-10-03.md) at `b0814dd4`
 uses three byte-identical native settled/cross-boundary controls and a fresh
 held-to-black sequence. Corrected desktop settled, both release outcomes,

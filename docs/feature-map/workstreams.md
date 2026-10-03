@@ -1,5 +1,20 @@
 # Workstream Registry
 
+## Shutdown Publication - 3 October 2026
+
+Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in owned
+`3ds-home-postmodal-footer-20261002` / `codex/home-postmodal-footer-20261002`:
+`aed859a1` -> `19376463`, capture tests `8e3fcce0` -> `fb2d9819`, suspension
+guard `9e5f9daf` -> `ea6265de`. Reserved Experience paths were console scene,
+render-quality policy, paired screen success and focused tests; reducer/clock,
+assets and audio unchanged. Comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence only. Helper
+`closing_icon_departure` found the suspension gap, then independently verified
+its fix with101 passing tests and no remaining findings. GPT-5.6 Sol/high;
+no service-tier claim. Coordinator alone uses muted production Chrome on the
+authorized Mac; native evidence is preserved from the preceding isolated run.
+[Evidence and scope](../home-shutdown-publication-2026-10-03.md).
+
 ## Power Input - 3 October 2026
 
 Reused source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` and owned

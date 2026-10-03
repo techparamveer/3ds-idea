@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `e3b4f061` (HOME folder Back re-entry),
+Current runtime checkpoint: `6d6e29a2` (HOME toolbar banner ownership),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,15 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Toolbar ownership and Browser footer](../home-toolbar-host-2026-10-03.md):
+all five applets now use guarded banner host lifecycles. The initial missing
+banner diagnosis was wrong; settled artwork already existed through fallback.
+Notes/Web/Miiverse front-pose/browser-time motion remains an adaptation.
+Next visible correction: Browser focus4 needs native Manual/Open, not full Open.
+Reuse existing decoded split panes/contact ownership; register its existing
+BCMA manual assets and route Manual with Browser identity before declaring fixed.
+Other toolbar actions and retained-grid manual ownership must stay unchanged.
 
 [Folder fixture alignment](../home-folder-alignment-2026-10-03.md) supplies a
 fresh native idle endpoint and UI-only matching density/Health placement.

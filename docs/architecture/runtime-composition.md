@@ -111,10 +111,13 @@ network operations. Their existence is not a product requirement.
 ## HOME banner ownership and activation
 
 HOME footer selection also follows the active navigation context. For applet
-toolbar focuses 1 through 5, `getHomeFooter` selects the native single Open
+toolbar focuses 1 through 5, `getHomeFooter` currently selects a single Open
 button; `touchSystemAction` routes the entire footer to the same focused
 applet entrypoint used by A/Start before consulting retained grid actions.
 Grid/folder Manual and close actions must not leak into that toolbar context.
+The [3 October sweep](../home-toolbar-host-2026-10-03.md) disproves native
+equivalence for Browser focus4: its own footer is Manual/Open. Correcting that
+requires Browser-owned manual dispatch, not leaking the retained grid manual.
 This selection fix does not establish native transition or input timing; see
 the [footer comparison](../home-applet-footer-2026-10-01.md).
 Footer text uses the generic source-atlas `textSampling: 'lcd'` path, without
@@ -134,6 +137,12 @@ The live chain is `console-scene.ts` → `home-banner-host.ts` →
 `screens.ts` → injected `firmware-banner.ts` draw callbacks. Selection is
 observed at explicit boundaries in the counted HOME pass. Manager work and
 attached scene-controller work remain separate; painting does not advance them.
+All five toolbar selections use ticketed native type14..18 host lifecycles
+with per-resource readiness/failure. Notes, Browser and Miiverse still retain
+their decoded front-pose/browser-time rendering adaptation; host ownership
+does not yet mean their rendered motion consumes host frames. Their former
+unsupported fallback already painted settled artwork. See the
+[ownership correction and evidence](../home-toolbar-host-2026-10-03.md).
 Folder/default readiness is scoped to generation and request epoch. Clear has no primary. Folder/default banners use the native primary path.
 Settings, Camera, Sound, Health and eShop now have **provisional** selected-title paths through the host,
 service and source model renderer; other stock selections remain

@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Toolbar Banner Ownership - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-toolbar-banner-route-20261003` / `codex/home-toolbar-banner-route-20261003`,
+base `4da2073b`. Worker `865d16e7` integrates as `6d6e29a2`.
+Scope: all-five banner host routing, readiness/failure and tests; no assets.
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private
+`home-toolbar-sweep-20261003/comparison/`. Helpers `toolbar_reentry_prepare`
+and `toolbar_reentry_review` prepare silent isolated native clones and review
+the exact commit. GPT-5.6 Sol/high; coordinator alone operates shared GUI.
+[Evidence and corrected diagnosis](../home-toolbar-host-2026-10-03.md).
+Next read-only triage is Browser's captured Manual/Open footer mismatch.
+
 ## Folder Fixture Alignment - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` audits the UI-only setup,

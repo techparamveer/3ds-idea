@@ -15,7 +15,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest evidence [folder fixture alignment](home-folder-alignment-2026-10-03.md)
+Latest runtime [toolbar banner ownership](home-toolbar-host-2026-10-03.md),
+`6d6e29a2`, adds Notes/Web/Miiverse to the guarded host lifecycle. Their settled
+artwork already rendered through fallback; this is not a missing-banner fix.
+Front-pose/browser-time motion remains an adaptation. Full1958 tests,
+build/typecheck and independent135-test review pass. Next captured UI defect:
+Browser focus4 needs Manual/Open plus Browser-owned manual dispatch and existing
+BCMA conversion registration. Whole pixels/input/motion/audio remain open.
+
+Earlier evidence [folder fixture alignment](home-folder-alignment-2026-10-03.md)
 at unchanged `e3b4f061` matches folder density, Health slot and viewport through
 real controls. Fresh native idle replaces the missing neutral endpoint.
 Panel interior and Health artwork meet delta2 diagnostically; whole pixels,

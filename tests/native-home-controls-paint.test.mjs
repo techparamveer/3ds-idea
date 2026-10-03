@@ -1122,6 +1122,22 @@ test('captured occupied folder uses the decoded centre Open control with no Clos
  assert.equal(options.textCoverageAdaptation,undefined,'non-Create Folder centre labels retain source coverage');
 });
 
+test('Browser toolbar footer paints the decoded two-button Manual/Open source',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};
+ const presenter=createFirmwareHome({renderer}),initial=home(),nav=getHomeNavigation(initial);
+ const state=writeHomeNavigation(initial,{...nav,focus:{...nav.focus,toolbarActive:true,currentFocus:4}});
+ presenter.footer({},state);
+ const options=calls.at(-1).options,native=messagesPack.messages.menu_msbt_LZ;
+ assert.equal(options.overrides.N_BtnW_L_03.visible,true);
+ assert.equal(options.overrides.N_BtnW_R_02.visible,true);
+ assert.equal(options.overrides.N_BtnW_C_01.visible,false);
+ for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){
+  assert.equal(options.overrides[`${prefix}_L_03`].text,native.messages[native.labels.lau_2b_manual].text);
+  assert.equal(options.overrides[`${prefix}_R_02`].text,native.messages[native.labels.lau_2b_folder_open].text);
+ }
+ assert.deepEqual(options.bindings,[{name:'LncBtmBtn_02_SceneIn',frame:15}]);
+});
+
 test('folder-close footer reenters from the counted root-selection boundary',()=>{
  const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}};
  const presenter=createFirmwareHome({renderer}),initial=home();

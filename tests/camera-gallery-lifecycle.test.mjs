@@ -13,7 +13,9 @@ const calls=[];
 globalThis.__cameraLifecycleLoad=()=>{let resolve;const pending=new Promise(r=>{resolve=r;});calls.push({resolve});return pending;};
 const session=url(compile('native-title-session').replace("'./native-title-assets'",JSON.stringify(url('export const loadNativeTitleAssets=(...args)=>globalThis.__cameraLifecycleLoad(...args)'))));
 const browse=new URL('../src/os/camera-browse.ts',import.meta.url).href;
-const layout=url(compile('stock-screen-layout').replace("'./camera-browse.ts'",JSON.stringify(browse)));
+const layout=url(compile('stock-screen-layout')
+ .replace("'./camera-browse.ts'",JSON.stringify(browse))
+ .replace("'./stock-manual-index.ts'",JSON.stringify(url('export const manualPageZeroAvailable=()=>false;'))));
 const camera=url(compile('stock-native-camera').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./camera-browse.ts'",JSON.stringify(browse)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))));
 let source=compile('stock-screen-presentation').replace("'./stock-settings-hud'",JSON.stringify(url(compile('stock-settings-hud')))).replace("'./stock-health-scroll'",JSON.stringify(url(compile('stock-health-scroll')))).replace("'./native-title-session'",JSON.stringify(session)).replace("'./stock-native-camera'",JSON.stringify(camera)).replace("'./stock-screen-layout'",JSON.stringify(layout));
 for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSettingsMain'],['sound','soundScreenPacks','drawNativeSoundFrame'],['health','healthScreenPacks','drawNativeHealthFrame']])source=source.replace(`'./stock-native-${file}'`,JSON.stringify(url(`export const ${packs}=[];export const ${draw}=()=>false;`)));

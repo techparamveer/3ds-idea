@@ -133,7 +133,9 @@ export type HomeFooter=Readonly<{two:boolean;left:HomeFooterAction|null;middle?:
 /** Footer actions follow the runtime's currently selected container. */
 export function getHomeFooter(state:MenuState):HomeFooter|null{
  const focus=state.system?.homeNavigation.focus;
- if(focus?.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5)return {two:false,left:null,right:'open'} as const;
+ if(focus?.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5)return focus.currentFocus===4
+  ?{two:true,left:'manual',right:'open'} as const
+  :{two:false,left:null,right:'open'} as const;
  // Native held captures hide the complete footer in both containers. The
  // exact mode-14 footer controller remains unresolved, so this is a bounded
  // capture-fitted policy keyed to the independent pickup owner.

@@ -29,6 +29,10 @@ CAMERA = '0004001000022400'
 CAMERA_TITLE_VERSION = 4097
 CAMERA_CONTENT = {'contentIndex': 1, 'contentId': '00000019'}
 CAMERA_SOURCE_SHA = '8711e6141ba9b42dc489ff40c47684c28c6fe414efd93ef66b90570c6d33bccd'
+BROWSER = '0004003000009d02'
+BROWSER_TITLE_VERSION = 9232
+BROWSER_CONTENT = {'contentIndex': 1, 'contentId': '0000001d'}
+BROWSER_SOURCE_SHA = '9f04453f23476615912972530a99abccaee22361cc69bc80052d47acf907831b'
 PACK_NAME = 'manual-EUR_en'
 # Outer archive member -> inner layout paths. Page 0 exists in both large and
 # small text variants; both are delivered rather than guessing the default.
@@ -51,6 +55,9 @@ PROFILES = {
     CAMERA: {'version': CAMERA_TITLE_VERSION, 'content': CAMERA_CONTENT, 'sourceSha256': CAMERA_SOURCE_SHA,
              'selection': {'EUR_en_index.arc': ('blyt/Index.bclyt',)}, 'textureArchives': (),
              'pages': [], 'layoutVariants': []},
+    BROWSER: {'version': BROWSER_TITLE_VERSION, 'content': BROWSER_CONTENT, 'sourceSha256': BROWSER_SOURCE_SHA,
+              'selection': SELECTION, 'textureArchives': TEXTURE_ARCHIVES,
+              'pages': [0], 'layoutVariants': ['large', 'small']},
 }
 
 
@@ -108,7 +115,7 @@ def convert(raw, builder, selection=DEFAULT, texture_archives=DEFAULT, expected_
     if texture_archives is DEFAULT: texture_archives = selected_profile['textureArchives']
     if expected_sha is DEFAULT: expected_sha = selected_profile['sourceSha256']
     if expected_sha is not None and digest(raw) != expected_sha: raise ValueError('Unexpected Manual.bcma source hash')
-    if neighbor_preview and title_id != SETTINGS: raise ValueError('Neighbor preview is unavailable for this manual')
+    if neighbor_preview and title_id not in (SETTINGS, BROWSER): raise ValueError('Neighbor preview is unavailable for this manual')
     if neighbor_preview: selection = NEIGHBOR_SELECTION
     pack_name = NEIGHBOR_PACK if neighbor_preview else PACK_NAME
     members = open_outer(raw)

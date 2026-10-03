@@ -8,6 +8,7 @@ import { notesCaptureView, notesNextCaptureView, notesSwitchFrame, NOTES_SWITCH_
 import { portfolioMedia, type PortfolioMedia } from './portfolio-media.ts';
 import { eshopWelcomeData, eshopWelcomeDecide, eshopWelcomeTick } from './stock-eshop-welcome.ts';
 import { cameraBrowseButton, cameraBrowseCancel, cameraBrowseCommand, cameraBrowseInitial, cameraBrowseJson, cameraBrowseTick, cameraBrowseTouch, readCameraBrowse, type CameraBrowseStep, type CameraDirection } from './camera-browse.ts';
+import { manualPageZeroAvailable } from './stock-manual-index.ts';
 
 const str = (value: JsonValue | undefined, fallback = '') => typeof value === 'string' ? value : fallback;
 const num = (value: JsonValue | undefined, fallback = 0) => typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -188,7 +189,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     const screen = str(state.screen, 'main');
     if(id==='manual'&&state.manualTitleId){
       if(action==='manual-close')return {state,effects:[{type:'close'}]};
-      if(action==='manual-page-0')return state.manualTitleId==='0004001000022000'&&screen==='main'
+      if(action==='manual-page-0')return manualPageZeroAvailable(state.manualTitleId)&&screen==='main'
         ?{state:withScreen(state,'document',{page:0})}:{state};
     }
     if (action === 'back') {

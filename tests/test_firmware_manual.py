@@ -23,6 +23,9 @@ PRIVATE_MANUAL = Path(os.environ.get('FIRMWARE_MANUAL_BCMA',
 PRIVATE_CAMERA_MANUAL = Path(os.environ.get('FIRMWARE_CAMERA_MANUAL_BCMA',
     '/Users/paramveer/.codex/3ds-artifact-overflow/assets/stock-ui/reader-extracted/camera/'
     'contents/0001-00000019/romfs/Manual.bcma'))
+PRIVATE_BROWSER_MANUAL = Path(os.environ.get('FIRMWARE_BROWSER_MANUAL_BCMA',
+    '/Users/paramveer/.codex/3ds-artifact-overflow/assets/stock-ui/extracted/browser/'
+    'contents/0001-0000001d/romfs/Manual.bcma'))
 SELECTION = {'EUR_en_index.arc': ('blyt/Index.bclyt',)}
 TEXTURES = ('EUR_en_texture.arc', 'Common_texture.arc')
 
@@ -240,6 +243,36 @@ class RealCameraManualTests(unittest.TestCase):
         members = nested_members(open_outer(raw))
         source = pack['resourceSources']['layouts']['Index']
         self.assertEqual(digest(members[source['path'].removeprefix('Manual.bcma/')]), source['sha256'])
+
+
+@unittest.skipUnless(PRIVATE_BROWSER_MANUAL.is_file(), 'private Browser Manual.bcma unavailable')
+class RealBrowserManualTests(unittest.TestCase):
+    def test_real_english_index_page_zero_and_neighbor(self):
+        raw = PRIVATE_BROWSER_MANUAL.read_bytes()
+        self.assertEqual(digest(raw), manual_bcma.BROWSER_SOURCE_SHA)
+        with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+            url, pack = convert(raw, Builder(Path(a)), title_id=manual_bcma.BROWSER)
+            convert(raw, Builder(Path(b)), title_id=manual_bcma.BROWSER)
+            files = lambda root: {p.relative_to(root).as_posix(): p.read_bytes() for p in Path(root).rglob('*') if p.is_file()}
+            self.assertEqual(files(a), files(b))
+        self.assertEqual(url, 'packs/browser/contents/0001-0000001d/manual-EUR_en.json')
+        self.assertEqual(sorted(pack['layouts']), ['BcmaInfo', 'Index', *(f'Page_000_{v}_{p}' for v in ('large', 'small') for p in ('0', 'bg', 'info'))])
+        self.assertEqual(sorted(pack['textures']), ['button_HOME.bclim', 'exclamation.bclim', 'safe.bclim'])
+        self.assertEqual(pack['manualSelection']['pages'], [0])
+        self.assertEqual(pack['resourceSources']['layouts']['Index'], {
+            'titleId': manual_bcma.BROWSER, 'contentIndex': 1, 'contentId': '0000001d',
+            'path': 'Manual.bcma/EUR_en_index.arc/blyt/Index.bclyt',
+            'sha256': 'e8343458ddb5d03e1182f11225484855d82ce36a984ce22cc0c2ff9852e3fca8',
+        })
+        children = pack['layouts']['Index']['roots'][0]['children']
+        titles = [pane['text']['value'] for pane in children if pane['name'].startswith('PageTitle_')]
+        self.assertEqual(titles[:4], ['Health & Safety', 'Introduction', 'Browser Usage Precautions', 'The Menu Screen'])
+        self.assertEqual(len(titles), 12)
+        with tempfile.TemporaryDirectory() as temp:
+            neighbor_url, neighbor = convert(raw, Builder(Path(temp)), neighbor_preview=True, title_id=manual_bcma.BROWSER)
+        self.assertEqual(neighbor_url, 'packs/browser/contents/0001-0000001d/manual-EUR_en-neighbor.json')
+        self.assertEqual(sorted(neighbor['layouts']), ['Page_001_small_0', 'Page_001_small_bg', 'Page_001_small_info'])
+        self.assertEqual(neighbor['manualSelection']['pages'], [1])
 
 
 if __name__ == '__main__': unittest.main()

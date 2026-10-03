@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {homeFooterHit,ownedHomeFooterContact} from '../src/os/home-footer-touch.ts';
+import {getHomeFooter} from '../src/os/home-presentation.ts';
 import {enterHomeFolder,selectHomeSlot,settleHomeNavigation,writeHomeNavigation} from '../src/os/home-navigation.ts';
 import {enableHomeControls} from '../src/os/home-controls.ts';
 import {createPortfolioState,dispatchSystemEvent,launchHomeShortcut,reduceSystem,tickSystem} from '../src/os/system.ts';
@@ -10,6 +11,7 @@ const booted=()=>tickSystem(createPortfolioState(),3001);
 const selected=(state,id)=>settleHomeNavigation(selectHomeSlot(state,Number(Object.entries(state.system.layout).find(([,value])=>value===id)[0])));
 const down=(state,x,y)=>dispatchSystemEvent(state,{type:'touch',phase:'down',pointerId:7,x,y},4000);
 const gesture=state=>state.system.homeNavigation.gesture;
+const toolbar=(state,focus)=>{const nav=state.system.homeNavigation;return enableHomeControls(writeHomeNavigation(state,{...nav,focus:{...nav.focus,toolbarActive:true,currentFocus:focus}}));};
 const suspendedCamera=()=>reduceSystem(tickSystem(launchHomeShortcut(booted(),'camera',4000),6200),'home',6300);
 const openedFolder=()=>{
  const state=booted(),child=state.system.layout[0];
@@ -176,6 +178,43 @@ test('identical Open labels cannot transfer a held contact between titles or int
  const toolbar=writeHomeNavigation(pressed,{...nav,focus:{...nav.focus,toolbarActive:true,currentFocus:1}});
  assert.deepEqual(homeFooterHit(toolbar,geometry,160,226),{action:'open',side:'right'});
  assert.equal(ownedHomeFooterContact(toolbar,geometry,contact),null);
+});
+
+test('Browser toolbar focus owns the captured Manual/Open split while other applets retain Open',()=>{
+ const initial=booted();
+ for(const focus of [1,2,3,5])assert.deepEqual(getHomeFooter(toolbar(initial,focus)),{two:false,left:null,right:'open'});
+ const browser=toolbar(initial,4);
+ assert.deepEqual(getHomeFooter(browser),{two:true,left:'manual',right:'open'});
+ assert.deepEqual(homeFooterHit(browser,geometry,99.999,226),{action:'manual',side:'left'});
+ assert.deepEqual(homeFooterHit(browser,geometry,100,226),{action:'open',side:'right'});
+ const manual=dispatchSystemEvent(down(browser,50,226),{type:'touch',phase:'up',pointerId:7,x:50,y:226},4100);
+ const manualInstance=manual.system.runtime.instances[manual.system.runtime.active];
+ assert.equal(manualInstance.appId,'manual');assert.equal(manualInstance.state.manualTitleId,'0004003000009d02');
+ const opened=dispatchSystemEvent(down(browser,160,226),{type:'touch',phase:'up',pointerId:7,x:160,y:226},4100);
+ assert.equal(opened.system.runtime.instances[opened.system.runtime.active].appId,'browser');
+});
+
+test('Browser Manual contact supports re-entry but never transfers segment, focus, or cancellation',()=>{
+ const browser=toolbar(booted(),4);
+ let reentered=down(browser,50,226);
+ reentered=dispatchSystemEvent(reentered,{type:'touch',phase:'move',pointerId:7,x:160,y:226},4050);
+ assert.equal(ownedHomeFooterContact(reentered,geometry,gesture(reentered)),null);
+ reentered=dispatchSystemEvent(reentered,{type:'touch',phase:'move',pointerId:7,x:50,y:226},4075);
+ assert.deepEqual(ownedHomeFooterContact(reentered,geometry,gesture(reentered)),{action:'manual',side:'left'});
+ reentered=dispatchSystemEvent(reentered,{type:'touch',phase:'up',pointerId:7,x:50,y:226},4100);
+ assert.equal(reentered.system.runtime.instances[reentered.system.runtime.active].appId,'manual');
+ for(const end of [160,100]){
+  let crossed=down(browser,50,226);
+  crossed=dispatchSystemEvent(crossed,{type:'touch',phase:'up',pointerId:7,x:end,y:226},4100);
+  assert.equal(crossed.system.runtime.active,null);
+ }
+ let changed=down(browser,50,226),nav=changed.system.homeNavigation;
+ changed=writeHomeNavigation(changed,{...nav,focus:{...nav.focus,currentFocus:1}});
+ changed=dispatchSystemEvent(changed,{type:'touch',phase:'up',pointerId:7,x:50,y:226},4100);
+ assert.equal(changed.system.runtime.active,null);
+ let cancelled=down(browser,50,226);
+ cancelled=dispatchSystemEvent(cancelled,{type:'touch',phase:'cancel',pointerId:7,x:50,y:226},4050);
+ assert.equal(cancelled.system.runtime.active,null);assert.equal(cancelled.system.homeNavigation.gesture,null);
 });
 
 test('live HOME release preserves same-button Open beyond generic slop and rejects cancellation',()=>{

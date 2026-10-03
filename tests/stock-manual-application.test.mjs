@@ -1,13 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { resolve, join } from 'node:path';
 import ts from 'typescript';
 import { createStockModule, initialSharedData } from '../src/os/stock-apps.ts';
 import { getTitle } from '../src/os/app-registry.ts';
 import { manualContents, manualSources } from '../src/os/stock-manual-index.ts';
 
-const root = resolve('public/os/firmware/10.7.0-32E'), settings = '0004001000022000', camera = '0004001000022400';
+const root = resolve('public/os/firmware/10.7.0-32E'), settings = '0004001000022000', camera = '0004001000022400', browser = '0004003000009d02';
 const json = path => JSON.parse(readFileSync(join(root, path), 'utf8'));
 const manifest = json('manifest.json'), source = manualSources[settings], pack = json(source.url);
 const ctx = { now: 0, shared: initialSharedData() };
@@ -62,6 +63,31 @@ test('Camera manual source is its delivered content-1 English index', () => {
     { kind: 'category', category: 1, title: 'Basic Information' },
     { kind: 'page', page: 1, title: 'Introduction', category: 1 },
     { kind: 'category', category: 2, title: 'Taking Photos and Videos' },
+  ]);
+});
+
+test('Browser manual source delivers its application-owned English index and page zero', () => {
+  const browserSource = manualSources[browser], browserPack = json(browserSource.url), title = manifest.titles[browser];
+  assert.ok(title.packs.includes(browserSource.url));
+  assert.ok(title.packs.includes(browserSource.neighborUrl));
+  assert.equal(browserPack.titleId, browser);
+  assert.equal(browserPack.contentIndex, 1);
+  assert.equal(browserPack.contentId, '0000001d');
+  assert.equal(browserPack.sourceSha256, '9f04453f23476615912972530a99abccaee22361cc69bc80052d47acf907831b');
+  assert.deepEqual(browserPack.manualSelection.pages, [0]);
+  assert.deepEqual(Object.keys(browserPack.layouts), ['BcmaInfo', 'Index', 'Page_000_large_0', 'Page_000_large_bg', 'Page_000_large_info', 'Page_000_small_0', 'Page_000_small_bg', 'Page_000_small_info']);
+  assert.equal(browserPack.resourceSources.layouts.Index.sha256, 'e8343458ddb5d03e1182f11225484855d82ce36a984ce22cc0c2ff9852e3fca8');
+  assert.equal(browserPack.manualSelection.converter.scripts['scripts/firmware/manual_bcma.py'],
+    createHash('sha256').update(readFileSync('scripts/firmware/manual_bcma.py')).digest('hex'));
+  assert.equal(browserSource.heading, title.name);
+  assert.equal(browserSource.iconUrl, '/os/firmware/10.7.0-32E/icons/browser.png');
+  const entries = manualContents(browserPack.layouts.Index);
+  assert.equal(entries.filter(entry => entry.kind === 'page').length, 12);
+  assert.deepEqual(entries.slice(0, 4), [
+    { kind: 'page', page: 0, title: 'Health & Safety', category: 0 },
+    { kind: 'category', category: 1, title: 'Basic Information' },
+    { kind: 'page', page: 1, title: 'Introduction', category: 1 },
+    { kind: 'page', page: 2, title: 'Browser Usage Precautions', category: 1 },
   ]);
 });
 
@@ -166,7 +192,7 @@ test('Settings Contents loads source chrome, lets Close act, and leaves unfinish
   });
 });
 
-test('only the Settings HOME route supplies a manual title argument', () => {
+test('only source-backed HOME routes supply a manual title argument', () => {
   const files = readdirSync(resolve('src'), { recursive: true }).filter(file => /\.(ts|tsx)$/.test(file));
   const users = files.filter(file => readFileSync(resolve('src', file), 'utf8').includes('manualTitleId')).sort();
   assert.deepEqual(users, ['os/stock-apps.ts', 'os/stock-helper-views.ts', 'os/stock-native-helpers.ts', 'os/stock-screen-layout.ts', 'os/system.ts']);
@@ -219,4 +245,28 @@ test('page preview requests source adjacent geometry and only delivered small pa
   assert.deepEqual(converted.manualSelection.layoutVariants,['small']);
   assert.equal(converted.sourceSha256,pack.sourceSha256);
   assert.equal(requests.find(p=>p.alias==='manual-main-root').url,'packs/manual/layout-MainNull.json');
+});
+
+test('Browser Contents loads and draws its own source, then opens only delivered page zero', () => {
+  const module=createStockModule(getTitle('manual')), state=module.create({manualTitleId:browser},null,ctx), view=module.view(state,ctx);
+  assert.equal(view.heading,'Internet Browser');
+  assert.deepEqual(helpers.nativeHelperTargets(view),[{action:'manual-page-0',x:24,y:67.5,width:272,height:37},{action:'back',x:0,y:212,width:160,height:28}]);
+  const request=helpers.nativeHelperView(view), index=request.packs.find(item=>item.alias==='manual-index'), calls=[], images=[];
+  assert.deepEqual(index,{url:manualSources[browser].url,alias:'manual-index',layouts:['Index'],animations:[],titleId:browser});
+  const renderer={packs:Object.fromEntries(request.packs.map(item=>[item.alias,json(item.url)])),draw(_context,packName,layout,options){calls.push({pack:packName,layout,options});return true;}};
+  const pixels={width:48,height:48,data:new Uint8ClampedArray(48*48*4)},context={fillStyle:'',fillRect(){}};
+  assert.equal(helpers.drawNativeHelperFrame(renderer,context,context,view,{nativeImage(url){images.push(url);return pixels;}}),true);
+  assert.deepEqual(images,['/os/firmware/10.7.0-32E/icons/browser.png']);
+  assert.equal(calls.find(call=>call.pack==='manual-SoftTitleHeader').options.overrides.TextBoxTxt_00.text,'Internet Browser');
+  const page=module.reduce(state,{type:'command',command:'open'},ctx).state;
+  assert.equal(page.screen,'document');assert.equal(page.page,0);
+  const pageView=module.view(page,ctx),pageRequests=helpers.nativeHelperView(pageView).packs;
+  assert.equal(pageRequests.find(item=>item.alias==='manual-neighbor').url,manualSources[browser].neighborUrl);
+  assert.equal(pageRequests.find(item=>item.alias==='manual-neighbor').titleId,browser);
+  const pageCalls=[],pageRenderer={packs:Object.fromEntries(pageRequests.map(item=>[item.alias,json(item.url)])),draw(_context,packName,layout,options){pageCalls.push({pack:packName,layout,options});return true;}};
+  assert.equal(helpers.drawNativeHelperFrame(pageRenderer,context,context,pageView),true);
+  assert.ok(pageCalls.some(call=>call.pack==='manual-index'&&call.layout==='Page_000_small_0'));
+  assert.ok(pageCalls.some(call=>call.pack==='manual-neighbor'&&call.layout==='Page_001_small_0'));
+  const missing={...renderer,packs:{...renderer.packs}};delete missing.packs['manual-index'];
+  assert.equal(helpers.drawNativeHelperFrame(missing,context,context,view),false,'missing selected Browser index fails the native draw');
 });

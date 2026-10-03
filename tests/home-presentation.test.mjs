@@ -1,5 +1,5 @@
 import {settleHomeNavigation} from '../src/os/home-navigation.ts';
-import {setHomeDensity as setHomeDensityMotion,selectHomeSlot,enterHomeFolder,homeDensityIndex} from '../src/os/home-navigation.ts';
+import {setHomeDensity as setHomeDensityMotion,selectHomeSlot,enterHomeFolder,homeDensityIndex,writeHomeNavigation} from '../src/os/home-navigation.ts';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
@@ -143,6 +143,16 @@ test('Settings HOME shows native Manual and opens the Settings-owned applet from
  const down=touch(selected,'down',{x:50,y:226},100),up=touch(down,'up',{x:50,y:226},150);
  assert.equal(up.system.runtime.instances[up.system.runtime.active].state.manualTitleId,'0004001000022000','live touch phases use the same route');
  assert.equal(getHomeFooter(selectHomeSlot(initial,0)).left,null,'portfolio slot does not inherit Manual');
+});
+
+test('Browser toolbar HOME routes Manual to Browser content and Open to Browser',()=>{
+ const initial=enableHomeControls(home()),nav=initial.system.homeNavigation;
+ const browser=writeHomeNavigation(initial,{...nav,focus:{...nav.focus,toolbarActive:true,currentFocus:4}});
+ assert.deepEqual(getHomeFooter(browser),{two:true,left:'manual',right:'open'});
+ const manual=touchSystem(browser,50,226,100),manualInstance=manual.system.runtime.instances[manual.system.runtime.active];
+ assert.equal(manualInstance.appId,'manual');assert.equal(manualInstance.state.manualTitleId,'0004003000009d02');
+ const opened=touchSystem(browser,160,226,100);
+ assert.equal(opened.system.runtime.instances[opened.system.runtime.active].appId,'browser');
 });
 
 test('Health and Camera HOME footers follow the selected title, not an unrelated retained owner',()=>{

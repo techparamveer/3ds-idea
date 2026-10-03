@@ -255,7 +255,7 @@ test('Settings keeps its direct first-tap action while applet toolbar buttons se
   assert.equal(notes.system.runtime.active, null);
 });
 
-test('applet footer is one Open button independent of the retained grid selection', () => {
+test('applet footer keeps captured Browser Manual/Open and other applets Open independent of the grid selection', () => {
   const initial = home(), settings = Number(Object.entries(initial.system.layout).find(([, id]) => id === 'system-settings')[0]);
   for (const slot of [0, settings, 30]) for (const suspended of [null, 'work']) {
     const selected = selectHomeSlot(initial, slot);
@@ -263,13 +263,20 @@ test('applet footer is one Open button independent of the retained grid selectio
       const focused = writeHomeNavigation({ ...selected, system: { ...selected.system, app: suspended } }, {
         ...nav(selected), focus: { toolbarActive: true, currentFocus: focus, rememberedFocus: -1, savedColumn: 0 },
       });
-      assert.deepEqual(getHomeFooter(focused), { two: false, left: null, right: 'open' });
+      assert.deepEqual(getHomeFooter(focused), focus === 4
+        ? { two: true, left: 'manual', right: 'open' }
+        : { two: false, left: null, right: 'open' });
       for (const x of [20, 160, 300]) {
         const opened = touchSystem(focused, x, 226, now(focused));
         assert.equal(opened.system.dialog, null, 'left edge must not close suspended software');
-        assert.equal(opened.system.runtime.instances[opened.system.runtime.active]?.appId, appId);
+        const expected = focus === 4 && x === 20 ? 'manual' : appId;
+        const active = opened.system.runtime.instances[opened.system.runtime.active];
+        assert.equal(active?.appId, expected);
+        if (expected === 'manual') assert.equal(active.state.manualTitleId, '0004003000009d02');
         const released = touch(touch(focused, 'down', x, 226), 'up', x, 226);
-        assert.equal(released.system.runtime.instances[released.system.runtime.active]?.appId, appId, 'pointer phases share the route');
+        const releasedActive = released.system.runtime.instances[released.system.runtime.active];
+        assert.equal(releasedActive?.appId, expected, 'pointer phases share the route');
+        if (expected === 'manual') assert.equal(releasedActive.state.manualTitleId, '0004003000009d02');
       }
     }
   }

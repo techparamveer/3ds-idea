@@ -3,14 +3,18 @@ import type { NativeLayout, NativePane } from './native-layout';
 /** Titles whose electronic manual has a delivered English index. The pack is
  * owned by the application (its content 1 `Manual.bcma`), not by the
  * Instruction Manual applet that displays it. */
-export const manualSources: Readonly<Record<string, { heading: string; url: string; iconUrl: string; contentIndex: number; contentId: string }>> = {
+export const manualSources: Readonly<Record<string, { heading: string; url: string; neighborUrl?: string; iconUrl: string; contentIndex: number; contentId: string }>> = {
   // Heading: SMDH English long description of 0004001000022000 v9220 (manifest
   // titles[].longDescription, ExeFS/icon of content 0000003d).
-  '0004001000022000': { heading: 'System Settings', url: 'packs/settings/contents/0001-00000038/manual-EUR_en.json', iconUrl: '/os/firmware/10.7.0-32E/icons/settings.png', contentIndex: 1, contentId: '00000038' },
+  '0004001000022000': { heading: 'System Settings', url: 'packs/settings/contents/0001-00000038/manual-EUR_en.json', neighborUrl: 'packs/settings/contents/0001-00000038/manual-EUR_en-neighbor.json', iconUrl: '/os/firmware/10.7.0-32E/icons/settings.png', contentIndex: 1, contentId: '00000038' },
   // Heading: SMDH English long description of 0004001000022400 v4097
   // (manifest titles[].longDescription, ExeFS/icon of content 0000001a).
   '0004001000022400': { heading: 'Nintendo 3DS Camera', url: 'packs/camera/contents/0001-00000019/manual-EUR_en.json', iconUrl: '/os/firmware/10.7.0-32E/icons/camera.png', contentIndex: 1, contentId: '00000019' },
+  // Heading: SMDH English long description of 0004003000009d02 v9232
+  // (manifest titles[].name, ExeFS/icon of content 0000001f).
+  '0004003000009d02': { heading: 'Internet Browser', url: 'packs/browser/contents/0001-0000001d/manual-EUR_en.json', neighborUrl: 'packs/browser/contents/0001-0000001d/manual-EUR_en-neighbor.json', iconUrl: '/os/firmware/10.7.0-32E/icons/browser.png', contentIndex: 1, contentId: '0000001d' },
 };
+export const manualPageZeroAvailable=(titleId:unknown):titleId is string=>typeof titleId==='string'&&manualSources[titleId]?.neighborUrl!==undefined;
 
 export type ManualContentsEntry =
   | { kind: 'page'; page: number; title: string; category: number }

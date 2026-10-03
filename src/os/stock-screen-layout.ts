@@ -1,5 +1,6 @@
 import type { AppView, JsonValue } from './app-types';
 import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
+import { manualPageZeroAvailable } from './stock-manual-index.ts';
 
 /** LncBtmBtn_02 live HOME bounds. The three-button rectangles are the decoded
  * B_Btn{B,W}_{L,C,R}_03 panes; their two authored two-pixel gaps own no action. */
@@ -172,7 +173,7 @@ export function cameraBrowseCellRect(index:number,offset:number):[number,number,
 export function applicationManualTargets(view:AppView):StockScreenTarget[]{
   return view.screen==='document'
     ?[target('manual-close',0,212,40,28),target('back',40,212,140,28)]
-    :[...(view.data?.manualTitleId==='0004001000022000'?[target('manual-page-0',24,67.5,272,37)]:[]),target('back',0,212,160,28)];
+    :[...(manualPageZeroAvailable(view.data?.manualTitleId)?[target('manual-page-0',24,67.5,272,37)]:[]),target('back',0,212,160,28)];
 }
 export function stockScreenTargets(view:AppView):StockScreenTarget[]{
   const {appId,screen,rows,selection}=view, result:StockScreenTarget[]=[];

@@ -327,7 +327,14 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  }
  if(isSystemHomeFolderClosing(state))return state;
  const focus=s.homeNavigation.focus;
- if(!state.panel&&y>=212&&s.homeControls&&focus.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5)return send('open');
+ if(!state.panel&&y>=212&&s.homeControls&&focus.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5){
+  const hit=homeFooterHit(state,HOME_FOOTER_TOUCH_GEOMETRY,x,y);if(!hit)return state;
+  if(hit.action==='manual'){
+   const titleId=getTitle('browser')?.titleId;
+   return titleId?invokeSystemApplet(state,'manual',now,{manualTitleId:titleId}):state;
+  }
+  return send('open');
+ }
  if(isHomeFolderBackTouch(state,x,y))return send('back');
  if(!state.panel&&y>=212&&selectedTitle(state)){
   const hit=homeFooterHit(state,HOME_FOOTER_TOUCH_GEOMETRY,x,y);

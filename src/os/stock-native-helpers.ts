@@ -4,7 +4,7 @@ import { nativeMessageOverride, nativePaneParentPath, nativeTextMetrics, type Pa
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import { applicationManualTargets, type StockScreenTarget } from './stock-screen-layout';
-import { manualContents, manualSources } from './stock-manual-index';
+import { manualContents, manualPageZeroAvailable, manualSources } from './stock-manual-index';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 
 const updaterPrefix='packs/system-updater/',nnidPrefix='packs/nnid-settings/';
@@ -58,7 +58,7 @@ function applicationManualPacks(titleId:string,page=false):readonly NativeTitleP
     ...['BtnClose01','BtnTextSize00'].map(name=>({url:`packs/manual/layout-${name}.json`,alias:`manual-${name}`,layouts:[name],animations:[`${name}_SceneIn`]})),
     {url:'packs/manual/layout-PageShdw00.json',alias:'manual-page-shadow',layouts:['PageShdw00'],animations:[]},
     {url:'packs/manual/layout-MainNull.json',alias:'manual-main-root',layouts:['MainNull'],animations:[]},
-    {url:'packs/settings/contents/0001-00000038/manual-EUR_en-neighbor.json',alias:'manual-neighbor',layouts:['Page_001_small_0','Page_001_small_bg'],animations:[],titleId},
+    {url:source?.neighborUrl??'packs/manual-unavailable/'+titleId+'-neighbor.json',alias:'manual-neighbor',layouts:['Page_001_small_0','Page_001_small_bg'],animations:[],titleId},
     {url:'packs/manual/layout-PageGroup.json',alias:'manual-page-group',layouts:['PageGroup'],animations:[]},
   ]:[];
   if(page)chrome.find(pack=>pack.alias==='manual-row')!.animations=[...chrome.find(pack=>pack.alias==='manual-row')!.animations,'BtnHeadLineTxt_ChangeWait'];
@@ -353,7 +353,7 @@ function manualBackOverrides(renderer:NativeLayoutRenderer,options?:StockScreenP
  * in native 00:44:30.298. Body origin38 and header centre20 are capture fits;
  * page geometry, glyphs and all strings remain authored source data. */
 function drawApplicationManualPage(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options?:StockScreenPaintOptions):boolean{
-  if(manualTitle(view)!=='0004001000022000'||view.data?.page!==0)return false;
+  if(!manualPageZeroAvailable(manualTitle(view))||view.data?.page!==0)return false;
   const index=renderer.packs['manual-index'].layouts.Index;
   const page=manualContents(index).find(entry=>entry.kind==='page'&&entry.page===0);
   if(!page||page.kind!=='page')return false;

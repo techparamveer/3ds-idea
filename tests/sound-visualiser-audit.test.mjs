@@ -10,7 +10,9 @@ const lightingSource=readFileSync(new URL('../src/scene/cgfx-lighting.ts',import
 const three=JSON.stringify(import.meta.resolve('three'));
 const {picaFragmentShader}=await import(url(compile('scene/firmware-model').replace("'three'",three).replace("'../os/cgfx-animation'",JSON.stringify(url(compile('os/cgfx-animation')))).replace("'./cgfx-lighting'",JSON.stringify(url(compile('scene/cgfx-lighting')))).replace("'../os/native-png'",JSON.stringify(url(compile('os/native-png')))).replace("'./cgfx-billboard'",JSON.stringify(url(compile('scene/cgfx-billboard').replace("'three'",three))))));
 const soundSource=compile('os/stock-native-sound');
-const layout=url(compile('os/stock-screen-layout').replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href)));
+const layout=url(compile('os/stock-screen-layout')
+ .replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href))
+ .replace("'./stock-manual-index.ts'",JSON.stringify(url('export const manualPageZeroAvailable=()=>false;'))));
 const {soundScreenPacks}=await import(url(soundSource.replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./native-layout'",JSON.stringify(url(compile('os/native-layout')))).replace("'./stock-sound-record'",JSON.stringify(url(compile('os/stock-sound-record'))))));
 const {portfolioMedia}=await import(url(compile('os/portfolio-media').replace("'./apps.ts'",JSON.stringify(url(compile('os/apps'))))));
 

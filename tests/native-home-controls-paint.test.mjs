@@ -32,6 +32,7 @@ async function loadPresentation(name, overrides = {}) {
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
   './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,homeSuspendedIconDisappeared,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx,_meta,_mode,_sleep,opacity)=>ctx.record('suspended-window',[opacity]);`),
+  './home-software-dialog':moduleUrl(`export {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles} from '${new URL('../src/os/home-software-dialog.ts',import.meta.url).href}';export const drawHomeSoftwareDialog=(_r,_top,bottom,state,icons)=>{if(globalThis.__testSoftwareDialogFailure)throw Error(globalThis.__testSoftwareDialogFailure);bottom.record('software-dialog',[state.system.dialog,icons]);return true;};`),
   './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame,exitFrame,intent)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame,exitFrame,intent]);};'),
   './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>globalThis.__testNativeSystemOverlayDrawn??false;'),
@@ -55,6 +56,44 @@ function closeFooterReturn(){
  assert.equal(state.system.runtime.application,null);
  return state;
 }
+
+test('Camera ordinary-close painter binds one owner icon and paired failure recovery preserves that owner',async()=>{
+ const titleId='0004001000022400',titleIcons=new Map([[titleId,{}]]),titleDescriptions=new Map([[titleId,'Nintendo 3DS Camera']]);
+ try{await withScreens(({paint,events,screens})=>{
+  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+  const state=reduceSystem(camera,'back',6400),owner=state.system.runtime.application;
+  paint(state);assert.equal(screens.stockStatus(state),'ready');
+  const call=events.find(event=>event.name==='software-dialog');
+  assert.equal(call.args[0],'close');assert.equal(call.args[1].length,1);
+  assert.deepEqual([call.args[1][0].width,call.args[1][0].height,call.args[1][0].data.length],[48,48,48*48*4]);
+  assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.instances[owner].suspended,true);
+
+  globalThis.__testSoftwareDialogFailure='Native software dialog header unavailable: LncDlgIcon_D_00';
+  paint(state);assert.equal(screens.stockStatus(state),'error');
+  assert.match(String(screens.stockFailure()),/LncDlgIcon_D_00/);
+  assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.instances[owner].suspended,true);
+  delete globalThis.__testSoftwareDialogFailure;
+  const recovered=escapeUnreadyNativeScreen(state,6500);paint(recovered);
+  assert.equal(recovered.system.dialog,null);assert.equal(recovered.system.runtime.application,owner);
+  assert.equal(recovered.system.runtime.instances[owner].suspended,true);assert.equal(screens.stockStatus(recovered),'ready');
+ },{firmwarePatch:{renderer:{},titleIcons,titleDescriptions},screenOptions:{drawSuspendedBackground:()=>true}});
+ }finally{delete globalThis.__testSoftwareDialogFailure;}
+});
+
+test('Camera close missing owner icon enters paired recovery without retiring the suspended owner',async()=>{
+ const titleId='0004001000022400',titleIcons=new Map(),titleDescriptions=new Map([[titleId,'Nintendo 3DS Camera']]);
+ await withScreens(({paint,screens})=>{
+  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+  const state=reduceSystem(camera,'back',6400),owner=state.system.runtime.application;
+  paint(state);assert.equal(screens.stockStatus(state),'error');
+  assert.match(String(screens.stockFailure()),/Native suspended title metadata unavailable/);
+  assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.instances[owner].suspended,true);
+  titleIcons.set(titleId,{});
+  const recovered=escapeUnreadyNativeScreen(state,6500);paint(recovered);
+  assert.equal(recovered.system.dialog,null);assert.equal(recovered.system.runtime.application,owner);
+  assert.equal(recovered.system.runtime.instances[owner].suspended,true);assert.equal(screens.stockStatus(recovered),'ready');
+ },{firmwarePatch:{renderer:{},titleIcons,titleDescriptions},screenOptions:{drawSuspendedBackground:()=>true}});
+});
 
 test('retired-owner footer return paints HOME without suspended capture or closing dialog',async()=>{
  await withScreens(({paint,events,screens})=>{
@@ -428,7 +467,7 @@ function canvas(events) {
   surface.getContext = () => context;
   return surface;
 }
-async function withScreens(run, { native = true, legacyCursorDrawn = true, realToolbar = false, realTilePose = false, legacyPressOffset = 0, presenterPatch = {}, screenOptions = {} } = {}) {
+async function withScreens(run, { native = true, legacyCursorDrawn = true, realToolbar = false, realTilePose = false, legacyPressOffset = 0, presenterPatch = {}, firmwarePatch = {}, screenOptions = {} } = {}) {
   const saved = new Map(['document', 'Image', 'FontFace'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   const events = [];
   Object.assign(globalThis, {
@@ -452,7 +491,7 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     ...presenterPatch,
   }, { get: (target, key) => key in target ? target[key] : ((ctx, ...args) => { ctx.record(key, args); return true; }) });
   const diagnostics = [];
-  const screens = createScreens({ drawHomeBackground:()=>true, ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics, dispose() {} } } : {}), ...screenOptions });
+  const screens = createScreens({ drawHomeBackground:()=>true, ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics, dispose() {}, ...firmwarePatch } } : {}), ...screenOptions });
   const paint = (state, elapsed = 1000) => {
     events.length = 0; screens.bottom.getContext('2d').curves.length = 0;
     screens.paint(state, new Date(0), elapsed);

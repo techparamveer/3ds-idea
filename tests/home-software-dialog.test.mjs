@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareSwitchTitles,drawHomeSoftwareDialog as paintDialog} from '../src/os/home-software-dialog.ts';
+import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles,homeSoftwareSwitchTitles,drawHomeSoftwareDialog as paintDialog} from '../src/os/home-software-dialog.ts';
 import {createPortfolioState,tickSystem,reduceSystem,launchHomeShortcut,dispatchSystemEvent} from '../src/os/system.ts';
 import {escapeUnreadyNativeScreen} from '../src/os/native-screen-system.ts';
 import {poseNativeLayout,nativePaneParentPath} from '../src/os/native-layout.ts';
@@ -10,7 +10,7 @@ const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
 const packs=Object.fromEntries(['dialog','dialogmask','messages','sequence'].map(key=>[key,JSON.parse(readFileSync(new URL(manifest.home[key],root)))]));
 const icons=[1,2].map(value=>({width:48,height:48,data:new Uint8ClampedArray(48*48*4).fill(value)}));
-const drawHomeSoftwareDialog=(r,t,b,s)=>paintDialog(r,t,b,s,icons);
+const drawHomeSoftwareDialog=(r,t,b,s)=>paintDialog(r,t,b,s,s.system.dialog==='switch'?icons:[icons[0]]);
 const dialogCall=r=>r.calls.find(c=>c.name==='Dlg_A_D_02');
 function suspended(){return reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',4000),6200),'home',6300);}
 const dialog=kind=>kind==='close'?reduceSystem(suspended(),'back',6400):launchHomeShortcut(suspended(),'about',6400);
@@ -64,10 +64,11 @@ for(const kind of ['close','switch'])test(`failed ${kind} closing display cancel
 for(const kind of ['close','switch'])test(`${kind} uses original dialog/masks and MSBT glyphs without changing packs`,()=>{
  const before=JSON.stringify(packs),r=renderer(),state=dialog(kind),top={},bottom={};
  assert.ok(homeSoftwareDialogKey(state));assert.equal(drawHomeSoftwareDialog(r,top,bottom,state),true);
- assert.deepEqual(r.calls.map(c=>[c.ctx,c.pack,c.name]),kind==='close'?[[top,'dialogmask','DlgMask_U_00'],[bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_02']]:[[bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_02'],[bottom,'sequence','LncDlgIcon_D_01']]);
- const options=dialogCall(r).options,body=(kind==='switch'?r.calls.at(-1).options:options).overrides.TextBoxDialog;
+ assert.deepEqual(r.calls.map(c=>[c.ctx,c.pack,c.name]),kind==='close'?[[top,'dialogmask','DlgMask_U_00'],[bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_02'],[bottom,'sequence','LncDlgIcon_D_00']]:[[bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_02'],[bottom,'sequence','LncDlgIcon_D_01']]);
+ const options=dialogCall(r).options,body=r.calls.at(-1).options.overrides.TextBoxDialog;
  assert.match(body.text,kind==='close'?/^Would you like to close/:/^Close the suspended software/);
  assert.ok(body.messageStyle);assert.ok(body.colorSpans.length);
+ assert.equal(options.overrides.TextBoxDialog.text,'');
  assert.equal(options.overrides.TextBox_00.text,'\ue001 Cancel');assert.equal(options.overrides.TextBox_02.text,'\ue000 OK');
  assert.equal(JSON.stringify(packs),before);
  const pose=poseNativeLayout(packs.dialog.layouts.Dlg_A_D_02,packs.dialog.animations,options.bindings,options.overrides);
@@ -76,6 +77,25 @@ for(const kind of ['close','switch'])test(`${kind} uses original dialog/masks an
   assert.deepEqual([160+p.translation[0]-p.size[0]*(p.origin%3)/2,120-p.translation[1]-p.size[1]*Math.floor(p.origin/3)/2,...p.size],[target.x,target.y,target.width,target.height]);
  }
  assert.match(r.diagnostics[0],/inline MSBT size controls/);
+});
+
+test('ordinary Camera close uses the decoded single-icon header at authored source geometry',()=>{
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+ const state=reduceSystem(camera,'back',6400),r=renderer(),before=JSON.stringify(packs);
+ assert.deepEqual(homeSoftwareDialogTitles(state),['camera']);
+ assert.equal(paintDialog(r,{}, {},state,[icons[0]]),true);
+ const header=r.calls.at(-1);assert.equal(header.name,'LncDlgIcon_D_00');
+ assert.equal(header.options.textures['runtime:close'],icons[0]);
+ assert.deepEqual(header.options.overrides.P_Icon_00.textureBindings,{0:'runtime:close'});
+ assert.match(header.options.overrides.TextBoxDialog.text,/^Would you like to close/);
+ assert.equal(dialogCall(r).options.overrides.TextBoxDialog.text,'');
+ const layout=packs.sequence.layouts.LncDlgIcon_D_00;
+ assert.deepEqual(nativePaneParentPath(layout,'P_Icon_00').at(-1).translation,[0,93,0]);
+ assert.deepEqual(nativePaneParentPath(layout,'P_Icon_00').at(-1).size,[48,48]);
+ assert.deepEqual(nativePaneParentPath(layout,'P_Line_00').at(-1).translation,[-0,38,0]);
+ assert.deepEqual(nativePaneParentPath(layout,'TextBoxDialog').at(-1).translation,[-0,-56,0]);
+ assert.deepEqual(packs.sequence.resourceSources.layouts.LncDlgIcon_D_00,{path:'sequence_LZ.bin/blyt/LncDlgIcon_D_00.bclyt',sha256:'3700755a002b7773bf8776fd4b17edcb11786e3d0aff540c552a99ceb174c020',titleId:'0004003000009802'});
+ assert.equal(JSON.stringify(packs),before);
 });
 
 test('native button highlight follows only its owned touch and clears in the gutter',()=>{
@@ -113,6 +133,18 @@ test('switch source, metadata and retained-owner failures never substitute blank
  const r=renderer(source);assert.throws(()=>drawHomeSoftwareDialog(r,{}, {},state),/header unavailable/);assert.equal(r.calls.length,0);
  for(const mutate of [s=>s.system.runtime.homeReturn=null,s=>s.system.runtime.instances[s.system.runtime.application].closing=true,s=>s.system.pending=null]){
   const copy=structuredClone(state);mutate(copy);assert.throws(()=>homeSoftwareSwitchTitles(copy),/owner unavailable/);
+ }
+});
+
+test('ordinary close requires its retained owner icon and decoded single-header source before drawing',()=>{
+ const state=dialog('close');
+ for(const invalid of [undefined,[],[{...icons[0],height:47}],icons]){
+  const r=renderer();assert.throws(()=>paintDialog(r,{}, {},state,invalid),/icons unavailable/);assert.equal(r.calls.length,0);
+ }
+ const source=structuredClone(packs);delete source.sequence.layouts.LncDlgIcon_D_00;
+ const r=renderer(source);assert.throws(()=>drawHomeSoftwareDialog(r,{}, {},state),/LncDlgIcon_D_00/);assert.equal(r.calls.length,0);
+ for(const mutate of [s=>s.system.runtime.homeReturn=null,s=>s.system.runtime.instances[s.system.runtime.application].closing=true,s=>s.system.runtime.application=null]){
+  const copy=structuredClone(state);mutate(copy);assert.throws(()=>homeSoftwareDialogTitles(copy),/owner unavailable/);
  }
 });
 

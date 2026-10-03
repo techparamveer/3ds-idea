@@ -63,7 +63,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   const [sharedFont,hudFont,...loaded]=await Promise.all([font(manifest.fonts.shared),font(manifest.fonts.hud),...packNames.map(name=>json<NativePack>(manifest.home[name]))]);
   const packs=Object.fromEntries(packNames.map((name,i)=>[name,loaded[i]])) as Record<string,NativePack>;
   if(!packs.MyMenu?.layouts||!Object.keys(packs.MyMenu.layouts).length)throw new Error('Missing native HOME layout manager pack');
-  const requestedLayouts={...homeLayouts,launcher:[...homeLayouts.launcher,'LncIconSleep_00'],MyMenu:homeLayoutManagerLayouts,dialog:['Dlg_A_D_00','Dlg_A_D_01','Dlg_A_D_02','Dlg_B_D_01'],dialogmask:['DlgMask_U_00','DlgMask_D_00'],sequence:['LncDlgIcon_D_01','DlgBtn02_00'],...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
+  const requestedLayouts={...homeLayouts,launcher:[...homeLayouts.launcher,'LncIconSleep_00'],MyMenu:homeLayoutManagerLayouts,dialog:['Dlg_A_D_00','Dlg_A_D_01','Dlg_A_D_02','Dlg_B_D_01'],dialogmask:['DlgMask_U_00','DlgMask_D_00'],sequence:['LncDlgIcon_D_00','LncDlgIcon_D_01','DlgBtn02_00'],...(manifest.home.launch?{launch:['NintendoLogo_U_00','NintendoLogo_D_00']}:{})};
   // Reject an incomplete style conversion during loading, before a paint can partially fail.
   for(const [bank,data] of Object.entries(packs.messages.messages))for(const label of Object.keys(data.labels))nativeMessageOverride(packs.messages,bank,label,'');
   const textures:Record<string,Map<string,NativePixels>>={};const decoded=new Map<string,Promise<NativePixels>>();

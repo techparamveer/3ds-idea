@@ -14,7 +14,7 @@ import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, t
 import { type BitmapFont } from './bitmap-font';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
 import { createHomeLayoutManager, type HomeLayoutPreview } from './home-native-layouts';
-import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareSwitchTitles,drawHomeSoftwareDialog} from './home-software-dialog';
+import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles,drawHomeSoftwareDialog} from './home-software-dialog';
 import {drawHomeSoftwareClosingDialog} from './home-software-closing-dialog';
 import { homeSuspendedApplication, homeSuspendedIconDisappeared, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { homeCloseWindowOpacity } from './home-close-window-fit';
@@ -289,7 +289,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let suspendedMetadata:{owner:string;metadata:SuspendedWindowMetadata}|undefined;
  let suspendedPresentation=createHomeSuspendedPresentation();
  let applicationTransitionCapture:{generation:string;transitionId:number;owner:string;captureGeneration:number}|undefined;
- let switchIcons:{key:string;icons:readonly[NativePixels,NativePixels]}|undefined;
+ let softwareDialogIcons:{key:string;icons:readonly NativePixels[]}|undefined;
  let panelFailure:Error|undefined,panelPublished:string|null=null;
  const panelKey=(state:MenuState)=>homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system&&!state.system.sleeping&&['power','shutdown'].includes(state.system.phase)
   ?JSON.stringify(['system',state.system.phase,state.system.since,state.system.returnPhase])
@@ -309,7 +309,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  }
  const useFont=(font:BitmapFont)=>{for(const ctx of [t,b]){fonts.set(ctx,font);setPortfolioFont(ctx,font);}};
  if(options.font)useFont(options.font);
- function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;applicationTransitionCapture=undefined;switchIcons=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
+ function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
  if(options.firmwareAssets)setFirmwareAssets(options.firmwareAssets);
  const captureCanvas=document.createElement('canvas');captureCanvas.width=320;captureCanvas.height=240;
  const captureContext=captureCanvas.getContext('2d',{willReadFrequently:true})!;
@@ -484,25 +484,25 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame);nativeHome?.folderBalloon(b,state,view);if(state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'&&!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
   if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);},layoutPreview))throw new Error('Native HOME layout manager unavailable.');
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);
-  const dialogKey=homeSoftwareDialogKey(state),switchTitles=homeSoftwareSwitchTitles(state);
-  if(!switchTitles)switchIcons=undefined;
-  if(switchTitles&&switchIcons?.key!==dialogKey){
-   const icons=switchTitles.map(id=>{
+  const dialogKey=homeSoftwareDialogKey(state),dialogTitles=homeSoftwareDialogTitles(state);
+  if(!dialogTitles)softwareDialogIcons=undefined;
+  if(dialogTitles&&softwareDialogIcons?.key!==dialogKey){
+   const icons=dialogTitles.map(id=>{
     const title=getTitle(id),portfolio=getApp(id),ctx=captureContext;
     ctx.resetTransform();ctx.clearRect(0,0,48,48);
     if(title?.source==='firmware'&&title.titleId){
      const icon=firmwareAssets?.titleIcons.get(title.titleId);
-     if(!icon)throw Error(`Native software switch icon unavailable: ${id}`);
+     if(!icon)throw Error(`Native software dialog icon unavailable: ${id}`);
      ctx.drawImage(icon,0,0);
     }else if(title?.source==='portfolio'&&portfolio)graphics.menuArtwork(ctx,portfolio,0,0,48,48);
-    else throw Error(`Unsupported software switch icon: ${id}`);
+    else throw Error(`Unsupported software dialog icon: ${id}`);
     return {width:48,height:48,data:ctx.getImageData(0,0,48,48).data};
    });
-   switchIcons={key:dialogKey!,icons:[icons[0],icons[1]]};
+   softwareDialogIcons={key:dialogKey!,icons};
   }
   if(homeSoftwareDialogKey(state)){
    if(!firmwareAssets)throw Error('Native software dialog resources unavailable');
-   drawHomeSoftwareDialog(firmwareAssets.renderer,t,b,state,switchIcons?.icons);
+   drawHomeSoftwareDialog(firmwareAssets.renderer,t,b,state,softwareDialogIcons?.icons);
   }
   if(homeSoftwareClosingDialogKey(state)&&!applicationFooterReturn){
    if(!firmwareAssets)throw Error('Native software-closing resources unavailable');
@@ -519,5 +519,5 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
   return nativeSystem?{...(verificationPaint??{}),nativeSystem:true}:verificationPaint;
  }
- return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;applicationTransitionCapture=undefined;switchIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

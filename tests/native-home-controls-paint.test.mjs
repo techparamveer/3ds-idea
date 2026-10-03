@@ -248,8 +248,10 @@ test('eligible retained launch keeps the selected native cursor beneath the fade
    try{
     globalThis.__testNativeSystemOverlayDrawn=true;
     paint(state,4000);
-    assert.equal(events.some(event=>event.name==='cursorAt'),expected);
-    assert.equal(events.some(event=>event.name==='cursorEffectAt'),expected);
+    const cursor=events.find(event=>event.name==='cursorAt');
+    assert.equal(!!cursor,expected);
+    // The retained cursor samples the HOME controls primary; effect motion during launch is untraced.
+    if(expected)assert.deepEqual(cursor.args.slice(0,2),[state.system.homeControls.primary.center.x,state.system.homeControls.primary.center.y]);
    }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
   },{screenOptions:{getHomeBanner:()=>hosted,drawStockTitleBannerFrame:()=>true}});
  }

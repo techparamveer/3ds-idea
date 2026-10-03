@@ -23,12 +23,12 @@ test('warm boot reset preserves the existing host generation and never recreates
   assert.doesNotMatch(observer, /bannerGeneration=/);
 });
 
-test('the restarted primary uses the paired-screen footer receipt as its existing load gate', () => {
+test('the restarted primary uses the paired-screen footer receipt at the existing worker release boundary', () => {
   const observer = source.slice(source.indexOf('function observeFolderBanner'), source.indexOf('function advanceBeforeMutation'));
   assert.match(observer, /bannerEntryFooterBootSince=system\.since/);
   assert.match(observer, /const entryFooter=screens\.homeEntryFooterReadiness\(\)/);
   assert.match(observer, /entryFooter\.bootSince===bannerEntryFooterBootSince&&entryFooter\.terminalAtUpdate!==null/);
-  assert.match(observer, /loadInhibited:bannerEntryFooterBootSince!==null/);
+  assert.match(observer, /loadInhibited:false,nativeWorkerReady:bannerEntryFooterBootSince===null/);
   assert.doesNotMatch(observer, /setTimeout|performance\.now|HOME_ENTRY_FOOTER_LAST_FRAME/,
     'scene policy must consume the shared owner receipt rather than inventing a delay or frame clock');
 });

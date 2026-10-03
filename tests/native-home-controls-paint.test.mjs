@@ -260,6 +260,29 @@ test('failed native terminal draw and revoked candidates cannot acknowledge entr
  });
 });
 
+test('held pickup cannot publish an invisible entry footer and release resumes the terminal receipt',async()=>{
+ await withScreens(({screens,paint,events})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:102,homeClock:{...initial.system.homeClock,updateCount:30}}};
+  const ordinary=home();
+  const entered={...ordinary,system:{...ordinary.system,since:102,
+   homeClock:{...ordinary.system.homeClock,updateCount:44}}};
+  const held=controls(entered,{tilePickup:createHomeTilePickup({folder:20,slot:1},5,
+   {x:59,y:54},{x:244,y:137},{x:0,y:0})});
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);paint(held);
+   assert.equal(events.some(event=>event.name==='footer'),false);
+   assert.equal(screens.presentHomeEntryFooterTerminal(),false);
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:102,terminalAtUpdate:null});
+
+   paint(controls(entered,{tilePickup:null}));
+   assert.equal(events.some(event=>event.name==='footer'),true);
+   assert.equal(screens.presentHomeEntryFooterTerminal(),true);
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:102,terminalAtUpdate:44});
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ },{presenterPatch:{footer(ctx,state){if(getHomeFooter(state))ctx.record('footer');return true;}}});
+});
+
 test('synthetic paints cannot acquire or revoke the live HOME entry owner',async()=>{
  await withScreens(({screens,paint,events})=>{
   const initial=createPortfolioState();

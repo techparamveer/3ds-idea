@@ -274,7 +274,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const entryFooter=screens.homeEntryFooterReadiness();
     if(bannerEntryFooterBootSince!==null&&(entryFooter.bootSince===bannerEntryFooterBootSince&&entryFooter.terminalAtUpdate!==null
       ||system.phase!=='boot'&&entryFooter.bootSince!==bannerEntryFooterBootSince))bannerEntryFooterBootSince=null;
-    const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:bannerEntryFooterBootSince!==null,nativeWorkerReady:true,resourceReady:bannerHost.inputs.resourceReady};
+    // Keep the source gate counting while entry owns the lower-screen terminal.
+    // Its existing worker-release boundary blocks both gate release and later
+    // activation without adding another counter or changing lifecycle lengths.
+    const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:bannerEntryFooterBootSince===null,resourceReady:bannerHost.inputs.resourceReady};
     bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:selection??(switchPresentation?{kind:'app',id:system.pending!}:system.homeControls?undefined:resolveHomeBannerHostSelection(state)),inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
     // Retain both outgoing and incoming requests until the manager retires

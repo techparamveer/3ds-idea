@@ -508,7 +508,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
    const nativeFooterDrawn=nativeHome?.footer(b,state,reduced,homeEntry.footerSceneInFrame??undefined)===true;
    if(!nativeFooterDrawn)footer(b,state,chrome);
-   homeEntryFooterTerminalDrawn=nativeFooterDrawn&&homeEntry.footerSceneInFrame===HOME_ENTRY_FOOTER_LAST_FRAME;
+   homeEntryFooterTerminalDrawn=nativeFooterDrawn&&getHomeFooter(state)!==null
+    &&homeEntry.footerSceneInFrame===HOME_ENTRY_FOOTER_LAST_FRAME;
   }
   if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
   if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample,homeEntry.hudSceneInFrame??undefined))status(t,date,chrome);},layoutPreview))throw new Error('Native HOME layout manager unavailable.');

@@ -16,7 +16,7 @@ function suspended(){return reduceSystem(tickSystem(reduceSystem(tickSystem(crea
 const dialog=kind=>kind==='close'?reduceSystem(suspended(),'back',6400):launchHomeShortcut(suspended(),'about',6400);
 const renderer=(source=packs)=>({packs:source,diagnostics:[],calls:[],draw(ctx,pack,name,options){this.calls.push({ctx,pack,name,options});return true;}});
 
-test('closing display keeps one identity through terminal, excludes switch and clears on retirement',()=>{
+test('closing display keeps intent-scoped identities through terminal and clears on retirement',()=>{
  const state=reduceSystem(dialog('close'),'open',6500),key=homeSoftwareClosingDialogKey(state);
  assert.ok(key);assert.equal(homeSoftwareDialogKey(state),null);
  for(const frame of [0,1,10,20]){
@@ -26,7 +26,15 @@ test('closing display keeps one identity through terminal, excludes switch and c
  }
  const completed=structuredClone(state);completed.system.homeApplicationTransition.phase='complete';
  assert.equal(homeSoftwareClosingDialogKey(completed),null);
- assert.equal(homeSoftwareClosingDialogKey(reduceSystem(dialog('switch'),'open',6500)),null);
+ const switching=reduceSystem(dialog('switch'),'open',6500),switchKey=homeSoftwareClosingDialogKey(switching);
+ assert.ok(switchKey);assert.notEqual(switchKey,key);assert.equal(homeSoftwareDialogKey(switching),null);
+ for(const frame of [0,10,20]){
+  const next=structuredClone(switching);next.system.homeApplicationTransition.appQuitFrame=frame;
+  next.system.homeApplicationTransition.phase=frame===20?'terminal':'closing';
+  assert.equal(homeSoftwareClosingDialogKey(next),switchKey);
+ }
+ const impossibleSwitchExit=structuredClone(switching);impossibleSwitchExit.system.homeApplicationTransition.phase='exiting';
+ assert.equal(homeSoftwareClosingDialogKey(impossibleSwitchExit),null);
  assert.equal(homeSoftwareClosingDialogKey(suspended()),null);
  assert.equal(homeSoftwareClosingDialogKey(dialog('close')),null);
 });
@@ -42,8 +50,8 @@ test('closing display rejects stale owners, generations and obscuring surfaces',
  }
 });
 
-test('failed closing display recovery cancels only the close and preserves its suspended owner',()=>{
- const state=reduceSystem(dialog('close'),'open',6500),owner=state.system.runtime.application;
+for(const kind of ['close','switch'])test(`failed ${kind} closing display cancels only the transition and preserves its suspended owner`,()=>{
+ const state=reduceSystem(dialog(kind),'open',6500),owner=state.system.runtime.application;
  const escaped=escapeUnreadyNativeScreen(state,6600);
  assert.equal(homeSoftwareClosingDialogKey(escaped),null);
  assert.equal(escaped.system.homeApplicationTransition,null);

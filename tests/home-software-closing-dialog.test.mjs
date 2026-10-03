@@ -24,6 +24,17 @@ test('settled close presentation uses the buttonless source window and lower mas
  assert.equal(r.calls[1].options.textSampling,'lcd');assert.equal(JSON.stringify(packs),before);
 });
 
+test('switch presentation reuses the source window and mask with the exact suspended-software label',()=>{
+ const before=JSON.stringify(packs),r=renderer(),top={},bottom={};
+ assert.equal(drawHomeSoftwareClosingDialog(r,top,bottom,20,undefined,'switch'),true);
+ assert.deepEqual(r.calls.map(call=>[call.ctx,call.pack,call.name]),[
+  [bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_00'],
+ ]);
+ const text=r.calls[1].options.overrides.TextBoxDialog;
+ assert.equal(text.text,'Closing suspended software...');assert.ok(text.messageStyle);
+ assert.deepEqual(text.colorSpans,[]);assert.equal(JSON.stringify(packs),before);
+});
+
 test('captured entry fade uses compatible decoded donor poses at the existing mask sample',()=>{
  for(const frame of [0,1,9,19,20]){
   const r=renderer();drawHomeSoftwareClosingDialog(r,{}, {},frame);
@@ -95,8 +106,9 @@ test('source geometry and provenance match the captured 280 by 200 striped windo
  assert.deepEqual(packs.dialogmask.resourceSources.animations.DlgMask_D_00_FadeIn,{path:'dialogmask_LZ.bin/anim/DlgMask_D_00_FadeIn.bclan',sha256:'400bd1588c04d175c54104110c004f32dc96dd82d0a7cd9d9f0b8da8b2734fe4',titleId:'0004003000009802'});
  assert.deepEqual(packs.dialog.resourceSources.animations.Dlg_A_D_02_FadeOut00,{path:'dialog_LZ.bin/anim/Dlg_A_D_02_FadeOut00.bclan',sha256:'d2ac804d59218030a877cca1aaf59c6ca198534f90436fe31c61c7e929a62c81',titleId:'0004003000009802'});
  assert.deepEqual(packs.dialogmask.resourceSources.animations.DlgMask_D_00_FadeOut00,{path:'dialogmask_LZ.bin/anim/DlgMask_D_00_FadeOut00.bclan',sha256:'ba904f4847d045d8389e33fdf440af2fa5ddd6886d3d0ef4df2cc799dbbaf50a',titleId:'0004003000009802'});
- const bank=packs.messages.messages.menu_msbt_LZ,index=bank.labels[source.message.label];
- assert.deepEqual(bank.messages[index],{styleIndex:25,text:'Closing software...',tokens:[{text:'Closing software...'}]});
+ const bank=packs.messages.messages.menu_msbt_LZ;
+ assert.deepEqual(bank.messages[bank.labels[source.messages.close.label]],{styleIndex:25,text:'Closing software...',tokens:[{text:'Closing software...'}]});
+ assert.deepEqual(bank.messages[bank.labels[source.messages.switch.label]],{styleIndex:25,text:'Closing suspended software...',tokens:[{text:'Closing suspended software...'}]});
  assert.deepEqual(packs.messages.resourceSources.messages.menu_msbt_LZ,{path:'RomFS/message/EU_English/menu_msbt_LZ.bin',sha256:'1df2193c64e8d08b3b670923617ea1f0461537397b3da671d394304a664b4350',titleId:'0004003000009802'});
 });
 
@@ -114,4 +126,7 @@ test('unsupported source gaps fail before drawing and draw failures reject paire
   assert.throws(()=>drawHomeSoftwareClosingDialog(r,{}, {},20,0),/unavailable/);assert.equal(r.calls.length,0);
  }
  const r=renderer();r.draw=()=>false;assert.throws(()=>drawHomeSoftwareClosingDialog(r,{},{}),/draw failed/);
+ const missingSwitch=structuredClone(packs);delete missingSwitch.messages.messages.menu_msbt_LZ.labels.lau_dlg_quit5;
+ const switchRenderer=renderer(missingSwitch);assert.throws(()=>drawHomeSoftwareClosingDialog(switchRenderer,{}, {},20,undefined,'switch'),/quit5/);assert.equal(switchRenderer.calls.length,0);
+ assert.throws(()=>drawHomeSoftwareClosingDialog(renderer(),{}, {},20,undefined,'other'),RangeError);
 });

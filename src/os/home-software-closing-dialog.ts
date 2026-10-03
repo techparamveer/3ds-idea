@@ -2,7 +2,10 @@ import {nativeMessageColorSpans,nativeMessageOverride,type AnimationBinding} fro
 import type {NativeLayoutRenderer} from './native-renderer.ts';
 
 export const HOME_SOFTWARE_CLOSING_DIALOG_SOURCE=Object.freeze({
- message:Object.freeze({pack:'messages',bank:'menu_msbt_LZ',label:'lau_dlg_quit4'}),
+ messages:Object.freeze({
+  close:Object.freeze({pack:'messages',bank:'menu_msbt_LZ',label:'lau_dlg_quit4'}),
+  switch:Object.freeze({pack:'messages',bank:'menu_msbt_LZ',label:'lau_dlg_quit5'}),
+ }),
  dialog:Object.freeze({pack:'dialog',layout:'Dlg_A_D_00',entryClip:'Dlg_A_D_02_FadeIn',entryLastFrame:20,
   exitClip:'Dlg_A_D_02_FadeOut00',exitLastFrame:20}),
  lowerMask:Object.freeze({pack:'dialogmask',layout:'DlgMask_D_00',clip:'DlgMask_D_00_FadeIn',lastFrame:20,
@@ -18,12 +21,13 @@ export const HOME_SOFTWARE_CLOSING_DIALOG_SOURCE=Object.freeze({
  * capture-fitted adaptation; only the exit donor has a traced native caller.
  */
 export function drawHomeSoftwareClosingDialog(renderer:NativeLayoutRenderer,
- _top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,maskFrame=20,exitFrame?:number):true{
- const source=HOME_SOFTWARE_CLOSING_DIALOG_SOURCE,dialog=renderer.packs.dialog,mask=renderer.packs.dialogmask;
+ _top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,maskFrame=20,exitFrame?:number,intent:'close'|'switch'='close'):true{
+ const source=HOME_SOFTWARE_CLOSING_DIALOG_SOURCE,message=source.messages[intent],dialog=renderer.packs.dialog,mask=renderer.packs.dialogmask;
  if(!Number.isSafeInteger(maskFrame)||maskFrame<0||maskFrame>source.lowerMask.lastFrame)throw new RangeError('Invalid native software-closing mask frame');
  if(exitFrame!==undefined&&(!Number.isSafeInteger(exitFrame)||exitFrame<0||exitFrame>source.dialog.exitLastFrame))throw new RangeError('Invalid native software-closing exit frame');
- const messages=renderer.packs.messages?.messages[source.message.bank];
- if(messages?.labels[source.message.label]===undefined)throw Error(`Native software-closing message unavailable: ${source.message.label}`);
+ if(intent!=='close'&&intent!=='switch')throw new RangeError('Invalid software-closing intent');
+ const messages=renderer.packs.messages?.messages[message.bank];
+ if(messages?.labels[message.label]===undefined)throw Error(`Native software-closing message unavailable: ${message.label}`);
  if(!dialog?.layouts[source.dialog.layout])throw Error(`Native software-closing layout unavailable: ${source.dialog.pack}/${source.dialog.layout}`);
  for(const item of [source.lowerMask]){
   if(!mask?.layouts[item.layout])throw Error(`Native software-closing layout unavailable: ${item.pack}/${item.layout}`);
@@ -35,10 +39,10 @@ export function drawHomeSoftwareClosingDialog(renderer:NativeLayoutRenderer,
  }else{
   if(!dialog.animations[source.dialog.entryClip])throw Error(`Native software-closing animation unavailable: ${source.dialog.entryClip}`);
  }
- const text={...nativeMessageOverride(renderer.packs.messages,source.message.bank,source.message.label,''),
-  colorSpans:nativeMessageColorSpans(renderer.packs.messages,source.message.bank,source.message.label)};
+ const text={...nativeMessageOverride(renderer.packs.messages,message.bank,message.label,''),
+  colorSpans:nativeMessageColorSpans(renderer.packs.messages,message.bank,message.label)};
  const binding=(item:typeof source.lowerMask):AnimationBinding=>({name:item.clip,frame:maskFrame});
- // The native close leaves HUD and upper wallpaper unmasked. The source
+ // Native close/switch leaves HUD and upper wallpaper unmasked. The source
  // dialog mask darkens that LCD despite white vertex colors; do not bind it.
  const lowerBinding:AnimationBinding=exitFrame===undefined?binding(source.lowerMask):{name:source.lowerMask.exitClip,frame:exitFrame};
  const windowBinding:AnimationBinding[]=[exitFrame===undefined

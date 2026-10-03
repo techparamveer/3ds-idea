@@ -32,7 +32,7 @@ async function loadPresentation(name, overrides = {}) {
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
   './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,homeSuspendedIconDisappeared,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx,_meta,_mode,_sleep,opacity)=>ctx.record('suspended-window',[opacity]);`),
-  './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame,exitFrame)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame,exitFrame]);};'),
+  './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame,exitFrame,intent)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame,exitFrame,intent]);};'),
   './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>globalThis.__testNativeSystemOverlayDrawn??false;'),
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
@@ -114,14 +114,14 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    state.system.homeApplicationTransition.phase=frame===20?'terminal':'closing';
    paint(state);
    assert.equal(screens.stockStatus(state),'ready');
-   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[frame,undefined]);
+   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[frame,undefined,'close']);
    assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[homeCloseWindowOpacity(frame)]);
    assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),false);
    assert.ok(events.findIndex(e=>e.name==='closing-lower')>events.findIndex(e=>e.name==='footer'));
    assert.ok(events.findIndex(e=>e.name==='closing-lower')>events.findIndex(e=>e.name==='hud'));
   }
   screens.setReducedMotion(true);paint(closing);
-  assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,undefined]);
+  assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,undefined,'close']);
   assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[0]);
   screens.setReducedMotion(false);
   for(const frame of [0,10,20]){
@@ -129,12 +129,12 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    Object.assign(exiting.system.homeApplicationTransition,{phase:frame===20?'exit-terminal':'exiting',appQuitFrame:20,dialogExitFrame:frame});
    paint(exiting);
    assert.equal(screens.stockStatus(exiting),'ready');
-   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,frame]);
+   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,frame,'close']);
    assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[0]);
    assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),true);
    assert.ok(events.findIndex(e=>e.name==='menuIcon')<events.findIndex(e=>e.name==='suspendedIcon'));
    screens.setReducedMotion(true);paint(exiting);
-   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,20]);
+   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,20,'close']);
    assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),true);
    screens.setReducedMotion(false);
   }
@@ -143,14 +143,20 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
    Object.assign(departing.system.homeApplicationTransition,{phase,appQuitFrame:20,dialogExitFrame:20,footerExitFrame});
    paint(departing);
    assert.equal(screens.stockStatus(departing),'ready');
-   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,20]);
+   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[20,20,'close']);
    assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),true);
    assert.equal(departing.system.runtime.application,closing.system.runtime.application);
   }
   const switching=structuredClone(closing);switching.system.homeApplicationTransition.intent={kind:'switch',appId:'about'};
-  paint(switching);assert.ok(!events.some(e=>e.name.startsWith('closing-')));
-  assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),false);
-  assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[undefined]);
+  for(const frame of [0,10,20]){
+   switching.system.homeApplicationTransition.appQuitFrame=frame;
+   switching.system.homeApplicationTransition.phase=frame===20?'terminal':'closing';
+   paint(switching);
+   assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[frame,undefined,'switch']);
+   assert.equal(events.filter(e=>e.name==='footer').length,1,'source footer is drawn once in its hidden switch pose');
+   assert.deepEqual(events.find(e=>e.name==='suspended-window').args,[undefined]);
+   assert.equal(events.find(e=>e.name==='suspendedIcon').args.at(-1),false);
+  }
   paint(home());assert.ok(!events.some(e=>e.name.startsWith('closing-')));
  },{screenOptions:{drawSuspendedBackground:()=>true}});
 });
@@ -197,7 +203,7 @@ test('closing paint failures recover both LCDs, cancel safely and survive sleep/
   assert.equal(screens.stockFailure(),null);
   screens.bottom.getContext('2d').failClosing=false;paint(closing);
   assert.equal(screens.stockStatus(closing),'ready');
-  assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[10,undefined]);
+  assert.deepEqual(events.find(e=>e.name==='closing-lower').args,[10,undefined,'close']);
  },{screenOptions:{drawSuspendedBackground:()=>true}});
 });
 
@@ -803,6 +809,14 @@ test('valid switch hides source footer and cancel restores it without mutating f
  const scene=options=>nativePaneParentPath(poseNativeLayout(pack.layouts.LncBtmBtn_02,pack.animations,options.bindings,options.overrides),'N_Scene_00').at(-1);
  for(const reduced of [false,true]){
   presenter.footer({},switching,reduced);const pose=scene(calls.at(-1));
+  assert.equal(pose.alpha,0);assert.equal(pose.translation[1],-32);
+ }
+ const closing=reduceSystem(switching,'open',6750);
+ assert.equal(closing.system.dialog,null);assert.equal(closing.system.homeApplicationTransition.intent.kind,'switch');
+ for(const frame of [0,10,20]){
+  const state=structuredClone(closing);state.system.homeApplicationTransition.appQuitFrame=frame;
+  state.system.homeApplicationTransition.phase=frame===20?'terminal':'closing';
+  presenter.footer({},state);const pose=scene(calls.at(-1));
   assert.equal(pose.alpha,0);assert.equal(pose.translation[1],-32);
  }
  assert.equal(JSON.stringify(switching),before);

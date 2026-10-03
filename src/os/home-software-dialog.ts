@@ -9,8 +9,10 @@ export function homeSoftwareClosingDialogKey(state:MenuState):string|null{
  const s=state.system;
  if(!s||s.sleeping||s.preferences||s.dialog||state.panel)return null;
  const close=sampleSystemHomeApplicationTransition(state);
- return close?.intent.kind==='close'&&close.phase!=='complete'
-  ?JSON.stringify(['software-closing',close.identity]):null;
+ const visible=close?.intent.kind==='close'?close.phase!=='complete'
+  :close?.intent.kind==='switch'&&(close.phase==='closing'||close.phase==='terminal');
+ return close&&visible
+  ?JSON.stringify(['software-closing',close.intent.kind,close.identity]):null;
 }
 
 export function homeSoftwareDialogKey(state:MenuState):string|null{

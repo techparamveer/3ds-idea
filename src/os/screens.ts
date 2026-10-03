@@ -471,7 +471,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     }else throw Error('Unsupported suspended title');
     suspendedMetadata={owner:suspended.id,metadata:{description,icon:{width:64,height:64,data:ctx.getImageData(0,0,64,64).data}}};
    }
-   const closeOpacity=homeSoftwareClosingDialogKey(state)?homeCloseWindowOpacity(reduced?20:applicationTransition!.appQuitFrame):undefined;
+   // The switch keeps the compact suspended-title window intact. Only the
+   // separately captured ordinary-close route applies the fitted upper fade.
+   const closeOpacity=homeSoftwareClosingDialogKey(state)&&applicationTransition?.intent.kind==='close'
+    ?homeCloseWindowOpacity(reduced?20:applicationTransition.appQuitFrame):undefined;
    drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',suspendedSleepFrame,closeOpacity);
   }
   // Native descending layout priority: upperBase499 then HUD100, both
@@ -507,7 +510,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    // start epoch and host cadence still need matched motion verification.
    const exitFrame=applicationTransition!.dialogExitFrame;
    drawHomeSoftwareClosingDialog(firmwareAssets.renderer,t,b,reduced?20:applicationTransition!.appQuitFrame,
-    exitFrame===null?undefined:reduced?20:exitFrame);
+    exitFrame===null?undefined:reduced?20:exitFrame,applicationTransition!.intent.kind);
   }
   const requiresNativeSystem=state.system&&!state.system.sleeping&&['power','shutdown'].includes(state.system.phase);
   const nativeSystem=firmwareAssets?drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets):false;

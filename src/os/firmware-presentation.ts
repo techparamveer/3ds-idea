@@ -13,7 +13,7 @@ import type { HomeTilePose } from './home-tile-pose';
 import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from './home-balloon-presentation';
 import { selectNotesMetadata } from './notes-title-metadata';
 import { drawHomeSuspendedIcon } from './home-suspended-window';
-import { homeSoftwareSwitchTitles } from './home-software-dialog';
+import { homeSoftwareClosingDialogKey, homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
 import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
 import { selectHomeFolderFooterPose } from './home-folder-footer-return';
@@ -310,7 +310,8 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const applicationFooterExit=homeApplicationTransitionFooterExit(applicationTransition,reduced);
   const applicationFooterReturn=homeApplicationTransitionFooterReturn(applicationTransition,reduced);
   // Captured switch dialogs have no footer; use the source's settled out pose.
-  const footerPose=homeSoftwareSwitchTitles(state)
+  const closingSwitch=homeSoftwareClosingDialogKey(state)&&sampleSystemHomeApplicationTransition(state)?.intent.kind==='switch';
+  const footerPose=homeSoftwareSwitchTitles(state)||closingSwitch
    ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
    :applicationFooterExit??applicationFooterReturn??selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced);
   if(applicationFooterExit&&!renderer.packs.launcher.animations[applicationFooterExit.clip])throw Error('Native software-close footer exit unavailable');

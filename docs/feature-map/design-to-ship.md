@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `03d01e2b` (source warning size and baseline),
+Current runtime checkpoint: `0e59c1a0` (Camera Manual/footer and Close tone),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -19,8 +19,12 @@ dark upper surface without applying ordinary-close AppQuit. The
 the decoded single-title icon/separator/body assembly. The
 [warning correction](../home-close-warning-2026-10-03.md) reads the source 85%
 size and anchors the scaled cells to the font baseline; seven text-edge pixels
-remain unaccepted. Next is Camera's missing middle Manual button;
-remaining switch/reveal timing and power-on follow. Do not repeat completed footer
+remain unaccepted. [Camera Manual/footer](../home-camera-manual-footer-2026-10-03.md)
+now restores Close/Manual/Resume, the real English index and retained-owner
+return. Close's decoded Decide tone persists through confirmation/departure.
+Manual page content is still undelivered; Settings-derived index geometry,
+folder variants and native timing remain adaptations or unverified. Remaining
+switch/reveal timing and power-on follow. Do not repeat completed footer
 palette research or redesign existing app screens.
 
 [Shutdown publication](../home-shutdown-publication-2026-10-03.md) now preserves
@@ -156,7 +160,7 @@ modal-button portion of items 1-2/4 is implemented and browser-inspected;
 | Order | Feature IDs / owner | Concrete unfinished UI or interaction | Bounded deliverable and completion check |
 | --- | --- | --- | --- |
 | 1 | L-06 / Lifecycle | Source close entry, footer departure, Open return and banner reacquisition implemented through `c01e1219` | [Banner-return comparison](../home-banner-return-2026-10-03.md) records load-sensitive onset and remaining relative pose/epoch gaps. Correct measured footer pixels and exact input/motion/audio; preserve owner/publication barriers and completed stages. |
-| 2 | L-07 / Lifecycle | Confirmed switch shows decoded closing dialog/mask and retained dark backing through its close barrier, then launches frozen target; intentionally no ordinary-close exit phase | [Switch-backing correction](../home-switch-backing-2026-10-03.md) resolves the captured missing upper surface. Next Camera ordinary-close icon header; preserve cancel/owner guards and compact icon. Exact native timing and departure/reveal remain open. |
+| 2 | L-07 / Lifecycle | Confirmed switch shows decoded closing dialog/mask and retained dark backing through its close barrier, then launches frozen target; intentionally no ordinary-close exit phase | [Switch-backing correction](../home-switch-backing-2026-10-03.md) resolves the captured missing upper surface. Camera header, warning and three-button footer are now corrected through `0e59c1a0`; preserve cancel/owner guards and compact icon. Exact native timing and departure/reveal remain open. |
 | 3 | L-01, L-03 / Lifecycle | Power-on uses adapted 3000 ms boot/final 350 ms reveal; shutdown uses source poses with guarded terminal publication through `ea6265de` | Native black and Power contact/re-entry endpoints are compared. Next off -> power-on -> paired LCD reveal -> HOME, exact epochs, backlight/LCD order and input gates. Preserve verified ownership and terminal publication; no decorative boot screen. |
 | 4 | H-14, L-06, L-07 / Lifecycle + coordinator | Source Bounding_00/01 rectangles and Select press feedback at `f17a1007`; same-button ownership preserved | Tests and muted Sidecar replay pass, including byte-identical dialog crop after cross-drag. Native input/default focus/motion comparison remains open. Physical, keyboard and touch keep the same actions. |
 | 5 | H-03..H-10, H-14 / HOME | Navigation exists; button feedback and edge/cancel behavior need a complete visible interaction pass | Select/open with touch and A; B/Back; HOME/resume; toolbar; density ends; paging; footer variants; folder enter/close; pickup/drop/cancel. Repair captured failures only, preserving existing visual design. Run both physical-model and touchscreen routes. |

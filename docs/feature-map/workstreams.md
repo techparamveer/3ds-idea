@@ -1,5 +1,24 @@
 # Workstream Registry
 
+## Camera Manual Footer - 3 October 2026
+
+Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses owned
+`3ds-home-camera-manual-footer-20261003` / `codex/home-camera-manual-footer-20261003`,
+base `aed11de0`. Worker `f554458b` -> integration `972fc7e1` restores the three
+source buttons and owner-safe Manual route. After visible comparison,
+`6c7b0d44` -> `a295d970` and `7bf3ebff` -> `0e59c1a0` retain decoded Decide
+through ordinary confirmation and closing, not switch or footer return.
+Helper `camera_manual_source` owns `3ds-camera-manual-index-20261003` /
+`codex/camera-manual-index-20261003`: `5aad0c38` -> `e23490e3` delivers the
+real English Camera index and title icon through the existing Manual helper.
+Both branches share the coordinator Git database; no sibling edits.
+
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence.
+Helper `switch_closing_review` independently finds no actionable issue in
+footer, index or Decide follow-ups. GPT-5.6 Sol/high; no service-tier claim.
+Coordinator alone operates the dedicated muted browser and isolated Azahar
+on the authorized full Mac. [Source, evidence and limits](../home-camera-manual-footer-2026-10-03.md).
+
 ## Close Warning - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses owned

@@ -86,6 +86,12 @@ Every acceptance scenario named below remains **fail/unaccepted as a whole**. Te
 
 **Flow:** Settings HOME Manual opens source Contents with 32 indexed pages/categories; only Important Information page 1 is implemented. A/touch opens, B returns, X/Close closes. Language, Enlarge, directions, later pages and scrolling are inert. No-title Portfolio Guide supplies three authored local pages in source chrome.
 
+Camera at `0e59c1a0` also opens its source English index from the middle
+suspended HOME footer. Its 15-page/four-category metadata and SMDH header icon
+are delivered, but only index/Close works: Camera page content is not delivered.
+Close retains the suspended Camera owner, including explicit resource-failure
+recovery. [Source and comparison limits](../home-camera-manual-footer-2026-10-03.md).
+
 **Status/next:** Settings chrome/text are source-backed with documented capture-fitted placement; Portfolio Guide body is an adaptation. Page 1 materially differs and lacks scrollbar behavior. Source-prove scrollbar before `settings-manual-page0`.
 
 ### G-05 - Settings-launched helpers

@@ -1,5 +1,14 @@
 # Software state, input and presentation
 
+[Suspended Camera](../home-camera-manual-footer-2026-10-03.md) exposes source
+Close/Manual/Resume members. Shared half-open touch bounds are x `[0,105)`,
+`[107,213)`, `[215,320)` at y `[212,240)`; gaps are inert and press ownership
+cannot transfer between members. Manual retains Camera's exact application and
+HOME-return owner. Its Close or selected-resource failure dismisses only the
+applet. Ordinary close confirmation and validated close transition retain
+Decide5 through footer departure, excluding switch and post-retirement return.
+The binding is a capture-supported adaptation, not a timing/lifecycle change.
+
 [Power touch ownership](../home-power-input-2026-10-03.md) requires a latched
 same-pointer stroke beginning and ending inside `powerMenuActionAt`'s
 half-open source rectangle `[66,254) x [166,202)`. Outside-origin drags,

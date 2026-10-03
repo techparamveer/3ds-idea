@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+[Camera Manual/footer verification](../home-camera-manual-footer-2026-10-03.md)
+keeps the prior close PNG immutable and uses fresh own-PNG suspended/Manual/
+return captures as supplemental evidence. Compare all three fixed footer ROIs,
+body/icon controls and whole LCDs separately, with empty masks and no phase
+search. Test Manual held/outside/re-entry/cross-drag, Close return and Resume,
+and ordinary-close Decide persistence through departure but not return. The
+source-backed index does not establish native geometry or support its pages.
+
 [Warning-size verification](../home-close-warning-2026-10-03.md) retains the
 original baseline, first source-size implementation and baseline refinement
 as distinct runtimes/capture directories. The predeclared body ROI ranks

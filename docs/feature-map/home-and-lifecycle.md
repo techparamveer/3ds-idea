@@ -101,7 +101,7 @@ mobile Notes touch and physical HOME return pass; other toolbar states remain.
 
 ### H-10 - HOME footer actions and Manual route
 **Code/tests/evidence:** [home-presentation.ts](../../src/os/home-presentation.ts), [screens.ts](../../src/os/screens.ts), [folder input tests](../../tests/home-folder-input.test.mjs), [applet footer tests](../../tests/home-accepted-toolbar-touch.test.mjs), [residual audit](../home-applet-footer-residual-audit-2026-10-01.md).
-**Now/gap/dependency:** Open, Resume, Close folder, Close software, Settings, Create Folder, and the Settings Manual route are state-derived. Applet glyph text now matches within threshold, but 694 footer material-edge pixels and other footer states remain unresolved.
+**Now/gap/dependency:** Open, Resume, Close folder, Close software, Settings, Create Folder, and the Settings/Camera Manual routes are state-derived. [Camera at `0e59c1a0`](../home-camera-manual-footer-2026-10-03.md) restores source Close/Manual/Resume and ordinary-close Decide persistence, with shared source hit bounds and exact retained-owner return. Applet glyph text meets its earlier bounded threshold; footer edge, native gesture/timing and whole-screen acceptance remain separate gaps.
 **Next/acceptance:** Capture each footer variant from a named state, exercise left/centre/right inclusive edges, and compare native/browser inputs and raw lower LCDs. No action may leak from the retained grid under toolbar focus.
 
 ### H-11 - HOME Design, themes, brightness, power-saving, and preferences
@@ -205,7 +205,7 @@ native comparison. The later evidence below supersedes its authored-painter limi
 
 ### L-11 - Manual and overlay ownership
 **Code/tests/evidence:** [stock-apps.ts](../../src/os/stock-apps.ts), [stock-native-helpers.ts](../../src/os/stock-native-helpers.ts), [manual tests](../../tests/stock-manual-application.test.mjs), [Manual detail](../manual-upper-detail-fidelity-2026-09-27.md).
-**Now/gap/dependency:** Settings Manual opens only with its explicit title argument, draws delivered Contents/page resources, supports page 1/Back/Close, and leaves unfinished controls inert. Later pages, Enlarge, full scrolling, and generic per-title Manual routes remain incomplete/source-gap.
+**Now/gap/dependency:** Settings Manual opens with its explicit title argument, draws delivered Contents/page resources, supports page 1/Back/Close, and leaves unfinished controls inert. Camera now delivers its real 15-page/four-category English index and SMDH icon through the same applet, retaining the suspended Camera owner on Close or selected-resource failure. No Camera pages are delivered. Later pages, Enlarge, full scrolling and unknown-title Manual routes remain incomplete/source-gap; Settings-derived index geometry remains an adaptation.
 **Next/acceptance:** Settings selected -> footer Manual -> Contents -> page 1 -> Back -> X/Close, using touch and buttons. Match owner/caller return, scroll position, both LCDs, and inert unsupported controls; do not invent missing pages.
 
 ### L-12 - Effects, storage, capabilities, links, and late-result cancellation

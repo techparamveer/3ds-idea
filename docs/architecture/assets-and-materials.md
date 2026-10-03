@@ -4,6 +4,14 @@ Editable sources, private extraction, converted delivery and runtime ownership
 are separate layers. A resource can decode successfully without being published,
 supported by the renderer, used by a live screen or visually accepted.
 
+Camera Manual now uses a title-specific profile in the existing BCMA converter:
+content 1 / `00000019`, English Index only, manifest-backed SMDH header icon.
+Settings remains the default profile. Structurally valid BCLIM footers take
+precedence over ambiguous payload-leading LZ bytes; texture validation still
+runs. No page content, textures or fallback screens are invented. The existing
+Manual renderer's placement/raster fits are adaptations, not newly proven
+Camera geometry. [Source and delivery identities](../home-camera-manual-footer-2026-10-03.md#camera-manual-source).
+
 HOME close/switch warning bodies alone opt into decoded UTF-16 glyph-size
 spans. Full-message measurement and color-mask placement share the same
 scaled glyph/advance data; invalid spans fail, text replacement clears them,

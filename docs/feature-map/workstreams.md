@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Camera Close Header - 3 October 2026
+
+Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses owned
+`3ds-home-camera-close-dialog-20261003` / `codex/home-camera-close-dialog-20261003`
+from base `2785e040`: worker `30cf9a77` -> integration `10be5b69`. Six owned
+HOME loader/presenter/cache/test files, no assets, controller or audio changes.
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence;
+helper `switch_closing_review` passes 123 focused tests with no findings.
+GPT-5.6 Sol/high, no service-tier claim. Coordinator alone operates muted
+production Chrome on the authorized full Mac; prior genuine native PNG reused.
+[Sources, comparison and residuals](../home-camera-close-dialog-2026-10-03.md).
+
 ## Switch Backing - 3 October 2026
 
 Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in new owned

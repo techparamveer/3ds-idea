@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+[Camera close verification](../home-camera-close-dialog-2026-10-03.md) keeps
+the captured single-icon header separate from warning typography and the
+three-button suspended footer. Compare initial/repeated/cross-drag lower
+pairs, assert Cancel preserves the Camera owner, then confirm. Rerun the
+two-icon switch and portfolio/direct-Health close controls. A static icon ROI
+within tolerance is not whole-dialog, input, motion or audio acceptance.
+
 [Switch-backing verification](../home-switch-backing-2026-10-03.md) compares
 the retained upper composition independently from the logical AppQuit counter.
 Keep native closing and browser terminal20 identities explicit; no common

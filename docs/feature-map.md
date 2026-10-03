@@ -15,12 +15,20 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [switch backing correction](home-switch-backing-2026-10-03.md),
+Latest [Camera close header](home-camera-close-dialog-2026-10-03.md),
+`10be5b69`, restores the source single-icon header and body placement. Desktop
+icon residual improves 2,278 -> 0 above delta 2 (maximum 1); modal 9,584 ->
+5,168. Full 1,888 tests and production build pass; independent 123-test review
+has no findings. Warning typography and Camera's middle Manual footer button
+are separate remaining defects. Native epochs/input/motion/audio and whole
+scenarios remain unaccepted; other title headers are unverified adaptations.
+
+Earlier [switch backing correction](home-switch-backing-2026-10-03.md),
 `e231163d`, preserves decoded dark suspended backing while switching. Upper
 terminal residual improves83,889 ->16,700 pixels above delta2; lower unchanged
 at91. Full1884 tests/typecheck/build/shader pass, independent177-test review
 has no findings. Native epochs, input/motion/audio and whole1:1 remain open.
-Next captured defect is Camera ordinary-close confirmation's icon header.
+Its captured Camera ordinary-close header defect is addressed above.
 
 Earlier [switch closing correction](home-switch-closing-2026-10-03.md),
 `65d75466`, restores the missing decoded lower closing dialog/mask after

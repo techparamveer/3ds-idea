@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `e231163d` (retained switch backing),
+Current runtime checkpoint: `10be5b69` (Camera close title header),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -14,9 +14,11 @@ lower dialog/mask visible after confirmation, hides the footer and preserves
 the suspended upper window. Fresh native capture identified this missing state;
 no controller duration or ordinary-close tail was changed. The subsequent
 [switch-backing correction](../home-switch-backing-2026-10-03.md) retains the
-dark upper surface without applying ordinary-close AppQuit. Next is the icon
-header on Camera's ordinary-close confirmation, followed by
-remaining switch/reveal timing and power-on. Do not repeat completed footer
+dark upper surface without applying ordinary-close AppQuit. The
+[Camera close header](../home-camera-close-dialog-2026-10-03.md) now restores
+the decoded single-title icon/separator/body assembly. Next captured defects
+are the smaller inline warning and Camera's missing middle Manual button;
+remaining switch/reveal timing and power-on follow. Do not repeat completed footer
 palette research or redesign existing app screens.
 
 [Shutdown publication](../home-shutdown-publication-2026-10-03.md) now preserves

@@ -26,6 +26,13 @@ See [proposed improvements](proposed-improvements.md) for that remaining risk.
 
 ## State and resource owners
 
+Close and switch confirmation resolve icon identity from the validated retained
+application owner, not HOME selection. The shared presenter selects decoded
+single-title `LncDlgIcon_D_00` or two-title `LncDlgIcon_D_01`; its bounded cache
+includes dialog kind, owner and pending title. Missing resources fail paired
+publication without retiring the suspended owner. Prompt policy and deadlines
+remain unchanged; see [Camera close evidence](../home-camera-close-dialog-2026-10-03.md).
+
 Confirmed software switches retain the existing decoded suspended backing
 through their close barrier. A null transition *presentation* selects settled
 SceneIn20/AppPause20; it does not remove the live transition or skip compositor

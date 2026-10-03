@@ -296,14 +296,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  }
  function footer(ctx:Context,state:MenuState,reduced=false){
   const actions=getHomeFooter(state);if(!actions)return true;
-  const {two,left:leftAction,right:rightAction}=actions;
+  const {two,left:leftAction,right:rightAction}=actions,middleAction=actions.middle??null,three=middleAction!==null;
   const leftTone=leftAction==='close-software'?'B':'W';
-  const active=new Set(two?['N_BtnW_R_02',`N_Btn${leftTone}_L_03`]:['N_BtnW_C_01']);
+  const active=new Set(three?[`N_Btn${leftTone}_L_03`,'N_BtnW_C_03','N_BtnW_R_03']:two?['N_BtnW_R_02',`N_Btn${leftTone}_L_03`]:['N_BtnW_C_01']);
   const overrides:PaneOverrides={};
   const walk=(panes:NativePack['layouts'][string]['roots'])=>panes.forEach(p=>{if(/^N_Btn[WB]_[LRC]+_\d+$/.test(p.name))overrides[p.name]={visible:active.has(p.name)};if(p.text)overrides[p.name]={text:''};walk(p.children);});walk(renderer.packs.launcher.layouts.LncBtmBtn_02.roots);
-  const label=(action:typeof leftAction|typeof rightAction)=>action===null?{text:''}:message('menu_msbt_LZ',{'close-folder':'lau_2b_close','close-software':'lau_3b_quit','folder-settings':'lau_2b_folder_setting',manual:'lau_2b_manual',open:'lau_2b_folder_open','create-folder':'lau_1b_make_folder',resume:'lau_2b_restart'}[action],{'close-folder':'Close','close-software':'Close','folder-settings':'Settings',manual:'Manual',open:'Open','create-folder':'Create Folder',resume:'Resume'}[action]);
-  const right=label(rightAction),left=label(leftAction);
-  for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]=right;overrides[`${prefix}_R_02`]=right;overrides[`${prefix}_L_03`]=left;}
+  const label=(action:typeof leftAction|typeof middleAction|typeof rightAction)=>action===null?{text:''}:message('menu_msbt_LZ',{'close-folder':'lau_2b_close','close-software':'lau_3b_quit','folder-settings':'lau_2b_folder_setting',manual:'lau_2b_manual',open:'lau_2b_folder_open','create-folder':'lau_1b_make_folder',resume:'lau_2b_restart'}[action],{'close-folder':'Close','close-software':'Close','folder-settings':'Settings',manual:'Manual',open:'Open','create-folder':'Create Folder',resume:'Resume'}[action]);
+  const right=label(rightAction),middle=label(middleAction),left=label(leftAction);
+  for(const prefix of ['T_BtnBW','T_BtnFW','T_BtnPW']){overrides[`${prefix}_C_01`]=right;overrides[`${prefix}_R_02`]=right;overrides[`${prefix}_L_03`]=left;overrides[`${prefix}_C_03`]=middle;overrides[`${prefix}_R_03`]=right;}
   for(const prefix of ['T_BtnBB','T_BtnFB','T_BtnPB'])overrides[`${prefix}_L_03`]=left;
   const close=sampleSystemHomeFolderClose(state);
   const applicationTransition=sampleSystemHomeApplicationTransition(state);
@@ -325,7 +325,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
     :[binding(footerPose.clip,footerPose.frame)];
   const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);
   if(pressed){
-   const group=two?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));
+   const group=three?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:pressed.side==='middle'?'G_BtnW_C_03':'G_BtnW_R_03'):two?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));
   }
   // Bounded capture fit for the remaining Create Folder glyph-edge columns.
   // This is not a recovered native GPU raster rule; other footer labels retain

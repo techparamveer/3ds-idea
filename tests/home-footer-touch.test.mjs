@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import {homeFooterHit,ownedHomeFooterContact} from '../src/os/home-footer-touch.ts';
 import {enterHomeFolder,selectHomeSlot,settleHomeNavigation,writeHomeNavigation} from '../src/os/home-navigation.ts';
 import {enableHomeControls} from '../src/os/home-controls.ts';
-import {createPortfolioState,dispatchSystemEvent,tickSystem} from '../src/os/system.ts';
+import {createPortfolioState,dispatchSystemEvent,launchHomeShortcut,reduceSystem,tickSystem} from '../src/os/system.ts';
 import {HOME_FOOTER_TOUCH_GEOMETRY as geometry} from '../src/os/stock-screen-layout.ts';
 
 const booted=()=>tickSystem(createPortfolioState(),3001);
 const selected=(state,id)=>settleHomeNavigation(selectHomeSlot(state,Number(Object.entries(state.system.layout).find(([,value])=>value===id)[0])));
 const down=(state,x,y)=>dispatchSystemEvent(state,{type:'touch',phase:'down',pointerId:7,x,y},4000);
 const gesture=state=>state.system.homeNavigation.gesture;
+const suspendedCamera=()=>reduceSystem(tickSystem(launchHomeShortcut(booted(),'camera',4000),6200),'home',6300);
 const openedFolder=()=>{
  const state=booted(),child=state.system.layout[0];
  return settleHomeNavigation(selectHomeSlot(enterHomeFolder({...state,folders:{20:'A'},system:{...state.system,folderLayouts:{20:{2:child}}}},20),2));
@@ -30,6 +31,32 @@ test('same-button press ownership survives small movement but never crosses the 
  assert.deepEqual(ownedHomeFooterContact(right,geometry,gesture(right),106,226),{action:'open',side:'right'});
  assert.equal(ownedHomeFooterContact(left,geometry,gesture(left),102,226),null);
  assert.equal(ownedHomeFooterContact(right,geometry,gesture(right),98,226),null);
+});
+
+test('Camera suspended footer uses all three decoded bounding panes and leaves their authored gaps inert',()=>{
+ const state=suspendedCamera();
+ for(const [x,expected] of [[0,{action:'close-software',side:'left'}],[104.999,{action:'close-software',side:'left'}],[105,null],[106.999,null],[107,{action:'manual',side:'middle'}],[212.999,{action:'manual',side:'middle'}],[213,null],[214.999,null],[215,{action:'resume',side:'right'}],[319.999,{action:'resume',side:'right'}]]){
+  assert.deepEqual(homeFooterHit(state,geometry,x,226),expected);
+ }
+ assert.throws(()=>homeFooterHit(state,{...geometry,three:{...geometry.three,middle:{offset:107,width:321}}},160,226),RangeError);
+});
+
+test('three-button ownership cannot cross a source gap or transfer between Camera actions',()=>{
+ const state=suspendedCamera();
+ for(const [start,end,expected] of [[50,100,{action:'close-software',side:'left'}],[160,170,{action:'manual',side:'middle'}],[267,280,{action:'resume',side:'right'}],[104,107,null],[107,104,null],[212,215,null],[215,212,null],[104,105,null],[107,106,null]]){
+  const pressed=down(state,start,226);
+  assert.deepEqual(ownedHomeFooterContact(pressed,geometry,gesture(pressed),end,226),expected);
+ }
+});
+
+test('live Camera Manual release respects its decoded gaps and cancel boundary',()=>{
+ for(const [start,end,phase,opens] of [[160,162,'up',true],[212,214,'up',false],[215,212,'up',false],[160,160,'cancel',false]]){
+  let state=down(suspendedCamera(),start,226);
+  state=dispatchSystemEvent(state,{type:'touch',phase:'move',pointerId:7,x:end,y:226},4050);
+  state=dispatchSystemEvent(state,{type:'touch',phase,pointerId:7,x:end,y:226},4100);
+  assert.equal(state.system.runtime.active?state.system.runtime.instances[state.system.runtime.active]?.appId:null,opens?'manual':null);
+  assert.equal(state.system.runtime.application?state.system.runtime.instances[state.system.runtime.application]?.appId:null,'camera');
+ }
 });
 
 test('a press beginning outside the footer cannot acquire its Select pose or release action',()=>{

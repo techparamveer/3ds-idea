@@ -790,6 +790,46 @@ test('suspended software footer uses the source X Close glyph while folder Close
  assert.notEqual(label,native.messages[native.labels.lau_2b_close].text);
 });
 
+test('suspended Camera footer paints decoded Close, Manual and Resume panes beneath its close modal',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};
+ const presenter=createFirmwareHome({renderer});
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+ const closing=reduceSystem(camera,'back',6400);
+ const native=messagesPack.messages.menu_msbt_LZ;
+ assert.deepEqual(['lau_3b_quit','lau_2b_manual','lau_2b_restart'].map(label=>({label,index:native.labels[label],text:native.messages[native.labels[label]].text,styleIndex:native.messages[native.labels[label]].styleIndex})),[
+  {label:'lau_3b_quit',index:16,text:'\ue071 Close',styleIndex:185},
+  {label:'lau_2b_manual',index:12,text:'Manual',styleIndex:185},
+  {label:'lau_2b_restart',index:42,text:'\ue073 Resume',styleIndex:193},
+ ]);
+ for(const state of [camera,closing]){
+  presenter.footer({},state);const {overrides,bindings}=calls.at(-1).options;
+  assert.equal(overrides.N_BtnB_L_03.visible,true);assert.equal(overrides.N_BtnW_C_03.visible,true);assert.equal(overrides.N_BtnW_R_03.visible,true);
+  assert.equal(overrides.N_BtnW_R_02.visible,false);assert.equal(overrides.N_BtnW_L_03.visible,false);assert.equal(overrides.N_BtnW_C_01.visible,false);
+  assert.equal(overrides.T_BtnBB_L_03.text,'\ue071 Close');
+  assert.equal(overrides.T_BtnFW_C_03.text,'Manual');
+  assert.equal(overrides.T_BtnFW_R_03.text,'\ue073 Resume');
+  assert.deepEqual(bindings,[{name:'LncBtmBtn_02_SceneIn',frame:15}]);
+ }
+ const source=pack.resourceSources;
+ assert.deepEqual(source.layouts.LncBtmBtn_02,{path:'launcher_LZ.bin/blyt/LncBtmBtn_02.bclyt',sha256:'1be988eda6f3d2374d8445d0773688fa1c6dd118590cb986d526c0dc4f326a44',titleId:'0004003000009802'});
+ const panes=new Map();const walk=items=>items.forEach(pane=>{panes.set(pane.name,pane);walk(pane.children??[]);});walk(pack.layouts.LncBtmBtn_02.roots);
+ assert.deepEqual(['B_BtnB_L_03','B_BtnW_C_03','B_BtnW_R_03'].map(name=>({name,translation:panes.get(name).translation,size:panes.get(name).size,origin:panes.get(name).origin})),[
+  {name:'B_BtnB_L_03',translation:[-160,-120,0],size:[105,28],origin:6},
+  {name:'B_BtnW_C_03',translation:[-0,-120,0],size:[106,28],origin:7},
+  {name:'B_BtnW_R_03',translation:[160,-120,0],size:[105,28],origin:8},
+ ]);
+});
+
+test('suspended Camera Select feedback follows each three-button owner and never either source gap',()=>{
+ const calls=[],presenter=createFirmwareHome({renderer:{packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}}});
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+ for(const [x,group] of [[50,'G_BtnB_L_03'],[160,'G_BtnW_C_03'],[267,'G_BtnW_R_03'],[105,null],[214,null]]){
+  const state=dispatchSystemEvent(camera,{type:'touch',phase:'down',pointerId:7,x,y:226},6400);
+  presenter.footer({},state);const selected=calls.at(-1).bindings.find(binding=>binding.name==='LncBtmBtn_02_Select');
+  assert.deepEqual(selected,group?{name:'LncBtmBtn_02_Select',frame:1,groups:[group]}:undefined);
+ }
+});
+
 test('software close retains footer labels through dialog exit then samples the counted source departure',()=>{
  const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}};
  const presenter=createFirmwareHome({renderer});

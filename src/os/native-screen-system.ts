@@ -21,7 +21,15 @@ export function escapeUnreadyNativeScreen(state:MenuState,now:number):MenuState{
  if(homeSoftwareDialogKey(state))return reduceSystem(releaseSystemInputs(state,now),'back',now);
  if(selectedSuspendedApplication(state))return reduceSystem(releaseSystemInputs(state,now),s?.dialog?'back':'home',now);
  if(s?.phase==='home'&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings'||state.panel==='folder-not-empty')&&!s.sleeping&&!s.preferences&&!s.dialog)return reduceMenu(releaseSystemInputs(state,now),'home');
- if(!s||s.sleeping||s.preferences||s.dialog||!['launch','app'].includes(s.phase))return state;
+  if(!s||s.sleeping||s.preferences||s.dialog||!['launch','app'].includes(s.phase))return state;
   const released=releaseSystemInputs(state,now);
+  const active=s.runtime.active?s.runtime.instances[s.runtime.active]:undefined;
+  const application=s.runtime.application?s.runtime.instances[s.runtime.application]:undefined;
+  // If Camera's content-1 Manual source is unavailable, recovery closes only
+  // the HOME-opened applet so the retained application remains HOME's owner;
+  // suspending the failed applet would replace homeReturn with the wrong slot.
+  if(s.phase==='app'&&active?.appId==='manual'&&application?.appId==='camera'&&s.runtime.homeReturn===application.id){
+   return reduceSystem(released,'back',now);
+  }
   return reduceSystem({...released,system:{...released.system!,phase:'app'}},'home',now);
 }

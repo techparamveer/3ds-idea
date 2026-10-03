@@ -1,8 +1,11 @@
 import type { AppView, JsonValue } from './app-types';
 import { cameraStripOffset, readCameraBrowse, CAMERA_BROWSE_PAGE_WIDTH } from './camera-browse.ts';
 
-/** LncBtmBtn_02 live HOME hit bounds and its asymmetric two-button split. */
-export const HOME_FOOTER_TOUCH_GEOMETRY={x:0,y:212,width:320,height:28,leftWidth:100} as const;
+/** LncBtmBtn_02 live HOME bounds. The three-button rectangles are the decoded
+ * B_Btn{B,W}_{L,C,R}_03 panes; their two authored two-pixel gaps own no action. */
+export const HOME_FOOTER_TOUCH_GEOMETRY={x:0,y:212,width:320,height:28,leftWidth:100,three:{
+ left:{offset:0,width:105},middle:{offset:107,width:106},right:{offset:215,width:105},
+}} as const;
 
 /** home.sleep/Slp_D_00 B_Btn_01 is the only touch boundary; T_Btm_00 is a HOME-key hint. */
 export const POWER_OFF_TOUCH_GEOMETRY = {x:66,y:166,width:188,height:36} as const;

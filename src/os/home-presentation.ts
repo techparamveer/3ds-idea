@@ -127,8 +127,11 @@ export function getNativeCameraTitleBalloon(state:MenuState,view:HomePresentatio
  return {label:title.title,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
 }
 
+export type HomeFooterAction='close-folder'|'close-software'|'folder-settings'|'manual'|'open'|'create-folder'|'resume';
+export type HomeFooter=Readonly<{two:boolean;left:HomeFooterAction|null;middle?:HomeFooterAction;right:HomeFooterAction}>;
+
 /** Footer actions follow the runtime's currently selected container. */
-export function getHomeFooter(state:MenuState){
+export function getHomeFooter(state:MenuState):HomeFooter|null{
  const focus=state.system?.homeNavigation.focus;
  if(focus?.toolbarActive&&focus.currentFocus>=1&&focus.currentFocus<=5)return {two:false,left:null,right:'open'} as const;
  // Native held captures hide the complete footer in both containers. The
@@ -144,6 +147,7 @@ export function getHomeFooter(state:MenuState){
  // Other suspended-software folder selections retain their unverified route.
  const idleOccupiedFolder=state.opened&&!!appId&&!state.system?.app;
  const left=idleOccupiedFolder?null:appId&&state.system?.app===appId?'close-software':state.opened&&appId?'close-folder':folder?'folder-settings':appId==='system-settings'||appId==='camera'?'manual':null;
+ if(left==='close-software'&&appId==='camera')return {two:true,left,middle:'manual',right:'resume'};
  return {
   two:left!==null,
   left,

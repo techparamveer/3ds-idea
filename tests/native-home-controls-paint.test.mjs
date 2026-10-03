@@ -16,6 +16,7 @@ import { touchHomeGesture } from '../src/os/home-gestures.ts';
 import { getHomeDensityControls } from '../src/os/home-density-controls.ts';
 import { blendNativePixel, evaluateNativeMaterial, poseNativeLayout, nativePaneParentPath } from '../src/os/native-layout.ts';
 import {escapeUnreadyNativeScreen} from '../src/os/native-screen-system.ts';
+import {NATIVE_RECOVERY_TARGETS} from '../src/os/native-screen-input.ts';
 import {homeCloseWindowOpacity} from '../src/os/home-close-window-fit.ts';
 
 const moduleUrl = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
@@ -125,11 +126,30 @@ test('retired-owner footer return paints HOME without suspended capture or closi
  },{screenOptions:{drawSuspendedBackground:(_ctx,capture,presentation)=>{assert.equal(capture.status,'none');assert.equal(presentation,null);return true;}}});
 });
 
-test('system screen publication reports only a successful native power or shutdown pair',async()=>{
- await withScreens(async({screens})=>{
+test('system screen publication reports only a successful native boot, power or shutdown pair',async()=>{
+ await withScreens(async({screens,events})=>{
   const initial=createPortfolioState();
   const shutdown={...initial,powered:true,system:{...initial.system,phase:'shutdown',since:100,returnPhase:'home'}};
   try{
+   globalThis.__testNativeSystemOverlayDrawn=false;
+   assert.equal(screens.paint(initial,new Date(0),1300),undefined);
+   assert.equal(screens.stockStatus(initial),'error');
+   assert.match(String(screens.stockFailure()),/Native boot screen unavailable/);
+   const recoveryRects=events.filter(event=>event.name==='strokeRect').map(event=>event.args);
+   const homeTarget=NATIVE_RECOVERY_TARGETS.find(target=>target.action==='home');
+   const retryTarget=NATIVE_RECOVERY_TARGETS.find(target=>target.action==='retry');
+   assert.ok(!recoveryRects.some(args=>args[0]===homeTarget.x&&args[1]===homeTarget.y));
+   assert.ok(recoveryRects.some(args=>args[0]===retryTarget.x&&args[1]===retryTarget.y));
+   assert.equal(screens.retryStockScreen(),true);
+
+   const sleepingBoot={...initial,system:{...initial.system,sleeping:true}};
+   assert.equal(screens.paint(sleepingBoot,new Date(0),1300),undefined);
+   assert.equal(screens.stockStatus(sleepingBoot),'inactive');
+
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   assert.deepEqual(screens.paint(initial,new Date(0),1300),{nativeSystem:true});
+   assert.equal(screens.stockStatus(initial),'ready');
+
    globalThis.__testNativeSystemOverlayDrawn=false;
    assert.equal(screens.paint(shutdown,new Date(0),1300),undefined);
    assert.equal(screens.stockStatus(shutdown),'error');
@@ -150,17 +170,20 @@ test('system screen publication reports only a successful native power or shutdo
 test('cold boot publishes only the captured HOME base layers beneath the paired fade',async()=>{
  await withScreens(({paint,events})=>{
   const boot=createPortfolioState();
-  paint(boot);
-  assert.equal(boot.system.phase,'boot');
-  assert.ok(events.some(event=>event.name==='upperBase'));
-  assert.ok(events.some(event=>event.name==='toolbar'));
-  assert.ok(events.some(event=>event.name==='homePlate'));
-  assert.ok(!events.some(event=>event.name==='hud'));
-  assert.ok(!events.some(event=>event.name==='footer'));
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   paint(boot);
+   assert.equal(boot.system.phase,'boot');
+   assert.ok(events.some(event=>event.name==='upperBase'));
+   assert.ok(events.some(event=>event.name==='toolbar'));
+   assert.ok(events.some(event=>event.name==='homePlate'));
+   assert.ok(!events.some(event=>event.name==='hud'));
+   assert.ok(!events.some(event=>event.name==='footer'));
 
-  paint({...boot,system:{...boot.system,phase:'home'}});
-  assert.ok(events.some(event=>event.name==='hud'));
-  assert.ok(events.some(event=>event.name==='footer'));
+   paint({...boot,system:{...boot.system,phase:'home'}});
+   assert.ok(events.some(event=>event.name==='hud'));
+   assert.ok(events.some(event=>event.name==='footer'));
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  });
 });
 
@@ -491,6 +514,7 @@ function canvas(events) {
     beginPath() { path = []; }, rect(...args) { path.push(args); }, clip() { clips.push(...structuredClone(path)); },
     createLinearGradient: () => ({ addColorStop() {} }),
     fillRect(...args) { context.record('fillRect', args); },
+    strokeRect(...args) { context.record('strokeRect', args); },
     quadraticCurveTo(...args) { context.curves.push(args); },
     getImageData(_x, _y, width, height) {
       context.record('capture-read');

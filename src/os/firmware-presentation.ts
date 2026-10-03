@@ -446,8 +446,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function cursorEffectAt(ctx:Context,centerX:number,centerY:number,scaleFrame:number,disappearFrame:number){
   return renderer.draw(ctx,'launcher','LncCsrEfct_00',{center:[centerX,centerY],bindings:[binding('LncCsrEfct_00_Scale',scaleFrame),binding('LncCsrEfct_00_DisAppear',disappearFrame)]});
  }
- /** Launch decide ring. DisAppear binds after Scale: it owns the root scale and
-  * the 0.48->2.2 expansion that Scale would otherwise hold constant. */
+ /** Launch decide ring. DisAppear binds after Scale so its P_CsrEfct_00/01
+  * expansion overrides Scale's constant keys; its G_Scene_00 group excludes
+  * N_EfctRoot_00, whose density scale therefore stays with Scale. */
  function launchCursorEffectAt(ctx:Context,centerX:number,centerY:number,scaleFrame:number,disappearFrame:number){
   return renderer.draw(ctx,'launcher','LncCsrEfct_01',{center:[centerX,centerY],bindings:[binding('LncCsrEfct_01_Scale',scaleFrame),binding('LncCsrEfct_01_DisAppear',disappearFrame)]});
  }

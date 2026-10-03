@@ -202,9 +202,9 @@ test('HOME HUD wiring is capture-only, records its sample, and restores live pai
   const block = scene.slice(scene.indexOf('if(lcdCapture){const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
   assert.match(block, /lcdHomeHudSample\(hudSample,window.location.hostname\)/);
   assert.match(block, /phase!=='home'/);
-  assert.match(block, /try\{lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
+  assert.match(block, /try\{lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
   assert.match(block, /homeHudSample:homeHudSample\?\?null/);
-  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true\)/);
+  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true\)/);
 });
 
 

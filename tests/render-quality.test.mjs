@@ -176,25 +176,25 @@ test('an overdue reduced boot also requires a fresh receipt after visibility or 
 
 test('launch terminal identity selects C14 and scopes it to the active app owner and context',()=>{
   const launch={phase:'launch',since:100,app:'health-safety',runtime:{application:'health-safety:1',active:'health-safety:1'}};
-  assert.equal(launchTerminalIdentity(launch,1833,false,4),null);
-  assert.deepEqual(launchTerminalIdentity(launch,1834,false,4),{
+  assert.equal(launchTerminalIdentity(launch,2183,false,4),null);
+  assert.deepEqual(launchTerminalIdentity(launch,2184,false,4),{
     since:100,app:'health-safety',owner:'health-safety:1',contextGeneration:4,
   });
-  assert.equal(launchTerminalDeadlineReached(launch,1849,false),false);
-  assert.equal(launchTerminalDeadlineReached(launch,1850,false),true);
+  assert.equal(launchTerminalDeadlineReached(launch,2199,false),false);
+  assert.equal(launchTerminalDeadlineReached(launch,2200,false),true);
   assert.deepEqual(launchTerminalIdentity(launch,100,true,4),{
     since:100,app:'health-safety',owner:'health-safety:1',contextGeneration:4,
   });
   assert.equal(launchTerminalDeadlineReached(launch,219,true),false);
   assert.equal(launchTerminalDeadlineReached(launch,220,true),true);
-  assert.equal(launchTerminalIdentity({...launch,phase:'app'},1850,false,4),null);
-  assert.equal(launchTerminalIdentity({...launch,app:null},1850,false,4),null);
-  assert.equal(launchTerminalIdentity({...launch,runtime:{application:null,active:'health-safety:1'}},1850,false,4),null);
-  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:null}},1850,false,4),null);
-  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:'health-safety:2'}},1850,false,4),null,
+  assert.equal(launchTerminalIdentity({...launch,phase:'app'},2200,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,app:null},2200,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,runtime:{application:null,active:'health-safety:1'}},2200,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:null}},2200,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:'health-safety:2'}},2200,false,4),null,
     'an applet or stale active-only retarget cannot reuse the application receipt');
 
-  const identity=launchTerminalIdentity(launch,1849,false,4);
+  const identity=launchTerminalIdentity(launch,2199,false,4);
   assert.equal(sameLaunchTerminalIdentity(identity,{...identity}),true);
   assert.equal(sameLaunchTerminalIdentity(identity,{...identity,since:101}),false);
   assert.equal(sameLaunchTerminalIdentity(identity,{...identity,app:'camera'}),false);

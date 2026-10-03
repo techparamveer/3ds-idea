@@ -9,9 +9,12 @@ const [out,canvasModule]=process.argv.slice(2);
 assert.ok(isAbsolute(out??'')&&isAbsolute(canvasModule??''),'Supply absolute SSD output and Canvas module paths');
 mkdirSync(out,{recursive:true});
 const compiled=mkdtempSync(join(out,'compiled-'));
-for(const name of ['bitmap-font','native-layout','native-png','native-renderer','system-transitions','native-system-fade','native-system-presentation']){
+// Compile the transitive src/os import closure; type-only imports are erased.
+const pending=['bitmap-font','native-layout','native-png','native-renderer','system-transitions','native-system-fade','native-system-presentation'],compiledNames=new Set();
+while(pending.length){
+ const name=pending.pop();if(compiledNames.has(name))continue;compiledNames.add(name);
  const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
- writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,path)=>`from '${path}.mjs'`));
+ writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"]\.\/([^'"]+?)(?:\.ts)?['"]/g,(_,dependency)=>{pending.push(dependency);return `from './${dependency}.mjs'`;}));
 }
 const [{createCanvas,loadImage},{BitmapFont},{NativeLayoutRenderer},{decodeNativePng},{nativeTextureSamplePixels},{drawNativeSystemOverlay}]=await Promise.all([
  import(pathToFileURL(canvasModule).href),...['bitmap-font','native-renderer','native-png','native-layout','native-system-presentation'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs')).href)),
@@ -57,10 +60,10 @@ assert.equal(drawNativeSystemFade(createCanvas(400,240).getContext('2d'),modifie
 writeFileSync(join(out,'fade-differential.json'),JSON.stringify({passed:true,frames:fadeChecks.length,fadeChecks},null,2)+'\n');
 const assets={renderer},results=[];
 const underlay=[0xdd,0xe5,0xed];
-for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['power',550,true],['shutdown',250,true],['shutdown',550,true],['boot',0,false],['boot',2990,false],['launch',0,false],['launch',333,false],['launch',800,false],['launch',1400,false],['launch',1749,false]]){
+for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['power',550,true],['shutdown',250,true],['shutdown',550,true],['shutdown',1199,true],['boot',0,false],['boot',2990,false],['launch',0,false],['launch',333,false],['launch',349,false],['launch',350,false],['launch',800,false],['launch',1400,false],['launch',2099,false]]){
  const top=createCanvas(400,240),bottom=createCanvas(320,240),t=top.getContext('2d'),b=bottom.getContext('2d');
  t.fillStyle=b.fillStyle='#dde5ed';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
- const state={system:{phase,since:0,sleeping:false,returnPhase:fromApp?'app':'home'}};
+ const state={system:{phase,since:0,sleeping:false,returnPhase:fromApp?'app':'home',input:{held:{},analog:{},touch:null}}};
  const before=performance.now();assert.equal(drawNativeSystemOverlay(t,b,state,elapsed,false,assets),true);const paintMs=performance.now()-before;
  const id=`${phase}-${elapsed}-${fromApp?'app':'home'}`;
  writeFileSync(join(out,id+'-upper.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-lower.png'),bottom.toBuffer('image/png'));
@@ -68,10 +71,10 @@ for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['pow
  if(phase==='launch'&&elapsed===0){
   for(const c of [top,bottom]){
    const pixel=c.getContext('2d').getImageData(Math.floor(c.width/2),120,1,1).data;
-   assert.deepEqual([...pixel], [...underlay,255], id+' keeps HOME underlay at SceneOutA frame 0');
+   assert.deepEqual([...pixel], [...underlay,255], id+' keeps HOME underlay at SceneOut frame 0');
   }
  }
- if((phase==='boot'&&elapsed===0)||(phase==='launch'&&elapsed===1749)||(phase==='shutdown'&&elapsed===550)){
+ if((phase==='boot'&&elapsed===0)||(phase==='launch'&&(elapsed===349||elapsed===2099))||(phase==='shutdown'&&elapsed===1199)){
   for(const c of [top,bottom]){const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data;assert.ok(data.every((v,i)=>i%4===3?v===255:v===0),id+' ends opaque black');}
  }
 }

@@ -26,7 +26,7 @@ test('HOME again dismisses suspended Notes to HOME and reopening creates a fresh
 });
 
 test('dismissing Notes keeps its application caller suspended, available for a later HOME press',()=>{
- let state=tickSystem(launch(home(),'health-safety',4100),6100);
+ let state=tickSystem(launch(home(),'health-safety',4000),6100);
  const application=state.system.runtime.active,original=state.system.runtime.instances[application].state;
  state=invokeSystemApplet(state,'game-notes',6200);const notes=state.system.runtime.active;
  assert.equal(state.system.runtime.instances[notes].caller,application);
@@ -41,7 +41,7 @@ test('dismissing Notes keeps its application caller suspended, available for a l
 });
 
 test('Notes entered from HOME without a caller does not remove the suspended application',()=>{
- let state=tickSystem(launch(home(),'health-safety',4100),6100);
+ let state=tickSystem(launch(home(),'health-safety',4000),6100);
  const application=state.system.runtime.active;
  state=reduceSystem(state,'home',6150);state=invokeSystemApplet(state,'game-notes',6200);
  const notes=state.system.runtime.active;assert.equal(state.system.runtime.instances[notes].caller,null);
@@ -52,7 +52,7 @@ test('Notes entered from HOME without a caller does not remove the suspended app
 });
 
 test('other system applets and applications retain their existing HOME resume behavior',()=>{
- for(const start of [state=>invokeSystemApplet(state,'friends',4100),state=>tickSystem(launch(state,'health-safety',4100),6100)]){
+ for(const start of [state=>invokeSystemApplet(state,'friends',4100),state=>tickSystem(launch(state,'health-safety',4000),6100)]){
   let state=start(home());const owner=state.system.runtime.active;assert.ok(owner);
   state=dismiss(state);assert.equal(state.system.phase,'app');assert.equal(state.system.runtime.active,owner);
   assert.equal(state.system.runtime.instances[owner].suspended,false);

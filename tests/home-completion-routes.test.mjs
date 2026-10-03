@@ -9,7 +9,7 @@ import { createPortfolioState, reduceSystem, tickSystem, touchSystem } from '../
 
 const titleSlot = id => Number(Object.entries(initialAppLayout()).find(([, title]) => title === id)[0]);
 const booted = () => tickSystem(createPortfolioState(), 3001);
-const runningWork = () => tickSystem(reduceSystem(booted(), 'open', 4000), 6000);
+const runningWork = () => tickSystem(reduceSystem(booted(), 'open', 3900), 6000);
 const suspendedWork = () => reduceSystem(runningWork(), 'home', 6001);
 const selectTitle = (state, id) => settleHomeNavigation(selectHomeSlot(state, titleSlot(id)));
 const finishClose = (state, now) => {

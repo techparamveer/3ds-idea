@@ -3,7 +3,7 @@ import {nativeMessageLineAdvanceScales,nativeMessageOverride,type AnimationBindi
 import type {FirmwarePresentationAssets} from './firmware-presentation';
 import type {MenuState} from './state';
 import {powerMenuPressed} from './stock-screen-layout';
-import {appLaunchLogoFrame,bootRevealFrame,shutdownTransitionPose,systemTransitionFrame} from './system-transitions';
+import {appLaunchPose,bootRevealFrame,shutdownTransitionPose,systemTransitionFrame} from './system-transitions';
 
 type SystemFadeClip='SceneIn'|'SceneOut'|'SceneOutA'|'SceneOutB'|'SceneOutC';
 
@@ -25,11 +25,11 @@ export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:Canv
   return fade('SceneIn',bootRevealFrame(elapsed,reduced));
  }
  if(s.phase==='launch'){
-  const pose=appLaunchLogoFrame(elapsed,reduced);
   if(!renderer.packs.launch)return fade('SceneOut',systemTransitionFrame(elapsed,20,reduced));
-  // SceneOutA/B/C darken HOME in place with the logo; do not erase HOME first.
-  let okay=fade(`SceneOut${pose.clip}`,pose.frame);
-  for(const [ctx,suffix]of [[top,'U'],[bottom,'D']] as const){const name=`NintendoLogo_${suffix}_00`;okay=renderer.draw(ctx,'launch',name,{bindings:[{name:`${name}_SceneOut${pose.clip}`,frame:pose.frame}]})&&okay;}
+  // SceneOut darkens HOME in place; the logo starts only over its terminal black.
+  const {fadeFrame,logo}=appLaunchPose(elapsed,reduced);
+  let okay=fade('SceneOut',fadeFrame);
+  if(logo)for(const [ctx,suffix]of [[top,'U'],[bottom,'D']] as const){const name=`NintendoLogo_${suffix}_00`;okay=renderer.draw(ctx,'launch',name,{bindings:[{name:`${name}_SceneOut${logo.clip}`,frame:logo.frame}]})&&okay;}
   return okay;
  }
  top.fillStyle=bottom.fillStyle='#fff';top.fillRect(0,0,400,240);bottom.fillRect(0,0,320,240);

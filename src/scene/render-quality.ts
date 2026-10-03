@@ -1,5 +1,5 @@
 import type { HomeApplicationTransition } from '../os/home-application-transition';
-import { appLaunchLogoFrame, bootRevealFrame, shutdownTransitionPose, systemTransitionDuration } from '../os/system-transitions';
+import { appLaunchPose, bootRevealFrame, shutdownTransitionPose, systemTransitionDuration } from '../os/system-transitions';
 
 export type RenderQuality = {
   tier: 'high' | 'balanced' | 'constrained';
@@ -108,8 +108,8 @@ export function launchTerminalIdentity(system: LaunchSystem, elapsedMs: number, 
   contextGeneration: number): LaunchTerminalIdentity | null {
   const owner = system.runtime.active;
   if (system.phase !== 'launch' || !system.app || !owner || owner !== system.runtime.application) return null;
-  const pose = appLaunchLogoFrame(elapsedMs - system.since, reduced);
-  if (reduced ? pose.clip !== 'B' || pose.frame !== 15 : pose.clip !== 'C' || pose.frame !== 14) return null;
+  const pose = appLaunchPose(elapsedMs - system.since, reduced).logo;
+  if (!pose || (reduced ? pose.clip !== 'B' || pose.frame !== 15 : pose.clip !== 'C' || pose.frame !== 14)) return null;
   return { since: system.since, app: system.app, owner, contextGeneration };
 }
 

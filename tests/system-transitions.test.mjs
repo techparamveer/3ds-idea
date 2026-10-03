@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {appLaunchLogoFrame,bootRevealFrame,shutdownTransitionPose,systemTransitionDuration} from '../src/os/system-transitions.ts';
+import {appLaunchLogoFrame,appLaunchPose,bootRevealFrame,shutdownTransitionPose,systemTransitionDuration} from '../src/os/system-transitions.ts';
 import {createPortfolioState,tickSystem,launch,reduceSystem,touchSystem,dispatchSystemEvent,selectedTitle} from '../src/os/system.ts';
 import {enableHomeControls} from '../src/os/home-controls.ts';
 import {powerMenuActionAt,powerMenuPressed} from '../src/os/stock-screen-layout.ts';
@@ -57,18 +57,23 @@ test('Power phased touch requires the same owned target at start and release',()
  assert.equal(cancelled.system.phase,'power');assert.equal(cancelled.system.input.touch,null);
  assert.equal(dispatchSystemEvent(cancelled,event('up',...inside),4502),cancelled);
 });
-test('app launch maps the paired 60/30/15 HOME fade and logo clips',()=>{
- assert.deepEqual(appLaunchLogoFrame(0),{clip:'A',frame:0});
- assert.deepEqual(appLaunchLogoFrame(333),{clip:'A',frame:19});
- assert.deepEqual(appLaunchLogoFrame(334),{clip:'A',frame:20});
- assert.deepEqual(appLaunchLogoFrame(1000),{clip:'B',frame:0});
- assert.deepEqual(appLaunchLogoFrame(1500),{clip:'C',frame:0});
- assert.deepEqual(appLaunchLogoFrame(1749),{clip:'C',frame:14});
- assert.deepEqual(appLaunchLogoFrame(1750),{clip:'C',frame:14});
- assert.equal(systemTransitionDuration('launch'),1750);
+test('app launch fades HOME to source black before the 60/30/15 logo clips',()=>{
+ assert.deepEqual(appLaunchPose(0),{fadeFrame:0,logo:null});
+ assert.deepEqual(appLaunchPose(333),{fadeFrame:19,logo:null});
+ assert.deepEqual(appLaunchPose(334),{fadeFrame:20,logo:null});
+ assert.deepEqual(appLaunchPose(349),{fadeFrame:20,logo:null});
+ assert.deepEqual(appLaunchPose(350),{fadeFrame:20,logo:{clip:'A',frame:0}});
+ assert.deepEqual(appLaunchPose(1349),{fadeFrame:20,logo:{clip:'A',frame:59}});
+ assert.deepEqual(appLaunchPose(1350),{fadeFrame:20,logo:{clip:'B',frame:0}});
+ assert.deepEqual(appLaunchPose(1850),{fadeFrame:20,logo:{clip:'C',frame:0}});
+ assert.deepEqual(appLaunchPose(2083),{fadeFrame:20,logo:{clip:'C',frame:13}});
+ assert.deepEqual(appLaunchPose(2084),{fadeFrame:20,logo:{clip:'C',frame:14}});
+ assert.deepEqual(appLaunchPose(2100),{fadeFrame:20,logo:{clip:'C',frame:14}});
+ assert.deepEqual(appLaunchLogoFrame(0),{clip:'A',frame:0});assert.deepEqual(appLaunchLogoFrame(1750),{clip:'C',frame:14});
+ assert.equal(systemTransitionDuration('launch'),2100);
  let state=launch(tickSystem(createPortfolioState(),4000),'work',4000);
- assert.equal(tickSystem(state,5749).system.phase,'launch');assert.equal(tickSystem(state,5750).system.phase,'app');
- assert.deepEqual(appLaunchLogoFrame(0,true),{clip:'B',frame:15});assert.equal(systemTransitionDuration('launch',true),120);
+ assert.equal(tickSystem(state,6099).system.phase,'launch');assert.equal(tickSystem(state,6100).system.phase,'app');
+ assert.deepEqual(appLaunchPose(0,true),{fadeFrame:20,logo:{clip:'B',frame:15}});assert.equal(systemTransitionDuration('launch',true),120);
 });
 test('boot reveal gives all 21 SceneIn poses a slot before the browser boot deadline',()=>{
  assert.equal(bootRevealFrame(0),0);

@@ -237,6 +237,37 @@ test('Health source frame keys paired publication and reduced motion freezes it'
  }finally{f.dispose();}
 });
 
+test('Health entry reveal waits for the first complete pair instead of expiring during asset loading',async()=>{
+ const f=paintFixture(),v={...view('health-safety'),data:{healthElapsedMs:0}},frames=[];
+ const draw=ms=>{v.data.healthElapsedMs=ms;return f.screen.draw(f.top,f.bottom,v,'health:slow',f.font);};
+ try{
+  globalThis.__nativeTestDraw=(_t,_b,options)=>{frames.push(options.healthEntryFrame);return true;};
+  draw(0);await flush();
+  draw(1000);assert.deepEqual(frames,[],'loading never consumes or draws an entry pose');
+  calls[0].resolve(nativeAssets());await flush();
+  assert.equal(draw(1000),true);assert.deepEqual(frames,[0],'the first publish is source frame 0 despite late readiness');
+  draw(1020);assert.deepEqual(frames,[0,1]);
+ }finally{f.dispose();}
+});
+
+test('Health entry receipt commits only after success and survives same-owner HOME resume',async()=>{
+ const f=paintFixture(),v={...view('health-safety'),data:{healthElapsedMs:1000}},frames=[];
+ const draw=(ms,owner='health:receipt')=>{v.data.healthElapsedMs=ms;return f.screen.draw(f.top,f.bottom,v,owner,f.font);};
+ try{
+  draw(1000);await flush();calls[0].resolve(nativeAssets());await flush();
+  globalThis.__nativeTestDraw=(_t,_b,options)=>{frames.push(options.healthEntryFrame);return false;};
+  assert.equal(draw(1000),false);assert.deepEqual(frames,[0]);
+  assert.equal(f.screen.retry(),true);draw(5000);await flush();calls[1].resolve(nativeAssets());await flush();
+  globalThis.__nativeTestDraw=(_t,_b,options)=>{frames.push(options.healthEntryFrame);return true;};
+  assert.equal(draw(5000),true);assert.equal(frames.at(-1),0,'failed draw cannot start the reveal clock');
+  draw(5400);assert.equal(frames.at(-1),20);
+  f.screen.sync(null);draw(9000);await flush();calls[2].resolve(nativeAssets());await flush();draw(9000);
+  assert.equal(frames.at(-1),20,'the same resumed owner retains its completed entry');
+  draw(9000,'health:replacement');await flush();calls[3].resolve(nativeAssets());await flush();draw(9000,'health:replacement');
+  assert.equal(frames.at(-1),0,'a replacement owner receives a new entry reveal');
+ }finally{f.dispose();}
+});
+
 
 test('verification Date supplies Settings main and Other pixels without replacing live retained samples',async()=>{
  const f=paintFixture();

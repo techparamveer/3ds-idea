@@ -24,8 +24,8 @@ export const HEALTH_VBLANK_HZ=268111856/4481136;
 /** common_LZ.bin/CmnFade_U_00_SceneIn is a non-looping 21-frame upper-screen
  * black overlay. Health's own foreground clock starts at application entry,
  * so HOME's launch clock and paired readiness remain independent. The exact
- * native dispatch epoch is untraced; frame 0 on first app paint is the bounded
- * adaptation supported by the captured upper-only reveal. */
+ * native dispatch epoch is untraced; frame 0 on the first complete app pair is
+ * the bounded adaptation supported by the captured upper-only reveal. */
 export const HEALTH_ENTRY_LAST_FRAME=20;
 export function healthEntrySceneInFrame(elapsedMs:number,reducedMotion=false):number{
   if(reducedMotion)return HEALTH_ENTRY_LAST_FRAME;

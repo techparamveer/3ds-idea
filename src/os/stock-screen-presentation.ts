@@ -213,6 +213,10 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   let published:NativeLayoutRenderer|undefined;
   let roomReady=true;
   let settingsHud:SettingsHudSample|null=null,settingsHudOwner:string|null=null;
+  // This receipt is independent of native asset-session teardown. The same
+  // application owner can leave for HOME/an applet and resume without replaying
+  // its first-entry fade; a replacement owner still receives a fresh frame 0.
+  let healthEntry:{owner:string;origin:number|null;complete:boolean}|null=null;
   const deadlineMs=options.deadlineMs??NATIVE_SCREEN_DEADLINE_MS;
   if(!Number.isFinite(deadlineMs)||deadlineMs<=0)throw new Error('Invalid native preparation deadline');
   const upper=document.createElement('canvas'),lower=document.createElement('canvas');upper.width=400;upper.height=240;lower.width=320;lower.height=240;
@@ -315,8 +319,14 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const hudDate=hud?new Date(hud.dateMs):date;
       const settingsPaintKey=view.appId==='system-settings'?[hudDate.getFullYear(),hudDate.getMonth(),hudDate.getDate(),hudDate.getHours(),hudDate.getMinutes(),hud?.batteryFrame,hud?.colonVisible]:null;
       const eshopHudKey=eshop?eshopHudClock(date):null;
-      const healthElapsed=typeof data.healthElapsedMs==='number'?data.healthElapsedMs:0;
-      const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntrySceneInFrame(healthElapsed,reducedMotion)]:null;
+      const healthElapsed=typeof data.healthElapsedMs==='number'&&Number.isFinite(data.healthElapsedMs)?Math.max(0,data.healthElapsedMs):0;
+      if(view.appId==='health-safety'&&healthEntry?.owner!==nextOwner)healthEntry={owner:nextOwner,origin:null,complete:false};
+      // Asset/font loading can outlast the 21 source frames. Until a complete
+      // pair succeeds, hold frame 0 instead of consuming the reveal invisibly.
+      const healthEntryFrame=view.appId==='health-safety'
+        ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
+        :undefined;
+      const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
       const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
@@ -325,8 +335,12 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||(state.status==='ready'&&roomReady)){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame:view.appId==='health-safety'?healthEntrySceneInFrame(healthElapsed,reducedMotion):undefined});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
+            if(healthEntryFrame!==undefined){
+              if(reducedMotion||healthEntryFrame===20)healthEntry!.complete=true;
+              else if(healthEntry!.origin===null)healthEntry!.origin=healthElapsed;
+            }
           }catch(error){fail(error);recovery();}
         }
         // Only publish after both native surfaces succeed, or after both were
@@ -339,6 +353,6 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     },
     getState:session.getState,
     getFailure:()=>failure,
-    dispose(){if(disposed)return;disposed=true;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
+    dispose(){if(disposed)return;disposed=true;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
   };
 }

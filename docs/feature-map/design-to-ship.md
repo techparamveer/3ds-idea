@@ -16,11 +16,12 @@ retains the settled banner and departing native Open footer.
 [Logo order](../home-launch-logo-order-2026-10-03.md), `01cc3224`, fades HOME
 to source black before the logo, removing the captured overlap.
 [Launch cursor](../home-launch-cursor-2026-10-03.md), `4cefc716`, keeps the
-selected brackets under the fade. Native icon glow during the fade, Open
-pressed/release tone and native black dwell remain the next visible launch
-residuals. Do not repeat generic publication work.
+selected brackets under the fade, and [decide ring](../home-launch-ring-2026-10-03.md),
+`8fada42d`, adds the source launch ring. Open pressed/release tone and native
+black dwell remain the next visible launch residuals. Do not repeat generic
+publication work or the reverted cursor-loop candidate.
 
-Current runtime checkpoint: `4cefc716` (HOME launch cursor),
+Current runtime checkpoint: `8fada42d` (HOME launch decide ring),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.

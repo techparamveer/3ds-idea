@@ -15,7 +15,12 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME launch cursor](home-launch-cursor-2026-10-03.md), `4cefc716`, keeps
+Latest [HOME launch decide ring](home-launch-ring-2026-10-03.md), `8fada42d`,
+draws the source `LncCsrEfct_01` ring that native grows from the selected
+icon during the launch fade; a no-visible-change cursor-loop candidate was
+reverted. Open pressed/release tone is the next visible launch residual.
+
+Earlier [HOME launch cursor](home-launch-cursor-2026-10-03.md), `4cefc716`, keeps
 the selected icon's native brackets beneath the launch fade, as captured.
 N065/B000 selected-icon MAE 1.7971 -> 0.7135. Native icon glow during the fade
 and Open pressed/release tone are the next visible launch residuals.

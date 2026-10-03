@@ -1,5 +1,13 @@
 # Workstream Registry
 
+## HOME Launch Decide Ring - 3 October 2026
+
+Claude Code coordinator owns `3ds-home-launch-cursor-loop-20261003`
+(`4b8d4247`, integrated `03c98e54`, reverted `abd24f4a`) and
+`3ds-home-launch-ring-20261003` / `codex/home-launch-ring-20261003`
+(`05a2751c` + `b0107e1d`, integrated `8fada42d` + `f3f05b91`).
+[Delivered correction and remaining gaps](../home-launch-ring-2026-10-03.md).
+
 ## HOME Launch Cursor - 3 October 2026
 
 Claude Code coordinator owns `3ds-home-launch-cursor-20261003` /

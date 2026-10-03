@@ -26,6 +26,15 @@ See [proposed improvements](proposed-improvements.md) for that remaining risk.
 
 ## State and resource owners
 
+Restarted banner release depends on the screen-owned entry footer terminal
+receipt. Source frame14 remains requested until a successful live paired paint
+is visibly presented by an awake, context-live scene render. Diagnostic repaint
+invalidates only its pending candidate; preemption, replacement and disposal
+retire ownership. No-footer pickup cannot publish. The existing five-pass gate
+still progresses; `nativeWorkerReady` holds release/activation, not a new clock
+or delay. This is an adapted caller dependency, not native epoch proof.
+See [entry ordering evidence](../home-entry-order-2026-10-03.md).
+
 An observed awake Off-to-boot boundary retires the HOME primary service,
 pending/active primary and readiness once per boot identity. Selection,
 global clock, wallpaper and monotonic scope survive; the next boundary creates

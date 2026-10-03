@@ -1,5 +1,13 @@
 # Verification and evidence architecture
 
+[Entry-order verification](../home-entry-order-2026-10-03.md) retains initial
+candidate HUD-overlap failures as well as corrected production captures. Keep
+the fixed chronological first-new-primary selector and inspect both footer
+completion and HUD absence at that frame. Fresh native captures are separate
+repeatability controls, not pixel-nearest replacement targets. Exercise stalls,
+context loss, hidden footer, diagnostic repaint and stale receipts separately;
+no functional control alone proves native pixels or timing.
+
 [Banner restart verification](../home-entry-banner-2026-10-03.md) first waits
 for an actually visible, settled selected primary before Off/On. Capture first
 HOME0, first chronological positive delta<=5 and first different active identity

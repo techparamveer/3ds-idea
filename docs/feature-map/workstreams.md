@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Entry Ordering - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-entry-order-20261003` / `codex/home-entry-order-20261003`, base49da0a93.
+Workers `0f80b1b1` / `fb73764f` integrate as `660c3cb3` / `5bd0f99a`.
+Ownership: existing entry state, paired-screen footer publication, scene
+readiness boundary and focused tests. Helper `boot_staging_review` reviews;
+comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private comparison
+and fresh native inventory. GPT-5.6 Sol/high throughout; coordinator alone
+drives muted native/browser on the authorized Mac.
+[Captured iteration and limits](../home-entry-order-2026-10-03.md).
+
 ## Banner Restart - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

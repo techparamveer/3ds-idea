@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `e069925c` (fresh HOME primary after power cycle),
+Current runtime checkpoint: `5bd0f99a` (footer publication before banner entry),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -9,11 +9,18 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+[Entry ordering](../home-entry-order-2026-10-03.md) now keeps the banner's
+existing preparation running while awaiting visibly presented source footer14.
+Normal first activation has settled footer and no HUD. Preserve this correction.
+Next captured defect: context restoration jumps HOME13 ->75, restores the
+settled HUD before the banner at78. Repair this recovery ordering without
+resetting the shared clock or losing publication ownership. Remaining banner
+pixels/native caller epochs also stay open. Whole scenarios remain fail.
+
 [Banner restart](../home-entry-banner-2026-10-03.md) removes the retained
 pre-Off primary and passes repeated restart/cancel/sleep controls. Preserve it.
-Next captured defect is relative footer/banner timing: normal first new banner
-still appears while footer is entering, unlike native's settled footer. Source
-caller/epoch is untraced; no arbitrary delay or phase-fit acceptance.
+Its captured early-banner defect is corrected by the entry-order slice above.
+The source caller/epoch remains untraced; no phase-fit acceptance follows.
 
 [HOME entry staging](../home-entry-staging-2026-10-03.md) now uses the delivered
 footer/HUD SceneIn tracks with a boot-relative HOME counter. Preserve the

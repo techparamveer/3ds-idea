@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+[Camera capture fault isolation](../home-camera-capture-boundary-2026-10-03.md)
+compares the actual foreground LCD before blaming its retained HOME transfer.
+A black browser finder and static-image native finder are different fixtures,
+not evidence for a global HOME brightness correction. Use matched content or
+a deterministic app to isolate compositor pixels. This does not authorize
+an acceptance mask or clear unrelated overlay/timing residuals.
+
 [Camera Manual/footer verification](../home-camera-manual-footer-2026-10-03.md)
 keeps the prior close PNG immutable and uses fresh own-PNG suspended/Manual/
 return captures as supplemental evidence. Compare all three fixed footer ROIs,

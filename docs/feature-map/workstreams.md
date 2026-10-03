@@ -1,5 +1,16 @@
 # Workstream Registry
 
+## Camera Capture Boundary - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses clean
+`3ds-home-camera-suspended-backing-20261003` /
+`codex/home-camera-suspended-backing-20261003`, base `0f3a248e`.
+Bounded diagnosis only: Camera's black foreground fixture differs from native's
+portfolio-image feed; no HOME runtime patch or worker commit. Comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence, no GUI.
+Both GPT-5.6 Sol/high. Coordinator replayed production; no native relaunch.
+[Evidence and next boundary](../home-camera-capture-boundary-2026-10-03.md).
+
 ## Camera Manual Footer - 3 October 2026
 
 Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` uses owned

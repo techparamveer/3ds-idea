@@ -9,6 +9,12 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+[Camera capture isolation](../home-camera-capture-boundary-2026-10-03.md)
+finds different foreground fixtures, not evidence for another HOME shading
+patch. Before further Camera backing work, match the existing read-only input
+or compare deterministic Health. Do not repeat this source audit. Native
+reveal/power-on and the lifecycle/input queue below remain open.
+
 [Switch closing](../home-switch-closing-2026-10-03.md) now keeps the source
 lower dialog/mask visible after confirmation, hides the footer and preserves
 the suspended upper window. Fresh native capture identified this missing state;

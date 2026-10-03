@@ -15,7 +15,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Camera Manual/footer correction](home-camera-manual-footer-2026-10-03.md),
+Latest [Camera capture boundary](home-camera-capture-boundary-2026-10-03.md)
+at unchanged `0e59c1a0` finds the black finder already in the foreground app,
+with its graphics retained by HOME. Native's different static-image feed
+prevents assigning the whole upper residual to the HOME compositor. No patch,
+mask or pass follows. Next backing comparison needs matched read-only content
+or deterministic Health; do not repeat this source audit or fit HOME shading
+to unrelated app pixels. Continue native lifecycle reveal/power-on evidence.
+
+Earlier [Camera Manual/footer correction](home-camera-manual-footer-2026-10-03.md),
 through `0e59c1a0`, restores Close/Manual/Resume and the real Camera English
 index, preserves the suspended owner, and retains decoded Decide tone through
 ordinary close. Lower close-dialog residual improves3,841 ->2,120 ->82 above

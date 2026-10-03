@@ -27,35 +27,35 @@ test('required close publication pins synchronous effect clocks until cleanup en
   assert.ok(pin >= 0 && drain > pin && paint > drain);
 });
 
-test('shutdown cannot retire until its native paired terminal was rendered in an earlier animation frame', () => {
+test('terminal system transitions cannot retire until their native paired terminal was rendered in an earlier animation frame', () => {
   const deadline = source.indexOf('const animationElapsedMs=now-start;');
   const pending = source.indexOf('const shutdownPublicationPending=shutdownTerminalPublicationPending', deadline);
-  const paint = source.indexOf('try{paintScreens(now);renderFrame();', pending);
-  const tick = source.indexOf("if(!homeClockSuspended&&!shutdownPublicationPending)commit", paint);
+  const paint = source.indexOf('paintScreens(now);renderFrame();', pending);
+  const tick = source.indexOf("if(!homeClockSuspended&&!terminalPublicationPending)commit", paint);
   assert.ok(deadline >= 0 && pending > deadline && paint > pending && tick > paint);
   assert.match(source, /lastShutdownPaintIdentity=nativeSystem\?shutdownTerminalIdentity/);
-  assert.match(source, /lastShutdownPresentedIdentity=!document\.hidden&&state\.powered&&!state\.system!\.sleeping&&angle>12&&topScreen\.visible&&touchScreen\.visible&&!renderer\.getContext\(\)\.isContextLost\(\)\?lastShutdownPaintIdentity:null/);
-  assert.match(source, /if\(plan\?\.render&&!shutdownPublicationPending\)/,
+  assert.match(source, /lastShutdownPresentedIdentity=validPublication\?lastShutdownPaintIdentity:null/);
+  assert.match(source, /if\(plan\?\.render&&!terminalPublicationPending\)/,
     'the forced publication callback must not perform another scene render or retire Off');
 });
 
 test('shutdown publication is invalidated across WebGL loss and restoration', () => {
-  assert.match(source, /const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetShutdownPublication\(\);schedule\.invalidate\(\);\}/);
-  assert.match(source, /const contextRestored=\(\)=>\{resetShutdownPublication\(\);schedule\.invalidate\(\);renderer\.shadowMap\.needsUpdate=true;\}/);
+  assert.match(source, /const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);schedule\.invalidate\(\);\}/);
+  assert.match(source, /const contextRestored=\(\)=>\{resetTerminalPublications\(\);schedule\.invalidate\(\);renderer\.shadowMap\.needsUpdate=true;\}/);
   assert.match(source, /addEventListener\('webglcontextlost',contextLost\)/);
   assert.match(source, /removeEventListener\('webglcontextlost',contextLost\)/);
-  assert.match(source, /shutdownBeforeTick\.sleeping&&!renderer\.getContext\(\)\.isContextLost\(\)/);
+  assert.match(source, /systemBeforeTick\.sleeping&&!renderer\.getContext\(\)\.isContextLost\(\)/);
 });
 
 test('shutdown publication is revoked across hidden and sleeping suspension boundaries', () => {
-  assert.match(source, /if\(!before\.sleeping&&after\.sleeping\)revokeShutdownPublication\(\);/);
+  assert.match(source, /if\(!before\.sleeping&&after\.sleeping\)revokeTerminalPublications\(\);/);
   const hidden = source.indexOf('if(document.hidden){homeClockSuspended=true;');
   const blur = source.indexOf('blur();', hidden);
-  const revoke = source.indexOf('revokeShutdownPublication();', blur);
+  const revoke = source.indexOf('revokeTerminalPublications();', blur);
   const observe = source.indexOf('observeFolderBanner();', revoke);
   assert.ok(hidden >= 0 && blur > hidden && revoke > blur && observe > revoke,
     'hide must finish input cancellation, then revoke both paint and presentation receipts');
-  assert.match(source, /const revokeShutdownPublication=\(\)=>\{lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;\};/);
+  assert.match(source, /const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;\};/);
 });
 
 test('power and shutdown paint success requires the selected native system overlay', () => {

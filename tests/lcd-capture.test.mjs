@@ -103,7 +103,7 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   const deps={disposed:false,firmwareAssets:{},state,window:{location:{hostname:'localhost'}},lcdHomeHudSample,
     screens:{paint(...args){paints.push(args);return args[3]?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:true,healthBanner:true};},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>view,getHomeBannerHostBackgroundFrame:()=>background,bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
     settingsBannerPhase(){return{sample:null};},encodeNativeLcdPair(){return{top:'png',bottom:'png'};},recordScreenPaint(...args){receipts.push(args);},start:0,topTexture:{},bottomTexture:{},storage:{async save(){persistenceWrites++;}}};
-  const capture=new Function(...Object.keys(deps),'let lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(deps));
+  const capture=new Function(...Object.keys(deps),'let lastBootPaintIdentity={stale:true},lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(deps));
   const result=capture(1200,'2026-09-27',undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311});
   assert.equal(result.selectedTitle,'health-safety');
   assert.deepEqual(result.forcedFrames,{healthBannerSkeletalFrame:327,homeWallpaperSceneInSkeletalFrame:20,homeWallpaperMaterialFrame:311});
@@ -202,9 +202,9 @@ test('HOME HUD wiring is capture-only, records its sample, and restores live pai
   const block = scene.slice(scene.indexOf('if(lcdCapture){const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
   assert.match(block, /lcdHomeHudSample\(hudSample,window.location.hostname\)/);
   assert.match(block, /phase!=='home'/);
-  assert.match(block, /try\{lastShutdownPaintIdentity=null;const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
+  assert.match(block, /try\{lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
   assert.match(block, /homeHudSample:homeHudSample\?\?null/);
-  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true\)/);
+  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true\)/);
 });
 
 
@@ -217,7 +217,7 @@ test('capture transaction paints explicit sample once, records it, and restores 
     const dependencies={disposed:false,firmwareAssets:{},state:{powered:true,system:{phase:'home',homeClock:{updateCount:1}}},window:{location:{hostname:'localhost'}},lcdHomeHudSample,
       screens:{paint(...args){paints.push(args);},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>({status:'unsupported'}),getHomeBannerHostBackgroundFrame:()=>({}),bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
       encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return {top:'png',bottom:'png'};},recordScreenPaint(...args){receipts.push(args);},start:0,topTexture:{},bottomTexture:{}};
-    const capture = new Function(...Object.keys(dependencies), 'let lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(dependencies));
+    const capture = new Function(...Object.keys(dependencies), 'let lastBootPaintIdentity={stale:true},lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(dependencies));
     if(fails) assert.throws(()=>capture(12000,'2026-09-26',undefined,hudSample),/encoding failed/);
     else {
       const result=capture(12000,'2026-09-26',undefined,hudSample);
@@ -283,7 +283,7 @@ test('independent skeletal capture overrides are restored after successful and f
    screens:{paint(){paints.push(readOverrides());},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>view,getHomeBannerHostBackgroundFrame:()=>({}),bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
    settingsBannerPhase(_motion,_reduced,frame,skeletalFrame){return{sample:{frame,skeletalFrame}};},
    encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return{top:'png',bottom:'png'};},recordScreenPaint(...args){receipts.push(args);},start:0,topTexture:{},bottomTexture:{}};
-  const fixture=new Function(...Object.keys(deps),'"use strict";let lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return {capture:captureScreensAt,read:()=>[verificationBannerFrame,verificationBannerSkeletalFrame]};')(...Object.values(deps));
+  const fixture=new Function(...Object.keys(deps),'"use strict";let lastBootPaintIdentity={stale:true},lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return {capture:captureScreensAt,read:()=>[verificationBannerFrame,verificationBannerSkeletalFrame]};')(...Object.values(deps));
   readOverrides=fixture.read;
   if(fails)assert.throws(()=>fixture.capture(5616,'2026-09-26',304,hudSample,302),/encoding failed/);
   else assert.deepEqual(fixture.capture(5616,'2026-09-26',304,hudSample,302).bannerSample,{frame:304,skeletalFrame:302});

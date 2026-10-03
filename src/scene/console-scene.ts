@@ -32,7 +32,7 @@ import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
-import { applicationCloseNeedsPaint, bootRevealNeedsPaint, browserRenderQuality, pixelRatioForViewport, screenPaintFps, shutdownTerminalIdentity, shutdownTerminalPublicationPending, type ShutdownTerminalIdentity } from './render-quality';
+import { applicationCloseNeedsPaint, bootRevealNeedsPaint, bootTerminalIdentity, bootTerminalPublicationPending, browserRenderQuality, pixelRatioForViewport, screenPaintFps, shutdownTerminalIdentity, shutdownTerminalPublicationPending, type BootTerminalIdentity, type ShutdownTerminalIdentity } from './render-quality';
 import { bootRevealFrame } from '@/os/system-transitions';
 import { applicationCloseAllowsInput, applicationCloseNeedsReadyScreen } from './application-close-input';
 import { PACKED_MODEL_URL } from './model-delivery';
@@ -245,10 +245,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:performance.now()-start});}
   let contextGeneration=0;
   let lastBootPaintFrame:number|null=null,lastBootPresentedFrame:number|null=null;
+  let lastBootPaintIdentity:BootTerminalIdentity|null=null,lastBootPresentedIdentity:BootTerminalIdentity|null=null;
   let lastShutdownPaintIdentity:ShutdownTerminalIdentity|null=null,lastShutdownPresentedIdentity:ShutdownTerminalIdentity|null=null;
-  const revokeShutdownPublication=()=>{lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;};
+  const revokeTerminalPublications=()=>{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;};
   function recordScreenPaint(elapsedMs:number,nativeSystem=false){
     const system=state.system!;lastBootPaintFrame=system.phase==='boot'?bootRevealFrame(elapsedMs-system.since,reduced):null;
+    lastBootPaintIdentity=nativeSystem?bootTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
     lastShutdownPaintIdentity=nativeSystem?shutdownTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
     if(diagnostics){const close=sampleSystemHomeFolderClose(state);host.dataset.screenPaint=JSON.stringify({at:performance.now(),phase:system.phase,phaseElapsedMs:elapsedMs-system.since,bootRevealFrame:lastBootPaintFrame,homeUpdates:system.homeClock.updateCount,cursor:cursorDiagnostic(),applicationClose:system.homeApplicationTransition,closePhase:close?.controller.phase??null,closeFrame:close?.controller.folder.appliedFrame??null});}
   }
@@ -257,7 +259,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   // sample instead of a synchronous GPU readback in the event handler, and leave
   // the cadence clock alone, so the background is sampled on the same LCD
   // cadence as without input.
-  function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;lastShutdownPaintIdentity=null;const painted=screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint(now-start,painted?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();return painted;}
+  function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint(now-start,painted?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();return painted;}
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
     const system=state.system!,switchPresentation=isHomeSwitchPresentationActive(state),inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog&&!switchPresentation||system.preferences||!!state.panel||homeClockSuspended;
@@ -335,7 +337,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const close=sampleSystemHomeFolderClose(state),previousClose=sampleSystemHomeFolderClose(beforeAction);
     observeFolderBanner(bannerClock(),close&&close.controller.phase!=='complete'&&close.controller.identity.transitionId!==previousClose?.controller.identity.transitionId?{kind:'clear'}:homeApplicationBannerBoundary(previous,state));
     const before=previous.system!,after=state.system!;
-    if(!before.sleeping&&after.sleeping)revokeShutdownPublication();
+    if(!before.sleeping&&after.sleeping)revokeTerminalPublications();
     const resumedApplicationClose=previous.system!.sleeping&&!after.sleeping||input==='visibility'&&!document.hidden;
     const mustPaintApplicationClose=applicationCloseNeedsPaint(before.homeApplicationTransition,after.homeApplicationTransition,reduced,resumedApplicationClose);
     if(state===previous){
@@ -465,7 +467,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   }
   function keyup(e:KeyboardEvent){release(`key:${e.code}`);const command=heldKeys.get(e.code);heldKeys.delete(e.code);if(command)button(command,'up',`key:${e.code}`,true);}
   function blur(){touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit((current,now)=>releaseSystemInputs(current,now),'blur');}
-  function visibilityChanged(){if(document.hidden){homeClockSuspended=true;blur();revokeShutdownPublication();observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
+  function visibilityChanged(){if(document.hidden){homeClockSuspended=true;blur();revokeTerminalPublications();observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
   function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}paint();}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();viewZoom=THREE.MathUtils.clamp(viewZoom-e.deltaY*.001,1,3);}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;const ratio=pixelRatioForViewport(quality.tier,window.devicePixelRatio,w,h),size=renderer.getSize(new THREE.Vector2());
@@ -477,9 +479,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     schedule.invalidate();if(started&&!disposed)renderFrame();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
   // A lost or restored context has lost the presented frame and every upload.
-  const resetShutdownPublication=()=>{contextGeneration++;revokeShutdownPublication();};
-  const contextLost=(event:Event)=>{event.preventDefault();resetShutdownPublication();schedule.invalidate();};
-  const contextRestored=()=>{resetShutdownPublication();schedule.invalidate();renderer.shadowMap.needsUpdate=true;};
+  const resetTerminalPublications=()=>{contextGeneration++;revokeTerminalPublications();};
+  const contextLost=(event:Event)=>{event.preventDefault();resetTerminalPublications();schedule.invalidate();};
+  const contextRestored=()=>{resetTerminalPublications();schedule.invalidate();renderer.shadowMap.needsUpdate=true;};
   renderer.domElement.addEventListener('webglcontextlost',contextLost);renderer.domElement.addEventListener('webglcontextrestored',contextRestored);
   host.addEventListener('pointerdown',pointerDown);host.addEventListener('pointermove',pointerMove);host.addEventListener('pointerup',pointerUp);host.addEventListener('pointercancel',pointerAbort);host.addEventListener('lostpointercapture',pointerCancel);host.addEventListener('keydown',keydown);host.addEventListener('keyup',keyup);host.addEventListener('blur',blur);host.addEventListener('wheel',wheel,{passive:false});motionPreference.addEventListener('change',motionChanged);document.addEventListener('visibilitychange',visibilityChanged);
   // Enable keyboard play on first load without taking focus from another control.
@@ -518,7 +520,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(plan.shadows)renderer.shadowMap.needsUpdate=true;
     scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();publishProjectedTargets(plan.shadows);
     renderer.render(scene,camera);frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
-    lastShutdownPresentedIdentity=!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost()?lastShutdownPaintIdentity:null;
+    const validPublication=!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost();
+    lastBootPresentedIdentity=validPublication?lastBootPaintIdentity:null;
+    lastShutdownPresentedIdentity=validPublication?lastShutdownPaintIdentity:null;
     if(diagnostics)host.dataset.screenPresented=JSON.stringify({at:performance.now(),frame,paint:JSON.parse(host.dataset.screenPaint??'null')});
   }
   function animate(now:number){
@@ -547,17 +551,21 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     }
     if(diagnostics)host.dataset.buttonDepths=JSON.stringify(Object.fromEntries([...pressed].map(([cap,feedback])=>[cap.name,Number(feedback.motion.depth.toFixed(3))])));
     const animationElapsedMs=now-start;
-    const shutdownBeforeTick=state.system!;
-    const shutdownPublicationPending=shutdownTerminalPublicationPending(shutdownBeforeTick,animationElapsedMs,reduced,contextGeneration,lastShutdownPresentedIdentity);
-    if(!homeClockSuspended&&shutdownPublicationPending&&state.powered&&angle>12&&!document.hidden&&!shutdownBeforeTick.sleeping&&!renderer.getContext().isContextLost()){
-      try{paintScreens(now);renderFrame();Reflect.deleteProperty(host.dataset,'shutdownPublicationFailure');}
-      catch(error){host.dataset.shutdownPublicationFailure=String(error);}
+    const systemBeforeTick=state.system!;
+    const bootPublicationPending=bootTerminalPublicationPending(systemBeforeTick,animationElapsedMs,reduced,contextGeneration,lastBootPresentedIdentity);
+    const shutdownPublicationPending=shutdownTerminalPublicationPending(systemBeforeTick,animationElapsedMs,reduced,contextGeneration,lastShutdownPresentedIdentity);
+    const terminalPublicationPending=bootPublicationPending||shutdownPublicationPending;
+    if(!homeClockSuspended&&terminalPublicationPending&&state.powered&&angle>12&&!document.hidden&&!systemBeforeTick.sleeping&&!renderer.getContext().isContextLost()){
+      try{
+        paintScreens(now);renderFrame();
+        Reflect.deleteProperty(host.dataset,bootPublicationPending?'bootPublicationFailure':'shutdownPublicationFailure');
+      }catch(error){host.dataset[bootPublicationPending?'bootPublicationFailure':'shutdownPublicationFailure']=String(error);}
     }
     const applicationCloseBeforeTick=state.system!.homeApplicationTransition;
     const closeBeforeTick=sampleSystemHomeFolderClose(state),updatesBeforeTick=state.system!.homeClock.updateCount;
     // A forced draw remains selected until the next animation frame. Two WebGL
     // renders in one callback are not evidence that the browser composited it.
-    if(!homeClockSuspended&&!shutdownPublicationPending)commit((current,time)=>tickSystem(current,time,reduced),'tick',false,animationElapsedMs);updateAudio();
+    if(!homeClockSuspended&&!terminalPublicationPending)commit((current,time)=>tickSystem(current,time,reduced),'tick',false,animationElapsedMs);updateAudio();
     const minute=Math.floor(Date.now()/60000);if(minute!==lastMinute){lastMinute=minute;paint();}
     // Native UI motion must be uploaded continuously, independent of input.
     // Include the final restored-root update. Frozen clocks do not boost the
@@ -572,7 +580,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const bootPublishDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(lastBootPaintFrame,lastBootPresentedFrame,reduced);
     const renderDue=bootPublishDue||quality.renderFps>=60||now-lastRender>=1000/quality.renderFps;
     const plan=renderDue?schedule.plan(poseSample()):undefined;
-    if(plan?.render&&!shutdownPublicationPending){
+    if(plan?.render&&!terminalPublicationPending){
      lastRender=now;if(diagnostics)host.dataset.zoom=camera.zoom.toFixed(2);
      // Publish repeatable browser-QA coordinates from the exact frame being drawn.
      renderFrame();
@@ -611,7 +619,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
       const drawn=kind==='default'?folderBanner.drawDefaultFrame(ctx,frame):folderBanner.drawFrame(ctx,frame,label);
       if(!drawn)throw new Error('Native diagnostic banner unavailable');
       return canvas.toDataURL();
-    }finally{const restoredAt=performance.now()-start;lastShutdownPaintIdentity=null;const restored=screens.paint(state,new Date(),restoredAt);recordScreenPaint(restoredAt,restored?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();canvas.width=canvas.height=0;}
+    }finally{const restoredAt=performance.now()-start;lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint(state,new Date(),restoredAt);recordScreenPaint(restoredAt,restored?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();canvas.width=canvas.height=0;}
   }});}
   let removeLcdDownload=()=>{};
   if(lcdCapture){const captureScreensAt=(elapsedMs:number,isoDate?:string,bannerFrame?:number,hudSample?:unknown,bannerSkeletalFrame?:number,healthHomeFrames?:{healthBannerFrame:number;homeWallpaperFrame:number})=>{
@@ -638,8 +646,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // runtime clock continue normally; the next paint restores current time.
     verificationBannerFrame=bannerFrame;verificationBannerSkeletalFrame=bannerSkeletalFrame;
     verificationHealthBannerFrame=healthHomeFrames?.healthBannerFrame;
-    try{lastShutdownPaintIdentity=null;const painted=screens.paint(state,date,elapsedMs,{sampleCalendar:isoDate!==undefined,homeHudSample,...(healthHomeFrames?{homeWallpaperFrame:healthHomeFrames.homeWallpaperFrame}:{})});if(healthHomeFrames&&(!painted?.homeWallpaper||!painted.healthBanner))throw new Error('Health HOME source-frame capture could not render both firmware models');const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),homeHudSample:homeHudSample??null,homeHudSampling:homeHudSample?'verification-source-pose':'live-default',calendarSampling:isoDate===undefined?'live-retained':'verification-settings-local-replay',homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),applicationClose:state.system!.homeApplicationTransition,folderBanner:{...view,background:getHomeBannerHostBackgroundFrame(bannerHost)},bannerSample:healthHomeFrames?{selectedTitle:'health-safety',skeletalFrame:healthHomeFrames.healthBannerFrame,materialFrame:view.status==='active'?view.primary.motion.material.frame:null}:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame,bannerSkeletalFrame).sample:null,...(healthHomeFrames?{selectedTitle:'health-safety',forcedFrames:{healthBannerSkeletalFrame:healthHomeFrames.healthBannerFrame,homeWallpaperSceneInSkeletalFrame:20,homeWallpaperMaterialFrame:healthHomeFrames.homeWallpaperFrame},synthetic:true}:{synthetic:false}),...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
-    finally{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now()-start;lastShutdownPaintIdentity=null;const restored=screens.paint(state,new Date(),restoredAt);recordScreenPaint(restoredAt,restored?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
+    try{lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint(state,date,elapsedMs,{sampleCalendar:isoDate!==undefined,homeHudSample,...(healthHomeFrames?{homeWallpaperFrame:healthHomeFrames.homeWallpaperFrame}:{})});if(healthHomeFrames&&(!painted?.homeWallpaper||!painted.healthBanner))throw new Error('Health HOME source-frame capture could not render both firmware models');const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),homeHudSample:homeHudSample??null,homeHudSampling:homeHudSample?'verification-source-pose':'live-default',calendarSampling:isoDate===undefined?'live-retained':'verification-settings-local-replay',homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),applicationClose:state.system!.homeApplicationTransition,folderBanner:{...view,background:getHomeBannerHostBackgroundFrame(bannerHost)},bannerSample:healthHomeFrames?{selectedTitle:'health-safety',skeletalFrame:healthHomeFrames.healthBannerFrame,materialFrame:view.status==='active'?view.primary.motion.material.frame:null}:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame,bannerSkeletalFrame).sample:null,...(healthHomeFrames?{selectedTitle:'health-safety',forcedFrames:{healthBannerSkeletalFrame:healthHomeFrames.healthBannerFrame,homeWallpaperSceneInSkeletalFrame:20,homeWallpaperMaterialFrame:healthHomeFrames.homeWallpaperFrame},synthetic:true}:{synthetic:false}),...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
+    finally{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now()-start;lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint(state,new Date(),restoredAt);recordScreenPaint(restoredAt,restored?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   };
     Object.assign(host,{captureScreensAt});
     const captureAbort=new AbortController();

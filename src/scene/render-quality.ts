@@ -1,5 +1,5 @@
 import type { HomeApplicationTransition } from '../os/home-application-transition';
-import { shutdownTransitionPose, systemTransitionDuration } from '../os/system-transitions';
+import { bootRevealFrame, shutdownTransitionPose, systemTransitionDuration } from '../os/system-transitions';
 
 export type RenderQuality = {
   tier: 'high' | 'balanced' | 'constrained';
@@ -52,6 +52,39 @@ export function applicationCloseNeedsPaint(before: HomeApplicationTransition | n
  * must also bypass idle LCD throttling on normal low-quality renders. */
 export function bootRevealNeedsPaint(frame: number | null, lastPainted: number | null, reduced: boolean): boolean {
   return frame !== null && frame !== lastPainted && (reduced || frame === 20);
+}
+
+export type BootTerminalIdentity = Readonly<{
+  since: number;
+  contextGeneration: number;
+}>;
+
+type BootSystem = Readonly<{
+  phase: string;
+  since: number;
+}>;
+
+/** Identity for the paired terminal boot pose selected by the current boot
+ * owner and the WebGL context that can present it. */
+export function bootTerminalIdentity(system: BootSystem, elapsedMs: number, reduced: boolean,
+  contextGeneration: number): BootTerminalIdentity | null {
+  if (system.phase !== 'boot' || bootRevealFrame(elapsedMs - system.since, reduced) !== 20) return null;
+  return { since: system.since, contextGeneration };
+}
+
+export function sameBootTerminalIdentity(a: BootTerminalIdentity | null,
+  b: BootTerminalIdentity | null): boolean {
+  return !!a && !!b && a.since === b.since && a.contextGeneration === b.contextGeneration;
+}
+
+export function bootTerminalDeadlineReached(system: BootSystem, elapsedMs: number, reduced: boolean): boolean {
+  return system.phase === 'boot' && elapsedMs - system.since >= systemTransitionDuration('boot', reduced);
+}
+
+export function bootTerminalPublicationPending(system: BootSystem, elapsedMs: number, reduced: boolean,
+  contextGeneration: number, presented: BootTerminalIdentity | null): boolean {
+  if (!bootTerminalDeadlineReached(system, elapsedMs, reduced)) return false;
+  return !sameBootTerminalIdentity(bootTerminalIdentity(system, elapsedMs, reduced, contextGeneration), presented);
 }
 
 export type ShutdownTerminalIdentity = Readonly<{

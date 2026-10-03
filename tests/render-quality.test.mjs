@@ -7,7 +7,7 @@ const source=fs.readFileSync(new URL('../src/scene/render-quality.ts',import.met
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const systemTransitionsUrl=new URL('../src/os/system-transitions.ts',import.meta.url).href;
 const resolved=js.replace(/(['"]\.\.\/os\/system-transitions['"])/g,`'${systemTransitionsUrl}'`);
-const {applicationCloseNeedsPaint,bootRevealNeedsPaint,chooseRenderQuality,pixelRatioForViewport,sameShutdownTerminalIdentity,screenPaintFps,shutdownTerminalDeadlineReached,shutdownTerminalIdentity,shutdownTerminalPublicationPending}=await import(`data:text/javascript,${encodeURIComponent(resolved)}`);
+const {applicationCloseNeedsPaint,bootRevealNeedsPaint,bootTerminalDeadlineReached,bootTerminalIdentity,bootTerminalPublicationPending,chooseRenderQuality,pixelRatioForViewport,sameBootTerminalIdentity,sameShutdownTerminalIdentity,screenPaintFps,shutdownTerminalDeadlineReached,shutdownTerminalIdentity,shutdownTerminalPublicationPending}=await import(`data:text/javascript,${encodeURIComponent(resolved)}`);
 
 test('render quality bounds fill-rate and disables VGPU on constrained devices',()=>{
   const quality=chooseRenderQuality({devicePixelRatio:3,hardwareConcurrency:4,deviceMemory:4,saveData:false,width:1440,height:900});
@@ -129,6 +129,49 @@ test('a state-driven boot paint cannot acknowledge an unpresented terminal pose'
   assert.equal(bootRevealNeedsPaint(painted,presented,false),true,'force the closed 30fps render gate');
   presented=painted;
   assert.equal(bootRevealNeedsPaint(painted,presented,false),false,'only actual render acknowledges publication');
+});
+
+test('boot terminal identity is selected at the source endpoint and scoped to its owner and context',()=>{
+  const boot={phase:'boot',since:100};
+  assert.equal(bootTerminalIdentity(boot,3083,false,4),null);
+  assert.deepEqual(bootTerminalIdentity(boot,3084,false,4),{since:100,contextGeneration:4});
+  assert.equal(bootTerminalDeadlineReached(boot,3099,false),false);
+  assert.equal(bootTerminalDeadlineReached(boot,3100,false),true);
+  assert.equal(bootTerminalIdentity(boot,394,true,4),null);
+  assert.deepEqual(bootTerminalIdentity(boot,395,true,4),{since:100,contextGeneration:4});
+  assert.equal(bootTerminalDeadlineReached(boot,399,true),false);
+  assert.equal(bootTerminalDeadlineReached(boot,400,true),true);
+  assert.equal(bootTerminalIdentity({...boot,phase:'home'},3100,false,4),null);
+
+  const identity=bootTerminalIdentity(boot,3100,false,4);
+  assert.equal(sameBootTerminalIdentity(identity,{...identity}),true);
+  assert.equal(sameBootTerminalIdentity(identity,{...identity,since:101}),false);
+  assert.equal(sameBootTerminalIdentity(identity,{...identity,contextGeneration:5}),false);
+  assert.equal(sameBootTerminalIdentity(identity,null),false);
+});
+
+test('a stalled boot holds its deadline for one terminal publication callback',()=>{
+  const boot={phase:'boot',since:100};
+  const stalledNow=3800,contextGeneration=4;
+  let presented=null;
+  assert.equal(bootTerminalPublicationPending(boot,stalledNow,false,contextGeneration,presented),true,
+    'the overdue callback must keep boot selected and force its paired terminal paint');
+  presented=bootTerminalIdentity(boot,stalledNow,false,contextGeneration);
+  assert.equal(bootTerminalPublicationPending(boot,stalledNow,false,contextGeneration,presented),false,
+    'the following callback may hand off even at the same timestamp');
+  assert.equal(bootTerminalPublicationPending({...boot,since:101},stalledNow,false,contextGeneration,presented),true,
+    'a stale boot owner cannot release a new boot');
+  assert.equal(bootTerminalPublicationPending(boot,stalledNow,false,contextGeneration+1,presented),true,
+    'a restored context must republish the endpoint');
+});
+
+test('an overdue reduced boot also requires a fresh receipt after visibility or sleep revocation',()=>{
+  const boot={phase:'boot',since:100};
+  const now=400,contextGeneration=4;
+  const receipt=bootTerminalIdentity(boot,now,true,contextGeneration);
+  assert.equal(bootTerminalPublicationPending(boot,now,true,contextGeneration,receipt),false);
+  assert.equal(bootTerminalPublicationPending(boot,now,true,contextGeneration,null),true,
+    'resume at the same reduced deadline cannot reuse a hidden or sleeping render');
 });
 
 test('shutdown terminal identity is selected at the source endpoint and scoped to its owner and context',()=>{

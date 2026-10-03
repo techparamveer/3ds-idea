@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `6d6e29a2` (HOME toolbar banner ownership),
+Current runtime checkpoint: `b3e03f32` (Browser HOME Manual/Open),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -9,14 +9,22 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
-[Toolbar ownership and Browser footer](../home-toolbar-host-2026-10-03.md):
+[Browser Manual/Open](../home-browser-manual-footer-2026-10-03.md) now routes
+Browser's split footer to its own Contents/page0 or the Browser app. Preserve
+shared footer ownership and other applets' single Open. Other manual pages,
+Language and Enlarge remain unsupported; fitted manual geometry and whole
+native pixel/input/motion/audio acceptance remain open.
+Desktop/narrow full routes and18 control pairs pass. HOME footer1391->0 above2
+is verified regionally, not whole-screen. Captured manual page0 footer still
+has1934 pixels above2, and whole HOME banner/HUD/cursor differences remain.
+Use these named residuals for follow-up; do not re-extract the delivered packs.
+
+[Toolbar ownership](../home-toolbar-host-2026-10-03.md):
 all five applets now use guarded banner host lifecycles. The initial missing
 banner diagnosis was wrong; settled artwork already existed through fallback.
 Notes/Web/Miiverse front-pose/browser-time motion remains an adaptation.
-Next visible correction: Browser focus4 needs native Manual/Open, not full Open.
-Reuse existing decoded split panes/contact ownership; register its existing
-BCMA manual assets and route Manual with Browser identity before declaring fixed.
-Other toolbar actions and retained-grid manual ownership must stay unchanged.
+The captured Browser footer correction is integrated above; do not repeat
+asset registration or replace the existing unrelated app designs.
 
 [Folder fixture alignment](../home-folder-alignment-2026-10-03.md) supplies a
 fresh native idle endpoint and UI-only matching density/Health placement.

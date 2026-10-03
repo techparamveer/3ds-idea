@@ -15,13 +15,25 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest runtime [toolbar banner ownership](home-toolbar-host-2026-10-03.md),
+Latest runtime [Browser Manual/Open](home-browser-manual-footer-2026-10-03.md),
+`b3e03f32`, replaces Browser's full Open footer with native-source Manual/Open
+and routes Manual to Browser-owned Contents/page0 resources. Other applets,
+retained grid identity and existing contact ownership remain unchanged.
+Full1964 tests, build/typecheck,10 converter tests and independent review pass.
+Other manual pages, Language and Enlarge remain unsupported. Existing fitted
+manual placement and whole pixels/input/motion/audio remain open.
+Desktop/narrow full manual-return routes and18 browser control pairs pass.
+The matched HOME footer improves1391->0 pixels above2/max2 on both sizes;
+whole comparisons still fail. Manual Contents761/4521 and page0 2665/2680
+upper/lower pixels remain above2. Final sheet and80 metrics are independently
+checked; keep those residuals separate from the corrected HOME footer route.
+
+Earlier runtime [toolbar banner ownership](home-toolbar-host-2026-10-03.md),
 `6d6e29a2`, adds Notes/Web/Miiverse to the guarded host lifecycle. Their settled
 artwork already rendered through fallback; this is not a missing-banner fix.
 Front-pose/browser-time motion remains an adaptation. Full1958 tests,
-build/typecheck and independent135-test review pass. Next captured UI defect:
-Browser focus4 needs Manual/Open plus Browser-owned manual dispatch and existing
-BCMA conversion registration. Whole pixels/input/motion/audio remain open.
+build/typecheck and independent135-test review pass. Its captured Browser
+Manual/Open defect is addressed above; whole fidelity remains open.
 
 Earlier evidence [folder fixture alignment](home-folder-alignment-2026-10-03.md)
 at unchanged `e3b4f061` matches folder density, Health slot and viewport through

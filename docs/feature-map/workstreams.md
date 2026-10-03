@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Browser Manual/Open - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-browser-manual-footer-20261003` /
+`codex/home-browser-manual-footer-20261003`, base `27733b05`.
+Worker `69041167` integrates as `b3e03f32`: source footer, Browser-owned manual
+packs/provenance, shared page0 capability and focused regressions.
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private
+`home-browser-manual-footer-20261003/comparison/`. Helpers
+`toolbar_reentry_prepare` and `toolbar_reentry_review` prepare silent clones,
+offline controls and exact-commit review. GPT-5.6 Sol/high; coordinator alone
+operates Azahar and the shared browser. [Evidence](../home-browser-manual-footer-2026-10-03.md).
+
 ## Toolbar Banner Ownership - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

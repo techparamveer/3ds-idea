@@ -110,14 +110,18 @@ network operations. Their existence is not a product requirement.
 
 ## HOME banner ownership and activation
 
-HOME footer selection also follows the active navigation context. For applet
-toolbar focuses 1 through 5, `getHomeFooter` currently selects a single Open
-button; `touchSystemAction` routes the entire footer to the same focused
-applet entrypoint used by A/Start before consulting retained grid actions.
-Grid/folder Manual and close actions must not leak into that toolbar context.
-The [3 October sweep](../home-toolbar-host-2026-10-03.md) disproves native
-equivalence for Browser focus4: its own footer is Manual/Open. Correcting that
-requires Browser-owned manual dispatch, not leaking the retained grid manual.
+HOME footer selection also follows the active navigation context. Applet
+toolbar focuses 1, 2, 3 and 5 select a single Open button. Browser focus4 uses
+the source Manual/Open split with the existing x100 contact boundary.
+`touchSystemAction` resolves the shared footer hit; Manual invokes the manual
+applet with Browser title `0004003000009d02`, while Open and A/Start retain the
+focused Browser entrypoint. Grid/folder Manual and close actions cannot leak
+into that toolbar context. See the
+[Browser footer correction](../home-browser-manual-footer-2026-10-03.md).
+Application-owned manual packs and optional neighbor packs live in
+`manualSources`; `manualPageZeroAvailable` is the shared capability guard for
+input, targets and document painting. Settings and Browser expose page0;
+Camera remains index-only. Undelivered pages and operations remain unsupported.
 This selection fix does not establish native transition or input timing; see
 the [footer comparison](../home-applet-footer-2026-10-01.md).
 Footer text uses the generic source-atlas `textSampling: 'lcd'` path, without

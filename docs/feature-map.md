@@ -15,13 +15,20 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME launch onset](home-launch-onset-2026-10-03.md), `b4077380`,
+Latest [HOME launch logo order](home-launch-logo-order-2026-10-03.md), `01cc3224`,
+fades HOME to source black before the Nintendo logo instead of drawing the
+logo over it. The desktop A-input recapture against the frozen 150-PNG native
+run shows HOME, then black, then the faint logo, matching native order.
+Full 1991 tests, build/typecheck and independent review pass. Native black
+dwell, cursor retention, pressed/release timing and whole 1:1 remain open.
+
+Earlier [HOME launch onset](home-launch-onset-2026-10-03.md), `b4077380`,
 retains the settled selected banner and native Open footer during launch.
 150 native PNGs expose the prior missing-banner/Close-Resume flash;
 128 final desktop/mobile/reduced pairs verify the targeted correction.
 Optional exact-host eligibility preserves helper and fast-launch paths.
-Full 1991 tests, build/typecheck and exact review pass. Logo overlap, cursor
-retention, native pressed/release timing and whole 1:1 remain open.
+Full 1991 tests, build/typecheck and exact review pass. Logo overlap (since
+corrected above), cursor retention, pressed/release timing and 1:1 remained open.
 
 Earlier [launch exit capture](home-launch-exit-2026-10-03.md) closes the missing
 exit/reveal evidence interval and identifies Health's absent upper-only reveal.

@@ -4,7 +4,7 @@
 the existing C14 terminal pair from host-stall skips (`27a85a4a`, test follow-up
 `60ecf08f`). This closes a robustness defect, not the native timing/pixel task.
 Keep exact logo-exit/reveal onset, per-title scheduling and audio/input in the
-lifecycle queue; normal1750ms and reduced120ms remain explicit adaptations.
+lifecycle queue; normal2100ms and reduced120ms remain explicit adaptations.
 
 [Health first-entry reveal](../home-launch-exit-2026-10-03.md), `c6c567d7`,
 now uses the decoded upper-only fade with a successful paired-draw origin.
@@ -12,11 +12,13 @@ Normal/late/mobile/reduced captures verify the visible change; exact native
 dispatch and whole acceptance remain open. Preserve the other Health designs.
 
 [HOME launch onset](../home-launch-onset-2026-10-03.md), `b4077380`, now
-retains the settled banner and departing native Open footer. The captured
-logo/HOME overlap, missing cursor effect and pressed/release timing remain
-the next visible launch residuals. Do not repeat generic publication work.
+retains the settled banner and departing native Open footer.
+[Logo order](../home-launch-logo-order-2026-10-03.md), `01cc3224`, fades HOME
+to source black before the logo, removing the captured overlap. The missing
+cursor effect, pressed/release timing and native black dwell remain the next
+visible launch residuals. Do not repeat generic publication work.
 
-Current runtime checkpoint: `b4077380` (HOME launch onset),
+Current runtime checkpoint: `01cc3224` (HOME launch logo order),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.

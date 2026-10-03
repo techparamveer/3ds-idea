@@ -22,12 +22,11 @@ Inputs remain gated during that phase; the native Decide clip is followed by a
 common `CmnFadeNinLogo` SceneOut, then the screens and power indicator switch
 off. Sleep `Slp_*_SceneOut` (61-frame `P_Mask_00` fade) is still unused. Power-on
 starts the existing boot phase and reveals HOME through the common SceneIn
-fade. App opening composites HOME `CmnFadeNinLogo_*` SceneOutA/B/C over the live HOME
-pixels with the matching Nintendo logo SceneOutA/B/C clips. Those source clips
-are 60/30/15 frames and share the same names; SceneOutA finishes darkening HOME
-at frame 20, when the 3 glyph begins. The previous sequential 20-frame SceneOut,
-then opaque black fill, then logo, is removed. Missing launch resources still
-use the 20-frame SceneOut fallback. See
+fade. App opening first darkens the live HOME pixels with the 21-pose
+`CmnFadeNinLogo_*` SceneOut, then plays the Nintendo logo SceneOutA/B/C
+(60/30/15) over its terminal black; native captures show exact black before
+the first logo pixel ([logo order](home-launch-logo-order-2026-10-03.md)).
+Missing launch resources still use the 20-frame SceneOut fallback. See
 [native logo provenance](native-app-launch-logo.md). The existing physical
 console opening is preserved.
 
@@ -61,13 +60,15 @@ combined app verification follows coordinator integration.
 ## Original app-launch logo integration
 
 The optional `home.launch` pack contains native NintendoLogo_U/D layouts and
-SceneOutA/B/C poses. HOME common `CmnFadeNinLogo_*` has the same A/B/C wrappers:
-SceneOutA raises the uniform black pane to opaque by frame 20 and holds through
-frame 59; B holds opaque; C holds opaque while the logo fades out. The browser
-adapter plays those 105 source frames together at nominal 60Hz (1750ms). This
-schedule is an explicit browser choice from the clip lengths; the B clip is
-looping in the resource and its actual hardware hold depends on software loading.
-Reduced motion holds a settled logo over the opaque B fade for the existing 120ms
+SceneOutA/B/C poses. HOME common `CmnFadeNinLogo_*` SceneOut raises the uniform
+black pane to opaque over frames 0..20. `appLaunchPose` plays those 21 poses
+alone (350ms at nominal 60Hz), then the 105 logo frames (1750ms) over SceneOut
+frame 20: 2100ms in total, C14 from 2083.3ms. The common A/B/C wrappers are no
+longer drawn, because SceneOutA would restart the fade under the logo. This
+schedule is an explicit browser choice from the clip lengths and captured
+order; the B clip is looping in the resource and its actual hardware hold
+depends on software loading.
+Reduced motion holds the settled B15 logo over SceneOut frame 20 for the existing 120ms
 launch phase. Cold boot reveals HOME through the common SceneIn fade without the app-launch
 logo. Its 3000 ms phase and final 350 ms fade mapping remain browser choices;
 see the [cold-boot source audit](native-cold-boot-reveal-source-audit.md).

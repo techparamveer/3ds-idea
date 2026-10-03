@@ -1,5 +1,14 @@
 # Workstream Registry
 
+## HOME Launch Logo Order - 3 October 2026
+
+Claude Code (coordinator while Codex is rate-limited) owns
+`3ds-home-launch-logo-order-20261003` / `codex/home-launch-logo-order-20261003`,
+base `5e4a32bd`. Worker `f794c953` integrates as `01cc3224`; an independent
+review subagent found no correctness issue. The coordinator alone ran the
+production preview and the muted capture browser; Azahar was not relaunched.
+[Delivered correction and remaining gaps](../home-launch-logo-order-2026-10-03.md).
+
 ## HOME Launch Onset - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

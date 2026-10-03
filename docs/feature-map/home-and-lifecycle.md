@@ -159,7 +159,7 @@ not distinguish host-delivery failure from the native notification boundary.
 
 ### L-03 - Application launch fade and logo
 **Code/tests/evidence:** [system-transitions.ts](../../src/os/system-transitions.ts), [native-system-presentation.ts](../../src/os/native-system-presentation.ts), [presentation tests](../../tests/native-system-presentation.test.mjs), [performance record](../performance-2026-10-01.md).
-**Now/gap/dependency:** HOME SceneOutA/B/C 60/30/15 clips composite under the source logo; 1750 ms is clip-derived, not measured title-load latency. Reduced motion jumps to a bounded pose.
+**Now/gap/dependency:** HOME SceneOut (21 poses) darkens HOME first, then the source logo A/B/C 60/30/15 clips play over its black ([logo order](../home-launch-logo-order-2026-10-03.md)); 2100 ms is clip-derived, not measured title-load latency. Reduced motion jumps to a bounded pose.
 **Next/acceptance:** Launch one portfolio and one firmware application from settled HOME with identical A pulses. Compare all transition boundaries, first application pair, ownership, and cancellation-to-HOME; do not infer wall-clock parity from clip frame counts.
 
 ### L-04 - Application owner creation, foreground tick, and close

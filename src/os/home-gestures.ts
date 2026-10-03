@@ -2,6 +2,8 @@ import { columnPitch, menuTiles, pageStart, rowCount, visibleColumns, isHomeFold
 import { homeContainer, homeItemAt, moveHomeItem, resolveHomeDrop, sameHomeLocation, type HomeItem, type HomeLocation } from './home-layout.ts';
 import type { AppEvent } from './app-types.ts';
 import { getHomeExposedExtent, getHomeNavigation, settleHomeNavigation, writeHomeNavigation, enterHomeFolder, leaveHomeFolder, commitHomeScroll, type HomeNavigation } from './home-navigation.ts';
+import { homeFooterHit } from './home-footer-touch.ts';
+import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout.ts';
 export { createHomeNavigation, type HomeNavigation } from './home-navigation.ts';
 
 /** Authored defaults. No timing or distance below has been measured on firmware 10.7.0-32E. */
@@ -10,7 +12,7 @@ export const HOME_GESTURE_TIMING = { liftMs: 450, slopPixels: 8, folderHoverMs: 
  * gesture clock. Folder slots are non-negative, so this cannot alias one. */
 const HOME_FOLDER_BACK_HOVER = -1;
 export type HomeGesture = {
-  pointerId: number; mode: 'press' | 'scroll' | 'drag'; area: 'grid' | 'chrome' | 'themes';
+  pointerId: number; mode: 'press' | 'scroll' | 'drag'; area: 'grid' | 'chrome' | 'footer' | 'themes';
   x: number; y: number; startX: number; startY: number; startedAt: number; updatedAt: number;
   source: HomeLocation | null; item: HomeItem | null; target: HomeLocation | null;
   viewFolder: number | null; columns: number; panel: MenuState['panel'];
@@ -93,7 +95,9 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   if (event.phase === 'cancel') return { state: cancelHomeGesture(state), tap: false };
   if (event.phase === 'down') {
     const source = !state.panel ? homeTouchLocation(state, event.x, event.y) : null;
-    const area = state.panel === 'themes' ? 'themes' : !state.panel && !isHomeFolderBackTouch(state, event.x, event.y) && event.y >= (state.opened ? 49 : 34) && event.y < 204 ? 'grid' : 'chrome';
+    const area = state.panel === 'themes' ? 'themes'
+      : !state.panel && !isHomeFolderBackTouch(state, event.x, event.y) && event.y >= (state.opened ? 49 : 34) && event.y < 204 ? 'grid'
+      : homeFooterHit(state, HOME_FOOTER_TOUCH_GEOMETRY, event.x, event.y) ? 'footer' : 'chrome';
     const gesture: HomeGesture = { pointerId: event.pointerId ?? 0, mode: 'press', area, x: event.x, y: event.y, startX: event.x, startY: event.y, startedAt: now, updatedAt: now, source, item: source ? homeItemAt(state, source) : null, target: source, viewFolder: homeContainer(state), columns: state.columns, panel: state.panel,
       origin: { navigation: getHomeNavigation(state), panelChoice: state.panelChoice }, scrollPixels: null, anchorScroll: pageStart(state), hoverFolder: null, hoverSince: now, edge: 0, edgeAt: now };
     return { state: setNavigation(state, { ...state.system!.homeNavigation, gesture }), tap: false };
@@ -105,7 +109,11 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   let gesture = state.system!.homeNavigation.gesture;
   if (!gesture) return { state, tap: false };
   gesture = { ...gesture, x: event.x, y: event.y, updatedAt: now };
-  if (gesture.mode === 'press' && Math.hypot(event.x - gesture.startX, event.y - gesture.startY) > HOME_GESTURE_TIMING.slopPixels) gesture.mode = 'scroll';
+  // A native footer button retains its original semantic owner while the
+  // stylus leaves it, so re-entry can restore Select. The footer endpoint
+  // owner still decides presentation and release; other chrome keeps the
+  // existing slop-to-scroll cancellation behavior.
+  if (gesture.mode === 'press' && gesture.area !== 'footer' && Math.hypot(event.x - gesture.startX, event.y - gesture.startY) > HOME_GESTURE_TIMING.slopPixels) gesture.mode = 'scroll';
   let scrollColumn = pageStart(state);
   if (gesture.mode === 'scroll') {
     if (gesture.area === 'grid') {
@@ -138,7 +146,8 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   }
   const end = !state.panel ? homeTouchLocation(state, event.x, event.y) : null;
   const beganOnBack = isHomeFolderBackTouch(state, gesture.startX, gesture.startY), endedOnBack = isHomeFolderBackTouch(state, event.x, event.y);
-  const tap = beganOnBack || endedOnBack ? beganOnBack && endedOnBack : gesture.source ? sameHomeLocation(gesture.source, end) : !end;
+  const tap = gesture.area === 'footer' ? !!homeFooterHit(state, HOME_FOOTER_TOUCH_GEOMETRY, event.x, event.y)
+    : beganOnBack || endedOnBack ? beganOnBack && endedOnBack : gesture.source ? sameHomeLocation(gesture.source, end) : !end;
   return { state: setNavigation(state, { ...getHomeNavigation(state), gesture: null }), tap };
 }
 /** Renderer consumes this preview only; it must not implement another gesture recognizer. */

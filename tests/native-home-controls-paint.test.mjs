@@ -1637,6 +1637,19 @@ test('enabled density chrome press changes its real toolbar Select binding witho
   }, { realToolbar: true });
 });
 
+test('footer-origin capture cannot paint a foreign toolbar Select while held above the toolbar', async () => {
+  await withScreens(({ screens, paint, events }) => {
+    let state = home();
+    state = touchHomeGesture(state, { type: 'touch', phase: 'down', x: 160, y: 226, pointerId: 4 }, 0).state;
+    state = touchHomeGesture(state, { type: 'touch', phase: 'move', x: 307, y: 16, pointerId: 4 }, 1).state;
+    assert.equal(state.system.homeNavigation.gesture.area, 'footer');
+    assert.equal(state.system.homeNavigation.gesture.mode, 'press');
+    paint(freeze(state));
+    const toolbar = events.find(event => event.name === 'toolbar-layout' && event.context === screens.bottom.getContext('2d')).args;
+    assert.ok(!toolbar[2].bindings.some(binding => binding.name === 'LncBase_D_01_Select'));
+  }, { realToolbar: true });
+});
+
 test('native assets without retained controls and legacy menu callers keep their existing tile path', async () => {
   await withScreens(({ paint, cursorCalls }) => {
     const retained = home();

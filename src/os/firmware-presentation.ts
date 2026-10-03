@@ -6,7 +6,6 @@ import { nativeBannerLabelOverride } from './native-banner-label';
 import { NativeLayoutRenderer } from './native-renderer';
 import { boundAnimationTracks, nativeFolderGlyphPixels, nativeMessageOverride, nativePaneParentPath, nativeTextureSamplePixels, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { isHomeFolderBackTouch, rowCount, toolbar as toolbarRegions, type MenuState } from './state';
-import { getHomeGestureView } from './system';
 import { getHomeDensityControls } from './home-density-controls';
 import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
 import type { HomeTilePose } from './home-tile-pose';
@@ -252,12 +251,12 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }});
  }
  function toolbar(ctx:Context,state?:MenuState){
-  const gesture=state&&getHomeGestureView(state),bindings=[binding('LncBase_D_01_PaletteOut',12),binding('LncBase_D_01_MvsToggle',0)];
+  const gesture=state?.system?.homeNavigation.gesture,bindings=[binding('LncBase_D_01_PaletteOut',12),binding('LncBase_D_01_MvsToggle',0)];
   const controls=state&&getHomeDensityControls(state),disabled:string[]=[];
   if(controls&&!controls.decreaseEnabled)disabled.push('G_Dw_00');
   if(controls&&!controls.increaseEnabled)disabled.push('G_Up_00');
   if(disabled.length)bindings.push(binding('LncBase_D_01_Invalid',0,disabled));
-  if(!state?.panel&&gesture?.mode==='press'){
+  if(!state?.panel&&gesture?.mode==='press'&&gesture.area==='chrome'){
    const toolbarPressed=gesture.y>=0&&gesture.y<33&&gesture.x>=0&&gesture.x<320;
    const index=toolbarPressed?toolbarRegions.findIndex(region=>gesture.x>=region.x&&gesture.x<region.x+region.width):-1;
    const densityAction=homeDensityActionAt(gesture.x,gesture.y);

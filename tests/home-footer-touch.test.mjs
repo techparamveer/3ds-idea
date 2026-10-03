@@ -33,6 +33,67 @@ test('same-button press ownership survives small movement but never crosses the 
  assert.equal(ownedHomeFooterContact(right,geometry,gesture(right),98,226),null);
 });
 
+test('live Manual contact restores its held feedback after Open and releases through the original owner',()=>{
+ let state=down(selected(booted(),'camera'),50,226);
+ assert.equal(gesture(state).area,'footer');
+ assert.deepEqual(ownedHomeFooterContact(state,geometry,gesture(state)),{action:'manual',side:'left'});
+ state=dispatchSystemEvent(state,{type:'touch',phase:'move',pointerId:7,x:217,y:226},4050);
+ assert.equal(gesture(state).mode,'press');
+ assert.equal(ownedHomeFooterContact(state,geometry,gesture(state)),null);
+ state=dispatchSystemEvent(state,{type:'touch',phase:'move',pointerId:7,x:50,y:226},4100);
+ assert.equal(gesture(state).mode,'press');
+ assert.deepEqual(ownedHomeFooterContact(state,geometry,gesture(state)),{action:'manual',side:'left'});
+ state=dispatchSystemEvent(state,{type:'touch',phase:'up',pointerId:7,x:50,y:226},4150);
+ const active=state.system.runtime.instances[state.system.runtime.active];
+ assert.equal(active.appId,'manual');
+ assert.equal(active.state.manualTitleId,'0004001000022400');
+});
+
+test('footer capture permits movement beyond generic slop without transferring release',()=>{
+ let state=down(selected(booted(),'camera'),50,226);
+ state=dispatchSystemEvent(state,{type:'touch',phase:'move',pointerId:7,x:90,y:226},4050);
+ assert.equal(gesture(state).mode,'press');
+ assert.deepEqual(ownedHomeFooterContact(state,geometry,gesture(state)),{action:'manual',side:'left'});
+ state=dispatchSystemEvent(state,{type:'touch',phase:'up',pointerId:7,x:90,y:226},4100);
+ assert.equal(state.system.runtime.instances[state.system.runtime.active].appId,'manual');
+
+ for(const end of [[217,226],[307,16],[-1,226]]){
+  const initial=selected(booted(),'camera'),density=initial.system.homeNavigation.rootView.density;
+  let cancelled=down(initial,50,226);
+  cancelled=dispatchSystemEvent(cancelled,{type:'touch',phase:'move',pointerId:7,x:end[0],y:end[1]},4050);
+  cancelled=dispatchSystemEvent(cancelled,{type:'touch',phase:'up',pointerId:7,x:end[0],y:end[1]},4100);
+  assert.equal(cancelled.system.phase,'home');
+  assert.equal(cancelled.system.runtime.active,null);
+  assert.equal(cancelled.system.homeNavigation.rootView.density,density);
+  assert.equal(cancelled.system.homeNavigation.gesture,null);
+ }
+});
+
+test('gap origin, selection replacement and explicit cancel cannot acquire footer ownership',()=>{
+ let gap=down(suspendedCamera(),106,226);
+ assert.equal(gesture(gap).area,'chrome');
+ gap=dispatchSystemEvent(gap,{type:'touch',phase:'move',pointerId:7,x:160,y:226},4050);
+ assert.equal(gesture(gap).mode,'scroll');
+ gap=dispatchSystemEvent(gap,{type:'touch',phase:'up',pointerId:7,x:160,y:226},4100);
+ assert.equal(gap.system.runtime.active,null);
+
+ let replaced=down(selected(booted(),'camera'),50,226);
+ replaced=selected(replaced,'work');
+ assert.equal(ownedHomeFooterContact(replaced,geometry,gesture(replaced)),null);
+ replaced=dispatchSystemEvent(replaced,{type:'touch',phase:'up',pointerId:7,x:50,y:226},4100);
+ assert.equal(replaced.system.phase,'home');
+ assert.equal(replaced.system.runtime.active,null);
+
+ let cancelled=down(selected(booted(),'camera'),50,226);
+ cancelled=dispatchSystemEvent(cancelled,{type:'touch',phase:'move',pointerId:7,x:217,y:226},4050);
+ cancelled=dispatchSystemEvent(cancelled,{type:'touch',phase:'move',pointerId:7,x:50,y:226},4100);
+ cancelled=dispatchSystemEvent(cancelled,{type:'touch',phase:'cancel',pointerId:7,x:50,y:226},4150);
+ assert.equal(cancelled.system.homeNavigation.gesture,null);
+ const stale=dispatchSystemEvent(cancelled,{type:'touch',phase:'up',pointerId:7,x:50,y:226},4200);
+ assert.equal(stale,cancelled);
+ assert.equal(stale.system.runtime.active,null);
+});
+
 test('Camera suspended footer uses all three decoded bounding panes and leaves their authored gaps inert',()=>{
  const state=suspendedCamera();
  for(const [x,expected] of [[0,{action:'close-software',side:'left'}],[104.999,{action:'close-software',side:'left'}],[105,null],[106.999,null],[107,{action:'manual',side:'middle'}],[212.999,{action:'manual',side:'middle'}],[213,null],[214.999,null],[215,{action:'resume',side:'right'}],[319.999,{action:'resume',side:'right'}]]){
@@ -117,8 +178,8 @@ test('identical Open labels cannot transfer a held contact between titles or int
  assert.equal(ownedHomeFooterContact(toolbar,geometry,contact),null);
 });
 
-test('live HOME release preserves same-button Open and rejects cancelled or scrolling contacts',()=>{
- for(const [end,phase,opens] of [[[164,226],'up',true],[[180,226],'up',false],[[164,226],'cancel',false]]){
+test('live HOME release preserves same-button Open beyond generic slop and rejects cancellation',()=>{
+ for(const [end,phase,opens] of [[[164,226],'up',true],[[180,226],'up',true],[[164,226],'cancel',false]]){
   let state=down(selected(booted(),'work'),160,226);
   state=dispatchSystemEvent(state,{type:'touch',phase:'move',pointerId:7,x:end[0],y:end[1]},4050);
   state=dispatchSystemEvent(state,{type:'touch',phase,pointerId:7,x:end[0],y:end[1]},4100);

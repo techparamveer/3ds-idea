@@ -166,3 +166,17 @@ test('a deadline-frame forced shutdown publication remains selected until the ne
   assert.equal(shutdownTerminalPublicationPending({...system,returnPhase:'app'},now,false,contextGeneration,presented),true,
     'a stale return owner cannot release a new shutdown');
 });
+
+test('an overdue shutdown requires fresh publication after visibility or sleep revokes its receipt',()=>{
+  const system={phase:'shutdown',since:100,returnPhase:'home'};
+  const now=1300,contextGeneration=4;
+  const receipt=shutdownTerminalIdentity(system,now,false,contextGeneration);
+  assert.equal(shutdownTerminalPublicationPending(system,now,false,contextGeneration,receipt),false);
+
+  const hiddenReceipt=null;
+  assert.equal(shutdownTerminalPublicationPending(system,now,false,contextGeneration,hiddenReceipt),true,
+    'resume at the same overdue timestamp cannot reuse the pre-hide render');
+  const sleepingReceipt=null;
+  assert.equal(shutdownTerminalPublicationPending(system,now,false,contextGeneration,sleepingReceipt),true,
+    'wake at the same overdue timestamp cannot reuse the pre-sleep render');
+});

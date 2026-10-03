@@ -47,6 +47,17 @@ test('shutdown publication is invalidated across WebGL loss and restoration', ()
   assert.match(source, /shutdownBeforeTick\.sleeping&&!renderer\.getContext\(\)\.isContextLost\(\)/);
 });
 
+test('shutdown publication is revoked across hidden and sleeping suspension boundaries', () => {
+  assert.match(source, /if\(!before\.sleeping&&after\.sleeping\)revokeShutdownPublication\(\);/);
+  const hidden = source.indexOf('if(document.hidden){homeClockSuspended=true;');
+  const blur = source.indexOf('blur();', hidden);
+  const revoke = source.indexOf('revokeShutdownPublication();', blur);
+  const observe = source.indexOf('observeFolderBanner();', revoke);
+  assert.ok(hidden >= 0 && blur > hidden && revoke > blur && observe > revoke,
+    'hide must finish input cancellation, then revoke both paint and presentation receipts');
+  assert.match(source, /const revokeShutdownPublication=\(\)=>\{lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;\};/);
+});
+
 test('power and shutdown paint success requires the selected native system overlay', () => {
   const screens = readFileSync(new URL('../src/os/screens.ts', import.meta.url), 'utf8');
   assert.match(screens, /state\.system&&!state\.system\.sleeping&&\['power','shutdown'\]\.includes\(state\.system\.phase\)/);

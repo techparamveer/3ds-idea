@@ -246,6 +246,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let contextGeneration=0;
   let lastBootPaintFrame:number|null=null,lastBootPresentedFrame:number|null=null;
   let lastShutdownPaintIdentity:ShutdownTerminalIdentity|null=null,lastShutdownPresentedIdentity:ShutdownTerminalIdentity|null=null;
+  const revokeShutdownPublication=()=>{lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;};
   function recordScreenPaint(elapsedMs:number,nativeSystem=false){
     const system=state.system!;lastBootPaintFrame=system.phase==='boot'?bootRevealFrame(elapsedMs-system.since,reduced):null;
     lastShutdownPaintIdentity=nativeSystem?shutdownTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
@@ -334,6 +335,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const close=sampleSystemHomeFolderClose(state),previousClose=sampleSystemHomeFolderClose(beforeAction);
     observeFolderBanner(bannerClock(),close&&close.controller.phase!=='complete'&&close.controller.identity.transitionId!==previousClose?.controller.identity.transitionId?{kind:'clear'}:homeApplicationBannerBoundary(previous,state));
     const before=previous.system!,after=state.system!;
+    if(!before.sleeping&&after.sleeping)revokeShutdownPublication();
     const resumedApplicationClose=previous.system!.sleeping&&!after.sleeping||input==='visibility'&&!document.hidden;
     const mustPaintApplicationClose=applicationCloseNeedsPaint(before.homeApplicationTransition,after.homeApplicationTransition,reduced,resumedApplicationClose);
     if(state===previous){
@@ -463,7 +465,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   }
   function keyup(e:KeyboardEvent){release(`key:${e.code}`);const command=heldKeys.get(e.code);heldKeys.delete(e.code);if(command)button(command,'up',`key:${e.code}`,true);}
   function blur(){touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit((current,now)=>releaseSystemInputs(current,now),'blur');}
-  function visibilityChanged(){if(document.hidden){homeClockSuspended=true;blur();observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
+  function visibilityChanged(){if(document.hidden){homeClockSuspended=true;blur();revokeShutdownPublication();observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
   function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}paint();}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();viewZoom=THREE.MathUtils.clamp(viewZoom-e.deltaY*.001,1,3);}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;const ratio=pixelRatioForViewport(quality.tier,window.devicePixelRatio,w,h),size=renderer.getSize(new THREE.Vector2());
@@ -475,7 +477,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     schedule.invalidate();if(started&&!disposed)renderFrame();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
   // A lost or restored context has lost the presented frame and every upload.
-  const resetShutdownPublication=()=>{contextGeneration++;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;};
+  const resetShutdownPublication=()=>{contextGeneration++;revokeShutdownPublication();};
   const contextLost=(event:Event)=>{event.preventDefault();resetShutdownPublication();schedule.invalidate();};
   const contextRestored=()=>{resetShutdownPublication();schedule.invalidate();renderer.shadowMap.needsUpdate=true;};
   renderer.domElement.addEventListener('webglcontextlost',contextLost);renderer.domElement.addEventListener('webglcontextrestored',contextRestored);

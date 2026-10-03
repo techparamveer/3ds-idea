@@ -54,5 +54,5 @@ export function appLaunchLogoFrame(elapsedMs:number,reduced=false):{clip:'A'|'B'
  const frame=Math.floor(Math.max(0,elapsedMs)*60/1000);
  if(frame<60)return {clip:'A',frame};
  if(frame<90)return {clip:'B',frame:frame-60};
- return {clip:'C',frame:Math.min(15,frame-90)};
+ return {clip:'C',frame:Math.min(14,frame-90)};
 }

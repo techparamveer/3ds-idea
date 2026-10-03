@@ -33,7 +33,7 @@ import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
-import { applicationCloseNeedsPaint, bootRevealNeedsPaint, bootTerminalIdentity, bootTerminalPublicationPending, browserRenderQuality, pixelRatioForViewport, screenPaintFps, shutdownTerminalIdentity, shutdownTerminalPublicationPending, type BootTerminalIdentity, type ShutdownTerminalIdentity } from './render-quality';
+import { applicationCloseNeedsPaint, bootRevealNeedsPaint, bootTerminalIdentity, bootTerminalPublicationPending, browserRenderQuality, launchTerminalIdentity, launchTerminalPublicationPending, pixelRatioForViewport, screenPaintFps, shutdownTerminalIdentity, shutdownTerminalPublicationPending, type BootTerminalIdentity, type LaunchTerminalIdentity, type ShutdownTerminalIdentity } from './render-quality';
 import { bootRevealFrame } from '@/os/system-transitions';
 import { applicationCloseAllowsInput, applicationCloseNeedsReadyScreen } from './application-close-input';
 import { PACKED_MODEL_URL } from './model-delivery';
@@ -252,11 +252,13 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let contextGeneration=0;
   let lastBootPaintFrame:number|null=null,lastBootPresentedFrame:number|null=null;
   let lastBootPaintIdentity:BootTerminalIdentity|null=null,lastBootPresentedIdentity:BootTerminalIdentity|null=null;
+  let lastLaunchPaintIdentity:LaunchTerminalIdentity|null=null,lastLaunchPresentedIdentity:LaunchTerminalIdentity|null=null;
   let lastShutdownPaintIdentity:ShutdownTerminalIdentity|null=null,lastShutdownPresentedIdentity:ShutdownTerminalIdentity|null=null;
-  const revokeTerminalPublications=()=>{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();};
+  const revokeTerminalPublications=()=>{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();};
   function recordScreenPaint(elapsedMs:number,nativeSystem=false){
     const system=state.system!;lastBootPaintFrame=system.phase==='boot'?bootRevealFrame(elapsedMs-system.since,reduced):null;
     lastBootPaintIdentity=nativeSystem?bootTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
+    lastLaunchPaintIdentity=nativeSystem?launchTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
     lastShutdownPaintIdentity=nativeSystem?shutdownTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
     if(diagnostics){const close=sampleSystemHomeFolderClose(state);host.dataset.screenPaint=JSON.stringify({at:performance.now(),phase:system.phase,phaseElapsedMs:elapsedMs-system.since,bootRevealFrame:lastBootPaintFrame,homeUpdates:system.homeClock.updateCount,cursor:cursorDiagnostic(),applicationClose:system.homeApplicationTransition,closePhase:close?.controller.phase??null,closeFrame:close?.controller.folder.appliedFrame??null});}
   }
@@ -265,7 +267,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   // sample instead of a synchronous GPU readback in the event handler, and leave
   // the cadence clock alone, so the background is sampled on the same LCD
   // cadence as without input.
-  function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint(now-start,painted?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();return painted;}
+  function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint(now-start,painted?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();return painted;}
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
     const system=state.system!,switchPresentation=isHomeSwitchPresentationActive(state),inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog&&!switchPresentation||system.preferences||!!state.panel||homeClockSuspended;
@@ -543,6 +545,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(validPublication){screens.presentHomeEntryFooterTerminal();screens.presentHomeEntryBanner();screens.presentHomeEntryWithoutNativeBanner();}
     else{screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();}
     lastBootPresentedIdentity=validPublication?lastBootPaintIdentity:null;
+    lastLaunchPresentedIdentity=validPublication?lastLaunchPaintIdentity:null;
     lastShutdownPresentedIdentity=validPublication?lastShutdownPaintIdentity:null;
     if(diagnostics)host.dataset.screenPresented=JSON.stringify({at:performance.now(),frame,paint:JSON.parse(host.dataset.screenPaint??'null')});
   }
@@ -574,13 +577,14 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const animationElapsedMs=now-start;
     const systemBeforeTick=state.system!;
     const bootPublicationPending=bootTerminalPublicationPending(systemBeforeTick,animationElapsedMs,reduced,contextGeneration,lastBootPresentedIdentity);
+    const launchPublicationPending=launchTerminalPublicationPending(systemBeforeTick,animationElapsedMs,reduced,contextGeneration,lastLaunchPresentedIdentity);
     const shutdownPublicationPending=shutdownTerminalPublicationPending(systemBeforeTick,animationElapsedMs,reduced,contextGeneration,lastShutdownPresentedIdentity);
-    const terminalPublicationPending=bootPublicationPending||shutdownPublicationPending;
+    const terminalPublicationPending=bootPublicationPending||launchPublicationPending||shutdownPublicationPending;
     if(!homeClockSuspended&&terminalPublicationPending&&state.powered&&angle>12&&!document.hidden&&!systemBeforeTick.sleeping&&!renderer.getContext().isContextLost()){
       try{
         paintScreens(now);renderFrame();
-        Reflect.deleteProperty(host.dataset,bootPublicationPending?'bootPublicationFailure':'shutdownPublicationFailure');
-      }catch(error){host.dataset[bootPublicationPending?'bootPublicationFailure':'shutdownPublicationFailure']=String(error);}
+        Reflect.deleteProperty(host.dataset,bootPublicationPending?'bootPublicationFailure':launchPublicationPending?'launchPublicationFailure':'shutdownPublicationFailure');
+      }catch(error){host.dataset[bootPublicationPending?'bootPublicationFailure':launchPublicationPending?'launchPublicationFailure':'shutdownPublicationFailure']=String(error);}
     }
     const applicationCloseBeforeTick=state.system!.homeApplicationTransition;
     const closeBeforeTick=sampleSystemHomeFolderClose(state),updatesBeforeTick=state.system!.homeClock.updateCount;
@@ -640,7 +644,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
       const drawn=kind==='default'?folderBanner.drawDefaultFrame(ctx,frame):folderBanner.drawFrame(ctx,frame,label);
       if(!drawn)throw new Error('Native diagnostic banner unavailable');
       return canvas.toDataURL();
-    }finally{const restoredAt=performance.now()-start;lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint(state,new Date(),restoredAt);recordScreenPaint(restoredAt,restored?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();canvas.width=canvas.height=0;}
+    }finally{const restoredAt=performance.now()-start;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint(state,new Date(),restoredAt);recordScreenPaint(restoredAt,restored?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();canvas.width=canvas.height=0;}
   }});}
   let removeLcdDownload=()=>{};
   if(lcdCapture){const captureScreensAt=(elapsedMs:number,isoDate?:string,bannerFrame?:number,hudSample?:unknown,bannerSkeletalFrame?:number,healthHomeFrames?:{healthBannerFrame:number;homeWallpaperFrame:number})=>{
@@ -667,8 +671,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // runtime clock continue normally; the next paint restores current time.
     verificationBannerFrame=bannerFrame;verificationBannerSkeletalFrame=bannerSkeletalFrame;
     verificationHealthBannerFrame=healthHomeFrames?.healthBannerFrame;
-    try{lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint(state,date,elapsedMs,{sampleCalendar:isoDate!==undefined,homeHudSample,...(healthHomeFrames?{homeWallpaperFrame:healthHomeFrames.homeWallpaperFrame}:{})});if(healthHomeFrames&&(!painted?.homeWallpaper||!painted.healthBanner))throw new Error('Health HOME source-frame capture could not render both firmware models');const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),homeHudSample:homeHudSample??null,homeHudSampling:homeHudSample?'verification-source-pose':'live-default',calendarSampling:isoDate===undefined?'live-retained':'verification-settings-local-replay',homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),applicationClose:state.system!.homeApplicationTransition,folderBanner:{...view,background:getHomeBannerHostBackgroundFrame(bannerHost)},bannerSample:healthHomeFrames?{selectedTitle:'health-safety',skeletalFrame:healthHomeFrames.healthBannerFrame,materialFrame:view.status==='active'?view.primary.motion.material.frame:null}:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame,bannerSkeletalFrame).sample:null,...(healthHomeFrames?{selectedTitle:'health-safety',forcedFrames:{healthBannerSkeletalFrame:healthHomeFrames.healthBannerFrame,homeWallpaperSceneInSkeletalFrame:20,homeWallpaperMaterialFrame:healthHomeFrames.homeWallpaperFrame},synthetic:true}:{synthetic:false}),...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
-    finally{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now()-start;lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint(state,new Date(),restoredAt);recordScreenPaint(restoredAt,restored?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
+    try{lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint(state,date,elapsedMs,{sampleCalendar:isoDate!==undefined,homeHudSample,...(healthHomeFrames?{homeWallpaperFrame:healthHomeFrames.homeWallpaperFrame}:{})});if(healthHomeFrames&&(!painted?.homeWallpaper||!painted.healthBanner))throw new Error('Health HOME source-frame capture could not render both firmware models');const view=getHomeBannerHostView(bannerHost);return {elapsedMs,date:date.toISOString(),homeHudSample:homeHudSample??null,homeHudSampling:homeHudSample?'verification-source-pose':'live-default',calendarSampling:isoDate===undefined?'live-retained':'verification-settings-local-replay',homeUpdates:state.system!.homeClock.updateCount,homeCursor:cursorDiagnostic(),applicationClose:state.system!.homeApplicationTransition,folderBanner:{...view,background:getHomeBannerHostBackgroundFrame(bannerHost)},bannerSample:healthHomeFrames?{selectedTitle:'health-safety',skeletalFrame:healthHomeFrames.healthBannerFrame,materialFrame:view.status==='active'?view.primary.motion.material.frame:null}:view.status==='active'?settingsBannerPhase(view.primary.motion,reduced,bannerFrame,bannerSkeletalFrame).sample:null,...(healthHomeFrames?{selectedTitle:'health-safety',forcedFrames:{healthBannerSkeletalFrame:healthHomeFrames.healthBannerFrame,homeWallpaperSceneInSkeletalFrame:20,homeWallpaperMaterialFrame:healthHomeFrames.homeWallpaperFrame},synthetic:true}:{synthetic:false}),...encodeNativeLcdPair(screens.nativeTop,screens.bottom)};}
+    finally{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now()-start;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint(state,new Date(),restoredAt);recordScreenPaint(restoredAt,restored?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;}
   };
     Object.assign(host,{captureScreensAt});
     const captureAbort=new AbortController();

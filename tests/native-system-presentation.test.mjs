@@ -25,11 +25,11 @@ function mockCtx(width){
   save(){},restore(){}};
 }
 
-function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch',returnPhase='home',touch=null){
+function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch',returnPhase='home',touch=null,failDraw=null){
  const draws=[];
  const top=mockCtx(400),bottom=mockCtx(320);
  const assets={renderer:{packs:{messages:{menu_msbt_LZ:{labels:{},messages:[]}},...packs},
-  draw(ctx,bank,name,options){const bindings=options.bindings.map(binding=>({...binding}));draws.push({bank,name,clip:bindings[0].name,frame:bindings[0].frame,bindings,width:ctx.canvas.width,overrides:options.overrides,textSampling:options.textSampling,textSamplingPanes:options.textSamplingPanes});return true;}}};
+  draw(ctx,bank,name,options){const bindings=options.bindings.map(binding=>({...binding}));draws.push({bank,name,clip:bindings[0].name,frame:bindings[0].frame,bindings,width:ctx.canvas.width,overrides:options.overrides,textSampling:options.textSampling,textSamplingPanes:options.textSamplingPanes});return name!==failDraw;}}};
  const ok=drawNativeSystemOverlay(top,bottom,{system:{phase,since:0,sleeping:false,returnPhase,input:{held:{},analog:{},touch}}},elapsed,reduced,assets);
  return {ok,draws,fills:[...top.fills,...bottom.fills]};
 }
@@ -75,10 +75,22 @@ test('boot exposes the paired transparent SceneIn endpoint before its phase dead
 });
 
 test('launch without the logo pack keeps the 20-frame HOME SceneOut fallback',()=>{
- const result=overlay(0,false,{common:{}});
- assert.equal(result.ok,true);
- assert.deepEqual(result.draws.map(d=>d.clip),['CmnFadeNinLogo_U_00_SceneOut','CmnFadeNinLogo_D_00_SceneOut']);
- assert.equal(result.draws[0].frame,0);
+ const start=overlay(0,false,{common:{}});
+ assert.equal(start.ok,true);
+ assert.deepEqual(start.draws.map(d=>d.clip),['CmnFadeNinLogo_U_00_SceneOut','CmnFadeNinLogo_D_00_SceneOut']);
+ assert.equal(start.draws[0].frame,0);
+ const terminal=overlay(1750,false,{common:{}});
+ assert.equal(terminal.ok,true);
+ assert.ok(terminal.draws.every(draw=>draw.bank==='common'&&draw.frame===20));
+});
+
+test('one failed launch layer rejects the whole paired terminal publication',()=>{
+ const result=overlay(1750,false,{launch:{},common:{}},'launch','home',null,'NintendoLogo_D_00');
+ assert.equal(result.ok,false);
+ assert.deepEqual(result.draws.map(draw=>draw.name),[
+  'CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00','NintendoLogo_U_00','NintendoLogo_D_00',
+ ]);
+ assert.ok(result.draws.every(draw=>draw.clip.endsWith('SceneOutC')&&draw.frame===14));
 });
 
 test('Power scopes decoded multiline writer metrics and LCD sampling to their source panes',()=>{

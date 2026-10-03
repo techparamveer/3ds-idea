@@ -1,5 +1,5 @@
 import type { HomeApplicationTransition } from '../os/home-application-transition';
-import { bootRevealFrame, shutdownTransitionPose, systemTransitionDuration } from '../os/system-transitions';
+import { appLaunchLogoFrame, bootRevealFrame, shutdownTransitionPose, systemTransitionDuration } from '../os/system-transitions';
 
 export type RenderQuality = {
   tier: 'high' | 'balanced' | 'constrained';
@@ -85,6 +85,49 @@ export function bootTerminalPublicationPending(system: BootSystem, elapsedMs: nu
   contextGeneration: number, presented: BootTerminalIdentity | null): boolean {
   if (!bootTerminalDeadlineReached(system, elapsedMs, reduced)) return false;
   return !sameBootTerminalIdentity(bootTerminalIdentity(system, elapsedMs, reduced, contextGeneration), presented);
+}
+
+export type LaunchTerminalIdentity = Readonly<{
+  since: number;
+  app: string;
+  owner: string;
+  contextGeneration: number;
+}>;
+
+type LaunchSystem = Readonly<{
+  phase: string;
+  since: number;
+  app: string | null;
+  runtime: Readonly<{ application: string | null; active: string | null }>;
+}>;
+
+/** Identity for the paired launch endpoint selected by the active application
+ * owner and the WebGL context that can present it. Normal motion ends at C14;
+ * reduced motion intentionally holds the existing adapted B15 pose. */
+export function launchTerminalIdentity(system: LaunchSystem, elapsedMs: number, reduced: boolean,
+  contextGeneration: number): LaunchTerminalIdentity | null {
+  const owner = system.runtime.active;
+  if (system.phase !== 'launch' || !system.app || !owner || owner !== system.runtime.application) return null;
+  const pose = appLaunchLogoFrame(elapsedMs - system.since, reduced);
+  if (reduced ? pose.clip !== 'B' || pose.frame !== 15 : pose.clip !== 'C' || pose.frame !== 14) return null;
+  return { since: system.since, app: system.app, owner, contextGeneration };
+}
+
+export function sameLaunchTerminalIdentity(a: LaunchTerminalIdentity | null,
+  b: LaunchTerminalIdentity | null): boolean {
+  return !!a && !!b && a.since === b.since && a.app === b.app && a.owner === b.owner
+    && a.contextGeneration === b.contextGeneration;
+}
+
+export function launchTerminalDeadlineReached(system: LaunchSystem, elapsedMs: number, reduced: boolean): boolean {
+  return system.phase === 'launch' && elapsedMs - system.since >= systemTransitionDuration('launch', reduced);
+}
+
+export function launchTerminalPublicationPending(system: LaunchSystem, elapsedMs: number, reduced: boolean,
+  contextGeneration: number, presented: LaunchTerminalIdentity | null): boolean {
+  if (!launchTerminalDeadlineReached(system, elapsedMs, reduced)) return false;
+  return !sameLaunchTerminalIdentity(
+    launchTerminalIdentity(system, elapsedMs, reduced, contextGeneration), presented);
 }
 
 export type ShutdownTerminalIdentity = Readonly<{

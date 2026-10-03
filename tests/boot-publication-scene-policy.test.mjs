@@ -23,14 +23,14 @@ test('boot cannot hand off until its native terminal pair was rendered in an ear
 });
 
 test('failed paints cannot reuse a boot candidate and retries remain selected',()=>{
- const clear=source.indexOf('lastBootPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint');
+ const clear=source.indexOf('lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint');
  const record=source.indexOf('recordScreenPaint(now-start,painted?.nativeSystem===true)',clear);
- const failure=source.indexOf("host.dataset[bootPublicationPending?'bootPublicationFailure':'shutdownPublicationFailure']=String(error)");
+ const failure=source.indexOf("host.dataset[bootPublicationPending?'bootPublicationFailure':launchPublicationPending?'launchPublicationFailure':'shutdownPublicationFailure']=String(error)");
  assert.ok(clear>=0&&record>clear&&failure>record);
  assert.match(source,/lastBootPaintIdentity=nativeSystem\?bootTerminalIdentity/);
 });
 
-test('boot and shutdown receipts share visibility, sleep and context invalidation',()=>{
+test('boot, launch and shutdown receipts share visibility, sleep and context invalidation',()=>{
  assert.match(source,/if\(!before\.sleeping&&after\.sleeping\)revokeTerminalPublications\(\);/);
  const hidden=source.indexOf('if(document.hidden){homeClockSuspended=true;');
  const blur=source.indexOf('blur();',hidden);
@@ -38,5 +38,5 @@ test('boot and shutdown receipts share visibility, sleep and context invalidatio
  assert.ok(hidden>=0&&blur>hidden&&revoke>blur);
  assert.match(source,/const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);schedule\.invalidate\(\);\}/);
  assert.match(source,/const contextRestored=\(\)=>\{resetTerminalPublications\(\);schedule\.invalidate\(\);renderer\.shadowMap\.needsUpdate=true;\}/);
- assert.match(source,/const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\};/);
+ assert.match(source,/const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\};/);
 });

@@ -38,7 +38,7 @@ const overrides = {
   './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
  './native-system-presentation':moduleUrl('export const drawNativeSystemOverlay=()=>globalThis.__testNativeSystemOverlayDrawn??false;'),
   './native-chrome': moduleUrl('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
-  './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>globalThis.__testSelectedApp,syncStockView(){},readSuspendedCapture(runtime){return {status:"ready",owner:runtime.application,generation:1};},stockStatus:()=>"inactive",retryStockScreen:()=>false,stockFailure:()=>null,banner(ctx){ctx.record("fallback-banner");},menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
+  './portfolio-screens': moduleUrl('export const setPortfolioFont=()=>{};export const createPortfolioGraphics=()=>({ready:Promise.resolve(),selectedApp:()=>globalThis.__testSelectedApp,syncStockView(){},readSuspendedCapture(runtime){return {status:"ready",owner:runtime.application,generation:1};},stockStatus:()=>globalThis.__testGraphicsStockStatus??"inactive",retryStockScreen:()=>false,stockFailure:()=>globalThis.__testGraphicsStockFailure??null,banner(ctx){ctx.record("fallback-banner");},menuIcon(ctx,...args){ctx.record("menuIcon",args);},menuArtwork(){},overlay(_top,bottom){bottom.record("overlay");},dispose(){}});'),
   './firmware-presentation': moduleUrl('export const createFirmwareHome=assets=>assets.presenter;export const loadFirmwarePresentationAssets=()=>{throw Error("Unexpected asset load");};'),
 };
 const { createScreens } = await loadPresentation('screens', overrides);
@@ -126,9 +126,11 @@ test('retired-owner footer return paints HOME without suspended capture or closi
  },{screenOptions:{drawSuspendedBackground:(_ctx,capture,presentation)=>{assert.equal(capture.status,'none');assert.equal(presentation,null);return true;}}});
 });
 
-test('system screen publication reports only a successful native boot, power or shutdown pair',async()=>{
+test('system screen publication reports only a successful native boot, launch, power or shutdown pair',async()=>{
  await withScreens(async({screens,events})=>{
   const initial=createPortfolioState();
+  const launching=launchHomeShortcut(tickSystem(initial,3001),'health-safety',4000);
+  const launchOwner=launching.system.runtime.application;
   const shutdown={...initial,powered:true,system:{...initial.system,phase:'shutdown',since:100,returnPhase:'home'}};
   try{
    globalThis.__testNativeSystemOverlayDrawn=false;
@@ -151,6 +153,38 @@ test('system screen publication reports only a successful native boot, power or 
    assert.equal(screens.stockStatus(initial),'ready');
 
    globalThis.__testNativeSystemOverlayDrawn=false;
+   assert.equal(screens.paint(launching,new Date(0),5749),undefined);
+   assert.equal(screens.stockStatus(launching),'error');
+   assert.match(String(screens.stockFailure()),/Native launch screen unavailable/);
+   const launchRecoveryRects=events.filter(event=>event.name==='strokeRect').map(event=>event.args);
+   assert.ok(launchRecoveryRects.some(args=>args[0]===homeTarget.x&&args[1]===homeTarget.y),
+    'launch recovery may explicitly suspend and return the still-live owner to HOME');
+   const escaped=escapeUnreadyNativeScreen(launching,5750);
+   assert.equal(escaped.system.phase,'home');
+   assert.equal(escaped.system.runtime.application,launchOwner);
+   assert.equal(escaped.system.runtime.homeReturn,launchOwner);
+   assert.equal(screens.retryStockScreen(),true);
+
+   const sleepingLaunch={...launching,system:{...launching.system,sleeping:true}};
+   assert.equal(screens.paint(sleepingLaunch,new Date(0),5749),undefined);
+   assert.equal(screens.stockStatus(sleepingLaunch),'inactive');
+
+   globalThis.__testNativeSystemOverlayDrawn=true;
+   globalThis.__testGraphicsStockStatus='loading';
+   assert.deepEqual(screens.paint(launching,new Date(0),5749),{nativeSystem:true});
+   assert.equal(screens.stockStatus(launching),'loading','source overlay success cannot hide target loading');
+   globalThis.__testGraphicsStockStatus='error';
+   globalThis.__testGraphicsStockFailure=Error('Native Health target unavailable');
+   assert.equal(screens.stockStatus(launching),'error','source overlay success cannot hide target failure');
+   assert.match(String(screens.stockFailure()),/Native Health target unavailable/);
+   const targetEscaped=escapeUnreadyNativeScreen(launching,5750);
+   assert.equal(targetEscaped.system.phase,'home');
+   assert.equal(targetEscaped.system.runtime.homeReturn,launchOwner);
+   globalThis.__testGraphicsStockStatus='ready';
+   assert.equal(screens.stockStatus(launching),'ready');
+   globalThis.__testGraphicsStockStatus='inactive';
+
+   globalThis.__testNativeSystemOverlayDrawn=false;
    assert.equal(screens.paint(shutdown,new Date(0),1300),undefined);
    assert.equal(screens.stockStatus(shutdown),'error');
    assert.match(String(screens.stockFailure()),/Native shutdown screen unavailable/);
@@ -163,7 +197,7 @@ test('system screen publication reports only a successful native boot, power or 
    globalThis.__testNativeSystemOverlayDrawn=true;
    assert.deepEqual(screens.paint(shutdown,new Date(0),1300),{nativeSystem:true});
    assert.equal(screens.stockStatus(shutdown),'ready');
-  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;delete globalThis.__testGraphicsStockStatus;delete globalThis.__testGraphicsStockFailure;}
  });
 });
 

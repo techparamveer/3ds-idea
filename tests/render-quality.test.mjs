@@ -7,7 +7,7 @@ const source=fs.readFileSync(new URL('../src/scene/render-quality.ts',import.met
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const systemTransitionsUrl=new URL('../src/os/system-transitions.ts',import.meta.url).href;
 const resolved=js.replace(/(['"]\.\.\/os\/system-transitions['"])/g,`'${systemTransitionsUrl}'`);
-const {applicationCloseNeedsPaint,bootRevealNeedsPaint,bootTerminalDeadlineReached,bootTerminalIdentity,bootTerminalPublicationPending,chooseRenderQuality,pixelRatioForViewport,sameBootTerminalIdentity,sameShutdownTerminalIdentity,screenPaintFps,shutdownTerminalDeadlineReached,shutdownTerminalIdentity,shutdownTerminalPublicationPending}=await import(`data:text/javascript,${encodeURIComponent(resolved)}`);
+const {applicationCloseNeedsPaint,bootRevealNeedsPaint,bootTerminalDeadlineReached,bootTerminalIdentity,bootTerminalPublicationPending,chooseRenderQuality,launchTerminalDeadlineReached,launchTerminalIdentity,launchTerminalPublicationPending,pixelRatioForViewport,sameBootTerminalIdentity,sameLaunchTerminalIdentity,sameShutdownTerminalIdentity,screenPaintFps,shutdownTerminalDeadlineReached,shutdownTerminalIdentity,shutdownTerminalPublicationPending}=await import(`data:text/javascript,${encodeURIComponent(resolved)}`);
 
 test('render quality bounds fill-rate and disables VGPU on constrained devices',()=>{
   const quality=chooseRenderQuality({devicePixelRatio:3,hardwareConcurrency:4,deviceMemory:4,saveData:false,width:1440,height:900});
@@ -172,6 +172,66 @@ test('an overdue reduced boot also requires a fresh receipt after visibility or 
   assert.equal(bootTerminalPublicationPending(boot,now,true,contextGeneration,receipt),false);
   assert.equal(bootTerminalPublicationPending(boot,now,true,contextGeneration,null),true,
     'resume at the same reduced deadline cannot reuse a hidden or sleeping render');
+});
+
+test('launch terminal identity selects C14 and scopes it to the active app owner and context',()=>{
+  const launch={phase:'launch',since:100,app:'health-safety',runtime:{application:'health-safety:1',active:'health-safety:1'}};
+  assert.equal(launchTerminalIdentity(launch,1833,false,4),null);
+  assert.deepEqual(launchTerminalIdentity(launch,1834,false,4),{
+    since:100,app:'health-safety',owner:'health-safety:1',contextGeneration:4,
+  });
+  assert.equal(launchTerminalDeadlineReached(launch,1849,false),false);
+  assert.equal(launchTerminalDeadlineReached(launch,1850,false),true);
+  assert.deepEqual(launchTerminalIdentity(launch,100,true,4),{
+    since:100,app:'health-safety',owner:'health-safety:1',contextGeneration:4,
+  });
+  assert.equal(launchTerminalDeadlineReached(launch,219,true),false);
+  assert.equal(launchTerminalDeadlineReached(launch,220,true),true);
+  assert.equal(launchTerminalIdentity({...launch,phase:'app'},1850,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,app:null},1850,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,runtime:{application:null,active:'health-safety:1'}},1850,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:null}},1850,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:'health-safety:2'}},1850,false,4),null,
+    'an applet or stale active-only retarget cannot reuse the application receipt');
+
+  const identity=launchTerminalIdentity(launch,1849,false,4);
+  assert.equal(sameLaunchTerminalIdentity(identity,{...identity}),true);
+  assert.equal(sameLaunchTerminalIdentity(identity,{...identity,since:101}),false);
+  assert.equal(sameLaunchTerminalIdentity(identity,{...identity,app:'camera'}),false);
+  assert.equal(sameLaunchTerminalIdentity(identity,{...identity,owner:'health-safety:2'}),false);
+  assert.equal(sameLaunchTerminalIdentity(identity,{...identity,contextGeneration:5}),false);
+  assert.equal(sameLaunchTerminalIdentity(identity,null),false);
+});
+
+test('a stalled launch holds its deadline for one successful terminal publication callback',()=>{
+  const launch={phase:'launch',since:100,app:'health-safety',runtime:{application:'health-safety:1',active:'health-safety:1'}};
+  const stalledNow=2400,contextGeneration=4;
+  let presented=null;
+  assert.equal(launchTerminalPublicationPending(launch,stalledNow,false,contextGeneration,presented),true,
+    'the overdue callback must keep launch selected and force its paired C14 paint');
+  presented=launchTerminalIdentity(launch,stalledNow,false,contextGeneration);
+  assert.equal(launchTerminalPublicationPending(launch,stalledNow,false,contextGeneration,presented),false,
+    'the following callback may hand off to the app');
+  assert.equal(launchTerminalPublicationPending({...launch,since:101},stalledNow,false,contextGeneration,presented),true);
+  assert.equal(launchTerminalPublicationPending({...launch,app:'camera'},stalledNow,false,contextGeneration,presented),true);
+  assert.equal(launchTerminalPublicationPending({...launch,runtime:{application:'health-safety:2',active:'health-safety:2'}},stalledNow,false,contextGeneration,presented),true);
+  assert.equal(launchTerminalPublicationPending({...launch,runtime:{application:'health-safety:1',active:'health-safety:2'}},stalledNow,false,contextGeneration,presented),true,
+    'a stale active-only retarget must not inherit the prior terminal receipt');
+  assert.equal(launchTerminalPublicationPending(launch,stalledNow,false,contextGeneration+1,presented),true,
+    'a restored context must republish C14');
+});
+
+test('reduced launch and resumed hidden, sleeping or lid-closed launch require the current receipt',()=>{
+  const launch={phase:'launch',since:100,app:'health-safety',runtime:{application:'health-safety:1',active:'health-safety:1'}};
+  const now=220,contextGeneration=4;
+  const receipt=launchTerminalIdentity(launch,now,true,contextGeneration);
+  assert.equal(launchTerminalPublicationPending(launch,now,true,contextGeneration,receipt),false);
+  for(const boundary of ['hidden','sleeping','lid-closed']){
+    assert.equal(launchTerminalPublicationPending(launch,now,true,contextGeneration,null),true,
+      `${boundary} publication revocation must hold reduced launch at its deadline`);
+  }
+  assert.equal(launchTerminalPublicationPending({...launch,runtime:{application:null,active:null}},now,true,contextGeneration,null),true,
+    'a launch without a current application owner cannot retire');
 });
 
 test('shutdown terminal identity is selected at the source endpoint and scoped to its owner and context',()=>{

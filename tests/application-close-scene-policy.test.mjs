@@ -55,12 +55,12 @@ test('shutdown publication is revoked across hidden and sleeping suspension boun
   const observe = source.indexOf('observeFolderBanner();', revoke);
   assert.ok(hidden >= 0 && blur > hidden && revoke > blur && observe > revoke,
     'hide must finish input cancellation, then revoke both paint and presentation receipts');
-  assert.match(source, /const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\};/);
+  assert.match(source, /const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\};/);
 });
 
-test('boot, power and shutdown paint success requires the selected native system overlay', () => {
+test('boot, launch, power and shutdown paint success requires the selected native system overlay', () => {
   const screens = readFileSync(new URL('../src/os/screens.ts', import.meta.url), 'utf8');
-  assert.match(screens, /state\.system&&!state\.system\.sleeping&&\['boot','power','shutdown'\]\.includes\(state\.system\.phase\)/);
+  assert.match(screens, /state\.system&&!state\.system\.sleeping&&\['boot','launch','power','shutdown'\]\.includes\(state\.system\.phase\)/);
   assert.match(screens, /if\(requiresNativeSystem&&!nativeSystem\)throw Error/);
   assert.match(screens, /nativeSystem\?\{\.\.\.\(verificationPaint\?\?\{\}\),nativeSystem:true\}:verificationPaint/);
 });

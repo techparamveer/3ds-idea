@@ -287,7 +287,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getFriendBannerFailure?:()=>string|null; getNewsBannerFailure?:()=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawFriendBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawNewsBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawMemoBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawWebBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawMiiverseBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; drawSuspendedBackground?:(ctx:Context,capture:SuspendedCapture,presentation?:HomeApplicationTransitionPresentation|null)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getMemoBannerFailure?:()=>string|null; getFriendBannerFailure?:()=>string|null; getNewsBannerFailure?:()=>string|null; getWebBannerFailure?:()=>string|null; getMiiverseBannerFailure?:()=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawFriendBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawNewsBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawMemoBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawWebBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawMiiverseBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; drawSuspendedBackground?:(ctx:Context,capture:SuspendedCapture,presentation?:HomeApplicationTransitionPresentation|null)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -422,32 +422,17 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!expanded){
   const hostedBanner=options.getHomeBanner?.();
   homeEntryDrawnNoBannerIdentity=homeEntryNoBannerIdentity(hostedBanner);
-  const toolbarFocus=hostedBanner?.status==='unsupported'&&hostedBanner.selection?.kind==='toolbar'?hostedBanner.selection.focus:null;
   const hostedToolbar=hostedBanner?.status!=='unsupported'&&hostedBanner?.selection.kind==='toolbar'?hostedBanner.selection:null;
   // Captured root-held HOME has no title/banner. A confirmed continuous stroke
   // retains that capture-fitted visibility history after folder re-entry; this
   // is not a recovered native controller. Initial folder-held HOME keeps it.
   const hideHeldRootBanner=!!view.pickup&&(!state.opened||view.pickup.suppressUpperBanner);
-  const friendUnavailable='Native Friend List toolbar banner unavailable.';
-  const newsUnavailable='Native Notifications toolbar banner unavailable.';
-  const toolbarFailure=hostedToolbar?.focus===2?options.getFriendBannerFailure?.():hostedToolbar?.focus===3?options.getNewsBannerFailure?.():null;
-  const toolbarUnavailable=hostedToolbar?.focus===2?friendUnavailable:newsUnavailable;
-  if(hostedToolbar&&toolbarFailure&&firmwareAssets&&!firmwareAssets.diagnostics.includes(toolbarUnavailable))firmwareAssets.diagnostics.push(toolbarUnavailable);
+  const toolbarUnavailableByFocus={1:'Native Game Notes toolbar banner unavailable.',2:'Native Friend List toolbar banner unavailable.',3:'Native Notifications toolbar banner unavailable.',4:'Native Internet Browser toolbar banner unavailable.',5:'Native Miiverse toolbar banner unavailable.'} as const;
+  const toolbarFailure=hostedToolbar?.focus===1?options.getMemoBannerFailure?.():hostedToolbar?.focus===2?options.getFriendBannerFailure?.():hostedToolbar?.focus===3?options.getNewsBannerFailure?.():hostedToolbar?.focus===4?options.getWebBannerFailure?.():hostedToolbar?.focus===5?options.getMiiverseBannerFailure?.():null;
+  const toolbarUnavailable=hostedToolbar&&toolbarUnavailableByFocus[hostedToolbar.focus];
+  if(hostedToolbar&&toolbarFailure&&toolbarUnavailable&&firmwareAssets&&!firmwareAssets.diagnostics.includes(toolbarUnavailable))firmwareAssets.diagnostics.push(toolbarUnavailable);
   if(!hideHeldRootBanner){
-  const toolbarMemo=toolbarFocus===1,toolbarWeb=toolbarFocus===4,toolbarMiiverse=toolbarFocus===5;
-  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!toolbarMemo&&!toolbarWeb&&!toolbarMiiverse&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
-  if(toolbarMiiverse&&!state.panel&&state.system?.phase==='home'){
-   const label=nativeHome?.appletBannerLabel('mvs');
-   if(!options.drawMiiverseBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Miiverse toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Miiverse toolbar banner unavailable.');
-  }
-  if(toolbarWeb&&!state.panel&&state.system?.phase==='home'){
-   const label=nativeHome?.appletBannerLabel('web');
-   if(!options.drawWebBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Internet Browser toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Internet Browser toolbar banner unavailable.');
-  }
-  if(toolbarMemo&&!state.panel&&state.system?.phase==='home'){
-   const label=nativeHome?.appletBannerLabel('memo');
-   if(!options.drawMemoBanner?.(t,time,reduced,label)&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native Game Notes toolbar banner unavailable.'))firmwareAssets.diagnostics.push('Native Game Notes toolbar banner unavailable.');
-  }
+  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
    if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&state.system?.phase==='home'){
@@ -457,10 +442,18 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      const drawn=options.drawDefaultBannerFrame?.(t,motion)===true;homeEntryBannerDrawn=drawn;
      if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native default banner unavailable.'))firmwareAssets.diagnostics.push('Native default banner unavailable.');
     }else if(selection.kind==='toolbar'){
-     const friend=selection.focus===2,label=nativeHome?.appletBannerLabel(friend?'fri':'news');
-     const drawn=friend?options.drawFriendBannerFrame?.(t,motion,label):options.drawNewsBannerFrame?.(t,motion,label);
+     const key=selection.focus===1?'memo':selection.focus===2?'fri':selection.focus===3?'news':selection.focus===4?'web':'mvs';
+     const label=nativeHome?.appletBannerLabel(key);
+     // Memo/Web/Miiverse now share host-owned visibility, replacement and
+     // resource tickets, but retain their documented front-pose/browser-clock
+     // render adaptation until those three native motion phases are traced.
+     const drawn=selection.focus===1?options.drawMemoBanner?.(t,time,reduced,label)
+      :selection.focus===2?options.drawFriendBannerFrame?.(t,motion,label)
+      :selection.focus===3?options.drawNewsBannerFrame?.(t,motion,label)
+      :selection.focus===4?options.drawWebBanner?.(t,time,reduced,label)
+      :options.drawMiiverseBanner?.(t,time,reduced,label);
      homeEntryBannerDrawn=drawn===true;
-     const unavailable=friend?friendUnavailable:newsUnavailable;
+     const unavailable=toolbarUnavailableByFocus[selection.focus];
      if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(unavailable))firmwareAssets.diagnostics.push(unavailable);
     }else if(selection.kind==='app'&&homeTitleBannerKind(selection.id)){
      const drawn=options.drawStockTitleBannerFrame?.(t,motion,hostedBanner.primary,homeTitleBannerKind(selection.id)!);homeEntryBannerDrawn=drawn===true;if(verificationPaint&&selection.id==='health-safety')verificationPaint.healthBanner=drawn===true;if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(`Native ${selection.id} banner unavailable.`))firmwareAssets.diagnostics.push(`Native ${selection.id} banner unavailable.`);

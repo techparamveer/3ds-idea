@@ -272,22 +272,22 @@ test('unsupported app handoff abandons service without guessed native types or v
   assert.equal(view(host).status, 'unsupported'); assert.equal(host.clock.updateCount, 200);
 });
 
-test('Friend toolbar focus alone uses the ticketed type14 generic primary lifecycle', () => {
-  const friend = { kind: 'toolbar', focus: 2, category: 4 };
-  let host = request(fresh(), friend);
-  assert.equal(view(host).status, 'pending');
-  assert.deepEqual(host.service.lifecycle.requested.target, {
-    kind: 'friend', key: 'native:ffffffff:ffffffff:0', nativeType: 14,
-  });
-  host = acknowledge(host); host = step(host, 7);
-  assert.equal(view(host).status, 'active');
-  assert.deepEqual(view(host).primary.selection, friend);
-  assert.deepEqual([motion(host).yawCounter, motion(host).skeletal.duration, motion(host).material.duration], [1, 600, 300]);
-  for (const selection of [
-    { kind: 'toolbar', focus: 1, category: 5 },
-    { kind: 'toolbar', focus: 4, category: 7 },
-    { kind: 'toolbar', focus: 5, category: 8 },
-  ]) assert.equal(view(request(fresh(), selection)).status, 'unsupported');
+test('all five toolbar applets use their ticketed native generic-primary identities', () => {
+  for (const [focus, category, kind, nativeType] of [
+    [1, 5, 'memo', 15], [2, 4, 'friend', 14], [3, 6, 'news', 16],
+    [4, 7, 'web', 17], [5, 8, 'miiverse', 18],
+  ]) {
+    const selection = { kind: 'toolbar', focus, category };
+    let host = request(fresh(), selection);
+    assert.equal(view(host).status, 'pending');
+    assert.deepEqual(host.service.lifecycle.requested.target, {
+      kind, key: 'native:ffffffff:ffffffff:0', nativeType,
+    });
+    host = acknowledge(host); host = step(host, 7);
+    assert.equal(view(host).status, 'active');
+    assert.deepEqual(view(host).primary.selection, selection);
+    assert.deepEqual([motion(host).yawCounter, motion(host).skeletal.duration, motion(host).material.duration], [1, 600, 300]);
+  }
 });
 
 test('Notifications toolbar focus uses the ticketed type16 generic primary lifecycle', () => {

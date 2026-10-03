@@ -846,14 +846,43 @@ test('toolbar banner artwork and label match the selected native cursor pane', a
       assert.equal(events.filter(event => event.name === 'banner-label').length, 0);
     }
   }, { screenOptions: {
-    getHomeBanner: () => selection?.focus === 2 || selection?.focus === 3 ? { status: 'active', selection,
+    getHomeBanner: () => ({ status: 'active', selection,
       generation: 'toolbar-test', requestEpoch: 1, resourceTicket: { generation: 'toolbar-test', requestEpoch: 1 }, stage: 'active', waitUpdates: 0,
       primary: { generation: 'toolbar-test', requestEpoch: 1, activationEpoch: 1, selection, motion: hostedMotion } }
-      : ({ status: 'unsupported', selection, resourceTicket: null }),
+    ),
     drawMemoBanner: banner('Game Notes'), drawFriendBannerFrame: banner('Friend List'),
     drawNewsBannerFrame: banner('Notifications'), drawWebBanner: banner('Internet Browser'),
     drawMiiverseBanner: banner('Miiverse'),
   } });
+});
+
+test('all five hosted toolbar resources stay blank while pending and report only their own failure', async () => {
+  globalThis.__testSelectedApp = { id: 'work' };
+  try {
+    for (const [focus, category, failureKey, drawKey, unavailable] of [
+      [1, 5, 'getMemoBannerFailure', 'drawMemoBanner', 'Native Game Notes toolbar banner unavailable.'],
+      [2, 4, 'getFriendBannerFailure', 'drawFriendBannerFrame', 'Native Friend List toolbar banner unavailable.'],
+      [3, 6, 'getNewsBannerFailure', 'drawNewsBannerFrame', 'Native Notifications toolbar banner unavailable.'],
+      [4, 7, 'getWebBannerFailure', 'drawWebBanner', 'Native Internet Browser toolbar banner unavailable.'],
+      [5, 8, 'getMiiverseBannerFailure', 'drawMiiverseBanner', 'Native Miiverse toolbar banner unavailable.'],
+    ]) {
+      let failed = false;
+      const selection = { kind: 'toolbar', focus, category };
+      await withScreens(({ paint, events, diagnostics }) => {
+        paint(home());
+        assert.equal(events.some(event => event.name === 'fallback-banner' || event.name === 'toolbar-banner'), false);
+        assert.deepEqual(diagnostics, []);
+        failed = true; paint(home()); paint(home());
+        assert.equal(events.some(event => event.name === 'fallback-banner' || event.name === 'toolbar-banner'), false);
+        assert.deepEqual(diagnostics, [unavailable]);
+      }, { screenOptions: {
+        getHomeBanner: () => ({ status: 'pending', generation: `toolbar-${focus}`, requestEpoch: 1,
+          selection, resourceTicket: { generation: `toolbar-${focus}`, requestEpoch: 1 }, stage: 'loading', waitUpdates: 0 }),
+        [failureKey]: () => failed ? 'model rejected' : null,
+        [drawKey]: ctx => { ctx.record('toolbar-banner'); return true; },
+      } });
+    }
+  } finally { delete globalThis.__testSelectedApp; }
 });
 
 test('held pickup hides both footers while root visibility history suppresses its upper banner after re-entry',async()=>{

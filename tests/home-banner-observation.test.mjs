@@ -53,11 +53,9 @@ test('the eight native toolbar categories never resolve the selected grid app',(
     const selection=resolveHomeBannerHostObservation(state,observation({focus,toolbarActive:true}));
     assert.deepEqual(selection,categories[focus]===2?{kind:'default'}:{kind:'toolbar',focus,category:categories[focus]});
     const host=crossHomeBannerBoundary(fresh(),fresh().clock,{selection});
-    const supported=categories[focus]===2||focus===2||focus===3;
-    assert.equal(getHomeBannerHostView(host).status,supported?'pending':'unsupported');
-    if(focus===2)assert.deepEqual(host.service.lifecycle.requested.target,{kind:'friend',key:'native:ffffffff:ffffffff:0',nativeType:14});
-    else if(focus===3)assert.deepEqual(host.service.lifecycle.requested.target,{kind:'news',key:'native:ffffffff:ffffffff:0',nativeType:16});
-    else if(categories[focus]!==2)assert.equal(host.service,null);
+    assert.equal(getHomeBannerHostView(host).status,'pending');
+    const targets={1:{kind:'memo',nativeType:15},2:{kind:'friend',nativeType:14},3:{kind:'news',nativeType:16},4:{kind:'web',nativeType:17},5:{kind:'miiverse',nativeType:18}};
+    if(targets[focus])assert.deepEqual(host.service.lifecycle.requested.target,{...targets[focus],key:'native:ffffffff:ffffffff:0'});
   }
   for(const patch of [{focus:-1,toolbarActive:true},{focus:8},{slot:300},{context:40,slot:60},{context:-1}]){
     assert.throws(()=>resolveHomeBannerHostObservation(state,observation(patch)),RangeError);

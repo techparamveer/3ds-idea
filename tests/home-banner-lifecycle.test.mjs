@@ -12,8 +12,11 @@ import {
 const folder = (key = 'folder:4', nativeType = 9) => ({ kind: 'folder', key, nativeType });
 const defaultBanner = { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 };
 const clear = { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };
+const memo = { kind: 'memo', key: HOME_BANNER_EMPTY_KEY, nativeType: 15 };
 const friend = { kind: 'friend', key: HOME_BANNER_EMPTY_KEY, nativeType: 14 };
 const news = { kind: 'news', key: HOME_BANNER_EMPTY_KEY, nativeType: 16 };
+const web = { kind: 'web', key: HOME_BANNER_EMPTY_KEY, nativeType: 17 };
+const miiverse = { kind: 'miiverse', key: HOME_BANNER_EMPTY_KEY, nativeType: 18 };
 const app = { kind: 'app', key: 'app:notes', nativeType: 1 };
 const motion = state => state.active.motion;
 function activate(state = createHomeBannerLifecycle(), target = folder()) {
@@ -189,6 +192,17 @@ test('Notifications type16 shares generic primary motion with source-owned 600/3
   state = advanceHomeBannerClips(state);
   assert.deepEqual([motion(state).skeletal.frame, motion(state).material.frame], [300, 0]);
   assert.throws(() => requestHomeBanner(state, { ...news, nativeType: 14 }), /Notifications banner identity/);
+});
+
+test('Memo15, Web17 and Miiverse18 use the same ticketed generic primary motion', () => {
+  for (const target of [memo, web, miiverse]) {
+    let state = activate(createHomeBannerLifecycle(), target);
+    assert.deepEqual(state.active.target, target);
+    assert.deepEqual([motion(state).skeletal.duration, motion(state).material.duration], [600, 300]);
+    state = advanceHomeBannerClips(advanceHomeBannerManager(state), 1);
+    assert.deepEqual([motion(state).yawCounter, motion(state).skeletal.frame, motion(state).material.frame], [1, 1, 1]);
+    assert.throws(() => requestHomeBanner(state, { ...target, nativeType: target.nativeType + 1 }), /banner identity/);
+  }
 });
 
 test('normal child app or default selection, explicit clear and return activate a parent folder afresh', () => {

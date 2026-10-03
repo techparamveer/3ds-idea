@@ -23,19 +23,22 @@ export type HomeDefaultBannerSelection = Readonly<{ kind: 'default' }>;
 export type HomeClearBannerSelection = Readonly<{ kind: 'clear' }>;
 type RenderSelection = HomeFolderBannerSelection | HomeDefaultBannerSelection;
 export type HomeSettingsBannerSelection = Readonly<{ kind: 'app'; id: string }>;
+export type HomeMemoBannerSelection = Readonly<{ kind: 'toolbar'; focus: 1; category: 5 }>;
 export type HomeFriendBannerSelection = Readonly<{ kind: 'toolbar'; focus: 2; category: 4 }>;
 export type HomeNewsBannerSelection = Readonly<{ kind: 'toolbar'; focus: 3; category: 6 }>;
-type HomeHostedToolbarBannerSelection = HomeFriendBannerSelection | HomeNewsBannerSelection;
+export type HomeWebBannerSelection = Readonly<{ kind: 'toolbar'; focus: 4; category: 7 }>;
+export type HomeMiiverseBannerSelection = Readonly<{ kind: 'toolbar'; focus: 5; category: 8 }>;
+type HomeHostedToolbarBannerSelection = HomeMemoBannerSelection | HomeFriendBannerSelection | HomeNewsBannerSelection
+  | HomeWebBannerSelection | HomeMiiverseBannerSelection;
 type SupportedRenderSelection = RenderSelection | HomeSettingsBannerSelection | HomeHostedToolbarBannerSelection;
 type SupportedSelection = SupportedRenderSelection | HomeClearBannerSelection;
 export type HomeToolbarBannerSelection =
-  | Readonly<{ kind: 'toolbar'; focus: 1; category: 5 }>
+  | HomeMemoBannerSelection
   | HomeFriendBannerSelection
   | HomeNewsBannerSelection
-  | Readonly<{ kind: 'toolbar'; focus: 4; category: 7 }>
-  | Readonly<{ kind: 'toolbar'; focus: 5; category: 8 }>;
-type UnsupportedSelection = Readonly<{ kind: 'app'; id: string }>
-  | Exclude<HomeToolbarBannerSelection, HomeHostedToolbarBannerSelection>;
+  | HomeWebBannerSelection
+  | HomeMiiverseBannerSelection;
+type UnsupportedSelection = Readonly<{ kind: 'app'; id: string }>;
 export type HomeBannerHostSelection = SupportedSelection | UnsupportedSelection;
 export type HomeBannerHostInputs = Pick<HomeBannerServiceInputs,
   'managerInhibited' | 'sceneInhibited' | 'loadInhibited' | 'nativeWorkerReady' | 'resourceReady'>;
@@ -124,8 +127,8 @@ export function resolveHomeBannerHostObservation(state: MenuState,
     || !Number.isInteger(focus) || focus < -1 || focus > 7 || typeof toolbarActive !== 'boolean'
     || toolbarActive && focus < 0) throw new RangeError('Invalid HOME banner resolver snapshot');
   if (toolbarActive) {
-    // Category2 follows the existing default-banner path. Other toolbar packs
-    // remain unsupported except for the proved Friend and Notifications paths.
+    // Category2 follows the existing default-banner path. Categories4..8 use
+    // the source dispatcher types14..18 and their decoded applet resources.
     switch (focus) {
       case 1: return { kind: 'toolbar', focus: 1, category: 5 };
       case 2: return { kind: 'toolbar', focus: 2, category: 4 };
@@ -221,22 +224,24 @@ function copySelection(selection: HomeBannerHostSelection): HomeBannerHostSelect
 function sameFolder(a: HomeFolderBannerSelection, b: HomeFolderBannerSelection): boolean {
   return a.key === b.key && a.nativeType === b.nativeType;
 }
-function isFriendBannerSelection(selection: HomeBannerHostSelection): selection is HomeFriendBannerSelection {
-  return selection.kind === 'toolbar' && selection.focus === 2 && selection.category === 4;
-}
-function isNewsBannerSelection(selection: HomeBannerHostSelection): selection is HomeNewsBannerSelection {
-  return selection.kind === 'toolbar' && selection.focus === 3 && selection.category === 6;
-}
 function isSupportedSelection(selection: HomeBannerHostSelection): selection is SupportedSelection {
   return selection.kind === 'app' ? hasHomeTitleBanner(selection.id)
-    : selection.kind === 'toolbar' ? isFriendBannerSelection(selection) || isNewsBannerSelection(selection) : true;
+    : true;
 }
 function targetFor(selection: SupportedSelection): HomeBannerTarget {
   if (selection.kind === 'folder') return { kind: 'folder', key: selection.key, nativeType: selection.nativeType };
   if (selection.kind === 'app') return { kind: 'app', key: selection.id, nativeType: 1 };
-  if (selection.kind === 'toolbar') return selection.focus === 2
-    ? { kind: 'friend', key: HOME_BANNER_EMPTY_KEY, nativeType: 14 }
-    : { kind: 'news', key: HOME_BANNER_EMPTY_KEY, nativeType: 16 };
+  if (selection.kind === 'toolbar') {
+    // Pinned EUR HOME 10.7.0-32E code.bin (243a728e…): categories4..8 at
+    // 0x1d7598..7624 submit types14..18 to dispatcher 0x1f9324.
+    switch (selection.focus) {
+      case 1: return { kind: 'memo', key: HOME_BANNER_EMPTY_KEY, nativeType: 15 };
+      case 2: return { kind: 'friend', key: HOME_BANNER_EMPTY_KEY, nativeType: 14 };
+      case 3: return { kind: 'news', key: HOME_BANNER_EMPTY_KEY, nativeType: 16 };
+      case 4: return { kind: 'web', key: HOME_BANNER_EMPTY_KEY, nativeType: 17 };
+      case 5: return { kind: 'miiverse', key: HOME_BANNER_EMPTY_KEY, nativeType: 18 };
+    }
+  }
   return selection.kind === 'default'
     ? { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 }
     : { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };

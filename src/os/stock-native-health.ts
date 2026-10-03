@@ -10,6 +10,7 @@ import { healthArticleLayout, type HealthArticleLayout, type HealthGlyph, type H
 
 const prefix='packs/health-and-safety/';
 export const healthScreenPacks:readonly NativeTitlePackRequest[]=[
+  {url:prefix+'common.json',alias:'health-common',layouts:['CmnFade_U_00'],animations:['CmnFade_U_00_SceneIn']},
   {url:prefix+'bg.json',alias:'health-bg',layouts:['Bg_U_00','Bg_D_00'],animations:['Bg_U_00_TopLoop']},
   {url:prefix+'safehealth.json',alias:'health-pages',layouts:['SafeTop_D_00','SafeText_D_00'],animations:['SafeTop_D_00_SceneIn','SafeTop_D_00_Select','SafeText_D_00_SceneIn']},
   {url:prefix+'slidebar.json',alias:'health-slidebar',layouts:['SlideBar'],animations:['SlideBar_Select']},
@@ -67,6 +68,7 @@ export function drawNativeHealthFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   let okay=true;
   const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,opts)&&okay;};
   draw(top,'health-bg','Bg_U_00',{bindings:[{name:'Bg_U_00_TopLoop',frame:healthTopLoopFrame(typeof view.data?.healthElapsedMs==='number'?view.data.healthElapsedMs:0,options.reducedMotion)}],overrides:{TextBoxTitle_00:message('title')}});
+  draw(top,'health-common','CmnFade_U_00',{bindings:[{name:'CmnFade_U_00_SceneIn',frame:options.healthEntryFrame??20}]});
   draw(bottom,'health-bg','Bg_D_00');
   if(view.screen==='main'){
     const overrides:PaneOverrides={T_Home_00:message('base_1b_menu')};

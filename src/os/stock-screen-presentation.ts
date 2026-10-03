@@ -12,7 +12,7 @@ import { createNativeTitleSession } from './native-title-session';
 import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-settings';
 import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
 import { drawNativeCameraFrame, cameraScreenPacks } from './stock-native-camera';
-import { healthTopLoopFrame } from './stock-health-scroll';
+import { healthEntrySceneInFrame, healthTopLoopFrame } from './stock-health-scroll';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
 import { drawNativePersonalToolFrame, nativePersonalToolView } from './stock-native-personal-tools';
 import { drawNativeWebFrame, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
@@ -38,7 +38,7 @@ export type NotesIntroPaint =
     };
 export type CameraStereoFit={kind:'camera-stereo';originalWidth:number;originalHeight:number;parallaxPixels:number};
 type MediaFit='contain'|'camera-mono'|CameraStereoFit;
-export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint};
+export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint;healthEntryFrame?:number};
 /** Portfolio media placement; native UI graphics continue through the layout renderer. */
 export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:MediaFit='contain'){
   if(typeof fit==='object'&&fit.kind==='camera-stereo'&&w===400&&h===240&&sourceWidth>=480&&sourceHeight>=240&&sourceWidth<=2*sourceHeight&&fit.originalWidth>=480&&fit.originalHeight>=240&&Number.isFinite(fit.parallaxPixels)){
@@ -315,7 +315,8 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const hudDate=hud?new Date(hud.dateMs):date;
       const settingsPaintKey=view.appId==='system-settings'?[hudDate.getFullYear(),hudDate.getMonth(),hudDate.getDate(),hudDate.getHours(),hudDate.getMinutes(),hud?.batteryFrame,hud?.colonVisible]:null;
       const eshopHudKey=eshop?eshopHudClock(date):null;
-      const healthPaintKey=view.appId==='health-safety'?healthTopLoopFrame(typeof data.healthElapsedMs==='number'?data.healthElapsedMs:0,reducedMotion):null;
+      const healthElapsed=typeof data.healthElapsedMs==='number'?data.healthElapsedMs:0;
+      const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntrySceneInFrame(healthElapsed,reducedMotion)]:null;
       const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
@@ -324,7 +325,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||(state.status==='ready'&&roomReady)){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame:view.appId==='health-safety'?healthEntrySceneInFrame(healthElapsed,reducedMotion):undefined});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
           }catch(error){fail(error);recovery();}
         }

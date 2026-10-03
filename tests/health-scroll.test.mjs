@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { healthScrollCreate, healthScrollStylus, healthScrollKey, healthScrollUpdate, healthScrollView, healthScrollAdvance, healthScrollRelease, HEALTH_VBLANK_HZ, healthTopLoopFrame } from '../src/os/stock-health-scroll.ts';
+import { healthScrollCreate, healthScrollStylus, healthScrollKey, healthScrollUpdate, healthScrollView, healthScrollAdvance, healthScrollRelease, HEALTH_VBLANK_HZ, HEALTH_ENTRY_LAST_FRAME, healthEntrySceneInFrame, healthTopLoopFrame } from '../src/os/stock-health-scroll.ts';
 import { createStockModule, initialSharedData } from '../src/os/stock-apps.ts';
 import { getTitle } from '../src/os/app-registry.ts';
 
@@ -74,6 +74,18 @@ test('Health TopLoop samples source frames deterministically with an explicit fi
  assert.equal(healthTopLoopFrame(720*1000/HEALTH_VBLANK_HZ+.001),18);
  for(const t of [0,12000,999999])assert.equal(healthTopLoopFrame(t,true),0);
  for(const t of [-1,NaN,Infinity])assert.equal(healthTopLoopFrame(t),18);
+});
+
+test('Health first-entry upper fade samples its 21 source frames and then stays settled',()=>{
+ const frameMs=1000/HEALTH_VBLANK_HZ;
+ assert.equal(HEALTH_ENTRY_LAST_FRAME,20);
+ assert.equal(healthEntrySceneInFrame(0),0);
+ assert.equal(healthEntrySceneInFrame(frameMs-.001),0);
+ assert.equal(healthEntrySceneInFrame(frameMs+.001),1);
+ assert.equal(healthEntrySceneInFrame(frameMs*20+.001),20);
+ assert.equal(healthEntrySceneInFrame(12000),20);
+ for(const t of [0,frameMs,12000])assert.equal(healthEntrySceneInFrame(t,true),20);
+ for(const t of [-1,NaN,Infinity])assert.equal(healthEntrySceneInFrame(t),0);
 });
 
 

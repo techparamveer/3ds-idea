@@ -3,6 +3,14 @@
   "titles": {
     "0004001000022300": {
       "packs": {
+        "packs/health-and-safety/common.json": {
+          "layouts": [
+            "CmnFade_U_00"
+          ],
+          "animations": [
+            "CmnFade_U_00_SceneIn"
+          ]
+        },
         "packs/health-and-safety/bg.json": {
           "layouts": [
             "Bg_U_00",

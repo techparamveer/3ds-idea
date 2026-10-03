@@ -21,6 +21,17 @@ export type HealthScrollView={paneY:number;thumbY:number;selectFrame:number};
 const f=Math.fround;
 /** 268111856 / 4481136: the LCD refresh the render loop waits on (0x110b40). */
 export const HEALTH_VBLANK_HZ=268111856/4481136;
+/** common_LZ.bin/CmnFade_U_00_SceneIn is a non-looping 21-frame upper-screen
+ * black overlay. Health's own foreground clock starts at application entry,
+ * so HOME's launch clock and paired readiness remain independent. The exact
+ * native dispatch epoch is untraced; frame 0 on first app paint is the bounded
+ * adaptation supported by the captured upper-only reveal. */
+export const HEALTH_ENTRY_LAST_FRAME=20;
+export function healthEntrySceneInFrame(elapsedMs:number,reducedMotion=false):number{
+  if(reducedMotion)return HEALTH_ENTRY_LAST_FRAME;
+  const elapsed=Number.isFinite(elapsedMs)?Math.max(0,elapsedMs):0;
+  return Math.min(HEALTH_ENTRY_LAST_FRAME,Math.floor(elapsed*HEALTH_VBLANK_HZ/1000));
+}
 /** Source Bg_U_00_TopLoop has 720 frames. The 18-frame origin is a
  * capture-fitted adaptation: local elapsed 12000ms samples source frame 15.
  * The capture has no measured entry interval; this is a source-render fit.

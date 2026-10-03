@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles,homeSoftwareSwitchTitles,drawHomeSoftwareDialog as paintDialog} from '../src/os/home-software-dialog.ts';
+import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles,homeSoftwareSwitchTitles,homeSoftwareDialogUsesUpperMask,drawHomeSoftwareDialog as paintDialog} from '../src/os/home-software-dialog.ts';
 import {createPortfolioState,tickSystem,reduceSystem,launchHomeShortcut,dispatchSystemEvent} from '../src/os/system.ts';
 import {escapeUnreadyNativeScreen} from '../src/os/native-screen-system.ts';
 import {poseNativeLayout,nativePaneParentPath} from '../src/os/native-layout.ts';
@@ -63,6 +63,7 @@ for(const kind of ['close','switch'])test(`failed ${kind} closing display cancel
 
 for(const kind of ['close','switch'])test(`${kind} uses original dialog/masks and MSBT glyphs without changing packs`,()=>{
  const before=JSON.stringify(packs),r=renderer(),state=dialog(kind),top={},bottom={};
+ if(kind==='close')assert.notEqual(homeSoftwareDialogTitles(state)[0],'camera');
  assert.ok(homeSoftwareDialogKey(state));assert.equal(drawHomeSoftwareDialog(r,top,bottom,state),true);
  assert.deepEqual(r.calls.map(c=>[c.ctx,c.pack,c.name]),kind==='close'?[[top,'dialogmask','DlgMask_U_00'],[bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_02'],[bottom,'sequence','LncDlgIcon_D_00']]:[[bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_02'],[bottom,'sequence','LncDlgIcon_D_01']]);
  const options=dialogCall(r).options,body=r.calls.at(-1).options.overrides.TextBoxDialog;
@@ -82,9 +83,11 @@ for(const kind of ['close','switch'])test(`${kind} uses original dialog/masks an
 
 test('ordinary Camera close uses the decoded single-icon header at authored source geometry',()=>{
  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
- const state=reduceSystem(camera,'back',6400),r=renderer(),before=JSON.stringify(packs);
+ const state=reduceSystem(camera,'back',6400),r=renderer(),before=JSON.stringify(packs),top={},bottom={};
  assert.deepEqual(homeSoftwareDialogTitles(state),['camera']);
- assert.equal(paintDialog(r,{}, {},state,[icons[0]]),true);
+ assert.equal(homeSoftwareDialogUsesUpperMask(homeSoftwareDialogTitles(state)),false);
+ assert.equal(paintDialog(r,top,bottom,state,[icons[0]]),true);
+ assert.deepEqual(r.calls.map(c=>[c.ctx,c.pack,c.name]),[[bottom,'dialogmask','DlgMask_D_00'],[bottom,'dialog','Dlg_A_D_02'],[bottom,'sequence','LncDlgIcon_D_00']]);
  const header=r.calls.at(-1);assert.equal(header.name,'LncDlgIcon_D_00');
  assert.equal(header.options.textures['runtime:close'],icons[0]);
  assert.deepEqual(header.options.overrides.P_Icon_00.textureBindings,{0:'runtime:close'});
@@ -97,6 +100,18 @@ test('ordinary Camera close uses the decoded single-icon header at authored sour
  assert.deepEqual(nativePaneParentPath(layout,'TextBoxDialog').at(-1).translation,[-0,-56,0]);
  assert.deepEqual(packs.sequence.resourceSources.layouts.LncDlgIcon_D_00,{path:'sequence_LZ.bin/blyt/LncDlgIcon_D_00.bclyt',sha256:'3700755a002b7773bf8776fd4b17edcb11786e3d0aff540c552a99ceb174c020',titleId:'0004003000009802'});
  assert.equal(JSON.stringify(packs),before);
+});
+
+test('Camera close does not require the unused upper mask but still requires its lower mask',()=>{
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+ const state=reduceSystem(camera,'back',6400),withoutUpper=structuredClone(packs);
+ delete withoutUpper.dialogmask.layouts.DlgMask_U_00;
+ delete withoutUpper.dialogmask.animations.DlgMask_U_00_FadeIn;
+ const r=renderer(withoutUpper);assert.equal(drawHomeSoftwareDialog(r,{}, {},state),true);
+ assert.equal(r.calls.some(call=>call.name==='DlgMask_U_00'),false);
+ const withoutLower=structuredClone(packs);delete withoutLower.dialogmask.layouts.DlgMask_D_00;
+ const missing=renderer(withoutLower);
+ assert.throws(()=>drawHomeSoftwareDialog(missing,{}, {},state),/DlgMask_D_00/);assert.equal(missing.calls.length,0);
 });
 
 test('native button highlight follows only its owned touch and clears in the gutter',()=>{
@@ -114,6 +129,7 @@ test('Health-to-Camera uses source no-warning body and ordered icon bindings',()
  const health=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000),6200),'home',6300);
  const state=launchHomeShortcut(health,'camera',6400),r=renderer();
  assert.deepEqual(homeSoftwareSwitchTitles(state),['health-safety','camera']);
+ assert.equal(homeSoftwareDialogUsesUpperMask(homeSoftwareSwitchTitles(state)),false);
  drawHomeSoftwareDialog(r,{}, {},state);
  const header=r.calls.at(-1).options;
  assert.equal(header.overrides.TextBoxDialog.text,'Close the suspended software\nand launch this one?');

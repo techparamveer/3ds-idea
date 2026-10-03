@@ -39,6 +39,12 @@ export function homeSoftwareSwitchTitles(state:MenuState):readonly[string,string
  return titles?.length===2?titles:null;
 }
 
+/** Captured Camera confirmation and all captured switches leave the upper LCD
+ * unobscured. Other ordinary-close titles retain the existing unverified mask. */
+export function homeSoftwareDialogUsesUpperMask(titles:HomeSoftwareDialogTitles):boolean{
+ return titles.length===1&&titles[0]!=='camera';
+}
+
 /** Source dialog assembly; native per-title confirmation policy and timing remain unverified. */
 export function drawHomeSoftwareDialog(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,state:MenuState,icons?:readonly NativePixels[]){
  if(!homeSoftwareDialogKey(state))return false;
@@ -55,17 +61,20 @@ export function drawHomeSoftwareDialog(renderer:NativeLayoutRenderer,top:CanvasR
  if(!renderer.packs.sequence?.layouts[headerName])throw Error(`Native software dialog header unavailable: ${headerName}`);
  if(!icons||icons.length!==titles.length||icons.some(icon=>!icon||icon.width!==48||icon.height!==48||icon.data.length!==48*48*4))throw Error('Native software dialog icons unavailable');
  const cancel=text('lau_dlg_2b_canc0'),confirm=text('lau_dlg_2b_decide');
+ const usesUpperMask=homeSoftwareDialogUsesUpperMask(titles);
  for(const [pack,name,clips] of [['dialog','Dlg_A_D_02',['FadeIn','Select']],['dialogmask','DlgMask_U_00',['FadeIn']],['dialogmask','DlgMask_D_00',['FadeIn']]] as const){
+  if(name==='DlgMask_U_00'&&!usesUpperMask)continue;
   if(!renderer.packs[pack]?.layouts[name])throw Error(`Native software dialog layout unavailable: ${pack}/${name}`);
   for(const clip of clips)if(!renderer.packs[pack].animations[`${name}_${clip}`])throw Error(`Native software dialog animation unavailable: ${name}_${clip}`);
  }
- const note='Software close/switch uses source Dlg_A_D_02 and LncDlgIcon_D_00/01 assemblies at settled poses. HOME dialog warning glyph size is decoded from MSBT controls; source-baseline anchoring is a capture-supported adaptation because the native call site remains untraced. Camera close and Health-to-Camera are captured; other title headers are adaptations pending comparison. Per-title policy, native input, motion and audio remain unverified.';
+ const note='Software close/switch uses source Dlg_A_D_02 and LncDlgIcon_D_00/01 assemblies at settled poses. HOME dialog warning glyph size is decoded from MSBT controls; source-baseline anchoring is a capture-supported adaptation, and Camera close upper-mask suppression is a separate capture-supported adaptation, because the native call sites remain untraced. Camera close and Health-to-Camera are captured; other title headers are adaptations pending comparison. Per-title policy, native input, motion and audio remain unverified.';
  if(!renderer.diagnostics.includes(note))renderer.diagnostics.push(note);
  const bindings:AnimationBinding[]=[{name:'Dlg_A_D_02_FadeIn',frame:20},{name:'Dlg_A_D_02_Select',frame:0}];
  const pressed=softwareDialogPressed(s.input.touch);
  if(pressed)bindings.push({name:'Dlg_A_D_02_Select',frame:1,groups:[pressed==='back'?'Group_00':'Group_01']});
- // The captured switch masks the lower LCD only; it leaves the upper banner visible.
- const upper=switching?true:renderer.draw(top,'dialogmask','DlgMask_U_00',{bindings:[{name:'DlgMask_U_00_FadeIn',frame:20}]});
+ // Captured switches and Camera close mask the lower LCD only; other ordinary
+ // close confirmations keep their existing upper-mask behavior pending evidence.
+ const upper=usesUpperMask?renderer.draw(top,'dialogmask','DlgMask_U_00',{bindings:[{name:'DlgMask_U_00_FadeIn',frame:20}]}):true;
  const lower=renderer.draw(bottom,'dialogmask','DlgMask_D_00',{bindings:[{name:'DlgMask_D_00_FadeIn',frame:20}]});
  const dialog=renderer.draw(bottom,'dialog','Dlg_A_D_02',{textSampling:'lcd',bindings,overrides:{TextBoxDialog:{text:''},TextBox_00:cancel,TextBox_01:cancel,TextBox_02:confirm,TextBox_03:confirm}});
  const textures:Record<string,NativePixels>=switching

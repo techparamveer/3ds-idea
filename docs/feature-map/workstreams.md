@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## Toolbar Hosted Motion - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-toolbar-motion-20261003` / `codex/home-toolbar-motion-20261003`.
+Worker `b62675ae` integrates as `15630913`: Notes/Browser/Miiverse use the
+shared hosted primary motion instead of front-pose/browser-time overrides.
+Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns the private
+`home-toolbar-motion-20261003/comparison/` only. Helpers
+`toolbar_reentry_prepare` and `toolbar_reentry_review` prepare silent isolated
+replay/collectors and review the exact source commit. Coordinator alone owns
+GUI, production captures and integration. GPT-5.6 Sol/high; service tier is not
+exposed. [Source and remaining phase limits](../home-toolbar-motion-source-2026-10-03.md).
+The coordinator integrates, captures and independently verifies the
+[visible correction](../home-toolbar-motion-comparison-2026-10-03.md):213
+records/480 metrics; all120 whole comparisons remain fail at unmatched epochs.
+
 ## Browser Manual/Open - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

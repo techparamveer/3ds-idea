@@ -142,11 +142,15 @@ The live chain is `console-scene.ts` → `home-banner-host.ts` →
 observed at explicit boundaries in the counted HOME pass. Manager work and
 attached scene-controller work remain separate; painting does not advance them.
 All five toolbar selections use ticketed native type14..18 host lifecycles
-with per-resource readiness/failure. Notes, Browser and Miiverse still retain
-their decoded front-pose/browser-time rendering adaptation; host ownership
-does not yet mean their rendered motion consumes host frames. Their former
-unsupported fallback already painted settled artwork. See the
-[ownership correction and evidence](../home-toolbar-host-2026-10-03.md).
+with per-resource readiness/failure and consume the exact hosted visibility,
+scale, yaw and source clip frames. The common generic-primary constructor is
+source-identified for all five. Notes, Browser and Miiverse no longer discard
+that motion for a front-pose/browser-time rendering adaptation. Reduced motion
+retains visibility ownership but renders scale1/yaw0/clip0 as an adaptation.
+Native activation/first-frame phase, cadence and displacement remain unproved.
+Their former unsupported fallback already painted settled artwork. See the
+[ownership correction](../home-toolbar-host-2026-10-03.md) and
+[motion source trace](../home-toolbar-motion-source-2026-10-03.md).
 Folder/default readiness is scoped to generation and request epoch. Clear has no primary. Folder/default banners use the native primary path.
 Settings, Camera, Sound, Health and eShop now have **provisional** selected-title paths through the host,
 service and source model renderer; other stock selections remain

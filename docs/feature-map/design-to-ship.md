@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `b3e03f32` (Browser HOME Manual/Open),
+Current runtime checkpoint: `15630913` (toolbar hosted motion),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -8,6 +8,17 @@ The user's existing console, HOME and app designs must be preserved. Missing
 native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
+
+[Toolbar motion](../home-toolbar-motion-source-2026-10-03.md) now passes the
+hosted visibility, scale, yaw and source clips to Notes/Browser/Miiverse,
+removing their front-pose/browser-time override. Preserve the shared
+generic-primary source class and reduced-motion adaptation. Native activation
+and first-frame phase, displacement, cadence and whole acceptance remain open;
+do not repeat asset extraction or equate source plumbing with matched timing.
+[After comparison](../home-toolbar-motion-comparison-2026-10-03.md) visibly
+confirms front/side rotation on desktop/narrow and static reduced endpoints.
+Whole native/browser comparisons remain fail at unmatched epochs; native
+timing and residual geometry/raster differences remain the next evidence gap.
 
 [Browser Manual/Open](../home-browser-manual-footer-2026-10-03.md) now routes
 Browser's split footer to its own Contents/page0 or the Browser app. Preserve
@@ -22,7 +33,8 @@ Use these named residuals for follow-up; do not re-extract the delivered packs.
 [Toolbar ownership](../home-toolbar-host-2026-10-03.md):
 all five applets now use guarded banner host lifecycles. The initial missing
 banner diagnosis was wrong; settled artwork already existed through fallback.
-Notes/Web/Miiverse front-pose/browser-time motion remains an adaptation.
+Its Notes/Web/Miiverse front-pose/browser-time motion adaptation is superseded
+by the hosted-motion correction above.
 The captured Browser footer correction is integrated above; do not repeat
 asset registration or replace the existing unrelated app designs.
 

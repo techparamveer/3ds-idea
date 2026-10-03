@@ -15,7 +15,20 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest runtime [Browser Manual/Open](home-browser-manual-footer-2026-10-03.md),
+Latest runtime [toolbar motion](home-toolbar-motion-source-2026-10-03.md),
+`15630913`, replaces the Notes/Browser/Miiverse front-pose/browser-time
+override with hosted visibility, scale, yaw and decoded clip frames. All five
+toolbar types share the source-identified generic-primary class. Native
+activation/first-frame phase, cadence and displacement remain unproved;
+reduced-motion endpoints remain an explicit adaptation. Full1966 tests,
+production build, sequential typecheck and independent exact-commit review pass.
+The [inspected comparison](home-toolbar-motion-comparison-2026-10-03.md)
+shows visible turning on desktop/narrow, with static reduced adaptation.
+All120 whole comparisons remain fail at unmatched epochs;213 records and480
+metrics independently verify. Eighteen Manual/Open controls and two7-pair rapid
+retarget runs pass. Keep exact native motion/input/audio and residual pixels open.
+
+Earlier runtime [Browser Manual/Open](home-browser-manual-footer-2026-10-03.md),
 `b3e03f32`, replaces Browser's full Open footer with native-source Manual/Open
 and routes Manual to Browser-owned Contents/page0 resources. Other applets,
 retained grid identity and existing contact ownership remain unchanged.
@@ -31,7 +44,8 @@ checked; keep those residuals separate from the corrected HOME footer route.
 Earlier runtime [toolbar banner ownership](home-toolbar-host-2026-10-03.md),
 `6d6e29a2`, adds Notes/Web/Miiverse to the guarded host lifecycle. Their settled
 artwork already rendered through fallback; this is not a missing-banner fix.
-Front-pose/browser-time motion remains an adaptation. Full1958 tests,
+Its front-pose/browser-time adaptation is superseded by the motion correction
+above. Full1958 tests,
 build/typecheck and independent135-test review pass. Its captured Browser
 Manual/Open defect is addressed above; whole fidelity remains open.
 

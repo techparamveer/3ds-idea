@@ -59,8 +59,9 @@ readiness and invokes that shared update slot.
 
 The five existing decoded resources retain their own looping 600-frame skeletal
 and 300-frame material clips. Their manifest mappings, source hashes and
-`ctr-cgfx-web` 1.4.2 conversion identity remain in the
-[toolbar source inventory](home-toolbar-banner-source-inventory-2026-09-28.md).
+`ctr-cgfx-web` 1.4.2 conversion identity are recorded by the current
+[host asset mapping](home-toolbar-host-2026-10-03.md#source-assets) and the
+[source hash inventory](home-toolbar-banner-source-inventory-2026-09-28.md).
 No extraction or asset conversion was performed for this slice.
 
 ## Implemented boundary

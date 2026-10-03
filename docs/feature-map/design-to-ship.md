@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `5bd0f99a` (footer publication before banner entry),
+Current runtime checkpoint: `650daa79` (HOME graphics-recovery entry ordering),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -9,13 +9,22 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+[Entry recovery](../home-entry-recovery-2026-10-03.md) now preserves the
+footer/banner/HUD sequence after graphics restoration and plays the remaining
+native HUD clip. Normal entry order and reduced endpoints remain unchanged;
+first captured active desktop/mobile pairs are20/17, not both17.
+Preserve this host-recovery correction. Next work returns to captured HOME
+banner pixel residuals and physical/touch interaction routes; exact native
+caller epochs, whole pixels/input/motion/audio remain open. Do not repeat the
+completed recovery gate or redesign existing app screens.
+
 [Entry ordering](../home-entry-order-2026-10-03.md) now keeps the banner's
 existing preparation running while awaiting visibly presented source footer14.
 Normal first activation has settled footer and no HUD. Preserve this correction.
-Next captured defect: context restoration jumps HOME13 ->75, restores the
-settled HUD before the banner at78. Repair this recovery ordering without
-resetting the shared clock or losing publication ownership. Remaining banner
-pixels/native caller epochs also stay open. Whole scenarios remain fail.
+Its next captured defect was context restoration HOME13 ->75, restoring
+settled HUD before banner78; the slice above corrects this ordering without
+resetting the shared clock. Banner pixels/native caller epochs stay open.
+Whole scenarios remain fail.
 
 [Banner restart](../home-entry-banner-2026-10-03.md) removes the retained
 pre-Off primary and passes repeated restart/cancel/sleep controls. Preserve it.

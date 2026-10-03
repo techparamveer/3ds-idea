@@ -15,14 +15,23 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [entry ordering](home-entry-order-2026-10-03.md), through `5bd0f99a`,
+Latest [entry recovery](home-entry-recovery-2026-10-03.md), `650daa79`,
+corrects the captured HUD-before-banner restoration defect: normal HUD waits
+for an identity-validated visible banner, then plays its remaining source
+clip on the existing clock. Normal footer/banner/HUD order, reduced endpoints and
+portfolio startup policy are retained. Full1937 tests/build/typecheck and
+independent review pass; production recovery is browser-inspected. This is
+host-recovery evidence, not a native-equivalent scenario or whole1:1 pass.
+Continue remaining HOME banner pixel and physical/touch interaction comparisons.
+
+Earlier [entry ordering](home-entry-order-2026-10-03.md), through `5bd0f99a`,
 releases the prepared primary only after the source footer terminal has been
 visibly presented. Normal production first banner now has settled footer and
 absent HUD, matching observed sequence order. Exact epochs/cadence, banner
 pixels and whole-scenario/input/audio acceptance remain open. The publication
 dependency is a capture-supported adaptation; preserve it and the restart fix.
-Next captured defect is context recovery: settled HUD returns at HOME75 before
-the banner at78. Normal/stall ordering evidence does not clear this failure.
+Its captured context-recovery failure (HUD75 before banner78) is corrected
+above; normal/stall evidence alone did not clear it.
 
 Earlier [banner restart correction](home-entry-banner-2026-10-03.md), `e069925c`,
 removes the stale selected primary across Off/On. Fresh primary scope and

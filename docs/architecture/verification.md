@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[Entry recovery verification](../home-entry-recovery-2026-10-03.md) records
+actual context lost/restored events and context-live state. Select the first
+matching presented HOME paint after restoration, then the first new active
+primary identity. Lost-context raw LCD paints are not visible presentation
+proof. Inspect subsequent HUD playback, normal desktop/mobile/reduced,
+portfolio startup and late-settled recovery. A historical presentation-frame
+gap is only a proxy, not an observed restore event. Native has no equivalent
+WebGL-loss input; fixed native PNGs remain ordering references and whole
+native/input/motion/audio acceptance remains open.
+
 [Entry-order verification](../home-entry-order-2026-10-03.md) retains initial
 candidate HUD-overlap failures as well as corrected production captures. Keep
 the fixed chronological first-new-primary selector and inspect both footer

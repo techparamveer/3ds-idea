@@ -26,6 +26,17 @@ See [proposed improvements](proposed-improvements.md) for that remaining risk.
 
 ## State and resource owners
 
+Unfinished HOME entry holds normal HUD at authored zero-alpha SceneIn20 until
+a successful paired native-banner draw is visibly presented. The receipt is
+validated against the current generation/request/activation tuple; diagnostic,
+failed, stale and context-lost candidates cannot release it. Delayed publication
+shifts only the remaining HUD20..40 segment along the existing HOME counter.
+Already settled entry and the global clock/wallpaper are not restarted.
+Portfolio/clear/unsupported content uses a separately validated bypass keeping
+the original HUD epoch; reduced motion keeps immediate HUD40. This host-recovery
+adaptation and its evidence are recorded in
+[entry recovery](../home-entry-recovery-2026-10-03.md).
+
 Restarted banner release depends on the screen-owned entry footer terminal
 receipt. Source frame14 remains requested until a successful live paired paint
 is visibly presented by an awake, context-live scene render. Diagnostic repaint

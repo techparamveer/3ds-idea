@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Entry Recovery - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-entry-recovery-20261003` / `codex/home-entry-recovery-20261003`,
+base `e27784bb`. Worker `389ed4b3` integrates as `650daa79`.
+Scope: existing entry state, paired native-banner/bypass publication, scene
+promotion and focused tests. Helper `boot_staging_review` reviews exact commit;
+comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private evidence.
+All delegates GPT-5.6 Sol/high. Coordinator alone operates muted browser on
+the authorized Mac; retained Azahar PNGs are ordering references, not native
+context-loss equivalents. [Evidence](../home-entry-recovery-2026-10-03.md).
+
 ## Entry Ordering - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

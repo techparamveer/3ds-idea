@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { HOME_FOLDER_BACK_BOUNDS, isHomeFolderBackTouch, hasEmptyHomeFolderSelection, reduceMenu, touchMenu } from '../src/os/state.ts';
-import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSystemEvent, saveSettings } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSystemEvent, saveSettings, sampleSystemHomeFolderClose } from '../src/os/system.ts';
 import { selectHomeLocation, moveHomeItem } from '../src/os/home-layout.ts';
 import { getHomeNavigation, enterHomeFolder, leaveHomeFolder, setHomeDensity, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
-import { homeTouchLocation, HOME_GESTURE_TIMING } from '../src/os/home-gestures.ts';
+import { homeTouchLocation, HOME_GESTURE_TIMING, ownedHomeFolderBackContact } from '../src/os/home-gestures.ts';
 import { getHomeFooter } from '../src/os/home-presentation.ts';
 
 const home = () => tickSystem(createPortfolioState(), 3001);
@@ -22,6 +22,8 @@ test('Back uses the bottom-centre native boundary, including its four edges, at 
       assert.equal(homeTouchLocation(state,x,y),null);
       assert.equal(touchMenu(state,x,y).opened,false);
       const started=touchSystem(state,x,y,4000);assert.equal(started.opened,true);assert.equal(completed(started).opened,false);
+      const pressed=touch(state,'down',x,y,4000);assert.equal(pressed.system.homeNavigation.gesture.area,'folder-back');
+      const released=touch(pressed,'up',x,y,4010);assert.ok(sampleSystemHomeFolderClose(released));assert.equal(completed(released).opened,false);
     }
     for (const [x, y] of [[22.99,54], [95.01,54], [59,42.99], [59,65.01], [10,40], [NaN,54], [59,Infinity]]) {
       assert.equal(isHomeFolderBackTouch(state,x,y),false);
@@ -40,13 +42,15 @@ test('Back touch and physical B restore the same root and retain both folder his
   state = settleHomeNavigation(selectHomeSlot(setHomeDensity(enterHomeFolder(state,41),0),21));
   state = enterHomeFolder(leaveHomeFolder(state),40);
   const histories = structuredClone(getHomeNavigation(state).folderViews);
-  const physical = completed(dispatchSystemEvent(state,{type:'button',phase:'down',source:'model:B',command:'back'},4000));
+  const physicalClosing = dispatchSystemEvent(state,{type:'button',phase:'down',source:'model:B',command:'back'},4000);
   const pressed = touch(state,'down',80,60);
-  assert.equal(pressed.system.homeNavigation.gesture.area,'chrome');
+  assert.equal(pressed.system.homeNavigation.gesture.area,'folder-back');
   assert.equal(pressed.system.homeNavigation.gesture.source,null);
   assert.equal(pressed.opened,true);
   const closing = touch(pressed,'up',80,60,4010);
   assert.equal(closing.opened,true);
+  assert.equal(sampleSystemHomeFolderClose(closing).controller.phase,sampleSystemHomeFolderClose(physicalClosing).controller.phase);
+  const physical = completed(physicalClosing);
   const tapped = completed(closing);assert.equal(tapped.opened,false);
   assert.deepEqual(views(tapped),views(physical));
   assert.deepEqual(getHomeNavigation(tapped).folderViews,histories);
@@ -55,23 +59,45 @@ test('Back touch and physical B restore the same root and retain both folder his
   assert.equal(enterHomeFolder(tapped,40).folderSelected,47);
 });
 
-test('Back contact cannot pan or lift the grid, and cancelling or crossing its boundary cannot activate it', () => {
-  const initial = folder(), before = views(initial);
-  let state = touch(initial,'down',59,54);
+test('Back contact restores its exact owner after leaving and re-entering without panning or lifting', () => {
+  const initial = folder();
+  let state = touch(initial,'down',59,55);
+  assert.equal(state.system.homeNavigation.gesture.area,'folder-back');
+  assert.equal(ownedHomeFolderBackContact(state,state.system.homeNavigation.gesture),true);
   state = tickSystem(state,4000+HOME_GESTURE_TIMING.liftMs+100);
   assert.equal(state.system.homeNavigation.gesture.mode,'press');
-  assert.equal(state.system.homeNavigation.gesture.area,'chrome');
-  state = touch(state,'move',90,54,4700);
-  state = touch(state,'up',90,54,4710);
-  assert.equal(state.opened,true); assert.deepEqual(views(state),before);
+  state = touch(state,'move',150,55,4700);
+  assert.equal(state.system.homeNavigation.gesture.mode,'press');
+  assert.equal(ownedHomeFolderBackContact(state,state.system.homeNavigation.gesture),false);
+  state = touch(state,'move',59,55,4710);
+  assert.equal(ownedHomeFolderBackContact(state,state.system.homeNavigation.gesture),true);
+  state = touch(state,'up',59,55,4720);
+  assert.equal(state.opened,true);assert.ok(sampleSystemHomeFolderClose(state));
+  state=completed(state);assert.equal(state.opened,false);
+  assert.deepEqual(getHomeNavigation(state).rootView,getHomeNavigation(initial).rootView);
+  assert.deepEqual(getHomeNavigation(state).folderViews,getHomeNavigation(initial).folderViews);
+});
+
+test('Back ownership cannot transfer across regions, cancellation, stale pointers or navigation replacement', () => {
+  const initial=folder(),before=views(initial);
+  for(const [x,y] of [[150,55],[59,16],[150,100],[160,226],[-1,55]]){
+    let state=touch(initial,'down',59,55);state=touch(state,'move',x,y,4010);
+    assert.equal(ownedHomeFolderBackContact(state,state.system.homeNavigation.gesture),false);
+    state=touch(state,'up',x,y,4020);assert.equal(state.opened,true);assert.equal(sampleSystemHomeFolderClose(state),null);assert.deepEqual(views(state),before);
+  }
   for (const [start,end] of [[[59,42],[59,43]],[[59,43],[59,42]],[[22,54],[23,54]],[[95,54],[96,54]]]) {
-    state=touch(initial,'down',...start);state=touch(state,'up',...end,4010);
+    let state=touch(initial,'down',...start);state=touch(state,'up',...end,4010);
     assert.equal(state.opened,true); assert.deepEqual(views(state),before);
   }
-  state=touch(initial,'down',59,54);state=touch(state,'cancel',59,54,4010);state=touch(state,'up',59,54,4020);
+  let state=touch(initial,'down',59,54);const stale=state.system.homeNavigation.gesture;
+  state=touch(state,'cancel',59,54,4010);assert.equal(ownedHomeFolderBackContact(state,stale),false);state=touch(state,'up',59,54,4020);
   assert.equal(state.opened,true);assert.deepEqual(views(state),before);
   state=touch(initial,'down',59,54);state=touch(state,'up',59,54,4010,2);
   assert.equal(state.opened,true);state=touch(state,'up',59,54,4020);assert.equal(state.opened,true);assert.equal(completed(state).opened,false);
+
+  state=touch(initial,'down',59,54);const owner=state.system.homeNavigation.gesture;
+  state=selectHomeSlot(state,1);assert.equal(ownedHomeFolderBackContact(state,owner),false);
+  state=touch(state,'up',59,54,4010);assert.equal(sampleSystemHomeFolderClose(state),null);assert.equal(state.opened,true);
 });
 
 test('empty selected child suppresses every footer tap and A even when the folder has other software', () => {

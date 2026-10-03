@@ -13,7 +13,7 @@ export const HOME_GESTURE_TIMING = { liftMs: 450, slopPixels: 8, folderHoverMs: 
  * gesture clock. Folder slots are non-negative, so this cannot alias one. */
 const HOME_FOLDER_BACK_HOVER = -1;
 export type HomeGesture = {
-  pointerId: number; mode: 'press' | 'scroll' | 'drag'; area: 'grid' | 'chrome' | 'toolbar' | 'density' | 'footer' | 'themes';
+  pointerId: number; mode: 'press' | 'scroll' | 'drag'; area: 'grid' | 'chrome' | 'folder-back' | 'toolbar' | 'density' | 'footer' | 'themes';
   x: number; y: number; startX: number; startY: number; startedAt: number; updatedAt: number;
   source: HomeLocation | null; item: HomeItem | null; target: HomeLocation | null;
   viewFolder: number | null; columns: number; panel: MenuState['panel'];
@@ -21,6 +21,23 @@ export type HomeGesture = {
   scrollPixels: number | null;
   anchorScroll: number; hoverFolder: number | null; hoverSince: number; edge: -1 | 0 | 1; edgeAt: number;
 };
+/** Capture-fit adapter for the observed Back down/out/re-entry/release route;
+ * the native touch callsite remains untraced. Only the original live pointer,
+ * folder/navigation owner and authored rectangle can restore Select or close. */
+export function ownedHomeFolderBackContact(state: MenuState, contact: HomeGesture | null | undefined, endX = contact?.x, endY = contact?.y): boolean {
+  if (!contact || contact.mode !== 'press' || contact.area !== 'folder-back' || endX === undefined || endY === undefined) return false;
+  const live = state.system?.homeNavigation.gesture;
+  if (!live || live.pointerId !== contact.pointerId || live.area !== contact.area || live.startX !== contact.startX
+    || live.startY !== contact.startY || live.startedAt !== contact.startedAt) return false;
+  if (state.panel !== contact.panel || state.columns !== contact.columns || homeContainer(state) !== contact.viewFolder) return false;
+  const current = state.system?.homeNavigation, origin = contact.origin.navigation;
+  if (!current || current.selectionRevision !== origin.selectionRevision || current.activeFolderSlot !== origin.activeFolderSlot
+    || current.focus.toolbarActive !== origin.focus.toolbarActive || current.focus.currentFocus !== origin.focus.currentFocus) return false;
+  const originState = writeHomeNavigation({ ...state, panel: contact.panel, panelChoice: contact.origin.panelChoice }, { ...origin, gesture: null });
+  const originView = getHomeNavigationView(originState), currentView = getHomeNavigationView(state);
+  return originView.context === currentView.context && originView.targetDensity === currentView.targetDensity
+    && isHomeFolderBackTouch(originState, contact.startX, contact.startY) && isHomeFolderBackTouch(state, endX, endY);
+}
 /** Native toolbar feedback and release remain with the exact button that
  * received the down edge. Navigation/context replacement invalidates the
  * owner rather than transferring it to the current pointer target. */
@@ -132,7 +149,8 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   if (event.phase === 'down') {
     const source = !state.panel ? homeTouchLocation(state, event.x, event.y) : null;
     const area = state.panel === 'themes' ? 'themes'
-      : !state.panel && !isHomeFolderBackTouch(state, event.x, event.y) && event.y >= (state.opened ? 49 : 34) && event.y < 204 ? 'grid'
+      : !state.panel && isHomeFolderBackTouch(state, event.x, event.y) ? 'folder-back'
+      : !state.panel && event.y >= (state.opened ? 49 : 34) && event.y < 204 ? 'grid'
       : homeFooterHit(state, HOME_FOOTER_TOUCH_GEOMETRY, event.x, event.y) ? 'footer'
       : !state.panel && homeDensityActionAt(event.x, event.y) ? 'density'
       : !state.panel && homeToolbarHit(event.x, event.y) ? 'toolbar' : 'chrome';
@@ -147,11 +165,11 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   let gesture = state.system!.homeNavigation.gesture;
   if (!gesture) return { state, tap: false };
   gesture = { ...gesture, x: event.x, y: event.y, updatedAt: now };
-  // Native footer, density and toolbar buttons retain their original semantic
-  // owner while the stylus leaves them, so re-entry can restore Select. Their
-  // endpoint owners still decide presentation and release; other chrome keeps
-  // the existing slop-to-scroll cancellation behavior.
-  if (gesture.mode === 'press' && gesture.area !== 'footer' && gesture.area !== 'density' && gesture.area !== 'toolbar' && Math.hypot(event.x - gesture.startX, event.y - gesture.startY) > HOME_GESTURE_TIMING.slopPixels) gesture.mode = 'scroll';
+  // Native Back, footer, density and toolbar buttons retain their original
+  // semantic owner while the stylus leaves them, so re-entry can restore
+  // Select. Their endpoint owners still decide presentation and release;
+  // other chrome keeps the existing slop-to-scroll cancellation behavior.
+  if (gesture.mode === 'press' && gesture.area !== 'folder-back' && gesture.area !== 'footer' && gesture.area !== 'density' && gesture.area !== 'toolbar' && Math.hypot(event.x - gesture.startX, event.y - gesture.startY) > HOME_GESTURE_TIMING.slopPixels) gesture.mode = 'scroll';
   let scrollColumn = pageStart(state);
   if (gesture.mode === 'scroll') {
     if (gesture.area === 'grid') {
@@ -184,7 +202,8 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   }
   const end = !state.panel ? homeTouchLocation(state, event.x, event.y) : null;
   const beganOnBack = isHomeFolderBackTouch(state, gesture.startX, gesture.startY), endedOnBack = isHomeFolderBackTouch(state, event.x, event.y);
-  const tap = gesture.area === 'toolbar' ? !!ownedHomeToolbarContact(state, gesture, event.x, event.y)
+  const tap = gesture.area === 'folder-back' ? ownedHomeFolderBackContact(state, gesture, event.x, event.y)
+    : gesture.area === 'toolbar' ? !!ownedHomeToolbarContact(state, gesture, event.x, event.y)
     : gesture.area === 'density' ? !!ownedHomeDensityContact(state, gesture, event.x, event.y)
     : gesture.area === 'footer' ? !!homeFooterHit(state, HOME_FOOTER_TOUCH_GEOMETRY, event.x, event.y)
     : beganOnBack || endedOnBack ? beganOnBack && endedOnBack : gesture.source ? sameHomeLocation(gesture.source, end) : !end;

@@ -1023,6 +1023,23 @@ test('actual folder paint retains the authored right arrow after a no-arrow six-
  });
 });
 
+test('folder Back Select follows its exact origin outside and on re-entry using the decoded source frame',()=>{
+ const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});poseNativeLayout(pack.layouts[name],pack.animations,options.bindings,options.overrides);return true;}};
+ const presenter=createFirmwareHome({renderer}),initial=home();
+ let state=enterHomeFolder({...initial,folders:{20:'A'}},20);
+ const selectFrame=()=>calls.at(-1).options.bindings.find(binding=>binding.name==='LncFolder_00_Select').frame;
+ state=touchHomeGesture(state,{type:'touch',phase:'down',x:59,y:55,pointerId:4},0).state;
+ presenter.folderChrome({},state);assert.equal(selectFrame(),1);
+ state=touchHomeGesture(state,{type:'touch',phase:'move',x:150,y:55,pointerId:4},1).state;
+ presenter.folderChrome({},state);assert.equal(selectFrame(),0);
+ state=touchHomeGesture(state,{type:'touch',phase:'move',x:59,y:55,pointerId:4},2).state;
+ presenter.folderChrome({},state);assert.equal(selectFrame(),1);
+ state=touchHomeGesture(state,{type:'touch',phase:'move',x:59,y:16,pointerId:4},3).state;
+ presenter.folderChrome({},state);assert.equal(selectFrame(),0,'Back ownership cannot transfer to toolbar chrome');
+ assert.deepEqual(pack.resourceSources.animations.LncFolder_00_Select,{path:'launcher_LZ.bin/anim/LncFolder_00_Select.bclan',sha256:'69b1e0c444c116ec93e65c9fbbdef8182490a5366338fd2eaa38890b1ffedabd',titleId:'0004003000009802'});
+ assert.equal(pack.animations.LncFolder_00_Select.frames,2);assert.deepEqual(pack.animations.LncFolder_00_Select.sourceFrameRange,[0,1]);
+});
+
 test('vacant-root footer retains the decoded Create Folder message with its bounded fitted coverage',()=>{
  const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};
  const presenter=createFirmwareHome({renderer}),state=selectHomeSlot(home(),20);

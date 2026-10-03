@@ -16,7 +16,7 @@ import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClock
 import { enableHomeControls, reconcileHomeControls, isHomeSwitchPresentationActive } from '@/os/home-controls';
 import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
 import { createRuntimeEffects } from '@/os/runtime-effects';
-import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
+import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary, resetHomeBannerPrimary, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
 import type { AppCommand, AppEvent } from '@/os/app-types';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -85,6 +85,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let verificationBannerFrame:number|undefined,verificationBannerSkeletalFrame:number|undefined,verificationHealthBannerFrame:number|undefined;
   const bannerClock=()=>({generation:bannerGeneration,updateCount:state.system!.homeClock.updateCount});
   let bannerHost=createHomeBannerHost(bannerClock(),{managerInhibited:true,sceneInhibited:true,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});
+  let bannerObservedPhase=state.system!.phase,lastBannerRestartBootSince:number|null=null;
   let bannerLabelFailure=false;
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
   const nativePrimaryAvailable=(selection:HomeBannerHostSelection)=>{const value=folderBanner.status();return selection.kind==='default'?value.defaultReady&&!value.defaultFailure:selection.kind==='app'?value.settingsReady&&!value.settingsFailure:selection.kind==='toolbar'?selection.focus===2?value.friendReady&&!value.friendFailure:selection.focus===3&&value.newsReady&&!value.newsFailure:selection.kind==='clear'||nativeFolderAvailable();};
@@ -263,6 +264,13 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   const soundNames=new Set<string>(['select','open','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
     const system=state.system!,switchPresentation=isHomeSwitchPresentationActive(state),inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog&&!switchPresentation||system.preferences||!!state.panel||homeClockSuspended;
+    // A completed Off -> awake boot starts a new native primary request while
+    // retaining the session wallpaper controller and global HOME clock. The
+    // exact native caller epoch remains untraced; this is the captured entry
+    // boundary and intentionally does not apply to Power cancel or sleep.
+    const restartPrimary=bannerObservedPhase==='off'&&system.phase==='boot'&&!system.sleeping&&system.since!==lastBannerRestartBootSince;
+    bannerObservedPhase=system.phase;
+    if(restartPrimary){bannerHost=resetHomeBannerPrimary(bannerHost);lastBannerRestartBootSince=system.since;}
     const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:true,resourceReady:bannerHost.inputs.resourceReady};
     bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:selection??(switchPresentation?{kind:'app',id:system.pending!}:system.homeControls?undefined:resolveHomeBannerHostSelection(state)),inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;

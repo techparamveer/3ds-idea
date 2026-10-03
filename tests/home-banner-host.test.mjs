@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostBackgroundFrame, getHomeBannerHostView,
   homeApplicationBannerBoundary, resolveHomeBannerHostSelection, skipHomeBannerHostPass,
-  stepHomeBannerHost } from '../src/os/home-banner-host.ts';
+  resetHomeBannerPrimary, stepHomeBannerHost } from '../src/os/home-banner-host.ts';
 import { createPortfolioState, launchHomeShortcut, reduceSystem, tickSystem } from '../src/os/system.ts';
 import { initialState, reduceMenu, renameFolder } from '../src/os/state.ts';
 import { moveHomeItem, selectHomeLocation } from '../src/os/home-layout.ts';
@@ -335,6 +335,38 @@ test('folder-scope reentry is deterministic, starts at the current count and inv
   host = step(acknowledge(host)); assert.equal(view(host).primary.activationEpoch, 1); assert.equal(motion(host).yawCounter, 1);
   host = at(host, host.clock.updateCount, { refreshActiveLabel: { generation: oldTicket.generation, activationEpoch: 1, key: 'a', label: 'Previous scope' } });
   assert.equal(view(host).primary.selection.label, 'Folder A');
+});
+
+test('entry reset retires only the primary and reacquires with a noncolliding scope', () => {
+  const before = freeze(settled({ kind: 'app', id: 'camera' }));
+  const previous = view(before), previousBackground = background(before);
+  const reset = resetHomeBannerPrimary(before);
+  assert.equal(reset.clock, before.clock);
+  assert.equal(reset.background, before.background);
+  assert.equal(reset.scope, before.scope);
+  assert.deepEqual(reset.selection, { kind: 'app', id: 'camera' });
+  assert.equal(reset.service, null); assert.equal(reset.pending, null); assert.equal(reset.active, null);
+  assert.equal(reset.inputs.resourceReady, null);
+  assert.deepEqual(background(reset), previousBackground);
+
+  let restarted = at(reset, reset.clock.updateCount, { inputs: inputs({
+    managerInhibited: true, sceneInhibited: true, resourceReady: previous.resourceTicket,
+  }) });
+  const replacement = view(restarted);
+  assert.equal(replacement.status, 'pending'); assert.equal(replacement.stage, 'gate');
+  assert.equal(replacement.waitUpdates, 0); assert.equal(replacement.primary, null);
+  assert.equal(restarted.scope, before.scope + 1);
+  assert.notEqual(replacement.generation, previous.generation);
+  assert.equal(restarted.inputs.resourceReady, null, 'old scope readiness cannot acknowledge the replacement');
+  assert.equal(restarted.clock.updateCount, before.clock.updateCount);
+  assert.deepEqual(background(restarted), previousBackground);
+
+  restarted = at(restarted, restarted.clock.updateCount, { inputs: inputs({ resourceReady: replacement.resourceTicket }) });
+  restarted = step(restarted, 7);
+  assert.equal(view(restarted).status, 'active');
+  assert.deepEqual(view(restarted).primary.selection, { kind: 'app', id: 'camera' });
+  assert.equal(motion(restarted).visibilityCounter, 1);
+  assert.equal(motion(restarted).scale, Math.fround(.8));
 });
 
 test('new System generation clears presentation/readiness and requires selection to be supplied again', () => {

@@ -251,6 +251,16 @@ export function createHomeBannerHost(clock: HomeBannerServiceClock, inputs: Home
     background, service: null, pending: null, active: null };
 }
 
+/** Retire only the selected primary scope at the captured power-restart entry boundary.
+ * The System-session cursor, monotonic scope allocator and independently owned
+ * background controller survive. The retained selection may be requested
+ * again at the same clock without allowing an old resource acknowledgement to
+ * satisfy the replacement scope. */
+export function resetHomeBannerPrimary(host: HomeBannerHost): HomeBannerHost {
+  return { ...host, inputs: retainInputs({ ...host.inputs, resourceReady: null }, null),
+    service: null, pending: null, active: null };
+}
+
 export function getHomeBannerHostBackgroundFrame(host: HomeBannerHost): HomeBannerHostBackgroundFrame {
   const { attached, mode, sceneIn, loop, appPause } = host.background.background;
   return { attached, mode, sceneInFrame: sceneIn.frame, loopFrame: loop.frame,

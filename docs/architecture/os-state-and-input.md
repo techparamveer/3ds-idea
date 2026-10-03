@@ -408,6 +408,15 @@ source frame zero while local time continues. The currently fitted 18-frame
 origin is a source-render adaptation with no measured native launch interval;
 see the [Health phase evidence](../health-toploop-phase-fit-2026-09-26.md).
 
+The [first-entry upper reveal](../home-launch-exit-2026-10-03.md), runtime
+`c6c567d7`, additionally samples Health's native `CmnFade_U_00_SceneIn`0..20.
+Its owner-scoped origin is committed only after a successful complete paired
+draw, so late resources and failed draws cannot consume the reveal. The receipt
+survives same-owner HOME/applet native-session teardown, resets on replacement
+owner and clears on disposal. Lower composition and TopLoop stay independent.
+Reduced motion selects transparent frame20. Native dispatch is untraced; the
+first-pair origin is an explicit adaptation, not measured epoch equivalence.
+
 ## HOME HUD diagnostic paint
 
 The optional fourth argument to `screens.paint` is a one-paint

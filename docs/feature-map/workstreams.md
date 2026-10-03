@@ -6,6 +6,9 @@ Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` now owns
 `3ds-health-launch-reveal-20261003` / `codex/health-launch-reveal-20261003`,
 base `65ae2a0d`. Scope is the captured missing upper-only first-entry reveal,
 with necessary Stock/HOME integration explicitly assigned by the coordinator.
+Worker `864156e3` / `7c139ce9` integrate as `fbb194fa` / `c6c567d7`; exact
+review is clean. Comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929`
+owns only private `home-launch-exit-20261003/after-comparison/`.
 Helpers `toolbar_reentry_prepare` and `toolbar_reentry_review` prepare/audit
 the private comparison. GPT-5.6 Sol/high; coordinator alone operates GUI.
 [Capture and remaining limits](../home-launch-exit-2026-10-03.md).

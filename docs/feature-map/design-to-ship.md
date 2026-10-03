@@ -6,7 +6,12 @@ the existing C14 terminal pair from host-stall skips (`27a85a4a`, test follow-up
 Keep exact logo-exit/reveal onset, per-title scheduling and audio/input in the
 lifecycle queue; normal1750ms and reduced120ms remain explicit adaptations.
 
-Current runtime checkpoint: `15630913` (toolbar hosted motion),
+[Health first-entry reveal](../home-launch-exit-2026-10-03.md), `c6c567d7`,
+now uses the decoded upper-only fade with a successful paired-draw origin.
+Normal/late/mobile/reduced captures verify the visible change; exact native
+dispatch and whole acceptance remain open. Preserve the other Health designs.
+
+Current runtime checkpoint: `c6c567d7` (Health first-entry reveal),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.

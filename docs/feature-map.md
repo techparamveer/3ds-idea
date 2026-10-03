@@ -17,15 +17,18 @@ tier is not exposed or verified by the collaboration tool.
 
 Latest [launch exit capture](home-launch-exit-2026-10-03.md) closes the missing
 exit/reveal evidence interval and identifies Health's absent upper-only reveal.
-The source chat owns `codex/health-launch-reveal-20261003` for that bounded
-source-backed correction; integration/recapture remain pending. Whole1:1 stays open.
+The source chat's `codex/health-launch-reveal-20261003` now integrates as
+`fbb194fa` / `c6c567d7`: decoded upper fade, readiness-safe paired origin and
+no same-owner replay. Full1978 tests/build/typecheck and independent review pass;
+205 final desktop/late/mobile/reduced pairs visibly verify the correction.
+Exact native dispatch, pixels/input/audio and whole1:1 stay open.
 
 Latest runtime [launch publication](home-launch-publication-2026-10-03.md),
 `27a85a4a` with test follow-up `60ecf08f`, preserves terminal C14 presentation
 before app entry under a host stall. Paired launch failure recovery and target
 loading/error escape are guarded by owner/context identity. Normal/reduced
 1750/120ms clocks remain adaptations. Full1973 tests, build/typecheck and
-independent review pass. Exact native logo-exit/reveal capture, input, timing,
+independent review pass. Exact native frame epochs, input, timing,
 audio and whole pixels remain open; this is not normal-speed pixel improvement.
 Desktop/narrow/reduced/stall/context and four power controls complete with mute
 and fixture restoration. All24 native/browser paired diagnostics still fail;

@@ -1,6 +1,6 @@
 # Remaining UI Design and Shipping Map
 
-Current runtime checkpoint: `f85e1396` (HOME density press boundary),
+Current runtime checkpoint: `632646d2` (HOME footer re-entry),
 3 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
@@ -9,20 +9,27 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+[Footer re-entry](../home-footer-reentry-2026-10-03.md) now has genuine native
+CTM held/outside/re-entered/released evidence. Manual reacquires its press
+after returning from Open and launches on release, matching the captured
+native behavior; shared origin/selection guards prevent transfer. Do not
+repeat the former atomic-tool blocker or keep the fixed sticky cancellation
+in the queue. Other footer variants and exact transition timing remain open.
+
 [Stationary density holds](../home-density-hold-2026-10-03.md) now have fresh
 native/browser endpoint evidence: two-second decrease and increase holds each
 change one step, with no observed later repeat. Do not add a guessed touch
 repeat timer from the older inconclusive200ms run. Native held-frame/activation
-edge proof remains open; next capture footer out-and-back re-entry.
+edge proof remains open; footer out-and-back is now captured above.
 
 [Density boundary feedback](../home-density-boundary-2026-10-03.md) now shares
 the existing release split x293, so pressing that edge highlights increase
 instead of decrease. Native release and both cross-footer cancellation
 endpoints are captured; native held pixels/cadence are still open. Preserve
 this correction and the entry-order work below. Next interaction evidence
-should cover footer out-and-back re-entry and native pressed feedback, or
-return to a named banner residual. Do not infer sticky cancellation without
-native observation or redesign existing screens.
+should cover remaining footer variants or return to a named banner residual.
+Camera Manual re-entry is now native-observed and corrected above; preserve
+existing screen designs.
 
 [Entry recovery](../home-entry-recovery-2026-10-03.md) now preserves the
 footer/banner/HUD sequence after graphics restoration and plays the remaining

@@ -15,11 +15,19 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [stationary density-hold replay](home-density-hold-2026-10-03.md)
+Latest runtime [footer re-entry correction](home-footer-reentry-2026-10-03.md),
+`632646d2`, fixes the fresh CTM-captured Manual -> Open -> Manual -> release
+mismatch. The original button regains held feedback and opens on release;
+cross-button/outside/cancelled contacts remain blocked. Full1944 tests and
+build/sequential typecheck pass; independent146-test review has no findings.
+Other app designs and native assets are unchanged; exact cadence/audio and
+whole HOME1:1 remain open.
+
+Earlier [stationary density-hold replay](home-density-hold-2026-10-03.md)
 does not reproduce the old apparent repeat: native two-second holds and browser
 release endpoints both change6->5->6 once. No runtime change or speculative
-repeat timer is warranted. Held native pixels/activation edge remain open;
-continue with native footer out-and-back interaction evidence.
+repeat timer is warranted. Density held native pixels/activation edge remain
+open; footer out-and-back evidence is now captured in the correction above.
 
 Latest runtime [density boundary correction](home-density-boundary-2026-10-03.md),
 `f85e1396`, aligns native-source pressed feedback with the existing release

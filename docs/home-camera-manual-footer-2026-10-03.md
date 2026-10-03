@@ -139,7 +139,10 @@ Two incomplete Manual harness attempts are preserved and excluded: the first
 wrongly required app-screen readiness on idle HOME; the second expected a
 26px excursion/re-entry to activate, although existing HOME slop cancels that
 stroke. The corrected replay asserts cancellation then uses a fresh tap.
-Native footer re-entry was not captured, so this is not a native input pass.
+Native footer re-entry was not captured in this earlier run. The later
+[CTM re-entry comparison](home-footer-reentry-2026-10-03.md) captures the held
+states and corrects sticky cancellation at `632646d2`; exact cadence remains
+unproved, so neither run establishes a whole native input pass.
 
 Dedicated muted Chrome PID41753 exits0 and exact PID absence is verified;
 native PID42991 is also absent. Preview3021/session46827 intentionally remains

@@ -436,6 +436,12 @@ clock or invented page data. See the first-page evidence in
 `ownedHomeFooterContact` is shared by source Select painting and reducer release
 gating. Both endpoints must resolve to the same semantic button; selection
 revision, folder context and toolbar focus must still match the immutable
-gesture origin. It does not introduce a second gesture recognizer or change
-native-control queuing, slop or timing. See the
-[button/border delivery](../home-buttons-border-2026-10-02.md).
+gesture origin. At `632646d2`, a genuine footer-origin contact has a `footer`
+area in the existing gesture recognizer and remains press-owned beyond generic
+slop, allowing out-and-back Select restoration and release on the original
+button. Release outside footer geometry cannot become another chrome action;
+toolbar Select only consumes chrome-origin gestures. Grid/theme/other-chrome
+slop and native-control queuing/timing are unchanged. This is a captured-input
+adaptation, not a second recognizer or recovered native controller. See
+[button/border delivery](../home-buttons-border-2026-10-02.md) and the later
+[native re-entry correction](../home-footer-reentry-2026-10-03.md).

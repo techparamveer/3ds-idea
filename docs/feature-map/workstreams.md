@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Footer Re-entry - 3 October 2026
+
+Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns
+`3ds-home-footer-reentry-20261003` / `codex/home-footer-reentry-20261003`,
+base `ec49a438`. Worker `9479dfae` integrates as `632646d2`.
+Scope: HOME gesture/footer contact classification, toolbar feedback isolation
+and focused tests. `boot_staging_review` cleared the exact commit with146
+tests; comparator chat `01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns only private
+`home-footer-reentry-20261003/comparison/`. GPT-5.6 Sol/high delegates;
+coordinator alone drives muted native/browser sessions on the authorized Mac.
+[Evidence and limits](../home-footer-reentry-2026-10-03.md).
+
 ## Density Boundary - 3 October 2026
 
 Source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` owns

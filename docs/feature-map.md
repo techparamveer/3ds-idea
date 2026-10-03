@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [density boundary correction](home-density-boundary-2026-10-03.md),
+Latest [stationary density-hold replay](home-density-hold-2026-10-03.md)
+does not reproduce the old apparent repeat: native two-second holds and browser
+release endpoints both change6->5->6 once. No runtime change or speculative
+repeat timer is warranted. Held native pixels/activation edge remain open;
+continue with native footer out-and-back interaction evidence.
+
+Latest runtime [density boundary correction](home-density-boundary-2026-10-03.md),
 `f85e1396`, aligns native-source pressed feedback with the existing release
 action at x293. Full1940 tests/build/typecheck and independent103-test review
 pass. Native cross-footer cancellations and density release are observed;

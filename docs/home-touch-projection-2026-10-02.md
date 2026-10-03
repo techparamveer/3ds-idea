@@ -78,6 +78,11 @@ matching or a browser reducer defect. The profile remains isolated and muted;
 Quit/Yes exits 139 this run and PID absence is verified. That differs from the
 previous turn's clean exit. No default-profile or system/Spotify audio change.
 
+Follow-up: the [3 October stationary-hold replay](home-density-hold-2026-10-03.md)
+does not reproduce this apparent repeat. Fresh two-second native holds change
+one step each, with stable released endpoints; no speculative repeat timer is
+justified. Native held-frame and activation-edge evidence remains unavailable.
+
 Private artifacts, scripts and check logs are under the same root as the
 baseline: `browser-after/`, `resize-controls-after/`, `density-before/`,
 `density-after/`, and `coordinator/`. `coordinator/native-run.json` records all

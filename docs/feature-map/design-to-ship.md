@@ -9,6 +9,12 @@ native acceptance is not permission to redesign an implemented screen.
 
 ## Work First
 
+[Stationary density holds](../home-density-hold-2026-10-03.md) now have fresh
+native/browser endpoint evidence: two-second decrease and increase holds each
+change one step, with no observed later repeat. Do not add a guessed touch
+repeat timer from the older inconclusive200ms run. Native held-frame/activation
+edge proof remains open; next capture footer out-and-back re-entry.
+
 [Density boundary feedback](../home-density-boundary-2026-10-03.md) now shares
 the existing release split x293, so pressing that edge highlights increase
 instead of decrease. Native release and both cross-footer cancellation
@@ -161,11 +167,11 @@ adaptations. Continue with captured press/fade states,
 not another populated-delete confirmation redesign.
 
 The [Create Folder footer source audit](../home-create-folder-footer-2026-10-02.md)
-used its one bounded source-only slice. The 799-pixel stable residual is not
-fixed by source selection; no runtime change was justified. Do not rerun the
-same audit or hide the error under phase/population differences. New native
-runtime evidence or an explicitly measured adaptation is needed. Continue with
-captured pressed/fade interaction states.
+is historical: later backing/page-boundary corrections remove its780 edge
+pixels, and the explicit [coverage adaptation](../home-footer-text-2026-10-02.md)
+at `f031cca9` brings the remaining19 text pixels within delta2 in settled
+desktop/mobile/reduced comparisons. Do not re-open the old799-pixel defect or
+rerun the source-selection audit. Native pressed/fade timing remains open.
 
 The captured [Folder Settings placeholder](../home-folder-settings-native-2026-10-02.md)
 is replaced at `79e77f58` with decoded native frame, rows and message styles.

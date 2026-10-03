@@ -20,6 +20,9 @@ from firmware.manual_bcma import convert, open_outer, open_inner, nested_members
 PRIVATE_MANUAL = Path(os.environ.get('FIRMWARE_MANUAL_BCMA',
     '/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/assets/multicontent/'
     'verified/extracted/settings/contents/0001-00000038/romfs/Manual.bcma'))
+PRIVATE_CAMERA_MANUAL = Path(os.environ.get('FIRMWARE_CAMERA_MANUAL_BCMA',
+    '/Users/paramveer/.codex/3ds-artifact-overflow/assets/stock-ui/reader-extracted/camera/'
+    'contents/0001-00000019/romfs/Manual.bcma'))
 SELECTION = {'EUR_en_index.arc': ('blyt/Index.bclyt',)}
 TEXTURES = ('EUR_en_texture.arc', 'Common_texture.arc')
 
@@ -155,6 +158,13 @@ class NestedManualTests(unittest.TestCase):
         self.assertEqual(members['EUR_en_index.arc/blyt/Index.bclyt'], layout(['tex.bclim']))
         self.assertIn('EUR_de_index.arc/blyt/Index.bclyt', members)
 
+    def test_valid_bclim_payload_may_begin_with_lz_marker(self):
+        texture = bytes([0x11]) + clim()[1:]
+        raw = manual(**{'Common_texture.arc': lz(darc({'timg/tex.bclim': texture}))})
+        with tempfile.TemporaryDirectory() as temp:
+            _, pack = self.run_convert(raw, temp)
+        self.assertEqual(pack['resourceSources']['textures']['tex.bclim']['sha256'], digest(texture))
+
     def test_publish_is_idempotent_and_refuses_conflicts(self):
         raw = manual()
         with tempfile.TemporaryDirectory() as temp:
@@ -174,7 +184,7 @@ class NestedManualTests(unittest.TestCase):
             self.assertEqual((out/'manifest.json').read_bytes(), first)
             wrong = dict(manifest); wrong['titles'] = {SETTINGS: {'version': 9221, 'packs': []}}
             (out/'manifest.json').write_bytes(encode(wrong))
-            with self.assertRaisesRegex(ValueError, 'Settings version'): publish(source, out, **options)
+            with self.assertRaisesRegex(ValueError, 'title version'): publish(source, out, **options)
 
 
 @unittest.skipUnless(PRIVATE_MANUAL.is_file(), 'private Settings Manual.bcma unavailable')
@@ -201,6 +211,35 @@ class RealManualTests(unittest.TestCase):
         for locale in ('EUR_de', 'EUR_fr', 'EUR_es', 'EUR_it', 'EUR_nl', 'EUR_pt', 'EUR_ru'):
             self.assertNotIn(locale+'_index.arc/', text)
             self.assertNotIn(locale+'_large.arc/', text)
+
+
+@unittest.skipUnless(PRIVATE_CAMERA_MANUAL.is_file(), 'private Camera Manual.bcma unavailable')
+class RealCameraManualTests(unittest.TestCase):
+    def test_real_english_index_only(self):
+        raw = PRIVATE_CAMERA_MANUAL.read_bytes()
+        self.assertEqual(digest(raw), manual_bcma.CAMERA_SOURCE_SHA)
+        with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+            url, pack = convert(raw, Builder(Path(a)), title_id=manual_bcma.CAMERA)
+            convert(raw, Builder(Path(b)), title_id=manual_bcma.CAMERA)
+            files = lambda root: {p.relative_to(root).as_posix(): p.read_bytes() for p in Path(root).rglob('*') if p.is_file()}
+            self.assertEqual(files(a), files(b))
+        self.assertEqual(url, 'packs/camera/contents/0001-00000019/manual-EUR_en.json')
+        self.assertEqual(list(pack['layouts']), ['Index'])
+        self.assertEqual(pack['textures'], {})
+        self.assertEqual(pack['manualSelection']['pages'], [])
+        self.assertEqual(pack['manualSelection']['layoutVariants'], [])
+        self.assertEqual(pack['resourceSources']['layouts']['Index'], {
+            'titleId': manual_bcma.CAMERA, 'contentIndex': 1, 'contentId': '00000019',
+            'path': 'Manual.bcma/EUR_en_index.arc/blyt/Index.bclyt',
+            'sha256': 'fb84dd247b046ac4394c989c74156de5d0e6b46c5eb5bec54a48b4ec319bc6ff',
+        })
+        children = pack['layouts']['Index']['roots'][0]['children']
+        titles = [pane['text']['value'] for pane in children if pane['name'].startswith('PageTitle_')]
+        self.assertEqual(len(titles), 15)
+        self.assertEqual(titles[:3], ['Health & Safety', 'Introduction', 'Screen Layout'])
+        members = nested_members(open_outer(raw))
+        source = pack['resourceSources']['layouts']['Index']
+        self.assertEqual(digest(members[source['path'].removeprefix('Manual.bcma/')]), source['sha256'])
 
 
 if __name__ == '__main__': unittest.main()

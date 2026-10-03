@@ -7,7 +7,7 @@ import { createStockModule, initialSharedData } from '../src/os/stock-apps.ts';
 import { getTitle } from '../src/os/app-registry.ts';
 import { manualContents, manualSources } from '../src/os/stock-manual-index.ts';
 
-const root = resolve('public/os/firmware/10.7.0-32E'), settings = '0004001000022000';
+const root = resolve('public/os/firmware/10.7.0-32E'), settings = '0004001000022000', camera = '0004001000022400';
 const json = path => JSON.parse(readFileSync(join(root, path), 'utf8'));
 const manifest = json('manifest.json'), source = manualSources[settings], pack = json(source.url);
 const ctx = { now: 0, shared: initialSharedData() };
@@ -44,6 +44,27 @@ test('Settings manual source is the delivered content-1 pack with its SMDH headi
   assert.equal(title.longDescriptionSource.path, 'ExeFS/icon');
 });
 
+test('Camera manual source is its delivered content-1 English index', () => {
+  const cameraSource = manualSources[camera], cameraPack = json(cameraSource.url), title = manifest.titles[camera];
+  assert.ok(title.packs.includes(cameraSource.url));
+  assert.equal(cameraPack.titleId, camera);
+  assert.equal(cameraPack.contentIndex, 1);
+  assert.equal(cameraPack.contentId, '00000019');
+  assert.deepEqual(Object.keys(cameraPack.layouts), ['Index']);
+  assert.deepEqual(cameraPack.manualSelection.pages, []);
+  assert.equal(cameraPack.resourceSources.layouts.Index.path, 'Manual.bcma/EUR_en_index.arc/blyt/Index.bclyt');
+  assert.equal(cameraSource.heading, title.longDescription);
+  assert.equal(cameraSource.iconUrl, '/os/firmware/10.7.0-32E/icons/camera.png');
+  const entries = manualContents(cameraPack.layouts.Index);
+  assert.equal(entries.filter(entry => entry.kind === 'page').length, 15);
+  assert.deepEqual(entries.slice(0, 4), [
+    { kind: 'page', page: 0, title: 'Health & Safety', category: 0 },
+    { kind: 'category', category: 1, title: 'Basic Information' },
+    { kind: 'page', page: 1, title: 'Introduction', category: 1 },
+    { kind: 'category', category: 2, title: 'Taking Photos and Videos' },
+  ]);
+});
+
 test('Manual header expands the source SMDH large icon into its traced 64x64 texture', () => {
   const data = new Uint8ClampedArray(48 * 48 * 4);
   for (let y = 0; y < 48; y++) for (let x = 0; x < 48; x++) data.set([x, y, x ^ y, 255], (y * 48 + x) * 4);
@@ -69,6 +90,28 @@ test('Contents order, numbers and category bands come from Index user metadata',
   // Category_000 (__CATEGORY_INVALID__, IsValid 0) contributes page 0 without a band.
   assert.deepEqual(entries.filter(entry => entry.kind === 'category').map(entry => entry.title),
     ['Getting Started', 'Nintendo Network ID', 'Internet Settings', 'Parental Controls', 'Data Management', 'Other Settings']);
+});
+
+test('Camera Contents requests its real index, source icon, and Close-only interaction', () => {
+  const view = { appId: 'manual', screen: 'main', heading: 'Nintendo 3DS Camera', rows: [], selection: 0, footer: { left: { action: 'back', label: 'Back' } }, data: { manualTitleId: camera } };
+  const request = helpers.nativeHelperView(view), calls = [], requestedImages = [];
+  assert.deepEqual(request.packs.find(item => item.alias === 'manual-index'), {
+    url: manualSources[camera].url, alias: 'manual-index', layouts: ['Index'], animations: [], titleId: camera,
+  });
+  assert.deepEqual(helpers.nativeHelperTargets(view), [{ action: 'back', x: 0, y: 212, width: 160, height: 28 }]);
+  const renderer = {
+    packs: Object.fromEntries(request.packs.map(item => [item.alias, json(item.url)])),
+    draw(_context, packName, layout, options) { calls.push({ pack: packName, layout, options }); return true; },
+  };
+  const pixels = { width: 48, height: 48, data: new Uint8ClampedArray(48 * 48 * 4) };
+  const context = { fillStyle: '', fillRect() {} };
+  assert.equal(helpers.drawNativeHelperFrame(renderer, context, context, view, { nativeImage(url) { requestedImages.push(url); return pixels; } }), true);
+  assert.deepEqual(requestedImages, ['/os/firmware/10.7.0-32E/icons/camera.png']);
+  const header = calls.find(call => call.pack === 'manual-SoftTitleHeader');
+  assert.equal(header.options.overrides.TextBoxTxt_00.text, 'Nintendo 3DS Camera');
+  assert.equal(header.options.textures['IconBlank.bclim'].width, 64);
+  const module = createStockModule(getTitle('manual')), state = module.create({ manualTitleId: camera }, null, ctx);
+  assert.deepEqual(module.reduce(state, { type: 'action', id: 'back' }, ctx).effects, [{ type: 'close' }]);
 });
 
 test('malformed Index metadata fails instead of inventing contents', () => {

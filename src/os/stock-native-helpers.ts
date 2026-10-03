@@ -281,7 +281,7 @@ function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
   preparedApplicationManualCategories.add(renderer);
 }
 
-/** Settings (and future application) manual Contents. Rows come only from
+/** Application manual Contents. Rows come only from
  * the application's source Index.bclyt; titles, numbers and order are source
  * data. All visible chrome below is decoded from the Manual applet packs. */
 function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options?:StockScreenPaintOptions):boolean{
@@ -302,7 +302,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   draw(bottom,'manual-all-root','AllNull',{center:[160,0],bindings:[{name:'AllNull_Wait',frame:1}]});
   // P_Icon_00 defaults to IconBlank; the applet binds the calling title's SMDH icon.
   draw(top,'manual-index-root','IndexNull',{center:[200,240-262],bindings:[{name:'IndexNull_Wait',frame:1}]});
-  const sourceIcon=titleId==='0004001000022000'?options?.nativeImage?.('/os/firmware/10.7.0-32E/icons/settings.png'):undefined;
+  const sourceIcon=options?.nativeImage?.(source.iconUrl);
   const icon=sourceIcon&&sourceIcon.width===48&&sourceIcon.height===48?applicationManualIconPixels(sourceIcon):undefined;
   draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,textSampling:'lcd-source-size',textures:icon?{'IconBlank.bclim':icon}:undefined,overrides:{TextBoxTxt_00:{text:source.heading},...(!icon&&{P_Icon_00:{visible:false}})}});
   draw(top,'manual-scroll','ScrollIndicator',{center:[392,32],pictureSampling:'lcd',bindings:[{name:'ScrollIndicator_Wait',frame:5}]});

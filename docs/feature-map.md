@@ -15,13 +15,21 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [shutdown publication](home-shutdown-publication-2026-10-03.md),
+Latest [Power re-entry comparison](home-power-reentry-2026-10-03.md) confirms
+the existing continuous-contact behavior at unchanged runtime `ea6265de`:
+native clears held feedback outside, restores it inside, and shuts down on
+inside release. Four primary unmasked two-LCD pairs meet maximum delta2;
+held/re-entered button ROImax1. No runtime change was indicated. Exact native/browser epochs,
+motion/audio, physical backlight and cold boot remain open. Preserve this
+verified ownership behavior; do not repeat the same gesture audit as missing.
+
+Earlier [shutdown publication](home-shutdown-publication-2026-10-03.md),
 `19376463` + `ea6265de`, closes a captured host-stall endpoint skip. A guarded
 native-pair/render acknowledgment precedes off; forced publication spans an
 animation callback boundary and suspension/context changes invalidate it.
 Full1882 tests/typecheck/build pass; native epochs, motion/audio, backlight
 and restart timing remain open. Preserve the source poses and earlier Power
-input correction; next lifecycle comparison still needs native re-entry and
+input correction; next lifecycle comparison still needs
 exact cold-boot/input timing, not another fitted shutdown duration.
 
 Earlier [Power input](home-power-input-2026-10-03.md), `b0814dd4`, fixes
@@ -29,8 +37,8 @@ outside-origin release activation and missing source held-button feedback.
 Fresh native controls confirm both cross-boundary releases stay in Power;
 held ROI6708->0 pixels above delta2 and five desktop endpoint pairs reach
 maximum2, including exact black shutdown. Full1874 tests/typecheck/build and
-four browser modes pass implementation checks. Continuous native re-entry,
-exact input/motion/audio, physical backlight and restart timing remain open.
+four browser modes pass implementation checks. Continuous native re-entry is
+now compared above; exact input/motion/audio, physical backlight and restart timing remain open.
 Preserve settled Power and completed close/return; next lifecycle acceptance
 targets those specific gaps, not another reconstruction of the same screen.
 

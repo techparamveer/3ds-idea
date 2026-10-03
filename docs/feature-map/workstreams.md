@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Power Re-entry - 3 October 2026
+
+Coordinator alone operates the muted isolated reference and production browser
+on the authorized full Mac. Existing comparator chat
+`01a0f9a7-3b9c-7640-b7f6-3528982b4929` owns private capture comparisons,
+GPT-5.6 Sol/high, with no service-tier claim. Helper `closing_icon_departure`
+performs a read-only ownership review and13 focused tests. Source chat/tree is
+left idle because native confirms the already implemented behavior; no new
+worktree or speculative source change is needed. Coordinator documentation
+stays in `3ds-home-fidelity-20261001` / `codex/home-fidelity-20261001`.
+[Evidence and remaining limits](../home-power-reentry-2026-10-03.md).
+
 ## Shutdown Publication - 3 October 2026
 
 Existing source chat `01a0f9a5-b3a9-79c1-b6d1-beeb544fcf13` in owned

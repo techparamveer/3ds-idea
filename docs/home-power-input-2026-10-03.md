@@ -11,7 +11,9 @@ Azahar, and owned held feedback remained white. Power now requires the
 accepted pointer's down and up inside the source target. Outside release,
 outside-origin release, unmatched up and wrong pointers are inert. Leaving
 an owned target clears feedback; re-entry restores it. That continuous
-re-entry behavior is tested but has no native capture yet.
+re-entry behavior was initially test-only; the subsequent
+[continuous native replay](home-power-reentry-2026-10-03.md) confirms its
+held-state and release behavior without changing this implementation.
 
 The presenter selects delivered `Slp_D_00_Select` pose 0, then pose 1 only
 while the owned contact is inside, scoped to `G_Btn_01`. Missing Select fails
@@ -117,8 +119,9 @@ the private root above:
 
 ## Limits
 
-Whole native scenarios still fail. Native continuous re-entry, exact input and
-motion epochs, shutdown publication across stalls, physical backlight order,
+Whole native scenarios still fail. The later [re-entry comparison](home-power-reentry-2026-10-03.md)
+and [publication correction](home-shutdown-publication-2026-10-03.md) supersede
+those two checkpoint gaps. Exact input and motion epochs, physical backlight order,
 restart timing and audio under mute remain unverified. Host 1200/120 ms timing,
 reduced-motion policy, authored charcoal physical-off fill and portfolio
 content remain adaptations. A native black screenshot is not proof of the

@@ -1582,7 +1582,7 @@ for (const moved of [false, true]) {
     await withScreens(({ paint, cursorCalls }) => {
       const state = home();
       paint(state); const baseline = cursorCalls().map(({ name, args }) => [name, ...args]);
-      let pressed = touchHomeGesture(state, { type: 'touch', phase: 'down', x: 76, y: 16, pointerId: 4 }, 0).state;
+      let pressed = touchHomeGesture(state, { type: 'touch', phase: 'down', x: 76, y: 32, pointerId: 4 }, 0).state;
       if (moved) pressed = touchHomeGesture(pressed, { type: 'touch', phase: 'move', x: 76, y: 80, pointerId: 4 }, 1).state;
       assert.equal(pressed.system.homeNavigation.gesture.area, 'chrome');
       const view = getHomePresentation(pressed);
@@ -1595,6 +1595,30 @@ for (const moved of [false, true]) {
     });
   });
 }
+
+test('toolbar-origin Select clears outside, restores only its original applet on re-entry, and cannot transfer', async () => {
+  await withScreens(({ screens, paint, events }) => {
+    let state = home();
+    const toolbar = () => events.find(event => event.name === 'toolbar-layout' && event.context === screens.bottom.getContext('2d')).args;
+    state = touchHomeGesture(state, { type: 'touch', phase: 'down', x: 160, y: 16, pointerId: 4 }, 0).state;
+    assert.equal(state.system.homeNavigation.gesture.area, 'toolbar');
+    paint(freeze(state));
+    assert.deepEqual(toolbar()[2].bindings.at(-1), { name: 'LncBase_D_01_Select', frame: 1, groups: ['G_News_00'] });
+
+    state = touchHomeGesture(state, { type: 'touch', phase: 'move', x: 160, y: 60, pointerId: 4 }, 1).state;
+    assert.equal(state.system.homeNavigation.gesture.mode, 'press');
+    paint(freeze(state));
+    assert.ok(!toolbar()[2].bindings.some(binding => binding.name === 'LncBase_D_01_Select'));
+
+    state = touchHomeGesture(state, { type: 'touch', phase: 'move', x: 160, y: 16, pointerId: 4 }, 2).state;
+    paint(freeze(state));
+    assert.deepEqual(toolbar()[2].bindings.at(-1), { name: 'LncBase_D_01_Select', frame: 1, groups: ['G_News_00'] });
+
+    state = touchHomeGesture(state, { type: 'touch', phase: 'move', x: 202, y: 16, pointerId: 4 }, 3).state;
+    paint(freeze(state));
+    assert.ok(!toolbar()[2].bindings.some(binding => binding.name === 'LncBase_D_01_Select'), 'News owner cannot transfer to Web');
+  }, { realToolbar: true });
+});
 
 test('disabled density-origin presses preserve real toolbar poses and all retained cursor calls', async () => {
   await withScreens(({ screens, paint, events, cursorCalls }) => {

@@ -280,6 +280,21 @@ export function selectHomeTouchSlot(state: HomeScrollState, slot: number): HomeS
   return result(state, observations);
 }
 
+/** Capture-fit adapter for an observed first-touch selection whose native
+ * toolbar callsite is still untraced. Reuse the retained focus/cursor model;
+ * feature activation remains a separate host action. */
+export function selectHomeToolbarTouch(state: HomeScrollState, focus: number): HomeScrollResult {
+  validate(state);
+  if (!Number.isInteger(focus) || focus < 1 || focus > 5) throw new RangeError('Invalid HOME applet toolbar touch focus');
+  if (state.navigation.motion || state.navigation.gesture) return result(state, [], 'unsupported');
+  const nav = state.navigation, view = activeHomeRecord(nav), oldFocus = nav.focus.toolbarActive ? nav.focus.currentFocus : -1;
+  if (nav.focus.toolbarActive && oldFocus === focus) return result(state);
+  state = { ...state, navigation: { ...nav, focus: Object.freeze({ ...nav.focus,
+    toolbarActive: true, currentFocus: focus, rememberedFocus: -1, savedColumn: -1 }) } };
+  return result(state, [Object.freeze({ kind: 'scale-seek', frame: toolbarScale(focus), updateOffset: null }),
+    cursorSelection(state, 'touch', view.selectedSlot, oldFocus)]);
+}
+
 /** Ordinary idle arrow route with an explicit native selection-status endpoint.
  * Status0's immediate exit and mode14 remain outside this proved subset.
  */

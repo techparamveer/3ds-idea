@@ -5,9 +5,9 @@ import { decodeNativePng } from './native-png';
 import { nativeBannerLabelOverride } from './native-banner-label';
 import { NativeLayoutRenderer } from './native-renderer';
 import { boundAnimationTracks, nativeFolderGlyphPixels, nativeMessageOverride, nativePaneParentPath, nativeTextureSamplePixels, poseNativeLayout, sampleNativeTrack, type AnimationBinding, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
-import { isHomeFolderBackTouch, rowCount, toolbar as toolbarRegions, type MenuState } from './state';
+import { isHomeFolderBackTouch, rowCount, type MenuState } from './state';
 import { getHomeDensityControls } from './home-density-controls';
-import { ownedHomeDensityContact } from './home-gestures';
+import { ownedHomeDensityContact, ownedHomeToolbarContact } from './home-gestures';
 import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
 import type { HomeTilePose } from './home-tile-pose';
 import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from './home-balloon-presentation';
@@ -257,11 +257,10 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(controls&&!controls.decreaseEnabled)disabled.push('G_Dw_00');
   if(controls&&!controls.increaseEnabled)disabled.push('G_Up_00');
   if(disabled.length)bindings.push(binding('LncBase_D_01_Invalid',0,disabled));
-  if(state&&!state.panel&&gesture?.mode==='press'&&(gesture.area==='chrome'||gesture.area==='density')){
-   const toolbarPressed=gesture.area==='chrome'&&gesture.y>=0&&gesture.y<33&&gesture.x>=0&&gesture.x<320;
-   const index=toolbarPressed?toolbarRegions.findIndex(region=>gesture.x>=region.x&&gesture.x<region.x+region.width):-1;
+  if(state&&!state.panel&&gesture?.mode==='press'&&(gesture.area==='toolbar'||gesture.area==='density')){
+   const toolbarOwner=gesture.area==='toolbar'?ownedHomeToolbarContact(state,gesture):null;
    const densityAction=gesture.area==='density'?ownedHomeDensityContact(state,gesture):null;
-   const group=index>=0?['G_Light_00','G_Memo_00','G_Friend_00','G_News_00','G_Web_00','G_Mvs_00'][index]
+   const group=toolbarOwner?['G_Light_00','G_Memo_00','G_Friend_00','G_News_00','G_Web_00','G_Mvs_00'][toolbarOwner.focus]
     :densityAction==='decrease'?'G_Dw_00':densityAction==='increase'?'G_Up_00':null;
    if(group&&!disabled.includes(group))bindings.push(binding('LncBase_D_01_Select',1,[group]));
   }

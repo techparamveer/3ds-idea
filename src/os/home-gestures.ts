@@ -1,4 +1,4 @@
-import { columnPitch, menuTiles, pageStart, rowCount, visibleColumns, isHomeFolderBackTouch, type MenuState } from './state.ts';
+import { columnPitch, homeToolbarHit, menuTiles, pageStart, rowCount, visibleColumns, isHomeFolderBackTouch, type HomeToolbarHit, type MenuState } from './state.ts';
 import { homeContainer, homeItemAt, moveHomeItem, resolveHomeDrop, sameHomeLocation, type HomeItem, type HomeLocation } from './home-layout.ts';
 import type { AppEvent } from './app-types.ts';
 import { getHomeExposedExtent, getHomeNavigation, getHomeNavigationView, settleHomeNavigation, writeHomeNavigation, enterHomeFolder, leaveHomeFolder, commitHomeScroll, type HomeNavigation } from './home-navigation.ts';
@@ -13,7 +13,7 @@ export const HOME_GESTURE_TIMING = { liftMs: 450, slopPixels: 8, folderHoverMs: 
  * gesture clock. Folder slots are non-negative, so this cannot alias one. */
 const HOME_FOLDER_BACK_HOVER = -1;
 export type HomeGesture = {
-  pointerId: number; mode: 'press' | 'scroll' | 'drag'; area: 'grid' | 'chrome' | 'density' | 'footer' | 'themes';
+  pointerId: number; mode: 'press' | 'scroll' | 'drag'; area: 'grid' | 'chrome' | 'toolbar' | 'density' | 'footer' | 'themes';
   x: number; y: number; startX: number; startY: number; startedAt: number; updatedAt: number;
   source: HomeLocation | null; item: HomeItem | null; target: HomeLocation | null;
   viewFolder: number | null; columns: number; panel: MenuState['panel'];
@@ -21,6 +21,24 @@ export type HomeGesture = {
   scrollPixels: number | null;
   anchorScroll: number; hoverFolder: number | null; hoverSince: number; edge: -1 | 0 | 1; edgeAt: number;
 };
+/** Native toolbar feedback and release remain with the exact button that
+ * received the down edge. Navigation/context replacement invalidates the
+ * owner rather than transferring it to the current pointer target. */
+export function ownedHomeToolbarContact(state: MenuState, contact: HomeGesture | null | undefined, endX = contact?.x, endY = contact?.y): HomeToolbarHit | null {
+  if (!contact || contact.mode !== 'press' || contact.area !== 'toolbar' || endX === undefined || endY === undefined) return null;
+  const live = state.system?.homeNavigation.gesture;
+  if (!live || live.pointerId !== contact.pointerId || live.area !== contact.area || live.startX !== contact.startX
+    || live.startY !== contact.startY || live.startedAt !== contact.startedAt) return null;
+  if (state.panel !== contact.panel || state.columns !== contact.columns || homeContainer(state) !== contact.viewFolder) return null;
+  const start = homeToolbarHit(contact.startX, contact.startY), end = homeToolbarHit(endX, endY);
+  if (!start || !end || start.action !== end.action || start.focus !== end.focus) return null;
+  const current = state.system?.homeNavigation, origin = contact.origin.navigation;
+  if (!current || current.selectionRevision !== origin.selectionRevision || current.activeFolderSlot !== origin.activeFolderSlot
+    || current.focus.toolbarActive !== origin.focus.toolbarActive || current.focus.currentFocus !== origin.focus.currentFocus) return null;
+  const originState = writeHomeNavigation({ ...state, panel: contact.panel, panelChoice: contact.origin.panelChoice }, { ...origin, gesture: null });
+  const originView = getHomeNavigationView(originState), currentView = getHomeNavigationView(state);
+  return originView.context === currentView.context && originView.targetDensity === currentView.targetDensity ? end : null;
+}
 /** Density Select/release stays with the original half of the shared source
  * rectangle. Leaving it clears feedback without surrendering capture; only
  * the same still-enabled action can recover ownership on re-entry. */
@@ -116,7 +134,8 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
     const area = state.panel === 'themes' ? 'themes'
       : !state.panel && !isHomeFolderBackTouch(state, event.x, event.y) && event.y >= (state.opened ? 49 : 34) && event.y < 204 ? 'grid'
       : homeFooterHit(state, HOME_FOOTER_TOUCH_GEOMETRY, event.x, event.y) ? 'footer'
-      : !state.panel && homeDensityActionAt(event.x, event.y) ? 'density' : 'chrome';
+      : !state.panel && homeDensityActionAt(event.x, event.y) ? 'density'
+      : !state.panel && homeToolbarHit(event.x, event.y) ? 'toolbar' : 'chrome';
     const gesture: HomeGesture = { pointerId: event.pointerId ?? 0, mode: 'press', area, x: event.x, y: event.y, startX: event.x, startY: event.y, startedAt: now, updatedAt: now, source, item: source ? homeItemAt(state, source) : null, target: source, viewFolder: homeContainer(state), columns: state.columns, panel: state.panel,
       origin: { navigation: getHomeNavigation(state), panelChoice: state.panelChoice }, scrollPixels: null, anchorScroll: pageStart(state), hoverFolder: null, hoverSince: now, edge: 0, edgeAt: now };
     return { state: setNavigation(state, { ...state.system!.homeNavigation, gesture }), tap: false };
@@ -128,11 +147,11 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   let gesture = state.system!.homeNavigation.gesture;
   if (!gesture) return { state, tap: false };
   gesture = { ...gesture, x: event.x, y: event.y, updatedAt: now };
-  // Native footer and density buttons retain their original semantic owner
-  // while the stylus leaves them, so re-entry can restore Select. Their
+  // Native footer, density and toolbar buttons retain their original semantic
+  // owner while the stylus leaves them, so re-entry can restore Select. Their
   // endpoint owners still decide presentation and release; other chrome keeps
   // the existing slop-to-scroll cancellation behavior.
-  if (gesture.mode === 'press' && gesture.area !== 'footer' && gesture.area !== 'density' && Math.hypot(event.x - gesture.startX, event.y - gesture.startY) > HOME_GESTURE_TIMING.slopPixels) gesture.mode = 'scroll';
+  if (gesture.mode === 'press' && gesture.area !== 'footer' && gesture.area !== 'density' && gesture.area !== 'toolbar' && Math.hypot(event.x - gesture.startX, event.y - gesture.startY) > HOME_GESTURE_TIMING.slopPixels) gesture.mode = 'scroll';
   let scrollColumn = pageStart(state);
   if (gesture.mode === 'scroll') {
     if (gesture.area === 'grid') {
@@ -165,7 +184,8 @@ export function touchHomeGesture(state: MenuState, event: Extract<AppEvent, { ty
   }
   const end = !state.panel ? homeTouchLocation(state, event.x, event.y) : null;
   const beganOnBack = isHomeFolderBackTouch(state, gesture.startX, gesture.startY), endedOnBack = isHomeFolderBackTouch(state, event.x, event.y);
-  const tap = gesture.area === 'density' ? !!ownedHomeDensityContact(state, gesture, event.x, event.y)
+  const tap = gesture.area === 'toolbar' ? !!ownedHomeToolbarContact(state, gesture, event.x, event.y)
+    : gesture.area === 'density' ? !!ownedHomeDensityContact(state, gesture, event.x, event.y)
     : gesture.area === 'footer' ? !!homeFooterHit(state, HOME_FOOTER_TOUCH_GEOMETRY, event.x, event.y)
     : beganOnBack || endedOnBack ? beganOnBack && endedOnBack : gesture.source ? sameHomeLocation(gesture.source, end) : !end;
   return { state: setNavigation(state, { ...getHomeNavigation(state), gesture: null }), tap };

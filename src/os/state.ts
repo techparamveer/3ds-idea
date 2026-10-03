@@ -74,6 +74,14 @@ export const toolbar = [
   { panel: 'friends', x: 84, width: 42 }, { panel: 'notifications', x: 126, width: 42 },
   { panel: 'browser', x: 168, width: 42 }, { panel: 'miiverse', x: 210, width: 56 },
 ] as const;
+export type HomeToolbarHit = Readonly<{ action: typeof toolbar[number]['panel']; focus: number }>;
+/** Existing HOME toolbar rectangles, projected as half-open lower-LCD touch
+ * bounds. Density controls retain their separate shared geometry. */
+export function homeToolbarHit(x: number, y: number): HomeToolbarHit | null {
+  if (!Number.isFinite(x) || !Number.isFinite(y) || y < 0 || y >= 32) return null;
+  const focus = toolbar.findIndex(item => x >= item.x && x < item.x + item.width);
+  return focus < 0 ? null : { action: toolbar[focus].panel, focus };
+}
 export const themeChoices: Theme[] = ['red', 'blue', 'yellow', 'pink', 'black', 'white'];
 export function renameFolder(state: MenuState, name: string): MenuState {
   if (!isFolder(state.selected, state)) return state;
@@ -197,9 +205,9 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
     if (!(decrease?controls.decreaseEnabled:controls.increaseEnabled)) return state;
     return reduceMenu(state,decrease?'zoom-in':'zoom-out');
   }
-  if (y < 32) {
-    const item = toolbar.find(item => x >= item.x && x < item.x + item.width);
-    return item ? { ...state, panel: item.panel, panelChoice: 0, ...(item.panel === 'settings' ? { panelScroll: 0, homeLayoutAction: null } : {}) } : state;
+  const toolbarHit=homeToolbarHit(x,y);
+  if (toolbarHit) {
+    return { ...state, panel: toolbarHit.action, panelChoice: 0, ...(toolbarHit.action === 'settings' ? { panelScroll: 0, homeLayoutAction: null } : {}) };
   }
   if (y >= 212) {
     // The no-owner occupied-folder footer is full-width Open. This pure menu

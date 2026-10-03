@@ -14,6 +14,7 @@ import {
 import { reduceMenu } from '../src/os/state.ts';
 import { getHomeFooter } from '../src/os/home-presentation.ts';
 import { consumeSystemHomeFolderCloseInput } from '../src/os/home-folder-close-system.ts';
+import { ownedHomeToolbarContact } from '../src/os/home-gestures.ts';
 
 const T = 4000, FRAME = 1000 / 60;
 const scrollOracle = JSON.parse(readFileSync(new URL('./fixtures/home-scroll-consumer.json', import.meta.url)));
@@ -187,6 +188,71 @@ test('toolbar A/Start opens the focused applet instead of the old selected appli
     assert.ok(Object.values(state.system.runtime.instances).some(instance => instance.appId === 'game-notes'));
     assert.deepEqual(controls(state).input.sources, {});
   }
+});
+
+test('applet toolbar capture restores Select on exact re-entry, then selects before a second tap activates', () => {
+  let state = home();
+  state = touch(state, 'down', 160, 16);
+  assert.equal(nav(state).gesture.area, 'toolbar');
+  assert.deepEqual(ownedHomeToolbarContact(state, nav(state).gesture), { action: 'notifications', focus: 3 });
+
+  state = touch(state, 'move', 160, 60);
+  assert.equal(nav(state).gesture.mode, 'press', 'toolbar owns the pointer outside its rectangle');
+  assert.equal(ownedHomeToolbarContact(state, nav(state).gesture), null);
+
+  state = touch(state, 'move', 160, 16);
+  assert.deepEqual(ownedHomeToolbarContact(state, nav(state).gesture), { action: 'notifications', focus: 3 });
+  state = touch(state, 'up', 160, 16);
+  assert.equal(state.system.phase, 'home');
+  assert.equal(state.system.runtime.active, null);
+  assert.deepEqual(nav(state).focus, { toolbarActive: true, currentFocus: 3, rememberedFocus: -1, savedColumn: -1 });
+  assert.deepEqual(getHomeFooter(state), { two: false, left: null, right: 'open' });
+  state = at(state, 1).state;
+  assert.deepEqual(controls(state).primary.center, { x: 160, y: 16.5 });
+
+  state = touch(touch(state, 'down', 160, 16), 'up', 160, 16);
+  assert.equal(state.system.phase, 'app');
+  assert.equal(state.system.runtime.instances[state.system.runtime.active]?.appId, 'notifications');
+});
+
+test('toolbar capture cannot transfer across buttons or regions and stale owners stay inert', () => {
+  for (const [x, y] of [[202, 16], [280, 12], [160, 60], [160, 100], [160, 226], [-1, 16]]) {
+    let state = home();
+    state = touch(state, 'down', 160, 16);
+    state = touch(state, 'move', x, y);
+    assert.equal(ownedHomeToolbarContact(state, nav(state).gesture), null);
+    state = touch(state, 'up', x, y);
+    assert.equal(state.system.phase, 'home');
+    assert.equal(state.system.runtime.active, null);
+    assert.equal(nav(state).focus.toolbarActive, false);
+    assert.equal(nav(state).gesture, null);
+  }
+
+  let cancelled = touch(home(), 'down', 160, 16);
+  const stale = nav(cancelled).gesture;
+  cancelled = touch(cancelled, 'cancel', 160, 16);
+  assert.equal(nav(cancelled).gesture, null);
+  assert.equal(ownedHomeToolbarContact(cancelled, stale), null);
+  cancelled = touch(cancelled, 'up', 160, 16);
+  assert.equal(cancelled.system.runtime.active, null);
+
+  let replaced = touch(home(), 'down', 160, 16);
+  const owner = nav(replaced).gesture;
+  replaced = selectHomeSlot(replaced, 1);
+  assert.equal(ownedHomeToolbarContact(replaced, owner), null, 'selection revision invalidates the retained owner');
+});
+
+test('Settings keeps its direct first-tap action while applet toolbar buttons select first', () => {
+  let settings = home();
+  settings = touch(touch(settings, 'down', 20, 16), 'up', 20, 16);
+  assert.equal(settings.panel, 'settings');
+  assert.equal(nav(settings).focus.toolbarActive, false);
+
+  let notes = home();
+  notes = touch(touch(notes, 'down', 62, 16), 'up', 62, 16);
+  assert.equal(notes.panel, null);
+  assert.deepEqual(nav(notes).focus, { toolbarActive: true, currentFocus: 1, rememberedFocus: -1, savedColumn: -1 });
+  assert.equal(notes.system.runtime.active, null);
 });
 
 test('applet footer is one Open button independent of the retained grid selection', () => {

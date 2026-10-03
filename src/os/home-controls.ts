@@ -8,7 +8,7 @@ import { createHomeCursorPresentation, consumeHomeCursorObservation, advanceHome
   updateHomeCursorEffectPositions, type HomeCursorPresentation } from './home-cursor-presentation.ts';
 import { advanceHomeCursorLoop } from './home-cursor-loop.ts';
 import { activeHomeRecord, getHomeExposedExtent, sampleHomeGrid, writeHomeNavigation, type HomeNavigation } from './home-navigation.ts';
-import { consumeHomeGridKeyEvent, selectHomeTouchSlot, type HomeScrollObservation, type HomeScrollState } from './home-scroll-consumer.ts';
+import { consumeHomeGridKeyEvent, selectHomeToolbarTouch, selectHomeTouchSlot, type HomeScrollObservation, type HomeScrollState } from './home-scroll-consumer.ts';
 import { advanceSystemHomeFolderCloseNative, consumeSystemHomeFolderCloseInput,
   isSystemHomeFolderClosing, sampleSystemHomeFolderClose } from './home-folder-close-system.ts';
 import type { HomeNavigationPassObservation } from './home-navigation-pass.ts';
@@ -221,6 +221,16 @@ export function selectHomeControlTouch(state: MenuState, slot: number): MenuStat
   const controls = state.system?.homeControls;
   if (!controls || !isHomeControlsActive(state)) return null;
   const result = selectHomeTouchSlot(homeScrollState(state), slot);
+  if (result.disposition === 'unsupported') return null;
+  return put(writeScroll(state, result.state), observe({ ...controls, tileCandidate: null }, result.observations));
+}
+/** Accepted toolbar touch selection enters the same focus/cursor model as
+ * directional navigation. A repeated same-focus release is activated by the
+ * existing system route rather than here. */
+export function selectHomeToolbarControlTouch(state: MenuState, focus: number): MenuState | null {
+  const controls = state.system?.homeControls;
+  if (!controls || !isHomeControlsActive(state)) return null;
+  const result = selectHomeToolbarTouch(homeScrollState(state), focus);
   if (result.disposition === 'unsupported') return null;
   return put(writeScroll(state, result.state), observe({ ...controls, tileCandidate: null }, result.observations));
 }

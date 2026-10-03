@@ -4,7 +4,7 @@ import { advanceSystemHomeApplicationTransition, beginSystemHomeApplicationTrans
 import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { createHomeCursorLoop, advanceHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
-import { cancelHomeControls, cancelHomeControlTouch, isHomeControlsActive, isHomeSwitchPresentationActive, queueHomeControlEvent, queueHomeControlTouch, reconcileHomeControlGesture, reconcileHomeControls, selectHomeControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
+import { cancelHomeControls, cancelHomeControlTouch, isHomeControlsActive, isHomeSwitchPresentationActive, queueHomeControlEvent, queueHomeControlTouch, reconcileHomeControlGesture, reconcileHomeControls, selectHomeControlTouch, selectHomeToolbarControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
 import { getHomeToolbarCursorAnchor } from './home-cursor-presentation.ts';
 export { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHomeFolderCloseRecord, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 export { sampleSystemHomeApplicationTransition, isSystemHomeApplicationTransitionActive } from './system-home-application-transition.ts';
@@ -19,7 +19,7 @@ import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, c
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
 import { homeSlotAppId, moveHomeItem, restoreHomeLayout, selectHomeLocation, type FolderLayouts } from './home-layout.ts';
-import { cancelHomeGesture, createHomeNavigation, resetHomeNavigation, tickHomeGesture, touchHomeGesture, homeTouchLocation, type HomeNavigation } from './home-gestures.ts';
+import { cancelHomeGesture, createHomeNavigation, ownedHomeToolbarContact, resetHomeNavigation, tickHomeGesture, touchHomeGesture, homeTouchLocation, type HomeNavigation } from './home-gestures.ts';
 import { selectHomeSlot, settleHomeNavigation, getHomeNavigation, getHomeExposedExtent, saveHomeView, restoreHomeView, homeDensityIndex, HOME_DENSITIES, writeHomeNavigation, createHomeGridFocus, createHomeUpdateClock, stepHomeUpdateClock, type HomeUpdateClock } from './home-navigation.ts';
 import { pageHomeViewport } from './home-scroll-consumer.ts';
 export { homeSlotAppId, moveHomeItem } from './home-layout.ts';
@@ -417,11 +417,16 @@ function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number)
   if(s.phase==='home'&&!s.preferences&&!s.dialog&&!s.sleeping){
    const native=queueHomeControlTouch(state,event);
    const contact=native.state.system?.homeNavigation.gesture;
+   const toolbarOwner=event.phase==='up'?ownedHomeToolbarContact(native.state,contact,event.x,event.y):null;
    const footerRelease=event.phase==='up'?homeFooterHit(native.state,HOME_FOOTER_TOUCH_GEOMETRY,event.x,event.y):null;
    const footerOwner=event.phase==='up'?ownedHomeFooterContact(native.state,HOME_FOOTER_TOUCH_GEOMETRY,contact,event.x,event.y):null;
    const result=touchHomeGesture(native.state,event,now);
    const next=result.nonTapGesture?cancelHomeControlTouch(result.state):reconcileHomeControlGesture(result.state);
    if(!result.tap||native.handled)return next;
+   if(toolbarOwner&&toolbarOwner.focus>0){
+    const focus=next.system!.homeNavigation.focus;
+    if(!focus.toolbarActive||focus.currentFocus!==toolbarOwner.focus)return selectHomeToolbarControlTouch(next,toolbarOwner.focus)??next;
+   }
    return footerRelease&&!footerOwner?next:touchSystem(next,event.x,event.y,now);
   }
  }

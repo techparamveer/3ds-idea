@@ -6,7 +6,7 @@ import { createHomeNavigation, activeHomeRecord, gridSnapshot, homeGridMetrics, 
 import { initialState } from '../src/os/state.ts';
 import { createHomeCursorLoop, advanceHomeCursorLoop, setHomeCursorLoopStep } from '../src/os/home-cursor-loop.ts';
 import { createHomeInputProducer, pollHomeInput } from '../src/os/home-input-producer.ts';
-import { consumeHomeGridKeyEvent, advanceHomeScroll, enterHomeMode3, selectHomeTouchSlot, pageHomeViewport, restoreHomeRootViewport } from '../src/os/home-scroll-consumer.ts';
+import { consumeHomeGridKeyEvent, advanceHomeScroll, enterHomeMode3, selectHomeToolbarTouch, selectHomeTouchSlot, pageHomeViewport, restoreHomeRootViewport } from '../src/os/home-scroll-consumer.ts';
 
 const oracle = JSON.parse(readFileSync(new URL('./fixtures/home-scroll-consumer.json', import.meta.url)));
 const effectOracle = JSON.parse(readFileSync(new URL('./fixtures/home-scroll-observations.json', import.meta.url)));
@@ -89,6 +89,18 @@ test('34 native direction departures and accepted grid touch preserve the depart
     assert.equal(result.observations.at(-2).kind,'cue');assert.equal(result.observations.at(-1).kind,'cursor-select');
   }
   for(const row of effectOracle.touch)check(selectHomeTouchSlot(setup(false,2,{selected:3}),row.newSlot),row);
+});
+test('accepted applet toolbar touch reuses retained focus, scale and cursor observations', () => {
+  const initial = setup(false, 2, { selected: 3 });
+  const result = selectHomeToolbarTouch(initial, 3);
+  assertState(result.state, { selected: 3, toolbar: 1, focus: 3, previousFocus: -1, savedColumn: 0xffffffff });
+  assert.deepEqual(observations(result), [['scale-seek', 11], ['cursor-select', 3]]);
+  assert.equal(result.observations[1].source, 'touch');
+  assert.equal(result.observations[1].effectTarget.kind, 'grid');
+  assert.equal(result.observations[1].effectTarget.slot, 3);
+  assert.equal(selectHomeToolbarTouch(result.state, 3).observations.length, 0, 'repeat selection is activated by the host route');
+  assert.throws(() => selectHomeToolbarTouch(initial, 0), /Invalid HOME applet toolbar touch focus/);
+  assert.throws(() => selectHomeToolbarTouch(initial, 6), /Invalid HOME applet toolbar touch focus/);
 });
 test('70 native gate cases and busy diagonal inertness', () => {
   const changes={overlay:{overlayActive:true},'missing-manager':{managerPresent:false},'manager-inhibit':{managerInhibited:true},'scene-inhibit':{sceneInhibited:true},'busy-mode3':{}};

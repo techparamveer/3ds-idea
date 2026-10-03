@@ -147,6 +147,23 @@ test('system screen publication reports only a successful native power or shutdo
  });
 });
 
+test('cold boot publishes only the captured HOME base layers beneath the paired fade',async()=>{
+ await withScreens(({paint,events})=>{
+  const boot=createPortfolioState();
+  paint(boot);
+  assert.equal(boot.system.phase,'boot');
+  assert.ok(events.some(event=>event.name==='upperBase'));
+  assert.ok(events.some(event=>event.name==='toolbar'));
+  assert.ok(events.some(event=>event.name==='homePlate'));
+  assert.ok(!events.some(event=>event.name==='hud'));
+  assert.ok(!events.some(event=>event.name==='footer'));
+
+  paint({...boot,system:{...boot.system,phase:'home'}});
+  assert.ok(events.some(event=>event.name==='hud'));
+  assert.ok(events.some(event=>event.name==='footer'));
+ });
+});
+
 test('footer-return source failure retains paired recovery after application retirement',async()=>{
  await withScreens(({paint,events,screens})=>{
   const state=closeFooterReturn();paint(state);

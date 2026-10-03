@@ -481,8 +481,13 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.
   if(state.panel==='settings')nativeHome?.settingsUpper(t);else if(!suspended)nativeHome?.upperBase(t);
-  if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame);nativeHome?.folderBalloon(b,state,view);if(state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'&&!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
+  // Native cold boot fades only the paired HOME bases, lower chrome and icons.
+  // The HUD/footer packs have independent SceneIn clips, but their exact native
+  // caller boundary remains untraced. This captured slice only prevents their
+  // settled poses appearing beneath CmnFadeNinLogo while boot is still active.
+  const bootBaseOnly=state.system?.phase==='boot';
+  if(!bootBaseOnly&&!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame);nativeHome?.folderBalloon(b,state,view);if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'&&!nativeHome?.footer(b,state,reduced))footer(b,state,chrome);if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
   if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample))status(t,date,chrome);},layoutPreview))throw new Error('Native HOME layout manager unavailable.');
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);
   const dialogKey=homeSoftwareDialogKey(state),dialogTitles=homeSoftwareDialogTitles(state);

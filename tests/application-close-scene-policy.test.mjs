@@ -58,9 +58,9 @@ test('shutdown publication is revoked across hidden and sleeping suspension boun
   assert.match(source, /const revokeTerminalPublications=\(\)=>\{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;\};/);
 });
 
-test('power and shutdown paint success requires the selected native system overlay', () => {
+test('boot, power and shutdown paint success requires the selected native system overlay', () => {
   const screens = readFileSync(new URL('../src/os/screens.ts', import.meta.url), 'utf8');
-  assert.match(screens, /state\.system&&!state\.system\.sleeping&&\['power','shutdown'\]\.includes\(state\.system\.phase\)/);
+  assert.match(screens, /state\.system&&!state\.system\.sleeping&&\['boot','power','shutdown'\]\.includes\(state\.system\.phase\)/);
   assert.match(screens, /if\(requiresNativeSystem&&!nativeSystem\)throw Error/);
   assert.match(screens, /nativeSystem\?\{\.\.\.\(verificationPaint\?\?\{\}\),nativeSystem:true\}:verificationPaint/);
 });

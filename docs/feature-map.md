@@ -23,7 +23,9 @@ reused HudTime-phase empty-entry lower keeps slider `[0,144,320,175]`
 Already-bound `C_SldH_L` Default 20 + Rate 0. Dump `Disable` / `Push` /
 `MRate` do not hide `IconS` or uniquely own the grey capsule. No Rate
 frame, mip or sampler guess. Painter unchanged. Docs and tests only.
-Coordinator APPROVE pending independent review. Not recaptured. Not 1:1.
+Independent review **APPROVE-WITH-NITS** (identical patch-id `ff5b2ac2…`;
+no `src/`; tests 4/4; official strip is `report.screens.lower.regions[0]`,
+not unqualified `regions[0]`). Not recaptured. Not 1:1.
 
 Earlier [Sound empty/first-run title 1774](sound-title-1774-2026-10-04.md),
 `4cb57d9` from worker `935818c9`:

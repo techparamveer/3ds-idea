@@ -11,7 +11,10 @@ reopened
 [HudTime recapture](sound-clock-recapture-2026-10-04.md)).
 First-run lower is the guide, not this slider.
 
-This is not a 1:1 claim. Tests and this note do not close pixels, input,
+This is not a 1:1 claim. Independent review **APPROVE-WITH-NITS** of
+fidelity `583fa9e` / worker `540cc5f5` (identical patch-id `ff5b2ac2…`;
+tests 4/4; official strip is `report.screens.lower.regions[0]`, not
+unqualified `regions[0]`). Tests and this note do not close pixels, input,
 motion or audio. Coordinator recapture remains the acceptance gate.
 
 ## Pairs (reused, not recaptured)
@@ -53,7 +56,7 @@ than 2.
 | Whole lower | 320×240 | **16021** | 241 | row residual |
 | Slider | `[0,144,320,175]` | **4271** | 195 | `(39,152)` native `(60,47,47)` / browser `(255,51,68)` |
 | Handle band | `[0,148,320,172]` | 2962 | 195 | same |
-| Official strip | `{x:0,y:144,width:320,height:31}` | 4168 | — | `report.json` `regions[0]` |
+| Official strip | `{x:0,y:144,width:320,height:31}` | 4168 | — | `report.screens.lower.regions[0]` |
 | Official tick | `{x:38,y:152,width:4,height:14}` | **56** | 195 | `IconS` core |
 | Empty row / footer | `[0,32,320,64]` / `[0,178,320,240]` | 1916 / 4707 | — | already labelled; not reopened |
 

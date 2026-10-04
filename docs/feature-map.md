@@ -18,8 +18,17 @@ tier is not exposed or verified by the collaboration tool.
 Latest [HOME Settings cursor loop freeze](home-cursor-loop-frame-2026-10-04.md),
 `a1590273`, lets Settings captures freeze `LncCsr_00_Loop`. Frozen search
 picks cursor 37 at yaw 310 / COMMON 309 / Loop 338 (2,900 / 12,544). Do not
-adopt 37 as a live clock. Remaining residuals are wrench/`mt_pict` icons,
-WalkCoin fade and labelled portfolio tiles.
+adopt 37 as a live clock. Remaining residuals are wrench-edge coverage,
+`mt_pict` icons, title glyphs and labelled portfolio tiles. WalkCoin on
+this still is already inside 2/255.
+
+Earlier [HOME WalkCoin fade](home-walkcoin-fade-2026-10-04.md) already
+follows elapsed `time * 0.06`. Not a wallpaper/cursor freeze. Do not
+adopt frame 97 as a live clock.
+
+Earlier [HOME Settings wrench residual](home-settings-wrench-residual-2026-10-04.md)
+splits the 2,900 upper pixels as wrench 792 / `mt_pict` 1,298 / title 810.
+No bind/pane/texture/blend change. Do not adopt yaw−1.
 
 Earlier [HOME Settings banner skeletal search](home-settings-banner-skeletal-2026-10-04.md)
 picks COMMON 309 at frozen yaw 310 / Loop 338 (2,900 / 13,522). Do not adopt

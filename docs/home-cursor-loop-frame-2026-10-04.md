@@ -29,8 +29,10 @@ is unchanged.
   `tests/lcd-capture.test.mjs` 18 pass, including Settings cursor+wallpaper
   metadata. Typecheck and production build pass.
 - Frozen search at yaw 310 / COMMON 309 / Loop 338 scores cursor frames
-  0–59. Winner is **Loop 37** (36–38 best; 37 cursor ROI 1,677 over 2,
-  max 22). Frame 0 was 2,479 / 13,488.
+  0–59 on lower LCD ROI `[200, 118, 80, 88]`, then whole lower. Winner is
+  **Loop 37** (36–38 best; 37 cursor ROI 1,677 over 2, max 22). Frame 0
+  was 2,479 / 13,488. That ROI is ranking support only, not an acceptance
+  mask.
 - Pair `R/cursor-search/` upper SHA
   `f87ccd3476f5312e938bf87d6b1bb1675181a645d01902ca8d217d6182906a65`
   (byte-identical to the skeletal-refine upper). Lower SHA

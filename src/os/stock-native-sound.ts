@@ -117,6 +117,17 @@ export function soundHudTimeKey(view:AppView,date:Date):readonly number[]|null{
   return Array.isArray(tracks)&&tracks.length?null:[date.getHours(),date.getMinutes(),date.getSeconds()&1];
 }
 
+/** C_HudBut_B_Pattern frame for Sound HUD battery state 0.
+ * code.bin 0x17ae6c (but vtable slot 17) writes +0x4e from CFG 0x3771d1, then
+ * 0x17adfc indexes init table 0x33d148 with the same seconds byte as HudTime
+ * (0x3c9a7c+0x2c). State 0 is the only record that differs by parity: odd
+ * seconds take byte0 (frame 5, HudBatPlg) and even seconds take byte2
+ * (frame 4). Both recapture stills uniquely require this state. Other charge
+ * states and the CFG field names stay unsupplied. */
+export function soundHudBatteryPatternFrame(date:Date):number{
+  return date.getSeconds()&1?5:4;
+}
+
 /** Original Sound artwork at its source mounts with portfolio track content.
  * Playback uses the native transport, playback-mode panel, C_SldT time slider and
  * the resting S_Play_D-Effect panel; the library uses the source list cursor and
@@ -161,8 +172,10 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     for(const x of [35,94])entry(top,'sound-bird','ParakeetA_U',{bindings:[{name:'ParakeetA_U_Wait',frame:0}],center:[x,192]});
     entry(bottom,'sound-bird','ParakeetA_D',{bindings:[{name:'ParakeetA_D_Wait',frame:0}],center:[21,123]});
     entry(top,'sound-info','S_Inf_U-UnderBar');
+    // C_HudSndB_Pattern frames 0..4 are CFG volume at 0x3771d1+3 (0x17aeec).
+    // That byte is unsupplied here, so frame 0 stays. Do not capture-fit it.
     entry(top,'sound-hud','C_HudSndB',{center:[7,228],bindings:[{name:'C_HudSndB_Pattern',frame:0}]});
-    entry(top,'sound-hud','C_HudBut_B',{center:[51,228],bindings:[{name:'C_HudBut_B_Pattern',frame:4}]});
+    entry(top,'sound-hud','C_HudBut_B',{center:[51,228],bindings:[{name:'C_HudBut_B_Pattern',frame:soundHudBatteryPatternFrame(options.date??new Date())}]});
     entry(top,'sound-info','S_Inf_U-Hour',{overrides:{TextBox_00:soundHudTimeOverride(renderer.packs['sound-messages'],options.date??new Date())}});
     entry(top,'sound-info','S_Inf_U-PlayTime',{overrides:{PlyTimeTxt:{text:'0:00:00 / 0:00:00'}}});
     // The settled native SD-absent capture places this row two LCD pixels above

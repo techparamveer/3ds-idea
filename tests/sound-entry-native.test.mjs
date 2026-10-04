@@ -8,7 +8,7 @@ const layout=url(compile('stock-screen-layout')
  .replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href))
  .replace("'./stock-manual-index.ts'",JSON.stringify(url('export const manualPageZeroAvailable=()=>false;'))));
 const source=compile('stock-native-sound').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-sound-record'",JSON.stringify(url(compile('stock-sound-record'))));
-const {drawNativeSoundFrame,soundEntryBlue,soundGuideMessageColor,soundHudTimeAlternatives,soundHudTimeOverride,soundHudTimeKey,soundScreenPacks}=await import(url(source));
+const {drawNativeSoundFrame,soundEntryBlue,soundGuideMessageColor,soundHudBatteryPatternFrame,soundHudTimeAlternatives,soundHudTimeOverride,soundHudTimeKey,soundScreenPacks}=await import(url(source));
 const {stockScreenActionAt:hit}=await import(layout);
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const packs=Object.fromEntries(soundScreenPacks.map(p=>[p.alias,JSON.parse(readFileSync(new URL(p.url,firmware)))]));
@@ -186,6 +186,29 @@ test('Sound paint identity carries HudTime seconds parity only on the empty-entr
  const presentation=readFileSync(new URL('../src/os/stock-screen-presentation.ts',import.meta.url),'utf8');
  assert.match(presentation,/const soundClockKey=soundHudTimeKey\(view,date\);/);
  assert.match(presentation,/JSON\.stringify\(\[[^\]]*soundClockKey[^\]]*\]\)/,'the paint key includes the Sound clock identity');
+});
+
+test('empty-entry battery Pattern follows source seconds parity and leaves volume on unsupplied CFG frame 0',()=>{
+ const clip=packs['sound-hud'].animations.C_HudBut_B_Pattern;
+ assert.equal(clip.frames,7);
+ assert.deepEqual(clip.textures,['HudBat_00.bclim','HudBat_01.bclim','HudBatLgt_00.bclim','HudBatPlg.bclim']);
+ const plug=clip.tracks.find(t=>t.property==='texture.pattern'&&t.index===2);
+ assert.deepEqual(plug.keys.map(k=>[k.frame,k.value]),[[0,2],[5,3]]);
+ const even=new Date(2026,8,25,22,27,14,541),odd=new Date(2026,8,25,22,31,31,595);
+ assert.equal(soundHudBatteryPatternFrame(even),4);
+ assert.equal(soundHudBatteryPatternFrame(odd),5);
+ assert.equal(soundHudBatteryPatternFrame(new Date(2026,8,24,10,52,0)),4);
+ const posedTexture=(date,layout)=>{
+  const calls=[];
+  assert.equal(drawNativeSoundFrame({packs,drawLayout:(ctx,pack,name,posed)=>{calls.push({layout:name,posed});return true;},draw:()=>true},{},{},entry,{date}),true);
+  const call=calls.find(c=>c.layout===layout);
+  const battery=layout==='C_HudBut_B';
+  const material=call.posed.materials.find(m=>m.name===(battery?'ButF_B':'-H-SndB'));
+  return call.posed.textures[material.textureMaps[battery?2:0].texture];
+ };
+ assert.equal(posedTexture(even,'C_HudBut_B'),'HudBatLgt_00.bclim');
+ assert.equal(posedTexture(odd,'C_HudBut_B'),'HudBatPlg.bclim');
+ for(const date of [even,odd])assert.equal(posedTexture(date,'C_HudSndB'),'HudSnd_B_00.bclim');
 });
 
 test('lower welcome frame includes source window and bird at the guide mount',()=>{

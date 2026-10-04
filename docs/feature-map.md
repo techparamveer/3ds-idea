@@ -19,8 +19,9 @@ Latest [HOME 1-row remaining upper 190](home-upper-190-2026-10-04.md),
 `883fc20d` from worker `87dac2c5`: after the matching Right walk, upper
 stays **190**. Regions start 25 at `[71,150,4,10]`, then 16/15/10.
 Already-bound outer green/yellow `mt_pict` edges plus three `mt_spanner`
-pixels. No unused Texture1/2. Docs and tests only. Coordinator APPROVE
-pending independent review. Not 1:1.
+pixels. No unused Texture1/2. Docs and tests only. Independent review
+**APPROVE** (identical trees `8090ef5b`; no `src/`; tests 4/4; same 26
+Sep / yaw-304 leftover). Not 1:1.
 
 Earlier [HOME 1-row neighbour peeks](home-neighbor-peeks-2026-10-04.md),
 `36c66188` from worker `35b2fe96`: right 2,220 and left 561+391+145 are

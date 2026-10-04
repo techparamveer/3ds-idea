@@ -22,8 +22,9 @@ test('fresh root launch retains its selected owner and source footer exit frames
  assert.equal(getHomeLaunchPresentation(state,4100).footerSceneOutFrame,0);
  assert.equal(getHomeLaunchPresentation(state,4200).footerSceneOutFrame,6);
  assert.equal(getHomeLaunchPresentation(state,5000).footerSceneOutFrame,14);
- assert.equal(getHomeLaunchPresentation(state,4100).cursorEffectFrame,6);
- assert.equal(getHomeLaunchPresentation(state,5000).cursorEffectFrame,60);
+ assert.equal(getHomeLaunchPresentation(state,4100).cursorEffectFrame,0);
+ assert.equal(getHomeLaunchPresentation(state,4200).cursorEffectFrame,6);
+ assert.equal(getHomeLaunchPresentation(state,5100).cursorEffectFrame,60);
  assert.deepEqual(getHomeFooter(state,true),{two:false,left:null,right:'open'});
  assert.deepEqual(getHomeFooter(state),{two:true,left:'close-software',right:'resume'},'without settled banner eligibility launch keeps its prior footer policy');
 });

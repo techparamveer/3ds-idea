@@ -3,7 +3,7 @@ import { getHomeCursorSlot } from './home-cursor-visibility.ts';
 import { hasEmptyHomeFolderSelection, isFolder, menuTiles, rowCount, type MenuState } from './state.ts';
 import { getHomeExposedExtent, getHomeNavigationView, homeGridMetrics, type HomeDensity } from './home-navigation.ts';
 import { getTitle } from './app-registry.ts';
-import { systemTransitionFrame } from './system-transitions.ts';
+import { LAUNCH_DECIDE_MS, systemTransitionFrame } from './system-transitions.ts';
 
 /** CLYT Scale clips consume density, which is distinct from folder row count. */
 export const nativeHomeDensityFrame=(density:number)=>Math.max(0,Math.min(5,density));
@@ -130,7 +130,6 @@ export function getNativeCameraTitleBalloon(state:MenuState,view:HomePresentatio
 
 export type HomeFooterAction='close-folder'|'close-software'|'folder-settings'|'manual'|'open'|'create-folder'|'resume';
 export type HomeFooter=Readonly<{two:boolean;left:HomeFooterAction|null;middle?:HomeFooterAction;right:HomeFooterAction}>;
-export const HOME_LAUNCH_FOOTER_DECIDE_MS=100;
 export type HomeLaunchPresentation=Readonly<{appId:string;owner:string;footerDecideFrame:number;footerSceneOutFrame:number;cursorEffectFrame:number}>;
 
 /** State-side candidate for retaining the exact selected HOME owner underneath
@@ -146,13 +145,13 @@ export function getHomeLaunchPresentation(state:MenuState,elapsedMs:number,reduc
  if(!instance||instance.appId!==system.app||instance.suspended||instance.closing||selected!==system.app)return null;
  // LncCsrEfct_01_DisAppear (61 frames) starts with the launch fade: fitted to
  // native N074..N082, not a traced dispatch. Reduced motion takes its empty end.
- // Open's LncBtmBtn_02_Decide (6 frames, 100ms) plays in place before its
- // SceneOut, matching native pressed -> white -> exit order; the shared launch
- // clock origin remains an adaptation.
+ // Open's LncBtmBtn_02_Decide (6 frames, 100ms) plays on intact HOME; its
+ // SceneOut and the decide ring start with the launch fade afterwards,
+ // matching native pressed -> white -> exit order. Durations are adaptations.
  const launchElapsed=elapsedMs-system.since;
  return {appId:system.app,owner,footerDecideFrame:systemTransitionFrame(launchElapsed,5,reduced),
-  footerSceneOutFrame:systemTransitionFrame(launchElapsed-HOME_LAUNCH_FOOTER_DECIDE_MS,14,reduced),
-  cursorEffectFrame:systemTransitionFrame(elapsedMs-system.since,60,reduced)};
+  footerSceneOutFrame:systemTransitionFrame(launchElapsed-LAUNCH_DECIDE_MS,14,reduced),
+  cursorEffectFrame:systemTransitionFrame(launchElapsed-LAUNCH_DECIDE_MS,60,reduced)};
 }
 
 /** Footer actions follow the runtime's currently selected container. */

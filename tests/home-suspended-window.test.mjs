@@ -10,7 +10,7 @@ import {poseNativeLayout,nativePaneParentPath} from '../src/os/native-layout.ts'
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
 const packs=Object.fromEntries(['launcher','messages'].map(key=>[key,JSON.parse(readFileSync(new URL(manifest.home[key],root)))]));
-const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3900),6000),'home',6001);
+const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3800),6000),'home',6001);
 const metadata=()=>({description:'Health and Safety Information',icon:{width:64,height:64,data:new Uint8ClampedArray(64*64*4)}});
 const finishClose=(state,now)=>{for(let i=0;i<6;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 

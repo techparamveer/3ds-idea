@@ -17,7 +17,7 @@ test('accessibility title shortcut focuses its HOME tile before software opens',
 test('hardware boot gates input, launches software, and never cold-boots into a logo app',()=>{
  const boot=createPortfolioState();assert.equal(boot.system.phase,'boot');assert.equal(send(boot,'open'),boot);
  let s=send(home(),'open');assert.equal(s.system.phase,'launch');assert.equal(s.system.app,'work');
- s=tickSystem(s,6101);assert.equal(s.system.phase,'app');assert.equal(s.system.detail,false);
+ s=tickSystem(s,6201);assert.equal(s.system.phase,'app');assert.equal(s.system.detail,false);
 });
 test('every installed app is reachable by touch and physical A, with real entries',()=>{
  for(let i=0;i<apps.length;i++){

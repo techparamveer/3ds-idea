@@ -1,6 +1,6 @@
 /** Browser presentation clock. Source clips provide poses; hardware boot latency
  * and native scheduling are not inferred from these elapsed-time durations. */
-export const SYSTEM_TRANSITIONS={boot:3000,launch:2100,shutdown:1200} as const;
+export const SYSTEM_TRANSITIONS={boot:3000,launch:2200,shutdown:1200} as const;
 export function systemTransitionDuration(phase:string,reduced=false):number{
  if(phase==='boot')return reduced?300:SYSTEM_TRANSITIONS.boot;
  if(phase==='launch')return reduced?120:SYSTEM_TRANSITIONS.launch;
@@ -52,6 +52,10 @@ export type AppLaunchPose=Readonly<{fadeFrame:number;logo:AppLaunchLogoPose|null
 
 const LAUNCH_FADE_LAST_FRAME=20;
 const LAUNCH_FADE_MS=350;
+/** Native shows the launching Open's LncBtmBtn_02_Decide (pressed, then its
+ * released highlight) on intact HOME before any fade (N065..N072). Its six
+ * source frames occupy the first 100ms; every HOME launch stage follows. */
+export const LAUNCH_DECIDE_MS=100;
 
 /** NintendoLogo SceneOutA/B/C (60/30/15) from the start of the logo stage.
  * 105 source frames at nominal 60Hz are 1750ms; not measured title-load latency. */
@@ -65,13 +69,14 @@ export function appLaunchLogoFrame(logoElapsedMs:number,reduced=false):AppLaunch
 
 /** Native captures fade HOME to exact black before the first logo pixel. The
  * paired `CmnFadeNinLogo_*_SceneOut` fade (21 poses, 350ms at nominal 60Hz
- * including its terminal pose) therefore runs first; the complete logo clips
- * then play over its terminal black, 2100ms in total. The captures establish
+ * including its terminal pose) therefore runs first, after the 100ms Open
+ * Decide; the complete logo clips then play over its terminal black, 2200ms
+ * in total. The captures establish
  * only this order, so the browser clock remains an adaptation. Reduced motion
  * keeps terminal black under the existing B15 logo endpoint. */
 export function appLaunchPose(elapsedMs:number,reduced=false):AppLaunchPose{
  if(reduced)return {fadeFrame:LAUNCH_FADE_LAST_FRAME,logo:appLaunchLogoFrame(0,true)};
- const elapsed=Math.max(0,elapsedMs);
+ const elapsed=Math.max(0,elapsedMs-LAUNCH_DECIDE_MS);
  if(elapsed<LAUNCH_FADE_MS)return {fadeFrame:Math.min(LAUNCH_FADE_LAST_FRAME,Math.floor(elapsed*60/1000)),logo:null};
  return {fadeFrame:LAUNCH_FADE_LAST_FRAME,logo:appLaunchLogoFrame(elapsed-LAUNCH_FADE_MS)};
 }

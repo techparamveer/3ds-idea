@@ -60,7 +60,7 @@ assert.equal(drawNativeSystemFade(createCanvas(400,240).getContext('2d'),modifie
 writeFileSync(join(out,'fade-differential.json'),JSON.stringify({passed:true,frames:fadeChecks.length,fadeChecks},null,2)+'\n');
 const assets={renderer},results=[];
 const underlay=[0xdd,0xe5,0xed];
-for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['power',550,true],['shutdown',250,true],['shutdown',550,true],['shutdown',1199,true],['boot',0,false],['boot',2990,false],['launch',0,false],['launch',333,false],['launch',349,false],['launch',350,false],['launch',800,false],['launch',1400,false],['launch',2099,false]]){
+for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['power',550,true],['shutdown',250,true],['shutdown',550,true],['shutdown',1199,true],['boot',0,false],['boot',2990,false],['launch',0,false],['launch',99,false],['launch',433,false],['launch',449,false],['launch',450,false],['launch',900,false],['launch',1500,false],['launch',2199,false]]){
  const top=createCanvas(400,240),bottom=createCanvas(320,240),t=top.getContext('2d'),b=bottom.getContext('2d');
  t.fillStyle=b.fillStyle='#dde5ed';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
  const state={system:{phase,since:0,sleeping:false,returnPhase:fromApp?'app':'home',input:{held:{},analog:{},touch:null}}};
@@ -68,13 +68,13 @@ for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['pow
  const id=`${phase}-${elapsed}-${fromApp?'app':'home'}`;
  writeFileSync(join(out,id+'-upper.png'),top.toBuffer('image/png'));writeFileSync(join(out,id+'-lower.png'),bottom.toBuffer('image/png'));
  results.push({id,paintMs});
- if(phase==='launch'&&elapsed===0){
+ if(phase==='launch'&&(elapsed===0||elapsed===99)){
   for(const c of [top,bottom]){
    const pixel=c.getContext('2d').getImageData(Math.floor(c.width/2),120,1,1).data;
    assert.deepEqual([...pixel], [...underlay,255], id+' keeps HOME underlay at SceneOut frame 0');
   }
  }
- if((phase==='boot'&&elapsed===0)||(phase==='launch'&&(elapsed===349||elapsed===2099))||(phase==='shutdown'&&elapsed===1199)){
+ if((phase==='boot'&&elapsed===0)||(phase==='launch'&&(elapsed===449||elapsed===2199))||(phase==='shutdown'&&elapsed===1199)){
   for(const c of [top,bottom]){const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data;assert.ok(data.every((v,i)=>i%4===3?v===255:v===0),id+' ends opaque black');}
  }
 }

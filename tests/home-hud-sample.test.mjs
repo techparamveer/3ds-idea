@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { HOME_REFERENCE_HUD_STATUS, validateHomeHudSample } from '../src/os/home-hud-sample.ts';
+import { HOME_REFERENCE_HUD_STATUS, homeHudColonVisible, validateHomeHudSample } from '../src/os/home-hud-sample.ts';
 
 const sourceUrl = new URL('../src/os/firmware-presentation.ts', import.meta.url);
 const { outputText } = ts.transpileModule(readFileSync(sourceUrl, 'utf8'), {
@@ -23,6 +23,14 @@ test('live HOME HUD uses the isolated reference-profile pose, not Disabled/0/blu
   assert.deepEqual(HOME_REFERENCE_HUD_STATUS,{
     networkMessage:'lau_connect0',netModeFrame:0,netAtnFrame:3,batteryFrame:4,coins:42,steps:0,
   });
+});
+
+test('idle HOME colon uses current seconds 0x27c6a8, not Settings previous displayed', () => {
+  assert.equal(homeHudColonVisible(34),true);
+  assert.equal(homeHudColonVisible(35),false);
+  assert.equal(homeHudColonVisible(0),true);
+  // Settings 0x238aec would still hide from previous odd 35 while current is 36.
+  assert.equal(homeHudColonVisible(36),true);
 });
 
 test('diagnostic sample selects delivered source messages and clips without changing later live HUD painting', () => {

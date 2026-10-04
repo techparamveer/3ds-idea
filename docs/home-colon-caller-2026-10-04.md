@@ -39,8 +39,9 @@ Idle update `0x27c63c..0x27c718`:
 
 1. `0x27c644..0x27c64c`: `ldrb +0xcc`; nonzero skips the rest of this
    function (`bne 0x27c774`).
-2. `0x27c67c r1=0`, `bl 0x1ef4a4`; then clock update `0x27c684 r1=0`,
-   `bl 0x1ef15c`; then `0x27c690 r1=0`, `bl 0x1ef388`.
+2. `0x27c670 r1=0`, `bl 0x1ef4a4` at `0x27c678`; clock update `0x27c67c
+   r1=0`, `bl 0x1ef15c` at `0x27c684`; then `0x27c688 r1=0`, `bl 0x1ef388`
+   at `0x27c690`.
 3. `0x27c694..0x27c6a4`: load WhiteBlack animator `+0x74`, then state at
    `+0x14`. Equal 1, or else equal 2, skips the colon (`beq 0x27c774`).
 4. `0x27c6a8..0x27c718`: `ldrb +0xdd` / `tst #1`. Pane `+0xa4` visibility
@@ -49,7 +50,9 @@ Idle update `0x27c63c..0x27c718`:
 `0x1ef15c` with `r1=0` writes the current calendar as 12 bytes at `+0xd4`.
 Seconds are byte 9 of that structure (`+0xdd`). The same function compares
 `+0xdd` with previous `+0xe9` only to decide whether hour/minute/date text
-needs a refresh. The colon branch does not read `+0xe9`.
+needs a refresh, and decrements hold `+0xb0`. When that hold is greater than
+0 the calendar write is skipped; a second change stores 59. The colon branch
+does not read `+0xe9`. The injected Date adapter does not replay `+0xb0`.
 
 ## Not Settings
 
@@ -60,15 +63,15 @@ sampler would be a wrong-title fit.
 
 ## Runtime
 
-`hud()` already paints
-`T_TimeC_00.visible = (date.getSeconds() & 1) === 0`. That is the idle
-odd-hide / even-show mapping. Existing tests keep odd `:35` hidden and even
-`:34` visible. The formula is not replaced.
+`hud()` paints `T_TimeC_00.visible = homeHudColonVisible(date.getSeconds())`.
+That is the idle odd-hide / even-show mapping from current seconds. Tests pin
+odd `:35` hidden, even `:34` visible, and current even `36` visible (Settings
+would still hide from previous odd `35`).
 
 **Labelled adaptation.** `date` is the injected calendar Date, not HOME's
-`+0xdd` sample after `0x1ef15c`. Flag `+0xcc` and WhiteBlack states 1/2 are
-not replayed. Live HOME binds `HudMenu_00_WhiteBlack` frame 0. No PTM
-battery/network clock is invented.
+`+0xdd` sample after `0x1ef15c`. Flag `+0xcc`, hold `+0xb0` and WhiteBlack
+states 1/2 are not replayed. Live HOME binds `HudMenu_00_WhiteBlack` frame 0.
+No PTM battery/network clock is invented.
 
 ## Remaining
 

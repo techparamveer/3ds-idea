@@ -13,6 +13,13 @@ export const HOME_REFERENCE_HUD_STATUS = {
   steps: 0,
 } as const;
 
+/** Idle HOME `0x27c6a8`: `T_TimeC_00` visible when current sampled seconds
+ * (`+0xdd`) bit 0 is clear. Injected `Date.getSeconds()` supplies that byte;
+ * `+0xcc`, hold `+0xb0` and WhiteBlack animator states 1/2 are not replayed. */
+export function homeHudColonVisible(seconds: number): boolean {
+  return (seconds & 1) === 0;
+}
+
 /** Explicit source-pose diagnostic, never device telemetry or persisted state.
  * Clip frames and message selection are independent: the HOME service mapping
  * has not been traced. The caller must record their evidence/assumptions. */

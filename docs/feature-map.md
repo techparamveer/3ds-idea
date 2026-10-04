@@ -15,13 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Settings Other pages 3/4 lower 8/35](settings-other-p34-lower-2026-10-04.md)
-from worker `3ds-settings-other-p34-lower-20261004`: reused pairs stay
+Latest [Settings Other pages 3/4 lower 8/35](settings-other-p34-lower-2026-10-04.md),
+`865c43c` from worker `c8a75e0b`: reused pairs stay
 **169 / 8** and **169 / 35**. Upper 169 stays the labelled HudMset
 previous-seconds gap. Lower 8/35 are System Transfer / Language / Update /
 Format descender AA plus Transfer/Update **y** rights just below `*.5`.
 No unused `TextBox`, unused font, or unique `azahar-12p4-fit` owner.
-Painter unchanged. Docs and tests only. Not recaptured. Not 1:1.
+Painter unchanged. Docs and tests only. Coordinator APPROVE pending
+independent review. Not recaptured. Not 1:1.
 
 Earlier [Camera Welcome page 1 1,401](camera-welcome-p1-1401-2026-10-04.md),
 `c07e7de9` from worker `adf0cf88`: reused

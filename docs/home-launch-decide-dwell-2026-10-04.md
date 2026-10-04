@@ -51,7 +51,8 @@ emulator frame per about 333ms; observed movie counters 1101..1328 span
 338.4ms per frame), which supports a constant rate between segments. Native
 dispatch remains untraced.
 
-The CTM (`R/native/home-health-launch-onset.plan.json` in the onset root)
+The CTM plan (`home-launch-onset-20261003/native/home-health-launch-onset.plan.json`
+beside `R1`)
 holds A for HID samples 4680..4688 (8 samples of 4.27ms, about two video
 frames from frame 1200). Mapping capture times through the observed
 counters, which lag screenshots, places pressed onset no earlier than frame

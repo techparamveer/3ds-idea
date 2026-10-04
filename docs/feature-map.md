@@ -112,7 +112,7 @@ Remaining lower: labelled
 the [1,656-pixel Settings+cursor halo](home-settings-cursor-2026-10-04.md), and the
 [162-pixel News receive lamp](home-toolbar-icon-2026-10-04.md) (not the house).
 Remaining upper: labelled [190 `mt_pict` / wrench-edge source gap](home-upper-190-2026-10-04.md).
-Remaining unnamed lower on the masked pair is footer `[0,204,320,36]` **164** (Manual / Open edges) plus 1-pixel Settings-tile strips.
+Remaining unnamed lower on the masked pair is after-walk footer `[0,204,320,36]` **30** (Manual / Open edges) plus 1-pixel Settings-tile strips. The table's 164 is the before-walk footer count.
 
 Earlier [HOME Settings yaw re-search](home-settings-yaw-research-2026-10-04.md), `dde43424`:
 frozen yaw 304 / COMMON 303 / Loop 338 / cursor 37 gives 190 upper pixels

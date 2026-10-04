@@ -38,7 +38,9 @@ export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
 ];
 const WEEKDAYS=['sun','mon','tue','wed','thu','fri','sat'] as const;
 /** N_Scene_00 default alpha is 0. SceneIn last key is frame 40 (HOME idle is
- * also 40). WalkCoin is not started; native has no steps/coins on this strip. */
+ * also 40). WalkCoin is not started. The native still shows no steps/coins,
+ * but P_Walk_00 is visible by layout default, so hiding Walk/Coin below is a
+ * capture-fit adaptation whose native mechanism is untraced. */
 const NOTIFICATION_HUD_SCENE_IN=40;
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
 export const personalFriendPacks:readonly NativeTitlePackRequest[]=[

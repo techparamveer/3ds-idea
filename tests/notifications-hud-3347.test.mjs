@@ -113,6 +113,10 @@ test('painter draws title-local HudMenu_00 with SceneIn 40 and REFERENCE_DEVICE_
   assert.match(painter, /\{name:'HudMenu_00_Bat',frame:4\}/);
   assert.match(painter, /T_NetMode_00:hud\(status\.networkMessage,'Internet'\)/);
   assert.match(painter, /from '\.\/device-status-profile'/);
+  assert.match(painter, /T_TimeC_00:\{visible:true\}/);
+  assert.match(painter, /T_Date_00:dateText/);
+  assert.match(painter, /T_TimeL_00:\{text:String\(now\.getHours\(\)\)/);
+  assert.match(painter, /T_TimeR_00:\{text:String\(now\.getMinutes\(\)\)/);
   assert.match(painter, /P_Walk_00:\{visible:false\}/);
   assert.match(painter, /P_Coin_00:\{visible:false\}/);
   assert.equal(painter.includes('HudMenu_00_WalkCoin'), false);

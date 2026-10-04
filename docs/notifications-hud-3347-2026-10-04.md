@@ -88,9 +88,12 @@ selected subset through `stock_ui.py --additive` from
 from the layout (`HudMenu_00_SceneIn` source range `[-20,20]`, 41 frames,
 last alpha key frame 40 / value 255). HOME idle is also 40. The earlier
 note’s “41 / WalkCoin 360” was the wrong HOME copy (frame *count* 41, plus
-HOME WalkCoin). Native has no WalkCoin; WalkCoin is not requested or
-started. Unstarted layout-default `P_Walk_00` / `P_Coin_00` panes are
-hidden rather than bound to an invented clip frame. The labelled
+HOME WalkCoin). The native still shows no steps/coins, but the layout does not hide
+them: `P_Walk_00` (flags 3, alpha 255, `T_Walk_00` `"00000"`) stays
+visible under SceneIn/WhiteBlack, and `HudMenu_00_WalkCoin` exists in the
+archive and the `code.bin` clip-name table. Hiding `P_Walk_00` /
+`P_Coin_00` is therefore a labelled **capture-fit adaptation** with an
+untraced native mechanism, not layout default; WalkCoin is not started. The labelled
 `new_title_new` font adapter is dropped as covering this strip.
 
 ## Element → manifest key → dump source

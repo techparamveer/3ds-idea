@@ -16,7 +16,7 @@ new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
 Latest [Sound empty-entry slider 4271](sound-empty-slider-2026-10-04.md),
-worker on `codex/sound-empty-slider-20261004` from fidelity `6501c47e`:
+`583fa9e` from worker `540cc5f5`:
 reused HudTime-phase empty-entry lower keeps slider `[0,144,320,175]`
 **4271** (max 195 at `(39,152)`, native `(60,47,47)` / browser
 `(255,51,68)`). Clock ROI stays 0. Whole LCDs stay **6,404 / 16,021**.

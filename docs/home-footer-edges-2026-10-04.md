@@ -16,7 +16,8 @@ sit on one row at **y = 205**, inside the already-labelled
 classic theme-edge rows 212–213 are **0**. There is no unique unused
 footer owner to bind.
 
-Evidence: source-identified and tested. Not browser-inspected here. Not
+Evidence: source-identified and tested. Independent review **APPROVE** of
+fidelity `85eafcd3` / worker `4d2f2771`. Not browser-inspected here. Not
 native-compared here. Not 1:1.
 
 ## Pair

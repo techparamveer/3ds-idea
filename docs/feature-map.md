@@ -15,7 +15,20 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Camera Welcome pages 3/4 TxtDlg body 1079 / 692](camera-welcome-p34-body-2026-10-04.md),
+Latest [Notifications remaining upper HUD 3347](notifications-hud-3347-2026-10-04.md),
+worker `codex/next-residual-2-20261004`: reused unread-dot `f073581`
+pair stays **6239** / **3876**; HUD `[0,0,400,28]` **3347** (max 255 at
+`(375,2)`); unread balloon `[100,40,300,160]` **0**. Already-bound
+`NewsUnread_U_00` SceneIn 20 + `P_HudBase_00` 400×28 plus the labelled
+`new_title_new` font adapter. Unused `NewsWndwNews_U_00` / Detail /
+`ElemCnt` and unread SceneOut have no NetMode/Date/Bat pane. Dump
+`hud_LZ.bin` `HudMenu_00` is omitted from the published packs and is
+not a unique delivered clip (WalkCoin/Bat/Net frames untraced). HOME
+`hud.json` is the wrong title. Labelled HUD-widget source gap. Painter
+unchanged. Docs and tests only. Coordinator APPROVE pending independent
+review. Not recaptured. Not 1:1.
+
+Previous [Camera Welcome pages 3/4 TxtDlg body 1079 / 692](camera-welcome-p34-body-2026-10-04.md),
 `0b45a041` from worker `d07f815c`: reused `0d7bfea` page-3/4 lowers
 stay **2480** / **2093**; interiors `[20,20,300,220]` **1079** / **692**
 (max 14); labelled page-1 chrome perimeter stays **1401** on both (and

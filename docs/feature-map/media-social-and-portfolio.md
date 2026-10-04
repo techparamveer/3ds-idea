@@ -156,11 +156,13 @@ native-ready claim.
 
 Code: `src/os/stock-apps.ts`, `stock-native-personal-tools.ts`, persistence,
 and delivered Notifications/receive-lamp/slidebar packs. Tests:
-`stock-apps.test.mjs`, `notifications-source-ownership.test.mjs`, and
+`stock-apps.test.mjs`, `notifications-source-ownership.test.mjs`,
+`notifications-hud-3347.test.mjs`, and
 `app-persistence.test.mjs`.
+
 | ID | Reachable screen or route | Implemented behavior | Gap or adaptation |
 | --- | --- | --- | --- |
-| C-NTF-01 | populated `notifications/main` | Nine source-profile titles in timestamp order, eight unread flags, neutral entry, four full rows plus clipped fifth, decoded information badges and source blue lamps | Default source rows are deliberately disabled because bodies are unverified; opening does not mark read |
+| C-NTF-01 | populated `notifications/main` | Nine source-profile titles in timestamp order, eight unread flags, neutral entry, four full rows plus clipped fifth, decoded information badges and source blue lamps | Default source rows are deliberately disabled because bodies are unverified; opening does not mark read; remaining upper HUD `[0,0,400,28]` **3347** is a labelled [source gap](../notifications-hud-3347-2026-10-04.md) on already-bound `P_HudBase_00` plus the `new_title_new` font adapter (unused `NewsWndwNews_U_00` / Detail / `ElemCnt` do not uniquely own Internet/date/Bat; dump `hud_LZ.bin` `HudMenu_00` is unpublished) |
 | C-NTF-02 | directional list movement | Activates focus, advances the selected row and windows later rows into view | Scrollbar thumb is hardcoded at `[0,55]`; native count rule, motion and lamp pulse are unverified |
 | C-NTF-03 | empty `notifications/main` | Explicit saved empty array remains empty and shows the no-notifications state | Earlier empty-state assumption is superseded for new profiles, which seed the nine-row fixture |
 | C-NTF-04 | custom saved row -> `notifications/notification` | Non-source custom rows can open stored message text and B returns | Generic fallback only: no native detail painter, title/body provenance, read transition or detail scroll; not acceptance-ready |
@@ -168,11 +170,13 @@ and delivered Notifications/receive-lamp/slidebar packs. Tests:
 Persistence preserves explicit empty/custom arrays and never ships `news.db`.
 Default and custom rows remain read-only.
 
-Evidence: matrix v99 compares the source-profile list at 6,239 upper / 3,876
-lower pixels over 2/255. Badge and three unread-marker crops each have zero
-pixels above 2/255, but the full scenario fails. Remaining regions include the
-fixed scrollbar/footer and upper HUD; input cadence, pulse/motion and audio are
-open.
+Evidence: matrix v99 / unread-dot `f073581` compares the source-profile list
+at 6,239 upper / 3,876 lower pixels over 2/255. Badge and three unread-marker
+crops each have zero pixels above 2/255, and the unread balloon
+`[100,40,300,160]` is **0**, but the full scenario fails. Upper HUD
+`[0,0,400,28]` **3347** is a labelled [source gap](../notifications-hud-3347-2026-10-04.md).
+Remaining lower regions include the fixed scrollbar/footer; input cadence,
+pulse/motion and audio are open.
 
 First task: trace the final slidebar thumb translation/effective item count and
 capture selection movement before replacing the hardcoded pose. Acceptance scenario:

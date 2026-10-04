@@ -307,6 +307,54 @@ test('Loop step3 matches original submitted frames and fractional updates', () =
   const initial=advanceHomeCursorLoop(createHomeCursorLoop(),17,true),fast=setHomeCursorLoopStep(initial,3);
   assert.deepEqual([fast.currentFrame,fast.appliedFrame],[initial.currentFrame,initial.appliedFrame]);assert.equal(setHomeCursorLoopStep(fast,3),fast);
 });
+test('1-row right walk keeps the selection on the right visible column', () => {
+  const { rows, columns, baseX, pitchX } = homeGridMetrics(false, 0);
+  assert.deepEqual({ rows, columns, baseX, pitchX }, { rows: 1, columns: 3, baseX: 76, pitchX: 84 });
+  let state = setup(false, 0, { selected: 0, left: 0, target: 0 });
+  for (let slot = 1; slot <= 9; slot++) {
+    const before = activeHomeRecord(state.navigation);
+    const result = consumeHomeGridKeyEvent(state, { type: 4, mask: 0x10 });
+    state = result.state;
+    const view = activeHomeRecord(state.navigation);
+    assert.equal(view.selectedSlot, slot);
+    if (slot >= before.currentLeftSlot + rows * columns) {
+      assert.equal(view.targetLeftSlot, before.currentLeftSlot + rows);
+      assert.equal(state.navigation.motion?.mode, 3);
+      state = advanceHomeScroll(state, 10).state;
+      assert.equal(activeHomeRecord(state.navigation).currentLeftSlot, slot - (columns - 1) * rows);
+    } else {
+      assert.equal(view.currentLeftSlot, before.currentLeftSlot);
+      assert.equal(state.navigation.motion, null);
+    }
+  }
+  const settled = activeHomeRecord(state.navigation);
+  assert.deepEqual({
+    selectedSlot: settled.selectedSlot,
+    currentLeftSlot: settled.currentLeftSlot,
+    targetLeftSlot: settled.targetLeftSlot,
+    visible: [settled.currentLeftSlot, settled.currentLeftSlot + 1, settled.currentLeftSlot + 2],
+    selectedCenterX: baseX + (settled.selectedSlot - settled.currentLeftSlot) * pitchX,
+  }, {
+    selectedSlot: 9,
+    currentLeftSlot: 7,
+    targetLeftSlot: 7,
+    visible: [7, 8, 9],
+    selectedCenterX: 244,
+  });
+});
+test('1-row left step from a left-edge Camera slot parks Settings on the left column', () => {
+  let state = setup(false, 0, { selected: 10, left: 10, target: 10 });
+  state = consumeHomeGridKeyEvent(state, { type: 4, mask: 0x20 }).state;
+  assert.equal(activeHomeRecord(state.navigation).selectedSlot, 9);
+  assert.equal(activeHomeRecord(state.navigation).targetLeftSlot, 9);
+  state = advanceHomeScroll(state, 10).state;
+  const settled = activeHomeRecord(state.navigation);
+  assert.deepEqual({
+    selectedSlot: settled.selectedSlot,
+    currentLeftSlot: settled.currentLeftSlot,
+    visible: [settled.currentLeftSlot, settled.currentLeftSlot + 1, settled.currentLeftSlot + 2],
+  }, { selectedSlot: 9, currentLeftSlot: 9, visible: [9, 10, 11] });
+});
 test('unsupported routes and invalid counts stay explicit; zero updates never duplicate effects', () => {
   const initial=setup();assert.equal(consumeHomeGridKeyEvent(initial,{type:4,mask:1}).disposition,'unsupported');
   assert.equal(pageHomeViewport(initial,'right',0).disposition,'unsupported');

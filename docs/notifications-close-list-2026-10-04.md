@@ -126,7 +126,10 @@ are 14–18, all near-white fringe `255` vs about `241`). That is still
 title-edge coverage on `T_NewsTitleB_00` at its half-pixel y (−9.5) over
 the cyan balloon; it does not create a second owner. Changing it would be
 a sampler or precision guess. The titles are not opted in. **820** remains
-labelled AA / source gap.
+labelled AA / source gap. The later
+[list 820 note](notifications-list-820-2026-10-04.md) confirms there is
+still no distinct 0x101 LCD writer; the seam **56** is that same fringe
+where the slot-3 title crosses y=210.
 
 Independent review **APPROVE-WITH-NITS** of `764720e2`: dump owner unique
 and delivered; `new_close` not bound. Nits applied here: list max is 18,

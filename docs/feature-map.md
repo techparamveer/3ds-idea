@@ -36,8 +36,10 @@ is in progress.
 `0x2ffc90`). `T_EndF_00` (0x110) now opts into `singleLineBlockOrigin:
 'writer-0x110'`, the same one-line origin as `T_EndB_00`. Offline Close
 glyphs 533 → 182 (proxy only); browser Close count awaits coordinator
-recapture. List **820** stays labelled title-shadow AA (0x101 origin
-already matches). Scrollbar **34** not reopened. Not 1:1.
+recapture. List **820** stays labelled title-edge AA. The
+[list 820 note](notifications-list-820-2026-10-04.md) finds no unique
+0x101 direct writer; seam **56** is that fringe crossing y=210. Scrollbar
+**34** not reopened. Not 1:1.
 
 [Notifications HUD charging battery](notifications-hud-battery-2026-10-04.md),
 worker `codex/notifications-battery-20261004`: painter no longer freezes

@@ -45,9 +45,11 @@ and failure cases.
 This reproduces counted ordering under the current host update adaptation, not
 native wall-clock/sample timing or every return route. Native state11 disables
 music in this helper; the current portfolio phase transition has no corresponding
-full APT state distinction. Ordinary launch's exact stop producer/timing, native
-readiness on pass4, stop30 mixing of an existing sound and first DSP sample timing
-remain unverified. A slow browser preparation starts only when ready without
+full APT state distinction. A launch from HOME now keeps music through Open's
+Decide and applies the traced stop30 gain ramp from the fitted preparation
+update ([launch music stop30](home-launch-music-stop-2026-10-04.md)); its
+native epoch, readiness on pass4, stop30 mixing of an existing sound and first
+DSP sample timing remain unverified. A slow browser preparation starts only when ready without
 seeking ahead or claiming that it met a native deadline.
 
 Short effects initially used the reproduced cue-only v8 pack: ten native WAVs and a

@@ -15,9 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME launch START_EFFECT cue](home-launch-start-effect-2026-10-04.md), `3d90106d`,
+Latest [HOME launch music stop30](home-launch-music-stop-2026-10-04.md), `d8b3e982`,
+keeps HOME music through Open's Decide, then applies the traced stop30 ramp
+from the fitted preparation update.
+
+Earlier [HOME launch START_EFFECT cue](home-launch-start-effect-2026-10-04.md), `3d90106d`,
 delivers the source-traced second launch cue (`0x0100001f`) at launch fade
-pose 0 (adaptation). Next: native stop30 music fade at launch preparation.
+pose 0 (adaptation).
 
 Earlier [HOME entry banner release](home-entry-banner-release-2026-10-04.md), `458606cb`,
 releases the post-boot banner worker on a presented footer frame 10 so the

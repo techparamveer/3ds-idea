@@ -30,7 +30,11 @@ export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:Canv
   const {fadeFrame,logo}=appLaunchPose(elapsed,reduced);
   if(!renderer.packs.launch)return fade('SceneOut',fadeFrame);
   let okay=fade('SceneOut',fadeFrame);
-  if(logo)for(const [ctx,suffix]of [[top,'U'],[bottom,'D']] as const){const name=`NintendoLogo_${suffix}_00`;okay=renderer.draw(ctx,'launch',name,{bindings:[{name:`${name}_SceneOut${logo.clip}`,frame:logo.frame}]})&&okay;}
+  // During C, B stays bound after it so B's child poses win over C's
+  // constant child keys; C alone animates the `N_W_00` container fade.
+  if(logo)for(const [ctx,suffix]of [[top,'U'],[bottom,'D']] as const){const name=`NintendoLogo_${suffix}_00`;
+   const bindings=[{name:`${name}_SceneOut${logo.clip}`,frame:logo.frame},...(logo.loopFrame===undefined?[]:[{name:`${name}_SceneOutB`,frame:logo.loopFrame}])];
+   okay=renderer.draw(ctx,'launch',name,{bindings})&&okay;}
   return okay;
  }
  top.fillStyle=bottom.fillStyle='#fff';top.fillRect(0,0,400,240);bottom.fillRect(0,0,320,240);

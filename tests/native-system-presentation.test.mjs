@@ -61,6 +61,7 @@ test('launch fades HOME to SceneOut black before any logo layer, without erasing
  assert.deepEqual(mid.draws.map(d=>d.frame),[20,20,0,0]);
  const end=overlay(2684);
  assert.ok(end.draws.slice(2).every(d=>d.clip.endsWith('SceneOutC')&&d.frame===0));
+ assert.deepEqual(end.draws.slice(2).map(d=>d.bindings.map(b=>[b.name.slice(-9),b.frame])),[[['SceneOutC',0],['SceneOutB',0]],[['SceneOutC',0],['SceneOutB',0]]],'B keeps looping beneath C and wins its child panes');
  const reduced=overlay(0,true);
  assert.deepEqual(reduced.draws.map(d=>({clip:d.clip,frame:d.frame})),[
   {clip:'CmnFadeNinLogo_U_00_SceneOut',frame:20},{clip:'CmnFadeNinLogo_D_00_SceneOut',frame:20},

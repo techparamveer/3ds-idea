@@ -69,11 +69,11 @@ test('app launch holds Open Decide, then fades HOME to source black before the 6
  assert.deepEqual(appLaunchPose(2183),{fadeFrame:20,logo:{clip:'B',frame:29}});
  assert.deepEqual(appLaunchPose(2184),{fadeFrame:20,logo:{clip:'B',frame:0}},'B loops for a second fitted pass');
  assert.deepEqual(appLaunchPose(2683),{fadeFrame:20,logo:{clip:'B',frame:29}});
- assert.deepEqual(appLaunchPose(2684),{fadeFrame:20,logo:{clip:'C',frame:0}});
- assert.deepEqual(appLaunchPose(2916),{fadeFrame:20,logo:{clip:'C',frame:13}});
- assert.deepEqual(appLaunchPose(2917),{fadeFrame:20,logo:{clip:'C',frame:14}});
- assert.deepEqual(appLaunchPose(3183),{fadeFrame:20,logo:{clip:'C',frame:14}},'C14 black holds sixteen frames');
- assert.deepEqual(appLaunchLogoFrame(0),{clip:'A',frame:0});assert.deepEqual(appLaunchLogoFrame(2500),{clip:'C',frame:14});
+ assert.deepEqual(appLaunchPose(2684),{fadeFrame:20,logo:{clip:'C',frame:0,loopFrame:0}});
+ assert.deepEqual(appLaunchPose(2916),{fadeFrame:20,logo:{clip:'C',frame:13,loopFrame:13}});
+ assert.deepEqual(appLaunchPose(2917),{fadeFrame:20,logo:{clip:'C',frame:14,loopFrame:14}});
+ assert.deepEqual(appLaunchPose(3183),{fadeFrame:20,logo:{clip:'C',frame:14,loopFrame:29}},'C14 black holds sixteen frames');
+ assert.deepEqual(appLaunchLogoFrame(0),{clip:'A',frame:0});assert.deepEqual(appLaunchLogoFrame(2500),{clip:'C',frame:14,loopFrame:0});
  assert.equal(systemTransitionDuration('launch'),191*1000/60);
  for(let k=0;k<=191;k++){const pose=appLaunchPose(k*1000/60),logo=pose.logo&&({A:0,B:60,C:120}[pose.logo.clip]+pose.logo.frame),l=k-41;
   const expected=l<0?null:l<60?l:l<120?60+(l-60)%30:Math.min(134,l);

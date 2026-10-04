@@ -49,7 +49,8 @@ export function bootRevealFrame(elapsedMs:number,reduced=false):number{
  return Math.min(BOOT_REVEAL_LAST_FRAME,Math.floor(revealElapsed*(BOOT_REVEAL_LAST_FRAME+1)/revealMs));
 }
 
-export type AppLaunchLogoPose={clip:'A'|'B'|'C';frame:number};
+/** `loopFrame` is the SceneOutB pose that keeps playing beneath C. */
+export type AppLaunchLogoPose={clip:'A'|'B'|'C';frame:number;loopFrame?:number};
 export type AppLaunchPose=Readonly<{fadeFrame:number;logo:AppLaunchLogoPose|null}>;
 
 const LAUNCH_FADE_LAST_FRAME=20;
@@ -73,13 +74,15 @@ const LAUNCH_LOGO_B_PASSES=2;
 const LAUNCH_LOGO_C_START=60+30*LAUNCH_LOGO_B_PASSES;
 
 /** NintendoLogo SceneOutA (60), looping SceneOutB and SceneOutC (15) from the
- * start of the logo stage; C14 is black and holds until the deadline. */
+ * start of the logo stage; C14 is black and holds until the deadline. C's
+ * group holds only `N_W_00`, whose alpha it fades; native keeps B looping on
+ * the children meanwhile (red swoosh visible through N095..N098). */
 export function appLaunchLogoFrame(logoElapsedMs:number,reduced=false):AppLaunchLogoPose{
  if(reduced)return {clip:'B',frame:15};
  const frame=Math.floor(Math.max(0,logoElapsedMs)*60/1000+1e-9);
  if(frame<60)return {clip:'A',frame};
  if(frame<LAUNCH_LOGO_C_START)return {clip:'B',frame:(frame-60)%30};
- return {clip:'C',frame:Math.min(14,frame-LAUNCH_LOGO_C_START)};
+ return {clip:'C',frame:Math.min(14,frame-LAUNCH_LOGO_C_START),loopFrame:(frame-60)%30};
 }
 
 /** Native captures fade HOME to exact black before the first logo pixel. After

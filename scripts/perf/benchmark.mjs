@@ -134,7 +134,7 @@ async function runOnce(profileName, runIndex, url) {
     const beforeApp = await session.evaluate(`document.querySelector('.console-stage [aria-live]').textContent`);
     // Open About, return HOME (suspend), resume it, return HOME again.
     await mark('app:start');
-    await press(session, 'Enter'); await sleep(2800);
+    await press(session, 'Enter'); await sleep(3600);
     await press(session, 'h'); await sleep(2200);
     await press(session, 'Enter'); await sleep(2200);
     await press(session, 'h'); await sleep(2200);

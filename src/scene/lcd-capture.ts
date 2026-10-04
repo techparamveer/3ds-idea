@@ -24,7 +24,20 @@ export function lcdHomeHudSample(value: unknown, hostname?: string): DiagnosticH
   return Object.freeze(Object.fromEntries(keys.map(key => [key, sample[key]]))) as DiagnosticHomeHudSample;
 }
 
-export function lcdDownloadRequest(search: string, hostname?: string) {
+export type LcdDownloadRequest = {
+  elapsedMs: number;
+  isoDate: string | undefined;
+  scenario: string;
+  bannerFrame: number | undefined;
+  bannerSkeletalFrame?: number;
+  homeHudSample?: DiagnosticHomeHudSample;
+  healthFrame?: number;
+  healthBannerFrame?: number;
+  homeWallpaperFrame?: number;
+  liveHealthHomeClock?: true;
+};
+
+export function lcdDownloadRequest(search: string, hostname?: string): LcdDownloadRequest {
   const params = new URLSearchParams(search);
   const elapsedText = params.get('lcdElapsedMs');
   const dateText = params.get('lcdDate');
@@ -81,7 +94,7 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
   if (healthBannerFrame === undefined && homeWallpaperFrame !== undefined && healthFrame !== undefined) {
     throw new Error('lcdHomeWallpaperFrame cannot be combined with lcdHealthFrame');
   }
-  return { ...(bannerSkeletalFrame === undefined ? {} : { bannerSkeletalFrame }), ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs:liveHealthHomeClock?0:elapsedMs, isoDate:dateText===null?undefined:new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }), ...(healthBannerFrame === undefined ? (homeWallpaperFrame === undefined ? {} : { homeWallpaperFrame }) : { healthBannerFrame, homeWallpaperFrame }), ...(liveHealthHomeClock?{liveHealthHomeClock:true}:{}) };
+  return { ...(bannerSkeletalFrame === undefined ? {} : { bannerSkeletalFrame }), ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs:liveHealthHomeClock?0:elapsedMs, isoDate:dateText===null?undefined:new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }), ...(healthBannerFrame === undefined ? (homeWallpaperFrame === undefined ? {} : { homeWallpaperFrame }) : { healthBannerFrame, homeWallpaperFrame }), ...(liveHealthHomeClock?{liveHealthHomeClock:true as const}:{}) };
 }
 
 export function lcdDownloadPayload(scenario: string, capture: ReturnType<typeof encodeNativeLcdPair> & Record<string, unknown>) {

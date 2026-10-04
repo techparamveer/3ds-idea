@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Sound empty/first-run title 1774](sound-title-1774-2026-10-04.md),
+Latest [Sound empty-entry slider 4271](sound-empty-slider-2026-10-04.md),
+worker on `codex/sound-empty-slider-20261004` from fidelity `6501c47e`:
+reused HudTime-phase empty-entry lower keeps slider `[0,144,320,175]`
+**4271** (max 195 at `(39,152)`, native `(60,47,47)` / browser
+`(255,51,68)`). Clock ROI stays 0. Whole LCDs stay **6,404 / 16,021**.
+Already-bound `C_SldH_L` Default 20 + Rate 0. Dump `Disable` / `Push` /
+`MRate` do not hide `IconS` or uniquely own the grey capsule. No Rate
+frame, mip or sampler guess. Painter unchanged. Docs and tests only.
+Coordinator APPROVE pending independent review. Not recaptured. Not 1:1.
+
+Earlier [Sound empty/first-run title 1774](sound-title-1774-2026-10-04.md),
 `4cb57d9` from worker `935818c9`:
 reused HudTime-phase pairs keep title `[0,3,400,30]` **1774** on both
 stills (identical pixels, max 148 at `(232,19)`). Clock ROI stays 0.

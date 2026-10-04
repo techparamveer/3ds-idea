@@ -15,10 +15,12 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME Settings wallpaper freeze](home-settings-wallpaper-frame-2026-10-04.md),
-`27f313d3`, lets Settings captures freeze `BannerBG_Loop`. Frozen yaw 310 /
-Loop 338 has HUD 0 over 2 and 4,182 / 12,893 whole pixels. Not a live default.
-Next residual is Settings banner icons/skeletal.
+Latest [HOME Settings banner skeletal search](home-settings-banner-skeletal-2026-10-04.md)
+picks COMMON 309 at frozen yaw 310 / Loop 338 (2,900 / 13,522). Do not adopt
+yaw−1 as a live clock. Remaining upper residuals are wrench/`mt_pict` icons.
+
+Earlier [HOME Settings wallpaper freeze](home-settings-wallpaper-frame-2026-10-04.md),
+`27f313d3`, lets Settings captures freeze `BannerBG_Loop`.
 
 Earlier [HOME Settings one-row recapture](home-hud-settings-recapture-2026-10-04.md)
 on `c33f1c4e` (runtime `b51f135b`) matches HUD content on the 26 September

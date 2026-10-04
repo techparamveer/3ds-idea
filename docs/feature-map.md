@@ -23,7 +23,9 @@ Capture-fitted `TitlTxt` box and bar blue already bind. No unused Title
 clip, `Null_00`, disabled `S_Inf_U-Txt`, `HudNOTES`, or lcd /
 `azahar-12p4-fit` owner (TitlTxt alignment 3 / lineAlignment 2 cannot
 take the direct writer). Painter unchanged. Docs and tests only.
-Coordinator APPROVE pending independent review. Not recaptured. Not 1:1.
+Independent review **APPROVE-WITH-NITS** (identical patch-id `8c04c910…`;
+no `src/`; tests 3/3; first-run `regions[0]` is the labelled left bird,
+empty-entry `regions[0]` is the labelled Span band). Not recaptured. Not 1:1.
 
 Earlier [Settings Other pages 3/4 lower 8/35](settings-other-p34-lower-2026-10-04.md),
 `865c43c` from worker `c8a75e0b`: reused pairs stay

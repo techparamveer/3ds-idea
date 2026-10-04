@@ -14,7 +14,7 @@ Every acceptance scenario named below remains **fail/unaccepted as a whole**. Te
 
 **Flow:** Source upper title/version/HUD; lower Internet Settings, Parental Controls, Data Management, Other Settings and full-width NNID. Entry looks unfocused while A retains Internet; directions establish focus. B returns HOME. HOME Manual invokes `manual` separately.
 
-**Status/next:** Implemented from Settings packs. Latest main pair is 0 upper / 20 lower pixels over threshold; motion/input/audio still fail. Isolate those lower glyph/icon pixels without altering source sheets, then recheck `settings-main-home-a`.
+**Status/next:** Implemented from Settings packs. Latest main pair is 0 upper / 20 lower. The 20 are a labelled [source gap](../settings-main-residual-2026-10-04.md) (Other Settings t/n/s endpoints, Management **g**, Internet left chrome). Do not guess a snap. Recapture after a source-backed general edge rule; regress Other page 1 and Health first. Motion/input/audio still fail.
 
 ### S-02 - Internet and Connection Settings
 

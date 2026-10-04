@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Sound HudTime recapture](sound-clock-recapture-2026-10-04.md),
+Latest [Settings main S-01 20-pixel source gap](settings-main-residual-2026-10-04.md),
+`74ac999e`: 0 upper / 20 lower remain. Fifteen pixels are Other Settings
+t/n/s endpoints just below `*.5`; two are two-line Management **g**; three
+are Internet left chrome. No raster guess. Recapture only after a
+source-backed general edge rule.
+
+Earlier [Sound HudTime recapture](sound-clock-recapture-2026-10-04.md),
 `983ef5ed`: clock ROI `[95,216,194,240]` is 0 over 2/255 on both stills
 (`22 27` even / `22:31` odd). First-run whole upper 6,627→6,094 (old 533
 clock box gone). Whole LCDs still fail (title/Span/birds, guide/empty

@@ -3,11 +3,13 @@ import assert from 'node:assert/strict';
 import { createPortfolioState } from '../src/os/system.ts';
 import {
   acknowledgeHomeEntryBannerPresentation,
+  acknowledgeHomeEntryFooterRelease,
   acknowledgeHomeEntryFooterTerminal,
   bypassHomeEntryBannerPresentation,
   createHomeEntryPresentation,
   getHomeEntryFooterReadiness,
   sampleHomeEntryPresentation,
+  HOME_ENTRY_BANNER_RELEASE_FOOTER_FRAME,
   HOME_ENTRY_FOOTER_LAST_FRAME,
   HOME_ENTRY_HUD_LAST_FRAME,
 } from '../src/os/home-entry-presentation.ts';
@@ -32,7 +34,7 @@ test('boot-owned HOME entry delays footer and HUD, then holds footer14 and HUD z
   const terminalState = atCount(home(boot()), 94);
   const terminal = sampleHomeEntryPresentation(armed, terminalState);
   const acknowledged = acknowledgeHomeEntryFooterTerminal(terminal, terminalState);
-  assert.deepEqual(getHomeEntryFooterReadiness(acknowledged), { bootSince: 100, terminalAtUpdate: 94 });
+  assert.deepEqual(getHomeEntryFooterReadiness(acknowledged), { bootSince: 100, releasedAtUpdate: 94, terminalAtUpdate: 94 });
   const bannerState = atCount(home(boot()), 97);
   const bannerSample = sampleHomeEntryPresentation(acknowledged, bannerState);
   const released = acknowledgeHomeEntryBannerPresentation(bannerSample, bannerState);
@@ -75,7 +77,7 @@ test('warm boot identity owns its current shared-clock origin and replaces stale
   const first = sampleHomeEntryPresentation(createHomeEntryPresentation(), boot(100, 77)).presentation;
   const replacement = sampleHomeEntryPresentation(first, boot(900, 932)).presentation;
   assert.deepEqual(replacement, { bootSince: 900, startedAtUpdate: 932,
-    footerTerminalAtUpdate: null, bannerPresentedAtUpdate: null, bannerBypassed: false });
+    footerReleasedAtUpdate: null, footerTerminalAtUpdate: null, bannerPresentedAtUpdate: null, bannerBypassed: false });
   assert.deepEqual(sampleHomeEntryPresentation(replacement, home(boot(900, 932))), {
     presentation: replacement, footerSceneInFrame: 0, hudSceneInFrame: 0,
   });
@@ -146,4 +148,23 @@ test('footer terminal receipts require the matching ordinary live entry sample',
     { ...terminal, presentation: receipt }, withSystem(entered, { sleeping: true })), /Invalid HOME entry banner/);
   const banner = acknowledgeHomeEntryBannerPresentation({ ...terminal, presentation: receipt }, entered);
   assert.equal(acknowledgeHomeEntryBannerPresentation({ ...terminal, presentation: banner }, entered), banner);
+});
+
+test('a presented footer frame 10 releases the banner worker before the terminal receipt', () => {
+  const armed = sampleHomeEntryPresentation(createHomeEntryPresentation(), boot()).presentation;
+  assert.equal(HOME_ENTRY_BANNER_RELEASE_FOOTER_FRAME, 10);
+  const early = atCount(home(boot()), 89), earlySample = sampleHomeEntryPresentation(armed, early);
+  assert.equal(earlySample.footerSceneInFrame, 9);
+  assert.throws(() => acknowledgeHomeEntryFooterRelease(earlySample, early), /Invalid HOME entry footer release/);
+  const releaseState = atCount(home(boot()), 90), releaseSample = sampleHomeEntryPresentation(armed, releaseState);
+  assert.equal(releaseSample.footerSceneInFrame, 10);
+  assert.throws(() => acknowledgeHomeEntryFooterRelease(releaseSample, { ...releaseState, system: { ...releaseState.system, sleeping: true } }),
+    /Invalid HOME entry footer release/);
+  const released = acknowledgeHomeEntryFooterRelease(releaseSample, releaseState);
+  assert.deepEqual(getHomeEntryFooterReadiness(released), { bootSince: 100, releasedAtUpdate: 90, terminalAtUpdate: null });
+  assert.equal(acknowledgeHomeEntryFooterRelease({ ...releaseSample, presentation: released }, releaseState), released);
+  const terminalState = atCount(home(boot()), 94);
+  const terminal = acknowledgeHomeEntryFooterTerminal(sampleHomeEntryPresentation(released, terminalState), terminalState);
+  assert.deepEqual(getHomeEntryFooterReadiness(terminal), { bootSince: 100, releasedAtUpdate: 90, terminalAtUpdate: 94 },
+    'the terminal receipt keeps the earlier release');
 });

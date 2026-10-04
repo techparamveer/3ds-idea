@@ -10,10 +10,16 @@ export const HOME_ENTRY_HUD_LAST_FRAME = 40 as const;
  * are three and seven updates. The native caller remains untraced. */
 export const HOME_ENTRY_FOOTER_DELAY_UPDATES = 3 as const;
 export const HOME_ENTRY_HUD_DELAY_UPDATES = 7 as const;
+/** Native activates the entry banner with the footer's terminal frame (N057).
+ * The banner service needs four updates after its worker release, so a live
+ * presented footer frame 10 releases it; frame 14 still owns the terminal
+ * receipt. Capture fit; adaptation. */
+export const HOME_ENTRY_BANNER_RELEASE_FOOTER_FRAME = 10 as const;
 
 export type HomeEntryPresentation = Readonly<{
   bootSince: number | null;
   startedAtUpdate: number | null;
+  footerReleasedAtUpdate: number | null;
   footerTerminalAtUpdate: number | null;
   bannerPresentedAtUpdate: number | null;
   bannerBypassed: boolean;
@@ -27,11 +33,12 @@ export type HomeEntrySample = Readonly<{
 
 export type HomeEntryFooterReadiness = Readonly<{
   bootSince: number | null;
+  releasedAtUpdate: number | null;
   terminalAtUpdate: number | null;
 }>;
 
 const EMPTY: HomeEntryPresentation = Object.freeze({
-  bootSince: null, startedAtUpdate: null, footerTerminalAtUpdate: null,
+  bootSince: null, startedAtUpdate: null, footerReleasedAtUpdate: null, footerTerminalAtUpdate: null,
   bannerPresentedAtUpdate: null, bannerBypassed: false,
 });
 const emptySample = (presentation: HomeEntryPresentation = EMPTY): HomeEntrySample => Object.freeze({
@@ -79,7 +86,7 @@ export function sampleHomeEntryPresentation(
     }
     return emptySample(Object.freeze({
       bootSince: system.since, startedAtUpdate: updateCount,
-      footerTerminalAtUpdate: null, bannerPresentedAtUpdate: null, bannerBypassed: false,
+      footerReleasedAtUpdate: null, footerTerminalAtUpdate: null, bannerPresentedAtUpdate: null, bannerBypassed: false,
     }));
   }
 
@@ -127,11 +134,31 @@ export function acknowledgeHomeEntryFooterTerminal(
   const updateCount = validUpdateCount(system.homeClock.updateCount);
   if (updateCount < current.startedAtUpdate) throw new RangeError('HOME entry update clock moved backwards');
   if (current.footerTerminalAtUpdate !== null) return current;
-  return Object.freeze({ ...current, footerTerminalAtUpdate: updateCount });
+  return Object.freeze({ ...current, footerReleasedAtUpdate: current.footerReleasedAtUpdate ?? updateCount,
+    footerTerminalAtUpdate: updateCount });
+}
+
+/** Record a successful live paired-screen draw of footer frame 10 or later.
+ * It releases the banner worker so activation coincides with the terminal. */
+export function acknowledgeHomeEntryFooterRelease(
+  sample: HomeEntrySample,
+  state: MenuState,
+): HomeEntryPresentation {
+  const system = state.system, current = sample.presentation;
+  if (!system || system.sleeping || !isOrdinaryRootHome(state)
+    || current.bootSince !== system.since || current.startedAtUpdate === null
+    || sample.footerSceneInFrame === null || sample.footerSceneInFrame < HOME_ENTRY_BANNER_RELEASE_FOOTER_FRAME) {
+    throw new Error('Invalid HOME entry footer release receipt');
+  }
+  const updateCount = validUpdateCount(system.homeClock.updateCount);
+  if (updateCount < current.startedAtUpdate) throw new RangeError('HOME entry update clock moved backwards');
+  if (current.footerReleasedAtUpdate !== null) return current;
+  return Object.freeze({ ...current, footerReleasedAtUpdate: updateCount });
 }
 
 export function getHomeEntryFooterReadiness(current: HomeEntryPresentation): HomeEntryFooterReadiness {
-  return Object.freeze({ bootSince: current.bootSince, terminalAtUpdate: current.footerTerminalAtUpdate });
+  return Object.freeze({ bootSince: current.bootSince, releasedAtUpdate: current.footerReleasedAtUpdate,
+    terminalAtUpdate: current.footerTerminalAtUpdate });
 }
 
 /** Release the HUD only after the matching native banner pixels have been

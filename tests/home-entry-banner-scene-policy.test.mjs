@@ -23,18 +23,18 @@ test('warm boot reset preserves the existing host generation and never recreates
   assert.doesNotMatch(observer, /bannerGeneration=/);
 });
 
-test('the restarted primary uses the paired-screen footer receipt at the existing worker release boundary', () => {
+test('the restarted primary uses the paired-screen footer release receipt at the existing worker release boundary', () => {
   const observer = source.slice(source.indexOf('function observeFolderBanner'), source.indexOf('function advanceBeforeMutation'));
   assert.match(observer, /bannerEntryFooterBootSince=system\.since/);
   assert.match(observer, /const entryFooter=screens\.homeEntryFooterReadiness\(\)/);
-  assert.match(observer, /entryFooter\.bootSince===bannerEntryFooterBootSince&&entryFooter\.terminalAtUpdate!==null/);
+  assert.match(observer, /entryFooter\.bootSince===bannerEntryFooterBootSince&&entryFooter\.releasedAtUpdate!==null/);
   assert.match(observer, /loadInhibited:false,nativeWorkerReady:bannerEntryFooterBootSince===null/);
   assert.doesNotMatch(observer, /setTimeout|performance\.now|HOME_ENTRY_FOOTER_LAST_FRAME/,
     'scene policy must consume the shared owner receipt rather than inventing a delay or frame clock');
 });
 
 test('only a visible context-live render promotes entry candidates', () => {
-  assert.match(source, /if\(validPublication\)\{screens\.presentHomeEntryFooterTerminal\(\);screens\.presentHomeEntryBanner\(\);screens\.presentHomeEntryWithoutNativeBanner\(\);\}/);
+  assert.match(source, /if\(validPublication\)\{screens\.presentHomeEntryFooterRelease\(\);screens\.presentHomeEntryFooterTerminal\(\);screens\.presentHomeEntryBanner\(\);screens\.presentHomeEntryWithoutNativeBanner\(\);\}/);
   assert.match(source, /else\{screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\}/);
   assert.match(source, /const revokeTerminalPublications=\(\)=>\{[^}]*screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\};/);
   assert.match(source, /const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);/);

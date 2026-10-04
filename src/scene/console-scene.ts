@@ -279,7 +279,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     bannerObservedPhase=system.phase;
     if(restartPrimary){bannerHost=resetHomeBannerPrimary(bannerHost);lastBannerRestartBootSince=system.since;bannerEntryFooterBootSince=system.since;}
     const entryFooter=screens.homeEntryFooterReadiness();
-    if(bannerEntryFooterBootSince!==null&&(entryFooter.bootSince===bannerEntryFooterBootSince&&entryFooter.terminalAtUpdate!==null
+    if(bannerEntryFooterBootSince!==null&&(entryFooter.bootSince===bannerEntryFooterBootSince&&entryFooter.releasedAtUpdate!==null
       ||system.phase!=='boot'&&entryFooter.bootSince!==bannerEntryFooterBootSince))bannerEntryFooterBootSince=null;
     // Keep the source gate counting while entry owns the lower-screen terminal.
     // Its existing worker-release boundary blocks both gate release and later
@@ -542,7 +542,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();publishProjectedTargets(plan.shadows);
     renderer.render(scene,camera);frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
     const validPublication=!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost();
-    if(validPublication){screens.presentHomeEntryFooterTerminal();screens.presentHomeEntryBanner();screens.presentHomeEntryWithoutNativeBanner();}
+    if(validPublication){screens.presentHomeEntryFooterRelease();screens.presentHomeEntryFooterTerminal();screens.presentHomeEntryBanner();screens.presentHomeEntryWithoutNativeBanner();}
     else{screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();}
     lastBootPresentedIdentity=validPublication?lastBootPaintIdentity:null;
     lastLaunchPresentedIdentity=validPublication?lastLaunchPaintIdentity:null;

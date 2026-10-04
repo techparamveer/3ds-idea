@@ -548,23 +548,43 @@ test('live paired footer terminal receipt survives skipped updates and diagnosti
   const entered={...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount:97}}};
   try{
    globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:null});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,releasedAtUpdate:null,terminalAtUpdate:null});
 
    screens.paint(entered,new Date(0),1000,{sampleCalendar:true});
    assert.equal(events.find(event=>event.name==='footer').args[2],14,'skipped source interval clamps to its terminal');
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:null},'diagnostic paint cannot publish');
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,releasedAtUpdate:null,terminalAtUpdate:null},'diagnostic paint cannot publish');
 
    paint(entered);
    assert.equal(events.find(event=>event.name==='footer').args[2],14);
    screens.paint(entered,new Date(0),1000,{sampleCalendar:true});
    assert.equal(screens.presentHomeEntryFooterTerminal(),false,'diagnostic repaint revokes the replaced live candidate');
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:null},'diagnostic repaint preserves the live owner');
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,releasedAtUpdate:null,terminalAtUpdate:null},'diagnostic repaint preserves the live owner');
    paint(entered);
    assert.equal(screens.presentHomeEntryFooterTerminal(),true);
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:97});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,releasedAtUpdate:97,terminalAtUpdate:97});
    paint(entered);
    assert.equal(events.find(event=>event.name==='footer').args[2],undefined,'settled source pose resumes after receipt');
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:97});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,releasedAtUpdate:97,terminalAtUpdate:97});
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ });
+});
+
+test('a live presented footer frame 10 publishes the banner release receipt before terminal',async()=>{
+ await withScreens(({screens,paint,events})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:100,homeClock:{...initial.system.homeClock,updateCount:77}}};
+  const at=updateCount=>({...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount}}});
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
+   paint(at(89));assert.equal(events.find(event=>event.name==='footer').args[2],9);
+   assert.equal(screens.presentHomeEntryFooterRelease(),false,'frame 9 cannot release');
+   screens.paint(at(90),new Date(0),1000,{sampleCalendar:true});
+   assert.equal(screens.presentHomeEntryFooterRelease(),false,'diagnostic paint cannot release');
+   paint(at(90));assert.equal(events.find(event=>event.name==='footer').args[2],10);
+   assert.equal(screens.presentHomeEntryFooterRelease(),true);
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,releasedAtUpdate:90,terminalAtUpdate:null});
+   paint(at(91));screens.revokeHomeEntryFooterCandidate();
+   assert.equal(screens.presentHomeEntryFooterRelease(),false,'an already released owner offers no candidate');
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  });
 });
@@ -578,7 +598,7 @@ test('failed native terminal draw and revoked candidates cannot acknowledge entr
    globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
    assert.throws(()=>paint(entered),/terminal draw failed/);
    assert.equal(screens.presentHomeEntryFooterTerminal(),false);
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,terminalAtUpdate:null});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,releasedAtUpdate:null,terminalAtUpdate:null});
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  },{presenterPatch:{footer(_ctx,_state,_reduced,frame){if(frame===14)throw Error('terminal draw failed');return true;}}});
 
@@ -590,7 +610,7 @@ test('failed native terminal draw and revoked candidates cannot acknowledge entr
    globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);paint(entered);
    screens.revokeHomeEntryFooterCandidate();
    assert.equal(screens.presentHomeEntryFooterTerminal(),false);
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:101,terminalAtUpdate:null});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:101,releasedAtUpdate:null,terminalAtUpdate:null});
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  });
 });
@@ -608,12 +628,12 @@ test('held pickup cannot publish an invisible entry footer and release resumes t
    globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);paint(held);
    assert.equal(events.some(event=>event.name==='footer'),false);
    assert.equal(screens.presentHomeEntryFooterTerminal(),false);
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:102,terminalAtUpdate:null});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:102,releasedAtUpdate:null,terminalAtUpdate:null});
 
    paint(controls(entered,{tilePickup:null}));
    assert.equal(events.some(event=>event.name==='footer'),true);
    assert.equal(screens.presentHomeEntryFooterTerminal(),true);
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:102,terminalAtUpdate:47});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:102,releasedAtUpdate:47,terminalAtUpdate:47});
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  },{presenterPatch:{footer(ctx,state){if(getHomeFooter(state))ctx.record('footer');return true;}}});
 });
@@ -650,7 +670,7 @@ test('reuse-only live paint retires HOME entry across immediate Power to B retur
    assert.equal(events.find(event=>event.name==='hud').args[3],0);
    const power=reduceSystem(entered,'power',100);
    screens.paint(power,new Date(0),1000,{reuseHomeBackgroundMs:1000/30});
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:null,terminalAtUpdate:null});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:null,releasedAtUpdate:null,terminalAtUpdate:null});
    const returned=reduceSystem(power,'back',100);
    paint(returned);
    assert.equal(events.find(event=>event.name==='hud').args[3],undefined);
@@ -667,7 +687,7 @@ test('firmware owner replacement resets HOME entry and disposed screens stay ine
   try{
    globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
    screens.setFirmwareAssets({presenter,sharedFont:{draw(){}},diagnostics:[],dispose(){}});
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:null,terminalAtUpdate:null});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:null,releasedAtUpdate:null,terminalAtUpdate:null});
    paint(entered);
    assert.equal(events.find(event=>event.name==='hud').args[3],undefined);
    assert.equal(events.find(event=>event.name==='footer').args[2],undefined);

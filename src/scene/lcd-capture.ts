@@ -29,7 +29,7 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
   const elapsedText = params.get('lcdElapsedMs');
   const dateText = params.get('lcdDate');
   const scenario = params.get('lcdScenario') ?? 'browser-lcd';
-  const liveHealthHomeClock = params.has('lcdHealthBannerFrame') || params.has('lcdHomeWallpaperFrame');
+  const liveHealthHomeClock = params.has('lcdHealthBannerFrame');
   if (liveHealthHomeClock && (elapsedText !== null || dateText !== null)) throw new Error('Health HOME source frames use the live HOME clock; omit lcdElapsedMs and lcdDate');
   const bannerFrameText = params.get('lcdBannerFrame');
   const elapsedMs = elapsedText === null || elapsedText.trim() === '' ? NaN : Number(elapsedText);
@@ -52,13 +52,18 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
   const homeWallpaperFrameText = params.get('lcdHomeWallpaperFrame');
   const healthBannerFrame = healthBannerFrameText === null ? undefined : Number(healthBannerFrameText);
   const homeWallpaperFrame = homeWallpaperFrameText === null ? undefined : Number(homeWallpaperFrameText);
-  if (healthBannerFrame !== undefined || homeWallpaperFrame !== undefined) {
+  if (healthBannerFrame !== undefined) {
     if (!hostname || !['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname)) throw new Error('Health HOME frame sampling requires localhost');
-    if (healthBannerFrameText === null || homeWallpaperFrameText === null
-      || !/^[0-9]+$/.test(healthBannerFrameText) || !/^[0-9]+$/.test(homeWallpaperFrameText)
-      || !Number.isSafeInteger(healthBannerFrame) || healthBannerFrame! < 0 || healthBannerFrame! > 599
+    if (homeWallpaperFrameText === null
+      || !/^[0-9]+$/.test(healthBannerFrameText!) || !/^[0-9]+$/.test(homeWallpaperFrameText)
+      || !Number.isSafeInteger(healthBannerFrame) || healthBannerFrame < 0 || healthBannerFrame > 599
       || !Number.isSafeInteger(homeWallpaperFrame) || homeWallpaperFrame! < 0 || homeWallpaperFrame! > 599) {
       throw new Error('lcdHealthBannerFrame and lcdHomeWallpaperFrame must both be integers from 0 to 599');
+    }
+  } else if (homeWallpaperFrame !== undefined) {
+    if (!hostname || !['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname)) throw new Error('HOME wallpaper frame sampling requires localhost');
+    if (!/^[0-9]+$/.test(homeWallpaperFrameText!) || !Number.isSafeInteger(homeWallpaperFrame) || homeWallpaperFrame < 0 || homeWallpaperFrame > 599) {
+      throw new Error('lcdHomeWallpaperFrame must be an integer from 0 to 599');
     }
   }
   const skeletalText = params.get('lcdBannerSkeletalFrame');
@@ -73,7 +78,10 @@ export function lcdDownloadRequest(search: string, hostname?: string) {
   if (healthBannerFrame !== undefined && (bannerFrame !== undefined || healthFrame !== undefined || bannerSkeletalFrame !== undefined || homeHudSample !== undefined)) {
     throw new Error('Health HOME frames cannot be combined with other sampled banner or HUD frames');
   }
-  return { ...(bannerSkeletalFrame === undefined ? {} : { bannerSkeletalFrame }), ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs:liveHealthHomeClock?0:elapsedMs, isoDate:dateText===null?undefined:new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }), ...(healthBannerFrame === undefined ? {} : { healthBannerFrame, homeWallpaperFrame }), ...(liveHealthHomeClock?{liveHealthHomeClock:true}:{}) };
+  if (healthBannerFrame === undefined && homeWallpaperFrame !== undefined && healthFrame !== undefined) {
+    throw new Error('lcdHomeWallpaperFrame cannot be combined with lcdHealthFrame');
+  }
+  return { ...(bannerSkeletalFrame === undefined ? {} : { bannerSkeletalFrame }), ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs:liveHealthHomeClock?0:elapsedMs, isoDate:dateText===null?undefined:new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }), ...(healthBannerFrame === undefined ? (homeWallpaperFrame === undefined ? {} : { homeWallpaperFrame }) : { healthBannerFrame, homeWallpaperFrame }), ...(liveHealthHomeClock?{liveHealthHomeClock:true}:{}) };
 }
 
 export function lcdDownloadPayload(scenario: string, capture: ReturnType<typeof encodeNativeLcdPair> & Record<string, unknown>) {

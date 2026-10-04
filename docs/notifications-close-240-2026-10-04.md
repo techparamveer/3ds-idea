@@ -90,10 +90,24 @@ Provenance: `packs/notifications/news.json` (`9f6e27e6…`, from
 Notifications `000400300000a002` v4097 content `00000012`, `code.bin`
 `b3993f1e…`, writer `0x16b080` / `0x18fe2c`. No new asset.
 
-## Expected after recapture (not established)
+## Recapture (coordinator, Sidecar, `928f9ed7`)
 
-Close glyphs 184 → about 0. Close stays about **56** (the seam). Only the
-coordinator's Sidecar recapture can establish the count.
+Frozen native reused (`58fff714…`); Azahar not relaunched. Production
+`127.0.0.1:3000`. Browser lower `6397346d…`, report `9b57a711…`, artifacts
+`notifications-close-240-recapture-20261004/`. Empty mask, 2/255.
+
+| Region | Before | After |
+| --- | ---: | ---: |
+| Upper | 0 | **0** |
+| Lower | 1094 | **910** |
+| Close | 240 | **56** |
+| Close glyphs `[125,216,195,234]` | 184 | **0** (max 2) |
+| Close seam `[0,210,320,214]` | 56 | **56** (max 14 at `(138,211)`) |
+| List | 820 | **820** (max 18) |
+| Scrollbar | 34 | **34** |
+
+Glyphs 184 were the second Canvas filter. Input, motion and audio are
+still uncompared. Whole lower remains **fail**.
 
 ## Remaining (labelled)
 

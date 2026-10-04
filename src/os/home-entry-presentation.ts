@@ -3,6 +3,12 @@ import type { MenuState } from './state.ts';
 export const HOME_ENTRY_FOOTER_LAST_FRAME = 14 as const;
 export const HOME_ENTRY_HUD_ZERO_ALPHA_FRAME = 20 as const;
 export const HOME_ENTRY_HUD_LAST_FRAME = 40 as const;
+/** Fitted to Azahar's HOME entry (5% playback; footer/HUD bands and the
+ * wallpaper phase against browser update deltas): footer SceneIn 0 lands
+ * three updates after the boot fade's terminal pose and HUD SceneIn 0 nine
+ * updates after it. The native caller remains untraced; adaptations. */
+export const HOME_ENTRY_FOOTER_DELAY_UPDATES = 3 as const;
+export const HOME_ENTRY_HUD_DELAY_UPDATES = 9 as const;
 
 export type HomeEntryPresentation = Readonly<{
   bootSince: number | null;
@@ -82,9 +88,12 @@ export function sampleHomeEntryPresentation(
   const elapsed = updateCount - current.startedAtUpdate;
   if (elapsed < 0) throw new RangeError('HOME entry update clock moved backwards');
   const bannerPending = current.bannerPresentedAtUpdate === null && !current.bannerBypassed;
+  const footerElapsed = Math.max(0, elapsed - HOME_ENTRY_FOOTER_DELAY_UPDATES);
+  const hudElapsed = Math.max(0, elapsed - HOME_ENTRY_HUD_DELAY_UPDATES);
+  const hudZeroAlphaAtUpdate = current.startedAtUpdate + HOME_ENTRY_HUD_DELAY_UPDATES + HOME_ENTRY_HUD_ZERO_ALPHA_FRAME;
   const hudStartAtUpdate = bannerPending ? null : current.bannerBypassed
-    ? current.startedAtUpdate + HOME_ENTRY_HUD_ZERO_ALPHA_FRAME
-    : Math.max(current.startedAtUpdate + HOME_ENTRY_HUD_ZERO_ALPHA_FRAME, current.bannerPresentedAtUpdate!);
+    ? hudZeroAlphaAtUpdate
+    : Math.max(hudZeroAlphaAtUpdate, current.bannerPresentedAtUpdate!);
   if (current.footerTerminalAtUpdate !== null && !bannerPending
     && (reduced ? elapsed > HOME_ENTRY_HUD_LAST_FRAME
       : updateCount > hudStartAtUpdate! + HOME_ENTRY_HUD_LAST_FRAME - HOME_ENTRY_HUD_ZERO_ALPHA_FRAME)) {
@@ -93,10 +102,10 @@ export function sampleHomeEntryPresentation(
   return Object.freeze({
     presentation: current,
     footerSceneInFrame: reduced ? HOME_ENTRY_FOOTER_LAST_FRAME
-      : elapsed <= HOME_ENTRY_FOOTER_LAST_FRAME ? elapsed
+      : footerElapsed <= HOME_ENTRY_FOOTER_LAST_FRAME ? footerElapsed
       : current.footerTerminalAtUpdate === null ? HOME_ENTRY_FOOTER_LAST_FRAME : null,
     hudSceneInFrame: reduced ? HOME_ENTRY_HUD_LAST_FRAME
-      : bannerPending ? Math.min(elapsed, HOME_ENTRY_HUD_ZERO_ALPHA_FRAME)
+      : bannerPending ? Math.min(hudElapsed, HOME_ENTRY_HUD_ZERO_ALPHA_FRAME)
       : HOME_ENTRY_HUD_ZERO_ALPHA_FRAME + updateCount - hudStartAtUpdate!,
   });
 }

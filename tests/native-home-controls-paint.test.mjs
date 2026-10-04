@@ -429,12 +429,12 @@ test('boot-owned paired screens hold HUD zero-alpha after footer receipt while b
    globalThis.__testNativeSystemOverlayDrawn=true;
    paint(boot);
    const entered={...boot,system:{...boot.system,phase:'home'}};
-   for(const [elapsed,footerFrame,hudFrame] of [[0,0,0],[0,0,0],[14,14,14],[15,undefined,15],[40,undefined,20],[41,undefined,20]]){
+   for(const [elapsed,footerFrame,hudFrame] of [[0,0,0],[0,0,0],[17,14,8],[18,undefined,9],[40,undefined,20],[41,undefined,20]]){
     const state={...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount:77+elapsed}}};
     paint(state);
     assert.equal(events.find(event=>event.name==='footer').args[2],footerFrame);
     assert.equal(events.find(event=>event.name==='hud').args[3],hudFrame);
-    if(elapsed===14)assert.equal(screens.presentHomeEntryFooterTerminal(),true);
+    if(elapsed===17)assert.equal(screens.presentHomeEntryFooterTerminal(),true);
    }
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  });
@@ -452,7 +452,7 @@ test('context recovery publishes a real banner before replaying HUD20 through40'
   const at=updateCount=>({...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount}}});
   try{
    globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);paint(at(90));
-   assert.equal(events.find(event=>event.name==='hud').args[3],13);
+   assert.equal(events.find(event=>event.name==='hud').args[3],4);
    screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();
 
    paint(at(152));
@@ -500,15 +500,15 @@ test('unsupported portfolio and clear selections resolve without a fabricated na
     assert.equal(screens.presentHomeEntryBanner(),false);
     assert.equal(screens.presentHomeEntryWithoutNativeBanner(),false,'early selection cannot bypass the footer owner');
    }
-   paint(at(64));assert.equal(screens.presentHomeEntryFooterTerminal(),true);
+   paint(at(67));assert.equal(screens.presentHomeEntryFooterTerminal(),true);
    assert.equal(screens.presentHomeEntryWithoutNativeBanner(),false,'footer publication wins the shared owner first');
-   paint(at(65));
+   paint(at(68));
    if(scenario.portfolio)assert.ok(events.some(event=>event.name==='fallback-banner'),'authored portfolio banner remains visible');
    assert.equal(screens.presentHomeEntryBanner(),false,'no native draw receipt was fabricated');
    hostedView=scenario.portfolio?{status:'unsupported',selection:{kind:'app',id:'about'},resourceTicket:null}
     :{...scenario.view,generation:'stale-clear'};
    assert.equal(screens.presentHomeEntryWithoutNativeBanner(),false,'retargeted no-banner view revokes the painted bypass');
-   hostedView=scenario.view;paint(at(65));
+   hostedView=scenario.view;paint(at(68));
    assert.equal(screens.presentHomeEntryWithoutNativeBanner(),true,scenario.name);
   },{screenOptions:{getHomeBanner:()=>hostedView}});}
   finally{delete globalThis.__testNativeSystemOverlayDrawn;delete globalThis.__testSelectedApp;}
@@ -532,11 +532,11 @@ test('an early native banner cannot publish ahead of the matching footer owner',
     assert.equal(screens.presentHomeEntryBanner(),false,'early native pixels cannot precede the footer receipt');
     assert.equal(screens.presentHomeEntryWithoutNativeBanner(),false);
    }
-   paint(at(64));assert.equal(screens.presentHomeEntryFooterTerminal(),true);
+   paint(at(67));assert.equal(screens.presentHomeEntryFooterTerminal(),true);
    assert.equal(screens.presentHomeEntryBanner(),false,'same-paint banner candidate is stale after footer promotion');
-   paint(at(65));hosted={...active,primary:{...active.primary,activationEpoch:2}};
+   paint(at(68));hosted={...active,primary:{...active.primary,activationEpoch:2}};
    assert.equal(screens.presentHomeEntryBanner(),false,'retargeted active tuple revokes the painted banner');
-   hosted=active;paint(at(65));assert.equal(screens.presentHomeEntryBanner(),true);
+   hosted=active;paint(at(68));assert.equal(screens.presentHomeEntryBanner(),true);
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  },{screenOptions:{getHomeBanner:()=>hosted,drawStockTitleBannerFrame:()=>true}});
 });
@@ -573,7 +573,7 @@ test('failed native terminal draw and revoked candidates cannot acknowledge entr
  await withScreens(({screens,paint})=>{
   const initial=createPortfolioState();
   const boot={...initial,system:{...initial.system,since:100,homeClock:{...initial.system.homeClock,updateCount:77}}};
-  const entered={...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount:91}}};
+  const entered={...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount:94}}};
   try{
    globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);
    assert.throws(()=>paint(entered),/terminal draw failed/);
@@ -601,7 +601,7 @@ test('held pickup cannot publish an invisible entry footer and release resumes t
   const boot={...initial,system:{...initial.system,since:102,homeClock:{...initial.system.homeClock,updateCount:30}}};
   const ordinary=home();
   const entered={...ordinary,system:{...ordinary.system,since:102,
-   homeClock:{...ordinary.system.homeClock,updateCount:44}}};
+   homeClock:{...ordinary.system.homeClock,updateCount:47}}};
   const held=controls(entered,{tilePickup:createHomeTilePickup({folder:20,slot:1},5,
    {x:59,y:54},{x:244,y:137},{x:0,y:0})});
   try{
@@ -613,7 +613,7 @@ test('held pickup cannot publish an invisible entry footer and release resumes t
    paint(controls(entered,{tilePickup:null}));
    assert.equal(events.some(event=>event.name==='footer'),true);
    assert.equal(screens.presentHomeEntryFooterTerminal(),true);
-   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:102,terminalAtUpdate:44});
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:102,terminalAtUpdate:47});
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  },{presenterPatch:{footer(ctx,state){if(getHomeFooter(state))ctx.record('footer');return true;}}});
 });

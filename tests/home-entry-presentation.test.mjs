@@ -17,10 +17,11 @@ const atCount = (state, updateCount) => withSystem(state, { homeClock: { ...stat
 const boot = (since = 100, updateCount = 77) => atCount(withSystem(createPortfolioState(), { since }), updateCount);
 const home = state => withSystem(state, { phase: 'home' });
 
-test('boot-owned HOME entry holds footer14 and HUD zero-alpha until their visible receipts', () => {
+test('boot-owned HOME entry delays footer and HUD, then holds footer14 and HUD zero-alpha until their visible receipts', () => {
   const armed = sampleHomeEntryPresentation(createHomeEntryPresentation(), boot()).presentation;
   for (const [elapsed, footer, hud] of [
-    [0, 0, 0], [7, 7, 7], [14, 14, 14], [15, 14, 15], [20, 14, 20], [40, 14, 20], [75, 14, 20],
+    // Footer SceneIn starts three updates and HUD SceneIn nine updates after entry (fitted).
+    [0, 0, 0], [3, 0, 0], [7, 4, 0], [14, 11, 5], [17, 14, 8], [20, 14, 11], [29, 14, 20], [40, 14, 20], [75, 14, 20],
   ]) {
     const state = atCount(home(boot()), 77 + elapsed);
     const first = sampleHomeEntryPresentation(armed, state);
@@ -28,20 +29,20 @@ test('boot-owned HOME entry holds footer14 and HUD zero-alpha until their visibl
     assert.deepEqual([first.footerSceneInFrame, first.hudSceneInFrame], [footer, hud]);
     assert.deepEqual(repaint, first);
   }
-  const terminalState = atCount(home(boot()), 91);
+  const terminalState = atCount(home(boot()), 94);
   const terminal = sampleHomeEntryPresentation(armed, terminalState);
   const acknowledged = acknowledgeHomeEntryFooterTerminal(terminal, terminalState);
-  assert.deepEqual(getHomeEntryFooterReadiness(acknowledged), { bootSince: 100, terminalAtUpdate: 91 });
-  const bannerState = atCount(home(boot()), 94);
+  assert.deepEqual(getHomeEntryFooterReadiness(acknowledged), { bootSince: 100, terminalAtUpdate: 94 });
+  const bannerState = atCount(home(boot()), 97);
   const bannerSample = sampleHomeEntryPresentation(acknowledged, bannerState);
   const released = acknowledgeHomeEntryBannerPresentation(bannerSample, bannerState);
-  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 97)), {
+  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 106)), {
     presentation: released, footerSceneInFrame: null, hudSceneInFrame: 20,
   });
-  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 117)), {
+  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 126)), {
     presentation: released, footerSceneInFrame: null, hudSceneInFrame: 40,
   });
-  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 118)), {
+  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 127)), {
     presentation: released, footerSceneInFrame: null, hudSceneInFrame: null,
   });
 });
@@ -61,13 +62,13 @@ test('delayed banner receipt replays authored HUD20 through40 from the retained 
 
 test('no-dependent-native-banner bypass keeps the original HUD epoch', () => {
   const base = boot(), armed = sampleHomeEntryPresentation(createHomeEntryPresentation(), base).presentation;
-  const footerState = atCount(home(base), 91);
+  const footerState = atCount(home(base), 94);
   const footer = acknowledgeHomeEntryFooterTerminal(sampleHomeEntryPresentation(armed, footerState), footerState);
-  const bypassState = atCount(home(base), 94);
+  const bypassState = atCount(home(base), 97);
   const bypassed = bypassHomeEntryBannerPresentation(sampleHomeEntryPresentation(footer, bypassState), bypassState);
   assert.equal(bypassed.bannerBypassed, true);
-  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 117)).hudSceneInFrame, 40);
-  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 118)).hudSceneInFrame, null);
+  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 126)).hudSceneInFrame, 40);
+  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 127)).hudSceneInFrame, null);
 });
 
 test('warm boot identity owns its current shared-clock origin and replaces stale boot ownership', () => {
@@ -133,7 +134,7 @@ test('same-identity clock rollback fails explicitly', () => {
 
 test('footer terminal receipts require the matching ordinary live entry sample', () => {
   const state = boot(), armed = sampleHomeEntryPresentation(createHomeEntryPresentation(), state).presentation;
-  const entered = atCount(home(state), 91), terminal = sampleHomeEntryPresentation(armed, entered);
+  const entered = atCount(home(state), 94), terminal = sampleHomeEntryPresentation(armed, entered);
   assert.equal(terminal.footerSceneInFrame, HOME_ENTRY_FOOTER_LAST_FRAME);
   assert.throws(() => acknowledgeHomeEntryFooterTerminal(terminal, withSystem(entered, { sleeping: true })), /Invalid HOME entry/);
   assert.throws(() => acknowledgeHomeEntryFooterTerminal({ ...terminal, footerSceneInFrame: 13 }, entered), /Invalid HOME entry/);

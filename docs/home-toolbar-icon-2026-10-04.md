@@ -120,8 +120,9 @@ component 162, house 0, and the named SHA-256 identities.
 ## Remaining / next coordinator action
 
 Masked lower stays **5,426**. Toolbar 164 / News lamp 162 remain. House
-matches. Next visible lower work is still neighbour peeks and the 1,656
-Settings+cursor cluster, not this lamp, until a source-backed HOME
+matches. The 1,656 Settings+cursor cluster is now a labelled
+[source gap](home-settings-cursor-2026-10-04.md). Next visible lower work
+is neighbour peeks, not this lamp, until a source-backed HOME
 receive-state owner exists. Do not recapture for this documentation
 slice. Reuse the matching 1-row Right walk. Whole-scenario 1:1 still
 fails. Matrix unchanged.

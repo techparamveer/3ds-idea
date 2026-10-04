@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME toolbar News receive lamp](home-toolbar-icon-2026-10-04.md),
+Latest [HOME 1-row Settings+cursor cluster](home-settings-cursor-2026-10-04.md),
+worker `d2e5d1d6` from fidelity `0f7e9c26`: the 1,656-pixel masked leftover
+is `LncCsr_00` chrome around a matching Settings face. Loop 37 is a frozen
+diagnostic, not a unique live clock. Docs and tests only. Coordinator
+APPROVE pending independent review. Not 1:1.
+
+Earlier [HOME toolbar News receive lamp](home-toolbar-icon-2026-10-04.md),
 `0f7e9c26` from worker `4b58f490`: the 162-pixel 1-row toolbar residual
 is empty `N_NewsRcv_00`, not the house. No unique HOME receive-state /
 `LncRcvLampSrc_01` frame. Docs and tests only. Independent review
@@ -85,7 +91,8 @@ Earlier [HOME 1-row viewport route](home-row-viewport-2026-10-04.md): walking Ri
 from 1-row origin to Settings (native Activity Log | Download Play |
 Settings, both out-of-scope neighbours) gives 190 upper / 12,000 lower, and
 5,426 lower with the two portfolio neighbour faces masked. No runtime change.
-Remaining lower: edge peeks (portfolio placement), cursor-37 halo, and the
+Remaining lower: edge peeks (portfolio placement), the labelled
+[1,656-pixel Settings+cursor halo](home-settings-cursor-2026-10-04.md), and the
 [162-pixel News receive lamp](home-toolbar-icon-2026-10-04.md) (not the house).
 
 Earlier [HOME Settings yaw re-search](home-settings-yaw-research-2026-10-04.md), `dde43424`:

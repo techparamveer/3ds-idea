@@ -149,7 +149,9 @@ covers only `[32,118,80,82]` and `[112,118,88,82]`
 (`portfolio-content`). Settings, cursor, arrows, balloon, toolbar and
 footer stay compared. Masked lower **5,426** (13,776 pixels excluded).
 Largest remaining 4-neighbour components: 2,220 right peek, 1,656
-Settings+cursor, 561+391+145 left peek/arrow, 162 News receive lamp
+Settings+cursor (labelled
+[source gap](home-settings-cursor-2026-10-04.md)), 561+391+145 left
+peek/arrow, 162 News receive lamp
 (`N_NewsRcv_00`; see [the lamp note](home-toolbar-icon-2026-10-04.md)).
 
 Inspected `R/diff-after-unmasked/lower-contact-sheet.png` and
@@ -192,9 +194,10 @@ frozen yaw 304 / COMMON 303 / Loop 338 / cursor 37. Do not change live
 `INITIAL_YAW`, COMMON clocks or the directional scroll rule.
 
 Remaining lower work is neighbour identity (excluded titles vs Sound /
-Health / Camera peeks) and the 1,481 Settings+cursor pixels, not
-viewport math. Remaining upper work is still the 190 outer green/yellow
-`mt_pict` edges and three wrench pixels.
+Health / Camera peeks). The 1,656 Settings+cursor pixels are a labelled
+[source gap](home-settings-cursor-2026-10-04.md), not viewport math.
+Remaining upper work is still the 190 outer green/yellow `mt_pict` edges
+and three wrench pixels.
 
 Whole-scenario 1:1 still fails. Matrix unchanged.
 
@@ -208,7 +211,9 @@ Whole-scenario 1:1 still fails. Matrix unchanged.
   from firmware; the browser peek is Camera.
 - The before-route 11,868 upper is unexplained capture settling. Do not
   treat it as a second banner pose.
-- Cursor-37 halo, footer edges and the 162-pixel toolbar cluster remain
-  unpaired. That cluster is the News receive lamp on `N_NewsRcv_00`, not
-  the house; see [the lamp note](home-toolbar-icon-2026-10-04.md).
+- The cursor-37 halo is now the labelled
+  [Settings+cursor source gap](home-settings-cursor-2026-10-04.md).
+  Footer edges and the 162-pixel toolbar cluster remain unpaired. That
+  toolbar cluster is the News receive lamp on `N_NewsRcv_00`, not the
+  house; see [the lamp note](home-toolbar-icon-2026-10-04.md).
   Exact input cadence, motion and audio remain open.

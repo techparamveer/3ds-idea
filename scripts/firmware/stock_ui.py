@@ -293,6 +293,16 @@ def publish_additive(source_root, output, plan):
                                'publisherSha256': digest(Path(__file__).read_bytes()),
                                'sourceConverter': source.get('converter'),
                                'additive': True}
+        if requested.get('fontBindings'):
+            info.setdefault('fonts', {})
+            for leaf, binding in requested['fontBindings'].items():
+                if binding not in manifest['fonts']: raise ValueError('Unknown shared font binding: '+binding)
+                target = manifest['fonts'][binding]
+                if existing.get(target, {}).get('kind') != 'font': raise ValueError('Unverified shared font binding: '+binding)
+                current = info['fonts'].get(leaf)
+                if current and current != target: raise ValueError('Conflicting font binding: '+leaf)
+                info['fonts'][leaf] = target
+            info['uiSelection']['presentationFontBindings'] = copy.deepcopy(requested['fontBindings'])
         manifest['titles'][title] = info
         if title not in manifest['sources']:
             manifest['sources'][title] = copy.deepcopy(source['sources'][title])

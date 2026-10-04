@@ -419,5 +419,42 @@ class StockUiTests(unittest.TestCase):
             self.assertTrue(after['titles'][SETTINGS]['uiSelection']['additive'])
             self.assertEqual(after['resources']['textures/shared.png'], delivery['resources']['textures/shared.png'])
 
+    def test_publish_additive_applies_shared_font_bindings(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp)/'source'; output = Path(tmp)/'output'
+            source.mkdir(); output.mkdir(); pack, selection = fixture()
+            extra = copy.deepcopy(pack)
+            extra['layouts']['Hud'] = {'fonts': ['Hud.bcfnt'], 'textures': [], 'unsupported': [], 'roots': []}
+            extra['resourceSources']['layouts']['Hud'] = {'titleId': SETTINGS, 'path': 'Hud', 'sha256': 'source'}
+            extra.update(contentIndex=0, contentId='0000001a')
+            existing_url, added_url = 'packs/settings/main.json', 'packs/settings/hud.json'
+            common = {'firmware': '10.7.0-32E', 'locale': 'EU_English', 'resources': {}, 'sources': {}, 'titles': {}}
+            incoming = copy.deepcopy(common); delivery = copy.deepcopy(common)
+            def put(root, manifest, path, data, title):
+                target = root/path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
+                manifest['resources'][path] = {'sha256': digest(data), 'size': len(data), 'sources': [{'titleId': title}]}
+            put(source, incoming, existing_url, encode(pack), SETTINGS)
+            put(source, incoming, added_url, encode(extra), SETTINGS)
+            put(source, incoming, 'textures/shared.png', b'shared', SETTINGS)
+            put(source, incoming, 'textures/selected.png', b'selected', SETTINGS)
+            put(output, delivery, existing_url, encode(pack), SETTINGS)
+            put(output, delivery, 'textures/shared.png', b'shared', HOME)
+            put(output, delivery, 'font.json', b'{}', HOME)
+            delivery['resources']['font.json']['kind'] = 'font'
+            incoming['titles'][SETTINGS] = {'titleId': SETTINGS, 'version': 1, 'sourceSha256': 'same', 'packs': [existing_url, added_url], 'fonts': {}}
+            incoming['sources'][SETTINGS] = {'titleId': SETTINGS}
+            delivery['titles'][SETTINGS] = {'titleId': SETTINGS, 'version': 1, 'sourceSha256': 'same', 'packs': [existing_url], 'fonts': {}}
+            delivery['titles'][HOME] = {'packs': ['home.json']}
+            delivery['sources'][HOME] = {'titleId': HOME}
+            delivery.update(home={'root': 'home.json'}, fonts={'hud': 'font.json'}, converter={'historical': True})
+            (source/'manifest.json').write_bytes(encode(incoming)); (output/'manifest.json').write_bytes(encode(delivery))
+            plan = {'titles': {SETTINGS: {'fontBindings': {'Hud.bcfnt': 'hud'}, 'packs': {
+                added_url: {'layouts': ['Hud'], 'animations': []}}}}}
+            result = publish_additive(source, output, plan)
+            after = json.loads((output/'manifest.json').read_bytes())['titles'][SETTINGS]
+            self.assertEqual(result['added'], [added_url])
+            self.assertEqual(after['fonts'], {'Hud.bcfnt': 'font.json'})
+            self.assertEqual(after['uiSelection']['presentationFontBindings'], {'Hud.bcfnt': 'hud'})
+
 
 if __name__ == '__main__': unittest.main()

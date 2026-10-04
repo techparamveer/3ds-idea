@@ -322,6 +322,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const settingsPaintKey=view.appId==='system-settings'?[hudDate.getFullYear(),hudDate.getMonth(),hudDate.getDate(),hudDate.getHours(),hudDate.getMinutes(),hud?.batteryFrame,hud?.colonVisible]:null;
       // eshopHudClock omits seconds; Bat 4 and colonVisible stay frozen.
       const eshopHudKey=eshop?eshopHudClock(date):null;
+      const notificationsHudKey=view.appId==='notifications'?eshopHudClock(date):null;
       const healthElapsed=typeof data.healthElapsedMs==='number'&&Number.isFinite(data.healthElapsedMs)?Math.max(0,data.healthElapsedMs):0;
       if(view.appId==='health-safety'&&healthEntry?.owner!==nextOwner)healthEntry={owner:nextOwner,origin:null,complete:false};
       // Asset/font loading can outlast the 21 source frames. Until a complete
@@ -330,7 +331,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();

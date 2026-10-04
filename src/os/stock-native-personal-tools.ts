@@ -1,4 +1,5 @@
 import type { AppView } from './app-types';
+import { REFERENCE_DEVICE_STATUS } from './device-status-profile';
 import type { NativeDrawOptions, NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { NotesIntroPaint, StockScreenPaintOptions } from './stock-screen-presentation';
@@ -30,10 +31,15 @@ const captureUpperTexture='suspended-capture-upper',captureLowerTexture='suspend
 const personalAllNotePacks:readonly NativeTitlePackRequest[]=[...personalNotesPacks,...personalSelectedNotePacks.filter(({alias})=>!personalNotesPacks.some(pack=>pack.alias===alias))];
 export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00','NewsWndwNews_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn','NewsWndwNews_D_00_SceneIn','NewsWndwNews_D_00_Select'],textures:['special.cic']},
+  {url:'packs/notifications/hud.json',alias:'notification-hud',layouts:['HudMenu_00'],animations:['HudMenu_00_SceneIn','HudMenu_00_WhiteBlack','HudMenu_00_NetMode','HudMenu_00_NetAtn','HudMenu_00_Bat']},
   {url:'packs/notifications/contents/0000-00000012/receivelamp.json',alias:'notification-receivelamp',layouts:['RcvLamp_00'],animations:['RcvLamp_00_ReceiveBlue','RcvLamp_00_SceneIn']},
   {url:'packs/notifications/slidebar.json',alias:'notification-slidebar',layouts:['SlideBar'],animations:['SlideBar_Select']},
   {url:'packs/notifications/messages-and-loose.json',alias:'notification-messages',layouts:[],animations:[]},
 ];
+const WEEKDAYS=['sun','mon','tue','wed','thu','fri','sat'] as const;
+/** N_Scene_00 default alpha is 0. SceneIn last key is frame 40 (HOME idle is
+ * also 40). WalkCoin is not started; native has no steps/coins on this strip. */
+const NOTIFICATION_HUD_SCENE_IN=40;
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
 export const personalFriendPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/friends/friend.json',alias:'friends',layouts:friendLayouts,animations:[
@@ -59,12 +65,36 @@ export function nativePersonalToolView(view:AppView):{view:string;titleId:string
 export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   if(view.appId==='notifications'&&view.screen==='main'){
     const message=(label:string)=>nativeMessageOverride(renderer.packs['notification-messages'],'newslist_msbt_LZ',label,'');
+    const hud=(label:string,fallback:string)=>nativeMessageOverride(renderer.packs['notification-messages'],'hud_msbt_LZ',label,fallback);
     const unread=view.rows.filter(row=>row.value==='New').length;
     const count=(label:string,value:number)=>{const source=message(label);return {...source,text:source.text?.replace('%d',String(value))};};
+    const now=options.date??new Date(),status=REFERENCE_DEVICE_STATUS;
+    const day=hud(`day_${now.getDate()}`,String(now.getDate()).padStart(2,'0')).text??'';
+    const month=hud(`month_${now.getMonth()+1}`,String(now.getMonth()+1).padStart(2,'0')).text??'';
+    const weekday=hud(`week_${WEEKDAYS[now.getDay()]}`,'').text??'';
+    const dateText=hud('lau_date','%d/%M (%w)');
+    dateText.text=(dateText.text??'').replace('%d',day).replace('%M',month).replace('%w',weekday);
     let okay=renderer.draw(top,'notifications','NewsTopUI_U_00');
     okay=renderer.draw(top,'notifications','NewsUnread_U_00',{bindings:[{name:'NewsUnread_U_00_SceneIn',frame:20},{name:'NewsUnread_U_00_NumAnim',frame:Math.min(112,unread)}],overrides:{
       T_Unread_00:message('new_news_u'),T_Unread_01:message('new_news_u'),T_NewsUnread_00:count('new_news_u0',unread),T_News_00:message('new_news_u1'),T_CntUnread_00:count('new_ce_u0',0),T_Cnt_00:message('new_ce_u1'),
     }})&&okay;
+    okay=renderer.draw(top,'notification-hud','HudMenu_00',{
+      bindings:[
+        {name:'HudMenu_00_SceneIn',frame:NOTIFICATION_HUD_SCENE_IN},
+        {name:'HudMenu_00_WhiteBlack',frame:status.whiteBlackFrame},
+        {name:'HudMenu_00_NetMode',frame:status.netModeFrame},
+        {name:'HudMenu_00_NetAtn',frame:status.netAtnFrame},
+        {name:'HudMenu_00_Bat',frame:4},
+      ],
+      overrides:{
+        T_NetMode_00:hud(status.networkMessage,'Internet'),
+        T_Date_00:dateText,
+        T_TimeL_00:{text:String(now.getHours()).padStart(2,'0')},
+        T_TimeC_00:{visible:true},
+        T_TimeR_00:{text:String(now.getMinutes()).padStart(2,'0')},
+        P_Walk_00:{visible:false},T_Walk_00:{visible:false},P_Coin_00:{visible:false},T_Coin_00:{visible:false},
+      },
+    })&&okay;
     okay=renderer.draw(bottom,'notifications','NewsTopUI_D_00')&&okay;
     if(view.rows.length){
       // NewsTopUI_D_00/N_ElemPos_00 is the source first-row parent at
@@ -90,7 +120,6 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
       okay=renderer.draw(bottom,'notification-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:0}],overrides:{N_Slider_00:{translation:[141,14,0]},N_Slide_00:{translation:[0,55,0]}}})&&okay;
     }
     okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20}],overrides:{T_EndB_00:message('new_back'),T_EndF_00:message('new_back')}})&&okay;
-    options.font?.draw(top,message('new_title_new').text??view.heading,200,14,14,'#555','center');
     if(!view.rows.length)options.font?.draw(bottom,view.text?.[0]??'',160,110,14,'#666','center');
     return okay;
   }

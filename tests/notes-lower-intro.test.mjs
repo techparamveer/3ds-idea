@@ -7,7 +7,8 @@ import { createNotesIntroComposer, notesIntroSourcesFromPacks } from '../src/os/
 const moduleSource = readFileSync(new URL('../src/os/stock-native-personal-tools.ts', import.meta.url), 'utf8');
 const compiled = ts.transpileModule(moduleSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
   .replaceAll("'./native-layout'", JSON.stringify(new URL('../src/os/native-layout.ts', import.meta.url).href))
-  .replaceAll("'./stock-screen-layout'", JSON.stringify(new URL('../src/os/stock-screen-layout.ts', import.meta.url).href));
+  .replaceAll("'./stock-screen-layout'", JSON.stringify(new URL('../src/os/stock-screen-layout.ts', import.meta.url).href))
+  .replaceAll("'./device-status-profile'", JSON.stringify(new URL('../src/os/device-status-profile.ts', import.meta.url).href));
 const { drawNativePersonalToolFrame } = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'));
 const root = new URL('../public/os/firmware/10.7.0-32E/packs/game-notes/', import.meta.url);
 const pack = name => JSON.parse(readFileSync(new URL(name, root)));

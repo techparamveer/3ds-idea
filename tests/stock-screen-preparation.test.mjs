@@ -13,7 +13,7 @@ source=source.replace("'./stock-screen-layout'",JSON.stringify(url('export const
 const layout=url(compile('stock-screen-layout')
  .replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href))
  .replace("'./stock-manual-index.ts'",JSON.stringify(url('export const manualPageZeroAvailable=()=>false;'))));
-source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url(compile('stock-native-personal-tools').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-screen-layout'",JSON.stringify(layout)))));
+source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url(compile('stock-native-personal-tools').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./device-status-profile'",JSON.stringify(url(compile('device-status-profile')))))));
 source=source.replace("'./stock-native-web'",JSON.stringify(url("export const browserScreenPacks=[{url:'browser.json',alias:'browser',layouts:[],animations:[]}],miiverseScreenPacks=[{url:'miiverse.json',alias:'miiverse',layouts:[],animations:[]}];export const drawNativeWebFrame=()=>false;")));
 source=source.replace("'./stock-native-services'",JSON.stringify(url('export const nativeServiceView=()=>null;export const drawNativeServiceFrame=()=>false;export const zoneClock=()=>({hour:"00",minute:"00",frame:0});export const eshopWelcomePose=()=>null;export const eshopHudClock=()=>({year:0,month:1,day:1,hour:0,minute:0});')));
 source=source.replace("'./stock-native-helpers'",JSON.stringify(url('export const nativeHelperView=()=>null;export const drawNativeHelperFrame=()=>false;')));

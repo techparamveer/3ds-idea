@@ -40,6 +40,9 @@ Close leftover **56** seam
 is the shared writer `0x18fe2c` on alignment 3 / line alignment 2; the
 gap is renderer `direct` / `nativeAlignedLine` coverage, not a second
 dump sampler ([list 820 note](notifications-list-820-2026-10-04.md)).
+Row titles now take the allowlisted writer-0x101 direct path
+([list direct note](notifications-list-direct-2026-10-04.md)); offline proxy
+list 1154 → 17, seam 80 → 0. Awaits recapture.
 Scrollbar **34** is labelled unbound extra-6
 ([scrollbar 34 note](notifications-scrollbar-34-2026-10-04.md)). Not 1:1.
 

@@ -191,7 +191,9 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
       const start=Math.max(0,Math.min(view.rows.length-1,view.selection)-Math.min(3,Math.max(0,view.selection)));
       for(let slot=0;slot<5;slot++){
         const index=start+slot,row=view.rows[index];if(!row)break;
-        okay=renderer.draw(bottom,'notifications','NewsWndwNews_D_00',{bindings:[
+        // T_NewsTitleB_00 (y -9.5) and T_NewsTitleF_00 are 0x101 one-line
+        // titles from 0x18fe2c: sample the atlas once at final LCD rows.
+        okay=renderer.draw(bottom,'notifications','NewsWndwNews_D_00',{textSampling:'lcd',textSamplingPanes:['T_NewsTitleB_00','T_NewsTitleF_00'],bindings:[
           {name:'NewsWndwNews_D_00_SceneIn',frame:10},
           {name:'NewsWndwNews_D_00_Select',frame:view.data?.selectionActive===true&&index===view.selection?1:0},
         ],overrides:{

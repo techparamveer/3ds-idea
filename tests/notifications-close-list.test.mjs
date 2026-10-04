@@ -72,15 +72,16 @@ test('writer-0x110 single line reuses the 0x111 ceil-half origin and pixel-centr
     newBack, 312, 21, [17.5, 21], 4, 0, 0, 1, [0, 0], false, undefined, undefined, [], false, false, undefined, undefined, undefined, undefined, 'writer-0x110'), /Unsupported native single-line block origin/);
 });
 
-test('painter binds writer-0x110 on T_EndF_00 and LCD sampling on T_EndB_00 only; titles, new_back and SceneIn stay as before', ()=>{
+test('painter binds writer-0x110 on T_EndF_00 and LCD sampling on T_EndB_00; row titles sample separately; new_back and SceneIn stay as before', ()=>{
   assert.match(painter, /renderer\.draw\(bottom,'notifications','NewsTopBtn_D_00',\{bindings:\[\{name:'NewsTopBtn_D_00_SceneIn',frame:20\}\],textSampling:'lcd',textSamplingPanes:\['T_EndB_00'\],overrides:\{T_EndB_00:message\('new_back'\),T_EndF_00:\{\.\.\.message\('new_back'\),singleLineBlockOrigin:'writer-0x110'\}\}\}\)/);
   assert.equal(painter.match(/singleLineBlockOrigin/g).length, 1);
   assert.match(painter, /T_NewsTitleB_00:\{text:row\.label\},T_NewsTitleF_00:\{text:row\.label\}/);
   assert.equal(/new_close/.test(painter), false);
   const section=painter.slice(painter.indexOf("renderer.packs['notification-messages']"), painter.indexOf("options.font?.draw(bottom,view.text"));
   assert.ok(section.includes("'NewsTopBtn_D_00'"));
-  // Only the y-26.5 shadow takes direct LCD sampling (notifications-close-240-2026-10-04.md).
-  assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
+  // Close: only the y-26.5 shadow (notifications-close-240-2026-10-04.md). Row titles:
+  // writer-0x101 allowlist (notifications-list-direct-2026-10-04.md).
+  assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_NewsTitleB_00'", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
   assert.equal(/azahar-12p4-fit|textCoverageAdaptation|pictureSampling/.test(section), false);
   assert.match(layoutSource, /if\(value\.singleLineBlockOrigin&&pane\.text\)pane\.text\.singleLineBlockOrigin=value\.singleLineBlockOrigin;/);
   assert.match(rendererSource, /text\.fixedWidthSpans,text\.singleLineBlockOrigin\);/);

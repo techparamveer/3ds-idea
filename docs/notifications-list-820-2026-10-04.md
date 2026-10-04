@@ -110,3 +110,6 @@ be visible.
 - Whole lower remains **fail**. Input, motion and audio are not compared.
 
 No painter, renderer, font or asset bytes change in this commit.
+
+Follow-up: [the list direct note](notifications-list-direct-2026-10-04.md)
+extends those two predicates for allowlisted 0x101 titles.

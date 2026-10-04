@@ -33,8 +33,9 @@ test('title panes are alignment 3 / line alignment 2; B is the white back at y -
   }
 });
 
-test('0x101 is the shared flag constructor; titles miss direct and nativeAlignedLine', ()=>{
-  assert.match(renderer, /text\.lineAlignment===0\|\|sourceSize&&text\.alignment===4&&text\.lineAlignment===2/);
+// Superseded by notifications-list-direct: the bounded writer-0x101 extension now binds the titles.
+test('0x101 is the shared flag constructor; generic 3/2 still misses direct, titles bind writer-0x101 by allowlist', ()=>{
+  assert.match(renderer, /text\.lineAlignment===0\|\|sourceSize&&text\.alignment===4&&text\.lineAlignment===2\|\|writer0101/);
   const font=readFileSync(new URL('../src/os/bitmap-font.ts', import.meta.url), 'utf8');
   assert.match(font, /\(alignment===4\|\|alignment===3&&this\.manifest\.colorMode==='alpha'\)&&lineAlignment===0/);
   const sourceSize=false;
@@ -42,8 +43,8 @@ test('0x101 is the shared flag constructor; titles miss direct and nativeAligned
   assert.equal(directLine, false, 'alignment 3 / line alignment 2 still fails the host direct predicate');
   assert.match(painter, /T_NewsTitleB_00:\{text:row\.label\},T_NewsTitleF_00:\{text:row\.label\}/);
   const section=painter.slice(painter.indexOf("renderer.packs['notification-messages']"), painter.indexOf("options.font?.draw(bottom,view.text"));
-  assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
-  assert.equal(/textSamplingPanes:\[[^\]]*T_NewsTitle/.test(painter), false);
+  assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_NewsTitleB_00'", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
+  assert.match(painter, /textSamplingPanes:\['T_NewsTitleB_00','T_NewsTitleF_00'\]/);
   assert.equal(/azahar-12p4-fit|textCoverageAdaptation/.test(section), false);
 });
 

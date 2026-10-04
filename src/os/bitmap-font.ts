@@ -264,8 +264,13 @@ export class BitmapFont {
     if(singleLineBlockOrigin!==undefined&&(!singleLine0110||lines.length!==1||alignment!==4||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='alpha'||
       lcdBottomEdge||rasterPhase[0]!==0||rasterPhase[1]!==0||coverageAdaptation!==undefined||
       multilineBlockOrigin!==undefined||cursorAdvances.length||fixedWidthSpans?.length||sourceTopLeftSampling||lines[0].some(glyph=>!glyph||glyph.left<0||glyph.advance<0||glyph.left+glyph.width>glyph.advance)))throw new Error('Unsupported native single-line block origin');
+    // Writer flags 0x101 (alignment 3, explicit right line alignment) keep the
+    // 0x100 one-line origin when the measured line starts at 0. The renderer
+    // enables it only for an allowlisted pane on its direct LCD sampler.
+    const writer0101=lcdBottomEdge&&lines.length===1&&alignment===3&&lineAlignment===2&&this.manifest.colorMode==='alpha'&&!sourceSize&&!sourceTopLeftSampling&&!cursorAdvances.length&&!lineAdvanceScales&&multilineBlockOrigin===undefined&&singleLineBlockOrigin===undefined;
+    if(writer0101&&lines[0].some(glyph=>glyph&&glyph.left<0))throw new Error('Unsupported native writer-0x101 line');
     const nativeAlignedLine=(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0
-      ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha'||singleLine0110;
+      ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha'||singleLine0110||writer0101;
     if(lineAdvanceScales&&(lineAdvanceScales.length!==Math.max(0,lines.length-1)||lineAdvanceScales.some(scale=>!Number.isFinite(scale)||scale<=0)))throw new Error('Invalid native line advance scales');
     const writer0110=multilineBlockOrigin==='writer-0x110',writer0111=multilineBlockOrigin==='writer-0x111';
     if(multilineBlockOrigin!==undefined&&(

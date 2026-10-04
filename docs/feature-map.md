@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME Settings banner skeletal search](home-settings-banner-skeletal-2026-10-04.md)
+Latest [HOME Settings cursor loop freeze](home-cursor-loop-frame-2026-10-04.md),
+`a1590273`, lets Settings captures freeze `LncCsr_00_Loop`. Frozen search
+picks cursor 37 at yaw 310 / COMMON 309 / Loop 338 (2,900 / 12,544). Do not
+adopt 37 as a live clock. Remaining residuals are wrench/`mt_pict` icons,
+WalkCoin fade and labelled portfolio tiles.
+
+Earlier [HOME Settings banner skeletal search](home-settings-banner-skeletal-2026-10-04.md)
 picks COMMON 309 at frozen yaw 310 / Loop 338 (2,900 / 13,522). Do not adopt
 yaw−1 as a live clock. Remaining upper residuals are wrench/`mt_pict` icons.
 

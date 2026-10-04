@@ -132,7 +132,7 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   const view={status:'active',primary:{selection:{kind:'app',id:'health-safety'},motion:{material:{frame:81}}}};
   const background={attached:true,mode:0,sceneInFrame:20,loopFrame:19,appPauseFrame:0,sceneInEpoch:1,loopEpoch:1,appPauseEpoch:0};
   const deps={disposed:false,firmwareAssets:{},state,window:{location:{hostname:'localhost'}},lcdHomeHudSample,
-    screens:{paint(...args){paints.push(args);return args[3]?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:true,healthBanner:true};},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>view,getHomeBannerHostBackgroundFrame:()=>background,bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
+    screens:{paint(...args){paints.push(args);return args[3]?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:true,healthBanner:true};},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>view,getHomeBannerHostBackgroundFrame:()=>background,bannerHost:{},cursorDiagnostic:forcedFrame=>({sampledFrame:forcedFrame??7,...(forcedFrame===undefined?{}:{sampledFrameSource:'verification-forced',liveSampledFrame:7})}),reduced:false,
     settingsBannerPhase(){return{sample:null};},encodeNativeLcdPair(){return{top:'png',bottom:'png'};},recordScreenPaint(...args){receipts.push(args);},start:0,topTexture:{},bottomTexture:{},storage:{async save(){persistenceWrites++;}}};
   const capture=new Function(...Object.keys(deps),'let lastBootPaintIdentity={stale:true},lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(deps));
   const result=capture(1200,'2026-09-27',undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311});
@@ -142,9 +142,10 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   assert.equal(result.synthetic,true);
   assert.deepEqual(paints[0][3],{sampleCalendar:true,homeHudSample:undefined,homeWallpaperFrame:311});
   assert.equal(paints.length,2,'live paint is restored after capture');
-  assert.equal(receipts.length,1,'restored live paint replaces the provisional shutdown receipt');
-  assert.equal(receipts[0][1],false,'a restored HOME pair cannot acknowledge shutdown publication');
-  assert.ok(Number.isFinite(receipts[0][0]));
+  assert.deepEqual(receipts.map(([at,nativeSystem])=>[Number.isFinite(at),nativeSystem]),[[true,false]],'restored live paint replaces the provisional shutdown receipt and cannot acknowledge shutdown publication');
+  assert.deepEqual(paints[1].slice(3),[],'the restoring paint carries no verification frames');
+  assert.equal(result.homeCursor.sampledFrame,7,'without a forced cursor frame the receipt reports the live frame');
+  assert.equal(result.homeCursor.sampledFrameSource,undefined);
   assert.deepEqual(state,initial,'sampling does not alter the runtime state');
   assert.equal(persistenceWrites,0,'sampling does not persist state');
   view.primary.selection={kind:'app',id:'system-settings'};
@@ -162,10 +163,24 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   assert.equal(cursor.synthetic,true);
   assert.deepEqual(cursor.forcedFrames,{homeWallpaperSceneInSkeletalFrame:20,homeWallpaperMaterialFrame:338,homeCursorLoopFrame:12});
   assert.deepEqual(paints[0][3],{sampleCalendar:true,homeHudSample:undefined,homeWallpaperFrame:338,homeCursorLoopFrame:12});
+  assert.deepEqual(cursor.homeCursor,{sampledFrame:12,sampledFrameSource:'verification-forced',liveSampledFrame:7},'the receipt reports the painted cursor frame, not the live clock');
+  assert.deepEqual(paints[1].slice(3),[],'live paint resumes without the forced frames');
+  paints.length=0;
+  const cursorOnly=capture(1617,'2026-09-26T03:14:35.203Z',310,undefined,undefined,{homeCursorLoopFrame:0});
+  assert.deepEqual(cursorOnly.forcedFrames,{homeCursorLoopFrame:0});
+  assert.equal(cursorOnly.homeCursor.sampledFrame,0);
+  for(const invalid of [-1,60,1.5,Number.NaN])assert.throws(()=>capture(1617,undefined,undefined,undefined,undefined,{homeCursorLoopFrame:invalid}),/integer from 0 to 59/);
   view.primary.selection={kind:'app',id:'health-safety'};
+  paints.length=0;const receiptsBeforeRejection=receipts.length;
+  assert.throws(()=>capture(1200,undefined,undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311,homeCursorLoopFrame:12}),/cannot be combined with Health frame sampling/);
+  assert.deepEqual(paints,[],'a rejected Health+cursor request paints nothing');
+  assert.equal(receipts.length,receiptsBeforeRejection,'a rejected request records no receipt');
   deps.screens.paint=(...args)=>{paints.push(args);return {homeWallpaper:false,healthBanner:true};};
+  paints.length=0;
   assert.throws(()=>capture(1200,undefined,undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311}),/could not render both firmware models/);
-  assert.equal(receipts.length,4,'failed diagnostic sampling still records its restored live pair');
+  assert.deepEqual(paints.map(args=>args[3]),[{sampleCalendar:false,homeHudSample:undefined,homeWallpaperFrame:311},undefined],'failed diagnostic sampling still restores a live paint');
+  assert.equal(receipts.at(-1)[1],false,'failed diagnostic sampling still records its restored live pair');
+  assert.ok(Number.isFinite(receipts.at(-1)[0]));
 });
 
 function liveCaptureFixture(initialFrame = 350) {

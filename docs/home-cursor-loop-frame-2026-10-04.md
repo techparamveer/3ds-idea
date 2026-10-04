@@ -25,9 +25,21 @@ is unchanged.
 
 ## Verification
 
-- `tests/home-cursor-loop.test.mjs` 11 pass.
-  `tests/lcd-capture.test.mjs` 18 pass, including Settings cursor+wallpaper
-  metadata. Typecheck and production build pass.
+- Freeze path: `tests/native-home-controls-paint.test.mjs` test "capture
+  paint hands frozen cursor and wallpaper loop frames to the draw; live paint
+  keeps walking" runs the real `createScreens` painter and checks that
+  `homeCursorLoopFrame` reaches both `cursorAt` and the tile `cursor` path,
+  `homeWallpaperFrame` reaches `drawHomeBackground`, and a paint without
+  capture parameters still follows the advancing live loop. In
+  `tests/lcd-capture.test.mjs`, the Health HOME capture test checks the
+  `captureScreensAt` receipt and its rejection rules. The receipt's
+  `homeCursor.sampledFrame` is the painted forced frame, with
+  `sampledFrameSource: 'verification-forced'` and the live `liveSampledFrame`.
+  Health+cursor is rejected before any paint. Typecheck and production build
+  passed at `a1590273`. These receipt and test changes came later, in
+  `codex/home-freeze-receipt-20261004`.
+  `tests/home-cursor-loop.test.mjs` (11) covers only the live loop machine,
+  not the freeze.
 - Frozen search at yaw 310 / COMMON 309 / Loop 338 scores cursor frames
   0–59 on lower LCD ROI `[200, 118, 80, 88]`, then whole lower. Winner is
   **Loop 37** (36–38 best; 37 cursor ROI 1,677 over 2, max 22). Frame 0

@@ -18,6 +18,7 @@ import { blendNativePixel, evaluateNativeMaterial, poseNativeLayout, nativePaneP
 import {escapeUnreadyNativeScreen} from '../src/os/native-screen-system.ts';
 import {NATIVE_RECOVERY_TARGETS} from '../src/os/native-screen-input.ts';
 import {homeCloseWindowOpacity} from '../src/os/home-close-window-fit.ts';
+import { advanceHomeCursorLoop } from '../src/os/home-cursor-loop.ts';
 
 const moduleUrl = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
 async function loadPresentation(name, overrides = {}) {
@@ -237,6 +238,38 @@ test('first Health launch pair retains its owner-matched banner and Open footer 
   getHomeBanner:()=>hosted,
   drawStockTitleBannerFrame(ctx,_motion,ticket,kind){ctx.record('launch-banner',[ticket.selection.id,kind]);return true;},
  }});
+});
+
+test('capture paint hands frozen cursor and wallpaper loop frames to the draw; live paint keeps walking', async () => {
+  const wallpaperFrames = [];
+  const drawHomeBackground = (_ctx, _time, _reduced, frame) => { wallpaperFrames.push(frame); return true; };
+  await withScreens(({ screens, events, cursorCalls }) => {
+    const capture = (state, verification) => { events.length = 0; wallpaperFrames.length = 0; return screens.paint(state, new Date(0), 1000, verification); };
+    const primaryFrame = () => cursorCalls().filter(call => call.name === 'cursorAt').map(call => call.args[3]);
+    const state = freeze(home()), before = JSON.stringify(state);
+    const painted = capture(state, { sampleCalendar: true, homeWallpaperFrame: 338, homeCursorLoopFrame: 12 });
+    assert.deepEqual(primaryFrame(), [12], 'the retained primary draws the forced LncCsr_00_Loop frame, not appliedFrame 17.25');
+    assert.deepEqual(wallpaperFrames, [338], 'BannerBG_Loop receives the forced material frame');
+    assert.equal(painted.homeWallpaper, true);
+    capture(state, { sampleCalendar: true, homeCursorLoopFrame: 0 });
+    assert.deepEqual(primaryFrame(), [0], 'frame zero is forced, not treated as absent');
+    assert.deepEqual(wallpaperFrames, [undefined], 'a cursor-only capture leaves the wallpaper on its live clock');
+    for (const invalid of [-1, 60, 1.5]) assert.throws(() => capture(state, { homeCursorLoopFrame: invalid }), /integer from 0 to 59/);
+    capture(state);
+    assert.deepEqual(primaryFrame(), [17.25], 'live paint without capture parameters reads the retained applied frame');
+    assert.deepEqual(wallpaperFrames, [undefined]);
+    const walked = { ...state, system: { ...state.system, homeCursorLoop: advanceHomeCursorLoop(state.system.homeCursorLoop, 2, true) } };
+    capture(walked);
+    assert.deepEqual(primaryFrame(), [walked.system.homeCursorLoop.appliedFrame]);
+    assert.notEqual(walked.system.homeCursorLoop.appliedFrame, 17.25, 'the live loop advanced between paints');
+    assert.equal(JSON.stringify(state), before, 'capture paints do not write the cursor clock');
+  }, { screenOptions: { drawHomeBackground } });
+  const legacy = { ...home(), system: { ...home().system, homeControls: undefined } };
+  await withScreens(({ screens, events }) => {
+    const legacyFrame = verification => { events.length = 0; screens.paint(legacy, new Date(0), 1000, verification); return events.filter(event => event.name === 'cursor').map(event => event.args[4]); };
+    assert.deepEqual(legacyFrame({ homeCursorLoopFrame: 12 }), [12], 'the tile cursor path also draws the forced frame');
+    assert.deepEqual(legacyFrame(), [17.25]);
+  });
 });
 
 test('eligible retained launch keeps the selected native cursor beneath the fade; a pending host does not',async()=>{

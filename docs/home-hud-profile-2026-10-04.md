@@ -32,8 +32,9 @@ Worker `3ds-home-hud-profile-20261004` / `codex/home-hud-profile-20261004`,
 - **Labelled adaptation.** This is the isolated Azahar profile, not AC/PTM
   telemetry, and not a claim that the browser is online.
 
-Independent review of `1638b1d3` passed. Codex and Claude review slots were
-rate-limited; the commit review found no correctness defect.
+`1638b1d3` was checked in the session that wrote it. That check found no
+correctness defect, but it was not an independent review: the Codex and
+Claude review slots were rate-limited.
 
 ## Verification
 

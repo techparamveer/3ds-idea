@@ -149,7 +149,8 @@ covers only `[32,118,80,82]` and `[112,118,88,82]`
 (`portfolio-content`). Settings, cursor, arrows, balloon, toolbar and
 footer stay compared. Masked lower **5,426** (13,776 pixels excluded).
 Largest remaining 4-neighbour components: 2,220 right peek, 1,656
-Settings+cursor, 561+391+145 left peek/arrow, 162 toolbar HOME icon.
+Settings+cursor, 561+391+145 left peek/arrow, 162 News receive lamp
+(`N_NewsRcv_00`; see [the lamp note](home-toolbar-icon-2026-10-04.md)).
 
 Inspected `R/diff-after-unmasked/lower-contact-sheet.png` and
 `R/diff-after-masked/lower-contact-sheet.png`. After the matching walk
@@ -207,5 +208,7 @@ Whole-scenario 1:1 still fails. Matrix unchanged.
   from firmware; the browser peek is Camera.
 - The before-route 11,868 upper is unexplained capture settling. Do not
   treat it as a second banner pose.
-- Cursor-37 halo, toolbar HOME icon and footer edges remain unpaired.
+- Cursor-37 halo, footer edges and the 162-pixel toolbar cluster remain
+  unpaired. That cluster is the News receive lamp on `N_NewsRcv_00`, not
+  the house; see [the lamp note](home-toolbar-icon-2026-10-04.md).
   Exact input cadence, motion and audio remain open.

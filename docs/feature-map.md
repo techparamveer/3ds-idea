@@ -15,6 +15,12 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+Latest [HOME toolbar News receive lamp](home-toolbar-icon-2026-10-04.md),
+worker `3ds-home-toolbar-icon-20261004` from fidelity `bc6f4c23`: the
+162-pixel 1-row toolbar residual is empty `N_NewsRcv_00`, not the house.
+No unique HOME receive-state / `LncRcvLampSrc_01` frame. Docs and tests
+only. Not 1:1.
+
 Latest [Settings Other page 2 overlap](settings-other-p2-overlap-2026-10-04.md),
 `d574bfc9` from worker `59024aba`: settled page 2 stays **0 / 960**.
 The 959-pixel left adjacent-page/arrow overlap has no unique settled
@@ -73,8 +79,8 @@ Earlier [HOME 1-row viewport route](home-row-viewport-2026-10-04.md): walking Ri
 from 1-row origin to Settings (native Activity Log | Download Play |
 Settings, both out-of-scope neighbours) gives 190 upper / 12,000 lower, and
 5,426 lower with the two portfolio neighbour faces masked. No runtime change.
-Remaining lower: edge peeks (portfolio placement), cursor-37 halo, toolbar
-HOME icon (162).
+Remaining lower: edge peeks (portfolio placement), cursor-37 halo, and the
+[162-pixel News receive lamp](home-toolbar-icon-2026-10-04.md) (not the house).
 
 Earlier [HOME Settings yaw re-search](home-settings-yaw-research-2026-10-04.md), `dde43424`:
 frozen yaw 304 / COMMON 303 / Loop 338 / cursor 37 gives 190 upper pixels

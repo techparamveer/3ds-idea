@@ -15,11 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Sound empty-entry HudTime clock](sound-empty-clock-2026-10-04.md),
+Latest [HOME zoom-route banner settle](home-zoom-banner-2026-10-04.md),
+`dc0e719f`: the 11,868 upper miss was a too-early capture (incoming Settings
+while Camera was still the painted primary). After ~500 ms both zoom and
+Right-walk freeze to the same 190-pixel upper (`2a2d920e…`). No banner-clock
+change.
+
+Earlier [Sound empty-entry HudTime clock](sound-empty-clock-2026-10-04.md),
 `8b206f26` / `605f39fe`: type-47 selects `:` on odd seconds and ` ` on even
 seconds; group-5 12/10 values stay a labelled fixed-pitch adaptation. The
 paint key follows seconds parity only on the empty entry. Not native-compared
-yet (zoom worker still holds preview 3021).
+yet.
 
 Earlier [HOME 1-row viewport route](home-row-viewport-2026-10-04.md): walking Right
 from 1-row origin to Settings (native Activity Log | Download Play |

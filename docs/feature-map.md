@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME HUD charging battery](home-hud-battery-2026-10-04.md),
+Latest [Settings Other p3/p4 recapture](settings-other-p34-recapture-2026-10-04.md),
+`357a7703`: still **169 / 8** and **169 / 35**. The 169 is Settings
+`HudMset` previous-displayed seconds (colon + Bat 4/5), not HOME HUD.
+Browser LCDs are byte-identical to `bfe467b`. Lower 8/35 stay sparse
+glyph-edge clusters. No runtime change. Not 1:1.
+
+Earlier [HOME HUD charging battery](home-hud-battery-2026-10-04.md),
 `98b7e2a0`: HOME/Settings use sourced seconds 4/5; eShop welcome freezes
 Bat at ctor frame 4 with a static colon; Zone follows `Charge_anim`.
 Independent review APPROVE-WITH-NITS; stale eShop 4/5 scope sentences

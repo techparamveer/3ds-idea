@@ -1,5 +1,7 @@
 # HOME Settings outer-icon `mt_pict` source gap — 4 October 2026
 
+> **Superseded (4 October 2026, `dde43424`).** These residuals were measured at banner yaw 310 / COMMON 309, a worse local optimum. With wallpaper and cursor frozen, yaw 304 / COMMON 303 gives 190 upper pixels (title 0, wrench 3, icons 187). See [yaw re-search](home-settings-yaw-research-2026-10-04.md). The source-gap and ownership claims below do not hold for this still.
+
 HOME-lane source-only slice after the [skeletal search](home-settings-banner-skeletal-2026-10-04.md).
 No runtime, sampler, mip, Mirror or lighting change. No guessed unlit path.
 The yaw310 / COMMON309 diagnostic remains fail; this finding does not

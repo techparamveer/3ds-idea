@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME Settings cursor loop freeze](home-cursor-loop-frame-2026-10-04.md),
+Latest [HOME Settings yaw re-search](home-settings-yaw-research-2026-10-04.md), `dde43424`:
+frozen yaw 304 / COMMON 303 / Loop 338 / cursor 37 gives 190 upper pixels
+(HUD, title and wallpaper 0). The yaw-310 source-gap notes are superseded.
+The lower residual is the 1-row viewport position and neighbour identities
+(native Health | StreetPass | Settings; StreetPass is out of scope).
+
+Earlier [HOME Settings cursor loop freeze](home-cursor-loop-frame-2026-10-04.md),
 `a1590273`, lets Settings captures freeze `LncCsr_00_Loop`. Frozen search
 picks cursor 37 at yaw 310 / COMMON 309 / Loop 338 (2,900 / 12,544). Do not
 adopt 37 as a live clock. Remaining residuals are wrench-edge coverage,

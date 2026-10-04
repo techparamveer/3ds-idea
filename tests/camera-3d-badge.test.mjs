@@ -110,7 +110,7 @@ test('stereo HNI browse uses the 3D-enable helper, not stereoPhoto, and Welcome 
   assert.deepEqual(finderUpper['2DView'], cameraFinderViewBadgeOverrides(false)['2DView']);
 });
 
-test('pinned Camera code.bin has a single 0x2fdc6c caller that uxtb-s a 3D-enable byte', async t=>{
+test('pinned Camera code.bin has a single 0x2fdc6c caller that sxtb-s a 3D-enable byte', async t=>{
   const codePath='/Users/paramveer/.codex/3ds-artifact-overflow/assets/stock-ui/reader-extracted/camera/contents/0000-0000001a/exefs/code.bin';
   if(!existsSync(codePath))return t.skip('private Camera code.bin is absent');
   const code=readFileSync(codePath);
@@ -125,7 +125,7 @@ test('pinned Camera code.bin has a single 0x2fdc6c caller that uxtb-s a 3D-enabl
   };
   assert.equal(cstr(u32(0x4404cc+0x158)), '3DView');
   assert.equal(cstr(u32(0x4404cc+0x15c)), '2DView');
-  assert.equal(u32(0x2a7274), 0xe6af1076); // uxtb r1, r6
+  assert.equal(u32(0x2a7274), 0xe6af1076); // sxtb r1, r6
   assert.equal(u32(0x2a7278), 0xeb015a7b); // bl 0x2fdc6c
   assert.equal(u32(0x2fdd20), 0xe20110fe); // and r1, r1, #0xfe  (3DView bit0)
   assert.equal(u32(0x2fdd24), 0xe1811004); // orr r1, r1, r4

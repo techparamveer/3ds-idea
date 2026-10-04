@@ -53,8 +53,8 @@ bit 0:
 - `2DView` visible bit = `r1 XOR 1` (`eor r1, r4, #1` at `0x2fdd30`)
 
 One ARM `BL` targets `0x2fdc6c`: **`0x2a7278`**. Immediately before that
-call, `0x2a7274` does `uxtb r1, r6` and `r2 = 0`. `r6` starts as the
-`0x3141dc` getter (`ldrh` at finder `+0x3dc`) and can be overwritten from
+call, `0x2a7274` does `sxtb r1, r6` (word `0xe6af1076`) and `r2 = 0`. `r6` starts as the
+`0x3141dc` getter (`add r0,#0x300; ldrsb r0,[r0,#0xac]` = finder `+0x3ac`, the same byte `0x2fdc6c` stores at `0x2fdd40`) and can be overwritten from
 a signed `+0x28` byte on the 3D-slider path. It is not the stereo/MPO
 flag used by photo fit `0x210230`. Frozen HNI is 3D-off, so
 `cameraBrowseFinder3dEnabled = false`.

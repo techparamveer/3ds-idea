@@ -16,14 +16,14 @@ new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
 Latest [HOME 1-row after-walk footer 30](home-footer-edges-2026-10-04.md),
-worker `3ds-home-footer-edges-20261004` / `codex/home-footer-edges-20261004`
-from fidelity `8ad65635`: the after-walk footer ROI `[0,204,320,36]`
+`85eafcd3` from worker `4d2f2771`: the after-walk footer ROI `[0,204,320,36]`
 **30** (MAE 0.156) is the already-labelled `LncCsr_00` ring bottom at
 y = 205, not Manual / Open. Live `LncBtmBtn_02` clip `[0,210,320,30]`,
 glyphs and theme-edge rows 212–213 are **0**. The 68 / 34 / 34 1-pixel
 strips are Settings+cursor chrome; the four y = 200 10-pixel boxes are
 Sound / Health plate bottoms under the neighbour mask. No unused footer
-owner. Docs and tests only. Painter unchanged. Not 1:1.
+owner. Docs and tests only. Coordinator APPROVE pending independent
+review. Not 1:1.
 
 Earlier [HOME 1-row remaining upper 190](home-upper-190-2026-10-04.md),
 `883fc20d` from worker `87dac2c5`: after the matching Right walk, upper

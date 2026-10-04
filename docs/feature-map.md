@@ -16,10 +16,10 @@ new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
 Latest [HOME toolbar News receive lamp](home-toolbar-icon-2026-10-04.md),
-worker `3ds-home-toolbar-icon-20261004` from fidelity `bc6f4c23`: the
-162-pixel 1-row toolbar residual is empty `N_NewsRcv_00`, not the house.
-No unique HOME receive-state / `LncRcvLampSrc_01` frame. Docs and tests
-only. Not 1:1.
+`0f7e9c26` from worker `4b58f490`: the 162-pixel 1-row toolbar residual
+is empty `N_NewsRcv_00`, not the house. No unique HOME receive-state /
+`LncRcvLampSrc_01` frame. Docs and tests only. Coordinator APPROVE.
+Not 1:1.
 
 Latest [Settings Other page 2 overlap](settings-other-p2-overlap-2026-10-04.md),
 `d574bfc9` from worker `59024aba`: settled page 2 stays **0 / 960**.

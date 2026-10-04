@@ -7,7 +7,9 @@ import {poseNativeLayout} from '../src/os/native-layout.ts';
 const settingsUrl=new URL('../src/os/stock-native-settings.ts',import.meta.url);
 const compiled=ts.transpileModule(readFileSync(settingsUrl,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText
  .replace("'./stock-settings-navigation'",JSON.stringify(new URL('../src/os/stock-settings-navigation.ts',import.meta.url).href))
- .replace("'./native-layout'",JSON.stringify(new URL('../src/os/native-layout.ts',import.meta.url).href));
+ .replace("'./native-layout'",JSON.stringify(new URL('../src/os/native-layout.ts',import.meta.url).href))
+ .replace("'./device-status-profile.ts'",JSON.stringify(new URL('../src/os/device-status-profile.ts',import.meta.url).href))
+ .replace("'./device-status-profile'",JSON.stringify(new URL('../src/os/device-status-profile.ts',import.meta.url).href));
 const {drawNativeSettingsMain,settingsDirectButtonClip,settingsTitleGroupX}=await import('data:text/javascript;base64,'+Buffer.from(compiled).toString('base64'));
 
 const root=new URL('../public/os/firmware/10.7.0-32E/packs/settings/contents/0000-0000003d/',import.meta.url);

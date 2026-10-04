@@ -11,7 +11,7 @@ export async function verifyEshopWelcome(options){
  for(const key of ['artifactDir','assetRoot','canvasModule'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-'));
- for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','stock-eshop-welcome','stock-native-services']){
+ for(const name of ['bitmap-font','device-status-profile','native-layout','native-png','native-renderer','native-title-assets','stock-eshop-welcome','stock-native-services']){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
  }
@@ -38,7 +38,7 @@ export async function verifyEshopWelcome(options){
    return {top:Buffer.from(top.getContext('2d').getImageData(0,0,400,240).data),bottom:Buffer.from(bottom.getContext('2d').getImageData(0,0,320,240).data)};
   };
   const pane=(items,name)=>{for(const item of items){const found=item.name===name?item:pane(item.children,name);if(found)return found;}};
-  const posedHud=poseNativeLayout(hudPack.layouts.HudMenu_00,hudPack.animations,services.eshopHudBindings);
+  const posedHud=poseNativeLayout(hudPack.layouts.HudMenu_00,hudPack.animations,services.eshopHudBindings(hudDate));
   const hudTexture=name=>posedHud.textures[posedHud.materials.find(m=>m.name===name).textureMaps[0].texture];
   const posedInfo=poseNativeLayout(bg.layouts.info_U_00,bg.animations,[],{N_info_00:{visible:false}});
   const infoBg=pane(posedInfo.roots,'P_bg_01'),infoGroup=pane(posedInfo.roots,'N_info_00');
@@ -46,7 +46,7 @@ export async function verifyEshopWelcome(options){
   assert.equal(infoGroup.flags&1,0,'ctor 0x36b4e8 hides N_info_00');
   assert.equal(infoBg.flags&1,1,'P_bg_01 stays visible as the 400×20 fill');
   assert.deepEqual([infoBg.size[0],infoBg.size[1],infoBg.translation[1]],[400,20,110]);
-  assert.equal(hudTexture('P_NetAtn_00'),'HudNetAtnOff_00.bclim','Disabled branch NetAtn frame 9');
+  assert.equal(hudTexture('P_NetAtn_00'),'HudNetAtnLoc_00.bclim','reference-profile NetAtn with charging Bat last');
   assert.equal(hudNet.translation[1],120);
   assert.equal(hudDatePane.translation[1],120);
   const pose=(pass,decided)=>{const posed=poseNativeLayout(pack.layouts.welcome_U_00,pack.animations,eshopWelcomeBindings(pass,decided)),p=name=>pane(posed.roots,name);

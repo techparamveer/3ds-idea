@@ -1,4 +1,5 @@
 import type { AppView } from './app-types';
+import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame, hudColonVisible } from './device-status-profile';
 import { nativeMessageOverride, type AnimationBinding } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
@@ -22,27 +23,42 @@ export const zoneScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:zonePrefix+'messages-and-loose.json',alias:'zone-messages',layouts:[],animations:[]},
 ];
 
-/** Settled Hud_00 bar plus its source status clips. Unbound, P_Bat_00 and
- * P_NetAtn_00 keep material defaults HudBat_00 (low) and HudNetAtnInt_00
- * (signal). Grp_Bat frame 3 is HudBat_03, a representative sufficient-charge
- * state, not a live battery measurement; Grp_NetAtn frame 5 is
- * HudNetAtnOff_00, matching HOME's disabled wireless. See
- * native-service-screen-trace.md. */
-export const zoneHudBindings:AnimationBinding[]=[{name:'Hud_00_Bar_Appear',frame:15},{name:'Hud_00_Battery',frame:3},{name:'Hud_00_Signal',frame:5}];
+/** Settled Hud_00 bar plus the shared reference-profile status clips.
+ * Grp_Bat 4/5 are the charging HudBat_04/05 pair; Grp_NetAtn 3 is
+ * HudNetAtnInt_03. Charging and Internet are the declared session
+ * adaptation, not live PTM/Uds. See native-service-screen-trace.md. */
+export function zoneHudBindings(date:Date=new Date()):AnimationBinding[]{
+  const status=REFERENCE_DEVICE_STATUS;
+  return [
+    {name:'Hud_00_Bar_Appear',frame:15},
+    {name:'Hud_00_Battery',frame:deviceStatusBatteryFrame(status,date.getSeconds())},
+    {name:'Hud_00_Signal',frame:status.netAtnFrame},
+  ];
+}
 
-/** HUD update 0x36a7fc Disabled branch (r7==7): lau_connect4, NetMode frame 4,
- * NetAtn frame 9. Bat frame 3 is the HOME/Zone sufficient-charge pose, not a
- * live PTM reading. Bind NetMode, then NetAtn, then Bat so later animators win
- * on shared panes, matching that update order. Appear is not started in the
- * HUD ctor; N_Scene_00 stays at its default alpha 255. */
-export const eshopHudBindings:AnimationBinding[]=[
-  {name:'HudMenu_00_NetMode',frame:4},{name:'HudMenu_00_NetAtn',frame:9},{name:'HudMenu_00_Bat',frame:3},
-];
+/** HUD update 0x36a7fc Internet branch (r7==2): lau_connect0, NetMode 0.
+ * Bat follows the shared charging 4/5 seconds map. Bind NetMode, then
+ * NetAtn, then Bat so later animators win on shared panes. Appear is not
+ * started in the HUD ctor; N_Scene_00 stays at its default alpha 255. */
+export function eshopHudBindings(date:Date=new Date()):AnimationBinding[]{
+  const status=REFERENCE_DEVICE_STATUS;
+  return [
+    {name:'HudMenu_00_NetMode',frame:status.netModeFrame},
+    {name:'HudMenu_00_NetAtn',frame:status.netAtnFrame},
+    {name:'HudMenu_00_Bat',frame:deviceStatusBatteryFrame(status,date.getSeconds())},
+  ];
+}
 const WEEKDAYS=['sun','mon','tue','wed','thu','fri','sat'] as const;
 /** Injected local clock for HudMenu_00 T_Date/T_Time. The pair cache keys these
- * fields; they are not live 3DS RTC/PTM. */
+ * fields plus the shared colon/battery parity; they are not live 3DS RTC/PTM. */
 export function eshopHudClock(date:Date){
-  return {year:date.getFullYear(),month:date.getMonth()+1,day:date.getDate(),hour:date.getHours(),minute:date.getMinutes()};
+  const seconds=date.getSeconds();
+  return {
+    year:date.getFullYear(),month:date.getMonth()+1,day:date.getDate(),
+    hour:date.getHours(),minute:date.getMinutes(),
+    colonVisible:hudColonVisible(seconds),
+    batteryFrame:deviceStatusBatteryFrame(REFERENCE_DEVICE_STATUS,seconds),
+  };
 }
 
 export { eshopWelcomePose };
@@ -63,7 +79,7 @@ export function drawNativeServiceFrame(renderer:NativeLayoutRenderer,top:CanvasR
   const tiger=(label:string)=>nativeMessageOverride(renderer.packs['shop-messages'],'tiger.msbt',label,'');
   const hud=(label:string,fallback:string)=>nativeMessageOverride(renderer.packs['shop-messages'],'hud.msbt',label,fallback);
   const pose=eshopWelcomePose(view,options.reducedMotion);
-  const now=options.date??new Date(),clock=eshopHudClock(now);
+  const now=options.date??new Date(),clock=eshopHudClock(now),status=REFERENCE_DEVICE_STATUS;
   const day=hud(`day_${clock.day}`,String(clock.day).padStart(2,'0')).text??'';
   const month=hud(`month_${clock.month}`,String(clock.month).padStart(2,'0')).text??'';
   const weekday=hud(`week_${WEEKDAYS[now.getDay()]}`,'').text??'';
@@ -86,11 +102,12 @@ export function drawNativeServiceFrame(renderer:NativeLayoutRenderer,top:CanvasR
   })&&okay;
   okay=renderer.draw(top,'shop-background','info_U_00',{overrides:{N_info_00:{visible:false}}})&&okay;
   okay=renderer.draw(top,'shop-hud','HudMenu_00',{
-    bindings:eshopHudBindings,
+    bindings:eshopHudBindings(now),
     overrides:{
-      T_NetMode_00:hud('lau_connect4','Disabled'),
+      T_NetMode_00:hud(status.networkMessage,'Internet'),
       T_Date_00:dateText,
       T_TimeL_00:{text:String(clock.hour).padStart(2,'0')},
+      T_TimeC_00:{visible:clock.colonVisible},
       T_TimeR_00:{text:String(clock.minute).padStart(2,'0')},
     },
   })&&okay;
@@ -108,19 +125,21 @@ export function zoneClock(date:Date,elapsedMs:number){
     hour:String(date.getHours()).padStart(2,'0'),
     minute:String(date.getMinutes()).padStart(2,'0'),
     frame,
+    batteryFrame:deviceStatusBatteryFrame(REFERENCE_DEVICE_STATUS,date.getSeconds()),
   };
 }
 
 function drawZone(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   const main=view.screen==='main';
-  const clock=zoneClock(options.date??new Date(),options.elapsedMs??0);
+  const clockDate=options.date??new Date();
+  const clock=zoneClock(clockDate,options.elapsedMs??0);
   top.fillStyle='#000';top.fillRect(0,0,400,240);bottom.fillStyle='#fff';bottom.fillRect(0,0,320,240);
   let okay=renderer.drawBitmap(bottom,'zone-pages',main?'offline':'no-content',0,0);
   if(main){top.save();top.translate(0,20);okay=renderer.draw(top,'zone-banner','U_top',{bindings:[{name:'U_top_Loop_anim',frame:120}]})&&okay;top.restore();}
   else okay=renderer.drawBitmap(top,'zone-pages','info-top-frame-0',0,20)&&okay;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['zone-messages'],'mars',label,'');
   okay=renderer.draw(top,'zone-chrome','Hud_00',{
-    bindings:[...zoneHudBindings,{name:'Hud_00_time_Blinking',frame:clock.frame}],overrides:{
+    bindings:[...zoneHudBindings(clockDate),{name:'Hud_00_time_Blinking',frame:clock.frame}],overrides:{
       T_Title_00:{text:'Nintendo Zone'},T_TimeL_00:{text:clock.hour},T_TimeC_00:{text:':'},T_TimeR_00:{text:clock.minute},
       WHITE_01:{visible:false},P_Debug_Rotate:{visible:false},N_ReadIcon:{visible:false},Timer_Icon:{visible:false},
     },

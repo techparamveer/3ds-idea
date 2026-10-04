@@ -40,6 +40,7 @@ import { PACKED_MODEL_URL } from './model-delivery';
 import { createRenderSchedule } from './render-schedule';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
 import { captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHudSample, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
+import { homeHudReducedMotionRepaintDue, hudSecondParity } from '../os/device-status-profile';
 
 const RAD = Math.PI / 180;
 let nextBannerSession=0;
@@ -183,7 +184,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');let reduced=motionPreference.matches;
   const schedule=createRenderSchedule();
   let started=false;
-  let frame=0,disposed=false,last=performance.now(),lastRender=0,lastScreenPaint=0,intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1;
+  let frame=0,disposed=false,last=performance.now(),lastRender=0,lastScreenPaint=0,intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1,lastHudParity:number|null=null;
   let start=last;
   let homeClockSuspended=document.hidden;
   const touches=new Map<number,{x:number;y:number}>();let pinchDistance=0,pinchZoom=1,viewZoom=1;
@@ -278,10 +279,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(diagnostics){const close=sampleSystemHomeFolderClose(state);host.dataset.screenPaint=JSON.stringify({at:performance.now(),phase:system.phase,phaseElapsedMs:elapsedMs-system.since,bootRevealFrame:lastBootPaintFrame,homeUpdates:system.homeClock.updateCount,cursor:cursorDiagnostic(),applicationClose:system.homeApplicationTransition,closePhase:close?.controller.phase??null,closeFrame:close?.controller.folder.appliedFrame??null});}
   }
   function paint(){updateAudio();for(const o of powerLeds){const m=o.material as THREE.MeshStandardMaterial;m.emissive.set(state.powered?0x0060ff:0x000000);m.emissiveIntensity=state.powered?2:0;m.color.set(state.powered?0x0055bb:0x151c1d);}for(const [material,intensity] of sourceIndicatorIntensity)material.emissiveIntensity=state.powered?intensity:0;paintScreens(performance.now(),true);topMat.emissiveIntensity=bottomMat.emissiveIntensity=state.powered?state.brightness*(state.powerSaving ? .85 : 1)*.97:0;writeState();}
-  // State-driven paints (input, saves, minute) reuse the cadence's HOME background
-  // sample instead of a synchronous GPU readback in the event handler, and leave
-  // the cadence clock alone, so the background is sampled on the same LCD
-  // cadence as without input.
+  // State-driven paints (input, saves, minute, reduced-motion HUD parity)
+  // reuse the cadence's HOME background sample instead of a synchronous GPU
+  // readback in the event handler, and leave the cadence clock alone, so the
+  // background is sampled on the same LCD cadence as without input.
   function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint(now-start,painted?.nativeSystem===true);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();return painted;}
   const soundNames=new Set<string>(['select','open','open-effect','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
@@ -505,7 +506,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   function keyup(e:KeyboardEvent){release(`key:${e.code}`);const command=heldKeys.get(e.code);heldKeys.delete(e.code);if(command)button(command,'up',`key:${e.code}`,true);}
   function blur(){touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit((current,now)=>releaseSystemInputs(current,now),'blur');}
   function visibilityChanged(){if(document.hidden){homeClockSuspended=true;blur();revokeTerminalPublications();observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
-  function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}paint();}
+  function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();lastHudParity=null;if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}paint();}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();viewZoom=THREE.MathUtils.clamp(viewZoom-e.deltaY*.001,1,3);}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;const ratio=pixelRatioForViewport(quality.tier,window.devicePixelRatio,w,h),size=renderer.getSize(new THREE.Vector2());
     if(size.x===w&&size.y===h&&renderer.getPixelRatio()===ratio)return;
@@ -608,6 +609,13 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // renders in one callback are not evidence that the browser composited it.
     if(!homeClockSuspended&&!terminalPublicationPending)commit((current,time)=>tickSystem(current,time,reduced),'tick',false,animationElapsedMs);updateAudio();observeLaunchEffect();
     const minute=Math.floor(Date.now()/60000);if(minute!==lastMinute){lastMinute=minute;paint();}
+    // Reduced motion skips the HOME LCD cadence. Keep the native 1 Hz
+    // colon/battery blink with a HUD-visible second-parity paint; WalkCoin
+    // and cursor stay frozen. Labelled accessibility adaptation.
+    const hudSeconds=new Date().getSeconds();
+    const hudVisible=reduced&&state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&state.system!.phase==='home';
+    if(homeHudReducedMotionRepaintDue(lastHudParity,hudSeconds,hudVisible))paint();
+    lastHudParity=hudSecondParity(hudSeconds);
     // Native UI motion must be uploaded continuously, independent of input.
     // Include the final restored-root update. Frozen clocks do not boost the
     // cadence, and a high-refresh monitor cannot paint extra close updates.

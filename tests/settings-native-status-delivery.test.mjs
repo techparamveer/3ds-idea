@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import sharp from 'sharp';
+import {chargingBatteryFrame} from '../src/os/device-status-profile.ts';
 
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const read=path=>readFileSync(new URL(path,root));
@@ -37,13 +38,12 @@ test('Settings HUD uses the source English status/date labels',()=>{
 });
 
 test('Settings captured orange battery uses its exact native HUD texture',async()=>{
- const source=readFileSync(new URL('../src/os/stock-native-settings.ts',import.meta.url),'utf8');
- const status=/SETTINGS_PORTFOLIO_STATUS=\{batteryFrame:(\d+)/.exec(source);
- assert.ok(status,'declared Settings status');
+ const frame=chargingBatteryFrame(1);
+ assert.equal(frame,4,'odd-second charging pose is HudBat_04');
  const pack=JSON.parse(read(P+'hud.json'));
  const track=pack.animations.HudMset_00_Bat.tracks.find(track=>track.target==='P_Bat_00'&&track.property==='texture.pattern');
  assert.ok(track,'firmware battery pattern track');
- const sourceIndex=track.keys.find(key=>key.frame===Number(status[1]))?.value;
+ const sourceIndex=track.keys.find(key=>key.frame===frame)?.value;
  assert.equal(pack.animations.HudMset_00_Bat.textures[sourceIndex],'HudBat_04.bclim');
  assert.equal(pack.textures['HudBat_04.bclim'].sourceSha256,pack.resourceSources.textures['HudBat_04.bclim'].sha256);
  const texture=await sharp(read(pack.textures['HudBat_04.bclim'].url)).ensureAlpha().raw().toBuffer({resolveWithObject:true});

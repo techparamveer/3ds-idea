@@ -1,23 +1,22 @@
+import { REFERENCE_DEVICE_STATUS, hudColonVisible } from './device-status-profile.ts';
 import type { NativePack } from './native-layout';
 
-/** Isolated Azahar reference-profile HOME HUD. This is not AC/PTM telemetry
- * and does not claim the browser is online. The poses come from the 26
- * September native still and the profile coin file (42). WalkCoin stays
- * time-driven. Labelled adaptation. */
+/** Display projection of {@link REFERENCE_DEVICE_STATUS}. Live charging
+ * frames come from the profile owner, not this static batteryFrame. */
 export const HOME_REFERENCE_HUD_STATUS = {
-  networkMessage: 'lau_connect0',
-  netModeFrame: 0,
-  netAtnFrame: 3,
-  batteryFrame: 4,
-  coins: 42,
-  steps: 0,
+  networkMessage: REFERENCE_DEVICE_STATUS.networkMessage,
+  netModeFrame: REFERENCE_DEVICE_STATUS.netModeFrame,
+  netAtnFrame: REFERENCE_DEVICE_STATUS.netAtnFrame,
+  batteryFrame: REFERENCE_DEVICE_STATUS.batteryFrame,
+  coins: REFERENCE_DEVICE_STATUS.coins,
+  steps: REFERENCE_DEVICE_STATUS.steps,
 } as const;
 
 /** Idle HOME `0x27c6a8`: `T_TimeC_00` visible when current sampled seconds
  * (`+0xdd`) bit 0 is clear. Injected `Date.getSeconds()` supplies that byte;
  * `+0xcc`, hold `+0xb0` and WhiteBlack animator states 1/2 are not replayed. */
 export function homeHudColonVisible(seconds: number): boolean {
-  return (seconds & 1) === 0;
+  return hudColonVisible(seconds);
 }
 
 /** Explicit source-pose diagnostic, never device telemetry or persisted state.

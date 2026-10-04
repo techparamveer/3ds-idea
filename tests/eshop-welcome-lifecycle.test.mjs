@@ -11,7 +11,7 @@ const {eshopWelcomeBindings:bindings,eshopCurtainFrame:curtain,eshopWelcomePass,
 const clip=name=>'welcome_U_00_'+name;
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const services=await import(url(compile('stock-native-services').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-eshop-welcome'",JSON.stringify(url(compile('stock-eshop-welcome'))))));
+const services=await import(url(compile('stock-native-services').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-eshop-welcome'",JSON.stringify(url(compile('stock-eshop-welcome')))).replace("'./device-status-profile'",JSON.stringify(url(compile('device-status-profile'))))));
 // Mid-pass milliseconds, so pass boundaries never depend on float rounding.
 const ms=pass=>(pass+.5)*1000/ESHOP_WELCOME_PASS_HZ;
 
@@ -32,8 +32,10 @@ test('source passes replace in_00, balloonIn_00 and the looping wait_00 on one a
  assert.deepEqual(packs['shop-background'],['BG_U_00_inOut_00','BG_D_00_inOut_00']);
  assert.deepEqual(packs['shop-hud'],['HudMenu_00_NetMode','HudMenu_00_NetAtn','HudMenu_00_Bat']);
  assert.ok(services.eshopScreenPacks.find(p=>p.alias==='shop-background').layouts.includes('info_U_00'));
- assert.deepEqual(services.eshopHudBindings,[{name:'HudMenu_00_NetMode',frame:4},{name:'HudMenu_00_NetAtn',frame:9},{name:'HudMenu_00_Bat',frame:3}]);
- assert.deepEqual(services.eshopHudClock(new Date(2026,8,24,7,44)),{year:2026,month:9,day:24,hour:7,minute:44});
+ const evenHud=new Date(2026,8,24,7,44,0),oddHud=new Date(2026,8,24,7,44,1);
+ assert.deepEqual(services.eshopHudBindings(oddHud),[{name:'HudMenu_00_NetMode',frame:0},{name:'HudMenu_00_NetAtn',frame:3},{name:'HudMenu_00_Bat',frame:4}]);
+ assert.deepEqual(services.eshopHudBindings(evenHud),[{name:'HudMenu_00_NetMode',frame:0},{name:'HudMenu_00_NetAtn',frame:3},{name:'HudMenu_00_Bat',frame:5}]);
+ assert.deepEqual(services.eshopHudClock(evenHud),{year:2026,month:9,day:24,hour:7,minute:44,colonVisible:true,batteryFrame:5});
 });
 
 test('the priority-1.0 BG curtain reveals over four passes and covers after out_00',()=>{
@@ -114,7 +116,7 @@ test('only the active owner advances; HOME suspension pauses the exit',()=>{
 const calls=[];
 globalThis.__eshopLoad=()=>{let resolve;const pending=new Promise(r=>{resolve=r;});calls.push({resolve});return pending;};
 const session=url(compile('native-title-session').replace("'./native-title-assets'",JSON.stringify(url('export const loadNativeTitleAssets=(...args)=>globalThis.__eshopLoad(...args)'))));
-let source=compile('stock-screen-presentation').replace("'./stock-settings-hud'",JSON.stringify(url(compile('stock-settings-hud')))).replace("'./stock-health-scroll'",JSON.stringify(url(compile('stock-health-scroll')))).replace("'./native-title-session'",JSON.stringify(session));
+let source=compile('stock-screen-presentation').replace("'./stock-settings-hud'",JSON.stringify(url(compile('stock-settings-hud').replace("'./device-status-profile.ts'",JSON.stringify(url(compile('device-status-profile'))))))).replace("'./stock-health-scroll'",JSON.stringify(url(compile('stock-health-scroll')))).replace("'./native-title-session'",JSON.stringify(session));
 for(const [file,packs,draw]of [['settings','settingsScreenPacks','drawNativeSettingsMain'],['sound','soundScreenPacks','drawNativeSoundFrame'],['camera','cameraScreenPacks','drawNativeCameraFrame'],['health','healthScreenPacks','drawNativeHealthFrame']])source=source.replace(`'./stock-native-${file}'`,JSON.stringify(url(`export const ${packs}=[];export const ${draw}=()=>false;${file==='sound'?'export const soundHudTimeKey=()=>null;':''}`)));
 source=source.replace("'./stock-screen-layout'",JSON.stringify(url('export const stockScreenTargets=()=>[];')));
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url('export const nativePersonalToolView=()=>null;export const drawNativePersonalToolFrame=()=>false;')));

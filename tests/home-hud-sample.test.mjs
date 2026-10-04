@@ -2,7 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
+import {
+  REFERENCE_DEVICE_STATUS,
+  chargingBatteryFrame,
+  deviceStatusBatteryFrame,
+  homeHudReducedMotionRepaintDue,
+  hudColonVisible,
+  hudSecondParity,
+} from '../src/os/device-status-profile.ts';
 import { HOME_REFERENCE_HUD_STATUS, homeHudColonVisible, validateHomeHudSample } from '../src/os/home-hud-sample.ts';
+import { settingsHudUpdate } from '../src/os/stock-settings-hud.ts';
 
 const sourceUrl = new URL('../src/os/firmware-presentation.ts', import.meta.url);
 const { outputText } = ts.transpileModule(readFileSync(sourceUrl, 'utf8'), {
@@ -12,42 +21,96 @@ const stub = 'data:text/javascript;base64,' + Buffer.from('export class NativeLa
 const source = outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g, (_match, prefix, path, suffix) =>
   prefix + (path === './native-renderer' ? stub : new URL(path.endsWith('.ts') ? path : `${path}.ts`, sourceUrl).href) + suffix);
 const { createFirmwareHome } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
-
+const compile = name => ts.transpileModule(readFileSync(new URL(`../src/os/${name}.ts`, import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+}).outputText;
+const url = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
+const services = await import(url(compile('stock-native-services')
+  .replace("'./native-layout'", JSON.stringify(url(compile('native-layout'))))
+  .replace("'./stock-eshop-welcome'", JSON.stringify(url(compile('stock-eshop-welcome'))))
+  .replace("'./device-status-profile'", JSON.stringify(url(compile('device-status-profile'))))));
 
 const pack = name => JSON.parse(readFileSync(new URL(`../public/os/firmware/10.7.0-32E/packs/home/${name}.json`, import.meta.url)));
 const hud = pack('hud');
-// Explicit pose probe, not an asserted service-to-frame mapping or native phase.
 const sample = Object.freeze({kind:'source-pose', evidence:'test pose; coins from profile audit; battery/signal/phase unverified', networkMessage:'lau_connect4', netModeFrame:4, netAtnFrame:8, batteryFrame:3, walkCoinFrame:180, coins:0, steps:0});
+const odd = new Date(2026,8,26,4,14,35);
+const even = new Date(2026,8,26,4,14,34);
 
-test('live HOME HUD uses the isolated reference-profile pose, not Disabled/0/blue', () => {
-  assert.deepEqual(HOME_REFERENCE_HUD_STATUS,{
-    networkMessage:'lau_connect0',netModeFrame:0,netAtnFrame:3,batteryFrame:4,coins:42,steps:0,
+test('declared reference profile is the single Internet/42/charging owner', () => {
+  assert.equal(REFERENCE_DEVICE_STATUS.kind, 'reference-session-profile');
+  assert.equal(REFERENCE_DEVICE_STATUS.networkMessage, 'lau_connect0');
+  assert.deepEqual([REFERENCE_DEVICE_STATUS.netModeFrame, REFERENCE_DEVICE_STATUS.netAtnFrame], [0, 3]);
+  assert.equal(REFERENCE_DEVICE_STATUS.charging, true);
+  assert.equal(REFERENCE_DEVICE_STATUS.lowBattery, false);
+  assert.equal(REFERENCE_DEVICE_STATUS.coins, 42);
+  assert.equal(REFERENCE_DEVICE_STATUS.steps, 0);
+  assert.match(REFERENCE_DEVICE_STATUS.evidence, /adaptation|not live telemetry|Isolated Azahar/i);
+  assert.deepEqual(HOME_REFERENCE_HUD_STATUS, {
+    networkMessage: REFERENCE_DEVICE_STATUS.networkMessage,
+    netModeFrame: REFERENCE_DEVICE_STATUS.netModeFrame,
+    netAtnFrame: REFERENCE_DEVICE_STATUS.netAtnFrame,
+    batteryFrame: REFERENCE_DEVICE_STATUS.batteryFrame,
+    coins: REFERENCE_DEVICE_STATUS.coins,
+    steps: REFERENCE_DEVICE_STATUS.steps,
+  });
+  const settingsSource = readFileSync(new URL('../src/os/stock-native-settings.ts', import.meta.url), 'utf8');
+  assert.match(settingsSource, /batteryFrame:REFERENCE_DEVICE_STATUS\.batteryFrame/);
+  assert.match(settingsSource, /networkAttentionFrame:REFERENCE_DEVICE_STATUS\.netAtnFrame/);
+  assert.match(settingsSource, /T_NetMode_00:message\(status\.networkMessage\)/);
+});
+
+test('HOME 0x27c6a8 seconds parity maps colon and charging G_Bat together', () => {
+  assert.equal(homeHudColonVisible(34), true);
+  assert.equal(homeHudColonVisible(35), false);
+  assert.equal(hudColonVisible(0), true);
+  assert.equal(homeHudColonVisible(36), true);
+  assert.equal(chargingBatteryFrame(35), 4);
+  assert.equal(chargingBatteryFrame(34), 5);
+  assert.equal(deviceStatusBatteryFrame(REFERENCE_DEVICE_STATUS, 35), 4);
+  assert.equal(deviceStatusBatteryFrame(REFERENCE_DEVICE_STATUS, 34), 5);
+  assert.equal(deviceStatusBatteryFrame({...REFERENCE_DEVICE_STATUS, charging:false}, 34), 4);
+});
+
+test('Settings HUD sampler shares the 4/5 charging map on its cached seconds', () => {
+  const oddMs = odd.getTime();
+  let state = {updates:0, counter:2, dateMs:oddMs, displayedDateMs:oddMs, colonVisible:false, batteryFrame:5};
+  state = settingsHudUpdate(state, even.getTime());
+  assert.equal(state.batteryFrame, chargingBatteryFrame(odd.getSeconds()));
+  assert.equal(state.dateMs, oddMs);
+});
+
+test('eShop and Zone HUD bindings read the same declared profile', () => {
+  assert.deepEqual(services.eshopHudBindings(odd), [
+    {name:'HudMenu_00_NetMode', frame:0}, {name:'HudMenu_00_NetAtn', frame:3}, {name:'HudMenu_00_Bat', frame:4},
+  ]);
+  assert.deepEqual(services.eshopHudBindings(even), [
+    {name:'HudMenu_00_NetMode', frame:0}, {name:'HudMenu_00_NetAtn', frame:3}, {name:'HudMenu_00_Bat', frame:5},
+  ]);
+  assert.deepEqual(services.zoneHudBindings(odd), [
+    {name:'Hud_00_Bar_Appear', frame:15}, {name:'Hud_00_Battery', frame:4}, {name:'Hud_00_Signal', frame:3},
+  ]);
+  assert.deepEqual(services.eshopHudClock(even), {
+    year:2026, month:9, day:26, hour:4, minute:14, colonVisible:true, batteryFrame:5,
   });
 });
 
-test('idle HOME colon uses current seconds 0x27c6a8, not Settings previous displayed', () => {
-  assert.equal(homeHudColonVisible(34),true);
-  assert.equal(homeHudColonVisible(35),false);
-  assert.equal(homeHudColonVisible(0),true);
-  // Settings 0x238aec would still hide from previous odd 35 while current is 36.
-  assert.equal(homeHudColonVisible(36),true);
-});
-
-test('diagnostic sample selects delivered source messages and clips without changing later live HUD painting', () => {
+test('live HOME HUD uses the profile and current-second charging frame; capture sample overrides once', () => {
   const calls=[];
   const renderer={packs:{hud, launcher:pack('launcher'), messages:pack('messages-and-loose')}, draw(_ctx, bank, layout, options){calls.push({bank,layout,options});return true;}};
   const painter=createFirmwareHome({renderer});
-  const date=new Date(2026,8,26,4,14,35);
-  painter.hud({},date,1000);
-  painter.hud({},date,1000,sample);
-  painter.hud({},date,1000);
+  painter.hud({},odd,1000);
+  painter.hud({},odd,1000,sample);
+  painter.hud({},odd,1000);
   assert.deepEqual(calls[0],calls[2]);
   const live=calls[0].options, diagnostic=calls[1].options;
   assert.equal(live.overrides.T_NetMode_00.text,'Internet');
   assert.equal(live.overrides.T_Coin_00.text,'42');
-  assert.equal(live.overrides.T_TimeC_00.visible,false,'odd seconds hide the colon, matching the native still');
-  painter.hud({},new Date(2026,8,26,4,14,34),1000);
-  assert.equal(calls.at(-1).options.overrides.T_TimeC_00.visible,true);
+  assert.equal(live.overrides.T_TimeC_00.visible,false);
+  assert.deepEqual(live.bindings.slice(2).map(binding=>binding.frame),[0,3,4,60]);
+  painter.hud({},even,1000);
+  const evenLive=calls.at(-1).options;
+  assert.equal(evenLive.overrides.T_TimeC_00.visible,true);
+  assert.equal(evenLive.bindings.find(binding=>binding.name==='HudMenu_00_Bat').frame,5);
   assert.equal(diagnostic.overrides.T_NetMode_00.text,'Disabled');
   assert.equal(diagnostic.overrides.T_Coin_00.text,'0');
   assert.equal(diagnostic.overrides.T_Walk_00.text,'0');
@@ -56,7 +119,18 @@ test('diagnostic sample selects delivered source messages and clips without chan
     {name:'HudMenu_00_NetMode',frame:4},{name:'HudMenu_00_NetAtn',frame:8},
     {name:'HudMenu_00_Bat',frame:3},{name:'HudMenu_00_WalkCoin',frame:180},
   ]);
-  assert.deepEqual(live.bindings.slice(2).map(binding=>binding.frame),[0,3,4,60]);
+});
+
+test('reduced-motion HOME repaints only on HUD-visible second-parity change', () => {
+  assert.equal(hudSecondParity(34), 0);
+  assert.equal(hudSecondParity(35), 1);
+  assert.equal(homeHudReducedMotionRepaintDue(null, 35, true), true);
+  assert.equal(homeHudReducedMotionRepaintDue(1, 35, true), false);
+  assert.equal(homeHudReducedMotionRepaintDue(1, 36, true), true);
+  assert.equal(homeHudReducedMotionRepaintDue(0, 36, false), false);
+  const scene = readFileSync(new URL('../src/scene/console-scene.ts', import.meta.url), 'utf8');
+  assert.match(scene, /homeHudReducedMotionRepaintDue/);
+  assert.match(scene, /phase==='home'/);
 });
 
 test('sample rejects out-of-pack poses and missing diagnostic provenance', () => {

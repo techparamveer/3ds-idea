@@ -1,3 +1,4 @@
+import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame } from './device-status-profile.ts';
 import type { SettingsHudPose } from './stock-settings-hud';
 import { languageScroll, settingsLanguageOffset, settingsOtherPages } from './stock-settings-navigation';
 import type { AppView } from './app-types';
@@ -49,11 +50,14 @@ function prepareSettingsButtons(renderer:NativeLayoutRenderer){
   renderer.packs.button={...source,animations};prepared.add(renderer);
 }
 const week=['sun','mon','tue','wed','thu','fri','sat'];
-/** The source executable feeds these clips from PTM/AC/Uds services. The
- * portfolio has no corresponding hardware telemetry. Frame 4 matches the
- * orange battery in the 26 September native Settings main capture; charging
- * phase is supplied by the owner-scoped source HUD sampler. */
-export const SETTINGS_PORTFOLIO_STATUS={batteryFrame:4,networkAttentionFrame:3,networkModeFrame:0,whiteBlackFrame:0} as const;
+/** Settings projection of {@link REFERENCE_DEVICE_STATUS}. Charging phase
+ * is supplied by the owner-scoped source HUD sampler, not this snapshot. */
+export const SETTINGS_PORTFOLIO_STATUS={
+  batteryFrame:REFERENCE_DEVICE_STATUS.batteryFrame,
+  networkAttentionFrame:REFERENCE_DEVICE_STATUS.netAtnFrame,
+  networkModeFrame:REFERENCE_DEVICE_STATUS.netModeFrame,
+  whiteBlackFrame:REFERENCE_DEVICE_STATUS.whiteBlackFrame,
+} as const;
 function drawSettingsStatus(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,date:Date,hud?:SettingsHudPose):boolean{
   if(hud)date=new Date(hud.dateMs);
   const message=(label:string)=>nativeMessageOverride(renderer.packs.messages,'hud',label,'');
@@ -61,14 +65,15 @@ function drawSettingsStatus(renderer:NativeLayoutRenderer,top:CanvasRenderingCon
   const day=sourceText('day_'+date.getDate()),month=sourceText('month_'+(date.getMonth()+1)),weekday=sourceText('week_'+week[date.getDay()]);
   const pattern=message('lau_date');
   if(typeof pattern.text!=='string')throw new Error('Missing Settings HUD message lau_date');
+  const status=REFERENCE_DEVICE_STATUS;
   return renderer.draw(top,'hud','HudMset_00',{bindings:[
-    {name:'HudMset_00_Bat',frame:hud?.batteryFrame??SETTINGS_PORTFOLIO_STATUS.batteryFrame},
-    {name:'HudMset_00_NetAtn',frame:SETTINGS_PORTFOLIO_STATUS.networkAttentionFrame},
-    {name:'HudMset_00_NetMode',frame:SETTINGS_PORTFOLIO_STATUS.networkModeFrame},
-    {name:'HudMset_00_WhiteBlack',frame:SETTINGS_PORTFOLIO_STATUS.whiteBlackFrame},
+    {name:'HudMset_00_Bat',frame:hud?.batteryFrame??deviceStatusBatteryFrame(status,date.getSeconds())},
+    {name:'HudMset_00_NetAtn',frame:status.netAtnFrame},
+    {name:'HudMset_00_NetMode',frame:status.netModeFrame},
+    {name:'HudMset_00_WhiteBlack',frame:status.whiteBlackFrame},
   ],overrides:{
     ...(hud?{T_TimeC_00:{visible:hud.colonVisible}}:{}),
-    T_NetMode_00:message('lau_connect0'),
+    T_NetMode_00:message(status.networkMessage),
     T_Date_00:{...pattern,text:pattern.text.replace('%d',day).replace('%M',month).replace('%w',weekday)},
     T_TimeL_00:{...message('lau_hours'),text:String(date.getHours()).padStart(2,'0')},
     T_TimeR_00:{...message('lau_minutes'),text:String(date.getMinutes()).padStart(2,'0')},

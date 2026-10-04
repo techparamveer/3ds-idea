@@ -297,7 +297,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const reducedMotion=options.reducedMotion?.()??false;
       // Native status clocks and animation poses key paired-screen publication.
       const zoneTime=view.appId==='nintendo-zone'?zoneClock(date,elapsedMs):null;
-      const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60]:null;
+      const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60,zoneTime.batteryFrame]:null;
       // Local host time drives Notes/Health; only the selected pose keys paint.
       const data=view.data&&typeof view.data==='object'&&!Array.isArray(view.data)?view.data:{};
       const clockField=view.appId==='game-notes'?'notesHostMs':view.appId==='health-safety'?'healthElapsedMs':view.appId==='system-settings'?'settingsHudElapsedMs':null;

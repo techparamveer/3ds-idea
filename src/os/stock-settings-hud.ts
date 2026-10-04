@@ -1,3 +1,5 @@
+import { chargingBatteryFrame, hudColonVisible } from './device-status-profile.ts';
+
 /** Settings HUD update 0x2389b8, constructor 0x23986c, EUR 10.7.0-32E.
  * Calendar dates are injected by presentation; elapsed updates belong to the
  * Settings instance. Hardware status remains the declared charging adaptation. */
@@ -8,10 +10,10 @@ export function settingsHudUpdate(state:SettingsHudSample,dateMs:number):Setting
   const counter=state.counter,next={...state,updates:state.updates+1};
   if(counter<=0){
     next.dateMs=dateMs;
-    next.colonVisible=(new Date(state.displayedDateMs).getSeconds()&1)===0;
+    next.colonVisible=hudColonVisible(new Date(state.displayedDateMs).getSeconds());
     next.displayedDateMs=dateMs;
   }
-  if(counter===2||counter<0)next.batteryFrame=(new Date(next.dateMs).getSeconds()&1)?4:5;
+  if(counter===2||counter<0)next.batteryFrame=chargingBatteryFrame(new Date(next.dateMs).getSeconds());
   next.counter=counter<=0?29:counter-1;
   return next;
 }

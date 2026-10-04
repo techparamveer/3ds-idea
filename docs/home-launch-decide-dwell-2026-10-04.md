@@ -125,8 +125,10 @@ masks; epochs unsynchronized.
 
 ## Remaining
 
-Native pressed may last one to four frames longer than the browser's five
-(press- versus release-triggered Decide is unresolved). The fit
+Open pressed duration and A-down vs A-release vs touch-release are
+source-identified in [open press](home-open-press-2026-10-04.md): five 2D
+submits of Decide 0..4 on A-down / touch-release, matching the browser. The
+CTM six-to-nine bound was screenshot lag, not a `lastFrame`. The fit
 places fade pose 0 five frames after Decide5 (native five or six) and logo
 pose 0 eleven frames after fade pose 20 (native about 10.7); either may be
 one frame off. Open tone/audio timing, exact native epoch, native mobile/reduced

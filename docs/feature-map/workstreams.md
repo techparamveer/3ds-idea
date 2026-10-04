@@ -27,6 +27,15 @@ Claude Code coordinator owns `3ds-home-launch-logo-wait-20261004` /
 as `7eeb7565`, `9376f3c9`.
 [Delivered correction and remaining gaps](../home-launch-logo-wait-2026-10-04.md).
 
+## HOME Open Press Duration And Trigger - 4 October 2026
+
+HOME-lane worker `3ds-home-open-press-20261004` /
+`codex/home-open-press-20261004`, base `1d432c1c`. Source-only: Open Decide
+is five pressed 2D submits on A-down / touch-release; no duration or
+trigger edit. Coordinator `3d330a90-73b4-4652-a0cf-29f499359fae` owns
+preview 3021, Azahar, cherry-picks and recapture.
+[Evidence](../home-open-press-2026-10-04.md).
+
 ## HOME Launch Open Decide And Dwells - 4 October 2026
 
 Claude Code coordinator owns `3ds-home-launch-open-decide-20261004` /

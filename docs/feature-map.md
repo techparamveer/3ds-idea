@@ -78,8 +78,11 @@ C14 before the app (fitted adaptations).
 
 Earlier [HOME launch Open Decide and dwells](home-launch-decide-dwell-2026-10-04.md),
 `7a44bff9`, plays the source Open Decide on intact HOME and fits the Decide5
-hold and black dwell to Azahar's frame grid (adaptations). Open tone/audio,
-input hold timing are the next launch residuals; mobile and reduced were recaptured.
+hold and black dwell to Azahar's frame grid (adaptations). A-down vs
+A-release vs touch-release and the five-frame pressed length are now
+source-identified with no runtime change
+([open press](home-open-press-2026-10-04.md)). Open tone/audio remain the
+next launch residuals; mobile and reduced were recaptured.
 
 Earlier [HOME launch decide ring](home-launch-ring-2026-10-03.md), `8fada42d`,
 draws the source `LncCsrEfct_01` ring that native grows from the selected

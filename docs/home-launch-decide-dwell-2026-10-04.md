@@ -88,9 +88,14 @@ cleanup complete:
 | --- | --- | --- | --- |
 | `e0e41dea` | `R1/after-stage` | 71 | `bc4d39783fc4eac6ece124cb6ad3eea419f4ebf395fe5bf82fb201295e5db47c` |
 | `d910fbfe` | `R2/after-desktop` | 80 | `5346cf3f8983ec76ab79ca44549d065ba95664d69f1e8ac20c6d8239b8c177ab` |
+| `7a44bff9` | `R2/after-mobile` (390x844) | 83 | `627e9f6232c48d387988bef07ae8c802f0fec648edf5b290bf24282ca5f55b81` |
+| `7a44bff9` | `R2/after-reduced` | 20 | `448e03d51edead070eb7f1735e6174b45ca50240b17a2c5bbdd2dbff1dc77cf3` |
 
 The dwell collector (`R2/browser-launch-dwell.mjs`, SHA `393b0558d52be014...`)
-only moves the C14 threshold to (10+31+104)/60s.
+only moves the C14 threshold to (10+31+104)/60s. Its mode comes from `LAUNCH_MODE`;
+reduced motion accepts any launch presentation as terminal. Mobile upper
+luminance follows the desktop stages (intact through 146ms, fade from 188ms,
+black 513-704ms, logo after); reduced paints one black + B15 pair, then the app.
 
 The coordinator inspected `R1/stage-sheet.png` (SHA
 `f06818f984581b18133a8947d86dfe715e1bb6d69fa92ca3636fb9fbe5f75374`) and the
@@ -111,6 +116,6 @@ masks; epochs unsynchronized.
 The pressed duration follows A-hold input, which is not matched. The fit
 places fade pose 0 five frames after Decide5 (native five or six) and logo
 pose 0 eleven frames after fade pose 20 (native about 10.7); either may be
-one frame off. Open tone/audio timing, exact native epoch, mobile and
-reduced recaptures, HUD pixels and whole-scenario acceptance remain open.
+one frame off. Open tone/audio timing, exact native epoch, native mobile/reduced
+comparison, HUD pixels and whole-scenario acceptance remain open.
 Whole-scenario status remains fail.

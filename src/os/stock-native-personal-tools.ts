@@ -94,12 +94,19 @@ const SLIDEBAR_HALF=f32(0.5);
 export type NotificationSlideBarPose={extra:number;thumbHeight:number;thumbY:number;grooveHeight:number;lineHeight:number};
 /**
  * Notifications list SlideBar after controller 0x13a160.
- * `index` is the 0x179660 displacement/stride argument (list window start).
- * `countField` is controller+0x0c in extra = max(0, index + [0x0c] − [0x08]).
- * List ctor 0x17e0b8 stores 0 before rows exist. The populated nine-row
- * profile is the live list count, not the ten constructed / six marked /
- * five drawn row-object leftovers. Detail 0x17ace4 writes the same field
- * from text metrics on that sibling path.
+ * extra = max(0, index + countField − 3). `countField` is controller+0x0c.
+ * List setup 0x17dde8/0x17e0a4/0x17e0b8 stores sl=0, and the +0x28 controller
+ * memcpy leaves +0x0c 0. The +0x24 controller that 0x179660 updates stores
+ * the literal 1 at 0x17a054, not the row count. Detail 0x17ace4 is the only
+ * traced non-constant writer and it is the other screen. Index on 0x179660
+ * is list+0x31c after the +0x314 stride cancels; the stores at 0x17a834,
+ * 0x179f24 and 0x129360 write 0. Bias 3 with index 0 and count 0 or 1 clamps
+ * extra to 0 and skips 0x13aa9c. The frozen idle still matches extra 6
+ * (window start 0, nine rows): thumb top at LCD y=4 and the 11px right-frame
+ * boundary at y=112.6. The traced 0 is not that silhouette.
+ * Idle travel is already 0x1770cc / 0x13aa9c. B_Groove_00 translation.y is 0,
+ * and ctor 0x1390ac/0x1390cc leaves +0x7c and +0x90 at 0, so ratio is 0 and
+ * thumbY = travel * 0.5. No further idle term.
  */
 export function notificationSlideBarPose(index:number,countField=0):NotificationSlideBarPose{
   const extra=Math.max(0,Math.trunc(index)+Math.trunc(countField)-SLIDEBAR_INDEX_BIAS);

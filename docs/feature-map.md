@@ -19,8 +19,13 @@ Latest [HOME Settings cursor loop freeze](home-cursor-loop-frame-2026-10-04.md),
 `a1590273`, lets Settings captures freeze `LncCsr_00_Loop`. Frozen search
 picks cursor 37 at yaw 310 / COMMON 309 / Loop 338 (2,900 / 12,544). Do not
 adopt 37 as a live clock. Remaining residuals are wrench-edge coverage,
-`mt_pict` icons, title glyphs and labelled portfolio tiles. WalkCoin on
-this still is already inside 2/255.
+title glyphs and labelled portfolio tiles. WalkCoin on this still is
+already inside 2/255. Outer-icon `mt_pict` is labelled
+[source-gap](home-mtpict-source-gap-2026-10-04.md).
+
+Earlier [HOME Settings mt_pict source gap](home-mtpict-source-gap-2026-10-04.md)
+maps COMMON2 / `texture-1.png` as already-bound unlit artwork. No unused
+key. Do not invent a sampler, mip or lighting change.
 
 Earlier [HOME WalkCoin fade](home-walkcoin-fade-2026-10-04.md) already
 follows elapsed `time * 0.06`. Not a wallpaper/cursor freeze. Do not

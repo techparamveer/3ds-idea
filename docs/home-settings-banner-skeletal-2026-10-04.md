@@ -26,7 +26,8 @@ Pair `R/skeletal-refine/` upper SHA
 Whole LCDs **2,900 / 13,522**. Inspected
 `R/diff-yaw310-common309/upper-contact-sheet.png` (SHA `babc06e0…`): remaining
 upper residuals are wrench edges and the outer `mt_pict` icons. That artwork
-path is the existing [source gap](home-settings-banner-edge-source-gap-2026-09-26.md).
+path is the existing [source gap](home-mtpict-source-gap-2026-10-04.md),
+which restates the [26 September edge gap](home-settings-banner-edge-source-gap-2026-09-26.md).
 Lower residuals stay the labelled portfolio neighbors.
 
 Do not adopt yaw−1 as a live clock. The independent capture override stays
@@ -34,6 +35,8 @@ available.
 
 ## Remaining
 
-`mt_pict` icon/wrench coverage, portfolio tiles, WalkCoin fade, motion and
-audio remain open. Whole-scenario 1:1 still fails. Matrix unchanged. No
-Azahar launch.
+`mt_pict` icon/wrench coverage, title glyphs, portfolio tiles, motion and
+audio remain open. The unlit COMMON2 artwork path is labelled
+[source-gap](home-mtpict-source-gap-2026-10-04.md). WalkCoin on this still
+is already inside 2/255. Whole-scenario 1:1 still fails. Matrix unchanged.
+No Azahar launch.

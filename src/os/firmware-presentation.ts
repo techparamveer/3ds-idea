@@ -241,8 +241,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    N_Base_00:{translation:[label.baseX,0,0]},N_LR_00:{translation:[label.bodyOffsetX,-6,0]},T_Blln_00:titleText?{text:titleText}:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)')
   }});
  }
- // T_TimeC_00 blink is untraced on HOME. Hide it on odd seconds to match
- // the 26 September native still (colon absent at :35). Fitted adaptation.
+ // T_TimeC_00 idle blink is HOME 0x27c6a8: current seconds +0xdd, odd hides.
+ // Calendar Date is the injected adapter; +0xcc and WhiteBlack 1/2 skips
+ // are not replayed. Labelled adaptation.
  function hud(ctx:Context,date:Date,time:number,sample?:DiagnosticHomeHudSample,sceneInFrame?:number){
   if(sample)validateHomeHudSample(sample,renderer.packs.hud);
   if(sceneInFrame!==undefined&&(!Number.isInteger(sceneInFrame)||sceneInFrame<0||sceneInFrame>HOME_ENTRY_HUD_LAST_FRAME))throw new RangeError('Invalid HOME HUD SceneIn frame');

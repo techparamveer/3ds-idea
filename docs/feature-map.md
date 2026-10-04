@@ -21,6 +21,11 @@ is empty `N_NewsRcv_00`, not the house. No unique HOME receive-state /
 `LncRcvLampSrc_01` frame. Docs and tests only. Coordinator APPROVE.
 Not 1:1.
 
+Independent review of [Other page 2 overlap](settings-other-p2-overlap-2026-10-04.md)
+`d574bfc9` was **REQUEST CHANGES** on the evidence note only: `0x196d44`
+also has `0x213854` show-label tail-calls (`r2 = 1`). Painter-unchanged
+gap stands. Doc nits applied on the fidelity checkout.
+
 Latest [Settings Other page 2 overlap](settings-other-p2-overlap-2026-10-04.md),
 `d574bfc9` from worker `59024aba`: settled page 2 stays **0 / 960**.
 The 959-pixel left adjacent-page/arrow overlap has no unique settled

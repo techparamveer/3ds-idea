@@ -56,7 +56,8 @@ clip window.
 
 `BasicTop_D_00_SpecialIn_00` (settled entry) keeps `Scroll` x = 0,
 `ScrollBg` x = 270, `N_R_ArrowL_00` x = −180. `BasicTop_D_00_Special_00`
-(15-frame forward clip) moves `ScrollBg` 270 → −6 and **`Scroll` 0 → −276**.
+(16 frames, `sourceFrameRange` [140, 155]) moves `ScrollBg` 270 → −6 and
+**`Scroll` 0 → −276**.
 That `Scroll` pitch is the in-flight page change, not a reconstructed
 settled pose. Rebinding it on page 2 would slide the current 3D / Sound /
 Mic buttons off the LCD.
@@ -73,11 +74,13 @@ at argument 0, sets row Select from the same/cross-scene invert
 
 `0x22f2a4` attaches at most six named children per side
 (`N_I_Button_%02d`, else `Null_Blank_%02d`) onto `Null_LeftPage` /
-`Null_RightPage`. For each slot, page index is `current±1` (slots 0–2) or
+`Null_RightPage`, loading neighbour `BasicTop_D_01.bclyt` /
+`BasicTop_D_02.bclyt` onto those ±276 mounts. Those neighbour layouts have
+no clip window. For each slot, page index is `current±1` (slots 0–2) or
 `current±2` (slots 3–5). `0x22f3a4` `cmp r5, #0` / `0x22f3a8` `blt` skips a
 negative page. Settled page 2 (index 1) therefore mounts **only page 1's
-three buttons** on the left — the painter's `adjacentPage(page-1)` path.
-`0x22f2a4` is reached only from `0x22f9b8`.
+three buttons** on the left — the painter's `adjacentPage(page-1)` path —
+not “no D_01.” `0x22f2a4` is reached only from `0x22f9b8`.
 
 The −276.0 / −552.0 add at `0x213604` / `0x213608` is **not** a
 `Null_LeftPage` owner. `0x213610` loads the pane name `Window_00` and adds
@@ -88,10 +91,14 @@ double-shift the 830 px background and is equivalent, after a SpecialIn
 `ScrollBg` reset, to the already-bound −6 capture fit.
 
 `0x196d44` walks `Null_LeftPage` children for `TextBox_00` and writes
-`+0xb7` bit 0 from its `r2` argument. The only caller is `0x213644`, with
-`r2 = 0` (hide labels after the clip). The constructor range
-`0x22f854..0x22f9c8` does not call it. Hiding adjacent labels would not
-uniquely own the x = 0–34 frame/arrow sliver.
+`+0xb7` bit 0 from its `r2` argument. Transition helper `0x213644` calls
+it with `r2 = 0` (hide labels after the clip). Vtable method `0x213854`
+also tail-calls it at `0x21387c` and `0x213888` with `r2 = 1` (show
+labels): `0x213874..0x213878` uses `r1 = 0` when the page-change code is
+7, and `0x213880..0x213884` uses `r1 = 1` when the code is 6
+(`0x22fc8c` / `0x22fc90` in `basic-top-dispatch`). The constructor range
+`0x22f854..0x22f9c8` does not call it. Showing or hiding adjacent labels
+still does not uniquely own the x = 0–34 frame/arrow sliver.
 
 No settled write changes `Null_LeftPage` alpha, clip or z-order. Arrow
 layout, `R_ArrowL_Appear` frame 0, and hit targets stay as `bfe467b`.

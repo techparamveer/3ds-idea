@@ -7,7 +7,7 @@ Every acceptance scenario named below remains **fail/unaccepted as a whole**. Te
 ## Settings evidence
 
 - Runtime: `src/os/stock-apps.ts`, `stock-settings-navigation.ts`, `stock-native-settings.ts`, `stock-settings-hud.ts`, `stock-screen-layout.ts`; callers in `app-host.ts`, `system.ts`, `stock-native-helpers.ts`.
-- Tests: `tests/stock-apps.test.mjs`, `settings-helper-return.test.mjs`, `settings-other-page-tab.test.mjs`, `settings-language-*.test.mjs`, `settings-data-lists-delivery.test.mjs`, `settings-sound-footer.test.mjs`.
+- Tests: `tests/stock-apps.test.mjs`, `settings-helper-return.test.mjs`, `settings-other-page-tab.test.mjs`, `settings-other-p34-lower.test.mjs`, `settings-language-*.test.mjs`, `settings-data-lists-delivery.test.mjs`, `settings-sound-footer.test.mjs`.
 - Evidence: [navigation](../settings-ui-navigation.md), [source subpages](../native-settings-subpages.md), [parental notice](../settings-parental-pin-presentation.md), [helper return](../settings-transfer-update-return-validation.md).
 
 ### S-01 - Settings main and exit
@@ -50,13 +50,13 @@ Every acceptance scenario named below remains **fail/unaccepted as a whole**. Te
 
 **Flow:** Cameras and Circle Pad are read-only details. Transfer launches retained `system-transfer`; 3DS/DSi choices open local details, B returns to helper, then B restores page 3 and selection. The Circle Pad row does not invoke `extrapad`.
 
-**Status/next:** Transfer chrome/choices/return are source-backed; direct child launch is an adaptation and calibration bodies are generic. Latest page-3 pair is still **169 / 8** ([recapture](../settings-other-p34-recapture-2026-10-04.md)); the 169 is an unseedable `HudMset` previous-seconds gap ([note](../settings-hud-prev-seconds-2026-10-04.md)). Do not guess a colon/Bat snap. Capture `settings-transfer-choice-back` after a source-backed HUD epoch.
+**Status/next:** Transfer chrome/choices/return are source-backed; direct child launch is an adaptation and calibration bodies are generic. Latest page-3 pair is still **169 / 8** ([recapture](../settings-other-p34-recapture-2026-10-04.md)); the 169 is an unseedable `HudMset` previous-seconds gap ([note](../settings-hud-prev-seconds-2026-10-04.md)). The lower 8 are a labelled [Transfer **y** source gap](../settings-other-p34-lower-2026-10-04.md). Do not guess a colon/Bat snap, unused pane or 1/16 fit. Capture `settings-transfer-choice-back` after a source-backed HUD epoch.
 
 ### S-08 - Other page 4: Language, System Update, Format
 
 **Flow:** Language renders eight EUR rows in a four-row viewport with arrow/drag motion; rows/OK never change locale. Update launches source Cancel/OK: Cancel returns, OK is inert. Format is an informational leaf.
 
-**Status/next:** Language list and Update entry are source-backed. Latest page-4 pair is still **169 / 35** ([recapture](../settings-other-p34-recapture-2026-10-04.md)); the 169 is the same unseedable `HudMset` previous-seconds gap as page 3 ([note](../settings-hud-prev-seconds-2026-10-04.md)). Lower 35 are sparse label-edge AA. D-pad focus, held-arrow/groove behavior, confirmations and sequencing remain open; Format is an adaptation. Capture `settings-language-scroll-drag` after a source-backed HUD epoch.
+**Status/next:** Language list and Update entry are source-backed. Latest page-4 pair is still **169 / 35** ([recapture](../settings-other-p34-recapture-2026-10-04.md)); the 169 is the same unseedable `HudMset` previous-seconds gap as page 3 ([note](../settings-hud-prev-seconds-2026-10-04.md)). The lower 35 are a labelled [Language / Update / Format glyph-edge source gap](../settings-other-p34-lower-2026-10-04.md). D-pad focus, held-arrow/groove behavior, confirmations and sequencing remain open; Format is an adaptation. Capture `settings-language-scroll-drag` after a source-backed HUD epoch.
 
 ## Health and helper evidence
 

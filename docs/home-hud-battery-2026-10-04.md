@@ -44,7 +44,7 @@ Settings already used the same 4/5 map on cached seconds
 (`stock-settings-hud.ts`). HOME uses **current** `Date.getSeconds()`,
 matching the colon. That 4/5 map is sourced only for HOME and Settings.
 
-## eShop `0x36a7fc` (round 2)
+## eShop `0x36a7fc` (round 3)
 
 Title `0004001000022900` content `0000006b`. Capstone listings are in the
 private scratch (`36a7fc_update.asm`, `1e9aa8_signal.asm`,
@@ -62,9 +62,11 @@ private scratch (`36a7fc_update.asm`, `1e9aa8_signal.asm`,
 
 eShop `HudMenu_00` is a different atlas (`P_BatF_00`, `HudBat_00`/`01`,
 `HudBatLgt_00`, `HudBatPlg`). Posed Internet NetAtn map 0 is
-`HudNetAtnInt_00`. The welcome keeps the colon at the layout default
-(visible): the 1 Hz toggle is ctor-relative, not HOME seconds. Labelled
-strip adaptation.
+`HudNetAtnInt_00`. Until an eShop HUD elapsed owner exists, the welcome
+keeps the ctor flag: `colonVisible:true` and Bat frame 4 (`+0x43e!=0`).
+It does not call `deviceStatusBatteryFrame` or `Date.getSeconds()`, and
+`eshopHudClock` omits seconds so the pair cache does not republish Bat
+every second. Labelled strip adaptation, not HOME `0x27c6a8`.
 
 ## Zone `Hud_00_Charge_anim`
 
@@ -92,21 +94,26 @@ strip adaptation.
   not live `Date.getSeconds()` on every paint.
 - The HUD charging icon does not match the 3D console (no charger, no
   charging LED).
+- eShop welcome Bat is frozen at ctor frame 4 with a visible colon. Native
+  would blink 4/5 on the +0x410 tick; that elapsed owner is still missing.
 
 ## Tests
 
 `tests/home-hud-sample.test.mjs` pins colon/battery parity, the shared
 profile owner, capture-sample override, reduced-motion parity including
-the same-frame skip, Settings constructor / counter 2 / 1 / 0, and
-pose-level eShop/Zone textures from the shipped packs.
+the same-frame skip, Settings constructor / counter 2 / 1 / 0, eShop Bat
+frozen at ctor frame 4 (odd and even seconds equal), and pose-level
+eShop/Zone textures from the shipped packs.
 `scripts/verify-eshop-welcome.mjs` and `scripts/verify-native-services.mjs`
 assert those textures; the services verifier compiles
 `stock-screen-layout` / `camera-browse` so Zone runs.
+Settings verifiers compile `device-status-profile` before importing
+`stock-native-settings`.
 
 ## Remaining
 
 `+0xcc`, `0x32f144` / `+0xa9`, `+0xb0`, `+0xbb` and WhiteBlack 1/2 are
-unreplayed. eShop colon phase and `0x1e9b10` bit 1 have no profile field.
-WalkCoin fade, wallpaper, banner yaw and whole-scenario acceptance stay
-open. Matrix unchanged. Coordinator recapture owns preview 3021 and
-Azahar.
+unreplayed. eShop colon/Bat phase still lacks a ctor-relative elapsed
+owner; `0x1e9b10` bit 1 has no profile field. WalkCoin fade, wallpaper,
+banner yaw and whole-scenario acceptance stay open. Matrix unchanged.
+Coordinator recapture owns preview 3021 and Azahar.

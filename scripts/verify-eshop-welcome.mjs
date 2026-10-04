@@ -32,15 +32,15 @@ export async function verifyEshopWelcome(options){
   assert.ok(bg.layouts.info_U_00,'Common info_U_00 is the welcome status strip fill');
   assert.deepEqual([hudPack.animations.HudMenu_00_NetMode.frames,hudPack.animations.HudMenu_00_NetAtn.frames,hudPack.animations.HudMenu_00_Bat.frames],[5,10,7]);
   const top=createCanvas(400,240),bottom=createCanvas(320,240);
-  const hudDate=new Date(2026,8,24,7,44),oddHudDate=new Date(2026,8,24,7,44,1);
+  const hudDate=new Date(2026,8,24,7,44);
   const draw=(pass,reducedMotion=false,decided)=>{
    assert.equal(drawNativeServiceFrame(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view(pass,decided),{font,reducedMotion,date:hudDate}),true,JSON.stringify(assets.renderer.diagnostics));
    return {top:Buffer.from(top.getContext('2d').getImageData(0,0,400,240).data),bottom:Buffer.from(bottom.getContext('2d').getImageData(0,0,320,240).data)};
   };
   const pane=(items,name)=>{for(const item of items){const found=item.name===name?item:pane(item.children,name);if(found)return found;}};
-  const posedHudAt=date=>poseNativeLayout(hudPack.layouts.HudMenu_00,hudPack.animations,services.eshopHudBindings(date));
+  const posedHudAt=()=>poseNativeLayout(hudPack.layouts.HudMenu_00,hudPack.animations,services.eshopHudBindings());
   const hudMaps=(posed,name)=>posed.materials.find(m=>m.name===name).textureMaps.map(map=>posed.textures[map.texture]);
-  const posedHud=posedHudAt(hudDate),posedHudOdd=posedHudAt(oddHudDate);
+  const posedHud=posedHudAt(),posedHudOdd=posedHudAt();
   const posedInfo=poseNativeLayout(bg.layouts.info_U_00,bg.animations,[],{N_info_00:{visible:false}});
   const infoBg=pane(posedInfo.roots,'P_bg_01'),infoGroup=pane(posedInfo.roots,'N_info_00');
   const hudNet=pane(posedHud.roots,'P_NetAtn_00'),hudDatePane=pane(posedHud.roots,'T_Date_00');
@@ -49,8 +49,8 @@ export async function verifyEshopWelcome(options){
   assert.deepEqual([infoBg.size[0],infoBg.size[1],infoBg.translation[1]],[400,20,110]);
   assert.deepEqual(hudMaps(posedHudOdd,'P_NetAtn_00')[0],hudMaps(posedHud,'P_NetAtn_00')[0]);
   assert.equal(hudMaps(posedHud,'P_NetAtn_00')[0],'HudNetAtnInt_00.bclim','Internet 0x1e9aa8 stand-in on the eShop atlas');
-  assert.deepEqual(hudMaps(posedHudOdd,'P_BatF_00'),['HudBat_01.bclim','HudBatMask_00.bclim','HudBatLgt_00.bclim'],'charging Bat frame 4');
-  assert.deepEqual(hudMaps(posedHud,'P_BatF_00'),['HudBat_01.bclim','HudBatMask_00.bclim','HudBatPlg.bclim'],'charging Bat frame 5');
+  assert.deepEqual(hudMaps(posedHudOdd,'P_BatF_00'),['HudBat_01.bclim','HudBatMask_00.bclim','HudBatLgt_00.bclim'],'ctor +0x43e Bat frame 4');
+  assert.deepEqual(hudMaps(posedHud,'P_BatF_00'),hudMaps(posedHudOdd,'P_BatF_00'),'eShop Bat does not follow HOME seconds');
   assert.equal(hudNet.translation[1],120);
   assert.equal(hudDatePane.translation[1],120);
   const pose=(pass,decided)=>{const posed=poseNativeLayout(pack.layouts.welcome_U_00,pack.animations,eshopWelcomeBindings(pass,decided)),p=name=>pane(posed.roots,name);

@@ -88,22 +88,21 @@ test('Settings HUD sampler shares the 4/5 charging map on its cached seconds', (
 });
 
 test('eShop and Zone HUD bindings read the same declared profile', () => {
-  assert.deepEqual(services.eshopHudBindings(odd), [
+  const eshopHud = [
     {name:'HudMenu_00_NetMode', frame:0}, {name:'HudMenu_00_NetAtn', frame:3}, {name:'HudMenu_00_Bat', frame:4},
-  ]);
-  assert.deepEqual(services.eshopHudBindings(even), [
-    {name:'HudMenu_00_NetMode', frame:0}, {name:'HudMenu_00_NetAtn', frame:3}, {name:'HudMenu_00_Bat', frame:5},
-  ]);
+  ];
+  assert.deepEqual(services.eshopHudBindings(), eshopHud);
+  assert.deepEqual(services.eshopHudBindings(odd), eshopHud, 'eShop Bat ignores HOME seconds');
+  assert.deepEqual(services.eshopHudBindings(even), eshopHud);
   assert.deepEqual(services.zoneHudBindings(odd, 0), [
     {name:'Hud_00_Bar_Appear', frame:15}, {name:'Hud_00_Charge_anim', frame:0}, {name:'Hud_00_Signal', frame:3},
   ]);
   assert.deepEqual(services.zoneHudBindings(odd, 1000), [
     {name:'Hud_00_Bar_Appear', frame:15}, {name:'Hud_00_Charge_anim', frame:60}, {name:'Hud_00_Signal', frame:3},
   ]);
-  assert.deepEqual(services.eshopHudClock(even), {
-    year:2026, month:9, day:26, hour:4, minute:14, colonVisible:true, batteryFrame:5,
-  });
-  assert.equal(services.eshopHudClock(odd).colonVisible, true);
+  const eshopClock = {year:2026, month:9, day:26, hour:4, minute:14, colonVisible:true, batteryFrame:4};
+  assert.deepEqual(services.eshopHudClock(even), eshopClock);
+  assert.deepEqual(services.eshopHudClock(odd), eshopClock, 'seconds are omitted from the eShop pair key');
   assert.deepEqual(services.zoneClock(odd, 0), {hour:'04', minute:'14', frame:0, batteryFrame:0});
   assert.deepEqual(services.zoneClock(odd, 1000), {hour:'04', minute:'14', frame:60, batteryFrame:1});
 });
@@ -116,7 +115,7 @@ test('eShop and Zone shipped packs pose the charging Internet textures', () => {
   assert.equal(maps(eshopAt(odd), 'P_NetAtn_00')[0], 'HudNetAtnInt_00.bclim');
   assert.equal(maps(eshopAt(even), 'P_NetAtn_00')[0], 'HudNetAtnInt_00.bclim');
   assert.deepEqual(maps(eshopAt(odd), 'P_BatF_00'), ['HudBat_01.bclim', 'HudBatMask_00.bclim', 'HudBatLgt_00.bclim']);
-  assert.deepEqual(maps(eshopAt(even), 'P_BatF_00'), ['HudBat_01.bclim', 'HudBatMask_00.bclim', 'HudBatPlg.bclim']);
+  assert.deepEqual(maps(eshopAt(even), 'P_BatF_00'), ['HudBat_01.bclim', 'HudBatMask_00.bclim', 'HudBatLgt_00.bclim']);
   const zoneAt = elapsed => poseNativeLayout(zonePack.layouts.Hud_00, zonePack.animations, [
     ...services.zoneHudBindings(odd, elapsed), {name:'Hud_00_time_Blinking', frame:services.zoneClock(odd, elapsed).frame},
   ]);

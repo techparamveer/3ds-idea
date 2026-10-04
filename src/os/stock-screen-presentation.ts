@@ -320,6 +320,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const hud=capturedHud??(isSettingsClock?settingsHud:undefined);
       const hudDate=hud?new Date(hud.dateMs):date;
       const settingsPaintKey=view.appId==='system-settings'?[hudDate.getFullYear(),hudDate.getMonth(),hudDate.getDate(),hudDate.getHours(),hudDate.getMinutes(),hud?.batteryFrame,hud?.colonVisible]:null;
+      // eshopHudClock omits seconds; Bat 4 and colonVisible stay frozen.
       const eshopHudKey=eshop?eshopHudClock(date):null;
       const healthElapsed=typeof data.healthElapsedMs==='number'&&Number.isFinite(data.healthElapsedMs)?Math.max(0,data.healthElapsedMs):0;
       if(view.appId==='health-safety'&&healthEntry?.owner!==nextOwner)healthEntry={owner:nextOwner,origin:null,complete:false};

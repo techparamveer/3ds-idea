@@ -1,5 +1,5 @@
 import type { AppView } from './app-types';
-import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame } from './device-status-profile';
+import { REFERENCE_DEVICE_STATUS } from './device-status-profile';
 import { nativeMessageOverride, type AnimationBinding } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
@@ -40,30 +40,31 @@ export function zoneHudBindings(date:Date=new Date(),elapsedMs=0):AnimationBindi
 
 /** HUD update 0x36a7fc Internet branch (r7==2): lau_connect0, NetMode 0.
  * NetAtn frame is the 0x1e9aa8 `ldrb 0x1FF81066` stand-in (profile 3).
- * Charging `+0x438==5` writes Bat 4/5 on the +0x410 1000 ms toggle; the
- * declared charging profile selects that path (`0x1e9b10` bit1 is not a
- * profile field). Bind NetMode, NetAtn, then Bat. Appear is not started;
+ * Charging `+0x438==5` writes Bat 4 (`+0x43e!=0`) or 5 on the ctor-relative
+ * +0x410 1 Hz tick. Until an eShop HUD elapsed owner exists, bind Bat 4
+ * (ctor stores +0x43e=1) and do not follow HOME `0x27c6a8` seconds.
+ * Bind NetMode, NetAtn, then Bat. Appear is not started;
  * N_Scene_00 stays at its default alpha 255. */
-export function eshopHudBindings(date:Date=new Date()):AnimationBinding[]{
+export function eshopHudBindings():AnimationBinding[]{
   const status=REFERENCE_DEVICE_STATUS;
   return [
     {name:'HudMenu_00_NetMode',frame:status.netModeFrame},
     {name:'HudMenu_00_NetAtn',frame:status.netAtnFrame},
-    {name:'HudMenu_00_Bat',frame:deviceStatusBatteryFrame(status,date.getSeconds())},
+    {name:'HudMenu_00_Bat',frame:4},
   ];
 }
 const WEEKDAYS=['sun','mon','tue','wed','thu','fri','sat'] as const;
 /** Injected local clock for HudMenu_00 T_Date/T_Time. Colon stays at the
  * layout default: 0x36a7fc toggles T_TimeC_00 on a ctor-relative 1000 ms
- * timer (`+0x43e`, initial 1), not HOME `0x27c6a8` seconds. Battery 4/5 is
- * the charging state-5 adapter. Pair cache keys date fields plus Bat frame. */
+ * timer (`+0x43e`, initial 1), not HOME `0x27c6a8` seconds. Bat stays on
+ * that same ctor flag (frame 4) until an eShop HUD elapsed owner exists.
+ * Pair cache keys date fields plus that frozen Bat frame; seconds are omitted. */
 export function eshopHudClock(date:Date){
-  const seconds=date.getSeconds();
   return {
     year:date.getFullYear(),month:date.getMonth()+1,day:date.getDate(),
     hour:date.getHours(),minute:date.getMinutes(),
     colonVisible:true,
-    batteryFrame:deviceStatusBatteryFrame(REFERENCE_DEVICE_STATUS,seconds),
+    batteryFrame:4,
   };
 }
 
@@ -108,7 +109,7 @@ export function drawNativeServiceFrame(renderer:NativeLayoutRenderer,top:CanvasR
   })&&okay;
   okay=renderer.draw(top,'shop-background','info_U_00',{overrides:{N_info_00:{visible:false}}})&&okay;
   okay=renderer.draw(top,'shop-hud','HudMenu_00',{
-    bindings:eshopHudBindings(now),
+    bindings:eshopHudBindings(),
     overrides:{
       T_NetMode_00:hud(status.networkMessage,'Internet'),
       T_Date_00:dateText,

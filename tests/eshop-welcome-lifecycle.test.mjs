@@ -33,9 +33,11 @@ test('source passes replace in_00, balloonIn_00 and the looping wait_00 on one a
  assert.deepEqual(packs['shop-hud'],['HudMenu_00_NetMode','HudMenu_00_NetAtn','HudMenu_00_Bat']);
  assert.ok(services.eshopScreenPacks.find(p=>p.alias==='shop-background').layouts.includes('info_U_00'));
  const evenHud=new Date(2026,8,24,7,44,0),oddHud=new Date(2026,8,24,7,44,1);
- assert.deepEqual(services.eshopHudBindings(oddHud),[{name:'HudMenu_00_NetMode',frame:0},{name:'HudMenu_00_NetAtn',frame:3},{name:'HudMenu_00_Bat',frame:4}]);
- assert.deepEqual(services.eshopHudBindings(evenHud),[{name:'HudMenu_00_NetMode',frame:0},{name:'HudMenu_00_NetAtn',frame:3},{name:'HudMenu_00_Bat',frame:5}]);
- assert.deepEqual(services.eshopHudClock(evenHud),{year:2026,month:9,day:24,hour:7,minute:44,colonVisible:true,batteryFrame:5});
+ const eshopHud=[{name:'HudMenu_00_NetMode',frame:0},{name:'HudMenu_00_NetAtn',frame:3},{name:'HudMenu_00_Bat',frame:4}];
+ assert.deepEqual(services.eshopHudBindings(oddHud),eshopHud);
+ assert.deepEqual(services.eshopHudBindings(evenHud),eshopHud,'eShop Bat ignores HOME seconds');
+ assert.deepEqual(services.eshopHudClock(evenHud),{year:2026,month:9,day:24,hour:7,minute:44,colonVisible:true,batteryFrame:4});
+ assert.deepEqual(services.eshopHudClock(oddHud),services.eshopHudClock(evenHud));
 });
 
 test('the priority-1.0 BG curtain reveals over four passes and covers after out_00',()=>{
@@ -134,7 +136,7 @@ function fixture(options={}){
  globalThis.document={createElement:()=>{const canvas={width:0,height:0};canvas.getContext=()=>context(canvas);return canvas;}};
  globalThis.__eshopPaints=[];calls.length=0;
  const screen=createStockScreenPresentation(options),top=context({}),bottom=context({}),font={};
- const draw=(pass,decidedPass,owner='eshop:1')=>screen.draw(top,bottom,eshop(pass,decidedPass),owner,font,undefined,new Date(0),0);
+ const draw=(pass,decidedPass,owner='eshop:1',date=new Date(0))=>screen.draw(top,bottom,eshop(pass,decidedPass),owner,font,undefined,date,0);
  return {draw,paints:globalThis.__eshopPaints,async ready(){draw(0);await flush();calls.at(-1).resolve({renderer:{},diagnostics:[],dispose(){}});await flush();},dispose(){screen.dispose();globalThis.document=old;}};
 }
 
@@ -146,6 +148,17 @@ test('the stock pair repaints once per changed source pose',async()=>{
   f.draw(3);f.draw(4);assert.deepEqual(f.paints.map(p=>p.curtain),[0,3,null]);
   const count=f.paints.length;f.draw(88,20);f.draw(89,20);f.draw(89,20);
   assert.equal(f.paints.length,count+1,'the covered end pose does not repaint');
+ }finally{f.dispose();}
+});
+
+test('eShop pair cache ignores wall-clock seconds on Bat',async()=>{
+ const f=fixture(),odd=new Date(2026,8,24,7,44,1),even=new Date(2026,8,24,7,44,0);
+ try{
+  await f.ready();
+  f.draw(4,undefined,'eshop:1',odd);
+  const count=f.paints.length;
+  f.draw(4,undefined,'eshop:1',even);
+  assert.equal(f.paints.length,count,'frozen ctor Bat 4 does not republish on seconds');
  }finally{f.dispose();}
 });
 

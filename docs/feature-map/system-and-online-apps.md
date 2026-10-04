@@ -142,7 +142,7 @@ recovery. [Source and comparison limits](../home-camera-manual-footer-2026-10-03
 
 **Flow:** Search, Bookmarks, Add, Settings, Page Info and Enter URL. Search/URL show read-only input chrome; Add cannot write; Page Info shows saved URL. B returns to selected start item, then closes to caller.
 
-**Status/next:** Source chrome/local messages are implemented; input-dialog assembly is an adaptation because Software Keyboard is excluded. Obtain native start-menu pair `browser-start-menu-local` before corrections.
+**Status/next:** Source chrome/local messages are implemented; input-dialog assembly is an adaptation because Software Keyboard is excluded. Upper HUD now binds title-local `layout/sysinfo` SystemInfo + NetMode/NetAntenna/Calendar/Battery (converter 1.3.1; no `hud_LZ.bin` / `HudMenu_00` on this title). Painter no longer draws centred `lau_title_web` (native first-run/tutorial uppers are HUD-only). Reused `browser-start-menu-local` pair stays **95571** / **76728**; HUD `[0,0,400,28]` **10787** pre-bind. Recapture with `capture-browser.mjs`. See [Browser HUD](../browser-hud-2026-10-04.md).
 
 ### O-05 - Browser Settings and saved entries
 

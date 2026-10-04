@@ -250,10 +250,13 @@ def publish_additive(source_root, output, plan):
             if info.get(field) != source_title.get(field):
                 raise ValueError(f'Additive source title {field} differs: {title}')
         selected_layouts = []
+        content_namespaces = []
         for url, selection in requested['packs'].items():
             if url not in source['titles'][title]['packs']: raise ValueError('Unlisted source pack')
             data, record = original(url); pack = json.loads(data)
             if pack['titleId'] != title: raise ValueError('Pack title mismatch')
+            if 'contentIndex' in pack and 'contentId' in pack:
+                content_namespaces.append(f"contents/{pack['contentIndex']:04x}-{pack['contentId']}/")
             selected, fonts = select_pack(pack, selection)
             selected_layouts.extend(selected['layouts'].items())
             for name in fonts:
@@ -295,13 +298,18 @@ def publish_additive(source_root, output, plan):
                                'additive': True}
         if requested.get('fontBindings'):
             info.setdefault('fonts', {})
+            namespaces = list(dict.fromkeys(content_namespaces))
             for leaf, binding in requested['fontBindings'].items():
                 if binding not in manifest['fonts']: raise ValueError('Unknown shared font binding: '+binding)
                 target = manifest['fonts'][binding]
                 if existing.get(target, {}).get('kind') != 'font': raise ValueError('Unverified shared font binding: '+binding)
-                current = info['fonts'].get(leaf)
-                if current and current != target: raise ValueError('Conflicting font binding: '+leaf)
-                info['fonts'][leaf] = target
+                # Layouts keep the raw BCFNT leaf; title metadata namespaces
+                # content-owned fonts. Bind both so loadNativeTitleAssets can
+                # resolve contents/{index}-{id}/{leaf} without borrowing.
+                for key in (leaf, *(ns + leaf for ns in namespaces)):
+                    current = info['fonts'].get(key)
+                    if current and current != target: raise ValueError('Conflicting font binding: '+key)
+                    info['fonts'][key] = target
             info['uiSelection']['presentationFontBindings'] = copy.deepcopy(requested['fontBindings'])
         manifest['titles'][title] = info
         if title not in manifest['sources']:

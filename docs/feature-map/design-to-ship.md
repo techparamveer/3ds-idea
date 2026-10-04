@@ -404,7 +404,7 @@ These labels describe implementation, not native acceptance.
 | --- | --- | --- | --- |
 | O-01 | Preserve/finish | eShop welcome/wait/OK/exit exists; native HOME-launched entry state differs from direct launch evidence. Resolve actual entry/return before altering design. No store/purchase operation. | Services |
 | O-03 | Finish | Zone Search and Information currently collapse to one detail; split source-established offline outcomes and Back. | Services |
-| O-04, 05 | Preserve/finish | Local Browser start/settings/bookmarks/info exist; History state has no visible entry route. Add only source-established menu route; keyboard and remote browsing remain excluded. | Services |
+| O-04, 05 | Preserve/finish | Local Browser start/settings/bookmarks/info exist; History state has no visible entry route. Upper HUD now binds title-local sysinfo (no `HudMenu_00`). Add only source-established menu route; keyboard and remote browsing remain excluded. Recapture `browser-start-menu-local`. | Services |
 | O-06 | Gated body; preserve chrome | Miiverse toolbar/background/Back exist; empty local interior has no source-supported offline body. Do not invent a feed or composer. | Services |
 | O-02, 07 | Gated | mint and Miiverse-post lack real callers/native presentation. Registered IDs are not a mandate to invent screens. | Services |
 | P-WORK, P-PROJ | Preserve | Work entries/links/HackUK cross-launch; Side Projects entries/Renu pages and Visit. Only repair captured overflow, unreachable controls or return failures. | Portfolio |

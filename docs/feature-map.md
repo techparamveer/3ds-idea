@@ -38,6 +38,16 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+[Internet Browser upper HUD](browser-hud-2026-10-04.md), worker
+`codex/browser-hud-20261004`: title-local `layout/sysinfo` SystemInfo +
+NetMode/NetAntenna/Calendar/Battery (no `hud_LZ.bin` / `HudMenu_00` in
+this applet). Converter 1.3.1, `REFERENCE_DEVICE_STATUS` NetMode 0 /
+NetAtn 3 / Bat `deviceStatusBatteryFrame`, injected date, colon seconds
+parity. Painter no longer draws centred `lau_title_web`. Reused
+`browser-start-menu-local` pair stays **95571** / **76728**; HUD
+`[0,0,400,28]` **10787** is the pre-bind still. Offline LCD raster is
+unavailable here. After pixels await `capture-browser.mjs`. Not 1:1.
+
 [Camera Welcome page-3 TxtDlg host gate](camera-welcome-p3-txtdlg-2026-10-05.md),
 worker `codex/camera-welcome-p3-gate-20261005`: setter `0x1cdb2c` stores
 **0x111** for alignment 4 with every line alignment except 1 and 3. Shared

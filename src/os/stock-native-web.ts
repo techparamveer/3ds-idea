@@ -1,4 +1,5 @@
 import type { AppView } from './app-types';
+import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame, hudColonVisible } from './device-status-profile';
 import { nativeMessageOverride } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
@@ -34,8 +35,35 @@ export const browserScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:browserPrefix+'layout-start-dialog-StartDialog.json',alias:'web-menu',layouts:['StartDialog'],animations:['StartDialog_FadeIn']},
   ...browserButtons.map(([,name])=>({url:browserPrefix+'layout-start-dialog-'+name+'.json',alias:name,layouts:[name],animations:[name+'_FocusedOnOff']})),
   {url:browserPrefix+'layout-toolbar-ExitButton.json',alias:'web-exit',layouts:['ExitButton'],animations:['ExitButton_FocusedOnOff']},
+  {url:browserPrefix+'layout-sysinfo-SystemInfo.json',alias:'web-hud',layouts:['SystemInfo'],animations:[]},
+  {url:browserPrefix+'layout-sysinfo-NetMode.json',alias:'web-hud-netmode',layouts:['NetMode'],animations:['NetMode_NetMode']},
+  {url:browserPrefix+'layout-sysinfo-NetAntenna.json',alias:'web-hud-netatn',layouts:['NetAntenna'],animations:['NetAntenna_NetAtn']},
+  {url:browserPrefix+'layout-sysinfo-Battery.json',alias:'web-hud-battery',layouts:['Battery'],animations:['Battery_Bat']},
+  {url:browserPrefix+'layout-sysinfo-Calendar.json',alias:'web-hud-calendar',layouts:['Calendar'],animations:[]},
   {url:browserPrefix+'messages-and-loose.json',alias:'web-messages',layouts:[],animations:[]},
 ];
+const WEEKDAYS=['sun','mon','tue','wed','thu','fri','sat'] as const;
+/** SystemInfo is a 400×480 dual-screen canvas. Attachment cancel uses that
+ * parent size, so child 400×240 layouts pass this center rather than their
+ * own [200,120] default. */
+const BROWSER_HUD_CHILD_CENTER:[number,number]=[200,240];
+/** Same 4/5 charging map as HOME `0x27c6a8` / Notifications `0x181018`.
+ * Browser `Battery_Bat` puts `HudBatPlg` on even frame 5. Do not invert to
+ * Sound. There is no SceneIn clip: SystemInfo HUD panes default
+ * visible and the applet fade clip is not started. */
+export function browserHudBatteryFrame(date:Date):number{
+  return deviceStatusBatteryFrame(REFERENCE_DEVICE_STATUS,date.getSeconds());
+}
+/** Pair-cache identity. Seconds enter through `batteryFrame` and
+ * `colonVisible` so the 1 Hz Bat/colon blink republishes. */
+export function browserHudClock(date:Date){
+  return {
+    year:date.getFullYear(),month:date.getMonth()+1,day:date.getDate(),
+    hour:date.getHours(),minute:date.getMinutes(),
+    colonVisible:hudColonVisible(date.getSeconds()),
+    batteryFrame:browserHudBatteryFrame(date),
+  };
+}
 export const miiverseScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:miiversePrefix+'layout-BG.json',alias:'web-bg',layouts:['BG'],animations:[]},
   ...miiverseButtons.map(([,name])=>({url:miiversePrefix+'layout-toolbar-'+name+'.json',alias:name,layouts:[name],animations:[name+'_ActiveOnOff',name+'_FocusedOnOff']})),
@@ -62,7 +90,10 @@ export function drawNativeWebFrame(renderer:NativeLayoutRenderer,top:CanvasRende
     if(options.font)options.font.draw(ctx,value,x,y,size,'#585b59',align);
     else{ctx.fillStyle='#585b59';ctx.font=`${size}px sans-serif`;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillText(value,x,y);}
   };
-  text(top,message(browser?'lau_title_web':'lau_title_olive').text??view.heading,200,28,22);
+  // Native Browser first-run / tutorial / search-engine stills show only the
+  // sysinfo HUD over the backdrop. `lau_title_web` is a spider string, not a
+  // start-menu or first-run pane. Keep the Miiverse title adapter.
+  if(!browser)text(top,message('lau_title_olive').text??view.heading,200,28,22);
   if(browser){
     if(view.screen==='main'){
       const selected=view.rows[view.selection]?.id;
@@ -110,6 +141,33 @@ export function drawNativeWebFrame(renderer:NativeLayoutRenderer,top:CanvasRende
     // centers preserve their local geometry in the shared 64-pixel toolbar cells.
     miiverseButtons.forEach(([id,name],i)=>draw(bottom,name,name,{center:[32+i*64,226],bindings:[{name:name+'_ActiveOnOff',frame:active===id?1:0},{name:name+'_FocusedOnOff',frame:0}],overrides:{TextBox_00:{text:''}}}));
     draw(bottom,'web-back','OliveBack',{center:[288,226],bindings:[{name:'OliveBack_FocusedOnOff',frame:0}]});
+  }
+  if(browser){
+    const now=options.date??new Date(),status=REFERENCE_DEVICE_STATUS,clock=browserHudClock(now);
+    const hud=(label:string,fallback:string)=>{
+      const pack=renderer.packs['web-messages'],data=pack.messages.hud,value=data?.messages[data.labels[label]];
+      if(value?.styleIndex!==undefined&&value.styleIndex!==null&&(!data.styleTable||!pack.styles?.[data.styleTable]?.styles[value.styleIndex]))return {text:value.text??fallback};
+      return nativeMessageOverride(pack,'hud',label,fallback);
+    };
+    const day=hud(`day_${clock.day}`,String(clock.day).padStart(2,'0')).text??'';
+    const month=hud(`month_${clock.month}`,String(clock.month).padStart(2,'0')).text??'';
+    const weekday=hud(`week_${WEEKDAYS[now.getDay()]}`,'').text??'';
+    const dateText=hud('lau_date','%d/%M (%w)');
+    dateText.text=(dateText.text??'').replace('%d',day).replace('%M',month).replace('%w',weekday);
+    const child=(pack:string,layout:string,opts:Parameters<NativeLayoutRenderer['draw']>[3]={})=>()=>{
+      draw(top,pack,layout,{center:BROWSER_HUD_CHILD_CENTER,...opts});
+    };
+    draw(top,'web-hud','SystemInfo',{attachments:{
+      NetAtnPos:child('web-hud-netatn','NetAntenna',{bindings:[{name:'NetAntenna_NetAtn',frame:status.netAtnFrame}]}),
+      NetModePos:child('web-hud-netmode','NetMode',{bindings:[{name:'NetMode_NetMode',frame:status.netModeFrame}],overrides:{NetModeIntTxb:hud(status.networkMessage,'Internet')}}),
+      DatePos:child('web-hud-calendar','Calendar',{overrides:{
+        DateTxb:dateText,
+        TimeLTxb:{text:String(clock.hour).padStart(2,'0')},
+        TimeCTxb:{visible:clock.colonVisible},
+        TimeRTxb:{text:String(clock.minute).padStart(2,'0')},
+      }}),
+      ButPos:child('web-hud-battery','Battery',{bindings:[{name:'Battery_Bat',frame:clock.batteryFrame}]}),
+    }});
   }
   return okay;
 }

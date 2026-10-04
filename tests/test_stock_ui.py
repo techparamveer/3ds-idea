@@ -453,7 +453,10 @@ class StockUiTests(unittest.TestCase):
             result = publish_additive(source, output, plan)
             after = json.loads((output/'manifest.json').read_bytes())['titles'][SETTINGS]
             self.assertEqual(result['added'], [added_url])
-            self.assertEqual(after['fonts'], {'Hud.bcfnt': 'font.json'})
+            self.assertEqual(after['fonts'], {
+                'Hud.bcfnt': 'font.json',
+                'contents/0000-0000001a/Hud.bcfnt': 'font.json',
+            })
             self.assertEqual(after['uiSelection']['presentationFontBindings'], {'Hud.bcfnt': 'hud'})
 
 

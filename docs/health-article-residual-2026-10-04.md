@@ -1,8 +1,10 @@
 # Health article residual — 4 October 2026
 
-No runtime change. Worker checkout `1d432c1c` on
-`codex/health-article-residual-20261004`. This starts from the captured Health
-article stills, not from a guessed later scroll or General screen.
+No runtime change. Started from coordinator HEAD `1d432c1c` on
+`codex/health-article-residual-20261004`. Article-pixel replay is recorded
+from that commit; this follow-up only names the remaining cadence residual.
+This starts from the captured Health article stills, not from a guessed later
+scroll or General screen.
 
 Usage initial and Usage 8 px-scrolled already meet the two-LCD static pixel
 tier (0 / 0 pixels above 2/255, maximum delta 2). They are not unexplained
@@ -88,6 +90,41 @@ Capture-fitted adaptations already on these stills: Back
 TopLoop origin +18. Browser catch-up/cancellation remain labelled adaptations.
 Boundary/row-tick cues are unpublished.
 
+## Scroll cadence
+
+CONTINUE-CURSOR still listed article cadence as open. The only captured
+pair that still fails because of it is
+`health-usage-down1-retry-bdf5fc7`: **16,595 / 13,837** against the 8 px
+native `_26.09.26_04.55.28.03.png`. Native held/repeated mapped `g` (CUA
+`typeText` of 32 characters) moved **8 px**. One browser Down click moved
+**4 px**. Two clicks reach the native offset; that later pair is the 0 / 0
+static checkpoint above, not a matched-input pass.
+
+Source already fixes the step and the hold rate. Digital Down is **+4 px per
+accepted update**, delay **0**, interval **1**, and the press frame itself
+moves ([scroll audit](health-scroll-source-audit.md),
+[key audit](health-key-clip-consumer-audit.md),
+[live-scroll audit](health-live-scroll-source-audit.md)). At LCD
+`HEALTH_VBLANK_HZ` that is about **239 px/s** if the frame finishes inside
+one VBlank. Thirty-two native `g` edges would be 128 px if each were a new
+press; 8 px is two accepted updates, so the burst was a short hold, not 32
+steps.
+
+The browser model already matches that source:
+
+- one accessible or press/release-between-VBlank Down is one 4 px update
+- a held `button` Down keeps the key and advances 4 px on every VBlank
+- host `phase:'repeat'` at 420 ms / 150 ms is ignored
+
+Those contracts are in `tests/health-scroll.test.mjs` and
+`tests/stock-apps.test.mjs`. Widening a discrete click to 8 px would contradict
+the source and those tests. It would only hide the mismatched-input down1
+pair.
+
+No runtime cadence change is justified until both sides use the same held
+Down for a counted VBlank span. The 8 px still is an offset match, not that
+span.
+
 ## Remaining and recapture
 
 Captured Usage article pixels above 2: **0 / 0**. Remaining envelope is
@@ -95,16 +132,20 @@ maximum delta **2**, about 12.9k / 12.9k lower pixels at delta 1–2, plus
 unmatched held-key input, TopLoop half-cycle, motion, audio, 3D/General
 articles, first Usage warning, end scroll and Back return-focus.
 
-Coordinator recapture pair (empty mask, threshold 2):
+Coordinator recapture pairs (empty mask, threshold 2):
 
-- Native: `_26.09.26_04.55.28.03.png`
-- Browser: `health-usage-down2-frame8` at this HEAD, `paneY=8`,
-  `thumbY=76.7066650390625`, live Health frame 8 (frame 368 is the same upper
-  motif, not a recovered origin)
+1. Static 8 px Chrome check. Native `_26.09.26_04.55.28.03.png`. Browser
+   `health-usage-down2-frame8` at this HEAD, `paneY=8`,
+   `thumbY=76.7066650390625`, live Health frame 8 (frame 368 is the same
+   upper motif, not a recovered origin). Confirms production Chrome still
+   meets the 8 px static tier after later shared renderer edits.
+2. Cadence. Same-input held Down: native mapped `G` held (not `typeText`
+   versus clicks) and browser physical/keyboard Down held, then compare
+   `paneY` after a counted VBlank span. Do not recapture down1 as a glyph
+   residual.
 
-That pair confirms production Chrome still meets the 8 px static tier after
-later shared renderer edits. It does not open General, warnings or later
-scroll. The first **new** native article still, when storage allows, remains
+Neither pair opens General, warnings or later scroll. The first **new**
+native article still, when storage allows, remains
 `health-general-held-down-and-thumb-drag`. Do not treat the assigned entry
 menu PNGs as article residuals.
 

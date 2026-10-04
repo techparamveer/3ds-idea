@@ -60,7 +60,7 @@ assert.equal(drawNativeSystemFade(createCanvas(400,240).getContext('2d'),modifie
 writeFileSync(join(out,'fade-differential.json'),JSON.stringify({passed:true,frames:fadeChecks.length,fadeChecks},null,2)+'\n');
 const assets={renderer},results=[];
 const underlay=[0xdd,0xe5,0xed];
-for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['power',550,true],['shutdown',250,true],['shutdown',550,true],['shutdown',1199,true],['boot',0,false],['boot',2990,false],['launch',0,false],['launch',166,false],['launch',499,false],['launch',683,false],['launch',684,false],['launch',1134,false],['launch',1734,false],['launch',2433,false]]){
+for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['power',550,true],['shutdown',250,true],['shutdown',550,true],['shutdown',1199,true],['boot',0,false],['boot',2990,false],['launch',0,false],['launch',166,false],['launch',499,false],['launch',683,false],['launch',684,false],['launch',1134,false],['launch',1734,false],['launch',2700,false],['launch',3183,false]]){
  const top=createCanvas(400,240),bottom=createCanvas(320,240),t=top.getContext('2d'),b=bottom.getContext('2d');
  t.fillStyle=b.fillStyle='#dde5ed';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
  const state={system:{phase,since:0,sleeping:false,returnPhase:fromApp?'app':'home',input:{held:{},analog:{},touch:null}}};
@@ -74,7 +74,7 @@ for(const [phase,elapsed,fromApp]of [['power',0,false],['power',350,false],['pow
    assert.deepEqual([...pixel], [...underlay,255], id+' keeps HOME underlay at SceneOut frame 0');
   }
  }
- if((phase==='boot'&&elapsed===0)||(phase==='launch'&&(elapsed===683||elapsed===2433))||(phase==='shutdown'&&elapsed===1199)){
+ if((phase==='boot'&&elapsed===0)||(phase==='launch'&&(elapsed===683||elapsed===3183))||(phase==='shutdown'&&elapsed===1199)){
   for(const c of [top,bottom]){const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data;assert.ok(data.every((v,i)=>i%4===3?v===255:v===0),id+' ends opaque black');}
  }
 }

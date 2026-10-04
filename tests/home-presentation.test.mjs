@@ -161,7 +161,7 @@ test('Health and Camera HOME footers follow the selected title, not an unrelated
  const idle=selected(initial,'health-safety');
  assert.deepEqual(getHomeFooter(idle),{two:false,left:null,right:'open'});
  assert.equal(touchSystem(idle,50,226,4000).system.app,'health-safety','left of centered Open launches');
- const health=reduceSystem(tickSystem(launchHomeShortcut(initial,'health-safety',4000),6500),'home',6600);
+ const health=reduceSystem(tickSystem(launchHomeShortcut(initial,'health-safety',3310),6500),'home',6600);
  assert.deepEqual(getHomeFooter(health),{two:true,left:'close-software',right:'resume'});
  const camera=selected(health,'camera');
  assert.deepEqual(getHomeFooter(camera),{two:true,left:'manual',right:'open'});

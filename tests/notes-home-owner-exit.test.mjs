@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {createPortfolioState,tickSystem,invokeSystemApplet,reduceSystem,launch,getActiveAppView,setSystemSleeping} from '../src/os/system.ts';
 import {deliverCapabilityResult} from '../src/os/app-host.ts';
 
-const home=()=>tickSystem(createPortfolioState(),3500);
-const dismiss=state=>reduceSystem(reduceSystem(state,'home',7000),'home',7100);
+const home=()=>tickSystem(createPortfolioState(),3001);
+const dismiss=state=>reduceSystem(reduceSystem(state,'home',7300),'home',7400);
 
 test('HOME again dismisses suspended Notes to HOME and reopening creates a fresh owner',()=>{
  let state=invokeSystemApplet(home(),'game-notes',4100);
@@ -26,33 +26,33 @@ test('HOME again dismisses suspended Notes to HOME and reopening creates a fresh
 });
 
 test('dismissing Notes keeps its application caller suspended, available for a later HOME press',()=>{
- let state=tickSystem(launch(home(),'health-safety',3600),6100);
+ let state=tickSystem(launch(home(),'health-safety',3100),6400);
  const application=state.system.runtime.active,original=state.system.runtime.instances[application].state;
- state=invokeSystemApplet(state,'game-notes',6200);const notes=state.system.runtime.active;
+ state=invokeSystemApplet(state,'game-notes',6500);const notes=state.system.runtime.active;
  assert.equal(state.system.runtime.instances[notes].caller,application);
  state=dismiss(state);
  assert.equal(state.system.phase,'home');assert.equal(state.system.runtime.active,null);
  assert.equal(state.system.runtime.application,application);assert.equal(state.system.runtime.instances[application].suspended,true);
  assert.deepEqual(state.system.runtime.instances[application].state,original);
  assert.equal(state.system.runtime.instances[notes],undefined);assert.equal(state.system.runtime.homeReturn,application);
- state=reduceSystem(state,'home',7200);
+ state=reduceSystem(state,'home',7500);
  assert.equal(state.system.runtime.active,application);assert.equal(state.system.phase,'app');
  assert.equal(state.system.runtime.instances[notes],undefined);
 });
 
 test('Notes entered from HOME without a caller does not remove the suspended application',()=>{
- let state=tickSystem(launch(home(),'health-safety',3600),6100);
+ let state=tickSystem(launch(home(),'health-safety',3100),6400);
  const application=state.system.runtime.active;
- state=reduceSystem(state,'home',6150);state=invokeSystemApplet(state,'game-notes',6200);
+ state=reduceSystem(state,'home',6450);state=invokeSystemApplet(state,'game-notes',6500);
  const notes=state.system.runtime.active;assert.equal(state.system.runtime.instances[notes].caller,null);
  state=dismiss(state);
  assert.equal(state.system.runtime.application,application);assert.equal(state.system.runtime.instances[application].suspended,true);
  assert.equal(state.system.runtime.instances[notes],undefined);assert.equal(state.system.runtime.homeReturn,null);
- state=reduceSystem(state,'home',7200);assert.equal(state.system.runtime.active,application);
+ state=reduceSystem(state,'home',7500);assert.equal(state.system.runtime.active,application);
 });
 
 test('other system applets and applications retain their existing HOME resume behavior',()=>{
- for(const start of [state=>invokeSystemApplet(state,'friends',4100),state=>tickSystem(launch(state,'health-safety',3600),6100)]){
+ for(const start of [state=>invokeSystemApplet(state,'friends',4100),state=>tickSystem(launch(state,'health-safety',3100),6400)]){
   let state=start(home());const owner=state.system.runtime.active;assert.ok(owner);
   state=dismiss(state);assert.equal(state.system.phase,'app');assert.equal(state.system.runtime.active,owner);
   assert.equal(state.system.runtime.instances[owner].suspended,false);

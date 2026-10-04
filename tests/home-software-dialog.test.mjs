@@ -12,7 +12,7 @@ const packs=Object.fromEntries(['dialog','dialogmask','messages','sequence'].map
 const icons=[1,2].map(value=>({width:48,height:48,data:new Uint8ClampedArray(48*48*4).fill(value)}));
 const drawHomeSoftwareDialog=(r,t,b,s)=>paintDialog(r,t,b,s,s.system.dialog==='switch'?icons:[icons[0]]);
 const dialogCall=r=>r.calls.find(c=>c.name==='Dlg_A_D_02');
-function suspended(){return reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3700),6200),'home',6300);}
+function suspended(){return reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3010),6200),'home',6300);}
 const dialog=kind=>kind==='close'?reduceSystem(suspended(),'back',6400):launchHomeShortcut(suspended(),'about',6400);
 const renderer=(source=packs)=>({packs:source,diagnostics:[],calls:[],draw(ctx,pack,name,options){this.calls.push({ctx,pack,name,options});return true;}});
 
@@ -82,7 +82,7 @@ for(const kind of ['close','switch'])test(`${kind} uses original dialog/masks an
 });
 
 test('ordinary Camera close uses the decoded single-icon header at authored source geometry',()=>{
- const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3700),6200),'home',6300);
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3010),6200),'home',6300);
  const state=reduceSystem(camera,'back',6400),r=renderer(),before=JSON.stringify(packs),top={},bottom={};
  assert.deepEqual(homeSoftwareDialogTitles(state),['camera']);
  assert.equal(homeSoftwareDialogUsesUpperMask(homeSoftwareDialogTitles(state)),false);
@@ -103,7 +103,7 @@ test('ordinary Camera close uses the decoded single-icon header at authored sour
 });
 
 test('Camera close does not require the unused upper mask but still requires its lower mask',()=>{
- const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3700),6200),'home',6300);
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3010),6200),'home',6300);
  const state=reduceSystem(camera,'back',6400),withoutUpper=structuredClone(packs);
  delete withoutUpper.dialogmask.layouts.DlgMask_U_00;
  delete withoutUpper.dialogmask.animations.DlgMask_U_00_FadeIn;
@@ -126,7 +126,7 @@ test('native button highlight follows only its owned touch and clears in the gut
 });
 
 test('Health-to-Camera uses source no-warning body and ordered icon bindings',()=>{
- const health=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',3700),6200),'home',6300);
+ const health=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',3010),6200),'home',6300);
  const state=launchHomeShortcut(health,'camera',6400),r=renderer();
  assert.deepEqual(homeSoftwareSwitchTitles(state),['health-safety','camera']);
  assert.equal(homeSoftwareDialogUsesUpperMask(homeSoftwareSwitchTitles(state)),false);

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createPortfolioState,tickSystem,reduceSystem,launchHomeShortcut,touchSystem,dispatchSystemEvent,setSystemSleeping,sampleSystemHomeApplicationTransition} from '../src/os/system.ts';
 import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts';
 const home=()=>tickSystem(createPortfolioState(),3001);
-const suspended=(title='health-safety')=>reduceSystem(tickSystem(launchHomeShortcut(home(),title,4000),6500),'home',6600);
+const suspended=(title='health-safety')=>reduceSystem(tickSystem(launchHomeShortcut(home(),title,3310),6500),'home',6600);
 const closeActions={command:s=>reduceSystem(s,'back',6700),touch:s=>touchSystem(s,50,225,6700),physical:s=>dispatchSystemEvent(s,{type:'button',source:'physical:X',phase:'down',command:'x'},6700),keyboard:s=>dispatchSystemEvent(s,{type:'button',source:'keyboard:KeyX',phase:'down',command:'x'},6700)};
 const finish=(state,now=6700)=>{for(let i=0;i<8;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
@@ -17,9 +17,9 @@ for(const [name,close] of Object.entries(closeActions))test(`Health HOME ${name}
  assert.equal(closed.system.runtime.instances[owner],undefined);assert.equal(closed.system.input.touch,null);
  const releases=s=>s.system.runtime.effects.filter(e=>e.owner===owner&&e.effect.type==='release-capabilities');
  const count=releases(before).length+1;
- assert.equal(releases(closed).length,count);assert.equal(releases(reduceSystem(closed,'back',6800)).length,count);
+ assert.equal(releases(closed).length,count);assert.equal(releases(reduceSystem(closed,'back',14000)).length,count);
  assert.equal(before.system.runtime.instances[owner].appId,'health-safety');
- const reopened=tickSystem(launchHomeShortcut(closed,'health-safety',6600),9100);
+ const reopened=tickSystem(launchHomeShortcut(closed,'health-safety',14000),17200);
  assert.notEqual(reopened.system.runtime.application,owner);assert.equal(reopened.system.phase,'app');
 });
 

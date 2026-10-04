@@ -117,7 +117,7 @@ test('sleep, overlays and clock suspension freeze without changing the retained 
 test('app launch, suspension and return retain the HOME controller',()=>{
  const initial=at(home(),23),before=loop(initial),now=T+23*F;
  let state=launch(initial,'work',now);assert.equal(loop(state),before);assert.equal(getHomeCursorSlot(state),null);
- state=tickSystem(state,now+2500);assert.equal(state.system.phase,'app');assert.equal(loop(state),before);
+ state=tickSystem(state,now+3200);assert.equal(state.system.phase,'app');assert.equal(loop(state),before);
  state=reduceSystem(state,'home',10000);assert.equal(state.system.phase,'home');assert.equal(loop(state),before);
  state=tickSystem(state,10000);state=tickSystem(state,10000+F);assert.deepEqual(loop(state),advanceHomeCursorLoop(before,1,true));
  const resumed=reduceSystem(state,'home',10000+F);assert.equal(resumed.system.phase,'app');assert.equal(loop(resumed),loop(state));

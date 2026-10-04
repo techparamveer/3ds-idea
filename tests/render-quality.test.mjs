@@ -176,25 +176,25 @@ test('an overdue reduced boot also requires a fresh receipt after visibility or 
 
 test('launch terminal identity selects C14 and scopes it to the active app owner and context',()=>{
   const launch={phase:'launch',since:100,app:'health-safety',runtime:{application:'health-safety:1',active:'health-safety:1'}};
-  assert.equal(launchTerminalIdentity(launch,2516,false,4),null);
-  assert.deepEqual(launchTerminalIdentity(launch,2517,false,4),{
+  assert.equal(launchTerminalIdentity(launch,3016,false,4),null);
+  assert.deepEqual(launchTerminalIdentity(launch,3017,false,4),{
     since:100,app:'health-safety',owner:'health-safety:1',contextGeneration:4,
   });
-  assert.equal(launchTerminalDeadlineReached(launch,2533,false),false);
-  assert.equal(launchTerminalDeadlineReached(launch,2534,false),true);
+  assert.equal(launchTerminalDeadlineReached(launch,3283,false),false);
+  assert.equal(launchTerminalDeadlineReached(launch,3284,false),true);
   assert.deepEqual(launchTerminalIdentity(launch,100,true,4),{
     since:100,app:'health-safety',owner:'health-safety:1',contextGeneration:4,
   });
   assert.equal(launchTerminalDeadlineReached(launch,219,true),false);
   assert.equal(launchTerminalDeadlineReached(launch,220,true),true);
-  assert.equal(launchTerminalIdentity({...launch,phase:'app'},2534,false,4),null);
-  assert.equal(launchTerminalIdentity({...launch,app:null},2534,false,4),null);
-  assert.equal(launchTerminalIdentity({...launch,runtime:{application:null,active:'health-safety:1'}},2534,false,4),null);
-  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:null}},2534,false,4),null);
-  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:'health-safety:2'}},2534,false,4),null,
+  assert.equal(launchTerminalIdentity({...launch,phase:'app'},3284,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,app:null},3284,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,runtime:{application:null,active:'health-safety:1'}},3284,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:null}},3284,false,4),null);
+  assert.equal(launchTerminalIdentity({...launch,runtime:{application:'health-safety:1',active:'health-safety:2'}},3284,false,4),null,
     'an applet or stale active-only retarget cannot reuse the application receipt');
 
-  const identity=launchTerminalIdentity(launch,2533,false,4);
+  const identity=launchTerminalIdentity(launch,3283,false,4);
   assert.equal(sameLaunchTerminalIdentity(identity,{...identity}),true);
   assert.equal(sameLaunchTerminalIdentity(identity,{...identity,since:101}),false);
   assert.equal(sameLaunchTerminalIdentity(identity,{...identity,app:'camera'}),false);
@@ -205,7 +205,7 @@ test('launch terminal identity selects C14 and scopes it to the active app owner
 
 test('a stalled launch holds its deadline for one successful terminal publication callback',()=>{
   const launch={phase:'launch',since:100,app:'health-safety',runtime:{application:'health-safety:1',active:'health-safety:1'}};
-  const stalledNow=2634,contextGeneration=4;
+  const stalledNow=3384,contextGeneration=4;
   let presented=null;
   assert.equal(launchTerminalPublicationPending(launch,stalledNow,false,contextGeneration,presented),true,
     'the overdue callback must keep launch selected and force its paired C14 paint');

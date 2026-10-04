@@ -5,7 +5,7 @@ import {releaseUnreadyNativeInput,escapeUnreadyNativeScreen} from '../src/os/nat
 import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,reduceSystem,getActiveAppView} from '../src/os/system.ts';
 const button=(command,phase='down',source=command)=>({type:'button',command,phase,source});
 const touch=(phase,x=200,y=190,pointerId=1)=>({type:'touch',phase,x,y,pointerId});
-function settings(){return tickSystem(launch(tickSystem(createPortfolioState(),3001),'system-settings',3700),6200);}
+function settings(){return tickSystem(launch(tickSystem(createPortfolioState(),3001),'system-settings',3010),6200);}
 
 test('hidden touch, analog, action and hardware activation are blocked; escape and power remain available',()=>{
  const gate=createNativeScreenInputGate();
@@ -44,7 +44,7 @@ test('recovery escape during helper launch preserves caller and its exact Settin
 });
 
 test('HOME panel recovery blocks destructive input and escapes without resuming suspended software',()=>{
- let s=tickSystem(launch(tickSystem(createPortfolioState(),3001),'work',3700),6200);
+ let s=tickSystem(launch(tickSystem(createPortfolioState(),3001),'work',3010),6200);
  s=reduceSystem(s,'home',6300);
  s={...s,panel:'home-layouts',homeLayoutAction:'delete'};
  const runtime=s.system.runtime,gate=createNativeScreenInputGate();

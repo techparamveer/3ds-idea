@@ -2,15 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,reduceSystem,getActiveAppView,touchSystem} from '../src/os/system.ts';
 import {activeInstance,createAppRuntime,startApplication,startSettingsHelper,closeApplication,showRuntimeHome} from '../src/os/app-host.ts';
-const act=(state,id,now=6600)=>dispatchSystemEvent(state,{type:'action',id},now);
-function settings(){return tickSystem(launch(tickSystem(createPortfolioState(),3001),'system-settings',3700),6200);}
+const act=(state,id,now=6200)=>dispatchSystemEvent(state,{type:'action',id},now);
+function settings(){return tickSystem(launch(tickSystem(createPortfolioState(),3001),'system-settings',3010),6200);}
 function openHelper(action){
  let s=settings();
  if(action!=='nnid'){
   s=act(s,'other');for(let i=0;i<(action==='transfer'?2:3);i++)s=act(s,'settings-next');
  }
  const parent=s.system.runtime.application;
- s=act(s,action,6800);
+ s=act(s,action,6210);
  return {state:s,parent};
 }
 for(const [action,title,screen,page,selection]of [['nnid','nnid-settings','main',undefined,4],['transfer','system-transfer','other',2,2],['update','system-updater','other',3,1]])test(`${title} opens directly and Back restores its exact Settings page`,()=>{
@@ -69,9 +69,9 @@ for(const action of ['transfer','update'])for(const exit of ['touch','physical']
  assert.deepEqual(Object.keys(s.system.runtime.instances),[parent]);
  assert.equal(s.system.runtime.effects.some(item=>['storage','capability','music','invoke'].includes(item.effect.type)),false);
  // A opens the restored selection, then the opposite input can return again.
- s=reduceSystem(s,'open',10000);s=tickSystem(s,12500);
+ s=reduceSystem(s,'open',10000);s=tickSystem(s,13200);
  assert.equal(getActiveAppView(s).appId,action==='transfer'?'system-transfer':'system-updater');
- s=exit==='touch'?reduceSystem(s,'back',12600):touchSystem(s,1,209,12600);
+ s=exit==='touch'?reduceSystem(s,'back',13300):touchSystem(s,1,209,13300);
  assert.equal(s.system.runtime.active,parent);
  assert.deepEqual(s.system.runtime.instances[parent].state,preserved);
 });

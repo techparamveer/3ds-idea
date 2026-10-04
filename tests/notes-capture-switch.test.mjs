@@ -50,7 +50,7 @@ test('tapping the switch button cycles the display mode for the session without 
 
 test('a lower-LCD tap on the switch pane reaches Game Notes through the system, and a new launch resets to Double',()=>{
  let s=tickSystem(createPortfolioState(),3001);
- s=tickSystem(launch(s,'health-safety',3700),6200);assert.equal(s.system.phase,'app');
+ s=tickSystem(launch(s,'health-safety',3010),6200);assert.equal(s.system.phase,'app');
  s=reduceSystem(s,'home',6300);s=invokeSystemApplet(s,'game-notes',6400);
  const notes=()=>s.system.runtime.instances[s.system.runtime.active];
  assert.equal(notes().appId,'game-notes');

@@ -9,8 +9,8 @@ import { createPortfolioState, reduceSystem, tickSystem, touchSystem } from '../
 
 const titleSlot = id => Number(Object.entries(initialAppLayout()).find(([, title]) => title === id)[0]);
 const booted = () => tickSystem(createPortfolioState(), 3001);
-const runningWork = () => tickSystem(reduceSystem(booted(), 'open', 3500), 6000);
-const suspendedWork = () => reduceSystem(runningWork(), 'home', 6001);
+const runningWork = () => tickSystem(reduceSystem(booted(), 'open', 3001), 6300);
+const suspendedWork = () => reduceSystem(runningWork(), 'home', 6301);
 const selectTitle = (state, id) => settleHomeNavigation(selectHomeSlot(state, titleSlot(id)));
 const finishClose = (state, now) => {
   const closing = state.system.homeApplicationTransition.intent.kind === 'close';
@@ -21,8 +21,8 @@ const finishClose = (state, now) => {
   if (closing) {
     state = tickSystem(state, now + 4000);
     state = tickSystem(state, now + 5000);
-    state = tickSystem(state, now + 6000);
-    state = tickSystem(state, now + 7000);
+    state = tickSystem(state, now + 6300);
+    state = tickSystem(state, now + 7300);
   }
   return tickSystem(state, state.system.homeClock.lastNow + 1000 / 60);
 };
@@ -58,12 +58,12 @@ test('Work HOME suspension keeps one exact owner and exposes Resume for that sel
     assetPack: 'portfolio', titleId: undefined, icon: 'case',
   });
 
-  const suspended = reduceSystem(running, 'home', 6001);
+  const suspended = reduceSystem(running, 'home', 6301);
   assertSuspendedOwner(suspended, owner);
   assert.equal(suspended.selected, titleSlot('work'));
   assert.deepEqual(getHomeFooter(suspended), { two: true, left: 'close-software', right: 'resume' });
 
-  const resumed = reduceSystem(suspended, 'open', 6002);
+  const resumed = reduceSystem(suspended, 'open', 6302);
   assert.equal(resumed.system.phase, 'app');
   assert.equal(resumed.system.runtime.application, owner);
   assert.equal(resumed.system.runtime.active, owner);
@@ -77,13 +77,13 @@ test('Close software removes the suspended owner before no-software HOME regains
   const owner = suspended.system.runtime.homeReturn;
   assertSuspendedOwner(suspended, owner);
 
-  const dialog = touchSystem(suspended, 0, 226, 6002);
+  const dialog = touchSystem(suspended, 0, 226, 6302);
   assert.equal(dialog.system.dialog, 'close');
   assertSuspendedOwner(dialog, owner);
 
-  const closing = reduceSystem(dialog, 'open', 6003);
+  const closing = reduceSystem(dialog, 'open', 6303);
   assertSuspendedOwner(closing, owner);
-  const closed = finishClose(closing, 6003);
+  const closed = finishClose(closing, 6303);
   assert.equal(closed.system.phase, 'home');
   assert.equal(closed.system.app, null);
   assert.equal(closed.system.runtime.application, null);
@@ -92,7 +92,7 @@ test('Close software removes the suspended owner before no-software HOME regains
   assert.equal(closed.system.runtime.instances[owner], undefined);
   assert.deepEqual(getHomeFooter(closed), { two: false, left: null, right: 'open' });
 
-  const relaunched = reduceSystem(closed, 'open', 6004);
+  const relaunched = reduceSystem(closed, 'open', 6304);
   assert.equal(relaunched.system.phase, 'launch');
   assert.equal(relaunched.system.app, 'work');
   assert.notEqual(relaunched.system.runtime.application, owner, 'a closed owner cannot be reused');
@@ -104,45 +104,45 @@ test('switch cancel retains Work while switch confirmation retires it before the
   assertSuspendedOwner(suspended, workOwner);
   assert.deepEqual(getHomeFooter(suspended), { two: false, left: null, right: 'open' });
 
-  let switching = reduceSystem(suspended, 'open', 6002);
+  let switching = reduceSystem(suspended, 'open', 6302);
   assert.equal(switching.system.dialog, 'switch');
   assert.equal(switching.system.pending, 'about');
   assertSuspendedOwner(switching, workOwner);
 
-  const cancelled = reduceSystem(switching, 'back', 6003);
+  const cancelled = reduceSystem(switching, 'back', 6303);
   assert.equal(cancelled.system.dialog, null);
   assert.equal(cancelled.system.pending, null);
   assertSuspendedOwner(cancelled, workOwner);
   assert.deepEqual(getHomeFooter(cancelled), { two: false, left: null, right: 'open' });
 
-  switching = reduceSystem(cancelled, 'open', 6004);
-  const closing = reduceSystem(switching, 'open', 6005);
+  switching = reduceSystem(cancelled, 'open', 6304);
+  const closing = reduceSystem(switching, 'open', 6305);
   assertSuspendedOwner(closing, workOwner);
-  const launched = finishClose(closing, 6005);
+  const launched = finishClose(closing, 6305);
   const aboutOwner = launched.system.runtime.application;
   assert.equal(launched.system.phase, 'launch');
   assert.equal(launched.system.app, 'about');
   assert.equal(launched.system.runtime.instances[workOwner], undefined);
   assert.notEqual(aboutOwner, workOwner);
 
-  const settled = tickSystem(launched, launched.system.since + 2500);
-  const aboutHome = reduceSystem(settled, 'home', launched.system.since + 2501);
+  const settled = tickSystem(launched, launched.system.since + 3200);
+  const aboutHome = reduceSystem(settled, 'home', launched.system.since + 3201);
   assertSuspendedOwner(aboutHome, aboutOwner, 'about');
   assert.deepEqual(getHomeFooter(aboutHome), { two: true, left: 'close-software', right: 'resume' });
 });
 
 test('suspended Camera exposes Close, Manual and Resume while its Manual round trip preserves the owner', () => {
-  const running = tickSystem(reduceSystem(selectTitle(booted(), 'camera'), 'open', 3700), 6200);
-  const suspended = reduceSystem(running, 'home', 6201), owner = suspended.system.runtime.application;
+  const running = tickSystem(reduceSystem(selectTitle(booted(), 'camera'), 'open', 3010), 6500);
+  const suspended = reduceSystem(running, 'home', 6501), owner = suspended.system.runtime.application;
   assertSuspendedOwner(suspended, owner, 'camera');
   assert.deepEqual(getHomeFooter(suspended), { two: true, left: 'close-software', middle: 'manual', right: 'resume' });
 
-  const dialog = touchSystem(suspended, 50, 226, 6300);
+  const dialog = touchSystem(suspended, 50, 226, 6600);
   assert.equal(dialog.system.dialog, 'close');
   assert.deepEqual(getHomeFooter(dialog), { two: true, left: 'close-software', middle: 'manual', right: 'resume' }, 'close modal retains the source footer underlay');
   assertSuspendedOwner(dialog, owner, 'camera');
 
-  const manual = touchSystem(suspended, 160, 226, 6300), runtime = manual.system.runtime;
+  const manual = touchSystem(suspended, 160, 226, 6600), runtime = manual.system.runtime;
   assert.equal(manual.system.phase, 'app');
   assert.equal(runtime.instances[runtime.active].appId, 'manual');
   assert.equal(runtime.instances[runtime.active].state.manualTitleId, '0004001000022400');
@@ -151,21 +151,21 @@ test('suspended Camera exposes Close, Manual and Resume while its Manual round t
   assert.equal(runtime.instances[owner].appId, 'camera');
   assert.equal(runtime.instances[owner].suspended, true);
 
-  const returned = reduceSystem(manual, 'back', 6400);
+  const returned = reduceSystem(manual, 'back', 6700);
   assertSuspendedOwner(returned, owner, 'camera');
   assert.equal(Object.values(returned.system.runtime.instances).some(instance => instance.appId === 'manual'), false);
 
-  const recovered = escapeUnreadyNativeScreen(manual, 6400);
+  const recovered = escapeUnreadyNativeScreen(manual, 6700);
   assertSuspendedOwner(recovered, owner, 'camera');
   assert.equal(Object.values(recovered.system.runtime.instances).some(instance => instance.appId === 'manual'), false, 'missing Camera Manual recovery closes only the applet');
 });
 
 test('selected suspended Camera child keeps the same three-button actions inside a folder', () => {
-  const running = tickSystem(reduceSystem(selectTitle(booted(), 'camera'), 'open', 3700), 6200);
-  const suspended = reduceSystem(running, 'home', 6201), owner = suspended.system.runtime.application;
+  const running = tickSystem(reduceSystem(selectTitle(booted(), 'camera'), 'open', 3010), 6500);
+  const suspended = reduceSystem(running, 'home', 6501), owner = suspended.system.runtime.application;
   const folder = settleHomeNavigation(selectHomeSlot(enterHomeFolder({...suspended,folders:{20:'Camera'},system:{...suspended.system,folderLayouts:{...suspended.system.folderLayouts,20:{1:'camera'}}}},20),1));
   assert.deepEqual(getHomeFooter(folder), { two: true, left: 'close-software', middle: 'manual', right: 'resume' });
-  const manual = touchSystem(folder, 160, 226, 6300);
+  const manual = touchSystem(folder, 160, 226, 6600);
   assert.equal(manual.system.runtime.application, owner);
   assert.equal(manual.system.runtime.instances[manual.system.runtime.active].appId, 'manual');
   assert.equal(manual.opened, true, 'applet entry preserves the selected folder container for HOME return');

@@ -6,7 +6,7 @@ import {
 import {createPortfolioState,tickSystem,reduceSystem} from '../src/os/system.ts';
 import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts';
 
-const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3500),6000),'home',6001);
+const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3001),6300),'home',6301);
 const at=(state,update)=>({...state,system:{...state.system,homeClock:{...state.system.homeClock,updateCount:update}}});
 
 test('suspended Sleep phase is relative to the exact retained owner, not the global HOME modulo',()=>{
@@ -29,7 +29,7 @@ test('selection and modal changes preserve the owner phase and renderer-ineligib
  const toolbar=structuredClone(at(other,start+23));toolbar.system.homeNavigation.focus.toolbarActive=true;
  presentation=syncHomeSuspendedPresentation(presentation,toolbar);
  assert.equal(presentation.sleepFrame,23);
- const dialog=at(reduceSystem(state,'back',7000),start+29);
+ const dialog=at(reduceSystem(state,'back',7300),start+29);
  assert.equal(dialog.system.dialog,'close');
  presentation=syncHomeSuspendedPresentation(presentation,dialog);
  assert.equal(presentation.sleepFrame,29);

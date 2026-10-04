@@ -12,7 +12,7 @@ const selected=(state,id)=>settleHomeNavigation(selectHomeSlot(state,Number(Obje
 const down=(state,x,y)=>dispatchSystemEvent(state,{type:'touch',phase:'down',pointerId:7,x,y},4000);
 const gesture=state=>state.system.homeNavigation.gesture;
 const toolbar=(state,focus)=>{const nav=state.system.homeNavigation;return enableHomeControls(writeHomeNavigation(state,{...nav,focus:{...nav.focus,toolbarActive:true,currentFocus:focus}}));};
-const suspendedCamera=()=>reduceSystem(tickSystem(launchHomeShortcut(booted(),'camera',3700),6200),'home',6300);
+const suspendedCamera=()=>reduceSystem(tickSystem(launchHomeShortcut(booted(),'camera',3010),6200),'home',6300);
 const openedFolder=()=>{
  const state=booted(),child=state.system.layout[0];
  return settleHomeNavigation(selectHomeSlot(enterHomeFolder({...state,folders:{20:'A'},system:{...state.system,folderLayouts:{20:{2:child}}}},20),2));

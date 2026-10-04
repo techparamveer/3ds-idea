@@ -14,7 +14,7 @@ import {
 
 const titleSlot = id => Number(Object.entries(initialAppLayout()).find(([, title]) => title === id)[0]);
 const bootHome = () => tickSystem(createPortfolioState(), 3001);
-const settleLaunch = (state, id, now) => tickSystem(launch(state, id, now), now + 2500);
+const settleLaunch = (state, id, now) => tickSystem(launch(state, id, now), now + 3200);
 const act = (state, id, now) => dispatchSystemEvent(state, { type: 'action', id }, now);
 const finishClose = (state, now) => {
   const closing = state.system.homeApplicationTransition.intent.kind === 'close';
@@ -40,7 +40,7 @@ function assertOnlyOwner(state, owner, appId, { active, homeReturn, suspended })
 }
 
 test('life-close-cancel-confirm preserves suspended Work until confirmation and publishes no stale owner', () => {
-  let state = settleLaunch(bootHome(), 'work', 3700);
+  let state = settleLaunch(bootHome(), 'work', 3001);
   const owner = state.system.runtime.application;
   assert.ok(owner);
 
@@ -77,7 +77,7 @@ test('life-close-cancel-confirm preserves suspended Work until confirmation and 
 });
 
 test('life-switch-cancel-confirm keeps Work through cancel and creates About only after confirmation', () => {
-  let state = settleLaunch(bootHome(), 'work', 3700);
+  let state = settleLaunch(bootHome(), 'work', 3001);
   const workOwner = state.system.runtime.application;
   assert.ok(workOwner);
   state = reduceSystem(state, 'home', 6300);
@@ -123,7 +123,7 @@ test('life-switch-cancel-confirm keeps Work through cancel and creates About onl
   assert.equal(state.system.runtime.instances[workOwner], undefined);
   assertOnlyOwner(state, aboutOwner, 'about', { active: true, homeReturn: false, suspended: false });
 
-  state = tickSystem(state, state.system.since + 2500);
+  state = tickSystem(state, state.system.since + 3200);
   assert.equal(state.system.phase, 'app');
   assert.equal(getActiveAppView(state)?.appId, 'about');
   assertOnlyOwner(state, aboutOwner, 'about', { active: true, homeReturn: false, suspended: false });
@@ -134,7 +134,7 @@ test('life-helper-return restores exact Transfer and Update Settings focus witho
     { action: 'transfer', appId: 'system-transfer', page: 2, selection: 2 },
     { action: 'update', appId: 'system-updater', page: 3, selection: 1 },
   ]) {
-    let state = settleLaunch(bootHome(), 'system-settings', 3700);
+    let state = settleLaunch(bootHome(), 'system-settings', 3001);
     state = act(state, 'other', 6300);
     for (let page = 0; page < route.page; page += 1) state = act(state, 'settings-next', 6400 + page);
     const parent = state.system.runtime.application;
@@ -150,9 +150,9 @@ test('life-helper-return restores exact Transfer and Update Settings focus witho
     assert.equal(state.system.runtime.instances[child].appId, route.appId, route.action);
     assert.deepEqual(Object.keys(state.system.runtime.instances), [parent, child], route.action);
 
-    state = tickSystem(state, 9200);
+    state = tickSystem(state, 9900);
     assert.equal(getActiveAppView(state)?.appId, route.appId, route.action);
-    state = reduceSystem(state, 'back', 9300);
+    state = reduceSystem(state, 'back', 10000);
 
     const view = getActiveAppView(state);
     const restored = state.system.runtime.instances[parent];

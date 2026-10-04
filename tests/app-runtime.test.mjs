@@ -90,15 +90,15 @@ test('foreground modules receive raw press, release, repeat and analog without d
  const module=getAppModule('system-settings'),original=module.reduce,seen=[];
  module.reduce=(state,event,context)=>{seen.push(event);return original(state,event,context);};
  try{
-  let s=home();s={...s,selected:titleSlot('system-settings')};s=tickSystem(reduceSystem(s,'open',3700),6200);
-  s=dispatchSystemEvent(s,{type:'action',id:'other'},6200);
-  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'dpad'},6201);
-  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'keyboard'},6202);
+  let s=home();s={...s,selected:titleSlot('system-settings')};s=tickSystem(reduceSystem(s,'open',3010),6500);
+  s=dispatchSystemEvent(s,{type:'action',id:'other'},6500);
+  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'dpad'},6501);
+  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'down',source:'keyboard'},6502);
   assert.equal(getActiveAppView(s).selection,1);
-  s=tickSystem(s,6650);assert.equal(getActiveAppView(s).selection,2);
-  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'up',source:'dpad'},6651);
-  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'up',source:'keyboard'},6652);
-  s=dispatchSystemEvent(s,{type:'analog',source:'circle',x:.8,y:0},6700);
+  s=tickSystem(s,6950);assert.equal(getActiveAppView(s).selection,2);
+  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'up',source:'dpad'},6951);
+  s=dispatchSystemEvent(s,{type:'button',command:'down',phase:'up',source:'keyboard'},6952);
+  s=dispatchSystemEvent(s,{type:'analog',source:'circle',x:.8,y:0},7000);
   assert.deepEqual(seen.filter(e=>e.type==='button').map(e=>e.phase),['down','down','repeat','up','up']);
   assert.equal(seen.find(e=>e.type==='button'&&e.source==='keyboard').activate,false);
   assert.ok(seen.some(e=>e.type==='analog'&&e.x===.8));assert.equal(s.system.input.held.dpad,undefined);
@@ -194,8 +194,8 @@ test('effect acknowledgement consumes only specified effects',()=>{
  assert.ok(after.effects.every(e=>!ids.includes(e.id)));assert.ok(after.effects.some(e=>e.effect.type==='release-capabilities'));
 });
 test('system Settings touches navigate without editing the saved profile',()=>{
- let s={...home(),selected:titleSlot('system-settings')};s=tickSystem(reduceSystem(s,'open',3500),6000);
- s=dispatchSystemEvent(s,{type:'action',id:'other'},6001);s=dispatchSystemEvent(s,{type:'action',id:'profile'},6002);s=dispatchSystemEvent(s,{type:'action',id:'nickname'},6003);
- s=dispatchSystemEvent(s,{type:'text',value:'Changed'},6004);s=dispatchSystemEvent(s,{type:'action',id:'submit'},6005);
+ let s={...home(),selected:titleSlot('system-settings')};s=tickSystem(reduceSystem(s,'open',3001),6300);
+ s=dispatchSystemEvent(s,{type:'action',id:'other'},6301);s=dispatchSystemEvent(s,{type:'action',id:'profile'},6302);s=dispatchSystemEvent(s,{type:'action',id:'nickname'},6303);
+ s=dispatchSystemEvent(s,{type:'text',value:'Changed'},6304);s=dispatchSystemEvent(s,{type:'action',id:'submit'},6305);
  assert.equal(getActiveAppView(s).appId,'system-settings');assert.equal(s.system.runtime.shared.settings.nickname,'Player');assert.equal(s.system.runtime.libraryApplet,null);
 });

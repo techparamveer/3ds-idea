@@ -48,7 +48,7 @@ test('C-NOT grid/drawing/Back keeps the selected slot while suspended pixels sta
 
   const capture = createSuspendedApplicationCapture({ createSurface });
   let system = tickSystem(createPortfolioState(), 3001);
-  system = tickSystem(launch(system, 'health-safety', 3700), 6200);
+  system = tickSystem(launch(system, 'health-safety', 3010), 6200);
   const application = system.system.runtime.application;
   assert.ok(application);
   assert.equal(capture.record(system.system.runtime, application, frame(400, 240, 10), frame(320, 240, 20)), true);

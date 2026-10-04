@@ -10,7 +10,7 @@ import {poseNativeLayout,nativePaneParentPath} from '../src/os/native-layout.ts'
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
 const packs=Object.fromEntries(['launcher','messages'].map(key=>[key,JSON.parse(readFileSync(new URL(manifest.home[key],root)))]));
-const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3500),6000),'home',6001);
+const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3001),6300),'home',6301);
 const metadata=()=>({description:'Health and Safety Information',icon:{width:64,height:64,data:new Uint8ClampedArray(64*64*4)}});
 const finishClose=(state,now)=>{for(let i=0;i<6;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
@@ -96,16 +96,16 @@ test('close disappearance uses the delivered endpoint and fails explicitly when 
 test('expanded window follows the selected suspended instance, never a live, applet or retired owner',()=>{
  const state=suspended(),owner=state.system.runtime.application;
  assert.equal(selectedSuspendedApplication(state).id,owner);
- assert.equal(selectedSuspendedApplication(reduceSystem(state,'home',6100)),null);
+ assert.equal(selectedSuspendedApplication(reduceSystem(state,'home',6400)),null);
  assert.equal(selectedSuspendedApplication(settleHomeNavigation(selectHomeSlot(state,1))),null);
  assert.equal(retainedSuspendedApplication(settleHomeNavigation(selectHomeSlot(state,1))).id,owner);
  for(const change of [s=>s.system.sleeping=true,s=>s.system.preferences=true,s=>s.panel='settings',s=>s.system.runtime.active='other',s=>s.system.runtime.homeReturn=null,s=>s.system.runtime.instances[owner].closing=true,s=>s.system.homeNavigation.focus.toolbarActive=true]){
   const copy=structuredClone(state);change(copy);assert.equal(selectedSuspendedApplication(copy),null);assert.equal(retainedSuspendedApplication(copy),null);
  }
- const dialog=reduceSystem(state,'back',6200);
+ const dialog=reduceSystem(state,'back',6500);
  assert.equal(dialog.system.dialog,'close');assert.equal(selectedSuspendedApplication(dialog).id,owner);
- const closing=reduceSystem(dialog,'open',6300);assert.equal(selectedSuspendedApplication(closing).id,owner);
- assert.equal(selectedSuspendedApplication(finishClose(closing,6300)),null);
+ const closing=reduceSystem(dialog,'open',6600);assert.equal(selectedSuspendedApplication(closing).id,owner);
+ assert.equal(selectedSuspendedApplication(finishClose(closing,6600)),null);
 });
 
 test('source compact pose retains the small masked icon and HOME glyph without title or expanded frame',()=>{
@@ -125,10 +125,10 @@ test('source compact pose retains the small masked icon and HOME glyph without t
 
 test('unready window can escape to the retained app or cancel an overlaid dialog without closing it',()=>{
  const state=suspended(),owner=state.system.runtime.application;
- assert.equal(releaseUnreadyNativeInput(state,'ready',6100),state);
- const escaped=escapeUnreadyNativeScreen(state,6200);
+ assert.equal(releaseUnreadyNativeInput(state,'ready',6400),state);
+ const escaped=escapeUnreadyNativeScreen(state,6500);
  assert.equal(escaped.system.phase,'app');assert.equal(escaped.system.runtime.active,owner);
- const escapedDialog=escapeUnreadyNativeScreen(reduceSystem(state,'back',6200),6300);
+ const escapedDialog=escapeUnreadyNativeScreen(reduceSystem(state,'back',6500),6600);
  assert.equal(escapedDialog.system.dialog,null);assert.equal(escapedDialog.system.runtime.application,owner);
 });
 

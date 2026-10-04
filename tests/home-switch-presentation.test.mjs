@@ -6,7 +6,7 @@ import {createHomeBannerHost,crossHomeBannerBoundary,getHomeBannerHostView} from
 
 function switching(){
  const home=enableHomeControls(tickSystem(createPortfolioState(),3001));
- const health=reduceSystem(tickSystem(launchHomeShortcut(home,'health-safety',4000),6500),'home',6600);
+ const health=reduceSystem(tickSystem(launchHomeShortcut(home,'health-safety',3310),6500),'home',6600);
  return launchHomeShortcut(health,'camera',6700);
 }
 

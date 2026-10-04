@@ -5,7 +5,7 @@ import {SOFTWARE_DIALOG_BUTTONS,softwareDialogActionAt,softwareDialogPressed} fr
 
 function suspended(){
  let state=tickSystem(createPortfolioState(),3001);
- state=tickSystem(reduceSystem(state,'open',3700),6200);
+ state=tickSystem(reduceSystem(state,'open',3010),6200);
  return reduceSystem(state,'home',6300);
 }
 const dialog=kind=>kind==='close'?reduceSystem(suspended(),'back',6400):launchHomeShortcut(suspended(),'about',6400);

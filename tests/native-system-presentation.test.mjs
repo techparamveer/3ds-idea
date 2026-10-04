@@ -59,7 +59,7 @@ test('launch fades HOME to SceneOut black before any logo layer, without erasing
   'NintendoLogo_U_00_SceneOutB','NintendoLogo_D_00_SceneOutB',
  ]);
  assert.deepEqual(mid.draws.map(d=>d.frame),[20,20,0,0]);
- const end=overlay(2184);
+ const end=overlay(2684);
  assert.ok(end.draws.slice(2).every(d=>d.clip.endsWith('SceneOutC')&&d.frame===0));
  const reduced=overlay(0,true);
  assert.deepEqual(reduced.draws.map(d=>({clip:d.clip,frame:d.frame})),[
@@ -93,13 +93,13 @@ test('launch without the logo pack keeps the 20-frame HOME SceneOut fallback',()
  assert.equal(start.draws[0].frame,0);
  assert.equal(overlay(166,false,{common:{}}).draws[0].frame,0,'the fallback fade waits for the Open Decide');
  assert.equal(overlay(317,false,{common:{}}).draws[0].frame,9);
- const terminal=overlay(2433,false,{common:{}});
+ const terminal=overlay(3183,false,{common:{}});
  assert.equal(terminal.ok,true);
  assert.ok(terminal.draws.every(draw=>draw.bank==='common'&&draw.frame===20));
 });
 
 test('one failed launch layer rejects the whole paired terminal publication',()=>{
- const result=overlay(2433,false,{launch:{},common:{}},'launch','home',null,'NintendoLogo_D_00');
+ const result=overlay(3183,false,{launch:{},common:{}},'launch','home',null,'NintendoLogo_D_00');
  assert.equal(result.ok,false);
  assert.deepEqual(result.draws.map(draw=>draw.name),[
   'CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00','NintendoLogo_U_00','NintendoLogo_D_00',

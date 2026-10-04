@@ -97,13 +97,13 @@ function fakeSurfaces(){
 }
 const appFrame=seed=>({upper:frame(400,240,seed),lower:frame(320,240,seed)});
 const record=(capture,s,owner,pair)=>capture.record(s.system.runtime,owner,pair.upper,pair.lower);
-const openHealth=(s,now)=>tickSystem(launch(s,'health-safety',now),now+2500);
+const openHealth=(s,now)=>tickSystem(launch(s,'health-safety',now),now+3200);
 const finishClose=(state,now)=>{for(let i=0;i<8;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
 
 test('HOME borrows the upright frozen upper surface without readback and cannot show a retired capture',()=>{
  const surfaces=fakeSurfaces(),capture=createSuspendedApplicationCapture({createSurface:surfaces.createSurface}),draws=[];
  const target={drawImage(...args){draws.push(args);}};
- let s=openHealth(tickSystem(createPortfolioState(),3001),4000);
+ let s=openHealth(tickSystem(createPortfolioState(),3001),3001);
  record(capture,s,s.system.runtime.active,appFrame(1));
  assert.equal(capture.drawUpper(s.system.runtime,target),false);
  s=reduceSystem(s,'home',6300);
@@ -122,7 +122,7 @@ test('capture ownership follows the application instance through HOME, applets, 
  const surfaces=fakeSurfaces(),capture=createSuspendedApplicationCapture({createSurface:surfaces.createSurface});
  let s=tickSystem(createPortfolioState(),3001);
  assert.deepEqual(capture.read(s.system.runtime),{status:'none'});
- s=openHealth(s,4000);assert.equal(s.system.phase,'app');
+ s=openHealth(s,3001);assert.equal(s.system.phase,'app');
  const health=s.system.runtime.active;assert.equal(s.system.runtime.application,health);
  const first=appFrame(1);
  assert.equal(record(capture,s,'health-safety:999',first),false,'another owner cannot record');
@@ -152,7 +152,7 @@ test('capture ownership follows the application instance through HOME, applets, 
 
 test('a resumed application replaces its frame, and a new instance never sees an old one',()=>{
  const surfaces=fakeSurfaces(),capture=createSuspendedApplicationCapture({createSurface:surfaces.createSurface});
- let s=openHealth(tickSystem(createPortfolioState(),3001),4000);const health=s.system.runtime.active;
+ let s=openHealth(tickSystem(createPortfolioState(),3001),3001);const health=s.system.runtime.active;
  record(capture,s,health,appFrame(1));
  s=reduceSystem(s,'home',6300);const first=capture.read(s.system.runtime);
  s=reduceSystem(s,'home',6400);assert.equal(s.system.phase,'app');assert.equal(s.system.runtime.active,health);
@@ -166,14 +166,14 @@ test('a resumed application replaces its frame, and a new instance never sees an
  s=reduceSystem(s,'home',9300);
  assert.deepEqual(capture.read(s.system.runtime),{status:'missing',owner:relaunched},'missing pixels are distinct from no suspended software');
  capture.dispose();assert.deepEqual(capture.read(s.system.runtime),{status:'none'});
- assert.equal(record(capture,openHealth(tickSystem(createPortfolioState(),3001),4000),'health-safety:1',appFrame(5)),false,'a disposed capture never records');
+ assert.equal(record(capture,openHealth(tickSystem(createPortfolioState(),3001),3001),'health-safety:1',appFrame(5)),false,'a disposed capture never records');
 });
 
 
 test('Notes HOME dismissal retains only the application-owned capture and parent closure frees it',()=>{
  for(const fromHome of [false,true]){
   const surfaces=fakeSurfaces(),capture=createSuspendedApplicationCapture({createSurface:surfaces.createSurface});
-  let s=openHealth(tickSystem(createPortfolioState(),3001),4000);const application=s.system.runtime.active;
+  let s=openHealth(tickSystem(createPortfolioState(),3001),3001);const application=s.system.runtime.active;
   assert.equal(record(capture,s,application,appFrame(1)),true);
   if(fromHome)s=reduceSystem(s,'home',6300);
   s=invokeSystemApplet(s,'game-notes',6400);const notes=s.system.runtime.active;

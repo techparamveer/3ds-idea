@@ -31,7 +31,7 @@ const createFolder = (state, slot, label) => renameFolder(reduceMenu({ ...select
 
 function healthCloseAtFooterExitStart() {
   const home = tickSystem(createPortfolioState(), 3001);
-  const launched = tickSystem(launchHomeShortcut(home, 'health-safety', 3700), 6200);
+  const launched = tickSystem(launchHomeShortcut(home, 'health-safety', 3010), 6200);
   const suspended = reduceSystem(launched, 'home', 6300);
   let state = reduceSystem(suspended, 'back', 6400), before = suspended;
   for (let i = 0; i < 8 && state.system.homeApplicationTransition?.phase !== 'footer-exiting'; i += 1) {

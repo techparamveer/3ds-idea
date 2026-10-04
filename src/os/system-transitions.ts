@@ -1,7 +1,7 @@
 /** Browser presentation clock. Source clips provide poses; hardware boot latency
  * and native scheduling are not inferred from these elapsed-time durations. */
-/** Launch is 146 nominal 60Hz frames: see `appLaunchPose`. */
-export const SYSTEM_TRANSITIONS={boot:3000,launch:146*1000/60,shutdown:1200} as const;
+/** Launch is 191 nominal 60Hz frames: see `appLaunchPose`. */
+export const SYSTEM_TRANSITIONS={boot:3000,launch:191*1000/60,shutdown:1200} as const;
 export function systemTransitionDuration(phase:string,reduced=false):number{
  if(phase==='boot')return reduced?300:SYSTEM_TRANSITIONS.boot;
  if(phase==='launch')return reduced?120:SYSTEM_TRANSITIONS.launch;
@@ -66,22 +66,30 @@ export const LAUNCH_FADE_START_MS=10*LAUNCH_FRAME_MS;
  * logo pose 0 about 10.7 frames after fade pose 20). */
 const LAUNCH_LOGO_START_MS=31*LAUNCH_FRAME_MS;
 
-/** NintendoLogo SceneOutA/B/C (60/30/15) from the start of the logo stage.
- * 105 source frames at nominal 60Hz are 1750ms; not measured title-load latency. */
+/** Native loops the 30-frame SceneOutB while the title loads. The Health
+ * capture shows two complete B passes between A and C (N052..N092), so the
+ * browser plays two; the count is a fitted adaptation of Azahar's load wait. */
+const LAUNCH_LOGO_B_PASSES=2;
+const LAUNCH_LOGO_C_START=60+30*LAUNCH_LOGO_B_PASSES;
+
+/** NintendoLogo SceneOutA (60), looping SceneOutB and SceneOutC (15) from the
+ * start of the logo stage; C14 is black and holds until the deadline. */
 export function appLaunchLogoFrame(logoElapsedMs:number,reduced=false):AppLaunchLogoPose{
  if(reduced)return {clip:'B',frame:15};
  const frame=Math.floor(Math.max(0,logoElapsedMs)*60/1000+1e-9);
  if(frame<60)return {clip:'A',frame};
- if(frame<90)return {clip:'B',frame:frame-60};
- return {clip:'C',frame:Math.min(14,frame-90)};
+ if(frame<LAUNCH_LOGO_C_START)return {clip:'B',frame:(frame-60)%30};
+ return {clip:'C',frame:Math.min(14,frame-LAUNCH_LOGO_C_START)};
 }
 
 /** Native captures fade HOME to exact black before the first logo pixel. After
  * the Open Decide stage, the paired `CmnFadeNinLogo_*_SceneOut` fade (21
- * poses) runs and holds black; the complete logo clips then play over its
- * terminal black: 10 + 31 + 105 frames. The decide hold and black dwell are
- * fitted to Azahar's frame grid, not traced dispatch, so the browser clock
- * remains an adaptation. Reduced motion keeps terminal black under the
+ * poses) runs and holds black; the logo clips then play over its terminal
+ * black, and C14's black holds sixteen frames before the application (native
+ * N101/N102..N111, 15.3-17.7 frames on the 5% playback grid): 10 + 31 +
+ * (60 + 60 + 15) + 15 = 191 frames. The decide hold, black dwell, B passes
+ * and C14 hold are fitted to Azahar's frame grid, not traced dispatch, so the
+ * browser clock remains an adaptation. Reduced motion keeps terminal black under the
  * existing B15 logo endpoint. */
 export function appLaunchPose(elapsedMs:number,reduced=false):AppLaunchPose{
  if(reduced)return {fadeFrame:LAUNCH_FADE_LAST_FRAME,logo:appLaunchLogoFrame(0,true)};

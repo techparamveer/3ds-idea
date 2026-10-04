@@ -58,8 +58,12 @@ on SSD at audio/public-before-cues-v8, and both unused music WAVs were removed
 from public delivery. Complete input-to-native-sound event mapping remains a
 separate check; asset identity does not prove trigger timing.
 
-The current v9 delivery adds native invalid-movement and toolbar-selection
-cues, retains all ten preceding WAVs unchanged and totals1,263,078 bytes.
+The v9 delivery added native invalid-movement and toolbar-selection
+cues, retaining all ten preceding WAVs unchanged (1,263,078 bytes).
+Converter v10 adds `open-effect` (`SE_CTR_HOME_START_EFFECT`, `0x0100001f`)
+and keeps the other twelve WAVs byte-identical; see
+[launch START_EFFECT](home-launch-start-effect-2026-10-04.md) for its
+source trigger and fitted browser epoch.
 See [navigation cue validation](native-navigation-cues.md) for reproduction,
 browser decoding and the remaining event-routing/capture checks.
 

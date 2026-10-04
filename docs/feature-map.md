@@ -15,7 +15,11 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME entry banner release](home-entry-banner-release-2026-10-04.md), `458606cb`,
+Latest [HOME launch START_EFFECT cue](home-launch-start-effect-2026-10-04.md), `3d90106d`,
+delivers the source-traced second launch cue (`0x0100001f`) at launch fade
+pose 0 (adaptation). Next: native stop30 music fade at launch preparation.
+
+Earlier [HOME entry banner release](home-entry-banner-release-2026-10-04.md), `458606cb`,
 releases the post-boot banner worker on a presented footer frame 10 so the
 banner activates with the footer terminal, as on native.
 

@@ -16,18 +16,19 @@ new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
 Latest [HOME 1-row remaining upper 190](home-upper-190-2026-10-04.md),
-worker `3ds-home-upper-190-20261004` from fidelity `f983d480`: after the
-matching Right walk, upper stays **190**. Regions start 25 at
-`[71,150,4,10]`, then 16/15/10. Already-bound outer green/yellow
-`mt_pict` edges plus three `mt_spanner` pixels. No unused Texture1/2.
-Docs and tests only. Not 1:1.
+`883fc20d` from worker `87dac2c5`: after the matching Right walk, upper
+stays **190**. Regions start 25 at `[71,150,4,10]`, then 16/15/10.
+Already-bound outer green/yellow `mt_pict` edges plus three `mt_spanner`
+pixels. No unused Texture1/2. Docs and tests only. Coordinator APPROVE
+pending independent review. Not 1:1.
 
 Earlier [HOME 1-row neighbour peeks](home-neighbor-peeks-2026-10-04.md),
 `36c66188` from worker `35b2fe96`: right 2,220 and left 561+391+145 are
 ordinary About / Camera peeks under already-bound `LncArw_00` Appear 15.
 Native neighbours stay excluded Activity Log / Download Play. No unused
-peek compositor. Docs and tests only. Coordinator APPROVE pending
-independent review. Not 1:1.
+peek compositor. Docs and tests only. Independent review **APPROVE**
+(Appear 15 already live; slots 6/10 stay About/Camera; no invented
+excluded-title art). Not 1:1.
 
 Earlier [HOME 1-row Settings+cursor cluster](home-settings-cursor-2026-10-04.md),
 `0536c4ac` from worker `d2e5d1d6`: the 1,656-pixel masked leftover
@@ -110,7 +111,8 @@ Remaining lower: labelled
 [About / Camera peeks](home-neighbor-peeks-2026-10-04.md) (2,220 / 561+391+145),
 the [1,656-pixel Settings+cursor halo](home-settings-cursor-2026-10-04.md), and the
 [162-pixel News receive lamp](home-toolbar-icon-2026-10-04.md) (not the house).
-Remaining upper: 190 `mt_pict` edges.
+Remaining upper: labelled [190 `mt_pict` / wrench-edge source gap](home-upper-190-2026-10-04.md).
+Remaining unnamed lower on the masked pair is footer `[0,204,320,36]` **164** (Manual / Open edges) plus 1-pixel Settings-tile strips.
 
 Earlier [HOME Settings yaw re-search](home-settings-yaw-research-2026-10-04.md), `dde43424`:
 frozen yaw 304 / COMMON 303 / Loop 338 / cursor 37 gives 190 upper pixels

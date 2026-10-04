@@ -19,7 +19,8 @@ Browser peeks are portfolio About | in-scope Camera. Neighbour faces stay
 labelled portfolio adaptations. No unique unused peek/arrow compositor bind
 was found.
 
-Evidence: source-identified and tested. Not browser-inspected here. Not
+Evidence: source-identified and tested. Independent review **APPROVE** of
+fidelity `36c66188` / `f983d480`. Not browser-inspected here. Not
 native-compared here. Not 1:1.
 
 ## Pair

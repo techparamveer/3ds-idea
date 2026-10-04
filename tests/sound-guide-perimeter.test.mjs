@@ -142,7 +142,7 @@ test('dump unused dialog clips do not write a veil or hide the idle guide card',
   assert.equal(zeroBtn.some(pane=>pane.kind==='pic1'), false);
   for(const name of [...unusedPublishedClips, ...unusedDumpClips]){
     const clip=full.animations[name];
-    assert.equal(clip.tracks.some(track=>track.property==='visible'), false, name);
+    assert.equal(clip.tracks.some(track=>track.property==='visible'||track.property==='alpha'), false, name);
     assert.equal(clip.tracks.some(track=>track.target==='RootPane'||track.target==='ChAWdwL'||track.target==='TxtDlg'), false, name);
   }
   for(const name of unusedDumpClips){

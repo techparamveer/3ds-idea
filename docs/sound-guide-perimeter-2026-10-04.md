@@ -65,8 +65,8 @@ than 2.
 | Official largest component | `{x:0,y:0,width:320,height:240}` | **3955** | — | `report.screens.lower.regions[0]`; not the 6072 complement |
 | Empty-entry whole lower | 320×240 | 16021 | — | not this guide |
 
-The four non-overlapping bands sum to **6,072**. Interior `(160,10)` is
-exact `(211,231,174)` on both LCDs. Exposed background at `(315,40)` is
+The four non-overlapping bands sum to **6,072**. Card chrome at `(160,10)`
+(top band, outside the guide interior) is exact `(211,231,174)` on both LCDs. Exposed background at `(315,40)` is
 native `(45,56,78)` versus browser `(89,114,156)`; at `(160,239)` it is
 `(24,54,107)` versus `(49,109,209)`. Those remain observations, not a
 verified blend or 0.5 alpha.

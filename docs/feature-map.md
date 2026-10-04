@@ -24,8 +24,9 @@ first-run lower whole stays **6,267**; guide interior `[20,20,300,220]`
 `C_DlgGuid2Btn`, `C_DlgGuid1BtnW_Push`, `C_DlgGuid_U`, `C_NullDlg` IO
 clips, `C_DlgChB`, `C_DlgU` and `C_DlgHed` write no veil and do not
 uniquely own the perimeter. Labelled guide compositor/veil source gap.
-Painter unchanged. Docs and tests only. Coordinator APPROVE pending
-independent review. Not recaptured. Not 1:1.
+Painter unchanged. Docs and tests only. Independent review
+**APPROVE-WITH-NITS** (no `src/`; tests 4/4; independent recount
+6267 / 195 / 6072 matches). Not recaptured. Not 1:1.
 
 Previous [Sound empty-entry row 1916](sound-empty-row-2026-10-04.md),
 `ee4af066` from worker `6c8289b`:

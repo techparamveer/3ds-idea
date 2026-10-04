@@ -94,6 +94,19 @@
       "volume": 64,
       "player": 67108868
     },
+    "SE_CTR_HOME_START_EFFECT": {
+      "flags": "0x80020107",
+      "values": {
+        "0": 31,
+        "1": 0,
+        "2": 64,
+        "8": 48,
+        "17": 0,
+        "31": 0
+      },
+      "volume": 72,
+      "player": 67108868
+    },
     "SE_CTR_HOME_ICON_TOUCH": {
       "flags": "0x80020107",
       "values": {

@@ -217,7 +217,7 @@ class CaptureDspTests(unittest.TestCase):
 class RendererInterfaceTests(unittest.TestCase):
     def test_cue_delivery_defaults_and_explicit_music_diagnostics(self):
         from render_firmware_audio import cue_names
-        expected = ['select', 'open', 'back', 'home', 'power', 'touch', 'grab', 'drop', 'folder-open', 'folder-close', 'scroll-invalid', 'toolbar-select']
+        expected = ['select', 'open', 'open-effect', 'back', 'home', 'power', 'touch', 'grab', 'drop', 'folder-open', 'folder-close', 'scroll-invalid', 'toolbar-select']
         self.assertEqual(cue_names(), expected)
         self.assertEqual(cue_names(['home', 'select']), ['home', 'select'])
         self.assertEqual(cue_names(pack='diagnostic'), ['music', 'music-resume', *expected])
@@ -263,11 +263,12 @@ class RendererInterfaceTests(unittest.TestCase):
                 'select': ('SE_CTR_HOME_ICON_SELECT', 0x0100002c, 960, '79cce738dbe8e64e5b86a626c238c31ff97c1ccae9ea576592329d8612e22c9c'),
                 'scroll-invalid': ('SE_CTR_HOME_ICON_SCROLL_INVALID', 0x0100002e, 480, '13f0cfdb4668344e749551da58aebde97d48ba72c4f620d437d06353e60c2a94'),
                 'toolbar-select': ('SE_CTR_HOME_SELECT', 0x0100003f, 960, '9865661874de768ec6f0a07ac26f3cf66b8f250d98d6936fcb972be8ea6671fa'),
+                'open-effect': ('SE_CTR_HOME_START_EFFECT', 0x0100001f, 134560, 'abbd327d7ba09a328aa51f35542bccbad0920553258bb44a7bdef955f7b1ba89'),
             }
             result = render(Path(source), root / 'output', Path(os.environ['HOME_AUDIO_RENDERER']),
                             record, list(expected), scratch=scratch_root())
             self.assertEqual(result['pack'], 'cues')
-            self.assertEqual(result['converter']['version'], 9)
+            self.assertEqual(result['converter']['version'], 10)
             self.assertEqual(set(result['cues']), set(expected))
             for name, identity in expected.items():
                 with self.subTest(cue=name):
@@ -277,7 +278,7 @@ class RendererInterfaceTests(unittest.TestCase):
                     self.assertEqual((cue['loopStart'], cue['loopEnd']), (None, None))
                     self.assertEqual(cue['unappliedCommands'], {})
             self.assertEqual(sorted(p.name for p in (root / 'output').iterdir()),
-                             ['audio.json', 'scroll-invalid.wav', 'select.wav', 'toolbar-select.wav'])
+                             ['audio.json', 'open-effect.wav', 'scroll-invalid.wav', 'select.wav', 'toolbar-select.wav'])
             self.assertEqual(json.loads((root / 'output/audio.json').read_text()), result)
 
     def test_api_rejects_alternate_rates_before_reading_or_writing(self):
@@ -646,7 +647,7 @@ class SequencerTests(unittest.TestCase):
         archive = CtrArchive(data, [], 'test')
         names = list(PROFILE['soundOptions'])
         metadata, waves = validate_archive(archive, names)
-        self.assertEqual(len(metadata), 14)
+        self.assertEqual(len(metadata), 15)
         self.assertEqual(len(waves), 33)
         with self.assertRaisesRegex(ValueError, 'allowlisted'):
             validate_archive(archive, ['UNKNOWN'])

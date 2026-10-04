@@ -14,8 +14,8 @@
   "sourceSha256": "1017eb4a367cb202ac6018fb432b5654222487149d16242fa7d1f205e63f3eb2",
   "converter": {
     "name": "render_firmware_audio",
-    "version": 9,
-    "sha256": "9d7a43e9f8500073b345a0d9110479ad908910179a761b5ea8c7e306663696c9"
+    "version": 10,
+    "sha256": "c05d2647c801c92a745aecd97e35b1a798619a317ef7353e827898b8c38cd2de"
   },
   "renderer": {
     "name": "DualRip",
@@ -24,7 +24,7 @@
   },
   "profile": {
     "id": "eur-home-24576-stereo-startup-v8",
-    "profileSha256": "22da63262ee9b68cae7fa0541a4a6334101c48fc6e76901eb44bea531b4d65fd",
+    "profileSha256": "8bf5089213e10e5772983caa0c83cdad2bc0df3334032c58a7d1df757f774e2f",
     "patchSha256": "f46df7fa9324b3166f3a8cd2be4619cb3e306e3e7669e710ddcb0af0384a3ed0",
     "adapterSha256": "7d702c9e5315188a54ccad71360412d0b45ca69b448171ae7c11770c8c287c5d",
     "mathSha256": "2a315f888178687192f2292dc9b4cf386ee4e65ba8dd1e4db2c73eab4348e50f",
@@ -405,6 +405,55 @@
       },
       "handledProfileCommands": {
         "init_pan": 9
+      },
+      "unappliedCommands": {}
+    },
+    "open-effect": {
+      "name": "SE_CTR_HOME_START_EFFECT",
+      "index": 31,
+      "archiveId": 16777247,
+      "kind": "sequence",
+      "url": "open-effect.wav",
+      "sha256": "abbd327d7ba09a328aa51f35542bccbad0920553258bb44a7bdef955f7b1ba89",
+      "size": 538284,
+      "sampleRate": 32728,
+      "channels": 2,
+      "samples": 134560,
+      "loopStart": null,
+      "loopEnd": null,
+      "sourceVolume": 72,
+      "banks": [
+        {
+          "id": 0,
+          "waveArchives": [
+            2
+          ]
+        },
+        {
+          "id": 2,
+          "waveArchives": [
+            4
+          ]
+        }
+      ],
+      "sourceOptions": {
+        "flags": "0x80020107",
+        "values": {
+          "0": 31,
+          "1": 0,
+          "2": 64,
+          "8": 48,
+          "17": 0,
+          "31": 0
+        },
+        "volume": 72,
+        "player": 67108868,
+        "panMode": 0,
+        "panCurve": 0
+      },
+      "handledProfileCommands": {
+        "span_stereo_no_effect": 2,
+        "init_pan": 6
       },
       "unappliedCommands": {}
     },

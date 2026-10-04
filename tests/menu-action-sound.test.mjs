@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getMenuActionSound } from '../src/os/menu-action-sound.ts';
+import { getMenuActionSound, launchStartEffectDue } from '../src/os/menu-action-sound.ts';
+import { LAUNCH_FADE_START_MS } from '../src/os/system-transitions.ts';
 import { createPortfolioState, tickSystem, tickHomeNavigationClock, reduceSystem } from '../src/os/system.ts';
 import { reduceMenu } from '../src/os/state.ts';
 import { moveHomeItem } from '../src/os/home-layout.ts';
@@ -26,4 +27,10 @@ test('occupied and vacant folder child moves emit the native icon-selection cue;
  let state=moveHomeItem(opened(),{folder:null,slot:0},{folder:40,slot:1});
  for(const command of ['right','right','left']){const next=reduceSystem(state,command,T);assert.equal(getMenuActionSound(state,next,command),'select');state=next;}
  const left=reduceSystem(reduceSystem(state,'left',T),'left',T);assert.equal(getMenuActionSound(left,reduceSystem(left,'left',T),'left'),undefined);
+});
+test('launch START_EFFECT is due with fade pose 0, or at once for reduced launches',()=>{
+ assert.equal(LAUNCH_FADE_START_MS,10*F);
+ assert.equal(launchStartEffectDue(0),false);assert.equal(launchStartEffectDue(9*F),false);
+ assert.equal(launchStartEffectDue(10*F),true);assert.equal(launchStartEffectDue(40*F),true);
+ assert.equal(launchStartEffectDue(0,true),true);
 });

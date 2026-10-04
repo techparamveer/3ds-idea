@@ -38,8 +38,9 @@ native PNG is `(40,240,320,240)`.
 
 Inspected the lower contact sheet. Native and browser both paint the
 same five compact balloons, information badges, unread lamps and
-`× Close`. Remaining red on Close is glyph coverage (browser over-inks
-the already-bound `new_back` string). Remaining list red is title-glyph
+`× Close`. Remaining red on Close is a mixed glyph-coverage fringe on the same
+already-bound `new_back` string (351 shared / 29 native-only / 25
+browser-only ink pixels), not a different string. Remaining list red is title-glyph
 AA on rows 2–5, not a missing balloon, icon or lamp. The right-hand
 groove is the labelled scrollbar leftover.
 
@@ -59,9 +60,11 @@ Recorded empty-mask counts over 2/255:
 
 `meanRgbError` 0.9509765625. Footer **577** = glyph **521** + seam **56**.
 Body **820** + scrollbar **2479** + footer **577** = whole **3876**.
-Official Close starts at `report.screens.lower.regions[3]` **91**
-`{x:148,y:216,width:11,height:17}`. Official list-body starts at
-`regions[13]` **19** `{x:75,y:57,width:9,height:4}`.
+Official Close clusters are `report.screens.lower.regions[3]` **91**
+`{x:148,y:216,width:11,height:17}` (the **C**), `[8]/[11]/[12]` (the ×)
+and `[7]/[6]/[4]/[5]` (`l/o/s/e`). Official list body is many
+title-AA clusters, the first being `regions[13]` **19**
+`{x:75,y:57,width:9,height:4}`.
 
 ## Already-bound source (no unique delivered owner)
 
@@ -111,7 +114,7 @@ BCLAN. Published unused Close clips:
 - `NewsTopBtn_D_00_SceneOut` (SHA-256
   `ed3796e890627ee50895fe7dc69c0e54c3a9850fa99f8f0b3f478bb9a44af420`)
   fades `P_Btn_00` alpha 255→0 and slides y −120→−148.
-- `new_close` / `new_close_big` are plain `Close` without the B glyph.
+- `new_close` / `new_close_big` are plain `Close` without the U+E071 ×-in-square glyph.
   `new_close` literals sit at `0x177b0c` / `0x177b30`, away from the
   list `T_End*` path. Binding them would drop ``.
 

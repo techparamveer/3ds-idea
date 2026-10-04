@@ -39,11 +39,11 @@ the wrench while wallpaper keeps walking. Adjacent refine scores jump from
 1,795 (306) to 7,741 (307) to 1,473 (310) for that reason. Frame 310 is the
 next capture candidate, not a proven native epoch and not a live default.
 
-Do not adopt 310 as `INITIAL_YAW`. Re-search yaw only after Settings HOME
-can freeze `BannerBG_Loop` without selecting Health.
+Do not adopt 310 as `INITIAL_YAW`. The follow-up
+[wallpaper freeze](home-settings-wallpaper-frame-2026-10-04.md) adds that
+Settings seam and re-searches Loop at this yaw.
 
 ## Remaining
 
-Frozen wallpaper/BannerBG sampling on Settings HOME, WalkCoin fade, portfolio
-tiles, motion and audio remain open. Whole-scenario 1:1 still fails. Matrix
-unchanged. No Azahar launch.
+WalkCoin fade, portfolio tiles, motion and audio remain open. Whole-scenario
+1:1 still fails. Matrix unchanged. No Azahar launch.

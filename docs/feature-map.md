@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME Settings yaw re-search](home-settings-yaw-research-2026-10-04.md), `dde43424`:
+Latest [HOME 1-row viewport route](home-row-viewport-2026-10-04.md): walking Right
+from 1-row origin to Settings (native Activity Log | Download Play |
+Settings, both out-of-scope neighbours) gives 190 upper / 12,000 lower, and
+5,426 lower with the two portfolio neighbour faces masked. No runtime change.
+Remaining lower: edge peeks (portfolio placement), cursor-37 halo, toolbar
+HOME icon (162).
+
+Earlier [HOME Settings yaw re-search](home-settings-yaw-research-2026-10-04.md), `dde43424`:
 frozen yaw 304 / COMMON 303 / Loop 338 / cursor 37 gives 190 upper pixels
 (HUD, title and wallpaper 0). The yaw-310 source-gap notes are superseded.
 The lower residual is the 1-row viewport position and neighbour identities

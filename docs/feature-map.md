@@ -23,7 +23,8 @@ Latest [Camera Welcome page 1 1,401](camera-welcome-p1-1401-2026-10-04.md),
 Guide interior `[20,20,300,220]` is 0. Shoot underlay / `P_Shoot_D` /
 modal black-alpha128 already bind. No unique unused Default / `C_BkMask`
 / second CGFX projection owner. Painter unchanged. Docs and tests only.
-Coordinator APPROVE pending independent review. HOME 1-row leftovers stay
+Independent review **APPROVE** (no `src/`; tests 3/3; Disable already
+bound; Default/`C_BkMask` do not own the 1,401). HOME 1-row leftovers stay
 labelled and are not reopened. Not recaptured. Not 1:1.
 
 Earlier [HOME 1-row after-walk footer 30](home-footer-edges-2026-10-04.md),

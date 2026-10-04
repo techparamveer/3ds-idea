@@ -9,7 +9,8 @@ projection. Capture stays inert. The already-bound shoot underlay /
 ([underlay note](camera-shoot-underlay-2026-10-04.md)). HOME 1-row
 leftovers stay labelled and are not reopened.
 
-This is not a 1:1 claim. Tests and this note do not close pixels, input,
+This is not a 1:1 claim. Independent review **APPROVE** of fidelity
+`c07e7de9` / worker `adf0cf88`. Tests and this note do not close pixels, input,
 motion or audio. Coordinator recapture remains the acceptance gate.
 
 ## Pair (reused, not recaptured)

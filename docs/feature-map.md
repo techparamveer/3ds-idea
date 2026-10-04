@@ -15,7 +15,11 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME launch Open Decide and dwells](home-launch-decide-dwell-2026-10-04.md),
+Latest [HOME launch logo wait and C fade](home-launch-logo-wait-2026-10-04.md), `9376f3c9`,
+plays native's second SceneOutB pass, keeps B beneath C's fade and holds
+C14 before the app (fitted adaptations).
+
+Earlier [HOME launch Open Decide and dwells](home-launch-decide-dwell-2026-10-04.md),
 `7a44bff9`, plays the source Open Decide on intact HOME and fits the Decide5
 hold and black dwell to Azahar's frame grid (adaptations). Open tone/audio,
 input hold timing are the next launch residuals; mobile and reduced were recaptured.

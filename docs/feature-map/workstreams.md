@@ -1,5 +1,12 @@
 # Workstream Registry
 
+## HOME Launch Logo Wait - 4 October 2026
+
+Claude Code coordinator owns `3ds-home-launch-logo-wait-20261004` /
+`codex/home-launch-logo-wait-20261004` (`84b71867`, `16ddf4bc`), integrated
+as `7eeb7565`, `9376f3c9`.
+[Delivered correction and remaining gaps](../home-launch-logo-wait-2026-10-04.md).
+
 ## HOME Launch Open Decide And Dwells - 4 October 2026
 
 Claude Code coordinator owns `3ds-home-launch-open-decide-20261004` /

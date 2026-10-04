@@ -15,7 +15,21 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Sound empty-entry footer 4707](sound-empty-footer-2026-10-04.md),
+Latest [Sound empty-entry row 1916](sound-empty-row-2026-10-04.md),
+worker on `codex/sound-empty-row-20261004` from HOME fidelity `50c53746`:
+reused HudTime-phase empty-entry lower keeps row `[0,32,320,64]`
+**1916** (max 241 at `(18,43)`, native `(14,39,82)` / browser
+`(255,255,255)`). Icon fill `[0,38,7,57]` stays **133**. Label crop
+`[56,37,280,57]` stays **0**. Clock ROI stays 0. Whole LCDs stay
+**6,404 / 16,021**. Already-bound `S_Common-BrwCursor` centre `[160,118]`
+Default 18, `S_Common-IconList` centre `[43,47]` IconCHG 0, and
+`S_Common-Text` centre `[55,46]` `P_BR_00` `[264,30]` / `[132,0,0]`.
+Dump unused `BrwCursorB` / `IconUGC` / Play/Rec cursors / In/Out/Push
+do not uniquely own the cursor/icon fill. No snap, CSS, colour, font,
+lcd or `azahar-12p4-fit` guess. Painter unchanged. Docs and tests only.
+Coordinator APPROVE pending independent review. Not recaptured. Not 1:1.
+
+Earlier [Sound empty-entry footer 4707](sound-empty-footer-2026-10-04.md),
 `4a5f24da` from worker `8178bab`:
 reused HudTime-phase empty-entry lower keeps footer `[0,178,320,240]`
 **4707** (max 174 at `(244,229)`, native `(206,201,190)` / browser

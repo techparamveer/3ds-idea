@@ -1,5 +1,9 @@
 # HOME Banner Return - 3 October 2026
 
+Historical checkpoint: the [close banner timing pass](home-close-banner-delay-2026-10-04.md)
+moves the departure-frame-0 request below to departure frame 4 (activation at
+return 6), fitted to the native capture.
+
 ## Captured Defect and Change
 
 The preceding [Open return](home-open-return-2026-10-03.md) desktop replay at

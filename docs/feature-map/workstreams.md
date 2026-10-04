@@ -1,5 +1,11 @@
 # Workstream Registry
 
+## HOME Close Banner Delay - 4 October 2026
+
+Claude Code coordinator owns `3ds-home-close-banner-delay-20261004` /
+`codex/home-close-banner-delay-20261004` (`838b1bc9`), integrated as
+`bbe557cd`. [Delivered correction and remaining gaps](../home-close-banner-delay-2026-10-04.md).
+
 ## HOME Entry Delay - 4 October 2026
 
 Claude Code coordinator owns `3ds-home-entry-delay-20261004` /

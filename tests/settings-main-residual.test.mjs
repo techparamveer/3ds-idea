@@ -10,7 +10,8 @@ const {nativeCenteredGlyphQuads,rasterNativeAlphaGlyph}=await import(`data:text/
 const settingsUrl=new URL('../src/os/stock-native-settings.ts',import.meta.url);
 const settingsCompiled=ts.transpileModule(readFileSync(settingsUrl,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText
   .replace("'./stock-settings-navigation'",JSON.stringify(new URL('../src/os/stock-settings-navigation.ts',import.meta.url).href))
-  .replace("'./native-layout'",JSON.stringify(new URL('../src/os/native-layout.ts',import.meta.url).href));
+  .replace("'./native-layout'",JSON.stringify(new URL('../src/os/native-layout.ts',import.meta.url).href))
+  .replace("'./device-status-profile.ts'",JSON.stringify(new URL('../src/os/device-status-profile.ts',import.meta.url).href));
 const {drawNativeSettingsMain}=await import('data:text/javascript;base64,'+Buffer.from(settingsCompiled).toString('base64'));
 
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);

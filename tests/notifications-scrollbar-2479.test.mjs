@@ -18,7 +18,8 @@ const requestedLayouts=requested[1]??'';
 const requestedAnims=requested[2]??'';
 const compiled=ts.transpileModule(painter, {compilerOptions:{module:ts.ModuleKind.ESNext, target:ts.ScriptTarget.ES2022}}).outputText
   .replaceAll("'./native-layout'", JSON.stringify(new URL('../src/os/native-layout.ts', import.meta.url).href))
-  .replaceAll("'./stock-screen-layout'", JSON.stringify(new URL('../src/os/stock-screen-layout.ts', import.meta.url).href));
+  .replaceAll("'./stock-screen-layout'", JSON.stringify(new URL('../src/os/stock-screen-layout.ts', import.meta.url).href))
+  .replaceAll("'./device-status-profile'", JSON.stringify(new URL('../src/os/device-status-profile.ts', import.meta.url).href));
 const {notificationSlideBarPose, notificationSlideBarOverrides}=await import('data:text/javascript;base64,'+Buffer.from(compiled).toString('base64'));
 const bits=value=>new Uint32Array(new Float32Array([value]).buffer)[0];
 

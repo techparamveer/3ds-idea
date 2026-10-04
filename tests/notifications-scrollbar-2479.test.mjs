@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {existsSync, readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
+import ts from 'typescript';
 
 const require=createRequire(new URL('../package.json', import.meta.url));
 const firmware=new URL('../public/os/firmware/10.7.0-32E/', import.meta.url);
@@ -15,6 +16,11 @@ const flatten=panes=>panes.flatMap(pane=>[pane, ...flatten(pane.children??[])]);
 const requested=painter.match(/alias:'notification-slidebar',layouts:\[([^\]]+)\],animations:\[([^\]]+)\]/)??[];
 const requestedLayouts=requested[1]??'';
 const requestedAnims=requested[2]??'';
+const compiled=ts.transpileModule(painter, {compilerOptions:{module:ts.ModuleKind.ESNext, target:ts.ScriptTarget.ES2022}}).outputText
+  .replaceAll("'./native-layout'", JSON.stringify(new URL('../src/os/native-layout.ts', import.meta.url).href))
+  .replaceAll("'./stock-screen-layout'", JSON.stringify(new URL('../src/os/stock-screen-layout.ts', import.meta.url).href));
+const {notificationSlideBarPose, notificationSlideBarOverrides}=await import('data:text/javascript;base64,'+Buffer.from(compiled).toString('base64'));
+const bits=value=>new Uint32Array(new Float32Array([value]).buffer)[0];
 
 test('already-bound SlideBar Select 0; unused Invalid and Select 1 do not own the thumb', ()=>{
   assert.equal(slidebar.titleId, '000400300000a002');
@@ -34,6 +40,9 @@ test('already-bound SlideBar Select 0; unused Invalid and Select 1 do not own th
   assert.deepEqual(bar.N_Slide_00.translation, [-0, -0, 0]);
   assert.deepEqual(bar.SBBtn.size, [22, 22]);
   assert.deepEqual(bar.SBBaseWndw.size, [16, 132]);
+  assert.deepEqual(bar.SBBaseLine_00.size, [8, 112]);
+  assert.deepEqual(bar.B_Groove_00.size, [24, 132]);
+  assert.deepEqual(bar.B_Slide_00.size, [24, 20]);
   const list=Object.fromEntries(flatten(news.layouts.NewsTopUI_D_00.roots).map(pane=>[pane.name, pane]));
   assert.deepEqual(list.N_SlideBar_00.translation, [141, 14, 0]);
   assert.deepEqual(list.N_SlideBar_00.size, [8, 184]);
@@ -68,14 +77,49 @@ test('already-bound SlideBar Select 0; unused Invalid and Select 1 do not own th
   assert.notDeepEqual(detailBar.size, list.N_SlideBar_00.size);
 });
 
-test('painter keeps Select frame 0 plus the unsupported [0,55] thumb; no Invalid or fit', ()=>{
+test('painter applies 0x13a160 size/translation; no [0,55,0] or screenshot fit', ()=>{
   assert.match(painter, /alias:'notification-slidebar',layouts:\['SlideBar'\],animations:\['SlideBar_Select'\]/);
-  assert.match(painter, /renderer\.draw\(bottom,'notification-slidebar','SlideBar',\{bindings:\[\{name:'SlideBar_Select',frame:0\}\],overrides:\{N_Slider_00:\{translation:\[141,14,0\]\},N_Slide_00:\{translation:\[0,55,0\]\}\}\}/);
+  assert.match(painter, /overrides:notificationSlideBarOverrides\(start,view.rows.length\)/);
+  assert.equal(painter.includes('[0,55,0]'), false);
   assert.equal(painter.includes('SlideBar_Invalid'), false);
   assert.equal(painter.includes("packs/home/slidebar.json"), false);
   assert.equal(painter.includes('azahar-12p4-fit'), false);
   assert.equal(painter.includes('nativeMipmaps'), false);
   assert.equal(painter.includes('colorFit'), false);
+  assert.equal(bits(Math.fround(0.95)), 0x3f733333);
+  assert.equal(bits(Math.fround(0.05)), 0x3d4ccccd);
+  const empty=notificationSlideBarPose(0);
+  assert.equal(empty.extra, 0);
+  assert.equal(empty.thumbHeight, Math.fround(Math.fround(184)*Math.fround(0.95)));
+  const settled=notificationSlideBarPose(0, 9);
+  assert.equal(settled.extra, 6);
+  assert.equal(
+    settled.thumbHeight,
+    Math.fround(Math.fround(Math.fround(184)*Math.fround(0.95))-Math.fround(Math.fround(Math.fround(184)*Math.fround(0.05))*Math.fround(6))),
+  );
+  assert.notEqual(settled.thumbHeight, 184*6/9);
+  assert.notEqual(settled.thumbHeight, 69);
+  assert.equal(settled.grooveHeight, 204);
+  assert.equal(settled.lineHeight, 184);
+  assert.equal(settled.thumbY, Math.fround(Math.fround(204-settled.thumbHeight)*Math.fround(0.5)));
+  assert.notEqual(settled.thumbY, 55);
+  const overrides=notificationSlideBarOverrides(0, 9);
+  assert.deepEqual(overrides.N_Slider_00.translation, [141, 14, 0]);
+  assert.deepEqual(overrides.N_Slide_00.translation, [0, settled.thumbY, 0]);
+  assert.deepEqual(overrides.B_Slide_00, {size:[24, settled.thumbHeight], translation:[0, settled.thumbY, 0]});
+  assert.deepEqual(overrides.SBBtn.size, [22, settled.thumbHeight]);
+  assert.deepEqual(overrides.SBBtnShdw.size, [22, settled.thumbHeight]);
+  assert.deepEqual(overrides.SBBtnFrame.size, [22, settled.thumbHeight]);
+  assert.deepEqual(overrides.SBBaseLine_00.size, [8, 184]);
+  assert.deepEqual(overrides.SBBaseWndw.size, [16, 204]);
+  assert.deepEqual(overrides.B_Groove_00.size, [16, 204]);
+  const scrolled=notificationSlideBarPose(4, 9);
+  assert.equal(scrolled.extra, 10);
+  assert.equal(
+    scrolled.thumbHeight,
+    Math.fround(settled.thumbHeight-Math.fround(Math.fround(Math.fround(184)*Math.fround(0.05))*Math.fround(4))),
+  );
+  assert.ok(scrolled.thumbHeight>22);
 });
 
 test('the reused unread-dot pair keeps hashed lower 3876 / scrollbar 2479', async t=>{

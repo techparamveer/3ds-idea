@@ -19,7 +19,7 @@ export async function verifyPersonalTools(options){
  host.readFile=path=>resolve(path)===virtual?source:read(path);host.fileExists=path=>resolve(path)===virtual||exists(path);
  const program=ts.createProgram([virtual],compilerOptions,host),diagnostics=ts.getPreEmitDiagnostics(program);
  assert.equal(diagnostics.length,0,ts.formatDiagnosticsWithColorAndContext(diagnostics,{getCanonicalFileName:p=>p,getCurrentDirectory:()=>options.interfaceRoot,getNewLine:()=> '\n'}));
- for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','notes-suspended-capture','camera-browse','stock-screen-layout',sourceName]){
+ for(const name of ['bitmap-font','native-layout','native-png','native-renderer','native-title-assets','notes-suspended-capture','camera-browse','stock-manual-index','stock-screen-layout',sourceName]){
   const code=name===sourceName?source:readFileSync(join(options.interfaceRoot,'src/os',name+'.ts'),'utf8');sourceHashes[name]=createHash('sha256').update(code).digest('hex');
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(code,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,dependency)=>`from '${dependency.replace(/\.ts$/,'')}.mjs'`));
  }

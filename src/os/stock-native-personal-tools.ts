@@ -76,6 +76,61 @@ export const personalFriendPacks:readonly NativeTitlePackRequest[]=[
 function initialFriendView(view:AppView):boolean{
   return view.appId==='friends'&&view.screen==='main'&&view.rows.length===1&&view.rows[0].id==='profile';
 }
+
+const f32=Math.fround;
+/** code.bin 0x139188 / 0x13918c, image base 0x100000. */
+const SLIDEBAR_K95=f32(0.95),SLIDEBAR_K05=f32(0.05);
+/** NewsTopUI_D_00/N_SlideBar_00 pan1 8×184 at [141,14,0]. */
+const SLIDEBAR_HOST_H=184,SLIDEBAR_HOST_W=8,SLIDEBAR_HOST_TRANSLATION:[number,number,number]=[141,14,0];
+/** Authored SlideBar.bclyt SBBaseWndw / SBBaseLine_00 / B_Slide_00 / SBBtn. */
+const SLIDEBAR_WINDOW_H=132,SLIDEBAR_LINE_H=112,SLIDEBAR_BTN_W=22,SLIDEBAR_SLIDE_W=24;
+/** 0x13a160 ctor stores SBBtn +0x4c as the minimum thumb height. */
+const SLIDEBAR_MIN_THUMB=22;
+/** List setup 0x17e098 writes 3 at descriptor+0x04 → controller+0x08. */
+const SLIDEBAR_INDEX_BIAS=3;
+/** 0x1770cc travel = B_Groove_00 +0x4c − B_Slide_00 +0x4c; 0x13aa9c s3=0.5. */
+const SLIDEBAR_HALF=f32(0.5);
+
+export type NotificationSlideBarPose={extra:number;thumbHeight:number;thumbY:number;grooveHeight:number;lineHeight:number};
+/**
+ * Notifications list SlideBar after controller 0x13a160.
+ * `index` is the 0x179660 displacement/stride argument (list window start).
+ * `countField` is controller+0x0c in extra = max(0, index + [0x0c] − [0x08]).
+ * List ctor 0x17e0b8 stores 0 before rows exist. The populated nine-row
+ * profile is the live list count, not the ten constructed / six marked /
+ * five drawn row-object leftovers. Detail 0x17ace4 writes the same field
+ * from text metrics on that sibling path.
+ */
+export function notificationSlideBarPose(index:number,countField=0):NotificationSlideBarPose{
+  const extra=Math.max(0,Math.trunc(index)+Math.trunc(countField)-SLIDEBAR_INDEX_BIAS);
+  const host=f32(SLIDEBAR_HOST_H);
+  const computed=f32(f32(host*SLIDEBAR_K95)-f32(f32(host*SLIDEBAR_K05)*f32(extra)));
+  const thumbHeight=computed<SLIDEBAR_MIN_THUMB?SLIDEBAR_MIN_THUMB:computed;
+  const lineHeight=host;
+  const grooveHeight=f32(host+SLIDEBAR_WINDOW_H-SLIDEBAR_LINE_H);
+  const travel=f32(grooveHeight-thumbHeight);
+  // 0x13a494 ratio uses controller+0x7c/+0x90, both 0 after list ctor 0x1390ac.
+  const thumbY=f32(travel*SLIDEBAR_HALF);
+  return {extra,thumbHeight,thumbY,grooveHeight,lineHeight};
+}
+/** Pane size/translation writes from 0x13a160, 0x1770cc and 0x13aa9c. */
+export function notificationSlideBarOverrides(index:number,countField=0):PaneOverrides{
+  const pose=notificationSlideBarPose(index,countField);
+  const thumb=[SLIDEBAR_BTN_W,pose.thumbHeight],slide:[number,number]=[SLIDEBAR_SLIDE_W,pose.thumbHeight];
+  const translation:[number,number,number]=[0,pose.thumbY,0];
+  const groove:[number,number]=[SLIDEBAR_HOST_W+16-8,pose.grooveHeight];
+  return {
+    N_Slider_00:{translation:[...SLIDEBAR_HOST_TRANSLATION]},
+    SBBaseLine_00:{size:[SLIDEBAR_HOST_W,pose.lineHeight]},
+    SBBaseWndw:{size:groove},
+    B_Groove_00:{size:groove},
+    SBBtn:{size:thumb},
+    SBBtnShdw:{size:thumb},
+    SBBtnFrame:{size:thumb},
+    B_Slide_00:{size:slide,translation},
+    N_Slide_00:{translation},
+  };
+}
 export function nativePersonalToolView(view:AppView):{view:string;titleId:string;packs:readonly NativeTitlePackRequest[]}|null{
   if(view.appId==='notifications'&&view.screen==='main')return {view:view.rows.length?'notifications-list':'notifications-empty',titleId:'000400300000a002',packs:personalNotificationPacks};
   if(view.appId==='game-notes'&&view.screen==='drawing')return {view:'game-notes',titleId:'0004003000009c02',packs:personalAllNotePacks};
@@ -140,7 +195,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
           })&&okay;
         }}})&&okay;
       }
-      okay=renderer.draw(bottom,'notification-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:0}],overrides:{N_Slider_00:{translation:[141,14,0]},N_Slide_00:{translation:[0,55,0]}}})&&okay;
+      okay=renderer.draw(bottom,'notification-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:0}],overrides:notificationSlideBarOverrides(start,view.rows.length)})&&okay;
     }
     okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20}],overrides:{T_EndB_00:message('new_back'),T_EndF_00:message('new_back')}})&&okay;
     if(!view.rows.length)options.font?.draw(bottom,view.text?.[0]??'',160,110,14,'#666','center');

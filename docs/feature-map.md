@@ -15,7 +15,10 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME reference-profile HUD](home-hud-profile-2026-10-04.md), `82ab64c7`,
+Latest [HOME HUD colon blink](home-hud-colon-2026-10-04.md), `b51f135b`, hides
+`T_TimeC_00` on odd seconds to match the native still (fitted adaptation).
+
+Earlier [HOME reference-profile HUD](home-hud-profile-2026-10-04.md), `82ab64c7`,
 paints Internet, three signal bars, 42 coins and the orange battery from the
 isolated Azahar profile (labelled adaptation). WalkCoin stays time-driven.
 

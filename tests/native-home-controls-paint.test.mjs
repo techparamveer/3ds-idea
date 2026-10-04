@@ -589,6 +589,21 @@ test('a live presented footer frame 10 publishes the banner release receipt befo
  });
 });
 
+test('a skipped interval painting footer frame 14 first publishes terminal and release together',async()=>{
+ await withScreens(({screens,paint})=>{
+  const initial=createPortfolioState();
+  const boot={...initial,system:{...initial.system,since:100,homeClock:{...initial.system.homeClock,updateCount:77}}};
+  const entered={...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount:97}}};
+  try{
+   globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);paint(entered);
+   // Scene order: terminal first, then release; the terminal receipt records both.
+   assert.equal(screens.presentHomeEntryFooterTerminal(),true);
+   assert.equal(screens.presentHomeEntryFooterRelease(),false);
+   assert.deepEqual(screens.homeEntryFooterReadiness(),{bootSince:100,releasedAtUpdate:97,terminalAtUpdate:97});
+  }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
+ });
+});
+
 test('failed native terminal draw and revoked candidates cannot acknowledge entry readiness',async()=>{
  await withScreens(({screens,paint})=>{
   const initial=createPortfolioState();

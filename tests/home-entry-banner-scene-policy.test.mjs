@@ -34,7 +34,7 @@ test('the restarted primary uses the paired-screen footer release receipt at the
 });
 
 test('only a visible context-live render promotes entry candidates', () => {
-  assert.match(source, /if\(validPublication\)\{screens\.presentHomeEntryFooterRelease\(\);screens\.presentHomeEntryFooterTerminal\(\);screens\.presentHomeEntryBanner\(\);screens\.presentHomeEntryWithoutNativeBanner\(\);\}/);
+  assert.match(source, /if\(validPublication\)\{screens\.presentHomeEntryFooterTerminal\(\);screens\.presentHomeEntryFooterRelease\(\);screens\.presentHomeEntryBanner\(\);screens\.presentHomeEntryWithoutNativeBanner\(\);\}/);
   assert.match(source, /else\{screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\}/);
   assert.match(source, /const revokeTerminalPublications=\(\)=>\{[^}]*screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);\};/);
   assert.match(source, /const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);/);

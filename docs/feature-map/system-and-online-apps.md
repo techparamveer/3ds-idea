@@ -124,7 +124,7 @@ recovery. [Source and comparison limits](../home-camera-manual-footer-2026-10-03
 
 **Flow:** Source entrance/balloon/wait at 30 Hz; OK activates at pass 12, plays source out/curtain, returns HOME and resets. B returns HOME; resume restarts welcome. Store/account/purchase operations do not exist.
 
-**Status/next:** Welcome/HUD/exit are source-backed, but the genuine direct native capture shows a different NNID-information state. First obtain a native HOME-launched welcome pair: `eshop-welcome-home-a-ok`.
+**Status/next:** Welcome/HUD/exit are source-backed. Welcome Bat is frozen at ctor frame 4 with a static colon (labelled adaptation; native `0x36a7fc` still has a 4/5 tick). The genuine direct native capture shows a different NNID-information state. First obtain a native HOME-launched welcome pair: `eshop-welcome-home-a-ok`.
 
 ### O-02 - eShop service helper (`mint`)
 

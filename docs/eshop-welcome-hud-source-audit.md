@@ -92,8 +92,9 @@ clears playing (`+0x38`). By welcome time the update task has been running
 since app init.
 
 This portfolio uses the shared reference-session **Internet** state
-(`lau_connect0`, NetMode 0, NetAtn 3 as the `0x1e9aa8` stand-in) and the
-charging state-5 Bat 4/5 adapter. eShop `HudMenu_00` is not HOME’s clip:
+(`lau_connect0`, NetMode 0, NetAtn 3 as the `0x1e9aa8` stand-in). Welcome
+`HudMenu_00_Bat` stays at ctor `+0x43e` frame 4; it does not replay the
+HOME/Settings 4/5 seconds map. eShop `HudMenu_00` is not HOME’s clip:
 `P_BatF_00` uses `HudBat_00` / `01`, `HudBatLgt_00` and `HudBatPlg`, and
 Internet NetAtn map 0 is the `HudNetAtnInt_00` atlas. The title-local colon
 timer is ctor-relative, so the welcome keeps `T_TimeC_00` at its layout
@@ -127,7 +128,8 @@ manifest after the HUD packs were added.
 - No native welcome LCD exists. Source rendering is not a matched capture.
 - The `0x253384` enum and `0x1FF81066` / `0x1FF81085` bytes are not live
   telemetry; the shared profile stands in for them. Colon phase stays
-  static because the +0x410 timer is ctor-relative.
+  static and Bat stays on frame 4 because the +0x410 timer is ctor-relative
+  and `eshopHudClock` omits seconds.
 - `HudMenu_00_Appear` / `DisAppear` and `NetAtnCnt` are not played on this
   screen.
 - Shop-page `P_BG_01` / HUD hide-show helpers are out of welcome scope.

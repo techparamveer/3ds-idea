@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Settings main S-01 20-pixel source gap](settings-main-residual-2026-10-04.md),
+Latest [HOME HUD charging battery](home-hud-battery-2026-10-04.md),
+`98b7e2a0`: HOME/Settings use sourced seconds 4/5; eShop welcome freezes
+Bat at ctor frame 4 with a static colon; Zone follows `Charge_anim`.
+Independent review APPROVE-WITH-NITS; stale eShop 4/5 scope sentences
+corrected. Not native-compared. Not 1:1.
+
+Earlier [Settings main S-01 20-pixel source gap](settings-main-residual-2026-10-04.md),
 `74ac999e`: 0 upper / 20 lower remain. Fifteen pixels are Other Settings
 t/n/s endpoints just below `*.5`; two are two-line Management **g**; three
 are Internet left chrome. No raster guess. Recapture only after a

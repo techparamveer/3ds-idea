@@ -262,7 +262,7 @@ pass-12 gate, the exit arithmetic and the tick/decide reductions.
 - **Stereo.** Only the mono (3D off) composition is traced.
 - **HUD network/battery.** `0x36a7fc` is traced. The painter uses the Internet
   branch from the shared profile (`lau_connect0`, NetMode 0, NetAtn 3) and
-  keeps the eShop colon static. See
+  keeps the eShop colon static with Bat frozen at ctor frame 4. See
   [welcome HUD audit](eshop-welcome-hud-source-audit.md).
 - **Fidelity.** A source-rendered frame does not prove strict 1:1 native
   fidelity, and no native welcome capture exists.

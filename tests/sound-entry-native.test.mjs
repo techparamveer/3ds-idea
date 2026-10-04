@@ -8,7 +8,7 @@ const layout=url(compile('stock-screen-layout')
  .replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href))
  .replace("'./stock-manual-index.ts'",JSON.stringify(url('export const manualPageZeroAvailable=()=>false;'))));
 const source=compile('stock-native-sound').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-sound-record'",JSON.stringify(url(compile('stock-sound-record'))));
-const {drawNativeSoundFrame,soundEntryBlue,soundGuideMessageColor,soundHudTimeAlternatives,soundHudTimeOverride,soundScreenPacks}=await import(url(source));
+const {drawNativeSoundFrame,soundEntryBlue,soundGuideMessageColor,soundHudTimeAlternatives,soundHudTimeOverride,soundHudTimeKey,soundScreenPacks}=await import(url(source));
 const {stockScreenActionAt:hit}=await import(layout);
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const packs=Object.fromEntries(soundScreenPacks.map(p=>[p.alias,JSON.parse(readFileSync(new URL(p.url,firmware)))]));
@@ -168,6 +168,24 @@ test('empty-entry clock selects one S/HudTime separator by seconds parity and ke
  const unknown=structuredClone(packs['sound-messages']);
  unknown.messages.S.messages[unknown.messages.S.labels.HudTime].tokens[4].type=2;
  assert.throws(()=>soundHudTimeOverride(unknown,new Date(2026,8,24,10,52)),/Unsupported Sound HudTime message control/);
+});
+
+test('Sound paint identity carries HudTime seconds parity only on the empty-entry path',()=>{
+ const even=new Date(2026,8,25,22,27,14),odd=new Date(2026,8,25,22,27,15);
+ for(const screen of ['main','guide']){
+  const view={...entry,screen};
+  assert.deepEqual(soundHudTimeKey(view,even),[22,27,0]);
+  assert.deepEqual(soundHudTimeKey(view,odd),[22,27,1]);
+  assert.deepEqual(soundHudTimeKey({...view,data:{}},odd),[22,27,1],'absent track list is the empty entry');
+ }
+ const library={...entry,data:{tracks:[{title:'Song'}]}};
+ assert.equal(soundHudTimeKey(library,odd),null,'supplied-song library main draws no HudTime');
+ assert.equal(soundHudTimeKey({...library,screen:'guide'},odd),null);
+ assert.equal(soundHudTimeKey({...entry,screen:'playback',data:{tracks:[],track:{title:'Song'}}},odd),null);
+ assert.equal(soundHudTimeKey({...entry,appId:'system-settings'},odd),null);
+ const presentation=readFileSync(new URL('../src/os/stock-screen-presentation.ts',import.meta.url),'utf8');
+ assert.match(presentation,/const soundClockKey=soundHudTimeKey\(view,date\);/);
+ assert.match(presentation,/JSON\.stringify\(\[[^\]]*soundClockKey[^\]]*\]\)/,'the paint key includes the Sound clock identity');
 });
 
 test('lower welcome frame includes source window and bird at the guide mount',()=>{

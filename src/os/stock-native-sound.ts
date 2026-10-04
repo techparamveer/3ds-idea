@@ -108,6 +108,15 @@ export function soundHudTimeOverride(pack:NativePack,date:Date):PaneOverrides[st
   return {...source,text,fixedWidthSpans,size:[width,30]};
 }
 
+/** Paint key for the empty-entry S/HudTime clock: hour, minute and the
+ * type-47 seconds parity. Null wherever drawNativeSoundFrame draws no HudTime
+ * (other apps, playback, supplied-song library). */
+export function soundHudTimeKey(view:AppView,date:Date):readonly number[]|null{
+  if(view.appId!=='sound'||(view.screen!=='main'&&view.screen!=='guide'))return null;
+  const tracks=record(view.data).tracks;
+  return Array.isArray(tracks)&&tracks.length?null:[date.getHours(),date.getMinutes(),date.getSeconds()&1];
+}
+
 /** Original Sound artwork at its source mounts with portfolio track content.
  * Playback uses the native transport, playback-mode panel, C_SldT time slider and
  * the resting S_Play_D-Effect panel; the library uses the source list cursor and

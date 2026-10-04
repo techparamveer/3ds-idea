@@ -190,13 +190,15 @@ test('real HOME toolbar presses bind only the selected control', {skip:!availabl
 });
 
 test('message styles replace font metrics and spacing without interpreting unresolved words',()=>{
- const l=layout(),text={font:0,material:0,value:'original',size:[17,21],alignment:4,lineAlignment:0,characterSpacing:2,lineSpacing:3,topColor:[1,2,3,255],bottomColor:[4,5,6,255],glyphScaleSpans:[{start:0,end:8,scale:.5}]};
+ const l=layout(),text={font:0,material:0,value:'original',size:[17,21],alignment:4,lineAlignment:0,characterSpacing:2,lineSpacing:3,topColor:[1,2,3,255],bottomColor:[4,5,6,255],glyphScaleSpans:[{start:0,end:8,scale:.5}],fixedWidthSpans:[{start:0,end:2,width:12}]};
  l.roots[0].children[0].text=text;
  const style={fontScale:[.6,.8],characterSpacing:4,lineSpacing:-5,unresolvedWords:{0:999,12:2}};
  const posed=poseNativeLayout(l,{},[],{selected:{text:'styled',messageStyle:style}}),result=posed.roots[0].children[0].text;
  assert.deepEqual(api.nativeTextMetrics(result,{width:20,height:30}),{size:[12,24],characterSpacing:4,lineSpacing:-5});
  assert.equal(result.alignment,4);assert.equal(result.lineAlignment,0);assert.deepEqual(result.topColor,text.topColor);assert.equal(result.font,0);
  assert.equal(result.glyphScaleSpans,undefined,'replacing source text clears stale inline-size controls unless the caller opts in');
+ assert.equal(result.fixedWidthSpans,undefined,'replacing source text clears stale fixed-width pitch spans unless the caller opts in');
+ assert.deepEqual(poseNativeLayout(l,{},[],{selected:{text:'12:34',fixedWidthSpans:[{start:0,end:2,width:12}]}}).roots[0].children[0].text.fixedWidthSpans,[{start:0,end:2,width:12}]);
  assert.equal(l.roots[0].children[0].text.value,'original');assert.equal(l.roots[0].children[0].text.messageStyle,undefined);
  result.messageStyle.fontScale[0]=9;assert.equal(style.fontScale[0],.6);
  assert.deepEqual(api.nativeTextMetrics(text,{width:20,height:30}),{size:[17,21],characterSpacing:2,lineSpacing:3});

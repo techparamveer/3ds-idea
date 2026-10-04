@@ -15,8 +15,8 @@ Both overflow stills are the matrix native references:
 | `Nintendo 3DS Sound_25.09.26_22.27.14.541.png` | `9dea0cc2fa7022ccd032c5a94ae59c2dbe37e6b7e800fbf8668b356fc9e5ce69` | `sound-first-run` native combined | `22 27` (seconds 14, even) |
 | `Nintendo 3DS Sound_25.09.26_22.31.31.595.png` | `65fc5f8819d31c49622d9e2a8ee7ba79c0675fd7dd3a73f783255eb7efe3b4cd` | `sound-empty-entry` native | `22:31` (seconds 31, odd) |
 
-The stills are under `/Users/paramveer/.codex/3ds-artifact-overflow/reference/screenshots/`.
-The Opus review crop is `…/review-cursor-20261004/opus/sound-clock-stills.png`.
+The stills are under `/Users/paramveer/.codex/3ds-artifact-overflow/reference/screenshots/`;
+measure the hashed originals above, not a derived crop.
 Column maxima over rows 219–235 (upper LCD x) give:
 
 | Glyph | `22:31` ink x | `22 27` ink x |

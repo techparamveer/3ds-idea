@@ -10,7 +10,7 @@ import type { NativeLayoutRenderer } from './native-renderer';
 import type { SuspendedCapture } from './notes-suspended-capture';
 import { createNativeTitleSession } from './native-title-session';
 import { drawNativeSettingsMain, settingsScreenPacks } from './stock-native-settings';
-import { drawNativeSoundFrame, soundScreenPacks } from './stock-native-sound';
+import { drawNativeSoundFrame, soundHudTimeKey, soundScreenPacks } from './stock-native-sound';
 import { drawNativeCameraFrame, cameraScreenPacks } from './stock-native-camera';
 import { healthEntrySceneInFrame, healthTopLoopFrame } from './stock-health-scroll';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
@@ -307,8 +307,9 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       // Poses, not passes, key the eShop pair: settled passes do not repaint.
       const eshop=nativeServiceView(view)?.view==='eshop-welcome';
       const keyView=eshop?{...notesView,data:{...notesView.data,welcomePass:null,welcomeDecidedPass:null}}:notesView,eshopPaintKey=eshop?eshopWelcomePose(view,reducedMotion):null;
-      // S/HudTime's type-47 separator follows seconds parity (Sound 0x206c3c).
-      const soundClockKey=view.appId==='sound'&&(view.screen==='main'||view.screen==='guide')?[date.getHours(),date.getMinutes(),date.getSeconds()&1]:null;
+      // S/HudTime's type-47 separator follows seconds parity (Sound 0x206c3c);
+      // only the empty-entry composer draws it.
+      const soundClockKey=soundHudTimeKey(view,date);
       if(settingsHudOwner!==nextOwner){settingsHud=null;settingsHudOwner=nextOwner;}
       const settingsElapsed=data.settingsHudElapsedMs;
       const isSettingsClock=view.appId==='system-settings'&&typeof settingsElapsed==='number';

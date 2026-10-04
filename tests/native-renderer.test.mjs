@@ -361,7 +361,11 @@ test('Power footer writer 0x111 samples only its selected multiline pane at LCD 
   const renderer=new NativeLayoutRenderer({test:{schema:1,layouts:{test:source},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['shared',font]])),ctx=canvas().getContext();
   ctx.getTransform=()=>({a:1,b:0,c:0,d:1,e:10.25,f:20.5});ctx.drawImage=()=>{};
   assert.equal(renderer.draw(ctx,'test','test',{overrides:{footer:{multilineBlockOrigin:'writer-0x111'}},textSampling:'lcd',textSamplingPanes:['footer']}),true);
-  assert.deepEqual(calls,[{value:'A\nB',phase:[.25,.5],lcd:true,origin:'writer-0x111'},{value:'C\nD',phase:[0,0],lcd:false,origin:undefined}]);renderer.dispose();
+  assert.deepEqual(calls,[{value:'A\nB',phase:[.25,.5],lcd:true,origin:'writer-0x111'},{value:'C\nD',phase:[0,0],lcd:false,origin:undefined}]);
+  calls.length=0;
+  // Fixed-width pitch spans leave the traced writer 0x111 sampling path.
+  assert.equal(renderer.draw(ctx,'test','test',{overrides:{footer:{multilineBlockOrigin:'writer-0x111',fixedWidthSpans:[{start:0,end:1,width:12}]}},textSampling:'lcd',textSamplingPanes:['footer']}),true);
+  assert.deepEqual(calls[0],{value:'A\nB',phase:[0,0],lcd:false,origin:'writer-0x111'});renderer.dispose();
  }finally{globalThis.document=previous;}
 });
 

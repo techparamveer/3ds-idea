@@ -46,8 +46,19 @@ The capture spacing (about 500ms) is not frame timing, but its poses are:
 Both segments advance at a steady 1.5-1.6 poses per capture (about 323 and
 338ms per emulator frame). On that grid, fade pose 0 starts five or six frames
 after Decide5 first shows, and logo pose 0 starts about 10.7 frames after fade
-pose 20. A constant emulator rate between segments is an assumption; native
+pose 20. The capture replayed its CTM at a fixed 5% playback speed (one
+emulator frame per about 333ms; observed movie counters 1101..1328 span
+338.4ms per frame), which supports a constant rate between segments. Native
 dispatch remains untraced.
+
+The CTM (`R/native/home-health-launch-onset.plan.json` in the onset root)
+holds A for HID samples 4680..4688 (8 samples of 4.27ms, about two video
+frames from frame 1200). Mapping capture times through the observed
+counters, which lag screenshots, places pressed onset no earlier than frame
+1200 and Decide5 at frame 1206 or later, so native pressed lasts about six
+to nine frames against the browser's five. A Decide starting at A-down sits
+at the edge of that bound, so whether native plays Decide from press or
+release is unresolved; the browser keeps its press-triggered launch.
 
 ## Change
 
@@ -113,7 +124,8 @@ masks; epochs unsynchronized.
 
 ## Remaining
 
-The pressed duration follows A-hold input, which is not matched. The fit
+Native pressed may last one to four frames longer than the browser's five
+(press- versus release-triggered Decide is unresolved). The fit
 places fade pose 0 five frames after Decide5 (native five or six) and logo
 pose 0 eleven frames after fade pose 20 (native about 10.7); either may be
 one frame off. Open tone/audio timing, exact native epoch, native mobile/reduced

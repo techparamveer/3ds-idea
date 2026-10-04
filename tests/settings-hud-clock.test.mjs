@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {sampleSettingsHud,settingsHudUpdate,SETTINGS_HUD_HZ} from '../src/os/stock-settings-hud.ts';
+import {chargingBatteryFrame,hudColonVisible} from '../src/os/device-status-profile.ts';
 import {createStockModule,initialSharedData} from '../src/os/stock-apps.ts';
 import {getTitle} from '../src/os/app-registry.ts';
 const start=new Date(2026,8,26,3,32,20).getTime();
@@ -43,4 +44,31 @@ test('Settings-local elapsed survives navigation and resets on creation',()=>{
  state=module.reduce(state,{type:'tick',elapsedMs:500},context).state;
  assert.equal(state.settingsHudElapsedMs,1500);assert.equal(module.view(state,context).data.settingsHudElapsedMs,1500);
  assert.equal(module.create({},state,{...context,now:2000000}).settingsHudElapsedMs,0);
+});
+test('constructor first update has no proven previous-seconds owner; Date(0) does not follow lcdDate',()=>{
+ const odd=new Date(2026,8,26,21,45,41).getTime(),even=odd+1000;
+ const fromOdd=sampleSettingsHud(null,0,odd),fromEven=sampleSettingsHud(null,0,even);
+ assert.equal(new Date(0).getSeconds(),0);
+ assert.equal(fromOdd.colonVisible,true,'+e5 is unwritten; first colon uses the Date(0) even adaptation');
+ assert.equal(fromEven.colonVisible,true);
+ assert.notEqual(fromOdd.colonVisible,hudColonVisible(new Date(odd).getSeconds()));
+ assert.equal(fromOdd.batteryFrame,chargingBatteryFrame(new Date(odd).getSeconds()));
+ assert.equal(fromEven.batteryFrame,chargingBatteryFrame(new Date(even).getSeconds()));
+ assert.equal(fromOdd.counter,29);
+ assert.notEqual(fromOdd.batteryFrame,fromEven.batteryFrame,'Bat on counter -1 uses the new sample, not previous seconds');
+});
+test('HudMset previous-seconds colon and counter-2 Bat do not follow injected lcdDate even/odd',()=>{
+ const page3=new Date(2026,8,26,21,45,42,533).getTime(),page4=new Date(2026,8,26,21,46,7,466).getTime();
+ const hud3=sampleSettingsHud(null,12000,page3),hud4=sampleSettingsHud(null,12000,page4);
+ const sec3=new Date(page3).getSeconds(),sec4=new Date(page4).getSeconds();
+ assert.equal(sec3,42);assert.equal(sec4,7);
+ assert.equal(hudColonVisible(sec3),true);assert.equal(chargingBatteryFrame(sec3),5);
+ assert.equal(hudColonVisible(sec4),false);assert.equal(chargingBatteryFrame(sec4),4);
+ assert.notEqual(hud3.colonVisible,hudColonVisible(sec3),'page 3 colon is previous displayed seconds, not 42');
+ assert.notEqual(hud3.batteryFrame,chargingBatteryFrame(sec3),'page 3 Bat is the counter-2 cached sample, not 42');
+ assert.notEqual(hud4.colonVisible,hudColonVisible(sec4),'page 4 colon is previous displayed seconds, not 07');
+ assert.notEqual(hud4.batteryFrame,chargingBatteryFrame(sec4),'page 4 Bat is the counter-2 cached sample, not 07');
+ assert.equal(hud3.updates,Math.floor(12000*SETTINGS_HUD_HZ/1000));
+ assert.equal(hud3.colonVisible,false);assert.equal(hud3.batteryFrame,4);
+ assert.equal(hud4.colonVisible,true);assert.equal(hud4.batteryFrame,5);
 });

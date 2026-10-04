@@ -15,7 +15,19 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Sound empty-entry row 1916](sound-empty-row-2026-10-04.md),
+Latest [Sound first-run guide perimeter 6072](sound-guide-perimeter-2026-10-04.md),
+worker `codex/sound-guide-perimeter-20261004`: reused HudTime-phase
+first-run lower whole stays **6,267**; guide interior `[20,20,300,220]`
+**195** (all in Next glyphs `[138,196,182,213]`); perimeter complement
+**6,072** (max 166 at `(296,234)`). Already-bound `C_DlgChA` and
+`C_DlgGuid1BtnW` Default 0 + `S_tips` counters. Unused `C_Dlg`,
+`C_DlgGuid2Btn`, `C_DlgGuid1BtnW_Push`, `C_DlgGuid_U`, `C_NullDlg` IO
+clips, `C_DlgChB`, `C_DlgU` and `C_DlgHed` write no veil and do not
+uniquely own the perimeter. Labelled guide compositor/veil source gap.
+Painter unchanged. Docs and tests only. Coordinator APPROVE pending
+independent review. Not recaptured. Not 1:1.
+
+Previous [Sound empty-entry row 1916](sound-empty-row-2026-10-04.md),
 `ee4af066` from worker `6c8289b`:
 reused HudTime-phase empty-entry lower keeps row `[0,32,320,64]`
 **1916** (max 241 at `(18,43)`, native `(14,39,82)` / browser

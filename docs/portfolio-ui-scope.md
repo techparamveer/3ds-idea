@@ -21,12 +21,6 @@ No hand or CSS graphics, community font substitution, or guessed native sound
 may be promoted as native. Portfolio content and declared read-only/local
 adaptations have their own provenance and must be labelled separately.
 
-**Declared HUD profile adaptation (4 October 2026).** The upper HUD shows
-wireless Disabled, 0 Play Coins and the blue battery, because network and
-account state are out of scope. The Azahar reference profile shows Internet,
-42 coins and an orange battery. Captures diff that HUD band as this labelled
-adaptation, not as a renderer defect; native HUD graphics are unchanged.
-
 ## Deliverable
 
 - Faithful HOME and stock app screens using supplied native graphics, fonts,

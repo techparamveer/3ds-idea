@@ -1,5 +1,15 @@
 # Workstream Registry
 
+## Shared Text-Layout 1-Pixel Vertical Origin - 4 October 2026
+
+Fidelity worker `3ds-text-y-offset-20261004` /
+`codex/text-y-offset-20261004`, base `06ccce8e`. Shared `drawNative`
+middle origin uses `0x2ffc90` float32 half-block ceil. Notifications
+card **2892** is that case; Close / list / Camera TxtDlg / Sound title
+do not share it. Coordinator owns Azahar, preview 3021, CDP 9320 and
+recapture via `capture-notifications-hud.mjs`.
+[Evidence](../text-y-offset-2026-10-04.md).
+
 ## HOME Entry Banner Release - 4 October 2026
 
 Claude Code coordinator owns `3ds-home-entry-banner-release-20261004` /

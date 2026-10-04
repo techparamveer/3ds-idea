@@ -49,6 +49,12 @@ function nativeSingleLineGlyphQuads(manifest:FontManifest,value:string,width:num
 export function nativeCenteredGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[]):NativeGlyphQuad[]{
   return nativeSingleLineGlyphQuads(manifest,value,width,height,size,4);
 }
+/** Vertically centred NW origin (HOME `0x2ffc90`): `height/2 − ceil(float32(block × 0.5))`.
+ * float64 `ceil(blockHeight/2)` jumps a whole pixel when MSBT `fontScale` leaves
+ * the measured block one ulp above an integer (Notifications `0.6` → 18.000000715). */
+export function nativeCenteredBlockY(height:number, blockHeight:number):number{
+  return height/2-Math.ceil(Math.fround(blockHeight*Math.fround(.5)));
+}
 export function nativeLeftGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[],cursorAdvances:readonly NativeCursorAdvance[]=[]):NativeGlyphQuad[]{
   return nativeSingleLineGlyphQuads(manifest,value,width,height,size,3,cursorAdvances);
 }
@@ -225,7 +231,7 @@ export class BitmapFont {
       const lineCellScales=lines.map((glyphs,row)=>Math.max(scaleAt(lineStarts[row]),...glyphs.map(entry=>entry.scale)));
       const advances=newlineScales.map(scale=>(this.manifest.lineFeed??this.manifest.height)*sy*scale+lineSpacing);
       const blockHeight=advances.reduce((sum,advance)=>sum+advance,size[1]*lineCellScales.at(-1)!);
-      const vertical=Math.floor(alignment/3),y0=vertical===1?height/2-Math.ceil(blockHeight/2):vertical*(height-blockHeight)/2;
+      const vertical=Math.floor(alignment/3),y0=vertical===1?nativeCenteredBlockY(height,blockHeight):vertical*(height-blockHeight)/2;
       const widths=lines.map(glyphs=>glyphs.reduce((sum,entry)=>sum+(entry.glyph?.advance??0)*sx*entry.scale+spacing,0)-(glyphs.length?spacing:0));
       const blockWidth=Math.max(0,...widths),draws:{glyph:Glyph;x:number;y:number;width:number;height:number}[]=[];
       const baseline=(this.manifest.baseline??this.manifest.height)*sy;
@@ -307,7 +313,9 @@ export class BitmapFont {
     const vertical=Math.floor(alignment/3);
     // The centred NW writer rounds the block and each line's half-width up.
     // Keeping fractional half-widths shifts some Settings lines by one pixel.
-    const y0=vertical===1?height/2-Math.ceil(blockHeight/2):vertical*(height-blockHeight)/2;
+    // Vertical origin uses the traced float32 half-block ceil, not float64
+    // ceil(blockHeight/2). Top/bottom alignment does not take that ceil.
+    const y0=vertical===1?nativeCenteredBlockY(height,blockHeight):vertical*(height-blockHeight)/2;
     const widths=lines.map(glyphs=>glyphs.reduce((n,g,column)=>n+(fixedWidthAt[column]??(g?.advance??0)*sx)+spacing,0)-(glyphs.length?spacing:0));
     const blockWidth=Math.max(0,...widths);
     const exactWriter=writer0110||writer0111;

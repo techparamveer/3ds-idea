@@ -124,5 +124,33 @@ The four painter-pinning tests (`notifications-close-list`, `-list-820`,
 typecheck` passes. In `npm test`, only the 36 tests that need model GLBs
 fail: those files are absent from this sparse worktree (ENOENT). The full
 `npm test` / `npm run build` and recapture remain the coordinator's job.
-Whole lower remains **fail** until recapture. Input, motion and audio are
-not compared.
+Input, motion and audio are not compared.
+
+## Recapture (coordinator, Mac built-in, `c9d58c84`)
+
+User authorized the laptop display (Sidecar disconnected). Frozen native
+reused (`58fff714…`); Azahar not relaunched. Production `127.0.0.1:3000`.
+Chrome `--window-position=80,60` on Built-in Retina 1800×1169 @2x. Raw LCD
+`captureScreensAt`. Browser lower `22da8b11…`, report `db8c1f8c…`, artifacts
+`notifications-list-direct-recapture-20261004/`. Empty mask, 2/255. One
+muted 404 in the capture log, same class as the Close-lcd recapture.
+
+| Region | Before (`928f9ed7`) | After |
+| --- | ---: | ---: |
+| Upper | 0 | **0** |
+| Lower | 910 | **51** |
+| List `[0,0,291,210]` | 820 | **17** (max 10 at `(205,62)`) |
+| Close seam `[0,210,320,214]` | 56 | **0** (max 2) |
+| Close glyphs | 0 | **0** |
+| Scrollbar | 34 | **34** |
+
+The 17 leftover list pixels are single-row AA on the title glyphs:
+
+| y | x | n |
+| ---: | --- | ---: |
+| 62 | 203–207 | 5 |
+| 115 | 121–125 and 209–213 | 10 |
+| 168 | 95–96 | 2 |
+
+That matches the napi proxy's remaining 17. Scrollbar **34** stays labelled.
+HUD 0 closed. Whole lower remains **fail**. Not 1:1.

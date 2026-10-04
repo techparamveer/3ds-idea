@@ -42,9 +42,10 @@ gap was renderer `direct` / `nativeAlignedLine` coverage, not a second
 dump sampler ([list 820 note](notifications-list-820-2026-10-04.md)).
 Row titles now take the allowlisted writer-0x101 direct path
 ([list direct note](notifications-list-direct-2026-10-04.md)); Grok 4.6
-**APPROVE-WITH-NITS** of `4730b0b2` (fidelity `54d7d0b8`). Offline proxy
-list 1154 → 17, seam 80 → 0 is not the pixel bar. Awaits recapture.
-Scrollbar **34** is labelled unbound extra-6
+**APPROVE-WITH-NITS** of `4730b0b2` (fidelity `54d7d0b8` + nits `c9d58c84`).
+Mac-screen recapture vs native `58fff714…`: list **820 → 17**, seam
+**56 → 0**, Close **0**, upper **0**. Remaining list **17** is title-glyph
+AA at y 62/115/168. Scrollbar **34** is labelled unbound extra-6
 ([scrollbar 34 note](notifications-scrollbar-34-2026-10-04.md)). Not 1:1.
 
 [Notifications HUD charging battery](notifications-hud-battery-2026-10-04.md),

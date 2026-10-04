@@ -383,7 +383,7 @@ function drawApplicationManualPage(renderer:NativeLayoutRenderer,top:CanvasRende
   // the authored hairline; Contents already samples this layout at LCD centres.
   draw(top,'manual-row','ManualRowGettingStarted',{center:[200+neighbor.translation[0],20],pictureSampling:'lcd',bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(next.page+1)},TextBox_Txt:{text:next.title}}});
   draw(top,'manual-row','ManualRowImportant',{center:[200,20],pictureSampling:'lcd',bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(page.page+1)},TextBox_Txt:{text:page.title}}});
-  draw(bottom,'manual-BtnClose01','BtnClose01',{bindings:[{name:'BtnClose01_SceneIn',frame:20}]});
+  draw(bottom,'manual-BtnClose01','BtnClose01',{textSampling:'lcd-source-size',bindings:[{name:'BtnClose01_SceneIn',frame:20}]});
   draw(bottom,'manual-back','BtnBack00',{textSampling:'lcd-source-size',bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:manualBackOverrides(renderer,options)});
   const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
   // Enlarge is visible source chrome but remains inert in this first-page slice.
@@ -394,6 +394,6 @@ function drawApplicationManualPage(renderer:NativeLayoutRenderer,top:CanvasRende
     const label=width('Plus02__Text',sizeOverrides.Plus02__Text.text!),glyph=width('T_BtnF_Pict',sizeOverrides.T_BtnF_Pict.text!),gap=width('Plus02__Text',' ');
     for(const name of ['Plus01__Text','Plus02__Text','T_BtnB_Pict','T_BtnF_Pict']){const pane=nativePaneParentPath(sizeLayout,name)!.at(-1)!;sizeOverrides[name].translation=[name.startsWith('Plus')?(glyph+gap)/2:-(label+gap)/2,pane.translation[1],pane.translation[2]];}
   }
-  draw(bottom,'manual-BtnTextSize00','BtnTextSize00',{bindings:[{name:'BtnTextSize00_SceneIn',frame:20}],overrides:sizeOverrides});
+  draw(bottom,'manual-BtnTextSize00','BtnTextSize00',{textSampling:'lcd-source-size',bindings:[{name:'BtnTextSize00_SceneIn',frame:20}],overrides:sizeOverrides});
   return okay;
 }

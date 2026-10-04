@@ -1,5 +1,7 @@
 # System and online app feature map
 
+[Browser Manual page-0 footer](../browser-manual-page0-footer-2026-10-04.md): Close/Enlarge idle `lcd-source-size` bind. Offline footer **1934** → **1684**. Header origin38/centre20 and Enlarge stay as labelled leftovers. Coordinator recapture `browser-manual-browser-v2.mjs`.
+
 Checkpoint: integration base `f5ed204c`, 1 October 2026. Scope: System Settings, Health and Safety, system helpers, Manual, amiibo Settings, eShop, Nintendo Zone, local Internet Browser and local Miiverse. The coordinator maps shared launch/suspend/close/HOME behavior; this map includes local return paths where they change a screen.
 
 Every acceptance scenario named below remains **fail/unaccepted as a whole**. Tests, source renders, browser inspection and static pixel tiers are separate evidence. Other Settings page 1 and Health Usage initial/8 px-scrolled reach two-LCD static maximum delta 2, but exact input, motion and audio acceptance remain open. "Implemented" means a code path exists; "adaptation" is intentional local behavior; "source gap" means native content or behavior is unestablished. Network, account, PIN, destructive storage and device operations remain inert under [scope](../portfolio-ui-scope.md).

@@ -1,5 +1,9 @@
 # Remaining UI Design and Shipping Map
 
+[Browser Manual page-0 footer](../browser-manual-page0-footer-2026-10-04.md)
+binds idle Close/Enlarge `lcd-source-size` (offline footer 1934→1684). Header
+capture-fit and Enlarge interaction stay open. Coordinator recapture required.
+
 [App-launch publication](../home-launch-publication-2026-10-03.md) now protects
 the existing C14 terminal pair from host-stall skips (`27a85a4a`, test follow-up
 `60ecf08f`). This closes a robustness defect, not the native timing/pixel task.

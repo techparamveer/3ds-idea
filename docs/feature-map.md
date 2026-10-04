@@ -21,8 +21,10 @@ Latest [Settings Other pages 3/4 lower 8/35](settings-other-p34-lower-2026-10-04
 previous-seconds gap. Lower 8/35 are System Transfer / Language / Update /
 Format descender AA plus Transfer/Update **y** rights just below `*.5`.
 No unused `TextBox`, unused font, or unique `azahar-12p4-fit` owner.
-Painter unchanged. Docs and tests only. Coordinator APPROVE pending
-independent review. Not recaptured. Not 1:1.
+Painter unchanged. Docs and tests only. Independent review
+**APPROVE-WITH-NITS** (identical patch-id `c25ad800…`; no `src/`; tests
+5/5; Language **g** test samples leftmost columns only, full 16-column
+ownership still holds). Not recaptured. Not 1:1.
 
 Earlier [Camera Welcome page 1 1,401](camera-welcome-p1-1401-2026-10-04.md),
 `c07e7de9` from worker `adf0cf88`: reused

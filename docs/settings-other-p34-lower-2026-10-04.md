@@ -11,7 +11,10 @@ upper 169 and constructor `+e5` gap stay labelled and are not reopened.
 This follows the [pages 3/4 recapture](settings-other-p34-recapture-2026-10-04.md).
 Those pairs remain **169 / 8** and **169 / 35** over 2/255. The entire upper
 169 is `HudMset_00` colon / Bat. Remaining this slice: page 3 lower **8** and
-page 4 lower **35**. Evidence: source-identified and tested. Not
+page 4 lower **35**. Evidence: source-identified and tested. Independent
+review **APPROVE-WITH-NITS** of fidelity `865c43c` / worker `c8a75e0b`
+(identical patch-id `c25ad800…`; tests 5/5; Language **g** test samples
+leftmost columns only, full 16-column ownership still holds). Not
 browser-inspected here. Not native-compared here. Not 1:1.
 
 ## Pair (reused, not recaptured)

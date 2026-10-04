@@ -15,7 +15,11 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME launch music stop30](home-launch-music-stop-2026-10-04.md), `d8b3e982`,
+Latest [HOME reference-profile HUD](home-hud-profile-2026-10-04.md), `82ab64c7`,
+paints Internet, three signal bars, 42 coins and the orange battery from the
+isolated Azahar profile (labelled adaptation). WalkCoin stays time-driven.
+
+Earlier [HOME launch music stop30](home-launch-music-stop-2026-10-04.md), `d8b3e982`,
 keeps HOME music through Open's Decide, then applies the traced stop30 ramp
 from the fitted preparation update.
 

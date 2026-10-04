@@ -16,6 +16,8 @@ export type FontManifest = {
 
 export type NativeCursorAdvance={index:number;advance:number};
 export type NativeTextScaleSpan={start:number;end:number;scale:number};
+/** Fixed character pitch: each glyph in the span advances `width` and is centred on its own scaled advance. */
+export type NativeTextFixedWidthSpan={start:number;end:number;width:number};
 export type NativeGlyphQuad={glyph:Glyph;x:number;y:number;width:number;height:number;right?:number;bottom?:number};
 /** Bounded NW writer flags 0x100 (middle-left) and 0x111 (middle-center):
  * one line, automatic line alignment and no added character spacing. */
@@ -192,10 +194,10 @@ export class BitmapFont {
 
   /** CLYT font size is a two-axis native cell size, not a CSS font size. */
   drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
-    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false,lineAdvanceScales?:readonly number[],multilineBlockOrigin?:'writer-0x110'|'writer-0x111',glyphScaleSpans?:readonly NativeTextScaleSpan[]) {
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false,lineAdvanceScales?:readonly number[],multilineBlockOrigin?:'writer-0x110'|'writer-0x111',glyphScaleSpans?:readonly NativeTextScaleSpan[],fixedWidthSpans?:readonly NativeTextFixedWidthSpan[]) {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     if(glyphScaleSpans?.length){
-      if(cursorAdvances.length||sourceSize||sourceTopLeftSampling||lineAdvanceScales||multilineBlockOrigin||lcdBottomEdge||rasterPhase[0]!==0||rasterPhase[1]!==0)throw new Error('Unsupported native scaled glyph writer combination');
+      if(fixedWidthSpans?.length||cursorAdvances.length||sourceSize||sourceTopLeftSampling||lineAdvanceScales||multilineBlockOrigin||lcdBottomEdge||rasterPhase[0]!==0||rasterPhase[1]!==0)throw new Error('Unsupported native scaled glyph writer combination');
       const boundaries=new Set([0]);
       for(let at=0;at<value.length;){
         if(value[at]==='\r'&&value[at+1]==='\n')at+=2;
@@ -262,10 +264,22 @@ export class BitmapFont {
       const boundaries=new Set([0]);let offset=0;for(const char of value){offset+=char.length;boundaries.add(offset);}
       if(cursorAdvances.some(control=>!boundaries.has(control.index)||!Number.isInteger(control.advance)||control.advance < -32768||control.advance > 32767))throw new Error('Invalid native cursor advance');
     }
+    // Fixed pitch is bounded to one unspaced line on the generic writer path.
+    const fixedWidthAt:(number|undefined)[]=[];
+    if(fixedWidthSpans?.length){
+      if(lines.length!==1||spacing!==0||cursorAdvances.length||sourceTopLeftSampling||lineAdvanceScales||multilineBlockOrigin||lcdBottomEdge)throw new Error('Unsupported native fixed-width text run');
+      const starts:number[]=[];let offset=0;for(const char of value){starts.push(offset);offset+=char.length;}
+      const boundaries=new Set([...starts,offset]);let previousEnd=0;
+      for(const span of fixedWidthSpans){
+        if(!Number.isInteger(span.start)||!Number.isInteger(span.end)||span.start<previousEnd||span.end<=span.start||!boundaries.has(span.start)||!boundaries.has(span.end)||!Number.isFinite(span.width)||span.width<=0)throw new Error('Invalid native fixed-width span');
+        previousEnd=span.end;
+      }
+      starts.forEach((start,column)=>{fixedWidthAt[column]=fixedWidthSpans.find(span=>start>=span.start&&start<span.end)?.width;});
+    }
     // An explicit centered line uses the same one-line writer origin as automatic
     // centering. Enable that route only for the caller's direct LCD sampler.
     const sourceTopLeft=sourceTopLeftSampling&&alignment===0&&lineAlignment===0&&this.manifest.colorMode==='alpha'&&/^(?:[^\r\n]*)(?:\r\n|\r|\n)?$/.test(value);
-    if((lines.length===1&&(nativeAlignedLine||lcdBottomEdge&&alignment===4&&lineAlignment===2&&this.manifest.colorMode==='alpha')&&spacing===0)||sourceTopLeft){
+    if(!fixedWidthSpans?.length&&(lines.length===1&&(nativeAlignedLine||lcdBottomEdge&&alignment===4&&lineAlignment===2&&this.manifest.colorMode==='alpha')&&spacing===0||sourceTopLeft)){
       // NW writer flags 0x100/0x111: only the centered axis subtracts ceil
       // half the measured rectangle before FINF ascent and TGLP baseline
       // (0x2ffc90/0x300340). Explicit left line alignment is equivalent
@@ -294,7 +308,7 @@ export class BitmapFont {
     // The centred NW writer rounds the block and each line's half-width up.
     // Keeping fractional half-widths shifts some Settings lines by one pixel.
     const y0=vertical===1?height/2-Math.ceil(blockHeight/2):vertical*(height-blockHeight)/2;
-    const widths=lines.map(glyphs=>glyphs.reduce((n,g)=>n+(g?.advance??0)*sx+spacing,0)-(glyphs.length?spacing:0));
+    const widths=lines.map(glyphs=>glyphs.reduce((n,g,column)=>n+(fixedWidthAt[column]??(g?.advance??0)*sx)+spacing,0)-(glyphs.length?spacing:0));
     const blockWidth=Math.max(0,...widths);
     const exactWriter=writer0110||writer0111;
     let writerOrigin=0,writerScaleX=0,writerScaleY=0,writerBlockHalf=0,writerY0=0;
@@ -330,8 +344,10 @@ export class BitmapFont {
       let x=writer0110?writerOrigin:writer0111?writerOrigin+writerBlockHalf-Math.ceil(Math.fround(writerLineWidths[row]*Math.fround(.5))):horizontal===1&&alignment%3===1?width/2-Math.ceil(runWidth/2)
         :(alignment%3)*(width-blockWidth)/2+horizontal*(blockWidth-runWidth)/2;
       for(const [column,g] of glyphs.entries()){if(!g)continue;
-        if(g.width&&selected[row][column])draws.push({glyph:g,x:exactWriter?Math.fround(x+Math.fround(g.left*writerScaleX)):x+g.left*sx,y:writer0111?Math.fround(writerY0+writerLineYs[row]):y0+(lineAdvanceScales?lineY:row*lineHeight)});
-        x=exactWriter?Math.fround(x+Math.fround(g.advance*writerScaleX)):x+g.advance*sx+spacing;
+        // A fixed cell centres the glyph's own scaled advance, then advances by the cell.
+        const fixed=fixedWidthAt[column],margin=fixed===undefined?0:(fixed-g.advance*sx)/2;
+        if(g.width&&selected[row][column])draws.push({glyph:g,x:exactWriter?Math.fround(x+Math.fround(g.left*writerScaleX)):x+margin+g.left*sx,y:writer0111?Math.fround(writerY0+writerLineYs[row]):y0+(lineAdvanceScales?lineY:row*lineHeight)});
+        x=exactWriter?Math.fround(x+Math.fround(g.advance*writerScaleX)):fixed!==undefined?x+fixed:x+g.advance*sx+spacing;
       }
       if(lineAdvanceScales&&row<lineAdvanceScales.length)lineY+=scaledAdvance(lineAdvanceScales[row]);
     });

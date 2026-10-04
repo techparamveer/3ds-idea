@@ -3,7 +3,7 @@ import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { StockScreenPaintOptions } from './stock-screen-presentation';
 import { soundLibraryRows, soundPlaybackMode, soundSeekBar, stockScreenTargets, type SoundPlaybackMode } from './stock-screen-layout';
-import { nativeMessageOverride, poseNativeLayout, type NativeLayout } from './native-layout';
+import { nativeMessageOverride, poseNativeLayout, type NativeLayout, type NativePack, type PaneOverrides } from './native-layout';
 import { drawNativeSoundRecordBackground, soundRecordLayoutSelection } from './stock-sound-record';
 
 const prefix='packs/sound/contents/0000-0000000b/';
@@ -44,6 +44,68 @@ export function soundGuideMessageColor(value:ReturnType<typeof nativeMessageOver
   const word=value.messageStyle?.unresolvedWords?.['8'];
   return typeof word==='number'&&Number.isInteger(word)&&word>=0&&word<=0xffffffff
     ?[word&255,(word>>>8)&255,(word>>>16)&255,(word>>>24)&255]:null;
+}
+
+type SoundHudTimeToken={text?:string;control?:number;group?:number;type?:number;arguments?:string};
+function soundHudTimeFloat(hex:string):number{
+  if(!/^[0-9a-f]{8}$/i.test(hex))throw new Error('Invalid Sound HudTime width token');
+  return new DataView(Uint8Array.from(hex.match(/../g)!,byte=>parseInt(byte,16)).buffer).getFloat32(0,true);
+}
+/** Type 47 stores length-prefixed UTF-16LE alternatives, not one concatenated string. */
+export function soundHudTimeAlternatives(hex:string):string[]{
+  if(!/^[0-9a-f]*$/i.test(hex)||hex.length%4)throw new Error('Invalid Sound HudTime separator');
+  const alternatives:string[]=[];let offset=0;
+  while(offset<hex.length){
+    const byteLength=parseInt(hex.slice(offset+2,offset+4)+hex.slice(offset,offset+2),16);offset+=4;
+    if(!Number.isInteger(byteLength)||byteLength%2||offset+byteLength*2>hex.length)throw new Error('Invalid Sound HudTime separator');
+    let text='';const end=offset+byteLength*2;
+    for(;offset<end;offset+=4)text+=String.fromCharCode(parseInt(hex.slice(offset+2,offset+4)+hex.slice(offset,offset+2),16));
+    alternatives.push(text);
+  }
+  return alternatives;
+}
+/** S/HudTime: style 9, zero-padded hour (group 3 type 3) and minute (type 4),
+ * and a type-47 separator choice. Sound code.bin 0x206c3c (expander 0x2066fc,
+ * jump slot 0x2f-0x26) emits alternative 0 (":") when bit 0 of the clock
+ * struct's seconds byte (0x3c9a7c+0x2c; 0x238890 reads it as h*3600+m*60+s)
+ * is set, otherwise alternative 1 (" "). Group 5 type 0 floats 12/10 are kept
+ * as fixed character pitch and type 1 ends it: that reading is fitted to the
+ * 22:31:31 / 22:27:14 stills, not traced, and is a labelled adaptation. */
+export function soundHudTimeOverride(pack:NativePack,date:Date):PaneOverrides[string]{
+  const bank=pack.messages.S,message=bank?.messages[bank.labels.HudTime];
+  if(!message)throw new Error('Missing Sound HudTime message');
+  const source=nativeMessageOverride(pack,'S','HudTime','');
+  const width=source.messageStyle?.unresolvedWords?.['0'];
+  if(width!==72)throw new Error('Missing Sound HudTime style width');
+  const fixedWidthSpans:NonNullable<PaneOverrides[string]['fixedWidthSpans']>=[];
+  let text='',pitch:number|null=null;
+  const append=(value:string)=>{
+    if(pitch!==null&&value.length){
+      const previous=fixedWidthSpans.at(-1);
+      if(previous&&previous.end===text.length&&previous.width===pitch)previous.end+=value.length;
+      else fixedWidthSpans.push({start:text.length,end:text.length+value.length,width:pitch});
+    }
+    text+=value;
+  };
+  for(const raw of message.tokens){
+    const token=raw as SoundHudTimeToken,args=token.arguments??'';
+    if(typeof token.text==='string'||token.control!==14)throw new Error('Unsupported Sound HudTime message control');
+    if(token.group===5&&token.type===0){
+      const value=soundHudTimeFloat(args);
+      if(!Number.isFinite(value)||value<=0)throw new Error('Invalid Sound HudTime width token');
+      pitch=value;
+    }else if(token.group===5&&token.type===1&&args==='')pitch=null;
+    else if(token.group===3&&token.type===3&&args==='')append(String(date.getHours()).padStart(2,'0'));
+    else if(token.group===3&&token.type===4&&args==='')append(String(date.getMinutes()).padStart(2,'0'));
+    else if(token.group===3&&token.type===47){
+      const alternatives=soundHudTimeAlternatives(args);
+      if(alternatives.length!==2)throw new Error('Unsupported Sound HudTime separator');
+      append(alternatives[date.getSeconds()&1?0:1]);
+    }else throw new Error('Unsupported Sound HudTime message control');
+  }
+  if(!text.length||text.length>6)throw new Error('Unsupported Sound HudTime message control');
+  // CLYT height stays 30; RI.mstl word 0 expands the 48 px pane so the pitched run fits.
+  return {...source,text,fixedWidthSpans,size:[width,30]};
 }
 
 /** Original Sound artwork at its source mounts with portfolio track content.
@@ -92,8 +154,7 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     entry(top,'sound-info','S_Inf_U-UnderBar');
     entry(top,'sound-hud','C_HudSndB',{center:[7,228],bindings:[{name:'C_HudSndB_Pattern',frame:0}]});
     entry(top,'sound-hud','C_HudBut_B',{center:[51,228],bindings:[{name:'C_HudBut_B_Pattern',frame:4}]});
-    const date=options.date??new Date(),clock=String(date.getHours()).padStart(2,'0')+' '+String(date.getMinutes()).padStart(2,'0');
-    entry(top,'sound-info','S_Inf_U-Hour',{overrides:{TextBox_00:{text:clock,fontSize:[18,21.6],size:[72,30],translation:[-36,-108,0]}}});
+    entry(top,'sound-info','S_Inf_U-Hour',{overrides:{TextBox_00:soundHudTimeOverride(renderer.packs['sound-messages'],options.date??new Date())}});
     entry(top,'sound-info','S_Inf_U-PlayTime',{overrides:{PlyTimeTxt:{text:'0:00:00 / 0:00:00'}}});
     // The settled native SD-absent capture places this row two LCD pixels above
     // the raw layout origin. Move its source cursor, icon and text together.

@@ -52,7 +52,8 @@ test('room failure restores renderer and invalid resources reach an explicit err
 
 test('Sound main inserts the room after the base and before chrome; playback omits it',async()=>{
  const {drawNativeSoundFrame}=await import(moduleUrl(fileURLToPath(new URL('../src/os/stock-native-sound.ts',import.meta.url))));
- const sequence=[],renderer={packs:{'sound-messages':{messages:{}}},draw(ctx,pack,layout){sequence.push(layout);return true;}},top={},bottom={};
+ const messages=JSON.parse(readFileSync(new URL('packs/sound/contents/0000-0000000b/msg-EU_English.json',firmware),'utf8'));
+ const sequence=[],renderer={packs:{'sound-messages':messages},draw(ctx,pack,layout){sequence.push(layout);return true;}},top={},bottom={};
  const view={appId:'sound',screen:'main',heading:'',rows:[],selection:0,footer:{},data:{tracks:[]}},soundRoom={draw(ctx){assert.equal(ctx,top);sequence.push('ROOM');return true;}};
  assert.equal(drawNativeSoundFrame(renderer,top,bottom,view,{soundRoom}),true);
  assert.ok(sequence.indexOf('ROOM')>sequence.indexOf('S_BG'));assert.ok(sequence.indexOf('ROOM')<sequence.indexOf('S_Inf_U-TitleBar'));

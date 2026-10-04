@@ -422,3 +422,21 @@ test('opt-in UTF-16 glyph-size runs scale mixed lines, measurement and source ne
  assert.throws(()=>font.drawNative(context,'A😀\r\nB',100,40,[10,10],4,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,[{start:2,end:5,scale:.5}]),/Invalid native text scale span/,'span cannot split a surrogate pair');
  assert.throws(()=>font.drawNative(context,'A😀\r\nB',100,40,[10,10],4,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,[{start:1,end:4,scale:.5}]),/Invalid native text scale span/,'span cannot split CRLF');
 });
+
+test('opt-in fixed-width spans centre each glyph advance in its cell and advance by the cell',()=>{
+ const manifest=JSON.parse(fs.readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+ const font=new BitmapFont(manifest,manifest.sheets.map(()=>({})));
+ const s=.68,size=[25*s,30*s],spans=[{start:0,end:2,width:12},{start:2,end:3,width:10},{start:3,end:5,width:12}];
+ const inkX=value=>{const calls=[];font.drawNative({drawImage:(...args)=>calls.push(args)},value,72,30,size,0,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,undefined,spans);return calls.map(call=>call[5]);};
+ const g=c=>manifest.glyphs[c.codePointAt(0)],at=(cell,pitch,c)=>cell+(pitch-g(c).advance*s)/2+g(c).left*s;
+ const colon=inkX('22:31'),space=inkX('22 27');
+ const expected=[at(0,12,'2'),at(12,12,'2'),at(24,10,':'),at(34,12,'3'),at(46,12,'1')];
+ colon.forEach((x,i)=>assert.ok(Math.abs(x-expected[i])<1e-9,`colon run glyph ${i}`));
+ // Space has no ink, but its 10 px cell keeps the minute digits on the same pitch.
+ assert.equal(space.length,4);
+ assert.ok(Math.abs(space[2]-at(34,12,'2'))<1e-9);
+ // Native 22:31:31 / 22:27:14 stills: hour ink 12 px apart, first minute ink 22 px after the second hour digit.
+ assert.ok(Math.abs(colon[1]-colon[0]-12)<1e-9);assert.ok(Math.abs(space[2]-space[1]-22)<1e-9);
+ assert.throws(()=>font.drawNative({drawImage(){}},'22\n31',72,30,size,0,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,undefined,[{start:0,end:2,width:12}]),/Unsupported native fixed-width text run/);
+ assert.throws(()=>font.drawNative({drawImage(){}},'2231',72,30,size,0,0,0,0,[0,0],false,undefined,undefined,[],false,false,undefined,undefined,undefined,[{start:0,end:5,width:12}]),/Invalid native fixed-width span/);
+});

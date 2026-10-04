@@ -145,7 +145,7 @@ export class NativeLayoutRenderer {
   // transforms; other projections keep the pane-raster path.
   const sourceTopLeft=sourceTopLeftSampling&&font.manifest.colorMode==='alpha'&&text.alignment===0&&text.lineAlignment===0&&/^(?:[^\r\n]*)(?:\r\n|\r|\n)?$/.test(text.value);
   const writer0111=text.multilineBlockOrigin==='writer-0x111'&&/[\r\n]/.test(text.value)&&text.alignment===4&&text.lineAlignment===0&&metrics.characterSpacing===0&&metrics.lineSpacing===0&&!text.colorSpans?.length&&!text.glyphScaleSpans?.length&&!text.cursorAdvances?.length&&!text.lineAdvanceScales;
-  const direct=font.manifest.colorMode==='alpha'&&!text.glyphScaleSpans?.length&&((!/[\r\n]/.test(text.value)&&(text.alignment===3||text.alignment===4)&&(text.lineAlignment===0||sourceSize&&text.alignment===4&&text.lineAlignment===2)&&metrics.characterSpacing===0)||sourceTopLeft||writer0111)&&(sourceSize||pane.size[0]===w&&pane.size[1]===h)&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
+  const direct=font.manifest.colorMode==='alpha'&&!text.glyphScaleSpans?.length&&!text.fixedWidthSpans?.length&&((!/[\r\n]/.test(text.value)&&(text.alignment===3||text.alignment===4)&&(text.lineAlignment===0||sourceSize&&text.alignment===4&&text.lineAlignment===2)&&metrics.characterSpacing===0)||sourceTopLeft||writer0111)&&(sourceSize||pane.size[0]===w&&pane.size[1]===h)&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
   const coverage=direct?coverageAdaptation:undefined;
   const phase:readonly [number,number]=direct?[transform.e-Math.floor(transform.e),transform.f-Math.floor(transform.f)]:[0,0];
   const [above,below]=nativeTextVerticalOverhang(font.manifest,text.value,metrics.size,h,text.alignment,text.lineAlignment,metrics.characterSpacing);
@@ -166,7 +166,7 @@ export class NativeLayoutRenderer {
    for(const run of runs){
     if(mask!==canvas)ink.clearRect(0,0,rasterWidth,rasterHeight);
     ink.save();ink.translate(0,above);
-    font.drawNative(ink,text.value,direct&&sourceSize?pane.size[0]:w,direct&&sourceSize?pane.size[1]:h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined,text.cursorAdvances,sourceSize,sourceTopLeftSampling,text.lineAdvanceScales,text.multilineBlockOrigin,text.glyphScaleSpans);
+    font.drawNative(ink,text.value,direct&&sourceSize?pane.size[0]:w,direct&&sourceSize?pane.size[1]:h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined,text.cursorAdvances,sourceSize,sourceTopLeftSampling,text.lineAdvanceScales,text.multilineBlockOrigin,text.glyphScaleSpans,text.fixedWidthSpans);
     ink.restore();
     const image=ink.getImageData(0,0,rasterWidth,rasterHeight);
     for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){

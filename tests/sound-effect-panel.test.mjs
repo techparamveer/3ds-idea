@@ -13,11 +13,12 @@ const {soundScreenPacks,drawNativeSoundFrame}=await import(url(source));
 const {stockScreenActionAt:hit}=await import(layout);
 const firmware=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const playPack=JSON.parse(readFileSync(new URL('packs/sound/contents/0000-0000000b/lyt-S_Play_D-arc-LZ.json',firmware),'utf8'));
+const messages=JSON.parse(readFileSync(new URL('packs/sound/contents/0000-0000000b/msg-EU_English.json',firmware),'utf8'));
 
 const panes=(pane,out={})=>{out[pane.name]=pane;for(const child of pane.children)panes(child,out);return out;};
 const draws=view=>{
   const calls=[],top={},bottom={};
-  drawNativeSoundFrame({packs:{'sound-messages':{messages:{}}},draw:(ctx,pack,layout,options={})=>{calls.push({screen:ctx===bottom?'bottom':'top',pack,layout,bindings:options.bindings??[]});return true;}},top,bottom,view,{});
+  drawNativeSoundFrame({packs:{'sound-messages':messages},draw:(ctx,pack,layout,options={})=>{calls.push({screen:ctx===bottom?'bottom':'top',pack,layout,bindings:options.bindings??[]});return true;}},top,bottom,view,{});
   return calls;
 };
 const playback={appId:'sound',screen:'playback',heading:'',rows:[],selection:0,footer:{left:{label:'Back',action:'back'},right:{label:'OK',action:'play'}},data:{track:{id:'probe',title:'Probe'},playing:true,position:10,duration:100}};

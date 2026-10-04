@@ -1,5 +1,12 @@
 # Workstream Registry
 
+## HOME Entry Delay - 4 October 2026
+
+Claude Code coordinator owns `3ds-home-entry-delay-20261004` /
+`codex/home-entry-delay-20261004` (`1609d7b3`, `93f7ddf8`), integrated as
+`03dd2450`, `5973bcd6`.
+[Delivered correction and remaining gaps](../home-entry-delay-2026-10-04.md).
+
 ## HOME Launch Logo Wait - 4 October 2026
 
 Claude Code coordinator owns `3ds-home-launch-logo-wait-20261004` /

@@ -68,6 +68,14 @@ const cameraUpperHidden={
   Fit:{visible:false},MovInfo:{visible:false},BrwsError:{visible:false},'Brws_U_fold_Bir':{visible:false},
   Txt_Date:{visible:false},Txt_total:{visible:false},Txt_data4:{visible:false},Txt_data5:{visible:false},
 };
+/** Frozen HNI still is 3D-off. Caller `0x2a7278` passes this byte into `0x2fdc6c`,
+ * not the stereo/MPO flag used by photo fit `0x210230`. */
+export const cameraBrowseFinder3dEnabled=false;
+/** Selector `0x2fdc6c`: `3DView` visible = r1, `2DView` visible = r1 XOR 1.
+ * Pane names come from table `0x4404cc` offsets `0x158` / `0x15c`. */
+export function cameraFinderViewBadgeOverrides(threeDEnabled:boolean):PaneOverrides{
+  return {'3DView':{visible:!!threeDEnabled},'2DView':{visible:!threeDEnabled}};
+}
 
 /** Lower-LCD rectangle for a centered native pane. Canvas Y is flipped. */
 export function nativeLowerPaneRect(translation:readonly number[],size:readonly number[],canvas:readonly number[]=[320,240]):[number,number,number,number]{
@@ -281,12 +289,11 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   const capacityPane=find(renderer.packs['camera-finder']?.layouts.P_Finder_U?.roots??[]);
   if(!capacityPane)return false;
   const capacity=cameraCapacityOverride(renderer.packs['camera-messages'],capacityPane.size[1],'3000');
-  // The monoscopic reference uses the source 2DView material (100/255 grey),
-  // which shares the cube texture with the white 3DView material.
+  // Welcome finder is 3D-off. Same 0x2fdc6c pane pair as browse (`P_Finder_U`).
   draw(top,'camera-finder','P_Finder_U',{overrides:{
     Grid:{visible:false},ShootInfoDlg:{visible:false},ShootInfo:{visible:false},State_IcamOcam:{visible:false},
     MovRem:{visible:false},MovInt:{visible:false},RecSign:{visible:false},State_PhoMov:{visible:false},MovFrm:{visible:false},
-    '3DView':{visible:false},'2DView':{visible:true},ShootCapa_Pho:capacity,
+    ...cameraFinderViewBadgeOverrides(false),ShootCapa_Pho:capacity,
   }});
   // P_Finder_U/Storage/-L-SD has world translation (187,-105).
   draw(top,'camera-icons','C_IconSD',{center:[387,225]});
@@ -336,11 +343,10 @@ export function drawNativeCameraFrame(renderer:NativeLayoutRenderer,top:CanvasRe
   }
   const upper=renderer.draw(top,'camera-finder','P_FinderVS_U',{overrides:{
     ...cameraUpperHidden,
-    // The matched native MPO browse shows the dark source 2D cube even while
-    // the stereo photo path is active (consistent with a disabled 3D slider).
-    // The four finder vignette pictures are absent from the matched MPO gallery.
+    // Badge visibility follows 0x2fdc6c (3D-enable), not stereoPhoto / MPO.
+    // The four finder vignette pictures stay hidden on the matched MPO gallery.
     ViewInfo:{visible:photoView&&!!(str(photo.thumbnail)||str(photo.src))},
-    '3DView':{visible:false},'2DView':{visible:true},
+    ...cameraFinderViewBadgeOverrides(cameraBrowseFinder3dEnabled),
     ...(stereoPhoto?{
       Edge0:{visible:false},Edge1:{visible:false},Edge2:{visible:false},Edge3:{visible:false},
     }:{}),

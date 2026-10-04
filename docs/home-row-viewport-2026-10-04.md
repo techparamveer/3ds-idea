@@ -148,10 +148,11 @@ The neighbour-face mask (`R/adaptation-neighbor-mask.json`, SHA-256
 covers only `[32,118,80,82]` and `[112,118,88,82]`
 (`portfolio-content`). Settings, cursor, arrows, balloon, toolbar and
 footer stay compared. Masked lower **5,426** (13,776 pixels excluded).
-Largest remaining 4-neighbour components: 2,220 right peek, 1,656
+Largest remaining 4-neighbour components: 2,220 right peek and
+561+391+145 left peek/arrow (labelled
+[portfolio adaptations](home-neighbor-peeks-2026-10-04.md)), 1,656
 Settings+cursor (labelled
-[source gap](home-settings-cursor-2026-10-04.md)), 561+391+145 left
-peek/arrow, 162 News receive lamp
+[source gap](home-settings-cursor-2026-10-04.md)), 162 News receive lamp
 (`N_NewsRcv_00`; see [the lamp note](home-toolbar-icon-2026-10-04.md)).
 
 Inspected `R/diff-after-unmasked/lower-contact-sheet.png` and
@@ -193,11 +194,11 @@ Reuse the matching walk for this still: 1-row origin, Right to Settings,
 frozen yaw 304 / COMMON 303 / Loop 338 / cursor 37. Do not change live
 `INITIAL_YAW`, COMMON clocks or the directional scroll rule.
 
-Remaining lower work is neighbour identity (excluded titles vs Sound /
-Health / Camera peeks). The 1,656 Settings+cursor pixels are a labelled
-[source gap](home-settings-cursor-2026-10-04.md), not viewport math.
-Remaining upper work is still the 190 outer green/yellow `mt_pict` edges
-and three wrench pixels.
+Remaining lower work is the already-labelled
+[About / Camera peeks](home-neighbor-peeks-2026-10-04.md) plus the 1,656
+Settings+cursor [source gap](home-settings-cursor-2026-10-04.md), not
+viewport math. Do not invent excluded-title art. Remaining upper work is
+still the 190 outer green/yellow `mt_pict` edges and three wrench pixels.
 
 Whole-scenario 1:1 still fails. Matrix unchanged.
 

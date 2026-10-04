@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME 1-row Settings+cursor cluster](home-settings-cursor-2026-10-04.md),
+Latest [HOME 1-row neighbour peeks](home-neighbor-peeks-2026-10-04.md),
+`36c66188` from worker `35b2fe96`: right 2,220 and left 561+391+145 are
+ordinary About / Camera peeks under already-bound `LncArw_00` Appear 15.
+Native neighbours stay excluded Activity Log / Download Play. No unused
+peek compositor. Docs and tests only. Coordinator APPROVE pending
+independent review. Not 1:1.
+
+Earlier [HOME 1-row Settings+cursor cluster](home-settings-cursor-2026-10-04.md),
 `0536c4ac` from worker `d2e5d1d6`: the 1,656-pixel masked leftover
 is `LncCsr_00` chrome around a matching Settings face. Loop 37 is a frozen
 diagnostic, not a unique live clock. Docs and tests only. Independent review
@@ -92,9 +99,11 @@ Earlier [HOME 1-row viewport route](home-row-viewport-2026-10-04.md): walking Ri
 from 1-row origin to Settings (native Activity Log | Download Play |
 Settings, both out-of-scope neighbours) gives 190 upper / 12,000 lower, and
 5,426 lower with the two portfolio neighbour faces masked. No runtime change.
-Remaining lower: edge peeks (portfolio placement), the labelled
-[1,656-pixel Settings+cursor halo](home-settings-cursor-2026-10-04.md), and the
+Remaining lower: labelled
+[About / Camera peeks](home-neighbor-peeks-2026-10-04.md) (2,220 / 561+391+145),
+the [1,656-pixel Settings+cursor halo](home-settings-cursor-2026-10-04.md), and the
 [162-pixel News receive lamp](home-toolbar-icon-2026-10-04.md) (not the house).
+Remaining upper: 190 `mt_pict` edges.
 
 Earlier [HOME Settings yaw re-search](home-settings-yaw-research-2026-10-04.md), `dde43424`:
 frozen yaw 304 / COMMON 303 / Loop 338 / cursor 37 gives 190 upper pixels

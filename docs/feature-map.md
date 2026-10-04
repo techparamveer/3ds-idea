@@ -15,7 +15,12 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME HUD colon blink](home-hud-colon-2026-10-04.md), `b51f135b`, hides
+Latest [HOME Settings one-row recapture](home-hud-settings-recapture-2026-10-04.md)
+on `c33f1c4e` (runtime `b51f135b`) matches HUD content on the 26 September
+still. Next residual is Settings banner yaw plus wallpaper. Whole 1:1 still
+fails.
+
+Earlier [HOME HUD colon blink](home-hud-colon-2026-10-04.md), `b51f135b`, hides
 `T_TimeC_00` on odd seconds to match the native still (fitted adaptation).
 
 Earlier [HOME reference-profile HUD](home-hud-profile-2026-10-04.md), `82ab64c7`,

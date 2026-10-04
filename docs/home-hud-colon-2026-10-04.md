@@ -30,5 +30,7 @@ Worker `3ds-home-hud-colon-20261004` / `codex/home-hud-colon-20261004`,
 
 ## Remaining
 
-Clock timezone, WalkCoin fade, wallpaper, selected title and whole-scenario
-acceptance remain open. Matrix unchanged.
+The follow-up [Settings one-row recapture](home-hud-settings-recapture-2026-10-04.md)
+fixes the capture clock and selected title for this still. WalkCoin fade,
+wallpaper, banner yaw and whole-scenario acceptance remain open. Matrix
+unchanged.

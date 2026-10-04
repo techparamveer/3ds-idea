@@ -44,7 +44,7 @@ test('settings replacement cannot consume a cancelled transition boundary',()=>{
  assert.notEqual(resolveHomeBannerHostSelection(replaced).kind,'clear');
 });
 
-test('software close requests reacquisition once at footer departure before owner retirement',()=>{
+test('software close requests reacquisition once at footer departure frame 4 before owner retirement',()=>{
  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6200),'home',6300);
  const closing=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
  assert.deepEqual(homeApplicationBannerBoundary(suspended,closing),{kind:'clear'});
@@ -54,9 +54,13 @@ test('software close requests reacquisition once at footer departure before owne
  for(let i=0;i<12&&state.system.homeApplicationTransition?.phase!=='footer-returning';i++){
   const before=state;state=tickSystem(state,7000+i*500);
   if(state.system.homeApplicationTransition?.phase==='footer-returning')retirement=before;
-  if(state.system.homeApplicationTransition?.phase==='footer-exiting'&&state.system.homeApplicationTransition.footerExitFrame===0){
-   departure=state;
+  // The request belongs to the update that reaches departure frame 4; this
+  // 500ms cadence crosses it inside one batched step.
+  const exitFrame=t=>t?.footerReturnFrame!==null&&t?.footerReturnFrame!==undefined?Infinity:(t?.footerExitFrame??-1);
+  if(exitFrame(before.system.homeApplicationTransition)<4&&exitFrame(state.system.homeApplicationTransition)>=4){
+   assert.equal(departure,undefined,'only one crossing requests');departure=state;
    assert.deepEqual(homeApplicationBannerBoundary(before,state),resolveHomeBannerHostSelection(state));
+   assert.notDeepEqual(resolveHomeBannerHostSelection(state),{kind:'clear'});
    assert.equal(state.system.runtime.application,closing.system.runtime.application);
   }else assert.equal(homeApplicationBannerBoundary(before,state),undefined);
  }

@@ -99,6 +99,19 @@ export type HomeBannerHostView =
     primary: HomeBannerHostActivePresentation & Readonly<{ motion: HomeBannerMotion }>;
   }>);
 
+/** Native Health close (5% playback) first shows the returning banner, at
+ * about scale 0.84, near Open return frame 7 and full size three frames
+ * later: activation near return6. Through the unchanged service gates
+ * (hiding, gate, wait1..5, loading, active), a request at compact footer
+ * departure frame 4 activates at return6. Capture fit, not a recovered
+ * native request call. */
+export const HOME_CLOSE_BANNER_REQUEST_EXIT_FRAME = 4;
+type SampledApplicationTransition = ReturnType<typeof sampleSystemHomeApplicationTransition>;
+function closeBannerRequested(transition: SampledApplicationTransition): boolean {
+  return !!transition && transition.intent.kind === 'close' && (transition.footerReturnFrame !== null
+    || (transition.footerExitFrame ?? -1) >= HOME_CLOSE_BANNER_REQUEST_EXIT_FRAME);
+}
+
 function resolveSelectedHomeBannerContent(state: MenuState): HomeBannerHostSelection {
   const slot = state.opened ? state.folderSelected : state.selected;
   return resolveContentAt(state, state.opened ? state.selected : null, slot);
@@ -108,10 +121,10 @@ function resolveSelectedHomeBannerContent(state: MenuState): HomeBannerHostSelec
 export function resolveHomeBannerHostSelection(state: MenuState): HomeBannerHostSelection {
   if (isSystemHomeFolderClosing(state)) return { kind: 'clear' };
   const applicationClose=sampleSystemHomeApplicationTransition(state);
-  // The capture-fitted request begins at compact footer departure frame0. In
+  // The capture-fitted request begins at compact footer departure frame 4. In
   // no-controls mode this resolver runs every update, so it must retain that
   // request instead of restoring the earlier clear selection before return0.
-  if(applicationClose?.intent.kind==='close'&&applicationClose.footerExitFrame===null)return {kind:'clear'};
+  if(applicationClose?.intent.kind==='close'&&!closeBannerRequested(applicationClose))return {kind:'clear'};
   return resolveSelectedHomeBannerContent(state);
 }
 
@@ -172,13 +185,10 @@ export function homeApplicationBannerBoundary(before: MenuState, after: MenuStat
   const same=!!previous&&!!next&&previous.identity.generation===next.identity.generation
     &&previous.identity.transitionId===next.identity.transitionId&&previous.identity.owner===next.identity.owner;
   if(next?.intent.kind==='close'&&!same&&next.footerReturnFrame===null)return {kind:'clear'};
-  // Native frame40 keeps the upper blank, while frame41 reacquires the banner
-  // before Open finishes. Request after the upper manager at the forced
-  // departure-frame0 barrier: the unchanged service gates make return0 wait5,
-  // return1 loading and return2 the earliest ready activation. This boundary
-  // is a capture fit, not a recovered native request call or shared epoch.
-  if(same&&next?.intent.kind==='close'&&next.phase==='footer-exiting'&&next.footerExitFrame===0
-    &&previous!.phase==='exit-terminal')return resolveSelectedHomeBannerContent(after);
+  // Request once, on the update that reaches departure frame 4 (a batched
+  // step may cross it); the service gates then activate at return6.
+  if(same&&next?.intent.kind==='close'&&!closeBannerRequested(previous)&&closeBannerRequested(next))
+    return resolveSelectedHomeBannerContent(after);
   const s=after.system;
   if(previous?.intent.kind==='close'&&!next&&!s?.homeApplicationTransition&&previous.phase!=='return-terminal'
     &&after.powered&&s?.phase==='home'&&s.homeFolderClose.generation===before.system?.homeFolderClose.generation

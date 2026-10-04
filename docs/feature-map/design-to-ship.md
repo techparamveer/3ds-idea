@@ -376,7 +376,7 @@ These labels describe implementation, not native acceptance.
 | S-07 | Replace | Outer Cameras and Circle Pad calibration bodies are generic; Transfer helper/choice/return is implemented. No capture/calibration operation. | Settings |
 | S-08 | Finish/replace | Language native list needs focus/hold/groove/confirmation sequencing; Update entry exists; Format leaf remains generic. No locale update, download or destructive action. | Settings |
 | G-01, G-02 | Preserve | Health menu and three articles/scroll/Back are implemented. Fix measured differences, do not redesign article screens. Usage static-tier matches are not whole-scenario acceptance. | Settings |
-| G-04, L-11 | Finish | Settings Manual Contents/page 1 exist; later content/scroll/Enlarge incomplete. Portfolio Guide's local content stays an adaptation. | Settings |
+| G-04, L-11 | Finish | Settings Manual Contents/page 1 exist; page-0 title rule now LCD-samples `BtnShdw01` (offline 332→0). Labelled scrollbar 858 and later content/scroll/Enlarge remain. Portfolio Guide's local content stays an adaptation. | Settings |
 | G-05 | Replace/finish | NNID unsigned-in body is an authored unavailable notice; Transfer/Update Back restores parent. Source-supported offline body/caller arguments remain gaps. | Settings |
 | G-03, G-06, G-08 | Gated | amiibo, Circle Pad Pro, Mii selector and Error helper need an actual in-scope caller; Error also lacks native painter. No invented HOME entries or writable/NFC operations. | Settings |
 

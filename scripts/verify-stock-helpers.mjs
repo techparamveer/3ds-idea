@@ -85,6 +85,10 @@ try{
   if(view.data?.manualTitleId&&view.data?.page===0){
    const body=calls.filter(c=>c.layout==='Page_000_small_0');assert.equal(body.length,2,'page body is published to both LCDs');
    assert.ok(body.every(call=>call.options.textSampling==='lcd-source-size-left'),'source top-left alpha glyphs retain their direct LCD sampling path');
+   const titles=calls.filter(c=>c.layout==='ManualRowImportant'||c.layout==='ManualRowGettingStarted');
+   assert.ok(titles.length>=2,'page header and neighbour title are both drawn');
+   assert.ok(titles.every(call=>call.options.pictureSampling==='lcd'&&call.options.bindings?.[0]?.name==='BtnHeadLineTxt_ChangeWait'),'page title rule samples BtnShdw01 at LCD centres');
+   assert.equal(calls.some(call=>call.layout==='ScrollIndicator'),false,'page scene does not reopen the labelled Contents ScrollIndicator');
   }
   const targets=nativeHelperTargets(view);
   if(view.data?.manualTitleId)assert.deepEqual(targets.map(t=>t.action),view.screen==='main'?['manual-page-0','back']:['manual-close','back']);

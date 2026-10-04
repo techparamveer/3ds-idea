@@ -378,9 +378,11 @@ function drawApplicationManualPage(renderer:NativeLayoutRenderer,top:CanvasRende
     draw(ctx,'manual-index','Page_000_small_bg',{center:[x,y],clip:[0,0,width,height]});
     draw(ctx,'manual-index','Page_000_small_0',{center:[x,y],clip:[x,0,320,height],textSampling:'lcd-source-size-left'});
   }
-  // ChangeWait supplies x−145.5 for the number chip and x−122 for title text.
-  draw(top,'manual-row','ManualRowGettingStarted',{center:[200+neighbor.translation[0],20],bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(next.page+1)},TextBox_Txt:{text:next.title}}});
-  draw(top,'manual-row','ManualRowImportant',{center:[200,20],bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(page.page+1)},TextBox_Txt:{text:page.title}}});
+  // ChangeWait supplies x−145.5 for the number chip, x−122 for title text,
+  // BtnShdw01 alpha 255 / width 512, and body y+0.5. That half-pixel pose is
+  // the authored hairline; Contents already samples this layout at LCD centres.
+  draw(top,'manual-row','ManualRowGettingStarted',{center:[200+neighbor.translation[0],20],pictureSampling:'lcd',bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(next.page+1)},TextBox_Txt:{text:next.title}}});
+  draw(top,'manual-row','ManualRowImportant',{center:[200,20],pictureSampling:'lcd',bindings:[{name:'BtnHeadLineTxt_ChangeWait',frame:0}],overrides:{TextBox_Num:{text:String(page.page+1)},TextBox_Txt:{text:page.title}}});
   draw(bottom,'manual-BtnClose01','BtnClose01',{bindings:[{name:'BtnClose01_SceneIn',frame:20}]});
   draw(bottom,'manual-back','BtnBack00',{textSampling:'lcd-source-size',bindings:[{name:'BtnBack00_SceneIn',frame:20}],overrides:manualBackOverrides(renderer,options)});
   const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');

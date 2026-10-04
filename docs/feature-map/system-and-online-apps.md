@@ -92,7 +92,7 @@ are delivered, but only index/Close works: Camera page content is not delivered.
 Close retains the suspended Camera owner, including explicit resource-failure
 recovery. [Source and comparison limits](../home-camera-manual-footer-2026-10-03.md).
 
-**Status/next:** Settings chrome/text are source-backed with documented capture-fitted placement; Portfolio Guide body is an adaptation. Page 1 materially differs and lacks scrollbar behavior. Source-prove scrollbar before `settings-manual-page0`.
+**Status/next:** Settings chrome/text are source-backed with documented capture-fitted placement; Portfolio Guide body is an adaptation. Page 1 title-rule `[35,37,365,39]` now LCD-samples already-bound `BtnShdw01` under ChangeWait (offline ROI **332 → 0**; production pair still **3054 / 2071** until recapture). Labelled scrollbar `[363,41,369,186]` **858** remains a source gap. Later pages, Enlarge, Language and scrolling stay inert. Recapture `settings-manual-page0` against native `50264d73…`; do not reopen ScrollIndicator.
 
 ### G-05 - Settings-launched helpers
 

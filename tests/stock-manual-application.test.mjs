@@ -230,6 +230,14 @@ test('Settings Manual page 0 samples its Back glyphs at final LCD pixel centres'
   assert.equal(back.options.textSampling,'lcd-source-size');
   assert.ok(back.options.overrides.T_BtnF_Text);
   assert.ok(back.options.overrides.T_BtnF_Pict);
+  const titles=calls.filter(call=>call.layout==='ManualRowImportant'||call.layout==='ManualRowGettingStarted');
+  assert.ok(titles.length>=2);
+  for(const title of titles){
+    assert.equal(title.options.pictureSampling,'lcd');
+    assert.deepEqual(title.options.bindings,[{name:'BtnHeadLineTxt_ChangeWait',frame:0}]);
+    assert.equal(title.options.textCoverageAdaptation,undefined);
+  }
+  assert.equal(calls.some(call=>call.layout==='ScrollIndicator'),false);
 });
 
 test('page preview requests source adjacent geometry and only delivered small page 2', () => {

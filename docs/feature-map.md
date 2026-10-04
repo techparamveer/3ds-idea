@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Notifications remaining lower scrollbar 2479](notifications-scrollbar-2479-2026-10-04.md),
+Notifications status (`f073581` pair, 4 October): upper HUD **3347** and
+lower scrollbar **2479** source-gap claims below were **REJECTED** by
+independent review; HUD bind (`HudMenu_00` from the title's own
+`hud_LZ.bin`) and scrollbar `0x13a160` thumb controller are in progress.
+[Close 577 / list 820](notifications-lower-2026-10-04.md) (worker
+`ac6dded3`) labelled pending independent review. Not 1:1.
+
+Previous (rejected) [Notifications remaining lower scrollbar 2479](notifications-scrollbar-2479-2026-10-04.md),
 worker `codex/next-residual-3-20261004`: reused unread-dot `f073581`
 pair stays **6239** / **3876**; scrollbar `[291,0,320,210]` **2479**
 (max 117 at `(300,63)`). Official

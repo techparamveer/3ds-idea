@@ -19,9 +19,9 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
 | Branch | `codex/home-fidelity-20261001` |
-| HEAD | `73dcc174` — Tighten Close writer-0x110 guards and pin list leftover max 18. |
+| HEAD | `acabb7af` — Put product and done-means on STATUS so new threads start from the site, not the seven-doc pile. |
 
-Runtime bind `9da8dd25` plus nits `73dcc174`. GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
+Runtime bind `9da8dd25` plus nits `73dcc174`. `acabb7af` is docs-only (Product on STATUS). GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` are not this Coordinator.
 

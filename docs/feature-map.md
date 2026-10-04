@@ -15,7 +15,18 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME 1-row after-walk footer 30](home-footer-edges-2026-10-04.md),
+Latest [Camera Welcome page 1 1,401](camera-welcome-p1-1401-2026-10-04.md)
+from worker `codex/camera-welcome-p1-1401-20261004`: reused
+`camera-guide-page1-modal-0d7bfea` stays **0 / 1,401** over 2/255
+(MAE 0.1715 / 0.2372). Official lower components start 308 / 255 / 199 /
+193. Top Y0–5 is 588; side strips 362+372; page counter 78; bird fringe 1.
+Guide interior `[20,20,300,220]` is 0. Shoot underlay / `P_Shoot_D` /
+modal black-alpha128 already bind. No unique unused Default / `C_BkMask`
+/ second CGFX projection owner. Painter unchanged. Docs and tests only.
+HOME 1-row leftovers stay labelled and are not reopened. Not recaptured.
+Not 1:1.
+
+Earlier [HOME 1-row after-walk footer 30](home-footer-edges-2026-10-04.md),
 `85eafcd3` from worker `4d2f2771`: the after-walk footer ROI `[0,204,320,36]`
 **30** (MAE 0.156) is the already-labelled `LncCsr_00` ring bottom at
 y = 205, not Manual / Open. Live `LncBtmBtn_02` clip `[0,210,320,30]`,

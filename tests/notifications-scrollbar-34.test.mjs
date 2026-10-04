@@ -27,7 +27,8 @@ test('idle travel is 0x13aa9c with ratio 0; traced count 0 is not the still', ()
   assert.equal(tex(4).height, 11);
   assert.equal(tex(5).width, 11);
   assert.equal(tex(1).height, 16);
-  assert.match(painter, /overrides:notificationSlideBarOverrides\(start,view\.rows\.length\)/);
+  assert.match(painter, /overrides:notificationSlideBarOverrides\(start,view\.rows\.length\)/,
+    'view.rows.length is the unbound extra-6 idle profile, not a located store');
   assert.equal(painter.includes('azahar-12p4-fit'), false);
   const idle=notificationSlideBarPose(0, 9);
   const tracedInitial=notificationSlideBarPose(0, 0);

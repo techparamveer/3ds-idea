@@ -94,19 +94,22 @@ const SLIDEBAR_HALF=f32(0.5);
 export type NotificationSlideBarPose={extra:number;thumbHeight:number;thumbY:number;grooveHeight:number;lineHeight:number};
 /**
  * Notifications list SlideBar after controller 0x13a160.
- * extra = max(0, index + countField − 3). `countField` is controller+0x0c.
- * List setup 0x17dde8/0x17e0a4/0x17e0b8 stores sl=0, and the +0x28 controller
- * memcpy leaves +0x0c 0. The +0x24 controller that 0x179660 updates stores
- * the literal 1 at 0x17a054, not the row count. Detail 0x17ace4 is the only
- * traced non-constant writer and it is the other screen. Index on 0x179660
- * is list+0x31c after the +0x314 stride cancels; the stores at 0x17a834,
- * 0x179f24 and 0x129360 write 0. Bias 3 with index 0 and count 0 or 1 clamps
- * extra to 0 and skips 0x13aa9c. The frozen idle still matches extra 6
- * (window start 0, nine rows): thumb top at LCD y=4 and the 11px right-frame
- * boundary at y=112.6. The traced 0 is not that silhouette.
- * Idle travel is already 0x1770cc / 0x13aa9c. B_Groove_00 translation.y is 0,
- * and ctor 0x1390ac/0x1390cc leaves +0x7c and +0x90 at 0, so ratio is 0 and
- * thumbY = travel * 0.5. No further idle term.
+ * extra = max(0, index + countField − bias). countField is controller+0x0c.
+ * The +0x28 controller memcpy from 0x17e0a4 has bias 3 and +0x0c 0
+ * (0x17e0b8 is +0x10). The +0x24 controller that 0x179660 updates stores
+ * literal 1 at 0x17a054; its bias is trunc([list+0x310]/[list+0x314]) at
+ * 0x17a048, so extra 0 there also needs that ratio ≥ 1. Detail 0x17ace4
+ * is the only traced non-constant +0x0c writer and it is the other screen.
+ * Index on 0x179660 is list+0x31c; 0x17a834 / 0x179f24 / 0x129360 write 0.
+ * Extra 0 skips 0x13aa9c at 0x13a554 (+0x8c ≤ 0); 0x13a4b0 only zeroes s1.
+ * The frozen idle still matches extra 6 (countField=9 / view.rows.length):
+ * thumb top at LCD y=4 and the 11px right-frame end at y=112.6. That nine
+ * is a capture-matched unbound profile, not a located store. Traced extra 0
+ * is not that silhouette; applying it would run a 174.8px thumb through a
+ * matching face, and skip 0x13aa9c so rest translation.y is unstated.
+ * Idle travel on the extra-6 path is already 0x1770cc / 0x13aa9c with
+ * ratio 0 (ctor 0x1390ac/0x1390cc zeroes +0x7c/+0x90), so thumbY = travel
+ * * 0.5. No further idle term.
  */
 export function notificationSlideBarPose(index:number,countField=0):NotificationSlideBarPose{
   const extra=Math.max(0,Math.trunc(index)+Math.trunc(countField)-SLIDEBAR_INDEX_BIAS);

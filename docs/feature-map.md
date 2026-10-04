@@ -15,7 +15,12 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME launch decide ring](home-launch-ring-2026-10-03.md), `8fada42d`,
+Latest [HOME launch Open Decide and dwells](home-launch-decide-dwell-2026-10-04.md),
+`7a44bff9`, plays the source Open Decide on intact HOME and fits the Decide5
+hold and black dwell to Azahar's frame grid (adaptations). Open tone/audio,
+input hold timing and mobile/reduced recaptures are the next launch residuals.
+
+Earlier [HOME launch decide ring](home-launch-ring-2026-10-03.md), `8fada42d`,
 draws the source `LncCsrEfct_01` ring that native grows from the selected
 icon during the launch fade; a no-visible-change cursor-loop candidate was
 reverted. Open pressed/release tone is the next visible launch residual.

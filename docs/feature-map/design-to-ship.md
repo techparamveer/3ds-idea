@@ -17,12 +17,13 @@ retains the settled banner and departing native Open footer.
 to source black before the logo, removing the captured overlap.
 [Launch cursor](../home-launch-cursor-2026-10-03.md), `4cefc716`, keeps the
 selected brackets under the fade, and [decide ring](../home-launch-ring-2026-10-03.md),
-`8fada42d`, adds the source launch ring. Open pressed/release tone and native
-black dwell remain the next visible launch residuals. Do not repeat generic
+`8fada42d`, adds the source launch ring, and [Open Decide and dwells](../home-launch-decide-dwell-2026-10-04.md),
+`7a44bff9`, adds Open press/release and fitted holds. Open tone/audio and
+input hold timing remain the next launch residuals. Do not repeat generic
 publication work or the reverted cursor-loop candidate.
 
-Current runtime checkpoint: `8fada42d` (HOME launch decide ring),
-3 October 2026. This is the **ordered
+Current runtime checkpoint: `7a44bff9` (HOME launch Open Decide and dwells),
+4 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.
 The user's existing console, HOME and app designs must be preserved. Missing

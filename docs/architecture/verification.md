@@ -12,9 +12,9 @@ shortcuts, pending real hosts and eligible paired failure/retry separately.
 captures native exit/black/upper-only reveal and the visible correction at
 `c6c567d7`. Keep semantic stage comparison separate from native epoch proof.
 Late-pack fault input is a browser-only adaptation: first observed ready may
-lag the first internally successful paired draw. Since `01cc3224` source C14
-starts at 350+1733.333ms ([logo order](../home-launch-logo-order-2026-10-03.md));
-collectors must take the threshold from `appLaunchPose`, not the 2100ms deadline.
+lag the first internally successful paired draw. Since `d910fbfe` source C14
+starts at (10+31+104)/60s = 2416.667ms ([decide and dwells](../home-launch-decide-dwell-2026-10-04.md));
+collectors must take the threshold from `appLaunchPose`, not the 2433.333ms deadline.
 Preserve failed collector outputs and audit them separately, rather than
 rewriting their status. Exact input, timing, audio and whole1:1 remain open.
 

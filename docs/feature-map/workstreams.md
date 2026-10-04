@@ -1,5 +1,14 @@
 # Workstream Registry
 
+## HOME Launch Open Decide And Dwells - 4 October 2026
+
+Claude Code coordinator owns `3ds-home-launch-open-decide-20261004` /
+`codex/home-launch-open-decide-20261004` (`1b85c1b4`, `2be8c536`,
+`ac135984`) and `3ds-home-launch-dwell-20261004` /
+`codex/home-launch-dwell-20261004` (`3ab0e79a`, `299f91bb`), integrated as
+`f4aa0af8`, `e0e41dea`, `8732f3a2`, `d910fbfe`, `7a44bff9`.
+[Delivered correction and remaining gaps](../home-launch-decide-dwell-2026-10-04.md).
+
 ## HOME Launch Decide Ring - 3 October 2026
 
 Claude Code coordinator owns `3ds-home-launch-cursor-loop-20261003`

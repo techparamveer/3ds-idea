@@ -9,7 +9,8 @@ export function systemTransitionDuration(phase:string,reduced=false):number{
  return Infinity;
 }
 export function systemTransitionFrame(elapsedMs:number,lastFrame:number,reduced=false):number{
- return reduced?lastFrame:Math.max(0,Math.min(lastFrame,Math.floor(Math.max(0,elapsedMs)*60/1000)));
+ // The epsilon keeps exact 60Hz grid samples on their frame despite fractional stage origins.
+ return reduced?lastFrame:Math.max(0,Math.min(lastFrame,Math.floor(Math.max(0,elapsedMs)*60/1000+1e-9)));
 }
 
 const SHUTDOWN_DECIDE_LAST_FRAME=10;
@@ -69,7 +70,7 @@ const LAUNCH_LOGO_START_MS=31*LAUNCH_FRAME_MS;
  * 105 source frames at nominal 60Hz are 1750ms; not measured title-load latency. */
 export function appLaunchLogoFrame(logoElapsedMs:number,reduced=false):AppLaunchLogoPose{
  if(reduced)return {clip:'B',frame:15};
- const frame=Math.floor(Math.max(0,logoElapsedMs)*60/1000);
+ const frame=Math.floor(Math.max(0,logoElapsedMs)*60/1000+1e-9);
  if(frame<60)return {clip:'A',frame};
  if(frame<90)return {clip:'B',frame:frame-60};
  return {clip:'C',frame:Math.min(14,frame-90)};
@@ -85,6 +86,6 @@ export function appLaunchLogoFrame(logoElapsedMs:number,reduced=false):AppLaunch
 export function appLaunchPose(elapsedMs:number,reduced=false):AppLaunchPose{
  if(reduced)return {fadeFrame:LAUNCH_FADE_LAST_FRAME,logo:appLaunchLogoFrame(0,true)};
  const elapsed=Math.max(0,elapsedMs-LAUNCH_FADE_START_MS);
- if(elapsed<LAUNCH_LOGO_START_MS)return {fadeFrame:Math.min(LAUNCH_FADE_LAST_FRAME,Math.floor(elapsed*60/1000)),logo:null};
+ if(elapsed<LAUNCH_LOGO_START_MS)return {fadeFrame:Math.min(LAUNCH_FADE_LAST_FRAME,Math.floor(elapsed*60/1000+1e-9)),logo:null};
  return {fadeFrame:LAUNCH_FADE_LAST_FRAME,logo:appLaunchLogoFrame(elapsed-LAUNCH_LOGO_START_MS)};
 }

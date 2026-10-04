@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createPortfolioState,tickSystem,invokeSystemApplet,reduceSystem,launch,getActiveAppView,setSystemSleeping} from '../src/os/system.ts';
 import {deliverCapabilityResult} from '../src/os/app-host.ts';
 
-const home=()=>tickSystem(createPortfolioState(),3900);
+const home=()=>tickSystem(createPortfolioState(),3500);
 const dismiss=state=>reduceSystem(reduceSystem(state,'home',7000),'home',7100);
 
 test('HOME again dismisses suspended Notes to HOME and reopening creates a fresh owner',()=>{

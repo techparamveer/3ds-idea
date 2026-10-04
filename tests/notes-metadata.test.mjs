@@ -82,8 +82,8 @@ test('capture generation or application owner changes invalidate pending and rea
  f.session.sync(s.system.runtime,capture(s,2));assert.equal(f.calls[0].args[2].aborted,true);await flush();
  const stale=metadata();f.calls[0].resolve({status:'ready',metadata:stale});f.calls[1].resolve({status:'ready',metadata:metadata()});await flush();assert.equal(stale.disposals,1);assert.equal(f.session.getState().captureGeneration,2);
  const ready=f.session.getState().metadata,previous=s.system.runtime.application;
- s=reduceSystem(s,'power',7000);f.session.sync(s.system.runtime,{status:'none'});assert.equal(ready.disposals,1);assert.equal(f.session.getState().status,'idle');
- s=reduceSystem(s,'back',7100);s=tickSystem(launch(s,'health-safety',6900),9400);
+ s=reduceSystem(s,'power',6700);f.session.sync(s.system.runtime,{status:'none'});assert.equal(ready.disposals,1);assert.equal(f.session.getState().status,'idle');
+ s=reduceSystem(s,'back',6800);s=tickSystem(launch(s,'health-safety',6900),9400);
  assert.notEqual(s.system.runtime.application,previous);s=invokeSystemApplet(s,'game-notes',9500);
  f.session.sync(s.system.runtime,capture(s));await flush();assert.equal(f.session.getState().applicationOwner,s.system.runtime.application);f.session.dispose();
 });

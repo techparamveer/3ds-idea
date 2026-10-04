@@ -9,7 +9,7 @@ test('Power touch uses only the source B_Btn_01 boundary, not the HOME-key hint'
  for(const [x,y] of [[66,166],[160,182],[253.999,201.999]])assert.equal(powerMenuActionAt(x,y),'open');
  for(const [x,y] of [[65.999,182],[254,182],[160,165.999],[160,202],[160,228],[0,239],[319,239],[NaN,182],[160,Infinity]])assert.equal(powerMenuActionAt(x,y),null);
  for(const app of [null,'health-safety']){
-  let state=tickSystem(createPortfolioState(),4000);
+  let state=tickSystem(createPortfolioState(),3500);
   if(app)state=tickSystem(launch(state,app,3600),6100);
   const power=reduceSystem(state,'power',6200);
   assert.equal(power.system.phase,'power');
@@ -72,6 +72,8 @@ test('app launch holds Open Decide, then fades HOME to source black before the 6
  assert.deepEqual(appLaunchPose(2433),{fadeFrame:20,logo:{clip:'C',frame:14}});
  assert.deepEqual(appLaunchLogoFrame(0),{clip:'A',frame:0});assert.deepEqual(appLaunchLogoFrame(1750),{clip:'C',frame:14});
  assert.equal(systemTransitionDuration('launch'),146*1000/60);
+ for(let k=0;k<=146;k++){const pose=appLaunchPose(k*1000/60),logo=pose.logo&&({A:0,B:60,C:90}[pose.logo.clip]+pose.logo.frame);
+  assert.deepEqual([pose.fadeFrame,logo],[Math.max(0,Math.min(20,k-10)),k<41?null:Math.min(104,k-41)],`exact 60Hz grid frame ${k}`);}
  let state=launch(tickSystem(createPortfolioState(),4000),'work',4000);
  assert.equal(tickSystem(state,6433).system.phase,'launch');assert.equal(tickSystem(state,6434).system.phase,'app');
  assert.deepEqual(appLaunchPose(0,true),{fadeFrame:20,logo:{clip:'B',frame:15}});assert.equal(systemTransitionDuration('launch',true),120);

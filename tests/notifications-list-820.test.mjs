@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {existsSync, readFileSync} from 'node:fs';
 
-// List 820 / seam 56 have no unique 0x101 direct writer. Tests never pass the scenario.
+// List 820 / seam 56: shared 0x18fe2c, renderer coverage gap. Tests never pass the scenario.
 const firmware=new URL('../public/os/firmware/10.7.0-32E/', import.meta.url);
 const painter=readFileSync(new URL('../src/os/stock-native-personal-tools.ts', import.meta.url), 'utf8');
 const renderer=readFileSync(new URL('../src/os/native-renderer.ts', import.meta.url), 'utf8');
@@ -13,7 +13,7 @@ const layout=news.layouts.NewsWndwNews_D_00;
 const pane=name=>flatten(layout.roots).find(item=>item.name===name);
 const titleB=pane('T_NewsTitleB_00'), titleF=pane('T_NewsTitleF_00');
 
-test('title panes are alignment 3 / line alignment 2; only the white front sits on a half pixel', ()=>{
+test('title panes are alignment 3 / line alignment 2; B is the white back at y -9.5', ()=>{
   assert.equal(news.titleId, '000400300000a002');
   assert.equal(news.sourceSha256, '4b4e5bd8b63d0c8859ba10e3daa4ac819b53e0f16ca3e9d4a401c0cdeb819366');
   assert.equal(news.resourceSources.layouts.NewsWndwNews_D_00.sha256, 'dfa42ef3e245a0abd77afba4653352aaf685fbdda65a91550b163421cf91ce80');
@@ -24,7 +24,6 @@ test('title panes are alignment 3 / line alignment 2; only the white front sits 
     assert.deepEqual(title.text.size, [15.000000953674316, 18]);
   }
   assert.deepEqual(titleB.translation, [52, -9.5, 0]);
-  assert.equal(titleB.translation[1], -9.5);
   assert.deepEqual(layout.materials[titleB.text.material].constantColors[0], [255, 255, 255, 255]);
   assert.equal(titleF.translation[1], -8.000740051269531);
   assert.deepEqual(layout.materials[titleF.text.material].constantColors[0], [50, 50, 50, 255]);
@@ -34,11 +33,13 @@ test('title panes are alignment 3 / line alignment 2; only the white front sits 
   }
 });
 
-test('0x101 is the shared flag constructor, and titles miss the traced direct LCD predicate', ()=>{
+test('0x101 is the shared flag constructor; titles miss direct and nativeAlignedLine', ()=>{
   assert.match(renderer, /text\.lineAlignment===0\|\|sourceSize&&text\.alignment===4&&text\.lineAlignment===2/);
+  const font=readFileSync(new URL('../src/os/bitmap-font.ts', import.meta.url), 'utf8');
+  assert.match(font, /\(alignment===4\|\|alignment===3&&this\.manifest\.colorMode==='alpha'\)&&lineAlignment===0/);
   const sourceSize=false;
   const directLine=titleB.text.lineAlignment===0||sourceSize&&titleB.text.alignment===4&&titleB.text.lineAlignment===2;
-  assert.equal(directLine, false, 'alignment 3 / line alignment 2 is not the direct writer');
+  assert.equal(directLine, false, 'alignment 3 / line alignment 2 still fails the host direct predicate');
   assert.match(painter, /T_NewsTitleB_00:\{text:row\.label\},T_NewsTitleF_00:\{text:row\.label\}/);
   const section=painter.slice(painter.indexOf("renderer.packs['notification-messages']"), painter.indexOf("options.font?.draw(bottom,view.text"));
   assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);

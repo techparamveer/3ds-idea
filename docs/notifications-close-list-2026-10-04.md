@@ -123,13 +123,13 @@ coordinator recapture can establish it.
 the source origin, and the writer does not own the list residual. Frozen
 list `[0,0,291,210]` is **820** with max **18** at `(124,111)` (32 pixels
 are 14–18, all near-white fringe `255` vs about `241`). That is still
-title-edge coverage on `T_NewsTitleB_00` at its half-pixel y (−9.5) over
-the cyan balloon; it does not create a second owner. Changing it would be
-a sampler or precision guess. The titles are not opted in. **820** remains
-labelled AA / source gap. The later
-[list 820 note](notifications-list-820-2026-10-04.md) confirms there is
-still no distinct 0x101 LCD writer; the seam **56** is that same fringe
-where the slot-3 title crosses y=210.
+title-edge coverage on `T_NewsTitleB_00` (white back highlight) at its
+half-pixel y (−9.5) over the cyan balloon. The later
+[list 820 note](notifications-list-820-2026-10-04.md) traces the owner
+to the shared writer `0x18fe2c`; the gap is renderer coverage of
+alignment 3 / line alignment 2, not a second dump sampler. Seam **56**
+is that same title where slot 3 crosses y=210. **820** remains labelled
+until the next visible renderer slice.
 
 Independent review **APPROVE-WITH-NITS** of `764720e2`: dump owner unique
 and delivered; `new_close` not bound. Nits applied here: list max is 18,
@@ -139,15 +139,13 @@ advance (` Close` has no such glyph).
 
 ## Remaining residuals (labelled)
 
-- Close: `T_EndB_00` shadow half-pixel coverage and seam **56**: adaptation
-  gap, browser count pending recapture.
-  Recaptured Close is 240 (glyphs 184 + seam 56). The glyph part is the
-  `T_EndB_00` double filter, bound in
+- Close: recaptured **56** (seam only; glyphs 184→0). See
   [the Close 240 note](notifications-close-240-2026-10-04.md).
-- List **820**: title-shadow AA, source gap.
-- Scrollbar **34**: separate leftover, not reopened.
-- Whole lower still **fail** until recapture. Input, motion and audio not
-  compared.
+- List **820**: shared writer, renderer coverage gap (alignment 3 / line
+  alignment 2). See [the list 820 note](notifications-list-820-2026-10-04.md).
+- Scrollbar **34**: labelled unbound extra-6. See
+  [the scrollbar 34 note](notifications-scrollbar-34-2026-10-04.md).
+- Whole lower still **fail**. Input, motion and audio not compared.
 
 ## Checks
 

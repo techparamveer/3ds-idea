@@ -34,12 +34,14 @@ is in progress.
 (worker `codex/notifications-close-list-20261004`): news `code.bin`
 `0x16b080` / `0x18fe2c` are the traced NW writer (HOME `0x1a3e24` /
 `0x2ffc90`). `T_EndF_00` (0x110) now opts into `singleLineBlockOrigin:
-'writer-0x110'`, the same one-line origin as `T_EndB_00`. Offline Close
-glyphs 533 → 182 (proxy only); browser Close count awaits coordinator
-recapture. List **820** stays labelled title-edge AA. The
-[list 820 note](notifications-list-820-2026-10-04.md) finds no unique
-0x101 direct writer; seam **56** is that fringe crossing y=210. Scrollbar
-**34** not reopened. Not 1:1.
+'writer-0x110'`. Sidecar recapture at `928f9ed7`: Close glyphs **184 → 0**,
+Close leftover **56** seam
+([Close 240 note](notifications-close-240-2026-10-04.md)). List **820**
+is the shared writer `0x18fe2c` on alignment 3 / line alignment 2; the
+gap is renderer `direct` / `nativeAlignedLine` coverage, not a second
+dump sampler ([list 820 note](notifications-list-820-2026-10-04.md)).
+Scrollbar **34** is labelled unbound extra-6
+([scrollbar 34 note](notifications-scrollbar-34-2026-10-04.md)). Not 1:1.
 
 [Notifications HUD charging battery](notifications-hud-battery-2026-10-04.md),
 worker `codex/notifications-battery-20261004`: painter no longer freezes

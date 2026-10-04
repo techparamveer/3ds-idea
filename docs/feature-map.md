@@ -16,7 +16,7 @@ new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
 Latest [Sound empty-entry footer 4707](sound-empty-footer-2026-10-04.md),
-worker `codex/sound-empty-footer-20261004`:
+`4a5f24da` from worker `8178bab`:
 reused HudTime-phase empty-entry lower keeps footer `[0,178,320,240]`
 **4707** (max 174 at `(244,229)`, native `(206,201,190)` / browser
 `(32,31,29)`). Clock ROI stays 0. Whole LCDs stay **6,404 / 16,021**.

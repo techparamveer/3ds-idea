@@ -264,9 +264,10 @@ export class BitmapFont {
     if(singleLineBlockOrigin!==undefined&&(!singleLine0110||lines.length!==1||alignment!==4||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='alpha'||
       lcdBottomEdge||rasterPhase[0]!==0||rasterPhase[1]!==0||coverageAdaptation!==undefined||
       multilineBlockOrigin!==undefined||cursorAdvances.length||fixedWidthSpans?.length||sourceTopLeftSampling||lines[0].some(glyph=>!glyph||glyph.left<0||glyph.advance<0||glyph.left+glyph.width>glyph.advance)))throw new Error('Unsupported native single-line block origin');
-    // Writer flags 0x101 (alignment 3, explicit right line alignment) keep the
-    // 0x100 one-line origin when the measured line starts at 0. The renderer
-    // enables it only for an allowlisted pane on its direct LCD sampler.
+    // Writer flags 0x101 (alignment 3, line alignment 2 → 0x16b080 mov r0,#1)
+    // keep the 0x100 one-line origin when the measured line starts at 0. Low bit
+    // 1 is the centre-in-block add; line alignment 3 is mov r0,#2 (block − line).
+    // The renderer enables it only for an allowlisted pane on its direct LCD sampler.
     const writer0101=lcdBottomEdge&&lines.length===1&&alignment===3&&lineAlignment===2&&this.manifest.colorMode==='alpha'&&!sourceSize&&!sourceTopLeftSampling&&!cursorAdvances.length&&!lineAdvanceScales&&multilineBlockOrigin===undefined&&singleLineBlockOrigin===undefined;
     if(writer0101&&lines[0].some(glyph=>glyph&&glyph.left<0))throw new Error('Unsupported native writer-0x101 line');
     const nativeAlignedLine=(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0

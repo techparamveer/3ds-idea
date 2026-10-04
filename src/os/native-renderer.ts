@@ -145,10 +145,11 @@ export class NativeLayoutRenderer {
   // transforms; other projections keep the pane-raster path.
   const sourceTopLeft=sourceTopLeftSampling&&font.manifest.colorMode==='alpha'&&text.alignment===0&&text.lineAlignment===0&&/^(?:[^\r\n]*)(?:\r\n|\r|\n)?$/.test(text.value);
   const writer0111=text.multilineBlockOrigin==='writer-0x111'&&/[\r\n]/.test(text.value)&&text.alignment===4&&text.lineAlignment===0&&metrics.characterSpacing===0&&metrics.lineSpacing===0&&!text.colorSpans?.length&&!text.glyphScaleSpans?.length&&!text.fixedWidthSpans?.length&&!text.cursorAdvances?.length&&!text.lineAdvanceScales;
-  // Writer flags 0x101 (Notifications 0x16b080: alignment 3, explicit right
-  // line alignment) share 0x18fe2c's one-line origin with 0x100: low bit 1 adds
-  // ceil(block/2)-ceil(line/2), zero for one line from measured left 0. Only
-  // an explicitly allowlisted pane takes it; Camera TxtNumber0 is also 3/2.
+  // Writer flags 0x101 (Notifications 0x16b080: alignment 3, line alignment 2
+  // → mov r0,#1) share 0x18fe2c's one-line origin with 0x100: low bit 1 adds
+  // ceil(block/2)-ceil(line/2), zero for one line from measured left 0. Line
+  // alignment 3 is mov r0,#2 (block − line) at 0x18ffcc. Quads stay left/0x100.
+  // Only an explicitly allowlisted pane takes it; Camera TxtNumber0 is also 3/2.
   const writer0101=explicitPane&&!sourceSize&&!sourceTopLeftSampling&&text.alignment===3&&text.lineAlignment===2&&!text.colorSpans?.length&&!text.cursorAdvances?.length&&!text.lineAdvanceScales&&!text.multilineBlockOrigin&&!text.singleLineBlockOrigin&&Array.from(text.value,char=>font.manifest.glyphs[String(char.codePointAt(0))]??font.manifest.fallback).every(glyph=>!glyph||glyph.left>=0);
   const direct=font.manifest.colorMode==='alpha'&&!text.glyphScaleSpans?.length&&!text.fixedWidthSpans?.length&&((!/[\r\n]/.test(text.value)&&(text.alignment===3||text.alignment===4)&&(text.lineAlignment===0||sourceSize&&text.alignment===4&&text.lineAlignment===2||writer0101)&&metrics.characterSpacing===0)||sourceTopLeft||writer0111)&&(sourceSize||pane.size[0]===w&&pane.size[1]===h)&&transform?.a===1&&transform.d===1&&transform.b===0&&transform.c===0;
   const coverage=direct?coverageAdaptation:undefined;

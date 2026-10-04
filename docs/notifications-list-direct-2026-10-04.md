@@ -24,9 +24,11 @@ Report `9b57a711…`, threshold 2/255. Target regions: list `[0,0,291,210]`
 ## Same origin as line alignment 0
 
 The list 820 note traced `0x16b080` → flags **0x101** for alignment 3 /
-line alignment 2, and origin `0x18fe2c`. Bit `0x100` is the same vertical
-`ceil` as 0x100. Low bit 1 adds `ceil(block/2) − ceil(line/2)`. For one
-line, block equals line, so the result is **0**. No `0x10` means the
+line alignment 2, and origin `0x18fe2c`. Line alignment 2 is `mov r0,#1`
+(`0x16b0ec` / `0x16b0f0` / `0x16b128`): the centre-in-block add, not pane-right.
+Line alignment 3 is `mov r0,#2` / `0x18ffcc` (block − line). Bit `0x100` is
+the same vertical `ceil` as 0x100. Low bit 1 adds `ceil(block/2) − ceil(line/2)`.
+For one line, block equals line, so the result is **0**. No `0x10` means the
 horizontal origin stays left. So a one-line 0x101 title uses the same quads
 as 0x100 (alignment 3 / line alignment 0): `nativeLeftGlyphQuads`. The
 test renders both through `drawNative` on the direct sampler and checks that

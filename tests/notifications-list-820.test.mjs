@@ -33,14 +33,15 @@ test('title panes are alignment 3 / line alignment 2; B is the white back at y -
   }
 });
 
-// Superseded by notifications-list-direct: the bounded writer-0x101 extension now binds the titles.
-test('0x101 is the shared flag constructor; generic 3/2 still misses direct, titles bind writer-0x101 by allowlist', ()=>{
+// Ungated 3/2 still misses the old lineAlignment===0 term; the host predicate now includes allowlisted writer0101.
+test('0x101 is the shared flag constructor; ungated 3/2 misses direct, titles bind writer-0x101 by allowlist', ()=>{
   assert.match(renderer, /text\.lineAlignment===0\|\|sourceSize&&text\.alignment===4&&text\.lineAlignment===2\|\|writer0101/);
+  assert.match(renderer, /writer0101=explicitPane&&!sourceSize/);
   const font=readFileSync(new URL('../src/os/bitmap-font.ts', import.meta.url), 'utf8');
   assert.match(font, /\(alignment===4\|\|alignment===3&&this\.manifest\.colorMode==='alpha'\)&&lineAlignment===0/);
   const sourceSize=false;
-  const directLine=titleB.text.lineAlignment===0||sourceSize&&titleB.text.alignment===4&&titleB.text.lineAlignment===2;
-  assert.equal(directLine, false, 'alignment 3 / line alignment 2 still fails the host direct predicate');
+  const ungatedDirect=titleB.text.lineAlignment===0||sourceSize&&titleB.text.alignment===4&&titleB.text.lineAlignment===2;
+  assert.equal(ungatedDirect, false, 'ungated 3/2 still misses the old lineAlignment===0 term');
   assert.match(painter, /T_NewsTitleB_00:\{text:row\.label\},T_NewsTitleF_00:\{text:row\.label\}/);
   const section=painter.slice(painter.indexOf("renderer.packs['notification-messages']"), painter.indexOf("options.font?.draw(bottom,view.text"));
   assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_NewsTitleB_00'", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);

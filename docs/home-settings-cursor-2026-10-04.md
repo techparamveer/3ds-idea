@@ -12,8 +12,9 @@ is named, the next masked 4-neighbour component is **1,656** at
 `[200,110,96,96]` is **2,485**. That cluster is `LncCsr_00` chrome around an
 already-matching Settings face, not a missing icon or unused clip.
 
-Evidence: source-identified and tested. Not browser-inspected here. Not
-native-compared here. Not 1:1.
+Evidence: source-identified and tested. Independent review **APPROVE** of
+fidelity `0536c4ac`. Not browser-inspected here. Not native-compared here.
+Not 1:1.
 
 ## Pair
 

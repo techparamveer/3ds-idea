@@ -16,10 +16,11 @@ new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
 Latest [HOME 1-row Settings+cursor cluster](home-settings-cursor-2026-10-04.md),
-worker `d2e5d1d6` from fidelity `0f7e9c26`: the 1,656-pixel masked leftover
+`0536c4ac` from worker `d2e5d1d6`: the 1,656-pixel masked leftover
 is `LncCsr_00` chrome around a matching Settings face. Loop 37 is a frozen
-diagnostic, not a unique live clock. Docs and tests only. Coordinator
-APPROVE pending independent review. Not 1:1.
+diagnostic, not a unique live clock. Docs and tests only. Independent review
+**APPROVE** (face core 0; 1617 ms coincidence; bbox raw 1756 is unmasked).
+Not 1:1.
 
 Earlier [HOME toolbar News receive lamp](home-toolbar-icon-2026-10-04.md),
 `0f7e9c26` from worker `4b58f490`: the 162-pixel 1-row toolbar residual

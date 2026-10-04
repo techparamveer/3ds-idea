@@ -19,9 +19,9 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
 | Branch | `codex/home-fidelity-20261001` |
-| HEAD | `acabb7af` — Put product and done-means on STATUS so new threads start from the site, not the seven-doc pile. |
+| HEAD | `a65b1385` — Rewrite STATUS HEAD to the Product slice. |
 
-Runtime bind `9da8dd25` plus nits `73dcc174`. `acabb7af` is docs-only (Product on STATUS). GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
+Runtime bind `9da8dd25` plus nits `73dcc174`. `acabb7af` Product/pointers and `a65b1385` STATUS SHA rewrite are docs-only. GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` are not this Coordinator.
 
@@ -47,7 +47,7 @@ Sidecar recapture reused frozen native PNG; Azahar was not relaunched. Contact s
 
 ## Next
 
-Unpicked. Remaining on this pair: list **820** (labelled title-edge AA), Close leftover **240** (`T_EndB_00` half-pixel shadow + seam 56), scrollbar **34**. Do not reopen HUD (upper 0) or the bound Close 0x110 writer without a new dump owner.
+Recapture of Close **240** / list **820** / scrollbar **34** is done for `73dcc174` (this Coordinator). Remaining on that pair stay labelled; do not reopen HUD (upper 0) or the bound Close 0x110 writer without a new dump owner. Next leftover unpicked.
 
 ## History
 

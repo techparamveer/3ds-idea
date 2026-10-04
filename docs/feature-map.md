@@ -16,7 +16,7 @@ new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
 Latest [Sound empty-entry row 1916](sound-empty-row-2026-10-04.md),
-worker on `codex/sound-empty-row-20261004` from HOME fidelity `50c53746`:
+`ee4af066` from worker `6c8289b`:
 reused HudTime-phase empty-entry lower keeps row `[0,32,320,64]`
 **1916** (max 241 at `(18,43)`, native `(14,39,82)` / browser
 `(255,255,255)`). Icon fill `[0,38,7,57]` stays **133**. Label crop

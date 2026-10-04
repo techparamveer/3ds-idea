@@ -91,6 +91,8 @@ test('launch without the logo pack keeps the 20-frame HOME SceneOut fallback',()
  assert.equal(start.ok,true);
  assert.deepEqual(start.draws.map(d=>d.clip),['CmnFadeNinLogo_U_00_SceneOut','CmnFadeNinLogo_D_00_SceneOut']);
  assert.equal(start.draws[0].frame,0);
+ assert.equal(overlay(99,false,{common:{}}).draws[0].frame,0,'the fallback fade waits for the Open Decide');
+ assert.equal(overlay(250,false,{common:{}}).draws[0].frame,9);
  const terminal=overlay(2200,false,{common:{}});
  assert.equal(terminal.ok,true);
  assert.ok(terminal.draws.every(draw=>draw.bank==='common'&&draw.frame===20));

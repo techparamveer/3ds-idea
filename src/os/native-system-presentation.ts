@@ -25,9 +25,10 @@ export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:Canv
   return fade('SceneIn',bootRevealFrame(elapsed,reduced));
  }
  if(s.phase==='launch'){
-  if(!renderer.packs.launch)return fade('SceneOut',systemTransitionFrame(elapsed,20,reduced));
-  // SceneOut darkens HOME in place; the logo starts only over its terminal black.
+  // SceneOut darkens HOME in place after the Open Decide; the logo starts only
+  // over its terminal black. Without the logo pack the fade keeps that schedule.
   const {fadeFrame,logo}=appLaunchPose(elapsed,reduced);
+  if(!renderer.packs.launch)return fade('SceneOut',fadeFrame);
   let okay=fade('SceneOut',fadeFrame);
   if(logo)for(const [ctx,suffix]of [[top,'U'],[bottom,'D']] as const){const name=`NintendoLogo_${suffix}_00`;okay=renderer.draw(ctx,'launch',name,{bindings:[{name:`${name}_SceneOut${logo.clip}`,frame:logo.frame}]})&&okay;}
   return okay;

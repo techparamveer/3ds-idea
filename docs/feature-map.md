@@ -27,7 +27,9 @@ Default 18, `S_Common-IconList` centre `[43,47]` IconCHG 0, and
 Dump unused `BrwCursorB` / `IconUGC` / Play/Rec cursors / In/Out/Push
 do not uniquely own the cursor/icon fill. No snap, CSS, colour, font,
 lcd or `azahar-12p4-fit` guess. Painter unchanged. Docs and tests only.
-Coordinator APPROVE pending independent review. Not recaptured. Not 1:1.
+Independent review **APPROVE-WITH-NITS**
+(no `src/`; tests 4/4; official strip is `report.screens.lower.regions[1]`).
+Not recaptured. Not 1:1.
 
 Earlier [Sound empty-entry footer 4707](sound-empty-footer-2026-10-04.md),
 `4a5f24da` from worker `8178bab`:

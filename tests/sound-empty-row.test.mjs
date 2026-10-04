@@ -217,6 +217,6 @@ test('the reused HudTime-phase empty-entry lower keeps row 1916', async t=>{
   const report=JSON.parse(readFileSync(files.reportEmpty, 'utf8'));
   assert.equal(report.screens.upper.pixelsOverThreshold, 6404);
   assert.equal(report.screens.lower.pixelsOverThreshold, 16021);
-  assert.deepEqual(report.screens.lower.regions.find(region=>region.x===0&&region.y===33),
+  assert.deepEqual(report.screens.lower.regions[1],
     {x:0, y:33, width:320, height:63, pixelCount:3215});
 });

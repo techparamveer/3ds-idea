@@ -16,14 +16,14 @@ new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
 Latest [Sound empty/first-run title 1774](sound-title-1774-2026-10-04.md),
-worker on `codex/sound-title-1774-20261004` from fidelity `bfef1ba8`:
+`4cb57d9` from worker `935818c9`:
 reused HudTime-phase pairs keep title `[0,3,400,30]` **1774** on both
 stills (identical pixels, max 148 at `(232,19)`). Clock ROI stays 0.
 Capture-fitted `TitlTxt` box and bar blue already bind. No unused Title
 clip, `Null_00`, disabled `S_Inf_U-Txt`, `HudNOTES`, or lcd /
 `azahar-12p4-fit` owner (TitlTxt alignment 3 / lineAlignment 2 cannot
-take the direct writer). Painter unchanged. Docs and tests only. Not
-recaptured. Not 1:1.
+take the direct writer). Painter unchanged. Docs and tests only.
+Coordinator APPROVE pending independent review. Not recaptured. Not 1:1.
 
 Earlier [Settings Other pages 3/4 lower 8/35](settings-other-p34-lower-2026-10-04.md),
 `865c43c` from worker `c8a75e0b`: reused pairs stay

@@ -35,31 +35,31 @@ function overlay(elapsed,reduced=false,packs={launch:{},common:{}},phase='launch
 }
 
 test('launch fades HOME to SceneOut black before any logo layer, without erasing HOME',()=>{
- const start=overlay(100);
+ const start=overlay(166);
  assert.equal(start.ok,true);
  assert.deepEqual(start.fills,[]);
  assert.deepEqual(start.draws.map(d=>({bank:d.bank,clip:d.clip,frame:d.frame})),[
   {bank:'common',clip:'CmnFadeNinLogo_U_00_SceneOut',frame:0},
   {bank:'common',clip:'CmnFadeNinLogo_D_00_SceneOut',frame:0},
  ]);
- const black=overlay(449);
+ const black=overlay(683);
  assert.deepEqual(black.draws.map(d=>({clip:d.clip,frame:d.frame})),[
   {clip:'CmnFadeNinLogo_U_00_SceneOut',frame:20},{clip:'CmnFadeNinLogo_D_00_SceneOut',frame:20},
  ]);
- const logo=overlay(450);
+ const logo=overlay(684);
  assert.deepEqual(logo.draws.map(d=>({bank:d.bank,clip:d.clip,frame:d.frame})),[
   {bank:'common',clip:'CmnFadeNinLogo_U_00_SceneOut',frame:20},
   {bank:'common',clip:'CmnFadeNinLogo_D_00_SceneOut',frame:20},
   {bank:'launch',clip:'NintendoLogo_U_00_SceneOutA',frame:0},
   {bank:'launch',clip:'NintendoLogo_D_00_SceneOutA',frame:0},
  ]);
- const mid=overlay(1450);
+ const mid=overlay(1684);
  assert.deepEqual(mid.draws.map(d=>d.clip),[
   'CmnFadeNinLogo_U_00_SceneOut','CmnFadeNinLogo_D_00_SceneOut',
   'NintendoLogo_U_00_SceneOutB','NintendoLogo_D_00_SceneOutB',
  ]);
  assert.deepEqual(mid.draws.map(d=>d.frame),[20,20,0,0]);
- const end=overlay(1950);
+ const end=overlay(2184);
  assert.ok(end.draws.slice(2).every(d=>d.clip.endsWith('SceneOutC')&&d.frame===0));
  const reduced=overlay(0,true);
  assert.deepEqual(reduced.draws.map(d=>({clip:d.clip,frame:d.frame})),[
@@ -91,15 +91,15 @@ test('launch without the logo pack keeps the 20-frame HOME SceneOut fallback',()
  assert.equal(start.ok,true);
  assert.deepEqual(start.draws.map(d=>d.clip),['CmnFadeNinLogo_U_00_SceneOut','CmnFadeNinLogo_D_00_SceneOut']);
  assert.equal(start.draws[0].frame,0);
- assert.equal(overlay(99,false,{common:{}}).draws[0].frame,0,'the fallback fade waits for the Open Decide');
- assert.equal(overlay(250,false,{common:{}}).draws[0].frame,9);
- const terminal=overlay(2200,false,{common:{}});
+ assert.equal(overlay(166,false,{common:{}}).draws[0].frame,0,'the fallback fade waits for the Open Decide');
+ assert.equal(overlay(317,false,{common:{}}).draws[0].frame,9);
+ const terminal=overlay(2433,false,{common:{}});
  assert.equal(terminal.ok,true);
  assert.ok(terminal.draws.every(draw=>draw.bank==='common'&&draw.frame===20));
 });
 
 test('one failed launch layer rejects the whole paired terminal publication',()=>{
- const result=overlay(2200,false,{launch:{},common:{}},'launch','home',null,'NintendoLogo_D_00');
+ const result=overlay(2433,false,{launch:{},common:{}},'launch','home',null,'NintendoLogo_D_00');
  assert.equal(result.ok,false);
  assert.deepEqual(result.draws.map(draw=>draw.name),[
   'CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00','NintendoLogo_U_00','NintendoLogo_D_00',

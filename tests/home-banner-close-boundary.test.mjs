@@ -45,7 +45,7 @@ test('settings replacement cannot consume a cancelled transition boundary',()=>{
 });
 
 test('software close requests reacquisition once at footer departure before owner retirement',()=>{
- const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3700),6200),'home',6300);
  const closing=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
  assert.deepEqual(homeApplicationBannerBoundary(suspended,closing),{kind:'clear'});
  assert.deepEqual(resolveHomeBannerHostSelection(closing),{kind:'clear'});

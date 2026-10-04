@@ -23,13 +23,13 @@ import {
 
 const FRAME = 1000 / 60;
 const bootHome = () => tickSystem(createPortfolioState(), 3001);
-const suspended = (appId = 'work') => reduceSystem(tickSystem(launchHomeShortcut(bootHome(), appId, 4000), 6200), 'home', 6300);
+const suspended = (appId = 'work') => reduceSystem(tickSystem(launchHomeShortcut(bootHome(), appId, 3700), 6200), 'home', 6300);
 
 function suspendedFolder(native, appId = 'health-safety') {
   const state = bootHome(), layout = Object.fromEntries(Object.entries(state.system.layout).filter(([, id]) => id !== appId));
   const opened = settleHomeNavigation(selectHomeSlot(enterHomeFolder({ ...state, folders: { 20: 'A' },
     system: { ...state.system, layout, folderLayouts: { 20: { 2: appId } } } }, 20), 2));
-  const folder = reduceSystem(tickSystem(touchSystem(opened, 160, 226, 4000), 6200), 'home', 6300);
+  const folder = reduceSystem(tickSystem(touchSystem(opened, 160, 226, 3700), 6200), 'home', 6300);
   return native ? enableHomeControls(folder) : folder;
 }
 

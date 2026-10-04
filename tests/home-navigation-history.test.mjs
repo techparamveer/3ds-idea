@@ -56,7 +56,7 @@ test('launch and HOME return retain active folder, and overlays/release/sleep ke
   let state = create(home(),40);
   state = moveHomeItem(state,{folder:null,slot:0},{folder:40,slot:14});
   state = setHomeDensity(state,3); const before = JSON.parse(saveSettings(state)).homeView;
-  state = tickSystem(launch(state,'work',4000),6200); assert.equal(state.opened,true);
+  state = tickSystem(launch(state,'work',3700),6200); assert.equal(state.opened,true);
   state = reduceSystem(state,'home',6300); assert.equal(state.system.phase,'home'); assert.equal(state.opened,true);
   assert.deepEqual(JSON.parse(saveSettings(state)).homeView,before);
   state = reduceSystem({...state,panel:'settings'},'home',6400); assert.equal(state.opened,true); assert.equal(state.panel,null);

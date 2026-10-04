@@ -15,16 +15,18 @@ function folderHealth(){
 test('fresh root launch retains its selected owner and source footer exit frames',()=>{
  const state=launch(home()),owner=state.system.runtime.application;
  assert.deepEqual(getHomeLaunchPresentation(state,4000),{appId:'health-safety',owner,footerDecideFrame:0,footerSceneOutFrame:0,cursorEffectFrame:0});
- // Decide0..5 holds Open in place for 100ms before SceneOut begins.
+ // Decide0..5 plays in place, then Decide5 holds until SceneOut and the ring begin at 10 frames.
  assert.equal(getHomeLaunchPresentation(state,4050).footerDecideFrame,3);
  assert.equal(getHomeLaunchPresentation(state,4050).footerSceneOutFrame,0);
  assert.equal(getHomeLaunchPresentation(state,4084).footerDecideFrame,5);
- assert.equal(getHomeLaunchPresentation(state,4100).footerSceneOutFrame,0);
- assert.equal(getHomeLaunchPresentation(state,4200).footerSceneOutFrame,6);
+ assert.equal(getHomeLaunchPresentation(state,4166).footerDecideFrame,5);
+ assert.equal(getHomeLaunchPresentation(state,4166).footerSceneOutFrame,0);
+ assert.equal(getHomeLaunchPresentation(state,4184).footerSceneOutFrame,1);
+ assert.equal(getHomeLaunchPresentation(state,4267).footerSceneOutFrame,6);
  assert.equal(getHomeLaunchPresentation(state,5000).footerSceneOutFrame,14);
- assert.equal(getHomeLaunchPresentation(state,4100).cursorEffectFrame,0);
- assert.equal(getHomeLaunchPresentation(state,4200).cursorEffectFrame,6);
- assert.equal(getHomeLaunchPresentation(state,5100).cursorEffectFrame,60);
+ assert.equal(getHomeLaunchPresentation(state,4166).cursorEffectFrame,0);
+ assert.equal(getHomeLaunchPresentation(state,4267).cursorEffectFrame,6);
+ assert.equal(getHomeLaunchPresentation(state,5167).cursorEffectFrame,60);
  assert.deepEqual(getHomeFooter(state,true),{two:false,left:null,right:'open'});
  assert.deepEqual(getHomeFooter(state),{two:true,left:'close-software',right:'resume'},'without settled banner eligibility launch keeps its prior footer policy');
 });

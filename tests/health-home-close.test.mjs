@@ -19,7 +19,7 @@ for(const [name,close] of Object.entries(closeActions))test(`Health HOME ${name}
  const count=releases(before).length+1;
  assert.equal(releases(closed).length,count);assert.equal(releases(reduceSystem(closed,'back',6800)).length,count);
  assert.equal(before.system.runtime.instances[owner].appId,'health-safety');
- const reopened=tickSystem(launchHomeShortcut(closed,'health-safety',6900),9100);
+ const reopened=tickSystem(launchHomeShortcut(closed,'health-safety',6600),9100);
  assert.notEqual(reopened.system.runtime.application,owner);assert.equal(reopened.system.phase,'app');
 });
 

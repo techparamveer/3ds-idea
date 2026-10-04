@@ -6,7 +6,7 @@ import {
 import {createPortfolioState,tickSystem,reduceSystem} from '../src/os/system.ts';
 import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts';
 
-const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3800),6000),'home',6001);
+const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3500),6000),'home',6001);
 const at=(state,update)=>({...state,system:{...state.system,homeClock:{...state.system.homeClock,updateCount:update}}});
 
 test('suspended Sleep phase is relative to the exact retained owner, not the global HOME modulo',()=>{

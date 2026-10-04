@@ -31,7 +31,7 @@ test('saving clones arrangement, theme and per-folder view without runtime or au
 test('loading restores layout and view while keeping suspended owners and current audio preferences', () => {
   let state = saveHomeLayoutSlot(arranged(), 0);
   const expected = serializeHomeSavedLayouts(state).slots[0], oldIdentity = getHomeFolderIdentity(state, 40);
-  state = tickSystem(launch(state, 'work', 4000), 6200);
+  state = tickSystem(launch(state, 'work', 3700), 6200);
   state = reduceSystem(state, 'home', 6300);
   state = moveHomeItem(state, { folder: 40, slot: 14 }, { folder: null, slot: 50 });
   state = { ...state, theme: 'pink', brightness: .2, powerSaving: true,

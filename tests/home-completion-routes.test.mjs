@@ -9,7 +9,7 @@ import { createPortfolioState, reduceSystem, tickSystem, touchSystem } from '../
 
 const titleSlot = id => Number(Object.entries(initialAppLayout()).find(([, title]) => title === id)[0]);
 const booted = () => tickSystem(createPortfolioState(), 3001);
-const runningWork = () => tickSystem(reduceSystem(booted(), 'open', 3800), 6000);
+const runningWork = () => tickSystem(reduceSystem(booted(), 'open', 3500), 6000);
 const suspendedWork = () => reduceSystem(runningWork(), 'home', 6001);
 const selectTitle = (state, id) => settleHomeNavigation(selectHomeSlot(state, titleSlot(id)));
 const finishClose = (state, now) => {
@@ -125,14 +125,14 @@ test('switch cancel retains Work while switch confirmation retires it before the
   assert.equal(launched.system.runtime.instances[workOwner], undefined);
   assert.notEqual(aboutOwner, workOwner);
 
-  const settled = tickSystem(launched, launched.system.since + 2200);
-  const aboutHome = reduceSystem(settled, 'home', launched.system.since + 2201);
+  const settled = tickSystem(launched, launched.system.since + 2500);
+  const aboutHome = reduceSystem(settled, 'home', launched.system.since + 2501);
   assertSuspendedOwner(aboutHome, aboutOwner, 'about');
   assert.deepEqual(getHomeFooter(aboutHome), { two: true, left: 'close-software', right: 'resume' });
 });
 
 test('suspended Camera exposes Close, Manual and Resume while its Manual round trip preserves the owner', () => {
-  const running = tickSystem(reduceSystem(selectTitle(booted(), 'camera'), 'open', 4000), 6200);
+  const running = tickSystem(reduceSystem(selectTitle(booted(), 'camera'), 'open', 3700), 6200);
   const suspended = reduceSystem(running, 'home', 6201), owner = suspended.system.runtime.application;
   assertSuspendedOwner(suspended, owner, 'camera');
   assert.deepEqual(getHomeFooter(suspended), { two: true, left: 'close-software', middle: 'manual', right: 'resume' });
@@ -161,7 +161,7 @@ test('suspended Camera exposes Close, Manual and Resume while its Manual round t
 });
 
 test('selected suspended Camera child keeps the same three-button actions inside a folder', () => {
-  const running = tickSystem(reduceSystem(selectTitle(booted(), 'camera'), 'open', 4000), 6200);
+  const running = tickSystem(reduceSystem(selectTitle(booted(), 'camera'), 'open', 3700), 6200);
   const suspended = reduceSystem(running, 'home', 6201), owner = suspended.system.runtime.application;
   const folder = settleHomeNavigation(selectHomeSlot(enterHomeFolder({...suspended,folders:{20:'Camera'},system:{...suspended.system,folderLayouts:{...suspended.system.folderLayouts,20:{1:'camera'}}}},20),1));
   assert.deepEqual(getHomeFooter(folder), { two: true, left: 'close-software', middle: 'manual', right: 'resume' });

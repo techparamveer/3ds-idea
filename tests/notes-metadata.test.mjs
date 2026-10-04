@@ -9,7 +9,7 @@ const manifest=JSON.parse(readFileSync(new URL('manifest.json',root),'utf8'));
 const health='0004001000022300',url='https://example.invalid/os/manifest.json';
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const frame=()=>({width:1,height:1,data:new Uint8ClampedArray(4)});
-function start(){let s=tickSystem(launch(tickSystem(createPortfolioState(),4000),'health-safety',4100),6500);return invokeSystemApplet(s,'game-notes',6600);}
+function start(){let s=tickSystem(launch(tickSystem(createPortfolioState(),4000),'health-safety',4000),6500);return invokeSystemApplet(s,'game-notes',6600);}
 const capture=(s,generation=1)=>({status:'ready',owner:s.system.runtime.application,generation,upper:frame(),lower:frame()});
 const metadata=(titleId=health)=>({selection:{titleId},icon:frame(),disposals:0,dispose(){this.disposals++;}});
 function fixture(){const calls=[],changes=[];const session=createNotesMetadataSession({onChange:s=>changes.push(s),load(...args){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});calls.push({args,resolve,reject});return promise;}});return {session,calls,changes};}
@@ -83,7 +83,7 @@ test('capture generation or application owner changes invalidate pending and rea
  const stale=metadata();f.calls[0].resolve({status:'ready',metadata:stale});f.calls[1].resolve({status:'ready',metadata:metadata()});await flush();assert.equal(stale.disposals,1);assert.equal(f.session.getState().captureGeneration,2);
  const ready=f.session.getState().metadata,previous=s.system.runtime.application;
  s=reduceSystem(s,'power',7000);f.session.sync(s.system.runtime,{status:'none'});assert.equal(ready.disposals,1);assert.equal(f.session.getState().status,'idle');
- s=reduceSystem(s,'back',7100);s=tickSystem(launch(s,'health-safety',7200),9400);
+ s=reduceSystem(s,'back',7100);s=tickSystem(launch(s,'health-safety',6900),9400);
  assert.notEqual(s.system.runtime.application,previous);s=invokeSystemApplet(s,'game-notes',9500);
  f.session.sync(s.system.runtime,capture(s));await flush();assert.equal(f.session.getState().applicationOwner,s.system.runtime.application);f.session.dispose();
 });
@@ -101,7 +101,7 @@ test('portfolio title uses its own artwork in the source Notes panel and retains
  const calls=[];const session=createNotesMetadataSession({loadPortfolio:async(id,signal)=>{
   calls.push({id,signal});return {selection:{titleId:`portfolio:${id}`,description:'Work'},icon:{width:64,height:64,data:new Uint8ClampedArray(64*64*4)},disposals:0,dispose(){this.disposals++;}};
  }});
- let s=tickSystem(launch(tickSystem(createPortfolioState(),4000),'work',4100),6500);
+ let s=tickSystem(launch(tickSystem(createPortfolioState(),4000),'work',4000),6500);
  s=invokeSystemApplet(s,'game-notes',6600);
  const pair=capture(s);session.sync(s.system.runtime,pair);await flush();
  const ready=session.getState();assert.equal(ready.status,'ready');assert.equal(ready.titleId,'portfolio:work');assert.equal(ready.metadata.selection.description,'Work');assert.equal(calls.length,1);

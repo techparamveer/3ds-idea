@@ -10,7 +10,7 @@ function fixture(extra={}){
  let state=createPortfolioState(),now=4000;state=tickSystem(state,now);
  const failures=[],links=[],sounds=[];
  const adapter=createRuntimeEffects({getState:()=>state,setState:next=>{state=next;},now:()=>now,onChange(){},onFailure:e=>failures.push(e),onLink:url=>links.push(url),onSound:name=>sounds.push(name),...extra});
- return {adapter,failures,links,sounds,get state(){return state;},set state(next){state=next;},launch(id){state=tickSystem(launch(state,id,now),now+=2200);},confirmSwitch(){state=tickSystem(reduceSystem(state,'open',now),now+=2200);},action(id){state=dispatchSystemEvent(state,{type:'action',id},now+=10);}};
+ return {adapter,failures,links,sounds,get state(){return state;},set state(next){state=next;},launch(id){state=tickSystem(launch(state,id,now),now+=2500);},confirmSwitch(){state=tickSystem(reduceSystem(state,'open',now),now+=2500);},action(id){state=dispatchSystemEvent(state,{type:'action',id},now+=10);}};
 }
 // These legacy adapter-boundary checks inject a synthetic request. Production
 // stock modules never request devices, including through old preview actions.
@@ -79,7 +79,7 @@ test('effect acknowledgements read the state after the host mutation boundary',(
 
 test('retirement cleanup preserves return zero with the publication clock and later updates resume',async()=>{
  for(const pinned of [false,true]){
-  let state=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',4000),6200),'home',6300);
+  let state=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',3700),6200),'home',6300);
   state=reduceSystem(state,'back',6400);
   for(let now=6500;now<20000&&state.system.homeApplicationTransition?.footerReturnFrame!==0;now+=1000)state=tickSystem(state,now);
   assert.equal(state.system.homeApplicationTransition.footerReturnFrame,0);

@@ -5,7 +5,7 @@ import { createPortfolioState, tickSystem, reduceSystem, launchHomeShortcut } fr
 
 test('scene input quarantine survives the pre-mutation retirement update', () => {
   let state = tickSystem(createPortfolioState(), 3001);
-  state = tickSystem(launchHomeShortcut(state, 'work', 4000), 6200);
+  state = tickSystem(launchHomeShortcut(state, 'work', 3700), 6200);
   state = reduceSystem(state, 'home', 6300);
   state = reduceSystem(state, 'back', 6400);
   state = reduceSystem(state, 'open', 6500);

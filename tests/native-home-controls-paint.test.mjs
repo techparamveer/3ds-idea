@@ -65,7 +65,7 @@ function realAppBannerView(id,{active=false}={}){
 }
 
 function closeFooterReturn(){
- const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3700),6200),'home',6300);
  let state=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
  for(let i=0;i<12&&state.system.homeApplicationTransition?.phase!=='footer-returning';i++)state=tickSystem(state,7000+i*500);
  assert.equal(state.system.homeApplicationTransition?.phase,'footer-returning');
@@ -76,7 +76,7 @@ function closeFooterReturn(){
 test('Camera ordinary-close painter binds one owner icon and paired failure recovery preserves that owner',async()=>{
  const titleId='0004001000022400',titleIcons=new Map([[titleId,{}]]),titleDescriptions=new Map([[titleId,'Nintendo 3DS Camera']]);
  try{await withScreens(({paint,events,screens})=>{
-  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3700),6200),'home',6300);
   const state=reduceSystem(camera,'back',6400),owner=state.system.runtime.application;
   paint(state);assert.equal(screens.stockStatus(state),'ready');
   const call=events.find(event=>event.name==='software-dialog');
@@ -99,7 +99,7 @@ test('Camera ordinary-close painter binds one owner icon and paired failure reco
 test('Camera close missing owner icon enters paired recovery without retiring the suspended owner',async()=>{
  const titleId='0004001000022400',titleIcons=new Map(),titleDescriptions=new Map([[titleId,'Nintendo 3DS Camera']]);
  await withScreens(({paint,screens})=>{
-  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3700),6200),'home',6300);
   const state=reduceSystem(camera,'back',6400),owner=state.system.runtime.application;
   paint(state);assert.equal(screens.stockStatus(state),'error');
   assert.match(String(screens.stockFailure()),/Native suspended title metadata unavailable/);
@@ -117,7 +117,7 @@ test('malformed selected Camera warning control fails paired publication and rec
  message.tokens.find(token=>token.group===1&&token.type===0&&token.control===14).arguments='zzzz';
  const titleId='0004001000022400',titleIcons=new Map([[titleId,{}]]),titleDescriptions=new Map([[titleId,'Nintendo 3DS Camera']]);
  await withScreens(({paint,screens})=>{
-  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+  const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3700),6200),'home',6300);
   const state=reduceSystem(camera,'back',6400),owner=state.system.runtime.application;
   paint(state);assert.equal(screens.stockStatus(state),'error');assert.match(String(screens.stockFailure()),/Invalid native glyph scale/);
   assert.equal(state.system.runtime.application,owner);assert.equal(state.system.runtime.instances[owner].suspended,true);
@@ -230,7 +230,7 @@ test('first Health launch pair retains its owner-matched banner and Open footer 
    const banner=events.find(event=>event.name==='launch-banner'),footer=events.find(event=>event.name==='launch-footer');
    assert.deepEqual(banner.args,['health-safety','health']);
    assert.deepEqual(footer.args,[{two:false,left:null,right:'open'},false,undefined,0,0]);
-   paint(state,4200);
+   paint(state,4267);
    assert.deepEqual(events.find(event=>event.name==='launch-footer').args.slice(3),[6,5]);
   }finally{delete globalThis.__testNativeSystemOverlayDrawn;}
  },{presenterPatch:{footer(ctx,state,reduced,entryFrame,launchFrame,decideFrame){ctx.record('launch-footer',[getHomeFooter(state,launchFrame!==undefined),reduced,entryFrame,launchFrame,decideFrame]);return true;}},screenOptions:{
@@ -298,7 +298,7 @@ test('Settings helper launches ignore the settled parent banner and preserve ord
   try{
    globalThis.__testNativeSystemOverlayDrawn=true;
    for(const [action,target,page] of [['nnid','nnid-settings',0],['transfer','system-transfer',2],['update','system-updater',3]]){
-    let state=tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'system-settings',4000),6200);
+    let state=tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'system-settings',3700),6200);
     if(action!=='nnid'){
      state=dispatchSystemEvent(state,{type:'action',id:'other'},7000);
      for(let i=0;i<page;i++)state=dispatchSystemEvent(state,{type:'action',id:'settings-next'},7050+i*50);
@@ -319,7 +319,7 @@ test('Settings helper launches ignore the settled parent banner and preserve ord
 test('ordinary suspended-HOME switch with a pending target banner keeps the established launch path',async()=>{
  const hosted=realAppBannerView('health-safety');
  await withScreens(({screens,events})=>{
-  let state=tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200);
+  let state=tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3700),6200);
   state=reduceSystem(state,'home',6300);state=launchHomeShortcut(state,'health-safety',6400);state=reduceSystem(state,'open',6500);
   for(let i=0;i<6&&state.system.phase!=='launch';i++)state=tickSystem(state,6500+i*1000);
   assert.equal(state.system.phase,'launch');assert.equal(state.system.app,'health-safety');assert.equal(state.selected,8);
@@ -694,7 +694,7 @@ test('footer-return source failure retains paired recovery after application ret
 test('software-closing layers follow HOME/footer on both LCDs through terminal and clear on retirement',async()=>{
  const backgroundSamples=[];
  await withScreens(({paint,events,screens})=>{
-  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3700),6200),'home',6300);
   const closing=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
   for(const frame of [0,10,20]){
    const state=structuredClone(closing);state.system.homeApplicationTransition.appQuitFrame=frame;
@@ -756,7 +756,7 @@ test('software-closing layers follow HOME/footer on both LCDs through terminal a
 
 test('missing close-exit icon source fails the paired paint without retiring the owner',async()=>{
  await withScreens(({paint,events,screens})=>{
-  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3700),6200),'home',6300);
   const state=structuredClone(reduceSystem(reduceSystem(suspended,'back',6400),'open',6500));
   const owner=state.system.runtime.application;
   paint(state);assert.equal(screens.stockStatus(state),'ready');
@@ -778,7 +778,7 @@ test('missing close-exit icon source fails the paired paint without retiring the
 
 test('closing paint failures recover both LCDs, cancel safely and survive sleep/wake readiness changes',async()=>{
  await withScreens(({paint,events,screens})=>{
-  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3700),6200),'home',6300);
   const closing=structuredClone(reduceSystem(reduceSystem(suspended,'back',6400),'open',6500));
   closing.system.homeApplicationTransition.appQuitFrame=10;
   screens.bottom.getContext('2d').failClosing=true;paint(closing);
@@ -1331,7 +1331,7 @@ test('HOME entry footer uses decoded SceneIn frames without overriding specializ
  const child=root.system.layout[0];
  const opened=selectHomeSlot(enterHomeFolder({...root,folders:{20:'A'},system:{...root.system,folderLayouts:{20:{2:child}}}},20),2);
  presenter.footer({},opened,false,7);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:15});
- const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3700),6200),'home',6300);
  presenter.footer({},camera,false,7);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:15});
  const closing=reduceSystem(camera,'back',6400);
  presenter.footer({},closing,false,7);assert.deepEqual(scene(),{name:'LncBtmBtn_02_SceneIn',frame:15});
@@ -1430,7 +1430,7 @@ test('suspended software footer uses the source X Close glyph while folder Close
 test('suspended Camera footer paints decoded Close, Manual and Resume panes beneath its close modal',()=>{
  const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,bank,name,options){calls.push({bank,name,options});return true;}};
  const presenter=createFirmwareHome({renderer});
- const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3700),6200),'home',6300);
  const closing=reduceSystem(camera,'back',6400);
  const native=messagesPack.messages.menu_msbt_LZ;
  assert.deepEqual(['lau_3b_quit','lau_2b_manual','lau_2b_restart'].map(label=>({label,index:native.labels[label],text:native.messages[native.labels[label]].text,styleIndex:native.messages[native.labels[label]].styleIndex})),[
@@ -1479,7 +1479,7 @@ test('launching Open binds source Decide on its own button group before and duri
 
 test('suspended Camera Select feedback follows each three-button owner and never either source gap',()=>{
  const calls=[],presenter=createFirmwareHome({renderer:{packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}}});
- const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',4000),6200),'home',6300);
+ const camera=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3700),6200),'home',6300);
  for(const [x,group] of [[50,'G_BtnB_L_03'],[160,'G_BtnW_C_03'],[267,'G_BtnW_R_03'],[105,null],[214,null]]){
   const state=dispatchSystemEvent(camera,{type:'touch',phase:'down',pointerId:7,x,y:226},6400);
   presenter.footer({},state);const selected=calls.at(-1).bindings.find(binding=>binding.name==='LncBtmBtn_02_Select');
@@ -1490,7 +1490,7 @@ test('suspended Camera Select feedback follows each three-button owner and never
 test('software close retains footer labels through dialog exit then samples the counted source departure',()=>{
  const calls=[],renderer={packs:{launcher:pack,messages:messagesPack},draw(_ctx,_bank,_name,options){calls.push(options);return true;}};
  const presenter=createFirmwareHome({renderer});
- const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',4000),6200),'home',6300);
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3700),6200),'home',6300);
  const closing=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
  const source=JSON.stringify(pack),owner=closing.system.runtime.application;
  for(const [phase,frame] of [['closing',null],['terminal',null],['exiting',null],['exit-terminal',null],['footer-exiting',0],['footer-exiting',3],['footer-terminal',6]]){

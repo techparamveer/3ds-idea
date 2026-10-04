@@ -10,7 +10,7 @@ test('Power touch uses only the source B_Btn_01 boundary, not the HOME-key hint'
  for(const [x,y] of [[65.999,182],[254,182],[160,165.999],[160,202],[160,228],[0,239],[319,239],[NaN,182],[160,Infinity]])assert.equal(powerMenuActionAt(x,y),null);
  for(const app of [null,'health-safety']){
   let state=tickSystem(createPortfolioState(),4000);
-  if(app)state=tickSystem(launch(state,app,4100),6100);
+  if(app)state=tickSystem(launch(state,app,3600),6100);
   const power=reduceSystem(state,'power',6200);
   assert.equal(power.system.phase,'power');
   assert.equal(touchSystem(power,160,228,6201).system.phase,'power');
@@ -58,22 +58,22 @@ test('Power phased touch requires the same owned target at start and release',()
  assert.equal(dispatchSystemEvent(cancelled,event('up',...inside),4502),cancelled);
 });
 test('app launch holds Open Decide, then fades HOME to source black before the 60/30/15 logo clips',()=>{
- assert.deepEqual(appLaunchPose(100),{fadeFrame:0,logo:null});
- assert.deepEqual(appLaunchPose(433),{fadeFrame:19,logo:null});
- assert.deepEqual(appLaunchPose(434),{fadeFrame:20,logo:null});
- assert.deepEqual(appLaunchPose(449),{fadeFrame:20,logo:null});
- assert.deepEqual(appLaunchPose(450),{fadeFrame:20,logo:{clip:'A',frame:0}});
- assert.deepEqual(appLaunchPose(1449),{fadeFrame:20,logo:{clip:'A',frame:59}});
- assert.deepEqual(appLaunchPose(1450),{fadeFrame:20,logo:{clip:'B',frame:0}});
- assert.deepEqual(appLaunchPose(1950),{fadeFrame:20,logo:{clip:'C',frame:0}});
- assert.deepEqual(appLaunchPose(2183),{fadeFrame:20,logo:{clip:'C',frame:13}});
- assert.deepEqual(appLaunchPose(2184),{fadeFrame:20,logo:{clip:'C',frame:14}});
- assert.deepEqual(appLaunchPose(2200),{fadeFrame:20,logo:{clip:'C',frame:14}});
+ assert.deepEqual(appLaunchPose(166),{fadeFrame:0,logo:null},'Open Decide and its fitted hold keep intact HOME');
+ assert.deepEqual(appLaunchPose(184),{fadeFrame:1,logo:null});
+ assert.deepEqual(appLaunchPose(499),{fadeFrame:19,logo:null});
+ assert.deepEqual(appLaunchPose(500),{fadeFrame:20,logo:null});
+ assert.deepEqual(appLaunchPose(683),{fadeFrame:20,logo:null},'fitted black dwell before logo pose 0');
+ assert.deepEqual(appLaunchPose(684),{fadeFrame:20,logo:{clip:'A',frame:0}});
+ assert.deepEqual(appLaunchPose(1683),{fadeFrame:20,logo:{clip:'A',frame:59}});
+ assert.deepEqual(appLaunchPose(1684),{fadeFrame:20,logo:{clip:'B',frame:0}});
+ assert.deepEqual(appLaunchPose(2184),{fadeFrame:20,logo:{clip:'C',frame:0}});
+ assert.deepEqual(appLaunchPose(2416),{fadeFrame:20,logo:{clip:'C',frame:13}});
+ assert.deepEqual(appLaunchPose(2417),{fadeFrame:20,logo:{clip:'C',frame:14}});
+ assert.deepEqual(appLaunchPose(2433),{fadeFrame:20,logo:{clip:'C',frame:14}});
  assert.deepEqual(appLaunchLogoFrame(0),{clip:'A',frame:0});assert.deepEqual(appLaunchLogoFrame(1750),{clip:'C',frame:14});
- assert.equal(systemTransitionDuration('launch'),2200);
- assert.deepEqual(appLaunchPose(99),{fadeFrame:0,logo:null},'Open Decide holds intact HOME');
+ assert.equal(systemTransitionDuration('launch'),146*1000/60);
  let state=launch(tickSystem(createPortfolioState(),4000),'work',4000);
- assert.equal(tickSystem(state,6199).system.phase,'launch');assert.equal(tickSystem(state,6200).system.phase,'app');
+ assert.equal(tickSystem(state,6433).system.phase,'launch');assert.equal(tickSystem(state,6434).system.phase,'app');
  assert.deepEqual(appLaunchPose(0,true),{fadeFrame:20,logo:{clip:'B',frame:15}});assert.equal(systemTransitionDuration('launch',true),120);
 });
 test('boot reveal gives all 21 SceneIn poses a slot before the browser boot deadline',()=>{

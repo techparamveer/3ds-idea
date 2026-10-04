@@ -15,7 +15,14 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME 1-row neighbour peeks](home-neighbor-peeks-2026-10-04.md),
+Latest [HOME 1-row remaining upper 190](home-upper-190-2026-10-04.md),
+worker `3ds-home-upper-190-20261004` from fidelity `f983d480`: after the
+matching Right walk, upper stays **190**. Regions start 25 at
+`[71,150,4,10]`, then 16/15/10. Already-bound outer green/yellow
+`mt_pict` edges plus three `mt_spanner` pixels. No unused Texture1/2.
+Docs and tests only. Not 1:1.
+
+Earlier [HOME 1-row neighbour peeks](home-neighbor-peeks-2026-10-04.md),
 `36c66188` from worker `35b2fe96`: right 2,220 and left 561+391+145 are
 ordinary About / Camera peeks under already-bound `LncArw_00` Appear 15.
 Native neighbours stay excluded Activity Log / Download Play. No unused

@@ -198,7 +198,7 @@ Remaining lower work is the already-labelled
 [About / Camera peeks](home-neighbor-peeks-2026-10-04.md) plus the 1,656
 Settings+cursor [source gap](home-settings-cursor-2026-10-04.md), not
 viewport math. Do not invent excluded-title art. Remaining upper work is
-still the 190 outer green/yellow `mt_pict` edges and three wrench pixels.
+the labelled [190 `mt_pict` / wrench-edge source gap](home-upper-190-2026-10-04.md).
 
 Whole-scenario 1:1 still fails. Matrix unchanged.
 

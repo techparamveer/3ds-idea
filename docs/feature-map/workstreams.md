@@ -1,5 +1,12 @@
 # Workstream Registry
 
+## HOME Entry Banner Release - 4 October 2026
+
+Claude Code coordinator owns `3ds-home-entry-banner-release-20261004` /
+`codex/home-entry-banner-release-20261004` (`c46cc080`, `b0ff3adb`),
+integrated as `6611626c`, `458606cb`.
+[Delivered correction and remaining gaps](../home-entry-banner-release-2026-10-04.md).
+
 ## HOME Close Banner Delay - 4 October 2026
 
 Claude Code coordinator owns `3ds-home-close-banner-delay-20261004` /

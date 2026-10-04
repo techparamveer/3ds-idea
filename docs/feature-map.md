@@ -15,7 +15,11 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME close banner return timing](home-close-banner-delay-2026-10-04.md), `bbe557cd`,
+Latest [HOME entry banner release](home-entry-banner-release-2026-10-04.md), `458606cb`,
+releases the post-boot banner worker on a presented footer frame 10 so the
+banner activates with the footer terminal, as on native.
+
+Earlier [HOME close banner return timing](home-close-banner-delay-2026-10-04.md), `bbe557cd`,
 requests the returning close banner at footer departure frame 4, so it
 activates at Open return 6 as on native.
 

@@ -23,7 +23,7 @@ selected brackets under the fade, and [decide ring](../home-launch-ring-2026-10-
 input hold timing remain the next launch residuals. Do not repeat generic
 publication work or the reverted cursor-loop candidate.
 
-Current runtime checkpoint: `bbe557cd` (HOME close banner return timing),
+Current runtime checkpoint: `458606cb` (HOME entry banner release),
 4 October 2026. This is the **ordered
 design and implementation queue for the entire in-scope app**. Start here;
 the three detailed maps supply routes and evidence, not competing priorities.

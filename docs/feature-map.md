@@ -15,7 +15,19 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Notifications remaining upper HUD 3347](notifications-hud-3347-2026-10-04.md),
+Latest [Notifications remaining lower scrollbar 2479](notifications-scrollbar-2479-2026-10-04.md),
+worker `codex/next-residual-3-20261004`: reused unread-dot `f073581`
+pair stays **6239** / **3876**; scrollbar `[291,0,320,210]` **2479**
+(max 117 at `(300,63)`). Official
+`report.screens.lower.regions[0]/[1]/[2]/[9]/[10]` sum **2479**.
+Already-bound `SlideBar` Select 0 plus unsupported `N_Slide_00`
+`[0,55,0]`. Unused `SlideBar_Invalid` hides the thumb at frame 1;
+Select 1 only darkens 22×22 chrome; neither has a size/translation
+track. Dump `slidebar_LZ.bin` has no second pre-sized thumb layout.
+Labelled thumb-size/pose source gap. Painter unchanged. Docs and tests
+only. Labelled HUD 3347 is not reopened. Not recaptured. Not 1:1.
+
+Previous [Notifications remaining upper HUD 3347](notifications-hud-3347-2026-10-04.md),
 worker `codex/next-residual-2-20261004`: reused unread-dot `f073581`
 pair stays **6239** / **3876**; HUD `[0,0,400,28]` **3347** (max 255 at
 `(375,2)`); unread balloon `[100,40,300,160]` **0**. Already-bound

@@ -390,7 +390,7 @@ These labels describe implementation, not native acceptance.
 | C-NOT-01..04 | Preserve/finish | Notes grid/read-only editor and suspended Double/Up/Down capture exist; finish demonstrated switch/intro states. Drawing tools are intentionally inert under UI-only scope, not a new editor backlog. | Social |
 | C-FRD-01, 02, 04 | Preserve | Offline own-card/profile/Back; no invented Mii, codes, edit/account/register functions or errors. | Social |
 | C-FRD-03 | Finish, source gated | Saved friend row can open a route with no native detail painter/projection/tests. Obtain actual detail evidence before publishing it as native-ready. | Social |
-| C-NTF-01..03 | Finish | Notification list/badges/read lamps exist; remaining upper HUD `[0,0,400,28]` **3347** is a labelled source gap; fixed scrollbar pose, list movement and pulse/return states remain. Preserve read flags and explicit empty state. | Social |
+| C-NTF-01..03 | Finish | Notification list/badges/read lamps exist; remaining upper HUD `[0,0,400,28]` **3347** is a labelled source gap; remaining lower scrollbar `[291,0,320,210]` **2479** is a labelled source gap; list movement and pulse/return states remain. Preserve read flags and explicit empty state. | Social |
 | C-NTF-04 | Replace, source gated | Custom notification detail is generic; body/title/scroll/read presentation unproved. Source-profile rows stay inert until their real bodies are established. | Social |
 | M-SEL-01, 02, C-NOT-05 | Gated | Photo/Sound selectors and memo alias lack established production callers; memo lacks dedicated native dispatch. Existing selector chrome has fitted bodies. No invented picker launch or media operation. | Camera / Sound / Social |
 

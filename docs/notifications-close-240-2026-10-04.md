@@ -72,10 +72,14 @@ to `[125,216,194,232]`; upper differences are only the run-to-run HUD clock.
 ## Binding
 
 `src/os/stock-native-personal-tools.ts`: `NewsTopBtn_D_00` adds
-`textSampling:'lcd', textSamplingPanes:['T_EndB_00']`. The pane allowlist
-is the same mechanism used by Sleep `Slp_D_00`. The renderer's existing
-direct path samples `T_EndB_00` once at final LCD rows (phase 0.5) through
-the same 0x111 quads. `T_EndF_00` is excluded. It stays on the
+`textSampling:'lcd', textSamplingPanes:['T_EndB_00']`. Sleep `Slp_D_00`
+uses that same allowlist **API**, not the same pane-local y. Sleep's
+half-pixel is parent pose (`T_BtnB_01` / `T_BtnF_01` matrices y 169.5 /
+167.5), so it allowlists both front and back. Close's half-pixel is
+`T_EndB_00.translation.y` 26.5; `T_EndF_00` is already one sample at
+214.5 with an integer composite, so only B is allowlisted. The
+renderer's existing direct path samples `T_EndB_00` once at final LCD
+rows (phase 0.5) through the same 0x111 quads. `T_EndF_00` stays on the
 writer-0x110 pane route, which still rejects LCD sampling. No other
 pane, layout, asset or option changes.
 
@@ -102,12 +106,12 @@ coordinator's Sidecar recapture can establish the count.
 
 ## Checks
 
-`tests/notifications-close-shadow.test.mjs` (new),
-`notifications-close-list`, `notifications-lower` and
+`tests/notifications-close-shadow.test.mjs` (new; coverage plus
+`renderer.draw` LCD phase on `T_EndB_00` / writer-0x110 reject on
+`T_EndF_00`), `notifications-close-list`, `notifications-lower` and
 `notifications-upper-body` (the painter's single `textSampling` is
 pinned to `T_EndB_00`), and the rest of `tests/notifications-*`,
-`bitmap-font` and `native-renderer`: all pass. `npm run typecheck`
-passes. Full `npm test` gives 2046 pass / 36 fail / 23 skipped. All
-36 failures are `model/` ENOENT, because this sparse worktree has no
-`model/`. `npm run build` is the coordinator's job; Turbopack rejects
-the linked `node_modules` here.
+`bitmap-font` and `native-renderer`. Offline full-painter 0 over 2 vs
+native is private and is not a pixel bar. `npm run typecheck` and
+focused tests pass on this tree. Full `npm test` / `npm run build`
+remain the coordinator's job.

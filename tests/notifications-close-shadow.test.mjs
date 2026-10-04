@@ -14,6 +14,29 @@ const messages=JSON.parse(readFileSync(new URL('packs/notifications/messages-and
 const manifest=JSON.parse(readFileSync(new URL('fonts/shared/font.json', firmware), 'utf8'));
 const compiled=ts.transpileModule(readFileSync(new URL('../src/os/bitmap-font.ts', import.meta.url), 'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;
 const {nativeCenteredGlyphQuads,rasterNativeAlphaGlyph}=await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
+const layoutUrl=`data:text/javascript;base64,`+Buffer.from(ts.transpileModule(readFileSync(new URL('../src/os/native-layout.ts', import.meta.url), 'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
+const {NativeLayoutRenderer}=await import(`data:text/javascript;base64,`+Buffer.from(ts.transpileModule(readFileSync(new URL('../src/os/native-renderer.ts', import.meta.url), 'utf8').replace("'./native-layout'", JSON.stringify(layoutUrl)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
+function trackingCanvas(width=320, height=240){
+  const stack=[];
+  let a=1, b=0, c=0, d=1, e=0, f=0;
+  const ctx={
+    canvas:{width, height},
+    imageSmoothingEnabled:true,
+    save(){stack.push([a, b, c, d, e, f]);},
+    restore(){[a, b, c, d, e, f]=stack.pop();},
+    translate(x, y){e+=a*x+c*y; f+=b*x+d*y;},
+    rotate(){},
+    scale(sx, sy){a*=sx; b*=sx; c*=sy; d*=sy;},
+    beginPath(){}, rect(){}, clip(){}, clearRect(){},
+    getTransform(){return {a, b, c, d, e, f};},
+    createImageData(w, h){return {width:w, height:h, data:new Uint8ClampedArray(w*h*4)};},
+    putImageData(){},
+    getImageData(x, y, w, h){return {width:w, height:h, data:new Uint8ClampedArray(w*h*4)};},
+    drawImage(){},
+  };
+  ctx.canvas.getContext=()=>ctx;
+  return ctx.canvas;
+}
 const flatten=panes=>panes.flatMap(pane=>[pane, ...flatten(pane.children??[])]);
 const panes=Object.fromEntries(flatten(news.layouts.NewsTopBtn_D_00.roots).map(pane=>[pane.name, pane]));
 const bank=messages.messages.newslist_msbt_LZ;
@@ -82,6 +105,36 @@ test('painter samples only T_EndB_00 at final LCD rows', ()=>{
   assert.match(painter, /\{bindings:\[\{name:'NewsTopBtn_D_00_SceneIn',frame:20\}\],textSampling:'lcd',textSamplingPanes:\['T_EndB_00'\],overrides:\{T_EndB_00:message\('new_back'\),T_EndF_00:\{\.\.\.message\('new_back'\),singleLineBlockOrigin:'writer-0x110'\}\}\}/);
   // T_EndF_00 stays on the pane-raster writer-0x110 route, which rejects LCD sampling.
   assert.equal(/textSamplingPanes:\[[^\]]*T_EndF_00/.test(painter), false);
+});
+
+test('renderer.draw LCD sampling hits T_EndB_00 at phase 0.5 and leaves T_EndF_00 on writer-0x110', ()=>{
+  const layout=JSON.parse(JSON.stringify(news.layouts.NewsTopBtn_D_00));
+  const strip=panes=>{
+    for(const pane of panes){
+      delete pane.picture; delete pane.window;
+      strip(pane.children??[]);
+    }
+  };
+  strip(layout.roots);
+  const calls=[];
+  const font={manifest, drawNative(...args){calls.push({value:args[1], phase:args[9], lcd:args[10], origin:args[20]});}};
+  const previous=globalThis.document;
+  globalThis.document={createElement:()=>trackingCanvas(1, 1)};
+  try{
+    const renderer=new NativeLayoutRenderer(
+      {notifications:{schema:1, layouts:{NewsTopBtn_D_00:layout}, animations:{NewsTopBtn_D_00_SceneIn:news.animations.NewsTopBtn_D_00_SceneIn}, textures:{}, messages:{}}},
+      {notifications:new Map()},
+      new Map([[layout.fonts[0], font]]),
+    );
+    const ctx=trackingCanvas().getContext();
+    const options={bindings:[{name:'NewsTopBtn_D_00_SceneIn', frame:20}], textSampling:'lcd', textSamplingPanes:['T_EndB_00'], overrides:{T_EndB_00:{text:newBack}, T_EndF_00:{text:newBack, singleLineBlockOrigin:'writer-0x110'}}};
+    assert.equal(renderer.draw(ctx, 'notifications', 'NewsTopBtn_D_00', options), true, renderer.diagnostics.join('\n'));
+    const shadow=calls.find(call=>call.origin===undefined);
+    const front=calls.find(call=>call.origin==='writer-0x110');
+    assert.deepEqual(shadow, {value:newBack, phase:[0, 0.5], lcd:true, origin:undefined});
+    assert.deepEqual(front, {value:newBack, phase:[0, 0], lcd:false, origin:'writer-0x110'});
+    renderer.dispose();
+  }finally{globalThis.document=previous;}
 });
 
 test('frozen pair: native equals one atlas sample at row 213; browser equals the pane raster moved half a row', t=>{

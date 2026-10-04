@@ -241,6 +241,8 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    N_Base_00:{translation:[label.baseX,0,0]},N_LR_00:{translation:[label.bodyOffsetX,-6,0]},T_Blln_00:titleText?{text:titleText}:label.label?{text:label.label}:message('menu_msbt_LZ','lau_2b_folder_noname','(No name)')
   }});
  }
+ // T_TimeC_00 blink is untraced on HOME. Hide it on odd seconds to match
+ // the 26 September native still (colon absent at :35). Fitted adaptation.
  function hud(ctx:Context,date:Date,time:number,sample?:DiagnosticHomeHudSample,sceneInFrame?:number){
   if(sample)validateHomeHudSample(sample,renderer.packs.hud);
   if(sceneInFrame!==undefined&&(!Number.isInteger(sceneInFrame)||sceneInFrame<0||sceneInFrame>HOME_ENTRY_HUD_LAST_FRAME))throw new RangeError('Invalid HOME HUD SceneIn frame');
@@ -248,7 +250,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const weekday=message(table,`week_${['sun','mon','tue','wed','thu','fri','sat'][date.getDay()]}`,'').text!;
   const dateText=message(table,'lau_date','%d/%M (%w)');dateText.text=dateText.text!.replace('%d',day).replace('%M',month).replace('%w',weekday);
   return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',sceneInFrame??41),binding('HudMenu_00_WhiteBlack',0),binding('HudMenu_00_NetMode',sample?.netModeFrame??HOME_REFERENCE_HUD_STATUS.netModeFrame),binding('HudMenu_00_NetAtn',sample?.netAtnFrame??HOME_REFERENCE_HUD_STATUS.netAtnFrame),binding('HudMenu_00_Bat',sample?.batteryFrame??HOME_REFERENCE_HUD_STATUS.batteryFrame),binding('HudMenu_00_WalkCoin',sample?.walkCoinFrame??time*.06)],overrides:{
-   T_NetMode_00:message(table,sample?.networkMessage??HOME_REFERENCE_HUD_STATUS.networkMessage,'Internet'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:String(sample?.steps??HOME_REFERENCE_HUD_STATUS.steps)},T_Coin_00:{text:String(sample?.coins??HOME_REFERENCE_HUD_STATUS.coins)}
+   T_NetMode_00:message(table,sample?.networkMessage??HOME_REFERENCE_HUD_STATUS.networkMessage,'Internet'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeC_00:{visible:(date.getSeconds()&1)===0},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:String(sample?.steps??HOME_REFERENCE_HUD_STATUS.steps)},T_Coin_00:{text:String(sample?.coins??HOME_REFERENCE_HUD_STATUS.coins)}
   }});
  }
  function toolbar(ctx:Context,state?:MenuState){

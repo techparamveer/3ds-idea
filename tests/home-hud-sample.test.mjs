@@ -37,6 +37,9 @@ test('diagnostic sample selects delivered source messages and clips without chan
   const live=calls[0].options, diagnostic=calls[1].options;
   assert.equal(live.overrides.T_NetMode_00.text,'Internet');
   assert.equal(live.overrides.T_Coin_00.text,'42');
+  assert.equal(live.overrides.T_TimeC_00.visible,false,'odd seconds hide the colon, matching the native still');
+  painter.hud({},new Date(2026,8,26,4,14,34),1000);
+  assert.equal(calls.at(-1).options.overrides.T_TimeC_00.visible,true);
   assert.equal(diagnostic.overrides.T_NetMode_00.text,'Disabled');
   assert.equal(diagnostic.overrides.T_Coin_00.text,'0');
   assert.equal(diagnostic.overrides.T_Walk_00.text,'0');

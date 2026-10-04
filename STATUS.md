@@ -19,7 +19,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
 | Branch | `codex/home-fidelity-20261001` |
-| HEAD | `a65b1385` — Rewrite STATUS HEAD to the Product slice. |
+| HEAD | `3e65107a` — Rewrite STATUS HEAD to a65b1385 after the Product slice. |
 
 Runtime bind `9da8dd25` plus nits `73dcc174`. `acabb7af` Product/pointers and `a65b1385` STATUS SHA rewrite are docs-only. GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 

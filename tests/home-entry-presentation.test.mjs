@@ -20,8 +20,8 @@ const home = state => withSystem(state, { phase: 'home' });
 test('boot-owned HOME entry delays footer and HUD, then holds footer14 and HUD zero-alpha until their visible receipts', () => {
   const armed = sampleHomeEntryPresentation(createHomeEntryPresentation(), boot()).presentation;
   for (const [elapsed, footer, hud] of [
-    // Footer SceneIn starts three updates and HUD SceneIn nine updates after entry (fitted).
-    [0, 0, 0], [3, 0, 0], [7, 4, 0], [14, 11, 5], [17, 14, 8], [20, 14, 11], [29, 14, 20], [40, 14, 20], [75, 14, 20],
+    // Footer SceneIn starts three updates and HUD SceneIn seven updates after entry (fitted).
+    [0, 0, 0], [3, 0, 0], [7, 4, 0], [14, 11, 7], [17, 14, 10], [20, 14, 13], [27, 14, 20], [40, 14, 20], [75, 14, 20],
   ]) {
     const state = atCount(home(boot()), 77 + elapsed);
     const first = sampleHomeEntryPresentation(armed, state);
@@ -36,13 +36,13 @@ test('boot-owned HOME entry delays footer and HUD, then holds footer14 and HUD z
   const bannerState = atCount(home(boot()), 97);
   const bannerSample = sampleHomeEntryPresentation(acknowledged, bannerState);
   const released = acknowledgeHomeEntryBannerPresentation(bannerSample, bannerState);
-  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 106)), {
+  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 104)), {
     presentation: released, footerSceneInFrame: null, hudSceneInFrame: 20,
   });
-  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 126)), {
+  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 124)), {
     presentation: released, footerSceneInFrame: null, hudSceneInFrame: 40,
   });
-  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 127)), {
+  assert.deepEqual(sampleHomeEntryPresentation(released, atCount(home(boot()), 125)), {
     presentation: released, footerSceneInFrame: null, hudSceneInFrame: null,
   });
 });
@@ -67,8 +67,8 @@ test('no-dependent-native-banner bypass keeps the original HUD epoch', () => {
   const bypassState = atCount(home(base), 97);
   const bypassed = bypassHomeEntryBannerPresentation(sampleHomeEntryPresentation(footer, bypassState), bypassState);
   assert.equal(bypassed.bannerBypassed, true);
-  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 126)).hudSceneInFrame, 40);
-  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 127)).hudSceneInFrame, null);
+  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 124)).hudSceneInFrame, 40);
+  assert.equal(sampleHomeEntryPresentation(bypassed, atCount(home(base), 125)).hudSceneInFrame, null);
 });
 
 test('warm boot identity owns its current shared-clock origin and replaces stale boot ownership', () => {

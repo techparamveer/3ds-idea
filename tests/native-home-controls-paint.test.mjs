@@ -429,7 +429,7 @@ test('boot-owned paired screens hold HUD zero-alpha after footer receipt while b
    globalThis.__testNativeSystemOverlayDrawn=true;
    paint(boot);
    const entered={...boot,system:{...boot.system,phase:'home'}};
-   for(const [elapsed,footerFrame,hudFrame] of [[0,0,0],[0,0,0],[17,14,8],[18,undefined,9],[40,undefined,20],[41,undefined,20]]){
+   for(const [elapsed,footerFrame,hudFrame] of [[0,0,0],[0,0,0],[17,14,10],[18,undefined,11],[40,undefined,20],[41,undefined,20]]){
     const state={...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount:77+elapsed}}};
     paint(state);
     assert.equal(events.find(event=>event.name==='footer').args[2],footerFrame);
@@ -452,7 +452,7 @@ test('context recovery publishes a real banner before replaying HUD20 through40'
   const at=updateCount=>({...boot,system:{...boot.system,phase:'home',homeClock:{...boot.system.homeClock,updateCount}}});
   try{
    globalThis.__testNativeSystemOverlayDrawn=true;paint(boot);paint(at(90));
-   assert.equal(events.find(event=>event.name==='hud').args[3],4);
+   assert.equal(events.find(event=>event.name==='hud').args[3],6);
    screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();
 
    paint(at(152));

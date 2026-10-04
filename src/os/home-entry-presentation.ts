@@ -3,12 +3,13 @@ import type { MenuState } from './state.ts';
 export const HOME_ENTRY_FOOTER_LAST_FRAME = 14 as const;
 export const HOME_ENTRY_HUD_ZERO_ALPHA_FRAME = 20 as const;
 export const HOME_ENTRY_HUD_LAST_FRAME = 40 as const;
-/** Fitted to Azahar's HOME entry (5% playback; footer/HUD bands and the
- * wallpaper phase against browser update deltas): footer SceneIn 0 lands
- * three updates after the boot fade's terminal pose and HUD SceneIn 0 nine
- * updates after it. The native caller remains untraced; adaptations. */
+/** Fitted to Azahar's HOME entry (5% playback, three frames per capture by
+ * the wallpaper phase): footer SceneIn 0 lands about four frames after the
+ * boot fade's terminal pose first shows and HUD SceneIn 0 about four frames
+ * after the footer. Pose 20 shows one frame before HOME update 0, so these
+ * are three and seven updates. The native caller remains untraced. */
 export const HOME_ENTRY_FOOTER_DELAY_UPDATES = 3 as const;
-export const HOME_ENTRY_HUD_DELAY_UPDATES = 9 as const;
+export const HOME_ENTRY_HUD_DELAY_UPDATES = 7 as const;
 
 export type HomeEntryPresentation = Readonly<{
   bootSince: number | null;

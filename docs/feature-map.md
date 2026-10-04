@@ -22,7 +22,7 @@ independent review. HUD is now bound (worker `b0a80fca`: title-local
 no WalkCoin; awaits recapture). Scrollbar `0x13a160` thumb controller
 is in progress.
 [Close 577 / list 820](notifications-lower-2026-10-04.md) (worker
-`ac6dded3`) labelled pending independent review. Not 1:1.
+`ac6dded3`) labelled; independent review **APPROVE-WITH-NITS**. Not 1:1.
 
 Previous (rejected) [Notifications remaining lower scrollbar 2479](notifications-scrollbar-2479-2026-10-04.md),
 worker `codex/next-residual-3-20261004`: reused unread-dot `f073581`

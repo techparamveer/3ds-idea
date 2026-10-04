@@ -59,12 +59,13 @@ Code: `src/os/stock-apps.ts`, `stock-native-sound.ts`, `stock-sound-record.ts`,
 scene-owned Sound room. Tests: `stock-apps.test.mjs`, `portfolio-music.test.mjs`,
 `sound-entry-native.test.mjs`, `sound-room.test.mjs`,
 `sound-record-background.test.mjs`, `sound-remaining-residual.test.mjs`,
-`sound-title-1774.test.mjs`, `sound-empty-slider.test.mjs`, and
+`sound-title-1774.test.mjs`, `sound-empty-slider.test.mjs`,
+`sound-empty-footer.test.mjs`, and
 transport/scheduler tests.
 | ID | Reachable screen or route | Implemented behavior | Gap or adaptation |
 | --- | --- | --- | --- |
 | M-SND-01 | empty-track `sound/guide`, pages 1-3 | Next, Back after page 1 and final OK; source dialog, messages, page counter and page-3 volume art | Guide repeats because no firmware-backed first-run flag exists; upper title `[0,3,400,30]` **1774** is a labelled [glyph-raster source gap](../sound-title-1774-2026-10-04.md); entry/exit motion, bird scheduling and cues are open |
-| M-SND-02 | empty `sound/main` | Source Record & Edit Sounds room, row, slider and controls; HudTime separator follows seconds parity (`:` odd / space even) with a labelled 12/10 fixed-pitch adaptation (`605f39fe`) | Production manifest intentionally has zero tracks; Record, StreetPass, Add, Settings, Open and root Back are inert; clock ROI 0 over 2/255 vs `22:31` (`983ef5ed`); title 1774 is the same labelled gap as first-run; lower slider `[0,144,320,175]` **4271** is a labelled [source gap](../sound-empty-slider-2026-10-04.md) on already-bound `C_SldH_L` Default 20 / Rate 0 (no unused Disable/Push/MRate owner); whole empty-entry still 6,404 / 16,021 |
+| M-SND-02 | empty `sound/main` | Source Record & Edit Sounds room, row, slider and controls; HudTime separator follows seconds parity (`:` odd / space even) with a labelled 12/10 fixed-pitch adaptation (`605f39fe`) | Production manifest intentionally has zero tracks; Record, StreetPass, Add, Settings, Open and root Back are inert; clock ROI 0 over 2/255 vs `22:31` (`983ef5ed`); title 1774 is the same labelled gap as first-run; lower slider `[0,144,320,175]` **4271** is a labelled [source gap](../sound-empty-slider-2026-10-04.md) on already-bound `C_SldH_L` Default 20 / Rate 0 (no unused Disable/Push/MRate owner); lower footer `[0,178,320,240]` **4707** is a labelled [source gap](../sound-empty-footer-2026-10-04.md) on already-bound StreetPass / Open / Settings chrome (no unused Disable/In/Out/Push/`CecBtn` owner); whole empty-entry still 6,404 / 16,021 |
 | M-SND-03 | supplied-track `sound/main` | Song rows show title/artist; selection opens playback and emits ordered load then play | Requires user-supplied track manifest; supplied-song entry currently has tests but no production content or native comparison |
 | M-SND-04 | `sound/playback` transport | Play/pause, previous/next, bounded seek, progress/duration, and one mode control cycling no-loop/folder/single/random | Effect buttons, filters, pull cord, speed/pitch, percussion and visualizer behavior are inert or absent by scope; direct repeat/shuffle reducer actions have no separate visible route |
 | M-SND-05 | playback error dialog | Source Could-not-play dialog blocks transport; A/OK or B dismisses it without changing track | Error timing/audio and recovery against native are unverified |
@@ -78,8 +79,12 @@ labelled [source gap](../sound-title-1774-2026-10-04.md): already-bound
 Empty-entry lower slider `[0,144,320,175]` stays **4271** and is a labelled
 [source gap](../sound-empty-slider-2026-10-04.md): already-bound `C_SldH_L`
 Default 20 / Rate 0, dump Disable/Push/MRate do not uniquely own the grey
-capsule. Source checks isolate unresolved cursor-icon overlap, footer
-blending, bird timing and the capture-fitted Span material/placement. No
+capsule. Empty-entry lower footer `[0,178,320,240]` stays **4707** and is a
+labelled [source gap](../sound-empty-footer-2026-10-04.md): already-bound
+`S_BG_D-Ctr` plus OpL/Open/Set Default 0 and OpR/Back Disable 1, dump unused
+Disable/In/Out/Push/`CecBtn` clips do not uniquely own the StreetPass /
+Settings / Open glyph blend. Source checks isolate unresolved cursor-icon
+overlap, bird timing and the capture-fitted Span material/placement. No
 supplied-song browser/native pair exists.
 
 Dependency: `portfolioMedia.tracks` must remain empty until the user supplies

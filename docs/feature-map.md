@@ -15,7 +15,21 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Sound empty-entry slider 4271](sound-empty-slider-2026-10-04.md),
+Latest [Sound empty-entry footer 4707](sound-empty-footer-2026-10-04.md),
+worker `codex/sound-empty-footer-20261004`:
+reused HudTime-phase empty-entry lower keeps footer `[0,178,320,240]`
+**4707** (max 174 at `(244,229)`, native `(206,201,190)` / browser
+`(32,31,29)`). Clock ROI stays 0. Whole LCDs stay **6,404 / 16,021**.
+Already-bound `S_BG_D-Ctr`, `OpLBtn` Default 0 + `C_B_04` (80%),
+`OpRBtn` Disable 1 + `P_B_03`, `OpenBtn` Default 0 + `P_B_00`,
+`SetBtn` Default 0 + `C_B_03` (80%), `BackBtn` Disable 1 + `C_B_02`.
+Dump unused Disable/In/Out/Push/`CecBtn` clips write only button chrome
+and do not uniquely own the StreetPass / Settings / Open glyph blend.
+No snap, CSS, colour, font, lcd or `azahar-12p4-fit` guess. Painter
+unchanged. Docs and tests only. Coordinator APPROVE pending independent
+review. Not recaptured. Not 1:1.
+
+Earlier [Sound empty-entry slider 4271](sound-empty-slider-2026-10-04.md),
 `583fa9e` from worker `540cc5f5`:
 reused HudTime-phase empty-entry lower keeps slider `[0,144,320,175]`
 **4271** (max 195 at `(39,152)`, native `(60,47,47)` / browser

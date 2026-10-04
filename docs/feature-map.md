@@ -15,7 +15,19 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Sound first-run guide perimeter 6072](sound-guide-perimeter-2026-10-04.md),
+Latest [Camera Welcome pages 3/4 TxtDlg body 1079 / 692](camera-welcome-p34-body-2026-10-04.md),
+worker `codex/next-residual-20261004`: reused `0d7bfea` page-3/4 lowers
+stay **2480** / **2093**; interiors `[20,20,300,220]` **1079** / **692**
+(max 14); labelled page-1 chrome perimeter stays **1401** on both (and
+on pages 1 and 5, interiors **0**). Already-bound `C_DlgGuid2Btn`
+Default 0 + `TxtDlg` `D_003_2` / `D_003_3` with `nativeMessageColorSpans`.
+Unused `C_DlgGuid2Btn_Push` / `Disable`, `C_DlgGuid1BtnW`, `_flw`
+messages and `C_BkMask` do not uniquely own the glyph AA. Labelled
+multiline `TxtDlg` raster source gap. Painter unchanged. Docs and tests
+only. Coordinator APPROVE pending independent review. Not recaptured.
+Not 1:1.
+
+Previous [Sound first-run guide perimeter 6072](sound-guide-perimeter-2026-10-04.md),
 worker `codex/sound-guide-perimeter-20261004`: reused HudTime-phase
 first-run lower whole stays **6,267**; guide interior `[20,20,300,220]`
 **195** (all in Next glyphs `[138,196,182,213]`); perimeter complement

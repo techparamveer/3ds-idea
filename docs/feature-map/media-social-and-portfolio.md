@@ -17,11 +17,11 @@ Code: `src/os/stock-apps.ts`, `camera-browse.ts`, `stock-native-camera.ts`,
 `stock-screen-layout.ts`, `portfolio-media.ts`, and scene-owned
 `camera-shoot-background.ts`. Tests: `stock-apps.test.mjs`,
 `camera-browse.test.mjs`, `stock-native-camera.test.mjs`,
-`camera-welcome-p1-1401.test.mjs`, and the Camera replay,
-publication and generation tests.
+`camera-welcome-p1-1401.test.mjs`, `camera-welcome-p34-body.test.mjs`, and
+the Camera replay, publication and generation tests.
 | ID | Reachable screen or route | Implemented behavior | Gap or adaptation |
 | --- | --- | --- | --- |
-| M-CAM-01 | `camera/guide`, pages 1-5 | Application cold entry; Next, Back after page 1, and final OK; source dialogs, finder, capacity, SD icon and guide art | Seen-state is not persisted, so every new application instance repeats Welcome; page-1 remaining **0 / 1,401** is a labelled [source gap](../camera-welcome-p1-1401-2026-10-04.md) (top Disable pose, Grid1 registration, counter glyph); guide motion/audio stay unverified |
+| M-CAM-01 | `camera/guide`, pages 1-5 | Application cold entry; Next, Back after page 1, and final OK; source dialogs, finder, capacity, SD icon and guide art | Seen-state is not persisted, so every new application instance repeats Welcome; page-1 remaining **0 / 1,401** is a labelled [source gap](../camera-welcome-p1-1401-2026-10-04.md) (top Disable pose, Grid1 registration, counter glyph); pages 3/4 remaining interiors **1079** / **692** are a labelled [TxtDlg glyph-AA source gap](../camera-welcome-p34-body-2026-10-04.md) on already-bound `C_DlgGuid2Btn` Default 0 (perimeter stays 1401; unused Push/Disable/`_flw` do not uniquely own the body); guide motion/audio stay unverified |
 | M-CAM-02 | `camera/main` folder grid | `View Photos/Videos` combines all five unique portfolio images; individual source-content folders remain reachable; 3-column physical/touch navigation | Portfolio folders, labels and counts are intentional content adaptations; Slideshow, Shoot, Settings and zoom chrome are visual and inert |
 | M-CAM-03 | `camera/gallery` | Date group when supplied, photo cells, 3-column selection, padded final page, replayed horizontal strip, slider, held-key cancellation and direct touch targets | Date cell is display-only; slider Rate mapping is fitted; native paging, Parakeet phase and dynamic scene replacement remain unverified |
 | M-CAM-04 | `camera/photo` | Selected photo on upper LCD; physical Left/Right wrap; B/footer Back restore the activated photo's gallery row and settled page (`38bab8b7`, `dda25e9e`), including a touch on a non-focused cell; both entry paths and reopen/footer Back browser-inspected | Native Back behavior/timing remains unmatched. Photo touch sides are inert; portfolio JPEGs have no native MPO equivalence |
@@ -29,9 +29,11 @@ publication and generation tests.
 | M-CAM-06 | internal `camera-applet` alias | Starts at folder grid and shares main/gallery/photo navigation | No HOME entry and no Welcome owner; not a second Camera state system |
 
 Evidence: Welcome page 1 has a source-backed production pair but remains a
-whole-session failure. The reused `0d7bfea` pair is **0 / 1,401** over
-2/255; shoot underlay / `P_Shoot_D` / modal black-alpha128 already bind,
-and the leftover is a labelled [source gap](../camera-welcome-p1-1401-2026-10-04.md).
+whole-session failure. The reused `0d7bfea` page-1 pair is **0 / 1,401**
+over 2/255; shoot underlay / `P_Shoot_D` / modal black-alpha128 already
+bind, and the leftover is a labelled [source gap](../camera-welcome-p1-1401-2026-10-04.md).
+Pages 3/4 reuse the same chrome **1401** and add interiors **1079** /
+**692** over 2/255, a labelled [TxtDlg source gap](../camera-welcome-p34-body-2026-10-04.md).
 Populated gallery comparisons use different media and cannot establish photo fidelity.
 The 28 September production QA confirms only the source 2D cube placement
 (0.971 foreground IoU), not whole-screen parity.

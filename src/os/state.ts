@@ -99,6 +99,7 @@ function activatePanel(state: MenuState): MenuState {
     if (state.panelChoice === 1) return { ...state, panel: 'home-layouts', homeLayoutSlot: 0, homeLayoutAction: null, homeLayoutConfirm: false };
     if (state.panelChoice === 2) return reduceMenu(state, 'brightness');
     if (state.panelChoice === 3) return { ...state, powerSaving: !state.powerSaving };
+    // Image Share and StreetPass (Settings/eShop) remain dump-owned and Open-inert.
     return state;
   }
   if (state.panel === 'home-layouts') return state.homeLayoutAction ? (state.homeLayoutConfirm ? confirmHomeLayoutAction(state) : { ...state, homeLayoutAction: null, homeLayoutConfirm: false })
@@ -141,7 +142,7 @@ export function reduceMenu(state: MenuState, input: Input): MenuState {
       if (input === 'up' || input === 'down') return { ...state, homeLayoutSlot: slot % 4 + (input === 'down' ? 4 : 0) };
       return state;
     }
-    const count = state.panel === 'themes' ? 7 : state.panel === 'settings' ? 4 : state.panel === 'folder-settings' ? 2 : 1;
+    const count = state.panel === 'themes' ? 7 : state.panel === 'settings' ? 6 : state.panel === 'folder-settings' ? 2 : 1;
     if (input === 'down' || input === 'up') {
       const panelChoice = Math.max(0, Math.min(count - 1, state.panelChoice + (input === 'down' ? 1 : -1)));
       return { ...state, panelChoice, ...(state.panel === 'settings' ? { panelScroll: homeSettingsChoiceScroll(panelChoice, state.panelScroll) } : {}) };
@@ -175,6 +176,7 @@ export function touchMenu(state: MenuState, x: number, y: number): MenuState {
       if (action === 'themes' || action === 'home-layouts') return activatePanel({ ...state, panelChoice: action === 'themes' ? 0 : 1 });
       if (action?.startsWith('brightness-')) return { ...state, panelChoice: 2, brightness: Number(action.slice(-1)) / 5 };
       if (action === 'power-saving-off' || action === 'power-saving-on') return { ...state, panelChoice: 3, powerSaving: action === 'power-saving-on' };
+      if (action === 'image-share' || action === 'streetpass') return { ...state, panelChoice: action === 'image-share' ? 4 : 5 };
     }
     if (state.panel === 'home-layouts') {
       if (state.homeLayoutAction) {

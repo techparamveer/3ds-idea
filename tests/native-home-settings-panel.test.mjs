@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import {nativeMessageOverride,nativePaneParentPath,poseNativeLayout} from '../src/os/native-layout.ts';
+import {HOME_SETTINGS_MAX_SCROLL} from '../src/os/stock-screen-layout.ts';
 
 const moduleUrl=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 async function loadPresentation(overrides={}){
@@ -47,37 +48,39 @@ const drawByName=(draws,name)=>draws.find(draw=>draw.name===name);
 test('HOME Settings attaches original-hardware source rows and English styles at native mounts',()=>{
  const before=JSON.stringify(packs),{home,draws,ctx}=presenter();
  assert.equal(home.settingsLower(ctx,state),true);
- for(const [name,center] of [['PtBtnL_Thm_00',[152,66]],['PtBtnM_Mym_00',[152,160]],['PtBtnT_Lgt_00',[152,248]],['PtBtnT_Abl_00',[152,320]]])assert.deepEqual(drawByName(draws,name).center,center);
+ for(const [name,center] of [['PtBtnL_Thm_00',[152,66]],['PtBtnM_Mym_00',[152,160]],['PtBtnT_Lgt_00',[152,248]],['PtBtnT_Abl_00',[152,320]],['PtBtnM_Shr_00',[152,400]],['PtBtn_Sft_00',[152,484]]])assert.deepEqual(drawByName(draws,name).center,center);
  assert.equal(drawByName(draws,'PtBtnT_Lgt_01'),undefined,'original hardware uses the 00 brightness layout');
- const checks=[['PtBtnL_Thm_00','T_Base_00','ptt_menu_design'],['PtBtnL_Thm_00','T_Btn_01','ptt_theme'],['PtBtnM_Mym_00','T_Base_00','ptt_menu_mhm'],['PtBtnM_Mym_00','T_Btn_01','ptt_mhm'],['PtBtnT_Lgt_00','T_Base_00','ptt_light_bright'],['PtBtnT_Abl_00','T_Base_00','ptt_light_eco'],['PtBtnT_Abl_00','T_On_00','ptt_light_on'],['PtBtnT_Abl_00','T_Off_00','ptt_light_off']];
+ const checks=[['PtBtnL_Thm_00','T_Base_00','ptt_menu_design'],['PtBtnL_Thm_00','T_Btn_01','ptt_theme'],['PtBtnM_Mym_00','T_Base_00','ptt_menu_mhm'],['PtBtnM_Mym_00','T_Btn_01','ptt_mhm'],['PtBtnT_Lgt_00','T_Base_00','ptt_light_bright'],['PtBtnT_Abl_00','T_Base_00','ptt_light_eco'],['PtBtnT_Abl_00','T_On_00','ptt_light_on'],['PtBtnT_Abl_00','T_Off_00','ptt_light_off'],['PtBtnM_Shr_00','T_Btn_00','ptt_menu_upload'],['PtBtnM_Shr_00','T_Btn_01','ptt_menu_upload'],['PtBtn_Sft_00','T_Title_00','ptt_mset']];
  for(const [layout,pane,label] of checks)assert.deepEqual(drawByName(draws,layout).options.overrides[pane],nativeMessageOverride(packs.messages,'menu_msbt_LZ',label,''));
  const contents=drawByName(draws,'PtDlgCnt_CTR').pose,panes=Object.fromEntries(walk(contents.roots).map(pane=>[pane.name,pane]));
  assert.deepEqual([1,2,3,4,5].map(i=>panes[`N_Wrp_0${i}`].translation[1]+0),[0,72,0,56,64]);
- for(const name of ['N_BtnTheme_00','N_BtnMyMenu_00'])assert.equal(panes[name].flags&1,1);
+ for(const name of ['N_BtnTheme_00','N_BtnMyMenu_00','N_BtnImgShr_00','N_BtnSft_00','N_Line_02','N_Line_03'])assert.equal(panes[name].flags&1,1);
  for(const name of ['N_BtnPrize_00','N_BtnCbnt_00','N_BtnInfo_00'])assert.equal(panes[name].flags&1,0);
  assert.deepEqual(drawByName(draws,'PtDlgBg_D_00').options.clip,[0,0,320,240],'brightness heading at y221 remains visible');
- assert.deepEqual(draws.filter(draw=>draw.name==='PtLine_00').map(draw=>draw.center),[[152,116],[152,204]]);
+ assert.deepEqual(draws.filter(draw=>draw.name==='PtLine_00').map(draw=>draw.center),[[152,116],[152,204],[152,364],[152,436]]);
  assert.equal(JSON.stringify(packs),before,'painting must not mutate shared decoded resources');
 });
 
 test('scroll moves content while close and source scrollbar stay attached to the panel',()=>{
  const results=[];
- for(const scroll of [undefined,0,140,900,-20,NaN]){
+ for(const scroll of [undefined,0,140,HOME_SETTINGS_MAX_SCROLL,900,-20,NaN]){
   const {home,draws,ctx}=presenter();home.settingsLower(ctx,{...state,panelScroll:scroll});results.push(draws);
-  const amount=Number.isFinite(scroll)?Math.max(0,Math.min(140,scroll)):0;
+  const amount=Number.isFinite(scroll)?Math.max(0,Math.min(HOME_SETTINGS_MAX_SCROLL,scroll)):0;
   assert.deepEqual(drawByName(draws,'PtBtnM_Mym_00').center,[152,160-amount]);
   assert.deepEqual(drawByName(draws,'PtBtnT_Abl_00').center,[152,320-amount]);
+  assert.deepEqual(drawByName(draws,'PtBtnM_Shr_00').center,[152,400-amount]);
+  assert.deepEqual(drawByName(draws,'PtBtn_Sft_00').center,[152,484-amount]);
   assert.deepEqual(drawByName(draws,'PtClose_00').center,[160,120]);
   const bar=drawByName(draws,'PtSlideBar');assert.deepEqual(bar.center,[160,120]);
   assert.deepEqual(bar.options.overrides.SBBtn.size,[22,88]);
-  assert.deepEqual(bar.options.overrides.N_Slide_00.translation,[0,58-amount/140*116,0]);
+  assert.deepEqual(bar.options.overrides.N_Slide_00.translation,[0,58-amount/HOME_SETTINGS_MAX_SCROLL*116,0]);
  }
  assert.deepEqual(results[0].map(draw=>draw.center),results[1].map(draw=>draw.center));
 });
 
 test('source cursor anchors follow each choice and selected brightness/power-saving groups',()=>{
- for(const [panelChoice,brightness,powerSaving,layout,anchor] of [[0,1,false,'PtBtnL_Thm_00','N_CPos_Btn_00'],[1,1,false,'PtBtnM_Mym_00','N_CPos_Btn_00'],[2,.6,false,'PtBtnT_Lgt_00','N_CPos_Lv3_00'],[3,1,false,'PtBtnT_Abl_00','N_CPos_Off_00'],[3,1,true,'PtBtnT_Abl_00','N_CPos_On_00']]){
-  const {home,draws,ctx}=presenter();home.settingsLower(ctx,{...state,panelChoice,brightness,powerSaving,panelScroll:140});
+ for(const [panelChoice,brightness,powerSaving,layout,anchor] of [[0,1,false,'PtBtnL_Thm_00','N_CPos_Btn_00'],[1,1,false,'PtBtnM_Mym_00','N_CPos_Btn_00'],[2,.6,false,'PtBtnT_Lgt_00','N_CPos_Lv3_00'],[3,1,false,'PtBtnT_Abl_00','N_CPos_Off_00'],[3,1,true,'PtBtnT_Abl_00','N_CPos_On_00'],[4,1,false,'PtBtnM_Shr_00','N_CPos_Btn_00'],[5,1,false,'PtBtn_Sft_00','N_CPos_Btn_00']]){
+  const {home,draws,ctx}=presenter();home.settingsLower(ctx,{...state,panelChoice,brightness,powerSaving,panelScroll:HOME_SETTINGS_MAX_SCROLL});
   const cursors=draws.filter(draw=>draw.name==='PtCsr_00');assert.equal(cursors.length,1);
   const parent=drawByName(draws,layout),pane=nativePaneParentPath(packs.petit.layouts[layout],anchor).at(-1),cursor=cursors[0];
   assert.deepEqual(cursor.center,[parent.center[0]+pane.translation[0],parent.center[1]-pane.translation[1]]);
@@ -92,7 +95,11 @@ test('source cursor anchors follow each choice and selected brightness/power-sav
 test('missing messages, layouts, animation or child draw fail explicitly',()=>{
  for(const [remove,error] of [
   [source=>delete source.messages.messages.menu_msbt_LZ.labels.ptt_mhm,/message unavailable: ptt_mhm/],
+  [source=>delete source.messages.messages.menu_msbt_LZ.labels.ptt_menu_upload,/message unavailable: ptt_menu_upload/],
+  [source=>delete source.messages.messages.menu_msbt_LZ.labels.ptt_tiger,/message unavailable: ptt_tiger/],
   [source=>delete source.petit.layouts.PtBtnM_Mym_00,/layout unavailable: PtBtnM_Mym_00/],
+  [source=>delete source.petit.layouts.PtBtnM_Shr_00,/layout unavailable: PtBtnM_Shr_00/],
+  [source=>delete source.petit.layouts.PtBtn_Sft_00,/layout unavailable: PtBtn_Sft_00/],
   [source=>delete source.petit.animations.PtDlgCnt_CTR_Theme,/animation unavailable: PtDlgCnt_CTR_Theme/],
  ]){
   const source=structuredClone(packs);remove(source);const {home,ctx}=presenter(source);assert.throws(()=>home.settingsLower(ctx,state),error);
@@ -116,7 +123,7 @@ test('asset readiness decodes every Settings and MyMenu texture before publicati
  try{
   const assets=await loadFirmwarePresentationAssets();
   try{
-   for(const [pack,names] of [['petit',['PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00']],['MyMenu',Object.keys(packs.MyMenu.layouts)],['dialog',['Dlg_B_D_01']],['dialogmask',['DlgMask_D_00']],['sequence',['DlgBtn02_00','LncDlgIcon_D_00']]]){
+   for(const [pack,names] of [['petit',['PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtBtnM_Shr_00','PtBtn_Sft_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00']],['MyMenu',Object.keys(packs.MyMenu.layouts)],['dialog',['Dlg_B_D_01']],['dialogmask',['DlgMask_D_00']],['sequence',['DlgBtn02_00','LncDlgIcon_D_00']]]){
     for(const name of names)for(const texture of packs[pack].layouts[name].textures){
      const record=packs[pack].textures[texture],pixels=assets.renderer.textures[pack].get(texture);
      assert.deepEqual([pixels.width,pixels.height],[record.width,record.height],`${pack}/${name}/${texture}`);
@@ -125,7 +132,7 @@ test('asset readiness decodes every Settings and MyMenu texture before publicati
    }
    assert.ok(assets.diagnostics.some(message=>message.includes('adaptations')));
   }finally{assets.dispose();}
-  for(const [bank,layout] of [['petit','PtBtnM_Mym_00'],['petit','PtCsr_00'],['MyMenu','MyMenu_D_00'],['dialog','Dlg_B_D_01'],['dialogmask','DlgMask_D_00'],['sequence','DlgBtn02_00'],['sequence','LncDlgIcon_D_00']]){
+  for(const [bank,layout] of [['petit','PtBtnM_Mym_00'],['petit','PtBtnM_Shr_00'],['petit','PtBtn_Sft_00'],['petit','PtCsr_00'],['MyMenu','MyMenu_D_00'],['dialog','Dlg_B_D_01'],['dialogmask','DlgMask_D_00'],['sequence','DlgBtn02_00'],['sequence','LncDlgIcon_D_00']]){
    missing=[bank,layout];await assert.rejects(loadFirmwarePresentationAssets(),new RegExp(`Missing native layout ${layout}`));
   }
  }finally{for(const [key,descriptor] of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}

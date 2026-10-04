@@ -16,7 +16,7 @@ import { selectNotesMetadata } from './notes-title-metadata';
 import { drawHomeSuspendedIcon } from './home-suspended-window';
 import { homeSoftwareClosingDialogKey, homeSoftwareDialogKey, homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
-import { HOME_FOOTER_TOUCH_GEOMETRY } from './stock-screen-layout';
+import { HOME_FOOTER_TOUCH_GEOMETRY, HOME_SETTINGS_MAX_SCROLL, clampHomeSettingsScroll } from './stock-screen-layout';
 import { selectHomeFolderFooterPose } from './home-folder-footer-return';
 import { HOME_ENTRY_FOOTER_LAST_FRAME, HOME_ENTRY_HUD_LAST_FRAME } from './home-entry-presentation';
 import { homeApplicationTransitionFooterExit, homeApplicationTransitionFooterReturn } from './home-application-transition';
@@ -25,7 +25,7 @@ import { sampleSystemHomeApplicationTransition } from './system-home-application
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleIconPixels:Map<string,NativePixels>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
-const homeSettingsLayouts=['PtDlgBg_U_00','PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00'];
+const homeSettingsLayouts=['PtDlgBg_U_00','PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtBtnM_Shr_00','PtBtn_Sft_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00'];
 const homeLayoutManagerLayouts=['MyMenuBtmBtn_D_00','MyMenuBtn_D_00','MyMenuCsr_00','MyMenuDlg_00','MyMenuDlg_01','MyMenuRandom','MyMenu_D_00','MyMenu_U_00'];
 const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],petit:homeSettingsLayouts,launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncCsrEfct_01','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
@@ -86,7 +86,7 @@ export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/1
   }));
   controller.signal.throwIfAborted();
   const renderer=new NativeLayoutRenderer(packs,textures,new Map([['cbf_std.bcfnt',sharedFont as BitmapFont],['Hud.bcfnt',hudFont as BitmapFont]]));
-  renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.','HOME Settings uses source layouts with capture-fitted scrollbar geometry, a bounded four-row scroll range and settled cursor/button bindings; these are adaptations pending native runtime comparison.');
+  renderer.diagnostics.push('Native HOME animation epochs and transitions await synchronized Azahar comparison.','Native layout frame selection and alpha inheritance await Azahar comparison.','Portfolio icons/content intentionally differ from stock applications.','HOME Settings uses source layouts with capture-fitted 88px scrollbar geometry, a bounded six-row 0..280 scroll range and settled cursor/button bindings; Image Share and StreetPass Open stay inert; these are adaptations pending native runtime comparison.');
   let disposed=false;
   return {sharedFont:sharedFont as BitmapFont,hudFont:hudFont as BitmapFont,renderer,titleIcons,titleIconPixels,titleDescriptions,settingsBalloonText,healthBalloonText,soundBalloonText,cameraBalloonText,diagnostics:renderer.diagnostics,dispose(){if(disposed)return;disposed=true;titleIcons.clear();titleIconPixels.clear();titleDescriptions.clear();renderer.dispose();fonts.forEach(f=>f.dispose());}};
  }catch(error){controller.abort();fonts.forEach(font=>font.dispose());throw error;}
@@ -152,9 +152,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
    if(bank?.labels[label]===undefined)throw new Error(`Native HOME Settings message unavailable: ${label}`);
    return message('menu_msbt_LZ',label,'');
   };
-  const labels=Object.fromEntries(['ptt_menu_design','ptt_theme','ptt_menu_mhm','ptt_mhm','ptt_light_bright','ptt_light_eco','ptt_light_on','ptt_light_off'].map(label=>[label,requiredMessage(label)]));
+  const labels=Object.fromEntries(['ptt_menu_design','ptt_theme','ptt_menu_mhm','ptt_mhm','ptt_light_bright','ptt_light_eco','ptt_light_on','ptt_light_off','ptt_menu_upload','ptt_mset','ptt_tiger'].map(label=>[label,requiredMessage(label)]));
   for(const name of homeSettingsLayouts)if(!pack?.layouts[name])throw new Error(`Native HOME Settings layout unavailable: ${name}`);
-  const scroll=Number.isFinite(state.panelScroll)?Math.max(0,Math.min(140,state.panelScroll!)):0;
+  const scroll=clampHomeSettingsScroll(state.panelScroll);
   const level=Math.max(1,Math.min(5,Math.round(state.brightness*5))),choice=state.panelChoice;
   let okay=true;
   const draw=(layout:string,options:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{
@@ -177,12 +177,15 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
     N_BtnMyMenu_00:()=>button('PtBtnM_Mym_00',{T_Base_00:labels.ptt_menu_mhm,T_Btn_00:labels.ptt_mhm,T_Btn_01:labels.ptt_mhm},choice===1),
     N_BtnLgt_00:()=>button('PtBtnT_Lgt_00',{T_Base_00:labels.ptt_light_bright},choice===2,`N_CPos_Lv${level}_00`,[binding('PtBtnT_Lgt_01_UnDecide',1,Array.from({length:5},(_,i)=>`G_Lv${i+1}_00`)),binding('PtBtnT_Lgt_01_Decide',1,[`G_Lv${level}_00`])]),
     N_BtnAbl_00:()=>button('PtBtnT_Abl_00',{T_Base_00:labels.ptt_light_eco,T_Off_00:labels.ptt_light_off,T_Off_01:labels.ptt_light_off,T_On_00:labels.ptt_light_on,T_On_01:labels.ptt_light_on},choice===3,`N_CPos_${state.powerSaving?'On':'Off'}_00`,[binding('PtBtnT_Lgt_01_UnDecide',1,['G_Off_00','G_On_00']),binding('PtBtnT_Lgt_01_Decide',1,[state.powerSaving?'G_On_00':'G_Off_00'])]),
-    N_Line_00:()=>draw('PtLine_00'),N_Line_01:()=>draw('PtLine_00'),
+    N_BtnImgShr_00:()=>button('PtBtnM_Shr_00',{T_Btn_00:labels.ptt_menu_upload,T_Btn_01:labels.ptt_menu_upload},choice===4),
+    // ptt_tiger is the eShop balloon label. N_BllnPos_00 stays layout-default alpha 0 at rest; do not guess BllnIn.
+    N_BtnSft_00:()=>button('PtBtn_Sft_00',{T_Title_00:labels.ptt_mset},choice===5),
+    N_Line_00:()=>draw('PtLine_00'),N_Line_01:()=>draw('PtLine_00'),N_Line_02:()=>draw('PtLine_00'),N_Line_03:()=>draw('PtLine_00'),
    },
   });
   // The capture's 88px thumb starts at y18. The runtime range/length writer is
   // not recovered: retain the source artwork and label this geometry as a fit.
-  const thumbY=58-scroll/140*116;
+  const thumbY=58-scroll/HOME_SETTINGS_MAX_SCROLL*116;
   // Source mask fitted to the captured dimmed HOME backing. Its use by the
   // original Petit host is not yet traced; retain this assembly as an adaptation.
   if(!renderer.packs.dialogmask?.layouts.DlgMask_D_00||!renderer.packs.dialogmask.animations.DlgMask_D_00_FadeIn)throw new Error('Native HOME Settings backing mask unavailable');

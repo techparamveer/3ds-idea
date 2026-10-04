@@ -66,15 +66,15 @@ export function homeFolderNoticeActionAt(x: number, y: number): 'open' | null {
   return x >= r.x && x < r.x + r.width && y >= r.y && y < r.y + r.height ? r.action : null;
 }
 
-/** Bounded four-row HOME Settings adapter; later native rows are not yet routed. */
-export const HOME_SETTINGS_MAX_SCROLL = 140;
+/** Theme-pose content ends at StreetPass box y 520; MAX_SCROLL = 520−240. */
+export const HOME_SETTINGS_MAX_SCROLL = 280;
 /** home.dialog/Dlg_A_D_02 Bounding_00/01 at the settled source pose. */
 export function homeLayoutConfirmationAt(x: number, y: number): 'cancel' | 'confirm' | null {
   if (!Number.isFinite(x) || !Number.isFinite(y) || y < 180 || y >= 220) return null;
   return x >= 20 && x < 159 ? 'cancel' : x >= 161 && x < 300 ? 'confirm' : null;
 }
 export const clampHomeSettingsScroll = (value = 0): number => Number.isFinite(value) ? Math.max(0, Math.min(HOME_SETTINGS_MAX_SCROLL, value)) : 0;
-export type HomeSettingsAction = 'back' | 'themes' | 'home-layouts' | 'brightness-1' | 'brightness-2' | 'brightness-3' | 'brightness-4' | 'brightness-5' | 'power-saving-off' | 'power-saving-on';
+export type HomeSettingsAction = 'back' | 'themes' | 'home-layouts' | 'brightness-1' | 'brightness-2' | 'brightness-3' | 'brightness-4' | 'brightness-5' | 'power-saving-off' | 'power-saving-on' | 'image-share' | 'streetpass';
 export type HomeSettingsTarget = { action: HomeSettingsAction; choice: number; x: number; y: number; width: number; height: number };
 /** home.petit PtDlgCnt_CTR mounts plus each child B_* pane, in lower-LCD coordinates. */
 export function homeSettingsTargets(scroll = 0): HomeSettingsTarget[] {
@@ -87,6 +87,9 @@ export function homeSettingsTargets(scroll = 0): HomeSettingsTarget[] {
       x: x - (index === 0 || index === 4 ? 20 : 19), y: 237 - offset, width: index === 0 || index === 4 ? 40 : 38, height: 38 })),
     { action: 'power-saving-off', choice: 3, x: 51, y: 309 - offset, width: 100, height: 38 },
     { action: 'power-saving-on', choice: 3, x: 153, y: 309 - offset, width: 100, height: 38 },
+    { action: 'image-share', choice: 4, x: 51, y: 381 - offset, width: 202, height: 38 },
+    { action: 'streetpass', choice: 5, x: 75, y: 453 - offset, width: 58, height: 58 },
+    { action: 'streetpass', choice: 5, x: 171, y: 453 - offset, width: 58, height: 58 },
   ];
   return targets.filter(r => r.y < 240 && r.y + r.height > 0).map(r => ({ ...r, y: Math.max(0, r.y), height: Math.min(240, r.y + r.height) - Math.max(0, r.y) }));
 }
@@ -101,7 +104,7 @@ export function homeSettingsScrollAt(x: number, y: number): number | null {
 }
 /** Keep the selected source row fully visible; motion timing is not native-verified. */
 export function homeSettingsChoiceScroll(choice: number, scroll = 0): number {
-  const offset = clampHomeSettingsScroll(scroll), bounds = [[38, 104], [128, 192], [216, 280], [288, 352]][choice];
+  const offset = clampHomeSettingsScroll(scroll), bounds = [[38, 104], [128, 192], [216, 280], [288, 352], [376, 424], [448, 520]][choice];
   if (!bounds) return offset;
   if (choice === 0) return 0;
   return clampHomeSettingsScroll(bounds[0] < offset ? bounds[0] : bounds[1] > offset + 240 ? bounds[1] - 240 : offset);

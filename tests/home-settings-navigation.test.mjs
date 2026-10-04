@@ -31,6 +31,29 @@ test('keyboard rows scroll brightness and power fully into view and share touch 
   assert.equal(state.panelScroll, 0);
   assert.equal(homeSettingsActionAt(state.panelScroll, 152, 71 - state.panelScroll), 'themes');
 });
+test('keyboard rows scroll Image Share and StreetPass fully into view and leave Open inert', () => {
+  let state = reduceMenu(reduceMenu(reduceMenu(reduceMenu(settings(), 'down'), 'down'), 'down'), 'down');
+  assert.equal(state.panelChoice, 4);
+  assert.equal(state.panelScroll, 184);
+  assert.equal(homeSettingsActionAt(state.panelScroll, 152, 381 - state.panelScroll), 'image-share');
+  const shareOpen = reduceMenu(state, 'open');
+  assert.equal(shareOpen.panel, 'settings');
+  assert.equal(shareOpen.panelChoice, 4);
+  state = reduceMenu(state, 'down');
+  assert.equal(state.panelChoice, 5);
+  assert.equal(state.panelScroll, HOME_SETTINGS_MAX_SCROLL);
+  assert.equal(homeSettingsActionAt(state.panelScroll, 104, 453 - state.panelScroll), 'streetpass');
+  assert.equal(homeSettingsActionAt(state.panelScroll, 200, 453 - state.panelScroll), 'streetpass');
+  const streetOpen = reduceMenu(state, 'open');
+  assert.equal(streetOpen.panel, 'settings');
+  assert.equal(streetOpen.panelChoice, 5);
+  const shareTouch = touchMenu({ ...settings(), panelScroll: 184 }, 152, 381 - 184);
+  assert.equal(shareTouch.panel, 'settings');
+  assert.equal(shareTouch.panelChoice, 4);
+  const streetTouch = touchMenu(state, 104, 453 - state.panelScroll);
+  assert.equal(streetTouch.panel, 'settings');
+  assert.equal(streetTouch.panelChoice, 5);
+});
 test('source scrollbar and close overlay are bounded with full-height content', () => {
   assert.equal(homeSettingsScrollAt(276, 17), 0);
   assert.equal(homeSettingsScrollAt(276, 223), HOME_SETTINGS_MAX_SCROLL);

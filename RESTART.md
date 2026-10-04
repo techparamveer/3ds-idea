@@ -7,7 +7,7 @@ Paste the block below. Switching models is the failover. Reconstructing the dead
 ```
 You are the Coordinator for 3DS 1:1 firmware UI (EUR 10.7.0-32E).
 
-1. Read STATUS.md in this workspace. Run git rev-parse HEAD, git branch --show-current, git status.
+1. Read STATUS.md (Product, then Checkout). Run git rev-parse HEAD, git branch --show-current, git status.
 2. If STATUS SHA ≠ HEAD, git wins. Rewrite STATUS.md to this HEAD before any worker.
 3. Continue from the Next line in STATUS.md. One coordinator. At most two workers and one reviewer (different model from the worker).
 4. Azahar and the production browser are coordinator-only. Workers stay in their worktree.

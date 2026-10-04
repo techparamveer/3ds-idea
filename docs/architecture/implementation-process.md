@@ -22,15 +22,19 @@ published resources alone do not establish visible fidelity.
 ## Worktree ownership and integration
 
 1. Inspect `git status`, `git worktree list`, branch and HEAD in the intended
-   repository. The UI coordinator checkout is
-   `/Users/paramveer/.codex/worktrees/3ds-ui-continuation` on
-   `codex/health-ui-scratch`. It has a different Git object database from
-   `/Volumes/DeveloperStorage/GitHub/3ds-idea`. Create worktrees from the UI
-   checkout when continuing its commits; verify the base commit resolves there.
-2. Use the five long-lived lanes listed in [AGENTS.md](../../AGENTS.md):
-   Design, Assets, HOME, Stock and Experience. Each lane is advanced to the
+   repository. The live 1:1 coordinator checkout is the path in
+   [STATUS.md](../../STATUS.md) (today
+   `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` on
+   `codex/home-fidelity-20261001`). It has a different Git object database from
+   `/Volumes/DeveloperStorage/GitHub/3ds-idea`. Create worker worktrees from this
+   fidelity checkout; verify the base commit resolves there. The older
+   `3ds-ui-continuation` / `codex/health-ui-scratch` path is preserved history.
+2. Live dispatch is STATUS Seats (one Coordinator, at most two Workers, one
+   Reviewer). Historical lane names in [AGENTS.md](../../AGENTS.md) are ownership
+   labels, not a second checkout. Each slice still needs owned paths and a
+   concrete exit condition. Each lane is advanced to the
    current integration HEAD after its previous commits are confirmed integrated.
-   Assign each slice owned paths and a concrete exit condition. Check dirty
+   Check dirty
    files before reuse; never edit or reset another worker's worktree. Stage
    explicit files only; **never `git add -A`**. Creating a worktree does not
    itself deliver an improvement.

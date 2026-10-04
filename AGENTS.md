@@ -15,22 +15,19 @@ with this folder bound. Append history to
 at most two Workers, one Reviewer on a different model. Do not write new
 artifacts to the full DeveloperStorage sparsebundle.
 
-## Read before working
+## Pointers
 
-| Read | For | Authority |
-| --- | --- | --- |
-| [GOAL.md](GOAL.md) | Product and hardware acceptance | Original brief |
-| [UI scope](docs/portfolio-ui-scope.md) | Firmware scope and exclusions | Supersedes GOAL's older firmware brief |
-| [Progress](docs/progress-2026-09-24.md) | What is implemented, tested, browser-inspected, native-compared | Evidence record |
-| [Feature map](docs/feature-map.md) | Owners, known defects, next actions, worktrees | Derived from progress; progress wins |
-| [Architecture](docs/architecture/README.md) | Subsystem design; read the matching document | Design contracts |
-| [Verification](docs/architecture/verification.md) | Native/browser acceptance loop | Required evidence path |
-| [Reference isolation](docs/native-reference-profile-isolation.md) | Isolated Azahar profile | Reference safety |
+Live checkout, leftover, seats, serving, and display: [STATUS.md](STATUS.md).
+STATUS wins over this file on those fields. Product and done-means live in
+STATUS **Product**. Reconcile git, then continue from STATUS **Next**.
 
-Before hardware edits, also read [research](docs/3ds-xl-research.md) and the
-[model validation index](docs/model-validation-index.md). Dated notes describe
-their own checkpoint. Check the source and later evidence before repeating a
-limitation or declaring it fixed.
+- **Leftover** when Next is unpicked: [feature map](docs/feature-map.md). If it disagrees with the [progress record](docs/progress-2026-09-24.md), progress wins.
+- **Recapture:** [verification](docs/architecture/verification.md). Isolated Azahar copy: [reference isolation](docs/native-reference-profile-isolation.md).
+- **Hardware** (photographs, GLB, Blender): [GOAL.md](GOAL.md), [research](docs/3ds-xl-research.md), [model validation](docs/model-validation-index.md).
+- **Scope** (in vs out of firmware UI): [UI scope](docs/portfolio-ui-scope.md).
+- **Integrate:** [implementation process](docs/architecture/implementation-process.md).
+- **Subsystem** contract when Next names one: the matching doc from [architecture](docs/architecture/README.md).
+- **Archive** of older evidence: [progress](docs/progress-2026-09-24.md). STATUS Evidence is the live subset.
 
 ## Agent model preference - 2 October 2026
 
@@ -134,11 +131,8 @@ claim that an in-flight coordinator model changed through a worker override.
 
 ## Required native verification and reporting
 
-**User display preference - 2 October 2026:** The user has no iPad connected
-and explicitly permits the entire Mac for testing and computer use. This
-supersedes the previous iPad-only requirement. Verify window geometry before
-interaction, keep dedicated test windows separate, and leave unrelated apps
-alone. Only the coordinator operates Azahar and the shared production browser.
+**Display:** STATUS Serving/Display is live (today: iPad Sidecar for Azahar
+and the production browser). If this paragraph and STATUS disagree, STATUS wins.
 
 **User audio preference - 1 October 2026:** Keep every 3DS test session muted
 while the user works. Verify isolated Azahar volume is zero before launch and

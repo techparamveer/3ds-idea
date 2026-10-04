@@ -44,7 +44,7 @@ Every acceptance scenario named below remains **fail/unaccepted as a whole**. Te
 
 **Flow:** Sound shows source Surround/Stereo/Mono and Cancel/OK; Cancel/B returns, while modes and OK are inert. 3D Calibration and Mic Test show read-only information and Back.
 
-**Status/next:** Sound settled composition is source-backed; calibration/mic bodies are generic previews and perform no hardware operation. Page-2 pair still has **0 / 960** with 959 left adjacent-page/arrow overlap pixels at x=0–34, y=66–167. Do not guess a compositor snap. Capture each leaf before replacement; first isolate that overlap, then `settings-sound-cancel-return`.
+**Status/next:** Sound settled composition is source-backed; calibration/mic bodies are generic previews and perform no hardware operation. Page-2 pair still has **0 / 960**; the 959-pixel left adjacent-page/arrow overlap is a labelled [source gap](../settings-other-p2-overlap-2026-10-04.md). Do not guess a compositor snap. Capture each leaf before replacement; first `settings-sound-cancel-return`.
 
 ### S-07 - Other page 3: Outer Cameras, Circle Pad, System Transfer
 

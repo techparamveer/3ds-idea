@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Sound remaining residual](sound-remaining-residual-2026-10-04.md),
+Latest [Settings Other page 2 overlap](settings-other-p2-overlap-2026-10-04.md),
+`d574bfc9` from worker `59024aba`: settled page 2 stays **0 / 960**.
+The 959-pixel left adjacent-page/arrow overlap has no unique settled
+owner (`Special_00` Scroll −276 is transition-only). Painter unchanged.
+Coordinator review of the docs/tests commit: APPROVE. Not 1:1.
+
+Earlier [Sound remaining residual](sound-remaining-residual-2026-10-04.md),
 `acaf59a9` from worker `ed19cb3a`: empty-entry / guide HUD battery
 `C_HudBut_B_Pattern` follows Sound-local seconds parity (odd→5 plug,
 even→4). Clock ROI stays 0. Title/Span/birds/volume/guide remain open.

@@ -197,7 +197,10 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
       }
       okay=renderer.draw(bottom,'notification-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:0}],overrides:notificationSlideBarOverrides(start,view.rows.length)})&&okay;
     }
-    okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20}],overrides:{T_EndB_00:message('new_back'),T_EndF_00:message('new_back')}})&&okay;
+    // T_EndF_00 is alignment 4 / explicit left line alignment: news code.bin
+    // 0x16b080 sets writer flags 0x110 and 0x18fe2c keeps the ceil-half block
+    // origin, the same one-line X as T_EndB_00's 0x111.
+    okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20}],overrides:{T_EndB_00:message('new_back'),T_EndF_00:{...message('new_back'),singleLineBlockOrigin:'writer-0x110'}}})&&okay;
     if(!view.rows.length)options.font?.draw(bottom,view.text?.[0]??'',160,110,14,'#666','center');
     return okay;
   }

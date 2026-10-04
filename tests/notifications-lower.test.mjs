@@ -94,7 +94,7 @@ test('already-bound Close SceneIn 20 + new_back and row SceneIn 10 / Select 0; u
 });
 
 test('painter keeps Close SceneIn 20 + new_back and row SceneIn 10 / Select 0; no Default, Disable, close, lcd or fit', ()=>{
-  assert.match(painter, /renderer\.draw\(bottom,'notifications','NewsTopBtn_D_00',\{bindings:\[\{name:'NewsTopBtn_D_00_SceneIn',frame:20\}\],overrides:\{T_EndB_00:message\('new_back'\),T_EndF_00:message\('new_back'\)\}\}/);
+  assert.match(painter, /renderer\.draw\(bottom,'notifications','NewsTopBtn_D_00',\{bindings:\[\{name:'NewsTopBtn_D_00_SceneIn',frame:20\}\],overrides:\{T_EndB_00:message\('new_back'\),T_EndF_00:\{\.\.\.message\('new_back'\),singleLineBlockOrigin:'writer-0x110'\}\}\}/);
   assert.match(painter, /renderer\.draw\(bottom,'notifications','NewsWndwNews_D_00',\{bindings:\[\s*\{name:'NewsWndwNews_D_00_SceneIn',frame:10\}/);
   assert.match(painter, /\{name:'NewsWndwNews_D_00_Select',frame:view\.data\?\.selectionActive===true&&index===view\.selection\?1:0\}/);
   assert.equal(painter.includes('NewsTopBtn_D_00_Select'), false);

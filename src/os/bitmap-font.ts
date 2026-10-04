@@ -200,10 +200,10 @@ export class BitmapFont {
 
   /** CLYT font size is a two-axis native cell size, not a CSS font size. */
   drawNative(c: CanvasRenderingContext2D, value: string, width: number, height: number,
-    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false,lineAdvanceScales?:readonly number[],multilineBlockOrigin?:'writer-0x110'|'writer-0x111',glyphScaleSpans?:readonly NativeTextScaleSpan[],fixedWidthSpans?:readonly NativeTextFixedWidthSpan[]) {
+    size: number[], alignment: number, spacing=0, lineSpacing=0, lineAlignment=0, rasterPhase:readonly [number,number]=[0,0],lcdBottomEdge=false,coverageAdaptation?:'azahar-12p4-fit',inkRange?:readonly [number,number],cursorAdvances:readonly NativeCursorAdvance[]=[],sourceSize=false,sourceTopLeftSampling=false,lineAdvanceScales?:readonly number[],multilineBlockOrigin?:'writer-0x110'|'writer-0x111',glyphScaleSpans?:readonly NativeTextScaleSpan[],fixedWidthSpans?:readonly NativeTextFixedWidthSpan[],singleLineBlockOrigin?:'writer-0x110') {
     const sx=size[0]/(this.manifest.width??this.manifest.height), sy=size[1]/this.manifest.height;
     if(glyphScaleSpans?.length){
-      if(fixedWidthSpans?.length||cursorAdvances.length||sourceSize||sourceTopLeftSampling||lineAdvanceScales||multilineBlockOrigin||lcdBottomEdge||rasterPhase[0]!==0||rasterPhase[1]!==0)throw new Error('Unsupported native scaled glyph writer combination');
+      if(fixedWidthSpans?.length||cursorAdvances.length||sourceSize||sourceTopLeftSampling||lineAdvanceScales||multilineBlockOrigin||singleLineBlockOrigin||lcdBottomEdge||rasterPhase[0]!==0||rasterPhase[1]!==0)throw new Error('Unsupported native scaled glyph writer combination');
       const boundaries=new Set([0]);
       for(let at=0;at<value.length;){
         if(value[at]==='\r'&&value[at+1]==='\n')at+=2;
@@ -257,8 +257,14 @@ export class BitmapFont {
     const lines=value.split(/(\r\n|\r|\n)/).filter((line,i)=>{if(i%2){sourceOffset+=line.length;return false;}
       const row:boolean[]=[];for(const char of line){row.push(!inkRange||sourceOffset>=inkRange[0]&&sourceOffset<inkRange[1]);sourceOffset+=char.length;}selected.push(row);return true;
     }).map(line=>Array.from(line,char=>this.manifest.glyphs[String(char.codePointAt(0))]??this.manifest.fallback));
+    // Writer flags 0x110 (centre origin, left lines) and 0x111 store the same
+    // single-line X when the measured rectangle starts at 0: 0x2ffc90 low bits 0
+    // keep the block origin; low bit 1 adds ceil(block/2)-ceil(line/2).
+    const singleLine0110=singleLineBlockOrigin==='writer-0x110';
+    if(singleLineBlockOrigin!==undefined&&(!singleLine0110||lines.length!==1||alignment!==4||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='alpha'||
+      multilineBlockOrigin!==undefined||cursorAdvances.length||fixedWidthSpans?.length||sourceTopLeftSampling||lines[0].some(glyph=>!glyph||glyph.left<0||glyph.advance<0)))throw new Error('Unsupported native single-line block origin');
     const nativeAlignedLine=(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0
-      ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha';
+      ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha'||singleLine0110;
     if(lineAdvanceScales&&(lineAdvanceScales.length!==Math.max(0,lines.length-1)||lineAdvanceScales.some(scale=>!Number.isFinite(scale)||scale<=0)))throw new Error('Invalid native line advance scales');
     const writer0110=multilineBlockOrigin==='writer-0x110',writer0111=multilineBlockOrigin==='writer-0x111';
     if(multilineBlockOrigin!==undefined&&(

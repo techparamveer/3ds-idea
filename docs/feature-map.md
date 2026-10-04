@@ -30,6 +30,14 @@ eShop still freezes Bat 4. After pixels await
 is in progress.
 [Close 577 / list 820](notifications-lower-2026-10-04.md) (worker
 `ac6dded3`) labelled; independent review **APPROVE-WITH-NITS**. Not 1:1.
+[Close/list writer trace](notifications-close-list-2026-10-04.md)
+(worker `codex/notifications-close-list-20261004`): news `code.bin`
+`0x16b080` / `0x18fe2c` are the traced NW writer (HOME `0x1a3e24` /
+`0x2ffc90`). `T_EndF_00` (0x110) now opts into `singleLineBlockOrigin:
+'writer-0x110'`, the same one-line origin as `T_EndB_00`. Offline Close
+glyphs 533 → 182 (proxy only); browser Close count awaits coordinator
+recapture. List **820** stays labelled title-shadow AA (0x101 origin
+already matches). Scrollbar **34** not reopened. Not 1:1.
 
 [Notifications HUD charging battery](notifications-hud-battery-2026-10-04.md),
 worker `codex/notifications-battery-20261004`: painter no longer freezes

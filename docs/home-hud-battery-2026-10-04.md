@@ -42,7 +42,9 @@ frame 0.
 
 Settings already used the same 4/5 map on cached seconds
 (`stock-settings-hud.ts`). HOME uses **current** `Date.getSeconds()`,
-matching the colon. That 4/5 map is sourced only for HOME and Settings.
+matching the colon. Notifications idle `0x181018` writes the same 4.0/5.0
+through Bat animator `+0x8c` from current `+0xd5` seconds; see
+[Notifications HUD battery](notifications-hud-battery-2026-10-04.md).
 
 ## eShop `0x36a7fc` (round 3)
 

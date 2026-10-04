@@ -15,14 +15,28 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Notifications status (`f073581` pair, 4 October): upper HUD **3347** and
-lower scrollbar **2479** source-gap claims below were **REJECTED** by
-independent review. HUD is now bound (worker `b0a80fca`: title-local
-`HudMenu_00` from `hud_LZ.bin`, converter 1.3.1, SceneIn 40, Bat 4,
-no WalkCoin; awaits recapture). Scrollbar `0x13a160` thumb controller
+Notifications status (matched-clock recapture, 4 October): upper HUD **3347**
+and lower scrollbar **2479** source-gap claims below were **REJECTED** by
+independent review. HUD is now bound (worker `b0a80fca` / fidelity
+`ba78c156`: title-local `HudMenu_00` from `hud_LZ.bin`, converter 1.3.1,
+SceneIn 40, no WalkCoin). Post-bind matched-clock pair
+(`lcdDate 2026-09-27T12:16:53.105Z`, report `ea356921…`, browser upper
+`e08ad93a…`) leaves HUD `[0,0,400,28]` **182**, all in battery
+`[370,0,400,28]`. Worker `codex/notifications-battery-20261004` binds
+`HudMenu_00_Bat` to shared `chargingBatteryFrame` / Notifications
+`0x181018` (odd → 4, even → 5; this atlas puts `HudBatPlg` on even 5).
+eShop still freezes Bat 4. After pixels await
+`capture-notifications-hud.mjs`. Scrollbar `0x13a160` thumb controller
 is in progress.
 [Close 577 / list 820](notifications-lower-2026-10-04.md) (worker
 `ac6dded3`) labelled; independent review **APPROVE-WITH-NITS**. Not 1:1.
+
+[Notifications HUD charging battery](notifications-hud-battery-2026-10-04.md),
+worker `codex/notifications-battery-20261004`: painter no longer freezes
+Bat 4. Pair key is `notificationsHudClock` (includes `batteryFrame`) so
+the 1 Hz blink republishes. Reduced-motion HOME 1 Hz helper unchanged;
+Notifications `phase==='app'` already paints. Offline LCD raster is
+unavailable here; before-count **182** is the hashed recapture. Not 1:1.
 
 Previous (rejected) [Notifications remaining lower scrollbar 2479](notifications-scrollbar-2479-2026-10-04.md),
 worker `codex/next-residual-3-20261004`: reused unread-dot `f073581`

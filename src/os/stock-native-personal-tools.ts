@@ -1,5 +1,5 @@
 import type { AppView } from './app-types';
-import { REFERENCE_DEVICE_STATUS } from './device-status-profile';
+import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame } from './device-status-profile';
 import type { NativeDrawOptions, NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { NotesIntroPaint, StockScreenPaintOptions } from './stock-screen-presentation';
@@ -42,6 +42,27 @@ const WEEKDAYS=['sun','mon','tue','wed','thu','fri','sat'] as const;
  * but P_Walk_00 is visible by layout default, so hiding Walk/Coin below is a
  * capture-fit adaptation whose native mechanism is untraced. */
 const NOTIFICATION_HUD_SCENE_IN=40;
+/** Idle HudMenu_00 update `0x181018`: `ldrb +0xd5` (calendar seconds at
+ * `+0xcc+9`) `tst #1`. Odd writes Bat float 4.0, even writes 5.0 through
+ * animator `+0x8c` vtable `+0x2c`. Same 4/5 map as HOME `0x27c6a8` /
+ * Settings `0x238f10`. This title's clip puts `HudBatPlg` on frame 5
+ * (even) and `HudBat_01`+`HudBatLgt_00` on frame 4 (odd). Do not invert
+ * to Sound `0x17adfc`. `T_TimeC_00` is also gated here; this painter keeps
+ * the hashed still's visible colon (even-path) rather than replaying the
+ * odd-hide. */
+export function notificationsHudBatteryFrame(date:Date):number{
+  return deviceStatusBatteryFrame(REFERENCE_DEVICE_STATUS,date.getSeconds());
+}
+/** Pair-cache identity. Seconds enter through `batteryFrame` so charging
+ * Bat republishes at 1 Hz. eShop `eshopHudClock` omits seconds and must
+ * not be reused. */
+export function notificationsHudClock(date:Date){
+  return {
+    year:date.getFullYear(),month:date.getMonth()+1,day:date.getDate(),
+    hour:date.getHours(),minute:date.getMinutes(),
+    batteryFrame:notificationsHudBatteryFrame(date),
+  };
+}
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
 export const personalFriendPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/friends/friend.json',alias:'friends',layouts:friendLayouts,animations:[
@@ -86,7 +107,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
         {name:'HudMenu_00_WhiteBlack',frame:status.whiteBlackFrame},
         {name:'HudMenu_00_NetMode',frame:status.netModeFrame},
         {name:'HudMenu_00_NetAtn',frame:status.netAtnFrame},
-        {name:'HudMenu_00_Bat',frame:4},
+        {name:'HudMenu_00_Bat',frame:notificationsHudBatteryFrame(now)},
       ],
       overrides:{
         T_NetMode_00:hud(status.networkMessage,'Internet'),

@@ -110,13 +110,15 @@ test('painter draws title-local HudMenu_00 with SceneIn 40 and REFERENCE_DEVICE_
   assert.match(painter, /\{name:'HudMenu_00_WhiteBlack',frame:status\.whiteBlackFrame\}/);
   assert.match(painter, /\{name:'HudMenu_00_NetMode',frame:status\.netModeFrame\}/);
   assert.match(painter, /\{name:'HudMenu_00_NetAtn',frame:status\.netAtnFrame\}/);
-  assert.match(painter, /\{name:'HudMenu_00_Bat',frame:4\}/);
+  assert.match(painter, /\{name:'HudMenu_00_Bat',frame:notificationsHudBatteryFrame\(now\)\}/);
   assert.match(painter, /T_NetMode_00:hud\(status\.networkMessage,'Internet'\)/);
   assert.match(painter, /from '\.\/device-status-profile'/);
   assert.match(painter, /T_TimeC_00:\{visible:true\}/);
   assert.match(painter, /T_Date_00:dateText/);
   assert.match(painter, /T_TimeL_00:\{text:String\(now\.getHours\(\)\)/);
   assert.match(painter, /T_TimeR_00:\{text:String\(now\.getMinutes\(\)\)/);
+  assert.match(painter, /deviceStatusBatteryFrame\(REFERENCE_DEVICE_STATUS,date\.getSeconds\(\)\)/);
+  assert.equal(painter.includes("{name:'HudMenu_00_Bat',frame:4}"), false);
   assert.match(painter, /P_Walk_00:\{visible:false\}/);
   assert.match(painter, /P_Coin_00:\{visible:false\}/);
   assert.equal(painter.includes('HudMenu_00_WalkCoin'), false);
@@ -125,7 +127,7 @@ test('painter draws title-local HudMenu_00 with SceneIn 40 and REFERENCE_DEVICE_
   assert.equal(painter.includes('azahar-12p4-fit'), false);
   assert.equal(painter.includes('nativeMipmaps'), false);
   assert.equal(painter.includes('colorFit'), false);
-  assert.match(presentation, /notificationsHudKey=view\.appId==='notifications'\?eshopHudClock\(date\)/);
+  assert.match(presentation, /notificationsHudKey=view\.appId==='notifications'\?notificationsHudClock\(date\)/);
 });
 
 test('the reused unread-dot pair keeps hashed upper 6239 / HUD 3347 / balloon 0 until coordinator recapture', async t=>{

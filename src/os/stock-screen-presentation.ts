@@ -14,7 +14,7 @@ import { drawNativeSoundFrame, soundHudTimeKey, soundScreenPacks } from './stock
 import { drawNativeCameraFrame, cameraScreenPacks } from './stock-native-camera';
 import { healthEntrySceneInFrame, healthTopLoopFrame } from './stock-health-scroll';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
-import { drawNativePersonalToolFrame, nativePersonalToolView } from './stock-native-personal-tools';
+import { drawNativePersonalToolFrame, nativePersonalToolView, notificationsHudClock } from './stock-native-personal-tools';
 import { drawNativeWebFrame, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { stockScreenTargets } from './stock-screen-layout';
@@ -322,7 +322,8 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const settingsPaintKey=view.appId==='system-settings'?[hudDate.getFullYear(),hudDate.getMonth(),hudDate.getDate(),hudDate.getHours(),hudDate.getMinutes(),hud?.batteryFrame,hud?.colonVisible]:null;
       // eshopHudClock omits seconds; Bat 4 and colonVisible stay frozen.
       const eshopHudKey=eshop?eshopHudClock(date):null;
-      const notificationsHudKey=view.appId==='notifications'?eshopHudClock(date):null;
+      // notificationsHudClock includes batteryFrame so 0x181018 1 Hz Bat republishes.
+      const notificationsHudKey=view.appId==='notifications'?notificationsHudClock(date):null;
       const healthElapsed=typeof data.healthElapsedMs==='number'&&Number.isFinite(data.healthElapsedMs)?Math.max(0,data.healthElapsedMs):0;
       if(view.appId==='health-safety'&&healthEntry?.owner!==nextOwner)healthEntry={owner:nextOwner,origin:null,complete:false};
       // Asset/font loading can outlast the 21 source frames. Until a complete

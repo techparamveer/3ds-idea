@@ -49,7 +49,9 @@ export function hudColonVisible(seconds: number): boolean {
 
 /** HOME `0x27c6e0..0x27c770` charging `G_Bat_00` (`+0x88`): odd `+0xdd`
  * writes float 4.0 at `0x27c780`, even writes 5.0 at `0x27c784`.
- * Settings `0x238f10` uses the same 4/5 mapping on cached seconds. */
+ * Settings `0x238f10` uses the same 4/5 mapping on cached seconds.
+ * Notifications idle `0x181018` writes the same 4.0/5.0 through Bat
+ * animator `+0x8c` from current `+0xd5` seconds. */
 export function chargingBatteryFrame(seconds: number): 4 | 5 {
   return (seconds & 1) ? 4 : 5;
 }

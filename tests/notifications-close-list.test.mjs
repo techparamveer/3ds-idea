@@ -56,6 +56,16 @@ test('writer-0x110 single line reuses the 0x111 ceil-half origin and pixel-centr
   assert.throws(()=>render(2, 'writer-0x110'), /Unsupported native single-line block origin/);
   assert.throws(()=>render(1, 'writer-0x110', newBack, 3), /Unsupported native single-line block origin/);
   assert.throws(()=>render(1, 'writer-0x111'), /Unsupported native single-line block origin/);
+  assert.throws(()=>font.drawNative({createImageData:(w, h)=>({width:w, height:h, data:new Uint8ClampedArray(w*h*4)}), putImageData(){}, drawImage(){}},
+    newBack, 312, 21, [17.5, 21], 4, 0, 0, 1, [0, 0], true, undefined, undefined, [], false, false, undefined, undefined, undefined, undefined, 'writer-0x110'), /Unsupported native single-line block origin/);
+  assert.throws(()=>font.drawNative({createImageData:(w, h)=>({width:w, height:h, data:new Uint8ClampedArray(w*h*4)}), putImageData(){}, drawImage(){}},
+    newBack, 312, 21, [17.5, 21], 4, 0, 0, 1, [0.5, 0], false, undefined, undefined, [], false, false, undefined, undefined, undefined, undefined, 'writer-0x110'), /Unsupported native single-line block origin/);
+  assert.throws(()=>font.drawNative({createImageData:(w, h)=>({width:w, height:h, data:new Uint8ClampedArray(w*h*4)}), putImageData(){}, drawImage(){}},
+    newBack, 312, 21, [17.5, 21], 4, 0, 0, 1, [0, 0], false, 'azahar-12p4-fit', undefined, [], false, false, undefined, undefined, undefined, undefined, 'writer-0x110'), /Unsupported native single-line block origin/);
+  const overhang=new BitmapFont({...manifest, glyphs:{...manifest.glyphs, 67:{...manifest.glyphs['67'], left:0, width:20, advance:10}}}, manifest.sheets.map(()=>({})));
+  overhang.glyphMask=font.glyphMask;
+  assert.throws(()=>overhang.drawNative({createImageData:(w, h)=>({width:w, height:h, data:new Uint8ClampedArray(w*h*4)}), putImageData(){}, drawImage(){}},
+    newBack, 312, 21, [17.5, 21], 4, 0, 0, 1, [0, 0], false, undefined, undefined, [], false, false, undefined, undefined, undefined, undefined, 'writer-0x110'), /Unsupported native single-line block origin/);
   const negative=new BitmapFont({...manifest, glyphs:{...manifest.glyphs, 67:{...manifest.glyphs['67'], left:-1}}}, manifest.sheets.map(()=>({})));
   negative.glyphMask=font.glyphMask;
   assert.throws(()=>negative.drawNative({createImageData:(w, h)=>({width:w, height:h, data:new Uint8ClampedArray(w*h*4)}), putImageData(){}, drawImage(){}},

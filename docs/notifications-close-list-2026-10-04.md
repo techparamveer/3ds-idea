@@ -77,10 +77,12 @@ origin is the same traced single-line writer that `T_EndB_00` already uses.
 - `src/os/bitmap-font.ts`: new opt-in `singleLineBlockOrigin:
   'writer-0x110'`. It is accepted only for one-line alpha text with
   alignment 4, explicit line alignment 1, zero spacing, no
-  cursor/fixed-width/scale spans, and non-negative glyph bearings and
-  advances. Any other shape throws `Unsupported native single-line block
-  origin`. An accepted pane takes the existing 0x111 single-line route
-  (`nativeCenteredGlyphQuads` + `rasterNativeAlphaGlyph`).
+  cursor/fixed-width/scale spans, non-negative glyph bearings and
+  advances, no right-edge-past-advance glyph, and no `lcdBottomEdge` /
+  non-zero raster phase / `azahar-12p4-fit`. Any other shape throws
+  `Unsupported native single-line block origin`. An accepted pane takes
+  the existing 0x111 single-line route (`nativeCenteredGlyphQuads` +
+  `rasterNativeAlphaGlyph`). Notifications `T_EndF_00` is the only opt-in.
 - `src/os/native-layout.ts` / `native-renderer.ts`: the override is
   carried as a pane-text field (cleared on text replacement, like
   `multilineBlockOrigin`) and passed to `drawNative`.
@@ -118,11 +120,19 @@ coordinator recapture can establish it.
 `T_NewsTitleB_00` / `T_NewsTitleF_00` are alignment 3 / line alignment
 2 → flags `0x101`. With `left = 0`, the low-bit-1 branch adds
 `ceil(w/2) − ceil(w/2) = 0`. So the generic path's X (`0`) already equals
-the source origin, and the writer does not own the list residual. Browser −
-native in the list is small edge AA (|Δ| ≤ 13), mostly on the white
-`T_NewsTitleB_00` shadow at its half-pixel y (−9.5) over the cyan balloon.
-Changing that would be a sampler or precision guess. The titles are not
-opted in. **820** remains labelled AA / source gap.
+the source origin, and the writer does not own the list residual. Frozen
+list `[0,0,291,210]` is **820** with max **18** at `(124,111)` (32 pixels
+are 14–18, all near-white fringe `255` vs about `241`). That is still
+title-edge coverage on `T_NewsTitleB_00` at its half-pixel y (−9.5) over
+the cyan balloon; it does not create a second owner. Changing it would be
+a sampler or precision guess. The titles are not opted in. **820** remains
+labelled AA / source gap.
+
+Independent review **APPROVE-WITH-NITS** of `764720e2`: dump owner unique
+and delivered; `new_close` not bound. Nits applied here: list max is 18,
+not `|Δ| ≤ 13`; `writer-0x110` now rejects `lcdBottomEdge`, a non-zero
+raster phase, `azahar-12p4-fit`, and a glyph whose right edge passes its
+advance (` Close` has no such glyph).
 
 ## Remaining residuals (labelled)
 

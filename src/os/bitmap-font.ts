@@ -262,7 +262,8 @@ export class BitmapFont {
     // keep the block origin; low bit 1 adds ceil(block/2)-ceil(line/2).
     const singleLine0110=singleLineBlockOrigin==='writer-0x110';
     if(singleLineBlockOrigin!==undefined&&(!singleLine0110||lines.length!==1||alignment!==4||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='alpha'||
-      multilineBlockOrigin!==undefined||cursorAdvances.length||fixedWidthSpans?.length||sourceTopLeftSampling||lines[0].some(glyph=>!glyph||glyph.left<0||glyph.advance<0)))throw new Error('Unsupported native single-line block origin');
+      lcdBottomEdge||rasterPhase[0]!==0||rasterPhase[1]!==0||coverageAdaptation!==undefined||
+      multilineBlockOrigin!==undefined||cursorAdvances.length||fixedWidthSpans?.length||sourceTopLeftSampling||lines[0].some(glyph=>!glyph||glyph.left<0||glyph.advance<0||glyph.left+glyph.width>glyph.advance)))throw new Error('Unsupported native single-line block origin');
     const nativeAlignedLine=(alignment===4||alignment===3&&this.manifest.colorMode==='alpha')&&lineAlignment===0
       ||alignment===3&&lineAlignment===1&&this.manifest.colorMode==='luminance-alpha'||singleLine0110;
     if(lineAdvanceScales&&(lineAdvanceScales.length!==Math.max(0,lines.length-1)||lineAdvanceScales.some(scale=>!Number.isFinite(scale)||scale<=0)))throw new Error('Invalid native line advance scales');

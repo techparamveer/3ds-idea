@@ -15,7 +15,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME 1-row remaining upper 190](home-upper-190-2026-10-04.md),
+Latest [HOME 1-row after-walk footer 30](home-footer-edges-2026-10-04.md),
+worker `3ds-home-footer-edges-20261004` / `codex/home-footer-edges-20261004`
+from fidelity `8ad65635`: the after-walk footer ROI `[0,204,320,36]`
+**30** (MAE 0.156) is the already-labelled `LncCsr_00` ring bottom at
+y = 205, not Manual / Open. Live `LncBtmBtn_02` clip `[0,210,320,30]`,
+glyphs and theme-edge rows 212–213 are **0**. The 68 / 34 / 34 1-pixel
+strips are Settings+cursor chrome; the four y = 200 10-pixel boxes are
+Sound / Health plate bottoms under the neighbour mask. No unused footer
+owner. Docs and tests only. Painter unchanged. Not 1:1.
+
+Earlier [HOME 1-row remaining upper 190](home-upper-190-2026-10-04.md),
 `883fc20d` from worker `87dac2c5`: after the matching Right walk, upper
 stays **190**. Regions start 25 at `[71,150,4,10]`, then 16/15/10.
 Already-bound outer green/yellow `mt_pict` edges plus three `mt_spanner`
@@ -113,7 +123,9 @@ Remaining lower: labelled
 the [1,656-pixel Settings+cursor halo](home-settings-cursor-2026-10-04.md), and the
 [162-pixel News receive lamp](home-toolbar-icon-2026-10-04.md) (not the house).
 Remaining upper: labelled [190 `mt_pict` / wrench-edge source gap](home-upper-190-2026-10-04.md).
-Remaining unnamed lower on the masked pair is after-walk footer `[0,204,320,36]` **30** (Manual / Open edges) plus 1-pixel Settings-tile strips. The table's 164 is the before-walk footer count.
+After-walk footer ROI `[0,204,320,36]` **30** is now labelled
+[cursor-ring bottom, not Manual / Open](home-footer-edges-2026-10-04.md).
+The table's 164 is the before-walk footer count.
 
 Earlier [HOME Settings yaw re-search](home-settings-yaw-research-2026-10-04.md), `dde43424`:
 frozen yaw 304 / COMMON 303 / Loop 338 / cursor 37 gives 190 upper pixels

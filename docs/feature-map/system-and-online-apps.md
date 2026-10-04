@@ -44,19 +44,19 @@ Every acceptance scenario named below remains **fail/unaccepted as a whole**. Te
 
 **Flow:** Sound shows source Surround/Stereo/Mono and Cancel/OK; Cancel/B returns, while modes and OK are inert. 3D Calibration and Mic Test show read-only information and Back.
 
-**Status/next:** Sound settled composition is source-backed; calibration/mic bodies are generic previews and perform no hardware operation. Capture each leaf before replacement; first `settings-sound-cancel-return`.
+**Status/next:** Sound settled composition is source-backed; calibration/mic bodies are generic previews and perform no hardware operation. Page-2 pair still has **0 / 960** with 959 left adjacent-page/arrow overlap pixels at x=0–34, y=66–167. Do not guess a compositor snap. Capture each leaf before replacement; first isolate that overlap, then `settings-sound-cancel-return`.
 
 ### S-07 - Other page 3: Outer Cameras, Circle Pad, System Transfer
 
 **Flow:** Cameras and Circle Pad are read-only details. Transfer launches retained `system-transfer`; 3DS/DSi choices open local details, B returns to helper, then B restores page 3 and selection. The Circle Pad row does not invoke `extrapad`.
 
-**Status/next:** Transfer chrome/choices/return are source-backed; direct child launch is an adaptation and calibration bodies are generic. Latest page-3 pair is still **169 / 8** ([recapture](../settings-other-p34-recapture-2026-10-04.md)); the 169 is `HudMset` previous-displayed seconds, not HOME HUD. Do not guess a colon/Bat snap. Capture `settings-transfer-choice-back` after a source-backed HUD epoch.
+**Status/next:** Transfer chrome/choices/return are source-backed; direct child launch is an adaptation and calibration bodies are generic. Latest page-3 pair is still **169 / 8** ([recapture](../settings-other-p34-recapture-2026-10-04.md)); the 169 is an unseedable `HudMset` previous-seconds gap ([note](../settings-hud-prev-seconds-2026-10-04.md)). Do not guess a colon/Bat snap. Capture `settings-transfer-choice-back` after a source-backed HUD epoch.
 
 ### S-08 - Other page 4: Language, System Update, Format
 
 **Flow:** Language renders eight EUR rows in a four-row viewport with arrow/drag motion; rows/OK never change locale. Update launches source Cancel/OK: Cancel returns, OK is inert. Format is an informational leaf.
 
-**Status/next:** Language list and Update entry are source-backed. Latest page-4 pair is still **169 / 35** ([recapture](../settings-other-p34-recapture-2026-10-04.md)); the 169 is the same `HudMset` previous-seconds remainder as page 3. Lower 35 are sparse label-edge AA. D-pad focus, held-arrow/groove behavior, confirmations and sequencing remain open; Format is an adaptation. Capture `settings-language-scroll-drag` after a source-backed HUD epoch.
+**Status/next:** Language list and Update entry are source-backed. Latest page-4 pair is still **169 / 35** ([recapture](../settings-other-p34-recapture-2026-10-04.md)); the 169 is the same unseedable `HudMset` previous-seconds gap as page 3 ([note](../settings-hud-prev-seconds-2026-10-04.md)). Lower 35 are sparse label-edge AA. D-pad focus, held-arrow/groove behavior, confirmations and sequencing remain open; Format is an adaptation. Capture `settings-language-scroll-drag` after a source-backed HUD epoch.
 
 ## Health and helper evidence
 

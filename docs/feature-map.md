@@ -15,7 +15,19 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [Settings Other p3/p4 recapture](settings-other-p34-recapture-2026-10-04.md),
+Latest [Sound remaining residual](sound-remaining-residual-2026-10-04.md),
+`acaf59a9` from worker `ed19cb3a`: empty-entry / guide HUD battery
+`C_HudBut_B_Pattern` follows Sound-local seconds parity (odd→5 plug,
+even→4). Clock ROI stays 0. Title/Span/birds/volume/guide remain open.
+Independent review APPROVE-WITH-NITS. Not recaptured. Not 1:1.
+
+Latest [Settings HudMset previous-seconds](settings-hud-prev-seconds-2026-10-04.md),
+`4ebabed9` from worker `02367ba5`: constructor writes sentinel year
+`0x76c` to `+dc` and never `+e5`. Seeding previous seconds from `lcdDate`
+is not source-justified; sampler unchanged. Pages 3/4 stay **169 / 8**
+and **169 / 35**. Independent review APPROVE-WITH-NITS. Not 1:1.
+
+Earlier [Settings Other p3/p4 recapture](settings-other-p34-recapture-2026-10-04.md),
 `357a7703`: still **169 / 8** and **169 / 35**. The 169 is Settings
 `HudMset` previous-displayed seconds (colon + Bat 4/5), not HOME HUD.
 Browser LCDs are byte-identical to `bfe467b`. Lower 8/35 stay sparse

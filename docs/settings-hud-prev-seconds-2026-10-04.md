@@ -52,8 +52,8 @@ join is `0x23986c` (also the failed last-child alloc branch). Bounded ARM:
 `+dc` is displayed-date word 0 (year). `0x76c` is a sentinel year so the first
 real calendar (`0x238b14`) always treats the date as changed. It is **not**
 seconds. Seconds are byte 9 of that 12-byte structure (`+e5`). The constructor
-range contains no `strb`/`str` to `+e5`. Tail `0x2398a8 b 0x1633b0` is an svc
-helper and does not write the date. First-update `displayedDateMs=0` remains
+range contains no `strb`/`str` to `+e5`. Tail `0x2398a8 b 0x1633b0` is a
+global/once helper and does not write the date. First-update `displayedDateMs=0` remains
 the explicit adaptation already recorded in
 [the HUD runtime note](settings-hud-runtime-2026-09-26.md). Copying `lcdDate`
 into that field would be a guess: source does not store the current calendar

@@ -123,7 +123,8 @@ export function soundHudTimeKey(view:AppView,date:Date):readonly number[]|null{
  * (0x3c9a7c+0x2c). State 0 is the only record that differs by parity: odd
  * seconds take byte0 (frame 5, HudBatPlg) and even seconds take byte2
  * (frame 4). Both recapture stills uniquely require this state. Other charge
- * states and the CFG field names stay unsupplied. */
+ * states and the CFG field names stay unsupplied.
+ * Do not reuse HOME/Settings `chargingBatteryFrame` (odd→4, even→5). */
 export function soundHudBatteryPatternFrame(date:Date):number{
   return date.getSeconds()&1?5:4;
 }

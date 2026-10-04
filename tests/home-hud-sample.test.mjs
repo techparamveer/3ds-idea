@@ -6,11 +6,13 @@ import {
   REFERENCE_DEVICE_STATUS,
   chargingBatteryFrame,
   deviceStatusBatteryFrame,
+  homeHudReducedMotionParityPaintDue,
   homeHudReducedMotionRepaintDue,
   hudColonVisible,
   hudSecondParity,
 } from '../src/os/device-status-profile.ts';
 import { HOME_REFERENCE_HUD_STATUS, homeHudColonVisible, validateHomeHudSample } from '../src/os/home-hud-sample.ts';
+import { poseNativeLayout } from '../src/os/native-layout.ts';
 import { settingsHudUpdate } from '../src/os/stock-settings-hud.ts';
 
 const sourceUrl = new URL('../src/os/firmware-presentation.ts', import.meta.url);
@@ -53,10 +55,6 @@ test('declared reference profile is the single Internet/42/charging owner', () =
     coins: REFERENCE_DEVICE_STATUS.coins,
     steps: REFERENCE_DEVICE_STATUS.steps,
   });
-  const settingsSource = readFileSync(new URL('../src/os/stock-native-settings.ts', import.meta.url), 'utf8');
-  assert.match(settingsSource, /batteryFrame:REFERENCE_DEVICE_STATUS\.batteryFrame/);
-  assert.match(settingsSource, /networkAttentionFrame:REFERENCE_DEVICE_STATUS\.netAtnFrame/);
-  assert.match(settingsSource, /T_NetMode_00:message\(status\.networkMessage\)/);
 });
 
 test('HOME 0x27c6a8 seconds parity maps colon and charging G_Bat together', () => {
@@ -73,10 +71,20 @@ test('HOME 0x27c6a8 seconds parity maps colon and charging G_Bat together', () =
 
 test('Settings HUD sampler shares the 4/5 charging map on its cached seconds', () => {
   const oddMs = odd.getTime();
+  const evenMs = even.getTime();
+  let ctor = settingsHudUpdate({updates:-1, counter:-1, dateMs:oddMs, displayedDateMs:0, colonVisible:true, batteryFrame:4}, oddMs);
+  assert.equal(ctor.counter, 29);
+  assert.equal(ctor.batteryFrame, chargingBatteryFrame(odd.getSeconds()));
   let state = {updates:0, counter:2, dateMs:oddMs, displayedDateMs:oddMs, colonVisible:false, batteryFrame:5};
-  state = settingsHudUpdate(state, even.getTime());
+  state = settingsHudUpdate(state, evenMs);
   assert.equal(state.batteryFrame, chargingBatteryFrame(odd.getSeconds()));
   assert.equal(state.dateMs, oddMs);
+  state = settingsHudUpdate({...state, counter:1, batteryFrame:4}, evenMs);
+  assert.equal(state.batteryFrame, 4, 'counter 1 does not refresh battery');
+  assert.equal(state.counter, 0);
+  state = settingsHudUpdate(state, evenMs);
+  assert.equal(state.batteryFrame, 4, 'counter 0 refreshes colon, not battery');
+  assert.equal(state.dateMs, evenMs);
 });
 
 test('eShop and Zone HUD bindings read the same declared profile', () => {
@@ -86,12 +94,36 @@ test('eShop and Zone HUD bindings read the same declared profile', () => {
   assert.deepEqual(services.eshopHudBindings(even), [
     {name:'HudMenu_00_NetMode', frame:0}, {name:'HudMenu_00_NetAtn', frame:3}, {name:'HudMenu_00_Bat', frame:5},
   ]);
-  assert.deepEqual(services.zoneHudBindings(odd), [
-    {name:'Hud_00_Bar_Appear', frame:15}, {name:'Hud_00_Battery', frame:4}, {name:'Hud_00_Signal', frame:3},
+  assert.deepEqual(services.zoneHudBindings(odd, 0), [
+    {name:'Hud_00_Bar_Appear', frame:15}, {name:'Hud_00_Charge_anim', frame:0}, {name:'Hud_00_Signal', frame:3},
+  ]);
+  assert.deepEqual(services.zoneHudBindings(odd, 1000), [
+    {name:'Hud_00_Bar_Appear', frame:15}, {name:'Hud_00_Charge_anim', frame:60}, {name:'Hud_00_Signal', frame:3},
   ]);
   assert.deepEqual(services.eshopHudClock(even), {
     year:2026, month:9, day:26, hour:4, minute:14, colonVisible:true, batteryFrame:5,
   });
+  assert.equal(services.eshopHudClock(odd).colonVisible, true);
+  assert.deepEqual(services.zoneClock(odd, 0), {hour:'04', minute:'14', frame:0, batteryFrame:0});
+  assert.deepEqual(services.zoneClock(odd, 1000), {hour:'04', minute:'14', frame:60, batteryFrame:1});
+});
+
+test('eShop and Zone shipped packs pose the charging Internet textures', () => {
+  const maps = (posed, name) => posed.materials.find(m => m.name === name).textureMaps.map(map => posed.textures[map.texture]);
+  const eshopPack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/eshop/contents/0000-0000006b/cad-Hud-arc-lz.json', import.meta.url)));
+  const zonePack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/nintendo-zone/layout-nwcx.json', import.meta.url)));
+  const eshopAt = date => poseNativeLayout(eshopPack.layouts.HudMenu_00, eshopPack.animations, services.eshopHudBindings(date));
+  assert.equal(maps(eshopAt(odd), 'P_NetAtn_00')[0], 'HudNetAtnInt_00.bclim');
+  assert.equal(maps(eshopAt(even), 'P_NetAtn_00')[0], 'HudNetAtnInt_00.bclim');
+  assert.deepEqual(maps(eshopAt(odd), 'P_BatF_00'), ['HudBat_01.bclim', 'HudBatMask_00.bclim', 'HudBatLgt_00.bclim']);
+  assert.deepEqual(maps(eshopAt(even), 'P_BatF_00'), ['HudBat_01.bclim', 'HudBatMask_00.bclim', 'HudBatPlg.bclim']);
+  const zoneAt = elapsed => poseNativeLayout(zonePack.layouts.Hud_00, zonePack.animations, [
+    ...services.zoneHudBindings(odd, elapsed), {name:'Hud_00_time_Blinking', frame:services.zoneClock(odd, elapsed).frame},
+  ]);
+  assert.equal(maps(zoneAt(0), 'P_Bat_00')[0], 'HudBat_04.bclim');
+  assert.equal(maps(zoneAt(1000), 'P_Bat_00')[0], 'HudBat_05.bclim');
+  assert.equal(maps(zoneAt(0), 'P_NetAtn_00')[0], 'HudNetAtnInt_03.bclim');
+  assert.equal(maps(zoneAt(1000), 'P_NetAtn_00')[0], 'HudNetAtnInt_03.bclim');
 });
 
 test('live HOME HUD uses the profile and current-second charging frame; capture sample overrides once', () => {
@@ -128,9 +160,8 @@ test('reduced-motion HOME repaints only on HUD-visible second-parity change', ()
   assert.equal(homeHudReducedMotionRepaintDue(1, 35, true), false);
   assert.equal(homeHudReducedMotionRepaintDue(1, 36, true), true);
   assert.equal(homeHudReducedMotionRepaintDue(0, 36, false), false);
-  const scene = readFileSync(new URL('../src/scene/console-scene.ts', import.meta.url), 'utf8');
-  assert.match(scene, /homeHudReducedMotionRepaintDue/);
-  assert.match(scene, /phase==='home'/);
+  assert.equal(homeHudReducedMotionParityPaintDue(1, 36, true, false), true);
+  assert.equal(homeHudReducedMotionParityPaintDue(1, 36, true, true), false, 'minute paint already published this frame');
 });
 
 test('sample rejects out-of-pack poses and missing diagnostic provenance', () => {

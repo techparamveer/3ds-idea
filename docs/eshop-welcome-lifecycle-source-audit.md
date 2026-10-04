@@ -260,9 +260,10 @@ pass-12 gate, the exit arithmetic and the tick/decide reductions.
   (via `0x28c184` with 60) at construction, `0x1000033` for `balloonIn`,
   `0x1000032` for `out_00`, and the OK decide SE `0x100000e`.
 - **Stereo.** Only the mono (3D off) composition is traced.
-- **HUD network/battery.** The welcome-time `0x253384` enum is not reproduced.
-  The painter uses the update function's Disabled branch to match HOME/Zone
-  wireless-off. See [welcome HUD audit](eshop-welcome-hud-source-audit.md).
+- **HUD network/battery.** `0x36a7fc` is traced. The painter uses the Internet
+  branch from the shared profile (`lau_connect0`, NetMode 0, NetAtn 3) and
+  keeps the eShop colon static. See
+  [welcome HUD audit](eshop-welcome-hud-source-audit.md).
 - **Fidelity.** A source-rendered frame does not prove strict 1:1 native
   fidelity, and no native welcome capture exists.
 
@@ -300,8 +301,9 @@ pass-12 gate, the exit arithmetic and the tick/decide reductions.
   It writes the entrance and exit pair PNGs, an upper contact sheet, an exit
   contact sheet, a 400×20 HUD crop, `verification.json` and a benchmark to
   SSD `reference/eshop-idle-source/render/`. It also checks that `info_U_00`
-  `P_bg_01` covers the top 20 px, `N_info_00` is hidden, and `HudMenu_00_NetAtn`
-  frame 9 selects `HudNetAtnOff_00`.
+  `P_bg_01` covers the top 20 px, `N_info_00` is hidden, Internet NetAtn map 0
+  is `HudNetAtnInt_00`, charging Bat frame 4 is `HudBat_01` + `HudBatLgt_00`,
+  and frame 5 is `HudBat_01` + `HudBatPlg`.
 
   ```sh
   node scripts/verify-eshop-welcome.mjs \

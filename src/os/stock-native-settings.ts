@@ -1,4 +1,4 @@
-import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame } from './device-status-profile.ts';
+import { REFERENCE_DEVICE_STATUS } from './device-status-profile.ts';
 import type { SettingsHudPose } from './stock-settings-hud';
 import { languageScroll, settingsLanguageOffset, settingsOtherPages } from './stock-settings-navigation';
 import type { AppView } from './app-types';
@@ -67,7 +67,9 @@ function drawSettingsStatus(renderer:NativeLayoutRenderer,top:CanvasRenderingCon
   if(typeof pattern.text!=='string')throw new Error('Missing Settings HUD message lau_date');
   const status=REFERENCE_DEVICE_STATUS;
   return renderer.draw(top,'hud','HudMset_00',{bindings:[
-    {name:'HudMset_00_Bat',frame:hud?.batteryFrame??deviceStatusBatteryFrame(status,date.getSeconds())},
+    // Without the HUD sampler, keep the fixed portfolio frame. Native Settings
+    // refreshes Bat through the counter, not live Date.getSeconds() on paint.
+    {name:'HudMset_00_Bat',frame:hud?.batteryFrame??status.batteryFrame},
     {name:'HudMset_00_NetAtn',frame:status.netAtnFrame},
     {name:'HudMset_00_NetMode',frame:status.netModeFrame},
     {name:'HudMset_00_WhiteBlack',frame:status.whiteBlackFrame},

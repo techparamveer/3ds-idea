@@ -9,9 +9,9 @@ export async function verifyNativeServices(options){
  for(const key of ['artifactDir','assetRoot','canvasModule'])assert.ok(isAbsolute(options[key]??''),key);
  const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=options.artifactDir;mkdirSync(out,{recursive:true});
  const compiled=mkdtempSync(join(out,'compiled-'));
- for(const name of ['bitmap-font','device-status-profile','native-layout','native-png','native-renderer','native-title-assets','stock-eshop-welcome','stock-native-services','stock-manual-index','stock-native-helpers','stock-native-amiibo']){
+ for(const name of ['bitmap-font','camera-browse','device-status-profile','native-layout','native-png','native-renderer','native-title-assets','stock-eshop-welcome','stock-native-services','stock-manual-index','stock-native-helpers','stock-native-amiibo','stock-screen-layout']){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
-  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+)['"]/g,(_,name)=>`from '${name}.mjs'`));
+  writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+?)(?:\.ts)?['"]/g,(_,name)=>`from '${name}.mjs'`));
  }
  const [{createCanvas,loadImage,Image:CanvasImage},{BitmapFont},{loadNativeTitleAssets},{nativeServiceView,drawNativeServiceFrame,zoneHudBindings,zoneClock},{nativeHelperView,drawNativeHelperFrame},{poseNativeLayout}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','stock-native-services','stock-native-helpers','native-layout'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs'))))]);
  const oldGlobals=Object.fromEntries(['document','window','Image'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)])),oldFetch=globalThis.fetch,oldObjectURL=URL.createObjectURL,oldRevokeURL=URL.revokeObjectURL,blobBytes=new WeakMap();let font,assets;
@@ -34,17 +34,20 @@ export async function verifyNativeServices(options){
    assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')&&!assets.renderer.diagnostics.includes(d)),[]);
    let hud;
    if(view.appId==='nintendo-zone'){
-    assert.deepEqual(zoneClock(sampleDate,0),{hour:'09',minute:'05',frame:0,batteryFrame:5});
-    assert.equal(zoneClock(sampleDate,1000).frame,60);
+    assert.deepEqual(zoneClock(sampleDate,0),{hour:'09',minute:'05',frame:0,batteryFrame:0});
+    assert.deepEqual(zoneClock(sampleDate,1000),{hour:'09',minute:'05',frame:60,batteryFrame:1});
     assert.equal(zoneClock(sampleDate,119000/60).frame,0);
-    // The same bindings as the painter: Grp_Bat/Grp_NetAtn select source status textures on map 0.
-    const zoneStatus=zoneHudBindings(sampleDate);
-    const pack=assets.renderer.packs['zone-chrome'],posed=poseNativeLayout(pack.layouts.Hud_00,pack.animations,zoneStatus);
-    const pane=(items,name)=>{for(const item of items){const found=item.name===name?item:pane(item.children,name);if(found)return found;}},texture=name=>posed.textures[posed.materials.find(m=>m.name===name).textureMaps[0].texture];
-    const colonAt=frame=>Boolean(pane(poseNativeLayout(pack.layouts.Hud_00,pack.animations,[...zoneStatus,{name:'Hud_00_time_Blinking',frame}]).roots,'T_TimeC_00').flags&1);
+    // The same bindings as the painter: Charge_anim + Signal on the clip clock.
+    const zoneStatus=zoneHudBindings(sampleDate,0);
+    const pack=assets.renderer.packs['zone-chrome'],posed=poseNativeLayout(pack.layouts.Hud_00,pack.animations,[...zoneStatus,{name:'Hud_00_time_Blinking',frame:0}]);
+    const pane=(items,name)=>{for(const item of items){const found=item.name===name?item:pane(item.children,name);if(found)return found;}},texture=(layout,name)=>layout.textures[layout.materials.find(m=>m.name===name).textureMaps[0].texture];
+    const colonAt=frame=>Boolean(pane(poseNativeLayout(pack.layouts.Hud_00,pack.animations,[...zoneHudBindings(sampleDate,frame<60?0:1000),{name:'Hud_00_time_Blinking',frame}]).roots,'T_TimeC_00').flags&1);
     assert.equal(colonAt(0),true);assert.equal(colonAt(59),true);assert.equal(colonAt(60),false);
-    hud={battery:texture('P_Bat_00'),wireless:texture('P_NetAtn_00'),barTop:120-pane(posed.roots,'N_Base_00').translation[1]};
-    assert.deepEqual(hud,{battery:'HudBat_05.bclim',wireless:'HudNetAtnInt_03.bclim',barTop:0});
+    hud={battery:texture(posed,'P_Bat_00'),wireless:texture(posed,'P_NetAtn_00'),barTop:120-pane(posed.roots,'N_Base_00').translation[1]};
+    assert.deepEqual(hud,{battery:'HudBat_04.bclim',wireless:'HudNetAtnInt_03.bclim',barTop:0});
+    const posed60=poseNativeLayout(pack.layouts.Hud_00,pack.animations,[...zoneHudBindings(sampleDate,1000),{name:'Hud_00_time_Blinking',frame:60}]);
+    assert.equal(texture(posed60,'P_Bat_00'),'HudBat_05.bclim');
+    assert.equal(texture(posed60,'P_NetAtn_00'),'HudNetAtnInt_03.bclim');
     // The renderer flags P_Bat_00's X rotation, but whole turns without depth are an exact identity.
     const battery=pane(posed.roots,'P_Bat_00');assert.deepEqual([battery.rotation[0]%360,battery.rotation[1],battery.rotation[2]%360,battery.translation[2]],[0,0,0,0]);
     hud.identityProjection=[`Hud_00/P_Bat_00 rotation ${JSON.stringify(battery.rotation)}`];

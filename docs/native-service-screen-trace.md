@@ -34,29 +34,28 @@ signal. The source status clips bind by group, and each target has map 0:
 
 At native size, the delivered textures show one red segment in `HudBat_00` and
 increasing blue fill through `HudBat_03`, which is fully blue. `HudBat_04`–`06`
-are the orange/plug variants. `Hud_00_Charge_anim` alternates `HudBat_04` and
-`05`. `HudNetAtnOff_00` is the crossed antenna box. The service now binds
-`Hud_00_Battery` at frame 3 and `Hud_00_Signal` at frame 5
-(`zoneHudBindings` in `src/os/stock-native-services.ts`).
+are the orange/plug variants. `Hud_00_Charge_anim` is 120 frames on `Grp_Bat`
+and sets `P_Bat_00` pattern 0 (`HudBat_04`) for frames 0–59 and pattern 1
+(`HudBat_05`) from 60. The service binds that clip from the same 119-step
+clock as `Hud_00_time_Blinking`, and `Hud_00_Signal` at profile frame 3
+(`HudNetAtnInt_03`) (`zoneHudBindings` in `src/os/stock-native-services.ts`).
 
-- Frame 3 shows a full battery that is not charging. The physical model's power
-  LED is solid blue, which the manual assigns to sufficient charge
-  ([power indicator](source-power-indicator-validation.md)). The previous red
-  low-battery icon contradicted that LED.
-- HOME reports wireless as `Disabled`
-  ([presentation validation](firmware-presentation-validation.md)).
-  `HudNetAtnOff_00` is the matching Zone icon. The previous signal-bars icon
-  implied a live connection.
+The 4/5 HOME `0x27c6a8` seconds map is not the Zone charger clock. The
+physical model still shows a solid blue power LED and no charger; the HUD
+charging icon is a labelled profile adaptation
+([power indicator](source-power-indicator-validation.md)).
 
-No pack, texture or converter change was needed: both clips and all 14 of their
-textures are already in `layout-nwcx.json`. The loader fetches only textures
-referenced by requested clips, so the request now names both.
+No pack, texture or converter change was needed: the charge, battery and
+signal clips and their textures are already in `layout-nwcx.json`. The loader
+fetches only textures referenced by requested clips, so the request now names
+the charge clip as well.
 `scripts/verify-native-services.mjs` poses `Hud_00` with the exported bindings.
-It asserts that map 0 resolves to `HudBat_03.bclim` and
-`HudNetAtnOff_00.bclim`, and that the bar top is at y 0.
+It asserts that map 0 resolves to `HudBat_04.bclim` at clip frame 0,
+`HudBat_05.bclim` at frame 60, and `HudNetAtnInt_03.bclim`, and that the bar
+top is at y 0.
 
-The source defines only these icon states. Choosing full battery and wireless
-off is a documented portfolio device state, not a live hardware reading.
+The source defines only these icon states. Internet plus the charge clip is
+the declared portfolio device state, not a live hardware reading.
 
 ## `P_Bat_00` projection diagnostic
 

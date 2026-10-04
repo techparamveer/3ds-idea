@@ -73,3 +73,14 @@ export function homeHudReducedMotionRepaintDue(
 ): boolean {
   return hudVisible && previousParity !== hudSecondParity(seconds);
 }
+
+/** Skip the parity paint when this animation frame already published for
+ * the minute clock. The parity byte is still recorded. */
+export function homeHudReducedMotionParityPaintDue(
+  previousParity: number | null,
+  seconds: number,
+  hudVisible: boolean,
+  paintedThisFrame: boolean,
+): boolean {
+  return !paintedThisFrame && homeHudReducedMotionRepaintDue(previousParity, seconds, hudVisible);
+}

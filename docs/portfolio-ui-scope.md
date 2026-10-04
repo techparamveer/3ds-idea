@@ -67,7 +67,10 @@ reference-session profile: Internet (`lau_connect0`, NetMode 0, NetAtn 3),
 42 Play Coins, and a charging battery. Those values were chosen to match
 the isolated Azahar reference used for HOME comparison; they are not
 AC/PTM/Uds telemetry and do not claim the browser is online. Network
-operations remain out of scope. Charging `G_Bat` uses HOME `0x27c6a8` /
-Settings `0x238f10` frames 4 (odd seconds) and 5 (even seconds). Capture
-may override HOME through `lcdHomeHudSample`. See
-[HOME HUD battery](home-hud-battery-2026-10-04.md).
+operations remain out of scope. The 4/5 charging map is sourced only for
+HOME `0x27c6a8` and Settings `0x238f10` (odd seconds → frame 4, even →
+frame 5). eShop applies those frames to its own `HudMenu_00_Bat` clip
+after `0x36a7fc`; Zone drives `Hud_00_Charge_anim` from its 119-step clip
+clock. Capture may override HOME through `lcdHomeHudSample`. The HUD
+charging icon does not match the 3D console: the model shows no charger
+or charging LED. See [HOME HUD battery](home-hud-battery-2026-10-04.md).

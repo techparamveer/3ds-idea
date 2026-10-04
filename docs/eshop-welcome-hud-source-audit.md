@@ -66,26 +66,42 @@ source.
 
 ## Update function and declared portfolio state
 
-Task `0x36a7fc` (table `0x3b396c`) is registered at ctor via `0x2a5560`. It
-reads a network enum from `0x253384`:
+Task `0x36a7fc` (table `0x3b396c`) is registered at ctor via `0x2a5560`. Round-2
+Capstone on title `code.bin` SHA-256
+`f69159121397ecca0164654f3f4771836f26fa9ea19f351c454f8e7364d1f4fa` (the
+applet `code.bin` is a different binary and does not contain this VA):
+
+| Call | Result |
+| --- | --- |
+| `0x253384` → `r7` | Network enum |
+| `0x1e9aa8` | `ldrb [0x1FF81066]`; Internet NetAtn frame |
+| `0x27b8e4` | `0x1FF81085` bit 0 (charging) |
+| `0x1e9b10` | `0x1FF81085` bit 1 → battery state 5 vs 6 |
+| `+0x410` timer 1000 ms | Toggles `+0x43e` (ctor=1), `T_TimeC_00` at `+0x220` |
+| `+0x438==5` on that tick | Bat frame 4 when `+0x43e!=0`, else 5 |
+| `0x36ad88` | Date/time labels only; no colon write |
 
 | `r7` | Label | NetMode frame | NetAtn frame |
 | --- | --- | --- | --- |
-| 2 | `lau_connect0` “Internet” | 0 | `0x1e9aa8` signal |
+| 2 | `lau_connect0` “Internet” | 0 | `0x1e9aa8` (`0x1FF81066`) |
 | 7 | `lau_connect4` “Disabled” | 4 | 9 (`HudNetAtnOff_00`) |
 | other | `lau_connect3` “Enabled” | 3 | 8 |
 
 The ctor binds `NetAtn`, `NetMode` and `Bat` through `0x2403cc` and immediately
 clears playing (`+0x38`). By welcome time the update task has been running
-since app init. The welcome-time enum is not reproduced here.
+since app init.
 
-This portfolio already reports wireless off on HOME (`lau_connect4`, NetMode
-frame 4) and Nintendo Zone (`HudNetAtnOff_00`). The painter therefore uses the
-**Disabled** branch: `lau_connect4`, NetMode frame 4, NetAtn frame 9. Battery
-frame 3 is the same sufficient-charge pose as HOME/Zone, not a PTM reading.
-Date/time uses eShop `lau_date` / `day_*` / `month_*` / `week_*` with the
-presentation's injected local `Date`. The pair cache keys year, month, day,
-hour and minute.
+This portfolio uses the shared reference-session **Internet** state
+(`lau_connect0`, NetMode 0, NetAtn 3 as the `0x1e9aa8` stand-in) and the
+charging state-5 Bat 4/5 adapter. eShop `HudMenu_00` is not HOME’s clip:
+`P_BatF_00` uses `HudBat_00` / `01`, `HudBatLgt_00` and `HudBatPlg`, and
+Internet NetAtn map 0 is the `HudNetAtnInt_00` atlas. The title-local colon
+timer is ctor-relative, so the welcome keeps `T_TimeC_00` at its layout
+default (visible) until an eShop HUD elapsed owner exists — a labelled
+strip adaptation, not HOME `0x27c6a8` seconds. Date/time uses eShop
+`lau_date` / `day_*` / `month_*` / `week_*` with the presentation's injected
+local `Date`. The pair cache keys year, month, day, hour, minute and Bat
+frame.
 
 The isolated account-information capture's blue Internet badge is that
 profile's live enum on a different route. It is not copied onto the welcome.
@@ -109,7 +125,9 @@ manifest after the HUD packs were added.
 ## Remaining gaps
 
 - No native welcome LCD exists. Source rendering is not a matched capture.
-- The `0x253384` enum and PTM battery table are not live telemetry.
+- The `0x253384` enum and `0x1FF81066` / `0x1FF81085` bytes are not live
+  telemetry; the shared profile stands in for them. Colon phase stays
+  static because the +0x410 timer is ctor-relative.
 - `HudMenu_00_Appear` / `DisAppear` and `NetAtnCnt` are not played on this
   screen.
 - Shop-page `P_BG_01` / HUD hide-show helpers are out of welcome scope.

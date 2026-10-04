@@ -16,5 +16,5 @@ test('real service and Manual sources paint through the dedicated verifier',{
  assert.deepEqual(manual,[{appId:'manual',screen:'main',diagnostics:[]}]);
  const zone=report.reports.filter(r=>r.appId==='nintendo-zone');
  assert.equal(zone.length,2);
- for(const {hud}of zone)assert.deepEqual(hud,{battery:'HudBat_03.bclim',wireless:'HudNetAtnOff_00.bclim',barTop:0,identityProjection:['Hud_00/P_Bat_00 rotation [360,0,360]']});
+ for(const {hud}of zone)assert.deepEqual(hud,{battery:'HudBat_04.bclim',wireless:'HudNetAtnInt_03.bclim',barTop:0,identityProjection:['Hud_00/P_Bat_00 rotation [360,0,360]']});
 });

@@ -14,9 +14,14 @@ EUR 10.7.0-32E HOME `0004003000009802`, version 24576, content index 0 /
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `exefs/code.bin` | `243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9` |
+| HOME `exefs/code.bin` | `243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9` |
+| eShop title `exefs/code.bin` | `f69159121397ecca0164654f3f4771836f26fa9ea19f351c454f8e7364d1f4fa` |
 
-Idle update `0x27c63c..0x27c778`, confirmed with Capstone:
+The eShop applet `code.bin` (SHA-256
+`329d98921ef213da0b53ef8f62227f6b3f753347ed859bfa8cd0e4016be4842d`) is a
+different binary and does not contain VA `0x36a7fc`.
+
+Idle HOME update `0x27c63c..0x27c778`, confirmed with Capstone:
 
 1. `0x27c644..0x27c64c`: `ldrb +0xcc`; nonzero skips to `0x27c774`.
 2. `0x27c650..0x27c66c`: load byte at `0x32f144`; if that global is 0 and
@@ -37,7 +42,36 @@ frame 0.
 
 Settings already used the same 4/5 map on cached seconds
 (`stock-settings-hud.ts`). HOME uses **current** `Date.getSeconds()`,
-matching the colon.
+matching the colon. That 4/5 map is sourced only for HOME and Settings.
+
+## eShop `0x36a7fc` (round 2)
+
+Title `0004001000022900` content `0000006b`. Capstone listings are in the
+private scratch (`36a7fc_update.asm`, `1e9aa8_signal.asm`,
+`1e9b10_charge.asm`, `36ad88_datetime.asm`).
+
+1. `+0x410` vs 1000 ms toggles `+0x43e` (ctor stores 1) and
+   `T_TimeC_00` visibility at `+0x220`.
+2. When `+0x438==5`, that tick writes Bat 4 (`+0x43e!=0`) or 5.
+3. `0x253384` is the network enum. `r7==2` is Internet: `lau_connect0`,
+   NetMode 0, NetAtn from `0x1e9aa8` (`ldrb [0x1FF81066]`).
+4. `0x27b8e4` is `0x1FF81085` bit 0 (charging). `0x1e9b10` is bit 1 and
+   chooses battery state 5 vs 6. Bit 1 is not a profile field; charging
+   `true` selects the state-5 4/5 path.
+5. `0x36ad88` rewrites date/time labels only.
+
+eShop `HudMenu_00` is a different atlas (`P_BatF_00`, `HudBat_00`/`01`,
+`HudBatLgt_00`, `HudBatPlg`). Posed Internet NetAtn map 0 is
+`HudNetAtnInt_00`. The welcome keeps the colon at the layout default
+(visible): the 1 Hz toggle is ctor-relative, not HOME seconds. Labelled
+strip adaptation.
+
+## Zone `Hud_00_Charge_anim`
+
+120 frames on `Grp_Bat`. `P_Bat_00` pattern 0 for frames 0–59
+(`HudBat_04`), pattern 1 from 60 (`HudBat_05`). The painter uses the same
+`clock.frame` as `Hud_00_time_Blinking` (119-step loop). Paint key keeps
+`frame<60` plus that 0/1 pattern.
 
 ## Change
 
@@ -50,20 +84,29 @@ matching the colon.
   complete one-shot pose and is not a default.
 - Reduced-motion HOME, which otherwise paints only on minute change or
   input, keeps the native 1 Hz colon/battery blink with a HUD-visible
-  second-parity paint. WalkCoin and cursor stay frozen. Labelled
-  accessibility adaptation.
+  second-parity paint. The minute paint and the parity paint do not both
+  run in the same animation frame. WalkCoin and cursor stay frozen.
+  Labelled accessibility adaptation.
+- Settings without `settingsHudElapsedMs` keeps the fixed portfolio
+  battery frame (4). Native Settings refreshes through the HUD sampler,
+  not live `Date.getSeconds()` on every paint.
+- The HUD charging icon does not match the 3D console (no charger, no
+  charging LED).
 
 ## Tests
 
-`tests/home-hud-sample.test.mjs` now pins colon/battery parity, the
-shared profile owner across HOME/Settings/eShop/Zone, capture-sample
-override, and the reduced-motion parity helper. Settings still owns its
-counter/previous-displayed-seconds sampler.
+`tests/home-hud-sample.test.mjs` pins colon/battery parity, the shared
+profile owner, capture-sample override, reduced-motion parity including
+the same-frame skip, Settings constructor / counter 2 / 1 / 0, and
+pose-level eShop/Zone textures from the shipped packs.
+`scripts/verify-eshop-welcome.mjs` and `scripts/verify-native-services.mjs`
+assert those textures; the services verifier compiles
+`stock-screen-layout` / `camera-browse` so Zone runs.
 
 ## Remaining
 
 `+0xcc`, `0x32f144` / `+0xa9`, `+0xb0`, `+0xbb` and WhiteBlack 1/2 are
-unreplayed. eShop/Zone apply the shared profile; their title-local PTM
-callers are not traced. WalkCoin fade, wallpaper, banner yaw and
-whole-scenario acceptance stay open. Matrix unchanged. Coordinator
-recapture owns preview 3021 and Azahar.
+unreplayed. eShop colon phase and `0x1e9b10` bit 1 have no profile field.
+WalkCoin fade, wallpaper, banner yaw and whole-scenario acceptance stay
+open. Matrix unchanged. Coordinator recapture owns preview 3021 and
+Azahar.

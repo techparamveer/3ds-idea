@@ -40,7 +40,7 @@ import { PACKED_MODEL_URL } from './model-delivery';
 import { createRenderSchedule } from './render-schedule';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
 import { captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHudSample, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
-import { homeHudReducedMotionRepaintDue, hudSecondParity } from '../os/device-status-profile';
+import { homeHudReducedMotionParityPaintDue, hudSecondParity } from '../os/device-status-profile';
 
 const RAD = Math.PI / 180;
 let nextBannerSession=0;
@@ -608,13 +608,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // A forced draw remains selected until the next animation frame. Two WebGL
     // renders in one callback are not evidence that the browser composited it.
     if(!homeClockSuspended&&!terminalPublicationPending)commit((current,time)=>tickSystem(current,time,reduced),'tick',false,animationElapsedMs);updateAudio();observeLaunchEffect();
-    const minute=Math.floor(Date.now()/60000);if(minute!==lastMinute){lastMinute=minute;paint();}
+    const minute=Math.floor(Date.now()/60000);
+    let paintedThisFrame=false;
+    if(minute!==lastMinute){lastMinute=minute;paint();paintedThisFrame=true;}
     // Reduced motion skips the HOME LCD cadence. Keep the native 1 Hz
     // colon/battery blink with a HUD-visible second-parity paint; WalkCoin
     // and cursor stay frozen. Labelled accessibility adaptation.
     const hudSeconds=new Date().getSeconds();
     const hudVisible=reduced&&state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&state.system!.phase==='home';
-    if(homeHudReducedMotionRepaintDue(lastHudParity,hudSeconds,hudVisible))paint();
+    if(homeHudReducedMotionParityPaintDue(lastHudParity,hudSeconds,hudVisible,paintedThisFrame))paint();
     lastHudParity=hudSecondParity(hudSeconds);
     // Native UI motion must be uploaded continuously, independent of input.
     // Include the final restored-root update. Frozen clocks do not boost the

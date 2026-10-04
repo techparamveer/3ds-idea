@@ -103,7 +103,8 @@ test('painter keeps already-bound upper cards; no HUD/SlideBar/snap/lcd guess on
   assert.equal(painter.includes("'NewsWndwNews_U_00'"), false);
   assert.equal(painter.includes('T_News_00:{translation'), false);
   assert.equal(painter.includes('T_Cnt_00:{translation'), false);
-  assert.equal(painter.includes("textSampling:'lcd"), false);
+  // Lower Close shadow T_EndB_00 only (notifications-close-240-2026-10-04.md); no upper-card LCD sampling.
+  assert.deepEqual(painter.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
   assert.equal(painter.includes('azahar-12p4-fit'), false);
   assert.equal(painter.includes('multilineBlockOrigin'), false);
   assert.match(painter, /renderer\.draw\(top,'notification-hud','HudMenu_00'/);

@@ -138,6 +138,9 @@ advance (` Close` has no such glyph).
 
 - Close: `T_EndB_00` shadow half-pixel coverage and seam **56**: adaptation
   gap, browser count pending recapture.
+  Recaptured Close is 240 (glyphs 184 + seam 56). The glyph part is the
+  `T_EndB_00` double filter, bound in
+  [the Close 240 note](notifications-close-240-2026-10-04.md).
 - List **820**: title-shadow AA, source gap.
 - Scrollbar **34**: separate leftover, not reopened.
 - Whole lower still **fail** until recapture. Input, motion and audio not

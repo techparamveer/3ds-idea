@@ -29,8 +29,14 @@ test('the restarted primary uses the paired-screen footer release receipt at the
   assert.match(observer, /const entryFooter=screens\.homeEntryFooterReadiness\(\)/);
   assert.match(observer, /entryFooter\.bootSince===bannerEntryFooterBootSince&&entryFooter\.releasedAtUpdate!==null/);
   assert.match(observer, /loadInhibited:false,nativeWorkerReady:bannerEntryFooterBootSince===null/);
+  assert.match(observer, /activationReady:screens\.homeEntryActivationReady\(state\)/);
   assert.doesNotMatch(observer, /setTimeout|performance\.now|HOME_ENTRY_FOOTER_LAST_FRAME/,
     'scene policy must consume the shared owner receipt rather than inventing a delay or frame clock');
+});
+
+test('entry worker activation is sampled on the live footer-14 HOME update before the manager pass', () => {
+  const stepper = source.slice(source.indexOf('function advanceBeforeMutation'));
+  assert.match(stepper, /activationReady:screens\.homeEntryActivationReady\(pass\.state\)/);
 });
 
 test('only a visible context-live render promotes entry candidates', () => {

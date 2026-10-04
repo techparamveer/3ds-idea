@@ -300,7 +300,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // Keep the source gate counting while entry owns the lower-screen terminal.
     // Its existing worker-release boundary blocks both gate release and later
     // activation without adding another counter or changing lifecycle lengths.
-    const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:bannerEntryFooterBootSince===null,resourceReady:bannerHost.inputs.resourceReady};
+    const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:bannerEntryFooterBootSince===null,activationReady:screens.homeEntryActivationReady(state),resourceReady:bannerHost.inputs.resourceReady};
     bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:selection??(switchPresentation?{kind:'app',id:system.pending!}:system.homeControls?undefined:resolveHomeBannerHostSelection(state)),inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
     // Retain both outgoing and incoming requests until the manager retires
@@ -340,7 +340,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
           if(entry.phase==='input')beforeManager=selection;else afterManager=selection;
         }
         bannerHost=pass.completed?stepHomeBannerHost(bannerHost,bannerClock(),{
-          beforeManager:beforeManager?{selection:beforeManager}:undefined,
+          beforeManager:{
+            ...(beforeManager?{selection:beforeManager}:{}),
+            inputs:{...bannerHost.inputs,activationReady:screens.homeEntryActivationReady(pass.state)},
+          },
           afterManager:afterManager?{selection:afterManager}:undefined,
         }):skipHomeBannerHostPass(bannerHost,bannerClock());
         // A lower request's resource ticket is acknowledged after this pass;

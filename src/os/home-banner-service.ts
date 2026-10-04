@@ -23,6 +23,9 @@ export type HomeBannerServiceInputs = Readonly<{
   nativeWorkerReady: boolean;
   /** Ready renderable resources for this request. Never inferred from elapsed updates. */
   resourceReady: HomeBannerResourceTicket | null;
+  /** When false, gate and loading may proceed but activation waits. Omit for the
+   * ordinary ready path. HOME entry sets this from the live footer-14 sample. */
+  activationReady?: boolean;
   /** Unsupported app/legacy motion is external. Settings is the bounded title exception. */
   nonFolderPrimary?: Readonly<{ generation: string; activationEpoch: number; visible: boolean }>;
 }>;
@@ -61,6 +64,9 @@ export function getHomeBannerResourceTicket(state: HomeBannerService): HomeBanne
 function resourceReady(state: HomeBannerService, input: HomeBannerServiceInputs): boolean {
   return !!input.resourceReady && input.resourceReady.generation === state.clock.generation
     && input.resourceReady.requestEpoch === state.lifecycle.requested?.epoch;
+}
+function activationReady(input: HomeBannerServiceInputs): boolean {
+  return input.activationReady !== false;
 }
 function primaryHidden(state: HomeBannerService, input: HomeBannerServiceInputs): boolean {
   const active = state.lifecycle.active;
@@ -101,7 +107,7 @@ export function advanceHomeBannerManagerPass(state: HomeBannerService, input: Om
           }
         }
       }
-    } else if (lifecycle.requested?.target.nativeType && input.nativeWorkerReady &&
+    } else if (lifecycle.requested?.target.nativeType && input.nativeWorkerReady && activationReady(input) &&
       (lifecycle.requested.target.kind === 'clear' || resourceReady(state, input))) {
       // This branch occurs on a later pass than gate release, even for cached assets.
       lifecycle = activateHomeBanner(lifecycle, lifecycle.requested!.epoch);

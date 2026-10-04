@@ -11,9 +11,11 @@ export const HOME_ENTRY_HUD_LAST_FRAME = 40 as const;
 export const HOME_ENTRY_FOOTER_DELAY_UPDATES = 3 as const;
 export const HOME_ENTRY_HUD_DELAY_UPDATES = 7 as const;
 /** Native activates the entry banner with the footer's terminal frame (N057).
- * The banner service needs four updates after its worker release, so a live
- * presented footer frame 10 releases it; frame 14 still owns the terminal
- * receipt. Capture fit; adaptation. */
+ * A live presented footer frame 10 still releases the worker so loading can
+ * occupy SceneIn 10..14. Activation is due on the live footer-14 sample so
+ * scale 0.8 shares that paint; the four post-release manager stages no longer
+ * each consume a later HOME update. Frame 14 still owns the terminal receipt.
+ * Capture fit; adaptation. Do not retune labelled footer+3 / HUD+7. */
 export const HOME_ENTRY_BANNER_RELEASE_FOOTER_FRAME = 10 as const;
 
 export type HomeEntryPresentation = Readonly<{
@@ -159,6 +161,17 @@ export function acknowledgeHomeEntryFooterRelease(
 export function getHomeEntryFooterReadiness(current: HomeEntryPresentation): HomeEntryFooterReadiness {
   return Object.freeze({ bootSince: current.bootSince, releasedAtUpdate: current.footerReleasedAtUpdate,
     terminalAtUpdate: current.footerTerminalAtUpdate });
+}
+
+/** Ordinary hosts omit this and stay ready. A live entry sample is due only on
+ * footer SceneIn 14 (or after that terminal receipt), so activation can share
+ * the native N057 paint instead of consuming four later worker updates. */
+export function homeEntryBannerActivationDue(sample: HomeEntrySample): boolean {
+  const { presentation, footerSceneInFrame } = sample;
+  if (presentation.startedAtUpdate === null) return true;
+  if (presentation.bannerBypassed || presentation.bannerPresentedAtUpdate !== null) return true;
+  return footerSceneInFrame === HOME_ENTRY_FOOTER_LAST_FRAME
+    || presentation.footerTerminalAtUpdate !== null;
 }
 
 /** Release the HUD only after the matching native banner pixels have been

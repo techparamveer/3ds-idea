@@ -41,7 +41,7 @@ export type HomeToolbarBannerSelection =
 type UnsupportedSelection = Readonly<{ kind: 'app'; id: string }>;
 export type HomeBannerHostSelection = SupportedSelection | UnsupportedSelection;
 export type HomeBannerHostInputs = Pick<HomeBannerServiceInputs,
-  'managerInhibited' | 'sceneInhibited' | 'loadInhibited' | 'nativeWorkerReady' | 'resourceReady'>;
+  'managerInhibited' | 'sceneInhibited' | 'loadInhibited' | 'nativeWorkerReady' | 'resourceReady' | 'activationReady'>;
 export type HomeBannerHostPresentation = Readonly<{
   generation: string; requestEpoch: number; selection: SupportedSelection;
 }>;
@@ -211,6 +211,7 @@ function retainInputs(inputs: HomeBannerHostInputs, service: HomeBannerService |
   return {
     managerInhibited: inputs.managerInhibited, sceneInhibited: inputs.sceneInhibited,
     loadInhibited: inputs.loadInhibited, nativeWorkerReady: inputs.nativeWorkerReady,
+    activationReady: inputs.activationReady !== false,
     resourceReady: accepted ? { ...accepted } : null,
   };
 }

@@ -101,3 +101,23 @@ test('malformed loops and escaped cue URLs fail before fetching cue media',async
   const f=fixture({cues:{select:{name:'select',url:'select.wav',sampleRate:100,samples:1000,loopStart:null,loopEnd:null,...change}}});await flush();assert.ok(f.audio.status().failure);assert.equal(f.requests.length,1);f.audio.dispose();
  }
 });
+test('launch stop30 ramps the playing music gain to zero over 30 updates, then detaches without restarting',async()=>{
+ const f=fixture();f.audio.update(home);await f.audio.unlock();await flush();assert.deepEqual(starts(f),[{entry:'music'}]);
+ const music=f.contexts[0].gains[1].gain;assert.equal(music.value,1);
+ f.audio.update({...home,musicStopUpdates:null});assert.equal(music.value,1);
+ for(const [updates,gain] of [[0,1],[15,.5],[29,1/30]]){f.audio.update({...home,musicStopUpdates:updates});assert.equal(music.value,Math.fround(gain));}
+ assert.equal(f.transports[0].operations.filter(x=>x[0]==='stop').length,0);
+ f.audio.update({...home,musicStopUpdates:30});await flush();assert.equal(music.value,0);assert.equal(f.transports[0].operations.filter(x=>x[0]==='stop').length,1);
+ f.audio.update({...home,musicStopUpdates:40});f.audio.update({...home,home:false});await flush();assert.equal(starts(f).length,1);
+ f.audio.update({...home,homeUpdates:10});f.audio.update({...home,homeUpdates:13});await flush();assert.deepEqual(starts(f).at(-1),{entry:'music-resume'});f.audio.dispose();
+});
+test('launch stop30 starts from a partial resume fade gain and tears down music that never started',async()=>{
+ const f=fixture();f.audio.update(home);await f.audio.unlock();await flush();
+ f.audio.update({...home,home:false});f.audio.update({...home,homeUpdates:100});f.audio.update({...home,homeUpdates:103});await flush();
+ f.audio.update({...home,homeUpdates:192});const music=f.contexts[0].gains[1].gain;assert.equal(music.value,.5);
+ f.audio.update({...home,homeUpdates:192,musicStopUpdates:0});assert.equal(music.value,.5);
+ f.audio.update({...home,homeUpdates:192,musicStopUpdates:14});assert.equal(music.value,Math.fround(.5-14/30));
+ f.audio.update({...home,homeUpdates:192,musicStopUpdates:15});await flush();assert.equal(music.value,0);assert.equal(f.audio.status().music,false);f.audio.dispose();
+ const pending=deferred(),g=fixture({loadMusic:()=>pending.promise});g.audio.update(home);await g.audio.unlock();await flush();
+ g.audio.update({...home,musicStopUpdates:0});assert.equal(g.packs[0].options.signal.aborted,true);pending.resolve({manifest:{},files:[]});await flush();assert.equal(starts(g).length,0);g.audio.dispose();
+});

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getMenuActionSound, launchStartEffectDue } from '../src/os/menu-action-sound.ts';
+import { getMenuActionSound, launchPreparationUpdates, launchStartEffectDue } from '../src/os/menu-action-sound.ts';
 import { LAUNCH_FADE_START_MS } from '../src/os/system-transitions.ts';
 import { createPortfolioState, tickSystem, tickHomeNavigationClock, reduceSystem } from '../src/os/system.ts';
 import { reduceMenu } from '../src/os/state.ts';
@@ -33,4 +33,9 @@ test('launch START_EFFECT is due with fade pose 0, or at once for reduced launch
  assert.equal(launchStartEffectDue(0),false);assert.equal(launchStartEffectDue(9*F),false);
  assert.equal(launchStartEffectDue(10*F),true);assert.equal(launchStartEffectDue(40*F),true);
  assert.equal(launchStartEffectDue(0,true),true);
+});
+test('launch preparation counts nominal updates from fade pose 0, or from A for reduced launches',()=>{
+ assert.equal(launchPreparationUpdates(9*F),null);assert.equal(launchPreparationUpdates(10*F),0);
+ assert.equal(launchPreparationUpdates(25*F),15);assert.equal(launchPreparationUpdates(40*F),30);
+ assert.equal(launchPreparationUpdates(0,true),0);assert.equal(launchPreparationUpdates(7*F,true),7);
 });

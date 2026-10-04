@@ -4,7 +4,7 @@ import { createSoundRoom } from './sound-room';
 import { createCameraShootBackground } from './camera-shoot-background';
 import { createNativeScreenInputGate } from '@/os/native-screen-input';
 import { escapeUnreadyNativeScreen, releaseUnreadyNativeInput } from '@/os/native-screen-system';
-import { getMenuActionSound, launchStartEffectDue } from '../os/menu-action-sound';
+import { getMenuActionSound, launchPreparationUpdates, launchStartEffectDue } from '../os/menu-action-sound';
 import { sampleSystemHomeFolderClose } from '../os/home-folder-close-system';
 import { getHomeCursorLoopFrame } from '../os/home-cursor-loop';
 import { getHomeCursorSlot } from '../os/home-cursor-visibility';
@@ -248,13 +248,19 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const s=state.system!;if(diagnostics){host.dataset.applicationClose=JSON.stringify(s.homeApplicationTransition);host.dataset.folderBanner=JSON.stringify({...getHomeBannerHostView(bannerHost),background:getHomeBannerHostBackgroundFrame(bannerHost)});host.dataset.homeUpdates=String(s.homeClock.updateCount);host.dataset.folderClose=JSON.stringify(sampleSystemHomeFolderClose(state));host.dataset.folderBannerFallback=String(!nativePrimaryAvailable(resolveHomeBannerHostSelection(state)));}const entry=currentEntry(state),appView=getActiveAppView(state);const nativeStatus=screens.stockStatus(state);const portfolioForeground=getApp(s.app)&&(!appView||appView.appId===s.app);const description=s.sleeping?'Sleep Mode. Open the lid to resume.':s.dialog?'Close software? A to close'+(s.dialog==='switch'?' and open the selected software.':'.')+' B to cancel.':nativeStatus==='error'?(s.phase==='boot'?'Website display unavailable. A to retry.':'Website display unavailable. A to retry. B or HOME to return to HOME Menu.'):nativeStatus==='loading'?'Loading software screen. B or HOME to return to HOME Menu.':s.phase==='app'?(portfolioForeground?`${getApp(s.app)?.title}. ${entry?.title??''}. ${s.detail?entry?.pages[s.page]??'':entry?.subtitle??''}`:[appView?.heading,appView?.subheading,appView?.rows[appView.selection]?.label,...(appView?.text??[])].filter(Boolean).join('. ')):s.phase==='home'?`HOME Menu. ${selectedTitle(state)?.title??'Empty slot'}.${s.app?' Software suspended.':''}`:s.phase==='power'?'Power options. A to power off. B or HOME to return to HOME Menu.':s.phase==='off'?'Powered off. Press Power to turn on.':s.phase==='boot'?'Powering on.':s.phase==='shutdown'?'Powering off.':s.phase==='launch'?'Opening software.':s.phase; if(description!==announced){announced=description;announcement.textContent=description;}
     host.dataset.audio=JSON.stringify(audio.status());host.dataset.preferences=String(state.system?.preferences??false);host.dataset.photo=String(state.system?.photo??0);host.dataset.page=String(state.system?.page??0);host.dataset.muted=String(state.system?.muted??false);host.dataset.ready='true';host.dataset.menu=state.panel??(state.system?.phase==='home'?(state.opened?'folder':'home'):state.system?.phase??'home');host.dataset.app=state.system?.app??'';host.dataset.item=String(state.system?.item??0);host.dataset.detail=String(state.system?.detail??false);host.dataset.sleeping=String(state.system?.sleeping??false);host.dataset.dialog=state.system?.dialog??'';host.dataset.rows=String(rowCount(state));host.dataset.theme=state.theme;host.dataset.selected=String(state.selected);host.dataset.powered=String(state.powered);host.dataset.lastInput=lastInput;
   };
-  function updateAudio(){const system=state.system!;audio.update({home:system.phase==='home',powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:performance.now()-start});}
-  // One START_EFFECT per launch phase, keyed by its start; see launchStartEffectDue.
-  // Observed after the action cue, so a reduced launch keeps HOME_START first.
+  // A launch from HOME keeps its music through Open's Decide; preparation then
+  // requests stop30. Launches from software (helpers) never start HOME music.
+  let audioPhase:string|null=null,heldLaunchSince:number|null=null;
+  function updateAudio(){const system=state.system!,now=performance.now()-start;
+    if(system.phase==='launch'&&audioPhase==='home')heldLaunchSince=system.since;else if(system.phase!=='launch')heldLaunchSince=null;
+    audioPhase=system.phase;const launching=system.phase==='launch'&&heldLaunchSince===system.since;
+    audio.update({home:system.phase==='home'||launching,powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:now,musicStopUpdates:launching?launchPreparationUpdates(now-system.since,reduced):null});}
+  // One START_EFFECT per launch from HOME, keyed by its start; see launchStartEffectDue.
+  // Observed after the action cue (and updateAudio), so a reduced launch keeps HOME_START first.
   let launchEffectSince:number|null=null;
   function observeLaunchEffect(){
     const system=state.system!;
-    if(!state.powered||system.phase!=='launch'||system.sleeping||launchEffectSince===system.since)return;
+    if(!state.powered||system.phase!=='launch'||heldLaunchSince!==system.since||system.sleeping||launchEffectSince===system.since)return;
     if(!launchStartEffectDue(performance.now()-start-system.since,reduced))return;
     launchEffectSince=system.since;audio.play('open-effect',system.muted,system.volume);
   }

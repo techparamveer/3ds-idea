@@ -24,12 +24,17 @@ export function getMenuActionSound(previous: MenuState, state: MenuState, input:
  if(previous.panel!==state.panel||before.detail!==after.detail||before.dialog!==after.dialog||before.preferences!==after.preferences)return input==='back'?'back':'open';
 }
 
-/** Successful launch preparation dispatches SE_CTR_HOME_START_EFFECT
- * (0x0100001f) after the Open listener's Decide completes, in the same update
- * that requests the music stop30. Native trace does not tie that update to a
- * fade pose, so the browser plays it with fade pose 0, the first stage after
- * the fitted Decide hold: an adaptation. Reduced launches never reach that
- * pose, so they play it at once. */
+/** Successful launch preparation runs after the Open listener's Decide
+ * completes: one update dispatches SE_CTR_HOME_START_EFFECT (0x0100001f) and
+ * requests the music stop30. Native trace does not tie that update to a fade
+ * pose, so the browser places it at fade pose 0, the first stage after the
+ * fitted Decide hold: an adaptation. Reduced launches never reach that pose,
+ * so they prepare at once. Returns nominal 60Hz updates since preparation,
+ * or null before it. */
+export function launchPreparationUpdates(launchElapsedMs:number,reduced=false):number|null{
+ const elapsed=launchElapsedMs-(reduced?0:LAUNCH_FADE_START_MS);
+ return elapsed<-1e-6?null:Math.floor(Math.max(0,elapsed)*60/1000+1e-9);
+}
 export function launchStartEffectDue(launchElapsedMs:number,reduced=false):boolean{
- return reduced||launchElapsedMs>=LAUNCH_FADE_START_MS-1e-6;
+ return launchPreparationUpdates(launchElapsedMs,reduced)!==null;
 }

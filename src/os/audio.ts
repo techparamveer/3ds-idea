@@ -5,7 +5,9 @@ import type { MusicEntry } from './native-home-audio/types.ts';
 export type Sound = 'select' | 'open' | 'open-effect' | 'back' | 'home' | 'power' | 'touch' | 'grab' | 'drop' | 'folder-open' | 'folder-close' | 'scroll-invalid' | 'toolbar-select';
 export type AudioCue = { name: string; url: string; sampleRate: number; samples: number; loopStart: number | null; loopEnd: number | null };
 export type AudioPack = { schema: 1; cues: Record<string, AudioCue> };
-export type AudioState = { home: boolean; powered: boolean; sleeping: boolean; muted: boolean; volume: number; elapsedMs: number; homeUpdates: number };
+/** `musicStopUpdates` counts host updates since a launch's stop30 request;
+ * null or absent leaves music to `home`. */
+export type AudioState = { home: boolean; powered: boolean; sleeping: boolean; muted: boolean; volume: number; elapsedMs: number; homeUpdates: number; musicStopUpdates?: number | null };
 
 export type MenuAudioEnvironment = {
   fetch?: typeof fetch; AudioContext?: typeof AudioContext;
@@ -23,6 +25,8 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
   let transport: ReturnType<typeof createNativeMusicTransport> | undefined;
   let musicFailure: string | undefined, musicRevision = 0, activeRevision = -1, gainRevision = -1;
   let musicEntry: MusicEntry = 'music', enteredHome = false, fadeStart = 0, musicDueUpdate = 0;
+  // Fade gain captured at a stop30 request; undefined when no started music was playing.
+  let stopGain: number | undefined;
   let musicWork = false, musicDirty = false, fetchMusicAbort: AbortController | undefined;
   let stopping: Promise<void> = Promise.resolve();
   let state: AudioState = { home: false, powered: true, sleeping: false, muted: false, volume: .35, elapsedMs: 0, homeUpdates: 0 };
@@ -74,12 +78,20 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
     try { source.stop(); } catch { /* already ended */ }
     source.disconnect(); active.delete(source);
   }
-  function musicEnabled() { return state.home && state.powered; }
+  function stopRequested() { return state.musicStopUpdates !== null && state.musicStopUpdates !== undefined; }
+  /** Native stop30 ramps the current fade gain to zero at 1/30 per eligible
+   * update, then detaches the handle (trunc(gain * 30) updates). Music that had
+   * not started takes the immediate teardown. */
+  function musicEnabled() {
+    if (!state.home || !state.powered) return false;
+    return !stopRequested() || stopGain !== undefined && state.musicStopUpdates! < Math.trunc(stopGain * 30);
+  }
   function soundUpdate() { return state.homeUpdates; }
+  function entryFade() { return musicEntry === 'music' ? 1 : Math.min(1, Math.max(0, soundUpdate() - fadeStart) / 180); }
   function applyGain() {
     if (!context) return;
     master?.gain.setValueAtTime(state.muted || state.sleeping || !state.powered ? 0 : state.volume, context.currentTime);
-    const fade = musicEntry === 'music' ? 1 : Math.min(1, Math.max(0, soundUpdate() - fadeStart) / 180);
+    const fade = stopRequested() && stopGain !== undefined ? Math.max(0, stopGain - state.musicStopUpdates! / 30) : entryFade();
     musicGain?.gain.setValueAtTime(musicEnabled() && gainRevision === musicRevision && !musicFailure ? Math.fround(fade) : 0, context.currentTime);
   }
   function stopEffects() { effectGeneration++; for (const source of active) stopSource(source); }
@@ -181,8 +193,10 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
     } catch (error) { if (!disposed) failure = String(error); }
   }
   function update(next: AudioState) {
-    const previous = state, wasEnabled = musicEnabled();
+    const previous = state, wasEnabled = musicEnabled(), wasStopping = stopRequested();
     state = { ...next, volume: Number.isFinite(next.volume) ? Math.max(0, Math.min(1, next.volume)) : .35 };
+    if (!stopRequested()) stopGain = undefined;
+    else if (!wasStopping) stopGain = wasEnabled && activeRevision === musicRevision && gainRevision === musicRevision && !musicFailure ? entryFade() : undefined;
     if (wasEnabled && !musicEnabled()) stopMusic();
     if (!state.powered) enteredHome = false;
     if (!wasEnabled && musicEnabled()) {

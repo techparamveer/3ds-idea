@@ -60,15 +60,15 @@ scene-owned Sound room. Tests: `stock-apps.test.mjs`, `portfolio-music.test.mjs`
 | ID | Reachable screen or route | Implemented behavior | Gap or adaptation |
 | --- | --- | --- | --- |
 | M-SND-01 | empty-track `sound/guide`, pages 1-3 | Next, Back after page 1 and final OK; source dialog, messages, page counter and page-3 volume art | Guide repeats because no firmware-backed first-run flag exists; entry/exit motion, bird scheduling and cues are open |
-| M-SND-02 | empty `sound/main` | Source Record & Edit Sounds room, row, slider and controls; HudTime separator follows seconds parity (`:` odd / space even) with a labelled 12/10 fixed-pitch adaptation (`605f39fe`) | Production manifest intentionally has zero tracks; Record, StreetPass, Add, Settings, Open and root Back are inert; no hidden recording/settings flow exists; clock not native-compared yet |
+| M-SND-02 | empty `sound/main` | Source Record & Edit Sounds room, row, slider and controls; HudTime separator follows seconds parity (`:` odd / space even) with a labelled 12/10 fixed-pitch adaptation (`605f39fe`) | Production manifest intentionally has zero tracks; Record, StreetPass, Add, Settings, Open and root Back are inert; clock ROI 0 over 2/255 vs `22:31` (`983ef5ed`); whole empty-entry still 6,404 / 16,021 |
 | M-SND-03 | supplied-track `sound/main` | Song rows show title/artist; selection opens playback and emits ordered load then play | Requires user-supplied track manifest; supplied-song entry currently has tests but no production content or native comparison |
 | M-SND-04 | `sound/playback` transport | Play/pause, previous/next, bounded seek, progress/duration, and one mode control cycling no-loop/folder/single/random | Effect buttons, filters, pull cord, speed/pitch, percussion and visualizer behavior are inert or absent by scope; direct repeat/shuffle reducer actions have no separate visible route |
 | M-SND-05 | playback error dialog | Source Could-not-play dialog blocks transport; A/OK or B dismisses it without changing track | Error timing/audio and recovery against native are unverified |
 | M-SND-06 | suspend/sleep/close and resume | Owner-scoped player pauses; live instance retains position; user must explicitly resume | Module saves `{}`: reload/new instance loses selection and position; automatic resume is intentionally absent |
 
-Evidence: the latest recorded empty-guide title fit still fails at 6,627 upper /
-6,267 lower pixels over 2/255. The settled empty entry pair fails at 15,793 /
-16,021. Source checks isolate unresolved cursor-icon overlap, footer blending,
+Evidence: after the HudTime recapture (`983ef5ed`) first-run is 6,094 / 6,267
+and empty-entry is 6,404 / 16,021; clock ROI is 0 over 2/255 on both stills.
+Source checks isolate unresolved cursor-icon overlap, footer blending,
 bird timing and the capture-fitted Span material/placement. No supplied-song
 browser/native pair exists.
 

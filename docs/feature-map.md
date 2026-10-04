@@ -15,7 +15,13 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
-Latest [HOME zoom-route banner settle](home-zoom-banner-2026-10-04.md),
+Latest [Sound HudTime recapture](sound-clock-recapture-2026-10-04.md),
+`983ef5ed`: clock ROI `[95,216,194,240]` is 0 over 2/255 on both stills
+(`22 27` even / `22:31` odd). First-run whole upper 6,627→6,094 (old 533
+clock box gone). Whole LCDs still fail (title/Span/birds, guide/empty
+chrome). 12/10 pitch stays a labelled adaptation.
+
+Earlier [HOME zoom-route banner settle](home-zoom-banner-2026-10-04.md),
 `dc0e719f`: the 11,868 upper miss was a too-early capture (incoming Settings
 while Camera was still the painted primary). After ~500 ms both zoom and
 Right-walk freeze to the same 190-pixel upper (`2a2d920e…`). No banner-clock

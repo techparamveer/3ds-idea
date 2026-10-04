@@ -205,6 +205,35 @@ test('old presentation survives every visible and hidden retained stage before r
   assert.equal(view(host).primary.activationEpoch, 2); assert.equal(motion(host).yawCounter, 1);
 });
 
+test('Camera to Settings replacement keeps Camera as the painted primary until Settings activates', () => {
+  let host = settled({ kind: 'app', id: 'camera' });
+  assert.deepEqual(view(host).primary.selection, { kind: 'app', id: 'camera' });
+  host = acknowledge(request(host, { kind: 'app', id: 'system-settings' }));
+  for (let i = 1; i <= 11; i++) {
+    host = step(host);
+    const current = view(host);
+    assert.equal(current.status, 'active', `hide update ${i}`);
+    assert.deepEqual(current.selection, { kind: 'app', id: 'system-settings' });
+    assert.deepEqual(current.primary.selection, { kind: 'app', id: 'camera' });
+    assert.equal(motion(host).visible, i <= 4);
+  }
+  host = step(host);
+  assert.equal(view(host).status, 'pending');
+  assert.equal(view(host).primary, null);
+  assert.deepEqual(view(host).selection, { kind: 'app', id: 'system-settings' });
+  host = step(host);
+  assert.equal(view(host).status, 'active');
+  assert.deepEqual(view(host).primary.selection, { kind: 'app', id: 'system-settings' });
+  assert.equal(motion(host).yawCounter, 1);
+  assert.equal(motion(host).skeletal.frame, 1);
+  assert.equal(motion(host).visibilityCounter, 1);
+  assert.equal(motion(host).scale, Math.fround(.8));
+  host = step(host, 4);
+  assert.equal(view(host).primary.selection.id, 'system-settings');
+  assert.equal(motion(host).visibilityCounter, 5);
+  assert.equal(motion(host).scale, Math.fround(Math.fround(.8) + Math.fround(1 * 0.19999998807907104)));
+});
+
 test('same-target label observations cannot silently rewrite prepared snapshots', () => {
   let host = request(fresh(), folder('a', 'Prepared label'));
   host = request(host, folder('a', 'Unprepared rename'));

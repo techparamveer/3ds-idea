@@ -12,8 +12,12 @@ are not reopened
 [remaining residual](sound-remaining-residual-2026-10-04.md)).
 First-run lower is the guide, not this footer.
 
-This is not a 1:1 claim. Tests and this note do not close pixels, input,
-motion or audio. Coordinator recapture remains the acceptance gate.
+This is not a 1:1 claim. Independent review **APPROVE-WITH-NITS** of
+fidelity `4a5f24da` / worker `8178bab` (tests 4/4; official clusters are
+`report.screens.lower.regions[5]/[4]/[8]`; SetBtn `TxtMiniT_W_P0` is not
+in `OptIO`; Open In/Out also write `Grp_Open` chrome). Tests and this
+note do not close pixels, input, motion or audio. Coordinator recapture
+remains the acceptance gate.
 
 ## Pairs (reused, not recaptured)
 
@@ -56,9 +60,9 @@ than 2.
 | StreetPass crop | `[0,178,92,209]` | 957 | 168 | `(42,195)` native `(213,208,197)` / browser `(45,44,42)` |
 | Settings crop | `[228,209,320,240]` | 889 | 174 | same Settings peak |
 | Open crop | `[98,178,222,238]` | 646 | 69 | `(135,205)` native `(69,64,57)` / browser `(0,0,0)` |
-| Official left | `{x:0,y:179,width:112,height:61}` | **897** | — | `report.json` |
-| Official right | `{x:208,y:179,width:112,height:61}` | **979** | — | Settings side |
-| Official Open core | `{x:134,y:199,width:14,height:19}` | **169** | — | Open glyph |
+| Official left | `{x:0,y:179,width:112,height:61}` | **897** | — | `report.screens.lower.regions[5]` |
+| Official right | `{x:208,y:179,width:112,height:61}` | **979** | — | `report.screens.lower.regions[4]` |
+| Official Open core | `{x:134,y:199,width:14,height:19}` | **169** | — | `report.screens.lower.regions[8]` |
 | Empty row / slider | `[0,32,320,64]` / `[0,144,320,175]` | 1916 / 4271 | — | already labelled; not reopened |
 
 The 4,707 leftover is extra browser ink on already-bound StreetPass /
@@ -105,8 +109,9 @@ Settings / Open top colour is black `(0,0,0,255)`; Back is white. Default
 frame 0 and Disable frame 1 sample the same parent rest (`-O-C-OPL` /
 `-O-C-Open` scale.y 1, `-B-MiniT_W_P0` / `-O-C-Back` y −105). `magFilter` /
 `minFilter` are **1** (linear) on every footer button map. Empty `tevStages`
-on `TxtC` / `TxtMiniT_W_P0`. Those panes sit in group `OptIO`; no bound clip
-writes them.
+on `TxtC` / `TxtMiniT_W_P0`. `TxtC` on OpL/Open/OpR/Back sits in `OptIO`.
+SetBtn `TxtMiniT_W_P0` sits in IO (`-B-MiniT_W_P0`) and Btn (`Grp_MiniT_W_P0`);
+SetBtn has no `OptIO`. No bound clip writes those text panes.
 
 ## Unused members that do not uniquely own the 4,707
 
@@ -122,7 +127,7 @@ any text materialColor.
 | `S_Common-OpRBtn_Default` | `b093540b…` | `GrpOP` alpha 255 | Add is already Disable 1 (native-disabled). Switching to Default would enable it. |
 | `S_Common-OpRBtn_In` / `_Out` / `_Push` | `06cbd35f…` / `87da76f8…` / `2c3efe1f…` | IO / press on Add | Same as OpL; Add is not the 4707 peak. |
 | `S_Common-OpenBtn_Disable` | `404103f1…` (published, unbound) | `Grp_Open` alpha **128** | Would fade enabled Open. No text track. |
-| `S_Common-OpenBtn_In` / `_Out` / `_Push` | `62186733…` / `16d8cb1f…` / `c52046c8…` | IO / press | Not the idle glyph compositor. |
+| `S_Common-OpenBtn_In` / `_Out` / `_Push` | `62186733…` / `16d8cb1f…` / `c52046c8…` | IO / press; In/Out also write `Grp_Open` alpha and `materialColor` (chrome, not `TxtC`) | Not the idle glyph compositor. |
 | `S_Common-SetBtn_In` / `_Out` / `_Push` | `6bd98fcb…` / `1cdf8f00…` / `bb8bb48c…` | IO y −137↔−105 / press | Dump has **no** SetBtn Disable. In frame 0 parks Settings off-screen. |
 | `S_Common-BackBtn_Default` / `_In` / `_Out` / `_Push` | published | enable / IO / press | Empty-entry already uses Disable 1; Back is not the peak. |
 | `S_Common-CecBtn` + Default/In/Out/Push | layout `24acf65f…` | `TxtCec` at `[-115,-105]` | That translation is Back's parent, not StreetPass `[-115,-73]`. Unpublished. |

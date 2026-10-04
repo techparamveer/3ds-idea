@@ -26,8 +26,10 @@ Already-bound `S_BG_D-Ctr`, `OpLBtn` Default 0 + `C_B_04` (80%),
 Dump unused Disable/In/Out/Push/`CecBtn` clips write only button chrome
 and do not uniquely own the StreetPass / Settings / Open glyph blend.
 No snap, CSS, colour, font, lcd or `azahar-12p4-fit` guess. Painter
-unchanged. Docs and tests only. Coordinator APPROVE pending independent
-review. Not recaptured. Not 1:1.
+unchanged. Docs and tests only. Independent review **APPROVE-WITH-NITS**
+(no `src/`; tests 4/4; official clusters are
+`report.screens.lower.regions[5]/[4]/[8]`; SetBtn `TxtMiniT_W_P0` is not
+in `OptIO`). Not recaptured. Not 1:1.
 
 Earlier [Sound empty-entry slider 4271](sound-empty-slider-2026-10-04.md),
 `583fa9e` from worker `540cc5f5`:

@@ -5,10 +5,14 @@ This file is the shared repository instruction file for coding agents.
 continuation checkpoint is `8c0a6d7` (26 September 2026); check the actual
 HEAD and integration history before beginning a slice.
 
-**Shared Claude/Codex handoff (from 26 September 2026):** Claude Code is
-continuing this goal while Codex is rate-limited. Before resuming, read
-`/Volumes/Sandisk1/3ds-claude-codex-handoff/README.md`, then `STATUS.md` and
-the tail of `LOG.md`. Append your own entries to `LOG.md`. Do not write new
+**Restart:** Live 1:1 checkout is this folder
+(`/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch
+`codex/home-fidelity-20261001`). Before any slice, localhost start, or worker,
+read [STATUS.md](STATUS.md). If STATUS SHA ≠ `git rev-parse HEAD`, git wins;
+rewrite STATUS before spawning work. A new human thread pastes [RESTART.md](RESTART.md)
+with this folder bound. Append history to
+`/Volumes/Sandisk1/3ds-claude-codex-handoff/LOG.md`. Seats: one Coordinator,
+at most two Workers, one Reviewer on a different model. Do not write new
 artifacts to the full DeveloperStorage sparsebundle.
 
 ## Read before working
@@ -85,10 +89,12 @@ claim that an in-flight coordinator model changed through a worker override.
 - Work only in your assigned worktree and branch. Start with `git status`,
   `git branch --show-current`, `git rev-parse HEAD` and `git worktree list`.
 - The active UI integration checkout is
-  `/Users/paramveer/.codex/worktrees/3ds-ui-continuation` on
-  `codex/health-ui-scratch`. It has a different Git object database from the
-  original `/Volumes/DeveloperStorage/GitHub/3ds-idea` checkout. Use the UI
-  checkout when creating continuation worktrees; verify the base resolves.
+  `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` on
+  `codex/home-fidelity-20261001`. Confirm it in [STATUS.md](STATUS.md). It has
+  a different Git object database from
+  `/Volumes/DeveloperStorage/GitHub/3ds-idea`. Create worker worktrees from this
+  fidelity checkout; verify the base commit resolves. The older
+  `3ds-ui-continuation` / `codex/health-ui-scratch` path is preserved history.
   The five owned lanes are:
 
   | Lane | Worktree / branch | Ownership |
@@ -110,7 +116,7 @@ claim that an in-flight coordinator model changed through a worker override.
 
   These are ownership boundaries, not permission to modify the sibling paths.
   Coordinate a cross-lane interface before editing. The coordinator integrates
-  coherent commits sequentially in the UI checkout and alone operates Azahar
+  coherent commits sequentially in the fidelity checkout and alone operates Azahar
   and the shared production browser. Workers must not drive either session.
 - Stage only explicit owned paths. **Never run `git add -A`**, including in a
   sparse checkout. Do not edit, reset, stage or clean another worktree. Old

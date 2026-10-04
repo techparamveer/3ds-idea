@@ -107,6 +107,21 @@ test('Settings HOME can freeze BannerBG_Loop without selecting Health or droppin
   assert.throws(() => lcdDownloadRequest(`${query}&lcdHealthFrame=0`, 'localhost'), /cannot be combined/);
 });
 
+test('Settings HOME can freeze the cursor loop without dropping the capture clock', () => {
+  const query = '?lcdElapsedMs=1617&lcdDate=2026-09-26T03:14:35.203Z&lcdBannerFrame=310&lcdHomeWallpaperFrame=338&lcdHomeCursorFrame=12';
+  const request = lcdDownloadRequest(query, 'localhost');
+  assert.equal(request.homeCursorLoopFrame, 12);
+  assert.equal(request.homeWallpaperFrame, 338);
+  assert.equal(request.bannerFrame, 310);
+  assert.equal(request.elapsedMs, 1617);
+  assert.equal(request.liveHealthHomeClock, undefined);
+  for (const host of ['example.com', undefined]) assert.throws(() => lcdDownloadRequest(query, host), /localhost/);
+  for (const invalid of ['', '-1', '60', '1.5', 'NaN']) {
+    assert.throws(() => lcdDownloadRequest(query.replace('12', invalid), 'localhost'), /lcdHomeCursorFrame/);
+  }
+  assert.throws(() => lcdDownloadRequest(`${query}&lcdHealthFrame=0`, 'localhost'), /cannot be combined/);
+});
+
 test('Health HOME source sampling paints the selected title and wallpaper frames without changing runtime or persistence state', () => {
   const scene = readFileSync(new URL('../src/scene/console-scene.ts', import.meta.url), 'utf8');
   const code = scene.slice(scene.indexOf('const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
@@ -142,10 +157,15 @@ test('Health HOME source sampling paints the selected title and wallpaper frames
   assert.equal(wallpaper.selectedTitle,undefined);
   assert.deepEqual(paints[0][3],{sampleCalendar:true,homeHudSample:undefined,homeWallpaperFrame:480});
   assert.notEqual(wallpaper.bannerSample?.kind,'health-safety');
+  paints.length=0;
+  const cursor=capture(1617,'2026-09-26T03:14:35.203Z',310,undefined,undefined,{homeWallpaperFrame:338,homeCursorLoopFrame:12});
+  assert.equal(cursor.synthetic,true);
+  assert.deepEqual(cursor.forcedFrames,{homeWallpaperSceneInSkeletalFrame:20,homeWallpaperMaterialFrame:338,homeCursorLoopFrame:12});
+  assert.deepEqual(paints[0][3],{sampleCalendar:true,homeHudSample:undefined,homeWallpaperFrame:338,homeCursorLoopFrame:12});
   view.primary.selection={kind:'app',id:'health-safety'};
   deps.screens.paint=(...args)=>{paints.push(args);return {homeWallpaper:false,healthBanner:true};};
   assert.throws(()=>capture(1200,undefined,undefined,undefined,undefined,{healthBannerFrame:327,homeWallpaperFrame:311}),/could not render both firmware models/);
-  assert.equal(receipts.length,3,'failed diagnostic sampling still records its restored live pair');
+  assert.equal(receipts.length,4,'failed diagnostic sampling still records its restored live pair');
 });
 
 function liveCaptureFixture(initialFrame = 350) {

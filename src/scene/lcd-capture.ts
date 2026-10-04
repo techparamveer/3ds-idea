@@ -34,6 +34,7 @@ export type LcdDownloadRequest = {
   healthFrame?: number;
   healthBannerFrame?: number;
   homeWallpaperFrame?: number;
+  homeCursorLoopFrame?: number;
   liveHealthHomeClock?: true;
 };
 
@@ -94,7 +95,16 @@ export function lcdDownloadRequest(search: string, hostname?: string): LcdDownlo
   if (healthBannerFrame === undefined && homeWallpaperFrame !== undefined && healthFrame !== undefined) {
     throw new Error('lcdHomeWallpaperFrame cannot be combined with lcdHealthFrame');
   }
-  return { ...(bannerSkeletalFrame === undefined ? {} : { bannerSkeletalFrame }), ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs:liveHealthHomeClock?0:elapsedMs, isoDate:dateText===null?undefined:new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }), ...(healthBannerFrame === undefined ? (homeWallpaperFrame === undefined ? {} : { homeWallpaperFrame }) : { healthBannerFrame, homeWallpaperFrame }), ...(liveHealthHomeClock?{liveHealthHomeClock:true as const}:{}) };
+  const cursorText = params.get('lcdHomeCursorFrame');
+  const homeCursorLoopFrame = cursorText === null ? undefined : Number(cursorText);
+  if (homeCursorLoopFrame !== undefined) {
+    if (!hostname || !['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname)) throw new Error('HOME cursor frame sampling requires localhost');
+    if (!/^[0-9]+$/.test(cursorText!) || !Number.isSafeInteger(homeCursorLoopFrame) || homeCursorLoopFrame < 0 || homeCursorLoopFrame > 59) {
+      throw new Error('lcdHomeCursorFrame must be an integer from 0 to 59');
+    }
+    if (healthFrame !== undefined || healthBannerFrame !== undefined) throw new Error('lcdHomeCursorFrame cannot be combined with Health frame sampling');
+  }
+  return { ...(bannerSkeletalFrame === undefined ? {} : { bannerSkeletalFrame }), ...(homeHudSample === undefined ? {} : { homeHudSample }), elapsedMs:liveHealthHomeClock?0:elapsedMs, isoDate:dateText===null?undefined:new Date(dateText).toISOString(), scenario, bannerFrame, ...(healthFrame === undefined ? {} : { healthFrame }), ...(healthBannerFrame === undefined ? (homeWallpaperFrame === undefined ? {} : { homeWallpaperFrame }) : { healthBannerFrame, homeWallpaperFrame }), ...(homeCursorLoopFrame === undefined ? {} : { homeCursorLoopFrame }), ...(liveHealthHomeClock?{liveHealthHomeClock:true as const}:{}) };
 }
 
 export function lcdDownloadPayload(scenario: string, capture: ReturnType<typeof encodeNativeLcdPair> & Record<string, unknown>) {

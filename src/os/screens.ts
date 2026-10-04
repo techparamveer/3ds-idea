@@ -160,7 +160,7 @@ function titleIcon(c:Context,appId:string|null|undefined,x:number,y:number,size:
  const side=Math.round(size*2/3);
  return titleArtwork(c,appId,Math.round(x+(size-side)/2),Math.round(y+(size-side)/2),side,side,assets);
 }
-function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false,assets?:FirmwarePresentationAssets,suspendedSleepFrame=0,launchRetained:HomeLaunchPresentation|null=null){
+function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false,assets?:FirmwarePresentationAssets,suspendedSleepFrame=0,launchRetained:HomeLaunchPresentation|null=null,cursorLoop=getHomeCursorLoopFrame(state,reduced)){
  const system=state.system,controls=nativeHome?system?.homeControls:null;
  const suspendedApp=capture?null:homeSuspendedApplication(state)?.appId;
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
@@ -198,7 +198,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
   }
   };
   if(nativeHome&&!capture)nativeHome.folderChild(c,state,!occupied,drawTile,reduced);else drawTile(1);
-  if(!controls&&!capture&&!isSystemHomeFolderClosing(state)&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,getHomeCursorLoopFrame(state,reduced),pressed))cursor(c,x,y,size,size,time,reduced);
+  if(!controls&&!capture&&!isSystemHomeFolderClosing(state)&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,cursorLoop,pressed))cursor(c,x,y,size,size,time,reduced);
  }c.restore();
  // Retained native layouts can target toolbar anchors and offscreen departures.
  // Paint after the tile clip, before the existing arrows; the host owns close
@@ -210,7 +210,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
   &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel
   &&!(system.homeNavigation.gesture?.area==='grid'&&system.homeNavigation.gesture.mode!=='press')){
   const {primary,presentation}=controls;
-  if(primary.layoutVisible)nativeHome.cursorAt(c,primary.center.x,primary.center.y,presentation.primaryScale.appliedFrame,getHomeCursorLoopFrame(state,reduced));
+  if(primary.layoutVisible)nativeHome.cursorAt(c,primary.center.x,primary.center.y,presentation.primaryScale.appliedFrame,cursorLoop);
   if(!reduced)for(const effect of presentation.effects)if(effect.visible){
    nativeHome.cursorEffectAt(c,effect.center.x,effect.center.y,effect.scale.appliedFrame,effect.disappear.appliedFrame);
   }
@@ -384,7 +384,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  /** reuseHomeBackgroundMs: an input-driven paint may recompose over the HOME
   * background sampled by the latest cadence paint, if it is at most this old.
   * The background then advances only on the LCD cadence, as without the paint. */
- function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
+ function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
   const key=panelKey(state);
   if(key!==panelPublished)panelFailure=undefined;
@@ -392,12 +392,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   try{const result=paintPair(state,date,elapsedMs,verification);panelPublished=key;return result;}
   catch(error){if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
  }
- function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
+ function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
   suspendedPresentation=syncHomeSuspendedPresentation(suspendedPresentation,state,reduced);
   const homeEntry=sampleHomeEntryPresentation(homeEntryPresentation,state,reduced);
   const diagnosticPaint=verification!==undefined
-   &&(verification.sampleCalendar!==undefined||verification.homeHudSample!==undefined||verification.homeWallpaperFrame!==undefined);
+   &&(verification.sampleCalendar!==undefined||verification.homeHudSample!==undefined||verification.homeWallpaperFrame!==undefined||verification.homeCursorLoopFrame!==undefined);
   // Diagnostic captures cannot acquire, advance or revoke the live paired-screen
   // owner. A reuse-only options object belongs to a live state-driven paint.
   homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;
@@ -417,7 +417,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!state.powered){t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
   const view=getHomePresentation(state);
   const launchCandidate=getHomeLaunchPresentation(state,elapsedMs,reduced);
-  const time=reduced?0:elapsedMs;const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
+  const time=reduced?0:elapsedMs;if(verification?.homeCursorLoopFrame!==undefined&&(!Number.isInteger(verification.homeCursorLoopFrame)||verification.homeCursorLoopFrame<0||verification.homeCursorLoopFrame>=60))throw new Error('HOME cursor loop frame must be an integer from 0 to 59');const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
   const layoutPreview=currentLayoutPreview(state,time);
   const suspended=retainedSuspendedApplication(state),expanded=!!selectedSuspendedApplication(state);
   const suspendedCapture:SuspendedCapture=suspended?graphics.readSuspendedCapture(state.system!.runtime):{status:'none'};
@@ -540,7 +540,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // settled poses appearing beneath CmnFadeNinLogo while boot is still active.
   const bootBaseOnly=state.system?.phase==='boot';
   if(!bootBaseOnly&&!nativeHome?.hud(t,date,time,verification?.homeHudSample,homeEntry.hudSceneInFrame??undefined))status(t,date,chrome);
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame,launchPresentation);nativeHome?.folderBalloon(b,state,view);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time);nativeHome?.folderChrome(b,state,reduced);grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame,launchPresentation,verification?.homeCursorLoopFrame??getHomeCursorLoopFrame(state,reduced));nativeHome?.folderBalloon(b,state,view);
   if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
    const nativeFooterDrawn=nativeHome?.footer(b,state,reduced,homeEntry.footerSceneInFrame??undefined,launchPresentation?.footerSceneOutFrame,launchPresentation?.footerDecideFrame)===true;
    if(launchPresentation&&!nativeFooterDrawn)throw Error('Native HOME launch footer unavailable');

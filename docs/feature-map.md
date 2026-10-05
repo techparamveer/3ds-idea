@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Sound upper 316](sound-upper-316-2026-10-05.md), worker
+`codex/sound-upper-316-20261005`: the **42** pixels past x=30 are the
+approved `C_HudSndB` frame-0 gap. The icon `[7,218,37,238)` is **172**
+(130+42). Frame 4 matches the native icon 600/600; the painter stays
+frame 0. The other **274** are the `S_Back_U` sampler (max 10), identical
+on both stills. Not 1:1.
+
 Current plan, 3 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
 integration and native/browser acceptance. Each workstream has its own Codex

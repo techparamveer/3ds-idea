@@ -188,7 +188,8 @@ export class NativeLayoutRenderer {
    if(mask!==canvas)mask.width=mask.height=0;
    return canvas;
   });
-  return {canvas,phase,extra,above,below,direct};
+  // writer0101 is set only when this call took the direct 0x18fe2c path.
+  return {canvas,phase,extra,above,below,direct,writer0101:direct&&writer0101};
  }
  private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial,allowOpaqueDarken=false){
   const material=override??layout.materials[index],blend=material.colorBlend;
@@ -305,7 +306,12 @@ export class NativeLayoutRenderer {
        if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){const textSampling=!textSamplingPanes||textSamplingPanes.has(pane.name)?options.textSampling:undefined;
         const raster=this.text(layout,pane,alpha,textSampling?ctx.getTransform?.():undefined,options.textCoverageAdaptation,textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left',textSampling==='lcd-source-size-left',!!textSampling&&!!textSamplingPanes?.has(pane.name)),textCanvas=raster.canvas;
-        ctx.beginPath();ctx.rect(0,-raster.above,w*(Math.ceil(w)+raster.extra)/Math.ceil(w),h+raster.above+raster.below);ctx.clip();
+        // 0x18fe2c (only caller 0x190138, in 0x1900d4) does not reach scissor
+        // 0x166544. That function's only BL is 0x173348; mov r1,#0x65 is at
+        // 0x16668c and 0x1666b0. The pane clip is host Canvas AA on the dest
+        // image. Skipping it for this direct path is a host compositor
+        // adaptation, not a dump rectangle. Dest placement stays as built.
+        if(!raster.writer0101){ctx.beginPath();ctx.rect(0,-raster.above,w*(Math.ceil(w)+raster.extra)/Math.ceil(w),h+raster.above+raster.below);ctx.clip();}
         const sourceSize=textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left';
         this.composite(ctx,textCanvas,0-raster.phase[0],0-raster.above-raster.phase[1],raster.direct&&sourceSize?textCanvas.width:w*textCanvas.width/Math.ceil(w),raster.direct&&sourceSize?textCanvas.height:h*textCanvas.height/Math.ceil(h),layout,pane.text.material);
        }

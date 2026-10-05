@@ -56,8 +56,8 @@ Camera `TxtNumber0` stayed off the helper. F does not own the 17.
 
 ## Remaining
 
-List **17** stays leftover until a follow-up either (a) traces that this
-writer installs **no** pane scissor (address-level) and labels any dest
-unclip as leftover **host compositor**, not dump clip, or (b) leaves the
-pane clip. Scrollbar **34** labelled. Whole lower **fail**. Input, motion
-and audio are not compared.
+Follow-up [scissor note](notifications-list-17-scissor-2026-10-05.md):
+`0x18fe2c` / `0x1900d4` do not reach `0x166544`. The host pane clip on
+that direct path is now a labelled host compositor adaptation. Scrollbar
+**34** labelled. Whole lower **fail**. Input, motion and audio are not
+compared. Not recaptured.

@@ -30,8 +30,11 @@ Coordinator Mac-screen recapture at `603c5388`
 (`home-fidelity-20261001/sound-grid-recapture-20261005/`, empty mask, >2/255):
 empty-entry lower **16021 → 7216** (`860b3222…`, report `4a5bc73c…`), mid
 **2255 → 0**, under-lip **1024 → 0**, upper **6222** unchanged; first-run
-**6094 / 6072** unchanged (report `8f6a1394…`). Remaining empty-entry lower is
-the labelled row/slider/footer clusters (to be recounted). Not 1:1.
+**6094 / 6072** unchanged (report `8f6a1394…`). Independent Grok 4.6 review
+`sound-empty-grid-review-20261005-r1` **APPROVE-WITH-NITS** `de5c6445`
+(`0x231230` is vtable slot 12, not itself the ctor; live first-run is **6072**
+not pre-Next **6267**). Remaining empty-entry lower is the labelled
+row/slider/footer clusters (to be recounted). Not 1:1.
 
 Notifications status (matched-clock recapture, 4 October): upper HUD **3347**
 and lower scrollbar **2479** source-gap claims below were **REJECTED** by

@@ -96,23 +96,44 @@ does not retune lower. Whole-scenario still fails (photo crop and
 date-group orange remain).
 
 This helper is the same 2DView bind as `14d92d9` for the frozen 3D-off
-still. Offline tools cannot re-render the HNI LCD without preview 3021,
-so after-counts versus a new browser capture await the coordinator.
+still.
+
+## Recapture (coordinator, Mac built-in, `eb501e00` / runtime `c8a56cba`)
+
+User-authorized laptop display (Sidecar disconnected). Frozen native
+reused (`cae793c3…`); Azahar not relaunched. Production `127.0.0.1:3000`
+with `CAMERA_FIXTURE_SDMC_ROOT` pointing at
+`reference/user/sdmc`. Chrome `--window-position=80,60`. Raw LCD
+`captureScreensAt`. `?cameraFixture=hni`, Welcome → folder → gallery
+`HNI_0001`. Empty mask `dc4b320b…`, 2/255.
+
+A first recapture without the SDMC env left the upper finder black and
+the thumbs grey (API 404). That still already had cube centre
+`(100,100,100)` / `(100,100,100)`. The SDMC recapture is the scored pair:
+
+| Item | SHA-256 / count |
+| --- | --- |
+| Browser upper | `184bdfdf…` |
+| Browser lower | `0d0ffe41…` |
+| Report | `a6925bfc…` |
+| Artifacts | `home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/` |
+
+| Region | White `3DView` (`05d9ac6`) | Grey hashed `14d92d9` | This recapture |
+| --- | ---: | ---: | ---: |
+| Whole upper | 33,997 | 33,522 | **33,522** |
+| Badge box `[371,3,396,30)` | 481 | 7 | **7** (max 4 at `(371,29)`) |
+| Cube centre `(383,17)` | `(255,255,255)` | `(100,100,100)` | **`(100,100,100)` / `(100,100,100)`** |
+| Whole lower | — | 12,872 | **12,872** |
+
+The white cube is gone. Badge-box leftover 7 is photo-edge AA, not
+`3DView`. Compare status 2. **Static still only.** Input, motion and
+audio are not compared. Native gallery selection is the right-hand
+thumb; this replay selected `HNI_0001`. Whole scenario **fail**. Not 1:1.
 
 ## Remaining
 
-Photo crop, date-group orange, paging, Parakeet, Rate fit and whole
+Photo crop (upper 33,522), date-group cell (native centre `(255,161,0)`
+vs browser `(230,209,173)`), paging, Parakeet, Rate fit and whole
 `camera-readonly-view-photos-page1` stay open. Live 3D-slider on is not
 replayed; `cameraBrowseFinder3dEnabled` stays false with the frozen HNI
 3D-off still. Not 1:1.
-
-## Coordinator recapture
-
-After a landed bind, run
-[`docs/workstream-handoffs/camera.md`](workstream-handoffs/camera.md)
-`camera-readonly-view-photos-page1` with `?cameraFixture=hni`. Empty mask
-`scripts/native-compare/empty-mask.json` (`dc4b320b…`). Compare with
-`scripts/native-compare/compare.mjs` against frozen native
-`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/camera-populated-browse-global/native/combined.png`
-(`cae793c3…`). Inspect official `regions[2]` and the `[371,3,396,30)`
-badge box. Do not treat tests or this note as a pass.

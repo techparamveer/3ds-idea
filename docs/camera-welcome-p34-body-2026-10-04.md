@@ -139,3 +139,18 @@ is unchanged. Until a unique unused owner exists for the already-bound
 Focused `tests/camera-welcome-p34-body.test.mjs` plus `git diff --check`.
 Application typecheck/build were not rerun because no application files
 changed. This lane did not drive Azahar or preview 3021.
+
+## Recapture (coordinator, Mac built-in, `eb501e00`)
+
+User-authorized laptop display. Frozen natives reused (`3ad989b5…` /
+`38c19ca0…`); Azahar not relaunched. Production `127.0.0.1:3000`. Chrome
+`--window-position=80,60`. Raw LCD `captureScreensAt`. Empty mask, 2/255.
+Artifacts `home-fidelity-20261001/camera-welcome-p34-recapture-20261005/`.
+
+| Page | Lower | Interior `[20,20,300,220]` | Perimeter | Browser lower SHA |
+| ---: | ---: | ---: | ---: | --- |
+| 3 | **2480** (unchanged) | **1079** | **1401** | `57476c31…` (byte-identical to hashed `0d7bfea`) |
+| 4 | **2093** (unchanged) | **692** | **1401** | `4f182d39…` (byte-identical to hashed `0d7bfea`) |
+
+Interior max stays 14 at `(246,113)` / `(181,126)`. Later renderer
+changes did not move this leftover. Labelled source-gap stands. Not 1:1.

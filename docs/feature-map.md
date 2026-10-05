@@ -75,6 +75,16 @@ recapture: scrollbar **1 → 0**, this still **0 / 0** empty-mask over
 2/255. Input, motion and audio are not compared. Whole scenario
 **fail**. Not 1:1.
 
+[Camera HNI 3D/2D finder badge](camera-3d-badge-2026-10-04.md) bind
+`d9ddf309` recaptured on Mac built-in with HNI SDMC
+(`camera-3d-badge-sdmc-recapture-20261005/`, report `a6925bfc…`): cube
+centre `(383,17)` is `(100,100,100)` on both; badge box
+`[371,3,396,30)` **7** (max 4, photo-edge AA); whole upper **33,522** /
+lower **12,872**. White `3DView` is gone. Camera Welcome p3/p4 recapture
+is byte-identical to the hashed `0d7bfea` lowers (**2480** / **2093**,
+interiors **1079** / **692**). Next leftover is the date-group cell
+(native `(255,161,0)` vs browser `(230,209,173)`). Not 1:1.
+
 [Notifications HUD charging battery](notifications-hud-battery-2026-10-04.md),
 worker `codex/notifications-battery-20261004`: painter no longer freezes
 Bat 4. Pair key is `notificationsHudClock` (includes `batteryFrame`) so

@@ -135,9 +135,19 @@ and no fitted index.
 | Browser-inspected | Not run. Preview 3021 and CDP were out of scope |
 | Native-compared | Reused frozen pair only. Not recaptured. Not 1:1 |
 
+## Independent review
+
+Grok 4.6 `camera-selection-review-20261005-r1`: **APPROVE**. Cherry-pick
+`9c431d1d` matches worker `075fbac7`. Painter unchanged. Dump does not
+unique-own index 2. Three settle writers can store 1, `count−1`, a saved
+item, or a list-build word. Fitting the right-hand thumb would be a
+capture fit. Frozen whole lower **10482** on the assigned PicL_Op pair.
+Not 1:1.
+
 ## Remaining
 
-Whole lower stays **10482**. The cursor disagreement stays with this gap.
-Date-cell `TxtThmb` **1006**, slider strip **1992**, and upper HNI **33522**
-stay outside this slice. Input, motion, and audio were not compared.
-Whole `camera-readonly-view-photos-page1` stays fail.
+Whole lower stays **10482** on the assigned pair (later Settings recapture
+is **10158** and does not reopen this gap). The cursor disagreement stays
+with this lock. Date-cell `TxtThmb` **1006**, slider strip **1992**, and
+upper HNI **33522** stay outside this slice. Input, motion, and audio were
+not compared. Whole `camera-readonly-view-photos-page1` stays fail.

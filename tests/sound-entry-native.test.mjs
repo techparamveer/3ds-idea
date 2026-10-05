@@ -110,7 +110,9 @@ test('three Sound welcome pages bind the published guide art and S_tips messages
    const pane=(nodes,name)=>{for(const node of nodes){if(node.name===name)return node;const found=pane(node.children,name);if(found)return found;}return null;};
    assert.deepEqual(pane(panel.posed.roots,'TxtDlg')?.text.topColor,[69,64,57,255]);
    assert.deepEqual(pane(panel.posed.roots,'Guid1TxtW')?.text.topColor,[69,64,57,255]);
-  }
+   assert.equal(panel.options.textSampling,'lcd-source-size');
+   assert.deepEqual(panel.options.textSamplingPanes,['Guid1TxtW']);
+  }else assert.equal(panel.options.textSampling,undefined);
   assert.equal(panel.options.overrides.TxtNumber0.text,'/ 3');
   assert.equal(panel.options.overrides.TxtNumber1.text,`${page+1} `);
   assert.deepEqual(panel.options.overrides.TxtNumber0.size,[48,24]);

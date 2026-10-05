@@ -99,7 +99,8 @@ test('painter keeps Default 20 / Rate 0 and does not bind unused slider clips', 
   assert.equal(painter.includes('C_SldV_L'), false);
   assert.equal(painter.includes('C_SldV_S'), false);
   assert.equal(painter.includes('azahar-12p4-fit'), false);
-  assert.equal(painter.includes('textSampling'), false);
+  assert.deepEqual(painter.match(/textSampling/g), ['textSampling', 'textSampling']);
+  assert.match(painter, /textSampling:'lcd-source-size',textSamplingPanes:\['Guid1TxtW'\]/);
   assert.equal(painter.includes('nativeMipmaps'), false);
   assert.match(painter,
     /entry\(bottom,'sound-slider','C_SldH_L',\{center:\[160,159\],bindings:\[\{name:'C_SldH_L_Default',frame:20\},\{name:'C_SldH_L_Rate',frame:0\}\]\}\);/);

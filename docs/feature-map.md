@@ -130,6 +130,12 @@ only. Independent review **APPROVE-WITH-NITS** (no `src/`; tests 4/4;
 independent recount matches; `_flw` are different follow-up paragraphs).
 Not recaptured. Not 1:1.
 
+Previous [Sound first-run Next glyphs](sound-guide-next-195-2026-10-05.md),
+worker `codex/sound-guide-next-195-20261005`: `Guid1TxtW` now takes the
+source-size sampler (`code.bin` flags `0x15dce8` → writer `0x2a5558`).
+Frozen interior `[20,20,300,220]` stays **195** and the perimeter
+complement stays **6,072** until recapture. Not 1:1.
+
 Previous [Sound first-run guide perimeter 6072](sound-guide-perimeter-2026-10-04.md),
 worker `codex/sound-guide-perimeter-20261004`: reused HudTime-phase
 first-run lower whole stays **6,267**; guide interior `[20,20,300,220]`

@@ -95,7 +95,8 @@ test('painter keeps already-bound first-run guide chrome and does not bind unuse
     assert.equal(painter.includes(`name:'${unused}'`), false, unused);
   }
   assert.equal(painter.includes('azahar-12p4-fit'), false);
-  assert.equal(painter.includes('textSampling'), false);
+  assert.deepEqual(painter.match(/textSampling/g), ['textSampling', 'textSampling']);
+  assert.match(painter, /textSampling:'lcd-source-size',textSamplingPanes:\['Guid1TxtW'\]/);
   assert.equal(painter.includes('textCoverageAdaptation'), false);
   assert.equal(painter.includes('nativeMipmaps'), false);
   assert.match(painter, /draw\(bottom,'sound-dialog','C_DlgChA'\);/);

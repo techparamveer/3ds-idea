@@ -213,7 +213,11 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
       if(first){
         const button=message('S_tips','Guide_D_N_Btn0');
         const bodyColor=soundGuideMessageColor(common.TxtDlg),buttonColor=soundGuideMessageColor(button);
-        entry(bottom,'sound-dialog','C_DlgGuid1BtnW',{bindings:[{name:'C_DlgGuid1BtnW_Default',frame:0}],overrides:{...common,Guid1TxtW:button}},
+        // Guid1TxtW is 120×25.2, alignment 4, explicit line alignment 2.
+        // code.bin 0x15dce8 stores writer flags 0x111; 0x2a5558 is the only
+        // centering writer and reads that pane size. The source-size sampler
+        // stays on this pane. Body, counters and the guide veil do not.
+        entry(bottom,'sound-dialog','C_DlgGuid1BtnW',{bindings:[{name:'C_DlgGuid1BtnW_Default',frame:0}],textSampling:'lcd-source-size',textSamplingPanes:['Guid1TxtW'],overrides:{...common,Guid1TxtW:button}},
           {...(bodyColor?{TxtDlg:bodyColor}:{}),...(buttonColor?{Guid1TxtW:buttonColor}:{})});
       }
       else entry(bottom,'sound-dialog','C_DlgGuid2Btn',{bindings:[{name:'C_DlgGuid2Btn_Default',frame:0}],overrides:{...common,Guid2TxtB:message('S_tips','Guide_D_BN_Btn0'),Guid2TxtW:message('S_tips',page===2?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')}});

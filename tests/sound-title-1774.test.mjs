@@ -73,7 +73,8 @@ test('painter keeps TitleLeftIn and the capture-fitted TitlTxt box; lcd/coverage
   assert.equal(painter.includes('S_Inf_U-Txt'), false);
   assert.equal(painter.includes('TitlBlln'), false);
   assert.equal(painter.includes('HudNOTES'), false);
-  assert.equal(painter.includes('textSampling'), false);
+  assert.deepEqual(painter.match(/textSampling/g), ['textSampling', 'textSampling']);
+  assert.match(painter, /textSampling:'lcd-source-size',textSamplingPanes:\['Guid1TxtW'\]/);
   assert.equal(painter.includes('textCoverageAdaptation'), false);
   assert.equal(painter.includes('azahar-12p4-fit'), false);
   assert.equal(painter.includes('nativeMipmaps'), false);

@@ -119,7 +119,8 @@ test('painter keeps already-bound empty-entry footer chrome and does not bind un
   assert.equal(painter.includes('S_BG_D-Ctr_Down'), false);
   assert.equal(painter.includes('S_BG_D-Ctr_Up'), false);
   assert.equal(painter.includes('azahar-12p4-fit'), false);
-  assert.equal(painter.includes('textSampling'), false);
+  assert.deepEqual(painter.match(/textSampling/g), ['textSampling', 'textSampling']);
+  assert.match(painter, /textSampling:'lcd-source-size',textSamplingPanes:\['Guid1TxtW'\]/);
   assert.equal(painter.includes('textCoverageAdaptation'), false);
   assert.equal(painter.includes('nativeMipmaps'), false);
   assert.match(painter, /entry\(bottom,'sound-bg','S_BG_D-Ctr'\);/);

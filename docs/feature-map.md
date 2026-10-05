@@ -9,6 +9,12 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[HOME 1-row tail review](home-row-tail-review-2026-10-05.md), Grok 4.6
+`codex/home-row-tail-review-20261005`: **APPROVE** of leftover `cb324a43`.
+Independent dump decode + frozen masked pair confirm tail **291**
+(78 mask-miss `P_BtnShdw_00` + 30 cursor fringe + 183). Unlabelled **0**.
+Predicted masked lower **5426**. Painter unchanged. Not 1:1.
+
 [Sound slider 57 review](sound-slider-57-review-2026-10-05.md), Grok 4.7
 `codex/sound-slider-57-review-20261005`: **APPROVE-WITH-NITS** of recount
 `fc896395`. Empty-entry slider `[0,144,320,175]` stays **377** (checker

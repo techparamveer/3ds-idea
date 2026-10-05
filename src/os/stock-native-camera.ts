@@ -101,6 +101,30 @@ export function cameraBrowseSliderFrame(output:number,count:number):number{
   return max>0?Math.round(Math.max(0,Math.min(1,output/max))*100):0;
 }
 
+/** Browse `P/setting` is wrapped in group-1/type-0 size runs (80%, then 100%).
+ * Draw tag `0x2717c8` sends group 1 to `0x2718c8`. Type 0 multiplies writer
+ * scale X (`+0x24`) by argument × float32(0.01) and copies Y (`+0x28`).
+ * Other types fall through. The 100% run follows the label and covers no
+ * glyphs. Slideshow and Shoot have no size run, so only this label changes.
+ * A missing message keeps the plain override; a present message with any
+ * other control sequence fails closed. */
+export function cameraBrowseSettingsLabel(pack:NativePack):PaneOverrides[string]{
+  const base=nativeMessageOverride(pack,'P','setting','');
+  const bank=pack.messages?.P,message=bank?.messages?.[bank.labels?.setting];
+  const style=base.messageStyle;
+  if(!message||!style)return base;
+  const tokens=message.tokens as {text?:string;control?:number;group?:number;type?:number;arguments?:string}[];
+  const percent=(token:typeof tokens[number])=>{
+    if(token?.control!==14||token.group!==1||token.type!==0||!/^[0-9a-f]{4}$/i.test(token.arguments??''))throw new Error('Unsupported Camera setting label control');
+    const bytes=token.arguments!,value=parseInt(bytes.slice(2,4)+bytes.slice(0,2),16);
+    if(!Number.isInteger(value)||value<=0)throw new Error('Unsupported Camera setting label control');
+    return value;
+  };
+  if(tokens.length!==3||tokens[1]?.text!==message.text||percent(tokens[2])!==100)throw new Error('Unsupported Camera setting label control');
+  const factor=Math.fround(Math.fround(percent(tokens[0]))*Math.fround(0.01));
+  return {...base,messageStyle:{...style,fontScale:[Math.fround(style.fontScale[0]*factor),style.fontScale[1]]}};
+}
+
 /** RI.mstl +8 is the little-endian RGBA word also used by the Sound guide.
  * Bind only explicitly supplied Camera messages; never recolour other panes. */
 export function cameraMessageColors(source:NativeLayout,messages:Readonly<Record<string,ReturnType<typeof nativeMessageOverride>>>):NativeLayout{
@@ -178,7 +202,7 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
     const menu=renderer.packs['camera-gallery']?.layouts?.P_BrwsMenu_D;
     if(!menu)return false;
     const menuOptions={bindings:[{name:'P_BrwsMenu_D_Brws',frame:0}],overrides:{
-      TxtSShow:message('Brws_02'),TxtShoot:message('Brws_03'),TxtSet:message('setting'),
+      TxtSShow:message('Brws_02'),TxtShoot:message('Brws_03'),TxtSet:cameraBrowseSettingsLabel(renderer.packs['camera-messages']),
     }};
     const menuPose=cameraMessageColors(menu,menuOptions.overrides);
     okay=renderer.drawLayout(bottom,'camera-gallery','P_BrwsMenu_D',menuPose,menuOptions)&&okay;

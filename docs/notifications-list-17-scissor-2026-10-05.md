@@ -35,8 +35,9 @@ in this executable are inside `0x166544`:
 `0x188088` reads a GPU register. Its only callers are `0x166644` (`#0x6e`)
 and `0x166690` (`#0x65`), both inside `0x166544`. `0x13cf38` writes a GPU
 register. Callers `0x166584`, `0x1665ac`, `0x166668` and `0x1666b4` are in
-`0x166544` (`#0x96`, `#0x8d`, `#0x6e`, `#0x65`). The other two,
-`0x166f0c` and `0x166f34`, are `mov r1, #0x8c` and `mov r1, #0x8e`.
+`0x166544` (`#0x96`, `#0x8d`, `#0x6e`, `#0x65`). The other two BLs,
+`0x166f0c` and `0x166f34`, write `#0x8c` and `#0x8e`; the `mov r1`
+instructions are `0x166f04` and `0x166f2c`.
 
 `#0x66` is not an immediate in `0x166544`. The only `mov r1, #0x66` is
 `0x1675d8` in `0x1675c4` (caller `0x17ff78`), an object initialiser, not
@@ -60,8 +61,8 @@ the constants `0x80` and `0x1200`. It is not a 216×18 title rectangle.
 
 Direct BL targets inside `0x18fe2c`…`0x18ff88` and `0x1900d4`…`0x1905b0`
 do not include `0x166544`, `0x17329c`, `0x13cf38` or `0x188088`. A
-depth-6 walk of direct calls from `0x1900d4` (68 functions) does not
-either. Virtual calls in `0x1900d4` (`0x1901a8`, `0x190248`, `0x1902b8`,
+prologue-bounded walk of direct calls from `0x1900d4` (51 function starts)
+does not either. Virtual calls in `0x1900d4` (`0x1901a8`, `0x190248`, `0x1902b8`,
 `0x190484`, `0x1904ec`, `0x190554`) and `0x172678` (called at `0x190518`)
 return glyph metrics (`vcvt.f32.s32` / signed bearings). They are not
 register `0x65`.

@@ -50,8 +50,8 @@ Mac-screen recapture vs native `58fff714…`: list **820 → 17**, seam
 `4d02c3de` was **REJECTED** (dest-rect growth, not dump scissor).
 The title writer does not reach scissor `0x166544`; the direct path
 skips the host pane clip as a compositor adaptation
-([scissor note](notifications-list-17-scissor-2026-10-05.md)). Not
-recaptured.
+([scissor note](notifications-list-17-scissor-2026-10-05.md)); Grok 4.6
+**APPROVE-WITH-NITS** of `5d7cc4d5` (fidelity `5e38ce25`). Awaits recapture.
 Scrollbar **34** is labelled unbound extra-6
 ([scrollbar 34 note](notifications-scrollbar-34-2026-10-04.md)). Not 1:1.
 

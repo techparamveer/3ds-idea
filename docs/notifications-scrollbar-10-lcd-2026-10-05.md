@@ -62,8 +62,25 @@ path it already matched. That idle-origin skip is a host leftover of
 this frame geometry. It is not a dump scissor, not a dest clip, and
 not a reason to keep Canvas edge-filter on the LA8 strip.
 
-## Still open
+## Recapture (coordinator, Mac built-in, `96136a07`)
 
-Scrollbar `[291,0,320,210]` is still **10** on the frozen pair. This
-slice does not recapture. Input, motion, and audio are not compared.
-Not 1:1.
+User-authorized laptop display (Sidecar disconnected). Frozen native
+reused (`58fff714…`); Azahar not relaunched. Production `127.0.0.1:3000`.
+Chrome `--window-position=80,60`. Raw LCD `captureScreensAt`. Browser
+lower `1473f0e7…`, report `45a57def…`, artifacts
+`notifications-scrollbar-10-lcd-recapture-20261005/`. Empty mask, 2/255.
+Upper PNG SHA unchanged (`dc73ce72…`). One muted 404 in the capture log.
+
+| Region | Before | After |
+| --- | ---: | ---: |
+| Upper | 0 | **0** |
+| Lower | 10 | **1** |
+| Scrollbar `[291,0,320,210]` | 10 | **1** |
+| List | 0 | **0** |
+| Close | 0 | **0** |
+
+The nine face pixels at y=112, x 301–309 are gone. Remaining **1** is
+`(310, 112)`: native `(200,200,198)`, browser `(209,209,207)`, max 9.
+That is the integer-origin A8 frame column left on Canvas. Extra-6 pose
+unchanged. Whole lower remains **fail**. Input, motion and audio are not
+compared. Not 1:1.

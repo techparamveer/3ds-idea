@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[HOME entry banner footer-14](home-entry-banner-scale-2026-10-04.md), worker
+`codex/entry-banner-relabel-20261005`: `7b773b71` is a capture-fit
+adaptation. `activationReady` delays activation until the live footer
+SceneIn 14 sample. Scale writer `0x1fa344` (0.8, then four updates to 1.0)
+stays. Painter unchanged. Banner box `x40..360,y80..170` still awaits
+`capture-entry.mjs`. Not 1:1.
+
 [HOME 1-row tail](home-row-tail-2026-10-05.md), worker
 `codex/home-row-tail-20261005`: masked lower **5426** has **58** components.
 Six labelled ones total **5135**. The tail **291** is the queue's **108**

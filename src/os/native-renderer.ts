@@ -195,7 +195,34 @@ export class NativeLayoutRenderer {
   // writer0101 is set only when this call took the direct 0x18fe2c path.
   return {canvas,phase,extra,above,below,direct,writer0101:direct&&writer0101};
  }
- private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial,allowOpaqueDarken=false){
+ /** Host compositor adaptation of wrapT 0 for one Canvas blit.
+  * drawImage of a ceil raster into a non-integer dest maps the last covered
+  * pixel centre onto the final texel and one empty texel past the bitmap.
+  * Dump clamp repeats the edge. Padding that edge and stretching dest by the
+  * same ratio keeps every original source coordinate, so the linear kernel
+  * mixes the edge with itself. The returned clip is the next device pixel
+  * past the original dest and only discards that extra sliver. It is not a
+  * dump scissor, in the same class as skipping the writer0101 pane clip.
+  * An integer dest (Health 22×22) returns before any read: the 1:1 blit is
+  * unchanged. Mag stays the context's linear default. This does not set
+  * imageSmoothingEnabled false, and it does not lcd-sample the A8 stroke. */
+ private linearEdgeClamp(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,destW:number,destH:number){
+  if(Number.isInteger(destW)&&Number.isInteger(destH))return;
+  const m=ctx.getTransform?.();
+  if(!m||m.a!==1||m.d!==1||m.b!==0||m.c!==0||!Number.isInteger(x)||!Number.isInteger(y)||!Number.isInteger(m.e+x)||!Number.isInteger(m.f+y))return;
+  const src=canvas.getContext('2d');if(!src||typeof src.getImageData!=='function')return;
+  const sw=canvas.width,sh=canvas.height;if(sw<1||sh<1)return;
+  const padX=!Number.isInteger(destW),padY=!Number.isInteger(destH),dw=sw+(padX?1:0),dh=sh+(padY?1:0);
+  const read=src.getImageData(0,0,sw,sh).data,data=new Uint8ClampedArray(dw*dh*4);
+  for(let row=0;row<sh;row++){
+   const from=row*sw*4,to=row*dw*4;data.set(read.subarray(from,from+sw*4),to);
+   if(padX)data.set(read.subarray(from+(sw-1)*4,from+sw*4),to+sw*4);
+  }
+  if(padY){const stride=dw*4,from=(sh-1)*stride;data.set(data.subarray(from,from+stride),sh*stride);}
+  const padded=surface(dw,dh),image=padded.getContext('2d')!.createImageData(dw,dh);image.data.set(data);padded.getContext('2d')!.putImageData(image,0,0);
+  return {canvas:padded,w:destW*dw/sw,h:destH*dh/sh,clipW:padX?Math.ceil(destW):destW,clipH:padY?Math.ceil(destH):destH};
+ }
+ private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial,allowOpaqueDarken=false,clampLinearEdge=false){
   const material=override??layout.materials[index],blend=material.colorBlend;
   ctx.save();
   try{
@@ -203,7 +230,13 @@ export class NativeLayoutRenderer {
    // only for whole device pixels with one raster texel per destination pixel.
    const darkenTransform=allowOpaqueDarken&&nativeDarkenBlend(material)?ctx.getTransform():undefined;
    if(darkenTransform&&ctx.globalAlpha===1&&wholeDevicePixelRect([x,y,w,h],darkenTransform)&&Math.abs(darkenTransform.a*w)===canvas.width&&Math.abs(darkenTransform.d*h)===canvas.height){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
-   if(!blend||(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
+   if(!blend||(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)){
+    ctx.globalCompositeOperation='source-over';
+    const clamped=clampLinearEdge?this.linearEdgeClamp(ctx,canvas,x,y,w,h):undefined;
+    if(clamped){ctx.beginPath();ctx.rect(x,y,clamped.clipW,clamped.clipH);ctx.clip();ctx.drawImage(clamped.canvas,x,y,clamped.w,clamped.h);}
+    else ctx.drawImage(canvas,x,y,w,h);
+    return;
+   }
    if(blend.operation===0){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
    if(nativeMultiplyBlend(blend)&&this.opaque.has(canvas)){ctx.globalCompositeOperation='multiply';ctx.drawImage(canvas,x,y,w,h);return;}
    // Readback is limited to uncommon native blend modes; ordinary panes stay on Canvas's fast path.
@@ -327,6 +360,7 @@ export class NativeLayoutRenderer {
         // fractional translation still samples (Health scrolled thumb).
         // Host leftover of this frame geometry, not a dump scissor, and
         // not a reason to keep Canvas edge-filter on the LA8 strips.
+        // The source-over blit pads a non-integer dest (linearEdgeClamp).
         const frameMaterial=patch.material??layout.materials[patch.picture.material];
         const frameTexture=frameMaterial?.textureMaps[0];
         const framePixels=frameTexture?textures.get(layout.textures[frameTexture.texture]):undefined;
@@ -341,7 +375,7 @@ export class NativeLayoutRenderer {
          if(sampled)continue;
         }
         const visible=nativeVisibleRasterRect(patch.x,patch.y,patch.width,patch.height,ctx.getTransform(),ctx.canvas.width,ctx.canvas.height);if(!visible)continue;
-        this.composite(ctx,this.picture(packName,layout,patch.picture,visible.rasterWidth,visible.rasterHeight,alpha,textures,patch.material,visible.sampling),visible.x,visible.y,visible.width,visible.height,layout,patch.picture.material,patch.material,allowOpaqueDarken);
+        this.composite(ctx,this.picture(packName,layout,patch.picture,visible.rasterWidth,visible.rasterHeight,alpha,textures,patch.material,visible.sampling),visible.x,visible.y,visible.width,visible.height,layout,patch.picture.material,patch.material,allowOpaqueDarken,framePixels?.picaFormat===8);
        }
       }finally{ctx.restore();}
      }

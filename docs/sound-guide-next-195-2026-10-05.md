@@ -52,7 +52,6 @@ image base `0x100000`.
 | --- | --- | --- |
 | `Guid1TxtW` | `C_DlgGuid1BtnW` | `txt1`, size `[120, 25.200000762939453]`, alignment **4**, line alignment **2**, glyph size `[21, 25.200002670288086]`, spacing 0 |
 | `Guide_D_N_Btn0` | `S_tips` style 34 | text `Next`; `fontScale` `0.84`; RI.mstl word 8 colour `(69,64,57,255)` |
-| Name load | `code.bin` `0x181018` | page-1 branch loads `Guid1TxtW` (`0x33d090`) and passes it to `0x2054d4` |
 | Flag setter | `code.bin` `0x15dce8` | line-alignment byte `+0xff` value 2 stores low bit 1 (`0x15de90`); alignment byte `+0xfe` value 4 ors `0x10` and `0x100`. Flags **0x111** at `[r5,#0x5c]` |
 | Centering writer | `code.bin` `0x2a5558` | single `bl` from `0x2a5854`. `flags & 0x30 == 0x10` and `flags & 0x300 == 0x100` subtract `ceil` of half the measured extent (`0x2a55e0`, `0x2a561c`). Low bit 1 adds `ceil(block/2) − ceil(line/2)`, which is 0 for one line |
 
@@ -82,6 +81,15 @@ rejected every `textSampling` string
 `sound-empty-row`, `sound-empty-footer`). `git diff --check`.
 Application typecheck/build were not rerun. This lane did not drive
 Azahar or preview 3021.
+
+## Independent review
+
+Grok 4.6 `sound-guide-next-195-review-20261005-r1`: **APPROVE** of
+`269e8757` (cherry-pick of `4a0cfcc5`). Page-1-only
+`textSampling:'lcd-source-size'` with `textSamplingPanes:['Guid1TxtW']`
+on `C_DlgGuid1BtnW` matches dump. Frozen interior **195** until recapture.
+Nit: `Guid1TxtW` lives at `0x3237c9`; `0x181018` is `ldr r0,[sl,#0x10]`.
+Not 1:1.
 
 ## Coordinator recapture (not done here)
 

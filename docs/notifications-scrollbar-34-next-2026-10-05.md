@@ -73,6 +73,29 @@ not the `clearRect` itself: `NewsTopUI_D_00` (`P_Bg_D_00` 320×240) is
 painted first. Whether that box is fully opaque under the thumb is
 unproven. If the guard declines, Canvas `drawImage` stays.
 
+## Recapture (coordinator, Mac built-in, `df5e9bde`)
+
+User-authorized laptop display (Sidecar disconnected). Frozen native
+reused (`58fff714…`); Azahar not relaunched. Production `127.0.0.1:3000`.
+Chrome `--window-position=80,60`. Raw LCD `captureScreensAt`. Browser
+lower `6536e8eb…`, report `2639cbb2…`, artifacts
+`notifications-scrollbar-34-lcd-recapture-20261005/`. Empty mask, 2/255.
+Upper PNG SHA unchanged (`dc73ce72…`). One muted 404 in the capture log.
+
+| Region | Before | After |
+| --- | ---: | ---: |
+| Upper | 0 | **0** |
+| Lower | 34 | **10** |
+| Scrollbar `[291,0,320,210]` | 34 | **10** |
+| List | 0 | **0** |
+| Close | 0 | **0** |
+
+Grip shoulders y=62/68 (24 pixels) are gone. Remaining **10** is the
+`SBBtn` right-strip end at y=112, x 301–310 (native face `(238,238,237)`,
+browser darker). Opaque-box did not decline the live thumb. Extra-6 pose
+unchanged. Whole lower remains **fail**. Input, motion and audio are not
+compared. Not 1:1.
+
 ## Unproven
 
 No recapture. The frozen pair is still scrollbar **34**. Whether Chrome

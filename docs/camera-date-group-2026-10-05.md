@@ -119,11 +119,42 @@ and `(85,75)` samples, and the 3396-pixel pane. Before the bind, the
 `tests/stock-native-camera.test.mjs` still passes; folder rows remain
 `Default` + `PicL`.
 
+## Recapture (coordinator, Mac built-in, bind `5c0199f4`)
+
+Independent review **APPROVE** (Grok 4.6 `camera-date-group-review-20261005-r1`).
+User-authorized laptop display (Sidecar disconnected). Frozen native
+reused (`cae793c3…`); Azahar not relaunched. Production `127.0.0.1:3000`
+rebuilt and restarted with `CAMERA_FIXTURE_SDMC_ROOT` at
+`reference/user/sdmc`. Chrome `--window-position=80,60`. Raw LCD
+`captureScreensAt`. `?cameraFixture=hni`, Welcome → folder → gallery
+`HNI_0001`. Empty mask `dc4b320b…`, 2/255.
+
+Artifacts `home-fidelity-20261001/camera-date-group-recapture-20261005/`.
+
+| Item | SHA-256 / count |
+| --- | --- |
+| Browser upper | `184bdfdf148d41cecc10d245f14708a38d4afc7c1776c4d9a6bf7eef067694d6` (byte-identical with the badge SDMC recapture) |
+| Browser lower | `0265b51095b1051f94424eea9cf2b2c31ad23da3ed6a1137d4cc9a9a31d05616` |
+| Report | `c691ba22ebffc395f9406e9d10587bb2cd45aee4c261168d727e10f79b1f63cc` |
+| Whole upper | **33522** (max 46) unchanged |
+| Whole lower | **12872 → 10482** |
+| Date pane `[52,49,66,52]` | **3396 → 1006** |
+| Fill `(85,75)` | both `(255,161,0)` |
+| Assigned sample `(70,85)` | native `(255,161,0)` / browser `(255,225,173)` |
+
+The grey-multiply leftover is gone: fill centre matches UserBG orange, and
+the lower drop equals the pane drop (**2390**). Cube centre stays
+`(100,100,100)` / badge box **7**. Slider strip `[0,170,320,210]` stays
+**1992**. Remaining pane **1006** is `TxtThmb` coverage (native white
+glyph at `(60,59)` versus browser orange; browser pale text at `(70,85)`
+versus native orange). That is a new leftover, not this bind.
+
+**Static still only.** Input, motion and audio were not compared. Whole
+`camera-readonly-view-photos-page1` stays fail.
+
 ## Still open
 
-The frozen pair was not recaptured, so the scored leftover is unchanged:
-upper **33522**, lower **12872**, date pane **3396**. Selection still
-disagrees (native right-hand thumb, browser `HNI_0001`). Rate, zoom,
-photo crop, Parakeet, the 3D badge and Welcome `TxtDlg` are outside this
-slice. Whole-scenario acceptance stays fail until the coordinator
-recaptures.
+Selection still disagrees (native right-hand thumb, browser `HNI_0001`).
+Rate, zoom, photo crop (upper **33522**), Parakeet, slider chrome
+(**1992**), and remaining date-text **1006** stay outside this bind.
+Welcome `TxtDlg` is outside this slice. This recapture is not 1:1.

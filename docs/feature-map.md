@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Camera Welcome p2 upper](camera-welcome-p2-mask-2026-10-05.md), worker
+`codex/camera-welcome-p2-mask-20261005`: blocked pair. Page 2 has no upper
+guide frame, so the pages 3–5 feed mask stays unused. Native `fd4a660e…` is
+the Renu feed; the browser upper is the page-1 black finder (`b642d80f…`,
+page-1 native scores 0). Predicted frozen upper **93408**. Painter and the
+pages 3–5 mask unchanged. Not 1:1.
+
 [Browser HUD review](browser-hud-review-2026-10-05.md), Grok 4.6
 `browser-hud-review-20261005-r2`: **APPROVE-WITH-NITS** of worker
 `01d9f79a`. Title-local `layout/sysinfo` (no `hud_LZ.bin`). Frozen HUD

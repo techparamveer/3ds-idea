@@ -157,3 +157,30 @@ entry and guide. Focused Sound tests pass 21/21.
 - `git diff --check`: clean.
 
 This lane did not drive Azahar or preview 3021.
+
+## Independent review
+
+Grok 4.6 `sound-empty-grid-review-20261005-r1`: **APPROVE-WITH-NITS** of
+`603c5388` (cherry-pick of `e460325b`). Painter lower entry/guide now
+binds dump `S_BG_D-Grid` Default 0, matching the library path. Pin
+`code.bin` `3c57f2c4091c1bec6b3834609f1e2a6488712e21775d7548b441c69c60b3e5a9`:
+sole `BL` to `0x1c65c8` is `0x2315b8`; that loader passes archive `S_BG`
+/ layout `S_BG_D-Grid` to `0x1e5b90` on channel **8** and stores the
+object at app `+0xf8` without the `+0x30` `orr #0x1e` hide used on
+`S_Back_U` and on `S_Guid_D`. `S_BG.bclyt` at `0x2fcc98` still has no
+xref. Dump ETC1 `S_BG_Grid.bclim` `138b6fc9…` is 2048 `(223,215,206)` /
+2048 `(231,223,215)`. Pane `BG_Grid` is `pic1` 320×240 origin 4,
+nearest, wrap 1, matrix `fround(3.35)` / 2.5 about centre, white
+vertices, no TEV, BCLYT alpha **255**. Repo raster equals native at all
+**14701** empty-entry grid pixels (same positions as the old `S_BG`
+fill). Offline FILL substitute on `ee103d93…`: whole **16021 → 8610**,
+left **2255 → 3**, under-lip **1024 → 41**, slider **4271 → 1504**.
+First-run complement: **864/884** native `(111,107,103)` / `(115,111,107)`
+are `⌊grid/2⌋` in phase; the other **20** are footer-button edges. That
+is the grid under the labelled veil, not a new compositor. Live
+post-Next lower `d78f43b6…` stays **6072**, interior **0**, mid **0/0**
+after the same substitute; pre-Next **6267** is also unchanged. Nits:
+`0x231230` is vtable slot 12 of app vtable `0x3211a8` (C++ ctor
+`0x238cb8`), not itself the constructor; `S_Guid_D` is created then
+hidden; the note quotes **6267** rather than the live **6072**. Awaits
+coordinator recapture. Not 1:1.

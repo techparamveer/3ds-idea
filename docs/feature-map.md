@@ -7,6 +7,8 @@ Latest user request refocuses **HOME screen 1:1 fidelity**: suspended backing,
 compact retained icon, footer states, banners and interaction. Close/switch,
 power-on and buttons remain pending; preserve the other existing designs.
 
+**Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
+
 Current plan, 3 October 2026. This is the execution map for the **whole in-scope
 app**, not just HOME pixel polishing. The coordinator owns this index, dispatch,
 integration and native/browser acceptance. Each workstream has its own Codex

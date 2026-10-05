@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Sound empty-entry y=177](sound-empty-y177-2026-10-05.md), worker
+`codex/sound-empty-y177-20261005`: the 320 px are `S_BG_D-Ctr` `UserWdwEdge`
+LA8 alpha 25 over `UserWdw`. Dump and public PNG agree. Entry theme
+`(42,113,235)` composites to the browser `(63,127,237)`; the title-only fit
+`(41,113,238)` composites to the native `(62,127,240)`. Neither blue is in
+`code.bin`. Painter unchanged. Predicted **320**. Not 1:1.
+
 [Sound upper 316](sound-upper-316-2026-10-05.md), worker
 `codex/sound-upper-316-20261005`: the **42** pixels past x=30 are the
 approved `C_HudSndB` frame-0 gap. The icon `[7,218,37,238)` is **172**

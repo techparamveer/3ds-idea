@@ -75,8 +75,8 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | # | Slice | Seat | Why |
 | ---: | --- | --- | --- |
 | 1 | Recapture batch from §3: `d0ecf020`, `7466b4e4`, `ed167d5b`, `7b773b71`, plus the post-`8dc72ac6` regressions | **Coordinator** (Azahar not needed; browser plus frozen natives) | Four visible runtime changes have been integrated since 4 Oct without a measurement, and earlier static matches are unverified under shared renderer edits |
-| 2 | Sound upper unlabelled 316: volume-icon spill `[30,216,37,240)` 42 (max 226) and room band ~270 | **Done** `14533857` (review `sound-upper-316-review-20261005-r2`) | Labelled as volume overhang 42 + `S_Back_U` 274 |
-| 3 | Sound empty-entry lower y=177 line, 320 px | **Done** `22e8b0a4` (review pending) | `UserWdwEdge` LA8 α25; painter unchanged |
+| 2 | Sound upper unlabelled 316: volume-icon spill `[30,216,37,240)` 42 (max 226) and room band ~270 | **Done** `14533857` + review `daa93bca` **APPROVE** | Labelled as volume overhang 42 + `S_Back_U` 274 |
+| 3 | Sound empty-entry lower y=177 line, 320 px | **Done** `22e8b0a4` (review `sound-y177-review-20261005-r1`) | `UserWdwEdge` LA8 α25; painter unchanged |
 | 4 | Camera browse plus-tint re-review (`ZoomUp` decode) | **Done** `ed55865e` + review `b6620fa4` **APPROVE** | LA4 decode; source-gap kept; predicted strip 1992 |
 | 5 | Browser: review and integrate HUD `01d9f79a`, then capture native start menu → `browser-start-menu-local` | **Integrated** `5c3903da` + review `463513e8` **APPROVE-WITH-NITS**. Recapture owed | Frozen HUD 10787 until recapture. Start-menu native still Azahar. |
 | 6 | Camera Welcome p2 upper 93408: extend the source-derived feed mask to p2 plus a reviewed adaptation, or recapture native p2 in black-feed config | **Blocked** `c53a96aa`. Recapture: **Coordinator, Azahar** | No p2 upper guide frame; mask not extended. Frozen **93408** until black-feed native recapture. |

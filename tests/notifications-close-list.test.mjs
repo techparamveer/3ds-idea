@@ -82,7 +82,10 @@ test('painter binds writer-0x110 on T_EndF_00 and LCD sampling on T_EndB_00; row
   // Close: only the y-26.5 shadow (notifications-close-240-2026-10-04.md). Row titles:
   // writer-0x101 allowlist (notifications-list-direct-2026-10-04.md).
   assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_NewsTitleB_00'", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
-  assert.equal(/azahar-12p4-fit|textCoverageAdaptation|pictureSampling/.test(section), false);
+  assert.equal(/azahar-12p4-fit|textCoverageAdaptation/.test(section), false);
+  assert.match(section, /'notification-slidebar','SlideBar',\{pictureSampling:'lcd'/);
+  assert.equal(/'NewsWndwNews_D_00',[^{]*\{[^}]*pictureSampling/.test(section), false);
+  assert.equal(/'NewsTopBtn_D_00',[^{]*\{[^}]*pictureSampling/.test(section), false);
   assert.match(layoutSource, /if\(value\.singleLineBlockOrigin&&pane\.text\)pane\.text\.singleLineBlockOrigin=value\.singleLineBlockOrigin;/);
   assert.match(rendererSource, /text\.fixedWidthSpans,text\.singleLineBlockOrigin\);/);
 });

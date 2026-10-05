@@ -68,10 +68,10 @@ LCD translation. No colour, snap, or thumb move.
 
 `drawNativePersonalToolFrame` opts the Notifications `SlideBar` draw into
 `pictureSampling:'lcd'`. Health's slidebar already uses that opt-in. The
-direct path runs only when the destination box is opaque; the stock
-painter `clearRect`s the lower LCD before the frame, so a non-opaque
-texel in the thumb box declines the whole patch and leaves Canvas
-`drawImage` in place.
+direct path runs only when the destination box is opaque. Live dest is
+not the `clearRect` itself: `NewsTopUI_D_00` (`P_Bg_D_00` 320×240) is
+painted first. Whether that box is fully opaque under the thumb is
+unproven. If the guard declines, Canvas `drawImage` stays.
 
 ## Unproven
 

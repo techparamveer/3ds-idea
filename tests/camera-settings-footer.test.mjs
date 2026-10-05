@@ -25,7 +25,7 @@ const {cameraBrowseSettingsLabel, cameraScreenPacks, drawNativeCameraLower} = aw
 const packs = Object.fromEntries(cameraScreenPacks.map(item => [item.alias, JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/' + item.url, import.meta.url), 'utf8'))]));
 
 const NATIVE = '/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/camera-populated-browse-global/native/combined.png';
-const BROWSER = '/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-date-group-recapture-20261005/browser/lower.png';
+const BROWSER = '/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-settings-footer-recapture-20261005/browser/lower.png';
 const CODE = '/Users/paramveer/.codex/3ds-artifact-overflow/assets/stock-ui/reader-extracted/camera/contents/0000-0000001a/exefs/code.bin';
 
 test('browse Settings label keeps P/setting 80% on writer scale X only', () => {
@@ -86,10 +86,10 @@ test('settled browse binds the scaled Settings label and leaves Slideshow and Sh
   assert.equal(browse.resourceSources.textures['P_BtnDW_90x30.bclim'].sha256, 'bbb8d1ad7cab3d04509febd46bb619bfaf371346b621fa30e86fc6a6e38a6cdf');
 });
 
-test('frozen Settings third stays 954 until the coordinator recaptures', t => {
+test('recaptured Settings third is 630 after the X-scale bind', t => {
   if (!existsSync(NATIVE) || !existsSync(BROWSER)) return t.skip('frozen camera browse pair is absent');
   assert.equal(fileSha(NATIVE), 'cae793c31bdf9f13d44f0834582bf99fead5bb8d652321913993bedde7ae1652');
-  assert.equal(fileSha(BROWSER), '0265b51095b1051f94424eea9cf2b2c31ad23da3ed6a1137d4cc9a9a31d05616');
+  assert.equal(fileSha(BROWSER), '3f5ead625db013831b6a47af7648202865811d5ec6982b2f10b2e98ad59fc169');
   assert.equal(fileSha(new URL('../scripts/native-compare/empty-mask.json', import.meta.url)),
     'dc4b320b16c2dd2d560b4bae62d9d061b0d93c83496c3c0902df1e3233b36e95');
   const combined = PNG.sync.read(readFileSync(NATIVE));
@@ -119,14 +119,14 @@ test('frozen Settings third stays 954 until the coordinator recaptures', t => {
   assert.equal(count(0, 105, 212, 240).n, 0);
   assert.equal(count(107, 213, 212, 240).n, 0);
   const settings = count(215, 320, 212, 240);
-  assert.equal(settings.n, 954);
-  assert.deepEqual(settings.maxAt, {x: 240, y: 217, native: [241, 239, 236], browser: [69, 64, 57], delta: 179});
+  assert.equal(settings.n, 630);
+  assert.deepEqual(settings.maxAt, {x: 253, y: 227, native: [70, 65, 58], browser: [153, 148, 140], delta: 83});
   let whole = 0;
   for (let y = 0; y < 240; y++) for (let x = 0; x < 320; x++) {
     const native = nativeAt(x, y), candidate = browserAt(x, y);
     if (Math.max(Math.abs(native[0] - candidate[0]), Math.abs(native[1] - candidate[1]), Math.abs(native[2] - candidate[2])) > 2) whole++;
   }
-  assert.equal(whole, 10482);
+  assert.equal(whole, 10158);
 });
 
 test('Camera group-1 type-0 tag writes scale X and copies scale Y', t => {

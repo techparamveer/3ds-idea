@@ -7,33 +7,31 @@ browser. No preview 3021. No CDP. No recapture. Capture stays inert.
 `PicL_Op`, `ThmbBase`, `TxtThmb`, the browse-slider strip, the upper HNI
 crop, gallery selection, and the Parakeet centre `(48,158)` are untouched.
 
-This is not a 1:1 claim. The frozen Settings third stays **954** until the
-coordinator recaptures. Tests, this note, and the reused still do not close
-pixels, input, motion, or audio.
+This is not a 1:1 claim. Recapture dropped the Settings third **954 → 630**
+and whole lower **10482 → 10158**. Tests, this note, and the stills do not
+close pixels, input, motion, or audio.
 
 ## Assigned defect
 
 Frozen native combined PNG
 `reference/scenario-matrix/v1/captures/camera-populated-browse-global/native/combined.png`
 SHA-256 `cae793c31bdf9f13d44f0834582bf99fead5bb8d652321913993bedde7ae1652`.
-Mac-screen browser lower after the `PicL_Op` recapture `1da03426`:
-`home-fidelity-20261001/camera-date-group-recapture-20261005/browser/lower.png`
-SHA-256 `0265b51095b1051f94424eea9cf2b2c31ad23da3ed6a1137d4cc9a9a31d05616`.
+Mac-screen browser lower after the Settings X-scale recapture `e652fb3f`:
+`home-fidelity-20261001/camera-settings-footer-recapture-20261005/browser/lower.png`
+SHA-256 `3f5ead625db013831b6a47af7648202865811d5ec6982b2f10b2e98ad59fc169`.
 Empty mask `dc4b320b16c2dd2d560b4bae62d9d061b0d93c83496c3c0902df1e3233b36e95`.
-Threshold any RGB channel >2/255. Whole lower **10482**.
+Threshold any RGB channel >2/255. Whole lower **10158**.
 
-| Third | Rectangle | Score |
-| --- | --- | ---: |
-| Slideshow | `[0,105) × [212,240)` | 0 |
-| Shoot | `[107,213) × [212,240)` | 0 |
-| Settings | `[215,320) × [212,240)` | **954** |
+| Third | Rectangle | Frozen | Recapture |
+| --- | --- | ---: | ---: |
+| Slideshow | `[0,105) × [212,240)` | 0 | 0 |
+| Shoot | `[107,213) × [212,240)` | 0 | 0 |
+| Settings | `[215,320) × [212,240)` | **954** | **630** |
 
-Maximum delta is 179 at `(240,217)`: native `(241,239,236)`, browser
-`(69,64,57)`. `(69,64,57)` is the already-bound RI.mstl word `0xff394045`.
-That pixel is label ink in the browser and button face on native. Button-face
-samples such as `(275,214)` are `(243,242,238)` on both sides. Tight text-colour
-cores share y `217..232`. Native ink is about x `242..306`; browser ink is
-about x `237..312`. The word is narrower on native and the same height.
+Pre-recapture max was 179 at `(240,217)`: native `(241,239,236)`, browser
+`(69,64,57)`. After X-scale that sample matches. Recapture max is 83 at
+`(253,227)`: native `(70,65,58)`, browser `(153,148,140)`. Button-face
+`(275,214)` stays `(243,242,238)` on both sides.
 
 ## Dump identity
 
@@ -103,19 +101,49 @@ or screenshot fit.
 | Implemented | Browse `TxtSet` X scale only. Welcome `TxtSet` unchanged |
 | Tested | `node --test tests/camera-settings-footer.test.mjs` |
 | Browser-inspected | Not run. Preview 3021 and CDP were out of scope |
-| Native-compared | Reused frozen pair only. Settings third still **954**. Not recaptured. Not 1:1 |
+| Native-compared | Recapture at `e652fb3f`. Settings third **954 → 630**. Whole lower **10482 → 10158**. Not 1:1 |
 
 ## Independent review
 
 Grok 4.6 `camera-settings-footer-review-20261005-r1`: **APPROVE**.
 Fidelity `99a4362e` is dump-backed X-only browse `TxtSet` scale. Frozen
-Settings third stays **954** until recapture. `P/setting` 80 then 100;
+Settings third was **954** until recapture. `P/setting` 80 then 100;
 tag `0x2718c8` writes scale X and copies Y. Welcome `TxtSet` stays plain
 `setting`. Not 1:1.
 
+## Recapture (coordinator, Mac built-in, bind `99a4362e` / note `e652fb3f`)
+
+User-authorized laptop display (Sidecar disconnected). Frozen native
+reused (`cae793c3…`); Azahar not relaunched. Production `127.0.0.1:3000`
+rebuilt and restarted with `CAMERA_FIXTURE_SDMC_ROOT` at
+`reference/user/sdmc`. Chrome `--window-position=80,60`. Raw LCD
+`captureScreensAt`. `?cameraFixture=hni`, Welcome → folder → gallery
+`HNI_0001`. Empty mask `dc4b320b…`, 2/255.
+
+Artifacts `home-fidelity-20261001/camera-settings-footer-recapture-20261005/`.
+
+| Item | SHA-256 / count |
+| --- | --- |
+| Browser upper | `184bdfdf148d41cecc10d245f14708a38d4afc7c1776c4d9a6bf7eef067694d6` (byte-identical) |
+| Browser lower | `3f5ead625db013831b6a47af7648202865811d5ec6982b2f10b2e98ad59fc169` |
+| Report | `468e6340389f8e0d74b577c9df0a0f004698dc4733d759aea29f8dc5ef43b34e` |
+| Whole upper | **33522** (max 46) unchanged |
+| Whole lower | **10482 → 10158** |
+| Settings third | **954 → 630** |
+| Slideshow / Shoot | **0 / 0** |
+| Date pane | **1006** unchanged |
+| Slider | **1992** unchanged |
+
+The lower drop equals the Settings drop (**324**). Cube centre stays
+`(100,100,100)`. Remaining Settings **630** is leftover glyph coverage
+(native ink at `(253,227)` versus browser pale). That is a new leftover,
+not this bind.
+
+**Static still only.** Input, motion and audio were not compared. Whole
+`camera-readonly-view-photos-page1` stays fail.
+
 ## Remaining
 
-Whole lower **10482** and Settings third **954** stay on the frozen pair
-until the coordinator recaptures. Date pane **1006**, slider strip **1992**,
+Settings third leftover **630**. Date pane **1006**, slider strip **1992**,
 upper HNI crop, gallery selection, and Parakeet stay with their owners.
 Static still only. Input, motion, and audio were not compared.

@@ -9,6 +9,14 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[HOME 1-row tail](home-row-tail-2026-10-05.md), worker
+`codex/home-row-tail-20261005`: masked lower **5426** has **58** components.
+Six labelled ones total **5135**. The tail **291** is the queue's **108**
+(78 `P_BtnShdw_00` pixels outside the neighbour mask, plus 30 cursor-fringe
+pixels on x=200) and **183** (100 more cursor fringe, 60 Settings shadow-edge,
+17 peek crumbs, 4 more mask-corner pixels, 2 News-lamp pixels). Unlabelled
+tail **0**. Painter unchanged. Predicted masked lower **5426**. Not 1:1.
+
 [Camera Welcome p2 upper](camera-welcome-p2-mask-2026-10-05.md), worker
 `codex/camera-welcome-p2-mask-20261005`: blocked pair. Page 2 has no upper
 guide frame, so the pages 3–5 feed mask stays unused. Native `fd4a660e…` is

@@ -19,7 +19,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
 | Branch | `codex/home-fidelity-20261001` |
-| HEAD | `898d0752` — Record Mac-screen recapture of the HNI 2D cube and Welcome p3/p4: badge 7, interiors unchanged. |
+| HEAD | `db1949f9` — Record Mac-screen recapture of Sound first-run: perimeter 6072 unchanged. |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309` recaptured (cube `(100,100,100)`). Product `acabb7af` kept. GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 

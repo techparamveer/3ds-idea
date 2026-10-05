@@ -19,6 +19,35 @@ export type NativeTextScaleSpan={start:number;end:number;scale:number};
 /** Fixed character pitch: each glyph in the span advances `width` and is centred on its own scaled advance. */
 export type NativeTextFixedWidthSpan={start:number;end:number;width:number};
 export type NativeGlyphQuad={glyph:Glyph;x:number;y:number;width:number;height:number;right?:number;bottom?:number};
+/** Camera `code.bin` setter `0x1cdb2c` stores writer flags at pane writer `+0x5c`
+ * (`str` at `0x1cdbd0`). Line alignment 1, 2 and 3 are explicit left, centre
+ * and right (`mov r0,#0` / `#1` at `0x1cdb78` / `#2` at `0x1cdb80`). Every
+ * other line-alignment byte uses alignment % 3 (`umull` by `0xaaaaaaab` at
+ * pool `0x1cdc48`). Alignment % 3 then sets `0x10` or `0x20`, and
+ * `(alignment * 0xab) >> 9` sets `0x100` or `0x200`. Alignment 4 stores
+ * `0x111` for line alignment 0, 2, and every other byte except 1 and 3. */
+export function nativeTextWriterFlags(alignment:number,lineAlignment:number):number{
+  if(!Number.isInteger(alignment)||!Number.isInteger(lineAlignment)||alignment<0||lineAlignment<0||alignment>255||lineAlignment>255)return 0;
+  const mod3=(n:number)=>{
+    const quot=Number((BigInt(n)*0xaaaaaaabn>>32n)&0xffffffffn)>>>1;
+    return (n+((quot-(quot<<2))|0))&0xff;
+  };
+  const div3=(n:number)=>Math.imul(n,0xab)>>>9;
+  let flags=0;
+  if(lineAlignment===2)flags=1;
+  else if(lineAlignment===3)flags=2;
+  else if(lineAlignment!==1){
+    const line=mod3(alignment);
+    flags=line===1?1:line===2?2:0;
+  }
+  const horizontal=mod3(alignment);
+  if(horizontal===1)flags|=0x10;
+  else if(horizontal===2)flags|=0x20;
+  const vertical=div3(alignment);
+  if(vertical===1)flags|=0x100;
+  else if(vertical===2)flags|=0x200;
+  return flags>>>0;
+}
 /** Bounded NW writer flags 0x100 (middle-left) and 0x111 (middle-center):
  * one line, automatic line alignment and no added character spacing. */
 function nativeSingleLineGlyphQuads(manifest:FontManifest,value:string,width:number,height:number,size:number[],alignment:3|4,cursorAdvances:readonly NativeCursorAdvance[]=[]):NativeGlyphQuad[]{
@@ -276,7 +305,7 @@ export class BitmapFont {
     const writer0110=multilineBlockOrigin==='writer-0x110',writer0111=multilineBlockOrigin==='writer-0x111';
     if(multilineBlockOrigin!==undefined&&(
       writer0110&&(lines.length<2||alignment!==4||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='alpha')||
-      writer0111&&(lines.length<2||alignment!==4||lineAlignment!==0||spacing!==0||lineSpacing!==0||lineAdvanceScales!==undefined||this.manifest.colorMode!=='alpha')||
+      writer0111&&(lines.length<2||alignment!==4||nativeTextWriterFlags(alignment,lineAlignment)!==0x111||spacing!==0||lineSpacing!==0||lineAdvanceScales!==undefined||this.manifest.colorMode!=='alpha')||
       !writer0110&&!writer0111))throw new Error('Unsupported native multiline block origin');
     if(cursorAdvances.length){
       if(lines.length!==1||alignment!==3||lineAlignment!==1||spacing!==0||this.manifest.colorMode!=='luminance-alpha')throw new Error('Unsupported native cursor-advance text run');

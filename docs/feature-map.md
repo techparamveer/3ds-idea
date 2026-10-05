@@ -24,6 +24,15 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+[Camera Welcome page-3 TxtDlg host gate](camera-welcome-p3-txtdlg-2026-10-05.md),
+worker `codex/camera-welcome-p3-gate-20261005`: setter `0x1cdb2c` stores
+**0x111** for alignment 4 with every line alignment except 1 and 3. Shared
+Welcome `TxtDlg` (both guide bodies, line alignment 2) opts into
+`writer-0x111`. Colour spans still keep pages 3/4 off the direct sampler.
+Offline napi text **375→375** (page 3), **232→232** (page 4), **182→0** /
+**283→0** (pages 1/5). That rasterizer does not reproduce frozen browser
+**1079**. Awaits recapture. Not 1:1.
+
 [Sound empty-entry mid grid bind](sound-empty-mid-2026-10-05.md), worker
 `codex/sound-empty-grid-20261005`: the `636976ad` `S_BG` constant source-gap
 was **REJECTED** (Grok 4.6 `sound-empty-mid-review-20261005-r1`). Dump ETC1

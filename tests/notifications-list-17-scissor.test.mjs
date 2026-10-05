@@ -100,7 +100,7 @@ function clipCanvas(){
   return ctx;
 }
 const layoutUrl=`data:text/javascript;base64,`+Buffer.from(ts.transpileModule(readFileSync(new URL('../src/os/native-layout.ts', import.meta.url), 'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
-const {NativeLayoutRenderer}=await import(`data:text/javascript;base64,`+Buffer.from(ts.transpileModule(rendererSource.replace("'./native-layout'", JSON.stringify(layoutUrl)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
+const {NativeLayoutRenderer}=await import(`data:text/javascript;base64,`+Buffer.from(ts.transpileModule(rendererSource.replace("'./native-layout'", JSON.stringify(layoutUrl)).replace("'./bitmap-font'", JSON.stringify(new URL('../src/os/bitmap-font.ts', import.meta.url).href)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
 const manifest=JSON.parse(readFileSync(new URL('fonts/shared/font.json', firmware), 'utf8'));
 const bank=messages.messages.newslist_msbt_LZ;
 const newBack=bank.messages[bank.labels.new_back].text;

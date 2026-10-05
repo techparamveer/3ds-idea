@@ -9,8 +9,9 @@ closed those browse labels. No Azahar. No production browser. No preview
 header **0**, date **1006**, slider **1992**, thumb interiors
 **846/918**, photo crop, selection, and Sound stay untouched.
 
-This is not a 1:1 claim. The painter is unchanged. Tests, this note, and
-the reused still do not close pixels, input, motion, or audio.
+This is not a 1:1 claim. The painter was unchanged in the source-gap
+slice below. The [host-gate follow-up](#host-gate-follow-up) is the later
+change. Tests and this note do not close pixels, input, motion, or audio.
 
 ## Assigned defect
 
@@ -144,3 +145,36 @@ RGBs are not those texels. Red-ink residuals **0**. Sole `BL` to
 (nit: same flag word as line-alignment 0, not a different one; the host
 `writer-0x111` gate is a host restriction). Pages 1/5 interiors **0**.
 Not recaptured. Not 1:1.
+
+## Host gate follow-up
+
+Worker `codex/camera-welcome-p3-gate-20261005` from `603c5388`. No Azahar.
+No production browser. No preview 3021. No CDP.
+
+Setter `0x1cdb2c` loads the line-alignment byte. Line alignment 1 branches
+at `0x1cdb38` and leaves the low bits 0. Line alignment 2 takes
+`mov r0, #1` at `0x1cdb78`. Line alignment 3 takes `mov r0, #2` at
+`0x1cdb80`. Every other line-alignment byte uses alignment % 3
+(`umull` by `0xaaaaaaab`, pool `0x1cdc48`). Alignment % 3 then ors `0x10`
+or `0x20` (`0x1cdba0` / `0x1cdbac`). `(alignment * 0xab) >> 9` ors `0x100`
+or `0x200` (`0x1cdbb0`, `0x1cdbc0` / `0x1cdbcc`). The store is `0x1cdbd0`.
+
+Alignment 4 stores **0x111** for line alignment 0, 2, and every other byte
+except 1 (**0x110**) and 3 (**0x112**). `nativeTextWriterFlags` follows
+that mapping. The direct sampler still requires a newline, alignment 4,
+zero spacing, and no spans. Line alignment 0 (`T_Btm_00`) still stores
+0x111, and the writer does not read line alignment once that path is taken.
+
+`C_DlgGuid1BtnW` and `C_DlgGuid2Btn` both have `TxtDlg` at alignment 4 /
+line alignment 2, size 280×152, spacing 0. The shared Welcome override
+sets `multilineBlockOrigin:'writer-0x111'` on `TxtDlg` only. Buttons stay
+single-line. `D_003_2` and `D_003_3` colour spans still keep pages 3 and 4
+off the direct LCD sampler. Pages 1 and 5 have no spans, so they now take
+that sampler.
+
+Offline `@napi-rs/canvas` `drawNativeCameraGuide` does not reproduce the
+frozen browser pair (browser TxtDlg **1079**; offline text box **375**
+before this change). After the gate, offline text-box counts over
+threshold 2: page 1 **182→0**, page 3 **375→375** (four samples moved by
+1, none crossed 2), page 4 **232→232**, page 5 **283→0**. The live browser
+count awaits recapture, including pages 1 and 5. Not 1:1.

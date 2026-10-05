@@ -24,7 +24,7 @@ const BROWSER = '/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-202
 test('date text stays the expanded TxtThmb string; Brws_05_L is not a published label', () => {
   assert.match(painter, /text:`\$\{date\.slice\(8,10\)\}\/\$\{date\.slice\(5,7\)\}\\n\$\{date\.slice\(0,4\)\}`,size:\[49\.92,40\]/);
   assert.equal(painter.includes('Brws_05_L'), false);
-  assert.equal(painter.includes('multilineBlockOrigin'), false);
+  assert.equal(/TxtThmb:date\?\{[^}]*multilineBlockOrigin/.test(painter), false);
   assert.match(painter, /drawLayout\(bottom,'camera-gallery','P_BrwsFld',dateGroup,opts\)/);
   const pane = find(browse.layouts.P_BrwsFld.roots, 'TxtThmb');
   assert.deepEqual(pane.size, [49.92000198364258, 19.19999885559082]);

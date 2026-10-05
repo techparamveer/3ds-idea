@@ -72,7 +72,7 @@ test('pages 3/4 already bind Guid2 Default 0 and TxtDlg; Push, Disable and _flw 
 test('painter keeps pages 3/4 on already-bound Guid2 Default 0 plus TxtDlg color spans', ()=>{
   assert.match(painter, /const layout=first\?'C_DlgGuid1BtnW':'C_DlgGuid2Btn'/);
   assert.match(painter, /bindings:\[\{name:layout\+'_Default',frame:0\}\]/);
-  assert.match(painter, /TxtDlg:\{\.\.\.message\(entry\.label\),colorSpans:nativeMessageColorSpans\(renderer\.packs\['camera-messages'\],'P_tips',entry\.label\)\}/);
+  assert.match(painter, /TxtDlg:\{\.\.\.message\(entry\.label\),colorSpans:nativeMessageColorSpans\(renderer\.packs\['camera-messages'\],'P_tips',entry\.label\),multilineBlockOrigin:'writer-0x111' as const\}/);
   assert.match(painter, /textSampling:'lcd-source-size'/);
   assert.match(painter, /Guid2TxtB:message\('Guide_D_BN_Btn0'\)/);
   assert.match(painter, /Guid2TxtW:message\(page===4\?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1'\)/);

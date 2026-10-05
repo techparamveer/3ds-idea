@@ -17,6 +17,13 @@ const codePath = '/Users/paramveer/.codex/3ds-artifact-overflow/assets/stock-ui/
 const word = (code, address) => code.readUInt32LE(address - 0x100000);
 
 test('Welcome TxtDlg stays on the already-requested whole-layout source-size draw', () => {
+  for (const name of ['C_DlgGuid1BtnW', 'C_DlgGuid2Btn']) {
+    const body = flatten(dialog.layouts[name].roots).find(pane => pane.name === 'TxtDlg');
+    assert.equal(body.text.alignment, 4, name);
+    assert.equal(body.text.lineAlignment, 2, name);
+    assert.equal(body.text.characterSpacing, 0, name);
+    assert.equal(body.text.lineSpacing, 0, name);
+  }
   const txt = flatten(dialog.layouts.C_DlgGuid2Btn.roots).find(pane => pane.name === 'TxtDlg');
   assert.deepEqual(txt.size, [280, 152]);
   assert.equal(txt.origin, 4);
@@ -25,10 +32,11 @@ test('Welcome TxtDlg stays on the already-requested whole-layout source-size dra
   assert.equal(txt.text.characterSpacing, 0);
   assert.equal(txt.text.lineSpacing, 0);
   assert.match(painter, /drawLayout\(bottom,'camera-dialog',layout,cameraMessageColors\(source,overrides\),\{textSampling:'lcd-source-size',bindings:\[\{name:layout\+'_Default',frame:0\}\],overrides\}\)/);
-  assert.equal(painter.includes('multilineBlockOrigin'), false);
+  assert.equal(painter.match(/multilineBlockOrigin/g).length, 1);
   assert.equal(painter.includes("textSamplingPanes:['TxtDlg']"), false);
   assert.match(renderer, /!\/\[\\r\\n\]\/\.test\(text\.value\)&&\(text\.alignment===3\|\|text\.alignment===4\)&&\(text\.lineAlignment===0\|\|sourceSize&&text\.alignment===4&&text\.lineAlignment===2/);
-  assert.match(renderer, /multilineBlockOrigin==='writer-0x111'&&\/\[\\r\\n\]\/\.test\(text\.value\)&&text\.alignment===4&&text\.lineAlignment===0/);
+  assert.match(renderer, /multilineBlockOrigin==='writer-0x111'&&\/\[\\r\\n\]\/\.test\(text\.value\)&&text\.alignment===4&&nativeTextWriterFlags\(text\.alignment,text\.lineAlignment\)===0x111/);
+  assert.match(font, /nativeTextWriterFlags\(alignment,lineAlignment\)!==0x111/);
   assert.match(font, /lines\.length===1&&\(nativeAlignedLine\|\|lcdBottomEdge&&alignment===4&&lineAlignment===2&&this\.manifest\.colorMode==='alpha'\)/);
   const bank = messages.messages.P_tips;
   const message = label => bank.messages[bank.labels[label]];
@@ -40,7 +48,7 @@ test('Welcome TxtDlg stays on the already-requested whole-layout source-size dra
   assert.equal(message('D_003_0').tokens.some(token => token.group === 0 && token.type === 3), false);
   assert.equal(message('D_003_4').tokens.some(token => token.group === 0 && token.type === 3), false);
   assert.equal(message('D_003_2').tokens.some(token => token.group === 0 && token.type === 3), true);
-  assert.match(painter, /TxtDlg:\{\.\.\.message\(entry\.label\),colorSpans:nativeMessageColorSpans\(renderer\.packs\['camera-messages'\],'P_tips',entry\.label\)\}/);
+  assert.match(painter, /TxtDlg:\{\.\.\.message\(entry\.label\),colorSpans:nativeMessageColorSpans\(renderer\.packs\['camera-messages'\],'P_tips',entry\.label\),multilineBlockOrigin:'writer-0x111' as const\}/);
 });
 
 test('code.bin has one alignment-4 centering writer and it is already 0x329160', t => {
@@ -48,7 +56,20 @@ test('code.bin has one alignment-4 centering writer and it is already 0x329160',
   const code = readFileSync(codePath);
   assert.equal(sha(codePath), '3a3c4152ebcc74443ed245a0e9840d31219bbd2559295364cc8dab9497e4492c');
   assert.equal(word(code, 0x1cdb2c), 0xe5d410ff);
+  assert.equal(word(code, 0x1cdb30), 0xe3a00000);
+  assert.equal(word(code, 0x1cdb34), 0xe3510001);
+  assert.equal(word(code, 0x1cdb38), 0x0a000011);
+  assert.equal(word(code, 0x1cdb3c), 0xe3510002);
+  assert.equal(word(code, 0x1cdb40), 0x0a00000c);
+  assert.equal(word(code, 0x1cdb44), 0xe3510003);
+  assert.equal(word(code, 0x1cdb48), 0x0a00000c);
+  assert.equal(word(code, 0x1cdb4c), 0xe5d410fe);
+  assert.equal(word(code, 0x1cdb50), 0xe083c192);
+  assert.equal(word(code, 0x1cdb68), 0x0a000002);
   assert.equal(word(code, 0x1cdb78), 0xe3a00001);
+  assert.equal(word(code, 0x1cdb80), 0xe3a00002);
+  assert.equal(word(code, 0x1cdbb0), 0xe3a020ab);
+  assert.equal(word(code, 0x1cdc48), 0xaaaaaaab);
   assert.equal(word(code, 0x1cdba0), 0x03800010);
   assert.equal(word(code, 0x1cdbc0), 0x03800c01);
   assert.equal(word(code, 0x1cdbd0), 0xe585005c);

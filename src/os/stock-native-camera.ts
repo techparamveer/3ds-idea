@@ -340,7 +340,10 @@ export function drawNativeCameraGuide(renderer:NativeLayoutRenderer,top:CanvasRe
   const width=total.messageStyle?.unresolvedWords?.['0'];
   if(width!==48||current.messageStyle?.unresolvedWords?.['0']!==48)return false;
   // Shared RI.mstl counter width; 24px height follows the documented Sound guide adapter.
-  const common={TxtDlg:{...message(entry.label),colorSpans:nativeMessageColorSpans(renderer.packs['camera-messages'],'P_tips',entry.label)},TxtNumber0:{...total,text:total.text+'5',size:[width,24]},TxtNumber1:{...current,text:`${page+1}${current.text}`,size:[width,24]}};
+  // Both guide bodies' TxtDlg are alignment 4 / line alignment 2. Setter
+  // 0x1cdb2c stores the same 0x111 as line alignment 0, so this pane takes
+  // the traced centring writer. Colour spans still keep the direct sampler off.
+  const common={TxtDlg:{...message(entry.label),colorSpans:nativeMessageColorSpans(renderer.packs['camera-messages'],'P_tips',entry.label),multilineBlockOrigin:'writer-0x111' as const},TxtNumber0:{...total,text:total.text+'5',size:[width,24]},TxtNumber1:{...current,text:`${page+1}${current.text}`,size:[width,24]}};
   const layout=first?'C_DlgGuid1BtnW':'C_DlgGuid2Btn';
   const overrides=first?{...common,Guid1TxtW:message('Guide_D_N_Btn0')}:{...common,Guid2TxtB:message('Guide_D_BN_Btn0'),Guid2TxtW:message(page===4?'Guide_D_BO_Btn1':'Guide_D_BN_Btn1')};
   const source=renderer.packs['camera-dialog']?.layouts?.[layout];

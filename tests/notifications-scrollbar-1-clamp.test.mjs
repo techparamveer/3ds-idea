@@ -16,7 +16,7 @@ const sha=path=>createHash('sha256').update(readFileSync(path)).digest('hex');
 const moduleFrom=source=>`data:text/javascript;base64,${Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64')}`;
 const layoutUrl=moduleFrom(layoutSource);
 const {poseNativeLayout, nativeWindowPatches}=await import(layoutUrl);
-const {NativeLayoutRenderer}=await import(moduleFrom(rendererSource.replace("'./native-layout'", JSON.stringify(layoutUrl))));
+const {NativeLayoutRenderer}=await import(moduleFrom(rendererSource.replace("'./native-layout'", JSON.stringify(layoutUrl)).replace("'./bitmap-font'", JSON.stringify(new URL('../src/os/bitmap-font.ts', import.meta.url).href))));
 const f32=Math.fround;
 const stripH=119.60000610351562-11;
 

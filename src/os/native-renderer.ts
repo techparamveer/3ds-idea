@@ -1,4 +1,4 @@
-import { BitmapFont, type FontManifest } from './bitmap-font';
+import { BitmapFont, nativeTextWriterFlags, type FontManifest } from './bitmap-font';
 import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instantiateNativePart, nativeAnimationDiagnostics, nativeMultiplyBlend, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
  type AnimationBinding, type NativeLayout, type NativeText, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
 
@@ -148,7 +148,7 @@ export class NativeLayoutRenderer {
   // Direct alpha glyph sampling is limited to traced alignments and upright LCD
   // transforms; other projections keep the pane-raster path.
   const sourceTopLeft=sourceTopLeftSampling&&font.manifest.colorMode==='alpha'&&text.alignment===0&&text.lineAlignment===0&&/^(?:[^\r\n]*)(?:\r\n|\r|\n)?$/.test(text.value);
-  const writer0111=text.multilineBlockOrigin==='writer-0x111'&&/[\r\n]/.test(text.value)&&text.alignment===4&&text.lineAlignment===0&&metrics.characterSpacing===0&&metrics.lineSpacing===0&&!text.colorSpans?.length&&!text.glyphScaleSpans?.length&&!text.fixedWidthSpans?.length&&!text.cursorAdvances?.length&&!text.lineAdvanceScales;
+  const writer0111=text.multilineBlockOrigin==='writer-0x111'&&/[\r\n]/.test(text.value)&&text.alignment===4&&nativeTextWriterFlags(text.alignment,text.lineAlignment)===0x111&&metrics.characterSpacing===0&&metrics.lineSpacing===0&&!text.colorSpans?.length&&!text.glyphScaleSpans?.length&&!text.fixedWidthSpans?.length&&!text.cursorAdvances?.length&&!text.lineAdvanceScales;
   // Writer flags 0x101 (Notifications 0x16b080: alignment 3, line alignment 2
   // → mov r0,#1) share 0x18fe2c's one-line origin with 0x100: low bit 1 adds
   // ceil(block/2)-ceil(line/2), zero for one line from measured left 0. Line

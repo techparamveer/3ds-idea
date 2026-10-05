@@ -5,7 +5,7 @@ import ts from 'typescript';
 
 const source=fs.readFileSync(new URL('../src/os/bitmap-font.ts',import.meta.url),'utf8');
 const compiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;
-const {BitmapFont,nativeCenteredGlyphQuads,nativeLeftGlyphQuads,nativeTopLeftGlyphQuads,rasterNativeAlphaGlyph}=await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
+const {BitmapFont,nativeCenteredGlyphQuads,nativeLeftGlyphQuads,nativeTopLeftGlyphQuads,rasterNativeAlphaGlyph,nativeTextWriterFlags}=await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
 
 test('Bitmap text uses signed bearings, advances, fallback, scaling and alignment',()=>{
  const previous=globalThis.document;
@@ -193,6 +193,31 @@ test('Power footer writer 0x111 preserves the source float32 s right-edge tie',(
  font.drawNative({createImageData:(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)}),putImageData:value=>{image=value;},drawImage(){draws++;}},message.text,380,63,size,4,0,0,0,[0,0],true,undefined,[target,target+1],[],false,false,undefined,'writer-0x111');
  assert.equal(draws,0);assert.ok(image.data[(14*image.width+136)*4+3]>0);assert.equal(image.data[(14*image.width+137)*4+3],0);
  assert.throws(()=>font.drawNative({drawImage(){}},message.text,380,63,size,4,0,1,0,[0,0],false,undefined,undefined,[],false,false,undefined,'writer-0x111'),/Unsupported native multiline block origin/);
+ const centred=[];font.drawNative({drawImage:(...args)=>centred.push(args)},message.text,380,63,size,4,0,0,2,[0,0],false,undefined,undefined,[],false,false,undefined,'writer-0x111');
+ assert.deepEqual(centred,calls,'line alignment 2 stores the same 0x111 writer geometry as line alignment 0');
+ assert.throws(()=>font.drawNative({drawImage(){}},message.text,380,63,size,4,0,0,1,[0,0],false,undefined,undefined,[],false,false,undefined,'writer-0x111'),/Unsupported native multiline block origin/);
+ assert.throws(()=>font.drawNative({drawImage(){}},message.text,380,63,size,4,0,0,3,[0,0],false,undefined,undefined,[],false,false,undefined,'writer-0x111'),/Unsupported native multiline block origin/);
+});
+
+test('Camera setter 0x1cdb2c maps alignment 4 line alignments 0 and 2 to writer flags 0x111',()=>{
+ const table={
+  0:[0x0,0x0,0x1,0x2],
+  1:[0x11,0x10,0x11,0x12],
+  2:[0x22,0x20,0x21,0x22],
+  3:[0x100,0x100,0x101,0x102],
+  4:[0x111,0x110,0x111,0x112],
+  5:[0x122,0x120,0x121,0x122],
+  6:[0x200,0x200,0x201,0x202],
+  7:[0x211,0x210,0x211,0x212],
+  8:[0x222,0x220,0x221,0x222],
+ };
+ for(const [alignment,rows] of Object.entries(table))for(let line=0;line<4;line++)assert.equal(nativeTextWriterFlags(Number(alignment),line),rows[line],`${alignment}/${line}`);
+ assert.equal(nativeTextWriterFlags(4,4),0x111);
+ assert.equal(nativeTextWriterFlags(4,255),0x111);
+ assert.equal(nativeTextWriterFlags(4,1),0x110);
+ assert.equal(nativeTextWriterFlags(4,3),0x112);
+ assert.equal(nativeTextWriterFlags(4.5,2),0);
+ assert.equal(nativeTextWriterFlags(4,256),0);
 });
 
 test('native alpha glyph raster uses hard pixel-centre coverage and the atlas border for linear filtering',()=>{

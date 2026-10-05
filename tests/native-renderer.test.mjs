@@ -4,7 +4,8 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 const module=source=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
 const layoutUrl=module(readFileSync(new URL('../src/os/native-layout.ts',import.meta.url),'utf8'));
-const {NativeLayoutRenderer,nativeTextRightOverhang,nativeTextVerticalOverhang}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-layout'",JSON.stringify(layoutUrl))));
+const fontUrl=new URL('../src/os/bitmap-font.ts',import.meta.url).href;
+const {NativeLayoutRenderer,nativeTextRightOverhang,nativeTextVerticalOverhang}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-layout'",JSON.stringify(layoutUrl)).replace("'./bitmap-font'",JSON.stringify(fontUrl))));
 // The target records actual raster bytes from the renderer's Canvas transport.
 // Geometry/compositing fidelity is covered by source/native captures, not this stub.
 function canvas(){
@@ -365,7 +366,23 @@ test('Power footer writer 0x111 samples only its selected multiline pane at LCD 
   calls.length=0;
   // Fixed-width pitch spans leave the traced writer 0x111 sampling path.
   assert.equal(renderer.draw(ctx,'test','test',{overrides:{footer:{multilineBlockOrigin:'writer-0x111',fixedWidthSpans:[{start:0,end:1,width:12}]}},textSampling:'lcd',textSamplingPanes:['footer']}),true);
-  assert.deepEqual(calls[0],{value:'A\nB',phase:[0,0],lcd:false,origin:'writer-0x111'});renderer.dispose();
+  assert.deepEqual(calls[0],{value:'A\nB',phase:[0,0],lcd:false,origin:'writer-0x111'});
+  const sample=(lineAlignment,extra={})=>{
+   calls.length=0;
+   const sampled={...text,lineAlignment};
+   const layout={...source,roots:[{...pane,name:'footer',kind:'txt1',size:[380,63],picture:undefined,text:sampled}]};
+   const next=new NativeLayoutRenderer({test:{schema:1,layouts:{test:layout},animations:{},textures:{},messages:{}}},{test:new Map()},new Map([['shared',font]]));
+   const okay=next.draw(ctx,'test','test',{overrides:{footer:{multilineBlockOrigin:'writer-0x111',...extra}},textSampling:'lcd',textSamplingPanes:['footer']});
+   next.dispose();
+   return {okay,call:calls[0]};
+  };
+  assert.deepEqual(sample(0),{okay:true,call:{value:'A\nB',phase:[.25,.5],lcd:true,origin:'writer-0x111'}});
+  assert.deepEqual(sample(2),{okay:true,call:{value:'A\nB',phase:[.25,.5],lcd:true,origin:'writer-0x111'}});
+  assert.deepEqual(sample(4),{okay:true,call:{value:'A\nB',phase:[.25,.5],lcd:true,origin:'writer-0x111'}});
+  assert.deepEqual(sample(1).call,{value:'A\nB',phase:[0,0],lcd:false,origin:'writer-0x111'});
+  assert.deepEqual(sample(3).call,{value:'A\nB',phase:[0,0],lcd:false,origin:'writer-0x111'});
+  assert.deepEqual(sample(2,{colorSpans:[{start:0,end:1,color:[9,8,7,255]}]}).call,{value:'A\nB',phase:[0,0],lcd:false,origin:'writer-0x111'});
+  renderer.dispose();
  }finally{globalThis.document=previous;}
 });
 

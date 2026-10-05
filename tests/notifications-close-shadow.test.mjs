@@ -15,7 +15,7 @@ const manifest=JSON.parse(readFileSync(new URL('fonts/shared/font.json', firmwar
 const compiled=ts.transpileModule(readFileSync(new URL('../src/os/bitmap-font.ts', import.meta.url), 'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;
 const {nativeCenteredGlyphQuads,rasterNativeAlphaGlyph}=await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
 const layoutUrl=`data:text/javascript;base64,`+Buffer.from(ts.transpileModule(readFileSync(new URL('../src/os/native-layout.ts', import.meta.url), 'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
-const {NativeLayoutRenderer}=await import(`data:text/javascript;base64,`+Buffer.from(ts.transpileModule(readFileSync(new URL('../src/os/native-renderer.ts', import.meta.url), 'utf8').replace("'./native-layout'", JSON.stringify(layoutUrl)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
+const {NativeLayoutRenderer}=await import(`data:text/javascript;base64,`+Buffer.from(ts.transpileModule(readFileSync(new URL('../src/os/native-renderer.ts', import.meta.url), 'utf8').replace("'./native-layout'", JSON.stringify(layoutUrl)).replace("'./bitmap-font'", JSON.stringify(new URL('../src/os/bitmap-font.ts', import.meta.url).href)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64'));
 function trackingCanvas(width=320, height=240){
   const stack=[];
   let a=1, b=0, c=0, d=1, e=0, f=0;

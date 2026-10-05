@@ -362,6 +362,10 @@ test('Camera welcome binds five messages, source dialog bodies and message-selec
   const names=draws.map(d=>d.layout),body=draws.find(d=>d.layout===(page===0?'C_DlgGuid1BtnW':'C_DlgGuid2Btn'));
   assert.ok(names.includes('C_DlgChA'));assert.ok(names.includes('P_Finder_U'));assert.ok(names.includes('C_IconSD'));
   assert.equal(body.opts.overrides.TxtDlg.text,bank.messages[bank.labels['D_003_'+page]].text);
+  assert.equal(body.opts.overrides.TxtDlg.multilineBlockOrigin,'writer-0x111');
+  assert.equal(body.opts.overrides[page===0?'Guid1TxtW':'Guid2TxtW'].multilineBlockOrigin,undefined);
+  if(page!==0)assert.equal(body.opts.overrides.Guid2TxtB.multilineBlockOrigin,undefined);
+  assert.equal(body.opts.overrides.TxtNumber0.multilineBlockOrigin,undefined);
   assert.equal(body.opts.overrides.TxtNumber0.text,'/ 5');assert.equal(body.opts.overrides.TxtNumber1.text,(page+1)+' ');
   assert.deepEqual(find(body.source.roots,'TxtDlg').text.topColor,[69,64,57,255]);
   assert.deepEqual(names.filter(n=>n.startsWith('P_Guid')),expected[page]?[expected[page]]:[]);

@@ -11,7 +11,7 @@ const moduleUrl=source=>'data:text/javascript;base64,'+Buffer.from(source).toStr
 // The presenter imports the renderer with an extensionless path. Supply its
 // transpiled module while retaining the actual presenter body and dependencies.
 const rendererSource=readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8');
-const rendererUrl=moduleUrl(ts.transpileModule(rendererSource.replace("'./native-layout'",JSON.stringify(new URL('../src/os/native-layout.ts',import.meta.url).href)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText);
+const rendererUrl=moduleUrl(ts.transpileModule(rendererSource.replace("'./native-layout'",JSON.stringify(new URL('../src/os/native-layout.ts',import.meta.url).href)).replace("'./bitmap-font'",JSON.stringify(new URL('../src/os/bitmap-font.ts',import.meta.url).href)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText);
 const {NativeLayoutRenderer}=await import(rendererUrl);
 const presenterSource=readFileSync(new URL('../src/os/firmware-presentation.ts',import.meta.url),'utf8');
 const presenterJs=ts.transpileModule(presenterSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;

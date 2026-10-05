@@ -116,5 +116,30 @@ sits on the right thumb; the browser still draws `P_BrwsCursor_D` on the
 middle thumb. That placement was left as a source gap in
 [camera-selection-2026-10-05.md](camera-selection-2026-10-05.md) and was
 not moved here. Photo texels inside the mask hole, the date pane, the
-slider, the Settings third, and the upper crop are the same still.
-Recapture belongs to the coordinator.
+slider, the Settings third, and the upper crop stay outside this bind.
+
+## Coordinator recapture — 5 October 2026
+
+Mac built-in display, production `89efb7a3`, `CAMERA_FIXTURE_SDMC_ROOT` (HNI),
+empty mask, threshold any RGB channel >2/255. Scenario
+`camera-readonly-view-photos-page1`. lcdDate `2026-09-25T21:35:00.000Z`.
+Artifacts
+`home-fidelity-20261001/camera-browse-thumbs-recapture-20261005/`.
+Inspected the lower contact sheet: the two top-row white `Pho2x3` frames
+now sit on the native frames; remaining red is photo interiors, the
+gallery cursor on the wrong cell, date glyphs, the slider, and Settings.
+
+| Item | SHA-256 |
+| --- | --- |
+| Browser upper | `184bdfdf148d41cecc10d245f14708a38d4afc7c1776c4d9a6bf7eef067694d6` |
+| Browser lower | `62d8c212f8f68f4960ca4a98d0ad23f2c914d02f47e663ce40eb0a85b5826647` |
+| Report | `53fa2e6f007207a299db3e908d741efdeb89d4a1f83e8b91c89273bd959f7191` |
+| Native combined | `cae793c31bdf9f13d44f0834582bf99fead5bb8d652321913993bedde7ae1652` |
+
+Upper **33522** is byte-identical with the Settings recapture upper.
+Whole lower **10158 → 8958**. Official thumb components
+`[125,46,70,56]` **2720 → 1148** and `[201,46,70,56]` **2763 → 1148**.
+Date pane **1006**, slider **1992**, Settings third **630**, Slideshow **0**,
+Shoot **0**. Cube centre `(383,17)` stays `(100,100,100)` on both.
+Remaining thumb interiors and the labelled gallery-selection cursor are
+not this bind. Not 1:1.

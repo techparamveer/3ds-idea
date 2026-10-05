@@ -27,7 +27,7 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` a
 
 ## Serving
 
-`127.0.0.1:3000` production (`next start`, pid at start 39660) still serving `1863c4e4` until HUD-bind rebuild. HEAD `463513e8` is runtime Browser title-local HUD `5c3903da` + review `463513e8`. `CAMERA_FIXTURE_SDMC_ROOT=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/user/sdmc` (HNI). Path `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch `codex/home-fidelity-20261001`. Typecheck 0, HUD tests 3/3, build pending. Mac built-in display. Capture Chrome muted. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
+`127.0.0.1:3000` production (`next start`, pid at start 15469) Ready at runtime `5c3903da` (Browser title-local HUD). STATUS `2757aa7b` is docs-only after the review note. `CAMERA_FIXTURE_SDMC_ROOT=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/user/sdmc` (HNI). Path `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch `codex/home-fidelity-20261001`. Typecheck 0, `npm test` 2220 pass / 0 fail (2244 tests), build 0. Mac built-in display. Capture Chrome muted. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
 
 ## Seats
 
@@ -35,7 +35,7 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` a
 | --- | --- | --- |
 | Coordinator | this T3 thread `mcp:f3c9a760` (Grok 4.6; took over 5 Oct after Opus 5.5 hit the monthly spend limit; dead parent `42eb773b` stays unread) | one living thread |
 | Worker | HOME 1-row tail **108** (`home-row-tail-20261005-r1`, Grok 4.7) and Welcome p2 feed mask (`camera-welcome-p2-mask-20261005-r1`, Grok 4.7) | two |
-| Reviewer | free after HUD `463513e8` **APPROVE-WITH-NITS**. Backlog: `14533857`, `22e8b0a4`, `ed55865e`, `1863c4e4` (not Grok 4.7) | one, different model from the worker |
+| Reviewer | plus-tint `ed55865e` (`plus-tint-review-20261005-r1`, Grok 4.6). HUD `463513e8` **APPROVE-WITH-NITS** integrated. Backlog: `14533857`, `22e8b0a4`, `1863c4e4` | one, different model from the worker |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)
 

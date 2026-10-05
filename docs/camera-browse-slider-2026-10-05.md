@@ -104,9 +104,18 @@ count of 1992.
 | Browser-inspected | Not run. Preview 3021 and CDP 9320 were out of scope |
 | Native-compared | Reused frozen pair only. Not recaptured. Not 1:1 |
 
+## Independent review
+
+Grok 4.6 `camera-browse-slider-review-20261005-r2`: **APPROVE**. Cherry-pick
+`e6bcca9f` matches worker `6adf0845`. Painter unchanged. Full native14 packs
+have **0** animations that target `ZoomUp` without `ZoomBack`. `P_Tape` edge
+alphas are 17/34/51/68/85 (bar rows y=182–184), not alpha 128 on the plus.
+
 ## Remaining
 
-Whole lower **12872**. Strip **1992**, including the plus tint (156 white
-texels) and the y=181..184 bar highlight. Date-group, photo crop, Parakeet,
-and paging stay with their owners. Static still only. Input, motion, and
-audio were not compared.
+Whole lower **12872** on the pre-date-group still this test locks
+(`0d0ffe41…`). Post-PicL_Op recapture lower is **10482** (`0265b510…`) with
+the same strip **1992**. Plus tint (156 white texels) and the y=181..184 bar
+highlight stay. Date-text, photo crop, Parakeet, and paging stay with their
+owners. Static still only. Input, motion, and audio were not compared. Not
+1:1.

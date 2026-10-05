@@ -149,3 +149,12 @@ No source file changed, so no focused runtime test was added. `npm test`
 and `npm run build` were not run. No Azahar or browser session was driven.
 Coordinator recapture is not asked for: the pixels under comparison did
 not change. Whole `camera-readonly-view-photos-page1` stays fail. Not 1:1.
+
+## Independent review
+
+Grok 4.6 `camera-thumb-interiors-review-20261005-r1`: **APPROVE** of
+`84d636e3` (cherry-pick of `dbd493f7`). Painter unchanged. BrowseThumbnail
+`0x2d5cac` is the only `BL` to `0x2b881c` and stores **56×42**. `0x2eebe4`
+stores **1024×768**. EXIF thumbnail is **160×120** and is not that slot.
+Official interiors stay **846/918**. TxtSet recapture left those counts
+untouched. Not 1:1.

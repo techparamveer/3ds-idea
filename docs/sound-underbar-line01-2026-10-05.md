@@ -112,3 +112,15 @@ excess. Editing the shared partition texel would move `Line00` `(44,220)` and
 texel `(4,4)`, the absent native triple, the unchanged painter bind, and, when
 the private stills are present, `Line01` excess **1** at `(92,220)`, sibling
 local `(4,4)` matches, battery ROI **1** and clock **0** on both frozen uppers.
+
+## Independent review
+
+Grok 4.6 `sound-underbar-line01-review-20261005-r1`: **APPROVE** of
+`6db7e7ef`. Docs and tests only. Painter unchanged. `Line01` `[88,216,96,240)`
+LCD `(92,220)` is pane `(4,4)` → shared `UnderBar_Partition` texel `(4,4)`
+`(80,64,55,255)`. Browser matches. `Line00` `(44,220)` and `Line02`
+`(196,220)` already match that texel natively. Native `(82,67,59)` is not a
+partition, UnderBar, or ChaA texel. No clip excludes pane `(4,4)`. Editing
+the shared texel would move the sibling matches off native. Frozen Line01
+excess **1**. Clock **0**. Battery `Line00` `(45,220)` stays the separate
+labelled gap. Not 1:1.

@@ -141,3 +141,21 @@ unchanged.
 Focused `tests/camera-welcome-p1-1401.test.mjs` plus `git diff --check`.
 Application typecheck/build were not rerun because no application files
 changed. This lane did not drive Azahar or preview 3021.
+
+## Recapture (coordinator, Mac built-in, `78206164`)
+
+User-authorized laptop display. Frozen native reused (`52a6dcf7…`); Azahar
+not relaunched. Production `127.0.0.1:3000`. Chrome `--window-position=80,60`.
+Raw LCD `captureScreensAt` on Welcome page 1 (no A). Empty mask, 2/255.
+Artifacts `home-fidelity-20261001/camera-welcome-p1-recapture-20261005/`.
+
+| Region | Before | After |
+| --- | ---: | ---: |
+| Upper | 0 | **0** |
+| Lower | 1401 | **1401** |
+| Interior `[20,20,300,220]` | 0 | **0** (max 1) |
+| Perimeter | 1401 | **1401** |
+
+Browser upper `b642d80f…` and lower `230864dc…` are byte-identical to the
+hashed `0d7bfea` pair. Later renderer changes did not move this leftover.
+Labelled source-gap stands. Not 1:1.

@@ -19,7 +19,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
 | Branch | `codex/home-fidelity-20261001` |
-| HEAD | `0eee41c6` — Rewrite STATUS HEAD after the Sound first-run recapture note. |
+| HEAD | `78206164` — Record Mac-screen recapture of Sound empty-entry: battery plug 183->1, lower unchanged. |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309` recaptured (cube `(100,100,100)`). Product `acabb7af` kept. GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
@@ -34,7 +34,7 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` are not this C
 | Seat | Who | Cap |
 | --- | --- | --- |
 | Coordinator | this T3 thread (steered from grilling `a1e53fbc`; Grok 4.6) | one living thread |
-| Worker | Camera date-group cell (Grok 4.7 `camera-date-group-20261005-r1`, working) | two |
+| Worker | Camera date-group (`camera-date-group-20261005-r1`) and Camera browse slider (`camera-browse-slider-20261005-r1`); both Grok 4.7 | two |
 | Reviewer | none | one, different model from the worker |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)
@@ -46,12 +46,13 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` are not this C
 | Camera Welcome p3/p4 vs natives `3ad989b5…` / `38c19ca0…` | — | **2480** / **2093** | interiors **1079** / **692** unchanged (byte-identical hashed lowers) |
 | Sound first-run vs native `9dea0cc2…` at `898d0752` (Mac built-in) | **6094** | **6267** | perimeter **6072** / interior **195** unchanged (byte-identical hashed HudTime pair) |
 | Sound empty-entry vs native `65fc5f88…` at `0eee41c6` (Mac built-in) | **6222** | **16021** | battery **183→1**; title/row/slider/footer unchanged; lower byte-identical `ee103d93…` |
+| Camera Welcome p1 vs native `52a6dcf7…` at `78206164` (Mac built-in) | **0** | **1401** | interior **0** / perimeter **1401** unchanged (byte-identical hashed `0d7bfea`) |
 
 Unread-dot empty mask, max RGB 2, compare status 0. Camera badge white cube gone. **Static still only.** Whole scenarios still fail.
 
 ## Next
 
-**Camera date-group cell leftover** in flight (Grok 4.7 worker `camera-date-group-20261005-r1`; native centre `(255,161,0)` vs browser `(230,209,173)`). Sound first-run perimeter recapture is byte-identical (**6072**). Unread-dot 0/0 and HNI cube stay closed. Welcome p3/p4 labelled gap stands. HOME idle unmatched. Do not claim 1:1.
+**Camera date-group cell leftover** in flight (Grok 4.7 `camera-date-group-20261005-r1`; native centre `(255,161,0)` vs browser `(230,209,173)`). Second worker: Camera browse slider chrome (native ± vs browser speech icons, strip **1992**). Welcome p1 recapture is byte-identical (**0 / 1401**). Sound empty-entry battery **183→1**. Unread-dot 0/0 and HNI cube stay closed. HOME idle unmatched. Do not claim 1:1.
 
 ## History
 

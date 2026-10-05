@@ -111,11 +111,15 @@ export class NativeLayoutRenderer {
  }
  /** Rotated pictures, and explicitly opted-in fractional panes, sample once at LCD centres. A
   * pane-sized intermediate followed by Canvas rotation filters the edges twice.
+  * pictureSampling:'lcd' is one sample at LCD centres. A non-integer dest
+  * width or height is a fractional pane even when the translation is integral.
+  * The skip remains only when lcd is on and translation and size are all
+  * integers (Health 22×22). That skip is a host shortcut, not a dump store.
   * Limit direct readback to opaque targets and ordinary source-over blending;
   * other blend/alpha targets retain the established composition path. */
  private projectedPicture(ctx:Context,layout:NativeLayout,picture:NativePicture,w:number,h:number,alpha:number,textures:ReadonlyMap<string,NativePixels>,lcd=false,override?:NativeMaterial):boolean{
   const m=ctx.getTransform?.(),material=override??layout.materials[picture.material],blend=material.colorBlend;
-  if(!m||(!m.b&&!m.c&&(!lcd||Number.isInteger(m.e)&&Number.isInteger(m.f)))||ctx.globalAlpha!==1||(blend&&!(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)))return false;
+  if(!m||(!m.b&&!m.c&&(!lcd||Number.isInteger(m.e)&&Number.isInteger(m.f)&&Number.isInteger(w)&&Number.isInteger(h)))||ctx.globalAlpha!==1||(blend&&!(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)))return false;
   const det=m.a*m.d-m.b*m.c;if(!det)return false;
   const corners=[[0,0],[w,0],[0,h],[w,h]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
   const x=Math.max(0,Math.floor(Math.min(...corners.map(p=>p[0])))),y=Math.max(0,Math.floor(Math.min(...corners.map(p=>p[1]))));
@@ -317,7 +321,15 @@ export class NativeLayoutRenderer {
        }
        if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;
-        if(options.pictureSampling==='lcd'){
+        // A8 window frames (picaFormat 8: SBBtnFrame / SBBtnShdw) stay on
+        // Canvas. Their hard LCD centre is the opaque stroke and would
+        // replace the matching edge column. Host leftover of this frame
+        // geometry, not a dump scissor, and not a reason to keep Canvas
+        // edge-filter on the LA8 content strips.
+        const frameMaterial=patch.material??layout.materials[patch.picture.material];
+        const frameTexture=frameMaterial?.textureMaps[0];
+        const framePixels=frameTexture?textures.get(layout.textures[frameTexture.texture]):undefined;
+        if(options.pictureSampling==='lcd'&&framePixels?.picaFormat!==8){
          ctx.save();let sampled=false;try{ctx.translate(patch.x,patch.y);sampled=this.projectedPicture(ctx,layout,patch.picture,patch.width,patch.height,alpha,textures,true,patch.material);}finally{ctx.restore();}
          if(sampled)continue;
         }

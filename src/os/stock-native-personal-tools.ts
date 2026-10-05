@@ -209,11 +209,10 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
       }
       // SlideBar.bclyt SBBtnEmb is wrapS 2 (mirror), wrapT 0 (clamp), linear
       // min/mag, UV u 0..2, and zero TEV stages. The four SBBtn frames are
-      // clamp + linear, also with zero TEV stages. Only the fractional thumb
-      // takes this path: an integral LCD translation stays on the pane raster.
-      // One sample at pixel centres is that material. It does not move thumbY,
-      // extra, or the emboss. Canvas drawImage on the fractional strip is the
-      // host resampler behind the frozen scrollbar 34.
+      // clamp + linear, also with zero TEV stages. A fractional dest size
+      // samples once at LCD centres even when the translation is integral.
+      // Integer size stays on the pane raster. A8 SBBtnFrame/SBBtnShdw stay
+      // on Canvas. Pose, thumbY, extra, and the emboss are unchanged.
       okay=renderer.draw(bottom,'notification-slidebar','SlideBar',{pictureSampling:'lcd',bindings:[{name:'SlideBar_Select',frame:0}],overrides:notificationSlideBarOverrides(start,view.rows.length)})&&okay;
     }
     // T_EndF_00 is alignment 4 / explicit left line alignment: news code.bin

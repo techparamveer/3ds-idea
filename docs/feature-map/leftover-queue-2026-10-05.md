@@ -32,8 +32,8 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 
 | Label | Commit / note | Problem | Action |
 | --- | --- | --- | --- |
-| Sound empty-entry slider **4271** (APPROVE-WITH-NITS) | [slider](../sound-empty-slider-2026-10-04.md) | **2767** of its pixels are the `S_BG_Grid` ETC1 checker pair whose constant-colour gap was **REJECTED** today. The approval therefore covers pixels a dump texture owns. | After the grid bind, recount the slider ROI and re-review only what remains. |
-| Sound first-run perimeter **6072** compositor gap (APPROVE `6cc31903`) | [perimeter](../sound-guide-perimeter-2026-10-05.md) | 464 + 396 perimeter pixels are native `(111,107,103)` / `(115,111,107)`. That is half of the two checker colours, while the browser shows constant `(229,224,216)`. So the dimmed native shows the grid. The "4760 / 1312 half-split" evidence predates the grid finding. | Recount after the grid bind and re-review the compositor claim on what remains. |
+| Sound empty-entry slider **4271** (APPROVE-WITH-NITS) | [slider](../sound-empty-slider-2026-10-04.md) | **2767** of its pixels are the `S_BG_Grid` ETC1 checker pair whose constant-colour gap was **REJECTED** today. The approval therefore covers pixels a dump texture owns. | In flight: `sound-grid-recount-20261005-r1` (Grok 4.7). |
+| Sound first-run perimeter **6072** compositor gap (APPROVE `6cc31903`) | [perimeter](../sound-guide-perimeter-2026-10-05.md) | 464 + 396 perimeter pixels are native `(111,107,103)` / `(115,111,107)`. That is half of the two checker colours, while the browser shows constant `(229,224,216)`. So the dimmed native shows the grid. The "4760 / 1312 half-split" evidence predates the grid finding. | In flight: `sound-grid-recount-20261005-r1` (Grok 4.7). |
 | Camera browse slider plus tint, inside strip **1992** (APPROVE `90be3135`) | [slider](../camera-browse-slider-2026-10-05.md); decode [plus-tint](../camera-plus-tint-2026-10-05.md) `ed55865e` | LA4 decode: 156 opaque whites, 0 α128. Kept as source-gap. Independent review still owed (worker was Grok 4.7). | Different-model review of `ed55865e`. |
 | Settings main **0/20** | `74ac999e`, [note](../settings-main-residual-2026-10-04.md) | No independent review on record | In flight: `settings-main-review-20261005-r1` (Grok 4.7). |
 | HOME entry banner footer-14 activation | `7b773b71`, [note](../home-entry-banner-scale-2026-10-04.md) | Relabelled. The footer-14 `activationReady` gate only delays activation; N057 timing is a capture-fit adaptation. Scale writer `0x1fa344` kept. | Done (docs-only). Recapture stays in §3. |
@@ -83,4 +83,4 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 
 Next after these: first native pairs for eShop and Miiverse (coordinator,
 Azahar; runbook `O/coord-logs/native-new-apps-runbook-20261004.md`), and the
-HOME 1-row tail review, Sound slider/perimeter recount, and reviews of `14533857` / `22e8b0a4` / `1863c4e4`.
+HOME 1-row tail review and reviews of `14533857` / `22e8b0a4` / `1863c4e4`.

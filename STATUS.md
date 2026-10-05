@@ -19,7 +19,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
 | Branch | `codex/home-fidelity-20261001` |
-| HEAD | `ed55865e` — Keep the Camera browse plus tint as a source-gap after decoding ZoomUp. |
+| HEAD | `463513e8` — Record independent APPROVE-WITH-NITS of the Browser title-local sysinfo HUD bind. |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309`. Date-group bind `5c0199f4` recaptured (fill `(255,161,0)`). Slider source-gap `e6bcca9f` (Grok 4.6 **APPROVE** `90be3135`). Photo-crop source-gap `b75f275d` (Grok 4.6 **APPROVE** `9d3237b6`). Date-text source-gap `82a16d1c` (Grok 4.6 **APPROVE** `62457c68`). Selection source-gap `9c431d1d` (Grok 4.6 **APPROVE** `43173720`). Settings-footer X-scale `99a4362e` (Grok 4.6 **APPROVE**; recapture `d6ce9913` Settings **954→630**). Remaining Settings third then `TxtSet` source-size `9580641b` (Grok 4.6 **APPROVE** `3e9c5170`; recapture `3bdc3192` Settings **630→0**). Welcome p5 live-feed source-gap `679db045` (Grok 4.6 **APPROVE** `f14c2241`). Sound Next `Guid1TxtW` source-size `269e8757` (Grok 4.6 **APPROVE**; recapture `a5b8aa9e` interior **195→0**). Sound volume live-slider source-gap `11f3cb3c` (Grok 4.6 **APPROVE** `c4f0fb90`). Sound Span live-spectrum source-gap `57b04572` (Grok 4.6 **APPROVE** `7614c291`). Sound birds held-offset source-gap `9e335f3a` (Grok 4.6 **APPROVE** `f67628f3`). Sound battery underbar-partition source-gap `76a3635a` (Grok 4.6 **APPROVE** `684a3418`). Sound UnderBar Line01 partition source-gap `6db7e7ef` (Grok 4.6 **APPROVE** `d0d96201`). Sound empty-entry row 1916 source-gap (Grok 4.6 **APPROVE** `2807aeb5`). Sound first-run guide perimeter compositor source-gap `02a60c52` (Grok 4.6 **APPROVE** `6cc31903`). Sound empty-entry mid `S_BG` constant source-gap `636976ad` **REJECTED** by Grok 4.6 (native is dump `S_BG_Grid` ETC1 checker `(223,215,206)`/`(231,223,215)`, bound on library path only); grid bind `603c5388` (Opus 5.5) recaptured: empty-entry lower **16021→7216**, mid **2255→0** / **1024→0**; Grok 4.6 **APPROVE-WITH-NITS** `de5c6445`. Leftover queue `cccf162e`. Camera Welcome p3 `TxtDlg` **1079** source-gap `57af95dd` (Grok 4.6 **APPROVE-WITH-NITS** `7e8e13a1`; host-gate probe `1863c4e4` accepts `writer-0x111` for every alignment-4 line alignment the setter stores as 0x111, including Welcome line alignment 2; live recapture owed). Sound upper 316 labelled `14533857` (volume overhang **42** + `S_Back_U` **274**; review pending). Camera large thumbs `PicL_SD` bind `89efb7a3` (recapture `6499f0af` lower **10158→8958**). Camera Slideshow header source-size `04f3d6bf` (recapture `5d25e2a5` header **837→0**). Camera thumb interiors 56×42 sample source-gap `84d636e3` (Grok 4.6 **APPROVE** `2258268a`). Product `acabb7af` kept. GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
@@ -27,15 +27,15 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` a
 
 ## Serving
 
-`127.0.0.1:3000` production (`next start`, pid at start 39660) Ready at runtime `1863c4e4` (Welcome `writer-0x111` gate). STATUS `dd3b8193` is docs-only. `CAMERA_FIXTURE_SDMC_ROOT=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/user/sdmc` (HNI). Path `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch `codex/home-fidelity-20261001`. Typecheck 0, `npm test` 2210 pass / 0 fail (2234 tests), build 0. Mac built-in display. Capture Chrome muted. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
+`127.0.0.1:3000` production (`next start`, pid at start 39660) still serving `1863c4e4` until HUD-bind rebuild. HEAD `463513e8` is runtime Browser title-local HUD `5c3903da` + review `463513e8`. `CAMERA_FIXTURE_SDMC_ROOT=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/user/sdmc` (HNI). Path `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch `codex/home-fidelity-20261001`. Typecheck 0, HUD tests 3/3, build pending. Mac built-in display. Capture Chrome muted. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
 
 ## Seats
 
 | Seat | Who | Cap |
 | --- | --- | --- |
 | Coordinator | this T3 thread `mcp:f3c9a760` (Grok 4.6; took over 5 Oct after Opus 5.5 hit the monthly spend limit; dead parent `42eb773b` stays unread) | one living thread |
-| Worker | HOME 1-row tail **108** (`home-row-tail-20261005-r1`, Grok 4.7) and Welcome p2 feed mask (`camera-welcome-p2-mask-20261005-r1`, Grok 4.7). Landed: y=177 `22e8b0a4`, plus-tint `ed55865e` | two |
-| Reviewer | Browser HUD `01d9f79a` retry (`browser-hud-review-20261005-r2`, Grok 4.6). r1 provider-failed, no commit. Review backlog: `1863c4e4`, `14533857`, `22e8b0a4`, `ed55865e` | one, different model from the worker |
+| Worker | HOME 1-row tail **108** (`home-row-tail-20261005-r1`, Grok 4.7) and Welcome p2 feed mask (`camera-welcome-p2-mask-20261005-r1`, Grok 4.7) | two |
+| Reviewer | free after HUD `463513e8` **APPROVE-WITH-NITS**. Backlog: `14533857`, `22e8b0a4`, `ed55865e`, `1863c4e4` (not Grok 4.7) | one, different model from the worker |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)
 
@@ -55,7 +55,7 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Queue: [leftover-queue-2026-10-05](docs/feature-map/leftover-queue-2026-10-05.md). In flight: HOME 1-row tail (Grok 4.7), Welcome p2 mask (Grok 4.7), HUD `01d9f79a` review r2 (Grok 4.6). Landed y=177 `22e8b0a4` and plus-tint `ed55865e` (reviews pending). Rank-1 recapture still owed: Settings main, Health Usage, Manual p0 `d0ecf020`, Browser Manual `7466b4e4`, Design `ed167d5b`, entry banner `7b773b71`, HOME 1-row pair. Recount Sound slider/perimeter checker share after grid bind. Grid bind **APPROVE-WITH-NITS** `de5c6445`. Unread-dot 0/0, HNI cube, Sound Next interior 0, Camera Slideshow header 0, Camera Settings third 0, empty-entry mid 0/0 stay closed. HOME idle unmatched. Whole scenarios fail (input/motion/audio). Do not claim 1:1.
+Queue: [leftover-queue-2026-10-05](docs/feature-map/leftover-queue-2026-10-05.md). In flight: HOME 1-row tail (Grok 4.7), Welcome p2 mask (Grok 4.7). Browser HUD `5c3903da` **APPROVE-WITH-NITS** `463513e8` integrated; rebuild then recapture HUD strip (frozen **10787**). Rank-1 recapture still owed: Settings main, Health Usage, Manual p0 `d0ecf020`, Browser Manual `7466b4e4`, Design `ed167d5b`, entry banner `7b773b71`. Review backlog: `14533857`, `22e8b0a4`, `ed55865e`. Recount Sound slider/perimeter checker share after grid bind. Grid bind **APPROVE-WITH-NITS** `de5c6445`. Unread-dot 0/0, HNI cube, Sound Next interior 0, Camera Slideshow header 0, Camera Settings third 0, empty-entry mid 0/0 stay closed. HOME idle unmatched. Whole scenarios fail (input/motion/audio). Do not claim 1:1.
 
 ## History
 

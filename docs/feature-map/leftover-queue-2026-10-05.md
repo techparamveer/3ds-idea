@@ -78,7 +78,7 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | 2 | Sound upper unlabelled 316: volume-icon spill `[30,216,37,240)` 42 (max 226) and room band ~270 | **Done** `14533857` (review pending) | Labelled as volume overhang 42 + `S_Back_U` 274 |
 | 3 | Sound empty-entry lower y=177 line, 320 px | **Done** `22e8b0a4` (review pending) | `UserWdwEdge` LA8 α25; painter unchanged |
 | 4 | Camera browse plus-tint re-review (`ZoomUp` decode) | **Done** `ed55865e` (review pending) | LA4 decode; source-gap kept; predicted strip 1992 |
-| 5 | Browser: review and integrate HUD `01d9f79a`, then capture native start menu → `browser-start-menu-local` | Review: **worker/reviewer, source-only**. Pair: **Coordinator, Azahar** | r1 Grok 4.6 provider-failed with no commit. Retry. |
+| 5 | Browser: review and integrate HUD `01d9f79a`, then capture native start menu → `browser-start-menu-local` | **Integrated** `5c3903da` + review `463513e8` **APPROVE-WITH-NITS**. Recapture owed | Frozen HUD 10787 until recapture. Start-menu native still Azahar. |
 | 6 | Camera Welcome p2 upper 93408: extend the source-derived feed mask to p2 plus a reviewed adaptation, or recapture native p2 in black-feed config | Mask: **worker, source-only**. Recapture: **Coordinator, Azahar** | Large unlabelled count on an existing pair whose browser upper is byte-identical to the 0-scoring p1 |
 
 Next after these: first native pairs for eShop and Miiverse (coordinator,

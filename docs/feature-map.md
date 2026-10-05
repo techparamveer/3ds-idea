@@ -9,6 +9,12 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Browser HUD review](browser-hud-review-2026-10-05.md), Grok 4.6
+`browser-hud-review-20261005-r2`: **APPROVE-WITH-NITS** of worker
+`01d9f79a`. Title-local `layout/sysinfo` (no `hud_LZ.bin`). Frozen HUD
+`[0,0,400,28]` **10787** until recapture. Bat 4/5 is untraced on this
+applet. Not 1:1.
+
 [Camera browse plus tint](camera-plus-tint-2026-10-05.md), worker
 `codex/camera-plus-tint-20261005`: LA4 `P_BtnO_BrwsZoom0.bclim` decodes
 **156** `(255,255,255,255)` texels and **0** alpha-128 texels. The native
@@ -46,7 +52,8 @@ NetAtn 3 / Bat `deviceStatusBatteryFrame`, injected date, colon seconds
 parity. Painter no longer draws centred `lau_title_web`. Reused
 `browser-start-menu-local` pair stays **95571** / **76728**; HUD
 `[0,0,400,28]` **10787** is the pre-bind still. Offline LCD raster is
-unavailable here. After pixels await `capture-browser.mjs`. Not 1:1.
+unavailable here. After pixels await `capture-browser.mjs`. Grok 4.6
+**APPROVE-WITH-NITS** ([review](browser-hud-review-2026-10-05.md)). Not 1:1.
 
 [Camera Welcome page-3 TxtDlg host gate](camera-welcome-p3-txtdlg-2026-10-05.md),
 worker `codex/camera-welcome-p3-gate-20261005`: setter `0x1cdb2c` stores

@@ -8,9 +8,10 @@ empty-entry row/slider/footer and Camera leftovers are not retuned
 ([perimeter 6072](sound-guide-perimeter-2026-10-04.md),
 [remaining residual](sound-remaining-residual-2026-10-04.md)).
 
-This is not a 1:1 claim. The frozen browser lower is unchanged. Tests and
-this note do not close pixels, input, motion or audio. Coordinator
-recapture remains the acceptance gate.
+This is not a 1:1 claim. Recapture dropped the guide interior **195 → 0**
+and whole lower **6267 → 6072**. The perimeter complement stayed **6072**.
+Tests, this note, and the stills do not close pixels, input, motion or
+audio.
 
 ## Pairs (reused, not recaptured)
 
@@ -88,15 +89,34 @@ Grok 4.6 `sound-guide-next-195-review-20261005-r1`: **APPROVE** of
 `269e8757` (cherry-pick of `4a0cfcc5`). Page-1-only
 `textSampling:'lcd-source-size'` with `textSamplingPanes:['Guid1TxtW']`
 on `C_DlgGuid1BtnW` matches dump. Flags `0x111` at `0x15dce8`; only `bl`
-to `0x2a5558` is `0x2a5854`. Frozen interior **195** until recapture.
+to `0x2a5558` is `0x2a5854`. Frozen interior was **195** until recapture.
 Nit: `Guid1TxtW` lives at `0x3237c9`; `0x181018` is `ldr r0,[sl,#0x10]`.
 Not 1:1.
 
-## Coordinator recapture (not done here)
+## Recapture (coordinator, Mac built-in, bind `269e8757` / note `5fac611a`)
 
-Muted production pair against the same native
-`9dea0cc2…`. Report whole lower, interior `[20,20,300,220]`, Next
-`[138,196,182,213]` and the perimeter complement. The complement should
-stay **6,072**. The interior should move only if this sampler is the
-live coverage of those Next glyphs. Motion and audio remain open. No 1:1
-claim.
+User-authorized laptop display (Sidecar disconnected). Frozen native
+reused (`9dea0cc2…`); Azahar not relaunched. Production `127.0.0.1:3000`
+rebuilt and restarted. Chrome `--window-position=80,60`. Raw LCD
+`captureScreensAt`. HOME → Open Sound → settled guide page 1. Empty mask
+`dc4b320b…`, 2/255. `lcdDate` `2026-09-25T21:27:14.000Z`.
+
+Artifacts `home-fidelity-20261001/sound-guide-next-recapture-20261005/`.
+
+| Item | SHA-256 / count |
+| --- | --- |
+| Browser upper | `16565d8e586edce659beadb9e7f7d72bcd8e2b81479a85bca424480d4294ceab` (byte-identical) |
+| Browser lower | `d78f43b62aebae3069e5308f46b59a9071587dca28ee07b38d7f77cd5ca34169` |
+| Report | `3aeaf44296bc98eb0f52be75e8a4b33dd53125e52f3bf4dc28e0f2023287b4ea` |
+| Whole upper | **6094** unchanged |
+| Whole lower | **6267 → 6072** |
+| Guide interior `[20,20,300,220]` | **195 → 0** |
+| Next box `[138,196,182,213]` | **195 → 0** |
+| Perimeter complement | **6072** unchanged |
+| Sample `(139,211)` | both `(69,64,57)` |
+
+The lower drop equals the Next drop (**195**). Perimeter stays the labelled
+compositor/veil gap. Title/Span/birds/volume stay on the upper.
+
+**Static still only.** Input, motion and audio were not compared. Whole
+`sound-first-run` stays fail.

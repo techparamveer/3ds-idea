@@ -44,23 +44,23 @@ test('Guid1TxtW is the fractional Next pane and the painter samples only that pa
   assert.match(painter, /entry\(bottom,'sound-dialog','C_DlgGuid2Btn',\{bindings:\[\{name:'C_DlgGuid2Btn_Default',frame:0\}\]/);
 });
 
-test('the reused HudTime-phase first-run lower still splits 195 Next glyphs from the 6072 perimeter', async t=>{
+test('Mac-screen recapture drops the Next interior to 0 and leaves the 6072 perimeter', async t=>{
   const root='/Users/paramveer/.codex/3ds-artifact-overflow';
-  const recap=`${root}/home-fidelity-20261001/sound-clock-recapture-20261004`;
+  const recap=`${root}/home-fidelity-20261001/sound-guide-next-recapture-20261005`;
   const files={
     native:`${root}/reference/screenshots/Nintendo 3DS Sound_25.09.26_22.27.14.541.png`,
-    browser:`${recap}/browser-first-run/lower.png`,
-    upper:`${recap}/browser-first-run/upper.png`,
-    report:`${recap}/diff-sound-first-run-hudtime-phase/report.json`,
+    browser:`${recap}/browser/lower.png`,
+    upper:`${recap}/browser/upper.png`,
+    report:`${recap}/report.json`,
     mask:new URL('../scripts/native-compare/empty-mask.json', import.meta.url),
   };
   if(![files.native, files.browser, files.upper, files.report].every(existsSync)){
-    return t.skip('private Sound HudTime-phase pair is absent');
+    return t.skip('private Sound Next recapture pair is absent');
   }
   assert.equal(sha(files.native), '9dea0cc2fa7022ccd032c5a94ae59c2dbe37e6b7e800fbf8668b356fc9e5ce69');
-  assert.equal(sha(files.browser), 'b9d1093ab9641460de6e9e0490707ae12d41008085ee8f7c9995d12fd504fbb9');
+  assert.equal(sha(files.browser), 'd78f43b62aebae3069e5308f46b59a9071587dca28ee07b38d7f77cd5ca34169');
   assert.equal(sha(files.upper), '16565d8e586edce659beadb9e7f7d72bcd8e2b81479a85bca424480d4294ceab');
-  assert.equal(sha(files.report), 'cb06bed5902eb0bf42f409ad3f3445799e7273fbc53dd1081101490184c3ba45');
+  assert.equal(sha(files.report), '3aeaf44296bc98eb0f52be75e8a4b33dd53125e52f3bf4dc28e0f2023287b4ea');
   assert.equal(sha(files.mask), 'dc4b320b16c2dd2d560b4bae62d9d061b0d93c83496c3c0902df1e3233b36e95');
   const sharp=require('sharp');
   const native=await sharp(files.native).extract({left:40, top:240, width:320, height:240}).ensureAlpha().raw().toBuffer();
@@ -74,10 +74,14 @@ test('the reused HudTime-phase first-run lower still splits 195 Next glyphs from
     }
     return n;
   };
-  assert.equal(count(0, 0, 320, 240), 6267);
-  assert.equal(count(20, 20, 300, 220), 195);
-  assert.equal(count(138, 196, 182, 213), 195);
+  assert.equal(count(0, 0, 320, 240), 6072);
+  assert.equal(count(20, 20, 300, 220), 0);
+  assert.equal(count(138, 196, 182, 213), 0);
   assert.equal(count(0, 0, 320, 20)+count(0, 20, 20, 220)+count(300, 20, 320, 220)+count(0, 220, 320, 240), 6072);
+  const i=(211*320+139)*4;
+  assert.deepEqual([native[i], native[i+1], native[i+2]], [69, 64, 57]);
+  assert.deepEqual([browser[i], browser[i+1], browser[i+2]], [69, 64, 57]);
   const report=JSON.parse(readFileSync(files.report, 'utf8'));
-  assert.equal(report.screens.lower.pixelsOverThreshold, 6267);
+  assert.equal(report.screens.lower.pixelsOverThreshold, 6072);
+  assert.equal(report.screens.upper.pixelsOverThreshold, 6094);
 });

@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Sound grid recount](sound-grid-recount-2026-10-05.md), worker
+`codex/sound-grid-recount-20261005`: post-grid empty-entry slider ROI
+**4271→377** (checker **0**; **320** `UserWdwEdge` α11; **57** `C_SldH_L`).
+First-run complement stays **6072** on `cd0ce717…`; **860** are dump grid
+under `⌊grid/2⌋`, and **5212** are not the checker. Painter unchanged.
+Not 1:1.
+
 [Sound upper 316 review](sound-upper-316-review-2026-10-05.md), Grok 4.6
 `sound-upper-316-review-20261005`: **APPROVE** of leftover `14533857`.
 Independent dump decode + frozen first-run `9dea0cc2…` / `16565d8e…`
@@ -123,8 +130,10 @@ empty-entry lower **16021 → 7216** (`860b3222…`, report `4a5bc73c…`), mid
 **6094 / 6072** unchanged (report `8f6a1394…`). Independent Grok 4.6 review
 `sound-empty-grid-review-20261005-r1` **APPROVE-WITH-NITS** `de5c6445`
 (`0x231230` is vtable slot 12, not itself the ctor; live first-run is **6072**
-not pre-Next **6267**). Remaining empty-entry lower is the labelled
-row/slider/footer clusters (to be recounted). Not 1:1.
+not pre-Next **6267**). Recount of this pair
+([grid recount](sound-grid-recount-2026-10-05.md)): slider ROI **4271→377**
+(checker **0**), first-run complement still **6072** with **860** dimmed
+grid. Not 1:1.
 
 Notifications status (matched-clock recapture, 4 October): upper HUD **3347**
 and lower scrollbar **2479** source-gap claims below were **REJECTED** by

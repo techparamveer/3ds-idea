@@ -105,6 +105,14 @@ or screenshot fit.
 | Browser-inspected | Not run. Preview 3021 and CDP were out of scope |
 | Native-compared | Reused frozen pair only. Settings third still **954**. Not recaptured. Not 1:1 |
 
+## Independent review
+
+Grok 4.6 `camera-settings-footer-review-20261005-r1`: **APPROVE**.
+Fidelity `99a4362e` is dump-backed X-only browse `TxtSet` scale. Frozen
+Settings third stays **954** until recapture. `P/setting` 80 then 100;
+tag `0x2718c8` writes scale X and copies Y. Welcome `TxtSet` stays plain
+`setting`. Not 1:1.
+
 ## Remaining
 
 Whole lower **10482** and Settings third **954** stay on the frozen pair

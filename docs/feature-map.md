@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Settings Other p3/p4 upper HUD 169](settings-other-p34-hud-169-2026-10-05.md), worker
+`codex/settings-other-p34-hud-169-20261005`: frozen **169** is dump
+`HudMset_00` Bat 4/5 (`HudBat_04`/`HudBat_05`, 137) plus pane `T_TimeC_00`
+(32). Settings HUD runtime previous-displayed seconds / Bat frames already
+select those. Painter unchanged. Predicted **169 / 8** and **169 / 35**.
+Not 1:1.
+
 [Sound perimeter 5212 subsets review](sound-perimeter-5212-subsets-review-2026-10-05.md), Grok 4.6
 `codex/sound-perimeter-5212-subsets-review-20261005`: **APPROVE-WITH-NITS**
 of `6e2cff7e`. Independent dump unpack + frozen `9dea0cc2…` /

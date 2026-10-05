@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Camera browse plus tint](camera-plus-tint-2026-10-05.md), worker
+`codex/camera-plus-tint-20261005`: LA4 `P_BtnO_BrwsZoom0.bclim` decodes
+**156** `(255,255,255,255)` texels and **0** alpha-128 texels. The native
+peach is that white at alpha 128 over UserBG. No plus-only pane, material,
+or animation supplies it. Source-gap **kept**. Painter unchanged. Predicted
+strip **1992**. Not 1:1.
+
 [Sound empty-entry y=177](sound-empty-y177-2026-10-05.md), worker
 `codex/sound-empty-y177-20261005`: the 320 px are `S_BG_D-Ctr` `UserWdwEdge`
 LA8 alpha 25 over `UserWdw`. Dump and public PNG agree. Entry theme

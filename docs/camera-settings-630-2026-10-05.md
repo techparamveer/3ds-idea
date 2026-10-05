@@ -124,3 +124,13 @@ the `(0,0)` shift minimum, the style word-0 values, and the unchanged
 X-only painter. `git diff --check` is clean. Application typecheck and
 build were not rerun. This lane did not drive Azahar or the production
 browser.
+
+## Independent review
+
+Grok 4.6 `camera-settings-630-review-20261005-r1`: **APPROVE** of
+`b85b610d` (cherry-pick of `0db334b5`). Docs and tests only. Browse
+`TxtSet` stays the dump-backed X-only scale from **APPROVE** `e652fb3f`
+/ bind `99a4362e` / recapture `d6ce9913`. Painter unchanged. Frozen
+third **630**. Type 0 writes writer `+0x24`/`+0x28`; no second Settings
+writer, clip, or width install. Shift `(0,0)` is the unique best ±2.
+Not 1:1.

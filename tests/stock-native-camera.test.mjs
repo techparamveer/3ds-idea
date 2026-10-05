@@ -59,7 +59,7 @@ test('published browse pack contains the large thumbnail clips the gallery now r
   for(const name of request.layouts)assert.ok(pack.layouts[name],name);
   for(const name of request.animations)assert.ok(pack.animations[name],name);
   assert.deepEqual(pack.animations.P_BrwsFld_PicL.textures,['P_Thmb_Date5x7.bclim','P_Thmb_DatePho2x3.bclim']);
-  assert.deepEqual(pack.animations.P_BrwsPic_PicL.textures,['P_Thmb_Pho2x3_SD.bclim','P_Thmb_Pho5x7.bclim']);
+  assert.deepEqual(pack.animations.P_BrwsPic_PicL_SD.textures,['P_Thmb_Mov5x7.bclim','P_Thmb_Pho2x3.bclim']);
   assert.equal(pack.layouts.P_BrwsFld.textures[0],'P_Thmb_DatePho5x7.bclim');
   assert.equal(pack.layouts.P_BrwsPic.textures[1],'P_Thmb_Pho5x7_SD.bclim');
   const bank=messages.messages.P;
@@ -172,13 +172,13 @@ test('folder cells bind the large PicL frame and keep the count on TxtThmb',()=>
   assert.ok(!draws.some(d=>d.layout==='P_BrwsPic'));
 });
 
-test('gallery photos draw under ThmbMask and use the large PicL clip',()=>{
+test('gallery photos draw under ThmbMask and use the large PicL_SD clip',()=>{
   const {okay,draws,images,log}=paint(view('gallery',[{id:'photo:a',label:'Building 1'}],{photos:[{id:'a',src:'/portfolio/building1.jpg'}]}));
   assert.equal(okay,true);
   assert.deepEqual(images,[['/portfolio/building1.jpg',56,53,56,42]]);
   const pic=draws.find(d=>d.layout==='P_BrwsPic');
   assert.ok(draws.findIndex(d=>d.layout==='P_BrwsPic')>=0);
-  assert.deepEqual(pic.opts.bindings.map(b=>b.name),['P_BrwsPic_Default','P_BrwsPic_PicL']);
+  assert.deepEqual(pic.opts.bindings.map(b=>b.name),['P_BrwsPic_Default','P_BrwsPic_PicL_SD']);
   assert.equal(pic.opts.overrides.ThmbPic.alpha,0);
   assert.equal(pic.opts.overrides.ThmbPic.visible,undefined);
   assert.ok(!log.some(entry=>entry[0]==='fillText'));

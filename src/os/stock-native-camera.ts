@@ -13,7 +13,7 @@ export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
     'P_BrwsBase_D_Brws',
     'P_BrwsBase_D_Default',
     'P_BrwsFld_Default','P_BrwsFld_PicL','P_BrwsFld_PicL_Op',
-    'P_BrwsPic_Default','P_BrwsPic_PicL',
+    'P_BrwsPic_Default','P_BrwsPic_PicL_SD',
     'P_BrwsCursor_D_Default','P_BrwsCursor_D_CurDefault','P_BrwsCursor_D_PicL',
     'P_BrwsPhoMntBase_PicL',
     'P_BrwsMenu_D_Brws',
@@ -182,7 +182,10 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
         const shown=image(photos.find(p=>'photo:'+str(p.id)===row.id)??{},...cameraThumbPicRect(x,y));
         // Hide only the load placeholder. ThmbMask is an unflagged child, so it
         // still composites after the portfolio pixels at the source 56×42 slot.
-        draw('P_BrwsPic',{center:[x,y],bindings:[{name:'P_BrwsPic_Default',frame:0},{name:'P_BrwsPic_PicL',frame:0}],overrides:shown?{ThmbPic:{alpha:0}}:{}});
+        // Kind 5 (0x2da614, storage bits 0–1 == 1 and not a movie) binds large
+        // PicL_SD. Frame 0 steps ThmbMask to pattern 1, white P_Thmb_Pho2x3.
+        // PicL frame 0 is the grey P_Thmb_Pho2x3_SD frame and is not this cell.
+        draw('P_BrwsPic',{center:[x,y],bindings:[{name:'P_BrwsPic_Default',frame:0},{name:'P_BrwsPic_PicL_SD',frame:0}],overrides:shown?{ThmbPic:{alpha:0}}:{}});
       }
       if(r.row===view.selection)draw('P_BrwsCursor_D',{center:[x,y],bindings:[{name:'P_BrwsCursor_D_Default',frame:0},{name:'P_BrwsCursor_D_CurDefault',frame:0},{name:'P_BrwsCursor_D_PicL',frame:0}]});
     }

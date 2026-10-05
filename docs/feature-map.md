@@ -127,7 +127,8 @@ pages 3–5 mask unchanged. Not 1:1.
 [Browser HUD review](browser-hud-review-2026-10-05.md), Grok 4.6
 `browser-hud-review-20261005-r2`: **APPROVE-WITH-NITS** of worker
 `01d9f79a`. Title-local `layout/sysinfo` (no `hud_LZ.bin`). Frozen HUD
-`[0,0,400,28]` **10787** until recapture. Bat 4/5 is untraced on this
+`[0,0,400,28]` recaptured **10787→1200** (`rank1-recapture-20261005/browser-hud/`,
+report `ff61db74…`, max 120 at `(0,27)`). Bat 4/5 is untraced on this
 applet. Not 1:1.
 
 [Camera browse plus tint](camera-plus-tint-2026-10-05.md), worker

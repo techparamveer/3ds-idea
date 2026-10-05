@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Sound empty-entry y=177 review](sound-y177-review-2026-10-05.md), Grok 4.6
+`sound-y177-review-20261005`: **APPROVE** of leftover `22e8b0a4`.
+Independent dump LA8 decode + frozen empty-entry `65fc5f88…` /
+`860b3222…` at `603c5388` confirm `UserWdwEdge` row 3 α25 over
+`UserWdw` is lower **320**. Predicted **320**. Painter unchanged.
+Not 1:1.
+
 [Sound grid recount](sound-grid-recount-2026-10-05.md), worker
 `codex/sound-grid-recount-20261005`: post-grid empty-entry slider ROI
 **4271→377** (checker **0**; **320** `UserWdwEdge` α11; **57** `C_SldH_L`).

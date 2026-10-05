@@ -105,14 +105,38 @@ stay as they were.
 | Implemented | Browse `TxtSet` added to the source-size allowlist beside `TxtSShow` |
 | Tested | `node --test tests/camera-settings-txtset.test.mjs tests/camera-browse-header.test.mjs tests/camera-settings-630.test.mjs tests/camera-settings-footer.test.mjs` |
 | Browser-inspected | Not run. Preview 3021 and CDP were out of scope |
-| Native-compared | Not recaptured. Frozen Settings third stays **630**. Not 1:1 |
+| Native-compared | Recapture `84d636e3`: Settings third **630 → 0**. Whole lower **8121 → 7491**. Not 1:1 |
+
+## Coordinator recapture — 5 October 2026
+
+Mac built-in display, production TxtSet sampler (`9580641b` runtime;
+HEAD `84d636e3`), `CAMERA_FIXTURE_SDMC_ROOT` (HNI), empty mask, threshold
+any RGB channel >2/255. Scenario `camera-readonly-view-photos-page1`.
+lcdDate `2026-09-25T21:35:00.000Z`. Artifacts
+`home-fidelity-20261001/camera-settings-txtset-recapture-20261005/`.
+Inspected the lower contact sheet: the Settings word now sits on the
+native word. Remaining red is photo interiors, the gallery cursor on the
+wrong cell, date glyphs, and the slider.
+
+| Item | SHA-256 |
+| --- | --- |
+| Browser upper | `184bdfdf148d41cecc10d245f14708a38d4afc7c1776c4d9a6bf7eef067694d6` |
+| Browser lower | `2657bb855667464a806298d1f079a20ec0ac0956f26cc1b73eb8287f0f8e119f` |
+| Report | `b7da8109316596bfd6dce6fcd4352c96804343cee899e45b076122f64054fd3d` |
+| Native combined | `cae793c31bdf9f13d44f0834582bf99fead5bb8d652321913993bedde7ae1652` |
+
+Upper **33522** is byte-identical with the Slideshow-header recapture
+upper. Whole lower **8121 → 7491**. Settings third `[215,320)×[212,240)`
+**630 → 0** (max 2). Sample `(253,227)` is `(70,65,58)` on both LCDs.
+Header y<32 stays **0**. Slideshow and Shoot footer thirds stay **0**.
+Date pane **1006**, slider **1992**, and the labelled thumb interiors
+are unchanged. Cube centre `(383,17)` stays `(100,100,100)` on both.
 
 ## Checks
 
 `tests/camera-settings-txtset.test.mjs` locks the two-pane allowlist, the
 absent `TxtShoot` entry, the unchanged X-only scale, Welcome's plain
 `setting` label, the fractional 76.8 pane, the shared flag and writer
-words, and the frozen **8121** / header **0** / Settings **630** counts.
-`tests/camera-browse-header.test.mjs` now expects `TxtSet` beside
-`TxtSShow`. Application typecheck and build were not rerun. This lane
-did not drive Azahar or the production browser.
+words, and the recaptured **7491** / header **0** / Settings **0**
+counts. `tests/camera-browse-header.test.mjs` still pins the prior
+header-recapture pair at whole lower **8121**.

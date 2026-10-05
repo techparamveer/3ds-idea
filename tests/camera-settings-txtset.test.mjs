@@ -32,8 +32,8 @@ const find = (panes, name) => {
 const textPanes = panes => (panes ?? []).flatMap(pane => (pane.text ? [pane] : []).concat(textPanes(pane.children)));
 
 const NATIVE = '/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/camera-populated-browse-global/native/combined.png';
-const BROWSER = '/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-browse-header-recapture-20261005/browser/lower.png';
-const REPORT = '/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-browse-header-recapture-20261005/report.json';
+const BROWSER = '/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-settings-txtset-recapture-20261005/browser/lower.png';
+const REPORT = '/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-settings-txtset-recapture-20261005/report.json';
 const CODE = '/Users/paramveer/.codex/3ds-artifact-overflow/assets/stock-ui/reader-extracted/camera/contents/0000-0000001a/exefs/code.bin';
 
 test('browse Settings joins the source-size allowlist beside Slideshow', () => {
@@ -106,11 +106,11 @@ test('Camera flag setter and centering writer are shared, not Slideshow-named', 
   assert.equal(word(0x329554), 0xebffff01);
 });
 
-test('frozen Settings third stays 630 until recapture', t => {
+test('recaptured Settings third is 0 after the source-size sampler', t => {
   if (!existsSync(NATIVE) || !existsSync(BROWSER) || !existsSync(REPORT)) return t.skip('frozen camera browse pair is absent');
   assert.equal(fileSha(NATIVE), 'cae793c31bdf9f13d44f0834582bf99fead5bb8d652321913993bedde7ae1652');
-  assert.equal(fileSha(BROWSER), 'e14e44c3be89c969627b20807b13c4714de5fe240dde3d1edaefcc0943794c82');
-  assert.equal(fileSha(REPORT), '099bc01e592243be129e83a815a20269c734d3a64c8ddbd2fe9d4eacd62cfd3f');
+  assert.equal(fileSha(BROWSER), '2657bb855667464a806298d1f079a20ec0ac0956f26cc1b73eb8287f0f8e119f');
+  assert.equal(fileSha(REPORT), 'b7da8109316596bfd6dce6fcd4352c96804343cee899e45b076122f64054fd3d');
   assert.equal(fileSha(new URL('../scripts/native-compare/empty-mask.json', import.meta.url)),
     'dc4b320b16c2dd2d560b4bae62d9d061b0d93c83496c3c0902df1e3233b36e95');
   const combined = PNG.sync.read(readFileSync(NATIVE));
@@ -126,7 +126,7 @@ test('frozen Settings third stays 630 until recapture', t => {
   const delta = (native, candidate) => Math.max(
     Math.abs(native[0] - candidate[0]), Math.abs(native[1] - candidate[1]), Math.abs(native[2] - candidate[2]));
   assert.deepEqual(nativeAt(253, 227), [70, 65, 58]);
-  assert.deepEqual(browserAt(253, 227), [153, 148, 140]);
+  assert.deepEqual(browserAt(253, 227), [70, 65, 58]);
   const count = (x0, x1, y0, y1) => {
     let n = 0;
     let max = 0;
@@ -143,11 +143,11 @@ test('frozen Settings third stays 630 until recapture', t => {
     whole++;
     if (y < 32) header++;
   }
-  assert.equal(whole, 8121);
+  assert.equal(whole, 7491);
   assert.equal(header, 0);
   assert.equal(count(0, 105, 212, 240).n, 0);
   assert.equal(count(107, 213, 212, 240).n, 0);
   const settings = count(215, 320, 212, 240);
-  assert.equal(settings.n, 630);
-  assert.equal(settings.max, 83);
+  assert.equal(settings.n, 0);
+  assert.equal(settings.max, 0);
 });

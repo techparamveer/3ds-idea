@@ -33,7 +33,7 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | Label | Commit / note | Problem | Action |
 | --- | --- | --- | --- |
 | Sound empty-entry slider ROI **377** (was **4271**) | [recount](../sound-grid-recount-2026-10-05.md); [review](../sound-slider-57-review-2026-10-05.md) **APPROVE-WITH-NITS** | Post-grid `860b3222…`. Checker **0**. **320** edge + **57** `C_SldH_L` (**52** `IconS` under `M-`, **4** `Box` fringe, **1** `BtnP`). | Closed (docs). Predicted ROI **377**. Edge stays with y=177. Painter unchanged. |
-| Sound first-run perimeter **6072** compositor gap (APPROVE `6cc31903`) | [recount](../sound-grid-recount-2026-10-05.md); [perimeter](../sound-guide-perimeter-2026-10-05.md) | Post-grid lower `cd0ce717…` (the `a5b8aa9e` lower was pre-grid). **860** pixels are dump grid on the browser and `⌊grid/2⌋` on native. Flat fill `(229,224,216)` is **0**. Half-split on this pair is **5276 / 796**. | Re-review the compositor claim on the **5212** pixels that are not the bare checker. Painter unchanged. |
+| Sound first-run perimeter **6072** compositor gap (APPROVE `6cc31903`) | [recount](../sound-grid-recount-2026-10-05.md); [review](../sound-perimeter-5212-review-2026-10-05.md) **REJECT** | Post-grid lower `cd0ce717…`. **860** dimmed grid confirmed. The **5212** are **4416** half observation + **728** dimmed empty-entry mismatch (peak `(296,234)`) + **68** guide-only fringe. | **REJECT** the veil as owner of the **5212**. Those pixels stay unlabelled. Predicted complement **6072**. Painter unchanged. |
 | Camera browse slider plus tint, inside strip **1992** (APPROVE `90be3135`) | [slider](../camera-browse-slider-2026-10-05.md); decode [plus-tint](../camera-plus-tint-2026-10-05.md) `ed55865e`; review [plus-tint-review](../camera-plus-tint-review-2026-10-05.md) `b6620fa4` **APPROVE** | LA4 decode: 156 opaque whites, 0 α128. Kept as source-gap. Independent Grok 4.6 **APPROVE**. | Closed (docs). Predicted strip **1992**. |
 | Settings main **0/20** | `74ac999e`, [note](../settings-main-residual-2026-10-04.md); review [settings-main-review](../settings-main-review-2026-10-05.md) `6ee4f4f8` **APPROVE-WITH-NITS** | 15 Other Settings t/n/s rights just below `*.5`; 2 Data Management **a** (not **g**); 3 `I_TopLTs` fringe Δ3. | Closed (docs). Predicted **0/20**. || HOME entry banner footer-14 activation | `7b773b71`, [note](../home-entry-banner-scale-2026-10-04.md) | Relabelled. The footer-14 `activationReady` gate only delays activation; N057 timing is a capture-fit adaptation. Scale writer `0x1fa344` kept. | Done (docs-only). Recapture stays in §3. |
 | Browser upper HUD bind | integrated `5c3903da` + review `463513e8` **APPROVE-WITH-NITS** | Frozen HUD `[0,0,400,28]` **10787** until recapture. Start-menu native still Azahar. | Coordinator recapture. |
@@ -81,7 +81,9 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | 6 | Camera Welcome p2 upper 93408: extend the source-derived feed mask to p2 plus a reviewed adaptation, or recapture native p2 in black-feed config | **Blocked** `c53a96aa`. Recapture: **Coordinator, Azahar** | No p2 upper guide frame; mask not extended. Frozen **93408** until black-feed native recapture. |
 
 Next after these: first native pairs for eShop and Miiverse (coordinator,
-Azahar; runbook `O/coord-logs/native-new-apps-runbook-20261004.md`), the
-HOME 1-row tail review `cb324a43`, and re-review of perimeter **5212**.
-Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Welcome gate
-**APPROVE-WITH-NITS** `42d62c69`. y=177 **APPROVE** `9fe268f8`.
+Azahar; runbook `O/coord-logs/native-new-apps-runbook-20261004.md`), and
+the HOME 1-row tail review `cb324a43`. Perimeter **5212** veil claim
+**REJECT** (predicted complement **6072** = **860** dimmed grid +
+**5212** unlabelled). Slider **57** **APPROVE-WITH-NITS** `444ba8e0`.
+Welcome gate **APPROVE-WITH-NITS** `42d62c69`. y=177 **APPROVE**
+`9fe268f8`.

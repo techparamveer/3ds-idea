@@ -34,7 +34,7 @@ Not serving (5 Oct, Opus 5.5 coordinator start): nothing listens on `127.0.0.1:3
 | Seat | Who | Cap |
 | --- | --- | --- |
 | Coordinator | this T3 thread `mcp:f3c9a760` (Claude Opus 5.5, 1M; took over 5 Oct from dead Grok 4.6 `42eb773b`) | one living thread |
-| Worker | leftover audit (`leftover-audit-20261005-r1`, Grok 4.7) and empty-entry grid bind (`sound-empty-grid-20261005-r1`, Grok 4.7) | two |
+| Worker | leftover audit (`leftover-audit-20261005-r2`) and empty-entry grid bind (`sound-empty-grid-20261005-r2`); both Claude Opus 5.5 after Grok 4.7 r1 provider failures | two |
 | Reviewer | Camera Welcome p3 `TxtDlg` (`camera-welcome-p3-review-20261005-r1`, Grok 4.6) | one, different model from the worker |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)

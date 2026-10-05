@@ -56,3 +56,25 @@ Right strip, height `108.60000610351562`, raster 109, pad 110, dest
 height `108.60000610351562*110/109`, clip height 109. Local `108.5`
 still maps to source ≈108.90. Local `107.5` (LCD y=111) stays below
 row 108 and does not read the pad.
+
+## Recapture (coordinator, Mac built-in, `c8a56cba`)
+
+User-authorized laptop display (Sidecar disconnected). Frozen native
+reused (`58fff714…`); Azahar not relaunched. Production `127.0.0.1:3000`.
+Chrome `--window-position=80,60`. Raw LCD `captureScreensAt`. Browser
+lower `8a624950…`, report `34eb7d08…`, artifacts
+`notifications-scrollbar-1-clamp-recapture-20261005/`. Empty mask, 2/255.
+Upper PNG SHA unchanged (`dc73ce72…`). Compare status 0. One muted 404
+in the capture log.
+
+| Region | Before | After |
+| --- | ---: | ---: |
+| Upper | 0 | **0** |
+| Lower | 1 | **0** |
+| Scrollbar `[291,0,320,210]` | 1 | **0** |
+| List | 0 | **0** |
+| Close | 0 | **0** |
+
+Max RGB error is 2 on both LCDs. This is a **static still** of
+`notifications-list-unread-dot` vs native `58fff714…`. Input, motion
+and audio are not compared. The whole scenario remains **fail**. Not 1:1.

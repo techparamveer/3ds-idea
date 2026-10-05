@@ -67,7 +67,13 @@ Grok 4.6 **APPROVE-WITH-NITS** of `aa9d194a` (fidelity `9d80f9e6` + nits
 `96136a07`). Mac-screen recapture: scrollbar **10 → 1** (face x 301–309
 gone; `(310,112)` A8 frame edge remains). Extra-6 idle pose stays
 labelled
-([scrollbar 34 note](notifications-scrollbar-34-2026-10-04.md)). Not 1:1.
+([scrollbar 34 note](notifications-scrollbar-34-2026-10-04.md)).
+Integer-origin A8 Canvas blit now pads the ceil raster
+([scrollbar 1 clamp](notifications-scrollbar-1-clamp-2026-10-05.md));
+Grok 4.6 **APPROVE** of `5a2f8f12` (fidelity `c8a56cba`). Mac-screen
+recapture: scrollbar **1 → 0**, this still **0 / 0** empty-mask over
+2/255. Input, motion and audio are not compared. Whole scenario
+**fail**. Not 1:1.
 
 [Notifications HUD charging battery](notifications-hud-battery-2026-10-04.md),
 worker `codex/notifications-battery-20261004`: painter no longer freezes

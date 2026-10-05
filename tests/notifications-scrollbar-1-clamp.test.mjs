@@ -200,35 +200,35 @@ test('Health integer size still skips projectedPicture; extra-6, Close, list, an
   assert.equal(typeof nativeWindowPatches, 'function');
 });
 
-test('frozen scrollbar pair is still one lower pixel until recapture', async t=>{
+test('Mac-screen clamp recapture is empty-mask 0/0 on this still', async t=>{
   const root='/Users/paramveer/.codex/3ds-artifact-overflow';
   const native=`${root}/home-fidelity-20261001/native-reference/screenshots/_27.09.26_13.16.53.105.png`;
-  const lower=`${root}/home-fidelity-20261001/notifications-scrollbar-10-lcd-recapture-20261005/browser/lower.png`;
-  const report=`${root}/home-fidelity-20261001/notifications-scrollbar-10-lcd-recapture-20261005/report.json`;
+  const lower=`${root}/home-fidelity-20261001/notifications-scrollbar-1-clamp-recapture-20261005/browser/lower.png`;
+  const report=`${root}/home-fidelity-20261001/notifications-scrollbar-1-clamp-recapture-20261005/report.json`;
   if(![native, lower, report].every(existsSync))return t.skip('private Notifications recapture is absent');
   assert.equal(sha(native), '58fff71424e1301e6ead6d7ef9281689faa368bf0e6403dc6dccaef1f9afa389');
-  assert.equal(sha(lower), '1473f0e78a9413d2cfe423e97d5ff86dc890260e96d79ba11e774b6d9e0a7d87');
-  assert.equal(sha(report), '45a57def3a0feab3bc5b5fe970264e2132a7de30591ca2fa44da99aaf0b7ce0d');
+  assert.equal(sha(lower), '8a624950ee546fbd35a69111fefa5db2735e311436ce6a4015b4521e10694804');
+  assert.equal(sha(report), '34eb7d08aa77f5260f40961b0207184da59897ac268d4d85e9cd353b8f0118c1');
   const parsed=JSON.parse(readFileSync(report, 'utf8'));
   assert.equal(parsed.threshold, 2);
   assert.deepEqual(parsed.mask.regions, []);
+  assert.equal(parsed.result, 'pixel-threshold-pass');
   assert.equal(parsed.screens.upper.pixelsOverThreshold, 0);
-  assert.equal(parsed.screens.lower.pixelsOverThreshold, 1);
-  assert.equal(parsed.screens.lower.maxRgbError, 9);
+  assert.equal(parsed.screens.lower.pixelsOverThreshold, 0);
+  assert.ok(parsed.screens.upper.maxRgbError<=2);
+  assert.ok(parsed.screens.lower.maxRgbError<=2);
   const sharp=require('sharp');
   const nativeLower=await sharp(native).extract({left:40,top:240,width:320,height:240}).ensureAlpha().raw().toBuffer();
   const browserLower=await sharp(lower).ensureAlpha().raw().toBuffer();
   const at=(buf,x,y)=>[buf[(y*320+x)*4],buf[(y*320+x)*4+1],buf[(y*320+x)*4+2]];
-  let n=0,where;
+  let n=0;
   for(let y=0;y<240;y++)for(let x=0;x<320;x++){
     const e=Math.max(...at(nativeLower,x,y).map((v,i)=>Math.abs(v-at(browserLower,x,y)[i])));
-    if(e>2){n++;where=[x,y,e];}
+    if(e>2)n++;
   }
-  assert.equal(n, 1);
-  assert.deepEqual(where, [310,112,9]);
+  assert.equal(n, 0);
   assert.deepEqual(at(nativeLower, 310, 111), [200,200,198]);
   assert.deepEqual(at(browserLower, 310, 111), [200,200,198]);
   assert.deepEqual(at(nativeLower, 310, 112), [200,200,198]);
-  assert.deepEqual(at(browserLower, 310, 112), [209,209,207]);
-  for(let x=301;x<=309;x++)assert.ok(Math.max(...at(nativeLower,x,112).map((v,i)=>Math.abs(v-at(browserLower,x,112)[i])))<=2);
+  assert.ok(Math.max(...at(browserLower, 310, 112).map((v,i)=>Math.abs(v-at(nativeLower, 310, 112)[i])))<=2);
 });

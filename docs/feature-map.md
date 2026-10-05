@@ -9,6 +9,12 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Camera browse plus tint review](camera-plus-tint-review-2026-10-05.md), Grok 4.6
+`plus-tint-review-20261005`: **APPROVE** of fidelity `ed55865e` / worker
+`618cd628`. Independent dump LA4 decode of `P_BtnO_BrwsZoom0.bclim`: **156**
+opaque whites, **0** α128. Keep the source-gap. Predicted strip **1992**.
+Not 1:1.
+
 [HOME entry banner footer-14](home-entry-banner-scale-2026-10-04.md), worker
 `codex/entry-banner-relabel-20261005`: `7b773b71` is a capture-fit
 adaptation. `activationReady` delays activation until the live footer

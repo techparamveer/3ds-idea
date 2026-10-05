@@ -130,3 +130,17 @@ labelled page-1 chrome.
 newline gate, and the unchanged Welcome draw. `git diff --check` is
 clean. Application typecheck and build were not rerun. This lane did
 not drive Azahar or the production browser.
+
+## Independent review
+
+Grok 4.6 `camera-welcome-p3-review-20261005-r1`: **APPROVE-WITH-NITS** of
+`57af95dd`. Painter unchanged. Frozen lower **2480**, interior
+`[20,20,300,220]` **1079**, perimeter **1401**. Interior max **14** at
+`(246,113)` native `(202,200,198)` / browser `(214,213,212)`. All **1079**
+sit in TxtDlg `[28,99,286,144]`; bird/buttons **0**. Decoded Dlg
+`C_DlgChBase` ETC1A4 / `C_DlgChBirdA` RGB565: **1078/1079** residual native
+RGBs are not those texels. Red-ink residuals **0**. Sole `BL` to
+`0x329160` is `0x329554`. Alignment 4 + line alignment 2 stores **0x111**
+(nit: same flag word as line-alignment 0, not a different one; the host
+`writer-0x111` gate is a host restriction). Pages 1/5 interiors **0**.
+Not recaptured. Not 1:1.

@@ -19,7 +19,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
 | Branch | `codex/home-fidelity-20261001` |
-| HEAD | `22b13f20` — STATUS serving restart; rank-1 recapture in progress. |
+| HEAD | `2c821272` — Browser HUD remaining 1200 leftover (`BasePct` / `HudBase` fade). |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309`. Date-group bind `5c0199f4` recaptured (fill `(255,161,0)`). Slider source-gap `e6bcca9f` (Grok 4.6 **APPROVE** `90be3135`). Photo-crop source-gap `b75f275d` (Grok 4.6 **APPROVE** `9d3237b6`). Date-text source-gap `82a16d1c` (Grok 4.6 **APPROVE** `62457c68`). Selection source-gap `9c431d1d` (Grok 4.6 **APPROVE** `43173720`). Settings-footer X-scale `99a4362e` (Grok 4.6 **APPROVE**; recapture `d6ce9913` Settings **954→630**). Remaining Settings third then `TxtSet` source-size `9580641b` (Grok 4.6 **APPROVE** `3e9c5170`; recapture `3bdc3192` Settings **630→0**). Welcome p5 live-feed source-gap `679db045` (Grok 4.6 **APPROVE** `f14c2241`). Sound Next `Guid1TxtW` source-size `269e8757` (Grok 4.6 **APPROVE**; recapture `a5b8aa9e` interior **195→0**). Sound volume live-slider source-gap `11f3cb3c` (Grok 4.6 **APPROVE** `c4f0fb90`). Sound Span live-spectrum source-gap `57b04572` (Grok 4.6 **APPROVE** `7614c291`). Sound birds held-offset source-gap `9e335f3a` (Grok 4.6 **APPROVE** `f67628f3`). Sound battery underbar-partition source-gap `76a3635a` (Grok 4.6 **APPROVE** `684a3418`). Sound UnderBar Line01 partition source-gap `6db7e7ef` (Grok 4.6 **APPROVE** `d0d96201`). Sound empty-entry row 1916 source-gap (Grok 4.6 **APPROVE** `2807aeb5`). Sound first-run guide perimeter compositor source-gap `02a60c52` (Grok 4.6 **APPROVE** `6cc31903`). Sound empty-entry mid `S_BG` constant source-gap `636976ad` **REJECTED** by Grok 4.6 (native is dump `S_BG_Grid` ETC1 checker `(223,215,206)`/`(231,223,215)`, bound on library path only); grid bind `603c5388` (Opus 5.5) recaptured: empty-entry lower **16021→7216**, mid **2255→0** / **1024→0**; Grok 4.6 **APPROVE-WITH-NITS** `de5c6445`. Leftover queue `cccf162e`. Camera Welcome p3 `TxtDlg` **1079** source-gap `57af95dd` (Grok 4.6 **APPROVE-WITH-NITS** `7e8e13a1`; host-gate probe `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`). Sound upper 316 labelled `14533857` (volume overhang **42** + `S_Back_U` **274**; Grok 4.6 **APPROVE** `daa93bca`). Camera large thumbs `PicL_SD` bind `89efb7a3` (recapture `6499f0af` lower **10158→8958**). Camera Slideshow header source-size `04f3d6bf` (recapture `5d25e2a5` header **837→0**). Camera thumb interiors 56×42 sample source-gap `84d636e3` (Grok 4.6 **APPROVE** `2258268a`). Product `acabb7af` kept. y=177 `22e8b0a4` (Grok 4.6 **APPROVE** `9fe268f8`). Slider 57 (Grok 4.7 **APPROVE-WITH-NITS** `444ba8e0`). GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
@@ -34,8 +34,8 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 | Seat | Who | Cap |
 | --- | --- | --- |
 | Coordinator | this T3 thread `mcp:69d81ebe` (Grok 4.6; took over 5 Oct after dead `mcp:f3c9a760` / `mcp:1b455c11` / `mcp:3144c062`; those stay unread) | one living thread |
-| Worker | Browser HUD remaining **1200** leftover launching `codex/browser-hud-1200-20261005`. Prior HUD **169** `a74309f6` landed. | two |
-| Reviewer | Settings Other p3/p4 HUD **169** `1cb78f2f` **APPROVE** (`mcp:5bfa49a2` Grok 4.5). Perimeter **5212** subsets `d72ab4b1` **APPROVE-WITH-NITS**. HOME 1-row tail `cb324a43` **APPROVE** `f72296ff`. y=177 `9fe268f8` **APPROVE**. Plus-tint `b6620fa4` **APPROVE**. HUD `463513e8` **APPROVE-WITH-NITS**. | one, different model from the worker |
+| Worker | Browser HUD remaining **1200** leftover `2c821272` landed (`mcp:932a8c63`). Seat free. | two |
+| Reviewer | Browser HUD **1200** review launching `codex/browser-hud-1200-review-20261005` (Grok 4.5). Prior HUD **169** `1cb78f2f` **APPROVE**. | one, different model from the worker |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)
 
@@ -55,7 +55,7 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Queue: [leftover-queue-2026-10-05](docs/feature-map/leftover-queue-2026-10-05.md). Settings Other p3/p4 HUD **169** **APPROVE** `1cb78f2f`. Perimeter **5212** subsets **APPROVE-WITH-NITS** `d72ab4b1`. Rank-1 recapture at `22b13f20` / runtime `5c3903da`: Other page 1 **0/0** held (report `c3481bf7…`); Health Usage **22398 / 0** held (elapsed 17199.9 same hashes as 14241.4, report `35208f55…`); HOME Design **42073 / 9581** vs frozen **36195 / 9630**; Browser HUD strip **10787→1200** (max 120 at `(0,27)`); Browser Manual p0 footer **1934→1684**, whole lower **2680→2430**. Leftover: uniquely bind remaining HUD **1200**. Still owed: Settings Manual p0 (native volume unmounted), entry `7b773b71`. Welcome p2 **blocked** `c53a96aa`. Whole scenarios fail (input/motion/audio). Do not claim 1:1.
+Queue: [leftover-queue-2026-10-05](docs/feature-map/leftover-queue-2026-10-05.md). Browser HUD remaining **1200** leftover `2c821272` (`BasePct` / `HudBase_00` fade y=25–27; predicted **1200**; painter unchanged). Awaits Grok 4.5 review. Rank-1 at `22b13f20`: Other page 1 **0/0** held; Health Usage **22398 / 0**; HOME Design **42073 / 9581**; Browser HUD **10787→1200**; Browser Manual footer **1934→1684**. Still owed: Settings Manual p0 (native volume unmounted), entry `7b773b71`. Welcome p2 **blocked**. Whole scenarios fail (input/motion/audio). Do not claim 1:1.
 
 ## History
 

@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Welcome writer-0x111 host gate review](welcome-gate-review-2026-10-05.md), Grok 4.7
+`codex/welcome-gate-review-20261005`: **APPROVE-WITH-NITS** of `1863c4e4`.
+Setter `0x1cdb2c` stores **0x111** for alignment 4 except line alignment 1
+and 3. Welcome `TxtDlg` line alignment 2 is that word. Recounted page-3
+interior **1078** (lower **2479**). Colour spans keep pages 3/4 off the
+direct sampler. Not 1:1.
+
 [Sound empty-entry y=177 review](sound-y177-review-2026-10-05.md), Grok 4.6
 `sound-y177-review-20261005`: **APPROVE** of leftover `22e8b0a4`.
 Independent dump LA8 decode + frozen empty-entry `65fc5f88…` /

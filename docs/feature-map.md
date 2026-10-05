@@ -210,6 +210,16 @@ Painter unchanged. Docs and tests only. Independent review
 5/5; Language **g** test samples leftmost columns only, full 16-column
 ownership still holds). Not recaptured. Not 1:1.
 
+Earlier [Camera Welcome page 5 upper 7,615](camera-welcome-p5-upper-2026-10-05.md):
+frozen `616fbeae…` / browser `1df24847…` stays **7615** upper (max 128 at
+`(12,6)`). Illustration centre `[80,40,240,160]` is **0**. Opaque
+`C_DlgGuid_U` and `P_Guid02_U` match. **7526** pixels are unchanged from
+the page-1 browser (upper already **0**) and are the native live photo
+through zero window alpha. **89** are the delivered partial-alpha rim
+composited on that finder. No unused clip, crop or material owns the
+photograph. Painter unchanged. Page-1 lower **1401** is not reopened.
+Not recaptured. Not 1:1.
+
 Earlier [Camera Welcome page 1 1,401](camera-welcome-p1-1401-2026-10-04.md),
 `c07e7de9` from worker `adf0cf88`: reused
 `camera-guide-page1-modal-0d7bfea` stays **0 / 1,401** over 2/255

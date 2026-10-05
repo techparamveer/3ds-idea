@@ -134,6 +134,14 @@ and this still both already select.
 Slider strip `[0,170,320,210]`, date text, the badge and lower selection
 stay where the date-group recapture left them.
 
+## Independent review
+
+Grok 4.6 `camera-photo-crop-review-20261005-r1`: **APPROVE**. Cherry-pick
+`b75f275d` matches worker `d06ca895`. Painter unchanged. Browse `0x284b54`
+loads margin 40.0, `mov r0,#2`, `bl 0x210230`. MPO note −44.553070068359375
+is source `[8.78026, 80, 542.11359, 400]`. `0x210af0` is a ±1 convergence
+store, not a second crop. Frozen upper stays **33522**.
+
 ## Checks
 
 No source file changed, so no focused runtime test was added. The frozen

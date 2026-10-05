@@ -9,6 +9,14 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Sound perimeter 5212 subsets review](sound-perimeter-5212-subsets-review-2026-10-05.md), Grok 4.6
+`codex/sound-perimeter-5212-subsets-review-20261005`: **APPROVE-WITH-NITS**
+of `6e2cff7e`. Independent dump unpack + frozen `9dea0cc2…` /
+`cd0ce717…` / `860b3222…` confirm complement **6072** = **860** dimmed
+`S_BG_Grid` + **4416** unlabelled half + **728** (**144** row + **53**
+footer + **531** within 2) + **68** guide fringe. Veil stays **REJECT**.
+Predicted **6072**. Painter unchanged. Not 1:1.
+
 [Sound perimeter 5212 subsets](sound-perimeter-5212-subsets-2026-10-05.md), worker
 `codex/sound-perimeter-5212-subsets-20261005`: after veil **REJECT**
 `be862ce6`. Frozen complement stays **6072** = **860** dimmed

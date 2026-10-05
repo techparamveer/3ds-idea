@@ -9,6 +9,14 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Settings main 0/20 review](settings-main-review-2026-10-05.md), Grok 4.7
+`codex/settings-main-review-20261005`: **APPROVE-WITH-NITS** of `74ac999e`.
+Frozen `settings-app-open-live-v85` recounts **0 / 20**, max 51. Fifteen
+pixels are Other Settings t/n/s rights just below `*.5`. Two are the
+**a** before **g** in `Data\nManagement` (screen right `76.499999`). Three
+are `I_TopLTs` left-cap fringe, delta 3. Painter unchanged. Predicted
+**0 / 20**. Not 1:1.
+
 [Camera browse plus tint review](camera-plus-tint-review-2026-10-05.md), Grok 4.6
 `plus-tint-review-20261005`: **APPROVE** of fidelity `ed55865e` / worker
 `618cd628`. Independent dump LA4 decode of `P_BtnO_BrwsZoom0.bclim`: **156**

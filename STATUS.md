@@ -27,14 +27,14 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 
 ## Serving
 
-Stopped. Listed listen pid 27357 is gone; `127.0.0.1:3000` has no listener. Last Ready was checkout `2b6e408d`, runtime `5c3903da` (Browser title-local HUD). `CAMERA_FIXTURE_SDMC_ROOT=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/user/sdmc` (HNI). Path `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch `codex/home-fidelity-20261001`. Mac built-in display. Capture Chrome muted. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
+`127.0.0.1:3000` production (`next start --hostname 127.0.0.1`, listen pid 59961) Ready at checkout `aa038083`, runtime `5c3903da` (Browser title-local HUD; docs-only since that runtime). `CAMERA_FIXTURE_SDMC_ROOT=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/user/sdmc` (HNI). Path `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch `codex/home-fidelity-20261001`. HTTP 200. Mac built-in display. Capture Chrome muted. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
 
 ## Seats
 
 | Seat | Who | Cap |
 | --- | --- | --- |
 | Coordinator | this T3 thread `mcp:69d81ebe` (Grok 4.6; took over 5 Oct after dead `mcp:f3c9a760` / `mcp:1b455c11` / `mcp:3144c062`; those stay unread) | one living thread |
-| Worker | perimeter **5212** subsets next (Grok 4.7). Landed: perimeter veil **REJECT** `be862ce6`, slider 57 `444ba8e0` **APPROVE-WITH-NITS**, Welcome gate `42d62c69` **APPROVE-WITH-NITS** | two |
+| Worker | perimeter **5212** subsets `mcp:de14c975` (Grok 4.7, `sound-perimeter-5212-subsets-20261005`, worktree `/Users/paramveer/.codex/worktrees/sound-perimeter-5212-subsets-20261005`). Landed: perimeter veil **REJECT** `be862ce6`, slider 57 `444ba8e0` **APPROVE-WITH-NITS**, Welcome gate `42d62c69` **APPROVE-WITH-NITS** | two |
 | Reviewer | HOME 1-row tail `cb324a43` **APPROVE** `f72296ff` (Grok 4.6). y=177 `9fe268f8` **APPROVE**. Plus-tint `b6620fa4` **APPROVE**. HUD `463513e8` **APPROVE-WITH-NITS**. | one, different model from the worker |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)
@@ -55,7 +55,7 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Queue: [leftover-queue-2026-10-05](docs/feature-map/leftover-queue-2026-10-05.md). Next: source-only labels for perimeter **5212** subsets after veil **REJECT** `be862ce6` (**4416** / **728** / **68**). HOME 1-row tail **APPROVE** `f72296ff`. Slider 57 **APPROVE-WITH-NITS** `444ba8e0`. Welcome gate **APPROVE-WITH-NITS** `42d62c69`. y=177 **APPROVE** `9fe268f8`. Coordinator: rank-1 recapture (Health Usage, Manual p0 `d0ecf020`, Browser Manual `7466b4e4`, Design `ed167d5b`, entry `7b773b71`, HUD strip frozen **10787**). Serving stopped. Welcome p2 **blocked** `c53a96aa`. Unread-dot 0/0, HNI cube, Sound Next interior 0, Camera Slideshow header 0, Camera Settings third 0, empty-entry mid 0/0 stay closed. HOME idle unmatched. Whole scenarios fail (input/motion/audio). Do not claim 1:1.
+Queue: [leftover-queue-2026-10-05](docs/feature-map/leftover-queue-2026-10-05.md). In flight: source-only labels for perimeter **5212** subsets (Grok 4.7 `mcp:de14c975`) after veil **REJECT** `be862ce6` (**4416** / **728** / **68**). HOME 1-row tail **APPROVE** `f72296ff`. Slider 57 **APPROVE-WITH-NITS** `444ba8e0`. Welcome gate **APPROVE-WITH-NITS** `42d62c69`. y=177 **APPROVE** `9fe268f8`. Coordinator: rank-1 recapture (Health Usage, Manual p0 `d0ecf020`, Browser Manual `7466b4e4`, Design `ed167d5b`, entry `7b773b71`, HUD strip frozen **10787**). Production Ready at `aa038083`. Welcome p2 **blocked** `c53a96aa`. Unread-dot 0/0, HNI cube, Sound Next interior 0, Camera Slideshow header 0, Camera Settings third 0, empty-entry mid 0/0 stay closed. HOME idle unmatched. Whole scenarios fail (input/motion/audio). Do not claim 1:1.
 
 ## History
 

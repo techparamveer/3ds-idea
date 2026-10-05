@@ -90,10 +90,24 @@ Still clipped, or never on this path:
 No colour, snap, `azahar-12p4-fit`, font or sampler change. Rejected
 `4d02c3de` is not revived.
 
-## Unproven
+## Recapture (coordinator, Mac built-in, `987addcc`)
 
-No recapture. The 17 pixels are not claimed cleared; skipping the host
-clip can also change the top edge of the same dest image. The word
-`0x166544` stores to register `0x65` was not executed. Scrollbar **34**
-stays labelled. Whole lower remains **fail**. Input, motion and audio
-are not compared.
+User-authorized laptop display (Sidecar disconnected). Frozen native
+reused (`58fff714…`); Azahar not relaunched. Production `127.0.0.1:3000`.
+Chrome `--window-position=80,60`. Raw LCD `captureScreensAt`. Browser
+lower `b65e668d…`, report `a11ec76c…`, artifacts
+`notifications-list-17-scissor-recapture-20261005/`. Empty mask, 2/255.
+Upper PNG SHA unchanged (`dc73ce72…`). One muted 404 in the capture log.
+
+| Region | Before | After |
+| --- | ---: | ---: |
+| Upper | 0 | **0** |
+| Lower | 51 | **34** |
+| List `[0,0,291,210]` | 17 | **0** |
+| Close | 0 | **0** |
+| Scrollbar `[291,0,320,210]` | 34 | **34** |
+
+List **17** is gone. The skip did not open a new top-edge leftover on
+these titles. Scrollbar **34** stays labelled unbound extra-6. HUD 0
+closed. Whole lower remains **fail**. Input, motion and audio are not
+compared. Not 1:1.

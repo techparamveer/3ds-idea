@@ -105,7 +105,7 @@ stay as they were.
 | Implemented | Browse `TxtSet` added to the source-size allowlist beside `TxtSShow` |
 | Tested | `node --test tests/camera-settings-txtset.test.mjs tests/camera-browse-header.test.mjs tests/camera-settings-630.test.mjs tests/camera-settings-footer.test.mjs` |
 | Browser-inspected | Not run. Preview 3021 and CDP were out of scope |
-| Native-compared | Recapture `84d636e3`: Settings third **630 → 0**. Whole lower **8121 → 7491**. Not 1:1 |
+| Native-compared | Recapture `3bdc3192`: Settings third **630 → 0**. Whole lower **8121 → 7491**. Not 1:1 |
 
 ## Coordinator recapture — 5 October 2026
 
@@ -140,3 +140,16 @@ absent `TxtShoot` entry, the unchanged X-only scale, Welcome's plain
 words, and the recaptured **7491** / header **0** / Settings **0**
 counts. `tests/camera-browse-header.test.mjs` still pins the prior
 header-recapture pair at whole lower **8121**.
+
+## Independent review
+
+Grok 4.6 `camera-settings-txtset-review-20261005-r1`: **APPROVE** of
+`9580641b` (cherry-pick of `b0e0d3d3`). Browse
+`textSamplingPanes:['TxtSShow','TxtSet']` matches dump. Flag setter
+`0x1cdb2c` writes **0x111** from pane fields only; the only `bl` to
+centering writer `0x329160` is `0x329554`. `TxtSet` width **76.8**
+(`ceil` **77**) is the same float-versus-ceil split as Slideshow
+**134.4**. Integer `TxtShoot` **96** stays off. X-only Settings scale
+and Welcome's plain `setting` label are unchanged. Recapture `3bdc3192`
+already closed Settings third **630→0** and whole lower **8121→7491**.
+Not 1:1.

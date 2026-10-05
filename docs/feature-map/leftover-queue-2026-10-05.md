@@ -79,7 +79,7 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | 3 | Sound empty-entry lower y=177 line, 320 px | **Done** `22e8b0a4` (review pending) | `UserWdwEdge` LA8 α25; painter unchanged |
 | 4 | Camera browse plus-tint re-review (`ZoomUp` decode) | **Done** `ed55865e` (review pending) | LA4 decode; source-gap kept; predicted strip 1992 |
 | 5 | Browser: review and integrate HUD `01d9f79a`, then capture native start menu → `browser-start-menu-local` | **Integrated** `5c3903da` + review `463513e8` **APPROVE-WITH-NITS**. Recapture owed | Frozen HUD 10787 until recapture. Start-menu native still Azahar. |
-| 6 | Camera Welcome p2 upper 93408: extend the source-derived feed mask to p2 plus a reviewed adaptation, or recapture native p2 in black-feed config | Mask: **worker, source-only**. Recapture: **Coordinator, Azahar** | Large unlabelled count on an existing pair whose browser upper is byte-identical to the 0-scoring p1 |
+| 6 | Camera Welcome p2 upper 93408: extend the source-derived feed mask to p2 plus a reviewed adaptation, or recapture native p2 in black-feed config | **Blocked** `c53a96aa`. Recapture: **Coordinator, Azahar** | No p2 upper guide frame; mask not extended. Frozen **93408** until black-feed native recapture. |
 
 Next after these: first native pairs for eShop and Miiverse (coordinator,
 Azahar; runbook `O/coord-logs/native-new-apps-runbook-20261004.md`), and the

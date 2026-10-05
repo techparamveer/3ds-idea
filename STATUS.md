@@ -27,7 +27,7 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` a
 
 ## Serving
 
-`127.0.0.1:3000` production (`next start`, pid at start 54260) Ready at runtime `603c5388` until rebuild. HEAD `1863c4e4` is a shared-writer runtime change (Welcome `writer-0x111` gate) plus docs-only Sound upper 316 `14533857`. Rebuild/recapture owed before any Welcome count claim. `CAMERA_FIXTURE_SDMC_ROOT=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/user/sdmc` (HNI). Path `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch `codex/home-fidelity-20261001`. Typecheck 0, `npm test` 2210 pass / 0 fail (2234 tests), build pending. Mac built-in display. Capture Chrome muted. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
+`127.0.0.1:3000` production (`next start`, pid at start 39660) Ready at runtime `1863c4e4` (Welcome `writer-0x111` gate). STATUS `dd3b8193` is docs-only. `CAMERA_FIXTURE_SDMC_ROOT=/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/user/sdmc` (HNI). Path `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001`, branch `codex/home-fidelity-20261001`. Typecheck 0, `npm test` 2210 pass / 0 fail (2234 tests), build 0. Mac built-in display. Capture Chrome muted. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
 
 ## Seats
 

@@ -20,7 +20,9 @@ test('native entry uses source chrome and complete source-bound labels without c
  const draw=(ctx,pack,layout,options)=>{calls.push({screen:ctx===top?'top':'bottom',pack,layout,options});return true;};
  assert.equal(drawNativeSoundFrame({packs,drawLayout,draw},top,bottom,entry,{date:new Date(2026,8,24,10,52)}),true);
  const names=calls.map(c=>c.layout);
- assert.deepEqual(calls.slice(0,4).map(c=>[c.screen,c.layout]),[['top','S_BG'],['bottom','S_BG'],['top','S_BG-Record'],['bottom','S_BG-Record']]);
+ assert.deepEqual(calls.slice(0,4).map(c=>[c.screen,c.layout]),[['top','S_BG'],['bottom','S_BG_D-Grid'],['top','S_BG-Record'],['bottom','S_BG-Record']]);
+ assert.equal(calls[1].posed.roots[0].children[0].alpha,255);
+ assert.deepEqual(calls[1].options.bindings,[]);
  assert.equal(names.filter(n=>n==='S_BG-Record').length,2);
  for(const layout of ['S_Common-BrwCursor','S_Common-IconList','S_Common-Text','S_BG_D-Ctr','C_SldH_L','S_Common-OpLBtn','S_Common-OpRBtn','S_Common-OpenBtn','S_Common-SetBtn','S_Common-BackBtn','S_Inf_U-UnderBar','S_Inf_U-Hour','S_Inf_U-PlayTime'])assert.ok(names.includes(layout),layout);
  assert.equal(names.filter(n=>n==='ParakeetA_U').length,2);assert.equal(names.filter(n=>n==='ParakeetA_D').length,1);
@@ -125,6 +127,7 @@ test('three Sound welcome pages bind the published guide art and S_tips messages
   assert.equal(frame.screen,'bottom');
   assert.equal(calls.indexOf(frame)<calls.indexOf(panel),true);
   assert.equal(calls.filter(call=>call.layout==='ParakeetA_D').length,1);
+  assert.deepEqual(calls.filter(call=>call.screen==='bottom'&&call.pack==='sound-bg').map(call=>call.layout).slice(0,2),['S_BG_D-Grid','S_BG-Record']);
  }
 });
 

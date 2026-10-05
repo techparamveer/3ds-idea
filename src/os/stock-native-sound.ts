@@ -161,7 +161,10 @@ export function drawNativeSoundFrame(renderer:NativeLayoutRenderer,top:CanvasRen
     // These two full-label source messages contain 80% / restore-100% scale tags.
     const smallLabel=(label:string)=>{const value=message('S',label);return {...value,messageStyle:value.messageStyle?{...value.messageStyle,fontScale:value.messageStyle.fontScale.map(v=>v*.8)}:undefined};};
 
-    entry(top,'sound-bg','S_BG');entry(bottom,'sound-bg','S_BG');
+    // Lower constructor 0x231230 calls 0x1c65c8 (0x2315b8), which loads S_BG_D-Grid
+    // before the constructor loads S_BG_D-Ctr. The opaque ETC1 checker is the lower
+    // backdrop under the record and the guide, as on the library path.
+    entry(top,'sound-bg','S_BG');entry(bottom,'sound-bg','S_BG_D-Grid',{bindings:[{name:'S_BG_D-Grid_Default',frame:0}]});
     if(options.soundRoom)okay=options.soundRoom.draw(top)&&okay;
     // The same original Record layout draws on both LCDs in the settled,
     // SD-absent entry capture, behind the entry chrome.

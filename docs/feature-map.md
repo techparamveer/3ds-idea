@@ -17,6 +17,17 @@ The latest user-supplied repository instructions select GPT-5.6 Sol/high for
 new delegated work. Model overrides do not switch the coordinator; service
 tier is not exposed or verified by the collaboration tool.
 
+[Sound empty-entry mid grid bind](sound-empty-mid-2026-10-05.md), worker
+`codex/sound-empty-grid-20261005`: the `636976ad` `S_BG` constant source-gap
+was **REJECTED** (Grok 4.6 `sound-empty-mid-review-20261005-r1`). Dump ETC1
+`S_BG_Grid.bclim` `138b6fc9…` decodes 2048 `(223,215,206)` / 2048
+`(231,223,215)`. The lower entry/guide now draws `S_BG_D-Grid` Default 0, as
+the library does (`code.bin` `0x2315b8` → `0x1c65c8` loads it in the lower
+constructor with `S_BG_D-Ctr` / `S_Guid_D`). Offline estimate on `ee103d93…`:
+mid **2255 → 3**, **1024 → 41**, slider 4271 → 1504, whole lower
+**16021 → 8610**; first-run 6267 and its mid 0 / 0 are unchanged. Awaits
+recapture. Not 1:1.
+
 Notifications status (matched-clock recapture, 4 October): upper HUD **3347**
 and lower scrollbar **2479** source-gap claims below were **REJECTED** by
 independent review. HUD is now bound (worker `b0a80fca` / fidelity

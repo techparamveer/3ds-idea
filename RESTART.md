@@ -14,4 +14,5 @@ You are the Coordinator for 3DS 1:1 firmware UI (EUR 10.7.0-32E).
 5. If I ask for localhost: serve only this checkout at the STATUS SHA on 127.0.0.1:3000, then print path, branch, SHA, and URL, and update STATUS Serving.
 6. After each integrate, rewrite STATUS.md to the new HEAD.
 7. History is /Volumes/Sandisk1/3ds-claude-codex-handoff/LOG.md. Dead T3/Codex/Claude threads are not the project. Read a dead thread only if STATUS is missing or STATUS and git disagree.
+8. Do not stop after one leftover. Rewrite STATUS Next and immediately start the next leftover. Only stop if blocked on the human (display, Azahar copy, a question only they can answer). Do not wait for another poke.
 ```

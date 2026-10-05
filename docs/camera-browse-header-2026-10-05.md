@@ -146,3 +146,9 @@ gallery-selection cursor are not this sampler. Not 1:1.
 writer instruction words, and the recaptured **8121** / header **0**
 counts. Application typecheck and build were rerun by the coordinator.
 This lane did not drive Azahar.
+
+## Later allowlist
+
+`docs/camera-settings-txtset-2026-10-05.md` adds browse `TxtSet` beside
+`TxtSShow` on this same source-size list. The counts above are from
+before that addition. `TxtShoot` stays off.

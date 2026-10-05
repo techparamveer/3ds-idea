@@ -9,6 +9,15 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Sound perimeter 5212 subsets](sound-perimeter-5212-subsets-2026-10-05.md), worker
+`codex/sound-perimeter-5212-subsets-20261005`: after veil **REJECT**
+`be862ce6`. Frozen complement stays **6072** = **860** dimmed
+`S_BG_Grid` + **4416** unlabelled half observation + **728** + **68**.
+Of the **728**, **144** match the labelled empty-entry row and **53**
+match the labelled footer (peak `(296,234)`); **531** already match
+that pair and stay unlabelled. The **68** have no unique dump pane.
+Painter unchanged. Not 1:1.
+
 [Sound perimeter 5212 review](sound-perimeter-5212-review-2026-10-05.md), Grok 4.7
 `codex/sound-perimeter-5212-review-20261005`: **REJECT** of the
 compositor/veil claim on the non-checker complement. Frozen first-run

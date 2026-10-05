@@ -21,7 +21,7 @@ bind and the Camera Welcome p3 `TxtDlg` 1079 review.
 | Same lower | `[0,64,41,96)` | **1303** | 1225 px are the exact rejected `S_BG` beige pair `(223,215,206)`/`(229,224,216)` | [empty-mid](../sound-empty-mid-2026-10-05.md) (rejected) | No new slice. Add this ROI to the in-flight grid-bind recapture. |
 | Same lower | `[232,137,279,144)` | **223** | 184 px are the beige pair (`regions[7]` of the mid note) | same | Same as above. |
 | Camera Welcome p2. Native `fd4a660e…` (Renu feed); browser upper `b642d80f…`; `M/camera-guide-page2-modal-0d7bfea/` report `b7b54a14…` | whole upper | **93408** | The browser upper is byte-identical to p1 (`b642d80f`). The p1 native is black-feed and scores 0; the p2 native shows the configured Renu feed. The [feed mask](../camera-guide-feed-mask.md) excludes p1–2, so this has no label. | [feed mask](../camera-guide-feed-mask.md) | Either extend the source-derived finder mask to p2 and record a reviewed read-only adaptation, or have the coordinator recapture native p2 in the p1 black-feed config. |
-| HOME 1-row Right walk, yaw 304. Native `4adc0ef0…`; `H/home-row-viewport-20261004/diff-after-masked` report `0069238f…` | 1-px lines x=200 `[128,196)`, y=200 `x50–186` | **108** | These sit outside the neighbour mask and outside the 1656 / 162 / peek boxes. Another 183 px of thin ring edges (x 203/284, y 118/205) are probably the [Settings+cursor](../home-settings-cursor-2026-10-04.md) ring, but no note counts them. | [row viewport](../home-row-viewport-2026-10-04.md) | Attribute these 291 tail pixels in a docs-only recount (58 components; the six labelled ones total 5135). |
+| HOME 1-row Right walk, yaw 304. Native `4adc0ef0…`; `H/home-row-viewport-20261004/diff-after-masked` report `0069238f…` | 1-px lines x=200 `[128,196)`, y=200 `x50–186` | **108** | Tail **291** now labelled [home-row-tail](../home-row-tail-2026-10-05.md) `cb324a43`: 108 = 78 mask-miss `P_BtnShdw_00` + 30 cursor fringe; 183 = cursor/shadow/peek/News. Unlabelled tail **0**. | [row viewport](../home-row-viewport-2026-10-04.md) | Review pending. Predicted masked lower **5426**. |
 
 Recount results. Camera browse lower **7491** is fully owned: date 1006, strip
 1992, thumb cells 2251/2242 (interiors, selection rings and Pho2x3). Camera p3,
@@ -35,9 +35,9 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | Sound empty-entry slider **4271** (APPROVE-WITH-NITS) | [slider](../sound-empty-slider-2026-10-04.md) | **2767** of its pixels are the `S_BG_Grid` ETC1 checker pair whose constant-colour gap was **REJECTED** today. The approval therefore covers pixels a dump texture owns. | After the grid bind, recount the slider ROI and re-review only what remains. |
 | Sound first-run perimeter **6072** compositor gap (APPROVE `6cc31903`) | [perimeter](../sound-guide-perimeter-2026-10-05.md) | 464 + 396 perimeter pixels are native `(111,107,103)` / `(115,111,107)`. That is half of the two checker colours, while the browser shows constant `(229,224,216)`. So the dimmed native shows the grid. The "4760 / 1312 half-split" evidence predates the grid finding. | Recount after the grid bind and re-review the compositor claim on what remains. |
 | Camera browse slider plus tint, inside strip **1992** (APPROVE `90be3135`) | [slider](../camera-browse-slider-2026-10-05.md); decode [plus-tint](../camera-plus-tint-2026-10-05.md) `ed55865e` | LA4 decode: 156 opaque whites, 0 α128. Kept as source-gap. Independent review still owed (worker was Grok 4.7). | Different-model review of `ed55865e`. |
-| Settings main **0/20** | `74ac999e`, [note](../settings-main-residual-2026-10-04.md) | No independent review on record | Review (docs-only). |
-| HOME entry banner footer-14 activation | `7b773b71`, [note](../home-entry-banner-scale-2026-10-04.md) | The Claude four-slice review (LOG, 4 Oct) asked to relabel this as a capture-fit adaptation. The note still calls it a "source-backed fix". | Doc-only relabel. |
-| Browser upper HUD bind | worker `01d9f79a` on `codex/browser-hud-20261004` | Not integrated and not reviewed. The Browser pair's HUD scores 10787. | Review with a different model, then integrate. |
+| Settings main **0/20** | `74ac999e`, [note](../settings-main-residual-2026-10-04.md) | No independent review on record | In flight: `settings-main-review-20261005-r1` (Grok 4.7). |
+| HOME entry banner footer-14 activation | `7b773b71`, [note](../home-entry-banner-scale-2026-10-04.md) | The Claude four-slice review (LOG, 4 Oct) asked to relabel this as a capture-fit adaptation. The note still calls it a "source-backed fix". | In flight: `entry-banner-relabel-20261005-r1` (Grok 4.7). |
+| Browser upper HUD bind | integrated `5c3903da` + review `463513e8` **APPROVE-WITH-NITS** | Frozen HUD `[0,0,400,28]` **10787** until recapture. Start-menu native still Azahar. | Coordinator recapture. |
 
 ## 3. Integrated runtime changes awaiting coordinator recapture
 
@@ -83,4 +83,4 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 
 Next after these: first native pairs for eShop and Miiverse (coordinator,
 Azahar; runbook `O/coord-logs/native-new-apps-runbook-20261004.md`), and the
-Settings main 0/20 review and entry-banner relabel (docs-only).
+HOME 1-row tail review, Sound slider/perimeter recount, and reviews of `14533857` / `22e8b0a4` / `1863c4e4`.

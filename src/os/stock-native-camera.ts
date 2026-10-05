@@ -12,7 +12,7 @@ export const cameraScreenPacks:readonly NativeTitlePackRequest[]=[{
   animations:[
     'P_BrwsBase_D_Brws',
     'P_BrwsBase_D_Default',
-    'P_BrwsFld_Default','P_BrwsFld_PicL',
+    'P_BrwsFld_Default','P_BrwsFld_PicL','P_BrwsFld_PicL_Op',
     'P_BrwsPic_Default','P_BrwsPic_PicL',
     'P_BrwsCursor_D_Default','P_BrwsCursor_D_CurDefault','P_BrwsCursor_D_PicL',
     'P_BrwsPhoMntBase_PicL',
@@ -145,7 +145,10 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
       if(view.screen==='main'||row.id==='camera-date-group'){
         const folder=folders.find(f=>'folder:'+str(f.id)===row.id);
         const date=row.id==='camera-date-group'&&/^\d{4}-\d{2}-\d{2}$/.test(row.label)?row.label:undefined;
-        const opts={center:[x,y] as [number,number],bindings:row.id==='camera-date-group'?[{name:'P_BrwsFld_PicL',frame:0}]:[{name:'P_BrwsFld_Default',frame:0},{name:'P_BrwsFld_PicL',frame:0}],overrides:{TxtThmb:date?{text:`${date.slice(8,10)}/${date.slice(5,7)}\n${date.slice(0,4)}`,size:[49.92,40]}:{text:row.id==='camera-date-group'?'':String(records(folder?.photos).length)}}};
+        // Kinds 0 and 1 at 0x2ceab8 take large-grid PicL_Op (0x347f9d / 0x440380).
+        // Frame 0 selects white P_Thmb_Date2x3; constant 5 then stays opaque UserBG orange.
+        // PicL is the photo-folder clip and selects grey P_Thmb_DatePho2x3.
+        const opts={center:[x,y] as [number,number],bindings:row.id==='camera-date-group'?[{name:'P_BrwsFld_PicL_Op',frame:0}]:[{name:'P_BrwsFld_Default',frame:0},{name:'P_BrwsFld_PicL',frame:0}],overrides:{TxtThmb:date?{text:`${date.slice(8,10)}/${date.slice(5,7)}\n${date.slice(0,4)}`,size:[49.92,40]}:{text:row.id==='camera-date-group'?'':String(records(folder?.photos).length)}}};
         if(row.id==='camera-date-group'){
           let dateGroup=browseDateGroups.get(renderer);
           if(!dateGroup){const source=renderer.packs['camera-gallery']?.layouts?.P_BrwsFld;if(!source)return false;dateGroup=cameraDateGroupOrange(source);browseDateGroups.set(renderer,dateGroup);}

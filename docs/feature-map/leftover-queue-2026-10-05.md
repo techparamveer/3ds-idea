@@ -15,8 +15,8 @@ bind and the Camera Welcome p3 `TxtDlg` 1079 review.
 
 | Scenario / pair | ROI (half-open) | Count | Finding | Owner note | Suggested source-only slice |
 | --- | --- | ---: | --- | --- | --- |
-| Sound first-run + empty-entry upper. Natives `9dea0cc2…` / `65fc5f88…`; browser `16565d8e…` / `ebe8959e…`; `H/sound-guide-next-recapture-20261005/`, `H/sound-empty-entry-recapture-20261005/` | `[30,216,37,240)` | **42** (max 226) | Native `(62,46,29)` vs browser white. `-H-SndB` spans `[7,218,37,238)`, but the volume label stops at x=30. | [volume 130](../sound-volume-130-2026-10-05.md) | Check whether the live-slider cause also owns x 30–36. If it does, widen the label and get a review. If not, fix the icon. |
-| Same two uppers (identical pixel set) | `[0,114,400,160)` | **~270** (max 10) | Thin bands at y 122–126 and 138–152 (greens and greys), below Span `[0,100,400,114)`. Plus 4 px at `[103,85,107,89)`. | none (room) | Trace the room/plant band. Start with [room mip](../sound-room-mipmap-source.md) and [Span](../sound-span-2314-2026-10-05.md). |
+| Sound first-run + empty-entry upper. Natives `9dea0cc2…` / `65fc5f88…`; browser `16565d8e…` / `ebe8959e…`; `H/sound-guide-next-recapture-20261005/`, `H/sound-empty-entry-recapture-20261005/` | `[30,216,37,240)` | **42** (max 226) | Native `(62,46,29)` vs browser white. `-H-SndB` spans `[7,218,37,238)`, but the volume label stops at x=30. | [volume 130](../sound-volume-130-2026-10-05.md); labelled [upper 316](../sound-upper-316-2026-10-05.md) `14533857` | Integrated: the 42 px are the approved frame-0 overhang (icon 172). Awaits independent review. |
+| Same two uppers (identical pixel set) | `[0,114,400,160)` | **274** (max 10) | Thin bands at y 122–126 and 138–152 (greens and greys), below Span `[0,100,400,114)`. Plus 4 px at `[103,85,107,89)`. | [upper 316](../sound-upper-316-2026-10-05.md) `14533857` | Integrated as `S_Back_U` sampling source-gap. Awaits independent review. |
 | Sound empty-entry lower. Native `65fc5f88…`; browser `ee103d93…`; report `ef62e9ce…` | `[0,177,320,178)` | **320** (max 3) | Native `(62,127,240)` vs browser `(63,127,237)` on a one-row line between the slider and footer ROIs. The small blue-channel error looks like a texture decode or a constant/vertex colour. | none | Find the pane that owns y=177. Decode its texture (ETC1?) before any constant-colour claim. |
 | Same lower | `[0,64,41,96)` | **1303** | 1225 px are the exact rejected `S_BG` beige pair `(223,215,206)`/`(229,224,216)` | [empty-mid](../sound-empty-mid-2026-10-05.md) (rejected) | No new slice. Add this ROI to the in-flight grid-bind recapture. |
 | Same lower | `[232,137,279,144)` | **223** | 184 px are the beige pair (`regions[7]` of the mid note) | same | Same as above. |
@@ -48,7 +48,8 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | `ed167d5b` | HOME Design Image Share / StreetPass rows | `settings-lower-integrated` plus a scrolled still (choice 4 at 184, choice 5 at 280); native `e9a87578…` | Lower **9630** (strips 3272/3110, footer 728). Upper 36195 is outside this slice |
 | `7b773b71` | HOME entry banner activation on footer 14 | `capture-entry.mjs` `c36374ab…`; N057 `17d3ecc0…` / N058 | Banner box `x40..360,y80..170`; first-small update vs native ≈17 |
 | `8dc72ac6`, `9d80f9e6`, `96136a07`, `c8a56cba` | Shared text origin, fractional `lcd` sampling, A8 blit pad | Regressions: `settings-other-page1` (0/0, Δ2), `health-usage` initial and `-down2-frame8`, Settings main (0/20), Other p2 (0/960), p3/p4 (169/8, 169/35), HOME 1-row (190/5426) | Every count must hold. Owed since 4 Oct (`coord-logs/regression-recapture-r1.prompt`) |
-| in-flight grid bind | `S_BG_D-Grid` | `sound-empty-entry` + `sound-first-run` | Also score `[0,64,41,96)`, `[232,137,279,144)`, the slider beige 2767 and the perimeter half-grid (§1, §2) |
+| `603c5388` | `S_BG_D-Grid` | `sound-empty-entry` recaptured lower **16021→7216**, mid **0**/**0** | Slider/perimeter checker share still to recount. First-run 6094/6072 held. |
+| `1863c4e4` | Welcome `TxtDlg` `writer-0x111` host gate (alignment 4 + line alignment 2) | Welcome p1 / p3 / p4 / p5 | Offline napi p3 **375→375**, p4 **232→232**, p1 **182→0**, p5 **283→0**. Frozen browser p3 **1079** not reproduced. Live interiors and Other page 1 (shared writer) await recapture. |
 
 ## 4. In-scope scenarios with no usable native/browser pair
 
@@ -74,7 +75,7 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | # | Slice | Seat | Why |
 | ---: | --- | --- | --- |
 | 1 | Recapture batch from §3: `d0ecf020`, `7466b4e4`, `ed167d5b`, `7b773b71`, plus the post-`8dc72ac6` regressions | **Coordinator** (Azahar not needed; browser plus frozen natives) | Four visible runtime changes have been integrated since 4 Oct without a measurement, and earlier static matches are unverified under shared renderer edits |
-| 2 | Sound upper unlabelled 316: volume-icon spill `[30,216,37,240)` 42 (max 226) and room band ~270 | **Worker, source-only** | Highest-delta unlabelled cluster on two frozen pairs |
+| 2 | Sound upper unlabelled 316: volume-icon spill `[30,216,37,240)` 42 (max 226) and room band ~270 | **Done** `14533857` (review pending) | Labelled as volume overhang 42 + `S_Back_U` 274 |
 | 3 | Sound empty-entry lower y=177 line, 320 px | **Worker, source-only** (decode the owning texture) | Unlabelled; the blue-channel error suggests a decode or colour path |
 | 4 | Camera browse plus-tint re-review (`ZoomUp` decode) | **Worker, source-only**, then a different-model reviewer | Approved on byte-grep evidence; could reopen a visible fix (156 texels plus the bar highlight) |
 | 5 | Browser: review and integrate HUD `01d9f79a`, then capture native start menu → `browser-start-menu-local` | Review: **worker/reviewer, source-only**. Pair: **Coordinator, Azahar** | Missing HUD is a visible defect; the existing pair is unusable because the states differ |

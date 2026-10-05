@@ -31,7 +31,7 @@ const find = (panes, name) => {
 };
 
 const NATIVE = '/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/reference/scenario-matrix/v1/captures/camera-populated-browse-global/native/combined.png';
-const BROWSER = '/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-settings-footer-recapture-20261005/browser/lower.png';
+const BROWSER = '/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-browse-header-recapture-20261005/browser/lower.png';
 const CODE = '/Users/paramveer/.codex/3ds-artifact-overflow/assets/stock-ui/reader-extracted/camera/contents/0000-0000001a/exefs/code.bin';
 
 test('browse Slideshow header uses the source-size sampler only', () => {
@@ -87,10 +87,10 @@ test('Camera flag setter stores 0x111 and one writer centers on the pane float',
   assert.equal(word(0x329230), 0xe2000c03);
 });
 
-test('frozen header glyph strip stays the Slideshow ink', t => {
+test('recaptured header glyph strip is 0 after the source-size sampler', t => {
   if (!existsSync(NATIVE) || !existsSync(BROWSER)) return t.skip('frozen camera browse pair is absent');
   assert.equal(fileSha(NATIVE), 'cae793c31bdf9f13d44f0834582bf99fead5bb8d652321913993bedde7ae1652');
-  assert.equal(fileSha(BROWSER), '3f5ead625db013831b6a47af7648202865811d5ec6982b2f10b2e98ad59fc169');
+  assert.equal(fileSha(BROWSER), 'e14e44c3be89c969627b20807b13c4714de5fe240dde3d1edaefcc0943794c82');
   assert.equal(fileSha(new URL('../scripts/native-compare/empty-mask.json', import.meta.url)),
     'dc4b320b16c2dd2d560b4bae62d9d061b0d93c83496c3c0902df1e3233b36e95');
   const combined = PNG.sync.read(readFileSync(NATIVE));
@@ -106,37 +106,12 @@ test('frozen header glyph strip stays the Slideshow ink', t => {
   const over = (native, candidate) => Math.max(
     Math.abs(native[0] - candidate[0]), Math.abs(native[1] - candidate[1]), Math.abs(native[2] - candidate[2])) > 2;
   let whole = 0;
-  const cells = [];
+  let header = 0;
   for (let y = 0; y < 240; y++) for (let x = 0; x < 320; x++) {
     if (!over(nativeAt(x, y), browserAt(x, y))) continue;
     whole++;
-    if (y < 32) cells.push([x, y]);
+    if (y < 32) header++;
   }
-  assert.equal(whole, 10158);
-  assert.equal(cells.length, 837);
-  const seen = new Set(cells.map(([x, y]) => `${x},${y}`));
-  const components = [];
-  for (const [x, y] of cells) {
-    const key = `${x},${y}`;
-    if (!seen.has(key)) continue;
-    const stack = [[x, y]];
-    seen.delete(key);
-    let minX = x, minY = y, maxX = x, maxY = y, count = 0;
-    while (stack.length) {
-      const [cx, cy] = stack.pop();
-      count++;
-      minX = Math.min(minX, cx); minY = Math.min(minY, cy); maxX = Math.max(maxX, cx); maxY = Math.max(maxY, cy);
-      for (const [nx, ny] of [[cx - 1, cy], [cx + 1, cy], [cx, cy - 1], [cx, cy + 1]]) {
-        const next = `${nx},${ny}`;
-        if (!seen.has(next)) continue;
-        seen.delete(next);
-        stack.push([nx, ny]);
-      }
-    }
-    components.push([minX, minY, maxX - minX + 1, maxY - minY + 1, count]);
-  }
-  components.sort((a, b) => b[4] - a[4]);
-  assert.deepEqual(components[0], [182, 10, 30, 13, 240]);
-  assert.deepEqual(components[1], [108, 6, 12, 17, 103]);
-  assert.ok(components.every(([, y]) => y < 32));
+  assert.equal(whole, 8121);
+  assert.equal(header, 0);
 });

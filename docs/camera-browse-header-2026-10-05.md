@@ -111,13 +111,38 @@ and does not replace recapture.
 | Implemented | Browse `TxtSShow` source-size sampler only |
 | Tested | `node --test tests/camera-browse-header.test.mjs` |
 | Browser-inspected | Not run. Preview 3021 and CDP were out of scope |
-| Native-compared | Not recaptured. Frozen header stays **837**. Not 1:1 |
+| Native-compared | Recapture `04f3d6bf`: header **837 → 0**. Whole lower **8958 → 8121**. Not 1:1 |
+
+## Coordinator recapture — 5 October 2026
+
+Mac built-in display, production `04f3d6bf`, `CAMERA_FIXTURE_SDMC_ROOT` (HNI),
+empty mask, threshold any RGB channel >2/255. Scenario
+`camera-readonly-view-photos-page1`. lcdDate `2026-09-25T21:35:00.000Z`.
+Artifacts
+`home-fidelity-20261001/camera-browse-header-recapture-20261005/`.
+Inspected the lower contact sheet: the Slideshow word now sits on the
+native word. Remaining red is photo interiors, the gallery cursor on the
+wrong cell, date glyphs, the slider, and Settings.
+
+| Item | SHA-256 |
+| --- | --- |
+| Browser upper | `184bdfdf148d41cecc10d245f14708a38d4afc7c1776c4d9a6bf7eef067694d6` |
+| Browser lower | `e14e44c3be89c969627b20807b13c4714de5fe240dde3d1edaefcc0943794c82` |
+| Report | `099bc01e592243be129e83a815a20269c734d3a64c8ddbd2fe9d4eacd62cfd3f` |
+| Native combined | `cae793c31bdf9f13d44f0834582bf99fead5bb8d652321913993bedde7ae1652` |
+
+Upper **33522** is byte-identical with the PicL_SD recapture upper.
+Whole lower **8958 → 8121**. Header band y<32 **837 → 0** (max 1). Date pane
+**1006**, slider **1992**, Settings third **630**, Slideshow footer third
+**0**, Shoot **0**, thumbs `[125,46,70,56]` **1148** and
+`[201,46,70,56]` **1148** unchanged. Cube centre `(383,17)` stays
+`(100,100,100)` on both. Remaining interiors and the labelled
+gallery-selection cursor are not this sampler. Not 1:1.
 
 ## Checks
 
 `tests/camera-browse-header.test.mjs` locks the allowlist, the plain
 `Brws_02` style, the fractional pane, `BtnMov0` at Y 105, the flag and
-writer instruction words, and the frozen **10158** / **837** / **240** /
-**103** counts. `git diff --check` is clean. Application typecheck and
-build were not rerun. This lane did not drive Azahar or the production
-browser.
+writer instruction words, and the recaptured **8121** / header **0**
+counts. Application typecheck and build were rerun by the coordinator.
+This lane did not drive Azahar.

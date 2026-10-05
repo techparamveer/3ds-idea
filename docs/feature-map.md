@@ -30,8 +30,9 @@ worker `codex/camera-welcome-p3-gate-20261005`: setter `0x1cdb2c` stores
 Welcome `TxtDlg` (both guide bodies, line alignment 2) opts into
 `writer-0x111`. Colour spans still keep pages 3/4 off the direct sampler.
 Offline napi text **375→375** (page 3), **232→232** (page 4), **182→0** /
-**283→0** (pages 1/5). That rasterizer does not reproduce frozen browser
-**1079**. Awaits recapture. Not 1:1.
+**283→0** (pages 1/5). Live recapture at `1863c4e4`: p3 **1079→1078**, p4
+**692** held, p1 **0/1401** held, p5 **7615/1401** held. Colour spans still
+keep p3/p4 off the direct sampler. Not 1:1.
 
 [Sound empty-entry mid grid bind](sound-empty-mid-2026-10-05.md), worker
 `codex/sound-empty-grid-20261005`: the `636976ad` `S_BG` constant source-gap

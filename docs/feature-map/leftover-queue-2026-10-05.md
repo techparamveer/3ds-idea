@@ -49,7 +49,7 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | `7b773b71` | HOME entry banner activation on footer 14 | `capture-entry.mjs` `c36374ab…`; N057 `17d3ecc0…` / N058 | Banner box `x40..360,y80..170`; first-small update vs native ≈17 |
 | `8dc72ac6`, `9d80f9e6`, `96136a07`, `c8a56cba` | Shared text origin, fractional `lcd` sampling, A8 blit pad | Regressions: `settings-other-page1` (0/0, Δ2), `health-usage` initial and `-down2-frame8`, Settings main (0/20), Other p2 (0/960), p3/p4 (169/8, 169/35), HOME 1-row (190/5426) | Every count must hold. Owed since 4 Oct (`coord-logs/regression-recapture-r1.prompt`) |
 | `603c5388` | `S_BG_D-Grid` | `sound-empty-entry` recaptured lower **16021→7216**, mid **0**/**0** | Slider/perimeter checker share still to recount. First-run 6094/6072 held. |
-| `1863c4e4` | Welcome `TxtDlg` `writer-0x111` host gate (alignment 4 + line alignment 2) | Welcome p1 / p3 / p4 / p5 | Offline napi p3 **375→375**, p4 **232→232**, p1 **182→0**, p5 **283→0**. Frozen browser p3 **1079** not reproduced. Live interiors and Other page 1 (shared writer) await recapture. |
+| `1863c4e4` | Welcome `TxtDlg` `writer-0x111` host gate (alignment 4 + line alignment 2) | Welcome p1 / p3 / p4 / p5 + Other page 1 | Recaptured Mac built-in: p1 **0/1401** held, p3 **2480→2479** / **1079→1078**, p4 **2093/692** held, p5 **7615/1401** held, Other page 1 **0/0** Δ2 held. Colour spans still keep p3/p4 off the direct sampler. |
 
 ## 4. In-scope scenarios with no usable native/browser pair
 

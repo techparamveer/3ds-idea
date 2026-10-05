@@ -176,5 +176,7 @@ Offline `@napi-rs/canvas` `drawNativeCameraGuide` does not reproduce the
 frozen browser pair (browser TxtDlg **1079**; offline text box **375**
 before this change). After the gate, offline text-box counts over
 threshold 2: page 1 **182→0**, page 3 **375→375** (four samples moved by
-1, none crossed 2), page 4 **232→232**, page 5 **283→0**. The live browser
-count awaits recapture, including pages 1 and 5. Not 1:1.
+1, none crossed 2), page 4 **232→232**, page 5 **283→0**. Live Mac recapture
+at runtime `1863c4e4` (`camera-welcome-gate-recapture-20261005/`): page 1
+**0/1401** held, page 3 **2480→2479** / **1079→1078**, page 4 **2093/692**
+held, page 5 **7615/1401** held, Other page 1 **0/0** Δ2 held. Not 1:1.

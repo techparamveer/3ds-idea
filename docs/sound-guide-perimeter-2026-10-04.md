@@ -147,3 +147,21 @@ proven.
 Focused `tests/sound-guide-perimeter.test.mjs` plus `git diff --check`.
 Application typecheck/build were not rerun because no application files
 changed. This lane did not drive Azahar or preview 3021.
+
+## Recapture (coordinator, Mac built-in, `898d0752`)
+
+User-authorized laptop display. Frozen native reused (`9dea0cc2…`); Azahar
+not relaunched. Production `127.0.0.1:3000`. Chrome `--window-position=80,60`.
+Raw LCD `captureScreensAt`. Empty mask, 2/255. Artifacts
+`home-fidelity-20261001/sound-guide-perimeter-recapture-20261005/`.
+
+| Region | Before | After |
+| --- | ---: | ---: |
+| Upper | 6094 | **6094** |
+| Lower | 6267 | **6267** |
+| Interior `[20,20,300,220]` | 195 | **195** |
+| Perimeter | 6072 | **6072** |
+
+Browser upper `16565d8e…` and lower `b9d1093a…` are byte-identical to the
+hashed HudTime-phase first-run pair. Later renderer changes did not move
+this leftover. Labelled source-gap stands. Not 1:1.

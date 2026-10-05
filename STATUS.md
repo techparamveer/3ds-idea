@@ -19,7 +19,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
 | Branch | `codex/home-fidelity-20261001` |
-| HEAD | `eb501e00` — Record Mac-screen recapture of the A8 blit clamp: scrollbar 1→0. |
+| HEAD | `898d0752` — Record Mac-screen recapture of the HNI 2D cube and Welcome p3/p4: badge 7, interiors unchanged. |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309` recaptured (cube `(100,100,100)`). Product `acabb7af` kept. GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
@@ -44,12 +44,13 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` are not this C
 | `notifications-list-unread-dot` vs native `58fff714…` at `c8a56cba` (Mac built-in) | **0** | **0** | `home-fidelity-20261001/notifications-scrollbar-1-clamp-recapture-20261005/` report `34eb7d08…` lower `8a624950…` |
 | `camera-readonly-view-photos-page1` HNI vs native `cae793c3…` at `eb501e00` (Mac built-in, SDMC) | **33522** | **12872** | `home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/` report `a6925bfc…` cube `(100,100,100)` / badge box **7** |
 | Camera Welcome p3/p4 vs natives `3ad989b5…` / `38c19ca0…` | — | **2480** / **2093** | interiors **1079** / **692** unchanged (byte-identical hashed lowers) |
+| Sound first-run vs native `9dea0cc2…` at `898d0752` (Mac built-in) | **6094** | **6267** | perimeter **6072** / interior **195** unchanged (byte-identical hashed HudTime pair) |
 
 Unread-dot empty mask, max RGB 2, compare status 0. Camera badge white cube gone. **Static still only.** Whole scenarios still fail.
 
 ## Next
 
-**Camera date-group cell leftover** in flight (native centre `(255,161,0)` vs browser `(230,209,173)`; `cameraDateGroupOrange` already sets `ThmbBase` constant 5 to UserBG orange). Unread-dot 0/0 and HNI cube stay closed. Welcome p3/p4 labelled gap stands. HOME idle unmatched. Do not claim 1:1.
+**Camera date-group cell leftover** in flight (Grok 4.7 worker `camera-date-group-20261005-r1`; native centre `(255,161,0)` vs browser `(230,209,173)`). Sound first-run perimeter recapture is byte-identical (**6072**). Unread-dot 0/0 and HNI cube stay closed. Welcome p3/p4 labelled gap stands. HOME idle unmatched. Do not claim 1:1.
 
 ## History
 

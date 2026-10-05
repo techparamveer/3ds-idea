@@ -54,10 +54,13 @@ path.
 height, and their frame textures are A8 (`picaFormat` 8). The hard
 centre of `SBBtnFrame` at x=310 is opaque black. Native x=310 is
 `(200,200,198)` on every row; the frozen browser matches that column
-except y=112. LCD-sampling those A8 frames would replace the column
-with the stroke. They stay on Canvas. That skip is a host leftover of
-the current frame geometry. It is not a dump scissor, not a dest clip,
-and not a reason to keep Canvas edge-filter on the LA8 strip.
+except y=112. LCD-sampling those A8 frames at this idle origin would
+replace the column with the stroke. They stay on Canvas **when `e` and
+`f` are integers**. A fractional translation still samples, so Health
+Usage's 8 px scrolled thumb (`thumbY=76.7066650390625`) keeps the lcd
+path it already matched. That idle-origin skip is a host leftover of
+this frame geometry. It is not a dump scissor, not a dest clip, and
+not a reason to keep Canvas edge-filter on the LA8 strip.
 
 ## Still open
 

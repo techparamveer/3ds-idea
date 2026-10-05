@@ -34,7 +34,7 @@ function offscreen(){
 test('lcd opt-in samples a non-integer dest size and skips only an all-integer pane', ()=>{
   assert.match(rendererSource, guard, 'axis-aligned lcd skip requires integer translation and integer size');
   assert.equal(rendererSource.includes('!lcd||Number.isInteger(m.e)&&Number.isInteger(m.f))'), false);
-  assert.match(rendererSource, /framePixels\?\.picaFormat!==8/);
+  assert.match(rendererSource, /framePixels\?\.picaFormat===8&&pose&&Number\.isInteger\(pose\.e\)&&Number\.isInteger\(pose\.f\)/);
   assert.equal(rendererSource.includes('vcvt'), false);
   const prior=globalThis.document;
   globalThis.document={createElement:offscreen};
@@ -58,7 +58,7 @@ test('lcd opt-in samples a non-integer dest size and skips only an all-integer p
   }finally{globalThis.document=prior;}
 });
 
-test('A8 window frames stay on Canvas; an LA8 fractional strip samples', ()=>{
+test('A8 integer-origin frames stay on Canvas; fractional translation and LA8 sample', ()=>{
   const prior=globalThis.document;
   globalThis.document={createElement:offscreen};
   try{
@@ -68,12 +68,12 @@ test('A8 window frames stay on Canvas; an LA8 fractional strip samples', ()=>{
       window:{flags:0,frameSize:[0,0,0,0],inflation:[0,0,0,0],content:{material:0,colors:white,uvSets:[]},frames:[{flip:0,material:1}]}};
     const layout={canvas:{width:320,height:240,origin:1},roots:[pane],materials:[mat('content'),mat('frame',1)],textures:['unused','frame'],fonts:[],groups:[],unsupported:[]};
     const bytes=()=>new Uint8ClampedArray(11*11*4).fill(255);
-    const draw=(pixels)=>{
+    const draw=(pixels, origin)=>{
       const reads=[];
       const target=offscreen();target.width=320;target.height=240;
       const ctx=target.getContext('2d');
       ctx.globalAlpha=1;
-      ctx.getTransform=()=>({a:1,b:0,c:0,d:1,e:10,f:20});
+      ctx.getTransform=()=>({a:1,b:0,c:0,d:1,e:origin[0],f:origin[1]});
       ctx.getImageData=(x,y,w,h)=>{reads.push({x,y,w,h});return {width:w,height:h,data:new Uint8ClampedArray(w*h*4).fill(255)};};
       const pack={schema:1,layouts:{bar:layout},animations:{},textures:{},messages:{}};
       const renderer=new NativeLayoutRenderer({pack},{pack:new Map([['frame',pixels]])},new Map());
@@ -83,8 +83,9 @@ test('A8 window frames stay on Canvas; an LA8 fractional strip samples', ()=>{
     };
     const a8=bytes();
     for(let at=0;at<a8.length;at+=4)a8[at]=a8[at+1]=a8[at+2]=0;
-    assert.equal(draw({width:11,height:11,data:a8,picaFormat:8}), 0, 'A8 fractional frame is not LCD-sampled');
-    assert.ok(draw({width:11,height:11,data:bytes()})>0, 'LA8 fractional strip is LCD-sampled');
+    assert.equal(draw({width:11,height:11,data:a8,picaFormat:8}, [10, 20]), 0, 'A8 integer origin stays on Canvas');
+    assert.ok(draw({width:11,height:11,data:a8,picaFormat:8}, [10, 20.3])>0, 'A8 fractional translation still LCD-samples');
+    assert.ok(draw({width:11,height:11,data:bytes()}, [10, 20])>0, 'LA8 fractional strip is LCD-sampled');
   }finally{globalThis.document=prior;}
 });
 

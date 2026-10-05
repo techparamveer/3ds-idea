@@ -321,16 +321,23 @@ export class NativeLayoutRenderer {
        }
        if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;
-        // A8 window frames (picaFormat 8: SBBtnFrame / SBBtnShdw) stay on
-        // Canvas. Their hard LCD centre is the opaque stroke and would
-        // replace the matching edge column. Host leftover of this frame
-        // geometry, not a dump scissor, and not a reason to keep Canvas
-        // edge-filter on the LA8 content strips.
+        // A8 window frames (picaFormat 8: SBBtnFrame / SBBtnShdw) with an
+        // integral origin stay on Canvas. Their hard LCD centre is the
+        // opaque stroke and would replace the matching edge column. A
+        // fractional translation still samples (Health scrolled thumb).
+        // Host leftover of this frame geometry, not a dump scissor, and
+        // not a reason to keep Canvas edge-filter on the LA8 strips.
         const frameMaterial=patch.material??layout.materials[patch.picture.material];
         const frameTexture=frameMaterial?.textureMaps[0];
         const framePixels=frameTexture?textures.get(layout.textures[frameTexture.texture]):undefined;
-        if(options.pictureSampling==='lcd'&&framePixels?.picaFormat!==8){
-         ctx.save();let sampled=false;try{ctx.translate(patch.x,patch.y);sampled=this.projectedPicture(ctx,layout,patch.picture,patch.width,patch.height,alpha,textures,true,patch.material);}finally{ctx.restore();}
+        if(options.pictureSampling==='lcd'){
+         ctx.save();let sampled=false;try{
+          ctx.translate(patch.x,patch.y);
+          const pose=ctx.getTransform?.();
+          if(!(framePixels?.picaFormat===8&&pose&&Number.isInteger(pose.e)&&Number.isInteger(pose.f))){
+           sampled=this.projectedPicture(ctx,layout,patch.picture,patch.width,patch.height,alpha,textures,true,patch.material);
+          }
+         }finally{ctx.restore();}
          if(sampled)continue;
         }
         const visible=nativeVisibleRasterRect(patch.x,patch.y,patch.width,patch.height,ctx.getTransform(),ctx.canvas.width,ctx.canvas.height);if(!visible)continue;

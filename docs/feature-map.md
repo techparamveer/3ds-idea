@@ -59,7 +59,13 @@ thumb; Notifications `SlideBar` now uses dump `pictureSampling:'lcd'`
 Grok 4.6 **APPROVE-WITH-NITS** of `f7775a16` (fidelity `7829e3ec` + nits
 `df5e9bde`). Mac-screen recapture: scrollbar **34 → 10** (shoulders
 gone; y=112 strip end remains). Extra-6 idle pose stays labelled
-([scrollbar 34 note](notifications-scrollbar-34-2026-10-04.md)). Not 1:1.
+([scrollbar 34 note](notifications-scrollbar-34-2026-10-04.md)).
+Fractional dest size now samples at LCD centres even with an integral
+translation
+([scrollbar 10 lcd](notifications-scrollbar-10-lcd-2026-10-05.md));
+Grok 4.6 **APPROVE-WITH-NITS** of `aa9d194a` (fidelity `9d80f9e6`).
+A8 frames skip that path only at an integer origin. Awaits recapture.
+Not 1:1.
 
 [Notifications HUD charging battery](notifications-hud-battery-2026-10-04.md),
 worker `codex/notifications-battery-20261004`: painter no longer freezes

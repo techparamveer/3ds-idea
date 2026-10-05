@@ -9,6 +9,13 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Settings Other p3/p4 upper HUD 169 review](settings-other-p34-hud-169-review-2026-10-05.md), Grok 4.5
+`codex/settings-other-p34-hud-169-review-20261005`: **APPROVE** of
+`a74309f6`. Independent dump/layout recount + frozen
+`76ff0914…` / `32509749…` / `1548bfb7…` / `fceaa771…` confirm upper
+**169** = Bat 4/5 **137** + `T_TimeC_00` **32**. Painter unchanged.
+Predicted **169 / 8** and **169 / 35**. Not 1:1.
+
 [Settings Other p3/p4 upper HUD 169](settings-other-p34-hud-169-2026-10-05.md), worker
 `codex/settings-other-p34-hud-169-20261005`: frozen **169** is dump
 `HudMset_00` Bat 4/5 (`HudBat_04`/`HudBat_05`, 137) plus pane `T_TimeC_00`

@@ -9,6 +9,12 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Sound upper 316 review](sound-upper-316-review-2026-10-05.md), Grok 4.6
+`sound-upper-316-review-20261005`: **APPROVE** of leftover `14533857`.
+Independent dump decode + frozen first-run `9dea0cc2…` / `16565d8e…`
+confirm volume overhang **42** + `S_Back_U` **274** = **316**. Predicted
+upper **6094**. Painter stays frame 0. Not 1:1.
+
 [Settings main 0/20 review](settings-main-review-2026-10-05.md), Grok 4.7
 `codex/settings-main-review-20261005`: **APPROVE-WITH-NITS** of `74ac999e`.
 Frozen `settings-app-open-live-v85` recounts **0 / 20**, max 51. Fifteen

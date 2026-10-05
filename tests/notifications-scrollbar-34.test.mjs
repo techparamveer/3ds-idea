@@ -27,9 +27,20 @@ test('idle travel is 0x13aa9c with ratio 0; traced count 0 is not the still', ()
   assert.equal(tex(4).height, 11);
   assert.equal(tex(5).width, 11);
   assert.equal(tex(1).height, 16);
-  assert.match(painter, /overrides:notificationSlideBarOverrides\(start,view\.rows\.length\)/,
-    'view.rows.length is the unbound extra-6 idle profile, not a located store');
+  assert.match(painter, /pictureSampling:'lcd',bindings:\[\{name:'SlideBar_Select',frame:0\}\],overrides:notificationSlideBarOverrides\(start,view\.rows\.length\)/,
+    'fractional thumb samples the traced material once; view.rows.length stays the unbound extra-6 profile');
   assert.equal(painter.includes('azahar-12p4-fit'), false);
+  const materials=Object.fromEntries(slidebar.layouts.SlideBar.materials.map(material=>[material.name, material]));
+  assert.deepEqual(materials.SBBtnEmb.textureMaps, [{magFilter:1, minFilter:1, texture:1, wrapS:2, wrapT:0}]);
+  assert.deepEqual(materials.SBBtnEmb.tevStages, []);
+  assert.deepEqual(bar.SBBtnEmb.picture.uvSets, [[0, 0, 2, 0, 0, 1, 2, 1]]);
+  for(const name of ['SBBtnLT', 'SBBtnRT', 'SBBtnLB', 'SBBtnRB']){
+    assert.deepEqual(materials[name].tevStages, [], name);
+    assert.equal(materials[name].textureMaps[0].wrapS, 0, name);
+    assert.equal(materials[name].textureMaps[0].wrapT, 0, name);
+    assert.equal(materials[name].textureMaps[0].magFilter, 1, name);
+    assert.equal(materials[name].textureMaps[0].minFilter, 1, name);
+  }
   const idle=notificationSlideBarPose(0, 9);
   const tracedInitial=notificationSlideBarPose(0, 0);
   const literalCount=notificationSlideBarPose(0, 1);
@@ -49,11 +60,11 @@ test('idle travel is 0x13aa9c with ratio 0; traced count 0 is not the still', ()
 test('frozen recapture scrollbar is the 34-pixel grip shoulders and frame end', async t=>{
   const root='/Users/paramveer/.codex/3ds-artifact-overflow';
   const native=`${root}/home-fidelity-20261001/native-reference/screenshots/_27.09.26_13.16.53.105.png`;
-  const lower=`${root}/home-fidelity-20261001/notifications-close-list-recapture-20261004/browser/lower.png`;
+  const lower=`${root}/home-fidelity-20261001/notifications-list-17-scissor-recapture-20261005/browser/lower.png`;
   const code=`${root}/assets/stock-ui/extracted/notifications/exefs/code.bin`;
   if(![native, lower].every(existsSync))return t.skip('private Notifications recapture is absent');
   assert.equal(sha(native), '58fff71424e1301e6ead6d7ef9281689faa368bf0e6403dc6dccaef1f9afa389');
-  assert.equal(sha(lower), 'f132dc8d0ba3eaf5aa10c58c5cf952c13e89bfe18b902a6eb886a16e6311b0e0');
+  assert.equal(sha(lower), 'b65e668da346a0a63c0e3ae252b6f4f28f2ccbf816c429cbebbe89a582d1e7bf');
   if(existsSync(code))assert.equal(sha(code), 'b3993f1e4fe5ed7e5760f0f4c3926c95b42ea8de53c25bb95864499342e5b228');
   const sharp=require('sharp');
   const nativeLower=await sharp(native).extract({left:40, top:240, width:320, height:240}).ensureAlpha().raw().toBuffer();

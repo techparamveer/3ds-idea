@@ -207,7 +207,14 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
           })&&okay;
         }}})&&okay;
       }
-      okay=renderer.draw(bottom,'notification-slidebar','SlideBar',{bindings:[{name:'SlideBar_Select',frame:0}],overrides:notificationSlideBarOverrides(start,view.rows.length)})&&okay;
+      // SlideBar.bclyt SBBtnEmb is wrapS 2 (mirror), wrapT 0 (clamp), linear
+      // min/mag, UV u 0..2, and zero TEV stages. The four SBBtn frames are
+      // clamp + linear, also with zero TEV stages. Only the fractional thumb
+      // takes this path: an integral LCD translation stays on the pane raster.
+      // One sample at pixel centres is that material. It does not move thumbY,
+      // extra, or the emboss. Canvas drawImage on the fractional strip is the
+      // host resampler behind the frozen scrollbar 34.
+      okay=renderer.draw(bottom,'notification-slidebar','SlideBar',{pictureSampling:'lcd',bindings:[{name:'SlideBar_Select',frame:0}],overrides:notificationSlideBarOverrides(start,view.rows.length)})&&okay;
     }
     // T_EndF_00 is alignment 4 / explicit left line alignment: news code.bin
     // 0x16b080 sets writer flags 0x110 and 0x18fe2c keeps the ceil-half block

@@ -19,7 +19,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
 | Branch | `codex/home-fidelity-20261001` |
-| HEAD | `db1949f9` — Record Mac-screen recapture of Sound first-run: perimeter 6072 unchanged. |
+| HEAD | `0eee41c6` — Rewrite STATUS HEAD after the Sound first-run recapture note. |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309` recaptured (cube `(100,100,100)`). Product `acabb7af` kept. GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
@@ -34,7 +34,7 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` are not this C
 | Seat | Who | Cap |
 | --- | --- | --- |
 | Coordinator | this T3 thread (steered from grilling `a1e53fbc`; Grok 4.6) | one living thread |
-| Worker | Camera date-group cell (Grok 4.7, spawning) | two |
+| Worker | Camera date-group cell (Grok 4.7 `camera-date-group-20261005-r1`, working) | two |
 | Reviewer | none | one, different model from the worker |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)
@@ -45,6 +45,7 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` are not this C
 | `camera-readonly-view-photos-page1` HNI vs native `cae793c3…` at `eb501e00` (Mac built-in, SDMC) | **33522** | **12872** | `home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/` report `a6925bfc…` cube `(100,100,100)` / badge box **7** |
 | Camera Welcome p3/p4 vs natives `3ad989b5…` / `38c19ca0…` | — | **2480** / **2093** | interiors **1079** / **692** unchanged (byte-identical hashed lowers) |
 | Sound first-run vs native `9dea0cc2…` at `898d0752` (Mac built-in) | **6094** | **6267** | perimeter **6072** / interior **195** unchanged (byte-identical hashed HudTime pair) |
+| Sound empty-entry vs native `65fc5f88…` at `0eee41c6` (Mac built-in) | **6222** | **16021** | battery **183→1**; title/row/slider/footer unchanged; lower byte-identical `ee103d93…` |
 
 Unread-dot empty mask, max RGB 2, compare status 0. Camera badge white cube gone. **Static still only.** Whole scenarios still fail.
 

@@ -148,3 +148,28 @@ LCDs, clock `[95,216,194,240]`, battery `[45,216,85,240]`, and volume
 `[0,216,30,240]`. Empty-entry odd seconds should lose the plug cluster if state
 0 is the live CFG. Volume will not move without a CFG volume byte. Motion and
 audio remain open. No 1:1 claim.
+
+## Recapture (coordinator, Mac built-in, `0eee41c6`)
+
+User-authorized laptop display. Frozen empty-entry native reused (`65fc5f88…`);
+Azahar not relaunched. Production `127.0.0.1:3000`. Chrome `--window-position=80,60`.
+Raw LCD `captureScreensAt` after Welcome Next/Next/OK. Empty mask, 2/255.
+Artifacts `home-fidelity-20261001/sound-empty-entry-recapture-20261005/`.
+Announcement `Nintendo 3DS Sound. No songs available.`
+
+| Region | Before (HudTime `8d76f568…`) | After |
+| --- | ---: | ---: |
+| Whole upper | 6404 | **6222** |
+| Whole lower | 16021 | **16021** (byte-identical `ee103d93…`) |
+| Title `[0,3,400,30)` | 1774 | **1774** |
+| Row `[0,32,320,64)` | 1916 | **1916** |
+| Slider `[0,144,320,175)` | 4271 | **4271** |
+| Footer `[0,178,320,240)` | 4707 | **4707** |
+| Clock `[95,216,194,240)` | 0 | **0** |
+| Battery `[45,216,85,240)` | 183 | **1** (max 4) |
+| Volume `[0,216,30,240)` | 130 | **130** |
+
+Upper **6404 → 6222** is the odd-second charging plug in battery
+`[59,223,78,233)`: hashed browser `(255,222,115)` versus native/new black.
+Title, row, slider, footer and volume labelled leftovers did not move.
+Static still only. Not 1:1.

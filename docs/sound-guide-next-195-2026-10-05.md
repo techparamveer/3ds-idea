@@ -91,6 +91,15 @@ on `C_DlgGuid1BtnW` matches dump. Frozen interior **195** until recapture.
 Nit: `Guid1TxtW` lives at `0x3237c9`; `0x181018` is `ldr r0,[sl,#0x10]`.
 Not 1:1.
 
+## Independent review
+
+Grok 4.6 `sound-guide-next-195-review-20261005-r1`: **APPROVE**.
+Fidelity `269e8757` matches worker `4a0cfcc5`. Page-1 only source-size
+sampler on `Guid1TxtW`. Flags `0x111` at `0x15dce8`; only `bl` to
+`0x2a5558` is `0x2a5854`. Frozen interior stays **195** until recapture.
+Nit: `Guid1TxtW` lives at `0x3237c9`; `0x181018` is not that name load.
+Painter unchanged by the nit. Not 1:1.
+
 ## Coordinator recapture (not done here)
 
 Muted production pair against the same native

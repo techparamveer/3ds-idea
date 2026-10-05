@@ -21,7 +21,7 @@ bind and the Camera Welcome p3 `TxtDlg` 1079 review.
 | Same lower | `[0,64,41,96)` | **1303** | 1225 px are the exact rejected `S_BG` beige pair `(223,215,206)`/`(229,224,216)` | [empty-mid](../sound-empty-mid-2026-10-05.md) (rejected) | No new slice. Add this ROI to the in-flight grid-bind recapture. |
 | Same lower | `[232,137,279,144)` | **223** | 184 px are the beige pair (`regions[7]` of the mid note) | same | Same as above. |
 | Camera Welcome p2. Native `fd4a660e…` (Renu feed); browser upper `b642d80f…`; `M/camera-guide-page2-modal-0d7bfea/` report `b7b54a14…` | whole upper | **93408** | The browser upper is byte-identical to p1 (`b642d80f`). The p1 native is black-feed and scores 0; the p2 native shows the configured Renu feed. The [feed mask](../camera-guide-feed-mask.md) excludes p1–2, so this has no label. | [feed mask](../camera-guide-feed-mask.md) | Either extend the source-derived finder mask to p2 and record a reviewed read-only adaptation, or have the coordinator recapture native p2 in the p1 black-feed config. |
-| HOME 1-row Right walk, yaw 304. Native `4adc0ef0…`; `H/home-row-viewport-20261004/diff-after-masked` report `0069238f…` | 1-px lines x=200 `[128,196)`, y=200 `x50–186` | **108** | Tail **291** now labelled [home-row-tail](../home-row-tail-2026-10-05.md) `cb324a43`: 108 = 78 mask-miss `P_BtnShdw_00` + 30 cursor fringe; 183 = cursor/shadow/peek/News. Unlabelled tail **0**. | [row viewport](../home-row-viewport-2026-10-04.md) | Review pending. Predicted masked lower **5426**. |
+| HOME 1-row Right walk, yaw 304. Native `4adc0ef0…`; `H/home-row-viewport-20261004/diff-after-masked` report `0069238f…` | 1-px lines x=200 `[128,196)`, y=200 `x50–186` | **108** | Tail **291** now labelled [home-row-tail](../home-row-tail-2026-10-05.md) `cb324a43`: 108 = 78 mask-miss `P_BtnShdw_00` + 30 cursor fringe; 183 = cursor/shadow/peek/News. Unlabelled tail **0**. | [row viewport](../home-row-viewport-2026-10-04.md) | Grok 4.6 **APPROVE** `f72296ff`. Predicted masked lower **5426**. |
 
 Recount results. Camera browse lower **7491** is fully owned: date 1006, strip
 1992, thumb cells 2251/2242 (interiors, selection rings and Pho2x3). Camera p3,
@@ -82,7 +82,7 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 
 Next after these: first native pairs for eShop and Miiverse (coordinator,
 Azahar; runbook `O/coord-logs/native-new-apps-runbook-20261004.md`), and
-the HOME 1-row tail review `cb324a43`. Perimeter **5212** veil claim
+the HOME 1-row tail review `cb324a43` **APPROVE** `f72296ff`. Perimeter **5212** veil claim
 **REJECT** (predicted complement **6072** = **860** dimmed grid +
 **5212** unlabelled). Slider **57** **APPROVE-WITH-NITS** `444ba8e0`.
 Welcome gate **APPROVE-WITH-NITS** `42d62c69`. y=177 **APPROVE**

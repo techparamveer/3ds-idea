@@ -17,7 +17,7 @@ bind and the Camera Welcome p3 `TxtDlg` 1079 review.
 | --- | --- | ---: | --- | --- | --- |
 | Sound first-run + empty-entry upper. Natives `9dea0cc2…` / `65fc5f88…`; browser `16565d8e…` / `ebe8959e…`; `H/sound-guide-next-recapture-20261005/`, `H/sound-empty-entry-recapture-20261005/` | `[30,216,37,240)` | **42** (max 226) | Native `(62,46,29)` vs browser white. `-H-SndB` spans `[7,218,37,238)`, but the volume label stops at x=30. | [volume 130](../sound-volume-130-2026-10-05.md); labelled [upper 316](../sound-upper-316-2026-10-05.md) `14533857` | Integrated: the 42 px are the approved frame-0 overhang (icon 172). Awaits independent review. |
 | Same two uppers (identical pixel set) | `[0,114,400,160)` | **274** (max 10) | Thin bands at y 122–126 and 138–152 (greens and greys), below Span `[0,100,400,114)`. Plus 4 px at `[103,85,107,89)`. | [upper 316](../sound-upper-316-2026-10-05.md) `14533857` | Integrated as `S_Back_U` sampling source-gap. Awaits independent review. |
-| Sound empty-entry lower. Native `65fc5f88…`; browser `ee103d93…`; report `ef62e9ce…` | `[0,177,320,178)` | **320** (max 3) | Native `(62,127,240)` vs browser `(63,127,237)` on a one-row line between the slider and footer ROIs. | [y=177](../sound-empty-y177-2026-10-05.md) `22e8b0a4` | Labelled `UserWdwEdge` LA8 α25 over entry theme. Review pending. |
+| Sound empty-entry lower. Native `65fc5f88…`; browser `ee103d93…`; report `ef62e9ce…` | `[0,177,320,178)` | **320** (max 3) | Native `(62,127,240)` vs browser `(63,127,237)` on a one-row line between the slider and footer ROIs. | [y=177](../sound-empty-y177-2026-10-05.md) `22e8b0a4` | Labelled `UserWdwEdge` LA8 α25 over entry theme. Grok 4.6 **APPROVE** `9fe268f8`. |
 | Same lower | `[0,64,41,96)` | **1303** | 1225 px are the exact rejected `S_BG` beige pair `(223,215,206)`/`(229,224,216)` | [empty-mid](../sound-empty-mid-2026-10-05.md) (rejected) | No new slice. Add this ROI to the in-flight grid-bind recapture. |
 | Same lower | `[232,137,279,144)` | **223** | 184 px are the beige pair (`regions[7]` of the mid note) | same | Same as above. |
 | Camera Welcome p2. Native `fd4a660e…` (Renu feed); browser upper `b642d80f…`; `M/camera-guide-page2-modal-0d7bfea/` report `b7b54a14…` | whole upper | **93408** | The browser upper is byte-identical to p1 (`b642d80f`). The p1 native is black-feed and scores 0; the p2 native shows the configured Renu feed. The [feed mask](../camera-guide-feed-mask.md) excludes p1–2, so this has no label. | [feed mask](../camera-guide-feed-mask.md) | Either extend the source-derived finder mask to p2 and record a reviewed read-only adaptation, or have the coordinator recapture native p2 in the p1 black-feed config. |
@@ -48,7 +48,7 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | `7b773b71` | HOME entry banner activation on footer 14 (capture-fit adaptation) | `capture-entry.mjs` `c36374ab…`; N057 `17d3ecc0…` / N058 | Banner box `x40..360,y80..170`; first-small update vs native ≈17 |
 | `8dc72ac6`, `9d80f9e6`, `96136a07`, `c8a56cba` | Shared text origin, fractional `lcd` sampling, A8 blit pad | Regressions: `settings-other-page1` (0/0, Δ2), `health-usage` initial and `-down2-frame8`, Settings main (0/20), Other p2 (0/960), p3/p4 (169/8, 169/35), HOME 1-row (190/5426) | Every count must hold. Owed since 4 Oct (`coord-logs/regression-recapture-r1.prompt`) |
 | `603c5388` | `S_BG_D-Grid` | `sound-empty-entry` recaptured lower **16021→7216**, mid **0**/**0** | Slider ROI **4271→377** (checker **0**). First-run complement stays **6072**; **860** of it is the dimmed grid. [recount](../sound-grid-recount-2026-10-05.md). |
-| `1863c4e4` | Welcome `TxtDlg` `writer-0x111` host gate (alignment 4 + line alignment 2) | Welcome p1 / p3 / p4 / p5 + Other page 1 | Recaptured Mac built-in: p1 **0/1401** held, p3 **2480→2479** / **1079→1078**, p4 **2093/692** held, p5 **7615/1401** held, Other page 1 **0/0** Δ2 held. Colour spans still keep p3/p4 off the direct sampler. |
+| `1863c4e4` | Welcome `TxtDlg` `writer-0x111` host gate (alignment 4 + line alignment 2) | Welcome p1 / p3 / p4 / p5 + Other page 1 | Recaptured Mac built-in: p1 **0/1401** held, p3 **2480→2479** / **1079→1078**, p4 **2093/692** held, p5 **7615/1401** held, Other page 1 **0/0** Δ2 held. Colour spans still keep p3/p4 off the direct sampler. Grok 4.7 **APPROVE-WITH-NITS** `42d62c69`. |
 
 ## 4. In-scope scenarios with no usable native/browser pair
 
@@ -75,11 +75,13 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 | ---: | --- | --- | --- |
 | 1 | Recapture batch from §3: `d0ecf020`, `7466b4e4`, `ed167d5b`, `7b773b71`, plus the post-`8dc72ac6` regressions | **Coordinator** (Azahar not needed; browser plus frozen natives) | Four visible runtime changes have been integrated since 4 Oct without a measurement, and earlier static matches are unverified under shared renderer edits |
 | 2 | Sound upper unlabelled 316: volume-icon spill `[30,216,37,240)` 42 (max 226) and room band ~270 | **Done** `14533857` + review `daa93bca` **APPROVE** | Labelled as volume overhang 42 + `S_Back_U` 274 |
-| 3 | Sound empty-entry lower y=177 line, 320 px | **Done** `22e8b0a4` (review `sound-y177-review-20261005-r1`) | `UserWdwEdge` LA8 α25; painter unchanged |
+| 3 | Sound empty-entry lower y=177 line, 320 px | **Done** `22e8b0a4` + review `9fe268f8` **APPROVE** | `UserWdwEdge` LA8 α25; painter unchanged |
 | 4 | Camera browse plus-tint re-review (`ZoomUp` decode) | **Done** `ed55865e` + review `b6620fa4` **APPROVE** | LA4 decode; source-gap kept; predicted strip 1992 |
 | 5 | Browser: review and integrate HUD `01d9f79a`, then capture native start menu → `browser-start-menu-local` | **Integrated** `5c3903da` + review `463513e8` **APPROVE-WITH-NITS**. Recapture owed | Frozen HUD 10787 until recapture. Start-menu native still Azahar. |
 | 6 | Camera Welcome p2 upper 93408: extend the source-derived feed mask to p2 plus a reviewed adaptation, or recapture native p2 in black-feed config | **Blocked** `c53a96aa`. Recapture: **Coordinator, Azahar** | No p2 upper guide frame; mask not extended. Frozen **93408** until black-feed native recapture. |
 
 Next after these: first native pairs for eShop and Miiverse (coordinator,
-Azahar; runbook `O/coord-logs/native-new-apps-runbook-20261004.md`), and the
-HOME 1-row tail review, re-review of the recounted Sound slider **57** and perimeter **5212**, and reviews of `22e8b0a4` / `1863c4e4`.
+Azahar; runbook `O/coord-logs/native-new-apps-runbook-20261004.md`), the
+HOME 1-row tail review `cb324a43`, and re-review of perimeter **5212**.
+Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Welcome gate
+**APPROVE-WITH-NITS** `42d62c69`. y=177 **APPROVE** `9fe268f8`.

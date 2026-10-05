@@ -204,7 +204,11 @@ export function drawNativeCameraLower(renderer:NativeLayoutRenderer,bottom:Canva
     const message=(label:string)=>nativeMessageOverride(renderer.packs['camera-messages'],'P',label,'');
     const menu=renderer.packs['camera-gallery']?.layouts?.P_BrwsMenu_D;
     if(!menu)return false;
-    const menuOptions={bindings:[{name:'P_BrwsMenu_D_Brws',frame:0}],overrides:{
+    // TxtSShow is 134.4×24, alignment 4, line alignment 2. Flag setter
+    // 0x1cdb2c stores 0x111 at writer +0x5c. Centering writer 0x329160,
+    // the only bl from 0x329554, subtracts ceil of half the measured
+    // extent from the pane's float size. Shoot and Settings stay off it.
+    const menuOptions={bindings:[{name:'P_BrwsMenu_D_Brws',frame:0}],textSampling:'lcd-source-size' as const,textSamplingPanes:['TxtSShow'],overrides:{
       TxtSShow:message('Brws_02'),TxtShoot:message('Brws_03'),TxtSet:cameraBrowseSettingsLabel(renderer.packs['camera-messages']),
     }};
     const menuPose=cameraMessageColors(menu,menuOptions.overrides);

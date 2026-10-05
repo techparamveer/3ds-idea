@@ -25,8 +25,13 @@ was **REJECTED** (Grok 4.6 `sound-empty-mid-review-20261005-r1`). Dump ETC1
 the library does (`code.bin` `0x2315b8` → `0x1c65c8` loads it in the lower
 constructor with `S_BG_D-Ctr` / `S_Guid_D`). Offline estimate on `ee103d93…`:
 mid **2255 → 3**, **1024 → 41**, slider 4271 → 1504, whole lower
-**16021 → 8610**; first-run 6267 and its mid 0 / 0 are unchanged. Awaits
-recapture. Not 1:1.
+**16021 → 8610**; first-run 6267 and its mid 0 / 0 are unchanged.
+Coordinator Mac-screen recapture at `603c5388`
+(`home-fidelity-20261001/sound-grid-recapture-20261005/`, empty mask, >2/255):
+empty-entry lower **16021 → 7216** (`860b3222…`, report `4a5bc73c…`), mid
+**2255 → 0**, under-lip **1024 → 0**, upper **6222** unchanged; first-run
+**6094 / 6072** unchanged (report `8f6a1394…`). Remaining empty-entry lower is
+the labelled row/slider/footer clusters (to be recounted). Not 1:1.
 
 Notifications status (matched-clock recapture, 4 October): upper HUD **3347**
 and lower scrollbar **2479** source-gap claims below were **REJECTED** by

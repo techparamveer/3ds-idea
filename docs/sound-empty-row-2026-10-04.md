@@ -140,3 +140,26 @@ unused pane/clip/frame/sampler bind, the painter stays unchanged.
 Focused `tests/sound-empty-row.test.mjs` plus `git diff --check`.
 Application typecheck/build were not rerun because no application files
 changed. This lane did not drive Azahar or preview 3021.
+
+## Independent review
+
+Grok 4.6 independent review of `ee4af066`: **APPROVE** of the labelled
+empty-entry lower-row source-gap. Docs and tests only. Painter row binds
+unchanged (`BrwCursor` `[160,118]` Default **18**, `IconList` `[43,47]`
+IconCHG **0**, `Text` `P_BR_00`). Dump EUR Sound `0004001000022500` v3088
+`CTR-N-HESP` `code.bin`
+`3c57f2c4091c1bec6b3834609f1e2a6488712e21775d7548b441c69c60b3e5a9`.
+`CurBarB0_P0` is `pic1` 420×64 pane alpha **88**. Bound Default writes only
+`IconCurBarO_R` `texture.pattern` (frame 18 → `V3_BarCursorIcon09`); IconCHG
+frame 0 writes `ListIcon_Bln` / `_Toon` and `materialColor.4` `(255,0,0,0)`.
+No bound clip writes that alpha, `visible`, or the left-fill TEV.
+`S_Common-BrwCursorB` string is at VA `0x1c67dc` next to `S_BG` with **zero**
+aligned or unaligned `code.bin` pointer xrefs; clip names and `CurBarB_Back`
+are absent. Unpublished `CurBarB_BackP0` is 420×32 alpha **192** on
+`V3_BarCursorBase3` with the same theme const5 / TEV as the already-bound
+bar; binding it because the fill looks darker would be a colour/layout guess.
+`magFilter` 1→0 or `azahar-12p4-fit` would not uniquely own the 133-pixel
+left fill. Frozen native `65fc5f88…`, reused HudTime-phase lower `ee103d93…`:
+row `[0,32,320,64]` **1916** (max 241 at `(18,43)`); icon fill `[0,38,7,57]`
+**133**; label `[56,37,280,57]` **0**; first-run same rect **384** (guide);
+clock **0**. Not 1:1.

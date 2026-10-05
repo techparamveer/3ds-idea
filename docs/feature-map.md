@@ -9,6 +9,14 @@ power-on and buttons remain pending; preserve the other existing designs.
 
 **Next slices (5 October):** the [leftover queue](feature-map/leftover-queue-2026-10-05.md) ranks unlabelled residuals, re-review candidates, owed recaptures and missing pairs.
 
+[Sound slider 57 review](sound-slider-57-review-2026-10-05.md), Grok 4.7
+`codex/sound-slider-57-review-20261005`: **APPROVE-WITH-NITS** of recount
+`fc896395`. Empty-entry slider `[0,144,320,175]` stays **377** (checker
+**0**; edge **320**; `C_SldH_L` **57**). Native **52** match `IconS`;
+browser **52** match `C_SldHL_Mark`; four corners are `Box` α153 over
+those underlays; one pixel is `BtnP`. Painter stays Default 20 / Rate 0.
+Predicted **57** / **377**. Not 1:1.
+
 [Welcome writer-0x111 host gate review](welcome-gate-review-2026-10-05.md), Grok 4.7
 `codex/welcome-gate-review-20261005`: **APPROVE-WITH-NITS** of `1863c4e4`.
 Setter `0x1cdb2c` stores **0x111** for alignment 4 except line alignment 1

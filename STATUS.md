@@ -27,14 +27,14 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 
 ## Serving
 
-`127.0.0.1:3000` `LCD_CAPTURE_OUTPUT_ROOT=/Volumes/Sandisk1/3ds-fidelity-artifacts/lcd-export-20261006 npm run start:verify` listen 18843 from this checkout at `1cb43fe2` build. Playwright reinstalled at `/Users/paramveer/.codex/3ds-artifact-overflow/claude-browser`. No Sidecar attached (built-in display only). Isolated Azahar pid 1137 (`./Azahar.app/Contents/MacOS/azahar` from `/Volumes/Sandisk1/3ds-portfolio-azahar-isolated-20260926`). SHA `3dfdfbed…`. Never `/Applications/Azahar.app`. One isolated NAND only. Volume 0. Nintendo Zone skipped. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
+`127.0.0.1:3000` `LCD_CAPTURE_OUTPUT_ROOT=/Volumes/Sandisk1/3ds-fidelity-artifacts/lcd-export-20261006 npm run start:verify` listen 18843 from this checkout at `1cb43fe2` build. Playwright reinstalled at `/Users/paramveer/.codex/3ds-artifact-overflow/claude-browser`. No Sidecar attached (built-in display only). Isolated Azahar **not running** since ~17:05 BST (was pid 1137; `./Azahar.app/Contents/MacOS/azahar` from `/Volumes/Sandisk1/3ds-portfolio-azahar-isolated-20260926`). SHA `3dfdfbed…`. Never `/Applications/Azahar.app`. One isolated NAND only. Volume 0. Nintendo Zone skipped. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
 
 ## Seats
 
 | Seat | Who | Cap |
 | --- | --- | --- |
-| Coordinator | **Two live:** Grok 4.6 Cursor session `agent-36cc596c` (behind T3 `mcp:2b23e5fb`; T3 run 17 marked failed but the Cursor loop continues) drives isolated Azahar + native captures + leftover-queue rows. Claude Opus 5.5 (T3 `mcp:2b23e5fb` runs 19+) owns workers, Opus reviews, cherry-pick integration, build and `:3000` restarts (announced in LOG first). See LOG 15:30Z note | one Azahar driver |
-| Worker | none running (U20–U23 integrated) | two |
+| Coordinator | Claude Opus 5.5, T3 `mcp:2b23e5fb` (sole live coordinator). Grok 4.6 Cursor session `agent-36cc596c` stopped ~17:05 BST (Cursor app closed; last edit committed in `6d89c7d6`). Subagents via `cursor-agent -p` CLI (T3 delegate_task returns `parent_not_active`) | one |
+| Worker | none running. Next U25 Settings Manual p0 (`ScrollIndicator` bind + text raster) waits on an official native Manual p0 | two |
 | Reviewer | U20R–U23R Claude Opus 5.5 **APPROVE-WITH-NITS**; U24R2 Grok 4.7 xhigh **APPROVE-WITH-NITS** `8dc8c1c6` (Claude rate-limited; T3 delegate_task `parent_not_active` → subagents via `cursor-agent -p` CLI, outputs in `/Volumes/Sandisk1/3ds-fidelity-artifacts/agent-runs-20261006/`). Nits logged, not fixed | one, different model from the worker |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)

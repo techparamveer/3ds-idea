@@ -126,19 +126,22 @@ export function drawNativeSettingsMain(renderer:NativeLayoutRenderer,top:CanvasR
 }
 
 /** EUR Settings 0x2232b4: center source icon plus measured title advance.
- * Preserve the float32 instruction order; the pane's original Y/Z stay intact. */
+ * Preserve the float32 instruction order; the pane's original Y/Z stay intact.
+ * The helper finds CommonBG_U_00 `Icon` + `TextBoxTitle_00` and writes
+ * `Null_Title`.X. Every modern Settings subpage that binds that layout uses
+ * the same routine; SceneIn_01/03/04/05 have no Null_Title translation track. */
 export function settingsTitleGroupX(groupX:number,iconX:number,iconWidth:number,textX:number,textWidth:number):number{
  const f=Math.fround;
  let extent=f(textX-iconX);extent=f(extent-f(iconWidth*.5));
  extent=f(textWidth+extent);extent=f(iconWidth+extent);extent=f(extent-iconWidth);
  return f(groupX-f(iconX+f(extent*.5)));
 }
-function otherTitleTranslation(renderer:NativeLayoutRenderer,title:string):[number,number,number]{
+function settingsTitleTranslation(renderer:NativeLayoutRenderer,title:PaneOverrides[string]):[number,number,number]{
  const layout=renderer.packs.up.layouts.CommonBG_U_00;
  const flatten=(panes:typeof layout.roots):typeof layout.roots=>panes.flatMap(p=>[p,...flatten(p.children)]);
  const panes=flatten(layout.roots),group=panes.find(p=>p.name==='Null_Title')!,icon=panes.find(p=>p.name==='Icon')!,pane=panes.find(p=>p.name==='TextBoxTitle_00')!;
- const message=nativeMessageOverride(renderer.packs.messages,'mset',title,'');
- const width=renderer.measureSingleLineText(layout.fonts[pane.text!.font],{...pane.text!,value:message.text!,messageStyle:message.messageStyle});
+ if(typeof title.text!=='string')throw new Error('Settings title group requires source text');
+ const width=renderer.measureSingleLineText(layout.fonts[pane.text!.font],{...pane.text!,value:title.text,messageStyle:title.messageStyle});
  return [settingsTitleGroupX(group.translation[0],icon.translation[0],icon.size[0],pane.translation[0],width),group.translation[1],group.translation[2]];
 }
 
@@ -241,8 +244,10 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     draw(bottom,'base','LsBase_D_00',{overrides:{TextBox_00:message('ds_base_1b_back'),TextBox_02:message('ds_info_comm')}});
     return okay;
   }
-  // The original scene centers the icon and the measured title as a group.
-  draw(top,'up','CommonBG_U_00',{...(screen==='other'?{textSampling:'lcd' as const,textCoverageAdaptation:'azahar-12p4-fit' as const}:{}),bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{...(screen==='other'?{Null_Title:{translation:otherTitleTranslation(renderer,title)}}:{}),TextBoxTitle_00:screen==='detail'&&!detailSource?{text:view.heading}:message(title)},attachments:{Icon:()=>draw(top,'up',icon)}});
+  // 0x2232b4 recenters Null_Title from the bound title advance on every
+  // CommonBG_U_00 page. Other Settings alone keeps its existing LCD glyph fit.
+  const titleText=screen==='detail'&&!detailSource?{text:view.heading}:message(title);
+  draw(top,'up','CommonBG_U_00',{...(screen==='other'?{textSampling:'lcd' as const,textCoverageAdaptation:'azahar-12p4-fit' as const}:{}),bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{Null_Title:{translation:settingsTitleTranslation(renderer,titleText)},TextBoxTitle_00:titleText},attachments:{Icon:()=>draw(top,'up',icon)}});
   const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.

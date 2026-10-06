@@ -135,10 +135,32 @@ try{
    assert.deepEqual(call.options?.bindings??[],subpage.variant===2?[{name:name+'_SceneIn_Legacy',frame:40}]:[]);
   }
   const title=calls.find(c=>c.layout==='CommonBG_U_00');
-  if(subpage.screen==='other'){
-   assert.deepEqual(title.options.overrides.Null_Title,{translation:[95.19999694824219,-0,0]},'original title-width arithmetic centers the Other Settings group');
-   for(const call of calls.filter(c=>subpage.data?.page===0&&['I_User','I_Date','I_Touch'].includes(c.layout)))
-    assert.equal(call.options.bindings[0].frame,0,'native touch-entry rows remain white');
+  if(title){
+   const centered={
+    'Other Settings':95.19999694824219,
+    'Internet Settings':83.29998779296875,
+    'Connection Settings':64.5999984741211,
+    'Data Management':76.07499694824219,
+    'Software Management':54.399993896484375,
+    'Extra Data Management':46.32499694824219,
+    'Parental Controls':79.9000015258789,
+    'Profile':136.85000610351562,
+    'Date & Time':106.25,
+    'Sound':136.4250030517578,
+    'Language':119,
+   };
+   const text=title.options.overrides.TextBoxTitle_00.text;
+   assert.equal(text in centered,true,'CommonBG_U_00 title '+text+' has a sourced 0x2232b4 X');
+   assert.deepEqual(title.options.overrides.Null_Title,{translation:[centered[text],-0,0]},'0x2232b4 centers '+text);
+   if(subpage.screen==='other'){
+    assert.equal(title.options.textSampling,'lcd');
+    assert.equal(title.options.textCoverageAdaptation,'azahar-12p4-fit');
+    for(const call of calls.filter(c=>subpage.data?.page===0&&['I_User','I_Date','I_Touch'].includes(c.layout)))
+     assert.equal(call.options.bindings[0].frame,0,'native touch-entry rows remain white');
+   }else{
+    assert.equal(title.options.textSampling,undefined,'non-Other CommonBG pages keep source text sampling');
+    assert.equal(title.options.textCoverageAdaptation,undefined,'azahar-12p4-fit stays Other-only');
+   }
   }
   if(subpage.variant===2){
    assert.equal(title,undefined,'DS Profile does not use modern title chrome');

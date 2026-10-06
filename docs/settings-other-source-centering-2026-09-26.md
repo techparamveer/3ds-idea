@@ -56,8 +56,9 @@ and group X=0 yield **95.19999694824219** from the original instruction order.
 This fractional coordinate is derived from the executable and resource values;
 no fractional translation search, epsilon or tint fit was used.
 
-The change is scoped to the already adapted Other Settings title group.
-Other titles' ownership/entry centering is not broadened by this slice.
+The 26 September slice scoped `0x2232b4` to Other Settings only. Worker U22
+on 6 October applies the same helper to every modern `CommonBG_U_00`
+subpage; see [settings-title-centre-2026-10-06](settings-title-centre-2026-10-06.md).
 The source orange material and source icon gradient already agree with native
 opaque pixels; neither was modified.
 

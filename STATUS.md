@@ -33,8 +33,8 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 
 | Seat | Who | Cap |
 | --- | --- | --- |
-| Coordinator | this T3 thread `mcp:2b23e5fb` (Grok 4.6; took over 5 Oct after dead `bdb9a612` / `mcp:69d81ebe` / earlier dead parents; those stay unread) | one living thread |
-| Worker | U20 leftover `mcp:0ca19748` failed on launch; retrying Settings free-blocks 65536 | two |
+| Coordinator | this T3 thread `mcp:2b23e5fb`; runs 1–18 Grok 4.6 (run 17/18 provider failure), run 19+ Claude Opus 5.5. Dead `bdb9a612` / `mcp:69d81ebe` and earlier parents stay unread | one living thread |
+| Worker | U20 Open Blocks **65,536** (`codex/settings-blocks-65536-20261006`) + U21 Data root disabled-Reset / touch-focus (`codex/settings-data-root-state-20261006`), both cursor/grok-4.6 xhigh Fast, base `743512b6` | two |
 | Reviewer | U19R **APPROVE** `421ed134` `mcp:586260d0` Claude Opus 4.7 — compact H-12 STOP holds | one, different model from the worker |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)

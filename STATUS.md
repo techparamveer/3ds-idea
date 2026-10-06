@@ -69,7 +69,7 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Queue: [feature map](docs/feature-map.md). Health General **23993 / 0**. Health held-down **24904 / 19206**. Settings Internet **4899 / 1008**, Data root **4956 / 177**, Software empty **6011 / 22**, Extra Data **6989 / 51927**, Parental intro **4595 / 0**, Transfer **22816 / 76797**, exact Other p1 **217 / 0**, NNID unsigned-in **82096 / 74907**. Browser start menu **blocked** (update gate `e8562da9…`). Coordinator Next: recover isolated Azahar AX (window 7112 unresolved inside Camera shoot; did not Shoot) then Camera folder native / Notifications scroll native / Sound p2/p3 native. Notes editor browser `50cb7097…` / `33daea28…` and Friends card `04afa1ba…` / `4c78b5cb…` kept. N057 owed. Do not A excluded. No PIN. Zone skipped. Do not stop. Not 1:1.
+Queue: [feature map](docs/feature-map.md). Health General **23993 / 0**. Health held-down **0 / 19206** (frame 292; lower = held-key scroll distance). Settings Internet **4899 / 1008**, Data root **4956 / 177**, Software empty **6011 / 22**, Extra Data **6989 / 51927**, Parental intro **4595 / 0**, Transfer **22816 / 76797**, exact Other p1 **217 / 0**, NNID unsigned-in **82096 / 74907**. Browser start menu **blocked** (update gate `e8562da9…`). Coordinator Next: recover isolated Azahar AX (window 7112 unresolved inside Camera shoot; did not Shoot) then Camera folder native / Notifications scroll native / Sound p2/p3 native. Notes editor browser `50cb7097…` / `33daea28…` and Friends card `04afa1ba…` / `4c78b5cb…` kept. N057 owed. Do not A excluded. No PIN. Zone skipped. Do not stop. Not 1:1.
 
 ## History
 

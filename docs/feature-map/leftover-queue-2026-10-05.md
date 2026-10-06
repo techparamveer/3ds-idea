@@ -55,19 +55,19 @@ p4 and p5 uppers have the identical **7615** pixel set, so the p5 APPROVE
 
 | App | Missing scenario | Native route needed |
 | --- | --- | --- |
-| Browser | `browser-start-menu-local` | The existing pair (`H/native-new-apps-captures-20261004/browser-start-menu-local`, 95571/76728) puts the native first-run Welcome against the browser start menu, so the states do not match. The clone's first-run is now done, so capture HOME toolbar `(189,16)` → Open → start menu. Settings/bookmark: `browser-settings-bookmark-roundtrip` |
+| Browser | `browser-start-menu-local` | Welcome pair still mismatch (95571/76728). Clone first-run is done, but isolated NAND HOME toolbar `(189,16)` → Open is official `_06.10.26_15.37.10.852.png` `e8562da9…` System Update required (`browser-start-20261006/`). Not start menu. System Update excluded. **blocked**. Settings/bookmark still owed |
 | eShop | `eshop-welcome-home-a-ok` | 1-row HOME slot 5 → A (runbook §4.1). The only native today is the direct-launch NNID state |
 | Miiverse | `miiverse-local-toolbar-back` | Toolbar `(238,16)` → Open; capture the offline/error dialog |
 | Zone | `zone-offline-search-info-back` | **Skipped** (user, 5 Oct). Browser half kept. Not on `Launcher.dat`. Do not launch `0000000d.app` this leftover |
 | Notes | `notes-grid-editor-switch` | Suspended app → HOME → Notes → slot → Double/Up/Down → B (browser smoke only) |
 | Friends | `friend-list-local-profile-return` | Toolbar Friends → own card → profile → B |
 | Notifications | `notifications-list-scroll-and-readonly-detail` | From unread-dot, move to row 6, then Open is inert |
-| Health | `health-general-held-down-and-thumb-drag`; 3D article; end scroll; Back focus | Health → General → held Down / thumb drag |
-| Settings | `settings-internet-connections-roundtrip`, `settings-parental-pin-boundary`, `settings-data-software-empty`, `settings-nnid-transfer-update-return`, exact `settings-other-page1-home-a-touch` | **Now:** Internet native vs browser `f9b85092…` / `f9d2a956…` (Settings main → Internet, read-only). Then Data / Parental |
+| Health | `health-general-held-down-and-thumb-drag`; 3D article; end scroll; Back focus | General article top official `_06.10.26_15.17.30.791.png` `c63b1153…` vs `79bd45d9…` / `1d829435…` empty mask **23993 / 0** report `e9ce4f6f…` (`health-general-20261006/`). Lower 0. Upper TopLoop phase. held Down / thumb drag still owed |
+| Settings | `settings-internet-connections-roundtrip`, `settings-parental-pin-boundary`, `settings-data-software-empty`, `settings-nnid-transfer-update-return`, exact `settings-other-page1-home-a-touch` | Internet settled **4760 / 24076**. Data root **4956 / 20096**. Software empty **6852 / 22**. Parental intro **4595 / 0** no PIN. NNID unsigned-in native `cc610faa…` (browser owed). Extra Data **6989 / 51927**. Health General **23993 / 0**. Transfer official `01ff4af3…` **22816 / 76797** (eShop-required vs 3DS/DSi; adaptation). Exact Other p1 official `98d0fc9d…` **217 / 0**. Browser start menu **blocked**. Remaining: Health held-down |
 | Camera | folder list; empty six-cell browse; full photo view; paging/drag; caller return | Welcome → folder → photo A → strip. Empty browse has native `c3096df7…`, but its only browser pair is stale (`ba5a8da`, 25 Sep, 76023/71260), so a browser-only recapture is needed |
 | Sound | guide p2/p3; `sound-supplied-song-playback` (blocked: no user songs) | Guide Next, Next |
 | amiibo | `amiibo-opening-read-only` | Blocked: no in-scope caller. Never add a HOME tile |
-| HOME / lifecycle | `baseline-home-idle` (unmatched epoch); queue rows 3–9 (`life-*`) | Matched-epoch idle; Work open/close/switch/sleep routes |
+| HOME / lifecycle | `baseline-home-idle` pair `ebbc2743…` vs `441d366d…` / `656f808f…` empty mask **23182 / 14754**. U18 STOP: no unique unused writer for upper **12255**. Compact H-12 official `93058283…` vs Camera `b368f61d…` / `ac6485d2…` **30032 / 47436** report `f2fceb55…` (`home-compact-20261006/`). Settings browser half `8d1b17ab…` / `50d721ec…` kept. U19 STOP `2b384723`: no unique compact Health sleep writer. U19R **APPROVE** `421ed134` `mcp:586260d0`. Queue rows 3–9 (`life-*`) | Do not paint. Do not add AL/DP. Work open/close/switch/sleep routes |
 | Portfolio | 8 `portfolio-*` routes | Browser-only interiors (labelled adaptations); native applies only to the HOME/launch chrome |
 
 ## 5. Ranked top 6

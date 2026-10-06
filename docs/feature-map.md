@@ -1,6 +1,6 @@
 # Feature map — 1:1 queue
 
-6 October 2026. Checkout `8918dfcc` (`codex/home-fidelity-20261001`). This index is the queue. Evidence: [leftover queue](feature-map/leftover-queue-2026-10-05.md), [STATUS.md](../STATUS.md), [progress](progress-2026-09-24.md). If they disagree, evidence wins.
+6 October 2026. Checkout `f53fbeef` (`codex/home-fidelity-20261001`). This index is the queue. Evidence: [leftover queue](feature-map/leftover-queue-2026-10-05.md), [STATUS.md](../STATUS.md), [progress](progress-2026-09-24.md). If they disagree, evidence wins.
 
 Pixel-tier **0/0 is not pass**. Whole scenarios still **fail** on input, motion, and audio unless a row says otherwise. Tests, source renders, and browser inspection are not acceptance.
 
@@ -17,30 +17,31 @@ Pick the first unmatched **Next** row, then any in-scope surface whose gap is `f
 | 3 | HOME Design **42073 / 9581** | leftover [REJECT](/Users/paramveer/.codex/worktrees/home-design-9581-review-20261005/docs/home-design-9581-review-2026-10-05.md) then [revised](/Users/paramveer/.codex/worktrees/home-design-9581-20261005/docs/home-design-9581-2026-10-05.md) + [re-review](/Users/paramveer/.codex/worktrees/home-design-9581-rereview-20261005/docs/home-design-9581-rereview-2026-10-05.md) **APPROVE-WITH-NITS**: HOME backing, `PtCsr_00` corners, Brightness state. No unique pane. Upper wallpaper/HUD epoch | Closed leftover |
 | 4 | Browser Manual footer **1684** | leftover + [review](/Users/paramveer/.codex/worktrees/browser-manual-1684-review-20261005/docs/browser-manual-1684-review-2026-10-05.md) **APPROVE-WITH-NITS**: footer AA. Page-path omits `ScrollIndicator` **894** (native teal 4×149; do not size from 6×151). Close 40-px hairline is edge, not glyph AA | Closed leftover |
 | 5 | Owed recaptures | leftover §3: Settings Manual p0 `d0ecf020` recaptured **2543 / 1821** title ROI **332→0**. Entry banner `7b773b71` browser frames collected `/Volumes/Sandisk1/3ds-fidelity-artifacts/home-entry-banner-20261005/run/` (26 pairs; homeUpdateDelta **17** at frame-008). Native N057 `17d3ecc0…` not on volume; pixel box still owed. Remaining: post-`8dc72ac6` regressions | Coordinator |
-| 6 | HOME 1:1 + incomplete animations | U16 leftover **APPROVE**: no unique N057 writer. U17 leftover **APPROVE**: no unused idle pane. Idle pair owed. Compact H-12 different pair. Zone skipped | Coordinator |
+| 6 | HOME 1:1 + incomplete animations | Idle pair **23182 / 14754** holds. Compact H-12 **30032 / 47436**. U19 STOP `2b384723` + U19R **APPROVE** `421ed134` ([note](home-compact-h12-2026-10-06.md) / [review](home-compact-h12-review-2026-10-06.md)). N057 box owed | Coordinator |
+| 7 | Settings Internet / Data / Parental pairs | Internet settled **4760 / 24076**. Data root **4956 / 20096**. Software empty **6852 / 22**. Parental intro **4595 / 0**. NNID unsigned-in native `cc610faa…`. Extra Data **6989 / 51927**. Health General **23993 / 0**. Transfer **22816 / 76797** (eShop-required vs 3DS/DSi; labelled adaptation). Exact Other p1 official **217 / 0**. Browser HOME→Open is System Update gate `e8562da9…` (**blocked**, update excluded). Remaining §4: Health held-down | Coordinator |
 
 ## In-scope surfaces
 
 | Surface | Native pair? | Pixel U / L | Input | Motion | Audio | Gap | Next slice |
 | --- | --- | ---: | --- | --- | --- | --- | --- |
-| HOME idle | live HOME exists, not idle | none idle | fail | fail | fail | fail | Sidecar EUR HOME 5 Oct 19:35 Game Notes selected `7b7905c6…` (`cda8959f…` / `c9079395…`); idle still owed |
+| HOME idle | yes (Health 1-row left-anchor) | 23182 / 14754 | fail | fail | fail | fail | official `_06.10.26_13.55.03.154.png` `ebbc2743…` vs raw LCDs `441d366d…` / `656f808f…`; empty mask; native vacant vs Settings; HUD clock/battery. Not pass |
 | HOME 1-row (yaw 304) | yes | 190 / 5426 | fail | fail | fail | fail | U17 leftover **APPROVE**: no unused idle pane (`LncCsr_00` already bound). Tail labelled. Still fail |
 | HOME Design | yes | 42073 / 9581 | fail | fail | fail | fail | Next #3 leftover APPROVE-WITH-NITS; owed matched HOME backing / cursor / brightness / wallpaper |
 | HOME entry banner | browser frames only | none | fail | fail | fail | adaptation | U16 leftover **APPROVE**: no unique writer (`0x1fa344` shared). Footer-14 capture-fit. N057 pixel box still owed |
-| HOME folders / toolbar / footer | yes (unmatched epochs) | none usable | fail | fail | fail | fail | captured residuals only |
+| HOME compact H-12 | yes (Health sleep + Camera) | 30032 / 47436 | fail | fail | fail | fail | official `93058283…` vs `b368f61d…` / `ac6485d2…`; native compact Health vs browser Camera banner; 2-row/Mii vs 1-row Settings-right. Settings half `8d1b17ab…` / `50d721ec…` kept |
 | Power / launch | partial | none whole | fail | fail | fail | fail | timing / audio; durations adapted |
 | Settings main | yes | 0 / 20 | fail | fail | fail | fail | labelled; not pass |
-| Settings Other p1 | yes | 0 / 0 | fail | fail | fail | fail | held; not pass |
+| Settings Other p1 | yes | 217 / 0 | fail | fail | fail | fail | official `_06.10.26_15.43.46.991.png` `98d0fc9d…` vs `96ae87a2…` / `809e0f98…`; lower 0; upper **217** HUD clock/battery. Held 0/0 vs older `424ffb45…` remains. Not pass |
 | Settings Other p2 | yes | 0 / 960 | fail | fail | fail | fail | overlap source-gap |
 | Settings Other p3 | yes | 169 / 8 | fail | fail | fail | fail | HUD 169 labelled |
 | Settings Other p4 | yes | 169 / 35 | fail | fail | fail | fail | HUD 169 labelled |
-| Settings Internet | browser only | none | fail | fail | fail | fail | browser half `f9b85092…` / `f9d2a956…`; native owed |
-| Settings Parental | browser only | none | fail | fail | fail | fail | browser half `b0829071…` / `b571493f…` (Set / covered features; no PIN); native owed |
-| Settings Data | browser only | none | fail | fail | fail | fail | browser half `a788e2fc…` / `cc40fb23…`; native owed |
+| Settings Internet | yes (settled after first-run OK) | 4760 / 24076 | fail | fail | fail | fail | official `f0c5d093…` vs `f9b85092…` / `f9d2a956…`; HUD clock + unfocused blue vs selected yellow + native helper face. First-run helper kept `9fbcbb5c…` **95922 / 76800**. Not pass |
+| Settings Parental | yes (intro Back/Set) | 4595 / 0 | fail | fail | fail | fail | official `98fb3d62…` vs `b0829071…` / `b571493f…`; lower 0; upper HUD/title. No PIN. Not pass |
+| Settings Data | yes (root + Software empty) | 4956 / 20096 and 6852 / 22 | fail | fail | fail | fail | root `686d3dfb…` **4956 / 20096**; Software empty `9c5cb75c…` vs `ed423379…` / `379919e6…` **6852 / 22** (blocks 65536 vs empty bar) |
 | Settings Manual p0 | yes (reconstructed native) | 2543 / 1821 | fail | fail | fail | fail | leftover U11 + U11R **APPROVE-WITH-NITS**: title ROI 0; unique unused ScrollIndicator 858; remaining already-bound AA. Not pass |
-| Settings NNID / Transfer | no | none | fail | fail | fail | fail | leftover §4 pair |
+| Settings NNID / Transfer | Transfer yes; NNID native only | Transfer 22816 / 76797 | fail | fail | fail | fail | Transfer official `01ff4af3…` vs `0e531310…` / `b1d9a863…`; native eShop-required vs portfolio 3DS/DSi. Labelled adaptation. Do not paint / launch eShop. NNID unsigned-in `cc610faa…` browser half still owed |
 | Health Usage | yes | 0 / 0 | fail | fail | fail | fail | Next #2 pixel-tier 0/0 at frame 327; not pass |
-| Health General / articles | no | none | fail | fail | fail | fail | leftover §4 pair |
+| Health General / articles | yes (article top) | 23993 / 0 | fail | fail | fail | fail | official `c63b1153…` vs `79bd45d9…` / `1d829435…`; lower 0; upper TopLoop frame 15 vs live native diamonds. held-down still owed |
 | Camera browse p1 | yes | 33522 / 7491 | fail | fail | fail | fail | labelled interiors; date/slider remain |
 | Camera Welcome p1 | yes | 0 / 1401 | fail | fail | fail | fail | perimeter 1401 |
 | Camera Welcome p2 | mismatch | 93408 / — | — | — | — | blocked | leftover §5 #6; LIVE-AZAHAR ☐ |
@@ -60,7 +61,7 @@ Pick the first unmatched **Next** row, then any in-scope surface whose gap is `f
 | Notifications scroll / detail | no | none | fail | fail | fail | fail | leftover §4 pair |
 | Internet Browser HUD | yes | 81 / — | fail | fail | fail | fail | Next #1 leftover U08; fade 1200 closed |
 | Internet Browser Manual p0 | yes | 2154 / 2430 | fail | fail | fail | fail | Next #4 leftover APPROVE-WITH-NITS; page-path omits ScrollIndicator 894 |
-| Internet Browser start menu | mismatch | none usable | fail | fail | fail | fail | leftover §4 recapture |
+| Internet Browser start menu | native-only (update gate) | none usable | fail | fail | fail | blocked | HOME toolbar `(189,16)` → Open is official `_06.10.26_15.37.10.852.png` `e8562da9…` System Update required. Not start menu. Update excluded. Welcome pair still mismatch |
 | Miiverse | yes | 96000 / 30822 | fail | fail | fail | fail | leftover + review **APPROVE-WITH-NITS**: 022-5362 vs Communities; empty interior source-gap. Close-frame upper body 0 vs browser. Do not paint error |
 | amiibo opening | no | none | — | — | — | blocked | no in-scope caller |
 | Work | no native interior | — | fail | fail | fail | adaptation | HOME / launch chrome only |

@@ -33,7 +33,7 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 
 | Seat | Who | Cap |
 | --- | --- | --- |
-| Coordinator | this T3 thread `mcp:2b23e5fb`; runs 1–18 Grok 4.6 (run 17/18 provider failure), run 19+ Claude Opus 5.5. Dead `bdb9a612` / `mcp:69d81ebe` and earlier parents stay unread | one living thread |
+| Coordinator | **Two live:** Grok 4.6 Cursor session `agent-36cc596c` (behind T3 `mcp:2b23e5fb`; T3 run 17 marked failed but the Cursor loop continues) drives isolated Azahar + native captures + leftover-queue rows. Claude Opus 5.5 (T3 `mcp:2b23e5fb` runs 19+) owns workers, Opus reviews, cherry-pick integration, build and `:3000` restarts (announced in LOG first). See LOG 15:30Z note | one Azahar driver |
 | Worker | U23 Settings CommonBG title glyph sampling `codex/settings-title-sampling-20261006` cursor/grok-4.6 xhigh Fast | two |
 | Reviewer | U20R / U21R / U22R Claude Opus 5.5 **APPROVE-WITH-NITS** (`d9d1ce9d` / `5d307164` / `9e7916b0`); nits logged, not fixed | one, different model from the worker |
 

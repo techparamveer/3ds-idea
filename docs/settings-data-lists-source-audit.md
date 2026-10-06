@@ -89,12 +89,14 @@ portfolio claim:
   with the portfolio Camera gallery, whose photos a real console reads from SD.
 - **Accessible, empty SD (state 2)** shows the distinct "There is no accessible
   software data." and "There is no extra data." messages. Its "Open Blocks"
-  window then needs a count; none is supplied, so it stays blank, as the
-  DS Profile values do.
+  window then needs a count. U20 now writes the captured empty-SD fixture
+  `65,536` as a labelled portfolio-state adaptation
+  ([bind note](settings-open-blocks-2026-10-06.md)).
 
 **Chosen: state 2**, a working SD card with zero installed software and extra
-data, consistent with the read-only Camera gallery. The free-block count is
-never invented. No authored text replaces either message.
+data, consistent with the read-only Camera gallery. The free-block integer is
+that labelled fixture, not live IPC. No authored text replaces either empty
+message.
 
 ## Implementation
 
@@ -129,8 +131,9 @@ changed. The manifest's Settings `planSha256` is now `e2900d23…`.
 - **Upper LCD:** `CommonBG_U_00` shows the record title, with `IconDataMa` in
   its icon mount. `SMng_U_01` follows, with `NonSD` at its final frame 1 (the
   accessible-SD panel). It sets `TextBox_00` to `dat_3ds_comm1_u`/`2_u`,
-  `TextBox_03` to "SD Card" and `TextBox_04` to "Open Blocks", and leaves
-  `TextBox_05` blank. `UpLineWide_03`'s signed width is drawn as the absolute
+  `TextBox_03` to "SD Card" and `TextBox_04` to "Open Blocks", and writes
+  the empty-SD portfolio fixture `65,536` to `TextBox_05` (see
+  [Open Blocks bind](settings-open-blocks-2026-10-06.md)). `UpLineWide_03`'s signed width is drawn as the absolute
   size with a reflected X scale. Its origin is left (`origin` 3), so this
   covers the same span, x −149…181, as the signed size.
 - **Lower LCD:** `SMngCTRData_D_00` binds `SceneIn_00`, `BtnIn` to `Group_05`
@@ -177,8 +180,9 @@ the coordinator.
 
 The later [Open Blocks audit](settings-open-blocks-source-audit.md) traces the
 free-block value to SD filesystem IPC and verifies the orange window's source
-registers. The missing SD allocation value and native material comparison remain
-open; the field stays blank.
+registers. U20 now supplies the captured empty-SD fixture through that pane
+([bind note](settings-open-blocks-2026-10-06.md)); native material comparison
+and live IPC remain open.
 
 - Which clip normal entry uses, `SceneIn_00` or `_01`. The constructor does not
   choose, and both settle to identical poses at frame 20. `TextIn` is applied

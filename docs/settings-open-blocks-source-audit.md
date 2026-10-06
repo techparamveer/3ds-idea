@@ -1,9 +1,12 @@
 # Settings Open Blocks: device value and source material
 
 2026-09-24, audited from integration `85137b9` in
-`codex/settings-open-blocks-source`. Software and Extra Data retain their blank
-free-block field. No number or new material override is justified by this pass.
-This extends the [Data lists audit](settings-data-lists-source-audit.md).
+`codex/settings-open-blocks-source`. This pass left Software and Extra Data
+blank because no SD fixture existed. **6 October 2026:** U20 now binds the
+empty-SD portfolio fixture `65,536` through dump `TextBox_05` /
+`cbf_std.bcfnt`. See [the bind note](settings-open-blocks-2026-10-06.md).
+The IPC provenance below is unchanged. This extends the
+[Data lists audit](settings-data-lists-source-audit.md).
 
 ## Value provenance
 

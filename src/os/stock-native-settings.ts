@@ -19,6 +19,18 @@ export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'dialog.json',alias:'dialog',layouts:['Dialog_D_01','DlgMask_D_00'],animations:['Dialog_D_02_FadeIn','Dialog_D_02_Select','DlgMask_D_00_FadeIn']},
   {url:prefix+'hud.json',alias:'hud',layouts:['HudMset_00'],animations:['HudMset_00_Bat','HudMset_00_NetAtn','HudMset_00_NetMode','HudMset_00_WhiteBlack']},
 ];
+/** Empty-SD free-block fixture. Official Azahar Software Management
+ * `9c5cb75c…` shows 65536; Settings `0x218598` writes that SD counter
+ * into `SMng_U_01`/`TextBox_05`. This is NAND/SD state, not a graphic.
+ * `0x2185f0` clamps the display at `0xf423f`. `0x19a0b8` is the locale
+ * formatter; EUR English grouping for this fixture is the captured
+ * `65,536` comma. The helper is not a re-execution of that routine. */
+export const SETTINGS_PORTFOLIO_SD_OPEN_BLOCKS=65536;
+export const SETTINGS_OPEN_BLOCKS_DISPLAY_LIMIT=0xf423f;
+export function settingsOpenBlocksText(blocks=SETTINGS_PORTFOLIO_SD_OPEN_BLOCKS):string{
+  const n=Math.min(Math.max(0,blocks|0),SETTINGS_OPEN_BLOCKS_DISPLAY_LIMIT);
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+}
 /** These archive-level shares have neither endpoint in the requested Settings buttons.
  * Keep the resource immutable; the bounded presentation adapter uses direct tracks.
  */
@@ -232,11 +244,13 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.
   if(dataList){
-    // 0x218474 selects NonSD's final frame for an accessible SD. Its free-block
-    // count is device data that was not supplied, so TextBox_05 stays blank.
+    // 0x218474 selects NonSD's final frame for an accessible SD. 0x218598
+    // assigns the formatted SD free-block count to TextBox_05. The integer is
+    // the empty-SD portfolio fixture; the pane and cbf_std path are dump-backed.
     draw(top,'up','SMng_U_01',{bindings:[{name:'SMng_U_01_NonSD',frame:1}],overrides:{
       UpLineWide_03:{size:[330,32],scale:[-1,1]},N_SD:{visible:true},
-      TextBox_00:message(dataList.instruction),TextBox_03:message('dat_sd_u'),TextBox_04:message('dat_block_u'),TextBox_05:{text:''},
+      TextBox_00:message(dataList.instruction),TextBox_03:message('dat_sd_u'),TextBox_04:message('dat_block_u'),
+      TextBox_05:{text:settingsOpenBlocksText()},
     }});
   }else if(!profileInfo&&screen!=='connections')draw(top,'up','TextBG_U_00',{bindings:[{name:'TextBG_U_00_TextFadeIn',frame:20}],overrides:{...panelMirrors,TextBox_00:screen==='profile'||screen==='detail'&&section==='profile'&&field==='nickname'?{visible:false}:screen==='detail'&&!detailSource?{text:(view.text??[]).join('\n'),fontSize:[18,21.6]}:message(instruction)}});
   if(profileInfo){

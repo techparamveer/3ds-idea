@@ -170,7 +170,8 @@ try{
    assert.deepEqual(upper.options.bindings,[{name:'SMng_U_01_NonSD',frame:1}],'accessible SD selects the final NonSD frame');
    assert.equal(upper.options.overrides.TextBox_00.text,list.instruction);
    assert.equal(upper.options.overrides.TextBox_03.text,'SD Card');assert.equal(upper.options.overrides.TextBox_04.text,'Open Blocks');
-   assert.equal(upper.options.overrides.TextBox_05.text,'','free-block count is never invented');
+   assert.equal(upper.options.overrides.TextBox_05.text,'65,536','empty-SD Open Blocks fixture uses the captured EUR English grouping');
+   assert.equal(upper.options.overrides.TextBox_05.fontSize,undefined,'TextBox_05 keeps the dump pane font size');
    assert.deepEqual(lower.options.bindings,[{name:'SMngCTRData_D_00_SceneIn_00',frame:20},{name:'SMngCTRData_D_00_BtnIn',frame:20,groups:['Group_05']},{name:'SMngCTRData_D_00_TextIn',frame:20,groups:['Group_03']}]);
    const o=lower.options.overrides;
    assert.equal(o.TextBoxTitle_00.text,list.empty);assert.equal(o.TextBoxTitle_00.visible,true);
@@ -309,6 +310,6 @@ try{
  assert.equal(reports.find(r=>r.id==='parental-pin-notice-top').sha256,reports.find(r=>r.id==='parental-explain-top').sha256,'notice preserves explanation upper LCD');
  assert.notEqual(reports.find(r=>r.id==='parental-pin-notice-bottom').sha256,reports.find(r=>r.id==='parental-explain-bottom').sha256,'notice changes lower LCD');
  assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')),[]);
- writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.','Data Management Software/Extra Data present SD state 2 with no titles; Open Blocks is blank and arrow/wait-icon settled states are unattached.','Language arrows use original four-frame source clips with a nominal 60 Hz browser adapter; pressed arrows, hold/repeat, drag, D-pad selection and language edits remain unsupported. Native timing and LCD comparison are unverified.']},null,2)+'\n');
+ writeFileSync(join(out,'verification.json'),JSON.stringify({passed:true,reports,diagnostics:assets.diagnostics,limits:['Static main-screen assembly; native LCD and browser comparison remain separate.','Adapted detail cards inherit parent palette. DS Profile has no supplied saved data or editing flow.','Data Management Software/Extra Data present SD state 2 with no titles; Open Blocks uses the empty-SD portfolio fixture 65,536. Arrow/wait-icon settled states are unattached.','Language arrows use original four-frame source clips with a nominal 60 Hz browser adapter; pressed arrows, hold/repeat, drag, D-pad selection and language edits remain unsupported. Native timing and LCD comparison are unverified.']},null,2)+'\n');
  console.log(`Settings: five main and ${subpages.length} subpage paired renders, scene variants, English styles, immutable packs and diagnostics passed.`);
 }finally{assets.dispose();font.dispose();}

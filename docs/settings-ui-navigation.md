@@ -12,7 +12,7 @@ Shared presentation owns the matching native components and touch rectangles.
 | connections | connection-1, connection-2, connection-3, new-connection |
 | parental | next, back |
 | restrictions | rating, browser, shopping, 3d, sharing, interaction, friend-registration, download-play, streetpass-restriction, videos, miiverse |
-| data | data-3ds, data-dsi, streetpass, blocked-users |
+| data | data-3ds, data-dsi, streetpass, blocked-users (disabled / Invalid when the portfolio list is empty) |
 | data-3ds | software, extra-data, add-on-content, backup |
 | profile | nickname, birthday, region, ds-profile |
 | clock | date, time |

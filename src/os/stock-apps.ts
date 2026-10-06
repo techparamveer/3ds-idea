@@ -1,7 +1,7 @@
 import { objectValue, type AppContext, type AppDescriptor, type AppEffect, type AppEvent, type AppModule, type AppReduction, type AppState, type AppView, type AppViewRow, type JsonValue } from './app-types.ts';
 import { helperSelectorSources, helperTitle, helperView, isHelperTitle } from './stock-helper-views.ts';
 import { browserBack, browserChoices, browserHeading, browserNavigate, browserPageEntry, browserText } from './stock-browser-navigation.ts';
-import { settingsLanguageTick, settingsLanguageTouch, settingsLanguageThumbY, settingsLanguageSettle, settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText } from './stock-settings-navigation.ts';
+import { settingsLanguageTick, settingsLanguageTouch, settingsLanguageThumbY, settingsLanguageSettle, settingsBack, settingsChoices, settingsHeading, settingsNavigate, settingsOtherPages, settingsPage, settingsText, settingsUsesInactiveEntry } from './stock-settings-navigation.ts';
 import { healthDocumentRows } from './stock-health-layout.ts';
 import { healthScrollAdvance, healthScrollCreate, healthScrollKey, healthScrollKeyTap, healthScrollRelease, healthScrollStylus, healthScrollView, type HealthScrollState } from './stock-health-scroll.ts';
 import { notesCaptureView, notesNextCaptureView, notesSwitchFrame, NOTES_SWITCH_LAST_FRAME, NOTES_SWITCH_DURATION_MS, soundNextPlaybackMode, soundPlaybackMode, stockScreenActionAt, stockScreenSeekAt, stockSettingsLanguageThumbAt } from './stock-screen-layout.ts';
@@ -307,7 +307,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
     }
     if (id === 'notifications' && screen === 'notification') text.push(str(list(context.shared.notifications).find(item => item.id === state.notificationId)?.message));
     if (id === 'notifications' && !options.length && screen === 'main') text.push('There are no notifications.');
-    if (id === 'system-settings') { text.push(...settingsText(state, context.shared)); if (screen === 'main' || screen === 'other') data.selectionActive=state.selectionActive!==false; if (screen === 'other') { data.page=settingsPage(state); data.pageCount=settingsOtherPages.length; } }
+    if (id === 'system-settings') { text.push(...settingsText(state, context.shared)); if (screen === 'main' || settingsUsesInactiveEntry(screen)) data.selectionActive=state.selectionActive!==false; if (screen === 'other') { data.page=settingsPage(state); data.pageCount=settingsOtherPages.length; } }
     if (id === 'browser') { text.push(...browserText(state, context.shared)); data.entry=browserPageEntry(state, context.shared); if (screen === 'settings') { data.page=Math.floor(selection/4); data.pageCount=2; } }
     const helper=helperView(id,state,context.shared,options);
     if(helper){text.push(...helper.text);Object.assign(data,helper.data);}
@@ -406,7 +406,7 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       }
       if (command === 'left' || command === 'right' || command === 'up' || command === 'down') {
         const selection = directionalSelection(current, command);
-        const inactiveEntryFocus=(id === 'system-settings' && (current.screen === 'main' || current.screen === 'other')) || ((id === 'health-safety' || id === 'notifications') && current.screen === 'main');
+        const inactiveEntryFocus=(id === 'system-settings' && (current.screen === 'main' || settingsUsesInactiveEntry(current.screen))) || ((id === 'health-safety' || id === 'notifications') && current.screen === 'main');
         return selection === current.selection && (!inactiveEntryFocus || state.selectionActive !== false)
           ? { state } : { state: { ...state, selection, ...(inactiveEntryFocus ? { selectionActive: true } : {}) } };
       }

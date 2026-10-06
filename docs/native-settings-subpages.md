@@ -42,7 +42,7 @@ not browser hit rectangles.
 | Data / `SMngTopO_D_00` | `N_B_SMngCTRO_00` → `B_SMngCTRO` at (-68,64) | Native Nintendo 3DS artwork; `dat_software` for data label |
 | Data | `N_B_SMngDSiO_00` → `B_SMngDSiO` at (80,64) | Native Nintendo DSi artwork; `dat_dsi_page` for semantic label |
 | Data | `N_B_M_00` → `B_M` at (0,-8) | `dat_ce` / StreetPass Management |
-| Data | `N_B_S_00` → `B_S` at (0,-64) | `dat_blist_reset` / Reset blocked-user settings |
+| Data | `N_B_S_00` → `B_S` at (0,-64) | `dat_blist_reset` / Reset blocked-user settings. Empty blocked-user list binds published `B_L_Invalid` frame 1 on `B_S` `N_Invalid` ([2026-10-06](settings-data-root-state-2026-10-06.md)) |
 | Other / `BasicTop_D_00` | `N_I_Button_00/01/02` at y44,-4,-52 | Source icon buttons such as `I_User`, `I_Date`, `I_Touch`; page assembly is presentation-owned |
 | Other | `N_R_ArrowL_00`, `N_R_ArrowR_00` → `R_ArrowL/R` | Source animated page controls |
 | Profile / `UserInfo_D_00` | `N_B_M_00/01/02` → `B_M` at y64,19,-26 | `user_name`, `birthday`, `region` |

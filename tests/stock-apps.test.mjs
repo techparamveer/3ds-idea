@@ -62,6 +62,44 @@ test('Settings cold entry is visually unfocused but A retains the Internet targe
  assert.equal(module.view(focused,ctx).data.selectionActive,true);
 });
 
+test('Data and Internet enter without yellow Select; first D-pad restores focus',()=>{
+ const {module,state}=setup('system-settings');
+ for(const screen of ['data','internet']){
+  const entered=action(module,state,screen).state;
+  assert.equal(entered.screen,screen);
+  assert.equal(entered.selection,0);
+  assert.equal(entered.selectionActive,false);
+  assert.equal(module.view(entered,ctx).data.selectionActive,false);
+  const focused=module.reduce(entered,{type:'command',command:'up'},ctx).state;
+  assert.equal(focused.selection,0);
+  assert.equal(focused.selectionActive,true);
+  assert.equal(module.view(focused,ctx).data.selectionActive,true);
+ }
+});
+
+test('Reset blocked-user settings is Invalid and inert when the list is empty',()=>{
+ const {module,state}=setup('system-settings');
+ const data=action(module,state,'data').state;
+ const row=module.view(data,ctx).rows.find(item=>item.id==='blocked-users');
+ assert.equal(row.disabled,true);
+ assert.deepEqual(action(module,data,'blocked-users'),{state:data});
+ const focused=module.reduce(data,{type:'command',command:'down'},ctx).state;
+ const onReset=module.reduce(focused,{type:'command',command:'down'},ctx).state;
+ assert.equal(module.view(onReset,ctx).rows[onReset.selection].id,'blocked-users');
+ assert.equal(module.reduce(onReset,{type:'command',command:'open'},ctx).state,onReset);
+ assert.equal(module.view(onReset,ctx).footer.right,undefined);
+});
+
+test('Back from Nintendo 3DS restores Data focus on that tile',()=>{
+ const {module,state}=setup('system-settings');
+ const data=action(module,state,'data').state;
+ const child=action(module,data,'data-3ds').state;
+ const back=action(module,child,'back').state;
+ assert.equal(back.screen,'data');
+ assert.equal(module.view(back,ctx).rows[back.selection].id,'data-3ds');
+ assert.equal(back.selectionActive,true);
+});
+
 test('production gallery exactly reuses existing unique portfolio images and songs are not invented',()=>{
  const expected=[...new Set(apps.flatMap(app=>app.entries.flatMap(entry=>entry.images??[])))];
  assert.deepEqual(portfolioMedia.folders.flatMap(folder=>folder.photos.map(photo=>photo.src)),expected);

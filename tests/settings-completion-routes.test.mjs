@@ -76,6 +76,21 @@ for (const { path, rows } of menus) test(`Settings route ledger: ${path.join(' â
   for (const action of rows) {
     const selected = focus(app, menu, action);
     const touched = tap(app, menu, action);
+    const row = app.module.view(menu, app.context).rows.find(item => item.id === action);
+    if (row?.disabled) {
+      // Empty blocked-user list: Reset stays on Data and binds Invalid. A and
+      // touch both refuse the leaf; they may differ only in selectionActive.
+      assert.equal(touched.state.screen, menu.screen);
+      assert.equal(touched.state.field, undefined);
+      for (const source of ['pad', 'keyboard:KeyA']) {
+        const opened = button(app, selected, 'open', source);
+        assert.equal(opened.state.screen, menu.screen);
+        assert.equal(opened.state.field, undefined);
+        assert.deepEqual(opened.effects ?? [], []);
+        assert.deepEqual(app.send(selected, { type: 'button', command: 'open', phase: 'up', source }), { state: selected });
+      }
+      continue;
+    }
     for (const source of ['pad', 'keyboard:KeyA']) {
       const opened = button(app, selected, 'open', source);
       // A helper retains its parent, including the directional focus pose.

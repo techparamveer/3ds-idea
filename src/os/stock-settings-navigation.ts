@@ -30,7 +30,12 @@ const screenOf=(state:AppState)=>typeof state.screen==='string'?state.screen:'ma
 export function settingsPage(state:AppState):number{return typeof state.page==='number'&&Number.isFinite(state.page)?Math.max(0,Math.min(settingsOtherPages.length-1,Math.floor(state.page))):0;}
 export function settingsChoices(state:AppState,prefs:AppState):AppViewRow[]{
   const screen=screenOf(state),choices=screen==='other'?settingsOtherPages[settingsPage(state)]:settingsMenus[screen]??[];
-  return choices.map(([id,label])=>({id,label,...(settingsValueFields.has(id)&&typeof prefs[id]==='string'&&prefs[id]!==''?{value:prefs[id] as string}:{})}));
+  return choices.map(([id,label])=>({
+    id,label,
+    // Portfolio has no blocked users. Native Reset is Invalid when that list is empty.
+    ...(id==='blocked-users'?{disabled:true}:{}),
+    ...(settingsValueFields.has(id)&&typeof prefs[id]==='string'&&prefs[id]!==''?{value:prefs[id] as string}:{}),
+  }));
 }
 export function settingsHeading(state:AppState):string{
   const screen=screenOf(state);
@@ -38,9 +43,16 @@ export function settingsHeading(state:AppState):string{
   const parent=typeof state.parent==='string'?state.parent:'main';
   return settingsChoices({screen:parent,page:state.page},{}).find(row=>row.id===state.field)?.label??'System Settings';
 }
-// Native touch entry shows the Other buttons in their frame-0 white pose; a
-// logical first row is retained so A can still activate Profile immediately.
-function menuState(screen:string,page=0,selection=0):AppState{return {screen,selection,...(screen==='other'?{page,selectionActive:false}:{})};}
+// Touch and A share activate→menuState. Other, Data and Internet therefore start
+// with no yellow Select pose; a logical first row is kept so A still opens it.
+// First D-pad restores focus. Other page-1 0/0 already depends on this split.
+export const settingsInactiveEntryScreens=['other','data','internet'] as const;
+export function settingsUsesInactiveEntry(screen:string):boolean{
+  return (settingsInactiveEntryScreens as readonly string[]).includes(screen);
+}
+function menuState(screen:string,page=0,selection=0):AppState{
+  return {screen,selection,...(screen==='other'?{page}:{}),...(settingsUsesInactiveEntry(screen)?{selectionActive:false}:{})};
+}
 export function settingsBack(state:AppState):AppState{
   const screen=screenOf(state),parent=screen==='detail'&&typeof state.parent==='string'?state.parent:menuParents[screen]??'main';
   // Native user_info/date_time return by reconstructing basic_top1. Its
@@ -50,7 +62,7 @@ export function settingsBack(state:AppState):AppState{
   const child=screen==='detail'?state.field:['parental-explain','parental-pin-notice','restrictions'].includes(screen)?'next':screen;
   const next=menuState(parent,settingsPage(state));
   const index=settingsChoices(next,{}).findIndex(row=>row.id===child);
-  return {...next,selection:Math.max(0,index),...(parent==='other'?{selectionActive:true}:{})};
+  return {...next,selection:Math.max(0,index),...(settingsUsesInactiveEntry(parent)?{selectionActive:true}:{})};
 }
 // The two source Country scroll clips span frames 0..3. Nominal 60 Hz is
 // the browser clock adapter; native input-to-display latency is not measured.

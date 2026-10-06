@@ -14,7 +14,7 @@ export const settingsScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:prefix+'base.json',alias:'base',layouts:['Bg_U_00','Bg_D_00','TopBase_D_00','Base_D_00','Base_D_01','LsBase_D_00'],animations:['Bg_U_00_SceneIn_Legacy','Bg_D_00_SceneIn_Legacy']},
   {url:prefix+'up.json',alias:'up',layouts:['TopText_U_00','CommonBG_U_00','TextBG_U_00','IconNet','IconParental','IconDataMa','IconBasic','IconUser','IconDateTime','IconSound','IconLang','UserInfo_U_00','Connect_U_00','LsCommonBG_U_00','SMng_U_01'],animations:['TopText_U_00_SceneIn_00','CommonBG_U_00_SceneIn_00','CommonBG_U_00_SceneIn_01','CommonBG_U_00_SceneIn_03','CommonBG_U_00_SceneIn_04','CommonBG_U_00_SceneIn_05','TextBG_U_00_TextFadeIn','UserInfo_U_00_TextFadeIn','Connect_U_00_TextFadeIn','LsCommonBG_U_00_SceneIn_00','SMng_U_01_NonSD']},
   {url:prefix+'layout.json',alias:'layout',layouts:['Top_D_02','NetTop_D_01','Btn2Text_D_00','MessageOnly_D_00','SMngTopO_D_00','SMngCTR_D_00','UserInfo_D_00','BasicTop_D_00','NetSetTop_D_00','Birthday_D_00','DateTime_D_00','DateTime_D_01','Sound_D_00','NetType2_D_00','LsMenu_D_00','StartChild_D_00','SMngCTRData_D_00','Country_D_00'],animations:['LsMenu_D_00_SceneIn_00','Country_D_00_SceneIn_00','Country_D_00_ScrollDw','Country_D_00_ScrollUp','Top_D_02_SceneIn_00','NetTop_D_01_SpecialIn_00','MessageOnly_D_00_SpecialIn_00','MessageOnly_D_00_SceneIn_00','SMngTopO_D_00_SpecialIn_00','BasicTop_D_00_SpecialIn_00','SMngCTRData_D_00_SceneIn_00','SMngCTRData_D_00_TextIn','SMngCTRData_D_00_BtnIn']},
-  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04','T_SB','R_SlideBar'],animations:[...buttons.map(name=>name+'_Select'),'T_Page01_Decide','R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide','T_SB_Decide']},
+  {url:prefix+'button.json',alias:'button',layouts:[...buttons,...otherIcons,'B_LsMenu','R_UpLarge','R_DownLarge','R_UpSmall','R_DownSmall','B_S','B_M','R_ArrowL','R_ArrowR','T_OnOff','T_Page02','T_Page03','T_Page04','T_SB','R_SlideBar'],animations:[...buttons.map(name=>name+'_Select'),'B_L_Invalid','T_Page01_Decide','R_ArrowL_Appear','R_ArrowR_Appear','T_OnOff_Decide','T_OnOff_UnDecide','T_SB_Decide']},
   {url:prefix+'message_EU.json',alias:'messages',layouts:[],animations:[]},
   {url:prefix+'dialog.json',alias:'dialog',layouts:['Dialog_D_01','DlgMask_D_00'],animations:['Dialog_D_02_FadeIn','Dialog_D_02_Select','DlgMask_D_00_FadeIn']},
   {url:prefix+'hud.json',alias:'hud',layouts:['HudMset_00'],animations:['HudMset_00_Bat','HudMset_00_NetAtn','HudMset_00_NetMode','HudMset_00_WhiteBlack']},
@@ -49,6 +49,9 @@ function prepareSettingsButtons(renderer:NativeLayoutRenderer){
   if(prepared.has(renderer))return;
   const source=renderer.packs.button,animations={...source.animations};
   for(const name of buttons)animations[name+'_DirectSettings']=settingsDirectButtonClip(source.layouts[name],source.animations[name+'_Select']);
+  // B_S.bclyt owns N_Invalid / B_LInvalid* chrome. The published pack has no
+  // B_S_Invalid; B_L_Invalid writes those same pane names. Apply it to B_S.
+  animations.B_L_Invalid_DirectSettings=settingsDirectButtonClip(source.layouts.B_S,source.animations.B_L_Invalid);
   // The sibling Other Settings layouts reuse I_User's colour/visibility clip,
   // but their source edge pictures are wider (usually 22/21 rather than 16/16).
   // Its size keys belong to I_User and erase those source-defined row edges.
@@ -271,7 +274,9 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
   }
   const child=(layout:string,id:string,label?:string)=>{
     const clip=layout==='B_S'?'B_SB':layout==='B_M'?'B_L':layout;
-    const bindings=buttons.includes(clip)||otherIcons.includes(clip)?[{name:clip+'_DirectSettings',frame:view.rows[view.selection]?.id===id&&!(view.screen==='other'&&view.data?.selectionActive===false)?1:0}]:[];
+    const disabled=view.rows.find(row=>row.id===id)?.disabled===true;
+    const focused=!disabled&&view.rows[view.selection]?.id===id&&view.data?.selectionActive!==false;
+    const bindings=disabled&&layout==='B_S'?[{name:'B_L_Invalid_DirectSettings',frame:1}]:buttons.includes(clip)||otherIcons.includes(clip)?[{name:clip+'_DirectSettings',frame:focused?1:0}]:[];
     const overrides:PaneOverrides=label?{TextBox_00:message(label)}:{};
     if(layout.startsWith('B_CnctW'))overrides.TextBox_00={text:message('net_connect1_u').text!.replace(/ 1$/,''),fontSize:[15,18]};
     draw(bottom,'button',layout,{bindings,overrides});

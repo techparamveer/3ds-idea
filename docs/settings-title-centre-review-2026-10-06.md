@@ -114,7 +114,7 @@ adapter headings is labelled as "not a native title claim", and the
 
 ## Findings
 
-1. **F1 (nit, provenance)** — `docs/settings-title-centre-2026-10-06.md:217`
+1. **F1 (nit, provenance)** — `docs/settings-title-centre-2026-10-06.md:208`
    and `:182`. The evidence-split row calls `0x2232b4` broadening
    "Source-identified: yes". The function body is sourced, but its call
    sites were never enumerated. Change the wording to "function sourced;

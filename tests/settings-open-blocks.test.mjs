@@ -60,6 +60,9 @@ test('Software and Extra Data assign TextBox_05 through the native pane path',()
   const upper=calls.find(call=>call.name==='SMng_U_01');
   assert.ok(upper,field);
   assert.deepEqual(upper.options.bindings,[{name:'SMng_U_01_NonSD',frame:1}]);
+  assert.equal(upper.options.textSampling,'lcd');
+  assert.deepEqual(upper.options.textSamplingPanes,['TextBox_03']);
+  assert.equal(upper.options.textCoverageAdaptation,undefined);
   assert.equal(upper.options.overrides.TextBox_05.text,'65,536');
   assert.equal(upper.options.overrides.TextBox_05.fontSize,undefined);
   assert.equal(upper.options.overrides.TextBox_04.text,'Open Blocks');

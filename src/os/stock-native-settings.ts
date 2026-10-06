@@ -260,7 +260,16 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     // 0x218474 selects NonSD's final frame for an accessible SD. 0x218598
     // assigns the formatted SD free-block count to TextBox_05. The integer is
     // the empty-SD portfolio fixture; the pane and cbf_std path are dump-backed.
-    draw(top,'up','SMng_U_01',{bindings:[{name:'SMng_U_01_NonSD',frame:1}],overrides:{
+    // TextBox_03 (`dat_sd_u` "SD Card") is dump alignment 3 / line alignment 2
+    // (writer flags 0x101) on origin-4 size 269×24 at translation [-30,34],
+    // so its LCD left is 35.5. The pane-local cache plus Canvas filter at
+    // that half-pixel is the 515 px softness. The sourced LCD-centre sampler
+    // therefore uses the existing writer-0x101 allowlist. Whole-layout `lcd`
+    // does not take 3/2 without it. Open Blocks (alignment 5, integer x=98),
+    // the number box, and the multiline description stay off the allowlist.
+    // azahar-12p4-fit is a no-op on this pane (byte-identical offline) and
+    // stays on CommonBG titles only.
+    draw(top,'up','SMng_U_01',{textSampling:'lcd' as const,textSamplingPanes:['TextBox_03'] as const,bindings:[{name:'SMng_U_01_NonSD',frame:1}],overrides:{
       UpLineWide_03:{size:[330,32],scale:[-1,1]},N_SD:{visible:true},
       TextBox_00:message(dataList.instruction),TextBox_03:message('dat_sd_u'),TextBox_04:message('dat_block_u'),
       TextBox_05:{text:settingsOpenBlocksText()},

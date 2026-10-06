@@ -145,6 +145,8 @@ This prediction is not acceptance.
 
 ## Remaining residuals / open gaps
 
+- Software / Extra "SD Card" softness is a later `SMng_U_01` `TextBox_03`
+  slice: [settings-sdcard-label-2026-10-06](settings-sdcard-label-2026-10-06.md).
 - Data x=248 / Extra x=129 one-column near-ties (offline).
 - HUD clock/date vs `lcdDate` (Software pair still native
   `06/10 (Tuesday) 15:04` vs whatever the live browser clock is).

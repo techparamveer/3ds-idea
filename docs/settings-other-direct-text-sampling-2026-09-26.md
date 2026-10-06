@@ -39,7 +39,10 @@ A trial enabling every eligible text pane also changed a DS Profile lower pane;
 that unverified expansion was not retained. Worker U23 on 6 October applies the
 same `CommonBG_U_00` bind to every modern Settings title that uses that layout
 (same single `TextBoxTitle_00` pane). DS Profile, Settings main and Manual stay
-off it. See [settings-title-sampling-2026-10-06](settings-title-sampling-2026-10-06.md). Other alignments, transformed panes,
+off it. See [settings-title-sampling-2026-10-06](settings-title-sampling-2026-10-06.md).
+Worker U24 binds Software / Extra Data `SMng_U_01` `TextBox_03` through the
+existing writer-0x101 allowlist (`alignment` 3 / `lineAlignment` 2, LCD left
+35.5). See [settings-sdcard-label-2026-10-06](settings-sdcard-label-2026-10-06.md). Other alignments, transformed panes,
 multiline text and all unopted draws retain their existing behavior. This is a
 reusable sampler option, not a glyph-specific adjustment or replacement graphic.
 No shader or asset bytes change. Resource provenance is identical to the

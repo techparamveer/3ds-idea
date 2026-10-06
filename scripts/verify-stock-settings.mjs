@@ -191,6 +191,9 @@ try{
    assert.ok(upper);assert.ok(lower);assert.ok(footer);
    assert.equal(calls.some(c=>c.layout==='TextBG_U_00'),false,'source scenes name no TextBG_U_00');
    assert.deepEqual(upper.options.bindings,[{name:'SMng_U_01_NonSD',frame:1}],'accessible SD selects the final NonSD frame');
+   assert.equal(upper.options.textSampling,'lcd','SD Card uses the sourced LCD-centre sampler');
+   assert.deepEqual(upper.options.textSamplingPanes,['TextBox_03'],'writer-0x101 allowlist is TextBox_03 only');
+   assert.equal(upper.options.textCoverageAdaptation,undefined,'12p4 stays off SMng_U_01');
    assert.equal(upper.options.overrides.TextBox_00.text,list.instruction);
    assert.equal(upper.options.overrides.TextBox_03.text,'SD Card');assert.equal(upper.options.overrides.TextBox_04.text,'Open Blocks');
    assert.equal(upper.options.overrides.TextBox_05.text,'65,536','empty-SD Open Blocks fixture uses the captured EUR English grouping');

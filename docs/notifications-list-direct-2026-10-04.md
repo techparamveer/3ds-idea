@@ -64,7 +64,7 @@ Converted packs with one or more 3/2 text panes:
 | camera `lyt-C-Dlg` `C_DlgGuid1BtnW`, `C_DlgGuid2Btn` | `TxtNumber0` | yes, whole-layout `lcd-source-size` (no allowlist) |
 | sound `lyt-C-Dlg` (same two layouts) | `TxtNumber0` | no |
 | home `themeshop` `TmsWndwBtn_D_00` / `_U_00` | `T_TitleF_*`, `T_PriceTex_*` | no (not drawn) |
-| settings `up` `SMng_U_00/01/02` | `TextBox_00`, `TextBox_03` | no |
+| settings `up` `SMng_U_00/01/02` | `TextBox_00`, `TextBox_03` | `SMng_U_01` `TextBox_03` only, allowlisted `lcd` (U24). `SMng_U_00/02` unpublished |
 | sound `S_Common-Text`, `S_Inf_U-TitleBar` | `Null`, `TitlTxt` | no |
 | notifications `NewsWndwNews_U_00` | titles | no (not drawn) |
 
@@ -72,8 +72,10 @@ The dump does not show that these panes share Notifications' writer. They
 belong to other titles. So the extension requires an allowlist rather than
 treating every 3/2 pane the same way. Camera `TxtNumber0` uses
 `lcd-source-size` without an allowlist, so it fails both the `explicitPane`
-and the `!sourceSize` conditions. Its output is unchanged. Settings, Sleep,
-HUD and Health callers do not reach the new term.
+and the `!sourceSize` conditions. Its output is unchanged. Sleep,
+HUD and Health callers do not reach the new term. Settings Software / Extra
+Data `SMng_U_01` `TextBox_03` now uses the same allowlist; see
+[settings-sdcard-label-2026-10-06](settings-sdcard-label-2026-10-06.md).
 
 ## Offline proxy (not a pixel bar)
 

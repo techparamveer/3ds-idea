@@ -132,6 +132,12 @@ test('every CommonBG_U_00 Settings page binds 0x2232b4 and the Other title raste
   assert.equal(icon.options.textSampling,undefined,label);
   assert.equal(icon.options.textCoverageAdaptation,undefined,label);
   assert.equal(icon.options.pictureSampling,undefined,label);
+  const smng=host.calls.find(call=>call.name==='SMng_U_01');
+  if(label==='dat_sof_title_u'||label==='dat_opt_title_u'){
+   assert.equal(smng.options.textSampling,'lcd',label);
+   assert.deepEqual(smng.options.textSamplingPanes,['TextBox_03'],label);
+   assert.equal(smng.options.textCoverageAdaptation,undefined,label);
+  }else assert.equal(smng,undefined,label);
  }
 });
 

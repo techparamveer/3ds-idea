@@ -16,10 +16,13 @@ existing HUD pixels. Its emitted right endpoint is160.49999809265137; native
 includes that column. These are opposing near-tie cases, not a common position
 translation. The source glyphs and pane transforms remain unchanged.
 
-Only Health's `health-back/BtmBtn_White` and Settings' `up/CommonBG_U_00` when
-`screen==='other'` opt into `textCoverageAdaptation:'azahar-12p4-fit'`. The option
-requires the existing direct-LCD eligibility conditions; other text retains its
-prior behavior. Coverage endpoints round to the nearest1/16 pixel, while atlas
+Only Health's `health-back/BtmBtn_White` and Settings' `up/CommonBG_U_00`
+opt into `textCoverageAdaptation:'azahar-12p4-fit'`. Through 26 September the
+Settings bind was `screen==='other'` only. Worker U23 on 6 October keeps the
+same labelled snap on every modern Settings `CommonBG_U_00` title (same pane
+and font); see [settings-title-sampling-2026-10-06](settings-title-sampling-2026-10-06.md).
+The option requires the existing direct-LCD eligibility conditions; other text
+retains its prior behavior. Coverage endpoints round to the nearest1/16 pixel, while atlas
 sampling still uses the original quad positions and dimensions. The cache key
 includes the effective adaptation. No alpha, color, texture or font is replaced.
 

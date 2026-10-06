@@ -34,9 +34,12 @@ raster. Source pane dimensions, layout alignment, glyph advances, endpoint
 arithmetic, atlas texels, material colors and clip rectangles are preserved.
 Material interpolation uses the original pane-relative Y coordinate.
 
-The opt-in is enabled only for Other Settings' validated `CommonBG_U_00` draw.
+The opt-in was first enabled only for Other Settings' validated `CommonBG_U_00` draw.
 A trial enabling every eligible text pane also changed a DS Profile lower pane;
-that unverified expansion was not retained. Other alignments, transformed panes,
+that unverified expansion was not retained. Worker U23 on 6 October applies the
+same `CommonBG_U_00` bind to every modern Settings title that uses that layout
+(same single `TextBoxTitle_00` pane). DS Profile, Settings main and Manual stay
+off it. See [settings-title-sampling-2026-10-06](settings-title-sampling-2026-10-06.md). Other alignments, transformed panes,
 multiline text and all unopted draws retain their existing behavior. This is a
 reusable sampler option, not a glyph-specific adjustment or replacement graphic.
 No shader or asset bytes change. Resource provenance is identical to the

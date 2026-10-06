@@ -59,6 +59,8 @@ no fractional translation search, epsilon or tint fit was used.
 The 26 September slice scoped `0x2232b4` to Other Settings only. Worker U22
 on 6 October applies the same helper to every modern `CommonBG_U_00`
 subpage; see [settings-title-centre-2026-10-06](settings-title-centre-2026-10-06.md).
+Worker U23 then shares Other's lcd + `azahar-12p4-fit` title raster across
+those same pages; see [settings-title-sampling-2026-10-06](settings-title-sampling-2026-10-06.md).
 The source orange material and source icon gradient already agree with native
 opaque pixels; neither was modified.
 

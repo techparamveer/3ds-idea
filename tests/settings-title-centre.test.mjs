@@ -77,7 +77,16 @@ test('CommonBG_U_00 title panes keep dump geometry used by 0x2232b4',()=>{
  assert.deepEqual(title.translation,[-150,82,5]);
  assert.equal(title.origin,3);
  assert.equal(title.text.alignment,3);
+ assert.equal(title.text.lineAlignment,0);
+ assert.equal(title.text.characterSpacing??0,0);
+ assert.equal(flatten(up.layouts.CommonBG_U_00.roots).filter(pane=>pane.text).map(pane=>pane.name).join(),'TextBoxTitle_00');
+ assert.equal(icon.picture,undefined);
  assert.equal(font.sourceSha256,'95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581');
+ for(const name of ['IconBasic','IconDataMa','IconNet','IconParental']){
+  const pictures=flatten(up.layouts[name].roots).filter(pane=>pane.picture).map(pane=>pane.name);
+  assert.deepEqual(pictures,['Icon_Shdw','Icon']);
+  assert.equal(flatten(up.layouts[name].roots).some(pane=>pane.text),false,name);
+ }
 });
 
 test('source title widths change Null_Title X; Other Settings stays 95.2',()=>{
@@ -94,30 +103,35 @@ test('source title widths change Null_Title X; Other Settings stays 95.2',()=>{
  assert.equal(settingsTitleGroupX(0,-174,32,-150,100),120);
 });
 
-test('every CommonBG_U_00 Settings page binds 0x2232b4; Other raster fit stays Other-only',()=>{
+test('every CommonBG_U_00 Settings page binds 0x2232b4 and the Other title raster',()=>{
  const cases=[
-  [{...view,screen:'other',heading:'Other Settings',rows:[{id:'profile',label:'Profile'}],data:{page:0,selectionActive:false}},'settings_title',true],
-  [{...view,screen:'data',heading:'Data Management',rows:[{id:'data-3ds',label:'Nintendo 3DS'}]},'dat_title_u',false],
-  [{...view,screen:'data-3ds',heading:'Nintendo 3DS',rows:[{id:'software',label:'Software'}]},'dat_title_u',false],
-  [{...view,screen:'detail',heading:'software',rows:[],data:{field:'software',parent:'data-3ds'}},'dat_sof_title_u',false],
-  [{...view,screen:'detail',heading:'extra-data',rows:[],data:{field:'extra-data',parent:'data-3ds'}},'dat_opt_title_u',false],
-  [{...view,screen:'parental',heading:'Parental Controls',rows:[{id:'next',label:'Set'}]},'parental_title_u',false],
-  [{...view,screen:'internet',heading:'Internet Settings',rows:[{id:'connections',label:'Connection Settings'}]},'net_top_title',false],
-  [{...view,screen:'connections',heading:'Connection Settings',rows:[{id:'connection-1',label:'1'}]},'net_set_title',false],
-  [{...view,screen:'profile',heading:'Profile',rows:[{id:'nickname',label:'User Name'}]},'user_info_title',false],
-  [{...view,screen:'clock',heading:'Date & Time',rows:[{id:'date',label:'Date'}]},'date_time_title',false],
-  [{...view,screen:'detail',heading:'sound',rows:[],data:{field:'sound',parent:'other'}},'sound_title',false],
-  [{...view,screen:'detail',heading:'language',rows:[],data:{field:'language',parent:'other',settings:{language:'English'}}},'language',false],
+  [{...view,screen:'other',heading:'Other Settings',rows:[{id:'profile',label:'Profile'}],data:{page:0,selectionActive:false}},'settings_title'],
+  [{...view,screen:'data',heading:'Data Management',rows:[{id:'data-3ds',label:'Nintendo 3DS'}]},'dat_title_u'],
+  [{...view,screen:'data-3ds',heading:'Nintendo 3DS',rows:[{id:'software',label:'Software'}]},'dat_title_u'],
+  [{...view,screen:'detail',heading:'software',rows:[],data:{field:'software',parent:'data-3ds'}},'dat_sof_title_u'],
+  [{...view,screen:'detail',heading:'extra-data',rows:[],data:{field:'extra-data',parent:'data-3ds'}},'dat_opt_title_u'],
+  [{...view,screen:'parental',heading:'Parental Controls',rows:[{id:'next',label:'Set'}]},'parental_title_u'],
+  [{...view,screen:'internet',heading:'Internet Settings',rows:[{id:'connections',label:'Connection Settings'}]},'net_top_title'],
+  [{...view,screen:'connections',heading:'Connection Settings',rows:[{id:'connection-1',label:'1'}]},'net_set_title'],
+  [{...view,screen:'profile',heading:'Profile',rows:[{id:'nickname',label:'User Name'}]},'user_info_title'],
+  [{...view,screen:'clock',heading:'Date & Time',rows:[{id:'date',label:'Date'}]},'date_time_title'],
+  [{...view,screen:'detail',heading:'sound',rows:[],data:{field:'sound',parent:'other'}},'sound_title'],
+  [{...view,screen:'detail',heading:'language',rows:[],data:{field:'language',parent:'other',settings:{language:'English'}}},'language'],
  ];
- for(const [page,label,otherFit] of cases){
+ for(const [page,label] of cases){
   const host=renderer();
   assert.equal(drawNativeSettingsMain(host,{}, {},page,false,new Date(2026,9,6,16,0)),true,label);
   const title=host.calls.find(call=>call.name==='CommonBG_U_00');
   assert.ok(title,label);
   assert.equal(title.options.overrides.TextBoxTitle_00.text,expected[label].text,label);
   assert.deepEqual(title.options.overrides.Null_Title,{translation:[expected[label].x,-0,0]},label);
-  assert.equal(title.options.textSampling,otherFit?'lcd':undefined,label);
-  assert.equal(title.options.textCoverageAdaptation,otherFit?'azahar-12p4-fit':undefined,label);
+  assert.equal(title.options.textSampling,'lcd',label);
+  assert.equal(title.options.textCoverageAdaptation,'azahar-12p4-fit',label);
+  const icon=host.calls.find(call=>call.alias==='up'&&call.name!=='CommonBG_U_00'&&call.name.startsWith('Icon'));
+  assert.ok(icon,label);
+  assert.equal(icon.options.textSampling,undefined,label);
+  assert.equal(icon.options.textCoverageAdaptation,undefined,label);
+  assert.equal(icon.options.pictureSampling,undefined,label);
  }
 });
 

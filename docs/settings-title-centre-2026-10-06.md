@@ -118,9 +118,10 @@ predicts 86.07 / 126.07 vs native ink 88–312. Extra predicts 56.32 /
 `stock-native-settings.ts` now writes `Null_Title` on every
 `CommonBG_U_00` draw, measuring the same `TextBoxTitle_00` override that
 is bound (source `mset` + style for identified pages). No per-screen x
-table, no CSS position, no new graphic. Other Settings keeps
-`textSampling:'lcd'` and `textCoverageAdaptation:'azahar-12p4-fit'`;
-those raster fits are not copied onto Data / Internet / Parental.
+table, no CSS position, no new graphic. Other Settings kept
+`textSampling:'lcd'` and `textCoverageAdaptation:'azahar-12p4-fit'` in
+this slice; worker U23 later applies that same raster to every Settings
+`CommonBG_U_00` title. See [settings-title-sampling-2026-10-06](settings-title-sampling-2026-10-06.md).
 
 Settings main still uses `TopText_U_00`. DS Profile still uses
 `LsCommonBG_U_00`. Neither takes this group.
@@ -172,8 +173,8 @@ This prediction is not acceptance.
 
 - HUD clock/date vs `lcdDate` (Software pair: native `06/10 (Tuesday)
   15:04` vs browser `05/10 (Monday) 18:01`).
-- Title/icon edge AA after the group is centred, especially on pages
-  without the Other lcd/12p4-fit.
+- Title/icon edge AA after the group is centred. U23 later shares the
+  Other lcd/12p4-fit across these pages.
 - Extra Data native `?` row vs empty copy (lower **51927**).
 - Internet lower selected yellow vs unfocused blue.
 - Data root 3DS selected vs unfocused and Reset enabled vs disabled.
@@ -188,7 +189,8 @@ This prediction is not acceptance.
 ## Still non-native elements
 
 - Other Settings title raster: `textSampling:'lcd'` and
-  `azahar-12p4-fit` (existing capture-supported adaptation; not extended).
+  `azahar-12p4-fit` (existing capture-supported adaptation; U23 later
+  extends this bind — see [settings-title-sampling-2026-10-06](settings-title-sampling-2026-10-06.md)).
 - Unidentified detail headings: local `view.heading` without `mset`
   style, now centred as drawn.
 - Open Blocks integer `65536` and EUR comma grouping: portfolio empty-SD

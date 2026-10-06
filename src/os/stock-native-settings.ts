@@ -245,9 +245,14 @@ function drawNativeSettingsSubpage(renderer:NativeLayoutRenderer,top:CanvasRende
     return okay;
   }
   // 0x2232b4 recenters Null_Title from the bound title advance on every
-  // CommonBG_U_00 page. Other Settings alone keeps its existing LCD glyph fit.
+  // CommonBG_U_00 page. That layout's only text pane is TextBoxTitle_00
+  // (alignment 3, lineAlignment 0, cbf_std). The sourced LCD-centre
+  // sampler plus the existing azahar-12p4-fit coverage snap therefore
+  // apply to every such title: same pane, font, and Azahar upscale path
+  // as Other. The 12p4 snap stays a labelled capture-fit, not a proven
+  // GPU rule. Icon attachments are picture-only and keep default raster.
   const titleText=screen==='detail'&&!detailSource?{text:view.heading}:message(title);
-  draw(top,'up','CommonBG_U_00',{...(screen==='other'?{textSampling:'lcd' as const,textCoverageAdaptation:'azahar-12p4-fit' as const}:{}),bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{Null_Title:{translation:settingsTitleTranslation(renderer,titleText)},TextBoxTitle_00:titleText},attachments:{Icon:()=>draw(top,'up',icon)}});
+  draw(top,'up','CommonBG_U_00',{textSampling:'lcd' as const,textCoverageAdaptation:'azahar-12p4-fit' as const,bindings:[{name:'CommonBG_U_00_SceneIn_0'+(variant===2?0:variant),frame:20}],overrides:{Null_Title:{translation:settingsTitleTranslation(renderer,titleText)},TextBoxTitle_00:titleText},attachments:{Icon:()=>draw(top,'up',icon)}});
   const profileInfo=screen==='profile'||screen==='detail'&&section==='profile'&&['nickname','birthday'].includes(field);
   // Original signed sizes encode mirrored quadrants. Derived absolute sizes
   // and reflected scales preserve each origin; the source pack is immutable.

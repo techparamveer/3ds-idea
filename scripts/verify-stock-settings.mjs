@@ -152,14 +152,15 @@ try{
    const text=title.options.overrides.TextBoxTitle_00.text;
    assert.equal(text in centered,true,'CommonBG_U_00 title '+text+' has a sourced 0x2232b4 X');
    assert.deepEqual(title.options.overrides.Null_Title,{translation:[centered[text],-0,0]},'0x2232b4 centers '+text);
+   assert.equal(title.options.textSampling,'lcd','every CommonBG_U_00 title uses the sourced LCD sampler');
+   assert.equal(title.options.textCoverageAdaptation,'azahar-12p4-fit','azahar-12p4-fit is the shared CommonBG title coverage snap');
    if(subpage.screen==='other'){
-    assert.equal(title.options.textSampling,'lcd');
-    assert.equal(title.options.textCoverageAdaptation,'azahar-12p4-fit');
     for(const call of calls.filter(c=>subpage.data?.page===0&&['I_User','I_Date','I_Touch'].includes(c.layout)))
      assert.equal(call.options.bindings[0].frame,0,'native touch-entry rows remain white');
-   }else{
-    assert.equal(title.options.textSampling,undefined,'non-Other CommonBG pages keep source text sampling');
-    assert.equal(title.options.textCoverageAdaptation,undefined,'azahar-12p4-fit stays Other-only');
+   }
+   for(const call of calls.filter(c=>c.layout.startsWith('Icon'))){
+    assert.equal(call.options.textSampling,undefined,`${call.layout} is picture-only`);
+    assert.equal(call.options.pictureSampling,undefined,`${call.layout} keeps default picture raster`);
    }
   }
   if(subpage.variant===2){

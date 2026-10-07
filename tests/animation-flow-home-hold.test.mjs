@@ -4,9 +4,10 @@ import { createContext, runInContext } from 'node:vm';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { collectAnimationFrames, holdPauseHome, parsePauseHomeHold, validatePauseHomeHold, writeInitialCapture } from '../scripts/verify-animation-flow.mjs';
+import { attemptPauseHomeHold, collectAnimationFrames, holdPauseHome, parsePauseHomeHold, validatePauseHomeHold, writeInitialCapture } from '../scripts/verify-animation-flow.mjs';
 
-function browserFixture({ releaseLatencyMs = 0, setupLatencyMs = 0, paintChanges = true, waitFailure = false, suppressDown = false } = {}) {
+function browserFixture({ releaseLatencyMs = 0, setupLatencyMs = 0, paintChanges = true, waitFailure = false, suppressDown = false,
+  focusFailure = false, targetFailure = false, observerFailure = false } = {}) {
   let now = 100, paint = 0, raf = [], held = false;
   const listeners = new Map(), canvas = { tagName: 'CANVAS', id: 'lcd' };
   const host = { tagName: 'DIV', id: 'console', contains: target => target === host || target === canvas,
@@ -52,7 +53,13 @@ function browserFixture({ releaseLatencyMs = 0, setupLatencyMs = 0, paintChanges
   };
   const up = type => { advance(releaseLatencyMs); event(type); held = false; };
   const page = { evaluate, viewportSize: () => ({ width: 800, height: 600 }),
-    locator: () => ({ focus: async () => advance(setupLatencyMs), evaluate: async (fn, value) => { advance(setupLatencyMs); return fn(host, value); } }),
+    locator: () => ({ focus: async () => {
+      if (focusFailure) throw new Error('key focus failed');
+      advance(setupLatencyMs);
+    }, evaluate: async (fn, value) => {
+      if (targetFailure) throw new Error('physical target failed');
+      advance(setupLatencyMs); return fn(host, value);
+    } }),
     keyboard: { down: async () => down('keydown'), up: async () => up('keyup') },
     mouse: { move: async () => {}, down: async () => down('pointerdown'), up: async () => up('pointerup') },
     waitForTimeout: async durationMs => {
@@ -61,6 +68,10 @@ function browserFixture({ releaseLatencyMs = 0, setupLatencyMs = 0, paintChanges
       advance(waitFailure ? 150 : durationMs);
       if (waitFailure) throw new Error('hold wait failed');
     } };
+  if (observerFailure) page.evaluate = async (fn, value) => {
+    if (window.animationCapture) throw new Error('observer setup failed');
+    return evaluate(fn, value);
+  };
   return { page, host, window, advance, event, held: () => held,
     listenerCount: () => [...listeners.values()].reduce((sum, handlers) => sum + handlers.size, 0) };
 }
@@ -217,6 +228,61 @@ test('HOME count inconsistencies and negative observed starts are rejected from 
   assert.throws(() => validatePauseHomeHold({ ...input, collectedFrameCountDuringHold: 9 }, 1000, frames), /positive captured/);
   assert.throws(() => validatePauseHomeHold({ ...input, collectedFrameCountDuringHold: 11 }, 1000, frames), /held-frame count matches/);
   assert.throws(() => validatePauseHomeHold({ ...input, collectedPaintCountDuringHold: 9 }, 1000, frames), /held-paint count matches/);
+});
+
+for (const [activation, failure, message] of [
+  ['key', { focusFailure: true }, 'key focus failed'],
+  ['physical', { targetFailure: true }, 'physical target failed'],
+]) {
+  test(`${activation} pre-push failure never labels an earlier launch or Resume as a HOME hold`, async t => {
+    const browser = browserFixture(failure), prior = { kind: 'key', value: 'Enter', at: 10 }, inputs = [prior];
+    await browser.page.evaluate(collectAnimationFrames, 1000);
+    const attempt = await attemptPauseHomeHold(browser.page, activation, 500, inputs);
+    browser.advance(200);
+    assert.equal(attempt.pauseHomeHold, null);
+    assert.equal(attempt.pauseHomeHoldFailure, `Error: ${message}`);
+    assert.deepEqual(inputs, [prior]);
+    const dir = await mkdtemp(join(tmpdir(), 'animation-home-hold-pre-push-'));
+    t.after(() => rm(dir, { recursive: true, force: true }));
+    const path = join(dir, 'capture.json');
+    await assert.rejects(writeInitialCapture(path, { valid: false, durationMs: 1000,
+      ...(attempt.pauseHomeHold ? { pauseHomeHold: attempt.pauseHomeHold } : {}), pauseHomeHoldFailure: attempt.pauseHomeHoldFailure,
+      inputs, cycleInputs: inputs.slice(), frames: Array.from(browser.window.animationCapture.frames) }), new RegExp(message));
+    const retained = JSON.parse(await readFile(path, 'utf8'));
+    assert.equal(retained.valid, false);
+    assert.equal(Object.hasOwn(retained, 'pauseHomeHold'), false);
+    assert.equal(retained.pauseHomeHoldFailure, `Error: ${message}`);
+    assert.deepEqual(retained.inputs, [prior]);
+    assert.deepEqual(retained.cycleInputs, [prior]);
+    assert.equal(retained.frames.length, 5);
+    assert.equal(browser.held(), false);
+    assert.equal(browser.listenerCount(), 0);
+  });
+}
+
+test('observer setup failure retains only the new requested HOME input without invented observed events', async t => {
+  const browser = browserFixture({ observerFailure: true }), prior = { kind: 'key', value: 'Enter', at: 10 }, inputs = [prior];
+  await browser.page.evaluate(collectAnimationFrames, 1000);
+  const attempt = await attemptPauseHomeHold(browser.page, 'key', 500, inputs);
+  assert.equal(attempt.pauseHomeHoldFailure, 'Error: observer setup failed');
+  assert.strictEqual(attempt.pauseHomeHold, inputs[1]);
+  assert.equal(attempt.pauseHomeHold.value, 'h');
+  assert.equal(attempt.pauseHomeHold.requestedHoldDurationMs, 500);
+  assert.equal(attempt.pauseHomeHold.down, null);
+  assert.equal(attempt.pauseHomeHold.up, null);
+  assert.equal(attempt.pauseHomeHold.observedHostDurationMs, null);
+  const dir = await mkdtemp(join(tmpdir(), 'animation-home-hold-observer-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const path = join(dir, 'capture.json');
+  await assert.rejects(writeInitialCapture(path, { valid: false, durationMs: 1000, ...attempt,
+    inputs, frames: Array.from(browser.window.animationCapture.frames) }), /observer setup failed/);
+  const retained = JSON.parse(await readFile(path, 'utf8'));
+  assert.equal(retained.valid, false);
+  assert.equal(retained.pauseHomeHold.value, 'h');
+  assert.equal(retained.pauseHomeHold.down, null);
+  assert.deepEqual(retained.inputs[0], prior);
+  assert.equal(browser.held(), false);
+  assert.equal(browser.listenerCount(), 0);
 });
 
 test('ordinary capture keeps its original frame shape when no HOME hold was requested', async () => {

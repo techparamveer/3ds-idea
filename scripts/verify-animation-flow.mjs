@@ -132,6 +132,12 @@ export function validatePauseHomeHold(input, durationMs, frames) {
     'HOME held-paint count matches retained evidence');
 }
 
+export async function attemptPauseHomeHold(page, activation, durationMs, inputs) {
+  const holdInputOffset = inputs.length;
+  try { return { pauseHomeHold: await holdPauseHome(page, activation, durationMs, inputs), pauseHomeHoldFailure: null }; }
+  catch (error) { return { pauseHomeHold: inputs[holdInputOffset] ?? null, pauseHomeHoldFailure: String(error) }; }
+}
+
 export async function writeInitialCapture(path, result) {
   await writeFile(path, JSON.stringify(result, null, 2) + '\n');
   if (result.pauseHomeHoldFailure) throw new Error(result.pauseHomeHoldFailure);
@@ -303,8 +309,7 @@ try {
   await page.evaluate(collectAnimationFrames, durationMs);
   let pauseHomeHold = null, pauseHomeHoldFailure = null;
   if (values.scenario === 'pause' && homeHoldMs !== null) {
-    try { pauseHomeHold = await holdPauseHome(page, values.activation, homeHoldMs, inputs); }
-    catch (error) { pauseHomeHold = inputs.at(-1) ?? null; pauseHomeHoldFailure = String(error); }
+    ({ pauseHomeHold, pauseHomeHoldFailure } = await attemptPauseHomeHold(page, values.activation, homeHoldMs, inputs));
   }
   else if (values.scenario === 'pause') values.activation === 'physical' ? await physical('HOME') : await key('h');
   else if (values.scenario === 'manual') await touch(50, 226);

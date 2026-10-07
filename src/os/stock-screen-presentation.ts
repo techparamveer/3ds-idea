@@ -18,11 +18,13 @@ import { drawNativePersonalToolFrame, nativePersonalToolView, notificationsHudCl
 import { drawNativeWebFrame, browserHudClock, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { stockScreenTargets } from './stock-screen-layout';
+import type { NotesBootCoverPaint } from './notes-boot-cover';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
 export type NotesIntroPaint =
   | { status: 'pending' }
+  | NotesBootCoverPaint
   | {
       status: 'posed';
       title: NativeLayout;
@@ -302,7 +304,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const data=view.data&&typeof view.data==='object'&&!Array.isArray(view.data)?view.data:{};
       const clockField=view.appId==='game-notes'?'notesHostMs':view.appId==='health-safety'?'healthElapsedMs':view.appId==='system-settings'?'settingsHudElapsedMs':null;
       const notesView=clockField?{...view,data:Object.fromEntries(Object.entries(data).filter(([key])=>key!==clockField))}:view;
-      const introKey=notesIntro?.status==='posed'?[notesIntro.ticket,notesIntro.steps,notesIntro.scene9Draw,notesIntro.scene10Draw,notesIntro.titleUserVisible]:notesIntro?.status??null;
+      const introKey=notesIntro?.status==='posed'?[notesIntro.ticket,notesIntro.steps,notesIntro.scene9Draw,notesIntro.scene10Draw,notesIntro.titleUserVisible]:notesIntro?.status==='boot-cover'?[notesIntro.status,notesIntro.ticket,notesIntro.steps,notesIntro.scene9Draw,notesIntro.scene10Draw]:notesIntro?.status??null;
       const state=prepare(view,nextOwner,font);
       // Poses, not passes, key the eShop pair: settled passes do not repaint.
       const eshop=nativeServiceView(view)?.view==='eshop-welcome';

@@ -11,6 +11,7 @@ import { createSuspendedApplicationCapture } from './notes-suspended-capture';
 import { createNotesMetadataSession } from './notes-metadata-session';
 import { notesIntroSourcesFromPacks } from './notes-intro-publication';
 import { createNotesIntroSession } from './notes-intro-session';
+import { createNotesBootCoverSession, notesBootCoverSourcesFromPacks } from './notes-boot-cover';
 import type { NativePack } from './native-layout';
 type C=CanvasRenderingContext2D;
 const nativeFonts=new WeakMap<C,BitmapFont>();
@@ -37,11 +38,18 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    const metadata={selection:{titleId:`portfolio:${appId}`,description:app.title},icon:{width:64,height:64,data:pixels.data},dispose(){pixels.data.fill(0);}};
    signal.throwIfAborted();return metadata;
   },
- }),notesIntro=createNotesIntroSession();
+ }),notesIntro=createNotesIntroSession(),notesBootCover=createNotesBootCoverSession();
  function syncNotesIntro(state:MenuState,view:AppView|null|undefined,packs:Record<string,NativePack|undefined>|undefined):NotesIntroPaint|undefined{
   const s=state.system,meta=notesMetadata.getState(),data=view?.data??{};
   const sources=packs?notesIntroSourcesFromPacks(packs):undefined;
   const host=typeof data.notesHostMs==='number'&&Number.isFinite(data.notesHostMs)?data.notesHostMs:0;
+  const notes=s?.runtime.systemApplet?s.runtime.instances[s.runtime.systemApplet]:undefined;
+  const noSoftware=notes?.appId==='game-notes'&&!notes.closing&&!s?.runtime.application;
+  const bootCover=notesBootCover.sync({
+   owner:noSoftware?notes.id:null,now:host,
+   paused:!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
+   reducedMotion:options.reducedMotion?.()??false,sources:packs?notesBootCoverSourcesFromPacks(packs):undefined,
+  });
   notesIntro.sync({
    owner:meta.status==='ready'?{notesOwner:meta.notesOwner,applicationOwner:meta.applicationOwner,captureGeneration:meta.captureGeneration,titleId:meta.titleId}:undefined,
    metadata:meta,assetsReady:!!sources,
@@ -55,7 +63,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    status:'posed',title:composed.title,upper:composed.upper,lower:composed.lower,scene9Draw:composed.scene9Draw,scene10Draw:composed.scene10Draw,titleUserVisible:composed.titleUserVisible,
    ticket:session.ticket,steps:session.observation?.steps??0,icon:meta.metadata.icon,description:meta.metadata.selection.description,
   };
-  return meta.status==='ready'?{status:'pending'}:undefined;
+  return meta.status==='ready'?{status:'pending'}:bootCover;
  }
  function syncStockView(state:MenuState,context?:C){
   if(state.system)suspendedCapture.sync(state.system.runtime);
@@ -185,5 +193,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();notesIntro.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

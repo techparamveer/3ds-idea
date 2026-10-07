@@ -263,7 +263,7 @@ test('HOME HUD wiring is capture-only, records its sample, and restores live pai
   assert.match(block, /phase!=='home'/);
   assert.match(block, /try\{lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
   assert.match(block, /homeHudSample:homeHudSample\?\?null/);
-  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true\)/);
+  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true,restored\?\.entryMotion\)/);
 });
 
 
@@ -272,9 +272,9 @@ test('capture transaction paints explicit sample once, records it, and restores 
   const code = scene.slice(scene.indexOf('const captureScreensAt='), scene.indexOf('Object.assign(host,{captureScreensAt})'));
   const compiled = ts.transpileModule(code, {compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
   for (const fails of [false, true]) {
-    const paints=[],receipts=[];
+    const paints=[],receipts=[],restoredEntryMotion={folder:{folderFrame:4,captureFrame:4},pauseFrame:null};
     const dependencies={disposed:false,firmwareAssets:{},state:{powered:true,system:{phase:'home',homeClock:{updateCount:1}}},window:{location:{hostname:'localhost'}},lcdHomeHudSample,
-      screens:{paint(...args){paints.push(args);},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>({status:'unsupported'}),getHomeBannerHostBackgroundFrame:()=>({}),bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
+      screens:{paint(...args){paints.push(args);return args.length===3?{entryMotion:restoredEntryMotion}:undefined;},nativeTop:{},bottom:{}},getHomeBannerHostView:()=>({status:'unsupported'}),getHomeBannerHostBackgroundFrame:()=>({}),bannerHost:{},cursorDiagnostic:()=>({}),reduced:false,
       encodeNativeLcdPair(){if(fails)throw new Error('encoding failed');return {top:'png',bottom:'png'};},recordScreenPaint(...args){receipts.push(args);},start:0,topTexture:{},bottomTexture:{}};
     const capture = new Function(...Object.keys(dependencies), 'let lastBootPaintIdentity={stale:true},lastShutdownPaintIdentity={stale:true},verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;'+compiled+';return captureScreensAt;')(...Object.values(dependencies));
     if(fails) assert.throws(()=>capture(12000,'2026-09-26',undefined,hudSample),/encoding failed/);
@@ -286,8 +286,9 @@ test('capture transaction paints explicit sample once, records it, and restores 
     assert.equal(paints.length,2);
     assert.deepEqual(paints[0][3],{sampleCalendar:true,homeHudSample:hudSample});
     assert.equal(paints[1].length,3,'restoration supplies no verification sample');
-    assert.equal(receipts.length,1,'success and failure both acknowledge the restored live paint transaction');
-    assert.equal(receipts[0][1],false,'HOME restoration clears rather than acknowledges a shutdown terminal');
+    assert.equal(receipts.length,1,'success and failure both record the restored live paint diagnostics');
+    assert.equal(receipts[0][1],false,'HOME restoration records no native shutdown terminal');
+    assert.equal(receipts[0][2],restoredEntryMotion,'restoration retains entry-motion diagnostics without a render acknowledgement');
     assert.ok(Number.isFinite(receipts[0][0]));
     assert.equal(dependencies.topTexture.needsUpdate,true);
     assert.equal(dependencies.bottomTexture.needsUpdate,true);

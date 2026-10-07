@@ -42,6 +42,17 @@ ignored touch cannot validate the captured phase. Still inspect the console
 images, preserve raw ledgers and freeze selector/driver hashes before diffs.
 Reduced intermediate absence is an accessibility adaptation, not native motion.
 
+[Combined Manual verification](../animation-fidelity-workflow-2026-10-07.md#manual-number-header-and-footer-corrections)
+keeps the served-base build separate from pending incoming dependencies. Declare
+the chronological stage policy before capture, freeze the selector before pixel
+comparison, and pin policy/script/native/comparator/mask hashes. Rehash and
+decode every raw pair, check receipt chronology and orphan closure, and inspect
+console views plus each comparison sheet. Region bands must sum to the full
+fixed-pair counts; a region name alone does not establish component execution.
+The provenance sidecar distinguishes historical null/unsupported fields from
+the recovered NCCH/code/TMD-file identities and rehashes mapped public assets.
+Neither source hashes nor a lower mismatch count passes the animation scenario.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

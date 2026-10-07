@@ -5,18 +5,23 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
-Current Manual checkpoint: reviewed row-only correction `6f022e3`/`3c83fcd`
-and capture caller guards `6a58c50` are integrated. Port 3022 serves committed
-Manual source `f9dd707`, with existing model LFS bytes verified against HEAD.
-Nine entry/re-entry cycles yield 1,150 valid paired paints, 2,300 decoded raw PNGs
-and no page errors. Settings/Browser Page/Contents round-trips restore exact
-lower pixels. Both fixed Camera ready diagnostics improve from 446/1,038 to
-446/368. Row-band mismatches drop from 457/319 to 24/82; the footer's 262
-differing pixels stay unchanged. Cover 0/0 holds; incoming 11,520/74,833,
-native epochs and all four whole-animation failures remain.
-No pending decoded assets or caller WIP are served. Weekly remaining is 84% at
-this checkpoint; stop and pause at 75%. See the
-[Manual visible checkpoint](animation-fidelity-workflow-2026-10-07.md#manual-contents-row-correction-and-visible-verification).
+8 October Manual checkpoint: reviewed number, header and footer corrections
+integrate through `0a6e205`, after the title-row correction and caller guards.
+Port 3022 serves reviewed `43b0780`, build `6_xvB78tkOAgNJilSVLa5`, excluding
+pending incoming assets/caller WIP. Existing model LFS bytes are unchanged.
+Nine entry cycles yield 1,557 valid paired paints/3,114 decoded raw PNGs; both
+Settings/Browser Page round-trips yield 127 pairs/254 PNGs and exact lower hash
+closure. No browser errors. Both fixed Camera ready diagnostics improve from
+446/368 to 106/23, empty mask/delta 2. Upper icon/indicator bands are 60/46;
+lower row1/row2/footer bands are 11/6/6. Other bands stay 0. Complete cover
+0/0 holds, while incoming 11,520/74,829 remains mismatched and unaligned.
+Root full tests pass 2,441 with one historical Camera PNG failure/98 skips/one
+TODO; isolated build has 2,379 passes with the same failure/96 skips/one TODO.
+Typecheck/build pass. Static and browser evidence do not pass any whole flow.
+Weekly remaining is 83% at this checkpoint; stop and pause at 75%. Next are
+bounded source checks of the remaining edge regions and unresolved native
+input/LCD clocks, not fitted phases or repeated late native bursts. See the
+[combined Manual checkpoint](animation-fidelity-workflow-2026-10-07.md#manual-number-header-and-footer-corrections).
 
 Earlier supporting checkpoint `2431ed5`: reviewed optional held-HOME collector
 and type-only receipt fix are integrated. Private full tests pass 2,410 with

@@ -967,3 +967,124 @@ SHA `328b3177ca84c64129a2bc35507606884fd643a7ce333be680ea3e9dae7bc912`,
 pins 22 drivers/results/selectors/build-inventory identities and the collector,
 retains the full unchanged asset mapping and its unsupported fields, and
 labels execution identity as attested rather than self-discovered.
+
+## Manual number, header and footer corrections
+
+8 October 2026. GitHub main remains `5ee6fd7`. Reviewed number commits
+`fe343b6`/`7026845`/`fac72a6`, header `fcbc7b2` and footer `c0a6363` integrate
+through `0a6e205`. Independent review closed the number text-record guard and
+cleared the final candidates. No new native asset or caller WIP is delivered.
+
+**Source-identified and implemented.** Manual is title `0004003000009b02`,
+version 5120, content index 0/ID `0000000a`. NCCH SHA
+`c493384988edd28b723b69b77f8406eaca4cf54e55446f4f5977a40e0d70c92a`;
+decoded `ExeFS/.code` SHA
+`cf4658f9f618a41f8d32ff7aed40d0ea565da78a2ace349cb93698ff5f7df5d8`.
+Recovered CTRTool 1.2.0 is distinct from the historical public-pack extractor
+1.3.0. Recovery provenance/supplement hashes are `b92d488f`/`0b615767`.
+Original ARM execution remains unproved after SIGILL; these are static traces.
+
+The number call `0x1702f0 -> 0x14a1cc` uses the plain writer, preserving the
+source 15.75x19.5 font size and centered alignment 4/2. Existing
+`lcd-source-size-left` now allows both row panes; it does not force Number left.
+Exact selected text/hierarchy/material/texture/Wait/bound-font guards reject
+mutations before drawing, including cached tinted clones. Row alias
+`manual-row`, delivered `packs/manual/layout-BtnHeadLineTxt.json` SHA
+`9c0c0fb055d3b15311c0f0210bf3a89314c64edfab54a7596adc3878e1a3ca7a`,
+maps to `layout/BtnHeadLineTxt.arc/blyt/BtnHeadLineTxt.bclyt` SHA
+`c41c54be9f004b98714ff8b9dc941b09386de50cd9215894d1ac6fe95181dca2`.
+Its existing converter is ctr-native-web 1.2.0. Shared `cbf_std` source title
+`0004009b00014002`, member `cbf_std.bcfnt.lz`, SHA
+`95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581`.
+
+Contents header `SoftTitleHeader` alone uses existing `pictureSampling: lcd`.
+Its center [200,-22], 32x32 fractional icon pane, dynamic 48-to-64 RGB565 icon
+conversion, UVs/material and text path stay unchanged. Pinned header source
+audit `manual-upper-source-20261008/manual-upper-source-report.json` SHA
+`408d731a7648d9bb2729f251ab06987e4504051ef15b2a78e688184082c5ec88`.
+The integral background keeps its existing renderer branch.
+
+Footer constructor `0x13b260..0x13b330` applies named-style writer `0x15a168`
+at `0x13b29c/0x13b2b0/0x13b2c4/0x13b2d8`. Its placer call
+`0x13b324 -> 0x16da3c` measures through `0x16d910`, `0x17ee84`,
+`0x1837a0` and `0x187138`; inner calls are `0x17eecc -> 0x1837a0` and
+`0x1837f4 -> 0x187138` for the actual glyph advance.
+Float32 advance accumulation measures Language width 84 and pictogram E003
+width 18.360000610351562. With original gap 8 and truncate-toward-zero stores,
+pictogram X is -42, replacing fitted -43; label X remains 13. Source styles,
+font advances, message/layout records and SceneIn20 pose are guarded before any
+draw. Page is unchanged. Footer supplement SHA
+`8e68d7d293a6a2d55b2a03a8b7335985ae24f624546b6dfa6e4a67e7552bf27b`.
+
+**Tested and built.** Root `0a6e205` full private run: 2,541 total, 2,441 pass,
+one unchanged historical Camera lower.png ENOENT, 98 skips, one TODO. Full log
+SHA `ac4c3d5a`; typecheck SHA `9e006831` passes with incoming caller WIP present.
+Root WIP hash `172ec978` remains unchanged and unserved; root was not built.
+The isolated served-base branch contains only the five reviewed commits over
+`f9dd707`, now `43b078011ca0411cd645e837a713841dc7ce01e0`. Seven reviewed
+source/test files equal coordinator committed `0a6e205`. Focused128/128, full
+2,477 total/2,379 pass with the same historical failure/96 skips/one TODO;
+typecheck/build pass. Verification report SHA
+`a636fc677f9b62dcc92f5d63f7172ced313ed6d836fa3d8a9e3fbe69800e7173`.
+BUILD_ID `6_xvB78tkOAgNJilSVLa5`, SHA
+`ceedf71f684d462a61df938e938aa442af3ff67c3e01b2bd553500450c1977d5`.
+All 77 existing LFS models and dependencies remain unchanged. Materialized
+GLBs and STATUS are unstaged; authored source, not the whole tree, is clean.
+Root stopped old session20481 before building, verified PID50668 absent, then
+started3022/session47257/PID4281, HTTP200. Worker report is pre-serving;
+later serving closure SHA `eb9f4a7b` records root's start. Old3021/user3000 untouched.
+
+**Browser-inspected.** New private `manual-combined-43b0780/` captures are
+muted, with actual touch/keyboard inputs and no state/pose injection. Normal
+Camera218/213, Settings214/210 and Browser227/233 pairs use 8-second windows;
+mobile390x844 reduced Camera80/81/81 uses 4-second windows. All nine reach the
+exact supplied heading without errors. Settings Page open/return30/33 and
+Browser31/33 retain in-window valid app/ready/entry-null endpoints, visible lower
+change and exact Contents/document/Contents hash closure. All1,684 paired
+paints/3,368 raw PNGs are rehashed/decoded at400x240 and320x240, with matching
+paired receipts, monotonic clocks and no orphan LCDs. All13 console views opened.
+Supporting report SHA
+`f77e698c28d9373018588d6af2c5f547d85e28ed3c27076c42c70af65f374a19`;
+reviewed checker `431cf2f7`. Page driver `c966ca1e` is unchanged.
+
+A predeclared policy SHA `0c6c5908`, unchanged selector driver `d1d74a51`, and
+collector `6b9e761c` select stages before any pixel comparison. Camera
+out20/in1/in20/ready indices are41/45/91/92 and40/43/82/83. Settings are
+43/46/86/87 and41/44/80/81; Browser55/59/106/107 and52/56/109/110. Reduced
+Camera is1/null/3/4 each cycle. Missing intermediate stays null and is an
+accessibility adaptation. Selector hashes Camera `45993c1a`, Settings
+`7971bf7c`, Browser `6f524cd4`, reduced `7d198de8`. All raw entry PNG CRCs pass.
+Diagnostic owners `manual:1/2/3` are not private owner/generation proof; actual
+Manual caller/title/page identity and native source/input epochs remain null.
+
+**Native-compared static diagnostics.** Unchanged warm native index `3d013fd8`,
+comparator `5ad566e1`, empty mask `dc4b320b` and delta2 produce both complete
+covers0/0, incoming11,520/74,829 and ready106/23. All12 contact sheets opened.
+Ready previously446/368. Result SHA
+`f3291823b277f7811b11d0f45657d3b7b0354eb6e0021603719f7d9dfd4ce225`;
+driver `70c71856`. Fixed residual report SHA
+`b996e8e83ab295ae0c2b025271163922073a24b8ee6cd1e27a7cb23d9a9994fc`,
+driver `a44d1215`: upper icon band400->60, indicator46 unchanged, other0;
+lower row1 24->11, row2 82->6, footer262->6, other0, identical in both cycles.
+Old/new browser changes stay entirely in those selected bands. Spatial bands
+do not by themselves prove original component execution or source-gap status.
+No phase/registration search, new native capture or timing fit occurred.
+
+The frozen sidecar `manual-combined-43b0780/orchestration-provenance.json`, SHA
+`589678363b7179297dfd1646dec0a352eba0e46d34afa53fc978e6d95cf4dd39`,
+pins29 driver/result/selector/build/source identities and rehashes19 mapped
+public assets, retaining the full prior mapping and its unsupported fields.
+Historical tmdSha256 content-record fields are not asserted as TMD-file digests;
+the separate recovered TMD-file/NCCH/code relation is rehashed. Its helper's
+initial manifest-schema error remains in the failure log; the corrected run
+passes. Execution identity is attested, not independently discovered in ledgers.
+
+All four whole scenarios remain fail. Source/category/body/clip/truncation and
+shared-clock fits, fixture population/HUD differences, inert/local services and
+portfolio content remain explicit adaptations. Muted audio is unverified.
+Public incoming export approval remains pending. No private matrix, original
+firmware/model, default profile, system or Spotify audio changes. Test/capture
+jobs are closed; only documented previews remain. Next: one bounded source check
+of remaining60/46 upper and11/6/6 lower edge regions, then native input/LCD
+clock evidence, without guessing geometry or repeating unsupported late bursts.
+Weekly remaining is83% at this checkpoint; stop all seats and pause at75%.

@@ -1,6 +1,6 @@
 # Goal: finish the four remaining native animation flows
 
-Updated 7 October 2026 after fetching GitHub. Starting version:
+Updated 8 October 2026. GitHub remains at starting version:
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532` on `origin/main`.
 
 User stop condition: stop project work when the weekly allowance remaining
@@ -53,14 +53,15 @@ differ, and the shorter native attempt still captured only settled frames.
 Continue from [the recorded holds](docs/animation-fidelity-workflow-2026-10-07.md#recorded-browser-home-holds).
 The reviewed Manual Contents row correction is integrated as `6f022e3` and
 `3c83fcd`; caller-validating capture checks are committed as `6a58c50`.
-The separate served-base branch runs committed source `f9dd707` on port 3022,
-with exact existing model LFS objects restored to their tracked OIDs/sizes.
-Nine entry/re-entry cycles and both Page/Contents round-trips pass browser
-checks. Fixed Camera ready diagnostics improve the lower mismatch from 1,038
-to 368 in both cycles. The upper mismatch of 446 and incoming mismatches of
-11,520/74,833 remain. No timing, private caller, native
-input, audio or whole-animation acceptance follows. Continue from
-[the Manual row checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#manual-contents-row-correction-and-visible-verification).
+The subsequent number, header and footer corrections integrate through
+`0a6e205`. The isolated served-base branch runs reviewed source `43b0780` on
+port 3022, with unchanged existing model LFS bytes and no incoming caller WIP.
+Nine entry cycles and both Page/Contents round-trips pass browser checks.
+Both fixed Camera ready diagnostics improve from 446/368 to 106/23 pixels
+above delta 2, with an empty mask. Complete cover 0/0 holds; incoming
+11,520/74,829 remains mismatched and unaligned. No timing, private caller,
+native input, audio or whole-animation acceptance follows. Continue from
+[the combined Manual checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#manual-number-header-and-footer-corrections).
 Unresolved native capture latency and incoming dependencies remain open;
 do not repeat late entry bursts or fit a source clock from stale readbacks.
 

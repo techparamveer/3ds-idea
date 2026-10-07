@@ -133,17 +133,27 @@ a `sourceSheet ?? sheet` fallback. See the [HUD delivery note](../hud-font-sourc
 
 ## Runtime resource boundaries
 
-Manual Contents opts only `TextBox_Txt` into the existing
-`lcd-source-size-left` sampler. Its source member, material 0, bound native font,
-Wait pose, single-line capacity and lower-LCD transform must satisfy the exact
-reviewed guard before drawing. Unsupported selected data fails explicitly.
-`getFontManifest` exposes read-only bound metadata; it does not replace a font,
-change cache ownership or relax disposal. Number/header/category/footer and
-Page title/body paths remain unchanged. Existing placement, clipping and
-truncation fits remain adaptations. The
-[source and visible checkpoint](../animation-fidelity-workflow-2026-10-07.md#manual-contents-row-correction-and-visible-verification)
-records improved but still failing fixed-pair counts; static source evidence is
-not original GPU execution or native motion acceptance.
+Application Manual Contents opts `TextBox_Txt` and `TextBox_Num` into the existing
+`lcd-source-size-left` sampler. The mode permits the left-aligned branch; it
+does not force alignment. Number keeps source alignment 4/2 and centered
+source-size glyph quads. Exact source records, selected hierarchy/materials,
+bound native font, Wait pose and lower-LCD transforms must pass their guards
+before drawing. Number also validates the original placeholder and text keys,
+selected parent picture/texture, and both existing category-tinted clones.
+Unsupported selected data fails explicitly.
+`getFontManifest` exposes read-only bound metadata; cache ownership and disposal
+remain unchanged. Contents `SoftTitleHeader` alone opts into existing final-LCD
+picture sampling, preserving the dynamic icon pixels, UVs and source geometry.
+The Language footer applies original float32 advance accumulation and
+truncate-toward-zero placement after guarded named-style binding. Its pictogram
+X is -42 instead of fitted -43; label X stays 13. Both original and terminal
+SceneIn poses are checked before drawing. Page returns before that dependency.
+No new font, texture, glyph size, geometry or source clock is introduced.
+Page title/body paths and unrelated call sites remain unchanged. Other row/body,
+category, clipping and truncation fits remain adaptations. The
+[combined source and visible checkpoint](../animation-fidelity-workflow-2026-10-07.md#manual-number-header-and-footer-corrections)
+records improved but still failing fixed pairs; static instruction evidence is
+not executed original ARM/GPU or native motion acceptance.
 
 Power's lower label opts into existing final-LCD alpha glyph sampling through
 an explicit `textSamplingPanes` allowlist. Missing, duplicate or invalid selected

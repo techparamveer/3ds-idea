@@ -142,3 +142,140 @@ test('startup label resolves to the already delivered native Notifications messa
   assert.equal(manifest.sources['000400300000a002'].contents[0].sha256,
     '80e73dc01348a7e68975073ba4317856e9b79821b27ce4d65692612c500dacc8');
 });
+
+test('original signed insertion and forward draw traversal place cover3 after unread500 and HUD100', t => {
+  if (!existsSync(codePath)) {
+    t.skip('private pinned Notifications executable is absent');
+    return;
+  }
+  const python = process.env.FIRMWARE_ARM_PYTHON ??
+    '/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/camera-grid-venv/bin/python';
+  if (!existsSync(python)) {
+    t.skip('existing private Unicorn interpreter is absent; set FIRMWARE_ARM_PYTHON');
+    return;
+  }
+  const result = spawnSync(python, ['-B', '-c', `
+import hashlib, itertools, json, struct, sys
+from pathlib import Path
+import unicorn
+from unicorn import Uc, UC_ARCH_ARM, UC_MODE_ARM, UC_HOOK_CODE
+from unicorn.arm_const import (
+    UC_ARM_REG_C1_C0_2, UC_ARM_REG_FPEXC, UC_ARM_REG_LR, UC_ARM_REG_R0,
+    UC_ARM_REG_R7, UC_ARM_REG_R8, UC_ARM_REG_R9, UC_ARM_REG_SP,
+)
+code = Path(sys.argv[1]).read_bytes()
+assert hashlib.sha256(code).hexdigest() == 'b3993f1e4fe5ed7e5760f0f4c3926c95b42ea8de53c25bb95864499342e5b228'
+word = lambda address: struct.unpack_from('<I', code, address - 0x100000)[0]
+def branch(address):
+    instruction = word(address)
+    displacement = instruction & 0xffffff
+    if displacement & 0x800000:
+        displacement -= 0x1000000
+    return instruction >> 28, address + 8 + displacement * 4
+
+assert word(0x116c44) == 0x1592c058  # new object +0x58, only when nonempty
+assert word(0x116c4c) == 0xe5913054  # existing node is object+4; +0x54 is priority
+assert word(0x116c50) == 0xe15c0003  # cmp incoming priority, existing priority
+assert branch(0x116c54) == (13, 0x116c60)  # signed LE advances to the next node
+assert branch(0x116c5c) == (14, 0x1484d0)  # strictly greater inserts before node
+assert branch(0x116c6c) == (1, 0x116c4c)
+assert word(0x154260) == 0xe590100c  # draw vtable+0x0c
+assert word(0x154268) == 0xe12fff31
+assert word(0x154274) == 0xe5900000  # follow next, not previous link
+assert branch(0x154280) == (1, 0x154188)
+
+def mov_immediate(address):
+    instruction = word(address)
+    assert instruction & 0xfffff000 == 0xe3a02000
+    value, rotation = instruction & 0xff, ((instruction >> 8) & 15) * 2
+    return ((value >> rotation) | (value << (32 - rotation))) & 0xffffffff if rotation else value
+
+priorities = {
+    'cover': mov_immediate(0x14f9f8),
+    'hud': mov_immediate(0x180c64),
+    'unread': mov_immediate(0x17c534),
+}
+
+def replay(entries, mutation=None):
+    machine = Uc(UC_ARCH_ARM, UC_MODE_ARM)
+    machine.mem_map(0x100000, 0x200000)
+    machine.mem_write(0x100000, code)
+    machine.mem_map(0x500000, 0x100000)
+    machine.reg_write(UC_ARM_REG_C1_C0_2, 0xf00000)
+    machine.reg_write(UC_ARM_REG_FPEXC, 0x40000000)
+    def read(address):
+        return struct.unpack('<I', machine.mem_read(address, 4))[0]
+    def write(address, value):
+        machine.mem_write(address, struct.pack('<I', value & 0xffffffff))
+    if mutation:
+        write(*mutation)
+    header = word(0x116c7c) + 12  # native LCD1 list
+    sentinel = header + 4
+    cursor = word(0x154384)  # original forward-pass cursor literal
+    write(header, 0)
+    write(sentinel, sentinel)
+    write(sentinel + 4, sentinel)
+    objects, draws, visited = {}, [], set()
+    stop, draw_leaf = 0x5ff000, 0x5fd000
+    write(draw_leaf, 0xe12fff1e)
+
+    def guard(cpu, address, size, context):
+        visited.add(address)
+        if address == draw_leaf:
+            draws.append(objects[cpu.reg_read(UC_ARM_REG_R0)])
+        elif not (0x116c24 <= address <= 0x116c78 or
+                  0x1484d0 <= address <= 0x1484f0 or
+                  0x154138 <= address <= 0x154280):
+            raise AssertionError('Unexpected original call outside bounded slice: ' + hex(address))
+    machine.hook_add(UC_HOOK_CODE, guard)
+    for index, (name, priority) in enumerate(entries):
+        obj, vtable = 0x501000 + index * 0x100, 0x510000 + index * 0x100
+        objects[obj] = name
+        write(obj, vtable)
+        write(vtable + 0xc, draw_leaf)
+        write(obj + 0x54, 1)
+        write(obj + 0x58, priority)
+        write(obj + 0x60, 1)  # synthetic enabled layout, no pane-visibility claim
+        machine.reg_write(UC_ARM_REG_R0, obj)
+        machine.reg_write(UC_ARM_REG_LR, stop)
+        machine.emu_start(0x116c24, stop, count=1000)
+        assert machine.reg_read(UC_ARM_REG_R0) == obj + 4
+    assert read(header) == len(entries)
+    write(cursor, read(sentinel))
+    machine.reg_write(UC_ARM_REG_SP, 0x5fe000)
+    write(0x5fe010, 1)
+    machine.reg_write(UC_ARM_REG_R9, word(0x154378))
+    machine.reg_write(UC_ARM_REG_R8, 0)  # original post3D pass
+    machine.reg_write(UC_ARM_REG_R7, 1)  # GPU setup already complete, no GPU callees
+    machine.emu_start(0x154138, 0x154284, count=1000)
+    assert machine.reg_read(UC_ARM_REG_R0) == sentinel
+    return {'draws': draws, 'visited': sorted(visited)}
+
+cases = [replay([(name, priorities[name]) for name in order])
+         for order in itertools.permutations(['cover', 'hud', 'unread'])]
+equal = replay([('hud-a', 100), ('cover', 3), ('hud-b', 100), ('unread', 500)])
+signed = replay([('negative', -1), ('cover', 3), ('hud', 100)])
+ascending = replay([('cover', 3), ('hud', 100), ('unread', 500)], (0x116c54, 0xaa000001))
+previous = replay([('cover', 3), ('hud', 100), ('unread', 500)], (0x154274, 0xe5900004))
+print(json.dumps({'unicornVersion': unicorn.__version__, 'priorities': priorities,
+                 'cases': cases, 'equal': equal, 'signed': signed,
+                 'ascendingMutation': ascending, 'previousLinkMutation': previous}))
+`, codePath], {
+    encoding: 'utf8', env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' },
+  });
+  assert.equal(result.status, 0, result.error?.message ?? (result.stderr || `signal ${result.signal}`));
+  const report = JSON.parse(result.stdout);
+  assert.equal(report.unicornVersion, '2.1.4');
+  assert.deepEqual(report.priorities, { cover: 3, hud: 100, unread: 500 });
+  assert.equal(report.cases.length, 6);
+  for (const row of report.cases) {
+    assert.deepEqual(row.draws, ['unread', 'hud', 'cover']);
+    for (const address of [0x116c54, 0x1484d4, 0x154268, 0x154274, 0x154280]) {
+      assert.ok(row.visited.includes(address), address.toString(16));
+    }
+  }
+  assert.deepEqual(report.equal.draws, ['unread', 'hud-a', 'hud-b', 'cover']);
+  assert.deepEqual(report.signed.draws, ['hud', 'cover', 'negative']);
+  assert.deepEqual(report.ascendingMutation.draws, ['cover', 'hud', 'unread']);
+  assert.deepEqual(report.previousLinkMutation.draws, ['unread']);
+});

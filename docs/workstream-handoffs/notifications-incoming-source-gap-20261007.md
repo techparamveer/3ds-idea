@@ -129,17 +129,32 @@ Addresses are image addresses; subtract `0x100000` for code.bin offsets.
 | `0x14f9f8`, `0x14ab1c` | Cover constructor priority 3 is stored with native LCD index at layout offsets +0x58/+0x54. |
 | `0x180c64..0x180c6c` | Own HudMenu upper constructor uses LCD 1 and priority 100. |
 | `0x17c534..0x17c53c` | NewsUnread upper constructor uses LCD 1 and priority 500. Descriptor `0x1a6ea8+4` points to `NewsUnread_U_00.bclyt` at `0x19e36d`. |
-| `0x116c24..0x116c78`, `0x154138..0x154280` | Sorts layouts by priority, then traverses the list forward and invokes each layout draw at vtable+0x0c. Cover precedes HUD and unread pane; it is not a final full-pair overlay. |
+| `0x116c24..0x116c78`, `0x1484d0..0x1484f0` | Inserts strictly greater incoming priority before the existing node, advances on signed less-than-or-equal, and preserves arrival order for equal priorities. The list is descending. |
+| `0x154138..0x154280` | Traverses the list forward in the post3D pass and invokes each enabled layout draw at vtable+0x0c. Among the traced upper layouts, NewsUnread500 then HUD100 draw before cover3. The cover is the final traced title-layout overlay. |
 | `0x103b50..0x103d84` | Polls each LCD animator/state independently, retires completed cover resources independently and can dispatch queued per-LCD commands. |
 | `0x1384c4..0x138550` | Both-LCD completion requires neither LCD state 1/2 and checks each layout visibility independently. |
+
+The original comparison at `0x116c50` is incoming priority against existing
+priority. `0x116c54` is signed BLE to `0x116c60`, which follows the next link.
+The incoming priority comes from object+0x58. The existing load at
+`0x116c4c` reads node+0x54, also object+0x58 because the link node is object+4.
+The greater branch enters the original insert-before helper at `0x1484d0`.
+The draw loop follows the next link at `0x154274` and branches back at
+`0x154280`. This agrees with the independently executed descending HOME list
+in [native upper composition](../native-upper-composition.md).
+
+The initial handoff at `3d58f199` inverted this order. Its claim that a final
+title cover would violate native priority is withdrawn. A title cover after
+the traced HUD/unread layouts preserves their relative draw order. This does
+not establish the frame-dependent activation or visibility of those layouts.
 
 Separate animator objects are not proof of an arbitrary upper/lower time
 offset. The startup command starts both, but lower row/button/background
 activation relative to that command was not established. Current stock code
 samples NewsUnread SceneIn 20, HUD SceneIn 40, lower rows SceneIn 10 and lower
-Close SceneIn 20. Keeping those settled components and adding a final common
-overlay would change the original draw priority and hide the upper HUD.
-Drawing the cover first with all settled lower components is also unproven.
+Close SceneIn 20. Adding the original title cover to that settled pair would
+not establish the original component sequence or the independent LCD phases.
+No universal paired SceneIn is justified by this ordering result.
 
 The exact unresolved source boundary is the lower title component activation
 and visibility rule around ordinary startup's queued command `0x01000015`
@@ -155,14 +170,39 @@ Focused command:
 node --test --test-reporter=spec tests/notifications-entry-source.test.mjs tests/notifications-hud-3347.test.mjs tests/notifications-lower.test.mjs tests/applet-entry-assets.test.mjs
 ```
 
-Result: 17 pass, 0 fail, 2 historical private-pair skips. The three new source
-checks all ran without skips. They decode original layouts/animations,
+Result after the ordering correction: 18 pass, 0 fail, 2 historical private-pair
+skips. The four Notifications entry source checks all ran without skips.
+They decode original layouts/animations,
 sample source poses 0/20 through `poseNativeLayout`, verify archive/member/code
 hashes and startup literal/opcodes, and compare original localized text/style
-with the published selection. The new checks skip explicitly on machines
-without the private extraction; `NOTIFICATIONS_ENTRY_SOURCE_ROOT` can select
-an alternate absolute extraction directory. `git diff --check` passed.
-No runtime change means no build or GUI recapture was run.
+with the published selection.
+
+The ordering regression executes pinned ARM instructions in the existing
+read-only Unicorn 2.1.4 environment at
+`/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/camera-grid-venv/bin/python`.
+It inserts all six permutations through `0x116c24..0x116c78` and
+`0x1484d0..0x1484f0`, then runs the post3D list setup/traversal at
+`0x154138..0x154280`. Every permutation records `NewsUnread500`, `HUD100`,
+`cover3` through the original virtual draw call. Equal priorities preserve
+arrival order, and a synthetic negative priority checks the signed comparison.
+In-memory BLE-to-BGE and next-to-previous mutations change the observed draw
+order. The original executable is never modified.
+
+List memory, layout objects, enabled-object flags, stack and draw-vtable leaves
+are synthetic. The fixture seeds the post3D cursor at the first list node and
+marks GPU setup complete with r7=1, so GPU setup/drawing and the preceding
+pre3D pass do not execute. It proves bounded insertion/traversal order, not
+native pixels, pane activation or motion timing. The instruction hook rejects
+calls outside the stated slices and recorded draw leaf.
+
+The checks skip explicitly on machines without the private extraction;
+`NOTIFICATIONS_ENTRY_SOURCE_ROOT` can select an alternate absolute directory.
+The ordering check also requires an existing Unicorn interpreter, selectable
+with `FIRMWARE_ARM_PYTHON`. The initial invocation returned SIGILL during
+emulator memory allocation; the successful rerun is the result recorded above.
+This does not verify or claim a change to the user's permission settings.
+No packages were installed. `git diff --check` passed. No runtime change means
+no build or GUI recapture was run.
 
 Source identified and tested are the result of this slice. Incoming resources
 are not delivered, incoming motion is not implemented, browser inspection and

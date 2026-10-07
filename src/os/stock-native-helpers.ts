@@ -277,9 +277,49 @@ function validateApplicationManualRow(layout:NativeLayout|undefined,bodyY:number
     ||material.textureMaps.length||material.textureMatrices.length||material.coordinateGenerators.length||material.tevStages.length||material.unsupported.length)return fail();
   return layout;
 }
+/** The original 0x1702f0 plain number writer retains the centered source metrics. */
+function validateApplicationManualRowNumber(layout:NativeLayout,bodyY:number,color:readonly number[]){
+  const fail=()=>{throw new Error('Unsupported Manual Contents TextBox_Num source');};
+  const path=nativePaneParentPath(layout,'TextBox_Num');
+  if(!path||path.length!==4||path.map(pane=>pane.name).join('/')!=='RootPane/BtnHeadLineBody/PageTitleNumBase/TextBox_Num')return fail();
+  const counts=new Map<string,number>();
+  const visit=(panes:NativePane[])=>{for(const pane of panes){counts.set(pane.name,(counts.get(pane.name)??0)+1);visit(pane.children);}};
+  visit(layout.roots);
+  const same=(value:unknown,expected:readonly number[])=>Array.isArray(value)&&value.length===expected.length&&value.every((item,index)=>item===expected[index]);
+  const keys=(value:object)=>Object.keys(value).sort().join(',');
+  for(const [index,pane] of path.entries()){
+    if(counts.get(pane.name)!==1||pane.kind!==(index===2?'pic1':index===3?'txt1':'pan1')||pane.flags!==1||pane.alpha!==255||pane.origin!==4
+      ||pane.unsupported?.length||pane.part||pane.window||index!==2&&pane.picture||index!==3&&pane.text||!same(pane.rotation,[0,0,0])||!same(pane.scale,[1,1]))return fail();
+    if(!same(pane.translation,index===1?[0,bodyY,0]:index===2?[-120,0.800000011920929,0]:[0,0,0])
+      ||!same(pane.size,index===0?[320,240]:index===1?[30,40]:index===2?[31,30]:[90,90]))return fail();
+  }
+  const picture=path[2].picture,text=path[3].text;
+  if(!picture||keys(picture)!=='colors,material,uvSets'||picture.material!==1||picture.colors.length!==4
+    ||picture.colors.some(value=>!same(value,[255,255,255,255]))||picture.uvSets.length!==1||!same(picture.uvSets[0],[0,0,2,0,0,2,2,2]))return fail();
+  if(!text||path[3].children.length||text.font!==0||text.material!==2||text.alignment!==4||text.lineAlignment!==2
+    ||text.characterSpacing!==0||text.lineSpacing!==0||!('flags' in text)||text.flags!==0
+    ||!('capacity' in text)||text.capacity!==4||!('length' in text)||text.length!==4||!same(text.size,[15.75,19.5])
+    ||!same(text.topColor,[255,255,255,255])||!same(text.bottomColor,[255,255,255,255])
+    ||text.messageStyle!==undefined||text.colorSpans!==undefined||text.glyphScaleSpans!==undefined||text.fixedWidthSpans!==undefined
+    ||text.cursorAdvances!==undefined||text.lineAdvanceScales!==undefined||text.multilineBlockOrigin!==undefined||text.singleLineBlockOrigin!==undefined)return fail();
+  for(const index of [1,2]){
+    const material=layout.materials[index];
+    if(!material||keys(material)!=='bufferColor,constantColors,coordinateGenerators,flags,name,tevStages,textureMaps,textureMatrices,textureOnly,unsupported'
+      ||material.name!==(index===1?'PageTitleNumBase':'TextBox_Num')||material.flags!==(index===1?21:0)||material.textureOnly!==false
+      ||!same(material.bufferColor,index===1?color:[0,0,0,0])||material.constantColors.length!==6
+      ||material.constantColors.some(value=>!same(value,[255,255,255,255]))||material.tevStages.length||material.unsupported.length)return fail();
+    if(index===2){if(material.textureMaps.length||material.textureMatrices.length||material.coordinateGenerators.length)return fail();continue;}
+    const map=material.textureMaps[0],matrix=material.textureMatrices[0],generator=material.coordinateGenerators[0];
+    if(material.textureMaps.length!==1||!map||keys(map)!=='magFilter,minFilter,texture,wrapS,wrapT'
+      ||map.texture!==2||map.magFilter!==1||map.minFilter!==1||map.wrapS!==2||map.wrapT!==2||layout.textures[2]!=='BtnPageTitleHead.bclim'
+      ||material.textureMatrices.length!==1||!matrix||keys(matrix)!=='rotation,scale,translation'||matrix.rotation!==0||!same(matrix.scale,[1,1])||!same(matrix.translation,[0,0])
+      ||material.coordinateGenerators.length!==1||!generator||keys(generator)!=='reserved,source,type'||generator.reserved!==0||generator.source!==0||generator.type!==0)return fail();
+  }
+}
 function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:CanvasRenderingContext2D){
   const pack=renderer.packs['manual-row'],source=bottom?validateApplicationManualRow(pack?.layouts.BtnHeadLineTxt,3):pack.layouts.BtnHeadLineTxt;
   if(bottom){
+    validateApplicationManualRowNumber(source,3,[0,0,0,0]);
     const font=renderer.getFontManifest('cbf_std.bcfnt'),transform=bottom.getTransform?.();
     if(!font||font.sourceSha256!=='95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581'
       ||font.colorMode!=='alpha'||font.width!==25||font.height!==30||font.ascent!==25||font.baseline!==25||font.lineFeed!==30)throw new Error('Unsupported Manual Contents TextBox_Txt font');
@@ -305,7 +345,10 @@ function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:Canv
   // must fail instead of taking the renderer's generic Canvas fallback.
   if(bottom)for(const name of ['ManualRowImportant','ManualRowGettingStarted']){
     const layout=validateApplicationManualRow(renderer.packs['manual-row'].layouts[name],APPLICATION_MANUAL_LOWER_FIT.rowBodyY);
-    validateApplicationManualRow(poseNativeLayout(layout,pack.animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]),3);
+    const color=name==='ManualRowImportant'?[237,136,136,0]:[154,212,105,0];
+    validateApplicationManualRowNumber(layout,APPLICATION_MANUAL_LOWER_FIT.rowBodyY,color);
+    const posed=poseNativeLayout(layout,pack.animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
+    validateApplicationManualRow(posed,3);validateApplicationManualRowNumber(posed,3,color);
   }
 }
 function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
@@ -369,7 +412,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
     // The cutoff below is measured from the settled native Contents capture.
     const title=entry.title.length>24?entry.title.slice(0,23)+'...':entry.title;
     if(/[\r\n]/.test(title))throw new Error('Unsupported Manual Contents TextBox_Txt multiline title');
-    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,pictureSampling:'lcd',textSampling:'lcd-source-size-left',textSamplingPanes:['TextBox_Txt'],bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:title}}});
+    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,pictureSampling:'lcd',textSampling:'lcd-source-size-left',textSamplingPanes:['TextBox_Txt','TextBox_Num'],bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:title}}});
     y+=APPLICATION_MANUAL_SLOTS.row;
   }
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});

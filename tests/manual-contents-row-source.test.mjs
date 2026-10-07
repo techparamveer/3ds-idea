@@ -42,13 +42,13 @@ test('row source identity stays in the existing published Manual pack and shared
  assert.equal(json('fonts/shared/font.json').sourceSha256,'95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581');
 });
 
-for(const titleId of [settings,camera,browser])test(`Contents ${titleId} binds only the original plain title row to direct source-size sampling`,()=>{
+for(const titleId of [settings,camera,browser])test(`Contents ${titleId} binds only the original title and centered number to direct source-size sampling`,()=>{
  const f=fixture(titleId),sourceBefore=JSON.stringify(f.source),waitBefore=JSON.stringify(f.renderer.packs['manual-row'].animations);
  assert.equal(f.paint(),true);
  const calls=f.calls.filter(call=>call.pack==='manual-row');assert.ok(calls.length>=2);
  for(const call of calls){
   assert.equal(call.options.textSampling,'lcd-source-size-left');
-  assert.deepEqual(call.options.textSamplingPanes,['TextBox_Txt']);
+  assert.deepEqual(call.options.textSamplingPanes,['TextBox_Txt','TextBox_Num']);
   assert.equal(call.options.pictureSampling,'lcd');
   assert.deepEqual(call.options.clip,[0,0,320,212]);
   assert.deepEqual(call.options.bindings,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
@@ -142,8 +142,8 @@ test('the selected title material is pinned completely without validating unrela
   material=>{material.unsupported.push('unknown');},
  ];
  for(const edit of edits){const f=fixture();edit(f.source.materials[0]);assert.throws(f.paint,/Unsupported Manual Contents TextBox_Txt source/);assert.equal(f.calls.length,0);f.renderer.dispose();}
- const f=fixture();f.source.materials.find(material=>material.name==='PageTitleNumBase').bufferColor[0]=10;
- assert.equal(f.paint(),true,'existing number tint preparation is outside the selected text material predicate');f.renderer.dispose();
+ const f=fixture();f.source.materials[3].bufferColor[0]=10;
+ assert.equal(f.paint(),true,'sibling artwork stays outside the selected text sampler predicates');f.renderer.dispose();
 });
 
 test('Manual row validates the bound font rather than an optional supplied font',()=>{
@@ -182,7 +182,7 @@ test('a multiline selected index title fails explicitly instead of changing writ
  assert.throws(f.paint,/Unsupported Manual Contents TextBox_Txt multiline title/);assert.equal(f.calls.some(call=>call.pack==='manual-row'),false);f.renderer.dispose();
 });
 
-test('real renderer routes only TextBox_Txt to direct flags-zero glyph sampling',()=>{
+test('real renderer keeps the row title left and the number centered on direct glyph sampling',()=>{
  const f=fixture();assert.equal(f.paint(),true);const selected=f.calls.find(call=>call.pack==='manual-row');
  const layout=structuredClone(f.renderer.packs['manual-row'].layouts[selected.layout]);
  // Isolate glyph transport from unrelated source pictures; keep hierarchy and both text panes.
@@ -202,8 +202,61 @@ test('real renderer routes only TextBox_Txt to direct flags-zero glyph sampling'
   assert.equal(renderer.draw(canvas().getContext(),'row','row',selected.options),true);
   const title=calls.find(call=>call.value===selected.options.overrides.TextBox_Txt.text),number=calls.find(call=>call.value===selected.options.overrides.TextBox_Num.text);
   assert.deepEqual(title,{value:selected.options.overrides.TextBox_Txt.text,size:[17.5,21],alignment:0,lineAlignment:0,direct:true,sourceSize:true,topLeft:true});
-  assert.deepEqual(number,{value:selected.options.overrides.TextBox_Num.text,size:[15.75,19.5],alignment:4,lineAlignment:2,direct:false,sourceSize:false,topLeft:false});
+  assert.deepEqual(number,{value:selected.options.overrides.TextBox_Num.text,size:[15.75,19.5],alignment:4,lineAlignment:2,direct:true,sourceSize:true,topLeft:true});
  }finally{globalThis.document=previous;renderer.dispose();f.renderer.dispose();}
+});
+
+test('selected centered number and its parent reject unsupported replacements before LCD drawing',()=>{
+ const num=layout=>nativePaneParentPath(layout,'TextBox_Num').at(-1);
+ const parent=layout=>nativePaneParentPath(layout,'TextBox_Num').at(-2);
+ const edits=[
+  f=>{parent(f.source).children=[];},
+  f=>{parent(f.source).children.push(structuredClone(num(f.source)));},
+  f=>{num(f.source).kind='pan1';},
+  f=>{num(f.source).flags=0;},
+  f=>{num(f.source).alpha=254;},
+  f=>{num(f.source).origin=3;},
+  f=>{num(f.source).unsupported=['unknown'];},
+  f=>{num(f.source).translation[0]=1;},
+  f=>{num(f.source).rotation[2]=1;},
+  f=>{num(f.source).scale[0]=2;},
+  f=>{num(f.source).size[0]=89;},
+  ...['font','material','alignment','lineAlignment','characterSpacing','lineSpacing','flags','capacity','length'].map(field=>f=>{num(f.source).text[field]++;}),
+  f=>{num(f.source).text.size[0]=16;},
+  f=>{num(f.source).text.size[1]=20;},
+  f=>{num(f.source).text.topColor[3]=254;},
+  f=>{num(f.source).text.bottomColor[0]=254;},
+  ...['messageStyle','colorSpans','glyphScaleSpans','fixedWidthSpans','cursorAdvances','lineAdvanceScales','multilineBlockOrigin','singleLineBlockOrigin'].map(field=>f=>{num(f.source).text[field]=[];}),
+  f=>{parent(f.source).translation[1]=1;},
+  f=>{parent(f.source).size[1]=31;},
+  f=>{parent(f.source).scale[0]=2;},
+  f=>{parent(f.source).picture.material=2;},
+  f=>{parent(f.source).picture.colors[0][3]=254;},
+  f=>{parent(f.source).picture.uvSets[0][2]=1;},
+  f=>{f.source.materials[2].bufferColor[0]=1;},
+  f=>{f.source.materials[2].constantColors[5][3]=254;},
+  f=>{f.source.materials[2].textureMaps=[{}];},
+  f=>{f.source.materials[2].unknown=0;},
+  f=>{f.source.materials[1].textureMaps[0].magFilter=0;},
+  f=>{f.source.materials[1].textureMatrices[0].translation[0]=1;},
+  f=>{f.source.materials[1].coordinateGenerators[0].reserved=1;},
+  f=>{f.source.materials[1].bufferColor[0]=1;},
+  f=>{f.source.textures[2]='replacement.bclim';},
+ ];
+ for(const [index,edit] of edits.entries()){
+  const f=fixture();edit(f);assert.throws(f.paint,/Unsupported Manual Contents TextBox_Num source/,`number mutation ${index}`);
+  assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+});
+
+test('cached centered number parents and Wait pose revalidate on every paint',()=>{
+ const edits=[
+  f=>{nativePaneParentPath(f.renderer.packs['manual-row'].layouts.ManualRowImportant,'TextBox_Num').at(-1).text.alignment=0;},
+  f=>{f.renderer.packs['manual-row'].layouts.ManualRowGettingStarted.materials[1].bufferColor[0]=0;},
+  f=>{f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks.find(track=>track.target==='PageTitleNumBase'&&track.property==='translation.x').keys[0].value=-119;},
+  f=>{f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks.find(track=>track.target==='PageTitleNumBase'&&track.property==='alpha').keys[0].value=254;},
+ ];
+ for(const edit of edits){const f=fixture();assert.equal(f.paint(),true);f.calls.length=0;edit(f);assert.throws(f.paint,/Unsupported Manual Contents TextBox_Num source/);assert.equal(f.calls.length,0);f.renderer.dispose();}
 });
 
 const sourceRoot=process.env.MANUAL_ROW_SOURCE_ROOT;
@@ -225,6 +278,12 @@ test('optional pinned original Manual NCCH links row constructor, plain writer a
  assert.equal(branch(0x13d0f8),0x1700f4);assert.equal(word(0x1b8284),0x170220);
  assert.equal(word(0x17030c),0x1c180c);assert.equal(cstring(word(0x1c180c)),'TextBox_Txt');
  assert.equal(cstring(word(0x1c1810)),'TextBox_Num');assert.equal(branch(0x1702c8),0x14a2c4);assert.equal(branch(0x1702f0),0x14a1cc);
+ assert.equal(sha(code.subarray(0x170220-0x100000,0x170308-0x100000)),'2365a1dd2d222ffc76b764f078dc94656c80fc3a3d48716dde6cbdc99245eabd');
+ assert.equal(sha(code.subarray(0x14a1cc-0x100000,0x14a24c-0x100000)),'c03367c37fa8cf732ebbceb4a7a4ebce5b177da7cadaa6bfea42ab98b2fab30b');
+ assert.equal(word(0x1702cc),0xe594004c);assert.equal(word(0x1702d8),0xe2803001,'the original number is page + 1');
+ assert.equal(word(0x1702d0),0xe28f2038);assert.equal(code.subarray(0x170310-0x100000,0x170316-0x100000).toString('utf16le'),'%d\0');
+ assert.equal(branch(0x1702e0),0x157f38);assert.equal(branch(0x14a1d4),0x15d398);assert.equal(branch(0x14a210),0x165728);
+ assert.equal(nativeTextWriterFlags(4,2),0x111,'the plain number retains the original centered writer');
  assert.equal(word(0x1b6d80),0x1a5090);assert.equal(word(0x19aa10),0xe585005c,'original str r0,[r5,#0x5c]');
  assert.equal(nativeTextWriterFlags(0,0),0);assert.notEqual(nativeTextWriterFlags(4,2),0);
  const constructorInstructions=[

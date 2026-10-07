@@ -5,6 +5,7 @@ import { dirname, isAbsolute, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { folderCapturePrecondition } from './reference/folder-capture-precondition.mjs';
+import { pauseCapturePrecondition } from './reference/pause-capture-precondition.mjs';
 
 const { values } = parseArgs({ options: {
   'playwright-module': { type: 'string' }, 'browser-executable': { type: 'string' },
@@ -23,6 +24,8 @@ assert.ok(['key', 'touch', 'physical', 'tile', 'accessible'].includes(values.act
 if (values.activation === 'accessible') assert.ok(['notes', 'friends', 'notifications', 'browser', 'miiverse'].includes(values.scenario), 'Accessible shortcut is top-row-only');
 assert.match(values.commit ?? '', /^[a-f0-9]{40}$/, 'Runtime commit must be supplied');
 const title = values.title ?? (values.scenario === 'manual' ? 'settings' : 'health');
+const pauseApp = { health: 'health-safety', camera: 'camera', sound: 'sound', portfolio: 'work' }[title];
+const pauseNativeStatus = title === 'portfolio' ? 'inactive' : 'ready';
 if (values.scenario === 'manual') assert.ok(['settings', 'camera', 'health'].includes(title));
 if (values.scenario === 'pause') assert.ok(['health', 'camera', 'sound', 'portfolio'].includes(title));
 if (values.scenario === 'manual') assert.equal(values.activation, 'touch', 'Manual requires --activation touch');
@@ -124,6 +127,18 @@ try {
     await page.waitForTimeout(500);
   }
   let folderPreparation = null;
+  let pausePreparation = null;
+  if (values.scenario === 'pause') {
+    const requested = { app: pauseApp, nativeStatus: pauseNativeStatus };
+    const active = await page.waitForFunction(pauseCapturePrecondition, requested, { timeout: 30000 });
+    const identity = await active.jsonValue();
+    await active.dispose();
+    const prepared = await page.waitForFunction(pauseCapturePrecondition, { ...requested, after: identity }, { timeout: 10000 });
+    await prepared.dispose();
+    pausePreparation = { identity, app: pauseApp, nativeStatus: pauseNativeStatus,
+      method: 'Wait for the exact foreground app, its stock-ready or portfolio-inactive native status, then a later valid paired app render before HOME.',
+      adaptation: 'Browser fixture preparation wait; not a recovered native input epoch or duration.' };
+  }
   if (values.scenario === 'folder') {
     const active = await page.waitForFunction(folderCapturePrecondition,
       { folderIdentity, folderSelection }, { timeout: 10000 });
@@ -139,6 +154,11 @@ try {
     };
   }
   const before = await state();
+  if (values.scenario === 'pause') {
+    assert.equal(before.menu, 'app');
+    assert.equal(before.app, pauseApp, 'Requested pause owner is foreground');
+    assert.equal(before.nativeScreen, pauseNativeStatus, 'Pause begins from the requested stock or portfolio screen');
+  }
   if (values.scenario === 'folder') {
     assert.equal(before.menu, 'home');
     assert.equal(before.selected, folderSelection);
@@ -189,7 +209,7 @@ try {
   const result = { valid: false, durationMs, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,
     method: 'Actual browser inputs; chronological raw screen paints. No diagnostic repaint or closest-pose search.',
     ...(values.activation === 'accessible' ? { adaptation: 'Keyboard activation of the existing screen-reader shortcut from the grid; not a native toolbar input or animation-acceptance scenario.' } : {}),
-    initial, before, folderPreparation, inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
+    initial, before, folderPreparation, pausePreparation, inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
   await writeFile(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), JSON.stringify(result, null, 2) + '\n');
   assert.ok(frames.length > 2, 'Transition has chronological raw LCD paints');
   assert.deepEqual(errors, [], 'No browser page errors');
@@ -197,6 +217,7 @@ try {
   assert.equal(after.menu, values.scenario === 'folder' ? 'folder' : values.scenario === 'pause' ? 'home' : 'app', 'Scenario reaches its expected menu');
   assert.notEqual(after.nativeScreen, 'error', `Native screen recovery: ${after.nativeScreenFailure}`);
   if (values.scenario !== 'pause') assert.equal(after.nativeScreen, 'ready', 'Destination reaches paired native readiness');
+  if (values.scenario === 'pause') assert.equal(after.app, pauseApp, 'HOME retains the requested suspended app');
   if (Object.hasOwn(appletLabels, values.scenario)) assert.equal(after.announcement?.split('. ')[0], appletLabels[values.scenario], 'Requested applet is the active destination');
   if (values.scenario === 'folder') assert.equal(after.selected, folderSelection);
   result.valid = true;
@@ -204,7 +225,10 @@ try {
   console.log(JSON.stringify({ scenario: result.scenario, frames: reports.length, menu: result.after.menu, phase: result.after.phase, errors, output }));
   }
 } catch (error) {
-  await writeFile(join(output, 'failure.json'), JSON.stringify({ valid: false, scenario: values.scenario, inputs, errors, error: String(error), nativeCompared: false }, null, 2) + '\n');
+  const failedState = await state().catch(() => null);
+  await page.screenshot({ path: join(output, 'failure-console.png') }).catch(() => {});
+  await writeFile(join(output, 'failure.json'), JSON.stringify({ valid: false, scenario: values.scenario, title, commit: values.commit,
+    failedState, inputs, errors, error: String(error), nativeCompared: false }, null, 2) + '\n');
   throw error;
 } finally {
   await browser.close();

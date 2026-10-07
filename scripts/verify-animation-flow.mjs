@@ -7,6 +7,117 @@ import { parseArgs } from 'node:util';
 import { folderCapturePrecondition } from './reference/folder-capture-precondition.mjs';
 import { pauseCapturePrecondition } from './reference/pause-capture-precondition.mjs';
 
+export function parsePauseHomeHold(value, { scenario, activation, durationMs }) {
+  if (value === undefined) return null;
+  assert.equal(scenario, 'pause', 'HOME hold is pause-only');
+  assert.ok(['key', 'physical'].includes(activation), 'HOME hold requires key or physical activation');
+  const holdMs = Number(value);
+  assert.ok(Number.isInteger(holdMs) && holdMs > 0 && holdMs < durationMs,
+    'HOME hold must be an integer >=1ms and shorter than the capture duration');
+  return holdMs;
+}
+
+export function collectAnimationFrames(durationMs) {
+  const host = document.querySelector('.console-stage'), frames = [], start = performance.now();
+  window.animationCapture = { frames, start, done: false };
+  let lastPaint = null;
+  const sample = () => {
+    const paint = host.dataset.screenPaint, presented = JSON.parse(host.dataset.screenPresented ?? 'null');
+    const identity = JSON.stringify([paint, presented?.paint, presented?.validPublication]);
+    if (identity !== lastPaint) {
+      lastPaint = identity;
+      frames.push({ at: performance.now() - start,
+        ...(window.animationCapture.homeHold ? { homeHoldActive: Boolean(window.animationCapture.homeHold.down && !window.animationCapture.homeHold.up) } : {}),
+        data: Object.fromEntries(['menu', 'phase', 'app', 'selected', 'rows', 'lastInput', 'nativeScreen', 'nativeScreenFailure', 'screenPaint', 'screenPresented', 'homeUpdates', 'folderClose', 'folderBanner', 'homeCursor'].map(k => [k, host.dataset[k]])),
+        top: host.screenCanvases.top.toDataURL('image/png'), bottom: host.screenCanvases.bottom.toDataURL('image/png') });
+    }
+    if (performance.now() - start < durationMs) requestAnimationFrame(sample);
+    else window.animationCapture.done = true;
+  };
+  sample();
+}
+
+export async function holdPauseHome(page, activation, requestedHoldDurationMs, inputs) {
+  const target = activation === 'physical' ? 'Button_HOME' : '.console-stage';
+  let point = null;
+  if (activation === 'physical') {
+    point = await page.locator('.console-stage').evaluate((host, key) => JSON.parse(host.dataset.targets)[key], target);
+    assert.ok(Array.isArray(point) && point.length === 2 && point.every(Number.isFinite), `Projected target ${target}`);
+    const viewport = page.viewportSize();
+    assert.ok(point[0] >= 0 && point[0] < viewport.width && point[1] >= 0 && point[1] < viewport.height, 'HOME is inside viewport');
+    await page.mouse.move(point[0], point[1]);
+  } else {
+    await page.locator('.console-stage').focus();
+  }
+  const input = { ...(activation === 'physical' ? { kind: 'physical', button: 'HOME' } : { kind: 'key', value: 'h' }),
+    target, point, at: Date.now(), requestedHoldDurationMs,
+    down: null, up: null, observedHostDurationMs: null, collectedFrameCountDuringHold: null, collectedPaintCountDuringHold: null,
+    inputPath: activation === 'physical' ? 'projected-physical-HOME-pointer' : 'console-stage-HOME-keyboard',
+    timingScope: 'Browser DOM event observations; not native button duration or a source epoch.',
+    nativeHoldDurationMs: null, nativeSourceEpoch: null };
+  inputs.push(input);
+  await page.evaluate(({ activation, point }) => {
+    const capture = window.animationCapture, host = document.querySelector('.console-stage');
+    if (!capture || capture.done || capture.homeHold) throw new Error('HOME hold requires a current active capture');
+    const observation = capture.homeHold = { down: null, up: null, observedHostDurationMs: null,
+      hostClock: 'performance.now() at matching DOM event observer; epochMs is Date.now()' };
+    const downType = activation === 'physical' ? 'pointerdown' : 'keydown';
+    const upType = activation === 'physical' ? 'pointerup' : 'keyup';
+    const observe = event => {
+      if (window.animationCapture !== capture) return;
+      if (activation === 'physical') {
+        if (event.button !== 0) return;
+        if (event.type === downType && (!host.contains(event.target)
+          || Math.abs(event.clientX - point[0]) > 1 || Math.abs(event.clientY - point[1]) > 1)) return;
+        if (event.type === upType && event.pointerId !== observation.down?.pointerId) return;
+      } else if (event.key.toLowerCase() !== 'h' || event.repeat || !host.contains(event.target)) return;
+      const performanceNowMs = performance.now();
+      const recorded = { type: event.type, performanceNowMs, atMs: performanceNowMs - capture.start,
+        epochMs: Date.now(), eventTimeStampMs: event.timeStamp, isTrusted: event.isTrusted,
+        target: { tagName: event.target?.tagName ?? null, id: event.target?.id ?? null },
+        ...(activation === 'physical' ? { button: event.button, pointerId: event.pointerId, clientX: event.clientX, clientY: event.clientY }
+          : { key: event.key, code: event.code }) };
+      if (event.type === downType && !observation.down) observation.down = recorded;
+      if (event.type === upType && observation.down && !observation.up) {
+        observation.up = recorded;
+        observation.observedHostDurationMs = performanceNowMs - observation.down.performanceNowMs;
+        const heldFrames = capture.frames.filter(frame => frame.homeHoldActive
+          && frame.at >= observation.down.atMs && frame.at <= recorded.atMs);
+        observation.collectedFrameCountDuringHold = heldFrames.length;
+        observation.collectedPaintCountDuringHold = new Set(heldFrames.map(frame => frame.data.screenPaint)).size;
+      }
+    };
+    window.addEventListener(downType, observe, true);
+    window.addEventListener(upType, observe, true);
+    capture.homeHoldCleanup = () => {
+      window.removeEventListener(downType, observe, true);
+      window.removeEventListener(upType, observe, true);
+    };
+  }, { activation, point });
+  try {
+    if (activation === 'physical') await page.mouse.down();
+    else await page.keyboard.down('h');
+    await page.waitForTimeout(requestedHoldDurationMs);
+  } finally {
+    try {
+      if (activation === 'physical') await page.mouse.up();
+      else await page.keyboard.up('h');
+    } finally {
+      Object.assign(input, await page.evaluate(() => {
+        const capture = window.animationCapture;
+        capture.homeHoldCleanup();
+        delete capture.homeHoldCleanup;
+        return capture.homeHold;
+      }));
+    }
+  }
+  assert.ok(input.down && input.up, 'HOME hold has matching observed host down/up events');
+  assert.ok(Number.isFinite(input.observedHostDurationMs) && input.observedHostDurationMs >= 0,
+    'HOME hold has a monotonic observed host duration');
+  return input;
+}
+
+async function main() {
 const { values } = parseArgs({ options: {
   'playwright-module': { type: 'string' }, 'browser-executable': { type: 'string' },
   output: { type: 'string' }, scenario: { type: 'string', default: 'notes' },
@@ -16,6 +127,7 @@ const { values } = parseArgs({ options: {
   title: { type: 'string' }, commit: { type: 'string' },
   'folder-fixture': { type: 'string', default: 'baseline' },
   'duration-ms': { type: 'string', default: '3500' },
+  'home-hold-ms': { type: 'string' },
   'reduced-motion': { type: 'boolean', default: false },
 } });
 for (const key of ['playwright-module', 'browser-executable', 'output']) assert.ok(isAbsolute(values[key] ?? ''), key);
@@ -39,6 +151,7 @@ if (values.activation === 'tile') {
 for (const key of ['width', 'height']) assert.ok(Number.isInteger(Number(values[key])) && Number(values[key]) > 0, key);
 const durationMs = Number(values['duration-ms']);
 assert.ok(Number.isInteger(durationMs) && durationMs >= 1000 && durationMs <= 30000, 'Capture duration must be 1000..30000ms');
+const homeHoldMs = parsePauseHomeHold(values['home-hold-ms'], { scenario: values.scenario, activation: values.activation, durationMs });
 const cycles = Number(values.cycles);
 assert.ok(Number.isInteger(cycles) && cycles >= 1 && cycles <= 3);
 const output = values.output;
@@ -166,25 +279,10 @@ try {
     assert.equal(selection?.kind, 'folder');
     assert.equal(selection.key, folderIdentity);
   }
-  await page.evaluate(durationMs => {
-    const host = document.querySelector('.console-stage'), frames = [], start = performance.now();
-    window.animationCapture = { frames, start, done: false };
-    let lastPaint = null;
-    const sample = () => {
-      const paint = host.dataset.screenPaint, presented = JSON.parse(host.dataset.screenPresented ?? 'null');
-      const identity = JSON.stringify([paint, presented?.paint, presented?.validPublication]);
-      if (identity !== lastPaint) {
-        lastPaint = identity;
-        frames.push({ at: performance.now() - start,
-          data: Object.fromEntries(['menu', 'phase', 'app', 'selected', 'rows', 'lastInput', 'nativeScreen', 'nativeScreenFailure', 'screenPaint', 'screenPresented', 'homeUpdates', 'folderClose', 'folderBanner', 'homeCursor'].map(k => [k, host.dataset[k]])),
-          top: host.screenCanvases.top.toDataURL('image/png'), bottom: host.screenCanvases.bottom.toDataURL('image/png') });
-      }
-      if (performance.now() - start < durationMs) requestAnimationFrame(sample);
-      else window.animationCapture.done = true;
-    };
-    sample();
-  }, durationMs);
-  if (values.scenario === 'pause') values.activation === 'physical' ? await physical('HOME') : await key('h');
+  await page.evaluate(collectAnimationFrames, durationMs);
+  let pauseHomeHold = null;
+  if (values.scenario === 'pause' && homeHoldMs !== null) pauseHomeHold = await holdPauseHome(page, values.activation, homeHoldMs, inputs);
+  else if (values.scenario === 'pause') values.activation === 'physical' ? await physical('HOME') : await key('h');
   else if (values.scenario === 'manual') await touch(50, 226);
   else if (values.activation === 'tile') await touch(136, 160);
   else if (values.activation === 'accessible') await accessible();
@@ -203,13 +301,13 @@ try {
       await writeFile(join(output, filename), bytes);
       files[screen] = { filename, sha256: createHash('sha256').update(bytes).digest('hex') };
     }
-    reports.push({ index, at: frame.at, data: frame.data, files });
+    reports.push({ index, at: frame.at, ...(homeHoldMs !== null ? { homeHoldActive: Boolean(frame.homeHoldActive) } : {}), data: frame.data, files });
   }
   await page.screenshot({ path: join(output, `${cycle ? `repeat-${cycle}-` : ''}console.png`) });
   const result = { valid: false, durationMs, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,
     method: 'Actual browser inputs; chronological raw screen paints. No diagnostic repaint or closest-pose search.',
     ...(values.activation === 'accessible' ? { adaptation: 'Keyboard activation of the existing screen-reader shortcut from the grid; not a native toolbar input or animation-acceptance scenario.' } : {}),
-    initial, before, folderPreparation, pausePreparation, inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
+    initial, before, folderPreparation, pausePreparation, ...(pauseHomeHold ? { pauseHomeHold } : {}), inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
   await writeFile(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), JSON.stringify(result, null, 2) + '\n');
   assert.ok(frames.length > 2, 'Transition has chronological raw LCD paints');
   assert.deepEqual(errors, [], 'No browser page errors');
@@ -233,3 +331,6 @@ try {
 } finally {
   await browser.close();
 }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();

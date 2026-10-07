@@ -23,13 +23,15 @@ import { homeApplicationTransitionFooterExit, homeApplicationTransitionFooterRet
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 import type { HomeFolderEntryPose } from './home-entry-motion';
 import { validateHomeFolderEntryAssets } from './home-folder-entry-assets';
+import { manualEntryBindings, validateManualEntryAssets } from './manual-entry-assets';
+import type { ManualEntryPose } from './manual-entry-presentation';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleIconPixels:Map<string,NativePixels>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
 const homeSettingsLayouts=['PtDlgBg_U_00','PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtBtnM_Shr_00','PtBtn_Sft_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00'];
 const homeLayoutManagerLayouts=['MyMenuBtmBtn_D_00','MyMenuBtn_D_00','MyMenuCsr_00','MyMenuDlg_00','MyMenuDlg_01','MyMenuRandom','MyMenu_D_00','MyMenu_U_00'];
-const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],petit:homeSettingsLayouts,launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncCsrEfct_01','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
+const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00','CmnFade_U_00','CmnFade_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],petit:homeSettingsLayouts,launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncCsrEfct_01','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
  const base=new URL(manifestUrl,window.location.href),controller=new AbortController();
@@ -538,5 +540,13 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   return pickupBlankAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density));
  }
- return {hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ let manualEntryValidated=false;
+ function manualEntry(top:Context,bottom:Context,pose:ManualEntryPose):boolean{
+  if(!manualEntryValidated){validateManualEntryAssets(renderer.packs.common);manualEntryValidated=true;}
+  const bindings=manualEntryBindings(pose),label=nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ','lau_title_manu','');
+  if(!label.text)throw Error('Native Manual entry label unavailable: menu_msbt_LZ/lau_title_manu');
+  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper}))return false;
+  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label}});
+ }
+ return {manualEntry,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

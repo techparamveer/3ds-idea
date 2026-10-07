@@ -29,6 +29,8 @@ import type { NativePixels } from './native-layout';
 import type { SuspendedCapture } from './notes-suspended-capture';
 import type { HomeBannerHostView } from './home-banner-host';
 import type { HomeBannerMotion } from './home-banner-lifecycle';
+import { createManualEntryPresentation, sameManualEntryIdentity, type ManualEntryIdentity, type ManualEntryPose } from './manual-entry-presentation';
+import { manualEntryIdentity, manualEntryEligible, manualEntryOrigin, sameManualEntryOrigin, manualEntryBackingMatches, type ManualEntryOrigin } from './manual-entry-identity';
 import { homeApplicationTransitionFooterReturn, homeApplicationTransitionPresentation, type HomeApplicationTransition } from './home-application-transition';
 export { loadFirmwarePresentationAssets, type FirmwarePresentationAssets } from './firmware-presentation';
 type Context = CanvasRenderingContext2D;
@@ -47,7 +49,7 @@ type SystemWithHomeApplicationTransition = NonNullable<MenuState['system']> & {
  homeApplicationTransition?:HomeApplicationTransition|null;
 };
 type NativeHome=ReturnType<typeof createFirmwareHome>;
-type ScreenPaintResult={homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true;entryMotion?:{folder:HomeFolderEntryPose|null;pauseFrame:number|null}};
+type ScreenPaintResult={homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true;entryMotion?:{folder:HomeFolderEntryPose|null;pauseFrame:number|null};manualEntry?:{phase:'out'|'in';frame:number;owner:string}};
 const fonts = new WeakMap<Context, BitmapFont>();
 let systemFont: Promise<void> | undefined;
 function loadSystemFont() {
@@ -299,6 +301,30 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  const native=document.createElement('canvas');native.width=400;native.height=240;
  const output=top.getContext('2d')!,t=native.getContext('2d')!,b=bottom.getContext('2d')!;
  const graphics=createPortfolioGraphics({soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,reducedMotion:()=>reduced});const chrome=createNativeChrome();
+ const manualPresentation=createManualEntryPresentation();
+ const manualCanvases=[400,320,400,320].map(width=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=240;return canvas;});
+ const [lastPresentedUpper,lastPresentedLower,manualBackingUpper,manualBackingLower]=manualCanvases;
+ let manualGeneration=0,lastPresentedOrigin:ManualEntryOrigin|null=null,manualBackingIdentity:ManualEntryIdentity|null=null;
+ let manualSourceCandidate:ManualEntryOrigin|null=null,manualCandidate:ManualEntryPose|undefined;
+ function revokeManualEntryCandidate(){manualPresentation.revoke();manualCandidate=undefined;manualSourceCandidate=null;}
+ function resetManualEntry(){manualGeneration++;manualPresentation.reset();manualCandidate=undefined;manualSourceCandidate=null;manualBackingIdentity=null;lastPresentedOrigin=null;}
+ function presentManualEntry(state:MenuState,elapsedMs:number):boolean{
+  const source=manualSourceCandidate;manualSourceCandidate=null;
+  if(disposed)return false;
+  if(source&&sameManualEntryOrigin(source,manualEntryOrigin(state,manualGeneration))){
+   for(const [target,image] of [[lastPresentedUpper,native],[lastPresentedLower,bottom]]){const ctx=target.getContext('2d')!;ctx.resetTransform();ctx.clearRect(0,0,target.width,240);ctx.drawImage(image,0,0);}
+   lastPresentedOrigin=source;
+  }
+  const candidate=manualCandidate;manualCandidate=undefined;
+  if(!candidate)return false;
+  const identity=manualEntryIdentity(state,manualGeneration),eligible=manualEntryEligible(state)&&!panelFailure;
+  if(!manualPresentation.present(candidate,identity,elapsedMs,eligible,graphics.stockStatus(state,t)==='ready')){revokeManualEntryCandidate();return false;}
+  return true;
+ }
+ function manualEntryActive(state:MenuState):boolean{
+  return !disposed&&!panelFailure&&manualEntryEligible(state)&&graphics.stockFailure()===null
+   &&manualPresentation.active(manualEntryIdentity(state,manualGeneration),graphics.stockStatus(state,t)==='ready');
+ }
  const sprite=new Image();sprite.src='/os/home-toolbar.png';
  const themeSprite=new Image();themeSprite.src='/os/change-theme.png';
  const shopSprite=new Image();shopSprite.src='/os/theme-shop.png';
@@ -325,6 +351,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let panelFailure:Error|undefined,panelPublished:string|null=null;
  const panelKey=(state:MenuState)=>homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system&&!state.system.sleeping&&['boot','launch','power','shutdown'].includes(state.system.phase)
   ?JSON.stringify(['system',state.system.phase,state.system.since,state.system.returnPhase,state.system.app,state.system.runtime.application,state.system.runtime.active])
+  :manualEntryIdentity(state,manualGeneration)&&manualEntryEligible(state)?JSON.stringify(['manual-entry',manualEntryIdentity(state,manualGeneration)])
   :state.system?.phase==='home'&&state.opened&&nativeHome&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&!state.panel
   ?JSON.stringify(['folder-entry',getHomeFolderIdentity(state,state.selected)])
   :state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings'||state.panel==='folder-not-empty')
@@ -334,11 +361,13 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!key)return graphics.stockStatus(state,t);
   if(panelPublished!==key)return 'loading';
   if(panelFailure)return 'error';
+  const manual=manualEntryIdentity(state,manualGeneration);
+  if(manual&&manualEntryEligible(state)){const status=graphics.stockStatus(state,t);return status==='error'?'error':status==='ready'&&manualPresentation.ready(manual)?'ready':'loading';}
   // Successful source launch chrome cannot hide the destination screen's own
   // loading/failure contract. Its B/HOME escape remains available until ready.
   return state.system?.phase==='launch'?graphics.stockStatus(state,t):'ready';
  }
- function retryStockScreen(){if(panelFailure){revokeHomeEntryMotionCandidate();panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
+ function retryStockScreen(){revokeManualEntryCandidate();if(panelFailure){revokeHomeEntryMotionCandidate();panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
  function panelRecovery(state:MenuState){
   // Authored host recovery, never substituted as a native firmware screen.
   for(const ctx of [t,b]){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.fillStyle='#000';ctx.fillRect(0,0,ctx.canvas.width,240);}
@@ -356,7 +385,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  }
  const useFont=(font:BitmapFont)=>{for(const ctx of [t,b]){fonts.set(ctx,font);setPortfolioFont(ctx,font);}};
  if(options.font)useFont(options.font);
- function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
+ function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();resetManualEntry();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
  if(options.firmwareAssets)setFirmwareAssets(options.firmwareAssets);
  const captureCanvas=document.createElement('canvas');captureCanvas.width=320;captureCanvas.height=240;
  const captureContext=captureCanvas.getContext('2d',{willReadFrequently:true})!;
@@ -431,11 +460,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
   entryMotionCandidate=undefined;
+  manualCandidate=undefined;manualSourceCandidate=null;
   const key=panelKey(state);
   if(key!==panelPublished)panelFailure=undefined;
-  if(key&&panelFailure){revokeHomeEntryMotionCandidate();panelRecovery(state);return;}
+  if(key&&panelFailure){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();panelRecovery(state);return;}
   try{const result=paintPair(state,date,elapsedMs,verification);panelPublished=key;return result;}
-  catch(error){revokeHomeEntryMotionCandidate();if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
+  catch(error){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
  }
  function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
@@ -443,6 +473,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const homeEntry=sampleHomeEntryPresentation(homeEntryPresentation,state,reduced);
   const diagnosticPaint=verification!==undefined
    &&(verification.sampleCalendar!==undefined||verification.homeHudSample!==undefined||verification.homeWallpaperFrame!==undefined||verification.homeCursorLoopFrame!==undefined);
+  const manualIdentity=manualEntryIdentity(state,manualGeneration);
+  if(diagnosticPaint||!manualEntryEligible(state))revokeManualEntryCandidate();
+  const manualOwner=state.system?.runtime.systemApplet;
+  if(!manualIdentity&&(!manualOwner||state.system?.runtime.instances[manualOwner]?.appId!=='manual')){manualPresentation.reset();manualBackingIdentity=null;}
   if(diagnosticPaint||!folderEntryEligible(state)||pauseEntryOwner(state)&&(!pauseEntryEligible(state)||!pauseEntryIdentity(state)))revokeHomeEntryMotionCandidate();
   const homeUpdate=state.system?.homeClock.updateCount??0;
   const folderIdentity=folderEntryIdentity(state);
@@ -465,7 +499,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const verificationPaint=verification?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:false,healthBanner:false};
   graphics.syncStockView(state,t);
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
-  if(!state.powered){if(!diagnosticPaint){resetHomeEntryMotion();}t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
+  if(!state.powered){if(!diagnosticPaint){resetHomeEntryMotion();resetManualEntry();}t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
   const view=getHomePresentation(state);
   const launchCandidate=getHomeLaunchPresentation(state,elapsedMs,reduced);
   const time=reduced?0:elapsedMs;if(verification?.homeCursorLoopFrame!==undefined&&(!Number.isInteger(verification.homeCursorLoopFrame)||verification.homeCursorLoopFrame<0||verification.homeCursorLoopFrame>=60))throw new Error('HOME cursor loop frame must be an integer from 0 to 59');const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
@@ -646,7 +680,26 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const nativeSystem=firmwareAssets?drawNativeSystemOverlay(t,b,state,elapsedMs,reduced,firmwareAssets):false;
   if(requiresNativeSystem&&!nativeSystem)throw Error(`Native ${state.system!.phase} screen unavailable`);
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
+  let manualPose:ManualEntryPose|undefined;
+  if(manualIdentity&&manualEntryEligible(state)&&!diagnosticPaint){
+   if(!nativeHome)throw Error('Native Manual entry cover unavailable');
+   if(nativeStatus==='error')revokeManualEntryCandidate();
+   else{
+    if(!sameManualEntryIdentity(manualBackingIdentity,manualIdentity)){
+     if(!manualEntryBackingMatches(lastPresentedOrigin,manualIdentity))throw Error('Manual entry has no matching presented caller pair');
+     for(const [target,image] of [[manualBackingUpper,lastPresentedUpper],[manualBackingLower,lastPresentedLower]]){const ctx=target.getContext('2d')!;ctx.resetTransform();ctx.clearRect(0,0,target.width,240);ctx.drawImage(image,0,0);}
+     manualBackingIdentity=Object.freeze({...manualIdentity});manualPresentation.reset();
+    }
+    manualPose=manualPresentation.sample({identity:manualIdentity,elapsedMs,eligible:true,destinationReady:nativeStatus==='ready',reducedMotion:reduced});
+    if(manualPose){
+     if(manualPose.phase==='out'){for(const [ctx,image] of [[t,manualBackingUpper],[b,manualBackingLower]] as const){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,ctx.canvas.width,240);ctx.drawImage(image,0,0);}}
+     if(!nativeHome.manualEntry(t,b,manualPose))throw Error('Native Manual entry paired cover unavailable');
+     manualCandidate=manualPose;
+    }
+   }
+  }
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
+  if(!diagnosticPaint&&!manualIdentity&&nativeHome&&nativeStatus!=='error'&&nativeStatus!=='loading'){const source=manualEntryOrigin(state,manualGeneration);if(source&&(source.kind==='home'||nativeStatus==='ready'))manualSourceCandidate=source;}
   if(!diagnosticPaint){
    const folderNeeds=folderMotion&&(!homeEntryMotionMatches(folderEntryMotion,folderIdentity)||folderEntryNeedsRebase||homeEntryMotionActive(folderEntryMotion)||!!pendingFolderEntryMotion);
    const pauseNeeds=pauseMotion&&(!homeEntryMotionMatches(pauseEntryMotion,pauseIdentity)||pauseEntryNeedsRebase||homeEntryMotionActive(pauseEntryMotion)||!!pendingPauseEntryMotion);
@@ -665,8 +718,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const visiblePauseEntry=suspended&&!applicationTransitionPresentation?pauseEntry:null;
   const entryMotion=visibleFolderEntry||visiblePauseEntry
    ?{folder:visibleFolderEntry,pauseFrame:visiblePauseEntry?.material[0].frame??null}:undefined;
-  return nativeSystem||verificationPaint||entryMotion
-   ?{...(verificationPaint??{}),...(nativeSystem?{nativeSystem:true as const}:{}),...(entryMotion?{entryMotion}:{})}:undefined;
+  return nativeSystem||verificationPaint||entryMotion||manualPose
+   ?{...(verificationPaint??{}),...(nativeSystem?{nativeSystem:true as const}:{}),...(entryMotion?{entryMotion}:{}),...(manualPose?{manualEntry:{phase:manualPose.phase,frame:manualPose.frame,owner:manualPose.identity.owner}}:{})}:undefined;
  }
  function presentHomeEntryFooterRelease(){
   const candidate=homeEntryFooterReleaseCandidate;homeEntryFooterReleaseCandidate=undefined;
@@ -695,5 +748,5 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function homeEntryActivationReady(state:MenuState){
   return homeEntryBannerActivationDue(sampleHomeEntryPresentation(homeEntryPresentation,state,reduced));
  }
- return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate,revokeHomeEntryMotionCandidate,presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,notesBootCoverActive:(state:MenuState)=>graphics.notesBootCoverActive(state),presentNotesBootCover:(state:MenuState)=>graphics.presentNotesBootCover(state),revokeNotesBootCoverCandidate:()=>graphics.revokeNotesBootCoverCandidate(),revokeHomeEntryFooterCandidate(){homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;},revokeHomeEntryBannerCandidate(){homeEntryBannerCandidate=undefined;},revokeHomeEntryNoBannerCandidate(){homeEntryNoBannerCandidate=undefined;},dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){if(reduced!==value)revokeHomeEntryMotionCandidate();reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate,revokeHomeEntryMotionCandidate,presentManualEntry,revokeManualEntryCandidate,manualEntryActive,presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,notesBootCoverActive:(state:MenuState)=>graphics.notesBootCoverActive(state),presentNotesBootCover:(state:MenuState)=>graphics.presentNotesBootCover(state),revokeNotesBootCoverCandidate:()=>graphics.revokeNotesBootCoverCandidate(),revokeHomeEntryFooterCandidate(){homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;},revokeHomeEntryBannerCandidate(){homeEntryBannerCandidate=undefined;},revokeHomeEntryNoBannerCandidate(){homeEntryNoBannerCandidate=undefined;},dispose(){if(disposed)return;disposed=true;resetManualEntry();manualPresentation.dispose();for(const canvas of manualCanvases)canvas.width=canvas.height=0;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){if(reduced!==value){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();}reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }
